@@ -7,16 +7,15 @@ Examples:
 
   Directory:	/examples/example01/ 
 
-  Files:	BayesianCalculator.c	contains the main program 
-		BCModelLineFit.cxx	contains the model (.cxx file) 
-		BCTModelLineFit.h	contains the model (.h file)  
+  Files:	runBAT.c	        contains the main program 
 		Makefile		the makefile 
+		CreateData.c		a ROOT macro which creates a data set 
+  		src/BCModelPol1.cxx	contains the model (.cxx file) 
+		src/BCModelPol1.h	contains the model (.h file)  
 
 * Example 02:	Sloped vs. constant distribution. 
 
 * Example 03:	Gaussian plus constant background fit. 
 
-* Example 04:   2-D Gaussian plus constant background fit. 
-
-* Example 05:	Spectral analysis for rare decays. 
+* Example 04:   Efficiency calculations 
 

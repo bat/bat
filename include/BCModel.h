@@ -360,7 +360,7 @@ class BCModel : public BCIntegrate
    * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) 
    */ 
   virtual double ConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters) 
-    { return 1.0; }; 
+    { flag_ConditionalProbabilityEntry = false; return 1.0; }; 
 
   /** 
    * Returns a probability for the data set container. 
@@ -508,6 +508,7 @@ class BCModel : public BCIntegrate
   BCH1D * DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters);
   BCH1D * DoGoodnessOfFitTest(int ndatasets);
   BCH1D * DoGoodnessOfFitTest(const char* filename);
+  BCH1D* DoGoodnessOfFitTest(const char* filename, std::vector<double> parameters); 
 
   /*
    * @return The p-value 
@@ -586,6 +587,12 @@ class BCModel : public BCIntegrate
    * Maximum number of data points
    */ 
   int fNDataPointsMaximum; 
+
+  /*
+   * A flag for overloading ConditionalProbabilityEntry
+   */ 
+  bool flag_ConditionalProbabilityEntry; 
+
 
  private:
   

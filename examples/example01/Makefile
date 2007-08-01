@@ -18,8 +18,8 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) 
 CXXFLAGS    += -I./src/ -I./ -I../../include/ 
-LIBS        += $(ROOTLIBS) -L. -lbc -lcuba
-GLIBS       += $(ROOTGLIBS) -L. -lbc -lcuba
+LIBS        += $(ROOTLIBS) -L. -lBAT -lcuba
+GLIBS       += $(ROOTGLIBS) -L. -lBAT -lcuba
 
 CXSRCS      = BCModelPol1.cxx 
 
@@ -29,7 +29,7 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) libex2.so BayesianCalculator.o
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) librunBAT.so runBAT.o
 
 all : BaysianCalculator
 
@@ -41,15 +41,15 @@ include link.d
 %.o : src/%.cxx 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-libex2.so : $(CXXOBJS)  
+librunBAT.so : $(CXXOBJS)  
 	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $@
 
 clean :
 	$(RM) $(GARBAGE)
 
-BaysianCalculator : BayesianCalculator.c libex2.so
+BaysianCalculator : runBAT.c librunBAT.so
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(ROOTLIBS) -L../../ -lbc BayesianCalculator.o -lcuba ${PWD}/libex2.so -o BayesianCalculator.exe 
+	$(CXX) $(LDFLAGS) $(ROOTLIBS) -L../../ -lBAT runBAT.o -lcuba ${PWD}/librunBAT.so -o runBAT.exe 
 
 print :
 	echo compiler  : $(CXX)

@@ -22,6 +22,8 @@ BCModel::BCModel(const char* name) : BCIntegrate()
 	fPValue = -1; 
 
 	fName = (char*) name; 
+
+	flag_ConditionalProbabilityEntry = true; 
 }
 
 // --------------------------------------------------------- 
@@ -40,6 +42,8 @@ BCModel::BCModel() : BCIntegrate()
 	fPValue = -1; 
 
 	fName = "model"; 
+
+	flag_ConditionalProbabilityEntry = true; 
 }
 
 // --------------------------------------------------------- 
@@ -313,11 +317,11 @@ std::vector<double> BCModel::FindMode()
   double normalizationtemp = this -> GetNormalization(); 
 
   this -> SetIntegrationMethod(BCIntegrate::kIMonteCarlo); 
-  
+
   this -> Integrate(); 
 
   this -> SetNormalization(normalizationtemp); 
-  
+
   this -> SetIntegrationMethod(integrationtypetemp); 
 
   return this -> GetBestFitParameters(); 
@@ -1284,6 +1288,14 @@ BCH1D* BCModel::GoodnessOfFitTest(const char* filename, std::vector <double> par
 BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits)
 {
 
+  // check if conditional probability has been defined on entry basis 
+
+  if (flag_ConditionalProbabilityEntry == false) 
+    {
+      BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+      return 0; 
+    } 
+
   // print log 
 
   BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
@@ -1304,6 +1316,14 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameter
 
 BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters)
 {
+
+  // check if conditional probability has been defined on entry basis 
+
+  if (flag_ConditionalProbabilityEntry == false) 
+    {
+      BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+      return 0; 
+    } 
 
   // print log 
 
@@ -1326,6 +1346,14 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameter
 BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets)
 {
 
+  // check if conditional probability has been defined on entry basis 
+
+  if (flag_ConditionalProbabilityEntry == false) 
+    {
+      BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+      return 0; 
+    } 
+
   std::vector<bool> grid; 
   std::vector<double> limits; 
 
@@ -1335,7 +1363,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets)
 
 // --------------------------------------------------------- 
 
-BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename)
+BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename, std::vector<double> parameters)
 {
 
   // print log 
@@ -1344,9 +1372,18 @@ BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename)
 
   // do goodness-of-fit test 
 
-  BCH1D* gof = this -> GoodnessOfFitTest(filename, this -> GetBestFitParameters()); 
+  BCH1D* gof = this -> GoodnessOfFitTest(filename, parameters); 
 
   return gof; 
+
+}
+
+// --------------------------------------------------------- 
+
+BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename)
+{
+
+  return this -> DoGoodnessOfFitTest(filename, this -> GetBestFitParameters());  
 
 }
 

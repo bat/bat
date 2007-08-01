@@ -37,9 +37,8 @@ CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  libbc.so BayesianCalculator.o
-
-all : libbc.so
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  libBAT.so 
+all : libBAT.so
 
 link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -49,20 +48,11 @@ include link.d
 obj/%.o : src/%.cxx 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-libbc.so : $(CXXOBJS)  
+libBAT.so : $(CXXOBJS)  
 	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $@
 
 clean :
 	$(RM) $(GARBAGE)
-
-BaysianCalculator : BayesianCalculator.c libbc.so
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(ROOTLIBS) BayesianCalculator.o ${PWD}/libbc.so -o BayesianCalculator.exe 
-	cp BayesianCalculator.exe exe/.
-
-test : BayesianCalculator.c 
-	$(CXX) $(CXXFLAGS) -c BayesianCalculator.c 
-	$(CXX) $(LDFLAGS) $(ROOTLIBS) BayesianCalculator.o ${PWD}/libbc.so -o BayesianCalculator_2.exe 
 
 print :
 	echo compiler  : $(CXX)
