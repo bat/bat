@@ -1,0 +1,123 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage{epsfig}
+
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\topmargin}{-1cm}
+\setlength{\textheight}{23cm}
+\setlength{\textwidth}{16cm}
+
+\pagestyle{headings}
+
+\newcommand{\BC}{{\sc BayesianCalculator}}
+
+%--------------------------------------------------------
+
+\begin{document}
+
+% --------------------------------------------------------
+% title
+% --------------------------------------------------------
+
+\thispagestyle{empty} 
+
+\title{\BC\ - A software package for Bayesian inference} 
+
+\author{A.~Caldwell, D.~Kollar, K.~Kr\"oninger} 
+
+\maketitle
+
+\begin{abstract} 
+Abstract. 
+\end{abstract} 
+
+\pagebreak 
+
+% --------------------------------------------------------
+% introduction
+% --------------------------------------------------------
+
+\section{Introduction}
+
+The \BC\ software package is a framework for Bayesian inference. It
+allows the user to perform an analysis from model comparisons,
+parameter estimate to posterior model checking. The software is
+written in C++ and provided in form of a library. It's main features
+are (1)~it's flexibility to different types of applications (see
+Section~\ref{subsection:problems}) and (2)~the modular structure of
+the provided tools which allows the user to use different ready-made
+code or provide own code. 
+
+\subsection{Bayesian inference} 
+
+\begin{itemize} 
+\item General stuff about Bayesian inference. 
+\end{itemize} 
+
+\subsection{Addressed problems} 
+\label{subsection:problems} 
+
+The outcome of experiments in particle physics and cosmology are often
+parameters extracted from a measured set of data. Different
+statistical tools are developed for the variety of experiments and
+measurements. The \BC\ software package was written with the intention
+to provide a collection of tools for Bayesian analyses. \\ 
+
+Three examples of applications in the realm of physics and cosmology
+are part of the package. These are 
+
+\begin{itemize}
+% 
+\item Neutrinoless double beta-decay. In experiments built to search
+for rare processes few signal events have to be distinguished from a
+non-negligible background. Common approximations, e.g. Gaussian
+distributions of count rates, do not apply in this case. The
+comparison of models, i.e., signal and background vs. background only,
+are emphasized for such experiments. 
+% 
+\item Cosmological models.  
+%
+\item Structure functions. 
+%
+\end{itemize}
+
+% --------------------------------------------------------
+% analysis 
+% --------------------------------------------------------
+
+\section{Analysis chain}
+
+\subsection{The whole chain} 
+
+\begin{itemize} 
+\item Model comparison 
+\item Parameter estimate 
+\item Goodness-of-fit test 
+\end{itemize}
+
+\subsection{Pure parameter estimate} 
+
+% --------------------------------------------------------
+% Code structure 
+% --------------------------------------------------------
+
+\section{Code structure}
+
+% --------------------------------------------------------
+% Examples
+% --------------------------------------------------------
+
+\section{Examples}
+
+\subsection{Example 01: } 
+
+\subsection{Example 02: Polynomial fitting} 
+
+\subsection{Example 03: Background only?} 
+
+% --------------------------------------------------------
+
+\end{document} 
+
+
