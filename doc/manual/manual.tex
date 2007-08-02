@@ -10,7 +10,7 @@
 
 \pagestyle{headings}
 
-\newcommand{\BC}{{\sc BayesianCalculator}}
+\newcommand{\BAT}{{\sc BAT}}
 
 %--------------------------------------------------------
 
@@ -22,7 +22,13 @@
 
 \thispagestyle{empty} 
 
-\title{\BC\ - A software package for Bayesian inference} 
+\begin{figure}
+\leftline{\includegraphics[scale=0.25]{bat.eps} 
+\hspace{9.0cm} 
+version 0.1} 
+\end{figure} 
+
+\title{\BAT\ - A {\sc Bayesian Analysis Toolkit}} 
 
 \author{A.~Caldwell, D.~Kollar, K.~Kr\"oninger} 
 
@@ -40,7 +46,7 @@ Abstract.
 
 \section{Introduction}
 
-The \BC\ software package is a framework for Bayesian inference. It
+The \BAT\ software package is a framework for Bayesian inference. It
 allows the user to perform an analysis from model comparisons,
 parameter estimate to posterior model checking. The software is
 written in C++ and provided in form of a library. It's main features
@@ -61,7 +67,7 @@ code or provide own code.
 The outcome of experiments in particle physics and cosmology are often
 parameters extracted from a measured set of data. Different
 statistical tools are developed for the variety of experiments and
-measurements. The \BC\ software package was written with the intention
+measurements. The \BAT\ software package was written with the intention
 to provide a collection of tools for Bayesian analyses. \\ 
 
 Three examples of applications in the realm of physics and cosmology
@@ -104,17 +110,83 @@ are emphasized for such experiments.
 
 \section{Code structure}
 
+\subsection{Gooness-of-fit test} 
+
+The goodness-of-fit test works in two steps. First, data sets are
+generated for the model under study for a set of parameters, e.g. the
+global best fit parameters. This can either be done within the
+software package or using an external generator. Second, the
+conditional probabilities for the data, given the parameter set, are
+calculated and histogrammed. The p-value is calculated as the integral
+from the conditional probability of the original data set to one. The
+method for the goodness-of-fit test returns a pointer to a BCH1D
+histogram. \\
+
+\paragraph{Using data sets from external generators} 
+
+Once the best fit parameter set is estimated, data sets can be
+generated using an external generator. Each data set has to be written
+into one file. One file is needed which contains a list of all data
+set files. This file has to be passed to the goodness-of-fit method. 
+
+\begin{verbatim} 
+BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename); 
+\end{verbatim} 
+
+\paragraph{Using the built-in generator} 
+
+The software package can use a built-in data generator. Befor data
+sets are generated it is important to confine the possible data
+values and the number of points. This can be done by 
+
+\begin{verbatim}
+void SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries) 
+void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries) 
+
+void SetNDataPointsMinimum(int minimum) 
+void SetNDataPointsMaximum(int maximum) 
+\end{verbatim} 
+
+If no constraints on the data sets are needed, e.g., fixed values in
+one dimension, the goodness-of-fit method can be called with two
+arguments, the number of data sets and the parameters with which the
+data sets will be created.
+
+\begin{verbatim} 
+BCH1D* DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters); 
+\end{verbatim} 
+
+If the data are constraint a grid can be defined 
+
+\begin{verbatim} 
+BCH1D* DoGoodnessOfFitTest(int ndatasets, 
+			   std::vector<double> parameters, 
+			   std::vector <bool> grid, 
+			   std::vector <double> limits); 
+\end{verbatim} 
+
+The vector \verb|grid| contains boolean flags for each data point
+variable, where \verb|true| means the this variable is defined on a
+grid, and \verb|false| means that it is random. For each grid
+dimension the vector \verb|limit| contains three double, the starting
+point, the interval between two neighboring points and the number of
+grid points. \\ 
+
+\paragraph{The built-in generator} 
+
 % --------------------------------------------------------
 % Examples
 % --------------------------------------------------------
 
 \section{Examples}
 
-\subsection{Example 01: } 
+\subsection{Example 01: Straight line fit} 
 
 \subsection{Example 02: Polynomial fitting} 
 
-\subsection{Example 03: Background only?} 
+\subsection{Example 03: Spectral analysis} 
+
+\subsection{Example 04: Efficiency calculation} 
 
 % --------------------------------------------------------
 
