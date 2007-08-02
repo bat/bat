@@ -193,7 +193,9 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 			NvarNow++;
 
 	// print to log
-	BCLog::Out(BCLog::debug, BCLog::debug, Form("BCIntegrate::IntegralMC. Integate over %i dimensions.", NvarNow));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Running MC integation over %i dimensions.", NvarNow));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Maximum number of iterations: %i", this->GetNIterationsMax()));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Aimed relative precision:     %e", this->GetRelativePrecision()));
 
 	// calculate D (the integrated volume)
 	double D = 1.0;
@@ -271,7 +273,8 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 	fError = variance / fNIterations;
 
 	// print to log
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Integral is  %e +- %e in %i iterations with relative precision %e. ", integral, TMath::Sqrt(variance), fNIterations, TMath::Sqrt(variance) / integral));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Result of integration:        %e +- %e   in %i iterations.", integral, TMath::Sqrt(variance), fNIterations));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Obtained relative precision:  %e. ", TMath::Sqrt(variance) / integral));
 
 	return integral;
 }
