@@ -61,11 +61,11 @@ int main()
   // marginalize 
   // ---------------------------------------------------------
 
-  BCH1D* bch1d_epsilon = fModelEfficiency -> MarginalizeProbability("epsilon"); 
-  bch1d_epsilon -> Print("modelefficiency_epsilon.ps", 1); 
-  BCH1D* bch1d_lambda    = fModelEfficiency -> MarginalizeProbability("lambda");
-  bch1d_lambda -> Print("modelefficiency_lambda.ps", 1); 
-  fModelEfficiency -> MarginalizeProbability("epsilon", "lambda") -> Print("modelefficiency_epsilon_lambda.ps", 2); 
+  fModelEfficiency -> MarginalizeAll(); 
+  
+  fModelEfficiency -> GetMarginalized("epsilon") -> Print("modelefficiency_epsilon.ps", 1); 
+  fModelEfficiency -> GetMarginalized("lambda") -> Print("modelefficiency_lambda.ps", 1); 
+  fModelEfficiency -> GetMarginalized("epsilon", "lambda") -> Print("modelefficiency_epsilon_lambda.ps", 2); 
 
   // ---------------------------------------------------------
   // summarize

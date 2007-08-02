@@ -46,9 +46,11 @@ int main()
   // marginalize 
   // ---------------------------------------------------------
 
-  fModelPol1 -> MarginalizeProbability("constant")          -> Print("modelpol1_constant.ps", 1); 
-  fModelPol1 -> MarginalizeProbability("slope")             -> Print("modelpol1_slope.ps", 1); 
-  fModelPol1 -> MarginalizeProbability("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2); 
+  fModelPol1 -> MarginalizeAll();
+
+  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps", 1);
+  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps", 1);
+  fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
 
   // ---------------------------------------------------------
   // summarize

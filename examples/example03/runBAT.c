@@ -101,11 +101,15 @@ int main()
   // marginalize 
   // ---------------------------------------------------------
 
-  fModelBackground -> MarginalizeProbability("background") -> Print("modelbackground_background.ps", 1); 
+  fModelBackground -> MarginalizeAll(); 
 
-  fModelSignal -> MarginalizeProbability("background") -> Print("modelsignal_background.ps", 1); 
-  fModelSignal -> MarginalizeProbability("signal") -> Print("modelsignal_signal.ps", 1); 
-  fModelSignal -> MarginalizeProbability("background", "signal") -> Print("modelsignal_background_signal.ps", 2); 
+  fModelBackground -> GetMarginalized("background") -> Print("modelbackground_background.ps", 1); 
+
+  fModelSignal -> MarginalizeAll(); 
+
+  fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps", 1); 
+  fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps", 1); 
+  fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal.ps", 2); 
 
   // ---------------------------------------------------------
   // summarize
