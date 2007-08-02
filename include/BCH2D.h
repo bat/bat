@@ -31,6 +31,8 @@
 #include <TH1D.h> 
 #include <TH2D.h> 
 
+#include <TError.h>
+
 // --------------------------------------------------------- 
 
 class BCH2D

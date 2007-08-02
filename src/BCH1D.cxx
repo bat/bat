@@ -10,6 +10,9 @@
 BCH1D::BCH1D() 
 {
 	fHistogram = 0; 
+
+	// suppress the ROOT Info printouts
+	gErrorIgnoreLevel=1;
 }
 
 // --------------------------------------------------------- 
