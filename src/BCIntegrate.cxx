@@ -271,7 +271,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 	fError = variance / fNIterations;
 
 	// print to log
-	BCLog::Out(BCLog::detail, BCLog::detail, Form("BCIntegrate::IntegralMC. Integral %e +- %e in %i iterations with relative precision %e. ", integral, TMath::Sqrt(variance), fNIterations, TMath::Sqrt(variance) / integral));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Integral is  %e +- %e in %i iterations with relative precision %e. ", integral, TMath::Sqrt(variance), fNIterations, TMath::Sqrt(variance) / integral));
 
 	return integral;
 }
@@ -288,7 +288,7 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
 
 	// print if more than 100,000 iterations
 	if(Niter>1e5)
-		BCLog::Out(BCLog::detail, BCLog::detail, Form("BCIntegrate::IntegralMetro. Total number of iterations: %d.", Niter));
+		BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Total number of iterations in Metropolis: %d.", Niter));
 
 	// reset sum
 	double sumI = 0;
@@ -341,7 +341,7 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
 	double result=sumI/Niter;
 
 	// print debug information
-	BCLog::Out(BCLog::detail, BCLog::detail, Form("BCIntegrate::IntegralMetro. Integral %f in %i iterations. ", result, Niter));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Integral is %f in %i iterations. ", result, Niter));
 
 	return result;
 }
@@ -417,7 +417,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 {
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form("BCIntegrate::Marginalize. Marginalizing model wrt. parameter %s using method %d.", parameter->GetName(), fMarginalizeMethod));
+		Form(" --> Marginalizing model wrt. parameter %s using method %d.", parameter->GetName(), fMarginalizeMethod));
 
 	switch(fMarginalizeMethod)
 	{
@@ -541,7 +541,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 	int niter=nbins*fNiterPerDimension*fNvar*fNvar*10;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form("BCIntegrate::MarginalizeByMetro. Number of samples: %d.", niter));
+		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
 
 	// set parameter to marginalize
 	int index = parameter->GetIndex();
@@ -616,7 +616,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	int niter=nbins*nbins*fNiterPerDimension*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form("BCIntegrate::MarginalizeAllByMetro. Number of samples: %d.", niter));
+		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
 
 	// define 1D histograms
 	for(int i=0;i<fNvar;i++)
@@ -651,7 +651,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	int nh2d = fHProb2D.size();
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form("BCIntegrate::MarginalizeAllByMetro. Marginalizing %d 1D and %d 2D distributions.",fNvar,nh2d));
+		Form(" --> Marginalizing %d 1D distributions and %d 2D distributions.", fNvar, nh2d));
 
 	// prepare Metro
 	std::vector <double> randx;
