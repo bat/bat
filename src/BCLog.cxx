@@ -110,10 +110,10 @@ char* BCLog::ToString(BCLog::LogLevel loglevel)
 {
 
   if (loglevel == debug) 
-    return "Debug"; 
+    return "Debug  "; 
 
   else if (loglevel == 1) 
-    return "Detail"; 
+    return "Detail "; 
 
   else if (loglevel == 2) 
     return "Summary"; 
