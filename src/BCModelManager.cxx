@@ -216,11 +216,13 @@ void BCModelManager::Initialize()
 	// initialize likelihood norm
 	double normalization = 0.0;
 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Running normalization of all models.");
+
 	for (int i = 0; i < this -> GetNModels(); i++)
 	{
 		// calculate model likelihood normalization
-		BCLog::Out(BCLog::summary, BCLog::summary, Form("BCModelManager::Initialize. Normalize model %s.",
-					this -> GetModel(i) -> GetName()));
+//		BCLog::Out(BCLog::summary, BCLog::summary, Form("BCModelManager::Initialize. Normalize model %s.",
+//					this -> GetModel(i) -> GetName()));
 
 		fModelContainer -> at(i) -> Normalize(); 
 

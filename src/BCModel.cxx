@@ -335,7 +335,7 @@ double BCModel::Normalize()
 
   // print log 
 
-  BCLog::Out(BCLog::summary, BCLog::summary, Form("Model %s - Normalizing probability",this->GetName()));
+  BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName()));
 
   int n = this->GetNvar();
 	
