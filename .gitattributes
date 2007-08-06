@@ -38,6 +38,7 @@ include/BCH1D.h -text
 include/BCH2D.h -text
 include/BCIntegrate.h -text
 include/BCLog.h -text
+include/BCMath.h -text
 include/BCModel.h -text
 include/BCModelManager.h -text
 include/BCParameter.h -text
@@ -48,6 +49,7 @@ src/BCH1D.cxx -text
 src/BCH2D.cxx -text
 src/BCIntegrate.cxx -text
 src/BCLog.cxx -text
+src/BCMath.cxx -text
 src/BCModel.cxx -text
 src/BCModelManager.cxx -text
 src/BCParameter.cxx -text
