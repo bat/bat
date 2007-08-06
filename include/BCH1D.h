@@ -9,7 +9,10 @@
  *
  * CREATED: 12.06.2007 
  * 
- * REVISION: 
+ * REVISION:
+ *
+ * 03.08.2007  Dano  * increase printout level of ROOT routines like Print()
+ * 06.08.2007  Dano  * change Print "if" structure to "case" structure
  *
  *
  * --------------------------------------------------------- 
@@ -27,6 +30,8 @@
 #include <TH1D.h> 
 
 #include <TError.h>
+
+#include "BCLog.h"
 
 // --------------------------------------------------------- 
 
@@ -172,9 +177,9 @@ class BCH1D
   /** 
    * The histogram
    */ 
-  TH1D* fHistogram; 
+  TH1D * fHistogram; 
 
-}; 
+};
 
 // --------------------------------------------------------- 
 

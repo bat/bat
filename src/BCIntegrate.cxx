@@ -122,6 +122,7 @@ double BCIntegrate::Eval(std::vector <double> x)
 // *********************************************
 double BCIntegrate::LogEval(std::vector <double> x)
 {
+	// this method should better also be overloaded
 	return TMath::Log(this->Eval(x));
 }
 
@@ -952,6 +953,198 @@ void BCIntegrate::GetRndmVector(std::vector <double> &x)
 
 	delete[] randx;
 	randx = 0;
+}
+
+// *********************************************
+void BCIntegrate::FindModeSA()
+{
+	// number of initial samples to determine starting temperature
+	int npresamples = fNvar*10000;
+
+	// point with maximum -log(Eval())
+	vector <double> xmax;
+	xmax.assign(fNvar, 0.0);
+
+	// initial maximum value and location
+	double lastmax = -TMath::Log(this->GetRandomPoint(xmax));
+
+	vector <double> x;
+	x.assign(fNvar, 0.0);
+
+	// determine the mean of -log(Eval())
+	double mean=0;
+	for(int i=0;i<npresamples;i++)
+	{
+		this->GetRandomPoint(x);
+		double val = -this->LogEval(x);
+		mean += val;
+
+		// store new location of maximum if found
+		if(val < lastmax)
+		{
+			lastmax=val;
+			xmax.clear();
+			for(int j=0;j<fNvar;j++)
+				xmax.push_back(x[j]);
+		}
+	}
+	mean /= (double)npresamples;
+
+	// start in the starting point
+	for(int i=0;i<fNvar;i++)
+		fXmetro0[i]=xmax[i];
+
+	double T = mean/2.; // set starting temperature to mean/2
+	double xstep = .1; // define steps in individual parameters relative to range
+	int nSmin = fNvar*10000;  // minimum number of samples per stage
+	int nSmax = fNvar*100000; // maximum number of samples per stage
+
+	// factor defining the cooling schedule
+	double factorT = 1.2; // lower T in next stage by factor
+
+	BCLog::Out(BCLog::debug, BCLog::debug,
+		Form("BCIntegrate::FindModeSA. Starting SA mode finding after %d initial iterations with T=%f",npresamples,T));
+
+	int nsave=1000; // number of points to store
+	// array to store last nsave points for RMS calculation
+	double * ysave = new double[nsave];
+
+	// clear mode
+	xmax.clear();
+//	int nomode=1;
+	double maxval=0.;
+
+	// minimum temperature
+	// when reached, stop mode finding
+	double Tmin=.1;
+
+	// initiate rms
+	double lastrms=2.*T;
+
+	int j=0;
+
+	// count total number of temperature stages
+	int stage=0;
+
+	// count total number of iterations
+	int niter=0;
+
+	// stop if Tmin is reached
+	while(T>Tmin)
+	{
+		stage++;
+
+		int i=0;
+		j=0;
+
+		// do minimum nSmin samples and stop if RMS of last nsave points is small enough
+		// or if nSmax samples is reached
+		while(  i<nSmax && (i<nSmin || (i>=nSmin && lastrms>T) ) )
+		{
+			niter++;
+
+			// get random point from the SA algorithm
+			this->GetRandomPointSA(x,T,xstep);
+
+			// get -log of the value at generated point
+			double val = - this->LogEval(x);
+
+			// keep last nsave points if close to nSmin
+			if(i>nSmin-nsave-1)
+			{
+				// save current point
+				ysave[j%nsave] = val;
+				j++;
+			}
+
+			if(i>=nSmin-1)
+				// calculate RMS of last nsave points
+				lastrms = TMath::RMS(nsave,ysave);
+
+			// save the location of maximum
+			// as we're looking at -log Eval(), maximum is actually minimum
+			if(val<maxval)
+			{
+				maxval=val;
+				for(int k=0;k<fNvar;k++)
+					xmax.push_back(x[k]);
+			}
+
+			i++;
+		}
+
+		BCLog::Out(BCLog::debug, BCLog::debug,
+			Form("BCIntegrate::FindModeSA. Stage %d finished at T=%f after %d samples with RMS = %f",stage,T,i,lastrms));
+
+		if(i>=nSmax && lastrms>T)
+			BCLog::Out(BCLog::detail, BCLog::detail,
+				Form(" --> SA not converged in stage %d for T=%f in %d iterations (RMS reached is %f)",stage,T,nSmax,lastrms));
+
+		// adjust temperature for next stage
+		T /= factorT;
+	}
+
+	// fill the mode
+	fBestFitParameters.clear();
+	for(int i=0;i<fNvar;i++)
+		fBestFitParameters.push_back(xmax[i]);
+
+	BCLog::Out(BCLog::detail, BCLog::detail,
+		Form(" --> SA mode finding finished in %d stages after %d iterations",stage,niter));
+
+	delete[] ysave;
+}
+
+// *********************************************
+void BCIntegrate::GetRandomPointSA(std::vector <double> &x, double T, double step)
+{
+	// get new point
+	this->GetRndmVector(fXmetro1);
+
+	// scale the point to the allowed region and step
+	int in=1;
+	for(int i=0;i<fNvar;i++)
+	{
+		fXmetro1[i] = fXmetro0[i] + 2 * (fXmetro1[i]-0.5) * step * (fMax[i]-fMin[i]);
+
+		// check whether the generated point is inside the allowed region
+		if( fXmetro1[i]<fMin[i] || fXmetro1[i]>fMax[i] )
+			in=0;
+	}
+
+	// calculate the log probabilities and compare old and new point
+	double p0 = - this->LogEval(fXmetro0); // old point
+	double p1 = 0; // new point
+
+	// compare
+	int accept=0;
+	if(in)
+	{
+		p1 = - this->LogEval(fXmetro1);
+
+		if(p1<=p0)
+			accept=1;
+		else
+		{
+			double pval = TMath::Exp(-(p1-p0)/T);
+			double r=fRandom->Rndm();
+			if(r<pval)
+				accept=1;
+		}
+	}
+
+	// fill the return point after the decision
+	if(accept)
+		for(int i=0;i<fNvar;i++)
+		{
+			fXmetro0[i]=fXmetro1[i];
+			x[i]=fXmetro1[i];
+		}
+	else
+		for(int i=0;i<fNvar;i++)
+			x[i]=fXmetro0[i];
+	
+	fNmetro++;
 }
 
 // *********************************************

@@ -17,6 +17,7 @@
  * 01.08.2007  Dano   * added MarginalizeAllByMetro method (and everything
  *                      necessary for it :)
  *                    * changed log level for some printouts
+ * 06.08.2007  Dano   * added mode finding by Simulated Annealing (SA) algorithm
  *
  * ---------------------------------------------------------
  *
@@ -122,7 +123,6 @@ class BCIntegrate
     * Fills a vector of random numbers in the limits of the parameters sampled by the probality 
     * function and returns the probability at that point (Metropolis) 
     * @param x A vector of doubles 
-    * @return The (unnormalized) probability at the random point
     */ 
   void GetRandomPointMetro(std::vector <double> &x);
 
@@ -130,7 +130,6 @@ class BCIntegrate
     * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
     * function and returns the probability at that point (Metropolis) 
     * @param x A vector of doubles 
-    * @return The (unnormalized) probability at the random point
     */ 
   void GetRandomPointSamplingMetro(std::vector <double> &x);
   
@@ -246,11 +245,12 @@ class BCIntegrate
   virtual double Eval(std::vector <double> x);
 
   /* 
-   * Evaluate the natural logarithm of the Eval function.
+   * Evaluate the natural logarithm of the Eval function. For better numerical
+	* stability, this method should also be overloaded by the user.
    * @param x The point in parameter space 
    * @return TMath::Log(Eval(x))
    */
-  double LogEval(std::vector <double> x);
+  virtual double LogEval(std::vector <double> x);
 
   /* 
    * Evaluate the sampling function at a point in parameter space. 
@@ -407,6 +407,20 @@ class BCIntegrate
    */
   void InitMetro();
 
+  /*
+   * Does the mode finding using Simulated Annealing (SA) algorithm
+   */
+  void FindModeSA();
+
+   /*
+    * Generates a vector x according to the Simulated Annealing algorithm
+    * given the temperature and the stepsize relative to the range
+    * @param x Vector of doubles
+	 * @param T temperature used for the stepping probability calculation
+	 *  according to exp ( - (p1-p0) / T )
+	 * @param step maximum stepsize relative to the range
+    */ 
+  void GetRandomPointSA(std::vector <double> &x, double T, double step);
 
  private:
 

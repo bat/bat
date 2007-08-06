@@ -23,6 +23,7 @@ BCModel::BCModel(const char* name) : BCIntegrate()
 
 	fName = (char*) name; 
 
+	flag_Likelihood = true; 
 	flag_ConditionalProbabilityEntry = true; 
 }
 
@@ -43,6 +44,7 @@ BCModel::BCModel() : BCIntegrate()
 
 	fName = "model"; 
 
+	flag_Likelihood = true; 
 	flag_ConditionalProbabilityEntry = true; 
 }
 
@@ -221,6 +223,25 @@ double BCModel::ProbabilityNN(std::vector <double> parameters)
 
 // --------------------------------------------------------- 
 
+double BCModel::LogProbabilityNN(std::vector <double> parameters) 
+{
+	// add log of conditional probability
+//	cout<<"x:";
+//	for(int i=0;i<this->GetNParameters();i++)
+//		cout<<"  "<<parameters[i];
+//	cout<<endl;
+	double logprob = this -> LogLikelihood(parameters);
+//	cout<<"logprob = "<<logprob<<endl;
+
+	// add log of prior probability
+	logprob += TMath::Log(this -> APrioriProbability(parameters));
+//	cout<<"logprob+logprior = "<<logprob<<endl;
+
+	return logprob;
+}
+
+// --------------------------------------------------------- 
+
 double BCModel::Probability(std::vector <double> parameters) 
 {
 
@@ -242,43 +263,73 @@ double BCModel::Probability(std::vector <double> parameters)
 
 double BCModel::Likelihood(std::vector <double> parameters)
 {
+	// method Likelihood is not overloaded by the user
+	flag_Likelihood = false;
 
-  int ndatapoints = fDataSet -> GetNDataPoints(); 
+	int ndatapoints = fDataSet -> GetNDataPoints(); 
 
-  // add log of probabilities 
+	// add log of probabilities 
+	double exponent = 0.0; 
 
-  double exponent = 0.0; 
+	// calculate conditional probability 
   
-  // calculate conditional probability 
-  
-  // add log of poisson term 
-  
-  exponent += TMath::Log10(this -> PoissonProbability(ndatapoints, parameters)); 
+	// add log of poisson term 
+	exponent += TMath::Log10(this -> PoissonProbability(ndatapoints, parameters)); 
 
-  // add log of conditional probabilities event-by-event 
+	// add log of conditional probabilities event-by-event 
+	for (int i = 0; i < ndatapoints; i++)
+	{
+		BCDataPoint * datapoint = this -> GetDataPoint(i); 
 
-  for (int i = 0; i < ndatapoints; i++)
-    {
-      BCDataPoint* datapoint = this -> GetDataPoint(i); 
+		exponent += TMath::Log10(this -> ConditionalProbabilityEntry(datapoint, parameters)); 
+	}
 
-      exponent += TMath::Log10(this -> ConditionalProbabilityEntry(datapoint, parameters)); 
-    }
+	// calculate power of the log 
+	return TMath::Power(10.0, exponent); 
+}
 
-  // calculate power of the log 
+// --------------------------------------------------------- 
 
-  double probability = TMath::Power(10.0, exponent); 
+double BCModel::LogLikelihood(std::vector <double> parameters)
+{
+	// if Likelihood is overloaded by the user but this method not,
+	// do the best we can, i.e. return the calculated log
+	if(flag_Likelihood)
+		return TMath::Log(this->Likelihood(parameters));
 
-  return probability; 
+	int ndatapoints = fDataSet -> GetNDataPoints(); 
 
+	// calculate log of poisson term first
+	double logprob = TMath::Log(this -> PoissonProbability(ndatapoints, parameters));
+
+//	cout<<"-> logprob = "<<logprob<<endl;
+
+	// add log of conditional probabilities event-by-event
+	for (int i=0;i<ndatapoints;i++)
+	{
+		BCDataPoint * datapoint = this -> GetDataPoint(i);
+
+		logprob += TMath::Log(this -> ConditionalProbabilityEntry(datapoint, parameters));
+
+//		cout<<"-> logprob = "<<logprob<<endl;
+	}
+
+	return logprob;
 }
 
 // --------------------------------------------------------- 
 
 double BCModel::Eval(std::vector <double> parameters)
 {
+	return this -> ProbabilityNN(parameters);
+}
 
-  return this -> ProbabilityNN(parameters); 
+// --------------------------------------------------------- 
 
+double BCModel::LogEval(std::vector <double> parameters)
+{
+//	cout<<"using my logeval"<<endl;
+	return this -> LogProbabilityNN(parameters); 
 }
 
 // --------------------------------------------------------- 
@@ -311,7 +362,13 @@ double BCModel::SamplingFunction(std::vector <double> parameters)
 
 std::vector<double> BCModel::FindMode()
 {
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Finding mode using Simulated Annealing algorithm.",this->GetName()));
 
+	this -> FindModeSA();
+
+
+
+/*
   BCIntegrate::BCIntegrationType integrationtypetemp = this -> GetIntegrationMethod(); 
 
   double normalizationtemp = this -> GetNormalization(); 
@@ -323,8 +380,8 @@ std::vector<double> BCModel::FindMode()
   this -> SetNormalization(normalizationtemp); 
 
   this -> SetIntegrationMethod(integrationtypetemp); 
-
-  return this -> GetBestFitParameters(); 
+*/
+	return this -> GetBestFitParameters(); 
 
 }
 
@@ -332,27 +389,22 @@ std::vector<double> BCModel::FindMode()
 
 double BCModel::Normalize()
 {
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName()));
 
-  // print log 
-
-  BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName()));
-
-  int n = this->GetNvar();
+	int n = this->GetNvar();
 	
-  // initialize BCIntegrate if not done already
+	// initialize BCIntegrate if not done already
+	if (n == 0)
+	{
+		this->SetParameters(fParameterSet);
+		n = this->GetNvar();
+	}
 
-  if (n == 0)
-    {
-      this->SetParameters(fParameterSet);
+	// integrate and get best fit parameters
+	// maybe we have to remove the mode finding from here in the future
+	fNormalization = this -> Integrate();
 
-      n = this->GetNvar();
-    }
-
-  // debug: get best fit parameters 
-  
-  fNormalization = this -> Integrate();
-  
-  return fNormalization;
+	return fNormalization;
 }
 
 // --------------------------------------------------------- 

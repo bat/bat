@@ -30,6 +30,7 @@ CXSRCS      = BCParameter.cxx \
 		BCIntegrate.cxx \
 		BCModelManager.cxx \
 		BCLog.cxx \
+		BCMath.cxx
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
@@ -37,7 +38,8 @@ CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  libBAT.so 
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  libBAT.so
+
 all : libBAT.so
 
 link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))

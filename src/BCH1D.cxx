@@ -77,59 +77,49 @@ double BCH1D::GetPValue(double probability)
 }
 
 // --------------------------------------------------------- 
- 
+
 void BCH1D::Print(char* filename, int options, double value) 
 {
+	// create temporary canvas
+	TCanvas * canvas = new TCanvas();
+	canvas -> cd();
 
-  // create temporary canvas 
+	// draw histogram
+	fHistogram -> Draw();
 
-  TCanvas* canvas = new TCanvas(); 
+	// options: draw lines
+	double maximum = fHistogram -> GetBinContent(fHistogram -> FindBin(this -> GetMode()));
 
-  canvas -> cd(); 
+	TLine * line = new TLine();
 
-  // draw histogram 
-  
-  fHistogram -> Draw(); 
+	switch(options)
+	{
+		// draw lines
+		case 1:
+			// draw line for mode
+			line -> DrawLine(this -> GetMode(), 0.0, this -> GetMode(), 1.05 * maximum);
+			// draw line for 16%
+			line -> DrawLine(this -> GetQuantile(0.16), 0.0, this -> GetQuantile(0.16), 1.05 * maximum);
+			// draw line for 84%
+			line -> DrawLine(this -> GetQuantile(0.84), 0.0, this -> GetQuantile(0.84), 1.05 * maximum);
 
-  // options: draw lines 
+			break;
 
-  double maximum = fHistogram -> GetBinContent(fHistogram -> FindBin(this -> GetMode())); 
+		// draw line at value
+		case 2:
+			line -> SetLineColor(kRed);
+			line -> DrawLine(value, 0.0, value, 1.05 * maximum);
 
-  if (options == 1) 
-    {
-      // draw line for mode 
-      
-      TLine* line = new TLine(); 
-      
-      line -> DrawLine(this -> GetMode(), 0.0, 
-		       this -> GetMode(), 1.05 * maximum); 
-      
-      // draw line for 16% 
-      
-      line -> DrawLine(this -> GetQuantile(0.16), 0.0, 
-		       this -> GetQuantile(0.16), 1.05 * maximum); 
-      
-      // draw line for 84% 
-      
-      line -> DrawLine(this -> GetQuantile(0.84), 0.0, 
-		       this -> GetQuantile(0.84), 1.05 * maximum); 
-    } 
+			break;
 
-  else if (options == 2) 
-    {
-      // draw line at value 
-      
-      TLine* line = new TLine();  
-      line -> SetLineColor(kRed); 
-      
-      line -> DrawLine(value, 0.0, 
-		       value, 1.05 * maximum); 
-    }
+		// bad options
+		default:
+			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCH1D::Print. Invalid option %d",options));
+			break;
+	}
 
-  // print to file 
-
-  canvas -> Print(filename); 
-  
+	// print to file 
+	canvas -> Print(filename); 
 }
 
 // --------------------------------------------------------- 

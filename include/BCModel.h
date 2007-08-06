@@ -21,6 +21,7 @@
  * 12.06.2007 Kevin, some renaming work 
  * 01.08.2007 Dano,  added MarginalizeAll method and respective GetMarginalized methods
  *                   added some warnings
+ * 06.08.2007 Dano,  changed FindMode to use Simulated Annealing (SA) mode finding
  *
  * --------------------------------------------------------- 
  *
@@ -47,8 +48,9 @@
 #include "BCH1D.h" 
 #include "BCH2D.h" 
 #include "BCIntegrate.h"
-#include "BCLog.h" 
-#include "BCErrorCodes.h" 
+#include "BCLog.h"
+#include "BCErrorCodes.h"
+#include "BCMath.h"
 
 // --------------------------------------------------------- 
 
@@ -338,11 +340,28 @@ class BCModel : public BCIntegrate
   virtual double Likelihood(std::vector <double> parameter); 
 
   /** 
+   * Calculates natural logarithm of the likelihood.
+   * If the Likelihood method was overloaded by the user, this method should
+	* be for better performance ooverloaded as well.
+   * @param parameters A set of parameter values 
+   * @return Natural logarithm of the likelihood
+   */ 
+  virtual double LogLikelihood(std::vector <double> parameter); 
+
+  /** 
    * Returns the likelihood times prior probability given a set of parameter values 
    * @param parameters A set of parameter values 
    * @return The likelihood times prior probability 
    */ 
   double ProbabilityNN(std::vector <double> parameter); 
+
+  /** 
+   * Returns the natural logarithm of likelihood times prior probability given
+	* a set of parameter values 
+   * @param parameters A set of parameter values 
+   * @return The likelihood times prior probability 
+   */ 
+  double LogProbabilityNN(std::vector <double> parameter); 
 
   /** 
    * Returns the a posteriori probability given a set of parameter values 
@@ -384,6 +403,11 @@ class BCModel : public BCIntegrate
    * Overloaded function to evaluate integral. 
    */ 
   double Eval(std::vector <double> parameters);
+
+  /** 
+   * Overloaded function to evaluate integral. 
+   */ 
+  double LogEval(std::vector <double> parameters);
 
   /** 
    * Overloaded function to evaluate integral. 
@@ -508,7 +532,7 @@ class BCModel : public BCIntegrate
   BCH1D * DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters);
   BCH1D * DoGoodnessOfFitTest(int ndatasets);
   BCH1D * DoGoodnessOfFitTest(const char* filename);
-  BCH1D* DoGoodnessOfFitTest(const char* filename, std::vector<double> parameters); 
+  BCH1D * DoGoodnessOfFitTest(const char* filename, std::vector<double> parameters); 
 
   /*
    * @return The p-value 
@@ -591,7 +615,12 @@ class BCModel : public BCIntegrate
   /*
    * A flag for overloading ConditionalProbabilityEntry
    */ 
-  bool flag_ConditionalProbabilityEntry; 
+  bool flag_ConditionalProbabilityEntry;
+
+  /*
+   * A flag for overloading Likelihood
+   */ 
+  bool flag_Likelihood;
 
 
  private:
