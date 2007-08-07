@@ -22,6 +22,8 @@
  * 01.08.2007 Dano,  added MarginalizeAll method and respective GetMarginalized methods
  *                   added some warnings
  * 06.08.2007 Dano,  changed FindMode to use Simulated Annealing (SA) mode finding
+ * 07.08.2007 Dano,  changed the model to use Log of everything, all standard calls are
+ *                   just the inline calls to TMath::Exp() calls of the Log versions
  *
  * --------------------------------------------------------- 
  *
