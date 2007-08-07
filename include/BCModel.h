@@ -323,26 +323,34 @@ class BCModel : public BCIntegrate
 
   /** 
    * Returns the prior probability. 
+   * @param parameters A set of parameter values 
+   * @return The prior probability p(parameters) 
+   * @see GetPrior(std::vector <double> parameters) 
+   */ 
+  double APrioriProbability(std::vector <double> parameters) 
+    { return TMath::Exp( this->LogAPrioriProbability(parameters) ); };
+  
+  /** 
+   * Returns natural logarithm of the prior probability. 
    * Method needs to be overloaded by the user. 
    * @param parameters A set of parameter values 
    * @return The prior probability p(parameters) 
    * @see GetPrior(std::vector <double> parameters) 
    */ 
-  virtual double APrioriProbability(std::vector <double> parameters) 
-    { return 1.0; }; 
-  
+  virtual double LogAPrioriProbability(std::vector <double> parameters) 
+    { return 1.0; };
+
   /** 
    * Returns the likelihood 
-   * Method needs to be overloaded by the user. 
    * @param parameters A set of parameter values 
    * @return The likelihood
    */ 
-  virtual double Likelihood(std::vector <double> parameter); 
+  double Likelihood(std::vector <double> parameter)
+    { return TMath::Exp( this->LogLikelihood(parameter) ); };
 
   /** 
    * Calculates natural logarithm of the likelihood.
-   * If the Likelihood method was overloaded by the user, this method should
-	* be for better performance ooverloaded as well.
+   * Method needs to be overloaded by the user.
    * @param parameters A set of parameter values 
    * @return Natural logarithm of the likelihood
    */ 
@@ -353,7 +361,8 @@ class BCModel : public BCIntegrate
    * @param parameters A set of parameter values 
    * @return The likelihood times prior probability 
    */ 
-  double ProbabilityNN(std::vector <double> parameter); 
+  double ProbabilityNN(std::vector <double> parameter)
+    { return TMath::Exp( this->LogProbabilityNN(parameter) ); };
 
   /** 
    * Returns the natural logarithm of likelihood times prior probability given
@@ -368,18 +377,46 @@ class BCModel : public BCIntegrate
    * @param parameters A set of parameter values 
    * @return The a posteriori probability 
    */ 
-  double Probability(std::vector <double> parameter); 
+  double Probability(std::vector <double> parameter)
+    { return TMath::Exp( this->LogProbability(parameter) ); };
 
   /** 
+   * Returns natural logarithm of the  a posteriori probability given a set of parameter values 
+   * @param parameters A set of parameter values 
+   * @return The a posteriori probability 
+   */
+  double LogProbability(std::vector <double> parameter); 
+
+  /**
    * Returns a conditional probability. 
    * Method needs to be overloaded by the user. 
    * @param datapoint A data point 
    * @param parameters A set of parameter values
    * @return The conditional probability p(datapoint|parameters) 
    * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) 
-   */ 
-  virtual double ConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters) 
-    { flag_ConditionalProbabilityEntry = false; return 1.0; }; 
+   */
+  double ConditionalProbabilityEntry(BCDataPoint * datapoint, std::vector <double> parameters)
+    { return TMath::Exp( this->LogConditionalProbabilityEntry(datapoint, parameters) ); };
+
+  /**
+   * Returns a natural logarithm of conditional probability. 
+   * Method needs to be overloaded by the user. 
+   * @param datapoint A data point 
+   * @param parameters A set of parameter values
+   * @return The conditional probability p(datapoint|parameters) 
+   * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) 
+   */
+  virtual double LogConditionalProbabilityEntry(BCDataPoint * datapoint, std::vector <double> parameters)
+    { flag_ConditionalProbabilityEntry = false; return 0.; };
+
+  /**
+   * Returns a probability for the data set container.
+   * @param parameters A set of parameter values
+   * @return The probability for the data set container
+   * @see GetPoisson(std::vector <double> parameters)
+   */
+  double PoissonProbability(int nentries, std::vector <double> parameters) 
+    { return TMath::Exp( this->LogPoissonProbability(nentries, parameters) ); }; 
 
   /** 
    * Returns a probability for the data set container. 
@@ -388,8 +425,8 @@ class BCModel : public BCIntegrate
    * @return The probability for the data set container
    * @see GetPoisson(std::vector <double> parameters) 
    */ 
-  virtual double PoissonProbability(int nentries, std::vector <double> parameters) 
-    { return 1.0; }; 
+  virtual double LogPoissonProbability(int nentries, std::vector <double> parameters) 
+    { return .0; }; 
 
   /**
    * Sampling function used for importance sampling. 
@@ -402,7 +439,8 @@ class BCModel : public BCIntegrate
   /** 
    * Overloaded function to evaluate integral. 
    */ 
-  double Eval(std::vector <double> parameters);
+  double Eval(std::vector <double> parameters)
+    { return TMath::Exp( this->LogEval(parameters) ); };
 
   /** 
    * Overloaded function to evaluate integral. 
@@ -616,11 +654,6 @@ class BCModel : public BCIntegrate
    * A flag for overloading ConditionalProbabilityEntry
    */ 
   bool flag_ConditionalProbabilityEntry;
-
-  /*
-   * A flag for overloading Likelihood
-   */ 
-  bool flag_Likelihood;
 
 
  private:
