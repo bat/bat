@@ -18,8 +18,8 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) 
 CXXFLAGS    += -I./src/ -I./ -I../../include/ 
-LIBS        += $(ROOTLIBS) -L. -lBAT -lcuba
-GLIBS       += $(ROOTGLIBS) -L. -lBAT -lcuba
+LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
+GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
 
 CXSRCS      = BCModelPol1.cxx 
 
@@ -31,7 +31,7 @@ EXEOBJS       =
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) librunBAT.so runBAT.o
 
-all : BaysianCalculator
+all : runBAT
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -41,15 +41,12 @@ include link.d
 %.o : src/%.cxx 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-librunBAT.so : $(CXXOBJS)  
-	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $@
-
 clean :
 	$(RM) $(GARBAGE)
 
-BaysianCalculator : runBAT.c librunBAT.so
+runBAT : runBAT.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(ROOTLIBS) -L../../ -lBAT runBAT.o -lcuba ${PWD}/librunBAT.so -o runBAT.exe 
+	$(CXX) $(LDFLAGS) $(LIBS) runBAT.o $(CXXOBJS) -o runBAT
 
 print :
 	echo compiler  : $(CXX)
