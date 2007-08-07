@@ -23,11 +23,11 @@ class BCModelPol1 : public BCModel
 
   virtual void DefineParameters(); 
 
-  virtual double APrioriProbability(std::vector <double> parameters); 
+  virtual double LogAPrioriProbability(std::vector <double> parameters); 
   
-  virtual double ConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
+  virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
 
-  virtual double PoissonProbability(int nentries, std::vector <double> parameters); 
+  virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
 
 }; 
 
