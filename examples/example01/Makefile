@@ -29,7 +29,7 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) librunBAT.so runBAT.o
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o
 
 all : runBAT
 
