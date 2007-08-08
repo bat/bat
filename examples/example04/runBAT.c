@@ -17,66 +17,56 @@ int main()
   // ---------------------------------------------------------
   // open log file 
   // ---------------------------------------------------------
-
   BCLog::OpenLog(); 
 
   // ---------------------------------------------------------
   // set personal root style
   // ---------------------------------------------------------
-
   SetStyle();
 
   // ---------------------------------------------------------
   // model definition 
   // ---------------------------------------------------------
-
-  BCModelEfficiency* fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
+  BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
   // set integration parameters 
-
-  //  fModelEfficiency -> SetNIterationsMax(1000000); 
-  //  fModelEfficiency -> SetRelativePrecision(1e-3); 
-  fModelEfficiency -> SetNiterationsPerDimension(500); 
+//	fModelEfficiency -> SetNIterationsMax(1000000); 
+//	fModelEfficiency -> SetRelativePrecision(1e-3); 
+//	fModelEfficiency -> SetNiterationsPerDimension(500); 
 
   // ---------------------------------------------------------
   // read data from file 
   // ---------------------------------------------------------
-
-  BCDataSet* fDataSet = new BCDataSet(); 
+  BCDataSet * fDataSet = new BCDataSet(); 
 
   if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 2) != 0)
     return -1; 
 
   // assign data set to model 
-
   fModelEfficiency -> SetDataSet(fDataSet); 
 
   // ---------------------------------------------------------
-  // normalize  
+  // find maximum
   // ---------------------------------------------------------
-
   fModelEfficiency -> FindMode(); 
 
   // ---------------------------------------------------------
   // marginalize 
   // ---------------------------------------------------------
-
   fModelEfficiency -> MarginalizeAll(); 
-  
-  fModelEfficiency -> GetMarginalized("epsilon") -> Print("modelefficiency_epsilon.ps", 1); 
-  fModelEfficiency -> GetMarginalized("lambda") -> Print("modelefficiency_lambda.ps", 1); 
-  fModelEfficiency -> GetMarginalized("epsilon", "lambda") -> Print("modelefficiency_epsilon_lambda.ps", 2); 
+
+  fModelEfficiency -> GetMarginalized("efficiency") -> Print("modelefficiency_epsilon.ps", 1); 
+//  fModelEfficiency -> GetMarginalized("lambda") -> Print("modelefficiency_lambda.ps", 1); 
+//  fModelEfficiency -> GetMarginalized("epsilon", "lambda") -> Print("modelefficiency_epsilon_lambda.ps", 2); 
 
   // ---------------------------------------------------------
   // summarize
   // ---------------------------------------------------------
-
   fModelEfficiency -> PrintSummary(); 
 
   // ---------------------------------------------------------
   // close log file 
   // ---------------------------------------------------------
-
   BCLog::CloseLog(); 
 
   return 0; 

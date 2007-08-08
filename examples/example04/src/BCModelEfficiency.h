@@ -23,9 +23,9 @@ class BCModelEfficiency : public BCModel
 
   void DefineParameters(); 
 
-  double APrioriProbability(std::vector <double> parameters); 
+  double LogAPrioriProbability(std::vector <double> parameters); 
   
-  double Likelihood(std::vector <double> parameters); 
+  double LogLikelihood(std::vector <double> parameters); 
 
 }; 
 
