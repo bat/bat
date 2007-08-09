@@ -126,51 +126,52 @@ void BCH1D::Print(char* filename, int options, double value)
       break;
 
     case 3: 
-      
-      // draw yellow shaded region for the 16% and 84% quantiles with a red triangle on top of the mode 
-
-      TH1D * hist_shaded =  (TH1D *) fHistogram -> Clone(); 
-      hist_shaded -> SetFillStyle(1001); 
-      hist_shaded -> SetFillColor(kYellow); 
-      
-      // remove entries on the sides 
-
-      int nbins = hist_shaded -> GetNbinsX(); 
-      int lowerborder = hist_shaded -> FindBin(this -> GetQuantile(0.16)); 
-      int upperborder = TMath::Min(hist_shaded -> FindBin(this -> GetQuantile(0.84)) + 1, nbins); 
-
-      for (int i = 1; i < lowerborder; i++)
-	hist_shaded -> SetBinContent(i, 0.0); 
-
-      for (int i = upperborder; i <= nbins; i++)
-	hist_shaded -> SetBinContent(i, 0.0); 
-
-      // draw shaded histogram 
-
-      hist_shaded -> Draw("SAME"); 
-      gPad->RedrawAxis(); 
-
-      // draw triangle 
-
-      TMarker * marker = new TMarker(); 
-      marker -> SetMarkerStyle(23); 
-      marker -> SetMarkerSize(3); 
-      marker -> SetMarkerColor(kRed); 
-
-      marker -> DrawMarker(this -> GetMode(), 
-			   1.0 * maximum); 
-
-      // draw legend 
-
-      TLegend * legend = new TLegend(0.20, 0.75, 0.55, 0.95); 
-      legend -> SetFillColor(kWhite); 
-      legend -> SetFillStyle(0); 
-      legend -> SetBorderSize(0); 
-      legend -> AddEntry(fHistogram,  "probability density", "L"); 
-      legend -> AddEntry(hist_shaded, "68% prob. region", "F"); 
-      legend -> AddEntry(marker,      "mode", "P"); 
-
-      legend -> Draw(); 
+      {
+	// draw yellow shaded region for the 16% and 84% quantiles with a red triangle on top of the mode 
+	
+	TH1D * hist_shaded =  (TH1D *) fHistogram -> Clone(); 
+	hist_shaded -> SetFillStyle(1001); 
+	hist_shaded -> SetFillColor(kYellow); 
+	
+	// remove entries on the sides 
+	
+	int nbins = hist_shaded -> GetNbinsX(); 
+	int lowerborder = hist_shaded -> FindBin(this -> GetQuantile(0.16)); 
+	int upperborder = TMath::Min(hist_shaded -> FindBin(this -> GetQuantile(0.84)) + 1, nbins); 
+	
+	for (int i = 1; i < lowerborder; i++)
+	  hist_shaded -> SetBinContent(i, 0.0); 
+	
+	for (int i = upperborder; i <= nbins; i++)
+	  hist_shaded -> SetBinContent(i, 0.0); 
+	
+	// draw shaded histogram 
+	
+	hist_shaded -> Draw("SAME"); 
+	gPad->RedrawAxis(); 
+	
+	// draw triangle 
+	
+	TMarker * marker = new TMarker(); 
+	marker -> SetMarkerStyle(23); 
+	marker -> SetMarkerSize(3); 
+	marker -> SetMarkerColor(kRed); 
+	
+	marker -> DrawMarker(this -> GetMode(), 
+			     1.0 * maximum); 
+	
+	// draw legend 
+	
+	TLegend * legend = new TLegend(0.20, 0.75, 0.55, 0.95); 
+	legend -> SetFillColor(kWhite); 
+	legend -> SetFillStyle(0); 
+	legend -> SetBorderSize(0); 
+	legend -> AddEntry(fHistogram,  "probability density", "L"); 
+	legend -> AddEntry(hist_shaded, "68% prob. region", "F"); 
+	legend -> AddEntry(marker,      "mode", "P"); 
+	
+	legend -> Draw(); 
+      }
 
       break; 
 

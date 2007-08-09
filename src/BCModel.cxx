@@ -8,7 +8,7 @@
 
 // --------------------------------------------------------- 
 
-BCModel::BCModel(const char* name) : BCIntegrate()
+BCModel::BCModel(const char * name) : BCIntegrate()
 {
 	fNormalization = -1.0; 
 
@@ -21,7 +21,7 @@ BCModel::BCModel(const char* name) : BCIntegrate()
 	fIndex = -1; 
 	fPValue = -1; 
 
-	fName = (char*) name; 
+	fName = (char *) name; 
 
 	flag_ConditionalProbabilityEntry = true; 
 }
@@ -106,7 +106,7 @@ BCParameter * BCModel::GetParameter(int index)
 
 // --------------------------------------------------------- 
 
-BCParameter * BCModel::GetParameter(char* name)
+BCParameter * BCModel::GetParameter(char * name)
 {
 	if (!fParameterSet) 
 		return 0; 
@@ -129,12 +129,12 @@ BCParameter * BCModel::GetParameter(char* name)
 
 // --------------------------------------------------------- 
 
-int BCModel::AddParameter(const char* name, double lowerlimit, double upperlimit) 
+int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimit) 
 {
 
   // create new parameter 
 
-  BCParameter* parameter = new BCParameter(name, lowerlimit, upperlimit);   
+  BCParameter * parameter = new BCParameter(name, lowerlimit, upperlimit);   
 
   int flag_ok = 0; 
 
@@ -149,7 +149,7 @@ int BCModel::AddParameter(const char* name, double lowerlimit, double upperlimit
 
 // --------------------------------------------------------- 
 
-int BCModel::AddParameter(BCParameter* parameter) 
+int BCModel::AddParameter(BCParameter * parameter) 
 { 
   
   // check if parameter set exists 
@@ -197,30 +197,6 @@ int BCModel::AddParameter(BCParameter* parameter)
 }; 
 
 // --------------------------------------------------------- 
-/*
-double BCModel::ProbabilityNN(std::vector <double> parameters) 
-{
-
-  double exponent = 0.0; 
-
-  // add log of conditional probability 
-
-  exponent += TMath::Log10(this -> Likelihood(parameters)); 
-
-  // add log of prior probability 
-  
-  exponent += TMath::Log10(this -> APrioriProbability(parameters)); 
-
-  // calculate power of the log 
-
-  double probability = TMath::Power(10.0, exponent); 
-
-  return probability; 
-
-}
-*/
-
-// --------------------------------------------------------- 
 
 double BCModel::LogProbabilityNN(std::vector <double> parameters) 
 {
@@ -232,26 +208,6 @@ double BCModel::LogProbabilityNN(std::vector <double> parameters)
 
 	return logprob;
 }
-
-// --------------------------------------------------------- 
-/*
-double BCModel::Probability(std::vector <double> parameters) 
-{
-
-  double probability = this -> ProbabilityNN(parameters); 
-
-  if (fNormalization < 0.0) 
-    return -1.0; 
-
-  else if (fNormalization == 0.0) 
-    return 0.0; 
-
-  probability = probability / fNormalization; 
-
-  return probability; 
-
-}
-*/
 
 // --------------------------------------------------------- 
 
@@ -268,36 +224,6 @@ double BCModel::LogProbability(std::vector <double> parameters)
 	return this -> LogProbabilityNN(parameters) - TMath::Log(fNormalization);
 }
   
-// --------------------------------------------------------- 
-/*
-double BCModel::Likelihood(std::vector <double> parameters)
-{
-	// method Likelihood is not overloaded by the user
-	flag_Likelihood = false;
-
-	int ndatapoints = fDataSet -> GetNDataPoints(); 
-
-	// add log of probabilities 
-	double exponent = 0.0; 
-
-	// calculate conditional probability 
-  
-	// add log of poisson term 
-	exponent += TMath::Log10(this -> PoissonProbability(ndatapoints, parameters)); 
-
-	// add log of conditional probabilities event-by-event 
-	for (int i = 0; i < ndatapoints; i++)
-	{
-		BCDataPoint * datapoint = this -> GetDataPoint(i); 
-
-		exponent += TMath::Log10(this -> ConditionalProbabilityEntry(datapoint, parameters)); 
-	}
-
-	// calculate power of the log 
-	return TMath::Power(10.0, exponent); 
-}
-*/
-
 // --------------------------------------------------------- 
 
 double BCModel::LogLikelihood(std::vector <double> parameters)
@@ -317,13 +243,6 @@ double BCModel::LogLikelihood(std::vector <double> parameters)
 	return logprob;
 }
 
-// --------------------------------------------------------- 
-/*
-double BCModel::Eval(std::vector <double> parameters)
-{
-	return TMath::Exp( this -> LogProbabilityNN(parameters) );
-}
-*/
 // --------------------------------------------------------- 
 
 double BCModel::LogEval(std::vector <double> parameters)
@@ -420,7 +339,7 @@ int BCModel::CheckParameters(std::vector <double> parameters)
   
   for (int i = 0; i < int(fParameterSet -> size()); i++)
     {
-      BCParameter* modelparameter = fParameterSet -> at(i); 
+      BCParameter * modelparameter = fParameterSet -> at(i); 
 	  
       if (modelparameter -> GetLowerLimit() > parameters.at(i) ||
 	  modelparameter -> GetUpperLimit() < parameters.at(i)) 
@@ -438,7 +357,7 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 
 // --------------------------------------------------------- 
 
-BCH1D * BCModel::MarginalizeProbability(BCParameter* parameter)
+BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
 {
 	// print log
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("Marginalize probability with respect to %s", parameter -> GetName()));
@@ -668,7 +587,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
        // define data object 
 
-      BCDataPoint* datapoint = new BCDataPoint(x); 
+      BCDataPoint * datapoint = new BCDataPoint(x); 
 	      
       // calculate probability 
       
@@ -807,7 +726,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
 	      // define data object 
 
-	      BCDataPoint* datapoint = new BCDataPoint(x); 
+	      BCDataPoint * datapoint = new BCDataPoint(x); 
 	      
 	      // calculate probability 
 
@@ -867,342 +786,12 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
 // --------------------------------------------------------- 
 
-// void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits) 
-// {
-
-//   // temporarily store data object container 
-
-//   BCDataSet* fDataSetTemp = fDataSet; 
-
-//   double NormTemp = fNormalization; 
-
-//   // define data stream 
-
-//   std::fstream stream_data; 
-
-//   // define stream for list of data files 
-
-//   std::fstream stream_list; 
-
-//   char listname[200]; 
-
-//   sprintf(listname, "./data/list_%s.txt", this -> GetName()); 
-
-//   stream_list.open(listname, std::fstream::out); 
-
-//   if (!stream_list.is_open())
-//     {
-//       BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Couldn't open filelist: %s", listname)); 
-//       return; 
-//     }
-
-//   // get number of data values 
-
-//   int nvalues = this -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); 
-
-//   // calculate number of grid axes 
-
-//   int ngridaxes = 0; 
-
-//   for (int i = 0; i < nvalues; i++)
-//     if (grid.at(i) == true)
-//       ngridaxes++; 
-
-//   // initialize data creation 
-
-//   double pmaximum = 0.0; 
-//   double pmaximumsingle = 0.0; 
-
-//   int ninit = 1000; 
-
-//   for (int idataset = 0; idataset < ninit; idataset++)
-//     {
-//       std::vector <double> x; 
-	 
-//       // loop over values 
-      
-//       for (int ivalue = 0; ivalue < nvalues; ivalue++)
-// 	{
-// 	  // randomly choose value ... 
-	  
-// 	  if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
-// 	    x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
-// 					   this -> GetDataPointUpperBoundary(ivalue))); 
-// 	  else 
-// 	    x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
-// 	}
-
-//       // constrain data values 
-
-//       this -> CorrelateDataPointValues(x); 
-
-//        // define data object 
-
-//       BCDataPoint* datapoint = new BCDataPoint(nvalues); 
-//       datapoint -> SetValues(x); 
-	      
-//       // calculate probability 
-      
-//       double p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
-
-//       // check if probability larger 
-
-//       if (p > pmaximumsingle) 
-// 	pmaximumsingle = p; 
-
-//       // delete data object 
-      
-//       delete datapoint; 
-
-//       // clear vector 
-
-//       x.clear(); 
-//     }
-
-//   // calculate maximum probability 
-
-//   pmaximum = TMath::Min(1.0, pmaximumsingle * this -> GetNDataPointsMaximum()); 
-
-//   // debug 
-//   pmaximum = 1.0; 
-
-//   // loop over data sets 
-
-//   for (int idataset = 0; idataset < ndatasets; idataset++) 
-//     {
-//       // open new stream 
-
-//       char filename[200]; 
-
-//       sprintf(filename, "./data/data_%s_%d.txt", this -> GetName(), idataset); 
-
-//       stream_data.open(filename, std::fstream::out); 
-
-//       if (!stream_data.is_open())
-// 	{
-// 	  BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Couldn't open file: %s", filename)); 
-// 	  return; 
-// 	}
-      
-//       // calculate number of entries 
-
-//       int nentries = 0; 
-
-//       // random number of entries ... 
-
-//       if (ngridaxes == 0) 
-// 	{
-// 	  double pnentries = 0.0; 
-// 	  double temp_rand = 1.0; 
-
-// 	  while (temp_rand > pnentries)
-// 	    {	
-// 	      if (this -> GetNDataPointsMinimum() != this -> GetNDataPointsMaximum())
-// 		nentries = TMath::Nint(fRandom -> Uniform(this -> GetNDataPointsMinimum(), 
-// 							  this -> GetNDataPointsMaximum())); 
-// 	      else
-// 		nentries = this -> GetNDataPointsMaximum(); 
-
-// 	      pnentries = this -> PoissonProbability(nentries, parameters); 
-// 	      temp_rand = fRandom -> Uniform(0, 1); 
-// 	    }
-// 	}
-
-//       // ... or fixed number of entries on a grid 
-
-//       else 
-// 	{
-// 	  nentries = 1; 
-
-// 	  for (int i = 0; i < ngridaxes; i++)
-// 	    nentries *= TMath::Nint(limits.at(2 + i * 3)); 
-// 	}
-      
-//       // create data set 
-      
-//       BCDataSet* dataset = new BCDataSet(); 
-
-//       // debug 
-//       cout << "1" << endl; 
-
-//       double p = 0.0; 
-//       double temp_rand = 1.0; 
-      
-//       while (temp_rand > p)
-// 	{
-
-// 	  // reset data set 
-
-// 	  dataset -> Reset(); 
-
-// 	  // debug 
-// 	  cout << temp_rand << " " << p << endl; 
-
-// 	  // loop over entries 
-	  
-// 	  for (int ientry = 0; ientry < nentries; ientry++)
-// 	    {
-
-// 	      // debug
-// 	      cout << ientry << endl; 
-	      
-// 	      // calculate random data object 
-	  
-// 	      std::vector <double> x; 
-	      
-// 	      // loop over values 
-	      
-// 	      for (int ivalue = 0; ivalue < nvalues; ivalue++)
-// 		{
-// 		  // randomly choose value ... 
-	      
-// 		  if (grid.at(ivalue) == false) 
-// 		    {
-// 		      if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
-// 			x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
-// 						       this -> GetDataPointUpperBoundary(ivalue))); 
-// 		      else
-// 			x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
-// 		    }
-		  
-// 		  // ... or calculate on a grid 
-		  
-// 		  else
-// 		    {
-// 		      double xgrid = 0; 
-		      
-// 		      if (ngridaxes == 1) 
-// 			xgrid = limits.at(0) + double(ientry) * limits.at(1); 
-		      
-// 		      if (ngridaxes == 2) 
-// 			{
-// 			  int ngrid = 0; 
-			  
-// 			  for (int j = 0; j < ivalue; j++)
-// 			    if (grid.at(j) == true)
-// 			      ngrid++; 
-			  
-// 			  int ix = ientry % TMath::Nint(limits.at(1 + ngrid * 3)); 
-// 			  xgrid = limits.at(ngrid * 3) + double(ix) * limits.at(1 + ngrid * 3); 
-// 			}
-// 		      x.push_back(xgrid); 
-// 		    }
-// 		}
-
-// 	      // debug 
-// 	      cout << "x: " << x[0] << " " << x[1] << " " << x[2] << endl; 
-	      
-// 	      // constrain data values 
-	      
-// 	      this -> CorrelateDataPointValues(x); 
-	      
-// 	      // debug 
-// 	      cout << "x: " << x[0] << " " << x[1] << " " << x[2] << endl; 
-
-// 	      // define data point 
-	      
-// 	      BCDataPoint* datapoint = new BCDataPoint(x); 
-	      
-// 	      // debug 
-// 	      cout << datapoint -> GetValue(0) << " " << datapoint -> GetValue(1) << " " << datapoint -> GetValue(2) << " " << endl; 
-// 	      cout << dataset -> GetNDataPoints() << endl; 
-
-// 	      // add data point to data set 
-	      
-// 	      dataset -> AddDataPoint(datapoint); 
-	     
-// 	      // debug 
-// 	      cout << "added point " << endl; 
-// 	      cout << dataset -> GetNDataPoints() << endl; 
-
-// 	      // debug
-// 	      for (int ivalue = 0; ivalue < nvalues; ivalue++)
-// 		cout << ivalue << " " << x[ivalue] << endl; 
- 
-// 	      // clear x 
-	      
-// 	      x.clear(); 
-// 	    }
-	  
-// 	  // replace data set 
-	  
-// 	  this -> SetDataSet(dataset); 
-	  
-// 	  // calculate probability 
-	  
-// 	  if (this -> Likelihood(parameters) > 0) 
-// 	    p = TMath::Log10(this -> Likelihood(parameters)); 
-	  
-// 	  else 
-// 	    p = -1e99; 
-	  
-// 	  // check if limit is set correctly 
-	  
-// 	  // debug 
-// // 	  if (p > pmaximum) 
-// // 	    { 
-// // 	      BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Probability larger than expected. Set limit to 1.0.")); 
-// // 	      pmaximum = 1.0; 
-// // 	    } 
-	  
-// 	  // calculate random number 
-	  
-// 	  temp_rand = TMath::Log10(pmaximum * fRandom -> Uniform()); 
-
-// 	  // debug 
-// 	  cout << temp_rand << " " << p << endl; 
-// 	}
-	
-//       // write data to file 
-      
-//       for (int ientry = 0; ientry < nentries; ientry++)
-// 	for (int ivalue = 0; ivalue < nvalues; ivalue++)
-// 	  {
-// 	    stream_data << dataset -> GetDataPoint(ientry) -> GetValue(ivalue); 
-// 	    if (ivalue < nvalues-1)
-// 	      stream_data << " "; 
-	    
-// 	    if (ientry < nentries - 1) 
-// 	      stream_data << std::endl; 
-// 	  }
-            
-//       // delete data set 
-      
-//       delete dataset; 
-  
-//       // write filename into filelist 
-      
-//       stream_list << filename; 
-      
-//       if (idataset < ndatasets - 1) 
-// 	stream_list << std::endl; 
-      
-//       // close data stream 
-      
-//       stream_data.close(); 
-      
-//     }
-  
-//   // close list stream 
-  
-//   stream_list.close(); 
-
-//   // restore original data object container 
-
-//   this -> SetDataSet(fDataSetTemp); 
-
-//   fNormalization = NormTemp; 
-
-// }
-
-// --------------------------------------------------------- 
-
-BCH1D* BCModel::GoodnessOfFitTest(const char* filename, std::vector <double> parameters)
+BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> parameters)
 {
 
   // create marginalized probability 
 
-  BCH1D* probability = new BCH1D(); 
+  BCH1D * probability = new BCH1D(); 
 
   // vector containing the conditional probabilities 
 
@@ -1224,7 +813,7 @@ BCH1D* BCModel::GoodnessOfFitTest(const char* filename, std::vector <double> par
 
   // temporarily store data object container 
 
-  BCDataSet* fDataSetTemp = fDataSet; 
+  BCDataSet * fDataSetTemp = fDataSet; 
 
   double NormTemp = fNormalization; 
 
@@ -1242,7 +831,7 @@ BCH1D* BCModel::GoodnessOfFitTest(const char* filename, std::vector <double> par
 
       // create new data set 
 
-      BCDataSet* dataset = new BCDataSet(); 
+      BCDataSet * dataset = new BCDataSet(); 
 
       // open file 
 
@@ -1287,7 +876,7 @@ BCH1D* BCModel::GoodnessOfFitTest(const char* filename, std::vector <double> par
 
   // create histogram 
 
-  TH1D* hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * TMath::Abs(minimum), TMath::Min(0.0, maximum + 0.1 * TMath::Abs(minimum))); 
+  TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * TMath::Abs(minimum), TMath::Min(0.0, maximum + 0.1 * TMath::Abs(minimum))); 
   hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
   hist -> SetYTitle("1/N dN/dlog_{10}y"); 
   hist -> SetStats(kFALSE); 
@@ -1336,7 +925,7 @@ BCH1D* BCModel::GoodnessOfFitTest(const char* filename, std::vector <double> par
 
 // --------------------------------------------------------- 
 
-BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits)
+BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits)
 {
 
   // check if conditional probability has been defined on entry basis 
@@ -1357,7 +946,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameter
 
   // do goodness-of-fit test 
 
-  BCH1D* gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+  BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
 
   return gof; 
 
@@ -1365,7 +954,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameter
 
 // --------------------------------------------------------- 
 
-BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters)
+BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters)
 {
 
   // check if conditional probability has been defined on entry basis 
@@ -1386,7 +975,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameter
 
   // do goodness-of-fit test 
 
-  BCH1D* gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+  BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
 
   return gof; 
 
@@ -1394,7 +983,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameter
 
 // --------------------------------------------------------- 
 
-BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets)
+BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets)
 {
 
   // check if conditional probability has been defined on entry basis 
@@ -1414,7 +1003,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(int ndatasets)
 
 // --------------------------------------------------------- 
 
-BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename, std::vector<double> parameters)
+BCH1D * BCModel::DoGoodnessOfFitTest(const char * filename, std::vector<double> parameters)
 {
 
   // print log 
@@ -1423,7 +1012,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename, std::vector<double> pa
 
   // do goodness-of-fit test 
 
-  BCH1D* gof = this -> GoodnessOfFitTest(filename, parameters); 
+  BCH1D * gof = this -> GoodnessOfFitTest(filename, parameters); 
 
   return gof; 
 
@@ -1431,7 +1020,7 @@ BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename, std::vector<double> pa
 
 // --------------------------------------------------------- 
 
-BCH1D* BCModel::DoGoodnessOfFitTest(const char* filename)
+BCH1D * BCModel::DoGoodnessOfFitTest(const char * filename)
 {
 
   return this -> DoGoodnessOfFitTest(filename, this -> GetBestFitParameters());  
@@ -1447,7 +1036,7 @@ void BCModel::CorrelateDataPointValues(vector<double> &x)
 
 // --------------------------------------------------------- 
 
-double BCModel::HessianMatrixElement(BCParameter* parameter1, BCParameter* parameter2, std::vector<double> point)
+double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * parameter2, std::vector<double> point)
 {
 
   // check number of entries in vector 
@@ -1602,12 +1191,12 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 
 // --------------------------------------------------------- 
 
-BCDataPoint* BCModel::VectorToDataPoint(std::vector<double> data) 
+BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data) 
 {
 
   int sizeofvector = int(data.size()); 
 
-  BCDataPoint* datapoint = new BCDataPoint(sizeofvector); 
+  BCDataPoint * datapoint = new BCDataPoint(sizeofvector); 
 
   datapoint -> SetValues(data); 
 
@@ -1617,7 +1206,7 @@ BCDataPoint* BCModel::VectorToDataPoint(std::vector<double> data)
 
 // --------------------------------------------------------- 
 
-int BCModel::CompareStrings(char* string1, char* string2) 
+int BCModel::CompareStrings(char * string1, char * string2) 
 {
 
   int flag_same = 0; 
