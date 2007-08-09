@@ -99,7 +99,7 @@ class BCModel : public BCIntegrate
   double GetModelAPrioriProbability()
     { return fModelAPriori; }; 
 
-   /** 
+  /** 
    * @param model The model. 
    * @return The a posteriori probability
    */ 

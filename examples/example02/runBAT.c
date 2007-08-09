@@ -98,12 +98,12 @@ int main()
       fModelPol2 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability()) 
     {
       fModelPol2 -> MarginalizeAll();
-      fModelPol2 -> GetMarginalized("constant")          -> Print("modelpol2_constant.ps", 1); 
-      fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps", 1); 
-      fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps", 1); 
-      fModelPol2 -> GetMarginalized("constant", "slope") -> Print("modelpol2_constant_slope.ps", 2); 
-      fModelPol2 -> GetMarginalized("constant", "quad")  -> Print("modelpol2_constant_quad.ps", 2); 
-      fModelPol2 -> GetMarginalized("slope",    "quad")  -> Print("modelpol2_slope_quad.ps", 2); 
+      fModelPol2 -> GetMarginalized("constant")          -> Print("modelpol2_constant.ps", 3);
+      fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps", 3);
+      fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps", 3);
+      fModelPol2 -> GetMarginalized("constant", "slope") -> Print("modelpol2_constant_slope.ps", 2);
+      fModelPol2 -> GetMarginalized("constant", "quad")  -> Print("modelpol2_constant_quad.ps", 2);
+      fModelPol2 -> GetMarginalized("slope",    "quad")  -> Print("modelpol2_slope_quad2.ps", 2);
     }
 
   // ---------------------------------------------------------

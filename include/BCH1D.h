@@ -25,9 +25,14 @@
 #ifndef __BCH1D__H
 #define __BCH1D__H
 
-#include <vector.h> 
+#include <vector.h>
 
-#include <TH1D.h> 
+#include <TH1.h>
+#include <TH2.h>
+#include <TPolyLine.h>
+#include <TPaveText.h>
+#include <TPaveLabel.h>
+#include <TLatex.h>
 
 #include <TError.h>
 

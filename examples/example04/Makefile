@@ -21,15 +21,17 @@ CXXFLAGS    += -I./src/ -I./ -I../../include/
 LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
 GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
 
-CXSRCS      = BCModelEfficiency.cxx
+CXSRCS       = BCModelEfficiency.cxx
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
-EXEOBJS       = 
+EXEOBJS      = 
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o
+
+ALLBUILDS    = $(GARBAGE) runBAT link.d
 
 all : runBAT
 
@@ -43,6 +45,9 @@ include link.d
 
 clean :
 	$(RM) $(GARBAGE)
+
+distclean :
+	$(RM) $(ALLBUILDS)
 
 runBAT : runBAT.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<

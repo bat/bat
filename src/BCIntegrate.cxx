@@ -19,6 +19,8 @@ BCIntegrate::BCIntegrate()
 
 	fIntegrateMethod   = BCIntegrate::kIMonteCarlo;
 	fMarginalizeMethod = BCIntegrate::kMMetropolis;
+
+	fNbins=100;
 }
 
 // *********************************************
@@ -27,6 +29,8 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 	fNvar=0;
 	fNiterPerDimension = 100;
 	fRandom = new TRandom3(0);
+
+	fNbins=100;
 
 	this->SetParameters(par);
 }
@@ -459,8 +463,6 @@ TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * paramete
 // *********************************************
 TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
 {
-	int nbins=100;
-
 	// set parameter to marginalize
 	this->ResetVarlist(1);
 	int index = parameter->GetIndex();
@@ -469,14 +471,14 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
 	// define histogram
 	double hmin = parameter -> GetLowerLimit();
 	double hmax = parameter -> GetUpperLimit();
-	double hdx  = (hmax - hmin) / double(nbins);
-	TH1D * hist = new TH1D("hist","", nbins, hmin, hmax);
+	double hdx  = (hmax - hmin) / double(fNbins);
+	TH1D * hist = new TH1D("hist","", fNbins, hmin, hmax);
 
 	// integrate
 	std::vector <double> randx;
 	randx.assign(fNvar, 0.0);
 
-	for(int i=0;i<=nbins;i++)
+	for(int i=0;i<=fNbins;i++)
 	{
 		randx[index] = hmin + (double)i * hdx;
 
@@ -485,7 +487,7 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
 	}
 
 	// normalize
-	hist -> Scale(1.0/hist->Integral());
+	hist -> Scale( 1./hist->Integral() );
 
 	return hist;
 }
@@ -493,9 +495,6 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
 // *********************************************
 TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter * parameter2)
 {
-	int nbins1=100;
-	int nbins2=100;
-
 	// set parameter to marginalize
 	this->ResetVarlist(1);
 	int index1 = parameter1->GetIndex();
@@ -506,24 +505,24 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 	// define histogram
 	double hmin1 = parameter1 -> GetLowerLimit(); 
 	double hmax1 = parameter1 -> GetUpperLimit(); 
-	double hdx1  = (hmax1 - hmin1) / double(nbins1); 
+	double hdx1  = (hmax1 - hmin1) / double(fNbins); 
 
 	double hmin2 = parameter2 -> GetLowerLimit(); 
 	double hmax2 = parameter2 -> GetUpperLimit(); 
-	double hdx2  = (hmax2 - hmin2) / double(nbins2); 
+	double hdx2  = (hmax2 - hmin2) / double(fNbins); 
 
-	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName(), parameter2 -> GetName()),"", 
-			nbins1, hmin1, hmax1,
-			nbins2, hmin2, hmax2); 
+	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName(), parameter2 -> GetName()),"",
+			fNbins, hmin1, hmax1,
+			fNbins, hmin2, hmax2); 
 
 	// integrate
 	std::vector <double> randx;
 	randx.assign(fNvar, 0.0);
 
-	for(int i=0;i<=nbins1;i++)
+	for(int i=0;i<=fNbins;i++)
 	{
 		randx[index1] = hmin1 + (double)i * hdx1;
-		for(int j=0;j<=nbins2;j++)
+		for(int j=0;j<=fNbins;j++)
 		{
 			randx[index2] = hmin2 + (double)j * hdx2;
 
@@ -541,8 +540,7 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 // *********************************************
 TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 {
-	int nbins=100;
-	int niter=nbins*fNiterPerDimension*fNvar*fNvar*10;
+	int niter=fNbins*fNiterPerDimension*fNvar*fNvar*10;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
@@ -553,7 +551,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 	// define histogram
 	double hmin = parameter -> GetLowerLimit();
 	double hmax = parameter -> GetUpperLimit();
-	TH1D * hist = new TH1D("hist","", nbins, hmin, hmax);
+	TH1D * hist = new TH1D("hist","", fNbins, hmin, hmax);
 
 	// prepare Metro
 	std::vector <double> randx;
@@ -575,11 +573,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 // *********************************************
 TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * parameter2)
 {
-	int nbins1=100;
-	int nbins2=100;
-
-//	int niter=TMath::Max(nbins1,nbins2)*fNiterPerDimension*fNvar*2;
-	int niter=TMath::Max(nbins1,nbins2)*fNiterPerDimension*fNvar*fNvar*10;
+	int niter=fNbins*fNbins*fNiterPerDimension*fNvar*fNvar;
 
 	// set parameter to marginalize
 	int index1 = parameter1->GetIndex();
@@ -593,8 +587,8 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 	double hmax2 = parameter2 -> GetUpperLimit();
 
 	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName(), parameter2 -> GetName()),"",
-			nbins1, hmin1, hmax1,
-			nbins2, hmin2, hmax2);
+			fNbins, hmin1, hmax1,
+			fNbins, hmin2, hmax2);
 
 	// prepare Metro
 	std::vector <double> randx;
@@ -608,7 +602,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 	}
 
 	// normalize
-	hist -> Scale(1.0/hist->Integral()); 
+	hist -> Scale(1.0/hist->Integral());
 
 	return hist; 
 }
@@ -616,8 +610,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 // *********************************************
 int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 {
-	int nbins=100;
-	int niter=nbins*nbins*fNiterPerDimension*fNvar;
+	int niter=fNbins*fNbins*fNiterPerDimension*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
@@ -629,7 +622,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		double hmax1 = fx->at(i) -> GetUpperLimit();
 
 		TH1D * h1 = new TH1D(Form("h%s_%s", name,fx->at(i) -> GetName()),"",
-			nbins, hmin1, hmax1);
+			fNbins, hmin1, hmax1);
 
 		fHProb1D.push_back(h1);
 	}
@@ -644,9 +637,9 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 			double hmin2 = fx->at(j) -> GetLowerLimit();
 			double hmax2 = fx->at(j) -> GetUpperLimit();
 
-			TH2D * h2 = new TH2D(Form("h%s_%s_%s",name,fx->at(i) -> GetName(), fx->at(j) -> GetName()),"",
-				nbins, hmin1, hmax1,
-				nbins, hmin2, hmax2);
+			TH2D * h2 = new TH2D(Form("h%s_%s_%s", name, fx->at(i) -> GetName(), fx->at(j) -> GetName()),"",
+				fNbins, hmin1, hmax1,
+				fNbins, hmin2, hmax2);
 
 			fHProb2D.push_back(h2);
 		}

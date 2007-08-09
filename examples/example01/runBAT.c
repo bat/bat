@@ -40,16 +40,17 @@ int main()
   // normalize  
   // ---------------------------------------------------------
 
-  fModelPol1 -> FindMode(); 
+//  fModelPol1 -> FindMode(); 
 
   // ---------------------------------------------------------
   // marginalize 
   // ---------------------------------------------------------
 
+//  fModelPol1 -> SetNbins(200);
   fModelPol1 -> MarginalizeAll();
 
-  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps", 1);
-  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps", 1);
+  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps", 3);
+  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps", 3);
   fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
 
   // ---------------------------------------------------------

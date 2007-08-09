@@ -53,11 +53,10 @@ int main()
   // ---------------------------------------------------------
   // marginalize 
   // ---------------------------------------------------------
+  fModelEfficiency -> SetNbins(200);
   fModelEfficiency -> MarginalizeAll(); 
 
-  fModelEfficiency -> GetMarginalized("efficiency") -> Print("modelefficiency_epsilon.ps", 1); 
-//  fModelEfficiency -> GetMarginalized("lambda") -> Print("modelefficiency_lambda.ps", 1); 
-//  fModelEfficiency -> GetMarginalized("epsilon", "lambda") -> Print("modelefficiency_epsilon_lambda.ps", 2); 
+  fModelEfficiency -> GetMarginalized("efficiency") -> Print("modelefficiency_epsilon.ps", 3);
 
   // ---------------------------------------------------------
   // summarize

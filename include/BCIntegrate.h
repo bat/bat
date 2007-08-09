@@ -147,7 +147,7 @@ class BCIntegrate
 
   /* 
    * @return The number of maximum iterations for Monte Carlo integration 
-   */   
+   */
   int GetNIterationsMax()
     { return fNIterationsMax; }; 
   
@@ -169,6 +169,12 @@ class BCIntegrate
   double GetError()
     { return fError; }; 
   
+  /*
+   * @return number of bins per dimension for the marginalized distributions
+   */
+  int GetNbins()
+    { return fNbins; };
+
   // methods (set) 
 
   /* 
@@ -215,6 +221,12 @@ class BCIntegrate
    */ 
   void SetRelativePrecision(double relprecision) 
     { fRelativePrecision = relprecision; }; 
+
+  /*
+   * @param n number of bins per dimension for the marginalized distributions
+   */
+  void SetNbins(int n)
+    { fNbins = n; };
 
   // methods   
 
@@ -449,6 +461,11 @@ class BCIntegrate
    */
   int * fVarlist;
   
+  /*
+   * Number of bins per dimension for the marginalized distributions
+   */
+  int fNbins;
+
   /*
    * The number of iteration per dimension for Monte Carlo integration. 
    */ 
