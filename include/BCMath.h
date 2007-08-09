@@ -72,7 +72,7 @@ namespace BCMath
 	 * log(n!) = n*log(n) - n + .5*log(2*pi*n) -1/(12*x) if n > 100.
 	 * If n<=100 it uses BCMath::LogFact to calculate it exactly.
 	 */
-	double BCMath::ApproxLogFact(double x);
+	double ApproxLogFact(double x);
 
 	/*
 	 * Calculates natural logarithm of the Binomial factor "n over k".
