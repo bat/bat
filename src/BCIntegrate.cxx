@@ -487,7 +487,7 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
 	}
 
 	// normalize
-	hist -> Scale( 1./hist->Integral() );
+	hist -> Scale( 1./hist->Integral("width") );
 
 	return hist;
 }
@@ -532,7 +532,7 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 	}
 
 	// normalize
-	hist -> Scale(1.0/hist->Integral());
+	hist -> Scale(1.0/hist->Integral("width"));
 
 	return hist; 
 }
@@ -565,7 +565,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 	}
 
 	// normalize
-	hist -> Scale(1.0/hist->Integral());
+	hist -> Scale(1.0/hist->Integral("width"));
 
 	return hist;
 }
@@ -602,7 +602,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 	}
 
 	// normalize
-	hist -> Scale(1.0/hist->Integral());
+	hist -> Scale(1.0/hist->Integral("width"));
 
 	return hist; 
 }
@@ -678,9 +678,9 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 
 	// normalize histograms
 	for(int i=0;i<fNvar;i++)
-		fHProb1D[i] -> Scale( 1./fHProb1D[i]->Integral() );
+		fHProb1D[i] -> Scale( 1./fHProb1D[i]->Integral("width") );
 	for (int i=0;i<nh2d;i++)
-		fHProb2D[i] -> Scale( 1./fHProb2D[i]->Integral() );
+		fHProb2D[i] -> Scale( 1./fHProb2D[i]->Integral("width") );
 
 	return fNvar+nh2d;
 }
