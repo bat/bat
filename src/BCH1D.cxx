@@ -199,6 +199,96 @@ void BCH1D::Print(char* filename, int options, double value)
 	      break;
 		}
 
+	case 41: 
+	  {
+	    // draw smallest interval containing a certain probability 
+	    
+	    int nbins = fHistogram -> GetNbinsX(); 
+	    int mins1 = -1; 
+	    int mine1 = -1; 
+	    double mininterval = nbins; 
+	    
+	    // loop over start value 
+	    
+	    for (int s1 = 1; s1 <= nbins; s1++)
+	      {
+		// loop over end value 
+		
+		for (int e1 = s1; e1 <= nbins; e1++)
+		  {
+		    double integral = fHistogram -> Integral(s1, e1, "width"); 
+		    double left  = 0.0; 
+		    double right = 0.0; 
+		    
+		    if (s1 > 1) 
+		      left = fHistogram -> GetBinContent(s1 - 1) * fHistogram -> GetBinWidth(s1 - 1); 
+		    
+		    if (e1 < nbins) 
+		      right = fHistogram -> GetBinContent(e1 + 1) * fHistogram -> GetBinWidth(e1 + 1); 
+		    
+		    // check to the left 
+		    
+		    if ((integral < value) && 
+			((integral + left) >= value) && 
+			((e1 - s1 - 1) < mininterval)) 
+		      {
+			mininterval = e1 - s1 - 1; 
+			mins1 = s1 - 1; 
+			mine1 = e1; 
+		      }
+		    
+		    // check to the right 
+		    
+		    if ((integral < value) && 
+			((integral + right) >= value) && 
+			((e1 + 1 - s1) < mininterval)) 
+		      {
+			mininterval = e1 + 1 - s1; 
+			mins1 = s1; 
+			mine1 = e1 + 1; 
+		      }	      
+		    
+		    if (s1 == e1 && integral >= value) 
+		      {
+			mininterval = 1; 
+			mins1 = s1; 
+			mine1 = e1; 
+		      }
+		  }
+	      }
+		
+	    // calculate shaded histogram 
+
+	    TH1D * hist_shaded =  (TH1D *) fHistogram -> Clone(); 
+	    hist_shaded -> SetFillStyle(1001); 
+	    hist_shaded -> SetFillColor(kYellow); 
+	    
+	    // remove entries on the sides 
+	    
+	    for (int i = 1; i < mins1; i++)
+	      hist_shaded -> SetBinContent(i, 0.0); 
+	    
+	    for (int i = mine1 + 1; i <= nbins; i++)
+	      hist_shaded -> SetBinContent(i, 0.0); 
+	    
+	    // draw histograms 
+	    
+	    fHistogram -> Draw();
+	    hist_shaded -> Draw("SAME"); 
+	    gPad->RedrawAxis(); 
+	    
+	    // draw triangle 
+	    
+	    TMarker * marker = new TMarker(); 
+	    marker -> SetMarkerStyle(23); 
+	    marker -> SetMarkerSize(3); 
+	    marker -> SetMarkerColor(kRed); 
+	    
+	    marker -> DrawMarker(this -> GetMode(), 
+				 1.0 * maximum); 
+	  }
+	  
+	  break; 
 		// bad options
 		default:
 			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCH1D::Print. Invalid option %d",options));
@@ -214,7 +304,7 @@ void BCH1D::Print(char* filename, int options, double value)
 void BCH1D::Print(char* filename, int options) 
 {
   
-  double value = 0; 
+  double value = 0.68; 
 
   this -> Print(filename, options, value); 
 
