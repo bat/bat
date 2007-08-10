@@ -1,129 +1,135 @@
-#include "BCLog.h" 
+#include "BCLog.h"
 
-std::ofstream BCLog::fOutputStream; 
+std::ofstream BCLog::fOutputStream;
 
-BCLog::LogLevel BCLog::fMinimumLogLevelFile = BCLog::debug; 
+BCLog::LogLevel BCLog::fMinimumLogLevelFile = BCLog::debug;
 
-BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary; 
+BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 
-// --------------------------------------------------------- 
+char * BCLog::fVersion = BAT_VERSION;
+
+// ---------------------------------------------------------
 
 BCLog::BCLog()
-{
+{}
 
-}
-
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 BCLog::~BCLog()
-{
+{}
 
-}
-
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
 {
+	// open log file
+	BCLog::fOutputStream.open(filename);
 
-  // open log file 
+	if (!BCLog::fOutputStream.is_open())
+	{
+		std::cout << " Could not open log file " << filename << ". " << std::endl;
+		return;
+	}
 
-  BCLog::fOutputStream.open(filename); 
+	BCLog::StartupInfo();
 
-  if (!BCLog::fOutputStream.is_open())
-    {
-      std::cout << " Could not open log file " << filename << ". " << std::endl; 
-      return; 
-    }
+	BCLog::Out(BCLog::summary,BCLog::summary,Form("Opening logfile %s",filename));
 
-  // set log level 
-
-  BCLog::SetMinimumLogLevelFile(loglevelfile); 
-
-  BCLog::SetMinimumLogLevelScreen(loglevelscreen); 
-
+	// set log level 
+	BCLog::SetMinimumLogLevelFile(loglevelfile); 
+	BCLog::SetMinimumLogLevelScreen(loglevelscreen); 
 }
 
 // --------------------------------------------------------- 
 
 void BCLog::OpenLog(const char* filename)
 {
-  
-  BCLog::OpenLog(filename, BCLog::debug, BCLog::summary); 
-
+	BCLog::OpenLog(filename, BCLog::debug, BCLog::summary); 
 }
 
 // --------------------------------------------------------- 
 
 void BCLog::OpenLog()
 {
-
-  BCLog::OpenLog("log.txt", BCLog::debug, BCLog::summary); 
-
+	BCLog::OpenLog("log.txt", BCLog::debug, BCLog::summary); 
 }
 
 // --------------------------------------------------------- 
 
 void BCLog::CloseLog()
 {
-
-  BCLog::fOutputStream.close(); 
-
+	BCLog::fOutputStream.close(); 
 }
 
 // --------------------------------------------------------- 
 
 void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message)
 {
+	// open log file if not opened
+	if (!BCLog::fOutputStream.is_open())
+	{
+		std::cout << " Log file not opended. " << std::endl;
+		return;
+	}
 
-  // open log file if not opened 
- 
-  if (!BCLog::fOutputStream.is_open())
-    {
-      std::cout << " Log file not opended. " << std::endl; 
-      return; 
-    }
+	// write message in to log file
+	if (loglevelfile >= BCLog::fMinimumLogLevelFile)
+		BCLog::fOutputStream << BCLog::ToString(loglevelfile) << " : " << message << std::endl;
 
-  // write message in to log file 
-
-  if (loglevelfile >= BCLog::fMinimumLogLevelFile) 
-    BCLog::fOutputStream << BCLog::ToString(loglevelfile) << " : " << message << std::endl; 
-
-  // write message to screen 
-
-  if (loglevelscreen >= BCLog::fMinimumLogLevelScreen) 
-    std::cout << BCLog::ToString(loglevelscreen) << " : " << message << std::endl; 
-
+	// write message to screen
+	if (loglevelscreen >= BCLog::fMinimumLogLevelScreen)
+		std::cout << BCLog::ToString(loglevelscreen) << " : " << message << std::endl;
 }
 
 // --------------------------------------------------------- 
 
 void BCLog::Out(const char* message)
 {
-
-  BCLog::Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message); 
-
+	BCLog::Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message);
 }
 
 // --------------------------------------------------------- 
 
-char* BCLog::ToString(BCLog::LogLevel loglevel)
+void BCLog::StartupInfo()
 {
+	// open log file if not opened 
+	if (!BCLog::fOutputStream.is_open())
+	{
+		std::cout << " Log file not opended. " << std::endl; 
+		return; 
+	}
 
-  if (loglevel == debug) 
-    return "Debug  "; 
+	char * message = Form(
+		" +------------------------------\n"
+		" |\n"
+		" |     Running with BAT\n"
+		" |      Version %s\n"
+		" |\n"
+		" | http://www.mppmu.mpg.de/bat\n"
+		" +------------------------------\n",
+		BCLog::fVersion);
 
-  else if (loglevel == 1) 
-    return "Detail "; 
+	BCLog::fOutputStream << message;
+	std::cout << message;
+}
 
-  else if (loglevel == 2) 
-    return "Summary"; 
+// --------------------------------------------------------- 
 
-  else if (loglevel == 3) 
-    return "Warning"; 
-
-  else
-    return ""; 
-
+char * BCLog::ToString(BCLog::LogLevel loglevel)
+{
+	switch (loglevel)
+	{
+		case debug:
+			return "Debug  ";
+		case detail:
+			return "Detail ";
+		case summary:
+			return "Summary";
+		case warning:
+			return "Warning";
+		default:
+			return "";
+	}
 }
 
 // --------------------------------------------------------- 

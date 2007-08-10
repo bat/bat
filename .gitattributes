@@ -42,6 +42,7 @@ include/BCMath.h -text
 include/BCModel.h -text
 include/BCModelManager.h -text
 include/BCParameter.h -text
+include/BCReleaseVersion.h -text
 include/style.c -text
 src/BCDataPoint.cxx -text
 src/BCDataSet.cxx -text

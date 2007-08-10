@@ -26,6 +26,10 @@
 #include <iostream>
 #include <fstream> 
 
+#include <TROOT.h>
+
+#include "BCReleaseVersion.h"
+
 // --------------------------------------------------------- 
 
 class BCLog
@@ -119,7 +123,24 @@ class BCLog
 
   static void Out(const char* message); 
 
+  /**
+   * Writes startup information onto screen and into a logfile
+   */ 
+  static void StartupInfo();
+
+  /**
+   * @return string containing the version number
+   */
+  static char * GetVersion()
+  	{ return fVersion; };
+
+
  private: 
+
+  /**
+   * BAT version number
+   */
+  static char * fVersion;
 
   /**
    * The minimum file log level 
