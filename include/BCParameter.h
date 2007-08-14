@@ -1,5 +1,8 @@
-/**
- * A class which defines a parameter for a Bayesian model. 
+/*! \class BCParameter
+ *  \brief A model parameter class
+ *
+ * This class defines a parameter for a model as well as a container for
+ * a parameter set.
  *
  * --------------------------------------------------------- 
  *
@@ -11,14 +14,11 @@
  * 
  * REVISION: 
  *
- * 02.03.2007 Kevin, added comments and header 
- * 16.05.2007 Dano, added nuisence flag
- * 12.06.2007 Kevin, renamed to BCParameter 
+ * 02.03.2007 Kevin, added comments and header \n
+ * 16.05.2007 Dano, added nuisence flag\n
+ * 12.06.2007 Kevin, renamed to BCParameter \n
  *
  * --------------------------------------------------------- 
- *
- *
- * The class defines a model parameter for a Bayesian model. 
  *
 */ 
 

@@ -1,5 +1,8 @@
-/**
- * A class which manages a set of models and a data set 
+/*! \class BCModelManager
+ *  \brief A class managing models
+ *
+ * A class which manages a set of models and a data set. It performs
+ * similar operations on all models and handles model comparison.
  *
  * --------------------------------------------------------- 
  *
@@ -11,15 +14,12 @@
  * 
  * REVISION: 
  *
- * 16.03.2007 Kevin,  modified ROOT interface
- * 12.06.2007 Kevin,  renamed to BCModelManager 
+ * 16.03.2007 Kevin,  modified ROOT interface\n
+ * 12.06.2007 Kevin,  renamed to BCModelManager \n
  * 30.08.2007 Dano,   added method to set max number of iterations in all
- *                    attached models
+ *                    attached models\n
  *
  * --------------------------------------------------------- 
- *
- *
- * The class manages a set of models and a data set 
  *
  */ 
 

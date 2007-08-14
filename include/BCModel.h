@@ -1,5 +1,11 @@
-/**
- * A class which defines a Bayesian model. 
+/*! \class BCModel
+ *  \brief Base class for all user models
+ *
+ * This class defines a model. It contains the a container of parameters,
+ * their prior distributions and the conditional probabilities given those parameters.
+ * The methods which implement the prior and conditional probabilities 
+ * have to be overloaded by the user in the user defined model class which will
+ * inherit from this class.
  *
  * --------------------------------------------------------- 
  *
@@ -11,27 +17,21 @@
  * 
  * REVISION: 
  *
- * 02.03.2007 Kevin, added comments and header, added marginalized probability class. 
+ * 02.03.2007 Kevin, added comments and header, added marginalized probability class. \n
  * 14.03.2007 Kevin, added a priori and a posteriori probabilities to the class, 
- *                   some renaming of functions. 
- * 17.04.2007 Kevin, added limits for the variables for goodness-of-fit test 
- * 30.04.2007 Kevin, added creation of data for goodness-of-fit test 
- * 15.05.2007 Kevin, added summary print-out and plots 
- * 23.05.2007 Kevin, added virtual functions for importance sampling integration (with and without Markov chains)
- * 12.06.2007 Kevin, some renaming work 
- * 01.08.2007 Dano,  added MarginalizeAll method and respective GetMarginalized methods
- *                   added some warnings
- * 06.08.2007 Dano,  changed FindMode to use Simulated Annealing (SA) mode finding
+ *                   some renaming of functions. \n
+ * 17.04.2007 Kevin, added limits for the variables for goodness-of-fit test \n
+ * 30.04.2007 Kevin, added creation of data for goodness-of-fit test \n
+ * 15.05.2007 Kevin, added summary print-out and plots \n
+ * 23.05.2007 Kevin, added virtual functions for importance sampling integration (with and without Markov chains)\n
+ * 12.06.2007 Kevin, some renaming work \n
+ * 01.08.2007 Dano,  added MarginalizeAll method and respective GetMarginalized methods,
+ *                   added some warnings\n
+ * 06.08.2007 Dano,  changed FindMode to use Simulated Annealing (SA) mode finding\n
  * 07.08.2007 Dano,  changed the model to use Log of everything, all standard calls are
- *                   just the inline calls to TMath::Exp() calls of the Log versions
+ *                   just the inline calls to TMath::Exp() calls of the Log versions\n
  *
  * --------------------------------------------------------- 
- *
- *
- * The class defines a Bayesian model. It contains the a container 
- * of parameters, their prior distributions and the conditional probabilities given 
- * those parameters. The methods which implement the prior and conditional probabilities 
- * have to be overloaded by the user. 
  *
  */ 
 

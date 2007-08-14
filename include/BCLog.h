@@ -1,5 +1,7 @@
-/**
- * A class which defines a log file 
+/*! \class BCLog
+ *  \brief Log printouts
+ *
+ * This class manages printouts on the screen and into a log file 
  *
  * --------------------------------------------------------- 
  *
@@ -12,9 +14,6 @@
  * REVISION: 
  *
  * --------------------------------------------------------- 
- *
- *
- * The class defines and manages a log file 
  *
 */ 
 

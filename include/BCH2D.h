@@ -1,5 +1,7 @@
-/**
- * A class which defines a marginalized probability. 
+/*! \class BCH2D
+ *  \brief A class for handling 2D distributions
+ *
+ * A class which contains a TH2D histogram and can be used for marginalized probabilties
  *
  * --------------------------------------------------------- 
  *
@@ -11,14 +13,11 @@
  * 
  * REVISION: 
  *
- * 02.03.2007  Kevin  * added comments and header
- * 22.05.2007  Kevin  * added nicer 2-d plots including contours
- * 03.08.2007  Dano   * increase printout level of ROOT routines like Print()
+ * 02.03.2007  Kevin  * added comments and header\n
+ * 22.05.2007  Kevin  * added nicer 2D plots including contours\n
+ * 03.08.2007  Dano   * increase printout level of ROOT routines like Print()\n
  *
  * --------------------------------------------------------- 
- *
- *
- * The class defines a marginalized probability. 
  *
 */ 
 

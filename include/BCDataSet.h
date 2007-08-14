@@ -1,5 +1,9 @@
-/**
- * A class which defines a data set. 
+/*! \class BCDataSet
+ *  \brief A class for handling a set of data points
+ *
+ *
+ * The class defines a data set. It contains a vector of data points
+ * and methods to read data from a file.
  *
  * --------------------------------------------------------- 
  *
@@ -12,11 +16,7 @@
  * REVISION: 
  *
  * --------------------------------------------------------- 
- *
- * The class defines a data set. It contains a vector of data points 
- * and methods to read data from a file. 
- *
-*/ 
+ */ 
 
 // --------------------------------------------------------- 
 
@@ -90,8 +90,8 @@ class BCDataSet
    * @param nvariables The number of variables 
    * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
    * @see ReadDataFromFileHist(char* filename, char* histname); 
-   */   
-  int ReadDataFromFileTxt(char* filename, int nbranches); 
+   */
+  int ReadDataFromFileTxt(char* filename, int nvariables);
 
   /** 
    * Reads data from a user specified file. 

@@ -1,4 +1,6 @@
-/**
+/*! \class BCH1D
+ *  \brief A class for handling 1D distributions
+ *
  * A class which contains a TH1D histogram and can be used for marginalized probabilties 
  *
  * --------------------------------------------------------- 
@@ -11,14 +13,13 @@
  * 
  * REVISION:
  *
- * 03.08.2007  Dano  * increase printout level of ROOT routines like Print()
- * 06.08.2007  Dano  * change Print "if" structure to "case" structure
- *
+ * 03.08.2007  Dano  * increase printout level of ROOT routines like Print()\n
+ * 06.08.2007  Dano  * change Print "if" structure to "case" structure\n
+ * 14.08.2007  Kevin * adding smallest interval printing\n
+ * 14.08.2007  Dano  * rewriting the Print() method, adding new methods for printing\n
  *
  * --------------------------------------------------------- 
- *
- *
-*/ 
+ */ 
 
 // --------------------------------------------------------- 
 

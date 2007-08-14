@@ -1,5 +1,8 @@
-/**
- * A class which defines a data object. 
+/*! \class BCDataPoint
+ *  \brief A class for handling the data point
+ *
+ * The class defines a data object. A data object can be an event, a bin content, etc. 
+ * Each data object can store several variables. 
  *
  * --------------------------------------------------------- 
  *
@@ -11,16 +14,11 @@
  * 
  * REVISION: 
  *
- * 02.03.2007 Kevin, added comments and header 
- * 12.06.2007 Kevin, renamed to BCDataPoint
+ * 02.03.2007 Kevin, added comments and header \n
+ * 12.06.2007 Kevin, renamed to BCDataPoint \n
  *
  * --------------------------------------------------------- 
- *
- *
- * The class defines a data object. A data object can be an event, a bin content, etc. 
- * Each data object can store several variables. 
- *
-*/ 
+ */ 
 
 // --------------------------------------------------------- 
 
@@ -98,3 +96,4 @@ class BCDataPoint
 // --------------------------------------------------------- 
 
 #endif 
+
