@@ -1,5 +1,5 @@
 /* current BAT version tag */
 
-#define BAT_VERSION "0.1.1"
+#define BAT_VERSION "0.1.2"
 
 
