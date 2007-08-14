@@ -78,29 +78,29 @@ int main()
   // marginalize 
   // ---------------------------------------------------------
 
-  if (fModelPol0 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability() && 
-      fModelPol0 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability()) 
+  if (fModelPol0 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability() &&
+      fModelPol0 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability())
     {
       fModelPol0 -> MarginalizeAll();
-      fModelPol0 -> GetMarginalized("constant") -> Print("modelpol0_constant.ps", 1); 
+      fModelPol0 -> GetMarginalized("constant") -> Print("modelpol0_constant.ps");
     }
 
-  if (fModelPol1 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() && 
-      fModelPol1 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability()) 
+  if (fModelPol1 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() &&
+      fModelPol1 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability())
     {
       fModelPol1 -> MarginalizeAll();
-      fModelPol1 -> GetMarginalized("constant")          -> Print("modelpol1_constant.ps", 1); 
-      fModelPol1 -> GetMarginalized("slope")             -> Print("modelpol1_slope.ps", 1); 
-      fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2); 
+      fModelPol1 -> GetMarginalized("constant")          -> Print("modelpol1_constant.ps");
+      fModelPol1 -> GetMarginalized("slope")             -> Print("modelpol1_slope.ps");
+      fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
     }
 
-  if (fModelPol2 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() && 
-      fModelPol2 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability()) 
+  if (fModelPol2 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() &&
+      fModelPol2 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability())
     {
       fModelPol2 -> MarginalizeAll();
-      fModelPol2 -> GetMarginalized("constant")          -> Print("modelpol2_constant.ps", 3);
-      fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps", 3);
-      fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps", 3);
+      fModelPol2 -> GetMarginalized("constant")          -> Print("modelpol2_constant.ps");
+      fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps");
+      fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps");
       fModelPol2 -> GetMarginalized("constant", "slope") -> Print("modelpol2_constant_slope.ps", 2);
       fModelPol2 -> GetMarginalized("constant", "quad")  -> Print("modelpol2_constant_quad.ps", 2);
       fModelPol2 -> GetMarginalized("slope",    "quad")  -> Print("modelpol2_slope_quad2.ps", 2);
@@ -154,17 +154,17 @@ int main()
   if (fModelPol0 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability() && 
       fModelPol0 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability()) 
     fModelPol0 -> DoGoodnessOfFitTest(100, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
-      Print("modelpol0_gof.ps", 2, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
+      Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
 
   if (fModelPol1 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() && 
       fModelPol1 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability()) 
     fModelPol1 -> DoGoodnessOfFitTest(100, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
-      Print("modelpol1_gof.ps", 2, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+      Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 
   if (fModelPol2 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() && 
       fModelPol2 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability()) 
     fModelPol2 -> DoGoodnessOfFitTest(100, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
-      Print("modelpol2_gof.ps", 2, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
+      Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
 
   // ---------------------------------------------------------
   // summarize

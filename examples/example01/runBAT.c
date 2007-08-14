@@ -49,8 +49,8 @@ int main()
 //  fModelPol1 -> SetNbins(200);
   fModelPol1 -> MarginalizeAll();
 
-  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps", 3);
-  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps", 3);
+  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
+  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps");
   fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
 
   // ---------------------------------------------------------

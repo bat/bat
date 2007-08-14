@@ -29,11 +29,10 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TLine.h>
 #include <TPolyLine.h>
-#include <TPaveText.h>
-#include <TPaveLabel.h>
 #include <TLatex.h>
-
+#include <TMath.h>
 #include <TError.h>
 
 #include "BCLog.h"
@@ -161,28 +160,61 @@ class BCH1D
   /**
    * @param hist The histogram 
    */ 
-  void SetHistogram(TH1D* hist) 
+  void SetHistogram(TH1D * hist)
     { fHistogram = hist; }; 
+
+  /**
+   * @param limit Default Confidence Level limit.
+	* Allowed values are between 68 and 100. Default value is 95.
+   */
+  void SetDefaultCLLimit(double limit);
 
   // methods 
 
-  /** 
-   * @param filename The filename 
-   * @param options 0 = no lines, 1 = lines at mode, 16% and 84% probability, 2 = line at value 
-   * @param value Line position for option = 2 
-   */ 
-  void Print(char* filename, int options, double value); 
+  /**
+   * Print distribution into a PostScript file.
+   * @param filename Output filename
+   * @param options 0 = band mode [default], 1 = draw vertical line,
+   *    2 = band mode with minimal interval
+   * @param ovalue Option specific value. For option 0, if ovalue is nonzero
+   *    a limit is to be drawn rather than central band with ovalue being the
+   *    per cent value of the limit. If negative, limit is drawn from minimum,
+   *    if positive limit is drawn from maximum. Allowed values are
+   *    68 < |limit| < 100. If mode is outside the band, the limit is
+   *    drawn automatically. The default limit can be changed by
+   *    BCH1D::SetDefaultCLLimit(int limit). For option 1 the ovalue defines
+   *    where the line is drawn. For option 2 the ovalue sets the content of
+	*    the minimal interval in per cent. If omitted a 68% minimal interval
+	*    will be drawn.
+   */
+  void Print(char * filename, int options=0, double ovalue=0.);
 
-  void Print(char* filename, int options); 
+  /**
+   * Draw distribution with band between min and max and with marker at the mode.
+	* Write the location of the mode with uncertainties. If limit is specified,
+	* draw CL limit. Allowed values are 68 < |limit| < 100.
+   */
+  void PrintShadedLimits(double mode, double min, double max, double limit=0);
 
-  void Print(char* filename); 
-    
+  /**
+   * Calculate the minimal interval of the distribution containing a given content.
+	* @param min calculated minimum of the interval
+	* @param max calculated maximum of the interval
+	* @param content content of the interval [default is .68]
+   */
+  void GetSmallestInterval(double & min, double & max, double content=.68);
+
  private: 
 
   /** 
    * The histogram
    */ 
   TH1D * fHistogram; 
+
+  /**
+   * Default Confidence Level limit
+   */
+  double fDefaultCLLimit;
 
 };
 

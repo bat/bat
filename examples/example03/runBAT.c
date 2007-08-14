@@ -101,15 +101,13 @@ int main()
   // marginalize 
   // ---------------------------------------------------------
 
-  fModelBackground -> MarginalizeAll(); 
+  fModelBackground -> MarginalizeAll();
+  fModelBackground -> GetMarginalized("background") -> Print("modelbackground_background.ps");
 
-  fModelBackground -> GetMarginalized("background") -> Print("modelbackground_background.ps", 1); 
-
-  fModelSignal -> MarginalizeAll(); 
-
-  fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps", 1); 
-  fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps", 1); 
-  fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal.ps", 2); 
+  fModelSignal -> MarginalizeAll();
+  fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps");
+  fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps");
+  fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal.ps", 2);
 
   // ---------------------------------------------------------
   // summarize
