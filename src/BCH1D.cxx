@@ -286,22 +286,12 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 			if (e1 < nbins)
 				right = fHistogram -> GetBinContent(e1 + 1) * fHistogram -> GetBinWidth(e1 + 1);
 
-			// check to the left
-			if ((integral < content) &&
-				((integral + left) >= content) &&
-				((e1 - s1 - 1) < mininterval))
-			{
-				mininterval = e1 - s1 - 1;
-				mins1 = s1 - 1;
-				mine1 = e1;
-			}
-
 			// check to the right
 			if ((integral < content) &&
 				((integral + right) >= content) &&
-				((e1 + 1 - s1) < mininterval))
+				((e1 - s1 + 2) < mininterval))
 			{
-				mininterval = e1 + 1 - s1;
+				mininterval = e1 - s1 + 2;
 				mins1 = s1;
 				mine1 = e1 + 1;
 			}
