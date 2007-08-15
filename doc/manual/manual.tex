@@ -54,6 +54,11 @@ Abstract.
 
 \section{Introduction}
 
+\subsection{Analysis paradigm} 
+
+Describe the basic philosophy behind the type of data analysis which
+we perform. This is more general than just the Bayesian formula. 
+
 \subsection{Bayesian inference} 
 
 \begin{equation}
@@ -61,10 +66,21 @@ p(A|B) = \frac{p(B|A) \cdot p_{0}(A)}{\int p(B|A) \cdot p_{0}(A) \, \mathrm{d}A 
 \label{eqn:BayesTheorem}
 \end{equation}
 
-\subsection{Applications in particle physics} 
-\label{subsection:applications} 
+\subsection{Probability density function} 
 
-Some examples: 
+We should give an introduction to how the output can be used, such as
+defining the error band on our best fit curve, defining probability
+intervals, propagating the probability density information to future
+experiments, etc
+
+\subsection{Goodness-of-fit} 
+
+Lay the conceptual foundation. 
+
+\subsection{Example uses of Bayesis Inference} 
+\label{subsection:exampleuses} 
+
+Describe in general terms how a problem is formulated. Some examples:
 
 \begin{itemize}
 \item Structure functions. 
@@ -74,13 +90,20 @@ Some examples:
 \item Cosmological models.  
 \end{itemize}
 
+\subsection{Requirements} 
+
+The types of information the user will have to provide (bounds on
+parameters, starting values, step sizes) plus the choices the user has
+for output formats, types of outputs, etc.
+Maybe define a model here. 
+
 % --------------------------------------------------------
 % installation 
 % --------------------------------------------------------
 
 \section{Installation} 
 
-ROOT 
+How to install BAT on your computer. Requirements, e.g. ROOT. 
 
 % --------------------------------------------------------
 % analysis chain
@@ -392,6 +415,17 @@ BCModel::GoodnessOfFitTest(const char * filenname, std::vector <double> paramete
 \noindent 
 The method returns a pointer to a \verb|BCH1D|. The frequency
 distribution can be printed as for the case of parameter estimates. 
+
+% --------------------------------------------------------
+% technical tools 
+% --------------------------------------------------------
+
+\section{Technical tools} 
+\label{section:tools} 
+
+Describe how numerical integrations are performed, how optimization is
+done, etc. It should be clear what parameters can be controlled by the
+user and what they mean.
 
 % --------------------------------------------------------
 % examples
