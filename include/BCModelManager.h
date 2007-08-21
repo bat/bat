@@ -63,7 +63,7 @@ class BCModelManager
    * @param index The index of the model 
    * @return The BCModel. 
    */ 
-  BCModel* GetModel(int index) 
+  BCModel * GetModel(int index) 
     { return fModelContainer -> at(index); }; 
 
   /**
@@ -108,16 +108,7 @@ class BCModelManager
    * @see AddModel(BCModel * model)
    * @see SetModelPrior(BCModel * model, double probability)
    */ 
-  void AddModel(BCModel * model, double probability); 
-
-  /** 
-   * Adds a model to the container
-   * @param model The model
-   * @see AddModel(BCModel * model, double probability)
-   * @see SetModelPrior(BCModel * model, double probability)
-   */ 
-  void AddModel(BCModel * model)
-    { this -> AddModel(model, 0.0); }; 
+  void AddModel(BCModel * model, double probability=0.); 
 
   /**
    * Adds a data point to the data container. 
@@ -158,9 +149,9 @@ class BCModelManager
    * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
    * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
    * @see ReadDataFromFileTxt(char * filename, int nbranches); 
-   */   
-  int ReadDataFromFileUser(char*  filename, std::vector<int> options_int, std::vector<double> options_double); 
-  
+   */
+  int ReadDataFromFileUser(char*  filename, std::vector<int> options_int, std::vector<double> options_double);
+
  /** 
    * Calculates the normalization of the likelihood for each model in the container. 
    */   
@@ -172,15 +163,12 @@ class BCModelManager
   void ResetDataSet()
     { fDataSet -> Reset(); }; 
 
-  /** 
-   * Prints a summary on the screen. 
-   */ 
-  void PrintSummary(); 
-
-  /** 
-   * Prints a summary to a file. 
-   */ 
-  void PrintSummaryToFile(char * filename); 
+  /**
+   * Prints a summary into a file. If filename is omitted the summary will
+	* be printed onto the screen
+	* @param filename name of the file to write into.
+   */
+  void PrintSummary(char * filename=0);
 
  private: 
 
@@ -189,13 +177,13 @@ class BCModelManager
    */ 
   BCModelContainer * fModelContainer; 
 
-  /** 
-   * A data set 
-   */ 
-  BCDataSet * fDataSet; 
+  /**
+   * A data set
+   */
+  BCDataSet * fDataSet;
 
 }; 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-#endif 
+#endif
