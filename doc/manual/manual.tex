@@ -531,7 +531,7 @@ BCH2D::Print (char *filename, int options)
 
 The printing options are summarized in Table~\ref{table:printingoptions}. 
 
-\begin{table}[h]
+\begin{table}[ht!]
 \begin{tabular}{ll}
 \hline
 Option & Style \\ 
@@ -880,17 +880,56 @@ double BCModelPol1::LogLikelihood(std::vector <double> parameters)
 \end{verbatim} 
 \end{small} 
 
+\noindent 
+Fig.~\ref{fig:example01} (left) shows the data set used in the example
+and the best-fit straight line. The same figure (middle) shows the
+two-dimensional contour of the parameters containing 68\% probability
+and the global best-fit results. Fig.~\ref{fig:example01} (right)
+shows the marginalized probability density for the parameters
+\verb|constant| together with the mode and the central 68\%
+probability region.
+
+\begin{figure}[ht!]
+\begin{tabular}{ccc}
+\begin{minipage}[t]{0.3\textwidth}\includegraphics[height=4.0cm]{example01_data.eps}\end{minipage} & 
+\begin{minipage}[t]{0.3\textwidth}\includegraphics[height=4.0cm]{example01_correlation.eps}\end{minipage}  &
+\begin{minipage}[t]{0.3\textwidth}\includegraphics[height=4.0cm]{example01_constant.eps}\end{minipage} 
+\end{tabular}
+\caption{Left: Data set used in the example01 and best-fit straight line. Middle: Contour containing 68\% probability. Right: Marginalized probability density for the parameter constant. 
+\label{fig:example01}}
+\end{figure}
+
 % --------------------------------------------------------
 
 \subsection{Example 02: Polynomial fitting} 
+
+As an extension of example~01 three different models are compared to
+describe the data set. The difference between the model is the order
+of the polynomial describing the correlation between the points:
+constant, linear, quadratic. All three models are fitted to the data
+and the a posteriori probability for the models is calculated. A
+goodness-of-fit test is performed for the most probable model.
 
 % --------------------------------------------------------
 
 \subsection{Example 03: Spectral analysis} 
 
+The data set is a binned spectrum with independent Poissonian
+fluctuations in each bin. Two models for The underlying distribution
+are compared: a background only distribution which is flat, and a
+signal distribuion which has, in addition to a flat background, a
+Gaussian peak at a defined position and with defined width. In the
+former case, only the amount of background is a parameter while in the
+latter case both, signal and background contribution, are parameters. 
+
 % --------------------------------------------------------
 
 \subsection{Example 04: Efficiency calculation} 
+
+Given two numbers, $n$ and $k$, an efficiency is calculated as the
+ratiom, $k/n$, of the two numbers. The one model implemented assumes
+Poissonian fluctuations on $n$ and a Binomial distribution on $k$
+given $n$. 
 
 % --------------------------------------------------------
 % appendix  

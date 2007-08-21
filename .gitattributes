@@ -2,6 +2,9 @@
 /Makefile -text
 /cuba.h -text
 doc/manual/bat.eps -text
+doc/manual/example01_constant.eps -text
+doc/manual/example01_correlation.eps -text
+doc/manual/example01_data.eps -text
 doc/manual/manual.tex -text
 doc/releasenotes.txt -text
 examples/example01/CreateData.c -text
