@@ -12,6 +12,7 @@ BCIntegrate::BCIntegrate()
 {
 	fNvar=0;
 	fNiterPerDimension = 100;
+	fNSamplesPer2DBin = 100;
 	fRandom = new TRandom3(0);
 
 	fNIterationsMax    = 1000000; 
@@ -28,6 +29,7 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 {
 	fNvar=0;
 	fNiterPerDimension = 100;
+	fNSamplesPer2DBin = 100;
 	fRandom = new TRandom3(0);
 
 	fNbins=100;
@@ -540,7 +542,7 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 // *********************************************
 TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 {
-	int niter=fNbins*fNiterPerDimension*fNvar*fNvar*10;
+	int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
@@ -573,7 +575,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 // *********************************************
 TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * parameter2)
 {
-	int niter=fNbins*fNbins*fNiterPerDimension*fNvar*fNvar;
+	int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
 
 	// set parameter to marginalize
 	int index1 = parameter1->GetIndex();
@@ -610,7 +612,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 // *********************************************
 int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 {
-	int niter=fNbins*fNbins*fNiterPerDimension*fNvar;
+	int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));

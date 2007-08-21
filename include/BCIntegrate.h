@@ -137,6 +137,12 @@ class BCIntegrate
     { return fNiterPerDimension; };
 
   /*!
+   * @return Number of samples per 2D bin per variable in the Metropolis marginalization.
+   */
+  int GetNSamplesPer2DBin()
+    { return fNSamplesPer2DBin; };
+
+  /*!
    * @return The number of variables to integrate over 
    */ 
   int GetNvar() 
@@ -201,11 +207,18 @@ class BCIntegrate
   void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
     { fMarginalizeMethod = method; };
 
-  /*! 
-   * @param niterations The number of iterations per dimension for Monte Carlo integration 
-   */ 
-  void SetNiterationsPerDimension(int niterations) 
+  /*!
+   * @param niterations Number of iterations per dimension for Monte Carlo integration.
+   */
+  void SetNiterationsPerDimension(int niterations)
     { fNiterPerDimension = niterations; };
+
+  /*!
+   * @param n Number of samples per 2D bin per variable in the Metropolis marginalization.
+	* Default is 100.
+   */
+  void SetNSamplesPer2DBin(int n)
+    { fNSamplesPer2DBin = n; };
 
   /*! 
    * @param niterations The maximum number of iterations for Monte Carlo integration 
@@ -220,7 +233,8 @@ class BCIntegrate
     { fRelativePrecision = relprecision; }; 
 
   /*!
-   * @param n number of bins per dimension for the marginalized distributions
+   * @param n Number of bins per dimension for the marginalized distributions.
+	* Default is 100.
    */
   void SetNbins(int n)
     { fNbins = n; };
@@ -434,27 +448,27 @@ class BCIntegrate
  private:
 
   /*!
-   * The set of parameters for the integration.
+   * Set of parameters for the integration.
    */
   BCParameterSet * fx;
 
   /*!
-   * The number of variables to integrate over.
+   * Number of variables to integrate over.
    */
   int fNvar;
 
   /*!
-   * The array containing the lower boundaries of the variables to integrate over.
+   * Array containing the lower boundaries of the variables to integrate over.
    */
   double * fMin;
 
   /*!
-   * The array containing the upper boundaries of the variables to integrate over.
+   * Array containing the upper boundaries of the variables to integrate over.
    */
   double * fMax;
 
   /*!
-   * The list of variables containing a flag whether to integrate over them or not.
+   * List of variables containing a flag whether to integrate over them or not.
    */
   int * fVarlist;
   
@@ -464,38 +478,43 @@ class BCIntegrate
   int fNbins;
 
   /*!
-   * The number of iteration per dimension for Monte Carlo integration. 
-   */ 
+   * Number of iteration per dimension for Monte Carlo integration.
+   */
   int fNiterPerDimension;
 
-  /*! 
-   * The current integration method 
-   */   
+  /*!
+   * Number of samples per 2D bin per variable in the Metropolis marginalization.
+   */
+  int fNSamplesPer2DBin;
+
+  /*!
+   * Current integration method
+   */
   BCIntegrate::BCIntegrationType fIntegrateMethod;
 
   /*! 
-   * The current marginalization method 
+   * Current marginalization method 
    */ 
   BCIntegrate::BCMarginalizationType fMarginalizeMethod;
     
   /*!
-   * The maximum number of iterations 
-   */ 
+   * Maximum number of iterations 
+   */
   int fNIterationsMax; 
 
-  /*! 
-   * The number of iterations in the most recent Monte Carlo integation 
-   */ 
+  /*!
+   * Number of iterations in the most recent Monte Carlo integation
+   */
   int fNIterations; 
 
-  /*! 
-   * The relative precision aimed at in the Monte Carlo integation
-   */ 
-  double fRelativePrecision; 
+  /*!
+   * Relative precision aimed at in the Monte Carlo integation
+   */
+  double fRelativePrecision;
 
-  /*! 
-   * The uncertainty in the most recent Monte Carlo integration 
-   */ 
+  /*!
+   * The uncertainty in the most recent Monte Carlo integration
+   */
   double fError; 
   
   /*! 

@@ -46,7 +46,7 @@ int main()
   // marginalize 
   // ---------------------------------------------------------
 
-//  fModelPol1 -> SetNbins(200);
+  fModelPol1 -> SetNbins(50);
   fModelPol1 -> MarginalizeAll();
 
   fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
