@@ -135,7 +135,7 @@ class BCLog
   	{ return fVersion; };
 
   /**
-   *
+   * @return unique number for use in histogram name string
    */
   static int GetHIndex()
    { return BCLog::fHindex++; };
@@ -167,6 +167,9 @@ class BCLog
    */ 
   static char* ToString(BCLog::LogLevel); 
 
+  /**
+   * Global histogram counter
+   */ 
   static int fHindex;
 }; 
 

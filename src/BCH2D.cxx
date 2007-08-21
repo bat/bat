@@ -178,13 +178,6 @@ void BCH2D::Print(char* filename, int options)
 
 // --------------------------------------------------------- 
 
-void BCH2D::Print(char* filename) 
-{
-	this -> Print(filename, 0); 
-}
-
-// --------------------------------------------------------- 
-
 void BCH2D::CalculateIntegratedHistogram()
 {
 	int nz = 100;

@@ -84,9 +84,7 @@ class BCH2D
    * Print 2-d histogram to file 
    * @param filename The filename 
    */ 
-  void Print(char* filename, int options); 
-
-  void Print(char* filename); 
+  void Print(char* filename, int options=0);
 
   void CalculateIntegratedHistogram(); 
 

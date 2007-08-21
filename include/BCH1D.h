@@ -205,8 +205,24 @@ class BCH1D
    */
   void GetSmallestInterval(double & min, double & max, double content=.68);
 
+  /**
+   * Calculate integral of the distribution between min and max.
+	* @param min lower boundary of the integrated interval
+	* @param max upper boundary of the integrated interval
+	* @return integral calculated as sum of BinContent*BinWidth
+   */
   double IntegralWidth(double min, double max);
 
+  /**
+   * Get histogram with bins outside min, max band being zero. The
+	* new histogram can have 2 more bins than the original one as the
+	* bins where min and max fall into will be split in two (except for the
+	* case when min and/or max are equal to some of the original bin
+	* boundaries.
+	* @param min lower boundary of the non-zero interval
+	* @param max upper boundary of the non-zero interval
+	* @return new histogram which is nonzero only between min and max
+   */
   TH1D * GetSubHisto(double min, double max, const char * name);
 
  private: 
