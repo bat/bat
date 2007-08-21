@@ -15,6 +15,8 @@ int BCLog::fHindex = 0;
 
 BCLog::BCLog()
 {
+	// suppress the ROOT Info printouts
+	gErrorIgnoreLevel=2000;
 }
 
 // ---------------------------------------------------------
