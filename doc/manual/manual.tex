@@ -470,7 +470,9 @@ where \verb|BCMarginalizationType| can be one of the following
 
 \noindent 
 The different methods are described in
-Section~\ref{subsection:optimization}.
+Section~\ref{subsection:optimization}. Note, that if the
+marginalization is done for all parameters simultaneously only Markov
+chains can be used. \\
 
 % --------------------------------------------------------
 
@@ -510,6 +512,15 @@ BCH1D::GetLimit95()
 BCH1D::GetLimit99()
 \end{verbatim} 
 
+\noindent 
+In addition, the smallest interval containing a certain probability
+can be obtained for a one-dimensional histogram 
+%
+\begin{verbatim}
+\item GetSmallestInterval(double & min, double & max, double content=.68) . 
+\end{verbatim}
+
+\noindent 
 Both type of histograms can be printed to an \verb|.eps| or \verb|.ps|
 file via
 
@@ -587,11 +598,31 @@ BCModel::GetPValue() .
 \end{verbatim} 
 
 % --------------------------------------------------------
+
+\subsection{Summary} 
+
+During any time of the analysis the model manager can print a summary
+of models, their parameters and results obtained so far for
+optimization. 
+%
+\begin{verbatim}
+BCModel::PrintSummary(char * filename=0)
+\end{verbatim} 
+
+\noindent 
+The summary is written to a file. In case no filename is specified the
+summary is printed onto the screen. 
+
+% --------------------------------------------------------
 % technical tools 
 % --------------------------------------------------------
 
 \section{Technical tools} 
 \label{section:tools} 
+
+% --------------------------------------------------------
+
+\subsection{The log book} 
 
 % --------------------------------------------------------
 
@@ -613,9 +644,241 @@ user and what they mean.
 
 \section{Examples}
 
+Several examples are provided together with the \BAT\ libraries. These
+are discussed in the following. 
+
 % --------------------------------------------------------
 
 \subsection{Example 01: Straight line fit} 
+
+In the first example the basic problem of fitting a straight line to a
+data set is addressed. The data set contains of data points of a
+measured quantity $y$ at fixed $x$ values with some uncertainty
+$\sigma_{y}$. The model assumes a linear correlation between $x$ and
+$y$ where the uncertainty on the measured $y$ is assumed to be
+Gaussian with the given uncertainty. The two parameters of the model
+are a slope and an offset. \\ 
+
+\noindent 
+First, the main program file, \verb|runBAT.c| is discussed. Then, the
+two files describing the underlying model are shown. \\ 
+
+\pagebreak 
+
+\paragraph{The main program file} 
+% 
+\begin{small} 
+\begin{verbatim}
+#include <BCModelPol1.h>
+#include <BCLog.h> 
+
+int main()
+{
+  // open a new log book 
+
+  BCLog::OpenLog(); 
+
+  // create an instance of the model defined in BCModelPol1.h 
+  // which describes a linear correlation between a set of 
+  // data points. 
+
+  BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
+
+  // create a new data set 
+
+  BCDataSet* fDataSet = new BCDataSet(); 
+
+  // read the data from a .txt file. The three components of each 
+  // data point are values for x, y and the uncertainty on y. 
+
+  if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 3) != 0)
+    return -1; 
+
+  // assign the data set to the model 
+
+  fModelPol1 -> SetDataSet(fDataSet); 
+
+  // perform the mode finding using a simulated annealing. 
+
+  fModelPol1 -> FindMode(); 
+
+  // set number of bins in the marginalized histogram 
+
+  fModelPol1 -> SetNbins(50);
+
+  // perform the marginalization with respect to all parameters 
+  // simultaneously. The resulting histograms are saved in a 
+  // private vector of histograms. 
+
+  fModelPol1 -> MarginalizeAll();
+
+  // return the one-dimensional histograms of the marginalized 
+  // probability density and print them to a .ps file. The 
+  // default option (shaded band of the central 68\% probability) 
+  // is used. 
+
+  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
+  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps");
+
+  // return the two-dimensional histogram of the marginalized 
+  // probability density and print it to a .ps file. The 
+  // option 2 (contour containing 68\% probability) is used. 
+
+  fModelPol1 -> GetMarginalized("constant", "slope") 
+	     -> Print("modelpol1_constant_slope.ps", 2);
+
+  // print a summary of the model and its parameters together 
+  // with the best fit values to screen. 
+
+  fModelPol1 -> PrintSummary(); 
+} 
+\end{verbatim} 
+\end{small} 
+
+\pagebreak 
+
+\paragraph{The include file} 
+% 
+\begin{small} 
+\begin{verbatim}
+#include "BCModel.h" 
+
+// create a new class which inherits from BCModel. 
+
+class BCModelPol1 : public BCModel 
+{
+ public: 
+
+  // constructors 
+
+  BCModelPol1(); 
+
+  BCModelPol1(const char* name); 
+
+  // destructor 
+
+  ~BCModelPol1()
+    { ;};  
+
+  // a method which defines the parameters and adds them to 
+  // the model. 
+
+  void DefineParameters(); 
+
+  // the overloaded method which returns the logarithm of the 
+  // conditional probability for a certain set of parameter 
+  // values. 
+
+  double LogLikelihood(std::vector <double> parameters); 
+
+  // the overloaded method which returns the logarithm of the 
+  // a priori probability for a certain set of parameter 
+  // values. 
+
+  double LogAPrioriProbability(std::vector <double> parameters); 
+}; 
+\end{verbatim} 
+\end{small} 
+
+\pagebreak 
+
+\paragraph{The model file} 
+% 
+\begin{small} 
+\begin{verbatim}
+#include "BCModelPol1.h" 
+
+#include <TMath.h> 
+
+BCModelPol1::BCModelPol1() : BCModel()
+{
+  // define the parameters at the construction of the instance 
+
+  this -> DefineParameters();
+}
+
+BCModelPol1::BCModelPol1(const char* name) : BCModel(name)
+{
+  // define the parameters at the construction of the instance 
+
+  this -> DefineParameters();
+}
+
+void BCModelPol1::DefineParameters()
+{
+  // define two parameters which describe a straight line: 
+  // 0: a constant with values in the interval [1.0, 3.0] 
+  // 1: a slope with values in the interval [0.0, 0.03]
+  // The parameters can be references either via their names 
+  // or via their index. 
+
+  this -> AddParameter("constant", 1.0, 3.0);  // index 0
+  this -> AddParameter("slope",    0.0, 0.03); // index 1
+}
+
+double BCModelPol1::LogAPrioriProbability(std::vector <double> parameters)
+{
+  // the a priori probability is assumed to be flat with respect 
+  // to the two parameters 
+
+  // get the range for the parameter constant (index 0) 
+
+  double offset_lower = this -> GetParameter(0) -> GetLowerLimit();
+  double offset_upper = this -> GetParameter(0) -> GetUpperLimit();
+
+  // get the range for the parameter slope (index 1) 
+
+  double slope_lower = this -> GetParameter(1) -> GetLowerLimit();
+  double slope_upper = this -> GetParameter(1) -> GetUpperLimit();
+
+  // calculate the natural logarithm of the flat probability
+
+  double logprob = 0.;
+  logprob -= TMath::Log(offset_upper - offset_lower);
+  logprob -= TMath::Log(slope_upper - slope_lower);
+
+  // return the logarithm of the a priori probability 
+
+  return logprob;
+}
+
+double BCModelPol1::LogLikelihood(std::vector <double> parameters)
+{
+  // the conditional probability is calculated from the product 
+  // of n Gaussians, where n is the number of data points. 
+
+  // define log of probability
+
+  double logprob = 0.0;
+
+  // get parameter values
+
+  double offset = parameters.at(0);
+  double slope  = parameters.at(1);
+
+  // loop over all data points
+
+  int npoints = this -> GetNDataPoints();
+
+  for (int ipoint = 0; ipoint < npoints; ipoint++)
+    {
+      // define data values
+
+      double x       = this -> GetDataPoint(ipoint) -> GetValue(0);
+      double y       = this -> GetDataPoint(ipoint) -> GetValue(1);
+      double sigma_y = this -> GetDataPoint(ipoint) -> GetValue(2);
+
+      // calculate probability assuming a Gaussian distribution for each point
+ 
+      logprob += BCMath::LogGaus(y, (offset + x * slope), sigma_y, true);
+    }
+
+  // return the logarithm of the conditional probability 
+
+  return logprob; 
+}
+\end{verbatim} 
+\end{small} 
 
 % --------------------------------------------------------
 
