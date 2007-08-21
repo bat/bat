@@ -1097,55 +1097,60 @@ double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * par
 
 void BCModel::PrintSummary()
 {
+	int nparameters = this -> GetNParameters(); 
 
-  int nparameters = this -> GetNParameters(); 
+	// model summary 
+	cout
+		<<endl
+		<<"   ---------------------------------"<<endl
+		<<"    Model : " << fName <<endl
+		<<"   ---------------------------------"<<endl
+		<<"     Index                : "<< fIndex <<endl
+		<<"     Number of parameters : "<< nparameters <<endl
+		<<endl
+		<<"     - Parameters : " <<endl
+		<<endl;
 
-  // model summary 
+	// parameter summary
+	for (int i=0; i<nparameters; i++)
+		fParameterSet -> at(i) -> PrintSummary();
 
-  std::cout << "   Model                        : " << fName << std::endl; 
-  std::cout << "   Index                        : " << fIndex << std::endl; 
-  std::cout << "   Number of parameters         : " << nparameters << std::endl; 
-  std::cout << std::endl; 
-  std::cout << "   - Parameters : " << std::endl; 
-  std::cout << std::endl; 
-
-  // parameter summary 
-
-  for (int i = 0; i < nparameters; i++)
-    fParameterSet -> at(i) -> PrintSummary(); 
-
-  // best fit parameters 
-
-  if (this -> GetBestFitParameters().size() > 0) 
-    {
-      std::cout << std::endl; 
-      std::cout << "   - Best fit parameters : " << std::endl; 
-      std::cout << std::endl; 
-      
-      for (int i = 0; i < nparameters; i++)
+	// best fit parameters 
+	if (this -> GetBestFitParameters().size() > 0) 
 	{
-	  std::cout << "     " << fParameterSet -> at(i) -> GetName() << " = " 
-		    << this -> GetBestFitParameter(i) << " (overall) " << std::endl; 
-	  if (int(fBestFitParametersMarginalized.size()) == nparameters) 
-	    std::cout << "     " << fParameterSet -> at(i) -> GetName() << " = " 
-		      << this -> GetBestFitParameterMarginalized(i) << " (marginalized) " << std::endl; 
+		cout
+			<<endl
+			<<"     - Best fit parameters :"<<endl
+			<<endl;
+
+		for (int i=0; i<nparameters; i++)
+		{
+			cout
+				<<"       "<< fParameterSet -> at(i) -> GetName()
+				<<" = "<< this -> GetBestFitParameter(i)
+				<<" (overall)"<<endl;
+			if ((int)fBestFitParametersMarginalized.size() == nparameters) 
+				cout
+					<<"       "<< fParameterSet -> at(i) -> GetName()
+					<<" = "<< this -> GetBestFitParameterMarginalized(i)
+					<<" (marginalized)"<<endl;
+		}
 	}
-    }
-  
-  std::cout << std::endl; 
 
-  // model testing 
+	cout<<endl;
 
-  if (fPValue >= 0)
-    {
-      double likelihood = this -> Likelihood(this -> GetBestFitParameters()); 
+	// model testing 
+	if (fPValue >= 0)
+	{
+		double likelihood = this -> Likelihood(this -> GetBestFitParameters()); 
 
-      std::cout << " - Model testing: " << std::endl << std::endl; 
-      std::cout << "   p(data|lambda*) = " << likelihood << std::endl; 
-      std::cout << "   p-value         = " << fPValue << std::endl; 
-      std::cout << std::endl; 
-    }
-
+		cout
+			<<"   - Model testing:"<<endl
+			<<endl
+			<<"       p(data|lambda*) = "<< likelihood <<endl
+			<<"       p-value         = "<< fPValue <<endl
+			<<endl;
+	}
 }
 
 // --------------------------------------------------------- 

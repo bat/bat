@@ -90,10 +90,10 @@ void BCModelManager::SetNIterationsMax(int niterations)
 int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames)
 {
 
-  if (fModelContainer -> size() < 0) 
+  if (fModelContainer -> size() < 0)
     {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
-      return ERROR_NOMODELS;  
+      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined.");
+      return ERROR_NOMODELS;
     }
     
   // create data set 
@@ -108,7 +108,7 @@ int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const c
 
   int read_file = fDataSet -> ReadDataFromFileTree(filename, treename, branchnames); 
 
-  if (read_file >=0) 
+  if (read_file >=0)
     {
       this -> SetDataSet(fDataSet); 
       
@@ -131,22 +131,19 @@ int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const c
 
 int BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_int, std::vector<double> options_double) 
 {
-  
   if (fModelContainer -> size() < 0) 
     {
       BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
-      return ERROR_NOMODELS;  
+      return ERROR_NOMODELS;
     }
     
   // create data set 
-
   if (!fDataSet) 
     fDataSet = new BCDataSet(); 
   else
     fDataSet -> Reset(); 
   
   // read data from user specified file 
-
   int read_file = fDataSet -> ReadDataFromFileUser(filename, options_int, options_double, ""); 
 
   if (read_file >=0) 
@@ -180,14 +177,12 @@ int BCModelManager::ReadDataFromFileTxt(char* filename, int nbranches)
     }
     
   // create data set 
-
   if (!fDataSet) 
     fDataSet = new BCDataSet(); 
   else
     fDataSet -> Reset(); 
 
   // read data from txt file 
-
   int read_file = fDataSet -> ReadDataFromFileTxt(filename, nbranches); 
 
   if (read_file >=0) 
@@ -231,92 +226,87 @@ void BCModelManager::Initialize()
 			fModelContainer -> at(i) -> GetModelAPrioriProbability()); 
 	}
 
-	// set model a posteriori probabilities 
+	// set model a posteriori probabilities
 	for (int i = 0; i < int(fModelContainer -> size()); i++)
 		fModelContainer -> at(i) -> SetModelAPosterioriProbability(
-					(fModelContainer -> at(i) -> GetNormalization() * 
-					fModelContainer -> at(i) -> GetModelAPrioriProbability()) / 
-					normalization); 
+					(fModelContainer -> at(i) -> GetNormalization() *
+					fModelContainer -> at(i) -> GetModelAPrioriProbability()) /
+					normalization);
 }
 
 // ---------------------------------------------------------
 
-void BCModelManager::PrintSummary()
+void BCModelManager::PrintSummary(char * file)
 {
+	ofstream out;
+	std::streambuf * old_buffer = 0;
 
-  // model summary 
+	if(file)
+	{
+		out.open(file);
+		if (!out.is_open())
+		{
+			cerr<<"Couldn't open file "<<file<<endl;
+			return;
+		}
+		old_buffer = std::cout.rdbuf(out.rdbuf());
+	}
 
-  int nmodels = int(fModelContainer -> size()); 
+	// model summary
+	int nmodels = int(fModelContainer -> size());
+	cout
+		<<endl
+		<<"======================================"<<endl
+		<<" Summary"<<endl
+		<<"======================================"<<endl
+		<<endl
+		<<" Number of models               : "<<nmodels<<endl
+		<<endl
+		<<" - Models:"<<endl;
 
-  std::cout << std::endl; 
-  std::cout << " ===================================== " << std::endl; 
-  std::cout << " Summary                               " << std::endl; 
-  std::cout << " ===================================== " << std::endl; 
-  std::cout << std::endl;   
-  std::cout << " Number of models               : " << nmodels << std::endl; 
-  std::cout << std::endl; 
-  std::cout << " - Models: " << std::endl; 
-  std::cout << std::endl; 
+	for (int i = 0; i < nmodels; i++)
+		fModelContainer -> at(i) -> PrintSummary();
 
-  for (int i = 0; i < nmodels; i++)
-    fModelContainer -> at(i) -> PrintSummary(); 
+	// data summary
+	cout
+		<<" - Data:"<<endl
+		<<endl
+		<<"     Number of entries: "<<fDataSet -> GetNDataPoints()<<endl
+		<<endl;
 
-  // data summary 
+	cout
+		<<"======================================"<<endl
+		<<" Model comparison"<<endl
+		<<endl;
 
-  std::cout << " - Data: " << std::endl; 
-  std::cout << std::endl; 
-  std::cout << "   Number of entries: " << fDataSet -> GetNDataPoints() << std::endl; 
-  std::cout << std::endl; 
+	// probability summary
+	cout
+		<<" - A priori probabilities:"<<endl
+		<<endl;
   
-  // probability summary 
+	for (int i=0; i<nmodels; i++)
+		cout
+			<<"     p("<< fModelContainer -> at(i) -> GetName()
+			<<") = "<< fModelContainer -> at(i) -> GetModelAPrioriProbability()
+			<<endl;
+	cout<<endl;
 
-  std::cout << " - A priori probabilities: " << std::endl; 
-  std::cout << std::endl; 
-  
-  for (int i = 0; i < nmodels; i++)
-    std::cout << " p(" << fModelContainer -> at(i) -> GetName() 
-	      << ") = " << fModelContainer -> at(i) -> GetModelAPrioriProbability() 
-	      << std::endl; 
-  std::cout << std::endl;       
-  
-  std::cout << " - A posteriori probabilities: " << std::endl; 
-  std::cout << std::endl; 
-  
-  for (int i = 0; i < nmodels; i++)
-    std::cout << " p(" << fModelContainer -> at(i) -> GetName() 
-	      << "|data) = " << fModelContainer -> at(i) -> GetModelAPosterioriProbability() 
-	      << std::endl; 
-  std::cout << std::endl; 
+	cout
+		<<" - A posteriori probabilities:"<<endl
+		<<endl;
 
-}
+	for (int i = 0; i < nmodels; i++)
+		cout
+			<<"     p("<< fModelContainer -> at(i) -> GetName()
+			<<"|data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
+			<<endl;
+	cout<<endl;
 
-// ---------------------------------------------------------
+	cout
+		<<"======================================"<<endl
+		<<endl;
 
-void BCModelManager::PrintSummaryToFile(char* filename)
-{
-
-  // open file 
-
-  std::ofstream file; 
-
-  file.open(filename); 
-
-  // check if file is open 
-
-  if (file.is_open() == false)
-    std::cout << " File not open. " << std::endl; 
-
-  // redirect 
-
-  std::streambuf *old_buffer = std::cout.rdbuf(file.rdbuf());
-
-  // print summary 
-
-  this -> PrintSummary(); 
-
-  // restore the old buffer
-
-  std::cout.rdbuf(old_buffer);
+	cout.rdbuf(old_buffer);
 
 }
 

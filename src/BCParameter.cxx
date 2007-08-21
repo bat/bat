@@ -36,17 +36,19 @@ BCParameter::~BCParameter()
 
 void BCParameter::PrintSummary()
 {
+	cout
+		<<"       > Parameter   : "<< fName <<endl
+		<<"         Index       : "<< fIndex <<endl
+		<<"         Lower Limit : "<< fLowerLimit <<endl
+		<<"         Upper Limit : "<< fUpperLimit <<endl
+		<<"         Nuisence    : ";
 
-  std::cout << "     Parameter                  : " << fName << std::endl; 
-  std::cout << "     Index                      : " << fIndex << std::endl; 
-  std::cout << "     Lower Limit                : " << fLowerLimit << std::endl; 
-  std::cout << "     Upper Limit                : " << fUpperLimit << std::endl; 
-  if(fNuisence)
-	  std::cout << "     Is Nuisence Parameter."<< std::endl; 
-  else
-	  std::cout << "     Is Not Nuisence Parameter."<< std::endl; 
-  std::cout << std::endl;
+	if(fNuisence)
+		cout<<"Yes"<<endl; 
+	else
+		cout<<"No"<<endl; 
 
+	cout<<endl;
 }
 
 // --------------------------------------------------------- 
