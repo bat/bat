@@ -12,9 +12,6 @@ BCH2D::BCH2D()
 {
 	fHistogram = 0; 
 	fIntegratedHistogram = 0; 
-
-	// suppress the ROOT Info printouts 
-	gErrorIgnoreLevel=1;
 }
 
 // --------------------------------------------------------- 

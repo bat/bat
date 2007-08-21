@@ -8,10 +8,14 @@ BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 
 char * BCLog::fVersion = BAT_VERSION;
 
+int BCLog::fHindex = 0;
+
+
 // ---------------------------------------------------------
 
 BCLog::BCLog()
-{}
+{
+}
 
 // ---------------------------------------------------------
 
@@ -22,6 +26,9 @@ BCLog::~BCLog()
 
 void BCLog::OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
 {
+	// suppress the ROOT Info printouts
+	gErrorIgnoreLevel=2000;
+
 	// open log file
 	BCLog::fOutputStream.open(filename);
 

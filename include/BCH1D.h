@@ -205,6 +205,10 @@ class BCH1D
    */
   void GetSmallestInterval(double & min, double & max, double content=.68);
 
+  double IntegralWidth(double min, double max);
+
+  TH1D * GetSubHisto(double min, double max, const char * name);
+
  private: 
 
   /** 

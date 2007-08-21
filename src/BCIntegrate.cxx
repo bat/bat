@@ -621,7 +621,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		double hmin1 = fx->at(i) -> GetLowerLimit();
 		double hmax1 = fx->at(i) -> GetUpperLimit();
 
-		TH1D * h1 = new TH1D(Form("h%s_%s", name,fx->at(i) -> GetName()),"",
+		TH1D * h1 = new TH1D(Form("h%s_%s", name, fx->at(i) -> GetName()),"",
 			fNbins, hmin1, hmax1);
 
 		fHProb1D.push_back(h1);

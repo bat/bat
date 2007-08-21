@@ -11,9 +11,6 @@ BCH1D::BCH1D()
 {
 	fHistogram = 0;
 	fDefaultCLLimit = 95.; // %
-
-	// suppress the ROOT Info printouts
-	gErrorIgnoreLevel=1;
 }
 
 // --------------------------------------------------------- 
@@ -110,13 +107,13 @@ void BCH1D::Print(char * filename, int options, double ovalue)
 			{
 				min = this -> GetQuantile(.16);
 				max = this -> GetQuantile(.84);
-				if (mode > max)
+				if ( mode > max || fHistogram->FindBin(mode) == fHistogram->GetNbinsX() )
 				{
 					min = this -> GetQuantile(1.-(double)fDefaultCLLimit/100.);
 					max = fHistogram->GetXaxis()->GetXmax();
 					ovalue = fDefaultCLLimit;
 				}
-				else if (mode < min)
+				else if (mode < min || fHistogram->FindBin(mode)==1)
 				{
 					min = fHistogram->GetXaxis()->GetXmin();
 					max = this -> GetQuantile((double)fDefaultCLLimit/100.);
@@ -152,8 +149,9 @@ void BCH1D::Print(char * filename, int options, double ovalue)
 		case 2:
 			if(ovalue<50) // just to ensure there's some sense in the number
 				ovalue = 68.; // default is 68%
+
 			this->GetSmallestInterval(min, max, ovalue/100.);
-			this->PrintShadedLimits(mode, min, max, 0);
+			this->PrintShadedLimits(mode, min, max, 0.);
 
 	      break;
 
@@ -163,8 +161,8 @@ void BCH1D::Print(char * filename, int options, double ovalue)
 			break;
 	}
 
-	// print to file 
-	canvas -> Print(filename); 
+	// print to file
+	canvas -> Print(filename);
 }
 
 // --------------------------------------------------------- 
@@ -178,12 +176,12 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 
 	double ysize = maximum*1.2;
 
-	double xmin=fHistogram->GetXaxis()->GetXmin();
-	double xmax=fHistogram->GetXaxis()->GetXmax();
+	double xmin = fHistogram->GetXaxis()->GetXmin();
+	double xmax = fHistogram->GetXaxis()->GetXmax();
 
 	// draw histogram with axes first
-	TH2D * hsc = new TH2D(Form("h2_%s",fHistogram->GetName()),"",
-			10,xmin,xmax,10,0.,ysize);
+	TH2D * hsc = new TH2D(Form("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
+			10, xmin, xmax, 10, 0., ysize);
 	hsc -> SetStats(0);
 	hsc -> SetXTitle(fHistogram->GetXaxis()->GetTitle());
 	hsc -> SetYTitle(fHistogram->GetYaxis()->GetTitle());
@@ -193,20 +191,9 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 	fHistogram -> Draw("same");
 
 	// draw yellow shaded region between min and max
-	TH1D * hist_shaded =  (TH1D *) fHistogram -> Clone();
+	TH1D * hist_shaded = this->GetSubHisto(min,max,Form("%s_sub_%d",fHistogram->GetName(),BCLog::GetHIndex()));
 	hist_shaded -> SetFillStyle(1001);
 	hist_shaded -> SetFillColor(kYellow);
-
-	// remove entries on the sides
-	int nbins = hist_shaded -> GetNbinsX();
-
-	int lowerborder = hist_shaded -> FindBin(min);
-	for (int i = 1; i < lowerborder; i++)
-		hist_shaded -> SetBinContent(i, 0.);
-
-	int upperborder = hist_shaded -> FindBin(max) + 1;
-	for (int i = upperborder; i <= nbins; i++)
-		hist_shaded -> SetBinContent(i, 0.);
 
 	// draw shaded histogram
 	hist_shaded -> Draw("same");
@@ -253,60 +240,236 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 				fHistogram->GetXaxis()->GetTitle(), x0, max-x0, x0-min));
 	else if (limit<0)
 		tmax_text->DrawLatex(xprint,yprint,
-			Form( Form("%%s* (%d%%%% CL) < %%%c",-limit,sf),
+			Form( Form("%%s* (%d%%%% CL) < %%%c",-(int)limit,sf),
 				fHistogram->GetXaxis()->GetTitle(), max));
 	else if (limit>0)
 		tmax_text->DrawLatex(xprint,yprint,
-			Form( Form("%%s* (%d%%%% CL) > %%%c",limit,sf),
+			Form( Form("%%s* (%d%%%% CL) > %%%c",(int)limit,sf),
 				fHistogram->GetXaxis()->GetTitle(), min));
 
 }
 
-// --------------------------------------------------------- 
- 
+// ---------------------------------------------------------
+
 void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 {
+	if(content<=0. || content>= 1.)
+		return;
+
 	int nbins = fHistogram -> GetNbinsX();
-	int mins1 = -1;
-	int mine1 = -1;
-	double mininterval = nbins;
 
-	// loop over start value
-	for (int s1 = 1; s1 <= nbins; s1++)
+	double factor = fHistogram->Integral("width");
+	if(factor==0)
+		return;
+
+	// normalize if not yet done
+	fHistogram->Scale(1./factor);
+
+	double xmin = fHistogram->GetXaxis()->GetXmin();
+	double xmax = fHistogram->GetXaxis()->GetXmax();
+	double width = xmax - xmin;
+
+	double xdown=xmin;
+	double xup=xmax;
+
+	int ndiv=100;
+	if(nbins<100)
+		ndiv=1000;
+	if(nbins>1000)
+		ndiv=10;
+
+	int warn=0;
+
+	// first find the approximate location
+	for(int i=1;i<nbins+1;i++)
 	{
-		// loop over end value
-		for (int e1 = s1; e1 <= nbins; e1++)
+		if(fHistogram->Integral(i,nbins,"width") < content)
+			break;
+
+		// get width of the starting bin
+		double firstbinwidth = fHistogram->GetBinWidth(i);
+
+		// divide i-th bin in ndiv divisions
+		// integrate starting at each of these divisions
+		for(int j=0;j<ndiv;j++)
 		{
-			double integral = fHistogram -> Integral(s1, e1, "width");
-			double left  = 0.0;
-			double right = 0.0;
+			double dxdown = (double)(ndiv-j)/(double)ndiv * firstbinwidth;
+			xdown = fHistogram->GetBinLowEdge(i) + firstbinwidth - dxdown;
+			double integral = dxdown * fHistogram->GetBinContent(i);
 
-			if (s1 > 1)
-				left = fHistogram -> GetBinContent(s1 - 1) * fHistogram -> GetBinWidth(s1 - 1);
-			if (e1 < nbins)
-				right = fHistogram -> GetBinContent(e1 + 1) * fHistogram -> GetBinWidth(e1 + 1);
-
-			// check to the right
-			if ((integral < content) &&
-				((integral + right) >= content) &&
-				((e1 - s1 + 2) < mininterval))
+			if(integral>content)
 			{
-				mininterval = e1 - s1 + 2;
-				mins1 = s1;
-				mine1 = e1 + 1;
+				// content fits within one bin
+				xup = xdown + content / fHistogram->GetBinContent(i);
+				warn = 1;
 			}
-
-			if (s1 == e1 && integral >= content)
+			else
 			{
-				mininterval = 1;
-				mins1 = s1;
-				mine1 = e1;
+				for(int k=i+1;k<nbins+1;k++)
+				{
+					double thisbin = fHistogram->GetBinContent(k) * fHistogram->GetBinWidth(k);
+
+					if(integral+thisbin==content)
+					{
+						xup = fHistogram->GetBinLowEdge(k+1);
+						break;
+					}
+
+					if(integral+thisbin>content)
+					{
+						xup = fHistogram->GetBinLowEdge(k) + (content-integral)/thisbin * fHistogram->GetBinWidth(k);
+						integral += thisbin * (xup-fHistogram->GetBinLowEdge(k))/fHistogram->GetBinWidth(k);
+						break;
+					}
+
+					integral += thisbin;
+				}
+			}
+			if(integral < content)
+				continue;
+			if(xup - xdown < width)
+			{
+				// store necessary information
+				width=xup - xdown;
+				xmin=xdown;
+				xmax=xup;
 			}
 		}
 	}
 
-	min = fHistogram->GetBinCenter(mins1);
-	max = fHistogram->GetBinCenter(mine1);
+	if(warn)
+	{
+		BCLog::Out(BCLog::warning,BCLog::warning,
+			Form("BCH1D::GetSmallestInterval. The requested content of %d%% fits within one bin.",(int)(content*100)));
+		BCLog::Out(BCLog::warning,BCLog::warning,
+			"BCH1D::GetSmallestInterval. MAKE FINER BINNING (OR CHANGE RANGE) !!!");
+	}
+
+	// restore normalization to state before calling this method
+	fHistogram->Scale(factor);
+
+	min=xmin;
+	max=xmax;
+
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
+
+double BCH1D::IntegralWidth(double min, double max)
+{
+	int imin = fHistogram->FindBin(min);
+	int imax = fHistogram->FindBin(max);
+
+	int nbins = fHistogram->GetNbinsX();
+
+	// if outside of histogram range, return -1.
+	if ( imin<1 || imin>nbins || imax<1 || imax>nbins )
+		return -1.;
+
+	if ( imin==imax )
+		return -1.;
+
+	// swap values if necessary
+	if (imin>imax)
+	{
+		int i=imin;
+		double x=min;
+		imin=imax, min=max;
+		imax=i, max=x;
+	}
+
+	// calculate first bin
+	double first = ( fHistogram->GetBinLowEdge(imin+1) - min ) * fHistogram->GetBinContent(imin);
+
+	// calculate last bin
+	double last = ( max - fHistogram->GetBinLowEdge(imax) ) * fHistogram->GetBinContent(imax);
+
+	// calculate inbetween
+	double inbetween=0.;
+	if(imax-imin>1)
+		inbetween = fHistogram->Integral(imin+1, imax-1, "width");
+
+	return first + inbetween + last;
+}
+
+// ---------------------------------------------------------
+
+TH1D * BCH1D::GetSubHisto(double min, double max, const char * name)
+{
+	if(min>max)
+	{
+		double t=min;
+		min=max;
+		max=t;
+	}
+
+	int imin = fHistogram->FindBin(min);
+	int imax = fHistogram->FindBin(max);
+
+	int nbins = fHistogram->GetNbinsX();
+	double xmin = fHistogram->GetXaxis()->GetXmin();
+	double xmax = fHistogram->GetXaxis()->GetXmax();
+
+	if( min==max || (min<=xmin && max>=xmax) )
+	{
+		TH1D * h0 = (TH1D*) fHistogram->Clone(name);
+		return h0;
+	}
+
+	if (imin<1)
+	{
+		imin=1;
+		min=xmin;
+	}
+	if (imax>nbins)
+	{
+		imax=nbins;
+		max=xmax;
+	}
+
+	double * xb = new double[nbins+3]; // nbins+1 original bin edges + 2 new bins
+	int n=0; // counter
+
+	int domin=1;
+	int domax=1;
+
+	for (int i=1;i<nbins+2;i++)
+	{
+		double x0 = fHistogram->GetBinLowEdge(i);
+
+		if (min<x0 && domin)
+		{
+			xb[n++]=min;
+			domin=0;
+		}
+		else if (min==x0)
+			domin=0;
+
+		if (max<x0 && domax)
+		{
+			xb[n++]=max;
+			domax=0;
+		}
+		else if (max==x0)
+			domax=0;
+
+		xb[n++]=x0;
+
+	}
+
+	// now define the new histogram
+	TH1D * h0 = new TH1D(name,"",n-1,xb);
+	for(int i=1;i<n;i++)
+	{
+		double x0 = h0->GetBinCenter(i);
+		if(x0<min || x0>max)
+			continue;
+
+		int bin=fHistogram->FindBin(x0);
+		h0->SetBinContent(i, fHistogram->GetBinContent(bin));
+	}
+
+	return h0;
+}
+
+// ---------------------------------------------------------

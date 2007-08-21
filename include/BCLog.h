@@ -26,6 +26,7 @@
 #include <fstream> 
 
 #include <TROOT.h>
+#include <TError.h>
 
 #include "BCReleaseVersion.h"
 
@@ -133,6 +134,11 @@ class BCLog
   static char * GetVersion()
   	{ return fVersion; };
 
+  /**
+   *
+   */
+  static int GetHIndex()
+   { return BCLog::fHindex++; };
 
  private: 
 
@@ -161,6 +167,7 @@ class BCLog
    */ 
   static char* ToString(BCLog::LogLevel); 
 
+  static int fHindex;
 }; 
 
 // --------------------------------------------------------- 
