@@ -115,7 +115,7 @@ int main()
   
   fModelManager -> PrintSummary(); 
 
-  fModelManager -> PrintSummaryToFile("output.log"); 
+  fModelManager -> PrintSummary("output.log"); 
 
   // ---------------------------------------------------------
   // Print data with best fit result 
