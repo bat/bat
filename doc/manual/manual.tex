@@ -34,6 +34,8 @@ version 0.1}
 
 \maketitle
 
+\thispagestyle{empty} 
+
 \begin{abstract} 
 The Bayesian Analysis Toolkit, \BAT, is a software package designed to
 help solve statistical problems encountered in Bayesian
@@ -50,6 +52,8 @@ goodness-of-fit is included and based on ensemble tests.
 % table of contents 
 % --------------------------------------------------------
 
+\thispagestyle{empty} 
+
 \tableofcontents
 
 \pagebreak 
@@ -60,6 +64,8 @@ goodness-of-fit is included and based on ensemble tests.
 
 \section{Introduction}
 
+% --------------------------------------------------------
+
 \subsection{Analysis paradigm} 
 
 Describe the basic philosophy behind the type of data analysis which
@@ -69,6 +75,8 @@ In the following, the term {\it model} denotes a set of parameters, a
 conditional probability for a set of data given the parameters, and
 the prior probability for the set of parameters.
 
+% --------------------------------------------------------
+
 \subsection{Bayesian inference} 
 
 \begin{equation}
@@ -76,12 +84,16 @@ p(A|B) = \frac{p(B|A) \cdot p_{0}(A)}{\int p(B|A) \cdot p_{0}(A) \, \mathrm{d}A 
 \label{eqn:BayesTheorem}
 \end{equation}
 
+% --------------------------------------------------------
+
 \subsection{Probability density function} 
 
 We should give an introduction to how the output can be used, such as
 defining the error band on our best fit curve, defining probability
 intervals, propagating the probability density information to future
 experiments, etc
+
+% --------------------------------------------------------
 
 \subsection{Goodness-of-fit} 
 
@@ -92,13 +104,34 @@ Lay the conceptual foundation.
 
 Describe in general terms how a problem is formulated. Some examples:
 
-\begin{itemize}
-\item Structure functions. 
-%
-\item Neutrinoless double beta-decay. 
-% 
-\item Cosmological models.  
-\end{itemize}
+\paragraph{Structure functions} 
+
+\paragraph{Neutrinoless double beta-decay} 
+
+Neutrinoless double beta-decay ($0\nu\beta\beta$) is rare nuclear
+process predicted to occur if the neutrino is a Majorana
+particle~\cite{Yao:2006px}. It has two electrons and no neutrinos in
+the final state. Experiments searching for $0\nu\beta\beta$-decay of
+$^{76}$Ge measure the ionization energy deposited in Ge-semiconductor
+detectors. Since the energy released in the decay, the $Q$-value, is
+fully transferred to the electrons the experimental signature of such
+a decay is a sharp line at that energy. In experiments like
+GERDA~\cite{Schonert:2005zn} the background in the region of interest
+is expected to be flat. \\ 
+
+\noindent 
+Due to the small number of signal events predicted special care has to
+be taken when analyzing the measured energy spectrum. Common
+approximations which are only valid for a laarge number of events
+cannot hold in that case. A spectral analysis based on Bayes' Theorem
+has been developed for that purpose~\cite{Caldwell:2006yj}. The
+sensitivity of the GERDA experiment has been evaluated using Monte
+Carlo techniques. A simplified version of the analysis is given as an
+example in the code (see Section~\ref{section:example03}). 
+
+\paragraph{Cosmological models} 
+
+% --------------------------------------------------------
 
 \subsection{Requirements} 
 
@@ -313,6 +346,7 @@ BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_in
 % --------------------------------------------------------
 
 \subsection{Normalization and numerical integration} 
+\label{section:normalization} 
 
 The {\it a posteriori} probability density function is normalized to
 unity. To ensure this normalization the denominator on the right hand
@@ -346,12 +380,20 @@ where \verb|BCIntegrationType| can be one of the following
 
 \noindent 
 The time needed for the numerical integration depends on the number of
-iterations. It can be constrained by the maximum number of iterations
-and the relative precision aimed at. These parameters can be set via
+iterations. For the samples mean integration it can be constrained by
+the maximum number of iterations and the relative precision aimed
+at. These parameters can be set via
 %
 \begin{verbatim}
 BCIntegrate::SetNIterationsMax(int niterations)
 BCIntegrate::SetRelativePrecision(double relprecision) 
+\end{verbatim} 
+
+\noindent 
+For all other methods the number of iterations is explicitly set via 
+%
+\begin{verbatim}
+BCIntegrate::SetNiterationsPerDimension(int niterations) 
 \end{verbatim} 
 
 \noindent 
@@ -517,7 +559,7 @@ In addition, the smallest interval containing a certain probability
 can be obtained for a one-dimensional histogram 
 %
 \begin{verbatim}
-\item GetSmallestInterval(double & min, double & max, double content=.68) . 
+BCH1D::GetSmallestInterval(double & min, double & max, double content=.68) . 
 \end{verbatim}
 
 \noindent 
@@ -624,19 +666,110 @@ summary is printed onto the screen.
 
 \subsection{The log book} 
 
+The class \verb|BCLog| is used to write out information during the
+runtime of program. The output is written to screen and to a log
+file. The minimum level of detail can be set by the user via
+%
+\begin{verbatim} 
+SetMinimumLogLevelFile(BCLog::LogLevel loglevel)
+SetMinimumLogLevelScreen(BCLog::LogLevel loglevel)
+\end{verbatim} 
+
+\noindent 
+where the level is one of the following 
+%
+\begin{itemize} 
+\item \verb|debug|: Lowest level of information. 
+\item \verb|detail|: Details of functions, etc. 
+\item \verb|summary|: Results such as best-fit values, etc. 
+\item \verb|warning|: Warning messages 
+\item \verb|nothing|: Nothing is written out. 
+\end{itemize} 
+
+The user has to open a log file in the beginning using 
+%
+\begin{verbatim} 
+BCLog::OpenLog() . 
+\end{verbatim} 
+
 % --------------------------------------------------------
 
 \subsection{Optimization} 
-\label{subsection:optimization} 
+\label{section:optimization} 
+
+Describe how optimization is done, etc. It should be clear what
+parameters can be controlled by the user and what they mean.
 
 % --------------------------------------------------------
 
 \subsection{Numerical integration} 
-\label{subsection:integration} 
+\label{section:integration} 
 
-Describe how numerical integrations are performed, how optimization is
-done, etc. It should be clear what parameters can be controlled by the
-user and what they mean.
+The different methods of numerical integration are shortly discussed
+in the following. The basic idea of Monte Carlo integration is that an
+integral can be approximated with a finte sum. For a function $f$
+defined between~0 and~1 this yields 
+% 
+\begin{equation}
+\int_{0}^{1} f(x) \, \mathrm{d}x \approx \frac{1}{N} \sum_{i=1}^{N} f(x_{i}) \, , 
+\label{eqn:integration}
+\end{equation} 
+
+\noindent 
+where $N$ is the number of samples. The values $x_{i}$ are randomly
+sampled from a uniform distribution. The statistical uncertainty the
+expression goes as $1/\sqrt{N}$ independent of the dimension. 
+
+\paragraph{Sampled mean integration} 
+
+The sampled mean integation is the simplest implementation of Monte
+Carlo integration. It uses the approximation from
+Eqn.~\ref{eqn:integration} for arbitrary limits of parameters, thus
+including a Jacobian term, $J$:
+%
+\begin{eqnarray}
+\int_{a}^{b} f(x) \, \mathrm{d}x & = & \int_{0}^{1} f(x) \cdot J(x) \, \mathrm{d}x \\ 
+                                 & = & \int_{0}^{1} f(x) \cdot (b - a) \, \mathrm{d}x \\ 
+				 & \approx & \frac{(b - a)}{N} \sum_{i=1}^{N} f(x_{i}) =: \mu
+\end{eqnarray} 
+
+\noindent 
+The uncertainty of the integral is the standard deviation of the mean
+value and thus 
+%
+\begin{equation}
+\sigma_{\mu} = \frac{1}{\sqrt{N}} \cdot \sqrt{\overline{x^{2}} - \overline{x}^{2}} \, . 
+\end{equation} 
+
+\noindent 
+The number of samples is limited to a maximum. If the relative
+precision, $\sigma_{\mu}/\mu$ is less than a chosen value, the
+sampling stops (see Section~\ref{section:normalization}). 
+
+\paragraph{Sampled mean integration with importance sampling} 
+
+Instead of sampling from a uniform distribution a well known function
+can be used as underlying distribution for the $x_{i}$. The integral
+from Eqn.~\ref{eqn:integration} is then computes as 
+%
+\begin{eqnarray}
+\int_{a}^{b} f(x) \, \mathrm{d}x & = & \int_{a}^{b} \frac{f(x)}{g(x)} \cdot g(x) \cdot J(x) \, \mathrm{d}x \\ 
+ & \approx & \frac{(b - a)}{N} \sum_{i=1}^{N} \frac{f(x_{i})}{g(x_{i})} \, , 
+\end{eqnarray} 
+
+\noindent 
+where the $x_{i}$ are sampled according to $g$. Note, that $g$ has to
+be normalized to unity. \\ 
+
+\noindent 
+The number of iterations has to be set directly (see Section~\ref{section:normalization}). 
+
+\paragraph{Sampled mean integration with importance sampling using Markov chains} 
+
+Instead of using uncorrelated numbers of $x$ values in the importance
+sampling, Markov chain can be used. Regions of higher probability are
+found faster and the statistical fluctuation descreases. For more
+details on Markov chains, see Section~\ref{section:optimization}.
 
 % --------------------------------------------------------
 % examples
@@ -652,12 +785,13 @@ are discussed in the following.
 \subsection{Example 01: Straight line fit} 
 
 In the first example the basic problem of fitting a straight line to a
-data set is addressed. The data set contains of data points of a
-measured quantity $y$ at fixed $x$ values with some uncertainty
-$\sigma_{y}$. The model assumes a linear correlation between $x$ and
-$y$ where the uncertainty on the measured $y$ is assumed to be
-Gaussian with the given uncertainty. The two parameters of the model
-are a slope and an offset. \\ 
+set of measured points is addressed. The data set consists of data
+points of a measured quantity $y$ at fixed $x$ values with some
+uncertainty $\sigma_{y}$. The model assumes a linear correlation
+between $x$ and $y$ where the uncertainty on the measured $y$ is
+assumed to be Gaussian with the given uncertainty~$\sigma_{y}$. The
+two parameters of the model are the slope and offset describing the
+linear curve. \\
 
 \noindent 
 First, the main program file, \verb|runBAT.c| is discussed. Then, the
@@ -913,6 +1047,7 @@ goodness-of-fit test is performed for the most probable model.
 % --------------------------------------------------------
 
 \subsection{Example 03: Spectral analysis} 
+\label{section:example03} 
 
 The data set is a binned spectrum with independent Poissonian
 fluctuations in each bin. Two models for The underlying distribution
@@ -946,8 +1081,26 @@ given $n$.
 % --------------------------------------------------------
 
 \addcontentsline{toc}{section}{Bibliography}
-%
+
 \begin{thebibliography}{99}
+%
+\bibitem{Yao:2006px}
+  W.~M.~Yao {\it et al.}  [Particle Data Group],
+  ``Review of particle physics,''
+  J.\ Phys.\ G {\bf 33} (2006) 1.
+%
+\bibitem{Schonert:2005zn}
+  S.~Sch\"onert {\it et al.}  [GERDA Collaboration],
+  ``The GERmanium Detector Array (GERDA) for the search of neutrinoless beta
+  beta decays of Ge-76 at LNGS,''
+  Nucl.\ Phys.\ Proc.\ Suppl.\  {\bf 145} (2005) 242.
+%
+\bibitem{Caldwell:2006yj}
+  A.~Caldwell and K.~Kr\"oninger,
+  ``Signal discovery in sparse spectra: A Bayesian analysis,''
+  Phys.\ Rev.\  D {\bf 74}, 092003 (2006)
+  [arXiv:physics/0608249].
+%
 \bibitem{Hahn:2004fe}
   T.~Hahn, ``CUBA: A library for multidimensional numerical
   integration,'' Comput.\ Phys.\ Commun.\ {\bf 168} (2005) 78
