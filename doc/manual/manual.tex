@@ -135,10 +135,23 @@ example in the code (see Section~\ref{section:example03}).
 
 \subsection{Requirements} 
 
-The types of information the user will have to provide (bounds on
-parameters, starting values, step sizes) plus the choices the user has
-for output formats, types of outputs, etc.
-Maybe define a model here. 
+The BAT toolkit was written to assist the user solving statistical
+problems in Bayesian inference. Of course the user has to be able to
+formulate the problem encountered. This means that the user has to
+provide a valid model together with all parameters and limits of the
+parameters. It is obvious that BAT can only help solve the
+mathematical part of the statistical analysis, in particular the
+numerical integration and optimization.  \\
+
+\noindent 
+During the run-time of the program the user can adjust several
+parameters for numerical integration and optimization. These
+parameters influence the performance of calculation and are not
+connected to the mathematical formulation of the problem
+encountered. In Section~\ref{section:analysis}, the steps of the
+analysis chain are discussed and the adjustable parameters
+introduced. It should be noted that these parameters are model
+dependent and need to be adjusted to each problem separately. 
 
 % --------------------------------------------------------
 % installation 
@@ -156,6 +169,7 @@ How to install BAT on your computer. Requirements, e.g. ROOT.
 % --------------------------------------------------------
 
 \section{Analysis chain}
+\label{section:analysis}
 
 The following section describes the basic features and the technical
 implementation of the \BAT\ toolkit. The general flow of work is the
@@ -1065,16 +1079,6 @@ Given two numbers, $n$ and $k$, an efficiency is calculated as the
 ratiom, $k/n$, of the two numbers. The one model implemented assumes
 Poissonian fluctuations on $n$ and a Binomial distribution on $k$
 given $n$. 
-
-% --------------------------------------------------------
-% appendix  
-% --------------------------------------------------------
-
-\begin{appendix}
-
-\section{Parameters} 
-
-\end{appendix} 
 
 % --------------------------------------------------------
 % bibliography 
