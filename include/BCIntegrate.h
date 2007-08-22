@@ -234,10 +234,9 @@ class BCIntegrate
 
   /*!
    * @param n Number of bins per dimension for the marginalized distributions.
-	* Default is 100.
+	* Default is 100. Minimum number allowad is 2.
    */
-  void SetNbins(int n)
-    { fNbins = n; };
+  void SetNbins(int n);
 
   // methods   
 
