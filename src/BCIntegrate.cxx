@@ -109,7 +109,7 @@ void BCIntegrate::SetNbins(int n)
 {
 	if(n<2)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNBins. Number of bins less than 2 makes no sense. Setting to 2.");
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
 		n=2;
 	}
 	fNbins=n;
