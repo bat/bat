@@ -10,6 +10,10 @@ LD           = g++
 LDFLAGS      = -g -O2 
 SOFLAGS      = -shared
 
+AR           = ar
+ARFLAGS      = rc
+RANLIB       = ranlib
+
 RM           = rm -f 
 MV           = mv 
 ECHO         = echo
@@ -32,15 +36,20 @@ CXSRCS      = BCParameter.cxx \
 		BCLog.cxx \
 		BCMath.cxx
 
+LIBA         = libBAT.a
+LIBSO        = libBAT.so
+
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
 CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  libBAT.so
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(LIBA) $(LIBSO)
 
-all : libBAT.so
+all : libs
+
+libs : $(LIBA) $(LIBSO)
 
 link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -50,8 +59,12 @@ include link.d
 obj/%.o : src/%.cxx 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-libBAT.so : $(CXXOBJS)  
-	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $@
+$(LIBSO) : $(CXXOBJS)  
+	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $(LIBSO)
+
+$(LIBA) : $(CXXOBJS)
+	$(AR)  $(ARFLAGS) $(LIBA) $(CXXOBJS)
+	$(RANLIB) $(LIBA)
 
 clean :
 	$(RM) $(GARBAGE)
