@@ -45,7 +45,7 @@ CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(LIBA) $(LIBSO)
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(LIBA) $(LIBSO) link.d
 
 all : libs
 

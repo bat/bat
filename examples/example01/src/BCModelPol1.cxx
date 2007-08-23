@@ -37,12 +37,6 @@ double BCModelPol1::LogAPrioriProbability(std::vector <double> parameters)
 	double slope_lower = this -> GetParameter(1) -> GetLowerLimit();
 	double slope_upper = this -> GetParameter(1) -> GetUpperLimit();
 
-/*
-	double probability_offset = 1.0 / (offset_upper - offset_lower);
-	double probability_slope = 1.0 / (slope_upper - slope_lower);
-	double probability = probability_offset * probability_slope;
-*/
-
 	// calculate natural logarithm of the flat probability
 	// this is equivalent to logarithm of the probability calculated
 	// useing the three lines of code above

@@ -29,9 +29,7 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS      = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o
-
-ALLBUILDS    = $(GARBAGE) runBAT link.d
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o link.d runBAT
 
 all : runBAT
 
@@ -45,9 +43,6 @@ include link.d
 
 clean :
 	$(RM) $(GARBAGE)
-
-distclean :
-	$(RM) $(ALLBUILDS)
 
 runBAT : runBAT.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<

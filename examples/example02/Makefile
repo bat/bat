@@ -31,7 +31,7 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o link.d runBAT
 
 all : runBAT
 

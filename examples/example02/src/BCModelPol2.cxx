@@ -31,10 +31,7 @@ void BCModelPol2::DefineParameters()
 
 double BCModelPol2::LogAPrioriProbability(std::vector <double> parameters)
 {
-  double logprob = 0.; 
-
-//	double offset = parameters.at(0); 
-//	double slope  = parameters.at(0); 
+	double logprob = 0.; 
 
 	double offset_lower = this -> GetParameter(0) -> GetLowerLimit(); 
 	double offset_upper = this -> GetParameter(0) -> GetUpperLimit(); 

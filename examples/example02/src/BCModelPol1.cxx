@@ -30,10 +30,7 @@ void BCModelPol1::DefineParameters()
 
 double BCModelPol1::LogAPrioriProbability(std::vector <double> parameters)
 {
-  double logprob = 0.; 
-
-//	double offset = parameters.at(0); 
-//	double slope  = parameters.at(0); 
+	double logprob = 0.; 
 
 	// in this case we define flat a priopi probability across the whole parameter space
 
