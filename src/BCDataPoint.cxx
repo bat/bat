@@ -1,4 +1,5 @@
 #include "BCDataPoint.h" 
+#include "BCLog.h" 
 
 #include "TROOT.h"
 
@@ -16,12 +17,8 @@ BCDataPoint::BCDataPoint(int nvariables)
 BCDataPoint::BCDataPoint(vector<double> x)
 {
 
-  int nentries = int(x.size()); 
-
-  for (int i = 0; i < nentries; i++)
-    {
-      fData.push_back(x.at(i)); 
-    }
+  for (std::vector<double>::const_iterator it = x.begin(); it != x.end(); ++it)
+    fData.push_back(*it); 
 
 }
 
@@ -54,6 +51,9 @@ void BCDataPoint::SetValue(int index, double value)
   if (index >= 0 && index < int(fData.size()))
     fData[index] = value; 
 
+  else
+    BCLog::Out(BCLog::warning, BCLog::warning,"BCDataPoint::SetValue. Index out of range.");
+
 }
 
 // --------------------------------------------------------- 
@@ -62,9 +62,12 @@ void BCDataPoint::SetValues(std::vector <double> values)
 {
 
   if (values.size() == fData.size())
-    for (int i = 0; i < int(fData.size()); i++)
-      fData[i] = values[i]; 
-
+    for (std::vector<double>::const_iterator it = values.begin(); it != values.end(); ++it)
+      fData.push_back(*it); 
+  
+  else
+    BCLog::Out(BCLog::warning, BCLog::warning,"BCDataPoint::SetValues. vectors have different ranges.");
+  
 }
 
 // --------------------------------------------------------- 

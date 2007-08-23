@@ -71,7 +71,10 @@ int BCModel::GetNDataPoints()
 	if (fDataSet) 
 		npoints = fDataSet -> GetNDataPoints(); 
 	else
-		return ERROR_NOEVENTS; 
+	  {
+	    BCLog::Out(BCLog::warning, BCLog::warning,"BCModel::GetNDataPoints(). No data set defined."); 	 
+	    return ERROR_NOEVENTS; 
+	  }
 
 	return npoints; 
 }
@@ -266,10 +269,10 @@ double BCModel::SamplingFunction(std::vector <double> parameters)
 
   double probability = 1.0; 
 
-  for (int i = 0; i < int(fParameterSet -> size()); i++)
+  for (std::vector<BCParameter*>::const_iterator it = fParameterSet -> begin(); it != fParameterSet -> end(); ++it)
     {
-      probability *= 1.0 / (fParameterSet -> at(i) -> GetUpperLimit() -
-			    fParameterSet -> at(i) -> GetLowerLimit()); 
+      probability *= 1.0 / ((*it) -> GetUpperLimit() - 
+			    (*it) -> GetLowerLimit()); 
     }
 
   return probability; 

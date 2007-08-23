@@ -1,4 +1,5 @@
 #include "BCDataSet.h" 
+#include "BCLog.h" 
 
 #include <TFile.h> 
 #include <TTree.h> 
@@ -38,13 +39,16 @@ int BCDataSet::GetNDataPoints()
 
 // --------------------------------------------------------- 
 
-BCDataPoint* BCDataSet::GetDataPoint(int index)
+BCDataPoint * BCDataSet::GetDataPoint(int index)
 {
   
-  BCDataPoint* datapoint = 0; 
+  BCDataPoint * datapoint = 0; 
 
   if (fBCDataVector && index >= 0 && index < this -> GetNDataPoints())
     datapoint = fBCDataVector -> at(index); 
+
+  else
+    BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetDataPoint. Index out of range. Return 0."); 
 
   return datapoint; 
 
@@ -52,20 +56,24 @@ BCDataPoint* BCDataSet::GetDataPoint(int index)
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames) 
+int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char * branchnames) 
 {
 
   // clear data object container 
 
   if (fBCDataVector != 0)
-    fBCDataVector -> clear();
+    {
+      fBCDataVector -> clear();
+
+      BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree. Overwrite existing data."); 
+    }
 
   else
     fBCDataVector = new BCDataVector(); 
 
   // open file 
 
-  TFile* file = new TFile(filename, "READ"); 
+  TFile * file = new TFile(filename, "READ"); 
 
   // check if file is open 
   
@@ -79,7 +87,7 @@ int BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* 
 
   // get tree
 
-  TTree* tree = (TTree*) file -> Get(treename); 
+  TTree * tree = (TTree*) file -> Get(treename); 
 
   // check if tree is there 
 
@@ -176,7 +184,7 @@ int BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* 
 
       // create data object 
 
-      BCDataPoint* datapoint = new BCDataPoint(nbranches); 
+      BCDataPoint * datapoint = new BCDataPoint(nbranches); 
 
       // copy data 
 
@@ -204,7 +212,11 @@ int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches)
   // clear data object container 
 
   if (fBCDataVector != 0)
-    fBCDataVector -> clear();
+    {
+      fBCDataVector -> clear();
+
+      BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt. Overwrite existing data."); 
+    }
 
   else
     fBCDataVector = new BCDataVector(); 
@@ -245,7 +257,7 @@ int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches)
 
       // create data object 
 
-      BCDataPoint* datapoint = new BCDataPoint(nbranches); 
+      BCDataPoint * datapoint = new BCDataPoint(nbranches); 
 
       // copy data 
 
@@ -261,6 +273,8 @@ int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches)
       nentries++; 
     }
   
+  // check number of entries 
+
   if (nentries <= 0) 
     {
       BCLog::Out(BCLog::warning, BCLog::warning, 
@@ -283,7 +297,7 @@ int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches)
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileUser(char* filename, std::vector<int> options_int, std::vector<double> options_double, const char* options_char)
+int BCDataSet::ReadDataFromFileUser(char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
 {
 
   BCLog::Out(BCLog::warning, BCLog::warning, 
@@ -295,7 +309,7 @@ int BCDataSet::ReadDataFromFileUser(char* filename, std::vector<int> options_int
 
 // --------------------------------------------------------- 
 
-void BCDataSet::AddDataPoint(BCDataPoint* datapoint)
+void BCDataSet::AddDataPoint(BCDataPoint * datapoint)
 { 
 
   if (fBCDataVector == 0) 
