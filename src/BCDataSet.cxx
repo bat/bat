@@ -105,30 +105,36 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
 
   // get branch names 
 
-  TString branches = branchnames; 
+  std::string branches(branchnames); 
 
-  std::vector<TString> branchnamevector; 
+  std::vector<std::string> * branchnamevector = new std::vector<std::string>; 
 
-  int temp_index = branches.First(","); 
-  
+  // find comma entry 
+
+  int temp_index = branches.find_first_of(",");
+
+  // reset number of branches 
+
   int nbranches = 0; 
 
-  while(branches.Length() > 0)
+  while(branches.size() > 0)
     {
       // temporary string which contains the name of the current branch 
 
-      TString branchname; 
+      std::string branchname; 
 
       // get current branch name 
 
       if (temp_index == -1) 
-	branchname = branches(0, branches.Length()); 
+ 	branchname = branches;  
       else
-	branchname = branches(0, temp_index); 
+ 	branchname.assign(branches, 0, temp_index); 
 
-      branchnamevector.push_back(branchname); 
+      // write branch name to a vector 
 
-      // increase number of branches 
+      branchnamevector -> push_back(branchname); 
+
+      // increase the number of branches found 
 
       nbranches++; 
 
@@ -137,9 +143,11 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
       if (temp_index == -1)
 	branches = ""; 
       else
-	branches = branches(temp_index + 1, branches.Length()); 
+      branches.erase(0, temp_index + 1); 
 
-      temp_index = branches.First(","); 
+      // find the next comma 
+
+      temp_index = branches.find_first_of(",");
     }     
 
   // create temporary vector with data 
@@ -150,11 +158,7 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
   // set the branch address 
 
   for (int i = 0; i < nbranches; i++)
-    {
-      TString branchname = branchnamevector.at(i); 
-
-      tree -> SetBranchAddress(branchname, &data.at(i)); 
-    }
+    tree -> SetBranchAddress(branchnamevector -> at(i).data(), &data.at(i)); 
 
   // calculate maximum number of entries 
 
@@ -188,8 +192,10 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
 
       // copy data 
 
+      //      datapoint -> SetValues(data); 
+
       for (int i = 0; i < nbranches; i++)
-	datapoint -> SetValue(i, data.at(i)); 
+      	datapoint -> SetValue(i, data.at(i)); 
 
       // add data object to container 
 
@@ -199,6 +205,11 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
   // close file 
 
   file -> Close(); 
+
+  // remove and file 
+
+  if (file)
+    delete file; 
 
   return 0;  
 

@@ -26,7 +26,6 @@
 #include <vector.h> 
 
 #include "BCDataPoint.h" 
-#include "BCLog.h" 
 #include "BCErrorCodes.h" 
 
 // --------------------------------------------------------- 
