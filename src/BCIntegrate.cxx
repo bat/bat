@@ -140,7 +140,7 @@ double BCIntegrate::Eval(std::vector <double> x)
 double BCIntegrate::LogEval(std::vector <double> x)
 {
 	// this method should better also be overloaded
-	return TMath::Log(this->Eval(x));
+	return log(this->Eval(x));
 }
 
 // *********************************************
@@ -153,7 +153,7 @@ double BCIntegrate::EvalSampling(std::vector <double> x)
 // *********************************************
 double BCIntegrate::LogEvalSampling(std::vector <double> x)
 {
-	return TMath::Log(this->EvalSampling(x));
+	return log(this->EvalSampling(x));
 }
 
 // *********************************************
@@ -280,7 +280,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 		if (fNIterations%10000 == 0)
 		{
 			variance = (1.0 / double(fNIterations)) * (D * D * sumW2 / double(fNIterations) - integral * integral);
-			double error = TMath::Sqrt(variance);
+			double error = sqrt(variance);
 			relprecision = error / integral;
 
 			BCLog::Out(BCLog::debug, BCLog::debug,
@@ -291,8 +291,8 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 	fError = variance / fNIterations;
 
 	// print to log
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Result of integration:        %e +- %e   in %i iterations.", integral, TMath::Sqrt(variance), fNIterations));
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Obtained relative precision:  %e. ", TMath::Sqrt(variance) / integral));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Result of integration:        %e +- %e   in %i iterations.", integral, sqrt(variance), fNIterations));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Obtained relative precision:  %e. ", sqrt(variance) / integral));
 
 	return integral;
 }
@@ -872,7 +872,7 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 			accept=1;
 		else
 		{
-			double r=TMath::Log(fRandom->Rndm());
+			double r=log(fRandom->Rndm());
 			if(r<p1-p0)
 				accept=1;
 		}
@@ -927,7 +927,7 @@ void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
 			accept=1;
 		else
 		{
-			double r=TMath::Log(fRandom->Rndm());
+			double r=log(fRandom->Rndm());
 			if(r<p1-p0)
 				accept=1;
 		}
@@ -972,7 +972,7 @@ void BCIntegrate::FindModeSA()
 	xmax.assign(fNvar, 0.0);
 
 	// initial maximum value and location
-	double lastmax = -TMath::Log(this->GetRandomPoint(xmax));
+	double lastmax = -log(this->GetRandomPoint(xmax));
 
 	vector <double> x;
 	x.assign(fNvar, 0.0);
@@ -1065,7 +1065,7 @@ void BCIntegrate::FindModeSA()
 
 			if(i>=nSmin-1)
 				// calculate RMS of last nsave points
-				lastrms = TMath::RMS(nsave,ysave);
+				lastrms = BCMath::rms(nsave,ysave);
 
 			// save the location of maximum
 			// as we're looking at -log Eval(), maximum is actually minimum
@@ -1132,7 +1132,7 @@ void BCIntegrate::GetRandomPointSA(std::vector <double> &x, double T, double ste
 			accept=1;
 		else
 		{
-			double pval = TMath::Exp(-(p1-p0)/T);
+			double pval = exp(-(p1-p0)/T);
 			double r=fRandom->Rndm();
 			if(r<pval)
 				accept=1;

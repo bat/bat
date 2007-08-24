@@ -1,4 +1,5 @@
 #include "BCH1D.h"
+#include "BCMath.h" 
 
 #include <TCanvas.h>
 #include <TLine.h>
@@ -103,7 +104,7 @@ void BCH1D::Print(char * filename, int options, double ovalue)
 		// standard 68% band drawing
 		// if mode is outside the band, draw limit
 		case 0:
-			if (TMath::Abs(ovalue) >= 100 || TMath::Abs(ovalue) < 68)
+			if (fabs(ovalue) >= 100 || fabs(ovalue) < 68)
 			{
 				min = this -> GetQuantile(.16);
 				max = this -> GetQuantile(.84);
@@ -203,7 +204,7 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 	// draw line and triangle for mode
 	TLine * line;
 	TPolyLine * tmax;
-	if(TMath::Abs(limit)<50) // just to ensure there's some sense in the number
+	if(fabs(limit)<50) // just to ensure there's some sense in the number
 	{
 		line = new TLine();
 		line -> SetLineStyle(2);
@@ -221,7 +222,7 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 
 	// write mode location and shaded band
 	// format of the number
-	double order = TMath::Log10(TMath::Abs(x0));
+	double order = log10(fabs(x0));
 	char sf='f';
 	if ( order>6 || order<-3 )
 		sf='e';
@@ -234,7 +235,7 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 	double xprint=(xmax+xmin)/2.;
 	double yprint=ysize*(1-1.4*tmax_text->GetTextSize());
 
-	if(TMath::Abs(limit)<50) // just to ensure there's some sense in the number
+	if(fabs(limit)<50) // just to ensure there's some sense in the number
 		tmax_text->DrawLatex(xprint,yprint,
 			Form( Form("%%s* = %%%c ^{+%%%c}_{ -%%%c}",sf,sf,sf),
 				fHistogram->GetXaxis()->GetTitle(), x0, max-x0, x0-min));

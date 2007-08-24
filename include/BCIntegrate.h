@@ -42,8 +42,8 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TRandom3.h>
-#include <TMath.h>
 
+#include "BCMath.h"
 #include "BCParameter.h"
 
 #define DEBUG 0
@@ -270,7 +270,7 @@ class BCIntegrate
    * Evaluate the natural logarithm of the Eval function. For better numerical
 	* stability, this method should also be overloaded by the user.
    * @param x The point in parameter space 
-   * @return TMath::Log(Eval(x))
+   * @return log(Eval(x))
    */
   virtual double LogEval(std::vector <double> x);
 
@@ -286,7 +286,7 @@ class BCIntegrate
    * Evaluate the natural logarithm of the EvalSampling function. 
    * Method needs to be overloaded by the user. 
    * @param x The point in parameter space 
-   * @return TMath::Log(EvalSampling(x)) 
+   * @return log(EvalSampling(x)) 
    */ 
   double LogEvalSampling(std::vector <double> x);
 

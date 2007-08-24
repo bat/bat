@@ -2,7 +2,6 @@
 
 #include <TTree.h> 
 #include <TH1D.h> 
-#include <TString.h> 
 
 #include <fstream.h>
 
@@ -224,7 +223,7 @@ double BCModel::LogProbability(std::vector <double> parameters)
 		return 0.;
 	}
 
-	return this -> LogProbabilityNN(parameters) - TMath::Log(fNormalization);
+	return this -> LogProbabilityNN(parameters) - log(fNormalization);
 }
   
 // --------------------------------------------------------- 
@@ -612,7 +611,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
   // calculate maximum probability 
 
-  pmaximum = TMath::Min(1.0, pmaximumsingle * this -> GetNDataPointsMaximum()); 
+  pmaximum = BCMath::Min(1.0, pmaximumsingle * this -> GetNDataPointsMaximum()); 
 
   // loop over data sets 
 
@@ -646,7 +645,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 	  while (temp_rand > pnentries)
 	    {	
 	      if (this -> GetNDataPointsMinimum() != this -> GetNDataPointsMaximum())
-		nentries = TMath::Nint(fRandom -> Uniform(this -> GetNDataPointsMinimum(), 
+		nentries = BCMath::Nint(fRandom -> Uniform(this -> GetNDataPointsMinimum(), 
 							  this -> GetNDataPointsMaximum())); 
 	      else
 		nentries = this -> GetNDataPointsMaximum(); 
@@ -663,7 +662,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 	  nentries = 1; 
 
 	  for (int i = 0; i < ngridaxes; i++)
-	    nentries *= TMath::Nint(limits.at(2 + i * 3)); 
+	    nentries *= BCMath::Nint(limits.at(2 + i * 3)); 
 	}
       
 
@@ -716,7 +715,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 			    if (grid.at(j) == true)
 			      ngrid++; 
 
-			  int ix = ientry % TMath::Nint(limits.at(1 + ngrid * 3)); 
+			  int ix = ientry % BCMath::Nint(limits.at(1 + ngrid * 3)); 
 			  xgrid = limits.at(ngrid * 3) + double(ix) * limits.at(1 + ngrid * 3); 
 			}
 		      x.push_back(xgrid); 
@@ -854,7 +853,7 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
       // fill container  
 
-      likelihoodcontainer.push_back(TMath::Log10(weight)); 
+      likelihoodcontainer.push_back(log10(weight)); 
     }
 
   // restore original data object container 
@@ -879,7 +878,7 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
   // create histogram 
 
-  TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * TMath::Abs(minimum), TMath::Min(0.0, maximum + 0.1 * TMath::Abs(minimum))); 
+  TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * fabs(minimum), BCMath::Min(0.0, maximum + 0.1 * fabs(minimum))); 
   hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
   hist -> SetYTitle("1/N dN/dlog_{10}y"); 
   hist -> SetStats(kFALSE); 
@@ -900,8 +899,8 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
   // print summary to screen 
 
   double likelihood = this -> Likelihood(parameters); 
-  // double fPValue =  probability -> GetIntegral(TMath::Log10(likelihood), 0.0); 
-  fPValue =  probability -> GetPValue(TMath::Log10(likelihood)); 
+  // double fPValue =  probability -> GetIntegral(log10(likelihood), 0.0); 
+  fPValue =  probability -> GetPValue(log10(likelihood)); 
 
   std::cout << std::endl; 
   std::cout << " Goodness-of-fit : " << std::endl; 

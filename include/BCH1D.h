@@ -33,7 +33,6 @@
 #include <TLine.h>
 #include <TPolyLine.h>
 #include <TLatex.h>
-#include <TMath.h>
 #include <TError.h>
 
 #include "BCLog.h"

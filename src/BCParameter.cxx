@@ -10,6 +10,7 @@ BCParameter::BCParameter()
   fLowerLimit = 0.0; 
   fUpperLimit = 1.0; 
   fNuisence = 0;
+
 }
 
 // --------------------------------------------------------- 
@@ -36,6 +37,7 @@ BCParameter::~BCParameter()
 
 void BCParameter::PrintSummary()
 {
+
 	cout
 		<<"       > Parameter   : "<< fName <<endl
 		<<"         Index       : "<< fIndex <<endl
@@ -48,7 +50,8 @@ void BCParameter::PrintSummary()
 	else
 		cout<<"No"<<endl; 
 
-	cout<<endl;
+	cout << endl;
+
 }
 
 // --------------------------------------------------------- 

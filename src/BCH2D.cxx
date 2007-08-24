@@ -1,10 +1,10 @@
 #include "BCH2D.h" 
+#include "BCMath.h" 
 
 #include <TCanvas.h> 
 #include <TLine.h> 
 #include <TMarker.h> 
 #include <TLegend.h> 
-#include <TMath.h>
 
 // --------------------------------------------------------- 
 
@@ -201,7 +201,7 @@ void BCH2D::CalculateIntegratedHistogram()
 	for (int ix = 1; ix <= nx; ix++)
 		for (int iy = 1; iy <= ny; iy++)
 		{
-			int binmin = TMath::Nint(fHistogram -> GetBinContent(ix, iy) / dz);
+			int binmin = BCMath::Nint(fHistogram -> GetBinContent(ix, iy) / dz);
 			for (int i = binmin; i <= nz; i++)
 				fIntegratedHistogram -> SetBinContent(i,
 					fIntegratedHistogram -> GetBinContent(i) +

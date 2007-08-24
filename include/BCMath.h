@@ -15,6 +15,8 @@
  * REVISION: 
  *
  *  08.08.2007  Dano  * added functions for binomial distributions and factorials\n
+ *  24.08.2007  Kevin * added min and max functions for int and double. 
+ *                      removed TMath dependence. 
  *
  * --------------------------------------------------------- 
  */ 
@@ -28,7 +30,6 @@
 #include <fstream> 
 
 #include <math.h>
-#include <TMath.h>
 
 // --------------------------------------------------------- 
 
@@ -80,6 +81,34 @@ namespace BCMath
 	 * Calculates natural logarithm of the n-factorial (n!)
 	 */
 	double LogFact(int n);
+
+	/*! 
+	 * returns the "greater or equal" of two numbers 
+	 */ 
+	inline int Max(int x, int y)
+	  { return x >= y ? x : y; }
+
+	inline double Max(double x, double y)
+	  { return x >= y ? x : y; }
+
+	/*! 
+	 * return the "less or equal" of two numbers 
+	 */
+	inline int Min(int x, int y)
+	  { return x <= y ? x : y; }
+
+	inline double Min(double x, double y)
+	  { return x <= y ? x : y; }
+
+	/*! 
+	 * return the nearest integer 
+	 */ 
+	int Nint(double x); 
+
+	/*! 
+	 * returns the rms of an array 
+	 */ 
+	double rms(int n, const double *a); 
 
 }; 
 
