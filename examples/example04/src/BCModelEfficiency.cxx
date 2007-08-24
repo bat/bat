@@ -1,6 +1,6 @@
 #include "BCModelEfficiency.h" 
 
-#include <TMath.h> 
+#include <BCMath.h> 
 
 // --------------------------------------------------------- 
 
@@ -36,7 +36,7 @@ double BCModelEfficiency::LogAPrioriProbability(std::vector <double> parameters)
 	// calculate probabilities 
 	double logprob = 0.;
 
-	logprob -= TMath::Log(eff_upper - eff_lower);
+	logprob -= log(eff_upper - eff_lower);
 
 	return logprob;
 }
@@ -49,8 +49,8 @@ double BCModelEfficiency::LogLikelihood(std::vector <double> parameters)
 	double eff = parameters.at(0);
 
 	// get data values
-	int k = TMath::Nint(this -> GetDataPoint(0) -> GetValue(0));
-	int n = TMath::Nint(this -> GetDataPoint(0) -> GetValue(1));
+	int k = BCMath::Nint(this -> GetDataPoint(0) -> GetValue(0));
+	int n = BCMath::Nint(this -> GetDataPoint(0) -> GetValue(1));
 
 	return BCMath::LogApproxBinomial(n, k, eff);
 }

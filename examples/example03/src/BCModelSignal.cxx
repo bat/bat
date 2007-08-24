@@ -89,10 +89,10 @@ double BCModelSignal::Likelihood(std::vector <double> parameters)
       double expected = background * this -> integral_f_B(energy, dE, nbins) * dE 
 	+ signal * this -> integral_f_S(energy, dE, nbins); 
 
-      logprobability += TMath::Log10(TMath::PoissonI(events, expected));       
+      logprobability += log10(TMath::PoissonI(events, expected));       
     }
 
-  return TMath::Power(10.0, logprobability); 
+  return pow(10.0, logprobability); 
 
 }
 
@@ -112,8 +112,8 @@ double BCModelSignal::integral_f_S(double E, double dE, int nbins)
 
   double mean  = 2039.0; 
   double sigma =    2.5; 
-  double t1     = (E - mean) / (TMath::Sqrt(2.0) * sigma); 
-  double t2     = (E + dE - mean) / (TMath::Sqrt(2.0) * sigma); 
+  double t1     = (E - mean) / (sqrt(2.0) * sigma); 
+  double t2     = (E + dE - mean) / (sqrt(2.0) * sigma); 
 
   return 0.5 * (TMath::Erf(t2) - TMath::Erf(t1)); 
 

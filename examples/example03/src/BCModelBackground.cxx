@@ -74,10 +74,6 @@ double BCModelBackground::Likelihood(std::vector <double> parameters)
   double Emax = this -> GetDataPoint(0) -> GetValue(1); 
   double dE   = (Emax - Emin) / double(nbins); 
 
-  // debug
-  //  cout << endl; 
-  //  cout << background << " " << nbins << " " << dE << endl; 
-
   for (int ipoint = 1; ipoint < nbins + 1; ipoint++)
     {      
       // define data values 
@@ -89,17 +85,10 @@ double BCModelBackground::Likelihood(std::vector <double> parameters)
 
       double expected = background * this -> integral_f_B(energy, dE, nbins) * dE; 
 
-      logprobability += TMath::Log10(TMath::PoissonI(events, expected));       
-
-      // debug
-      //      cout << energy << " " << events << " " << expected << " " << TMath::PoissonI(events, expected) << endl;       
+      logprobability += log10(TMath::PoissonI(events, expected));       
     }
 
-  // debug 
-  //  cout << " prob : " << logprobability << " " << TMath::Power(10.0, logprobability) << endl; 
-
-
-  return TMath::Power(10.0, logprobability); 
+  return pow(10.0, logprobability); 
 
 }
 

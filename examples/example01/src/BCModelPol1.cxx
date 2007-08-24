@@ -1,7 +1,5 @@
 #include "BCModelPol1.h" 
 
-#include <TMath.h> 
-
 // --------------------------------------------------------- 
 
 BCModelPol1::BCModelPol1() : BCModel()
@@ -43,8 +41,8 @@ double BCModelPol1::LogAPrioriProbability(std::vector <double> parameters)
 
 	double logprob = 0.;
 
-	logprob -= TMath::Log(offset_upper - offset_lower);
-	logprob -= TMath::Log(slope_upper - slope_lower);
+	logprob -= log(offset_upper - offset_lower);
+	logprob -= log(slope_upper - slope_lower);
 
 	return logprob;
 }

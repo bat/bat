@@ -1,7 +1,5 @@
 #include "BCModelPol2.h" 
 
-#include <TMath.h> 
-
 // --------------------------------------------------------- 
 
 BCModelPol2::BCModelPol2() : BCModel()
@@ -44,9 +42,9 @@ double BCModelPol2::LogAPrioriProbability(std::vector <double> parameters)
 
 	// in this case we define flat a priopi probability across the whole parameter space
 
-	logprob -= TMath::Log(offset_upper - offset_lower);
-	logprob -= TMath::Log(slope_upper - slope_lower);
-	logprob -= TMath::Log(quad_upper - quad_lower);
+	logprob -= log(offset_upper - offset_lower);
+	logprob -= log(slope_upper - slope_lower);
+	logprob -= log(quad_upper - quad_lower);
 
 	return logprob; 
 }

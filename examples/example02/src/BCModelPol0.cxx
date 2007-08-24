@@ -1,7 +1,5 @@
 #include "BCModelPol0.h" 
 
-#include <TMath.h> 
-
 // --------------------------------------------------------- 
 
 BCModelPol0::BCModelPol0() : BCModel()
@@ -36,7 +34,7 @@ double BCModelPol0::LogAPrioriProbability(std::vector <double> parameters)
 	double constant_lower = this -> GetParameter(0) -> GetLowerLimit(); 
 	double constant_upper = this -> GetParameter(0) -> GetUpperLimit(); 
 
-	logprob -= TMath::Log(constant_upper - constant_lower);
+	logprob -= log(constant_upper - constant_lower);
 
 	return logprob;
 }
