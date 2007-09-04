@@ -35,62 +35,62 @@ class BCDataPoint
 {
 
  public:
+	
+	// constructor and destructor 
 
-  // constructor and destructor 
+	/** 
+	 * A constructor. 
+	 * @param nvariables The number of variables stored in a data object 
+	 */ 
+	BCDataPoint(int nvariables); 
 
-  /** 
-   * A constructor. 
-   * @param nvariables The number of variables stored in a data object 
-   */ 
-  BCDataPoint(int nvariables); 
+	/** 
+	 * A constructor. 
+	 * @param x The vector containing the data
+	 */ 
+	BCDataPoint(vector<double> x); 
 
-  /** 
-   * A constructor. 
-   * @param x The vector containing the data
-   */ 
-  BCDataPoint(vector<double> x); 
+	/** 
+	 * A destructor. 
+	 */ 
+	~BCDataPoint(); 
 
-  /** 
-   * A destructor. 
-   */ 
-  ~BCDataPoint(); 
-  
-  // methods (get) 
+	// methods (get) 
 
-  /**
-   * Returns the value of a variable. 
-   * @param index The index of the variable 
-   * @return The value of the variable
-   */  
-  double GetValue(int index); 
+	/**
+	 * Returns the value of a variable. 
+	 * @param index The index of the variable 
+	 * @return The value of the variable
+	 */  
+	double GetValue(int index); 
 
-  /** 
-   * Returns the number of values. 
-   */ 
-  int GetNValues()
-    { return int(fData.size()); }; 
+	/** 
+	 * Returns the number of values. 
+	 */ 
+	int GetNValues()
+	{ return int(fData.size()); }; 
 
-  // methods (set) 
+	// methods (set) 
 
-  /** 
-   * Set the value of a variable. 
-   * @param index The index of the variable
-   * @param value The value of the variable
-   */ 
-  void SetValue(int index, double value); 
+	/** 
+	 * Set the value of a variable. 
+	 * @param index The index of the variable
+	 * @param value The value of the variable
+	 */ 
+	void SetValue(int index, double value); 
 
-  /** 
-   * Set the values of all variables. 
-   * @param values A vector of values
-   */ 
-  void SetValues(std::vector <double> values); 
+	/** 
+	 * Set the values of all variables. 
+	 * @param values A vector of values
+	 */ 
+	void SetValues(std::vector <double> values); 
 
  private: 
 
-  /** 
-   * The values of the variables. 
-   */ 
-  std::vector <double> fData; 
+	/** 
+	 * The values of the variables. 
+	 */ 
+	std::vector <double> fData; 
 
 }; 
 

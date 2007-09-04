@@ -1,14 +1,15 @@
 /*! \class BCParameter
  *  \brief A model parameter class
  *
- * This class defines a parameter for a model as well as a container for
- * a parameter set.
+ * This class defines a parameter for a model as well as a \n 
+ * container for a set of parameters. 
  *
  * --------------------------------------------------------- 
  *
  * AUTHOR:  D. Kollar, K. Kroeninger 
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de 
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
  *
  * CREATED: 02.03.2007 
  * 
@@ -27,8 +28,6 @@
 #ifndef __BCPARAMETER__H
 #define __BCPARAMETER__H
 
-#include <TROOT.h>
-
 #include <vector.h>
 
 // --------------------------------------------------------- 
@@ -38,133 +37,133 @@ class BCParameter
 
  public:
 
-  // constructors and destructor 
+	// constructors and destructor 
 
-  /** 
-   * The default constructor. 
-   */ 
-  BCParameter(); 
+	/** 
+	 * The default constructor. 
+	 */ 
+	BCParameter(); 
 
-  /** 
-   * A constructor. 
-   * @param name The name of the parameter 
-   * @param lowerlimit The lower limit of the parameter values
-   * @param upperlimit The upper limit of the parameter values 
-   */ 
-  BCParameter(const char* name, double lowerlimit, double upperlimit); 
+	/** 
+	 * A constructor. 
+	 * @param name The name of the parameter 
+	 * @param lowerlimit The lower limit of the parameter values
+	 * @param upperlimit The upper limit of the parameter values 
+	 */ 
+	BCParameter(const char* name, double lowerlimit, double upperlimit); 
 
-  /**
-   * The default destructor 
-   */ 
-  ~BCParameter(); 
+	/**
+	 * The default destructor 
+	 */ 
+	~BCParameter(); 
 
-  // methods (get) 
+	// methods (get) 
 
-  /**
-   * Returns the name of the parameter. 
-   * @return The name of the parameter
-   */ 
-  char* GetName()
-    { return fName; }; 
-  
-  /** 
-   * Returns the index of the parameter within the parameter container of a BCModel. 
-   * @return The index of the parameter
-   */ 
-  int GetIndex()
-    { return fIndex; }; 
+	/**
+	 * Returns the name of the parameter. 
+	 * @return The name of the parameter
+	 */ 
+	char* GetName()
+	{ return fName; }; 
 
-  /** 
-   * Returns the lower limit of the parameter values. 
-   * @return The lower limit of the parameter values 
-   */ 
-  double GetLowerLimit()
-    { return fLowerLimit; }; 
+	/** 
+	 * Returns the index of the parameter within the parameter container of a BCModel. 
+	 * @return The index of the parameter
+	 */ 
+	int GetIndex()
+	{ return fIndex; }; 
 
-  /** 
-   * Returns the upper limit of the parameter values. 
-   * @return The upper limit of the parameter values 
-   */ 
-  double GetUpperLimit()
-    { return fUpperLimit; }; 
+	/** 
+	 * Returns the lower limit of the parameter values. 
+	 * @return The lower limit of the parameter values 
+	 */ 
+	double GetLowerLimit()
+	{ return fLowerLimit; }; 
 
-  /** 
-   * Returns 1 if parameter is a nuisence parameter or 0 if not.
-   * @return 1 - is nuisence paramete, 0 - is not nuisence parameter
-   */
-  double IsNuisence()
-    { return fNuisence; }; 
+	/** 
+	 * Returns the upper limit of the parameter values. 
+	 * @return The upper limit of the parameter values 
+	 */ 
+	double GetUpperLimit()
+	{ return fUpperLimit; }; 
 
-  // methods (set) 
+	/** 
+	 * Returns 1 if parameter is a nuisence parameter or 0 if not.
+	 * @return 1 - is nuisence paramete, 0 - is not nuisence parameter
+	 */
+	double IsNuisence()
+	{ return fNuisence; }; 
 
-  /** 
-   * Set the name of the parameter. 
-   * @param name The name of the parameter 
-   */ 
-  void SetName(char* name)
-    { fName = name; }; 
+	// methods (set) 
 
-  /** Set the index of the parameter within the parameter container of a BCModel. 
-   * @param index The index of the parameter
-   */ 
-  void SetIndex(int index) 
-    { fIndex = index; }; 
+	/** 
+	 * Set the name of the parameter. 
+	 * @param name The name of the parameter 
+	 */ 
+	void SetName(char* name)
+	{ fName = name; }; 
 
-  /** 
-   * Set the lower limit of the parameter values. 
-   * @param limit The lower limit of the parameter values 
-   */ 
-  void SetLowerLimit(double limit) 
-    { fLowerLimit = limit; }; 
+	/** Set the index of the parameter within the parameter container of a BCModel. 
+	 * @param index The index of the parameter
+	 */ 
+	void SetIndex(int index) 
+	{ fIndex = index; }; 
 
-  /** 
-   * Set the upper limit of the parameter values. 
-   * @param limit The upper limit of the parameter values 
-   */ 
-  void SetUpperLimit(double limit) 
-    { fUpperLimit = limit; }; 
+	/** 
+	 * Set the lower limit of the parameter values. 
+	 * @param limit The lower limit of the parameter values 
+	 */ 
+	void SetLowerLimit(double limit) 
+	{ fLowerLimit = limit; }; 
 
-  /**
-   * Set parameter to be nuisence.
-   * @param nuisence 1 - nuisence, 0 - not nuisence
-   */
-  void SetNuisence(int nuisence=1)
-    { fNuisence = nuisence; };
+	/** 
+	 * Set the upper limit of the parameter values. 
+	 * @param limit The upper limit of the parameter values 
+	 */ 
+	void SetUpperLimit(double limit) 
+	{ fUpperLimit = limit; }; 
 
-  // methods 
+	/**
+	 * Set parameter to be nuisence.
+	 * @param nuisence 1 - nuisence, 0 - not nuisence
+	 */
+	void SetNuisence(int nuisence=1)
+	{ fNuisence = nuisence; };
 
-  /** 
-   * Prints a summary on the screen. 
-   */ 
-  void PrintSummary(); 
+	// methods 
+
+	/** 
+	 * Prints a summary on the screen. 
+	 */ 
+	void PrintSummary(); 
 
  private: 
-  
-  /**
-   * The name of the parameter. 
-   */ 
-  int fNameSize; 
-  char* fName; //[fNameSize]
 
-  /** 
-   * The index of the parameter within the parameter container of a BCModel. 
-   */ 
-  int fIndex; 
+	/**
+	 * The name of the parameter. 
+	 */ 
+	int fNameSize; 
+	char* fName; //[fNameSize]
 
-  /** 
-   * The lower limit of the parameter values. 
-   */ 
-  double fLowerLimit; 
+	/** 
+	 * The index of the parameter within the parameter container of a BCModel. 
+	 */ 
+	int fIndex; 
 
-  /** 
-   * The lower limit of the parameter values. 
-   */ 
-  double fUpperLimit; 
+	/** 
+	 * The lower limit of the parameter values. 
+	 */ 
+	double fLowerLimit; 
 
-  /**
-   * Flag to specify whether to integarte over this parameter
-   */
-  int fNuisence;
+	/** 
+	 * The lower limit of the parameter values. 
+	 */ 
+	double fUpperLimit; 
+
+	/**
+	 * Flag to specify whether to integarte over this parameter
+	 */
+	int fNuisence;
 
 }; 
 

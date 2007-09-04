@@ -9,8 +9,8 @@
 
 BCDataSet::BCDataSet()
 {
-
-  fBCDataVector = 0; 
+	
+	fBCDataVector = 0; 
 
 }
 
@@ -19,8 +19,8 @@ BCDataSet::BCDataSet()
 BCDataSet::~BCDataSet()
 {
 
-  if (fBCDataVector) 
-    delete fBCDataVector; 
+	if (fBCDataVector) 
+		delete fBCDataVector; 
 
 }
 
@@ -29,19 +29,19 @@ BCDataSet::~BCDataSet()
 int BCDataSet::GetNDataPoints()
 {
 
-  int ndatapoints = 0; 
+	int ndatapoints = 0; 
 
-  // check if vector exists. Return number of data points if true ... 
+	// check if vector exists. Return number of data points if true ... 
 
-  if (fBCDataVector) 
-    ndatapoints = int(fBCDataVector -> size()); 
+	if (fBCDataVector) 
+		ndatapoints = int(fBCDataVector -> size()); 
 
-  // ... or give out warning and return 0 if not. 
+	// ... or give out warning and return 0 if not. 
 
-  else 
-    BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetNDataPoints. Memory for vector fBCDataVector not yet allocated. Return 0."); 
-    
-  return ndatapoints; 
+	else 
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetNDataPoints. Memory for vector fBCDataVector not yet allocated. Return 0."); 
+
+	return ndatapoints; 
 
 }
 
@@ -49,20 +49,20 @@ int BCDataSet::GetNDataPoints()
 
 BCDataPoint * BCDataSet::GetDataPoint(int index)
 {
-  
-  BCDataPoint * datapoint = 0; 
 
-  // check if index is within range. Return the data point if true ... 
+	BCDataPoint * datapoint = 0; 
 
-  if (fBCDataVector && index >= 0 && index < this -> GetNDataPoints())
-    datapoint = fBCDataVector -> at(index); 
+	// check if index is within range. Return the data point if true ... 
 
-  // ... or give out warning and return 0 if not. 
+	if (fBCDataVector && index >= 0 && index < this -> GetNDataPoints())
+		datapoint = fBCDataVector -> at(index); 
 
-  else
-    BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetDataPoint. Index out of range. Return 0."); 
+	// ... or give out warning and return 0 if not. 
 
-  return datapoint; 
+	else
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetDataPoint. Index out of range. Return 0."); 
+
+	return datapoint; 
 
 }
 
@@ -71,176 +71,176 @@ BCDataPoint * BCDataSet::GetDataPoint(int index)
 int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char * branchnames) 
 {
 
-  // if data set contains data, clear data object container ... 
+	// if data set contains data, clear data object container ... 
 
-  if (fBCDataVector != 0)
-    {
-      fBCDataVector -> clear();
+	if (fBCDataVector != 0)
+		{
+			fBCDataVector -> clear();
 
-      BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree. Overwrite existing data."); 
-    }
+			BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree. Overwrite existing data."); 
+		}
 
-  // ... or allocate memory for the vector if not. 
+	// ... or allocate memory for the vector if not. 
 
-  else
-    fBCDataVector = new BCDataVector(); 
+	else
+		fBCDataVector = new BCDataVector(); 
 
-  // open root file 
+	// open root file 
 
-  TFile * file = new TFile(filename, "READ"); 
+	TFile * file = new TFile(filename, "READ"); 
 
-  // check if file is open and warn if not. 
-  
-  if (!file -> IsOpen())
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 Form("BCDataSet::ReadDataFromFileTree. Could not open file %s.", filename)); 
+	// check if file is open and warn if not. 
 
-      return ERROR_FILENOTFOUND; 
-    }
+	if (!file -> IsOpen())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 Form("BCDataSet::ReadDataFromFileTree. Could not open file %s.", filename)); 
 
-  // get tree
+			return ERROR_FILENOTFOUND; 
+		}
 
-  TTree * tree = (TTree*) file -> Get(treename); 
+	// get tree
 
-  // check if tree is there and warn if not. 
+	TTree * tree = (TTree*) file -> Get(treename); 
 
-  if (!tree) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 Form("BCDataSet::ReadDataFromFileTree. Could not find TTree %s.", treename)); 
+	// check if tree is there and warn if not. 
 
-      // close file 
+	if (!tree) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 Form("BCDataSet::ReadDataFromFileTree. Could not find TTree %s.", treename)); 
 
-      file -> Close(); 
+			// close file 
 
-      return ERROR_TREENOTFOUND; 
-    }
+			file -> Close(); 
 
-  // get branch names. 
+			return ERROR_TREENOTFOUND; 
+		}
 
-  // first, copy the branchnames into a std::string. 
+	// get branch names. 
 
-  std::string branches(branchnames); 
+	// first, copy the branchnames into a std::string. 
 
-  // define a vector of std::strings which contain the tree names. 
+	std::string branches(branchnames); 
 
-  std::vector<std::string> * branchnamevector = new std::vector<std::string>; 
+	// define a vector of std::strings which contain the tree names. 
 
-  // the names are supposed to be separated by commas. find first comma 
-  // entry in the string. 
+	std::vector<std::string> * branchnamevector = new std::vector<std::string>; 
 
-  int temp_index = branches.find_first_of(",");
+	// the names are supposed to be separated by commas. find first comma 
+	// entry in the string. 
 
-  // reset number of branches 
+	int temp_index = branches.find_first_of(",");
 
-  int nbranches = 0; 
+	// reset number of branches 
 
-  // repeat until the is nothing left in the string. 
+	int nbranches = 0; 
 
-  while(branches.size() > 0)
-    {
-      // temporary string which contains the name of the current branch 
+	// repeat until the is nothing left in the string. 
 
-      std::string branchname; 
+	while(branches.size() > 0)
+		{
+			// temporary string which contains the name of the current branch 
 
-      // get current branch name 
+			std::string branchname; 
 
-      // if there is no comma the current branchname corresponds to the whole string, ... 
+			// get current branch name 
 
-      if (temp_index == -1) 
- 	branchname = branches;  
+			// if there is no comma the current branchname corresponds to the whole string, ... 
 
-      // ... if there is a comma, copy that part of the string into the current branchname. 
+			if (temp_index == -1) 
+				branchname = branches;  
 
-      else
- 	branchname.assign(branches, 0, temp_index); 
+			// ... if there is a comma, copy that part of the string into the current branchname. 
 
-      // write branch name to a vector 
+			else
+				branchname.assign(branches, 0, temp_index); 
 
-      branchnamevector -> push_back(branchname); 
+			// write branch name to a vector 
 
-      // increase the number of branches found 
+			branchnamevector -> push_back(branchname); 
 
-      nbranches++; 
+			// increase the number of branches found 
 
-      // cut remaining string with branchnames 
+			nbranches++; 
 
-      // if there is no comma left empty the string, ... 
-      
-      if (temp_index == -1)
-	branches = ""; 
+			// cut remaining string with branchnames 
 
-      // ... if there is a comma remove the current branchname from the string. 
+			// if there is no comma left empty the string, ... 
+    
+			if (temp_index == -1)
+				branches = ""; 
 
-      else
-	branches.erase(0, temp_index + 1); 
+			// ... if there is a comma remove the current branchname from the string. 
 
-      // find the next comma 
+			else
+				branches.erase(0, temp_index + 1); 
 
-      temp_index = branches.find_first_of(",");
-    }     
+			// find the next comma 
 
-  // create temporary vector with data and assign some zeros. 
+			temp_index = branches.find_first_of(",");
+		}
 
-  std::vector<double> data; 
-  data.assign(nbranches, 0.0); 
+	// create temporary vector with data and assign some zeros. 
 
-  // set the branch address. 
+	std::vector<double> data; 
+	data.assign(nbranches, 0.0); 
 
-  for (int i = 0; i < nbranches; i++)
-    tree -> SetBranchAddress(branchnamevector -> at(i).data(), &data.at(i)); 
+	// set the branch address. 
 
-  // calculate maximum number of entries 
+	for (int i = 0; i < nbranches; i++)
+		tree -> SetBranchAddress(branchnamevector -> at(i).data(), &data.at(i)); 
 
-  int nentries = tree -> GetEntries(); 
+	// calculate maximum number of entries 
 
-  // check if there are any events in the tree and close file if not. 
+	int nentries = tree -> GetEntries(); 
 
-  if (nentries <= 0) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 Form("BCDataSet::ReadDataFromFileTree. No events in TTree %s.", treename)); 
-      
-      // close file 
+	// check if there are any events in the tree and close file if not. 
 
-      file -> Close(); 
+	if (nentries <= 0) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 Form("BCDataSet::ReadDataFromFileTree. No events in TTree %s.", treename)); 
+    
+			// close file 
 
-      return ERROR_NOEVENTS; 
-    }
+			file -> Close(); 
 
-  // loop over entries 
+			return ERROR_NOEVENTS; 
+		}
 
-  for (int ientry = 0; ientry < nentries; ientry++)
-    {
-      // get entry 
+	// loop over entries 
 
-      tree -> GetEntry(ientry); 
+	for (int ientry = 0; ientry < nentries; ientry++)
+		{
+			// get entry 
 
-      // create data object 
+			tree -> GetEntry(ientry); 
 
-      BCDataPoint * datapoint = new BCDataPoint(nbranches); 
+			// create data object 
 
-      // copy data 
+			BCDataPoint * datapoint = new BCDataPoint(nbranches); 
 
-      for (int i = 0; i < nbranches; i++)
-      	datapoint -> SetValue(i, data.at(i)); 
+			// copy data 
 
-      // add data point to this data set. 
+			for (int i = 0; i < nbranches; i++)
+				datapoint -> SetValue(i, data.at(i)); 
 
-      this -> AddDataPoint(datapoint); 
-    }
+			// add data point to this data set. 
 
-  // close file 
+			this -> AddDataPoint(datapoint); 
+		}
 
-  file -> Close(); 
+	// close file 
 
-  // remove file pointer. 
+	file -> Close(); 
 
-  if (file)
-    delete file; 
+	// remove file pointer. 
 
-  return 0;  
+	if (file)
+		delete file; 
+
+	return 0;  
 
 }  
 
@@ -249,91 +249,91 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
 int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches) 
 {
 
-  // if data set contains data, clear data object container ... 
+	// if data set contains data, clear data object container ... 
 
-  if (fBCDataVector != 0)
-    {
-      fBCDataVector -> clear();
+	if (fBCDataVector != 0)
+		{
+			fBCDataVector -> clear();
 
-      BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt. Overwrite existing data."); 
-    }
+			BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt. Overwrite existing data."); 
+		}
 
-  // ... or allocate memory for the vector if not. 
+	// ... or allocate memory for the vector if not. 
 
-  else
-    fBCDataVector = new BCDataVector(); 
+	else
+		fBCDataVector = new BCDataVector(); 
 
-  // open text file. 
+	// open text file. 
 
-  std::fstream file; 
+	std::fstream file; 
 
-  file.open(filename, std::fstream::in); 
+	file.open(filename, std::fstream::in); 
 
-  // check if file is open and warn if not. 
+	// check if file is open and warn if not. 
 
-  if (!file.is_open())
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 Form("BCDataSet::ReadDataFromFileText. Could not open file %s.", filename)); 
+	if (!file.is_open())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 Form("BCDataSet::ReadDataFromFileText. Could not open file %s.", filename)); 
 
-      return ERROR_FILENOTFOUND; 
-    }
+			return ERROR_FILENOTFOUND; 
+		}
 
-  // create temporary vector with data and assign some zeros. 
+	// create temporary vector with data and assign some zeros. 
 
-  std::vector<double> data; 
-  data.assign(nbranches, 0.0); 
+	std::vector<double> data; 
+	data.assign(nbranches, 0.0); 
 
-  // reset counter 
+	// reset counter 
 
-  int nentries = 0; 
+	int nentries = 0; 
 
-  // read data and create data points. 
+	// read data and create data points. 
 
-  while (!file.eof())
-    {
-      // read data from file 
+	while (!file.eof())
+		{
+			// read data from file 
 
-      for (int i = 0; i < nbranches; i++)
-	file >> data[i]; 
+			for (int i = 0; i < nbranches; i++)
+				file >> data[i]; 
 
-      // create data point. 
+			// create data point. 
 
-      BCDataPoint * datapoint = new BCDataPoint(nbranches); 
+			BCDataPoint * datapoint = new BCDataPoint(nbranches); 
 
-      // copy data into data point 
+			// copy data into data point 
 
-      for (int i = 0; i < nbranches; i++)
-	datapoint -> SetValue(i, data.at(i)); 
+			for (int i = 0; i < nbranches; i++)
+				datapoint -> SetValue(i, data.at(i)); 
 
-      // add data point to this data set. 
+			// add data point to this data set. 
 
-      this -> AddDataPoint(datapoint); 
+			this -> AddDataPoint(datapoint); 
 
-      // increase counter 
+			// increase counter 
 
-      nentries++; 
-    }
-  
-  // check if there are any events in the tree and close file if not. 
+			nentries++; 
+		}
 
-  if (nentries <= 0) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 Form("BCDataSet::ReadDataFromFileText. No events in the file %s.", filename)); 
-      
-      // close file 
+	// check if there are any events in the tree and close file if not. 
 
-      file.close(); 
+	if (nentries <= 0) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 Form("BCDataSet::ReadDataFromFileText. No events in the file %s.", filename)); 
+    
+			// close file 
 
-      return ERROR_NOEVENTS; 
-    }
+			file.close(); 
 
-  // close file 
+			return ERROR_NOEVENTS; 
+		}
 
-  file.close(); 
+	// close file 
 
-  return 0; 
+	file.close(); 
+
+	return 0; 
 
 }  
 
@@ -342,13 +342,13 @@ int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches)
 int BCDataSet::ReadDataFromFileUser(char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
 {
 
-  // if this method is called without being overloaded give out warning. 
+	// if this method is called without being overloaded give out warning. 
 
-  BCLog::Out(BCLog::warning, BCLog::warning, 
-	     "BCDataSet::ReadDataFromFileUser. Function needs to be overloaded by the user."); 
-  
-  return ERROR_METHODNOTOVERLOADED; 
-  
+	BCLog::Out(BCLog::warning, BCLog::warning, 
+						 "BCDataSet::ReadDataFromFileUser. Function needs to be overloaded by the user."); 
+
+	return ERROR_METHODNOTOVERLOADED; 
+
 }
 
 // --------------------------------------------------------- 
@@ -356,15 +356,15 @@ int BCDataSet::ReadDataFromFileUser(char * filename, std::vector<int> options_in
 void BCDataSet::AddDataPoint(BCDataPoint * datapoint)
 { 
 
-  // check if memory for the vector has been allocated and 
-  // allocate if not. 
+	// check if memory for the vector has been allocated and 
+	// allocate if not. 
 
-  if (fBCDataVector == 0) 
-    fBCDataVector = new BCDataVector();   
+	if (fBCDataVector == 0) 
+		fBCDataVector = new BCDataVector();   
 
-  // add data point to the data set. 
-  
-  fBCDataVector -> push_back(datapoint); 
+	// add data point to the data set. 
+
+	fBCDataVector -> push_back(datapoint); 
 
 }; 
 
@@ -373,12 +373,12 @@ void BCDataSet::AddDataPoint(BCDataPoint * datapoint)
 void BCDataSet::Reset()
 { 
 
-  // if memory has been allocated to the data set 
-  // clear the content. 
+	// if memory has been allocated to the data set 
+	// clear the content. 
 
-  if (fBCDataVector != 0) 
-    fBCDataVector -> clear(); 
+	if (fBCDataVector != 0) 
+		fBCDataVector -> clear(); 
 
 };
 
- // --------------------------------------------------------- 
+// --------------------------------------------------------- 

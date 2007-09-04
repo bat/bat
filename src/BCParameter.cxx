@@ -5,11 +5,11 @@
 BCParameter::BCParameter()
 {
 
-  fName = new char; 
-  fName = "parameter"; 
-  fLowerLimit = 0.0; 
-  fUpperLimit = 1.0; 
-  fNuisence = 0;
+	fName = new char; 
+	fName = "parameter"; 
+	fLowerLimit = 0.0; 
+	fUpperLimit = 1.0; 
+	fNuisence = 0;
 
 }
 
@@ -18,9 +18,9 @@ BCParameter::BCParameter()
 BCParameter::BCParameter(const char* name, double lowerlimit, double upperlimit)
 {
 
-  fName = (char*) name; 
-  fLowerLimit = lowerlimit; 
-  fUpperLimit = upperlimit; 
+	fName = (char*) name; 
+	fLowerLimit = lowerlimit; 
+	fUpperLimit = upperlimit; 
 
 }
 
@@ -29,7 +29,7 @@ BCParameter::BCParameter(const char* name, double lowerlimit, double upperlimit)
 BCParameter::~BCParameter()
 {
 
-  delete fName; 
+	delete fName; 
 
 }
 
@@ -55,5 +55,3 @@ void BCParameter::PrintSummary()
 }
 
 // --------------------------------------------------------- 
-
-
