@@ -31,8 +31,6 @@
 #include <TH1D.h> 
 #include <TH2D.h> 
 
-#include <TError.h>
-
 // --------------------------------------------------------- 
 
 class BCH2D
@@ -40,67 +38,76 @@ class BCH2D
   
  public:
   
-  // constructors and destructor 
+	// constructors and destructor 
+
+	/**
+	 * The default constructor. 
+	 */ 
+	BCH2D(); 
+
+	/** 
+	 * The default destructor. 
+	 */ 
+	~BCH2D(); 
+
+	// methods (get) 
+
+	/**
+	 * Returns the histogram. 
+	 */ 
+	TH2D * GetHistogram()
+	{ return fHistogram; }; 
+
+	/** 
+	 * Returns the mean of the distribution 
+	 */ 
+	void GetMean(double& mean);
+
+	/** 
+	 * Returns the mode of the distribution
+	 */ 
+	void GetMode(double& mode);
+
+	// methods (set) 
+
+	/**
+	 * Returns the histogram. 
+	 */ 
+	void SetHistogram(TH2D * hist)
+	{ fHistogram = hist; };
+
+	// methods 
+
+	/** 
+	 * Print 2-d histogram to file 
+	 * @param filename The filename 
+	 */ 
+	void Print(char* filename, int options=0);
+
+	/*
+	 * Calculates the integral of the distribution as a function of the
+	 * height.
+	 */ 
+	void CalculateIntegratedHistogram(); 
+
+	/*
+	 * Calculates the height below which the integrated probability has
+	 * a certain value.
+	 * @param p The integrated probability in the region below the height to be estimated. 
+	 */ 
+	double GetLevel(double p); 
   
-  /**
-   * The default constructor. 
-   */ 
-  BCH2D(); 
-
-  /** 
-   * The default destructor. 
-   */ 
-  ~BCH2D(); 
-  
-  // methods (get) 
-
-  /**
-   * @return The histogram
-   */ 
-  TH2D * GetHistogram()
-    { return fHistogram; }; 
-
-  /** 
-   * @param mean The mean of the distribution 
-   */ 
-  void GetMean(double& mean);
-
-  /** 
-   * @param The mode of the distribution
-   */ 
-  void GetMode(double& mode);
-
-  // methods (set) 
-
-  /**
-   * @param hist The histogram
-   */ 
-  void SetHistogram(TH2D * hist)
-    { fHistogram = hist; };
-
-  // methods 
-
-  /** 
-   * Print 2-d histogram to file 
-   * @param filename The filename 
-   */ 
-  void Print(char* filename, int options=0);
-
-  void CalculateIntegratedHistogram(); 
-
-  double GetLevel(double p); 
-    
  private: 
 
-  /** 
-   * The 2-d histogram
-   */ 
-  TH2D * fHistogram; 
+	/** 
+	 * The 2-d histogram
+	 */ 
+	TH2D * fHistogram; 
 
-  /**
-   * The integrated 2-d histogram 
-   */ 
-  TH1D * fIntegratedHistogram; 
+	/**
+	 * The integrated 2-d histogram 
+	 */ 
+	TH1D * fIntegratedHistogram; 
 
 }; 
 
