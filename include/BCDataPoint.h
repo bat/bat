@@ -1,14 +1,16 @@
 /*! \class BCDataPoint
- *  \brief A class for handling the data point
+ *  \brief A class for handling a data point. 
  *
- * The class defines a data object. A data object can be an event, a bin content, etc. 
- * Each data object can store several variables. 
+ * The class defines a data point. A data object can be an event, \n
+ * a bin content, etc. Each data point can store several variables \n 
+ * of type double. \n 
  *
  * --------------------------------------------------------- 
  *
  * AUTHOR:  D. Kollar, K. Kroeninger 
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de 
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
  *
  * CREATED: 02.03.2007 
  * 
@@ -24,8 +26,6 @@
 
 #ifndef __BCDATAPOINT__H
 #define __BCDATAPOINT__H
-
-#include <TROOT.h>
 
 #include <vector.h> 
 
@@ -51,7 +51,7 @@ class BCDataPoint
   BCDataPoint(vector<double> x); 
 
   /** 
-   * A destructor 
+   * A destructor. 
    */ 
   ~BCDataPoint(); 
   
@@ -65,7 +65,7 @@ class BCDataPoint
   double GetValue(int index); 
 
   /** 
-   * returns number of values. 
+   * Returns the number of values. 
    */ 
   int GetNValues()
     { return int(fData.size()); }; 
@@ -79,7 +79,8 @@ class BCDataPoint
    */ 
   void SetValue(int index, double value); 
 
-  /** Set the values of all variables 
+  /** 
+   * Set the values of all variables. 
    * @param values A vector of values
    */ 
   void SetValues(std::vector <double> values); 
@@ -87,7 +88,7 @@ class BCDataPoint
  private: 
 
   /** 
-   * The values of the variables
+   * The values of the variables. 
    */ 
   std::vector <double> fData; 
 

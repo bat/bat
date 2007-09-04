@@ -1,15 +1,15 @@
 /*! \class BCDataSet
  *  \brief A class for handling a set of data points
  *
- *
- * The class defines a data set. It contains a vector of data points
- * and methods to read data from a file.
+ * The class defines a data set. It contains a vector of data \n 
+ * points and methods to read data from a file. \n 
  *
  * --------------------------------------------------------- 
  *
  * AUTHOR:  K. Kroeninger 
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de 
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
  *
  * CREATED: 06.06.2007 
  * 
@@ -26,7 +26,6 @@
 #include <vector.h> 
 
 #include "BCDataPoint.h" 
-#include "BCErrorCodes.h" 
 
 // --------------------------------------------------------- 
 
@@ -52,26 +51,27 @@ class BCDataSet
   // getter 
 
   /* 
-   * @return The vector of data points 
+   * Returns the vector of data points 
    */ 
   BCDataVector* GetDataVector(); 
 
   /* 
-   * @return The number of data points in the data set 
+   * Returns the number of data points in the data set 
    */
   int GetNDataPoints(); 
 
   /* 
-   * @return The index of the data point to be returned 
+   * Returns the data point at index. 
+   * @param index The index of the data point to be returned 
    */ 
   BCDataPoint* GetDataPoint(int index); 
 
   // methods 
 
   /** 
-   * Reads a TTree from a .root file. 
-   * Opens a .root file and gets a TTree. It creates data points 
-   * containing the values read from the file. 
+   * Reads a TTree from a .root file. \n 
+   * Opens a .root file and gets a TTree. It creates \n 
+   * data points containing the values read from the file. \n 
    * @param filename The name of the .root file 
    * @param treename The name of the TTree 
    * @param branchnames A list of the names of the branches separated by a comma
@@ -82,8 +82,8 @@ class BCDataSet
   int ReadDataFromFileTree(char* filename, char* treename, const char* branchnames); 
 
   /** 
-   * Reads data from a .txt file. 
-   * Opens a .txt file and creates data objects 
+   * Reads data from a .txt file. \n 
+   * Opens a .txt file and creates data objects \n 
    * containing the values read from the file. 
    * @param filename The name of the .txt file 
    * @param nvariables The number of variables 
@@ -93,9 +93,10 @@ class BCDataSet
   int ReadDataFromFileTxt(char* filename, int nvariables);
 
   /** 
-   * Reads data from a user specified file. 
-   * Opens a user specified file and creates data objects 
-   * containing the values read from the file. 
+   * Reads data from a user specified file. \n 
+   * Opens a user specified file and creates data objects \n 
+   * containing the values read from the file. This method \n 
+   * needs to be overloaded. 
    * @param filename The name of the file 
    * @param options_int A vector of options of type int 
    * @param options_double A vector of options of type double 
@@ -107,7 +108,8 @@ class BCDataSet
   virtual int ReadDataFromFileUser(char* filename, std::vector<int> options_int, std::vector<double> options_double, const char* options_char); 
 
   /**
-   * Adds a data point to the data set 
+   * Adds a data point to the data set. 
+   * @param datapoint The data point to be added 
    */ 
   void AddDataPoint(BCDataPoint* datapoint); 
 
@@ -118,6 +120,9 @@ class BCDataSet
   
  private: 
 
+  /* 
+   * A vector containing the data points 
+   */ 
   BCDataVector* fBCDataVector; 
 
 }; 
