@@ -1,6 +1,8 @@
 #include "BCIntegrate.h"
 #include "BCLog.h" 
 
+#include <TRandom3.h>
+
 #include "cuba.h" 
 
 // --------------------------------------------------------- 

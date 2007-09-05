@@ -1,14 +1,16 @@
 /*! \class BCIntegrate
  *  \brief Handling of numerical operations for models
  *
- * This is a base class for a model class. It contains numerical methods to
- * carry out the integration, marginalization, peak finding etc.
+ * This is a base class for a model class. It contains numerical
+ * methods to carry out the integration, marginalization, peak finding
+ * etc.
  *
  * ---------------------------------------------------------
  *
  * AUTHOR:  K. Kroeninger
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
  *
  * CREATED: 02.03.2007
  *
@@ -38,10 +40,8 @@
 
 #include <TROOT.h>
 
-#include <TH1.h>
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TRandom3.h>
 
 #include "BCMath.h"
 #include "BCParameter.h"
@@ -55,508 +55,514 @@ class BCIntegrate
 
  public:   
 
-  /*!
-   * An enumerator for the integration algorithm 
-   */ 
-  enum BCIntegrationType { kIMonteCarlo, kIImportance, kIMetropolis, kICuba }; 
+	/**
+	 * An enumerator for the integration algorithm 
+	 */ 
+	enum BCIntegrationType { kIMonteCarlo, kIImportance, kIMetropolis, kICuba }; 
 
-  /*!
-   * An enumerator for the marginalization algorithm 
-   */ 
-  enum BCMarginalizationType { kMMonteCarlo, kMMetropolis }; 
-  
-  /*! 
-   * The default constructor 
-   */ 
-  BCIntegrate();
+	/**
+	 * An enumerator for the marginalization algorithm 
+	 */ 
+	enum BCMarginalizationType { kMMonteCarlo, kMMetropolis }; 
 
-  /*!
-   * A constructor 
-   */ 
-  BCIntegrate(BCParameterSet * par);
+	/** 
+	 * The default constructor 
+	 */ 
+	BCIntegrate();
 
-  /*! 
-   * The default destructor 
-   */ 
-  virtual ~BCIntegrate();
-  
-  // methods (get) 
+	/**
+	 * A constructor 
+	 */ 
+	BCIntegrate(BCParameterSet * par);
 
-  /*!
-   * @return The integration method 
-   */ 
-  BCIntegrate::BCIntegrationType GetIntegrationMethod()
-    { return fIntegrateMethod; };
+	/** 
+	 * The default destructor 
+	 */ 
+	virtual ~BCIntegrate();
 
-  /*! 
-   * @return The marginalization method 
-   */ 
-  BCIntegrate::BCMarginalizationType GetMarginalizationMethod()
-     { return fMarginalizeMethod; };
+	// methods (get) 
 
-  /*! 
-   * Fills a vector of random numbers between 0 and 1 into a vector 
-   * @param A vector of doubles 
-   */ 
-  void GetRndmVector(std::vector <double> &x);
+	/**
+	 * @return The integration method 
+	 */ 
+	BCIntegrate::BCIntegrationType GetIntegrationMethod()
+	{ return fIntegrateMethod; };
 
-   /*!
-    * Fills a vector of (flat) random numbers in the limits of the parameters and returns 
-    * the probability at that point 
-    * @param x A vector of doubles 
-    * @return The (unnormalized) probability at the random point
-    */ 
-  double GetRandomPoint(std::vector <double> &x);
+	/** 
+	 * @return The marginalization method 
+	 */ 
+	BCIntegrate::BCMarginalizationType GetMarginalizationMethod()
+		{ return fMarginalizeMethod; };
 
-   /*!
-    * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
-    * function and returns the probability at that point 
-    * @param x A vector of doubles 
-    * @return The (unnormalized) probability at the random point
-    */ 
-  double GetRandomPointImportance(std::vector <double> &x);
+	/** 
+	 * Fills a vector of random numbers between 0 and 1 into a vector 
+	 * @param A vector of doubles 
+	 */ 
+	void GetRndmVector(std::vector <double> &x);
 
-   /*!
-    * Fills a vector of random numbers in the limits of the parameters sampled by the probality 
-    * function and returns the probability at that point (Metropolis) 
-    * @param x A vector of doubles 
-    */ 
-  void GetRandomPointMetro(std::vector <double> &x);
+	/**
+	 * Fills a vector of (flat) random numbers in the limits of the parameters and returns 
+	 * the probability at that point 
+	 * @param x A vector of doubles 
+	 * @return The (unnormalized) probability at the random point
+	 */ 
+	double GetRandomPoint(std::vector <double> &x);
 
-   /*!
-    * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
-    * function and returns the probability at that point (Metropolis) 
-    * @param x A vector of doubles 
-    */ 
-  void GetRandomPointSamplingMetro(std::vector <double> &x);
-  
-  /*! 
-   * @return The number of iterations per dimension for the Monte Carlo integration
-   */ 
-  int GetNiterationsPerDimension() 
-    { return fNiterPerDimension; };
+	/**
+	 * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
+	 * function and returns the probability at that point 
+	 * @param x A vector of doubles 
+	 * @return The (unnormalized) probability at the random point
+	 */ 
+	double GetRandomPointImportance(std::vector <double> &x);
 
-  /*!
-   * @return Number of samples per 2D bin per variable in the Metropolis marginalization.
-   */
-  int GetNSamplesPer2DBin()
-    { return fNSamplesPer2DBin; };
+	/**
+	 * Fills a vector of random numbers in the limits of the parameters sampled by the probality 
+	 * function and returns the probability at that point (Metropolis) 
+	 * @param x A vector of doubles 
+	 */ 
+	void GetRandomPointMetro(std::vector <double> &x);
 
-  /*!
-   * @return The number of variables to integrate over 
-   */ 
-  int GetNvar() 
-    { return fNvar; };
+	/**
+	 * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
+	 * function and returns the probability at that point (Metropolis) 
+	 * @param x A vector of doubles 
+	 */ 
+	void GetRandomPointSamplingMetro(std::vector <double> &x);
 
-  /*! 
-   * @return The number of maximum iterations for Monte Carlo integration 
-   */
-  int GetNIterationsMax()
-    { return fNIterationsMax; }; 
-  
-  /*! 
-   * @return The number of iterations for the most recent Monte Carlo integration 
-   */ 
-  int GetNIterations()
-    { return fNIterations; }; 
-  
-  /*! 
-   * @return The relative precision for numerical integration 
-   */ 
-  double GetRelativePrecision()
-    { return fRelativePrecision; }; 
-  
-  /*! 
-   * @return The uncertainty in the most recent Monte Carlo integration 
-   */ 
-  double GetError()
-    { return fError; }; 
-  
-  /*!
-   * @return number of bins per dimension for the marginalized distributions
-   */
-  int GetNbins()
-    { return fNbins; };
+	/** 
+	 * @return The number of iterations per dimension for the Monte Carlo integration
+	 */ 
+	int GetNiterationsPerDimension() 
+	{ return fNiterPerDimension; };
 
-  // methods (set) 
+	/**
+	 * @return Number of samples per 2D bin per variable in the Metropolis marginalization.
+	 */
+	int GetNSamplesPer2DBin()
+	{ return fNSamplesPer2DBin; };
 
-  /*! 
-   * @param par The parameter set which gets translated into array needed for the Monte Carlo integration 
-   */ 
-  void SetParameters(BCParameterSet * par);
+	/**
+	 * @return The number of variables to integrate over 
+	 */ 
+	int GetNvar() 
+	{ return fNvar; };
 
-  /*! 
-   * @param varlist A list of parameters 
-   */ 
-  void SetVarList(int * varlist);
+	/** 
+	 * @return The number of maximum iterations for Monte Carlo integration 
+	 */
+	int GetNIterationsMax()
+	{ return fNIterationsMax; }; 
 
-  /*!
-   * @param index The index of the variable to be set 
-   */ 
-  void SetVar(int index){fVarlist[index]=1;};
+	/** 
+	 * @return The number of iterations for the most recent Monte Carlo integration 
+	 */ 
+	int GetNIterations()
+	{ return fNIterations; }; 
 
-  /*! 
-   * @param method The integration method
-   */ 
-  void SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
-    { fIntegrateMethod = method; };
+	/** 
+	 * @return The relative precision for numerical integration 
+	 */ 
+	double GetRelativePrecision()
+	{ return fRelativePrecision; }; 
 
-  /*! 
-   * @param method The marginalization method 
-   */ 
-  void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
-    { fMarginalizeMethod = method; };
+	/** 
+	 * @return The uncertainty in the most recent Monte Carlo integration 
+	 */ 
+	double GetError()
+	{ return fError; }; 
 
-  /*!
-   * @param niterations Number of iterations per dimension for Monte Carlo integration.
-   */
-  void SetNiterationsPerDimension(int niterations)
-    { fNiterPerDimension = niterations; };
+	/**
+	 * @return number of bins per dimension for the marginalized distributions
+	 */
+	int GetNbins()
+	{ return fNbins; };
 
-  /*!
-   * @param n Number of samples per 2D bin per variable in the Metropolis marginalization.
-	* Default is 100.
-   */
-  void SetNSamplesPer2DBin(int n)
-    { fNSamplesPer2DBin = n; };
+	// methods (set) 
 
-  /*! 
-   * @param niterations The maximum number of iterations for Monte Carlo integration 
-   */ 
-  void SetNIterationsMax(int niterations)
-    { fNIterationsMax = niterations; }; 
+	/** 
+	 * @param par The parameter set which gets translated into array
+	 * needed for the Monte Carlo integration
+	 */ 
+	void SetParameters(BCParameterSet * par);
 
-  /*! 
-   * @param relprecision The relative precision envisioned for Monte Carlo integration 
-   */ 
-  void SetRelativePrecision(double relprecision) 
-    { fRelativePrecision = relprecision; }; 
+	/** 
+	 * @param varlist A list of parameters 
+	 */ 
+	void SetVarList(int * varlist);
 
-  /*!
-   * @param n Number of bins per dimension for the marginalized distributions.
-	* Default is 100. Minimum number allowad is 2.
-   */
-  void SetNbins(int n);
+	/**
+	 * @param index The index of the variable to be set 
+	 */ 
+	void SetVar(int index){fVarlist[index]=1;};
 
-  // methods   
+	/** 
+	 * @param method The integration method
+	 */ 
+	void SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
+	{ fIntegrateMethod = method; };
 
-  /*! 
-   * Frees the memory for integration variables 
-   */ 
-  void DeleteVarList();
+	/** 
+	 * @param method The marginalization method 
+	 */ 
+	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
+	{ fMarginalizeMethod = method; };
 
-  /*! 
-   * Sets all values of the variable list to a particular value 
-   * @v The value 
-   */ 
-  void ResetVarlist(int v);
+	/**
+	 * @param niterations Number of iterations per dimension for Monte Carlo integration.
+	 */
+	void SetNiterationsPerDimension(int niterations)
+	{ fNiterPerDimension = niterations; };
 
-  /*! 
-   * Set value of a particular integration variable to 0. 
-   * @param index The index of the variable 
-   */ 
-  void UnsetVar(int index)
-    { fVarlist[index] = 0; };
-  
-  /*! 
-   * Evaluate the un-normalized probability at a point in parameter space. 
-   * Method needs to be overloaded by the user. 
-   * @param x The point in parameter space 
-   * @return The un-normalized probability 
-   */ 
-  virtual double Eval(std::vector <double> x);
+	/**
+	 * @param n Number of samples per 2D bin per variable in the Metropolis marginalization.
+	 * Default is 100.
+	 */
+	void SetNSamplesPer2DBin(int n)
+	{ fNSamplesPer2DBin = n; };
 
-  /*! 
-   * Evaluate the natural logarithm of the Eval function. For better numerical
-	* stability, this method should also be overloaded by the user.
-   * @param x The point in parameter space 
-   * @return log(Eval(x))
-   */
-  virtual double LogEval(std::vector <double> x);
+	/** 
+	 * @param niterations The maximum number of iterations for Monte Carlo integration 
+	 */ 
+	void SetNIterationsMax(int niterations)
+	{ fNIterationsMax = niterations; }; 
 
-  /*! 
-   * Evaluate the sampling function at a point in parameter space. 
-   * Method needs to be overloaded by the user. 
-   * @param x The point in parameter space 
-   * @return The value of the sampling function 
-   */ 
-  virtual double EvalSampling(std::vector <double> x);
+	/** 
+	 * @param relprecision The relative precision envisioned for Monte Carlo integration 
+	 */ 
+	void SetRelativePrecision(double relprecision) 
+	{ fRelativePrecision = relprecision; }; 
 
-  /*! 
-   * Evaluate the natural logarithm of the EvalSampling function. 
-   * Method needs to be overloaded by the user. 
-   * @param x The point in parameter space 
-   * @return log(EvalSampling(x)) 
-   */ 
-  double LogEvalSampling(std::vector <double> x);
+	/**
+	 * @param n Number of bins per dimension for the marginalized distributions.
+	 * Default is 100. Minimum number allowad is 2.
+	 */
+	void SetNbins(int n);
 
-  /*! 
-   * Evaluate the un-normalized probability at a point in parameter space and prints the result to the log. 
-   * @param x The point in parameter space 
-   * @return The un-normalized probability 
-   * @see Eval(std::vector <double> x) 
-   */   
-  double EvalPrint(std::vector <double> x);
+	// methods   
 
-  /*! 
-   * Does the integration over the un-normalized probability. 
-   * @return The normalization value 
-   */   
-  double Integrate();
+	/** 
+	 * Frees the memory for integration variables 
+	 */ 
+	void DeleteVarList();
 
-  /*! 
-   * Perfoms the Monte Carlo integration. For details see documentation. 
-   * @param x An initial point in parameter space 
-   * @param varlist A list of variables 
-   * @return The integral 
-   */ 
-  double IntegralMC(std::vector <double> x, int * varlist);
+	/** 
+	 * Sets all values of the variable list to a particular value 
+	 * @v The value 
+	 */ 
+	void ResetVarlist(int v);
 
-  double IntegralMC(std::vector <double> x);
-  
-  /*! 
-   * Perfoms the Metropolis Monte Carlo integration. For details see documentation. 
-   * @param x An initial point in parameter space 
-   * @return The integral 
-   */   
-  double IntegralMetro(std::vector <double> x);
-  
-  /*! 
-   * Perfoms the importance sampling Monte Carlo integration. For details see documentation. 
-   * @param x An initial point in parameter space 
-   * @return The integral 
-   */   
-  double IntegralImportance(std::vector <double> x);
-  
-  /*!
-   * Calculate integral using the Cuba library. For details see documentation. 
-   * @param method A short cut for the method 
-   * @param parameters_double A vector of parameters (double) 
-   * @param parameters_int A vector of parameters (int) 
-   * @return The integral
-   */
-  double CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<int> parameters_int); 
+	/** 
+	 * Set value of a particular integration variable to 0. 
+	 * @param index The index of the variable 
+	 */ 
+	void UnsetVar(int index)
+	{ fVarlist[index] = 0; };
 
-  double CubaIntegrate(); 
-  
-  /*!
-   * Integrand for the Cuba library. 
-   * @param ndim The number of dimensions to integrate over 
-   * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension) 
-   * @param ncomp The number of components of the integrand (usually 1) 
-   * @param ff The function value 
-   * @return The integral
-   */
-  static void CubaIntegrand(const int * ndim, const double xx[], 
-			    const int * ncomp, double ff[]); 
+	/** 
+	 * Evaluate the un-normalized probability at a point in parameter space. 
+	 * Method needs to be overloaded by the user. 
+	 * @param x The point in parameter space 
+	 * @return The un-normalized probability 
+	 */ 
+	virtual double Eval(std::vector <double> x);
 
-  /*! 
-   * Performs the marginalization with respect to one parameter.
-   * @param parameter The parameter w.r.t. which the marginalization is performed 
-   * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-   */ 
-  TH1D * Marginalize(BCParameter * parameter);
+	/** 
+	 * Evaluate the natural logarithm of the Eval function. For better numerical
+	 * stability, this method should also be overloaded by the user.
+	 * @param x The point in parameter space 
+	 * @return log(Eval(x))
+	 */
+	virtual double LogEval(std::vector <double> x);
 
-  /*! 
-   * Performs the marginalization with respect to two parameters.
-   * @param parameter1 The first parameter w.r.t. which the marginalization is performed 
-   * @param parameter2 The second parameter w.r.t. which the marginalization is performed 
-   * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-   */ 
-  TH2D * Marginalize(BCParameter * parameter1, BCParameter * parameter2);
-  
-  /*! 
-   * Performs the marginalization with respect to one parameter using the simple Monte Carlo technique. 
-   * @param parameter The parameter w.r.t. which the marginalization is performed 
-   * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-   */ 
-  TH1D * MarginalizeByIntegrate(BCParameter * parameter);
+	/** 
+	 * Evaluate the sampling function at a point in parameter space. 
+	 * Method needs to be overloaded by the user. 
+	 * @param x The point in parameter space 
+	 * @return The value of the sampling function 
+	 */ 
+	virtual double EvalSampling(std::vector <double> x);
 
-  /*! 
-   * Performs the marginalization with respect to two parameters using the simple Monte Carlo technique. 
-   * @param parameter1 The first parameter w.r.t. which the marginalization is performed 
-   * @param parameter2 The second parameter w.r.t. which the marginalization is performed 
-   * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-   */ 
-  TH2D * MarginalizeByIntegrate(BCParameter * parameter1, BCParameter * parameter2);
+	/** 
+	 * Evaluate the natural logarithm of the EvalSampling function. 
+	 * Method needs to be overloaded by the user. 
+	 * @param x The point in parameter space 
+	 * @return log(EvalSampling(x)) 
+	 */ 
+	double LogEvalSampling(std::vector <double> x);
 
-  /*! 
-   * Performs the marginalization with respect to one parameter using the Metropolis algorithm. 
-   * @param parameter The parameter w.r.t. which the marginalization is performed 
-   * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-   */ 
-  TH1D * MarginalizeByMetro(BCParameter * parameter);
+	/** 
+	 * Evaluate the un-normalized probability at a point in parameter space 
+	 * and prints the result to the log. 
+	 * @param x The point in parameter space 
+	 * @return The un-normalized probability 
+	 * @see Eval(std::vector <double> x) 
+	 */   
+	double EvalPrint(std::vector <double> x);
 
-  /*!
-   * Performs the marginalization with respect to two parameters using the Metropolis algorithm.
-   * @param parameter1 The first parameter w.r.t. which the marginalization is performed
-   * @param parameter2 The second parameter w.r.t. which the marginalization is performed
-   * @return A histogram which contains the marginalized probability distribution (normalized to 1)
-   */
-  TH2D * MarginalizeByMetro(BCParameter * parameter1, BCParameter * parameter2);
+	/** 
+	 * Does the integration over the un-normalized probability. 
+	 * @return The normalization value 
+	 */   
+	double Integrate();
 
-  /*!
-   * Performs the marginalization with respect to every single parameter as well as with respect
-	* all combinations to two parameters using the Metropolis algorithm.
-	* @param name Basename for the histograms (e.g. model name)
-	* @return Total number of marginalized distributions
-   */
-  int MarginalizeAllByMetro(const char * name);
+	/** 
+	 * Perfoms the Monte Carlo integration. For details see documentation. 
+	 * @param x An initial point in parameter space 
+	 * @param varlist A list of variables 
+	 * @return The integral 
+	 */ 
+	double IntegralMC(std::vector <double> x, int * varlist);
 
-  /*!
-	* @param parIndex1 Index of parameter
-	* @return Pointer to 1D histogram (TH1D) of marginalized distribution wrt. parameter with given index.
-   */
+	double IntegralMC(std::vector <double> x);
+
+	/** 
+	 * Perfoms the Metropolis Monte Carlo integration. For details see documentation. 
+	 * @param x An initial point in parameter space 
+	 * @return The integral 
+	 */   
+	double IntegralMetro(std::vector <double> x);
+
+	/** 
+	 * Perfoms the importance sampling Monte Carlo integration. For details see documentation. 
+	 * @param x An initial point in parameter space 
+	 * @return The integral 
+	 */   
+	double IntegralImportance(std::vector <double> x);
+
+	/**
+	 * Calculate integral using the Cuba library. For details see documentation. 
+	 * @param method A short cut for the method 
+	 * @param parameters_double A vector of parameters (double) 
+	 * @param parameters_int A vector of parameters (int) 
+	 * @return The integral
+	 */
+	double CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<int> parameters_int); 
+
+	double CubaIntegrate(); 
+
+	/**
+	 * Integrand for the Cuba library. 
+	 * @param ndim The number of dimensions to integrate over 
+	 * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension) 
+	 * @param ncomp The number of components of the integrand (usually 1) 
+	 * @param ff The function value 
+	 * @return The integral
+	 */
+	static void CubaIntegrand(const int * ndim, const double xx[], 
+														const int * ncomp, double ff[]); 
+
+	/** 
+	 * Performs the marginalization with respect to one parameter.
+	 * @param parameter The parameter w.r.t. which the marginalization is performed 
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
+	 */ 
+	TH1D * Marginalize(BCParameter * parameter);
+
+	/** 
+	 * Performs the marginalization with respect to two parameters.
+	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed 
+	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed 
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
+	 */ 
+	TH2D * Marginalize(BCParameter * parameter1, BCParameter * parameter2);
+
+	/** 
+	 * Performs the marginalization with respect to one parameter using 
+	 * the simple Monte Carlo technique. 
+	 * @param parameter The parameter w.r.t. which the marginalization is performed 
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
+	 */ 
+	TH1D * MarginalizeByIntegrate(BCParameter * parameter);
+
+	/** 
+	 * Performs the marginalization with respect to two parameters using 
+	 * the simple Monte Carlo technique. 
+	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed 
+	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed 
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
+	 */ 
+	TH2D * MarginalizeByIntegrate(BCParameter * parameter1, BCParameter * parameter2);
+
+	/** 
+	 * Performs the marginalization with respect to one parameter using 
+	 * the Metropolis algorithm. 
+	 * @param parameter The parameter w.r.t. which the marginalization is performed 
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
+	 */ 
+	TH1D * MarginalizeByMetro(BCParameter * parameter);
+
+	/**
+	 * Performs the marginalization with respect to two parameters using the Metropolis algorithm.
+	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed
+	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1)
+	 */
+	TH2D * MarginalizeByMetro(BCParameter * parameter1, BCParameter * parameter2);
+
+	/**
+	 * Performs the marginalization with respect to every single parameter as well as with respect
+	 * all combinations to two parameters using the Metropolis algorithm.
+	 * @param name Basename for the histograms (e.g. model name)
+	 * @return Total number of marginalized distributions
+	 */
+	int MarginalizeAllByMetro(const char * name);
+
+	/**
+	 * @param parIndex1 Index of parameter
+	 * @return Pointer to 1D histogram (TH1D) of marginalized distribution wrt. parameter with given index.
+	 */
 	TH1D * GetH1D(int parIndex);
 
-  /*!
-	* @param parIndex1 Index of first parameter
-	* @param parIndex2 Index of second parameter, with parIndex2>parIndex1
-	* @return Index of the distribution in the vector of 2D distributions, which corresponds
-	* to the combination of parameters with given indeces
-   */
-  int GetH2DIndex(int parIndex1, int parIndex2);
+	/**
+	 * @param parIndex1 Index of first parameter
+	 * @param parIndex2 Index of second parameter, with parIndex2>parIndex1
+	 * @return Index of the distribution in the vector of 2D distributions, which corresponds
+	 * to the combination of parameters with given indeces
+	 */
+	int GetH2DIndex(int parIndex1, int parIndex2);
 
-  /*!
-	* @param parIndex1 Index of first parameter
-	* @param parIndex2 Index of second parameter, with parIndex2>parIndex1
-	* @return Pointer to 2D histogram (TH2D) of marginalized distribution wrt. parameters with given indeces.
-   */
+	/**
+	 * @param parIndex1 Index of first parameter
+	 * @param parIndex2 Index of second parameter, with parIndex2>parIndex1
+	 * @return Pointer to 2D histogram (TH2D) of marginalized distribution wrt. parameters with given indeces.
+	 */
 	TH2D * GetH2D(int parIndex1, int parIndex2);
 
-  /*!
-   * Initializes the Metropolis algorithm (for details see manual)
-   */
-  void InitMetro();
+	/**
+	 * Initializes the Metropolis algorithm (for details see manual)
+	 */
+	void InitMetro();
 
-  /*!
-   * Does the mode finding using Simulated Annealing (SA) algorithm
-   */
-  void FindModeSA();
+	/**
+	 * Does the mode finding using Simulated Annealing (SA) algorithm
+	 */
+	void FindModeSA();
 
-   /*!
-    * Generates a vector x according to the Simulated Annealing algorithm
-    * given the temperature and the stepsize relative to the range
-    * @param x Vector of doubles
+	/**
+	 * Generates a vector x according to the Simulated Annealing algorithm
+	 * given the temperature and the stepsize relative to the range
+	 * @param x Vector of doubles
 	 * @param T temperature used for the stepping probability calculation
 	 *  according to exp ( - (p1-p0) / T )
 	 * @param step maximum stepsize relative to the range
-    */ 
-  void GetRandomPointSA(std::vector <double> &x, double T, double step);
+	 */ 
+	void GetRandomPointSA(std::vector <double> &x, double T, double step);
 
  private:
 
-  /*!
-   * Set of parameters for the integration.
-   */
-  BCParameterSet * fx;
+	/**
+	 * Set of parameters for the integration.
+	 */
+	BCParameterSet * fx;
 
-  /*!
-   * Number of variables to integrate over.
-   */
-  int fNvar;
+	/**
+	 * Number of variables to integrate over.
+	 */
+	int fNvar;
 
-  /*!
-   * Array containing the lower boundaries of the variables to integrate over.
-   */
-  double * fMin;
+	/**
+	 * Array containing the lower boundaries of the variables to integrate over.
+	 */
+	double * fMin;
 
-  /*!
-   * Array containing the upper boundaries of the variables to integrate over.
-   */
-  double * fMax;
+	/**
+	 * Array containing the upper boundaries of the variables to integrate over.
+	 */
+	double * fMax;
 
-  /*!
-   * List of variables containing a flag whether to integrate over them or not.
-   */
-  int * fVarlist;
+	/**
+	 * List of variables containing a flag whether to integrate over them or not.
+	 */
+	int * fVarlist;
+
+	/**
+	 * Number of bins per dimension for the marginalized distributions
+	 */
+	int fNbins;
+
+	/**
+	 * Number of iteration per dimension for Monte Carlo integration.
+	 */
+	int fNiterPerDimension;
+
+	/**
+	 * Number of samples per 2D bin per variable in the Metropolis
+	 * marginalization.
+	 */
+	int fNSamplesPer2DBin;
+
+	/**
+	 * Current integration method
+	 */
+	BCIntegrate::BCIntegrationType fIntegrateMethod;
+
+	/** 
+	 * Current marginalization method 
+	 */ 
+	BCIntegrate::BCMarginalizationType fMarginalizeMethod;
   
-  /*!
-   * Number of bins per dimension for the marginalized distributions
-   */
-  int fNbins;
+	/**
+	 * Maximum number of iterations 
+	 */
+	int fNIterationsMax; 
 
-  /*!
-   * Number of iteration per dimension for Monte Carlo integration.
-   */
-  int fNiterPerDimension;
+	/**
+	 * Number of iterations in the most recent Monte Carlo integation
+	 */
+	int fNIterations; 
 
-  /*!
-   * Number of samples per 2D bin per variable in the Metropolis marginalization.
-   */
-  int fNSamplesPer2DBin;
+	/**
+	 * Relative precision aimed at in the Monte Carlo integation
+	 */
+	double fRelativePrecision;
 
-  /*!
-   * Current integration method
-   */
-  BCIntegrate::BCIntegrationType fIntegrateMethod;
+	/**
+	 * The uncertainty in the most recent Monte Carlo integration
+	 */
+	double fError; 
 
-  /*! 
-   * Current marginalization method 
-   */ 
-  BCIntegrate::BCMarginalizationType fMarginalizeMethod;
-    
-  /*!
-   * Maximum number of iterations 
-   */
-  int fNIterationsMax; 
+	/** 
+	 * The number of iterations in the Metropolis integration 
+	 */ 
+	int fNmetro;
 
-  /*!
-   * Number of iterations in the most recent Monte Carlo integation
-   */
-  int fNIterations; 
+	/** 
+	 * A vector of points in parameter space used for the Metropolis algorithm 
+	 */ 
+	std::vector <double> fXmetro0;
 
-  /*!
-   * Relative precision aimed at in the Monte Carlo integation
-   */
-  double fRelativePrecision;
+	/** 
+	 * A vector of points in parameter space used for the Metropolis algorithm 
+	 */ 
+	std::vector <double> fXmetro1;
 
-  /*!
-   * The uncertainty in the most recent Monte Carlo integration
-   */
-  double fError; 
-  
-  /*! 
-   * The number of iterations in the Metropolis integration 
-   */ 
-  int fNmetro;
-
-  /*! 
-   * A vector of points in parameter space used for the Metropolis algorithm 
-   */ 
-  std::vector <double> fXmetro0;
-
-  /*! 
-   * A vector of points in parameter space used for the Metropolis algorithm 
-   */ 
-  std::vector <double> fXmetro1;
-  
  protected: 
 
-  /*!
-   * A ROOT random number generator 
-   */ 
-  TRandom3 * fRandom;
+	/**
+	 * A ROOT random number generator 
+	 */ 
+	TRandom3 * fRandom;
 
-  /*! 
-   * A vector of best fit parameters estimated from the global probability 
-   */   
-  std::vector <double> fBestFitParameters; 
+	/** 
+	 * A vector of best fit parameters estimated from the global probability 
+	 */   
+	std::vector <double> fBestFitParameters; 
 
-  /*! 
-   * A vector of best fit parameters estimated from the marginalized probability 
-   */   
-  std::vector <double> fBestFitParametersMarginalized; 
+	/** 
+	 * A vector of best fit parameters estimated from the marginalized probability 
+	 */   
+	std::vector <double> fBestFitParametersMarginalized; 
 
-  /*!
-   * Vector of TH1D histograms for marginalized probability distributions
-   */
-  std::vector <TH1D *> fHProb1D;
+	/**
+	 * Vector of TH1D histograms for marginalized probability distributions
+	 */
+	std::vector <TH1D *> fHProb1D;
 
-  /*!
-   * Vector of TH2D histograms for marginalized probability distributions
-   */
-  std::vector <TH2D *> fHProb2D;
+	/**
+	 * Vector of TH2D histograms for marginalized probability distributions
+	 */
+	std::vector <TH2D *> fHProb2D;
 
 };
 
