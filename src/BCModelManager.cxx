@@ -1,9 +1,6 @@
 #include "BCModelManager.h" 
 #include "BCLog.h" 
-
-#include <TFile.h> 
-#include <TH2D.h> 
-#include <TTree.h> 
+#include "BCErrorCodes.h"
 
 #include <fstream.h>
 
@@ -12,9 +9,9 @@
 BCModelManager::BCModelManager()
 {
 
-  fModelContainer = new BCModelContainer(); 
+	fModelContainer = new BCModelContainer(); 
 
-  fDataSet = 0; 
+	fDataSet = 0; 
 
 }
 
@@ -23,10 +20,10 @@ BCModelManager::BCModelManager()
 BCModelManager::~BCModelManager()
 {
 
-  delete fModelContainer; 
+	delete fModelContainer; 
 
-  if (fDataSet) 
-    delete fDataSet; 
+	if (fDataSet) 
+		delete fDataSet; 
 
 }
 
@@ -35,14 +32,14 @@ BCModelManager::~BCModelManager()
 void BCModelManager::SetDataSet(BCDataSet* dataset) 
 {
 
-  // set data set 
+	// set data set 
 
-  fDataSet = dataset; 
+	fDataSet = dataset; 
 
-  // set data set of all models in the manager 
+	// set data set of all models in the manager 
 
-  for (int i = 0; i < this -> GetNModels(); i++)
-    this -> GetModel(i) -> SetDataSet(fDataSet); 
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataSet(fDataSet); 
 
 }
 
@@ -51,25 +48,25 @@ void BCModelManager::SetDataSet(BCDataSet* dataset)
 void BCModelManager::AddModel(BCModel* model, double probability) 
 {
 
-  // create index 
+	// create index 
 
-  int index = int(fModelContainer -> size()); 
+	int index = int(fModelContainer -> size()); 
 
-  // set index of new model 
+	// set index of new model 
 
-  model -> SetIndex(index); 
+	model -> SetIndex(index); 
 
-  // set a priori probability of new model 
+	// set a priori probability of new model 
 
-  model -> SetModelAPrioriProbability(probability); 
+	model -> SetModelAPrioriProbability(probability); 
 
-  // set data set 
+	// set data set 
 
-  model -> SetDataSet(fDataSet); 
+	model -> SetDataSet(fDataSet); 
 
-  // fill model into container 
+	// fill model into container 
 
-  fModelContainer -> push_back(model); 
+	fModelContainer -> push_back(model); 
 
 }   
 
@@ -77,10 +74,11 @@ void BCModelManager::AddModel(BCModel* model, double probability)
 
 void BCModelManager::SetNIterationsMax(int niterations)
 {
-  // set maximum number of iterations of all models in the manager 
 
-  for (int i = 0; i < this -> GetNModels(); i++)
-    this -> GetModel(i) -> SetNIterationsMax(niterations); 
+	// set maximum number of iterations of all models in the manager 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNIterationsMax(niterations); 
 
 }
 
@@ -89,40 +87,40 @@ void BCModelManager::SetNIterationsMax(int niterations)
 int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames)
 {
 
-  if (fModelContainer -> size() < 0)
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined.");
-      return ERROR_NOMODELS;
-    }
+	if (fModelContainer -> size() < 0)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined.");
+			return ERROR_NOMODELS;
+		}
     
-  // create data set 
+	// create data set 
 
-  if (!fDataSet)
-    fDataSet = new BCDataSet(); 
+	if (!fDataSet)
+		fDataSet = new BCDataSet(); 
 
-  else 
-    fDataSet -> Reset(); 
+	else 
+		fDataSet -> Reset(); 
 
-  // read data from tree 
+	// read data from tree 
 
-  int read_file = fDataSet -> ReadDataFromFileTree(filename, treename, branchnames); 
+	int read_file = fDataSet -> ReadDataFromFileTree(filename, treename, branchnames); 
 
-  if (read_file >=0)
-    {
-      this -> SetDataSet(fDataSet); 
-      
-      for (int i = 0; i < this -> GetNModels(); i++)
-	fModelContainer -> at(i) -> SetDataSet(fDataSet); 
-    }
+	if (read_file >=0)
+		{
+			this -> SetDataSet(fDataSet); 
 
-  else if (read_file == ERROR_FILENOTFOUND) 
-    {
-      delete fDataSet; 
-      
-      return ERROR_FILENOTFOUND; 
-    }
-  
-  return 0; 
+			for (int i = 0; i < this -> GetNModels(); i++)
+				fModelContainer -> at(i) -> SetDataSet(fDataSet); 
+		}
+
+	else if (read_file == ERROR_FILENOTFOUND) 
+		{
+			delete fDataSet; 
+    
+			return ERROR_FILENOTFOUND; 
+		}
+
+	return 0; 
 
 }
 
@@ -130,37 +128,39 @@ int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const c
 
 int BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_int, std::vector<double> options_double) 
 {
-  if (fModelContainer -> size() < 0) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
-      return ERROR_NOMODELS;
-    }
-    
-  // create data set 
-  if (!fDataSet) 
-    fDataSet = new BCDataSet(); 
-  else
-    fDataSet -> Reset(); 
+	if (fModelContainer -> size() < 0) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
+			return ERROR_NOMODELS;
+		}
   
-  // read data from user specified file 
-  int read_file = fDataSet -> ReadDataFromFileUser(filename, options_int, options_double, ""); 
+	// create data set 
 
-  if (read_file >=0) 
-    {
-      this -> SetDataSet(fDataSet); 
-      
-      for (int i = 0; i < this -> GetNModels(); i++)
-	fModelContainer -> at(i) -> SetDataSet(fDataSet); 
-    }
+	if (!fDataSet) 
+		fDataSet = new BCDataSet(); 
+	else
+		fDataSet -> Reset(); 
 
-  else
-    {
-      delete fDataSet; 
-      
-      return ERROR_FILENOTFOUND; 
-    }
+	// read data from user specified file 
 
-  return 0; 
+	int read_file = fDataSet -> ReadDataFromFileUser(filename, options_int, options_double, ""); 
+
+	if (read_file >=0) 
+		{
+			this -> SetDataSet(fDataSet); 
+			
+			for (int i = 0; i < this -> GetNModels(); i++)
+				fModelContainer -> at(i) -> SetDataSet(fDataSet); 
+		}
+
+	else
+		{
+			delete fDataSet; 
+
+			return ERROR_FILENOTFOUND; 
+		}
+
+	return 0; 
 
 }
 
@@ -169,37 +169,38 @@ int BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> option
 int BCModelManager::ReadDataFromFileTxt(char* filename, int nbranches)
 {
 
-  if (fModelContainer -> size() < 0) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
-      return ERROR_NOMODELS;  
-    }
+	if (fModelContainer -> size() < 0) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
+			return ERROR_NOMODELS;  
+		}
+  
+	// create data set 
+
+	if (!fDataSet) 
+		fDataSet = new BCDataSet(); 
+	else
+		fDataSet -> Reset(); 
+
+	// read data from txt file 
+	int read_file = fDataSet -> ReadDataFromFileTxt(filename, nbranches); 
+
+	if (read_file >=0) 
+		{
+			this -> SetDataSet(fDataSet); 
+
+			for (int i = 0; i < this -> GetNModels(); i++)
+				fModelContainer -> at(i) -> SetDataSet(fDataSet); 
+		}
+
+	else
+		{
+			delete fDataSet; 
     
-  // create data set 
-  if (!fDataSet) 
-    fDataSet = new BCDataSet(); 
-  else
-    fDataSet -> Reset(); 
+			return ERROR_FILENOTFOUND; 
+		}
 
-  // read data from txt file 
-  int read_file = fDataSet -> ReadDataFromFileTxt(filename, nbranches); 
-
-  if (read_file >=0) 
-    {
-      this -> SetDataSet(fDataSet); 
-      
-      for (int i = 0; i < this -> GetNModels(); i++)
-	fModelContainer -> at(i) -> SetDataSet(fDataSet); 
-    }
-
-  else
-    {
-      delete fDataSet; 
-      
-      return ERROR_FILENOTFOUND; 
-    }
-
-  return 0; 
+	return 0; 
 
 }
 
@@ -207,6 +208,7 @@ int BCModelManager::ReadDataFromFileTxt(char* filename, int nbranches)
 
 void BCModelManager::Initialize()
 {
+
 	// initialize likelihood norm
 	double normalization = 0.0;
 
@@ -237,6 +239,7 @@ void BCModelManager::Initialize()
 
 void BCModelManager::PrintSummary(char * file)
 {
+
 	ofstream out;
 	std::streambuf * old_buffer = 0;
 

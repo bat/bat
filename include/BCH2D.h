@@ -7,7 +7,8 @@
  *
  * AUTHOR:  D. Kollar, K. Kroeninger 
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de 
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
  *
  * CREATED: 02.03.2007 
  * 

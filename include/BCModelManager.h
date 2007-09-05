@@ -8,7 +8,8 @@
  *
  * AUTHOR:  K. Kroeninger 
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de 
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
  *
  * CREATED: 14.03.2007 by Kevin 
  * 
@@ -28,8 +29,6 @@
 #ifndef __BCMODELMANAGER__H
 #define __BCMODELMANAGER__H
 
-#include <TROOT.h>
-
 #include "BCModel.h" 
 
 // --------------------------------------------------------- 
@@ -39,148 +38,148 @@ class BCModelManager
 
  public:
 
-  // constructor and destructor 
+	// constructor and destructor 
 
-  /**
-   * A constructor. 
-   */ 
-  BCModelManager(); 
+	/**
+	 * A constructor. 
+	 */ 
+	BCModelManager(); 
 
-  /**
-   * A destructor. 
-   */ 
-  virtual ~BCModelManager(); 
+	/**
+	 * A destructor. 
+	 */ 
+	virtual ~BCModelManager(); 
 
-  // methods (get) 
+	// methods (get) 
 
-  /** 
-   * @return The number of models. 
-   */ 
-  int GetNModels() 
-    { return int(fModelContainer -> size()); }; 
+	/** 
+	 * @return The number of models. 
+	 */ 
+	int GetNModels() 
+	{ return int(fModelContainer -> size()); }; 
 
-  /** 
-   * @param index The index of the model 
-   * @return The BCModel. 
-   */ 
-  BCModel * GetModel(int index) 
-    { return fModelContainer -> at(index); }; 
+	/** 
+	 * @param index The index of the model 
+	 * @return The BCModel. 
+	 */ 
+	BCModel * GetModel(int index) 
+	{ return fModelContainer -> at(index); }; 
 
-  /**
-   * @return The number of entries in the data container
-   */ 
-  int GetNDataPoints() 
-    { return fDataSet -> GetNDataPoints(); }; 
+	/**
+	 * @return The number of entries in the data container
+	 */ 
+	int GetNDataPoints() 
+	{ return fDataSet -> GetNDataPoints(); }; 
 
-  /**
-   * @param index The index of the data point
-   * @return The data point
-   */ 
-  BCDataPoint * GetDataPoint(int index) 
-    { return fDataSet -> GetDataPoint(index); }; 
+	/**
+	 * @param index The index of the data point
+	 * @return The data point
+	 */ 
+	BCDataPoint * GetDataPoint(int index) 
+		{ return fDataSet -> GetDataPoint(index); }; 
 
-  /** 
-   * @return The data set 
-   */ 
-  BCDataSet * GetDataSet()
-    { return fDataSet; }; 
+	/** 
+	 * @return The data set 
+	 */ 
+	BCDataSet * GetDataSet()
+		{ return fDataSet; }; 
 
-  // methods (set) 
+	// methods (set) 
 
-   /**
-    * @param dataset A data set 
-    */ 
-  void SetDataSet(BCDataSet * dataset); 
+	/**
+	 * @param dataset A data set 
+	 */ 
+	void SetDataSet(BCDataSet * dataset); 
 
-   /**
-    * Set maximum number of iterations for all models added to the manager.
+	/**
+	 * Set maximum number of iterations for all models added to the manager.
 	 * Only works on models already added to the manager.
-    * @param niterations
-    */ 
-  void SetNIterationsMax(int niterations);
+	 * @param niterations
+	 */ 
+	void SetNIterationsMax(int niterations);
 
-  // methods 
+	// methods 
 
-  /** 
-   * Adds a model to the container
-   * @param model The model
-   * @param probability The a priori probability 
-   * @see AddModel(BCModel * model)
-   * @see SetModelPrior(BCModel * model, double probability)
-   */ 
-  void AddModel(BCModel * model, double probability=0.); 
+	/** 
+	 * Adds a model to the container
+	 * @param model The model
+	 * @param probability The a priori probability 
+	 * @see AddModel(BCModel * model)
+	 * @see SetModelPrior(BCModel * model, double probability)
+	 */ 
+	void AddModel(BCModel * model, double probability=0.); 
 
-  /**
-   * Adds a data point to the data container. 
-   * @param datapoint The data point
-   */ 
-  void AddDataPoint(BCDataPoint * datapoint) 
-    { fDataSet -> AddDataPoint(datapoint); }; 
+	/**
+	 * Adds a data point to the data container. 
+	 * @param datapoint The data point
+	 */ 
+	void AddDataPoint(BCDataPoint * datapoint) 
+	{ fDataSet -> AddDataPoint(datapoint); }; 
 
-  /** 
-   * Reads tree data from a ROOT file. 
-   * Opens a ROOT file and gets a ROOT tree. It creates data set
-   * containing the values read from the file. 
-   * @param filename The filename of the ROOT file 
-   * @param treename The name of the ROOT tree 
-   * @param branchnames A vector of the names of the branches 
-   * @see ReadDataFromFileHist(char * filename, char * histname, const char*  branchnames); 
-   * @see ReadDataFromFileTxt(char * filename, int nbranches); 
-   */ 
-  int ReadDataFromFileTree(char* filename, char * treename, const char * branchnames); 
+	/** 
+	 * Reads tree data from a ROOT file. 
+	 * Opens a ROOT file and gets a ROOT tree. It creates data set
+	 * containing the values read from the file. 
+	 * @param filename The filename of the ROOT file 
+	 * @param treename The name of the ROOT tree 
+	 * @param branchnames A vector of the names of the branches 
+	 * @see ReadDataFromFileHist(char * filename, char * histname, const char*  branchnames); 
+	 * @see ReadDataFromFileTxt(char * filename, int nbranches); 
+	 */ 
+	int ReadDataFromFileTree(char* filename, char * treename, const char * branchnames); 
 
-  /** 
-   * Reads data from a txt file. 
-   * Opens a txt file and creates data set
-   * containing the values read from the file. 
-   * @param filename The filename of the ROOT file 
-   * @param nbranches The number of variables 
-   * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
-   * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
-   */   
-  int ReadDataFromFileTxt(char * filename, int nbranches); 
+	/** 
+	 * Reads data from a txt file. 
+	 * Opens a txt file and creates data set
+	 * containing the values read from the file. 
+	 * @param filename The filename of the ROOT file 
+	 * @param nbranches The number of variables 
+	 * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
+	 * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
+	 */   
+	int ReadDataFromFileTxt(char * filename, int nbranches); 
 
-  /** 
-   * Reads data from a txt file (user specifies). 
-   * Opens a file and creates data set
-   * containing the values read from the file (user specifies). 
-   * @param filename The filename of the ROOT file 
-   * @param nbranches The number of variables 
-   * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
-   * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
-   * @see ReadDataFromFileTxt(char * filename, int nbranches); 
-   */
-  int ReadDataFromFileUser(char*  filename, std::vector<int> options_int, std::vector<double> options_double);
+	/** 
+	 * Reads data from a txt file (user specifies). 
+	 * Opens a file and creates data set
+	 * containing the values read from the file (user specifies). 
+	 * @param filename The filename of the ROOT file 
+	 * @param nbranches The number of variables 
+	 * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
+	 * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
+	 * @see ReadDataFromFileTxt(char * filename, int nbranches); 
+	 */
+	int ReadDataFromFileUser(char*  filename, std::vector<int> options_int, std::vector<double> options_double);
 
- /** 
-   * Calculates the normalization of the likelihood for each model in the container. 
-   */   
-  void Initialize(); 
+	/** 
+	 * Calculates the normalization of the likelihood for each model in the container. 
+	 */   
+	void Initialize(); 
 
-  /**
-   * Resets the data set 
-   */ 
-  void ResetDataSet()
-    { fDataSet -> Reset(); }; 
+	/**
+	 * Resets the data set 
+	 */ 
+	void ResetDataSet()
+	{ fDataSet -> Reset(); }; 
 
-  /**
-   * Prints a summary into a file. If filename is omitted the summary will
-	* be printed onto the screen
-	* @param filename name of the file to write into.
-   */
-  void PrintSummary(char * filename=0);
+	/**
+	 * Prints a summary into a file. If filename is omitted the summary will
+	 * be printed onto the screen
+	 * @param filename name of the file to write into.
+	 */
+	void PrintSummary(char * filename=0);
 
  private: 
 
-  /**
-   * A model container. 
-   */ 
-  BCModelContainer * fModelContainer; 
+	/**
+	 * A model container. 
+	 */ 
+	BCModelContainer * fModelContainer; 
 
-  /**
-   * A data set
-   */
-  BCDataSet * fDataSet;
+	/**
+	 * A data set
+	 */
+	BCDataSet * fDataSet;
 
 }; 
 

@@ -1,7 +1,7 @@
 #include "BCModel.h" 
-
-#include <TTree.h> 
-#include <TH1D.h> 
+#include "BCLog.h"
+#include "BCErrorCodes.h"
+#include "BCMath.h"
 
 #include <fstream.h>
 
@@ -9,6 +9,7 @@
 
 BCModel::BCModel(const char * name) : BCIntegrate()
 {
+
 	fNormalization = -1.0; 
 
 	fDataSet = 0; 
@@ -23,12 +24,14 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 	fName = (char *) name; 
 
 	flag_ConditionalProbabilityEntry = true; 
+
 }
 
 // --------------------------------------------------------- 
 
 BCModel::BCModel() : BCIntegrate()
 {
+
 	fNormalization = -1.0; 
 
 	fDataSet = 0; 
@@ -43,12 +46,14 @@ BCModel::BCModel() : BCIntegrate()
 	fName = "model"; 
 
 	flag_ConditionalProbabilityEntry = true; 
+
 }
 
 // --------------------------------------------------------- 
 
 BCModel::~BCModel()
 {
+
 	delete fParameterSet; 
 
 	if (fDataSet) 
@@ -59,12 +64,14 @@ BCModel::~BCModel()
 
 	if (fDataPointUpperBoundaries)
 		delete fDataPointUpperBoundaries; 
+
 }
 
 // --------------------------------------------------------- 
 
 int BCModel::GetNDataPoints() 
 {
+
 	int npoints = 0; 
 
 	if (fDataSet) 
@@ -76,17 +83,20 @@ int BCModel::GetNDataPoints()
 	  }
 
 	return npoints; 
+
 }
 
 // --------------------------------------------------------- 
 
 BCDataPoint * BCModel::GetDataPoint(int index) 
 {
+
 	if (fDataSet) 
 		return fDataSet -> GetDataPoint(index); 
 
 	BCLog::Out(BCLog::warning, BCLog::warning,"BCModel::GetDataPoint. No data set defined."); 
 	return 0; 
+
 }
 
 // --------------------------------------------------------- 
@@ -134,18 +144,18 @@ BCParameter * BCModel::GetParameter(char * name)
 int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimit) 
 {
 
-  // create new parameter 
+	// create new parameter 
 
-  BCParameter * parameter = new BCParameter(name, lowerlimit, upperlimit);   
+	BCParameter * parameter = new BCParameter(name, lowerlimit, upperlimit);   
 
-  int flag_ok = 0; 
+	int flag_ok = 0; 
 
-  flag_ok = this -> AddParameter(parameter); 
+	flag_ok = this -> AddParameter(parameter); 
 
-  if (flag_ok != 0) 
-    delete parameter; 
+	if (flag_ok != 0) 
+		delete parameter; 
 
-  return flag_ok; 
+	return flag_ok; 
 
 }
 
@@ -154,102 +164,115 @@ int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimi
 int BCModel::AddParameter(BCParameter * parameter) 
 { 
   
-  // check if parameter set exists 
+	// check if parameter set exists 
 
-  if (!fParameterSet) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 "BCModel::AddParameter. Parameter set does not exist"); 
+	if (!fParameterSet) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 "BCModel::AddParameter. Parameter set does not exist"); 
 
-      return ERROR_PARAMETERSETDOESNOTEXIST; 
-    }
+			return ERROR_PARAMETERSETDOESNOTEXIST; 
+		}
 
-  // check if parameter with same name exists 
+	// check if parameter with same name exists 
 
-  int flag_exists = 0; 
+	int flag_exists = 0; 
 
-  for (int i = 0; i < this -> GetNParameters(); i++)
-    if (this -> CompareStrings(parameter -> GetName(), this -> GetParameter(i) -> GetName()) == 0)
-      flag_exists = -1; 
+	for (int i = 0; i < this -> GetNParameters(); i++)
+		if (this -> CompareStrings(parameter -> GetName(), this -> GetParameter(i) -> GetName()) == 0)
+			flag_exists = -1; 
 
-  if (flag_exists < 0)
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, 
-		 Form("BCModel::AddParameter. Parameter with name %s exists already. ", parameter -> GetName())); 
-      
-      return ERROR_PARAMETEREXISTSALREADY; 
-    }
+	if (flag_exists < 0)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 Form("BCModel::AddParameter. Parameter with name %s exists already. ", parameter -> GetName())); 
 
-  // define index of new parameter 
-  
-  int index = int(fParameterSet -> size()); 
-  
-  parameter -> SetIndex(index); 
+			return ERROR_PARAMETEREXISTSALREADY; 
+		}
 
-  // add parameter to parameter container 
+	// define index of new parameter 
 
-  fParameterSet -> push_back(parameter); 
+	int index = int(fParameterSet -> size()); 
 
-  // add parameters to integation methods 
+	parameter -> SetIndex(index); 
 
-  this -> SetParameters(fParameterSet); 
+	// add parameter to parameter container 
 
-  return 0; 
-  
+	fParameterSet -> push_back(parameter); 
+
+	// add parameters to integation methods 
+
+	this -> SetParameters(fParameterSet); 
+
+	return 0; 
+
 }; 
 
 // --------------------------------------------------------- 
 
 double BCModel::LogProbabilityNN(std::vector <double> parameters) 
 {
+
 	// add log of conditional probability
+
 	double logprob = this -> LogLikelihood(parameters);
 
 	// add log of prior probability
+
 	logprob += this -> LogAPrioriProbability(parameters);
 
 	return logprob;
+
 }
 
 // --------------------------------------------------------- 
 
 double BCModel::LogProbability(std::vector <double> parameters) 
 {
+
 	// check if normalized
+
 	if (fNormalization<0. || fNormalization==0.)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-			"BCModel::LogProbability. Normalization not available or zero.");
-		return 0.;
-	}
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::LogProbability. Normalization not available or zero.");
+			return 0.;
+		}
 
 	return this -> LogProbabilityNN(parameters) - log(fNormalization);
+
 }
   
 // --------------------------------------------------------- 
 
 double BCModel::LogLikelihood(std::vector <double> parameters)
 {
+
 	int ndatapoints = fDataSet -> GetNDataPoints();
 
 	// get the log of poisson term first
+
 	double logprob = this -> LogPoissonProbability(ndatapoints, parameters);
 
 	// add log of conditional probabilities event-by-event
+
 	for (int i=0;i<ndatapoints;i++)
-	{
-		BCDataPoint * datapoint = this -> GetDataPoint(i);
-		logprob += this -> LogConditionalProbabilityEntry(datapoint, parameters);
-	}
+		{
+			BCDataPoint * datapoint = this -> GetDataPoint(i);
+			logprob += this -> LogConditionalProbabilityEntry(datapoint, parameters);
+		}
 
 	return logprob;
+
 }
 
 // --------------------------------------------------------- 
 
 double BCModel::LogEval(std::vector <double> parameters)
 {
+
 	return this -> LogProbabilityNN(parameters); 
+
 }
 
 // --------------------------------------------------------- 
@@ -257,7 +280,7 @@ double BCModel::LogEval(std::vector <double> parameters)
 double BCModel::EvalSampling(std::vector <double> parameters)
 {
 
-  return this -> SamplingFunction(parameters);
+	return this -> SamplingFunction(parameters);
 
 }
 
@@ -266,15 +289,15 @@ double BCModel::EvalSampling(std::vector <double> parameters)
 double BCModel::SamplingFunction(std::vector <double> parameters)
 {
 
-  double probability = 1.0; 
+	double probability = 1.0; 
 
-  for (std::vector<BCParameter*>::const_iterator it = fParameterSet -> begin(); it != fParameterSet -> end(); ++it)
-    {
-      probability *= 1.0 / ((*it) -> GetUpperLimit() - 
-			    (*it) -> GetLowerLimit()); 
-    }
+	for (std::vector<BCParameter*>::const_iterator it = fParameterSet -> begin(); it != fParameterSet -> end(); ++it)
+		{
+			probability *= 1.0 / ((*it) -> GetUpperLimit() - 
+														(*it) -> GetLowerLimit()); 
+  }
 
-  return probability; 
+	return probability; 
 
 } 
 
@@ -282,6 +305,7 @@ double BCModel::SamplingFunction(std::vector <double> parameters)
 
 std::vector<double> BCModel::FindMode()
 {
+
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Finding mode using Simulated Annealing algorithm.",this->GetName()));
 
 	this -> FindModeSA();
@@ -301,6 +325,7 @@ std::vector<double> BCModel::FindMode()
 
   this -> SetIntegrationMethod(integrationtypetemp); 
 */
+
 	return this -> GetBestFitParameters(); 
 
 }
@@ -314,17 +339,20 @@ double BCModel::Normalize()
 	int n = this->GetNvar();
 	
 	// initialize BCIntegrate if not done already
+
 	if (n == 0)
-	{
-		this->SetParameters(fParameterSet);
-		n = this->GetNvar();
-	}
+		{
+			this->SetParameters(fParameterSet);
+			n = this->GetNvar();
+		}
 
 	// integrate and get best fit parameters
 	// maybe we have to remove the mode finding from here in the future
+
 	fNormalization = this -> Integrate();
 
 	return fNormalization;
+
 }
 
 // --------------------------------------------------------- 
@@ -332,28 +360,28 @@ double BCModel::Normalize()
 int BCModel::CheckParameters(std::vector <double> parameters)
 {
 
-  // check if vectors are of equal size 
+	// check if vectors are of equal size 
 
-  if (!parameters.size() == fParameterSet -> size())
-    return  ERROR_INVALIDNUMBEROFPARAMETERS; 
+	if (!parameters.size() == fParameterSet -> size())
+		return  ERROR_INVALIDNUMBEROFPARAMETERS; 
 
-  // check if parameters are within limits 
+	// check if parameters are within limits 
+
+	for (int i = 0; i < int(fParameterSet -> size()); i++)
+		{
+			BCParameter * modelparameter = fParameterSet -> at(i); 
   
-  for (int i = 0; i < int(fParameterSet -> size()); i++)
-    {
-      BCParameter * modelparameter = fParameterSet -> at(i); 
-	  
-      if (modelparameter -> GetLowerLimit() > parameters.at(i) ||
-	  modelparameter -> GetUpperLimit() < parameters.at(i)) 
-	{
-	  BCLog::Out(BCLog::warning, BCLog::warning, 
-		     Form("BCModel::CheckParameters. Parameter %s not within limits.", fParameterSet -> at(i) -> GetName())); 
+			if (modelparameter -> GetLowerLimit() > parameters.at(i) ||
+					modelparameter -> GetUpperLimit() < parameters.at(i)) 
+				{
+					BCLog::Out(BCLog::warning, BCLog::warning, 
+										 Form("BCModel::CheckParameters. Parameter %s not within limits.", fParameterSet -> at(i) -> GetName())); 
 
-	  return ERROR_PARAMETERNOTWITHINRANGE; 
-	}
-    }
-  
-  return 0; 
+					return ERROR_PARAMETERNOTWITHINRANGE; 
+				}
+		}
+
+	return 0; 
   
 }
 
@@ -362,23 +390,28 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
 {
 	// print log
+
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("Marginalize probability with respect to %s", parameter -> GetName()));
 
 	BCH1D * hprobability = new BCH1D();
 
 	// get histogram
+
 	TH1D * hist = this -> Marginalize(parameter);
 
 	// set axis labels
+
 	hist -> SetName(Form("hist_%s_%s", this -> GetName(),parameter -> GetName()));
 	hist -> SetXTitle(parameter -> GetName());
 	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
+
 	hprobability -> SetHistogram(hist);
 
 	// set best fit parameter
+
 	double bestfit = hprobability -> GetMode();
 
 	int index = parameter -> GetIndex();
@@ -390,6 +423,7 @@ BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
 	fBestFitParametersMarginalized[index] = bestfit;
 
 	return hprobability;
+
 }
 
 // --------------------------------------------------------- 
@@ -397,6 +431,7 @@ BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
 BCH2D * BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * parameter2)
 {
 	// print log
+
 	BCLog::Out(BCLog::summary, BCLog::summary,
 		Form("Marginalize probability with respect to %s and %s",
 			parameter1 -> GetName(),
@@ -405,25 +440,30 @@ BCH2D * BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * 
 	BCH2D * hprobability = new BCH2D();
 
 	// get histogram
+
 	TH2D * hist = this -> Marginalize(parameter1, parameter2);
 	hist -> SetXTitle(Form("%s", parameter1 -> GetName()));
 	hist -> SetYTitle(Form("%s", parameter2 -> GetName()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
+
 	hprobability -> SetHistogram(hist);
 
 	return hprobability;
+
 }
 
 // --------------------------------------------------------- 
 
 int BCModel::MarginalizeAll()
 {
+
 	BCLog::Out(BCLog::summary, BCLog::summary,
 		Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName()));
 
 	return this -> MarginalizeAllByMetro(this->GetName());
+
 }
 
 
@@ -431,16 +471,18 @@ int BCModel::MarginalizeAll()
 
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
+
 	if(fHProb1D.size()==0)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-			"BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
-		return 0;
-	}
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
+			return 0;
+		}
 
 	int index = parameter -> GetIndex();
 
 	// get histogram
+
 	TH1D * hist = this -> GetH1D(index);
 
 	if(!hist)
@@ -449,15 +491,18 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 	BCH1D * hprob = new BCH1D();
 
 	// set axis labels
+
 	hist -> SetName(Form("hist_%s_%s", this -> GetName(), parameter -> GetName()));
 	hist -> SetXTitle(parameter -> GetName());
 	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
+
 	hprob -> SetHistogram(hist);
 
 	// set best fit parameter
+
 	double bestfit = hprob -> GetMode();
 
 	if (fBestFitParametersMarginalized.size() == 0)
@@ -467,23 +512,26 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 	fBestFitParametersMarginalized[index] = bestfit;
 
 	return hprob;
+
 }
 
 // --------------------------------------------------------- 
 
 BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2)
 {
+
 	if(fHProb2D.size()==0)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-			"BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
-		return 0;
-	}
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
+			return 0;
+		}
 
 	int index1 = parameter1 -> GetIndex();
 	int index2 = parameter2 -> GetIndex();
 
 	// get histogram
+
 	TH2D * hist = this -> GetH2D(index1,index2);
 
 	if(hist==0)
@@ -492,15 +540,18 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 	BCH2D * hprob = new BCH2D();
 
 	// set axis labels
+
 	hist -> SetName(Form("hist_%s_%s_%s", this -> GetName(), parameter1 -> GetName(), parameter2 -> GetName()));
 	hist -> SetXTitle(Form("%s", parameter1 -> GetName()));
 	hist -> SetYTitle(Form("%s", parameter2 -> GetName()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
+
 	hprob -> SetHistogram(hist);
 
 	return hprob;
+
 }
 
 // --------------------------------------------------------- 
@@ -508,17 +559,17 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 void BCModel::CreateData(int ndatasets, std::vector <double> parameters)
 {
 
-  // print log 
+	// print log 
 
-  BCLog::Out(BCLog::summary, BCLog::summary, "CreateData"); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "CreateData"); 
 
-  std::vector <bool> grid; 
-  std::vector <double> limits; 
+	std::vector <bool> grid; 
+	std::vector <double> limits; 
 
-  for (int i = 0; i < this -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); i++)
-    grid.push_back(false); 
+	for (int i = 0; i < this -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); i++)
+		grid.push_back(false); 
 
-  return this -> CreateDataGrid(ndatasets, parameters, grid, limits); 
+	return this -> CreateDataGrid(ndatasets, parameters, grid, limits); 
 
 }
 
@@ -527,262 +578,262 @@ void BCModel::CreateData(int ndatasets, std::vector <double> parameters)
 void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits) 
 {
 
-  // define data stream 
+	// define data stream 
 
-  std::fstream stream_data; 
+	std::fstream stream_data; 
 
-  // define stream for list of data files 
+	// define stream for list of data files 
 
-  std::fstream stream_list; 
+	std::fstream stream_list; 
 
-  char listname[200]; 
+	char listname[200]; 
 
-  sprintf(listname, "./data/list_%s.txt", this -> GetName()); 
+	sprintf(listname, "./data/list_%s.txt", this -> GetName()); 
 
-  stream_list.open(listname, std::fstream::out); 
+	stream_list.open(listname, std::fstream::out); 
 
-  if (!stream_list.is_open())
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Couldn't open filelist: %s", listname)); 
-      return; 
-    }
-
-  // get number of data values 
-
-  int nvalues = this -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); 
-
-  // calculate number of grid axes 
-
-  int ngridaxes = 0; 
-
-  for (int i = 0; i < nvalues; i++)
-    if (grid.at(i) == true)
-      ngridaxes++; 
-
-  // initialize data creation 
-
-  double pmaximum = 0.0; 
-  double pmaximumsingle = 0.0; 
-
-  int ninit = 1000; 
-
-  for (int idataset = 0; idataset < ninit; idataset++)
-    {
-      std::vector <double> x; 
-	 
-      // loop over values 
-      
-      for (int ivalue = 0; ivalue < nvalues; ivalue++)
-	{
-	  // randomly choose value ... 
-	  
-	  if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
-	    x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
-					   this -> GetDataPointUpperBoundary(ivalue))); 
-	  else 
-	    x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
-	}
-
-      // correlate data point values 
-
-      this -> CorrelateDataPointValues(x);
-
-       // define data object 
-
-      BCDataPoint * datapoint = new BCDataPoint(x); 
-	      
-      // calculate probability 
-      
-      double p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
-
-      // check if probability larger 
-
-      if (p > pmaximumsingle) 
-	pmaximumsingle = p; 
-
-      // delete data object 
-      
-      delete datapoint; 
-
-      // clear vector 
-
-      x.clear(); 
-    }
-
-  // calculate maximum probability 
-
-  pmaximum = BCMath::Min(1.0, pmaximumsingle * this -> GetNDataPointsMaximum()); 
-
-  // loop over data sets 
-
-  for (int idataset = 0; idataset < ndatasets; idataset++) 
-    {
-      // open new stream 
-
-      char filename[200]; 
-
-      sprintf(filename, "./data/data_%s_%d.txt", this -> GetName(), idataset); 
-
-      stream_data.open(filename, std::fstream::out); 
-
-      if (!stream_data.is_open())
-	{
-	  BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Couldn't open file: %s", filename)); 
-	  return; 
-	}
-      
-      // calculate number of entries 
-
-      int nentries = 0; 
-
-      // random number of entries ... 
-
-      if (ngridaxes == 0) 
-	{
-	  double pnentries = 0.0; 
-	  double temp_rand = 1.0; 
-
-	  while (temp_rand > pnentries)
-	    {	
-	      if (this -> GetNDataPointsMinimum() != this -> GetNDataPointsMaximum())
-		nentries = BCMath::Nint(fRandom -> Uniform(this -> GetNDataPointsMinimum(), 
-							  this -> GetNDataPointsMaximum())); 
-	      else
-		nentries = this -> GetNDataPointsMaximum(); 
-
-	      pnentries = this -> PoissonProbability(nentries, parameters); 
-	      temp_rand = fRandom -> Uniform(0, 1); 
-	    }
-	}
-
-      // ... or fixed number of entries on a grid 
-
-      else 
-	{
-	  nentries = 1; 
-
-	  for (int i = 0; i < ngridaxes; i++)
-	    nentries *= BCMath::Nint(limits.at(2 + i * 3)); 
-	}
-      
-
-      // loop over entries 
-      
-      for (int ientry = 0; ientry < nentries; ientry++)
-	{
-	  double p = 0.0; 
-	  double temp_rand = 1.0; 
-
-	  // calculate random data object 
-	  
-	  std::vector <double> x; 
-	 
-	  while (temp_rand > p)
-	    {
-	      // clear vector 
-
-	      x.clear(); 
-
-	      // loop over values 
-
-	      for (int ivalue = 0; ivalue < nvalues; ivalue++)
+	if (!stream_list.is_open())
 		{
-		  // randomly choose value ... 
-
-		  if (grid.at(ivalue) == false) 
-		    {
-		      if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
-			x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
-						       this -> GetDataPointUpperBoundary(ivalue))); 
-		      else
-			x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
-		    }
-		  
-		  // ... or calculate on a grid 
-
-		  else
-		    {
-		      double xgrid = 0; 
-
-		      if (ngridaxes == 1) 
-			xgrid = limits.at(0) + double(ientry) * limits.at(1); 
-
-		      if (ngridaxes == 2) 
-			{
-			  int ngrid = 0; 
-			  
-			  for (int j = 0; j < ivalue; j++)
-			    if (grid.at(j) == true)
-			      ngrid++; 
-
-			  int ix = ientry % BCMath::Nint(limits.at(1 + ngrid * 3)); 
-			  xgrid = limits.at(ngrid * 3) + double(ix) * limits.at(1 + ngrid * 3); 
-			}
-		      x.push_back(xgrid); 
-		    }
+			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Couldn't open filelist: %s", listname)); 
+			return; 
 		}
-	      
-	      // correlate data point values 
-	      
-	      this -> CorrelateDataPointValues(x);
 
-	      // define data object 
+	// get number of data values 
 
-	      BCDataPoint * datapoint = new BCDataPoint(x); 
-	      
-	      // calculate probability 
+	int nvalues = this -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); 
 
-	      p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
+	// calculate number of grid axes 
 
-	      // check if limit is set correctly 
+	int ngridaxes = 0; 
 
-	      if (p > pmaximum) 
-		{ 
-		  BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Probability larger than expected. Set limit to 1.0.")); 
-		  pmaximum = 1.0; 
-		} 
+	for (int i = 0; i < nvalues; i++)
+		if (grid.at(i) == true)
+			ngridaxes++; 
 
-	      // delete data object 
+	// initialize data creation 
 
-	      delete datapoint; 
+	double pmaximum = 0.0; 
+	double pmaximumsingle = 0.0; 
 
-	      // calculate random number 
+	int ninit = 1000; 
 
-	      temp_rand = pmaximum * fRandom -> Uniform(); 
-	    }
+	for (int idataset = 0; idataset < ninit; idataset++)
+		{
+			std::vector <double> x; 
 
-	  // write data to file 
+			// loop over values 
 
-	  for (int ivalue = 0; ivalue < nvalues; ivalue++)
-	    {
-	      stream_data << x.at(ivalue); 
-	      if (ivalue < nvalues-1)
-		stream_data << " "; 
-	    }
+			for (int ivalue = 0; ivalue < nvalues; ivalue++)
+				{
+					// randomly choose value ... 
+  
+					if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
+						x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
+																					 this -> GetDataPointUpperBoundary(ivalue))); 
+					else 
+						x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
+				}
 
-	  if (ientry < nentries - 1) 
-	    stream_data << std::endl; 
+			// correlate data point values 
 
-	  // clear x 
+			this -> CorrelateDataPointValues(x);
 
-	  x.clear(); 
-	}
+			// define data object 
 
-      // write filename into filelist 
+			BCDataPoint * datapoint = new BCDataPoint(x); 
+      
+			// calculate probability 
+    
+			double p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
 
-      stream_list << filename; 
+			// check if probability larger 
 
-      if (idataset < ndatasets - 1) 
-	stream_list << std::endl; 
+			if (p > pmaximumsingle) 
+				pmaximumsingle = p; 
 
-      // close data stream 
+			// delete data object 
+    
+			delete datapoint; 
 
-      stream_data.close(); 
-    }
+			// clear vector 
 
-  // close list stream 
+			x.clear(); 
+		}
 
-  stream_list.close(); 
+	// calculate maximum probability 
+
+	pmaximum = BCMath::Min(1.0, pmaximumsingle * this -> GetNDataPointsMaximum()); 
+
+	// loop over data sets 
+
+	for (int idataset = 0; idataset < ndatasets; idataset++) 
+		{
+			// open new stream 
+
+			char filename[200]; 
+
+			sprintf(filename, "./data/data_%s_%d.txt", this -> GetName(), idataset); 
+
+			stream_data.open(filename, std::fstream::out); 
+
+			if (!stream_data.is_open())
+				{
+					BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Couldn't open file: %s", filename)); 
+					return; 
+				}
+    
+			// calculate number of entries 
+
+			int nentries = 0; 
+
+			// random number of entries ... 
+
+			if (ngridaxes == 0) 
+				{
+					double pnentries = 0.0; 
+					double temp_rand = 1.0; 
+
+					while (temp_rand > pnentries)
+						{	
+							if (this -> GetNDataPointsMinimum() != this -> GetNDataPointsMaximum())
+								nentries = BCMath::Nint(fRandom -> Uniform(this -> GetNDataPointsMinimum(), 
+																													 this -> GetNDataPointsMaximum())); 
+							else
+								nentries = this -> GetNDataPointsMaximum(); 
+
+							pnentries = this -> PoissonProbability(nentries, parameters); 
+							temp_rand = fRandom -> Uniform(0, 1); 
+						}
+				}
+
+			// ... or fixed number of entries on a grid 
+
+			else 
+				{
+					nentries = 1; 
+
+					for (int i = 0; i < ngridaxes; i++)
+						nentries *= BCMath::Nint(limits.at(2 + i * 3)); 
+				}
+    
+			// loop over entries 
+    
+			for (int ientry = 0; ientry < nentries; ientry++)
+				{
+					double p = 0.0; 
+					double temp_rand = 1.0; 
+
+					// calculate random data object 
+
+					std::vector <double> x; 
+
+					while (temp_rand > p)
+						{
+							// clear vector 
+
+							x.clear(); 
+
+							// loop over values 
+
+							for (int ivalue = 0; ivalue < nvalues; ivalue++)
+								{
+									// randomly choose value ... 
+
+									if (grid.at(ivalue) == false) 
+										{
+											if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
+												x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
+
+																											 this -> GetDataPointUpperBoundary(ivalue))); 
+											else
+												x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
+										}
+	  
+									// ... or calculate on a grid 
+
+									else
+										{
+											double xgrid = 0; 
+
+											if (ngridaxes == 1) 
+												xgrid = limits.at(0) + double(ientry) * limits.at(1); 
+
+											if (ngridaxes == 2) 
+												{
+													int ngrid = 0; 
+		  
+													for (int j = 0; j < ivalue; j++)
+														if (grid.at(j) == true)
+															ngrid++; 
+
+													int ix = ientry % BCMath::Nint(limits.at(1 + ngrid * 3)); 
+													xgrid = limits.at(ngrid * 3) + double(ix) * limits.at(1 + ngrid * 3); 
+												}
+											x.push_back(xgrid); 
+										}
+								}
+      
+							// correlate data point values 
+      
+							this -> CorrelateDataPointValues(x);
+
+							// define data object 
+
+							BCDataPoint * datapoint = new BCDataPoint(x); 
+      
+							// calculate probability 
+
+							p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
+
+							// check if limit is set correctly 
+
+							if (p > pmaximum) 
+								{ 
+									BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Probability larger than expected. Set limit to 1.0.")); 
+									pmaximum = 1.0; 
+								} 
+
+							// delete data object 
+
+							delete datapoint; 
+
+							// calculate random number 
+
+							temp_rand = pmaximum * fRandom -> Uniform(); 
+						}
+
+					// write data to file 
+
+					for (int ivalue = 0; ivalue < nvalues; ivalue++)
+						{
+							stream_data << x.at(ivalue); 
+							if (ivalue < nvalues-1)
+								stream_data << " "; 
+						}
+
+					if (ientry < nentries - 1) 
+						stream_data << std::endl; 
+
+					// clear x 
+
+					x.clear(); 
+				}
+
+			// write filename into filelist 
+
+			stream_list << filename; 
+
+			if (idataset < ndatasets - 1) 
+				stream_list << std::endl; 
+
+			// close data stream 
+
+			stream_data.close(); 
+		}
+
+	// close list stream 
+
+	stream_list.close(); 
 
 }
 
@@ -791,137 +842,138 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> parameters)
 {
 
-  // create marginalized probability 
+	// create marginalized probability 
 
-  BCH1D * probability = new BCH1D(); 
+	BCH1D * probability = new BCH1D(); 
 
-  // vector containing the conditional probabilities 
+	// vector containing the conditional probabilities 
 
-  std::vector<double> likelihoodcontainer; 
+	std::vector<double> likelihoodcontainer; 
 
-  // open list file 
+	// open list file 
 
-  std::fstream file;
+	std::fstream file;
 
-  file.open(filename, std::fstream::in); 
+	file.open(filename, std::fstream::in); 
 
-  // check if file is open 
+	// check if file is open 
 
-  if (file.is_open() == false)
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::GoodnessOfFitTest. Couldn't open filelist: %s", filename)); 
-      return probability; 
-    } 
+	if (file.is_open() == false)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::GoodnessOfFitTest. Couldn't open filelist: %s", filename)); 
+			return probability; 
+		} 
 
-  // temporarily store data object container 
+	// temporarily store data object container 
 
-  BCDataSet * fDataSetTemp = fDataSet; 
+	BCDataSet * fDataSetTemp = fDataSet; 
 
-  double NormTemp = fNormalization; 
+	double NormTemp = fNormalization; 
 
-  // loop over filenames 
+	// loop over filenames 
 
-  BCLog::Out(BCLog::detail, BCLog::detail, "BCModel::GoodnessOfFitTest. Loop over files"); 
+	BCLog::Out(BCLog::detail, BCLog::detail, "BCModel::GoodnessOfFitTest. Loop over files"); 
 
-  while (!file.eof())
-    {
-      char filename_temp[100]; 
-      
-      // read filename 
-      
-      file >> filename_temp; 
+	while (!file.eof())
+		{
+			char filename_temp[100]; 
+    
+			// read filename 
+    
+			file >> filename_temp; 
 
-      // create new data set 
+			// create new data set 
 
-      BCDataSet * dataset = new BCDataSet(); 
+			BCDataSet * dataset = new BCDataSet(); 
 
-      // open file 
+			// open file 
 
-      dataset -> ReadDataFromFileTxt(filename_temp, fDataSetTemp -> GetDataPoint(0) -> GetNValues()); 
+			dataset -> ReadDataFromFileTxt(filename_temp, fDataSetTemp -> GetDataPoint(0) -> GetNValues()); 
 
-      // set new data set 
+			// set new data set 
 
-      this -> SetDataSet(dataset); 
+			this -> SetDataSet(dataset); 
 
-      // define event weight 
+			// define event weight 
 
-      double weight = 1.0; 
+			double weight = 1.0; 
 
-      // calculate weight 
+			// calculate weight 
 
-      weight = this -> Likelihood(parameters); 
+			weight = this -> Likelihood(parameters); 
 
-      // fill container  
+			// fill container  
 
-      likelihoodcontainer.push_back(log10(weight)); 
-    }
+			likelihoodcontainer.push_back(log10(weight)); 
+		}
 
-  // restore original data object container 
+	// restore original data object container 
 
-  this -> SetDataSet(fDataSetTemp); 
+	this -> SetDataSet(fDataSetTemp); 
 
-  fNormalization = NormTemp; 
+	fNormalization = NormTemp; 
 
-  // find minimum and maximum 
+	// find minimum and maximum 
 
-  double minimum = 0.0; 
-  double maximum = 0.0; 
+	double minimum = 0.0; 
+	double maximum = 0.0; 
 
-  for (int i = 0; i < int(likelihoodcontainer.size()); i++)
-    {
-      if (likelihoodcontainer.at(i) < minimum)
-	minimum = likelihoodcontainer.at(i); 
-      
-      if (likelihoodcontainer.at(i) > maximum || i == 0)
-	maximum = likelihoodcontainer.at(i); 
-    }
+	for (int i = 0; i < int(likelihoodcontainer.size()); i++)
+		{
+			if (likelihoodcontainer.at(i) < minimum)
+				minimum = likelihoodcontainer.at(i); 
 
-  // create histogram 
+			if (likelihoodcontainer.at(i) > maximum || i == 0)
+				maximum = likelihoodcontainer.at(i); 
+		}
 
-  TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * fabs(minimum), BCMath::Min(0.0, maximum + 0.1 * fabs(minimum))); 
-  hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
-  hist -> SetYTitle("1/N dN/dlog_{10}y"); 
-  hist -> SetStats(kFALSE); 
+	// create histogram 
 
-  // fill histogram 
+	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * fabs(minimum), BCMath::Min(0.0, maximum + 0.1 * fabs(minimum))); 
+	hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
+	hist -> SetYTitle("1/N dN/dlog_{10}y"); 
+	hist -> SetStats(kFALSE); 
 
-  for (int i = 0; i < int(likelihoodcontainer.size()); i++)
-    hist -> Fill(likelihoodcontainer.at(i)); 
+	// fill histogram 
 
-  // normalize to unity 
+	for (int i = 0; i < int(likelihoodcontainer.size()); i++)
+		hist -> Fill(likelihoodcontainer.at(i)); 
 
-  hist -> Scale(1.0 / hist -> Integral()); 
+	// normalize to unity 
 
-  // set histogram 
+	hist -> Scale(1.0 / hist -> Integral()); 
 
-  probability -> SetHistogram(hist); 
+	// set histogram 
 
-  // print summary to screen 
+	probability -> SetHistogram(hist); 
 
-  double likelihood = this -> Likelihood(parameters); 
-  // double fPValue =  probability -> GetIntegral(log10(likelihood), 0.0); 
-  fPValue =  probability -> GetPValue(log10(likelihood)); 
+	// print summary to screen 
 
-  std::cout << std::endl; 
-  std::cout << " Goodness-of-fit : " << std::endl; 
-  std::cout << std::endl; 
-  std::cout << " Model : " << this -> GetName() << std::endl; 
-  std::cout << std::endl; 
-  std::cout << " Parameters : " << std::endl; 
-  for (int i = 0; i < int(parameters.size()); i++)
-    std::cout << " Parameter : " 
-	      << fParameterSet -> at(i) -> GetName() 
-	      << " = " << parameters.at(i) << std::endl; 
-  std::cout << std::endl; 
-  std::cout << " Conditional probability p(data|lambda*) = " << likelihood << std::endl; 
-  std::cout << " p-value = " << fPValue << std::endl; 
-  std::cout << std::endl; 
+	double likelihood = this -> Likelihood(parameters); 
+	// double fPValue =  probability -> GetIntegral(log10(likelihood), 0.0); 
+	fPValue =  probability -> GetPValue(log10(likelihood)); 
 
-  // clear container 
+	std::cout << std::endl; 
+	std::cout << " Goodness-of-fit : " << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Model : " << this -> GetName() << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Parameters : " << std::endl; 
 
-  likelihoodcontainer.clear(); 
+	for (int i = 0; i < int(parameters.size()); i++)
+		std::cout << " Parameter : " 
+							<< fParameterSet -> at(i) -> GetName() 
+							<< " = " << parameters.at(i) << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Conditional probability p(data|lambda*) = " << likelihood << std::endl; 
+	std::cout << " p-value = " << fPValue << std::endl; 
+	std::cout << std::endl; 
 
-  return probability; 
+	// clear container 
+
+	likelihoodcontainer.clear(); 
+
+return probability; 
 
 }
 
@@ -930,27 +982,27 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits)
 {
 
-  // check if conditional probability has been defined on entry basis 
+	// check if conditional probability has been defined on entry basis 
 
-  if (flag_ConditionalProbabilityEntry == false) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
-      return 0; 
-    } 
+	if (flag_ConditionalProbabilityEntry == false) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+			return 0; 
+		} 
 
-  // print log 
+	// print log 
 
-  BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
 
-  // create data sets 
+	// create data sets 
 
-  this -> CreateDataGrid(ndatasets, parameters, grid, limits); 
+	this -> CreateDataGrid(ndatasets, parameters, grid, limits); 
 
-  // do goodness-of-fit test 
+	// do goodness-of-fit test 
 
-  BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
 
-  return gof; 
+	return gof; 
 
 }
 
@@ -959,27 +1011,27 @@ BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> paramete
 BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters)
 {
 
-  // check if conditional probability has been defined on entry basis 
+	// check if conditional probability has been defined on entry basis 
 
-  if (flag_ConditionalProbabilityEntry == false) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
-      return 0; 
-    } 
+	if (flag_ConditionalProbabilityEntry == false) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+			return 0; 
+		} 
 
-  // print log 
+	// print log 
 
-  BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
 
-  // create data sets 
+	// create data sets 
 
-  this -> CreateData(ndatasets, parameters); 
+	this -> CreateData(ndatasets, parameters); 
 
-  // do goodness-of-fit test 
+	// do goodness-of-fit test 
 
-  BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
 
-  return gof; 
+	return gof; 
 
 }
 
@@ -988,18 +1040,18 @@ BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> paramete
 BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets)
 {
 
-  // check if conditional probability has been defined on entry basis 
+	// check if conditional probability has been defined on entry basis 
 
-  if (flag_ConditionalProbabilityEntry == false) 
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
-      return 0; 
-    } 
+	if (flag_ConditionalProbabilityEntry == false) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+			return 0; 
+		} 
 
-  std::vector<bool> grid; 
-  std::vector<double> limits; 
+	std::vector<bool> grid; 
+	std::vector<double> limits; 
 
-  return this -> DoGoodnessOfFitTest(ndatasets, this -> GetBestFitParameters(), grid, limits); 
+	return this -> DoGoodnessOfFitTest(ndatasets, this -> GetBestFitParameters(), grid, limits); 
 
 }
 
@@ -1008,15 +1060,15 @@ BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets)
 BCH1D * BCModel::DoGoodnessOfFitTest(const char * filename, std::vector<double> parameters)
 {
 
-  // print log 
+	// print log 
 
-  BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
 
-  // do goodness-of-fit test 
+	// do goodness-of-fit test 
 
-  BCH1D * gof = this -> GoodnessOfFitTest(filename, parameters); 
+	BCH1D * gof = this -> GoodnessOfFitTest(filename, parameters); 
 
-  return gof; 
+	return gof; 
 
 }
 
@@ -1025,7 +1077,7 @@ BCH1D * BCModel::DoGoodnessOfFitTest(const char * filename, std::vector<double> 
 BCH1D * BCModel::DoGoodnessOfFitTest(const char * filename)
 {
 
-  return this -> DoGoodnessOfFitTest(filename, this -> GetBestFitParameters());  
+	return this -> DoGoodnessOfFitTest(filename, this -> GetBestFitParameters());  
 
 }
 
@@ -1041,57 +1093,57 @@ void BCModel::CorrelateDataPointValues(vector<double> &x)
 double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * parameter2, std::vector<double> point)
 {
 
-  // check number of entries in vector 
+	// check number of entries in vector 
 
-  if (int(point.size()) != this -> GetNParameters())
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::HessianMatrixElement. Invalid number of entries in the vector.")); 
-      return -1; 
-    }
+	if (int(point.size()) != this -> GetNParameters())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::HessianMatrixElement. Invalid number of entries in the vector.")); 
+			return -1; 
+		}
 
-  // define steps 
+	// define steps 
 
-  double nsteps = 1e5; 
-  
-  double dx1 = (parameter1 -> GetUpperLimit() - parameter1 -> GetLowerLimit()) / nsteps; 
-  double dx2 = (parameter2 -> GetUpperLimit() - parameter2 -> GetLowerLimit()) / nsteps ; 
-  
-  // define points at which to evaluate 
+	double nsteps = 1e5; 
 
-  std::vector<double> xpp; 
-  std::vector<double> xpm; 
-  std::vector<double> xmp; 
-  std::vector<double> xmm; 
+	double dx1 = (parameter1 -> GetUpperLimit() - parameter1 -> GetLowerLimit()) / nsteps; 
+	double dx2 = (parameter2 -> GetUpperLimit() - parameter2 -> GetLowerLimit()) / nsteps ; 
 
-  xpp = point; 
-  xpm = point; 
-  xmp = point; 
-  xmm = point; 
+	// define points at which to evaluate 
 
-  xpp.at(parameter1 -> GetIndex()) = xpp.at(parameter1 -> GetIndex()) + dx1; 
-  xpp.at(parameter2 -> GetIndex()) = xpp.at(parameter2 -> GetIndex()) + dx2; 
+	std::vector<double> xpp; 
+	std::vector<double> xpm; 
+	std::vector<double> xmp; 
+	std::vector<double> xmm; 
 
-  xpm.at(parameter1 -> GetIndex()) = xpm.at(parameter1 -> GetIndex()) + dx1; 
-  xpm.at(parameter2 -> GetIndex()) = xpm.at(parameter2 -> GetIndex()) - dx2; 
+	xpp = point; 
+	xpm = point; 
+	xmp = point; 
+	xmm = point; 
 
-  xmp.at(parameter1 -> GetIndex()) = xmp.at(parameter1 -> GetIndex()) - dx1; 
-  xmp.at(parameter2 -> GetIndex()) = xmp.at(parameter2 -> GetIndex()) + dx2; 
+	xpp.at(parameter1 -> GetIndex()) = xpp.at(parameter1 -> GetIndex()) + dx1; 
+	xpp.at(parameter2 -> GetIndex()) = xpp.at(parameter2 -> GetIndex()) + dx2; 
 
-  xmm.at(parameter1 -> GetIndex()) = xmm.at(parameter1 -> GetIndex()) - dx1; 
-  xmm.at(parameter2 -> GetIndex()) = xmm.at(parameter2 -> GetIndex()) - dx2; 
+	xpm.at(parameter1 -> GetIndex()) = xpm.at(parameter1 -> GetIndex()) + dx1; 
+	xpm.at(parameter2 -> GetIndex()) = xpm.at(parameter2 -> GetIndex()) - dx2; 
 
-  // calculate probability at these points 
+	xmp.at(parameter1 -> GetIndex()) = xmp.at(parameter1 -> GetIndex()) - dx1; 
+	xmp.at(parameter2 -> GetIndex()) = xmp.at(parameter2 -> GetIndex()) + dx2; 
 
-  double ppp = this -> Likelihood(xpp); 
-  double ppm = this -> Likelihood(xpm); 
-  double pmp = this -> Likelihood(xmp); 
-  double pmm = this -> Likelihood(xmm); 
+	xmm.at(parameter1 -> GetIndex()) = xmm.at(parameter1 -> GetIndex()) - dx1; 
+	xmm.at(parameter2 -> GetIndex()) = xmm.at(parameter2 -> GetIndex()) - dx2; 
 
-  // calculate derivative 
+	// calculate probability at these points 
 
-  double derivative = (ppp + pmm - ppm - pmp) / (4.0 * dx1 * dx2); 
+	double ppp = this -> Likelihood(xpp); 
+	double ppm = this -> Likelihood(xpm); 
+	double pmp = this -> Likelihood(xmp); 
+	double pmm = this -> Likelihood(xmm); 
 
-  return derivative; 
+	// calculate derivative 
+
+	double derivative = (ppp + pmm - ppm - pmp) / (4.0 * dx1 * dx2); 
+
+	return derivative; 
 
 }
 
@@ -1160,38 +1212,38 @@ void BCModel::PrintSummary()
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
 
-  // check number of entries in vector 
+	// check number of entries in vector 
 
-  if (int(parameters.size()) != this -> GetNParameters())
-    {
-      BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::PrintHessianMatrix. Invalid number of entries in the vector.")); 
-      return; 
-    }
-
-  // print to screen 
-
-  std::cout << std::endl; 
-  std::cout << " Hessian matrix elements: " << std::endl; 
-  std::cout << " Point: "; 
-
-  for (int i = 0; i < int(parameters.size()); i++)
-    std::cout << parameters.at(i) << " "; 
-  std::cout << endl; 
-
-  // loop over all parameter pairs 
-
-  for (int i = 0; i < this -> GetNParameters(); i++)
-    for (int j = 0; j < i; j++) 
-      {
-	// calculate Hessian matrix element 
-
-	double hessianmatrixelement = this -> HessianMatrixElement(fParameterSet -> at(i), 
-								   fParameterSet -> at(j), 
-								   parameters); 
+	if (int(parameters.size()) != this -> GetNParameters())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::PrintHessianMatrix. Invalid number of entries in the vector.")); 
+			return; 
+		}
 
 	// print to screen 
 
-	std::cout << " " << i << " " << j << " : " << hessianmatrixelement << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Hessian matrix elements: " << std::endl; 
+	std::cout << " Point: "; 
+
+	for (int i = 0; i < int(parameters.size()); i++)
+		std::cout << parameters.at(i) << " "; 
+	std::cout << endl; 
+
+	// loop over all parameter pairs 
+
+	for (int i = 0; i < this -> GetNParameters(); i++)
+		for (int j = 0; j < i; j++) 
+			{
+				// calculate Hessian matrix element 
+
+				double hessianmatrixelement = this -> HessianMatrixElement(fParameterSet -> at(i), 
+																																	 fParameterSet -> at(j), 
+																																	 parameters); 
+
+				// print to screen 
+
+				std::cout << " " << i << " " << j << " : " << hessianmatrixelement << std::endl; 
       }
 
 }
@@ -1201,13 +1253,13 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data) 
 {
 
-  int sizeofvector = int(data.size()); 
+	int sizeofvector = int(data.size()); 
 
-  BCDataPoint * datapoint = new BCDataPoint(sizeofvector); 
+	BCDataPoint * datapoint = new BCDataPoint(sizeofvector); 
 
-  datapoint -> SetValues(data); 
+	datapoint -> SetValues(data); 
 
-  return datapoint; 
+	return datapoint; 
 
 }
 
@@ -1216,16 +1268,16 @@ BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data)
 int BCModel::CompareStrings(char * string1, char * string2) 
 {
 
-  int flag_same = 0; 
+	int flag_same = 0; 
 
-  if (strlen(string1) != strlen(string2))
-    return -1; 
+	if (strlen(string1) != strlen(string2))
+		return -1; 
 
-  for (int i = 0; i < int(strlen(string1)); i++)
-    if (string1[i] != string2[i]) 
-      flag_same = -1; 
+	for (int i = 0; i < int(strlen(string1)); i++)
+		if (string1[i] != string2[i]) 
+			flag_same = -1; 
 
-  return flag_same; 
+	return flag_same; 
 
 }
 
