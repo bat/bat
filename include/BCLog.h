@@ -26,6 +26,9 @@
 #include <iostream>
 #include <fstream> 
 
+#include <TROOT.h>
+#include <TError.h>
+
 #include "BCReleaseVersion.h"
 
 // --------------------------------------------------------- 

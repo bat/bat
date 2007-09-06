@@ -1,9 +1,10 @@
 #include <BCModelPol1.h>
-#include <BCLog.h> 
+#include <BCLog.h>
+
+#include "style.c" 
 
 #include <TCanvas.h> 
 #include <TGraphErrors.h>
-#include <TH1D.h> 
 #include <TH2D.h> 
 #include <TF1.h> 
 
@@ -11,113 +12,169 @@
   
 int main()
 {
-  // ---------------------------------------------------------
-  // open log file 
-  // ---------------------------------------------------------
 
-  BCLog::OpenLog(); 
+	// ---------------------------------------------------------
+	// set style  
+	// ---------------------------------------------------------
 
-  // ---------------------------------------------------------
-  // model definition 
-  // ---------------------------------------------------------
+	// calls a function which defines a nice style. 
 
-  BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
+	SetStyle(); 
 
-  // ---------------------------------------------------------
-  // read data from file 
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// open log file 
+	// ---------------------------------------------------------
 
-  BCDataSet* fDataSet = new BCDataSet(); 
+	// opens the log file. 
 
-  if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 3) != 0)
-    return -1; 
+	BCLog::OpenLog(); 
 
-  // assign data set to model 
+	// ---------------------------------------------------------
+	// model definition 
+	// ---------------------------------------------------------
 
-  fModelPol1 -> SetDataSet(fDataSet); 
+	// creates a new model of type BCModelPol1 with the name
+	// "ModelPol1". the model is defined in the two files
+	// src/BCModelPol1.h and src/BCModelPol1.cxx. The two parameters of
+	// the model and their ranges are defined automatically by
+	// construction of the model.
 
-  // ---------------------------------------------------------
-  // normalize  
-  // ---------------------------------------------------------
+	BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
 
-  fModelPol1 -> FindMode(); 
+	// ---------------------------------------------------------
+	// read data from file 
+	// ---------------------------------------------------------
 
-  // ---------------------------------------------------------
-  // marginalize 
-  // ---------------------------------------------------------
+	// creates a new data set. 
 
-  fModelPol1 -> SetNbins(50);
-  fModelPol1 -> MarginalizeAll();
+	BCDataSet* fDataSet = new BCDataSet(); 
 
-  fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
-  fModelPol1 -> GetMarginalized("slope") -> Print("modelpol1_slope.ps");
-  fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
+	// data is read in from a text file. three values per data point are
+	// read in. if the file is not found or corrupt, the program returns
+	// -1. 
 
-  // ---------------------------------------------------------
-  // summarize
-  // ---------------------------------------------------------
+	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 3) != 0)
+		return -1; 
 
-  fModelPol1 -> PrintSummary(); 
+	// assigns the data set to the model defined previously. 
 
-  // ---------------------------------------------------------
-  // Print data with best fit result 
-  // ---------------------------------------------------------
+	fModelPol1 -> SetDataSet(fDataSet); 
 
-  // canvas 
+	// ---------------------------------------------------------
+	// find mode 
+	// ---------------------------------------------------------
 
-  TCanvas* canvas_bestfit = new TCanvas(); 
-  canvas_bestfit -> cd(); 
+	// runs the algorithm which searches the whole parameter space for
+	// the maximum probability (mode). for details on the algorithm
+	// consult the manual. this step might need a while, depending on
+	// the function.
 
-  // axes histogram 
+	fModelPol1 -> FindMode(); 
 
-  TH2D* hist_axes = new TH2D("hist_axes", "Data;x;y", 1, 0.0, 100.0, 1, 0.0, 6.0); 
-  hist_axes -> SetStats(false); 
-  hist_axes -> Draw(); 
+	// ---------------------------------------------------------
+	// marginalize 
+	// ---------------------------------------------------------
 
-  // graph with data 
+	// marginalizes the probability density with respect to all
+	// parameters, i.e. constant and slope and with respect to all
+	// combinations of two parameters, in this case constant-slope. the
+	// number of bins define the numerical precision. 
 
-  TGraphErrors* graph = new TGraphErrors(); 
-  graph -> SetMarkerStyle(20); 
+	fModelPol1 -> SetNbins(100);
+	fModelPol1 -> MarginalizeAll();
 
-  // set data points 
+	// the one-dimensional marginalized probability densities are kept
+	// in memory and are returned from the model class. they are printed
+	// into a .ps file. 
 
-  for (int i = 0; i < fModelPol1 -> GetNDataPoints(); i++)
-    {
-      graph -> SetPoint(i, 
-			fModelPol1 -> GetDataPoint(i) -> GetValue(0), 
-			fModelPol1 -> GetDataPoint(i) -> GetValue(1)); 
-      graph -> SetPointError(i, 
-			     0.0, 
-			     fModelPol1 -> GetDataPoint(i) -> GetValue(2)); 
-    }
+	fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
+	fModelPol1 -> GetMarginalized("slope")    -> Print("modelpol1_slope.ps");
 
-  if (fModelPol1 -> GetBestFitParameters().size() > 0)
-    {
-      // best fit function 
-      
-      TF1* func_pol1 = new TF1("func_pol1", "[0] + [1] * x", 0, 100); 
-      
-      func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameter(0)); 
-      func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameter(1)); 
+	// the two-dimensional marginalized probability densitiy is kept in
+	// memory and is returned from the model class. it is printed into a
+	// .ps file.
 
-      func_pol1 -> Draw("SAME"); 
-    }
+	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
 
-  // draw graph 
+	// ---------------------------------------------------------
+	// summarize
+	// ---------------------------------------------------------
 
-  graph -> Draw("SAMEP"); 
+	// prints a summary of the model, the parameter estimate, etc. on
+	// the screen or to a file, depending on the log setting. 
 
-  // print to file 
+	fModelPol1 -> PrintSummary(); 
 
-  canvas_bestfit -> Print("data.ps"); 
+	// ---------------------------------------------------------
+	// Print data with best fit result 
+	// ---------------------------------------------------------
 
-  // ---------------------------------------------------------
-  // close log file 
-  // ---------------------------------------------------------
+	// defines a new canvas. 
 
-  BCLog::CloseLog(); 
+	TCanvas* canvas_bestfit = new TCanvas(); 
+	canvas_bestfit -> cd(); 
 
-  return 0; 
+	// defines a histogram for the axes and draws it. 
+
+	TH2D* hist_axes = new TH2D("hist_axes", "Data;x;y", 1, 0.0, 100.0, 1, 0.0, 6.0); 
+	hist_axes -> SetStats(false); 
+	hist_axes -> Draw(); 
+
+	// defines a graph with errors. 
+
+	TGraphErrors* graph = new TGraphErrors(); 
+	graph -> SetMarkerStyle(20); 
+
+	// sets the points of the graph to the data points read in
+	// previously. loops over all entries. 
+
+	for (int i = 0; i < fModelPol1 -> GetNDataPoints(); i++)
+		{
+			graph -> SetPoint(i, 
+												fModelPol1 -> GetDataPoint(i) -> GetValue(0), 
+												fModelPol1 -> GetDataPoint(i) -> GetValue(1)); 
+			graph -> SetPointError(i, 
+														 0.0, 
+														 fModelPol1 -> GetDataPoint(i) -> GetValue(2)); 
+		}
+
+	// if best fit parameters were found a linear function is defined
+	// with the parameter values found. 
+
+	if (fModelPol1 -> GetBestFitParameters().size() > 0)
+		{
+			// define a linear function 
+    
+			TF1* func_pol1 = new TF1("func_pol1", "[0] + [1] * x", 0, 100); 
+    
+			// set the parameter values of the function to the best fit
+			// parameters. 
+
+			func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameter(0)); 
+			func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameter(1)); 
+
+			// draw the function. 
+
+			func_pol1 -> Draw("SAME"); 
+		}
+
+	// draw the graph containing the data. 
+
+	graph -> Draw("SAMEP"); 
+
+	// print the canvas to a .ps file 
+
+	canvas_bestfit -> Print("data.ps"); 
+
+	// ---------------------------------------------------------
+	// close log file 
+	// ---------------------------------------------------------
+
+	// closes the log file 
+
+	BCLog::CloseLog(); 
+
+	return 0; 
 
 }
 
