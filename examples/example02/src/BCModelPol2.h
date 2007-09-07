@@ -1,3 +1,13 @@
+// --------------------------------------------------------- 
+//
+// This class derives from BCModel. It describes a quadratic
+// correlation relation between measured points. Three parameters are
+// defined within the model, an offset, a slope and a quadtratic
+// term. The data are points (x,y) with an uncertainty on y, s_y. The
+// uncertainty is assumed to be Gaussian.
+// 
+// --------------------------------------------------------- 
+
 #ifndef __BCMODELPOL2__H
 #define __BCMODELPOL2__H
 
@@ -8,26 +18,28 @@
 class BCModelPol2 : public BCModel 
 {
 
- public: 
+public: 
 
-  // constructor 
+	// constructor 
 
-  BCModelPol2(); 
+	BCModelPol2(); 
 
-  BCModelPol2(const char* name); 
+	BCModelPol2(const char* name); 
 
-  ~BCModelPol2() 
-    { ;}; 
+	// destructor 
 
-  // methods 
+	~BCModelPol2() 
+		{ ;}; 
 
-  virtual void DefineParameters(); 
+	// methods 
 
-  virtual double LogAPrioriProbability(std::vector <double> parameters); 
+	virtual void DefineParameters(); 
 
-  virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
+	virtual double LogAPrioriProbability(std::vector <double> parameters); 
 
-  virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
+	virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
+
+	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
 
 }; 
 

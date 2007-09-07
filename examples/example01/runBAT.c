@@ -50,8 +50,8 @@ int main()
 	BCDataSet* fDataSet = new BCDataSet(); 
 
 	// data is read in from a text file. three values per data point are
-	// read in. if the file is not found or corrupt, the program returns
-	// -1. 
+	// read in: x, y, and the uncertainty on y. if the file is not found
+	// or corrupt, the program returns -1.
 
 	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 3) != 0)
 		return -1; 
@@ -101,9 +101,11 @@ int main()
 	// ---------------------------------------------------------
 
 	// prints a summary of the model, the parameter estimate, etc. on
-	// the screen or to a file, depending on the log setting. 
+	// the screen and to a file.
 
 	fModelPol1 -> PrintSummary(); 
+
+	fModelManager -> PrintSummary("output.log");
 
 	// ---------------------------------------------------------
 	// Print data with best fit result 

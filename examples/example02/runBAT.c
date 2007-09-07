@@ -5,248 +5,419 @@
 #include <BCDataPoint.h> 
 #include <BCLog.h> 
 
+#include "style.c"
+
 #include <TCanvas.h> 
 #include <TGraphErrors.h>
-#include <TH1D.h> 
 #include <TH2D.h> 
 #include <TF1.h> 
 #include <TLegend.h> 
-#include <TLine.h> 
-#include <TText.h> 
 
 #include <iostream>
-
-#include "style.c"
 
 // ---------------------------------------------------------
   
 int main()
 {
 
-  // open log file 
-  
-  BCLog::OpenLog(); 
+	// ---------------------------------------------------------
+	// set style  
+	// ---------------------------------------------------------
 
-  // set root style 
+	// calls a function which defines a nice style. 
 
-  SetStyle(); 
+	SetStyle(); 
 
-  // ---------------------------------------------------------
-  // define models 
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// open log file 
+	// ---------------------------------------------------------
 
-  BCModelPol0* fModelPol0 = new BCModelPol0("ModelPol0"); 
-  BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
-  BCModelPol2* fModelPol2 = new BCModelPol2("ModelPol2"); 
+	// opens the log file. 
 
-  // ---------------------------------------------------------
-  // define model manager 
-  // ---------------------------------------------------------
+	BCLog::OpenLog(); 
 
-  BCModelManager* fModelManager = new BCModelManager(); 
+	// ---------------------------------------------------------
+	// define models 
+	// ---------------------------------------------------------
 
-  // ---------------------------------------------------------
-  // add models to model manager with a priori probabilities 
-  // ---------------------------------------------------------
+	// creates three new models which describe polynomials of order 0, 1
+	// and 2. the are defined in the /src directory. the number of
+	// parameters equals the order of the polynomial. they are defined
+	// automatically by construction of the particular model.
 
-  fModelManager -> AddModel(fModelPol0, 1.0/3.0); 
-  fModelManager -> AddModel(fModelPol1, 1.0/3.0); 
-  fModelManager -> AddModel(fModelPol2, 1.0/3.0); 
+	BCModelPol0* fModelPol0 = new BCModelPol0("ModelPol0"); 
+	BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
+	BCModelPol2* fModelPol2 = new BCModelPol2("ModelPol2"); 
 
-  // ---------------------------------------------------------
-  // read data from file 
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// define model manager 
+	// ---------------------------------------------------------
 
-  BCDataSet* fDataSet = new BCDataSet(); 
+	// defines a model manager. this manager will be used to make sure
+	// all models use the same data set. 
 
-  int errorcode = fDataSet -> ReadDataFromFileTxt("./data/data_ModelPol2.txt", 3); 
+	BCModelManager* fModelManager = new BCModelManager(); 
 
-  if (errorcode != 0) 
-    return -1; 
+	// adds all three models to the manager and passes the a priori
+	// probability to the manager. 
 
-  // connect mananger (and models) with data set 
-  
-  fModelManager -> SetDataSet(fDataSet); 
+	fModelManager -> AddModel(fModelPol0, 1.0/3.0); 
+	fModelManager -> AddModel(fModelPol1, 1.0/3.0); 
+	fModelManager -> AddModel(fModelPol2, 1.0/3.0); 
 
-  // ---------------------------------------------------------
-  // initialize 
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// read data from file 
+	// ---------------------------------------------------------
 
-  fModelManager -> Initialize(); 
+	// creates a new data set 
 
-  // ---------------------------------------------------------
-  // marginalize 
-  // ---------------------------------------------------------
+	BCDataSet* fDataSet = new BCDataSet(); 
 
-  if (fModelPol0 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability() &&
-      fModelPol0 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability())
-    {
-      fModelPol0 -> MarginalizeAll();
-      fModelPol0 -> GetMarginalized("constant") -> Print("modelpol0_constant.ps");
-    }
+	// data is read in from a text file. three values per data point are
+	// read in: x, y, and the uncertainty on y. if the file is not found
+	// or corrupt, the program returns -1.
 
-  if (fModelPol1 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() &&
-      fModelPol1 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability())
-    {
-      fModelPol1 -> MarginalizeAll();
-      fModelPol1 -> GetMarginalized("constant")          -> Print("modelpol1_constant.ps");
-      fModelPol1 -> GetMarginalized("slope")             -> Print("modelpol1_slope.ps");
-      fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
-    }
+	if (fDataSet -> ReadDataFromFileTxt("./data/data_ModelPol2.txt", 3) != 0)
+		return -1;
 
-  if (fModelPol2 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() &&
-      fModelPol2 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability())
-    {
-      fModelPol2 -> MarginalizeAll();
-      fModelPol2 -> GetMarginalized("constant")          -> Print("modelpol2_constant.ps");
-      fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps");
-      fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps");
-      fModelPol2 -> GetMarginalized("constant", "slope") -> Print("modelpol2_constant_slope.ps", 2);
-      fModelPol2 -> GetMarginalized("constant", "quad")  -> Print("modelpol2_constant_quad.ps", 2);
-      fModelPol2 -> GetMarginalized("slope",    "quad")  -> Print("modelpol2_slope_quad2.ps", 2);
-    }
+	// assigns the data set to the model manager. the manager
+	// automatically assigns the same data set to all three models. 
 
-  // ---------------------------------------------------------
-  // Do goodness-of-fit test  
-  // ---------------------------------------------------------
+	fModelManager -> SetDataSet(fDataSet); 
 
-  // set boundaries on possible data values  
+	// ---------------------------------------------------------
+	// initialize 
+	// ---------------------------------------------------------
 
-  BCDataPoint* fDataPointLowerBoundaries = new BCDataPoint(3); 
-  fDataPointLowerBoundaries -> SetValue(0, 0.0); 
-  fDataPointLowerBoundaries -> SetValue(1, 0.0); 
-  fDataPointLowerBoundaries -> SetValue(2, 0.2); 
+	// initializes the manager. it automatically calculates the
+	// normalizations for each model and calculates the model a
+	// posteriori probabilities. this step might take a while, depending
+	// on the number of parameters.
 
-  BCDataPoint* fDataPointUpperBoundaries = new BCDataPoint(3); 
-  fDataPointUpperBoundaries -> SetValue(0, 100.0); 
-  fDataPointUpperBoundaries -> SetValue(1,  10.0); 
-  fDataPointUpperBoundaries -> SetValue(2,   0.2); 
+	fModelManager -> Initialize(); 
 
-  // set boundaries in models 
-  
-  fModelPol0 -> SetDataPointLowerBoundaries(fDataPointLowerBoundaries); 
-  fModelPol0 -> SetDataPointUpperBoundaries(fDataPointUpperBoundaries); 
-  fModelPol0 -> SetNDataPointsMinimum(10); 
-  fModelPol0 -> SetNDataPointsMaximum(10); 
+	// ---------------------------------------------------------
+	// marginalize 
+	// ---------------------------------------------------------
 
-  fModelPol1 -> SetDataPointLowerBoundaries(fDataPointLowerBoundaries); 
-  fModelPol1 -> SetDataPointUpperBoundaries(fDataPointUpperBoundaries); 
-  fModelPol1 -> SetNDataPointsMinimum(10); 
-  fModelPol1 -> SetNDataPointsMaximum(10); 
+	// selects the most probable model and marginalizes the probability
+	// density with respect to all parameters
 
-  fModelPol2 -> SetDataPointLowerBoundaries(fDataPointLowerBoundaries); 
-  fModelPol2 -> SetDataPointUpperBoundaries(fDataPointUpperBoundaries); 
-  fModelPol2 -> SetNDataPointsMinimum(10); 
-  fModelPol2 -> SetNDataPointsMaximum(10); 
+	// first, remember the model a posterior probabilities. 
 
- // set up grid
+	double post_modelpol0 = fModelPol0 -> GetModelAPosterioriProbability(); 
+	double post_modelpol1 = fModelPol1 -> GetModelAPosterioriProbability(); 
+	double post_modelpol2 = fModelPol2 -> GetModelAPosterioriProbability(); 
 
-  std::vector <bool> grid;
-  grid.push_back(true);
-  grid.push_back(false);
-  grid.push_back(false);
+	// select 0th order polynomial model. 
 
-  std::vector <double> limits;
-  limits.push_back( 5.0);
-  limits.push_back(10.0);
-  limits.push_back(10.0);
+	if (post_modelpol0 > post_modelpol1 &&
+			post_modelpol0 > post_modelpol2)
+		{
+			// marginalizes the probability density with respect to all
+			// parameters, i.e. constant and slope and with respect to all
+			// combinations of two parameters, in this case constant-slope. the
+			// number of bins define the numerical precision. 
 
-  if (fModelPol0 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability() && 
-      fModelPol0 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability()) 
-    fModelPol0 -> DoGoodnessOfFitTest(100, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
-      Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
+			fModelPol0 -> SetNbins(100); 
+			fModelPol0 -> MarginalizeAll();
 
-  if (fModelPol1 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() && 
-      fModelPol1 -> GetModelAPosterioriProbability() > fModelPol2 -> GetModelAPosterioriProbability()) 
-    fModelPol1 -> DoGoodnessOfFitTest(100, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
-      Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+			// the one-dimensional marginalized probability densities are kept
+			// in memory and are returned from the model class. they are printed
+			// into a .ps file. 
 
-  if (fModelPol2 -> GetModelAPosterioriProbability() > fModelPol0 -> GetModelAPosterioriProbability() && 
-      fModelPol2 -> GetModelAPosterioriProbability() > fModelPol1 -> GetModelAPosterioriProbability()) 
-    fModelPol2 -> DoGoodnessOfFitTest(100, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
-      Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
+			fModelPol0 -> GetMarginalized("constant") -> Print("modelpol0_constant.ps");
+		}
 
-  // ---------------------------------------------------------
-  // summarize
-  // ---------------------------------------------------------
-  
-  fModelManager -> PrintSummary(); 
+	// select 1st order polynomial model. 
 
-  fModelManager -> PrintSummary("output.log");
+	if (post_modelpol1 > post_modelpol0 &&
+			post_modelpol1 > post_modelpol2)
+		{
+			// marginalizes the probability density with respect to all
+			// parameters, i.e. constant and slope and with respect to all
+			// combinations of two parameters, in this case constant-slope. the
+			// number of bins define the numerical precision. 
 
-  // ---------------------------------------------------------
-  // Print data with best fit result 
-  // ---------------------------------------------------------
+			fModelPol1 -> SetNbins(100); 
+			fModelPol1 -> MarginalizeAll();
 
-  TCanvas* canvas_bestfit = new TCanvas(); 
-  canvas_bestfit -> cd(); 
+			// the one-dimensional marginalized probability densities are kept
+			// in memory and are returned from the model class. they are printed
+			// into a .ps file. 
 
-  TH2D* hist_axes = new TH2D("hist_axes", "", 1, 0.0, 100.0, 1, 0.0, 6.0); 
-  hist_axes -> SetXTitle("x"); 
-  hist_axes -> SetYTitle("y"); 
-  hist_axes -> SetStats(false); 
-  hist_axes -> Draw(); 
+			fModelPol1 -> GetMarginalized("constant")          -> Print("modelpol1_constant.ps");
+			fModelPol1 -> GetMarginalized("slope")             -> Print("modelpol1_slope.ps");
 
-  TGraphErrors* graph = new TGraphErrors(); 
-  graph -> SetMarkerStyle(20); 
-  graph -> SetMarkerColor(kBlack); 
+			// the two-dimensional marginalized probability densitiy is kept in
+			// memory and is returned from the model class. it is printed into a
+			// .ps file.
 
-  for (int i = 0; i < fModelManager -> GetNDataPoints(); i++)
-    {
-      graph -> SetPoint(i, 
-			fModelManager -> GetDataPoint(i) -> GetValue(0), 
-			fModelManager -> GetDataPoint(i) -> GetValue(1)); 
-      graph -> SetPointError(i, 
-			     0.0, 
-			     fModelManager -> GetDataPoint(i) -> GetValue(2)); 
-    }
-  
-  TF1* func_pol0 = new TF1("func_pol0", "[0]", 0, 100); 
-  func_pol0 -> SetLineWidth(3); 
-  func_pol0 -> SetLineColor(kBlack); 
-  
-  func_pol0 -> SetParameter(0, fModelPol0 -> GetBestFitParameter(0)); 
+			fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
+		}
 
-  func_pol0 -> Draw("SAME"); 
+	// select 2nd order polynomial model. 
 
-  TF1* func_pol1 = new TF1("func_pol1", "[0] + [1] * x", 0, 100); 
-  func_pol1 -> SetLineWidth(3); 
-  func_pol1 -> SetLineColor(kRed); 
+	if (post_modelpol2 > post_modelpol0 &&
+			post_modelpol2 > post_modelpol1)
+		{
+			// marginalizes the probability density with respect to all
+			// parameters, i.e. constant and slope and with respect to all
+			// combinations of two parameters, in this case constant-slope. the
+			// number of bins define the numerical precision. 
 
-  func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameter(0)); 
-  func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameter(1)); 
+			fModelPol2 -> SetNbins(100); 
+			fModelPol2 -> MarginalizeAll();
 
-  func_pol1 -> Draw("SAME"); 
+			// the one-dimensional marginalized probability densities are kept
+			// in memory and are returned from the model class. they are printed
+			// into a .ps file. 
 
-  TF1* func_pol2 = new TF1("func_pol2", "[0] + [1] * x + [2] * x * x", 0, 100); 
-  func_pol2 -> SetLineWidth(3); 
-  func_pol2 -> SetLineColor(kGreen); 
+			fModelPol2 -> GetMarginalized("constant")          -> Print("modelpol2_constant.ps");
+			fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps");
+			fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps");
 
-  func_pol2 -> SetParameter(0, fModelPol2 -> GetBestFitParameter(0)); 
-  func_pol2 -> SetParameter(1, fModelPol2 -> GetBestFitParameter(1)); 
-  func_pol2 -> SetParameter(2, fModelPol2 -> GetBestFitParameter(2)); 
+			// the one-dimensional marginalized probability densities are kept
+			// in memory and are returned from the model class. they are printed
+			// into a .ps file. 
 
-  func_pol2 -> Draw("SAME"); 
+			fModelPol2 -> GetMarginalized("constant", "slope") -> Print("modelpol2_constant_slope.ps", 2);
+			fModelPol2 -> GetMarginalized("constant", "quad")  -> Print("modelpol2_constant_quad.ps", 2);
+			fModelPol2 -> GetMarginalized("slope",    "quad")  -> Print("modelpol2_slope_quad2.ps", 2);
+		}
 
-  graph -> Draw("SAMEP"); 
+	// ---------------------------------------------------------
+	// Do goodness-of-fit test  
+	// ---------------------------------------------------------
 
-  TLegend* legend = new TLegend(0.65, 0.70, 0.95, 0.95); 
-  legend -> SetFillColor(kWhite); 
-  legend -> SetBorderSize(0); 
-  legend -> AddEntry(func_pol0, "ModelPol0", "L"); 
-  legend -> AddEntry(func_pol1, "ModelPol1", "L"); 
-  legend -> AddEntry(func_pol2, "ModelPol2", "L"); 
-  legend -> Draw("SAME"); 
+	// once the most probable model was found the goodness-of-fit can be
+	// tested. the question to be answered is: given the best fit
+	// parameters what is the probability to obtain a better agreement
+	// (conditional probability)? the answer can be given by integrating
+	// over data. technically this is done by creating ensembles given
+	// the best fit parameters. 
 
-  canvas_bestfit -> Print("data.ps"); 
+	// sets boundaries on possible data values. this is needed since the
+	// integration is performed over the data values. in this example
+	// the uncertainty on the measured y value is fixed.
 
-  // ---------------------------------------------------------
-  // close log file 
-  // ---------------------------------------------------------
+	BCDataPoint* fDataPointLowerBoundaries = new BCDataPoint(3); 
+	fDataPointLowerBoundaries -> SetValue(0, 0.0); 
+	fDataPointLowerBoundaries -> SetValue(1, 0.0); 
+	fDataPointLowerBoundaries -> SetValue(2, 0.2); 
 
-  BCLog::CloseLog(); 
+	BCDataPoint* fDataPointUpperBoundaries = new BCDataPoint(3); 
+	fDataPointUpperBoundaries -> SetValue(0, 100.0); 
+	fDataPointUpperBoundaries -> SetValue(1,  10.0); 
+	fDataPointUpperBoundaries -> SetValue(2,   0.2); 
 
-  return 0; 
+	// assigns the boundaries to each model. in this example the number
+	// of points is fixed. 
+
+	fModelPol0 -> SetDataPointLowerBoundaries(fDataPointLowerBoundaries); 
+	fModelPol0 -> SetDataPointUpperBoundaries(fDataPointUpperBoundaries); 
+	fModelPol0 -> SetNDataPointsMinimum(10); 
+	fModelPol0 -> SetNDataPointsMaximum(10); 
+
+	fModelPol1 -> SetDataPointLowerBoundaries(fDataPointLowerBoundaries); 
+	fModelPol1 -> SetDataPointUpperBoundaries(fDataPointUpperBoundaries); 
+	fModelPol1 -> SetNDataPointsMinimum(10); 
+	fModelPol1 -> SetNDataPointsMaximum(10); 
+
+	fModelPol2 -> SetDataPointLowerBoundaries(fDataPointLowerBoundaries); 
+	fModelPol2 -> SetDataPointUpperBoundaries(fDataPointUpperBoundaries); 
+	fModelPol2 -> SetNDataPointsMinimum(10); 
+	fModelPol2 -> SetNDataPointsMaximum(10); 
+
+	// in this example the data points are not chosen arbitrarily but
+	// they have defined values on a grid, e.g. 5, 15, ... in general
+	// this can be solved by defining a grid for the values which are
+	// not free.
+
+	// defines a vector which contains the information if a value is
+	// defined on a grid (true) or is free (false). in this example only
+	// the x component is defined on a grid, y and the uncertainty on y
+	// are free (keep in mind that the uncertainty on y is a fixed
+	// number, see previously defined boundaries). 
+
+	std::vector <bool> grid;
+	grid.push_back(true);
+	grid.push_back(false);
+	grid.push_back(false);
+
+	// defines a vector which describes the grid. the first entry
+	// defines the first value, e.g. 5, the second entry defines the
+	// step size, e.g. 10, the third value defines the number of grid
+	// points, e.g. 10. if more than one variable is defined on a grid
+	// the same sequence is push back into the vector for the other
+	// variables. 
+
+	std::vector <double> limits;
+	limits.push_back( 5.0);
+	limits.push_back(10.0);
+	limits.push_back(10.0);
+
+	// selects the most probable model and performs a goodness-of-fit
+	// test. ensembles of data sets are created, given the best fit
+	// parameters, and their conditional probability is evaluated. the
+	// values are histogrammed and the frequency distribution is
+	// interpreted as a probability density for the agreement. the
+	// p-value is estimated. for details on the goodness-of-fit test,
+	// see the manual. 
+
+	if (post_modelpol0 > post_modelpol1 && 
+			post_modelpol0 > post_modelpol2) 
+		{
+			// performs the goodness-of-fit test. creates 100 ensembles
+			// given the best fit parameters. the frequency distribution is
+			// printed into a .ps file and the conditional probability for
+			// the original data is indicated by a line. 
+
+			fModelPol0 -> DoGoodnessOfFitTest(100, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
+				Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
+		}
+
+	if (post_modelpol1 > post_modelpol0 && 
+			post_modelpol1 > post_modelpol2) 
+		{
+			// performs the goodness-of-fit test. creates 100 ensembles
+			// given the best fit parameters. the frequency distribution is
+			// printed into a .ps file and the conditional probability for
+			// the original data is indicated by a line. 
+
+			fModelPol1 -> DoGoodnessOfFitTest(100, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
+				Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+		}
+
+	if (post_modelpol2 > post_modelpol0 && 
+			post_modelpol2 > post_modelpol1) 
+		{
+			// performs the goodness-of-fit test. creates 100 ensembles
+			// given the best fit parameters. the frequency distribution is
+			// printed into a .ps file and the conditional probability for
+			// the original data is indicated by a line. 
+
+			fModelPol2 -> DoGoodnessOfFitTest(100, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
+			Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
+		}
+
+	// ---------------------------------------------------------
+	// summarize
+	// ---------------------------------------------------------
+
+	// prints a summary of the model, the parameter estimate, etc. on
+	// the screen and to a file.
+
+	fModelManager -> PrintSummary(); 
+
+	fModelManager -> PrintSummary("output.log");
+
+	// ---------------------------------------------------------
+	// Print data with best fit result 
+	// ---------------------------------------------------------
+
+	// defines a new canvas 
+
+	TCanvas* canvas_bestfit = new TCanvas(); 
+	canvas_bestfit -> cd(); 
+
+	// defines a histogram for the axes and draws it. 
+
+	TH2D* hist_axes = new TH2D("hist_axes", "", 1, 0.0, 100.0, 1, 0.0, 6.0); 
+	hist_axes -> SetXTitle("x"); 
+	hist_axes -> SetYTitle("y"); 
+	hist_axes -> SetStats(false); 
+	hist_axes -> Draw(); 
+
+	// defines a graph with errors 
+
+	TGraphErrors* graph = new TGraphErrors(); 
+	graph -> SetMarkerStyle(20); 
+	graph -> SetMarkerColor(kBlack); 
+
+	// sets the points of the graph to the data points read in
+	// previously. loops over all entries. 
+
+	for (int i = 0; i < fModelManager -> GetNDataPoints(); i++)
+		{
+			graph -> SetPoint(i, 
+												fModelManager -> GetDataPoint(i) -> GetValue(0), 
+												fModelManager -> GetDataPoint(i) -> GetValue(1)); 
+			graph -> SetPointError(i, 
+														 0.0, 
+														 fModelManager -> GetDataPoint(i) -> GetValue(2)); 
+		}
+
+	// define a constant function with the best fit parameters of the
+	// first model.
+
+	TF1* func_pol0 = new TF1("func_pol0", "[0]", 0, 100); 
+	func_pol0 -> SetLineWidth(3); 
+	func_pol0 -> SetLineColor(kBlack); 
+
+	func_pol0 -> SetParameter(0, fModelPol0 -> GetBestFitParameter(0)); 
+
+	// draws the constant function. 
+
+	func_pol0 -> Draw("SAME"); 
+
+	// define a linear function with the best fit parameters of the
+	// first model. 
+
+	TF1* func_pol1 = new TF1("func_pol1", "[0] + [1] * x", 0, 100); 
+	func_pol1 -> SetLineWidth(3); 
+	func_pol1 -> SetLineColor(kRed); 
+
+	func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameter(0)); 
+	func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameter(1)); 
+
+	// draws the linear function. 
+
+	func_pol1 -> Draw("SAME"); 
+
+	// define a quadratic function with the best fit parameters of the
+	// first model.
+
+	TF1* func_pol2 = new TF1("func_pol2", "[0] + [1] * x + [2] * x * x", 0, 100); 
+	func_pol2 -> SetLineWidth(3); 
+	func_pol2 -> SetLineColor(kGreen); 
+
+	func_pol2 -> SetParameter(0, fModelPol2 -> GetBestFitParameter(0)); 
+	func_pol2 -> SetParameter(1, fModelPol2 -> GetBestFitParameter(1)); 
+	func_pol2 -> SetParameter(2, fModelPol2 -> GetBestFitParameter(2)); 
+
+	// draws the quadratic function. 
+
+	func_pol2 -> Draw("SAME"); 
+
+	// draw the data points again so that they are display on top of the
+	// functions.
+
+	graph -> Draw("SAMEP"); 
+
+	// define and draw a legend. 
+
+	TLegend* legend = new TLegend(0.65, 0.70, 0.95, 0.95); 
+	legend -> SetFillColor(kWhite); 
+	legend -> SetBorderSize(0); 
+	legend -> AddEntry(func_pol0, "ModelPol0", "L"); 
+	legend -> AddEntry(func_pol1, "ModelPol1", "L"); 
+	legend -> AddEntry(func_pol2, "ModelPol2", "L"); 
+	legend -> Draw("SAME"); 
+
+	// print the canvas to a .ps file 
+
+	canvas_bestfit -> Print("data.ps"); 
+
+	// ---------------------------------------------------------
+	// close log file 
+	// ---------------------------------------------------------
+
+	// closes the log file. 
+
+	BCLog::CloseLog(); 
+
+	return 0; 
 
 }
 

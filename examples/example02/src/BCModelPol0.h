@@ -1,3 +1,13 @@
+// --------------------------------------------------------- 
+//
+// This class derives from BCModel. It describes a constant
+// correlation relation between measured points. One parameter is
+// defined within the model, a constant. The data are points (x,y)
+// with an uncertainty on y, s_y. The uncertainty is assumed to be
+// Gaussian.
+// 
+// --------------------------------------------------------- 
+
 #ifndef __BCMODELPOL0__H
 #define __BCMODELPOL0__H
 
@@ -10,24 +20,26 @@ class BCModelPol0 : public BCModel
 
  public: 
 
-  // constructor 
+	// constructors 
 
-  BCModelPol0(); 
+	BCModelPol0(); 
 
-  BCModelPol0(const char* name); 
+	BCModelPol0(const char* name); 
 
-  ~BCModelPol0() 
-    { ;}; 
+	// destructor 
 
-  // methods 
+	~BCModelPol0() 
+		{ ;}; 
 
-  virtual void DefineParameters(); 
+	// methods 
 
-  virtual double LogAPrioriProbability(std::vector <double> parameters); 
-  
-  virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
+	virtual void DefineParameters(); 
 
-  virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
+	virtual double LogAPrioriProbability(std::vector <double> parameters); 
+
+	virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
+
+	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
 
 }; 
 
