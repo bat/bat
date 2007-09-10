@@ -105,8 +105,6 @@ int main()
 
 	fModelPol1 -> PrintSummary(); 
 
-	fModelManager -> PrintSummary("output.log");
-
 	// ---------------------------------------------------------
 	// Print data with best fit result 
 	// ---------------------------------------------------------
