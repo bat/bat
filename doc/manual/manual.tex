@@ -1,7 +1,9 @@
 \documentclass[11pt, a4paper]{article}
 
+\usepackage{geometry} 
 \usepackage{epsfig}
-
+\usepackage{epstopdf}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 \setlength{\oddsidemargin}{0cm}
 \setlength{\evensidemargin}{0cm}
 \setlength{\topmargin}{-1cm}
@@ -30,9 +32,14 @@ version 0.1}
 
 \title{\BAT\ - A {\sc Bayesian Analysis Toolkit}} 
 
-\author{A.~Caldwell, D.~Kollar, K.~Kr\"oninger} 
+\author{A.~Caldwell$^{1}$, D.~Kollar${^1}$, K.~Kr\"oninger$^{2}$} 
 
 \maketitle
+
+\begin{center}
+$^{1}$~Max-Planck-Institut f\"ur Physik, Munich, Germany \\ 
+$^{2}$~II.~Physikalisches Institut, Universit\"at G\"ottingen \\ 
+\end{center}
 
 \thispagestyle{empty} 
 
@@ -64,40 +71,125 @@ goodness-of-fit is included and based on ensemble tests.
 
 \section{Introduction}
 
-% --------------------------------------------------------
+The goal of data analysis is to compare model predictions with data,
+and draw conclusions on the validity of the model as a representation
+of the data, or to estimate best-fit parameter values within the
+context of a model. The paradigm for our data analysis package is
+shown in Fig.~\ref{fig:scheme}.  Here, the model M can range from a
+model purporting to represent nature (e.g., the Standard Model in
+particle physics) to a simple parametrization of data useful for
+making predictions or for summarizing data.  In the latter case, the
+intermediate steps in the figure would be skipped. \\ 
 
-\subsection{Analysis paradigm} 
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+\centering
+\includegraphics[width=0.75\textwidth]{scheme.eps} 
+\caption{Paradigm for data analysis.  Knowledge is gained from a
+comparison of model predictio ns with data.  Intermediate steps may be
+necessary, e.g., to model experimental conditions.}
+\label{fig:scheme}
+\end{figure}
 
-Describe the basic philosophy behind the type of data analysis which
-we perform. This is more general than just the Bayesian formula.
-
-In the following, the term {\it model} denotes a set of parameters, a
-conditional probability for a set of data given the parameters, and
-the prior probability for the set of parameters.
-
-% --------------------------------------------------------
-
-\subsection{Bayesian inference} 
-
+Note that the model provides `Direct Probabilities'; i.e., frequency
+distributions of possible outcomes of the results were one to
+reproduce the experiment many times under identical conditions.  The
+function
+%
 \begin{equation}
-p(A|B) = \frac{p(B|A) \cdot p_{0}(A)}{\int p(B|A) \cdot p_{0}(A) \, \mathrm{d}A }
+f(\vec{x}|\vec{\lambda},M)
+\end{equation}
+%
+gives the probability (density) of getting result $\vec{x}$ assuming
+the model $M$ and parameters $\vec{\lambda}$\footnote{The modelling of
+the experiment will usually add extra parameters and assumptions,
+which then also appear as arguments}.
+
+The probability of a model, $M$, will be quantified as $P(M)$, with:
+%
+\begin{equation}
+\label{eq:norm}
+0 \leq P(M) \leq 1
+\end{equation}
+%
+while the probability (density) of the parameters are typically
+continuous functions.  The probability (densities) satisfy
+%
+\begin{eqnarray*}
+P(\vec{\lambda}) & \ge & 0 \\
+\int P(\vec{\lambda}) d\vec{\lambda} &=&1 \;\; .\\
+\end{eqnarray*}
+
+In the Bayesian approach, the quantities $P(M), P(\vec{\lambda})$ are
+treated on the same footing as the direct probabilities, although they
+are not in any sense frequency distributions and must be determined
+via inductive reasoning.  The procedure for learning from experiment
+is:
+%
+\begin{equation}
+P_{i+1}(\vec{\lambda},M) \propto f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M) 
+\end{equation}
+%
+where the index represents a `state-of-knowledge'.  
+
+In order to satisfy Eq.~\ref{eq:norm}, we set
+%
+\begin{equation}
+P_{i+1}(\vec{\lambda},M) =\frac{f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M)}
+{\sum_M \int f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M) d{\lambda}}
+\end{equation}
+%
+We usually just write $P_i=P_0$, and this quantity is called the
+`prior'.  The function $f$ does not need to be normalized, since the
+overall normalization is taken care of automatically.  When $f$ is
+viewed as a function of $\vec{\lambda}$ for fixed $\vec{x}=\vec{D}$,
+it is known as the likelihood.
+
+\subsection{Validity of Model}
+
+The following quantity is proposed to evaluate the validity of a
+model,$M$, (including any modelling of the experimental conditions):
+%
+\begin{equation}
+p=\int_{f(\vec{x}|\vec{\lambda^*},M)<f(\vec{x}=\vec{D}|\vec{\lambda^*},M)} f(\vec{x}|\vec{\lambda^*},M) d\vec{\lambda}
+\end{equation}
+%
+where $\vec{\lambda^*}$ are the optimal values of $\lambda$ (e.g.,
+best-fit values). The quantity $p$ is just the `tail-area' probability
+to have found any result with smaller $f$ than that given by the
+measured data, given $M,\vec{\lambda^*}$.  This quantity is analogous
+to the usual $\chi^2$ probability, but is more general since it can be
+used for any function $f$.
+
+\subsection{Parameter estimation}
+%
+Parameter estimation is performed while keeping the model fixed.  In
+this case, we write
+%
+\begin{equation}
+P_{1}(\vec{\lambda}|M) =\frac{f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{0}(\vec{\lambda}|M)}
+{\int f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{0}(\vec{\lambda}|M) d\vec{\lambda}} \;\; .
 \label{eqn:BayesTheorem}
 \end{equation}
+%
+The output of the evaluation is a (multidimensional) normalized
+probability density for the parameters, including all correlations.
+This output can be used to give best-fit values, probability intervals
+for the parameters, etc.
+
+The scheme for updating knowledge, as written down here, is quite
+general and straightforward.  There can be difficulties in
+implementation when dealing with multi-dimensional spaces, and the
+toolkit presented here is designed to help the user solve these
+technical issues.  As a general statement, it should be obvious that
+the `garbage in, garbage out' rule applies.  It is up to the user to
+carefully define the model, parameters, predictions, and priors.  The
+BAT program will then be useful as a tool for model testing and
+parameter estimation.
+
+In the following, we will give several examples of parameter
+estimation and model testing to make the ideas more concrete.
 
 % --------------------------------------------------------
-
-\subsection{Probability density function} 
-
-We should give an introduction to how the output can be used, such as
-defining the error band on our best fit curve, defining probability
-intervals, propagating the probability density information to future
-experiments, etc
-
-% --------------------------------------------------------
-
-\subsection{Goodness-of-fit} 
-
-Lay the conceptual foundation. 
 
 \subsection{Example uses of Bayesis Inference} 
 \label{subsection:exampleuses} 
