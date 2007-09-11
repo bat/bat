@@ -20,15 +20,15 @@ int CreateSpectrum()
   
   // parameters 
 
-  double background =   10.0; 
-  double signal     =   10.0; 
+  double background =  100.0; 
+  double signal     =   50.0; 
   double mean       = 2039.0; 
   double sigma      =    2.5; 
 
-  int nbins = 10; 
+  int nbins = 40; 
 
-  double Emin = mean - 50.0; 
-  double Emax = mean + 50.0; 
+  double Emin = mean - 10.0; 
+  double Emax = mean + 10.0; 
   double dE   = (Emax - Emin) / double(nbins); 
 
   // initialize random number generator 
@@ -64,7 +64,7 @@ int CreateSpectrum()
       double t1 = (E - mean) / (TMath::Sqrt(2.0) * sigma); 
       double t2 = (E + dE - mean) / (TMath::Sqrt(2.0) * sigma); 
 
-      double expectation = (background * (1.0 / double(nbins) / dE) + 
+      double expectation = (background / double(nbins) + 
 			    signal * 0.5 * (TMath::Erf(t2) - TMath::Erf(t1))); 
 
       int n = fRandom -> Poisson(expectation); 
@@ -78,7 +78,7 @@ int CreateSpectrum()
       if (i < nbins - 1) 
 	data_stream << endl; 
     }
-	  
+
   // close file 
   
   data_stream.close(); 

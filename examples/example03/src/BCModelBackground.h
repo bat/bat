@@ -1,3 +1,12 @@
+// --------------------------------------------------------- 
+//
+// This class derives from BCModel. It describes a flat background
+// spectrum with Poissonian fluctuations in each bin. Only one
+// parameter, the number of background events, is defined in the
+// model. 
+// 
+// --------------------------------------------------------- 
+
 #ifndef __BCMODELBACKGROUND__H
 #define __BCMODELBACKGROUND__H
 
@@ -10,30 +19,28 @@ class BCModelBackground : public BCModel
 
  public: 
 
-  // constructor 
+	// constructor 
 
-  BCModelBackground(); 
+	BCModelBackground(); 
 
-  BCModelBackground(const char* name); 
+	BCModelBackground(const char* name); 
 
-  // destructor 
+	// destructor 
 
-  ~BCModelBackground()
-    { ;}; 
+	~BCModelBackground()
+		{ ;}; 
 
-  // methods 
+	// methods 
 
-  void DefineParameters(); 
+	void DefineParameters(); 
 
-  virtual double APrioriProbability(std::vector <double> parameters); 
+	virtual double LogAPrioriProbability(std::vector <double> parameters); 
 
-  virtual double Likelihood(std::vector <double> parameters); 
-  
-  virtual double SamplingFunction(std::vector <double> parameters); 
+	virtual double LogLikelihood(std::vector <double> parameters); 
 
  private: 
 
-  double integral_f_B(double E, double dE, int nbins); 
+	double integral_f_B(double E, double dE, int nbins); 
 
 }; 
 
