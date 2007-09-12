@@ -83,7 +83,7 @@ class BCH2D
 	 * Print 2-d histogram to file 
 	 * @param filename The filename 
 	 */ 
-	void Print(char* filename, int options=0);
+	void Print(const char * filename, int options=0);
 
 	/*
 	 * Calculates the integral of the distribution as a function of the

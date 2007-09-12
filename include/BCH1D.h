@@ -189,7 +189,7 @@ class BCH1D
 	 *    the minimal interval in per cent. If omitted a 68% minimal interval
 	 *    will be drawn.
 	 */
-	void Print(char * filename, int options=0, double ovalue=0.);
+	void Print(const char * filename, int options=0, double ovalue=0.);
 
 	/**
 	 * Draw distribution with band between min and max and with marker at the mode.

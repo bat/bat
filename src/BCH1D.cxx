@@ -114,7 +114,7 @@ void BCH1D::SetDefaultCLLimit(double limit)
 
 // --------------------------------------------------------- 
 
-void BCH1D::Print(char * filename, int options, double ovalue)
+void BCH1D::Print(const char * filename, int options, double ovalue)
 {
 
 	// create temporary canvas

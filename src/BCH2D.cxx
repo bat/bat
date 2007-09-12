@@ -47,7 +47,7 @@ void BCH2D::GetMode(double& mode)
 
 // --------------------------------------------------------- 
 
-void BCH2D::Print(char* filename, int options) 
+void BCH2D::Print(const char * filename, int options) 
 {
 
   // create temporary canvas 

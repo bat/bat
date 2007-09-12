@@ -118,7 +118,7 @@ BCParameter * BCModel::GetParameter(int index)
 
 // --------------------------------------------------------- 
 
-BCParameter * BCModel::GetParameter(char * name)
+BCParameter * BCModel::GetParameter(const char * name)
 {
 	if (!fParameterSet) 
 		return 0; 
@@ -1265,7 +1265,7 @@ BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data)
 
 // --------------------------------------------------------- 
 
-int BCModel::CompareStrings(char * string1, char * string2) 
+int BCModel::CompareStrings(const char * string1, const char * string2) 
 {
 
 	int flag_same = 0; 

@@ -110,9 +110,9 @@ namespace BCMath
 	/** 
 	 * Returns the rms of an array.  
 	 */ 
-	double rms(int n, const double *a); 
+	double rms(int n, const double * a);
 
-}; 
+};
 
 // --------------------------------------------------------- 
 

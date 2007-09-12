@@ -103,9 +103,9 @@ class BCLog
 	 * @param loglevelfile The minimum log level for file output
 	 * @param loglevelscreen The minimum log level for screen output
 	 */ 
-	static void OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen); 
+	static void OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen); 
 
-	static void OpenLog(const char* filename); 
+	static void OpenLog(const char * filename); 
 
 	static void OpenLog(); 
 
@@ -120,9 +120,9 @@ class BCLog
 	 * @param loglevelscreen The loglevel for the current message 
 	 * @param message The string to write to the file and screen log 
 	 */ 
-	static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message); 
+	static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message); 
 
-	static void Out(const char* message); 
+	static void Out(const char * message);
 
 	/**
 	 * Writes startup information onto screen and into a logfile
@@ -132,7 +132,7 @@ class BCLog
 	/**
 	 * @return string containing the version number
 	 */
-	static char * GetVersion()
+	static const char * GetVersion()
 	{ return fVersion; };
 
 	/**
@@ -146,7 +146,7 @@ class BCLog
 	/**
 	 * BAT version number
 	 */
-	static char * fVersion;
+	static const char * fVersion;
 
 	/**
 	 * The minimum file log level 
@@ -166,7 +166,7 @@ class BCLog
 	/**
 	 * Converts a log level to a string
 	 */ 
-	static char* ToString(BCLog::LogLevel); 
+	static const char * ToString(BCLog::LogLevel); 
 
 	/**
 	 * Global histogram counter

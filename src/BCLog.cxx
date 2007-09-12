@@ -6,7 +6,7 @@ BCLog::LogLevel BCLog::fMinimumLogLevelFile = BCLog::debug;
 
 BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 
-char * BCLog::fVersion = BAT_VERSION;
+const char * BCLog::fVersion = BAT_VERSION;
 
 int BCLog::fHindex = 0;
 
@@ -28,7 +28,7 @@ BCLog::~BCLog()
 
 // ---------------------------------------------------------
 
-void BCLog::OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
+void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
 {
 
 	// suppress the ROOT Info printouts
@@ -58,7 +58,7 @@ void BCLog::OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::L
 
 // --------------------------------------------------------- 
 
-void BCLog::OpenLog(const char* filename)
+void BCLog::OpenLog(const char * filename)
 {
 
 	BCLog::OpenLog(filename, BCLog::debug, BCLog::summary); 
@@ -110,7 +110,7 @@ void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, co
 
 // --------------------------------------------------------- 
 
-void BCLog::Out(const char* message)
+void BCLog::Out(const char * message)
 {
 
 	BCLog::Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message);
@@ -147,7 +147,7 @@ void BCLog::StartupInfo()
 
 // --------------------------------------------------------- 
 
-char * BCLog::ToString(BCLog::LogLevel loglevel)
+const char * BCLog::ToString(BCLog::LogLevel loglevel)
 {
 	
 	switch (loglevel)

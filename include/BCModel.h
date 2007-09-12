@@ -71,7 +71,7 @@ class BCModel : public BCIntegrate
 	 * A constructor. 
 	 * @param name The name of the model 
 	 */
-	BCModel(const char* name); 
+	BCModel(const char * name); 
 
 	/** 
 	 * The default destructor. 
@@ -82,8 +82,8 @@ class BCModel : public BCIntegrate
 
 	/** 
 	 * @return The name of the model
-	 */ 
-	char* GetName()
+	 */
+	const char * GetName()
 	{ return fName; }; 
 
 	/** 
@@ -182,7 +182,7 @@ class BCModel : public BCIntegrate
 	 * @param name The name of the parameter in the parameter set 
 	 * @return The parameter 
 	 */ 
-	BCParameter* GetParameter(char* name); 
+	BCParameter* GetParameter(const char * name); 
 
 	/** 
 	 * Returns the best fit parameters of the global probability. 
@@ -220,7 +220,7 @@ class BCModel : public BCIntegrate
 	 * Sets the name of the model. 
 	 * @param name Name of the model 
 	 */ 
-	void SetName(char* name) 
+	void SetName(const char * name) 
 	{ fName = name; }; 
 
 	/** 
@@ -306,12 +306,12 @@ class BCModel : public BCIntegrate
 	 * @param upperlimit The upper limit of the parameter values 
 	 * @see AddParameter(BCParameter* parameter); 
 	 */ 
-	int AddParameter(const char* name, double lowerlimit, double upperlimit); 
+	int AddParameter(const char * name, double lowerlimit, double upperlimit); 
 
 	/** 
 	 * Adds a parameter to the model. 
 	 * @param parameter A model parameter 
-	 * @see AddParameter(const char* name, double lowerlimit, double upperlimit); 
+	 * @see AddParameter(const char * name, double lowerlimit, double upperlimit); 
 	 */ 
 	int AddParameter(BCParameter* parameter); 
 
@@ -478,7 +478,7 @@ class BCModel : public BCIntegrate
 	 */ 
 	BCH1D * MarginalizeProbability(BCParameter* parameter); 
 
-	BCH1D * MarginalizeProbability(char* name) 
+	BCH1D * MarginalizeProbability(const char * name) 
 		{ return this -> MarginalizeProbability(this -> GetParameter(name)); }; 
 
 	/** 
@@ -489,7 +489,7 @@ class BCModel : public BCIntegrate
 	 */ 
 	BCH2D * MarginalizeProbability(BCParameter * parameter1, BCParameter * parameter2);
 
-	BCH2D * MarginalizeProbability(char * name1, char * name2)
+	BCH2D * MarginalizeProbability(const char * name1, const char * name2)
 		{ return this -> MarginalizeProbability(this -> GetParameter(name1), this -> GetParameter(name2)); };
 
 	/**
@@ -508,7 +508,7 @@ class BCModel : public BCIntegrate
 	 */
 	BCH1D * GetMarginalized(BCParameter * parameter);
 
-	BCH1D * GetMarginalized(char * name)
+	BCH1D * GetMarginalized(const char * name)
 		{ return this -> GetMarginalized(this -> GetParameter(name)); };
 
 	/**
@@ -520,7 +520,7 @@ class BCModel : public BCIntegrate
 	 */
 	BCH2D * GetMarginalized(BCParameter * parameter1, BCParameter * parameter2);
 
-	BCH2D * GetMarginalized(char * name1, char * name2)
+	BCH2D * GetMarginalized(const char * name1, const char * name2)
 		{ return this -> GetMarginalized(this -> GetParameter(name1), this -> GetParameter(name2)); };
 
 	/**
@@ -565,13 +565,13 @@ class BCModel : public BCIntegrate
 	 * @param limits Limits for each data value 
 	 * @see CreateData(int ndatasets, std::vector <double> parameters)
 	 * @see CreateDataGrid(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits)
-	 * @see GoodnessOfFitTest(const char* filenname, std::vector <double> parameters)
+	 * @see GoodnessOfFitTest(const char * filenname, std::vector <double> parameters)
  */ 
 	BCH1D * DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits);
 	BCH1D * DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters);
 	BCH1D * DoGoodnessOfFitTest(int ndatasets);
-	BCH1D * DoGoodnessOfFitTest(const char* filename);
-	BCH1D * DoGoodnessOfFitTest(const char* filename, std::vector<double> parameters); 
+	BCH1D * DoGoodnessOfFitTest(const char * filename);
+	BCH1D * DoGoodnessOfFitTest(const char * filename, std::vector<double> parameters); 
 
 	/*
 	 * @return The p-value 
@@ -609,7 +609,7 @@ class BCModel : public BCIntegrate
 	 * Name of the model. 
 	 */
 	int fNameSize; 
-	char * fName; //[fNameSize]
+	const char * fName; //[fNameSize]
 
 	/**
 	 * The model prior probability. 
@@ -666,7 +666,7 @@ class BCModel : public BCIntegrate
 	/** 
 	 * Compares to strings
 	 */ 
-	int CompareStrings(char * string1, char * string2); 
+	int CompareStrings(const char * string1, const char * string2); 
 
 	/** 
 	 * The Likelihood normalization. 

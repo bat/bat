@@ -68,7 +68,7 @@ BCDataPoint * BCDataSet::GetDataPoint(int index)
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileTree(const char * filename, char * treename, const char * branchnames) 
+int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames) 
 {
 
 	// if data set contains data, clear data object container ... 
@@ -246,7 +246,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, char * treename, cons
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileTxt(const char* filename, int nbranches) 
+int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches) 
 {
 
 	// if data set contains data, clear data object container ... 

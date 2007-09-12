@@ -15,7 +15,7 @@ BCParameter::BCParameter()
 
 // --------------------------------------------------------- 
 
-BCParameter::BCParameter(const char* name, double lowerlimit, double upperlimit)
+BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit)
 {
 
 	fName = (char*) name; 

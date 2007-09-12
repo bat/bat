@@ -63,7 +63,7 @@ class BCParameter
 	 * Returns the name of the parameter. 
 	 * @return The name of the parameter
 	 */ 
-	char* GetName()
+	const char * GetName()
 	{ return fName; }; 
 
 	/** 
@@ -100,7 +100,7 @@ class BCParameter
 	 * Set the name of the parameter. 
 	 * @param name The name of the parameter 
 	 */ 
-	void SetName(char* name)
+	void SetName(const char * name)
 	{ fName = name; }; 
 
 	/** Set the index of the parameter within the parameter container of a BCModel. 
@@ -143,7 +143,7 @@ class BCParameter
 	 * The name of the parameter. 
 	 */ 
 	int fNameSize; 
-	char* fName; //[fNameSize]
+	const char * fName; //[fNameSize]
 
 	/** 
 	 * The index of the parameter within the parameter container of a BCModel. 
