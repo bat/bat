@@ -329,15 +329,15 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 	double xdown=xmin;
 	double xup=xmax;
 
-	int ndiv=100;
+	int ndiv = 100;
 	if(nbins<100)
-		ndiv=1000;
+		ndiv = 1000;
 	if(nbins>1000)
-		ndiv=10;
+		ndiv = 10;
 
 	int warn=0;
 
-	// first find the approximate location
+	// loop through the bins
 
 	for(int i=1;i<nbins+1;i++)
 	{
@@ -391,9 +391,9 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 			if(xup - xdown < width)
 			{
 				// store necessary information
-				width=xup - xdown;
-				xmin=xdown;
-				xmax=xup;
+				width = xup - xdown;
+				xmin  = xdown;
+				xmax  = xup;
 			}
 		}
 	}

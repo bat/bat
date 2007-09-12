@@ -79,7 +79,7 @@ class BCDataSet
 	 * @see ReadDataFromFileHist(char* filename, char* histname); 
 	 * @see ReadDataFromFileTxt(char* filename, int nbranches); 
 	 */ 
-	int ReadDataFromFileTree(char* filename, char* treename, const char* branchnames); 
+	int ReadDataFromFileTree(const char* filename, char* treename, const char* branchnames); 
 
 	/** 
 	 * Reads data from a .txt file. \n 
@@ -90,7 +90,7 @@ class BCDataSet
 	 * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
 	 * @see ReadDataFromFileHist(char* filename, char* histname); 
 	 */
-	int ReadDataFromFileTxt(char* filename, int nvariables);
+	int ReadDataFromFileTxt(const char* filename, int nvariables);
 
 	/** 
 	 * Reads data from a user specified file. \n 
@@ -105,7 +105,7 @@ class BCDataSet
 	 * @see ReadDataFromFileHist(char* filename, char* histname, const char* branchnames); 
 	 * @see ReadDataFromFileTxt(char* filename, int nbranches); 
 	 */   
-	virtual int ReadDataFromFileUser(char* filename, std::vector<int> options_int, std::vector<double> options_double, const char* options_char); 
+	virtual int ReadDataFromFileUser(const char* filename, std::vector<int> options_int, std::vector<double> options_double, const char* options_char); 
 
 	/**
 	 * Adds a data point to the data set. 

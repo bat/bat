@@ -48,8 +48,6 @@ double BCModelPol1::LogAPrioriProbability(std::vector <double> parameters)
 	double slope_upper = this -> GetParameter(1) -> GetUpperLimit();
 
 	// calculate natural logarithm of the flat probability
-	// this is equivalent to logarithm of the probability calculated
-	// useing the three lines of code above
 
 	double logprob = 0.;
 

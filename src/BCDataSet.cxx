@@ -68,7 +68,7 @@ BCDataPoint * BCDataSet::GetDataPoint(int index)
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char * branchnames) 
+int BCDataSet::ReadDataFromFileTree(const char * filename, char * treename, const char * branchnames) 
 {
 
 	// if data set contains data, clear data object container ... 
@@ -246,7 +246,7 @@ int BCDataSet::ReadDataFromFileTree(char * filename, char * treename, const char
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches) 
+int BCDataSet::ReadDataFromFileTxt(const char* filename, int nbranches) 
 {
 
 	// if data set contains data, clear data object container ... 
@@ -339,7 +339,7 @@ int BCDataSet::ReadDataFromFileTxt(char* filename, int nbranches)
 
 // --------------------------------------------------------- 
 
-int BCDataSet::ReadDataFromFileUser(char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
+int BCDataSet::ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
 {
 
 	// if this method is called without being overloaded give out warning. 

@@ -7,7 +7,7 @@ ROOTGLIBS    := $(shell root-config --glibs)
 CXX          = g++
 CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
 LD           = g++
-LDFLAGS      = -g -O2 
+LDFLAGS      = -g -O2
 SOFLAGS      = -shared
 
 RM           = rm -f 
