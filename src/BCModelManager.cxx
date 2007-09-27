@@ -29,7 +29,7 @@ BCModelManager::~BCModelManager()
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetDataSet(BCDataSet* dataset) 
+void BCModelManager::SetDataSet(BCDataSet * dataset) 
 {
 
 	// set data set 
@@ -45,7 +45,7 @@ void BCModelManager::SetDataSet(BCDataSet* dataset)
 
 // ---------------------------------------------------------
 
-void BCModelManager::AddModel(BCModel* model, double probability) 
+void BCModelManager::AddModel(BCModel * model, double probability) 
 {
 
 	// create index 
@@ -84,7 +84,7 @@ void BCModelManager::SetNIterationsMax(int niterations)
 
 // --------------------------------------------------------- 
 
-int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames)
+int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
 
 	if (fModelContainer -> size() < 0)
@@ -126,7 +126,7 @@ int BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const c
 
 // --------------------------------------------------------- 
 
-int BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_int, std::vector<double> options_double) 
+int BCModelManager::ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double) 
 {
 	if (fModelContainer -> size() < 0) 
 		{
@@ -166,7 +166,7 @@ int BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> option
 
 // --------------------------------------------------------- 
 
-int BCModelManager::ReadDataFromFileTxt(char* filename, int nbranches)
+int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
 
 	if (fModelContainer -> size() < 0) 
@@ -237,7 +237,7 @@ void BCModelManager::Initialize()
 
 // ---------------------------------------------------------
 
-void BCModelManager::PrintSummary(char * file)
+void BCModelManager::PrintSummary(const char * file)
 {
 
 	ofstream out;

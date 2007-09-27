@@ -126,7 +126,7 @@ class BCModelManager
 	 * @see ReadDataFromFileHist(char * filename, char * histname, const char*  branchnames); 
 	 * @see ReadDataFromFileTxt(char * filename, int nbranches); 
 	 */ 
-	int ReadDataFromFileTree(char* filename, char * treename, const char * branchnames); 
+	int ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames); 
 
 	/** 
 	 * Reads data from a txt file. 
@@ -136,8 +136,8 @@ class BCModelManager
 	 * @param nbranches The number of variables 
 	 * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
 	 * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
-	 */   
-	int ReadDataFromFileTxt(char * filename, int nbranches); 
+	 */
+	int ReadDataFromFileTxt(const char * filename, int nbranches); 
 
 	/** 
 	 * Reads data from a txt file (user specifies). 
@@ -149,7 +149,7 @@ class BCModelManager
 	 * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
 	 * @see ReadDataFromFileTxt(char * filename, int nbranches); 
 	 */
-	int ReadDataFromFileUser(char*  filename, std::vector<int> options_int, std::vector<double> options_double);
+	int ReadDataFromFileUser(const char *  filename, std::vector<int> options_int, std::vector<double> options_double);
 
 	/** 
 	 * Calculates the normalization of the likelihood for each model in the container. 
@@ -167,7 +167,7 @@ class BCModelManager
 	 * be printed onto the screen
 	 * @param filename name of the file to write into.
 	 */
-	void PrintSummary(char * filename=0);
+	void PrintSummary(const char * filename=0);
 
  private: 
 

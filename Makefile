@@ -22,8 +22,8 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) 
 CXXFLAGS    += -I./include -I./src -I./
-LIBS        += $(ROOTLIBS) -L. -lbc -lcuba 
-GLIBS       += $(ROOTGLIBS) -L. -lbc
+LIBS        += $(ROOTLIBS) -L. -lcuba 
+GLIBS       += $(ROOTGLIBS) -L.
 
 CXSRCS      = BCParameter.cxx \
 		BCModel.cxx \

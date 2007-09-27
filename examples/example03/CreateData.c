@@ -32,31 +32,25 @@ int CreateSpectrum()
   double dE   = (Emax - Emin) / double(nbins); 
 
   // initialize random number generator 
-
   TRandom3* fRandom = new TRandom3(0); 
 
   // loop over models  
-
   char filename[200]; 
 
   sprintf(filename, "./data/data.txt"); 
   
   // open filelist file 
-
   std::fstream data_stream; 
 
   data_stream.open(filename, std::fstream::out);
 
   // write energy interval to file 
-
   data_stream << Emin << " " << Emax << endl; 
   
   // reset counter 
-
   int nevents = 0; 
 
   // loop over bins
-	  
   for (int i = 0; i < nbins; i++)
     {
       double E = Emin + i * dE; 
@@ -70,7 +64,6 @@ int CreateSpectrum()
       int n = fRandom -> Poisson(expectation); 
 
       // increase counter 
-
       nevents += n; 
 
       data_stream << E << " " << double(n); 
