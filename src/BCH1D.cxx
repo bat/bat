@@ -81,14 +81,10 @@ double BCH1D::GetIntegral(double valuemin, double valuemax)
 double BCH1D::GetPValue(double probability)
 {
 
-	// get maxmimum value of the distribution. 
+	// use ROOT function to calculate the integral from 0 to
+	// "probability".
 
-	double valuemax = fHistogram -> GetBinCenter(fHistogram -> GetNbinsX()); 
-
-	// use ROOT function to calculate the integral from "probability" 
-	// to the maximum. 
-
-	double integral = this -> GetIntegral(probability, valuemax); 
+	double integral = fHistogram -> Integral(1, fHistogram -> FindBin(probability)); 
 
 	return integral; 
 
