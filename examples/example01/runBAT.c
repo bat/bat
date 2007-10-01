@@ -15,7 +15,7 @@ int main()
 
 	// ---------------------------------------------------------
 	// set style  
-	// ---------------------------------------------------------
+	// --------------------- ------------------------------------
 
 	// calls a function which defines a nice style. 
 
@@ -97,6 +97,17 @@ int main()
 	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
 
 	// ---------------------------------------------------------
+	// calculate error band 
+	// ---------------------------------------------------------
+
+	// the error band is calculated as 2-d histogram (first six
+	// parameters). a new markov chain is calculated with a certain
+	// number of points (last parameter). the error band can be used as
+	// graph when drawing the result. 
+	
+	fModelPol1 -> CalculateErrorBandXY(200, 5.0, 95.0, 200, 0.0, 6.0, 100000); 
+
+	// ---------------------------------------------------------
 	// summarize
 	// ---------------------------------------------------------
 
@@ -120,6 +131,10 @@ int main()
 	hist_axes -> SetStats(false); 
 	hist_axes -> Draw(); 
 
+	// draw the error band 
+
+	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
+
 	// defines a graph with errors. 
 
 	TGraphErrors* graph = new TGraphErrors(); 
@@ -141,7 +156,7 @@ int main()
 	// if best fit parameters were found a linear function is defined
 	// with the parameter values found. 
 
-	if (fModelPol1 -> GetBestFitParameters().size() > 0)
+	if (fModelPol1 -> GetBestFitParametersMarginalized().size() > 0)
 		{
 			// define a linear function 
     
@@ -150,8 +165,8 @@ int main()
 			// set the parameter values of the function to the best fit
 			// parameters. 
 
-			func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameter(0)); 
-			func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameter(1)); 
+			func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameterMarginalized(0)); 
+			func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameterMarginalized(1)); 
 
 			// draw the function. 
 

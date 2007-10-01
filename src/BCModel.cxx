@@ -25,6 +25,8 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 
 	flag_ConditionalProbabilityEntry = true; 
 
+	fErrorBandXY = 0; 
+
 }
 
 // --------------------------------------------------------- 
@@ -137,6 +139,116 @@ BCParameter * BCModel::GetParameter(const char * name)
 	}
 
 	return this->GetParameter(index);
+}
+
+// --------------------------------------------------------- 
+
+std::vector <double> BCModel::GetErrorBand(double level) 
+{
+
+	std::vector <double> errorband; 
+
+	if (!fErrorBandXY) 
+		return errorband; 
+
+	int nx = fErrorBandXY -> GetNbinsX(); 
+	int ny = fErrorBandXY -> GetNbinsY(); 
+
+	errorband.assign(nx, 0.0); 
+	
+	// loop over x and y bins 
+
+	for (int ix = 1; ix <= nx; ix++) 
+		{
+			double sum = 0.0; 
+
+			for (int iy = 1; iy <= ny; iy++)
+				{
+					double sumplusone = sum + fErrorBandXY -> GetBinContent(ix, iy); 
+
+					if (sumplusone > level && sum < level)
+						{
+							errorband[ix-1] = fErrorBandXY -> GetYaxis() -> GetBinLowEdge(iy) + 
+								(level - sumplusone) / fErrorBandXY -> GetBinContent(ix, iy) * fErrorBandXY -> GetYaxis() -> GetBinWidth(iy); 
+						}
+
+					sum += fErrorBandXY -> GetBinContent(ix, iy); 
+				}
+		}
+	
+	return errorband; 
+
+}
+
+// --------------------------------------------------------- 
+
+TH2D * BCModel::GetErrorBandHistogram(double level1, double level2, int options) 
+{
+	
+	if (!fErrorBandXY)
+		return 0; 
+
+	// define new histogram with same binning as the 2-d error band
+	// histogram
+
+	TH2D * hist = (TH2D *) fErrorBandXY -> Clone(); 
+
+	if (options == 1) 
+		return hist; 
+
+	// get error bands 
+
+	std::vector <double> ymin = this -> GetErrorBand(level1); 
+	std::vector <double> ymax = this -> GetErrorBand(level2); 
+
+	// loop over x and y bins 
+	
+	int nx = hist -> GetNbinsX(); 
+	int ny = hist -> GetNbinsY(); 
+
+	for (int ix = 1; ix <= nx; ix++)
+		for (int iy = 1; iy <= ny; iy++)
+			{
+				if (hist -> GetYaxis() -> GetBinCenter(iy) < ymin.at(ix-1) || hist -> GetYaxis() -> GetBinCenter(iy) > ymax.at(ix-1))
+					hist -> SetBinContent(ix, iy, 0.0); 
+
+				else
+					hist -> SetBinContent(ix, iy, 10.0); 
+			}
+
+	return hist; 
+
+}
+
+// --------------------------------------------------------- 
+
+TGraph * BCModel::GetErrorBandGraph(double level1, double level2) 
+{
+	
+	if (!fErrorBandXY)
+		return 0; 
+
+	// define new graph 
+
+	int nx = fErrorBandXY -> GetNbinsX(); 
+
+	TGraph * graph = new TGraph(2 * nx); 
+	graph -> SetFillStyle(1001);
+  graph -> SetFillColor(kYellow);
+
+	// get error bands 
+
+	std::vector <double> ymin = this -> GetErrorBand(level1); 
+	std::vector <double> ymax = this -> GetErrorBand(level2); 
+
+	for (int i = 0; i < nx; i++)
+		{
+			graph -> SetPoint(i, fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i)); 
+			graph -> SetPoint(nx + i, fErrorBandXY -> GetXaxis() -> GetBinCenter(nx - i), ymax.at(nx - i - 1)); 
+		}
+
+	return graph; 
+
 }
 
 // --------------------------------------------------------- 
@@ -281,6 +393,66 @@ double BCModel::EvalSampling(std::vector <double> parameters)
 {
 
 	return this -> SamplingFunction(parameters);
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModel::CalculateErrorBandXY(int nx, double xmin, double xmax, int ny, double ymin, double ymax, int niter)
+{
+
+	// calculate number of elements in the Markov chain if set negative or zero 
+	
+	if (niter <= 0) 
+		niter = fNbins * fNbins * fNSamplesPer2DBin * fNvar;
+
+	// define 2d histogram 
+
+	fErrorBandXY = new TH2D(Form("errorbandxy_%s", this -> GetName()), "", 
+													nx, xmin, xmax, ny, ymin, ymax); 
+	fErrorBandXY -> SetStats(kFALSE); 
+
+	// initialize Markov chain 
+
+	std::vector <double> randparameters;
+	randparameters.assign(fNvar, 0.0);
+
+	this -> InitMetro(); 
+
+	// run Markov chain 
+
+	for(int i = 0; i <= niter; i++)
+		{
+			// get point in Markov chain 
+
+			GetRandomPointMetro(randparameters);
+
+			// loop over x values 
+
+			double x = 0; 
+			double dx = (xmax - xmin) / double(nx); 
+
+			for (int ix = 0; ix < nx; ix++)
+				{
+					x = xmin + double(ix) * dx; 
+
+					// calculate y 
+
+					std::vector <double> xvec; 
+					xvec.push_back(x); 
+
+					double y = this -> FitFunction(xvec, randparameters); 
+
+					xvec.clear(); 
+
+					// fill histogram 
+
+					fErrorBandXY -> SetBinContent(ix + 1, fErrorBandXY -> GetYaxis() -> FindBin(y), 
+																				fErrorBandXY -> GetBinContent(ix + 1, fErrorBandXY -> GetYaxis() -> FindBin(y)) + 1.0); 
+				}
+		}
+	
+	fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * double(nx)); 
 
 }
 

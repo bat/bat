@@ -67,11 +67,6 @@ double BCModelPol1::LogLikelihood(std::vector <double> parameters)
 
 	double logprob = 0.0;
 
-	// get parameter values
-
-	double offset = parameters.at(0);
-	double slope  = parameters.at(1);
-
 	// loop over all data points
 
 	int npoints = this -> GetNDataPoints();
@@ -80,16 +75,34 @@ double BCModelPol1::LogLikelihood(std::vector <double> parameters)
 		{
 			// define data values
 
-			double x       = this -> GetDataPoint(ipoint) -> GetValue(0);
+			//			double x       = this -> GetDataPoint(ipoint) -> GetValue(0);
 			double y       = this -> GetDataPoint(ipoint) -> GetValue(1);
 			double sigma_y = this -> GetDataPoint(ipoint) -> GetValue(2);
 
+			// calculate expectation value 
+
+			double yex = this -> FitFunction(this -> GetDataPoint(ipoint) -> GetValues(), parameters); 
+
 			// calculate probability assuming a Gaussian distribution for each point
 
-			logprob += BCMath::LogGaus(y, (offset + x * slope), sigma_y, true);
+			logprob += BCMath::LogGaus(y, yex, sigma_y, true);
 		}
 
 	return logprob; 
+
+}
+
+// --------------------------------------------------------- 
+
+double BCModelPol1::FitFunction(std::vector <double> x, std::vector <double> parameters)
+{
+	
+	// get parameter values
+
+	double offset = parameters.at(0);
+	double slope  = parameters.at(1);
+
+	return offset + x.at(0) * slope; 
 
 }
 

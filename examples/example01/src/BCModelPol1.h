@@ -39,6 +39,8 @@ class BCModelPol1 : public BCModel
 
 	double LogLikelihood(std::vector <double> parameters); 
 
+	double FitFunction(std::vector <double> x, std::vector <double> parameters); 	
+
 }; 
 
 // --------------------------------------------------------- 

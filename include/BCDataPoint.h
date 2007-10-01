@@ -64,6 +64,9 @@ class BCDataPoint
 	 */  
 	double GetValue(int index); 
 
+	std::vector <double> GetValues()
+	{ return fData; }; 
+
 	/** 
 	 * Returns the number of values. 
 	 */ 

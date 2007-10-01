@@ -449,17 +449,30 @@ class BCIntegrate
 	 */ 
 	void GetRandomPointSA(std::vector <double> &x, double T, double step);
 
+ protected: 
+
+	/**
+	 * Number of variables to integrate over.
+	 */
+	int fNvar;
+	
+	/**
+	 * Number of bins per dimension for the marginalized distributions
+	 */
+	int fNbins;
+
+	/**
+	 * Number of samples per 2D bin per variable in the Metropolis
+	 * marginalization.
+	 */
+	int fNSamplesPer2DBin;
+
  private:
 
 	/**
 	 * Set of parameters for the integration.
 	 */
 	BCParameterSet * fx;
-
-	/**
-	 * Number of variables to integrate over.
-	 */
-	int fNvar;
 
 	/**
 	 * Array containing the lower boundaries of the variables to integrate over.
@@ -477,20 +490,9 @@ class BCIntegrate
 	int * fVarlist;
 
 	/**
-	 * Number of bins per dimension for the marginalized distributions
-	 */
-	int fNbins;
-
-	/**
 	 * Number of iteration per dimension for Monte Carlo integration.
 	 */
 	int fNiterPerDimension;
-
-	/**
-	 * Number of samples per 2D bin per variable in the Metropolis
-	 * marginalization.
-	 */
-	int fNSamplesPer2DBin;
 
 	/**
 	 * Current integration method

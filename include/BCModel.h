@@ -30,8 +30,9 @@
  * 01.08.2007 Dano,  added MarginalizeAll method and respective GetMarginalized methods,
  *                   added some warnings\n
  * 06.08.2007 Dano,  changed FindMode to use Simulated Annealing (SA) mode finding\n
- * 07.08.2007 Dano,  changed the model to use Log of everything, all standard calls are
+ * 07.08.2007 Dano,  changed the model to use Log of everything, all standard calls are 
  *                   just the inline calls to TMath::Exp() calls of the Log versions\n
+ * 01.10.2007 Kevin, added the error band calculation
  *
  * --------------------------------------------------------- 
  *
@@ -45,6 +46,7 @@
 #include <vector.h>
 
 #include <TROOT.h>
+#include <TGraph.h> 
 
 #include "BCDataPoint.h" 
 #include "BCDataSet.h" 
@@ -213,6 +215,15 @@ class BCModel : public BCIntegrate
 	 */
 	std::vector <double> GetBestFitParametersMarginalized() 
 		{ return fBestFitParametersMarginalized; }; 
+
+	TH2D * GetErrorBandXY()
+		{ return fErrorBandXY; }; 
+
+	std::vector <double> GetErrorBand(double level); 
+
+	TH2D * GetErrorBandHistogram(double level1, double level2, int options); 
+
+	TGraph * GetErrorBandGraph(double level1, double level2); 
 
 	// methods (set) 
 
@@ -428,6 +439,23 @@ class BCModel : public BCIntegrate
 	 */ 
 	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters) 
 	{ return .0; }; 
+
+	/** 
+	 * Defines a fit function. 
+	 * @param parameters A set of parameter values 
+	 * @param x A vector of x-values 
+	 * @return The value of the fit function at the x-values given a set of parameters 
+	 **/ 
+	virtual double FitFunction(std::vector <double> x, std::vector <double> parameters) 
+	{ return 0.0; }; 
+
+	/**
+	 * Returns upper and lower value for a given point x on the error band 
+	 * param x A vector of x-values 
+	 * param ymin The minimum value 
+	 * param ymax The maximum value 
+	 **/
+	void CalculateErrorBandXY(int nx, double xmin, double xmax, int ny, double ymin, double ymax, int niter); 
 
 	/**
 	 * Sampling function used for importance sampling. 
@@ -677,6 +705,11 @@ class BCModel : public BCIntegrate
 	 * The p-value 
 	 */ 
 	double fPValue; 
+
+	/**
+	 * The error band histogram 
+	 */ 
+	TH2D * fErrorBandXY; 
 
 }; 
 
