@@ -13,8 +13,6 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 	fNormalization = -1.0; 
 
 	fDataSet = 0; 
-	fDataPointLowerBoundaries = 0; 
-	fDataPointUpperBoundaries = 0; 
 
 	fParameterSet = new BCParameterSet; 
 
@@ -37,8 +35,6 @@ BCModel::BCModel() : BCIntegrate()
 	fNormalization = -1.0; 
 
 	fDataSet = 0; 
-	fDataPointLowerBoundaries = 0; 
-	fDataPointUpperBoundaries = 0; 
 
 	fParameterSet = new BCParameterSet(); 
 
@@ -182,46 +178,6 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 // --------------------------------------------------------- 
 
-TH2D * BCModel::GetErrorBandHistogram(double level1, double level2, int options) 
-{
-	
-	if (!fErrorBandXY)
-		return 0; 
-
-	// define new histogram with same binning as the 2-d error band
-	// histogram
-
-	TH2D * hist = (TH2D *) fErrorBandXY -> Clone(); 
-
-	if (options == 1) 
-		return hist; 
-
-	// get error bands 
-
-	std::vector <double> ymin = this -> GetErrorBand(level1); 
-	std::vector <double> ymax = this -> GetErrorBand(level2); 
-
-	// loop over x and y bins 
-	
-	int nx = hist -> GetNbinsX(); 
-	int ny = hist -> GetNbinsY(); 
-
-	for (int ix = 1; ix <= nx; ix++)
-		for (int iy = 1; iy <= ny; iy++)
-			{
-				if (hist -> GetYaxis() -> GetBinCenter(iy) < ymin.at(ix-1) || hist -> GetYaxis() -> GetBinCenter(iy) > ymax.at(ix-1))
-					hist -> SetBinContent(ix, iy, 0.0); 
-
-				else
-					hist -> SetBinContent(ix, iy, 10.0); 
-			}
-
-	return hist; 
-
-}
-
-// --------------------------------------------------------- 
-
 TGraph * BCModel::GetErrorBandGraph(double level1, double level2) 
 {
 	
@@ -248,6 +204,80 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 		}
 
 	return graph; 
+
+}
+
+// --------------------------------------------------------- 
+
+TGraph * BCModel::GetFitFunctionGraph(std::vector <double> parameters)
+{
+	
+	if (!fErrorBandXY)
+		return 0; 
+
+	// define new graph 
+
+	int nx = fErrorBandXY -> GetNbinsX(); 
+
+	TGraph * graph = new TGraph(nx); 
+
+	// loop over x values 
+
+	for (int i = 0; i < nx; i++)
+		{
+			double x = fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1);
+			
+			std::vector <double> xvec; 
+			xvec.push_back(x); 
+
+			double y = this -> FitFunction(xvec, parameters); 
+
+			xvec.clear(); 
+
+			graph -> SetPoint(i, x, y); 
+		}
+
+	return graph; 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperboundary)
+{
+
+	// check if data set exists 
+
+	if (!fDataSet)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 "BCModel::SetDataBoundaries. Need to define data set first."); 
+
+			return; 
+		}
+
+	// check if index is within range 
+
+	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 "BCModel::SetDataBoundaries. Index out of range."); 
+
+			return; 
+		}
+
+	// check if boundary data points exist 
+
+	if (!fDataPointLowerBoundaries)
+		fDataPointLowerBoundaries = new BCDataPoint(fDataSet -> GetDataPoint(0) -> GetNValues()); 
+
+	if (!fDataPointUpperBoundaries)
+		fDataPointUpperBoundaries = new BCDataPoint(fDataSet -> GetDataPoint(0) -> GetNValues()); 
+
+	// set boundaries 
+
+	fDataPointLowerBoundaries -> SetValue(index, lowerboundary); 
+	fDataPointUpperBoundaries -> SetValue(index, upperboundary); 
 
 }
 
@@ -408,8 +438,19 @@ void BCModel::CalculateErrorBandXY(int nx, double xmin, double xmax, int ny, dou
 
 	// define 2d histogram 
 
-	fErrorBandXY = new TH2D(Form("errorbandxy_%s", this -> GetName()), "", 
-													nx, xmin, xmax, ny, ymin, ymax); 
+	if (!fErrorBandXY)
+		delete fErrorBandXY; 
+
+	double dx = (xmax - xmin) / double(nx); 
+	double dy = (ymax - ymin) / double(ny); 
+
+	fErrorBandXY = new TH2D("errorbandxy", "", 
+													nx + 1, 
+													xmin - 0.5 * dx, 
+													xmax + 0.5 * dx, 
+													ny + 1, 
+													ymin - 0.5 * dy, 
+													ymax + 0.5 * dy); 
 	fErrorBandXY -> SetStats(kFALSE); 
 
 	// initialize Markov chain 
@@ -430,29 +471,29 @@ void BCModel::CalculateErrorBandXY(int nx, double xmin, double xmax, int ny, dou
 			// loop over x values 
 
 			double x = 0; 
-			double dx = (xmax - xmin) / double(nx); 
 
 			for (int ix = 0; ix < nx; ix++)
 				{
-					x = xmin + double(ix) * dx; 
+						// calculate x 
 
-					// calculate y 
+						x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
 
-					std::vector <double> xvec; 
-					xvec.push_back(x); 
+						// calculate y 
 
-					double y = this -> FitFunction(xvec, randparameters); 
+						std::vector <double> xvec; 
+						xvec.push_back(x); 
 
-					xvec.clear(); 
+						double y = this -> FitFunction(xvec, randparameters); 
 
-					// fill histogram 
+						xvec.clear(); 
 
-					fErrorBandXY -> SetBinContent(ix + 1, fErrorBandXY -> GetYaxis() -> FindBin(y), 
-																				fErrorBandXY -> GetBinContent(ix + 1, fErrorBandXY -> GetYaxis() -> FindBin(y)) + 1.0); 
+						// fill histogram 
+
+						fErrorBandXY -> Fill(x, y); 
 				}
 		}
 	
-	fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * double(nx)); 
+	fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * fErrorBandXY -> GetNbinsX()); 
 
 }
 

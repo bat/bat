@@ -72,6 +72,20 @@ int main()
 	fModelPol1 -> FindMode(); 
 
 	// ---------------------------------------------------------
+	// prepare calculation of error band 
+	// ---------------------------------------------------------
+
+	// set limits on data values 
+
+	fModelPol1 -> SetDataBoundaries(0, 0.0, 100.0); 
+	fModelPol1 -> SetDataBoundaries(1, 1.0,   4.0); 
+	fModelPol1 -> SetDataBoundaries(2, 0.2,   0.2); 
+
+	// set x and y value indices 
+
+	fModelPol1 -> SetFitFunctionIndices(0, 1); 
+
+	// ---------------------------------------------------------
 	// marginalize 
 	// ---------------------------------------------------------
 
@@ -95,17 +109,6 @@ int main()
 	// .ps file.
 
 	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
-
-	// ---------------------------------------------------------
-	// calculate error band 
-	// ---------------------------------------------------------
-
-	// the error band is calculated as 2-d histogram (first six
-	// parameters). a new markov chain is calculated with a certain
-	// number of points (last parameter). the error band can be used as
-	// graph when drawing the result. 
-	
-	fModelPol1 -> CalculateErrorBandXY(200, 5.0, 95.0, 200, 0.0, 6.0, 100000); 
 
 	// ---------------------------------------------------------
 	// summarize
@@ -133,7 +136,8 @@ int main()
 
 	// draw the error band 
 
-	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
+	fModelPol1 -> GetErrorBandXY() -> Draw("COL"); 
+	//	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 
 	// defines a graph with errors. 
 
@@ -153,25 +157,16 @@ int main()
 														 fModelPol1 -> GetDataPoint(i) -> GetValue(2)); 
 		}
 
-	// if best fit parameters were found a linear function is defined
-	// with the parameter values found. 
+	// draw best fit function 
 
-	if (fModelPol1 -> GetBestFitParametersMarginalized().size() > 0)
-		{
-			// define a linear function 
-    
-			TF1* func_pol1 = new TF1("func_pol1", "[0] + [1] * x", 0, 100); 
-    
-			// set the parameter values of the function to the best fit
-			// parameters. 
+	//	fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParametersMarginalized()) -> Draw("SAMEC"); 
 
-			func_pol1 -> SetParameter(0, fModelPol1 -> GetBestFitParameterMarginalized(0)); 
-			func_pol1 -> SetParameter(1, fModelPol1 -> GetBestFitParameterMarginalized(1)); 
+	//	TGraph* graph1 = fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParameters()); 
+	//	graph1 -> Draw("SAMEC"); 
 
-			// draw the function. 
-
-			func_pol1 -> Draw("SAME"); 
-		}
+	TGraph* graph2 = fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParametersMarginalized()); 
+	graph2 -> SetLineColor(kRed);  
+	graph2 -> Draw("SAMEC"); 
 
 	// draw the graph containing the data. 
 

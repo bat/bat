@@ -24,6 +24,16 @@ BCIntegrate::BCIntegrate()
 	fMarginalizeMethod = BCIntegrate::kMMetropolis;
 
 	fNbins=100;
+
+	fDataPointLowerBoundaries = 0; 
+	fDataPointUpperBoundaries = 0; 
+
+	fFitFunctionIndexX = -1; 
+	fFitFunctionIndexY = -1; 
+
+	fErrorBandNbinsX = 100; 
+	fErrorBandNbinsY = 200; 
+
 }
 
 // *********************************************
@@ -37,6 +47,13 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 	fNbins=100;
 
 	this->SetParameters(par);
+
+	fDataPointLowerBoundaries = 0; 
+	fDataPointUpperBoundaries = 0; 
+
+	fErrorBandNbinsX = 100; 
+	fErrorBandNbinsY = 200; 
+
 }
 
 // *********************************************
@@ -657,13 +674,42 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 				fNbins, hmin2, hmax2);
 
 			fHProb2D.push_back(h2);
-		}
+		}	
 
 	// get number of 2d distributions
 	int nh2d = fHProb2D.size();
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		Form(" --> Marginalizing %d 1D distributions and %d 2D distributions.", fNvar, nh2d));
+
+	// prepare function fitting 
+
+	double dx = 0.0; 
+	double dy = 0.0; 
+
+	if (fFitFunctionIndexX >= 0)
+		{
+			dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) - 
+						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
+				/ double(fErrorBandNbinsX); 
+
+			dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) - 
+						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
+				/ double(fErrorBandNbinsY); 
+
+			fErrorBandXY = new TH2D("errorbandxy", "", 
+															fErrorBandNbinsX + 1, 
+															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - 
+															0.5 * dx, 
+															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + 
+															0.5 * dx, 
+															fErrorBandNbinsY + 1, 
+															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) - 
+															0.5 * dy, 
+															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + 
+															0.5 * dy); 
+			fErrorBandXY -> SetStats(kFALSE); 
+		}
 
 	// prepare Metro
 	std::vector <double> randx;
@@ -689,16 +735,52 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		if((i+1)%100000==0)
 			BCLog::Out(BCLog::debug, BCLog::debug,
 				Form("BCIntegrate::MarginalizeAllByMetro. %d samples done.",i+1));
+
+		// function fitting 
+
+		if (fFitFunctionIndexX >= 0)
+			{
+
+				// loop over x values 
+
+				double x = 0; 
+
+				for (int ix = 0; ix < fErrorBandNbinsX; ix++)
+					{
+						// calculate x 
+
+						x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
+
+						// calculate y 
+
+						std::vector <double> xvec; 
+						xvec.push_back(x); 
+
+						double y = this -> FitFunction(xvec, randx); 
+
+						xvec.clear(); 
+
+						// fill histogram 
+
+						fErrorBandXY -> Fill(x, y); 
+					}
+			}
 	}
 
 	// normalize histograms
+
 	for(int i=0;i<fNvar;i++)
 		fHProb1D[i] -> Scale( 1./fHProb1D[i]->Integral("width") );
+
 	for (int i=0;i<nh2d;i++)
 		fHProb2D[i] -> Scale( 1./fHProb2D[i]->Integral("width") );
+	
+	if (fFitFunctionIndexX >= 0) 
+		fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * fErrorBandXY -> GetNbinsX()); 
 
 	return fNvar+nh2d;
-}
+
+} 
 
 // *********************************************
 TH1D * BCIntegrate::GetH1D(int parIndex)
@@ -967,7 +1049,7 @@ void BCIntegrate::GetRndmVector(std::vector <double> &x)
 void BCIntegrate::FindModeSA()
 {
 	// number of initial samples to determine starting temperature
-	int npresamples = fNvar*10000;
+	int npresamples = fNvar*100000;
 
 	// point with maximum -log(Eval())
 	vector <double> xmax;

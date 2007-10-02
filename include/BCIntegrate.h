@@ -45,6 +45,7 @@
 
 #include "BCMath.h"
 #include "BCParameter.h"
+#include "BCDataPoint.h" 
 
 #define DEBUG 0
 
@@ -239,6 +240,48 @@ class BCIntegrate
 	 */
 	void SetNbins(int n);
 
+	/**
+	 * Sets index of the x values in function fits. 
+	 * @param index Index of the x values 
+	 */  
+	void SetFitFunctionIndexX(int index) 
+	{ fFitFunctionIndexX = index; }; 
+	 
+	/**
+	 * Sets index of the y values in function fits. 
+	 * @param index Index of the y values 
+	 */  
+	void SetFitFunctionIndexY(int index) 
+	{ fFitFunctionIndexY = index; }; 
+
+	void SetFitFunctionIndices(int indexx, int indexy)
+	{ this -> SetFitFunctionIndexX(indexx); 
+		this -> SetFitFunctionIndexY(indexy); }; 
+	
+	/**
+	 * Sets the data point containing the lower boundaries of possible data values 
+	 */ 
+	void SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries)
+	{ fDataPointLowerBoundaries = datasetlowerboundaries; }; 
+
+	/**
+	 * Sets the data point containing the upper boundaries of possible data values 
+	 */ 
+	void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries)
+	{ fDataPointUpperBoundaries = datasetupperboundaries; }; 
+
+	/**
+	 * Sets the lower boundary of possible data values for a particular variable  
+	 */ 
+	void SetDataPointLowerBoundary(int index, double lowerboundary)
+	{ fDataPointLowerBoundaries -> SetValue(index, lowerboundary); }; 
+
+	/**
+	 * Sets the upper boundary of possible data values for a particular variable  
+	 */ 
+	void SetDataPointUpperBoundary(int index, double upperboundary)
+	{ fDataPointUpperBoundaries -> SetValue(index, upperboundary); }; 
+
 	// methods   
 
 	/** 
@@ -299,6 +342,15 @@ class BCIntegrate
 	 * @see Eval(std::vector <double> x) 
 	 */   
 	double EvalPrint(std::vector <double> x);
+
+	/** 
+	 * Defines a fit function. 
+	 * @param parameters A set of parameter values 
+	 * @param x A vector of x-values 
+	 * @return The value of the fit function at the x-values given a set of parameters 
+	 **/ 
+	virtual double FitFunction(std::vector <double> x, std::vector <double> parameters) 
+	{ return 0.0; }; 
 
 	/** 
 	 * Does the integration over the un-normalized probability. 
@@ -449,24 +501,6 @@ class BCIntegrate
 	 */ 
 	void GetRandomPointSA(std::vector <double> &x, double T, double step);
 
- protected: 
-
-	/**
-	 * Number of variables to integrate over.
-	 */
-	int fNvar;
-	
-	/**
-	 * Number of bins per dimension for the marginalized distributions
-	 */
-	int fNbins;
-
-	/**
-	 * Number of samples per 2D bin per variable in the Metropolis
-	 * marginalization.
-	 */
-	int fNSamplesPer2DBin;
-
  private:
 
 	/**
@@ -542,6 +576,32 @@ class BCIntegrate
  protected: 
 
 	/**
+	 * Number of variables to integrate over.
+	 */
+	int fNvar;
+	
+	/**
+	 * Number of bins per dimension for the marginalized distributions
+	 */
+	int fNbins;
+
+	/**
+	 * Number of samples per 2D bin per variable in the Metropolis
+	 * marginalization.
+	 */
+	int fNSamplesPer2DBin;
+
+	/** 
+	 * data point containing the lower boundaries of possible data values 
+	 */ 
+	BCDataPoint * fDataPointLowerBoundaries; 
+
+	/** 
+	 * data point containing the upper boundaries of possible data values 
+	 */ 
+	BCDataPoint * fDataPointUpperBoundaries; 
+
+	/**
 	 * A ROOT random number generator 
 	 */ 
 	TRandom3 * fRandom;
@@ -565,6 +625,19 @@ class BCIntegrate
 	 * Vector of TH2D histograms for marginalized probability distributions
 	 */
 	std::vector <TH2D *> fHProb2D;
+
+	/**
+	 * The indeces for function fits 
+	 */ 
+	int fFitFunctionIndexX; 
+	int fFitFunctionIndexY; 
+
+	/**
+	 * The error band histogram and number of bins 
+	 */ 
+	TH2D * fErrorBandXY; 
+	int fErrorBandNbinsX; 
+	int fErrorBandNbinsY; 
 
 };
 

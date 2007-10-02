@@ -216,14 +216,26 @@ class BCModel : public BCIntegrate
 	std::vector <double> GetBestFitParametersMarginalized() 
 		{ return fBestFitParametersMarginalized; }; 
 
+	/**
+	 * Returns the 2-d histogram for the error band 
+	 * @return The 2-d histogram 
+	 */ 
 	TH2D * GetErrorBandXY()
 		{ return fErrorBandXY; }; 
 
+	/**
+	 * Returns a vector of y-values at a certain probability level. 
+	 * @param level The level of probability
+	 * @return The vector of y-values
+	 */ 
 	std::vector <double> GetErrorBand(double level); 
 
-	TH2D * GetErrorBandHistogram(double level1, double level2, int options); 
-
 	TGraph * GetErrorBandGraph(double level1, double level2); 
+
+	TGraph * GetFitFunctionGraph(std::vector <double> parameters);
+
+	TGraph * GetFitFunctionGraph()
+		{ return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); }; 
 
 	// methods (set) 
 
@@ -271,31 +283,6 @@ class BCModel : public BCIntegrate
 	 */ 
 	void SetDataSet(BCDataSet* dataset)
 	{ fDataSet = dataset; fNormalization = -1.0; };
-
-	/**
-	 * Sets the data point containing the lower boundaries of possible data values 
-	 */ 
-	void SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries)
-	{ fDataPointLowerBoundaries = datasetlowerboundaries; }; 
-
-	/**
-	 * Sets the data point containing the upper boundaries of possible data values 
-	 */ 
-	void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries)
-	{ fDataPointUpperBoundaries = datasetupperboundaries; }; 
-
-	/**
-	 * Sets the lower boundary of possible data values for a particular variable  
-	 */ 
-	void SetDataPointLowerBoundary(int index, double lowerboundary)
-	{ fDataPointLowerBoundaries -> SetValue(index, lowerboundary); }; 
-
-	/**
-	 * Sets the upper boundary of possible data values for a particular variable  
-	 */ 
-	void SetDataPointUpperBoundary(int index, double upperboundary)
-	{ fDataPointUpperBoundaries -> SetValue(index, upperboundary); }; 
-
 	/**
 	 * Sets the minimum number of data points. 
 	 */ 
@@ -307,6 +294,8 @@ class BCModel : public BCIntegrate
 	 */ 
 	void SetNDataPointsMaximum(int maximum)
 	{ fNDataPointsMaximum = maximum; }; 
+
+	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
 
 	// methods 
 
@@ -439,15 +428,6 @@ class BCModel : public BCIntegrate
 	 */ 
 	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters) 
 	{ return .0; }; 
-
-	/** 
-	 * Defines a fit function. 
-	 * @param parameters A set of parameter values 
-	 * @param x A vector of x-values 
-	 * @return The value of the fit function at the x-values given a set of parameters 
-	 **/ 
-	virtual double FitFunction(std::vector <double> x, std::vector <double> parameters) 
-	{ return 0.0; }; 
 
 	/**
 	 * Returns upper and lower value for a given point x on the error band 
@@ -658,16 +638,6 @@ class BCModel : public BCIntegrate
 	 * A data set 
 	 */ 
 	BCDataSet * fDataSet;
-
-	/** 
-	 * data point containing the lower boundaries of possible data values 
-	 */ 
-	BCDataPoint * fDataPointLowerBoundaries; 
-
-	/** 
-	 * data point containing the upper boundaries of possible data values 
-	 */ 
-	BCDataPoint * fDataPointUpperBoundaries; 
   
 	/** 
 	 * Minimum number of data points 
@@ -705,11 +675,6 @@ class BCModel : public BCIntegrate
 	 * The p-value 
 	 */ 
 	double fPValue; 
-
-	/**
-	 * The error band histogram 
-	 */ 
-	TH2D * fErrorBandXY; 
 
 }; 
 
