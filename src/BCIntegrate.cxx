@@ -72,6 +72,9 @@ BCIntegrate::~BCIntegrate()
 	delete fRandom;
 	fRandom=0;
 
+	if (fMinuit)
+		delete fMinuit; 
+
 	int n1 = fHProb1D.size();
 	if(n1>0)
 	{
@@ -1100,7 +1103,19 @@ void BCIntegrate::FindMode()
 
 // *********************************************
 
-void BCIntegrate::FindModeMinuit()
+TMinuit * BCIntegrate::GetMinuit() 
+{
+
+	if (!fMinuit)
+		fMinuit = new TMinuit(); 
+
+	return fMinuit; 
+
+}
+
+// *********************************************
+
+void BCIntegrate::FindModeMinuit() 
 {
 
 	// set global this 
@@ -1109,8 +1124,9 @@ void BCIntegrate::FindModeMinuit()
 
 	// define minuit 
 
-	fMinuit = new TMinuit(fNvar); 
-
+	if (!fMinuit) 
+		fMinuit = new TMinuit(fNvar); 
+	
 	// set function 
 
 	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood); 

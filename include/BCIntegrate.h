@@ -186,6 +186,11 @@ class BCIntegrate
 	int GetNbins()
 	{ return fNbins; };
 
+	/**
+	 * @ return Minuit used for mode finding 
+	 */ 
+	TMinuit * GetMinuit(); 
+
 	// methods (set) 
 
 	/** 
