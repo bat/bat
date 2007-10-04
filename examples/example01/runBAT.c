@@ -138,8 +138,8 @@ int main()
 
 	// draw the error band 
 
-	fModelPol1 -> GetErrorBandXY() -> Draw("COL"); 
-	//	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
+	//	fModelPol1 -> GetErrorBandXY() -> Draw("COL"); 
+	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 
 	// defines a graph with errors. 
 
@@ -161,7 +161,7 @@ int main()
 
 	// draw best fit function 
 
-	fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParametersMarginalized()) -> Draw("SAMEC"); 
+	fModelPol1 -> GetFitFunctionGraph() -> Draw("SAMEC"); 
 
 	// draw the graph containing the data. 
 

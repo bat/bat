@@ -63,18 +63,17 @@ double BCModelPol1::LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::
 
 	// define data values 
 
-	double x       = datapoint -> GetValue(0); 
+	//	double x       = datapoint -> GetValue(0); 
 	double y       = datapoint -> GetValue(1); 
 	double sigma_y = datapoint -> GetValue(2); 
 
-	// define parameters and limits 
+	// calculate expectation value 
 
-	double offset = parameters.at(0); 
-	double slope  = parameters.at(1); 
+	double yex = this -> FitFunction(datapoint -> GetValues(), parameters); 
 
 	// calculate probability for a single measurement 
 
-	return BCMath::LogGaus(y * 100.0, (offset + x * slope) * 100.0 , sigma_y * 100.0, true); 
+	return BCMath::LogGaus(y, yex, sigma_y, true); 
 
 }
 
@@ -86,6 +85,20 @@ double BCModelPol1::LogPoissonProbability(int nentries, std::vector <double> par
 	// Poisson term is 1. => Log of it is 0.
 
 	return 0.;
+
+}
+
+// --------------------------------------------------------- 
+
+double BCModelPol1::FitFunction(std::vector <double> x, std::vector <double> parameters)
+{
+	
+	// get parameter values
+
+	double offset = parameters.at(0);
+	double slope  = parameters.at(1);
+
+	return offset + x.at(0) * slope; 
 
 }
 

@@ -41,6 +41,8 @@ public:
 
 	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
 
+	double FitFunction(std::vector <double> x, std::vector <double> parameters); 	
+
 }; 
 
 // --------------------------------------------------------- 

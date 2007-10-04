@@ -784,6 +784,24 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	if (fFitFunctionIndexX >= 0) 
 		fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * fErrorBandXY -> GetNbinsX()); 
 
+	if (fFitFunctionIndexX >= 0) 
+		{
+			for (int ix = 1; ix <= fErrorBandNbinsX; ix++)	
+				{
+					double sum = 0; 
+
+					for (int iy = 1; iy <= fErrorBandNbinsY; iy++)	
+						sum += fErrorBandXY -> GetBinContent(ix, iy); 
+
+					for (int iy = 1; iy <= fErrorBandNbinsY; iy++)	
+						{
+							double newvalue = fErrorBandXY -> GetBinContent(ix, iy) / sum; 
+							fErrorBandXY -> SetBinContent(ix, iy, newvalue);
+						}
+				}
+		}
+	
+	
 	return fNvar+nh2d;
 
 } 
