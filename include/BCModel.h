@@ -461,12 +461,6 @@ class BCModel : public BCIntegrate
 	 */ 
 	double EvalSampling(std::vector <double> parameters);
 
-	/* 
-	 * Find the mode of the global probability distribution and sets the best fit parameters 
-	 * @return The best fit parameters 
-	 */ 
-	std::vector<double> FindMode(); 
-
 	/**
 	 * Integrates over the un-normalized probability and updates fNormalization. 
 	 */ 

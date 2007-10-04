@@ -516,35 +516,6 @@ double BCModel::SamplingFunction(std::vector <double> parameters)
 
 // --------------------------------------------------------- 
 
-std::vector<double> BCModel::FindMode()
-{
-
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Finding mode using Simulated Annealing algorithm.",this->GetName()));
-
-	this -> FindModeSA();
-
-
-
-/*
-  BCIntegrate::BCIntegrationType integrationtypetemp = this -> GetIntegrationMethod(); 
-
-  double normalizationtemp = this -> GetNormalization(); 
-
-  this -> SetIntegrationMethod(BCIntegrate::kIMonteCarlo); 
-
-  this -> Integrate(); 
-
-  this -> SetNormalization(normalizationtemp); 
-
-  this -> SetIntegrationMethod(integrationtypetemp); 
-*/
-
-	return this -> GetBestFitParameters(); 
-
-}
-
-// --------------------------------------------------------- 
-
 double BCModel::Normalize()
 {
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName()));

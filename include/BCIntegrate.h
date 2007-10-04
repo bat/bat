@@ -22,6 +22,7 @@
  * 01.08.2007  Dano   * added MarginalizeAllByMetro method (and everything
  *                      necessary for it :), changed log level for some printouts\n
  * 06.08.2007  Dano   * added mode finding by Simulated Annealing (SA) algorithm\n
+ * 04.10.2007  Kevin  * added mode finding via Minuit \n 
  *
  * ---------------------------------------------------------
  */
@@ -42,6 +43,7 @@
 #include <TRandom3.h> 
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TMinuit.h> 
 
 #include "BCMath.h"
 #include "BCParameter.h"
@@ -65,6 +67,11 @@ class BCIntegrate
 	 * An enumerator for the marginalization algorithm 
 	 */ 
 	enum BCMarginalizationType { kMMonteCarlo, kMMetropolis }; 
+
+	/**
+	 * An enumerator for the mode finding algorithm 
+	 */ 
+	enum BCModeFindingType { kMFSimulatedAnnealing, kMFMinuit }; 
 
 	/** 
 	 * The default constructor 
@@ -208,6 +215,12 @@ class BCIntegrate
 	 */ 
 	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
 	{ fMarginalizeMethod = method; };
+
+	/** 
+	 * @param method The mode finding method 
+	 */ 
+	void SetModeFindingMethod(BCIntegrate::BCModeFindingType method)
+	{ fModeFindingMethod = method; };
 
 	/**
 	 * @param niterations Number of iterations per dimension for Monte Carlo integration.
@@ -487,9 +500,21 @@ class BCIntegrate
 	void InitMetro();
 
 	/**
+	 * Does the mode finding 
+	 */ 
+	void FindMode(); 
+
+	/**
 	 * Does the mode finding using Simulated Annealing (SA) algorithm
 	 */
 	void FindModeSA();
+
+	/**
+	 * Does the mode finding using Minuit 
+	 */
+	void FindModeMinuit(); 
+
+	static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag); 
 
 	/**
 	 * Generates a vector x according to the Simulated Annealing algorithm
@@ -538,6 +563,11 @@ class BCIntegrate
 	 */ 
 	BCIntegrate::BCMarginalizationType fMarginalizeMethod;
   
+	/** 
+	 * Current mode finding method 
+	 */ 
+	BCIntegrate::BCModeFindingType fModeFindingMethod;
+
 	/**
 	 * Maximum number of iterations 
 	 */
@@ -638,6 +668,11 @@ class BCIntegrate
 	TH2D * fErrorBandXY; 
 	int fErrorBandNbinsX; 
 	int fErrorBandNbinsY; 
+
+	/**
+	 * Minuit 
+	 */ 
+	TMinuit * fMinuit; 
 
 };
 

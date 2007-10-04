@@ -22,6 +22,7 @@ BCIntegrate::BCIntegrate()
 
 	fIntegrateMethod   = BCIntegrate::kIMonteCarlo;
 	fMarginalizeMethod = BCIntegrate::kMMetropolis;
+	fModeFindingMethod = BCIntegrate::kMFSimulatedAnnealing; 
 
 	fNbins=100;
 
@@ -34,6 +35,7 @@ BCIntegrate::BCIntegrate()
 	fErrorBandNbinsX = 100; 
 	fErrorBandNbinsY = 200; 
 
+	fMinuit = 0; 
 }
 
 // *********************************************
@@ -51,9 +53,13 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 	fDataPointLowerBoundaries = 0; 
 	fDataPointUpperBoundaries = 0; 
 
+	fFitFunctionIndexX = -1; 
+	fFitFunctionIndexY = -1; 
+
 	fErrorBandNbinsX = 100; 
 	fErrorBandNbinsY = 200; 
 
+	fMinuit = 0; 
 }
 
 // *********************************************
@@ -1043,6 +1049,116 @@ void BCIntegrate::GetRndmVector(std::vector <double> &x)
 
 	delete[] randx;
 	randx = 0;
+}
+
+// *********************************************
+
+void BCIntegrate::FindMode()
+{
+
+	BCLog::Out(BCLog::summary, BCLog::summary, "Finding mode");
+
+	switch(fModeFindingMethod)
+	{
+		case BCIntegrate::kMFSimulatedAnnealing:
+			{
+				this -> FindModeSA(); 
+				return; 
+			}
+
+		case BCIntegrate::kMFMinuit: 
+			{ 
+				this -> FindModeMinuit(); 
+				return;
+			}
+	}
+
+	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCIntegrate::FindMode. Invalid mode finding method: %d. Return.", 
+																									fModeFindingMethod)); 
+
+	return;
+
+}
+
+// *********************************************
+
+void BCIntegrate::FindModeMinuit()
+{
+
+	// set global this 
+
+	global_this = this; 
+
+	// define minuit 
+
+	fMinuit = new TMinuit(fNvar); 
+
+	// set function 
+
+	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood); 
+
+	// set parameters 
+
+	int flag; 
+
+	for (int i = 0; i < fNvar; i++)
+		fMinuit -> mnparm(i, 
+											fx -> at(i) -> GetName(), 
+											(fMin[i]+fMax[i])/2.0, 
+											(fMax[i]-fMin[i])/1000.0, 
+											fMin[i],
+											fMax[i], 
+											flag); 
+	
+	// do minimization 
+
+	double arglist[2]; 
+
+	arglist[0] = 500; 
+	arglist[1] = 0.1; 
+
+	fMinuit -> mnexcm("MIGRAD", arglist, 2, flag);
+
+	// set best fit parameters 
+
+	fBestFitParameters.clear(); 
+
+	for (int i = 0; i < fNvar; i++)
+		{
+			double par; 
+			double parerr; 
+			
+			fMinuit -> GetParameter(i, par, parerr); 
+
+			fBestFitParameters.push_back(par); 
+		}
+
+	// delete minuit 
+
+	delete fMinuit; 
+
+	return; 
+
+}
+
+// *********************************************
+
+void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag)
+{
+
+	// copy parameters 
+
+	std::vector <double> parameters; 
+
+	for (int i = 0; i < npar; i++)
+		parameters.push_back(par[i]); 
+
+	fval = - global_this -> LogEval(parameters); 
+
+	// delete parameters 
+
+	parameters.clear(); 
+
 }
 
 // *********************************************

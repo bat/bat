@@ -69,6 +69,8 @@ int main()
 	// consult the manual. this step might need a while, depending on
 	// the function.
 
+	fModelPol1 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+
 	fModelPol1 -> FindMode(); 
 
 	// ---------------------------------------------------------
@@ -159,14 +161,7 @@ int main()
 
 	// draw best fit function 
 
-	//	fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParametersMarginalized()) -> Draw("SAMEC"); 
-
-	//	TGraph* graph1 = fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParameters()); 
-	//	graph1 -> Draw("SAMEC"); 
-
-	TGraph* graph2 = fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParametersMarginalized()); 
-	graph2 -> SetLineColor(kRed);  
-	graph2 -> Draw("SAMEC"); 
+	fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParametersMarginalized()) -> Draw("SAMEC"); 
 
 	// draw the graph containing the data. 
 
