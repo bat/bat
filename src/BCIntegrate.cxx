@@ -1171,6 +1171,8 @@ void BCIntegrate::FindModeMinuit()
 
 	delete fMinuit; 
 
+	fMinuit = 0; 
+
 	return; 
 
 }
