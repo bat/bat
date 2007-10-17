@@ -97,7 +97,7 @@ int main()
 	// number of bins define the numerical precision. 
 
 	fModelPol1 -> SetNbins(100);
-	fModelPol1 -> MarginalizeAll();
+ 	fModelPol1 -> MarginalizeAll();
 
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
@@ -111,6 +111,56 @@ int main()
 	// .ps file.
 
 	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
+	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope_color.ps", 1);
+
+	// ---------------------------------------------------------
+	// Do goodness-of-fit test  
+	// ---------------------------------------------------------
+
+	// once the most probable model was found the goodness-of-fit can be
+	// tested. the question to be answered is: given the best fit
+	// parameters what is the probability to obtain a better agreement
+	// (conditional probability)? the answer can be given by integrating
+	// over data. technically this is done by creating ensembles given
+	// the best fit parameters. 
+
+	// in this example the data points are not chosen arbitrarily but
+	// they have defined values on a grid, e.g. 5, 15, ... in general
+	// this can be solved by defining a grid for the values which are
+	// not free.
+
+	// defines a vector which contains the information if a value is
+	// defined on a grid (true) or is free (false). in this example only
+	// the x component is defined on a grid, y and the uncertainty on y
+	// are free (keep in mind that the uncertainty on y is a fixed
+	// number, see previously defined boundaries). 
+
+	std::vector <bool> grid;
+	grid.push_back(true);
+	grid.push_back(false);
+	grid.push_back(false);
+
+	// defines a vector which describes the grid. the first entry
+	// defines the first value, e.g. 5, the second entry defines the
+	// step size, e.g. 10, the third value defines the number of grid
+	// points, e.g. 10. if more than one variable is defined on a grid
+	// the same sequence is push back into the vector for the other
+	// variables. 
+
+	std::vector <double> limits;
+	limits.push_back( 5.0);
+	limits.push_back(10.0);
+	limits.push_back(10.0);
+
+	// performs the goodness-of-fit test. creates 100 ensembles given
+	// the best fit parameters. the frequency distribution is printed
+	// into a .ps file and the conditional probability for the original
+	// data is indicated by a line. for details on the goodness-of-fit
+	// test, see the manual.
+
+	fModelPol1 -> DoGoodnessOfFitTest(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
+		Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+	
 
 	// ---------------------------------------------------------
 	// summarize
@@ -132,7 +182,7 @@ int main()
 
 	// defines a histogram for the axes and draws it. 
 
-	TH2D* hist_axes = new TH2D("hist_axes", "Data;x;y", 1, 0.0, 100.0, 1, 0.0, 6.0); 
+	TH2D* hist_axes = new TH2D("hist_axes", "Data;x;y", 1, 0.0, 100.0, 1, 1.5, 3.5); 
 	hist_axes -> SetStats(false); 
 	hist_axes -> Draw(); 
 

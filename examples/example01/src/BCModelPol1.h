@@ -20,7 +20,7 @@ class BCModelPol1 : public BCModel
 
  public: 
 
-	// constructors 
+	// constructor 
 
 	BCModelPol1(); 
 
@@ -33,11 +33,13 @@ class BCModelPol1 : public BCModel
 
 	// methods 
 
-	void DefineParameters(); 
+	virtual void DefineParameters(); 
 
-	double LogAPrioriProbability(std::vector <double> parameters); 
+	virtual double LogAPrioriProbability(std::vector <double> parameters); 
 
-	double LogLikelihood(std::vector <double> parameters); 
+	virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
+
+	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
 
 	double FitFunction(std::vector <double> x, std::vector <double> parameters); 	
 

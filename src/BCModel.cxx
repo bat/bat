@@ -973,8 +973,8 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
 							if (p > pmaximum) 
 								{ 
-									BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Probability larger than expected. Set limit to 1.0.")); 
-									pmaximum = 1.0; 
+									BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Probability larger than expected. Set limit to 1.1 x prob..")); 
+									pmaximum = 1.1 * p; 
 								} 
 
 							// delete data object 
@@ -1113,7 +1113,7 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
 	// create histogram 
 
-	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 100, minimum - 0.1 * fabs(minimum), BCMath::Min(0.0, maximum + 0.1 * fabs(minimum))); 
+	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 50, minimum - 0.1 * fabs(minimum), maximum + 0.1 * fabs(minimum)); 
 	hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
 	hist -> SetYTitle("1/N dN/dlog_{10}y"); 
 	hist -> SetStats(kFALSE); 

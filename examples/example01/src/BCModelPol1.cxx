@@ -5,9 +5,9 @@
 BCModelPol1::BCModelPol1() : BCModel()
 {
 
-	// define parameters
+	// define parameters 
 
-	this -> DefineParameters();
+	this -> DefineParameters(); 
 
 }
 
@@ -16,9 +16,9 @@ BCModelPol1::BCModelPol1() : BCModel()
 BCModelPol1::BCModelPol1(const char* name) : BCModel(name)
 {
 
-	// define parameters
+	// define parameters 
 
-	this -> DefineParameters();
+	this -> DefineParameters(); 
 
 }
 
@@ -27,10 +27,10 @@ BCModelPol1::BCModelPol1(const char* name) : BCModel(name)
 void BCModelPol1::DefineParameters()
 {
 
-	// add two parameters which define a line
+	// adds the parameters which define the model and their limits. 
 
-	this -> AddParameter("constant", 1.0, 3.0);  // index 0
-	this -> AddParameter("slope",    0.0, 0.03); // index 1
+	this -> AddParameter("constant", 1.0, 3.0);   // index 0 
+	this -> AddParameter("slope",    0.0, 0.03); // index 1 
 
 }
 
@@ -39,56 +39,52 @@ void BCModelPol1::DefineParameters()
 double BCModelPol1::LogAPrioriProbability(std::vector <double> parameters)
 {
 
-	// get parameter ranges
+	double logprob = 0.; 
 
-	double offset_lower = this -> GetParameter(0) -> GetLowerLimit();
-	double offset_upper = this -> GetParameter(0) -> GetUpperLimit();
+	// in this case we define flat a priopi probability across the whole parameter space
 
-	double slope_lower = this -> GetParameter(1) -> GetLowerLimit();
-	double slope_upper = this -> GetParameter(1) -> GetUpperLimit();
+	double offset_lower = this -> GetParameter(0) -> GetLowerLimit(); 
+	double offset_upper = this -> GetParameter(0) -> GetUpperLimit(); 
 
-	// calculate natural logarithm of the flat probability
-
-	double logprob = 0.;
+	double slope_lower = this -> GetParameter(1) -> GetLowerLimit(); 
+	double slope_upper = this -> GetParameter(1) -> GetUpperLimit(); 
 
 	logprob -= log(offset_upper - offset_lower);
 	logprob -= log(slope_upper - slope_lower);
 
-	return logprob;
+	return logprob; 
 
 }
 
 // --------------------------------------------------------- 
 
-double BCModelPol1::LogLikelihood(std::vector <double> parameters)
+double BCModelPol1::LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters)
 {
 
-	// define log of probability
+	// define data values 
 
-	double logprob = 0.0;
+	//	double x       = datapoint -> GetValue(0); 
+	double y       = datapoint -> GetValue(1); 
+	double sigma_y = datapoint -> GetValue(2); 
 
-	// loop over all data points
+	// calculate expectation value 
 
-	int npoints = this -> GetNDataPoints();
+	double yex = this -> FitFunction(datapoint -> GetValues(), parameters); 
 
-	for (int ipoint = 0; ipoint < npoints; ipoint++)
-		{
-			// define data values
+	// calculate probability for a single measurement 
 
-			//			double x       = this -> GetDataPoint(ipoint) -> GetValue(0);
-			double y       = this -> GetDataPoint(ipoint) -> GetValue(1);
-			double sigma_y = this -> GetDataPoint(ipoint) -> GetValue(2);
+	return BCMath::LogGaus(y, yex, sigma_y, true); 
 
-			// calculate expectation value 
+}
 
-			double yex = this -> FitFunction(this -> GetDataPoint(ipoint) -> GetValues(), parameters); 
+// --------------------------------------------------------- 
 
-			// calculate probability assuming a Gaussian distribution for each point
+double BCModelPol1::LogPoissonProbability(int nentries, std::vector <double> parameters)
+{
 
-			logprob += BCMath::LogGaus(y, yex, sigma_y, true);
-		}
+	// Poisson term is 1. => Log of it is 0.
 
-	return logprob; 
+	return 0.;
 
 }
 
@@ -107,3 +103,4 @@ double BCModelPol1::FitFunction(std::vector <double> x, std::vector <double> par
 }
 
 // --------------------------------------------------------- 
+
