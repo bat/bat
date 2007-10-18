@@ -1157,7 +1157,7 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
 	likelihoodcontainer.clear(); 
 
-return probability; 
+	return probability; 
 
 }
 

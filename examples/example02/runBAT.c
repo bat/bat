@@ -96,15 +96,15 @@ int main()
 	// set limits on data values 
 
 	fModelPol0 -> SetDataBoundaries(0, 0.0, 100.0); 
-	fModelPol0 -> SetDataBoundaries(1, 0.0,   6.0); 
+	fModelPol0 -> SetDataBoundaries(1, 0.0,   4.5); 
 	fModelPol0 -> SetDataBoundaries(2, 0.2,   0.2); 
 
 	fModelPol1 -> SetDataBoundaries(0, 0.0, 100.0); 
-	fModelPol1 -> SetDataBoundaries(1, 0.0,   6.0); 
+	fModelPol1 -> SetDataBoundaries(1, 0.0,   4.5); 
 	fModelPol1 -> SetDataBoundaries(2, 0.2,   0.2); 
 
 	fModelPol2 -> SetDataBoundaries(0, 0.0, 100.0); 
-	fModelPol2 -> SetDataBoundaries(1, 0.0,   6.0); 
+	fModelPol2 -> SetDataBoundaries(1, 0.0,   4.5); 
 	fModelPol2 -> SetDataBoundaries(2, 0.2,   0.2); 
 
 	// set x and y value indices 
@@ -258,41 +258,41 @@ int main()
 	// p-value is estimated. for details on the goodness-of-fit test,
 	// see the manual. 
 
-	if (post_modelpol0 > post_modelpol1 && 
-			post_modelpol0 > post_modelpol2) 
-		{
+	//	if (post_modelpol0 > post_modelpol1 && 
+	//			post_modelpol0 > post_modelpol2) 
+	//		{
 			// performs the goodness-of-fit test. creates 100 ensembles
 			// given the best fit parameters. the frequency distribution is
 			// printed into a .ps file and the conditional probability for
 			// the original data is indicated by a line. 
 
-			//			fModelPol0 -> DoGoodnessOfFitTest(100, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
-			//				Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
-		}
+			fModelPol0 -> DoGoodnessOfFitTest(200, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
+				Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
+			//		}
 
-	if (post_modelpol1 > post_modelpol0 && 
-			post_modelpol1 > post_modelpol2) 
-		{
+			//	if (post_modelpol1 > post_modelpol0 && 
+			//			post_modelpol1 > post_modelpol2) 
+			//		{
 			// performs the goodness-of-fit test. creates 100 ensembles
 			// given the best fit parameters. the frequency distribution is
 			// printed into a .ps file and the conditional probability for
 			// the original data is indicated by a line. 
 
-			//			fModelPol1 -> DoGoodnessOfFitTest(100, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
-			//				Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
-		}
+			fModelPol1 -> DoGoodnessOfFitTest(200, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
+				Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+			//		}
 
-	if (post_modelpol2 > post_modelpol0 && 
-			post_modelpol2 > post_modelpol1) 
-		{
+			//	if (post_modelpol2 > post_modelpol0 && 
+			//			post_modelpol2 > post_modelpol1) 
+			//		{
 			// performs the goodness-of-fit test. creates 100 ensembles
 			// given the best fit parameters. the frequency distribution is
 			// printed into a .ps file and the conditional probability for
 			// the original data is indicated by a line. 
 
-			//			fModelPol2 -> DoGoodnessOfFitTest(100, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
-			//			Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
-		}
+			fModelPol2 -> DoGoodnessOfFitTest(200, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
+				Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
+			//		}
 
 	// ---------------------------------------------------------
 	// summarize
