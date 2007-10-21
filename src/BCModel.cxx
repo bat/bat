@@ -283,6 +283,29 @@ void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperbou
 
 // --------------------------------------------------------- 
 
+void BCModel::SetErrorBandContinuous(bool flag) 
+{
+
+	fErrorBandContinuous = flag; 
+
+	if (flag) 
+		return; 
+
+	// clear x-values 
+
+	fErrorBandX.clear(); 
+
+	// copy data x-values 
+
+	for (int i = 0; i < fDataSet -> GetNDataPoints(); ++i)
+		{
+			fErrorBandX.push_back(fDataSet -> GetDataPoint(i) -> GetValue(fFitFunctionIndexX)); 
+		}
+
+}
+
+// --------------------------------------------------------- 
+
 int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimit) 
 {
 

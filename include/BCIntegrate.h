@@ -668,6 +668,12 @@ class BCIntegrate
 	int fFitFunctionIndexY; 
 
 	/**
+	 * A flag for single point evaluation of the error "band"
+	 */ 
+	bool fErrorBandContinuous; 
+	std::vector <double> fErrorBandX; 
+
+	/**
 	 * The error band histogram and number of bins 
 	 */ 
 	TH2D * fErrorBandXY; 

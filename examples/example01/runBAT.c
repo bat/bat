@@ -87,6 +87,10 @@ int main()
 
 	fModelPol1 -> SetFitFunctionIndices(0, 1); 
 
+	// sset continuous flag false 
+
+	//	fModelPol1 -> SetErrorBandContinuous(false); 
+
 	// ---------------------------------------------------------
 	// marginalize 
 	// ---------------------------------------------------------
@@ -170,6 +174,8 @@ int main()
 	// the screen and to a file.
 
 	fModelPol1 -> PrintSummary(); 
+
+	fModelPol1 -> PrintSummary("output.log"); 
 
 	// ---------------------------------------------------------
 	// Print data with best fit result 

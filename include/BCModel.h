@@ -297,6 +297,11 @@ class BCModel : public BCIntegrate
 
 	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
 
+	/**
+	 * Sets the error band flag to continuous function 
+	 */ 
+	void SetErrorBandContinuous(bool flag); 
+
 	// methods 
 
 	/** 

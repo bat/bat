@@ -35,6 +35,8 @@ BCIntegrate::BCIntegrate()
 	fErrorBandNbinsX = 100; 
 	fErrorBandNbinsY = 200; 
 
+	fErrorBandContinuous = true; 
+
 	fMinuit = 0; 
 }
 
@@ -58,6 +60,8 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 
 	fErrorBandNbinsX = 100; 
 	fErrorBandNbinsY = 200; 
+
+	fErrorBandContinuous = true; 
 
 	fMinuit = 0; 
 }
@@ -718,6 +722,10 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + 
 															0.5 * dy); 
 			fErrorBandXY -> SetStats(kFALSE); 
+
+			for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
+				for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
+					fErrorBandXY -> SetBinContent(ix, iy, 0.0); 
 		}
 
 	// prepare Metro
@@ -750,28 +758,62 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		if (fFitFunctionIndexX >= 0)
 			{
 
-				// loop over x values 
+				// loop over all possible x values ... 
 
-				double x = 0; 
-
-				for (int ix = 0; ix < fErrorBandNbinsX; ix++)
+				if (fErrorBandContinuous)
 					{
-						// calculate x 
+						double x = 0; 
 
-						x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
+						for (int ix = 0; ix < fErrorBandNbinsX; ix++)
+							{
+								// calculate x 
+								
+								x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
+								
+								// calculate y 
+								
+								std::vector <double> xvec; 
+								xvec.push_back(x); 
+								
+								double y = this -> FitFunction(xvec, randx); 
+								
+								xvec.clear(); 
+								
+								// fill histogram 
+								
+								fErrorBandXY -> Fill(x, y); 
+							}
+					}
 
-						// calculate y 
+				// ... or evaluate at the data point x-values 
 
-						std::vector <double> xvec; 
-						xvec.push_back(x); 
+				else
+					{
 
-						double y = this -> FitFunction(xvec, randx); 
+						int ndatapoints = int(fErrorBandX.size()); 
 
-						xvec.clear(); 
+						double x = 0; 
 
-						// fill histogram 
+						for (int ix = 0; ix < ndatapoints; ++ix)
+							{
+								// calculate x 
+								
+								x = fErrorBandX.at(ix); 
+								
+								// calculate y 
+								
+								std::vector <double> xvec; 
+								xvec.push_back(x); 
 
-						fErrorBandXY -> Fill(x, y); 
+								double y = this -> FitFunction(xvec, randx); 
+								
+								xvec.clear(); 
+								
+								// fill histogram 
+								
+								fErrorBandXY -> Fill(x, y); 
+							}
+						
 					}
 			}
 	}
