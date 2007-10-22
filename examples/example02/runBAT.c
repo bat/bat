@@ -95,66 +95,57 @@ int main()
 
 	// set limits on data values 
 
-	fModelPol0 -> SetDataBoundaries(0, 0.0, 100.0); 
-	fModelPol0 -> SetDataBoundaries(1, 0.0,   4.5); 
-	fModelPol0 -> SetDataBoundaries(2, 0.2,   0.2); 
-
-	fModelPol1 -> SetDataBoundaries(0, 0.0, 100.0); 
-	fModelPol1 -> SetDataBoundaries(1, 0.0,   4.5); 
-	fModelPol1 -> SetDataBoundaries(2, 0.2,   0.2); 
-
-	fModelPol2 -> SetDataBoundaries(0, 0.0, 100.0); 
-	fModelPol2 -> SetDataBoundaries(1, 0.0,   4.5); 
-	fModelPol2 -> SetDataBoundaries(2, 0.2,   0.2); 
+	fModelManager -> SetDataBoundaries(0, 0.0, 100.0); 
+	fModelManager -> SetDataBoundaries(1, 0.0,   4.5); 
+	fModelManager -> SetDataBoundaries(2, 0.2,   0.2); 
 
 	// set x and y value indices 
 
-	fModelPol0 -> SetFitFunctionIndices(0, 1); 
-	fModelPol1 -> SetFitFunctionIndices(0, 1); 
-	fModelPol2 -> SetFitFunctionIndices(0, 1); 
+	fModelManager -> SetFitFunctionIndices(0, 1); 
 
 	// ---------------------------------------------------------
-	// initialize 
+	// normalize 
 	// ---------------------------------------------------------
 
-	// initializes the manager. it automatically calculates the
-	// normalizations for each model and calculates the model a
-	// posteriori probabilities. this step might take a while, depending
-	// on the number of parameters.
+	// automatically calculates the normalizations for each model and
+	// calculates the model a posteriori probabilities. this step might
+	// take a while, depending on the number of parameters.
 
+	fModelManager -> SetIntegrationMethod(BCIntegrate::kICuba); 
 
-	fModelManager -> Initialize(); 
+	fModelManager -> Normalize(); 
 
-	fModelPol0 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
-	fModelPol1 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
-	fModelPol2 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+	// ---------------------------------------------------------
+	// find mode 
+	// ---------------------------------------------------------
 
-	fModelPol0 -> FindMode(); 
-	fModelPol1 -> FindMode(); 
-	fModelPol2 -> FindMode(); 
+	// finds mode for all models 
 
-/* 	// --------------------------------------------------------- */
-/* 	// marginalize  */
-/* 	// --------------------------------------------------------- */
+	fModelManager -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+
+	fModelManager -> FindMode(); 
+
+ 	// --------------------------------------------------------- 
+ 	// marginalize  
+ 	// --------------------------------------------------------- 
 
 	// selects the most probable model and marginalizes the probability
 	// density with respect to all parameters
 
-	// first, remember the model a posterior probabilities. 
+	fModelManager -> SetNbins(100); 
+
+	// marginalizes the probability density with respect to all
+	// parameters for all models. 
+
+	fModelManager -> MarginalizeAll(); 
+
+	// remember the model a posterior probabilities. 
 
 	double post_modelpol0 = fModelPol0 -> GetModelAPosterioriProbability(); 
 	double post_modelpol1 = fModelPol1 -> GetModelAPosterioriProbability(); 
 	double post_modelpol2 = fModelPol2 -> GetModelAPosterioriProbability(); 
 
-	// select 0th order polynomial model. 
-
-	// marginalizes the probability density with respect to all
-	// parameters, i.e. constant and slope and with respect to all
-	// combinations of two parameters, in this case constant-slope. the
-	// number of bins define the numerical precision. 
-	
-	fModelPol0 -> SetNbins(100); 
-	fModelPol0 -> MarginalizeAll();
+	// 0th order polynomial model. 
 	
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
@@ -162,16 +153,13 @@ int main()
 	
 	fModelPol0 -> GetMarginalized("constant") -> Print("modelpol0_constant.ps");
 
-	// select 1st order polynomial model. 
+	// 1st order polynomial model. 
 	
 	// marginalizes the probability density with respect to all
 	// parameters, i.e. constant and slope and with respect to all
 	// combinations of two parameters, in this case constant-slope. the
 	// number of bins define the numerical precision. 
-	
-	fModelPol1 -> SetNbins(100); 
-	fModelPol1 -> MarginalizeAll();
-	
+		
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
 	// into a .ps file. 
@@ -185,15 +173,12 @@ int main()
 	
 	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
 
-	// select 2nd order polynomial model. 
+	// 2nd order polynomial model. 
 
 	// marginalizes the probability density with respect to all
 	// parameters, i.e. constant and slope and with respect to all
 	// combinations of two parameters, in this case constant-slope. the
 	// number of bins define the numerical precision. 
-	
-	fModelPol2 -> SetNbins(100); 
-	fModelPol2 -> MarginalizeAll();
 	
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
@@ -203,9 +188,9 @@ int main()
 	fModelPol2 -> GetMarginalized("slope")             -> Print("modelpol2_slope.ps");
 	fModelPol2 -> GetMarginalized("quad")              -> Print("modelpol2_quad.ps");
 	
-	// the one-dimensional marginalized probability densities are kept
-	// in memory and are returned from the model class. they are printed
-	// into a .ps file. 
+	// the two-dimensional marginalized probability densitiy is kept in
+	// memory and is returned from the model class. it is printed into a
+	// .ps file.
 	
 	fModelPol2 -> GetMarginalized("constant", "slope") -> Print("modelpol2_constant_slope.ps", 2);
 	fModelPol2 -> GetMarginalized("constant", "quad")  -> Print("modelpol2_constant_quad.ps", 2);

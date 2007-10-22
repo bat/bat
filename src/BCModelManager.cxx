@@ -84,6 +84,186 @@ void BCModelManager::SetNIterationsMax(int niterations)
 
 // --------------------------------------------------------- 
 
+void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
+{
+
+	// set integration method for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetIntegrationMethod(method); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
+{ 
+
+		// set marginalization method for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetMarginalizationMethod(method); 
+
+};
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetModeFindingMethod(BCIntegrate::BCModeFindingType method)
+{
+
+	// set mode finding method for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetModeFindingMethod(method); 
+	
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetNiterationsPerDimension(int niterations)
+{
+
+	// set number of iterations per dimension for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNiterationsPerDimension(niterations); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetNSamplesPer2DBin(int n)
+{
+
+	// set samples per 2d bin for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNSamplesPer2DBin(n); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetRelativePrecision(double relprecision) 
+{
+
+	// set relative precision for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetRelativePrecision(relprecision); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetNbins(int n)
+{
+
+	// set number of bins for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNbins(n); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetFitFunctionIndexX(int index) 
+{
+
+	// set fit function x index for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetFitFunctionIndexX(index); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetFitFunctionIndexY(int index) 
+{
+
+	// set  fit function y index for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetFitFunctionIndexY(index); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetFitFunctionIndices(int indexx, int indexy)
+{
+
+	// set fit function indices for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetFitFunctionIndices(indexx, indexy); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries)
+{
+
+	// set lower boundary point for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointLowerBoundaries(datasetlowerboundaries); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries)
+{
+
+	// set upper boundary point for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointUpperBoundaries(datasetupperboundaries); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetDataPointLowerBoundary(int index, double lowerboundary)
+{
+
+	// set lower bounday values for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointLowerBoundary(index, lowerboundary); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetDataPointUpperBoundary(int index, double upperboundary)
+{
+
+	// set upper boundary values for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointUpperBoundary(index, upperboundary); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::SetDataBoundaries(int index, double lowerboundary, double upperboundary) 
+{
+	
+	// set lower and upper boundary values for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataBoundaries(index, lowerboundary, upperboundary); 
+
+}
+
+// --------------------------------------------------------- 
+
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
 
@@ -206,10 +386,11 @@ int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 
 // ---------------------------------------------------------
 
-void BCModelManager::Initialize()
+void BCModelManager::Normalize()
 {
 
 	// initialize likelihood norm
+
 	double normalization = 0.0;
 
 	BCLog::Out(BCLog::summary, BCLog::summary, "Running normalization of all models.");
@@ -233,6 +414,30 @@ void BCModelManager::Initialize()
 					(fModelContainer -> at(i) -> GetNormalization() *
 					fModelContainer -> at(i) -> GetModelAPrioriProbability()) /
 					normalization);
+}
+
+// ---------------------------------------------------------
+
+void BCModelManager::FindMode()
+{
+
+	// finds mode for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> FindMode(); 
+
+}
+
+// ---------------------------------------------------------
+
+void BCModelManager::MarginalizeAll()
+{
+
+	// marginalizes all models registered
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> MarginalizeAll(); 
+
 }
 
 // ---------------------------------------------------------

@@ -61,6 +61,18 @@ int main()
 	fModelPol1 -> SetDataSet(fDataSet); 
 
 	// ---------------------------------------------------------
+	// normalize 
+	// ---------------------------------------------------------
+
+	// automatically calculates the normalization and the model a
+	// posteriori probabilities. this step might take a while, depending
+	// on the number of parameters.
+
+	fModelPol1 -> SetIntegrationMethod(BCIntegrate::kICuba); 
+
+	fModelPol1 -> Normalize(); 
+
+	// ---------------------------------------------------------
 	// find mode 
 	// ---------------------------------------------------------
 
@@ -174,8 +186,6 @@ int main()
 	// the screen and to a file.
 
 	fModelPol1 -> PrintSummary(); 
-
-	fModelPol1 -> PrintSummary("output.log"); 
 
 	// ---------------------------------------------------------
 	// Print data with best fit result 

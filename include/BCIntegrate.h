@@ -247,27 +247,28 @@ class BCIntegrate
 	{ fNIterationsMax = niterations; }; 
 
 	/** 
-	 * @param relprecision The relative precision envisioned for Monte Carlo integration 
+	 * @param relprecision The relative precision envisioned for Monte
+	 * Carlo integration
 	 */ 
 	void SetRelativePrecision(double relprecision) 
 	{ fRelativePrecision = relprecision; }; 
 
 	/**
-	 * @param n Number of bins per dimension for the marginalized distributions.
-	 * Default is 100. Minimum number allowad is 2.
+	 * @param n Number of bins per dimension for the marginalized
+	 * distributions.  Default is 100. Minimum number allowed is 2.
 	 */
 	void SetNbins(int n);
 
 	/**
 	 * Sets index of the x values in function fits. 
-	 * @param index Index of the x values 
+	 * @param index Index of the x values
 	 */  
 	void SetFitFunctionIndexX(int index) 
 	{ fFitFunctionIndexX = index; }; 
 	 
 	/**
-	 * Sets index of the y values in function fits. 
-	 * @param index Index of the y values 
+	 * Sets index of the y values in function fits. @param index Index
+	 * of the y values
 	 */  
 	void SetFitFunctionIndexY(int index) 
 	{ fFitFunctionIndexY = index; }; 
@@ -277,25 +278,29 @@ class BCIntegrate
 		this -> SetFitFunctionIndexY(indexy); }; 
 	
 	/**
-	 * Sets the data point containing the lower boundaries of possible data values 
+	 * Sets the data point containing the lower boundaries of possible
+	 * data values
 	 */ 
 	void SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries)
 	{ fDataPointLowerBoundaries = datasetlowerboundaries; }; 
 
 	/**
-	 * Sets the data point containing the upper boundaries of possible data values 
+	 * Sets the data point containing the upper boundaries of possible
+	 * data values
 	 */ 
 	void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries)
 	{ fDataPointUpperBoundaries = datasetupperboundaries; }; 
 
 	/**
-	 * Sets the lower boundary of possible data values for a particular variable  
+	 * Sets the lower boundary of possible data values for a particular
+	 * variable
 	 */ 
 	void SetDataPointLowerBoundary(int index, double lowerboundary)
 	{ fDataPointLowerBoundaries -> SetValue(index, lowerboundary); }; 
 
 	/**
-	 * Sets the upper boundary of possible data values for a particular variable  
+	 * Sets the upper boundary of possible data values for a particular
+	 * variable
 	 */ 
 	void SetDataPointUpperBoundary(int index, double upperboundary)
 	{ fDataPointUpperBoundaries -> SetValue(index, upperboundary); }; 
@@ -407,7 +412,7 @@ class BCIntegrate
 	 * @param parameters_int A vector of parameters (int) 
 	 * @return The integral
 	 */
-	double CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<int> parameters_int); 
+	double CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int); 
 
 	double CubaIntegrate(); 
 

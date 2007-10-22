@@ -1412,6 +1412,12 @@ void BCModel::PrintSummary()
 			<<"       p-value         = "<< fPValue <<endl
 			<<endl;
 	}
+
+	// normalization 
+
+	if (fNormalization > 0) 
+		cout <<"     Normalization        : " << fNormalization << endl; 
+
 }
 
 // --------------------------------------------------------- 

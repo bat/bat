@@ -98,6 +98,89 @@ class BCModelManager
 	 */ 
 	void SetNIterationsMax(int niterations);
 
+	/** 
+	 * @param method The marginalization method 
+	 */ 
+	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method); 
+
+	/** 
+	 * @param method The integration method
+	 */ 
+	void SetIntegrationMethod(BCIntegrate::BCIntegrationType method); 
+
+	/** 
+	 * @param method The mode finding method 
+	 */ 
+	void SetModeFindingMethod(BCIntegrate::BCModeFindingType method); 
+
+	/**
+	 * @param niterations Number of iterations per dimension for Monte
+	 * Carlo integration.
+	 */
+	void SetNiterationsPerDimension(int niterations); 
+	/**
+	 * @param n Number of samples per 2D bin per variable in the
+	 * Metropolis marginalization.  Default is 100.
+	 */
+	void SetNSamplesPer2DBin(int n); 
+
+	/** 
+	 * @param relprecision The relative precision envisioned for Monte
+	 * Carlo integration
+	 */ 
+	void SetRelativePrecision(double relprecision); 
+
+	/**
+	 * @param n Number of bins per dimension for the marginalized
+	 * distributions.  Default is 100. Minimum number allowed is 2.
+	 */
+	void SetNbins(int n);
+
+	/**
+	 * Sets index of the x values in function fits. 
+	 * @param index Index of the x values 
+	 */  
+	void SetFitFunctionIndexX(int index); 
+	 
+	/**
+	 * Sets index of the y values in function fits. 
+	 * @param index Index of the y values 
+	 */  
+	void SetFitFunctionIndexY(int index); 
+
+	void SetFitFunctionIndices(int indexx, int indexy); 
+	
+	/**
+	 * Sets the data point containing the lower boundaries of possible
+	 * data values
+	 */ 
+	void SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries); 
+
+	/**
+	 * Sets the data point containing the upper boundaries of possible
+	 * data values
+	 */ 
+	void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries); 
+
+	/**
+	 * Sets the lower boundary of possible data values for a particular
+	 * variable
+	 */ 
+	void SetDataPointLowerBoundary(int index, double lowerboundary); 
+
+	/**
+	 * Sets the upper boundary of possible data values for a particular
+	 * variable
+	 */ 
+	void SetDataPointUpperBoundary(int index, double upperboundary); 
+
+	/**
+	 * Set the lower and upper boundaries for possible data values for a
+	 * particular variable
+	 */ 
+	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
+
+
 	// methods 
 
 	/** 
@@ -152,9 +235,21 @@ class BCModelManager
 	int ReadDataFromFileUser(const char *  filename, std::vector<int> options_int, std::vector<double> options_double);
 
 	/** 
-	 * Calculates the normalization of the likelihood for each model in the container. 
+	 * Calculates the normalization of the likelihood for each model in
+	 * the container.
 	 */   
-	void Initialize(); 
+	void Normalize(); 
+
+	/**
+	 * Does the mode finding 
+	 */ 
+	void FindMode(); 
+
+	/**
+	 * Marginalize all probabilities wrt. single parameters and all
+	 * combinations of two parameters for all models. 
+	 */ 
+	void MarginalizeAll(); 
 
 	/**
 	 * Resets the data set 

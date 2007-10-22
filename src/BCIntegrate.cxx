@@ -1469,14 +1469,14 @@ double BCIntegrate::CubaIntegrate()
 {
 	double EPSREL = 1e-3; 
 	double EPSABS = 1e-12; 
-	int VERBOSE   = 0; 
-	int MINEVAL   = 0; 
-	int MAXEVAL   = 2000000; 
-	int NSTART    = 25000; 
-	int NINCREASE = 25000; 
+	double VERBOSE   = 0; 
+	double MINEVAL   = 0; 
+	double MAXEVAL   = 2000000; 
+	double NSTART    = 25000; 
+	double NINCREASE = 25000; 
 
 	std::vector<double> parameters_double; 
-	std::vector<int>    parameters_int; 
+	std::vector<double>    parameters_int; 
 
 	parameters_double.push_back(EPSREL); 
 	parameters_double.push_back(EPSABS); 
@@ -1491,16 +1491,16 @@ double BCIntegrate::CubaIntegrate()
 }
 
 // *********************************************
-double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<int> parameters_int) 
+double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int) 
 {
 	const int NDIM      = int(fx ->size()); 
 	const int NCOMP     = 1; 
 
 	const double EPSREL = parameters_double[0]; 
 	const double EPSABS = parameters_double[1]; 
-	const int VERBOSE   = parameters_int[0]; 
-	const int MINEVAL   = parameters_int[1]; 
-	const int MAXEVAL   = parameters_int[2]; 
+	const int VERBOSE   = int(parameters_int[0]); 
+	const int MINEVAL   = int(parameters_int[1]); 
+	const int MAXEVAL   = int(parameters_int[2]); 
 
 	int neval;
 	int fail;
@@ -1516,8 +1516,8 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 	if (method == 0)
 	{
 		// set VEGAS specific parameters 
-		const int NSTART    = parameters_int[3]; 
-		const int NINCREASE = parameters_int[4]; 
+		const int NSTART    = int(parameters_int[3]); 
+		const int NINCREASE = int(parameters_int[4]); 
 
 		// call VEGAS integration method  
 		Vegas(NDIM, NCOMP, an_integrand,
@@ -1528,9 +1528,9 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 	else if (method == 1)
 	{
 		// set SUAVE specific parameters 
-		const int LAST     = parameters_int[3]; 
-		const int NNEW     = parameters_int[4]; 
-		const int FLATNESS = parameters_int[5]; 
+		const int LAST     = int(parameters_int[3]); 
+		const int NNEW     = int(parameters_int[4]); 
+		const int FLATNESS = int(parameters_int[5]); 
 
 		// call SUAVE integration method 
 		Suave(NDIM, NCOMP, an_integrand,
@@ -1541,16 +1541,16 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 	else if (method == 2)
 	{
 		// set DIVONNE specific parameters 
-		const int KEY1         = parameters_int[3]; 
-		const int KEY2         = parameters_int[4]; 
-		const int KEY3         = parameters_int[5]; 
-		const int MAXPASS      = parameters_int[6]; 
-		const int BORDER       = parameters_int[7]; 
-		const int MAXCHISQ     = parameters_int[8]; 
-		const int MINDEVIATION = parameters_int[9]; 
-		const int NGIVEN       = parameters_int[10]; 
-		const int LDXGIVEN     = parameters_int[11]; 
-		const int NEXTRA       = parameters_int[12]; 
+		const int KEY1         = int(parameters_int[3]); 
+		const int KEY2         = int(parameters_int[4]); 
+		const int KEY3         = int(parameters_int[5]); 
+		const int MAXPASS      = int(parameters_int[6]); 
+		const int BORDER       = int(parameters_int[7]); 
+		const int MAXCHISQ     = int(parameters_int[8]); 
+		const int MINDEVIATION = int(parameters_int[9]); 
+		const int NGIVEN       = int(parameters_int[10]); 
+		const int LDXGIVEN     = int(parameters_int[11]); 
+		const int NEXTRA       = int(parameters_int[12]); 
 
 		// call DIVONNE integration method 
 		Divonne(NDIM, NCOMP, an_integrand,
@@ -1562,8 +1562,8 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 	else if (method == 3) 
 	{
 		// set CUHRE specific parameters 
-		const int LAST = parameters_int[3]; 
-		const int KEY  = parameters_int[4]; 
+		const int LAST = int(parameters_int[3]); 
+		const int KEY  = int(parameters_int[4]); 
 
 		// call CUHRE integration method 
 		Cuhre(NDIM, NCOMP, an_integrand,
