@@ -20,15 +20,15 @@ int CreateSpectrum()
   
   // parameters 
 
-  double background =  100.0; 
-  double signal     =   50.0; 
+  double background =   10.0; 
+  double signal     =   20.0; 
   double mean       = 2039.0; 
-  double sigma      =    2.5; 
+  double sigma      =    2.0; 
 
-  int nbins = 40; 
+  int nbins = 21; 
 
-  double Emin = mean - 10.0; 
-  double Emax = mean + 10.0; 
+  double Emin = mean - 10.5; 
+  double Emax = mean + 10.5; 
   double dE   = (Emax - Emin) / double(nbins); 
 
   // initialize random number generator 

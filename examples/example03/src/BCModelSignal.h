@@ -39,6 +39,8 @@ class BCModelSignal : public BCModel
 
 	virtual double LogLikelihood(std::vector <double> parameters); 
 
+	double FitFunction(std::vector <double> x, std::vector <double> parameters); 
+
  private: 
 
 	double integral_f_B(double E, double dE, int nbins); 

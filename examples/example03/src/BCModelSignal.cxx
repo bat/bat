@@ -65,20 +65,20 @@ double BCModelSignal::LogLikelihood(std::vector <double> parameters)
 
 	double logprob = 0.0; 
 
+	// get histogram parameters 
+
+	int nbins = this -> GetNDataPoints(); 
+
+	double Emin = this -> GetDataPoint(0) -> GetValue(0); 
+	double Emax = this -> GetDataPoint(0) -> GetValue(1); 
+	double dE   = (Emax - Emin) / double(nbins); 
+
 	// get parameter values 
 
 	double background = parameters.at(0); 
 	double signal     = parameters.at(1); 
 
 	// loop over all data points 
-
-	int nbins = this -> GetNDataPoints(); 
-
-	// get histogram parameters 
-
-	double Emin = this -> GetDataPoint(0) -> GetValue(0); 
-	double Emax = this -> GetDataPoint(0) -> GetValue(1); 
-	double dE   = (Emax - Emin) / double(nbins); 
 
 	for (int ipoint = 1; ipoint < nbins; ipoint++)
 		{      
@@ -89,8 +89,8 @@ double BCModelSignal::LogLikelihood(std::vector <double> parameters)
 
 			// calculate probability 
 
-			double expected = (background * this -> integral_f_B(energy, dE, nbins) * dE 
-												 + signal * this -> integral_f_S(energy, dE, nbins)); 
+			double expected = background * this -> integral_f_B(energy, dE, nbins) 
+				+ signal * this -> integral_f_S(energy, dE, nbins); 
 			
 			logprob += events * log (expected) - BCMath::ApproxLogFact(events) - expected; 
 		}
@@ -114,12 +114,31 @@ double BCModelSignal::integral_f_S(double E, double dE, int nbins)
 {
 
 	double mean  = 2039.0; 
-	double sigma =    2.5; 
+	double sigma =    2.0; 
 	double t1     = (E - mean) / (sqrt(2.0) * sigma); 
 	double t2     = (E + dE - mean) / (sqrt(2.0) * sigma); 
 
 	return 0.5 * (TMath::Erf(t2) - TMath::Erf(t1)); 
 
+}
+
+// --------------------------------------------------------- 
+
+double BCModelSignal::FitFunction(std::vector <double> x, std::vector <double> parameters)
+{
+
+	int nbins = int(this -> GetNDataPoints() - 1); 
+
+ 	double Emin = this -> GetDataPoint(0) -> GetValue(0); 
+	double Emax = this -> GetDataPoint(0) -> GetValue(1); 
+	double dE   = (Emax - Emin) / double(nbins); 
+
+	double mean  = 2039.0; 
+	double sigma =    2.0; 
+
+	return parameters.at(0)/double(nbins) + 
+		parameters.at(1) * dE * TMath::Gaus(x.at(0), mean, sigma, true); 
+	
 }
 
 // --------------------------------------------------------- 

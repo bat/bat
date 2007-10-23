@@ -112,6 +112,12 @@ namespace BCMath
 	 */ 
 	double rms(int n, const double * a);
 
+	/*
+	 * Calculates the logarithm of the non-relativistic Breit-Wigner
+	 * distribution. 
+	 */
+	double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm = false); 
+
 };
 
 // --------------------------------------------------------- 

@@ -185,6 +185,9 @@ void BCH2D::Print(const char * filename, int options)
 			legend -> Draw(); 
     }
 
+	if (options == 5) 
+		fHistogram -> Draw("COL"); 
+
 	// print to file 
 
 	canvas -> Print(filename); 

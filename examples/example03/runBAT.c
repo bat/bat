@@ -79,11 +79,23 @@ int main()
 	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 2) != 0) 
 		return -1; 
 
-
 	// assigns the data set to the model manager. the manager
 	// automatically assigns the same data set to all three models.
 
 	fModelManager -> SetDataSet(fDataSet);
+
+	// ---------------------------------------------------------
+	// prepare calculation of error band 
+	// ---------------------------------------------------------
+
+	// set limits on data values 
+
+	fModelManager -> SetDataBoundaries(0, fDataSet -> GetDataPoint(0) -> GetValue(0), fDataSet -> GetDataPoint(0) -> GetValue(1)); 
+	fModelManager -> SetDataBoundaries(1, 0.0, 20); 
+
+	// set x and y value indices 
+
+	fModelManager -> SetFitFunctionIndices(0, 1); 
 
 	// ---------------------------------------------------------
 	// initialize
@@ -94,7 +106,19 @@ int main()
 	// posteriori probabilities. this step might take a while, depending
 	// on the number of parameters.
 
-	fModelManager -> Initialize();
+	fModelManager -> SetIntegrationMethod(BCIntegrate::kICuba); 
+
+	fModelManager -> Normalize();
+
+	// ---------------------------------------------------------
+	// find mode 
+	// ---------------------------------------------------------
+
+	// finds mode for all models 
+
+	fModelManager -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+
+	fModelManager -> FindMode(); 
 
 	// ---------------------------------------------------------
 	// marginalize 
@@ -146,7 +170,9 @@ int main()
 			// memory and is returned from the model class. it is printed into a
 			// .ps file.
 
-			fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal.ps", 2);
+			fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_contour.ps", 2);
+
+			fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_color.ps", 5);
 		}
 
  // ---------------------------------------------------------
@@ -163,8 +189,8 @@ int main()
 
 	// defines a new canvas 
 
-	TCanvas* canvas_bestfit = new TCanvas(); 
-	canvas_bestfit -> cd(); 
+	TCanvas* canvas_summary = new TCanvas(); 
+	canvas_summary -> cd(); 
 
 	// defines the spectrum histogram 
 
@@ -208,7 +234,7 @@ int main()
 
 	func_sgn -> SetParameter(0, fModelSignal -> GetBestFitParameter(0) / double(Nbins)); 
 	func_sgn -> SetParameter(1, fModelSignal -> GetBestFitParameter(1) * dE); 
-	func_sgn -> SetParameter(2, 2.5); 
+	func_sgn -> SetParameter(2, 2.0); 
 	func_sgn -> SetParameter(3, 2039.0); 
 
 	// draws the functions 
@@ -228,7 +254,48 @@ int main()
 
 	// print the canvas to a .ps file 
 
-	canvas_bestfit -> Print("data.ps"); 
+	canvas_summary -> Print("data.ps"); 
+
+	// defines a new canvas 
+
+	TCanvas* canvas_bestfit = new TCanvas(); 
+	canvas_bestfit -> cd(); 
+
+	// draw data 
+
+	hist_data -> Draw(); 
+
+	// draw error band and best fit function of best model 
+
+	if (post_modelbkg > post_modelsgn)
+		{
+			hist_data -> Draw();
+			fModelBackground -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
+			func_bkg -> SetLineColor(kBlack); 
+			func_bkg -> Draw("SAME"); 
+			//			fModelPol0 -> GetErrorBandXY() -> Draw("COL");	
+			//			graph_bestfit_pol0 -> SetLineColor(kBlack); 
+			//			graph_bestfit_pol0 -> Draw("SAMEC"); 
+		}
+
+	if (post_modelsgn > post_modelbkg)
+		{
+			hist_data -> Draw();
+			fModelSignal -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
+			func_sgn -> SetLineColor(kBlack); 
+			func_sgn -> Draw("SAME"); 
+			//			fModelPol0 -> GetErrorBandXY() -> Draw("COL");	
+			//			graph_bestfit_pol0 -> SetLineColor(kBlack); 
+			//			graph_bestfit_pol0 -> Draw("SAMEC"); 
+		}
+
+	// draw data 
+
+	hist_data -> Draw("SAME"); 
+
+	// print the canvas to a .ps file 
+
+	canvas_bestfit -> Print("data_bestfit.ps"); 
 
  // close log file 
 

@@ -1181,7 +1181,7 @@ void BCIntegrate::FindModeMinuit()
 		fMinuit -> mnparm(i, 
 											fx -> at(i) -> GetName(), 
 											(fMin[i]+fMax[i])/2.0, 
-											(fMax[i]-fMin[i])/1000.0, 
+											(fMax[i]-fMin[i])/100.0, 
 											fMin[i],
 											fMax[i], 
 											flag); 
@@ -1190,8 +1190,8 @@ void BCIntegrate::FindModeMinuit()
 
 	double arglist[2]; 
 
-	arglist[0] = 500; 
-	arglist[1] = 0.1; 
+	arglist[0] = 1000; 
+	arglist[1] = 0.01; 
 
 	fMinuit -> mnexcm("MIGRAD", arglist, 2, flag);
 

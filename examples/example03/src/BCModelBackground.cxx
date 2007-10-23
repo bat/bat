@@ -103,4 +103,15 @@ double BCModelBackground::integral_f_B(double E, double dE, int nbins)
 
 // --------------------------------------------------------- 
 
+double BCModelBackground::FitFunction(std::vector <double> x, std::vector <double> parameters)
+{
+
+	int nbins = int(this -> GetNDataPoints() - 1); 
+
+	return parameters.at(0)/double(nbins); 
+	
+}
+
+// --------------------------------------------------------- 
+
 

@@ -197,3 +197,18 @@ double BCMath::rms(int n, const double *a)
 }
 
 // --------------------------------------------------------- 
+
+double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm)
+{
+
+	double bw = log(Gamma) - log( (x - mean) * (x - mean) + Gamma * Gamma / 4.0); 
+
+	if (norm)
+		return bw - log(2. * M_PI); 
+
+	else
+		return bw; 
+
+}
+
+// --------------------------------------------------------- 
