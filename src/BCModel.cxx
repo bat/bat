@@ -3,6 +3,8 @@
 #include "BCErrorCodes.h"
 #include "BCMath.h"
 
+#include "TDirectory.h" 
+
 #include <fstream.h>
 
 // --------------------------------------------------------- 
@@ -238,6 +240,37 @@ TGraph * BCModel::GetFitFunctionGraph(std::vector <double> parameters)
 		}
 
 	return graph; 
+
+}
+
+// ---------------------------------------------------------
+
+void BCModel::SetSingleDataPoint(BCDataPoint * datapoint) 
+{
+
+	// create new data set consisting of a single data point 
+
+	BCDataSet * dataset = new BCDataSet(); 
+
+	// add the data point 
+
+	dataset -> AddDataPoint(datapoint); 
+
+	// set this new data set 
+
+	this -> SetDataSet(dataset); 
+
+}
+
+// ---------------------------------------------------------
+
+void BCModel::SetSingleDataPoint(BCDataSet * dataset, int index)
+{
+
+	if (index < 0 || index > dataset -> GetNDataPoints())
+		return; 
+
+	this -> SetSingleDataPoint(dataset -> GetDataPoint(index)); 
 
 }
 
@@ -785,6 +818,10 @@ void BCModel::CreateData(int ndatasets, std::vector <double> parameters)
 void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits) 
 {
 
+	// remember of directory 
+
+	TDirectory * dir = gDirectory; 
+
 	// define data stream 
 
 	std::fstream stream_data; 
@@ -1041,6 +1078,10 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 	// close list stream 
 
 	stream_list.close(); 
+
+	// return to old directory 
+
+	gDirectory = dir; 
 
 }
 

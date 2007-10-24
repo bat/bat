@@ -7,12 +7,8 @@ ROOTGLIBS    := $(shell root-config --glibs)
 CXX          = g++
 CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
 LD           = g++
-LDFLAGS      = -g -O2 
+LDFLAGS      = -g -O2
 SOFLAGS      = -shared
-
-AR           = ar
-ARFLAGS      = rc
-RANLIB       = ranlib
 
 RM           = rm -f 
 MV           = mv 
@@ -21,54 +17,36 @@ CINT         = rootcint
 
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) 
-CXXFLAGS    += -I./include -I./src -I./
-LIBS        += $(ROOTLIBS) -L. -lcuba 
-GLIBS       += $(ROOTGLIBS) -L.
+CXXFLAGS    += -I./src/ -I./ -I../../include/ 
+LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
+GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
 
-CXSRCS      = BCParameter.cxx \
-		BCModel.cxx \
-		BCModelOutput.cxx \
-		BCDataPoint.cxx \
-		BCDataSet.cxx \
-		BCH1D.cxx \
-		BCH2D.cxx \
-		BCIntegrate.cxx \
-		BCModelManager.cxx \
-		BCLog.cxx \
-		BCMath.cxx
-
-LIBA         = libBAT.a
-LIBSO        = libBAT.so
+CXSRCS      = BCModelParticleDecay.cxx 
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
-CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
+CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(LIBA) $(LIBSO) link.d
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o link.d runBAT
 
-all : libs
+all : runBAT
 
-libs : $(LIBA) $(LIBSO)
-
-link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))
+link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
 
 include link.d
 
-obj/%.o : src/%.cxx 
+%.o : src/%.cxx 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-$(LIBSO) : $(CXXOBJS)  
-	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $(LIBSO)
-
-$(LIBA) : $(CXXOBJS)
-	$(AR)  $(ARFLAGS) $(LIBA) $(CXXOBJS)
-	$(RANLIB) $(LIBA)
 
 clean :
 	$(RM) $(GARBAGE)
+
+runBAT : runBAT.c $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBAT.o $(CXXOBJS) -o runBAT
 
 print :
 	echo compiler  : $(CXX)
@@ -81,6 +59,5 @@ print :
 
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
-
 
 

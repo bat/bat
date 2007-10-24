@@ -1,5 +1,6 @@
 #include <BCModelPol1.h>
 #include <BCLog.h>
+#include <BCModelOutput.h> 
 
 #include "style.c" 
 
@@ -40,6 +41,15 @@ int main()
 	// construction of the model.
 
 	BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
+
+	// ---------------------------------------------------------
+	// model output file 
+	// ---------------------------------------------------------
+	
+	// creates a ROOT output file which stores all the necessary
+	// information. 
+
+	BCModelOutput * fModelOutputPol1 = new BCModelOutput(fModelPol1, "output.root"); 
 
 	// ---------------------------------------------------------
 	// read data from file 
@@ -112,7 +122,7 @@ int main()
 	// combinations of two parameters, in this case constant-slope. the
 	// number of bins define the numerical precision. 
 
-	fModelPol1 -> SetNbins(100);
+	fModelPol1 -> SetNbins(10);
  	fModelPol1 -> MarginalizeAll();
 
 	// the one-dimensional marginalized probability densities are kept
@@ -177,6 +187,17 @@ int main()
 	fModelPol1 -> DoGoodnessOfFitTest(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
 		Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 	
+	// ---------------------------------------------------------
+	// write to output file 
+	// ---------------------------------------------------------
+
+	// fill the ROOT file with the actual output of the model. 
+
+	fModelOutputPol1 -> Fill(); 
+
+	// write to file and close 
+
+	fModelOutputPol1 -> Close(); 
 
 	// ---------------------------------------------------------
 	// summarize

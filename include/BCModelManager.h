@@ -92,6 +92,14 @@ class BCModelManager
 	void SetDataSet(BCDataSet * dataset); 
 
 	/**
+	 * Sets a single data point as data set. 
+	 * @param datapoint A data point 
+	 */ 
+	void SetSingleDataPoint(BCDataPoint * datapoint); 
+
+	void SetSingleDataPoint(BCDataSet * dataset, int index); 
+
+	/**
 	 * Set maximum number of iterations for all models added to the manager.
 	 * Only works on models already added to the manager.
 	 * @param niterations

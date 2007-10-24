@@ -45,6 +45,37 @@ void BCModelManager::SetDataSet(BCDataSet * dataset)
 
 // ---------------------------------------------------------
 
+void BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint) 
+{
+
+	// create new data set consisting of a single data point 
+
+	BCDataSet * dataset = new BCDataSet(); 
+
+	// add the data point 
+
+	dataset -> AddDataPoint(datapoint); 
+
+	// set this new data set 
+
+	this -> SetDataSet(dataset); 
+
+}
+
+// ---------------------------------------------------------
+
+void BCModelManager::SetSingleDataPoint(BCDataSet * dataset, int index)
+{
+
+	if (index < 0 || index > dataset -> GetNDataPoints())
+		return; 
+
+	this -> SetSingleDataPoint(dataset -> GetDataPoint(index)); 
+
+}
+
+// ---------------------------------------------------------
+
 void BCModelManager::AddModel(BCModel * model, double probability) 
 {
 

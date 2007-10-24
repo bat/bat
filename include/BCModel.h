@@ -283,6 +283,15 @@ class BCModel : public BCIntegrate
 	 */ 
 	void SetDataSet(BCDataSet* dataset)
 	{ fDataSet = dataset; fNormalization = -1.0; };
+
+	/**
+	 * Sets a single data point as data set. 
+	 * @param datapoint A data point 
+	 */ 
+	void SetSingleDataPoint(BCDataPoint * datapoint); 
+
+	void SetSingleDataPoint(BCDataSet * dataset, int index); 
+
 	/**
 	 * Sets the minimum number of data points. 
 	 */ 
