@@ -193,7 +193,9 @@ int main()
 
 	// fill the ROOT file with the actual output of the model. 
 
-	fModelOutputPol1 -> Fill(); 
+	fModelOutputPol1 -> FillAnalysisTree(); 
+
+	fModelOutputPol1 -> WriteMarginalizedDistributions(); 
 
 	// write to file and close 
 

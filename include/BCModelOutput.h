@@ -15,6 +15,7 @@
  * 
  * REVISION: 
  *
+ * 25.10.2007 Kevin, added margnialized histograms to output 
  *
  * --------------------------------------------------------- 
  *
@@ -76,15 +77,26 @@ class BCModelOutput
 	/**
 	 * Returns the ROOT tree 
 	 */ 
+	TTree * GetAnalysisTree()
+		{ return fAnalysisTree; }; 
 
-	TTree * GetTree(); 
+	/**
+	 * Returns the ROOT file 
+	 */
+	TFile * GetFile()
+		{ return fOutputFile; }; 
 
 	// methods 
 
 	/**
 	 * Fill the output tree with the current information
 	 */ 
-	void Fill(); 
+	void FillAnalysisTree(); 
+
+	/**
+	 * Writes the marginalized histograms to the ROOT file 
+	 */ 
+	void WriteMarginalizedDistributions(); 
 
 	/**
 	 * Closes the file 
@@ -96,12 +108,12 @@ class BCModelOutput
 	/**
 	 * Initializes the output tree 
 	 */
-	void InitializeTree(); 
+	void InitializeAnalysisTree(); 
 
 	/**
 	 * The output tree 
 	 */
-	TTree * fOutputTree; 
+	TTree * fAnalysisTree; 
 
 	/** 
 	 * The output filename
@@ -119,7 +131,7 @@ class BCModelOutput
 	BCModel * fModel; 
 
 	/**
-	 * The tree variables 
+	 * The analysis tree variables 
 	 */
 	int fIndex; 
 	int fNParameters; 

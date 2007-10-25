@@ -10,11 +10,11 @@ BCModelOutput::BCModelOutput()
 	fIndex = 0; 
 
 	fOutputFile = 0; 
-	fOutputTree = 0; 
+	fAnalysisTree = 0; 
 	fModel = 0; 
 	fOutputFile = 0; 
 
-	this -> InitializeTree(); 
+	this -> InitializeAnalysisTree(); 
 
 }
 
@@ -41,7 +41,7 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 
 	gDirectory = dir; 
 
-	this -> InitializeTree(); 
+	this -> InitializeAnalysisTree(); 
 
 }
 
@@ -57,8 +57,8 @@ BCModelOutput::~BCModelOutput()
 			delete fOutputFile; 
 		} 
 
-	if (fOutputTree)
-		delete fOutputTree; 
+	if (fAnalysisTree)
+		delete fAnalysisTree; 
 
 	if (fOutputFile)
 		delete fOutputFile; 
@@ -95,13 +95,13 @@ void BCModelOutput::SetFile(const char * filename)
 
 	// initialize tree 
 
-	this -> InitializeTree(); 
+	this -> InitializeAnalysisTree(); 
 
 }
 
 // --------------------------------------------------------- 
 	
-void BCModelOutput::Fill()
+void BCModelOutput::FillAnalysisTree()
 {
 
 	// get output values from model 
@@ -137,11 +137,43 @@ void BCModelOutput::Fill()
 
 	// fill tree 
 
-	fOutputTree -> Fill(); 
+	fAnalysisTree -> Fill(); 
 
 	// increase index 
 
 	fIndex++; 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelOutput::WriteMarginalizedDistributions() 
+{
+
+	// remember current directory 
+
+	TDirectory * dir = gDirectory;
+
+	// change to file 
+
+	fOutputFile -> cd(); 
+
+	int nparameters = fModel -> GetNParameters(); 
+
+	for (int i = 0; i < nparameters; ++i)
+		fModel -> GetMarginalized(fModel -> GetParameter(i)) -> GetHistogram() -> Write(); 
+
+	if (nparameters > 1) 
+		{
+			for (int i = 0; i < nparameters - 1; ++i)
+				for (int j = i + 1; j < nparameters; ++j) 
+					fModel -> GetMarginalized(fModel -> GetParameter(i), 
+																		fModel -> GetParameter(j)) -> GetHistogram() -> Write(); 
+		}
+
+	// return to old directory 
+
+	gDirectory = dir; 
 
 }
 
@@ -160,7 +192,7 @@ void BCModelOutput::Close()
 
 	// write to file 
 
-	fOutputTree -> Write(); 
+	fAnalysisTree -> Write(); 
 
 	// close file 
 
@@ -174,32 +206,32 @@ void BCModelOutput::Close()
 
 // --------------------------------------------------------- 
 	
-void BCModelOutput::InitializeTree() 
+void BCModelOutput::InitializeAnalysisTree() 
 {
 
 	// create new tree 
 
-	if (fOutputTree)
-		delete fOutputTree; 
+	if (fAnalysisTree)
+		delete fAnalysisTree; 
 
-	fOutputTree = new TTree("BATtree", "BATtree"); 
+	fAnalysisTree = new TTree("BATtree", "BATtree"); 
 
 	// set branch addresses 
 
-	fOutputTree -> Branch("fIndex",                   &fIndex,                   "index/I"); 
-	fOutputTree -> Branch("fNParameters",             &fNParameters,             "parameters/I"); 
-	fOutputTree -> Branch("fProbability_apriori" ,    &fProbability_apriori,     "apriori probability/D"); 
-	fOutputTree -> Branch("fProbability_aposteriori", &fProbability_aposteriori, "aposteriori probability/D"); 
-	fOutputTree -> Branch("fMode_global",              fMode_global,             "mode (global) [parameters]/D"); 
-	fOutputTree -> Branch("fMode_marginalized",        fMode_marginalized,       "mode (marginalized) [parameters]/D"); 
-	fOutputTree -> Branch("fMean_marginalized",        fMean_marginalized,       "mean (marginalized)[parameters]/D"); 
-	fOutputTree -> Branch("fMedian_marginalized",      fMedian_marginalized,     "median (marginalized)[parameters]/D"); 
-	fOutputTree -> Branch("fQuantile_05" ,             fQuantile_05,             "quantile 5% [parameters]/D"); 
-	fOutputTree -> Branch("fQuantile_10" ,             fQuantile_10,             "quantile 10% [parameters]/D"); 
-	fOutputTree -> Branch("fQuantile_16" ,             fQuantile_16,             "quantile 16% [parameters]/D"); 
-	fOutputTree -> Branch("fQuantile_84" ,             fQuantile_84,             "quantile 84% [parameters]/D"); 
-	fOutputTree -> Branch("fQuantile_90" ,             fQuantile_90,             "quantile 90% [parameters]/D"); 
-	fOutputTree -> Branch("fQuantile_95" ,             fQuantile_95,             "quantile 95% [parameters]/D"); 
+	fAnalysisTree -> Branch("fIndex",                   &fIndex,                   "index/I"); 
+	fAnalysisTree -> Branch("fNParameters",             &fNParameters,             "parameters/I"); 
+	fAnalysisTree -> Branch("fProbability_apriori" ,    &fProbability_apriori,     "apriori probability/D"); 
+	fAnalysisTree -> Branch("fProbability_aposteriori", &fProbability_aposteriori, "aposteriori probability/D"); 
+	fAnalysisTree -> Branch("fMode_global",              fMode_global,             "mode (global) [parameters]/D"); 
+	fAnalysisTree -> Branch("fMode_marginalized",        fMode_marginalized,       "mode (marginalized) [parameters]/D"); 
+	fAnalysisTree -> Branch("fMean_marginalized",        fMean_marginalized,       "mean (marginalized)[parameters]/D"); 
+	fAnalysisTree -> Branch("fMedian_marginalized",      fMedian_marginalized,     "median (marginalized)[parameters]/D"); 
+	fAnalysisTree -> Branch("fQuantile_05" ,             fQuantile_05,             "quantile 5% [parameters]/D"); 
+	fAnalysisTree -> Branch("fQuantile_10" ,             fQuantile_10,             "quantile 10% [parameters]/D"); 
+	fAnalysisTree -> Branch("fQuantile_16" ,             fQuantile_16,             "quantile 16% [parameters]/D"); 
+	fAnalysisTree -> Branch("fQuantile_84" ,             fQuantile_84,             "quantile 84% [parameters]/D"); 
+	fAnalysisTree -> Branch("fQuantile_90" ,             fQuantile_90,             "quantile 90% [parameters]/D"); 
+	fAnalysisTree -> Branch("fQuantile_95" ,             fQuantile_95,             "quantile 95% [parameters]/D"); 
 
 }
 
