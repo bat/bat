@@ -565,8 +565,16 @@ BCModel::FindMode()
 
 \noindent 
 which returns a vector of parameter values which maximize the {\it a
-posteriori} probability density. The algorithm used is described in
-Section~\ref{section:tools}. \\ 
+posteriori} probability density. The implemented algorithms can be chosen
+with the command
+%
+\begin{verbatim}
+BCModel::SetModeFindingMethod(BCIntegrate::BCModeFindingType method) \ .
+\end{verbatim}
+%
+Currently, there are two methods: simulated annealing and an interface
+to Minuit.The algorithms are described in
+Section~\ref{section:tools}. \\
 
 \noindent 
 The single parameter estimate is done by marginalization. If more than
@@ -621,6 +629,15 @@ The different methods are described in
 Section~\ref{subsection:optimization}. Note, that if the
 marginalization is done for all parameters simultaneously only Markov
 chains can be used. \\
+
+% --------------------------------------------------------
+
+\subsection{Fitting} 
+
+\begin{itemize}
+\item using the fitfunction 
+\item error bands and how they are calculated 
+\end{itemize}
 
 % --------------------------------------------------------
 
@@ -747,6 +764,51 @@ BCModel::GetPValue() .
 
 % --------------------------------------------------------
 
+\subsection{Single event analyses and sensitivity studies}
+
+Often one is interested in repeating the same analysis on several data
+sets. This is particularly true for estimating the expected outcome of
+an analysis given a particular set of input parameters, e.g. to study
+the sensitivity of an experiment to a certain process. \BAT\ offers an
+easy way to handle such processes and the outcome. \\ 
+
+If a data set contains several data points and one data point
+describes the possible outcome of an experiment then one can use 
+%
+\begin{verbatim}
+BCModel::SetSingleDataPoint(BCDataPoint * datapoint) 
+BCModel::SetSingleDataPoint(BCDataSet * dataset, int index)  . 
+BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint) 
+BCModelManager::SetSingleDataPoint(BCDataSet * dataset, int index)  . 
+\end{verbatim} 
+%
+The data set of the model (or model manager) will be set to a single
+event from the given data set. This allows to loop over the events of
+a data set without reloading and redefining for each experimental
+outcome. \\ 
+
+The results for each analysis can be stored in a file using the output
+class \verb|BCModelOutput|. This class is assigned a model class and a
+file. It contains a ROOT tree which stores the most important
+information of the analysis outcome, such as the global mode, the
+marginalized mode, mean, limits, etc. The constructors are 
+%
+\begin{verbatim}
+BCModelOutput() 
+BCModelOutput(BCModel * model, const char * filenname) .
+\end{verbatim}
+%
+The model and filename can be set after construction using 
+%
+\begin{verbatim}
+BCModelOutput::SetModel(BCModel * model) 
+BCModelOutput::SetFile(const char * filename) 
+\end{verbatim}
+%
+See \verb|example05| for an application of these features. 
+
+% --------------------------------------------------------
+
 \subsection{Summary} 
 
 During any time of the analysis the model manager can print a summary
@@ -760,6 +822,8 @@ BCModel::PrintSummary(char * filename=0)
 \noindent 
 The summary is written to a file. In case no filename is specified the
 summary is printed onto the screen. 
+
+% --------------------------------------------------------
 
 % --------------------------------------------------------
 % technical tools 
@@ -801,20 +865,31 @@ BCLog::OpenLog() .
 % --------------------------------------------------------
 
 \subsection{Optimization} 
-\label{section:optimization} 
+\label{subsection:optimization} 
 
 Describe how optimization is done, etc. It should be clear what
 parameters can be controlled by the user and what they mean.
 
+\paragraph{Simulated annealing} 
+
+\paragraph{Interface to Minuit} 
+
+An interface to the ROOT-based version of Minuit exists. The actual
+object can be returned and modified with
+%
+\begin{verbatim}
+BCIntegrate::GetMinuit()
+\end{verbatim} 
+
 % --------------------------------------------------------
 
 \subsection{Numerical integration} 
-\label{section:integration} 
+\label{subsection:integration} 
 
 The different methods of numerical integration are shortly discussed
 in the following. The basic idea of Monte Carlo integration is that an
 integral can be approximated with a finte sum. For a function $f$
-defined between~0 and~1 this yields 
+defined between~0 and~1 this yields
 % 
 \begin{equation}
 \int_{0}^{1} f(x) \, \mathrm{d}x \approx \frac{1}{N} \sum_{i=1}^{N} f(x_{i}) \, , 
@@ -875,7 +950,7 @@ The number of iterations has to be set directly (see Section~\ref{section:normal
 Instead of using uncorrelated numbers of $x$ values in the importance
 sampling, Markov chain can be used. Regions of higher probability are
 found faster and the statistical fluctuation descreases. For more
-details on Markov chains, see Section~\ref{section:optimization}.
+details on Markov chains, see Section~\ref{subsection:optimization}.
 
 % --------------------------------------------------------
 % examples

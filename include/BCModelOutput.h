@@ -60,15 +60,35 @@ class BCModelOutput
 
 	// methods (set) 
 
+	/**
+	 * Sets the model this output class is assigned to. 
+	 */ 
 	void SetModel(BCModel * model) 
 	{ fModel = model; }; 
 
+	/**
+	 * Sets the output filename 
+	 */ 
 	void SetFile(const char * filename); 
+
+	// methods (get) 
+
+	/**
+	 * Returns the ROOT tree 
+	 */ 
+
+	TTree * GetTree(); 
 
 	// methods 
 
+	/**
+	 * Fill the output tree with the current information
+	 */ 
 	void Fill(); 
 
+	/**
+	 * Closes the file 
+	 */ 
 	void Close(); 
 
  private:
