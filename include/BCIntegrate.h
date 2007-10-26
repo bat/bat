@@ -44,6 +44,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TMinuit.h> 
+#include <TTree.h> 
 
 #include "BCMath.h"
 #include "BCParameter.h"
@@ -187,9 +188,15 @@ class BCIntegrate
 	{ return fNbins; };
 
 	/**
-	 * @ return Minuit used for mode finding 
+	 * @return Minuit used for mode finding 
 	 */ 
 	TMinuit * GetMinuit(); 
+
+	/**
+	 * @return The ROOT tree containing the Markov chain 
+	 */ 
+	TTree * GetMarkovChainTree()
+		{ return fMarkovChainTree; }; 
 
 	// methods (set) 
 
@@ -304,6 +311,18 @@ class BCIntegrate
 	 */ 
 	void SetDataPointUpperBoundary(int index, double upperboundary)
 	{ fDataPointUpperBoundaries -> SetValue(index, upperboundary); }; 
+
+	/**
+	 * Flag for writing Markov chain to ROOT file (true) or not (false)
+	 */ 
+	void WriteMarkovChain(bool flag) 
+	{ fFlagWriteMarkovChain = flag; }; 
+
+	/**
+	 * Sets the ROOT tree containing the Markov chain 
+	 */ 
+	void SetMarkovChainTree(TTree * tree) 
+	{ fMarkovChainTree = tree; }; 
 
 	// methods   
 
@@ -536,6 +555,18 @@ class BCIntegrate
 	 */ 
 	void GetRandomPointSA(std::vector <double> &x, double T, double step);
 
+	/**
+	 * Returns the actual point in the markov chain
+	 */
+	std::vector<double> * GetMarkovChainPoint() 
+		{ return &fXmetro1; }; 
+
+	/**
+	 * Returns the value of the loglikelihood at the point fXmetro1
+	 */ 
+	double * GetMarkovChainValue()
+		{ return &fMarkovChainValue; }; 
+
  private:
 
 	/**
@@ -613,6 +644,11 @@ class BCIntegrate
 	 */ 
 	std::vector <double> fXmetro1;
 
+	/**
+	 * A double containing the log likelihood value at the point fXmetro1 
+	 */ 
+	double fMarkovChainValue; 
+
  protected: 
 
 	/**
@@ -689,6 +725,16 @@ class BCIntegrate
 	 * Minuit 
 	 */ 
 	TMinuit * fMinuit; 
+
+	/**
+	 * Flag for writing Markov chain to file 
+	 */ 
+	bool fFlagWriteMarkovChain; 
+
+	/**
+	 * ROOT tree containing the Markov chain 
+	 */ 
+	TTree * fMarkovChainTree; 
 
 };
 

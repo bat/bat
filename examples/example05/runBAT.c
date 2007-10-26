@@ -73,7 +73,7 @@ int main()
 	int nevents = fDataSet -> GetNDataPoints(); 
 
 	// debug 
-	//	nevents = 2; 
+	nevents = 2; 
 
 	for (int ievent = 0; ievent < nevents; ++ievent)
 		{
@@ -113,8 +113,9 @@ int main()
 			
 			// fill the ROOT file with the actual output of the model. 
 			
-			fModelOutputParticleDecay -> Fill(); 
+			fModelOutputParticleDecay -> FillAnalysisTree(); 
 
+			fModelOutputParticleDecay -> WriteMarginalizedDistributions(); 
 		}			
 
 	// ---------------------------------------------------------

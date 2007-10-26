@@ -43,6 +43,8 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 
 	this -> InitializeAnalysisTree(); 
 
+	this -> InitializeMarkovChainTree(); 
+
 }
 
 // --------------------------------------------------------- 
@@ -59,6 +61,9 @@ BCModelOutput::~BCModelOutput()
 
 	if (fAnalysisTree)
 		delete fAnalysisTree; 
+
+	if (fMarkovChainTree)
+		delete fMarkovChainTree; 
 
 	if (fOutputFile)
 		delete fOutputFile; 
@@ -96,6 +101,16 @@ void BCModelOutput::SetFile(const char * filename)
 	// initialize tree 
 
 	this -> InitializeAnalysisTree(); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelOutput::WriteMarkovChain(bool flag)
+{
+
+	if (fModel)
+		fModel -> WriteMarkovChain(flag); 
 
 }
 
@@ -190,9 +205,15 @@ void BCModelOutput::Close()
 
 	fOutputFile -> cd(); 
 
-	// write to file 
+	// write analysis tree to file 
 
-	fAnalysisTree -> Write(); 
+	if (fAnalysisTree -> GetEntries() > 0) 
+		fAnalysisTree -> Write(); 
+
+	// write markov chain tree to file 
+
+	if (fMarkovChainTree -> GetEntries() > 0) 
+		fMarkovChainTree -> Write(); 
 
 	// close file 
 
@@ -232,6 +253,42 @@ void BCModelOutput::InitializeAnalysisTree()
 	fAnalysisTree -> Branch("fQuantile_84" ,             fQuantile_84,             "quantile 84% [parameters]/D"); 
 	fAnalysisTree -> Branch("fQuantile_90" ,             fQuantile_90,             "quantile 90% [parameters]/D"); 
 	fAnalysisTree -> Branch("fQuantile_95" ,             fQuantile_95,             "quantile 95% [parameters]/D"); 
+
+}
+
+
+// --------------------------------------------------------- 
+	
+void BCModelOutput::InitializeMarkovChainTree() 
+{
+
+	// create new tree 
+
+	if (fMarkovChainTree)
+		delete fMarkovChainTree; 
+
+	fMarkovChainTree = new TTree("MarkovChainTree", "MarkovChainTree"); 
+
+	// connect pointer to parameter vectors 
+
+	fParameters = fModel -> GetMarkovChainPoint(); 
+	fLogLikelihood = fModel -> GetMarkovChainValue(); 
+
+	fMarkovChainTree -> Branch("fNParameters", &fNParameters, "parameters/I"); 
+	fMarkovChainTree -> Branch("fLogLikelihood", fLogLikelihood, "log (likelihood)/D"); 
+
+	// loop over all parameters 
+
+	fNParameters = fModel -> GetNParameters(); 
+
+	for (int i = 0; i < fNParameters; ++i)
+		{
+			fMarkovChainTree -> Branch(Form("fParameter%i", i), 
+																 &(*fParameters)[i], 
+																 Form("parameter %i/D", i)); 
+		}
+
+	fModel -> SetMarkovChainTree(fMarkovChainTree); 
 
 }
 

@@ -72,6 +72,11 @@ class BCModelOutput
 	 */ 
 	void SetFile(const char * filename); 
 
+	/**
+	 * Flag for writing Markov chain to file 
+	 */ 
+	void WriteMarkovChain(bool flag); 
+
 	// methods (get) 
 
 	/**
@@ -111,9 +116,19 @@ class BCModelOutput
 	void InitializeAnalysisTree(); 
 
 	/**
+	 * Initializes the markov chain tree 
+	 */
+	void InitializeMarkovChainTree(); 
+
+	/**
 	 * The output tree 
 	 */
 	TTree * fAnalysisTree; 
+
+	/**
+	 * The Markov chain tree 
+	 */ 
+	TTree * fMarkovChainTree; 
 
 	/** 
 	 * The output filename
@@ -147,6 +162,12 @@ class BCModelOutput
 	double fQuantile_84[MAXNPARAMETERS]; 
 	double fQuantile_90[MAXNPARAMETERS]; 
 	double fQuantile_95[MAXNPARAMETERS]; 
+
+	/**
+	 * The markov chain tree variables 
+	 */ 
+	std::vector<double> * fParameters; 
+	double * fLogLikelihood; 
 
 }; 
 

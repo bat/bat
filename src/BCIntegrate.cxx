@@ -38,6 +38,10 @@ BCIntegrate::BCIntegrate()
 	fErrorBandContinuous = true; 
 
 	fMinuit = 0; 
+
+	fFlagWriteMarkovChain = false; 
+	fMarkovChainTree = 0; 
+
 }
 
 // *********************************************
@@ -64,6 +68,9 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 	fErrorBandContinuous = true; 
 
 	fMinuit = 0; 
+
+	fFlagWriteMarkovChain = false; 
+	fMarkovChainTree = 0; 
 }
 
 // *********************************************
@@ -738,6 +745,12 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	{
 		GetRandomPointMetro(randx);
 
+		// save this point to the markov chain in the ROOT file 
+		if (fFlagWriteMarkovChain)
+			{
+				fMarkovChainTree -> Fill(); 
+			}
+
 		for(int j=0;j<fNvar;j++)
 			fHProb1D[j] -> Fill( randx[j] );
 
@@ -1037,10 +1050,21 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 		{
 			fXmetro0[i]=fXmetro1[i];
 			x[i]=fXmetro1[i];
+			// debug
+			// Kevin, fill the log likelihood value 
+			fMarkovChainValue = p1; 
+
 		}
 	else
 		for(int i=0;i<fNvar;i++)
+			{
 			x[i]=fXmetro0[i];
+			// debug 
+			// Kevin, I don't know whether this does any harm, but I need it
+			// for saving the complete chain somewhere.
+			fXmetro1[i] = x[i]; 
+			fMarkovChainValue = p0; 
+			}
 	
 	fNmetro++;
 }

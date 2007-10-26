@@ -50,7 +50,8 @@ int main()
 	// information. 
 
 	BCModelOutput * fModelOutputPol1 = new BCModelOutput(fModelPol1, "output.root"); 
-
+	fModelOutputPol1 -> WriteMarkovChain(true); 
+	
 	// ---------------------------------------------------------
 	// read data from file 
 	// ---------------------------------------------------------
