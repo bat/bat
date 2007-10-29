@@ -55,6 +55,8 @@
 #include "BCH2D.h" 
 #include "BCIntegrate.h"
 
+const int MAXNDATAPOINTVALUES = 20; 
+
 // --------------------------------------------------------- 
 
 class BCModel : public BCIntegrate
@@ -555,6 +557,16 @@ class BCModel : public BCIntegrate
 	 */ 
 	void CreateDataGrid(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits); 
 
+
+	/**
+	 * Creates data sets in a grid given a set of parameters. 
+	 * @param ndatasets The number of data sets to be created 
+	 * @param parameters A set of parameter values 
+	 * @param grid Boolean for random (false) or grid values (true) 
+	 * @param limits Limits for each data value 
+	 */ 
+	void CreateDataGridROOT(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits); 
+
 	/**
 	 * Constrains a data point
 	 * @param x A vector of double
@@ -588,6 +600,8 @@ class BCModel : public BCIntegrate
 	BCH1D * DoGoodnessOfFitTest(int ndatasets);
 	BCH1D * DoGoodnessOfFitTest(const char * filename);
 	BCH1D * DoGoodnessOfFitTest(const char * filename, std::vector<double> parameters); 
+	BCH1D * DoGoodnessOfFitTestROOT(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits);
+	BCH1D * GoodnessOfFitTestROOT(int ndatasets, const char * filename, std::vector <double> parameters); 
 
 	/*
 	 * @return The p-value 

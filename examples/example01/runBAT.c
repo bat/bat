@@ -179,13 +179,13 @@ int main()
 	limits.push_back(10.0);
 	limits.push_back(10.0);
 
-	// performs the goodness-of-fit test. creates 100 ensembles given
+	// performs the goodness-of-fit test. creates 1000 ensembles given
 	// the best fit parameters. the frequency distribution is printed
 	// into a .ps file and the conditional probability for the original
 	// data is indicated by a line. for details on the goodness-of-fit
 	// test, see the manual.
 
-	fModelPol1 -> DoGoodnessOfFitTest(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
+	fModelPol1 -> DoGoodnessOfFitTestROOT(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
 		Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 	
 	// ---------------------------------------------------------

@@ -4,6 +4,8 @@
 #include "BCMath.h"
 
 #include "TDirectory.h" 
+#include "TFile.h" 
+#include "TTree.h" 
 
 #include <fstream.h>
 
@@ -1087,6 +1089,251 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
 // --------------------------------------------------------- 
 
+void BCModel::CreateDataGridROOT(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits) 
+{
+
+	// remember of directory 
+
+	TDirectory * dir = gDirectory; 
+
+	// create ROOT file 
+
+	TFile * outputfile; 
+
+	char filename[200]; 
+
+	sprintf(filename, "./data/gof_%s.root", this -> GetName()); 
+
+	outputfile = new TFile(filename, "RECREATE"); 
+
+	// get number of data values 
+
+	int nvalues = this -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); 
+
+	// calculate number of grid axes 
+
+	int ngridaxes = 0; 
+
+	for (int i = 0; i < nvalues; i++)
+		if (grid.at(i) == true)
+			ngridaxes++; 
+
+	// initialize data creation 
+
+	double pmaximum = 0.0; 
+	double pmaximumsingle = 0.0; 
+
+	int ninit = 1000; 
+
+	for (int idataset = 0; idataset < ninit; idataset++)
+		{
+			std::vector <double> x; 
+
+			// loop over values 
+
+			for (int ivalue = 0; ivalue < nvalues; ivalue++)
+				{
+					// randomly choose value ... 
+  
+					if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
+						x.push_back(fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
+																					 this -> GetDataPointUpperBoundary(ivalue))); 
+					else 
+						x.push_back(this -> GetDataPointUpperBoundary(ivalue)); 
+				}
+
+			// correlate data point values 
+
+			this -> CorrelateDataPointValues(x);
+
+			// define data object 
+
+			BCDataPoint * datapoint = new BCDataPoint(x); 
+      
+			// calculate probability 
+    
+			double p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
+
+			// check if probability larger 
+
+			if (p > pmaximumsingle) 
+				pmaximumsingle = p; 
+
+			// delete data object 
+    
+			delete datapoint; 
+
+			// clear vector 
+
+			x.clear(); 
+		}
+
+	// calculate maximum probability 
+
+	pmaximum = BCMath::Min(1.0, pmaximumsingle * this -> GetNDataPointsMaximum()); 
+
+	// loop over data sets 
+
+	for (int idataset = 0; idataset < ndatasets; idataset++) 
+		{
+
+			// create tree 
+
+			TTree * tree = new TTree(Form("gof_tree_%i", idataset), Form("gof_tree_%i", idataset)); 
+
+			// calculate number of entries 
+
+			int ndatapoints = 0; 
+
+			// random number of entries ... 
+
+			if (ngridaxes == 0) 
+				{
+					double pndatapoints = 0.0; 
+					double temp_rand = 1.0; 
+
+					while (temp_rand > pndatapoints)
+						{	
+							if (this -> GetNDataPointsMinimum() != this -> GetNDataPointsMaximum())
+								ndatapoints = BCMath::Nint(fRandom -> Uniform(this -> GetNDataPointsMinimum(), 
+																													 this -> GetNDataPointsMaximum())); 
+							else
+								ndatapoints = this -> GetNDataPointsMaximum(); 
+
+							pndatapoints = this -> PoissonProbability(ndatapoints, parameters); 
+							temp_rand = fRandom -> Uniform(0, 1); 
+						}
+				}
+
+			// ... or fixed number of entries on a grid 
+
+			else 
+				{
+					ndatapoints = 1; 
+
+					for (int i = 0; i < ngridaxes; i++)
+						ndatapoints *= BCMath::Nint(limits.at(2 + i * 3)); 
+				}
+    
+			// set branch address
+
+			double x[MAXNDATAPOINTVALUES]; 
+
+			for (int i = 0; i < nvalues; i++)
+				tree -> Branch(Form("data_var_%i", i), 
+											 &(x[i]),
+											 Form("data_var_%i/D", i)); 
+
+			// loop over data points 
+    
+			for (int idatapoint = 0; idatapoint < ndatapoints; idatapoint++)
+				{
+					double p = 0.0; 
+					double temp_rand = 1.0; 
+
+					// calculate random data object 
+
+					while (temp_rand > p)
+						{
+							// loop over values 
+
+							for (int ivalue = 0; ivalue < nvalues; ivalue++)
+								{
+									// randomly choose value ... 
+
+									if (grid.at(ivalue) == false) 
+										{
+											if (this -> GetDataPointLowerBoundary(ivalue) != this -> GetDataPointUpperBoundary(ivalue))
+												x[ivalue] = (fRandom -> Uniform(this -> GetDataPointLowerBoundary(ivalue), 
+																												this -> GetDataPointUpperBoundary(ivalue))); 
+											else
+												x[ivalue] = (this -> GetDataPointUpperBoundary(ivalue)); 
+										}
+	  
+									// ... or calculate on a grid 
+
+									else
+										{
+											double xgrid = 0; 
+
+											if (ngridaxes == 1) 
+												xgrid = limits.at(0) + double(idatapoint) * limits.at(1); 
+
+											if (ngridaxes == 2) 
+												{
+													int ngrid = 0; 
+		  
+													for (int j = 0; j < ivalue; j++)
+														if (grid.at(j) == true)
+															ngrid++; 
+
+													int ix = idatapoint % BCMath::Nint(limits.at(1 + ngrid * 3)); 
+													xgrid = limits.at(ngrid * 3) + double(ix) * limits.at(1 + ngrid * 3); 
+												}
+
+											x[ivalue] = (xgrid); 
+
+										}
+								}
+      
+							// correlate data point values 
+      
+							std::vector <double> xvector; 
+							
+							for (int j = 0; j < nvalues; ++j)
+								xvector.push_back(x[j]); 
+
+							this -> CorrelateDataPointValues(xvector);
+
+							// define data object 
+
+							BCDataPoint * datapoint = new BCDataPoint(xvector); 
+      
+							// calculate probability 
+
+							p = this -> ConditionalProbabilityEntry(datapoint, parameters); 
+
+							// check if limit is set correctly 
+
+							if (p > pmaximum) 
+								{ 
+									BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::CreateDataGrid. Probability larger than expected. Set limit to 1.1 x prob..")); 
+									pmaximum = 1.1 * p; 
+								} 
+
+							// delete data object 
+
+							delete datapoint; 
+
+							// calculate random number 
+
+							temp_rand = pmaximum * fRandom -> Uniform(); 
+						}
+
+					// fill tree 
+
+					tree -> Fill(); 
+				}
+
+			// write tree to file 
+
+			tree -> Write(); 
+
+			delete tree; 
+		}
+
+	// close file 
+
+	outputfile -> Close(); 
+
+	// return to old directory 
+
+	gDirectory = dir; 
+
+}
+
+// --------------------------------------------------------- 
+
 BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> parameters)
 {
 
@@ -1227,6 +1474,146 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
 // --------------------------------------------------------- 
 
+BCH1D * BCModel::GoodnessOfFitTestROOT(int ntrees, const char * filename, std::vector <double> parameters)
+{
+
+	// create marginalized probability 
+
+	BCH1D * probability = new BCH1D(); 
+
+	// vector containing the conditional probabilities 
+
+	std::vector<double> likelihoodcontainer; 
+
+	// temporarily store data object container 
+
+	BCDataSet * fDataSetTemp = fDataSet; 
+
+	double NormTemp = fNormalization; 
+
+	// loop over trees 
+
+	BCLog::Out(BCLog::detail, BCLog::detail, "BCModel::GoodnessOfFitTest. Loop over trees"); 
+
+	int nvalues = fDataSet -> GetDataPoint(0) -> GetNValues(); 
+
+	// branch names 
+
+	char branchnames[200] = ""; 
+	char treename[200] = ""; 
+
+	for (int ivalue = 0; ivalue < nvalues; ++ivalue)
+		{
+			sprintf(branchnames, "%sdata_var_%i", branchnames, ivalue); 
+			if (ivalue<nvalues-1)
+				sprintf(branchnames, "%s,",branchnames); 
+		}
+	
+	for (int itree = 0; itree < ntrees; ++itree)
+		{
+			//			const char * treename = (const char *) Form("gof_tree_%i", itree); 
+
+			sprintf(treename, "gof_tree_%i", itree); 
+	
+			BCDataSet * dataset = new BCDataSet(); 
+
+			// read data set from tree 
+
+			dataset -> ReadDataFromFileTree((const char *) filename, 
+																			treename, 
+																			(const char *) branchnames); 
+
+			// set new data set 
+
+			this -> SetDataSet(dataset); 
+
+			// define event weight 
+
+			double weight = 1.0; 
+
+			// calculate weight 
+
+			weight = this -> Likelihood(parameters); 
+
+			// fill container  
+
+			likelihoodcontainer.push_back(log10(weight)); 
+
+			delete dataset; 
+		}
+
+	// restore original data object container 
+
+	this -> SetDataSet(fDataSetTemp); 
+
+	fNormalization = NormTemp; 
+
+	// find minimum and maximum 
+
+	double minimum = 0.0; 
+	double maximum = 0.0; 
+
+	for (int i = 0; i < int(likelihoodcontainer.size()); i++)
+		{
+			if (likelihoodcontainer.at(i) < minimum)
+				minimum = likelihoodcontainer.at(i); 
+
+			if (likelihoodcontainer.at(i) > maximum || i == 0)
+				maximum = likelihoodcontainer.at(i); 
+		}
+
+	// create histogram 
+
+	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 50, minimum - 0.1 * fabs(minimum), maximum + 0.1 * fabs(minimum)); 
+	hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
+	hist -> SetYTitle("1/N dN/dlog_{10}y"); 
+	hist -> SetStats(kFALSE); 
+
+	// fill histogram 
+
+	for (int i = 0; i < int(likelihoodcontainer.size()); i++)
+		hist -> Fill(likelihoodcontainer.at(i)); 
+
+	// normalize to unity 
+
+	hist -> Scale(1.0 / hist -> Integral()); 
+
+	// set histogram 
+
+	probability -> SetHistogram(hist); 
+
+	// print summary to screen 
+
+	double likelihood = this -> Likelihood(parameters); 
+	// double fPValue =  probability -> GetIntegral(log10(likelihood), 0.0); 
+	fPValue =  probability -> GetPValue(log10(likelihood)); 
+
+	std::cout << std::endl; 
+	std::cout << " Goodness-of-fit : " << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Model : " << this -> GetName() << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Parameters : " << std::endl; 
+
+	for (int i = 0; i < int(parameters.size()); i++)
+		std::cout << " Parameter : " 
+							<< fParameterSet -> at(i) -> GetName() 
+							<< " = " << parameters.at(i) << std::endl; 
+	std::cout << std::endl; 
+	std::cout << " Conditional probability p(data|lambda*) = " << likelihood << std::endl; 
+	std::cout << " p-value = " << fPValue << std::endl; 
+	std::cout << std::endl; 
+
+	// clear container 
+
+	likelihoodcontainer.clear(); 
+
+	return probability; 
+
+}
+
+// --------------------------------------------------------- 
+
 BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits)
 {
 
@@ -1249,6 +1636,35 @@ BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> paramete
 	// do goodness-of-fit test 
 
 	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+
+	return gof; 
+
+}
+
+// --------------------------------------------------------- 
+
+BCH1D * BCModel::DoGoodnessOfFitTestROOT(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits)
+{
+
+	// check if conditional probability has been defined on entry basis 
+
+	if (flag_ConditionalProbabilityEntry == false) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::DoGoodnessOfFitTest. The method ConditionalProbabilityEntry has not been overloaded"); 
+			return 0; 
+		} 
+
+	// print log 
+
+	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
+
+	// create data sets 
+
+	this -> CreateDataGridROOT(ndatasets, parameters, grid, limits); 
+
+	// do goodness-of-fit test 
+
+	BCH1D * gof = this -> GoodnessOfFitTestROOT(ndatasets, Form("./data/gof_%s.root", this -> GetName()), parameters); 
 
 	return gof; 
 
