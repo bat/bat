@@ -46,7 +46,7 @@ void BCModelGauss::DefineParameters()
 
 	this -> SetMarkovChainInitialPosition(position); 
 
-	this -> SetMarkovChainStepSize(0.001); 
+	this -> SetMarkovChainStepSize(0.01); 
 
 }
 
