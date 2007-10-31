@@ -4,6 +4,10 @@ benchmarks/integration/Makefile -text
 benchmarks/integration/benchmark.c -text
 benchmarks/integration/src/BCModelGauss.cxx -text
 benchmarks/integration/src/BCModelGauss.h -text
+benchmarks/marginalization/Makefile -text
+benchmarks/marginalization/benchmark.c -text
+benchmarks/marginalization/src/BCModelGauss.cxx -text
+benchmarks/marginalization/src/BCModelGauss.h -text
 /cuba.h -text
 doc/manual/bat.eps -text
 doc/manual/example01_constant.eps -text

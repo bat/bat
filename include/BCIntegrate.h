@@ -324,6 +324,17 @@ class BCIntegrate
 	void SetMarkovChainTree(TTree * tree) 
 	{ fMarkovChainTree = tree; }; 
 
+	/**
+	 * Sets the initial position for the Markov chain 
+	 */ 
+	void SetMarkovChainInitialPosition(std::vector<double> position); 
+
+	/**
+	 * Sets the step size for Markov chains 
+	 */ 
+	void SetMarkovChainStepSize(double stepsize) 
+	{	fMarkovChainStepSize = stepsize; }; 
+
 	// methods   
 
 	/** 
@@ -666,6 +677,11 @@ class BCIntegrate
 	 * marginalization.
 	 */
 	int fNSamplesPer2DBin;
+
+	/**
+	 * Step size in the Markov chain relative to min and max 
+	 */ 
+	double fMarkovChainStepSize; 
 
 	/** 
 	 * data point containing the lower boundaries of possible data values 
