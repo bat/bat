@@ -37,14 +37,15 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 
 	fOutputFile = new TFile(fFilename, "RECREATE"); 
 
-	// change again to the old directory 
-
-	gDirectory = dir; 
+	// initialize trees 
 
 	this -> InitializeAnalysisTree(); 
 
 	this -> InitializeMarkovChainTree(); 
 
+	// change again to the old directory 
+
+	gDirectory = dir; 
 }
 
 // --------------------------------------------------------- 

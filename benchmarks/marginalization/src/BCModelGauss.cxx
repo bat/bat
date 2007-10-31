@@ -69,8 +69,8 @@ double BCModelGauss::LogLikelihood(std::vector <double> parameters)
 	logprob += BCMath::LogGaus(parameters.at(0), 1.0, 0.5 * sqrt(parameters.at(0)), true); 
 	logprob += BCMath::LogGaus(parameters.at(1), 2.0, 0.5 * sqrt(parameters.at(1)), true); 
 	logprob += BCMath::LogGaus(parameters.at(2), 3.0, 0.5 * sqrt(parameters.at(2)), true); 
- 	logprob += BCMath::LogGaus(parameters.at(3), 4.0, 0.5 * sqrt(parameters.at(3)), true); 
- 	logprob += BCMath::LogGaus(parameters.at(4), 5.0, 0.1 * sqrt(parameters.at(4)), true); 
+	logprob += BCMath::LogGaus(parameters.at(3), 4.0, 0.5 * sqrt(parameters.at(3)), true); 
+	logprob += BCMath::LogGaus(parameters.at(4), 5.0, 0.1 * sqrt(parameters.at(4)), true); 
 
 	return logprob; 
 
