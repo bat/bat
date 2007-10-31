@@ -42,6 +42,8 @@ BCIntegrate::BCIntegrate()
 	fFlagWriteMarkovChain = false; 
 	fMarkovChainTree = 0; 
 
+	fMarkovChainStepSize = 0.1; 
+
 }
 
 // *********************************************
@@ -71,6 +73,8 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 
 	fFlagWriteMarkovChain = false; 
 	fMarkovChainTree = 0; 
+
+	fMarkovChainStepSize = 0.1; 
 }
 
 // *********************************************
@@ -120,10 +124,12 @@ void BCIntegrate::SetParameters(BCParameterSet * par)
 	 	fMax[i]=(fx->at(i))->GetUpperLimit();
 	}
 
-	fXmetro1.assign(fNvar,0.);
-
+	fXmetro0.clear(); 
 	for(int i=0;i<fNvar;i++)
 		fXmetro0.push_back((fMin[i]+fMax[i])/2.0); 
+	
+	fXmetro1.clear(); 
+	fXmetro1.assign(fNvar,0.);
 
 }
 
