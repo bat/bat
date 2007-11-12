@@ -27,6 +27,27 @@ BCModelManager::~BCModelManager()
 
 }
 
+// --------------------------------------------------------- 
+
+BCModelManager::BCModelManager(const BCModelManager & modelmanager)
+{
+
+	modelmanager.Copy(*this); 
+
+}
+
+// --------------------------------------------------------- 
+
+BCModelManager & BCModelManager::operator = (const BCModelManager & modelmanager)
+{
+
+	if (this != &modelmanager) 
+		modelmanager.Copy(* this); 
+
+	return * this; 
+
+}
+
 // ---------------------------------------------------------
 
 void BCModelManager::SetDataSet(BCDataSet * dataset) 
@@ -545,6 +566,18 @@ void BCModelManager::PrintSummary(const char * file)
 		<<endl;
 
 	cout.rdbuf(old_buffer);
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelManager::Copy(BCModelManager & modelmanager) const 
+{
+
+	// don't copy the content only the pointers 
+
+	modelmanager.fModelContainer = this -> fModelContainer; 
+	modelmanager.fDataSet        = this -> fDataSet; 
 
 }
 

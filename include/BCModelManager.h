@@ -1,28 +1,18 @@
-/*! \class BCModelManager
- *  \brief A class managing models
- *
- * A class which manages a set of models and a data set. It performs
- * similar operations on all models and handles model comparison.
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 14.03.2007 by Kevin 
- * 
- * REVISION: 
- *
- * 16.03.2007 Kevin,  modified ROOT interface\n
- * 12.06.2007 Kevin,  renamed to BCModelManager \n
- * 30.08.2007 Dano,   added method to set max number of iterations in all
- *                    attached models\n
- *
- * --------------------------------------------------------- 
- *
- */ 
+/**  
+ * \class BCModelManager
+ * \brief A manager class for BCModels. 
+ * \author D. Kollar  
+ * \author K. Kr&ouml;ninger  
+ * \version 1.0  
+ * \date 08.11.2007  
+ *  
+ * This class defines a manager for BCModels. It handles common data
+ * sets and performs operations on BCModels simultaneously. Model
+ * comparsion in terms of a posteriori probabilities is only possible
+ * with this class.
+ *  
+ * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger  
+ */  
 
 // --------------------------------------------------------- 
 
@@ -38,70 +28,109 @@ class BCModelManager
 
  public:
 
+	/** \name Constructors and destructors */ 
+	/* @{ */
+
 	// constructor and destructor 
 
 	/**
-	 * A constructor. 
+	 * The default constructor. 
 	 */ 
 	BCModelManager(); 
 
+	/** 
+	 * The default copy constructor. 
+	 */ 
+	BCModelManager(const BCModelManager & modelmanager); 
+
 	/**
-	 * A destructor. 
+	 * The default destructor. 
 	 */ 
 	virtual ~BCModelManager(); 
 
-	// methods (get) 
+	/* @} */ 
+
+	/** \name Assignment operators */ 
+	/* @{ */ 
+
+	/**
+	 * The defaut assignment operator 
+	 */ 
+	BCModelManager & operator = (const BCModelManager & modelmanager); 
+
+	/* @} */ 
+
+	/** \name Getters */ 
+	/* @{ */ 
 
 	/** 
-	 * @return The number of models. 
+	 * Returns the number of BCModels in this BCModelManager. 
+	 * @return The number of models.
 	 */ 
 	int GetNModels() 
 	{ return int(fModelContainer -> size()); }; 
 
 	/** 
-	 * @param index The index of the model 
-	 * @return The BCModel. 
+	 * Returns the BCModel at a certain index of this BCModelManager. 
+	 * @param index The index of the model in the BCModelManager. 
+	 * @return The BCModel at the index. 
 	 */ 
 	BCModel * GetModel(int index) 
 	{ return fModelContainer -> at(index); }; 
 
 	/**
-	 * @return The number of entries in the data container
+	 * Returns the number of entries in the common data set. 
+	 * @return The number of entries. 
 	 */ 
 	int GetNDataPoints() 
 	{ return fDataSet -> GetNDataPoints(); }; 
 
 	/**
-	 * @param index The index of the data point
-	 * @return The data point
+	 * Returns a data point of the common data set at an index. 
+	 * @param index The index of the data point in the data set. 
+	 * @return The data point. 
 	 */ 
 	BCDataPoint * GetDataPoint(int index) 
 		{ return fDataSet -> GetDataPoint(index); }; 
 
 	/** 
+	 * Returns the common data set. 
 	 * @return The data set 
 	 */ 
 	BCDataSet * GetDataSet()
 		{ return fDataSet; }; 
 
-	// methods (set) 
+	/* @} */ 
 
+	/** \name Setters */ 
+	/* @{ */ 
+	
 	/**
+	 * Sets the data set common to all BCModels in this BCModelManager. 
 	 * @param dataset A data set 
 	 */ 
 	void SetDataSet(BCDataSet * dataset); 
 
 	/**
-	 * Sets a single data point as data set. 
+	 * Sets a single data point as a common data set. 
 	 * @param datapoint A data point 
+	 * @see SetSingleDataPoint(BCDataSet * dataset, int index)
+	 * @see SetDataSet(BCDataSet * dataset)
 	 */ 
 	void SetSingleDataPoint(BCDataPoint * datapoint); 
 
+	/**
+	 * Sets a single data point as a common data set. 
+	 * @param dataset A data set. 
+	 * @param index The index of the data point in the data set specified. 
+	 * @see SetSingleDataPoint(BCDataPoint * datapoint) 
+	 * @see SetDataSet(BCDataSet * dataset)
+	 */ 
 	void SetSingleDataPoint(BCDataSet * dataset, int index); 
 
 	/**
-	 * Set maximum number of iterations for all models added to the manager.
-	 * Only works on models already added to the manager.
+	 * Sets the maximum number of iterations for the Monte Carlo
+	 * integration for all BCModels in this BCModelManager. 
 	 * @param niterations
 	 */ 
 	void SetNIterationsMax(int niterations);
@@ -188,8 +217,10 @@ class BCModelManager
 	 */ 
 	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
 
+	/* @} */ 
 
-	// methods 
+	/** \name Miscellaneous methods */ 
+	/* @{ */ 	
 
 	/** 
 	 * Adds a model to the container
@@ -231,11 +262,12 @@ class BCModelManager
 	int ReadDataFromFileTxt(const char * filename, int nbranches); 
 
 	/** 
-	 * Reads data from a txt file (user specifies). 
+	 * Reads data from a file (user specifies). 
 	 * Opens a file and creates data set
 	 * containing the values read from the file (user specifies). 
 	 * @param filename The filename of the ROOT file 
-	 * @param nbranches The number of variables 
+	 * @param options_int Arbitrary integer options. 
+	 * @param options_double Arbitrary double options. 
 	 * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
 	 * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
 	 * @see ReadDataFromFileTxt(char * filename, int nbranches); 
@@ -272,15 +304,22 @@ class BCModelManager
 	 */
 	void PrintSummary(const char * filename=0);
 
+	/* @} */ 
+
  private: 
 
+	/* 
+	 * Copies this BCModelManager into another one 
+	 */ 
+	void Copy(BCModelManager & modelmanager) const; 
+
 	/**
-	 * A model container. 
+	 * The BCModelContainer containing all BCModels. 
 	 */ 
 	BCModelContainer * fModelContainer; 
 
 	/**
-	 * A data set
+	 * The data set common to all models.  
 	 */
 	BCDataSet * fDataSet;
 

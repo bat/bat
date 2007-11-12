@@ -85,7 +85,7 @@ void BCLog::CloseLog()
 
 // --------------------------------------------------------- 
 
-void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message)
+void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message)
 {
 
 	// open log file if not opened

@@ -5,11 +5,10 @@
 BCParameter::BCParameter()
 {
 
-	fName = new char; 
-	fName = "parameter"; 
+	fName       = "parameter"; 
 	fLowerLimit = 0.0; 
 	fUpperLimit = 1.0; 
-	fNuisence = 0;
+	fNuisance   = 0;
 
 }
 
@@ -18,7 +17,9 @@ BCParameter::BCParameter()
 BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit)
 {
 
-	fName = (char*) name; 
+	BCParameter(); 
+
+	fName       = name; 
 	fLowerLimit = lowerlimit; 
 	fUpperLimit = upperlimit; 
 
@@ -26,10 +27,29 @@ BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit
 
 // --------------------------------------------------------- 
 
-BCParameter::~BCParameter()
+BCParameter::BCParameter(const BCParameter & parameter)
 {
 
-	delete fName; 
+	parameter.Copy(*this); 
+
+}
+
+// --------------------------------------------------------- 
+
+BCParameter & BCParameter::operator = (const BCParameter & parameter)
+{
+
+	if (this != &parameter) 
+		parameter.Copy(* this); 
+
+	return * this; 
+
+}
+
+// --------------------------------------------------------- 
+
+BCParameter::~BCParameter()
+{
 
 }
 
@@ -43,14 +63,27 @@ void BCParameter::PrintSummary()
 		<<"         Index       : "<< fIndex <<endl
 		<<"         Lower Limit : "<< fLowerLimit <<endl
 		<<"         Upper Limit : "<< fUpperLimit <<endl
-		<<"         Nuisence    : ";
+		<<"         Nuisance    : ";
 
-	if(fNuisence)
+	if(fNuisance)
 		cout<<"Yes"<<endl; 
 	else
 		cout<<"No"<<endl; 
 
 	cout << endl;
+
+}
+
+// --------------------------------------------------------- 
+
+void BCParameter::Copy(BCParameter & parameter) const 
+{
+
+	parameter.fName       = this -> fName; 
+	parameter.fIndex      = this -> fIndex; 
+	parameter.fLowerLimit = this -> fLowerLimit;  
+	parameter.fUpperLimit = this -> fUpperLimit; 
+	parameter.fNuisance   = this -> fNuisance;
 
 }
 

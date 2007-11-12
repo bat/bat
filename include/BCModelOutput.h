@@ -1,25 +1,17 @@
-/*! \class BCModelOutput
- *  \brief Case which does ROOT based I/O 
- *
- * This class saves the results of an analysis with a certain model
- * into a ROOT tree. 
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 23.10.2007 
- * 
- * REVISION: 
- *
- * 25.10.2007 Kevin, added margnialized histograms to output 
- *
- * --------------------------------------------------------- 
- *
- */ 
+/**  
+ * \class BCModelOutput
+ * \brief A class for creating an (ROOT) output file. 
+ * \author D. Kollar  
+ * \author K. Kr&ouml;ninger  
+ * \version 1.0  
+ * \date 12.11.2007  
+ *  
+ * This class defines an output interface for the analysis. It creates
+ * a ROOT file which can contain summary information, histograms and
+ * Markov chains. 
+ *  
+ * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger  
+ */  
 
 // --------------------------------------------------------- 
 
@@ -40,7 +32,8 @@ class BCModelOutput
   
  public:
   
-	// constructors and destructor 
+	/** \name Constructors and destructors */ 
+	/* @{ */
 
 	/** 
 	 * The default constructor. 
@@ -55,78 +48,114 @@ class BCModelOutput
 	BCModelOutput(BCModel * model, const char * filenname); 
 
 	/** 
+	 * The default copy constructor. 
+	 */ 
+	BCModelOutput(const BCModelOutput & modeloutput); 
+
+	/** 
 	 * The default destructor. 
 	 */ 
 	virtual ~BCModelOutput(); 
 
-	// methods (set) 
+	/* @} */ 
+
+	/** \name Assignment operators */ 
+	/* @{ */ 
 
 	/**
-	 * Sets the model this output class is assigned to. 
+	 * The defaut assignment operator 
 	 */ 
-	void SetModel(BCModel * model) 
-	{ fModel = model; }; 
+	BCModelOutput & operator = (const BCModelOutput & modeloutput); 
+
+	/* @} */ 
+
+	/** \name Getters */ 
+	/* @{ */ 
 
 	/**
-	 * Sets the output filename 
-	 */ 
-	void SetFile(const char * filename); 
-
-	/**
-	 * Flag for writing Markov chain to file 
-	 */ 
-	void WriteMarkovChain(bool flag); 
-
-	// methods (get) 
-
-	/**
-	 * Returns the ROOT tree 
+	 * Returns the output TTree tree. 
+	 * @return The pointer to the output TTree. 
 	 */ 
 	TTree * GetAnalysisTree()
 		{ return fAnalysisTree; }; 
 
 	/**
-	 * Returns the ROOT file 
+	 * Returns the output TFile. 
+	 * @return The pointer to the output TFile. 
 	 */
 	TFile * GetFile()
 		{ return fOutputFile; }; 
 
-	// methods 
+	/* @} */ 
+
+	/** \name Setters */ 
+	/* @{ */ 
 
 	/**
-	 * Fill the output tree with the current information
+	 * Assign a BCModel to this output class. 
+	 * @param model A pointer to the BCModel. 
+	 */ 
+	void SetModel(BCModel * model) 
+	{ fModel = model; }; 
+
+	/**
+	 * Sets the output filename. 
+	 * @param filename The filename. 
+	 */ 
+	void SetFile(const char * filename); 
+
+	/**
+	 * Flag for writing Markov chain to file 
+	 * @param flag Writes (true) or does not write (false) the Markov chain 
+	 */ 
+	void WriteMarkovChain(bool flag); 
+
+	/* @} */ 
+
+	/** \name Miscellaneous methods */ 
+	/* @{ */ 	
+
+	/**
+	 * Fill the output TTree with the current information. 
 	 */ 
 	void FillAnalysisTree(); 
 
 	/**
-	 * Writes the marginalized histograms to the ROOT file 
+	 * Writes the marginalized histograms to the TFile. 
 	 */ 
 	void WriteMarginalizedDistributions(); 
 
 	/**
-	 * Closes the file 
+	 * Closes the TFile. 
 	 */ 
 	void Close(); 
 
+	/* @} */ 
+
  private:
 
+	/* 
+	 * Copies this BCModelOutput into another one 
+	 */ 
+	void Copy(BCModelOutput & modeloutput) const; 
+
 	/**
-	 * Initializes the output tree 
+	 * Initialize the output TTree. 
 	 */
 	void InitializeAnalysisTree(); 
 
 	/**
-	 * Initializes the markov chain tree 
+	 * Initialize the Markov Chain TTree. 
 	 */
 	void InitializeMarkovChainTree(); 
 
 	/**
-	 * The output tree 
+	 * Pointer to the TTree containing the summary output information.
 	 */
 	TTree * fAnalysisTree; 
 
 	/**
-	 * The Markov chain tree 
+	 * Pointer to the TTree containing the Markov chain. 
 	 */ 
 	TTree * fMarkovChainTree; 
 
@@ -136,12 +165,12 @@ class BCModelOutput
 	const char * fFilename; 
 
 	/**
-	 * The output file 
+	 * Pointer to the output TFile. 
 	 */ 
 	TFile * fOutputFile; 
 
 	/**
-	 * The model this output class is assigned to 
+	 * Pointer to the model this output class is assigned to
 	 */ 
 	BCModel * fModel; 
 

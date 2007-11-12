@@ -10,11 +10,10 @@ BCModelOutput::BCModelOutput()
 	fIndex = 0; 
 
 	fOutputFile = 0; 
+	fMarkovChainTree = 0; 
 	fAnalysisTree = 0; 
 	fModel = 0; 
 	fOutputFile = 0; 
-
-	this -> InitializeAnalysisTree(); 
 
 }
 
@@ -23,19 +22,19 @@ BCModelOutput::BCModelOutput()
 BCModelOutput::BCModelOutput(BCModel * model, const char * filename) 
 {
 
-	fIndex = 0; 
-
-	fModel = model; 
-	
-	fFilename = filename; 
-
 	// remeber current directory 
 
 	TDirectory * dir = gDirectory; 
 
+	fFilename = filename; 
+
 	// create a new file 
 
 	fOutputFile = new TFile(fFilename, "RECREATE"); 
+
+	BCModelOutput(); 
+
+	fModel = model;
 
 	// initialize trees 
 
@@ -46,6 +45,7 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 	// change again to the old directory 
 
 	gDirectory = dir; 
+
 }
 
 // --------------------------------------------------------- 
@@ -70,6 +70,27 @@ BCModelOutput::~BCModelOutput()
 		delete fOutputFile; 
 
 	fModel = 0; 
+
+}
+
+// --------------------------------------------------------- 
+
+BCModelOutput::BCModelOutput(const BCModelOutput & modeloutput)
+{
+
+	modeloutput.Copy(*this); 
+
+}
+
+// --------------------------------------------------------- 
+
+BCModelOutput & BCModelOutput::operator = (const BCModelOutput & modeloutput)
+{
+
+	if (this != &modeloutput) 
+		modeloutput.Copy(* this); 
+
+	return * this; 
 
 }
 
@@ -137,17 +158,17 @@ void BCModelOutput::FillAnalysisTree()
 			if (fModel -> GetBestFitParameters().size() > 0)
 				fMode_global[i] = fModel -> GetBestFitParameters().at(i); 
 
-			if (fModel -> GetMarginalized(parameter -> GetName()))
+			if (fModel -> GetMarginalized(parameter -> GetName().data()))
 				{
-					fMode_marginalized[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetMode(); 
-					fMean_marginalized[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetMean(); 
- 					fMedian_marginalized[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetMedian(); 
- 					fQuantile_05[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetQuantile(0.05); 
- 					fQuantile_10[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetQuantile(0.10); 
- 					fQuantile_16[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetQuantile(0.16); 
- 					fQuantile_84[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetQuantile(0.84); 
- 					fQuantile_90[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetQuantile(0.90); 
- 					fQuantile_95[i] = fModel -> GetMarginalized(parameter -> GetName()) -> GetQuantile(0.95); 
+					fMode_marginalized[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetMode(); 
+					fMean_marginalized[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetMean(); 
+ 					fMedian_marginalized[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetMedian(); 
+ 					fQuantile_05[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetQuantile(0.05); 
+ 					fQuantile_10[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetQuantile(0.10); 
+ 					fQuantile_16[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetQuantile(0.16); 
+ 					fQuantile_84[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetQuantile(0.84); 
+ 					fQuantile_90[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetQuantile(0.90); 
+ 					fQuantile_95[i] = fModel -> GetMarginalized(parameter -> GetName().data()) -> GetQuantile(0.95); 
 				}
 		}
 
@@ -236,7 +257,7 @@ void BCModelOutput::InitializeAnalysisTree()
 	if (fAnalysisTree)
 		delete fAnalysisTree; 
 
-	fAnalysisTree = new TTree("BATtree", "BATtree"); 
+	fAnalysisTree = new TTree("AnalysisTree", "AnalysisTree"); 
 
 	// set branch addresses 
 
@@ -273,6 +294,7 @@ void BCModelOutput::InitializeMarkovChainTree()
 	// connect pointer to parameter vectors 
 
 	fParameters = fModel -> GetMarkovChainPoint(); 
+
 	fLogLikelihood = fModel -> GetMarkovChainValue(); 
 
 	fMarkovChainTree -> Branch("fNParameters", &fNParameters, "parameters/I"); 
@@ -290,6 +312,19 @@ void BCModelOutput::InitializeMarkovChainTree()
 		}
 
 	fModel -> SetMarkovChainTree(fMarkovChainTree); 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModelOutput::Copy(BCModelOutput & modeloutput) const 
+{
+
+	// don't copy the content 
+
+	modeloutput.fModel           = this -> fModel; 
+	modeloutput.fAnalysisTree    = this -> fAnalysisTree; 
+	modeloutput.fMarkovChainTree = this -> fMarkovChainTree; 
 
 }
 

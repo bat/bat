@@ -29,7 +29,7 @@ BCModelGauss::BCModelGauss(const char* name) : BCModel(name)
 void BCModelGauss::DefineParameters()
 {
 
-	this -> AddParameter("x", -10.0, 10.0);  // index 0
+	this -> AddParameter("xrew", -10.0, 10.0);  // index 0
 	this -> AddParameter("y", -10.0, 10.0);  // index 0
 	this -> AddParameter("z", -10.0, 10.0);  // index 0
 

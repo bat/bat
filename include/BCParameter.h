@@ -1,26 +1,14 @@
-/*! \class BCParameter
- *  \brief A model parameter class
- *
- * This class defines a parameter for a model as well as a \n 
- * container for a set of parameters. 
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  D. Kollar, K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 02.03.2007 
+/** 
+ * \class BCParameter
+ * \brief A model parameter class. 
+ * \author D. Kollar 
+ * \author K. Kr&ouml;ninger 
+ * \version 1.0 
+ * \date 08.11.2007 
  * 
- * REVISION: 
- *
- * 02.03.2007 Kevin, added comments and header \n
- * 16.05.2007 Dano, added nuisence flag\n
- * 12.06.2007 Kevin, renamed to BCParameter \n
- *
- * --------------------------------------------------------- 
- *
+ * This class defines a parameter for a BCModel.
+ * 
+ * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger 
 */ 
 
 // --------------------------------------------------------- 
@@ -37,7 +25,8 @@ class BCParameter
 
  public:
 
-	// constructors and destructor 
+	/** \name Constructors and destructors */ 
+	/* @{ */ 
 
 	/** 
 	 * The default constructor. 
@@ -53,17 +42,35 @@ class BCParameter
 	BCParameter(const char* name, double lowerlimit, double upperlimit); 
 
 	/**
+	 * The default copy constructor 
+	 */ 
+	BCParameter(const BCParameter & parameter); 
+
+	/**
 	 * The default destructor 
 	 */ 
 	~BCParameter(); 
 
-	// methods (get) 
+	/* @} */ 
+
+	/** \name Assignment operators */ 
+	/* @{ */ 
+
+	/**
+	 * The defaut assignment operator 
+	 */ 
+	BCParameter & operator = (const BCParameter & parameter); 
+
+	/* @} */ 
+
+	/** \name Getters */ 
+	/* @{ */ 
 
 	/**
 	 * Returns the name of the parameter. 
 	 * @return The name of the parameter
 	 */ 
-	const char * GetName()
+	std::string GetName()
 	{ return fName; }; 
 
 	/** 
@@ -87,14 +94,10 @@ class BCParameter
 	double GetUpperLimit()
 	{ return fUpperLimit; }; 
 
-	/** 
-	 * Returns 1 if parameter is a nuisence parameter or 0 if not.
-	 * @return 1 - is nuisence paramete, 0 - is not nuisence parameter
-	 */
-	double IsNuisence()
-	{ return fNuisence; }; 
+	/* @} */ 
 
-	// methods (set) 
+	/** \name Setters */ 
+	/* @{ */ 
 
 	/** 
 	 * Set the name of the parameter. 
@@ -124,51 +127,73 @@ class BCParameter
 	{ fUpperLimit = limit; }; 
 
 	/**
-	 * Set parameter to be nuisence.
-	 * @param nuisence 1 - nuisence, 0 - not nuisence
+	 * Set parameter to be nuisance.
+	 * @param nuisance 1 - nuisance, 0 - not nuisance
 	 */
-	void SetNuisence(int nuisence=1)
-	{ fNuisence = nuisence; };
+	void SetNuisance(int nuisance=1)
+	{ fNuisance = nuisance; };
+
+	/* @} */ 
 
 	// methods 
+	
+	/** \name Miscellaneous methods */ 
+	/* @{ */ 
+
+	/** 
+	 * Returns 1 if parameter is a nuisance parameter or 0 if not.
+	 * @return 1 - is nuisance paramete, 0 - is not nuisance parameter
+	 */
+	double IsNuisance()
+	{ return fNuisance; }; 
 
 	/** 
 	 * Prints a summary on the screen. 
 	 */ 
 	void PrintSummary(); 
 
+	/* @} */ 
+
  private: 
+
+	/* 
+	 * Copies this BCParameter into another one 
+	 */ 
+	void Copy(BCParameter & parameter) const; 
 
 	/**
 	 * The name of the parameter. 
 	 */ 
-	int fNameSize; 
-	const char * fName; //[fNameSize]
+	std::string fName; 
 
 	/** 
-	 * The index of the parameter within the parameter container of a BCModel. 
+	 * The index of the parameter within the BCParameterSet of a BCModel. 
 	 */ 
 	int fIndex; 
 
 	/** 
-	 * The lower limit of the parameter values. 
+	 * The lower limit of the parameter value. 
 	 */ 
 	double fLowerLimit; 
 
 	/** 
-	 * The lower limit of the parameter values. 
+	 * The upper limit of the parameter value. 
 	 */ 
 	double fUpperLimit; 
 
 	/**
-	 * Flag to specify whether to integarte over this parameter
+	 * Flag to specify whether to integrate over this parameter or not. 
 	 */
-	int fNuisence;
+	int fNuisance;
 
 }; 
 
 // --------------------------------------------------------- 
 
+/*
+ * \typedef 
+ * \brief A vector of pointer to BCParameter. 
+ */
 typedef std::vector<BCParameter*> BCParameterSet; 
 
 // --------------------------------------------------------- 

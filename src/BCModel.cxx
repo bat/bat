@@ -111,7 +111,7 @@ BCParameter * BCModel::GetParameter(int index)
 	if (index < 0 || index >= this -> GetNParameters())
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning, 
-				Form("BCModel::GetParameter. Parameter index %d not within range.", index)); 
+							 Form("BCModel::GetParameter. Parameter index %d not within range.", index)); 
 		return 0; 
 	}
 
@@ -128,13 +128,15 @@ BCParameter * BCModel::GetParameter(const char * name)
 	int index = -1; 
 
 	for (int i = 0; i < this->GetNParameters(); i++)
-		if (this->CompareStrings(name, this->GetParameter(i)->GetName()) == 0) 
+		//		if (this->CompareStrings(name, this->GetParameter(i)->GetName()) == 0) 
+		if (name == this -> GetParameter(i) -> GetName())
 			index = i; 
 
 	if (index<0)
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
-				Form("BCModel::GetParameter. Model %s has no parameter named %s.", this->GetName(), name));
+							 //							 Form("BCModel::GetParameter. Model %s has no parameter named %s.", this -> GetName(), name));
+							 Form("BCModel::GetParameter. Model %s has no parameter named %s.", (this -> GetName()).data(), name));
 		return 0;
 	}
 
@@ -379,13 +381,13 @@ int BCModel::AddParameter(BCParameter * parameter)
 	int flag_exists = 0; 
 
 	for (int i = 0; i < this -> GetNParameters(); i++)
-		if (this -> CompareStrings(parameter -> GetName(), this -> GetParameter(i) -> GetName()) == 0)
+		if (this -> CompareStrings(parameter -> GetName().data(), this -> GetParameter(i) -> GetName().data()) == 0)
 			flag_exists = -1; 
 
 	if (flag_exists < 0)
 		{
 			BCLog::Out(BCLog::warning, BCLog::warning, 
-								 Form("BCModel::AddParameter. Parameter with name %s exists already. ", parameter -> GetName())); 
+								 Form("BCModel::AddParameter. Parameter with name %s exists already. ", parameter -> GetName().data())); 
 
 			return ERROR_PARAMETEREXISTSALREADY; 
 		}
@@ -576,9 +578,9 @@ double BCModel::SamplingFunction(std::vector <double> parameters)
 
 double BCModel::Normalize()
 {
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName()));
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName().data()));
 
-	int n = this->GetNvar();
+	int n = this -> GetNvar();
 	
 	// initialize BCIntegrate if not done already
 
@@ -617,7 +619,7 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 					modelparameter -> GetUpperLimit() < parameters.at(i)) 
 				{
 					BCLog::Out(BCLog::warning, BCLog::warning, 
-										 Form("BCModel::CheckParameters. Parameter %s not within limits.", fParameterSet -> at(i) -> GetName())); 
+										 Form("BCModel::CheckParameters. Parameter %s not within limits.", fParameterSet -> at(i) -> GetName().data())); 
 
 					return ERROR_PARAMETERNOTWITHINRANGE; 
 				}
@@ -633,7 +635,7 @@ BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
 {
 	// print log
 
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Marginalize probability with respect to %s", parameter -> GetName()));
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Marginalize probability with respect to %s", parameter -> GetName().data()));
 
 	BCH1D * hprobability = new BCH1D();
 
@@ -643,9 +645,9 @@ BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
 
 	// set axis labels
 
-	hist -> SetName(Form("hist_%s_%s", this -> GetName(),parameter -> GetName()));
-	hist -> SetXTitle(parameter -> GetName());
-	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName()));
+	hist -> SetName(Form("hist_%s_%s", this -> GetName().data(), parameter -> GetName().data()));
+	hist -> SetXTitle(parameter -> GetName().data());
+	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName().data()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
@@ -676,16 +678,16 @@ BCH2D * BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * 
 
 	BCLog::Out(BCLog::summary, BCLog::summary,
 		Form("Marginalize probability with respect to %s and %s",
-			parameter1 -> GetName(),
-			parameter2 -> GetName()));
+				 parameter1 -> GetName().data(),
+				 parameter2 -> GetName().data()));
 
 	BCH2D * hprobability = new BCH2D();
 
 	// get histogram
 
 	TH2D * hist = this -> Marginalize(parameter1, parameter2);
-	hist -> SetXTitle(Form("%s", parameter1 -> GetName()));
-	hist -> SetYTitle(Form("%s", parameter2 -> GetName()));
+	hist -> SetXTitle(Form("%s", parameter1 -> GetName().data()));
+	hist -> SetYTitle(Form("%s", parameter2 -> GetName().data()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
@@ -702,9 +704,9 @@ int BCModel::MarginalizeAll()
 {
 
 	BCLog::Out(BCLog::summary, BCLog::summary,
-		Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName()));
+						 Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName().data()));
 
-	return this -> MarginalizeAllByMetro(this->GetName());
+	return this -> MarginalizeAllByMetro(this->GetName().data());
 
 }
 
@@ -734,9 +736,9 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 
 	// set axis labels
 
-	hist -> SetName(Form("hist_%s_%s", this -> GetName(), parameter -> GetName()));
-	hist -> SetXTitle(parameter -> GetName());
-	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName()));
+	hist -> SetName(Form("hist_%s_%s", this -> GetName().data(), parameter -> GetName().data()));
+	hist -> SetXTitle(parameter -> GetName().data());
+	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName().data()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
@@ -783,9 +785,9 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 
 	// set axis labels
 
-	hist -> SetName(Form("hist_%s_%s_%s", this -> GetName(), parameter1 -> GetName(), parameter2 -> GetName()));
-	hist -> SetXTitle(Form("%s", parameter1 -> GetName()));
-	hist -> SetYTitle(Form("%s", parameter2 -> GetName()));
+	hist -> SetName(Form("hist_%s_%s_%s", this -> GetName().data(), parameter1 -> GetName().data(), parameter2 -> GetName().data()));
+	hist -> SetXTitle(Form("%s", parameter1 -> GetName().data()));
+	hist -> SetYTitle(Form("%s", parameter2 -> GetName().data()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
@@ -834,7 +836,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
 	char listname[200]; 
 
-	sprintf(listname, "./data/list_%s.txt", this -> GetName()); 
+	sprintf(listname, "./data/list_%s.txt", this -> GetName().data()); 
 
 	stream_list.open(listname, std::fstream::out); 
 
@@ -918,7 +920,7 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 
 			char filename[200]; 
 
-			sprintf(filename, "./data/data_%s_%d.txt", this -> GetName(), idataset); 
+			sprintf(filename, "./data/data_%s_%d.txt", this -> GetName().data(), idataset); 
 
 			stream_data.open(filename, std::fstream::out); 
 
@@ -1102,7 +1104,7 @@ void BCModel::CreateDataGridROOT(int ndatasets, std::vector <double> parameters,
 
 	char filename[200]; 
 
-	sprintf(filename, "./data/gof_%s.root", this -> GetName()); 
+	sprintf(filename, "./data/gof_%s.root", this -> GetName().data()); 
 
 	outputfile = new TFile(filename, "RECREATE"); 
 
@@ -1424,7 +1426,7 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
 	// create histogram 
 
-	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 50, minimum - 0.1 * fabs(minimum), maximum + 0.1 * fabs(minimum)); 
+	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName().data()), "", 50, minimum - 0.1 * fabs(minimum), maximum + 0.1 * fabs(minimum)); 
 	hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
 	hist -> SetYTitle("1/N dN/dlog_{10}y"); 
 	hist -> SetStats(kFALSE); 
@@ -1451,13 +1453,13 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 	std::cout << std::endl; 
 	std::cout << " Goodness-of-fit : " << std::endl; 
 	std::cout << std::endl; 
-	std::cout << " Model : " << this -> GetName() << std::endl; 
+	std::cout << " Model : " << this -> GetName().data() << std::endl; 
 	std::cout << std::endl; 
 	std::cout << " Parameters : " << std::endl; 
 
 	for (int i = 0; i < int(parameters.size()); i++)
 		std::cout << " Parameter : " 
-							<< fParameterSet -> at(i) -> GetName() 
+							<< fParameterSet -> at(i) -> GetName().data() 
 							<< " = " << parameters.at(i) << std::endl; 
 	std::cout << std::endl; 
 	std::cout << " Conditional probability p(data|lambda*) = " << likelihood << std::endl; 
@@ -1564,7 +1566,7 @@ BCH1D * BCModel::GoodnessOfFitTestROOT(int ntrees, const char * filename, std::v
 
 	// create histogram 
 
-	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName()), "", 50, minimum - 0.1 * fabs(minimum), maximum + 0.1 * fabs(minimum)); 
+	TH1D * hist = new TH1D(Form("GOF_%s", this -> GetName().data()), "", 50, minimum - 0.1 * fabs(minimum), maximum + 0.1 * fabs(minimum)); 
 	hist -> SetXTitle("log_{10}y=log_{10}p(data|#lambda^{*})"); 
 	hist -> SetYTitle("1/N dN/dlog_{10}y"); 
 	hist -> SetStats(kFALSE); 
@@ -1591,13 +1593,13 @@ BCH1D * BCModel::GoodnessOfFitTestROOT(int ntrees, const char * filename, std::v
 	std::cout << std::endl; 
 	std::cout << " Goodness-of-fit : " << std::endl; 
 	std::cout << std::endl; 
-	std::cout << " Model : " << this -> GetName() << std::endl; 
+	std::cout << " Model : " << this -> GetName().data() << std::endl; 
 	std::cout << std::endl; 
 	std::cout << " Parameters : " << std::endl; 
 
 	for (int i = 0; i < int(parameters.size()); i++)
 		std::cout << " Parameter : " 
-							<< fParameterSet -> at(i) -> GetName() 
+							<< fParameterSet -> at(i) -> GetName().data() 
 							<< " = " << parameters.at(i) << std::endl; 
 	std::cout << std::endl; 
 	std::cout << " Conditional probability p(data|lambda*) = " << likelihood << std::endl; 
@@ -1635,7 +1637,7 @@ BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> paramete
 
 	// do goodness-of-fit test 
 
-	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName().data()), parameters); 
 
 	return gof; 
 
@@ -1664,7 +1666,7 @@ BCH1D * BCModel::DoGoodnessOfFitTestROOT(int ndatasets, std::vector<double> para
 
 	// do goodness-of-fit test 
 
-	BCH1D * gof = this -> GoodnessOfFitTestROOT(ndatasets, Form("./data/gof_%s.root", this -> GetName()), parameters); 
+	BCH1D * gof = this -> GoodnessOfFitTestROOT(ndatasets, Form("./data/gof_%s.root", this -> GetName().data()), parameters); 
 
 	return gof; 
 
@@ -1693,7 +1695,7 @@ BCH1D * BCModel::DoGoodnessOfFitTest(int ndatasets, std::vector<double> paramete
 
 	// do goodness-of-fit test 
 
-	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName()), parameters); 
+	BCH1D * gof = this -> GoodnessOfFitTest(Form("./data/list_%s.txt", this -> GetName().data()), parameters); 
 
 	return gof; 
 
@@ -1844,12 +1846,12 @@ void BCModel::PrintSummary()
 		for (int i=0; i<nparameters; i++)
 		{
 			cout
-				<<"       "<< fParameterSet -> at(i) -> GetName()
+				<<"       "<< fParameterSet -> at(i) -> GetName().data()
 				<<" = "<< this -> GetBestFitParameter(i)
 				<<" (overall)"<<endl;
 			if ((int)fBestFitParametersMarginalized.size() == nparameters) 
 				cout
-					<<"       "<< fParameterSet -> at(i) -> GetName()
+					<<"       "<< fParameterSet -> at(i) -> GetName().data()
 					<<" = "<< this -> GetBestFitParameterMarginalized(i)
 					<<" (marginalized)"<<endl;
 		}

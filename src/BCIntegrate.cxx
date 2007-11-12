@@ -499,7 +499,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 {
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form(" --> Marginalizing model wrt. parameter %s using method %d.", parameter->GetName(), fMarginalizeMethod));
+						 Form(" --> Marginalizing model wrt. parameter %s using method %d.", parameter->GetName().data(), fMarginalizeMethod));
 
 	switch(fMarginalizeMethod)
 	{
@@ -585,7 +585,7 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 	double hmax2 = parameter2 -> GetUpperLimit(); 
 	double hdx2  = (hmax2 - hmin2) / double(fNbins); 
 
-	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName(), parameter2 -> GetName()),"",
+	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName().data(), parameter2 -> GetName().data()),"",
 			fNbins, hmin1, hmax1,
 			fNbins, hmin2, hmax2); 
 
@@ -660,7 +660,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 	double hmin2 = parameter2 -> GetLowerLimit();
 	double hmax2 = parameter2 -> GetUpperLimit();
 
-	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName(), parameter2 -> GetName()),"",
+	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName().data(), parameter2 -> GetName().data()),"",
 			fNbins, hmin1, hmax1,
 			fNbins, hmin2, hmax2);
 
@@ -695,7 +695,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		double hmin1 = fx->at(i) -> GetLowerLimit();
 		double hmax1 = fx->at(i) -> GetUpperLimit();
 
-		TH1D * h1 = new TH1D(Form("h%s_%s", name, fx->at(i) -> GetName()),"",
+		TH1D * h1 = new TH1D(Form("h%s_%s", name, fx->at(i) -> GetName().data()),"",
 			fNbins, hmin1, hmax1);
 
 		fHProb1D.push_back(h1);
@@ -711,7 +711,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 			double hmin2 = fx->at(j) -> GetLowerLimit();
 			double hmax2 = fx->at(j) -> GetUpperLimit();
 
-			TH2D * h2 = new TH2D(Form("h%s_%s_%s", name, fx->at(i) -> GetName(), fx->at(j) -> GetName()),"",
+			TH2D * h2 = new TH2D(Form("h%s_%s_%s", name, fx->at(i) -> GetName().data(), fx->at(j) -> GetName().data()),"",
 				fNbins, hmin1, hmax1,
 				fNbins, hmin2, hmax2);
 
@@ -1221,7 +1221,7 @@ void BCIntegrate::FindModeMinuit()
 
 	for (int i = 0; i < fNvar; i++)
 		fMinuit -> mnparm(i, 
-											fx -> at(i) -> GetName(), 
+											fx -> at(i) -> GetName().data(), 
 											(fMin[i]+fMax[i])/2.0, 
 											(fMax[i]-fMin[i])/100.0, 
 											fMin[i],

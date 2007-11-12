@@ -44,6 +44,7 @@
 #define __BCMODEL__H
 
 #include <vector.h>
+#include <string.h> 
 
 #include <TROOT.h>
 #include <TGraph.h> 
@@ -87,7 +88,7 @@ class BCModel : public BCIntegrate
 	/** 
 	 * @return The name of the model
 	 */
-	const char * GetName()
+	std::string GetName()
 	{ return fName; }; 
 
 	/** 
@@ -638,8 +639,7 @@ class BCModel : public BCIntegrate
 	/** 
 	 * Name of the model. 
 	 */
-	int fNameSize; 
-	const char * fName; //[fNameSize]
+	std::string fName; 
 
 	/**
 	 * The model prior probability. 
