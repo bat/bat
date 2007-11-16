@@ -135,7 +135,7 @@ In order to satisfy Eq.~\ref{eq:norm}, we set
 %
 \begin{equation}
 P_{i+1}(\vec{\lambda},M) =\frac{f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M)}
-{\sum_M \int f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M) d{\lambda}}
+{\sum_M \int f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M) d{\vec{\lambda}}}
 \end{equation}
 %
 We usually just write $P_i=P_0$, and this quantity is called the
@@ -150,7 +150,7 @@ The following quantity is proposed to evaluate the validity of a
 model,$M$, (including any modelling of the experimental conditions):
 %
 \begin{equation}
-p=\int_{f(\vec{x}|\vec{\lambda^*},M)<f(\vec{x}=\vec{D}|\vec{\lambda^*},M)} f(\vec{x}|\vec{\lambda^*},M) d\vec{\lambda}
+p=\int_{f(\vec{x}|\vec{\lambda^*},M)<f(\vec{x}=\vec{D}|\vec{\lambda^*},M)} \frac{f(\vec{x}|\vec{\lambda^*},M) d\vec{x}}{\int f(\vec{x}|\vec{\lambda^*},M) d\vec{x}}
 \end{equation}
 %
 where $\vec{\lambda^*}$ are the optimal values of $\lambda$ (e.g.,
@@ -263,43 +263,56 @@ How to install BAT on your computer. Requirements, e.g. ROOT.
 \section{Analysis chain}
 \label{section:analysis}
 
-The following section describes the basic features and the technical
-implementation of the \BAT\ toolkit. The general flow of work is the
+In the following section a typical analysis chain is described. The basic features 
+of the \BAT\ toolkit are introduced. The general flow of work is the
 following: one or several models are defined together with their
 parameters and corresponding ranges. Data is read in from a file and
-interfaced with each model. The models are then compared by
+interfaced with each model. The models are then compared to each other by
 calculating the probability for each model given the data
-set. Parameters are estimated either for the total probability density
-or for the marginalized probability densities. Given these best-fit
-parameters a ``goodness-of-fit'' can be estimated by evaluating the
-posterior probability for an ensemble of possible data sets. 
+set. Parameters are estimated either from the total probability density
+or from the marginalized probability densities. Given these best-fit
+parameters a ``goodness-of-fit'' test can be performed by evaluating the
+posterior probability for an ensemble of possible data sets. \\ 
+
+\noindent 
+Subsequently, alternative features are discussed such as function fitting and 
+graphical output. Also, the special case of data sets containing only one data point 
+is discussed. These can be used for sensitivity analyses. 
 
 % --------------------------------------------------------
 
 \subsection{Getting started} 
 
-The \BAT\ toolkit is meant to be used as library in any existing C++
+The \BAT\ toolkit is meant to be used as a library in any existing C++
 code. In order to start a new project several files need to be
 provided by the user:
 % 
 \begin{itemize}
-\item A makefile in which the \BAT\ library is set. 
-\item The include and source files of the model classes. 
+\item A makefile in which the \BAT\ library is linked. 
+\item A definition of each model used in the analysis, e.g. include 
+      and source files of the classes defining these models (see 
+      next section).  
 \item A main file in which the actual analysis is performed. 
 \end{itemize} 
+
+\noindent  
+It is assumed in the following that an analysis skeleton exists, e.g. a 
+makefile and a main file. 
 
 % --------------------------------------------------------
 
 \subsection{Creating a model} 
 
+\subsubsection{Implementation of a mathematical model as a C++ class} 
+
 The mathematical models used in Bayesian inference are implemented in
 terms of C++ classes. The basic element in this implementation is the
 abstract class \verb|BCIntegrate| which contains mathematical tools
-and methods. Its (only) daughter class \verb|BCModel| provides
-containers for further information on the model. All model classes
-inherit from the \verb|BCModel| class. It has several public methods
+in the form of member functions. Its (only) daughter class, \verb|BCModel|, provides
+interfaces to data sets and further information of any abstract model. All model classes
+inherit from the \verb|BCModel| class. It has several public member functions
 which need to be overloaded by the user in order to specify the
-mathematical expressions for each for the three terms. Apart from the
+mathematical expressions for an unambiguous definition of a model. Apart from the
 constructor and destructor, these methods are
 % 
 \begin{itemize}
@@ -310,17 +323,33 @@ constructor and destructor, these methods are
 \item \verb|BCModel::LogLikelihood(std::vector <double> parameters)| \\ 
  This method contains a mathematical expression for the conditional
  probability of the data given a set of parameter values. For reasons
- of numerical stability it return the logarithm of the conditional
+ of numerical stability it returns the logarithm of the conditional
  probability.
 %
 \item \verb|BCModel::LogAPrioriProbability(std::vector <double> parameters)| \\
  This method contains a mathematical expression for the {\it a priori}
  probability for a set of parameter values. For reasons
- of numerical stability it return the logarithm of the conditional
+ of numerical stability it returns the logarithm of the conditional
  probability.
 \end{itemize} 
 
 \noindent 
+A class derived from \verb|BCModel| can contain any number of additional 
+member functions. An example for a header file is shown in 
+Section~\ref{paragraph:headerfile}, an example for a source file is shown 
+in Section~\ref{paragraph:sourcefile}. 
+
+\subsubsection{Alternative definition of the conditional probability} 
+
+In case the conditional probability density is simply the product of the probability 
+densities for single data points it can be defined via the method 
+\verb|BCModel::LogAPrioriProbabilityEntry(BCDataPoint * datapoint, std::vector <double> parameters)|. 
+In addtion, a poisson term for the overall probability density can be defined via 
+\verb|double PoissonProbability(int nentries, std::vector <double> parameters)|.  Note, that 
+in this case no correlation among the data points is taken into account. 
+
+\subsubsection{Definition of parameters of a model} 
+
 The parameters of a model are implemented as a C++ class named
 \verb|BCModelParameter|. They can be interfaced to a model in two
 ways: either they are explicitly defined and then added to a model via 
@@ -339,8 +368,9 @@ BCModel::AddParameter(const char* name, double lowerlimit, double upperlimit) .
 \noindent 
 Every parameter has to have a unique name and valid limits. Once added
 to a model the parameters can be referenced by an index or by
-name. The index is given while added to the model. 
-%
+name. The index is given once the parameter is added to the model. A parameter can 
+be returned from a model using the functions
+% 
 \begin{verbatim} 
 BCModel::GetParameter(int index) 
 BCModel::GetParameter(char* name) 
@@ -361,8 +391,8 @@ values. Data points can be generated explicitly by the user with or
 without intial value 
 %
 \begin{verbatim} 
-BCDataPoint::BCDataPoint(int nvariables)
-BCDataPoint::BCDataPoint(vector<double> x) 
+BCDataPoint::BCDataPoint(int nvariables) ,
+BCDataPoint::BCDataPoint(vector<double> x) .  
 \end{verbatim} 
 
 \noindent 
@@ -370,22 +400,22 @@ Values of a data point can either be set value-by-value or for all
 values at once
 %
 \begin{verbatim} 
-BCDataPoint::SetValue(int index, double value)  
-BCDataPoint::SetValues(std::vector <double> values) 
+BCDataPoint::SetValue(int index, double value) , 
+BCDataPoint::SetValues(std::vector <double> values) . 
 \end{verbatim} 
 
 \noindent 
 The value of the $i$th entry can be obtained by 
 %
 \begin{verbatim}
-BCDataPoint::GetValue(int index); 
+BCDataPoint::GetValue(int index) . 
 \end{verbatim} 
 
 \noindent 
-Data points can be added to data sets by the user via 
+A data point can be added to a data set with the function
 
 \begin{verbatim} 
-BCDataSet::AddDataPoint(BCDataPoint* datapoint)
+BCDataSet::AddDataPoint(BCDataPoint* datapoint) . 
 \end{verbatim} 
 
 \noindent 
@@ -396,23 +426,47 @@ Alternatively, data can be read in from a file
 BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames)
 BCDataSet::ReadDataFromFileTxt(char* filename, int nvariables)
 BCDataSet::ReadDataFromFileUser(char* filename, std::vector<int> options_int,
-                                std::vector<double> options_double, const char* options_char)
+                                std::vector<double> options_double, const char* options_char) . 
 \end{verbatim} 
 \end{small} 
 
 \noindent 
-The format in \verb|.txt| files is chosen such that each data point
-corresponds to one line each containing several values. Note, that the
+The data format for \verb|.txt| files is such that each data point
+corresponds to one line, each containing several values. Note, that the
 number of values per data point has to be provided by the user. While
 the first two methods are interfaces to pre-defined formats the third
-methods allows the user to define his/her own interface. \\
+method allows the user to define his or her own interface. \\
 
 \noindent 
-Once a data set is defined it is assigned to a model via 
+Once a data set is defined it can be assigned to a model with
 %
 \begin{verbatim}
-BCModel::SetDataSet(BCDataSet* dataset)
+BCModel::SetDataSet(BCDataSet* dataset) . 
 \end{verbatim} 
+
+\noindent 
+Similarly, a data set can be returned from a model with 
+%
+\begin{verbatim}
+BCModel::GetDataSet() . 
+\end{verbatim} 
+
+\noindent 
+Note, that the user can define several data sets. However, a model can only have one data set 
+at a time. Thus, if the use wants to perform an analysis on several data set it has to be done 
+for each data set separately, i.e. assign a data set, perform the analysis and repeat this for 
+each data set. The case that a data set only contains one data point is discussed in Section~\ref{subsection:singleeventanalyses}. 
+
+\subsubsection{Constraining the values of data points}
+
+For two applications discussed later in this section, the goodness-of-fit test and the calculation 
+of error bands, it is necessary to put limits on the possible values of the data points. This is 
+done for each variable separately. Note, that the limits are defined by the model not by the data 
+set: 
+%
+\begin{verbatim}
+SetDataBoundaries(int index, double lowerboundary, double upperboundary) . 
+\end{verbatim}
 
 % --------------------------------------------------------
 
@@ -486,7 +540,7 @@ where \verb|BCIntegrationType| can be one of the following
 
 \noindent 
 The time needed for the numerical integration depends on the number of
-iterations. For the samples mean integration it can be constrained by
+iterations. For the sampled mean integration it can be constrained by
 the maximum number of iterations and the relative precision aimed
 at. These parameters can be set via
 %
@@ -507,13 +561,13 @@ The integration can be performed for each model separately or for all models whi
 %
 \begin{verbatim}
 BCModel::Normalize() 
-BCModelManager::Initialize()
+BCModelManager::Normalize()
 \end{verbatim} 
 
 \noindent 
 The private variable \verb|fNormalization| is set for each model. Once
-the integral is calculated the {\it a posteriori} probability for a
-set of parameter values can be evaluated
+the integral is calculated the {\it a posteriori} probability density for a
+set of parameter values, given a data set, can be evaluated
 
 \begin{verbatim} 
 BCModel::Probability(std::vector <double> parameter) .  
@@ -530,7 +584,7 @@ of models is calculated. The posterior probability for the $i$th
 model, $H_{i}$, given the data, is simply
 %
 \begin{equation}
-p(\mathrm{H_{1}}|\mathrm{data}) = \frac{N_{1} \cdot p_{0}(H_{1})}{\sum_{i = 1}^{N} N_{i} \cdot p_{0}(H_{i})} \, , 
+p(\mathrm{H_{i}}|\mathrm{data}) = \frac{N_{\mathrm{i}} \cdot p_{0}(\mathrm{H_{i}})}{\sum_{\mathrm{j} = 1}^{N} N_{\mathrm{j}} \cdot p_{0}(\mathrm{H_{j}})} \, , 
 \end{equation}
 %
 where $N_{i}$ is the normalization of the $i$th model posterior
@@ -539,25 +593,28 @@ Eqn.~\ref{eqn:BayesTheorem}) and $p_{0}(H_{i})$ is the prior
 probability for the $i$th model. \\ 
 
 \noindent 
-The model {\it a posteriori} probability can be evaluated once the
+The {\it a posteriori} probability for a model can be evaluated once the
 model manager is initialized and all numerical integrations are
 performed
 %
 \begin{verbatim}
-BCModel::GetModelAPosterioriProbability()
+BCModel::GetModelAPosterioriProbability() . 
 \end{verbatim}
 
 % --------------------------------------------------------
 
 \subsection{Parameter estimate and marginalization} 
 
-The {\it a posteriori} probability can be used to estimate the set of
+The {\it a posteriori} probability density can be used to estimate the set of
 parameter values most suited to describe the data. This is done by
-searching for the most probable value, or mode of the
-distribution. Two approaches are followed: either the mode in the
+searching for the most probable value, or mode, of the probability density. 
+Two approaches are followed: either the mode in the
 whole parameter space is searched for, or the probability density is
-marginalized with respect to the parameter under study. The former
-case can be realized by 
+marginalized with respect to a particular parameter studied. 
+
+\subsubsection{Global optimization} 
+
+The global optimization can be performed with the function 
 %
 \begin{verbatim} 
 BCModel::FindMode()
@@ -569,12 +626,13 @@ posteriori} probability density. The implemented algorithms can be chosen
 with the command
 %
 \begin{verbatim}
-BCModel::SetModeFindingMethod(BCIntegrate::BCModeFindingType method) \ .
+BCModel::SetModeFindingMethod(BCIntegrate::BCModeFindingType method) .
 \end{verbatim}
 %
 Currently, there are two methods: simulated annealing and an interface
-to Minuit.The algorithms are described in
-Section~\ref{section:tools}. \\
+to Minuit. The algorithms are described in Section~\ref{section:tools}. \\
+
+\subsubsection{Marginalization and optimization} 
 
 \noindent 
 The single parameter estimate is done by marginalization. If more than
@@ -582,7 +640,7 @@ one parameter is studied it is most efficient to marginalize with
 respect to all parameters simultaneously. This can be done by
 %
 \begin{verbatim}
-BCModel::MarginalizeAll() 
+BCModel::MarginalizeAll() . 
 \end{verbatim} 
 
 \noindent 
@@ -632,12 +690,71 @@ chains can be used. \\
 
 % --------------------------------------------------------
 
+\subsection{Posterior probability check: a goodness-of-fit test} 
+
+Once the most suited parameter set, $\lambda^{*}$, for a given model
+and data set, $D$, is estimated the quality of the model with this
+parameter set can be tested. This ``goodness--of--fit'' test is based
+on a set of fake data sets, $\{ \tilde{D} \}$, generated under the
+assumption of the parameters obtained, $\lambda^{*}$. A frequency
+distribution $f$ of the obtained conditional probability
+$k=p(\tilde{D}|\lambda^{*})$ is calculated and interpreted as
+probability density. The $p$-value is defined as the probability to
+find a conditional probability $p(\tilde{D}|\lambda^{*})$ equal or
+less than for the original data set, $k_{0}=p(D|\lambda^{*})$, i.e.
+%
+\begin{equation}
+p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\lambda^{*})} f(k) \, \mathrm{d}k 
+\end{equation} 
+
+\noindent 
+The user has to provide data sets generated with the parameter set
+$\lambda^{*}$. Each data set has to be written to a separate text file
+with the format described in Section~\ref{subsection:data}. A file
+containing a list of data set files has to be provided. The
+goodness--of--fit test is done by calling
+%
+\begin{verbatim}
+BCModel::GoodnessOfFitTest(const char * filenname, std::vector <double> parameters) 
+\end{verbatim} 
+
+\noindent 
+The method returns a pointer to a \verb|BCH1D|. The frequency
+distribution can be printed as for the case of parameter
+estimates. The $p$-value is then calculated from this distribution and
+can be obtained by 
+%
+\begin{verbatim}
+BCModel::GetPValue() . 
+\end{verbatim} 
+
+% --------------------------------------------------------
+
 \subsection{Fitting} 
 
-\begin{itemize}
-\item using the fitfunction 
-\item error bands and how they are calculated 
-\end{itemize}
+A common task is to fit a function to a data set. In this case a member function of 
+the class \verb|BCIntegrate| can be overwritten which returns the value of a fit function given 
+a set of parameter values and a point $x$ at which the function is evaluated: 
+%
+\begin{verbatim}
+FitFunction(std::vector <double> x, std::vector <double> parameters) . 
+\end{verbatim}
+
+\noindent 
+If $x$ is one-dimensional an error band can be calculated for the fit. During 
+marginalization, each point in parameter space is sampled with a frequency corresponding to the 
+probability density at this parameter set (assuming the Markov chain has converged). The error band is obtained by 
+evaluating the fit function, $y(x)$, for each $x$ at each point in parameter space. 
+The values are histogrammed in $x$--$y(x)$--space. Each slice of $x$ is normalized to unity and interpreted as 
+probability density for $y$ given $x$. The 0.16 and 0.84~quantiles are then interpreted as uncertainty on $y$ at that $x$. An example for an error band is given in the Section~\ref{section:examples}. \\ 
+
+\noindent 
+The $x$--$y(x)$ (TH2D*) histogram and the (TGraph*) error band can be obtained with the functions 
+%
+\begin{verbatim}
+BCModel::GetErrorBandXY()
+BCModel::GetErrorBandGraph(double level1=0.16, double level2=0.84) 
+\end{verbatim}
 
 % --------------------------------------------------------
 
@@ -687,11 +804,11 @@ BCH1D::GetSmallestInterval(double & min, double & max, double content=.68) .
 
 \noindent 
 Both type of histograms can be printed to an \verb|.eps| or \verb|.ps|
-file via
+file calling the function 
 
 \begin{verbatim}
-BCH1D::Print(char * filename, int options=0, double ovalue=0.)
-BCH2D::Print (char *filename, int options)
+BCH1D::Print(char * filename, int options=0, double ovalue=0.) , 
+BCH2D::Print(char *filename, int options) . 
 \end{verbatim}  
 
 The printing options are summarized in Table~\ref{table:printingoptions}. 
@@ -724,47 +841,8 @@ BCH2D & \\
 
 % --------------------------------------------------------
 
-\subsection{Posterior probability check: a goodness-of-fit test} 
-
-Once the most suited parameter set, $\lambda^{*}$, for a given model
-and data set, $D$, is estimated the quality of the model with this
-parameter set can be tested. This ``goodness--of-fit'' test is based
-on a set of fake data sets, $\{ \tilde{D} \}$, generated under the
-assumption of the parameters obtained, $\lambda^{*}$. A frequency
-distribution $f$ of the obtained conditional probability
-$k=p(\tilde{D}|\lambda^{*})$ is calculated and interpreted as
-probability density. The $p$-value is defined as the probability to
-find a conditional probability $p(\tilde{D}|\lambda^{*})$ equal or
-larger than for the original data set, $k_{0}=p(D|\lambda^{*})$, i.e.
-%
-\begin{equation}
-p = \frac{1}{n} \int_{k_{0}=p(D|\lambda^{*})}^{1} f(k) \, \mathrm{d}k 
-\end{equation} 
-
-\noindent 
-The user has to provide data sets the generated with the parameter set
-$\lambda^{*}$. Each data set has to be written to a separate text file
-with the format described in Section~\ref{subsection:data}. A file
-containing a list of data set files has to be provided. The
-goodness-of-fit test is done by calling
-%
-\begin{verbatim}
-BCModel::GoodnessOfFitTest(const char * filenname, std::vector <double> parameters) 
-\end{verbatim} 
-
-\noindent 
-The method returns a pointer to a \verb|BCH1D|. The frequency
-distribution can be printed as for the case of parameter
-estimates. The $p$-value is then calculated from this distribution and
-can be obtained by 
-%
-\begin{verbatim}
-BCModel::GetPValue() . 
-\end{verbatim} 
-
-% --------------------------------------------------------
-
 \subsection{Single event analyses and sensitivity studies}
+\label{subsection:singleeventanalyses}
 
 Often one is interested in repeating the same analysis on several data
 sets. This is particularly true for estimating the expected outcome of
@@ -772,6 +850,7 @@ an analysis given a particular set of input parameters, e.g. to study
 the sensitivity of an experiment to a certain process. \BAT\ offers an
 easy way to handle such processes and the outcome. \\ 
 
+\noindent 
 If a data set contains several data points and one data point
 describes the possible outcome of an experiment then one can use 
 %
@@ -784,10 +863,9 @@ BCModelManager::SetSingleDataPoint(BCDataSet * dataset, int index)  .
 %
 The data set of the model (or model manager) will be set to a single
 event from the given data set. This allows to loop over the events of
-a data set without reloading and redefining for each experimental
-outcome. \\ 
+a data set without reloading and redefining it for each analysis. \\ 
 
-The results for each analysis can be stored in a file using the output
+The results of each analysis can be stored in a file using the output
 class \verb|BCModelOutput|. This class is assigned a model class and a
 file. It contains a ROOT tree which stores the most important
 information of the analysis outcome, such as the global mode, the
@@ -821,7 +899,7 @@ BCModel::PrintSummary(char * filename=0)
 
 \noindent 
 The summary is written to a file. In case no filename is specified the
-summary is printed onto the screen. 
+summary is printed on the screen. 
 
 % --------------------------------------------------------
 
@@ -837,12 +915,13 @@ summary is printed onto the screen.
 \subsection{The log book} 
 
 The class \verb|BCLog| is used to write out information during the
-runtime of program. The output is written to screen and to a log
-file. The minimum level of detail can be set by the user via
+runtime of the program. The output is written to screen and to a log
+file. The minimum level of detail can be set independently for both 
+with the methods 
 %
 \begin{verbatim} 
-SetMinimumLogLevelFile(BCLog::LogLevel loglevel)
-SetMinimumLogLevelScreen(BCLog::LogLevel loglevel)
+SetMinimumLogLevelFile(BCLog::LogLevel loglevel) , 
+SetMinimumLogLevelScreen(BCLog::LogLevel loglevel) , 
 \end{verbatim} 
 
 \noindent 
@@ -850,13 +929,13 @@ where the level is one of the following
 %
 \begin{itemize} 
 \item \verb|debug|: Lowest level of information. 
-\item \verb|detail|: Details of functions, etc. 
-\item \verb|summary|: Results such as best-fit values, etc. 
+\item \verb|detail|: Details of functions, such as the status of the Markov chains, etc. 
+\item \verb|summary|: Results, such as best-fit values, normalization, etc. 
 \item \verb|warning|: Warning messages 
 \item \verb|nothing|: Nothing is written out. 
 \end{itemize} 
 
-The user has to open a log file in the beginning using 
+A log file has to be opened in the beginning of the main file using 
 %
 \begin{verbatim} 
 BCLog::OpenLog() . 
@@ -874,12 +953,15 @@ parameters can be controlled by the user and what they mean.
 
 \paragraph{Interface to Minuit} 
 
-An interface to the ROOT-based version of Minuit exists. The actual
-object can be returned and modified with
+BAT provides an interface to the ROOT version of Minuit. The ROOT object 
+\verb|TMinuit| can be returned from a model and modified with the function 
 %
 \begin{verbatim}
-BCIntegrate::GetMinuit()
+BCIntegrate::GetMinuit() . 
 \end{verbatim} 
+
+\noindent 
+For details on the parameters to steer \verb|TMinuit| please consult the ROOT manual. 
 
 % --------------------------------------------------------
 
@@ -957,6 +1039,7 @@ details on Markov chains, see Section~\ref{subsection:optimization}.
 % --------------------------------------------------------
 
 \section{Examples}
+\label{section:examples} 
 
 Several examples are provided together with the \BAT\ libraries. These
 are discussed in the following. 
@@ -1052,7 +1135,8 @@ int main()
 
 \pagebreak 
 
-\paragraph{The include file} 
+\paragraph{The header file} 
+\label{paragraph:headerfile}
 % 
 \begin{small} 
 \begin{verbatim}
@@ -1097,7 +1181,8 @@ class BCModelPol1 : public BCModel
 
 \pagebreak 
 
-\paragraph{The model file} 
+\paragraph{The source file} 
+\label{paragraph:sourcefile}
 % 
 \begin{small} 
 \begin{verbatim}
