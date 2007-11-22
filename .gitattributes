@@ -73,5 +73,7 @@ src/BCModel.cxx -text
 src/BCModelManager.cxx -text
 src/BCModelOutput.cxx -text
 src/BCParameter.cxx -text
+tools/analyzeMCMC/Makefile -text
+tools/analyzeMCMC/analyzeMCMC.c -text
 tools/mkmodelclass.sh -text
 tools/setup.sh -text
