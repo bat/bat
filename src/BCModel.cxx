@@ -160,7 +160,7 @@ std::vector <double> BCModel::GetErrorBand(double level)
 	
 	// loop over x and y bins 
 
-	for (int ix = 1; ix <= nx; ix++) 
+	for (int ix = 1; ix < nx; ix++) 
 		{
 			double sum = 0.0; 
 
@@ -176,8 +176,9 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 					sum += fErrorBandXY -> GetBinContent(ix, iy); 
 				}
+				
 		}
-	
+
 	return errorband; 
 
 }

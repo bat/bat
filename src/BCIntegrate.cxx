@@ -303,7 +303,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 		fNIterations++;
 
 		// get random numbers
-		this -> GetRndmVector(randx);
+		this -> GetRandomVector(randx);
 
 		// scale random numbers
 		for(int i = 0; i < fNvar; i++)
@@ -763,6 +763,10 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	randx.assign(fNvar, 0.0);
 	InitMetro();
 
+	// reset counter 
+
+	fNacceptedMCMC = 0; 
+
 	// run Metro and fill histograms
 	for(int i=0;i<=niter;i++)
 	{
@@ -771,6 +775,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		// save this point to the markov chain in the ROOT file 
 		if (fFlagWriteMarkovChain)
 			{
+				fMCMCIteration = i; 
 				fMarkovChainTree -> Fill(); 
 			}
 
@@ -882,6 +887,8 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 				}
 		}
 	
+	BCLog::Out(BCLog::detail, BCLog::detail,
+		   Form("BCIntegrate::MarginalizeAllByMetro done with %i trials and %i accepted trials. Efficiency is %f",fNmetro, fNacceptedMCMC, double(fNacceptedMCMC)/double(fNmetro)));
 	
 	return fNvar+nh2d;
 
@@ -980,7 +987,7 @@ TH2D * BCIntegrate::GetH2D(int parIndex1, int parIndex2)
 // *********************************************
 double BCIntegrate::GetRandomPoint(std::vector <double> &x)
 {
-	this->GetRndmVector(x);
+	this->GetRandomVector(x);
 
 	for(int i=0;i<fNvar;i++)
 		x[i]=fMin[i]+x[i]*(fMax[i]-fMin[i]);
@@ -996,7 +1003,7 @@ double BCIntegrate::GetRandomPointImportance(std::vector <double> &x)
 
 	while (p>g)
 	{
-		this->GetRndmVector(x);
+		this->GetRandomVector(x);
 
 		for(int i=0;i<fNvar;i++)
 			x[i] = fMin[i] + x[i] * (fMax[i]-fMin[i]);
@@ -1027,19 +1034,22 @@ void BCIntegrate::InitMetro()
 
 	for(int i=0;i<1000;i++)
 		GetRandomPointMetro(x);
+
+	fNmetro = 0; 
+
 }
 
 // *********************************************
 void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 {
 	// get new point
-	this->GetRndmVector(fXmetro1);
+	this->GetRandomVectorMetro(fXmetro1);
 
 	// scale the point to the allowed region and stepsize
 	int in=1;
 	for(int i=0;i<fNvar;i++)
 	{
-		fXmetro1[i] = fXmetro0[i] + 2 * (fXmetro1[i]-0.5) * fMarkovChainStepSize * (fMax[i]-fMin[i]);
+		fXmetro1[i] = fXmetro0[i] + fXmetro1[i] * (fMax[i]-fMin[i]);
 
 		// check whether the generated point is inside the allowed region
 		if( fXmetro1[i]<fMin[i] || fXmetro1[i]>fMax[i] )
@@ -1068,14 +1078,20 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 
 	// fill the return point after the decision
 	if(accept)
-		for(int i=0;i<fNvar;i++)
-		{
-			fXmetro0[i]=fXmetro1[i];
-			x[i]=fXmetro1[i];
-			// debug
-			// Kevin, fill the log likelihood value 
-			fMarkovChainValue = p1; 
-		}
+	  {
+	    // increase counter
+	    fNacceptedMCMC++; 
+
+	    for(int i=0;i<fNvar;i++)
+	      {
+		fXmetro0[i]=fXmetro1[i];
+		x[i]=fXmetro1[i];
+		// debug
+		// Kevin, fill the log likelihood value 
+		fMarkovChainValue = p1; 
+	      }
+	    
+	  }
 	else
 		for(int i=0;i<fNvar;i++)
 			{
@@ -1095,13 +1111,13 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
 {
 	// get new point
-	this->GetRndmVector(fXmetro1);
+	this->GetRandomVectorMetro(fXmetro1);
 
 	// scale the point to the allowed region and stepsize
 	int in=1;
 	for(int i=0;i<fNvar;i++)
 	{
-		fXmetro1[i] = fXmetro0[i] + 2 * (fXmetro1[i]-0.5) * fMarkovChainStepSize * (fMax[i]-fMin[i]);
+		fXmetro1[i] = fXmetro0[i] + fXmetro1[i] * (fMax[i]-fMin[i]);
 
 		// check whether the generated point is inside the allowed region
 		if( fXmetro1[i]<fMin[i] || fXmetro1[i]>fMax[i] )
@@ -1143,7 +1159,7 @@ void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
 }
 
 // *********************************************
-void BCIntegrate::GetRndmVector(std::vector <double> &x)
+void BCIntegrate::GetRandomVector(std::vector <double> &x)
 {
 	double * randx = new double[fNvar];
 
@@ -1151,6 +1167,20 @@ void BCIntegrate::GetRndmVector(std::vector <double> &x)
 
 	for(int i=0;i<fNvar;i++)
 		x[i] = randx[i];
+
+	delete[] randx;
+	randx = 0;
+}
+
+// *********************************************
+void BCIntegrate::GetRandomVectorMetro(std::vector <double> &x)
+{
+	double * randx = new double[fNvar];
+
+	fRandom -> RndmArray(fNvar, randx);
+
+	for(int i=0;i<fNvar;i++)
+		x[i] = 2.0 * (randx[i] - 0.5) * fMarkovChainStepSize;
 
 	delete[] randx;
 	randx = 0;
@@ -1425,13 +1455,13 @@ void BCIntegrate::FindModeSA()
 void BCIntegrate::GetRandomPointSA(std::vector <double> &x, double T, double step)
 {
 	// get new point
-	this->GetRndmVector(fXmetro1);
+	this->GetRandomVectorMetro(fXmetro1);
 
 	// scale the point to the allowed region and step
 	int in=1;
 	for(int i=0;i<fNvar;i++)
 	{
-		fXmetro1[i] = fXmetro0[i] + 2 * (fXmetro1[i]-0.5) * step * (fMax[i]-fMin[i]);
+		fXmetro1[i] = fXmetro0[i] + fXmetro1[i] * step * (fMax[i]-fMin[i]);
 
 		// check whether the generated point is inside the allowed region
 		if( fXmetro1[i]<fMin[i] || fXmetro1[i]>fMax[i] )

@@ -295,10 +295,13 @@ void BCModelOutput::InitializeMarkovChainTree()
 
 	fParameters = fModel -> GetMarkovChainPoint(); 
 
+	fIteration = fModel -> GetMCMCIteration(); 
+
 	fLogLikelihood = fModel -> GetMarkovChainValue(); 
 
-	fMarkovChainTree -> Branch("fNParameters", &fNParameters, "parameters/I"); 
-	fMarkovChainTree -> Branch("fLogLikelihood", fLogLikelihood, "log (likelihood)/D"); 
+	fMarkovChainTree -> Branch("fIteration",      fIteration,   "iteration/I"); 
+	fMarkovChainTree -> Branch("fNParameters",   &fNParameters, "parameters/I"); 
+	fMarkovChainTree -> Branch("fLogLikelihood",  fLogLikelihood, "log (likelihood)/D"); 
 
 	// loop over all parameters 
 

@@ -2,6 +2,7 @@
 #include <BCModelSignal.h>
 #include <BCParameter.h>
 #include <BCModelManager.h>
+#include <BCModelOutput.h>
 #include <BCDataPoint.h> 
 #include <BCH1D.h> 
 
@@ -62,6 +63,19 @@ int main()
 
 	fModelManager -> AddModel(fModelBackground, 0.5); 
 	fModelManager -> AddModel(fModelSignal, 0.5); 
+
+	// ---------------------------------------------------------
+	// model output file 
+	// ---------------------------------------------------------
+	
+	// creates a ROOT output file which stores all the necessary
+	// information. 
+
+	BCModelOutput * fModelOutputBackground = new BCModelOutput(fModelBackground, "output_Background.root"); 
+	fModelOutputBackground -> WriteMarkovChain(true); 
+
+	BCModelOutput * fModelOutputSignal = new BCModelOutput(fModelSignal, "output_Signal.root"); 
+	fModelOutputSignal -> WriteMarkovChain(true); 
 
 	// ---------------------------------------------------------
 	// read data from file 
@@ -132,48 +146,59 @@ int main()
 	double post_modelbkg = fModelBackground -> GetModelAPosterioriProbability(); 
 	double post_modelsgn = fModelSignal -> GetModelAPosterioriProbability(); 
 
-	// select background model ... 
+	// marginalize background model 
 
-	if (post_modelbkg > post_modelsgn)
-		{
-			// marginalize with respect to all (one) parameter.  the
-			// number of bins define the numerical precision. 
+	// marginalize with respect to all (one) parameter.  the
+	// number of bins define the numerical precision. 
 
-			fModelBackground -> SetNbins(100); 
-			fModelBackground -> MarginalizeAll();
+	fModelBackground -> SetNbins(100); 
+	fModelBackground -> MarginalizeAll();
 
-			// the one-dimensional marginalized probability densities are kept
-			// in memory and are returned from the model class. they are printed
-			// into a .ps file. 
+	// the one-dimensional marginalized probability densities are kept
+	// in memory and are returned from the model class. they are printed
+	// into a .ps file. 
 
-			fModelBackground -> GetMarginalized("background") -> Print("modelbackground_background.ps");
-		}
+	fModelBackground -> GetMarginalized("background") -> Print("modelbackground_background.ps");
 
-	// ... or select signal plus background model 
+	// marginalize signal model 
 
-	else
-		{
-			// marginalize with respect to all parameters.  the
-			// number of bins define the numerical precision. 
+	// marginalize with respect to all parameters.  the
+	// number of bins define the numerical precision. 
 
-			fModelSignal -> SetNbins(100); 
-			fModelSignal -> MarginalizeAll();
+	fModelSignal -> SetNbins(100); 
+	fModelSignal -> MarginalizeAll();
 
-			// the one-dimensional marginalized probability densities are kept
-			// in memory and are returned from the model class. they are printed
-			// into a .ps file. 
+	// the one-dimensional marginalized probability densities are kept
+	// in memory and are returned from the model class. they are printed
+	// into a .ps file. 
 
-			fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps");
-			fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps");
+	fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps");
+	fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps");
+			
+	// the two-dimensional marginalized probability densitiy is kept in
+	// memory and is returned from the model class. it is printed into a
+	// .ps file.
 
-			// the two-dimensional marginalized probability densitiy is kept in
-			// memory and is returned from the model class. it is printed into a
-			// .ps file.
+	fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_contour.ps", 2);
 
-			fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_contour.ps", 2);
+	fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_color.ps", 5);
 
-			fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_color.ps", 5);
-		}
+	// ---------------------------------------------------------
+	// write to output file 
+	// ---------------------------------------------------------
+
+	// fill the ROOT file with the actual output of the model. 
+
+	fModelOutputBackground -> FillAnalysisTree(); 
+	fModelOutputBackground -> WriteMarginalizedDistributions(); 
+
+	fModelOutputSignal -> FillAnalysisTree(); 
+	fModelOutputSignal -> WriteMarginalizedDistributions(); 
+
+	// write to file and close 
+
+	fModelOutputBackground -> Close(); 
+	fModelOutputSignal -> Close(); 
 
  // ---------------------------------------------------------
  // summarize

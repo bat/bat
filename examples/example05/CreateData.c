@@ -7,12 +7,12 @@ void CreateData()
 
 	int nevents = 1000; 
 
-	float M     = 100.0; 
-  float Gamma =   2.0; 
-	float sigma =   0.5; 
+	float M     =   50.0; 
+  float Gamma =   5.0; 
+	float sigma =   5.0; 
 	
 	float E_min =   0.0; 
-	float E_max = 200.0; 
+	float E_max = 100.0; 
 
   // initialize random number generator 
 
@@ -28,13 +28,11 @@ void CreateData()
 
 	// histograms 
 
-	TH1D * hist_M = new TH1D("hist_M", ";M;N", 101, 49.5, 150.5); 
+	TH1D * hist_M = new TH1D("hist_M", ";M;N", 101, -0.5, 100.5); 
 	hist_M -> SetLineColor(kBlue); 
 
-	TH1D * hist_Esumtrue = new TH1D("hist_Esumtrue", ";E_{1} + E_{2};N", 101, 49.5, 150.5); 
-	hist_Esumtrue -> SetLineColor(kRed); 
-
-	TH1D * hist_Esum = new TH1D("hist_Esum", ";E_{1} + E_{2};N", 101, 49.5, 150.5); 
+	TH1D * hist_E = new TH1D("hist_E", ";E_{1} + E_{2};N", 101, -0.5, 100.5); 
+	hist_E -> SetLineColor(kRed); 
 
   // loop over points 
 	  
@@ -43,28 +41,25 @@ void CreateData()
 
 			// add resolution 
 
-			double E1 = E_min-1.0; 
-			double E2 = E_min-1.0; 
+			double E = E_min-1.0; 
+			double Mevent = gRandom -> Gaus(M, Gamma); 
 
-			while (!(E1>E_min&&E1<E_max&&E2>E_min&&E2<E_max))
+			while (!(E>E_min&&E<E_max))
 				{
 					// get center-of-mass energy 
 
-					double Ecom = gRandom -> BreitWigner(M, Gamma); 
-					double E     = Ecom / 2.0; 
+					Mevent = gRandom -> Gaus(M, Gamma); 
 
 					// add resolution 
 
-					E1 = gRandom -> Gaus(E, sigma * sqrt(E)); 
-					E2 = gRandom -> Gaus(E, sigma * sqrt(E)); 
+					E = gRandom -> Gaus(Mevent, sigma); 
 	      }
 					// write to file 
       
-					file_data << E1 << " " << E2 << endl; 
+			file_data << E << " " << endl; 
 
-					hist_M -> Fill(M); 
-					hist_Esumtrue -> Fill(Ecom); 
-					hist_Esum -> Fill(E1 + E2); 
+			hist_M -> Fill(Mevent); 
+			hist_E -> Fill(E); 
 		}
 
 	// plot histograms 
@@ -74,8 +69,7 @@ void CreateData()
 	canvas -> cd(); 
 
 	hist_M -> Draw(); 
-	hist_Esumtrue -> Draw("SAME"); 
-	hist_Esum -> Draw("SAME"); 
+	hist_E -> Draw("SAME"); 
 
   // close file 
 	  

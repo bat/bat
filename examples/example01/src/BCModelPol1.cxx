@@ -30,7 +30,7 @@ void BCModelPol1::DefineParameters()
 	// adds the parameters which define the model and their limits. 
 
 	this -> AddParameter("constant", 1.0, 3.0);   // index 0 
-	this -> AddParameter("slope",    0.0, 0.03); // index 1 
+	this -> AddParameter("slope",    -0.03, 0.03); // index 1 
 
 }
 
@@ -86,6 +86,35 @@ double BCModelPol1::LogPoissonProbability(int nentries, std::vector <double> par
 
 	return 0.;
 
+}
+
+// --------------------------------------------------------- 
+
+void BCModelPol1::GetRandomVectorMetro(std::vector <double> &x)
+{
+  
+  x[0] = fRandom -> Gaus(0.0, 0.05); 
+  
+  while (x[0] < -1.0 || x[0] > 1.0)
+    x[0] = fRandom -> Gaus(0.0, 0.05); 
+  
+  x[1] = fRandom -> Gaus(0.0, 0.05); 
+  
+  while (x[1] < -1.0 || x[1] > 1.0)
+    x[1] = fRandom -> Gaus(0.0, 0.05); 
+
+  //  double * randx = new double[fNvar];
+
+  //  fRandom -> RndmArray(fNvar, randx);
+
+  //  for(int i=0;i<fNvar;i++)
+  //    x[i] = randx[i];
+
+  //  delete[] randx;
+  //  randx = 0;
+  
+  //    cout << x[0] << " " << x[1] << endl; 
+  
 }
 
 // --------------------------------------------------------- 

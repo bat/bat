@@ -64,7 +64,7 @@ int main()
 	// read in: x, y, and the uncertainty on y. if the file is not found
 	// or corrupt, the program returns -1.
 
-	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 2) != 0)
+	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 1) != 0)
 		return -1; 
 
 

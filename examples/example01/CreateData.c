@@ -8,7 +8,8 @@ void CreateData()
   int npoints = 10; 
 
   float par0 = 2.0; 
-  float par1 = 0.01; 
+	//  float par1 = 0.01; 
+  float par1 = 0.00; 
   
   float sigmay = 0.2; 
   

@@ -107,7 +107,9 @@ class BCIntegrate
 	 * Fills a vector of random numbers between 0 and 1 into a vector 
 	 * @param A vector of doubles 
 	 */ 
-	void GetRndmVector(std::vector <double> &x);
+	void GetRandomVector(std::vector <double> &x);
+
+	virtual void GetRandomVectorMetro(std::vector <double> &x);
 
 	/**
 	 * Fills a vector of (flat) random numbers in the limits of the parameters and returns 
@@ -573,6 +575,12 @@ class BCIntegrate
 		{ return &fXmetro1; }; 
 
 	/**
+	 * Returns the iteration of the MCMC 
+	 */ 
+	int * GetMCMCIteration()
+		{ return &fMCMCIteration; }; 
+
+	/**
 	 * Returns the value of the loglikelihood at the point fXmetro1
 	 */ 
 	double * GetMarkovChainValue()
@@ -644,6 +652,7 @@ class BCIntegrate
 	 * The number of iterations in the Metropolis integration 
 	 */ 
 	int fNmetro;
+	int fNacceptedMCMC; 
 
 	/** 
 	 * A vector of points in parameter space used for the Metropolis algorithm 
@@ -751,6 +760,11 @@ class BCIntegrate
 	 * ROOT tree containing the Markov chain 
 	 */ 
 	TTree * fMarkovChainTree; 
+
+	/**
+	 * Iteration of the MCMC 
+	 */ 
+	int fMCMCIteration; 
 
 };
 

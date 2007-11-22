@@ -2,6 +2,7 @@
 #include <BCModelPol1.h>
 #include <BCModelPol2.h>
 #include <BCModelManager.h>
+#include <BCModelOutput.h>
 #include <BCDataPoint.h> 
 #include <BCLog.h> 
 
@@ -64,6 +65,22 @@ int main()
 	fModelManager -> AddModel(fModelPol0, 1.0/3.0); 
 	fModelManager -> AddModel(fModelPol1, 1.0/3.0); 
 	fModelManager -> AddModel(fModelPol2, 1.0/3.0); 
+
+	// ---------------------------------------------------------
+	// model output file 
+	// ---------------------------------------------------------
+	
+	// creates a ROOT output file which stores all the necessary
+	// information. 
+
+	BCModelOutput * fModelOutputPol0 = new BCModelOutput(fModelPol0, "output_ModelPol0.root"); 
+	fModelOutputPol0 -> WriteMarkovChain(true); 
+
+	BCModelOutput * fModelOutputPol1 = new BCModelOutput(fModelPol1, "output_ModelPol1.root"); 
+	fModelOutputPol1 -> WriteMarkovChain(true); 
+
+	BCModelOutput * fModelOutputPol2 = new BCModelOutput(fModelPol2, "output_ModelPol2.root"); 
+	fModelOutputPol2 -> WriteMarkovChain(true); 
 
 	// ---------------------------------------------------------
 	// read data from file 
@@ -132,7 +149,7 @@ int main()
 	// selects the most probable model and marginalizes the probability
 	// density with respect to all parameters
 
-	fModelManager -> SetNbins(100); 
+	fModelManager -> SetNbins(1); 
 
 	// marginalizes the probability density with respect to all
 	// parameters for all models. 
@@ -278,6 +295,27 @@ int main()
 			fModelPol2 -> DoGoodnessOfFitTestROOT(1000, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
 				Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
 			//		}
+
+	// ---------------------------------------------------------
+	// write to output file 
+	// ---------------------------------------------------------
+
+	// fill the ROOT file with the actual output of the model. 
+
+	fModelOutputPol0 -> FillAnalysisTree(); 
+	fModelOutputPol0 -> WriteMarginalizedDistributions(); 
+
+	fModelOutputPol1 -> FillAnalysisTree(); 
+	fModelOutputPol1 -> WriteMarginalizedDistributions(); 
+
+	fModelOutputPol2 -> FillAnalysisTree(); 
+	fModelOutputPol2 -> WriteMarginalizedDistributions(); 
+
+	// write to file and close 
+
+	fModelOutputPol0 -> Close(); 
+	fModelOutputPol1 -> Close(); 
+	fModelOutputPol2 -> Close(); 
 
 	// ---------------------------------------------------------
 	// summarize

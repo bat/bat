@@ -43,7 +43,9 @@ class BCModelParticleDecay : public BCModel
 
  private: 
 
-	double logW(double Emeasured, double Etrue); 
+	double logEnergyResolution(double Emeasured, double Etrue); 
+
+	double logMassDistribution(double mass, double polemass, double width); 
 
 }; 
 

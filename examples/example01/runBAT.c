@@ -16,7 +16,7 @@ int main()
 
 	// ---------------------------------------------------------
 	// set style  
-	// --------------------- ------------------------------------
+	// ----------------------------------------------------------
 
 	// calls a function which defines a nice style. 
 
@@ -123,7 +123,7 @@ int main()
 	// combinations of two parameters, in this case constant-slope. the
 	// number of bins define the numerical precision. 
 
-	fModelPol1 -> SetNbins(10);
+	fModelPol1 -> SetNbins(100);
  	fModelPol1 -> MarginalizeAll();
 
 	// the one-dimensional marginalized probability densities are kept
@@ -228,8 +228,8 @@ int main()
 
 	// draw the error band 
 
-	//	fModelPol1 -> GetErrorBandXY() -> Draw("COL"); 
-	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
+	fModelPol1 -> GetErrorBandXY() -> Draw("COL"); 
+	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("SAMEF"); 
 
 	// defines a graph with errors. 
 
@@ -251,8 +251,8 @@ int main()
 
 	// draw best fit function 
 
-	fModelPol1 -> GetFitFunctionGraph() -> Draw("SAMEC"); 
-
+	fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParameters()) -> Draw("SAMEC"); 
+	
 	// draw the graph containing the data. 
 
 	graph -> Draw("SAMEP"); 

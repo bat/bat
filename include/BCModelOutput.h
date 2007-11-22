@@ -197,6 +197,7 @@ class BCModelOutput
 	 */ 
 	std::vector<double> * fParameters; 
 	double * fLogLikelihood; 
+	int * fIteration; 
 
 }; 
 
