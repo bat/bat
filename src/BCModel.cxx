@@ -154,7 +154,6 @@ std::vector <double> BCModel::GetErrorBand(double level)
 		return errorband; 
 
 	int nx = fErrorBandXY -> GetNbinsX(); 
-	int ny = fErrorBandXY -> GetNbinsY(); 
 
 	errorband.assign(nx, 0.0); 
 	
@@ -162,21 +161,18 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 	for (int ix = 1; ix < nx; ix++) 
 		{
-			double sum = 0.0; 
+			
+			TH1D * temphist = fErrorBandXY -> ProjectionY("temphist", ix, ix); 
 
-			for (int iy = 1; iy <= ny; iy++)
-				{
-					double sumplusone = sum + fErrorBandXY -> GetBinContent(ix, iy); 
+			int nprobSum = 1; 
+			double q[1]; 
+			double probSum[1]; 
 
-					if (sumplusone > level && sum < level)
-						{
-							errorband[ix-1] = fErrorBandXY -> GetYaxis() -> GetBinLowEdge(iy) + 
-								(level - sumplusone) / fErrorBandXY -> GetBinContent(ix, iy) * fErrorBandXY -> GetYaxis() -> GetBinWidth(iy); 
-						}
+			probSum[0] = level; 
 
-					sum += fErrorBandXY -> GetBinContent(ix, iy); 
-				}
-				
+			temphist -> GetQuantiles(nprobSum, q, probSum); 
+			
+			errorband[ix-1] = q[0]; 
 		}
 
 	return errorband; 

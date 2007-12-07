@@ -44,6 +44,8 @@ BCIntegrate::BCIntegrate()
 
 	fMarkovChainStepSize = 0.1; 
 
+	fMarkovChainAutoN = true; 
+
 }
 
 // *********************************************
@@ -75,6 +77,8 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 	fMarkovChainTree = 0; 
 
 	fMarkovChainStepSize = 0.1; 
+
+	fMarkovChainAutoN = true; 
 }
 
 // *********************************************
@@ -614,7 +618,10 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 // *********************************************
 TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 {
-	int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
+	int niter = fMarkovChainNIterations; 
+
+	if (fMarkovChainAutoN == true) 
+		niter = fNbins*fNbins*fNSamplesPer2DBin*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
@@ -1028,6 +1035,8 @@ void BCIntegrate::InitMetro()
 				fXmetro0.push_back((fMin[i]+fMax[i])/2.0); 
 		}
 	
+	fMarkovChainValue = this ->  LogEval(fXmetro0);
+
 	// run metropolis for a few times and dump the result... (to forget the initial position)
 	std::vector <double> x;
 	x.assign(fNvar,0.); 
@@ -1057,15 +1066,15 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 	}
 
 	// calculate the log probabilities and compare old and new point
-	double p0 = this -> LogEval(fXmetro0); // old point
-	double p1=0; // new point
-	if(in)
-		p1= this -> LogEval(fXmetro1);
 
-	// compare log probabilities
+	double p0 = fMarkovChainValue; // old point
+	double p1 = 0; // new point
 	int accept=0;
+
 	if(in)
 	{
+		p1 = this -> LogEval(fXmetro1);
+
 		if(p1>=p0)
 			accept=1;
 		else
@@ -1086,8 +1095,6 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 	      {
 		fXmetro0[i]=fXmetro1[i];
 		x[i]=fXmetro1[i];
-		// debug
-		// Kevin, fill the log likelihood value 
 		fMarkovChainValue = p1; 
 	      }
 	    
@@ -1096,9 +1103,6 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 		for(int i=0;i<fNvar;i++)
 			{
 			x[i]=fXmetro0[i];
-			// debug 
-			// Kevin, I don't know whether this does any harm, but I need it
-			// for saving the complete chain somewhere.
 			fXmetro1[i] = x[i]; 
 			fMarkovChainValue = p0; 
 			}
