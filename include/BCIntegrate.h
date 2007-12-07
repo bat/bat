@@ -337,6 +337,19 @@ class BCIntegrate
 	void SetMarkovChainStepSize(double stepsize) 
 	{	fMarkovChainStepSize = stepsize; }; 
 
+	/**
+	 * Sets the number of iterations in the markov chain
+	 */ 
+	void SetMarkovChainNIterations(int niterations)
+	{	fMarkovChainNIterations = niterations; 
+	fMarkovChainAutoN = false; } 
+
+	/**
+	 * Sets a flag for automatically calculating the number of iterations 
+	 */ 
+	void SetMarkovChainAutoN(bool flag) 
+	{	fMarkovChainAutoN = flag; }; 
+
 	// methods   
 
 	/** 
@@ -691,6 +704,10 @@ class BCIntegrate
 	 * Step size in the Markov chain relative to min and max 
 	 */ 
 	double fMarkovChainStepSize; 
+
+	int fMarkovChainNIterations; 
+	
+	bool fMarkovChainAutoN; 
 
 	/** 
 	 * data point containing the lower boundaries of possible data values 
