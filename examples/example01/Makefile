@@ -29,9 +29,9 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o link.d runBAT
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runBATexample01.*.exe 
 
-all : runBAT
+all : runBATexample01.1  runBATexample01.2  runBATexample01.3  runBATexample01.4  runBATexample01.5  runBATexample01.6  runBATexample01.7 
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -44,9 +44,33 @@ include link.d
 clean :
 	$(RM) $(GARBAGE)
 
-runBAT : runBAT.c $(CXXOBJS)
+runBATexample01.1 : runBATexample01.1.c  $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runBAT.o $(CXXOBJS) -o runBAT
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.1.o $(CXXOBJS) -o runBATexample01.1.exe
+
+runBATexample01.2 : runBATexample01.2.c  $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.2.o $(CXXOBJS) -o runBATexample01.2.exe
+
+runBATexample01.3 : runBATexample01.3.c  $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.3.o $(CXXOBJS) -o runBATexample01.3.exe
+
+runBATexample01.4 : runBATexample01.4.c  $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.4.o $(CXXOBJS) -o runBATexample01.4.exe
+
+runBATexample01.5 : runBATexample01.5.c  $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.5.o $(CXXOBJS) -o runBATexample01.5.exe
+
+runBATexample01.6 : runBATexample01.6.c  $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.6.o $(CXXOBJS) -o runBATexample01.6.exe
+
+runBATexample01.7 : runBATexample01.7.c  $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample01.7.o $(CXXOBJS) -o runBATexample01.7.exe
 
 print :
 	echo compiler  : $(CXX)

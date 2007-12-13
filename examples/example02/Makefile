@@ -31,9 +31,9 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o link.d runBAT
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runBATexample02.*.exe
 
-all : runBAT
+all : runBATexample02.1 runBATexample02.2 runBATexample02.3
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -46,9 +46,17 @@ include link.d
 clean :
 	$(RM) $(GARBAGE)
 
-runBAT : runBAT.c $(CXXOBJS)
+runBATexample02.1 : runBATexample02.1.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runBAT.o $(CXXOBJS) -o runBAT
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.1.o $(CXXOBJS) -o runBATexample02.1.exe
+
+runBATexample02.2 : runBATexample02.2.c $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.2.o $(CXXOBJS) -o runBATexample02.2.exe
+
+runBATexample02.3 : runBATexample02.3.c $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.3.o $(CXXOBJS) -o runBATexample02.3.exe
 
 print :
 	echo compiler  : $(CXX)

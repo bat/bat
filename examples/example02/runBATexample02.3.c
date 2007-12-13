@@ -260,41 +260,29 @@ int main()
 	// p-value is estimated. for details on the goodness-of-fit test,
 	// see the manual. 
 
-	//	if (post_modelpol0 > post_modelpol1 && 
-	//			post_modelpol0 > post_modelpol2) 
-	//		{
-			// performs the goodness-of-fit test. creates 100 ensembles
-			// given the best fit parameters. the frequency distribution is
-			// printed into a .ps file and the conditional probability for
-			// the original data is indicated by a line. 
+	// performs the goodness-of-fit test. creates 1000 ensembles
+	// given the best fit parameters. the frequency distribution is
+	// printed into a .ps file and the conditional probability for
+	// the original data is indicated by a line. 
 
-			fModelPol0 -> DoGoodnessOfFitTestROOT(1000, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
-				Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
-			//		}
+	fModelPol0 -> DoGoodnessOfFitTestROOT(1000, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
+		Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
+	
+	// performs the goodness-of-fit test. creates 1000 ensembles
+	// given the best fit parameters. the frequency distribution is
+	// printed into a .ps file and the conditional probability for
+	// the original data is indicated by a line. 
+	
+	fModelPol1 -> DoGoodnessOfFitTestROOT(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
+		Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 
-			//	if (post_modelpol1 > post_modelpol0 && 
-			//			post_modelpol1 > post_modelpol2) 
-			//		{
-			// performs the goodness-of-fit test. creates 100 ensembles
-			// given the best fit parameters. the frequency distribution is
-			// printed into a .ps file and the conditional probability for
-			// the original data is indicated by a line. 
+	// performs the goodness-of-fit test. creates 1000 ensembles
+	// given the best fit parameters. the frequency distribution is
+	// printed into a .ps file and the conditional probability for
+	// the original data is indicated by a line. 
 
-			fModelPol1 -> DoGoodnessOfFitTestROOT(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
-				Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
-			//		}
-
-			//	if (post_modelpol2 > post_modelpol0 && 
-			//			post_modelpol2 > post_modelpol1) 
-			//		{
-			// performs the goodness-of-fit test. creates 100 ensembles
-			// given the best fit parameters. the frequency distribution is
-			// printed into a .ps file and the conditional probability for
-			// the original data is indicated by a line. 
-
-			fModelPol2 -> DoGoodnessOfFitTestROOT(1000, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
-				Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
-			//		}
+	fModelPol2 -> DoGoodnessOfFitTestROOT(1000, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
+		Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
 
 	// ---------------------------------------------------------
 	// write to output file 
@@ -407,8 +395,8 @@ int main()
 			post_modelpol0 > post_modelpol2) 
 		{
 			hist_axes -> Draw();
-			fModelPol0 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 			//			fModelPol0 -> GetErrorBandXY() -> Draw("COL");	
+			fModelPol0 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 			graph_bestfit_pol0 -> SetLineColor(kBlack); 
 			graph_bestfit_pol0 -> Draw("SAMEC"); 
 		}
@@ -417,8 +405,8 @@ int main()
 			post_modelpol1 > post_modelpol2) 
 		{
 			hist_axes -> Draw();
-			fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 			//			fModelPol1 -> GetErrorBandXY() -> Draw("COL");	
+			fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 			graph_bestfit_pol1 -> SetLineColor(kBlack); 
 			graph_bestfit_pol1 -> Draw("SAMEC"); 
 		}
@@ -427,8 +415,8 @@ int main()
 			post_modelpol2 > post_modelpol1) 
 		{
 			hist_axes -> Draw();
-			fModelPol2 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 			//			fModelPol2 -> GetErrorBandXY() -> Draw("COL");	
+			fModelPol2 -> GetErrorBandGraph(0.16, 0.84) -> Draw("F"); 
 			graph_bestfit_pol2 -> SetLineColor(kBlack); 
 			graph_bestfit_pol2 -> Draw("SAMEC"); 
 		}

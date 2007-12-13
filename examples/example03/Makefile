@@ -30,9 +30,9 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) runBAT.o link.d runBAT
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runBATexample03.exe
 
-all : runBAT
+all : runBATexample03
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -45,9 +45,9 @@ include link.d
 clean :
 	$(RM) $(GARBAGE)
 
-runBAT : runBAT.c $(CXXOBJS)
+runBATexample03 : runBATexample03.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runBAT.o $(CXXOBJS) -o runBAT
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample03.o $(CXXOBJS) -o runBATexample03.exe
 
 print :
 	echo compiler  : $(CXX)

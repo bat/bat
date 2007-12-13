@@ -17,42 +17,44 @@ int main()
   // ---------------------------------------------------------
   // open log file 
   // ---------------------------------------------------------
+
   BCLog::OpenLog(); 
 
   // ---------------------------------------------------------
   // set personal root style
   // ---------------------------------------------------------
+
   SetStyle();
 
   // ---------------------------------------------------------
   // model definition 
   // ---------------------------------------------------------
-  BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
-  // set integration parameters 
-//	fModelEfficiency -> SetNIterationsMax(1000000); 
-//	fModelEfficiency -> SetRelativePrecision(1e-3); 
-//	fModelEfficiency -> SetNiterationsPerDimension(500); 
+  BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
   // ---------------------------------------------------------
   // read data from file 
   // ---------------------------------------------------------
+
   BCDataSet * fDataSet = new BCDataSet(); 
 
   if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 2) != 0)
     return -1; 
 
   // assign data set to model 
+
   fModelEfficiency -> SetDataSet(fDataSet); 
 
   // ---------------------------------------------------------
   // find maximum
   // ---------------------------------------------------------
+
   fModelEfficiency -> FindMode(); 
 
   // ---------------------------------------------------------
   // marginalize 
   // ---------------------------------------------------------
+
   fModelEfficiency -> SetNbins(100);
   fModelEfficiency -> MarginalizeAll(); 
 
@@ -62,11 +64,13 @@ int main()
   // ---------------------------------------------------------
   // summarize
   // ---------------------------------------------------------
+
   fModelEfficiency -> PrintSummary(); 
 
   // ---------------------------------------------------------
   // close log file 
   // ---------------------------------------------------------
+
   BCLog::CloseLog(); 
 
   return 0; 
