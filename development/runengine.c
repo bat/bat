@@ -7,42 +7,60 @@
 int main()
 {
 
-	int nchains = 2; 
+	int nchains = 10; 
 
 	BCEngineMCMC * enginemcmc = new BCEngineMCMC(nchains); 
 
-	enginemcmc -> MCMCAddParameter( -20.0, 100.0); 
-	enginemcmc -> MCMCAddParameter(   0.0, 200.0); 
+	enginemcmc -> MCMCAddParameter( -20.0, 200.0); 
+	enginemcmc -> MCMCAddParameter( -20.0, 200.0); 
+	enginemcmc -> MCMCAddParameter( -20.0, 200.0); 
+	enginemcmc -> MCMCAddParameter( -20.0, 200.0); 
+	enginemcmc -> MCMCAddParameter( -20.0, 200.0); 
 
 	enginemcmc -> MCMCSetFlagInitialPosition(1); 
-	enginemcmc -> MCMCSetTrialFunctionScale(0.01); 
+	//	enginemcmc -> MCMCSetTrialFunctionScale(1.0); 
+	enginemcmc -> MCMCSetTrialFunctionScale(0.05); 
 
 	enginemcmc -> MCMCInitialize(); 
 
-	std::vector <TH1D*> histcontainer_x; 
-	std::vector <TH1D*> histcontainer_y; 
-	std::vector <TH2D*> histcontainer_xy; 
+	enginemcmc -> MCMCMetropolis(); 
+	
+	//	cout << enginemcmc -> MCMCGetNIterationsConvergenceGlobal() << endl; 
+	//	return 0; 
 
-		enginemcmc -> MCMCMetropolis(); 
-		return 0; 
+	std::vector <TH1D*> histcontainer_x1; 
+	std::vector <TH1D*> histcontainer_y1; 
+	std::vector <TH1D*> histcontainer_z; 
+	std::vector <TH1D*> histcontainer_x2; 
+	std::vector <TH1D*> histcontainer_y2; 
+
 
 	for (int i = 0; i < nchains; ++i)
 		{
-			TH1D * hist_x = new TH1D(Form("hist_x%i", i), "", 120, -20.0, 100.0); 
-			hist_x -> SetLineColor(2 + i); 
+			TH1D * hist_x1 = new TH1D(Form("hist_x1_%i", i), "", 120, -20.0, 100.0); 
+			hist_x1 -> SetLineColor(2 + i); 
 
-			histcontainer_x.push_back(hist_x); 
+			histcontainer_x1.push_back(hist_x1); 
 
-			TH1D * hist_y = new TH1D(Form("hist_y%i", i), "", 120,   0.0, 200.0); 
-			hist_y -> SetLineColor(2 + i); 
+			TH1D * hist_y1 = new TH1D(Form("hist_y1_%i", i), "", 120,   0.0, 200.0); 
+			hist_y1 -> SetLineColor(2 + i); 
 
-			histcontainer_y.push_back(hist_y); 
+			histcontainer_y1.push_back(hist_y1); 
 
-			TH2D * hist_xy = new TH2D(Form("hist_xy%d", i), "", 120, -20.0, 100.0, 200, 0.0, 200.0); 
-			hist_xy -> SetStats(kFALSE); 
-			hist_xy -> SetMarkerColor(2 + i); 
+			TH1D * hist_z = new TH1D(Form("hist_z_%i", i), "", 120, -20.0, 100.0); 
+			hist_z -> SetLineColor(2 + i); 
 
-			histcontainer_xy.push_back(hist_xy); 
+			histcontainer_z.push_back(hist_z); 
+
+			TH1D * hist_x2 = new TH1D(Form("hist_x2_%i", i), "", 120, -20.0, 100.0); 
+			hist_x2 -> SetLineColor(2 + i); 
+
+			histcontainer_x2.push_back(hist_x2); 
+
+			TH1D * hist_y2 = new TH1D(Form("hist_y2_%i", i), "", 120,   0.0, 200.0); 
+			hist_y2 -> SetLineColor(2 + i); 
+
+			histcontainer_y2.push_back(hist_y2); 
 		}
 
 	int dn = int((enginemcmc -> MCMCGetNIterationsMax()) / 100); 
@@ -58,7 +76,11 @@ int main()
 	// reset run statistics 
 
 	enginemcmc -> MCMCResetRunStatistics(); 
+	
+	// perform PCA run 
 
+	//	enginemcmc -> MCMCPCARun(); 
+	
 	// perform run 
 
 	for (int i = 0; i < enginemcmc -> MCMCGetNIterationsMax(); ++i)
@@ -73,28 +95,50 @@ int main()
 
 			for (int j = 0; j < nchains; ++j)
 				{
-					histcontainer_x[j] -> Fill((enginemcmc -> MCMCGetx()).at(2 * j + 0)); 
-					histcontainer_y[j] -> Fill((enginemcmc -> MCMCGetx()).at(2 * j + 1)); 
-					histcontainer_xy[j] -> Fill((enginemcmc -> MCMCGetx()).at(2 * j + 0), (enginemcmc -> MCMCGetx()).at(2 * j + 1)); 
+					histcontainer_x1[j] -> Fill((enginemcmc -> MCMCGetx()).at(5 * j + 0)); 
+					histcontainer_y1[j] -> Fill((enginemcmc -> MCMCGetx()).at(5 * j + 1)); 
+					histcontainer_z[j]  -> Fill((enginemcmc -> MCMCGetx()).at(5 * j + 2)); 
+					histcontainer_x2[j] -> Fill((enginemcmc -> MCMCGetx()).at(5 * j + 3)); 
+					histcontainer_y2[j] -> Fill((enginemcmc -> MCMCGetx()).at(5 * j + 4)); 
 				}
 		}
 
+	cout << enginemcmc -> MCMCGetNIterationsConvergenceGlobal() << endl; 
+	
+	for (int i = 0; i < nchains; ++i)
+		cout << " efficiency : " << double((enginemcmc -> MCMCGetNTrialsTrue()).at(i)) / double((enginemcmc -> MCMCGetNIterations()).at(i)) << endl; 
+
 	TCanvas * canvas = new TCanvas(); 
-	canvas -> Divide(2,2); 
+	canvas -> Divide(3,2); 
+
 	canvas -> cd(1); 
-	histcontainer_x[0] -> Draw(); 
+	histcontainer_x1[0] -> Draw(); 
 	for (int i = 1; i < nchains; ++i) 
-		histcontainer_x[i] -> Draw("SAME"); 
+		histcontainer_x1[i] -> Draw("SAME"); 
+
 	canvas -> cd(2); 
-	histcontainer_y[0] -> Draw(); 
+	histcontainer_y1[0] -> Draw(); 
 	for (int i = 1; i < nchains; ++i) 
-		histcontainer_y[i] -> Draw("SAME"); 
+		histcontainer_y1[i] -> Draw("SAME"); 
+
 	canvas -> cd(3); 
-	histcontainer_xy[0] -> Draw(); 
+	histcontainer_z[0] -> Draw(); 
 	for (int i = 1; i < nchains; ++i) 
-		histcontainer_xy[i] -> Draw("SAME"); 
+		histcontainer_z[i] -> Draw("SAME"); 
+
 	canvas -> cd(4); 
+	histcontainer_x2[0] -> Draw(); 
+	for (int i = 1; i < nchains; ++i) 
+		histcontainer_x2[i] -> Draw("SAME"); 
+
+	canvas -> cd(5); 
+	histcontainer_y2[0] -> Draw(); 
+	for (int i = 1; i < nchains; ++i) 
+		histcontainer_y2[i] -> Draw("SAME"); 
+
+	canvas -> cd(6); 
 	hist_r -> Draw(""); 
+
 	canvas -> Print("canvas.ps"); 
 
 	delete enginemcmc; 

@@ -1,5 +1,7 @@
 #include "BCEngineMCMC.h" 
 
+#define DEBUG 1
+
 // --------------------------------------------------------- 
 
 BCEngineMCMC::BCEngineMCMC(int n) 
@@ -7,15 +9,16 @@ BCEngineMCMC::BCEngineMCMC(int n)
 
  	fMCMCNParameters         = 0; 
 	fMCMCNChains             = n; 
-	fMCMCNIterationsMax      = 100000; 
+	fMCMCNIterationsMax      = 1000000; 
 	fMCMCNIterationsBurnIn   = 100000; 
 	fMCMCNIterationsPCA      = 100000; 
 	fMCMCFlagIterationsAuto  = true; 
 	fMCMCTrialFunctionScale  = 1.0; 
 	fMCMCFlagInitialPosition = 0; 
-	fMCMCRValueCriterion     = 0.25; 
+	fMCMCRValueCriterion     = 0.2; 
 	fMCMCNIterationsConvergenceGlobal = -1; 
 	fMCMCRValue              = 100; 
+	fMCMCFlagPCA             = false; 
 
 	fMCMCRandom              = new TRandom3(0); 
 
@@ -165,6 +168,16 @@ void BCEngineMCMC::MCMCTrialFunction(std::vector <double> &x)
 
 }
 
+// --------------------------------------------------------
+
+void BCEngineMCMC::MCMCTrialFunctionAuto(std::vector <double> &x)
+{
+
+	// use uniform distribution for now 
+
+	for (int i = 0; i < fMCMCNParameters; ++i) 
+		x[i] = fMCMCRandom -> Gaus(fMCMCPCAMean[i], sqrt(fMCMCPCAVariance[i])); 
+}
 
 // --------------------------------------------------------
 
@@ -179,19 +192,44 @@ bool BCEngineMCMC::MCMCGetProposalPoint(int chain, std::vector <double> &x, bool
 	// shift the point to the old point (x0) and scale it. 
 
 	if (pca == false)
-		for (int i = 0; i < fMCMCNParameters; ++i) 
-			x[i] = fMCMCx[chain * fMCMCNParameters + i] + fMCMCTrialFunctionScale * x[i] * (fMCMCBoundaryMax.at(i) - fMCMCBoundaryMin.at(i)); 
-	
-	else 
 		{
-			double * data = new double[fMCMCNParameters]; 
+			// get a proposal point from the trial function 
 
-			//			for (int i = 0; i < fMCMCNParameters; i++)
-			//				data[i] = 
-
-			delete [] data; 
+			for (int i = 0; i < fMCMCNParameters; ++i) 
+				x[i] = fMCMCx[chain * fMCMCNParameters + i] + fMCMCTrialFunctionScale * x[i] * (fMCMCBoundaryMax.at(i) - fMCMCBoundaryMin.at(i)); 
 		}
 
+	else 
+		{
+			double * newp = new double[fMCMCNParameters]; 
+			double * newx = new double[fMCMCNParameters]; 
+
+			for (int i = 0; i < fMCMCNParameters; i++)
+				{
+					newp[i] = 0.0; 
+					newx[i] = 0.0; 
+				}
+
+			this -> MCMCTrialFunctionAuto(x); 
+
+			for (int i = 0; i < fMCMCNParameters; i++)
+				newx[i] = fMCMCx[chain * fMCMCNParameters + i]; 
+
+			fMCMCPCA -> X2P(newx, newp); 
+
+			for (int i = 0; i < fMCMCNParameters; i++)
+				newp[i] += fMCMCTrialFunctionScale * x[i]; 
+
+			fMCMCPCA -> P2X(newp, newx, fMCMCNParameters); 
+
+			for (int i = 0; i < fMCMCNParameters; ++i) 
+				x[i] = newx[i]; 
+
+			delete [] newp; 
+			delete [] newx; 
+
+		}
+	
 	// check if the point is in the correct volume. 
 	
 	for (int i = 0; i < fMCMCNParameters; ++i) 	
@@ -331,18 +369,30 @@ double BCEngineMCMC::LogEval(std::vector <double> parameters)
 
 	double logprob = 0.0; 
 
-	double x = parameters.at(0); 
-	double y = parameters.at(1); 
+	double x1 = parameters.at(0); 
+	double y1 = parameters.at(1); 
+	double z  = parameters.at(2); 
+	double x2 = parameters.at(3); 
+	double y2 = parameters.at(4); 
 
-	double cphi = cos(20.0/180*3.1416); 
-	double sphi = sin(20.0/180*3.1416); 
+	double cphi1 = cos(10.0/180*3.1416); 
+	double sphi1 = sin(10.0/180*3.1416); 
 
-	double xnew = - x * sphi + y * cphi; 
-	double ynew =   x * cphi + y * sphi; 
+	double cphi2 = cos(40.0/180*3.1416); 
+	double sphi2 = sin(40.0/180*3.1416); 
 
-	logprob += - (xnew - 70.0) * (xnew - 70.0)/ (2.0 * 15.0 * 15.0); 
-	logprob += - (ynew - 70.0) * (ynew - 70.0)/ (2.0 * 7.0 * 7.0); 
-	//	logprob += - (parameters.at(1) * parameters.at(1) - 70.0) * (parameters.at(1) - 70.0)/ 100.0; 
+	double x1new =   x1 * cphi1 + y1 * sphi1; 
+	double y1new = - x1 * sphi1 + y1 * cphi1; 
+
+	double x2new =   x2 * cphi2 + y2 * sphi2; 
+	double y2new = - x2 * sphi2 + y2 * cphi2; 
+
+	logprob += - (x1new - 50.0) * (x1new - 50.0)/ (2.0 * 15.0 * 15.0); 
+	logprob += - (y1new - 60.0) * (y1new - 60.0)/ (2.0 * 7.0 * 7.0); 
+	logprob += - (z - 80.0) * (z - 80.0)/ (2.0 * 7.0 * 7.0); 
+	logprob += - (x2new - 20.0) * (x2new - 20.0)/ (2.0 * 5.0 * 5.0); 
+	logprob += - (y2new - 40.0) * (y2new - 40.0)/ (2.0 * 10.0 * 10.0); 
+
 
 	return logprob; 
 
@@ -365,6 +415,12 @@ void BCEngineMCMC::MCMCPCARun()
 
 	double * sum = new double[fMCMCNParameters]; 
 	double * sum2 = new double[fMCMCNParameters]; 
+
+	for (int i = 0; i < fMCMCNParameters; ++i)
+		{
+			sum[i]  = 0.0; 
+			sum2[i] = 0.0; 
+		}
 
 	for (int i = 0; i < fMCMCNIterationsPCA; ++i)
 		{
@@ -399,6 +455,13 @@ void BCEngineMCMC::MCMCPCARun()
 
 			fMCMCPCA -> X2P(data, p); 
 			
+
+			if (p[4] > 100.0)
+				{			for (int j = 0; j < fMCMCNParameters; j++)
+						cout << p[j] << " ";
+					cout << endl; 
+				}
+
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
 					sum[j]  += p[j]; 
@@ -411,19 +474,6 @@ void BCEngineMCMC::MCMCPCARun()
 
 	delete [] dataall; 
 
-	// debug
-	double * data = new double[fMCMCNParameters]; 
-	double * p    = new double[fMCMCNParameters]; 
-	data[0] = 40.0; 
-	data[1] = 80.0; 
-	fMCMCPCA -> X2P(data, p); 
-	cout << p[0] << " " << p[1] << endl; 
-
-	p[0] = 0.0; 
-	p[1] = 0.0; 
-	fMCMCPCA -> P2X(p, data, 2); 
-	cout << data[0] << " " << data[1] << endl; 
-
 	fMCMCPCAMean.clear(); 
 	fMCMCPCAVariance.clear(); 
 	
@@ -431,13 +481,17 @@ void BCEngineMCMC::MCMCPCARun()
 		{
 			fMCMCPCAMean.push_back(sum[j] / double(fMCMCNIterationsPCA)); 
 			fMCMCPCAVariance.push_back(sum2[j] / double(fMCMCNIterationsPCA) - fMCMCPCAMean[j] * fMCMCPCAMean[j]); 
-
-			// debug
-			cout << fMCMCPCAMean[j] << " " << sqrt(fMCMCPCAVariance[j]) << endl; 
 		}
 
 	// debug 
-	fMCMCPCA -> Print(); 
+
+	if (DEBUG)
+		{
+			fMCMCPCA -> Print("MSEV"); 
+	
+			for (int j = 0; j < fMCMCNParameters; ++j)
+				cout << fMCMCPCAMean.at(j) << " " << sqrt(fMCMCPCAVariance.at(j)) << endl; 
+		}
 
 	// reset run statistics 
 
@@ -463,11 +517,16 @@ int BCEngineMCMC::MCMCMetropolis()
 	// reset run statistics 
 
 	this -> MCMCResetRunStatistics(); 
-
+	
 	// perform PCA run 
 
-	this -> MCMCPCARun(); 
+	if (fMCMCFlagPCA) 
+		this -> MCMCPCARun(); 
 
+	// reset run statistics 
+
+	this -> MCMCResetRunStatistics(); 
+	
 	// perform run 
 
 	for (int i = 0; i < fMCMCNIterationsMax; ++i)
@@ -476,7 +535,7 @@ int BCEngineMCMC::MCMCMetropolis()
 				{
 					// get new point and increase counters 
 
-					this -> MCMCGetNewPointMetropolis(j, false); 
+					this -> MCMCGetNewPointMetropolis(j, fMCMCFlagPCA); 
 				}
 
 			// update the convergence calculation 

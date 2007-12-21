@@ -168,6 +168,12 @@ class BCEngineMCMC
 
   /* 
    * Returns the current point of the ith Markov chain.
+   */ 
+  std::vector <double> * MCMCGetP2x() 
+		{ return &fMCMCx; }; 
+
+  /* 
+   * Returns the current point of the ith Markov chain.
    * @param i The index of the Markov chain. 
    */ 
   std::vector <double> MCMCGetx(int i); 
@@ -178,6 +184,13 @@ class BCEngineMCMC
    */ 
   std::vector <double> MCMCGetLogProbx()
     { return fMCMCLogProbx; }; 
+
+	/* 
+   * Returns the pointer to the log of the probability of the current
+   * points of each Markov chain.
+   */ 
+  std::vector <double> * MCMCGetP2LogProbx()
+    { return &fMCMCLogProbx; }; 
 
   /*
    * Returns the minimum points of each Markov chain. 
@@ -308,6 +321,12 @@ class BCEngineMCMC
 	void MCMCSetRValueCriterion(double r)
 	{ fMCMCRValueCriterion = r; }; 
 
+	/*
+	 * Sets the flag to either perform a pre-run with PCA or not 
+	 */ 
+	void MCMCSetFlagPCA(bool flag)
+	{ fMCMCFlagPCA = flag; }; 
+
 	/* @} */ 
 
  	/** \name Miscellaneous methods */ 
@@ -326,6 +345,12 @@ class BCEngineMCMC
 	 * @param x A point with the dimension fMCMCNParameters. 
 	 */ 
 	void MCMCTrialFunction(std::vector <double> &x); 
+
+	/*
+	 * Trial function. 
+	 * @param x A point with the dimension fMCMCNParameters. 
+	 */ 
+	void MCMCTrialFunctionAuto(std::vector <double> &x); 
 
 	/*
 	 * Returns a trial point. 
@@ -563,6 +588,11 @@ private:
 	 * PCA
 	 */ 
 	TPrincipal * fMCMCPCA; 
+
+	/*
+	 * Flag to perform PCA or not 
+	 */ 
+	bool fMCMCFlagPCA; 
 
 }; 
 
