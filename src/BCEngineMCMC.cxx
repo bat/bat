@@ -11,26 +11,32 @@
 BCEngineMCMC::BCEngineMCMC() 
 {
 
- 	fMCMCNParameters         = 0; 
-	fMCMCNChains             = 1; 
-	fMCMCNIterationsMax      = 100000; 
-	fMCMCNIterationsBurnIn   = 100000; 
-	fMCMCNIterationsPCA      = 100000; 
-	fMCMCFlagIterationsAuto  = true; 
-	fMCMCTrialFunctionScale  = 1.0; 
-	fMCMCFlagInitialPosition = 0; 
-	fMCMCRValueCriterion     = 0.2; 
+  // default settings 
+
+ 	fMCMCNParameters          = 0; 
+	fMCMCNChains              = 1; 
+	fMCMCNIterationsMax       = 100000; 
+	fMCMCNIterationsBurnIn    = 100000; 
+	fMCMCNIterationsPCA       = 100000; 
+	fMCMCFlagIterationsAuto   = false; 
+	fMCMCTrialFunctionScale   = 1.0; 
+	fMCMCFlagInitialPosition  = 0; 
+	fMCMCRValueCriterion      = 0.2; 
 	fMCMCNIterationsConvergenceGlobal = -1; 
-	fMCMCRValue              = 100; 
-	fMCMCFlagPCA             = false; 
+	fMCMCRValue               = 100; 
+	fMCMCFlagPCA              = false; 
 	fMCMCSimulatedAnnealingT0 = 100; 
-	fMCMCH1NBins             = 100; 
-	fMCMCH2NBins             = 100; 
+	fMCMCH1NBins              = 100; 
+	fMCMCH2NBins              = 100; 
+
+	// set pointer to control histograms to NULL 
 
 	fMCMCH1RValue = 0; 
 	fMCMCH1Efficiency = 0; 
 
-	fMCMCRandom              = new TRandom3(0); 
+	// initialize random number generator 
+
+	fMCMCRandom = new TRandom3(0); 
 
 }
 
@@ -39,7 +45,11 @@ BCEngineMCMC::BCEngineMCMC()
 BCEngineMCMC::BCEngineMCMC(int n)
 {
 
+  // set number of chains to n 
+
   fMCMCNChains = n; 
+
+  // call default constructor 
 
   BCEngineMCMC(); 
 
@@ -50,11 +60,17 @@ BCEngineMCMC::BCEngineMCMC(int n)
 BCEngineMCMC::~BCEngineMCMC() 
 {
 
+  // delete random number generator 
+
 	if (fMCMCRandom)
 		delete fMCMCRandom; 
 
+	// delete PCA object
+
 	if (fMCMCPCA) 
 		delete fMCMCPCA; 
+
+	// delete constrol histograms and plots 
 
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
 		if (fMCMCH1Marginalized[i])
@@ -104,6 +120,8 @@ TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 
 	int counter = 0; 
 	int index = 0;
+
+	// search for correct combination 
 
 	for(int i = 0; i < fMCMCNParameters; i++)
 		for (int j = 0; j < i; ++j)
@@ -215,7 +233,11 @@ void BCEngineMCMC::MCMCSetInitialPositions(std::vector<double> x0s)
 void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector <TTree *> trees)
 {
 
+  // clear vector 
+
 	fMCMCTrees.clear(); 
+
+	// copy tree 
 
 	for (int i = 0; i < int(trees.size()); ++i)
 		fMCMCTrees.push_back(trees[i]); 
@@ -283,10 +305,16 @@ void BCEngineMCMC::MCMCTrialFunctionAuto(std::vector <double> &x)
 std::vector <double> BCEngineMCMC::MCMCGetx(int i)
 {
 
+  // create a new vector with the lenght of fMCMCNParameters 
+
   std::vector <double> x; 
+
+  // check if i is in range 
 
   if (i < 0 || i >= fMCMCNChains)
     return x; 
+
+  // copy the point in the ith chain into the temporary vector 
 
   for (int j = 0; j < fMCMCNParameters; ++j)
     x.push_back(fMCMCx.at(i * fMCMCNChains + j)); 
@@ -300,11 +328,17 @@ std::vector <double> BCEngineMCMC::MCMCGetx(int i)
 double BCEngineMCMC::MCMCGetx(int i, int j)
 {
 
+  // check if i is in range 
+
   if (i < 0 || i >= fMCMCNChains)
     return 0; 
 
+  // check if j is in range 
+
   if (j < 0 || j >= fMCMCNParameters)
     return 0; 
+
+  // return component of jth point in the ith chain 
 
   return fMCMCx.at(i *  fMCMCNChains +j);
  
@@ -315,8 +349,12 @@ double BCEngineMCMC::MCMCGetx(int i, int j)
 double BCEngineMCMC::MCMCGetLogProbx(int i)
 {
 
+  // check if i is in range 
+
   if (i < 0 || i >= fMCMCNChains)
     return -1; 
+
+  // return log of the probability at the current point in the ith chain 
 
   return fMCMCLogProbx.at(i); 
 
@@ -336,7 +374,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 
 	if (pca == false)
 		{
-			// get a proposal point from the trial function 
+			// get a proposal point from the trial function and scale it 
 
 			for (int i = 0; i < fMCMCNParameters; ++i) 
 				x[i] = fMCMCx[chain * fMCMCNParameters + i] + fMCMCTrialFunctionScale * x[i] * (fMCMCBoundaryMax.at(i) - fMCMCBoundaryMin.at(i)); 
@@ -344,6 +382,8 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 
 	else 
 		{
+		  // create temporary points in x and p space 
+
 			double * newp = new double[fMCMCNParameters]; 
 			double * newx = new double[fMCMCNParameters]; 
 
@@ -353,24 +393,35 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 					newx[i] = 0.0; 
 				}
 
+			// get a new trial point 
+
 			this -> MCMCTrialFunctionAuto(x); 
+
+			// get the old point in x space 
 
 			for (int i = 0; i < fMCMCNParameters; i++)
 				newx[i] = fMCMCx[chain * fMCMCNParameters + i]; 
 
+			// transform the old point into p space 
+
 			fMCMCPCA -> X2P(newx, newp); 
+
+			// add new trial point to old point 
 
 			for (int i = 0; i < fMCMCNParameters; i++)
 				newp[i] += fMCMCTrialFunctionScale * x[i]; 
 
+			// transform new point back to x space 
+
 			fMCMCPCA -> P2X(newp, newx, fMCMCNParameters); 
+
+			// copy point into vector 
 
 			for (int i = 0; i < fMCMCNParameters; ++i) 
 				x[i] = newx[i]; 
 
 			delete [] newp; 
 			delete [] newx; 
-
 		}
 	
 	// check if the point is in the correct volume. 
@@ -781,10 +832,16 @@ void BCEngineMCMC::MCMCPCARun()
 
 	fMCMCPCA = new TPrincipal(fMCMCNParameters, "D"); 
 
+	// create buffer of sampled points 
+
 	double * dataall = new double[fMCMCNParameters * fMCMCNIterationsPCA]; 
+
+	// create buffer for the sum and the sum of the squares 
 
 	double * sum = new double[fMCMCNParameters]; 
 	double * sum2 = new double[fMCMCNParameters]; 
+
+	// reset the buffers
 
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		{
@@ -792,11 +849,19 @@ void BCEngineMCMC::MCMCPCARun()
 			sum2[i] = 0.0; 
 		}
 
+	// loop over iterations 
+
 	for (int i = 0; i < fMCMCNIterationsPCA; ++i)
 		{
+		  // get new point 
+		  
 			this -> MCMCGetNewPointMetropolis(0, false); 
 
+			// create buffer for the new point 
+
 			double * data = new double[fMCMCNParameters]; 
+
+			// copy the current point 
 
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
@@ -804,7 +869,11 @@ void BCEngineMCMC::MCMCPCARun()
 					dataall[i * fMCMCNParameters + j] = fMCMCx[j]; 
 				}
 
+			// add point to PCA object 
+
 			fMCMCPCA -> AddRow(data); 
+
+			// delete buffer 
 
 			delete [] data; 
 		}
@@ -825,13 +894,6 @@ void BCEngineMCMC::MCMCPCARun()
 
 			fMCMCPCA -> X2P(data, p); 
 			
-
-			//			if (p[4] > 100.0)
-			//				{			for (int j = 0; j < fMCMCNParameters; j++)
-			//						cout << p[j] << " ";
-			//					cout << endl; 
-			//				}
-
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
 					sum[j]  += p[j]; 

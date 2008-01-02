@@ -238,6 +238,14 @@ void BCModelOutput::Close()
 		if (fMarkovChainTrees[i] -> GetEntries() > 0) 
 			fMarkovChainTrees[i] -> Write(); 
 
+	// write control plots to file 
+
+	if (fModel -> MCMCGetH1RValue())
+	  fModel -> MCMCGetH1RValue() -> Write(); 
+
+	if (fModel -> MCMCGetH1Efficiency())
+	  fModel -> MCMCGetH1Efficiency() -> Write(); 
+
 	// close file 
 
 	fOutputFile -> Close(); 

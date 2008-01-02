@@ -238,6 +238,15 @@ class BCEngineMCMC
 		{ return fMCMCMinimumLogProb; }; 
 
 	/*
+	 * Returns the control plots 
+	 */ 
+	TH1D * MCMCGetH1RValue()
+	  { return fMCMCH1RValue; }; 
+
+	TH1D * MCMCGetH1Efficiency()
+	  { return fMCMCH1Efficiency; }; 
+
+	/*
 	 * Returns flag which defined initial position. 
 	 */ 
 	int MCMCGetFlagInitialPosition() 
