@@ -49,12 +49,13 @@
 #include "BCMath.h"
 #include "BCParameter.h"
 #include "BCDataPoint.h" 
+#include "BCEngineMCMC.h" 
 
 #define DEBUG 0
 
 // --------------------------------------------------------- 
 
-class BCIntegrate
+class BCIntegrate : public BCEngineMCMC
 {
 
  public:   

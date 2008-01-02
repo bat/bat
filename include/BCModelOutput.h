@@ -147,7 +147,7 @@ class BCModelOutput
 	/**
 	 * Initialize the Markov Chain TTree. 
 	 */
-	void InitializeMarkovChainTree(); 
+	void InitializeMarkovChainTrees(); 
 
 	/**
 	 * Pointer to the TTree containing the summary output information.
@@ -158,6 +158,12 @@ class BCModelOutput
 	 * Pointer to the TTree containing the Markov chain. 
 	 */ 
 	TTree * fMarkovChainTree; 
+
+	/*
+	 * The trees containing the Markov chains. The length of the vector
+	 * is fMCMCNChains. 
+	 */ 
+	std::vector<TTree *> fMarkovChainTrees; 
 
 	/** 
 	 * The output filename
@@ -196,8 +202,8 @@ class BCModelOutput
 	 * The markov chain tree variables 
 	 */ 
 	std::vector<double> * fParameters; 
-	double * fLogLikelihood; 
-	int * fIteration; 
+	std::vector<double> * fLogLikelihood; 
+	std::vector <int> * fIteration; 
 
 }; 
 

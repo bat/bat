@@ -40,7 +40,7 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 
 	this -> InitializeAnalysisTree(); 
 
-	this -> InitializeMarkovChainTree(); 
+	this -> InitializeMarkovChainTrees(); 
 
 	// change again to the old directory 
 
@@ -234,8 +234,9 @@ void BCModelOutput::Close()
 
 	// write markov chain tree to file 
 
-	if (fMarkovChainTree -> GetEntries() > 0) 
-		fMarkovChainTree -> Write(); 
+	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
+		if (fMarkovChainTrees[i] -> GetEntries() > 0) 
+			fMarkovChainTrees[i] -> Write(); 
 
 	// close file 
 
@@ -278,43 +279,47 @@ void BCModelOutput::InitializeAnalysisTree()
 
 }
 
-
 // --------------------------------------------------------- 
 	
-void BCModelOutput::InitializeMarkovChainTree() 
+void BCModelOutput::InitializeMarkovChainTrees() 
 {
 
 	// create new tree 
 
-	if (fMarkovChainTree)
-		delete fMarkovChainTree; 
+	fMarkovChainTrees.clear(); 
 
-	fMarkovChainTree = new TTree("MarkovChainTree", "MarkovChainTree"); 
+	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
+		{
+			TTree * tree = new TTree(Form("MarkovChainTree_%i", i), "MarkovChainTree"); 
+			fMarkovChainTrees.push_back(tree); 
+		}
 
 	// connect pointer to parameter vectors 
 
-	fParameters = fModel -> GetMarkovChainPoint(); 
+	fParameters    = fModel -> MCMCGetP2x(); 
+	fIteration     = fModel -> MCMCGetP2NIterations(); 
+	fLogLikelihood = fModel -> MCMCGetP2LogProbx(); 
 
-	fIteration = fModel -> GetMCMCIteration(); 
+	fNParameters = fModel -> MCMCGetNParameters(); 
 
-	fLogLikelihood = fModel -> GetMarkovChainValue(); 
-
-	fMarkovChainTree -> Branch("fIteration",      fIteration,   "iteration/I"); 
-	fMarkovChainTree -> Branch("fNParameters",   &fNParameters, "parameters/I"); 
-	fMarkovChainTree -> Branch("fLogLikelihood",  fLogLikelihood, "log (likelihood)/D"); 
+	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
+		{
+			fMarkovChainTrees[i] -> Branch("fIteration",      &(*fIteration)[i],   "iteration/I"); 
+			fMarkovChainTrees[i] -> Branch("fNParameters",    &fNParameters,       "parameters/I"); 
+			fMarkovChainTrees[i] -> Branch("fLogLikelihood",  &(*fLogLikelihood)[i], "log (likelihood)/D"); 
+		}
 
 	// loop over all parameters 
 
-	fNParameters = fModel -> GetNParameters(); 
-
-	for (int i = 0; i < fNParameters; ++i)
+	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
+		for (int j = 0; j < fNParameters; ++j)
 		{
-			fMarkovChainTree -> Branch(Form("fParameter%i", i), 
-																 &(*fParameters)[i], 
-																 Form("parameter %i/D", i)); 
+			fMarkovChainTrees[i] -> Branch(Form("fParameter%i", j), 
+																		 &(*fParameters)[i * fModel -> MCMCGetNParameters() + j], 
+																		 Form("parameter %i/D", j)); 
 		}
 
-	fModel -> SetMarkovChainTree(fMarkovChainTree); 
+	fModel -> MCMCSetMarkovChainTrees(fMarkovChainTrees); 
 
 }
 

@@ -10,7 +10,7 @@
 class BCIntegrate * global_this; 
 
 // *********************************************
-BCIntegrate::BCIntegrate()
+BCIntegrate::BCIntegrate() : BCEngineMCMC()
 {
 	fNvar=0;
 	fNiterPerDimension = 100;
@@ -49,7 +49,7 @@ BCIntegrate::BCIntegrate()
 }
 
 // *********************************************
-BCIntegrate::BCIntegrate(BCParameterSet * par)
+BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1) 
 {
 	fNvar=0;
 	fNiterPerDimension = 100;

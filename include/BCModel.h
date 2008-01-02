@@ -471,7 +471,7 @@ class BCModel : public BCIntegrate
 	/** 
 	 * Overloaded function to evaluate integral. 
 	 */ 
-	double LogEval(std::vector <double> parameters);
+  double LogEval(std::vector <double> parameters);
 
 	/** 
 	 * Overloaded function to evaluate integral. 

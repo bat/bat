@@ -63,6 +63,7 @@ examples/example05/src/BCModelParticleDecay.cxx -text
 examples/example05/src/BCModelParticleDecay.h -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text
+include/BCEngineMCMC.h -text
 include/BCErrorCodes.h -text
 include/BCH1D.h -text
 include/BCH2D.h -text
@@ -77,6 +78,7 @@ include/BCReleaseVersion.h -text
 include/style.c -text
 src/BCDataPoint.cxx -text
 src/BCDataSet.cxx -text
+src/BCEngineMCMC.cxx -text
 src/BCH1D.cxx -text
 src/BCH2D.cxx -text
 src/BCIntegrate.cxx -text

@@ -354,6 +354,10 @@ int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimi
 	if (flag_ok != 0) 
 		delete parameter; 
 
+	// add parameter to MCMC
+
+	this -> MCMCAddParameter(lowerlimit, upperlimit); 
+
 	return flag_ok; 
 
 }
