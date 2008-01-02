@@ -4,7 +4,7 @@
 // debug
 #include <TCanvas.h> 
 
-#define DEBUG 1
+#define DEBUG 0
 
 // --------------------------------------------------------- 
 
@@ -13,7 +13,7 @@ BCEngineMCMC::BCEngineMCMC()
 
  	fMCMCNParameters         = 0; 
 	fMCMCNChains             = 1; 
-	fMCMCNIterationsMax      = 1000000; 
+	fMCMCNIterationsMax      = 100000; 
 	fMCMCNIterationsBurnIn   = 100000; 
 	fMCMCNIterationsPCA      = 100000; 
 	fMCMCFlagIterationsAuto  = true; 
@@ -94,6 +94,26 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 		enginemcmc.Copy(* this); 
 
 	return * this; 
+
+}
+
+// --------------------------------------------------------
+
+TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2) 
+{
+
+	int counter = 0; 
+	int index = 0;
+
+	for(int i = 0; i < fMCMCNParameters; i++)
+		for (int j = 0; j < i; ++j)
+			{
+				if(i == index1 && j == index2)
+					counter = index; 
+				counter++;
+		}	
+
+	return fMCMCH2Marginalized[index]; 
 
 }
 

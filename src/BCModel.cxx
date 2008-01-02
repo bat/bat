@@ -717,18 +717,19 @@ int BCModel::MarginalizeAll()
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
 
-	if(fHProb1D.size()==0)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,
-								 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
-			return 0;
-		}
+// 	if(fHProb1D.size()==0)
+// 		{
+// 			BCLog::Out(BCLog::warning, BCLog::warning,
+// 								 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
+// 			return 0;
+// 		}
 
 	int index = parameter -> GetIndex();
 
 	// get histogram
 
-	TH1D * hist = this -> GetH1D(index);
+	//	TH1D * hist = this -> GetH1D(index);
+	TH1D * hist = this -> MCMCGetH1Marginalized(index);
 
 	if(!hist)
 		return 0;
@@ -765,19 +766,20 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2)
 {
 
-	if(fHProb2D.size()==0)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,
-								 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
-			return 0;
-		}
+// 	if(fHProb2D.size()==0)
+// 		{
+// 			BCLog::Out(BCLog::warning, BCLog::warning,
+// 								 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
+// 			return 0;
+// 		}
 
 	int index1 = parameter1 -> GetIndex();
 	int index2 = parameter2 -> GetIndex();
 
 	// get histogram
 
-	TH2D * hist = this -> GetH2D(index1,index2);
+	//	TH2D * hist = this -> GetH2D(index1,index2);
+	TH2D * hist = this -> MCMCGetH2Marginalized(index1, index2); 
 
 	if(hist==0)
 		return 0;

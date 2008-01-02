@@ -269,6 +269,24 @@ class BCEngineMCMC
 	TTree * MCMCGetMarkovChainTree(int i)
 		{ return fMCMCTrees.at(i); }; 
 
+	/*
+	 * Returns a histogram of the 1-d marginalized distribution of the ith
+	 * parameter. 
+	 * @param index1 The index of the parameter. 
+	 * @return A pointer to the histogram 
+	 */ 
+	TH1D * MCMCGetH1Marginalized(int index1)
+		{ return fMCMCH1Marginalized[index1]; }; 
+
+	/*
+	 * Returns a histogram of the 2-d marginalized distribution of the
+	 * ith and jth parameter. 
+	 * @param index1 The index of the first parameter. 
+	 * @param index2 The index of the second parameter. 
+	 * @return A pointer to the histogram. 
+	 */ 
+	TH2D * MCMCGetH2Marginalized(int index1, int index2); 
+
 	/* @} */ 
 
 	/** \name Setters */ 

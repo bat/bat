@@ -33,6 +33,7 @@ CXSRCS      = BCParameter.cxx \
 		BCH1D.cxx \
 		BCH2D.cxx \
 		BCIntegrate.cxx \
+		BCEngineMCMC.cxx \
 		BCModelManager.cxx \
 		BCLog.cxx \
 		BCMath.cxx

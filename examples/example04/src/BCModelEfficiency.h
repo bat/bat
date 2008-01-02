@@ -27,6 +27,11 @@ class BCModelEfficiency : public BCModel
   
   double LogLikelihood(std::vector <double> parameters); 
 
+  void MCMCUserInterface(); 
+
+  TH1D * hist_bestfit; 
+  TH1D * hist_efficiency; 
+
 }; 
 
 // --------------------------------------------------------- 
