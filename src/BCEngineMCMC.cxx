@@ -956,6 +956,8 @@ int BCEngineMCMC::MCMCMetropolis()
   
   // initialize Markov chain 
   
+  this -> MCMCInitialize(); 
+
   this -> MCMCInitializeMarkovChains(); 
   
   // perform burn-in run 

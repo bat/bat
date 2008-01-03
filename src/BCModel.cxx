@@ -704,10 +704,12 @@ BCH2D * BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * 
 int BCModel::MarginalizeAll()
 {
 
-	BCLog::Out(BCLog::summary, BCLog::summary,
-						 Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName().data()));
+  //	BCLog::Out(BCLog::summary, BCLog::summary,
+  //						 Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName().data()));
 
-	return this -> MarginalizeAllByMetro(this->GetName().data());
+  //	return this -> MarginalizeAllByMetro(this->GetName().data());
+
+  return this -> MCMCMetropolis(); 
 
 }
 

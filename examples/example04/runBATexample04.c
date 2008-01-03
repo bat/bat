@@ -33,7 +33,7 @@ int main()
 
   BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
-  fModelEfficiency -> MCMCSetNChains(1); 
+  fModelEfficiency -> MCMCSetNChains(10); 
   fModelEfficiency -> MCMCSetFlagPCA(false); 
   fModelEfficiency -> MCMCSetNIterationsBurnIn(10000); 
   fModelEfficiency -> MCMCSetNIterationsMax(100000); 
@@ -103,7 +103,7 @@ int main()
   // close log file 
   // ---------------------------------------------------------
 
-	//	fModelEfficiencyOutput -> FillAnalysisTree(); 
+	fModelEfficiencyOutput -> FillAnalysisTree(); 
 	//	fModelEfficiencyOutput -> WriteMarginalizedDistributions(); 
 
 	// write to file and close 
