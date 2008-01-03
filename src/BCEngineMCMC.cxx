@@ -1015,6 +1015,13 @@ int BCEngineMCMC::MCMCMetropolis()
   for (int i = 0; i < fMCMCNChains; ++i)
     fMCMCH1Efficiency -> SetBinContent(i + 1, double(fMCMCNTrialsTrue[i]) / double(fMCMCNIterationsMax));
   
+  double average_efficiency = 0; 
+
+  for (int i = 0; i < fMCMCNChains; ++i)
+    average_efficiency += double(fMCMCNTrialsTrue[i]) / double(fMCMCNIterationsMax) / double(fMCMCNChains) * 100.0; 
+
+  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average efficiency %.2lf%%. ", average_efficiency)); 
+
   if (fMCMCNIterationsConvergenceGlobal > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   

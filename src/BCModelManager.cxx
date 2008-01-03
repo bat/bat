@@ -316,6 +316,18 @@ void BCModelManager::SetDataBoundaries(int index, double lowerboundary, double u
 
 // --------------------------------------------------------- 
 
+void BCModelManager::SetNChains(int n) 
+{
+	
+	// set number of Markov chains for all models registered 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+	  this -> GetModel(i) -> MCMCSetNChains(n); 
+
+}
+
+// --------------------------------------------------------- 
+
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
 

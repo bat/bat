@@ -217,6 +217,11 @@ class BCModelManager
 	 */ 
 	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
 
+	/*
+	 * Sets the number of Markov chains 
+	 */ 
+	void SetNChains(int n); 
+
 	/* @} */ 
 
 	/** \name Miscellaneous methods */ 

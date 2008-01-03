@@ -49,6 +49,9 @@ int main()
 	BCModelBackground* fModelBackground = new BCModelBackground("background model"); 
 	BCModelSignal* fModelSignal = new BCModelSignal("signal model"); 
 
+	fModelBackground -> MCMCSetTrialFunctionScale(0.01); 
+	fModelSignal -> MCMCSetTrialFunctionScale(0.01); 
+
 	// ---------------------------------------------------------
 	// define manager 
 	// ---------------------------------------------------------
@@ -63,6 +66,8 @@ int main()
 
 	fModelManager -> AddModel(fModelBackground, 0.5); 
 	fModelManager -> AddModel(fModelSignal, 0.5); 
+
+	fModelManager -> SetNChains(10); 
 
 	// ---------------------------------------------------------
 	// model output file 
