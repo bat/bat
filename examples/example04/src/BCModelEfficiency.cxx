@@ -84,7 +84,7 @@ void BCModelEfficiency::MCMCUserInterface()
 
   if (fMCMCNIterations[0] == fMCMCNIterationsMax - 1)
     for (int i = 0; i < fMCMCNChains; ++i)
-      hist_bestfit -> Fill((this -> MCMCGetMinimumPoints()).at(i)); 
+      hist_bestfit -> Fill((this -> MCMCGetMaximumPoints()).at(i)); 
 }
 
 // --------------------------------------------------------- 

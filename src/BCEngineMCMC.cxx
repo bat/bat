@@ -31,12 +31,22 @@ BCEngineMCMC::BCEngineMCMC()
 
 	// set pointer to control histograms to NULL 
 
+	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
+	  fMCMCH1Marginalized[i] = 0; 
+
+	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
+	  fMCMCH2Marginalized[i] = 0; 
+
 	fMCMCH1RValue = 0; 
 	fMCMCH1Efficiency = 0; 
 
 	// initialize random number generator 
 
 	fMCMCRandom = new TRandom3(0); 
+
+	// initialize 
+
+	this -> MCMCInitialize(); 
 
 }
 
@@ -141,6 +151,10 @@ void BCEngineMCMC::MCMCSetNChains(int n)
 {
 
   fMCMCNChains = n; 
+
+  // re-initialize 
+
+  this -> MCMCInitialize(); 
 
 }
 
@@ -248,6 +262,8 @@ void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector <TTree *> trees)
 
 void BCEngineMCMC::MCMCUserInterface()
 {
+
+  // this function has to be overloaded by the user. 
 
 }
 
@@ -710,12 +726,12 @@ void BCEngineMCMC::MCMCUpdateStatistics()
   
   for (int i = 0; i < fMCMCNChains; ++i)
     {
-      if (fMCMCLogProbx[i] > fMCMCMinimumLogProb[i] || fMCMCNIterations[i] == 1)
+      if (fMCMCLogProbx[i] > fMCMCMaximumLogProb[i] || fMCMCNIterations[i] == 1)
 				{
-					fMCMCMinimumLogProb[i] = fMCMCLogProbx[i]; 
+					fMCMCMaximumLogProb[i] = fMCMCLogProbx[i]; 
 
 					for (int j = 0; j < fMCMCNParameters; ++j)
-						fMCMCMinimumPoints[i * fMCMCNParameters + j] = fMCMCx[i * fMCMCNParameters + j]; 
+						fMCMCMaximumPoints[i * fMCMCNParameters + j] = fMCMCx[i * fMCMCNParameters + j]; 
 				}
     }
 
@@ -940,7 +956,7 @@ int BCEngineMCMC::MCMCMetropolis()
   
   // initialize Markov chain 
   
-  this -> MCMCInitialize(); 
+  this -> MCMCInitializeMarkovChains(); 
   
   // perform burn-in run 
   
@@ -1010,10 +1026,10 @@ int BCEngineMCMC::MCMCMetropolis()
       for (int i = 0; i < fMCMCNChains; ++i)
 				{
 					cout << i << " "  
-							 << fMCMCMinimumLogProb[i] << endl;
+							 << fMCMCMaximumLogProb[i] << endl;
 					
 					for (int j = 0; j < fMCMCNParameters; ++j)
-						cout << fMCMCMinimumPoints[i * fMCMCNParameters + j] << " "; 
+						cout << fMCMCMaximumPoints[i * fMCMCNParameters + j] << " "; 
 					cout << endl; 
 				}
 			
@@ -1066,7 +1082,7 @@ int BCEngineMCMC::MCMCMetropolisHastings()
   
   // initialize Markov chain 
   
-  this -> MCMCInitialize(); 
+  this -> MCMCInitializeMarkovChains(); 
   
   // perform burn-in run 
   
@@ -1115,10 +1131,10 @@ int BCEngineMCMC::MCMCMetropolisHastings()
       for (int i = 0; i < fMCMCNChains; ++i)
 				{
 					cout << i << " "  
-							 << fMCMCMinimumLogProb[i] << endl;
+							 << fMCMCMaximumLogProb[i] << endl;
 	  
 					for (int j = 0; j < fMCMCNParameters; ++j)
-						cout << fMCMCMinimumPoints[i * fMCMCNParameters + j] << " "; 
+						cout << fMCMCMaximumPoints[i * fMCMCNParameters + j] << " "; 
 					cout << endl; 
 				}
     }
@@ -1136,7 +1152,7 @@ int BCEngineMCMC::MCMCSimulatedAnnealing()
   
   // initialize Markov chain 
   
-  this -> MCMCInitialize(); 
+  this -> MCMCInitializeMarkovChains(); 
   
   // perform burn-in run 
   
@@ -1201,10 +1217,10 @@ int BCEngineMCMC::MCMCSimulatedAnnealing()
       for (int i = 0; i < fMCMCNChains; ++i)
 				{
 					cout << i << " "  
-							 << fMCMCMinimumLogProb[i] << endl;
+							 << fMCMCMaximumLogProb[i] << endl;
 	  
 					for (int j = 0; j < fMCMCNParameters; ++j)
-						cout << fMCMCMinimumPoints[i * fMCMCNParameters + j] << " "; 
+						cout << fMCMCMaximumPoints[i * fMCMCNParameters + j] << " "; 
 					cout << endl; 
 				}
     }
@@ -1267,6 +1283,31 @@ int BCEngineMCMC::MCMCAddParameter(double min, double max)
 
 // --------------------------------------------------------
 
+void BCEngineMCMC::MCMCInitializeMarkovChains()
+{
+  
+	// evaluate function at the starting point 
+
+	std::vector <double> x0; 
+	
+	for (int j = 0; j < fMCMCNChains; ++j)
+	  {
+	    x0.clear(); 
+	    
+			for (int i = 0; i < fMCMCNParameters; ++i)
+			  {
+			    x0.push_back(fMCMCx[j * fMCMCNParameters + i]); 
+			  }
+			
+			fMCMCLogProbx[j] = this -> LogEval(x0); 
+	  }
+
+	x0.clear(); 
+
+}
+
+// --------------------------------------------------------
+
 int BCEngineMCMC::MCMCInitialize()
 {
 
@@ -1288,19 +1329,19 @@ int BCEngineMCMC::MCMCInitialize()
 
 	fMCMCLogProbx.clear(); 
 
-	fMCMCMinimumPoints.clear(); 
+	fMCMCMaximumPoints.clear(); 
 
-	fMCMCMinimumLogProb.clear(); 
+	fMCMCMaximumLogProb.clear(); 
 
 	fMCMCNIterationsConvergenceGlobal = -1; 
 
-
-	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
+	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)          
 	  if (fMCMCH1Marginalized[i])
 			delete fMCMCH1Marginalized[i]; 
 
 	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
-	  delete fMCMCH2Marginalized[i]; 
+	  if (fMCMCH2Marginalized[i]) 
+	    delete fMCMCH2Marginalized[i]; 
 
 	// clear plots 
 
@@ -1313,6 +1354,8 @@ int BCEngineMCMC::MCMCInitialize()
 	if (fMCMCH1Efficiency) 
 		delete fMCMCH1Efficiency; 
 
+	// free memory for vectors 
+
 	for (int i = 0; i < fMCMCNChains; ++i)
 		{
 			fMCMCNIterations.push_back(0); 
@@ -1322,80 +1365,67 @@ int BCEngineMCMC::MCMCInitialize()
 			fMCMCMean.push_back(0); 
 			fMCMCVariance.push_back(0); 
 			fMCMCLogProbx.push_back(-1.0); 
-			fMCMCMinimumLogProb.push_back(-1.0); 
+			fMCMCMaximumLogProb.push_back(-1.0); 
 
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
-					fMCMCMinimumPoints.push_back(0.0); 
+					fMCMCMaximumPoints.push_back(0.0); 
 				}
 		}
 
 	// set initial position 
 
 	for (int j = 0; j < fMCMCNChains; ++j)
-		for (int i = 0; i < fMCMCNParameters; ++i)
-			{
-				switch(fMCMCFlagInitialPosition)
-					{
-
-						// use the center of the region 
-
-					case 0 :
-					  
-					  fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
-
-					  break; 
-					  
-					  // use a random variable in the valid region 
-						
-					case 1 : 
-						
-					  fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCRandom -> Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
-
-					  break; 
-					  
-					  // use user-defined value 
-					  
-					case 2 : 
-					  
-						if (int(fMCMCInitialPosition.size()) == fMCMCNParameters * fMCMCNChains)
-							fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]); 
-						else
-							fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
-
-					default: 
-
-					  fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
-					  break; 
-					}
-			}
-	
-	std::vector <double> x0; 
-	
-	for (int j = 0; j < fMCMCNChains; ++j)
+	  for (int i = 0; i < fMCMCNParameters; ++i)
+	    {
+	      switch(fMCMCFlagInitialPosition)
 		{
-			x0.clear(); 
+		  
+		  // use the center of the region 
+		  
+		case 0 :
+		  
+		  fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
+		  
+		  break; 
+		  
+		  // use a random variable in the valid region 
+		  
+		case 1 : 
+		  
+		  fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCRandom -> Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
+		  
+		  break; 
+		  
+		  // use user-defined value 
+		  
+		case 2 : 
+		  
+		  if (int(fMCMCInitialPosition.size()) == fMCMCNParameters * fMCMCNChains)
+		    fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]); 
+		  else
+		    fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
+		  
+		  // use the center of the region as default 
 
-			for (int i = 0; i < fMCMCNParameters; ++i)
-				{
-					x0.push_back(fMCMCx[j * fMCMCNParameters + i]); 
-				}
-
-			//			fMCMCLogProbx[j] = this -> LogEval(x0); 
-			fMCMCLogProbx[j] = -1e99; 
+		default: 
+		  
+		  fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
+		  break; 
 		}
+	    }
 
-	x0.clear(); 
-
+	// copy the point of the first chain 
+		
 	fMCMCxLocal.clear(); 
-
+	
 	for (int i = 0; i < fMCMCNParameters; ++i)
-		{
-			fMCMCxLocal.push_back(fMCMCx[i]); 
-		}
-
+	  {
+	    fMCMCxLocal.push_back(fMCMCx[i]); 
+	  }
+	
 	// define 1-dimensional histograms for marginalization 
-
+	
 	for (int j = 0; j < fMCMCNChains; ++j)
 	  for(int i = 0; i < fMCMCNParameters; ++i)
 	    {
@@ -1403,41 +1433,41 @@ int BCEngineMCMC::MCMCInitialize()
 	      double hmax1 = fMCMCBoundaryMax.at(i); 
 	      
 	      TH1D * h1 = new TH1D(Form("h1_chain_%i_parameter_%i", j, i), "",
-														 fMCMCH1NBins, hmin1, hmax1);
+				   fMCMCH1NBins, hmin1, hmax1);
 	      
 	      fMCMCH1Marginalized.push_back(h1); 
 	    }
-
+	
 	for (int j = 0; j < fMCMCNChains; ++j)
 	  for(int i = 0; i < fMCMCNParameters; ++i)
-			for (int k = 0; k < i; ++k)
-				{
-					double hmin1 = fMCMCBoundaryMin.at(i); 
-					double hmax1 = fMCMCBoundaryMax.at(i); 
-
-					double hmin2 = fMCMCBoundaryMin.at(k); 
-					double hmax2 = fMCMCBoundaryMax.at(k); 
-					
-					TH2D * h2 = new TH2D(Form("h2_chain_%i_parameters_%i_vs_%i", j, i, k), "",
-															 fMCMCH2NBins, hmin1, hmax1, 
-															 fMCMCH2NBins, hmin2, hmax2);
-					
-					fMCMCH2Marginalized.push_back(h2); 
-				}
-
+	    for (int k = 0; k < i; ++k)
+	      {
+		double hmin1 = fMCMCBoundaryMin.at(i); 
+		double hmax1 = fMCMCBoundaryMax.at(i); 
+		
+		double hmin2 = fMCMCBoundaryMin.at(k); 
+		double hmax2 = fMCMCBoundaryMax.at(k); 
+		
+		TH2D * h2 = new TH2D(Form("h2_chain_%i_parameters_%i_vs_%i", j, i, k), "",
+				     fMCMCH2NBins, hmin1, hmax1, 
+				     fMCMCH2NBins, hmin2, hmax2);
+		
+		fMCMCH2Marginalized.push_back(h2); 
+	      }
+	
 	// define plot for R-value 
-
+	
 	if (fMCMCNChains > 1)
 	  {
 	    fMCMCH1RValue = new TH1D("h1_rvalue", ";Iteration;R-value", 
-															 100, 0, double(fMCMCNIterationsMax)); 
+				     100, 0, double(fMCMCNIterationsMax)); 
 	    fMCMCH1RValue -> SetStats(false); 
 	  }
-
+	
 	fMCMCH1Efficiency = new TH1D("h1_efficiency", ";Chain;Efficiency",
-															 fMCMCNChains, 0.5, fMCMCNChains + 0.5); 
+				     fMCMCNChains, 0.5, fMCMCNChains + 0.5); 
 	fMCMCH1Efficiency -> SetStats(false); 
-
+	
 	return 0; 
 
 }

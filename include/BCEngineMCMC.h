@@ -220,22 +220,22 @@ class BCEngineMCMC
 		{ return &fMCMCLogProbx; }; 
 
 	/*
-	 * Returns the minimum points of each Markov chain. 
+	 * Returns the maximum points of each Markov chain. 
 	 */ 
-	std::vector <double> MCMCGetMinimumPoints()
-		{ return fMCMCMinimumPoints; }; 
+	std::vector <double> MCMCGetMaximumPoints()
+		{ return fMCMCMaximumPoints; }; 
 
 	/*
-	 * Returns the minimum point of each ith Markov chain. 
+	 * Returns the maximum point of each ith Markov chain. 
 	 * @param i The index of the Markov chain. 
 	 */ 
-	std::vector <double> MCMCGetMinimumPoints(int i); 
+	std::vector <double> MCMCGetMaximumPoints(int i); 
 
 	/*
-	 * Returns the minimum (log) probability of each Markov chain.
+	 * Returns the maximum (log) probability of each Markov chain.
 	 */ 
-	std::vector <double> MCMCGetMinimumLogProb()
-		{ return fMCMCMinimumLogProb; }; 
+	std::vector <double> MCMCGetMaximumLogProb()
+		{ return fMCMCMaximumLogProb; }; 
 
 	/*
 	 * Returns the control plots 
@@ -533,6 +533,11 @@ class BCEngineMCMC
 	void MCMCResetRunStatistics(); 
 
 	/*
+	 * Initializes the Markov chains
+	 */ 
+	void MCMCInitializeMarkovChains(); 
+
+	/*
 	 * Initializes the engine. 
 	 */ 
 	int MCMCInitialize(); 
@@ -697,17 +702,17 @@ class BCEngineMCMC
 	std::vector<double> fMCMCLogProbx; 
 
 	/*
-	 * The minimum points of each Markov chain. The length of the vector
+	 * The maximum points of each Markov chain. The length of the vector
 	 * is fMCMCNChains * fMCMCNParameters. First, the values of the
 	 * first Markov chain are saved, then those of the second and so on.
 	 */ 
-	std::vector <double> fMCMCMinimumPoints; 
+	std::vector <double> fMCMCMaximumPoints; 
 
 	/*
-	 * The minimum (log) probability of each Markov chain. The length of
+	 * The maximum (log) probability of each Markov chain. The length of
 	 * the vector is fMCMCNChains. 
 	 */ 
-	std::vector <double> fMCMCMinimumLogProb; 
+	std::vector <double> fMCMCMaximumLogProb; 
 
 	/*
 	 * The R-value criterion for convergence. 

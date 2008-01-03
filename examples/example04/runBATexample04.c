@@ -41,7 +41,7 @@ int main()
   fModelEfficiency -> MCMCSetFlagInitialPosition(1); 
 	fModelEfficiency -> MCMCSetWriteChainToFile(true); 
 
-	fModelEfficiency -> MCMCInitialize(); 
+	//	fModelEfficiency -> MCMCInitialize(); 
 
 	BCModelOutput * fModelEfficiencyOutput = new BCModelOutput(fModelEfficiency, "output_efficiency.root"); 
 
