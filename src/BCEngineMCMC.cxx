@@ -333,7 +333,7 @@ std::vector <double> BCEngineMCMC::MCMCGetx(int i)
   // copy the point in the ith chain into the temporary vector 
 
   for (int j = 0; j < fMCMCNParameters; ++j)
-    x.push_back(fMCMCx.at(i * fMCMCNChains + j)); 
+    x.push_back(fMCMCx.at(i * fMCMCNParameters + j)); 
 
   return x; 
  
@@ -1005,6 +1005,10 @@ int BCEngineMCMC::MCMCMetropolis()
       
       this -> MCMCUpdateStatistics(); 
       
+      // update function fitting 
+
+      this -> MCMCUpdateFunctionFitting(); 
+
       // call user interface 
       
       this -> MCMCUserInterface(); 

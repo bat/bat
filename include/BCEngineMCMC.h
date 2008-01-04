@@ -543,6 +543,12 @@ class BCEngineMCMC
 	int MCMCInitialize(); 
 
 	/*
+	 * An interface to fitting functions. This function will be overloaded in BCModel. 
+	 */
+	virtual void MCMCUpdateFunctionFitting()
+	  { return; }; 
+
+	/*
 	 * Allows user to interface during the run 
 	 */ 
 	virtual void MCMCUserInterface(); 

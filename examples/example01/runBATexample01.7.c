@@ -108,7 +108,7 @@ int main()
 	// number of bins define the numerical precision. 
 
 	fModelPol1 -> SetNbins(100);
- 	fModelPol1 -> MarginalizeAll();
+	fModelPol1 -> MarginalizeAll();
 
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
