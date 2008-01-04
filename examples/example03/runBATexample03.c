@@ -49,8 +49,9 @@ int main()
 	BCModelBackground* fModelBackground = new BCModelBackground("background model"); 
 	BCModelSignal* fModelSignal = new BCModelSignal("signal model"); 
 
+	fModelSignal -> MCMCSetFlagPCA(true); 
 	fModelBackground -> MCMCSetTrialFunctionScale(0.01); 
-	fModelSignal -> MCMCSetTrialFunctionScale(0.01); 
+	//	fModelSignal -> MCMCSetTrialFunctionScale(0.01); 
 
 	// ---------------------------------------------------------
 	// define manager 

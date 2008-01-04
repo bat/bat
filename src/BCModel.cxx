@@ -155,7 +155,7 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 	int nx = fErrorBandXY -> GetNbinsX(); 
 
-	errorband.assign(nx, 0.0); 
+	errorband.assign(nx - 1, 0.0); 
 	
 	// loop over x and y bins 
 
@@ -189,7 +189,7 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 
 	// define new graph 
 
-	int nx = fErrorBandXY -> GetNbinsX(); 
+	int nx = fErrorBandXY -> GetNbinsX() - 1; 
 
 	TGraph * graph = new TGraph(2 * nx); 
 	graph -> SetFillStyle(1001);
@@ -204,6 +204,9 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 		{
 			graph -> SetPoint(i, fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i)); 
 			graph -> SetPoint(nx + i, fErrorBandXY -> GetXaxis() -> GetBinCenter(nx - i), ymax.at(nx - i - 1)); 
+
+			// debug
+			cout << i << " " << fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1) << " " << ymin.at(i) << endl; 
 		}
 
 	return graph; 
