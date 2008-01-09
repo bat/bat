@@ -222,6 +222,11 @@ class BCModelManager
 	 */ 
 	void SetNChains(int n); 
 
+	/*
+	 * Sets the flag for PCA
+	 */ 
+	void SetFlagPCA(bool flag); 
+
 	/* @} */ 
 
 	/** \name Miscellaneous methods */ 
