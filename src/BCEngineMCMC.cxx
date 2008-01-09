@@ -790,7 +790,7 @@ void BCEngineMCMC::MCMCUpdateStatistics()
 					sumv += fMCMCVariance[i]; 
 				}
 			
-			// caluclate r-value 
+			// calculate r-value 
 			
 			double mean            = sum / double(fMCMCNChains); 
 			double varianceofmeans = sum2 / double(fMCMCNChains) - mean * mean; 
@@ -812,6 +812,7 @@ void BCEngineMCMC::MCMCUpdateStatistics()
 
 	if (fMCMCFlagWriteChainToFile)
 		{
+
 			// loop over all chains / trees 
 			
 			for (int i = 0; i < fMCMCNChains; ++i)
@@ -819,7 +820,6 @@ void BCEngineMCMC::MCMCUpdateStatistics()
 					fMCMCTrees[i] -> Fill(); 
 				}
 		}
-
 
 }
 
@@ -1036,6 +1036,10 @@ int BCEngineMCMC::MCMCMetropolis()
 
   if (DEBUG)
     {
+
+			// debug
+			cout << " maximum prob " << endl; 
+			
       for (int i = 0; i < fMCMCNChains; ++i)
 				{
 					cout << i << " "  
@@ -1046,6 +1050,9 @@ int BCEngineMCMC::MCMCMetropolis()
 					cout << endl; 
 				}
 			
+			// debug
+			cout << " print " << endl; 
+
       TCanvas * can = new TCanvas(); 
 
       for (int i = 0; i < fMCMCNChains; ++i)
@@ -1072,13 +1079,15 @@ int BCEngineMCMC::MCMCMetropolis()
 
 							counter++; 
 						}
-			
+
       can -> cd(); 
-      fMCMCH1RValue -> Draw(); 
+			if (fMCMCH1RValue) 
+				fMCMCH1RValue -> Draw(); 
       can -> Print("canvas_rvalue.ps"); 
 
       can -> cd(); 
-      fMCMCH1Efficiency -> Draw(); 
+			if (fMCMCH1Efficiency) 
+				fMCMCH1Efficiency -> Draw(); 
       can -> Print("canvas_efficiency.ps"); 
     }
 

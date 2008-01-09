@@ -461,10 +461,6 @@ void BCModelManager::Normalize()
 
 	for (int i = 0; i < this -> GetNModels(); i++)
 	{
-		// calculate model likelihood normalization
-//		BCLog::Out(BCLog::summary, BCLog::summary, Form("BCModelManager::Initialize. Normalize model %s.",
-//					this -> GetModel(i) -> GetName()));
-
 		fModelContainer -> at(i) -> Normalize(); 
 
 		// add to total normalization 
@@ -501,6 +497,18 @@ void BCModelManager::MarginalizeAll()
 
 	for (int i = 0; i < this -> GetNModels(); i++)
 		this -> GetModel(i) -> MarginalizeAll(); 
+
+}
+
+// ---------------------------------------------------------
+
+void BCModelManager::WriteMarkovChain(bool flag)
+{
+
+	// marginalizes all models registered
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> WriteMarkovChain(flag); 
 
 }
 

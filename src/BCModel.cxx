@@ -204,9 +204,6 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 		{
 			graph -> SetPoint(i, fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i)); 
 			graph -> SetPoint(nx + i, fErrorBandXY -> GetXaxis() -> GetBinCenter(nx - i), ymax.at(nx - i - 1)); 
-
-			// debug
-			cout << i << " " << fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1) << " " << ymin.at(i) << endl; 
 		}
 
 	return graph; 
@@ -598,6 +595,8 @@ double BCModel::Normalize()
 	// maybe we have to remove the mode finding from here in the future
 
 	fNormalization = this -> Integrate();
+
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Normalization : %.2lf", fNormalization));
 
 	return fNormalization;
 

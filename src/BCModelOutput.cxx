@@ -302,7 +302,7 @@ void BCModelOutput::InitializeMarkovChainTrees()
 			fMarkovChainTrees.push_back(tree); 
 		}
 
-	// connect pointer to parameter vectors 
+// 	// connect pointer to parameter vectors 
 
 	fParameters    = fModel -> MCMCGetP2x(); 
 	fIteration     = fModel -> MCMCGetP2NIterations(); 
@@ -318,9 +318,9 @@ void BCModelOutput::InitializeMarkovChainTrees()
 		}
 
 	// loop over all parameters 
-
+	
 	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
-		for (int j = 0; j < fNParameters; ++j)
+		for (int j = 0; j <  fModel -> MCMCGetNParameters(); ++j)
 		{
 			fMarkovChainTrees[i] -> Branch(Form("fParameter%i", j), 
 																		 &(*fParameters)[i * fModel -> MCMCGetNParameters() + j], 
