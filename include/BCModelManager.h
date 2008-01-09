@@ -296,6 +296,11 @@ class BCModelManager
 	 */ 
 	void MarginalizeAll(); 
 
+	/*
+	 * Flag for writing Markov chain to file 
+	 */ 
+	void WriteMarkovChain(bool flag); 
+
 	/**
 	 * Resets the data set 
 	 */ 

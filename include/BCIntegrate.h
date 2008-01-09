@@ -319,7 +319,7 @@ class BCIntegrate : public BCEngineMCMC
 	 * Flag for writing Markov chain to ROOT file (true) or not (false)
 	 */ 
 	void WriteMarkovChain(bool flag) 
-	{ fFlagWriteMarkovChain = flag; }; 
+	{ fFlagWriteMarkovChain = flag; fMCMCFlagWriteChainToFile = flag;}; 
 
 	/**
 	 * Sets the ROOT tree containing the Markov chain 
