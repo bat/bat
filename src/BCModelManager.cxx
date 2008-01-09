@@ -328,6 +328,18 @@ void BCModelManager::SetNChains(int n)
 
 // --------------------------------------------------------- 
 
+void BCModelManager::SetFlagPCA(bool flag)
+{
+	
+	// sets the flag for PCA 
+
+	for (int i = 0; i < this -> GetNModels(); i++)
+	  this -> GetModel(i) -> MCMCSetFlagPCA(flag); 
+
+}
+
+// --------------------------------------------------------- 
+
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
 
@@ -585,7 +597,8 @@ void BCModelManager::PrintSummary(const char * file)
 		<<"======================================"<<endl
 		<<endl;
 
-	cout.rdbuf(old_buffer);
+	if (file)
+		cout.rdbuf(old_buffer);
 
 }
 
