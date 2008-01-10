@@ -263,9 +263,6 @@ void BCModelOutput::InitializeAnalysisTree()
 
 	// create new tree 
 
-	if (fAnalysisTree)
-		delete fAnalysisTree; 
-
 	fAnalysisTree = new TTree("AnalysisTree", "AnalysisTree"); 
 
 	// set branch addresses 
