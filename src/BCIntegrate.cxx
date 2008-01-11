@@ -1674,82 +1674,82 @@ void BCIntegrate::MCMCUpdateFunctionFitting()
   
   if (fFitFunctionIndexX < 0)
     return; 
-      
+	
   else
     {
       // loop over all possible x values ... 
       
       if (fErrorBandContinuous)
-	{
-	  double x = 0; 
-	  
-	  for (int ix = 0; ix < fErrorBandNbinsX; ix++)
-	    {
-	      // calculate x 
-	      
-	      x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
-	      
-	      // calculate y 
-	      
-	      std::vector <double> xvec; 
-	      xvec.push_back(x); 
+				{
+					double x = 0; 
+					
+					for (int ix = 0; ix < fErrorBandNbinsX; ix++)
+						{
+							// calculate x 
+							
+							x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
+							
+							// calculate y 
+							
+							std::vector <double> xvec; 
+							xvec.push_back(x); 
+							
+							// loop over all chains
 
-	      // loop over all chains
-
-	      for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
-		{
-		  // calculate y 
-
-		  double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain)); 
-
-		  // fill histogram 
-	      
-		  fErrorBandXY -> Fill(x, y); 
-		}
-
-	      xvec.clear(); 	      
-	    }
-	}
+							for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
+								{
+									// calculate y 
+									
+									double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain)); 
+									
+									// fill histogram 
+									
+									fErrorBandXY -> Fill(x, y); 
+								}
+							
+							xvec.clear(); 	      
+						}
+				}
       
       // ... or evaluate at the data point x-values 
       
       else
-	{
-	  
-	  int ndatapoints = int(fErrorBandX.size()); 
-	  
-	  double x = 0; 
-	  
-	  for (int ix = 0; ix < ndatapoints; ++ix)
-	    {
-				// calculate x 
-	      
-	      x = fErrorBandX.at(ix); 
-	      
-	      // calculate y 
-	      
-	      std::vector <double> xvec; 
-	      xvec.push_back(x); 
-
-	      // loop over all chains
-
-	      for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
-					{
-						// calculate y 
-						
-						double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain)); 
-						
-						// fill histogram 
-						
-						fErrorBandXY -> Fill(x, y); 
-					}
-	      
-	      xvec.clear(); 
-	    }
-	  
-	}
+				{
+					
+					int ndatapoints = int(fErrorBandX.size()); 
+					
+					double x = 0; 
+					
+					for (int ix = 0; ix < ndatapoints; ++ix)
+						{
+							// calculate x 
+							
+							x = fErrorBandX.at(ix); 
+							
+							// calculate y 
+							
+							std::vector <double> xvec; 
+							xvec.push_back(x); 
+							
+							// loop over all chains
+							
+							for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
+								{
+									// calculate y 
+									
+									double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain)); 
+									
+									// fill histogram 
+									
+									fErrorBandXY -> Fill(x, y); 
+								}
+							
+							xvec.clear(); 
+						}
+					
+				}
     }
-
+	
 }
 
 // *********************************************

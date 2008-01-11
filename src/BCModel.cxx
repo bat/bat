@@ -722,7 +722,7 @@ int BCModel::MarginalizeAll()
 	    fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
 	/ double(fErrorBandNbinsX);
 
-      dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) -
+      dy = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) -
 	    fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
 	/ double(fErrorBandNbinsY);
 
