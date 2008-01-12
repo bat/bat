@@ -229,7 +229,7 @@ class BCEngineMCMC
 	 * Returns the maximum point of each ith Markov chain. 
 	 * @param i The index of the Markov chain. 
 	 */ 
-	std::vector <double> MCMCGetMaximumPoints(int i); 
+	std::vector <double> MCMCGetMaximumPoint(int i); 
 
 	/*
 	 * Returns the maximum (log) probability of each Markov chain.

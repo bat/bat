@@ -715,37 +715,37 @@ int BCModel::MarginalizeAll()
 
   double dx = 0.0;
   double dy = 0.0;
-
+	
   if (fFitFunctionIndexX >= 0)
     {
       dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) -
-	    fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
-	/ double(fErrorBandNbinsX);
-
+						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
+				/ double(fErrorBandNbinsX);
+			
       dy = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) -
-	    fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
-	/ double(fErrorBandNbinsY);
-
+						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
+				/ double(fErrorBandNbinsY);
+			
       fErrorBandXY = new TH2D("errorbandxy", "",
-			      fErrorBandNbinsX + 1,
-			      fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) -
-			      0.5 * dx,
-			      fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) +
-			      0.5 * dx,
-			      fErrorBandNbinsY + 1,
-			      fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) -
-			      0.5 * dy,
-			      fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) +
-			      0.5 * dy);
+															fErrorBandNbinsX + 1,
+															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) -
+															0.5 * dx,
+															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) +
+															0.5 * dx,
+															fErrorBandNbinsY + 1,
+															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) -
+															0.5 * dy,
+															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) +
+															0.5 * dy);
       fErrorBandXY -> SetStats(kFALSE);
-
+			
       for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
-	for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
-	  fErrorBandXY -> SetBinContent(ix, iy, 0.0);
+				for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
+					fErrorBandXY -> SetBinContent(ix, iy, 0.0);
     }
-
+	
   return this -> MCMCMetropolis(); 
-
+	
 }
 
 

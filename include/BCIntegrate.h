@@ -684,9 +684,9 @@ class BCIntegrate : public BCEngineMCMC
 	double fMarkovChainValue; 
 
 	/*
-         * Interface to BCEngineMCMC::MCMCUpdateFunctionFitting.
-         */
-        void MCMCUpdateFunctionFitting();
+	 * Interface to BCEngineMCMC::MCMCUpdateFunctionFitting.
+	 */
+	void MCMCUpdateFunctionFitting();
 
  protected: 
 

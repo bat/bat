@@ -4,7 +4,7 @@
 // debug
 #include <TCanvas.h> 
 
-#define DEBUG 0
+#define DEBUG 1
 
 // --------------------------------------------------------- 
 
@@ -142,6 +142,29 @@ TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 		}	
 
 	return fMCMCH2Marginalized[index]; 
+
+}
+
+// --------------------------------------------------------
+
+std::vector <double> BCEngineMCMC::MCMCGetMaximumPoint(int i) 
+{
+
+  // create a new vector with the lenght of fMCMCNParameters 
+
+  std::vector <double> x; 
+
+  // check if i is in range 
+
+  if (i < 0 || i >= fMCMCNChains)
+    return x; 
+
+  // copy the point in the ith chain into the temporary vector 
+
+  for (int j = 0; j < fMCMCNParameters; ++j)
+    x.push_back(fMCMCMaximumPoints.at(i * fMCMCNParameters + j)); 
+
+  return x; 
 
 }
 
