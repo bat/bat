@@ -407,6 +407,10 @@ int BCModel::AddParameter(BCParameter * parameter)
 
 	this -> MCMCAddParameter(parameter -> GetLowerLimit(), parameter -> GetUpperLimit()); 
 
+	// re-initialize 
+
+	this -> MCMCInitialize(); 
+
 	return 0; 
 
 }; 
