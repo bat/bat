@@ -394,6 +394,20 @@ class BCEngineMCMC
 	 */ 
 	void MCMCSetMarkovChainTrees(std::vector <TTree *> trees); 
 
+	/*
+	 * Set a flag to control if during the PCA the least eigenvectors
+	 * should be ignored or not. 
+	 */ 
+	void MCMCSetFlagPCATruncate(bool flag) 
+	{ fMCMCFlagPCATruncate = flag; }; 
+	
+	/*
+	 * Sets the minimum ratio of an eigenvalue to the largest eigenvalue
+	 * below which it is ignored if fMCMCFlagPCATruncate is true. 
+	 */ 
+	void MCMCSetPCAMinimumRatio(double ratio)
+	{ fMCMCPCAMinimumRatio = ratio; }; 
+
 	/* @} */ 
 
 	/** \name Miscellaneous methods */ 
@@ -633,6 +647,24 @@ class BCEngineMCMC
 	 * Variance of the data in the PCA coordinate system 
 	 */ 
 	std::vector <double> fMCMCPCAVariance; 
+
+	/*
+	 * Flag to control if during the PCA the least eigenvectors should
+	 * be ignored or not.
+	 */ 
+	bool fMCMCFlagPCATruncate; 
+
+	/*
+	 * Minimum ratio of an eigenvalue to the largest eigenvalue below
+	 * which it is ignored if fMCMCFlagPCATruncate is true.
+	 */ 
+	double fMCMCPCAMinimumRatio; 
+
+	/*
+	 * If the least eigenvectors are ignored this is the number of
+	 * dimensions remaining.
+	 */ 
+	int fMCMCNDimensionsPCA; 
 
 	/*
 	 * Number of accepted trials and not accepted trials for each

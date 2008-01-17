@@ -4,7 +4,7 @@
 // debug
 #include <TCanvas.h> 
 
-#define DEBUG 1
+#define DEBUG 0
 
 // --------------------------------------------------------- 
 
@@ -28,6 +28,9 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCSimulatedAnnealingT0 = 100; 
 	fMCMCH1NBins              = 100; 
 	fMCMCH2NBins              = 100; 
+	fMCMCFlagPCATruncate        = false; 
+	fMCMCPCAMinimumRatio      = 1e-7; 
+	
 
 	// set pointer to control histograms to NULL 
 
@@ -452,8 +455,9 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 
 			// transform new point back to x space 
 
-			fMCMCPCA -> P2X(newp, newx, fMCMCNParameters); 
-
+			//			fMCMCPCA -> P2X(newp, newx, fMCMCNParameters); 
+			fMCMCPCA -> P2X(newp, newx, fMCMCNDimensionsPCA); 
+			
 			// copy point into vector 
 
 			for (int i = 0; i < fMCMCNParameters; ++i) 
@@ -1002,6 +1006,24 @@ int BCEngineMCMC::MCMCMetropolis()
       BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start PCA run with %i iterations.", fMCMCNIterationsPCA)); 
       
       this -> MCMCPCARun(); 
+
+			if (fMCMCFlagPCATruncate = true) 
+				{
+					fMCMCNDimensionsPCA = 0; 
+
+					const double * ma = fMCMCPCA -> GetEigenValues() -> GetMatrixArray(); 
+
+					for (int i = 0; i < fMCMCNParameters; ++i)
+						if (ma[i]/ma[0] > fMCMCPCAMinimumRatio)
+							fMCMCNDimensionsPCA++; 
+
+					BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Use %i out of %i dimensions.", fMCMCNDimensionsPCA, fMCMCNParameters)); 
+					
+				}
+
+			else
+				fMCMCNDimensionsPCA = fMCMCNParameters; 
+
     }
   
   else
