@@ -149,7 +149,7 @@ int main()
 	// selects the most probable model and marginalizes the probability
 	// density with respect to all parameters
 
-	fModelManager -> SetNbins(1); 
+	fModelManager -> SetNbins(100); 
 
 	// marginalizes the probability density with respect to all
 	// parameters for all models. 

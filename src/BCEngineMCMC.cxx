@@ -139,8 +139,8 @@ TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 	for(int i = 0; i < fMCMCNParameters; i++)
 		for (int j = 0; j < i; ++j)
 			{
-				if(i == index1 && j == index2)
-					counter = index; 
+				if(j == index1 && i == index2)
+					index = counter; 
 				counter++;
 		}	
 
@@ -780,7 +780,7 @@ void BCEngineMCMC::MCMCUpdateStatistics()
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				for (int k = 0; k < j; ++k)
 					{
-						fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i * fMCMCNParameters + j], fMCMCx[i * fMCMCNParameters + k]); 
+						fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i * fMCMCNParameters + k], fMCMCx[i * fMCMCNParameters + j]); 
 
 						counter ++; 
 					}
@@ -1509,17 +1509,17 @@ int BCEngineMCMC::MCMCInitialize()
 	  for(int i = 0; i < fMCMCNParameters; ++i)
 	    for (int k = 0; k < i; ++k)
 	      {
-		double hmin1 = fMCMCBoundaryMin.at(i); 
-		double hmax1 = fMCMCBoundaryMax.at(i); 
+					double hmin1 = fMCMCBoundaryMin.at(k); 
+					double hmax1 = fMCMCBoundaryMax.at(k); 
+					
+					double hmin2 = fMCMCBoundaryMin.at(i); 
+					double hmax2 = fMCMCBoundaryMax.at(i); 
 		
-		double hmin2 = fMCMCBoundaryMin.at(k); 
-		double hmax2 = fMCMCBoundaryMax.at(k); 
-		
-		TH2D * h2 = new TH2D(Form("h2_chain_%i_parameters_%i_vs_%i", j, i, k), "",
-				     fMCMCH2NBins, hmin1, hmax1, 
-				     fMCMCH2NBins, hmin2, hmax2);
-		
-		fMCMCH2Marginalized.push_back(h2); 
+					TH2D * h2 = new TH2D(Form("h2_chain_%i_parameters_%i_vs_%i", j, i, k), "",
+															 fMCMCH2NBins, hmin1, hmax1, 
+															 fMCMCH2NBins, hmin2, hmax2);
+					
+					fMCMCH2Marginalized.push_back(h2); 
 	      }
 	
 	// define plot for R-value 

@@ -817,6 +817,13 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 	int index1 = parameter1 -> GetIndex();
 	int index2 = parameter2 -> GetIndex();
 
+	if (index1 > index2) 
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::GetMarginalized. Index 1 has to be smaller than index 2.");
+ 			return 0;
+		}
+
 	// get histogram
 
 	//	TH2D * hist = this -> GetH2D(index1,index2);
