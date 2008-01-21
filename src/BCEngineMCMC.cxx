@@ -28,7 +28,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCSimulatedAnnealingT0 = 100; 
 	fMCMCH1NBins              = 100; 
 	fMCMCH2NBins              = 100; 
-	fMCMCFlagPCATruncate        = false; 
+	fMCMCFlagPCATruncate      = false; 
 	fMCMCPCAMinimumRatio      = 1e-7; 
 	
 
@@ -1009,7 +1009,7 @@ int BCEngineMCMC::MCMCMetropolis()
       
       this -> MCMCPCARun(); 
 
-			if (fMCMCFlagPCATruncate = true) 
+			if (fMCMCFlagPCATruncate == true) 
 				{
 					fMCMCNDimensionsPCA = 0; 
 
