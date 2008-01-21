@@ -198,8 +198,7 @@ void BCEngineMCMC::MCMCSetInitialPosition(int chain, std::vector<double> x0)
 			return; 
 		}
 
-	if (int(fMCMCInitialPosition.size()) != (fMCMCNChains * fMCMCNParameters) && 
-			int(fMCMCInitialPosition.size()) == fMCMCNParameters)
+	if (int(x0.size()) == fMCMCNParameters)
 		{
 			fMCMCInitialPosition.clear(); 
 			for (int j = 0; j < fMCMCNChains; ++j)
@@ -207,8 +206,11 @@ void BCEngineMCMC::MCMCSetInitialPosition(int chain, std::vector<double> x0)
 					fMCMCInitialPosition.push_back(x0.at(i)); 
 		}
 
+	else 
+		return; 
+
 	bool flagin = true; 
-	
+
 	for (int j = 0; j < fMCMCNChains; ++j)
 		for (int i = 0; i < fMCMCNParameters; ++i)
 			if (fMCMCInitialPosition[j * fMCMCNParameters + i] < fMCMCBoundaryMin[i] || 
@@ -499,7 +501,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolisHastings(int chain, std::vector
 
 bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 {
-  
+
   // calculate index 
 
 	int index = chain * fMCMCNParameters; 
@@ -1469,9 +1471,15 @@ int BCEngineMCMC::MCMCInitialize()
 		case 2 : 
 		  
 		  if (int(fMCMCInitialPosition.size()) == fMCMCNParameters * fMCMCNChains)
-		    fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]); 
+				{
+					fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]); 
+				}
 		  else
-		    fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
+				{
+					fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i])); 
+				}
+
+			break; 
 		  
 		  // use the center of the region as default 
 
