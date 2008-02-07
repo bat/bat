@@ -174,6 +174,27 @@ class BCEngineMCMC
 	{ return fMCMCTrialFunctionScale; }; 
 
 	/*
+	 * Returns the scale factor for all parameters and chains. 
+	 */ 
+	std::vector <double> MCMCGetTrialFunctionScaleFactor()
+	{ return fMCMCTrialFunctionScaleFactor; }; 
+
+	/*
+	 * Returns the scale factor for all parameters and the ith
+	 * chain.
+	 * @param i The chain. 
+	 */ 
+	std::vector <double> MCMCGetTrialFunctionScaleFactor(int i); 
+
+	/*
+	 * Returns the scale factor for the jth parameter and the ith
+	 * chain.  
+	 * @param i The chain.
+	 * @param j The parameter index.
+	 */ 
+	double MCMCGetTrialFunctionScaleFactor(int i, int j); 
+
+	/*
 	 * Returns the current point of each Markov chain. 
 	 */ 
 	std::vector <double> MCMCGetx()
@@ -328,6 +349,13 @@ class BCEngineMCMC
 	{ fMCMCNIterationsMax = n; }; 
 
 	/*
+	 * Sets the number of iterations. 
+	 * @param n The number of iterations. 
+	 */ 
+	void MCMCSetNIterationsRun(int n) 
+	{ fMCMCNIterationsRun = n; }; 
+
+	/*
 	 * Sets the number of iterations needed for burn-in. 
 	 * @param n The number of iterations needed for burn-in. 
 	 */ 
@@ -428,6 +456,7 @@ class BCEngineMCMC
 	 * fMCMCNParameters.
 	 */ 
 	void MCMCTrialFunction(std::vector <double> &x); 
+	void MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x); 
 
 	/*
 	 * Independent chain trial function. The function does not
@@ -477,6 +506,15 @@ class BCEngineMCMC
 	 * @param pca A bool whether to use PCA or not 
 	 * @return A flag indicating whether the new point lies within the allowed range. 
 	 */ 
+	bool MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x, bool pca); 
+
+	/*
+	 * Returns a trial point for the Metropolis algorithm. 
+	 * @param chain The chain index. 
+	 * @param x A proposal point. 
+	 * @param pca A bool whether to use PCA or not 
+	 * @return A flag indicating whether the new point lies within the allowed range. 
+	 */ 
 	bool MCMCGetProposalPointMetropolisHastings(int chain, std::vector <double> &xnew, std::vector <double> &xold); 
 
 
@@ -486,6 +524,7 @@ class BCEngineMCMC
 	 * @param pca A bool whether to use PCA or not 
 	 */ 
 	bool MCMCGetNewPointMetropolis(int chain = 0, bool pca = false); 
+	bool MCMCGetNewPointMetropolis(int chain = 0, int parameter = 0, bool pca = false); 
 
 	/* 
 	 * Returns a new point using the Metropolis algorithm. 
@@ -511,6 +550,14 @@ class BCEngineMCMC
 	 */ 
 	void MCMCUpdateStatistics(); 
 
+	void MCMCUpdateStatisticsCheckMaximum(); 
+
+	void MCMCUpdateStatisticsFillHistograms();
+
+	void MCMCUpdateStatisticsTestConvergenceAllChains(); 
+
+	void MCMCUpdateStatisticsWriteChains(); 
+
 	/*
 	 * The probability density 
 	 */ 
@@ -525,6 +572,11 @@ class BCEngineMCMC
 	 * Perform Metropolis algorithm 
 	 */ 
 	int MCMCMetropolis(); 
+
+	/*
+	 * Perform a pre run for the Metropolis algorithm 
+	 */ 
+	int MCMCMetropolisPreRun(); 
 
 	/*
 	 * Perform Metropolis-Hastings algorithm 
@@ -610,6 +662,11 @@ class BCEngineMCMC
 	 */ 
 	std::vector<int> fMCMCNIterations; 
 
+	/*
+	 * Number of iterations for updating scale factors 
+	 */
+	int fMCMCNIterationsUpdate; 
+
 	/* 
 	 * Number of iterations needed for each chain to convergence. The
 	 * length of the vector is equal to fMCMCNChains. 
@@ -622,9 +679,14 @@ class BCEngineMCMC
 	int fMCMCNIterationsConvergenceGlobal; 
 
 	/*
-	 * Maximum number of iterations for a Markov chain. 
+	 * Maximum number of iterations for a Markov chain prerun. 
 	 */  
 	int fMCMCNIterationsMax; 
+
+	/*
+	 * Number of iterations for a Markov chain run. 
+	 */  
+	int fMCMCNIterationsRun; 
 
 	/* 
 	 * Number of iterations for burn-in. These iterations are not
@@ -668,8 +730,9 @@ class BCEngineMCMC
 
 	/*
 	 * Number of accepted trials and not accepted trials for each
-	 * chain. The length of the vectors is equal to fMCMCNChains. For
-	 * each chain these numbers add up to fMCMCNIterations. 
+	 * chain. The length of the vectors is equal to fMCMCNChains *
+	 * fMCMCNParameters. For each chain these numbers add up to
+	 * fMCMCNIterations.
 	 */ 
 	std::vector<int> fMCMCNTrialsTrue; 
 	std::vector<int> fMCMCNTrialsFalse; 
@@ -704,6 +767,17 @@ class BCEngineMCMC
 	 * Scales the width of the trial functions by a global factor.
 	 */ 
 	double fMCMCTrialFunctionScale; 
+
+	/*
+	 * Scales the width of the trial functions by a scale factor
+	 * for each parameter and chain
+	 */ 
+	std::vector <double> fMCMCTrialFunctionScaleFactor; 
+
+	/* 
+	 * Defines if a prerun has been performed or not 
+	 */ 
+	bool fMCMCFlagPreRun; 
 
 	/*
 	 * The intial position of each Markov chain. The length of the
