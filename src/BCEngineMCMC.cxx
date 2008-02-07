@@ -22,7 +22,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCFlagIterationsAuto   = false; 
 	fMCMCTrialFunctionScale   = 1.0; 
 	fMCMCFlagInitialPosition  = 1; 
-	fMCMCRValueCriterion      = 0.1; 
+	fMCMCRValueCriterion      = 0.01; 
 	fMCMCNIterationsConvergenceGlobal = -1; 
 	fMCMCRValue               = 100; 
 	fMCMCFlagPCA              = false; 
@@ -1311,8 +1311,15 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
   int counter = 0;
   int counterupdate = 0; 
   bool convergence = false;
+  bool flagefficiency = false; 
 	
-  while (counter < 100 || (counter < fMCMCNIterationsMax && !convergence))
+	std::vector <double> efficiency; 
+
+  for (int i = 0; i < fMCMCNParameters; ++i)
+		for (int j = 0; j < fMCMCNChains; ++j)
+			efficiency.push_back(0.0); 
+
+  while (counter < 100 || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
     {
       // loop over parameters 
 			
@@ -1338,6 +1345,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			
       if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
 				{
+					// set flag
+
+					flagefficiency = true; 
+
 					// loop over chains
 					
 					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
@@ -1348,23 +1359,23 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 								{
 									// calculate efficiency 
 
-									double efficiency = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]); 
+									efficiency[ichains * fMCMCNParameters + iparameter] = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]); 
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency < 0.1)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency, ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency > 0.5)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency, ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 										}
 									
 									// reset counters 
@@ -1372,6 +1383,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									counterupdate = 0; 
 									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
 									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
+
+									// check flag 
+
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
+										flagefficiency = false; 
 								}
 						}
 				}
@@ -1385,16 +1401,18 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
       if (fMCMCNIterationsConvergenceGlobal > 0)
 				convergence = true; 
+			
     }
 
   // print convergence status 
+
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Markov chains ran for %i iterations. ", counter)); 
 
   if (fMCMCNIterationsConvergenceGlobal > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
   else
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
-
   // print efficiencies 
 
   std::vector <double> efficiencies; 
@@ -1406,8 +1424,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
     {
       for (int j = 0; j < fMCMCNChains; ++j)
 				{
-					double efficiency = double(fMCMCNTrialsTrue[j * fMCMCNParameters + i]) / double(fMCMCNTrialsTrue[j * fMCMCNParameters + i] + fMCMCNTrialsFalse[j * fMCMCNParameters + i]);
-					efficiencies[i] += efficiency / double(fMCMCNChains); 
+					efficiencies[i] += efficiency[j * fMCMCNParameters + i] / double(fMCMCNChains); 
 				}
 			
       BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average efficiency for parameter %i: %.2lf%%. ", i, 100.0 * efficiencies[i])); 
@@ -1471,7 +1488,14 @@ int BCEngineMCMC::MCMCMetropolis()
 
   int counterupdate = 0; 
   bool convergence = false;
+	bool flagefficiency = false; 
 	
+	std::vector <double> efficiency; 
+
+  for (int i = 0; i < fMCMCNParameters; ++i)
+		for (int j = 0; j < fMCMCNChains; ++j)
+			efficiency.push_back(0.0); 
+
   for (int iiterations = 0; iiterations < fMCMCNIterationsRun; ++iiterations)
     {
       // loop over parameters 
@@ -1502,6 +1526,10 @@ int BCEngineMCMC::MCMCMetropolis()
 			
       if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
 				{
+					// set flag
+
+					flagefficiency = true; 
+
 					// loop over chains
 					
 					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
@@ -1512,23 +1540,23 @@ int BCEngineMCMC::MCMCMetropolis()
 								{
 									// calculate efficiency 
 
-									double efficiency = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]); 
+									efficiency[ichains * fMCMCNParameters + iparameter] = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]); 
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency < 0.1)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0*efficiency, ichains, 100.0*fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency > 0.5)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0*efficiency, ichains, 100.0*fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 										}
 									
 									// reset counters 
@@ -1536,6 +1564,11 @@ int BCEngineMCMC::MCMCMetropolis()
 									counterupdate = 0; 
 									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
 									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
+
+									// check flag 
+
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
+										flagefficiency = false; 
 								}
 						}
 				}
@@ -1548,9 +1581,12 @@ int BCEngineMCMC::MCMCMetropolis()
 
       if (fMCMCNIterationsConvergenceGlobal > 0)
 				convergence = true; 
+			
     }
 
   // print convergence status 
+
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Markov chains ran for %i iterations. ", fMCMCNIterationsRun)); 
 
   if (fMCMCNIterationsConvergenceGlobal > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
