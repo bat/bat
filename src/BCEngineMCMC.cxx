@@ -358,8 +358,8 @@ void BCEngineMCMC::MCMCTrialFunctionAuto(std::vector <double> &x)
 
   for (int i = 0; i < fMCMCNParameters; ++i) 
     // debug: is that correct? 
-    //    x[i] = fMCMCRandom -> Gaus(fMCMCPCAMean[i], sqrt(fMCMCPCAVariance[i])); 
-    x[i] = fMCMCRandom -> Gaus(0.0 , sqrt(fMCMCPCAVariance[i])); 
+		x[i] = fMCMCRandom -> Gaus(fMCMCPCAMean[i], sqrt(fMCMCPCAVariance[i])); 
+		//    x[i] = fMCMCRandom -> Gaus(0.0 , sqrt(fMCMCPCAVariance[i])); 
 }
 
 // --------------------------------------------------------
@@ -1062,7 +1062,7 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 				fMCMCRValue = varianceofmeans / meanofvariance; 
       
       if (fMCMCNIterationsConvergenceGlobal == -1 && fMCMCRValue < fMCMCRValueCriterion)
-				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0]; 
+				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters; 
       
       int dn = int(double(fMCMCNIterationsMax) / 100.0); 
       
@@ -1372,7 +1372,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
@@ -1553,7 +1553,7 @@ int BCEngineMCMC::MCMCMetropolis()
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
@@ -1592,7 +1592,7 @@ int BCEngineMCMC::MCMCMetropolis()
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
   else
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsRun)); 
 
   // print efficiencies 
 
@@ -1802,6 +1802,8 @@ int BCEngineMCMC::MCMCSimulatedAnnealing()
 
 void BCEngineMCMC::MCMCResetRunStatistics()
 {
+
+	fMCMCNIterationsConvergenceGlobal = -1; 
 
 	for (int j = 0; j < fMCMCNChains; ++j)
 		{
