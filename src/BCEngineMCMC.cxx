@@ -14,14 +14,15 @@ BCEngineMCMC::BCEngineMCMC()
   // default settings 
 
  	fMCMCNParameters          = 0; 
-	fMCMCNChains              = 1; 
-	fMCMCNIterationsMax       = 100000; 
-	fMCMCNIterationsBurnIn    = 100000; 
-	fMCMCNIterationsPCA       = 100000; 
+	fMCMCNChains              = 5; 
+	fMCMCNIterationsMax       = 1000000; 
+	fMCMCNIterationsRun       = 100000; 
+	fMCMCNIterationsBurnIn    = 0; 
+	fMCMCNIterationsPCA       = 10000; 
 	fMCMCFlagIterationsAuto   = false; 
 	fMCMCTrialFunctionScale   = 1.0; 
-	fMCMCFlagInitialPosition  = 0; 
-	fMCMCRValueCriterion      = 0.2; 
+	fMCMCFlagInitialPosition  = 1; 
+	fMCMCRValueCriterion      = 0.1; 
 	fMCMCNIterationsConvergenceGlobal = -1; 
 	fMCMCRValue               = 100; 
 	fMCMCFlagPCA              = false; 
@@ -30,8 +31,10 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCH2NBins              = 100; 
 	fMCMCFlagPCATruncate      = false; 
 	fMCMCPCAMinimumRatio      = 1e-7; 
+	fMCMCNIterationsUpdate    = 1000; 
+	fMCMCFlagWriteChainToFile = false; 
+	fMCMCFlagPreRun           = false; 
 	
-
 	// set pointer to control histograms to NULL 
 
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
@@ -310,8 +313,21 @@ void BCEngineMCMC::MCMCTrialFunction(std::vector <double> &x)
 	// use uniform distribution for now 
 
 	for (int i = 0; i < fMCMCNParameters; ++i) 
-	  x[i] = 2.0 * (0.5 - fMCMCRandom -> Rndm()); 
+	  x[i] = fMCMCTrialFunctionScale * 2.0 * (0.5 - fMCMCRandom -> Rndm()); 
 
+}
+
+// --------------------------------------------------------
+
+void BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x)
+{
+
+  // no check of range for performance reasons   
+  
+  // use uniform distribution 
+  
+  x[iparameter] = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fMCMCRandom -> Rndm()); 
+  
 }
 
 // --------------------------------------------------------
@@ -338,10 +354,56 @@ double BCEngineMCMC::MCMCTrialFunctionIndependent(std::vector <double> &xnew, st
 void BCEngineMCMC::MCMCTrialFunctionAuto(std::vector <double> &x)
 {
 
-	// use uniform distribution for now 
+  // use uniform distribution for now 
 
-	for (int i = 0; i < fMCMCNParameters; ++i) 
-		x[i] = fMCMCRandom -> Gaus(fMCMCPCAMean[i], sqrt(fMCMCPCAVariance[i])); 
+  for (int i = 0; i < fMCMCNParameters; ++i) 
+    // debug: is that correct? 
+    //    x[i] = fMCMCRandom -> Gaus(fMCMCPCAMean[i], sqrt(fMCMCPCAVariance[i])); 
+    x[i] = fMCMCRandom -> Gaus(0.0 , sqrt(fMCMCPCAVariance[i])); 
+}
+
+// --------------------------------------------------------
+
+std::vector <double> BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int i)
+{
+  
+  // create a new vector with the length of fMCMCNParameters 
+
+  std::vector <double> x; 
+
+  // check if i is in range 
+
+  if (i < 0 || i >= fMCMCNChains)
+    return x; 
+
+  // copy the scale factors into the temporary vector 
+
+  for (int j = 0; j < fMCMCNParameters; ++j)
+    x.push_back(fMCMCTrialFunctionScaleFactor.at(i * fMCMCNParameters + j)); 
+
+  return x; 
+
+}
+
+// --------------------------------------------------------
+
+double BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int i, int j)
+{
+
+  // check if i is in range 
+
+  if (i < 0 || i >= fMCMCNChains)
+    return 0; 
+
+  // check if j is in range 
+
+  if (j < 0 || j >= fMCMCNParameters)
+    return 0; 
+
+  // return component of jth point in the ith chain 
+
+  return fMCMCTrialFunctionScaleFactor.at(i *  fMCMCNChains +j);
+
 }
 
 // --------------------------------------------------------
@@ -349,7 +411,7 @@ void BCEngineMCMC::MCMCTrialFunctionAuto(std::vector <double> &x)
 std::vector <double> BCEngineMCMC::MCMCGetx(int i)
 {
 
-  // create a new vector with the lenght of fMCMCNParameters 
+  // create a new vector with the length of fMCMCNParameters 
 
   std::vector <double> x; 
 
@@ -384,7 +446,7 @@ double BCEngineMCMC::MCMCGetx(int i, int j)
 
   // return component of jth point in the ith chain 
 
-  return fMCMCx.at(i *  fMCMCNChains +j);
+  return fMCMCx.at(i *  fMCMCNParameters + j);
  
 }
 
@@ -421,7 +483,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 			// get a proposal point from the trial function and scale it 
 
 			for (int i = 0; i < fMCMCNParameters; ++i) 
-				x[i] = fMCMCx[chain * fMCMCNParameters + i] + fMCMCTrialFunctionScale * x[i] * (fMCMCBoundaryMax.at(i) - fMCMCBoundaryMin.at(i)); 
+				x[i] = fMCMCx[chain * fMCMCNParameters + i] + x[i] * (fMCMCBoundaryMax.at(i) - fMCMCBoundaryMin.at(i)); 
 		}
 
 	else 
@@ -480,6 +542,85 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 }
 // --------------------------------------------------------
 
+bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x, bool pca)
+{
+
+  // get unscaled random point in the dimension of the chosen
+  // parameter. this point might not be in the correct volume.
+  
+  this -> MCMCTrialFunctionSingle(chain, parameter, x); 
+  
+  // shift the point to the old point (x0) and scale it. 
+
+  if (pca == false)
+    {
+      // copy the old point into the new 
+      
+      for (int i = 0; i < fMCMCNParameters; ++i)
+	if (i != parameter)
+	  x[i] = fMCMCx[chain * fMCMCNParameters + i];
+
+      // modify the parameter under study 
+
+      x[parameter] = fMCMCx[chain * fMCMCNParameters + parameter] + x[parameter] * (fMCMCBoundaryMax.at(parameter) - fMCMCBoundaryMin.at(parameter)); 
+    }
+  
+	else 
+		{
+		  // create temporary points in x and p space 
+
+			double * newp = new double[fMCMCNParameters]; 
+			double * newx = new double[fMCMCNParameters]; 
+
+			for (int i = 0; i < fMCMCNParameters; i++)
+				{
+					newp[i] = 0.0; 
+					newx[i] = 0.0; 
+				}
+
+			// get a new trial point 
+
+			this -> MCMCTrialFunctionSingle(chain, parameter, x); 
+
+			// get the old point in x space 
+
+			for (int i = 0; i < fMCMCNParameters; i++)
+				newx[i] = fMCMCx[chain * fMCMCNParameters + i]; 
+
+			// transform the old point into p space 
+
+			fMCMCPCA -> X2P(newx, newp); 
+
+			// add new trial point to old point 
+
+			newp[parameter] += x[parameter] * sqrt(fMCMCPCAVariance[parameter]); 
+
+			// transform new point back to x space 
+
+			//			fMCMCPCA -> P2X(newp, newx, fMCMCNParameters); 
+			fMCMCPCA -> P2X(newp, newx, fMCMCNDimensionsPCA); 
+			
+			// copy point into vector 
+
+			for (int i = 0; i < fMCMCNParameters; ++i) 
+				x[i] = newx[i]; 
+
+			delete [] newp; 
+			delete [] newx; 
+		}
+	
+	// check if the point is in the correct volume. 
+	
+	for (int i = 0; i < fMCMCNParameters; ++i) 	
+		if ((x[i] < fMCMCBoundaryMin[i]) || (x[i] > fMCMCBoundaryMax[i]))
+			return false; 
+
+	return true; 
+
+}
+
+// --------------------------------------------------------
+
 bool BCEngineMCMC::MCMCGetProposalPointMetropolisHastings(int chain, std::vector <double> &xnew, std::vector <double> &xold)
 {
 
@@ -494,6 +635,83 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolisHastings(int chain, std::vector
       return false; 
   
   return true; 
+
+}
+
+// --------------------------------------------------------
+
+bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
+{
+
+  // calculate index 
+
+	int index = chain * fMCMCNParameters; 
+
+ 	// get proposal point 
+
+	int counter = 0; 
+	
+ 	while (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca) && counter < 1000)
+		counter++; 
+
+	// calculate probabilities of the old and new points 
+
+	double p0 = fMCMCLogProbx[chain]; 
+	double p1 = this -> LogEval(fMCMCxLocal); 
+     
+	// flag for accept 
+
+ 	bool accept = false;
+
+	// if the new point is more probable, keep it ... 
+
+	if (p1 >= p0)
+	  accept = true;
+
+	// ... or else throw dice. 
+
+	else
+ 		{
+ 			double r = log(fMCMCRandom -> Rndm());
+
+ 			if(r < p1 - p0)
+			  accept = true;
+ 		}
+
+ 	// fill the new point 
+
+ 	if(accept)
+ 	  {	    
+	    // increase counter 
+	    
+	    fMCMCNTrialsTrue[chain * fMCMCNParameters + parameter]++; 
+
+	    // copy the point 	   
+
+ 	    for(int i = 0; i < fMCMCNParameters; ++i)
+ 	      {
+					// save the point 
+					
+					fMCMCx[index + i] = fMCMCxLocal[i]; 
+					
+					// save the probability of the point 
+					
+					fMCMCLogProbx[chain] = p1; 
+	      }
+	  }
+
+	else
+		{
+			// increase counter 
+
+		  fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++; 
+		}
+
+	// increase counter 
+
+	fMCMCNIterations[chain]++; 
+	
+	return accept; 
 
 }
 
@@ -543,7 +761,8 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
  	  {	    
 			// increase counter 
 
-			fMCMCNTrialsTrue[chain]++; 
+	    for (int i = 0; i < fMCMCNParameters; ++i)
+	      fMCMCNTrialsTrue[chain * fMCMCNParameters + i]++; 
 
 	    // copy the point 	   
 
@@ -563,7 +782,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 		{
 			// increase counter 
 
-			fMCMCNTrialsFalse[chain]++; 
+		  for (int i = 0; i < fMCMCNParameters; ++i)
+		    fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++; 
+
 		}
 
 	// increase counter 
@@ -627,7 +848,8 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolisHastings(int chain)
  	  {	    
 			// increase counter 
 
-			fMCMCNTrialsTrue[chain]++; 
+		  for (int i = 0; i < fMCMCNParameters; ++i)
+		    fMCMCNTrialsTrue[chain * fMCMCNParameters + i]++; 
 
 	    // copy the point 	   
 
@@ -647,7 +869,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolisHastings(int chain)
 		{
 			// increase counter 
 
-			fMCMCNTrialsFalse[chain]++; 
+		  for (int i = 0; i < fMCMCNParameters; ++i)
+		    fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++; 
+
 		}
 
 	// increase counter 
@@ -704,7 +928,9 @@ bool BCEngineMCMC::MCMCGetNewPointSimulatedAnnealing(int chain, bool pca)
  	  {	    
 			// increase counter 
 
-			fMCMCNTrialsTrue[chain]++; 
+		  for (int i = 0; i < fMCMCNParameters; ++i)
+		    fMCMCNTrialsTrue[chain * fMCMCNParameters + i]++; 
+
 
 	    // copy the point 	   
 
@@ -724,7 +950,8 @@ bool BCEngineMCMC::MCMCGetNewPointSimulatedAnnealing(int chain, bool pca)
 		{
 			// increase counter 
 
-			fMCMCNTrialsFalse[chain]++; 
+		  for (int i = 0; i < fMCMCNParameters; ++i)
+		    fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++; 
 		}
 
 	// increase counter 
@@ -748,61 +975,67 @@ double BCEngineMCMC::MCMCAnnealingSchedule(int chain)
 
 // --------------------------------------------------------
 
-void BCEngineMCMC::MCMCUpdateStatistics()
+void BCEngineMCMC::MCMCUpdateStatisticsCheckMaximum()
 {
 
-  // check if maximum is reached
+	// loop over all chains 
   
   for (int i = 0; i < fMCMCNChains; ++i)
     {
       if (fMCMCLogProbx[i] > fMCMCMaximumLogProb[i] || fMCMCNIterations[i] == 1)
 				{
 					fMCMCMaximumLogProb[i] = fMCMCLogProbx[i]; 
-
+					
 					for (int j = 0; j < fMCMCNParameters; ++j)
 						fMCMCMaximumPoints[i * fMCMCNParameters + j] = fMCMCx[i * fMCMCNParameters + j]; 
 				}
-    }
+    }	
+	
+}
 
-  // fill histograms of marginalized distributions 
+// --------------------------------------------------------
+
+void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
+{
+
+	// loop over chains 
 
   for (int i = 0; i < fMCMCNChains; ++i)
     {
       // fill each 1-dimensional histogram 
-
+      
       for (int j = 0; j < fMCMCNParameters; ++j)
-				{
-					fMCMCH1Marginalized[i * fMCMCNParameters + j] -> Fill(fMCMCx[i * fMCMCNParameters + j]); 
-				}
-
+				fMCMCH1Marginalized[i * fMCMCNParameters + j] -> Fill(fMCMCx[i * fMCMCNParameters + j]); 
+			
       // fill each 2-dimensional histogram 
-
-			int counter = 0; 
-
-			for (int j = 0; j < fMCMCNParameters; ++j)
+      
+      int counter = 0; 
+      
+      for (int j = 0; j < fMCMCNParameters; ++j)
 				for (int k = 0; k < j; ++k)
 					{
 						fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i * fMCMCNParameters + k], fMCMCx[i * fMCMCNParameters + j]); 
-
+						
 						counter ++; 
 					}
-
     }
+	
+}
 
-  // test convergence of single Markov chains
-  //  --> not implemented yet 
-  
-  // test convergence of all Morkov chains 
-  
+// --------------------------------------------------------
+
+void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
+{
+
   if (fMCMCNChains > 1)
-		{  
-			double sum = 0; 
-			double sum2 = 0; 
-			double sumv = 0; 
-			
-			// loop over chains 
-			
-			for (int i = 0; i < fMCMCNChains; ++i)
+    {  
+      double sum = 0; 
+      double sum2 = 0; 
+      double sumv = 0; 
+      
+      // loop over chains 
+      
+      for (int i = 0; i < fMCMCNChains; ++i)
 				{
 					// calculate mean value of each chain 
 					
@@ -818,37 +1051,63 @@ void BCEngineMCMC::MCMCUpdateStatistics()
 					sum2 += fMCMCMean[i] * fMCMCMean[i]; ; 
 					sumv += fMCMCVariance[i]; 
 				}
-			
-			// calculate r-value 
-			
-			double mean            = sum / double(fMCMCNChains); 
-			double varianceofmeans = sum2 / double(fMCMCNChains) - mean * mean; 
-			double meanofvariance  = sumv / double(fMCMCNChains); 
-			
-			if (meanofvariance > 0)
+      
+      // calculate r-value 
+      
+      double mean            = sum / double(fMCMCNChains); 
+      double varianceofmeans = sum2 / double(fMCMCNChains) - mean * mean; 
+      double meanofvariance  = sumv / double(fMCMCNChains); 
+      
+      if (meanofvariance > 0)
 				fMCMCRValue = varianceofmeans / meanofvariance; 
-			
-			if (fMCMCNIterationsConvergenceGlobal == -1 && fMCMCRValue < fMCMCRValueCriterion)
+      
+      if (fMCMCNIterationsConvergenceGlobal == -1 && fMCMCRValue < fMCMCRValueCriterion)
 				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0]; 
-			
-			int dn = int(double(fMCMCNIterationsMax) / 100.0); 
-			
-			if (fMCMCNIterations[0] % dn == 0)
+      
+      int dn = int(double(fMCMCNIterationsMax) / 100.0); 
+      
+      if (fMCMCNIterations[0] % dn == 0)
 				fMCMCH1RValue -> SetBinContent(fMCMCNIterations[0] / dn + 1, log(fMCMCRValue)); 
-		}
+    }
+	
+}
 
-	// fill Markov chains
+// --------------------------------------------------------
 
-	if (fMCMCFlagWriteChainToFile)
-		{
+void BCEngineMCMC::MCMCUpdateStatisticsWriteChains()
+{
 
-			// loop over all chains / trees 
-			
-			for (int i = 0; i < fMCMCNChains; ++i)
-				{
-					fMCMCTrees[i] -> Fill(); 
-				}
-		}
+	// loop over all chains
+
+	for (int i = 0; i < fMCMCNChains; ++i)
+		fMCMCTrees[i] -> Fill(); 
+	
+}
+
+// --------------------------------------------------------
+
+void BCEngineMCMC::MCMCUpdateStatistics()
+{
+
+  // check if maximum is reached
+
+	this -> MCMCUpdateStatisticsCheckMaximum(); 
+  
+  // fill histograms of marginalized distributions 
+
+	this -> MCMCUpdateStatisticsFillHistograms(); 
+  
+  // test convergence of single Markov chains
+  //  --> not implemented yet 
+  
+  // test convergence of all Markov chains 
+  
+	this -> MCMCUpdateStatisticsTestConvergenceAllChains(); 
+
+  // fill Markov chains
+  
+  if (fMCMCFlagWriteChainToFile)
+		this -> MCMCUpdateStatisticsWriteChains(); 
 
 }
 
@@ -978,24 +1237,28 @@ void BCEngineMCMC::MCMCPCARun()
 
 // --------------------------------------------------------
 
-int BCEngineMCMC::MCMCMetropolis()
+int BCEngineMCMC::MCMCMetropolisPreRun()
 {
 
-  BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis MCMC."); 
-  
-  // initialize Markov chain 
-  
-  this -> MCMCInitialize(); 
+	// print on screen 
 
-  this -> MCMCInitializeMarkovChains(); 
-  
-  // perform burn-in run 
-  
-  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn)); 
-  
-  for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
-    for (int j = 0; j < fMCMCNChains; ++j)
-      this -> MCMCGetNewPointMetropolis(j, false);
+	BCLog::Out(BCLog::summary, BCLog::summary, "Pre-run Metropolis MCMC."); 
+
+	// initialize Markov chain 
+	
+	this -> MCMCInitialize(); 
+
+	this -> MCMCInitializeMarkovChains(); 
+	
+	// perform burn-in run 
+
+	if (fMCMCNIterationsBurnIn > 0)
+		BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn)); 
+	
+	for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
+		for (int j = 0; j < fMCMCNChains; ++j)
+      for (int k = 0; k < fMCMCNParameters; ++k)
+	this -> MCMCGetNewPointMetropolis(j, k, false);
   
   // reset run statistics 
   
@@ -1009,23 +1272,23 @@ int BCEngineMCMC::MCMCMetropolis()
       
       this -> MCMCPCARun(); 
 
-			if (fMCMCFlagPCATruncate == true) 
+      if (fMCMCFlagPCATruncate == true) 
 				{
 					fMCMCNDimensionsPCA = 0; 
-
+					
 					const double * ma = fMCMCPCA -> GetEigenValues() -> GetMatrixArray(); 
-
+					
 					for (int i = 0; i < fMCMCNParameters; ++i)
-						if (ma[i]/ma[0] > fMCMCPCAMinimumRatio)
-							fMCMCNDimensionsPCA++; 
-
+					  if (ma[i]/ma[0] > fMCMCPCAMinimumRatio)
+					    fMCMCNDimensionsPCA++; 
+					
 					BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Use %i out of %i dimensions.", fMCMCNDimensionsPCA, fMCMCNParameters)); 
 					
 				}
-
-			else
+      
+      else
 				fMCMCNDimensionsPCA = fMCMCNParameters; 
-
+      
     }
   
   else
@@ -1037,107 +1300,308 @@ int BCEngineMCMC::MCMCMetropolis()
   
   // perform run 
   
-  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Perform MCMC run with %i chains each with %i iterations.", fMCMCNChains, fMCMCNIterationsMax)); 
+  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Perform MCMC run with %i chains each with %i iterations maximum.", fMCMCNChains, fMCMCNIterationsMax)); 
+
+  bool tempflag_writetofile = fMCMCFlagWriteChainToFile; 
+
+  // don't write to file during pre run 
+
+  fMCMCFlagWriteChainToFile = false; 
   
-  for (int i = 0; i < fMCMCNIterationsMax; ++i)
+  int counter = 0;
+  int counterupdate = 0; 
+  bool convergence = false;
+	
+  while (counter < 100 || (counter < fMCMCNIterationsMax && !convergence))
     {
-      for (int j = 0; j < fMCMCNChains; ++j)
+      // loop over parameters 
+			
+      for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
 				{
-					// get new point and increase counters 
-	  
-					this -> MCMCGetNewPointMetropolis(j, fMCMCFlagPCA); 
+					// loop over chains 
+					
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+						{
+							this -> MCMCGetNewPointMetropolis(ichains, iparameters, fMCMCFlagPCA); 
+						}
+					
+					// search for global maximum
+					
+					this -> MCMCUpdateStatisticsCheckMaximum(); 
+					
+					// check convergence status
+					
+					this -> MCMCUpdateStatisticsTestConvergenceAllChains(); 
 				}
-      
-      // update statistics
-      
-      this -> MCMCUpdateStatistics(); 
-      
-      // update function fitting 
+			
+      // update scale factors 
+			
+      if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
+				{
+					// loop over chains
+					
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+						{
+							// loop over parameters 
+							
+							for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
+								{
+									// calculate efficiency 
 
-      this -> MCMCUpdateFunctionFitting(); 
+									double efficiency = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]); 
+									
+									// adjust scale factors if efficiency is too low 
 
-      // call user interface 
-      
-      this -> MCMCUserInterface(); 
+									if (efficiency < 0.1)
+										{
+											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency, ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											
+										}
+									
+									// adjust scale factors if efficiency is too high 
+
+									if (efficiency > 0.5)
+										{
+											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency, ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+										}
+									
+									// reset counters 
+									
+									counterupdate = 0; 
+									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
+									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
+								}
+						}
+				}
+			
+      // increase counter 
+			
+      counter++;      
+      counterupdate++;       
+
+			// check convergence 
+
+      if (fMCMCNIterationsConvergenceGlobal > 0)
+				convergence = true; 
     }
 
-  // fill control plots
-
-  for (int i = 0; i < fMCMCNChains; ++i)
-    fMCMCH1Efficiency -> SetBinContent(i + 1, double(fMCMCNTrialsTrue[i]) / double(fMCMCNIterationsMax));
-  
-  double average_efficiency = 0; 
-
-  for (int i = 0; i < fMCMCNChains; ++i)
-    average_efficiency += double(fMCMCNTrialsTrue[i]) / double(fMCMCNIterationsMax) / double(fMCMCNChains) * 100.0; 
-
-  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average efficiency %.2lf%%. ", average_efficiency)); 
+  // print convergence status 
 
   if (fMCMCNIterationsConvergenceGlobal > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
   else
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
-  
-  // debug
 
-  if (DEBUG)
+  // print efficiencies 
+
+  std::vector <double> efficiencies; 
+
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    efficiencies.push_back(0.0); 
+	
+  for (int i = 0; i < fMCMCNParameters; ++i)
     {
-
-			// debug
-			cout << " maximum prob " << endl; 
-			
-      for (int i = 0; i < fMCMCNChains; ++i)
+      for (int j = 0; j < fMCMCNChains; ++j)
 				{
-					cout << i << " "  
-							 << fMCMCMaximumLogProb[i] << endl;
-					
-					for (int j = 0; j < fMCMCNParameters; ++j)
-						cout << fMCMCMaximumPoints[i * fMCMCNParameters + j] << " "; 
-					cout << endl; 
+					double efficiency = double(fMCMCNTrialsTrue[j * fMCMCNParameters + i]) / double(fMCMCNTrialsTrue[j * fMCMCNParameters + i] + fMCMCNTrialsFalse[j * fMCMCNParameters + i]);
+					efficiencies[i] += efficiency / double(fMCMCNChains); 
 				}
 			
-			// debug
-			cout << " print " << endl; 
+      BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average efficiency for parameter %i: %.2lf%%. ", i, 100.0 * efficiencies[i])); 
+    }
+	
+  // print scale factors 
+	
+  std::vector <double> scalefactors; 
+	
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    scalefactors.push_back(0.0); 
+	
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    {
+      for (int j = 0; j < fMCMCNChains; ++j)
+				{
+					scalefactors[i] += fMCMCTrialFunctionScaleFactor[j * fMCMCNParameters + i] / double(fMCMCNChains); 
+				}
+			
+      BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average scale factor for parameter %i: %.2lf%%. ", i, 100 * scalefactors[i])); 
+    }
+  
+	// fill efficiency plot 
+  
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]); 
 
-      TCanvas * can = new TCanvas(); 
+	// reset flag 
 
-      for (int i = 0; i < fMCMCNChains; ++i)
-				for (int j = 0; j < fMCMCNParameters; ++j)
-					{
-						can -> cd(); 
-						
-						fMCMCH1Marginalized[i * fMCMCNParameters + j] -> Draw(); 
-						
-						can -> Print(Form("canvas_%i_%i.ps", i, j)); 
-					}
+  fMCMCFlagWriteChainToFile = tempflag_writetofile; 
 
-			int counter = 0; 
+	// set flag 
 
-      for (int i = 0; i < fMCMCNChains; ++i)
-				for (int j = 0; j < fMCMCNParameters; ++j)
-					for (int k = 0; k < j; ++k)
+	fMCMCFlagPreRun = true; 
+
+  return 0; 
+  
+}
+
+// --------------------------------------------------------
+
+int BCEngineMCMC::MCMCMetropolis()
+{
+
+	// check if prerun has been performed 
+
+	if (!fMCMCFlagPreRun)
+		this -> MCMCMetropolisPreRun(); 
+
+	// print to screen 	
+
+  BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis MCMC."); 
+    
+  // reset run statistics 
+  
+  this -> MCMCResetRunStatistics(); 
+	
+  // perform run 
+  
+  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Perform MCMC run with %i chains each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun)); 
+
+  int counterupdate = 0; 
+  bool convergence = false;
+	
+  for (int iiterations = 0; iiterations < fMCMCNIterationsRun; ++iiterations)
+    {
+      // loop over parameters 
+			
+      for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
+				{
+					// loop over chains 
+					
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 						{
-							can -> cd(); 
-						
-							fMCMCH2Marginalized[counter] -> Draw("COLZ"); 
-						
-							can -> Print(Form("canvas_%i_%i_vs_%i.ps", i, j, k)); 
-
-							counter++; 
+							this -> MCMCGetNewPointMetropolis(ichains, iparameters, fMCMCFlagPCA); 
 						}
+					
+					// update statistics
+      
+					this -> MCMCUpdateStatistics(); 
+      
+					// update function fitting 
 
-      can -> cd(); 
-			if (fMCMCH1RValue) 
-				fMCMCH1RValue -> Draw(); 
-      can -> Print("canvas_rvalue.ps"); 
+					this -> MCMCUpdateFunctionFitting(); 
 
-      can -> cd(); 
-			if (fMCMCH1Efficiency) 
-				fMCMCH1Efficiency -> Draw(); 
-      can -> Print("canvas_efficiency.ps"); 
+					// call user interface 
+      
+					this -> MCMCUserInterface(); 
+				}
+
+      // update scale factors 
+			
+      if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
+				{
+					// loop over chains
+					
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+						{
+							// loop over parameters 
+							
+							for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
+								{
+									// calculate efficiency 
+
+									double efficiency = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]); 
+									
+									// adjust scale factors if efficiency is too low 
+
+									if (efficiency < 0.1)
+										{
+											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0*efficiency, ichains, 100.0*fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											
+										}
+									
+									// adjust scale factors if efficiency is too high 
+
+									if (efficiency > 0.5)
+										{
+											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0*efficiency, ichains, 100.0*fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+										}
+									
+									// reset counters 
+									
+									counterupdate = 0; 
+									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
+									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
+								}
+						}
+				}
+			
+      // increase counter 
+			
+      counterupdate++;       
+
+			// check convergence 
+
+      if (fMCMCNIterationsConvergenceGlobal > 0)
+				convergence = true; 
     }
 
+  // print convergence status 
+
+  if (fMCMCNIterationsConvergenceGlobal > 0) 
+    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
+  
+  else
+    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+
+  // print efficiencies 
+
+  std::vector <double> efficiencies; 
+
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    efficiencies.push_back(0.0); 
+	
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    {
+      for (int j = 0; j < fMCMCNChains; ++j)
+				{
+					double efficiency = double(fMCMCNTrialsTrue[j * fMCMCNParameters + i]) / double(fMCMCNTrialsTrue[j * fMCMCNParameters + i] + fMCMCNTrialsFalse[j * fMCMCNParameters + i]);
+					efficiencies[i] += efficiency / double(fMCMCNChains); 
+				}
+			
+      BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average efficiency for parameter %i: %.2lf%%. ", i, 100.0 * efficiencies[i])); 
+    }
+	
+  // print scale factors 
+	
+  std::vector <double> scalefactors; 
+	
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    scalefactors.push_back(0.0); 
+	
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    {
+      for (int j = 0; j < fMCMCNChains; ++j)
+				{
+					scalefactors[i] += fMCMCTrialFunctionScaleFactor[j * fMCMCNParameters + i] / double(fMCMCNChains); 
+				}
+			
+      BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average scale factor for parameter %i: %.2lf%%. ", i, 100.0 * scalefactors[i])); 
+    }
+  
+	// fill efficiency plot 
+  
+  for (int i = 0; i < fMCMCNParameters; ++i)
+    fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]); 
+ 
+	// set flag 
+
+	fMCMCFlagPreRun = false; 
+ 
   return 0; 
   
 }
@@ -1310,6 +1774,12 @@ void BCEngineMCMC::MCMCResetRunStatistics()
 			fMCMCNTrialsFalse[j] = 0; 
 			fMCMCMean[j]         = 0;
 			fMCMCVariance[j]     = 0;
+
+			for (int k = 0; k < fMCMCNParameters; ++k)
+			  {
+			    fMCMCNTrialsTrue[j * fMCMCNParameters + k]  = 0; 
+			    fMCMCNTrialsFalse[j * fMCMCNParameters + k] = 0; 
+			  }
 		}
 
 	// reset marginalized distributions 
@@ -1388,6 +1858,8 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCNTrialsTrue.clear(); 
 	fMCMCNTrialsFalse.clear(); 
 
+	fMCMCTrialFunctionScaleFactor.clear();
+
 	fMCMCMean.clear(); 
 	fMCMCVariance.clear(); 
 
@@ -1417,11 +1889,11 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCH1Marginalized.clear(); 
 	fMCMCH2Marginalized.clear(); 
 
-	if (fMCMCH1RValue)
-		delete fMCMCH1RValue; 
+	//	if (fMCMCH1RValue)
+	//	  delete fMCMCH1RValue; 
 
-	if (fMCMCH1Efficiency) 
-		delete fMCMCH1Efficiency; 
+	//	if (fMCMCH1Efficiency) 
+	//	  delete fMCMCH1Efficiency; 
 
 	// free memory for vectors 
 
@@ -1429,8 +1901,6 @@ int BCEngineMCMC::MCMCInitialize()
 		{
 			fMCMCNIterations.push_back(0); 
 			fMCMCNIterationsConvergenceLocal.push_back(-1); 
-			fMCMCNTrialsTrue.push_back(0); 
-			fMCMCNTrialsFalse.push_back(0); 
 			fMCMCMean.push_back(0); 
 			fMCMCVariance.push_back(0); 
 			fMCMCLogProbx.push_back(-1.0); 
@@ -1439,6 +1909,9 @@ int BCEngineMCMC::MCMCInitialize()
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
 					fMCMCMaximumPoints.push_back(0.0); 
+					fMCMCTrialFunctionScaleFactor.push_back(1.0);
+					fMCMCNTrialsTrue.push_back(0); 
+					fMCMCNTrialsFalse.push_back(0); 
 				}
 		}
 
@@ -1540,7 +2013,7 @@ int BCEngineMCMC::MCMCInitialize()
 	  }
 	
 	fMCMCH1Efficiency = new TH1D("h1_efficiency", ";Chain;Efficiency",
-				     fMCMCNChains, 0.5, fMCMCNChains + 0.5); 
+				     fMCMCNParameters, -0.5, fMCMCNParameters - 0.5); 
 	fMCMCH1Efficiency -> SetStats(false); 
 	
 	return 0; 
