@@ -73,7 +73,7 @@ class BCIntegrate : public BCEngineMCMC
 	/**
 	 * An enumerator for the mode finding algorithm 
 	 */ 
-	enum BCModeFindingType { kMFSimulatedAnnealing, kMFMinuit }; 
+	enum BCModeFindingType { kMFSimulatedAnnealing, kMFMCMC, kMFMinuit }; 
 
 	/** 
 	 * The default constructor 
@@ -569,6 +569,11 @@ class BCIntegrate : public BCEngineMCMC
 	 * Does the mode finding using Minuit 
 	 */
 	void FindModeMinuit(); 
+
+	/**
+	 * Does the mode finding using Markov Chain Monte Carlo 
+	 */
+	void FindModeMCMC(); 
 
 	static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag); 
 

@@ -1366,15 +1366,17 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.15)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
+
 											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 15%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
+									else if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
+
 											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 										}
 									

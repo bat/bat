@@ -22,7 +22,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 
 	fIntegrateMethod   = BCIntegrate::kIMonteCarlo;
 	fMarginalizeMethod = BCIntegrate::kMMetropolis;
-	fModeFindingMethod = BCIntegrate::kMFSimulatedAnnealing; 
+	fModeFindingMethod = BCIntegrate::kMFMCMC; 
 
 	fNbins=100;
 
@@ -1198,19 +1198,26 @@ void BCIntegrate::FindMode()
 	BCLog::Out(BCLog::summary, BCLog::summary, "Finding mode");
 
 	switch(fModeFindingMethod)
-	{
+		{
 		case BCIntegrate::kMFSimulatedAnnealing:
 			{
 				this -> FindModeSA(); 
 				return; 
 			}
-
+			
 		case BCIntegrate::kMFMinuit: 
 			{ 
 				this -> FindModeMinuit(); 
 				return;
 			}
-	}
+			
+		case BCIntegrate::kMFMCMC: 
+			{ 
+				this -> FindModeMCMC(); 
+				return;
+			}			
+
+		}
 
 	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCIntegrate::FindMode. Invalid mode finding method: %d. Return.", 
 																									fModeFindingMethod)); 
@@ -1454,6 +1461,39 @@ void BCIntegrate::FindModeSA()
 
 	delete[] ysave;
 }
+
+// *********************************************
+
+void BCIntegrate::FindModeMCMC()
+{
+
+	// call PreRun 
+
+	this -> MCMCMetropolisPreRun(); 
+
+	// find global maximum 
+
+	double probmax = (this -> MCMCGetMaximumLogProb()).at(0); 
+
+	// loop over all chains and find the maximum point 
+
+	for (int i = 0; i < fMCMCNChains; ++i)
+		{
+			double prob = (this -> MCMCGetMaximumLogProb()).at(i); 
+
+			// copy the point into the vector 
+
+			if (prob > probmax) 
+				{
+					probmax = prob; 
+
+					fBestFitParameters.clear(); 
+
+					fBestFitParameters = this -> MCMCGetMaximumPoint(i); 
+				}
+		}		
+	
+} 
 
 // *********************************************
 void BCIntegrate::GetRandomPointSA(std::vector <double> &x, double T, double step)
