@@ -33,15 +33,13 @@ int main()
 
   BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
-  fModelEfficiency -> MCMCSetNChains(10); 
-  fModelEfficiency -> MCMCSetFlagPCA(false); 
-  fModelEfficiency -> MCMCSetNIterationsBurnIn(10000); 
-  fModelEfficiency -> MCMCSetNIterationsMax(100000); 
+	fModelEfficiency -> MCMCSetNChains(10); 
+	//  fModelEfficiency -> MCMCSetFlagPCA(false); 
+	//  fModelEfficiency -> MCMCSetNIterationsBurnIn(10000); 
+	fModelEfficiency -> MCMCSetNIterationsRun(1000000); 
 	//  fModelEfficiency -> MCMCSetTrialFunctionScale(0.01); 
-  fModelEfficiency -> MCMCSetFlagInitialPosition(1); 
-	fModelEfficiency -> MCMCSetWriteChainToFile(true); 
-
-	//	fModelEfficiency -> MCMCInitialize(); 
+	//  fModelEfficiency -> MCMCSetFlagInitialPosition(1); 
+	//	fModelEfficiency -> MCMCSetWriteChainToFile(true); 
 
 	BCModelOutput * fModelEfficiencyOutput = new BCModelOutput(fModelEfficiency, "output_efficiency.root"); 
 
@@ -66,21 +64,12 @@ int main()
   // find maximum
   // ---------------------------------------------------------
 
-	
-
-	fModelEfficiency -> MCMCMetropolis();  
 	//  fModelEfficiency -> MCMCMetropolisHastings();  
 	//	fModelEfficiency -> MCMCSimulatedAnnealing();  
-
-  TCanvas * can1 = new TCanvas(); 
-  can1 -> Divide(2, 1); 
-  can1 -> cd(1); 
-  fModelEfficiency -> hist_efficiency -> Draw(); 
-  can1 -> cd(2); 
-  fModelEfficiency -> hist_bestfit -> Draw(); 
-  can1 -> Print("canvas_results.ps"); 
   
-  //  fModelEfficiency -> FindMode(); 
+	fModelEfficiency -> FindMode(); 
+
+	fModelEfficiency -> MCMCMetropolis();  
 
   // ---------------------------------------------------------
   // marginalize 
@@ -89,15 +78,13 @@ int main()
 	//  fModelEfficiency -> SetNbins(100);
 	//  fModelEfficiency -> MarginalizeAll(); 
 
-	fModelEfficiency -> GetMarginalized("mu1") -> Print("modelefficiency_epsilon.ps");
-	fModelEfficiency -> GetMarginalized("mu1", "mu2") -> Print("modelefficiency_mu1_mu2.ps");
-	//  fModelEfficiency -> GetMarginalized("efficiency") -> Print("modelefficiency_epsilon_1.ps",2);
+	fModelEfficiency -> GetMarginalized("epsilon") -> Print("modelefficiency_epsilon.ps",2);
 
   // ---------------------------------------------------------
   // summarize
   // ---------------------------------------------------------
 
-	//  fModelEfficiency -> PrintSummary(); 
+	fModelEfficiency -> PrintSummary(); 
 
   // ---------------------------------------------------------
   // close log file 
