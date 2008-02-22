@@ -22,7 +22,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCFlagIterationsAuto   = false; 
 	fMCMCTrialFunctionScale   = 1.0; 
 	fMCMCFlagInitialPosition  = 1; 
-	fMCMCRValueCriterion      = 0.01; 
+	fMCMCRValueCriterion      = 0.1; 
 	fMCMCNIterationsConvergenceGlobal = -1; 
 	fMCMCRValue               = 100; 
 	fMCMCFlagPCA              = false; 
