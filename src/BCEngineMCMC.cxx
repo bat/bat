@@ -1037,32 +1037,40 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
       
       for (int i = 0; i < fMCMCNChains; ++i)
 				{
-					// calculate mean value of each chain 
+					// calculate number of entries in this part of the chain 
+
+					int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
 					
-					fMCMCMean[i]     += (fMCMCLogProbx[i] - fMCMCMean[i]) / double(fMCMCNIterations[i]); 
+					// calculate mean value of each chain for this part 
 					
-					// calculate variance of each chain 
+					fMCMCMean[i] += (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints); 
+					
+					// calculate variance of each chain for this part 
 					
 					if (fMCMCNIterations[i] > 1) 
-						fMCMCVariance[i] = (1.0 - 1/double(fMCMCNIterations[i])) * fMCMCVariance[i] 
-							+ (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(fMCMCNIterations[i] - 1); 
+						fMCMCVariance[i] = (1.0 - 1/double(npoints)) * fMCMCVariance[i] 
+							+ (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints - 1); 
 					
 					sum  += fMCMCMean[i]; 
 					sum2 += fMCMCMean[i] * fMCMCMean[i]; ; 
 					sumv += fMCMCVariance[i]; 
 				}
       
-      // calculate r-value 
+      // calculate r-value for this part of the chain 
       
       double mean            = sum / double(fMCMCNChains); 
       double varianceofmeans = sum2 / double(fMCMCNChains) - mean * mean; 
       double meanofvariance  = sumv / double(fMCMCNChains); 
-      
+
       if (meanofvariance > 0)
 				fMCMCRValue = varianceofmeans / meanofvariance; 
+
+			// remember number of iterations needed to converge 
       
       if (fMCMCNIterationsConvergenceGlobal == -1 && fMCMCRValue < fMCMCRValueCriterion)
 				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters; 
+
+			// fill a histogram 
       
       int dn = int(double(fMCMCNIterationsMax) / 100.0); 
       
@@ -1363,11 +1371,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.15)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 15%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
@@ -1385,10 +1393,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									counterupdate = 0; 
 									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
 									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
-
+									fMCMCMean[ichains] = 0;
+									fMCMCVariance[ichains] = 0;
 									// check flag 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.15 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
 										flagefficiency = false; 
 								}
 						}
@@ -1546,10 +1555,10 @@ int BCEngineMCMC::MCMCMetropolis()
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.15)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 15%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
@@ -1569,7 +1578,7 @@ int BCEngineMCMC::MCMCMetropolis()
 
 									// check flag 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.15 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
 										flagefficiency = false; 
 								}
 						}
