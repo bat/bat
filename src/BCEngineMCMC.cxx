@@ -1047,7 +1047,7 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 					
 					// calculate variance of each chain for this part 
 					
-					if (fMCMCNIterations[i] > 1) 
+					if (npoints > 1) 
 						fMCMCVariance[i] = (1.0 - 1/double(npoints)) * fMCMCVariance[i] 
 							+ (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints - 1); 
 					
@@ -1353,6 +1353,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			
       if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
 				{
+					// prompt status 
+
+					BCLog::Out(BCLog::detail, BCLog::detail, Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters)); 
+					BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> R-Value is %2lf. ", fMCMCRValue)); 
 					// set flag
 
 					flagefficiency = true; 
@@ -1381,7 +1385,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									
 									// adjust scale factors if efficiency is too high 
 
-									else if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
+									else if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && 
+													 (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 
@@ -1393,13 +1398,17 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									counterupdate = 0; 
 									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
 									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
-									fMCMCMean[ichains] = 0;
-									fMCMCVariance[ichains] = 0;
 									// check flag 
 
 									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
 										flagefficiency = false; 
 								}
+
+							// reset counters 
+
+							fMCMCMean[ichains] = 0;
+							fMCMCVariance[ichains] = 0;
+
 						}
 				}
 			
@@ -1537,6 +1546,11 @@ int BCEngineMCMC::MCMCMetropolis()
 			
       if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
 				{
+					// prompt status 
+
+					BCLog::Out(BCLog::detail, BCLog::detail, Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters)); 
+					BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> R-Value is %2lf. ", fMCMCRValue)); 
+
 					// set flag
 
 					flagefficiency = true; 
@@ -1558,15 +1572,18 @@ int BCEngineMCMC::MCMCMetropolis()
 									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
+
 											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
+									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && 
+											(fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
+
 											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 										}
 									
