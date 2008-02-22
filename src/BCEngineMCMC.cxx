@@ -1398,10 +1398,12 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									counterupdate = 0; 
 									fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
 									fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
+
 									// check flag 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
 										flagefficiency = false; 
+
 								}
 
 							// reset counters 
@@ -1595,7 +1597,7 @@ int BCEngineMCMC::MCMCMetropolis()
 
 									// check flag 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || efficiency[ichains * fMCMCNParameters + iparameter] > 0.5) 
+																		if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
 										flagefficiency = false; 
 								}
 						}
