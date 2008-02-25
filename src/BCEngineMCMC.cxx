@@ -34,7 +34,9 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCNIterationsUpdate    = 1000; 
 	fMCMCFlagWriteChainToFile = false; 
 	fMCMCFlagPreRun           = false; 
-	
+	fMCMCEfficiencyMin        = 0.15; 
+	fMCMCEfficiencyMax        = 0.50; 
+
 	// set pointer to control histograms to NULL 
 
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
@@ -1005,7 +1007,7 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
       // fill each 1-dimensional histogram 
       
       for (int j = 0; j < fMCMCNParameters; ++j)
-				fMCMCH1Marginalized[i * fMCMCNParameters + j] -> Fill(fMCMCx[i * fMCMCNParameters + j]); 
+				fMCMCH1Marginalized[j] -> Fill(fMCMCx[i * fMCMCNParameters + j]); 
 			
       // fill each 2-dimensional histogram 
       
@@ -1014,11 +1016,13 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
       for (int j = 0; j < fMCMCNParameters; ++j)
 				for (int k = 0; k < j; ++k)
 					{
-						fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i * fMCMCNParameters + k], fMCMCx[i * fMCMCNParameters + j]); 
+						fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i * fMCMCNParameters + k], 
+																								 fMCMCx[i * fMCMCNParameters + j]); 
 						
 						counter ++; 
 					}
     }
+
 	
 }
 
@@ -1375,22 +1379,22 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMin, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
 									// adjust scale factors if efficiency is too high 
 
-									else if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && 
+									else if (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && 
 													 (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 										}
 									
 									// reset counters 
@@ -1401,7 +1405,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 									// check flag 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
 										flagefficiency = false; 
 
 								}
@@ -1571,22 +1575,22 @@ int BCEngineMCMC::MCMCMetropolis()
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below 10%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMin, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 											
 										}
 									
 									// adjust scale factors if efficiency is too high 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && 
+									if (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && 
 											(fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 
-											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above 50%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
+											BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter])); 
 										}
 									
 									// reset counters 
@@ -1597,7 +1601,7 @@ int BCEngineMCMC::MCMCMetropolis()
 
 									// check flag 
 
-																		if (efficiency[ichains * fMCMCNParameters + iparameter] < 0.1 || (efficiency[ichains * fMCMCNParameters + iparameter] > 0.5 && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
+																		if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
 										flagefficiency = false; 
 								}
 						}
@@ -2042,34 +2046,32 @@ int BCEngineMCMC::MCMCInitialize()
 	
 	// define 1-dimensional histograms for marginalization 
 	
-	for (int j = 0; j < fMCMCNChains; ++j)
-	  for(int i = 0; i < fMCMCNParameters; ++i)
-	    {
-	      double hmin1 = fMCMCBoundaryMin.at(i); 
-	      double hmax1 = fMCMCBoundaryMax.at(i); 
-	      
-	      TH1D * h1 = new TH1D(Form("h1_chain_%i_parameter_%i", j, i), "",
-				   fMCMCH1NBins, hmin1, hmax1);
-	      
-	      fMCMCH1Marginalized.push_back(h1); 
-	    }
+	for(int i = 0; i < fMCMCNParameters; ++i)
+		{
+			double hmin1 = fMCMCBoundaryMin.at(i); 
+			double hmax1 = fMCMCBoundaryMax.at(i); 
+	    
+			TH1D * h1 = new TH1D(Form("h1_parameter_%i", i), "",
+													 fMCMCH1NBins, hmin1, hmax1);
+			
+			fMCMCH1Marginalized.push_back(h1); 
+		}
 	
-	for (int j = 0; j < fMCMCNChains; ++j)
-	  for(int i = 0; i < fMCMCNParameters; ++i)
-	    for (int k = 0; k < i; ++k)
-	      {
-					double hmin1 = fMCMCBoundaryMin.at(k); 
-					double hmax1 = fMCMCBoundaryMax.at(k); 
-					
-					double hmin2 = fMCMCBoundaryMin.at(i); 
-					double hmax2 = fMCMCBoundaryMax.at(i); 
-		
-					TH2D * h2 = new TH2D(Form("h2_chain_%i_parameters_%i_vs_%i", j, i, k), "",
-															 fMCMCH2NBins, hmin1, hmax1, 
-															 fMCMCH2NBins, hmin2, hmax2);
-					
-					fMCMCH2Marginalized.push_back(h2); 
-	      }
+	for(int i = 0; i < fMCMCNParameters; ++i)
+		for (int k = 0; k < i; ++k)
+			{
+				double hmin1 = fMCMCBoundaryMin.at(k); 
+				double hmax1 = fMCMCBoundaryMax.at(k); 
+				
+				double hmin2 = fMCMCBoundaryMin.at(i); 
+				double hmax2 = fMCMCBoundaryMax.at(i); 
+				
+				TH2D * h2 = new TH2D(Form("h2_parameters_%i_vs_%i", i, k), "",
+														 fMCMCH2NBins, hmin1, hmax1, 
+														 fMCMCH2NBins, hmin2, hmax2);
+				
+				fMCMCH2Marginalized.push_back(h2); 
+			}
 	
 	// define plot for R-value 
 	

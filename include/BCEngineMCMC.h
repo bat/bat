@@ -378,6 +378,18 @@ class BCEngineMCMC
 	{ fMCMCFlagIterationsAuto = flag; }; 
 
 	/*
+	 * Sets the minimum efficiency required for a chain
+	 */ 
+	void MCMCSetMinimumEfficiency(double efficiency) 
+	{ fMCMCEfficiencyMin = efficiency; }; 
+
+	/*
+	 * Sets the maximum efficiency required for a chain
+	 */ 
+	void MCMCSetMaximumEfficiency(double efficiency) 
+	{ fMCMCEfficiencyMax = efficiency; }; 
+
+	/*
 	 * Sets flag to write Markov chains to file.  
 	 * @param flag The flag. 
 	 */ 
@@ -786,6 +798,16 @@ class BCEngineMCMC
 	 * second and so on.
 	 */
 	std::vector <double> fMCMCInitialPosition; 
+
+	/*
+	 * Minimum efficiency for MCMC
+	 */ 
+	double fMCMCEfficiencyMin; 
+
+	/*
+	 * Maximum efficiency for MCMC
+	 */ 
+	double fMCMCEfficiencyMax; 
 
 	/*
 	 * Variable which defines the initial position. 0 (default) center
