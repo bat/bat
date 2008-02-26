@@ -1379,7 +1379,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin &&
+											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
 
@@ -1405,7 +1406,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 									// check flag 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
+									if ((efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01) || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
 										flagefficiency = false; 
 
 								}
@@ -1575,7 +1576,8 @@ int BCEngineMCMC::MCMCMetropolis()
 									
 									// adjust scale factors if efficiency is too low 
 
-									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin)
+									if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin &&
+											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01)
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0; 
 
@@ -1601,7 +1603,7 @@ int BCEngineMCMC::MCMCMetropolis()
 
 									// check flag 
 
-																		if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
+									if ((efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01) || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0)) 
 										flagefficiency = false; 
 								}
 						}
