@@ -1391,7 +1391,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 									// adjust scale factors if efficiency is too high 
 
 									else if (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && 
-													 (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
+													 (fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || (fMCMCFlagPCA && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 10.0)))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 
@@ -1588,7 +1588,7 @@ int BCEngineMCMC::MCMCMetropolis()
 									// adjust scale factors if efficiency is too high 
 
 									if (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && 
-											(fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || fMCMCFlagPCA))
+											(fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || (fMCMCFlagPCA && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 10.0)))
 										{
 											fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0; 
 
