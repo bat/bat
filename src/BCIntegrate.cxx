@@ -178,6 +178,9 @@ void BCIntegrate::SetNbins(int n)
 		n=2;
 	}
 	fNbins=n;
+
+	fMCMCH1NBins = n; 
+	fMCMCH2NBins = n; 
 }
 
 // *********************************************
