@@ -1,9 +1,6 @@
 #include "BCEngineMCMC.h" 
 #include "BCLog.h" 
 
-// debug
-#include <TCanvas.h> 
-
 #define DEBUG 0
 
 // --------------------------------------------------------- 
@@ -547,7 +544,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 
 bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x, bool pca)
 {
-
+	
   // get unscaled random point in the dimension of the chosen
   // parameter. this point might not be in the correct volume.
   
@@ -560,9 +557,9 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std:
       // copy the old point into the new 
       
       for (int i = 0; i < fMCMCNParameters; ++i)
-	if (i != parameter)
-	  x[i] = fMCMCx[chain * fMCMCNParameters + i];
-
+				if (i != parameter)
+					x[i] = fMCMCx[chain * fMCMCNParameters + i];
+			
       // modify the parameter under study 
 
       x[parameter] = fMCMCx[chain * fMCMCNParameters + parameter] + x[parameter] * (fMCMCBoundaryMax.at(parameter) - fMCMCBoundaryMin.at(parameter)); 
@@ -580,10 +577,6 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std:
 					newp[i] = 0.0; 
 					newx[i] = 0.0; 
 				}
-
-			// get a new trial point 
-
-			this -> MCMCTrialFunctionSingle(chain, parameter, x); 
 
 			// get the old point in x space 
 
@@ -613,6 +606,10 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std:
 		}
 	
 	// check if the point is in the correct volume. 
+
+	// debug
+	//	if (parameter == 1)
+	//		cout << x[0] << " " << x[1] << endl; 
 	
 	for (int i = 0; i < fMCMCNParameters; ++i) 	
 		if ((x[i] < fMCMCBoundaryMin[i]) || (x[i] > fMCMCBoundaryMax[i]))
@@ -643,6 +640,18 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolisHastings(int chain, std::vector
 
 // --------------------------------------------------------
 
+void BCEngineMCMC::MCMCGetNewPointPCA()
+{
+
+	// get random point in allowed parameter space 
+
+	for (int i = 0; i < fMCMCNParameters; ++i) 
+	  fMCMCx[i] = fMCMCBoundaryMin.at(i) + (fMCMCBoundaryMax.at(i) - fMCMCBoundaryMin.at(i)) * 2.0 * (0.5 - fMCMCRandom -> Rndm()); 
+
+}
+
+// --------------------------------------------------------
+
 bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
 {
 
@@ -654,7 +663,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
 
 	int counter = 0; 
 	
- 	while (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca) && counter < 1000)
+	while (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca) && counter < 1000)
 		counter++; 
 
 	// calculate probabilities of the old and new points 
@@ -1138,115 +1147,187 @@ double BCEngineMCMC::LogEval(std::vector <double> parameters)
 
 // --------------------------------------------------------
 
-void BCEngineMCMC::MCMCPCARun()
-{
+// void BCEngineMCMC::MCMCPCARun()
+// {
 
-	// reset run statistics 
+// 	// debug
+// 	return; 
 
-	this -> MCMCResetRunStatistics(); 
+// 	// reset run statistics 
 
-	// create new TPrincipal 
+// 	this -> MCMCResetRunStatistics(); 
 
-	fMCMCPCA = new TPrincipal(fMCMCNParameters, "D"); 
+// 	// create new TPrincipal 
 
-	// create buffer of sampled points 
+// 	fMCMCPCA = new TPrincipal(fMCMCNParameters, "D"); 
 
-	double * dataall = new double[fMCMCNParameters * fMCMCNIterationsPCA]; 
+// 	// create buffer of sampled points 
 
-	// create buffer for the sum and the sum of the squares 
+// 	double * dataall = new double[fMCMCNParameters * fMCMCNIterationsPCA]; 
 
-	double * sum = new double[fMCMCNParameters]; 
-	double * sum2 = new double[fMCMCNParameters]; 
+// 	// create buffer for the sum and the sum of the squares 
 
-	// reset the buffers
+// 	double * sum = new double[fMCMCNParameters]; 
+// 	double * sum2 = new double[fMCMCNParameters]; 
 
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		{
-			sum[i]  = 0.0; 
-			sum2[i] = 0.0; 
-		}
+// 	// reset the buffers
 
-	// loop over iterations 
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 		{
+// 			sum[i]  = 0.0; 
+// 			sum2[i] = 0.0; 
+// 		}
 
-	for (int i = 0; i < fMCMCNIterationsPCA; ++i)
-		{
-		  // get new point 
+// 	// loop over iterations 
+
+// 	for (int i = 0; i < fMCMCNIterationsPCA; ++i)
+// 		{
+// 		  // get new point 
 		  
-			this -> MCMCGetNewPointMetropolis(0, false); 
+// 			this -> MCMCGetNewPointPCA(); 
 
-			// create buffer for the new point 
+// 			// create buffer for the new point 
 
-			double * data = new double[fMCMCNParameters]; 
+// 			double * data = new double[fMCMCNParameters]; 
 
-			// copy the current point 
+// 			// copy the current point 
 
-			for (int j = 0; j < fMCMCNParameters; ++j)
-				{
-					data[j]                           = fMCMCx[j]; 
-					dataall[i * fMCMCNParameters + j] = fMCMCx[j]; 
-				}
+// 			for (int j = 0; j < fMCMCNParameters; ++j)
+// 				{
+// 					data[j]                           = fMCMCx[j]; 
+// 					dataall[i * fMCMCNParameters + j] = fMCMCx[j]; 
+// 				}
 
-			// add point to PCA object 
+// 			// add point to PCA object 
 
-			fMCMCPCA -> AddRow(data); 
+// 			fMCMCPCA -> AddRow(data); 
 
-			// delete buffer 
+// 			// delete buffer 
 
-			delete [] data; 
-		}
+// 			delete [] data; 
+// 		}
 
-	// perform PCA 
+// 	// perform PCA 
 
-	fMCMCPCA -> MakePrincipals();
+// 	fMCMCPCA -> MakePrincipals();
 
-	// re-run over data points to gain a measure for the spread of the variables 
+// 	// re-run over data points to gain a measure for the spread of the variables 
 
-	for (int i = 0; i < fMCMCNIterationsPCA; ++i)
-		{
-			double * data = new double[fMCMCNParameters]; 
-			double * p    = new double[fMCMCNParameters]; 
+// 	for (int i = 0; i < fMCMCNIterationsPCA; ++i)
+// 		{
+// 			double * data = new double[fMCMCNParameters]; 
+// 			double * p    = new double[fMCMCNParameters]; 
 
-			for (int j = 0; j < fMCMCNParameters; ++j)
-				data[j] = dataall[i * fMCMCNParameters + j]; 
+// 			for (int j = 0; j < fMCMCNParameters; ++j)
+// 				data[j] = dataall[i * fMCMCNParameters + j]; 
 
-			fMCMCPCA -> X2P(data, p); 
+// 			fMCMCPCA -> X2P(data, p); 
 			
-			for (int j = 0; j < fMCMCNParameters; ++j)
-				{
-					sum[j]  += p[j]; 
-					sum2[j] += p[j] * p[j]; 
-				}
+// 			for (int j = 0; j < fMCMCNParameters; ++j)
+// 				{
+// 					sum[j]  += p[j]; 
+// 					sum2[j] += p[j] * p[j]; 
+// 				}
 
-			delete [] data; 
-			delete [] p; 
-		}
+// 			delete [] data; 
+// 			delete [] p; 
+// 		}
 
-	delete [] dataall; 
+// 	delete [] dataall; 
 
-	fMCMCPCAMean.clear(); 
-	fMCMCPCAVariance.clear(); 
+// 	fMCMCPCAMean.clear(); 
+// 	fMCMCPCAVariance.clear(); 
 	
-	for (int j = 0; j < fMCMCNParameters; ++j)
-		{
-			fMCMCPCAMean.push_back(sum[j] / double(fMCMCNIterationsPCA)); 
-			fMCMCPCAVariance.push_back(sum2[j] / double(fMCMCNIterationsPCA) - fMCMCPCAMean[j] * fMCMCPCAMean[j]); 
-		}
+// 	for (int j = 0; j < fMCMCNParameters; ++j)
+// 		{
+// 			fMCMCPCAMean.push_back(sum[j] / double(fMCMCNIterationsPCA)); 
+// 			fMCMCPCAVariance.push_back(sum2[j] / double(fMCMCNIterationsPCA) - fMCMCPCAMean[j] * fMCMCPCAMean[j]); 
+// 		}
 
-	// debug 
+// 	// debug
+// 	cout << fMCMCPCAMean[0] << " " << fMCMCPCAMean[1] << endl; 
 
-	if (DEBUG)
-		{
-			fMCMCPCA -> Print("MSEV"); 
+// 	// check if all eigenvalues are found 
+
+// 	int neigenvalues = fMCMCPCA -> GetEigenValues() -> GetNoElements(); 
+
+// 	const double * eigenv = fMCMCPCA -> GetEigenValues() -> GetMatrixArray(); 
+
+// 	bool flageigenvalues = true; 
+
+// 	for (int i = 0; i < neigenvalues; ++i)
+// 		if (isnan(eigenv[i]))
+// 			flageigenvalues = false;
+
+// 	// print on screen 
+
+// 	if (flageigenvalues)
+// 		BCLog::Out(BCLog::detail, BCLog::detail, "All eigenvalues ok."); 
+
+// 	else
+// 		{
+// 			BCLog::Out(BCLog::detail, BCLog::detail, "Not all eigenvalues ok. Don't use PCA."); 
+// 			fMCMCFlagPCA = false;
+// 		}
 	
-			for (int j = 0; j < fMCMCNParameters; ++j)
-				cout << fMCMCPCAMean.at(j) << " " << sqrt(fMCMCPCAVariance.at(j)) << endl; 
-		}
+// 	// set starting value close to center 
 
-	// reset run statistics 
+// 	// debug 
+// 	// here 
 
-	this -> MCMCResetRunStatistics(); 
+// 	bool flagok = false; 
 
-}
+// 	while (!flagok) 
+// 		{
+// 			double * newp = new double[fMCMCNParameters]; 
+// 			double * newx = new double[fMCMCNParameters]; 
+			
+// 			for (int i = 0; i < fMCMCNParameters; i++)
+// 				{
+// 					//					newp[i] = 2.0 * (0.5 - fMCMCRandom -> Rndm()) * sqrt(fMCMCPCAVariance[i]); 
+// 					// debug
+// 					newp[i] = 0.0; 
+// 					newx[i] = 0.0; 
+// 				}
+			
+// 			// transform the old point into p space 
+			
+// 			fMCMCPCA -> P2X(newp, newx, fMCMCNDimensionsPCA); 
+			
+// 			// copy point into vector 
+			
+// 			for (int i = 0; i < fMCMCNParameters; ++i) 
+// 				fMCMCx[i] = newx[i]; 
+			
+// 			delete [] newp; 
+// 			delete [] newx; 
+
+// 			flagok = true; 
+			
+// 			for (int i = 0; i < fMCMCNParameters; ++i) 	
+// 				if ((fMCMCx[i] < fMCMCBoundaryMin[i]) || (fMCMCx[i] > fMCMCBoundaryMax[i]))
+// 					flagok = false;
+
+// 			// debug
+// 			//			if (!flagok)
+// 			//				cout << fMCMCx[0] << " " << fMCMCx[1] << endl; 
+// 		}
+
+// 	// debug
+
+// 	if (DEBUG)
+// 		{
+// 			fMCMCPCA -> Print("MSEV");
+			
+// 			for (int j = 0; j < fMCMCNParameters; ++j)
+// 				cout << fMCMCPCAMean.at(j) << " " << sqrt(fMCMCPCAVariance.at(j)) << endl;
+// 		}
+
+// 	// reset run statistics 
+
+// 	this -> MCMCResetRunStatistics(); 
+
+// }
 
 // --------------------------------------------------------
 
@@ -1277,13 +1358,38 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
   
   this -> MCMCResetRunStatistics(); 
 	
-  // perform PCA run 
+  // define data buffer for pca run 
 
-  if (fMCMCFlagPCA) 
+  double * dataall = 0; 
+	double * sum = 0;
+	double * sum2 = 0;
+
+	// allocate memory if pca is switched on 
+
+	if (fMCMCFlagPCA) 
     {
-      BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start PCA run with %i iterations.", fMCMCNIterationsPCA)); 
-      
-      this -> MCMCPCARun(); 
+      BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA switched on."); 
+			
+			// create new TPrincipal 
+
+			fMCMCPCA = new TPrincipal(fMCMCNParameters, "D"); 
+
+			// create buffer of sampled points 
+
+			dataall = new double[fMCMCNParameters * fMCMCNIterationsPCA]; 
+
+			// create buffer for the sum and the sum of the squares 
+			
+			sum = new double[fMCMCNParameters]; 
+			sum2 = new double[fMCMCNParameters]; 
+			
+			// reset the buffers
+			
+			for (int i = 0; i < fMCMCNParameters; ++i)
+				{
+					sum[i]  = 0.0; 
+					sum2[i] = 0.0; 
+				}
 
       if (fMCMCFlagPCATruncate == true) 
 				{
@@ -1332,7 +1438,15 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		for (int j = 0; j < fMCMCNChains; ++j)
 			efficiency.push_back(0.0); 
 
-  while (counter < 100 || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
+	int niterationsmin = 100; 
+
+	if (fMCMCFlagPCA)
+		niterationsmin = TMath::Max(niterationsmin, fMCMCNIterationsPCA); 
+
+	// debug
+	cout << niterationsmin << " " << fMCMCNIterationsPCA << endl; 
+
+  while (counter < niterationsmin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
     {
       // loop over parameters 
 			
@@ -1342,7 +1456,33 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					
 					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 						{
-							this -> MCMCGetNewPointMetropolis(ichains, iparameters, fMCMCFlagPCA); 
+							this -> MCMCGetNewPointMetropolis(ichains, iparameters, false); 
+
+							// save point for finding the eigenvalues
+
+							if (fMCMCFlagPCA)
+								{
+									// create buffer for the new point 
+
+									double * data = new double[fMCMCNParameters]; 
+
+									// copy the current point 
+
+									for (int j = 0; j < fMCMCNParameters; ++j)
+										{
+											data[j]                                 = fMCMCx[j]; 
+											dataall[ichains * fMCMCNParameters + j] = fMCMCx[j]; 
+										}
+
+									// add point to PCA object 
+
+									fMCMCPCA -> AddRow(data); 
+
+									// delete buffer 
+
+									delete [] data; 
+
+								}
 						}
 					
 					// search for global maximum
@@ -1441,16 +1581,16 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
   // print convergence status 
 
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Markov chains ran for %i iterations. ", counter)); 
+	BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Markov chains ran for %i iterations. ", counter)); 
 
   if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
+    BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
   else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+    BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
 
 	else
-		BCLog::Out(BCLog::detail, BCLog::detail, " --> Only one Markov chain. No global convergence criterion defined."); 
+		BCLog::Out(BCLog::summary, BCLog::summary, " --> Only one Markov chain. No global convergence criterion defined."); 
 
   // print efficiencies 
 
@@ -1486,6 +1626,75 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
       BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Average scale factor for parameter %i: %.2lf%%. ", i, 100 * scalefactors[i])); 
     }
   
+	// perform PCA analysis 
+
+	if (fMCMCFlagPCA)
+		{
+
+			// calculate eigenvalues and vectors
+			
+			fMCMCPCA -> MakePrincipals();
+			
+			// re-run over data points to gain a measure for the spread of the variables 
+			
+			for (int i = 0; i < counter; ++i)
+				{
+					double * data = new double[fMCMCNParameters]; 
+					double * p    = new double[fMCMCNParameters]; 
+					
+					for (int j = 0; j < fMCMCNParameters; ++j)
+						data[j] = dataall[i * fMCMCNParameters + j]; 
+					
+					fMCMCPCA -> X2P(data, p); 
+					
+					for (int j = 0; j < fMCMCNParameters; ++j)
+						{
+							sum[j]  += p[j]; 
+							sum2[j] += p[j] * p[j]; 
+						}
+					
+					delete [] data; 
+					delete [] p; 
+				}
+			
+			delete [] dataall; 
+			
+			fMCMCPCAMean.clear(); 
+			fMCMCPCAVariance.clear(); 
+			
+			// calculate mean and variance 
+			
+			for (int j = 0; j < fMCMCNParameters; ++j)
+				{
+					fMCMCPCAMean.push_back(sum[j] / double(fMCMCNIterationsPCA)); 
+					fMCMCPCAVariance.push_back(sum2[j] / double(fMCMCNIterationsPCA) - fMCMCPCAMean[j] * fMCMCPCAMean[j]); 
+				}
+			
+			// check if all eigenvalues are found 
+			
+			int neigenvalues = fMCMCPCA -> GetEigenValues() -> GetNoElements(); 
+			
+			const double * eigenv = fMCMCPCA -> GetEigenValues() -> GetMatrixArray(); 
+			
+			bool flageigenvalues = true; 
+			
+			for (int i = 0; i < neigenvalues; ++i)
+				if (isnan(eigenv[i]))
+					flageigenvalues = false;
+			
+			// print on screen 
+			
+			if (flageigenvalues)
+				BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA : All eigenvalues ok."); 
+			
+			else
+				{
+					BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA : Not all eigenvalues ok. Don't use PCA."); 
+					fMCMCFlagPCA = false;
+				}
+			
+		}
+	
 	// fill efficiency plot 
   
   for (int i = 0; i < fMCMCNParameters; ++i)
@@ -1516,7 +1725,10 @@ int BCEngineMCMC::MCMCMetropolis()
 	// print to screen 	
 
   BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis MCMC."); 
-    
+  
+	if (fMCMCFlagPCA)
+		BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA switched on."); 
+
   // reset run statistics 
   
   this -> MCMCResetRunStatistics(); 
@@ -1641,16 +1853,16 @@ int BCEngineMCMC::MCMCMetropolis()
 
   // print convergence status 
 
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Markov chains ran for %i iterations. ", fMCMCNIterationsRun)); 
+	BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Markov chains ran for %i iterations. ", fMCMCNIterationsRun)); 
 
   if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
+    BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
   else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+    BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
 
 	else
-		BCLog::Out(BCLog::detail, BCLog::detail, " --> Only one Markov chain. No global convergence criterion defined."); 
+		BCLog::Out(BCLog::summary, BCLog::summary, " --> Only one Markov chain. No global convergence criterion defined."); 
 
   // print efficiencies 
 
@@ -1799,7 +2011,7 @@ int BCEngineMCMC::MCMCSimulatedAnnealing()
     {
       BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start PCA run with %i iterations.", fMCMCNIterationsPCA)); 
       
-      this -> MCMCPCARun(); 
+			//      this -> MCMCPCARun(); 
     }
   
   else
