@@ -1441,10 +1441,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	int niterationsmin = 100; 
 
 	if (fMCMCFlagPCA)
-		niterationsmin = TMath::Max(niterationsmin, fMCMCNIterationsPCA); 
-
-	// debug
-	cout << niterationsmin << " " << fMCMCNIterationsPCA << endl; 
+		{
+			niterationsmin = fMCMCNIterationsPCA; 
+			fMCMCNIterationsMax = fMCMCNIterationsPCA;
+		}
 
   while (counter < niterationsmin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
     {
@@ -1637,7 +1637,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			
 			// re-run over data points to gain a measure for the spread of the variables 
 			
-			for (int i = 0; i < counter; ++i)
+			for (int i = 0; i < fMCMCNIterationsPCA; ++i)
 				{
 					double * data = new double[fMCMCNParameters]; 
 					double * p    = new double[fMCMCNParameters]; 
@@ -1666,8 +1666,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
-					fMCMCPCAMean.push_back(sum[j] / double(fMCMCNIterationsPCA)); 
-					fMCMCPCAVariance.push_back(sum2[j] / double(fMCMCNIterationsPCA) - fMCMCPCAMean[j] * fMCMCPCAMean[j]); 
+					fMCMCPCAMean.push_back(sum[j] / double(fMCMCNIterationsPCA) / double(fMCMCNChains)); 
+					fMCMCPCAVariance.push_back(sum2[j] / double(fMCMCNIterationsPCA) / double(fMCMCNChains) - fMCMCPCAMean[j] * fMCMCPCAMean[j]); 
 				}
 			
 			// check if all eigenvalues are found 
@@ -1691,6 +1691,21 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 				{
 					BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA : Not all eigenvalues ok. Don't use PCA."); 
 					fMCMCFlagPCA = false;
+				}
+			
+			// reset scale factors 
+
+			for (int i = 0; i < fMCMCNParameters; ++i)
+				for (int j = 0; j < fMCMCNChains; ++j)
+					fMCMCTrialFunctionScaleFactor[j * fMCMCNParameters + i] = 1.0; 
+
+
+			if (DEBUG)
+				{
+					fMCMCPCA -> Print("MSEV");
+					
+					for (int j = 0; j < fMCMCNParameters; ++j)
+						cout << fMCMCPCAMean.at(j) << " " << sqrt(fMCMCPCAVariance.at(j)) << endl;
 				}
 			
 		}
