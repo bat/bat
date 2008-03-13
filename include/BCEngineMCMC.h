@@ -535,6 +535,11 @@ class BCEngineMCMC
 	 */ 
 	bool MCMCGetProposalPointMetropolisHastings(int chain, std::vector <double> &xnew, std::vector <double> &xold); 
 
+	/*
+	 * Returns a new point for the PCA run. This method samples
+	 * uniformly over the allowed parameter space. 
+	 */ 
+	void BCEngineMCMC::MCMCGetNewPointPCA(); 
 
 	/* 
 	 * Returns a new point using the Metropolis algorithm. 
@@ -584,7 +589,7 @@ class BCEngineMCMC
 	/*
 	 * Perform a run for the PCA 
 	 */ 
-	void MCMCPCARun(); 
+	//	void MCMCPCARun(); 
 
 	/*
 	 * Perform Metropolis algorithm 
