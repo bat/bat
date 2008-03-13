@@ -115,6 +115,12 @@ class BCEngineMCMC
 	{ return fMCMCNIterationsConvergenceGlobal; }; 
 
 	/*
+	 * Returns a flag if converged or not. 
+	 */ 
+	bool MCMCGetFlagConvergenceGlobal()
+	{ return fMCMCFlagConvergenceGlobal; }; 
+
+	/*
 	 * Returns the maximum number of iterations for a Markov chain. 
 	 */ 
 	int MCMCGetNIterationsMax() 
@@ -689,6 +695,11 @@ class BCEngineMCMC
 	 * Number of iterations needed for all chains to convergence simulaneously. 
 	 */ 
 	int fMCMCNIterationsConvergenceGlobal; 
+
+	/*
+	 * Flag for convergence 
+	 */ 
+	bool fMCMCFlagConvergenceGlobal;
 
 	/*
 	 * Maximum number of iterations for a Markov chain prerun. 

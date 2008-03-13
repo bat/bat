@@ -24,6 +24,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCFlagInitialPosition  = 1; 
 	fMCMCRValueCriterion      = 0.1; 
 	fMCMCNIterationsConvergenceGlobal = -1; 
+	fMCMCFlagConvergenceGlobal = false; 
 	fMCMCRValue               = 100; 
 	fMCMCFlagPCA              = false; 
 	fMCMCSimulatedAnnealingT0 = 100; 
@@ -1324,7 +1325,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
   int counterupdate = 0; 
   bool convergence = false;
   bool flagefficiency = false; 
-	
+
 	std::vector <double> efficiency; 
 
   for (int i = 0; i < fMCMCNParameters; ++i)
@@ -1431,15 +1432,26 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			
     }
 
+	// define convergence status 
+
+	if (fMCMCNIterationsConvergenceGlobal > 0) 
+		fMCMCFlagConvergenceGlobal = true; 
+	else
+		fMCMCFlagConvergenceGlobal = false; 
+
   // print convergence status 
 
 	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Markov chains ran for %i iterations. ", counter)); 
 
-  if (fMCMCNIterationsConvergenceGlobal > 0) 
+  if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
-  else
+  else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+
+	else
+		BCLog::Out(BCLog::detail, BCLog::detail, " --> Only one Markov chain. No global convergence criterion defined."); 
+
   // print efficiencies 
 
   std::vector <double> efficiencies; 
@@ -1620,15 +1632,25 @@ int BCEngineMCMC::MCMCMetropolis()
 			
     }
 
+	// define convergence status 
+
+	if (fMCMCNIterationsConvergenceGlobal > 0) 
+		fMCMCFlagConvergenceGlobal = true; 
+	else
+		fMCMCFlagConvergenceGlobal = false; 
+
   // print convergence status 
 
 	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Markov chains ran for %i iterations. ", fMCMCNIterationsRun)); 
 
-  if (fMCMCNIterationsConvergenceGlobal > 0) 
+  if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
     BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
-  else
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsRun)); 
+  else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
+    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+
+	else
+		BCLog::Out(BCLog::detail, BCLog::detail, " --> Only one Markov chain. No global convergence criterion defined."); 
 
   // print efficiencies 
 
@@ -1949,6 +1971,8 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCMaximumLogProb.clear(); 
 
 	fMCMCNIterationsConvergenceGlobal = -1; 
+
+	fMCMCFlagConvergenceGlobal = false; 
 
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)          
 	  if (fMCMCH1Marginalized[i])
