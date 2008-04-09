@@ -266,7 +266,7 @@ int main()
 	// the original data is indicated by a line. 
 
 	fModelPol0 -> DoGoodnessOfFitTestROOT(1000, fModelPol0 -> GetBestFitParameters(), grid, limits) -> 
-		Print("modelpol0_gof.ps", 1, TMath::Log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
+		Print("modelpol0_gof.ps", 1, log10(fModelPol0 -> Likelihood(fModelPol0 -> GetBestFitParameters())));
 	
 	// performs the goodness-of-fit test. creates 1000 ensembles
 	// given the best fit parameters. the frequency distribution is
@@ -274,7 +274,7 @@ int main()
 	// the original data is indicated by a line. 
 	
 	fModelPol1 -> DoGoodnessOfFitTestROOT(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
-		Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+		Print("modelpol1_gof.ps", 1, log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 
 	// performs the goodness-of-fit test. creates 1000 ensembles
 	// given the best fit parameters. the frequency distribution is
@@ -282,7 +282,7 @@ int main()
 	// the original data is indicated by a line. 
 
 	fModelPol2 -> DoGoodnessOfFitTestROOT(1000, fModelPol2 -> GetBestFitParameters(), grid, limits) -> 
-		Print("modelpol2_gof.ps", 1, TMath::Log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
+		Print("modelpol2_gof.ps", 1, log10(fModelPol2 -> Likelihood(fModelPol2 -> GetBestFitParameters())));
 
 	// ---------------------------------------------------------
 	// write to output file 

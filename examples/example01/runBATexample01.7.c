@@ -170,7 +170,7 @@ int main()
 	// test, see the manual.
 
 	fModelPol1 -> DoGoodnessOfFitTestROOT(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
-		Print("modelpol1_gof.ps", 1, TMath::Log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
+		Print("modelpol1_gof.ps", 1, log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 	
 	// ---------------------------------------------------------
 	// write to output file 
