@@ -94,6 +94,13 @@ class BCParameter
 	double GetUpperLimit()
 	{ return fUpperLimit; }; 
 
+	/** 
+	 * Returns the range width of the parameter values. It is always a positive value.
+	 * @return The range width of the parameter values
+	 */ 
+	double GetRangeWidth()
+	{ return (fUpperLimit>fLowerLimit)?fUpperLimit-fLowerLimit:fLowerLimit-fUpperLimit; }; 
+
 	/* @} */ 
 
 	/** \name Setters */ 
