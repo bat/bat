@@ -1,18 +1,18 @@
-/**  
+/**
  * \class BCEngineMCMC
- * \brief An eninge class for Markov Chain Monte Carlo 
- * \author D. Kollar  
- * \author K. Kr&ouml;ninger  
- * \version 1.0  
- * \date 16.12.2007  
- *  
+ * \brief An eninge class for Markov Chain Monte Carlo
+ * \author D. Kollar
+ * \author K. Kr&ouml;ninger
+ * \version 1.0
+ * \date 16.12.2007
+ *
  * This class defines an engine for Markov Chain Monte Carlo
- * (MCMC). One or more chains can be handled. 
- *  
- * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger  
- */  
+ * (MCMC). One or more chains can be handled.
+ *
+ * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger
+ */
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCENGINEMCMC__H
 #define __BCENGINEMCMC__H
@@ -22,29 +22,29 @@
 #include <iostream.h>
 #include <math.h>
 
-#include <TH1D.h> 
-#include <TH2D.h> 
-#include <TTree.h> 
-#include <TRandom3.h> 
-#include <TPrincipal.h> 
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TTree.h>
+#include <TRandom3.h>
+#include <TPrincipal.h>
 
 #include <vector.h>
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 class BCEngineMCMC
 {
 
- public:   
+ public:
 
-	/** \name Constructors and destructors */ 
+	/** \name Constructors and destructors */
 	/* @{ */
 
-	/** 
-	 * The default constructor. 
-	 * @param n Number of chains. 
-	 */ 
-	BCEngineMCMC(); 
+	/**
+	 * The default constructor.
+	 * @param n Number of chains.
+	 */
+	BCEngineMCMC();
 
 	/** 
 	 * A constructor 
@@ -539,7 +539,7 @@ class BCEngineMCMC
 	 * Returns a new point for the PCA run. This method samples
 	 * uniformly over the allowed parameter space. 
 	 */ 
-	void BCEngineMCMC::MCMCGetNewPointPCA(); 
+	void MCMCGetNewPointPCA(); 
 
 	/* 
 	 * Returns a new point using the Metropolis algorithm. 
