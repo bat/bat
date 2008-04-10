@@ -473,14 +473,14 @@ class BCModel : public BCIntegrate
 	 */ 
   double LogEval(std::vector <double> parameters);
 
-	/** 
-	 * Overloaded function to evaluate integral. 
-	 */ 
+	/**
+	 * Overloaded function to evaluate integral.
+	 */
 	double EvalSampling(std::vector <double> parameters);
 
 	/**
-	 * Integrates over the un-normalized probability and updates fNormalization. 
-	 */ 
+	 * Integrates over the un-normalized probability and updates fNormalization.
+	 */
 	double Normalize();
 
 	/**
@@ -490,12 +490,17 @@ class BCModel : public BCIntegrate
 	 */
 	int CheckParameters(std::vector <double> parameters);
 
-	/** 
-	 * Marginalizes the a posteriori probability with respect to a parameter. 
-	 * @param parameter A model parameter 
-	 * @return 1D marginalized probability 
-	 */ 
-	BCH1D * MarginalizeProbability(BCParameter* parameter); 
+	/**
+	 * Does the mode finding
+	 */
+	void FindMode();
+
+	/**
+	 * Marginalizes the a posteriori probability with respect to a parameter.
+	 * @param parameter A model parameter
+	 * @return 1D marginalized probability
+	 */
+	BCH1D * MarginalizeProbability(BCParameter* parameter);
 
 	BCH1D * MarginalizeProbability(const char * name) 
 		{ return this -> MarginalizeProbability(this -> GetParameter(name)); }; 

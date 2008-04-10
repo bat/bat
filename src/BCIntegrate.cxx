@@ -1193,12 +1193,12 @@ void BCIntegrate::GetRandomVectorMetro(std::vector <double> &x)
 	randx = 0;
 }
 
+/*
 // *********************************************
-
 void BCIntegrate::FindMode()
 {
 
-	BCLog::Out(BCLog::summary, BCLog::summary, "Finding mode");
+	BCLog::Out(BCLog::summary, BCLog::summary, "Model: Finding mode");
 
 	switch(fModeFindingMethod)
 		{
@@ -1228,9 +1228,9 @@ void BCIntegrate::FindMode()
 	return;
 
 }
+*/
 
 // *********************************************
-
 TMinuit * BCIntegrate::GetMinuit() 
 {
 
@@ -1474,6 +1474,7 @@ void BCIntegrate::FindModeMCMC()
 
 	this -> MCMCMetropolisPreRun(); 
 
+	cout<<"prerun ok"<<endl;
 	// find global maximum 
 
 	double probmax = (this -> MCMCGetMaximumLogProb()).at(0); 

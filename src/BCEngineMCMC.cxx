@@ -2155,12 +2155,10 @@ void BCEngineMCMC::MCMCInitializeMarkovChains()
 	for (int j = 0; j < fMCMCNChains; ++j)
 	  {
 	    x0.clear(); 
-	    
 			for (int i = 0; i < fMCMCNParameters; ++i)
 			  {
 			    x0.push_back(fMCMCx[j * fMCMCNParameters + i]); 
 			  }
-			
 			fMCMCLogProbx[j] = this -> LogEval(x0); 
 	  }
 

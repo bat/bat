@@ -104,6 +104,12 @@ class BCIntegrate : public BCEngineMCMC
 	BCIntegrate::BCMarginalizationType GetMarginalizationMethod()
 		{ return fMarginalizeMethod; };
 
+	/**
+	 * @return The mode finding method
+	 */
+	BCIntegrate::BCModeFindingType GetModeFindingMethod()
+		{ return fModeFindingMethod; };
+
 	/** 
 	 * Fills a vector of random numbers between 0 and 1 into a vector 
 	 * @param A vector of doubles 
@@ -556,9 +562,9 @@ class BCIntegrate : public BCEngineMCMC
 	void InitMetro();
 
 	/**
-	 * Does the mode finding 
-	 */ 
-	void FindMode(); 
+	 * Does the mode finding
+	 */
+//	void FindMode();
 
 	/**
 	 * Does the mode finding using Simulated Annealing (SA) algorithm

@@ -632,8 +632,45 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 				}
 		}
 
-	return 0; 
-  
+	return 0;
+
+}
+
+// ---------------------------------------------------------
+
+void BCModel::FindMode()
+{
+
+	BCLog::Out(BCLog::summary, BCLog::summary,
+		Form("Model \'%s\': Finding mode", this -> GetName().data()));
+
+	switch(this -> GetModeFindingMethod())
+		{
+		case BCIntegrate::kMFSimulatedAnnealing:
+			{
+				this -> FindModeSA();
+				return;
+			}
+
+		case BCIntegrate::kMFMinuit:
+			{
+				this -> FindModeMinuit();
+				return;
+			}
+
+		case BCIntegrate::kMFMCMC:
+			{
+				this -> FindModeMCMC();
+				return;
+			}
+
+		}
+
+	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::FindMode. Invalid mode finding method: %d. Return.",
+																									this->GetModeFindingMethod()));
+
+	return;
+
 }
 
 // --------------------------------------------------------- 
@@ -2004,5 +2041,5 @@ int BCModel::CompareStrings(const char * string1, const char * string2)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
