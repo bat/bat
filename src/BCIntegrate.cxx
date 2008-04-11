@@ -1470,34 +1470,30 @@ void BCIntegrate::FindModeSA()
 void BCIntegrate::FindModeMCMC()
 {
 
-	// call PreRun 
+	// call PreRun
+	this -> MCMCMetropolisPreRun();
 
-	this -> MCMCMetropolisPreRun(); 
+	// find global maximum
+	double probmax = (this -> MCMCGetMaximumLogProb()).at(0);
+	fBestFitParameters = this -> MCMCGetMaximumPoint(0);
 
-	cout<<"prerun ok"<<endl;
-	// find global maximum 
+	// loop over all chains and find the maximum point
+	for (int i = 1; i < fMCMCNChains; ++i)
+	{
+		double prob = (this -> MCMCGetMaximumLogProb()).at(i);
 
-	double probmax = (this -> MCMCGetMaximumLogProb()).at(0); 
-
-	// loop over all chains and find the maximum point 
-
-	for (int i = 0; i < fMCMCNChains; ++i)
+		// copy the point into the vector
+		if (prob > probmax)
 		{
-			double prob = (this -> MCMCGetMaximumLogProb()).at(i); 
+			probmax = prob;
 
-			// copy the point into the vector 
+			fBestFitParameters.clear();
 
-			if (prob > probmax) 
-				{
-					probmax = prob; 
+			fBestFitParameters = this -> MCMCGetMaximumPoint(i);
+		}
+	}
 
-					fBestFitParameters.clear(); 
-
-					fBestFitParameters = this -> MCMCGetMaximumPoint(i); 
-				}
-		}		
-	
-} 
+}
 
 // *********************************************
 void BCIntegrate::GetRandomPointSA(std::vector <double> &x, double T, double step)

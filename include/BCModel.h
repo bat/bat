@@ -238,7 +238,9 @@ class BCModel : public BCIntegrate
 	TGraph * GetFitFunctionGraph(std::vector <double> parameters);
 
 	TGraph * GetFitFunctionGraph()
-		{ return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); }; 
+		{ return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); };
+
+	TGraph * GetFitFunctionGraph(std::vector <double> parameters, double xmin, double xmax, int n=1000);
 
 	// methods (set) 
 

@@ -246,6 +246,35 @@ TGraph * BCModel::GetFitFunctionGraph(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
+TGraph * BCModel::GetFitFunctionGraph(std::vector <double> parameters, double xmin, double xmax, int n)
+{
+
+	// define new graph
+	TGraph * graph = new TGraph(n+1);
+
+	double dx = (xmax-xmin)/(double)n;
+
+	// loop over x values
+	for (int i = 0; i <= n; i++)
+	{
+		double x = (double)i*dx+xmin;
+
+		std::vector <double> xvec;
+		xvec.push_back(x);
+
+		double y = this -> FitFunction(xvec, parameters);
+
+		xvec.clear();
+
+		graph -> SetPoint(i, x, y);
+	}
+
+	return graph;
+
+}
+
+// ---------------------------------------------------------
+
 void BCModel::SetSingleDataPoint(BCDataPoint * datapoint) 
 {
 
