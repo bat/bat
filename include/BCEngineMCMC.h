@@ -335,6 +335,9 @@ class BCEngineMCMC
 	void MCMCSetTrialFunctionScale(double scale) 
 	{ fMCMCTrialFunctionScale = scale; }; 
 
+	void MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)
+	{ fMCMCTrialFunctionScaleFactorStart = scale; }; 
+
 	/*
 	 * Sets the number of parameters of the Markov chain. 
 	 * @param n The number of parameters. 
@@ -801,6 +804,8 @@ class BCEngineMCMC
 	 * for each parameter and chain
 	 */ 
 	std::vector <double> fMCMCTrialFunctionScaleFactor; 
+
+	std::vector <double> fMCMCTrialFunctionScaleFactorStart; 
 
 	/* 
 	 * Defines if a prerun has been performed or not 
