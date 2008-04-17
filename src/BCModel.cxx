@@ -667,7 +667,7 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
-void BCModel::FindMode()
+void BCModel::FindMode(int flag)
 {
 
 	BCLog::Out(BCLog::summary, BCLog::summary,
@@ -689,7 +689,7 @@ void BCModel::FindMode()
 
 		case BCIntegrate::kMFMCMC:
 			{
-				this -> FindModeMCMC();
+				this -> FindModeMCMC(flag);
 				return;
 			}
 

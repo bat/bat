@@ -2232,7 +2232,11 @@ int BCEngineMCMC::MCMCInitialize()
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				{
 					fMCMCMaximumPoints.push_back(0.0); 
-					fMCMCTrialFunctionScaleFactor.push_back(1.0);
+					if (fMCMCTrialFunctionScaleFactorStart.size() == 0) 
+					  fMCMCTrialFunctionScaleFactor.push_back(1.0);
+					else 
+					  fMCMCTrialFunctionScaleFactor.push_back(fMCMCTrialFunctionScaleFactorStart.at(j));
+					
 					fMCMCNTrialsTrue.push_back(0); 
 					fMCMCNTrialsFalse.push_back(0); 
 				}
