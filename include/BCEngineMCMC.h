@@ -292,6 +292,12 @@ class BCEngineMCMC
 	{ return fMCMCRValue; }; 
 
 	/*
+	 * Returns the relative precision for the estimate of the mode 
+	 */ 
+	double MCMCGetPrecisionMode()
+	{ return fMCMCRelativePrecisionMode; }; 
+
+	/*
 	 * Returns the flag for the use of PCA 
 	 */ 
 	bool MCMCGetFlagPCA()
@@ -431,6 +437,12 @@ class BCEngineMCMC
 	 */ 
 	void MCMCSetRValueCriterion(double r)
 	{ fMCMCRValueCriterion = r; }; 
+
+	/*
+	 * Sets the relative precision for the estimate of the mode
+	 */ 
+	void MCMCSetPrecisionMode(double precision) 
+	{ fMCMCRelativePrecisionMode = precision; }; 
 
 	/*
 	 * Sets the flag to either perform a pre-run with PCA or not 
@@ -575,6 +587,8 @@ class BCEngineMCMC
 	 * Updates statistics, plots, etc. 
 	 */ 
 	void MCMCUpdateStatistics(); 
+
+	void MCMCUpdateStatisticsModeConvergence(); 
 
 	void MCMCUpdateStatisticsCheckMaximum(); 
 
@@ -878,6 +892,14 @@ class BCEngineMCMC
 	 * The R-value at which the chains did converge 
 	 */ 
 	double fMCMCRValue; 
+
+	/*
+	 * The relative precision for the convergence of the modes of
+	 * several chains
+	 */ 
+	double fMCMCRelativePrecisionMode; 
+	
+	std::vector <double> fMCMCRelativePrecisionModeValues; 
 
 	/* 
 	 * The starting temperature for simulated annealing
