@@ -495,7 +495,8 @@ class BCModel : public BCIntegrate
 	/**
 	 * Does the mode finding
 	 */
-	void FindMode(int flag = 0);
+	void FindMode();
+//	void FindMode(int flag = 0);
 
 	/**
 	 * Marginalizes the a posteriori probability with respect to a parameter.

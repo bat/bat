@@ -667,7 +667,8 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
-void BCModel::FindMode(int flag)
+//void BCModel::FindMode(int flag)
+void BCModel::FindMode()
 {
 
 	BCLog::Out(BCLog::summary, BCLog::summary,
@@ -689,7 +690,8 @@ void BCModel::FindMode(int flag)
 
 		case BCIntegrate::kMFMCMC:
 			{
-				this -> FindModeMCMC(flag);
+//				this -> FindModeMCMC(flag);
+				this -> FindModeMCMC();
 				return;
 			}
 
@@ -771,55 +773,52 @@ BCH2D * BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * 
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 int BCModel::MarginalizeAll()
 {
 
-  //	BCLog::Out(BCLog::summary, BCLog::summary,
-  //						 Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName().data()));
+//	BCLog::Out(BCLog::summary, BCLog::summary,
+//				 Form("Model \'%s\': Marginalizing all probability distributions.",this->GetName().data()));
 
-  //	return this -> MarginalizeAllByMetro(this->GetName().data());
+//	return this -> MarginalizeAllByMetro(this->GetName().data());
 
-  // prepare function fitting
+	// prepare function fitting
 
-  double dx = 0.0;
-  double dy = 0.0;
-	
-  if (fFitFunctionIndexX >= 0)
-    {
-      dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) -
-						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
-				/ double(fErrorBandNbinsX);
-			
-      dy = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) -
-						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
-				/ double(fErrorBandNbinsY);
-			
-      fErrorBandXY = new TH2D("errorbandxy", "",
-															fErrorBandNbinsX + 1,
-															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) -
-															0.5 * dx,
-															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) +
-															0.5 * dx,
-															fErrorBandNbinsY + 1,
-															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) -
-															0.5 * dy,
-															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) +
-															0.5 * dy);
-      fErrorBandXY -> SetStats(kFALSE);
-			
-      for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
-				for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
-					fErrorBandXY -> SetBinContent(ix, iy, 0.0);
-    }
-	
-  return this -> MCMCMetropolis(); 
-	
+	double dx = 0.0;
+	double dy = 0.0;
+
+	if (fFitFunctionIndexX >= 0)
+	{
+		dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) - fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
+				/ (double)fErrorBandNbinsX;
+
+		dy = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) - fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
+				/ (double)fErrorBandNbinsY;
+
+		fErrorBandXY = new TH2D("errorbandxy", "",
+				fErrorBandNbinsX + 1,
+				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - .5 * dx,
+				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + .5 * dx,
+				fErrorBandNbinsY + 1,
+				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) - .5 * dy,
+				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + .5 * dy);
+		fErrorBandXY -> SetStats(kFALSE);
+
+		for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
+			for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
+				fErrorBandXY -> SetBinContent(ix, iy, 0.0);
+	}
+
+	this -> MCMCMetropolis();
+
+	this -> FindModeMCMC();
+
+	return 1;
 }
 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {

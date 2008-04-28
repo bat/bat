@@ -10,7 +10,7 @@ BCEngineMCMC::BCEngineMCMC()
 
 	// default settings
 
- 	fMCMCNParameters          = 0;
+	fMCMCNParameters          = 0;
 	fMCMCNChains              = 5;
 	fMCMCNIterationsMax       = 1000000;
 	fMCMCNIterationsRun       = 100000;
@@ -28,13 +28,15 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCH1NBins              = 100;
 	fMCMCH2NBins              = 100;
 	fMCMCFlagPCATruncate      = false;
+	fMCMCPCA                  = 0;
 	fMCMCPCAMinimumRatio      = 1e-7;
 	fMCMCNIterationsUpdate    = 1000;
 	fMCMCFlagWriteChainToFile = false;
 	fMCMCFlagPreRun           = false;
 	fMCMCEfficiencyMin        = 0.15;
 	fMCMCEfficiencyMax        = 0.50;
-	fMCMCRelativePrecisionMode = 1e-3;
+
+//	fMCMCRelativePrecisionMode = 1e-3;
 
 	// set pointer to control histograms to NULL
 
@@ -1019,7 +1021,8 @@ void BCEngineMCMC::MCMCUpdateStatisticsModeConvergence()
 			}
 
 	for (int j = 0; j < fMCMCNParameters; ++j)
-		fMCMCRelativePrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]) / mode_average[j]; 
+		fMCMCNumericalPrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]); 
+//		fMCMCRelativePrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]) / mode_average[j]; 
 
 	delete [] mode_minimum; 
 	delete [] mode_maximum; 
@@ -1031,20 +1034,18 @@ void BCEngineMCMC::MCMCUpdateStatisticsModeConvergence()
 
 void BCEngineMCMC::MCMCUpdateStatisticsCheckMaximum()
 {
+	// loop over all chains
 
-	// loop over all chains 
-  
-  for (int i = 0; i < fMCMCNChains; ++i)
-    {
-      if (fMCMCLogProbx[i] > fMCMCMaximumLogProb[i] || fMCMCNIterations[i] == 1)
-				{
-					fMCMCMaximumLogProb[i] = fMCMCLogProbx[i]; 
-					
-					for (int j = 0; j < fMCMCNParameters; ++j)
-						fMCMCMaximumPoints[i * fMCMCNParameters + j] = fMCMCx[i * fMCMCNParameters + j]; 
-				}
-    }	
-	
+	for (int i = 0; i < fMCMCNChains; ++i)
+	{
+		if (fMCMCLogProbx[i] > fMCMCMaximumLogProb[i] || fMCMCNIterations[i] == 1)
+		{
+			fMCMCMaximumLogProb[i] = fMCMCLogProbx[i];
+			for (int j = 0; j < fMCMCNParameters; ++j)
+				fMCMCMaximumPoints[i * fMCMCNParameters + j] = fMCMCx[i * fMCMCNParameters + j];
+		}
+	}
+
 }
 
 // --------------------------------------------------------
@@ -1969,30 +1970,15 @@ int BCEngineMCMC::MCMCMetropolis()
 			probmaxindex = i;
 		}
 
-//	cout<<" 1 "<<endl;
-//	cout<<" probmaxindex = "<<probmaxindex<<endl;
-//	cout<<" fMCMCNParameters = "<<fMCMCNParameters<<endl;
-//	cout<<" fMCMCMaximumPoints.size() = "<<fMCMCMaximumPoints.size()<<endl;
-//	cout<<" fMCMCRelativePrecisionModeValues.size() = "<<fMCMCRelativePrecisionModeValues.size()<<endl;
-
 	for (int i = 0; i < fMCMCNParameters; ++i)
-	{
-		int j = probmaxindex * fMCMCNParameters + i;
-//		cout<<"i = "<<i<<"   probmaxindex * fMCMCNParameters + i = "<<j<<endl;
 		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form(" --> Global mode of parameter %i: %.2lf with rel. precision %.2e",
-						i, fMCMCMaximumPoints.at(j),
-						fMCMCRelativePrecisionModeValues.at(i)));
-//		cout<<" "<<i<<" ... ok"<<endl;
-	}
-
-//	cout<<" 2 "<<endl;
+				Form(" --> Global mode of parameter %i: %.2lf with abs. num. precision %.2e",
+						i, fMCMCMaximumPoints.at(probmaxindex * fMCMCNParameters + i),
+						fMCMCNumericalPrecisionModeValues.at(i)));
 
 	// fill efficiency plot
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]);
-
-//	cout<<" 3 "<<endl;
 
 	// set flag
 	fMCMCFlagPreRun = false;
@@ -2260,7 +2246,8 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCLogProbx.clear();
 	fMCMCMaximumPoints.clear();
 	fMCMCMaximumLogProb.clear();
-	fMCMCRelativePrecisionModeValues.clear();
+//	fMCMCRelativePrecisionModeValues.clear();
+	fMCMCNumericalPrecisionModeValues.clear();
 
 	fMCMCNIterationsConvergenceGlobal = -1;
 	fMCMCFlagConvergenceGlobal = false;
@@ -2309,7 +2296,8 @@ int BCEngineMCMC::MCMCInitialize()
 	}
 
 	for (int i=0;i<fMCMCNParameters;i++)
-		fMCMCRelativePrecisionModeValues.push_back(0.0);
+//		fMCMCRelativePrecisionModeValues.push_back(0.0);
+		fMCMCNumericalPrecisionModeValues.push_back(0.0);
 
 	// set initial position
 

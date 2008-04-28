@@ -1467,12 +1467,14 @@ void BCIntegrate::FindModeSA()
 
 // *********************************************
 
-void BCIntegrate::FindModeMCMC(int flag_run)
+//void BCIntegrate::FindModeMCMC(int flag_run)
+void BCIntegrate::FindModeMCMC()
 {
 
 	// call PreRun
-	if (flag_run == 0)
-		this -> MCMCMetropolisPreRun();
+//	if (flag_run == 0)
+//	if (!fMCMCFlagPreRun)
+//		this -> MCMCMetropolisPreRun();
 
 	// find global maximum
 	double probmax = (this -> MCMCGetMaximumLogProb()).at(0);

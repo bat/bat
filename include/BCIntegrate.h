@@ -579,7 +579,8 @@ class BCIntegrate : public BCEngineMCMC
 	/**
 	 * Does the mode finding using Markov Chain Monte Carlo 
 	 */
-	void FindModeMCMC(int flag_run = 0); 
+	void FindModeMCMC(); 
+//	void FindModeMCMC(int flag_run = 0); 
 
 	static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag); 
 
