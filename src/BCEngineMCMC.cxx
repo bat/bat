@@ -2274,31 +2274,24 @@ int BCEngineMCMC::MCMCInitialize()
 	// free memory for vectors
 
 	fMCMCNIterationsConvergenceLocal.assign(fMCMCNChains, -1);
+	fMCMCNIterations.assign(fMCMCNChains, 0);
+	fMCMCMean.assign(fMCMCNChains, 0);
+	fMCMCVariance.assign(fMCMCNChains, 0);
+	fMCMCLogProbx.assign(fMCMCNChains, -1.0);
+	fMCMCMaximumLogProb.assign(fMCMCNChains, -1.0);
 
-	for (int i = 0; i < fMCMCNChains; ++i)
-	{
-		fMCMCNIterations.push_back(0);
-		fMCMCMean.push_back(0);
-		fMCMCVariance.push_back(0);
-		fMCMCLogProbx.push_back(-1.0);
-		fMCMCMaximumLogProb.push_back(-1.0);
-
-		for (int j = 0; j < fMCMCNParameters; ++j)
-		{
-			fMCMCMaximumPoints.push_back(0.0);
-			if (fMCMCTrialFunctionScaleFactorStart.size() == 0)
-				fMCMCTrialFunctionScaleFactor.push_back(1.0);
-			else
-				fMCMCTrialFunctionScaleFactor.push_back(fMCMCTrialFunctionScaleFactorStart.at(j));
-		}
-	}
+	fMCMCNumericalPrecisionModeValues.assign(fMCMCNParameters, 0.0);
 
 	fMCMCNTrialsTrue.assign(fMCMCNChains * fMCMCNParameters, 0);
 	fMCMCNTrialsFalse.assign(fMCMCNChains * fMCMCNParameters, 0);
-
-	for (int i=0;i<fMCMCNParameters;i++)
-//		fMCMCRelativePrecisionModeValues.push_back(0.0);
-		fMCMCNumericalPrecisionModeValues.push_back(0.0);
+	fMCMCMaximumPoints.assign(fMCMCNChains * fMCMCNParameters, 0.0); 
+	
+	if (fMCMCTrialFunctionScaleFactorStart.size() == 0)
+		fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains * fMCMCNParameters, 1.0);
+	else
+		for (int i = 0; i < fMCMCNChains; ++i)
+			for (int j = 0; j < fMCMCNParameters; ++j)
+				fMCMCTrialFunctionScaleFactor.push_back(fMCMCTrialFunctionScaleFactorStart.at(j));
 
 	// set initial position
 
