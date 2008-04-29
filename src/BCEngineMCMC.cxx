@@ -1766,7 +1766,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	fMCMCFlagPreRun = true; 
 
-  return 0; 
+  return 1; 
   
 }
 
@@ -1983,7 +1983,7 @@ int BCEngineMCMC::MCMCMetropolis()
 	// set flag
 	fMCMCFlagPreRun = false;
 
-	return 0;
+	return 1;
 
 }
 
@@ -2053,7 +2053,7 @@ int BCEngineMCMC::MCMCMetropolisHastings()
 				}
     }
 
-  return 0; 
+  return 1; 
   
 }
 
@@ -2139,7 +2139,7 @@ int BCEngineMCMC::MCMCSimulatedAnnealing()
 				}
     }
 
-  return 0; 
+  return 1; 
   
 }
 
@@ -2273,10 +2273,11 @@ int BCEngineMCMC::MCMCInitialize()
 
 	// free memory for vectors
 
+	fMCMCNIterationsConvergenceLocal.assign(fMCMCNChains, -1);
+
 	for (int i = 0; i < fMCMCNChains; ++i)
 	{
 		fMCMCNIterations.push_back(0);
-		fMCMCNIterationsConvergenceLocal.push_back(-1);
 		fMCMCMean.push_back(0);
 		fMCMCVariance.push_back(0);
 		fMCMCLogProbx.push_back(-1.0);
@@ -2289,11 +2290,11 @@ int BCEngineMCMC::MCMCInitialize()
 				fMCMCTrialFunctionScaleFactor.push_back(1.0);
 			else
 				fMCMCTrialFunctionScaleFactor.push_back(fMCMCTrialFunctionScaleFactorStart.at(j));
-
-			fMCMCNTrialsTrue.push_back(0);
-			fMCMCNTrialsFalse.push_back(0);
 		}
 	}
+
+	fMCMCNTrialsTrue.assign(fMCMCNChains * fMCMCNParameters, 0);
+	fMCMCNTrialsFalse.assign(fMCMCNChains * fMCMCNParameters, 0);
 
 	for (int i=0;i<fMCMCNParameters;i++)
 //		fMCMCRelativePrecisionModeValues.push_back(0.0);
@@ -2378,7 +2379,7 @@ int BCEngineMCMC::MCMCInitialize()
 				 fMCMCNParameters, -0.5, fMCMCNParameters - 0.5);
 	fMCMCH1Efficiency -> SetStats(false);
 
-	return 0;
+	return 1;
 
 }
 
