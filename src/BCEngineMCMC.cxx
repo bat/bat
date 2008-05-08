@@ -1624,16 +1624,16 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
   // print convergence status 
 
-	BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Markov chains ran for %i iterations. ", counter)); 
-
   if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
     BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
   
   else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0) 
-    BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+    BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Set of %i Markov chains did not converge within %i iterations or could not adjust scales. ", fMCMCNChains, fMCMCNIterationsMax)); 
 
 	else
 		BCLog::Out(BCLog::summary, BCLog::summary, " --> Only one Markov chain. No global convergence criterion defined."); 
+
+	BCLog::Out(BCLog::summary, BCLog::summary, Form(" --> Markov chains ran for %i iterations. ", counter)); 
 
   // print efficiencies 
 
@@ -1796,15 +1796,15 @@ int BCEngineMCMC::MCMCMetropolis()
 	BCLog::Out(BCLog::detail, BCLog::detail,
 			Form(" --> Perform MCMC run with %i chains each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
 
-	int counterupdate = 0;
-	bool convergence = false;
-	bool flagefficiency = false;
+// 	int counterupdate = 0;
+// 	bool convergence = false;
+// 	bool flagefficiency = false;
 
-	std::vector <double> efficiency;
+// 	std::vector <double> efficiency;
 
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		for (int j = 0; j < fMCMCNChains; ++j)
-			efficiency.push_back(0.0);
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 		for (int j = 0; j < fMCMCNChains; ++j)
+// 			efficiency.push_back(0.0);
 
 	for (int iiterations = 0; iiterations < fMCMCNIterationsRun; ++iiterations)
 	{
@@ -1832,129 +1832,129 @@ int BCEngineMCMC::MCMCMetropolis()
 
 		// update scale factors
 
-		if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
-		{
-			// update mode convergence
-			this -> MCMCUpdateStatisticsModeConvergence();
+// 		if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
+// 		{
+// 			// update mode convergence
+// 			this -> MCMCUpdateStatisticsModeConvergence();
 
-			// prompt status
-			BCLog::Out(BCLog::detail, BCLog::detail,
-					Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
-			BCLog::Out(BCLog::detail, BCLog::detail,
-					Form(" --> R-Value is %2lf. ", fMCMCRValue));
+// 			// prompt status
+// 			BCLog::Out(BCLog::detail, BCLog::detail,
+// 					Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
+// 			BCLog::Out(BCLog::detail, BCLog::detail,
+// 					Form(" --> R-Value is %2lf. ", fMCMCRValue));
 
-			// set flag
-			flagefficiency = true;
+// 			// set flag
+// 			flagefficiency = true;
 
 			// loop over chains
 
-			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-			{
-				// loop over parameters
+// 			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+// 			{
+// 				// loop over parameters
 
-				for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
-				{
-					// calculate efficiency
-					efficiency[ichains * fMCMCNParameters + iparameter] = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]);
+// 				for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
+// 				{
+// 					// calculate efficiency
+// 					efficiency[ichains * fMCMCNParameters + iparameter] = double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter]) / double(fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] + fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter]);
 
-					// adjust scale factors if efficiency is too low
-					if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin &&
-							fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01)
-					{
-						fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0;
+// 					// adjust scale factors if efficiency is too low
+// 					if (efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin &&
+// 							fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01)
+// 					{
+// 						fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] / 2.0;
 
-						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMin, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter]));
-					}
+// 						BCLog::Out(BCLog::detail, BCLog::detail,
+// 								Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMin, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter]));
+// 					}
 
-					// adjust scale factors if efficiency is too high
-					if (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax &&
-								(fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || (fMCMCFlagPCA && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 10.0)))
-					{
-						fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0;
+// 					// adjust scale factors if efficiency is too high
+// 					if (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax &&
+// 								(fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0 || (fMCMCFlagPCA && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 10.0)))
+// 					{
+// 						fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] = fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] * 2.0;
 
-						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter]));
-					}
+// 						BCLog::Out(BCLog::detail, BCLog::detail,
+// 								Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.2lf%%. ", iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ichains * fMCMCNParameters + iparameter], ichains, 100.0 * fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter]));
+// 					}
 
-					// reset counters
-					counterupdate = 0;
-					fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
-					fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
+// 					// reset counters
+// 					counterupdate = 0;
+// 					fMCMCNTrialsTrue[ichains * fMCMCNParameters + iparameter] = 0;
+// 					fMCMCNTrialsFalse[ichains * fMCMCNParameters + iparameter] = 0;
 
-					// check flag
+// 					// check flag
 
-					if ((efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01) || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0))
-						flagefficiency = false;
-				}
-			}
-		}
+// 					if ((efficiency[ichains * fMCMCNParameters + iparameter] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] > 0.01) || (efficiency[ichains * fMCMCNParameters + iparameter] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ichains * fMCMCNParameters + iparameter] < 1.0))
+// 						flagefficiency = false;
+// 				}
+// 			}
+// 		}
 
-		// increase counter
-		counterupdate++;
+// 		// increase counter
+// 		counterupdate++;
 
-		// check convergence
-		if (fMCMCNIterationsConvergenceGlobal > 0)
-			convergence = true;
+// 		// check convergence
+// 		if (fMCMCNIterationsConvergenceGlobal > 0)
+// 			convergence = true;
 
 	}
 
 	// define convergence status
 
-	if (fMCMCNIterationsConvergenceGlobal > 0)
-		fMCMCFlagConvergenceGlobal = true;
-	else
-		fMCMCFlagConvergenceGlobal = false;
+// 	if (fMCMCNIterationsConvergenceGlobal > 0)
+// 		fMCMCFlagConvergenceGlobal = true;
+// 	else
+// 		fMCMCFlagConvergenceGlobal = false;
 
 	// print convergence status
 
 	BCLog::Out(BCLog::summary, BCLog::summary,
 			Form(" --> Markov chains ran for %i iterations. ", fMCMCNIterationsRun));
 
-	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
-	else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax));
-	else
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				" --> Only one Markov chain. No global convergence criterion defined.");
+// 	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0)
+// 		BCLog::Out(BCLog::summary, BCLog::summary,
+// 				Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+// 	else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0)
+// 		BCLog::Out(BCLog::summary, BCLog::summary,
+// 				Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax));
+// 	else
+// 		BCLog::Out(BCLog::summary, BCLog::summary,
+// 				" --> Only one Markov chain. No global convergence criterion defined.");
 
 	// print efficiencies
 
-	std::vector <double> efficiencies;
+// 	std::vector <double> efficiencies;
 
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		efficiencies.push_back(0.0);
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 		efficiencies.push_back(0.0);
 
-	for (int i = 0; i < fMCMCNParameters; ++i)
-	{
-		for (int j = 0; j < fMCMCNChains; ++j)
-		{
-			double efficiency = double(fMCMCNTrialsTrue[j * fMCMCNParameters + i]) / double(fMCMCNTrialsTrue[j * fMCMCNParameters + i] + fMCMCNTrialsFalse[j * fMCMCNParameters + i]);
-			efficiencies[i] += efficiency / double(fMCMCNChains);
-		}
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 	{
+// 		for (int j = 0; j < fMCMCNChains; ++j)
+// 		{
+// 			double efficiency = double(fMCMCNTrialsTrue[j * fMCMCNParameters + i]) / double(fMCMCNTrialsTrue[j * fMCMCNParameters + i] + fMCMCNTrialsFalse[j * fMCMCNParameters + i]);
+// 			efficiencies[i] += efficiency / double(fMCMCNChains);
+// 		}
 
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form(" --> Average efficiency for parameter %i: %.2lf%%.", i, 100. * efficiencies[i]));
-	}
+// 		BCLog::Out(BCLog::detail, BCLog::detail,
+// 				Form(" --> Average efficiency for parameter %i: %.2lf%%.", i, 100. * efficiencies[i]));
+// 	}
 
 	// print scale factors
 
-	std::vector <double> scalefactors;
+// 	std::vector <double> scalefactors;
 
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		scalefactors.push_back(0.0);
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 		scalefactors.push_back(0.0);
 
-	for (int i = 0; i < fMCMCNParameters; ++i)
-	{
-		for (int j = 0; j < fMCMCNChains; ++j)
-			scalefactors[i] += fMCMCTrialFunctionScaleFactor[j * fMCMCNParameters + i] / double(fMCMCNChains);
-
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form(" --> Average scale factor for parameter %i: %.2lf%%.", i, 100. * scalefactors[i]));
-	}
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 		{
+// 			for (int j = 0; j < fMCMCNChains; ++j)
+// 				scalefactors[i] += fMCMCTrialFunctionScaleFactor[j * fMCMCNParameters + i] / double(fMCMCNChains);
+			
+// 			BCLog::Out(BCLog::detail, BCLog::detail,
+// 								 Form(" --> Average scale factor for parameter %i: %.2lf%%.", i, 100. * scalefactors[i]));
+// 		}
 
 	// print modes
 
@@ -1977,8 +1977,8 @@ int BCEngineMCMC::MCMCMetropolis()
 						fMCMCNumericalPrecisionModeValues.at(i)));
 
 	// fill efficiency plot
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]);
+// 	for (int i = 0; i < fMCMCNParameters; ++i)
+// 		fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]);
 
 	// set flag
 	fMCMCFlagPreRun = false;
