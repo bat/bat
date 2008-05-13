@@ -886,7 +886,6 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
 	{
 		BCParameter * a = this->GetParameter(i);
 		this -> GetMarginalized(a) -> Print(Form("%s_1D_%s.ps",filebase,a->GetName().data()));
-		delete a;
 	}
 
 	return n;
@@ -912,8 +911,6 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 			BCParameter * a = this->GetParameter(i);
 			BCParameter * b = this->GetParameter(j);
 			this -> GetMarginalized(a,b) -> Print(Form("%s_2D_%s_%s.ps",filebase,a->GetName().data(),b->GetName().data()));
-			delete a;
-			delete b;
 			k++;
 		}
 	}
@@ -1372,8 +1369,6 @@ void BCModel::CreateDataGridROOT(int ndatasets, std::vector <double> parameters,
 
 	for (int idataset = 0; idataset < ndatasets; idataset++) 
 		{
-
-			cout<<"Dataset "<<idataset<<endl;
 
 			// create tree 
 
