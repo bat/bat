@@ -357,7 +357,12 @@ class BCIntegrate : public BCEngineMCMC
 	void SetMarkovChainAutoN(bool flag) 
 	{	fMarkovChainAutoN = flag; }; 
 
-	// methods   
+	/**
+	 * Sets mode
+	 */
+	void SetMode(std::vector <double> mode);
+
+	// methods
 
 	/** 
 	 * Frees the memory for integration variables 

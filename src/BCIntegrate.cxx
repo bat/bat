@@ -1307,6 +1307,18 @@ void BCIntegrate::FindModeMinuit()
 
 // *********************************************
 
+void BCIntegrate::SetMode(std::vector <double> mode)
+{
+	if((int)mode.size() == fNvar)
+	{
+		fBestFitParameters.clear();
+		for (int i = 0; i < fNvar; i++)
+			fBestFitParameters.push_back(mode[i]);
+	}
+}
+
+// *********************************************
+
 void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag)
 {
 

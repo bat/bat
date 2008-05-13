@@ -168,6 +168,12 @@ class BCH1D
 	 */
 	void SetDefaultCLLimit(double limit);
 
+	/**
+	 * Set global mode
+	 */
+	void SetGlobalMode(double mode)
+		{ fMode=mode; fModeFlag=1; };
+
 	// methods 
 
 	/**
@@ -238,8 +244,18 @@ class BCH1D
 	 */
 	double fDefaultCLLimit;
 
+	/**
+	 * Global mode
+	 */
+	double fMode;
+
+	/**
+	 * "Is there a global mode?" flag
+	 */
+	int fModeFlag;
+
 };
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-#endif 
+#endif

@@ -551,6 +551,13 @@ class BCModel : public BCIntegrate
 		{ return this -> GetMarginalized(this -> GetParameter(name1), this -> GetParameter(name2)); };
 
 	/**
+	 *
+	 */
+	int PrintAllMarginalized1D(const char * filebase);
+	int PrintAllMarginalized2D(const char * filebase);
+	int PrintAllMarginalized(const char * filebase="");
+
+	/**
 	 * Creates data sets given a set of parameters. 
 	 * @param ndatasets The number of data sets to be created 
 	 * @param parameters A set of parameter values 

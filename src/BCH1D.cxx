@@ -14,10 +14,11 @@
 
 BCH1D::BCH1D()
 {
-	
-	fHistogram = 0;
-	fDefaultCLLimit = 95.; // in percent 
 
+	fHistogram = 0;
+	fDefaultCLLimit = 95.; // in percent
+
+	fModeFlag = 0;
 }
 
 // --------------------------------------------------------- 
@@ -101,7 +102,7 @@ void BCH1D::SetDefaultCLLimit(double limit)
 		BCLog::Out(BCLog::warning,BCLog::warning,
 			Form("BCH1D::SetDefaultCLLimit. Value %.1f out of range. Keeping default %.1f%% CL limit.",limit,fDefaultCLLimit));
 
-	// ... or set value if true. 
+	// ... or set value if true.
 
 	else
 		fDefaultCLLimit = limit;
@@ -112,77 +113,94 @@ void BCH1D::SetDefaultCLLimit(double limit)
 
 void BCH1D::Print(const char * filename, int options, double ovalue)
 {
+//	cout<<"File name start: "<<filename<<endl;
+
+	char file[256];
+	int i=0;
+	while(i<255 && *filename!='\0')
+		file[i++]=*filename++;
+	file[i]='\0';
+//	cout<<"File start: "<<file<<endl;
 
 	// create temporary canvas
-
 	TCanvas * canvas = new TCanvas();
+//	cout<<"File name canvas 0: "<<filename<<endl;
+//	cout<<"File canvas 0: "<<file<<endl;
 	canvas -> cd();
 
+//	cout<<"File name canvas cd: "<<filename<<endl;
+
 	double min, max;
-	double mode = this->GetMode();
+	double mode;
+	double thismode = this->GetMode();
 
-	// define temporary line. 
+	if(fModeFlag)
+		mode=fMode;
+	else
+		mode=thismode;
 
+	// define temporary line.
 	TLine * line;
 
-	// check drawing option. 
+//	cout<<"File name switch: "<<filename<<endl;
+//	cout<<"File switch: "<<file<<endl;
 
+	// check drawing option.
 	switch(options)
-		{
-			// Draw a band between 16% and 84% probability. 
-			// If the mode is outside the band only draw a limit. 
-
+	{
+		// Draw a band between 16% and 84% probability.
+		// If the mode is outside the band only draw a limit.
 		case 0:
 
 			if (fabs(ovalue) >= 100 || fabs(ovalue) < 68)
+			{
+				min = this -> GetQuantile(.16);
+				max = this -> GetQuantile(.84);
+
+/*
+//				if ( thismode > max || fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
+				if ( fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
 				{
-					min = this -> GetQuantile(.16);
-					max = this -> GetQuantile(.84);
-
-					if ( mode > max || fHistogram -> FindBin(mode) == fHistogram -> GetNbinsX() )
-						{
-							min = this -> GetQuantile(1.-(double)fDefaultCLLimit/100.);
-							max = fHistogram->GetXaxis()->GetXmax();
-							ovalue = fDefaultCLLimit;
-						}
-					else if (mode < min || fHistogram->FindBin(mode)==1)
-						{
-							min = fHistogram->GetXaxis()->GetXmin();
-							max = this -> GetQuantile((double)fDefaultCLLimit/100.);
-							ovalue = -fDefaultCLLimit;
-						}
+					min = this -> GetQuantile(1.-(double)fDefaultCLLimit/100.);
+					max = fHistogram->GetXaxis()->GetXmax();
+					ovalue = fDefaultCLLimit;
 				}
-
-			else if(ovalue < 0)
+//				else if (thismode < min || fHistogram->FindBin(thismode)==1)
+				else if ( fHistogram->FindBin(thismode)==1)
 				{
 					min = fHistogram->GetXaxis()->GetXmin();
-					max = this -> GetQuantile(-ovalue/100.);
+					max = this -> GetQuantile((double)fDefaultCLLimit/100.);
+					ovalue = -fDefaultCLLimit;
 				}
+*/			}
+
+			else if(ovalue < 0)
+			{
+				min = fHistogram->GetXaxis()->GetXmin();
+				max = this -> GetQuantile(-ovalue/100.);
+			}
 			else
-				{
-					min = this -> GetQuantile((1-ovalue)/100.);
-					max = fHistogram->GetXaxis()->GetXmax();
-				}
+			{
+				min = this -> GetQuantile((1-ovalue)/100.);
+				max = fHistogram->GetXaxis()->GetXmax();
+			}
 
 			// do the drawing
-
 			this->PrintShadedLimits(mode, min, max, ovalue);
 
 			break;
 
-			// Draw a line at "ovalue". 
-
+		// Draw a line at "ovalue".
 		case 1:
 
 			fHistogram ->Draw();
 			line = new TLine();
 			line -> SetLineColor(kRed);
 			line -> DrawLine(ovalue, 0., ovalue, 1.05 * fHistogram -> GetMaximum());
-		
+
 			break;
 
-			// Draw a shaded band at the smallest interval. 
-
+		// Draw a shaded band at the smallest interval.
 		case 2:
 
 			if(ovalue<50) // just to ensure there's some sense in the number
@@ -193,20 +211,21 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 
 			break;
 
-			// Sort out bad options and warn. 
-
+		// Sort out bad options and warn.
 		default:
 
 			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCH1D::Print. Invalid option %d",options));
 			break;
 		}
 
-	// print to file. 
+	// print to file.
 
-	canvas -> Print(filename);
+//	cout<<"Printing to "<<filename<<endl;
+//	cout<<"Printing to "<<file<<endl;
+	canvas -> Print(file);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 {
@@ -215,6 +234,9 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 
 	double x0 = mode;
 	double y0 = fHistogram->GetBinContent( fHistogram->FindBin(mode) );
+
+	double x1 = fHistogram->GetMean();
+	double y1 = fHistogram->GetBinContent( fHistogram->FindBin(x1) );
 
 	double ysize = maximum*1.2;
 
@@ -231,32 +253,30 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 	hsc -> Draw();
 
 	// draw histogram
-	
 	fHistogram -> Draw("same");
 
 	// draw yellow shaded region between min and max
-
 	TH1D * hist_shaded = this->GetSubHisto(min,max,Form("%s_sub_%d",fHistogram->GetName(),BCLog::GetHIndex()));
 	hist_shaded -> SetFillStyle(1001);
 	hist_shaded -> SetFillColor(kYellow);
 
 	// draw shaded histogram
-	
 	hist_shaded -> Draw("same");
 
 	gPad->RedrawAxis();
 
-	// draw line and triangle for mode
-
+	// draw line for mean
 	TLine * line;
-	TPolyLine * tmax;
 
-	if(fabs(limit)<50) // just to ensure there's some sense in the number
-		{
-			line = new TLine();
-			line -> SetLineStyle(2);
-			line -> DrawLine(x0, 0., x0, y0);
-		}
+//	if(fabs(limit)<50) // just to ensure there's some sense in the number
+//	{
+		line = new TLine();
+		line -> SetLineStyle(2);
+		line -> DrawLine(x1, 0., x1, y1);
+//	}
+
+	// draw triangle for mode
+	TPolyLine * tmax;
 
 	double dx = 0.01*(xmax-xmin);
 	double dy = 0.04*(ysize);
@@ -286,7 +306,7 @@ void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
 	if(fabs(limit)<50) // just to ensure there's some sense in the number
 		tmax_text->DrawLatex(xprint,yprint,
 			Form( Form("%%s* = %%%c ^{+%%%c}_{ -%%%c}",sf,sf,sf),
-				fHistogram->GetXaxis()->GetTitle(), x0, max-x0, x0-min));
+				fHistogram->GetXaxis()->GetTitle(), x1, max-x1, x1-min));
 
 	else if (limit<0)
 		tmax_text->DrawLatex(xprint,yprint,

@@ -691,7 +691,8 @@ void BCModel::FindMode()
 		case BCIntegrate::kMFMCMC:
 			{
 //				this -> FindModeMCMC(flag);
-				this -> FindModeMCMC();
+//				this -> FindModeMCMC();
+				this -> MarginalizeAll();
 				return;
 			}
 
@@ -863,11 +864,91 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 
 	fBestFitParametersMarginalized[index] = bestfit;
 
+	hprob->SetGlobalMode(fBestFitParameters.at(index));
+
 	return hprob;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
+
+int BCModel::PrintAllMarginalized1D(const char * filebase)
+{
+	if(fMCMCH1Marginalized.size()==0)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				"BCModel::PrintAllMarginalized2D. MarginalizeAll() has to be run prior to this to fill the distributions.");
+		return 0;
+	}
+
+	int n=this->GetNParameters();
+	for(int i=0;i<n;i++)
+	{
+		BCParameter * a = this->GetParameter(i);
+//		cout<<filebase<<endl;
+//		cout<<a->GetName().data()<<endl;
+//		cout<<Form("%s_1D_%s.ps",filebase,a->GetName().data())<<endl;
+		BCH1D * h = this -> GetMarginalized(a);
+		h -> Print(Form("%s_1D_%s.ps",filebase,a->GetName().data()));
+//		cout<<Form("%s_1D_%s.ps",filebase,a->GetName().data())<<endl;
+		delete h;
+	}
+
+	return n;
+}
+
+// ---------------------------------------------------------
+
+int BCModel::PrintAllMarginalized2D(const char * filebase)
+{
+	if(fMCMCH2Marginalized.size()==0)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				"BCModel::PrintAllMarginalized2D. MarginalizeAll() has to be run prior to this to fill the distributions.");
+		return 0;
+	}
+
+	int k=0;
+	int n=this->GetNParameters();
+	for(int i=0;i<n-1;i++)
+	{
+		for(int j=i+1;j<n;j++)
+		{
+			BCParameter * a = this->GetParameter(i);
+			BCParameter * b = this->GetParameter(j);
+			BCH2D * h = this -> GetMarginalized(a,b);
+			h -> Print(Form("%s_2D_%s_%s.ps",filebase,a->GetName().data(),b->GetName().data()));
+			delete h;
+			k++;
+		}
+	}
+
+	return k;
+}
+
+// ---------------------------------------------------------
+
+int BCModel::PrintAllMarginalized(const char * filebase)
+{
+	int n=0;
+
+	if(filebase[0]=='\0')
+	{
+		cout<<"Autonaming: "<<Form("prob_%s-",this->GetName().data())<<endl;
+		n += this->PrintAllMarginalized1D(Form("prob_%s-",this->GetName().data()));
+		n += this->PrintAllMarginalized2D(Form("prob_%s-",this->GetName().data()));
+	}
+	else
+	{
+		cout<<"Naming: "<<filebase<<endl;
+		n += this->PrintAllMarginalized1D(filebase);
+		n += this->PrintAllMarginalized2D(filebase);
+	}
+
+	return n;
+}
+
+// ---------------------------------------------------------
 
 BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2)
 {
@@ -1210,6 +1291,8 @@ void BCModel::CreateDataGrid(int ndatasets, std::vector <double> parameters, std
 void BCModel::CreateDataGridROOT(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits) 
 {
 
+	BCLog::Out(BCLog::detail, BCLog::detail, Form("BCModel::CreateDataGridROOT. Creating %d datasets",ndatasets)); 
+
 	// remember of directory 
 
 	TDirectory * dir = gDirectory; 
@@ -1295,6 +1378,8 @@ void BCModel::CreateDataGridROOT(int ndatasets, std::vector <double> parameters,
 	for (int idataset = 0; idataset < ndatasets; idataset++) 
 		{
 
+			cout<<"Dataset "<<idataset<<endl;
+
 			// create tree 
 
 			TTree * tree = new TTree(Form("gof_tree_%i", idataset), Form("gof_tree_%i", idataset)); 
@@ -1346,6 +1431,7 @@ void BCModel::CreateDataGridROOT(int ndatasets, std::vector <double> parameters,
     
 			for (int idatapoint = 0; idatapoint < ndatapoints; idatapoint++)
 				{
+
 					double p = 0.0; 
 					double temp_rand = 1.0; 
 
