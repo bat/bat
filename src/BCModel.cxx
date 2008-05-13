@@ -929,13 +929,13 @@ int BCModel::PrintAllMarginalized(const char * filebase)
 
 	if(filebase[0]=='\0')
 	{
-		cout<<"Autonaming: "<<Form("prob_%s-",this->GetName().data())<<endl;
+//		cout<<"Autonaming: "<<Form("prob_%s-",this->GetName().data())<<endl;
 		n += this->PrintAllMarginalized1D(Form("prob_%s-",this->GetName().data()));
 		n += this->PrintAllMarginalized2D(Form("prob_%s-",this->GetName().data()));
 	}
 	else
 	{
-		cout<<"Naming: "<<filebase<<endl;
+//		cout<<"Naming: "<<filebase<<endl;
 		n += this->PrintAllMarginalized1D(filebase);
 		n += this->PrintAllMarginalized2D(filebase);
 	}
