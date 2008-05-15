@@ -1806,8 +1806,23 @@ int BCEngineMCMC::MCMCMetropolis()
 // 		for (int j = 0; j < fMCMCNChains; ++j)
 // 			efficiency.push_back(0.0);
 
+	int nwrite = fMCMCNIterationsRun/10;
+	if(nwrite < 100)
+		nwrite=100;
+	else if(nwrite < 500)
+		nwrite=1000;
+	else if(nwrite < 10000)
+		nwrite=1000;
+	else
+		nwrite=10000;
+
 	for (int iiterations = 0; iiterations < fMCMCNIterationsRun; ++iiterations)
 	{
+
+		if ( (iiterations+1)%nwrite == 0 )
+			BCLog::Out(BCLog::detail, BCLog::detail,
+				Form(" --> iteration number %i (%.2f%%)", iiterations+1, (double)(iiterations+1)/(double)fMCMCNIterationsRun*100.));
+
 		// loop over parameters
 
 		for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)

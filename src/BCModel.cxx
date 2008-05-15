@@ -1941,6 +1941,22 @@ BCH1D * BCModel::DoGoodnessOfFitTest(const char * filename)
 
 // --------------------------------------------------------- 
 
+double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
+{
+	double ll = this -> LogLikelihood(par);
+	int n = this -> GetNDataPoints();
+
+	double sum_sigma=0;
+	for (int i=0;i<n;i++)
+		sum_sigma += log(this -> GetDataPoint(i) -> GetValue(sigma_index));
+
+	double chi2 = -2.*(ll + (double)n/2. * log(2.*TMath::Pi()) + sum_sigma);
+
+	return TMath::Prob(chi2,n);
+}
+
+// --------------------------------------------------------- 
+
 void BCModel::CorrelateDataPointValues(vector<double> &x) 
 {
   

@@ -157,7 +157,7 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 				min = this -> GetQuantile(.16);
 				max = this -> GetQuantile(.84);
 
-/*
+
 //				if ( thismode > max || fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
 				if ( fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
 				{
@@ -172,7 +172,7 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 					max = this -> GetQuantile((double)fDefaultCLLimit/100.);
 					ovalue = -fDefaultCLLimit;
 				}
-*/			}
+			}
 
 			else if(ovalue < 0)
 			{

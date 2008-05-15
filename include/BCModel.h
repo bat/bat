@@ -610,7 +610,7 @@ class BCModel : public BCIntegrate
 	 * @see CreateData(int ndatasets, std::vector <double> parameters)
 	 * @see CreateDataGrid(int ndatasets, std::vector <double> parameters, std::vector <bool> grid, std::vector <double> limits)
 	 * @see GoodnessOfFitTest(const char * filenname, std::vector <double> parameters)
- */ 
+	 */ 
 	BCH1D * DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits);
 	BCH1D * DoGoodnessOfFitTest(int ndatasets, std::vector<double> parameters);
 	BCH1D * DoGoodnessOfFitTest(int ndatasets);
@@ -618,6 +618,14 @@ class BCModel : public BCIntegrate
 	BCH1D * DoGoodnessOfFitTest(const char * filename, std::vector<double> parameters); 
 	BCH1D * DoGoodnessOfFitTestROOT(int ndatasets, std::vector<double> parameters, std::vector <bool> grid, std::vector <double> limits);
 	BCH1D * GoodnessOfFitTestROOT(int ndatasets, const char * filename, std::vector <double> parameters); 
+
+	/**
+	 * Calculate p-value from Chi2 distribution for Gaussian problems
+	 * @param par Parameter set for the calculation of the likelihood
+	 * @param sigma_index Index of the sigma/uncertainty for the data points
+	 *        (for data in format "x y erry" the index would be 2) 
+	 */
+	double GetPvalueFromChi2(std::vector<double> par, int sigma_index);
 
 	/*
 	 * @return The p-value 
