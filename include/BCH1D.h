@@ -212,8 +212,7 @@ class BCH1D
 	 */
 	void GetSmallestInterval(double & min, double & max, double content=.68);
 
-	TH1D * BCH1D::GetSmallestIntervalHistogram(double level); 
-
+	TH1D * GetSmallestIntervalHistogram(double level);
 
 	/**
 	 * Calculate integral of the distribution between min and max.
