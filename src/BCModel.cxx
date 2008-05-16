@@ -1640,7 +1640,16 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
 	double likelihood = this -> Likelihood(parameters); 
 	// double fPValue =  probability -> GetIntegral(log10(likelihood), 0.0); 
-	fPValue =  probability -> GetPValue(log10(likelihood)); 
+	// debug
+	//	fPValue =  probability -> GetPValue(log10(likelihood)); 
+
+	int sumleft = 0; 
+
+	for (int i = 0; i < likelihoodcontainer.size(); ++i)
+		if (likelihoodcontainer.at(i) < log10(likelihood))
+			sumleft++; 
+
+	fPValue = double(sumleft) / double(likelihoodcontainer.size()); 
 
 	std::cout << std::endl; 
 	std::cout << " Goodness-of-fit : " << std::endl; 
@@ -1780,7 +1789,16 @@ BCH1D * BCModel::GoodnessOfFitTestROOT(int ntrees, const char * filename, std::v
 
 	double likelihood = this -> Likelihood(parameters); 
 	// double fPValue =  probability -> GetIntegral(log10(likelihood), 0.0); 
-	fPValue =  probability -> GetPValue(log10(likelihood)); 
+	// debug
+	//	fPValue =  probability -> GetPValue(log10(likelihood)); 
+
+	int sumleft = 0; 
+
+	for (int i = 0; i < likelihoodcontainer.size(); ++i)
+		if (likelihoodcontainer.at(i) < log10(likelihood))
+			sumleft++; 
+
+	fPValue = double(sumleft) / double(likelihoodcontainer.size()); 
 
 	std::cout << std::endl; 
 	std::cout << " Goodness-of-fit : " << std::endl; 
