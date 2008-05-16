@@ -226,6 +226,8 @@ class BCModel : public BCIntegrate
 	TH2D * GetErrorBandXY()
 		{ return fErrorBandXY; }; 
 
+	TH2D * GetErrorBandXY_yellow(double level); 
+
 	/**
 	 * Returns a vector of y-values at a certain probability level. 
 	 * @param level The level of probability
