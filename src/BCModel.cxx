@@ -181,6 +181,44 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 // --------------------------------------------------------- 
 
+TH2D * BCModel::GetErrorBandXY_yellow(double level)
+{
+
+	if (!fErrorBandXY) 
+		return 0; 
+	
+	int nx = fErrorBandXY -> GetNbinsX(); 
+	int ny = fErrorBandXY -> GetNbinsY(); 
+
+	// copy existing histogram 
+
+	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(); 
+	hist_tempxy -> Reset(); 
+	hist_tempxy -> SetFillColor(kYellow); 
+
+	// loop over x bins 
+
+	for (int ix = 1; ix < nx; ix++) 
+		{
+			BCH1D * hist_temp = new BCH1D(); 
+
+			hist_temp -> SetHistogram(fErrorBandXY -> ProjectionY("temphist", ix, ix)); 
+
+			TH1D * hist_temp_yellow = hist_temp -> GetSmallestIntervalHistogram(level);
+
+			for (int iy = 1; iy <= ny; ++iy)
+				hist_tempxy -> SetBinContent(ix, iy, hist_temp_yellow -> GetBinContent(iy)); 
+
+			delete hist_temp_yellow; 
+			delete hist_temp; 
+		}
+			
+	return hist_tempxy;
+
+}
+
+// --------------------------------------------------------- 
+
 TGraph * BCModel::GetErrorBandGraph(double level1, double level2) 
 {
 	
@@ -525,7 +563,8 @@ double BCModel::EvalSampling(std::vector <double> parameters)
 void BCModel::CalculateErrorBandXY(int nx, double xmin, double xmax, int ny, double ymin, double ymax, int niter)
 {
 
-	// calculate number of elements in the Markov chain if set negative or zero 
+	// calculate number of elements in the Markov chain if set negative
+	// or zero
 	
 	if (niter <= 0) 
 		niter = fNbins * fNbins * fNSamplesPer2DBin * fNvar;
@@ -1645,7 +1684,7 @@ BCH1D * BCModel::GoodnessOfFitTest(const char * filename, std::vector <double> p
 
 	int sumleft = 0; 
 
-	for (int i = 0; i < likelihoodcontainer.size(); ++i)
+	for (int i = 0; i < int(likelihoodcontainer.size()); ++i)
 		if (likelihoodcontainer.at(i) < log10(likelihood))
 			sumleft++; 
 
@@ -1794,7 +1833,7 @@ BCH1D * BCModel::GoodnessOfFitTestROOT(int ntrees, const char * filename, std::v
 
 	int sumleft = 0; 
 
-	for (int i = 0; i < likelihoodcontainer.size(); ++i)
+	for (int i = 0; i < int(likelihoodcontainer.size()); ++i)
 		if (likelihoodcontainer.at(i) < log10(likelihood))
 			sumleft++; 
 

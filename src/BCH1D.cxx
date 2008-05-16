@@ -551,3 +551,62 @@ TH1D * BCH1D::GetSubHisto(double min, double max, const char * name)
 }
 
 // ---------------------------------------------------------
+
+TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
+{
+
+	// create a new histogram which will be returned and all yellow
+
+	TH1D * hist_yellow = (TH1D*) fHistogram -> Clone(); 
+	hist_yellow -> Reset(); 
+	hist_yellow -> SetFillStyle(1001); 
+	hist_yellow -> SetFillColor(kYellow); 
+
+	// copy a temporary histogram 
+
+	TH1D * hist_temp = (TH1D*) fHistogram -> Clone(); 
+	double factor = hist_temp -> Integral("");
+
+	if(factor == 0)
+		return 0;
+
+	hist_temp -> Scale(1.0 / factor); 
+
+	// here's the algorithm: 
+	// 1. find the maximum bin in the temporary histogram and copy it to
+	// the yellow histogram. 
+	// 2. remove this bin from the temporary histogram.
+	// 3. repeat this until a total of "level" probability is copied to
+	// the yellow histogram. 
+	
+	double sumprob = 0.0; 
+
+	while (sumprob < level) 
+		{
+			// find maximum bin and value 
+
+			int bin = hist_temp -> GetMaximumBin(); 
+			double value = hist_temp -> GetMaximum(); 
+
+			// copy "1" into the corresponding bin in the yellow histogram
+			
+			hist_yellow -> SetBinContent(bin, 1.0); 
+
+			// set the bin value in the temporary histogram to zero
+
+			hist_temp -> SetBinContent(bin, 0.0); 
+
+			// increase probability sum 
+
+			sumprob += value; 
+		}
+
+	// delete the temporary histogram 
+
+	delete hist_temp; 
+
+	return hist_yellow; 
+
+}
+
+// ---------------------------------------------------------
