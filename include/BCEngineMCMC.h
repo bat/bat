@@ -288,8 +288,17 @@ class BCEngineMCMC
 	/*
 	 * Returns the r-value criterion 
 	 */ 
+	double MCMCGetRValueParametersCriterion()
+	{ return fMCMCRValueParametersCriterion; }; 
+
+	/*
+	 * Returns the r-value 
+	 */ 
 	double MCMCGetRValue()
 	{ return fMCMCRValue; }; 
+
+	double MCMCGetRValueParameters(int i)
+	{ return fMCMCRValueParameters.at(i); }; 
 
 //	/*
 //	 * Returns the relative precision for the estimate of the mode 
@@ -437,6 +446,12 @@ class BCEngineMCMC
 	 */ 
 	void MCMCSetRValueCriterion(double r)
 	{ fMCMCRValueCriterion = r; }; 
+
+	/*
+	 * Sets the R-value criterion for convergence of all chains 
+	 */ 
+	void MCMCSetRValueParametersCriterion(double r)
+	{ fMCMCRValueParametersCriterion = r; }; 
 
 //	/*
 //	 * Sets the relative precision for the estimate of the mode
@@ -797,6 +812,13 @@ class BCEngineMCMC
 	std::vector <double> fMCMCSum; 
 	std::vector <double> fMCMCSum2; 
 
+	/* 
+	 * The mean and variance of all parameters of each Markov chain. The
+	 * length of the vectors is equal to fMCMCNChains * fMCMCNParameters.
+	 */ 
+	std::vector <double> fMCMCMeanx; 
+	std::vector <double> fMCMCVariancex; 
+
 	/*
 	 * Flag to automatically calculate the number of iterations of a
 	 * Markov chain. 
@@ -888,10 +910,14 @@ class BCEngineMCMC
 	 */ 
 	double fMCMCRValueCriterion; 
 
+	double fMCMCRValueParametersCriterion; 
+
 	/*
 	 * The R-value at which the chains did converge 
 	 */ 
 	double fMCMCRValue; 
+
+	std::vector <double> fMCMCRValueParameters; 
 
 	/*
 	 * The relative precision for the convergence of the modes of
