@@ -20,6 +20,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCTrialFunctionScale   = 1.0;
 	fMCMCFlagInitialPosition  = 1;
 	fMCMCRValueCriterion      = 0.1;
+	fMCMCRValueParametersCriterion = 0.1;
 	fMCMCNIterationsConvergenceGlobal = -1;
 	fMCMCFlagConvergenceGlobal = false;
 	fMCMCRValue               = 100;
@@ -1084,56 +1085,124 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 {
 
-  if (fMCMCNChains > 1)
-    {  
-      double sum = 0; 
-      double sum2 = 0; 
-      double sumv = 0; 
-      
-      // loop over chains 
-      
-      for (int i = 0; i < fMCMCNChains; ++i)
-				{
-					// calculate number of entries in this part of the chain 
+ 	// calculate number of entries in this part of the chain 
 
-					int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
+ 	int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
+
+	if (fMCMCNChains > 1 && npoints > 1)
+		{
+			
+      // define flag for convergence 
+      
+      bool flag_convergence = true; 
+      
+      // loop over parameters 
+      
+      for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
+				{
+					double sum = 0; 
+					double sum2 = 0; 
+					double sumv = 0; 
 					
-					// calculate mean value of each chain for this part 
+					// loop over chains 
 					
-					fMCMCMean[i] += (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints); 
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+						{
+							int index = ichains * fMCMCNParameters + iparameters; 
+
+							// calculate mean value of each parameter in the chain for this part 
+							
+ 							fMCMCMeanx[index] += (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints); 	
+
+							//							cout << " " << (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints) << endl; 
+							
+ 							// calculate variance of each chain for this part 
+							
+							fMCMCVariancex[index] = (1.0 - 1/double(npoints)) * fMCMCVariancex[index] 
+								+ (fMCMCx[index] - fMCMCMeanx[index]) * (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints - 1); 
+							
+							sum  += fMCMCMeanx[index]; 
+							sum2 += fMCMCMeanx[index] * fMCMCMeanx[index]; 
+							sumv += fMCMCVariancex[index]; 
+ 						}
 					
-					// calculate variance of each chain for this part 
+					// calculate r-value of each parameter for this part 
 					
-					if (npoints > 1) 
-						fMCMCVariance[i] = (1.0 - 1/double(npoints)) * fMCMCVariance[i] 
-							+ (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints - 1); 
+					double mean            = sum / double(fMCMCNChains); 
+					double varianceofmeans = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints); 
+					double meanofvariance  = sumv * double(npoints) / double(npoints-1) / double(fMCMCNChains); 
 					
-					sum  += fMCMCMean[i]; 
-					sum2 += fMCMCMean[i] * fMCMCMean[i]; ; 
-					sumv += fMCMCVariance[i]; 
+					double r = 100.0; 
+					
+					if (meanofvariance > 0)
+						{
+							r = sqrt( ( (1-1/double(npoints)) * meanofvariance + 1/double(npoints) * varianceofmeans ) / meanofvariance); 
+							fMCMCRValueParameters[iparameters] = r; 
+						}
+					
+					//					cout << iparameters << " " << r << endl; 
+					
+					if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
+						flag_convergence = false; 
 				}
       
-      // calculate r-value for this part of the chain 
+      // remember number of iterations needed to converge 
       
-      double mean            = sum / double(fMCMCNChains); 
-      double varianceofmeans = sum2 / double(fMCMCNChains) - mean * mean; 
-      double meanofvariance  = sumv / double(fMCMCNChains); 
-
-      if (meanofvariance > 0)
-				fMCMCRValue = varianceofmeans / meanofvariance; 
-
-			// remember number of iterations needed to converge 
-      
-      if (fMCMCNIterationsConvergenceGlobal == -1 && fMCMCRValue < fMCMCRValueCriterion)
+			if (fMCMCNIterationsConvergenceGlobal == -1 && flag_convergence == true)
 				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters; 
+		}
+  
 
-			// fill a histogram 
+//   if (fMCMCNChains > 1)
+//     {  
+//       double sum = 0; 
+//       double sum2 = 0; 
+//       double sumv = 0; 
       
-      int dn = int(double(fMCMCNIterationsMax) / 100.0); 
+//       // loop over chains 
       
-      if (fMCMCNIterations[0] % dn == 0)
-				fMCMCH1RValue -> SetBinContent(fMCMCNIterations[0] / dn + 1, log(fMCMCRValue)); 
-    }
+//       for (int i = 0; i < fMCMCNChains; ++i)
+// 				{
+// 					// calculate number of entries in this part of the chain 
+
+// 					int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
+					
+// 					// calculate mean value of each chain for this part 
+					
+// 					fMCMCMean[i] += (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints); 
+					
+// 					// calculate variance of each chain for this part 
+					
+// 					if (npoints > 1) 
+// 						fMCMCVariance[i] = (1.0 - 1/double(npoints)) * fMCMCVariance[i] 
+// 							+ (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints - 1); 
+					
+// 					sum  += fMCMCMean[i]; 
+// 					sum2 += fMCMCMean[i] * fMCMCMean[i]; ; 
+// 					sumv += fMCMCVariance[i]; 
+// 				}
+      
+//       // calculate r-value for this part of the chain 
+      
+//       double mean            = sum / double(fMCMCNChains); 
+//       double varianceofmeans = sum2 / double(fMCMCNChains) - mean * mean; 
+//       double meanofvariance  = sumv / double(fMCMCNChains); 
+
+//       if (meanofvariance > 0)
+// 				fMCMCRValue = varianceofmeans / meanofvariance; 
+
+// 			// remember number of iterations needed to converge 
+      
+//       if (fMCMCNIterationsConvergenceGlobal == -1 && fMCMCRValue < fMCMCRValueCriterion)
+// 				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters; 
+
+// 			// fill a histogram 
+      
+//       int dn = int(double(fMCMCNIterationsMax) / 100.0); 
+      
+//       if (fMCMCNIterations[0] % dn == 0)
+// 				fMCMCH1RValue -> SetBinContent(fMCMCNIterations[0] / dn + 1, log(fMCMCRValue)); 
+
 	
 }
 
@@ -1544,7 +1613,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					// prompt status 
 
 					BCLog::Out(BCLog::detail, BCLog::detail, Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters)); 
-					BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> R-Value is %2lf. ", fMCMCRValue)); 
+
+					for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
+						BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> R-Value for parameter %i is %2lf. ", iparameter, fMCMCRValueParameters.at(iparameter))); 
+
 					// set flag
 
 					flagefficiency = true; 
@@ -2255,8 +2327,8 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCTrialFunctionScaleFactor.clear();
 	fMCMCMean.clear();
 	fMCMCVariance.clear();
-	fMCMCSum.clear();
-	fMCMCSum2.clear();
+	fMCMCMeanx.clear();
+	fMCMCVariancex.clear();
 	fMCMCx.clear();
 	fMCMCLogProbx.clear();
 	fMCMCMaximumPoints.clear();
@@ -2266,6 +2338,8 @@ int BCEngineMCMC::MCMCInitialize()
 
 	fMCMCNIterationsConvergenceGlobal = -1;
 	fMCMCFlagConvergenceGlobal = false;
+
+	fMCMCRValueParameters.clear(); 
 
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
 		if (fMCMCH1Marginalized[i])
@@ -2300,7 +2374,11 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCNTrialsTrue.assign(fMCMCNChains * fMCMCNParameters, 0);
 	fMCMCNTrialsFalse.assign(fMCMCNChains * fMCMCNParameters, 0);
 	fMCMCMaximumPoints.assign(fMCMCNChains * fMCMCNParameters, 0.0); 
+	fMCMCMeanx.assign(fMCMCNChains * fMCMCNParameters, 0);
+	fMCMCVariancex.assign(fMCMCNChains * fMCMCNParameters, 0); 
 	
+	fMCMCRValueParameters.assign(fMCMCNParameters, 0.0); 
+
 	if (fMCMCTrialFunctionScaleFactorStart.size() == 0)
 		fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains * fMCMCNParameters, 1.0);
 	else
