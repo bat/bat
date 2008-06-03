@@ -748,6 +748,11 @@ class BCEngineMCMC
 	 */  
 	int fMCMCNIterationsRun; 
 
+	/*
+	 * Minimum number of iterations for the pre-run. 
+	 */  
+	int fMCMCNIterationsPreRunMin; 
+
 	/* 
 	 * Number of iterations for burn-in. These iterations are not
 	 * included in fMCMCNIterations. 

@@ -16,6 +16,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCNIterationsRun       = 100000;
 	fMCMCNIterationsBurnIn    = 0;
 	fMCMCNIterationsPCA       = 10000;
+	fMCMCNIterationsPreRunMin = 1000; 
 	fMCMCFlagIterationsAuto   = false;
 	fMCMCTrialFunctionScale   = 1.0;
 	fMCMCFlagInitialPosition  = 1;
@@ -1089,6 +1090,13 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 
  	int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
 
+	if (npoints < fMCMCNIterationsPreRunMin) 
+		{
+			fMCMCNIterationsConvergenceGlobal = -1;
+
+			return; 
+		}
+
 	if (fMCMCNChains > 1 && npoints > 1)
 		{
 			
@@ -1138,6 +1146,8 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 						{
 							r = sqrt( ( (1-1/double(npoints)) * meanofvariance + 1/double(npoints) * varianceofmeans ) / meanofvariance); 
 							fMCMCRValueParameters[iparameters] = r; 
+							// debug 
+							//							cout << npoints << " " << r << endl; 
 						}
 					
 					//					cout << iparameters << " " << r << endl; 
@@ -1550,15 +1560,13 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		for (int j = 0; j < fMCMCNChains; ++j)
 			efficiency.push_back(0.0); 
 
-	int niterationsmin = 100; 
-
 	if (fMCMCFlagPCA)
 		{
-			niterationsmin = fMCMCNIterationsPCA; 
+			fMCMCNIterationsPreRunMin = fMCMCNIterationsPCA; 
 			fMCMCNIterationsMax = fMCMCNIterationsPCA;
 		}
 
-  while (counter < niterationsmin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
+  while (counter < fMCMCNIterationsPreRunMin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
     {
       // loop over parameters 
 			
