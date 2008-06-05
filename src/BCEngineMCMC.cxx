@@ -1553,6 +1553,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	while (counter < fMCMCNIterationsPreRunMin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
 	{
 
+		// set convergence to false by default 
+
+		convergence = false; 
+
 		// loop over parameters
 		for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
 		{
