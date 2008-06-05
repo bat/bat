@@ -18,12 +18,12 @@
 #ifndef __BCMODELOUTPUT__H
 #define __BCMODELOUTPUT__H
 
-const int MAXNPARAMETERS = 20; 
+const int MAXNPARAMETERS = 20;
 
 #include "BCModel.h"
 
-#include "TTree.h"
-#include "TFile.h" 
+#include <TTree.h>
+#include <TFile.h>
 
 // --------------------------------------------------------- 
 

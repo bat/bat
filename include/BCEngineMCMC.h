@@ -19,7 +19,9 @@
 
 // ---------------------------------------------------------
 
-#include <iostream.h>
+#include <iostream>
+#include <vector>
+
 #include <math.h>
 
 #include <TH1D.h>
@@ -28,7 +30,6 @@
 #include <TRandom3.h>
 #include <TPrincipal.h>
 
-#include <vector.h>
 
 // ---------------------------------------------------------
 

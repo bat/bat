@@ -23,7 +23,7 @@
 #ifndef __BCDATASET__H
 #define __BCDATASET__H
 
-#include <vector.h> 
+#include <vector>
 
 #include "BCDataPoint.h" 
 

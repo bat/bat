@@ -34,22 +34,22 @@
 
 // ---------------------------------------------------------
 
-#include <iostream.h>
+#include <iostream>
+#include <vector>
+
 #include <math.h>
 
-#include <vector.h>
-
 #include <TROOT.h>
-#include <TRandom3.h> 
+#include <TRandom3.h>
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TMinuit.h> 
-#include <TTree.h> 
+#include <TMinuit.h>
+#include <TTree.h>
 
 #include "BCMath.h"
 #include "BCParameter.h"
-#include "BCDataPoint.h" 
-#include "BCEngineMCMC.h" 
+#include "BCDataPoint.h"
+#include "BCEngineMCMC.h"
 
 #define DEBUG 0
 

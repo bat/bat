@@ -4,32 +4,32 @@
  * A namespace which encapsulates some mathematical functions
  * necessary for BAT.
  *
- * --------------------------------------------------------- 
+ * ---------------------------------------------------------
  *
  * AUTHOR:  D. Kollar
  *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
+ * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de,
+ *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de
  *
  * CREATED: 03.08.2007 by Dano
- * 
- * REVISION: 
+ *
+ * REVISION:
  *
  *  08.08.2007  Dano  * added functions for binomial distributions and factorials\n
- *  24.08.2007  Kevin * added min and max functions for int and double. 
- *                      removed TMath dependence. 
+ *  24.08.2007  Kevin * added min and max functions for int and double.
+ *                      removed TMath dependence.
  *
- * --------------------------------------------------------- 
- */ 
+ * ---------------------------------------------------------
+ */
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCMATH__H
 #define __BCMATH__H
 
 #include <math.h>
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 namespace BCMath
 {
@@ -41,6 +41,11 @@ namespace BCMath
 	 * sqrt(2*Pi)*sigma.
 	 */
 	double LogGaus(double x, double mean = 0, double sigma = 1, bool norm = false);
+
+	/**
+	 * Calculate the natural logarithm of a poisson distribution.
+	 */
+	double LogPoisson(double x, double par);
 
 	/**
 	 * Calculates Binomial probability using approximations for

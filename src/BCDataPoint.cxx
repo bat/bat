@@ -13,43 +13,40 @@ BCDataPoint::BCDataPoint(int nvariables)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-BCDataPoint::BCDataPoint(vector<double> x)
+BCDataPoint::BCDataPoint(std::vector<double> x)
 {
 
-	// copy all values of x to the data point 
-
+	// copy all values of x to the data point
 	for (std::vector<double>::const_iterator it = x.begin(); it != x.end(); ++it)
-		fData.push_back(*it); 
+		fData.push_back(*it);
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 BCDataPoint::~BCDataPoint()
 {
 	
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-double BCDataPoint::GetValue(int index) 
+double BCDataPoint::GetValue(int index)
 {
 
-	double value = -1.0; 
+	double value = -1.0;
 
-	// check if index is in range. return value if true ... 
-
+	// check if index is in range. return value if true ...
 	if (index >= 0 && index < int(fData.size()))
-		value = fData[index]; 
+		value = fData[index];
 
-	// ... or give warning if not. 
-
-	else 
+	// ... or give warning if not.
+	else
 		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataPoint::GetValue. Index out of range.");
 
-	return value; 
+	return value;
 
 }
 

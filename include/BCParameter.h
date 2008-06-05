@@ -16,7 +16,9 @@
 #ifndef __BCPARAMETER__H
 #define __BCPARAMETER__H
 
-#include <vector.h>
+#include <string>
+#include <vector>
+//#include <vector.h>
 
 // --------------------------------------------------------- 
 

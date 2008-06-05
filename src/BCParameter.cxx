@@ -1,3 +1,7 @@
+
+#include <iostream>
+#include <fstream>
+
 #include "BCParameter.h" 
 
 // --------------------------------------------------------- 
@@ -58,19 +62,19 @@ BCParameter::~BCParameter()
 void BCParameter::PrintSummary()
 {
 
-	cout
-		<<"       > Parameter   : "<< fName <<endl
-		<<"         Index       : "<< fIndex <<endl
-		<<"         Lower Limit : "<< fLowerLimit <<endl
-		<<"         Upper Limit : "<< fUpperLimit <<endl
+	std::cout
+		<<"       > Parameter   : "<< fName << std::endl
+		<<"         Index       : "<< fIndex << std::endl
+		<<"         Lower Limit : "<< fLowerLimit << std::endl
+		<<"         Upper Limit : "<< fUpperLimit << std::endl
 		<<"         Nuisance    : ";
 
 	if(fNuisance)
-		cout<<"Yes"<<endl; 
+		std::cout<<"Yes"<<std::endl; 
 	else
-		cout<<"No"<<endl; 
+		std::cout<<"No"<<std::endl; 
 
-	cout << endl;
+	std::cout << std::endl;
 
 }
 

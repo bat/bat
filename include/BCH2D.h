@@ -27,12 +27,13 @@
 #ifndef __BCH2D__H
 #define __BCH2D__H
 
-#include <vector.h> 
+#include <vector>
 
-#include <TH1D.h> 
-#include <TH2D.h> 
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TGraph.h>
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 class BCH2D
 {
@@ -79,11 +80,18 @@ class BCH2D
 
 	// methods 
 
-	/** 
-	 * Print 2-d histogram to file 
-	 * @param filename The filename 
-	 */ 
+	/**
+	 * Print 2-d histogram to file
+	 * @param filename The filename
+	 * For explanation of the parameter options see the Draw() method.
+	 */
 	void Print(const char * filename, int options=0);
+
+	/**
+	 * Draw 2-d distribution into the active canvas
+	 * @param options explanation to come
+	 */
+	void Draw(int options=0);
 
 	/*
 	 * Calculates the integral of the distribution as a function of the
@@ -94,11 +102,29 @@ class BCH2D
 	/*
 	 * Calculates the height below which the integrated probability has
 	 * a certain value.
-	 * @param p The integrated probability in the region below the height to be estimated. 
-	 */ 
-	double GetLevel(double p); 
-  
- private: 
+	 * @param p The integrated probability in the region below the height to be estimated.
+	 */
+	double GetLevel(double p);
+
+	/**
+	 *
+	 */
+	std::vector <int> GetNIntervalsY(TH2D * h, int &nfoundmax);
+
+	/**
+	 *
+	 */
+	TGraph * GetLowestBandGraph(TH2D * h, std::vector<int> nint);
+	TGraph * GetLowestBandGraph(TH2D * h);
+
+
+	std::vector <double> GetLevelBoundary(TH2D * h, double level);
+	TGraph * GetBandGraph(TH2D * h , double level1, double level2);
+
+	TGraph ** GetBandGraphs(TH2D * h);
+	TGraph ** GetBandGraphs(TH2D * h, int &n);
+
+ private:
 
 	/** 
 	 * The 2-d histogram

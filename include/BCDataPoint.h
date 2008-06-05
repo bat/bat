@@ -27,7 +27,7 @@
 #ifndef __BCDATAPOINT__H
 #define __BCDATAPOINT__H
 
-#include <vector.h> 
+#include <vector>
 
 // --------------------------------------------------------- 
 
@@ -48,7 +48,7 @@ class BCDataPoint
 	 * A constructor. 
 	 * @param x The vector containing the data
 	 */ 
-	BCDataPoint(vector<double> x); 
+	BCDataPoint(std::vector<double> x); 
 
 	/** 
 	 * A destructor. 

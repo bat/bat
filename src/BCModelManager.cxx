@@ -1,10 +1,10 @@
-#include "BCModelManager.h" 
-#include "BCLog.h" 
+#include "BCModelManager.h"
+#include "BCLog.h"
 #include "BCErrorCodes.h"
 
-#include <fstream.h>
+#include <fstream>
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 BCModelManager::BCModelManager()
 {
@@ -537,7 +537,7 @@ void BCModelManager::PrintSummary(const char * file)
 		out.open(file);
 		if (!out.is_open())
 		{
-			cerr<<"Couldn't open file "<<file<<endl;
+			std::cerr<<"Couldn't open file "<<file<<std::endl;
 			return;
 		}
 		old_buffer = std::cout.rdbuf(out.rdbuf());
@@ -545,60 +545,60 @@ void BCModelManager::PrintSummary(const char * file)
 
 	// model summary
 	int nmodels = int(fModelContainer -> size());
-	cout
-		<<endl
-		<<"======================================"<<endl
-		<<" Summary"<<endl
-		<<"======================================"<<endl
-		<<endl
-		<<" Number of models               : "<<nmodels<<endl
-		<<endl
-		<<" - Models:"<<endl;
+	std::cout
+		<<std::endl
+		<<"======================================"<<std::endl
+		<<" Summary"<<std::endl
+		<<"======================================"<<std::endl
+		<<std::endl
+		<<" Number of models               : "<<nmodels<<std::endl
+		<<std::endl
+		<<" - Models:"<<std::endl;
 
 	for (int i = 0; i < nmodels; i++)
 		fModelContainer -> at(i) -> PrintSummary();
 
 	// data summary
-	cout
-		<<" - Data:"<<endl
-		<<endl
-		<<"     Number of entries: "<<fDataSet -> GetNDataPoints()<<endl
-		<<endl;
+	std::cout
+		<<" - Data:"<<std::endl
+		<<std::endl
+		<<"     Number of entries: "<<fDataSet -> GetNDataPoints()<<std::endl
+		<<std::endl;
 
-	cout
-		<<"======================================"<<endl
-		<<" Model comparison"<<endl
-		<<endl;
+	std::cout
+		<<"======================================"<<std::endl
+		<<" Model comparison"<<std::endl
+		<<std::endl;
 
 	// probability summary
-	cout
-		<<" - A priori probabilities:"<<endl
-		<<endl;
+	std::cout
+		<<" - A priori probabilities:"<<std::endl
+		<<std::endl;
   
 	for (int i=0; i<nmodels; i++)
-		cout
+		std::cout
 			<<"     p("<< fModelContainer -> at(i) -> GetName()
 			<<") = "<< fModelContainer -> at(i) -> GetModelAPrioriProbability()
-			<<endl;
-	cout<<endl;
+			<<std::endl;
+	std::cout<<std::endl;
 
-	cout
-		<<" - A posteriori probabilities:"<<endl
-		<<endl;
+	std::cout
+		<<" - A posteriori probabilities:"<<std::endl
+		<<std::endl;
 
 	for (int i = 0; i < nmodels; i++)
-		cout
+		std::cout
 			<<"     p("<< fModelContainer -> at(i) -> GetName()
 			<<"|data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
-			<<endl;
-	cout<<endl;
+			<<std::endl;
+	std::cout<<std::endl;
 
-	cout
-		<<"======================================"<<endl
-		<<endl;
+	std::cout
+		<<"======================================"<<std::endl
+		<<std::endl;
 
 	if (file)
-		cout.rdbuf(old_buffer);
+		std::cout.rdbuf(old_buffer);
 
 }
 

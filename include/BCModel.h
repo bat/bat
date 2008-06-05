@@ -43,20 +43,24 @@
 #ifndef __BCMODEL__H
 #define __BCMODEL__H
 
-#include <vector.h>
-#include <string.h> 
+//#include <vector.h>
+//#include <string.h>
+#include <vector>
+#include <string>
 
 #include <TROOT.h>
-#include <TGraph.h> 
+#include <TGraph.h>
+#include <TCanvas.h>
+#include <TPostScript.h>
 
-#include "BCDataPoint.h" 
-#include "BCDataSet.h" 
-#include "BCParameter.h" 
-#include "BCH1D.h" 
-#include "BCH2D.h" 
+#include "BCDataPoint.h"
+#include "BCDataSet.h"
+#include "BCParameter.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
 #include "BCIntegrate.h"
 
-const int MAXNDATAPOINTVALUES = 20; 
+const int MAXNDATAPOINTVALUES = 20;
 
 // --------------------------------------------------------- 
 
@@ -501,6 +505,16 @@ class BCModel : public BCIntegrate
 //	void FindMode(int flag = 0);
 
 	/**
+	 * Write mode into file
+	 */
+	void WriteMode(const char * file);
+
+	/**
+	 * Read mode from file created by WriteMode() call
+	 */
+	int ReadMode(const char * file);
+
+	/**
 	 * Marginalizes the a posteriori probability with respect to a parameter.
 	 * @param parameter A model parameter
 	 * @return 1D marginalized probability
@@ -557,7 +571,7 @@ class BCModel : public BCIntegrate
 	 */
 	int PrintAllMarginalized1D(const char * filebase);
 	int PrintAllMarginalized2D(const char * filebase);
-	int PrintAllMarginalized(const char * filebase="");
+	int PrintAllMarginalized(const char * file, int hdiv=1, int ndiv=1);
 
 	/**
 	 * Creates data sets given a set of parameters. 
@@ -589,7 +603,7 @@ class BCModel : public BCIntegrate
 	 * Constrains a data point
 	 * @param x A vector of double
 	 */
-	virtual void CorrelateDataPointValues(vector<double> &x);
+	virtual void CorrelateDataPointValues(std::vector<double> &x);
 
 	/** 
 	 * Goodness-of-fit test. 

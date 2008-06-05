@@ -24,7 +24,7 @@
 #define __BCLOG__H
 
 #include <iostream>
-#include <fstream> 
+#include <fstream>
 
 #include <TROOT.h>
 #include <TError.h>

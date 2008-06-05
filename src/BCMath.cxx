@@ -1,6 +1,8 @@
 #include "BCMath.h"
 
-// --------------------------------------------------------- 
+#include <TMath.h>
+
+// ---------------------------------------------------------
 
 double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 {
@@ -29,7 +31,24 @@ double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
+
+double BCMath::LogPoisson(double x, double par)
+{
+	if (par > 899)
+		return BCMath::LogGaus(x,par,sqrt(par),true);
+
+	if (x<0)
+		return 0;
+
+	if (x == 0.)
+		return  -par;
+
+//	return x*log(par)-par-TMath::LnGamma(x+1.);
+	return x*log(par)-par-BCMath::ApproxLogFact(x);
+}
+
+// ---------------------------------------------------------
 
 double BCMath::ApproxBinomial(int n, int k, double p)
 {
@@ -38,7 +57,7 @@ double BCMath::ApproxBinomial(int n, int k, double p)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 double BCMath::LogApproxBinomial(int n, int k, double p)
 {
@@ -56,7 +75,7 @@ double BCMath::LogApproxBinomial(int n, int k, double p)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 double BCMath::LogBinomFactor(int n, int k)
 {
@@ -87,7 +106,8 @@ double BCMath::LogBinomFactor(int n, int k)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
+
 double BCMath::ApproxLogFact(double x)
 {
 
@@ -101,19 +121,19 @@ double BCMath::ApproxLogFact(double x)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 double BCMath::LogFact(int n)
 {
 
 	double ln = 0.;
 
-	for(int i=1;i<n;i++)
+	for(int i=1;i<=n;i++)
 		ln += log((double)i);
 
 	return ln;
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 double BCMath::LogNoverK(int n, int k)
 {
@@ -143,52 +163,52 @@ double BCMath::LogNoverK(int n, int k)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 int BCMath::Nint(double x)
 {
-  
-	// round to integer 
+
+	// round to integer
 
 	int i;
 
-	if (x >= 0) 
-		{
-			i = int(x + 0.5);
+	if (x >= 0)
+	{
+		i = (int)(x + .5);
 
-			if (x + 0.5 == double(i) && i & 1) 
-				i--;
-		} 
+		if (x + .5 == (double)i && i & 1)
+			i--;
+	}
 
-	else 
-		{
-			i = int(x - 0.5);
+	else
+	{
+		i = int(x - 0.5);
 
-			if (x - 0.5 == double(i) && i & 1) 
-				i++;
-		}
+		if (x - 0.5 == double(i) && i & 1)
+			i++;
+	}
 
 	return i;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 double BCMath::rms(int n, const double *a)
 {
 
-	if (n <= 0 || !a) 
+	if (n <= 0 || !a)
 		return 0;
 
-	double sum = 0.0, sum2 = 0.0;
+	double sum = 0., sum2 = 0.;
 
-	for (int i = 0; i < n; i++) 
-		{
-			sum  += a[i]; 
-			sum2 += a[i] * a[i]; 
-		}
+	for (int i = 0; i < n; i++)
+	{
+		sum  += a[i];
+		sum2 += a[i] * a[i];
+	}
 
-	double n1 = 1.0/double(n);
+	double n1 = 1./(double)n;
 	double mean = sum * n1;
 	double rms = sqrt(fabs(sum2 * n1 - mean * mean));
 
@@ -196,19 +216,18 @@ double BCMath::rms(int n, const double *a)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm)
 {
 
-	double bw = log(Gamma) - log( (x - mean) * (x - mean) + Gamma * Gamma / 4.0); 
+	double bw = log(Gamma) - log( (x - mean) * (x - mean) + Gamma * Gamma / 4.0);
 
 	if (norm)
-		return bw - log(2. * M_PI); 
-
+		return bw - log(2. * M_PI);
 	else
-		return bw; 
+		return bw;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------

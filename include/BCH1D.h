@@ -28,7 +28,7 @@
 #ifndef __BCH1D__H
 #define __BCH1D__H
 
-#include <vector.h>
+#include <vector>
 
 #include <TH1.h>
 
@@ -174,13 +174,20 @@ class BCH1D
 	void SetGlobalMode(double mode)
 		{ fMode=mode; fModeFlag=1; };
 
-	// methods 
+	// methods
 
 	/**
-	 * Print distribution into a PostScript file. 
+	 * Print distribution into a PostScript file.
 	 * @param filename Output filename
-	 * @param options Drawing options: \n 0 = band mode [default], \n 
-	 *                1 = draw vertical line, \n 
+	 * For explanation of parameters options and ovalue look at BCH1D::Draw()
+	 * method.
+	 */
+	void Print(const char * filename, int options=0, double ovalue=0.);
+
+	/**
+	 * Draw distribution into the active canvas.
+	 * @param options Drawing options: \n 0 = band mode [default], \n
+	 *                1 = draw vertical line, \n
 	 *                2 = band mode with minimal interval
 	 * @param ovalue Option specific value. For option 0, if ovalue is nonzero
 	 *    a limit is to be drawn rather than central band with ovalue being the
@@ -188,21 +195,21 @@ class BCH1D
 	 *    if positive limit is drawn from maximum. Allowed values are
 	 *    68 < |limit| < 100. If mode is outside the band, the limit is
 	 *    drawn automatically. The default limit can be changed by
-	 *    BCH1D::SetDefaultCLLimit(int limit). \n 
+	 *    BCH1D::SetDefaultCLLimit(int limit). \n
 	 *    For option 1 the ovalue defines
-	 *    where the line is drawn. \n 
+	 *    where the line is drawn. \n
 	 *    For option 2 the ovalue sets the content of
 	 *    the minimal interval in per cent. If omitted a 68% minimal interval
 	 *    will be drawn.
 	 */
-	void Print(const char * filename, int options=0, double ovalue=0.);
+	void Draw(int options=0, double ovalue=0.);
 
 	/**
 	 * Draw distribution with band between min and max and with marker at the mode.
 	 * Write the location of the mode with uncertainties. If limit is specified,
 	 * draw CL limit. Allowed values are 68 < |limit| < 100.
 	 */
-	void PrintShadedLimits(double mode, double min, double max, double limit=0);
+	void DrawShadedLimits(double mode, double min, double max, double limit=0);
 
 	/**
 	 * Calculate the minimal interval of the distribution containing a given content.

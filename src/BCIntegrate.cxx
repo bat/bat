@@ -32,8 +32,8 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fFitFunctionIndexX = -1; 
 	fFitFunctionIndexY = -1; 
 
-	fErrorBandNbinsX = 100; 
-	fErrorBandNbinsY = 200; 
+	fErrorBandNbinsX = 500; 
+	fErrorBandNbinsY = 500; 
 
 	fErrorBandContinuous = true; 
 
@@ -1344,13 +1344,13 @@ void BCIntegrate::FindModeSA()
 	int npresamples = fNvar*100000;
 
 	// point with maximum -log(Eval())
-	vector <double> xmax;
+	std::vector <double> xmax;
 	xmax.assign(fNvar, 0.0);
 
 	// initial maximum value and location
 	double lastmax = -log(this->GetRandomPoint(xmax));
 
-	vector <double> x;
+	std::vector <double> x;
 	x.assign(fNvar, 0.0);
 
 	// determine the mean of -log(Eval())

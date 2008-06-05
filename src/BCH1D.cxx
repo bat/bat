@@ -109,27 +109,30 @@ void BCH1D::SetDefaultCLLimit(double limit)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCH1D::Print(const char * filename, int options, double ovalue)
 {
-//	cout<<"File name start: "<<filename<<endl;
-
 	char file[256];
 	int i=0;
 	while(i<255 && *filename!='\0')
 		file[i++]=*filename++;
 	file[i]='\0';
-//	cout<<"File start: "<<file<<endl;
 
 	// create temporary canvas
 	TCanvas * canvas = new TCanvas();
-//	cout<<"File name canvas 0: "<<filename<<endl;
-//	cout<<"File canvas 0: "<<file<<endl;
 	canvas -> cd();
 
-//	cout<<"File name canvas cd: "<<filename<<endl;
+	this->Draw(options, ovalue);
 
+	// print to file.
+	canvas -> Print(file);
+}
+
+// ---------------------------------------------------------
+
+void BCH1D::Draw(int options, double ovalue)
+{
 	double min, max;
 	double mode;
 	double thismode = this->GetMode();
@@ -141,9 +144,6 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 
 	// define temporary line.
 	TLine * line;
-
-//	cout<<"File name switch: "<<filename<<endl;
-//	cout<<"File switch: "<<file<<endl;
 
 	// check drawing option.
 	switch(options)
@@ -186,7 +186,7 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 			}
 
 			// do the drawing
-			this->PrintShadedLimits(mode, min, max, ovalue);
+			this->DrawShadedLimits(mode, min, max, ovalue);
 
 			break;
 
@@ -207,27 +207,22 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 				ovalue = 68.; // default is 68%
 
 			this->GetSmallestInterval(min, max, ovalue/100.);
-			this->PrintShadedLimits(mode, min, max, 0.);
+			this->DrawShadedLimits(mode, min, max, 0.);
 
 			break;
 
 		// Sort out bad options and warn.
 		default:
 
-			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCH1D::Print. Invalid option %d",options));
+			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCH1D::Draw. Invalid option %d",options));
 			break;
 		}
 
-	// print to file.
-
-//	cout<<"Printing to "<<filename<<endl;
-//	cout<<"Printing to "<<file<<endl;
-	canvas -> Print(file);
 }
 
 // ---------------------------------------------------------
 
-void BCH1D::PrintShadedLimits(double mode, double min, double max, double limit)
+void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 {
 
 	double maximum = fHistogram -> GetMaximum();
@@ -556,56 +551,49 @@ TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 {
 
 	// create a new histogram which will be returned and all yellow
+	TH1D * hist_yellow = (TH1D*) fHistogram -> Clone();
+	hist_yellow -> Reset();
+	hist_yellow -> SetFillStyle(1001);
+	hist_yellow -> SetFillColor(kYellow);
 
-	TH1D * hist_yellow = (TH1D*) fHistogram -> Clone(); 
-	hist_yellow -> Reset(); 
-	hist_yellow -> SetFillStyle(1001); 
-	hist_yellow -> SetFillColor(kYellow); 
-
-	// copy a temporary histogram 
-
-	TH1D * hist_temp = (TH1D*) fHistogram -> Clone(); 
+	// copy a temporary histogram
+	TH1D * hist_temp = (TH1D*) fHistogram -> Clone();
 	double factor = hist_temp -> Integral("");
 
 	if(factor == 0)
 		return 0;
 
-	hist_temp -> Scale(1.0 / factor); 
+	hist_temp -> Scale(1.0 / factor);
 
-	// here's the algorithm: 
+	// here's the algorithm:
 	// 1. find the maximum bin in the temporary histogram and copy it to
-	// the yellow histogram. 
+	// the yellow histogram.
 	// 2. remove this bin from the temporary histogram.
 	// 3. repeat this until a total of "level" probability is copied to
-	// the yellow histogram. 
-	
-	double sumprob = 0.0; 
+	// the yellow histogram.
 
-	while (sumprob < level) 
-		{
-			// find maximum bin and value 
+	double sumprob = 0.0;
 
-			int bin = hist_temp -> GetMaximumBin(); 
-			double value = hist_temp -> GetMaximum(); 
+	while (sumprob < level)
+	{
+		// find maximum bin and value
 
-			// copy "1" into the corresponding bin in the yellow histogram
-			
-			hist_yellow -> SetBinContent(bin, 1.0); 
+		int bin = hist_temp -> GetMaximumBin();
+		double value = hist_temp -> GetMaximum();
 
-			// set the bin value in the temporary histogram to zero
+		// copy "1" into the corresponding bin in the yellow histogram
+		hist_yellow -> SetBinContent(bin, 1.0);
 
-			hist_temp -> SetBinContent(bin, 0.0); 
+		// set the bin value in the temporary histogram to zero
+		hist_temp -> SetBinContent(bin, 0.0);
 
-			// increase probability sum 
+		// increase probability sum
+		sumprob += value;
+	}
 
-			sumprob += value; 
-		}
+	delete hist_temp;
 
-	// delete the temporary histogram 
-
-	delete hist_temp; 
-
-	return hist_yellow; 
+	return hist_yellow;
 
 }
 

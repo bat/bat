@@ -45,152 +45,153 @@ void BCH2D::GetMode(double& mode)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCH2D::Print(const char * filename, int options) 
+void BCH2D::Print(const char * filename, int options)
 {
 
-  // create temporary canvas 
+	// create temporary canvas
+	TCanvas* canvas = new TCanvas();
+	canvas -> cd();
 
-	TCanvas* canvas = new TCanvas(); 
+	// draw histogram
+	this->Draw(options);
 
-	canvas -> cd(); 
+	// print to file
+	canvas -> Print(filename);
 
-  // draw histogram 
+}
 
-	fHistogram -> SetLineColor(kBlack); 
-	fHistogram -> SetLineWidth(4); 
+// ---------------------------------------------------------
 
-	if (options == 0) 
-		fHistogram -> Draw("CONT0"); 
+void BCH2D::Draw(int options)
+{
+	// draw histogram
+	fHistogram -> SetLineColor(kBlack);
+	fHistogram -> SetLineWidth(4);
 
-	if (options == 1)
-		{
-			fHistogram -> Draw("CONT3"); 
+	if (options == 0)
 
-      // set contours 
+		fHistogram -> Draw("CONT0");
 
-			this -> CalculateIntegratedHistogram(); 
+	else if (options == 1)
+	{
 
-			double levels[4]; 
-      
-			levels[0] = 0.0; 
-			levels[1] = this -> GetLevel(1.0 - 0.6827); 
-			levels[2] = this -> GetLevel(1.0 - 0.9545); 
-			levels[3] = this -> GetLevel(1.0 - 0.9973); 
+		fHistogram -> Draw("CONT3");
 
-			fHistogram -> SetContour(4, levels); 
+		// set contours
+		this -> CalculateIntegratedHistogram();
 
-			// best fit value 
+		double levels[4];
+		levels[0] = 0.;
+		levels[1] = this -> GetLevel(1.0 - 0.6827);
+		levels[2] = this -> GetLevel(1.0 - 0.9545);
+		levels[3] = this -> GetLevel(1.0 - 0.9973);
 
-			int maximumbin = fHistogram -> GetMaximumBin(); 
+		fHistogram -> SetContour(4, levels);
 
-			int binx = maximumbin % (fHistogram -> GetNbinsX() + 2); 
-			int biny = maximumbin / (fHistogram -> GetNbinsX() + 2); 
+		// best fit value
+		int maximumbin = fHistogram -> GetMaximumBin();
 
-			double x = fHistogram -> GetXaxis() -> GetBinCenter(binx); 
-			double y = fHistogram -> GetYaxis() -> GetBinCenter(biny); 
+		int binx = maximumbin % (fHistogram -> GetNbinsX() + 2);
+		int biny = maximumbin / (fHistogram -> GetNbinsX() + 2);
 
-			TMarker* marker = new TMarker(x, y, 24); 
-			marker -> Draw(); 
+		double x = fHistogram -> GetXaxis() -> GetBinCenter(binx);
+		double y = fHistogram -> GetYaxis() -> GetBinCenter(biny);
 
-			TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95); 
-			legend -> SetBorderSize(0); 
-			legend -> SetFillColor(kWhite); 
-			legend -> AddEntry(fHistogram, "68% prob. region", "L"); 
-			legend -> AddEntry(marker, "Best fit", "P"); 
-			legend -> Draw(); 
-    }
+		TMarker* marker = new TMarker(x, y, 24);
+		marker -> Draw();
 
-  if (options == 2)
-    {
-			fHistogram -> Draw("CONT3"); 
+		TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
+		legend -> SetBorderSize(0);
+		legend -> SetFillColor(kWhite);
+		legend -> AddEntry(fHistogram, "68% prob. region", "L");
+		legend -> AddEntry(marker, "Best fit", "P");
+		legend -> Draw();
 
-			// set contours 
+	}
+	else if (options == 2)
+	{
 
-			this -> CalculateIntegratedHistogram(); 
+		fHistogram -> Draw("CONT3");
 
-			double levels[2]; 
-			double level32 = this -> GetLevel(0.32); 
+		// set contours
+		this -> CalculateIntegratedHistogram();
 
-			levels[0] = 0.0; 
-			levels[1] = level32; 
+		double levels[2];
+		double level32 = this -> GetLevel(0.32);
+		levels[0] = 0.;
+		levels[1] = level32;
 
-			fHistogram -> SetContour(2, levels); 
+		fHistogram -> SetContour(2, levels);
 
-			// best fit value 
+		// best fit value
+		int maximumbin = fHistogram -> GetMaximumBin();
 
-			int maximumbin = fHistogram -> GetMaximumBin(); 
+		int binx = maximumbin % (fHistogram -> GetNbinsX() + 2);
+		int biny = maximumbin / (fHistogram -> GetNbinsX() + 2);
 
-			int binx = maximumbin % (fHistogram -> GetNbinsX() + 2); 
-			int biny = maximumbin / (fHistogram -> GetNbinsX() + 2); 
+		double x = fHistogram -> GetXaxis() -> GetBinCenter(binx);
+		double y = fHistogram -> GetYaxis() -> GetBinCenter(biny);
 
-			double x = fHistogram -> GetXaxis() -> GetBinCenter(binx); 
-			double y = fHistogram -> GetYaxis() -> GetBinCenter(biny); 
+		TMarker* marker = new TMarker(x, y, 24);
+		marker -> Draw();
 
-			TMarker* marker = new TMarker(x, y, 24); 
-			marker -> Draw(); 
+		TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
+		legend -> SetBorderSize(0);
+		legend -> SetFillColor(kWhite);
+		legend -> AddEntry(fHistogram, "68% prob. region", "L");
+		legend -> AddEntry(marker, "Best fit", "P");
+		legend -> Draw();
 
-			TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95); 
-			legend -> SetBorderSize(0); 
-			legend -> SetFillColor(kWhite); 
-			legend -> AddEntry(fHistogram, "68% prob. region", "L"); 
-			legend -> AddEntry(marker, "Best fit", "P"); 
-			legend -> Draw(); 
-    }
+	}
+	else if (options == 3)
+	{
 
-  if (options == 3) 
-    {
-			fHistogram -> Draw("CONT3"); 
+		fHistogram -> Draw("CONT3");
 
-			// set contours 
+		// set contours
+		this -> CalculateIntegratedHistogram();
 
-			this -> CalculateIntegratedHistogram(); 
+		double levels[2];
+		double level10 = this -> GetLevel(0.10);
+		levels[0] = 0.;
+		levels[1] = level10;
 
-			double levels[2]; 
-			double level10 = this -> GetLevel(0.10); 
+		fHistogram -> SetContour(2, levels);
 
-			levels[0] = 0.0; 
-			levels[1] = level10; 
+		TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
+		legend -> SetBorderSize(0);
+		legend -> SetFillColor(kWhite);
+		legend -> AddEntry(fHistogram, "90% prob. region", "L");
+		legend -> Draw();
 
-			fHistogram -> SetContour(2, levels); 
+	}
+	else if (options == 4)
+	{
 
-			TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95); 
-			legend -> SetBorderSize(0); 
-			legend -> SetFillColor(kWhite); 
-			legend -> AddEntry(fHistogram, "90% prob. region", "L"); 
-			legend -> Draw(); 
-    }
+		fHistogram -> Draw("CONT3");
 
-  if (options == 4) 
-    {
-			fHistogram -> Draw("CONT3"); 
+		// set contours
+		this -> CalculateIntegratedHistogram();
 
-			// set contours 
+		double levels[2];
+		double level5 = this -> GetLevel(0.05);
+		levels[0] = 0.;
+		levels[1] = level5;
 
-			this -> CalculateIntegratedHistogram(); 
+		fHistogram -> SetContour(2, levels);
 
-			double levels[2]; 
-			double level5 = this -> GetLevel(0.05); 
+		TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
+		legend -> SetBorderSize(0);
+		legend -> SetFillColor(kWhite);
+		legend -> AddEntry(fHistogram, "95% prob. region", "L");
+		legend -> Draw();
 
-			levels[0] = 0.0; 
-			levels[1] = level5; 
+	}
+	else if (options == 5)
 
-			fHistogram -> SetContour(2, levels); 
-
-			TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95); 
-			legend -> SetBorderSize(0); 
-			legend -> SetFillColor(kWhite); 
-			legend -> AddEntry(fHistogram, "95% prob. region", "L"); 
-			legend -> Draw(); 
-    }
-
-	if (options == 5) 
-		fHistogram -> Draw("COL"); 
-
-	// print to file 
-
-	canvas -> Print(filename); 
+		fHistogram -> Draw("COL");
 
 }
 
@@ -253,4 +254,196 @@ double BCH2D::GetLevel(double p)
 	return level; 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
+
+TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
+{
+	n=0;
+
+	int nbands=0;
+	TH2D * hcopy = (TH2D*)h->Clone(Form("%s_copy",h->GetName()));
+
+	std::vector <int> nint=GetNIntervalsY(hcopy,nbands);
+
+	if(nbands>2)
+	{
+//		BCLog::Out(BCLog::warning,BCLog::warning,
+//			Form("BCH2D::GetBandGraphs Detected %d bands. Maximum allowed is 2 (sorry).",nbands))
+		return 0;
+	}
+	else if(nbands==0)
+	{
+//		BCLog::Out(BCLog::warning,BCLog::warning,"BCH2D::GetBandGraphs No bands detected.")
+		return 0;
+	}
+
+	TGraph ** gxx = new TGraph*[nbands];
+
+	TH2D * h0 = (TH2D*)h->Clone();
+
+	if (nbands>0)
+		gxx[0] = GetLowestBandGraph(h0,nint);
+
+	if (nbands==2)
+	{
+		gxx[1] = GetLowestBandGraph(h0);
+		n=2;
+	}
+	else
+		n=1;
+
+	return gxx;
+}
+
+// ---------------------------------------------------------
+
+std::vector <int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
+{
+
+	std::vector <int> nint;
+
+	int nx = h -> GetNbinsX();
+	int ny = h -> GetNbinsY();
+
+	nfoundmax=0;
+
+	// loop over histogram bins in x
+	for (int ix=1; ix<=nx; ix++)
+	{
+		int nfound=0;
+
+		// loop over histogram bins in y
+		// cound nonzero intervals in y
+		for (int iy=1; iy<=ny; iy++)
+			if(h->GetBinContent(ix,iy)>0.)
+			{
+				while(h->GetBinContent(ix,++iy)>0.)
+					;
+				nfound++;
+			}
+
+		// store maximum number of nonzero intervals for the histogram
+		if(nfound>nfoundmax)
+			nfoundmax=nfound;
+
+		nint.push_back(nfound);
+	}
+
+	return nint;
+
+}
+
+// ---------------------------------------------------------
+
+TGraph * BCH2D::GetLowestBandGraph(TH2D * h)
+{
+	int n;
+	return GetLowestBandGraph(h,GetNIntervalsY(h,n));
+}
+
+// ---------------------------------------------------------
+
+TGraph * BCH2D::GetLowestBandGraph(TH2D * h, std::vector<int> nint)
+{
+	int nx = h -> GetNbinsX();
+	int ny = h -> GetNbinsY();
+
+	TGraph * g = new TGraph(2*nx);
+
+	for (int ix=1; ix<=nx; ix++)
+	{
+		// get x for the bin
+		double x;
+		if(ix==1)
+			x = h->GetXaxis()->GetBinLowEdge(1);
+		else if(ix==nx)
+			x = h->GetXaxis()->GetBinLowEdge(nx+1);
+		else
+			x = h->GetXaxis()->GetBinCenter(ix);
+
+		for(int iy=1; iy<=ny; iy++)
+			if(h->GetBinContent(ix,iy)>0.)
+			{
+				// get low edge of the first not empty bin in y
+				g->SetPoint(ix-1, x, h->GetYaxis()->GetBinLowEdge(iy));
+
+				// delete content of all subsequent not empty bins
+				if(nint[ix-1]==2)
+					h->SetBinContent(ix,iy,0.);
+
+				while(h->GetBinContent(ix,++iy)>0.)
+					if(nint[ix-1]==2)
+						h->SetBinContent(ix,iy,0.);
+
+				// get low edge of the first empty bin in y
+				g->SetPoint(2*nx-(ix-1), x, h->GetYaxis()->GetBinLowEdge(iy));
+
+				break;
+			}
+	}
+
+	return g;
+}
+
+// ---------------------------------------------------------
+
+std::vector <double> BCH2D::GetLevelBoundary(TH2D * h, double level)
+{
+	std::vector <double> b;
+
+	int nx = h -> GetNbinsX();
+
+	b.assign(nx - 1, 0.0);
+
+	// loop over x and y bins.
+	for (int ix = 1; ix < nx; ix++)
+	{
+		TH1D * h1 = h -> ProjectionY("temphist", ix, ix);
+
+		int nprobSum = 1;
+		double q[1];
+		double probSum[] = { level };
+
+		h1 -> GetQuantiles(nprobSum, q, probSum);
+
+		b[ix-1] = q[0];
+	}
+
+	return b;
+}
+
+// ---------------------------------------------------------
+
+TGraph * BCH2D::GetBandGraph(TH2D * h , double l1, double l2)
+{
+	// define new graph
+	int nx = h -> GetNbinsX() - 1;
+
+	TGraph * g = new TGraph(2*nx);
+//	g -> SetFillStyle(1001);
+//	g -> SetFillColor(kYellow);
+
+	// get error bands
+	std::vector <double> ymin = GetLevelBoundary(h,l1);
+	std::vector <double> ymax = GetLevelBoundary(h,l2);
+
+	for (int i = 0; i < nx; i++)
+	{
+		g -> SetPoint(i, h -> GetXaxis() -> GetBinCenter(i+1), ymin[i]);
+		g -> SetPoint(nx+i, h -> GetXaxis() -> GetBinCenter(nx-i), ymax[nx-i-1]);
+	}
+
+	return g;
+}
+
+
+
+
+
+
+
+
+
+
+
+

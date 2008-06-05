@@ -1,13 +1,14 @@
-#include "BCModel.h" 
+#include "BCModel.h"
 #include "BCLog.h"
 #include "BCErrorCodes.h"
 #include "BCMath.h"
 
-#include "TDirectory.h" 
-#include "TFile.h" 
-#include "TTree.h" 
+#include <TDirectory.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TMath.h>
 
-#include <fstream.h>
+#include <fstream>
 
 // --------------------------------------------------------- 
 
@@ -179,72 +180,68 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 TH2D * BCModel::GetErrorBandXY_yellow(double level)
 {
 
-	if (!fErrorBandXY) 
-		return 0; 
-	
-	int nx = fErrorBandXY -> GetNbinsX(); 
-	int ny = fErrorBandXY -> GetNbinsY(); 
+	if (!fErrorBandXY)
+		return 0;
 
-	// copy existing histogram 
+	int nx = fErrorBandXY -> GetNbinsX();
+	int ny = fErrorBandXY -> GetNbinsY();
 
-	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(); 
-	hist_tempxy -> Reset(); 
-	hist_tempxy -> SetFillColor(kYellow); 
+	// copy existing histogram
+	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone();
+	hist_tempxy -> Reset();
+	hist_tempxy -> SetFillColor(kYellow);
 
-	// loop over x bins 
+	// loop over x bins
+	for (int ix = 1; ix < nx; ix++)
+	{
+		BCH1D * hist_temp = new BCH1D();
 
-	for (int ix = 1; ix < nx; ix++) 
-		{
-			BCH1D * hist_temp = new BCH1D(); 
+		hist_temp -> SetHistogram(fErrorBandXY -> ProjectionY("temphist", ix, ix));
 
-			hist_temp -> SetHistogram(fErrorBandXY -> ProjectionY("temphist", ix, ix)); 
+		TH1D * hist_temp_yellow = hist_temp -> GetSmallestIntervalHistogram(level);
 
-			TH1D * hist_temp_yellow = hist_temp -> GetSmallestIntervalHistogram(level);
+		for (int iy = 1; iy <= ny; ++iy)
+			hist_tempxy -> SetBinContent(ix, iy, hist_temp_yellow -> GetBinContent(iy));
 
-			for (int iy = 1; iy <= ny; ++iy)
-				hist_tempxy -> SetBinContent(ix, iy, hist_temp_yellow -> GetBinContent(iy)); 
+		delete hist_temp_yellow;
+		delete hist_temp;
+	}
 
-			delete hist_temp_yellow; 
-			delete hist_temp; 
-		}
-			
 	return hist_tempxy;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-TGraph * BCModel::GetErrorBandGraph(double level1, double level2) 
+TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 {
-	
+
 	if (!fErrorBandXY)
-		return 0; 
+		return 0;
 
-	// define new graph 
+	// define new graph
+	int nx = fErrorBandXY -> GetNbinsX() - 1;
 
-	int nx = fErrorBandXY -> GetNbinsX() - 1; 
-
-	TGraph * graph = new TGraph(2 * nx); 
+	TGraph * graph = new TGraph(2 * nx);
 	graph -> SetFillStyle(1001);
-  graph -> SetFillColor(kYellow);
+	graph -> SetFillColor(kYellow);
 
-	// get error bands 
-
-	std::vector <double> ymin = this -> GetErrorBand(level1); 
-	std::vector <double> ymax = this -> GetErrorBand(level2); 
+	// get error bands
+	std::vector <double> ymin = this -> GetErrorBand(level1);
+	std::vector <double> ymax = this -> GetErrorBand(level2);
 
 	for (int i = 0; i < nx; i++)
-		{
-			graph -> SetPoint(i, fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i)); 
-			graph -> SetPoint(nx + i, fErrorBandXY -> GetXaxis() -> GetBinCenter(nx - i), ymax.at(nx - i - 1)); 
-		}
+	{
+		graph -> SetPoint(i, fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i));
+		graph -> SetPoint(nx + i, fErrorBandXY -> GetXaxis() -> GetBinCenter(nx - i), ymax.at(nx - i - 1));
+	}
 
-	return graph; 
+	return graph;
 
 }
 
@@ -744,6 +741,90 @@ void BCModel::FindMode()
 
 }
 
+// ---------------------------------------------------------
+
+void BCModel::WriteMode(const char * file)
+{
+	ofstream ofi(file);
+	if(!ofi.is_open())
+	{
+		std::cerr<<"Couldn't open file "<<file<<std::endl;
+		return;
+	}
+
+	int npar = fParameterSet -> size();
+	for (int i=0; i<npar; i++)
+		ofi<<fBestFitParameters.at(i)<<std::endl;
+
+	ofi<<std::endl;
+	ofi<<"#######################################################################"<<std::endl;
+	ofi<<"#"<<std::endl;
+	ofi<<"#  This file was created automatically by BCModel::WriteMode() call."<<std::endl;
+	ofi<<"#  It can be read in by call to BCModel::ReadMode()."<<std::endl;
+	ofi<<"#  Do not modify it unless you know what you're doing."<<std::endl;
+	ofi<<"#"<<std::endl;
+	ofi<<"#######################################################################"<<std::endl;
+	ofi<<"#"<<std::endl;
+	ofi<<"#  Best fit parameters (mode) for model:"<<std::endl;
+	ofi<<"#  \'"<<fName.data()<<"\'"<<std::endl;
+	ofi<<"#"<<std::endl;
+	ofi<<"#  Number of parameters: "<<npar<<std::endl;
+	ofi<<"#  Parameters ordered as above:"<<std::endl;
+
+	for (int i=0; i<npar; i++)
+	{
+		ofi<<"#     "<<i<<": ";
+		ofi<<fParameterSet->at(i)->GetName().data()<<" = ";
+		ofi<<fBestFitParameters.at(i)<<std::endl;
+	}
+
+	ofi<<"#"<<std::endl;
+	ofi<<"########################################################################"<<std::endl;
+}
+
+// ---------------------------------------------------------
+
+int BCModel::ReadMode(const char * file)
+{
+	ifstream ifi(file);
+	if(!ifi.is_open())
+	{
+		std::cerr<<"Couldn't open file "<<file<<std::endl;
+		return 0;
+	}
+
+	int npar = fParameterSet -> size();
+	std::vector <double> mode;
+
+	int i=0;
+	while (i<npar && !ifi.eof())
+	{
+		double a;
+		ifi>>a;
+		mode.push_back(a);
+		i++;
+	}
+
+	if(i<npar)
+	{
+		std::cerr<<"Couldn't read mode from file "<<file<<std::endl;
+		std::cerr<<"Expected "<<npar<<" parameters, found "<<i<<std::endl;
+		return 0;
+	}
+
+	BCLog::Out(BCLog::summary,BCLog::summary,
+			Form("#  Read in best fit parameters (mode) for model \'%s\' from file %s:",fName.data(),file));
+	this->SetMode(mode);
+	for(int j=0 ; j<npar; j++)
+		BCLog::Out(BCLog::summary,BCLog::summary,
+				Form("#    -> Parameter %d : %s = %e", j, fParameterSet->at(j)->GetName().data(), fBestFitParameters[j]));
+
+	BCLog::Out(BCLog::warning,BCLog::warning,
+			"#  ! Best fit values obtained before this call will be overwritten !");
+
+	return npar;
+}
+
 // --------------------------------------------------------- 
 
 BCH1D * BCModel::MarginalizeProbability(BCParameter * parameter)
@@ -959,24 +1040,95 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
 // ---------------------------------------------------------
 
-int BCModel::PrintAllMarginalized(const char * filebase)
+int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 {
+	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				"BCModel::PrintAllMarginalized. MarginalizeAll() has to be run prior to this to fill the distributions.");
+		return 0;
+	}
+
 	int n=0;
 
-	if(filebase[0]=='\0')
+	// setup the canvas and postscript file
+	TCanvas * c = new TCanvas("c","canvas",900,600);
+
+	int type = 112;
+
+	TPostScript * ps = new TPostScript(file,type);
+
+	ps->Range(24,18);
+
+	// draw all 1D distributions
+	ps->NewPage();
+	c->cd();
+	c->Clear();
+	c->Divide(hdiv,vdiv);
+
+	int n1d=this->GetNParameters();
+	for(int i=0;i<n1d;i++)
 	{
-//		cout<<"Autonaming: "<<Form("prob_%s-",this->GetName().data())<<endl;
-		n += this->PrintAllMarginalized1D(Form("prob_%s-",this->GetName().data()));
-		n += this->PrintAllMarginalized2D(Form("prob_%s-",this->GetName().data()));
-	}
-	else
-	{
-//		cout<<"Naming: "<<filebase<<endl;
-		n += this->PrintAllMarginalized1D(filebase);
-		n += this->PrintAllMarginalized2D(filebase);
+		// if current page is full, swith to new page
+		if(i!=0 && i%(hdiv*vdiv)==0)
+		{
+			c->Update();
+			ps->NewPage();
+			c->cd();
+			c->Clear();
+			c->Divide(hdiv,vdiv);
+		}
+
+		// go to next pad
+		c->cd(i%(hdiv*vdiv)+1);
+
+		BCParameter * a = this->GetParameter(i);
+		this -> GetMarginalized(a) -> Draw();
+		n++;
 	}
 
-	return n;
+	c->Update();
+
+	// draw all the 2D distributions
+	ps->NewPage();
+	c->cd();
+	c->Clear();
+	c->Divide(hdiv,vdiv);
+
+	int k=0;
+	int n2d=this->GetNParameters();
+	for(int i=0;i<n2d-1;i++)
+	{
+		for(int j=i+1;j<n2d;j++)
+		{
+			// if current page is full, swith to new page
+			if(k!=0 && k%(hdiv*vdiv)==0)
+			{
+				c->Update();
+				ps->NewPage();
+				c->cd();
+				c->Clear();
+				c->Divide(hdiv,vdiv);
+			}
+
+			// go to next pad
+			c->cd(k%(hdiv*vdiv)+1);
+
+			BCParameter * a = this->GetParameter(i);
+			BCParameter * b = this->GetParameter(j);
+			this -> GetMarginalized(a,b) -> Draw();
+			k++;
+		}
+	}
+
+	c->Update();
+	ps->Close();
+
+	delete c;
+	delete ps;
+
+	// return total number of drawn histograms
+	return n+k;
 }
 
 // ---------------------------------------------------------
@@ -2007,14 +2159,14 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 	for (int i=0;i<n;i++)
 		sum_sigma += log(this -> GetDataPoint(i) -> GetValue(sigma_index));
 
-	double chi2 = -2.*(ll + (double)n/2. * log(2.*TMath::Pi()) + sum_sigma);
+	double chi2 = -2.*(ll + (double)n/2. * log(2.*M_PI) + sum_sigma);
 
 	return TMath::Prob(chi2,n);
 }
 
 // --------------------------------------------------------- 
 
-void BCModel::CorrelateDataPointValues(vector<double> &x) 
+void BCModel::CorrelateDataPointValues(std::vector<double> &x) 
 {
   
 }
@@ -2085,16 +2237,16 @@ void BCModel::PrintSummary()
 	int nparameters = this -> GetNParameters(); 
 
 	// model summary 
-	cout
-		<<endl
-		<<"   ---------------------------------"<<endl
-		<<"    Model : " << fName <<endl
-		<<"   ---------------------------------"<<endl
-		<<"     Index                : "<< fIndex <<endl
-		<<"     Number of parameters : "<< nparameters <<endl
-		<<endl
-		<<"     - Parameters : " <<endl
-		<<endl;
+	std::cout
+		<<std::endl
+		<<"   ---------------------------------"<<std::endl
+		<<"    Model : " << fName <<std::endl
+		<<"   ---------------------------------"<<std::endl
+		<<"     Index                : "<< fIndex <<std::endl
+		<<"     Number of parameters : "<< nparameters <<std::endl
+		<<std::endl
+		<<"     - Parameters : " <<std::endl
+		<<std::endl;
 
 	// parameter summary
 	for (int i=0; i<nparameters; i++)
@@ -2103,85 +2255,80 @@ void BCModel::PrintSummary()
 	// best fit parameters 
 	if (this -> GetBestFitParameters().size() > 0) 
 	{
-		cout
-			<<endl
-			<<"     - Best fit parameters :"<<endl
-			<<endl;
+		std::cout
+			<<std::endl
+			<<"     - Best fit parameters :"<<std::endl
+			<<std::endl;
 
 		for (int i=0; i<nparameters; i++)
 		{
-			cout
+			std::cout
 				<<"       "<< fParameterSet -> at(i) -> GetName().data()
 				<<" = "<< this -> GetBestFitParameter(i)
-				<<" (overall)"<<endl;
+				<<" (overall)"<<std::endl;
 			if ((int)fBestFitParametersMarginalized.size() == nparameters) 
-				cout
+				std::cout
 					<<"       "<< fParameterSet -> at(i) -> GetName().data()
 					<<" = "<< this -> GetBestFitParameterMarginalized(i)
-					<<" (marginalized)"<<endl;
+					<<" (marginalized)"<<std::endl;
 		}
 	}
 
-	cout<<endl;
+	std::cout<<std::endl;
 
 	// model testing 
 	if (fPValue >= 0)
 	{
 		double likelihood = this -> Likelihood(this -> GetBestFitParameters()); 
 
-		cout
-			<<"   - Model testing:"<<endl
-			<<endl
-			<<"       p(data|lambda*) = "<< likelihood <<endl
-			<<"       p-value         = "<< fPValue <<endl
-			<<endl;
+		std::cout
+			<<"   - Model testing:"<<std::endl
+			<<std::endl
+			<<"       p(data|lambda*) = "<< likelihood <<std::endl
+			<<"       p-value         = "<< fPValue <<std::endl
+			<<std::endl;
 	}
 
 	// normalization 
 
 	if (fNormalization > 0) 
-		cout <<"     Normalization        : " << fNormalization << endl; 
+		std::cout <<"     Normalization        : " << fNormalization << std::endl;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
 
-	// check number of entries in vector 
-
+	// check number of entries in vector
 	if (int(parameters.size()) != this -> GetNParameters())
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::PrintHessianMatrix. Invalid number of entries in the vector.")); 
-			return; 
-		}
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				Form("BCModel::PrintHessianMatrix. Invalid number of entries in the vector."));
+		return;
+	}
 
-	// print to screen 
-
-	std::cout << std::endl; 
-	std::cout << " Hessian matrix elements: " << std::endl; 
-	std::cout << " Point: "; 
+	// print to screen
+	std::cout << std::endl;
+	std::cout << " Hessian matrix elements: " << std::endl;
+	std::cout << " Point: ";
 
 	for (int i = 0; i < int(parameters.size()); i++)
-		std::cout << parameters.at(i) << " "; 
-	std::cout << endl; 
+		std::cout << parameters.at(i) << " ";
+	std::cout << std::endl;
 
-	// loop over all parameter pairs 
-
+	// loop over all parameter pairs
 	for (int i = 0; i < this -> GetNParameters(); i++)
-		for (int j = 0; j < i; j++) 
-			{
-				// calculate Hessian matrix element 
+		for (int j = 0; j < i; j++)
+		{
+			// calculate Hessian matrix element
+			double hessianmatrixelement = this -> HessianMatrixElement(fParameterSet -> at(i),
+					fParameterSet -> at(j), parameters);
 
-				double hessianmatrixelement = this -> HessianMatrixElement(fParameterSet -> at(i), 
-																																	 fParameterSet -> at(j), 
-																																	 parameters); 
-
-				// print to screen 
-
-				std::cout << " " << i << " " << j << " : " << hessianmatrixelement << std::endl; 
-      }
+			// print to screen
+			std::cout << " " << i << " " << j << " : " << hessianmatrixelement << std::endl;
+		}
 
 }
 

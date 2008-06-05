@@ -19,7 +19,7 @@
 #ifndef __BCMODELMANAGER__H
 #define __BCMODELMANAGER__H
 
-#include "BCModel.h" 
+#include "BCModel.h"
 
 // --------------------------------------------------------- 
 
