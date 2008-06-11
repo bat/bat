@@ -182,39 +182,56 @@ void BCModelOutput::FillAnalysisTree()
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelOutput::WriteMarginalizedDistributions() 
+void BCModelOutput::WriteMarginalizedDistributions()
 {
 
-	// remember current directory 
-
+	// remember current directory
 	TDirectory * dir = gDirectory;
 
-	// change to file 
+	// change to file
+	fOutputFile -> cd();
 
-	fOutputFile -> cd(); 
-
-	int nparameters = fModel -> GetNParameters(); 
-
+	int nparameters = fModel -> GetNParameters();
 	for (int i = 0; i < nparameters; ++i)
-		fModel -> GetMarginalized(fModel -> GetParameter(i)) -> GetHistogram() -> Write(); 
+		fModel -> GetMarginalized(fModel -> GetParameter(i)) -> GetHistogram() -> Write();
 
-	if (nparameters > 1) 
-		{
-			for (int i = 0; i < nparameters - 1; ++i)
-				for (int j = i + 1; j < nparameters; ++j) 
-					fModel -> GetMarginalized(fModel -> GetParameter(i), 
-																		fModel -> GetParameter(j)) -> GetHistogram() -> Write(); 
-		}
+	if (nparameters > 1)
+	{
+		for (int i = 0; i < nparameters - 1; ++i)
+			for (int j = i + 1; j < nparameters; ++j)
+				fModel -> GetMarginalized(fModel -> GetParameter(i),
+						fModel -> GetParameter(j)) -> GetHistogram() -> Write();
+	}
 
-	// return to old directory 
-
-	gDirectory = dir; 
+	// return to old directory
+	gDirectory = dir;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
+
+void BCModelOutput::WriteErrorBand()
+{
+
+	// remember current directory
+	TDirectory * dir = gDirectory;
+
+	// change to file
+	fOutputFile -> cd();
+
+	fModel -> GetErrorBandXY() -> Write();
+	fModel -> GetErrorBandXY_yellow(.68) -> Write();
+	fModel -> GetErrorBandXY_yellow(.90) -> Write();
+	fModel -> GetErrorBandXY_yellow(.95) -> Write();
+
+	// return to old directory
+	gDirectory = dir;
+
+}
+
+// ---------------------------------------------------------
 	
 void BCModelOutput::Close()
 {

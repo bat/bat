@@ -300,17 +300,17 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 
 	if(fabs(limit)<50) // just to ensure there's some sense in the number
 		tmax_text->DrawLatex(xprint,yprint,
-			Form( Form("%%s* = %%%c ^{+%%%c}_{ -%%%c}",sf,sf,sf),
+			Form( Form("<%%s> = %%%c ^{+%%%c}_{ -%%%c}",sf,sf,sf),
 				fHistogram->GetXaxis()->GetTitle(), x1, max-x1, x1-min));
 
 	else if (limit<0)
 		tmax_text->DrawLatex(xprint,yprint,
-			Form( Form("%%s* (%d%%%% CL) < %%%c",-(int)limit,sf),
+			Form( Form("%%s (%d%%%% CL) < %%%c",-(int)limit,sf),
 				fHistogram->GetXaxis()->GetTitle(), max));
 
 	else if (limit>0)
 		tmax_text->DrawLatex(xprint,yprint,
-			Form( Form("%%s* (%d%%%% CL) > %%%c",(int)limit,sf),
+			Form( Form("%%s (%d%%%% CL) > %%%c",(int)limit,sf),
 				fHistogram->GetXaxis()->GetTitle(), min));
 
 }

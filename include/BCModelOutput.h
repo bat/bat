@@ -126,6 +126,11 @@ class BCModelOutput
 	void WriteMarginalizedDistributions(); 
 
 	/**
+	 * Writes the error band histogram into the TFile. 
+	 */ 
+	void WriteErrorBand(); 
+
+	/**
 	 * Closes the TFile. 
 	 */ 
 	void Close(); 

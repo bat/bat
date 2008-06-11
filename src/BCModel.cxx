@@ -192,7 +192,7 @@ TH2D * BCModel::GetErrorBandXY_yellow(double level)
 	int ny = fErrorBandXY -> GetNbinsY();
 
 	// copy existing histogram
-	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone();
+	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(Form("%s_sub_%f.2",fErrorBandXY->GetName(),level));
 	hist_tempxy -> Reset();
 	hist_tempxy -> SetFillColor(kYellow);
 

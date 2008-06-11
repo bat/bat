@@ -345,7 +345,7 @@ TGraph * BCH2D::GetLowestBandGraph(TH2D * h)
 
 TGraph * BCH2D::GetLowestBandGraph(TH2D * h, std::vector<int> nint)
 {
-	int nx = h -> GetNbinsX();
+	int nx = h -> GetNbinsX() - 1;
 	int ny = h -> GetNbinsY();
 
 	TGraph * g = new TGraph(2*nx);
@@ -376,7 +376,7 @@ TGraph * BCH2D::GetLowestBandGraph(TH2D * h, std::vector<int> nint)
 						h->SetBinContent(ix,iy,0.);
 
 				// get low edge of the first empty bin in y
-				g->SetPoint(2*nx-(ix-1), x, h->GetYaxis()->GetBinLowEdge(iy));
+				g->SetPoint(2*nx-ix, x, h->GetYaxis()->GetBinLowEdge(iy));
 
 				break;
 			}

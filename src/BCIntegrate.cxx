@@ -32,8 +32,8 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fFitFunctionIndexX = -1; 
 	fFitFunctionIndexY = -1; 
 
-	fErrorBandNbinsX = 500; 
-	fErrorBandNbinsY = 500; 
+	fErrorBandNbinsX = 100;
+	fErrorBandNbinsY = 500;
 
 	fErrorBandContinuous = true; 
 
