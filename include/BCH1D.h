@@ -212,6 +212,12 @@ class BCH1D
 	void DrawShadedLimits(double mode, double min, double max, double limit=0);
 
 	/**
+	 * Draw distribution with bands so that the total shaded area is the
+	 * smallest possible containing and integral of "prob". 
+	*/ 
+	void BCH1D::DrawSmallest(double prob); 
+
+	/**
 	 * Calculate the minimal interval of the distribution containing a given content.
 	 * @param min calculated minimum of the interval
 	 * @param max calculated maximum of the interval

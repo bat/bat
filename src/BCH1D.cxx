@@ -201,8 +201,8 @@ void BCH1D::Draw(int options, double ovalue)
 			break;
 
 		// Draw a shaded band at the smallest interval.
-		case 2:
-
+	case 2:
+			
 			if(ovalue<50) // just to ensure there's some sense in the number
 				ovalue = 68.; // default is 68%
 
@@ -210,6 +210,17 @@ void BCH1D::Draw(int options, double ovalue)
 			this->DrawShadedLimits(mode, min, max, 0.);
 
 			break;
+
+			// Draw a shaded band at the smallest intervals 
+	case 3:
+		
+			if(ovalue<50) // just to ensure there's some sense in the number
+				ovalue = 68.; // default is 68%
+			
+			this -> DrawSmallest(ovalue); 
+
+
+		break; 
 
 		// Sort out bad options and warn.
 		default:
@@ -312,6 +323,59 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 		tmax_text->DrawLatex(xprint,yprint,
 			Form( Form("%%s (%d%%%% CL) > %%%c",(int)limit,sf),
 				fHistogram->GetXaxis()->GetTitle(), min));
+
+}
+
+// ---------------------------------------------------------
+
+void BCH1D::DrawSmallest(double prob)
+{
+
+	// histogram to be filled with band 
+	TH1D * hist_temp1 = (TH1D*) fHistogram -> Clone(); 
+	hist_temp1 -> Scale(1.0/fHistogram -> Integral("width")); 
+	hist_temp1 -> SetFillColor(kYellow); 
+	hist_temp1 -> SetFillStyle(1001); 
+
+	// temporary histogram 
+	TH1D * hist_temp2 = (TH1D*) fHistogram -> Clone(); 
+	hist_temp2 -> Scale(1.0/fHistogram -> Integral("width")); 
+
+	// clear content 
+	hist_temp1 -> Reset(); 
+
+	// loop over original histogram and copy bin untils integral equals
+	// "prob"
+
+	// integral 
+	double sum = 0.0; 
+
+	// loop 
+	while (sum < prob)
+		{
+			// find bin with maximum 
+			int bin = hist_temp2 -> GetMaximumBin(); 
+
+			// copy bin to new histogram 
+			double val = hist_temp2 -> GetBinContent(bin); 
+			hist_temp1 -> SetBinContent(bin, val); 
+
+			// remove maximum from temporary histogram 
+			hist_temp2 -> SetBinContent(bin, 0.0); 
+
+			// integrate by summing 
+			sum += val; 
+		}
+
+	// scale histogram 
+	hist_temp1 -> Scale(fHistogram -> Integral("width")); 
+
+	// draw histograms 
+	fHistogram -> Draw(); 
+	hist_temp1 -> Draw("SAME"); 
+
+	// free memory 
+	delete hist_temp2; 
 
 }
 
