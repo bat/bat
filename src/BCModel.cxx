@@ -1053,7 +1053,7 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 	TFile * froot = new TFile(file);
 	if(!froot->IsOpen())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::ReadMarginalizedFromFile. Couldn't open file %s.",file));
+		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.",file));
 		return 0;
 	}
 
@@ -1068,7 +1068,7 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 	}
 	else
 		BCLog::Out(BCLog::warning, BCLog::warning,
-			Form("BCModel::ReadMarginalizedFromFile. Couldn't read histogram \"errorbandxy\" from file %s.", file));
+			Form("BCModel::ReadErrorBandFromFile. Couldn't read histogram \"errorbandxy\" from file %s.", file));
 
 	froot->Close();
 
