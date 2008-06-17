@@ -675,6 +675,10 @@ class BCEngineMCMC
 	 */ 
 	virtual void MCMCUserInterface(); 
 
+
+	int SetMarginalized(int index, TH1D * h);
+	int SetMarginalized(int index1, int index2, TH2D * h);
+
 	/* @} */ 
 
  private: 

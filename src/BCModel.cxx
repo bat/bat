@@ -968,18 +968,15 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 	BCH1D * hprob = new BCH1D();
 
 	// set axis labels
-
 	hist -> SetName(Form("hist_%s_%s", this -> GetName().data(), parameter -> GetName().data()));
 	hist -> SetXTitle(parameter -> GetName().data());
 	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName().data()));
 	hist -> SetStats(kFALSE);
 
 	// set histogram
-
 	hprob -> SetHistogram(hist);
 
 	// set best fit parameter
-
 	double bestfit = hprob -> GetMode();
 
 	if (fBestFitParametersMarginalized.size() == 0)
@@ -991,6 +988,91 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 	hprob->SetGlobalMode(fBestFitParameters.at(index));
 
 	return hprob;
+
+}
+
+// ---------------------------------------------------------
+
+int BCModel::ReadMarginalizedFromFile(const char * file)
+{
+	TFile * froot = new TFile(file);
+	if(!froot->IsOpen())
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::ReadMarginalizedFromFile. Couldn't open file %s.",file));
+		return 0;
+	}
+
+	int k=0;
+	int n=this->GetNParameters();
+	for(int i=0;i<n;i++)
+	{
+		BCParameter * a = this->GetParameter(i);
+		TH1D * h1 = (TH1D*)froot -> Get(Form("hist_%s_%s", this -> GetName().data(), a -> GetName().data()));
+		if(h1)
+		{
+			h1->SetDirectory(0);
+			if(this->SetMarginalized(i,h1))
+				k++;
+		}
+		else
+			BCLog::Out(BCLog::warning, BCLog::warning,
+				Form("BCModel::ReadMarginalizedFromFile. Couldn't read histogram \"hist_%s_%s\" from file %s.",
+					this -> GetName().data(), a -> GetName().data(), file));
+	}
+
+	for(int i=0;i<n-1;i++)
+	{
+		for(int j=i+1;j<n;j++)
+		{
+			BCParameter * a = this->GetParameter(i);
+			BCParameter * b = this->GetParameter(j);
+			TH2D * h2 = (TH2D*)froot -> Get(Form("hist_%s_%s_%s", this -> GetName().data(), a -> GetName().data(), b -> GetName().data()));
+			if(h2)
+			{
+				h2->SetDirectory(0);
+				if(this->SetMarginalized(i,j,h2))
+					k++;
+			}
+			else
+				BCLog::Out(BCLog::warning, BCLog::warning,
+					Form("BCModel::ReadMarginalizedFromFile. Couldn't read histogram \"hist_%s_%s_%s\" from file %s.",
+						this -> GetName().data(), a -> GetName().data(), b -> GetName().data(), file));
+		}
+	}
+
+	froot->Close();
+
+	return k;
+
+}
+
+// ---------------------------------------------------------
+
+int BCModel::ReadErrorBandFromFile(const char * file)
+{
+	TFile * froot = new TFile(file);
+	if(!froot->IsOpen())
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::ReadMarginalizedFromFile. Couldn't open file %s.",file));
+		return 0;
+	}
+
+	int r=0;
+
+	TH2D * h2 = (TH2D*)froot->Get("errorbandxy");
+	if(h2)
+	{
+		h2->SetDirectory(0);
+		this->SetErrorBandHisto(h2);
+		r=1;
+	}
+	else
+		BCLog::Out(BCLog::warning, BCLog::warning,
+			Form("BCModel::ReadMarginalizedFromFile. Couldn't read histogram \"errorbandxy\" from file %s.", file));
+
+	froot->Close();
+
+	return r;
 
 }
 

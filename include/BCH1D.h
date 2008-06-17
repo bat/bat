@@ -179,10 +179,13 @@ class BCH1D
 	/**
 	 * Print distribution into a PostScript file.
 	 * @param filename Output filename
+	 * @param ww canvas size in pixels along X
+	 * @param ww canvas size in pixels along Y
+	 * If ww and wh are set to 0, default ROOT canvas size is used.
 	 * For explanation of parameters options and ovalue look at BCH1D::Draw()
 	 * method.
 	 */
-	void Print(const char * filename, int options=0, double ovalue=0.);
+	void Print(const char * filename, int options=0, double ovalue=0., int ww=0, int wh=0);
 
 	/**
 	 * Draw distribution into the active canvas.
@@ -213,9 +216,10 @@ class BCH1D
 
 	/**
 	 * Draw distribution with bands so that the total shaded area is the
-	 * smallest possible containing and integral of "prob". 
-	*/ 
-	void BCH1D::DrawSmallest(double prob); 
+	 * smallest possible containing and integral of "prob". Draw the location
+	 * of the mode.
+	 */ 
+	void BCH1D::DrawSmallest(double mode, double prob);
 
 	/**
 	 * Calculate the minimal interval of the distribution containing a given content.

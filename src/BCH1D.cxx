@@ -111,7 +111,7 @@ void BCH1D::SetDefaultCLLimit(double limit)
 
 // ---------------------------------------------------------
 
-void BCH1D::Print(const char * filename, int options, double ovalue)
+void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int wh)
 {
 	char file[256];
 	int i=0;
@@ -120,10 +120,17 @@ void BCH1D::Print(const char * filename, int options, double ovalue)
 	file[i]='\0';
 
 	// create temporary canvas
-	TCanvas * canvas = new TCanvas();
+	TCanvas * canvas;
+	if(ww > 0 && wh > 0)
+		canvas = new TCanvas("c","c",ww,wh);
+	else
+		canvas = new TCanvas("c","c");
+
 	canvas -> cd();
 
 	this->Draw(options, ovalue);
+
+	gPad->RedrawAxis();
 
 	// print to file.
 	canvas -> Print(file);
@@ -136,6 +143,8 @@ void BCH1D::Draw(int options, double ovalue)
 	double min, max;
 	double mode;
 	double thismode = this->GetMode();
+
+	fHistogram->Scale(1./fHistogram->Integral("width"));
 
 	if(fModeFlag)
 		mode=fMode;
@@ -217,7 +226,7 @@ void BCH1D::Draw(int options, double ovalue)
 			if(ovalue<50) // just to ensure there's some sense in the number
 				ovalue = 68.; // default is 68%
 			
-			this -> DrawSmallest(ovalue); 
+			this -> DrawSmallest(mode,ovalue);
 
 
 		break; 
@@ -328,54 +337,87 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 
 // ---------------------------------------------------------
 
-void BCH1D::DrawSmallest(double prob)
+void BCH1D::DrawSmallest(double mode, double prob)
 {
+	// prepare triangle for mode
+	TPolyLine * tmax;
 
-	// histogram to be filled with band 
-	TH1D * hist_temp1 = (TH1D*) fHistogram -> Clone(); 
-	hist_temp1 -> Scale(1.0/fHistogram -> Integral("width")); 
-	hist_temp1 -> SetFillColor(kYellow); 
-	hist_temp1 -> SetFillStyle(1001); 
+	double x0 = mode;
+	double y0 = fHistogram->GetBinContent( fHistogram->FindBin(mode) );
+	double xmin = fHistogram->GetXaxis()->GetXmin();
+	double xmax = fHistogram->GetXaxis()->GetXmax();
+	double ysize = 1.2 * fHistogram -> GetMaximum();
 
-	// temporary histogram 
-	TH1D * hist_temp2 = (TH1D*) fHistogram -> Clone(); 
-	hist_temp2 -> Scale(1.0/fHistogram -> Integral("width")); 
+	double dx = 0.01*(xmax-xmin);
+	double dy = 0.04*(ysize);
+	double tmax_x[] = {x0, x0 + dx, x0 - dx, x0};
+	double tmax_y[] = {y0, y0 + dy, y0 + dy, y0};
+	tmax = new TPolyLine(4,tmax_x,tmax_y);
+	tmax->SetLineColor(kRed);
+	tmax->SetFillColor(kRed);
 
-	// clear content 
-	hist_temp1 -> Reset(); 
+	// draw histogram with axes first
+	TH2D * hsc = new TH2D(Form("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
+												10, xmin, xmax, 10, 0., ysize);
+	hsc -> SetStats(0);
+	hsc -> SetXTitle(fHistogram->GetXaxis()->GetTitle());
+	hsc -> SetYTitle(fHistogram->GetYaxis()->GetTitle());
+	hsc -> Draw();
+
+	// histogram to be filled with band
+	TH1D * hist_temp1 = (TH1D*) fHistogram -> Clone();
+	hist_temp1 -> Scale(1.0/fHistogram -> Integral("width"));
+	hist_temp1 -> SetFillColor(kYellow);
+	hist_temp1 -> SetFillStyle(1001);
+
+	// temporary histogram
+	TH1D * hist_temp2 = (TH1D*) fHistogram -> Clone();
+	hist_temp2 -> Scale(1.0/fHistogram -> Integral("width"));
+
+	// clear content
+	hist_temp1 -> Reset();
 
 	// loop over original histogram and copy bin untils integral equals
 	// "prob"
+	prob /= 100.;
 
-	// integral 
-	double sum = 0.0; 
+	// integral
+	double sum = 0.0;
 
-	// loop 
-	while (sum < prob)
-		{
-			// find bin with maximum 
-			int bin = hist_temp2 -> GetMaximumBin(); 
+	int n=0;
+	int nbins=fHistogram->GetNbinsX();
 
-			// copy bin to new histogram 
-			double val = hist_temp2 -> GetBinContent(bin); 
-			hist_temp1 -> SetBinContent(bin, val); 
+	// loop
+	while (sum < prob && n < nbins)
+	{
+		n++;
 
-			// remove maximum from temporary histogram 
-			hist_temp2 -> SetBinContent(bin, 0.0); 
+		// find bin with maximum
+		int bin = hist_temp2 -> GetMaximumBin();
 
-			// integrate by summing 
-			sum += val; 
-		}
+		// copy bin to new histogram
+		double val = hist_temp2 -> GetBinContent(bin);
+		hist_temp1 -> SetBinContent(bin, val);
 
-	// scale histogram 
-	hist_temp1 -> Scale(fHistogram -> Integral("width")); 
+		// remove maximum from temporary histogram
+		hist_temp2 -> SetBinContent(bin, 0.0);
 
-	// draw histograms 
-	fHistogram -> Draw(); 
-	hist_temp1 -> Draw("SAME"); 
+		// integrate by summing
+		sum += val * hist_temp2->GetBinWidth(bin);
+	}
 
-	// free memory 
-	delete hist_temp2; 
+	// scale histogram
+	hist_temp1 -> Scale(fHistogram -> Integral("width"));
+
+	// draw histograms
+	fHistogram -> Draw("same");
+	hist_temp1 -> Draw("same");
+
+	// draw triangle for mode
+	tmax->Draw("f");
+
+	// free memory
+	delete hist_temp2;
 
 }
 

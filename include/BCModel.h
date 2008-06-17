@@ -515,6 +515,16 @@ class BCModel : public BCIntegrate
 	int ReadMode(const char * file);
 
 	/**
+	 * Read
+	 */
+	int ReadMarginalizedFromFile(const char * file);
+
+	/**
+	 * Read
+	 */
+	int ReadErrorBandFromFile(const char * file);
+
+	/**
 	 * Marginalizes the a posteriori probability with respect to a parameter.
 	 * @param parameter A model parameter
 	 * @return 1D marginalized probability

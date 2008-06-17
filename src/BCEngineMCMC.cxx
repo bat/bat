@@ -2446,3 +2446,52 @@ int BCEngineMCMC::MCMCInitialize()
 }
 
 // ---------------------------------------------------------
+
+int BCEngineMCMC::SetMarginalized(int index, TH1D * h)
+{
+	if((int)fMCMCH1Marginalized.size()<=index)
+		return 0;
+
+	if(h==0)
+		return 0;
+
+	if((int)fMCMCH1Marginalized.size()==index)
+		fMCMCH1Marginalized.push_back(h);
+	else
+		fMCMCH1Marginalized[index]=h;
+
+	return index;
+}
+
+// ---------------------------------------------------------
+
+int BCEngineMCMC::SetMarginalized(int index1, int index2, TH2D * h)
+{
+	int counter = 0; 
+	int index = 0;
+
+	// search for correct combination 
+	for(int i = 0; i < fMCMCNParameters; i++)
+		for (int j = 0; j < i; ++j)
+		{
+			if(j == index1 && i == index2)
+				index = counter; 
+			counter++;
+		}	
+
+	if((int)fMCMCH2Marginalized.size()<=index)
+		return 0;
+
+	if(h==0)
+		return 0;
+
+	if((int)fMCMCH2Marginalized.size()==index)
+		fMCMCH2Marginalized.push_back(h);
+	else
+		fMCMCH2Marginalized[index]=h;
+
+	return index;
+}
+
+// ---------------------------------------------------------
+
