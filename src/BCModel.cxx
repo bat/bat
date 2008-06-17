@@ -182,7 +182,7 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 // ---------------------------------------------------------
 
-TH2D * BCModel::GetErrorBandXY_yellow(double level)
+TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
 {
 
 	if (!fErrorBandXY)
@@ -201,7 +201,11 @@ TH2D * BCModel::GetErrorBandXY_yellow(double level)
 	{
 		BCH1D * hist_temp = new BCH1D();
 
-		hist_temp -> SetHistogram(fErrorBandXY -> ProjectionY("temphist", ix, ix));
+		TH1D * hproj = fErrorBandXY -> ProjectionY("temphist", ix, ix);
+		if(nsmooth>0)
+			hproj->Smooth(nsmooth);
+
+		hist_temp -> SetHistogram(hproj);
 
 		TH1D * hist_temp_yellow = hist_temp -> GetSmallestIntervalHistogram(level);
 

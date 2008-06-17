@@ -1597,7 +1597,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		}
 
 		// update scale factors
-		if (counterupdate % fMCMCNIterationsUpdate == 0 && counterupdate > 0)
+		if (counterupdate % (fMCMCNIterationsUpdate*(fMCMCNParameters+1)) == 0 && counterupdate > 0)
 		{
 
 			// prompt status

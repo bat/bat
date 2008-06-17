@@ -228,9 +228,9 @@ class BCModel : public BCIntegrate
 	 * @return The 2-d histogram 
 	 */ 
 	TH2D * GetErrorBandXY()
-		{ return fErrorBandXY; }; 
+		{ return fErrorBandXY; };
 
-	TH2D * GetErrorBandXY_yellow(double level); 
+	TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0);
 
 	/**
 	 * Returns a vector of y-values at a certain probability level. 

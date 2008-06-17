@@ -362,6 +362,11 @@ class BCIntegrate : public BCEngineMCMC
 	 */
 	void SetMode(std::vector <double> mode);
 
+	/**
+	 * Sets errorband histogram
+	 */
+	void SetErrorBandHisto(TH2D * h) { fErrorBandXY = h; };
+
 	// methods
 
 	/** 
