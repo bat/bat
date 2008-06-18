@@ -70,13 +70,13 @@ void BCH2D::Draw(int options)
 	fHistogram -> SetLineColor(kBlack);
 	fHistogram -> SetLineWidth(4);
 
-	if (options == 0)
+	fHistogram->Scale(1./fHistogram->Integral("width"));
 
+	if (options == 0)
 		fHistogram -> Draw("CONT0");
 
 	else if (options == 1)
 	{
-
 		fHistogram -> Draw("CONT3");
 
 		// set contours
