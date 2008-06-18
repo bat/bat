@@ -219,7 +219,7 @@ class BCH1D
 	 * smallest possible containing and integral of "prob". Draw the location
 	 * of the mode.
 	 */ 
-	void BCH1D::DrawSmallest(double mode, double prob);
+	void DrawSmallest(double mode, double prob);
 
 	/**
 	 * Calculate the minimal interval of the distribution containing a given content.
