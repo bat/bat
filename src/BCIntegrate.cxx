@@ -180,7 +180,32 @@ void BCIntegrate::SetNbins(int n)
 	fNbins=n;
 
 	fMCMCH1NBins = n; 
-	fMCMCH2NBins = n; 
+	fMCMCH2NBinsX = n; 
+	fMCMCH2NBinsY = n; 
+}
+
+// *********************************************
+void BCIntegrate::SetNbinsX(int n)
+{
+	if(n<2)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
+		n=2;
+	}
+	fMCMCH2NBinsX = n; 
+}
+
+// *********************************************
+void BCIntegrate::SetNbinsY(int n)
+{
+	if(n<2)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
+		n=2;
+	}
+	fNbins=n;
+
+	fMCMCH2NBinsY = n; 
 }
 
 // *********************************************

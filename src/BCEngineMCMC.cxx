@@ -28,7 +28,8 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCFlagPCA              = false;
 	fMCMCSimulatedAnnealingT0 = 100;
 	fMCMCH1NBins              = 100;
-	fMCMCH2NBins              = 100;
+	fMCMCH2NBinsX             = 100;
+	fMCMCH2NBinsY             = 100;
 	fMCMCFlagPCATruncate      = false;
 	fMCMCPCA                  = 0;
 	fMCMCPCAMinimumRatio      = 1e-7;
@@ -2422,8 +2423,8 @@ int BCEngineMCMC::MCMCInitialize()
 				double hmax2 = fMCMCBoundaryMax.at(i);
 
 				TH2D * h2 = new TH2D(Form("h2_parameters_%i_vs_%i", i, k), "",
-										 fMCMCH2NBins, hmin1, hmax1,
-										 fMCMCH2NBins, hmin2, hmax2);
+										 fMCMCH2NBinsX, hmin1, hmax1,
+										 fMCMCH2NBinsY, hmin2, hmax2);
 
 				fMCMCH2Marginalized.push_back(h2);
 			}
