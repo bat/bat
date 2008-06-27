@@ -962,7 +962,8 @@ class BCEngineMCMC
 	 * Number of bins per dimension for the marginalized distributions. 
 	 */ 
 	int fMCMCH1NBins; 
-	int fMCMCH2NBins; 
+	int fMCMCH2NBinsX; 
+	int fMCMCH2NBinsY; 
 
 	/*
 	 * An array of marginalized distributions. 

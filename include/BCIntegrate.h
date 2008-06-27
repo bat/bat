@@ -274,6 +274,8 @@ class BCIntegrate : public BCEngineMCMC
 	 * distributions.  Default is 100. Minimum number allowed is 2.
 	 */
 	void SetNbins(int n);
+	void SetNbinsX(int n);
+	void SetNbinsY(int n);
 
 	/**
 	 * Sets index of the x values in function fits. 
