@@ -201,6 +201,9 @@ class BCIntegrate : public BCEngineMCMC
 	 */ 
 	TMinuit * GetMinuit(); 
 
+	int GetMinuitErrorFlag() 
+	{ return fMinuitErrorFlag; }; 
+
 	/**
 	 * @return The ROOT tree containing the Markov chain 
 	 */ 
@@ -208,6 +211,10 @@ class BCIntegrate : public BCEngineMCMC
 		{ return fMarkovChainTree; }; 
 
 	// methods (set) 
+
+	void SetMinuitArlist(double * arglist)
+	{ fMinuitArglist[0] = arglist[0]; 
+	  fMinuitArglist[1] = arglist[1]; }; 
 
 	/** 
 	 * @param par The parameter set which gets translated into array
@@ -797,6 +804,9 @@ class BCIntegrate : public BCEngineMCMC
 	 * Minuit 
 	 */ 
 	TMinuit * fMinuit; 
+
+	double fMinuitArglist[2]; 
+	int fMinuitErrorFlag; 
 
 	/**
 	 * Flag for writing Markov chain to file 

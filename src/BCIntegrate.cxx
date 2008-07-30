@@ -38,6 +38,8 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fErrorBandContinuous = true; 
 
 	fMinuit = 0; 
+	fMinuitArglist[0] = 20000; 
+	fMinuitArglist[1] = 0.01; 
 
 	fFlagWriteMarkovChain = false; 
 	fMarkovChainTree = 0; 
@@ -72,6 +74,8 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 	fErrorBandContinuous = true; 
 
 	fMinuit = 0; 
+	fMinuitArglist[0] = 20000; 
+	fMinuitArglist[1] = 0.01; 	
 
 	fFlagWriteMarkovChain = false; 
 	fMarkovChainTree = 0; 
@@ -79,6 +83,7 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 	fMarkovChainStepSize = 0.1; 
 
 	fMarkovChainAutoN = true; 
+
 }
 
 // *********************************************
@@ -1298,16 +1303,12 @@ void BCIntegrate::FindModeMinuit()
 											flag); 
 	
 	// do minimization 
+	fMinuit -> mnexcm("MIGRAD", fMinuitArglist, 2, flag);
 
-	double arglist[2]; 
-
-	arglist[0] = 1000; 
-	arglist[1] = 0.01; 
-
-	fMinuit -> mnexcm("MIGRAD", arglist, 2, flag);
+	// copy flag 
+	fMinuitErrorFlag = flag; 
 
 	// set best fit parameters 
-
 	fBestFitParameters.clear(); 
 
 	for (int i = 0; i < fNvar; i++)
@@ -1322,9 +1323,9 @@ void BCIntegrate::FindModeMinuit()
 
 	// delete minuit 
 
-	delete fMinuit; 
+	//	delete fMinuit; 
 
-	fMinuit = 0; 
+	//	fMinuit = 0; 
 
 	return; 
 
