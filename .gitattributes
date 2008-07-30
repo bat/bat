@@ -61,6 +61,10 @@ examples/example05/Makefile -text
 examples/example05/runBAT.c -text
 examples/example05/src/BCModelParticleDecay.cxx -text
 examples/example05/src/BCModelParticleDecay.h -text
+examples/example06/Makefile -text
+examples/example06/runBAT.c -text
+examples/example06/src/BCModelTop.cxx -text
+examples/example06/src/BCModelTop.h -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text
 include/BCEngineMCMC.h -text
