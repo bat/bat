@@ -87,9 +87,9 @@ double BCModelTop::LogLikelihood(std::vector <double> parameters)
 
 	double logprob = 0.0; 
 	
-	logprob += this -> EnergyResolutionBJets(fDataPoint -> GetValue(0), 
+	logprob += this -> EnergyResolutionBJets(fDataPoint -> GetValue(0) / parameters.at(6), 
 																					 parameters.at(0)); 
- 	logprob += this -> EnergyResolutionBJets(fDataPoint -> GetValue(4), 
+	logprob += this -> EnergyResolutionBJets(fDataPoint -> GetValue(4) / parameters.at(6), 
  																					 parameters.at(1)); 
 	logprob += this -> EnergyResolutionLightJets(fDataPoint -> GetValue(8) / parameters.at(6), 
 																							 parameters.at(2)); 
@@ -98,7 +98,7 @@ double BCModelTop::LogLikelihood(std::vector <double> parameters)
 	logprob += this -> EnergyResolutionElectrons(fDataPoint -> GetValue(16), 
 																							 parameters.at(4)); 
 
- 	logprob += BCMath::LogBreitWignerNonRel(fLV_Whad.M(), fMW, fGammaW, true); 
+	logprob += BCMath::LogBreitWignerNonRel(fLV_Whad.M(), fMW, fGammaW, true); 
  	logprob += BCMath::LogBreitWignerNonRel(fLV_Wlep.M(), fMW, fGammaW, true); 
 	logprob += BCMath::LogGaus(fLV_Tophad.M() - fLV_Toplep.M(), 0.0, 1.5, true); 
 

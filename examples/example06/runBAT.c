@@ -12,6 +12,13 @@
 
 // ---------------------------------------------------------
   
+const double sigmas = 2.0; 
+const double cut_whad = 5.0; 
+const double cut_wlep = 5.0; 
+const double cut_deltat = 5.0; 
+
+// ---------------------------------------------------------
+
 int main()
 {
 
@@ -39,11 +46,11 @@ int main()
 	TH1D * hist_mass_Toplep = new TH1D("hist_mass_Toplep", ";m_{top} (lept.) [GeV/c^{2};N", 100, 140.0, 200.0); 
 	hist_mass_Toplep -> SetStats(kFALSE); 
 
-	TH1D * hist_JES_light = new TH1D("hist_JES_light", ";JES (light);N", 101, 0.505, 1.505); 
-	hist_JES_light -> SetStats(kFALSE); 
+	TH1D * hist_JES_all = new TH1D("hist_JES_all", ";JES (light);N", 101, 0.495, 1.505); 
+	hist_JES_all -> SetStats(kFALSE); 
 
-	TH2D * hist_JES_light_mass_Tophad = new TH2D("hist_JES_light_mass_Tophad", ";JES (light);m_{W} (hadr.) [GeV/c^{2}]", 30, 0.9, 1.2, 20, 140.0, 200.0); 
-	hist_JES_light_mass_Tophad -> SetStats(kFALSE); 
+	TH2D * hist_JES_all_mass_Tophad = new TH2D("hist_JES_all_mass_Tophad", ";JES (light);m_{top} (hadr.) [GeV/c^{2}]", 101, 0.495, 1.505, 61, 139.5, 200.5); 
+	hist_JES_all_mass_Tophad -> SetStats(kFALSE); 
 
 	TH1D * hist_combinations = new TH1D("hist_combinations", ";combination;N", 12, -0.5, 11.5); 
 	hist_combinations -> SetStats(kFALSE); 
@@ -90,10 +97,11 @@ int main()
 	BCParameter * par_qdown_E = new BCParameter("qdown_E",0.0, 700.0); 
 	BCParameter * par_electron_E = new BCParameter("electron_E", 0.0, 700.0); 
 	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -700.0, 700.0); 
-	BCParameter * par_JES_light = new BCParameter("JES_light",  0.5, 1.5); 
+	BCParameter * par_JES_all = new BCParameter("JES_all",  0.5, 1.5); 
 
 	// reset counter 
 	int nevents_processed = 0; 
+	int nevents_minuiterror = 0; 
 	int nevents_accepted = 0; 
 	int nevents_correctcombination = 0; 
 
@@ -101,7 +109,7 @@ int main()
 	int nevents = fDataSet -> GetNDataPoints();
 
 	// debug
-	nevents = 1000; 
+	//	nevents = 1000; 
 
 	// loop over events 
 	for (int ievent = 0; ievent < nevents; ++ievent)
@@ -115,35 +123,37 @@ int main()
 			// adjust settings 
 			fModelTop -> SetModeFindingMethod(BCIntegrate::kMFMinuit);
 			fModelTop -> SetIntegrationMethod(BCIntegrate::kICuba);
+			fModelTop -> MCMCSetNIterationsMax(10001); 
+			fModelTop -> MCMCSetNIterationsRun(10001); 
 
 			// adjust limits 
 			double x    = fDataSet -> GetDataPoint(ievent) -> GetValue(0); 
-			double xlow = BCMath::Max(0.0, x - 5.0 * sqrt(x)); 
-			double xhi  = x + 5.0 * sqrt(x); 
+			double xlow = BCMath::Max(0.0, x - sigmas * sqrt(x)); 
+			double xhi  = x + sigmas * sqrt(x); 
 			par_bhad_E -> SetLowerLimit(xlow); 
 			par_bhad_E -> SetUpperLimit(xhi); 
 
 			x    = fDataSet -> GetDataPoint(ievent) -> GetValue(4); 
-			xlow = BCMath::Max(0.0, x - 5.0 * sqrt(x)); 
-			xhi  = x + 5.0 * sqrt(x); 
+			xlow = BCMath::Max(0.0, x - sigmas * sqrt(x)); 
+			xhi  = x + sigmas * sqrt(x); 
 			par_blep_E -> SetLowerLimit(xlow); 
 			par_blep_E -> SetUpperLimit(xhi); 
 
 			x    = fDataSet -> GetDataPoint(ievent) -> GetValue(8); 
-			xlow = BCMath::Max(0.0, x - 5.0 * sqrt(x)); 
-			xhi  = x + 5.0 * sqrt(x); 
+			xlow = BCMath::Max(0.0, x - sigmas * sqrt(x)); 
+			xhi  = x + sigmas * sqrt(x); 
 			par_qup_E -> SetLowerLimit(xlow); 
 			par_qup_E -> SetUpperLimit(xhi); 
 
 			x    = fDataSet -> GetDataPoint(ievent) -> GetValue(12); 
-			xlow = BCMath::Max(0.0, x - 5.0 * sqrt(x)); 
-			xhi  = x + 5.0 * sqrt(x); 
+			xlow = BCMath::Max(0.0, x - sigmas * sqrt(x)); 
+			xhi  = x + sigmas * sqrt(x); 
 			par_qdown_E -> SetLowerLimit(xlow); 
 			par_qdown_E -> SetUpperLimit(xhi); 
 
 			x    = fDataSet -> GetDataPoint(ievent) -> GetValue(16); 
-			xlow = BCMath::Max(0.0, x - 5.0 * sqrt(x)); 
-			xhi  = x + 5.0 * sqrt(x); 
+			xlow = BCMath::Max(0.0, x - sigmas * sqrt(x)); 
+			xhi  = x + sigmas * sqrt(x); 
 			par_electron_E -> SetLowerLimit(xlow); 
 			par_electron_E -> SetUpperLimit(xhi); 
 
@@ -154,7 +164,7 @@ int main()
 			fModelTop -> AddParameter(par_qdown_E); 
 			fModelTop -> AddParameter(par_electron_E); 
 			fModelTop -> AddParameter(par_neutrino_pz); 
-			fModelTop -> AddParameter(par_JES_light); 
+			fModelTop -> AddParameter(par_JES_all); 
 
 			// get current event
 			fModelTop -> InitializeEvent(fDataSet, ievent); 
@@ -163,8 +173,10 @@ int main()
 			double maxlike = -1; 
 			double maxloglike = -1;
 			int maxlikeindex = -1; 
-
 			double sumlike = 0.0; 
+
+			std::vector <double> tempvector; 
+			std::vector <double> bestfitvector; 
 
 			// loop over permutations 
 			// debug
@@ -176,30 +188,43 @@ int main()
 
 					// perform minimization, etc. 
 					fModelTop -> GetMinuit() -> SetPrintLevel(-1);
+					// debug
 					fModelTop -> FindMode();
 
+					if (fModelTop -> GetMinuitErrorFlag() != 0)
+						{
+							nevents_minuiterror++; 
+							std::cout << " Minuit error: " << fModelTop -> GetMinuitErrorFlag() << std::endl; 
+						}
+
+					//					fModelTop -> MarginalizeAll(); 
+					//					fModelTop -> PrintAllMarginalized(Form("output_%i_%i", ievent, iperm)); 
+
 					// calculate best fitting lorentz vectors 
-					fModelTop -> CalculateLorentzVectors(fModelTop -> GetBestFitParameters()); 
+					tempvector = fModelTop -> GetBestFitParameters(); 
+					
+					fModelTop -> CalculateLorentzVectors(tempvector); 
 
 					// remove combinations with unrealistic masses 
-					if (fabs(fModelTop -> fLV_Whad.M() - 80.4) > 5.0)
+					if (fabs(fModelTop -> fLV_Whad.M() - 80.4) > cut_whad)
 						{ 
 							//							std::cout << " hadronic W-mass not within range : " << fModelTop -> fLV_Whad.M() - 80.4 << " GeV/c2" << std::endl; 
 							continue; 
 						}
-					if (fabs(fModelTop -> fLV_Wlep.M() - 80.4) > 5.0)
+					if (fabs(fModelTop -> fLV_Wlep.M() - 80.4) > cut_wlep)
 						{ 
 							//							std::cout << " leptonic W-mass not within range : " << fModelTop -> fLV_Wlep.M() - 80.4 << " GeV/c2" << std::endl; 
 							continue; 
 						}
-					if (fabs(fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M()) > 5.0)
+					if (fabs(fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M()) > cut_deltat)
 						{
 							//							std::cout << " top mass difference too large : " << fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M() << " GeV/c2" << std::endl; 
 							continue; 
 						}
 
 					// calculate best likelihood 
-					double like = fModelTop -> Likelihood(fModelTop -> GetBestFitParameters()); 
+					double like = fModelTop -> Likelihood(tempvector); 
+
 					// sum over best likelihoods 
 					sumlike += like; 
 
@@ -209,6 +234,7 @@ int main()
 							maxlike = like; 
 							maxloglike = log(like); 
 							maxlikeindex = iperm;
+							bestfitvector = tempvector; 
 						}
 
 				} // end of loop over permutations 
@@ -225,19 +251,19 @@ int main()
 
 					fModelTop -> SetPermutation(maxlikeindex); 
 					fModelTop -> GetMinuit() -> SetPrintLevel(-1);
-					fModelTop -> FindMode();
-					fModelTop -> CalculateLorentzVectors(fModelTop -> GetBestFitParameters()); 
+					//					fModelTop -> FindMode();
+					fModelTop -> CalculateLorentzVectors(bestfitvector); 
 
 					hist_combinations -> Fill(double(maxlikeindex)); 
 					hist_best_comb -> Fill(double(maxlikeindex), maxloglike); 
 					hist_sign_comb -> Fill(double(maxlikeindex), maxlike/sumlike); 
-					hist_JES_light -> Fill(fModelTop -> GetBestFitParameters().at(6));
+					hist_JES_all -> Fill(bestfitvector.at(6));
 					hist_mass_Whad -> Fill(fModelTop -> fLV_Whad.M()); 
 					hist_mass_Wlep -> Fill(fModelTop -> fLV_Wlep.M()); 
 					hist_mass_Tophad -> Fill(fModelTop -> fLV_Tophad.M()); 
 					hist_mass_Toplep -> Fill(fModelTop -> fLV_Toplep.M()); 
 
-					hist_JES_light_mass_Tophad -> Fill(fModelTop -> GetBestFitParameters().at(6),
+					hist_JES_all_mass_Tophad -> Fill(bestfitvector.at(6),
 																					 fModelTop -> fLV_Tophad.M());
 				}
 
@@ -260,7 +286,13 @@ int main()
 	std::cout << std::endl; 
 	std::cout << " Eff (accepted) : " << double(nevents_accepted) / double(nevents_processed) * 100.0 << "%" << std::endl; 
 	std::cout << " Eff (correct)  : " << double(nevents_correctcombination) / double(nevents_accepted)  * 100.0 << "%" << std::endl; 
+
+	std::cout << std::endl;
+	std::cout << " N (Minuit errors) : " << nevents_minuiterror << std::endl; 
+
 	std::cout << " ===================================== " << std::endl; 
+
+
 
 	// ---------------------------------------------------------
 	// print histograms 
@@ -301,16 +333,16 @@ int main()
 
 	TCanvas * c5 = new TCanvas("c5"); 
 	c5 -> cd(); 
-	hist_JES_light -> Draw(); 
+	hist_JES_all -> Draw(); 
 	
 	c5 -> Print("c5.eps"); 
 
 	TCanvas * c6 = new TCanvas("c6"); 
 	c6 -> cd(); 
-	hist_JES_light_mass_Tophad -> Draw("COLZ"); 
+	hist_JES_all_mass_Tophad -> Draw("COLZ"); 
 	
 	c6 -> Print("c6.eps"); 
-	
+
 	// ---------------------------------------------------------
 	// close log file 
 	// ---------------------------------------------------------
