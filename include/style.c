@@ -12,10 +12,10 @@ void SetStyle()
 
   // pads
   
-//  gStyle -> SetPadTopMargin   (0.02);
+  gStyle -> SetPadTopMargin   (0.13);
   gStyle -> SetPadBottomMargin(0.15);
   gStyle -> SetPadLeftMargin  (0.15);
-//  gStyle -> SetPadRightMargin (0.02);
+  gStyle -> SetPadRightMargin (0.13);
   gStyle -> SetPadBorderMode  (0);
   
   // Frames
@@ -24,7 +24,7 @@ void SetStyle()
   gStyle -> SetFrameFillColor (kWhite);
   gStyle -> SetFrameLineColor (kBlack);
   gStyle -> SetFrameLineStyle (0);
-  gStyle -> SetFrameLineWidth (2);
+  gStyle -> SetFrameLineWidth (1);
   gStyle -> SetFrameBorderMode(0);
   
   // histograms
@@ -33,7 +33,7 @@ void SetStyle()
   gStyle -> SetHistFillStyle(0);
   gStyle -> SetHistLineColor(kBlack);
   gStyle -> SetHistLineStyle(0);
-  gStyle -> SetHistLineWidth(3);
+  gStyle -> SetHistLineWidth(1);
   
   // options 
   
@@ -43,7 +43,7 @@ void SetStyle()
   
   gStyle -> SetLineColor(kBlack); 
   gStyle -> SetLineStyle(1); 
-  gStyle -> SetLineWidth(3); 
+  gStyle -> SetLineWidth(1); 
   
   // markers
   
@@ -80,7 +80,7 @@ void SetStyle()
   
   gStyle -> SetTitleFont      (62,   "Y");
 //  gStyle -> SetTitleSize      (0.06, "Y");
-  gStyle -> SetTitleOffset    (2.,  "Y");
+  gStyle -> SetTitleOffset    (1.6,  "Y");
   
   // ticks 
   

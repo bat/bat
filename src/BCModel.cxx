@@ -1138,7 +1138,7 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 	int n=0;
 
 	// setup the canvas and postscript file
-	TCanvas * c = new TCanvas("c","canvas",900,600);
+	TCanvas * c = new TCanvas("c","canvas");
 
 	int type = 112;
 
@@ -1202,7 +1202,7 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 
 			BCParameter * a = this->GetParameter(i);
 			BCParameter * b = this->GetParameter(j);
-			this -> GetMarginalized(a,b) -> Draw();
+			this -> GetMarginalized(a,b) -> Draw(52);
 			k++;
 		}
 	}
@@ -1256,8 +1256,12 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 	hist -> SetYTitle(Form("%s", parameter2 -> GetName().data()));
 	hist -> SetStats(kFALSE);
 
-	// set histogram
 
+	double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
+
+	hprob->SetGlobalMode(gmode);
+
+	// set histogram
 	hprob -> SetHistogram(hist);
 
 	return hprob;

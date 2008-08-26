@@ -198,7 +198,7 @@ class BCModel : public BCIntegrate
 	 * @param index The index of the parameter 
 	 * @return The best fit parameter 
 	 */
-	double GetBestFitParameter(int index) 
+	double GetBestFitParameter(int index)
 	{ return fBestFitParameters.at(index); }; 
 
 	/** 

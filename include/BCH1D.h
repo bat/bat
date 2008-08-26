@@ -217,9 +217,9 @@ class BCH1D
 	/**
 	 * Draw distribution with bands so that the total shaded area is the
 	 * smallest possible containing and integral of "prob". Draw the location
-	 * of the mode.
-	 */ 
-	void DrawSmallest(double mode, double prob);
+	 * of the mean and median if requested (default).
+	 */
+	void DrawSmallest(double mode, double prob, bool drawmean=true);
 
 	/**
 	 * Calculate the minimal interval of the distribution containing a given content.

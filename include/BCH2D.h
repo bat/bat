@@ -70,22 +70,31 @@ class BCH2D
 	 */ 
 	void GetMode(double& mode);
 
-	// methods (set) 
+	// methods (set)
 
 	/**
-	 * Returns the histogram. 
-	 */ 
+	 * Set the histogram.
+	 */
 	void SetHistogram(TH2D * hist)
-	{ fHistogram = hist; };
+		{ fHistogram = hist; };
+
+	/**
+	 * Set global mode.
+	 */
+	void SetGlobalMode(double mode[2])
+		{ fMode[0]=mode[0]; fMode[1]=mode[1]; fModeFlag=1; };
 
 	// methods 
 
 	/**
 	 * Print 2-d histogram to file
 	 * @param filename The filename
+	 * @param ww canvas size in pixels along X
+	 * @param ww canvas size in pixels along Y
+	 * If ww and wh are set to 0, default ROOT canvas size is used.
 	 * For explanation of the parameter options see the Draw() method.
 	 */
-	void Print(const char * filename, int options=0);
+	void Print(const char * filename, int options=0, int ww=0, int wh=0);
 
 	/**
 	 * Draw 2-d distribution into the active canvas
@@ -126,15 +135,25 @@ class BCH2D
 
  private:
 
-	/** 
+	/**
 	 * The 2-d histogram
-	 */ 
-	TH2D * fHistogram; 
+	 */
+	TH2D * fHistogram;
 
 	/**
-	 * The integrated 2-d histogram 
-	 */ 
-	TH1D * fIntegratedHistogram; 
+	 * The integrated 2-d histogram
+	 */
+	TH1D * fIntegratedHistogram;
+
+	/**
+	 * Global mode
+	 */
+	double fMode[2];
+
+	/**
+	 * "Is there a global mode?" flag
+	 */
+	int fModeFlag;
 
 }; 
 
