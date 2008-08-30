@@ -64,7 +64,10 @@ class BCModel : public BCIntegrate
 	 */ 
 	virtual ~BCModel(); 
 
-	// member functions (get) 
+	/* @} */ 
+
+	/** \name Member functions (get) */ 
+	/* @{ */ 
 
 	/** 
 	 * @return The name of the model.
@@ -225,7 +228,10 @@ class BCModel : public BCIntegrate
 
 	TGraph * GetFitFunctionGraph(std::vector <double> parameters, double xmin, double xmax, int n=1000);
 
-	// methods (set) 
+	/* @} */ 
+
+	/** \name Member functions (set) */ 
+	/* @{ */ 
 
 	/**
 	 * Sets the name of the model. 
@@ -299,7 +305,10 @@ class BCModel : public BCIntegrate
 	 */ 
 	void SetErrorBandContinuous(bool flag); 
 
-	// methods 
+	/* @} */ 
+
+	/** \name Member functions (miscellaneous methods) */ 
+	/* @{ */ 
 
 	/** 
 	 * Adds a parameter to the parameter set 
@@ -659,6 +668,8 @@ class BCModel : public BCIntegrate
 	 * @param parameters The parameter values at which point to evaluate the matrix 
 	 */
 	void PrintHessianMatrix(std::vector<double> parameters); 
+
+	/* @} */ 
 
  protected:
 
