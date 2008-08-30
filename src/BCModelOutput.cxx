@@ -211,27 +211,6 @@ void BCModelOutput::WriteMarginalizedDistributions()
 }
 
 // ---------------------------------------------------------
-
-void BCModelOutput::WriteErrorBand()
-{
-
-	// remember current directory
-	TDirectory * dir = gDirectory;
-
-	// change to file
-	fOutputFile -> cd();
-
-	fModel -> GetErrorBandXY() -> Write();
-	fModel -> GetErrorBandXY_yellow(.68) -> Write();
-	fModel -> GetErrorBandXY_yellow(.90) -> Write();
-	fModel -> GetErrorBandXY_yellow(.95) -> Write();
-
-	// return to old directory
-	gDirectory = dir;
-
-}
-
-// ---------------------------------------------------------
 	
 void BCModelOutput::Close()
 {

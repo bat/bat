@@ -449,7 +449,7 @@ std::vector <int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
 		int nfound=0;
 
 		// loop over histogram bins in y
-		// cound nonzero intervals in y
+		// count nonzero intervals in y
 		for (int iy=1; iy<=ny; iy++)
 			if(h->GetBinContent(ix,iy)>0.)
 			{

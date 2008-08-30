@@ -9,6 +9,7 @@
 #include <TMath.h>
 
 #include <fstream>
+#include <iomanip.h>
 
 // --------------------------------------------------------- 
 
@@ -177,46 +178,6 @@ std::vector <double> BCModel::GetErrorBand(double level)
 		}
 
 	return errorband; 
-
-}
-
-// ---------------------------------------------------------
-
-TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
-{
-
-	if (!fErrorBandXY)
-		return 0;
-
-	int nx = fErrorBandXY -> GetNbinsX();
-	int ny = fErrorBandXY -> GetNbinsY();
-
-	// copy existing histogram
-	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(Form("%s_sub_%f.2",fErrorBandXY->GetName(),level));
-	hist_tempxy -> Reset();
-	hist_tempxy -> SetFillColor(kYellow);
-
-	// loop over x bins
-	for (int ix = 1; ix < nx; ix++)
-	{
-		BCH1D * hist_temp = new BCH1D();
-
-		TH1D * hproj = fErrorBandXY -> ProjectionY("temphist", ix, ix);
-		if(nsmooth>0)
-			hproj->Smooth(nsmooth);
-
-		hist_temp -> SetHistogram(hproj);
-
-		TH1D * hist_temp_yellow = hist_temp -> GetSmallestIntervalHistogram(level);
-
-		for (int iy = 1; iy <= ny; ++iy)
-			hist_tempxy -> SetBinContent(ix, iy, hist_temp_yellow -> GetBinContent(iy));
-
-		delete hist_temp_yellow;
-		delete hist_temp;
-	}
-
-	return hist_tempxy;
 
 }
 
@@ -938,6 +899,8 @@ int BCModel::MarginalizeAll()
 	this -> MCMCMetropolis();
 
 	this -> FindModeMCMC();
+
+	this -> PrintResults(Form("%s.txt", this -> GetName().data()));
 
 	return 1;
 }
@@ -2330,7 +2293,7 @@ void BCModel::PrintSummary()
 	std::cout
 		<<std::endl
 		<<"   ---------------------------------"<<std::endl
-		<<"    Model : " << fName <<std::endl
+		<<"    Model : " << fName.data() <<std::endl
 		<<"   ---------------------------------"<<std::endl
 		<<"     Index                : "<< fIndex <<std::endl
 		<<"     Number of parameters : "<< nparameters <<std::endl
@@ -2383,6 +2346,143 @@ void BCModel::PrintSummary()
 
 	if (fNormalization > 0) 
 		std::cout <<"     Normalization        : " << fNormalization << std::endl;
+
+}
+
+// ---------------------------------------------------------
+
+void BCModel::PrintResults(const char * file)
+{
+	
+	// print summary of Markov Chain Monte Carlo 
+
+	// open file 
+	ofstream ofi(file);
+
+	// check if file is open 
+	if(!ofi.is_open())
+		{
+			std::cerr << "Couldn't open file " << file <<std::endl;
+			return;
+		}
+
+	// number of parameters 
+	int npar = fParameterSet -> size();
+
+	// check convergence 
+	bool flag_conv = ((this -> MCMCGetNIterationsConvergenceGlobal() > 0)?1:0); 
+
+	ofi << std::endl; 
+	ofi << " ----------------------------------------------------- " << std::endl; 
+	ofi << " Summary of the Markov Chain Monte Carlo run " << std::endl; 
+	ofi << " ----------------------------------------------------- " << std::endl; 
+	ofi << std::endl; 
+
+	if (!flag_conv)
+		{
+			ofi << " WARNING: the Markov Chain did not converge! Be\n"
+					<< " cautious using the following results!" << std::endl; 
+			ofi << std::endl; 
+		}
+
+	ofi << " Model summary" << std::endl; 
+	ofi << " =============" << std::endl; 
+	ofi << " Model: " << fName.data() << std::endl; 
+	ofi << " Number of parameters: " << npar << std::endl;
+	ofi << " List of Parameters and ranges: " << std::endl; 
+	for (int i = 0; i < npar; ++i)
+		{
+			ofi << "  (" << i << ") Parameter \"" 
+					<< fParameterSet -> at(i) -> GetName().data() << "\""
+					<< ": " << fParameterSet -> at(i) -> GetLowerLimit() 
+					<< " - " 
+					<< fParameterSet -> at(i) -> GetUpperLimit() << std::endl; 
+		}
+  ofi << std::endl; 
+
+	ofi << " Results of the marginalization" << std::endl; 
+	ofi << " ==============================" << std::endl; 
+	ofi << " List of parameters and properties of the marginalized\n"
+			<< " distributions:" << std::endl; 
+	for (int i = 0; i < npar; ++i)
+		{
+			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i)); 
+
+			ofi << "  (" << i << ") Parameter \"" 
+					<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl; 
+			ofi << "      Mean +- RMS:         "
+					<< setprecision(4) << bch1d -> GetMean() 
+					<< " +- " 
+					<< setprecision(4) << bch1d -> GetRMS() << std::endl;
+			ofi << "      Median +- sigma:     " 
+					<< setprecision(4) << bch1d -> GetMedian() 
+					<< " +  " << setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian() 
+					<< " - " << setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl; 
+			ofi << "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl; 
+			ofi << "      Smallest interval(s) containing 68% and local modes: " << std::endl;
+			
+			std::vector <double> v; 
+
+			v = bch1d -> GetSmallestIntervals(0.68); 
+			int ninter = int(v.size()); 
+
+			for (int j = 0; j < ninter; j+=5)
+				ofi << "       " << v.at(j) << " - " << v.at(j+1) << " (local mode at " << v.at(j+3) << " with rel. height " << v.at(j+2) << "; rel. area " << v.at(j+4) << ")" << std::endl; 
+		}	
+	ofi << std::endl; 
+
+	ofi << " Results of the optimization" << std::endl; 
+	ofi << " ===========================" << std::endl; 
+	ofi << " Optimization algorithm used: "; 
+	switch(this -> GetModeFindingMethod())
+		{
+		case BCIntegrate::kMFSimulatedAnnealing:
+			{
+				ofi << " Simulated Annealing" << std::endl;
+			}
+
+		case BCIntegrate::kMFMinuit:
+			{
+				ofi << " Minuit" << std::endl; 
+			}
+
+		case BCIntegrate::kMFMCMC:
+			{
+				ofi << " MCMC " << std::endl; 
+			}
+		}
+	ofi << " List of parameters and global mode: " << std::endl; 
+	for (int i = 0; i < npar; ++i)
+		{
+			ofi << "  (" << i << ") Parameter \"" 
+					<< fParameterSet -> at(i) -> GetName().data() << "\": " 
+					<< fBestFitParameters.at(i) << std::endl; 
+		}
+	ofi << std::endl; 
+
+	ofi << " Status of the MCMC" << std::endl; 
+	ofi << " ==================" << std::endl; 
+	ofi << " Convergence reached: " << ((flag_conv)?"yes":"no") << std::endl; 
+	if (flag_conv) 
+		ofi << " Number of iterations until convergence: " << this -> MCMCGetNIterationsConvergenceGlobal() << std::endl; 
+	else
+		ofi << " WARNING: the Markov Chain did not converge! Be\n"
+				<< " cautious using the following results!" << std::endl; 
+	ofi << " Number of chains:                       " << this -> MCMCGetNChains() << std::endl; 
+	ofi << " Number of iterations of each chain:     " << this -> MCMCGetNIterationsMax() << std::endl; 
+	ofi << std::endl; 
+
+	ofi << " ----------------------------------------------------- " << std::endl; 
+	ofi << std::endl; 
+	ofi << " Notes" << std::endl; 
+	ofi << " =====" << std::endl; 
+	ofi << " (i) Median +- sigma denotes the median, m, of the\n" 
+			<< "     marginalized distribution and the intervals from\n" 
+			<< "     m to the 16% and 84% quantiles. " << std::endl; 
+	ofi << " ----------------------------------------------------- " << std::endl; 
+
+	// close file 
+	//	ofi.close; 
 
 }
 

@@ -43,14 +43,14 @@ double BCH1D::GetMode()
 
 // ---------------------------------------------------------
 
-double BCH1D::GetQuantile(double probabilitysum)
+double BCH1D::GetQuantile(double probability)
 {
 
 	int nquantiles = 1;
 	double quantiles[1];
 	double probsum[1];
 
-	probsum[0] = probabilitysum;
+	probsum[0] = probability;
 
 	// use ROOT function to calculat quantile.
 
@@ -809,6 +809,96 @@ TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 	delete hist_temp;
 
 	return hist_yellow;
+
+}
+
+// ---------------------------------------------------------
+
+std::vector <double> BCH1D::GetSmallestIntervals(double content)
+{
+
+	std::vector <double> v; 
+
+	TH1D * hist = 0; 
+
+	hist = this -> GetSmallestIntervalHistogram(content); 
+
+	int nbins = hist -> GetNbinsX(); 
+	int ninter = 0; 
+	int lastbin = -1; 
+
+	double max = -1; 
+	double localmax = -1; 
+	double localmaxpos = -1; 
+
+	double localint = 0; 
+
+	bool flag = false; 
+
+	for (int i = 1; i <= nbins; ++i)
+		{
+			// interval starts here 
+			if (!flag && hist -> GetBinContent(i) > 0.)
+				{
+					flag = true; 
+					v.push_back(hist -> GetBinCenter(i)); 
+
+					// remember start position of the interval 
+					lastbin = i; 
+
+					// increase number of intervals 
+					ninter++; 
+
+					// reset local maximum
+					localmax = fHistogram -> GetBinContent(i); 
+					localmaxpos = hist -> GetBinLowEdge(i); 
+
+					// reset local integral
+					localint = 0; 
+				}
+
+			// interval stops here 
+			if ((flag && !(hist -> GetBinContent(i) > 0.)) || (flag && i == nbins))
+				{
+					flag = false; 
+					v.push_back(hist -> GetBinCenter(i)); 
+
+					// set right bin to maximum if on edge
+					if (localmaxpos == hist -> GetBinCenter(i-1))
+						localmaxpos = hist -> GetBinCenter(i) + 0.5 * hist -> GetBinWidth(i); 
+
+					// find the absolute maximum 
+					if (localmax > max)
+						max = localmax; 
+
+					// save local maximum
+					v.push_back(localmax); 
+					v.push_back(localmaxpos); 
+
+					// save local integral 
+					v.push_back(localint);  					
+				}
+
+			std::cout << i << " " << fHistogram -> FindBin(localmaxpos) << " " << localmaxpos << " " << localmax << " " << fHistogram -> GetBinContent(i) << std::endl; 
+
+			// find local maximum 
+			if (localmax < fHistogram -> GetBinContent(i))
+				{
+					localmax = fHistogram -> GetBinContent(i); 			 
+					localmaxpos = hist -> GetBinCenter(i); 
+
+					std::cout << " g " << localmax <<  " " << localmaxpos << std::endl; 
+				}
+
+			// increase area 
+			localint += fHistogram -> GetBinContent(i) / fHistogram -> Integral(); 
+		}
+
+	// rescale absolute heights to relative heights 
+	for (int i = 0; i < ninter; ++i)
+		v[i*5+2] = v.at(i*5+2) / max; 	
+
+	return v; 
 
 }
 

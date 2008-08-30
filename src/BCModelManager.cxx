@@ -123,7 +123,8 @@ void BCModelManager::AddModel(BCModel * model, double probability)
 }   
 
 // ---------------------------------------------------------
-
+// DEBUG DELETE?  
+/*
 void BCModelManager::SetNIterationsMax(int niterations)
 {
 
@@ -135,6 +136,7 @@ void BCModelManager::SetNIterationsMax(int niterations)
 }
 
 // --------------------------------------------------------- 
+*/ 
 
 void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
 {
