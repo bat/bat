@@ -675,21 +675,24 @@ void BCModel::FindMode()
 	BCLog::Out(BCLog::summary, BCLog::summary,
 		Form("Model \'%s\': Finding mode", this -> GetName().data()));
 
-	switch(this -> GetModeFindingMethod())
+	// synchronize parameters in BCIntegrate 
+	this -> SetParameters(fParameterSet);
+
+	switch(this -> GetOptimizationMethod())
 		{
-		case BCIntegrate::kMFSimulatedAnnealing:
+		case BCIntegrate::kOptSimulatedAnnealing:
 			{
 				this -> FindModeSA();
 				return;
 			}
 
-		case BCIntegrate::kMFMinuit:
+		case BCIntegrate::kOptMinuit:
 			{
 				this -> FindModeMinuit();
 				return;
 			}
 
-		case BCIntegrate::kMFMCMC:
+		case BCIntegrate::kOptMetropolis:
 			{
 //				this -> FindModeMCMC(flag);
 //				this -> FindModeMCMC();
@@ -700,7 +703,7 @@ void BCModel::FindMode()
 		}
 
 	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::FindMode. Invalid mode finding method: %d. Return.",
-																									this->GetModeFindingMethod()));
+																									this->GetOptimizationMethod()));
 
 	return;
 
@@ -2434,22 +2437,19 @@ void BCModel::PrintResults(const char * file)
 	ofi << " Results of the optimization" << std::endl; 
 	ofi << " ===========================" << std::endl; 
 	ofi << " Optimization algorithm used: "; 
-	switch(this -> GetModeFindingMethod())
+	switch(this -> GetOptimizationMethod())
 		{
-		case BCIntegrate::kMFSimulatedAnnealing:
-			{
-				ofi << " Simulated Annealing" << std::endl;
-			}
+		case BCIntegrate::kOptSimulatedAnnealing:
+			ofi << " Simulated Annealing" << std::endl;
+			break; 
 
-		case BCIntegrate::kMFMinuit:
-			{
-				ofi << " Minuit" << std::endl; 
-			}
+		case BCIntegrate::kOptMinuit:
+			ofi << " Minuit" << std::endl; 
+			break; 
 
-		case BCIntegrate::kMFMCMC:
-			{
-				ofi << " MCMC " << std::endl; 
-			}
+		case BCIntegrate::kOptMetropolis:
+			ofi << " MCMC " << std::endl; 
+			break;
 		}
 	ofi << " List of parameters and global mode: " << std::endl; 
 	for (int i = 0; i < npar; ++i)

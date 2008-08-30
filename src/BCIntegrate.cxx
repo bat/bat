@@ -20,9 +20,9 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fNIterationsMax    = 1000000; 
 	fRelativePrecision = 1e-3; 
 
-	fIntegrateMethod   = BCIntegrate::kIMonteCarlo;
-	fMarginalizeMethod = BCIntegrate::kMMetropolis;
-	fModeFindingMethod = BCIntegrate::kMFMCMC; 
+	fIntegrationMethod = BCIntegrate::kIntMonteCarlo;
+	fMarginalizationMethod = BCIntegrate::kMargMetropolis;
+	fOptimizationMethod = BCIntegrate::kOptMinuit; 
 
 	fNbins=100;
 
@@ -140,6 +140,17 @@ void BCIntegrate::SetParameters(BCParameterSet * par)
 	fXmetro1.clear(); 
 	fXmetro1.assign(fNvar,0.);
 
+	fMCMCBoundaryMin.clear();
+	fMCMCBoundaryMax.clear();
+
+	for(int i=0;i<fNvar;i++)
+		{
+			fMCMCBoundaryMin.push_back(fMin[i]); 
+			fMCMCBoundaryMax.push_back(fMax[i]); 
+		}
+
+  fMCMCNParameters = fNvar; 
+ 
 }
 
 // *********************************************
@@ -270,23 +281,23 @@ double BCIntegrate::Integrate()
 	std::vector <double> parameter;
 	parameter.assign(fNvar, 0.0);
 
-	switch(fIntegrateMethod)
+	switch(fIntegrationMethod)
 	{
-		case BCIntegrate::kIMonteCarlo:
+		case BCIntegrate::kIntMonteCarlo:
 			return IntegralMC(parameter);
 
-		case BCIntegrate::kIMetropolis: 
+		case BCIntegrate::kIntMetropolis: 
 			return this -> IntegralMetro(parameter); 
 
-		case BCIntegrate::kIImportance: 
+		case BCIntegrate::kIntImportance: 
 			return this -> IntegralImportance(parameter); 
 
-		case BCIntegrate::kICuba:
+		case BCIntegrate::kIntCuba:
 			return this -> CubaIntegrate();
 	}
 
 	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCIntegrate::Integrate. Invalid integration method: %d. Return 0.", 
-							fIntegrateMethod)); 
+							fIntegrationMethod)); 
 
 	return 0;
 }
@@ -536,19 +547,19 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 {
 	BCLog::Out(BCLog::detail, BCLog::detail,
-						 Form(" --> Marginalizing model wrt. parameter %s using method %d.", parameter->GetName().data(), fMarginalizeMethod));
+						 Form(" --> Marginalizing model wrt. parameter %s using method %d.", parameter->GetName().data(), fMarginalizationMethod));
 
-	switch(fMarginalizeMethod)
+	switch(fMarginalizationMethod)
 	{
-		case BCIntegrate::kIMonteCarlo:
+		case BCIntegrate::kMargMonteCarlo:
 			return MarginalizeByIntegrate(parameter);
 
-		case BCIntegrate::kMMetropolis:
+		case BCIntegrate::kMargMetropolis:
 			return MarginalizeByMetro(parameter);
 	}
 
 	BCLog::Out(BCLog::warning, BCLog::warning,
-		Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizeMethod));
+		Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
 
 	return 0;
 }
@@ -556,17 +567,17 @@ TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 // *********************************************
 TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * parameter2)
 {
-	switch(fMarginalizeMethod)
+	switch(fMarginalizationMethod)
 	{
-		case BCIntegrate::kIMonteCarlo:
+		case BCIntegrate::kMargMonteCarlo:
 			return MarginalizeByIntegrate(parameter1,parameter2);
 
-		case BCIntegrate::kMMetropolis:
+		case BCIntegrate::kMargMetropolis:
 			return MarginalizeByMetro(parameter1,parameter2);
 	}
 
 	BCLog::Out(BCLog::warning, BCLog::warning,
-		Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizeMethod));
+		Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
 
 	return 0;
 }
@@ -1230,21 +1241,21 @@ void BCIntegrate::FindMode()
 
 	BCLog::Out(BCLog::summary, BCLog::summary, "Model: Finding mode");
 
-	switch(fModeFindingMethod)
+	switch(fOptimizationMethod)
 		{
-		case BCIntegrate::kMFSimulatedAnnealing:
+		case BCIntegrate::kOptSimulatedAnnealing:
 			{
 				this -> FindModeSA(); 
 				return; 
 			}
 			
-		case BCIntegrate::kMFMinuit: 
+		case BCIntegrate::kOptMinuit: 
 			{ 
 				this -> FindModeMinuit(); 
 				return;
 			}
 			
-		case BCIntegrate::kMFMCMC: 
+		case BCIntegrate::kOptMCMC: 
 			{ 
 				this -> FindModeMCMC(); 
 				return;
@@ -1253,7 +1264,7 @@ void BCIntegrate::FindMode()
 		}
 
 	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCIntegrate::FindMode. Invalid mode finding method: %d. Return.", 
-																									fModeFindingMethod)); 
+																									fOptimizationMethod)); 
 
 	return;
 

@@ -138,7 +138,7 @@ void BCModelManager::SetNIterationsMax(int niterations)
 // --------------------------------------------------------- 
 */ 
 
-void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
+void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 {
 
 	// set integration method for all models registered 
@@ -150,7 +150,7 @@ void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
 
 // --------------------------------------------------------- 
 
-void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
+void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
 { 
 
 		// set marginalization method for all models registered 
@@ -162,13 +162,13 @@ void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationType
 
 // --------------------------------------------------------- 
 
-void BCModelManager::SetModeFindingMethod(BCIntegrate::BCModeFindingType method)
+void BCModelManager::SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
 {
 
 	// set mode finding method for all models registered 
 
 	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetModeFindingMethod(method); 
+		this -> GetModel(i) -> SetOptimizationMethod(method); 
 	
 }
 

@@ -841,7 +841,7 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 			if (!flag && hist -> GetBinContent(i) > 0.)
 				{
 					flag = true; 
-					v.push_back(hist -> GetBinCenter(i)); 
+					v.push_back(hist -> GetBinLowEdge(i)); 
 
 					// remember start position of the interval 
 					lastbin = i; 
@@ -861,10 +861,10 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 			if ((flag && !(hist -> GetBinContent(i) > 0.)) || (flag && i == nbins))
 				{
 					flag = false; 
-					v.push_back(hist -> GetBinCenter(i)); 
+					v.push_back(hist -> GetBinLowEdge(i) + hist -> GetBinWidth(i)); 
 
 					// set right bin to maximum if on edge
-					if (localmaxpos == hist -> GetBinCenter(i-1))
+					if (i == nbins && localmax < fHistogram -> GetBinContent(i))
 						localmaxpos = hist -> GetBinCenter(i) + 0.5 * hist -> GetBinWidth(i); 
 
 					// find the absolute maximum 
@@ -879,15 +879,11 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 					v.push_back(localint);  					
 				}
 
-			std::cout << i << " " << fHistogram -> FindBin(localmaxpos) << " " << localmaxpos << " " << localmax << " " << fHistogram -> GetBinContent(i) << std::endl; 
-
 			// find local maximum 
-			if (localmax < fHistogram -> GetBinContent(i))
+			if (i < nbins && localmax < fHistogram -> GetBinContent(i))
 				{
 					localmax = fHistogram -> GetBinContent(i); 			 
 					localmaxpos = hist -> GetBinCenter(i); 
-
-					std::cout << " g " << localmax <<  " " << localmaxpos << std::endl; 
 				}
 
 			// increase area 
