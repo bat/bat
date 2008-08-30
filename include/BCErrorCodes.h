@@ -1,23 +1,16 @@
-/**
- * Definition of error codes 
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, kroening *at* mppmu *dot* mppmu *dot* de 
- *
- * CREATED: 06.06.2007 
+/*!
+ * \brief Definition of error codes.
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail Error codes are defined here. 
  * 
- * REVISION: 
- *
- * --------------------------------------------------------- 
- *
- * Defines common error codes 
- *
-*/ 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCERRORCODES__H
 #define __BCERRORCODES__H

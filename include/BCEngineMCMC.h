@@ -1,16 +1,17 @@
-/**
+/*!
  * \class BCEngineMCMC
- * \brief An eninge class for Markov Chain Monte Carlo
- * \author D. Kollar
- * \author K. Kr&ouml;ninger
+ * \brief An engine class for Markov Chain Monte Carlo
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
  * \version 1.0
- * \date 16.12.2007
- *
- * This class defines an engine for Markov Chain Monte Carlo
- * (MCMC). One or more chains can be handled.
- *
- * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger
- */
+ * \date 08.2008
+ * \detail This class represents an engine class for Markov Chain
+ * Monte Carlo (MCMC). One or more chains can be defined
+ * simultaneously.
+ * 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
 // ---------------------------------------------------------
 

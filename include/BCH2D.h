@@ -1,28 +1,18 @@
-/*! \class BCH2D
- *  \brief A class for handling 2D distributions
- *
- * A class which contains a TH2D histogram and can be used for marginalized probabilties
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  D. Kollar, K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 02.03.2007 
+/*!
+ * \class BCH2D
+ * \brief  A class for handling 2D distributions. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class contains a TH2D histogram and some additional
+ * functions. It is used for marginalized distributions.
  * 
- * REVISION: 
- *
- * 02.03.2007  Kevin  * added comments and header\n
- * 22.05.2007  Kevin  * added nicer 2D plots including contours\n
- * 03.08.2007  Dano   * increase printout level of ROOT routines like Print()\n
- *
- * --------------------------------------------------------- 
- *
-*/ 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCH2D__H
 #define __BCH2D__H
@@ -40,7 +30,8 @@ class BCH2D
   
  public:
   
-	// constructors and destructor 
+	/** \name Constructors and destructors */ 
+	/* @{ */ 
 
 	/**
 	 * The default constructor. 
@@ -52,37 +43,49 @@ class BCH2D
 	 */ 
 	~BCH2D(); 
 
-	// methods (get) 
+	/* @} */ 
+
+	/** \name Member functions (get)  */ 
+	/* @{ */ 
 
 	/**
-	 * Returns the histogram. 
+	 * @return The 2D histogram. 
 	 */ 
 	TH2D * GetHistogram()
-	{ return fHistogram; }; 
+		{ return fHistogram; }; 
 
 	/** 
-	 * Returns the mean of the distribution 
+	 * @return The mean of the distribution. 
 	 */ 
 	void GetMean(double& mean);
 
 	/** 
-	 * Returns the mode of the distribution
+	 * @return The mode of the distribution
 	 */ 
 	void GetMode(double& mode);
 
-	// methods (set)
+	/* @} */ 
+
+	/** \name Member functions (set)  */ 
+	/* @{ */ 
 
 	/**
-	 * Set the histogram.
+	 * Set the 2D histogram.
 	 */
 	void SetHistogram(TH2D * hist)
-		{ fHistogram = hist; };
+	{ fHistogram = hist; };
 
 	/**
 	 * Set global mode.
+	 * @param The global mode. 
 	 */
 	void SetGlobalMode(double mode[2])
-		{ fMode[0]=mode[0]; fMode[1]=mode[1]; fModeFlag=1; };
+	{ fMode[0] = mode[0]; fMode[1] = mode[1]; fModeFlag =1; };
+
+	/* @} */ 
+
+	/** \name Member functions (miscellaneous methods) */ 
+	/* @{ */ 
 
 	// methods 
 
@@ -116,7 +119,10 @@ class BCH2D
 	double GetLevel(double p);
 
 	/**
-	 *
+	 * Returns the number of intervals as a function of x
+	 * @param h The histogram. 
+	 * @param nfoundmax The maximum number of intervals. 
+	 * @return A vector containing the number of intervals for all bins in x.
 	 */
 	std::vector <int> GetNIntervalsY(TH2D * h, int &nfoundmax);
 
@@ -133,15 +139,17 @@ class BCH2D
 	TGraph ** GetBandGraphs(TH2D * h);
 	TGraph ** GetBandGraphs(TH2D * h, int &n);
 
+	/* @} */ 
+
  private:
 
 	/**
-	 * The 2-d histogram
+	 * The 2D histogram
 	 */
 	TH2D * fHistogram;
 
 	/**
-	 * The integrated 2-d histogram
+	 * The integrated 2D histogram
 	 */
 	TH1D * fIntegratedHistogram;
 

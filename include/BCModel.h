@@ -1,41 +1,19 @@
-/*! \class BCModel
- *  \brief Base class for all user models
- *
- * This class defines a model. It contains the a container of
+/*!
+ * \class BCModel
+ * \brief The base class for all user-defined models.  
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class represents a model. It contains a container of
  * parameters, their prior distributions and the conditional
  * probabilities given those parameters.  The methods which implement
  * the prior and conditional probabilities have to be overloaded by
  * the user in the user defined model class which will inherit from
  * this class.
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 02.03.2007 
  * 
- * REVISION: 
- *
- * 02.03.2007 Kevin, added comments and header, added marginalized probability class. \n
- * 14.03.2007 Kevin, added a priori and a posteriori probabilities to the class, 
- *                   some renaming of functions. \n
- * 17.04.2007 Kevin, added limits for the variables for goodness-of-fit test \n
- * 30.04.2007 Kevin, added creation of data for goodness-of-fit test \n
- * 15.05.2007 Kevin, added summary print-out and plots \n
- * 23.05.2007 Kevin, added virtual functions for importance sampling integration (with and without Markov chains)\n
- * 12.06.2007 Kevin, some renaming work \n
- * 01.08.2007 Dano,  added MarginalizeAll method and respective GetMarginalized methods,
- *                   added some warnings\n
- * 06.08.2007 Dano,  changed FindMode to use Simulated Annealing (SA) mode finding\n
- * 07.08.2007 Dano,  changed the model to use Log of everything, all standard calls are 
- *                   just the inline calls to TMath::Exp() calls of the Log versions\n
- * 01.10.2007 Kevin, added the error band calculation
- *
- * --------------------------------------------------------- 
- *
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
  */ 
 
 // --------------------------------------------------------- 
@@ -43,8 +21,6 @@
 #ifndef __BCMODEL__H
 #define __BCMODEL__H
 
-//#include <vector.h>
-//#include <string.h>
 #include <vector>
 #include <string>
 
@@ -69,7 +45,8 @@ class BCModel : public BCIntegrate
   
  public:
   
-	// constructors and destructor 
+	/** \name Constructors and destructors */ 
+	/* @{ */ 
 
 	/** 
 	 * The default constructor. 
@@ -87,78 +64,77 @@ class BCModel : public BCIntegrate
 	 */ 
 	virtual ~BCModel(); 
 
-	// methods (get) 
+	// member functions (get) 
 
 	/** 
-	 * @return The name of the model
+	 * @return The name of the model.
 	 */
 	std::string GetName()
 	{ return fName; }; 
 
 	/** 
-	 * @return The index of the model  
+	 * @return The index of the model.  
 	 */ 
 	int GetIndex()
 	{ return fIndex; }; 
 
 	/** 
-	 * @return The a priori probability
+	 * @return The a priori probability.
 	 */ 
 	double GetModelAPrioriProbability()
 	{ return fModelAPriori; }; 
 
 	/** 
-	 * @param model The model. 
-	 * @return The a posteriori probability
+	 * @return The a posteriori probability.
 	 */ 
 	double GetModelAPosterioriProbability() 
 	{ return fModelAPosteriori; }; 
 
 	/** 
-	 * @return The normalization of the likelihood 
+	 * @return The normalization of the likelihood.
 	 */ 
 	double GetNormalization()
 	{ return fNormalization; };
 
 	/** 
-	 * @return The data set 
+	 * @return The data set.
 	 */ 
 	BCDataSet* GetDataSet()
 		{ return fDataSet; }; 
 
 	/**
-	 * @return The lower boundaries of possible data values 
+	 * @return The lower boundaries of possible data values. 
 	 */ 
 	BCDataPoint* GetDataPointLowerBoundaries() 
 		{ return fDataPointLowerBoundaries; }; 
 
 	/**
-	 * @return The upper boundaries of possible data values 
+	 * @return The upper boundaries of possible data values. 
 	 */ 
 	BCDataPoint* GetDataPointUpperBoundaries() 
 		{ return fDataPointUpperBoundaries; }; 
 
 	/**
-	 * @param index The index of the variable 
+	 * @param index The index of the variable. 
 	 * @return The lower boundary of possible data values for a particular variable. 
 	 */ 
 	double GetDataPointLowerBoundary(int index)
 	{ return fDataPointLowerBoundaries -> GetValue(index); }; 
 
 	/**
-	 * @param index The index of the variable 
+	 * @param index The index of the variable. 
 	 * @return The upper boundary of possible data values for a particular variable. 
 	 */ 
 	double GetDataPointUpperBoundary(int index)
 	{ return fDataPointUpperBoundaries -> GetValue(index); }; 
 
 	/** 
-	 * @return The number of data points in the current data set 
+	 * @return The number of data points in the current data set.
 	 */ 
 	int GetNDataPoints(); 
 
 	/** 
-	 * @param index The index of the data point 
+	 * @param index The index of the data point. 
 	 * @return The data point in the current data set at index 
 	 */ 
 	BCDataPoint* GetDataPoint(int index); 
@@ -176,61 +152,62 @@ class BCModel : public BCIntegrate
 	{ return fNDataPointsMaximum; }; 
 
 	/** 
-	 * @return The number of parameters of the model  
+	 * @return The number of parameters of the model. 
 	 */
 	int GetNParameters()
 	{ return fParameterSet -> size(); }; 
 
 	/**
-	 * @param index The index of the parameter in the parameter set 
-	 * @return The parameter 
+	 * @param index The index of the parameter in the parameter set. 
+	 * @return The parameter.  
 	 */ 
 	BCParameter* GetParameter(int index); 
 
 	/**
-	 * @param name The name of the parameter in the parameter set 
-	 * @return The parameter 
+	 * @param name The name of the parameter in the parameter set. 
+	 * @return The parameter. 
 	 */ 
 	BCParameter* GetParameter(const char * name); 
 
 	/** 
-	 * Returns the best fit parameters of the global probability. 
-	 * @param index The index of the parameter 
-	 * @return The best fit parameter 
+	 * Returns the value of a particular parameter (defined by index) at
+	 * the global mode of the posterior pdf.
+	 * @param index The index of the parameter. 
+   * @return The best fit parameter.
 	 */
 	double GetBestFitParameter(int index)
 	{ return fBestFitParameters.at(index); }; 
 
 	/** 
-	 * Returns the best fit parameters of the global probability. 
+	 * Returns the set of values of the parameters at the global mode of
+	 * the posterior pdf.
 	 * @return The best fit parameters 
 	 */
 	std::vector <double> GetBestFitParameters() 
 		{ return fBestFitParameters; }; 
 
 	/** 
-	 * Returns the best fit parameters of the marginalized probabilities. 
-	 * @param index The index of the parameter 
+	 * Returns the value of a particular parameter (defined by index) at
+	 * the modes of the marginalized posterior pdfs. 
+	 * @param index The index of the parameter. 
 	 * @return The best fit parameter 
 	 */
 	double GetBestFitParameterMarginalized(int index) 
 	{ return fBestFitParametersMarginalized.at(index); }; 
 
 	/** 
-	 * Returns the best fit parameters of the marginalized probabilities. 
-	 * @return The best fit parameters 
+	 * Returns the set of values of the parameters at the modes of the
+	 * marginalized posterior pdfs. 
+	 * @return The best fit parameters. 
 	 */
 	std::vector <double> GetBestFitParametersMarginalized() 
 		{ return fBestFitParametersMarginalized; }; 
 
 	/**
-	 * Returns the 2-d histogram for the error band 
-	 * @return The 2-d histogram 
+	 * @return The 2-d histogram of the error band. 
 	 */ 
 	TH2D * GetErrorBandXY()
 		{ return fErrorBandXY; };
-
-	TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0);
 
 	/**
 	 * Returns a vector of y-values at a certain probability level. 
@@ -671,6 +648,11 @@ class BCModel : public BCIntegrate
 	 * Prints a summary on the screen. 
 	 */ 
 	void PrintSummary(); 
+
+	/** 
+	 * Prints a summary of the Markov Chain Monte Carlo to a file. 
+	 */ 
+	void BCModel::PrintResults(const char * file); 
 
 	/** 
 	 * Prints matrix elements of the Hessian matrix 

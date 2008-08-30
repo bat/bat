@@ -1,24 +1,18 @@
-/*! \class BCLog
- *  \brief Log printouts
- *
- * This class manages printouts on the screen and into a log file 
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 16.05.2007 by Kevin 
+/*!
+ * \class BCLog
+ * \brief A class for managing log messages. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class manages log messages for printing on the screen
+ * and into a log file
  * 
- * REVISION: 
- *
- * --------------------------------------------------------- 
- *
-*/ 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCLOG__H
 #define __BCLOG__H

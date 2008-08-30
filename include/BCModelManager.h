@@ -1,20 +1,20 @@
-/**  
+/*!
  * \class BCModelManager
- * \brief A manager class for BCModels. 
- * \author D. Kollar  
- * \author K. Kr&ouml;ninger  
- * \version 1.0  
- * \date 08.11.2007  
- *  
- * This class defines a manager for BCModels. It handles common data
- * sets and performs operations on BCModels simultaneously. Model
- * comparsion in terms of a posteriori probabilities is only possible
- * with this class.
- *  
- * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger  
- */  
+ * \brief A class representing a set of BCModels. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class represents a manager for BCModels. It handles
+ * common data sets and performs operations on BCModels
+ * simultaneously. Model comparsion in terms of a posteriori
+ * probabilities is only possible with this class.
+ * 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCMODELMANAGER__H
 #define __BCMODELMANAGER__H
@@ -30,8 +30,6 @@ class BCModelManager
 
 	/** \name Constructors and destructors */ 
 	/* @{ */
-
-	// constructor and destructor 
 
 	/**
 	 * The default constructor. 
@@ -60,11 +58,10 @@ class BCModelManager
 
 	/* @} */ 
 
-	/** \name Getters */ 
+	/** \name Member functions (get) */ 
 	/* @{ */ 
 
 	/** 
-	 * Returns the number of BCModels in this BCModelManager. 
 	 * @return The number of models.
 	 */ 
 	int GetNModels() 
@@ -83,7 +80,7 @@ class BCModelManager
 	 * @return The number of entries. 
 	 */ 
 	int GetNDataPoints() 
-	{ return fDataSet -> GetNDataPoints(); }; 
+	{ return ((fDataSet) ? fDataSet -> GetNDataPoints() : -1); }; 
 
 	/**
 	 * Returns a data point of the common data set at an index. 
@@ -91,22 +88,23 @@ class BCModelManager
 	 * @return The data point. 
 	 */ 
 	BCDataPoint * GetDataPoint(int index) 
-		{ return fDataSet -> GetDataPoint(index); }; 
+	{ return fDataSet -> GetDataPoint(index); }; 
 
 	/** 
 	 * Returns the common data set. 
-	 * @return The data set 
+	 * @return The data set. 
 	 */ 
 	BCDataSet * GetDataSet()
-		{ return fDataSet; }; 
+	{ return fDataSet; }; 
 
 	/* @} */ 
 
-	/** \name Setters */ 
+	/** \name Member functions (set) */ 
 	/* @{ */ 
 	
 	/**
-	 * Sets the data set common to all BCModels in this BCModelManager. 
+	 * Sets the data set common to all BCModels in this
+	 * BCModelManager.
 	 * @param dataset A data set 
 	 */ 
 	void SetDataSet(BCDataSet * dataset); 
@@ -128,12 +126,13 @@ class BCModelManager
 	 */ 
 	void SetSingleDataPoint(BCDataSet * dataset, int index); 
 
+	// DEBUG DELETE?  
 	/**
 	 * Sets the maximum number of iterations for the Monte Carlo
 	 * integration for all BCModels in this BCModelManager. 
 	 * @param niterations
 	 */ 
-	void SetNIterationsMax(int niterations);
+	//	void SetNIterationsMax(int niterations);
 
 	/** 
 	 * @param method The marginalization method 
@@ -155,6 +154,7 @@ class BCModelManager
 	 * Carlo integration.
 	 */
 	void SetNiterationsPerDimension(int niterations); 
+
 	/**
 	 * @param n Number of samples per 2D bin per variable in the
 	 * Metropolis marginalization.  Default is 100.
@@ -229,7 +229,7 @@ class BCModelManager
 
 	/* @} */ 
 
-	/** \name Miscellaneous methods */ 
+	/** \name Member functions (miscellaneous methods) */ 
 	/* @{ */ 	
 
 	/** 

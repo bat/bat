@@ -1,28 +1,20 @@
-/*! \class BCDataPoint
- *  \brief A class for handling a data point. 
- *
- * The class defines a data point. A data object can be an event, \n
- * a bin content, etc. Each data point can store several variables \n 
- * of type double. \n 
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  D. Kollar, K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 02.03.2007 
+/*! 
+ * \class BCDataPoint
+ * \brief A class representing a data point. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class represents a data point which is the basic unit
+ * of information. A data point can be an event, a bin content,
+ * etc. Each data point can store several variables of type
+ * double. The variables are organized in a vector.
  * 
- * REVISION: 
- *
- * 02.03.2007 Kevin, added comments and header \n
- * 12.06.2007 Kevin, renamed to BCDataPoint \n
- *
- * --------------------------------------------------------- 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
  */ 
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCDATAPOINT__H
 #define __BCDATAPOINT__H
@@ -36,17 +28,19 @@ class BCDataPoint
 
  public:
 	
-	// constructor and destructor 
+	/** \name Constructors and destructors */ 
+	/* @{ */ 
 
 	/** 
 	 * A constructor. 
-	 * @param nvariables The number of variables stored in a data object 
+	 * @param nvariables The number of variables stored in a data. 
+	 * object
 	 */ 
 	BCDataPoint(int nvariables); 
 
 	/** 
 	 * A constructor. 
-	 * @param x The vector containing the data
+	 * @param x The vector containing the data. 
 	 */ 
 	BCDataPoint(std::vector<double> x); 
 
@@ -54,26 +48,34 @@ class BCDataPoint
 	 * A destructor. 
 	 */ 
 	~BCDataPoint(); 
-
-	// methods (get) 
+	
+	/* @} */ 
+	
+	/** \name Member functions (get) */ 
+	/* @{ */ 
 
 	/**
-	 * Returns the value of a variable. 
-	 * @param index The index of the variable 
-	 * @return The value of the variable
+	 * @param index The index of the variable.
+	 * @return The value of the variable.
 	 */  
 	double GetValue(int index); 
 
+	/**
+	 * @return A vector of values. 
+	 */
 	std::vector <double> GetValues()
 	{ return fData; }; 
-
+ 
 	/** 
 	 * Returns the number of values. 
 	 */ 
 	int GetNValues()
 	{ return int(fData.size()); }; 
 
-	// methods (set) 
+	/* @} */
+
+	/** \name Member functions (set) */ 
+	/* @{ */ 
 
 	/** 
 	 * Set the value of a variable. 
@@ -88,10 +90,12 @@ class BCDataPoint
 	 */ 
 	void SetValues(std::vector <double> values); 
 
+	/* @} */ 
+
  private: 
 
 	/** 
-	 * The values of the variables. 
+	 * The vector containing the values of the variables.
 	 */ 
 	std::vector <double> fData; 
 

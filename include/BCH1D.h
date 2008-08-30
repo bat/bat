@@ -1,26 +1,30 @@
-/*! \class BCH1D
- *  \brief A class for handling 1D distributions
- *
- * A class which contains a TH1D histogram and can be used for \n 
- * marginalized probabilties 
- *
- * --------------------------------------------------------- 
- *
- * AUTHOR:  D. Kollar, K. Kroeninger 
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 12.06.2007 
+/*!
+ * \class BCH1D
+ * \brief A class for handling 1D distributions. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class contains a TH1D histogram and some additional
+ * functions. It is used for marginalized distributions.
  * 
- * REVISION:
- *
- * 03.08.2007  Dano  * increase printout level of ROOT routines like Print()\n
- * 06.08.2007  Dano  * change Print "if" structure to "case" structure\n
- * 14.08.2007  Kevin * adding smallest interval printing\n
- * 14.08.2007  Dano  * rewriting the Print() method, adding new methods for printing\n
- *
- * --------------------------------------------------------- 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
+
+// ---------------------------------------------------------
+
+
+/*! \class BCH1D
+ *  \brief 
+ * 
+ * This class contains a TH1D histogram and some additional
+ * functions. It is used for marginalized distributions.
+ * 
+ * Author: Daniel Kollar and Kevin Kroeninger 
+ * Created: 08/2008 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
  */ 
 
 // --------------------------------------------------------- 
@@ -41,7 +45,8 @@ class BCH1D
   
  public:
   
-	// constructors and destructor 
+	/** \name Constructors and destructors */ 
+	/* @{ */ 
 
 	/**
 	 * The default constructor. 
@@ -53,108 +58,77 @@ class BCH1D
 	 */ 
 	~BCH1D(); 
 
-	// methods (get) 
+	/* @} */ 
+
+	/** \name Member functions (get)  */ 
+	/* @{ */ 
 
 	/**
-	 * Returns the one-dimensional histogram. 
+	 * @return The one-dimensional histogram. 
 	 */ 
 	TH1D* GetHistogram()
 	{ return fHistogram; }; 
 
 	/** 
-	 * Returns the mean of the distribution. 
+	 * @return The mean of the distribution. 
 	 */ 
 	double GetMean()
 	{ return fHistogram -> GetMean(); }; 
 
 	/** 
-	 * Returns the mode of the distribution. 
+	 * @return The mode of the distribution. 
 	 */ 
 	double GetMode(); 
 
 	/** 
-	 * Returns the median of the distribution 
+	 * @return The median of the distribution. 
 	 */ 
 	double GetMedian()
 	{ return this -> GetQuantile(0.5); }; 
 
 	/** 
 	 * Returns the quantile of the distribution. 
-	 * @param probabilitysum The probability sum 
-	 * @return The quantile of the distribution for the sum  
+	 * @param probability The probability.  
+	 * @return The quantile of the distribution for the probability.   
+	 * @see GetLimit(double probability) 
 	 */ 
-	double GetQuantile(double probabilitysum); 
+	double GetQuantile(double probablity); 
+
+	/**
+	 * Return the quantily of the distribution
+	 * @param probability The probability.  
+	 * @return The quantile of the distribution for the probability.   
+	 * @see GetQuantile(double probablity) 
+	 */ 
+	double GetLimit(double probability) 
+	{ return this -> GetQuantile(probability); }; 
+
+	/**
+	 * @return The RMS of the distribution. 
+	 */
+	double GetRMS()
+	{ return fHistogram -> GetRMS(); }; 
 
 	/** 
-	 * Returns the integral of the between two values. 
-	 * @param valuemin The value from which the intergration is done 
-	 * @param valuemax The value up to which the intergration is done 
-	 * @return The integral  
+	 * Returns the integral of distribution the between two values.
+	 * @param valuemin The value from which the intergration is done. 
+	 * @param valuemax The value up to which the intergration is done. 
+	 * @return The integral.  
 	 */ 
 	double GetIntegral(double valuemin, double valuemax); 
 
 	/** 
-	 * Returns the value below which 90% of the marginalized probability lie. 
-	 * @return The 90% limit 
-	 */ 
-	double GetLimit90()
-	{ return this -> GetQuantile(0.9); }; 
-
-	/** 
-	 * Returns the value below which 95% of the marginalized probability lie. 
-	 * @return The 95% limit 
-	 */ 
-	double GetLimit95()
-	{ return this -> GetQuantile(0.95); }; 
-
-	/** 
-	 * Returns the value below which 99% of the marginalized probability lie. 
-	 * @return The 99% limit 
-	 */ 
-	double GetLimit99()
-	{ return this -> GetQuantile(0.99); }; 
-
-	/** 
-	 * Returns the positive uncertainty from the mode to the 84% value. 
-	 * Value at which the probability integral reaches 84% minus the mode. 
-	 * @return The positive uncertainty. 
-	 */ 
-	double GetUncertaintyPlusFromMode()
-	{ return this -> GetQuantile(0.84) - this -> GetMode(); }; 
-
-	/** 
-	 * Returns the negative uncertainty from the mode to the 16% probability 
-	 * The mode - the value at which the probability integral reaches 16%. 
-	 * @return The negative uncertainty. 
-	 */ 
-	double GetUncertaintyMinusFromMode()
-	{ return this -> GetMode() - this -> GetQuantile(0.16); }; 
-
-	/** 
-	 * Returns the positive uncertainty from the mean to the 84% value. 
-	 * Value at which the probability integral reaches 84% minus the mean. 
-	 * @return The positive uncertainty. 
-	 */ 
-	double GetUncertaintyPlusFromMean()
-	{ return this -> GetQuantile(0.84) - this -> GetMean(); }; 
-
-	/** 
-	 * Returns the negative uncertainty from the mean to the 16% probability 
-	 * The mean - the value at which the probability integral reaches 16%. 
-	 * @return The negative uncertainty. 
-	 */ 
-	double GetUncertaintyMinusFromMean()
-	{ return this -> GetMean() - this -> GetQuantile(0.16); }; 
-
-	/** 
 	 * Returns the p-value. 
-	 * Returns the intergral from probability to the maximum. 
-	 * @param probability Lower limit of integration 
-	 * @return The p-value 
+	 * Returns the integral from 0 to the probability. 
+	 * @param probability Upper limit of integration. 
+	 * @return The p-value. 
 	 */ 
 	double GetPValue(double probability);     
 
-	// methods (set) 
+	/* @} */ 
+
+	/** \name Member functions (set)  */ 
+	/* @{ */ 
 
 	/**
 	 * Sets the histogram. 
@@ -174,7 +148,10 @@ class BCH1D
 	void SetGlobalMode(double mode)
 		{ fMode=mode; fModeFlag=1; };
 
-	// methods
+	/* @} */ 
+
+	/** \name Member functions (miscellaneous methods) */ 
+	/* @{ */ 
 
 	/**
 	 * Print distribution into a PostScript file.
@@ -231,6 +208,8 @@ class BCH1D
 
 	TH1D * GetSmallestIntervalHistogram(double level);
 
+	std::vector <double> GetSmallestIntervals(double content = 0.68); 
+
 	/**
 	 * Calculate integral of the distribution between min and max.
 	 * @param min lower boundary of the integrated interval
@@ -251,15 +230,17 @@ class BCH1D
 	 */
 	TH1D * GetSubHisto(double min, double max, const char * name);
 
+	/* @} */ 
+
  private: 
 
 	/** 
-	 * The histogram
+	 * The 1D histogram
 	 */ 
 	TH1D * fHistogram; 
 
 	/**
-	 * Default Confidence Level limit
+	 * Default confidence level limit
 	 */
 	double fDefaultCLLimit;
 

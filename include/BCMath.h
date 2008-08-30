@@ -1,26 +1,16 @@
-/*! \namespace BCMath
- *  \brief Some useful mathematical functions
- *
- * A namespace which encapsulates some mathematical functions
+/*!
+ * \namespace BCMath
+ * \brief Some useful mathematic functions. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail A namespace which encapsulates some mathematical functions
  * necessary for BAT.
- *
- * ---------------------------------------------------------
- *
- * AUTHOR:  D. Kollar
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de,
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de
- *
- * CREATED: 03.08.2007 by Dano
- *
- * REVISION:
- *
- *  08.08.2007  Dano  * added functions for binomial distributions and factorials\n
- *  24.08.2007  Kevin * added min and max functions for int and double.
- *                      removed TMath dependence.
- *
- * ---------------------------------------------------------
- */
+ * 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
 // ---------------------------------------------------------
 

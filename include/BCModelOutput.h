@@ -1,17 +1,17 @@
-/**  
+/*!
  * \class BCModelOutput
  * \brief A class for creating an (ROOT) output file. 
- * \author D. Kollar  
- * \author K. Kr&ouml;ninger  
- * \version 1.0  
- * \date 12.11.2007  
- *  
- * This class defines an output interface for the analysis. It creates
- * a ROOT file which can contain summary information, histograms and
- * Markov chains. 
- *  
- * Copyright (C) 2007, D. Kollar, K. Kr&ouml;ninger  
- */  
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This class defines an output interface for the analysis. It
+ * creates a ROOT file which can contain summary information,
+ * histograms and Markov chains.
+ * 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
 // --------------------------------------------------------- 
 
@@ -104,16 +104,16 @@ class BCModelOutput
 	 */ 
 	void SetFile(const char * filename); 
 
+	/* @} */ 
+
+	/** \name Member functions (miscellaneous methods) */ 
+	/* @{ */ 	
+
 	/**
 	 * Flag for writing Markov chain to file 
 	 * @param flag Writes (true) or does not write (false) the Markov chain 
 	 */ 
 	void WriteMarkovChain(bool flag); 
-
-	/* @} */ 
-
-	/** \name Miscellaneous methods */ 
-	/* @{ */ 	
 
 	/**
 	 * Fill the output TTree with the current information. 
@@ -124,11 +124,6 @@ class BCModelOutput
 	 * Writes the marginalized histograms to the TFile. 
 	 */ 
 	void WriteMarginalizedDistributions(); 
-
-	/**
-	 * Writes the error band histogram into the TFile. 
-	 */ 
-	void WriteErrorBand(); 
 
 	/**
 	 * Closes the TFile. 

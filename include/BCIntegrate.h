@@ -1,31 +1,17 @@
-/*! \class BCIntegrate
- *  \brief Handling of numerical operations for models
- *
- * This is a base class for a model class. It contains numerical
- * methods to carry out the integration, marginalization, peak finding
- * etc.
- *
- * ---------------------------------------------------------
- *
- * AUTHOR:  K. Kroeninger
- *
- * CONTACT: dkollar *at* mppmu *dot* mppmu *dot* de, 
- *          kevin.kroeninger *at* phys *dot* uni *minus* goettingen *dot* de 
- *
- * CREATED: 02.03.2007
- *
- * REVISION:
- *
- * 30.07.2007  Dano   * changed Metropolis algorithm to work with Log for
- *                      better numerical stability\n
- * 01.08.2007  Kevin  * corrected definition of histogram ranges\n
- * 01.08.2007  Dano   * added MarginalizeAllByMetro method (and everything
- *                      necessary for it :), changed log level for some printouts\n
- * 06.08.2007  Dano   * added mode finding by Simulated Annealing (SA) algorithm\n
- * 04.10.2007  Kevin  * added mode finding via Minuit \n 
- *
- * ---------------------------------------------------------
- */
+/*!
+ * \class BCIntegrate
+ * \brief A class for handling numerical operations for models. 
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 08.2008
+ * \detail This is a base class for a model class. It contains
+ * numerical methods to carry out the integration, marginalization,
+ * peak finding etc.
+ * 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
+ * All rights reserved. 
+ */ 
 
 // ---------------------------------------------------------
 
