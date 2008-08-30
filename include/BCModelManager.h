@@ -137,17 +137,17 @@ class BCModelManager
 	/** 
 	 * @param method The marginalization method 
 	 */ 
-	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method); 
+	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method); 
 
 	/** 
 	 * @param method The integration method
 	 */ 
-	void SetIntegrationMethod(BCIntegrate::BCIntegrationType method); 
+	void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method); 
 
 	/** 
 	 * @param method The mode finding method 
 	 */ 
-	void SetModeFindingMethod(BCIntegrate::BCModeFindingType method); 
+	void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method); 
 
 	/**
 	 * @param niterations Number of iterations per dimension for Monte

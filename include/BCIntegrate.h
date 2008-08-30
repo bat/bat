@@ -46,20 +46,28 @@ class BCIntegrate : public BCEngineMCMC
 
  public:   
 
+	/** \name Enumerators */ 
+	/* @{ */ 
+
 	/**
 	 * An enumerator for the integration algorithm 
 	 */ 
-	enum BCIntegrationType { kIMonteCarlo, kIImportance, kIMetropolis, kICuba }; 
+	enum BCIntegrationMethod { kIntMonteCarlo, kIntImportance, kIntMetropolis, kIntCuba }; 
 
 	/**
 	 * An enumerator for the marginalization algorithm 
 	 */ 
-	enum BCMarginalizationType { kMMonteCarlo, kMMetropolis }; 
+	enum BCMarginalizationMethod { kMargMonteCarlo, kMargMetropolis }; 
 
 	/**
 	 * An enumerator for the mode finding algorithm 
 	 */ 
-	enum BCModeFindingType { kMFSimulatedAnnealing, kMFMCMC, kMFMinuit }; 
+	enum BCOptimizationMethod { kOptSimulatedAnnealing, kOptMetropolis, kOptMinuit }; 
+
+	/* @} */ 
+
+	/** \name Constructors and destructors */ 
+	/* @{ */ 
 
 	/** 
 	 * The default constructor 
@@ -76,25 +84,28 @@ class BCIntegrate : public BCEngineMCMC
 	 */ 
 	virtual ~BCIntegrate();
 
-	// methods (get) 
+	/* @} */ 
+
+	/** \name Member functions (get) */ 
+	/* @{ */ 
 
 	/**
 	 * @return The integration method 
 	 */ 
-	BCIntegrate::BCIntegrationType GetIntegrationMethod()
-	{ return fIntegrateMethod; };
+	BCIntegrate::BCIntegrationMethod GetIntegrationMethod()
+	{ return fIntegrationMethod; };
 
 	/** 
 	 * @return The marginalization method 
 	 */ 
-	BCIntegrate::BCMarginalizationType GetMarginalizationMethod()
-		{ return fMarginalizeMethod; };
+	BCIntegrate::BCMarginalizationMethod GetMarginalizationMethod()
+		{ return fMarginalizationMethod; };
 
 	/**
 	 * @return The mode finding method
 	 */
-	BCIntegrate::BCModeFindingType GetModeFindingMethod()
-		{ return fModeFindingMethod; };
+	BCIntegrate::BCOptimizationMethod GetOptimizationMethod()
+		{ return fOptimizationMethod; };
 
 	/** 
 	 * Fills a vector of random numbers between 0 and 1 into a vector 
@@ -196,7 +207,38 @@ class BCIntegrate : public BCEngineMCMC
 	TTree * GetMarkovChainTree()
 		{ return fMarkovChainTree; }; 
 
-	// methods (set) 
+	/**
+	 * Generates a vector x according to the Simulated Annealing algorithm
+	 * given the temperature and the stepsize relative to the range
+	 * @param x Vector of doubles
+	 * @param T temperature used for the stepping probability calculation
+	 *  according to exp ( - (p1-p0) / T )
+	 * @param step maximum stepsize relative to the range
+	 */ 
+	void GetRandomPointSA(std::vector <double> &x, double T, double step);
+
+	/**
+	 * Returns the actual point in the markov chain
+	 */
+	std::vector<double> * GetMarkovChainPoint() 
+		{ return &fXmetro1; }; 
+
+	/**
+	 * Returns the iteration of the MCMC 
+	 */ 
+	int * GetMCMCIteration()
+		{ return &fMCMCIteration; }; 
+
+	/**
+	 * Returns the value of the loglikelihood at the point fXmetro1
+	 */ 
+	double * GetMarkovChainValue()
+		{ return &fMarkovChainValue; }; 
+
+	/* @} */ 
+
+	/** \name Member functions (set) */ 
+	/* @{ */ 
 
 	void SetMinuitArlist(double * arglist)
 	{ fMinuitArglist[0] = arglist[0]; 
@@ -221,20 +263,20 @@ class BCIntegrate : public BCEngineMCMC
 	/** 
 	 * @param method The integration method
 	 */ 
-	void SetIntegrationMethod(BCIntegrate::BCIntegrationType method)
-	{ fIntegrateMethod = method; };
+	void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
+	{ fIntegrationMethod = method; };
 
 	/** 
 	 * @param method The marginalization method 
 	 */ 
-	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
-	{ fMarginalizeMethod = method; };
+	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
+	{ fMarginalizationMethod = method; };
 
 	/** 
 	 * @param method The mode finding method 
 	 */ 
-	void SetModeFindingMethod(BCIntegrate::BCModeFindingType method)
-	{ fModeFindingMethod = method; };
+	void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
+	{ fOptimizationMethod = method; };
 
 	/**
 	 * @param niterations Number of iterations per dimension for Monte Carlo integration.
@@ -362,7 +404,10 @@ class BCIntegrate : public BCEngineMCMC
 	 */
 	void SetErrorBandHisto(TH2D * h) { fErrorBandXY = h; };
 
-	// methods
+	/* @} */ 
+
+	/** \name Member functions (miscellaneous methods) */ 
+	/* @{ */ 
 
 	/** 
 	 * Frees the memory for integration variables 
@@ -589,33 +634,7 @@ class BCIntegrate : public BCEngineMCMC
 
 	static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag); 
 
-	/**
-	 * Generates a vector x according to the Simulated Annealing algorithm
-	 * given the temperature and the stepsize relative to the range
-	 * @param x Vector of doubles
-	 * @param T temperature used for the stepping probability calculation
-	 *  according to exp ( - (p1-p0) / T )
-	 * @param step maximum stepsize relative to the range
-	 */ 
-	void GetRandomPointSA(std::vector <double> &x, double T, double step);
-
-	/**
-	 * Returns the actual point in the markov chain
-	 */
-	std::vector<double> * GetMarkovChainPoint() 
-		{ return &fXmetro1; }; 
-
-	/**
-	 * Returns the iteration of the MCMC 
-	 */ 
-	int * GetMCMCIteration()
-		{ return &fMCMCIteration; }; 
-
-	/**
-	 * Returns the value of the loglikelihood at the point fXmetro1
-	 */ 
-	double * GetMarkovChainValue()
-		{ return &fMarkovChainValue; }; 
+	/* @} */ 
 
  private:
 
@@ -647,17 +666,17 @@ class BCIntegrate : public BCEngineMCMC
 	/**
 	 * Current integration method
 	 */
-	BCIntegrate::BCIntegrationType fIntegrateMethod;
+	BCIntegrate::BCIntegrationMethod fIntegrationMethod;
 
 	/** 
 	 * Current marginalization method 
 	 */ 
-	BCIntegrate::BCMarginalizationType fMarginalizeMethod;
+	BCIntegrate::BCMarginalizationMethod fMarginalizationMethod;
   
 	/** 
 	 * Current mode finding method 
 	 */ 
-	BCIntegrate::BCModeFindingType fModeFindingMethod;
+	BCIntegrate::BCOptimizationMethod fOptimizationMethod;
 
 	/**
 	 * Maximum number of iterations 
