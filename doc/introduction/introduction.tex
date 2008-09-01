@@ -1,0 +1,384 @@
+\documentclass[11pt, a4paper]{article}
+
+%\usepackage{geometry} 
+%\usepackage{epsfig}
+%\usepackage{epstopdf}
+%\usepackage{graphics}
+\usepackage{graphicx}
+
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\topmargin}{-1cm}
+\setlength{\textheight}{23cm}
+\setlength{\textwidth}{16cm}
+
+\pagestyle{headings}
+
+%--------------------------------------------------------
+
+\begin{document}
+
+% --------------------------------------------------------
+% title
+% --------------------------------------------------------
+
+\thispagestyle{empty} 
+
+\begin{figure}
+\includegraphics[scale=0.25]{bat.png} 
+\end{figure} 
+
+\vspace{1.0cm}
+
+\begin{center}
+
+{\Large {\sc BAT} - a short introduction} 
+
+\vspace{1.0cm}
+
+{A.~Caldwell$^{1}$, D.~Koll\'ar${^1}$, K.~Kr\"oninger$^{2}$}
+
+\vspace{1.0cm}
+
+{\it $^{1}$~Max Planck Institute for Physics, Munich, Germany \\ 
+$^{2}$~II. Institute of Physics, University of G\"ottingen, G\"ottingen }
+\end{center}
+
+\thispagestyle{empty} 
+
+\pagebreak 
+
+% --------------------------------------------------------
+% table of contents 
+% --------------------------------------------------------
+
+\thispagestyle{empty} 
+
+\tableofcontents
+
+\pagebreak 
+
+% --------------------------------------------------------
+% introduction
+% --------------------------------------------------------
+\section{Introduction}
+\label{section:introduction}
+
+{\sc BAT} is a package for data analysis. It's main purpose is to
+handle different models in a Bayesian sense and to help optimize
+parameters, and check the validity of the model with the data. An
+introduction to {\sc BAT} can be found in~\cite{Caldwell:2008fw}.
+
+The following introduces the basic principals {\sc BAT} is based on
+and summarizes how to use the program. This is followed by a brief
+example distributed with the software.
+
+% --------------------------------------------------------
+% installation 
+% --------------------------------------------------------
+\section{Installation} 
+\label{section:installation}
+
+% --------------------------------------------------------
+% Running BAT 
+% --------------------------------------------------------
+\section{Running BAT}
+\label{section:runningBAT}
+
+This section describes the basic features of {\sc BAT} and the general
+flow of work. More complex operations are discussed in a later
+section.
+
+\subsection{Getting started} 
+
+In {\sc BAT}, all models are represented as individual classes. They
+inherit from the same base class which is contained in the {\sc BAT}
+library. This library can be linked against in any existing C++
+code. In order to start a new project several files need to be
+provided by the user:
+% 
+\begin{itemize}
+\item A definition of each model used in the analysis, i.e. all source
+  files of classes beloning to these models;
+\item A main file in which the actual analysis is performed; 
+\item A makefile which links against the {\sc BAT} library. 
+\end{itemize} 
+
+\noindent 
+Examples for the these three classes are presented in
+section~\ref{section:example}. 
+
+\subsection{Creating a model} 
+
+All model classes inherit from the abstract base class
+\verb|BCModel|. It offers a number of virtual methods which need to be
+overloaded by the user. Apart from the constructor and destructor,
+these methods are 
+%
+\begin{verbatim}
+double BCModel::LogLikelihood(std::vector <double> par)
+\end{verbatim}  
+
+\noindent 
+This method contains a mathematical expression for the conditional
+probability density (or {\it likelihood}) of the data given a set of
+parameter values. For reasons of numerical stability it returns the
+logarithm of that expression. \\ 
+
+\begin{verbatim}
+double BCModel::LogAPrioriProbability(std::vector <double> par)
+\end{verbatim}
+%
+\noindent 
+This method contains a mathematical expression for the {\it a priori}
+probability density for a set of parameter values. For reasons of
+numerical stability it returns the logarithm of that expression. \\ 
+
+\noindent 
+The vector \verb|par| has as many entries as parameters are defined in
+the model. The indeces of the elements of the vector correspond to the
+indeces of the parameters. The values of these elements are
+constrained to the boundaries of the corresponding parameter. 
+
+\subsection{Definition of parameters}
+
+The parameters of a model are represented as instances of the class
+\verb|BCModelParameter|. The constructor of this class has as
+parameters the name of the parameter (\verb|const char * name|), and
+the interval for which the parameter is defined (\verb|double xmin|,
+\verb|double xmax|). \\ 
+
+Instances of that class can be added to the model via 
+%
+\begin{verbatim}
+void BCModel::AddParameter(BCParameter * parameter) 
+\end{verbatim}
+%
+\noindent 
+or they are implicitly defined via 
+%
+\begin{verbatim}
+void BCModel::AddParameter(const char * name, double xmin, double xmax) . 
+\end{verbatim}
+
+Every parameter has to have a unique name and valid limits. Once added
+to a model, a parameter can be referenced by an index or by its
+name. The index is given once the parameter is added to the model,
+starting from~0 for the first one. 
+
+\subsection{Data}
+
+In {\sc BAT}, data are described by {\it data points} which are
+combined to {\it data sets}. Both are represented by instances of the
+classes \verb|BCDataPoint| and \verb|BCDataSet|, respectively.  Data
+can be loaded from a plain ASCII files or ROOT files containing a
+tree. The following interfaces can be used 
+%
+\begin{verbatim}
+int BCDataSet::ReadDataFromFile(const char* fn, const char* tn, const char* bn)
+int BCDataSet::ReadDataFromFile(const char* fn, int n)
+\end{verbatim} 
+%
+\noindent 
+where \verb|fn| is the name of the file, \verb|tn| is the name of the
+ROOT tree, and \verb|nb| is the name of the branches separated by
+commas. The integer \verb|n| defines the number of events which are
+read from the ASCII file. The function returns an error code. Once a
+data set is defined it can be assigned to a model with
+%
+\begin{verbatim}
+void BCModel::SetDataSet(BCDataSet* dataset) .
+\end{verbatim} 
+
+\subsection{Optimization}
+
+In the context of {\sc BAT}, optimization refers to finding the global
+mode of the posterior pdf. It can be performed via the member function 
+%
+\begin{verbatim}
+void BCModel::FindMode(); 
+\end{verbatim}
+
+Different methods can be used to perform the optimization. They can be
+chosen via 
+%
+\begin{verbatim}
+void BCModel::SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
+\end{verbatim}
+%
+\noindent
+where \verb|BCIntegrate::BCOptimizationMethod| is one of the
+following:
+%
+\begin{itemize}
+\item \verb|kOptSimulatedAnnealing| using a simulated annealing
+  algorithm,
+\item \verb|kOptMetropolis| using the Metropolis algorithm, i.e.,
+  optimization is done during the MCMC run, and 
+\item \verb|kOptMinuit| using the ROOT version of Minuit. 
+\end{itemize}
+
+The default setting ist \verb|kOptMinuit|.
+
+\subsection{Marginalization}
+
+The posterior pdf can be marginalized with respect to a single
+parameter or with respect to two parameters. The marginalization can
+be performed via: 
+%
+\begin{verbatim}
+int BCModel::MarginalizeAll() . 
+\end{verbatim}
+%
+The function returns the number of marginalized
+distributions. Different algorithms can be used, and set via
+%
+\begin{verbatim}
+BCModel::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method), 
+\end{verbatim}
+%
+\noindent 
+where \verb|BCIntegrate::BCMarginalizationMethod| is one of the
+following:
+%
+\begin{itemize}
+\item \verb|kMargMonteCarlo| using random sampling through the parameter space, and
+\item \verb|kMargMetropolis| using Markov Chain Monte Carlo. 
+\end{itemize}
+
+The default setting is \verb|kMargMetropolis|. 
+
+\subsection{Goodness-of-fit}
+
+A goodness-of-fit test for the parameters found in the optimization
+can be performed using the $p$-value defined
+in~\cite{Caldwell:2008fw}. In the most general case, the user has to
+supply data sets generated with the parameters to be tested. The
+$p$-value can then be evaluated via
+%
+\begin{verbatim}
+BCH1D * GoodnessOfFitTest(const char * filenname, std::vector <double> parameters) ,
+\end{verbatim}
+%
+\noindent 
+where the file \verb|filename| contains a list of .txt files which
+contain the data sets, and \verb|parameters| is a vector of the
+parameters used to generate the data sets. The function returns a
+\verb|BCH1D| histogram containing the frequency distribution of the
+(logarithm of the) conditional probablity. The $p$-value can be
+obtained using 
+%
+\begin{verbatim}
+double BCH1D::GetPValue(double probability) , 
+\end{verbatim}
+%
+\noindent
+where probability is the conditional probablity of the pdf (using the
+original dat set) at the best fit parameters. 
+
+\subsection{Output: log files}
+
+The class \verb|BCLog| is used to write out information during the
+runtime of the program. The output is written to screen and to a log
+file. The minimum level of detail can be set independently for both
+via
+%
+\begin{verbatim} 
+void BCLog::SetMinimumLogLevelFile(BCLog::LogLevel loglevel) , 
+void BCLog::SetMinimumLogLevelScreen(BCLog::LogLevel loglevel) , 
+\end{verbatim} 
+%
+\noindent 
+where the level is one of the following 
+%
+\begin{itemize} 
+\item \verb|debug|: Lowest level of information. 
+\item \verb|detail|: Details of functions, such as the status of the
+  Markov chains, etc.
+\item \verb|summary|: Results, such as best-fit values, normalization, etc. 
+\item \verb|warning|: Warning messages 
+\item \verb|nothing|: Nothing is written out. 
+\end{itemize} 
+
+A log file has to be opened in the beginning of the main file using
+%
+\begin{verbatim} 
+void BCLog::OpenLog() . 
+\end{verbatim} 
+
+\subsection{Output: summary print-out}
+
+A summary of the results of the Markov Chain Monte Carlo is written to
+file at the end of each run. A single file is created for each model
+used in the analysis. 
+
+\subsection{Output: histograms and files}
+
+The marginalized distributions of a model can be written to file via
+%
+\begin{verbatim}
+void PrintAllMarginalized(const char * file, int hdiv=1, int ndiv=1) ,
+\end{verbatim}
+%
+\noindent 
+where \verb|file| is the filename. 
+
+% --------------------------------------------------------
+% Technical tools 
+% --------------------------------------------------------
+\section{Technical tools}
+\label{section:tools}
+
+{\it Save all this for a later version of the manual.} 
+
+\subsection{Optimization}
+
+\subsection{Markov Chain Monte Carlo}
+
+\subsection{Integration}
+
+% --------------------------------------------------------
+% More features
+% --------------------------------------------------------
+\section{More features}
+\label{section:features}
+
+{\it Save all this for a later version of the manual.} 
+
+\subsection{Normalization}
+
+\subsection{Model comparison}
+
+\subsection{Fitting}
+
+\subsection{Single event analysis}
+
+\subsection{User defined data interface} 
+
+
+% --------------------------------------------------------
+% An example 
+% --------------------------------------------------------
+\section{An example} 
+\label{section:example}
+
+{\it Describe a simple example here. } 
+
+% --------------------------------------------------------
+% bibliography 
+% --------------------------------------------------------
+
+\addcontentsline{toc}{section}{Bibliography}
+
+\begin{thebibliography}{99}
+\bibitem{Caldwell:2008fw}
+  A.~Caldwell, D.~Kollar and K.~Kroeninger,
+  ``BAT - The Bayesian Analysis Toolkit,''
+  arXiv:0808.2552 [physics.data-an].
+\end{thebibliography}
+
+% --------------------------------------------------------
+
+\end{document} 
+
+

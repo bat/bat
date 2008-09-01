@@ -13,6 +13,8 @@ development/BCEngineMCMC.cxx -text
 development/BCEngineMCMC.h -text
 development/Makefile -text
 development/runengine.c -text
+doc/introduction/bat.png -text svneol=unset#unset
+doc/introduction/introduction.tex -text
 doc/manual/bat.eps -text
 doc/manual/example01_constant.eps -text
 doc/manual/example01_correlation.eps -text
