@@ -9,7 +9,7 @@
 #include <TMath.h>
 
 #include <fstream>
-#include <iomanip.h>
+#include <iomanip>
 
 // --------------------------------------------------------- 
 
@@ -2414,13 +2414,13 @@ void BCModel::PrintResults(const char * file)
 			ofi << "  (" << i << ") Parameter \"" 
 					<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl; 
 			ofi << "      Mean +- RMS:         "
-					<< setprecision(4) << bch1d -> GetMean() 
+					<< std::setprecision(4) << bch1d -> GetMean() 
 					<< " +- " 
-					<< setprecision(4) << bch1d -> GetRMS() << std::endl;
+					<< std::setprecision(4) << bch1d -> GetRMS() << std::endl;
 			ofi << "      Median +- sigma:     " 
-					<< setprecision(4) << bch1d -> GetMedian() 
-					<< " +  " << setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian() 
-					<< " - " << setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl; 
+					<< std::setprecision(4) << bch1d -> GetMedian() 
+					<< " +  " << std::setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian() 
+					<< " - " << std::setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl; 
 			ofi << "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl; 
 			ofi << "      Smallest interval(s) containing 68% and local modes: " << std::endl;
 			

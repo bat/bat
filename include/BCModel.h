@@ -661,7 +661,7 @@ class BCModel : public BCIntegrate
 	/** 
 	 * Prints a summary of the Markov Chain Monte Carlo to a file. 
 	 */ 
-	void BCModel::PrintResults(const char * file); 
+	void PrintResults(const char * file); 
 
 	/** 
 	 * Prints matrix elements of the Hessian matrix 
