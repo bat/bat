@@ -3,17 +3,17 @@ This is the INSTALL file of BAT package
 ---------------------------------------
 You can find here a short description of what to do to be able to
 compile and use BAT on your computer. This is a very first version
-of this file. In the future the detailed description should become
+of this file. In the future a detailed description should become
 a part of the manual.
 
 
 Platforms
 ----------
 BAT has been developed on Linux machines running different distributions
-and different versions of the kernel and compilers. As far as we know there
-is nothing distribution dependent inside of BAT. We have not yet
+and different versions of the kernel and gcc. As far as we know there
+is nothing distribution dependent inside of BAT. However, we have not yet
 started to systematically check for compatibility and portability. This is
-planned for future releases of BAT. For the moment the the only statement
+planned for future releases of BAT. For the moment the only statement
 we can do here is that if you don't have a too old or too specific
 installation of Linux you should be able to compile and use BAT without
 problems.
@@ -32,8 +32,8 @@ CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
    http://www.feynarts.de/cuba/. In future versions of BAT we plan to
-   make the use of CUBA optional but for the moment it is necessary
-   to compile BAT.
+   make the use of CUBA optional but for the moment it has to be installed
+   on your system if you want to compile BAT.
 
 
 Installation Procedure
@@ -62,13 +62,13 @@ The simplest way is to add the options -L/bat/library/location/path/ and
 compilation (or to your makefile). More permanent solution is to
 make the the location of library/includes available to the system via setting
 
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bat/library/location/
-    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/bat/include/location/
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bat/lib/location/path/
+    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/bat/inc/location/path/
 
 or
 
-    setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:/bat/library/location/
-    setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:/bat/include/location/
+    setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:/bat/lib/location/path/
+    setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:/bat/inc/location/path/
 
 for bash and csh compatible shells, respectively.
 
@@ -76,5 +76,13 @@ In the future we plan to automatize the whole installation process, possibly
 using autoconf/automake tools.
 
 
+
+Any bugreports/comments/suggestions should be sent to
+bat@mppmu.mpg.de
+
+
+
+
 ----------------------------------------------------------------------------
 This file was last updated on 15.9.2008 by Daniel Kollar
+
