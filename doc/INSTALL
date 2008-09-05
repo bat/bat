@@ -1,0 +1,80 @@
+
+This is the INSTALL file of BAT package
+---------------------------------------
+You can find here a short description of what to do to be able to
+compile and use BAT on your computer. This is a very first version
+of this file. In the future the detailed description should become
+a part of the manual.
+
+
+Platforms
+----------
+BAT has been developed on Linux machines running different distributions
+and different versions of the kernel and compilers. As far as we know there
+is nothing distribution dependent inside of BAT. We have not yet
+started to systematically check for compatibility and portability. This is
+planned for future releases of BAT. For the moment the the only statement
+we can do here is that if you don't have a too old or too specific
+installation of Linux you should be able to compile and use BAT without
+problems.
+
+Windows is not supported for the moment.
+
+Dependencies
+-------------
+ROOT:
+   ROOT is an object oriented data analysis framework. You can obtain
+   it from http://root.cern.ch/. To compile and run BAT you will need
+   a ROOT version 5.16 or later. Please, check your linux distribution
+   for the availability of precompiled packages on your system. Mostly
+   used distributions nowdays have the ROOT packages available.
+CUBA:
+   CUBA is a library containing general purpose multidimensional
+   integration algorithms. It can be obtained from
+   http://www.feynarts.de/cuba/. In future versions of BAT we plan to
+   make the use of CUBA optional but for the moment it is necessary
+   to compile BAT.
+
+
+Installation Procedure
+----------------------
+Manual installation is necessary at the moment which contains just a few
+staps.
+
+Unpack the tarball containing the BAT source usually named like
+bat-x.x.tgz (here x.x is the version number) using command
+
+    tar -xzf bat-x.x.tgz
+
+A directory called bat-x.x will be created containing the source code.
+Enter the directory and run the compilation using commands
+
+    cd bat-x.x
+    make
+
+After a successful compilation a file called libBAT.so will be created
+which is a shared library.
+
+To complete the installation you have to put the library as well as the
+include files into the location accessible to the compiler on your system.
+The simplest way is to add the options -L/bat/library/location/path/ and
+-I/bat/include/location/path/ to the gcc compiler commands during
+compilation (or to your makefile). More permanent solution is to
+make the the location of library/includes available to the system via setting
+
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bat/library/location/
+    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/bat/include/location/
+
+or
+
+    setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:/bat/library/location/
+    setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:/bat/include/location/
+
+for bash and csh compatible shells, respectively.
+
+In the future we plan to automatize the whole installation process, possibly
+using autoconf/automake tools.
+
+
+----------------------------------------------------------------------------
+This file was last updated on 15.9.2008 by Daniel Kollar
