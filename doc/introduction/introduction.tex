@@ -1,6 +1,6 @@
 \documentclass[11pt, a4paper]{article}
 
-%\usepackage{geometry} 
+%\usepackage{geometry}
 %\usepackage{epsfig}
 %\usepackage{epstopdf}
 %\usepackage{graphics}
@@ -22,17 +22,17 @@
 % title
 % --------------------------------------------------------
 
-\thispagestyle{empty} 
+\thispagestyle{empty}
 
 \begin{figure}
-\includegraphics[scale=0.25]{bat.eps} 
-\end{figure} 
+\includegraphics[scale=0.25]{bat.eps}
+\end{figure}
 
 \vspace{1.0cm}
 
 \begin{center}
 
-{\Large {\sc BAT} - a short introduction} 
+{\Large {\sc BAT} - a short introduction}
 
 \vspace{1.0cm}
 
@@ -40,23 +40,23 @@
 
 \vspace{1.0cm}
 
-{\it $^1$~Max Planck Institute for Physics, Munich, Germany \\ 
+{\it $^1$~Max Planck Institute for Physics, Munich, Germany \\
 $^2$~II. Institute of Physics, University of G\"ottingen, G\"ottingen }
 \end{center}
 
-\thispagestyle{empty} 
+\thispagestyle{empty}
 
-\pagebreak 
+\pagebreak
 
 % --------------------------------------------------------
-% table of contents 
+% table of contents
 % --------------------------------------------------------
 
-\thispagestyle{empty} 
+\thispagestyle{empty}
 
 \tableofcontents
 
-\pagebreak 
+\pagebreak
 
 % --------------------------------------------------------
 % introduction
@@ -74,13 +74,13 @@ and summarizes how to use the program. This is followed by a brief
 example distributed with the software.
 
 % --------------------------------------------------------
-% installation 
+% installation
 % --------------------------------------------------------
-\section{Installation} 
+\section{Installation}
 \label{section:installation}
 
 % --------------------------------------------------------
-% Running BAT 
+% Running BAT
 % --------------------------------------------------------
 \section{Running BAT}
 \label{section:runningBAT}
@@ -89,56 +89,56 @@ This section describes the basic features of {\sc BAT} and the general
 flow of work. More complex operations are discussed in a later
 section.
 
-\subsection{Getting started} 
+\subsection{Getting started}
 
 In {\sc BAT}, all models are represented as individual classes. They
 inherit from the same base class which is contained in the {\sc BAT}
 library. This library can be linked against in any existing C++
 code. In order to start a new project several files need to be
 provided by the user:
-% 
+%
 \begin{itemize}
 \item A definition of each model used in the analysis, i.e. all source
   files of classes beloning to these models;
-\item A main file in which the actual analysis is performed; 
-\item A makefile which links against the {\sc BAT} library. 
-\end{itemize} 
+\item A main file in which the actual analysis is performed;
+\item A makefile which links against the {\sc BAT} library.
+\end{itemize}
 
-\noindent 
+\noindent
 Examples for the these three classes are presented in
-section~\ref{section:example}. 
+section~\ref{section:example}.
 
-\subsection{Creating a model} 
+\subsection{Creating a model}
 
 All model classes inherit from the abstract base class
 \verb|BCModel|. It offers a number of virtual methods which need to be
 overloaded by the user. Apart from the constructor and destructor,
-these methods are 
+these methods are
 %
 \begin{verbatim}
 double BCModel::LogLikelihood(std::vector <double> par)
-\end{verbatim}  
+\end{verbatim}
 
-\noindent 
+\noindent
 This method contains a mathematical expression for the conditional
 probability density (or {\it likelihood}) of the data given a set of
 parameter values. For reasons of numerical stability it returns the
-logarithm of that expression. \\ 
+logarithm of that expression. \\
 
 \begin{verbatim}
 double BCModel::LogAPrioriProbability(std::vector <double> par)
 \end{verbatim}
 %
-\noindent 
+\noindent
 This method contains a mathematical expression for the {\it a priori}
 probability density for a set of parameter values. For reasons of
-numerical stability it returns the logarithm of that expression. \\ 
+numerical stability it returns the logarithm of that expression. \\
 
-\noindent 
+\noindent
 The vector \verb|par| has as many entries as parameters are defined in
 the model. The indeces of the elements of the vector correspond to the
 indeces of the parameters. The values of these elements are
-constrained to the boundaries of the corresponding parameter. 
+constrained to the boundaries of the corresponding parameter.
 
 \subsection{Definition of parameters}
 
