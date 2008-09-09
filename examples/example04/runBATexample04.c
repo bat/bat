@@ -33,17 +33,10 @@ int main()
 
   BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
-	fModelEfficiency -> MCMCSetNChains(10); 
-	//  fModelEfficiency -> MCMCSetFlagPCA(false); 
-	//  fModelEfficiency -> MCMCSetNIterationsBurnIn(10000); 
-	fModelEfficiency -> MCMCSetNIterationsRun(1000000); 
-	//  fModelEfficiency -> MCMCSetTrialFunctionScale(0.01); 
-	//  fModelEfficiency -> MCMCSetFlagInitialPosition(1); 
-	//	fModelEfficiency -> MCMCSetWriteChainToFile(true); 
+	//	fModelEfficiency -> MCMCSetNIterationsRun(10000); 
+	fModelEfficiency -> MCMCSetWriteChainToFile(true); 
 
 	BCModelOutput * fModelEfficiencyOutput = new BCModelOutput(fModelEfficiency, "output_efficiency.root"); 
-
-	//	return 1; 
 
   // ---------------------------------------------------------
   // read data from file 
@@ -58,40 +51,49 @@ int main()
 
   fModelEfficiency -> SetDataSet(fDataSet); 
 
-	//	fModelEfficiency -> MCMCInitialize(); 
-
   // ---------------------------------------------------------
-  // find maximum
+  // optimize 
   // ---------------------------------------------------------
 
-	//  fModelEfficiency -> MCMCMetropolisHastings();  
-	//	fModelEfficiency -> MCMCSimulatedAnnealing();  
-  
+	fModelEfficiency -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
+
 	fModelEfficiency -> FindMode(); 
-
-	fModelEfficiency -> MCMCMetropolis();  
 
   // ---------------------------------------------------------
   // marginalize 
   // ---------------------------------------------------------
 
-	//  fModelEfficiency -> SetNbins(100);
-	//  fModelEfficiency -> MarginalizeAll(); 
+	fModelEfficiency -> MarginalizeAll(); 
 
-	fModelEfficiency -> GetMarginalized("epsilon") -> Print("modelefficiency_epsilon.ps",2);
+	//	fModelEfficiency -> GetMarginalized("epsilon") -> Print("modelefficiency_epsilon.ps",2);
 
+	fModelEfficiency -> PrintAllMarginalized1D("marginalized"); 
+
+  // ---------------------------------------------------------
+  // evaluate p-value 
+  // ---------------------------------------------------------
+
+	double Nmax = fDataSet -> GetDataPoint(0) -> GetValue(1); 
+
+	fModelEfficiency -> SetDataBoundaries(0, 0.0, Nmax); 
+	fModelEfficiency -> FixDataAxis(1, true); 
+
+	double loglikelihoodmax = fModelEfficiency -> LogLikelihood(fModelEfficiency -> GetBestFitParameters()); 
+
+	fModelEfficiency -> CalculatePValue(fModelEfficiency -> GetBestFitParameters(), true) -> Print("pvalue.ps", 1, loglikelihoodmax); 
+	
   // ---------------------------------------------------------
   // summarize
   // ---------------------------------------------------------
 
-	fModelEfficiency -> PrintSummary(); 
+	fModelEfficiency -> PrintResults("summary.txt"); 
 
   // ---------------------------------------------------------
   // close log file 
   // ---------------------------------------------------------
 
 	fModelEfficiencyOutput -> FillAnalysisTree(); 
-	//	fModelEfficiencyOutput -> WriteMarginalizedDistributions(); 
+	fModelEfficiencyOutput -> WriteMarginalizedDistributions(); 
 
 	// write to file and close 
 
