@@ -82,6 +82,7 @@ include/BCMath.h -text
 include/BCModel.h -text
 include/BCModelManager.h -text
 include/BCModelOutput.h -text
+include/BCModelTest.h -text
 include/BCParameter.h -text
 include/BCReleaseVersion.h -text
 include/style.c -text

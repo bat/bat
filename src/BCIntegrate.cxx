@@ -1293,7 +1293,10 @@ void BCIntegrate::FindModeMinuit()
 
 	// define minuit 
 
-	if (!fMinuit) 
+
+	if (fMinuit) 
+		delete fMinuit; 
+	//	if (!fMinuit) 
 		fMinuit = new TMinuit(fNvar); 
 	
 	// set function 

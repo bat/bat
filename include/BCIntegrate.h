@@ -761,6 +761,8 @@ class BCIntegrate : public BCEngineMCMC
 	 */ 
 	BCDataPoint * fDataPointUpperBoundaries; 
 
+	std::vector <bool> fDataFixedValues; 
+
 	/**
 	 * A ROOT random number generator 
 	 */ 

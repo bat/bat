@@ -131,6 +131,12 @@ class BCModel : public BCIntegrate
 	double GetDataPointUpperBoundary(int index)
 	{ return fDataPointUpperBoundaries -> GetValue(index); }; 
 
+	/*
+	 * Checks if the boundaries have been defined 
+	 * @return true, if the boundaries have been set, false otherwise 
+	 */ 
+	bool GetFlagBoundaries(); 
+
 	/** 
 	 * @return The number of data points in the current data set.
 	 */ 
@@ -228,6 +234,8 @@ class BCModel : public BCIntegrate
 
 	TGraph * GetFitFunctionGraph(std::vector <double> parameters, double xmin, double xmax, int n=1000);
 
+	bool GetFixedDataAxis(int index); 
+
 	/* @} */ 
 
 	/** \name Member functions (set) */ 
@@ -298,7 +306,7 @@ class BCModel : public BCIntegrate
 	void SetNDataPointsMaximum(int maximum)
 	{ fNDataPointsMaximum = maximum; }; 
 
-	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
+	void SetDataBoundaries(int index, double lowerboundary, double upperboundary, bool fixed=false); 
 
 	/**
 	 * Sets the error band flag to continuous function 
@@ -639,6 +647,8 @@ class BCModel : public BCIntegrate
 	 */
 	double GetPvalueFromChi2(std::vector<double> par, int sigma_index);
 
+	BCH1D * CalculatePValue(std::vector<double> par, bool flag_histogram=false); 
+
 	/*
 	 * @return The p-value 
 	 */ 
@@ -668,6 +678,8 @@ class BCModel : public BCIntegrate
 	 * @param parameters The parameter values at which point to evaluate the matrix 
 	 */
 	void PrintHessianMatrix(std::vector<double> parameters); 
+
+	void FixDataAxis(int index, bool fixed); 
 
 	/* @} */ 
 
@@ -718,6 +730,11 @@ class BCModel : public BCIntegrate
 	 */ 
 	bool flag_ConditionalProbabilityEntry;
 
+	/**
+	 * The p-value 
+	 */ 
+	double fPValue; 
+
  private:
 
 	/** 
@@ -734,11 +751,6 @@ class BCModel : public BCIntegrate
 	 * The Likelihood normalization. 
 	 */ 
 	double fNormalization; 
-
-	/**
-	 * The p-value 
-	 */ 
-	double fPValue; 
 
 }; 
 

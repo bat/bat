@@ -1,3 +1,4 @@
+#include "BCModelTest.h" 
 #include "BCModel.h"
 #include "BCLog.h"
 #include "BCErrorCodes.h"
@@ -29,6 +30,9 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 
 	flag_ConditionalProbabilityEntry = true; 
 
+	fDataPointUpperBoundaries = 0; 
+	fDataPointLowerBoundaries = 0; 
+
 	fErrorBandXY = 0; 
 
 }
@@ -48,6 +52,9 @@ BCModel::BCModel() : BCIntegrate()
 	fPValue = -1; 
 
 	fName = "model"; 
+
+	fDataPointUpperBoundaries = 0; 
+	fDataPointLowerBoundaries = 0; 
 
 	flag_ConditionalProbabilityEntry = true; 
 
@@ -275,6 +282,27 @@ TGraph * BCModel::GetFitFunctionGraph(std::vector <double> parameters, double xm
 
 // ---------------------------------------------------------
 
+bool BCModel::GetFlagBoundaries()
+{
+
+	if (!fDataPointLowerBoundaries)
+		return false; 
+
+	if (!fDataPointUpperBoundaries)
+		return false; 
+
+	if (int(fDataPointLowerBoundaries -> GetNValues()) != fDataSet -> GetDataPoint(0) -> GetNValues())
+		return false; 
+
+	if (int(fDataPointUpperBoundaries -> GetNValues()) != fDataSet -> GetDataPoint(0) -> GetNValues())
+		return false; 
+
+	return true; 
+
+}
+
+// ---------------------------------------------------------
+
 void BCModel::SetSingleDataPoint(BCDataPoint * datapoint) 
 {
 
@@ -306,7 +334,7 @@ void BCModel::SetSingleDataPoint(BCDataSet * dataset, int index)
 
 // --------------------------------------------------------- 
 
-void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperboundary)
+void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperboundary, bool fixed)
 {
 
 	// check if data set exists 
@@ -337,11 +365,15 @@ void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperbou
 	if (!fDataPointUpperBoundaries)
 		fDataPointUpperBoundaries = new BCDataPoint(fDataSet -> GetDataPoint(0) -> GetNValues()); 
 
+	if (fDataFixedValues.size() == 0)
+		fDataFixedValues.assign(fDataSet -> GetDataPoint(0) -> GetNValues(), false); 
+
 	// set boundaries 
 
 	fDataPointLowerBoundaries -> SetValue(index, lowerboundary); 
 	fDataPointUpperBoundaries -> SetValue(index, upperboundary); 
-
+	fDataFixedValues[index] = fixed;
+	
 }
 
 // --------------------------------------------------------- 
@@ -434,7 +466,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 
 	// add parameter to MCMC
 
-	this -> MCMCAddParameter(parameter -> GetLowerLimit(), parameter -> GetUpperLimit()); 
+	//	this -> MCMCAddParameter(parameter -> GetLowerLimit(), parameter -> GetUpperLimit()); 
 
 	// re-initialize 
 
@@ -2222,6 +2254,45 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 
 // --------------------------------------------------------- 
 
+BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
+{
+
+	BCH1D * hist = 0; 
+
+	// print log 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test"); 
+
+	// create model test 
+	BCModelTest * modeltest = new BCModelTest("modeltest"); 
+
+	// set this model as the model to be tested
+	modeltest -> SetTestModel(this);
+
+	// set the point in parameter space which is tested an initialize
+	// the model testing 
+	if (!modeltest -> SetTestPoint(par))
+		return 0; 
+
+	// get p-value 
+	fPValue = modeltest -> GetCalculatedPValue(flag_histogram); 
+
+	// get histogram 
+	if (flag_histogram)
+		{
+			hist = new BCH1D(); 
+			hist -> SetHistogram(modeltest -> GetHistogramLogProb()); 
+		}
+	
+	// delete model test
+	//	delete modeltest; 
+
+	// return histogram
+	return hist; 
+
+}
+
+// --------------------------------------------------------- 
+
 void BCModel::CorrelateDataPointValues(std::vector<double> &x) 
 {
   
@@ -2283,6 +2354,47 @@ double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * par
 	double derivative = (ppp + pmm - ppm - pmp) / (4.0 * dx1 * dx2); 
 
 	return derivative; 
+
+}
+
+// --------------------------------------------------------- 
+
+void BCModel::FixDataAxis(int index, bool fixed)
+{
+
+	// check if index is within range 
+
+	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 "BCModel::FixDataAxis. Index out of range."); 
+
+			return; 
+		}
+	
+	if (fDataFixedValues.size() == 0)
+		fDataFixedValues.assign(fDataSet -> GetDataPoint(0) -> GetNValues(), false); 
+	
+	fDataFixedValues[index] = fixed; 
+
+}
+
+// --------------------------------------------------------- 
+
+bool BCModel::GetFixedDataAxis(int index) 
+{
+
+		// check if index is within range 
+
+	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning, 
+								 "BCModel::GetFixedDataAxis. Index out of range."); 
+
+			return false; 
+		}
+
+	return fDataFixedValues.at(index); 
 
 }
 
@@ -2459,6 +2571,11 @@ void BCModel::PrintResults(const char * file)
 					<< fBestFitParameters.at(i) << std::endl; 
 		}
 	ofi << std::endl; 
+	if (fPValue >= 0.)
+		{
+			ofi << " p-value at global mode: " << fPValue << std::endl; 
+			ofi << std::endl; 
+		}
 
 	ofi << " Status of the MCMC" << std::endl; 
 	ofi << " ==================" << std::endl; 
@@ -2467,7 +2584,7 @@ void BCModel::PrintResults(const char * file)
 		ofi << " Number of iterations until convergence: " << this -> MCMCGetNIterationsConvergenceGlobal() << std::endl; 
 	else
 		ofi << " WARNING: the Markov Chain did not converge! Be\n"
-				<< " cautious using the following results!" << std::endl; 
+				<< " cautious using the following results!" << std::endl << std::endl; 
 	ofi << " Number of chains:                       " << this -> MCMCGetNChains() << std::endl; 
 	ofi << " Number of iterations of each chain:     " << this -> MCMCGetNIterationsMax() << std::endl; 
 	ofi << std::endl; 
