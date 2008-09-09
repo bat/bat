@@ -17,7 +17,6 @@ doc/Changelog -text
 doc/INSTALL -text
 doc/README -text
 doc/introduction/bat.eps -text
-doc/introduction/bat.png -text svneol=unset#unset
 doc/introduction/introduction.tex -text
 doc/manual/bat.eps -text
 doc/manual/example01_constant.eps -text
