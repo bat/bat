@@ -27,6 +27,7 @@ GLIBS       += $(ROOTGLIBS) -L.
 
 CXSRCS      = BCParameter.cxx \
 		BCModel.cxx \
+		BCModelTest.cxx \
 		BCModelOutput.cxx \
 		BCDataPoint.cxx \
 		BCDataSet.cxx \

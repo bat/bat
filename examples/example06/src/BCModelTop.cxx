@@ -86,6 +86,8 @@ double BCModelTop::LogLikelihood(std::vector <double> parameters)
 	this -> CalculateLorentzVectors(parameters); 
 
 	double logprob = 0.0; 
+
+	fDataPoint = fDataSet -> GetDataPoint(0); 
 	
 	logprob += this -> EnergyResolutionBJets(fDataPoint -> GetValue(0) / parameters.at(6), 
 																					 parameters.at(0)); 
@@ -97,9 +99,9 @@ double BCModelTop::LogLikelihood(std::vector <double> parameters)
 																							 parameters.at(3)); 
 	logprob += this -> EnergyResolutionElectrons(fDataPoint -> GetValue(16), 
 																							 parameters.at(4)); 
-
+	
 	logprob += BCMath::LogBreitWignerNonRel(fLV_Whad.M(), fMW, fGammaW, true); 
- 	logprob += BCMath::LogBreitWignerNonRel(fLV_Wlep.M(), fMW, fGammaW, true); 
+	logprob += BCMath::LogBreitWignerNonRel(fLV_Wlep.M(), fMW, fGammaW, true); 
 	logprob += BCMath::LogGaus(fLV_Tophad.M() - fLV_Toplep.M(), 0.0, 1.5, true); 
 
 	return logprob; 
@@ -131,6 +133,12 @@ void BCModelTop::InitializeEvent(BCDataSet * dataset, int index)
 	xstart.push_back(fDataPoint -> GetValue(16)); 
 	xstart.push_back(0.0); 
 	xstart.push_back(1.0); 
+
+	if (fDataSet)
+		delete fDataSet; 
+
+	fDataSet = new BCDataSet(); 
+	fDataSet -> AddDataPoint(fDataPoint); 
 
 	this -> MCMCSetInitialPositions(xstart); 
 

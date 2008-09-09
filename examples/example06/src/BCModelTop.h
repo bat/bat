@@ -48,7 +48,7 @@ class BCModelTop : public BCModel
 
 	double LogAPrioriProbability(std::vector <double> parameters); 
 
-	double LogLikelihood(std::vector <double> parameters);
+	virtual double LogLikelihood(std::vector <double> parameters);
 
 	double EnergyResolutionBJets(double Emeasured, double Eestimated); 
 	double EnergyResolutionLightJets(double Emeasured, double Eestimated);
@@ -81,6 +81,8 @@ class BCModelTop : public BCModel
 	double fGammaW; 
 
 	BCDataPoint * fDataPoint; 
+
+	BCDataPoint * fDataPointFull; 
 
 }; 
 

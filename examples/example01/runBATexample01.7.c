@@ -80,7 +80,7 @@ int main()
 	// consult the manual. this step might need a while, depending on
 	// the function.
 
-	fModelPol1 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+	fModelPol1 -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
 
 	fModelPol1 -> FindMode(); 
 
@@ -169,7 +169,7 @@ int main()
 	// data is indicated by a line. for details on the goodness-of-fit
 	// test, see the manual.
 
-	fModelPol1 -> DoGoodnessOfFitTestROOT(1000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
+	fModelPol1 -> DoGoodnessOfFitTestROOT(5000, fModelPol1 -> GetBestFitParameters(), grid, limits) -> 
 		Print("modelpol1_gof.ps", 1, log10(fModelPol1 -> Likelihood(fModelPol1 -> GetBestFitParameters())));
 	
 	// ---------------------------------------------------------

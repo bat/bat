@@ -86,7 +86,8 @@ int main()
 
 	// read in data from file 
 	if (fDataSet -> ReadDataFromFileTree("input.root", "fTree", 
-																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz,true_bhad_E,true_blep_E,true_qup_E,true_qdown_E,true_lcharged_E,true_lneutral_E") != 0)
+																			 //																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz,true_bhad_E,true_blep_E,true_qup_E,true_qdown_E,true_lcharged_E,true_lneutral_E") != 0)
+																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz") != 0)
 		//																			 "true_bhad_E,true_bhad_px,true_bhad_py,true_bhad_pz,true_blep_E,true_blep_px,true_blep_py,true_blep_pz,true_qup_E,true_qup_px,true_qup_py,true_qup_pz,true_qdown_E,true_qdown_px,true_qdown_py,true_qdown_pz,true_lcharged_E,true_lcharged_px,true_lcharged_py,true_lcharged_pz,true_lneutral_E,true_lneutral_px,true_lneutral_py,true_lneutral_pz,") != 0)
 		return -1; 
 
@@ -96,7 +97,9 @@ int main()
 	BCParameter * par_qup_E = new BCParameter("qup_E", 0.0, 700.0); 
 	BCParameter * par_qdown_E = new BCParameter("qdown_E",0.0, 700.0); 
 	BCParameter * par_electron_E = new BCParameter("electron_E", 0.0, 700.0); 
-	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -700.0, 700.0); 
+	// debug
+	//	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -700.0, 700.0); 
+	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -50.0, 200.0); 
 	BCParameter * par_JES_all = new BCParameter("JES_all",  0.5, 1.5); 
 
 	// reset counter 
@@ -109,22 +112,57 @@ int main()
 	int nevents = fDataSet -> GetNDataPoints();
 
 	// debug
-	//	nevents = 1000; 
+	nevents = 10; 
 
 	// loop over events 
 	for (int ievent = 0; ievent < nevents; ++ievent)
 		{
+			// debug
+			std::cout << "pvalue - event number " << ievent << std::endl; 
+
 			// increase counter of prcoessed events 
 			nevents_processed++; 
 
 			// define model 
 			BCModelTop* fModelTop = new BCModelTop("myModelTop"); 
 
+			// get current event
+			fModelTop -> InitializeEvent(fDataSet, ievent); 
+
+			// set boundaries on data 
+			fModelTop -> SetDataBoundaries( 0, 0.0, 1000.0, false); 
+			fModelTop -> SetDataBoundaries( 1, fDataSet -> GetDataPoint(ievent) -> GetValue(1), fDataSet -> GetDataPoint(ievent) -> GetValue(1), true); 
+			fModelTop -> SetDataBoundaries( 2, fDataSet -> GetDataPoint(ievent) -> GetValue(2), fDataSet -> GetDataPoint(ievent) -> GetValue(2), true); 
+			fModelTop -> SetDataBoundaries( 3, fDataSet -> GetDataPoint(ievent) -> GetValue(3), fDataSet -> GetDataPoint(ievent) -> GetValue(3), true); 
+
+			fModelTop -> SetDataBoundaries( 4, 0.0, 1000.0, false); 
+			fModelTop -> SetDataBoundaries( 5, fDataSet -> GetDataPoint(ievent) -> GetValue(5), fDataSet -> GetDataPoint(ievent) -> GetValue(5), true); 
+			fModelTop -> SetDataBoundaries( 6, fDataSet -> GetDataPoint(ievent) -> GetValue(6), fDataSet -> GetDataPoint(ievent) -> GetValue(6), true); 
+			fModelTop -> SetDataBoundaries( 7, fDataSet -> GetDataPoint(ievent) -> GetValue(7), fDataSet -> GetDataPoint(ievent) -> GetValue(7), true); 
+
+			fModelTop -> SetDataBoundaries( 8, 0.0, 1000.0, false); 	
+			fModelTop -> SetDataBoundaries( 9, fDataSet -> GetDataPoint(ievent) -> GetValue(9), fDataSet -> GetDataPoint(ievent) -> GetValue(9), true); 
+			fModelTop -> SetDataBoundaries(10, fDataSet -> GetDataPoint(ievent) -> GetValue(10), fDataSet -> GetDataPoint(ievent) -> GetValue(10), true); 
+			fModelTop -> SetDataBoundaries(11, fDataSet -> GetDataPoint(ievent) -> GetValue(11), fDataSet -> GetDataPoint(ievent) -> GetValue(11), true); 
+
+			fModelTop -> SetDataBoundaries(12, 0.0, 1000.0, false); 
+			fModelTop -> SetDataBoundaries(13, fDataSet -> GetDataPoint(ievent) -> GetValue(13), fDataSet -> GetDataPoint(ievent) -> GetValue(13), true); 
+			fModelTop -> SetDataBoundaries(14, fDataSet -> GetDataPoint(ievent) -> GetValue(14), fDataSet -> GetDataPoint(ievent) -> GetValue(14), true); 
+			fModelTop -> SetDataBoundaries(15, fDataSet -> GetDataPoint(ievent) -> GetValue(15), fDataSet -> GetDataPoint(ievent) -> GetValue(15), true); 
+
+			fModelTop -> SetDataBoundaries(16, 0.0, 1000.0, false); 
+			fModelTop -> SetDataBoundaries(17, fDataSet -> GetDataPoint(ievent) -> GetValue(17), fDataSet -> GetDataPoint(ievent) -> GetValue(17), true); 
+			fModelTop -> SetDataBoundaries(18, fDataSet -> GetDataPoint(ievent) -> GetValue(18), fDataSet -> GetDataPoint(ievent) -> GetValue(8), true); 
+			fModelTop -> SetDataBoundaries(19, fDataSet -> GetDataPoint(ievent) -> GetValue(19), fDataSet -> GetDataPoint(ievent) -> GetValue(19), true); 
+
+			fModelTop -> SetDataBoundaries(20, 0.0, 1000.0, false); 
+			fModelTop -> SetDataBoundaries(21, fDataSet -> GetDataPoint(ievent) -> GetValue(21), fDataSet -> GetDataPoint(ievent) -> GetValue(21), true); 
+			fModelTop -> SetDataBoundaries(22, fDataSet -> GetDataPoint(ievent) -> GetValue(22), fDataSet -> GetDataPoint(ievent) -> GetValue(22), true); 
+			fModelTop -> SetDataBoundaries(23, fDataSet -> GetDataPoint(ievent) -> GetValue(23), fDataSet -> GetDataPoint(ievent) -> GetValue(23), true); 
+
 			// adjust settings 
-			fModelTop -> SetModeFindingMethod(BCIntegrate::kMFMinuit);
-			fModelTop -> SetIntegrationMethod(BCIntegrate::kICuba);
-			fModelTop -> MCMCSetNIterationsMax(10001); 
-			fModelTop -> MCMCSetNIterationsRun(10001); 
+			fModelTop -> MCMCSetNIterationsMax(100000); 
+			fModelTop -> MCMCSetNIterationsRun(100000); 
 
 			// adjust limits 
 			double x    = fDataSet -> GetDataPoint(ievent) -> GetValue(0); 
@@ -166,9 +204,6 @@ int main()
 			fModelTop -> AddParameter(par_neutrino_pz); 
 			fModelTop -> AddParameter(par_JES_all); 
 
-			// get current event
-			fModelTop -> InitializeEvent(fDataSet, ievent); 
-
 			// reset max likelihood
 			double maxlike = -1; 
 			double maxloglike = -1;
@@ -180,25 +215,30 @@ int main()
 
 			// loop over permutations 
 			// debug
-			//			for (int iperm = 0; iperm < 12; ++iperm)
 			for (int iperm = 0; iperm < 12; ++iperm)
+			//			for (int iperm = 0; iperm < 1; ++iperm)
 				{
 					// change to current permutation 
 					fModelTop -> SetPermutation(iperm); 
+					
 
 					// perform minimization, etc. 
-					fModelTop -> GetMinuit() -> SetPrintLevel(-1);
+					//					fModelTop -> GetMinuit() -> SetPrintLevel(-1);
 					// debug
-					fModelTop -> FindMode();
+					//					fModelTop -> FindMode();
 
+					/*
 					if (fModelTop -> GetMinuitErrorFlag() != 0)
 						{
 							nevents_minuiterror++; 
 							std::cout << " Minuit error: " << fModelTop -> GetMinuitErrorFlag() << std::endl; 
 						}
+					*/
 
-					//					fModelTop -> MarginalizeAll(); 
-					//					fModelTop -> PrintAllMarginalized(Form("output_%i_%i", ievent, iperm)); 
+					fModelTop -> MarginalizeAll(); 
+						
+
+					fModelTop -> PrintAllMarginalized(Form("output/plots_%i_%i.ps", ievent, iperm)); 
 
 					// calculate best fitting lorentz vectors 
 					tempvector = fModelTop -> GetBestFitParameters(); 
@@ -206,36 +246,51 @@ int main()
 					fModelTop -> CalculateLorentzVectors(tempvector); 
 
 					// remove combinations with unrealistic masses 
+					/*
 					if (fabs(fModelTop -> fLV_Whad.M() - 80.4) > cut_whad)
 						{ 
 							//							std::cout << " hadronic W-mass not within range : " << fModelTop -> fLV_Whad.M() - 80.4 << " GeV/c2" << std::endl; 
 							continue; 
 						}
+
 					if (fabs(fModelTop -> fLV_Wlep.M() - 80.4) > cut_wlep)
 						{ 
 							//							std::cout << " leptonic W-mass not within range : " << fModelTop -> fLV_Wlep.M() - 80.4 << " GeV/c2" << std::endl; 
 							continue; 
 						}
+
 					if (fabs(fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M()) > cut_deltat)
 						{
 							//							std::cout << " top mass difference too large : " << fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M() << " GeV/c2" << std::endl; 
 							continue; 
 						}
-
+					*/
 					// calculate best likelihood 
 					double like = fModelTop -> Likelihood(tempvector); 
+					double loglike = fModelTop -> LogLikelihood(tempvector); 
 
 					// sum over best likelihoods 
 					sumlike += like; 
 
 					// check if current permutation is more likely 
-					if (like > maxlike)
+					if (loglike > maxloglike)
 						{
 							maxlike = like; 
-							maxloglike = log(like); 
+							maxloglike = loglike; 
 							maxlikeindex = iperm;
 							bestfitvector = tempvector; 
 						}
+					
+					// debug
+					std::cout << " Calculate p-value" << std::endl; 
+					std::cout << (fModelTop -> GetBestFitParameters()).size() << std::endl; 
+					fModelTop -> CalculatePValue(fModelTop -> GetBestFitParameters(), true) -> Print(Form("output/pvalue_%i_%i.ps", ievent, iperm), 1, loglike); 
+					//					fModelTop -> CalculatePValue(fModelTop -> GetBestFitParameters(), false);
+					double pvalue = fModelTop -> GetPValue(); 
+					std::cout << " pvalue = " << iperm << " " << pvalue << " (" << loglike << ")" << std::endl; 
+
+					// print summary 
+					fModelTop -> PrintResults(Form("output/summary_%i_%i.txt", ievent, iperm)); 
 
 				} // end of loop over permutations 
 
@@ -266,9 +321,6 @@ int main()
 					hist_JES_all_mass_Tophad -> Fill(bestfitvector.at(6),
 																					 fModelTop -> fLV_Tophad.M());
 				}
-
-			// print summary 
-			//			fModelTop -> PrintSummary(); 
 
 			// delete model 
 			delete fModelTop; 

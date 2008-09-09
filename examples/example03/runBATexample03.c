@@ -126,9 +126,9 @@ int main()
 	// posteriori probabilities. this step might take a while, depending
 	// on the number of parameters.
 
-	fModelManager -> SetIntegrationMethod(BCIntegrate::kICuba); 
+	//	fModelManager -> SetIntegrationMethod(BCIntegrate::kIntCuba); 
 
-	fModelManager -> Normalize();
+	//	fModelManager -> Normalize();
 
 	// ---------------------------------------------------------
 	// find mode 
@@ -136,7 +136,7 @@ int main()
 
 	// finds mode for all models 
 
-	fModelManager -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+	fModelManager -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
 
 	fModelManager -> FindMode(); 
 
@@ -149,8 +149,8 @@ int main()
 
 	// first, remember the model a posterior probabilities. 
 
-	double post_modelbkg = fModelBackground -> GetModelAPosterioriProbability(); 
-	double post_modelsgn = fModelSignal -> GetModelAPosterioriProbability(); 
+	//	double post_modelbkg = fModelBackground -> GetModelAPosterioriProbability(); 
+	//	double post_modelsgn = fModelSignal -> GetModelAPosterioriProbability(); 
 
 	// marginalize background model 
 
@@ -178,16 +178,20 @@ int main()
 	// in memory and are returned from the model class. they are printed
 	// into a .ps file. 
 
-	fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps");
-	fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps");
+	//	fModelSignal -> GetMarginalized("background") -> Print("modelsignal_background.ps");
+	//	fModelSignal -> GetMarginalized("signal") -> Print("modelsignal_signal.ps");
 			
 	// the two-dimensional marginalized probability densitiy is kept in
 	// memory and is returned from the model class. it is printed into a
 	// .ps file.
 
-	fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_contour.ps", 2);
+	//	fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_contour.ps", 2);
 
-	fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_color.ps", 5);
+	//	fModelSignal -> GetMarginalized("background", "signal") -> Print("modelsignal_background_signal_color.ps", 5);
+
+	double pvaluesignal = 	fModelSignal -> CalculatePValue(fModelSignal -> GetBestFitParameters()); 
+
+	std::cout << pvaluesignal << std::endl; 
 
 	// ---------------------------------------------------------
 	// write to output file 
@@ -195,31 +199,31 @@ int main()
 
 	// fill the ROOT file with the actual output of the model. 
 
-	fModelOutputBackground -> FillAnalysisTree(); 
-	fModelOutputBackground -> WriteMarginalizedDistributions(); 
+	//	fModelOutputBackground -> FillAnalysisTree(); 
+	//	fModelOutputBackground -> WriteMarginalizedDistributions(); 
 
-	fModelOutputSignal -> FillAnalysisTree(); 
-	fModelOutputSignal -> WriteMarginalizedDistributions(); 
+	//	fModelOutputSignal -> FillAnalysisTree(); 
+	//	fModelOutputSignal -> WriteMarginalizedDistributions(); 
 
 	// write to file and close 
 
-	fModelOutputBackground -> Close(); 
-	fModelOutputSignal -> Close(); 
+	//	fModelOutputBackground -> Close(); 
+	//	fModelOutputSignal -> Close(); 
 
  // ---------------------------------------------------------
  // summarize
  // ---------------------------------------------------------
 
- fModelManager -> PrintSummary(); 
+	// fModelManager -> PrintSummary(); 
 
- fModelManager -> PrintSummary("output.log"); 
+	// fModelManager -> PrintSummary("output.log"); 
 
  // ---------------------------------------------------------
  // Print data with best fit result 
  // ---------------------------------------------------------
 
 	// defines a new canvas 
-
+	/*
 	TCanvas* canvas_summary = new TCanvas(); 
 	canvas_summary -> cd(); 
 
@@ -327,7 +331,7 @@ int main()
 	// print the canvas to a .ps file 
 
 	canvas_bestfit -> Print("data_bestfit.ps"); 
-
+	*/
  // close log file 
 
  BCLog::CloseLog(); 

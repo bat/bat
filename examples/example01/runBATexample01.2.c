@@ -70,7 +70,7 @@ int main()
 	// consult the manual. this step might need a while, depending on
 	// the function.
 
-	fModelPol1 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
+	fModelPol1 -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
 
 	fModelPol1 -> FindMode(); 
 
@@ -86,19 +86,23 @@ int main()
 	fModelPol1 -> SetNbins(100);
  	fModelPol1 -> MarginalizeAll();
 
-	// the one-dimensional marginalized probability densities are kept
-	// in memory and are returned from the model class. they are printed
-	// into a .ps file. 
+	fModelPol1 -> SetDataBoundaries(0, 0.0, 0.0, true); 
+	fModelPol1 -> SetDataBoundaries(1, 0.0, 5.0, false); 
+	fModelPol1 -> SetDataBoundaries(2, 0.0, 0.0, true); 
 
-	fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
-	fModelPol1 -> GetMarginalized("slope")    -> Print("modelpol1_slope.ps");
+	fModelPol1 -> PrintAllMarginalized("marg.ps"); 
 
-	// the two-dimensional marginalized probability densitiy is kept in
-	// memory and is returned from the model class. it is printed into a
-	// .ps file.
+		double pvalue2 = fModelPol1 -> GetPvalueFromChi2(fModelPol1 -> GetBestFitParameters(), 2); 
 
-	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
-	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope_color.ps", 1);
+	std::cout << " pvalue (chi2) = " << pvalue2 << std::endl; 
+
+	double pvalue = fModelPol1 -> CalculatePValue(fModelPol1 -> GetBestFitParameters()); 
+
+	std::cout << " pvalue (MCMC) = " << pvalue << std::endl; 
+
+ 	fModelPol1 -> MarginalizeAll();
+
+	fModelPol1 -> PrintAllMarginalized("marg2.ps"); 
 
 	// ---------------------------------------------------------
 	// summarize
@@ -107,7 +111,7 @@ int main()
 	// prints a summary of the model, the parameter estimate, etc. on
 	// the screen and to a file.
 
-	fModelPol1 -> PrintSummary(); 
+	//	fModelPol1 -> PrintSummary(); 
 
 	// ---------------------------------------------------------
 	// close log file 
