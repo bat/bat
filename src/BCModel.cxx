@@ -1,3 +1,12 @@
+/*    
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
+ * All rights reserved.    
+ *    
+ * For the licensing terms see doc/LICENSE.    
+ */    
+  
+// ---------------------------------------------------------   
+ 
 #include "BCModelTest.h" 
 #include "BCModel.h"
 #include "BCLog.h"
@@ -2284,7 +2293,7 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 		}
 	
 	// delete model test
-	//	delete modeltest; 
+	delete modeltest; 
 
 	// return histogram
 	return hist; 

@@ -1,4 +1,12 @@
-
+/*    
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
+ * All rights reserved.    
+ *    
+ * For the licensing terms see doc/LICENSE.    
+ */    
+  
+// ---------------------------------------------------------   
+ 
 #include <iostream>
 #include <fstream>
 
@@ -89,6 +97,18 @@ void BCParameter::Copy(BCParameter & parameter) const
 	parameter.fUpperLimit = this -> fUpperLimit; 
 	parameter.fNuisance   = this -> fNuisance;
 
+}
+
+// --------------------------------------------------------- 
+
+bool BCParameter::IsAtLimit(double value)
+{
+
+	if ( ( (value-fLowerLimit)*(value-fLowerLimit)/fLowerLimit/fLowerLimit <= 1e-10) || 
+			 ( (value-fUpperLimit)*(value-fUpperLimit)/fUpperLimit/fUpperLimit <= 1e-10))
+		return true; 
+	else
+		return false; 
 }
 
 // --------------------------------------------------------- 

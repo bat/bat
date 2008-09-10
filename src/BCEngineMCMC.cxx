@@ -1,3 +1,12 @@
+/*    
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
+ * All rights reserved.    
+ *    
+ * For the licensing terms see doc/LICENSE.    
+ */    
+  
+// ---------------------------------------------------------   
+ 
 #include "BCEngineMCMC.h"
 #include "BCLog.h"
 
@@ -43,14 +52,14 @@ BCEngineMCMC::BCEngineMCMC()
 
 	// set pointer to control histograms to NULL
 
-//	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
-//	  fMCMCH1Marginalized[i] = 0;
+	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
+		fMCMCH1Marginalized[i] = 0;
 
-//	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
-//	  fMCMCH2Marginalized[i] = 0;
+	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
+	  fMCMCH2Marginalized[i] = 0;
 
-	fMCMCH1RValue = 0;
-	fMCMCH1Efficiency = 0;
+	//	fMCMCH1RValue = 0;
+	//	fMCMCH1Efficiency = 0;
 
 	// initialize random number generator
 
@@ -106,11 +115,11 @@ BCEngineMCMC::~BCEngineMCMC()
 
 	fMCMCH2Marginalized.clear(); 
 
-	if (fMCMCH1RValue)
-	  delete fMCMCH1RValue; 
+	//	if (fMCMCH1RValue)
+	//	  delete fMCMCH1RValue; 
 
-	if (fMCMCH1Efficiency)
-	  delete fMCMCH1Efficiency; 
+	//	if (fMCMCH1Efficiency)
+	//	  delete fMCMCH1Efficiency; 
 
 }
 
@@ -1805,8 +1814,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	}
 
 	// fill efficiency plot
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]);
+	//	for (int i = 0; i < fMCMCNParameters; ++i)
+	//		fMCMCH1Efficiency -> SetBinContent(i + 1, efficiencies[i]);
 
 	// reset flag
 	fMCMCFlagWriteChainToFile = tempflag_writetofile;
@@ -2237,11 +2246,11 @@ void BCEngineMCMC::MCMCResetRunStatistics()
 	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
 		fMCMCH2Marginalized[i] -> Reset(); 
 
-	if (fMCMCH1RValue)
-	  fMCMCH1RValue -> Reset(); 
+	//	if (fMCMCH1RValue)
+	//	  fMCMCH1RValue -> Reset(); 
 
-	if (fMCMCH1Efficiency)
-	  fMCMCH1Efficiency -> Reset(); 
+	//	if (fMCMCH1Efficiency)
+	//	  fMCMCH1Efficiency -> Reset(); 
 
 	fMCMCRValue = 100; 
 
@@ -2331,11 +2340,11 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCH1Marginalized.clear();
 	fMCMCH2Marginalized.clear();
 
-	if (fMCMCH1RValue)
-		delete fMCMCH1RValue;
+	//	if (fMCMCH1RValue)
+	//		delete fMCMCH1RValue;
 
-	if (fMCMCH1Efficiency)
-		delete fMCMCH1Efficiency;
+	//	if (fMCMCH1Efficiency)
+	//		delete fMCMCH1Efficiency;
 
 	// free memory for vectors
 
@@ -2431,16 +2440,16 @@ int BCEngineMCMC::MCMCInitialize()
 
 	// define plot for R-value
 
-	if (fMCMCNChains > 1)
-	{
-		fMCMCH1RValue = new TH1D("h1_rvalue", ";Iteration;R-value",
-				 100, 0, double(fMCMCNIterationsMax));
-		fMCMCH1RValue -> SetStats(false);
-	}
+	//	if (fMCMCNChains > 1)
+	//	{
+		//		fMCMCH1RValue = new TH1D("h1_rvalue", ";Iteration;R-value",
+		//				 100, 0, double(fMCMCNIterationsMax));
+		//		fMCMCH1RValue -> SetStats(false);
+	//	}
 
-	fMCMCH1Efficiency = new TH1D("h1_efficiency", ";Chain;Efficiency",
-				 fMCMCNParameters, -0.5, fMCMCNParameters - 0.5);
-	fMCMCH1Efficiency -> SetStats(false);
+	//	fMCMCH1Efficiency = new TH1D("h1_efficiency", ";Chain;Efficiency",
+	//				 fMCMCNParameters, -0.5, fMCMCNParameters - 0.5);
+	//	fMCMCH1Efficiency -> SetStats(false);
 
 	return 1;
 

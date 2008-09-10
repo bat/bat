@@ -1,3 +1,12 @@
+/*    
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
+ * All rights reserved.    
+ *    
+ * For the licensing terms see doc/LICENSE.    
+ */    
+  
+// ---------------------------------------------------------   
+ 
 #include "BCModelTest.h" 
 
 // --------------------------------------------------------- 
@@ -228,7 +237,7 @@ double BCModelTest::GetCalculatedPValue(bool flag_histogram)
 		{
 			// modify MCMC
 			this -> MCMCSetNIterationsMax(100000); 
-			this -> MCMCSetNIterationsRun(100000); 
+			this -> MCMCSetNIterationsRun(10000); 
 		}
 
 	// run MCMC 
