@@ -14,6 +14,8 @@
  * 
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
+ * 
+ * For the licensing terms see doc/LICENSE. 
  */ 
 
 // --------------------------------------------------------- 

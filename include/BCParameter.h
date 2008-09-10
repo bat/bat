@@ -10,6 +10,8 @@
  * 
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
+ * 
+ * For the licensing terms see doc/LICENSE. 
  */ 
 
 // ---------------------------------------------------------
@@ -161,6 +163,12 @@ class BCParameter
 	 */
 	double IsNuisance()
 	{ return fNuisance; }; 
+
+	/**
+	 * Returns true if the value is at a parameter limit. 
+	 * @return flag States if value is at parameter limit. 
+	 */ 
+	bool IsAtLimit(double value); 
 
 	/** 
 	 * Prints a parameter summary on the screen. 

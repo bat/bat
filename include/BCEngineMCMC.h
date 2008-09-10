@@ -11,6 +11,8 @@
  * 
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
+ * 
+ * For the licensing terms see doc/LICENSE. 
  */ 
 
 // ---------------------------------------------------------
@@ -269,11 +271,11 @@ class BCEngineMCMC
 	/*
 	 * Returns the control plots 
 	 */ 
-	TH1D * MCMCGetH1RValue()
-	  { return fMCMCH1RValue; }; 
+	//	TH1D * MCMCGetH1RValue()
+	//	  { return fMCMCH1RValue; }; 
 
-	TH1D * MCMCGetH1Efficiency()
-	  { return fMCMCH1Efficiency; }; 
+	//	TH1D * MCMCGetH1Efficiency()
+	//	  { return fMCMCH1Efficiency; }; 
 
 	/*
 	 * Returns flag which defined initial position. 
@@ -975,8 +977,8 @@ class BCEngineMCMC
 	/*
 	 * Control plots. 
 	 */ 
-	TH1D * fMCMCH1RValue;     // R-value 
-	TH1D * fMCMCH1Efficiency; // Efficiency of the Markov chain 
+	//	TH1D * fMCMCH1RValue;     // R-value 
+	//	TH1D * fMCMCH1Efficiency; // Efficiency of the Markov chain 
   
 	/*
 	 * The trees containing the Markov chains. The length of the vector
