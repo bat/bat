@@ -33,15 +33,11 @@ class BCModelPol1 : public BCModel
 
 	// methods 
 
-	virtual void DefineParameters(); 
-
 	virtual double LogAPrioriProbability(std::vector <double> parameters); 
 
 	virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 
 
 	virtual double LogPoissonProbability(int nentries, std::vector <double> parameters); 
-
-	virtual void GetRandomVectorMetro(std::vector <double> &x); 
 
 	double FitFunction(std::vector <double> x, std::vector <double> parameters); 	
 

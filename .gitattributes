@@ -30,13 +30,7 @@ doc/releasenotes.txt -text
 examples/README -text
 examples/example01/CreateData.c -text
 examples/example01/Makefile -text
-examples/example01/runBATexample01.1.c -text
-examples/example01/runBATexample01.2.c -text
-examples/example01/runBATexample01.3.c -text
-examples/example01/runBATexample01.4.c -text
-examples/example01/runBATexample01.5.c -text
-examples/example01/runBATexample01.6.c -text
-examples/example01/runBATexample01.7.c -text
+examples/example01/runBATexample01.c -text
 examples/example01/src/BCModelPol1.cxx -text
 examples/example01/src/BCModelPol1.h -text
 examples/example02/CreateData.c -text

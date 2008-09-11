@@ -18,8 +18,8 @@ int main()
 	// set style  
 	// ----------------------------------------------------------
 
-	// calls a function which defines a nice style. 
-
+	// calls a function which defines a nicer style than the ROOT
+	// default.
 	SetStyle(); 
 
 	// ---------------------------------------------------------
@@ -27,7 +27,6 @@ int main()
 	// ---------------------------------------------------------
 
 	// opens the log file. 
-
 	BCLog::OpenLog(); 
 
 	// ---------------------------------------------------------
@@ -36,20 +35,24 @@ int main()
 
 	// creates a new model of type BCModelPol1 with the name
 	// "ModelPol1". the model is defined in the two files
-	// src/BCModelPol1.h and src/BCModelPol1.cxx. The two parameters of
-	// the model and their ranges are defined automatically by
-	// construction of the model.
-
+	// src/BCModelPol1.h and src/BCModelPol1.cxx. 
 	BCModelPol1* fModelPol1 = new BCModelPol1("ModelPol1"); 
+
+	// add parameters to the model. the first parameter will have the
+	// index 0, the seoncd parameter will have the index 1.
+	fModelPol1 -> AddParameter("constant",  1.0,  3.0);  // index 0
+	fModelPol1 -> AddParameter("slope",    -0.03, 0.03); // index 1
 
 	// ---------------------------------------------------------
 	// model output file 
 	// ---------------------------------------------------------
 	
 	// creates a ROOT output file which stores all the necessary
-	// information. 
-
+	// information.
 	BCModelOutput * fModelOutputPol1 = new BCModelOutput(fModelPol1, "output.root"); 
+
+	// the actual markov chain will be written to the output file. this
+	// might result in a large file. 
 	fModelOutputPol1 -> WriteMarkovChain(true); 
 	
 	// ---------------------------------------------------------
@@ -57,105 +60,115 @@ int main()
 	// ---------------------------------------------------------
 
 	// creates a new data set. 
-
 	BCDataSet* fDataSet = new BCDataSet(); 
 
 	// data is read in from a text file. three values per data point are
 	// read in: x, y, and the uncertainty on y. if the file is not found
 	// or corrupt, the program returns -1.
-
 	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 3) != 0)
 		return -1; 
 
-	// assigns the data set to the model defined previously. 
-
+	// assigns the data set to the model defined previously.
 	fModelPol1 -> SetDataSet(fDataSet); 
 
+	// the allowed range of data values has to be defined for error
+	// propagation and fitting. 
+	fModelPol1 -> SetDataBoundaries(0, 0.0, 100.0); // possible x-values
+	fModelPol1 -> SetDataBoundaries(1, 0.0, 5.0); // possible y-values
+	fModelPol1 -> SetDataBoundaries(2, 0.2, 5.2); // possible sigmas
+
+	// in this example the data points are not chosen arbitrarily but
+	// they have fixed values on the x-axis, i.e, 5, 15, ... . also, the
+	// resolution is fixed. in general this can be solved by fixing the
+	// "axes".
+	fModelPol1 -> FixDataAxis(0, true); // fixes x-values 
+	fModelPol1 -> FixDataAxis(2, true); // fixes resolution 
+
 	// ---------------------------------------------------------
-	// find mode 
+	// optimization 
 	// ---------------------------------------------------------
 
-	// runs the algorithm which searches the whole parameter space for
-	// the maximum probability (mode). for details on the algorithm
-	// consult the manual. this step might need a while, depending on
-	// the function.
+	// set the optimization algorithm to the ROOT-version of Minuit. 
+	fModelPol1 -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
 
-	fModelPol1 -> SetModeFindingMethod(BCIntegrate::kMFMinuit); 
-
+	// perform optimization. the best fit parameter values will be
+	// stored and can later be retrieved.
 	fModelPol1 -> FindMode(); 
 
 	// ---------------------------------------------------------
 	// marginalize 
 	// ---------------------------------------------------------
 
+	// during the marginalization, the error propagation is done. thus,
+	// the x- and y-indices of the data values have to be set.
+	fModelPol1 -> SetFitFunctionIndices(0, 1); 
+
 	// marginalizes the probability density with respect to all
-	// parameters, i.e. constant and slope and with respect to all
-	// combinations of two parameters, in this case constant-slope. the
-	// number of bins define the numerical precision. 
+	// parameters, i.e. constant and slope, and with respect to all
+	// combinations of two parameters, in this case constant-slope.
+	fModelPol1 -> MarginalizeAll();
 
-	fModelPol1 -> SetNbins(100);
- 	fModelPol1 -> MarginalizeAll();
+	// the one- and two-dimensional marginalized probability densities
+	// are kept in memory and are returned from the model class. they
+	// are printed into a .ps file.
+	fModelPol1 -> PrintAllMarginalized("plots.ps"); 
 
-	// the one-dimensional marginalized probability densities are kept
-	// in memory and are returned from the model class. they are printed
-	// into a .ps file. 
+	// ---------------------------------------------------------
+	// Do goodness-of-fit test  
+	// ---------------------------------------------------------
 
-	fModelPol1 -> GetMarginalized("constant") -> Print("modelpol1_constant.ps");
-	fModelPol1 -> GetMarginalized("slope")    -> Print("modelpol1_slope.ps");
+	// once the most probable model was found the goodness-of-fit can be
+	// tested. the question to be answered is: given the best fit
+	// parameters what is the probability to obtain a better agreement
+	// (conditional probability)? the answer can be given by integrating
+	// over data. 
 
-	// the two-dimensional marginalized probability densitiy is kept in
-	// memory and is returned from the model class. it is printed into a
-	// .ps file.
-
-	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope.ps", 2);
-	fModelPol1 -> GetMarginalized("constant", "slope") -> Print("modelpol1_constant_slope_color.ps", 1);
+	// calculate the p-value for the set of best-fit parameters.
+	//	fModelPol1 -> CalculatePValue(fModelPol1 -> GetBestFitParameters()); 
+	fModelPol1 -> CalculatePValue(fModelPol1 -> GetBestFitParameters()); 
 	
 	// ---------------------------------------------------------
 	// write to output file 
 	// ---------------------------------------------------------
 
-	// fill the ROOT file with the actual output of the model. 
-
+	// fill the output of the analysis into the ROOT file. 
 	fModelOutputPol1 -> FillAnalysisTree(); 
 
+	// fill the Markov Chain into the ROOT file. 
 	fModelOutputPol1 -> WriteMarginalizedDistributions(); 
 
 	// write to file and close 
-
 	fModelOutputPol1 -> Close(); 
 
 	// ---------------------------------------------------------
 	// summarize
 	// ---------------------------------------------------------
 
-	// prints a summary of the model, the parameter estimate, etc. on
-	// the screen and to a file.
-
-	fModelPol1 -> PrintSummary(); 
+	// prints the results of the analysis into a file 
+	fModelPol1 -> PrintResults("summary.txt"); 
 
 	// ---------------------------------------------------------
 	// Print data with best fit result 
 	// ---------------------------------------------------------
-
+	
 	// defines a new canvas. 
-
 	TCanvas* canvas_bestfit = new TCanvas(); 
 	canvas_bestfit -> cd(); 
 
 	// defines a histogram for the axes and draws it. 
-
 	TH2D* hist_axes = new TH2D("hist_axes", "Data;x;y", 1, 0.0, 100.0, 1, 1.5, 3.5); 
 	hist_axes -> SetStats(false); 
 	hist_axes -> Draw(); 
 
-	// defines a graph with errors. 
+	// draw the error band 
+	fModelPol1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("SAMEF"); 
 
+	// defines a graph with errors. 
 	TGraphErrors* graph = new TGraphErrors(); 
 	graph -> SetMarkerStyle(20); 
 
 	// sets the points of the graph to the data points read in
 	// previously. loops over all entries. 
-
 	for (int i = 0; i < fModelPol1 -> GetNDataPoints(); i++)
 		{
 			graph -> SetPoint(i, 
@@ -167,26 +180,22 @@ int main()
 		}
 
 	// draw best fit function 
-
 	fModelPol1 -> GetFitFunctionGraph(fModelPol1 -> GetBestFitParameters()) -> Draw("SAMEC"); 
 	
 	// draw the graph containing the data. 
-
 	graph -> Draw("SAMEP"); 
 
 	// print the canvas to a .ps file 
-
-	canvas_bestfit -> Print("data.ps"); 
-
+	canvas_bestfit -> Print("fit.ps"); 
+	
 	// ---------------------------------------------------------
 	// close log file 
 	// ---------------------------------------------------------
 
 	// closes the log file 
-
 	BCLog::CloseLog(); 
 
-	return 0; 
+	return 1; 
 
 }
 
