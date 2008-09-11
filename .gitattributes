@@ -27,7 +27,7 @@ doc/manual/example01_data.eps -text
 doc/manual/manual.tex -text
 doc/manual/scheme.eps -text
 doc/releasenotes.txt -text
-examples/README.txt -text
+examples/README -text
 examples/example01/CreateData.c -text
 examples/example01/Makefile -text
 examples/example01/runBATexample01.1.c -text
