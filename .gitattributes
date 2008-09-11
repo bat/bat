@@ -14,10 +14,10 @@ development/BCEngineMCMC.h -text
 development/Makefile -text
 development/runengine.c -text
 doc/COPYING -text
-doc/Changelog -text
 doc/INSTALL -text
 doc/LICENSE -text
 doc/README -text
+doc/changelog -text
 doc/introduction/bat.eps -text
 doc/introduction/introduction.tex -text
 doc/manual/bat.eps -text
