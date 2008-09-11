@@ -76,13 +76,7 @@ In the future we plan to automatize the whole installation process, possibly
 using autoconf/automake tools.
 
 
-
-Any bugreports/comments/suggestions should be sent to
-bat@mppmu.mpg.de
-
-
-
-
 ----------------------------------------------------------------------------
-This file was last updated on 15.9.2008 by Daniel Kollar
-
+Please, consult the BAT webpage http://www.mppmu.mpg.de/bat/ for further
+information. You can also contact the authors directly via
+email: bat@mppmu.mpg.de
