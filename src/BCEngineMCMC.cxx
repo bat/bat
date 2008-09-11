@@ -370,11 +370,9 @@ void BCEngineMCMC::MCMCTrialFunctionAuto(std::vector <double> &x)
 {
 
   // use uniform distribution for now 
-
   for (int i = 0; i < fMCMCNParameters; ++i) 
-    // debug: is that correct? 
 		x[i] = fMCMCRandom -> Gaus(fMCMCPCAMean[i], sqrt(fMCMCPCAVariance[i])); 
-		//    x[i] = fMCMCRandom -> Gaus(0.0 , sqrt(fMCMCPCAVariance[i])); 
+
 }
 
 // --------------------------------------------------------
@@ -383,16 +381,13 @@ std::vector <double> BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int i)
 {
   
   // create a new vector with the length of fMCMCNParameters 
-
   std::vector <double> x; 
 
   // check if i is in range 
-
   if (i < 0 || i >= fMCMCNChains)
     return x; 
 
   // copy the scale factors into the temporary vector 
-
   for (int j = 0; j < fMCMCNParameters; ++j)
     x.push_back(fMCMCTrialFunctionScaleFactor.at(i * fMCMCNParameters + j)); 
 
@@ -406,17 +401,14 @@ double BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int i, int j)
 {
 
   // check if i is in range 
-
   if (i < 0 || i >= fMCMCNChains)
     return 0; 
 
   // check if j is in range 
-
   if (j < 0 || j >= fMCMCNParameters)
     return 0; 
 
   // return component of jth point in the ith chain 
-
   return fMCMCTrialFunctionScaleFactor.at(i *  fMCMCNChains +j);
 
 }
@@ -620,12 +612,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std:
 			delete [] newx; 
 		}
 	
-	// check if the point is in the correct volume. 
-
-	// debug
-	//	if (parameter == 1)
-	//		cout << x[0] << " " << x[1] << endl; 
-	
+	// check if the point is in the correct volume. 	
 	for (int i = 0; i < fMCMCNParameters; ++i) 	
 		if ((x[i] < fMCMCBoundaryMin[i]) || (x[i] > fMCMCBoundaryMax[i]))
 			return false; 

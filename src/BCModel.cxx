@@ -944,7 +944,7 @@ int BCModel::MarginalizeAll()
 
 	this -> FindModeMCMC();
 
-	this -> PrintResults(Form("%s.txt", this -> GetName().data()));
+	//	this -> PrintResults(Form("%s.txt", this -> GetName().data()));
 
 	return 1;
 }
@@ -2524,37 +2524,41 @@ void BCModel::PrintResults(const char * file)
 		}
   ofi << std::endl; 
 
-	ofi << " Results of the marginalization" << std::endl; 
-	ofi << " ==============================" << std::endl; 
-	ofi << " List of parameters and properties of the marginalized\n"
-			<< " distributions:" << std::endl; 
-	for (int i = 0; i < npar; ++i)
+	if (flag_conv)
 		{
-			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i)); 
-
-			ofi << "  (" << i << ") Parameter \"" 
-					<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl; 
-			ofi << "      Mean +- RMS:         "
-					<< std::setprecision(4) << bch1d -> GetMean() 
-					<< " +- " 
-					<< std::setprecision(4) << bch1d -> GetRMS() << std::endl;
-			ofi << "      Median +- sigma:     " 
-					<< std::setprecision(4) << bch1d -> GetMedian() 
-					<< " +  " << std::setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian() 
-					<< " - " << std::setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl; 
-			ofi << "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl; 
-			ofi << "      Smallest interval(s) containing 68% and local modes: " << std::endl;
-			
-			std::vector <double> v; 
-
-			v = bch1d -> GetSmallestIntervals(0.68); 
-			int ninter = int(v.size()); 
-
-			for (int j = 0; j < ninter; j+=5)
-				ofi << "       " << v.at(j) << " - " << v.at(j+1) << " (local mode at " << v.at(j+3) << " with rel. height " << v.at(j+2) << "; rel. area " << v.at(j+4) << ")" << std::endl; 
-		}	
-	ofi << std::endl; 
-
+			ofi << " Results of the marginalization" << std::endl; 
+			ofi << " ==============================" << std::endl; 
+			ofi << " List of parameters and properties of the marginalized\n"
+					<< " distributions:" << std::endl; 
+			for (int i = 0; i < npar; ++i)
+				{
+					BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i)); 
+					
+					ofi << "  (" << i << ") Parameter \"" 
+							<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl; 
+					ofi << "      Mean +- RMS:         "
+							<< std::setprecision(4) << bch1d -> GetMean() 
+							<< " +- " 
+							<< std::setprecision(4) << bch1d -> GetRMS() << std::endl;
+					ofi << "      Median +- sigma:     " 
+							<< std::setprecision(4) << bch1d -> GetMedian() 
+							<< " +  " << std::setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian() 
+							<< " - " << std::setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl; 
+					ofi << "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl; 
+					ofi << "      Smallest interval(s) containing 68% and local modes: " << std::endl;
+					
+					std::vector <double> v; 
+					
+					v = bch1d -> GetSmallestIntervals(0.68); 
+					
+					int ninter = int(v.size()); 
+					
+					for (int j = 0; j < ninter; j+=5)
+						ofi << "       " << v.at(j) << " - " << v.at(j+1) << " (local mode at " << v.at(j+3) << " with rel. height " << v.at(j+2) << "; rel. area " << v.at(j+4) << ")" << std::endl; 
+				}	
+			ofi << std::endl; 
+		}
+	
 	ofi << " Results of the optimization" << std::endl; 
 	ofi << " ===========================" << std::endl; 
 	ofi << " Optimization algorithm used: "; 
@@ -2582,6 +2586,8 @@ void BCModel::PrintResults(const char * file)
 	ofi << std::endl; 
 	if (fPValue >= 0.)
 		{
+			ofi << " Results of the model test" << std::endl; 
+			ofi << " =========================" << std::endl; 
 			ofi << " p-value at global mode: " << fPValue << std::endl; 
 			ofi << std::endl; 
 		}

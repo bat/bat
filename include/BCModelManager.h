@@ -222,6 +222,11 @@ class BCModelManager
 	void SetDataBoundaries(int index, double lowerboundary, double upperboundary); 
 
 	/*
+	 * Fixes an axis 
+	 */ 
+	void FixDataAxis(int index, bool fixed); 
+
+	/*
 	 * Sets the number of Markov chains 
 	 */ 
 	void SetNChains(int n); 
@@ -322,6 +327,16 @@ class BCModelManager
 	 * @param filename name of the file to write into.
 	 */
 	void PrintSummary(const char * filename=0);
+
+	/* 
+	 * Prints summaries of all files
+	 */ 
+	void PrintResults(); 
+
+	/*
+	 * Calculates the p-value for all models.
+	 */ 
+	void CalculatePValue(bool flag_histogram=false); 
 
 	/* @} */ 
 

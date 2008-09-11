@@ -41,7 +41,14 @@ BCModelTest::~BCModelTest()
 {
 
 	// restore original data set 
-	*(fTestModel -> GetDataSet()) = *fTemporaryDataSet; 
+
+	// get number of data points and values 
+	int ndatapoints = fTemporaryDataSet -> GetNDataPoints(); 
+	int ndatavalues = fTemporaryDataSet -> GetDataPoint(0) -> GetNValues(); 
+
+	for (int i = 0; i < ndatapoints; ++i)
+		for (int j = 0; j < ndatavalues; ++j)
+			fTestModel -> GetDataSet() -> GetDataPoint(i) -> SetValue(j, fTemporaryDataSet -> GetDataPoint(i) -> GetValue(j)); 
 
 	// restore data point limits 
 	for (int i = 0; i < this -> GetNParameters(); ++i)
@@ -50,7 +57,7 @@ BCModelTest::~BCModelTest()
 																		this -> GetParameter(i) -> GetUpperLimit()); 
 	
 	// delete temporary data set 
-	//	delete fTemporaryDataSet; 
+	delete fTemporaryDataSet; 
 
 }
 
@@ -135,13 +142,18 @@ int BCModelTest::SetTestPoint(std::vector<double> parameters)
 	// create temporary data set ... 
 	fTemporaryDataSet = new BCDataSet(); 
 
-	// ... and fill with the origianl one 
-	*fTemporaryDataSet = *(fTestModel -> GetDataSet()); 
+	// ... and fill with the original one 
 
 	// get number of data points and values 
-	int ndatapoints = fTemporaryDataSet -> GetNDataPoints(); 
-	int ndatavalues = fTemporaryDataSet -> GetDataPoint(0) -> GetNValues(); 
-	
+	int ndatapoints = fTestModel -> GetDataSet() -> GetNDataPoints(); 
+	int ndatavalues = fTestModel -> GetDataSet() -> GetDataPoint(0) -> GetNValues(); 
+
+	for (int i = 0; i < ndatapoints; ++i)
+		{
+			BCDataPoint * dp = new BCDataPoint(fTestModel -> GetDataSet() -> GetDataPoint(i) -> GetValues()); 
+			fTemporaryDataSet -> AddDataPoint(dp); 
+		}
+
 	// clear maps 
 	fMapDataPoint.clear(); 
 	fMapDataValue.clear(); 
@@ -224,9 +236,9 @@ double BCModelTest::GetCalculatedPValue(bool flag_histogram)
 			// perform first run to obtain limits for the log(likelihood)
 			this -> MarginalizeAll(); 
 
-			// modify MCMC for first run 
+			// modify MCMC for second run 
 			this -> MCMCSetNIterationsMax(100000); 
-			this -> MCMCSetNIterationsRun(100000); 
+			this -> MCMCSetNIterationsRun(10000); 
 
 			// create histogram 
 			double D = fLogLikelihoodMax - fLogLikelihoodMin; 
@@ -252,9 +264,10 @@ double BCModelTest::GetCalculatedPValue(bool flag_histogram)
 			return -1; 
 		}
 
-	// calculate the p-value 
+	// calculate p-value 
 	fPValue = double(fPValueBelow) / double(fPValueBelow + fPValueAbove); 
 
+	// return p-value 
 	return fPValue; 
 
 }

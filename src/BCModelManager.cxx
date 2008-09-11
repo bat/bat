@@ -327,6 +327,17 @@ void BCModelManager::SetDataBoundaries(int index, double lowerboundary, double u
 
 // --------------------------------------------------------- 
 
+void BCModelManager::FixDataAxis(int index, bool fixed)
+{
+
+	// fix axis for all models 
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> FixDataAxis(index, fixed); 
+
+}
+
+// --------------------------------------------------------- 
+
 void BCModelManager::SetNChains(int n) 
 {
 	
@@ -529,9 +540,19 @@ void BCModelManager::WriteMarkovChain(bool flag)
 {
 
 	// marginalizes all models registered
-
 	for (int i = 0; i < this -> GetNModels(); i++)
 		this -> GetModel(i) -> WriteMarkovChain(flag); 
+
+}
+
+// ---------------------------------------------------------
+
+void BCModelManager::CalculatePValue(bool flag_histogram)
+{
+
+	// calculate p-value for all models 
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> CalculatePValue(this -> GetModel(i) -> GetBestFitParameters(), flag_histogram); 
 
 }
 
@@ -610,6 +631,17 @@ void BCModelManager::PrintSummary(const char * file)
 
 	if (file)
 		std::cout.rdbuf(old_buffer);
+
+}
+
+// ---------------------------------------------------------
+
+void BCModelManager::PrintResults()
+{
+
+	// print summary of all models 
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> PrintResults(Form("%s.txt", this -> GetModel(i) -> GetName().data())); 
 
 }
 
