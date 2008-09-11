@@ -33,7 +33,7 @@ EXEOBJS       =
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runBATexample02.*.exe
 
-all : runBATexample02.1 runBATexample02.2 runBATexample02.3
+all : runBATexample02
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
@@ -46,17 +46,9 @@ include link.d
 clean :
 	$(RM) $(GARBAGE)
 
-runBATexample02.1 : runBATexample02.1.c $(CXXOBJS)
+runBATexample02 : runBATexample02.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.1.o $(CXXOBJS) -o runBATexample02.1.exe
-
-runBATexample02.2 : runBATexample02.2.c $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.2.o $(CXXOBJS) -o runBATexample02.2.exe
-
-runBATexample02.3 : runBATexample02.3.c $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.3.o $(CXXOBJS) -o runBATexample02.3.exe
+	$(CXX) $(LDFLAGS) $(LIBS) runBATexample02.o $(CXXOBJS) -o runBATexample02.exe
 
 print :
 	echo compiler  : $(CXX)

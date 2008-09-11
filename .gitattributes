@@ -35,9 +35,7 @@ examples/example01/src/BCModelPol1.cxx -text
 examples/example01/src/BCModelPol1.h -text
 examples/example02/CreateData.c -text
 examples/example02/Makefile -text
-examples/example02/runBATexample02.1.c -text
-examples/example02/runBATexample02.2.c -text
-examples/example02/runBATexample02.3.c -text
+examples/example02/runBATexample02.c -text
 examples/example02/src/BCModelPol0.cxx -text
 examples/example02/src/BCModelPol0.h -text
 examples/example02/src/BCModelPol1.cxx -text

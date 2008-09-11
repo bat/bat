@@ -33,8 +33,6 @@ public:
 
 	// methods 
 
-	virtual void DefineParameters(); 
-
 	virtual double LogAPrioriProbability(std::vector <double> parameters); 
 
 	virtual double LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters); 

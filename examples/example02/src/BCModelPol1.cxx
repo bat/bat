@@ -5,32 +5,12 @@
 BCModelPol1::BCModelPol1() : BCModel()
 {
 
-	// define parameters 
-
-	this -> DefineParameters(); 
-
 }
 
 // --------------------------------------------------------- 
 
 BCModelPol1::BCModelPol1(const char* name) : BCModel(name)
 {
-
-	// define parameters 
-
-	this -> DefineParameters(); 
-
-}
-
-// --------------------------------------------------------- 
-
-void BCModelPol1::DefineParameters()
-{
-
-	// adds the parameters which define the model and their limits. 
-
-	this -> AddParameter("constant", 0.0, 4.0);   // index 0 
-	this -> AddParameter("slope",   0.02,  0.04); // index 1 
 
 }
 
