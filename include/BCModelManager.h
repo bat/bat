@@ -9,11 +9,13 @@
  * common data sets and performs operations on BCModels
  * simultaneously. Model comparsion in terms of a posteriori
  * probabilities is only possible with this class.
- * 
+ */
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------

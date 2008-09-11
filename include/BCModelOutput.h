@@ -8,11 +8,13 @@
  * \detail This class defines an output interface for the analysis. It
  * creates a ROOT file which can contain summary information,
  * histograms and Markov chains.
- * 
+ */ 
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
- *
- * For the licensing terms see doc/LICENSE.
+ * 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // --------------------------------------------------------- 

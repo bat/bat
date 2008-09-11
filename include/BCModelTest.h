@@ -6,11 +6,13 @@
  * \version 1.0
  * \date 08.2008
  * \detail This class is used for calculating the p-value of a model.
- * 
+ */ 
+
+ /*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // --------------------------------------------------------- 

@@ -7,11 +7,13 @@
  * \date 08.2008
  * \detail This class represents a parameter of a model. It contains
  * information about the name and the range of the parameter.
- * 
+ */
+
+/* 
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------

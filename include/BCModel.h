@@ -11,11 +11,13 @@
  * the prior and conditional probabilities have to be overloaded by
  * the user in the user defined model class which will inherit from
  * this class.
- * 
+ */
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // --------------------------------------------------------- 

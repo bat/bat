@@ -7,26 +7,13 @@
  * \date 08.2008
  * \detail This class contains a TH1D histogram and some additional
  * functions. It is used for marginalized distributions.
- * 
+ */
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
- */ 
-
-// ---------------------------------------------------------
-
-
-/*! \class BCH1D
- *  \brief 
- * 
- * This class contains a TH1D histogram and some additional
- * functions. It is used for marginalized distributions.
- * 
- * Author: Daniel Kollar and Kevin Kroeninger 
- * Created: 08/2008 
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
- * All rights reserved. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // --------------------------------------------------------- 

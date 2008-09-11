@@ -8,11 +8,13 @@
  * \detail This class represents a data set containing a set of data
  * points. The data points are organized in a vector. The class
  * provides functions to read in data from a file.
- *
+ */
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------

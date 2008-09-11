@@ -9,11 +9,13 @@
  * of information. A data point can be an event, a bin content,
  * etc. Each data point can store several variables of type
  * double. The variables are organized in a vector.
- * 
+ */
+
+/* 
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------

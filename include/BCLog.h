@@ -7,11 +7,13 @@
  * \date 08.2008
  * \detail This class manages log messages for printing on the screen
  * and into a log file
- * 
+ */
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
- *
- * For the licensing terms see doc/LICENSE. 
+ * 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------

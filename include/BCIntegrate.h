@@ -8,11 +8,13 @@
  * \detail This is a base class for a model class. It contains
  * numerical methods to carry out the integration, marginalization,
  * peak finding etc.
- * 
+ */
+
+/* 
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------

@@ -8,11 +8,13 @@
  * \detail This class represents an engine class for Markov Chain
  * Monte Carlo (MCMC). One or more chains can be defined
  * simultaneously.
- * 
+ */ 
+
+/*
  * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
  * All rights reserved. 
  * 
- * For the licensing terms see doc/LICENSE. 
+ * For the licensing terms see doc/COPYING. 
  */ 
 
 // ---------------------------------------------------------
