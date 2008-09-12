@@ -3,7 +3,7 @@ BAT - Bayesian Analysis Toolkit
 version __CVS_VERSION__
 -------------------------------
 
-Bayesian Analysis Toolkit is a software analysis package which allows
+The Bayesian Analysis Toolkit is a software analysis package which allows
 to address the main goals of a typical data anaysis:
 
  - compare model predictions with data,
@@ -12,12 +12,12 @@ to address the main goals of a typical data anaysis:
  - extract the possible values of parameters within the context of
    a model.
 
-BAT is based on Bayes' Theorem and is realized with the use of Markov
+The BAT is based on Bayes' Theorem and is realized with the use of Markov
 Chain Monte Carlo. This gives access to the full posterior probability
 distribution and enables straightforward parameter estimation, limit
 setting and uncertainty propagation.
 
-BAT is implemented in C++ with emphasis put to flexibility and
+The BAT is implemented in C++ with emphasis put to flexibility and
 modularity in defining models while keeping in mind the reliability
 and speed requirements of the numerical operations.
 
@@ -28,7 +28,7 @@ can be found in doc/changelog.
 
 Availability:
 -------------
-BAT is available from http://www.mppmu.mpg.de/bat/.
+The BAT is available from http://www.mppmu.mpg.de/bat/.
 See doc/COPYING and doc/LICENSE for licensing terms.
 
 
