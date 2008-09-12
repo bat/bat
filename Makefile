@@ -7,22 +7,22 @@ ROOTGLIBS    := $(shell root-config --glibs)
 CXX          = g++
 CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
 LD           = g++
-LDFLAGS      = -g -O2 
+LDFLAGS      = -g -O2
 SOFLAGS      = -shared
 
 AR           = ar
 ARFLAGS      = rc
 RANLIB       = ranlib
 
-RM           = rm -f 
-MV           = mv 
+RM           = rm -f
+MV           = mv
 ECHO         = echo
 CINT         = rootcint
 
 # Assign or Add variables
-CXXFLAGS    += $(ROOTCFLAGS) 
+CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I./include -I./src -I./
-LIBS        += $(ROOTLIBS) -L. -lcuba 
+LIBS        += $(ROOTLIBS) -L. -lcuba
 GLIBS       += $(ROOTGLIBS) -L.
 
 CXSRCS      = BCParameter.cxx \
@@ -46,23 +46,23 @@ CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
 CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
 
-EXEOBJS       = 
+EXEOBJS      =
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(LIBA) $(LIBSO) link.d
 
-all : libs
+all : $(LIBSO)
 
 libs : $(LIBA) $(LIBSO)
 
 link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))
-	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
 include link.d
 
-obj/%.o : src/%.cxx 
+obj/%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(LIBSO) : $(CXXOBJS)  
+$(LIBSO) : $(CXXOBJS)
 	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $(LIBSO)
 
 $(LIBA) : $(CXXOBJS)
@@ -83,6 +83,4 @@ print :
 
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
-
-
 
