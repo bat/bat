@@ -12,7 +12,7 @@
 
 // ---------------------------------------------------------
   
-const double sigmas = 2.0; 
+const double sigmas = 5.0; 
 const double cut_whad = 5.0; 
 const double cut_wlep = 5.0; 
 const double cut_deltat = 5.0; 
@@ -67,6 +67,7 @@ int main()
 
 	// opens the log file. 
 	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
+	//	BCLog::OpenLog("log.txt"); 
 
 	/*
 	Need: 
@@ -78,6 +79,50 @@ int main()
 	*/
 
 	// ---------------------------------------------------------
+	// define model output 
+	// ---------------------------------------------------------
+
+	
+	TFile * of = new TFile("output/output.root", "RECREATE"); 
+	
+	TTree * tree = new TTree("fTree", "fTree"); 
+
+	int fncombinations = 12; 
+	int fbestcombination; 
+	double fpvalue[12]; 
+	double fbhad_E[12]; 
+	double fblep_E[12]; 
+	double fqup_E[12]; 
+	double fqdown_E[12]; 
+	double flcharged_E[12]; 
+	double flneutral_pz[12]; 
+	double fJES[12]; 
+	double ftrue_bhad_E; 
+	double ftrue_blep_E; 
+	double ftrue_qup_E; 
+	double ftrue_qdown_E;
+	double ftrue_lcharged_E; 
+	double ftrue_lneutral_pz;
+
+	tree -> Branch("ncombinations", &fncombinations, "ncombinations/I"); 
+	tree -> Branch("bestcombination", &fbestcombination, "bestcombination/I"); 
+	tree -> Branch("pvalue", fpvalue, "pvalue[ncombinations]/D"); 
+	tree -> Branch("bhad_E", fbhad_E, "bhad_E[ncombinations]/D"); 
+	tree -> Branch("blep_E", fblep_E, "blep_E[ncombinations]/D");
+	tree -> Branch("qup_E", fqup_E, "qup_E[ncombinations]/D");  
+	tree -> Branch("qdown_E", fqdown_E, "qdown_E[ncombinations]/D"); 
+	tree -> Branch("lcharged_E", flcharged_E, "lcharged_E[ncombinations]/D"); 
+	tree -> Branch("lneutral_pz", flneutral_pz, "lneutral_pz[ncombinations]/D"); 
+	tree -> Branch("JES", fJES, "JES[ncombinations]/D");  
+	tree -> Branch("true_bhad_E", &ftrue_bhad_E, "true_bhad_E/D"); 
+	tree -> Branch("true_blep_E", &ftrue_blep_E, "true_blep_E/D");
+	tree -> Branch("true_qup_E", &ftrue_qup_E, "true_qup_E/D");  
+	tree -> Branch("true_qdown_E", &ftrue_qdown_E, "true_qdown_E/D"); 
+	tree -> Branch("true_lcharged_E", &ftrue_lcharged_E, "true_lcharged_E/D"); 
+	tree -> Branch("true_lneutral_pz", &ftrue_lneutral_pz, "true_lneutral_pz/D"); 
+
+	
+	// ---------------------------------------------------------
 	// read data from file 
 	// ---------------------------------------------------------
 
@@ -87,7 +132,8 @@ int main()
 	// read in data from file 
 	if (fDataSet -> ReadDataFromFileTree("input.root", "fTree", 
 																			 //																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz,true_bhad_E,true_blep_E,true_qup_E,true_qdown_E,true_lcharged_E,true_lneutral_E") != 0)
-																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz") != 0)
+																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz,true_bhad_E,true_blep_E,true_qup_E,true_qdown_E,true_lcharged_E,true_lneutral_pz") != 0)
+																			 //																			 "bhad_E,bhad_px,bhad_py,bhad_pz,blep_E,blep_px,blep_py,blep_pz,qup_E,qup_px,qup_py,qup_pz,qdown_E,qdown_px,qdown_py,qdown_pz,lcharged_E,lcharged_px,lcharged_py,lcharged_pz,lneutral_E,lneutral_px,lneutral_py,lneutral_pz") != 0)
 		//																			 "true_bhad_E,true_bhad_px,true_bhad_py,true_bhad_pz,true_blep_E,true_blep_px,true_blep_py,true_blep_pz,true_qup_E,true_qup_px,true_qup_py,true_qup_pz,true_qdown_E,true_qdown_px,true_qdown_py,true_qdown_pz,true_lcharged_E,true_lcharged_px,true_lcharged_py,true_lcharged_pz,true_lneutral_E,true_lneutral_px,true_lneutral_py,true_lneutral_pz,") != 0)
 		return -1; 
 
@@ -97,9 +143,7 @@ int main()
 	BCParameter * par_qup_E = new BCParameter("qup_E", 0.0, 700.0); 
 	BCParameter * par_qdown_E = new BCParameter("qdown_E",0.0, 700.0); 
 	BCParameter * par_electron_E = new BCParameter("electron_E", 0.0, 700.0); 
-	// debug
-	//	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -700.0, 700.0); 
-	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -50.0, 200.0); 
+	BCParameter * par_neutrino_pz = new BCParameter("neutrino_pz", -700.0, 700.0); 
 	BCParameter * par_JES_all = new BCParameter("JES_all",  0.5, 1.5); 
 
 	// reset counter 
@@ -112,19 +156,20 @@ int main()
 	int nevents = fDataSet -> GetNDataPoints();
 
 	// debug
-	nevents = 10; 
+	nevents = 200; 
 
 	// loop over events 
-	for (int ievent = 0; ievent < nevents; ++ievent)
+	for (int ievent = 100; ievent < nevents; ++ievent)
 		{
-			// debug
-			std::cout << "pvalue - event number " << ievent << std::endl; 
+			// prompt event number 
+			std::cout << " Processing event number " << ievent << std::endl; 
 
 			// increase counter of prcoessed events 
 			nevents_processed++; 
 
 			// define model 
 			BCModelTop* fModelTop = new BCModelTop("myModelTop"); 
+			//			fModelTop -> MCMCSetWriteChainToFile(true); 
 
 			// get current event
 			fModelTop -> InitializeEvent(fDataSet, ievent); 
@@ -160,9 +205,17 @@ int main()
 			fModelTop -> SetDataBoundaries(22, fDataSet -> GetDataPoint(ievent) -> GetValue(22), fDataSet -> GetDataPoint(ievent) -> GetValue(22), true); 
 			fModelTop -> SetDataBoundaries(23, fDataSet -> GetDataPoint(ievent) -> GetValue(23), fDataSet -> GetDataPoint(ievent) -> GetValue(23), true); 
 
+			// fix true values 
+			fModelTop -> FixDataAxis(24, true); 
+			fModelTop -> FixDataAxis(25, true); 
+			fModelTop -> FixDataAxis(26, true); 
+			fModelTop -> FixDataAxis(27, true); 
+			fModelTop -> FixDataAxis(28, true); 
+			fModelTop -> FixDataAxis(29, true); 
+			
 			// adjust settings 
-			fModelTop -> MCMCSetNIterationsMax(100000); 
 			fModelTop -> MCMCSetNIterationsRun(100000); 
+			//			fModelTop -> MCMCSetNIterationsRun(1000000); 
 
 			// adjust limits 
 			double x    = fDataSet -> GetDataPoint(ievent) -> GetValue(0); 
@@ -204,6 +257,8 @@ int main()
 			fModelTop -> AddParameter(par_neutrino_pz); 
 			fModelTop -> AddParameter(par_JES_all); 
 
+			// define output 
+			BCModelOutput * fModelOutput = new BCModelOutput(fModelTop, "output_top.root"); 
 			// reset max likelihood
 			double maxlike = -1; 
 			double maxloglike = -1;
@@ -214,18 +269,16 @@ int main()
 			std::vector <double> bestfitvector; 
 
 			// loop over permutations 
-			// debug
 			for (int iperm = 0; iperm < 12; ++iperm)
-			//			for (int iperm = 0; iperm < 1; ++iperm)
 				{
 					// change to current permutation 
 					fModelTop -> SetPermutation(iperm); 
 					
 
-					// perform minimization, etc. 
-					//					fModelTop -> GetMinuit() -> SetPrintLevel(-1);
-					// debug
-					//					fModelTop -> FindMode();
+					// perform optimization
+					fModelTop -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
+
+					fModelTop -> FindMode();
 
 					/*
 					if (fModelTop -> GetMinuitErrorFlag() != 0)
@@ -235,36 +288,28 @@ int main()
 						}
 					*/
 
-					fModelTop -> MarginalizeAll(); 
-						
-
-					fModelTop -> PrintAllMarginalized(Form("output/plots_%i_%i.ps", ievent, iperm)); 
-
 					// calculate best fitting lorentz vectors 
 					tempvector = fModelTop -> GetBestFitParameters(); 
 					
 					fModelTop -> CalculateLorentzVectors(tempvector); 
 
-					// remove combinations with unrealistic masses 
-					/*
-					if (fabs(fModelTop -> fLV_Whad.M() - 80.4) > cut_whad)
-						{ 
-							//							std::cout << " hadronic W-mass not within range : " << fModelTop -> fLV_Whad.M() - 80.4 << " GeV/c2" << std::endl; 
-							continue; 
-						}
+					// remove events which have values at their limits 
+					bool flag_atlimit = false; 
+					for (int i = 0; i < int(tempvector.size()); ++i)
+						if (fModelTop -> GetParameter(i) -> IsAtLimit(tempvector.at(i)))
+							flag_atlimit = true; 
 
-					if (fabs(fModelTop -> fLV_Wlep.M() - 80.4) > cut_wlep)
-						{ 
-							//							std::cout << " leptonic W-mass not within range : " << fModelTop -> fLV_Wlep.M() - 80.4 << " GeV/c2" << std::endl; 
-							continue; 
-						}
-
-					if (fabs(fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M()) > cut_deltat)
+					if (flag_atlimit)
 						{
-							//							std::cout << " top mass difference too large : " << fModelTop -> fLV_Tophad.M() - fModelTop -> fLV_Toplep.M() << " GeV/c2" << std::endl; 
+							fpvalue[iperm] = -1; 
 							continue; 
 						}
-					*/
+
+					// perform the marginalization 
+					fModelTop -> MarginalizeAll(); 
+					// debug
+					//					fModelTop -> PrintAllMarginalized(Form("output/plots_%i_%i.ps", ievent, iperm)); 
+
 					// calculate best likelihood 
 					double like = fModelTop -> Likelihood(tempvector); 
 					double loglike = fModelTop -> LogLikelihood(tempvector); 
@@ -281,18 +326,45 @@ int main()
 							bestfitvector = tempvector; 
 						}
 					
-					// debug
-					std::cout << " Calculate p-value" << std::endl; 
-					std::cout << (fModelTop -> GetBestFitParameters()).size() << std::endl; 
-					fModelTop -> CalculatePValue(fModelTop -> GetBestFitParameters(), true) -> Print(Form("output/pvalue_%i_%i.ps", ievent, iperm), 1, loglike); 
-					//					fModelTop -> CalculatePValue(fModelTop -> GetBestFitParameters(), false);
-					double pvalue = fModelTop -> GetPValue(); 
-					std::cout << " pvalue = " << iperm << " " << pvalue << " (" << loglike << ")" << std::endl; 
+					// calculate p-value 
+					fModelTop -> CalculatePValue(fModelTop -> GetBestFitParameters(), true) -> Print(Form("output/pvalue_%i_%i.eps", ievent, iperm), 1, loglike); 
 
 					// print summary 
 					fModelTop -> PrintResults(Form("output/summary_%i_%i.txt", ievent, iperm)); 
+					// fill variables 
+					fpvalue[iperm] = fModelTop -> GetPValue(); 
+					fbhad_E[iperm] = tempvector.at(0); 
+					fblep_E[iperm] = tempvector.at(1); 
+					fqup_E[iperm] = tempvector.at(2); 
+					fqdown_E[iperm] = tempvector.at(3); 
+					flcharged_E[iperm] = tempvector.at(4); 
+					flneutral_pz[iperm] = tempvector.at(5); 
+					fJES[iperm] = tempvector.at(6); 
 
 				} // end of loop over permutations 
+
+			// fill variables and tree 
+			ftrue_bhad_E = fModelTop -> GetDataSet() -> GetDataPoint(0) -> GetValue(24); 
+			ftrue_blep_E = fModelTop -> GetDataSet() -> GetDataPoint(0) -> GetValue(25); 
+			ftrue_qup_E = fModelTop -> GetDataSet() -> GetDataPoint(0) -> GetValue(26); 
+			ftrue_qdown_E = fModelTop -> GetDataSet() -> GetDataPoint(0) -> GetValue(27); 
+			ftrue_lcharged_E = fModelTop -> GetDataSet() -> GetDataPoint(0) -> GetValue(28); 
+			ftrue_lneutral_pz = fModelTop -> GetDataSet() -> GetDataPoint(0) -> GetValue(29); 
+
+			// find best permutation 
+			fbestcombination = -1; 
+
+			double pvaluemax = 0; 
+
+			for (int i = 0; i < 12; ++i)
+				if (fpvalue[i] > pvaluemax)
+					{
+						pvaluemax = fpvalue[i]; 
+						fbestcombination = i; 
+					}
+
+			// fill output tree 
+			tree -> Fill(); 
 
 			// increase counter of events with correct jet assignment 
 			if (maxlikeindex == 0)
@@ -322,8 +394,14 @@ int main()
 																					 fModelTop -> fLV_Tophad.M());
 				}
 
-			// delete model 
+			// write output 
+			fModelOutput -> FillAnalysisTree(); 
+			fModelOutput -> WriteMarginalizedDistributions(); 
+			fModelOutput -> Close(); 
+ 
+			// delete model and output 
 			delete fModelTop; 
+			//			delete fModelOutput; 
 
 		} // end of loop over events 
 
@@ -344,6 +422,10 @@ int main()
 
 	std::cout << " ===================================== " << std::endl; 
 
+
+	of -> cd(); 
+	tree -> Write(); 
+	of -> Close(); 
 
 
 	// ---------------------------------------------------------
