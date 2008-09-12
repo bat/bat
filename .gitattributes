@@ -1,5 +1,14 @@
 * text=auto !eol
 /Makefile -text
+benchmarks/example05/CreateData.c -text
+benchmarks/example05/Makefile -text
+benchmarks/example05/runBAT.c -text
+benchmarks/example05/src/BCModelParticleDecay.cxx -text
+benchmarks/example05/src/BCModelParticleDecay.h -text
+benchmarks/example06/Makefile -text
+benchmarks/example06/runBAT.c -text
+benchmarks/example06/src/BCModelTop.cxx -text
+benchmarks/example06/src/BCModelTop.h -text
 benchmarks/integration/Makefile -text
 benchmarks/integration/benchmark.c -text
 benchmarks/integration/src/BCModelGauss.cxx -text
