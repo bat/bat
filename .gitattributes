@@ -64,15 +64,6 @@ examples/example04/data/data.txt -text
 examples/example04/runBATexample04.c -text
 examples/example04/src/BCModelEfficiency.cxx -text
 examples/example04/src/BCModelEfficiency.h -text
-examples/example05/CreateData.c -text
-examples/example05/Makefile -text
-examples/example05/runBAT.c -text
-examples/example05/src/BCModelParticleDecay.cxx -text
-examples/example05/src/BCModelParticleDecay.h -text
-examples/example06/Makefile -text
-examples/example06/runBAT.c -text
-examples/example06/src/BCModelTop.cxx -text
-examples/example06/src/BCModelTop.h -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text
 include/BCEngineMCMC.h -text
