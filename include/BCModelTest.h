@@ -59,6 +59,12 @@ class BCModelTest : public BCModel
 	TH1D * GetHistogramLogProb()
 	{ return fHistogramLogProb; }; 
 
+	/*
+	 * @return The test model. 
+	 */ 
+	BCModel * GetTestModel()
+		{ return fTestModel; }; 
+
 	/* @} */ 
 
 	/** \name Member functions (set) */ 

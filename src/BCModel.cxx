@@ -1135,6 +1135,16 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
 int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 {
+	if (fMCMCH1Marginalized.size()==1 && fMCMCH2Marginalized.size()==0)
+		{
+			BCParameter * a = this->GetParameter(0);
+			
+			this -> GetMarginalized(a) -> Print(file);
+
+			return 1; 
+	}
+
+
 	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
