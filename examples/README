@@ -1,9 +1,17 @@
 Examples in this directory:
 ---------------------------
 
-* example01: fitting a line
-* example02: fitting polynomials
+* Example01: Line fit. 
+	A simple line fit to a set of data points. 
 
-* example03: fitting a spectrum
+* Example02: Polynomial fitting. 
+	Fit of three different polynomials to a set of data points. 
+	Comparison of the three models using the p-value. 
 
-* example04: binomial errors
+* Example03: Spectrum fit. 
+	Comparison of two different models assuming either a flat background 
+  spectrum or a background + signal spectrum. The model comparison is 
+	performed using the direct comparison of model probabilities. 
+
+* Example04: Binomial errors. 
+	A simple example for the binomial distribution. 

@@ -27,7 +27,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// opens the log file. 
-	BCLog::OpenLog(); 
+	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
 
 	// ---------------------------------------------------------
 	// model definition 
