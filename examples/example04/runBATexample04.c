@@ -100,7 +100,7 @@ int main()
 	// the one- and two-dimensional marginalized probability densities
 	// are kept in memory and are returned from the model class. they
 	// are printed into a .ps file.
-	fModelEfficiency -> PrintAllMarginalized1D("plots"); 
+	fModelEfficiency -> PrintAllMarginalized("plots.ps"); 
 
 	// ---------------------------------------------------------
 	// Do goodness-of-fit test  

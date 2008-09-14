@@ -142,7 +142,7 @@ int main()
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
 	// into a .ps file. 
-	fModelBackground -> PrintAllMarginalized1D("background"); 
+	fModelBackground -> PrintAllMarginalized("plots_background.ps"); 
 
 	// marginalize signal model 
 
