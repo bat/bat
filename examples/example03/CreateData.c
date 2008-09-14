@@ -21,7 +21,7 @@ int CreateSpectrum()
   // parameters 
 
   double background =   10.0; 
-  double signal     =   20.0; 
+  double signal     =   10.0; 
   double mean       = 2039.0; 
   double sigma      =    2.0; 
 
@@ -32,7 +32,7 @@ int CreateSpectrum()
   double dE   = (Emax - Emin) / double(nbins); 
 
   // initialize random number generator 
-  TRandom3* fRandom = new TRandom3(0); 
+  TRandom3* fRandom = new TRandom3(1000); 
 
   // loop over models  
   char filename[200]; 
