@@ -1,107 +1,148 @@
 #include <BCModelEfficiency.h>
+#include <BCLog.h>
 #include <BCModelOutput.h> 
-#include <BCLog.h> 
-#include <BCH1D.h> 
+
+#include "style.c" 
 
 #include <TCanvas.h> 
 #include <TGraphErrors.h>
-#include <TH1D.h> 
 #include <TH2D.h> 
 #include <TF1.h> 
-
-#include "style.c"
 
 // ---------------------------------------------------------
   
 int main()
 {
-  // ---------------------------------------------------------
-  // open log file 
-  // ---------------------------------------------------------
+  
+	// ---------------------------------------------------------
+	// set style  
+	// ----------------------------------------------------------
 
-  BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
+	// calls a function which defines a nicer style than the ROOT
+	// default.
+	SetStyle(); 
 
-  // ---------------------------------------------------------
-  // set personal root style
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// open log file 
+	// ---------------------------------------------------------
 
-  SetStyle();
+	// opens the log file. 
+	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
 
-  // ---------------------------------------------------------
-  // model definition 
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// model definition 
+	// ---------------------------------------------------------
 
-  BCModelEfficiency * fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
+	// creates a new model of type BCModelEfficiency with the name
+	// "ModelEfficiency". the model is defined in the two files
+	// src/BCModelEfficiency.h and src/BCModelEfficiency.cxx.
+	BCModelEfficiency* fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
-	//	fModelEfficiency -> MCMCSetNIterationsRun(10000); 
-	fModelEfficiency -> MCMCSetWriteChainToFile(true); 
+	// add parameters to the model. the first parameter will have the
+	// index 0
+	fModelEfficiency -> AddParameter("epsilon",  0.0,  1.0);  // index 0
 
-	BCModelOutput * fModelEfficiencyOutput = new BCModelOutput(fModelEfficiency, "output_efficiency.root"); 
+	// ---------------------------------------------------------
+	// model output file 
+	// ---------------------------------------------------------
+	
+	// creates a ROOT output file which stores all the necessary
+	// information.
+	BCModelOutput * fModelOutputEfficiency = new BCModelOutput(fModelEfficiency, "output.root"); 
 
-  // ---------------------------------------------------------
-  // read data from file 
-  // ---------------------------------------------------------
+	// the actual markov chain will be written to the output file. this
+	// might result in a large file. 
+	fModelOutputEfficiency -> WriteMarkovChain(true); 
+	
+	// ---------------------------------------------------------
+	// read data from file 
+	// ---------------------------------------------------------
 
-  BCDataSet * fDataSet = new BCDataSet(); 
+	// creates a new data set. 
+	BCDataSet* fDataSet = new BCDataSet(); 
 
-  if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 2) != 0)
-    return -1; 
+	// data is read in from a text file. 
+	if (fDataSet -> ReadDataFromFileTxt("./data/data.txt", 2) != 0)
+		return -1; 
 
-  // assign data set to model 
+	// assigns the data set to the model defined previously.
+	fModelEfficiency -> SetDataSet(fDataSet); 
 
-  fModelEfficiency -> SetDataSet(fDataSet); 
-
-  // ---------------------------------------------------------
-  // optimize 
-  // ---------------------------------------------------------
-
-	fModelEfficiency -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
-
-	fModelEfficiency -> FindMode(); 
-
-  // ---------------------------------------------------------
-  // marginalize 
-  // ---------------------------------------------------------
-
-	fModelEfficiency -> MarginalizeAll(); 
-
-	//	fModelEfficiency -> GetMarginalized("epsilon") -> Print("modelefficiency_epsilon.ps",2);
-
-	fModelEfficiency -> PrintAllMarginalized1D("marginalized"); 
-
-  // ---------------------------------------------------------
-  // evaluate p-value 
-  // ---------------------------------------------------------
-
+	// the allowed range of data values has to be defined for error
+	// propagation and fitting. 
 	double Nmax = fDataSet -> GetDataPoint(0) -> GetValue(1); 
+	fModelEfficiency -> SetDataBoundaries(0, 0.0, Nmax, false);
+	fModelEfficiency -> SetDataBoundaries(1, Nmax, Nmax); 
 
-	fModelEfficiency -> SetDataBoundaries(0, 0.0, Nmax); 
+	// Fix the maximum number. 
 	fModelEfficiency -> FixDataAxis(1, true); 
 
-	double loglikelihoodmax = fModelEfficiency -> LogLikelihood(fModelEfficiency -> GetBestFitParameters()); 
+	// ---------------------------------------------------------
+	// optimization 
+	// ---------------------------------------------------------
 
-	fModelEfficiency -> CalculatePValue(fModelEfficiency -> GetBestFitParameters(), true) -> Print("pvalue.ps", 1, loglikelihoodmax); 
+	// set the optimization algorithm to the ROOT-version of Minuit. 
+	fModelEfficiency -> SetOptimizationMethod(BCIntegrate::kOptMinuit); 
+
+	// perform optimization. the best fit parameter values will be
+	// stored and can later be retrieved.
+	fModelEfficiency -> FindMode(); 
+
+	// ---------------------------------------------------------
+	// marginalize 
+	// ---------------------------------------------------------
+
+	// marginalizes the probability density with respect to all
+	// parameters, i.e. constant and slope, and with respect to all
+	// combinations of two parameters, in this case constant-slope.
+	fModelEfficiency -> MarginalizeAll();
+
+	// the one- and two-dimensional marginalized probability densities
+	// are kept in memory and are returned from the model class. they
+	// are printed into a .ps file.
+	fModelEfficiency -> PrintAllMarginalized1D("plots"); 
+
+	// ---------------------------------------------------------
+	// Do goodness-of-fit test  
+	// ---------------------------------------------------------
+
+	// once the most probable model was found the goodness-of-fit can be
+	// tested. the question to be answered is: given the best fit
+	// parameters what is the probability to obtain a better agreement
+	// (conditional probability)? the answer can be given by integrating
+	// over data. 
+
+	// calculate the p-value for the set of best-fit parameters.
+	fModelEfficiency -> CalculatePValue(fModelEfficiency -> GetBestFitParameters()); 
 	
-  // ---------------------------------------------------------
-  // summarize
-  // ---------------------------------------------------------
+	// ---------------------------------------------------------
+	// write to output file 
+	// ---------------------------------------------------------
 
-	fModelEfficiency -> PrintResults("summary.txt"); 
+	// fill the output of the analysis into the ROOT file. 
+	fModelOutputEfficiency -> FillAnalysisTree(); 
 
-  // ---------------------------------------------------------
-  // close log file 
-  // ---------------------------------------------------------
-
-	fModelEfficiencyOutput -> FillAnalysisTree(); 
-	fModelEfficiencyOutput -> WriteMarginalizedDistributions(); 
+	// fill the Markov Chain into the ROOT file. 
+	fModelOutputEfficiency -> WriteMarginalizedDistributions(); 
 
 	// write to file and close 
+	fModelOutputEfficiency -> Close(); 
 
-	fModelEfficiencyOutput -> Close(); 
+	// ---------------------------------------------------------
+	// summarize
+	// ---------------------------------------------------------
 
-  BCLog::CloseLog(); 
+	// prints the results of the analysis into a file 
+	fModelEfficiency -> PrintResults("summary.txt"); 
+	
+	// ---------------------------------------------------------
+	// close log file 
+	// ---------------------------------------------------------
 
-  return 0; 
+	// closes the log file 
+	BCLog::CloseLog(); 
+
+	return 1; 
 
 }
 

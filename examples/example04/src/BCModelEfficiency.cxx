@@ -6,9 +6,6 @@
 
 BCModelEfficiency::BCModelEfficiency() : BCModel()
 {
-	// define parameters 
-
-	this -> DefineParameters(); 
 
 }
 
@@ -16,17 +13,6 @@ BCModelEfficiency::BCModelEfficiency() : BCModel()
 
 BCModelEfficiency::BCModelEfficiency(const char* name) : BCModel(name)
 {
-	// define parameters 
-
-	this -> DefineParameters(); 
-}
-
-// --------------------------------------------------------- 
-
-void BCModelEfficiency::DefineParameters()
-{
-
-	this -> AddParameter("epsilon", 0.0,  1.0); // index 0 
 
 }
 
