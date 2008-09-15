@@ -27,7 +27,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// opens the log file. 
-	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
+	BCLog::OpenLog("output/log.txt", BCLog::detail, BCLog::detail); 
 
 	// ---------------------------------------------------------
 	// model definition 
@@ -49,7 +49,7 @@ int main()
 	
 	// creates a ROOT output file which stores all the necessary
 	// information.
-	BCModelOutput * fModelOutputPol1 = new BCModelOutput(fModelPol1, "output.root"); 
+	BCModelOutput * fModelOutputPol1 = new BCModelOutput(fModelPol1, "output/output.root"); 
 
 	// the actual markov chain will be written to the output file. this
 	// might result in a large file. 
@@ -111,7 +111,7 @@ int main()
 	// the one- and two-dimensional marginalized probability densities
 	// are kept in memory and are returned from the model class. they
 	// are printed into a .ps file.
-	fModelPol1 -> PrintAllMarginalized("plots.ps"); 
+	fModelPol1 -> PrintAllMarginalized("output/plots.ps"); 
 
 	// ---------------------------------------------------------
 	// Do goodness-of-fit test  
@@ -145,7 +145,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// prints the results of the analysis into a file 
-	fModelPol1 -> PrintResults("summary.txt"); 
+	fModelPol1 -> PrintResults("output/summary.txt"); 
 
 	// ---------------------------------------------------------
 	// Print data with best fit result 
@@ -186,7 +186,7 @@ int main()
 	graph -> Draw("SAMEP"); 
 
 	// print the canvas to a .ps file 
-	canvas_bestfit -> Print("fit.ps"); 
+	canvas_bestfit -> Print("output/fit.ps"); 
 	
 	// ---------------------------------------------------------
 	// close log file 
