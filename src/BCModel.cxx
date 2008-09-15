@@ -2507,9 +2507,9 @@ void BCModel::PrintResults(const char * file)
 	bool flag_conv = ((this -> MCMCGetNIterationsConvergenceGlobal() > 0)?1:0); 
 
 	ofi << std::endl; 
-	ofi << " ----------------------------------------------------- " << std::endl; 
-	ofi << " Summary of the Markov Chain Monte Carlo run " << std::endl; 
-	ofi << " ----------------------------------------------------- " << std::endl; 
+	ofi << " -----------------------------------------------------" << std::endl; 
+	ofi << " Summary of the Markov Chain Monte Carlo run" << std::endl; 
+	ofi << " -----------------------------------------------------" << std::endl; 
 	ofi << std::endl; 
 
 	if (!flag_conv)
@@ -2614,14 +2614,14 @@ void BCModel::PrintResults(const char * file)
 	ofi << " Number of iterations of each chain:     " << this -> MCMCGetNIterationsMax() << std::endl; 
 	ofi << std::endl; 
 
-	ofi << " ----------------------------------------------------- " << std::endl; 
+	ofi << " -----------------------------------------------------" << std::endl; 
 	ofi << std::endl; 
 	ofi << " Notes" << std::endl; 
 	ofi << " =====" << std::endl; 
 	ofi << " (i) Median +- sigma denotes the median, m, of the\n" 
 			<< "     marginalized distribution and the intervals from\n" 
 			<< "     m to the 16% and 84% quantiles. " << std::endl; 
-	ofi << " ----------------------------------------------------- " << std::endl; 
+	ofi << " -----------------------------------------------------" << std::endl; 
 
 	// close file 
 	//	ofi.close; 
