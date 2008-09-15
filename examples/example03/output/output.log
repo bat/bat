@@ -1,0 +1,79 @@
+
+======================================
+ Summary
+======================================
+
+ Number of models               : 2
+
+ - Models:
+
+   ---------------------------------
+    Model : background model
+   ---------------------------------
+     Index                : 0
+     Number of parameters : 1
+
+     - Parameters : 
+
+       > Parameter   : background
+         Index       : 0
+         Lower Limit : 0
+         Upper Limit : 300
+         Nuisance    : Yes
+
+
+     - Best fit parameters :
+
+       background = 23.9999 (overall)
+       background = 25.5 (marginalized)
+
+     Normalization        : 3.45587e-16
+
+   ---------------------------------
+    Model : signal model
+   ---------------------------------
+     Index                : 1
+     Number of parameters : 2
+
+     - Parameters : 
+
+       > Parameter   : background
+         Index       : 0
+         Lower Limit : 0
+         Upper Limit : 200
+         Nuisance    : No
+
+       > Parameter   : signal
+         Index       : 1
+         Lower Limit : 0
+         Upper Limit : 100
+         Nuisance    : No
+
+
+     - Best fit parameters :
+
+       background = 16.6425 (overall)
+       background = 17 (marginalized)
+       signal = 7.70199 (overall)
+       signal = 7.5 (marginalized)
+
+     Normalization        : 5.15089e-16
+ - Data:
+
+     Number of entries: 22
+
+======================================
+ Model comparison
+
+ - A priori probabilities:
+
+     p(background model) = 0.5
+     p(signal model) = 0.5
+
+ - A posteriori probabilities:
+
+     p(background model|data) = 0.40153
+     p(signal model|data) = 0.59847
+
+======================================
+

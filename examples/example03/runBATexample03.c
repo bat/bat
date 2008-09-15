@@ -33,7 +33,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// opens the log file. 
-	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
+	BCLog::OpenLog("output/log.txt", BCLog::detail, BCLog::detail); 
 
 	// ---------------------------------------------------------
 	// define models 
@@ -66,10 +66,10 @@ int main()
 	
 	// creates a ROOT output file which stores all the necessary
 	// information. 
-	BCModelOutput * fModelOutputBackground = new BCModelOutput(fModelBackground, "output_Background.root"); 
+	BCModelOutput * fModelOutputBackground = new BCModelOutput(fModelBackground, "output/output_Background.root"); 
 	fModelOutputBackground -> WriteMarkovChain(true); 
 
-	BCModelOutput * fModelOutputSignal = new BCModelOutput(fModelSignal, "output_Signal.root"); 
+	BCModelOutput * fModelOutputSignal = new BCModelOutput(fModelSignal, "output/output_Signal.root"); 
 	fModelOutputSignal -> WriteMarkovChain(true); 
 
 	// ---------------------------------------------------------
@@ -142,7 +142,7 @@ int main()
 	// the one-dimensional marginalized probability densities are kept
 	// in memory and are returned from the model class. they are printed
 	// into a .ps file. 
-	fModelBackground -> PrintAllMarginalized("plots_background.ps"); 
+	fModelBackground -> PrintAllMarginalized("output/plots_background.ps"); 
 
 	// marginalize signal model 
 
@@ -154,7 +154,7 @@ int main()
 	// in memory and are returned from the model class. they are printed
 	// into a .ps file. 
 
-	fModelSignal -> PrintAllMarginalized("plots_signal.ps"); 
+	fModelSignal -> PrintAllMarginalized("output/plots_signal.ps"); 
 			
 	// ---------------------------------------------------------
 	// write to output file 
@@ -176,7 +176,7 @@ int main()
  // ---------------------------------------------------------
 
 	fModelManager -> PrintSummary(); 
-	fModelManager -> PrintSummary("output.log"); 
+	fModelManager -> PrintSummary("output/output.log"); 
 
  // ---------------------------------------------------------
  // Print data with best fit result 
@@ -241,7 +241,7 @@ int main()
 	legend -> Draw("SAME"); 
 
 	// print the canvas to a .ps file 
-	canvas_summary -> Print("data.ps"); 
+	canvas_summary -> Print("output/data.ps"); 
 
 	// defines a new canvas 
 	TCanvas* canvas_bestfit = new TCanvas(); 
@@ -277,7 +277,7 @@ int main()
 	hist_data -> Draw("SAME"); 
 
 	// print the canvas to a .ps file 
-	canvas_bestfit -> Print("data_bestfit.ps"); 
+	canvas_bestfit -> Print("output/data_bestfit.ps"); 
 	
  // close log file 
  BCLog::CloseLog(); 
