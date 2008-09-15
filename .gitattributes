@@ -48,6 +48,12 @@ examples/example01/src/BCModelPol1.cxx -text
 examples/example01/src/BCModelPol1.h -text
 examples/example02/CreateData.c -text
 examples/example02/Makefile -text
+examples/example02/output/ModelPol0.txt -text
+examples/example02/output/ModelPol1.txt -text
+examples/example02/output/ModelPol2.txt -text
+examples/example02/output/data_allmodels.ps -text
+examples/example02/output/data_bestfit.ps -text
+examples/example02/output/log.txt -text
 examples/example02/runBATexample02.c -text
 examples/example02/src/BCModelPol0.cxx -text
 examples/example02/src/BCModelPol0.h -text

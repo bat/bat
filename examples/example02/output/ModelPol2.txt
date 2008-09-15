@@ -1,0 +1,64 @@
+
+ ----------------------------------------------------- 
+ Summary of the Markov Chain Monte Carlo run 
+ ----------------------------------------------------- 
+
+ Model summary
+ =============
+ Model: ModelPol2
+ Number of parameters: 3
+ List of Parameters and ranges: 
+  (0) Parameter "constant": 0 - 4
+  (1) Parameter "slope": -0.05 - 0.05
+  (2) Parameter "quadratic": 0 - 0.008
+
+ Results of the marginalization
+ ==============================
+ List of parameters and properties of the marginalized
+ distributions:
+  (0) Parameter "constant"
+      Mean +- RMS:         0.9068 +- 0.1885
+      Median +- sigma:     0.9071 +  0.1883 - 0.1904
+      (Marginalized) mode: 0.9
+      Smallest interval(s) containing 68% and local modes: 
+       0.72 - 1.16 (local mode at 0.9 with rel. height 1; rel. area 0.7076)
+  (1) Parameter "slope"
+      Mean +- RMS:         0.005125 +- 0.008663
+      Median +- sigma:     0.005093 +  0.008872 - 0.008608
+      (Marginalized) mode: 0.0045
+      Smallest interval(s) containing 68% and local modes: 
+       -0.004 - 0.015 (local mode at 0.0045 with rel. height 1; rel. area 0.6947)
+  (2) Parameter "quadratic"
+      Mean +- RMS:         0.0002483 +- 8.391e-05
+      Median +- sigma:     0.0002493 +  8.935e-05 - 8.751e-05
+      (Marginalized) mode: 0.00028
+      Smallest interval(s) containing 68% and local modes: 
+       0.00016 - 0.00048 (local mode at 0.00028 with rel. height 1; rel. area 0.8109)
+
+ Results of the optimization
+ ===========================
+ Optimization algorithm used:  Minuit
+ List of parameters and global mode: 
+  (0) Parameter "constant": 0.8951
+  (1) Parameter "slope": 0.005618
+  (2) Parameter "quadratic": 0.0002441
+
+ Results of the model test
+ =========================
+ p-value at global mode: 0.9797
+
+ Status of the MCMC
+ ==================
+ Convergence reached: yes
+ Number of iterations until convergence: 499
+ Number of chains:                       5
+ Number of iterations of each chain:     1000000
+
+ ----------------------------------------------------- 
+
+ Notes
+ =====
+ (i) Median +- sigma denotes the median, m, of the
+     marginalized distribution and the intervals from
+     m to the 16% and 84% quantiles. 
+ ----------------------------------------------------- 

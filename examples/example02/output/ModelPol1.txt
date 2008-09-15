@@ -1,0 +1,56 @@
+
+ ----------------------------------------------------- 
+ Summary of the Markov Chain Monte Carlo run 
+ ----------------------------------------------------- 
+
+ Model summary
+ =============
+ Model: ModelPol1
+ Number of parameters: 2
+ List of Parameters and ranges: 
+  (0) Parameter "constant": 0 - 4
+  (1) Parameter "slope": 0 - 0.04
+
+ Results of the marginalization
+ ==============================
+ List of parameters and properties of the marginalized
+ distributions:
+  (0) Parameter "constant"
+      Mean +- RMS:         0.5039 +- 0.1211
+      Median +- sigma:     0.5035 +  0.1221 - 0.1203
+      (Marginalized) mode: 0.5
+      Smallest interval(s) containing 68% and local modes: 
+       0.36 - 0.68 (local mode at 0.5 with rel. height 1; rel. area 0.7543)
+  (1) Parameter "slope"
+      Mean +- RMS:         0.02973 +- 0.002098
+      Median +- sigma:     0.02974 +  0.002061 - 0.002111
+      (Marginalized) mode: 0.0298
+      Smallest interval(s) containing 68% and local modes: 
+       0.0276 - 0.0324 (local mode at 0.0298 with rel. height 1; rel. area 0.7066)
+
+ Results of the optimization
+ ===========================
+ Optimization algorithm used:  Minuit
+ List of parameters and global mode: 
+  (0) Parameter "constant": 0.4895
+  (1) Parameter "slope": 0.02998
+
+ Results of the model test
+ =========================
+ p-value at global mode: 0.3533
+
+ Status of the MCMC
+ ==================
+ Convergence reached: yes
+ Number of iterations until convergence: 499
+ Number of chains:                       5
+ Number of iterations of each chain:     1000000
+
+ ----------------------------------------------------- 
+
+ Notes
+ =====
+ (i) Median +- sigma denotes the median, m, of the
+     marginalized distribution and the intervals from
+     m to the 16% and 84% quantiles. 
+ ----------------------------------------------------- 

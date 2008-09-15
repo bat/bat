@@ -31,7 +31,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// opens the log file. 
-	BCLog::OpenLog(); 
+	BCLog::OpenLog("output/log.txt"); 
 
 	// ---------------------------------------------------------
 	// model definition 
@@ -202,7 +202,7 @@ int main()
  
   // print the canvas to a .ps file  
  
-  canvas_summary -> Print("data_allmodels.ps");  
+  canvas_summary -> Print("output/data_allmodels.ps");  
  
   // defines a new canvas  
  
@@ -242,7 +242,7 @@ int main()
 
   // print the canvas to a .ps file  
  
-  canvas_bestfit -> Print("data_bestfit.ps");  
+  canvas_bestfit -> Print("output/data_bestfit.ps");  
  	
 	// ---------------------------------------------------------
 	// close log file 
