@@ -34,14 +34,6 @@
 
 {\Large {\sc BAT} - a short introduction}
 
-\vspace{1.0cm}
-
-{A.~Caldwell$^1$, D.~Koll\'ar$^1$, K.~Kr\"oninger$^2$}
-
-\vspace{1.0cm}
-
-{\it $^1$~Max Planck Institute for Physics, Munich, Germany \\
-$^2$~II. Institute of Physics, University of G\"ottingen, G\"ottingen }
 \end{center}
 
 \thispagestyle{empty}
@@ -277,6 +269,25 @@ double BCH1D::GetPValue(double probability) ,
 \noindent
 where probability is the conditional probablity of the pdf (using the
 original dat set) at the best fit parameters. 
+
+Another way of calculating the $p$-value also uses MCMC:
+%
+\begin{verbatim}
+BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram
+=false) . 
+\end{verbatim}
+%
+\noindent 
+For this to work, the ranges of the possible data values have to be
+set using
+%
+\begin{verbatim}
+void SetDataBoundaries(int index, double lowerboundary, double upperboundary, bool fixed=false) ,
+\end{verbatim}
+%
+where the option \verb|fixed| indicates if the data values shuold be
+fixed to their values during the calculatiion of the $p$-value. This
+is useful, e.g., for fitting a function for fixed $x$-values. 
 
 \subsection{Output: log files}
 
