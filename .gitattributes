@@ -77,6 +77,9 @@ examples/example03/src/BCModelSignal.cxx -text
 examples/example03/src/BCModelSignal.h -text
 examples/example04/Makefile -text
 examples/example04/data/data.txt -text
+examples/example04/output/log.txt -text
+examples/example04/output/plots.ps -text
+examples/example04/output/summary.txt -text
 examples/example04/runBATexample04.c -text
 examples/example04/src/BCModelEfficiency.cxx -text
 examples/example04/src/BCModelEfficiency.h -text

@@ -1,0 +1,48 @@
+
+ ----------------------------------------------------- 
+ Summary of the Markov Chain Monte Carlo run 
+ ----------------------------------------------------- 
+
+ Model summary
+ =============
+ Model: ModelEfficiency
+ Number of parameters: 1
+ List of Parameters and ranges: 
+  (0) Parameter "epsilon": 0 - 1
+
+ Results of the marginalization
+ ==============================
+ List of parameters and properties of the marginalized
+ distributions:
+  (0) Parameter "epsilon"
+      Mean +- RMS:         0.3332 +- 0.1308
+      Median +- sigma:     0.3238 +  0.1441 - 0.1244
+      (Marginalized) mode: 0.295
+      Smallest interval(s) containing 68% and local modes: 
+       0.18 - 0.46 (local mode at 0.295 with rel. height 1; rel. area 0.6893)
+
+ Results of the optimization
+ ===========================
+ Optimization algorithm used:  Minuit
+ List of parameters and global mode: 
+  (0) Parameter "epsilon": 0.3
+
+ Results of the model test
+ =========================
+ p-value at global mode: 0.7349
+
+ Status of the MCMC
+ ==================
+ Convergence reached: yes
+ Number of iterations until convergence: 500
+ Number of chains:                       5
+ Number of iterations of each chain:     1000000
+
+ ----------------------------------------------------- 
+
+ Notes
+ =====
+ (i) Median +- sigma denotes the median, m, of the
+     marginalized distribution and the intervals from
+     m to the 16% and 84% quantiles. 
+ ----------------------------------------------------- 

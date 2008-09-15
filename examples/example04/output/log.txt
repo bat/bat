@@ -1,0 +1,58 @@
+ +------------------------------
+ |
+ |     Running with BAT
+ |      Version cvs
+ |
+ | http://www.mppmu.mpg.de/bat
+ +------------------------------
+Summary : Opening logfile output/log.txt
+Summary : Model 'ModelEfficiency': Finding mode
+Summary : Pre-run Metropolis MCMC.
+Detail  :  --> No PCA run.
+Detail  :  --> Perform MCMC run with 5 chains each with 1000000 iterations maximum.
+Detail  :  -> Iteration 2001
+Detail  :  --> R-Value for parameter 0 is 1.000076. 
+Detail  :  --> R-Value for log-likelihood is 1.000197. 
+Summary :  --> Set of 5 Markov chains converged within 500 iterations. 
+Summary :  --> Markov chains ran for 2001 iterations. 
+Detail  :  --> Average efficiency for parameter 0: 41.15%. 
+Detail  :  --> Average scale factor for parameter 0: 100.00%. 
+Summary : Run Metropolis MCMC.
+Detail  :  --> Perform MCMC run with 5 chains each with 100000 iterations.
+Detail  :  --> iteration number 10000 (10.00%)
+Detail  :  --> iteration number 20000 (20.00%)
+Detail  :  --> iteration number 30000 (30.00%)
+Detail  :  --> iteration number 40000 (40.00%)
+Detail  :  --> iteration number 50000 (50.00%)
+Detail  :  --> iteration number 60000 (60.00%)
+Detail  :  --> iteration number 70000 (70.00%)
+Detail  :  --> iteration number 80000 (80.00%)
+Detail  :  --> iteration number 90000 (90.00%)
+Detail  :  --> iteration number 100000 (100.00%)
+Summary :  --> Markov chains ran for 100000 iterations. 
+Detail  :  --> Global mode of parameter 0: 0.30 with abs. num. precision 0.00e+00
+Summary : Do goodness-of-fit-test
+Summary : Pre-run Metropolis MCMC.
+Detail  :  --> No PCA run.
+Detail  :  --> Perform MCMC run with 5 chains each with 100000 iterations maximum.
+Detail  :  -> Iteration 2001
+Detail  :  --> R-Value for parameter 0 is 0.999902. 
+Detail  :  --> R-Value for log-likelihood is 1.000042. 
+Summary :  --> Set of 5 Markov chains converged within 500 iterations. 
+Summary :  --> Markov chains ran for 2001 iterations. 
+Detail  :  --> Average efficiency for parameter 0: 45.44%. 
+Detail  :  --> Average scale factor for parameter 0: 100.00%. 
+Summary : Run Metropolis MCMC.
+Detail  :  --> Perform MCMC run with 5 chains each with 10000 iterations.
+Detail  :  --> iteration number 1000 (10.00%)
+Detail  :  --> iteration number 2000 (20.00%)
+Detail  :  --> iteration number 3000 (30.00%)
+Detail  :  --> iteration number 4000 (40.00%)
+Detail  :  --> iteration number 5000 (50.00%)
+Detail  :  --> iteration number 6000 (60.00%)
+Detail  :  --> iteration number 7000 (70.00%)
+Detail  :  --> iteration number 8000 (80.00%)
+Detail  :  --> iteration number 9000 (90.00%)
+Detail  :  --> iteration number 10000 (100.00%)
+Summary :  --> Markov chains ran for 10000 iterations. 
+Detail  :  --> Global mode of parameter 0: 2.61 with abs. num. precision 0.00e+00
