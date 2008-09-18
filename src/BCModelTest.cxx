@@ -242,7 +242,7 @@ double BCModelTest::GetCalculatedPValue(bool flag_histogram)
 
 			// create histogram 
 			double D = fLogLikelihoodMax - fLogLikelihoodMin; 
-			fHistogramLogProb = new TH1D(Form("hist_%s_logprob", this -> GetName().data()), ";N;log(prob)", 100, fLogLikelihoodMin - 0.1*D, fLogLikelihoodMax + 0.1*D); 
+			fHistogramLogProb = new TH1D(Form("hist_%s_logprob", this -> GetName().data()), ";ln(prob);N", 100, fLogLikelihoodMin - 0.1*D, fLogLikelihoodMax + 0.1*D); 
 			fHistogramLogProb -> SetStats(kFALSE); 
 		}
 	else
