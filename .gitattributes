@@ -39,10 +39,10 @@ doc/releasenotes.txt -text
 examples/README -text
 examples/example01/CreateData.c -text
 examples/example01/Makefile -text
-examples/example01/output/fit.ps -text
-examples/example01/output/log.txt -text
-examples/example01/output/plots.ps -text
-examples/example01/output/summary.txt -text
+examples/example01/output/fit_benchmark.ps -text
+examples/example01/output/log_benchmark.txt -text
+examples/example01/output/plots_benchmark.ps -text
+examples/example01/output/summary_benchmark.txt -text
 examples/example01/runBATexample01.c -text
 examples/example01/src/BCModelPol1.cxx -text
 examples/example01/src/BCModelPol1.h -text
