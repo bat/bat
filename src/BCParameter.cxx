@@ -104,6 +104,9 @@ void BCParameter::Copy(BCParameter & parameter) const
 bool BCParameter::IsAtLimit(double value)
 {
 
+	if (fLowerLimit == fUpperLimit)
+		return false; 
+
 	if ( ( (value-fLowerLimit)*(value-fLowerLimit)/fLowerLimit/fLowerLimit <= 1e-10) || 
 			 ( (value-fUpperLimit)*(value-fUpperLimit)/fUpperLimit/fUpperLimit <= 1e-10))
 		return true; 

@@ -1324,7 +1324,7 @@ void BCIntegrate::FindModeMinuit()
 											fMin[i],
 											fMax[i], 
 											flag); 
-	
+
 	// do minimization 
 	fMinuit -> mnexcm("MIGRAD", fMinuitArglist, 2, flag);
 
@@ -1372,10 +1372,11 @@ void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double *
 {
 
 	// copy parameters 
-
 	std::vector <double> parameters; 
 
-	for (int i = 0; i < npar; i++)
+	int n = global_this -> GetNvar(); 
+
+	for (int i = 0; i < n; i++)
 		parameters.push_back(par[i]); 
 
 	fval = - global_this -> LogEval(parameters); 
