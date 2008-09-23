@@ -1124,10 +1124,14 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 			BCParameter * a = this->GetParameter(i);
 			BCParameter * b = this->GetParameter(j);
 			
-			if (a -> GetLowerLimit() == a -> GetUpperLimit())
+			double meana = (a -> GetLowerLimit() + a -> GetUpperLimit()) / 2.0;
+			double deltaa = (a -> GetUpperLimit() - a -> GetLowerLimit()); 
+			if (deltaa <= 1e-7 * meana)
 				continue; 
 
-			if (b -> GetLowerLimit() == b -> GetUpperLimit())
+			double meanb = (b -> GetLowerLimit() + b -> GetUpperLimit()) / 2.0;
+			double deltab = (b -> GetUpperLimit() - b -> GetLowerLimit()); 
+			if (deltab <= 1e-7 * meanb)
 				continue; 
 
 			this -> GetMarginalized(a,b) -> Print(Form("%s_2D_%s_%s.ps",filebase,a->GetName().data(),b->GetName().data()));
@@ -1211,7 +1215,7 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 	{
 		for(int j=i+1;j<n2d;j++)
 		{
-			// if current page is full, swith to new page
+			// if current page is full, switch to new page
 			if(k!=0 && k%(hdiv*vdiv)==0)
 			{
 				c->Update();
@@ -1226,6 +1230,17 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 
 			BCParameter * a = this->GetParameter(i);
 			BCParameter * b = this->GetParameter(j);
+
+			double meana = (a -> GetLowerLimit() + a -> GetUpperLimit()) / 2.0;
+			double deltaa = (a -> GetUpperLimit() - a -> GetLowerLimit()); 
+			if (deltaa <= 1e-7 * meana)
+				continue; 
+
+			double meanb = (b -> GetLowerLimit() + b -> GetUpperLimit()) / 2.0;
+			double deltab = (b -> GetUpperLimit() - b -> GetLowerLimit()); 
+			if (deltab <= 1e-7 * meanb)
+				continue; 
+
 			this -> GetMarginalized(a,b) -> Draw(52);
 			k++;
 		}
