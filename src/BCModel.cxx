@@ -1123,6 +1123,13 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 		{
 			BCParameter * a = this->GetParameter(i);
 			BCParameter * b = this->GetParameter(j);
+			
+			if (a -> GetLowerLimit() == a -> GetUpperLimit())
+				continue; 
+
+			if (b -> GetLowerLimit() == b -> GetUpperLimit())
+				continue; 
+
 			this -> GetMarginalized(a,b) -> Print(Form("%s_2D_%s_%s.ps",filebase,a->GetName().data(),b->GetName().data()));
 			k++;
 		}
