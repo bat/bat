@@ -35,6 +35,9 @@ CUBA:
    make the use of CUBA optional but for the moment it has to be installed
    on your system if you want to compile BAT.
 
+   Note: To compile CUBA libraries use command make lib instead of plain
+         make since it tries to compile MathLink executables and fails if
+         MathLink is not installed on the system.
 
 Installation Procedure
 ----------------------
@@ -55,12 +58,14 @@ Enter the directory and run the compilation using commands
 After a successful compilation a file called libBAT.so will be created
 which is a shared library.
 
-To complete the installation you have to put the library as well as the
-include files into the location accessible to the compiler on your system.
-The simplest way is to add the options -L/bat/library/location/path/ and
--I/bat/include/location/path/ to the gcc compiler commands during
-compilation (or to your makefile). More permanent solution is to
-make the the location of library/includes available to the system via setting
+To be able to compile and run with BAT you have to put the library as
+well as the include files into the location accessible to your system.
+For compilation it is enough to add the options -L/bat/library/location/path/
+and -I/bat/include/location/path/ to the gcc compiler commands in your
+makefile. To run with BAT you have to place the libBAT.so to the directory
+where you system searches for shared libraries. You can also setup your
+environmental variables to add the location of the library to the search
+path of your system via setting:
 
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bat/lib/location/path/
     export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/bat/inc/location/path/
@@ -70,7 +75,8 @@ or
     setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:/bat/lib/location/path/
     setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:/bat/inc/location/path/
 
-for bash and csh compatible shells, respectively.
+for bash and csh compatible shells, respectively. The second line adds the
+location of BAT header files to the standard compiler search path.
 
 In the future we plan to automatize the whole installation process, possibly
 using autoconf/automake tools.
