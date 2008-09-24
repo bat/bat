@@ -1,20 +1,20 @@
 /*!
  * \namespace BCMath
- * \brief Some useful mathematic functions. 
+ * \brief Some useful mathematic functions.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \version 1.0
  * \date 08.2008
  * \detail A namespace which encapsulates some mathematical functions
  * necessary for BAT.
- */ 
+ */
 
 /*
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
- * All rights reserved. 
- * 
- * For the licensing terms see doc/COPYING. 
- */ 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
 
 // ---------------------------------------------------------
 
@@ -22,6 +22,8 @@
 #define __BCMATH__H
 
 #include <math.h>
+
+#define BCMATH_NFACT_ALIMIT 20
 
 // ---------------------------------------------------------
 
@@ -43,7 +45,7 @@ namespace BCMath
 
 	/**
 	 * Calculates Binomial probability using approximations for
-	 * factorial calculations if calculation for number greater than 100
+	 * factorial calculations if calculation for number greater than 20
 	 * required using the BCMath::ApproxLogFact function.
 	 */
 	double ApproxBinomial(int n, int k, double p);
@@ -51,7 +53,7 @@ namespace BCMath
 	/**
 	 * Calculates natural logarithm of the Binomial probability using
 	 * approximations for factorial calculations if calculation for
-	 * number greater than 100 required using the BCMath::ApproxLogFact
+	 * number greater than 20 required using the BCMath::ApproxLogFact
 	 * function.
 	 */
 	double LogApproxBinomial(int n, int k, double p);
@@ -59,7 +61,7 @@ namespace BCMath
 	/**
 	 * Calculates natural logarithm of the Binomial factor "n over k"
 	 * using approximations for factorial calculations if calculation
-	 * for number greater than 100 required using the
+	 * for number greater than 20 required using the
 	 * BCMath::ApproxLogFact function.  Even for large numbers the
 	 * calculation is performed precisely, if n-k < 5
 	 */
@@ -67,8 +69,9 @@ namespace BCMath
 
 	/**
 	 * Calculates natural logarithm of the n-factorial (n!) using
-	 * approximation log(n!) = n*log(n) - n + .5*log(2*pi*n) -1/(12*x)
-	 * if n > 100.  If n<=100 it uses BCMath::LogFact to calculate it
+	 * Srinivasa Ramanujan approximation
+	 * log(n!) = n*log(n) - n + log(n*(1.+4.*n*(1.+2.*n)))/6. + log(PI)/2.
+	 * if n > 20.  If n <= 20 it uses BCMath::LogFact to calculate it
 	 * exactly.
 	 */
 	double ApproxLogFact(double x);
@@ -83,43 +86,43 @@ namespace BCMath
 	 */
 	double LogFact(int n);
 
-	/** 
+	/**
 	 * Returns the "greater or equal" of two numbers
-	 */ 
+	 */
 	inline int Max(int x, int y)
-	{ return x >= y ? x : y; }
+		{ return x >= y ? x : y; }
 
 	inline double Max(double x, double y)
-	{ return x >= y ? x : y; }
+		{ return x >= y ? x : y; }
 
-	/** 
+	/**
 	 * Returns the "less or equal" of two numbers
 	 */
 	inline int Min(int x, int y)
-	{ return x <= y ? x : y; }
+		{ return x <= y ? x : y; }
 
 	inline double Min(double x, double y)
 	{ return x <= y ? x : y; }
 
-	/** 
-	 * Returns the nearest integer of a double number. 
-	 */ 
-	int Nint(double x); 
+	/**
+	 * Returns the nearest integer of a double number.
+	 */
+	int Nint(double x);
 
-	/** 
-	 * Returns the rms of an array.  
-	 */ 
+	/**
+	 * Returns the rms of an array.
+	 */
 	double rms(int n, const double * a);
 
 	/*
 	 * Calculates the logarithm of the non-relativistic Breit-Wigner
-	 * distribution. 
+	 * distribution.
 	 */
-	double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm = false); 
+	double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm = false);
 
 };
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #endif
 

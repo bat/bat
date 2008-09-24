@@ -9,8 +9,8 @@
 extern "C" {
 #endif
 
-  typedef void (*integrand_t)(const int *, const double [],
-			      const int *, double []); 
+typedef void (*integrand_t)(const int *, const double [],
+  const int *, double []);
 
 /* Note: Divonne actually passes a fifth argument, a const int *
    which points to the integration phase.  This is used only rarely
