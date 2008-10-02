@@ -27,7 +27,7 @@
  * or
  *    root[1] .x CreateData("data01.txt")
  * or
- *    root [1] .L CreateData.c
+ *    root[1] .L CreateData.c
  *    root[2] CreateData("data01.txt"")
  */
 
