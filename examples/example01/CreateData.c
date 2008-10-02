@@ -8,9 +8,30 @@
  * function (par0, par1), spread of the gausian (sigmay), the
  * range of x-values of the dataset (xmin, xmax) as well as
  * the number of points in the dataset (npoints)
+ *
+ * The random seed for the generation (RandomSeed) of the data
+ * has to be set to 0 if you want to generate different datasets.
+ * Otherwise always the same dataset will be generated.
+ *
+ * You can invoke this macro from the command line by calling
+ *    $ root -l CreateData.c
+ * and from  within ROOT by calling
+ *    root[1] .x CreateData.c
+ * or
+ *    root[1] .L CreateData.c
+ *    root[2] CreateData()
+ *
+ * To store the data to a different file then the default,
+ * you can call
+ *    $ root -l 'CreateData.c("data01.txt")'
+ * or
+ *    root[1] .x CreateData("data01.txt")
+ * or
+ *    root [1] .L CreateData.c
+ *    root[2] CreateData("data01.txt"")
  */
 
-void CreateData()
+void CreateData(const char * fname = "./data/data.txt")
 {
 	// parameters
 	int npoints = 10; // number of data points
@@ -22,19 +43,31 @@ void CreateData()
 	float xmin = 0.;
 	float xmax = 100.;
 
+	// random seed
+	int RandomSeed = 1000;
+
+	cout <<
+		"Generating dataset function   f(x) = ax + b" << endl <<
+		" - Range of x-values:      " << xmin << " < x < " << xmax << endl <<
+		" - Number of data points:  " << npoints << endl <<
+		" - Parameter a:            " << par1 << endl <<
+		" - Paramerer b:            " << par0 << endl <<
+		" - Uncertainty:            " << sigmay << endl;
+
+
 	// initialize random number generator
-	TRandom3 * fRandom = new TRandom3(1000);
+	TRandom3 * fRandom = new TRandom3(RandomSeed);
 
 	// open file
-	std::fstream file_data;
+	fstream file_data;
 	char filename[200];
-	file_data.open("./data/data.txt", std::fstream::out);
+	file_data.open(fname, std::fstream::out);
 
 	// loop over points
 	for (int i = 0; i < npoints; i++)
 	{
 		// get x value
-		float x = (xmax - xmin) / float(npoints) * (float(i) + 0.5);
+		float x = (xmax - xmin) / float(npoints) * (float(i) + .5);
 
 		// get y value
 		float mean = par0 + par1 * x;
@@ -44,9 +77,12 @@ void CreateData()
 		file_data << x << " " << y << " " << sigmay;
 
 		if (i < npoints - 1)
-			file_data << std::endl;
+			file_data << endl;
 	}
 
 	// close file
 	file_data.close();
+
+	cout << "Data have been recorded to file  " << fname << endl;
+
 }
