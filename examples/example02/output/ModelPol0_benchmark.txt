@@ -1,7 +1,7 @@
 
- ----------------------------------------------------- 
- Summary of the Markov Chain Monte Carlo run 
- ----------------------------------------------------- 
+ -----------------------------------------------------
+ Summary of the Markov Chain Monte Carlo run
+ -----------------------------------------------------
 
  Model summary
  =============
@@ -15,17 +15,17 @@
  List of parameters and properties of the marginalized
  distributions:
   (0) Parameter "constant"
-      Mean +- RMS:         1.988 +- 0.06338
-      Median +- sigma:     1.988 +  0.0662 - 0.0639
-      (Marginalized) mode: 1.98
+      Mean +- RMS:         1.878 +- 0.06308
+      Median +- sigma:     1.878 +  0.06591 - 0.0651
+      (Marginalized) mode: 1.86
       Smallest interval(s) containing 68% and local modes: 
-       1.92 - 2.12 (local mode at 1.98 with rel. height 1; rel. area 0.7861)
+       1.8 - 2 (local mode at 1.86 with rel. height 1; rel. area 0.7961)
 
  Results of the optimization
  ===========================
  Optimization algorithm used:  Minuit
  List of parameters and global mode: 
-  (0) Parameter "constant": 1.988
+  (0) Parameter "constant": 1.878
 
  Results of the model test
  =========================
@@ -38,11 +38,11 @@
  Number of chains:                       5
  Number of iterations of each chain:     1000000
 
- ----------------------------------------------------- 
+ -----------------------------------------------------
 
  Notes
  =====
  (i) Median +- sigma denotes the median, m, of the
      marginalized distribution and the intervals from
      m to the 16% and 84% quantiles. 
- ----------------------------------------------------- 
+ -----------------------------------------------------

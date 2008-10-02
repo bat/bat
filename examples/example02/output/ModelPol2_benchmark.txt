@@ -1,7 +1,7 @@
 
- ----------------------------------------------------- 
- Summary of the Markov Chain Monte Carlo run 
- ----------------------------------------------------- 
+ -----------------------------------------------------
+ Summary of the Markov Chain Monte Carlo run
+ -----------------------------------------------------
 
  Model summary
  =============
@@ -17,48 +17,48 @@
  List of parameters and properties of the marginalized
  distributions:
   (0) Parameter "constant"
-      Mean +- RMS:         0.9068 +- 0.1885
-      Median +- sigma:     0.9071 +  0.1883 - 0.1904
-      (Marginalized) mode: 0.9
+      Mean +- RMS:         0.8762 +- 0.1899
+      Median +- sigma:     0.8759 +  0.1924 - 0.1916
+      (Marginalized) mode: 0.86
       Smallest interval(s) containing 68% and local modes: 
-       0.72 - 1.16 (local mode at 0.9 with rel. height 1; rel. area 0.7076)
+       0.68 - 1.12 (local mode at 0.86 with rel. height 1; rel. area 0.7022)
   (1) Parameter "slope"
-      Mean +- RMS:         0.005125 +- 0.008663
-      Median +- sigma:     0.005093 +  0.008872 - 0.008608
-      (Marginalized) mode: 0.0045
+      Mean +- RMS:         0.001523 +- 0.008746
+      Median +- sigma:     0.001569 +  0.008988 - 0.009059
+      (Marginalized) mode: -0.0005
       Smallest interval(s) containing 68% and local modes: 
-       -0.004 - 0.015 (local mode at 0.0045 with rel. height 1; rel. area 0.6947)
+       -0.008 - 0.012 (local mode at -0.0005 with rel. height 1; rel. area 0.7068)
   (2) Parameter "quadratic"
-      Mean +- RMS:         0.0002483 +- 8.391e-05
-      Median +- sigma:     0.0002493 +  8.935e-05 - 8.751e-05
+      Mean +- RMS:         0.0002785 +- 8.481e-05
+      Median +- sigma:     0.0002783 +  9.458e-05 - 9.39e-05
       (Marginalized) mode: 0.00028
       Smallest interval(s) containing 68% and local modes: 
-       0.00016 - 0.00048 (local mode at 0.00028 with rel. height 1; rel. area 0.8109)
+       0.00016 - 0.00048 (local mode at 0.00028 with rel. height 1; rel. area 0.8387)
 
  Results of the optimization
  ===========================
  Optimization algorithm used:  Minuit
  List of parameters and global mode: 
-  (0) Parameter "constant": 0.8951
-  (1) Parameter "slope": 0.005618
-  (2) Parameter "quadratic": 0.0002441
+  (0) Parameter "constant": 0.8774
+  (1) Parameter "slope": 0.00156
+  (2) Parameter "quadratic": 0.0002781
 
  Results of the model test
  =========================
- p-value at global mode: 0.9797
+ p-value at global mode: 0.704
 
  Status of the MCMC
  ==================
  Convergence reached: yes
- Number of iterations until convergence: 499
+ Number of iterations until convergence: 545
  Number of chains:                       5
  Number of iterations of each chain:     1000000
 
- ----------------------------------------------------- 
+ -----------------------------------------------------
 
  Notes
  =====
  (i) Median +- sigma denotes the median, m, of the
      marginalized distribution and the intervals from
      m to the 16% and 84% quantiles. 
- ----------------------------------------------------- 
+ -----------------------------------------------------

@@ -1,7 +1,7 @@
 
- ----------------------------------------------------- 
- Summary of the Markov Chain Monte Carlo run 
- ----------------------------------------------------- 
+ -----------------------------------------------------
+ Summary of the Markov Chain Monte Carlo run
+ -----------------------------------------------------
 
  Model summary
  =============
@@ -16,28 +16,28 @@
  List of parameters and properties of the marginalized
  distributions:
   (0) Parameter "constant"
-      Mean +- RMS:         0.5039 +- 0.1211
-      Median +- sigma:     0.5035 +  0.1221 - 0.1203
-      (Marginalized) mode: 0.5
+      Mean +- RMS:         0.4263 +- 0.1216
+      Median +- sigma:     0.4265 +  0.1214 - 0.1225
+      (Marginalized) mode: 0.42
       Smallest interval(s) containing 68% and local modes: 
-       0.36 - 0.68 (local mode at 0.5 with rel. height 1; rel. area 0.7543)
+       0.28 - 0.6 (local mode at 0.42 with rel. height 1; rel. area 0.7504)
   (1) Parameter "slope"
-      Mean +- RMS:         0.02973 +- 0.002098
-      Median +- sigma:     0.02974 +  0.002061 - 0.002111
-      (Marginalized) mode: 0.0298
+      Mean +- RMS:         0.0291 +- 0.002115
+      Median +- sigma:     0.02912 +  0.00208 - 0.002134
+      (Marginalized) mode: 0.0294
       Smallest interval(s) containing 68% and local modes: 
-       0.0276 - 0.0324 (local mode at 0.0298 with rel. height 1; rel. area 0.7066)
+       0.0268 - 0.0316 (local mode at 0.0294 with rel. height 1; rel. area 0.7012)
 
  Results of the optimization
  ===========================
  Optimization algorithm used:  Minuit
  List of parameters and global mode: 
-  (0) Parameter "constant": 0.4895
-  (1) Parameter "slope": 0.02998
+  (0) Parameter "constant": 0.4093
+  (1) Parameter "slope": 0.02938
 
  Results of the model test
  =========================
- p-value at global mode: 0.3533
+ p-value at global mode: 0.06506
 
  Status of the MCMC
  ==================
@@ -46,11 +46,11 @@
  Number of chains:                       5
  Number of iterations of each chain:     1000000
 
- ----------------------------------------------------- 
+ -----------------------------------------------------
 
  Notes
  =====
  (i) Median +- sigma denotes the median, m, of the
      marginalized distribution and the intervals from
      m to the 16% and 84% quantiles. 
- ----------------------------------------------------- 
+ -----------------------------------------------------

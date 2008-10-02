@@ -5,7 +5,7 @@
  |
  | http://www.mppmu.mpg.de/bat
  +------------------------------
-Summary : Opening logfile output/log.txt
+Summary : Opening logfile log.txt
 Summary : Model 'ModelPol0': Finding mode
 Summary : Model 'ModelPol1': Finding mode
 Summary : Model 'ModelPol2': Finding mode
@@ -13,35 +13,35 @@ Summary : Pre-run Metropolis MCMC.
 Detail  :  --> No PCA run.
 Detail  :  --> Perform MCMC run with 5 chains each with 1000000 iterations maximum.
 Detail  :  -> Iteration 2001
-Detail  :  --> R-Value for parameter 0 is 0.999777. 
+Detail  :  --> R-Value for parameter 0 is 0.999767. 
 Detail  :  --> R-Value for log-likelihood is 0.999751. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.65%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.35%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.40%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.10%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 6.10%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.70%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.75%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.45%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.25%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.10%) in chain 4. Set scale to 50.00%. 
 Detail  :  -> Iteration 4001
-Detail  :  --> R-Value for parameter 0 is 0.999841. 
-Detail  :  --> R-Value for log-likelihood is 0.999751. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.70%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.80%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.25%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.25%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.00%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 0.999760. 
+Detail  :  --> R-Value for log-likelihood is 0.999753. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.15%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.65%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 6.20%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.85%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.05%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 6001
-Detail  :  --> R-Value for parameter 0 is 0.999888. 
-Detail  :  --> R-Value for log-likelihood is 0.999752. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 11.50%) in chain 0. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.95%) in chain 1. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 9.30%) in chain 2. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.05%) in chain 3. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 9.60%) in chain 4. Set scale to 12.50%. 
+Detail  :  --> R-Value for parameter 0 is 1.000010. 
+Detail  :  --> R-Value for log-likelihood is 0.999751. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.60%) in chain 0. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.85%) in chain 1. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.05%) in chain 2. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.40%) in chain 3. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.75%) in chain 4. Set scale to 12.50%. 
 Detail  :  -> Iteration 8001
-Detail  :  --> R-Value for parameter 0 is 0.999931. 
-Detail  :  --> R-Value for log-likelihood is 0.999750. 
+Detail  :  --> R-Value for parameter 0 is 0.999898. 
+Detail  :  --> R-Value for log-likelihood is 0.999751. 
 Summary :  --> Set of 5 Markov chains converged within 6501 iterations. 
 Summary :  --> Markov chains ran for 8001 iterations. 
-Detail  :  --> Average efficiency for parameter 0: 20.17%. 
+Detail  :  --> Average efficiency for parameter 0: 20.13%. 
 Detail  :  --> Average scale factor for parameter 0: 12.50%. 
 Summary : Run Metropolis MCMC.
 Detail  :  --> Perform MCMC run with 5 chains each with 100000 iterations.
@@ -56,55 +56,59 @@ Detail  :  --> iteration number 80000 (80.00%)
 Detail  :  --> iteration number 90000 (90.00%)
 Detail  :  --> iteration number 100000 (100.00%)
 Summary :  --> Markov chains ran for 100000 iterations. 
-Detail  :  --> Global mode of parameter 0: 1.99 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 0: 1.88 with abs. num. precision 0.00e+00
 Summary : Pre-run Metropolis MCMC.
 Detail  :  --> No PCA run.
 Detail  :  --> Perform MCMC run with 5 chains each with 1000000 iterations maximum.
 Detail  :  -> Iteration 3001
-Detail  :  --> R-Value for parameter 0 is 1.047212. 
-Detail  :  --> R-Value for parameter 1 is 1.010454. 
-Detail  :  --> R-Value for log-likelihood is 1.003218. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.00%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.30%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.53%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 8.80%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.40%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.90%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.83%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 9.33%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.63%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 8.20%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.021677. 
+Detail  :  --> R-Value for parameter 1 is 1.004729. 
+Detail  :  --> R-Value for log-likelihood is 1.020535. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.06%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 9.06%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.13%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 9.63%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.53%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 8.60%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.30%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 9.96%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.73%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 9.36%) in chain 4. Set scale to 50.00%. 
 Detail  :  -> Iteration 6001
-Detail  :  --> R-Value for parameter 0 is 1.023755. 
-Detail  :  --> R-Value for parameter 1 is 1.021212. 
-Detail  :  --> R-Value for log-likelihood is 1.026465. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.67%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.90%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.83%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.30%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.23%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.07%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.80%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.80%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.20%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.90%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.081672. 
+Detail  :  --> R-Value for parameter 1 is 1.065978. 
+Detail  :  --> R-Value for log-likelihood is 1.015404. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.47%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 9.77%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.27%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.57%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.37%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.67%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.97%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.20%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 8.03%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 11.20%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 9001
-Detail  :  --> R-Value for parameter 0 is 1.012555. 
-Detail  :  --> R-Value for parameter 1 is 1.009860. 
-Detail  :  --> R-Value for log-likelihood is 1.006230. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.70%) in chain 0. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.97%) in chain 1. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.60%) in chain 2. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.53%) in chain 3. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.33%) in chain 4. Set scale to 12.50%. 
+Detail  :  --> R-Value for parameter 0 is 1.015525. 
+Detail  :  --> R-Value for parameter 1 is 1.018363. 
+Detail  :  --> R-Value for log-likelihood is 1.000352. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.80%) in chain 0. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.67%) in chain 2. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.20%) in chain 3. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.73%) in chain 4. Set scale to 12.50%. 
 Detail  :  -> Iteration 12001
-Detail  :  --> R-Value for parameter 0 is 1.008528. 
-Detail  :  --> R-Value for parameter 1 is 1.008757. 
-Detail  :  --> R-Value for log-likelihood is 1.000833. 
-Summary :  --> Set of 5 Markov chains converged within 9500 iterations. 
-Summary :  --> Markov chains ran for 12001 iterations. 
-Detail  :  --> Average efficiency for parameter 0: 21.09%. 
-Detail  :  --> Average efficiency for parameter 1: 18.02%. 
+Detail  :  --> R-Value for parameter 0 is 1.012899. 
+Detail  :  --> R-Value for parameter 1 is 1.013645. 
+Detail  :  --> R-Value for log-likelihood is 1.003482. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.23%) in chain 1. Set scale to 12.50%. 
+Detail  :  -> Iteration 15001
+Detail  :  --> R-Value for parameter 0 is 1.008765. 
+Detail  :  --> R-Value for parameter 1 is 1.010632. 
+Detail  :  --> R-Value for log-likelihood is 1.004402. 
+Summary :  --> Set of 5 Markov chains converged within 12500 iterations. 
+Summary :  --> Markov chains ran for 15001 iterations. 
+Detail  :  --> Average efficiency for parameter 0: 21.87%. 
+Detail  :  --> Average efficiency for parameter 1: 18.25%. 
 Detail  :  --> Average scale factor for parameter 0: 12.50%. 
 Detail  :  --> Average scale factor for parameter 1: 25.00%. 
 Summary : Run Metropolis MCMC.
@@ -120,116 +124,116 @@ Detail  :  --> iteration number 80000 (80.00%)
 Detail  :  --> iteration number 90000 (90.00%)
 Detail  :  --> iteration number 100000 (100.00%)
 Summary :  --> Markov chains ran for 100000 iterations. 
-Detail  :  --> Global mode of parameter 0: 0.49 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 0: 0.41 with abs. num. precision 0.00e+00
 Detail  :  --> Global mode of parameter 1: 0.03 with abs. num. precision 0.00e+00
 Summary : Pre-run Metropolis MCMC.
 Detail  :  --> No PCA run.
 Detail  :  --> Perform MCMC run with 5 chains each with 1000000 iterations maximum.
 Detail  :  -> Iteration 4001
-Detail  :  --> R-Value for parameter 0 is 1.453343. 
-Detail  :  --> R-Value for parameter 1 is 1.720707. 
-Detail  :  --> R-Value for parameter 2 is 1.633820. 
-Detail  :  --> R-Value for log-likelihood is 1.375663. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.67%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 4.15%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.77%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.75%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.50%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.77%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.92%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.37%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.72%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.80%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.22%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.47%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.17%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.30%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.05%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> R-Value for parameter 0 is 2.733980. 
+Detail  :  --> R-Value for parameter 1 is 4.333682. 
+Detail  :  --> R-Value for parameter 2 is 3.994896. 
+Detail  :  --> R-Value for log-likelihood is 3.021020. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.37%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.90%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.75%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 4.97%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.45%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.50%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.50%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.57%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.57%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.30%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.25%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.62%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 5.27%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.35%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.65%) in chain 4. Set scale to 50.00%. 
 Detail  :  -> Iteration 8001
-Detail  :  --> R-Value for parameter 0 is 1.243136. 
-Detail  :  --> R-Value for parameter 1 is 1.377026. 
-Detail  :  --> R-Value for parameter 2 is 1.327915. 
-Detail  :  --> R-Value for log-likelihood is 1.031054. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 6.93%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.80%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.78%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 6.83%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.70%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.03%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.27%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 4.00%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.10%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.32%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.95%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.90%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 6.75%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 4.00%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.12%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.884074. 
+Detail  :  --> R-Value for parameter 1 is 2.535570. 
+Detail  :  --> R-Value for parameter 2 is 2.480107. 
+Detail  :  --> R-Value for log-likelihood is 1.352266. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.12%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 4.32%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.00%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 6.15%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 5.03%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.07%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.42%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.60%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.43%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.83%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.75%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.83%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 7.15%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 3.15%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 0.97%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 12001
-Detail  :  --> R-Value for parameter 0 is 1.502460. 
-Detail  :  --> R-Value for parameter 1 is 1.904450. 
-Detail  :  --> R-Value for parameter 2 is 1.873320. 
-Detail  :  --> R-Value for log-likelihood is 1.260494. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.75%) in chain 0. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.30%) in chain 0. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.62%) in chain 0. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.03%) in chain 1. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 6.68%) in chain 1. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.85%) in chain 1. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.67%) in chain 2. Set scale to 12.50%. 
+Detail  :  --> R-Value for parameter 0 is 1.350011. 
+Detail  :  --> R-Value for parameter 1 is 2.118612. 
+Detail  :  --> R-Value for parameter 2 is 2.347308. 
+Detail  :  --> R-Value for log-likelihood is 1.499075. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.05%) in chain 0. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.25%) in chain 0. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.55%) in chain 0. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 11.18%) in chain 1. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.52%) in chain 1. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.88%) in chain 1. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.05%) in chain 2. Set scale to 12.50%. 
 Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 6.98%) in chain 2. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.82%) in chain 2. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.45%) in chain 3. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.20%) in chain 3. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.93%) in chain 3. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.82%) in chain 4. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 6.45%) in chain 4. Set scale to 12.50%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.60%) in chain 4. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.95%) in chain 2. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.82%) in chain 3. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.05%) in chain 3. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 1.88%) in chain 3. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 10.35%) in chain 4. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 7.10%) in chain 4. Set scale to 12.50%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 2.05%) in chain 4. Set scale to 12.50%. 
 Detail  :  -> Iteration 16001
-Detail  :  --> R-Value for parameter 0 is 1.119507. 
-Detail  :  --> R-Value for parameter 1 is 1.192359. 
-Detail  :  --> R-Value for parameter 2 is 1.189964. 
-Detail  :  --> R-Value for log-likelihood is 1.023944. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.90%) in chain 0. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.55%) in chain 0. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.97%) in chain 1. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.57%) in chain 1. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.27%) in chain 2. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.33%) in chain 2. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.98%) in chain 3. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.48%) in chain 3. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.55%) in chain 4. Set scale to 6.25%. 
+Detail  :  --> R-Value for parameter 0 is 1.366699. 
+Detail  :  --> R-Value for parameter 1 is 1.673842. 
+Detail  :  --> R-Value for parameter 2 is 1.678673. 
+Detail  :  --> R-Value for log-likelihood is 1.043619. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.42%) in chain 0. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.88%) in chain 0. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.48%) in chain 1. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.25%) in chain 1. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.20%) in chain 2. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.50%) in chain 2. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.40%) in chain 3. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 2.97%) in chain 3. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.03%) in chain 4. Set scale to 6.25%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 3.43%) in chain 4. Set scale to 6.25%. 
 Detail  :  -> Iteration 20001
-Detail  :  --> R-Value for parameter 0 is 1.272082. 
-Detail  :  --> R-Value for parameter 1 is 1.469994. 
-Detail  :  --> R-Value for parameter 2 is 1.487262. 
-Detail  :  --> R-Value for log-likelihood is 1.018714. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 6.88%) in chain 0. Set scale to 3.12%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 6.22%) in chain 1. Set scale to 3.12%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 6.58%) in chain 2. Set scale to 3.12%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 5.90%) in chain 3. Set scale to 3.12%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.35%) in chain 4. Set scale to 6.25%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 6.12%) in chain 4. Set scale to 3.12%. 
+Detail  :  --> R-Value for parameter 0 is 1.149857. 
+Detail  :  --> R-Value for parameter 1 is 1.209700. 
+Detail  :  --> R-Value for parameter 2 is 1.208285. 
+Detail  :  --> R-Value for log-likelihood is 1.168536. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 5.70%) in chain 0. Set scale to 3.12%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 5.40%) in chain 1. Set scale to 3.12%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 6.22%) in chain 2. Set scale to 3.12%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 5.62%) in chain 3. Set scale to 3.12%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 5.75%) in chain 4. Set scale to 3.12%. 
 Detail  :  -> Iteration 24001
-Detail  :  --> R-Value for parameter 0 is 1.348664. 
-Detail  :  --> R-Value for parameter 1 is 1.557718. 
-Detail  :  --> R-Value for parameter 2 is 1.561566. 
-Detail  :  --> R-Value for log-likelihood is 1.053274. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 10.60%) in chain 0. Set scale to 1.56%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 9.78%) in chain 1. Set scale to 1.56%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 10.40%) in chain 2. Set scale to 1.56%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 10.67%) in chain 3. Set scale to 1.56%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 8.77%) in chain 4. Set scale to 1.56%. 
+Detail  :  --> R-Value for parameter 0 is 1.141498. 
+Detail  :  --> R-Value for parameter 1 is 1.230360. 
+Detail  :  --> R-Value for parameter 2 is 1.232848. 
+Detail  :  --> R-Value for log-likelihood is 1.017013. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 9.45%) in chain 0. Set scale to 1.56%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 9.90%) in chain 1. Set scale to 1.56%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 10.12%) in chain 2. Set scale to 1.56%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 8.65%) in chain 3. Set scale to 1.56%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 8.55%) in chain 4. Set scale to 1.56%. 
 Detail  :  -> Iteration 28001
-Detail  :  --> R-Value for parameter 0 is 1.097761. 
-Detail  :  --> R-Value for parameter 1 is 1.102070. 
-Detail  :  --> R-Value for parameter 2 is 1.078170. 
-Detail  :  --> R-Value for log-likelihood is 1.008994. 
-Summary :  --> Set of 5 Markov chains converged within 25790 iterations. 
+Detail  :  --> R-Value for parameter 0 is 1.174416. 
+Detail  :  --> R-Value for parameter 1 is 1.311766. 
+Detail  :  --> R-Value for parameter 2 is 1.321181. 
+Detail  :  --> R-Value for log-likelihood is 1.021988. 
+Summary :  --> Set of 5 Markov chains converged within 24580 iterations. 
 Summary :  --> Markov chains ran for 28001 iterations. 
-Detail  :  --> Average efficiency for parameter 0: 20.47%. 
-Detail  :  --> Average efficiency for parameter 1: 28.18%. 
-Detail  :  --> Average efficiency for parameter 2: 18.60%. 
+Detail  :  --> Average efficiency for parameter 0: 19.61%. 
+Detail  :  --> Average efficiency for parameter 1: 27.41%. 
+Detail  :  --> Average efficiency for parameter 2: 18.00%. 
 Detail  :  --> Average scale factor for parameter 0: 12.50%. 
 Detail  :  --> Average scale factor for parameter 1: 6.25%. 
 Detail  :  --> Average scale factor for parameter 2: 1.56%. 
@@ -246,173 +250,173 @@ Detail  :  --> iteration number 80000 (80.00%)
 Detail  :  --> iteration number 90000 (90.00%)
 Detail  :  --> iteration number 100000 (100.00%)
 Summary :  --> Markov chains ran for 100000 iterations. 
-Detail  :  --> Global mode of parameter 0: 0.90 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 1: 0.01 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 0: 0.88 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 1: 0.00 with abs. num. precision 0.00e+00
 Detail  :  --> Global mode of parameter 2: 0.00 with abs. num. precision 0.00e+00
 Summary : Do goodness-of-fit-test
 Summary : Pre-run Metropolis MCMC.
 Detail  :  --> No PCA run.
 Detail  :  --> Perform MCMC run with 5 chains each with 100000 iterations maximum.
 Detail  :  -> Iteration 11001
-Detail  :  --> R-Value for parameter 0 is 1.004544. 
-Detail  :  --> R-Value for parameter 1 is 1.001507. 
-Detail  :  --> R-Value for parameter 2 is 1.004326. 
-Detail  :  --> R-Value for parameter 3 is 1.001309. 
-Detail  :  --> R-Value for parameter 4 is 1.002196. 
-Detail  :  --> R-Value for parameter 5 is 1.003624. 
-Detail  :  --> R-Value for parameter 6 is 1.001230. 
-Detail  :  --> R-Value for parameter 7 is 1.001972. 
-Detail  :  --> R-Value for parameter 8 is 1.003489. 
-Detail  :  --> R-Value for parameter 9 is 1.003747. 
-Detail  :  --> R-Value for log-likelihood is 1.003444. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.54%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.82%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.81%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.00%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.93%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.18%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.90%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.06%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.29%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.39%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.85%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.22%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.35%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.90%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.01%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.54%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.81%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.56%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.94%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.94%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.16%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.41%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.12%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.61%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.90%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.82%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.44%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.84%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.54%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.38%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.92%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.86%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.11%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.70%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.76%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.005543. 
+Detail  :  --> R-Value for parameter 1 is 1.003758. 
+Detail  :  --> R-Value for parameter 2 is 1.002829. 
+Detail  :  --> R-Value for parameter 3 is 1.000343. 
+Detail  :  --> R-Value for parameter 4 is 1.001585. 
+Detail  :  --> R-Value for parameter 5 is 1.001086. 
+Detail  :  --> R-Value for parameter 6 is 1.001501. 
+Detail  :  --> R-Value for parameter 7 is 1.001789. 
+Detail  :  --> R-Value for parameter 8 is 1.002524. 
+Detail  :  --> R-Value for parameter 9 is 1.001034. 
+Detail  :  --> R-Value for log-likelihood is 1.004964. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.73%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.64%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.61%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.56%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.90%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.82%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.51%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.24%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.69%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.29%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.14%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.67%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.39%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.61%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.14%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.29%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.03%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.78%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.62%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.85%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.67%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.98%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.42%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.25%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.08%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.79%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.25%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.47%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.34%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.82%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.69%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.59%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.34%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.00%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.94%) in chain 3. Set scale to 50.00%. 
 Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.04%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.40%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.44%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.01%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.65%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.80%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.41%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.18%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.33%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.97%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.50%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.81%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.91%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.87%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.21%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.84%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.57%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.96%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.59%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.04%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.10%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.46%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.82%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.92%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.11%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.70%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.44%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.73%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.50%) in chain 4. Set scale to 50.00%. 
 Detail  :  -> Iteration 22001
-Detail  :  --> R-Value for parameter 0 is 1.000764. 
-Detail  :  --> R-Value for parameter 1 is 1.002499. 
-Detail  :  --> R-Value for parameter 2 is 1.001123. 
-Detail  :  --> R-Value for parameter 3 is 1.001553. 
-Detail  :  --> R-Value for parameter 4 is 1.006178. 
-Detail  :  --> R-Value for parameter 5 is 1.001454. 
-Detail  :  --> R-Value for parameter 6 is 1.001992. 
-Detail  :  --> R-Value for parameter 7 is 1.000333. 
-Detail  :  --> R-Value for parameter 8 is 1.003326. 
-Detail  :  --> R-Value for parameter 9 is 1.003934. 
-Detail  :  --> R-Value for log-likelihood is 1.002995. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.02%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.53%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.57%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.65%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.21%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.06%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.02%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.18%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.30%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.78%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.66%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.32%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.57%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.03%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.67%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.04%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.26%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.77%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.86%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.45%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.14%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.41%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.73%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.35%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.33%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.93%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.36%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.09%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.70%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.12%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.87%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.89%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.10%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.56%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.04%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.05%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.14%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.51%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.43%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.61%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.18%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.36%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.53%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.29%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.16%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.85%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.72%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.97%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.01%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.004154. 
+Detail  :  --> R-Value for parameter 1 is 1.001226. 
+Detail  :  --> R-Value for parameter 2 is 1.002749. 
+Detail  :  --> R-Value for parameter 3 is 1.000761. 
+Detail  :  --> R-Value for parameter 4 is 1.007733. 
+Detail  :  --> R-Value for parameter 5 is 1.005051. 
+Detail  :  --> R-Value for parameter 6 is 1.002026. 
+Detail  :  --> R-Value for parameter 7 is 1.000746. 
+Detail  :  --> R-Value for parameter 8 is 1.001303. 
+Detail  :  --> R-Value for parameter 9 is 1.002799. 
+Detail  :  --> R-Value for log-likelihood is 1.004878. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.92%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.40%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.26%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.21%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.95%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.59%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.39%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.10%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.71%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.79%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.71%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.05%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.47%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.60%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.72%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.77%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.74%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.50%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.41%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.75%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.65%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.54%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.90%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.58%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.98%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.84%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.89%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.55%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.45%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.82%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.35%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.71%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.45%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.52%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.75%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.51%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.09%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.86%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 14.56%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.43%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 14.35%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.36%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.90%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.66%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.18%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 14.66%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.81%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.73%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 33001
-Detail  :  --> R-Value for parameter 0 is 1.000100. 
-Detail  :  --> R-Value for parameter 1 is 1.000880. 
-Detail  :  --> R-Value for parameter 2 is 1.002064. 
-Detail  :  --> R-Value for parameter 3 is 1.000176. 
-Detail  :  --> R-Value for parameter 4 is 1.000174. 
-Detail  :  --> R-Value for parameter 5 is 1.000931. 
-Detail  :  --> R-Value for parameter 6 is 1.003059. 
-Detail  :  --> R-Value for parameter 7 is 1.001627. 
-Detail  :  --> R-Value for parameter 8 is 1.001503. 
-Detail  :  --> R-Value for parameter 9 is 1.000328. 
-Detail  :  --> R-Value for log-likelihood is 1.002635. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.25%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.001470. 
+Detail  :  --> R-Value for parameter 1 is 1.002763. 
+Detail  :  --> R-Value for parameter 2 is 1.000546. 
+Detail  :  --> R-Value for parameter 3 is 1.001583. 
+Detail  :  --> R-Value for parameter 4 is 1.002753. 
+Detail  :  --> R-Value for parameter 5 is 1.000382. 
+Detail  :  --> R-Value for parameter 6 is 1.000489. 
+Detail  :  --> R-Value for parameter 7 is 1.000536. 
+Detail  :  --> R-Value for parameter 8 is 1.000052. 
+Detail  :  --> R-Value for parameter 9 is 1.001158. 
+Detail  :  --> R-Value for log-likelihood is 1.003781. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.95%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 14.19%) in chain 2. Set scale to 25.00%. 
 Detail  :  -> Iteration 44001
-Detail  :  --> R-Value for parameter 0 is 1.000568. 
-Detail  :  --> R-Value for parameter 1 is 1.000924. 
-Detail  :  --> R-Value for parameter 2 is 1.000162. 
-Detail  :  --> R-Value for parameter 3 is 1.000609. 
-Detail  :  --> R-Value for parameter 4 is 1.001091. 
-Detail  :  --> R-Value for parameter 5 is 1.001896. 
-Detail  :  --> R-Value for parameter 6 is 1.001089. 
-Detail  :  --> R-Value for parameter 7 is 1.001599. 
-Detail  :  --> R-Value for parameter 8 is 1.000084. 
-Detail  :  --> R-Value for parameter 9 is 1.003742. 
-Detail  :  --> R-Value for log-likelihood is 1.001160. 
+Detail  :  --> R-Value for parameter 0 is 1.000899. 
+Detail  :  --> R-Value for parameter 1 is 1.001053. 
+Detail  :  --> R-Value for parameter 2 is 1.001985. 
+Detail  :  --> R-Value for parameter 3 is 1.001983. 
+Detail  :  --> R-Value for parameter 4 is 1.000188. 
+Detail  :  --> R-Value for parameter 5 is 1.002408. 
+Detail  :  --> R-Value for parameter 6 is 1.000905. 
+Detail  :  --> R-Value for parameter 7 is 1.001054. 
+Detail  :  --> R-Value for parameter 8 is 1.000602. 
+Detail  :  --> R-Value for parameter 9 is 0.999986. 
+Detail  :  --> R-Value for log-likelihood is 1.000055. 
 Summary :  --> Set of 5 Markov chains converged within 33500 iterations. 
 Summary :  --> Markov chains ran for 44001 iterations. 
-Detail  :  --> Average efficiency for parameter 0: 25.05%. 
-Detail  :  --> Average efficiency for parameter 1: 25.46%. 
-Detail  :  --> Average efficiency for parameter 2: 25.75%. 
-Detail  :  --> Average efficiency for parameter 3: 25.49%. 
-Detail  :  --> Average efficiency for parameter 4: 25.50%. 
-Detail  :  --> Average efficiency for parameter 5: 25.08%. 
-Detail  :  --> Average efficiency for parameter 6: 25.62%. 
-Detail  :  --> Average efficiency for parameter 7: 25.66%. 
-Detail  :  --> Average efficiency for parameter 8: 25.48%. 
-Detail  :  --> Average efficiency for parameter 9: 25.70%. 
+Detail  :  --> Average efficiency for parameter 0: 25.47%. 
+Detail  :  --> Average efficiency for parameter 1: 25.60%. 
+Detail  :  --> Average efficiency for parameter 2: 25.74%. 
+Detail  :  --> Average efficiency for parameter 3: 25.93%. 
+Detail  :  --> Average efficiency for parameter 4: 25.36%. 
+Detail  :  --> Average efficiency for parameter 5: 25.58%. 
+Detail  :  --> Average efficiency for parameter 6: 25.47%. 
+Detail  :  --> Average efficiency for parameter 7: 25.45%. 
+Detail  :  --> Average efficiency for parameter 8: 25.63%. 
+Detail  :  --> Average efficiency for parameter 9: 25.48%. 
 Detail  :  --> Average scale factor for parameter 0: 25.00%. 
 Detail  :  --> Average scale factor for parameter 1: 25.00%. 
 Detail  :  --> Average scale factor for parameter 2: 25.00%. 
@@ -436,201 +440,188 @@ Detail  :  --> iteration number 8000 (80.00%)
 Detail  :  --> iteration number 9000 (90.00%)
 Detail  :  --> iteration number 10000 (100.00%)
 Summary :  --> Markov chains ran for 10000 iterations. 
-Detail  :  --> Global mode of parameter 0: 1.97 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 1: 1.88 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 2: 2.02 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 3: 2.04 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 4: 2.02 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 5: 1.99 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 6: 1.92 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 7: 1.99 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 8: 1.94 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 9: 2.02 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 0: 1.91 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 1: 1.94 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 2: 1.87 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 3: 1.87 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 4: 1.85 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 5: 1.87 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 6: 1.90 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 7: 1.95 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 8: 1.80 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 9: 1.94 with abs. num. precision 0.00e+00
 Summary : Do goodness-of-fit-test
 Summary : Pre-run Metropolis MCMC.
 Detail  :  --> No PCA run.
 Detail  :  --> Perform MCMC run with 5 chains each with 100000 iterations maximum.
 Detail  :  -> Iteration 11001
-Detail  :  --> R-Value for parameter 0 is 1.001197. 
-Detail  :  --> R-Value for parameter 1 is 1.005165. 
-Detail  :  --> R-Value for parameter 2 is 1.001698. 
-Detail  :  --> R-Value for parameter 3 is 1.002561. 
-Detail  :  --> R-Value for parameter 4 is 1.001835. 
-Detail  :  --> R-Value for parameter 5 is 1.001885. 
-Detail  :  --> R-Value for parameter 6 is 1.001322. 
-Detail  :  --> R-Value for parameter 7 is 1.002397. 
-Detail  :  --> R-Value for parameter 8 is 1.001674. 
-Detail  :  --> R-Value for parameter 9 is 1.000666. 
-Detail  :  --> R-Value for log-likelihood is 1.003883. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.79%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.37%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.64%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.25%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.84%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.83%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.57%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.95%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.45%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.34%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.94%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.91%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.04%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.65%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.001918. 
+Detail  :  --> R-Value for parameter 1 is 1.001398. 
+Detail  :  --> R-Value for parameter 2 is 1.002971. 
+Detail  :  --> R-Value for parameter 3 is 1.003292. 
+Detail  :  --> R-Value for parameter 4 is 1.000385. 
+Detail  :  --> R-Value for parameter 5 is 1.002850. 
+Detail  :  --> R-Value for parameter 6 is 1.006555. 
+Detail  :  --> R-Value for parameter 7 is 1.002443. 
+Detail  :  --> R-Value for parameter 8 is 1.001947. 
+Detail  :  --> R-Value for parameter 9 is 1.004890. 
+Detail  :  --> R-Value for log-likelihood is 1.009925. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.14%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.66%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.74%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.66%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.13%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.33%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.79%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.00%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.87%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.34%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.08%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.80%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.62%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.80%) in chain 1. Set scale to 50.00%. 
 Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.98%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.81%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.78%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.65%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.96%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.43%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 11.94%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.09%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.61%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.28%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.48%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.78%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.99%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.14%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.02%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.52%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.12%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.73%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.26%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.76%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.97%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.81%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.82%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.95%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.28%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.37%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.66%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.70%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.78%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.54%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.17%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.68%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.64%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.30%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.25%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.64%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.12%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.31%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.85%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.94%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.00%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.68%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.90%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.79%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.03%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.74%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.60%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.03%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.71%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.96%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.59%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.54%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.09%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.03%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.19%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.44%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.41%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.94%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.54%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.10%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.79%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.49%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.08%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.96%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.56%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.71%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.07%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.69%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.76%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.86%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.06%) in chain 4. Set scale to 50.00%. 
 Detail  :  -> Iteration 22001
-Detail  :  --> R-Value for parameter 0 is 1.001538. 
-Detail  :  --> R-Value for parameter 1 is 1.001037. 
-Detail  :  --> R-Value for parameter 2 is 1.000217. 
-Detail  :  --> R-Value for parameter 3 is 1.001100. 
-Detail  :  --> R-Value for parameter 4 is 1.001138. 
-Detail  :  --> R-Value for parameter 5 is 1.000555. 
-Detail  :  --> R-Value for parameter 6 is 1.000247. 
-Detail  :  --> R-Value for parameter 7 is 1.001867. 
-Detail  :  --> R-Value for parameter 8 is 1.001373. 
-Detail  :  --> R-Value for parameter 9 is 1.001928. 
-Detail  :  --> R-Value for log-likelihood is 1.001064. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.52%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.000462. 
+Detail  :  --> R-Value for parameter 1 is 1.001601. 
+Detail  :  --> R-Value for parameter 2 is 1.003446. 
+Detail  :  --> R-Value for parameter 3 is 1.002870. 
+Detail  :  --> R-Value for parameter 4 is 1.005315. 
+Detail  :  --> R-Value for parameter 5 is 1.002376. 
+Detail  :  --> R-Value for parameter 6 is 1.005624. 
+Detail  :  --> R-Value for parameter 7 is 1.000834. 
+Detail  :  --> R-Value for parameter 8 is 1.000543. 
+Detail  :  --> R-Value for parameter 9 is 1.004890. 
+Detail  :  --> R-Value for log-likelihood is 1.011761. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.75%) in chain 0. Set scale to 25.00%. 
 Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.75%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.59%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.62%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.65%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.51%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.45%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.25%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.84%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.95%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.92%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.61%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.54%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.03%) in chain 1. Set scale to 25.00%. 
 Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.37%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.56%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.65%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.65%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.46%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.22%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.28%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.70%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.80%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.97%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.75%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.84%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.64%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.32%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.51%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.57%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.18%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.09%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.78%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.05%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.51%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.76%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.51%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.95%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.95%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.46%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.33%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.56%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.33%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.89%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.91%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.85%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.52%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.32%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 33001
-Detail  :  --> R-Value for parameter 0 is 1.001629. 
-Detail  :  --> R-Value for parameter 1 is 1.001574. 
-Detail  :  --> R-Value for parameter 2 is 1.001416. 
-Detail  :  --> R-Value for parameter 3 is 1.001696. 
-Detail  :  --> R-Value for parameter 4 is 1.001164. 
-Detail  :  --> R-Value for parameter 5 is 1.001557. 
-Detail  :  --> R-Value for parameter 6 is 1.003407. 
-Detail  :  --> R-Value for parameter 7 is 1.001497. 
-Detail  :  --> R-Value for parameter 8 is 1.001252. 
-Detail  :  --> R-Value for parameter 9 is 1.005305. 
-Detail  :  --> R-Value for log-likelihood is 1.000706. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.35%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.30%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.99%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.001399. 
+Detail  :  --> R-Value for parameter 1 is 1.002059. 
+Detail  :  --> R-Value for parameter 2 is 1.001716. 
+Detail  :  --> R-Value for parameter 3 is 1.004516. 
+Detail  :  --> R-Value for parameter 4 is 1.002881. 
+Detail  :  --> R-Value for parameter 5 is 1.001420. 
+Detail  :  --> R-Value for parameter 6 is 1.001490. 
+Detail  :  --> R-Value for parameter 7 is 1.000317. 
+Detail  :  --> R-Value for parameter 8 is 1.000498. 
+Detail  :  --> R-Value for parameter 9 is 1.002040. 
+Detail  :  --> R-Value for log-likelihood is 1.003013. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.56%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 44001
-Detail  :  --> R-Value for parameter 0 is 1.001333. 
-Detail  :  --> R-Value for parameter 1 is 1.001376. 
-Detail  :  --> R-Value for parameter 2 is 1.000957. 
-Detail  :  --> R-Value for parameter 3 is 1.000871. 
-Detail  :  --> R-Value for parameter 4 is 1.000790. 
-Detail  :  --> R-Value for parameter 5 is 1.000617. 
-Detail  :  --> R-Value for parameter 6 is 1.000792. 
-Detail  :  --> R-Value for parameter 7 is 1.000301. 
-Detail  :  --> R-Value for parameter 8 is 1.000345. 
-Detail  :  --> R-Value for parameter 9 is 1.001844. 
-Detail  :  --> R-Value for log-likelihood is 1.004486. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.84%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.001553. 
+Detail  :  --> R-Value for parameter 1 is 1.000415. 
+Detail  :  --> R-Value for parameter 2 is 1.003193. 
+Detail  :  --> R-Value for parameter 3 is 1.000706. 
+Detail  :  --> R-Value for parameter 4 is 1.003257. 
+Detail  :  --> R-Value for parameter 5 is 1.001855. 
+Detail  :  --> R-Value for parameter 6 is 1.002367. 
+Detail  :  --> R-Value for parameter 7 is 1.000761. 
+Detail  :  --> R-Value for parameter 8 is 1.001093. 
+Detail  :  --> R-Value for parameter 9 is 1.001361. 
+Detail  :  --> R-Value for log-likelihood is 1.002826. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.71%) in chain 1. Set scale to 25.00%. 
 Detail  :  -> Iteration 55001
-Detail  :  --> R-Value for parameter 0 is 1.000613. 
-Detail  :  --> R-Value for parameter 1 is 1.002965. 
-Detail  :  --> R-Value for parameter 2 is 1.002089. 
-Detail  :  --> R-Value for parameter 3 is 1.002549. 
-Detail  :  --> R-Value for parameter 4 is 1.001538. 
-Detail  :  --> R-Value for parameter 5 is 1.000755. 
-Detail  :  --> R-Value for parameter 6 is 1.001782. 
-Detail  :  --> R-Value for parameter 7 is 1.000668. 
-Detail  :  --> R-Value for parameter 8 is 1.000175. 
-Detail  :  --> R-Value for parameter 9 is 1.002013. 
-Detail  :  --> R-Value for log-likelihood is 1.003254. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.86%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.001061. 
+Detail  :  --> R-Value for parameter 1 is 1.000644. 
+Detail  :  --> R-Value for parameter 2 is 1.002169. 
+Detail  :  --> R-Value for parameter 3 is 1.002846. 
+Detail  :  --> R-Value for parameter 4 is 1.001386. 
+Detail  :  --> R-Value for parameter 5 is 1.003045. 
+Detail  :  --> R-Value for parameter 6 is 1.000510. 
+Detail  :  --> R-Value for parameter 7 is 1.001240. 
+Detail  :  --> R-Value for parameter 8 is 1.003082. 
+Detail  :  --> R-Value for parameter 9 is 1.001009. 
+Detail  :  --> R-Value for log-likelihood is 1.002069. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.52%) in chain 2. Set scale to 25.00%. 
 Detail  :  -> Iteration 66001
-Detail  :  --> R-Value for parameter 0 is 1.000844. 
-Detail  :  --> R-Value for parameter 1 is 1.001913. 
-Detail  :  --> R-Value for parameter 2 is 1.000836. 
-Detail  :  --> R-Value for parameter 3 is 1.000581. 
-Detail  :  --> R-Value for parameter 4 is 1.001198. 
-Detail  :  --> R-Value for parameter 5 is 1.000847. 
-Detail  :  --> R-Value for parameter 6 is 1.001369. 
-Detail  :  --> R-Value for parameter 7 is 1.001497. 
-Detail  :  --> R-Value for parameter 8 is 1.000451. 
-Detail  :  --> R-Value for parameter 9 is 1.002897. 
-Detail  :  --> R-Value for log-likelihood is 1.000106. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 14.90%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 14.89%) in chain 4. Set scale to 25.00%. 
-Detail  :  -> Iteration 77001
-Detail  :  --> R-Value for parameter 0 is 1.000427. 
-Detail  :  --> R-Value for parameter 1 is 1.000839. 
-Detail  :  --> R-Value for parameter 2 is 1.000554. 
-Detail  :  --> R-Value for parameter 3 is 1.002731. 
-Detail  :  --> R-Value for parameter 4 is 1.002171. 
-Detail  :  --> R-Value for parameter 5 is 1.000903. 
-Detail  :  --> R-Value for parameter 6 is 1.000613. 
-Detail  :  --> R-Value for parameter 7 is 1.001462. 
-Detail  :  --> R-Value for parameter 8 is 1.000972. 
-Detail  :  --> R-Value for parameter 9 is 1.002057. 
-Detail  :  --> R-Value for log-likelihood is 1.002431. 
-Summary :  --> Set of 5 Markov chains converged within 66500 iterations. 
-Summary :  --> Markov chains ran for 77001 iterations. 
-Detail  :  --> Average efficiency for parameter 0: 20.29%. 
-Detail  :  --> Average efficiency for parameter 1: 18.13%. 
-Detail  :  --> Average efficiency for parameter 2: 17.00%. 
-Detail  :  --> Average efficiency for parameter 3: 17.65%. 
-Detail  :  --> Average efficiency for parameter 4: 25.42%. 
-Detail  :  --> Average efficiency for parameter 5: 25.48%. 
-Detail  :  --> Average efficiency for parameter 6: 25.89%. 
-Detail  :  --> Average efficiency for parameter 7: 25.25%. 
-Detail  :  --> Average efficiency for parameter 8: 25.78%. 
-Detail  :  --> Average efficiency for parameter 9: 25.63%. 
+Detail  :  --> R-Value for parameter 0 is 1.001427. 
+Detail  :  --> R-Value for parameter 1 is 1.000551. 
+Detail  :  --> R-Value for parameter 2 is 1.000937. 
+Detail  :  --> R-Value for parameter 3 is 1.001522. 
+Detail  :  --> R-Value for parameter 4 is 1.003117. 
+Detail  :  --> R-Value for parameter 5 is 1.001297. 
+Detail  :  --> R-Value for parameter 6 is 1.001131. 
+Detail  :  --> R-Value for parameter 7 is 1.001194. 
+Detail  :  --> R-Value for parameter 8 is 1.001368. 
+Detail  :  --> R-Value for parameter 9 is 1.000295. 
+Detail  :  --> R-Value for log-likelihood is 1.002299. 
+Summary :  --> Set of 5 Markov chains converged within 55500 iterations. 
+Summary :  --> Markov chains ran for 66001 iterations. 
+Detail  :  --> Average efficiency for parameter 0: 20.57%. 
+Detail  :  --> Average efficiency for parameter 1: 18.73%. 
+Detail  :  --> Average efficiency for parameter 2: 17.43%. 
+Detail  :  --> Average efficiency for parameter 3: 16.09%. 
+Detail  :  --> Average efficiency for parameter 4: 25.54%. 
+Detail  :  --> Average efficiency for parameter 5: 25.90%. 
+Detail  :  --> Average efficiency for parameter 6: 25.71%. 
+Detail  :  --> Average efficiency for parameter 7: 25.11%. 
+Detail  :  --> Average efficiency for parameter 8: 25.53%. 
+Detail  :  --> Average efficiency for parameter 9: 25.49%. 
 Detail  :  --> Average scale factor for parameter 0: 50.00%. 
 Detail  :  --> Average scale factor for parameter 1: 50.00%. 
 Detail  :  --> Average scale factor for parameter 2: 50.00%. 
-Detail  :  --> Average scale factor for parameter 3: 45.00%. 
+Detail  :  --> Average scale factor for parameter 3: 50.00%. 
 Detail  :  --> Average scale factor for parameter 4: 25.00%. 
 Detail  :  --> Average scale factor for parameter 5: 25.00%. 
 Detail  :  --> Average scale factor for parameter 6: 25.00%. 
@@ -650,183 +641,143 @@ Detail  :  --> iteration number 8000 (80.00%)
 Detail  :  --> iteration number 9000 (90.00%)
 Detail  :  --> iteration number 10000 (100.00%)
 Summary :  --> Markov chains ran for 10000 iterations. 
-Detail  :  --> Global mode of parameter 0: 0.68 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 1: 0.97 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 2: 1.19 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 3: 1.58 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 4: 1.87 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 5: 2.03 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 0: 0.57 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 1: 0.81 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 2: 1.22 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 3: 1.37 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 4: 1.78 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 5: 2.01 with abs. num. precision 0.00e+00
 Detail  :  --> Global mode of parameter 6: 2.37 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 7: 2.75 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 8: 3.01 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 9: 3.31 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 7: 2.64 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 8: 2.85 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 9: 3.21 with abs. num. precision 0.00e+00
 Summary : Do goodness-of-fit-test
 Summary : Pre-run Metropolis MCMC.
 Detail  :  --> No PCA run.
 Detail  :  --> Perform MCMC run with 5 chains each with 100000 iterations maximum.
 Detail  :  -> Iteration 11001
-Detail  :  --> R-Value for parameter 0 is 1.002987. 
-Detail  :  --> R-Value for parameter 1 is 1.001306. 
-Detail  :  --> R-Value for parameter 2 is 1.000637. 
-Detail  :  --> R-Value for parameter 3 is 1.000896. 
-Detail  :  --> R-Value for parameter 4 is 1.005570. 
-Detail  :  --> R-Value for parameter 5 is 1.004684. 
-Detail  :  --> R-Value for parameter 6 is 1.003543. 
-Detail  :  --> R-Value for parameter 7 is 1.002026. 
-Detail  :  --> R-Value for parameter 8 is 1.000619. 
-Detail  :  --> R-Value for parameter 9 is 1.001009. 
-Detail  :  --> R-Value for log-likelihood is 1.002208. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.58%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.59%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.94%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 13.11%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.45%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.57%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.97%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.52%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 13.12%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.03%) in chain 0. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.34%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.67%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.93%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.74%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.81%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.69%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.74%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.88%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.91%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.83%) in chain 1. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.55%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.92%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.30%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.74%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.27%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 11.95%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.09%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.70%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.74%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.20%) in chain 2. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.28%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.09%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.82%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.97%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.74%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.21%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.41%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.45%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.54%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.95%) in chain 3. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.94%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.04%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.10%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.48%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.40%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.94%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.61%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.66%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.40%) in chain 4. Set scale to 50.00%. 
-Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.97%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.002677. 
+Detail  :  --> R-Value for parameter 1 is 1.008928. 
+Detail  :  --> R-Value for parameter 2 is 1.000127. 
+Detail  :  --> R-Value for parameter 3 is 1.005593. 
+Detail  :  --> R-Value for parameter 4 is 1.000874. 
+Detail  :  --> R-Value for parameter 5 is 1.000229. 
+Detail  :  --> R-Value for parameter 6 is 1.002873. 
+Detail  :  --> R-Value for parameter 7 is 1.000631. 
+Detail  :  --> R-Value for parameter 8 is 1.001981. 
+Detail  :  --> R-Value for parameter 9 is 1.000114. 
+Detail  :  --> R-Value for log-likelihood is 1.003524. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 13.11%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.49%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.46%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.72%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.50%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.67%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.62%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.05%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.81%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 13.40%) in chain 0. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.77%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.78%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.17%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.30%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.69%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.52%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.29%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.62%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.83%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.34%) in chain 1. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.89%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.00%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.36%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.62%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.65%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 12.58%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.84%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.86%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.59%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.94%) in chain 2. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.57%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 12.12%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 12.28%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.72%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 12.63%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.06%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.25%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.26%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.29%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 12.78%) in chain 3. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 0 dropped below 15.00% (eps = 12.97%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 1 dropped below 15.00% (eps = 13.80%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 2 dropped below 15.00% (eps = 13.09%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 3 dropped below 15.00% (eps = 12.26%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 13.19%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 13.18%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.01%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.79%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 12.94%) in chain 4. Set scale to 50.00%. 
+Detail  :  --> Efficiency of parameter 9 dropped below 15.00% (eps = 11.98%) in chain 4. Set scale to 50.00%. 
 Detail  :  -> Iteration 22001
-Detail  :  --> R-Value for parameter 0 is 1.000532. 
-Detail  :  --> R-Value for parameter 1 is 1.000311. 
-Detail  :  --> R-Value for parameter 2 is 1.000619. 
-Detail  :  --> R-Value for parameter 3 is 1.000694. 
-Detail  :  --> R-Value for parameter 4 is 1.003162. 
-Detail  :  --> R-Value for parameter 5 is 1.006122. 
-Detail  :  --> R-Value for parameter 6 is 1.001403. 
-Detail  :  --> R-Value for parameter 7 is 1.004985. 
-Detail  :  --> R-Value for parameter 8 is 1.001789. 
-Detail  :  --> R-Value for parameter 9 is 1.003594. 
-Detail  :  --> R-Value for log-likelihood is 1.001377. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.35%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.83%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.21%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.80%) in chain 0. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.01%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 12.89%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.68%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.98%) in chain 1. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.22%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.02%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.71%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.11%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.88%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.13%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.94%) in chain 3. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.65%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.76%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.35%) in chain 4. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.03%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> R-Value for parameter 0 is 1.001090. 
+Detail  :  --> R-Value for parameter 1 is 1.002388. 
+Detail  :  --> R-Value for parameter 2 is 1.002730. 
+Detail  :  --> R-Value for parameter 3 is 1.000140. 
+Detail  :  --> R-Value for parameter 4 is 1.003760. 
+Detail  :  --> R-Value for parameter 5 is 1.000063. 
+Detail  :  --> R-Value for parameter 6 is 1.001260. 
+Detail  :  --> R-Value for parameter 7 is 1.004973. 
+Detail  :  --> R-Value for parameter 8 is 1.004297. 
+Detail  :  --> R-Value for parameter 9 is 1.002916. 
+Detail  :  --> R-Value for log-likelihood is 1.000890. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.53%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.58%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.14%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.05%) in chain 0. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.52%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.31%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.31%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.37%) in chain 1. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.17%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.26%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.43%) in chain 2. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.58%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 14.31%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 13.93%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.23%) in chain 3. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 5 dropped below 15.00% (eps = 14.35%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 6 dropped below 15.00% (eps = 13.46%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 7 dropped below 15.00% (eps = 12.85%) in chain 4. Set scale to 25.00%. 
+Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.40%) in chain 4. Set scale to 25.00%. 
 Detail  :  -> Iteration 33001
-Detail  :  --> R-Value for parameter 0 is 1.000877. 
-Detail  :  --> R-Value for parameter 1 is 1.001226. 
-Detail  :  --> R-Value for parameter 2 is 1.003207. 
-Detail  :  --> R-Value for parameter 3 is 1.001944. 
-Detail  :  --> R-Value for parameter 4 is 1.002926. 
-Detail  :  --> R-Value for parameter 5 is 1.003905. 
-Detail  :  --> R-Value for parameter 6 is 1.002595. 
-Detail  :  --> R-Value for parameter 7 is 1.000246. 
-Detail  :  --> R-Value for parameter 8 is 1.000015. 
-Detail  :  --> R-Value for parameter 9 is 1.001565. 
-Detail  :  --> R-Value for log-likelihood is 1.003494. 
-Detail  :  --> Efficiency of parameter 8 dropped below 15.00% (eps = 14.95%) in chain 2. Set scale to 25.00%. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.95%) in chain 3. Set scale to 25.00%. 
-Detail  :  -> Iteration 44001
-Detail  :  --> R-Value for parameter 0 is 1.001662. 
-Detail  :  --> R-Value for parameter 1 is 1.001311. 
-Detail  :  --> R-Value for parameter 2 is 1.002804. 
-Detail  :  --> R-Value for parameter 3 is 1.001829. 
-Detail  :  --> R-Value for parameter 4 is 1.002123. 
-Detail  :  --> R-Value for parameter 5 is 1.000770. 
-Detail  :  --> R-Value for parameter 6 is 1.000828. 
-Detail  :  --> R-Value for parameter 7 is 1.003252. 
-Detail  :  --> R-Value for parameter 8 is 1.002439. 
-Detail  :  --> R-Value for parameter 9 is 1.005233. 
-Detail  :  --> R-Value for log-likelihood is 1.002574. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.91%) in chain 2. Set scale to 25.00%. 
-Detail  :  -> Iteration 55001
-Detail  :  --> R-Value for parameter 0 is 1.003025. 
-Detail  :  --> R-Value for parameter 1 is 1.005237. 
-Detail  :  --> R-Value for parameter 2 is 1.002259. 
-Detail  :  --> R-Value for parameter 3 is 1.001045. 
-Detail  :  --> R-Value for parameter 4 is 1.001094. 
-Detail  :  --> R-Value for parameter 5 is 1.000535. 
-Detail  :  --> R-Value for parameter 6 is 1.001911. 
-Detail  :  --> R-Value for parameter 7 is 1.000643. 
-Detail  :  --> R-Value for parameter 8 is 1.000928. 
-Detail  :  --> R-Value for parameter 9 is 1.001712. 
-Detail  :  --> R-Value for log-likelihood is 1.001912. 
-Detail  :  --> Efficiency of parameter 4 dropped below 15.00% (eps = 14.76%) in chain 4. Set scale to 25.00%. 
-Detail  :  -> Iteration 66001
-Detail  :  --> R-Value for parameter 0 is 1.001389. 
-Detail  :  --> R-Value for parameter 1 is 1.000592. 
-Detail  :  --> R-Value for parameter 2 is 1.002638. 
-Detail  :  --> R-Value for parameter 3 is 1.001400. 
-Detail  :  --> R-Value for parameter 4 is 1.001408. 
-Detail  :  --> R-Value for parameter 5 is 1.000826. 
-Detail  :  --> R-Value for parameter 6 is 1.001179. 
-Detail  :  --> R-Value for parameter 7 is 1.001853. 
-Detail  :  --> R-Value for parameter 8 is 1.001078. 
-Detail  :  --> R-Value for parameter 9 is 1.003027. 
-Detail  :  --> R-Value for log-likelihood is 1.000783. 
-Summary :  --> Set of 5 Markov chains converged within 55500 iterations. 
-Summary :  --> Markov chains ran for 66001 iterations. 
-Detail  :  --> Average efficiency for parameter 0: 18.80%. 
-Detail  :  --> Average efficiency for parameter 1: 18.13%. 
-Detail  :  --> Average efficiency for parameter 2: 17.20%. 
-Detail  :  --> Average efficiency for parameter 3: 16.39%. 
-Detail  :  --> Average efficiency for parameter 4: 21.51%. 
-Detail  :  --> Average efficiency for parameter 5: 25.57%. 
-Detail  :  --> Average efficiency for parameter 6: 25.54%. 
-Detail  :  --> Average efficiency for parameter 7: 25.35%. 
-Detail  :  --> Average efficiency for parameter 8: 25.36%. 
-Detail  :  --> Average efficiency for parameter 9: 16.34%. 
+Detail  :  --> R-Value for parameter 0 is 1.002903. 
+Detail  :  --> R-Value for parameter 1 is 1.001654. 
+Detail  :  --> R-Value for parameter 2 is 1.001412. 
+Detail  :  --> R-Value for parameter 3 is 1.000681. 
+Detail  :  --> R-Value for parameter 4 is 1.002092. 
+Detail  :  --> R-Value for parameter 5 is 1.002380. 
+Detail  :  --> R-Value for parameter 6 is 1.000765. 
+Detail  :  --> R-Value for parameter 7 is 1.001442. 
+Detail  :  --> R-Value for parameter 8 is 1.000383. 
+Detail  :  --> R-Value for parameter 9 is 1.002659. 
+Detail  :  --> R-Value for log-likelihood is 1.003513. 
+Summary :  --> Set of 5 Markov chains converged within 22500 iterations. 
+Summary :  --> Markov chains ran for 33001 iterations. 
+Detail  :  --> Average efficiency for parameter 0: 18.77%. 
+Detail  :  --> Average efficiency for parameter 1: 18.29%. 
+Detail  :  --> Average efficiency for parameter 2: 17.67%. 
+Detail  :  --> Average efficiency for parameter 3: 17.11%. 
+Detail  :  --> Average efficiency for parameter 4: 15.83%. 
+Detail  :  --> Average efficiency for parameter 5: 23.29%. 
+Detail  :  --> Average efficiency for parameter 6: 25.82%. 
+Detail  :  --> Average efficiency for parameter 7: 25.47%. 
+Detail  :  --> Average efficiency for parameter 8: 25.17%. 
+Detail  :  --> Average efficiency for parameter 9: 16.11%. 
 Detail  :  --> Average scale factor for parameter 0: 50.00%. 
 Detail  :  --> Average scale factor for parameter 1: 50.00%. 
 Detail  :  --> Average scale factor for parameter 2: 50.00%. 
 Detail  :  --> Average scale factor for parameter 3: 50.00%. 
-Detail  :  --> Average scale factor for parameter 4: 35.00%. 
-Detail  :  --> Average scale factor for parameter 5: 25.00%. 
+Detail  :  --> Average scale factor for parameter 4: 50.00%. 
+Detail  :  --> Average scale factor for parameter 5: 30.00%. 
 Detail  :  --> Average scale factor for parameter 6: 25.00%. 
 Detail  :  --> Average scale factor for parameter 7: 25.00%. 
 Detail  :  --> Average scale factor for parameter 8: 25.00%. 
@@ -844,13 +795,13 @@ Detail  :  --> iteration number 8000 (80.00%)
 Detail  :  --> iteration number 9000 (90.00%)
 Detail  :  --> iteration number 10000 (100.00%)
 Summary :  --> Markov chains ran for 10000 iterations. 
-Detail  :  --> Global mode of parameter 0: 0.88 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 1: 1.10 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 2: 1.28 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 3: 1.37 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 4: 1.55 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 5: 1.84 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 6: 2.30 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 7: 2.66 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 8: 3.11 with abs. num. precision 0.00e+00
-Detail  :  --> Global mode of parameter 9: 3.63 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 0: 0.84 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 1: 0.95 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 2: 1.19 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 3: 1.20 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 4: 1.49 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 5: 1.74 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 6: 2.13 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 7: 2.59 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 8: 2.98 with abs. num. precision 0.00e+00
+Detail  :  --> Global mode of parameter 9: 3.56 with abs. num. precision 0.00e+00

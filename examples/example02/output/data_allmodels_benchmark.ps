@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0
-%%Title: output/data_allmodels.ps: c1
-%%Creator: ROOT Version 5.20/00
-%%CreationDate: Mon Sep 15 14:05:56 2008
+%%Title: data_allmodels.ps: c1
+%%Creator: ROOT Version 5.18/00b
+%%CreationDate: Thu Oct  2 15:09:48 2008
 %%Orientation: Landscape
 %%EndComments
 %%BeginProlog
@@ -31,22 +31,59 @@
  sub m w w d s} def
 /m2 {mp x y w2 sub m 0 w d x w2 sub y m w 0 d s} def
 /m5 {mp x w2 sub y w2 sub m w w d x w2 sub y w2 add m w w neg d s} def
-/reEncode {exch findfont dup length dict begin {1 index /FID eq  {pop pop} {def} ifelse } forall /Encoding exch def currentdict end dup /FontName get exch definefont pop } def [/Times-Bold /Times-Italic /Times-BoldItalic /Helvetica
- /Helvetica-Oblique /Helvetica-Bold /Helvetica-BoldOblique /Courier /Courier-Oblique /Courier-Bold /Courier-BoldOblique /Times-Roman /AvantGarde-Book /AvantGarde-BookOblique /AvantGarde-Demi /AvantGarde-DemiOblique /Bookman-Demi
- /Bookman-DemiItalic /Bookman-Light /Bookman-LightItalic /Helvetica-Narrow /Helvetica-Narrow-Bold /Helvetica-Narrow-BoldOblique /Helvetica-Narrow-Oblique /NewCenturySchlbk-Roman /NewCenturySchlbk-Bold
- /NewCenturySchlbk-BoldItalic /NewCenturySchlbk-Italic /Palatino-Bold /Palatino-BoldItalic /Palatino-Italic /Palatino-Roman ] {ISOLatin1Encoding reEncode } forall
+/reencdict 24 dict def /ReEncode {reencdict begin /nco&na exch def
+/nfnam exch def /basefontname exch def /basefontdict basefontname findfont def
+/newfont basefontdict maxlength dict def basefontdict {exch dup /FID ne
+{dup /Encoding eq {exch dup length array copy newfont 3 1 roll put} {exch 
+newfont 3 1 roll put} ifelse} {pop pop} ifelse } forall newfont
+/FontName nfnam put nco&na aload pop nco&na length 2 idiv {newfont
+/Encoding get 3 1 roll put} repeat nfnam newfont definefont pop end } def
+/accvec [ 176 /agrave 181 /Agrave 190 /acircumflex 192 /Acircumflex
+201 /adieresis 204 /Adieresis 209 /ccedilla 210 /Ccedilla 211 /eacute
+212 /Eacute 213 /egrave 214 /Egrave 215 /ecircumflex 216 /Ecircumflex
+217 /edieresis 218 /Edieresis 219 /icircumflex 220 /Icircumflex
+221 /idieresis 222 /Idieresis 223 /ntilde 224 /Ntilde 226 /ocircumflex
+228 /Ocircumflex 230 /Odieresis 231 /ucircumflex 236 /Ucircumflex
+237 /udieresis 238 /Udieresis 239 /aring 240 /odieresis 242 /Aring 243 /ydieresis
+244 /Ydieresis 246 /aacute 247 /Aacute 252 /ugrave 253 /Ugrave
+127 /atilde 128 /Atilde 129 /oacute 130 /Oacute 131 /iacute
+132 /Iacute 133 /igrave 134 /Igrave 135 /otilde 136 /Otilde
+137 /uacute 138 /Uacute] def
+/Times-Roman /Times-Roman accvec ReEncode
+/Times-Italic /Times-Italic accvec ReEncode
+/Times-Bold /Times-Bold accvec ReEncode
+/Times-BoldItalic /Times-BoldItalic accvec ReEncode
+/Helvetica /Helvetica accvec ReEncode
+/Helvetica-Oblique /Helvetica-Oblique accvec ReEncode
+/Helvetica-Bold /Helvetica-Bold accvec ReEncode
+/Helvetica-BoldOblique /Helvetica-BoldOblique  accvec ReEncode
+/Courier /Courier accvec ReEncode
+/Courier-Oblique /Courier-Oblique accvec ReEncode
+/Courier-Bold /Courier-Bold accvec ReEncode
+/Courier-BoldOblique /Courier-BoldOblique accvec ReEncode
 /oshow {gsave [] 0 sd true charpath stroke gr} def
 /stwn { /fs exch def /fn exch def /text exch def fn findfont fs sf
  text sw pop xs add /xs exch def} def
 /stwb { /fs exch def /fn exch def /nbas exch def /textf exch deftextf length /tlen exch def nbas tlen gt {/nbas tlendef} iffn findfont fs sf textf dup length nbas sub nbas getinterval sw
 pop neg xs add /xs exch def} def
+/accspe [ 65 /plusminus  66 /bar  67 /existential  68 /universal 
+69 /exclam  70 /numbersign 71 /greater  72 /question  73 /integral 
+74 /colon  75 /semicolon  76 /less  77 /bracketleft  78 /bracketright
+79 /greaterequal 80 /braceleft 81 /braceright 82 /radical
+83 /spade 84 /heart 85 /diamond 86 /club 87 /lessequal
+88 /multiply 89 /percent 90 /infinity 48 /circlemultiply 49 /circleplus
+50 /emptyset  51 /lozenge 52 /bullet 53 /arrowright 54 /arrowup
+55 /arrowleft 56 /arrowdown 57 /arrowboth 48 /degree 44 /comma 43 /plus 45 /angle 42 /angleleft 47 /divide 61 /notequal 40 /equivalence 41 /second 97 /approxequal 98 /congruent 99 /perpendicular 100 /partialdiff 101 /florin 102 /intersection
+ 103 /union 104 /propersuperset 105 /reflexsuperset 106 /notsubset 107 /propersubset 108 /reflexsubset 109 /element 110 /notelement 111 /gradient 112 /logicaland 113 /logicalor 114 /arrowdblboth 115 /arrowdblleft 116 /arrowdblup 117 /arrowdblright
+ 118 /arrowdbldown 119 /ampersand 120 /omega1 121 /similar 122 /aleph ] def
+/Symbol /Special accspe ReEncode
 /Zone {/iy exch def /ix exch def  ix 1 sub  3144 mul  1 iy sub  2224
  mul t} def
 %%EndProlog
 %%BeginSetup
 %%EndSetup
 newpath  gsave  90 r 0 -594 t  28 20 t .25 .25 scale  gsave 
-%%Page: 1 1
+%%Page: (number 1)
  gsave  gsave 
  1 1 Zone
  gsave  0 0 t black[  ] 0 sd 3 lw 1 1 1 c 2437 2268 0 0 bf black 1 1 1 c black 1754 1633 366 340 bl 1754 1633 366 340 bl 366 340 m 1754 X s
@@ -75,17 +112,17 @@ newpath  gsave  90 r 0 -594 t  28 20 t .25 .25 scale  gsave
  gsave  2437 2268 0 0 C 306 1120 t 0 r /Helvetica-Bold findfont 84.5112 sf 0 0 m (3) show NC gr 
  gsave  2437 2268 0 0 C 306 1387 t 0 r /Helvetica-Bold findfont 84.5112 sf 0 0 m (4) show NC gr 
  gsave  2437 2268 0 0 C 306 1666 t 0 r /Helvetica-Bold findfont 84.5112 sf 0 0 m (5) show NC gr 
- gsave  2437 2268 0 0 C 306 1937 t 0 r /Helvetica-Bold findfont 84.5112 sf 0 0 m (6) show NC gr  453 594 m 40 Y s 446 634 m 14 X s 453 566 m -41 Y s 446 525 m 14 X s 629 653 m 41 Y s 622 694 m 14 X s 629 625 m -40 Y s 622 585 m 14 X s 804 694 m 41 Y
- s 797 735 m 14 X s 804 666 m -40 Y s 797 626 m 14 X s 980 711 m 40 Y s 973 751 m 14 X s 980 683 m -40 Y s 973 643 m 14 X s 1155 775 m 41 Y s 1148 816 m 14 X s 1155 747 m -40 Y s 1148 707 m 14 X s 1330 916 m 40 Y s 1323 956 m 15 X s 1330 888 m -40 Y
- s 1323 848 m 15 X s 1506 1023 m 40 Y s 1499 1063 m 14 X s 1506 995 m -40 Y s 1499 955 m 14 X s 1681 1037 m 41 Y s 1674 1078 m 14 X s 1681 1009 m -40 Y s 1674 969 m 14 X s 1857 1177 m 40 Y s 1850 1217 m 14 X s 1857 1148 m -40 Y s 1850 1108 m 14 X s
- 2032 1372 m 41 Y s 2025 1413 m 14 X s 2032 1344 m -40 Y s 2025 1304 m 14 X s /w 24 def /w2 {w 2 div} def /w3 {w 3 div} def 453 580 629 639 804 680 980 697 1155 761 1330 902 1506 1009 1681 1023 1857 1162 2032 1358 10 { m20} R 1 0 0 c black 1 0 0 c
- 366 881 m 1754 X s black 366 473 m 17 9 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 9 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 8 d 17
- 8 d 18 8 d 17 9 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 9 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 9 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 9 d 17 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 9 d 17 8 d
- 18 8 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 9 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 9 d 17 8 d 18 8 d 17 8 d 18 8 d s 0 1 0 c
- black 0 1 0 c 366 584 m 17 1 d 18 2 d 17 2 d 18 2 d 17 2 d 18 2 d 17 3 d 18 2 d 17 3 d 18 3 d 18 3 d 17 3 d 18 3 d 17 3 d 18 4 d 17 3 d 18 4 d 17 4 d 18 4 d 17 4 d 18 4 d 17 5 d 18 4 d 18 5 d 17 4 d 18 5 d 17 5 d 18 6 d 17 5 d 18 5 d 17 6 d 18 6 d
- 17 6 d 18 6 d 18 6 d 17 6 d 18 6 d 17 7 d 18 6 d 17 7 d 18 7 d 17 7 d 18 7 d 17 8 d 18 7 d 18 8 d 17 7 d 18 8 d 17 8 d 18 8 d 17 9 d 18 8 d 17 8 d 18 9 d 17 9 d 18 9 d 18 9 d 17 9 d 18 9 d 17 10 d 18 9 d 17 10 d 18 10 d 17 10 d 18 10 d 17 10 d 18
- 10 d 18 11 d 17 11 d 18 10 d 17 11 d 18 11 d 17 11 d 18 12 d 17 11 d 18 12 d 17 11 d 18 12 d 18 12 d 17 12 d 18 12 d 17 13 d 18 12 d 17 13 d 18 13 d 17 13 d 18 13 d 17 13 d 18 13 d 18 13 d 17 14 d 18 14 d 17 14 d 18 13 d 17 15 d 18 14 d 17 14 d 18
- 15 d 17 14 d 18 15 d s black 1 1 1 c 731 567 1584 1587 bf black
+ gsave  2437 2268 0 0 C 306 1937 t 0 r /Helvetica-Bold findfont 84.5112 sf 0 0 m (6) show NC gr  453 605 m 40 Y s 446 645 m 14 X s 453 577 m -41 Y s 446 536 m 14 X s 629 603 m 40 Y s 622 643 m 14 X s 629 575 m -41 Y s 622 534 m 14 X s 804 644 m 41 Y
+ s 797 685 m 14 X s 804 616 m -40 Y s 797 576 m 14 X s 980 770 m 40 Y s 973 810 m 14 X s 980 741 m -40 Y s 973 701 m 14 X s 1155 693 m 41 Y s 1148 734 m 14 X s 1155 665 m -40 Y s 1148 625 m 14 X s 1330 780 m 40 Y s 1323 820 m 15 X s 1330 751 m -40 Y
+ s 1323 711 m 15 X s 1506 997 m 40 Y s 1499 1037 m 14 X s 1506 969 m -40 Y s 1499 929 m 14 X s 1681 1106 m 41 Y s 1674 1147 m 14 X s 1681 1078 m -40 Y s 1674 1038 m 14 X s 1857 1160 m 41 Y s 1850 1201 m 14 X s 1857 1132 m -40 Y s 1850 1092 m 14 X s
+ 2032 1295 m 41 Y s 2025 1336 m 14 X s 2032 1267 m -40 Y s 2025 1227 m 14 X s /w 24 def /w2 {w 2 div} def /w3 {w 3 div} def 453 591 629 589 804 630 980 756 1155 679 1330 766 1506 983 1681 1092 1857 1146 2032 1281 10 { m20} R 1 0 0 c black 1 0 0 c
+ 366 851 m 1754 X s black 366 452 m 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 7 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17
+ 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d
+ 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d 17 8 d 18 8 d s 0 1 0 c
+ black 0 1 0 c 366 579 m 17 X 18 1 d 17 1 d 18 1 d 17 1 d 18 1 d 17 2 d 18 1 d 17 2 d 18 2 d 18 2 d 17 2 d 18 2 d 17 3 d 18 2 d 17 3 d 18 3 d 17 3 d 18 3 d 17 4 d 18 3 d 17 4 d 18 4 d 18 4 d 17 4 d 18 4 d 17 5 d 18 4 d 17 5 d 18 5 d 17 5 d 18 5 d 17
+ 5 d 18 6 d 18 5 d 17 6 d 18 6 d 17 6 d 18 7 d 17 6 d 18 7 d 17 6 d 18 7 d 17 7 d 18 7 d 18 8 d 17 7 d 18 8 d 17 7 d 18 8 d 17 8 d 18 9 d 17 8 d 18 8 d 17 9 d 18 9 d 18 9 d 17 9 d 18 9 d 17 10 d 18 9 d 17 10 d 18 10 d 17 10 d 18 10 d 17 11 d 18 10 d
+ 18 11 d 17 10 d 18 11 d 17 11 d 18 12 d 17 11 d 18 12 d 17 11 d 18 12 d 17 12 d 18 12 d 18 13 d 17 12 d 18 13 d 17 13 d 18 12 d 17 13 d 18 14 d 17 13 d 18 14 d 17 13 d 18 14 d 18 14 d 17 14 d 18 14 d 17 15 d 18 14 d 17 15 d 18 15 d 17 15 d 18 15 d
+ 17 16 d 18 15 d s black 1 1 1 c 731 567 1584 1587 bf black
  gsave  2437 2268 0 0 C 1764 2049 t 0 r /Helvetica-Bold findfont 77.4686 sf 0 0 m (Data) show NC gr  1675 2083 m20
  gsave  2437 2268 0 0 C 1764 1909 t 0 r /Helvetica-Bold findfont 77.4686 sf 0 0 m (ModelPol0) show NC gr  1 0 0 c 1611 1942 m 128 X s black
  gsave  2437 2268 0 0 C 1764 1768 t 0 r /Helvetica-Bold findfont 77.4686 sf 0 0 m (ModelPol1) show NC gr  1611 1800 m 128 X s
