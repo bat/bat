@@ -1,11 +1,11 @@
-/*   
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.   
- * All rights reserved.   
- *   
- * For the licensing terms see doc/COPYING.   
- */   
- 
-// ---------------------------------------------------------  
+/*
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
 
 #include "BCLog.h"
 
@@ -25,7 +25,6 @@ BCLog::BCLog()
 {
 
 	// suppress the ROOT Info printouts
-
 	gErrorIgnoreLevel=2000;
 
 }
@@ -41,83 +40,77 @@ void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::
 {
 
 	// suppress the ROOT Info printouts
-
 	gErrorIgnoreLevel=2000;
 
 	// open log file
-
 	BCLog::fOutputStream.open(filename);
 
 	if (!BCLog::fOutputStream.is_open())
-		{
-			std::cout << " Could not open log file " << filename << ". " << std::endl;
-			return;
-		}
+	{
+		std::cerr << " Could not open log file " << filename << ". " << std::endl;
+		return;
+	}
 
 	BCLog::StartupInfo();
 
 	BCLog::Out(BCLog::summary,BCLog::summary,Form("Opening logfile %s",filename));
 
-	// set log level 
-
-	BCLog::SetMinimumLogLevelFile(loglevelfile); 
-	BCLog::SetMinimumLogLevelScreen(loglevelscreen); 
+	// set log level
+	BCLog::SetMinimumLogLevelFile(loglevelfile);
+	BCLog::SetMinimumLogLevelScreen(loglevelscreen);
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::OpenLog(const char * filename)
 {
 
-	BCLog::OpenLog(filename, BCLog::debug, BCLog::summary); 
+	BCLog::OpenLog(filename, BCLog::debug, BCLog::summary);
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::OpenLog()
 {
 
-	BCLog::OpenLog("log.txt", BCLog::debug, BCLog::summary); 
+	BCLog::OpenLog("log.txt", BCLog::debug, BCLog::summary);
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::CloseLog()
 {
 
-	BCLog::fOutputStream.close(); 
+	BCLog::fOutputStream.close();
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message)
 {
 
 	// open log file if not opened
-
 	if (!BCLog::fOutputStream.is_open())
-		{
-			std::cout << " Log file not opended. " << std::endl;
-			return;
-		}
+	{
+		std::cerr << " Log file not opended. " << std::endl;
+		return;
+	}
 
 	// write message in to log file
-
 	if (loglevelfile >= BCLog::fMinimumLogLevelFile)
 		BCLog::fOutputStream << BCLog::ToString(loglevelfile) << " : " << message << std::endl;
 
 	// write message to screen
-
 	if (loglevelscreen >= BCLog::fMinimumLogLevelScreen)
 		std::cout << BCLog::ToString(loglevelscreen) << " : " << message << std::endl;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::Out(const char * message)
 {
@@ -126,41 +119,40 @@ void BCLog::Out(const char * message)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCLog::StartupInfo()
 {
 
-	// open log file if not opened 
-
+	// open log file if not opened
 	if (!BCLog::fOutputStream.is_open())
-		{
-			std::cout << " Log file not opended. " << std::endl; 
-			return; 
-		}
+	{
+		std::cerr << " Log file not opended. " << std::endl;
+		return;
+	}
 
 	char * message = Form(
-												" +------------------------------\n"
-												" |\n"
-												" |     Running with BAT\n"
-												" |      Version %s\n"
-												" |\n"
-												" | http://www.mppmu.mpg.de/bat\n"
-												" +------------------------------\n",
-												BCLog::fVersion);
+			" +------------------------------\n"
+			" |\n"
+			" |     Running with BAT\n"
+			" |      Version %s\n"
+			" |\n"
+			" | http://www.mppmu.mpg.de/bat\n"
+			" +------------------------------\n",
+			BCLog::fVersion);
 
 	BCLog::fOutputStream << message;
 	std::cout << message;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 const char * BCLog::ToString(BCLog::LogLevel loglevel)
 {
-	
+
 	switch (loglevel)
-		{
+	{
 		case debug:
 			return "Debug  ";
 		case detail:
@@ -169,11 +161,12 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 			return "Summary";
 		case warning:
 			return "Warning";
+		case error:
+			return "Error  ";
 		default:
 			return "";
 	}
 
 }
 
-// --------------------------------------------------------- 
-
+// ---------------------------------------------------------
