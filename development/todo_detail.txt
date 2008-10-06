@@ -1,0 +1,45 @@
+BAT ToDo (detail):
+==================
+
+1.  code cleanup
+		- remove not needed methods/atributes
+		- add checks on everything (make it easier to use for a normal user)
+		- maybe start to think about using of (C++) exceptions?
+
+1.  improve the installation procedure
+    - autoconf/automake (cmake)?   
+	  - MAC?
+    - add Cuba to BAT by default?
+
+2.  examples
+    - add example for histogram fitting using poisson distributions
+    - add example for non-flat prior
+
+2.  implement the general p-value calculation using MCMC
+    (since it's MCMC we could also have the possibility to sample
+     according to posterior ?)
+
+3.  Pretty-plotting of 2D+2x1D marginalized distributions together
+    with output from MCMC
+
+3.  ROOTified version
+
+4.  more parallelizatoin
+
+4.  some complex examples
+
+99. GUI? (far far future)
+
+x.	implement (already existing) methods for interpolation of multidimensional distributions, e.g. Kernel density estimators
+
+x.	Calculate Bayes factors for model comparison
+
+x.	CUBA library dependence
+		- compare ROOT-version of VEGAS with CUBA
+		- remove CUBA library dependence or ease installation
+
+x.	Proposal functions:
+		- provide arbitrary proposal functions
+		- provide pre-defined proposal functions (Gaussian, box, etc.) 
+		- provide proposal function based on Gaussian around global mode and inverse Hessian of log likelihood 
+
