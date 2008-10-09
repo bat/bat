@@ -1,45 +1,80 @@
-BAT ToDo (detail):
-==================
+BAT detailed ToDo list
+Updated on 9/10/2008
+======================
 
-1.  code cleanup
-		- remove not needed methods/atributes
-		- add checks on everything (make it easier to use for a normal user)
-		- maybe start to think about using of (C++) exceptions?
+1.
+=============
+- bugfixes
+     - fix examples to define parameters inside of the model instead of
+       the main program
+     - ...
 
-1.  improve the installation procedure
-    - autoconf/automake (cmake)?   
-	  - MAC?
-    - add Cuba to BAT by default?
+- a  quick run setup
 
-2.  examples
-    - add example for histogram fitting using poisson distributions
-    - add example for non-flat prior
+- b  code cleanup
+     - remove not needed methods/atributes
+     - add checks on everything (make it easier to use for a normal user)
+     - maybe start to think about using of (C++) exceptions?
 
-2.  implement the general p-value calculation using MCMC
-    (since it's MCMC we could also have the possibility to sample
+- c  implement the general p-value calculation using MCMC
+     (since it's MCMC we could also have the possibility to sample
      according to posterior ?)
 
-3.  Pretty-plotting of 2D+2x1D marginalized distributions together
-    with output from MCMC
+- d  re-do everything with likelihood instead of conditional probability
+     entry (?)
 
-3.  ROOTified version
+- e  simple fitting within BAT
+     - graph fitting (gaussian uncertainties)
+     - histogram fitting (poisson uncertainties)
 
-4.  more parallelizatoin
+2.
+=============
+- a  examples
+     - paper examples on the web
+     - examples with non flat prior
+     - more complex examples (e.g. aka Dan's fitting)
 
-4.  some complex examples
+- b  manual
 
-99. GUI? (far far future)
+- c  improve the installation procedure
+     - autoconf/automake (cmake)?
+     - MAC?
+     - add Cuba to BAT by default?
+     - use Vegas from ROOT and drop dependence on Cuba?
 
-x.	implement (already existing) methods for interpolation of multidimensional distributions, e.g. Kernel density estimators
+- d  mode finding
+     - stable version
+     - simulated annealing
 
-x.	Calculate Bayes factors for model comparison
 
-x.	CUBA library dependence
-		- compare ROOT-version of VEGAS with CUBA
-		- remove CUBA library dependence or ease installation
+3.
+=============
+- a  Pretty-plotting of 2D+2x1D marginalized distributions together
+     with output from MCMC
 
-x.	Proposal functions:
-		- provide arbitrary proposal functions
-		- provide pre-defined proposal functions (Gaussian, box, etc.) 
-		- provide proposal function based on Gaussian around global mode and inverse Hessian of log likelihood 
+- b  ROOTified version
+
+
+4.
+=============
+- a  more parallelizatoin
+
+- b  some complex examples
+
+- c  implement (already existing) methods for interpolation of
+     multidimensional distributions, e.g. Kernel density estimators
+
+- d  Proposal functions:
+     - provide arbitrary proposal functions
+     - provide pre-defined proposal functions (Gaussian, box, etc.)
+     - provide proposal function based on Gaussian around global mode and
+       inverse Hessian of log likelihood
+
+
+
+Far future
+=============
+- a  GUI
+
+
 
