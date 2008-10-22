@@ -27,7 +27,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// opens the log file. 
-	BCLog::OpenLog("output/log.txt", BCLog::detail, BCLog::detail); 
+	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
 
 	// ---------------------------------------------------------
 	// model definition 
@@ -48,7 +48,7 @@ int main()
 	
 	// creates a ROOT output file which stores all the necessary
 	// information.
-	BCModelOutput * fModelOutputEfficiency = new BCModelOutput(fModelEfficiency, "output/output.root"); 
+	BCModelOutput * fModelOutputEfficiency = new BCModelOutput(fModelEfficiency, "output.root"); 
 
 	// the actual markov chain will be written to the output file. this
 	// might result in a large file. 
@@ -100,7 +100,7 @@ int main()
 	// the one- and two-dimensional marginalized probability densities
 	// are kept in memory and are returned from the model class. they
 	// are printed into a .ps file.
-	fModelEfficiency -> PrintAllMarginalized("output/plots.ps"); 
+	fModelEfficiency -> PrintAllMarginalized("plots.ps"); 
 
 	// ---------------------------------------------------------
 	// Do goodness-of-fit test  
@@ -133,7 +133,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// prints the results of the analysis into a file 
-	fModelEfficiency -> PrintResults("output/summary.txt"); 
+	fModelEfficiency -> PrintResults("summary.txt"); 
 	
 	// ---------------------------------------------------------
 	// close log file 
