@@ -215,3 +215,15 @@ double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool no
 }
 
 // ---------------------------------------------------------
+
+double BCMath::LogBreitWignerRel(double x, double mean, double Gamma)
+{
+
+	double bw = -log( (x*x - mean*mean) * (x*x - mean*mean) + mean*mean*Gamma*Gamma ); 
+
+	return bw; 
+
+}
+
+// ---------------------------------------------------------
+

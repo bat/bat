@@ -119,6 +119,7 @@ namespace BCMath
 	 * distribution.
 	 */
 	double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm = false);
+	double LogBreitWignerRel(double x, double mean, double Gamma);
 
 };
 
