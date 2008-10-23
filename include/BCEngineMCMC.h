@@ -684,6 +684,21 @@ class BCEngineMCMC
 	int SetMarginalized(int index, TH1D * h);
 	int SetMarginalized(int index1, int index2, TH2D * h);
 
+	/** 
+	 * Set the default values for the MCMC chain. 
+	 */ 
+	void MCMCSetValuesDefault(); 
+
+	/** 
+	 * Set the values for a quick MCMC run. 
+	 */ 
+	void MCMCSetValuesQuick(); 
+
+	/** 
+	 * Set the values for a detailed MCMC run. 
+	 */ 
+	void MCMCSetValuesDetail(); 
+
 	/* @} */ 
 
  private: 
@@ -702,7 +717,7 @@ class BCEngineMCMC
 	 * Pointer to a member function 
 	 */ 
 	MCMCPointerToGetProposalPoint fMCMCPointerToGetProposalPoint; 
-
+ 	
  protected: 
 
 	/* 
@@ -966,9 +981,7 @@ class BCEngineMCMC
 	/*
 	 * Number of bins per dimension for the marginalized distributions. 
 	 */ 
-	int fMCMCH1NBins; 
-	int fMCMCH2NBinsX; 
-	int fMCMCH2NBinsY; 
+	std::vector<int> fMCMCH1NBins; 
 
 	/*
 	 * An array of marginalized distributions. 

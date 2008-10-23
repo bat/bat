@@ -20,33 +20,13 @@ BCEngineMCMC::BCEngineMCMC()
 	// default settings
 
 	fMCMCNParameters          = 0;
-	fMCMCNChains              = 5;
-	fMCMCNIterationsMax       = 1000000;
-	fMCMCNIterationsRun       = 100000;
-	fMCMCNIterationsBurnIn    = 0;
-	fMCMCNIterationsPCA       = 10000;
-	fMCMCNIterationsPreRunMin = 500; 
-	fMCMCFlagIterationsAuto   = false;
-	fMCMCTrialFunctionScale   = 1.0;
-	fMCMCFlagInitialPosition  = 1;
-	fMCMCRValueCriterion      = 0.1;
-	fMCMCRValueParametersCriterion = 0.1;
-	fMCMCNIterationsConvergenceGlobal = -1;
-	fMCMCFlagConvergenceGlobal = false;
-	fMCMCRValue               = 100;
-	fMCMCFlagPCA              = false;
-	fMCMCSimulatedAnnealingT0 = 100;
-	fMCMCH1NBins              = 100;
-	fMCMCH2NBinsX             = 100;
-	fMCMCH2NBinsY             = 100;
-	fMCMCFlagPCATruncate      = false;
-	fMCMCPCA                  = 0;
-	fMCMCPCAMinimumRatio      = 1e-7;
-	fMCMCNIterationsUpdate    = 1000;
 	fMCMCFlagWriteChainToFile = false;
 	fMCMCFlagPreRun           = false;
 	fMCMCEfficiencyMin        = 0.15;
 	fMCMCEfficiencyMax        = 0.50;
+
+	this -> MCMCSetValuesDefault(); 
+	
 
 //	fMCMCRelativePrecisionMode = 1e-3;
 
@@ -1678,13 +1658,17 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 
 	// print convergence status
-	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 0)
+	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1)
 		BCLog::Out(BCLog::summary, BCLog::summary,
 				Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 
-	else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 0)
+	else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 1)
 		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains did not converge within %i iterations or could not adjust scales. ", fMCMCNChains, fMCMCNIterationsMax));
+							 Form(" --> Set of %i Markov chains did not converge within %i iterations or could not adjust scales. ", fMCMCNChains, fMCMCNIterationsMax));
+
+	else if(fMCMCNChains == 1)
+		BCLog::Out(BCLog::summary, BCLog::summary,
+							 " --> No convergence criterion for a single chain defined."); 
 
 	else
 		BCLog::Out(BCLog::summary, BCLog::summary,
@@ -2404,7 +2388,7 @@ int BCEngineMCMC::MCMCInitialize()
 		double hmax1 = fMCMCBoundaryMax.at(i);
 
 		TH1D * h1 = new TH1D(Form("h1_parameter_%i", i), "",
-								 fMCMCH1NBins, hmin1, hmax1);
+								 fMCMCH1NBins[i], hmin1, hmax1);
 
 		fMCMCH1Marginalized.push_back(h1);
 	}
@@ -2419,8 +2403,8 @@ int BCEngineMCMC::MCMCInitialize()
 				double hmax2 = fMCMCBoundaryMax.at(i);
 
 				TH2D * h2 = new TH2D(Form("h2_parameters_%i_vs_%i", i, k), "",
-										 fMCMCH2NBinsX, hmin1, hmax1,
-										 fMCMCH2NBinsY, hmin2, hmax2);
+										 fMCMCH1NBins[i], hmin1, hmax1,
+										 fMCMCH1NBins[k], hmin2, hmax2);
 
 				fMCMCH2Marginalized.push_back(h2);
 			}
@@ -2488,6 +2472,77 @@ int BCEngineMCMC::SetMarginalized(int index1, int index2, TH2D * h)
 		fMCMCH2Marginalized[index]=h;
 
 	return index;
+}
+
+// ---------------------------------------------------------
+
+void BCEngineMCMC::MCMCSetValuesDefault()
+{
+
+	this -> MCMCSetValuesDetail(); 
+
+	return; 
+
+}
+
+// ---------------------------------------------------------
+
+void BCEngineMCMC::MCMCSetValuesQuick()
+{
+
+	fMCMCNChains              = 1;
+	fMCMCNIterationsMax       = 1000;
+	fMCMCNIterationsRun       = 10000;
+	fMCMCNIterationsBurnIn    = 0;
+	fMCMCNIterationsPCA       = 0; 
+	fMCMCNIterationsPreRunMin = 0; 
+	fMCMCFlagIterationsAuto   = false;
+	fMCMCTrialFunctionScale   = 1.0;
+	fMCMCFlagInitialPosition  = 1;
+	fMCMCRValueCriterion      = 0.1;
+	fMCMCRValueParametersCriterion = 0.1;
+	fMCMCNIterationsConvergenceGlobal = -1;
+	fMCMCFlagConvergenceGlobal = false;
+	fMCMCRValue               = 100;
+	fMCMCFlagPCA              = false;
+	fMCMCSimulatedAnnealingT0 = 100;
+	fMCMCFlagPCATruncate      = false;
+	fMCMCPCA                  = 0;
+	fMCMCPCAMinimumRatio      = 1e-7;
+	fMCMCNIterationsUpdate    = 1000;
+
+	return; 
+
+}
+
+// ---------------------------------------------------------
+
+void BCEngineMCMC::MCMCSetValuesDetail()
+{
+
+	fMCMCNChains              = 5;
+	fMCMCNIterationsMax       = 1000000;
+	fMCMCNIterationsRun       = 100000;
+	fMCMCNIterationsBurnIn    = 0;
+	fMCMCNIterationsPCA       = 10000;
+	fMCMCNIterationsPreRunMin = 500; 
+	fMCMCFlagIterationsAuto   = false;
+	fMCMCTrialFunctionScale   = 1.0;
+	fMCMCFlagInitialPosition  = 1;
+	fMCMCRValueCriterion      = 0.1;
+	fMCMCRValueParametersCriterion = 0.1;
+	fMCMCNIterationsConvergenceGlobal = -1;
+	fMCMCFlagConvergenceGlobal = false;
+	fMCMCRValue               = 100;
+	fMCMCFlagPCA              = false;
+	fMCMCSimulatedAnnealingT0 = 100;
+	fMCMCFlagPCATruncate      = false;
+	fMCMCPCA                  = 0;
+	fMCMCPCAMinimumRatio      = 1e-7;
+	fMCMCNIterationsUpdate    = 1000;
+
+	return; 
+
 }
 
 // ---------------------------------------------------------

@@ -312,9 +312,18 @@ class BCIntegrate : public BCEngineMCMC
 	 * @param n Number of bins per dimension for the marginalized
 	 * distributions.  Default is 100. Minimum number allowed is 2.
 	 */
-	void SetNbins(int n);
-	void SetNbinsX(int n);
-	void SetNbinsY(int n);
+
+	/**
+	 * Set the number of bins for the marginalized distribution of a
+	 * parameter.  
+	 * @param nbins Number of bins (default = 100) 
+	 * @param index Index of the parameter.
+	 */
+	void SetNbins(int nbins, int index = -1); 
+
+	//	void SetNbins(int n);
+	//		void SetNbinsX(int n);
+	//	void SetNbinsY(int n);
 
 	/**
 	 * Sets index of the x values in function fits. 

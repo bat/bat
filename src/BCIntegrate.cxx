@@ -158,6 +158,11 @@ void BCIntegrate::SetParameters(BCParameterSet * par)
 			fMCMCBoundaryMax.push_back(fMax[i]); 
 		}
 
+	for (int i = int(fMCMCH1NBins.size()); i<fNvar; ++i)
+		{
+			fMCMCH1NBins.push_back(100); 
+		}
+
   fMCMCNParameters = fNvar; 
  
 }
@@ -195,43 +200,69 @@ void BCIntegrate::DeleteVarList()
 }
 
 // *********************************************
-void BCIntegrate::SetNbins(int n)
+void BCIntegrate::SetNbins(int nbins, int index)
 {
-	if(n<2)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
-		n=2;
-	}
-	fNbins=n;
 
-	fMCMCH1NBins = n; 
-	fMCMCH2NBinsX = n; 
-	fMCMCH2NBinsY = n; 
+	if (fNvar == 0)
+		return; 
+
+	// check if index is in range
+  if (index >= fNvar)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins(). Index not within range.");
+			return; 
+		}
+
+	// set for all parameters at once 
+	else if (index < 0)
+		for (int i = 0; i < fNvar; ++i)
+			this -> SetNbins(nbins, i); 
+	
+	// sanity check for nbins 
+	if (nbins <= 0)
+		nbins = 10; 
+
+	fMCMCH1NBins[index] = nbins; 
+
+	return; 
+
+// 	if(n<2)
+// 	{
+// 		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
+// 		n=2;
+// 	}
+// 	this -> MCMCSetH1NBins(n, -1); 
+
+	//	fNbins=n;
+
+	//	fMCMCH1NBins = n; 
+	//	fMCMCH2NBinsX = n; 
+	//	fMCMCH2NBinsY = n; 
 }
 
 // *********************************************
-void BCIntegrate::SetNbinsX(int n)
-{
-	if(n<2)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
-		n=2;
-	}
-	fMCMCH2NBinsX = n; 
-}
+// void BCIntegrate::SetNbinsX(int n)
+// {
+// 	if(n<2)
+// 	{
+// 		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
+// 		n=2;
+// 	}
+// 	fMCMCH2NBinsX = n; 
+// }
 
 // *********************************************
-void BCIntegrate::SetNbinsY(int n)
-{
-	if(n<2)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
-		n=2;
-	}
-	fNbins=n;
+// void BCIntegrate::SetNbinsY(int n)
+// {
+// 	if(n<2)
+// 	{
+// 		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
+// 		n=2;
+// 	}
+// 	fNbins=n;
 
-	fMCMCH2NBinsY = n; 
-}
+// 	fMCMCH2NBinsY = n; 
+// }
 
 // *********************************************
 void BCIntegrate::SetVarList(int * varlist)
