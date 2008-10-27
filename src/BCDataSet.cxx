@@ -14,6 +14,8 @@
 #include <TFile.h>
 #include <TTree.h>
 
+#include <iostream>
+
 // ---------------------------------------------------------
 
 BCDataSet::BCDataSet()
@@ -35,18 +37,18 @@ BCDataSet::~BCDataSet()
 
 // ---------------------------------------------------------
 
-int BCDataSet::GetNDataPoints()
+unsigned int BCDataSet::GetNDataPoints()
 {
 
-	int ndatapoints = 0;
+	unsigned int ndatapoints = 0;
 
 	// check if vector exists. Return number of data points if true ...
 	if (fBCDataVector)
-		ndatapoints = int(fBCDataVector -> size());
+		ndatapoints = fBCDataVector -> size();
 
 	// ... or give out warning and return 0 if not.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetNDataPoints. Memory for vector fBCDataVector not yet allocated. Return 0.");
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetNDataPoints : Memory for vector fBCDataVector not yet allocated. Return 0.");
 
 	return ndatapoints;
 
@@ -54,7 +56,20 @@ int BCDataSet::GetNDataPoints()
 
 // ---------------------------------------------------------
 
-BCDataPoint * BCDataSet::GetDataPoint(int index)
+unsigned int BCDataSet::GetNValuesPerPoint()
+{
+	// check if vector exists
+	if (fBCDataVector && fBCDataVector -> size() > 0)
+		return this -> GetDataPoint(0) -> GetNValues();
+
+	BCLog::Out(BCLog::error, BCLog::error,
+			"BCDataSet::GetNValuesPerPoint : Data set doesn't exist yet");
+	return 0;
+}
+
+// ---------------------------------------------------------
+
+BCDataPoint * BCDataSet::GetDataPoint(unsigned int index)
 {
 
 	BCDataPoint * datapoint = 0;
@@ -65,7 +80,7 @@ BCDataPoint * BCDataSet::GetDataPoint(int index)
 
 	// ... or give out warning and return 0 if not.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetDataPoint. Index out of range. Return 0.");
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetDataPoint : Index out of range. Return 0.");
 
 	return datapoint;
 
@@ -81,7 +96,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
 	{
 		fBCDataVector -> clear();
 
-		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree. Overwrite existing data.");
+		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree : Overwrite existing data.");
 	}
 
 	// ... or allocate memory for the vector if not.
@@ -95,7 +110,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
 	if (!file -> IsOpen())
 	{
 		BCLog::Out(BCLog::error, BCLog::error,
-				Form("BCDataSet::ReadDataFromFileTree. Could not open file %s.", filename));
+				Form("BCDataSet::ReadDataFromFileTree : Could not open file %s.", filename));
 		return ERROR_FILENOTFOUND;
 	}
 
@@ -106,7 +121,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
 	if (!tree)
 	{
 		BCLog::Out(BCLog::error, BCLog::error,
-				Form("BCDataSet::ReadDataFromFileTree. Could not find TTree %s.", treename));
+				Form("BCDataSet::ReadDataFromFileTree : Could not find TTree %s.", treename));
 
 		// close file
 		file -> Close();
@@ -180,7 +195,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
 	if (nentries <= 0)
 	{
 		BCLog::Out(BCLog::error, BCLog::error,
-				Form("BCDataSet::ReadDataFromFileTree. No events in TTree %s.", treename));
+				Form("BCDataSet::ReadDataFromFileTree : No events in TTree %s.", treename));
 
 		// close file
 		file -> Close();
@@ -227,7 +242,7 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 	{
 		fBCDataVector -> clear();
 
-		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt. Overwrite existing data.");
+		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt : Overwrite existing data.");
 	}
 
 	// ... or allocate memory for the vector if not.
@@ -242,7 +257,7 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 	if (!file.is_open())
 	{
 		BCLog::Out(BCLog::error, BCLog::error,
-				Form("BCDataSet::ReadDataFromFileText. Could not open file %s.", filename));
+				Form("BCDataSet::ReadDataFromFileText : Could not open file %s.", filename));
 
 		return ERROR_FILENOTFOUND;
 	}
@@ -279,7 +294,7 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 	if (nentries <= 0)
 	{
 		BCLog::Out(BCLog::error, BCLog::error,
-				Form("BCDataSet::ReadDataFromFileText. No events in the file %s.", filename));
+				Form("BCDataSet::ReadDataFromFileText : No events in the file %s.", filename));
 
 		// close file
 		file.close();
@@ -301,7 +316,7 @@ int BCDataSet::ReadDataFromFileUser(const char * filename, std::vector<int> opti
 
 	// if this method is called without being overloaded give out error.
 	BCLog::Out(BCLog::error, BCLog::error,
-			 "BCDataSet::ReadDataFromFileUser. Function needs to be overloaded by the user.");
+			 "BCDataSet::ReadDataFromFileUser : Function needs to be overloaded by the user.");
 
 	return ERROR_METHODNOTOVERLOADED;
 
@@ -320,7 +335,7 @@ void BCDataSet::AddDataPoint(BCDataPoint * datapoint)
 	// add data point to the data set.
 	fBCDataVector -> push_back(datapoint);
 
-};
+}
 
 // ---------------------------------------------------------
 
@@ -332,6 +347,35 @@ void BCDataSet::Reset()
 	if (fBCDataVector != 0)
 		fBCDataVector -> clear();
 
-};
+}
+
+// ---------------------------------------------------------
+
+void BCDataSet::Dump()
+{
+	if (!fBCDataVector)
+	{
+		BCLog::Out(BCLog::error, BCLog::error, "BCDataSet::Dump : Data set is empty. Nothing to dump.");
+		return;
+	}
+
+	std::cout << std::endl
+		<< "Dumping dataset:" << std::endl
+		<< "----------------" << std::endl
+		<< " - number of points:            " << fBCDataVector -> size() << std::endl
+		<< " - number of values per point:  " << this -> GetDataPoint(0) -> GetNValues() << std::endl
+		<< " - values:" << std::endl;
+	unsigned int n = this -> GetDataPoint(0) -> GetNValues();
+	for (unsigned int i=0; i< fBCDataVector -> size(); i++)
+	{
+		std::cout << Form("%5d :  ", i);
+		for (unsigned int j=0; j<n; j++)
+			std::cout << Form("%12.5g", this -> GetDataPoint(i) -> GetValue(j));
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+
+}
+
 
 // ---------------------------------------------------------

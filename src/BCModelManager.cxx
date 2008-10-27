@@ -94,7 +94,7 @@ void BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint)
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetSingleDataPoint(BCDataSet * dataset, int index)
+void BCModelManager::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 {
 
 	if (index < 0 || index > dataset -> GetNDataPoints())

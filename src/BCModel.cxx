@@ -65,9 +65,6 @@ BCModel::~BCModel()
 {
 	delete fParameterSet;
 
-	if (fDataSet)
-		delete fDataSet;
-
 	if (fDataPointLowerBoundaries)
 		delete fDataPointLowerBoundaries;
 
@@ -286,7 +283,7 @@ void BCModel::SetSingleDataPoint(BCDataPoint * datapoint)
 
 // ---------------------------------------------------------
 
-void BCModel::SetSingleDataPoint(BCDataSet * dataset, int index)
+void BCModel::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 {
 	if (index < 0 || index > dataset -> GetNDataPoints())
 		return;
@@ -343,7 +340,7 @@ void BCModel::SetErrorBandContinuous(bool flag)
 	fErrorBandX.clear();
 
 	// copy data x-values
-	for (int i = 0; i < fDataSet -> GetNDataPoints(); ++i)
+	for (unsigned int i = 0; i < fDataSet -> GetNDataPoints(); ++i)
 		fErrorBandX.push_back(fDataSet -> GetDataPoint(i) -> GetValue(fFitFunctionIndexX));
 }
 

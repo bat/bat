@@ -128,7 +128,7 @@ class BCModelManager
 	 * @see SetSingleDataPoint(BCDataPoint * datapoint) 
 	 * @see SetDataSet(BCDataSet * dataset)
 	 */ 
-	void SetSingleDataPoint(BCDataSet * dataset, int index); 
+	void SetSingleDataPoint(BCDataSet * dataset, unsigned int index); 
 
 	// DEBUG DELETE?  
 	/**

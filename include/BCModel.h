@@ -296,7 +296,7 @@ class BCModel : public BCIntegrate
 		 */
 		void SetSingleDataPoint(BCDataPoint * datapoint);
 
-		void SetSingleDataPoint(BCDataSet * dataset, int index);
+		void SetSingleDataPoint(BCDataSet * dataset, unsigned int index);
 
 		/**
 		 * Sets the minimum number of data points.

@@ -24,130 +24,142 @@
 
 #include <vector>
 
-#include "BCDataPoint.h" 
+#include "BCDataPoint.h"
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-typedef std::vector<BCDataPoint*> BCDataVector; 
+typedef std::vector<BCDataPoint*> BCDataVector;
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 class BCDataSet
 {
+	public:
 
- public: 
+		/** \name Constructors and destructors */
+		/* @{ */
 
-	/** \name Constructors and destructors */ 
-	/* @{ */ 
+		/*
+		 * Default constructor
+		 */
+		BCDataSet();
 
-	/* 
-	 * Default constructor 
-	 */ 
-	BCDataSet(); 
+		/*
+		 * Default destructor
+		 */
+		virtual ~BCDataSet();
 
-	/* 
-	 * Default destructor 
-	 */ 
-	virtual ~BCDataSet(); 
+		/* @} */
 
-	/* @} */ 
+		/** \name Member functions (get) */
+		/* @{ */
 
-	/** \name Member functions (get) */ 
-	/* @{ */ 
+		/*
+		 * @param The vector of data points.
+		 */
+		BCDataVector * GetDataVector();
 
-	/* 
-	 * @param The vector of data points. 
-	 */ 
-	BCDataVector * GetDataVector(); 
+		/*
+		 * @return The number of data points.
+		 */
+		unsigned int GetNDataPoints();
 
-	/* 
-	 * @return The number of data points. 
-	 */
-	int GetNDataPoints(); 
+		/*
+		 * @return number of values per data point (dimension of data).
+		 */
+		unsigned int GetNValuesPerPoint();
 
-	/* 
-	 * @param index The index of the data point to be returned. 
-	 * @return The data point at the index. 
-	 */ 
-	BCDataPoint* GetDataPoint(int index); 
+		/*
+		 * @param index The index of the data point to be returned.
+		 * @return The data point at the index.
+		 */
+		BCDataPoint * GetDataPoint(unsigned int index);
 
-	/* @} */ 
 
-	/** \name Member functions (miscellaneous methods) */ 
-	/* @{ */
+		/* @} */
 
-	/**
-	 * Reads data from a file. For a description see the following
-	 * member functions.
-	 */ 
-	int ReadDataFromFile(const char * filename, const char * treename, const char * branchnames)
-	{ return this ->  ReadDataFromFileTree(filename, treename, branchnames); }; 
-	int ReadDataFromFile(const char * filename, int nvariables)
-	{ return this -> ReadDataFromFileTxt(filename, nvariables); }; 
-	int ReadDataFromFile(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
-	{ return this -> ReadDataFromFileUser(filename, options_int, options_double, options_char); }; 
+		/** \name Member functions (miscellaneous methods) */
+		/* @{ */
 
-	/** 
-	 * Reads a TTree from a .root file.  Opens a .root file and
-	 * gets a TTree. It creates data points containing the values
-	 * read from the file.
-	 * @param filename The name of the .root file. 
-	 * @param treename The name of the TTree. 	 
-	 * @param branchnames A list of the names of the branches
-	 * separated by a comma	 
-	 * @return An error code.  
-	 * @see ReadDataFromFileTxt(char* filename, int nbranches); 
-	 * @see ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
-	 */ 
-	int ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames); 
+		/**
+		 * Reads data from a file. For a description see the following
+		 * member functions.
+		 */
+		int ReadDataFromFile(const char * filename, const char * treename, const char * branchnames)
+			{ return this ->  ReadDataFromFileTree(filename, treename, branchnames); };
 
-	/** 
-	 * Reads data from a .txt file.  Opens a .txt file and creates
-	 * data objects containing the values read from the file.
-	 * @param filename The name of the .txt file. 
-	 * @param nvariables The number of variables. 
-	 * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
-	 * @see ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
-	 */
-	int ReadDataFromFileTxt(const char * filename, int nvariables);
+		int ReadDataFromFile(const char * filename, int nvariables)
+			{ return this -> ReadDataFromFileTxt(filename, nvariables); };
 
-	/** 
-	 * Reads data from a user specified file.  Opens a user
-	 * specified file and creates data objects containing the
-	 * values read from the file. This method needs to be
-	 * overloaded.
-	 * @param filename The name of the file 
-	 * @param options_int A vector of options of type int 
-	 * @param options_double A vector of options of type double 
-	 * @param options_char A pointer of characters 
-	 * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
-	 * @see ReadDataFromFileTxt(char* filename, int nbranches); 
-	 */   
-	virtual int ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
+		int ReadDataFromFile(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
+			{ return this -> ReadDataFromFileUser(filename, options_int, options_double, options_char); };
 
-	/**
-	 * Adds a data point to the data set. 
-	 * @param datapoint The data point to be added 
-	 */ 
-	void AddDataPoint(BCDataPoint* datapoint); 
+		/**
+		 * Reads a TTree from a .root file.  Opens a .root file and
+		 * gets a TTree. It creates data points containing the values
+		 * read from the file.
+		 * @param filename The name of the .root file.
+		 * @param treename The name of the TTree.
+		 * @param branchnames A list of the names of the branches
+		 * separated by a comma
+		 * @return An error code.
+		 * @see ReadDataFromFileTxt(char* filename, int nbranches);
+		 * @see ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
+		 */
+		int ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames);
 
-	/**
-	 * Resets the content of the data set 
-	 */ 
-	void Reset(); 
+		/**
+		 * Reads data from a .txt file.  Opens a .txt file and creates
+		 * data objects containing the values read from the file.
+		 * @param filename The name of the .txt file.
+		 * @param nvariables The number of variables.
+		 * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
+		 * @see ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
+		 */
+		int ReadDataFromFileTxt(const char * filename, int nvariables);
 
-	/* @} */ 
+		/**
+		 * Reads data from a user specified file.  Opens a user
+		 * specified file and creates data objects containing the
+		 * values read from the file. This method needs to be
+		 * overloaded.
+		 * @param filename The name of the file
+		 * @param options_int A vector of options of type int
+		 * @param options_double A vector of options of type double
+		 * @param options_char A pointer of characters
+		 * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
+		 * @see ReadDataFromFileTxt(char* filename, int nbranches);
+		 */
+		virtual int ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
 
- private: 
+		/**
+		 * Adds a data point to the data set.
+		 * @param datapoint The data point to be added
+		 */
+		void AddDataPoint(BCDataPoint* datapoint);
 
-	/* 
-	 * A vector containing the data points 
-	 */ 
-	BCDataVector* fBCDataVector; 
+		/**
+		 * Resets the content of the data set
+		 */
+		void Reset();
 
-}; 
+		/**
+		 * Dump the data to the standard output
+		 */
+		void Dump();
 
-// --------------------------------------------------------- 
+		/* @} */
 
-#endif 
+	private:
+
+		/*
+		 * A vector containing the data points
+		 */
+		BCDataVector* fBCDataVector;
+
+};
+
+// ---------------------------------------------------------
+
+#endif
 
