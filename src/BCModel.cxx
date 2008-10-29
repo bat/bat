@@ -793,7 +793,7 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 	}
 	else
 		BCLog::Out(BCLog::warning, BCLog::warning,
-			Form("BCModel::ReadErrorBandFromFile. Couldn't read histogram \"errorbandxy\" from file %s.", file));
+			Form("BCModel::ReadErrorBandFromFile : Couldn't read histogram \"errorbandxy\" from file %s.", file));
 
 	froot->Close();
 
@@ -807,7 +807,7 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
 	if(fMCMCH1Marginalized.size()==0)
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::PrintAllMarginalized2D. MarginalizeAll() has to be run prior to this to fill the distributions.");
+				"BCModel::PrintAllMarginalized1D : MarginalizeAll() has to be run prior to this to fill the distributions.");
 		return 0;
 	}
 
@@ -828,7 +828,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 	if(fMCMCH2Marginalized.size()==0)
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::PrintAllMarginalized2D. MarginalizeAll() has to be run prior to this to fill the distributions.");
+				"BCModel::PrintAllMarginalized2D : MarginalizeAll() has to be run prior to this to fill the distributions.");
 		return 0;
 	}
 
@@ -873,14 +873,14 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::PrintAllMarginalized. MarginalizeAll() has to be run prior to this to fill the distributions.");
+				"BCModel::PrintAllMarginalized : MarginalizeAll() has to be run prior to this to fill the distributions.");
 		return 0;
 	}
 
 	int n=0;
 
 	// setup the canvas and postscript file
-	TCanvas * c = new TCanvas("c","canvas");
+	TCanvas * c = new TCanvas( "c","canvas" );
 
 	int type = 112;
 	TPostScript * ps = new TPostScript(file,type);

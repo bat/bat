@@ -202,29 +202,30 @@ void BCIntegrate::DeleteVarList()
 // *********************************************
 void BCIntegrate::SetNbins(int nbins, int index)
 {
-
 	if (fNvar == 0)
-		return; 
+		return;
 
 	// check if index is in range
-  if (index >= fNvar)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins(). Index not within range.");
-			return; 
-		}
-
-	// set for all parameters at once 
+	if (index >= fNvar)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins : Index out of range.");
+		return;
+	}
+	// set for all parameters at once
 	else if (index < 0)
+	{
 		for (int i = 0; i < fNvar; ++i)
-			this -> SetNbins(nbins, i); 
-	
-	// sanity check for nbins 
+			this -> SetNbins(nbins, i);
+		return;
+	}
+
+	// sanity check for nbins
 	if (nbins <= 0)
-		nbins = 10; 
+		nbins = 10;
 
-	fMCMCH1NBins[index] = nbins; 
+	fMCMCH1NBins[index] = nbins;
 
-	return; 
+	return;
 
 // 	if(n<2)
 // 	{
