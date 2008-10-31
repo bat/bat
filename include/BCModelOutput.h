@@ -1,6 +1,6 @@
 /*!
  * \class BCModelOutput
- * \brief A class for creating an (ROOT) output file. 
+ * \brief A class for creating an (ROOT) output file.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \version 1.0
@@ -8,16 +8,16 @@
  * \detail This class defines an output interface for the analysis. It
  * creates a ROOT file which can contain summary information,
  * histograms and Markov chains.
- */ 
+ */
 
 /*
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
- * All rights reserved. 
- * 
- * For the licensing terms see doc/COPYING. 
- */ 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #ifndef __BCMODELOUTPUT__H
 #define __BCMODELOUTPUT__H
@@ -29,188 +29,194 @@ const int MAXNPARAMETERS = 20;
 #include <TTree.h>
 #include <TFile.h>
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-class BCModelOutput 
+class BCModelOutput
 {
-  
- public:
-  
-	/** \name Constructors and destructors */ 
-	/* @{ */
+	public:
 
-	/** 
-	 * The default constructor. 
-	 */ 
-	BCModelOutput(); 
+		/** \name Constructors and destructors */
+		/* @{ */
 
-	/** 
-	 * A constructor. 
-	 * @param model The model to which this output class is assigned. 
-	 * @param filename Name of the output file. 
-	 */
-	BCModelOutput(BCModel * model, const char * filenname); 
+		/**
+		 * The default constructor.
+		 */
+		BCModelOutput();
 
-	/** 
-	 * The default copy constructor. 
-	 */ 
-	BCModelOutput(const BCModelOutput & modeloutput); 
+		/**
+		 * A constructor.
+		 * @param model The model to which this output class is assigned.
+		 * @param filename Name of the output file.
+		 */
+		BCModelOutput(BCModel * model, const char * filenname);
 
-	/** 
-	 * The default destructor. 
-	 */ 
-	virtual ~BCModelOutput(); 
+		/**
+		 * The default copy constructor.
+		 */
+		BCModelOutput(const BCModelOutput & modeloutput);
 
-	/* @} */ 
+		/**
+		 * The default destructor.
+		 */
+		virtual ~BCModelOutput();
 
-	/** \name Assignment operators */ 
-	/* @{ */ 
+		/* @} */
 
-	/**
-	 * The defaut assignment operator 
-	 */ 
-	BCModelOutput & operator = (const BCModelOutput & modeloutput); 
+		/** \name Assignment operators */
+		/* @{ */
 
-	/* @} */ 
+		/**
+		 * The defaut assignment operator
+		 */
+		BCModelOutput & operator = (const BCModelOutput & modeloutput);
 
-	/** \name Getters */ 
-	/* @{ */ 
+		/* @} */
 
-	/**
-	 * Returns the output TTree tree. 
-	 * @return The pointer to the output TTree. 
-	 */ 
-	TTree * GetAnalysisTree()
-		{ return fAnalysisTree; }; 
+		/** \name Getters */
+		/* @{ */
 
-	/**
-	 * Returns the output TFile. 
-	 * @return The pointer to the output TFile. 
-	 */
-	TFile * GetFile()
-		{ return fOutputFile; }; 
+		/**
+		 * Returns the output TTree tree.
+		 * @return The pointer to the output TTree.
+		 */
+		TTree * GetAnalysisTree()
+			{ return fAnalysisTree; };
 
-	/* @} */ 
+		/**
+		 * Returns the output TFile.
+		 * @return The pointer to the output TFile.
+		 */
+		TFile * GetFile()
+			{ return fOutputFile; };
 
-	/** \name Setters */ 
-	/* @{ */ 
+		/* @} */
 
-	/**
-	 * Assign a BCModel to this output class. 
-	 * @param model A pointer to the BCModel. 
-	 */ 
-	void SetModel(BCModel * model) 
-	{ fModel = model; }; 
+		/** \name Setters */
+		/* @{ */
 
-	/**
-	 * Sets the output filename. 
-	 * @param filename The filename. 
-	 */ 
-	void SetFile(const char * filename); 
+		/**
+		 * Assign a BCModel to this output class.
+		 * @param model A pointer to the BCModel.
+		 */
+		void SetModel(BCModel * model)
+			{ fModel = model; };
 
-	/* @} */ 
+		/**
+		 * Sets the output filename.
+		 * @param filename The filename.
+		 */
+		void SetFile(const char * filename);
 
-	/** \name Member functions (miscellaneous methods) */ 
-	/* @{ */ 	
+		/* @} */
 
-	/**
-	 * Flag for writing Markov chain to file 
-	 * @param flag Writes (true) or does not write (false) the Markov chain 
-	 */ 
-	void WriteMarkovChain(bool flag); 
+		/** \name Member functions (miscellaneous methods) */
+		/* @{ */
 
-	/**
-	 * Fill the output TTree with the current information. 
-	 */ 
-	void FillAnalysisTree(); 
+		/**
+		 * Flag for writing Markov chain to file
+		 * @param flag Writes (true) or does not write (false) the Markov chain
+		 */
+		void WriteMarkovChain(bool flag);
 
-	/**
-	 * Writes the marginalized histograms to the TFile. 
-	 */ 
-	void WriteMarginalizedDistributions(); 
+		/**
+		 * Fill the output TTree with the current information.
+		 */
+		void FillAnalysisTree();
 
-	/**
-	 * Closes the TFile. 
-	 */ 
-	void Close(); 
+		/**
+		 * Writes the marginalized histograms to the TFile.
+		 */
+		void WriteMarginalizedDistributions();
 
-	/* @} */ 
+		/**
+		 * Writes the error band histogram into the TFile.
+		 */
+		void WriteErrorBand();
 
- private:
+		/**
+		 * Closes the TFile.
+		 */
+		void Close();
 
-	/* 
-	 * Copies this BCModelOutput into another one 
-	 */ 
-	void Copy(BCModelOutput & modeloutput) const; 
+		/* @} */
 
-	/**
-	 * Initialize the output TTree. 
-	 */
-	void InitializeAnalysisTree(); 
 
-	/**
-	 * Initialize the Markov Chain TTree. 
-	 */
-	void InitializeMarkovChainTrees(); 
 
-	/**
-	 * Pointer to the TTree containing the summary output information.
-	 */
-	TTree * fAnalysisTree; 
+	private:
 
-	/**
-	 * Pointer to the TTree containing the Markov chain. 
-	 */ 
-	TTree * fMarkovChainTree; 
+		/*
+		 * Copies this BCModelOutput into another one
+		 */
+		void Copy(BCModelOutput & modeloutput) const;
 
-	/*
-	 * The trees containing the Markov chains. The length of the vector
-	 * is fMCMCNChains. 
-	 */ 
-	std::vector<TTree *> fMarkovChainTrees; 
+		/**
+		 * Initialize the output TTree.
+		 */
+		void InitializeAnalysisTree();
 
-	/** 
-	 * The output filename
-	 */ 
-	const char * fFilename; 
+		/**
+		 * Initialize the Markov Chain TTree.
+		 */
+		void InitializeMarkovChainTrees();
 
-	/**
-	 * Pointer to the output TFile. 
-	 */ 
-	TFile * fOutputFile; 
+		/**
+		 * Pointer to the TTree containing the summary output information.
+		 */
+		TTree * fAnalysisTree;
 
-	/**
-	 * Pointer to the model this output class is assigned to
-	 */ 
-	BCModel * fModel; 
+		/**
+		 * Pointer to the TTree containing the Markov chain.
+		 */
+		TTree * fMarkovChainTree;
 
-	/**
-	 * The analysis tree variables 
-	 */
-	int fIndex; 
-	int fNParameters; 
-	double fProbability_apriori; 
-	double fProbability_aposteriori; 
-	double fMode_global[MAXNPARAMETERS]; 
-	double fMode_marginalized[MAXNPARAMETERS]; 
-	double fMean_marginalized[MAXNPARAMETERS]; 
-	double fMedian_marginalized[MAXNPARAMETERS]; 
-	double fQuantile_05[MAXNPARAMETERS]; 
-	double fQuantile_10[MAXNPARAMETERS]; 
-	double fQuantile_16[MAXNPARAMETERS]; 
-	double fQuantile_84[MAXNPARAMETERS]; 
-	double fQuantile_90[MAXNPARAMETERS]; 
-	double fQuantile_95[MAXNPARAMETERS]; 
+		/*
+		 * The trees containing the Markov chains. The length of the vector
+		 * is fMCMCNChains.
+		 */
+		std::vector<TTree *> fMarkovChainTrees;
 
-	/**
-	 * The markov chain tree variables 
-	 */ 
-	std::vector<double> * fParameters; 
-	std::vector<double> * fLogLikelihood; 
-	std::vector <int> * fIteration; 
+		/**
+		 * The output filename
+		 */
+		const char * fFilename;
 
-}; 
+		/**
+		 * Pointer to the output TFile.
+		 */
+		TFile * fOutputFile;
 
-// --------------------------------------------------------- 
+		/**
+		 * Pointer to the model this output class is assigned to
+		 */
+		BCModel * fModel;
 
-#endif 
+		/**
+		 * The analysis tree variables
+		 */
+		int fIndex;
+		int fNParameters;
+		double fProbability_apriori;
+		double fProbability_aposteriori;
+		double fMode_global[MAXNPARAMETERS];
+		double fMode_marginalized[MAXNPARAMETERS];
+		double fMean_marginalized[MAXNPARAMETERS];
+		double fMedian_marginalized[MAXNPARAMETERS];
+		double fQuantile_05[MAXNPARAMETERS];
+		double fQuantile_10[MAXNPARAMETERS];
+		double fQuantile_16[MAXNPARAMETERS];
+		double fQuantile_84[MAXNPARAMETERS];
+		double fQuantile_90[MAXNPARAMETERS];
+		double fQuantile_95[MAXNPARAMETERS];
+
+		/**
+		 * The markov chain tree variables
+		 */
+		std::vector<double> * fParameters;
+		std::vector<double> * fLogLikelihood;
+		std::vector <int> * fIteration;
+
+};
+
+// ---------------------------------------------------------
+
+#endif
