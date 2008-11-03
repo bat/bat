@@ -197,6 +197,44 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 
 // ---------------------------------------------------------
 
+TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
+{
+	if (!fErrorBandXY)
+		return 0;
+
+	int nx = fErrorBandXY -> GetNbinsX();
+	int ny = fErrorBandXY -> GetNbinsY();
+
+	// copy existing histogram
+	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(Form("%s_sub_%f.2",fErrorBandXY->GetName(),level));
+	hist_tempxy -> Reset();
+	hist_tempxy -> SetFillColor(kYellow);
+
+	// loop over x bins
+	for (int ix = 1; ix < nx; ix++)
+	{
+		BCH1D * hist_temp = new BCH1D();
+
+		TH1D * hproj = fErrorBandXY -> ProjectionY("temphist", ix, ix);
+		if(nsmooth>0)
+			hproj->Smooth(nsmooth);
+
+		hist_temp -> SetHistogram(hproj);
+
+		TH1D * hist_temp_yellow = hist_temp -> GetSmallestIntervalHistogram(level);
+
+		for (int iy = 1; iy <= ny; ++iy)
+			hist_tempxy -> SetBinContent(ix, iy, hist_temp_yellow -> GetBinContent(iy));
+
+		delete hist_temp_yellow;
+		delete hist_temp;
+	}
+
+	return hist_tempxy;
+}
+
+// ---------------------------------------------------------
+
 TGraph * BCModel::GetFitFunctionGraph(std::vector <double> parameters)
 {
 	if (!fErrorBandXY)
@@ -879,12 +917,48 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 
 	int n=0;
 
-	// setup the canvas and postscript file
-	TCanvas * c = new TCanvas( "c","canvas" );
+	int c_width=600; // default canvas width
+	int c_height=600; // default canvas height
 
-	int type = 112;
+	int type = 112; // landscape
+
+	if (hdiv > vdiv)
+	{
+		if(hdiv>3)
+		{
+			c_width=1000;
+			c_height=700;
+		}
+		else
+		{
+			c_width=800;
+			c_height=600;
+		}
+	}
+	else if(hdiv < vdiv)
+	{
+		if(hdiv>3)
+		{
+			c_height=1000;
+			c_width=700;
+		}
+		else
+		{
+			c_height=800;
+			c_width=600;
+		}
+		type=111;
+	}
+
+	// setup the canvas and postscript file
+	TCanvas * c = new TCanvas( "c","canvas",c_width,c_height);
+
 	TPostScript * ps = new TPostScript(file,type);
-	ps->Range(24,18);
+
+	if(type==112)
+		ps->Range(24,16);
+	else
+		ps->Range(16,24);
 
 	// draw all 1D distributions
 	ps->NewPage();
