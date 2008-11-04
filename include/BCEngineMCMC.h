@@ -694,12 +694,12 @@ class BCEngineMCMC
 	 */ 
 	void MCMCSetValuesQuick(); 
 
-	/** 
-	 * Set the values for a detailed MCMC run. 
-	 */ 
+	/**
+	 * Set the values for a detailed MCMC run.
+	 */
 	void MCMCSetValuesDetail(); 
 
-	/* @} */ 
+	/* @} */
 
  private: 
 
@@ -714,10 +714,10 @@ class BCEngineMCMC
 	typedef bool (BCEngineMCMC::*MCMCPointerToGetProposalPoint) (int chain, std::vector <double> xnew, std::vector <double> xold) const; 
 
 	/*
-	 * Pointer to a member function 
-	 */ 
-	MCMCPointerToGetProposalPoint fMCMCPointerToGetProposalPoint; 
- 	
+	 * Pointer to a member function
+	 */
+	MCMCPointerToGetProposalPoint fMCMCPointerToGetProposalPoint;
+
  protected: 
 
 	/* 
