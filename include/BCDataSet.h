@@ -119,20 +119,6 @@ class BCDataSet
 		int ReadDataFromFileTxt(const char * filename, int nvariables);
 
 		/**
-		 * Reads data from a user specified file.  Opens a user
-		 * specified file and creates data objects containing the
-		 * values read from the file. This method needs to be
-		 * overloaded.
-		 * @param filename The name of the file
-		 * @param options_int A vector of options of type int
-		 * @param options_double A vector of options of type double
-		 * @param options_char A pointer of characters
-		 * @see ReadDataFromFileTree(char* filename, char* treename, std::vector<char*> branchnames)
-		 * @see ReadDataFromFileTxt(char* filename, int nbranches);
-		 */
-		virtual int ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char);
-
-		/**
 		 * Adds a data point to the data set.
 		 * @param datapoint The data point to be added
 		 */
