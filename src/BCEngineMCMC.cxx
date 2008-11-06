@@ -1220,15 +1220,15 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	this -> MCMCInitialize();
 	this -> MCMCInitializeMarkovChains();
 
-	// perform burn-in run
-	if (fMCMCNIterationsBurnIn > 0)
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn));
-
 	// helper variable containing number of digits in the number of parameters
 	int ndigits = (int)log10(fMCMCNParameters) +1;
 	if(ndigits<4)
 		ndigits=4;
+
+	// perform burn-in run
+	if (fMCMCNIterationsBurnIn > 0)
+		BCLog::Out(BCLog::detail, BCLog::detail,
+				Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn));
 
 	for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
 		for (int j = 0; j < fMCMCNChains; ++j)
@@ -1238,7 +1238,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
 
-	// define data buffer for pca rur
+	// define data buffer for pca run
 	double * dataall = 0;
 	double * sum = 0;
 	double * sum2 = 0;
