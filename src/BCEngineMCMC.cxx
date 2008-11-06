@@ -633,87 +633,64 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 
 bool BCEngineMCMC::MCMCGetNewPointMetropolisHastings(int chain)
 {
-  
-  // calculate index 
+	// calculate index
+	int index = chain * fMCMCNParameters;
 
-  int index = chain * fMCMCNParameters; 
+	// save old point
+	std::vector <double> xold;
+	for (int i = 0; i < fMCMCNParameters; ++i)
+		xold.push_back(fMCMCxLocal.at(i));
 
-  // save old point
+	// get proposal point
+	int counter = 0;
+	while (!this -> MCMCGetProposalPointMetropolisHastings(chain, fMCMCxLocal, xold) && counter < 1000)
+		counter++;
 
-  std::vector <double> xold; 
+	// calculate probabilities of the old and new points
+	double p0 = fMCMCLogProbx[chain] + log(this -> MCMCTrialFunctionIndependent(xold, fMCMCxLocal, false));
+	double p1 = this -> LogEval(fMCMCxLocal) + log(this -> MCMCTrialFunctionIndependent(xold, fMCMCxLocal, false));
 
-  for (int i = 0; i < fMCMCNParameters; ++i)
-    xold.push_back(fMCMCxLocal.at(i)); 
+	// flag for accept
+	bool accept = false;
 
-  // get proposal point 
-
-  int counter = 0; 
-	
-  while (!this -> MCMCGetProposalPointMetropolisHastings(chain, fMCMCxLocal, xold) && counter < 1000)
-    counter++; 
-
-  // calculate probabilities of the old and new points 
-
-  double p0 = fMCMCLogProbx[chain] + log(this -> MCMCTrialFunctionIndependent(xold, fMCMCxLocal, false)); 
-  double p1 = this -> LogEval(fMCMCxLocal) + log(this -> MCMCTrialFunctionIndependent(xold, fMCMCxLocal, false)); 
-     
-  // flag for accept 
-
-  bool accept = false;
-
-  // if the new point is more probable, keep it ... 
-
-  if (p1 >= p0)
-    accept = true;
-
-	// ... or else throw dice. 
-
+	// if the new point is more probable, keep it ...
+	if (p1 >= p0)
+		accept = true;
+	// ... or else throw dice.
 	else
- 		{
- 			double r = log(fMCMCRandom -> Rndm());
+	{
+		if( log(fMCMCRandom -> Rndm()) < p1 - p0)
+			accept = true;
+	}
 
- 			if(r < p1 - p0)
-			  accept = true;
- 		}
+	// fill the new point
+	if(accept)
+	{
+		// increase counter
+		for (int i = 0; i < fMCMCNParameters; ++i)
+			fMCMCNTrialsTrue[chain * fMCMCNParameters + i]++;
 
- 	// fill the new point 
-
- 	if(accept)
- 	  {	    
-			// increase counter 
-
-		  for (int i = 0; i < fMCMCNParameters; ++i)
-		    fMCMCNTrialsTrue[chain * fMCMCNParameters + i]++; 
-
-	    // copy the point 	   
-
- 	    for(int i = 0; i < fMCMCNParameters; ++i)
- 	      {
-					// save the point 
-					
-					fMCMCx[index + i] = fMCMCxLocal[i]; 
-					
-					// save the probability of the point 
-					
-					fMCMCLogProbx[chain] = p1; 
-	      }
-	  }
-
-	else
+		// copy the point
+		for(int i = 0; i < fMCMCNParameters; ++i)
 		{
-			// increase counter 
+			// save the point
+			fMCMCx[index + i] = fMCMCxLocal[i];
 
-		  for (int i = 0; i < fMCMCNParameters; ++i)
-		    fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++; 
-
+			// save the probability of the point
+			fMCMCLogProbx[chain] = p1;
 		}
+	}
+	else
+	{
+		// increase counter
+		for (int i = 0; i < fMCMCNParameters; ++i)
+			fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
+	}
 
-	// increase counter 
+	// increase counter
+	fMCMCNIterations[chain]++;
 
-	fMCMCNIterations[chain]++; 
-	
-	return accept; 
-
+	return accept;
 }
 
 // --------------------------------------------------------
@@ -800,53 +777,46 @@ bool BCEngineMCMC::MCMCGetNewPointSimulatedAnnealing(int chain, bool pca)
 
 double BCEngineMCMC::MCMCAnnealingSchedule(int chain)
 {
-
-  // this function can be overloaded by the user
-
-  return fMCMCSimulatedAnnealingT0 * pow(1.0/fMCMCSimulatedAnnealingT0, double(fMCMCNIterations[chain])/fMCMCNIterationsMax);    
-  
+	// this function can be overloaded by the user
+	return fMCMCSimulatedAnnealingT0 * pow(1.0/fMCMCSimulatedAnnealingT0, double(fMCMCNIterations[chain])/fMCMCNIterationsMax);
 }
 
 // --------------------------------------------------------
 
 void BCEngineMCMC::MCMCUpdateStatisticsModeConvergence()
 {
+	double * mode_minimum = new double[fMCMCNParameters];
+	double * mode_maximum = new double[fMCMCNParameters];
+	double * mode_average = new double[fMCMCNParameters];
 
-	double * mode_minimum = new double[fMCMCNParameters]; 
-	double * mode_maximum = new double[fMCMCNParameters]; 
-	double * mode_average = new double[fMCMCNParameters]; 
-
-	// set initial values 
-
+	// set initial values
 	for (int j = 0; j < fMCMCNParameters; ++j)
+	{
+		mode_minimum[j] = fMCMCMaximumPoints[j];
+		mode_maximum[j] = fMCMCMaximumPoints[j];
+		mode_average[j] = 0;
+	}
+
+	// calculate the maximum difference in each dimension
+	for (int i = 0; i < fMCMCNChains; ++i)
+		for (int j = 0; j < fMCMCNParameters; ++j)
 		{
-			mode_minimum[j] = fMCMCMaximumPoints[j]; 
-			mode_maximum[j] = fMCMCMaximumPoints[j]; 
-			mode_average[j] = 0; 
+			if (fMCMCMaximumPoints[i * fMCMCNParameters + j] < mode_minimum[j])
+				mode_minimum[j] = fMCMCMaximumPoints[i * fMCMCNParameters + j];
+
+			if (fMCMCMaximumPoints[i * fMCMCNParameters + j] > mode_maximum[j])
+				mode_maximum[j] = fMCMCMaximumPoints[i * fMCMCNParameters + j];
+
+			mode_average[j] += fMCMCMaximumPoints[i * fMCMCNParameters + j] / double(fMCMCNChains);
 		}
 
-	// calculate the maximum difference in each dimension 
-
-  for (int i = 0; i < fMCMCNChains; ++i)
-		for (int j = 0; j < fMCMCNParameters; ++j)
-			{
-				if (fMCMCMaximumPoints[i * fMCMCNParameters + j] < mode_minimum[j])
-					mode_minimum[j] = fMCMCMaximumPoints[i * fMCMCNParameters + j]; 
-
-				if (fMCMCMaximumPoints[i * fMCMCNParameters + j] > mode_maximum[j])
-					mode_maximum[j] = fMCMCMaximumPoints[i * fMCMCNParameters + j]; 
-
-				mode_average[j] += fMCMCMaximumPoints[i * fMCMCNParameters + j] / double(fMCMCNChains); 
-			}
-
 	for (int j = 0; j < fMCMCNParameters; ++j)
-		fMCMCNumericalPrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]); 
-//		fMCMCRelativePrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]) / mode_average[j]; 
+		fMCMCNumericalPrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]);
+//		fMCMCRelativePrecisionModeValues[j] = (mode_maximum[j] - mode_minimum[j]) / mode_average[j];
 
-	delete [] mode_minimum; 
-	delete [] mode_maximum; 
-	delete [] mode_average; 
-
+	delete [] mode_minimum;
+	delete [] mode_maximum;
+	delete [] mode_average;
 }
 
 // --------------------------------------------------------
@@ -854,7 +824,6 @@ void BCEngineMCMC::MCMCUpdateStatisticsModeConvergence()
 void BCEngineMCMC::MCMCUpdateStatisticsCheckMaximum()
 {
 	// loop over all chains
-
 	for (int i = 0; i < fMCMCNChains; ++i)
 	{
 		if (fMCMCLogProbx[i] > fMCMCMaximumLogProb[i] || fMCMCNIterations[i] == 1)
@@ -864,38 +833,31 @@ void BCEngineMCMC::MCMCUpdateStatisticsCheckMaximum()
 				fMCMCMaximumPoints[i * fMCMCNParameters + j] = fMCMCx[i * fMCMCNParameters + j];
 		}
 	}
-
 }
 
 // --------------------------------------------------------
 
 void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 {
+	// loop over chains
+	for (int i = 0; i < fMCMCNChains; ++i)
+	{
+		// fill each 1-dimensional histogram
+		for (int j = 0; j < fMCMCNParameters; ++j)
+			fMCMCH1Marginalized[j] -> Fill(fMCMCx[i * fMCMCNParameters + j]);
 
-	// loop over chains 
+		// fill each 2-dimensional histogram
+		int counter = 0;
 
-  for (int i = 0; i < fMCMCNChains; ++i)
-    {
-      // fill each 1-dimensional histogram 
-      
-      for (int j = 0; j < fMCMCNParameters; ++j)
-				fMCMCH1Marginalized[j] -> Fill(fMCMCx[i * fMCMCNParameters + j]); 
-			
-      // fill each 2-dimensional histogram 
-      
-      int counter = 0; 
-      
-      for (int j = 0; j < fMCMCNParameters; ++j)
-				for (int k = 0; k < j; ++k)
-					{
-						fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i * fMCMCNParameters + k], 
-																								 fMCMCx[i * fMCMCNParameters + j]); 
-						
-						counter ++; 
-					}
-    }
-
-	
+		for (int j = 0; j < fMCMCNParameters; ++j)
+			for (int k = 0; k < j; ++k)
+			{
+				fMCMCH2Marginalized[counter] -> Fill(
+						fMCMCx[i * fMCMCNParameters + k],
+						fMCMCx[i * fMCMCNParameters + j]);
+				counter ++;
+			}
+	}
 }
 
 // --------------------------------------------------------
@@ -1028,51 +990,39 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 
 void BCEngineMCMC::MCMCUpdateStatisticsWriteChains()
 {
-
 	// loop over all chains
-
 	for (int i = 0; i < fMCMCNChains; ++i)
-		fMCMCTrees[i] -> Fill(); 
-	
+		fMCMCTrees[i] -> Fill();
 }
 
 // --------------------------------------------------------
 
 void BCEngineMCMC::MCMCUpdateStatistics()
 {
+	// check if maximum is reached
+	this -> MCMCUpdateStatisticsCheckMaximum();
 
-  // check if maximum is reached
+	// fill histograms of marginalized distributions
+	this -> MCMCUpdateStatisticsFillHistograms();
 
-	this -> MCMCUpdateStatisticsCheckMaximum(); 
-  
-  // fill histograms of marginalized distributions 
+	// test convergence of single Markov chains
+	//  --> not implemented yet
 
-	this -> MCMCUpdateStatisticsFillHistograms(); 
-  
-  // test convergence of single Markov chains
-  //  --> not implemented yet 
-  
-  // test convergence of all Markov chains 
-  
-	this -> MCMCUpdateStatisticsTestConvergenceAllChains(); 
+	// test convergence of all Markov chains
+	this -> MCMCUpdateStatisticsTestConvergenceAllChains();
 
-  // fill Markov chains
-  
-  if (fMCMCFlagWriteChainToFile)
-		this -> MCMCUpdateStatisticsWriteChains(); 
-
+	// fill Markov chains
+	if (fMCMCFlagWriteChainToFile)
+		this -> MCMCUpdateStatisticsWriteChains();
 }
 
 // --------------------------------------------------------
 
 double BCEngineMCMC::LogEval(std::vector <double> parameters)
 {
-
-	// test function for now 
-	// this will be overloaded by the user 
-
-  return 0.0; 
-
+	// test function for now
+	// this will be overloaded by the user
+	return 0.0;
 }
 
 // --------------------------------------------------------
@@ -1277,6 +1227,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// helper variable containing number of digits in the number of parameters
 	int ndigits = (int)log10(fMCMCNParameters) +1;
+	if(ndigits<4)
+		ndigits=4;
 
 	for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
 		for (int j = 0; j < fMCMCNChains; ++j)
@@ -1411,9 +1363,18 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 			BCLog::Out(BCLog::detail, BCLog::detail, " --> R-Values:");
 			for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
-				BCLog::Out(BCLog::detail, BCLog::detail,
-						Form( TString::Format(" -->       parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
-			BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f", fMCMCRValue));
+			{
+				if(fabs(fMCMCRValueParameters[iparameter]-1.) < fMCMCRValueParametersCriterion)
+					BCLog::Out(BCLog::detail, BCLog::detail,
+							Form( TString::Format(" -->     parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+				else
+					BCLog::Out(BCLog::detail, BCLog::detail,
+							Form( TString::Format(" -->     parameter %%%di :  %%.06f <--",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+			}
+			if(fabs(fMCMCRValue-1.) < fMCMCRValueCriterion)
+				BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f", fMCMCRValue));
+			else
+				BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f <--", fMCMCRValue));
 
 			// set flag
 			flagefficiency = true;
@@ -1846,71 +1807,55 @@ int BCEngineMCMC::MCMCMetropolis()
 
 int BCEngineMCMC::MCMCMetropolisHastings()
 {
+	BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis-Hastings MCMC.");
 
-  BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis-Hastings MCMC."); 
-  
-  // initialize Markov chain 
-  
-  this -> MCMCInitializeMarkovChains(); 
-  
-  // perform burn-in run 
-  
-  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn)); 
-  
-  for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
-    for (int j = 0; j < fMCMCNChains; ++j)
-      this -> MCMCGetNewPointMetropolisHastings(j);
-  
-  // reset run statistics 
-  
-  this -> MCMCResetRunStatistics(); 
-	
-  // perform run 
-  
-  BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Perform MCMC run with %i iterations.", fMCMCNIterationsMax)); 
-  
-  for (int i = 0; i < fMCMCNIterationsMax; ++i)
-    {
-      for (int j = 0; j < fMCMCNChains; ++j)
-				{
-					// get new point and increase counters 
-	  
-					this -> MCMCGetNewPointMetropolisHastings(j); 
-				}
-      
-      // update statistics
-      
-      this -> MCMCUpdateStatistics(); 
-      
-      // call user interface 
-      
-      this -> MCMCUserInterface(); 
-    }
-  
-  if (fMCMCNIterationsConvergenceGlobal > 0) 
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal)); 
-  
-  else
-    BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax)); 
+	// initialize Markov chain
+	this -> MCMCInitializeMarkovChains();
 
-  // debug
+	// perform burn-in run
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn));
+	for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
+		for (int j = 0; j < fMCMCNChains; ++j)
+			this -> MCMCGetNewPointMetropolisHastings(j);
 
+	// reset run statistics
+	this -> MCMCResetRunStatistics();
+
+	// perform run
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Perform MCMC run with %i iterations.", fMCMCNIterationsMax));
+	for (int i = 0; i < fMCMCNIterationsMax; ++i)
+	{
+		for (int j = 0; j < fMCMCNChains; ++j)
+			// get new point and increase counters
+			this -> MCMCGetNewPointMetropolisHastings(j);
+
+		// update statistics
+		this -> MCMCUpdateStatistics();
+
+		// call user interface
+		this -> MCMCUserInterface();
+	}
+
+	if (fMCMCNIterationsConvergenceGlobal > 0)
+		BCLog::Out(BCLog::detail, BCLog::detail,
+				Form(" --> Set of %i Markov chains converged within %i iterations. ", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+	else
+		BCLog::Out(BCLog::detail, BCLog::detail,
+				Form(" --> Set of %i Markov chains did not converge within %i iterations. ", fMCMCNChains, fMCMCNIterationsMax));
+
+	// debug
 	if (DEBUG)
 	{
 		for (int i = 0; i < fMCMCNChains; ++i)
 		{
-			std::cout << i << " "
-				<< fMCMCMaximumLogProb[i] << std::endl;
-
+			std::cout << i << " " << fMCMCMaximumLogProb[i] << std::endl;
 			for (int j = 0; j < fMCMCNParameters; ++j)
 				std::cout << fMCMCMaximumPoints[i * fMCMCNParameters + j] << " ";
-
 			std::cout << std::endl;
 		}
 	}
 
 	return 1;
-
 }
 
 // --------------------------------------------------------
