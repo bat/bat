@@ -557,14 +557,9 @@ class BCEngineMCMC
 		int MCMCInitialize();
 
 		/*
-		 * An interface to fitting functions. This function has to be overloaded in the derived class. */
-		virtual void MCMCUpdateFunctionFitting()
-			{};
-
-		/*
 		 * Interface allowing to execute arbitrary code for each iteration of the MCMC.
 		 * This method needs to be overloaded in the derived class. */
-		virtual void MCMCUserInterface()
+		virtual void MCMCIterationInterface()
 			{};
 
 		/*

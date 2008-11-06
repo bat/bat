@@ -178,19 +178,29 @@ class BCModelManager
 	void SetNbins(int n);
 
 	/**
-	 * Sets index of the x values in function fits. 
-	 * @param index Index of the x values 
-	 */  
-	void SetFitFunctionIndexX(int index); 
-	 
-	/**
-	 * Sets index of the y values in function fits. 
-	 * @param index Index of the y values 
-	 */  
-	void SetFitFunctionIndexY(int index); 
+	 * Turn on or off the filling of the error band during the MCMC run
+	 * for all models added to the model manager before calling this method.
+	 * @param flag set to true for turning on the filling */
+	void SetFillErrorBand(bool flag = true);
 
-	void SetFitFunctionIndices(int indexx, int indexy); 
-	
+	/**
+	 * Turn off the filling of the error band during the MCMC run
+	 * for all models added to the model manager before calling this method. */
+	void UnetFillErrorBand()
+		{ SetFillErrorBand(false); };
+
+	/**
+	 * Sets index of the x values in function fits.
+	 * @param index Index of the x values */
+	void SetFitFunctionIndexX(int index);
+
+	/**
+	 * Sets index of the y values in function fits.
+	 * @param index Index of the y values */
+	void SetFitFunctionIndexY(int index);
+
+	void SetFitFunctionIndices(int indexx, int indexy);
+
 	/**
 	 * Sets the data point containing the lower boundaries of possible
 	 * data values

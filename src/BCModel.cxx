@@ -206,7 +206,7 @@ TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
 	int ny = fErrorBandXY -> GetNbinsY();
 
 	// copy existing histogram
-	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(Form("%s_sub_%f.2",fErrorBandXY->GetName(),level));
+	TH2D * hist_tempxy = (TH2D*) fErrorBandXY -> Clone(TString::Format("%s_sub_%f.2",fErrorBandXY->GetName(),level));
 	hist_tempxy -> Reset();
 	hist_tempxy -> SetFillColor(kYellow);
 
@@ -528,7 +528,7 @@ double BCModel::Normalize()
 	// maybe we have to remove the mode finding from here in the future
 	fNormalization = this -> Integrate();
 
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Normalization : %.2lf", fNormalization));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Normalization : %.6g", fNormalization));
 
 	return fNormalization;
 }
@@ -677,6 +677,9 @@ int BCModel::ReadMode(const char * file)
 
 int BCModel::MarginalizeAll()
 {
+	BCLog::Out(BCLog::summary,BCLog::summary,
+		Form("Running MCMC for model \'%s\'",this->GetName().data()));
+
 	// prepare function fitting
 	double dx = 0.0;
 	double dy = 0.0;
@@ -689,7 +692,8 @@ int BCModel::MarginalizeAll()
 		dy = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) - fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
 				/ (double)fErrorBandNbinsY;
 
-		fErrorBandXY = new TH2D("errorbandxy", "",
+		fErrorBandXY = new TH2D(
+				TString::Format("errorbandxy_%d",BCLog::GetHIndex()), "",
 				fErrorBandNbinsX + 1,
 				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - .5 * dx,
 				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + .5 * dx,
@@ -826,6 +830,7 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 	if(h2)
 	{
 		h2->SetDirectory(0);
+		h2->SetName(TString::Format("errorbandxy_%d",BCLog::GetHIndex()));
 		this->SetErrorBandHisto(h2);
 		r=1;
 	}

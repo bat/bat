@@ -113,9 +113,12 @@ int main()
 	// marginalize
 	// ---------------------------------------------------------
 
-	// during the marginalization, the error propagation is done. thus,
-	// the x- and y-indices of the data values have to be set.
+	// during the marginalization, the error propagation can be done.
+	// thus, the x- and y-indices of the data values have to be set.
 	fModelManager -> SetFitFunctionIndices(0, 1);
+
+	// turn on the calculation of the error band
+	fModelManager -> SetFillErrorBand();
 
 	// marginalizes the probability density with respect to all
 	// parameters, i.e. constant and slope, and with respect to all
@@ -146,11 +149,11 @@ int main()
 	// Print data with best fit result
 	// ---------------------------------------------------------
 
-	TCanvas* canvas_summary = new TCanvas();
+	TCanvas * canvas_summary = new TCanvas();
 	canvas_summary -> cd();
 
 	// defines a graph with errors
-	TGraphErrors* graph_data = new TGraphErrors();
+	TGraphErrors * graph_data = new TGraphErrors();
 	graph_data -> SetMarkerStyle(20);
 	graph_data -> SetMarkerColor(kBlack);
 
@@ -167,7 +170,7 @@ int main()
 	}
 
 	// defines a histogram for the axes and draws it.
-	TH2D* hist_axes = new TH2D("hist_axes", ";x;y", 1, 0.0, 100.0, 1, 0.0, 6.0);
+	TH2D * hist_axes = new TH2D("hist_axes", ";x;y", 1, 0.0, 100.0, 1, 0.0, 6.0);
 	hist_axes -> SetStats(false);
 	hist_axes -> Draw();
 
@@ -190,7 +193,7 @@ int main()
 
 	// define and draw a legend.
 
-	TLegend* legend = new TLegend(0.65, 0.70, 0.95, 0.95);
+	TLegend * legend = new TLegend(0.65, 0.70, 0.95, 0.95);
 	legend -> SetFillColor(kWhite);
 	legend -> SetBorderSize(0);
 	legend -> AddEntry(graph_data, "Data", "P");
@@ -203,7 +206,7 @@ int main()
 	canvas_summary -> Print("data_allmodels.ps");
 
 	// defines a new canvas
-	TCanvas* canvas_bestfit = new TCanvas();
+	TCanvas * canvas_bestfit = new TCanvas();
 	canvas_bestfit -> cd();
 
 	if (fModelPol0 -> GetPValue() > fModelPol1 -> GetPValue() &&

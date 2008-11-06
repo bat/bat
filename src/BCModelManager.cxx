@@ -229,16 +229,21 @@ void BCModelManager::SetNbins(int n)
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetFitFunctionIndexX(int index) 
+void BCModelManager::SetFillErrorBand(bool flag)
 {
-
-	// set fit function x index for all models registered 
-
 	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetFitFunctionIndexX(index); 
+		this -> GetModel(i) -> SetFillErrorBand(flag);
+}
 
+// ---------------------------------------------------------
+
+void BCModelManager::SetFitFunctionIndexX(int index)
+{
+	// set fit function x index for all models registered
+	for (int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetFitFunctionIndexX(index);
 }
 
 // --------------------------------------------------------- 
@@ -549,11 +554,9 @@ void BCModelManager::WriteMarkovChain(bool flag)
 
 void BCModelManager::CalculatePValue(bool flag_histogram)
 {
-
-	// calculate p-value for all models 
+	// calculate p-value for all models
 	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> CalculatePValue(this -> GetModel(i) -> GetBestFitParameters(), flag_histogram); 
-
+		this -> GetModel(i) -> CalculatePValue(this -> GetModel(i) -> GetBestFitParameters(), flag_histogram);
 }
 
 // ---------------------------------------------------------

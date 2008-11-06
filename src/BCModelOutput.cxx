@@ -9,7 +9,7 @@
 
 #include "BCModelOutput.h"
 
-#include "TDirectory.h"
+#include <TDirectory.h>
 
 // ---------------------------------------------------------
 
@@ -188,10 +188,24 @@ void BCModelOutput::WriteErrorBand()
 	// change to file
 	fOutputFile -> cd();
 
-	fModel -> GetErrorBandXY() -> Write();
-	fModel -> GetErrorBandXY_yellow(.68) -> Write();
-	fModel -> GetErrorBandXY_yellow(.90) -> Write();
-	fModel -> GetErrorBandXY_yellow(.95) -> Write();
+	TH2D * h0 = fModel -> GetErrorBandXY();
+	if (h0)
+	{
+		TH2D * h1 = (TH2D*)h0 -> Clone("errorbandxy");
+		h1 -> Write();
+
+		double levels[] = { .68, .90, .95 };
+		int nlevels = sizeof(levels)/sizeof(double);
+		for (int i=0;i<nlevels;i++)
+		{
+			TH2D * htmp = fModel -> GetErrorBandXY_yellow(levels[i]);
+			htmp -> SetName(TString::Format("%s_sub_%f.2",h1->GetName(),levels[i]));
+			htmp -> Write();
+			delete htmp;
+		}
+
+		delete h1;
+	}
 
 	// return to old directory
 	gDirectory = dir;

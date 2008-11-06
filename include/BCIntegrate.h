@@ -1,6 +1,6 @@
 /*!
  * \class BCIntegrate
- * \brief A class for handling numerical operations for models. 
+ * \brief A class for handling numerical operations for models.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \version 1.0
@@ -10,12 +10,12 @@
  * peak finding etc.
  */
 
-/* 
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
- * All rights reserved. 
- * 
- * For the licensing terms see doc/COPYING. 
- */ 
+/*
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
 
 // ---------------------------------------------------------
 
@@ -43,65 +43,65 @@
 
 #define DEBUG 0
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 class BCIntegrate : public BCEngineMCMC
 {
 
- public:   
+ public:
 
-	/** \name Enumerators */ 
-	/* @{ */ 
-
-	/**
-	 * An enumerator for the integration algorithm 
-	 */ 
-	enum BCIntegrationMethod { kIntMonteCarlo, kIntImportance, kIntMetropolis, kIntCuba }; 
+	/** \name Enumerators */
+	/* @{ */
 
 	/**
-	 * An enumerator for the marginalization algorithm 
-	 */ 
-	enum BCMarginalizationMethod { kMargMonteCarlo, kMargMetropolis }; 
+	 * An enumerator for the integration algorithm
+	 */
+	enum BCIntegrationMethod { kIntMonteCarlo, kIntImportance, kIntMetropolis, kIntCuba };
 
 	/**
-	 * An enumerator for the mode finding algorithm 
-	 */ 
-	enum BCOptimizationMethod { kOptSimulatedAnnealing, kOptMetropolis, kOptMinuit }; 
+	 * An enumerator for the marginalization algorithm
+	 */
+	enum BCMarginalizationMethod { kMargMonteCarlo, kMargMetropolis };
 
-	/* @} */ 
+	/**
+	 * An enumerator for the mode finding algorithm
+	 */
+	enum BCOptimizationMethod { kOptSimulatedAnnealing, kOptMetropolis, kOptMinuit };
 
-	/** \name Constructors and destructors */ 
-	/* @{ */ 
+	/* @} */
 
-	/** 
-	 * The default constructor 
-	 */ 
+	/** \name Constructors and destructors */
+	/* @{ */
+
+	/**
+	 * The default constructor
+	 */
 	BCIntegrate();
 
 	/**
-	 * A constructor 
-	 */ 
+	 * A constructor
+	 */
 	BCIntegrate(BCParameterSet * par);
 
-	/** 
-	 * The default destructor 
-	 */ 
+	/**
+	 * The default destructor
+	 */
 	virtual ~BCIntegrate();
 
-	/* @} */ 
+	/* @} */
 
-	/** \name Member functions (get) */ 
-	/* @{ */ 
+	/** \name Member functions (get) */
+	/* @{ */
 
 	/**
-	 * @return The integration method 
-	 */ 
+	 * @return The integration method
+	 */
 	BCIntegrate::BCIntegrationMethod GetIntegrationMethod()
 	{ return fIntegrationMethod; };
 
-	/** 
-	 * @return The marginalization method 
-	 */ 
+	/**
+	 * @return The marginalization method
+	 */
 	BCIntegrate::BCMarginalizationMethod GetMarginalizationMethod()
 		{ return fMarginalizationMethod; };
 
@@ -111,48 +111,48 @@ class BCIntegrate : public BCEngineMCMC
 	BCIntegrate::BCOptimizationMethod GetOptimizationMethod()
 		{ return fOptimizationMethod; };
 
-	/** 
-	 * Fills a vector of random numbers between 0 and 1 into a vector 
-	 * @param A vector of doubles 
-	 */ 
+	/**
+	 * Fills a vector of random numbers between 0 and 1 into a vector
+	 * @param A vector of doubles
+	 */
 	void GetRandomVector(std::vector <double> &x);
 
 	virtual void GetRandomVectorMetro(std::vector <double> &x);
 
 	/**
-	 * Fills a vector of (flat) random numbers in the limits of the parameters and returns 
-	 * the probability at that point 
-	 * @param x A vector of doubles 
+	 * Fills a vector of (flat) random numbers in the limits of the parameters and returns
+	 * the probability at that point
+	 * @param x A vector of doubles
 	 * @return The (unnormalized) probability at the random point
-	 */ 
+	 */
 	double GetRandomPoint(std::vector <double> &x);
 
 	/**
-	 * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
-	 * function and returns the probability at that point 
-	 * @param x A vector of doubles 
+	 * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
+	 * function and returns the probability at that point
+	 * @param x A vector of doubles
 	 * @return The (unnormalized) probability at the random point
-	 */ 
+	 */
 	double GetRandomPointImportance(std::vector <double> &x);
 
 	/**
-	 * Fills a vector of random numbers in the limits of the parameters sampled by the probality 
-	 * function and returns the probability at that point (Metropolis) 
-	 * @param x A vector of doubles 
-	 */ 
+	 * Fills a vector of random numbers in the limits of the parameters sampled by the probality
+	 * function and returns the probability at that point (Metropolis)
+	 * @param x A vector of doubles
+	 */
 	void GetRandomPointMetro(std::vector <double> &x);
 
 	/**
-	 * Fills a vector of random numbers in the limits of the parameters sampled by the sampling 
-	 * function and returns the probability at that point (Metropolis) 
-	 * @param x A vector of doubles 
-	 */ 
+	 * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
+	 * function and returns the probability at that point (Metropolis)
+	 * @param x A vector of doubles
+	 */
 	void GetRandomPointSamplingMetro(std::vector <double> &x);
 
-	/** 
+	/**
 	 * @return The number of iterations per dimension for the Monte Carlo integration
-	 */ 
-	int GetNiterationsPerDimension() 
+	 */
+	int GetNiterationsPerDimension()
 	{ return fNiterPerDimension; };
 
 	/**
@@ -162,34 +162,34 @@ class BCIntegrate : public BCEngineMCMC
 	{ return fNSamplesPer2DBin; };
 
 	/**
-	 * @return The number of variables to integrate over 
-	 */ 
-	int GetNvar() 
+	 * @return The number of variables to integrate over
+	 */
+	int GetNvar()
 	{ return fNvar; };
 
-	/** 
-	 * @return The number of maximum iterations for Monte Carlo integration 
+	/**
+	 * @return The number of maximum iterations for Monte Carlo integration
 	 */
 	int GetNIterationsMax()
-	{ return fNIterationsMax; }; 
+	{ return fNIterationsMax; };
 
-	/** 
-	 * @return The number of iterations for the most recent Monte Carlo integration 
-	 */ 
+	/**
+	 * @return The number of iterations for the most recent Monte Carlo integration
+	 */
 	int GetNIterations()
-	{ return fNIterations; }; 
+	{ return fNIterations; };
 
-	/** 
-	 * @return The relative precision for numerical integration 
-	 */ 
+	/**
+	 * @return The relative precision for numerical integration
+	 */
 	double GetRelativePrecision()
-	{ return fRelativePrecision; }; 
+	{ return fRelativePrecision; };
 
-	/** 
-	 * @return The uncertainty in the most recent Monte Carlo integration 
-	 */ 
+	/**
+	 * @return The uncertainty in the most recent Monte Carlo integration
+	 */
 	double GetError()
-	{ return fError; }; 
+	{ return fError; };
 
 	/**
 	 * @return number of bins per dimension for the marginalized distributions
@@ -198,18 +198,18 @@ class BCIntegrate : public BCEngineMCMC
 	{ return fNbins; };
 
 	/**
-	 * @return Minuit used for mode finding 
-	 */ 
-	TMinuit * GetMinuit(); 
+	 * @return Minuit used for mode finding
+	 */
+	TMinuit * GetMinuit();
 
-	int GetMinuitErrorFlag() 
-	{ return fMinuitErrorFlag; }; 
+	int GetMinuitErrorFlag()
+	{ return fMinuitErrorFlag; };
 
 	/**
-	 * @return The ROOT tree containing the Markov chain 
-	 */ 
+	 * @return The ROOT tree containing the Markov chain
+	 */
 	TTree * GetMarkovChainTree()
-		{ return fMarkovChainTree; }; 
+		{ return fMarkovChainTree; };
 
 	/**
 	 * Generates a vector x according to the Simulated Annealing algorithm
@@ -218,67 +218,67 @@ class BCIntegrate : public BCEngineMCMC
 	 * @param T temperature used for the stepping probability calculation
 	 *  according to exp ( - (p1-p0) / T )
 	 * @param step maximum stepsize relative to the range
-	 */ 
+	 */
 	void GetRandomPointSA(std::vector <double> &x, double T, double step);
 
 	/**
 	 * Returns the actual point in the markov chain
 	 */
-	std::vector<double> * GetMarkovChainPoint() 
-		{ return &fXmetro1; }; 
+	std::vector<double> * GetMarkovChainPoint()
+		{ return &fXmetro1; };
 
 	/**
-	 * Returns the iteration of the MCMC 
-	 */ 
+	 * Returns the iteration of the MCMC
+	 */
 	int * GetMCMCIteration()
-		{ return &fMCMCIteration; }; 
+		{ return &fMCMCIteration; };
 
 	/**
 	 * Returns the value of the loglikelihood at the point fXmetro1
-	 */ 
+	 */
 	double * GetMarkovChainValue()
-		{ return &fMarkovChainValue; }; 
+		{ return &fMarkovChainValue; };
 
-	/* @} */ 
+	/* @} */
 
-	/** \name Member functions (set) */ 
-	/* @{ */ 
+	/** \name Member functions (set) */
+	/* @{ */
 
 	void SetMinuitArlist(double * arglist)
-	{ fMinuitArglist[0] = arglist[0]; 
-	  fMinuitArglist[1] = arglist[1]; }; 
+	{ fMinuitArglist[0] = arglist[0];
+	  fMinuitArglist[1] = arglist[1]; };
 
-	/** 
+	/**
 	 * @param par The parameter set which gets translated into array
 	 * needed for the Monte Carlo integration
-	 */ 
+	 */
 	void SetParameters(BCParameterSet * par);
 
-	/** 
-	 * @param varlist A list of parameters 
-	 */ 
+	/**
+	 * @param varlist A list of parameters
+	 */
 	void SetVarList(int * varlist);
 
 	/**
-	 * @param index The index of the variable to be set 
-	 */ 
+	 * @param index The index of the variable to be set
+	 */
 	void SetVar(int index){fVarlist[index]=1;};
 
-	/** 
+	/**
 	 * @param method The integration method
-	 */ 
+	 */
 	void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 	{ fIntegrationMethod = method; };
 
-	/** 
-	 * @param method The marginalization method 
-	 */ 
+	/**
+	 * @param method The marginalization method
+	 */
 	void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
 	{ fMarginalizationMethod = method; };
 
-	/** 
-	 * @param method The mode finding method 
-	 */ 
+	/**
+	 * @param method The mode finding method
+	 */
 	void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
 	{ fOptimizationMethod = method; };
 
@@ -295,18 +295,18 @@ class BCIntegrate : public BCEngineMCMC
 	void SetNSamplesPer2DBin(int n)
 	{ fNSamplesPer2DBin = n; };
 
-	/** 
-	 * @param niterations The maximum number of iterations for Monte Carlo integration 
-	 */ 
+	/**
+	 * @param niterations The maximum number of iterations for Monte Carlo integration
+	 */
 	void SetNIterationsMax(int niterations)
-	{ fNIterationsMax = niterations; }; 
+	{ fNIterationsMax = niterations; };
 
-	/** 
+	/**
 	 * @param relprecision The relative precision envisioned for Monte
 	 * Carlo integration
-	 */ 
-	void SetRelativePrecision(double relprecision) 
-	{ fRelativePrecision = relprecision; }; 
+	 */
+	void SetRelativePrecision(double relprecision)
+	{ fRelativePrecision = relprecision; };
 
 	/**
 	 * @param n Number of bins per dimension for the marginalized
@@ -315,97 +315,109 @@ class BCIntegrate : public BCEngineMCMC
 
 	/**
 	 * Set the number of bins for the marginalized distribution of a
-	 * parameter.  
-	 * @param nbins Number of bins (default = 100) 
+	 * parameter.
+	 * @param nbins Number of bins (default = 100)
 	 * @param index Index of the parameter.
 	 */
-	void SetNbins(int nbins, int index = -1); 
+	void SetNbins(int nbins, int index = -1);
 
-	//	void SetNbins(int n);
-	//		void SetNbinsX(int n);
-	//	void SetNbinsY(int n);
+//	void SetNbins(int n);
+//	void SetNbinsX(int n);
+//	void SetNbinsY(int n);
+
+	/*
+	 * Turn on or off the filling of the error band during the MCMC run.
+	 * @param flag set to true for turning on the filling */
+	void SetFillErrorBand(bool flag = true)
+		{ fFillErrorBand=flag; };
+
+	/*
+	 * Turn off filling of the error band during the MCMC run.
+	 * This method is equivalent to SetFillErrorBand(false) */
+	void UnsetFillErrorBand()
+		{ fFillErrorBand=false; };
 
 	/**
-	 * Sets index of the x values in function fits. 
+	 * Sets index of the x values in function fits.
 	 * @param index Index of the x values
-	 */  
-	void SetFitFunctionIndexX(int index) 
-	{ fFitFunctionIndexX = index; }; 
-	 
+	 */
+	void SetFitFunctionIndexX(int index)
+	{ fFitFunctionIndexX = index; };
+
 	/**
 	 * Sets index of the y values in function fits. @param index Index
 	 * of the y values
-	 */  
-	void SetFitFunctionIndexY(int index) 
-	{ fFitFunctionIndexY = index; }; 
+	 */
+	void SetFitFunctionIndexY(int index)
+	{ fFitFunctionIndexY = index; };
 
 	void SetFitFunctionIndices(int indexx, int indexy)
-	{ this -> SetFitFunctionIndexX(indexx); 
-		this -> SetFitFunctionIndexY(indexy); }; 
-	
+	{ this -> SetFitFunctionIndexX(indexx);
+		this -> SetFitFunctionIndexY(indexy); };
+
 	/**
 	 * Sets the data point containing the lower boundaries of possible
 	 * data values
-	 */ 
+	 */
 	void SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries)
-	{ fDataPointLowerBoundaries = datasetlowerboundaries; }; 
+	{ fDataPointLowerBoundaries = datasetlowerboundaries; };
 
 	/**
 	 * Sets the data point containing the upper boundaries of possible
 	 * data values
-	 */ 
+	 */
 	void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries)
-	{ fDataPointUpperBoundaries = datasetupperboundaries; }; 
+	{ fDataPointUpperBoundaries = datasetupperboundaries; };
 
 	/**
 	 * Sets the lower boundary of possible data values for a particular
 	 * variable
-	 */ 
+	 */
 	void SetDataPointLowerBoundary(int index, double lowerboundary)
-	{ fDataPointLowerBoundaries -> SetValue(index, lowerboundary); }; 
+	{ fDataPointLowerBoundaries -> SetValue(index, lowerboundary); };
 
 	/**
 	 * Sets the upper boundary of possible data values for a particular
 	 * variable
-	 */ 
+	 */
 	void SetDataPointUpperBoundary(int index, double upperboundary)
-	{ fDataPointUpperBoundaries -> SetValue(index, upperboundary); }; 
+	{ fDataPointUpperBoundaries -> SetValue(index, upperboundary); };
 
 	/**
 	 * Flag for writing Markov chain to ROOT file (true) or not (false)
-	 */ 
-	void WriteMarkovChain(bool flag) 
-	{ fFlagWriteMarkovChain = flag; fMCMCFlagWriteChainToFile = flag;}; 
+	 */
+	void WriteMarkovChain(bool flag)
+	{ fFlagWriteMarkovChain = flag; fMCMCFlagWriteChainToFile = flag;};
 
 	/**
-	 * Sets the ROOT tree containing the Markov chain 
-	 */ 
-	void SetMarkovChainTree(TTree * tree) 
-	{ fMarkovChainTree = tree; }; 
+	 * Sets the ROOT tree containing the Markov chain
+	 */
+	void SetMarkovChainTree(TTree * tree)
+	{ fMarkovChainTree = tree; };
 
 	/**
-	 * Sets the initial position for the Markov chain 
-	 */ 
-	void SetMarkovChainInitialPosition(std::vector<double> position); 
+	 * Sets the initial position for the Markov chain
+	 */
+	void SetMarkovChainInitialPosition(std::vector<double> position);
 
 	/**
-	 * Sets the step size for Markov chains 
-	 */ 
-	void SetMarkovChainStepSize(double stepsize) 
-	{	fMarkovChainStepSize = stepsize; }; 
+	 * Sets the step size for Markov chains
+	 */
+	void SetMarkovChainStepSize(double stepsize)
+	{	fMarkovChainStepSize = stepsize; };
 
 	/**
 	 * Sets the number of iterations in the markov chain
-	 */ 
+	 */
 	void SetMarkovChainNIterations(int niterations)
-	{	fMarkovChainNIterations = niterations; 
-	fMarkovChainAutoN = false; } 
+	{	fMarkovChainNIterations = niterations;
+	fMarkovChainAutoN = false; }
 
 	/**
-	 * Sets a flag for automatically calculating the number of iterations 
-	 */ 
-	void SetMarkovChainAutoN(bool flag) 
-	{	fMarkovChainAutoN = flag; }; 
+	 * Sets a flag for automatically calculating the number of iterations
+	 */
+	void SetMarkovChainAutoN(bool flag)
+	{	fMarkovChainAutoN = flag; };
 
 	/**
 	 * Sets mode
@@ -417,169 +429,168 @@ class BCIntegrate : public BCEngineMCMC
 	 */
 	void SetErrorBandHisto(TH2D * h) { fErrorBandXY = h; };
 
-	/* @} */ 
+	/* @} */
 
-	/** \name Member functions (miscellaneous methods) */ 
-	/* @{ */ 
+	/** \name Member functions (miscellaneous methods) */
+	/* @{ */
 
-	/** 
-	 * Frees the memory for integration variables 
-	 */ 
+	/**
+	 * Frees the memory for integration variables
+	 */
 	void DeleteVarList();
 
-	/** 
-	 * Sets all values of the variable list to a particular value 
-	 * @v The value 
-	 */ 
+	/**
+	 * Sets all values of the variable list to a particular value
+	 * @v The value
+	 */
 	void ResetVarlist(int v);
 
-	/** 
-	 * Set value of a particular integration variable to 0. 
-	 * @param index The index of the variable 
-	 */ 
+	/**
+	 * Set value of a particular integration variable to 0.
+	 * @param index The index of the variable
+	 */
 	void UnsetVar(int index)
 	{ fVarlist[index] = 0; };
 
-	/** 
-	 * Evaluate the un-normalized probability at a point in parameter space. 
-	 * Method needs to be overloaded by the user. 
-	 * @param x The point in parameter space 
-	 * @return The un-normalized probability 
-	 */ 
+	/**
+	 * Evaluate the un-normalized probability at a point in parameter space.
+	 * Method needs to be overloaded by the user.
+	 * @param x The point in parameter space
+	 * @return The un-normalized probability
+	 */
 	virtual double Eval(std::vector <double> x);
 
-	/** 
+	/**
 	 * Evaluate the natural logarithm of the Eval function. For better numerical
 	 * stability, this method should also be overloaded by the user.
-	 * @param x The point in parameter space 
+	 * @param x The point in parameter space
 	 * @return log(Eval(x))
 	 */
 	virtual double LogEval(std::vector <double> x);
 
-	/** 
-	 * Evaluate the sampling function at a point in parameter space. 
-	 * Method needs to be overloaded by the user. 
-	 * @param x The point in parameter space 
-	 * @return The value of the sampling function 
-	 */ 
+	/**
+	 * Evaluate the sampling function at a point in parameter space.
+	 * Method needs to be overloaded by the user.
+	 * @param x The point in parameter space
+	 * @return The value of the sampling function
+	 */
 	virtual double EvalSampling(std::vector <double> x);
 
-	/** 
-	 * Evaluate the natural logarithm of the EvalSampling function. 
-	 * Method needs to be overloaded by the user. 
-	 * @param x The point in parameter space 
-	 * @return log(EvalSampling(x)) 
-	 */ 
+	/**
+	 * Evaluate the natural logarithm of the EvalSampling function.
+	 * Method needs to be overloaded by the user.
+	 * @param x The point in parameter space
+	 * @return log(EvalSampling(x))
+	 */
 	double LogEvalSampling(std::vector <double> x);
 
-	/** 
-	 * Evaluate the un-normalized probability at a point in parameter space 
-	 * and prints the result to the log. 
-	 * @param x The point in parameter space 
-	 * @return The un-normalized probability 
-	 * @see Eval(std::vector <double> x) 
-	 */   
+	/**
+	 * Evaluate the un-normalized probability at a point in parameter space
+	 * and prints the result to the log.
+	 * @param x The point in parameter space
+	 * @return The un-normalized probability
+	 * @see Eval(std::vector <double> x)
+	 */
 	double EvalPrint(std::vector <double> x);
 
-	/** 
-	 * Defines a fit function. 
-	 * @param parameters A set of parameter values 
-	 * @param x A vector of x-values 
-	 * @return The value of the fit function at the x-values given a set of parameters 
-	 **/ 
-	virtual double FitFunction(std::vector <double> x, std::vector <double> parameters) 
-	{ return 0.0; }; 
+	/**
+	 * Defines a fit function.
+	 * @param parameters A set of parameter values
+	 * @param x A vector of x-values
+	 * @return The value of the fit function at the x-values given a set of parameters
+	 **/
+	virtual double FitFunction(std::vector <double> x, std::vector <double> parameters)
+	{ return 0.0; };
 
-	/** 
-	 * Does the integration over the un-normalized probability. 
-	 * @return The normalization value 
-	 */   
+	/**
+	 * Does the integration over the un-normalized probability.
+	 * @return The normalization value
+	 */
 	double Integrate();
 
-	/** 
-	 * Perfoms the Monte Carlo integration. For details see documentation. 
-	 * @param x An initial point in parameter space 
-	 * @param varlist A list of variables 
-	 * @return The integral 
-	 */ 
+	/**
+	 * Perfoms the Monte Carlo integration. For details see documentation.
+	 * @param x An initial point in parameter space
+	 * @param varlist A list of variables
+	 * @return The integral
+	 */
 	double IntegralMC(std::vector <double> x, int * varlist);
 
 	double IntegralMC(std::vector <double> x);
 
-	/** 
-	 * Perfoms the Metropolis Monte Carlo integration. For details see documentation. 
-	 * @param x An initial point in parameter space 
-	 * @return The integral 
-	 */   
+	/**
+	 * Perfoms the Metropolis Monte Carlo integration. For details see documentation.
+	 * @param x An initial point in parameter space
+	 * @return The integral
+	 */
 	double IntegralMetro(std::vector <double> x);
 
-	/** 
-	 * Perfoms the importance sampling Monte Carlo integration. For details see documentation. 
-	 * @param x An initial point in parameter space 
-	 * @return The integral 
-	 */   
+	/**
+	 * Perfoms the importance sampling Monte Carlo integration. For details see documentation.
+	 * @param x An initial point in parameter space
+	 * @return The integral
+	 */
 	double IntegralImportance(std::vector <double> x);
 
 	/**
-	 * Calculate integral using the Cuba library. For details see documentation. 
-	 * @param method A short cut for the method 
-	 * @param parameters_double A vector of parameters (double) 
-	 * @param parameters_int A vector of parameters (int) 
+	 * Calculate integral using the Cuba library. For details see documentation.
+	 * @param method A short cut for the method
+	 * @param parameters_double A vector of parameters (double)
+	 * @param parameters_int A vector of parameters (int)
 	 * @return The integral
 	 */
-	double CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int); 
+	double CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int);
 
-	double CubaIntegrate(); 
+	double CubaIntegrate();
 
 	/**
-	 * Integrand for the Cuba library. 
-	 * @param ndim The number of dimensions to integrate over 
-	 * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension) 
-	 * @param ncomp The number of components of the integrand (usually 1) 
-	 * @param ff The function value 
+	 * Integrand for the Cuba library.
+	 * @param ndim The number of dimensions to integrate over
+	 * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension)
+	 * @param ncomp The number of components of the integrand (usually 1)
+	 * @param ff The function value
 	 * @return The integral
 	 */
-	static void CubaIntegrand(const int * ndim, const double xx[], 
-														const int * ncomp, double ff[]); 
+	static void CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[]);
 
-	/** 
+	/**
 	 * Performs the marginalization with respect to one parameter.
-	 * @param parameter The parameter w.r.t. which the marginalization is performed 
-	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-	 */ 
+	 * @param parameter The parameter w.r.t. which the marginalization is performed
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1)
+	 */
 	TH1D * Marginalize(BCParameter * parameter);
 
-	/** 
+	/**
 	 * Performs the marginalization with respect to two parameters.
-	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed 
-	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed 
-	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-	 */ 
+	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed
+	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1)
+	 */
 	TH2D * Marginalize(BCParameter * parameter1, BCParameter * parameter2);
 
-	/** 
-	 * Performs the marginalization with respect to one parameter using 
-	 * the simple Monte Carlo technique. 
-	 * @param parameter The parameter w.r.t. which the marginalization is performed 
-	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-	 */ 
+	/**
+	 * Performs the marginalization with respect to one parameter using
+	 * the simple Monte Carlo technique.
+	 * @param parameter The parameter w.r.t. which the marginalization is performed
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1)
+	 */
 	TH1D * MarginalizeByIntegrate(BCParameter * parameter);
 
-	/** 
-	 * Performs the marginalization with respect to two parameters using 
-	 * the simple Monte Carlo technique. 
-	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed 
-	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed 
-	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-	 */ 
+	/**
+	 * Performs the marginalization with respect to two parameters using
+	 * the simple Monte Carlo technique.
+	 * @param parameter1 The first parameter w.r.t. which the marginalization is performed
+	 * @param parameter2 The second parameter w.r.t. which the marginalization is performed
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1)
+	 */
 	TH2D * MarginalizeByIntegrate(BCParameter * parameter1, BCParameter * parameter2);
 
-	/** 
-	 * Performs the marginalization with respect to one parameter using 
-	 * the Metropolis algorithm. 
-	 * @param parameter The parameter w.r.t. which the marginalization is performed 
-	 * @return A histogram which contains the marginalized probability distribution (normalized to 1) 
-	 */ 
+	/**
+	 * Performs the marginalization with respect to one parameter using
+	 * the Metropolis algorithm.
+	 * @param parameter The parameter w.r.t. which the marginalization is performed
+	 * @return A histogram which contains the marginalized probability distribution (normalized to 1)
+	 */
 	TH1D * MarginalizeByMetro(BCParameter * parameter);
 
 	/**
@@ -635,19 +646,25 @@ class BCIntegrate : public BCEngineMCMC
 	void FindModeSA();
 
 	/**
-	 * Does the mode finding using Minuit 
+	 * Does the mode finding using Minuit
 	 */
-	void FindModeMinuit(); 
+	void FindModeMinuit();
 
 	/**
-	 * Does the mode finding using Markov Chain Monte Carlo 
+	 * Does the mode finding using Markov Chain Monte Carlo
 	 */
-	void FindModeMCMC(); 
-//	void FindModeMCMC(int flag_run = 0); 
+	void FindModeMCMC();
+//	void FindModeMCMC(int flag_run = 0);
 
-	static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag); 
+	static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag);
 
-	/* @} */ 
+	/*
+	 * Method executed for every iteration of the MCMC. User's code should be
+	 *provided via overloading in the derived class*/
+	virtual void MCMCUserIterationInterface()
+		{};
+
+	/* @} */
 
  private:
 
@@ -681,25 +698,25 @@ class BCIntegrate : public BCEngineMCMC
 	 */
 	BCIntegrate::BCIntegrationMethod fIntegrationMethod;
 
-	/** 
-	 * Current marginalization method 
-	 */ 
+	/**
+	 * Current marginalization method
+	 */
 	BCIntegrate::BCMarginalizationMethod fMarginalizationMethod;
-  
-	/** 
-	 * Current mode finding method 
-	 */ 
+
+	/**
+	 * Current mode finding method
+	 */
 	BCIntegrate::BCOptimizationMethod fOptimizationMethod;
 
 	/**
-	 * Maximum number of iterations 
+	 * Maximum number of iterations
 	 */
-	int fNIterationsMax; 
+	int fNIterationsMax;
 
 	/**
 	 * Number of iterations in the most recent Monte Carlo integation
 	 */
-	int fNIterations; 
+	int fNIterations;
 
 	/**
 	 * Relative precision aimed at in the Monte Carlo integation
@@ -709,142 +726,138 @@ class BCIntegrate : public BCEngineMCMC
 	/**
 	 * The uncertainty in the most recent Monte Carlo integration
 	 */
-	double fError; 
+	double fError;
 
-	/** 
-	 * The number of iterations in the Metropolis integration 
-	 */ 
+	/**
+	 * The number of iterations in the Metropolis integration
+	 */
 	int fNmetro;
-	int fNacceptedMCMC; 
+	int fNacceptedMCMC;
 
-	/** 
-	 * A vector of points in parameter space used for the Metropolis algorithm 
-	 */ 
+	/**
+	 * A vector of points in parameter space used for the Metropolis algorithm
+	 */
 	std::vector <double> fXmetro0;
 
-	/** 
-	 * A vector of points in parameter space used for the Metropolis algorithm 
-	 */ 
+	/**
+	 * A vector of points in parameter space used for the Metropolis algorithm
+	 */
 	std::vector <double> fXmetro1;
 
 	/**
-	 * A double containing the log likelihood value at the point fXmetro1 
-	 */ 
-	double fMarkovChainValue; 
+	 * A double containing the log likelihood value at the point fXmetro1
+	 */
+	double fMarkovChainValue;
 
 	/*
-	 * Interface to BCEngineMCMC::MCMCUpdateFunctionFitting.
-	 */
-	void MCMCUpdateFunctionFitting();
+	 * Method executed for every iteration of the MCMC, overloaded from BCEngineMCMC. */
+	void MCMCIterationInterface();
 
- protected: 
+	/*
+	 * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
+	void MCMCFillErrorBand();
+
+ protected:
 
 	/**
-	 * Number of variables to integrate over.
-	 */
+	 * Number of variables to integrate over. */
 	int fNvar;
-	
+
 	/**
-	 * Number of bins per dimension for the marginalized distributions
-	 */
+	 * Number of bins per dimension for the marginalized distributions */
 	int fNbins;
 
 	/**
 	 * Number of samples per 2D bin per variable in the Metropolis
-	 * marginalization.
-	 */
+	 * marginalization. */
 	int fNSamplesPer2DBin;
 
 	/**
-	 * Step size in the Markov chain relative to min and max 
-	 */ 
-	double fMarkovChainStepSize; 
+	 * Step size in the Markov chain relative to min and max */
+	double fMarkovChainStepSize;
 
-	int fMarkovChainNIterations; 
-	
-	bool fMarkovChainAutoN; 
+	int fMarkovChainNIterations;
 
-	/** 
-	 * data point containing the lower boundaries of possible data values 
-	 */ 
-	BCDataPoint * fDataPointLowerBoundaries; 
-
-	/** 
-	 * data point containing the upper boundaries of possible data values 
-	 */ 
-	BCDataPoint * fDataPointUpperBoundaries; 
-
-	std::vector <bool> fDataFixedValues; 
+	bool fMarkovChainAutoN;
 
 	/**
-	 * A ROOT random number generator 
-	 */ 
+	 * data point containing the lower boundaries of possible data values */
+	BCDataPoint * fDataPointLowerBoundaries;
+
+	/**
+	 * data point containing the upper boundaries of possible data values */
+	BCDataPoint * fDataPointUpperBoundaries;
+
+	std::vector <bool> fDataFixedValues;
+
+	/**
+	 * A ROOT random number generator */
 	TRandom3 * fRandom;
 
-	/** 
-	 * A vector of best fit parameters estimated from the global probability 
-	 */   
-	std::vector <double> fBestFitParameters; 
-
-	/** 
-	 * A vector of best fit parameters estimated from the marginalized probability 
-	 */   
-	std::vector <double> fBestFitParametersMarginalized; 
+	/**
+	 * A vector of best fit parameters estimated from the global probability */
+	std::vector <double> fBestFitParameters;
 
 	/**
-	 * Vector of TH1D histograms for marginalized probability distributions
-	 */
+	 * A vector of best fit parameters estimated from the marginalized probability */
+	std::vector <double> fBestFitParametersMarginalized;
+
+	/**
+	 * Vector of TH1D histograms for marginalized probability distributions */
 	std::vector <TH1D *> fHProb1D;
 
 	/**
-	 * Vector of TH2D histograms for marginalized probability distributions
-	 */
+	 * Vector of TH2D histograms for marginalized probability distributions */
 	std::vector <TH2D *> fHProb2D;
 
 	/**
-	 * The indeces for function fits 
-	 */ 
-	int fFitFunctionIndexX; 
-	int fFitFunctionIndexY; 
+	 * Flag whether or not to fill the error band */
+	bool fFillErrorBand;
 
 	/**
-	 * A flag for single point evaluation of the error "band"
-	 */ 
-	bool fErrorBandContinuous; 
-	std::vector <double> fErrorBandX; 
+	 * The indeces for function fits */
+	int fFitFunctionIndexX;
+	int fFitFunctionIndexY;
 
 	/**
-	 * The error band histogram and number of bins 
-	 */ 
-	TH2D * fErrorBandXY; 
-	int fErrorBandNbinsX; 
-	int fErrorBandNbinsY; 
+	 * A flag for single point evaluation of the error "band" */
+	bool fErrorBandContinuous;
+	std::vector <double> fErrorBandX;
 
 	/**
-	 * Minuit 
-	 */ 
-	TMinuit * fMinuit; 
-
-	double fMinuitArglist[2]; 
-	int fMinuitErrorFlag; 
+	 * The error band histogram */
+	TH2D * fErrorBandXY;
 
 	/**
-	 * Flag for writing Markov chain to file 
-	 */ 
-	bool fFlagWriteMarkovChain; 
+	 * Nnumber of X bins of the error band histogram */
+	int fErrorBandNbinsX;
 
 	/**
-	 * ROOT tree containing the Markov chain 
-	 */ 
-	TTree * fMarkovChainTree; 
+	 * Nnumber of Y bins of the error band histogram */
+	int fErrorBandNbinsY;
 
 	/**
-	 * Iteration of the MCMC 
-	 */ 
-	int fMCMCIteration; 
+	 * Minuit
+	 */
+	TMinuit * fMinuit;
+
+	double fMinuitArglist[2];
+	int fMinuitErrorFlag;
+
+	/**
+	 * Flag for writing Markov chain to file */
+	bool fFlagWriteMarkovChain;
+
+	/**
+	 * ROOT tree containing the Markov chain */
+	TTree * fMarkovChainTree;
+
+	/**
+	 * Iteration of the MCMC */
+	int fMCMCIteration;
 
 };
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 #endif

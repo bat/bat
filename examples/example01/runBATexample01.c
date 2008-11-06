@@ -78,6 +78,9 @@ int main()
 	fModelPol1 -> SetDataBoundaries(1, 0.0, 5.0); // possible y-values
 	fModelPol1 -> SetDataBoundaries(2, 0.2, 5.2); // possible sigmas
 
+	// turn on the calculation of the error band
+	fModelPol1 -> SetFillErrorBand();
+
 	// in this example the data points are not chosen arbitrarily but
 	// they have fixed values on the x-axis, i.e, 5, 15, ... . also, the
 	// resolution is fixed. in general this can be solved by fixing the

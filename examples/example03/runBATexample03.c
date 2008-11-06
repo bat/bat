@@ -102,6 +102,9 @@ int main()
 	// set x and y value indices
 	fModelManager -> SetFitFunctionIndices(0, 1);
 
+	// turn on filling of the error band
+	fModelManager -> SetFillErrorBand();
+
 	// ---------------------------------------------------------
 	// initialize
 	// ---------------------------------------------------------

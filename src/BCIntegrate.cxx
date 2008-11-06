@@ -1,22 +1,22 @@
-/*    
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
- * All rights reserved.    
- *    
- * For the licensing terms see doc/COPYING.    
- */    
-  
-// ---------------------------------------------------------   
- 
+/*
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include "BCIntegrate.h"
-#include "BCLog.h" 
+#include "BCLog.h"
 
 #include <TRandom3.h>
 
-#include "cuba.h" 
+#include "cuba.h"
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-class BCIntegrate * global_this; 
+class BCIntegrate * global_this;
 
 // *********************************************
 BCIntegrate::BCIntegrate() : BCEngineMCMC()
@@ -26,41 +26,42 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fNSamplesPer2DBin = 100;
 	fRandom = new TRandom3(0);
 
-	fNIterationsMax    = 1000000; 
-	fRelativePrecision = 1e-3; 
+	fNIterationsMax    = 1000000;
+	fRelativePrecision = 1e-3;
 
 	fIntegrationMethod = BCIntegrate::kIntMonteCarlo;
 	fMarginalizationMethod = BCIntegrate::kMargMetropolis;
-	fOptimizationMethod = BCIntegrate::kOptMinuit; 
+	fOptimizationMethod = BCIntegrate::kOptMinuit;
 
 	fNbins=100;
 
-	fDataPointLowerBoundaries = 0; 
-	fDataPointUpperBoundaries = 0; 
+	fDataPointLowerBoundaries = 0;
+	fDataPointUpperBoundaries = 0;
 
-	fFitFunctionIndexX = -1; 
-	fFitFunctionIndexY = -1; 
+	fFillErrorBand = false;
+
+	fFitFunctionIndexX = -1;
+	fFitFunctionIndexY = -1;
 
 	fErrorBandNbinsX = 100;
 	fErrorBandNbinsY = 500;
 
-	fErrorBandContinuous = true; 
+	fErrorBandContinuous = true;
 
-	fMinuit = 0; 
-	fMinuitArglist[0] = 20000; 
-	fMinuitArglist[1] = 0.01; 
+	fMinuit = 0;
+	fMinuitArglist[0] = 20000;
+	fMinuitArglist[1] = 0.01;
 
-	fFlagWriteMarkovChain = false; 
-	fMarkovChainTree = 0; 
+	fFlagWriteMarkovChain = false;
+	fMarkovChainTree = 0;
 
-	fMarkovChainStepSize = 0.1; 
+	fMarkovChainStepSize = 0.1;
 
-	fMarkovChainAutoN = true; 
-
+	fMarkovChainAutoN = true;
 }
 
 // *********************************************
-BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1) 
+BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 {
 	fNvar=0;
 	fNiterPerDimension = 100;
@@ -71,28 +72,29 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 
 	this->SetParameters(par);
 
-	fDataPointLowerBoundaries = 0; 
-	fDataPointUpperBoundaries = 0; 
+	fDataPointLowerBoundaries = 0;
+	fDataPointUpperBoundaries = 0;
 
-	fFitFunctionIndexX = -1; 
-	fFitFunctionIndexY = -1; 
+	fFillErrorBand = false;
 
-	fErrorBandNbinsX = 100; 
-	fErrorBandNbinsY = 200; 
+	fFitFunctionIndexX = -1;
+	fFitFunctionIndexY = -1;
 
-	fErrorBandContinuous = true; 
+	fErrorBandNbinsX = 100;
+	fErrorBandNbinsY = 200;
 
-	fMinuit = 0; 
-	fMinuitArglist[0] = 20000; 
-	fMinuitArglist[1] = 0.01; 	
+	fErrorBandContinuous = true;
 
-	fFlagWriteMarkovChain = false; 
-	fMarkovChainTree = 0; 
+	fMinuit = 0;
+	fMinuitArglist[0] = 20000;
+	fMinuitArglist[1] = 0.01;
 
-	fMarkovChainStepSize = 0.1; 
+	fFlagWriteMarkovChain = false;
+	fMarkovChainTree = 0;
 
-	fMarkovChainAutoN = true; 
+	fMarkovChainStepSize = 0.1;
 
+	fMarkovChainAutoN = true;
 }
 
 // *********************************************
@@ -106,7 +108,7 @@ BCIntegrate::~BCIntegrate()
 	fRandom=0;
 
 	if (fMinuit)
-		delete fMinuit; 
+		delete fMinuit;
 
 	int n1 = fHProb1D.size();
 	if(n1>0)
@@ -139,45 +141,40 @@ void BCIntegrate::SetParameters(BCParameterSet * par)
 	for(int i=0;i<fNvar;i++)
 	{
 		fMin[i]=(fx->at(i))->GetLowerLimit();
-	 	fMax[i]=(fx->at(i))->GetUpperLimit();
+		fMax[i]=(fx->at(i))->GetUpperLimit();
 	}
 
-	fXmetro0.clear(); 
+	fXmetro0.clear();
 	for(int i=0;i<fNvar;i++)
-		fXmetro0.push_back((fMin[i]+fMax[i])/2.0); 
-	
-	fXmetro1.clear(); 
+		fXmetro0.push_back((fMin[i]+fMax[i])/2.0);
+
+	fXmetro1.clear();
 	fXmetro1.assign(fNvar,0.);
 
 	fMCMCBoundaryMin.clear();
 	fMCMCBoundaryMax.clear();
 
 	for(int i=0;i<fNvar;i++)
-		{
-			fMCMCBoundaryMin.push_back(fMin[i]); 
-			fMCMCBoundaryMax.push_back(fMax[i]); 
-		}
+	{
+		fMCMCBoundaryMin.push_back(fMin[i]);
+		fMCMCBoundaryMax.push_back(fMax[i]);
+	}
 
 	for (int i = int(fMCMCH1NBins.size()); i<fNvar; ++i)
-		{
-			fMCMCH1NBins.push_back(100); 
-		}
+		fMCMCH1NBins.push_back(100);
 
-  fMCMCNParameters = fNvar; 
- 
+	fMCMCNParameters = fNvar;
 }
 
 // *********************************************
 void BCIntegrate::SetMarkovChainInitialPosition(std::vector<double> position)
 {
+	int n = position.size();
 
-	int n = position.size(); 
-
-	fXmetro0.clear(); 
+	fXmetro0.clear();
 
 	for (int i = 0; i < n; ++i)
-		fXmetro0.push_back(position.at(i)); 
-
+		fXmetro0.push_back(position.at(i));
 }
 
 // *********************************************
@@ -512,7 +509,7 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
 	double result=sumI/Niter;
 
 	// print debug information
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Integral is %f in %i iterations. ", result, Niter));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Integral is %f in %i iterations.", result, Niter));
 
 	return result;
 }
@@ -579,7 +576,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 	double result=sumI/Niter;
 
 	// print debug information
-	BCLog::Out(BCLog::debug, BCLog::debug, Form("BCIntegrate::IntegralImportance. Integral %f in %i iterations. ", result, Niter));
+	BCLog::Out(BCLog::debug, BCLog::debug, Form("BCIntegrate::IntegralImportance. Integral %f in %i iterations.", result, Niter));
 
 	return result;  
 }
@@ -779,7 +776,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
+			Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
 
 	// define 1D histograms
 	for(int i=0;i<fNvar;i++)
@@ -787,8 +784,9 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 		double hmin1 = fx->at(i) -> GetLowerLimit();
 		double hmax1 = fx->at(i) -> GetUpperLimit();
 
-		TH1D * h1 = new TH1D(Form("h%s_%s", name, fx->at(i) -> GetName().data()),"",
-			fNbins, hmin1, hmax1);
+		TH1D * h1 = new TH1D(
+				TString::Format("h%s_%s", name, fx->at(i) -> GetName().data()),"",
+				fNbins, hmin1, hmax1);
 
 		fHProb1D.push_back(h1);
 	}
@@ -803,51 +801,48 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 			double hmin2 = fx->at(j) -> GetLowerLimit();
 			double hmax2 = fx->at(j) -> GetUpperLimit();
 
-			TH2D * h2 = new TH2D(Form("h%s_%s_%s", name, fx->at(i) -> GetName().data(), fx->at(j) -> GetName().data()),"",
+			TH2D * h2 = new TH2D(
+				TString::Format("h%s_%s_%s", name, fx->at(i) -> GetName().data(), fx->at(j) -> GetName().data()),"",
 				fNbins, hmin1, hmax1,
 				fNbins, hmin2, hmax2);
 
 			fHProb2D.push_back(h2);
-		}	
+		}
 
 	// get number of 2d distributions
 	int nh2d = fHProb2D.size();
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
-		Form(" --> Marginalizing %d 1D distributions and %d 2D distributions.", fNvar, nh2d));
+			Form(" --> Marginalizing %d 1D distributions and %d 2D distributions.", fNvar, nh2d));
 
-	// prepare function fitting 
-
-	double dx = 0.0; 
-	double dy = 0.0; 
+	// prepare function fitting
+	double dx = 0.0;
+	double dy = 0.0;
 
 	if (fFitFunctionIndexX >= 0)
-		{
-			dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) - 
-						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
-				/ double(fErrorBandNbinsX); 
+	{
+		dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) -
+				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX))
+				/ double(fErrorBandNbinsX);
 
-			dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) - 
-						fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
-				/ double(fErrorBandNbinsY); 
+		dx = (fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) -
+				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY))
+				/ double(fErrorBandNbinsY);
 
-			fErrorBandXY = new TH2D("errorbandxy", "", 
-															fErrorBandNbinsX + 1, 
-															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - 
-															0.5 * dx, 
-															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + 
-															0.5 * dx, 
-															fErrorBandNbinsY + 1, 
-															fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) - 
-															0.5 * dy, 
-															fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + 
-															0.5 * dy); 
-			fErrorBandXY -> SetStats(kFALSE); 
+		fErrorBandXY = new TH2D(
+				TString::Format("errorbandxy_%d",BCLog::GetHIndex()), "",
+				fErrorBandNbinsX + 1,
+				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - 0.5 * dx,
+				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + 0.5 * dx,
+				fErrorBandNbinsY + 1,
+				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) - 0.5 * dy,
+				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + 0.5 * dy);
+		fErrorBandXY -> SetStats(kFALSE);
 
-			for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
-				for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
-					fErrorBandXY -> SetBinContent(ix, iy, 0.0); 
-		}
+		for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
+			for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
+				fErrorBandXY -> SetBinContent(ix, iy, 0.0);
+	}
 
 	// prepare Metro
 	std::vector <double> randx;
@@ -856,7 +851,6 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	InitMetro();
 
 	// reset counter 
-
 	fNacceptedMCMC = 0; 
 
 	// run Metro and fill histograms
@@ -1803,67 +1797,80 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 }
 
 // *********************************************
-
-void BCIntegrate::MCMCUpdateFunctionFitting()
+void BCIntegrate::MCMCIterationInterface()
 {
+	// what's within this method will be executed
+	// for every iteration of the MCMC
+
+	// fill error band
+	this -> MCMCFillErrorBand();
+
+	// do user defined stuff
+	this -> MCMCUserIterationInterface();
+}
+
+// *********************************************
+void BCIntegrate::MCMCFillErrorBand()
+{
+	if (!fFillErrorBand)
+		return;
+
 	// function fitting
 	if (fFitFunctionIndexX < 0)
 		return;
+
+	// loop over all possible x values ...
+	if (fErrorBandContinuous)
+	{
+		double x = 0;
+		for (int ix = 0; ix < fErrorBandNbinsX; ix++)
+		{
+			// calculate x
+			x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1);
+
+			// calculate y
+			std::vector <double> xvec;
+			xvec.push_back(x);
+
+			// loop over all chains
+			for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
+			{
+				// calculate y
+				double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain));
+
+				// fill histogram
+				fErrorBandXY -> Fill(x, y);
+			}
+
+			xvec.clear();
+		}
+	}
+	// ... or evaluate at the data point x-values
 	else
 	{
-		// loop over all possible x values ...
-		if (fErrorBandContinuous)
+		int ndatapoints = int(fErrorBandX.size());
+		double x = 0;
+
+		for (int ix = 0; ix < ndatapoints; ++ix)
 		{
-			double x = 0;
-			for (int ix = 0; ix < fErrorBandNbinsX; ix++)
+			// calculate x
+			x = fErrorBandX.at(ix);
+
+			// calculate y
+			std::vector <double> xvec;
+			xvec.push_back(x);
+
+			// loop over all chains
+			for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
 			{
-				// calculate x
-				x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1);
-
 				// calculate y
-				std::vector <double> xvec;
-				xvec.push_back(x);
+				double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain));
 
-				// loop over all chains
-				for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
-				{
-					// calculate y
-					double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain));
-
-					// fill histogram
-					fErrorBandXY -> Fill(x, y);
-				}
-
-				xvec.clear();
+				// fill histogram
+				fErrorBandXY -> Fill(x, y);
 			}
-		}
-		// ... or evaluate at the data point x-values
-		else
-		{
-			int ndatapoints = int(fErrorBandX.size());
-			double x = 0;
 
-			for (int ix = 0; ix < ndatapoints; ++ix)
-			{
-				// calculate x
-				x = fErrorBandX.at(ix);
-
-				// calculate y
-				std::vector <double> xvec;
-				xvec.push_back(x);
-
-				// loop over all chains
-				for (int ichain = 0; ichain < this -> MCMCGetNChains(); ++ichain)
-				{
-					// calculate y
-					double y = this -> FitFunction(xvec, this -> MCMCGetx(ichain));
-
-					// fill histogram
-					fErrorBandXY -> Fill(x, y);
-				}
-
-				xvec.clear();
-			}
+			xvec.clear();
 		}
 	}
 }
