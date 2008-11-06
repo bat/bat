@@ -409,46 +409,6 @@ int BCModelManager::ReadDataFromFileTree(const char * filename, const char * tre
 
 // --------------------------------------------------------- 
 
-int BCModelManager::ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double) 
-{
-	if (fModelContainer -> size() < 0) 
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
-			return ERROR_NOMODELS;
-		}
-  
-	// create data set 
-
-	if (!fDataSet) 
-		fDataSet = new BCDataSet(); 
-	else
-		fDataSet -> Reset(); 
-
-	// read data from user specified file 
-
-	int read_file = fDataSet -> ReadDataFromFileUser(filename, options_int, options_double, ""); 
-
-	if (read_file >=0) 
-		{
-			this -> SetDataSet(fDataSet); 
-			
-			for (int i = 0; i < this -> GetNModels(); i++)
-				fModelContainer -> at(i) -> SetDataSet(fDataSet); 
-		}
-
-	else
-		{
-			delete fDataSet; 
-
-			return ERROR_FILENOTFOUND; 
-		}
-
-	return 0; 
-
-}
-
-// --------------------------------------------------------- 
-
 int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
 

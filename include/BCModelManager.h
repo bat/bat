@@ -291,19 +291,6 @@ class BCModelManager
 	int ReadDataFromFileTxt(const char * filename, int nbranches); 
 
 	/** 
-	 * Reads data from a file (user specifies). 
-	 * Opens a file and creates data set
-	 * containing the values read from the file (user specifies). 
-	 * @param filename The filename of the ROOT file 
-	 * @param options_int Arbitrary integer options. 
-	 * @param options_double Arbitrary double options. 
-	 * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
-	 * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); 
-	 * @see ReadDataFromFileTxt(char * filename, int nbranches); 
-	 */
-	int ReadDataFromFileUser(const char *  filename, std::vector<int> options_int, std::vector<double> options_double);
-
-	/** 
 	 * Calculates the normalization of the likelihood for each model in
 	 * the container.
 	 */   
