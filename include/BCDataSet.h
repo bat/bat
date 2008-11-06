@@ -91,9 +91,6 @@ class BCDataSet
 		int ReadDataFromFile(const char * filename, int nvariables)
 			{ return this -> ReadDataFromFileTxt(filename, nvariables); };
 
-		int ReadDataFromFile(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
-			{ return this -> ReadDataFromFileUser(filename, options_int, options_double, options_char); };
-
 		/**
 		 * Reads a TTree from a .root file.  Opens a .root file and
 		 * gets a TTree. It creates data points containing the values

@@ -311,19 +311,6 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 
 // ---------------------------------------------------------
 
-int BCDataSet::ReadDataFromFileUser(const char * filename, std::vector<int> options_int, std::vector<double> options_double, const char * options_char)
-{
-
-	// if this method is called without being overloaded give out error.
-	BCLog::Out(BCLog::error, BCLog::error,
-			 "BCDataSet::ReadDataFromFileUser : Function needs to be overloaded by the user.");
-
-	return ERROR_METHODNOTOVERLOADED;
-
-}
-
-// ---------------------------------------------------------
-
 void BCDataSet::AddDataPoint(BCDataPoint * datapoint)
 {
 
