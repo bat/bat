@@ -920,8 +920,6 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 		return 0;
 	}
 
-	int n=0;
-
 	int c_width=600; // default canvas width
 	int c_height=600; // default canvas height
 
@@ -955,6 +953,18 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 		type=111;
 	}
 
+	// get number of parameters of the model and calculate number of plots
+	int npar = this -> GetNParameters();
+	int nplots2d = npar * (npar-1)/2;
+	int nplots = npar + nplots2d;
+
+	// give out warning if too many plots
+	BCLog::Out(BCLog::summary,BCLog::summary,
+			Form("Printing all %d marginalized distributions (%d x 1D + %d x 2D) into file %s",
+					nplots,npar,nplots2d,file));
+	if(nplots>100)
+		BCLog::Out(BCLog::detail,BCLog::detail,"This can take a while...");
+
 	// setup the canvas and postscript file
 	TCanvas * c = new TCanvas( "c","canvas",c_width,c_height);
 
@@ -971,8 +981,8 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 	c->Clear();
 	c->Divide(hdiv,vdiv);
 
-	int n1d=this->GetNParameters();
-	for(int i=0;i<n1d;i++)
+	int n=0;
+	for(int i=0;i<npar;i++)
 	{
 		// if current page is full, swith to new page
 		if(i!=0 && i%(hdiv*vdiv)==0)
@@ -990,6 +1000,9 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 		BCParameter * a = this->GetParameter(i);
 		this -> GetMarginalized(a) -> Draw();
 		n++;
+
+		if(n%100==0)
+			BCLog::Out(BCLog::detail,BCLog::detail,Form(" --> %d plots done",n));
 	}
 
 	c->Update();
@@ -1001,10 +1014,9 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 	c->Divide(hdiv,vdiv);
 
 	int k=0;
-	int n2d=this->GetNParameters();
-	for(int i=0;i<n2d-1;i++)
+	for(int i=0;i<npar-1;i++)
 	{
-		for(int j=i+1;j<n2d;j++)
+		for(int j=i+1;j<npar;j++)
 		{
 			// if current page is full, switch to new page
 			if(k!=0 && k%(hdiv*vdiv)==0)
@@ -1034,8 +1046,14 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 
 			this -> GetMarginalized(a,b) -> Draw(52);
 			k++;
+
+			if((n+k)%100==0)
+				BCLog::Out(BCLog::detail,BCLog::detail,Form(" --> %d plots done",n+k));
 		}
 	}
+
+	if( (n+k)>100 && (n+k)%100 != 0 )
+		BCLog::Out(BCLog::detail,BCLog::detail,Form(" --> %d plots done",n+k));
 
 	c->Update();
 	ps->Close();
