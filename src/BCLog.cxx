@@ -73,7 +73,7 @@ void BCLog::OpenLog()
 
 // ---------------------------------------------------------
 
-bool IsOpen()
+bool BCLog::IsOpen()
 {
 	return BCLog::fOutputStream.is_open();
 }
