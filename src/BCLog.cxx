@@ -23,10 +23,8 @@ int BCLog::fHindex = 0;
 
 BCLog::BCLog()
 {
-
 	// suppress the ROOT Info printouts
 	gErrorIgnoreLevel=2000;
-
 }
 
 // ---------------------------------------------------------
@@ -38,7 +36,6 @@ BCLog::~BCLog()
 
 void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
 {
-
 	// suppress the ROOT Info printouts
 	gErrorIgnoreLevel=2000;
 
@@ -58,79 +55,66 @@ void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::
 	// set log level
 	BCLog::SetMinimumLogLevelFile(loglevelfile);
 	BCLog::SetMinimumLogLevelScreen(loglevelscreen);
-
 }
 
 // ---------------------------------------------------------
 
 void BCLog::OpenLog(const char * filename)
 {
-
 	BCLog::OpenLog(filename, BCLog::debug, BCLog::summary);
-
 }
 
 // ---------------------------------------------------------
 
 void BCLog::OpenLog()
 {
-
 	BCLog::OpenLog("log.txt", BCLog::debug, BCLog::summary);
+}
 
+// ---------------------------------------------------------
+
+bool IsOpen()
+{
+	return BCLog::fOutputStream.is_open();
 }
 
 // ---------------------------------------------------------
 
 void BCLog::CloseLog()
 {
-
 	BCLog::fOutputStream.close();
-
 }
 
 // ---------------------------------------------------------
 
 void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message)
 {
-
 	// open log file if not opened
-	if (!BCLog::fOutputStream.is_open())
+	if (!BCLog::IsOpen())
+		std::cerr << "Log file not opended. Message only written to stdout." << std::endl;
+	else
 	{
-		std::cerr << " Log file not opended. " << std::endl;
-		return;
+		// write message in to log file
+		if (loglevelfile >= BCLog::fMinimumLogLevelFile)
+			BCLog::fOutputStream << BCLog::ToString(loglevelfile) << " : " << message << std::endl;
 	}
-
-	// write message in to log file
-	if (loglevelfile >= BCLog::fMinimumLogLevelFile)
-		BCLog::fOutputStream << BCLog::ToString(loglevelfile) << " : " << message << std::endl;
 
 	// write message to screen
 	if (loglevelscreen >= BCLog::fMinimumLogLevelScreen)
 		std::cout << BCLog::ToString(loglevelscreen) << " : " << message << std::endl;
-
 }
 
 // ---------------------------------------------------------
 
 void BCLog::Out(const char * message)
 {
-
 	BCLog::Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message);
-
 }
 
 // ---------------------------------------------------------
 
 void BCLog::StartupInfo()
 {
-
-	// open log file if not opened
-	if (!BCLog::fOutputStream.is_open())
-	{
-		std::cerr << " Log file not opended. " << std::endl;
-		return;
-	}
-
 	char * message = Form(
 			" +------------------------------\n"
 			" |\n"
@@ -141,9 +125,12 @@ void BCLog::StartupInfo()
 			" +------------------------------\n",
 			BCLog::fVersion);
 
-	BCLog::fOutputStream << message;
-	std::cout << message;
+	if (!BCLog::IsOpen())
+		std::cerr << "Log file not opended. Message only written to stdout." << std::endl;
+	else
+		BCLog::fOutputStream << message;
 
+	std::cout << message;
 }
 
 // ---------------------------------------------------------
