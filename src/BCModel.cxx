@@ -336,16 +336,16 @@ void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperbou
 	// check if data set exists
 	if (!fDataSet)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				 "BCModel::SetDataBoundaries. Need to define data set first.");
+		BCLog::Out(BCLog::error, BCLog::error,
+				 "BCModel::SetDataBoundaries : Need to define data set first.");
 		return;
 	}
 
 	// check if index is within range
 	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::SetDataBoundaries. Index out of range.");
+		BCLog::Out(BCLog::error, BCLog::error,
+				"BCModel::SetDataBoundaries : Index out of range.");
 		return;
 	}
 
@@ -403,9 +403,9 @@ int BCModel::AddParameter(BCParameter * parameter)
 	// check if parameter set exists
 	if (!fParameterSet)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::AddParameter. Parameter set does not exist");
-			return ERROR_PARAMETERSETDOESNOTEXIST;
+		BCLog::Out(BCLog::error, BCLog::error,
+				"BCModel::AddParameter : Parameter set does not exist");
+		return ERROR_PARAMETERSETDOESNOTEXIST;
 	}
 
 	// check if parameter with same name exists
@@ -416,8 +416,8 @@ int BCModel::AddParameter(BCParameter * parameter)
 
 	if (flag_exists < 0)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				Form("BCModel::AddParameter. Parameter with name %s exists already. ", parameter -> GetName().data()));
+		BCLog::Out(BCLog::error, BCLog::error,
+				Form("BCModel::AddParameter : Parameter with name %s exists already. ", parameter -> GetName().data()));
 		return ERROR_PARAMETEREXISTSALREADY;
 	}
 
@@ -549,11 +549,11 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 		if (modelparameter -> GetLowerLimit() > parameters.at(i) ||
 				modelparameter -> GetUpperLimit() < parameters.at(i))
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,
-					 Form("BCModel::CheckParameters. Parameter %s not within limits.", fParameterSet -> at(i) -> GetName().data()));
+			BCLog::Out(BCLog::error, BCLog::error,
+					 Form("BCModel::CheckParameters : Parameter %s not within limits.", fParameterSet -> at(i) -> GetName().data()));
 			return ERROR_PARAMETERNOTWITHINRANGE;
-				}
 		}
+	}
 
 	return 0;
 }
@@ -766,7 +766,8 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 	TFile * froot = new TFile(file);
 	if(!froot->IsOpen())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::ReadMarginalizedFromFile. Couldn't open file %s.",file));
+		BCLog::Out(BCLog::error, BCLog::error,
+				Form("BCModel::ReadMarginalizedFromFile : Couldn't open file %s.",file));
 		return 0;
 	}
 
