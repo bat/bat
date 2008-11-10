@@ -73,7 +73,7 @@ void BCH2D::Print(const char * filename, int options, int ww, int wh)
 
 // ---------------------------------------------------------
 
-void BCH2D::Draw(int options)
+void BCH2D::Draw(int options, bool drawmode)
 {
 	// draw histogram
 	fHistogram -> SetLineColor(kBlack);
@@ -246,17 +246,20 @@ void BCH2D::Draw(int options)
 		fHistogram -> SetContour(1, levels);
 
 		// best fit value
-		TMarker * marker0 = new TMarker(modex, modey, 8);
-		marker0 -> SetMarkerColor(0);
-		marker0 -> SetMarkerSize(.7);
-		marker0 -> Draw();
-		TMarker * marker1 = new TMarker(modex, modey, 4);
-		marker1 -> SetMarkerColor(1);
-		marker1 -> SetMarkerSize(.7);
-		marker1 -> Draw();
-//		TMarker * marker = new TMarker(modex, modey, 5);
-//		marker -> SetMarkerColor(0);
-//		marker -> Draw();
+		if(drawmode)
+		{
+			TMarker * marker0 = new TMarker(modex, modey, 8);
+			marker0 -> SetMarkerColor(0);
+			marker0 -> SetMarkerSize(.7);
+			marker0 -> Draw();
+			TMarker * marker1 = new TMarker(modex, modey, 4);
+			marker1 -> SetMarkerColor(1);
+			marker1 -> SetMarkerSize(.7);
+			marker1 -> Draw();
+//			TMarker * marker = new TMarker(modex, modey, 5);
+//			marker -> SetMarkerColor(0);
+//			marker -> Draw();
+		}
 	}
 	else if (options == 53 || options == 531)
 	{

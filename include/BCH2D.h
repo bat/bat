@@ -92,8 +92,9 @@ class BCH2D
 
 		/**
 		 * Draw 2-d distribution into the active canvas
-		 * @param options explanation to come */
-		void Draw(int options=0);
+		 * @param options explanation to come
+		 * @param drawmode specify whether a marker should be drawn at the location of the mode */
+		void Draw(int options=0, bool drawmode=true);
 
 		/*
 		 * Calculates the integral of the distribution as a function of the

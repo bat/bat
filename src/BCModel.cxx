@@ -15,6 +15,7 @@
 
 #include <TDirectory.h>
 #include <TFile.h>
+#include <TKey.h>
 #include <TTree.h>
 #include <TMath.h>
 
@@ -775,10 +776,11 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 	int n=this->GetNParameters();
 	for(int i=0;i<n;i++)
 	{
-		BCParameter * a = this->GetParameter(i);
-		TH1D * h1 = (TH1D*)froot -> Get(Form("hist_%s_%s", this -> GetName().data(), a -> GetName().data()));
-		if(h1)
+		BCParameter * a = this -> GetParameter(i);
+		TKey * key = froot -> GetKey(TString::Format("hist_%s_%s", this -> GetName().data(), a -> GetName().data()));
+		if(key)
 		{
+			TH1D * h1 = (TH1D*) key -> ReadObjectAny(TH1D::Class());
 			h1->SetDirectory(0);
 			if(this->SetMarginalized(i,h1))
 				k++;
@@ -793,11 +795,12 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 	{
 		for(int j=i+1;j<n;j++)
 		{
-			BCParameter * a = this->GetParameter(i);
-			BCParameter * b = this->GetParameter(j);
-			TH2D * h2 = (TH2D*)froot -> Get(Form("hist_%s_%s_%s", this -> GetName().data(), a -> GetName().data(), b -> GetName().data()));
-			if(h2)
+			BCParameter * a = this -> GetParameter(i);
+			BCParameter * b = this -> GetParameter(j);
+			TKey * key = froot -> GetKey(TString::Format("hist_%s_%s_%s", this -> GetName().data(), a -> GetName().data(), b -> GetName().data()));
+			if(key)
 			{
+				TH2D * h2 = (TH2D*) key -> ReadObjectAny(TH2D::Class());
 				h2->SetDirectory(0);
 				if(this->SetMarginalized(i,j,h2))
 					k++;
