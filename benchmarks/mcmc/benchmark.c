@@ -1,65 +1,46 @@
-#include <BCLog.h>
-
+#include "BCLog.h"
+#include "BCBenchmarkMCMC.h"
 #include "style.c"
-#include <BCBenchmarkMCMC.h> 
-#include "TF1.h" 
+
+#include <TF1.h>
 
 // ---------------------------------------------------------
-  
+
 int main()
 {
+	SetStyle();
 
-	// ---------------------------------------------------------
-	// set style  
-	// ----------------------------------------------------------
+	BCLog::OpenLog("log0.txt", BCLog::detail, BCLog::detail);
 
-	// calls a function which defines a nicer style than the ROOT
-	// default.
-	SetStyle(); 
+	BCBenchmarkMCMC * benchmark = new BCBenchmarkMCMC("benchmark");
 
-	// ---------------------------------------------------------
-	// open log file 
-	// ---------------------------------------------------------
-
-	// opens the log file. 
-	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
-
-	// ---------------------------------------------------------
-	// create model 
-	// ---------------------------------------------------------
-
-	BCBenchmarkMCMC * benchmark = new BCBenchmarkMCMC("benchmark"); 
-
-	// add parameters 
-	double xmin =  0.0; 
-	double xmax = 50.0; 
+	// add parameters
+	double xmin =  0.0;
+	double xmax = 50.0;
 	benchmark -> AddParameter("x",  xmin, xmax);
-	benchmark -> SetNbins(500, 0); 
+	benchmark -> SetNbins(500, 0);
 
-	// define test functions 
-	TF1 * testfunction1 = new TF1("testfunction1", "x*x", xmin, xmax); 
-	TF1 * testfunction2 = new TF1("testfunction2", "x*x*sin(x)*sin(x)", xmin, xmax); 
+	// define and set test functions
+//	TF1 * testfunction1 = new TF1("testfunction1", "x*x", xmin, xmax);
+	TF1 * testfunction2 = new TF1("testfunction2", "x*x*sin(x)*sin(x)", xmin, xmax);
+	benchmark -> SetTestFunction(testfunction2);
 
-	// set test function 
-	benchmark -> SetTestFunction(testfunction2); 
+	// perform marginalization
+	benchmark -> MCMCSetNIterationsRun(1000000);
+	benchmark -> MarginalizeAll();
 
-	// perform marginalization 
-	benchmark -> MarginalizeAll(); 
+	// perform test
+	benchmark -> PerformTest(
+			benchmark -> GetBestFitParameters(),
+			0,
+			benchmark -> GetMarginalized("x"),
+			true,
+			"test.ps");
 
-	BCH1D * hist = benchmark -> GetMarginalized("x"); 
-	
-	// perform test 
-	double* chi2; 
-	benchmark -> PerformTest(benchmark -> GetBestFitParameters(), 
-													 0, 
-													 hist,
-													 chi2, 
-													 true, 
-													 "test.ps"); 
+	delete benchmark;
 
-	delete benchmark; 
-
+	return 0;
 }
 
 // ---------------------------------------------------------
-  
+

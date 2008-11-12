@@ -10,35 +10,35 @@ LD           = g++
 LDFLAGS      = -g -O2
 SOFLAGS      = -shared
 
-RM           = rm -f 
-MV           = mv 
+RM           = rm -f
+MV           = mv
 ECHO         = echo
 CINT         = rootcint
 
 # Assign or Add variables
-CXXFLAGS    += $(ROOTCFLAGS) 
-CXXFLAGS    += -I./src/ -I./ -I../../include/ 
+CXXFLAGS    += $(ROOTCFLAGS)
+CXXFLAGS    += -I./src/ -I./ -I../../include/
 LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
 GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
 
-CXSRCS      = BCBenchmarkMCMC.cxx 
+CXSRCS      = BCBenchmarkMCMC.cxx
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
-EXEOBJS       = 
+EXEOBJS       =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) benchmark.o link.d benchmark
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) benchmark.o link.d benchmark benchmark2
 
-all : benchmark
+all : benchmark benchmark2
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
-	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
 include link.d
 
-%.o : src/%.cxx 
+%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean :
@@ -46,7 +46,11 @@ clean :
 
 benchmark : benchmark.c $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) benchmark.o $(CXXOBJS) -o benchmark
+	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
+
+benchmark2 : benchmark2.c $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 
 print :
 	echo compiler  : $(CXX)

@@ -1,45 +1,40 @@
 #ifndef __BCBENCHMARKMCMC__H
 #define __BCBENCHMARKMCMC__H
 
-#include "BCModel.h" 
+#include "BCModel.h"
 
-#include "TF1.h" 
+#include <TF1.h>
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-class BCBenchmarkMCMC : public BCModel 
+class BCBenchmarkMCMC : public BCModel
 {
 
- public: 
+	public:
+		// constructor
+		BCBenchmarkMCMC(const char* name);
+		~BCBenchmarkMCMC()
+			{ ;};
 
-  // constructor 
+		// methods
+		double LogAPrioriProbability(std::vector <double> parameters)
+			{ return 0; };
 
-  BCBenchmarkMCMC(const char* name); 
+		double LogLikelihood(std::vector <double> parameters);
 
-  ~BCBenchmarkMCMC()
-    { ;};  
+		double PerformTest(std::vector<double> parameters,
+				int index,
+				BCH1D * hist,
+				bool flag_print = true,
+				const char * filename = "test.ps");
 
-  // methods 
+		void SetTestFunction(TF1 * testfunction)
+			{ fTestFunction = testfunction; };
 
-  double LogAPrioriProbability(std::vector <double> parameters)
-	{ return 0; }; 
-  
-  double LogLikelihood(std::vector <double> parameters); 
+	TF1 * fTestFunction;
 
-	void PerformTest(std::vector<double> parameters, 
-									 int index, 
-									 BCH1D * hist, 
-									 double * chi2, 
-									 bool flag_print = true, 
-									 const char * filename = "test.ps"); 
+};
 
-	void SetTestFunction(TF1 * testfunction)
-		{ fTestFunction = testfunction; }; 
+// ---------------------------------------------------------
 
-	TF1 * fTestFunction; 
-
-}; 
-
-// --------------------------------------------------------- 
-
-#endif 
+#endif

@@ -19,6 +19,7 @@ benchmarks/marginalization/src/BCModelGauss.cxx -text
 benchmarks/marginalization/src/BCModelGauss.h -text
 benchmarks/mcmc/Makefile -text
 benchmarks/mcmc/benchmark.c -text
+benchmarks/mcmc/benchmark2.c -text
 benchmarks/mcmc/src/BCBenchmarkMCMC.cxx -text
 benchmarks/mcmc/src/BCBenchmarkMCMC.h -text
 /cuba.h -text
