@@ -1223,10 +1223,29 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		BCLog::Out(BCLog::detail, BCLog::detail,
 				Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn));
 
-	for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
-		for (int j = 0; j < fMCMCNChains; ++j)
-			for (int k = 0; k < fMCMCNParameters; ++k)
-				this -> MCMCGetNewPointMetropolis(j, k, false);
+	// if the flag is set then run over the parameters one after the other.
+	if (fMCMCFlagOrderParameters)
+		{
+			for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
+				for (int j = 0; j < fMCMCNChains; ++j)
+					for (int k = 0; k < fMCMCNParameters; ++k)
+						this -> MCMCGetNewPointMetropolis(j, k, false);
+		}	
+
+	// if the flag is not set then run over the parameters at the same time. 
+	else
+		{
+			for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
+				{
+					// loop over chains
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+						{
+							// get new point 
+							this -> MCMCGetNewPointMetropolis(ichains, false);
+						}
+				}
+		}
+
 
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
@@ -1306,47 +1325,93 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		fMCMCNIterationsMax = fMCMCNIterationsPCA;
 	}
 
+	// run chain 
 	while (counter < fMCMCNIterationsPreRunMin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
 	{
 		// set convergence to false by default
 		convergence = false;
 
-		// loop over parameters
-		for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
-		{
-			// loop over chains
-			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+		// if the flag is set then run over the parameters one after the other.
+		if (fMCMCFlagOrderParameters)
 			{
-				this -> MCMCGetNewPointMetropolis(ichains, iparameters, false);
+				// loop over parameters
+				for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
+					{
+						// loop over chains
+						for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+							{
+								this -> MCMCGetNewPointMetropolis(ichains, iparameters, false);
+								
+								// save point for finding the eigenvalues
+								if (fMCMCFlagPCA)
+									{
+										// create buffer for the new point
+										double * data = new double[fMCMCNParameters];
+										
+										// copy the current point
+										for (int j = 0; j < fMCMCNParameters; ++j)
+											{
+												data[j] = fMCMCx[j];
+												dataall[ichains * fMCMCNParameters + j] = fMCMCx[j];
+											}
+										
+										// add point to PCA object
+										fMCMCPCA -> AddRow(data);
+										
+										// delete buffer
+										delete [] data;
+									}
+							}
+						
+						// search for global maximum
+						this -> MCMCUpdateStatisticsCheckMaximum();
+						
+						// check convergence status
+						this -> MCMCUpdateStatisticsTestConvergenceAllChains();
+					}
+			}
+
+		// if the flag is not set then run over the parameters at the same time. 
+		else
+			{
+				// loop over chains
+				for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+					{
+						// get new point 
+						this -> MCMCGetNewPointMetropolis(ichains, false);
+					}
 
 				// save point for finding the eigenvalues
 				if (fMCMCFlagPCA)
-				{
-					// create buffer for the new point
-					double * data = new double[fMCMCNParameters];
-
-					// copy the current point
-					for (int j = 0; j < fMCMCNParameters; ++j)
 					{
-						data[j] = fMCMCx[j];
-						dataall[ichains * fMCMCNParameters + j] = fMCMCx[j];
+						// create buffer for the new point
+						double * data = new double[fMCMCNParameters];
+						
+						// copy the current point
+						for (int j = 0; j < fMCMCNParameters; ++j)
+							{
+								// loop over chains
+								for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+									{
+										data[j] = fMCMCx[j];
+										dataall[ichains * fMCMCNParameters + j] = fMCMCx[j];
+									}
+							}
+						
+						// add point to PCA object
+						fMCMCPCA -> AddRow(data);
+						
+						// delete buffer
+						delete [] data;
 					}
 
-					// add point to PCA object
-					fMCMCPCA -> AddRow(data);
-
-					// delete buffer
-					delete [] data;
-				}
+				// search for global maximum
+				this -> MCMCUpdateStatisticsCheckMaximum();
+						
+				// check convergence status
+				this -> MCMCUpdateStatisticsTestConvergenceAllChains();
 			}
-
-			// search for global maximum
-			this -> MCMCUpdateStatisticsCheckMaximum();
-
-			// check convergence status
-			this -> MCMCUpdateStatisticsTestConvergenceAllChains();
-		}
-
+		
 		// update scale factors
 		if (counterupdate % (fMCMCNIterationsUpdate*(fMCMCNParameters+1)) == 0 && counterupdate > 0)
 		{
@@ -1418,7 +1483,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 				fMCMCMean[ichains] = 0;
 				fMCMCVariance[ichains] = 0;
 			}
-		}
+		} // end if update scale factors 
 
 		// increase counter
 		counter++;
@@ -2220,6 +2285,8 @@ void BCEngineMCMC::MCMCSetValuesQuick()
 	fMCMCPCA                  = 0;
 	fMCMCPCAMinimumRatio      = 1e-7;
 	fMCMCNIterationsUpdate    = 1000;
+	fMCMCFlagOrderParameters  = true; 
+
 }
 
 // ---------------------------------------------------------
@@ -2246,6 +2313,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
 	fMCMCPCA                  = 0;
 	fMCMCPCAMinimumRatio      = 1e-7;
 	fMCMCNIterationsUpdate    = 1000;
+	fMCMCFlagOrderParameters  = true; 
 }
 
 // ---------------------------------------------------------

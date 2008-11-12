@@ -334,6 +334,9 @@ class BCEngineMCMC
 		void MCMCSetNIterationsPCA(int n)
 			{ fMCMCNIterationsPCA = n; };
 
+		void MCMCSetNIterationsUpdate(int n)
+		{ fMCMCNIterationsUpdate = n; }; 
+
 		/*
 		 * Sets flag to automatically calculate the number of iterations of
 		 * a Markov chain. */
@@ -373,6 +376,13 @@ class BCEngineMCMC
 		 */
 		void MCMCSetFlagInitialPosition(int flag)
 			{ fMCMCFlagInitialPosition = flag; };
+
+		/*
+		 * Sets the flag which controls the sequence parameters during the running  
+     * of the MCMC. 
+		 */
+		void MCMCSetFlagOrderParameters(bool flag)
+		{ fMCMCFlagOrderParameters = flag; }; 
 
 		/*
 		 * Sets the R-value criterion for convergence of all chains. */
@@ -755,6 +765,12 @@ class BCEngineMCMC
 		 * of the allowed region, (1) random initial position (2)
 		 * pre-defined intial position. */
 		int fMCMCFlagInitialPosition;
+
+		/*
+		 * Flag which controls the sequence parameters during the running 
+		 * of the MCMC. 
+		 */ 
+		bool fMCMCFlagOrderParameters; 
 
 		/*
 		 * The current points of each Markov chain. The length of the
