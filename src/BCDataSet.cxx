@@ -20,45 +20,35 @@
 
 BCDataSet::BCDataSet()
 {
-
 	fBCDataVector = 0;
-
 }
 
 // ---------------------------------------------------------
 
 BCDataSet::~BCDataSet()
 {
-
 	if (fBCDataVector)
 		delete fBCDataVector;
-
 }
 
 // ---------------------------------------------------------
 
 unsigned int BCDataSet::GetNDataPoints()
 {
-
-	unsigned int ndatapoints = 0;
-
 	// check if vector exists. Return number of data points if true ...
 	if (fBCDataVector)
-		ndatapoints = fBCDataVector -> size();
+		return fBCDataVector -> size();
 
 	// ... or give out warning and return 0 if not.
-	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetNDataPoints : Memory for vector fBCDataVector not yet allocated. Return 0.");
-
-	return ndatapoints;
-
+	BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetNDataPoints : DataSet not yet created.");
+	return 0;
 }
 
 // ---------------------------------------------------------
 
 unsigned int BCDataSet::GetNValuesPerPoint()
 {
-	// check if vector exists
+	// check if vector exists and contains datapoints
 	if (fBCDataVector && fBCDataVector -> size() > 0)
 		return this -> GetDataPoint(0) -> GetNValues();
 
@@ -71,19 +61,19 @@ unsigned int BCDataSet::GetNValuesPerPoint()
 
 BCDataPoint * BCDataSet::GetDataPoint(unsigned int index)
 {
-
-	BCDataPoint * datapoint = 0;
+	if (!fBCDataVector || this -> GetNDataPoints()==0 )
+	{
+		BCLog::Out(BCLog::error, BCLog::error,"BCDataSet::GetDataPoint : Dataset is empty.");
+		return 0;
+	}
 
 	// check if index is within range. Return the data point if true ...
-	if (fBCDataVector && index >= 0 && index < this -> GetNDataPoints())
-		datapoint = fBCDataVector -> at(index);
+	if(index >= 0 && index < this -> GetNDataPoints())
+		return fBCDataVector -> at(index);
 
 	// ... or give out warning and return 0 if not.
-	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataSet::GetDataPoint : Index out of range. Return 0.");
-
-	return datapoint;
-
+	BCLog::Out(BCLog::error, BCLog::error,"BCDataSet::GetDataPoint : Index out of range. Return 0.");
+	return 0;
 }
 
 // ---------------------------------------------------------
