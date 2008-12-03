@@ -89,6 +89,8 @@ examples/example04/output/summary_benchmark.txt -text
 examples/example04/runBATexample04.c -text
 examples/example04/src/BCModelEfficiency.cxx -text
 examples/example04/src/BCModelEfficiency.h -text
+examples/example07/Makefile -text
+examples/example07/runBATexample07.c -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text
 include/BCEngineMCMC.h -text
