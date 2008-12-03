@@ -13,10 +13,10 @@ int main()
 
 	// function range
 	double xmin =  0.0;
-	double xmax = 50.0;
+	double xmax = 19.0;
 
 	// define test functions
-	TF1 * testfunction2 = new TF1("testfunction2", "x*x*sin(x)*sin(x)", xmin, xmax);
+	TF1 * testfunction2 = new TF1("testfunction2", "x*x*x*x*sin(x)*sin(x)", xmin, xmax);
 
 	// number of runs with different number of iterations
 	int n = 5;
@@ -34,8 +34,10 @@ int main()
 		// create model and set it up
 		BCBenchmarkMCMC * benchmark = new BCBenchmarkMCMC("benchmark");
 		benchmark -> AddParameter("x",  xmin, xmax);
-		benchmark -> SetNbins(500, 0);
+		benchmark -> SetNbins(100, 0);
 		benchmark -> SetTestFunction(testfunction2);
+
+		benchmark -> MCMCSetValuesQuick();
 
 		f *= step;
 		benchmark -> MCMCSetNIterationsRun(100*f);
@@ -47,7 +49,7 @@ int main()
 				0,
 				benchmark -> GetMarginalized("x"),
 				true,
-				TString::Format("test-%d.ps",100*f));
+				TString::Format("test-%d-lin.ps",100*f));
 
 		delete benchmark;
 

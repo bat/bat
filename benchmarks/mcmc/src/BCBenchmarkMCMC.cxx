@@ -71,7 +71,7 @@ double BCBenchmarkMCMC::PerformTest(
 		hist_prob -> Draw();
 		fTestFunction -> SetNpx(1000);
 		fTestFunction -> SetLineColor(kRed);
-		fTestFunction -> SetLineWidth(1);
+		fTestFunction -> SetLineWidth(2);
 		fTestFunction -> Draw("c same");
 		can -> Print(filename);
 	}

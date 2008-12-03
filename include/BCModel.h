@@ -1,3 +1,6 @@
+#ifndef __BCMODEL__H
+#define __BCMODEL__H
+
 /*!
  * \class BCModel
  * \brief The base class for all user-defined models.
@@ -21,9 +24,6 @@
  */
 
 // ---------------------------------------------------------
-
-#ifndef __BCMODEL__H
-#define __BCMODEL__H
 
 #include <vector>
 #include <string>

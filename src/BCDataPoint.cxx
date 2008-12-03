@@ -44,7 +44,10 @@ BCDataPoint::~BCDataPoint()
 
 double BCDataPoint::GetValue(int index)
 {
-
+// this is not good at all
+// -1 can be ok value
+// and one can turn off warnings
+// so if index is out of range the program should stop
 	double value = -1.0;
 
 	// check if index is in range. return value if true ...
@@ -53,27 +56,31 @@ double BCDataPoint::GetValue(int index)
 
 	// ... or give warning if not.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataPoint::GetValue. Index out of range.");
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				TString::Format("BCDataPoint::GetValue : Index %d out of range (%d to %d).",index,0,fData.size()));
 
 	return value;
 
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCDataPoint::SetValue(int index, double value) 
+void BCDataPoint::SetValue(int index, double value)
 {
-	
-	// check if index is in range. set value if true ... 
-	
+// this is not good at all
+// -1 can be ok value
+// and one can turn off warnings
+// so if index is out of range the program should stop
+
+	// check if index is in range. set value if true ...
 	if (index >= 0 && index < int(fData.size()))
-		fData[index] = value; 
-	
-	// ... or give warning if not. 
-	
+		fData[index] = value;
+
+	// ... or give warning if not.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataPoint::SetValue. Index out of range.");
-	
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				TString::Format("BCDataPoint::SetValue : Index %d out of range (%d to %d).",index,0,fData.size()));
+
 }
 
 // --------------------------------------------------------- 
