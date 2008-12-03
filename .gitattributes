@@ -101,6 +101,7 @@ include/BCIntegrate.h -text
 include/BCLog.h -text
 include/BCMath.h -text
 include/BCModel.h -text
+include/BCModelHistogramFitter.h -text
 include/BCModelManager.h -text
 include/BCModelOutput.h -text
 include/BCModelTest.h -text
@@ -116,6 +117,7 @@ src/BCIntegrate.cxx -text
 src/BCLog.cxx -text
 src/BCMath.cxx -text
 src/BCModel.cxx -text
+src/BCModelHistogramFitter.cxx -text
 src/BCModelManager.cxx -text
 src/BCModelOutput.cxx -text
 src/BCModelTest.cxx -text
