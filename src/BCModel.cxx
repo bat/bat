@@ -436,7 +436,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 	//	this -> MCMCAddParameter(parameter -> GetLowerLimit(), parameter -> GetUpperLimit());
 
 	// re-initialize
-	this -> MCMCInitialize();
+//	this -> MCMCInitialize();
 
 	return 0;
 }
@@ -638,7 +638,8 @@ int BCModel::ReadMode(const char * file)
 	ifstream ifi(file);
 	if(!ifi.is_open())
 	{
-		std::cerr<<"Couldn't open file "<<file<<std::endl;
+		BCLog::Out(BCLog::error,BCLog::error,
+				Form("BCModel::ReadMode : Couldn't open file %s.",file));
 		return 0;
 	}
 
@@ -656,8 +657,10 @@ int BCModel::ReadMode(const char * file)
 
 	if(i<npar)
 	{
-		std::cerr<<"Couldn't read mode from file "<<file<<std::endl;
-		std::cerr<<"Expected "<<npar<<" parameters, found "<<i<<std::endl;
+		BCLog::Out(BCLog::error,BCLog::error,
+				Form("BCModel::ReadMode : Couldn't read mode from file %s.",file));
+		BCLog::Out(BCLog::error,BCLog::error,
+				Form("BCModel::ReadMode : Expected %d parameters, found %d.",npar,i));
 		return 0;
 	}
 
@@ -771,6 +774,14 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 				Form("BCModel::ReadMarginalizedFromFile : Couldn't open file %s.",file));
 		return 0;
 	}
+
+	// We reset the MCMCEngine here for the moment.
+	// In the future maybe we only want to do this if the engine
+	// wans't initialized at all or when there were some changes
+	// in the model.
+	// But maybe we want reset everything since we're overwriting
+	// the marginalized distributions anyway.
+	this -> MCMCInitialize();
 
 	int k=0;
 	int n=this->GetNParameters();
@@ -910,18 +921,19 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
 int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 {
+	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
+	{
+		BCLog::Out(BCLog::error, BCLog::error,
+				"BCModel::PrintAllMarginalized : Marginalized distributions not available.");
+		return 0;
+	}
+
+	// if there's only one parameter, we just want to call Print()
 	if (fMCMCH1Marginalized.size()==1 && fMCMCH2Marginalized.size()==0)
 	{
 		BCParameter * a = this->GetParameter(0);
 		this -> GetMarginalized(a) -> Print(file);
 		return 1;
-	}
-
-	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::PrintAllMarginalized : MarginalizeAll() has to be run prior to this to fill the distributions.");
-		return 0;
 	}
 
 	int c_width=600; // default canvas width

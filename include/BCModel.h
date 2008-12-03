@@ -168,7 +168,7 @@ class BCModel : public BCIntegrate
 		 * @return The number of parameters of the model.
 		 */
 		int GetNParameters()
-			{ return fParameterSet -> size(); };
+			{ return fParameterSet ? fParameterSet -> size() : 0; };
 
 		/**
 		 * @param index The index of the parameter in the parameter set.

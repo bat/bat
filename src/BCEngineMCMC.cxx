@@ -28,11 +28,11 @@ BCEngineMCMC::BCEngineMCMC()
 //	fMCMCRelativePrecisionMode = 1e-3;
 
 	// set pointer to control histograms to NULL
-	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
-		fMCMCH1Marginalized[i] = 0;
+//	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
+//		fMCMCH1Marginalized[i] = 0;
 
-	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
-		fMCMCH2Marginalized[i] = 0;
+//	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
+//		fMCMCH2Marginalized[i] = 0;
 
 //	fMCMCH1RValue = 0;
 //	fMCMCH1Efficiency = 0;
@@ -41,7 +41,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCRandom = new TRandom3(0);
 
 	// initialize
-	this -> MCMCInitialize();
+//	this -> MCMCInitialize();
 }
 
 // ---------------------------------------------------------
