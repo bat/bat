@@ -90,19 +90,6 @@ BCDataPoint * BCDataSet::GetDataPoint(unsigned int index)
 
 int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
-
-	// if data set contains data, clear data object container ...
-	if (fBCDataVector != 0)
-	{
-		fBCDataVector -> clear();
-
-		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree : Overwrite existing data.");
-	}
-
-	// ... or allocate memory for the vector if not.
-	else
-		fBCDataVector = new BCDataVector();
-
 	// open root file
 	TFile * file = new TFile(filename, "READ");
 
@@ -128,6 +115,18 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
 
 		return ERROR_TREENOTFOUND;
 	}
+
+	// if data set contains data, clear data object container ...
+	if (fBCDataVector != 0)
+	{
+		fBCDataVector -> clear();
+
+		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTree : Overwrite existing data.");
+	}
+
+	// ... or allocate memory for the vector if not.
+	else
+		fBCDataVector = new BCDataVector();
 
 	// get branch names.
 
@@ -236,19 +235,6 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
 
 int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
-
-	// if data set contains data, clear data object container ...
-	if (fBCDataVector != 0)
-	{
-		fBCDataVector -> clear();
-
-		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt : Overwrite existing data.");
-	}
-
-	// ... or allocate memory for the vector if not.
-	else
-		fBCDataVector = new BCDataVector();
-
 	// open text file.
 	std::fstream file;
 	file.open(filename, std::fstream::in);
@@ -261,6 +247,18 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 
 		return ERROR_FILENOTFOUND;
 	}
+
+	// if data set contains data, clear data object container ...
+	if (fBCDataVector != 0)
+	{
+		fBCDataVector -> clear();
+
+		BCLog::Out(BCLog::detail, BCLog::detail,"BCDataSet::ReadDataFromFileTxt : Overwrite existing data.");
+	}
+
+	// ... or allocate memory for the vector if not.
+	else
+		fBCDataVector = new BCDataVector();
 
 	// create temporary vector with data and assign some zeros.
 	std::vector<double> data;

@@ -391,7 +391,7 @@ int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimi
 	BCParameter * parameter = new BCParameter(name, lowerlimit, upperlimit);
 
 	int flag_ok = this -> AddParameter(parameter);
-	if (flag_ok != 0)
+	if (flag_ok)
 		delete parameter;
 
 	return flag_ok;
