@@ -649,6 +649,7 @@ class BCIntegrate : public BCEngineMCMC
 	 * Does the mode finding using Minuit
 	 */
 	void FindModeMinuit();
+	void FindModeMinuit(std::vector<double> start=0);
 
 	/**
 	 * Does the mode finding using Markov Chain Monte Carlo

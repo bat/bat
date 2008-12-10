@@ -1,4 +1,4 @@
-#include <BCModelHistogramFitter.h>
+#include <BCHistogramFitter.h>
 #include <BCLog.h>
 #include <BCModelOutput.h>
 
@@ -50,13 +50,11 @@ int main()
 	func -> SetParLimits(3, 0.0, 2.0);
 
 	// ---------------------------------------------------------
-	// initialize histogram fitter
+	// initialize histogram fitter and perform the fit 
 	// ---------------------------------------------------------
-	BCModelHistogramFitter * hf = new BCModelHistogramFitter(hist, func);
-	hf -> SetFillErrorBand();
-	hf -> MCMCSetNIterationsRun(2000);
-	hf -> MarginalizeAll();
-	hf -> FindMode();
+	BCHistogramFitter * hf = new BCHistogramFitter(); 
+	hf -> Fit(hist, func); 
+
 	hf -> PrintAllMarginalized("plots.ps");
 
 	// ---------------------------------------------------------

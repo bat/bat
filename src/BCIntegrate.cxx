@@ -1382,6 +1382,76 @@ void BCIntegrate::FindModeMinuit()
 
 // *********************************************
 
+void BCIntegrate::FindModeMinuit(std::vector<double> start) 
+{
+
+	// check start values
+	if (int(start.size()) != fNvar)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::FindModeMinuit : Starting point not valid.");
+
+			return; 
+		}
+
+	// set global this 
+
+	global_this = this; 
+
+	// define minuit 
+
+	if (fMinuit) 
+		delete fMinuit; 
+	//	if (!fMinuit) 
+		fMinuit = new TMinuit(fNvar); 
+	
+	// set function 
+
+	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood); 
+
+	// set parameters 
+
+	int flag; 
+
+	for (int i = 0; i < fNvar; i++)
+		fMinuit -> mnparm(i, 
+											fx -> at(i) -> GetName().data(), 
+											start.at(i), 
+											(fMax[i]-fMin[i])/100.0, 
+											fMin[i],
+											fMax[i], 
+											flag); 
+
+	// do minimization 
+	fMinuit -> mnexcm("MIGRAD", fMinuitArglist, 2, flag);
+
+	// copy flag 
+	fMinuitErrorFlag = flag; 
+
+	// set best fit parameters 
+	fBestFitParameters.clear(); 
+
+	for (int i = 0; i < fNvar; i++)
+		{
+			double par; 
+			double parerr; 
+			
+			fMinuit -> GetParameter(i, par, parerr); 
+
+			fBestFitParameters.push_back(par); 
+		}
+
+	// delete minuit 
+
+	//	delete fMinuit; 
+
+	//	fMinuit = 0; 
+
+	return; 
+
+}
+
+// *********************************************
+
 void BCIntegrate::SetMode(std::vector <double> mode)
 {
 	if((int)mode.size() == fNvar)
