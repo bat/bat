@@ -45,7 +45,7 @@ class BCLog
 		 * summary : Results
 		 * warning : Warning messages
 		 * error   : Error message
-		 * nothing : Not written into file
+		 * nothing : No output
 		 */
 		enum LogLevel {debug, detail, summary, warning, error, nothing};
 
@@ -148,6 +148,10 @@ class BCLog
 		/**
 		 * The output stream for the file log */
 		static std::ofstream fOutputStream;
+
+		/**
+		 * Specifies wheather there were output printouts already */
+		static bool fFirstOutputDone;
 
 		/**
 		 * Converts a log level to a string */

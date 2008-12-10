@@ -292,7 +292,7 @@ class BCEngineMCMC
 		 * @param i index of the first parameter
 		 * @param j index of the second parameter
 		 * @return pointer to the histogram */
-		TH2D * MCMCGetH2Marginalized(int i, int ij);
+		TH2D * MCMCGetH2Marginalized(int i, int j);
 
 		/* @} */
 		/** \name Setters */
@@ -335,7 +335,7 @@ class BCEngineMCMC
 			{ fMCMCNIterationsPCA = n; };
 
 		void MCMCSetNIterationsUpdate(int n)
-		{ fMCMCNIterationsUpdate = n; }; 
+		{ fMCMCNIterationsUpdate = n; };
 
 		/*
 		 * Sets flag to automatically calculate the number of iterations of
@@ -378,11 +378,10 @@ class BCEngineMCMC
 			{ fMCMCFlagInitialPosition = flag; };
 
 		/*
-		 * Sets the flag which controls the sequence parameters during the running  
-     * of the MCMC. 
-		 */
+		 * Sets the flag which controls the sequence parameters during the running
+		 * of the MCMC.  */
 		void MCMCSetFlagOrderParameters(bool flag)
-		{ fMCMCFlagOrderParameters = flag; }; 
+		{ fMCMCFlagOrderParameters = flag; };
 
 		/*
 		 * Sets the R-value criterion for convergence of all chains. */

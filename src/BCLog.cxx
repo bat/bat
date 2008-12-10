@@ -15,6 +15,8 @@ BCLog::LogLevel BCLog::fMinimumLogLevelFile = BCLog::debug;
 
 BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 
+bool BCLog::fFirstOutputDone = false;
+
 const char * BCLog::fVersion = BAT_VERSION;
 
 int BCLog::fHindex = 0;
@@ -48,13 +50,11 @@ void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::
 		return;
 	}
 
-	BCLog::StartupInfo();
-
-	BCLog::Out(BCLog::summary,BCLog::summary,Form("Opening logfile %s",filename));
-
 	// set log level
 	BCLog::SetMinimumLogLevelFile(loglevelfile);
 	BCLog::SetMinimumLogLevelScreen(loglevelscreen);
+
+	BCLog::Out(BCLog::summary,BCLog::summary,Form("Opening logfile %s",filename));
 }
 
 // ---------------------------------------------------------
@@ -89,10 +89,12 @@ void BCLog::CloseLog()
 
 void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message)
 {
+	// if this is the first call to Out(), call StartupInfo() first
+	if(!fFirstOutputDone)
+		BCLog::StartupInfo();
+
 	// open log file if not opened
-	if (!BCLog::IsOpen())
-		std::cerr << "Log file not opended. Message only written to stdout." << std::endl;
-	else
+	if (BCLog::IsOpen())
 	{
 		// write message in to log file
 		if (loglevelfile >= BCLog::fMinimumLogLevelFile)
@@ -125,12 +127,13 @@ void BCLog::StartupInfo()
 			" +------------------------------\n",
 			BCLog::fVersion);
 
-	if (!BCLog::IsOpen())
-		std::cerr << "Log file not opended. Message only written to stdout." << std::endl;
-	else
+	if (BCLog::IsOpen() && BCLog::fMinimumLogLevelFile<BCLog::nothing)
 		BCLog::fOutputStream << message;
 
-	std::cout << message;
+	if (BCLog::fMinimumLogLevelScreen<BCLog::nothing)
+		std::cout << message;
+
+	fFirstOutputDone = true;
 }
 
 // ---------------------------------------------------------

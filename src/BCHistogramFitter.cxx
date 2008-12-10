@@ -14,17 +14,19 @@
 
 // ---------------------------------------------------------
 
-BCHistogramFitter::BCHistogramFitter()
+BCHistogramFitter::BCHistogramFitter() : BCModel("HistogramFitter")
 {
 	fHistogram = 0;
 	fFitFunction = 0;
+
+	this -> MCMCSetNIterationsRun(2000);
 
 	this -> SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
 
-BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
+BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) : BCModel("HistogramFitter")
 {
 	this -> SetHistogram(hist);
 	this -> SetFitFunction(func);
@@ -147,62 +149,78 @@ double BCHistogramFitter::FitFunction(std::vector <double> x, std::vector <doubl
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::Fit()
+int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 {
-	// perform marginalization 
-	if (fHistogram && fFitFunction)
-		this -> MarginalizeAll(); 
+	// set histogram
+	if (hist)
+		this -> SetHistogram(hist);
 	else
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::Fit() : Either histogram or fit function not defined.");
-			return 0; 
-		}
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::Fit() : Histogram not defined.");
+		return 0;
+	}
+
+	// set function
+	if (func)
+		this -> SetFitFunction(func);
+	else
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::Fit() : Fit function not defined.");
+		return 0;
+	}
+
+	// perform marginalization
+	this -> MarginalizeAll();
 
 	// maximize posterior probability, using the best-fit values close
 	// to the global maximum from the MCMC
-	this -> FindModeMinuit( this -> GetBestFitParameters()); 
+	this -> FindModeMinuit( this -> GetBestFitParameters() );
 
-	return 1; 
+	return 1;
 }
+
 // ---------------------------------------------------------
 
-int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
+void BCHistogramFitter::DrawFit(const char * options)
 {
-	// set histogram 
-	if (hist)
-		this -> SetHistogram(hist); 
-	else
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::Fit() : Histogram not defined.");			
-			return 0; 
-		}
-	
-	// set function 
-	if (func) 
-		this -> SetFitFunction(func); 
-	else
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::Fit() : Fit function not defined.");			
-			return 0; 
-		}
+	if (!fHistogram)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::DrawFit() : Histogram not defined.");
+		return;
+	}
 
-	// perform marginalization 
-	this -> MarginalizeAll(); 
+	if (!fFitFunction)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::DrawFit() : Fit function not defined.");
+		return;
+	}
 
-	// maximize posterior probability, using the best-fit values close
-	// to the global maximum from the MCMC 
-	this -> FindModeMinuit( this -> GetBestFitParameters()); 
+	// check wheather options contain "same"
+	TString opt = options;
+	opt.ToLower();
 
-	return 1; 
+	// if not same, draw the histogram first to get the axes
+	TH1D * h0;
+	if(!opt.Contains("same"))
+	{
+		// create a copy of the histogram and draw it
+		h0 = new TH1D(*fHistogram);
+		h0 -> Draw(opt.Data());
+	}
+
+	// draw the error band as central 68% probability interval
+	this -> GetErrorBandGraph(0.16, 0.84) -> Draw("f same");
+
+	// now draw the histogram again since it was covered by the band
+	fHistogram -> Draw(TString::Format("%ssame",opt.Data()));
+
+	// draw the fit function on top
+	TGraph * gfit = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
+	gfit -> SetLineColor(kRed);
+	gfit -> SetLineWidth(2);
+	gfit -> Draw("l same");
+
+	gPad -> RedrawAxis();
 }
 
-// ---------------------------------------------------------
-//
-//void PrintHistogram(const char * options, const char * filename)
-//{
-//
-//	return;
-//
-//}
-//
 // ---------------------------------------------------------

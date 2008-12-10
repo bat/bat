@@ -1207,7 +1207,7 @@ double BCEngineMCMC::LogEval(std::vector <double> parameters)
 int BCEngineMCMC::MCMCMetropolisPreRun()
 {
 	// print on screen
-	BCLog::Out(BCLog::summary, BCLog::summary, "Pre-run Metropolis MCMC.");
+	BCLog::Out(BCLog::summary, BCLog::summary, "Pre-run Metropolis MCMC...");
 
 	// initialize Markov chain
 	this -> MCMCInitialize();
@@ -1221,7 +1221,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	// perform burn-in run
 	if (fMCMCNIterationsBurnIn > 0)
 		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form(" --> Start burn-in run with %i iterations.", fMCMCNIterationsBurnIn));
+				Form(" --> Start burn-in run with %i iterations", fMCMCNIterationsBurnIn));
 
 	// if the flag is set then run over the parameters one after the other.
 	if (fMCMCFlagOrderParameters)
@@ -1258,7 +1258,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	// allocate memory if pca is switched on
 	if (fMCMCFlagPCA)
 	{
-		BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA switched on.");
+		BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA switched on");
 
 		// create new TPrincipal
 		fMCMCPCA = new TPrincipal(fMCMCNParameters, "D");
@@ -1288,20 +1288,20 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					fMCMCNDimensionsPCA++;
 
 			BCLog::Out(BCLog::detail, BCLog::detail,
-					Form(" --> Use %i out of %i dimensions.", fMCMCNDimensionsPCA, fMCMCNParameters));
+					Form(" --> Use %i out of %i dimensions", fMCMCNDimensionsPCA, fMCMCNParameters));
 		}
 		else
 			fMCMCNDimensionsPCA = fMCMCNParameters;
 	}
 	else
-		BCLog::Out(BCLog::detail, BCLog::detail, " --> No PCA run.");
+		BCLog::Out(BCLog::detail, BCLog::detail, " --> No PCA run");
 
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
 
 	// perform run
-	BCLog::Out(BCLog::detail, BCLog::detail,
-			Form(" --> Perform MCMC run with %i chains each with %i iterations maximum.", fMCMCNChains, fMCMCNIterationsMax));
+	BCLog::Out(BCLog::summary, BCLog::summary,
+			Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsMax));
 
 	bool tempflag_writetofile = fMCMCFlagWriteChainToFile;
 
@@ -1460,7 +1460,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 						fMCMCTrialFunctionScaleFactor[ipc] /= fscale*2.;
 
 						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4lf.",
+								Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
 										iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
 					}
 					// adjust scale factors if efficiency is too high
@@ -1469,7 +1469,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 						fMCMCTrialFunctionScaleFactor[ipc] *= 2.;
 
 						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4lf.",
+								Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
 										iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
 					}
 
@@ -1488,7 +1488,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 				fMCMCMean[ichains] = 0;
 				fMCMCVariance[ichains] = 0;
 			}
-		} // end if update scale factors 
+		} // end if update scale factors
 
 		// increase counter
 		counter++;
@@ -1660,17 +1660,17 @@ int BCEngineMCMC::MCMCMetropolis()
 		this -> MCMCMetropolisPreRun();
 
 	// print to screen
-	BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis MCMC.");
+	BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis MCMC...");
 
 	if (fMCMCFlagPCA)
-		BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA switched on.");
+		BCLog::Out(BCLog::detail, BCLog::detail, " --> PCA switched on");
 
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
 
 	// perform run
-	BCLog::Out(BCLog::detail, BCLog::detail,
-			Form(" --> Perform MCMC run with %i chains each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
+	BCLog::Out(BCLog::summary, BCLog::summary,
+			Form(" --> Perform MCMC run with %i chains, each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
 
 //	int counterupdate = 0;
 //	bool convergence = false;
