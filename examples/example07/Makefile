@@ -7,17 +7,17 @@ ROOTGLIBS    := $(shell root-config --glibs)
 CXX          = g++
 CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
 LD           = g++
-LDFLAGS      = -g -O2 
+LDFLAGS      = -g -O2
 SOFLAGS      = -shared
 
-RM           = rm -f 
-MV           = mv 
+RM           = rm -f
+MV           = mv
 ECHO         = echo
 CINT         = rootcint
 
 # Assign or Add variables
-CXXFLAGS    += $(ROOTCFLAGS) 
-CXXFLAGS    += -I./src/ -I./ -I../../include/ 
+CXXFLAGS    += $(ROOTCFLAGS)
+CXXFLAGS    += -I./src/ -I./ -I../../include/
 LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
 GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
 
@@ -36,7 +36,7 @@ all : runBATexample07
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
 
-include link.d
+#include link.d
 
 %.o : src/%.cxx 
 	$(CXX) $(CXXFLAGS) -c $< -o $@
