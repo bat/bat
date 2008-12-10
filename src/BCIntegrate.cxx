@@ -1319,135 +1319,63 @@ TMinuit * BCIntegrate::GetMinuit()
 
 // *********************************************
 
-void BCIntegrate::FindModeMinuit() 
+void BCIntegrate::FindModeMinuit(std::vector<double> start)
 {
-
-	// set global this 
-
-	global_this = this; 
-
-	// define minuit 
-
-
-	if (fMinuit) 
-		delete fMinuit; 
-	//	if (!fMinuit) 
-		fMinuit = new TMinuit(fNvar); 
-	
-	// set function 
-
-	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood); 
-
-	// set parameters 
-
-	int flag; 
-
-	for (int i = 0; i < fNvar; i++)
-		fMinuit -> mnparm(i, 
-											fx -> at(i) -> GetName().data(), 
-											(fMin[i]+fMax[i])/2.0, 
-											(fMax[i]-fMin[i])/100.0, 
-											fMin[i],
-											fMax[i], 
-											flag); 
-
-	// do minimization 
-	fMinuit -> mnexcm("MIGRAD", fMinuitArglist, 2, flag);
-
-	// copy flag 
-	fMinuitErrorFlag = flag; 
-
-	// set best fit parameters 
-	fBestFitParameters.clear(); 
-
-	for (int i = 0; i < fNvar; i++)
-		{
-			double par; 
-			double parerr; 
-			
-			fMinuit -> GetParameter(i, par, parerr); 
-
-			fBestFitParameters.push_back(par); 
-		}
-
-	// delete minuit 
-
-	//	delete fMinuit; 
-
-	//	fMinuit = 0; 
-
-	return; 
-
-}
-
-// *********************************************
-
-void BCIntegrate::FindModeMinuit(std::vector<double> start) 
-{
+	bool have_start = false;
 
 	// check start values
 	if (int(start.size()) != fNvar)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::FindModeMinuit : Starting point not valid.");
+		have_start = true;
 
-			return; 
-		}
+	// set global this
+	global_this = this;
 
-	// set global this 
+	// define minuit
+	if (fMinuit)
+		delete fMinuit;
+	fMinuit = new TMinuit(fNvar);
 
-	global_this = this; 
+	// set function
+	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood);
 
-	// define minuit 
-
-	if (fMinuit) 
-		delete fMinuit; 
-	//	if (!fMinuit) 
-		fMinuit = new TMinuit(fNvar); 
-	
-	// set function 
-
-	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood); 
-
-	// set parameters 
-
-	int flag; 
-
+	// set parameters
+	int flag;
 	for (int i = 0; i < fNvar; i++)
-		fMinuit -> mnparm(i, 
-											fx -> at(i) -> GetName().data(), 
-											start.at(i), 
-											(fMax[i]-fMin[i])/100.0, 
-											fMin[i],
-											fMax[i], 
-											flag); 
+	{
+		double starting_point = (fMin[i]+fMax[i])/2.;
+		if(have_start)
+			starting_point = start[i];
+		fMinuit -> mnparm(i,
+				fx -> at(i) -> GetName().data(),
+				starting_point,
+				(fMax[i]-fMin[i])/100.0,
+				fMin[i],
+				fMax[i],
+				flag);
+	}
 
-	// do minimization 
+	// do minimization
 	fMinuit -> mnexcm("MIGRAD", fMinuitArglist, 2, flag);
 
-	// copy flag 
-	fMinuitErrorFlag = flag; 
+	// copy flag
+	fMinuitErrorFlag = flag;
 
-	// set best fit parameters 
-	fBestFitParameters.clear(); 
+	// set best fit parameters
+	fBestFitParameters.clear();
 
 	for (int i = 0; i < fNvar; i++)
-		{
-			double par; 
-			double parerr; 
-			
-			fMinuit -> GetParameter(i, par, parerr); 
+	{
+		double par;
+		double parerr;
+		fMinuit -> GetParameter(i, par, parerr);
+		fBestFitParameters.push_back(par);
+	}
 
-			fBestFitParameters.push_back(par); 
-		}
+	// delete minuit
+		delete fMinuit;
+		fMinuit = 0;
 
-	// delete minuit 
-
-	//	delete fMinuit; 
-
-	//	fMinuit = 0; 
-
-	return; 
-
+	return;
 }
 
 // *********************************************

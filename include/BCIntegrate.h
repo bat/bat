@@ -646,10 +646,10 @@ class BCIntegrate : public BCEngineMCMC
 	void FindModeSA();
 
 	/**
-	 * Does the mode finding using Minuit
-	 */
-	void FindModeMinuit();
-	void FindModeMinuit(std::vector<double> start=0);
+	 * Does the mode finding using Minuit. If starting point is not specified,
+	 * finding will start from the center of the parameter space.
+	 * @param start point in parameter space from which the mode finding is started */
+	void FindModeMinuit(std::vector<double> start = std::vector<double>(0));
 
 	/**
 	 * Does the mode finding using Markov Chain Monte Carlo
