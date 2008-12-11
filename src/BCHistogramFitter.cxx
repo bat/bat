@@ -87,7 +87,7 @@ void BCHistogramFitter::SetFitFunction(TF1 * func)
 
 		func -> GetParLimits(i, xmin, xmax);
 
-		this -> AddParameter(Form("parameter_%i", i), xmin, xmax);
+		this -> AddParameter(func->GetParName(i), xmin, xmax);
 	}
 
 	return;
