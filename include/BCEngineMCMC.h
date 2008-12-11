@@ -496,7 +496,7 @@ class BCEngineMCMC
 		 * @param chain chain index
 		 * @param pca bool whether to use PCA or not */
 		bool MCMCGetNewPointMetropolis(int chain = 0, bool pca = false);
-		bool MCMCGetNewPointMetropolis(int chain = 0, int parameter = 0, bool pca = false);
+		bool MCMCGetNewPointMetropolis(int chain, int parameter, bool pca = false);
 
 		/*
 		 * Generates a new point using the Metropolis algorithm.

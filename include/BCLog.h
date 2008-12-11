@@ -64,13 +64,13 @@ class BCLog
 		/**
 		 * Returns the minimum log level for file output.
 		 * @return log level */
-		static BCLog::LogLevel GetMinimumLogLevelFile()
+		static BCLog::LogLevel GetLogLevelFile()
 			{ return fMinimumLogLevelFile; };
 
 		/**
 		 * Returns the minimum log level for screen output.
 		 * @return log level */
-		static BCLog::LogLevel GetMinimumLogLevelScreen()
+		static BCLog::LogLevel GetLogLevelScreen()
 			{ return fMinimumLogLevelScreen; };
 
 		// method (set)
@@ -78,14 +78,20 @@ class BCLog
 		/**
 		 * Sets the minimum log level for file output.
 		 * @param loglevel log level */
-		static void SetMinimumLogLevelFile(BCLog::LogLevel loglevel)
+		static void SetLogLevelFile(BCLog::LogLevel loglevel)
 			{ BCLog::fMinimumLogLevelFile = loglevel; };
 
 		/**
 		 * Sets the minimum log level for screen output.
 		 * @param loglevel log level */
-		static void SetMinimumLogLevelScreen(BCLog::LogLevel loglevel)
+		static void SetLogLevelScreen(BCLog::LogLevel loglevel)
 			{ BCLog::fMinimumLogLevelScreen = loglevel; };
+
+		/**
+		 * Sets the minimum log level for file and screen output.
+		 * @param loglevel log level */
+		static void SetLogLevel(BCLog::LogLevel loglevel)
+			{ BCLog::fMinimumLogLevelFile = loglevel; BCLog::fMinimumLogLevelScreen = loglevel; };
 
 		// methods
 

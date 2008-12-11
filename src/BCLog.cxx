@@ -51,8 +51,8 @@ void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::
 	}
 
 	// set log level
-	BCLog::SetMinimumLogLevelFile(loglevelfile);
-	BCLog::SetMinimumLogLevelScreen(loglevelscreen);
+	BCLog::SetLogLevelFile(loglevelfile);
+	BCLog::SetLogLevelScreen(loglevelscreen);
 
 	BCLog::Out(BCLog::summary,BCLog::summary,Form("Opening logfile %s",filename));
 }

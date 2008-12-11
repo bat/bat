@@ -500,7 +500,7 @@ class BCIntegrate : public BCEngineMCMC
 	 * @return The value of the fit function at the x-values given a set of parameters
 	 **/
 	virtual double FitFunction(std::vector <double> x, std::vector <double> parameters)
-	{ return 0.0; };
+	{ return 0.; };
 
 	/**
 	 * Does the integration over the un-normalized probability.

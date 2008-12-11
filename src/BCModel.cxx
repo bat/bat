@@ -976,8 +976,8 @@ int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
 
 	// give out warning if too many plots
 	BCLog::Out(BCLog::summary,BCLog::summary,
-			Form("Printing all %d marginalized distributions (%d x 1D + %d x 2D) into file %s",
-					nplots,npar,nplots2d,file));
+			Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
+					npar,nplots2d,nplots,file));
 	if(nplots>100)
 		BCLog::Out(BCLog::detail,BCLog::detail,"This can take a while...");
 

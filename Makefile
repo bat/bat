@@ -1,6 +1,6 @@
 # Root variables
 ROOTCFLAGS   := $(shell root-config --cflags)
-ROOTLIBS     := $(shell root-config --libs) -lMinuit
+ROOTLIBS     := $(shell root-config --libs) -lMinuit -lPostScript
 ROOTGLIBS    := $(shell root-config --glibs)
 
 # Programs
@@ -45,11 +45,17 @@ LIBSO        = libBAT.so
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
+DICTSRCS     = $(patsubst %.cxx,src/%Dict.cxx,$(CXSRCS))
+
+DICTHDRS     = $(patsubst %.cxx,src/%Dict.h,$(CXSRCS))
+
 CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
+
+DICTOBJS     = $(patsubst %.cxx,obj/%Dict.o,$(CXSRCS))
 
 EXEOBJS      =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(LIBA) $(LIBSO) link.d
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(DICTSRCS) $(DICTHDRS) $(DICTOBJS) $(LIBA) $(LIBSO) link.d
 
 all : $(LIBSO)
 
@@ -63,7 +69,11 @@ include link.d
 obj/%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(LIBSO) : $(CXXOBJS)
+src/%Dict.cxx : include/%.h
+	@echo "generating dictionary "
+	$(CINT) -f $@ -c $<
+
+$(LIBSO) : $(CXXOBJS) $(DICTOBJS)
 	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $(LIBSO)
 
 $(LIBA) : $(CXXOBJS)

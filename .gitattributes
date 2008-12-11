@@ -89,8 +89,7 @@ examples/example04/output/summary_benchmark.txt -text
 examples/example04/runBATexample04.c -text
 examples/example04/src/BCModelEfficiency.cxx -text
 examples/example04/src/BCModelEfficiency.h -text
-examples/example07/Makefile -text
-examples/example07/runBATexample07.c -text
+examples/example07/hFitterExample.C -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text
 include/BCEngineMCMC.h -text
@@ -108,6 +107,7 @@ include/BCModelTest.h -text
 include/BCParameter.h -text
 include/BCReleaseVersion.h -text
 include/style.c -text
+/libBAT.rootmap -text
 src/BCDataPoint.cxx -text
 src/BCDataSet.cxx -text
 src/BCEngineMCMC.cxx -text
@@ -124,6 +124,7 @@ src/BCModelTest.cxx -text
 src/BCParameter.cxx -text
 tools/analyzeMCMC/Makefile -text
 tools/analyzeMCMC/analyzeMCMC.c -text
+tools/map_solibs.sh -text
 tools/mkmodelclass.sh -text
 tools/release/Makefile -text
 tools/release/README -text
