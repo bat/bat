@@ -831,10 +831,10 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 
 		fErrorBandXY = new TH2D(
 				TString::Format("errorbandxy_%d",BCLog::GetHIndex()), "",
-				fErrorBandNbinsX + 1,
+				fErrorBandNbinsX,
 				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - 0.5 * dx,
 				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + 0.5 * dx,
-				fErrorBandNbinsY + 1,
+				fErrorBandNbinsY,
 				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) - 0.5 * dy,
 				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + 0.5 * dy);
 		fErrorBandXY -> SetStats(kFALSE);

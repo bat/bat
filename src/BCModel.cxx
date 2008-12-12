@@ -149,10 +149,10 @@ std::vector <double> BCModel::GetErrorBand(double level)
 		return errorband;
 
 	int nx = fErrorBandXY -> GetNbinsX();
-	errorband.assign(nx - 1, 0.0);
+	errorband.assign(nx, 0.0);
 
 	// loop over x and y bins
-	for (int ix = 1; ix < nx; ix++)
+	for (int ix = 1; ix <= nx; ix++)
 	{
 		TH1D * temphist = fErrorBandXY -> ProjectionY("temphist", ix, ix);
 
@@ -165,7 +165,7 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 		errorband[ix-1] = q[0];
 	}
-
+	
 	return errorband;
 }
 
@@ -177,7 +177,7 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 		return 0;
 
 	// define new graph
-	int nx = fErrorBandXY -> GetNbinsX() - 1;
+	int nx = fErrorBandXY -> GetNbinsX();
 
 	TGraph * graph = new TGraph(2 * nx);
 	graph -> SetFillStyle(1001);
@@ -189,7 +189,7 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 
 	for (int i = 0; i < nx; i++)
 	{
-		graph -> SetPoint(i, fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i));
+		graph -> SetPoint(i,      fErrorBandXY -> GetXaxis() -> GetBinCenter(i + 1), ymin.at(i));
 		graph -> SetPoint(nx + i, fErrorBandXY -> GetXaxis() -> GetBinCenter(nx - i), ymax.at(nx - i - 1));
 	}
 
@@ -698,10 +698,10 @@ int BCModel::MarginalizeAll()
 
 		fErrorBandXY = new TH2D(
 				TString::Format("errorbandxy_%d",BCLog::GetHIndex()), "",
-				fErrorBandNbinsX + 1,
+				fErrorBandNbinsX,
 				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexX) - .5 * dx,
 				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexX) + .5 * dx,
-				fErrorBandNbinsY + 1,
+				fErrorBandNbinsY,
 				fDataPointLowerBoundaries -> GetValue(fFitFunctionIndexY) - .5 * dy,
 				fDataPointUpperBoundaries -> GetValue(fFitFunctionIndexY) + .5 * dy);
 		fErrorBandXY -> SetStats(kFALSE);
