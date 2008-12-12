@@ -125,6 +125,11 @@ class BCHistogramFitter : public BCModel
 		 * Draw the fit in the current pad. */
 		void DrawFit(const char * options = "");
 
+		/**
+		 * Print a summary of the fit to the screen
+		 */ 
+		void PrintFitSummary(); 
+
 		/* @} */
 
 	private:

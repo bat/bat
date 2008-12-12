@@ -1319,7 +1319,7 @@ TMinuit * BCIntegrate::GetMinuit()
 
 // *********************************************
 
-void BCIntegrate::FindModeMinuit(std::vector<double> start)
+void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 {
 	bool have_start = true;
 
@@ -1337,6 +1337,9 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start)
 
 	// set function
 	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood);
+
+	// set print level
+	fMinuit -> SetPrintLevel(printlevel); 
 
 	// set parameters
 	int flag;
