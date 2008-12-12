@@ -19,8 +19,8 @@ BCHistogramFitter::BCHistogramFitter() : BCModel("HistogramFitter")
 	fHistogram = 0;
 	fFitFunction = 0;
 
+	// set default options and values
 	this -> MCMCSetNIterationsRun(2000);
-
 	this -> SetFillErrorBand();
 }
 
@@ -31,45 +31,75 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) : BCModel("Histogr
 	this -> SetHistogram(hist);
 	this -> SetFitFunction(func);
 
+	this -> MCMCSetNIterationsRun(2000);
 	this -> SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
 
-void BCHistogramFitter::SetHistogram(TH1D * hist)
+int BCHistogramFitter::SetHistogram(TH1D * hist)
 {
+	// check if histogram exists
+	if(!hist)
+	{
+		BCLog::Out(BCLog::error,BCLog::error,"BCHistogramFitter::SetHistogram() : TH1D not created.");
+		return 0;
+	}
+
+	// set pointer to histogram
 	fHistogram = hist;
 
+	// create a data set. this is necessary in order to calculate the
+	// error band. the data set contains as many data points as there
+	// are bins. for now, the data points are empty. 
 	BCDataSet * ds = new BCDataSet();
-	int nbins = fHistogram -> GetNbinsX();
 
+	// create data points and add them to the data set. 
+	int nbins = fHistogram -> GetNbinsX();
 	for (int i = 0; i < nbins; ++i)
 	{
 		BCDataPoint* dp = new BCDataPoint(2);
 		ds -> AddDataPoint(dp);
 	}
 
+	// set the new data set. 
 	this -> SetDataSet(ds);
 
+	// calculate the lower and upper edge in x. 
 	double xmin = hist -> GetBinLowEdge(1);
 	double xmax = hist -> GetBinLowEdge(nbins+1);
 
+	// calculate the minimum and maximum range in y. 
 	double histymin = hist -> GetMinimum();
 	double histymax = hist -> GetMaximum();
 
+	// calculate the minimum and maximum of the function value based on
+	// the minimum and maximum value in y. 
 	double ymin = TMath::Max(0., histymin - 5.*sqrt(histymin));
 	double ymax = histymax + 5.*sqrt(histymax);
 
+	// set the data boundaries for x and y values. 
 	this -> SetDataBoundaries(0, xmin, xmax);
 	this -> SetDataBoundaries(1, ymin, ymax);
 
+	// set the indeces for fitting.
 	this -> SetFitFunctionIndices(0, 1);
+
+	// no error 
+	return 1;
 }
 
 // ---------------------------------------------------------
 
-void BCHistogramFitter::SetFitFunction(TF1 * func)
+int BCHistogramFitter::SetFitFunction(TF1 * func)
 {
+	// check if function exists
+	if(!func)
+	{
+		BCLog::Out(BCLog::error,BCLog::error,"BCHistogramFitter::SetFitFunction() : TF1 not created.");
+		return 0;
+	}
+
 	// set the function
 	fFitFunction = func;
 
@@ -93,7 +123,8 @@ void BCHistogramFitter::SetFitFunction(TF1 * func)
 		this -> AddParameter(func->GetParName(i), xmin, xmax);
 	}
 
-	return;
+	// no error 
+	return 1;
 }
 
 // ---------------------------------------------------------
@@ -105,7 +136,8 @@ BCHistogramFitter::~BCHistogramFitter()
 
 double BCHistogramFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
-	return 0;
+	// using flat probability in all parameters
+	return 0.;
 }
 
 // ---------------------------------------------------------
@@ -118,6 +150,7 @@ double BCHistogramFitter::LogLikelihood(std::vector <double> params)
 	// set the parameters of the function
 	fFitFunction -> SetParameters(&params[0]);
 
+	// get the number of bins
 	int nbins = fHistogram -> GetNbinsX();
 
 	// loop over all bins
@@ -175,9 +208,6 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 	// perform marginalization
 	this -> MarginalizeAll();
 
-	// set minuit to quite mode
-	this -> GetMinuit() -> SetPrintLevel(-1);
-
 	// maximize posterior probability, using the best-fit values close
 	// to the global maximum from the MCMC
 	this -> FindModeMinuit( this -> GetBestFitParameters() , -1);
@@ -185,6 +215,7 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 	// print summary to screen
 	this -> PrintFitSummary(); 
 
+	// no error 
 	return 1;
 }
 

@@ -241,12 +241,15 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 
 	// maximize posterior probability, using the best-fit values close
 	// to the global maximum from the MCMC
-	this -> FindModeMinuit( this -> GetBestFitParameters() );
+	this -> FindModeMinuit( this -> GetBestFitParameters(), -1);
 
 	// calculate p-value from the chi2 probability
 	// this is only valid for a product of gaussiang which is the case for
 	// the BCGraphFitter
 	this -> GetPvalueFromChi2(this -> GetBestFitParameters(), 4);
+
+	// print summary to screen
+	this -> PrintFitSummary(); 
 
 	return 1;
 }
@@ -288,6 +291,35 @@ void BCGraphFitter::DrawFit(const char * options)
 	gfit -> Draw("l same");
 
 	gPad -> RedrawAxis();
+}
+
+// ---------------------------------------------------------
+
+void BCGraphFitter::PrintFitSummary()
+{
+	std::cout << std::endl;
+	std::cout << "Fit summary " << std::endl; 
+	std::cout << "------------------------------------ " << std::endl;
+
+	std::cout << "Number of parameters : " 
+						<< this -> GetNParameters() << std::endl; 
+	std::cout << std::endl; 
+
+	std::cout << "Best fit parameters (global) : " << std::endl; 
+	for (int i = 0; i < this -> GetNParameters(); ++i)
+		std::cout << this -> GetParameter(i) -> GetName() << " : " 
+							<< this -> GetBestFitParameter(i) << std::endl; 
+	std::cout << std::endl; 
+
+// 	std::cout << "Best fit parameters (marginalized) : " << std::endl; 
+// 	for (int i = 0; i < this -> GetNParameters(); ++i)
+// 		{
+// 			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
+// 			std::cout << this -> GetParameter(i) -> GetName() << " : " 
+// 								<< this -> GetBestFitParameterMarginalized(i) << std::endl; 
+// 		}
+// 	std::cout << std::endl; 
+	
 }
 
 // ---------------------------------------------------------
