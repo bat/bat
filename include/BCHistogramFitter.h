@@ -70,12 +70,16 @@ class BCHistogramFitter : public BCModel
 		/* @{ */
 
 		/**
-		 * @param hist The histogram */
-		void SetHistogram(TH1D * hist);
+		 * @param hist The histogram 
+		 * @ return An error code (1:pass, 0:fail). 
+		 */			
+		int SetHistogram(TH1D * hist);
 
 		/**
-		 * @param func The fit function */
-		void SetFitFunction(TF1 * func);
+		 * @param func The fit function 
+		 * @ return An error code (1:pass, 0:fail). 
+		 */			
+		int SetFitFunction(TF1 * func);
 
 		/* @} */
 		/** \name Member functions (miscellaneous methods) */
