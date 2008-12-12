@@ -37,6 +37,7 @@ CXSRCS      = BCParameter.cxx \
 		BCEngineMCMC.cxx \
 		BCModelManager.cxx \
 		BCHistogramFitter.cxx \
+		BCGraphFitter.cxx \
 		BCLog.cxx \
 		BCMath.cxx
 
@@ -55,7 +56,7 @@ DICTOBJS     = $(patsubst %.cxx,obj/%Dict.o,$(CXSRCS))
 
 EXEOBJS      =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  $(DICTSRCS) $(DICTHDRS) $(DICTOBJS) $(LIBA) $(LIBSO) link.d
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d
 
 all : $(LIBSO)
 

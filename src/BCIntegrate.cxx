@@ -1321,11 +1321,11 @@ TMinuit * BCIntegrate::GetMinuit()
 
 void BCIntegrate::FindModeMinuit(std::vector<double> start)
 {
-	bool have_start = false;
+	bool have_start = true;
 
 	// check start values
 	if (int(start.size()) != fNvar)
-		have_start = true;
+		have_start = false;
 
 	// set global this
 	global_this = this;

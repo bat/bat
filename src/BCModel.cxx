@@ -1138,7 +1138,9 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 
 	double chi2 = -2.*(ll + (double)n/2. * log(2.*M_PI) + sum_sigma);
 
-	return TMath::Prob(chi2,n);
+	fPValue = TMath::Prob(chi2,n);
+
+	return fPValue;
 }
 
 // ---------------------------------------------------------

@@ -89,6 +89,8 @@ examples/example04/output/summary_benchmark.txt -text
 examples/example04/runBATexample04.c -text
 examples/example04/src/BCModelEfficiency.cxx -text
 examples/example04/src/BCModelEfficiency.h -text
+examples/example06/data/datax.txt -text
+examples/example06/graphFitterExample.C -text
 examples/example07/hFitterExample.C -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text

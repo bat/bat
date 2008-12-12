@@ -1415,13 +1415,16 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 				// check convergence status
 				this -> MCMCUpdateStatisticsTestConvergenceAllChains();
 			}
-		
+
 		// update scale factors
 		if (counterupdate % (fMCMCNIterationsUpdate*(fMCMCNParameters+1)) == 0 && counterupdate > 0)
 		{
 			// prompt status
 			BCLog::Out(BCLog::detail, BCLog::detail,
 					Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
+
+			bool rvalues_ok = true;
+			static bool has_converged = false;
 
 			BCLog::Out(BCLog::detail, BCLog::detail, " --> R-Values:");
 			for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
@@ -1430,13 +1433,23 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					BCLog::Out(BCLog::detail, BCLog::detail,
 							Form( TString::Format(" -->     parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
 				else
+				{
 					BCLog::Out(BCLog::detail, BCLog::detail,
 							Form( TString::Format(" -->     parameter %%%di :  %%.06f <--",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+					rvalues_ok = false;
+				}
 			}
 			if(fabs(fMCMCRValue-1.) < fMCMCRValueCriterion)
 				BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f", fMCMCRValue));
 			else
+			{
 				BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f <--", fMCMCRValue));
+				rvalues_ok = false;
+			}
+
+			if(!has_converged)
+				if(rvalues_ok)
+					has_converged = true;
 
 			// set flag
 			flagefficiency = true;
@@ -1456,8 +1469,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					// adjust scale factors if efficiency is too low
 					if (efficiency[ipc] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ipc] > .01)
 					{
-						int fscale = fMCMCEfficiencyMin/efficiency[ipc]/2. + 1;
-						fMCMCTrialFunctionScaleFactor[ipc] /= fscale*2.;
+						double fscale=2.;
+						if(has_converged && fMCMCEfficiencyMin/efficiency[ipc] > 2.)
+							fscale = 4.;
+						fMCMCTrialFunctionScaleFactor[ipc] /= fscale;
 
 						BCLog::Out(BCLog::detail, BCLog::detail,
 								Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",

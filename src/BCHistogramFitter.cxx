@@ -73,6 +73,9 @@ void BCHistogramFitter::SetFitFunction(TF1 * func)
 	// set the function
 	fFitFunction = func;
 
+	// update the model name to contain the function name
+	this -> SetName(TString::Format("HistogramFitter with %s",fFitFunction->GetName()));
+
 	// reset parameters
 	fParameterSet -> clear();
 
@@ -200,13 +203,8 @@ void BCHistogramFitter::DrawFit(const char * options)
 	opt.ToLower();
 
 	// if not same, draw the histogram first to get the axes
-	TH1D * h0;
 	if(!opt.Contains("same"))
-	{
-		// create a copy of the histogram and draw it
-		h0 = new TH1D(*fHistogram);
-		h0 -> Draw(opt.Data());
-	}
+		fHistogram -> Draw(opt.Data());
 
 	// draw the error band as central 68% probability interval
 	this -> GetErrorBandGraph(0.16, 0.84) -> Draw("f same");
