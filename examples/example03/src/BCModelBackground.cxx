@@ -1,5 +1,7 @@
 #include "BCModelBackground.h" 
 
+#include "BCMath.h"
+
 // --------------------------------------------------------- 
 
 BCModelBackground::BCModelBackground() : BCModel() 

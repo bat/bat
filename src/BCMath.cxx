@@ -1,13 +1,15 @@
-/*    
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
- * All rights reserved.    
- *    
- * For the licensing terms see doc/COPYING.    
- */    
-  
-// ---------------------------------------------------------   
- 
+/*
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include "BCMath.h"
+
+#include <math.h>
 
 #include <TMath.h>
 
@@ -15,14 +17,11 @@
 
 double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 {
-
 	// if we have a delta function, return fixed value
-
 	if(sigma==0.)
 		return 0;
 
 	// if sigma is negative use absolute value
-
 	if(sigma<0.)
 		sigma *= -1.;
 
@@ -30,14 +29,12 @@ double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 	double result = -.5 * arg * arg;
 
 	// check if we should add the normalization constant
-
 	if(!norm)
 		return result;
 
 	// subtract the log of the denominator of the normalization constant
 	// and return
 	return result - log( sqrt( 2.* M_PI ) * sigma );
-
 }
 
 // ---------------------------------------------------------
@@ -53,7 +50,6 @@ double BCMath::LogPoisson(double x, double par)
 	if (x == 0.)
 		return  -par;
 
-//	return x*log(par)-par-TMath::LnGamma(x+1.);
 	return x*log(par)-par-BCMath::ApproxLogFact(x);
 }
 
@@ -180,7 +176,6 @@ int BCMath::Nint(double x)
 
 double BCMath::rms(int n, const double *a)
 {
-
 	if (n <= 0 || !a)
 		return 0;
 
@@ -194,35 +189,27 @@ double BCMath::rms(int n, const double *a)
 
 	double n1 = 1./(double)n;
 	double mean = sum * n1;
-	double rms = sqrt(fabs(sum2 * n1 - mean * mean));
 
-	return rms;
-
+	return sqrt(fabs(sum2 * n1 - mean * mean));
 }
 
 // ---------------------------------------------------------
 
 double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm)
 {
-
 	double bw = log(Gamma) - log( (x - mean) * (x - mean) + Gamma * Gamma / 4.0);
 
 	if (norm)
-		return bw - log(2. * M_PI);
-	else
-		return bw;
+		bw -= log(2. * M_PI);
 
+	return bw;
 }
 
 // ---------------------------------------------------------
 
 double BCMath::LogBreitWignerRel(double x, double mean, double Gamma)
 {
-
-	double bw = -log( (x*x - mean*mean) * (x*x - mean*mean) + mean*mean*Gamma*Gamma ); 
-
-	return bw; 
-
+	return -log( (x*x - mean*mean) * (x*x - mean*mean) + mean*mean*Gamma*Gamma );
 }
 
 // ---------------------------------------------------------

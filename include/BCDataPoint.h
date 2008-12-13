@@ -1,3 +1,6 @@
+#ifndef __BCDATAPOINT__H
+#define __BCDATAPOINT__H
+
 /*!
  * \class BCDataPoint
  * \brief A class representing a data point.
@@ -19,9 +22,6 @@
  */
 
 // ---------------------------------------------------------
-
-#ifndef __BCDATAPOINT__H
-#define __BCDATAPOINT__H
 
 #include <vector>
 

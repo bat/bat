@@ -8,14 +8,20 @@
 // ---------------------------------------------------------
 
 #include "BCH2D.h"
+
 #include "BCMath.h"
 #include "BCLog.h"
 
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TGraph.h>
 #include <TCanvas.h>
 #include <TLine.h>
 #include <TMarker.h>
 #include <TLegend.h>
 #include <TString.h>
+
+#include <math.h>
 
 // ---------------------------------------------------------
 
@@ -551,14 +557,4 @@ TGraph * BCH2D::GetBandGraph(TH2D * h , double l1, double l2)
 	return g;
 }
 
-
-
-
-
-
-
-
-
-
-
-
+// ---------------------------------------------------------

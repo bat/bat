@@ -1,3 +1,6 @@
+#ifndef __BCH2D__H
+#define __BCH2D__H
+
 /*!
  * \class BCH2D
  * \brief  A class for handling 2D distributions.
@@ -18,14 +21,12 @@
 
 // ---------------------------------------------------------
 
-#ifndef __BCH2D__H
-#define __BCH2D__H
-
 #include <vector>
 
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TGraph.h>
+// ROOT classes
+class TH1D;
+class TH2D;
+class TGraph;
 
 // ---------------------------------------------------------
 
@@ -56,7 +57,7 @@ class BCH2D
 
 		/**
 		 * @return The mean of the distribution. */
-		void GetMean(double& mean);
+//		void GetMean(double& mean);
 
 		/**
 		 * @return The mode of the distribution */
@@ -123,7 +124,7 @@ class BCH2D
 		std::vector <double> GetLevelBoundary(TH2D * h, double level);
 		TGraph * GetBandGraph(TH2D * h , double level1, double level2);
 
-		TGraph ** GetBandGraphs(TH2D * h);
+//		TGraph ** GetBandGraphs(TH2D * h);
 		TGraph ** GetBandGraphs(TH2D * h, int &n);
 
 		/* @} */

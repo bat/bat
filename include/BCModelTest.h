@@ -1,3 +1,6 @@
+#ifndef __BCMODELTEST__H
+#define __BCMODELTEST__H
+
 /*!
  * \class BCModelTest
  * \brief The class for testing model hypotheses
@@ -17,10 +20,13 @@
 
 // ---------------------------------------------------------
 
-#ifndef __BCMODELTEST__H
-#define __BCMODELTEST__H
-
 #include "BCModel.h"
+
+// ROOT classes
+class TH1D;
+
+// BAT classes
+class BCDataSet;
 
 // ---------------------------------------------------------
 

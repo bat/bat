@@ -1,3 +1,6 @@
+#ifndef __BCMODELHISTOGRAMFITTER__H
+#define __BCMODELHISTOGRAMFITTER__H
+
 /*!
  * \class BCHistogramFitter
  * \brief A class for fitting histograms with functions
@@ -18,13 +21,13 @@
 
 // ---------------------------------------------------------
 
-#ifndef __BCMODELHISTOGRAMFITTER__H
-#define __BCMODELHISTOGRAMFITTER__H
+#include <vector>
 
 #include "BCModel.h"
 
-#include <TH1D.h>
-#include <TF1.h>
+// ROOT classes
+class TH1D;
+class TF1;
 
 // ---------------------------------------------------------
 
@@ -70,15 +73,15 @@ class BCHistogramFitter : public BCModel
 		/* @{ */
 
 		/**
-		 * @param hist The histogram 
-		 * @ return An error code (1:pass, 0:fail). 
-		 */			
+		 * @param hist The histogram
+		 * @ return An error code (1:pass, 0:fail).
+		 */
 		int SetHistogram(TH1D * hist);
 
 		/**
-		 * @param func The fit function 
-		 * @ return An error code (1:pass, 0:fail). 
-		 */			
+		 * @param func The fit function
+		 * @ return An error code (1:pass, 0:fail).
+		 */
 		int SetFitFunction(TF1 * func);
 
 		/* @} */
@@ -103,7 +106,7 @@ class BCHistogramFitter : public BCModel
 		 * F : plots the fit function on top of the data
 		 * E0 : plots the fit function and the 68% prob. uncertainty band of the fit function on top of the data
 		 * E1 : plots the expectation from the fit function and the uncertainty bin-by-bin as error bars. */
-		void PrintHistogram(const char * options = "", const char * filename = "");
+//		void PrintHistogram(const char * options = "", const char * filename = "");
 
 		/**
 		 * Returns the y-value of the 1-dimensional fit function at an x and
@@ -131,8 +134,8 @@ class BCHistogramFitter : public BCModel
 
 		/**
 		 * Print a summary of the fit to the screen
-		 */ 
-		void PrintFitSummary(); 
+		 */
+		void PrintFitSummary();
 
 		/* @} */
 
@@ -146,7 +149,6 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * The fit function */
 		TF1 * fFitFunction;
-
 };
 
 // ---------------------------------------------------------

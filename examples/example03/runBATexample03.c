@@ -11,6 +11,7 @@
 #include <TF1.h>
 #include <BCLog.h>
 #include <TLegend.h>
+#include <TGraph.h>
 
 #include  <iostream>
 

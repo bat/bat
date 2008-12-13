@@ -11,7 +11,11 @@
 #ifndef __BCMODELPOL1__H
 #define __BCMODELPOL1__H
 
+#include <vector>
+
 #include "BCModel.h" 
+
+class BCDataPoint;
 
 // --------------------------------------------------------- 
 

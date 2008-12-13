@@ -1,5 +1,7 @@
 #include <TMath.h>
 
+#include <BCMath.h>
+
 #include "BCModelSignal.h" 
 
 // --------------------------------------------------------- 

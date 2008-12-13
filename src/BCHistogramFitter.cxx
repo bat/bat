@@ -7,8 +7,16 @@
 
 // ---------------------------------------------------------
 
-#include <iostream>
-#include <fstream>
+#include <TH1D.h>
+#include <TF1.h>
+#include <TGraph.h>
+#include <TString.h>
+#include <TPad.h>
+
+#include "BCLog.h"
+#include "BCDataSet.h"
+#include "BCDataPoint.h"
+#include "BCMath.h"
 
 #include "BCHistogramFitter.h"
 
@@ -51,10 +59,10 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 
 	// create a data set. this is necessary in order to calculate the
 	// error band. the data set contains as many data points as there
-	// are bins. for now, the data points are empty. 
+	// are bins. for now, the data points are empty.
 	BCDataSet * ds = new BCDataSet();
 
-	// create data points and add them to the data set. 
+	// create data points and add them to the data set.
 	int nbins = fHistogram -> GetNbinsX();
 	for (int i = 0; i < nbins; ++i)
 	{
@@ -62,30 +70,30 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 		ds -> AddDataPoint(dp);
 	}
 
-	// set the new data set. 
+	// set the new data set.
 	this -> SetDataSet(ds);
 
-	// calculate the lower and upper edge in x. 
+	// calculate the lower and upper edge in x.
 	double xmin = hist -> GetBinLowEdge(1);
 	double xmax = hist -> GetBinLowEdge(nbins+1);
 
-	// calculate the minimum and maximum range in y. 
+	// calculate the minimum and maximum range in y.
 	double histymin = hist -> GetMinimum();
 	double histymax = hist -> GetMaximum();
 
 	// calculate the minimum and maximum of the function value based on
-	// the minimum and maximum value in y. 
+	// the minimum and maximum value in y.
 	double ymin = TMath::Max(0., histymin - 5.*sqrt(histymin));
 	double ymax = histymax + 5.*sqrt(histymax);
 
-	// set the data boundaries for x and y values. 
+	// set the data boundaries for x and y values.
 	this -> SetDataBoundaries(0, xmin, xmax);
 	this -> SetDataBoundaries(1, ymin, ymax);
 
 	// set the indeces for fitting.
 	this -> SetFitFunctionIndices(0, 1);
 
-	// no error 
+	// no error
 	return 1;
 }
 
@@ -123,7 +131,7 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
 		this -> AddParameter(func->GetParName(i), xmin, xmax);
 	}
 
-	// no error 
+	// no error
 	return 1;
 }
 
@@ -213,9 +221,9 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 	this -> FindModeMinuit( this -> GetBestFitParameters() , -1);
 
 	// print summary to screen
-	this -> PrintFitSummary(); 
+	this -> PrintFitSummary();
 
-	// no error 
+	// no error
 	return 1;
 }
 
@@ -263,28 +271,30 @@ void BCHistogramFitter::DrawFit(const char * options)
 void BCHistogramFitter::PrintFitSummary()
 {
 	std::cout << std::endl;
-	std::cout << "Fit summary " << std::endl; 
+	std::cout << "Fit summary " << std::endl;
 	std::cout << "------------------------------------ " << std::endl;
 
-	std::cout << "Number of parameters : " 
-						<< this -> GetNParameters() << std::endl; 
-	std::cout << std::endl; 
+	std::cout
+			<< "Number of parameters : "
+			<< this -> GetNParameters() << std::endl;
+	std::cout << std::endl;
 
-	std::cout << "Best fit parameters (global) : " << std::endl; 
-	for (int i = 0; i < this -> GetNParameters(); ++i)
-		std::cout << this -> GetParameter(i) -> GetName() << " : " 
-							<< this -> GetBestFitParameter(i) << std::endl; 
-	std::cout << std::endl; 
+	std::cout << "Best fit parameters (global) : " << std::endl;
+	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
+		std::cout
+				<< this -> GetParameter(i) -> GetName() << " : "
+				<< this -> GetBestFitParameter(i) << std::endl;
+	std::cout << std::endl;
 
-// 	std::cout << "Best fit parameters (marginalized) : " << std::endl; 
-// 	for (int i = 0; i < this -> GetNParameters(); ++i)
-// 		{
-// 			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
-// 			std::cout << this -> GetParameter(i) -> GetName() << " : " 
-// 								<< this -> GetBestFitParameterMarginalized(i) << std::endl; 
-// 		}
-// 	std::cout << std::endl; 
-	
+//	std::cout << "Best fit parameters (marginalized) : " << std::endl;
+//	for (int i = 0; i < this -> GetNParameters(); ++i)
+//	{
+//		BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
+//		std::cout
+//				<< this -> GetParameter(i) -> GetName() << " : "
+//				<< this -> GetBestFitParameterMarginalized(i) << std::endl;
+//	}
+//	std::cout << std::endl;
 }
 
 // ---------------------------------------------------------

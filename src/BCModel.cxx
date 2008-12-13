@@ -7,17 +7,27 @@
 
 // ---------------------------------------------------------
 
-#include "BCModelTest.h"
 #include "BCModel.h"
+
+#include "BCDataPoint.h"
+#include "BCDataSet.h"
+#include "BCParameter.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
+#include "BCModelTest.h"
 #include "BCLog.h"
 #include "BCErrorCodes.h"
 #include "BCMath.h"
 
+#include <TCanvas.h>
+#include <TPostScript.h>
 #include <TDirectory.h>
 #include <TFile.h>
 #include <TKey.h>
 #include <TTree.h>
 #include <TMath.h>
+#include <TGraph.h>
+#include <TH2D.h>
 
 #include <fstream>
 #include <iomanip>
@@ -91,7 +101,7 @@ int BCModel::GetNDataPoints()
 
 // ---------------------------------------------------------
 
-BCDataPoint * BCModel::GetDataPoint(int index)
+BCDataPoint * BCModel::GetDataPoint(unsigned int index)
 {
 	if (fDataSet)
 		return fDataSet -> GetDataPoint(index);
@@ -107,7 +117,7 @@ BCParameter * BCModel::GetParameter(int index)
 	if (!fParameterSet)
 		return 0;
 
-	if (index < 0 || index >= this -> GetNParameters())
+	if (index < 0 || index >= (int)this -> GetNParameters())
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
 				Form("BCModel::GetParameter. Parameter index %d not within range.", index));
@@ -125,7 +135,7 @@ BCParameter * BCModel::GetParameter(const char * name)
 		return 0;
 
 	int index = -1;
-	for (int i = 0; i < this->GetNParameters(); i++)
+	for (unsigned int i = 0; i < this->GetNParameters(); i++)
 		if (name == this -> GetParameter(i) -> GetName())
 			index = i;
 
@@ -165,7 +175,7 @@ std::vector <double> BCModel::GetErrorBand(double level)
 
 		errorband[ix-1] = q[0];
 	}
-	
+
 	return errorband;
 }
 
@@ -296,10 +306,10 @@ bool BCModel::GetFlagBoundaries()
 	if (!fDataPointUpperBoundaries)
 		return false;
 
-	if (int(fDataPointLowerBoundaries -> GetNValues()) != fDataSet -> GetDataPoint(0) -> GetNValues())
+	if (fDataPointLowerBoundaries -> GetNValues() != fDataSet -> GetDataPoint(0) -> GetNValues())
 		return false;
 
-	if (int(fDataPointUpperBoundaries -> GetNValues()) != fDataSet -> GetDataPoint(0) -> GetNValues())
+	if (fDataPointUpperBoundaries -> GetNValues() != fDataSet -> GetDataPoint(0) -> GetNValues())
 		return false;
 
 	return true;
@@ -332,7 +342,7 @@ void BCModel::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 
 // ---------------------------------------------------------
 
-void BCModel::SetDataBoundaries(int index, double lowerboundary, double upperboundary, bool fixed)
+void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double upperboundary, bool fixed)
 {
 	// check if data set exists
 	if (!fDataSet)
@@ -411,7 +421,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 
 	// check if parameter with same name exists
 	int flag_exists = 0;
-	for (int i = 0; i < this -> GetNParameters(); i++)
+	for (unsigned int i = 0; i < this -> GetNParameters(); i++)
 		if (this -> CompareStrings(parameter -> GetName().data(), this -> GetParameter(i) -> GetName().data()) == 0)
 			flag_exists = -1;
 
@@ -423,7 +433,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 	}
 
 	// define index of new parameter
-	int index = int(fParameterSet -> size());
+	unsigned int index = fParameterSet -> size();
 	parameter -> SetIndex(index);
 
 	// add parameter to parameter container
@@ -473,11 +483,10 @@ double BCModel::LogProbability(std::vector <double> parameters)
 
 double BCModel::LogLikelihood(std::vector <double> parameters)
 {
-	int ndatapoints = fDataSet -> GetNDataPoints();
 	double logprob = 0.;
 
 	// add log of conditional probabilities event-by-event
-	for (int i=0;i<ndatapoints;i++)
+	for (unsigned int i=0;i<fDataSet -> GetNDataPoints();i++)
 	{
 		BCDataPoint * datapoint = this -> GetDataPoint(i);
 		logprob += this -> LogConditionalProbabilityEntry(datapoint, parameters);
@@ -516,7 +525,7 @@ double BCModel::Normalize()
 {
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName().data()));
 
-	int n = this -> GetNvar();
+	unsigned int n = this -> GetNvar();
 
 	// initialize BCIntegrate if not done already
 	if (n == 0)
@@ -543,7 +552,7 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 		return  ERROR_INVALIDNUMBEROFPARAMETERS;
 
 	// check if parameters are within limits
-	for (int i = 0; i < int(fParameterSet -> size()); i++)
+	for (unsigned int i = 0; i < fParameterSet -> size(); i++)
 	{
 		BCParameter * modelparameter = fParameterSet -> at(i);
 
@@ -753,7 +762,7 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 	double bestfit = hprob -> GetMode();
 
 	if (fBestFitParametersMarginalized.size() == 0)
-		for (int i = 0; i < this -> GetNParameters(); i++)
+		for (unsigned int i = 0; i < this -> GetNParameters(); i++)
 			fBestFitParametersMarginalized.push_back(0.0);
 
 	fBestFitParametersMarginalized[index] = bestfit;
@@ -919,7 +928,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
 // ---------------------------------------------------------
 
-int BCModel::PrintAllMarginalized(const char * file, int hdiv, int vdiv)
+int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
 {
 	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
 	{
@@ -1192,7 +1201,7 @@ void BCModel::CorrelateDataPointValues(std::vector<double> &x)
 double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * parameter2, std::vector<double> point)
 {
 	// check number of entries in vector
-	if (int(point.size()) != this -> GetNParameters())
+	if (point.size() != this -> GetNParameters())
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::HessianMatrixElement. Invalid number of entries in the vector."));
 		return -1;
@@ -1235,7 +1244,7 @@ double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * par
 
 // ---------------------------------------------------------
 
-void BCModel::FixDataAxis(int index, bool fixed)
+void BCModel::FixDataAxis(unsigned int index, bool fixed)
 {
 	// check if index is within range
 	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
@@ -1252,7 +1261,7 @@ void BCModel::FixDataAxis(int index, bool fixed)
 
 // ---------------------------------------------------------
 
-bool BCModel::GetFixedDataAxis(int index)
+bool BCModel::GetFixedDataAxis(unsigned int index)
 {
 	// check if index is within range
 	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
@@ -1486,7 +1495,7 @@ void BCModel::PrintResults(const char * file)
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
 	// check number of entries in vector
-	if (int(parameters.size()) != this -> GetNParameters())
+	if (parameters.size() != this -> GetNParameters())
 	{
 		BCLog::Out(BCLog::warning, BCLog::warning,
 				Form("BCModel::PrintHessianMatrix. Invalid number of entries in the vector."));
@@ -1504,8 +1513,8 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 	std::cout << std::endl;
 
 	// loop over all parameter pairs
-	for (int i = 0; i < this -> GetNParameters(); i++)
-		for (int j = 0; j < i; j++)
+	for (unsigned int i = 0; i < this -> GetNParameters(); i++)
+		for (unsigned int j = 0; j < i; j++)
 		{
 			// calculate Hessian matrix element
 			double hessianmatrixelement = this -> HessianMatrixElement(fParameterSet -> at(i),

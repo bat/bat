@@ -1,4 +1,5 @@
 #include <BCModelPol1.h>
+#include <BCDataSet.h>
 #include <BCLog.h>
 #include <BCModelOutput.h>
 
@@ -51,7 +52,7 @@ int main()
 
 	// the actual markov chain will be written to the output file. this
 	// might result in a large file.
-	fModelOutputPol1 -> WriteMarkovChain(true);
+//	fModelOutputPol1 -> WriteMarkovChain(true);
 
 	// ---------------------------------------------------------
 	// read data from file

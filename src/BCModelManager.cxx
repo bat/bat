@@ -1,13 +1,17 @@
-/*    
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.    
- * All rights reserved.    
- *    
- * For the licensing terms see doc/COPYING.    
- */    
-  
-// ---------------------------------------------------------   
- 
+/*
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include "BCModelManager.h"
+
+#include "BCModel.h"
+#include "BCDataSet.h"
+#include "BCDataPoint.h"
 #include "BCLog.h"
 #include "BCErrorCodes.h"
 
@@ -17,223 +21,174 @@
 
 BCModelManager::BCModelManager()
 {
-
-	fModelContainer = new BCModelContainer(); 
-
-	fDataSet = 0; 
-
+	fModelContainer = new BCModelContainer();
+	fDataSet = 0;
 }
 
 // ---------------------------------------------------------
 
 BCModelManager::~BCModelManager()
 {
+	delete fModelContainer;
 
-	delete fModelContainer; 
-
-	if (fDataSet) 
-		delete fDataSet; 
-
+	if (fDataSet)
+		delete fDataSet;
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 BCModelManager::BCModelManager(const BCModelManager & modelmanager)
 {
-
-	modelmanager.Copy(*this); 
-
+	modelmanager.Copy(*this);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 BCModelManager & BCModelManager::operator = (const BCModelManager & modelmanager)
 {
+	if (this != &modelmanager)
+		modelmanager.Copy(* this);
 
-	if (this != &modelmanager) 
-		modelmanager.Copy(* this); 
-
-	return * this; 
-
+	return * this;
 }
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetDataSet(BCDataSet * dataset) 
+void BCModelManager::SetDataSet(BCDataSet * dataset)
 {
+	// set data set
+	fDataSet = dataset;
 
-	// set data set 
-
-	fDataSet = dataset; 
-
-	// set data set of all models in the manager 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetDataSet(fDataSet); 
-
+	// set data set of all models in the manager
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataSet(fDataSet);
 }
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint) 
+void BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint)
 {
+	// create new data set consisting of a single data point
+	BCDataSet * dataset = new BCDataSet();
 
-	// create new data set consisting of a single data point 
+	// add the data point
+	dataset -> AddDataPoint(datapoint);
 
-	BCDataSet * dataset = new BCDataSet(); 
-
-	// add the data point 
-
-	dataset -> AddDataPoint(datapoint); 
-
-	// set this new data set 
-
-	this -> SetDataSet(dataset); 
-
+	// set this new data set
+	this -> SetDataSet(dataset);
 }
 
 // ---------------------------------------------------------
 
 void BCModelManager::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 {
-
 	if (index < 0 || index > dataset -> GetNDataPoints())
-		return; 
+		return;
 
-	this -> SetSingleDataPoint(dataset -> GetDataPoint(index)); 
-
+	this -> SetSingleDataPoint(dataset -> GetDataPoint(index));
 }
 
 // ---------------------------------------------------------
 
-void BCModelManager::AddModel(BCModel * model, double probability) 
+void BCModelManager::AddModel(BCModel * model, double probability)
 {
+	// create index
+	unsigned int index = fModelContainer -> size();
 
-	// create index 
+	// set index of new model
+	model -> SetIndex(index);
 
-	int index = int(fModelContainer -> size()); 
+	// set a priori probability of new model
+	model -> SetModelAPrioriProbability(probability);
 
-	// set index of new model 
+	// set data set
+	model -> SetDataSet(fDataSet);
 
-	model -> SetIndex(index); 
-
-	// set a priori probability of new model 
-
-	model -> SetModelAPrioriProbability(probability); 
-
-	// set data set 
-
-	model -> SetDataSet(fDataSet); 
-
-	// fill model into container 
-
-	fModelContainer -> push_back(model); 
-
-}   
+	// fill model into container
+	fModelContainer -> push_back(model);
+}
 
 // ---------------------------------------------------------
-// DEBUG DELETE?  
+// DEBUG DELETE?
 /*
 void BCModelManager::SetNIterationsMax(int niterations)
 {
+	// set maximum number of iterations of all models in the manager
 
-	// set maximum number of iterations of all models in the manager 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetNIterationsMax(niterations); 
-
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNIterationsMax(niterations);
 }
 
-// --------------------------------------------------------- 
-*/ 
+// ---------------------------------------------------------
+*/
 
 void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 {
+	// set integration method for all models registered
 
-	// set integration method for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetIntegrationMethod(method); 
-
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetIntegrationMethod(method);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
-{ 
-
-		// set marginalization method for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetMarginalizationMethod(method); 
-
+{
+	// set marginalization method for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetMarginalizationMethod(method);
 };
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
 {
-
-	// set mode finding method for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetOptimizationMethod(method); 
-	
+	// set mode finding method for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetOptimizationMethod(method);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetNiterationsPerDimension(int niterations)
+void BCModelManager::SetNiterationsPerDimension(unsigned int niterations)
 {
-
-	// set number of iterations per dimension for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetNiterationsPerDimension(niterations); 
-
+	// set number of iterations per dimension for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNiterationsPerDimension(niterations);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetNSamplesPer2DBin(int n)
+void BCModelManager::SetNSamplesPer2DBin(unsigned int n)
 {
-
-	// set samples per 2d bin for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetNSamplesPer2DBin(n); 
-
+	// set samples per 2d bin for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNSamplesPer2DBin(n);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetRelativePrecision(double relprecision) 
+void BCModelManager::SetRelativePrecision(double relprecision)
 {
-
-	// set relative precision for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetRelativePrecision(relprecision); 
-
+	// set relative precision for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetRelativePrecision(relprecision);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetNbins(int n)
+void BCModelManager::SetNbins(unsigned int n)
 {
-
-	// set number of bins for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetNbins(n); 
-
+	// set number of bins for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetNbins(n);
 }
 
 // ---------------------------------------------------------
 
 void BCModelManager::SetFillErrorBand(bool flag)
 {
-	for (int i = 0; i < this -> GetNModels(); i++)
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
 		this -> GetModel(i) -> SetFillErrorBand(flag);
 }
 
@@ -242,272 +197,221 @@ void BCModelManager::SetFillErrorBand(bool flag)
 void BCModelManager::SetFitFunctionIndexX(int index)
 {
 	// set fit function x index for all models registered
-	for (int i = 0; i < this -> GetNModels(); i++)
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
 		this -> GetModel(i) -> SetFitFunctionIndexX(index);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetFitFunctionIndexY(int index) 
+void BCModelManager::SetFitFunctionIndexY(int index)
 {
-
-	// set  fit function y index for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetFitFunctionIndexY(index); 
-
+	// set  fit function y index for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetFitFunctionIndexY(index);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::SetFitFunctionIndices(int indexx, int indexy)
 {
-
-	// set fit function indices for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetFitFunctionIndices(indexx, indexy); 
-
+	// set fit function indices for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetFitFunctionIndices(indexx, indexy);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetDataPointLowerBoundaries(BCDataPoint* datasetlowerboundaries)
+void BCModelManager::SetDataPointLowerBoundaries(BCDataPoint * datasetlowerboundaries)
 {
-
-	// set lower boundary point for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetDataPointLowerBoundaries(datasetlowerboundaries); 
-
+	// set lower boundary point for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointLowerBoundaries(datasetlowerboundaries);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries)
+void BCModelManager::SetDataPointUpperBoundaries(BCDataPoint * datasetupperboundaries)
 {
-
-	// set upper boundary point for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetDataPointUpperBoundaries(datasetupperboundaries); 
-
+	// set upper boundary point for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointUpperBoundaries(datasetupperboundaries);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::SetDataPointLowerBoundary(int index, double lowerboundary)
 {
-
-	// set lower bounday values for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetDataPointLowerBoundary(index, lowerboundary); 
-
+	// set lower bounday values for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointLowerBoundary(index, lowerboundary);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::SetDataPointUpperBoundary(int index, double upperboundary)
 {
-
-	// set upper boundary values for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetDataPointUpperBoundary(index, upperboundary); 
-
+	// set upper boundary values for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataPointUpperBoundary(index, upperboundary);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetDataBoundaries(int index, double lowerboundary, double upperboundary) 
+void BCModelManager::SetDataBoundaries(int index, double lowerboundary, double upperboundary)
 {
-	
-	// set lower and upper boundary values for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetDataBoundaries(index, lowerboundary, upperboundary); 
-
+	// set lower and upper boundary values for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> SetDataBoundaries(index, lowerboundary, upperboundary);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::FixDataAxis(int index, bool fixed)
 {
-
-	// fix axis for all models 
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> FixDataAxis(index, fixed); 
-
+	// fix axis for all models
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> FixDataAxis(index, fixed);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::SetNChains(int n) 
+void BCModelManager::SetNChains(unsigned int n)
 {
-	
-	// set number of Markov chains for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-	  this -> GetModel(i) -> MCMCSetNChains(n); 
-
+	// set number of Markov chains for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> MCMCSetNChains(n);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 void BCModelManager::SetFlagPCA(bool flag)
 {
-	
-	// sets the flag for PCA 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-	  this -> GetModel(i) -> MCMCSetFlagPCA(flag); 
-
+	// sets the flag for PCA
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> MCMCSetFlagPCA(flag);
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
-
 	if (fModelContainer -> size() < 0)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined.");
-			return ERROR_NOMODELS;
-		}
-    
-	// create data set 
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree : No model defined.");
+		return ERROR_NOMODELS;
+	}
 
+	// create data set
 	if (!fDataSet)
-		fDataSet = new BCDataSet(); 
+		fDataSet = new BCDataSet();
+	else
+		fDataSet -> Reset();
 
-	else 
-		fDataSet -> Reset(); 
-
-	// read data from tree 
-
-	int read_file = fDataSet -> ReadDataFromFileTree(filename, treename, branchnames); 
+	// read data from tree
+	int read_file = fDataSet -> ReadDataFromFileTree(filename, treename, branchnames);
 
 	if (read_file >=0)
-		{
-			this -> SetDataSet(fDataSet); 
+	{
+		this -> SetDataSet(fDataSet);
 
-			for (int i = 0; i < this -> GetNModels(); i++)
-				fModelContainer -> at(i) -> SetDataSet(fDataSet); 
-		}
+		for (unsigned int i = 0; i < this -> GetNModels(); i++)
+			fModelContainer -> at(i) -> SetDataSet(fDataSet);
+	}
+	else if (read_file == ERROR_FILENOTFOUND)
+	{
+		delete fDataSet;
+		return ERROR_FILENOTFOUND;
+	}
 
-	else if (read_file == ERROR_FILENOTFOUND) 
-		{
-			delete fDataSet; 
-    
-			return ERROR_FILENOTFOUND; 
-		}
-
-	return 0; 
-
+	return 0;
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
 int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
+	if (fModelContainer -> size() < 0)
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined.");
+		return ERROR_NOMODELS;
+	}
 
-	if (fModelContainer -> size() < 0) 
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined."); 
-			return ERROR_NOMODELS;  
-		}
-  
-	// create data set 
-
-	if (!fDataSet) 
-		fDataSet = new BCDataSet(); 
+	// create data set
+	if (!fDataSet)
+		fDataSet = new BCDataSet();
 	else
-		fDataSet -> Reset(); 
+		fDataSet -> Reset();
 
-	// read data from txt file 
-	int read_file = fDataSet -> ReadDataFromFileTxt(filename, nbranches); 
+	// read data from txt file
+	int read_file = fDataSet -> ReadDataFromFileTxt(filename, nbranches);
 
-	if (read_file >=0) 
-		{
-			this -> SetDataSet(fDataSet); 
+	if (read_file >=0)
+	{
+		this -> SetDataSet(fDataSet);
 
-			for (int i = 0; i < this -> GetNModels(); i++)
-				fModelContainer -> at(i) -> SetDataSet(fDataSet); 
-		}
-
+		for (unsigned int i = 0; i < this -> GetNModels(); i++)
+			fModelContainer -> at(i) -> SetDataSet(fDataSet);
+	}
 	else
-		{
-			delete fDataSet; 
-    
-			return ERROR_FILENOTFOUND; 
-		}
+	{
+		delete fDataSet;
+		return ERROR_FILENOTFOUND;
+	}
 
-	return 0; 
-
+	return 0;
 }
 
 // ---------------------------------------------------------
 
 void BCModelManager::Normalize()
 {
-
 	// initialize likelihood norm
-
 	double normalization = 0.0;
 
 	BCLog::Out(BCLog::summary, BCLog::summary, "Running normalization of all models.");
 
-	for (int i = 0; i < this -> GetNModels(); i++)
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
 	{
-		fModelContainer -> at(i) -> Normalize(); 
+		fModelContainer -> at(i) -> Normalize();
 
-		// add to total normalization 
-		normalization += (fModelContainer -> at(i) -> GetNormalization() * 
-			fModelContainer -> at(i) -> GetModelAPrioriProbability()); 
+		// add to total normalization
+		normalization += (fModelContainer -> at(i) -> GetNormalization() *
+				fModelContainer -> at(i) -> GetModelAPrioriProbability());
 	}
 
 	// set model a posteriori probabilities
-	for (int i = 0; i < int(fModelContainer -> size()); i++)
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
 		fModelContainer -> at(i) -> SetModelAPosterioriProbability(
-					(fModelContainer -> at(i) -> GetNormalization() *
-					fModelContainer -> at(i) -> GetModelAPrioriProbability()) /
-					normalization);
+				(fModelContainer -> at(i) -> GetNormalization() *
+				fModelContainer -> at(i) -> GetModelAPrioriProbability()) /
+				normalization);
 }
 
 // ---------------------------------------------------------
 
 void BCModelManager::FindMode()
 {
-
-	// finds mode for all models registered 
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> FindMode(); 
-
+	// finds mode for all models registered
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> FindMode();
 }
 
 // ---------------------------------------------------------
 
 void BCModelManager::MarginalizeAll()
 {
-
 	// marginalizes all models registered
-
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> MarginalizeAll(); 
-
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> MarginalizeAll();
 }
 
 // ---------------------------------------------------------
 
 void BCModelManager::WriteMarkovChain(bool flag)
 {
-
 	// marginalizes all models registered
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> WriteMarkovChain(flag); 
-
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> WriteMarkovChain(flag);
 }
 
 // ---------------------------------------------------------
@@ -515,7 +419,7 @@ void BCModelManager::WriteMarkovChain(bool flag)
 void BCModelManager::CalculatePValue(bool flag_histogram)
 {
 	// calculate p-value for all models
-	for (int i = 0; i < this -> GetNModels(); i++)
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
 		this -> GetModel(i) -> CalculatePValue(this -> GetModel(i) -> GetBestFitParameters(), flag_histogram);
 }
 
@@ -523,7 +427,6 @@ void BCModelManager::CalculatePValue(bool flag_histogram)
 
 void BCModelManager::PrintSummary(const char * file)
 {
-
 	ofstream out;
 	std::streambuf * old_buffer = 0;
 
@@ -539,7 +442,7 @@ void BCModelManager::PrintSummary(const char * file)
 	}
 
 	// model summary
-	int nmodels = int(fModelContainer -> size());
+	int nmodels = fModelContainer -> size();
 	std::cout
 		<<std::endl
 		<<"======================================"<<std::endl
@@ -601,23 +504,18 @@ void BCModelManager::PrintSummary(const char * file)
 
 void BCModelManager::PrintResults()
 {
-
-	// print summary of all models 
-	for (int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> PrintResults(Form("%s.txt", this -> GetModel(i) -> GetName().data())); 
-
+	// print summary of all models
+	for (unsigned int i = 0; i < this -> GetNModels(); i++)
+		this -> GetModel(i) -> PrintResults(Form("%s.txt", this -> GetModel(i) -> GetName().data()));
 }
 
-// --------------------------------------------------------- 
+// ---------------------------------------------------------
 
-void BCModelManager::Copy(BCModelManager & modelmanager) const 
+void BCModelManager::Copy(BCModelManager & modelmanager) const
 {
-
-	// don't copy the content only the pointers 
-
-	modelmanager.fModelContainer = this -> fModelContainer; 
-	modelmanager.fDataSet        = this -> fDataSet; 
-
+	// don't copy the content only the pointers
+	modelmanager.fModelContainer = this -> fModelContainer;
+	modelmanager.fDataSet        = this -> fDataSet;
 }
 
 // ---------------------------------------------------------

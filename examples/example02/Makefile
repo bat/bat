@@ -18,8 +18,8 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) 
 CXXFLAGS    += -I./src/ -I./ -I../../include/ 
-LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
-GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
+LIBS        += $(ROOTLIBS) -L. -L../.. -lBAT -lcuba
+GLIBS       += $(ROOTGLIBS) -L. -L../.. -lBAT -lcuba
 
 CXSRCS      = BCModelPol0.cxx \
 		BCModelPol1.cxx \

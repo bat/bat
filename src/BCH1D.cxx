@@ -8,8 +8,11 @@
 // ---------------------------------------------------------
 
 #include "BCH1D.h"
+
+#include "BCLog.h"
 #include "BCMath.h"
 
+#include <TH1D.h>
 #include <TH2.h>
 #include <TLine.h>
 #include <TPolyLine.h>
@@ -20,6 +23,8 @@
 #include <TMarker.h>
 #include <TLegend.h>
 #include <TString.h>
+
+#include <math.h>
 
 // ---------------------------------------------------------
 

@@ -1,3 +1,6 @@
+#ifndef __BCMATH__H
+#define __BCMATH__H
+
 /*!
  * \namespace BCMath
  * \brief Some useful mathematic functions.
@@ -17,11 +20,6 @@
  */
 
 // ---------------------------------------------------------
-
-#ifndef __BCMATH__H
-#define __BCMATH__H
-
-#include <math.h>
 
 #define BCMATH_NFACT_ALIMIT 20
 

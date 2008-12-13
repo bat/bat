@@ -1,6 +1,7 @@
 #include <BCModelEfficiency.h>
 #include <BCLog.h>
 #include <BCModelOutput.h> 
+#include <BCDataSet.h>
 
 #include "style.c" 
 
@@ -52,7 +53,7 @@ int main()
 
 	// the actual markov chain will be written to the output file. this
 	// might result in a large file. 
-	fModelOutputEfficiency -> WriteMarkovChain(true); 
+//	fModelOutputEfficiency -> WriteMarkovChain(true); 
 	
 	// ---------------------------------------------------------
 	// read data from file 

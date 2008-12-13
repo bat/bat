@@ -10,35 +10,35 @@ LD           = g++
 LDFLAGS      = -g -O2
 SOFLAGS      = -shared
 
-RM           = rm -f 
-MV           = mv 
+RM           = rm -f
+MV           = mv
 ECHO         = echo
 CINT         = rootcint
 
 # Assign or Add variables
-CXXFLAGS    += $(ROOTCFLAGS) 
-CXXFLAGS    += -I./src/ -I./ -I../../include/ 
-LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
-GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
+CXXFLAGS    += $(ROOTCFLAGS)
+CXXFLAGS    += -I./src/ -I./ -I../../include/
+LIBS        += $(ROOTLIBS) -L. -L../.. -lBAT -lcuba
+GLIBS       += $(ROOTGLIBS) -L. -L../.. -lBAT -lcuba
 
-CXSRCS      = BCModelPol1.cxx 
+CXSRCS      = BCModelPol1.cxx
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
-EXEOBJS       = 
+EXEOBJS       =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runBATexample01.exe 
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runBATexample01.exe
 
-all : runBATexample01 
+all : runBATexample01
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
-	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d; 
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
 include link.d
 
-%.o : src/%.cxx 
+%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean :

@@ -8,11 +8,14 @@
 // ---------------------------------------------------------
 
 #include "BCDataSet.h"
+
+#include "BCDataPoint.h"
 #include "BCLog.h"
 #include "BCErrorCodes.h"
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TString.h>
 
 #include <iostream>
 

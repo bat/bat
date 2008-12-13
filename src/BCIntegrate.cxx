@@ -8,9 +8,15 @@
 // ---------------------------------------------------------
 
 #include "BCIntegrate.h"
-#include "BCLog.h"
 
+#include "BCLog.h"
+#include "BCMath.h"
+
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TMinuit.h>
 #include <TRandom3.h>
+#include <TTree.h>
 
 #include "cuba.h"
 

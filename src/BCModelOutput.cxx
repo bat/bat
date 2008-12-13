@@ -9,7 +9,17 @@
 
 #include "BCModelOutput.h"
 
+#include "BCModel.h"
+#include "BCParameter.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
+
 #include <TDirectory.h>
+#include <TFile.h>
+#include <TTree.h>
+#include <TH2D.h>
+#include <TH1D.h>
+#include <TString.h>
 
 // ---------------------------------------------------------
 
@@ -277,7 +287,7 @@ void BCModelOutput::InitializeMarkovChainTrees()
 	fMarkovChainTrees.clear();
 	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
 	{
-		TTree * tree = new TTree(Form("MarkovChainTree_%i", i), "MarkovChainTree");
+		TTree * tree = new TTree(TString::Format("MarkovChainTree_%i", i), "MarkovChainTree");
 		fMarkovChainTrees.push_back(tree);
 	}
 
@@ -298,9 +308,9 @@ void BCModelOutput::InitializeMarkovChainTrees()
 	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
 		for (int j = 0; j <  fModel -> MCMCGetNParameters(); ++j)
 		{
-			fMarkovChainTrees[i] -> Branch(Form("fParameter%i", j),
+			fMarkovChainTrees[i] -> Branch(TString::Format("fParameter%i", j),
 					&(*fParameters)[i * fModel -> MCMCGetNParameters() + j],
-					Form("parameter %i/D", j));
+					TString::Format("parameter %i/D", j));
 		}
 
 	fModel -> MCMCSetMarkovChainTrees(fMarkovChainTrees);

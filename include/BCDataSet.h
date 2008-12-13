@@ -1,6 +1,9 @@
+#ifndef __BCDATASET__H
+#define __BCDATASET__H
+
 /*!
  * \class BCDataSet
- * \brief A class representing a set of data points. 
+ * \brief A class representing a set of data points.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \version 1.0
@@ -11,20 +14,18 @@
  */
 
 /*
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger. 
- * All rights reserved. 
- * 
- * For the licensing terms see doc/COPYING. 
- */ 
+ * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
 
 // ---------------------------------------------------------
 
-#ifndef __BCDATASET__H
-#define __BCDATASET__H
-
 #include <vector>
 
-#include "BCDataPoint.h"
+// BAT classes
+class BCDataPoint;
 
 // ---------------------------------------------------------
 
@@ -40,13 +41,11 @@ class BCDataSet
 		/* @{ */
 
 		/*
-		 * Default constructor
-		 */
+		 * Default constructor */
 		BCDataSet();
 
 		/*
-		 * Default destructor
-		 */
+		 * Default destructor */
 		virtual ~BCDataSet();
 
 		/* @} */
@@ -55,24 +54,20 @@ class BCDataSet
 		/* @{ */
 
 		/*
-		 * @param The vector of data points.
-		 */
-		BCDataVector * GetDataVector();
+		 * @param The vector of data points. */
+//		BCDataVector * GetDataVector();
 
 		/*
-		 * @return The number of data points.
-		 */
+		 * @return The number of data points. */
 		unsigned int GetNDataPoints();
 
 		/*
-		 * @return number of values per data point (dimension of data).
-		 */
+		 * @return number of values per data point (dimension of data). */
 		unsigned int GetNValuesPerPoint();
 
 		/*
 		 * @param index The index of the data point to be returned.
-		 * @return The data point at the index.
-		 */
+		 * @return The data point at the index. */
 		BCDataPoint * GetDataPoint(unsigned int index);
 
 
@@ -83,8 +78,7 @@ class BCDataSet
 
 		/**
 		 * Reads data from a file. For a description see the following
-		 * member functions.
-		 */
+		 * member functions. */
 		int ReadDataFromFile(const char * filename, const char * treename, const char * branchnames)
 			{ return this ->  ReadDataFromFileTree(filename, treename, branchnames); };
 
@@ -117,18 +111,15 @@ class BCDataSet
 
 		/**
 		 * Adds a data point to the data set.
-		 * @param datapoint The data point to be added
-		 */
-		void AddDataPoint(BCDataPoint* datapoint);
+		 * @param datapoint The data point to be added */
+		void AddDataPoint(BCDataPoint * datapoint);
 
 		/**
-		 * Resets the content of the data set
-		 */
+		 * Resets the content of the data set */
 		void Reset();
 
 		/**
-		 * Dump the data to the standard output
-		 */
+		 * Dump the data to the standard output */
 		void Dump();
 
 		/* @} */
@@ -136,9 +127,8 @@ class BCDataSet
 	private:
 
 		/*
-		 * A vector containing the data points
-		 */
-		BCDataVector* fBCDataVector;
+		 * A vector containing the data points */
+		BCDataVector * fBCDataVector;
 
 };
 

@@ -1,3 +1,6 @@
+#ifndef __BCENGINEMCMC__H
+#define __BCENGINEMCMC__H
+
 /*!
  * \class BCEngineMCMC
  * \brief An engine class for Markov Chain Monte Carlo
@@ -19,21 +22,14 @@
 
 // ---------------------------------------------------------
 
-#ifndef __BCENGINEMCMC__H
-#define __BCENGINEMCMC__H
-
-// ---------------------------------------------------------
-
-#include <iostream>
 #include <vector>
 
-#include <math.h>
-
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TTree.h>
-#include <TRandom3.h>
-#include <TPrincipal.h>
+// ROOT classes
+class TH1D;
+class TH2D;
+class TTree;
+class TRandom3;
+class TPrincipal;
 
 
 // ---------------------------------------------------------
@@ -308,7 +304,7 @@ class BCEngineMCMC
 
 		/*
 		 * Sets the number of parameters of the Markov chain. */
-		void MCMCSetNParameters(int n);
+//		void MCMCSetNParameters(int n);
 
 		/*
 		 * Sets the number of Markov chains which are run in parallel. */
@@ -456,11 +452,11 @@ class BCEngineMCMC
 		 * @param pxnew pointer to the new point. The length of the vector equals to fMCMCNParameters.
 		 * @param flag_compute flag which indicates whether to compute a new point (true) or to just pass the value of the function (flase)
 		 * @return value of the trial function */
-		double MCMCTrialFunctionRelativeNoPCA(std::vector <double> * xold, std::vector<double> * xnew, bool flag_compute);
+//		double MCMCTrialFunctionRelativeNoPCA(std::vector <double> * xold, std::vector<double> * xnew, bool flag_compute);
 
 		/*
 		 * not documented !!! */
-		void MCMCGetProposalPoint(int chain, std::vector <double> xnew, std::vector <double> xold);
+//		void MCMCGetProposalPoint(int chain, std::vector <double> xnew, std::vector <double> xold);
 
 		/*
 		 * Returns a trial point for the Metropolis algorithm.
@@ -551,7 +547,7 @@ class BCEngineMCMC
 
 		/*
 		 * Performs an initial run. */
-		void MCMCInitialRun();
+//		void MCMCInitialRun();
 
 		/*
 		 * Resets the run statistics. */
@@ -766,10 +762,9 @@ class BCEngineMCMC
 		int fMCMCFlagInitialPosition;
 
 		/*
-		 * Flag which controls the sequence parameters during the running 
-		 * of the MCMC. 
-		 */ 
-		bool fMCMCFlagOrderParameters; 
+		 * Flag which controls the sequence parameters during the running
+		 * of the MCMC. */
+		bool fMCMCFlagOrderParameters;
 
 		/*
 		 * The current points of each Markov chain. The length of the

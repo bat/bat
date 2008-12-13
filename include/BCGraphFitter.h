@@ -1,3 +1,6 @@
+#ifndef __BCMODELGRAPHFITTER__H
+#define __BCMODELGRAPHFITTER__H
+
 /*!
  * \class BCGraphFitter
  * \brief A class for fitting graphs with functions
@@ -18,9 +21,6 @@
  */
 
 // ---------------------------------------------------------
-
-#ifndef __BCMODELGRAPHFITTER__H
-#define __BCMODELGRAPHFITTER__H
 
 #include <vector>
 

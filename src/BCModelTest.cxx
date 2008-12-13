@@ -9,6 +9,12 @@
 
 #include "BCModelTest.h"
 
+#include "BCDataSet.h"
+#include "BCLog.h"
+
+#include <TH1D.h>
+#include <TString.h>
+
 // ---------------------------------------------------------
 
 BCModelTest::BCModelTest(const char* name) : BCModel(name)
@@ -48,7 +54,7 @@ BCModelTest::~BCModelTest()
 			fTestModel -> GetDataSet() -> GetDataPoint(i) -> SetValue(j, fTemporaryDataSet -> GetDataPoint(i) -> GetValue(j));
 
 	// restore data point limits
-	for (int i = 0; i < this -> GetNParameters(); ++i)
+	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
 		fTestModel -> SetDataBoundaries(
 				fMapDataValue[i],
 				this -> GetParameter(i) -> GetLowerLimit(),

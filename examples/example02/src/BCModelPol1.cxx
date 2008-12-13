@@ -1,5 +1,7 @@
 #include "BCModelPol1.h" 
 
+#include "BCMath.h"
+
 // --------------------------------------------------------- 
 
 BCModelPol1::BCModelPol1() : BCModel()

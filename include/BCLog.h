@@ -1,3 +1,6 @@
+#ifndef __BCLOG__H
+#define __BCLOG__H
+
 /*!
  * \class BCLog
  * \brief A class for managing log messages.
@@ -17,9 +20,6 @@
  */
 
 // ---------------------------------------------------------
-
-#ifndef __BCLOG__H
-#define __BCLOG__H
 
 #include <iostream>
 #include <fstream>
