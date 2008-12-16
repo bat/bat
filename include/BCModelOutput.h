@@ -30,6 +30,7 @@ class BCModel;
 // ROOT classes
 class TTree;
 class TFile;
+class TObject;
 
 const int MAXNPARAMETERS = 20;
 
@@ -123,6 +124,10 @@ class BCModelOutput
 		/**
 		 * Writes the error band histogram into the TFile. */
 		void WriteErrorBand();
+
+		/**
+		 * Writes any object derived from TObject to TFile. */
+		void Write(TObject * o);
 
 		/**
 		 * Closes the TFile. */

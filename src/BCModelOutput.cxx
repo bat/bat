@@ -17,6 +17,7 @@
 #include <TDirectory.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <TObject.h>
 #include <TH2D.h>
 #include <TH1D.h>
 #include <TString.h>
@@ -216,6 +217,22 @@ void BCModelOutput::WriteErrorBand()
 
 		delete h1;
 	}
+
+	// return to old directory
+	gDirectory = dir;
+}
+
+// ---------------------------------------------------------
+
+void BCModelOutput::Write(TObject * o)
+{
+	// remember current directory
+	TDirectory * dir = gDirectory;
+
+	// change to file
+	fOutputFile -> cd();
+
+	o -> Write();
 
 	// return to old directory
 	gDirectory = dir;
