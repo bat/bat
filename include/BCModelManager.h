@@ -80,7 +80,7 @@ class BCModelManager
 		 * Returns the number of entries in the common data set.
 		 * @return The number of entries. */
 		int GetNDataPoints()
-			{ return (fDataSet) ? fDataSet -> GetNDataPoints() : -1; };
+			{ return (fDataSet) ? fDataSet -> GetNDataPoints() : 0; };
 
 		/**
 		 * Returns a data point of the common data set at an index.
