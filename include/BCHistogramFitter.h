@@ -85,6 +85,14 @@ class BCHistogramFitter : public BCModel
 		 */
 		int SetFitFunction(TF1 * func);
 
+		/**
+		 * Sets the flag for integration. \n
+		 * true: use ROOT's TH1D::Integrate() \n
+		 * false: use linear interpolation 
+		 */ 
+		void SetFlagIntegration(bool flag)
+		{ fFlagIntegration = flag; }; 
+
 		/* @} */
 		/** \name Member functions (miscellaneous methods) */
 		/* @{ */
@@ -158,6 +166,12 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * The fit function */
 		TF1 * fFitFunction;
+
+		/** 
+		 * Flag for using the ROOT TH1D::Integral method (true), or linear
+		 * interpolation (false) */ 
+		bool fFlagIntegration; 
+		
 };
 
 // ---------------------------------------------------------

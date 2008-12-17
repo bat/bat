@@ -31,6 +31,7 @@ BCHistogramFitter::BCHistogramFitter() : BCModel("HistogramFitter")
 	// set default options and values
 	this -> MCMCSetNIterationsRun(2000);
 	this -> SetFillErrorBand();
+	fFlagIntegration = true; 
 }
 
 // ---------------------------------------------------------
@@ -42,6 +43,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) : BCModel("Histogr
 
 	this -> MCMCSetNIterationsRun(2000);
 	this -> SetFillErrorBand();
+	fFlagIntegration = true; 
 }
 
 // ---------------------------------------------------------
@@ -162,22 +164,55 @@ double BCHistogramFitter::LogLikelihood(std::vector <double> params)
 	// get the number of bins
 	int nbins = fHistogram -> GetNbinsX();
 
+	// get bin width
+	double dx = fHistogram -> GetBinWidth(1);
+
+	// get function value of lower bin edge
+	double fedgelow = fFitFunction -> Eval(fHistogram -> GetBinLowEdge(1));
+	
 	// loop over all bins
 	for (int ibin = 1; ibin <= nbins; ++ibin)
-	{
-		// get bin boundaries
-		double xmin = fHistogram -> GetBinLowEdge(ibin);
-		double xmax = fHistogram -> GetBinLowEdge(ibin+1);
+		{
+			// get upper bin edge
+			double xedgehi = fHistogram -> GetBinLowEdge(ibin) + dx;
 
-		// get the number of observed events
-		double y = fHistogram -> GetBinContent(ibin);
+			// get function value at upper bin edge
+			double fedgehi = fFitFunction -> Eval(xedgehi);
 
-		// get the number of expected events
-		double yexp = fFitFunction -> Integral(xmin, xmax);
+			// get the number of observed events
+			double y = fHistogram -> GetBinContent(ibin);
 
-		// get the value of the Poisson distribution
-		loglikelihood += BCMath::LogPoisson(y, yexp);
-	}
+			double yexp = 0.; 
+
+			// use ROOT's TH1D::Integral method
+			if (fFlagIntegration)
+				yexp = fFitFunction -> Integral(xedgehi-dx, xedgehi);
+
+			// use linear interpolation 
+			else
+				{
+					yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.; 
+
+					// make the upper edge the lower edge for the next iteration
+					fedgelow = fedgehi;
+				}
+
+			// get the value of the Poisson distribution
+			loglikelihood += BCMath::LogPoisson(y, yexp);
+		}
+
+// 			// get bin boundaries
+// 			double xmin = fHistogram -> GetBinLowEdge(ibin);
+// 			double xmax = fHistogram -> GetBinLowEdge(ibin+1);
+			
+// 			// get the number of observed events
+// 			double y = fHistogram -> GetBinContent(ibin);
+			
+// 			// get the number of expected events
+// 			double yexp = fFitFunction -> Integral(xmin, xmax);
+			
+// 			// get the value of the Poisson distribution
+// 			loglikelihood += BCMath::LogPoisson(y, yexp);
 
 	return loglikelihood;
 }
