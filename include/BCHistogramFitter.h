@@ -24,6 +24,7 @@
 #include <vector>
 
 #include "BCModel.h"
+#include "BCH1D.h"
 
 // ROOT classes
 class TH1D;
@@ -136,6 +137,14 @@ class BCHistogramFitter : public BCModel
 		 * Print a summary of the fit to the screen
 		 */
 		void PrintFitSummary();
+
+		/**
+		 * Calculate the p-value using fast-MCMC.
+		 * @param par A set of parameter values 
+		 * @param  pvalue The pvalue
+		 * @return An error code 
+		 */ 
+		int CalculatePValueFast(std::vector<double> par, double &pvalue); 
 
 		/* @} */
 

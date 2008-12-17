@@ -12,6 +12,7 @@
 #include <TGraph.h>
 #include <TString.h>
 #include <TPad.h>
+#include <TRandom3.h>
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -220,6 +221,17 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 	// to the global maximum from the MCMC
 	this -> FindModeMinuit( this -> GetBestFitParameters() , -1);
 
+	// calculate the p-value using the fast MCMC algorithm 
+	double pvalue; 
+	if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
+		{
+			fPValue = pvalue; 
+		}
+	else
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::Fit() : Could not use the fast p-value evaluation.");
+		}
+
 	// print summary to screen
 	this -> PrintFitSummary();
 
@@ -286,6 +298,9 @@ void BCHistogramFitter::PrintFitSummary()
 				<< this -> GetBestFitParameter(i) << std::endl;
 	std::cout << std::endl;
 
+	std::cout << "Goodness-of-fit test : " << std::endl;
+	std::cout << " p-value = " << this -> GetPValue() << std::endl; 
+
 //	std::cout << "Best fit parameters (marginalized) : " << std::endl;
 //	for (int i = 0; i < this -> GetNParameters(); ++i)
 //	{
@@ -295,6 +310,107 @@ void BCHistogramFitter::PrintFitSummary()
 //				<< this -> GetBestFitParameterMarginalized(i) << std::endl;
 //	}
 //	std::cout << std::endl;
+}
+
+// ---------------------------------------------------------
+int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
+{
+	// check size of parameter vector 
+	if (par.size() != this -> GetNParameters())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
+		return 0;
+		}
+
+	// check if histogram exists
+	if (!fHistogram)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::CalculatePValueFast() : Histogram not defined.");
+		return 0;
+		}
+
+	// define temporary variables
+	int nbins = fHistogram -> GetNbinsX(); 
+
+	std::vector <int> histogram; 
+	std::vector <double> expectation; 
+	histogram.assign(nbins, 0); 
+	expectation.assign(nbins, 0); 
+
+	double logp = 0; 
+	double logp_start = 0; 
+	int counter_pvalue = 0; 
+
+	// define starting distribution
+	for (int ibin = 0; ibin < nbins; ++ibin)
+		{
+			// get bin boundaries
+			double xmin = fHistogram -> GetBinLowEdge(ibin+1);
+			double xmax = fHistogram -> GetBinLowEdge(ibin+2);
+			
+			// get the number of expected events
+			double yexp = fFitFunction -> Integral(xmin, xmax);
+
+			histogram[ibin]   = int(yexp); 
+			expectation[ibin] = yexp; 
+
+			// calculate p; 
+			logp += BCMath::LogPoisson(double(int(yexp)), yexp); 
+			logp_start += BCMath::LogPoisson(fHistogram -> GetBinContent(ibin+1), yexp); 
+		}
+
+	int niter = 100000; 
+	
+	// loop over iterations 
+	for (int iiter = 0; iiter < niter; ++iiter)
+		{
+			
+			// loop over bins 
+			for (int ibin = 0; ibin < nbins; ++ibin)
+				{
+					// random step up or down in statistics for this bin 
+					double ptest = fRandom -> Rndm() - 0.5; 
+
+					// increase statistics by 1
+					if (ptest > 0)
+						{
+							// calculate factor of probability 
+							double r = expectation.at(ibin) / double(histogram.at(ibin) + 1); 
+
+							// walk, or don't (this is the Metropolis part) 
+							if (fRandom -> Rndm() < r)
+								{
+									histogram[ibin] = histogram.at(ibin) + 1; 
+									logp += log(r); 
+								}
+						}
+
+					// decrease statistics by 1 
+					else
+						{
+							// calculate factor of probability 
+							double r = double(histogram.at(ibin)) / expectation.at(ibin); 
+
+							// walk, or don't (this is the Metropolis part) 
+							if (fRandom -> Rndm() < r)
+								{
+									histogram[ibin] = histogram.at(ibin) - 1; 
+									logp += log(r); 
+								}
+						} 					
+				} // end of looping over bins 
+
+			// increase counter 
+			if (logp < logp_start)
+				counter_pvalue++; 
+
+		} // end of looping over iterations 
+
+	// calculate p-value 
+	pvalue = double(counter_pvalue) / double(niter); 
+
+	// no error 
+	return 1; 
 }
 
 // ---------------------------------------------------------
