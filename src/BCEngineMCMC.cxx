@@ -871,124 +871,109 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 
 void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 {
-  // calculate number of entries in this part of the chain 
-  
+  // calculate number of entries in this part of the chain   
   int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
 
-  // do not evaluate the convergence criterion if the numbers of elements is too small. 
-  
-  if (npoints < fMCMCNIterationsPreRunMin) 
-    {
-      fMCMCNIterationsConvergenceGlobal = -1;
-      
-      return; 
-    }
+  // do not evaluate the convergence criterion if the numbers of
+  // elements is too small.
+	//  if (npoints < fMCMCNIterationsPreRunMin) 
+	//    {
+	//      fMCMCNIterationsConvergenceGlobal = -1;      
+	//      return; 
+	//    }
   
   if (fMCMCNChains > 1 && npoints > 1)
     {
-      
-      // define flag for convergence 
-      
+      // define flag for convergence       
       bool flag_convergence = true; 
       
-      // loop over parameters 
-      
+      // loop over parameters       
       for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
-	{
-	  double sum = 0; 
-	  double sum2 = 0; 
-	  double sumv = 0; 
+				{
+					double sum = 0; 
+					double sum2 = 0; 
+					double sumv = 0; 
 	  
-	  // loop over chains 
-	  
-	  for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-	    {
-	      int index = ichains * fMCMCNParameters + iparameters; 
-
-	      // calculate mean value of each parameter in the chain for this part 
+					// loop over chains 					
+					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+						{
+							// get parameter index
+							int index = ichains * fMCMCNParameters + iparameters; 
 							
-	      fMCMCMeanx[index] += (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints); 	
-	      
-	      // calculate variance of each chain for this part 
-	      
-	      fMCMCVariancex[index] = (1.0 - 1/double(npoints)) * fMCMCVariancex[index] 
-		+ (fMCMCx[index] - fMCMCMeanx[index]) * (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints - 1); 
-	      
-	      sum  += fMCMCMeanx[index]; 
-	      sum2 += fMCMCMeanx[index] * fMCMCMeanx[index]; 
-	      sumv += fMCMCVariancex[index]; 
-	    }
-	  
-	  // calculate r-value for each parameter 
-	  
-	  double mean = sum / double(fMCMCNChains); 
-	  double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints); 
-	  double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains); 
-	  
-	  double r = 100.0; 
-	  
-	  if (W > 0)
-	    {
-	      r = sqrt( ( (1-1/double(npoints)) * W + 1/double(npoints) * B ) / W); 
-
-	      fMCMCRValueParameters[iparameters] = r; 
-	    }
-	  
-	  // set flag to false if convergence criterion is not fulfilled for the parameter 
-
-	  if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
-	    flag_convergence = false; 
-	}
+							// calculate mean value of each parameter in the chain for this part 							
+							fMCMCMeanx[index] += (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints); 	
+							
+							// calculate variance of each chain for this part 							
+							fMCMCVariancex[index] = (1.0 - 1/double(npoints)) * fMCMCVariancex[index] 
+								+ (fMCMCx[index] - fMCMCMeanx[index]) * (fMCMCx[index] - fMCMCMeanx[index]) / double(npoints - 1); 
+							
+							sum  += fMCMCMeanx[index]; 
+							sum2 += fMCMCMeanx[index] * fMCMCMeanx[index]; 
+							sumv += fMCMCVariancex[index]; 
+						}
+					
+					// calculate r-value for each parameter 					
+					double mean = sum / double(fMCMCNChains); 
+					double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints); 
+					double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains); 
+					
+					double r = 100.0; 
+					
+					if (W > 0)
+						{
+							r = sqrt( ( (1-1/double(npoints)) * W + 1/double(npoints) * B ) / W); 
+							
+							fMCMCRValueParameters[iparameters] = r; 
+						}
+					// debugKK
+					//					std::cout << " here : " << W << " " << fMCMCRValueParameters[iparameters] << std::endl; 
+					
+					// set flag to false if convergence criterion is not fulfilled for the parameter 					
+					if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
+						flag_convergence = false; 
+				}
       
-      // convergence criterion applied on the log-likelihood 
-  
+      // convergence criterion applied on the log-likelihood 			
       double sum = 0; 
       double sum2 = 0; 
       double sumv = 0; 
       
-      // loop over chains 
-      
+      // loop over chains       
       for (int i = 0; i < fMCMCNChains; ++i)
-	{
-	  // calculate mean value of each chain for this part 
-	  
-	  fMCMCMean[i] += (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints); 
-	  
-	  // calculate variance of each chain for this part 
-	  
-	  if (npoints > 1) 
-	    fMCMCVariance[i] = (1.0 - 1/double(npoints)) * fMCMCVariance[i] 
-	      + (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints - 1); 
-	  
-	  sum  += fMCMCMean[i]; 
-	  sum2 += fMCMCMean[i] * fMCMCMean[i]; ; 
-	  sumv += fMCMCVariance[i]; 
-	}
+				{
+					// calculate mean value of each chain for this part 					
+					fMCMCMean[i] += (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints); 
+					
+					// calculate variance of each chain for this part 					
+					if (npoints > 1) 
+						fMCMCVariance[i] = (1.0 - 1/double(npoints)) * fMCMCVariance[i] 
+							+ (fMCMCLogProbx[i] - fMCMCMean[i]) * (fMCMCLogProbx[i] - fMCMCMean[i]) / double(npoints - 1); 
+					
+					sum  += fMCMCMean[i]; 
+					sum2 += fMCMCMean[i] * fMCMCMean[i]; ; 
+					sumv += fMCMCVariance[i]; 
+				}
       
-      // calculate r-value for each parameter 
-      
+      // calculate r-value for log-likelihood   
       double mean = sum / double(fMCMCNChains); 
       double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints); 
-      double W  = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains); 
-      
+      double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains);       
       double r = 100.0; 
       
       if (W > 0)
-	{
-	  r = sqrt( ( (1-1/double(npoints)) * W + 1/double(npoints) * B ) / W); 
-	  
-	  fMCMCRValue = r; 
-	}
-
-      // set flag to false if convergence criterion is not fulfilled for the log-likelihood 
-
+				{
+					r = sqrt( ( (1-1/double(npoints)) * W + 1/double(npoints) * B ) / W); 
+					
+					fMCMCRValue = r; 
+				}
+			
+      // set flag to false if convergence criterion is not fulfilled for the log-likelihood 			
       if (! ((fMCMCRValue-1.0) < fMCMCRValueCriterion))
-	flag_convergence = false; 
+				flag_convergence = false; 
       
-      // remember number of iterations needed to converge 
-      
+      // remember number of iterations needed to converge       
       if (fMCMCNIterationsConvergenceGlobal == -1 && flag_convergence == true)
-	fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters; 
+				fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters; 
     }
   
 }
@@ -1378,10 +1363,12 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 				this -> MCMCUpdateStatisticsCheckMaximum();
 
 				// check convergence status
-				this -> MCMCUpdateStatisticsTestConvergenceAllChains();
+				// debugKK
+				//				this -> MCMCUpdateStatisticsTestConvergenceAllChains();
 
 			} // end loop over parameters
 		} // end if fMCMCFlagOrderParameters
+
 		// if the flag is not set then run over the parameters at the same time.
 		else
 		{
@@ -1418,46 +1405,80 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			this -> MCMCUpdateStatisticsCheckMaximum();
 
 			// check convergence status
-			this -> MCMCUpdateStatisticsTestConvergenceAllChains();
+			// debugKK
+			//			this -> MCMCUpdateStatisticsTestConvergenceAllChains();
 		}
 
-		// update scale factors
+		//-------------------------------------------
+		// update scale factors and check convergence 
+		//-------------------------------------------
 		if (counterupdate % (fMCMCNIterationsUpdate*(fMCMCNParameters+1)) == 0 && counterupdate > 0)
 		{
 			// prompt status
 			BCLog::Out(BCLog::detail, BCLog::detail,
-					Form(" -> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
+					Form(" --> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
 
 			bool rvalues_ok = true;
 			static bool has_converged = false;
 
-			BCLog::Out(BCLog::detail, BCLog::detail, " --> R-Values:");
-			for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
-			{
-				if(fabs(fMCMCRValueParameters[iparameter]-1.) < fMCMCRValueParametersCriterion)
-					BCLog::Out(BCLog::detail, BCLog::detail,
-							Form( TString::Format(" -->     parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
-				else
+			// -----------------------------
+			// check convergence status
+			// -----------------------------
+			// debugKK
+			fMCMCNIterationsConvergenceGlobal = -1; 
+
+			this -> MCMCUpdateStatisticsTestConvergenceAllChains();
+
+			// debugKK
+			//			std::cout << " HERE " << fMCMCRValueParameters[0] << fMCMCNTrialsTrue[0] << " " << fMCMCNTrialsFalse[0] << std::endl; 
+
+			// check convergence
+			if (fMCMCNIterationsConvergenceGlobal > 0)
+				convergence = true;
+			
+			// print convergence status: 
+			if (convergence && fMCMCNChains > 1)
+				BCLog::Out(BCLog::detail, BCLog::detail,
+									 Form("     * Convergence status: Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+			else if (!convergence && fMCMCNChains > 1)
 				{
 					BCLog::Out(BCLog::detail, BCLog::detail,
-							Form( TString::Format(" -->     parameter %%%di :  %%.06f <--",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
-					rvalues_ok = false;
+									 Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, counter));
+					
+					BCLog::Out(BCLog::detail, BCLog::detail, "       - R-Values:");
+					for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
+						{
+							if(fabs(fMCMCRValueParameters[iparameter]-1.) < fMCMCRValueParametersCriterion)
+								BCLog::Out(BCLog::detail, BCLog::detail,
+													 Form( TString::Format("         parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+							else
+								{
+									BCLog::Out(BCLog::detail, BCLog::detail,
+														 Form( TString::Format("         parameter %%%di :  %%.06f <--",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+									rvalues_ok = false;
+								}
+						}
+					if(fabs(fMCMCRValue-1.) < fMCMCRValueCriterion)
+						BCLog::Out(BCLog::detail, BCLog::detail, Form("         log-likelihood :  %.06f", fMCMCRValue));
+					else
+						{
+							BCLog::Out(BCLog::detail, BCLog::detail, Form("         log-likelihood :  %.06f <--", fMCMCRValue));
+							rvalues_ok = false;
+						}
 				}
-			}
-			if(fabs(fMCMCRValue-1.) < fMCMCRValueCriterion)
-				BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f", fMCMCRValue));
-			else
-			{
-				BCLog::Out(BCLog::detail, BCLog::detail, Form(" -->     log-likelihood :  %.06f <--", fMCMCRValue));
-				rvalues_ok = false;
-			}
 
 			if(!has_converged)
 				if(rvalues_ok)
 					has_converged = true;
 
+			// -----------------------------
+			// check efficiency status
+			// -----------------------------
+
 			// set flag
 			flagefficiency = true;
+
+			bool flagprintefficiency = true; 
 
 			// loop over chains
 			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
@@ -1474,51 +1495,80 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					// adjust scale factors if efficiency is too low
 					if (efficiency[ipc] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ipc] > .01)
 					{
+						if (flagprintefficiency)
+							{
+								BCLog::Out(BCLog::detail, BCLog::detail,
+													 Form("     * Efficiency status: Efficiencies not within pre-defined range."));
+								BCLog::Out(BCLog::detail, BCLog::detail, 
+													 Form("       - Efficiencies:"));
+								flagprintefficiency = false; 
+							}
+
 						double fscale=2.;
 						if(has_converged && fMCMCEfficiencyMin/efficiency[ipc] > 2.)
 							fscale = 4.;
 						fMCMCTrialFunctionScaleFactor[ipc] /= fscale;
 
 						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form(" --> Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
+								Form("         Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
 										iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
 					}
+
 					// adjust scale factors if efficiency is too high
 					else if (efficiency[ipc] > fMCMCEfficiencyMax && (fMCMCTrialFunctionScaleFactor[ipc] < 1. || (fMCMCFlagPCA && fMCMCTrialFunctionScaleFactor[ipc] < 10.)))
 					{
+						if (flagprintefficiency)
+							{
+								BCLog::Out(BCLog::detail, BCLog::detail,
+													 Form("   * Efficiency status: Efficiencies not within pre-defined ranges."));
+								BCLog::Out(BCLog::detail, BCLog::detail, 
+													 Form("     - Efficiencies:"));
+								flagprintefficiency = false; 
+							}
+
 						fMCMCTrialFunctionScaleFactor[ipc] *= 2.;
 
 						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form(" --> Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
-										iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
+											 Form("         Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
+														iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
 					}
-
-					// reset counters
-					counterupdate = 0;
-					fMCMCNTrialsTrue[ipc] = 0;
-					fMCMCNTrialsFalse[ipc] = 0;
 
 					// check flag
 					if ((efficiency[ipc] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[ipc] > .01)
 							|| (efficiency[ipc] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[ipc] < 1.))
 						flagefficiency = false;
-				}
+
+					// reset counters
+					counterupdate = 0;
+					fMCMCNTrialsTrue[ipc] = 0;
+					fMCMCNTrialsFalse[ipc] = 0;
+				} // end of running over all parameters 
 
 				// reset counters
 				fMCMCMean[ichains] = 0;
 				fMCMCVariance[ichains] = 0;
-			}
-		} // end if update scale factors
+			} // end of running over all chains 
+			
+			// print to scrren 
+			if (flagefficiency)
+				BCLog::Out(BCLog::detail, BCLog::detail,
+									 Form("     * Efficiency status: Efficiencies within pre-defined ranges.")); 
+			
+		} // end if update scale factors and check convergence
 
 		// increase counter
 		counter++;
 		counterupdate++;
 
-		// check convergence
-		if (fMCMCNIterationsConvergenceGlobal > 0)
-			convergence = true;
-	}
+		// debugKK
+// 		// check convergence
+// 		if (fMCMCNIterationsConvergenceGlobal > 0)
+// 			convergence = true;
+	} // end of running 
 
+	// ---------------
+	// after chain ran
+	// ---------------
 
 	// define convergence status
 	if (fMCMCNIterationsConvergenceGlobal > 0)
@@ -1526,15 +1576,22 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	else
 		fMCMCFlagConvergenceGlobal = false;
 
-
 	// print convergence status
-	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1)
+	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && !flagefficiency)
 		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+				Form(" --> Set of %i Markov chains converged within %i iterations but could not adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 
-	else if (!fMCMCFlagConvergenceGlobal && fMCMCNChains > 1)
+	else if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && flagefficiency)
 		BCLog::Out(BCLog::summary, BCLog::summary,
-				 Form(" --> Set of %i Markov chains did not converge within %i iterations or could not adjust scales.", fMCMCNChains, fMCMCNIterationsMax));
+				Form(" --> Set of %i Markov chains converged within %i iterations and could adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+
+	else if (!fMCMCFlagConvergenceGlobal && (fMCMCNChains > 1) && flagefficiency)
+		BCLog::Out(BCLog::summary, BCLog::summary,
+				 Form(" --> Set of %i Markov chains did not converge within %i iterations.", fMCMCNChains, fMCMCNIterationsMax));
+
+	else if (!fMCMCFlagConvergenceGlobal && (fMCMCNChains > 1) && !flagefficiency)
+		BCLog::Out(BCLog::summary, BCLog::summary,
+				 Form(" --> Set of %i Markov chains did not converge within %i iterations and could not adjust scales.", fMCMCNChains, fMCMCNIterationsMax));
 
 	else if(fMCMCNChains == 1)
 		BCLog::Out(BCLog::summary, BCLog::summary,
