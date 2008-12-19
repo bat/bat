@@ -931,7 +931,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
 int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
 {
-	if(fMCMCH1Marginalized.size()==0 || fMCMCH2Marginalized.size()==0)
+	if(fMCMCH1Marginalized.size()==0 || (fMCMCH2Marginalized.size()==0 && this -> GetNParameters() > 1))
 	{
 		BCLog::Out(BCLog::error, BCLog::error,
 				"BCModel::PrintAllMarginalized : Marginalized distributions not available.");
