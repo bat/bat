@@ -913,7 +913,8 @@ void BCEngineMCMC::MCMCUpdateStatistics()
 	//  --> not implemented yet
 
 	// test convergence of all Markov chains
-	this -> MCMCUpdateStatisticsTestConvergenceAllChains();
+	// debugKK -> this will be called explicitly
+	//	this -> MCMCUpdateStatisticsTestConvergenceAllChains();
 
 	// fill Markov chains
 	if (fMCMCFlagWriteChainToFile)
@@ -972,6 +973,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
+	fMCMCNIterationsConvergenceGlobal = -1;
 
 	// define data buffer for pca run
 	double * dataall = 0;
@@ -1021,6 +1023,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
+	fMCMCNIterationsConvergenceGlobal = -1;
 
 	// perform run
 	BCLog::Out(BCLog::summary, BCLog::summary,
@@ -1053,6 +1056,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	{
 		// set convergence to false by default
 		convergence = false;
+
+		// debugKK
+		fMCMCNIterationsConvergenceGlobal = -1; 
 
 		// if the flag is set then run over the parameters one after the other.
 		if (fMCMCFlagOrderParameters)
@@ -1140,7 +1146,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		//-------------------------------------------
 		// update scale factors and check convergence 
 		//-------------------------------------------
-		if (counterupdate % (fMCMCNIterationsUpdate*(fMCMCNParameters+1)) == 0 && counterupdate > 0)
+		if (counterupdate % (fMCMCNIterationsUpdate*(fMCMCNParameters+1)) == 0 && counterupdate > 0 && counter >= fMCMCNIterationsPreRunMin)
 		{
 			// prompt status
 			BCLog::Out(BCLog::detail, BCLog::detail,
@@ -1627,7 +1633,8 @@ int BCEngineMCMC::MCMCMetropolisHastings()
 
 void BCEngineMCMC::MCMCResetRunStatistics()
 {
-	fMCMCNIterationsConvergenceGlobal = -1;
+	// debugKK -> this is set explicitly
+	//	fMCMCNIterationsConvergenceGlobal = -1;
 
 	for (int j = 0; j < fMCMCNChains; ++j)
 	{
