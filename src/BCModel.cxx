@@ -583,7 +583,8 @@ void BCModel::FindMode()
 	switch(this -> GetOptimizationMethod())
 	{
 		case BCIntegrate::kOptSimulatedAnnealing:
-			this -> FindModeSA();
+
+			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::FindMode. Simulated annaeling not yet implemented.");
 			return;
 		case BCIntegrate::kOptMinuit:
 			this -> FindModeMinuit();

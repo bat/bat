@@ -500,18 +500,6 @@ class BCEngineMCMC
 		bool MCMCGetNewPointMetropolisHastings(int chain = 0);
 
 		/*
-		 * Generates a new point using simulated annealing.
-		 * @param chain chain index
-		 * @param pca bool whether to use PCA or not */
-		bool MCMCGetNewPointSimulatedAnnealing(int chain = 0, bool pca = false);
-
-		/*
-		 * Calculates the temperature accoring to the annealing schedule.
-		 * @param chain chain index
-		 * @return temperature */
-		double MCMCAnnealingSchedule(int chain);
-
-		/*
 		 * Updates statistics, plots, etc. */
 		void MCMCUpdateStatistics();
 		void MCMCUpdateStatisticsModeConvergence();
@@ -540,10 +528,6 @@ class BCEngineMCMC
 		/*
 		 * Runs Metropolis-Hastings algorithm. */
 		int MCMCMetropolisHastings();
-
-		/*
-		 * Runs simulated annealing algorithm. */
-		int MCMCSimulatedAnnealing();
 
 		/*
 		 * Performs an initial run. */
@@ -814,10 +798,6 @@ class BCEngineMCMC
 
 //		std::vector <double> fMCMCRelativePrecisionModeValues;
 		std::vector <double> fMCMCNumericalPrecisionModeValues;
-
-		/*
-		 * The starting temperature for simulated annealing */
-		double fMCMCSimulatedAnnealingT0;
 
 		/*
 		 * Random number generator */

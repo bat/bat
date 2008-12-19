@@ -185,15 +185,6 @@ class BCIntegrate : public BCEngineMCMC
 			{ return fMarkovChainTree; };
 
 		/*
-		 * Generates a vector x according to the Simulated Annealing algorithm
-		 * given the temperature and the stepsize relative to the range
-		 * @param x Vector of doubles
-		 * @param T temperature used for the stepping probability calculation
-		 *  according to exp ( - (p1-p0) / T )
-		 * @param step maximum stepsize relative to the range */
-		void GetRandomPointSA(std::vector <double> &x, double T, double step);
-
-		/*
 		 * Returns the actual point in the markov chain */
 		std::vector<double> * GetMarkovChainPoint()
 			{ return &fXmetro1; };
@@ -559,10 +550,6 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * Does the mode finding */
 //		void FindMode();
-
-		/**
-		 * Does the mode finding using Simulated Annealing (SA) algorithm */
-		void FindModeSA();
 
 		/**
 		 * Does the mode finding using Minuit. If starting point is not specified,
