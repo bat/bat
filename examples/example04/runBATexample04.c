@@ -11,6 +11,9 @@
 #include <TF1.h> 
 
 // ---------------------------------------------------------
+// This examples calculates an efficiency based on two numbers and the
+// binomial distribution. 
+// ---------------------------------------------------------
   
 int main()
 {
@@ -20,14 +23,15 @@ int main()
 	// ----------------------------------------------------------
 
 	// calls a function which defines a nicer style than the ROOT
-	// default.
+	// default (included in file "style.c").
 	SetStyle(); 
 
 	// ---------------------------------------------------------
 	// open log file 
 	// ---------------------------------------------------------
 
-	// opens the log file. 
+	// opens the log file. All details of the calculation are printed to
+	// the screen and written to the log file.
 	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail); 
 
 	// ---------------------------------------------------------
@@ -39,8 +43,7 @@ int main()
 	// src/BCModelEfficiency.h and src/BCModelEfficiency.cxx.
 	BCModelEfficiency* fModelEfficiency = new BCModelEfficiency("ModelEfficiency"); 
 
-	// add parameters to the model. the first parameter will have the
-	// index 0
+	// adds the parameter "epsilon" to the model. 
 	fModelEfficiency -> AddParameter("epsilon",  0.0,  1.0);  // index 0
 
 	// ---------------------------------------------------------
@@ -53,7 +56,7 @@ int main()
 
 	// the actual markov chain will be written to the output file. this
 	// might result in a large file. 
-//	fModelOutputEfficiency -> WriteMarkovChain(true); 
+	//	fModelOutputEfficiency -> WriteMarkovChain(true); 
 	
 	// ---------------------------------------------------------
 	// read data from file 
@@ -93,14 +96,13 @@ int main()
 	// marginalize 
 	// ---------------------------------------------------------
 
-	// marginalizes the probability density with respect to all
-	// parameters, i.e. constant and slope, and with respect to all
-	// combinations of two parameters, in this case constant-slope.
+	// marginalizes the probability density. in this case, the
+	// distribution for the parameter "epsilon" will be created. 
 	fModelEfficiency -> MarginalizeAll();
 
-	// the one- and two-dimensional marginalized probability densities
-	// are kept in memory and are returned from the model class. they
-	// are printed into a .ps file.
+	// the (marginalized) probability density are kept in memory and
+	// are returned from the model class. they are printed into a .ps
+	// file.
 	fModelEfficiency -> PrintAllMarginalized("plots.ps"); 
 
 	// ---------------------------------------------------------
