@@ -254,7 +254,7 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 	// calculate p-value from the chi2 probability
 	// this is only valid for a product of gaussiang which is the case for
 	// the BCGraphFitter
-	this -> GetPvalueFromChi2(this -> GetBestFitParameters(), 4);
+	this -> GetPvalueFromChi2(this -> GetBestFitParameters(), 3);
 
 	// print summary to screen
 	this -> PrintFitSummary();
@@ -290,25 +290,26 @@ void BCGraphFitter::DrawFit(const char * options)
 	fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
 	fErrorBand -> Draw("f same");
 
-	// now draw the histogram again since it was covered by the band
-	fGraph -> Draw("p same");
-
 	// draw the fit function on top
 	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
 	fGraphFitFunction -> SetLineColor(kRed);
 	fGraphFitFunction -> SetLineWidth(2);
 	fGraphFitFunction -> Draw("l same");
 
+	// now draw the histogram again since it was covered by the band and
+	// the best fit
+	fGraph -> Draw("p same");
+
 	// draw legend
 	if (opt.Contains("leg"))
 		{
 			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
-	legend -> SetBorderSize(0); 
-	legend -> SetFillColor(kWhite); 
-	legend -> AddEntry(fGraph, "Data", "P"); 
-	legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
-	legend -> AddEntry(fErrorBand, "Error band", "F"); 
-	legend -> Draw(); 
+			legend -> SetBorderSize(0); 
+			legend -> SetFillColor(kWhite); 
+			legend -> AddEntry(fGraph, "Data", "P"); 
+			legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
+			legend -> AddEntry(fErrorBand, "Error band", "F"); 
+			legend -> Draw(); 
 		}
 
 	gPad -> RedrawAxis();
@@ -318,21 +319,37 @@ void BCGraphFitter::DrawFit(const char * options)
 
 void BCGraphFitter::PrintFitSummary()
 {
-	std::cout << std::endl;
-	std::cout << "Fit summary " << std::endl;
-	std::cout << "------------------------------------ " << std::endl;
+	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Number of parameters = %i", this -> GetNParameters())); 
 
-	std::cout
-			<< "Number of parameters : "
-			<< this -> GetNParameters() << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Best fit parameters (global) : " << std::endl;
+	BCLog::Out(BCLog::summary, BCLog::summary, "Best fit parameters (global):"); 
 	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		std::cout
-				<< this -> GetParameter(i) -> GetName() << " : "
-				<< this -> GetBestFitParameter(i) << std::endl;
-	std::cout << std::endl;
+		BCLog::Out(BCLog::summary, BCLog::summary, Form("%s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
+	
+	BCLog::Out(BCLog::summary, BCLog::summary, "Goodness-of-fit test:");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("p-value = %.2lf", this -> GetPValue())); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
+
+
+// std::cout << std::endl;
+// 	std::cout << "Fit summary " << std::endl;
+// 	std::cout << "------------------------------------ " << std::endl;
+
+// 	std::cout
+// 			<< "Number of parameters : "
+// 			<< this -> GetNParameters() << std::endl;
+// 	std::cout << std::endl;
+
+// 	std::cout << "Best fit parameters (global) : " << std::endl;
+// 	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
+// 		std::cout
+// 				<< this -> GetParameter(i) -> GetName() << " : "
+// 				<< this -> GetBestFitParameter(i) << std::endl;
+// 	std::cout << std::endl;
+
+// 	std::cout << "Goodness-of-fit test : " << std::endl;
+// 	std::cout << " p-value = " << this -> GetPValue() << std::endl; 
 
 //	std::cout << "Best fit parameters (marginalized) : " << std::endl;
 //	for (int i = 0; i < this -> GetNParameters(); ++i)
