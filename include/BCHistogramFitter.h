@@ -68,6 +68,16 @@ class BCHistogramFitter : public BCModel
 		TF1 * GetFitFunction()
 			{ return fFitFunction; };
 
+		/**
+		 * @return pointer to the error band */
+		TGraph * GetErrorBand()
+			{ return fErrorBand; }; 
+
+		/**
+		 * @return pointer to a graph for the fit function */ 
+		TGraph * GetGraphFitFunction()
+			{ return fGraphFitFunction; };
+
 		/* @} */
 
 		/** \name Member functions (set) */
@@ -139,7 +149,7 @@ class BCHistogramFitter : public BCModel
 
 		/**
 		 * Draw the fit in the current pad. */
-		void DrawFit(const char * options = "");
+		void DrawFit(const char * options = "", bool flaglegend = false);
 
 		/**
 		 * Print a summary of the fit to the screen
@@ -172,6 +182,13 @@ class BCHistogramFitter : public BCModel
 		 * interpolation (false) */ 
 		bool fFlagIntegration; 
 		
+		/**
+		 * Pointer to the error band (for legend) */ 
+		TGraph * fErrorBand; 
+
+		/**
+		 * Pointer to a graph for displaying the fit function */ 
+		TGraph * fGraphFitFunction; 
 };
 
 // ---------------------------------------------------------

@@ -13,6 +13,7 @@
 #include <TString.h>
 #include <TPad.h>
 #include <TRandom3.h>
+#include <TLegend.h> 
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -276,7 +277,7 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 
 // ---------------------------------------------------------
 
-void BCHistogramFitter::DrawFit(const char * options)
+void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 {
 	if (!fHistogram)
 	{
@@ -299,16 +300,29 @@ void BCHistogramFitter::DrawFit(const char * options)
 		fHistogram -> Draw(opt.Data());
 
 	// draw the error band as central 68% probability interval
-	this -> GetErrorBandGraph(0.16, 0.84) -> Draw("f same");
+	fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
+	fErrorBand -> Draw("f same");
 
 	// now draw the histogram again since it was covered by the band
 	fHistogram -> Draw(TString::Format("%ssame",opt.Data()));
 
 	// draw the fit function on top
-	TGraph * gfit = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
-	gfit -> SetLineColor(kRed);
-	gfit -> SetLineWidth(2);
-	gfit -> Draw("l same");
+	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
+	fGraphFitFunction -> SetLineColor(kRed);
+	fGraphFitFunction -> SetLineWidth(2);
+	fGraphFitFunction -> Draw("l same");
+
+	// draw legend
+	if (flaglegend)
+		{
+			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
+			legend -> SetBorderSize(0); 
+			legend -> SetFillColor(kWhite); 
+			legend -> AddEntry(fHistogram, "Data", "L"); 
+			legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
+			legend -> AddEntry(fErrorBand, "Error band", "F"); 
+			legend -> Draw(); 
+		}
 
 	gPad -> RedrawAxis();
 }
@@ -317,34 +331,17 @@ void BCHistogramFitter::DrawFit(const char * options)
 
 void BCHistogramFitter::PrintFitSummary()
 {
-	std::cout << std::endl;
-	std::cout << "Fit summary " << std::endl;
-	std::cout << "------------------------------------ " << std::endl;
+	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Number of parameters = %i", this -> GetNParameters())); 
 
-	std::cout
-			<< "Number of parameters : "
-			<< this -> GetNParameters() << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Best fit parameters (global) : " << std::endl;
+	BCLog::Out(BCLog::summary, BCLog::summary, "Best fit parameters (global):"); 
 	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		std::cout
-				<< this -> GetParameter(i) -> GetName() << " : "
-				<< this -> GetBestFitParameter(i) << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Goodness-of-fit test : " << std::endl;
-	std::cout << " p-value = " << this -> GetPValue() << std::endl; 
-
-//	std::cout << "Best fit parameters (marginalized) : " << std::endl;
-//	for (int i = 0; i < this -> GetNParameters(); ++i)
-//	{
-//		BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
-//		std::cout
-//				<< this -> GetParameter(i) -> GetName() << " : "
-//				<< this -> GetBestFitParameterMarginalized(i) << std::endl;
-//	}
-//	std::cout << std::endl;
+		BCLog::Out(BCLog::summary, BCLog::summary, Form("%s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
+	
+	BCLog::Out(BCLog::summary, BCLog::summary, "Goodness-of-fit test:");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("p-value = %.2lf", this -> GetPValue())); 
+	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
 }
 
 // ---------------------------------------------------------

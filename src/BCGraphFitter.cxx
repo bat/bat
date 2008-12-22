@@ -12,7 +12,6 @@
 #include <TString.h>
 #include <TPad.h>
 #include <TLegend.h> 
-#include <TLegendEntry.h> 
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -264,7 +263,7 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 
 // ---------------------------------------------------------
 
-void BCGraphFitter::DrawFit(const char * options)
+void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 {
 	if (!fGraph)
 	{
@@ -301,7 +300,7 @@ void BCGraphFitter::DrawFit(const char * options)
 	fGraph -> Draw("p same");
 
 	// draw legend
-	if (opt.Contains("leg"))
+	if (flaglegend)
 		{
 			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
 			legend -> SetBorderSize(0); 
@@ -330,36 +329,6 @@ void BCGraphFitter::PrintFitSummary()
 	BCLog::Out(BCLog::summary, BCLog::summary, "Goodness-of-fit test:");
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("p-value = %.2lf", this -> GetPValue())); 
 	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
-
-
-// std::cout << std::endl;
-// 	std::cout << "Fit summary " << std::endl;
-// 	std::cout << "------------------------------------ " << std::endl;
-
-// 	std::cout
-// 			<< "Number of parameters : "
-// 			<< this -> GetNParameters() << std::endl;
-// 	std::cout << std::endl;
-
-// 	std::cout << "Best fit parameters (global) : " << std::endl;
-// 	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-// 		std::cout
-// 				<< this -> GetParameter(i) -> GetName() << " : "
-// 				<< this -> GetBestFitParameter(i) << std::endl;
-// 	std::cout << std::endl;
-
-// 	std::cout << "Goodness-of-fit test : " << std::endl;
-// 	std::cout << " p-value = " << this -> GetPValue() << std::endl; 
-
-//	std::cout << "Best fit parameters (marginalized) : " << std::endl;
-//	for (int i = 0; i < this -> GetNParameters(); ++i)
-//	{
-//		BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
-//		std::cout
-//				<< this -> GetParameter(i) -> GetName() << " : "
-//				<< this -> GetBestFitParameterMarginalized(i) << std::endl;
-//	}
-//	std::cout << std::endl;
 }
 
 // ---------------------------------------------------------

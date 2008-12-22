@@ -75,7 +75,7 @@ class BCGraphFitter : public BCModel
 		/**
 		 * @return pointer to a graph for the fit function */ 
 		TGraph * GetGraphFitFunction()
-			{ return fGraphFitFunction; }; 
+			{ return fGraphFitFunction; };
 
 		/* @} */
 
@@ -126,7 +126,7 @@ class BCGraphFitter : public BCModel
 
 		/**
 		 * Draw the fit in the current pad. */
-		void DrawFit(const char * options = "");
+		void DrawFit(const char * options = "", bool flaglegend = false);
 
 		/**
 		 * Print a summary of the fit to the screen
