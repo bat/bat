@@ -39,6 +39,9 @@ BCHistogramFitter::BCHistogramFitter() : BCModel("HistogramFitter")
 
 BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) : BCModel("HistogramFitter")
 {
+	fHistogram = 0;
+	fFitFunction = 0;
+
 	this -> SetHistogram(hist);
 	this -> SetFitFunction(func);
 
@@ -52,7 +55,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) : BCModel("Histogr
 int BCHistogramFitter::SetHistogram(TH1D * hist)
 {
 	// check if histogram exists
-	if(!hist)
+	if (!hist)
 	{
 		BCLog::Out(BCLog::error,BCLog::error,"BCHistogramFitter::SetHistogram() : TH1D not created.");
 		return 0;

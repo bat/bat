@@ -100,6 +100,7 @@ include/BCGraphFitter.h -text
 include/BCH1D.h -text
 include/BCH2D.h -text
 include/BCHistogramFitter.h -text
+include/BCHistogramRatioFitter.h -text
 include/BCIntegrate.h -text
 include/BCLog.h -text
 include/BCMath.h -text
@@ -118,6 +119,7 @@ src/BCGraphFitter.cxx -text
 src/BCH1D.cxx -text
 src/BCH2D.cxx -text
 src/BCHistogramFitter.cxx -text
+src/BCHistogramRatioFitter.cxx -text
 src/BCIntegrate.cxx -text
 src/BCLog.cxx -text
 src/BCMath.cxx -text

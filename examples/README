@@ -22,3 +22,34 @@ Note:
 For some of the examples, it might be necessary to run the ROOT macro
 "CreateData.c" prior to the analysis. The macro will create a data set
 suitable for the analysis. 
+
+
+New order: 
+----------
+
+* Example01: Line fit
+	A simple line fit to a set of data points with Gaussian
+	uncertainties [I].
+
+* Example02: Polynomial fit
+	Comparison of fits of polynomials to set of data points with
+	Gaussian uncertainties [C].
+
+* Example03: Spectrum fit
+	A fit of a Gaussian signal plus quadratic background to binned data [I].
+
+* Example04: Efficiency estimate
+	Estimate of an efficiency using two numbers and the binomial distribution [C]. 
+
+* Example05: Efficiency fit
+	A fit of an error function to efficiencies with binomial uncertainties [C]. 
+
+* Example06: Kinematic fit
+	A simple kinematic fit of a heavy particle decaying into to light
+	particles [C].
+
+
+
+[I] : interactive ROOT 
+[C] : compile 
+	
