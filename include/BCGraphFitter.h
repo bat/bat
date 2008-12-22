@@ -67,6 +67,16 @@ class BCGraphFitter : public BCModel
 		TF1 * GetFitFunction()
 			{ return fFitFunction; };
 
+		/**
+		 * @return pointer to the error band */
+		TGraph * GetErrorBand()
+			{ return fErrorBand; }; 
+
+		/**
+		 * @return pointer to a graph for the fit function */ 
+		TGraph * GetGraphFitFunction()
+			{ return fGraphFitFunction; }; 
+
 		/* @} */
 
 		/** \name Member functions (set) */
@@ -134,6 +144,14 @@ class BCGraphFitter : public BCModel
 		/**
 		 * The fit function */
 		TF1 * fFitFunction;
+
+		/**
+		 * Pointer to the error band (for legend) */ 
+		TGraph * fErrorBand; 
+
+		/**
+		 * Pointer to a graph for displaying the fit function */ 
+		TGraph * fGraphFitFunction; 
 
 };
 

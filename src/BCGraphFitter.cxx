@@ -11,6 +11,8 @@
 #include <TF1.h>
 #include <TString.h>
 #include <TPad.h>
+#include <TLegend.h> 
+#include <TLegendEntry.h> 
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -25,6 +27,8 @@ BCGraphFitter::BCGraphFitter() : BCModel("GraphFitter")
 {
 	fGraph = 0;
 	fFitFunction = 0;
+	fErrorBand = 0; 
+	fGraphFitFunction = 0; 
 
 	this -> MCMCSetNIterationsRun(2000);
 
@@ -37,6 +41,8 @@ BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func) : BCModel("GraphF
 {
 	fGraph = 0;
 	fFitFunction = 0;
+	fErrorBand = 0; 
+	fGraphFitFunction = 0; 
 
 	this -> MCMCSetNIterationsRun(2000);
 
@@ -281,16 +287,29 @@ void BCGraphFitter::DrawFit(const char * options)
 		fGraph -> Draw("ap");
 
 	// draw the error band as central 68% probability interval
-	this -> GetErrorBandGraph(0.16, 0.84) -> Draw("f same");
+	fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
+	fErrorBand -> Draw("f same");
 
 	// now draw the histogram again since it was covered by the band
 	fGraph -> Draw("p same");
 
 	// draw the fit function on top
-	TGraph * gfit = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
-	gfit -> SetLineColor(kRed);
-	gfit -> SetLineWidth(2);
-	gfit -> Draw("l same");
+	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
+	fGraphFitFunction -> SetLineColor(kRed);
+	fGraphFitFunction -> SetLineWidth(2);
+	fGraphFitFunction -> Draw("l same");
+
+	// draw legend
+	if (opt.Contains("leg"))
+		{
+			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
+	legend -> SetBorderSize(0); 
+	legend -> SetFillColor(kWhite); 
+	legend -> AddEntry(fGraph, "Data", "P"); 
+	legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
+	legend -> AddEntry(fErrorBand, "Error band", "F"); 
+	legend -> Draw(); 
+		}
 
 	gPad -> RedrawAxis();
 }
