@@ -64,6 +64,13 @@ double BCMath::ApproxBinomial(int n, int k, double p)
 
 double BCMath::LogApproxBinomial(int n, int k, double p)
 {
+	// check p 
+	if (p == 0)
+		return -1e99; 
+
+	else if (p == 1)
+		return 0; 
+
 	// switch parameters if n < k
 	if(n<k)
 	{
