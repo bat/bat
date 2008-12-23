@@ -52,6 +52,7 @@ examples/example01/output/summary_benchmark.txt -text
 examples/example01/runBATexample01.c -text
 examples/example01/src/BCModelPol1.cxx -text
 examples/example01/src/BCModelPol1.h -text
+examples/example01_new/runBATexample.c -text
 examples/example02/CreateData.c -text
 examples/example02/Makefile -text
 examples/example02/output/ModelPol0_benchmark.txt -text
@@ -81,6 +82,7 @@ examples/example03/src/BCModelBackground.cxx -text
 examples/example03/src/BCModelBackground.h -text
 examples/example03/src/BCModelSignal.cxx -text
 examples/example03/src/BCModelSignal.h -text
+examples/example03_new/runBATexample.c -text
 examples/example04/Makefile -text
 examples/example04/data/data.txt -text
 examples/example04/output/log_benchmark.txt -text
