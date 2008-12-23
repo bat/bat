@@ -14,6 +14,7 @@
 #include <TPad.h>
 #include <TRandom3.h>
 #include <TLegend.h> 
+#include <TMath.h> 
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -24,34 +25,38 @@
 
 // ---------------------------------------------------------
 
-BCHistogramRatioFitter::BCHistogramRatioFitter() : BCModel("HistogramFitter")
+BCHistogramRatioFitter::BCHistogramRatioFitter() : BCModel("HistogramRatioFitter")
 {
 	fHistogram1 = 0;
 	fHistogram2 = 0;
-	fHistogramEfficiency = 0; 
+	fHistogramBinomial = 0; 
+	fHistogramRatio = 0; 
 	fFitFunction = 0;
 
 	// set default options and values
 	this -> MCMCSetNIterationsRun(2000);
+	this -> MCMCSetRValueCriterion(0.01);
 	this -> SetFillErrorBand();
-	fFlagIntegration = true; 
+	fFlagIntegration = false; 
 }
 
 // ---------------------------------------------------------
 
-BCHistogramRatioFitter::BCHistogramRatioFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("HistogramFitter")
+BCHistogramRatioFitter::BCHistogramRatioFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("HistogramRatioFitter")
 {
 	fHistogram1 = 0;
 	fHistogram2 = 0;
-	fHistogramEfficiency = 0; 
+	fHistogramBinomial = 0; 
+	fHistogramRatio = 0; 
 	fFitFunction = 0;
 
 	this -> SetHistograms(hist1, hist2);
 	this -> SetFitFunction(func);
 
 	this -> MCMCSetNIterationsRun(2000);
+	this -> MCMCSetRValueCriterion(0.01);
 	this -> SetFillErrorBand();
-	fFlagIntegration = true; 
+	fFlagIntegration = false; 
 }
 
 // ---------------------------------------------------------
@@ -79,7 +84,7 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 				{
 					BCLog::Out(BCLog::error,BCLog::error,"BCHistogramRatioFitter::SetHistograms() : Histogram 1 has fewer entries than histogram 2.");
 					return 0;	
-				}
+				}			
 		}
 	
 	// set pointer to histograms
@@ -87,16 +92,58 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 	fHistogram2 = hist2;
 	
 	// create efficiency histogram 
-	if (!fHistogramEfficiency)
-		delete fHistogramEfficiency; 
+	if (fHistogramRatio)
+		delete fHistogramRatio; 
 
-	fHistogramEfficiency = new TH1D("hist_efficiency", 
-																	"", 
-																	hist1 -> GetNbinsX(), 
-																	hist1 -> GetBinLowEdge(1),
-																	hist1 -> GetBinLowEdge(hist1 -> GetNbinsX()+1)); 
-	fHistogramEfficiency -> SetStats(kFALSE); 
+	fHistogramRatio = new TGraphAsymmErrors(); 
+	fHistogramRatio -> SetMarkerStyle(20); 
+	fHistogramRatio -> SetMarkerSize(1.5); 
 
+	int npoints = 0;
+
+	// set points 
+	for (int i = 1; i <= hist1 -> GetNbinsX(); ++i)
+		{
+			// calculate uncertainties 
+			double xmin; 
+			double xmax; 
+			int flag = this -> GetUncertainties(hist1 -> GetBinContent(i),
+																					hist2 -> GetBinContent(i), 
+																					0.68, 
+																					xmin,
+																					xmax);
+
+			if (flag == 1)
+				{
+					fHistogramRatio -> SetPoint(npoints, 
+																			hist1 -> GetBinCenter(i), 
+																			hist2 -> GetBinContent(i) / hist1 -> GetBinContent(i));
+					// set uncertainties
+					fHistogramRatio -> SetPointEXhigh(npoints, 0.); 
+					fHistogramRatio -> SetPointEXlow(npoints, 0.); 
+					fHistogramRatio -> SetPointEYhigh(npoints, xmax - hist2 -> GetBinContent(i) / hist1 -> GetBinContent(i)); 
+					fHistogramRatio -> SetPointEYlow(npoints++, hist2 -> GetBinContent(i) / hist1 -> GetBinContent(i) - xmin); 
+				}
+			else if (flag == -2)
+				{
+					fHistogramRatio -> SetPoint(npoints, hist1 -> GetBinCenter(i), 0.); 
+					// set uncertainties
+					fHistogramRatio -> SetPointEXhigh(npoints, 0.); 
+					fHistogramRatio -> SetPointEXlow(npoints, 0.); 
+					fHistogramRatio -> SetPointEYhigh(npoints, xmax); 
+					fHistogramRatio -> SetPointEYlow(npoints++, 0.); 					
+				}
+			else if (flag == -1)
+				{
+					fHistogramRatio -> SetPoint(npoints, hist1 -> GetBinCenter(i), 1.); 
+					// set uncertainties
+					fHistogramRatio -> SetPointEXhigh(npoints, 0.); 
+					fHistogramRatio -> SetPointEXlow(npoints, 0.); 
+					fHistogramRatio -> SetPointEYhigh(npoints, 0.); 
+					fHistogramRatio -> SetPointEYlow(npoints++, 1.-xmin); 					
+				}
+		}
+	
 	// create a data set. this is necessary in order to calculate the
 	// error band. the data set contains as many data points as there
 	// are bins. for now, the data points are empty.
@@ -113,9 +160,9 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 	// set the new data set.
 	this -> SetDataSet(ds);
 
-// 	// calculate the lower and upper edge in x.
-// 	double xmin = hist1 -> GetBinLowEdge(1);
-// 	double xmax = hist1 -> GetBinLowEdge(nbins+1);
+ 	// calculate the lower and upper edge in x.
+ 	double xmin = hist1 -> GetBinLowEdge(1);
+ 	double xmax = hist1 -> GetBinLowEdge(nbins+1);
 
 // 	// calculate the minimum and maximum range in y.
 // 	double histymin = hist2 -> GetMinimum();
@@ -126,9 +173,9 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 // 	double ymin = TMath::Max(0., histymin - 5.*sqrt(histymin));
 // 	double ymax = histymax + 5.*sqrt(histymax);
 
-// 	// set the data boundaries for x and y values.
-// 	this -> SetDataBoundaries(0, xmin, xmax);
-// 	this -> SetDataBoundaries(1, ymin, ymax);
+ 	// set the data boundaries for x and y values.
+ 	this -> SetDataBoundaries(0, xmin, xmax);
+ 	this -> SetDataBoundaries(1, 0.0, 1.0);
 
 	// set the indeces for fitting.
 	this -> SetFitFunctionIndices(0, 1);
@@ -152,7 +199,7 @@ int BCHistogramRatioFitter::SetFitFunction(TF1 * func)
 	fFitFunction = func;
 
 	// update the model name to contain the function name
-	this -> SetName(TString::Format("HistogramFitter with %s",fFitFunction->GetName()));
+	this -> SetName(TString::Format("HistogramRatioFitter with %s",fFitFunction->GetName()));
 
 	// reset parameters
 	fParameterSet -> clear();
@@ -178,7 +225,19 @@ int BCHistogramRatioFitter::SetFitFunction(TF1 * func)
 // ---------------------------------------------------------
 
 BCHistogramRatioFitter::~BCHistogramRatioFitter()
-{}
+{
+	if (fHistogram1)
+		delete fHistogram1; 
+
+	if (fHistogram2)
+		delete fHistogram2; 
+
+	if (fHistogramBinomial)
+		delete fHistogramBinomial; 
+
+	if (fHistogramRatio)
+		delete fHistogramRatio; 
+}
 
 // ---------------------------------------------------------
 
@@ -192,6 +251,7 @@ double BCHistogramRatioFitter::LogAPrioriProbability(std::vector <double> parame
 
 double BCHistogramRatioFitter::LogLikelihood(std::vector <double> params)
 {
+
  	// initialize probability
  	double loglikelihood = 0;
 
@@ -200,60 +260,36 @@ double BCHistogramRatioFitter::LogLikelihood(std::vector <double> params)
 
 	// get the number of bins
 	int nbins = fHistogram1 -> GetNbinsX();
-
-	// get bin width
-	double dx = fHistogram1 -> GetBinWidth(1);
-
-	// get function value of lower bin edge
-	double fedgelow = fFitFunction -> Eval(fHistogram1 -> GetBinLowEdge(1));
 	
+	// get bin width
+	double dx = fHistogram1 -> GetXaxis() -> GetBinWidth(0); 
+
 	// loop over all bins
 	for (int ibin = 1; ibin <= nbins; ++ibin)
 		{
-			// get upper bin edge
-			double xedgehi = fHistogram1 -> GetBinLowEdge(ibin) + dx;
-			
-			// get function value at upper bin edge
-			double fedgehi = fFitFunction -> Eval(xedgehi);
-
 			// get n 
 			int n = int(fHistogram1 -> GetBinContent(ibin));
 
 			// get k 
 			int k = int(fHistogram2 -> GetBinContent(ibin));
 
-			double eff = 0.; 
+			// get x
+			double x = fHistogram1 -> GetBinCenter(ibin); 
+			
+			double eff = 0; 
 
 			// use ROOT's TH1D::Integral method
 			if (fFlagIntegration)
-				eff = fFitFunction -> Integral(xedgehi-dx, xedgehi);
+				eff = fFitFunction -> Integral(x - dx/2., x + dx/2.) / dx;
 
 			// use linear interpolation 
 			else
-				{
-					eff = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.; 
-					
-					// make the upper edge the lower edge for the next iteration
-					fedgelow = fedgehi;
-				}
+				eff = (fFitFunction -> Eval(x + dx/2.) + fFitFunction -> Eval(x - dx/2.)) / 2.;
 			
 			// get the value of the Poisson distribution
 			loglikelihood += BCMath::LogApproxBinomial(n, k, eff);
 		}
 	
-// 	// get bin boundaries
-// 	double xmin = fHistogram -> GetBinLowEdge(ibin);
-// 	double xmax = fHistogram -> GetBinLowEdge(ibin+1);
-	
-// 	// get the number of observed events
-// 	double y = fHistogram -> GetBinContent(ibin);
-	
-// 	// get the number of expected events
-// 	double yexp = fFitFunction -> Integral(xmin, xmax);
-	
-// 	// get the value of the Poisson distribution
-// 	loglikelihood += BCMath::LogPoisson(y, yexp);
-
 	return loglikelihood;
 }
 
@@ -264,7 +300,7 @@ double BCHistogramRatioFitter::FitFunction(std::vector <double> x, std::vector <
 	// set the parameters of the function
 	fFitFunction -> SetParameters(&params[0]);
 
-	return fFitFunction -> Eval(x[0]) * fHistogram1 -> GetBinWidth( fHistogram1 -> FindBin(x[0]) );
+	return fFitFunction -> Eval(x[0]); 
 }
 
 // ---------------------------------------------------------
@@ -275,19 +311,19 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 	if (hist1 && hist2)
 		this -> SetHistograms(hist1, hist2);
 	else
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Histogram(s) not defined.");
-		return 0;
-	}
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Histogram(s) not defined.");
+			return 0;
+		}
 
 	// set function
 	if (func)
 		this -> SetFitFunction(func);
 	else
-	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Fit function not defined.");
-		return 0;
-	}
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Fit function not defined.");
+			return 0;
+		}
 
 	// perform marginalization
 	this -> MarginalizeAll();
@@ -297,15 +333,15 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 	this -> FindModeMinuit( this -> GetBestFitParameters() , -1);
 
 	// calculate the p-value using the fast MCMC algorithm 
-// 	double pvalue; 
-// 	if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
-// 		{
-// 			fPValue = pvalue; 
-// 		}
-// 	else
-// 		{
-// 			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Could not use the fast p-value evaluation.");
-// 		}
+	// 	double pvalue; 
+	// 	if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
+	// 		{
+	// 			fPValue = pvalue; 
+	// 		}
+	// 	else
+	// 		{
+	// 			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Could not use the fast p-value evaluation.");
+	// 		}
 
 	// print summary to screen
 	this -> PrintFitSummary();
@@ -318,52 +354,63 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 
 void BCHistogramRatioFitter::DrawFit(const char * options, bool flaglegend)
 {
-// 	if (!fHistogram)
-// 	{
-// 		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::DrawFit() : Histogram not defined.");
-// 		return;
-// 	}
+ 	if (!fHistogram1 || !fHistogram2 || !fHistogramRatio)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::DrawFit() : Histogram(s) not defined.");
+			return;
+		}
+	
+ 	if (!fFitFunction)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::DrawFit() : Fit function not defined.");
+			return;
+		}
+	
+	// check wheather options contain "same"
+	TString opt = options;
+	opt.ToLower();
+	
+	// if not same, draw the histogram first to get the axes
+	if(!opt.Contains("same"))
+		{
+			// create new histogram 
+			TH2D * hist_axes = new TH2D("hist_axes", 
+																	Form(";%s;ratio", fHistogram1 -> GetXaxis() -> GetTitle()), 
+																	fHistogram1 -> GetNbinsX(), 
+																	fHistogram1 -> GetXaxis() -> GetBinLowEdge(1), 
+																	fHistogram1 -> GetXaxis() -> GetBinLowEdge(fHistogram1 -> GetNbinsX()+1), 
+																	1, 0., 1.); 
+			hist_axes -> SetStats(kFALSE); 
+			hist_axes -> Draw(); 
 
-// 	if (!fFitFunction)
-// 	{
-// 		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::DrawFit() : Fit function not defined.");
-// 		return;
-// 	}
+			fHistogramRatio -> Draw(TString::Format("%sp",opt.Data()));
+		}
 
-// 	// check wheather options contain "same"
-// 	TString opt = options;
-// 	opt.ToLower();
+ 	// draw the error band as central 68% probability interval
+ 	fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
+ 	fErrorBand -> Draw("f same");
 
-// 	// if not same, draw the histogram first to get the axes
-// 	if(!opt.Contains("same"))
-// 		fHistogram -> Draw(opt.Data());
+ 	// now draw the histogram again since it was covered by the band
+ 	fHistogramRatio -> Draw(TString::Format("%ssamep",opt.Data()));
 
-// 	// draw the error band as central 68% probability interval
-// 	fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
-// 	fErrorBand -> Draw("f same");
-
-// 	// now draw the histogram again since it was covered by the band
-// 	fHistogram -> Draw(TString::Format("%ssame",opt.Data()));
-
-// 	// draw the fit function on top
-// 	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
-// 	fGraphFitFunction -> SetLineColor(kRed);
-// 	fGraphFitFunction -> SetLineWidth(2);
-// 	fGraphFitFunction -> Draw("l same");
-
-// 	// draw legend
-// 	if (flaglegend)
-// 		{
-// 			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
-// 			legend -> SetBorderSize(0); 
-// 			legend -> SetFillColor(kWhite); 
-// 			legend -> AddEntry(fHistogram, "Data", "L"); 
-// 			legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
-// 			legend -> AddEntry(fErrorBand, "Error band", "F"); 
-// 			legend -> Draw(); 
-// 		}
-
-// 	gPad -> RedrawAxis();
+	// draw the fit function on top
+	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
+	fGraphFitFunction -> SetLineColor(kRed);
+	fGraphFitFunction -> SetLineWidth(2);
+	fGraphFitFunction -> Draw("l same");
+	
+	// draw legend
+	if (flaglegend)
+		{
+			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
+			legend -> SetBorderSize(0); 
+			legend -> SetFillColor(kWhite); 
+			legend -> AddEntry(fHistogramRatio, "Data", "L"); 
+			legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
+			legend -> AddEntry(fErrorBand, "Error band", "F"); 
+			legend -> Draw(); 
+		}			
+	gPad -> RedrawAxis();
 }
 
 // ---------------------------------------------------------
@@ -483,5 +530,67 @@ void BCHistogramRatioFitter::PrintFitSummary()
 // 	// no error 
 // 	return 1; 
 //}
+
+// ---------------------------------------------------------
+int BCHistogramRatioFitter::GetUncertainties(int n, int k, double p, double &xmin, double &xmax)
+{
+	// create a histogram with binomial distribution
+	if (fHistogramBinomial)
+		fHistogramBinomial -> Reset(); 
+	else
+		fHistogramBinomial = new TH1D("hist_binomial", "", 1000, 0., 1.);
+
+	// loop over bins and fill histogram 
+	for (int i = 1; i <= 1000; ++i)
+		{
+			double x   = fHistogramBinomial -> GetBinCenter(i); 
+			double val = TMath::Binomial(n, k) * TMath::Power(x, double(k)) * TMath::Power(1-x, double(n-k)); 
+			fHistogramBinomial -> SetBinContent(i, val); 
+		}
+
+	// normalize 
+	fHistogramBinomial -> Scale(1.0 / fHistogramBinomial -> Integral()); 
+
+	// calculate quantiles 
+	int nprobSum = 4;
+	double q[4];
+	double probSum[4]; 
+	probSum[0] = (1.-p)/2.; 
+	probSum[1] = 1.-(1.-p)/2.; 
+	probSum[2] = 0.05; 
+	probSum[3] = 0.95; 
+
+	fHistogramBinomial -> GetQuantiles(nprobSum, q, probSum); 
+
+	double xexp = double(k)/double(n); 
+
+	// calculate uncertainties
+	if (n == 0)
+		{
+			xmin = 0.0; 
+			xmax = 0.0; 
+			return -3; 
+		}
+	else if (xexp < q[0])
+		{
+			xmin = 0;
+			xmax = q[3]; 
+			return -2; 
+		}
+
+	else if (xexp > q[1])
+		{
+			xmin = q[2]; 
+			xmax = 1.0; 
+			return -1; 
+		}
+	else
+		{
+			xmin = q[0]; 
+			xmax = q[1]; 
+			return 1;
+		}
+	
+}
 
 // ---------------------------------------------------------
