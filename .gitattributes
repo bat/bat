@@ -91,6 +91,11 @@ examples/example04/output/summary_benchmark.txt -text
 examples/example04/runBATexample04.c -text
 examples/example04/src/BCModelEfficiency.cxx -text
 examples/example04/src/BCModelEfficiency.h -text
+examples/example04_new/Makefile -text
+examples/example04_new/data/data.txt -text
+examples/example04_new/runBATexample.c -text
+examples/example04_new/src/BCModelEfficiency.cxx -text
+examples/example04_new/src/BCModelEfficiency.h -text
 examples/example05_new/runBATexample.c -text
 examples/example06/data/datax.txt -text
 examples/example06/graphFitterExample.C -text
