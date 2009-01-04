@@ -241,6 +241,15 @@ class BCModelManager
 			{ fDataSet -> AddDataPoint(datapoint); };
 
 		/**
+		 * Reads data from a file. For a description see the following
+		 * member functions. */
+		int ReadDataFromFile(const char * filename, const char * treename, const char * branchnames)
+		{ return this ->  ReadDataFromFileTree(filename, treename, branchnames); };
+		
+		int ReadDataFromFile(const char * filename, int nvariables)
+		{ return this -> ReadDataFromFileTxt(filename, nvariables); };
+		
+		/**
 		 * Reads tree data from a ROOT file.
 		 * Opens a ROOT file and gets a ROOT tree. It creates data set
 		 * containing the values read from the file.
