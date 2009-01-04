@@ -27,23 +27,24 @@
 
 \thispagestyle{empty} 
 
-\begin{figure}\version
+\begin{figure}
 
 \leftline{\includegraphics[scale=0.25]{bat.eps} 
 \hspace{9.0cm} 
 \Version}
-\end{figure} 
 
-\title{\BAT\ - A {\sc Bayesian Analysis Toolkit}} 
+\end{figure}
 
-\author{A.~Caldwell$^{1}$, D.~Kollar${^2}$, K.~Kr{\"}oninger$^{3}$} 
+\title{\BAT\ - A {\sc Bayesian Analysis Toolkit}}
+
+\author{A.~Caldwell$^{1}$, D.~Kollar${^2}$, K.~Kr{\"o}ninger$^{3}$}
 
 \maketitle
 
 \begin{center}
-$^{1}$~Max-Planck-Institut f{\"}ur Physik, Munich \\ 
+$^{1}$~Max-Planck-Institut f{\"u}r Physik, Munich \\ 
 $^{2}$~CERN, Geneva
-$^{3}$~II.~Physikalisches Institut, Universit{\"}at G{\"}ottingen \\ 
+$^{3}$~II.~Physikalisches Institut, Universit{\"a}t G{\"o}ttingen \\ 
 \end{center}
 
 \thispagestyle{empty} 
@@ -625,7 +626,7 @@ via
 
 % --------------------------------------------------------
 
-\subsubsection{Marginalization and optimization} 
+\subsubsection{Marginalization} 
 
 \noindent 
 The single parameter estimate is done by marginalization. If more than
@@ -686,13 +687,17 @@ chains can be used. \\
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % -------------------------------------------------------- 
 
-\subsection{Hypothesis testing and model comparison} 
+\subsection{Model comparison and hypothesis testing} 
 
-Several models or hypotheses can be compared. These models are added
-to a model manager and given an {\it a priori} probability. The {\it a
-posteriori} probability for each model with respect to the whole set
-of models is calculated. The posterior probability for the $i$th
-model, $H_{i}$, given the data, is simply
+% -------------------------------------------------------- 
+
+\subsubsection{Model comparison}
+
+Models $M_{i}$ can be compared by their posterior probability. The
+models are added to a model manager and given an {\it a priori}
+probability. The {\it a posteriori} probability for each model with
+respect to the whole set of models is calculated. The posterior
+probability for the $i$th model, $H_{i}$, given the data, is simply
 %
 \begin{equation}
 p(\mathrm{H_{i}}|\mathrm{data}) = \frac{N_{\mathrm{i}} \cdot p_{0}(\mathrm{H_{i}})}{\sum_{\mathrm{j} = 1}^{N} N_{\mathrm{j}} \cdot p_{0}(\mathrm{H_{j}})} \, , 
@@ -704,8 +709,8 @@ Eqn.~\ref{eqn:BayesTheorem}) and $p_{0}(H_{i})$ is the prior
 probability for the $i$th model. \\ 
 
 \noindent 
-The {\it a posteriori} probability for a model can be evaluated once the
-model manager is initialized and all numerical integrations are
+The {\it a posteriori} probability for a model can be evaluated once
+the model manager is initialized and all numerical integrations are
 performed
 %
 \begin{verbatim}
@@ -714,45 +719,45 @@ BCModel::GetModelAPosterioriProbability() .
 
 % --------------------------------------------------------
 
-\subsection{Posterior probability check: a goodness-of-fit test} 
+\subsubsection{Goodness-of-fit test} 
 
-Once the most suited parameter set, $\lambda^{*}$, for a given model
-and data set, $D$, is estimated the quality of the model with this
-parameter set can be tested. This ``goodness--of--fit'' test is based
-on a set of fake data sets, $\{ \tilde{D} \}$, generated under the
-assumption of the parameters obtained, $\lambda^{*}$. A frequency
-distribution $f$ of the obtained conditional probability
-$k=p(\tilde{D}|\lambda^{*})$ is calculated and interpreted as
-probability density. The $p$-value is defined as the probability to
-find a conditional probability $p(\tilde{D}|\lambda^{*})$ equal or
-less than for the original data set, $k_{0}=p(D|\lambda^{*})$, i.e.
+Once the most suitable set of parameters, $\lambda^{*}$, for a given
+model and data set, $D$, is estimated the appropriateness of the model
+(and this choice of parameters) to describe the data can be
+calculated. This ``goodness--of--fit'' test is based on a set of fake
+data sets, $\{ \tilde{D} \}$, generated under the assumption of the
+parameters obtained, $\lambda^{*}$. A frequency distribution $f$ of
+the obtained conditional probability $k=p(\tilde{D}|\lambda^{*})$ is
+calculated and interpreted as probability density. The $p$-value is
+defined as the probability to find a conditional probability
+$p(\tilde{D}|\lambda^{*})$ equal or less than for the original data
+set, $k_{0}=p(D|\lambda^{*})$, i.e.
 %
 \begin{equation}
-p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\lambda^{*})} f(k) \, \mathrm{d}k 
+p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\lambda^{*})} f(k) \, \mathrm{d}k \, . 
 \end{equation} 
 
 \noindent 
-The user has to provide data sets generated with the parameter set
-$\lambda^{*}$. Each data set has to be written to a separate text file
-with the format described in Section~\ref{subsection:data}. A file
-containing a list of data set files has to be provided. The
-goodness--of--fit test is done by calling
+In the most general case, the $p$-value is calculated using Markov
+Chain Monte Carlo. The calculation can be started by 
 %
 \begin{verbatim}
-BCModel::GoodnessOfFitTest(const char * filenname, std::vector <double> parameters) 
-\end{verbatim} 
-
+BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram) . 
+\end{verbatim}
+%
 \noindent 
-The method returns a pointer to a \verb|BCH1D|. The frequency
-distribution can be printed as for the case of parameter
-estimates. The $p$-value is then calculated from this distribution and
-can be obtained by 
+The method returns a pointer to a \verb|BCH1D| if the flag is set to
+true. The frequency distribution can be printed as for the case of
+parameter estimates. The $p$-value is then calculated from this
+distribution and can be obtained by
 %
 \begin{verbatim}
 BCModel::GetPValue() . 
 \end{verbatim} 
 
 % --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Fitting} 
 
