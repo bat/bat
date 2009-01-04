@@ -13,6 +13,9 @@
 \pagestyle{headings}
 
 \newcommand{\BAT}{{\sc BAT}}
+\newcommand{\versionno}{1.0}
+\newcommand{\version}{version~\versionno}
+\newcommand{\Version}{Version~\versionno}
 
 %--------------------------------------------------------
 
@@ -24,21 +27,23 @@
 
 \thispagestyle{empty} 
 
-\begin{figure}
+\begin{figure}\version
+
 \leftline{\includegraphics[scale=0.25]{bat.eps} 
 \hspace{9.0cm} 
-version 0.1} 
+\Version}
 \end{figure} 
 
 \title{\BAT\ - A {\sc Bayesian Analysis Toolkit}} 
 
-\author{A.~Caldwell$^{1}$, D.~Kollar${^1}$, K.~Kr\"oninger$^{2}$} 
+\author{A.~Caldwell$^{1}$, D.~Kollar${^2}$, K.~Kr{\"}oninger$^{3}$} 
 
 \maketitle
 
 \begin{center}
-$^{1}$~Max-Planck-Institut f\"ur Physik, Munich, Germany \\ 
-$^{2}$~II.~Physikalisches Institut, Universit\"at G\"ottingen \\ 
+$^{1}$~Max-Planck-Institut f{\"}ur Physik, Munich \\ 
+$^{2}$~CERN, Geneva
+$^{3}$~II.~Physikalisches Institut, Universit{\"}at G{\"}ottingen \\ 
 \end{center}
 
 \thispagestyle{empty} 
@@ -431,10 +436,8 @@ Alternatively, data can be read in from a file
 %
 \begin{small}
 \begin{verbatim}
-BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames) ,
-BCDataSet::ReadDataFromFileTxt(char* filename, int nvariables) , 
-BCDataSet::ReadDataFromFileUser(char* filename, std::vector<int> options_int,
-                                std::vector<double> options_double, const char* options_char) . 
+BCDataSet::ReadDataFromFile(char* filename, char* treename, const char* branchnames) ,
+BCDataSet::ReadDataFromFile(char* filename, int nvariables) .
 \end{verbatim} 
 \end{small} 
 
@@ -508,10 +511,8 @@ or by reading data from a file via
 %
 \begin{small}
 \begin{verbatim}
-BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames) , 
-BCModelManager::ReadDataFromFileTxt(char* filename, int nvariables) , 
-BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_int,
-                                std::vector<double> options_double, const char* options_char) . 
+BCModelManager::ReadDataFromFile(char* filename, char* treename, const char* branchnames) , 
+BCModelManager::ReadDataFromFile(char* filename, int nvariables) , 
 \end{verbatim} 
 \end{small} 
 
@@ -522,72 +523,168 @@ BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_in
 \subsection{Normalization and numerical integration} 
 \label{section:normalization} 
 
-The {\it a posteriori} probability density function is normalized to
-unity. To ensure this normalization the denominator on the right hand
-side of Eqn.~\ref{eqn:BayesTheorem} has be to evaluated. It is an
-integral of the conditional probability times the {\it a priori}
-probability over the whole parameter space. Since the analytical form
-of the integral is not known in general this integral is solved
-numerically. Several methods for numerical integration are implemented
-in the package. The different methods are described in
-Section~\ref{subsection:integration}. \\
-
-\noindent 
-The integration method can be chosen for each model by 
+In Bayes' Theorem the {\it a posteriori} probability density is
+normalized to unity. To ensure this normalization the denominator on
+the right hand side of Eqn.~\ref{eqn:BayesTheorem} has be to
+evaluated. It is an integral of the conditional probability times the
+{\it a priori} probability over the whole parameter space. Since the
+analytical form of the integral is not known in general this integral
+is solved numerically. Several methods for numerical integration are
+implemented in the package. The different methods are described in
+Section~\ref{subsection:integration}. It can be chosen by
 %
 \begin{verbatim}
-BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationType method), 
+BCModel::SetIntegrationMethod(BCModel::BCIntegrationType method), 
 \end{verbatim} 
 
 \noindent
 where \verb|BCIntegrationType| can be one of the following 
 % 
 \begin{itemize}
-\item \verb|BCIntegrate::kIMonteCarlo|. A sampled mean integration.
-\item \verb|BCIntegrate::kIImportance|. A sampled mean integration
+\item \verb|BCModel::kIntMonteCarlo|. A sampled mean integration.
+\item \verb|BCModel::kIIntmportance|. A sampled mean integration
  with importance sampling.  
-\item \verb|BCIntegrate::kIMetropolis|. A sampled mean integration
+\item \verb|BCModel::kIntMetropolis|. A sampled mean integration
  with importance sampling using Markov chains. 
-\item \verb|BCIntegrate::kICuba|. An interface to the cuba
- library~\cite{Hahn:2004fe}.
+\item \verb|BCModel::kIntCuba|. An interface to the cuba
+library~\cite{Hahn:2004fe}.
 \end{itemize}
 
 \noindent 
-The time needed for the numerical integration depends on the number of
-iterations. For the sampled mean integration it can be constrained by
-the maximum number of iterations and the relative precision aimed
-at. These parameters can be set via
+The normalization can be performed for each model separately or for
+all models which belong to a model manager
 %
 \begin{verbatim}
-BCIntegrate::SetNIterationsMax(int niterations)
-BCIntegrate::SetRelativePrecision(double relprecision) 
+BCModel::Normalize() ,
+BCModelManager::Normalize() .
 \end{verbatim} 
 
 \noindent 
-For all other methods the number of iterations is explicitly set via 
+The private variable \verb|fNormalization| stores the normalization
+and is set for each model. The value can be obtained by 
 %
 \begin{verbatim}
-BCIntegrate::SetNiterationsPerDimension(int niterations) 
-\end{verbatim} 
+BCModel::GetNormalization() . 
+\end{verbatim}
 
 \noindent 
-The integration can be performed for each model separately or for all models which belong to a model manager 
+Once the integral is calculated the {\it a posteriori} probability
+density for a set of parameter values can be evaluated
 %
-\begin{verbatim}
-BCModel::Normalize() 
-BCModelManager::Normalize()
-\end{verbatim} 
-
-\noindent 
-The private variable \verb|fNormalization| is set for each model. Once
-the integral is calculated the {\it a posteriori} probability density for a
-set of parameter values, given a data set, can be evaluated
-
 \begin{verbatim} 
-BCModel::Probability(std::vector <double> parameter) .  
+BCModel::Probability(std::vector <double> parameter) , 
+BCModel::LogProbability(std::vector <double> parameter) , 
 \end{verbatim} 
+%
+where the latter returns the logarithm of the probability. 
 
 % --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+\subsection{Parameter estimate and marginalization} 
+
+The {\it a posteriori} probability density can be used to estimate the
+set of parameter values most suited to describe the data. This is done
+by searching for the most probable value, or mode, of the probability
+density.  Two approaches are followed: either the mode in the whole
+parameter space is searched for, or the probability density is
+marginalized with respect to a particular parameter studied. In the
+latter case, several quantities can used to describe the marginalized
+distributions.
+
+% --------------------------------------------------------
+
+\subsubsection{Maximization of the posterior probability density} 
+
+The maximization of the posterior probability density can be performed
+using
+%
+\begin{verbatim} 
+BCModel::FindMode() . 
+\end{verbatim} 
+
+\noindent 
+It returns a vector of parameter values which maximize the {\it a
+  posteriori} probability density. The implemented algorithms can be
+chosen with the command
+%
+\begin{verbatim}
+BCModel::SetModeFindingMethod(BCIntegrate::BCModeFindingType method) .
+\end{verbatim}
+%
+Two methods are available in the current version (\Version). The
+algorithms are described in Section~\ref{section:tools} and can be set
+via
+%
+\begin{itemize}
+\item \verb|BCModel::kOptMetropolis|. A sampling algorithm using the
+  Metropolis alogorithm.
+\item \verb|BCModel::kOptMinuit|. An interface to the ROOT version of Minuit.
+\end{itemize}
+
+% --------------------------------------------------------
+
+\subsubsection{Marginalization and optimization} 
+
+\noindent 
+The single parameter estimate is done by marginalization. If more than
+one parameter is studied it is most efficient to marginalize with
+respect to all parameters simultaneously. This can be done by
+%
+\begin{verbatim}
+BCModel::MarginalizeAll() . 
+\end{verbatim} 
+
+\noindent 
+A vector of one- and two-dimensional histograms is filled during the
+marginalization and can be accessed by
+%
+\begin{verbatim}
+BCModel::GetMarginalized(BCParameter * parameter) ,
+BCModel::GetMarginalized(char * name) ,
+BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2) ,
+BCModel::GetMarginalized(char * name1, char * name2) .
+\end{verbatim}
+
+\noindent 
+Alternatively, the marginalization can be done for one or two
+parameters separately
+%
+\begin{verbatim}
+BCModel::MarginalizeProbability(BCParameter* parameter) ,
+BCModel::MarginalizeProbability(char* name) , 
+BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * parameter2) ,
+BCModel::MarginalizeProbability(char * name1, char * name2) .
+\end{verbatim} 
+
+\noindent 
+Different methods of marginalization are implemented and can be chosen
+via
+%
+\begin{verbatim}
+BCIntegrate::SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
+\end{verbatim} 
+
+\noindent
+where \verb|BCMarginalizationType| can be one of the following 
+% 
+\begin{itemize}
+\item \verb|BCIntegrate::kMargMonteCarlo|. Uncorrelated sampling of the
+ probability density.  
+\item \verb|BCIntegrate::kMargMetropolis|. Correlated sampling using
+  Markov Chain Monte Carlo (Metropolis algorithm). 
+\end{itemize} 
+
+\noindent 
+The different methods are described in
+Section~\ref{subsection:optimization}. Note that if the
+marginalization is done for all parameters simultaneously only Markov
+chains can be used. \\
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Hypothesis testing and model comparison} 
 
@@ -614,93 +711,6 @@ performed
 \begin{verbatim}
 BCModel::GetModelAPosterioriProbability() . 
 \end{verbatim}
-
-% --------------------------------------------------------
-
-\subsection{Parameter estimate and marginalization} 
-
-The {\it a posteriori} probability density can be used to estimate the set of
-parameter values most suited to describe the data. This is done by
-searching for the most probable value, or mode, of the probability density. 
-Two approaches are followed: either the mode in the
-whole parameter space is searched for, or the probability density is
-marginalized with respect to a particular parameter studied. 
-
-\subsubsection{Global optimization} 
-
-The global optimization can be performed with the function 
-%
-\begin{verbatim} 
-BCModel::FindMode()
-\end{verbatim} 
-
-\noindent 
-which returns a vector of parameter values which maximize the {\it a
-posteriori} probability density. The implemented algorithms can be chosen
-with the command
-%
-\begin{verbatim}
-BCModel::SetModeFindingMethod(BCIntegrate::BCModeFindingType method) .
-\end{verbatim}
-%
-Currently, there are two methods: simulated annealing and an interface
-to Minuit. The algorithms are described in Section~\ref{section:tools}. \\
-
-\subsubsection{Marginalization and optimization} 
-
-\noindent 
-The single parameter estimate is done by marginalization. If more than
-one parameter is studied it is most efficient to marginalize with
-respect to all parameters simultaneously. This can be done by
-%
-\begin{verbatim}
-BCModel::MarginalizeAll() . 
-\end{verbatim} 
-
-\noindent 
-A vector of one- and two-dimensional histograms is filled during the
-marginalization and can be accessed by
-%
-\begin{verbatim}
-BCModel::GetMarginalized(BCParameter * parameter) 
-BCModel::GetMarginalized(char * name) 
-BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2) 
-BCModel::GetMarginalized(char * name1, char * name2) 
-\end{verbatim}
-
-\noindent 
-Alternatively, the marginalization can be done for one or two
-parameters separately
-%
-\begin{verbatim}
-BCModel::MarginalizeProbability(BCParameter* parameter)
-BCModel::MarginalizeProbability(char* name) 
-BCModel::MarginalizeProbability(BCParameter * parameter1, BCParameter * parameter2);
-BCModel::MarginalizeProbability(char * name1, char * name2)
-\end{verbatim} 
-
-\noindent 
-Different methods of marginalization are implemented and be chosen via
-%
-\begin{verbatim}
-BCIntegrate::SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
-\end{verbatim} 
-
-\noindent
-where \verb|BCMarginalizationType| can be one of the following 
-% 
-\begin{itemize}
-\item \verb|BCIntegrate::kMMonteCarlo|. Uncorrelated sampling of the
- probability density.  
-\item \verb|BCIntegrate::kMMetropolis|. Correlated sampling using
- Markov chains.
-\end{itemize} 
-
-\noindent 
-The different methods are described in
-Section~\ref{subsection:optimization}. Note that if the
-marginalization is done for all parameters simultaneously only Markov
-chains can be used. \\
 
 % --------------------------------------------------------
 
@@ -1048,6 +1058,25 @@ sampling, Markov chain can be used. Regions of higher probability are
 found faster and the statistical fluctuation descreases. For more
 details on Markov chains, see Section~\ref{subsection:optimization}.
 
+\subsubsection{Options}
+
+The time needed for the numerical integration depends on the number of
+iterations. For the sampled mean integration it can be constrained by
+the maximum number of iterations and the relative precision aimed
+at. These parameters can be set via
+%
+\begin{verbatim}
+BCIntegrate::SetNIterationsMax(int niterations)
+BCIntegrate::SetRelativePrecision(double relprecision) 
+\end{verbatim} 
+
+\noindent 
+For all other methods the number of iterations is explicitly set via 
+%
+\begin{verbatim}
+BCIntegrate::SetNiterationsPerDimension(int niterations) 
+\end{verbatim} 
+
 % --------------------------------------------------------
 % examples
 % --------------------------------------------------------
@@ -1360,13 +1389,13 @@ given $n$.
   J.\ Phys.\ G {\bf 33} (2006) 1.
 %
 \bibitem{Schonert:2005zn}
-  S.~Sch\"onert {\it et al.}  [GERDA Collaboration],
+  S.~Sch{\"o}nert {\it et al.}  [GERDA Collaboration],
   ``The GERmanium Detector Array (GERDA) for the search of neutrinoless beta
   beta decays of Ge-76 at LNGS,''
   Nucl.\ Phys.\ Proc.\ Suppl.\  {\bf 145} (2005) 242.
 %
 \bibitem{Caldwell:2006yj}
-  A.~Caldwell and K.~Kr\"oninger,
+  A.~Caldwell and K.~Kr{\"o}ninger,
   ``Signal discovery in sparse spectra: A Bayesian analysis,''
   Phys.\ Rev.\  D {\bf 74}, 092003 (2006)
   [arXiv:physics/0608249].
