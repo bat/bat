@@ -246,7 +246,9 @@ introduced. It should be noted that these parameters are model
 dependent and need to be adjusted to each problem separately. 
 
 % --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % installation 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
 \section{Installation} 
@@ -257,35 +259,44 @@ be implemented in any other program ...
 How to install BAT on your computer. Requirements, e.g. ROOT.
 
 % --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % analysis chain
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
 \section{Analysis chain}
 \label{section:analysis}
 
-In the following section a typical analysis chain is described. The basic features 
-of the \BAT\ toolkit are introduced. The general flow of work is the
-following: one or several models are defined together with their
-parameters and corresponding ranges. Data is read in from a file and
-interfaced with each model. The models are then compared to each other by
-calculating the probability for each model given the data
-set. Parameters are estimated either from the total probability density
-or from the marginalized probability densities. Given these best-fit
-parameters a ``goodness-of-fit'' test can be performed by evaluating the
-posterior probability for an ensemble of possible data sets. \\ 
+In the following section a typical analysis chain is described. The
+basic features of the \BAT\ toolkit are introduced. The general flow
+of work is the following: one or several models are defined together
+with their parameters and corresponding ranges. Data is read in from a
+file and interfaced with each model. The models are then compared to
+each other by calculating the probability for each model given the
+data set. Parameters are estimated either from the total probability
+density or from the marginalized probability densities. Given these
+best-fit parameters a ``goodness-of-fit'' test can be performed by
+evaluating the posterior probability for an ensemble of possible data
+sets. \\
 
 \noindent 
-Subsequently, alternative features are discussed such as function fitting and 
-graphical output. Also, the special case of data sets containing only one data point 
-is discussed. These can be used for sensitivity analyses. 
+Subsequently, alternative features are discussed such as function
+fitting and graphical output. Also, the special case of data sets
+containing only one data point is discussed. These can be used for
+sensitivity analyses.
 
-% --------------------------------------------------------
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Getting started} 
+\label{subsection:start}
 
-The \BAT\ toolkit is meant to be used as a library in any existing C++
-code. In order to start a new project several files need to be
-provided by the user:
+The \BAT\ toolkit comes in form of a library. It can be linked against
+in any existing C++ code, or it can be used in a ROOT online
+session. The latter case is discussed later on in this manual. In
+order to start a new project several files need to be provided by the
+user:
 % 
 \begin{itemize}
 \item A makefile in which the \BAT\ library is linked. 
@@ -296,41 +307,42 @@ provided by the user:
 \end{itemize} 
 
 \noindent  
-It is assumed in the following that an analysis skeleton exists, e.g. a 
-makefile and a main file. 
+The script \verb|BAT/examples/CreateProject.sh| creates these files.
 
-% --------------------------------------------------------
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Creating a model} 
+\label{subsection:model}
+
+% -------------------------------------------------------- 
 
 \subsubsection{Implementation of a mathematical model as a C++ class} 
+\label{subsubsection:implementation}
 
-The mathematical models used in Bayesian inference are implemented in
-terms of C++ classes. The basic element in this implementation is the
-abstract class \verb|BCIntegrate| which contains mathematical tools
-in the form of member functions. Its (only) daughter class, \verb|BCModel|, provides
-interfaces to data sets and further information of any abstract model. All model classes
-inherit from the \verb|BCModel| class. It has several public member functions
-which need to be overloaded by the user in order to specify the
-mathematical expressions for an unambiguous definition of a model. Apart from the
-constructor and destructor, these methods are
+The mathematical models used in \BAT\ are implemented in terms of C++
+classes. All model classes inherit from the class \verb|BCModel|. It
+has several public member functions which need to be overloaded by the
+user in order to specify the mathematical expressions for an
+unambiguous definition of the model. Apart from the constructor and
+destructor, these methods are
 % 
 \begin{itemize}
 \item \verb|BCModel::DefineParameters()| \\
- This method has to be called at construction and contains the
- definition of parameters. 
+This method has to be called at construction and contains the
+definition of parameters.
 % 
 \item \verb|BCModel::LogLikelihood(std::vector <double> parameters)| \\ 
- This method contains a mathematical expression for the conditional
- probability of the data given a set of parameter values. For reasons
- of numerical stability it returns the logarithm of the conditional
- probability.
+This method contains a mathematical expression for the conditional
+probability of the data given a set of parameter values,
+$p(x|\vec{lambda})$. For reasons of numerical stability it returns the
+logarithm of the conditional probability.
 %
 \item \verb|BCModel::LogAPrioriProbability(std::vector <double> parameters)| \\
- This method contains a mathematical expression for the {\it a priori}
- probability for a set of parameter values. For reasons
- of numerical stability it returns the logarithm of the conditional
- probability.
+This method contains a mathematical expression for the {\it a priori}
+probability for a set of parameter values. For reasons of numerical
+stability it returns the logarithm of the conditional probability.
 \end{itemize} 
 
 \noindent 
@@ -339,23 +351,17 @@ member functions. An example for a header file is shown in
 Section~\ref{paragraph:headerfile}, an example for a source file is shown 
 in Section~\ref{paragraph:sourcefile}. 
 
-\subsubsection{Alternative definition of the conditional probability} 
-
-In case the conditional probability density is simply the product of the probability 
-densities for single data points it can be defined via the method 
-\verb|BCModel::LogAPrioriProbabilityEntry(BCDataPoint * datapoint, std::vector <double> parameters)|. 
-In addtion, a poisson term for the overall probability density can be defined via 
-\verb|double PoissonProbability(int nentries, std::vector <double> parameters)|.  Note, that 
-in this case no correlation among the data points is taken into account. 
+% -------------------------------------------------------- 
 
 \subsubsection{Definition of parameters of a model} 
+\label{subsubsection:parameters}
 
 The parameters of a model are implemented as a C++ class named
 \verb|BCModelParameter|. They can be interfaced to a model in two
-ways: either they are explicitly defined and then added to a model via 
+ways: either they are explicitly defined and then added to a model via
 %
 \begin{verbatim}
-BCModel::AddParameter(BCParameter * parameter) 
+BCModel::AddParameter(BCParameter * parameter),
 \end{verbatim}
 
 \noindent 
@@ -367,16 +373,18 @@ BCModel::AddParameter(const char* name, double lowerlimit, double upperlimit) .
 
 \noindent 
 Every parameter has to have a unique name and valid limits. Once added
-to a model the parameters can be referenced by an index or by
-name. The index is given once the parameter is added to the model. A parameter can 
-be returned from a model using the functions
+to a model each parameter is given a unique index starting at
+zero. Parameters can be referenced to by its index or by its name. A
+parameter can be returned from a model using the functions
 % 
 \begin{verbatim} 
-BCModel::GetParameter(int index) 
-BCModel::GetParameter(char* name) 
+BCModel::GetParameter(int index), 
+BCModel::GetParameter(char* name). 
 \end{verbatim}  
 
-% --------------------------------------------------------
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Data format and handling} 
 \label{subsection:data} 
@@ -388,7 +396,7 @@ sets. Data points and sets are implemented as classes
 \noindent 
 The class \verb|BCDataPoint| contains a set of double precision
 values. Data points can be generated explicitly by the user with or
-without intial value 
+without intial value
 %
 \begin{verbatim} 
 BCDataPoint::BCDataPoint(int nvariables) ,
@@ -423,8 +431,8 @@ Alternatively, data can be read in from a file
 %
 \begin{small}
 \begin{verbatim}
-BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames)
-BCDataSet::ReadDataFromFileTxt(char* filename, int nvariables)
+BCDataSet::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames) ,
+BCDataSet::ReadDataFromFileTxt(char* filename, int nvariables) , 
 BCDataSet::ReadDataFromFileUser(char* filename, std::vector<int> options_int,
                                 std::vector<double> options_double, const char* options_char) . 
 \end{verbatim} 
@@ -432,10 +440,11 @@ BCDataSet::ReadDataFromFileUser(char* filename, std::vector<int> options_int,
 
 \noindent 
 The data format for \verb|.txt| files is such that each data point
-corresponds to one line, each containing several values. Note, that the
-number of values per data point has to be provided by the user. While
-the first two methods are interfaces to pre-defined formats the third
-method allows the user to define his or her own interface. \\
+corresponds to one line, each containing several values. Note that
+the number of values per data point has to be provided by the
+user. While the first two methods are interfaces to pre-defined
+formats the third method allows the user to define his or her own
+interface. \\
 
 \noindent 
 Once a data set is defined it can be assigned to a model with
@@ -452,34 +461,37 @@ BCModel::GetDataSet() .
 \end{verbatim} 
 
 \noindent 
-Note, that the user can define several data sets. However, a model can only have one data set 
-at a time. Thus, if the use wants to perform an analysis on several data set it has to be done 
-for each data set separately, i.e. assign a data set, perform the analysis and repeat this for 
-each data set. The case that a data set only contains one data point is discussed in Section~\ref{subsection:singleeventanalyses}. 
+Note that the user can define several data sets. However, a model can
+only have one data set at a time.
+
+% --------------------------------------------------------
 
 \subsubsection{Constraining the values of data points}
 
-For two applications discussed later in this section, the goodness-of-fit test and the calculation 
-of error bands, it is necessary to put limits on the possible values of the data points. This is 
-done for each variable separately. Note, that the limits are defined by the model not by the data 
-set: 
+For two applications discussed later in this section, the
+goodness-of-fit test and the calculation of error bands, it is
+necessary to put limits on the possible values of the data
+points. This is done for each variable separately. Note that the
+limits are defined by the model not by the data set:
 %
 \begin{verbatim}
 SetDataBoundaries(int index, double lowerboundary, double upperboundary) . 
 \end{verbatim}
 
-% --------------------------------------------------------
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Managing more than one model: the model manager} 
 
 In case more than one model is defined and all models use the same
 data set a model manager can be defined. It is implemented as a class
-\verb|BCModelManager|. Models and their {\it a priori} probability are
-added to the manager via
+\verb|BCModelManager|. Models and their (model) {\it a priori}
+probability are added to the model manager via
 % 
 \begin{verbatim}
-BCModelManager::AddModel(BCModel * model, double probability)
-BCModelManager::AddModel(BCModel * model)
+BCModelManager::AddModel(BCModel * model, double probability) , 
+BCModelManager::AddModel(BCModel * model) .
 \end{verbatim} 
 
 \noindent 
@@ -488,7 +500,7 @@ models added to the manager class. This can either be done explicitly
 via
 %
 \begin{verbatim}
-BCModelManager::SetDataSet(BCDataSet * dataset) 
+BCModelManager::SetDataSet(BCDataSet * dataset) , 
 \end{verbatim} 
 
 \noindent 
@@ -496,14 +508,16 @@ or by reading data from a file via
 %
 \begin{small}
 \begin{verbatim}
-BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames)
-BCModelManager::ReadDataFromFileTxt(char* filename, int nvariables)
+BCModelManager::ReadDataFromFileTree(char* filename, char* treename, const char* branchnames) , 
+BCModelManager::ReadDataFromFileTxt(char* filename, int nvariables) , 
 BCModelManager::ReadDataFromFileUser(char* filename, std::vector<int> options_int,
-                                std::vector<double> options_double, const char* options_char)
+                                std::vector<double> options_double, const char* options_char) . 
 \end{verbatim} 
 \end{small} 
 
 % --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{Normalization and numerical integration} 
 \label{section:normalization} 
@@ -684,7 +698,7 @@ where \verb|BCMarginalizationType| can be one of the following
 
 \noindent 
 The different methods are described in
-Section~\ref{subsection:optimization}. Note, that if the
+Section~\ref{subsection:optimization}. Note that if the
 marginalization is done for all parameters simultaneously only Markov
 chains can be used. \\
 
@@ -1021,7 +1035,7 @@ from Eqn.~\ref{eqn:integration} is then computes as
 \end{eqnarray} 
 
 \noindent 
-where the $x_{i}$ are sampled according to $g$. Note, that $g$ has to
+where the $x_{i}$ are sampled according to $g$. Note that $g$ has to
 be normalized to unity. \\ 
 
 \noindent 
