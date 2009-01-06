@@ -421,7 +421,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pval
 						}
 
 					// decrease statistics by 1 
-					else
+					else if (ptest <= 0 && histogram[ibin] > 0)
 						{
 							// calculate factor of probability 
 							double r = double(histogram.at(ibin)) / expectation.at(ibin); 
@@ -433,6 +433,9 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pval
 									logp += log(r); 
 								}
 						} 					
+					// debugKK
+					std::cout << " negative " << std::endl; 
+
 				} // end of looping over bins 
 
 			// increase counter 

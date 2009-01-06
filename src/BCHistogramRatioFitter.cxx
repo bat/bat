@@ -107,8 +107,8 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 			// calculate uncertainties 
 			double xmin; 
 			double xmax; 
-			int flag = this -> GetUncertainties(hist1 -> GetBinContent(i),
-																					hist2 -> GetBinContent(i), 
+			int flag = this -> GetUncertainties(int(hist1 -> GetBinContent(i)),
+																					int(hist2 -> GetBinContent(i)), 
 																					0.68, 
 																					xmin,
 																					xmax);
@@ -333,16 +333,16 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 	this -> FindModeMinuit( this -> GetBestFitParameters() , -1);
 
 	// calculate the p-value using the fast MCMC algorithm 
-	// 	double pvalue; 
-	// 	if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
-	// 		{
-	// 			fPValue = pvalue; 
-	// 		}
-	// 	else
-	// 		{
-	// 			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Could not use the fast p-value evaluation.");
-	// 		}
-
+	double pvalue; 
+	if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
+		{
+			fPValue = pvalue; 
+		}
+	else
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Could not use the fast p-value evaluation.");
+		}
+	
 	// print summary to screen
 	this -> PrintFitSummary();
 
@@ -431,105 +431,127 @@ void BCHistogramRatioFitter::PrintFitSummary()
 }
 
 // ---------------------------------------------------------
-//int BCHistogramRatioFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
-//{
-// 	// check size of parameter vector 
-// 	if (par.size() != this -> GetNParameters())
-// 		{
-// 			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
-// 		return 0;
-// 		}
+int BCHistogramRatioFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
+{
+	// check size of parameter vector 
+	if (par.size() != this -> GetNParameters())
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
+		return 0;
+		}
 
-// 	// check if histogram exists
-// 	if (!fHistogram)
-// 		{
-// 			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::CalculatePValueFast() : Histogram not defined.");
-// 		return 0;
-// 		}
+	// check if histogram exists
+	if (!fHistogram1 || !fHistogram2)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::CalculatePValueFast() : Histogram not defined.");
+		return 0;
+		}
 
-// 	// define temporary variables
-// 	int nbins = fHistogram -> GetNbinsX(); 
+	// define temporary variables
+	int nbins = fHistogram1 -> GetNbinsX(); 
 
-// 	std::vector <int> histogram; 
-// 	std::vector <double> expectation; 
-// 	histogram.assign(nbins, 0); 
-// 	expectation.assign(nbins, 0); 
+	std::vector <int> histogram; 
+	std::vector <double> expectation; 
+	histogram.assign(nbins, 0); 
+	expectation.assign(nbins, 0); 
 
-// 	double logp = 0; 
-// 	double logp_start = 0; 
-// 	int counter_pvalue = 0; 
+	double logp = 0; 
+	double logp_start = 0; 
+	int counter_pvalue = 0; 
 
-// 	// define starting distribution
-// 	for (int ibin = 0; ibin < nbins; ++ibin)
-// 		{
-// 			// get bin boundaries
-// 			double xmin = fHistogram -> GetBinLowEdge(ibin+1);
-// 			double xmax = fHistogram -> GetBinLowEdge(ibin+2);
+	// define starting distribution
+	for (int ibin = 0; ibin < nbins; ++ibin)
+		{
+			// get bin boundaries
+			double xmin = fHistogram1 -> GetBinLowEdge(ibin+1);
+			double xmax = fHistogram1 -> GetBinLowEdge(ibin+2);
 			
-// 			// get the number of expected events
-// 			double yexp = fFitFunction -> Integral(xmin, xmax);
+			// get the number of expected events
+			double yexp = fFitFunction -> Integral(xmin, xmax);
 
-// 			histogram[ibin]   = int(yexp); 
-// 			expectation[ibin] = yexp; 
+			// get n 
+			int n = int(fHistogram1 -> GetBinContent(ibin));
 
-// 			// calculate p; 
-// 			logp += BCMath::LogPoisson(double(int(yexp)), yexp); 
-// 			logp_start += BCMath::LogPoisson(fHistogram -> GetBinContent(ibin+1), yexp); 
-// 		}
+			// get k 
+			int k = int(fHistogram2 -> GetBinContent(ibin));
+			
+			histogram[ibin]   = k; 
+			expectation[ibin] = n * yexp; 
 
-// 	int niter = 100000; 
+			// calculate p; 
+			logp += BCMath::LogApproxBinomial(n, k, yexp); 
+		}
+	logp_start = logp; 
+
+	int niter = 100000; 
 	
-// 	// loop over iterations 
-// 	for (int iiter = 0; iiter < niter; ++iiter)
-// 		{
-			
-// 			// loop over bins 
-// 			for (int ibin = 0; ibin < nbins; ++ibin)
-// 				{
-// 					// random step up or down in statistics for this bin 
-// 					double ptest = fRandom -> Rndm() - 0.5; 
+	// loop over iterations 
+	for (int iiter = 0; iiter < niter; ++iiter)
+		{
+			// loop over bins 
+			for (int ibin = 0; ibin < nbins; ++ibin)
+				{
+					// get n 
+					int n = int(fHistogram1 -> GetBinContent(ibin));
 
-// 					// increase statistics by 1
-// 					if (ptest > 0)
-// 						{
-// 							// calculate factor of probability 
-// 							double r = expectation.at(ibin) / double(histogram.at(ibin) + 1); 
+					// get k 
+					int k = histogram.at(ibin); 
 
-// 							// walk, or don't (this is the Metropolis part) 
-// 							if (fRandom -> Rndm() < r)
-// 								{
-// 									histogram[ibin] = histogram.at(ibin) + 1; 
-// 									logp += log(r); 
-// 								}
-// 						}
+					// get expectation
+					double yexp = 0; 
+					if (n > 0) 
+						yexp = expectation.at(ibin)/n; 
 
-// 					// decrease statistics by 1 
-// 					else
-// 						{
-// 							// calculate factor of probability 
-// 							double r = double(histogram.at(ibin)) / expectation.at(ibin); 
+					// random step up or down in statistics for this bin 
+					double ptest = fRandom -> Rndm() - 0.5; 
 
-// 							// walk, or don't (this is the Metropolis part) 
-// 							if (fRandom -> Rndm() < r)
-// 								{
-// 									histogram[ibin] = histogram.at(ibin) - 1; 
-// 									logp += log(r); 
-// 								}
-// 						} 					
-// 				} // end of looping over bins 
+					// continue, if efficiency is at limit
+					if (!(yexp > 0. || yexp < 1.0))
+						continue; 
 
-// 			// increase counter 
-// 			if (logp < logp_start)
-// 				counter_pvalue++; 
+					// increase statistics by 1
+					if (ptest > 0 && (k < n))
+						{
 
-// 		} // end of looping over iterations 
+							// calculate factor of probability 
+							double r = (double(n)-double(k))/(double(k)+1.) * yexp / (1. - yexp); 
 
-// 	// calculate p-value 
-// 	pvalue = double(counter_pvalue) / double(niter); 
+							// walk, or don't (this is the Metropolis part) 
+							if (fRandom -> Rndm() < r)
+								{
+									histogram[ibin] = k + 1; 
+									logp += log(r); 
+								}
+						}
 
-// 	// no error 
-// 	return 1; 
-//}
+					// decrease statistics by 1 
+					else if (ptest <= 0 && (k > 0))
+						{
+							// calculate factor of probability 
+							double r = double(k) / (double(n)-(double(k)-1)) * (1-yexp)/yexp; 
+
+							// walk, or don't (this is the Metropolis part) 
+							if (fRandom -> Rndm() < r)
+								{
+									histogram[ibin] = k - 1; 
+									logp += log(r); 
+								}
+						} 		
+					
+				} // end of looping over bins 
+
+			// increase counter 
+			if (logp < logp_start)
+				counter_pvalue++; 
+
+		} // end of looping over iterations 
+
+	// calculate p-value 
+	pvalue = double(counter_pvalue) / double(niter); 
+
+	// no error 
+	return 1; 
+}
 
 // ---------------------------------------------------------
 int BCHistogramRatioFitter::GetUncertainties(int n, int k, double p, double &xmin, double &xmax)
