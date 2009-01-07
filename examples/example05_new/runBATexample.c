@@ -36,17 +36,17 @@ int runBATexample()
 	f1 -> SetParLimits(1, 0.0,  20.0); 
 
 	// create a new histogram fitter
-	BCHistogramRatioFitter * hrf = new BCHistogramRatioFitter(hist1, hist2, f1); 
+	BCEfficiencyFitter * hef = new BCEfficiencyFitter(hist1, hist2, f1); 
 
 	// set options for evaluating the fit function
-	hrf -> SetFlagIntegration(false); 
+	hef -> SetFlagIntegration(false); 
 
 	// set options for MCMC 
-	hrf -> MCMCSetNIterationsMax(10000);
-	hrf -> MCMCSetNIterationsRun(10000);
+	hef -> MCMCSetNIterationsMax(10000);
+	hef -> MCMCSetNIterationsRun(10000);
 
 	// perform fit 
-	hrf -> Fit();
+	hef -> Fit();
 
 	// print data and fit 
 	TCanvas * c1 = new TCanvas("c1"); 
@@ -55,13 +55,13 @@ int runBATexample()
 	hist1 -> Draw(); 
 	hist2 -> Draw("SAME"); 
 	c1 -> cd(2); 
-	hrf -> DrawFit("", true); // draw with a legend
+	hef -> DrawFit("", true); // draw with a legend
 
 	// print to file 
 	c1 -> Print("fit.ps"); 
 
 	// print marginalized distributions 
-	hrf -> PrintAllMarginalized("distributions.ps"); 
+	hef -> PrintAllMarginalized("distributions.ps"); 
 
 	return 1;
 }
