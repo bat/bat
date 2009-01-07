@@ -21,11 +21,11 @@
 #include "BCDataPoint.h"
 #include "BCMath.h"
 
-#include "BCHistogramRatioFitter.h"
+#include "BCEfficiencyFitter.h"
 
 // ---------------------------------------------------------
 
-BCHistogramRatioFitter::BCHistogramRatioFitter() : BCModel("HistogramRatioFitter")
+BCEfficiencyFitter::BCEfficiencyFitter() : BCModel("HistogramRatioFitter")
 {
 	fHistogram1 = 0;
 	fHistogram2 = 0;
@@ -42,7 +42,7 @@ BCHistogramRatioFitter::BCHistogramRatioFitter() : BCModel("HistogramRatioFitter
 
 // ---------------------------------------------------------
 
-BCHistogramRatioFitter::BCHistogramRatioFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("HistogramRatioFitter")
+BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("HistogramRatioFitter")
 {
 	fHistogram1 = 0;
 	fHistogram2 = 0;
@@ -61,19 +61,19 @@ BCHistogramRatioFitter::BCHistogramRatioFitter(TH1D * hist1, TH1D * hist2, TF1 *
 
 // ---------------------------------------------------------
 
-int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
+int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 {
 	// check if histogram exists
 	if (!hist1 || !hist2)
 	{
-		BCLog::Out(BCLog::error,BCLog::error,"BCHistogramRatioFitter::SetHistograms() : TH1D not created.");
+		BCLog::Out(BCLog::error,BCLog::error,"BCEfficiencyFitter::SetHistograms() : TH1D not created.");
 		return 0;
 	}
 
 	// check compatibility of both histograms : number of bins 
 	if (hist1 -> GetNbinsX() != hist2 -> GetNbinsX())
 		{
-		BCLog::Out(BCLog::error,BCLog::error,"BCHistogramRatioFitter::SetHistograms() : Histograms do not have the same number of bins.");
+		BCLog::Out(BCLog::error,BCLog::error,"BCEfficiencyFitter::SetHistograms() : Histograms do not have the same number of bins.");
 		return 0;
 		}
 
@@ -82,7 +82,7 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 		{
 			if (hist1 -> GetBinContent(i) < hist2 -> GetBinContent(i))
 				{
-					BCLog::Out(BCLog::error,BCLog::error,"BCHistogramRatioFitter::SetHistograms() : Histogram 1 has fewer entries than histogram 2.");
+					BCLog::Out(BCLog::error,BCLog::error,"BCEfficiencyFitter::SetHistograms() : Histogram 1 has fewer entries than histogram 2.");
 					return 0;	
 				}			
 		}
@@ -186,12 +186,12 @@ int BCHistogramRatioFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 
 // ---------------------------------------------------------
 
-int BCHistogramRatioFitter::SetFitFunction(TF1 * func)
+int BCEfficiencyFitter::SetFitFunction(TF1 * func)
 {
 	// check if function exists
 	if(!func)
 	{
-		BCLog::Out(BCLog::error,BCLog::error,"BCHistogramRatioFitter::SetFitFunction() : TF1 not created.");
+		BCLog::Out(BCLog::error,BCLog::error,"BCEfficiencyFitter::SetFitFunction() : TF1 not created.");
 		return 0;
 	}
 
@@ -224,7 +224,7 @@ int BCHistogramRatioFitter::SetFitFunction(TF1 * func)
 
 // ---------------------------------------------------------
 
-BCHistogramRatioFitter::~BCHistogramRatioFitter()
+BCEfficiencyFitter::~BCEfficiencyFitter()
 {
 	if (fHistogram1)
 		delete fHistogram1; 
@@ -241,7 +241,7 @@ BCHistogramRatioFitter::~BCHistogramRatioFitter()
 
 // ---------------------------------------------------------
 
-double BCHistogramRatioFitter::LogAPrioriProbability(std::vector <double> parameters)
+double BCEfficiencyFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
 	// using flat probability in all parameters
 	return 0.;
@@ -249,7 +249,7 @@ double BCHistogramRatioFitter::LogAPrioriProbability(std::vector <double> parame
 
 // ---------------------------------------------------------
 
-double BCHistogramRatioFitter::LogLikelihood(std::vector <double> params)
+double BCEfficiencyFitter::LogLikelihood(std::vector <double> params)
 {
 
  	// initialize probability
@@ -295,7 +295,7 @@ double BCHistogramRatioFitter::LogLikelihood(std::vector <double> params)
 
 // ---------------------------------------------------------
 
-double BCHistogramRatioFitter::FitFunction(std::vector <double> x, std::vector <double> params)
+double BCEfficiencyFitter::FitFunction(std::vector <double> x, std::vector <double> params)
 {
 	// set the parameters of the function
 	fFitFunction -> SetParameters(&params[0]);
@@ -305,14 +305,14 @@ double BCHistogramRatioFitter::FitFunction(std::vector <double> x, std::vector <
 
 // ---------------------------------------------------------
 
-int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
+int BCEfficiencyFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 {
 	// set histogram
 	if (hist1 && hist2)
 		this -> SetHistograms(hist1, hist2);
 	else
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Histogram(s) not defined.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::Fit() : Histogram(s) not defined.");
 			return 0;
 		}
 
@@ -321,7 +321,7 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 		this -> SetFitFunction(func);
 	else
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Fit function not defined.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::Fit() : Fit function not defined.");
 			return 0;
 		}
 
@@ -340,7 +340,7 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 		}
 	else
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::Fit() : Could not use the fast p-value evaluation.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::Fit() : Could not use the fast p-value evaluation.");
 		}
 	
 	// print summary to screen
@@ -352,17 +352,17 @@ int BCHistogramRatioFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 
 // ---------------------------------------------------------
 
-void BCHistogramRatioFitter::DrawFit(const char * options, bool flaglegend)
+void BCEfficiencyFitter::DrawFit(const char * options, bool flaglegend)
 {
  	if (!fHistogram1 || !fHistogram2 || !fHistogramRatio)
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::DrawFit() : Histogram(s) not defined.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::DrawFit() : Histogram(s) not defined.");
 			return;
 		}
 	
  	if (!fFitFunction)
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::DrawFit() : Fit function not defined.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::DrawFit() : Fit function not defined.");
 			return;
 		}
 	
@@ -415,7 +415,7 @@ void BCHistogramRatioFitter::DrawFit(const char * options, bool flaglegend)
 
 // ---------------------------------------------------------
 
-void BCHistogramRatioFitter::PrintFitSummary()
+void BCEfficiencyFitter::PrintFitSummary()
 {
 	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
 	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
@@ -431,19 +431,19 @@ void BCHistogramRatioFitter::PrintFitSummary()
 }
 
 // ---------------------------------------------------------
-int BCHistogramRatioFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
+int BCEfficiencyFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
 {
 	// check size of parameter vector 
 	if (par.size() != this -> GetNParameters())
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
 		return 0;
 		}
 
 	// check if histogram exists
 	if (!fHistogram1 || !fHistogram2)
 		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramRatioFitter::CalculatePValueFast() : Histogram not defined.");
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEfficiencyFitter::CalculatePValueFast() : Histogram not defined.");
 		return 0;
 		}
 
@@ -554,7 +554,7 @@ int BCHistogramRatioFitter::CalculatePValueFast(std::vector<double> par, double 
 }
 
 // ---------------------------------------------------------
-int BCHistogramRatioFitter::GetUncertainties(int n, int k, double p, double &xmin, double &xmax)
+int BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double &xmin, double &xmax)
 {
 	// create a histogram with binomial distribution
 	if (fHistogramBinomial)

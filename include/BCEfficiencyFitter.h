@@ -1,8 +1,8 @@
-#ifndef __BCMODELHISTOGRAMRATIOFITTER__H
-#define __BCMODELHISTOGRAMRATIOFITTER__H
+#ifndef __BCEFFICIENCYFITTER__H
+#define __BCEFFICIENCYFITTER__H
 
 /*!
- * \class BCHistogramRatioFitter
+ * \class BCEfficiencyFitter
  * \brief A class for fitting histograms with functions
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
@@ -36,7 +36,7 @@ class TGraphAsymmErrors;
 
 // ---------------------------------------------------------
 
-class BCHistogramRatioFitter : public BCModel
+class BCEfficiencyFitter : public BCModel
 {
  public:
 
@@ -45,18 +45,18 @@ class BCHistogramRatioFitter : public BCModel
 
 	/**
 	 * The default constructor. */
-	BCHistogramRatioFitter();
+	BCEfficiencyFitter();
 
 	/**
 	 * A constructor.
 	 * @param hist1 The histogram with the larger numbers
 	 * @param hist2 The histogram with the smaller numbers
 	 * @param func The fit function. */
-	BCHistogramRatioFitter(TH1D * hist1, TH1D * hist2, TF1 * func);
+	BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func);
 
 	/**
 	 * The default destructor. */
-	~BCHistogramRatioFitter();
+	~BCEfficiencyFitter();
 
 	/* @} */
 
@@ -180,7 +180,7 @@ class BCHistogramRatioFitter : public BCModel
 	 * @param  pvalue The pvalue
 	 * @return An error code 
 	 */ 
-	//		int CalculatePValueFast(std::vector<double> par, double &pvalue); 
+	int CalculatePValueFast(std::vector<double> par, double &pvalue); 
 
 	/* @} */
 

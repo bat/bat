@@ -37,7 +37,7 @@ CXSRCS      = BCParameter.cxx \
 		BCEngineMCMC.cxx \
 		BCModelManager.cxx \
 		BCHistogramFitter.cxx \
-		BCHistogramRatioFitter.cxx \
+		BCEfficiencyFitter.cxx \
 		BCGraphFitter.cxx \
 		BCLog.cxx \
 		BCMath.cxx
