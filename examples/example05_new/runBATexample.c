@@ -32,7 +32,7 @@ int runBATexample()
 
 	// define a fit function 
 	TF1 * f1 = new TF1("f1", fitfunction, 0.0, 100.0, 2); 
-	f1 -> SetParLimits(0, 50.0, 70.0);
+	f1 -> SetParLimits(0, 20.0, 70.0);
 	f1 -> SetParLimits(1, 0.0,  20.0); 
 
 	// create a new histogram fitter
