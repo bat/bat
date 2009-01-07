@@ -25,7 +25,7 @@
 
 // ---------------------------------------------------------
 
-BCEfficiencyFitter::BCEfficiencyFitter() : BCModel("HistogramRatioFitter")
+BCEfficiencyFitter::BCEfficiencyFitter() : BCModel("EfficiencyFitter")
 {
 	fHistogram1 = 0;
 	fHistogram2 = 0;
@@ -42,7 +42,7 @@ BCEfficiencyFitter::BCEfficiencyFitter() : BCModel("HistogramRatioFitter")
 
 // ---------------------------------------------------------
 
-BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("HistogramRatioFitter")
+BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("EfficiencyFitter")
 {
 	fHistogram1 = 0;
 	fHistogram2 = 0;
@@ -199,7 +199,7 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
 	fFitFunction = func;
 
 	// update the model name to contain the function name
-	this -> SetName(TString::Format("HistogramRatioFitter with %s",fFitFunction->GetName()));
+	this -> SetName(TString::Format("BCEfficiencyFitter with %s",fFitFunction->GetName()));
 
 	// reset parameters
 	fParameterSet -> clear();
