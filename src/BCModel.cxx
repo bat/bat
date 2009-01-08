@@ -1495,8 +1495,8 @@ void BCModel::PrintResults(const char * file)
 
 void BCModel::PrintShortFitSummary()
 {
-	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------");
-	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
+	BCLog::Out(BCLog::summary, BCLog::summary, "---------------------------------------------------");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("Fit summary for model \'%s\':",this -> GetName().data()));
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("   Number of parameters = %i", this -> GetNParameters()));
 
 	BCLog::Out(BCLog::summary, BCLog::summary, "   Best fit parameters (global):");
@@ -1505,7 +1505,7 @@ void BCModel::PrintShortFitSummary()
 
 	BCLog::Out(BCLog::summary, BCLog::summary, "   Goodness-of-fit test:");
 	BCLog::Out(BCLog::summary, BCLog::summary, Form("      p-value = %.2lf", this -> GetPValue()));
-	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------");
+	BCLog::Out(BCLog::summary, BCLog::summary, "---------------------------------------------------");
 }
 
 // ---------------------------------------------------------

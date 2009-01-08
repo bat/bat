@@ -301,15 +301,15 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 
 	// draw legend
 	if (flaglegend)
-		{
-			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95);
-			legend -> SetBorderSize(0);
-			legend -> SetFillColor(kWhite);
-			legend -> AddEntry(fGraph, "Data", "P");
-			legend -> AddEntry(fGraphFitFunction, "Best fit", "L");
-			legend -> AddEntry(fErrorBand, "Error band", "F");
-			legend -> Draw();
-		}
+	{
+		TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95);
+		legend -> SetBorderSize(0);
+		legend -> SetFillColor(kWhite);
+		legend -> AddEntry(fGraph, "Data", "P");
+		legend -> AddEntry(fGraphFitFunction, "Best fit", "L");
+		legend -> AddEntry(fErrorBand, "Error band", "F");
+		legend -> Draw();
+	}
 
 	gPad -> RedrawAxis();
 }
