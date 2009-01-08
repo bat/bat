@@ -100,6 +100,7 @@ examples/example05_new/runBATexample.c -text
 examples/example06/data/datax.txt -text
 examples/example06/graphFitterExample.C -text
 examples/example07/hFitterExample.C -text
+include/BCAux.h -text
 include/BCDataPoint.h -text
 include/BCDataSet.h -text
 include/BCEfficiencyFitter.h -text
@@ -118,8 +119,8 @@ include/BCModelOutput.h -text
 include/BCModelTest.h -text
 include/BCParameter.h -text
 include/BCReleaseVersion.h -text
-include/style.c -text
 /libBAT.rootmap -text
+src/BCAux.cxx -text
 src/BCDataPoint.cxx -text
 src/BCDataSet.cxx -text
 src/BCEfficiencyFitter.cxx -text

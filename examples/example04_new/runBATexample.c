@@ -3,8 +3,6 @@
 #include <BCModelOutput.h> 
 #include <BCDataSet.h>
 
-#include "style.c" 
-
 #include <TCanvas.h> 
 #include <TGraphErrors.h>
 #include <TH2D.h> 

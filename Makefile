@@ -40,7 +40,8 @@ CXSRCS      = BCParameter.cxx \
 		BCEfficiencyFitter.cxx \
 		BCGraphFitter.cxx \
 		BCLog.cxx \
-		BCMath.cxx
+		BCMath.cxx \
+		BCAux.cxx
 
 LIBA         = libBAT.a
 LIBSO        = libBAT.so

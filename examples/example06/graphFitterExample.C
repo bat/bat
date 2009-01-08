@@ -32,12 +32,10 @@
 #include <fstream>
 #include <vector>
 
-//#include "../../include/style.c"
-
 void graphFitterExample()
 {
 	// set up nice style for plots
-//	SetStyle();
+	BCAux::SetStyle();
 
 	// uncomment the this command if you want more printouts during the run
 	BCLog::SetLogLevel(BCLog::detail);

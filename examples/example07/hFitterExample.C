@@ -23,12 +23,10 @@
 #include <TRandom.h>
 #include <TCanvas.h>
 
-//#include "../../include/style.c"
-
 void hFitterExample()
 {
 	// set up nice style for plots
-//	SetStyle();
+	BCAux::SetStyle();
 
 	// uncomment the this command if you want more printouts during the run
 //	BCLog::SetLogLevel(BCLog::detail);

@@ -508,6 +508,10 @@ class BCModel : public BCIntegrate
 		void PrintResults(const char * file);
 
 		/**
+		 * Prints a short summary of the fit results on the screen. */
+		void PrintShortFitSummary();
+
+		/**
 		 * Prints matrix elements of the Hessian matrix
 		 * @param parameters The parameter values at which point to evaluate the matrix */
 		void PrintHessianMatrix(std::vector<double> parameters);

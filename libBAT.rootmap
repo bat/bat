@@ -1,3 +1,4 @@
+Library.BCAux:              libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMinuit.so libPostscript.so libRIO.so libTree.so
 Library.BCDataPoint:        libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMinuit.so libPostscript.so libRIO.so libTree.so
 Library.BCDataSet:          libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMinuit.so libPostscript.so libRIO.so libTree.so
 Library.BCEfficiencyFitter: libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMinuit.so libPostscript.so libRIO.so libTree.so

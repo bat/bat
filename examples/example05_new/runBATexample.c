@@ -5,8 +5,6 @@ const double mean  = 40.0;
 const double sigma = 15.0;
 
 // ---------------------------------------------------------
-#include "../../include/style.c"
-// ---------------------------------------------------------
 
 int runBATexample()
 {
@@ -16,7 +14,7 @@ int runBATexample()
 	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
 	// set style
-	SetStyle(); 
+	BCAux::SetStyle(); 
 
 	// create new histograms 
 	hist1 = new TH1D("data1", ";x [au];N", nbins, 0.0, 100.0); 

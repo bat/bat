@@ -2,8 +2,7 @@
 #include <BCLog.h>
 #include <BCModelOutput.h> 
 #include <BCDataSet.h>
-
-#include "style.c" 
+#include <BCAux.h>
 
 #include <TCanvas.h> 
 #include <TGraphErrors.h>
@@ -22,9 +21,8 @@ int main()
 	// set style  
 	// ----------------------------------------------------------
 
-	// calls a function which defines a nicer style than the ROOT
-	// default (included in file "style.c").
-	SetStyle(); 
+	// calls a function which defines a nicer style than the ROOT default
+	BCAux::SetStyle();
 
 	// ---------------------------------------------------------
 	// open log file 

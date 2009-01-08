@@ -11,7 +11,7 @@
 #include <TF1.h>
 #include <TString.h>
 #include <TPad.h>
-#include <TLegend.h> 
+#include <TLegend.h>
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -26,8 +26,8 @@ BCGraphFitter::BCGraphFitter() : BCModel("GraphFitter")
 {
 	fGraph = 0;
 	fFitFunction = 0;
-	fErrorBand = 0; 
-	fGraphFitFunction = 0; 
+	fErrorBand = 0;
+	fGraphFitFunction = 0;
 
 	this -> MCMCSetNIterationsRun(2000);
 
@@ -40,8 +40,8 @@ BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func) : BCModel("GraphF
 {
 	fGraph = 0;
 	fFitFunction = 0;
-	fErrorBand = 0; 
-	fGraphFitFunction = 0; 
+	fErrorBand = 0;
+	fGraphFitFunction = 0;
 
 	this -> MCMCSetNIterationsRun(2000);
 
@@ -256,7 +256,7 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 	this -> GetPvalueFromChi2(this -> GetBestFitParameters(), 3);
 
 	// print summary to screen
-	this -> PrintFitSummary();
+	this -> PrintShortFitSummary();
 
 	return 1;
 }
@@ -302,33 +302,16 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 	// draw legend
 	if (flaglegend)
 		{
-			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
-			legend -> SetBorderSize(0); 
-			legend -> SetFillColor(kWhite); 
-			legend -> AddEntry(fGraph, "Data", "P"); 
-			legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
-			legend -> AddEntry(fErrorBand, "Error band", "F"); 
-			legend -> Draw(); 
+			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95);
+			legend -> SetBorderSize(0);
+			legend -> SetFillColor(kWhite);
+			legend -> AddEntry(fGraph, "Data", "P");
+			legend -> AddEntry(fGraphFitFunction, "Best fit", "L");
+			legend -> AddEntry(fErrorBand, "Error band", "F");
+			legend -> Draw();
 		}
 
 	gPad -> RedrawAxis();
-}
-
-// ---------------------------------------------------------
-
-void BCGraphFitter::PrintFitSummary()
-{
-	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
-	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Number of parameters = %i", this -> GetNParameters())); 
-
-	BCLog::Out(BCLog::summary, BCLog::summary, "Best fit parameters (global):"); 
-	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		BCLog::Out(BCLog::summary, BCLog::summary, Form("%s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
-	
-	BCLog::Out(BCLog::summary, BCLog::summary, "Goodness-of-fit test:");
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("p-value = %.2lf", this -> GetPValue())); 
-	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
 }
 
 // ---------------------------------------------------------

@@ -24,7 +24,6 @@
 #include <vector>
 
 #include "BCModel.h"
-#include "BCH1D.h"
 
 // ROOT classes
 class TH1D;
@@ -71,10 +70,10 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * @return pointer to the error band */
 		TGraph * GetErrorBand()
-			{ return fErrorBand; }; 
+			{ return fErrorBand; };
 
 		/**
-		 * @return pointer to a graph for the fit function */ 
+		 * @return pointer to a graph for the fit function */
 		TGraph * GetGraphFitFunction()
 			{ return fGraphFitFunction; };
 
@@ -98,10 +97,9 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * Sets the flag for integration. \n
 		 * true: use ROOT's TH1D::Integrate() \n
-		 * false: use linear interpolation 
-		 */ 
+		 * false: use linear interpolation */
 		void SetFlagIntegration(bool flag)
-		{ fFlagIntegration = flag; }; 
+			{ fFlagIntegration = flag; };
 
 		/* @} */
 		/** \name Member functions (miscellaneous methods) */
@@ -152,17 +150,11 @@ class BCHistogramFitter : public BCModel
 		void DrawFit(const char * options = "", bool flaglegend = false);
 
 		/**
-		 * Print a summary of the fit to the screen
-		 */
-		void PrintFitSummary();
-
-		/**
 		 * Calculate the p-value using fast-MCMC.
-		 * @param par A set of parameter values 
+		 * @param par A set of parameter values
 		 * @param  pvalue The pvalue
-		 * @return An error code 
-		 */ 
-		int CalculatePValueFast(std::vector<double> par, double &pvalue); 
+		 * @return An error code */
+		int CalculatePValueFast(std::vector<double> par, double &pvalue);
 
 		/* @} */
 
@@ -177,18 +169,18 @@ class BCHistogramFitter : public BCModel
 		 * The fit function */
 		TF1 * fFitFunction;
 
-		/** 
+		/**
 		 * Flag for using the ROOT TH1D::Integral method (true), or linear
-		 * interpolation (false) */ 
-		bool fFlagIntegration; 
+		 * interpolation (false) */
+		bool fFlagIntegration;
 		
 		/**
-		 * Pointer to the error band (for legend) */ 
-		TGraph * fErrorBand; 
+		 * Pointer to the error band (for legend) */
+		TGraph * fErrorBand;
 
 		/**
-		 * Pointer to a graph for displaying the fit function */ 
-		TGraph * fGraphFitFunction; 
+		 * Pointer to a graph for displaying the fit function */
+		TGraph * fGraphFitFunction;
 };
 
 // ---------------------------------------------------------

@@ -5,6 +5,7 @@
 #include <BCModelOutput.h>
 #include <BCDataPoint.h>
 #include <BCH1D.h>
+#include <BCAux.h>
 
 #include <TCanvas.h>
 #include <TH1D.h>
@@ -14,8 +15,6 @@
 #include <TGraph.h>
 
 #include  <iostream>
-
-#include "style.c"
 
 // ---------------------------------------------------------
 
@@ -27,7 +26,7 @@ int main()
 	// ---------------------------------------------------------
 
 	// calls a function which defines a nice style.
-	SetStyle();
+	BCAux::SetStyle();
 
 	// ---------------------------------------------------------
 	// open log file

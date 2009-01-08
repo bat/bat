@@ -13,7 +13,7 @@
 #include <TString.h>
 #include <TPad.h>
 #include <TRandom3.h>
-#include <TLegend.h> 
+#include <TLegend.h>
 
 #include "BCLog.h"
 #include "BCDataSet.h"
@@ -32,7 +32,7 @@ BCHistogramFitter::BCHistogramFitter() : BCModel("HistogramFitter")
 	// set default options and values
 	this -> MCMCSetNIterationsRun(2000);
 	this -> SetFillErrorBand();
-	fFlagIntegration = true; 
+	fFlagIntegration = true;
 }
 
 // ---------------------------------------------------------
@@ -47,7 +47,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) : BCModel("Histogr
 
 	this -> MCMCSetNIterationsRun(2000);
 	this -> SetFillErrorBand();
-	fFlagIntegration = true; 
+	fFlagIntegration = true;
 }
 
 // ---------------------------------------------------------
@@ -176,47 +176,47 @@ double BCHistogramFitter::LogLikelihood(std::vector <double> params)
 	
 	// loop over all bins
 	for (int ibin = 1; ibin <= nbins; ++ibin)
+	{
+		// get upper bin edge
+		double xedgehi = fHistogram -> GetBinLowEdge(ibin) + dx;
+
+		// get function value at upper bin edge
+		double fedgehi = fFitFunction -> Eval(xedgehi);
+
+		// get the number of observed events
+		double y = fHistogram -> GetBinContent(ibin);
+
+		double yexp = 0.;
+
+		// use ROOT's TH1D::Integral method
+		if (fFlagIntegration)
+			yexp = fFitFunction -> Integral(xedgehi-dx, xedgehi);
+
+		// use linear interpolation
+		else
 		{
-			// get upper bin edge
-			double xedgehi = fHistogram -> GetBinLowEdge(ibin) + dx;
+			yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
 
-			// get function value at upper bin edge
-			double fedgehi = fFitFunction -> Eval(xedgehi);
-
-			// get the number of observed events
-			double y = fHistogram -> GetBinContent(ibin);
-
-			double yexp = 0.; 
-
-			// use ROOT's TH1D::Integral method
-			if (fFlagIntegration)
-				yexp = fFitFunction -> Integral(xedgehi-dx, xedgehi);
-
-			// use linear interpolation 
-			else
-				{
-					yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.; 
-
-					// make the upper edge the lower edge for the next iteration
-					fedgelow = fedgehi;
-				}
-
-			// get the value of the Poisson distribution
-			loglikelihood += BCMath::LogPoisson(y, yexp);
+			// make the upper edge the lower edge for the next iteration
+			fedgelow = fedgehi;
 		}
 
-// 			// get bin boundaries
-// 			double xmin = fHistogram -> GetBinLowEdge(ibin);
-// 			double xmax = fHistogram -> GetBinLowEdge(ibin+1);
-			
-// 			// get the number of observed events
-// 			double y = fHistogram -> GetBinContent(ibin);
-			
-// 			// get the number of expected events
-// 			double yexp = fFitFunction -> Integral(xmin, xmax);
-			
-// 			// get the value of the Poisson distribution
-// 			loglikelihood += BCMath::LogPoisson(y, yexp);
+		// get the value of the Poisson distribution
+		loglikelihood += BCMath::LogPoisson(y, yexp);
+	}
+
+//	// get bin boundaries
+//	double xmin = fHistogram -> GetBinLowEdge(ibin);
+//	double xmax = fHistogram -> GetBinLowEdge(ibin+1);
+
+//	// get the number of observed events
+//	double y = fHistogram -> GetBinContent(ibin);
+
+//	// get the number of expected events
+//	double yexp = fFitFunction -> Integral(xmin, xmax);
+
+//	// get the value of the Poisson distribution
+//	loglikelihood += BCMath::LogPoisson(y, yexp);
 
 	return loglikelihood;
 }
@@ -260,19 +260,15 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 	// to the global maximum from the MCMC
 	this -> FindModeMinuit( this -> GetBestFitParameters() , -1);
 
-	// calculate the p-value using the fast MCMC algorithm 
-	double pvalue; 
+	// calculate the p-value using the fast MCMC algorithm
+	double pvalue;
 	if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
-		{
-			fPValue = pvalue; 
-		}
+		fPValue = pvalue;
 	else
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::Fit() : Could not use the fast p-value evaluation.");
-		}
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::Fit() : Could not use the fast p-value evaluation.");
 
 	// print summary to screen
-	this -> PrintFitSummary();
+	this -> PrintShortFitSummary();
 
 	// no error
 	return 1;
@@ -317,138 +313,120 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 
 	// draw legend
 	if (flaglegend)
-		{
-			TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95); 
-			legend -> SetBorderSize(0); 
-			legend -> SetFillColor(kWhite); 
-			legend -> AddEntry(fHistogram, "Data", "L"); 
-			legend -> AddEntry(fGraphFitFunction, "Best fit", "L"); 
-			legend -> AddEntry(fErrorBand, "Error band", "F"); 
-			legend -> Draw(); 
-		}
+	{
+		TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95);
+		legend -> SetBorderSize(0);
+		legend -> SetFillColor(kWhite);
+		legend -> AddEntry(fHistogram, "Data", "L");
+		legend -> AddEntry(fGraphFitFunction, "Best fit", "L");
+		legend -> AddEntry(fErrorBand, "Error band", "F");
+		legend -> Draw();
+	}
 
 	gPad -> RedrawAxis();
 }
 
 // ---------------------------------------------------------
-
-void BCHistogramFitter::PrintFitSummary()
-{
-	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
-	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Number of parameters = %i", this -> GetNParameters())); 
-
-	BCLog::Out(BCLog::summary, BCLog::summary, "Best fit parameters (global):"); 
-	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		BCLog::Out(BCLog::summary, BCLog::summary, Form("%s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
-	
-	BCLog::Out(BCLog::summary, BCLog::summary, "Goodness-of-fit test:");
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("p-value = %.2lf", this -> GetPValue())); 
-	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------"); 
-}
-
-// ---------------------------------------------------------
 int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
 {
-	// check size of parameter vector 
+	// check size of parameter vector
 	if (par.size() != this -> GetNParameters())
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
 		return 0;
-		}
+	}
 
 	// check if histogram exists
 	if (!fHistogram)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::CalculatePValueFast() : Histogram not defined.");
+	{
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCHistogramFitter::CalculatePValueFast() : Histogram not defined.");
 		return 0;
-		}
+	}
 
 	// define temporary variables
-	int nbins = fHistogram -> GetNbinsX(); 
+	int nbins = fHistogram -> GetNbinsX();
 
-	std::vector <int> histogram; 
-	std::vector <double> expectation; 
-	histogram.assign(nbins, 0); 
-	expectation.assign(nbins, 0); 
+	std::vector <int> histogram;
+	std::vector <double> expectation;
+	histogram.assign(nbins, 0);
+	expectation.assign(nbins, 0);
 
-	double logp = 0; 
-	double logp_start = 0; 
-	int counter_pvalue = 0; 
+	double logp = 0;
+	double logp_start = 0;
+	int counter_pvalue = 0;
 
 	// define starting distribution
 	for (int ibin = 0; ibin < nbins; ++ibin)
-		{
-			// get bin boundaries
-			double xmin = fHistogram -> GetBinLowEdge(ibin+1);
-			double xmax = fHistogram -> GetBinLowEdge(ibin+2);
-			
-			// get the number of expected events
-			double yexp = fFitFunction -> Integral(xmin, xmax);
+	{
+		// get bin boundaries
+		double xmin = fHistogram -> GetBinLowEdge(ibin+1);
+		double xmax = fHistogram -> GetBinLowEdge(ibin+2);
 
-			histogram[ibin]   = int(yexp); 
-			expectation[ibin] = yexp; 
+		// get the number of expected events
+		double yexp = fFitFunction -> Integral(xmin, xmax);
 
-			// calculate p; 
-			logp += BCMath::LogPoisson(double(int(yexp)), yexp); 
-			logp_start += BCMath::LogPoisson(fHistogram -> GetBinContent(ibin+1), yexp); 
-		}
+		histogram[ibin]   = int(yexp);
+		expectation[ibin] = yexp;
 
-	int niter = 100000; 
-	
-	// loop over iterations 
+		// calculate p;
+		logp += BCMath::LogPoisson(double(int(yexp)), yexp);
+		logp_start += BCMath::LogPoisson(fHistogram -> GetBinContent(ibin+1), yexp);
+	}
+
+	int niter = 100000;
+
+	// loop over iterations
 	for (int iiter = 0; iiter < niter; ++iiter)
+	{
+		// loop over bins
+		for (int ibin = 0; ibin < nbins; ++ibin)
 		{
-			
-			// loop over bins 
-			for (int ibin = 0; ibin < nbins; ++ibin)
+			// random step up or down in statistics for this bin
+			double ptest = fRandom -> Rndm() - 0.5;
+
+			// increase statistics by 1
+			if (ptest > 0)
+			{
+				// calculate factor of probability
+				double r = expectation.at(ibin) / double(histogram.at(ibin) + 1);
+
+				// walk, or don't (this is the Metropolis part)
+				if (fRandom -> Rndm() < r)
 				{
-					// random step up or down in statistics for this bin 
-					double ptest = fRandom -> Rndm() - 0.5; 
+					histogram[ibin] = histogram.at(ibin) + 1;
+					logp += log(r);
+				}
+			}
 
-					// increase statistics by 1
-					if (ptest > 0)
-						{
-							// calculate factor of probability 
-							double r = expectation.at(ibin) / double(histogram.at(ibin) + 1); 
+			// decrease statistics by 1
+			else if (ptest <= 0 && histogram[ibin] > 0)
+			{
+				// calculate factor of probability
+				double r = double(histogram.at(ibin)) / expectation.at(ibin);
 
-							// walk, or don't (this is the Metropolis part) 
-							if (fRandom -> Rndm() < r)
-								{
-									histogram[ibin] = histogram.at(ibin) + 1; 
-									logp += log(r); 
-								}
-						}
+				// walk, or don't (this is the Metropolis part)
+				if (fRandom -> Rndm() < r)
+				{
+					histogram[ibin] = histogram.at(ibin) - 1;
+					logp += log(r);
+				}
+			}
+			// debugKK
+//			std::cout << " negative " << std::endl;
 
-					// decrease statistics by 1 
-					else if (ptest <= 0 && histogram[ibin] > 0)
-						{
-							// calculate factor of probability 
-							double r = double(histogram.at(ibin)) / expectation.at(ibin); 
+		} // end of looping over bins
 
-							// walk, or don't (this is the Metropolis part) 
-							if (fRandom -> Rndm() < r)
-								{
-									histogram[ibin] = histogram.at(ibin) - 1; 
-									logp += log(r); 
-								}
-						} 					
-					// debugKK
-					std::cout << " negative " << std::endl; 
+		// increase counter
+		if (logp < logp_start)
+			counter_pvalue++;
 
-				} // end of looping over bins 
+	} // end of looping over iterations
 
-			// increase counter 
-			if (logp < logp_start)
-				counter_pvalue++; 
+	// calculate p-value
+	pvalue = double(counter_pvalue) / double(niter);
 
-		} // end of looping over iterations 
-
-	// calculate p-value 
-	pvalue = double(counter_pvalue) / double(niter); 
-
-	// no error 
-	return 1; 
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------

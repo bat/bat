@@ -70,10 +70,10 @@ class BCGraphFitter : public BCModel
 		/**
 		 * @return pointer to the error band */
 		TGraph * GetErrorBand()
-			{ return fErrorBand; }; 
+			{ return fErrorBand; };
 
 		/**
-		 * @return pointer to a graph for the fit function */ 
+		 * @return pointer to a graph for the fit function */
 		TGraph * GetGraphFitFunction()
 			{ return fGraphFitFunction; };
 
@@ -128,11 +128,6 @@ class BCGraphFitter : public BCModel
 		 * Draw the fit in the current pad. */
 		void DrawFit(const char * options = "", bool flaglegend = false);
 
-		/**
-		 * Print a summary of the fit to the screen
-		 */ 
-		void PrintFitSummary(); 
-
 		/* @} */
 
 	private:
@@ -146,12 +141,12 @@ class BCGraphFitter : public BCModel
 		TF1 * fFitFunction;
 
 		/**
-		 * Pointer to the error band (for legend) */ 
-		TGraph * fErrorBand; 
+		 * Pointer to the error band (for legend) */
+		TGraph * fErrorBand;
 
 		/**
-		 * Pointer to a graph for displaying the fit function */ 
-		TGraph * fGraphFitFunction; 
+		 * Pointer to a graph for displaying the fit function */
+		TGraph * fGraphFitFunction;
 
 };
 

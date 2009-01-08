@@ -1493,6 +1493,23 @@ void BCModel::PrintResults(const char * file)
 
 // ---------------------------------------------------------
 
+void BCModel::PrintShortFitSummary()
+{
+	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------");
+	BCLog::Out(BCLog::summary, BCLog::summary, "Fit summary:");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("   Number of parameters = %i", this -> GetNParameters()));
+
+	BCLog::Out(BCLog::summary, BCLog::summary, "   Best fit parameters (global):");
+	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
+		BCLog::Out(BCLog::summary, BCLog::summary, Form("      %s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
+
+	BCLog::Out(BCLog::summary, BCLog::summary, "   Goodness-of-fit test:");
+	BCLog::Out(BCLog::summary, BCLog::summary, Form("      p-value = %.2lf", this -> GetPValue()));
+	BCLog::Out(BCLog::summary, BCLog::summary, "-----------------------------------------");
+}
+
+// ---------------------------------------------------------
+
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
 	// check number of entries in vector
