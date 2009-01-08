@@ -1,8 +1,8 @@
-#ifndef __BCMODELTEST__H
-#define __BCMODELTEST__H
+#ifndef __BCGOFTEST__H
+#define __BCGOFTEST__H
 
 /*!
- * \class BCModelTest
+ * \class BCGoFTest
  * \brief The class for testing model hypotheses
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
@@ -30,7 +30,7 @@ class BCDataSet;
 
 // ---------------------------------------------------------
 
-class BCModelTest : public BCModel
+class BCGoFTest : public BCModel
 {
 	public:
 
@@ -40,11 +40,11 @@ class BCModelTest : public BCModel
 		/**
 		 * Default constructor.
 		 */
-		BCModelTest(const char * name);
+		BCGoFTest(const char * name);
 
 		/**
 		 * Default destructor. */
-		~BCModelTest();
+		~BCGoFTest();
 
 		/* @} */
 		/** \name Member functions (get) */

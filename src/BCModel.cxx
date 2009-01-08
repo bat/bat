@@ -14,7 +14,7 @@
 #include "BCParameter.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
-#include "BCModelTest.h"
+#include "BCGoFTest.h"
 #include "BCLog.h"
 #include "BCErrorCodes.h"
 #include "BCMath.h"
@@ -1163,28 +1163,28 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test");
 
 	// create model test
-	BCModelTest * modeltest = new BCModelTest("modeltest");
+	BCGoFTest * goftest = new BCGoFTest("modeltest");
 
 	// set this model as the model to be tested
-	modeltest -> SetTestModel(this);
+	goftest -> SetTestModel(this);
 
 	// set the point in parameter space which is tested an initialize
 	// the model testing
-	if (!modeltest -> SetTestPoint(par))
+	if (!goftest -> SetTestPoint(par))
 		return 0;
 
 	// get p-value
-	fPValue = modeltest -> GetCalculatedPValue(flag_histogram);
+	fPValue = goftest -> GetCalculatedPValue(flag_histogram);
 
 	// get histogram
 	if (flag_histogram)
 	{
 		hist = new BCH1D();
-		hist -> SetHistogram(modeltest -> GetHistogramLogProb());
+		hist -> SetHistogram(goftest -> GetHistogramLogProb());
 	}
 
 	// delete model test
-	delete modeltest;
+	delete goftest;
 
 	// return histogram
 	return hist;

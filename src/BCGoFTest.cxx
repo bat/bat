@@ -7,7 +7,7 @@
 
 // ---------------------------------------------------------
 
-#include "BCModelTest.h"
+#include "BCGoFTest.h"
 
 #include "BCDataSet.h"
 #include "BCLog.h"
@@ -17,7 +17,7 @@
 
 // ---------------------------------------------------------
 
-BCModelTest::BCModelTest(const char* name) : BCModel(name)
+BCGoFTest::BCGoFTest(const char* name) : BCModel(name)
 {
 	// set original data set to zero
 	fTemporaryDataSet = 0;
@@ -41,7 +41,7 @@ BCModelTest::BCModelTest(const char* name) : BCModel(name)
 
 // ---------------------------------------------------------
 
-BCModelTest::~BCModelTest()
+BCGoFTest::~BCGoFTest()
 {
 	// restore original data set
 
@@ -66,7 +66,7 @@ BCModelTest::~BCModelTest()
 
 // ---------------------------------------------------------
 
-double BCModelTest::LogLikelihood(std::vector <double> parameters)
+double BCGoFTest::LogLikelihood(std::vector <double> parameters)
 {
 	// set the original data set to the new parameters
 	for (int i = 0; i < int(parameters.size()); ++i)
@@ -81,7 +81,7 @@ double BCModelTest::LogLikelihood(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
-void BCModelTest::MCMCUserIterationInterface()
+void BCGoFTest::MCMCUserIterationInterface()
 {
 	int nchains = this -> MCMCGetNChains();
 
@@ -112,12 +112,12 @@ void BCModelTest::MCMCUserIterationInterface()
 
 // ---------------------------------------------------------
 
-int BCModelTest::SetTestPoint(std::vector<double> parameters)
+int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 {
 	// check if the boundaries of the original data set exist.
 	if (!fTestModel -> GetFlagBoundaries())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCModelTest::SetTestDataPoint(). Boundaries of the original data set are not defined.");
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCGoFTest::SetTestDataPoint(). Boundaries of the original data set are not defined.");
 		return 0;
 	}
 
@@ -183,7 +183,7 @@ int BCModelTest::SetTestPoint(std::vector<double> parameters)
 	// check if there are any non-fixed data values left
 	if (counter == 0)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCModelTest::SetTestDataPoint(). No non-fixed data values left.");
+		BCLog::Out(BCLog::warning, BCLog::warning,"BCGoFTest::SetTestDataPoint(). No non-fixed data values left.");
 		return 0;
 	}
 
@@ -215,7 +215,7 @@ int BCModelTest::SetTestPoint(std::vector<double> parameters)
 
 // ---------------------------------------------------------
 
-double BCModelTest::GetCalculatedPValue(bool flag_histogram)
+double BCGoFTest::GetCalculatedPValue(bool flag_histogram)
 {
 	// set histogram point to null
 	fHistogramLogProb = 0;
@@ -262,6 +262,5 @@ double BCModelTest::GetCalculatedPValue(bool flag_histogram)
 	// return p-value
 	return fPValue;
 }
-
 
 // ---------------------------------------------------------
