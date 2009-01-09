@@ -7,17 +7,17 @@
 
 // ---------------------------------------------------------
 
-#include "BCModel.h"
+#include "BAT/BCModel.h"
 
-#include "BCDataPoint.h"
-#include "BCDataSet.h"
-#include "BCParameter.h"
-#include "BCH1D.h"
-#include "BCH2D.h"
-#include "BCGoFTest.h"
-#include "BCLog.h"
-#include "BCErrorCodes.h"
-#include "BCMath.h"
+#include "BAT/BCDataPoint.h"
+#include "BAT/BCDataSet.h"
+#include "BAT/BCParameter.h"
+#include "BAT/BCH1D.h"
+#include "BAT/BCH2D.h"
+#include "BAT/BCGoFTest.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCErrorCodes.h"
+#include "BAT/BCMath.h"
 
 #include <TCanvas.h>
 #include <TPostScript.h>

@@ -7,11 +7,11 @@
 
 // ---------------------------------------------------------
 
-#include "BCDataSet.h"
+#include "BAT/BCDataSet.h"
 
-#include "BCDataPoint.h"
-#include "BCLog.h"
-#include "BCErrorCodes.h"
+#include "BAT/BCDataPoint.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCErrorCodes.h"
 
 #include <TFile.h>
 #include <TTree.h>

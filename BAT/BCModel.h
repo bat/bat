@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 
-#include "BCIntegrate.h"
+#include "BAT/BCIntegrate.h"
 
 // ROOT classes
 class TH2D;

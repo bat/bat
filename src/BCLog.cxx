@@ -7,7 +7,7 @@
 
 // ---------------------------------------------------------
 
-#include "BCLog.h"
+#include "BAT/BCLog.h"
 
 std::ofstream BCLog::fOutputStream;
 

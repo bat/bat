@@ -18,12 +18,12 @@
 #include <TLegend.h>
 #include <TMath.h>
 
-#include "BCLog.h"
-#include "BCDataSet.h"
-#include "BCDataPoint.h"
-#include "BCMath.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCDataSet.h"
+#include "BAT/BCDataPoint.h"
+#include "BAT/BCMath.h"
 
-#include "BCEfficiencyFitter.h"
+#include "BAT/BCEfficiencyFitter.h"
 
 // ---------------------------------------------------------
 

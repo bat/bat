@@ -20,7 +20,7 @@
 
 // ---------------------------------------------------------
 
-#include "BCModel.h"
+#include "BAT/BCModel.h"
 
 // ROOT classes
 class TH1D;

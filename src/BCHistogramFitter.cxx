@@ -15,12 +15,12 @@
 #include <TRandom3.h>
 #include <TLegend.h>
 
-#include "BCLog.h"
-#include "BCDataSet.h"
-#include "BCDataPoint.h"
-#include "BCMath.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCDataSet.h"
+#include "BAT/BCDataPoint.h"
+#include "BAT/BCMath.h"
 
-#include "BCHistogramFitter.h"
+#include "BAT/BCHistogramFitter.h"
 
 // ---------------------------------------------------------
 

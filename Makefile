@@ -21,7 +21,7 @@ CINT         = rootcint
 
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
-CXXFLAGS    += -I./include -I./src -I./
+CXXFLAGS    += -I./src -I./
 LIBS        += $(ROOTLIBS) -L. -lcuba
 GLIBS       += $(ROOTGLIBS) -L.
 
@@ -64,7 +64,7 @@ all : $(LIBSO)
 
 libs : $(LIBA) $(LIBSO)
 
-link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))
+link.d : $(patsubst %.cxx,BAT/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
 include link.d
@@ -72,7 +72,7 @@ include link.d
 obj/%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-src/%Dict.cxx : include/%.h
+src/%Dict.cxx : BAT/%.h
 	@echo "generating dictionary "
 	$(CINT) -f $@ -c $<
 

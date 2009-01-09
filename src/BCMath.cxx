@@ -7,7 +7,7 @@
 
 // ---------------------------------------------------------
 
-#include "BCMath.h"
+#include "BAT/BCMath.h"
 
 #include <math.h>
 

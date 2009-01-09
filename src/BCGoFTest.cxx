@@ -7,10 +7,10 @@
 
 // ---------------------------------------------------------
 
-#include "BCGoFTest.h"
+#include "BAT/BCGoFTest.h"
 
-#include "BCDataSet.h"
-#include "BCLog.h"
+#include "BAT/BCDataSet.h"
+#include "BAT/BCLog.h"
 
 #include <TH1D.h>
 #include <TString.h>

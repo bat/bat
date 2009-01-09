@@ -26,9 +26,9 @@
 
 #include <math.h>
 
-#include "BCEngineMCMC.h"
-#include "BCParameter.h"
-#include "BCDataPoint.h"
+#include "BAT/BCEngineMCMC.h"
+#include "BAT/BCParameter.h"
+#include "BAT/BCDataPoint.h"
 
 // ROOT classes
 class TH1D;

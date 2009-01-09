@@ -23,8 +23,8 @@
 
 // ---------------------------------------------------------
 
-#include "BCModel.h"
-#include "BCDataSet.h"
+#include "BAT/BCModel.h"
+#include "BAT/BCDataSet.h"
 
 // BAT classes
 class BCDataPoint;

@@ -7,9 +7,9 @@
 
 // ---------------------------------------------------------
 
-#include "BCDataPoint.h"
+#include "BAT/BCDataPoint.h"
 
-#include "BCLog.h"
+#include "BAT/BCLog.h"
 
 #include <TString.h>
 
