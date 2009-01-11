@@ -7,22 +7,44 @@
 //
 // The macro can be run from within ROOT via commands
 //
-//    root[1] .x graphFitterExample.C
+//    root[1] .x graphFitterAdvancedExample.C
 //
 // or
 //
-//    root[1] .L graphFitterExample.C
-//    root[2] graphFitterExample()
+//    root[1] .L graphFitterAdvancedExample.C
+//    root[2] graphFitterAdvancedExample()
 //
 // or from the command line
 //
-//    $ root graphFitterExample.C
+//    $ root graphFitterAdvancedExample.C
 //
 // By default the data in the file data/datax.txt are fitted. These
 // are the same data that are used for the example in the BAT paper
-// (see BAT webpage). Generate new data and fit them use CreateDataGraph()
-// function.
+// (see BAT webpage). To generate new data and fit them use
+// CreateDataGraph() function.
 //
+
+TGraphErrors * CreateDataGraph(int n=100, double xmin=0.1, double xmax=19.9);
+
+//
+// The data are generated according to second order polynomial plus
+// a gaussian peak. The parameters and the smearing can be set below
+
+	const double p0 =  0.;
+	const double p1 =  0.5;
+	const double p2 =  0.02;
+	const double a  = 15.;
+	const double m  =  5.;
+	const double s  =  0.5;
+
+	const double sigmay = 4.;
+
+//
+// The macro performs fits with four different functions (models):
+//   2nd order polynomial
+//   gaussian peak + constant
+//   gaussian peak + straight line
+//   gaussian peak + 2nd order polynomial
 
 #include <TGraphErrors.h>
 #include <TF1.h>
@@ -32,7 +54,8 @@
 #include <fstream>
 #include <vector>
 
-void graphFitterExample()
+// ----------------------------------------------------------------------
+void graphFitterAdvancedExample()
 {
 	// set up nice style for plots
 	BCAux::SetStyle();
@@ -40,11 +63,17 @@ void graphFitterExample()
 	// uncomment the this command if you want more printouts during the run
 	BCLog::SetLogLevel(BCLog::detail);
 
-	// get graph with the data
+	// uncomment the next command if you want the data
+	// to be generated randomly
 //	TGraphErrors * gr = CreateDataGraph();
-	// read data from file,; default file is data/datax.txt
-	// it's the same data as used in the BAT paper
+
+	// uncomment the next command if you want the data
+	// to be read data from file
+	// the file supplied with BAT distribution
+	// is data/datax.txt and contains the data which were
+	// used in the BAT paper
 	TGraphErrors * gr = ReadDataGraph();
+
 	gr -> SetMarkerStyle(20);
 	gr -> SetMarkerSize(.5);
 
@@ -81,23 +110,19 @@ void graphFitterExample()
 
 	// initialize graph fitter and perform the fit
 	BCGraphFitter * gf1 = new BCGraphFitter(gr,f1);
-	gf1 -> MCMCSetNIterationsMax(100000);
-	gf1 -> MCMCSetNIterationsRun(100000);
+	gf1 -> MCMCSetNIterationsRun(20000);
 	gf1 -> Fit();
 
 	BCGraphFitter * gf2 = new BCGraphFitter(gr,f2);
-	gf2 -> MCMCSetNIterationsMax(100000);
-	gf2 -> MCMCSetNIterationsRun(100000);
+	gf2 -> MCMCSetNIterationsRun(20000);
 	gf2 -> Fit();
 
 	BCGraphFitter * gf3 = new BCGraphFitter(gr,f3);
-	gf3 -> MCMCSetNIterationsMax(100000);
-	gf3 -> MCMCSetNIterationsRun(100000);
+	gf3 -> MCMCSetNIterationsRun(20000);
 	gf3 -> Fit();
 
 	BCGraphFitter * gf4 = new BCGraphFitter(gr,f4);
-	gf4 -> MCMCSetNIterationsMax(100000);
-	gf4 -> MCMCSetNIterationsRun(100000);
+	gf4 -> MCMCSetNIterationsRun(20000);
 	gf4 -> Fit();
 
 	// draw fit including the error band
@@ -141,18 +166,9 @@ void graphFitterExample()
 
 
 // ----------------------------------------------------------------------
-TGraphErrors * CreateDataGraph(int n=100, double xmin=0.1, double xmax=19.9)
+TGraphErrors * CreateDataGraph(int n, double xmin, double xmax)
 {
-	double p0=0.;
-	double p1=.5;
-	double p2=0.02;
-	double a=15.;
-	double m=5.;
-	double s=.5;
-
-	double pi=3.141592;
-
-	double sigmay = 4.;
+	const double pi =  3.141592;
 
 	// initialize random number generator
 	TRandom3 * ran = new TRandom3(0);
@@ -235,3 +251,5 @@ TGraphErrors * ReadDataGraph(const char * file = "data/datax.txt")
 
 	return g;
 }
+
+// ----------------------------------------------------------------------

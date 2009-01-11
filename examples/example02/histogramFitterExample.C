@@ -1,12 +1,42 @@
+//
+// This ROOT macro is part of BAT and can only be run if BAT
+// was installed correctly. The macro shows an example of fitting
+// a histogram using a function defined by the user. In the fit the
+// uncertainties are considered to be poissonian.
+//
+// The macro can be run from within ROOT via commands
+//
+//    root[1] .x histogramFitterExample.C
+//
+// or
+//
+//    root[1] .L histogramFitterExample.C
+//    root[2] histogramFitterExample()
+//
+// or from the command line
+//
+//    $ root histogramFitterExample.C
+//
+// The data fitted is generated randomly as a signal peak (gaussian)
+// plus a flat background using a function CreateHistogram(nbins, ns, nb, seed)
+// The arguments are 'nbins' - number of bins of the histogram,
+// 'ns' - number of signal events, 'nb' - number of background events,
+// 'seed' - initial seed for the random number generator. The location
+// and the width of the signal peak can be set up using the variables
+// 'mean' and 'sigma' below.
 
 TH1D * CreateHistogram(int nbins, int ns, int nb, int seed = 0);
 
 const double mean  = 65.0;
 const double sigma =  5.0;
 
-// ---------------------------------------------------------
+//
+// The macro performs a gaussian+constant fit to the data. The fit function
+// is defined using the ROOT TF1 object and the data to fit are stored
+// in the TH1D object.
 
-void runBATexample()
+// ---------------------------------------------------------
+void histogramFitterExample()
 {
 	BCAux::SetStyle();
 
@@ -31,10 +61,7 @@ void runBATexample()
 
 	// print data and fit
 	TCanvas * c1 = new TCanvas("c1");
-	c1 -> cd();
 	hf -> DrawFit("", true); // draw with a legend
-
-	// print to file
 	c1 -> Print("fit.ps");
 
 	// print marginalized distributions
@@ -42,7 +69,6 @@ void runBATexample()
 }
 
 // ---------------------------------------------------------
-
 TH1D * CreateHistogram(int nbins, int ns, int nb, int seed)
 {
 	// initialize random number generator
