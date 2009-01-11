@@ -37,7 +37,7 @@ libBAT_la_SOURCES= \
    BCEfficiencyFitterDict.cxx \
    BCGraphFitterDict.cxx \
    BCHistogramFitterDict.cxx
-libBAT_la_LDFLAGS= -version-info 0:2:0
+libBAT_la_LDFLAGS= -version-info 0:0:0
 ROOTCFLAGS= $(shell root-config --cflags)
 ROOTLIBS= $(shell root-config --nonew --libs)
 ROOTGLIBS= $(shell root-config --nonew --glibs)
