@@ -7,8 +7,9 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCIntegrate.h"
+#include "config.h"
 
+#include "BAT/BCIntegrate.h"
 #include "BAT/BCLog.h"
 #include "BAT/BCMath.h"
 
@@ -18,7 +19,9 @@
 #include <TRandom3.h>
 #include <TTree.h>
 
+#ifdef HAVE_CUBA_H
 #include "cuba.h"
+#endif
 
 // ---------------------------------------------------------
 
@@ -35,7 +38,11 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fNIterationsMax    = 1000000;
 	fRelativePrecision = 1e-3;
 
+#ifdef HAVE_CUBA_H
+	fIntegrationMethod = BCIntegrate::kIntCuba;
+#else
 	fIntegrationMethod = BCIntegrate::kIntMonteCarlo;
+#endif
 	fMarginalizationMethod = BCIntegrate::kMargMetropolis;
 	fOptimizationMethod = BCIntegrate::kOptMinuit;
 
@@ -235,13 +242,13 @@ void BCIntegrate::SetNbins(int nbins, int index)
 // 		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
 // 		n=2;
 // 	}
-// 	this -> MCMCSetH1NBins(n, -1); 
+// 	this -> MCMCSetH1NBins(n, -1);
 
 	//	fNbins=n;
 
-	//	fMCMCH1NBins = n; 
-	//	fMCMCH2NBinsX = n; 
-	//	fMCMCH2NBinsY = n; 
+	//	fMCMCH1NBins = n;
+	//	fMCMCH2NBinsX = n;
+	//	fMCMCH2NBinsY = n;
 }
 
 // *********************************************
@@ -252,7 +259,7 @@ void BCIntegrate::SetNbins(int nbins, int index)
 // 		BCLog::Out(BCLog::warning, BCLog::warning,"BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
 // 		n=2;
 // 	}
-// 	fMCMCH2NBinsX = n; 
+// 	fMCMCH2NBinsX = n;
 // }
 
 // *********************************************
@@ -265,7 +272,7 @@ void BCIntegrate::SetNbins(int nbins, int index)
 // 	}
 // 	fNbins=n;
 
-// 	fMCMCH2NBinsY = n; 
+// 	fMCMCH2NBinsY = n;
 // }
 
 // *********************************************
@@ -285,7 +292,7 @@ void BCIntegrate::ResetVarlist(int v)
 // *********************************************
 double BCIntegrate::Eval(std::vector <double> x)
 {
-	BCLog::Out(BCLog::warning, BCLog::warning, "BCIntegrate::Eval. No function. Function needs to be overloaded."); 
+	BCLog::Out(BCLog::warning, BCLog::warning, "BCIntegrate::Eval. No function. Function needs to be overloaded.");
 	return 0;
 }
 
@@ -299,7 +306,7 @@ double BCIntegrate::LogEval(std::vector <double> x)
 // *********************************************
 double BCIntegrate::EvalSampling(std::vector <double> x)
 {
-	BCLog::Out(BCLog::warning, BCLog::warning, "BCIntegrate::EvalSampling. No function. Function needs to be overloaded."); 
+	BCLog::Out(BCLog::warning, BCLog::warning, "BCIntegrate::EvalSampling. No function. Function needs to be overloaded.");
 	return 0;
 }
 
@@ -314,9 +321,21 @@ double BCIntegrate::EvalPrint(std::vector <double> x)
 {
 	double val=this->Eval(x);
 
-	BCLog::Out(BCLog::detail, BCLog::detail, Form("BCIntegrate::EvalPrint. Value: %d.", val)); 
+	BCLog::Out(BCLog::detail, BCLog::detail, Form("BCIntegrate::EvalPrint. Value: %d.", val));
 
 	return val;
+}
+
+// *********************************************
+void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
+{
+#ifdef HAVE_CUBA_H
+	fIntegrationMethod = method;
+#else
+	BCLog::Out(BCLog::warning,BCLog::warning,"!!! This version of BAT is compiled without Cuba.");
+	BCLog::Out(BCLog::warning,BCLog::warning,"    Monte Carlo Sampled Mean integration method will be used.");
+	BCLog::Out(BCLog::warning,BCLog::warning,"    To be able to use Cuba integration, install Cuba and recompile BAT.");
+#endif
 }
 
 // *********************************************
@@ -330,18 +349,23 @@ double BCIntegrate::Integrate()
 		case BCIntegrate::kIntMonteCarlo:
 			return IntegralMC(parameter);
 
-		case BCIntegrate::kIntMetropolis: 
-			return this -> IntegralMetro(parameter); 
+		case BCIntegrate::kIntMetropolis:
+			return this -> IntegralMetro(parameter);
 
-		case BCIntegrate::kIntImportance: 
-			return this -> IntegralImportance(parameter); 
+		case BCIntegrate::kIntImportance:
+			return this -> IntegralImportance(parameter);
 
 		case BCIntegrate::kIntCuba:
+#ifdef HAVE_CUBA_H
 			return this -> CubaIntegrate();
+#else
+			BCLog::Out(BCLog::error,BCLog::error,"!!! This version of BAT is compiled without Cuba.");
+			BCLog::Out(BCLog::error,BCLog::error,"    Use other integration methods or install Cuba and recompile BAT.");
+#endif
 	}
 
-	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCIntegrate::Integrate. Invalid integration method: %d. Return 0.", 
-							fIntegrationMethod)); 
+	BCLog::Out(BCLog::error, BCLog::error,
+			Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
 
 	return 0;
 }
@@ -352,7 +376,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x, int * varlist)
 	this->SetVarList(varlist);
 	return IntegralMC(x);
 }
-  
+
 // *********************************************
 double BCIntegrate::IntegralMC(std::vector <double> x)
 {
@@ -584,7 +608,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 	// print debug information
 	BCLog::Out(BCLog::debug, BCLog::debug, Form("BCIntegrate::IntegralImportance. Integral %f in %i iterations.", result, Niter));
 
-	return result;  
+	return result;
 }
 
 // *********************************************
@@ -669,17 +693,17 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 	this->UnsetVar(index2);
 
 	// define histogram
-	double hmin1 = parameter1 -> GetLowerLimit(); 
-	double hmax1 = parameter1 -> GetUpperLimit(); 
-	double hdx1  = (hmax1 - hmin1) / double(fNbins); 
+	double hmin1 = parameter1 -> GetLowerLimit();
+	double hmax1 = parameter1 -> GetUpperLimit();
+	double hdx1  = (hmax1 - hmin1) / double(fNbins);
 
-	double hmin2 = parameter2 -> GetLowerLimit(); 
-	double hmax2 = parameter2 -> GetUpperLimit(); 
-	double hdx2  = (hmax2 - hmin2) / double(fNbins); 
+	double hmin2 = parameter2 -> GetLowerLimit();
+	double hmax2 = parameter2 -> GetUpperLimit();
+	double hdx2  = (hmax2 - hmin2) / double(fNbins);
 
 	TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1 -> GetName().data(), parameter2 -> GetName().data()),"",
 			fNbins, hmin1, hmax1,
-			fNbins, hmin2, hmax2); 
+			fNbins, hmin2, hmax2);
 
 	// integrate
 	std::vector <double> randx;
@@ -700,15 +724,15 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
 	// normalize
 	hist -> Scale(1.0/hist->Integral("width"));
 
-	return hist; 
+	return hist;
 }
 
 // *********************************************
 TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 {
-	int niter = fMarkovChainNIterations; 
+	int niter = fMarkovChainNIterations;
 
-	if (fMarkovChainAutoN == true) 
+	if (fMarkovChainAutoN == true)
 		niter = fNbins*fNbins*fNSamplesPer2DBin*fNvar;
 
 	BCLog::Out(BCLog::detail, BCLog::detail,
@@ -773,7 +797,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
 	// normalize
 	hist -> Scale(1.0/hist->Integral("width"));
 
-	return hist; 
+	return hist;
 }
 
 // *********************************************
@@ -856,19 +880,19 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 	randx.assign(fNvar, 0.0);
 	InitMetro();
 
-	// reset counter 
-	fNacceptedMCMC = 0; 
+	// reset counter
+	fNacceptedMCMC = 0;
 
 	// run Metro and fill histograms
 	for(int i=0;i<=niter;i++)
 	{
 		GetRandomPointMetro(randx);
 
-		// save this point to the markov chain in the ROOT file 
+		// save this point to the markov chain in the ROOT file
 		if (fFlagWriteMarkovChain)
 			{
-				fMCMCIteration = i; 
-				fMarkovChainTree -> Fill(); 
+				fMCMCIteration = i;
+				fMarkovChainTree -> Fill();
 			}
 
 		for(int j=0;j<fNvar;j++)
@@ -886,67 +910,67 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 			BCLog::Out(BCLog::debug, BCLog::debug,
 				Form("BCIntegrate::MarginalizeAllByMetro. %d samples done.",i+1));
 
-		// function fitting 
+		// function fitting
 
 		if (fFitFunctionIndexX >= 0)
 			{
 
-				// loop over all possible x values ... 
+				// loop over all possible x values ...
 
 				if (fErrorBandContinuous)
 					{
-						double x = 0; 
+						double x = 0;
 
 						for (int ix = 0; ix < fErrorBandNbinsX; ix++)
 							{
-								// calculate x 
-								
-								x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1); 
-								
-								// calculate y 
-								
-								std::vector <double> xvec; 
-								xvec.push_back(x); 
-								
-								double y = this -> FitFunction(xvec, randx); 
-								
-								xvec.clear(); 
-								
-								// fill histogram 
-								
-								fErrorBandXY -> Fill(x, y); 
+								// calculate x
+
+								x = fErrorBandXY -> GetXaxis() -> GetBinCenter(ix + 1);
+
+								// calculate y
+
+								std::vector <double> xvec;
+								xvec.push_back(x);
+
+								double y = this -> FitFunction(xvec, randx);
+
+								xvec.clear();
+
+								// fill histogram
+
+								fErrorBandXY -> Fill(x, y);
 							}
 					}
 
-				// ... or evaluate at the data point x-values 
+				// ... or evaluate at the data point x-values
 
 				else
 					{
 
-						int ndatapoints = int(fErrorBandX.size()); 
+						int ndatapoints = int(fErrorBandX.size());
 
-						double x = 0; 
+						double x = 0;
 
 						for (int ix = 0; ix < ndatapoints; ++ix)
 							{
-								// calculate x 
-								
-								x = fErrorBandX.at(ix); 
-								
-								// calculate y 
-								
-								std::vector <double> xvec; 
-								xvec.push_back(x); 
+								// calculate x
 
-								double y = this -> FitFunction(xvec, randx); 
-								
-								xvec.clear(); 
-								
-								// fill histogram 
-								
-								fErrorBandXY -> Fill(x, y); 
+								x = fErrorBandX.at(ix);
+
+								// calculate y
+
+								std::vector <double> xvec;
+								xvec.push_back(x);
+
+								double y = this -> FitFunction(xvec, randx);
+
+								xvec.clear();
+
+								// fill histogram
+
+								fErrorBandXY -> Fill(x, y);
 							}
-						
+
 					}
 			}
 	}
@@ -958,33 +982,33 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 
 	for (int i=0;i<nh2d;i++)
 		fHProb2D[i] -> Scale( 1./fHProb2D[i]->Integral("width") );
-	
-	if (fFitFunctionIndexX >= 0) 
-		fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * fErrorBandXY -> GetNbinsX()); 
 
-	if (fFitFunctionIndexX >= 0) 
+	if (fFitFunctionIndexX >= 0)
+		fErrorBandXY -> Scale(1.0/fErrorBandXY -> Integral() * fErrorBandXY -> GetNbinsX());
+
+	if (fFitFunctionIndexX >= 0)
 		{
-			for (int ix = 1; ix <= fErrorBandNbinsX; ix++)	
+			for (int ix = 1; ix <= fErrorBandNbinsX; ix++)
 				{
-					double sum = 0; 
+					double sum = 0;
 
-					for (int iy = 1; iy <= fErrorBandNbinsY; iy++)	
-						sum += fErrorBandXY -> GetBinContent(ix, iy); 
+					for (int iy = 1; iy <= fErrorBandNbinsY; iy++)
+						sum += fErrorBandXY -> GetBinContent(ix, iy);
 
-					for (int iy = 1; iy <= fErrorBandNbinsY; iy++)	
+					for (int iy = 1; iy <= fErrorBandNbinsY; iy++)
 						{
-							double newvalue = fErrorBandXY -> GetBinContent(ix, iy) / sum; 
+							double newvalue = fErrorBandXY -> GetBinContent(ix, iy) / sum;
 							fErrorBandXY -> SetBinContent(ix, iy, newvalue);
 						}
 				}
 		}
-	
+
 	BCLog::Out(BCLog::detail, BCLog::detail,
 		   Form("BCIntegrate::MarginalizeAllByMetro done with %i trials and %i accepted trials. Efficiency is %f",fNmetro, fNacceptedMCMC, double(fNacceptedMCMC)/double(fNmetro)));
-	
+
 	return fNvar+nh2d;
 
-} 
+}
 
 // *********************************************
 TH1D * BCIntegrate::GetH1D(int parIndex)
@@ -1090,8 +1114,8 @@ double BCIntegrate::GetRandomPoint(std::vector <double> &x)
 // *********************************************
 double BCIntegrate::GetRandomPointImportance(std::vector <double> &x)
 {
-	double p = 1.1; 
-	double g = 1.0; 
+	double p = 1.1;
+	double g = 1.0;
 
 	while (p>g)
 	{
@@ -1113,23 +1137,23 @@ void BCIntegrate::InitMetro()
 {
 	fNmetro=0;
 
-	if (fXmetro0.size() <= 0) 
+	if (fXmetro0.size() <= 0)
 		{
 			// start in the center of the phase space
 			for(int i=0;i<fNvar;i++)
-				fXmetro0.push_back((fMin[i]+fMax[i])/2.0); 
+				fXmetro0.push_back((fMin[i]+fMax[i])/2.0);
 		}
-	
+
 	fMarkovChainValue = this ->  LogEval(fXmetro0);
 
 	// run metropolis for a few times and dump the result... (to forget the initial position)
 	std::vector <double> x;
-	x.assign(fNvar,0.); 
+	x.assign(fNvar,0.);
 
 	for(int i=0;i<1000;i++)
 		GetRandomPointMetro(x);
 
-	fNmetro = 0; 
+	fNmetro = 0;
 
 }
 
@@ -1174,24 +1198,24 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 	if(accept)
 	  {
 	    // increase counter
-	    fNacceptedMCMC++; 
+	    fNacceptedMCMC++;
 
 	    for(int i=0;i<fNvar;i++)
 	      {
 		fXmetro0[i]=fXmetro1[i];
 		x[i]=fXmetro1[i];
-		fMarkovChainValue = p1; 
+		fMarkovChainValue = p1;
 	      }
-	    
+
 	  }
 	else
 		for(int i=0;i<fNvar;i++)
 			{
 			x[i]=fXmetro0[i];
-			fXmetro1[i] = x[i]; 
-			fMarkovChainValue = p0; 
+			fXmetro1[i] = x[i];
+			fMarkovChainValue = p0;
 			}
-	
+
 	fNmetro++;
 
 }
@@ -1243,7 +1267,7 @@ void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
 	else
 		for(int i=0;i<fNvar;i++)
 			x[i]=fXmetro0[i];
-	
+
 	fNmetro++;
 }
 
@@ -1276,13 +1300,13 @@ void BCIntegrate::GetRandomVectorMetro(std::vector <double> &x)
 }
 
 // *********************************************
-TMinuit * BCIntegrate::GetMinuit() 
+TMinuit * BCIntegrate::GetMinuit()
 {
 
 	if (!fMinuit)
-		fMinuit = new TMinuit(); 
+		fMinuit = new TMinuit();
 
-	return fMinuit; 
+	return fMinuit;
 
 }
 
@@ -1308,7 +1332,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood);
 
 	// set print level
-	fMinuit -> SetPrintLevel(printlevel); 
+	fMinuit -> SetPrintLevel(printlevel);
 
 	// set parameters
 	int flag;
@@ -1367,19 +1391,19 @@ void BCIntegrate::SetMode(std::vector <double> mode)
 void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag)
 {
 
-	// copy parameters 
-	std::vector <double> parameters; 
+	// copy parameters
+	std::vector <double> parameters;
 
-	int n = global_this -> GetNvar(); 
+	int n = global_this -> GetNvar();
 
 	for (int i = 0; i < n; i++)
-		parameters.push_back(par[i]); 
+		parameters.push_back(par[i]);
 
-	fval = - global_this -> LogEval(parameters); 
+	fval = - global_this -> LogEval(parameters);
 
-	// delete parameters 
+	// delete parameters
 
-	parameters.clear(); 
+	parameters.clear();
 
 }
 
@@ -1417,94 +1441,106 @@ void BCIntegrate::FindModeMCMC()
 }
 
 // *********************************************
-void BCIntegrate::CubaIntegrand(const int *ndim, const double xx[], 
-				const int *ncomp, double ff[]) 
+void BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
+		const int *ncomp, double ff[])
 {
-	// scale variables 
-	double jacobian = 1.0; 
+#ifdef HAVE_CUBA_H
+	// scale variables
+	double jacobian = 1.0;
 
-	std::vector<double> scaled_parameters; 
+	std::vector<double> scaled_parameters;
 
 	for (int i = 0; i < *ndim; i++)
 	{
-		double range = global_this -> fx -> at(i) -> GetUpperLimit() -  global_this -> fx -> at(i) -> GetLowerLimit(); 
+		double range = global_this -> fx -> at(i) -> GetUpperLimit() -  global_this -> fx -> at(i) -> GetLowerLimit();
 
-		// multiply range to jacobian 
-		jacobian *= range; 
+		// multiply range to jacobian
+		jacobian *= range;
 
-		// get the scaled parameter value 
-		scaled_parameters.push_back(global_this -> fx -> at(i) -> GetLowerLimit() + xx[i] * range); 
+		// get the scaled parameter value
+		scaled_parameters.push_back(global_this -> fx -> at(i) -> GetLowerLimit() + xx[i] * range);
 	}
 
-	// call function to integrate 
-	ff[0] = global_this -> Eval(scaled_parameters); 
+	// call function to integrate
+	ff[0] = global_this -> Eval(scaled_parameters);
 
-	// multiply jacobian 
-	ff[0] *= jacobian; 
+	// multiply jacobian
+	ff[0] *= jacobian;
 
-	// multiply fudge factor 
-	ff[0] *= 1e99; 
+	// multiply fudge factor
+	ff[0] *= 1e99;
 
-	// remove parameter vector 
-	scaled_parameters.clear(); 
+	// remove parameter vector
+	scaled_parameters.clear();
+#else
+	BCLog::Out(BCLog::error,BCLog::error,"!!! This version of BAT is compiled without Cuba.");
+	BCLog::Out(BCLog::error,BCLog::error,"    Use other integration methods or install Cuba and recompile BAT.");
+#endif
 }
 
 // *********************************************
-double BCIntegrate::CubaIntegrate() 
+double BCIntegrate::CubaIntegrate()
 {
-	double EPSREL = 1e-3; 
-	double EPSABS = 1e-12; 
-	double VERBOSE   = 0; 
-	double MINEVAL   = 0; 
-	double MAXEVAL   = 2000000; 
-	double NSTART    = 25000; 
-	double NINCREASE = 25000; 
+#ifdef HAVE_CUBA_H
+	double EPSREL = 1e-3;
+	double EPSABS = 1e-12;
+	double VERBOSE   = 0;
+	double MINEVAL   = 0;
+	double MAXEVAL   = 2000000;
+	double NSTART    = 25000;
+	double NINCREASE = 25000;
 
-	std::vector<double> parameters_double; 
-	std::vector<double>    parameters_int; 
+	std::vector<double> parameters_double;
+	std::vector<double>    parameters_int;
 
-	parameters_double.push_back(EPSREL); 
-	parameters_double.push_back(EPSABS); 
+	parameters_double.push_back(EPSREL);
+	parameters_double.push_back(EPSABS);
 
-	parameters_int.push_back(VERBOSE); 
-	parameters_int.push_back(MINEVAL); 
-	parameters_int.push_back(MAXEVAL); 
-	parameters_int.push_back(NSTART); 
-	parameters_int.push_back(NINCREASE); 
+	parameters_int.push_back(VERBOSE);
+	parameters_int.push_back(MINEVAL);
+	parameters_int.push_back(MAXEVAL);
+	parameters_int.push_back(NSTART);
+	parameters_int.push_back(NINCREASE);
 
-	return this -> CubaIntegrate(0, parameters_double, parameters_int); 
+	return this -> CubaIntegrate(0, parameters_double, parameters_int);
+#else
+	BCLog::Out(BCLog::error,BCLog::error,"!!! This version of BAT is compiled without Cuba.");
+	BCLog::Out(BCLog::error,BCLog::error,"    Use other integration methods or install Cuba and recompile BAT.");
+	return 0.;
+#endif
 }
 
 // *********************************************
-double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int) 
+double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int)
 {
-	const int NDIM      = int(fx ->size()); 
-	const int NCOMP     = 1; 
+#ifdef HAVE_CUBA_H
+	const int NDIM      = int(fx ->size());
+	const int NCOMP     = 1;
 
-	const double EPSREL = parameters_double[0]; 
-	const double EPSABS = parameters_double[1]; 
-	const int VERBOSE   = int(parameters_int[0]); 
-	const int MINEVAL   = int(parameters_int[1]); 
-	const int MAXEVAL   = int(parameters_int[2]); 
+	const double EPSREL = parameters_double[0];
+	const double EPSABS = parameters_double[1];
+	const int VERBOSE   = int(parameters_int[0]);
+	const int MINEVAL   = int(parameters_int[1]);
+	const int MAXEVAL   = int(parameters_int[2]);
 
 	int neval;
 	int fail;
-	int nregions; 
+	int nregions;
 	double integral[NCOMP];
 	double error[NCOMP];
 	double prob[NCOMP];
 
-	global_this = this; 
+	global_this = this;
 
-	integrand_t an_integrand = &BCIntegrate::CubaIntegrand; 
+	integrand_t an_integrand = &BCIntegrate::CubaIntegrand;
 
 	if (method == 0)
 	{
-		// set VEGAS specific parameters 
-		const int NSTART    = int(parameters_int[3]); 
-		const int NINCREASE = int(parameters_int[4]); 
+		// set VEGAS specific parameters
+		const int NSTART    = int(parameters_int[3]);
+		const int NINCREASE = int(parameters_int[4]);
 
-		// call VEGAS integration method  
+		// call VEGAS integration method
 		Vegas(NDIM, NCOMP, an_integrand,
 			EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
 			NSTART, NINCREASE,
@@ -1512,12 +1548,12 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 	}
 	else if (method == 1)
 	{
-		// set SUAVE specific parameters 
-		const int LAST     = int(parameters_int[3]); 
-		const int NNEW     = int(parameters_int[4]); 
-		const int FLATNESS = int(parameters_int[5]); 
+		// set SUAVE specific parameters
+		const int LAST     = int(parameters_int[3]);
+		const int NNEW     = int(parameters_int[4]);
+		const int FLATNESS = int(parameters_int[5]);
 
-		// call SUAVE integration method 
+		// call SUAVE integration method
 		Suave(NDIM, NCOMP, an_integrand,
 			EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL,
 			NNEW, FLATNESS,
@@ -1525,53 +1561,58 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 	}
 	else if (method == 2)
 	{
-		// set DIVONNE specific parameters 
-		const int KEY1         = int(parameters_int[3]); 
-		const int KEY2         = int(parameters_int[4]); 
-		const int KEY3         = int(parameters_int[5]); 
-		const int MAXPASS      = int(parameters_int[6]); 
-		const int BORDER       = int(parameters_int[7]); 
-		const int MAXCHISQ     = int(parameters_int[8]); 
-		const int MINDEVIATION = int(parameters_int[9]); 
-		const int NGIVEN       = int(parameters_int[10]); 
-		const int LDXGIVEN     = int(parameters_int[11]); 
-		const int NEXTRA       = int(parameters_int[12]); 
+		// set DIVONNE specific parameters
+		const int KEY1         = int(parameters_int[3]);
+		const int KEY2         = int(parameters_int[4]);
+		const int KEY3         = int(parameters_int[5]);
+		const int MAXPASS      = int(parameters_int[6]);
+		const int BORDER       = int(parameters_int[7]);
+		const int MAXCHISQ     = int(parameters_int[8]);
+		const int MINDEVIATION = int(parameters_int[9]);
+		const int NGIVEN       = int(parameters_int[10]);
+		const int LDXGIVEN     = int(parameters_int[11]);
+		const int NEXTRA       = int(parameters_int[12]);
 
-		// call DIVONNE integration method 
+		// call DIVONNE integration method
 		Divonne(NDIM, NCOMP, an_integrand,
 			EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
 			KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
 			NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
 			&nregions, &neval, &fail, integral, error, prob);
 	}
-	else if (method == 3) 
+	else if (method == 3)
 	{
-		// set CUHRE specific parameters 
-		const int LAST = int(parameters_int[3]); 
-		const int KEY  = int(parameters_int[4]); 
+		// set CUHRE specific parameters
+		const int LAST = int(parameters_int[3]);
+		const int KEY  = int(parameters_int[4]);
 
-		// call CUHRE integration method 
+		// call CUHRE integration method
 		Cuhre(NDIM, NCOMP, an_integrand,
 			EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL, KEY,
 			&nregions, &neval, &fail, integral, error, prob);
 	}
 	else
 	{
-		std::cout << " Integration method not available. " << std::endl; 
-		integral[0] = -1e99; 
+		std::cout << " Integration method not available. " << std::endl;
+		integral[0] = -1e99;
 	}
 
-	if (fail != 0) 
+	if (fail != 0)
 	{
-		std::cout << " Warning, integral did not converge with the given set of parameters. "<< std::endl; 
-		std::cout << " neval    = " << neval       << std::endl; 
-		std::cout << " fail     = " << fail        << std::endl; 
-		std::cout << " integral = " << integral[0] << std::endl; 
-		std::cout << " error    = " << error[0]    << std::endl; 
-		std::cout << " prob     = " << prob[0]     << std::endl; 
+		std::cout << " Warning, integral did not converge with the given set of parameters. "<< std::endl;
+		std::cout << " neval    = " << neval       << std::endl;
+		std::cout << " fail     = " << fail        << std::endl;
+		std::cout << " integral = " << integral[0] << std::endl;
+		std::cout << " error    = " << error[0]    << std::endl;
+		std::cout << " prob     = " << prob[0]     << std::endl;
 	}
 
-	return integral[0] / 1e99; 
+	return integral[0] / 1e99;
+#else
+	BCLog::Out(BCLog::error,BCLog::error,"!!! This version of BAT is compiled without Cuba.");
+	BCLog::Out(BCLog::error,BCLog::error,"    Use other integration methods or install Cuba and recompile BAT.");
+	return 0.;
+#endif
 }
 
 // *********************************************

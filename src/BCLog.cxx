@@ -7,6 +7,13 @@
 
 // ---------------------------------------------------------
 
+#include <fstream>
+
+#include <TROOT.h>
+#include <TError.h>
+
+#include "config.h"
+
 #include "BAT/BCLog.h"
 
 std::ofstream BCLog::fOutputStream;
@@ -17,7 +24,7 @@ BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 
 bool BCLog::fFirstOutputDone = false;
 
-const char * BCLog::fVersion = BAT_VERSION;
+const char * BCLog::fVersion = VERSION;
 
 int BCLog::fHindex = 0;
 

@@ -223,8 +223,7 @@ class BCIntegrate : public BCEngineMCMC
 
 		/**
 		 * @param method The integration method */
-		void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
-			{ fIntegrationMethod = method; };
+		void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method);
 
 		/**
 		 * @param method The marginalization method */

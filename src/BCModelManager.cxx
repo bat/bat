@@ -16,6 +16,9 @@
 #include "BAT/BCErrorCodes.h"
 
 #include <fstream>
+#include <iostream>
+
+#include <TString.h>
 
 // ---------------------------------------------------------
 

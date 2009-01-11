@@ -1,0 +1,16 @@
+
+The procedure to prepare compilation after checking out the package
+from the cvs is the following:
+
+1. Run autogen.sh
+   It will create the configure script as well as all Makefile.in files
+   based on configure.ac and Makefile.am's
+
+2. Run ./configure
+   It will prepare the compilation based on the system setup.
+   See ./configure --help for configuration options
+
+3. Run make to compile BAT
+
+4. Run make install to install BAT
+
