@@ -63,7 +63,6 @@ doc/manual/scheme.eps -text
 doc/releasenotes.txt -text
 examples/README -text
 examples/example01/graphFitterSimpleExample.C -text
-examples/example01/output/summary_benchmark.txt -text
 examples/example02/histogramFitterExample.C -text
 examples/example03/data/datax.txt -text
 examples/example03/graphFitterAdvancedExample.C -text
