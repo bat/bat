@@ -9,7 +9,7 @@ EXTRA_DIST= \
 	src/libBAT.rootmap \
 	doc/COPYING doc/LICENSE doc/changelog doc/releasenotes.txt \
 	examples
-dist-hook: prep-docs prep-examples
+dist-hook: prep-docs
 	rm -f $(distdir)/src/*Dict.*
 	rm -rf `find $(distdir)/examples -name CVS`
 prep-docs: BAT-intro.ps
