@@ -14,3 +14,13 @@ from the cvs is the following:
 
 4. Run make install to install BAT
 
+Note:
+-----
+There are many (old) empty directories in the BAT cvs structure. Since
+it is not possible to remove them from the cvs completely it is recommended
+to use -P option when checking out etc. This option will caise that
+the empty directories will be ignored.
+
+It is (sort of) important to use this option before creating a distribution.
+Otherwise many empty directories will be added to the tarball.
+
