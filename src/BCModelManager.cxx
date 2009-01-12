@@ -525,9 +525,9 @@ void BCModelManager::PrintModelComparisonSummary(const char * file)
 	int nmodels = fModelContainer -> size();
 	std::cout
 		<<std::endl
-		<<"======================================"<<std::endl
+		<<"==========================================="<<std::endl
 		<<" Model Comparison Summary"<<std::endl
-		<<"======================================"<<std::endl
+		<<"==========================================="<<std::endl
 		<<std::endl
 		<<" Number of models               : "<<nmodels<<std::endl
 		<<std::endl;
@@ -573,7 +573,7 @@ void BCModelManager::PrintModelComparisonSummary(const char * file)
 	std::cout<<std::endl;
 
 	std::cout
-		<<"======================================"<<std::endl
+		<<"==========================================="<<std::endl
 		<<std::endl;
 
 	if (file)

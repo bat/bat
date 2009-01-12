@@ -53,7 +53,7 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 
 	fGoFNChains = 5;
 	fGoFNIterationsMax = 100000;
-	fGoFNIterationsRun = 5000;
+	fGoFNIterationsRun = 2000;
 }
 
 // ---------------------------------------------------------
@@ -75,7 +75,7 @@ BCModel::BCModel() : BCIntegrate()
 
 	fGoFNChains = 5;
 	fGoFNIterationsMax = 100000;
-	fGoFNIterationsRun = 1000;
+	fGoFNIterationsRun = 2000;
 }
 
 // ---------------------------------------------------------
