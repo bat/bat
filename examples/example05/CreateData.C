@@ -47,11 +47,12 @@ void CreateData(const char * fname = "data.txt")
 	float xmin = 0.;
 	float xmax = 100.;
 
-	// random seed
+	// initial seed for the random number generator
+	// set to 0 if you want to generate different dataset in every call
 	int RandomSeed = 1000;
 
 	cout <<
-		"Generating dataset function   f(x) = ax^2 + bx + c" << endl <<
+		"Generating dataset using function   f(x) = ax^2 + bx + c" << endl <<
 		" - Range of x-values:      " << xmin << " < x < " << xmax << endl <<
 		" - Number of data points:  " << npoints << endl <<
 		" - Parameter a:            " << par2 << endl <<
@@ -60,7 +61,6 @@ void CreateData(const char * fname = "data.txt")
 		" - Uncertainty down:       " << sigmay1 << endl <<
 		" - Uncertainty up:         " << sigmay2 << endl;
 
-
 	// initialize random number generator
 	TRandom3 * fRandom = new TRandom3(RandomSeed);
 
@@ -68,6 +68,9 @@ void CreateData(const char * fname = "data.txt")
 	fstream file_data;
 	char filename[200];
 	file_data.open(fname, std::fstream::out);
+
+	// create graph to draw the generated data
+	TGraphAsymmErrors * g = new TGraphAsymmErrors(npoints);
 
 	// loop over points
 	for (int i = 0; i < npoints; i++)
@@ -89,6 +92,11 @@ void CreateData(const char * fname = "data.txt")
 		// write to file
 		file_data << x << " " << y << " " << sigmay1 << " " << sigmay2;
 
+		// add point to graph
+		g -> SetPoint(i, x, y);
+		g -> SetPointEYlow(i, sigmay1);
+		g -> SetPointEYhigh(i, sigmay2);
+
 		if (i < npoints - 1)
 			file_data << endl;
 	}
@@ -97,5 +105,26 @@ void CreateData(const char * fname = "data.txt")
 	file_data.close();
 
 	cout << "Data have been recorded to file  " << fname << endl;
+
+	TCanvas * c = new TCanvas();
+	g -> SetMarkerStyle(20);
+	g -> SetMarkerSize(1.);
+	g -> Draw("a p");
+	g -> GetXaxis() -> SetTitle("x");
+	g -> GetYaxis() -> SetTitle("y");
+	g -> SetTitle("");
+
+	TF1 * f2d = new TF1("f2d","[0] + [1]*x + [2]*x*x", xmin, xmax);
+	f2d -> SetParameters(par0, par1, par2);
+	f2d -> SetLineWidth(2);
+	f2d -> SetLineStyle(2);
+	f2d -> SetLineColor(kBlue);
+	f2d -> Draw("c same");
+
+	TLegend * leg = new TLegend(0.15, 0.65, 0.5, 0.85);
+	leg -> SetFillStyle(0);
+	leg -> AddEntry(f2d, "True function", "l");
+	leg -> AddEntry(g, "Generated data", "p");
+	leg -> Draw();
 
 }
