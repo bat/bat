@@ -246,7 +246,11 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 double BCEfficiencyFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
 	// using flat probability in all parameters
-	return 0.;
+	double logprob = 0.;
+	for(unsigned int i=0; i < this -> GetNParameters(); i++)
+		logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
+
+	return logprob;
 }
 
 // ---------------------------------------------------------
