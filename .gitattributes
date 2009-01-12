@@ -67,6 +67,14 @@ examples/example02/histogramFitterExample.C -text
 examples/example03/data/datax.txt -text
 examples/example03/graphFitterAdvancedExample.C -text
 examples/example04/efficientyFitterExample.C -text
+examples/example05/CreateData.C -text
+examples/example05/Makefile -text
+examples/example05/Pol1Asymm.cxx -text
+examples/example05/Pol1Asymm.h -text
+examples/example05/Pol2Asymm.cxx -text
+examples/example05/Pol2Asymm.h -text
+examples/example05/README -text
+examples/example05/asymmErrorsFitterExample.cxx -text
 /readme.devel -text
 src/BCAux.cxx -text
 src/BCDataPoint.cxx -text
