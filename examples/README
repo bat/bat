@@ -1,55 +1,35 @@
+
+All examples require that BAT was successfully installed in the system.
+Instructions on how to run the examples are either inside the source
+code (for ROOT macros) or in the README file (for compiled examples)
+
 Examples in this directory:
----------------------------
+-------------------------------
 
-* Example01: Line fit. 
-	A simple line fit to a set of data points.
+Example01:
+   Straight line fit using GraphFitter assuming gaussian uncertainties.
+   It demonstrates the most simplest usage of BAT.
+   (ROOT macro)
 
-* Example02: Polynomial fitting. 
-	Fit of three different polynomials to a set of data points.
-	Comparison of the three models using the p-value. 
+Example02:
+   Histogram fit using poissonian uncertainties.
+   (ROOT macro)
 
-* Example03: Spectrum fit. 
-	Comparison of two different models assuming either a flat background
-	spectrum or a background + signal spectrum. The model comparison is
-	performed using the direct comparison of model probabilities.
+Example03:
+   Graph fits using 4 different functions assuming gaussian uncertainties.
+   This example represents the example from the BAT paper showing
+   a comparison between different fits.
+   (ROOT macro)
 
-* Example04: Binomial errors. 
-	A simple example for the binomial distribution.
+Example04:
+   Efficiency fit. Shows how to fit a histogram ratio where the numerator
+   histogram is a subset of the denominator histogram. Binomial
+   uncertainties are used.
+   (ROOT macro)
 
-Note:
------
+Example05:
+   Example showing how to define own complicated models and build
+   a program for running with BAT. It shows fits using two functions
+   when assuming asymmetric uncertainties.
+   (Compiled program)
 
-For some of the examples, it might be necessary to run the ROOT macro
-"CreateData.c" prior to the analysis. The macro will create a data set
-suitable for the analysis. 
-
-
-New order: 
-----------
-
-* Example01: Line fit
-	A simple line fit to a set of data points with Gaussian
-	uncertainties [I].
-
-* Example02: Polynomial fit
-	Comparison of fits of polynomials to set of data points with
-	Gaussian uncertainties [C].
-
-* Example03: Spectrum fit
-	A fit of a Gaussian signal plus quadratic background to binned data [I].
-
-* Example04: Efficiency estimate
-	Estimate of an efficiency using two numbers and the binomial distribution [C]. 
-
-* Example05: Efficiency fit
-	A fit of an error function to efficiencies with binomial uncertainties [C]. 
-
-* Example06: Kinematic fit
-	A simple kinematic fit of a heavy particle decaying into to light
-	particles [C].
-
-
-
-[I] : interactive ROOT 
-[C] : compile 
-	
