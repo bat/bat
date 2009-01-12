@@ -3,7 +3,7 @@
 // was installed correctly. The macro shows an example of fitting
 // an efficiency with a function defined by the user. The input are
 // two histograms, one being a subset of the other. In the fit the
-// uncertainties are considered to be poissonian.
+// uncertainties of the ratio are considered to be binomial.
 //
 // The macro can be run from within ROOT via commands
 //
@@ -18,22 +18,29 @@
 //
 //    $ root efficientyFitterExample.C
 //
-
-
-// The data fitted are generated randomly as a signal peak (gaussian)
-// plus a flat background using a function CreateHistogram(nbins, ns, nb, seed)
-// The arguments are 'nbins' - number of bins of the histogram,
-// 'ns' - number of signal events, 'nb' - number of background events,
-// 'seed' - initial seed for the random number generator. The location
-// and the width of the signal peak can be set up using the variables
-// 'mean' and 'sigma' below.
+// The data fitted are generated randomly using a function
+// CreateHistograms(nbins,nevents,hist1,hist2,seed), where 'nbins' is
+// the number of bins in both histograms, nevents is the number of
+// events generated, hist1 and hist2 are pointers to the generated TH1D
+// objects containing the generated histograms with hist1 being the
+// denominator and hist2 being the numerator (subset of hist1).
+// The denominator histogram hist1 is generated from Landau distribution.
+// The numerator histogram hist2 is created as a subset of hist1 where
+// the probability of accepting the entry in both histograms is set to
+// follow an error function with a smearing according to the binomial
+// distribution. The parameters of the error function can be adjusted
+// using the variables 'mean' and 'sigma'
 
 void CreateHistograms(int nbins, int nevents, TH1D * hist1, TH1D * hist2, int seed = 0);
-double fitfunction(double * x, double * par);
 
 const double mean  = 40.0;
 const double sigma = 15.0;
 
+//
+// The Data are fitted using an error function defined in fitfunction()
+// and passed to TF1 object.
+
+double fitfunction(double * x, double * par);
 
 // ---------------------------------------------------------
 void efficientyFitterExample()
