@@ -37,6 +37,11 @@ BCGoFTest::BCGoFTest(const char* name) : BCModel(name)
 
 	// define new histogram
 	fHistogramLogProb = 0;
+
+	// set defaults for the MCMC
+	this -> MCMCSetNChains(5);
+	this -> MCMCSetNIterationsMax(100000);
+	this -> MCMCSetNIterationsRun(2000);
 }
 
 // ---------------------------------------------------------
@@ -223,15 +228,15 @@ double BCGoFTest::GetCalculatedPValue(bool flag_histogram)
 	if (flag_histogram)
 	{
 		// modify MCMC for first run
-		this -> MCMCSetNIterationsMax(100000);
-		this -> MCMCSetNIterationsRun(10000);
+//		this -> MCMCSetNIterationsMax(100000);
+//		this -> MCMCSetNIterationsRun(10000);
 
 		// perform first run to obtain limits for the log(likelihood)
 		this -> MarginalizeAll();
 
 		// modify MCMC for second run
-		this -> MCMCSetNIterationsMax(100000);
-		this -> MCMCSetNIterationsRun(10000);
+//		this -> MCMCSetNIterationsMax(100000);
+//		this -> MCMCSetNIterationsRun(10000);
 
 		// create histogram
 		double D = fLogLikelihoodMax - fLogLikelihoodMin;
@@ -241,8 +246,8 @@ double BCGoFTest::GetCalculatedPValue(bool flag_histogram)
 	else
 	{
 		// modify MCMC
-		this -> MCMCSetNIterationsMax(100000);
-		this -> MCMCSetNIterationsRun(10000);
+//		this -> MCMCSetNIterationsMax(100000);
+//		this -> MCMCSetNIterationsRun(10000);
 	}
 
 	// run MCMC

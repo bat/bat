@@ -294,8 +294,15 @@ class BCModelManager
 			{ fDataSet -> Reset(); };
 
 		/**
-		 * Prints a summary into a file. If filename is omitted the summary will
-		 * be printed onto the screen
+		 * Prints a summary of model comparison into a file.
+		 * If filename is omitted the summary will be printed onto the screen
+		 * @param filename name of the file to write into. */
+		void PrintModelComparisonSummary(const char * filename=0);
+
+		/**
+		 * Prints a summary into a file. If filename is omitted the summary
+		 * will be printed onto the screen.
+		 * This method is obsolete. Use PrintResults() instead.
 		 * @param filename name of the file to write into. */
 		void PrintSummary(const char * filename=0);
 

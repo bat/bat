@@ -492,6 +492,24 @@ class BCModel : public BCIntegrate
 		double GetPValue()
 			{ return fPValue; };
 
+		/*
+		 * Set maximum number of iterations in the MCMC pre-run of the p-value
+		 * evaluation using MCMC */
+		void SetGoFNIterationsMax(int n)
+			{ fGoFNIterationsMax=n; };
+
+		/*
+		 * Set number of iterations in the MCMC normal run of the p-value
+		 * evaluation using MCMC */
+		void SetGoFNIterationsRun(int n)
+			{ fGoFNIterationsRun=n; };
+
+		/*
+		 * Set number of chains in the MCMC of the p-value
+		 * evaluation using MCMC */
+		void SetGoFNChains(int n)
+			{ fGoFNChains=n; };
+
 		/**
 		 * Calculates the matrix element of the Hessian matrix
 		 * @param parameter1 The parameter for the first derivative
@@ -561,6 +579,21 @@ class BCModel : public BCIntegrate
 		/**
 		 * The p-value */
 		double fPValue;
+
+		/*
+		 * Maximum number of iterations in the MCMC pre-run of the p-value
+		 * evaluation using MCMC */
+		int fGoFNIterationsMax;
+
+		/*
+		 * Number of iterations in the MCMC normal run of the p-value
+		 * evaluation using MCMC */
+		int fGoFNIterationsRun;
+
+		/*
+		 * Number of chains in the MCMC of the p-value
+		 * evaluation using MCMC */
+		int fGoFNChains;
 
 	private:
 

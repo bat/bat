@@ -50,6 +50,10 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 	fDataPointLowerBoundaries = 0;
 
 	fErrorBandXY = 0;
+
+	fGoFNChains = 5;
+	fGoFNIterationsMax = 100000;
+	fGoFNIterationsRun = 5000;
 }
 
 // ---------------------------------------------------------
@@ -68,6 +72,10 @@ BCModel::BCModel() : BCIntegrate()
 	fDataPointLowerBoundaries = 0;
 
 	flag_ConditionalProbabilityEntry = true;
+
+	fGoFNChains = 5;
+	fGoFNIterationsMax = 100000;
+	fGoFNIterationsRun = 1000;
 }
 
 // ---------------------------------------------------------
@@ -538,7 +546,7 @@ double BCModel::Normalize()
 	// maybe we have to remove the mode finding from here in the future
 	fNormalization = this -> Integrate();
 
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Normalization : %.6g", fNormalization));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Normalization factor : %.6g", fNormalization));
 
 	return fNormalization;
 }
@@ -1172,6 +1180,11 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 	// the model testing
 	if (!goftest -> SetTestPoint(par))
 		return 0;
+
+	// set parameters of the MCMC for the GoFTest
+	goftest -> MCMCSetNChains(fGoFNChains);
+	goftest -> MCMCSetNIterationsMax(fGoFNIterationsMax);
+	goftest -> MCMCSetNIterationsRun(fGoFNIterationsRun);
 
 	// get p-value
 	fPValue = goftest -> GetCalculatedPValue(flag_histogram);

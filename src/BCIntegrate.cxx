@@ -1502,6 +1502,11 @@ double BCIntegrate::CubaIntegrate()
 	parameters_int.push_back(NSTART);
 	parameters_int.push_back(NINCREASE);
 
+	// print to log
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Running Cuba/Vegas integation over %i dimensions.", fNvar));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Maximum number of iterations: %i", (int)MAXEVAL));
+	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Aimed relative precision:     %e", EPSREL));
+
 	return this -> CubaIntegrate(0, parameters_double, parameters_int);
 #else
 	BCLog::Out(BCLog::error,BCLog::error,"!!! This version of BAT is compiled without Cuba.");

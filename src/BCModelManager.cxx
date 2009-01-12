@@ -505,6 +505,84 @@ void BCModelManager::PrintSummary(const char * file)
 
 // ---------------------------------------------------------
 
+void BCModelManager::PrintModelComparisonSummary(const char * file)
+{
+	ofstream out;
+	std::streambuf * old_buffer = 0;
+
+	if(file)
+	{
+		out.open(file);
+		if (!out.is_open())
+		{
+			std::cerr<<"Couldn't open file "<<file<<std::endl;
+			return;
+		}
+		old_buffer = std::cout.rdbuf(out.rdbuf());
+	}
+
+	// model summary
+	int nmodels = fModelContainer -> size();
+	std::cout
+		<<std::endl
+		<<"======================================"<<std::endl
+		<<" Model Comparison Summary"<<std::endl
+		<<"======================================"<<std::endl
+		<<std::endl
+		<<" Number of models               : "<<nmodels<<std::endl
+		<<std::endl;
+
+	// probability summary
+	std::cout
+		<<" - A priori probabilities:"<<std::endl
+		<<std::endl;
+  
+	for (int i=0; i<nmodels; i++)
+		std::cout
+			<<"     p("<< fModelContainer -> at(i) -> GetName()
+			<<") = "<< fModelContainer -> at(i) -> GetModelAPrioriProbability()
+			<<std::endl;
+	std::cout<<std::endl;
+
+	std::cout
+		<<" - A posteriori probabilities:"<<std::endl
+		<<std::endl;
+
+	for (int i = 0; i < nmodels; i++)
+		std::cout
+			<<"     p("<< fModelContainer -> at(i) -> GetName()
+			<<"|data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
+			<<std::endl;
+	std::cout<<std::endl;
+
+	std::cout
+		<<" - p-values:"<<std::endl
+		<<std::endl;
+
+	for (int i = 0; i < nmodels; i++)
+	{
+		double p = fModelContainer -> at(i) -> GetPValue();
+		std::cout
+			<<"     "<< fModelContainer -> at(i) -> GetName();
+		if(p>=0.)
+			std::cout<<":  p-value = "<< p;
+		else
+			std::cout<<":  p-value not calculated";
+		std::cout<<std::endl;
+	}
+	std::cout<<std::endl;
+
+	std::cout
+		<<"======================================"<<std::endl
+		<<std::endl;
+
+	if (file)
+		std::cout.rdbuf(old_buffer);
+
+}
+
+// ---------------------------------------------------------
+
 void BCModelManager::PrintResults()
 {
 	// print summary of all models
