@@ -1,15 +1,7 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.1
+version 0.2
 -------------------------------
-
-
-Note: This is a very first release of BAT. Therefore, there are
-      probably many "features" we didn't intend to include. Please,
-      send any bugreports, comments and wishes to email address
-      bat@mppmu.mpg.de
-
-
 
 The Bayesian Analysis Toolkit is a software analysis package which allows
 to address the main goals of a typical data anaysis:
@@ -46,12 +38,14 @@ Directory bat/:
 
    doc       - directory containing information about BAT
    examples  - directory containing well commented example programs
-   include   - directory containing BAT header files
-   obj       - directory where object files are put during compilation
+   BAT       - directory containing BAT header files
    src       - directory containing BAT source files
+   tools     - directory containing tools useful for BAT
    INSTALL   - information about how to install BAT on your system
-   Makefile  - makefile for BAT compilation
    README    - basic information about BAT (this file)
+
+Other files distributed with BAT are part of installation and configuration
+system.
 
 
 Installation:

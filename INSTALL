@@ -2,9 +2,8 @@
 This is the INSTALL file of BAT package
 ---------------------------------------
 You can find here a short description of what to do to be able to
-compile and use BAT on your computer. This is a very first version
-of this file. In the future a detailed description should become
-a part of the manual.
+compile and use BAT on your computer. In the future a detailed
+description should become a part of the manual.
 
 
 Platforms
@@ -28,58 +27,76 @@ ROOT:
    a ROOT version 5.16 or later. Please, check your linux distribution
    for the availability of precompiled packages on your system. Mostly
    used distributions nowdays have the ROOT packages available.
+
+Recommended
+-----------
 CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
-   http://www.feynarts.de/cuba/. In future versions of BAT we plan to
-   make the use of CUBA optional but for the moment it has to be installed
-   on your system if you want to compile BAT.
+   http://www.feynarts.de/cuba/. Cuba is optional extension to BAT. You
+   will be able to compile and install BAT without Cuba. However, the
+   use of Cuba is recommended as it provides integration routines tuned
+   for performance, which are very usefull for integration in problems
+   with large number of dimensions.
 
-   Note: To compile CUBA libraries use command make lib instead of plain
-         make since it tries to compile MathLink executables and fails if
-         MathLink is not installed on the system.
+   Note: To compile CUBA libraries use command 'make lib' instead of plain
+         'make' since it tries to compile MathLink executables and fails if
+         MathLink is not installed on the system. You may need to copy the
+         libcuba.a and cuba.h to the appropriate locations on your system
+         by hand as the 'make install' will fail if MathLink executables
+         are not comiled.
 
 Installation Procedure
 ----------------------
-Manual installation is necessary at the moment which contains just a few
-staps.
-
 Unpack the tarball containing the BAT source usually named like
-bat-x.x.tgz (here x.x is the version number) using command
+BAT-x.x.tgz (here x.x is the version number) using command
 
-    tar -xzf bat-x.x.tgz
+    tar -xzf BAT-x.x.tgz
 
-A directory called bat-x.x will be created containing the source code.
-Enter the directory and run the compilation using commands
+A directory called BAT-x.x will be created containing the source code.
+Enter the directory and run the configuration using commands
 
-    cd bat-x.x
+    cd -x.x
+    ./configure
+
+This will check your system for all components needed to compile BAT
+and set up the paths for installation. You can add option
+--prefix=/path/to/install/bat to ./configure to specify the the prefix
+to the BAT installation path. The BAT library files will be installed
+to $prefix/lib and the include files to $prefix/include. Default
+installation prefix is /usr/local.
+
+The configure script checks for ROOT availability in the system and
+fails if ROOT is not installed. You can specify the ROOTSYS directory
+using --rootsys=/path/to/rootsys.
+
+The configure will also search for libcuba.a and cuba.h in the system.
+The libcuba.a has to be available in the standard system library search
+path. You can specify the cuba.h location using
+--with-cuba-path=/path/to/cuba/header.
+
+After successful configuration run
+
     make
+    make install
 
-After a successful compilation a file called libBAT.so will be created
-which is a shared library.
+to compile and install BAT. Note that depending on the setting of
+installation prefix you might need root priviledges to be able to install
+BAT. If you are installing BAT e.g. in your $HOMEDIR, you need to add
+the path to the library and to the include files to the search path
+in your system. Depending on your shell you can do that via commands
 
-To be able to compile and run with BAT you have to put the library as
-well as the include files into the location accessible to your system.
-For compilation it is enough to add the options -L/bat/library/location/path/
-and -I/bat/include/location/path/ to the gcc compiler commands in your
-makefile. To run with BAT you have to place the libBAT.so to the directory
-where you system searches for shared libraries. You can also setup your
-environmental variables to add the location of the library to the search
-path of your system via setting:
-
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/bat/lib/location/path/
-    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:/bat/inc/location/path/
+    export BATINSTALLDIR=/bat/install/prefix
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
 
 or
 
-    setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:/bat/lib/location/path/
-    setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:/bat/inc/location/path/
+    setenv BATINSTALLDIR       /bat/install/prefix
+    setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+    setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
 
-for bash and csh compatible shells, respectively. The second line adds the
-location of BAT header files to the standard compiler search path.
-
-In the future we plan to automatize the whole installation process, possibly
-using autoconf/automake tools.
+for bash and csh compatible shells, respectively.
 
 
 ----------------------------------------------------------------------------
