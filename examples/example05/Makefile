@@ -25,7 +25,7 @@ CXXFLAGS    += -I.
 # need to remove '-lcuba' from the two following lines.
 # Otherwise the example won't compile.
 ###
-OCLIBS        += $(ROOTLIBS)  -lBAT -lcuba
+LIBS        += $(ROOTLIBS)  -lBAT -lcuba
 GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
 
 CXXSRCS      = \
