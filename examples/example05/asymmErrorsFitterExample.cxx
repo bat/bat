@@ -158,16 +158,17 @@ int main()
 	TCanvas * c2 = new TCanvas("c2","",800,500);
 	c2 -> Divide(2,1);
 
-	// draw best fit for model 1 with errorbar
+	// draw best fit for model 1 with errorband
 	c2 -> cd(1);
 	haxes -> Draw();
-	m1 -> GetErrorBandGraph(0.16, 0.84) -> Draw("f");
+	// draw central 68% errorband
+	m1 -> GetErrorBandGraph(.16, .84) -> Draw("f");
 	gdata -> Draw("p same");
 	gm1_best -> SetLineColor(kRed);
 	gm1_best -> Draw("c same");
 	gPad -> RedrawAxis();
 
-	// draw best fit for model 1 with errorbar
+	// draw best fit for model 2 with errorband
 	c2 -> cd(2);
 	haxes -> Draw();
 	// draw central 68% errorband
@@ -183,6 +184,8 @@ int main()
 	// close log file
 	BCLog::CloseLog();
 
+	// all ok
+	// exit with success
 	return 0;
 }
 

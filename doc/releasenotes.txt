@@ -1,9 +1,19 @@
-Release notes for version:    0.1
-Release date:                 2008-09-15
+Release notes for version:    0.2
+Release date:                 2009-01-14
 ----------------------------------------
 
-This is an initial release of BAT so there are no changes to the
-previous released version, since there wasn't any. Have a look at
-introduction.ps. For more information consult the BAT webpage at
-http://www.mppmu.mpg.de/bat/
+This version of BAT includes many updates. The major improvements are:
+
+o  new installation procedure based on autoconf/automake
+   - usage of Cuba is now optional but still recommended
+
+o  prssibility to run BAT interactively from within ROOT
+
+o  adding 'fast fitter' classes for graph fitting, histogram
+   fitting and efficiency fitting allowing to do these basic types of
+   fits with minimal effort
+
+...
+
+For more information consult the BAT webpage at http://www.mppmu.mpg.de/bat/
 

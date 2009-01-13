@@ -34,7 +34,7 @@ class Pol1Asymm : public BCModel
 		// fit function returning expectation value for each data point
 		virtual double FitFunction(std::vector <double> x, std::vector <double> par);
 
-		// loglikelihood function - probability of the data given parameters
+		// loglikelihood function - probability of the data given the parameters
 		virtual double LogLikelihood(std::vector <double> par);
 
 		// prior probability

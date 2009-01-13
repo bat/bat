@@ -1,5 +1,3 @@
-#include <fstream.h>
-
 /*
  * This macro generates a dataset consisting of 4 values for
  * each data point: x, y, error on y low, error on y high
@@ -32,6 +30,8 @@
  *    root[1] .L CreateData.c
  *    root[2] CreateData("data01.txt"")
  */
+
+#include <fstream.h>
 
 void CreateData(const char * fname = "data.txt")
 {
@@ -106,6 +106,7 @@ void CreateData(const char * fname = "data.txt")
 
 	cout << "Data have been recorded to file  " << fname << endl;
 
+	// draw true function and the genetated data
 	TCanvas * c = new TCanvas();
 	g -> SetMarkerStyle(20);
 	g -> SetMarkerSize(1.);
@@ -126,5 +127,5 @@ void CreateData(const char * fname = "data.txt")
 	leg -> AddEntry(f2d, "True function", "l");
 	leg -> AddEntry(g, "Generated data", "p");
 	leg -> Draw();
-
 }
+

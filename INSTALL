@@ -43,12 +43,12 @@ CUBA:
    for performance, which are very usefull for integration in problems
    with large number of dimensions.
 
-   Note: To compile CUBA libraries use command 'make lib' instead of plain
-         'make' since it tries to compile MathLink executables and fails if
-         MathLink is not installed on the system. You may need to copy the
-         libcuba.a and cuba.h to the appropriate locations on your system
-         by hand as the 'make install' will fail if MathLink executables
-         are not comiled.
+Note: To compile CUBA libraries use command 'make lib' instead of plain
+      'make' since it tries to compile MathLink executables and fails if
+      MathLink is not installed on the system. You may need to copy the
+      libcuba.a and cuba.h to the appropriate locations on your system
+      by hand as the 'make install' will fail if MathLink executables
+      are not comiled.
 
 Installation Procedure
 ----------------------
@@ -101,6 +101,12 @@ or
     setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
 
 for bash and csh compatible shells, respectively.
+
+An option for use in compiled programs would also be to add
+-I/bat/install/include/path to CFLAGS and -L/bat/install/lib/path to
+LDFLAGS in your Makefile. However, the interactive ROOT macros will not
+work if libBAT.so and libBAT.rootmap both aren't in the system library
+search path.
 
 
 ----------------------------------------------------------------------------

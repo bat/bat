@@ -7,10 +7,13 @@ based on the BCModel class or on any previously defined class
 which inherits from BCModel. It demonstrates how to create
 a simple compiled program using BAT.
 
-In the example there are many of BAT features shown. All source
-files are very well documented.
+In the example there are many of BAT features shown. The source
+files contain plenty of comments and explanations.
+
 
 The files:
+----------
+
    Makefile       - makefile for the example program
    Pol1Asymm.h    - definition of a model class for straight line
                     fit with asymmetric errors
@@ -22,12 +25,21 @@ The files:
                   - source code of the main program
    CreateData.C   - a ROOT macro for creating the data to fit
 
+
 Running the example:
 --------------------
 
 1. Make sure that BAT is correctly installed in the system
 
 2. Compile the example by running 'make' in the example directory
+   o  If your version of BAT was not compiled with cuba and
+      you don't have Cuba installed in your system you might
+      need to remove '-lcuba' from the two following lines
+      in the Makefile before running 'make'. Otherwise the
+      example won't compile.
+
+      LIBS        += $(ROOTLIBS)  -lBAT -lcuba
+      GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
 
 3. Prepare the dataset to fit using the ROOT macro CreateData.C
    (e.g. by running root CreateData.C from the command line)

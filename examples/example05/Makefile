@@ -18,7 +18,14 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I.
-LIBS        += $(ROOTLIBS)  -lBAT -lcuba
+
+########################################################
+# If your version of BAT was not compiled with cuba and
+# you don't have Cuba installed in your system you might
+# need to remove '-lcuba' from the two following lines.
+# Otherwise the example won't compile.
+###
+OCLIBS        += $(ROOTLIBS)  -lBAT -lcuba
 GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
 
 CXXSRCS      = \
