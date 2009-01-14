@@ -37,10 +37,13 @@ const double sigma  =  5.0;
 // TGraphErrors for the fit to work.
 
 // ---------------------------------------------------------
-
 void graphFitterSimpleExample()
 {
+	// set nice style for plot drawing
 	BCAux::SetStyle();
+
+	// set global message printing level to detail
+	BCLog::SetLogLevel(BCLog::detail);
 
 	// create data
 	TGraphErrors * graph = CreateGraph(10, 1000);
@@ -57,27 +60,31 @@ void graphFitterSimpleExample()
 
 	// set options for MCMC
 	// set number of iterations of Markov Chain after convergence
+	// by default 5 chains are run in paralell, i.e. total number
+	// of iterations will be 5 times what is set below
 	gf -> MCMCSetNIterationsRun(100000);
 
-	// perform fit
+	// perform the fit
 	gf -> Fit();
 
-	// print data and fit
+	// print data and the fit
 	TCanvas * c1 = new TCanvas("c1");
 	gf -> DrawFit("", true);
 	c1 -> Print("fit.ps");
 
 	// print marginalized distributions
 	gf -> PrintAllMarginalized("distributions.ps");
+
+	// print results
+	gf -> PrintResults("results.txt");
 }
 
 // ---------------------------------------------------------
-
 TGraphErrors * CreateGraph(int n, int seed)
 {
 	// initialize random number generator
 	gRandom = new TRandom3(seed);
-	
+
 	// define arrays
 	double * x  = new double[n];
 	double * y  = new double[n];

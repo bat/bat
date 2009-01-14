@@ -76,7 +76,7 @@ int main()
 	// marginalizes the probability density with respect to all
 	// parameters subsequently for all models
 	m1 -> MCMCSetNIterationsRun(50000);
-	m2 -> MCMCSetNIterationsRun(50000);
+	m2 -> MCMCSetNIterationsRun(100000);
 	mgr -> MarginalizeAll();
 
 	// the MarginalizeAll method will also perform a mode finding
@@ -101,7 +101,7 @@ int main()
 	m2 -> PrintAllMarginalized("2Dasymm-marg.ps", 3, 2);
 
 	// calculate the p-value for the set of best fit parameters
-//	mgr -> CalculatePValue();
+	mgr -> CalculatePValue();
 
 	// write the summary
 	mgr -> PrintResults();

@@ -49,6 +49,8 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 	BCModelOutput();
 	fModel = model;
 
+	fModel -> MCMCInitialize();
+
 	// initialize trees
 	this -> InitializeAnalysisTree();
 	this -> InitializeMarkovChainTrees();

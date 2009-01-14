@@ -12,7 +12,7 @@ EXTRA_DIST= \
 dist-hook: prep-docs
 	rm -f $(distdir)/src/*Dict.*
 	rm -rf `find $(distdir)/examples -name CVS`
-prep-docs: BAT-intro.ps
+prep-docs: 
 BAT-intro.ps:
 	mkdir intro-tmp
 	cp -r doc/introduction intro-tmp
