@@ -50,8 +50,8 @@ development/Makefile -text
 development/runengine.c -text
 development/todo_detail.txt -text
 doc/COPYING -text
+doc/ChangeLog -text
 doc/LICENSE -text
-doc/changelog -text
 doc/introduction/bat.eps -text
 doc/introduction/introduction.tex -text
 doc/manual/bat.eps -text

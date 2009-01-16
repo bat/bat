@@ -37,25 +37,22 @@ Recommended
 CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
-   http://www.feynarts.de/cuba/. Cuba is optional extension to BAT. You
-   will be able to compile and install BAT without Cuba. However, the
-   use of Cuba is recommended as it provides integration routines tuned
-   for performance, which are very usefull for integration in problems
-   with large number of dimensions.
+   http://www.feynarts.de/cuba/. In this version BAT no longer depends
+   on CUBA and you can compile and run without it. However, the use of
+   CUBA is recommended as it provides integration routines tuned for
+   performance, which are very usefull for integration in problems with
+   large number of dimensions.
 
-Note: To compile CUBA libraries use command 'make lib' instead of plain
-      'make' since it tries to compile MathLink executables and fails if
-      MathLink is not installed on the system. You may need to copy the
-      libcuba.a and cuba.h to the appropriate locations on your system
-      by hand as the 'make install' will fail if MathLink executables
-      are not comiled.
+Note: Since version 1.5 the compilation of Cuba no longer crashes
+      if you don't have Mathematica installed. To compile and install CUBA
+      libraries use commands 'make lib ; make install'.
 
 Installation Procedure
 ----------------------
 Unpack the tarball containing the BAT source usually named like
-BAT-x.x.tgz (here x.x is the version number) using command
+BAT-x.x.tar.gz (here x.x is the version number) using command
 
-    tar -xzf BAT-x.x.tgz
+    tar -xzf BAT-x.x.tar.gz
 
 A directory called BAT-x.x will be created containing the source code.
 Enter the directory and run the configuration using commands

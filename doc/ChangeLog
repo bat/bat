@@ -1,0 +1,19 @@
+2009-01-16  Daniel Kollar <daniel.kollar@cern.ch>
+
+	* release version 0.2
+	* updated INSTALL file for the Cuba 1.5 information
+	  and fixed a few typos
+	* completed the releasnotes.txt
+	* renamed changelog to ChangeLog
+
+
+2009-01-15  Daniel Kollar <daniel.kollar@cern.ch>
+
+	* Many changes
+	* I will try keep this up to date in the future!
+
+
+2008-09-15  Daniel Kollar <daniel.kollar@cern.ch>
+
+	* First release of beta version 0.1
+
