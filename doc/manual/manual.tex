@@ -13,7 +13,7 @@
 \pagestyle{headings}
 
 \newcommand{\BAT}{{\sc BAT}}
-\newcommand{\versionno}{1.0}
+\newcommand{\versionno}{0.2}
 \newcommand{\version}{version~\versionno}
 \newcommand{\Version}{Version~\versionno}
 
@@ -151,6 +151,7 @@ viewed as a function of $\vec{\lambda}$ for fixed $\vec{x}=\vec{D}$,
 it is known as the likelihood.
 
 \subsection{Validity of Model}
+\label{subsection:validity}
 
 The following quantity is proposed to evaluate the validity of a
 model,$M$, (including any modelling of the experimental conditions):
@@ -264,6 +265,8 @@ be implemented in any other program ...
 
 How to install BAT on your computer. Requirements, e.g. ROOT.
 
+\pagebreak 
+
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % analysis chain
@@ -273,23 +276,17 @@ How to install BAT on your computer. Requirements, e.g. ROOT.
 \section{Analysis chain}
 \label{section:analysis}
 
-In the following section a typical analysis chain is described. The
-basic features of the \BAT\ toolkit are introduced. The general flow
-of work is the following: one or several models are defined together
-with their parameters and corresponding ranges. Data is read in from a
-file and interfaced with each model. The models are then compared to
-each other by calculating the probability for each model given the
-data set. Parameters are estimated either from the total probability
-density or from the marginalized probability densities. Given these
-best-fit parameters a ``goodness-of-fit'' test can be performed by
-evaluating the posterior probability for an ensemble of possible data
-sets. \\
-
-\noindent 
-Subsequently, alternative features are discussed such as function
-fitting and graphical output. Also, the special case of data sets
-containing only one data point is discussed. These can be used for
-sensitivity analyses.
+A typical analysis chain with BAT is described in the following
+section. The basic features of the toolkit are introduced. The general
+flow of work is the following: one or several models are defined
+together with their parameters and corresponding ranges. Data is read
+in from a file and interfaced with each model. For each model
+parameters are estimated either from the posterior probability density
+or from the marginalized probability densities of the individual
+parameters. A ``goodness--of--fit'' test can be performed by
+evaluating the likelihood for an ensemble of possible data sets given
+the best-fit parameters. The data sets are generated under the
+assumption of the model at hand and the best-fit parameters. \\
 
 % -------------------------------------------------------- 
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -298,22 +295,22 @@ sensitivity analyses.
 \subsection{Getting started} 
 \label{subsection:start}
 
-The \BAT\ toolkit comes in form of a library. It can be linked against
-in any existing C++ code, or it can be used in a ROOT online
+\BAT\ comes in form of a library. It can be linked against
+in any existing C++ code, or it can be used in an interactive ROOT
 session. The latter case is discussed later on in this manual. In
 order to start a new project several files need to be provided by the
 user:
 % 
 \begin{itemize}
 \item A makefile in which the \BAT\ library is linked. 
-\item A definition of each model used in the analysis, e.g. include 
-      and source files of the classes defining these models (see 
-      next section).  
+\item Include and source files of the classes defining the models
+used in the analysis (see next section). 
 \item A main file in which the actual analysis is performed. 
 \end{itemize} 
 
 \noindent  
-The script \verb|BAT/examples/CreateProject.sh| creates these files.
+The script \verb|BAT/tools/CreateProject.sh| can be used to create an
+empty analysis skeleton including the above listed files.
 
 % -------------------------------------------------------- 
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -328,34 +325,33 @@ The script \verb|BAT/examples/CreateProject.sh| creates these files.
 \label{subsubsection:implementation}
 
 The mathematical models used in \BAT\ are implemented in terms of C++
-classes. All model classes inherit from the class \verb|BCModel|. It
-has several public member functions which need to be overloaded by the
-user in order to specify the mathematical expressions for an
-unambiguous definition of the model. Apart from the constructor and
-destructor, these methods are
+classes. All model classes inherit from the class \verb|BCModel|. This
+base class has several public member functions which need to be
+overloaded by the user in order to specify the mathematical
+expressions for an unambiguous definition of the model. Apart from the
+constructor and destructor, these methods are
 % 
 \begin{itemize}
-\item \verb|BCModel::DefineParameters()| \\
+\item \verb|void BCModel::DefineParameters()| \\
 This method has to be called at construction and contains the
 definition of parameters.
 % 
-\item \verb|BCModel::LogLikelihood(std::vector <double> parameters)| \\ 
+\item \verb|double BCModel::LogLikelihood(std::vector <double> parameters)| \\ 
 This method contains a mathematical expression for the conditional
 probability of the data given a set of parameter values,
-$p(x|\vec{lambda})$. For reasons of numerical stability it returns the
-logarithm of the conditional probability.
+$p(x|\vec{\lambda})$. For reasons of numerical stability it returns
+the logarithm of the conditional probability.
 %
-\item \verb|BCModel::LogAPrioriProbability(std::vector <double> parameters)| \\
+\item \verb|double BCModel::LogAPrioriProbability(std::vector <double> parameters)| \\
 This method contains a mathematical expression for the {\it a priori}
 probability for a set of parameter values. For reasons of numerical
 stability it returns the logarithm of the conditional probability.
 \end{itemize} 
 
 \noindent 
-A class derived from \verb|BCModel| can contain any number of additional 
-member functions. An example for a header file is shown in 
-Section~\ref{paragraph:headerfile}, an example for a source file is shown 
-in Section~\ref{paragraph:sourcefile}. 
+A class derived from \verb|BCModel| can contain any number of
+additional member functions. Examples for header and source files are
+given in Section~\ref{paragraph:headerfile}.
 
 % -------------------------------------------------------- 
 
@@ -367,6 +363,8 @@ The parameters of a model are implemented as a C++ class named
 ways: either they are explicitly defined and then added to a model via
 %
 \begin{verbatim}
+BCParameter * parameter = new BCParameter(const char* name, 
+                                          double lowerlimit, double upperlimit); 
 BCModel::AddParameter(BCParameter * parameter),
 \end{verbatim}
 
@@ -379,9 +377,9 @@ BCModel::AddParameter(const char* name, double lowerlimit, double upperlimit) .
 
 \noindent 
 Every parameter has to have a unique name and valid limits. Once added
-to a model each parameter is given a unique index starting at
-zero. Parameters can be referenced to by its index or by its name. A
-parameter can be returned from a model using the functions
+to a model each parameter is given a unique index starting at zero. A
+parameter can be referenced to by its index or by its name. It can be
+returned from a model using the methods
 % 
 \begin{verbatim} 
 BCModel::GetParameter(int index), 
@@ -426,7 +424,7 @@ BCDataPoint::GetValue(int index) .
 \end{verbatim} 
 
 \noindent 
-A data point can be added to a data set with the function
+A data point can be added to a data set with the method
 
 \begin{verbatim} 
 BCDataSet::AddDataPoint(BCDataPoint* datapoint) . 
@@ -435,20 +433,16 @@ BCDataSet::AddDataPoint(BCDataPoint* datapoint) .
 \noindent 
 Alternatively, data can be read in from a file
 %
-\begin{small}
 \begin{verbatim}
-BCDataSet::ReadDataFromFile(char* filename, char* treename, const char* branchnames) ,
+BCDataSet::ReadDataFromFile(char* filename, 
+													  char* treename, const char* branchnames) ,
 BCDataSet::ReadDataFromFile(char* filename, int nvariables) .
 \end{verbatim} 
-\end{small} 
 
 \noindent 
-The data format for \verb|.txt| files is such that each data point
-corresponds to one line, each containing several values. Note that
-the number of values per data point has to be provided by the
-user. While the first two methods are interfaces to pre-defined
-formats the third method allows the user to define his or her own
-interface. \\
+The data format for ASCII files is such that each data point
+corresponds to one line, each containing several values. Note that the
+number of values per data point has to be provided by the user. \\
 
 \noindent 
 Once a data set is defined it can be assigned to a model with
@@ -466,7 +460,8 @@ BCModel::GetDataSet() .
 
 \noindent 
 Note that the user can define several data sets. However, a model can
-only have one data set at a time.
+only have one data set at a time. This data set can be accessed in the
+overloaded method \verb|BCModel::LogLikelihood()|.
 
 % --------------------------------------------------------
 
@@ -474,12 +469,13 @@ only have one data set at a time.
 
 For two applications discussed later in this section, the
 goodness-of-fit test and the calculation of error bands, it is
-necessary to put limits on the possible values of the data
-points. This is done for each variable separately. Note that the
-limits are defined by the model not by the data set:
+necessary to define the limits of the data points. This is done for
+each variable separately. Note that the limits are defined by the
+model, not by the data set:
 %
 \begin{verbatim}
-SetDataBoundaries(int index, double lowerboundary, double upperboundary) . 
+BCModel::SetDataBoundaries(int index, double lowerboundary, 
+													 double upperboundary) . 
 \end{verbatim}
 
 % -------------------------------------------------------- 
@@ -487,10 +483,11 @@ SetDataBoundaries(int index, double lowerboundary, double upperboundary) .
 % -------------------------------------------------------- 
 
 \subsection{Managing more than one model: the model manager} 
+\label{subsection:modelmanager}
 
 In case more than one model is defined and all models use the same
 data set a model manager can be defined. It is implemented as a class
-\verb|BCModelManager|. Models and their (model) {\it a priori}
+named \verb|BCModelManager|. Models and their (model) prior
 probability are added to the model manager via
 % 
 \begin{verbatim}
@@ -510,12 +507,11 @@ BCModelManager::SetDataSet(BCDataSet * dataset) ,
 \noindent 
 or by reading data from a file via 
 %
-\begin{small}
 \begin{verbatim}
-BCModelManager::ReadDataFromFile(char* filename, char* treename, const char* branchnames) , 
-BCModelManager::ReadDataFromFile(char* filename, int nvariables) , 
+BCModelManager::ReadDataFromFile(char* filename, char* treename, 
+																 const char* branchnames) , 
+BCModelManager::ReadDataFromFile(char* filename, int nvariables) . 
 \end{verbatim} 
-\end{small} 
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -524,14 +520,14 @@ BCModelManager::ReadDataFromFile(char* filename, int nvariables) ,
 \subsection{Normalization and numerical integration} 
 \label{section:normalization} 
 
-In Bayes' Theorem the {\it a posteriori} probability density is
-normalized to unity. To ensure this normalization the denominator on
-the right hand side of Eqn.~\ref{eqn:BayesTheorem} has be to
-evaluated. It is an integral of the conditional probability times the
-{\it a priori} probability over the whole parameter space. Since the
-analytical form of the integral is not known in general this integral
-is solved numerically. Several methods for numerical integration are
-implemented in the package. The different methods are described in
+In Bayes' Theorem the posterior pdf is normalized to unity. To ensure
+this normalization the denominator on the right hand side of
+Eqn.~\ref{eqn:BayesTheorem} has be to evaluated. It is an integral of
+the conditional probability times the prior probability over the whole
+parameter range. Since the analytical form of the integral is not
+known in general this integral is solved numerically. Several methods
+for numerical integration are implemented in the package. The
+different methods are described in
 Section~\ref{subsection:integration}. It can be chosen by
 %
 \begin{verbatim}
@@ -547,13 +543,13 @@ where \verb|BCIntegrationType| can be one of the following
  with importance sampling.  
 \item \verb|BCModel::kIntMetropolis|. A sampled mean integration
  with importance sampling using Markov chains. 
-\item \verb|BCModel::kIntCuba|. An interface to the cuba
+\item \verb|BCModel::kIntCuba|. An interface to the Cuba
 library~\cite{Hahn:2004fe}.
 \end{itemize}
 
 \noindent 
 The normalization can be performed for each model separately or for
-all models which belong to a model manager
+all models which belong to a model manager:
 %
 \begin{verbatim}
 BCModel::Normalize() ,
@@ -561,57 +557,55 @@ BCModelManager::Normalize() .
 \end{verbatim} 
 
 \noindent 
-The private variable \verb|fNormalization| stores the normalization
-and is set for each model. The value can be obtained by 
+The private variable \verb|BCModel::fNormalization| stores the
+normalization and is set for each model. The value can be obtained by
 %
 \begin{verbatim}
-BCModel::GetNormalization() . 
+double BCModel::GetNormalization() . 
 \end{verbatim}
 
 \noindent 
-Once the integral is calculated the {\it a posteriori} probability
-density for a set of parameter values can be evaluated
+Once the integral is calculated the posterior pdf for a set of
+parameter values can be evaluated
 %
 \begin{verbatim} 
 BCModel::Probability(std::vector <double> parameter) , 
 BCModel::LogProbability(std::vector <double> parameter) , 
 \end{verbatim} 
 %
-where the latter returns the logarithm of the probability. 
+where the latter returns the logarithm of the posterior pdf.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % -------------------------------------------------------- 
 
-\subsection{Parameter estimate and marginalization} 
+\subsection{Parameter estimation and marginalization} 
 
-The {\it a posteriori} probability density can be used to estimate the
-set of parameter values most suited to describe the data. This is done
-by searching for the most probable value, or mode, of the probability
-density.  Two approaches are followed: either the mode in the whole
-parameter space is searched for, or the probability density is
-marginalized with respect to a particular parameter studied. In the
-latter case, several quantities can used to describe the marginalized
-distributions.
+The posterior pdf can be used to estimate the set of parameter values
+most suited to describe the data. This is done by searching for the
+most probable value, or mode, of the posterior pdf. Two approaches are
+followed: either the mode in the whole parameter space is searched
+for, or the pdf is marginalized with respect to the particular
+parameter under study. In the latter case, several quantities can used
+to describe the marginalized distributions.
 
 % --------------------------------------------------------
 
-\subsubsection{Maximization of the posterior probability density} 
+\subsubsection{Maximization of the full posterior probability density} 
 
-The maximization of the posterior probability density can be performed
-using
+The maximization of the full posterior pdf can be performed using the
+method
 %
 \begin{verbatim} 
-BCModel::FindMode() . 
+std::vector<double> BCModel::FindMode() . 
 \end{verbatim} 
 
 \noindent 
-It returns a vector of parameter values which maximize the {\it a
-  posteriori} probability density. The implemented algorithms can be
-chosen with the command
+It returns a vector of parameter values which maximize the posterior
+pdf. The implemented algorithms can be chosen with the command
 %
 \begin{verbatim}
-BCModel::SetModeFindingMethod(BCIntegrate::BCModeFindingType method) .
+BCModel::SetOptimizationMethod(BCIntegrate::BCOptimization method) .
 \end{verbatim}
 %
 Two methods are available in the current version (\Version). The
@@ -629,8 +623,8 @@ via
 \subsubsection{Marginalization} 
 
 \noindent 
-The single parameter estimate is done by marginalization. If more than
-one parameter is studied it is most efficient to marginalize with
+The single parameter estimation is done by marginalization. If more
+than one parameter is studied it is most efficient to marginalize with
 respect to all parameters simultaneously. This can be done by
 %
 \begin{verbatim}
@@ -638,8 +632,8 @@ BCModel::MarginalizeAll() .
 \end{verbatim} 
 
 \noindent 
-A vector of one- and two-dimensional histograms is filled during the
-marginalization and can be accessed by
+One- and two-dimensional histograms are filled during the
+marginalization. They can be accessed by
 %
 \begin{verbatim}
 BCModel::GetMarginalized(BCParameter * parameter) ,
@@ -650,7 +644,7 @@ BCModel::GetMarginalized(char * name1, char * name2) .
 
 \noindent 
 Alternatively, the marginalization can be done for one or two
-parameters separately
+parameters individually: 
 %
 \begin{verbatim}
 BCModel::MarginalizeProbability(BCParameter* parameter) ,
@@ -664,24 +658,22 @@ Different methods of marginalization are implemented and can be chosen
 via
 %
 \begin{verbatim}
-BCIntegrate::SetMarginalizationMethod(BCIntegrate::BCMarginalizationType method)
+BCModel::SetMarginalizationMethod(Model::BCMarginalizationMethod method)
 \end{verbatim} 
 
 \noindent
-where \verb|BCMarginalizationType| can be one of the following 
+where \verb|BCMarginalizationMethod| can be one of the following 
 % 
 \begin{itemize}
-\item \verb|BCIntegrate::kMargMonteCarlo|. Uncorrelated sampling of the
- probability density.  
-\item \verb|BCIntegrate::kMargMetropolis|. Correlated sampling using
-  Markov Chain Monte Carlo (Metropolis algorithm). 
+\item \verb|BCModel::kMargMonteCarlo|. Uncorrelated Monte Carlo sampling.
+\item \verb|BCModel::kMargMetropolis|. Correlated sampling using
+  Markov Chain Monte Carlo (Metropolis algorithm).
 \end{itemize} 
 
 \noindent 
-The different methods are described in
-Section~\ref{subsection:optimization}. Note that if the
-marginalization is done for all parameters simultaneously only Markov
-chains can be used. \\
+The different methods are described in a later section. Note that if
+the marginalization is done for all parameters simultaneously only
+Markov chains can be used. \\
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -693,48 +685,53 @@ chains can be used. \\
 
 \subsubsection{Model comparison}
 
-Models $M_{i}$ can be compared by their posterior probability. The
-models are added to a model manager and given an {\it a priori}
-probability. The {\it a posteriori} probability for each model with
-respect to the whole set of models is calculated. The posterior
-probability for the $i$th model, $H_{i}$, given the data, is simply
+Models $M_{i}$ can be compared by their posterior
+probability. Technically, the models are added to a model manager and
+given a prior probability (see
+Section~\ref{subsection:modelmanager}). The posterior probability for
+the $i$th model, given the data, is simply
 %
 \begin{equation}
-p(\mathrm{H_{i}}|\mathrm{data}) = \frac{N_{\mathrm{i}} \cdot p_{0}(\mathrm{H_{i}})}{\sum_{\mathrm{j} = 1}^{N} N_{\mathrm{j}} \cdot p_{0}(\mathrm{H_{j}})} \, , 
+p(\mathrm{M_{i}}|\mathrm{data}) = \frac{N_{\mathrm{i}} \cdot p_{0}(\mathrm{M_{i}})}{\sum_{\mathrm{j} = 1}^{N} N_{\mathrm{j}} \cdot p_{0}(\mathrm{M_{j}})} \, , 
 \end{equation}
 %
-where $N_{i}$ is the normalization of the $i$th model posterior
-probability (i.e. the denominator of the right hand side of
-Eqn.~\ref{eqn:BayesTheorem}) and $p_{0}(H_{i})$ is the prior
-probability for the $i$th model. \\ 
-
-\noindent 
-The {\it a posteriori} probability for a model can be evaluated once
-the model manager is initialized and all numerical integrations are
-performed
+where $N_{i}$ is the normalization of the $i$th model posterior pdf
+(i.e., the denominator of the right hand side of
+Eqn.~\ref{eqn:BayesTheorem}) and $p_{0}(M_{i})$ is the prior
+probability for the $i$th model. The posterior probability for a model
+can be evaluated once the model manager is initialized and all
+numerical integrations are performed via 
 %
 \begin{verbatim}
-BCModel::GetModelAPosterioriProbability() . 
+BCModelManager::Normalize() . 
+\end{verbatim}
+%
+The posterior probability can be returned from the model using the
+following method:
+%
+\begin{verbatim}
+double BCModel::GetModelAPosterioriProbability() . 
 \end{verbatim}
 
 % --------------------------------------------------------
 
 \subsubsection{Goodness-of-fit test} 
 
-Once the most suitable set of parameters, $\lambda^{*}$, for a given
-model and data set, $D$, is estimated the appropriateness of the model
-(and this choice of parameters) to describe the data can be
-calculated. This ``goodness--of--fit'' test is based on a set of fake
-data sets, $\{ \tilde{D} \}$, generated under the assumption of the
-parameters obtained, $\lambda^{*}$. A frequency distribution $f$ of
-the obtained conditional probability $k=p(\tilde{D}|\lambda^{*})$ is
+Once the most suitable set of parameters, $\vec{\lambda}^{*}$, for a
+given model and data set, $D$, is estimated the appropriateness of the
+model (and this choice of parameters) to describe the data can be
+calculated. This ``goodness--of--fit'' test is described in
+Section~\ref{subsection:validity}. Data sets, $\{ \tilde{D} \}$, are
+generated under the assumption of the model and the
+best-fit-parameters. A frequency distribution $f$ of the obtained
+conditional probability $k=p(\tilde{D}|\vec{\lambda}^{*})$ is
 calculated and interpreted as probability density. The $p$-value is
 defined as the probability to find a conditional probability
-$p(\tilde{D}|\lambda^{*})$ equal or less than for the original data
-set, $k_{0}=p(D|\lambda^{*})$, i.e.
+$p(\tilde{D}|\vec{\lambda}^{*})$ equal or less than that found for the
+original data set, $k_{0}=p(D|\vec{\lambda}^{*})$, i.e.
 %
 \begin{equation}
-p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\lambda^{*})} f(k) \, \mathrm{d}k \, . 
+p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\vec{\lambda}^{*})} f(k) \, \mathrm{d}k \, . 
 \end{equation} 
 
 \noindent 
@@ -742,105 +739,175 @@ In the most general case, the $p$-value is calculated using Markov
 Chain Monte Carlo. The calculation can be started by 
 %
 \begin{verbatim}
-BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram) . 
+BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram) , 
 \end{verbatim}
 %
 \noindent 
-The method returns a pointer to a \verb|BCH1D| if the flag is set to
-true. The frequency distribution can be printed as for the case of
-parameter estimates. The $p$-value is then calculated from this
-distribution and can be obtained by
+where \verb|par| is a vector of the best-fit-parameters. The method
+returns a pointer to a \verb|BCH1D| if the flag is set to true. The
+$p$-value is then calculated from this distribution and can be
+obtained by
 %
 \begin{verbatim}
-BCModel::GetPValue() . 
+double BCModel::GetPValue() . 
 \end{verbatim} 
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % -------------------------------------------------------- 
 
-\subsection{Fitting} 
+\subsection{Fitting a function} 
+\label{subsection:fitting}
 
-A common task is to fit a function to a data set. In this case a member function of 
-the class \verb|BCIntegrate| can be overwritten which returns the value of a fit function given 
-a set of parameter values and a point $x$ at which the function is evaluated: 
-%
-\begin{verbatim}
-FitFunction(std::vector <double> x, std::vector <double> parameters) . 
-\end{verbatim}
-
-\noindent 
-If $x$ is one-dimensional an error band can be calculated for the fit. During 
-marginalization, each point in parameter space is sampled with a frequency corresponding to the 
-probability density at this parameter set (assuming the Markov chain has converged). The error band is obtained by 
-evaluating the fit function, $y(x)$, for each $x$ at each point in parameter space. 
-The values are histogrammed in $x$--$y(x)$--space. Each slice of $x$ is normalized to unity and interpreted as 
-probability density for $y$ given $x$. The 0.16 and 0.84~quantiles are then interpreted as uncertainty on $y$ at that $x$. An example for an error band is given in the Section~\ref{section:examples}. \\ 
+A common application in data analysis is fitting a function to a
+(one-dimensional) distribution or a set of data points. \BAT\ offers
+three dedicated tools for this purpose, depending on the uncertainties
+on each data point. These classes and the assumed uncertainties are
+summarized in the following. \\
 
 \noindent 
-The $x$--$y(x)$ (TH2D*) histogram and the (TGraph*) error band can be obtained with the functions 
+In all three cases, the uncertainties for each data point (or bin
+content) are assumed to be independent of each other. I.e., in the
+case of histograms bin-by-bin migration is not included. The overall
+conditional probability is a product of the individual probabilities
+for the expectation value given the $y$-value (or bin content). \\
+
+\noindent 
+An uncertainty band is calculated for each fit. During the
+marginalization, each point in parameter space is sampled with a
+frequency proportional to the posterior pdf at this point (if the
+Markov chain has converged). The uncertainty band is obtained by
+evaluating the fit function, $y(x)$, for each $x$ at each point in
+parameter space. The values are histogrammed in
+$x$--$y(x)$--space. Each slice of $x$ is normalized to unity and
+interpreted as probability density for $y$ given $x$. The~0.16 and
+0.84~quantiles are then interpreted as the uncertainty on $y$ at that
+particular $x$. The uncertainty band can be returned from a model using 
 %
 \begin{verbatim}
-BCModel::GetErrorBandXY()
-BCModel::GetErrorBandGraph(double level1=0.16, double level2=0.84) 
+TGraph * BCModel::GetErrorBandGraph(double level1, double level2) ,  
 \end{verbatim}
+%
+where the levels correspond to the quantiles of the distribution
+$p(y(x))$ (default: 0.16 and 0.84). \\
+
+\noindent 
+In all three cases, the fast methods for evaluating the $p$-value are
+implemented. The $p$-value is evaluated automatically and returned
+together with a summary.
 
 % --------------------------------------------------------
+
+\subsubsection{The Gaussian case} 
+
+The class \verb|BCGraphFitter| allows to fit a ROOT function
+(\verb|TF1|) to a ROOT graph (\verb|TGraphErrors|). The uncertainties
+on $y$ at a given $x$ are assumed to be Gaussian, i.e., the error on
+$y$ corresponds to the width, $\sigma$, of the Gaussian. The
+uncertainties on $x$ are not taken into account. An example on how to
+use this class is provided with the \BAT\ distribution.
+
+% --------------------------------------------------------
+
+\subsubsection{The Poissonian case} 
+
+The class \verb|BCHistogramFitter| allows to fit a ROOT function
+(\verb|TF1|) to a ROOT histogram (\verb|TH1D|). The uncertainty on the
+expectation value in each bin is assumed to be Poissonian, and thus
+non-symmetric around the number of entries in this bin. An example on
+how to use this class is provided with the \BAT\ distribution.
+
+% --------------------------------------------------------
+
+\subsubsection{The Binomial case} 
+
+The class \verb|BCEfficiencyFitter| allows to fit a ROOT function
+(\verb|TF1|) to the ratio of two ROOT histograms (\verb|TH1D|). The
+uncertainty on the expectation value in each bin is assumed to be
+Binomial, and thus non-symmetric around the ratio of entries in this
+bin. The ratio is assumed to be between 0 and 1, i.e., one histogram
+contains a subset of the other. An example on how to use this class is
+provided with the \BAT\ distribution.
+
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+\subsection{Propagation of uncertainties}
+
+During the marginalization, each point in parameter space is sampled
+with a frequency proportional to the posterior pdf at this point (if
+the Markov chain has converged). In \BAT\ it is possible to calculate
+any (user-defined) function of the parameters during the
+marginalization and thus obtain a frequency distribution for the
+function value(s). This in turn can be interpreted as the probability
+density for the function value(s). The uncertainties on the parameters
+are thus propagated (without any Gaussian assumptions or the like) to
+the function under study. An example for the propagation of
+uncertainties is the calculation of the uncertainty band for the case
+of function fitting (see Section~\ref{subsection:fitting}).
+Uncertainty propagation can be done by overloading the following
+method:
+%
+\begin{verbatim}
+BCModel::MCMCUserIterationInterface() 
+\end{verbatim}
+%
+which is called at every iteration during the main run of the MCMC.
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
 
 \subsection{One- and two-dimensional histograms} 
 
 The classes \verb|BCH1D| and \verb|BCH2D| are one- and two-dimensional
-histgram classes which inherit from the ROOT-classes \verb|TH1D| and
-\verb|TH2D|. The mean and mode of a distribution can be obtained by 
+histogram classes which inherit from the ROOT-classes \verb|TH1D| and
+\verb|TH2D|, respectively. They are filled, e.g., during
+marginalization. Pointers to the ROOT histograms can be returned using
 %
 \begin{verbatim}
-BCH1D::GetMean()
-BCH1D::GetMode()
-BCH2D::GetMean()
-BCH2D::GetMode()
-\end{verbatim} 
-
-\noindent 
-The one-dimensional histogram can also return the uncertainty on the
-parameter defined as the region from 16\% to 84\% probability seen
-from the mean or mode
+TH1D * BCH1D::GetHistogram() ,
+TH2D * BCH2D::GetHistogram() .
+\end{verbatim}
+%
+Once the histograms are filled summary information, such as the mean,
+the mode and the median of the distribution, can be obtained by
 %
 \begin{verbatim}
-GetUncertaintyPlusFromMean()
-GetUncertaintyMinusFromMean()
-GetUncertaintyPlusFromMode()
-GetUncertaintyMinusFromMode()
+BCH1D::GetMean() , 
+BCH1D::GetMode() , 
+BCH1D::GetMedian() . 
 \end{verbatim} 
-
-\noindent 
-Also, the one-dimensional histograms have methods to return the
-quantiles and the 90\%, 95\% and 99\% exclusision limits
 %
-\begin{verbatim} 
-BCH1D::GetQuantile (double probabilitysum)
-BCH1D::GetLimit90()
-BCH1D::GetLimit95()
-BCH1D::GetLimit99()
-\end{verbatim} 
-
-\noindent 
-In addition, the smallest interval containing a certain probability
-can be obtained for a one-dimensional histogram 
+For one-dimensional histograms the quantiles of the distribution can
+be returned using
 %
 \begin{verbatim}
-BCH1D::GetSmallestInterval(double & min, double & max, double content=.68) . 
+double BCH1D::GetQuantile(double probablity) , 
+\end{verbatim}
+%
+where \verb|probability| is a number between~0 and~1. This information
+can be used to estimate uncertainties (e.g., the central 64\%
+probability region) or limits on parameters (e.g., the quantile for
+0.95). Alternatively, the smallest set of intervals containing a
+certain probability can be obtained by 
+%
+\begin{verbatim}
+void GetSmallestInterval(double & min, double & max, double content) . 
 \end{verbatim}
 
 \noindent 
-Both type of histograms can be printed to an \verb|.eps| or \verb|.ps|
-file calling the function 
-
+Both types of histograms can be drawn to a ROOT TCanvas using the
+methods
+%
 \begin{verbatim}
-BCH1D::Print(char * filename, int options=0, double ovalue=0.) , 
-BCH2D::Print(char *filename, int options) . 
+BCH1D::Draw(int options, double ovalue) , 
+BCH2D::Draw(int options, bool drawmode) , 
 \end{verbatim}  
-
-The printing options are summarized in Table~\ref{table:printingoptions}. 
+%
+where the options are summarized in Table~\ref{table:printingoptions}.
 
 \begin{table}[ht!]
 \begin{tabular}{ll}
@@ -866,71 +933,73 @@ BCH2D & \\
 \label{table:printingoptions}} 
 \end{table}
 
+% --------------------------------------------------------
+
+%\subsection{Single event analyses and sensitivity studies}
+%\label{subsection:singleeventanalyses}
+
+%Often one is interested in repeating the same analysis on several data
+%sets. This is particularly true for estimating the expected outcome of
+%an analysis given a particular set of input parameters, e.g. to study
+%the sensitivity of an experiment to a certain process. \BAT\ offers an
+%easy way to handle such processes and the outcome. \\ 
+
+%\noindent 
+%If a data set contains several data points and one data point
+%describes the possible outcome of an experiment then one can use 
+%%
+%\begin{verbatim}
+%BCModel::SetSingleDataPoint(BCDataPoint * datapoint) 
+%BCModel::SetSingleDataPoint(BCDataSet * dataset, int index)  . 
+%BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint) 
+%BCModelManager::SetSingleDataPoint(BCDataSet * dataset, int index)  . 
+%\end{verbatim} 
+%%
+%The data set of the model (or model manager) will be set to a single
+%event from the given data set. This allows to loop over the events of
+%a data set without reloading and redefining it for each analysis. \\ 
+%
+%The results of each analysis can be stored in a file using the output
+%class \verb|BCModelOutput|. This class is assigned a model class and a
+%file. It contains a ROOT tree which stores the most important
+%information of the analysis outcome, such as the global mode, the
+%marginalized mode, mean, limits, etc. The constructors are 
+%%
+%\begin{verbatim}
+%BCModelOutput() 
+%BCModelOutput(BCModel * model, const char * filenname) .
+%\end{verbatim}
+%%
+%The model and filename can be set after construction using 
+%%
+%\begin{verbatim}
+%BCModelOutput::SetModel(BCModel * model) 
+%BCModelOutput::SetFile(const char * filename) 
+%\end{verbatim}
+%%
+%See \verb|example05| for an application of these features. 
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+%\subsection{Summary} 
+%
+%During any time of the analysis the model manager can print a summary
+%of models, their parameters and results obtained so far for
+%optimization. 
+%%
+%\begin{verbatim}
+%BCModel::PrintSummary(char * filename=0)
+%\end{verbatim} 
+%
+%\noindent 
+%The summary is written to a file. In case no filename is specified the
+%summary is printed on the screen. 
+
+% --------------------------------------------------------
+
 \pagebreak 
-
-% --------------------------------------------------------
-
-\subsection{Single event analyses and sensitivity studies}
-\label{subsection:singleeventanalyses}
-
-Often one is interested in repeating the same analysis on several data
-sets. This is particularly true for estimating the expected outcome of
-an analysis given a particular set of input parameters, e.g. to study
-the sensitivity of an experiment to a certain process. \BAT\ offers an
-easy way to handle such processes and the outcome. \\ 
-
-\noindent 
-If a data set contains several data points and one data point
-describes the possible outcome of an experiment then one can use 
-%
-\begin{verbatim}
-BCModel::SetSingleDataPoint(BCDataPoint * datapoint) 
-BCModel::SetSingleDataPoint(BCDataSet * dataset, int index)  . 
-BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint) 
-BCModelManager::SetSingleDataPoint(BCDataSet * dataset, int index)  . 
-\end{verbatim} 
-%
-The data set of the model (or model manager) will be set to a single
-event from the given data set. This allows to loop over the events of
-a data set without reloading and redefining it for each analysis. \\ 
-
-The results of each analysis can be stored in a file using the output
-class \verb|BCModelOutput|. This class is assigned a model class and a
-file. It contains a ROOT tree which stores the most important
-information of the analysis outcome, such as the global mode, the
-marginalized mode, mean, limits, etc. The constructors are 
-%
-\begin{verbatim}
-BCModelOutput() 
-BCModelOutput(BCModel * model, const char * filenname) .
-\end{verbatim}
-%
-The model and filename can be set after construction using 
-%
-\begin{verbatim}
-BCModelOutput::SetModel(BCModel * model) 
-BCModelOutput::SetFile(const char * filename) 
-\end{verbatim}
-%
-See \verb|example05| for an application of these features. 
-
-% --------------------------------------------------------
-
-\subsection{Summary} 
-
-During any time of the analysis the model manager can print a summary
-of models, their parameters and results obtained so far for
-optimization. 
-%
-\begin{verbatim}
-BCModel::PrintSummary(char * filename=0)
-\end{verbatim} 
-
-\noindent 
-The summary is written to a file. In case no filename is specified the
-summary is printed on the screen. 
-
-% --------------------------------------------------------
 
 % --------------------------------------------------------
 % technical tools 
