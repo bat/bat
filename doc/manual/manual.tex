@@ -258,20 +258,126 @@ dependent and need to be adjusted to each problem separately.
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
+\pagebreak 
+
 \section{Installation} 
 
-The BAT software package provides a library with C++ classes which can
-be implemented in any other program ...
+\subsection{Platforms}
 
-How to install BAT on your computer. Requirements, e.g. ROOT.
+\BAT\ has been developed on Linux machines running different distributions
+and different versions of the kernel and gcc. As far as we know there
+is nothing distribution dependent inside of \BAT. However, we have not
+yet started to systematically check for compatibility and
+portability. This is planned for future releases of \BAT. For the
+moment the only statement we can do here is that if you don't have a
+too old or too specific installation of Linux you should be able to
+compile and use \BAT\ without problems. \\ 
 
-\pagebreak 
+Windows is not supported for the moment. \\ 
+
+\subsection{Dependencies}
+
+\paragraph{ROOT:} 
+ROOT is an object oriented data analysis framework. You can obtain it
+from~\cite{ROOTweb}. To compile and run BAT you
+will need a ROOT version 5.16 or later. Please, check your Linux
+distribution for the availability of precompiled packages on your
+system. Mostly used distributions nowdays have the ROOT packages
+available
+
+\subsection{Recommendations}
+
+\paragraph{CUBA:}
+CUBA~\cite{CUBA} is a library containing general purpose
+multidimensional integration algorithms. It can be obtained
+from~\cite{CUBAweb} . In this version BAT no longer depends on CUBA
+and you can compile and run without it. However, the use of CUBA is
+recommended as it provides integration routines tuned for performance,
+which are very usefull for integration in problems with large number
+of dimensions. \\ 
+
+Note: Since version 1.5 the compilation of CUBA no longer crashes if
+you don't have Mathematica installed. To compile and install CUBA
+libraries use commands 'make lib ; make install'.
+
+\subsection{Installation procedure}
+
+Unpack the tarball containing the BAT source usually named like
+BAT-x.x.tar.gz (here x.x is the version number) using command
+%
+\begin{verbatim}
+tar -xzf BAT-x.x.tar.gz
+\end{verbatim}
+%
+A directory called BAT-x.x will be created containing the source code.
+Enter the directory and run the configuration using commands
+%
+\begin{verbatim}
+cd -x.x
+./configure
+\end{verbatim}
+
+This will check your system for all components needed to compile BAT
+and set up the paths for installation. You can add option
+\verb|--prefix=/path/to/install/bat| to \verb|./configure| to specify
+the the prefix to the BAT installation path. The BAT library files
+will be installed to \verb|$prefix/lib| and the include files to
+\verb|$prefix/include|. Default installation prefix is
+\verb|/usr/local|. \\ 
+
+The configure script checks for ROOT availability in the system and
+fails if ROOT is not installed. You can specify the ROOTSYS directory
+using \verb|--rootsys=/path/to/rootsys|. \\ 
+
+The configure will also search for \verb|libcuba.a| and \verb|cuba.h|
+in the system.  The \verb|libcuba.a| has to be available in the
+standard system library search path. You can specify the \verb|cuba.h|
+location using \verb|--with-cuba-path=/path/to/cuba/header|.
+
+After successful configuration run
+%
+\begin{verbatim}
+make
+make install
+\end{verbatim}
+%
+to compile and install BAT. Note that depending on the setting of
+installation prefix you might need root priviledges to be able to
+install BAT. If you are installing BAT e.g. in your \verb|$HOMEDIR|,
+you need to add the path to the library and to the include files to
+the search path in your system. Depending on your shell you can do
+that via commands
+%
+\begin{verbatim}
+export BATINSTALLDIR=/bat/install/prefix
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
+\end{verbatim}
+%
+or
+%
+\begin{verbatim}
+setenv BATINSTALLDIR       /bat/install/prefix
+setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
+\end{verbatim}
+%
+for bash and csh compatible shells, respectively.
+
+An option for use in compiled programs would also be to add
+\verb|-I/bat/install/include/path| to \verb|CFLAGS| and
+\verb|-L/bat/install/lib/path| to \verb|LDFLAGS| in your
+\verb|Makefile|. However, the interactive ROOT macros will not work if
+\verb|libBAT.so| and \verb|libBAT.rootmap| both aren't in the system
+library search path.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % analysis chain
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
+
+\pagebreak 
 
 \section{Analysis chain}
 \label{section:analysis}
@@ -543,8 +649,8 @@ where \verb|BCIntegrationType| can be one of the following
  with importance sampling.  
 \item \verb|BCModel::kIntMetropolis|. A sampled mean integration
  with importance sampling using Markov chains. 
-\item \verb|BCModel::kIntCuba|. An interface to the Cuba
-library~\cite{Hahn:2004fe}.
+\item \verb|BCModel::kIntCuba|. An interface to the CUBA
+library~\cite{CUBA}.
 \end{itemize}
 
 \noindent 
@@ -999,11 +1105,11 @@ BCH2D & \\
 
 % --------------------------------------------------------
 
-\pagebreak 
-
 % --------------------------------------------------------
 % technical tools 
 % --------------------------------------------------------
+
+\pagebreak 
 
 \section{Technical tools} 
 \label{section:tools} 
@@ -1474,12 +1580,18 @@ given $n$.
   Phys.\ Rev.\  D {\bf 74}, 092003 (2006)
   [arXiv:physics/0608249].
 %
-\bibitem{Hahn:2004fe}
+\bibitem{ROOTweb}
+http://root.cern.ch/
+%
+\bibitem{CUBA}
   T.~Hahn, ``CUBA: A library for multidimensional numerical
   integration,'' Comput.\ Phys.\ Commun.\ {\bf 168} (2005) 78
   [arXiv:hep-ph/0404043].
+%
+\bibitem{CUBAweb}
+  http://www.feynarts.de/cuba/
+%
 \end{thebibliography}
-
 
 \end{document} 
 
