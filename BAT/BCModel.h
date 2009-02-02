@@ -305,12 +305,6 @@ class BCModel : public BCIntegrate
 		int AddParameter(BCParameter* parameter);
 
 		/**
-		 * Defines the parameters of the model
-		 * Method needs to be overloaded by the user. */
-		virtual void DefineParameters()
-			{ ;};
-
-		/**
 		 * Returns the prior probability.
 		 * @param parameters A set of parameter values
 		 * @return The prior probability p(parameters)
@@ -325,7 +319,7 @@ class BCModel : public BCIntegrate
 		 * @return The prior probability p(parameters)
 		 * @see GetPrior(std::vector <double> parameters) */
 		virtual double LogAPrioriProbability(std::vector <double> parameters)
-			{ return 1.; };
+			{ return 0.; };
 
 		/**
 		 * Returns the likelihood

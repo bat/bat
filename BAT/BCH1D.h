@@ -175,8 +175,9 @@ class BCH1D
 		 * Calculate the minimal interval of the distribution containing a given content.
 		 * @param min calculated minimum of the interval
 		 * @param max calculated maximum of the interval
-		 * @param content content of the interval [default is .68] */
-		void GetSmallestInterval(double & min, double & max, double content=.68);
+		 * @param content content of the interval [default is .68]
+		 * @return the content of the histogram between min and max */
+		double GetSmallestInterval(double & min, double & max, double content=.68);
 
 		TH1D * GetSmallestIntervalHistogram(double level);
 

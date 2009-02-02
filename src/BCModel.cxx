@@ -1212,19 +1212,20 @@ void BCModel::CorrelateDataPointValues(std::vector<double> &x)
 
 // ---------------------------------------------------------
 
-double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * parameter2, std::vector<double> point)
+double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std::vector<double> point)
 {
 	// check number of entries in vector
 	if (point.size() != this -> GetNParameters())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::HessianMatrixElement. Invalid number of entries in the vector."));
+		BCLog::Out(BCLog::warning, BCLog::warning,
+				"BCModel::HessianMatrixElement. Invalid number of entries in the vector.");
 		return -1;
 	}
 
 	// define steps
 	double nsteps = 1e5;
-	double dx1 = (parameter1 -> GetUpperLimit() - parameter1 -> GetLowerLimit()) / nsteps;
-	double dx2 = (parameter2 -> GetUpperLimit() - parameter2 -> GetLowerLimit()) / nsteps ;
+	double dx1 = par1 -> GetRangeWidth() / nsteps;
+	double dx2 = par2 -> GetRangeWidth() / nsteps;
 
 	// define points at which to evaluate
 	std::vector<double> xpp = point;
@@ -1232,17 +1233,20 @@ double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * par
 	std::vector<double> xmp = point;
 	std::vector<double> xmm = point;
 
-	xpp.at(parameter1 -> GetIndex()) = xpp.at(parameter1 -> GetIndex()) + dx1;
-	xpp.at(parameter2 -> GetIndex()) = xpp.at(parameter2 -> GetIndex()) + dx2;
+	int idx1 = par1 -> GetIndex();
+	int idx2 = par2 -> GetIndex();
 
-	xpm.at(parameter1 -> GetIndex()) = xpm.at(parameter1 -> GetIndex()) + dx1;
-	xpm.at(parameter2 -> GetIndex()) = xpm.at(parameter2 -> GetIndex()) - dx2;
+	xpp[idx1] += dx1;
+	xpp[idx2] += dx2;
 
-	xmp.at(parameter1 -> GetIndex()) = xmp.at(parameter1 -> GetIndex()) - dx1;
-	xmp.at(parameter2 -> GetIndex()) = xmp.at(parameter2 -> GetIndex()) + dx2;
+	xpm[idx1] += dx1;
+	xpm[idx2] -= dx2;
 
-	xmm.at(parameter1 -> GetIndex()) = xmm.at(parameter1 -> GetIndex()) - dx1;
-	xmm.at(parameter2 -> GetIndex()) = xmm.at(parameter2 -> GetIndex()) - dx2;
+	xmp[idx1] -= dx1;
+	xmp[idx2] += dx2;
+
+	xmm[idx1] -= dx1;
+	xmm[idx2] -= dx2;
 
 	// calculate probability at these points
 	double ppp = this -> Likelihood(xpp);
@@ -1250,10 +1254,8 @@ double BCModel::HessianMatrixElement(BCParameter * parameter1, BCParameter * par
 	double pmp = this -> Likelihood(xmp);
 	double pmm = this -> Likelihood(xmm);
 
-	// calculate derivative
-	double derivative = (ppp + pmm - ppm - pmp) / (4.0 * dx1 * dx2);
-
-	return derivative;
+	// return derivative
+	return (ppp + pmm - ppm - pmp) / (4. * dx1 * dx2);
 }
 
 // ---------------------------------------------------------

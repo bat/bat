@@ -37,6 +37,9 @@ int main()
 	mgr -> AddModel(m1, 1./2.);
 	mgr -> AddModel(m2, 1./2.);
 
+	BCModelOutput * mout1 = new BCModelOutput(m1, "1Dasymm.root");
+	BCModelOutput * mout2 = new BCModelOutput(m2, "2Dasymm.root");
+
 	// create a new data set and fill it with data from a textfile
 	// with four columns: x, y, y_error_low, y_error_high
 	BCDataSet * data = new BCDataSet();
@@ -53,6 +56,8 @@ int main()
 	// normalize all models and calculate the Basyes factors
 //	mgr -> SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 	mgr -> Normalize();
+
+	mgr -> PrintModelComparisonSummary("model-comparison.log");
 
 	// the allowed range of data values has to be defined for error
 	// propagation and fitting.
@@ -86,12 +91,10 @@ int main()
 		mgr -> GetModel(i) -> FindModeMinuit( mgr -> GetModel(i) -> GetBestFitParameters() );
 
 	// write marginalized distributions to a root file
-	BCModelOutput * mout1 = new BCModelOutput(m1, "1Dasymm.root");
 	mout1 -> WriteMarginalizedDistributions();
 	mout1 -> WriteErrorBand();
 	mout1 -> Close();
 
-	BCModelOutput * mout2 = new BCModelOutput(m2, "2Dasymm.root");
 	mout2 -> WriteMarginalizedDistributions();
 	mout2 -> WriteErrorBand();
 	mout2 -> Close();

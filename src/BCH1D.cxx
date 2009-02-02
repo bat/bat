@@ -519,16 +519,16 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
 
 // ---------------------------------------------------------
 
-void BCH1D::GetSmallestInterval(double & min, double & max, double content)
+double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 {
 	if(content<=0. || content>= 1.)
-		return;
+		return 0.;
 
 	int nbins = fHistogram -> GetNbinsX();
 
 	double factor = fHistogram->Integral("width");
 	if(factor==0)
-		return;
+		return 0.;
 
 	// normalize if not yet done
 	fHistogram->Scale(1./factor);
@@ -547,6 +547,8 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 		ndiv = 10;
 
 	int warn=0;
+
+	double integral_out=0.;
 
 	// loop through the bins
 	for(int i=1;i<nbins+1;i++)
@@ -574,6 +576,7 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 			else
 				for(int k=i+1;k<nbins+1;k++)
 				{
+
 					double thisbin = fHistogram->GetBinContent(k) * fHistogram->GetBinWidth(k);
 
 					if(integral+thisbin==content)
@@ -601,6 +604,7 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 				width = xup - xdown;
 				xmin  = xdown;
 				xmax  = xup;
+				integral_out = integral;
 			}
 		}
 	}
@@ -618,6 +622,8 @@ void BCH1D::GetSmallestInterval(double & min, double & max, double content)
 
 	min=xmin;
 	max=xmax;
+
+	return integral_out;
 }
 
 // ---------------------------------------------------------

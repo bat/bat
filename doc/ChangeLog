@@ -1,16 +1,30 @@
+2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
+
+	* BCModel:
+	  - removed method DefineParameters() since it's not needed
+	  - cleanup in HessianMatrixElement()
+	  - changed LogAPrioriProbability() to return 0. by default
+	    since it's log (means nothing anyway)
+	* BCH1D:
+	  - GetSmallestInterval() now returns the content of the
+	    interval found
+	* example05:
+	  - fixed crash
+
+
 2009-01-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 
-	* Added Dano's installation procedure description to chapter 2 of
+	* added installation procedure description to chapter 2 of
 	  the manual.
 
 
 2009-01-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 
-	* updated chapter 3 of the manual to match the current code. 
-	  Wording is OK, is there information missing? 
+	* updated chapter 3 of the manual to match the current code.
+	  Wording is OK, is there information missing?
 
 
-2009-01-16  Daniel Kollar <daniel.kollar@cern.ch>
+2009-01-16 Daniel Kollar <daniel.kollar@cern.ch>
 
 	* release version 0.2
 	* updated INSTALL file for the Cuba 1.5 information
@@ -19,13 +33,13 @@
 	* renamed changelog to ChangeLog
 
 
-2009-01-15  Daniel Kollar <daniel.kollar@cern.ch>
+2009-01-15 Daniel Kollar <daniel.kollar@cern.ch>
 
-	* Many changes
+	* many changes
 	* I will try keep this up to date in the future!
 
 
-2008-09-15  Daniel Kollar <daniel.kollar@cern.ch>
+2008-09-15 Daniel Kollar <daniel.kollar@cern.ch>
 
 	* First release of beta version 0.1
 
