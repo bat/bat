@@ -95,6 +95,7 @@ src/BCModelOutput.cxx -text
 src/BCParameter.cxx -text
 src/Makefile.am -text
 src/libBAT.rootmap -text
+tools/CreateProject.sh -text
 tools/analyzeMCMC/Makefile -text
 tools/analyzeMCMC/analyzeMCMC.c -text
 tools/build/root.m4 -text
