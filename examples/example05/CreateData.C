@@ -97,8 +97,7 @@ void CreateData(const char * fname = "data.txt")
 		g -> SetPointEYlow(i, sigmay1);
 		g -> SetPointEYhigh(i, sigmay2);
 
-		if (i < npoints - 1)
-			file_data << endl;
+		file_data << endl;
 	}
 
 	// close file

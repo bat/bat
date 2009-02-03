@@ -1,5 +1,14 @@
 2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
 
+	* BCDataSet:
+	  - fixed bug reading data from text file which caused
+	    that the last point was read in twice if there was
+	    newline at the end of the last line of input
+	  - changed example03 and example05 to reflect the fix
+
+
+2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
+
 	* BCModel:
 	  - removed method DefineParameters() since it's not needed
 	  - cleanup in HessianMatrixElement()

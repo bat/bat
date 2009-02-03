@@ -265,21 +265,32 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 	while (!file.eof())
 	{
 		// read data from file
-		for (int i = 0; i < nbranches; i++)
-			file >> data[i];
+//		for (int i = 0; i < nbranches; i++)
+//			file >> data[i];
+
+		int i=0;
+		while(file >> data[i])
+		{
+			if (i==nbranches-1)
+				break;
+			i++;
+		}
 
 		// create data point.
-		BCDataPoint * datapoint = new BCDataPoint(nbranches);
+		if(i == nbranches-1)
+		{
+			BCDataPoint * datapoint = new BCDataPoint(nbranches);
 
-		// copy data into data point
-		for (int i = 0; i < nbranches; i++)
-			datapoint -> SetValue(i, data.at(i));
+			// copy data into data point
+			for (int i = 0; i < nbranches; i++)
+				datapoint -> SetValue(i, data.at(i));
 
-		// add data point to this data set.
-		this -> AddDataPoint(datapoint);
+			// add data point to this data set.
+			this -> AddDataPoint(datapoint);
 
-		// increase counter
-		nentries++;
+			// increase counter
+			nentries++;
+		}
 	}
 
 	// check if there are any events in the tree and close file if not.

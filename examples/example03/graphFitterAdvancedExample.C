@@ -216,13 +216,24 @@ TGraphErrors * ReadDataGraph(const char * file = "data/datax.txt")
 	std::vector<double> x(0);
 	std::vector<double> y(0);
 	std::vector<double> ey(0);
+
+	std::vector<double> data(3);
 	while (!ifi.eof())
 	{
-		double tx,ty,tey;
-		ifi>>tx>>ty>>tey;
-		x.push_back(tx);
-		y.push_back(ty);
-		ey.push_back(tey);
+		int i=0;
+		while(ifi>>data[i])
+		{
+			if(i==2)
+				break;
+			i++;
+		}
+
+		if(i==2)
+		{
+			x.push_back(data[0]);
+			y.push_back(data[1]);
+			ey.push_back(data[2]);
+		}
 	}
 	ifi.close();
 

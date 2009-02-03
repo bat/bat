@@ -28,7 +28,7 @@ void Pol1Asymm::DefineParameters()
 {
 	// Adding all the parameters of the model and their allowed ranges
 	// Keep track of index of the parameter as you need it to be able
-	// to use the parameter lateron. Usage by using the parameter
+	// to use the parameter later on. Usage by using the parameter
 	// name is also possible but due to the array searching it is very
 	// CPU time expensive and therefore not recommended in routines
 	// called for every iteration, like LogLikelihood() or

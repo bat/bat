@@ -26,6 +26,7 @@ int main()
 	// 1st order polynomial
 	Pol1Asymm * m1 = new Pol1Asymm("1dPol asymm");
 	m1 -> DefineParameters();
+
 	// 2nd order polynomial
 	Pol2Asymm * m2 = new Pol2Asymm("2dPol asymm");
 	m2 -> DefineParameters();
@@ -56,8 +57,6 @@ int main()
 	// normalize all models and calculate the Basyes factors
 //	mgr -> SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 	mgr -> Normalize();
-
-	mgr -> PrintModelComparisonSummary("model-comparison.log");
 
 	// the allowed range of data values has to be defined for error
 	// propagation and fitting.
