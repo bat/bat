@@ -1,3 +1,8 @@
+2009-02-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+
+	* added script tool/CreateProject.sh. This script creates a new 
+	  directory and header and source files for a blank model. 
+	
 2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
 
 	* BCDataSet:
