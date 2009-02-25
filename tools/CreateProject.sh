@@ -4,15 +4,15 @@ MYPROJECT=$1
 MYMODEL=$2
 
 if [[ $2 == '' ]]; then
-		MYMODEL=$MYPROJECT
-fi 
+	MYMODEL=$MYPROJECT
+fi
 
 function usage() {
 cat << EOF
 Usage: $0 <project_name> [class_name]
 
-Script create a new directory <project_name> and creates a new model class, 
-i.e. the header and source files for the class. 
+Script create a new directory <project_name> and creates a new model class,
+i.e. the header and source files for the class.
 
 EOF
 }
@@ -86,15 +86,15 @@ void |:Model:|::DefineParameters()
 	// of the parameter. the indices increase from 0 according to the
 	// order of adding the parameters.
 
-	//	this -> AddParameter("par1", 0.0, 1.0);   // index 0 
-	//	this -> AddParameter("par2", -7.0, 28.0); // index 1
+//	this -> AddParameter("par1", 0.0, 1.0);   // index 0
+//	this -> AddParameter("par2", -7.0, 28.0); // index 1
 }
 
 // ---------------------------------------------------------
 double |:Model:|::LogLikelihood(std::vector <double> parameters)
 {
 	// this methods returns the logarithm of the conditional probability
-	// p(data|parameters). 
+	// p(data|parameters).
 
 	double logprob = 0.;
 
@@ -106,12 +106,12 @@ double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
 {
 
 	// this method returs the logarithm of the prior probability for the
-	// parameters p(parameters). 
+	// parameters p(parameters).
 
 	double logprob = 0.;
 
-	// logprob -= fabs(0.5 - parameters.at(0)); 
-	// logprob -= 0.1*(parameters.at(1)-10.)*(parameters.at(1)-10.); 
+// logprob -= fabs(0.5 - parameters.at(0));
+// logprob -= 0.1*(parameters.at(1)-10.)*(parameters.at(1)-10.);
 
 	return logprob;
 }
@@ -147,7 +147,7 @@ LIBS        += \$(ROOTLIBS)  -L\$(BATINSTALLDIR)/lib -lBAT
 GLIBS       += \$(ROOTGLIBS) -L\$(BATINSTALLDIR)/lib -lBAT
 
 CXSRCS      = \
-        |:Model:|.cxx 
+        |:Model:|.cxx
 
 CXXSRCS      = \$(patsubst %.cxx,src/%.cxx,\$(CXSRCS))
 CXXOBJS      = \$(patsubst %.cxx,%.o,\$(CXSRCS))
@@ -169,7 +169,7 @@ clean :
 
 project : run|:Project:|.cxx \$(CXXOBJS)
 	\$(CXX) \$(CXXFLAGS) -c \$<
-		\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o \\
+	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o \\
 		\$(CXXOBJS) -o run|:Project:|.exe
 
 print :
@@ -204,27 +204,27 @@ int main()
 	BCLog::SetLogLevel(BCLog::detail);
 
 	// create new |:Model:| object
-	|:Model:| * _|:Model:| = new |:Model:|(); 
+	|:Model:| * _|:Model:| = new |:Model:|();
 
-	// perform your analysis here 
-	// _|:Model:| -> Normalize(); 
-	// _|:Model:| -> MarginalizeAll(); 
-	// _|:Model:| -> FindMode(); 
-	// _|:Model:| -> PrintAllMarginalized("plots.ps"); 
-	// _|:Model:| -> CalculatePValue(_|:Model:| -> GetBestFitParameters()); 
-	// _|:Model:| -> PrintResults("results.txt"); 
+	// perform your analysis here
+//	_|:Model:| -> Normalize();
+//	_|:Model:| -> MarginalizeAll();
+//	_|:Model:| -> FindMode( _|:Model:| -> GetBestFitParameters() );
+//	_|:Model:| -> PrintAllMarginalized("plots.ps");
+//	_|:Model:| -> CalculatePValue( _|:Model:| -> GetBestFitParameters() );
+//	_|:Model:| -> PrintResults("results.txt");
 
 	// close log file
 	BCLog::CloseLog();
 
-	return 0; 
+	return 0;
 
 }
 
 EOF
 }
 
-echo "Create project" $MYPROJECT 
+echo "Create project" $MYPROJECT
 mkdir $MYPROJECT
 mkdir $MYPROJECT/src
 mkdir $MYPROJECT/include

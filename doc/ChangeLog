@@ -1,5 +1,14 @@
 2009-02-25 Daniel Kollar <daniel.kollar@cern.ch>
 
+	* BCModel:
+	  - FindMode() now can take a starting point as an argument
+	    which is used for Minuit
+	* CreateProject:
+	  - adjusted to use the new BCModel::FindMode()
+
+
+2009-02-25 Daniel Kollar <daniel.kollar@cern.ch>
+
 	* BCH2D:
 	  - added constructor with TH2D* argument
 	  - added methods GetLevelBoundary() and GetBandGraph() to

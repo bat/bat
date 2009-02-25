@@ -414,8 +414,23 @@ class BCModel : public BCIntegrate
 		int CheckParameters(std::vector <double> parameters);
 
 		/**
-		 * Does the mode finding */
-		void FindMode();
+		 * Do the mode finding using a method set via SetOptimizationMethod.
+		 * Default is Minuit. The mode can be extracted using the GetBestFitParameters() method.
+		 *
+		 * A starting point for the mode finding can be specified for Minuit. If not
+		 * specified, Minuit default will be used (center of the parameter space).
+		 *
+		 * If running mode finding after the MCMC it is a good idea to specify the
+		 * mode obtained from MCMC as a starting point for the Minuit minimization.
+		 * MCMC will find the location of the global mode and Minuit will
+		 * converge to the mode precisely. The commands are:
+			<pre>
+			model -> MarginalizeAll();
+			model -> FindMode( model -> GetBestFitParameters() );
+			</pre>
+		 * @start startinf point of Minuit minimization
+		 * */
+		void FindMode(std::vector<double> start = std::vector<double>(0));
 
 		/**
 		 * Write mode into file */

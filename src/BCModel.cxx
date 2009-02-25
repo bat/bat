@@ -578,9 +578,9 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
-void BCModel::FindMode()
+void BCModel::FindMode(std::vector<double> start)
 {
-// this implementation is CLEARLY not good we have top work on this.
+// this implementation is CLEARLY not good we have to work on this.
 
 	BCLog::Out(BCLog::summary, BCLog::summary,
 		Form("Model \'%s\': Finding mode", this -> GetName().data()));
@@ -591,12 +591,13 @@ void BCModel::FindMode()
 	switch(this -> GetOptimizationMethod())
 	{
 		case BCIntegrate::kOptSimulatedAnnealing:
-
 			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::FindMode. Simulated annaeling not yet implemented.");
 			return;
+
 		case BCIntegrate::kOptMinuit:
-			this -> FindModeMinuit();
+			this -> FindModeMinuit(start);
 			return;
+
 		case BCIntegrate::kOptMetropolis:
 			this -> MarginalizeAll();
 			return;
