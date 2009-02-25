@@ -5,41 +5,31 @@ Updated on 9/10/2008
 1.
 =============
 - bugfixes
-     - fix examples to define parameters inside of the model instead of
-       the main program
      - ...
 
-- a  quick run setup
-
 - b  code cleanup
-     - remove not needed methods/atributes
+     - further removal not needed methods/atributes
      - add checks on everything (make it easier to use for a normal user)
      - maybe start to think about using of (C++) exceptions?
 
-- c  implement the general p-value calculation using MCMC
-     (since it's MCMC we could also have the possibility to sample
-     according to posterior ?)
+- c  implement the general p-value calculation using MCMC - DONE
+     - since it's MCMC we could also have the possibility to sample
+       according to posterior ?
 
 - d  re-do everything with likelihood instead of conditional probability
-     entry (?)
-
-- e  simple fitting within BAT
-     - graph fitting (gaussian uncertainties)
-     - histogram fitting (poisson uncertainties)
+     entry
+     - done, we just need to remove the methods for the conditional
+       probability entry
 
 2.
 =============
 - a  examples
-     - paper examples on the web
      - examples with non flat prior
-     - more complex examples (e.g. aka Dan's fitting)
+     - more complex examples
 
 - b  manual
 
 - c  improve the installation procedure
-     - autoconf/automake (cmake)?
-     - MAC?
-     - add Cuba to BAT by default?
      - use Vegas from ROOT and drop dependence on Cuba?
 
 - d  mode finding
@@ -51,8 +41,6 @@ Updated on 9/10/2008
 =============
 - a  Pretty-plotting of 2D+2x1D marginalized distributions together
      with output from MCMC
-
-- b  ROOTified version
 
 
 4.
