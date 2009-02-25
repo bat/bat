@@ -1,4 +1,4 @@
-2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
+2009-02-25 Daniel Kollar <daniel.kollar@cern.ch>
 
 	* BCH2D:
 	  - added constructor with TH2D* argument
