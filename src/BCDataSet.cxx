@@ -265,9 +265,6 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
 	while (!file.eof())
 	{
 		// read data from file
-//		for (int i = 0; i < nbranches; i++)
-//			file >> data[i];
-
 		int i=0;
 		while(file >> data[i])
 		{
