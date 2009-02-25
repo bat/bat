@@ -43,6 +43,10 @@ class BCH2D
 		BCH2D();
 
 		/**
+		 * The complete constructor. */
+		BCH2D(TH2D * h);
+
+		/**
 		 * The default destructor. */
 		~BCH2D();
 
@@ -121,7 +125,9 @@ class BCH2D
 		TGraph * GetLowestBandGraph(TH2D * h);
 
 
+		std::vector <double> GetLevelBoundary(double level);
 		std::vector <double> GetLevelBoundary(TH2D * h, double level);
+		TGraph * GetBandGraph(double level1, double level2);
 		TGraph * GetBandGraph(TH2D * h , double level1, double level2);
 
 //		TGraph ** GetBandGraphs(TH2D * h);

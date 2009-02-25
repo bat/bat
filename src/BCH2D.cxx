@@ -35,6 +35,16 @@ BCH2D::BCH2D()
 
 // ---------------------------------------------------------
 
+BCH2D::BCH2D(TH2D * h)
+{
+	fHistogram = h;
+	fIntegratedHistogram = 0;
+
+	fModeFlag = 0;
+}
+
+// ---------------------------------------------------------
+
 BCH2D::~BCH2D()
 {
 	if (fHistogram) delete fHistogram;
@@ -508,6 +518,13 @@ TGraph * BCH2D::GetLowestBandGraph(TH2D * h, std::vector<int> nint)
 
 // ---------------------------------------------------------
 
+std::vector <double> BCH2D::GetLevelBoundary(double level)
+{
+	return GetLevelBoundary(fHistogram, level);
+}
+
+// ---------------------------------------------------------
+
 std::vector <double> BCH2D::GetLevelBoundary(TH2D * h, double level)
 {
 	std::vector <double> b;
@@ -531,6 +548,13 @@ std::vector <double> BCH2D::GetLevelBoundary(TH2D * h, double level)
 	}
 
 	return b;
+}
+
+// ---------------------------------------------------------
+
+TGraph * BCH2D::GetBandGraph(double l1, double l2)
+{
+	return GetBandGraph(fHistogram , l1, l2);
 }
 
 // ---------------------------------------------------------
