@@ -1,3 +1,11 @@
+2009-02-27 Daniel Kollar <daniel.kollar@cern.ch>
+
+	* BCGraphFitter:
+	  - It is now allowed to fit if number of data points is
+	    less than 3. The warning is issued if number of parameters
+	    is lower than number of data points.
+
+
 2009-02-25 Daniel Kollar <daniel.kollar@cern.ch>
 
 	* BCModel:

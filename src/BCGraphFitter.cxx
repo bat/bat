@@ -72,11 +72,6 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
 		BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetGraph() : TGraphErrors has only one point. Not able to fit.");
 		return 0;
 	}
-	else if(npoints==2)
-	{
-		BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetGraph() : TGraphErrors has only two points. Fit has no meaning.");
-		return 0;
-	}
 
 	fGraph = graph;
 
@@ -87,7 +82,7 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
 
 	if(!ey)
 	{
-		BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetGraph() : TGraphErrors has no errors set on Y. Not able to fit.");
+		BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetGraph() : TGraphErrors has NO errors set on Y. Not able to fit.");
 		return 0;
 	}
 
@@ -247,6 +242,17 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 	if (!this -> SetFitFunction(func))
 		return 0;
 
+	// check setup
+	BCLog::Out(BCLog::detail,BCLog::detail,
+			Form("Fitting %d data points with function of %d parameters",GetNDataPoints(),GetNParameters()));
+	if(GetNDataPoints() <= GetNParameters())
+	{
+		BCLog::Out(BCLog::warning,BCLog::warning,
+				Form("Number of parameters (%d) lower than or equal to number of points (%d)."
+				, GetNParameters(), GetNDataPoints()));
+		BCLog::Out(BCLog::warning,BCLog::warning,"Fit doesn't have much meaning.");
+	}
+
 	// perform marginalization
 	this -> MarginalizeAll();
 
@@ -317,5 +323,7 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 
 	gPad -> RedrawAxis();
 }
+
+// ---------------------------------------------------------
 
 // ---------------------------------------------------------
