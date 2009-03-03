@@ -46,8 +46,7 @@ int main()
 	BCDataSet * data = new BCDataSet();
 	if (data -> ReadDataFromFileTxt("data.txt", 4) != 0)
 	{
-		BCLog::Out(BCLog::error,BCLog::error,
-				"You should run CreateData.C macro in ROOT to create the data file.");
+		BCLog::OutError("You should run CreateData.C macro in ROOT to create the data file.");
 		return -1;
 	}
 
