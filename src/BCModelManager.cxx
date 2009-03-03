@@ -371,7 +371,8 @@ void BCModelManager::Normalize()
 	// initialize likelihood norm
 	double normalization = 0.0;
 
-	BCLog::Out(BCLog::summary, BCLog::summary, "Running normalization of all models.");
+//	BCLog::Out(BCLog::summary, BCLog::summary, "Running normalization of all models.");
+	BCLog::OutSummary("Running normalization of all models.");
 
 	for (unsigned int i = 0; i < this -> GetNModels(); i++)
 	{
@@ -388,6 +389,58 @@ void BCModelManager::Normalize()
 				(fModelContainer -> at(i) -> GetNormalization() *
 				fModelContainer -> at(i) -> GetModelAPrioriProbability()) /
 				normalization);
+}
+
+// ---------------------------------------------------------
+
+double BCModelManager::BayesFactor(const unsigned int imodel1, const unsigned int imodel2)
+{
+	// Bayes Factors are the likelihoods integrated over the parameters
+	// Is this equal to the posteriors?
+	//    NOOOO
+	// But it is equal to normalization factors.
+
+	const double norm1 = fModelContainer -> at(imodel1) -> GetNormalization();
+	const double norm2 = fModelContainer -> at(imodel2) -> GetNormalization();
+
+	// check model 1
+	if(norm1<0.)
+	{
+		BCLog::OutError(
+			Form("Model %s (index %d) not normalized. Cannot calculate Bayes factor.",
+				fModelContainer->at(imodel1)->GetName().data(),imodel1));
+		return -1.;
+	}
+
+	// check model 2
+	if(norm2<0.)
+	{
+		BCLog::OutError(
+			Form("Model %s (index %d) not normalized. Cannot calculate Bayes factor.",
+				fModelContainer->at(imodel2)->GetName().data(),imodel2));
+		return -1.;
+	}
+
+	// denominator cannot be zero
+	if(norm2==0. && norm1!=0.) // not good since norm2 is double !!!
+	{
+		BCLog::OutError(
+			Form("Model %s (index %d) has ZERO probability. Bayes factor is infinite.",
+				fModelContainer->at(imodel2)->GetName().data(),imodel2));
+		return -1.;
+	}
+
+	// denominator cannot be zero unless also numerator is zero
+	if(norm2==0. && norm1==0.) // not good since norm2 and norm1 are both double !!!
+	{
+		BCLog::OutWarning(
+			Form("Models %s and %s have ZERO probability. Bayes factor is unknown. Returning 1.",
+				fModelContainer->at(imodel2)->GetName().data(),fModelContainer->at(imodel1)->GetName().data()));
+		return 1.;
+	}
+
+	// now calculate the factor
+	return norm1/norm2;
 }
 
 // ---------------------------------------------------------
@@ -490,7 +543,7 @@ void BCModelManager::PrintSummary(const char * file)
 	for (int i = 0; i < nmodels; i++)
 		std::cout
 			<<"     p("<< fModelContainer -> at(i) -> GetName()
-			<<"|data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
+			<<" | data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
 			<<std::endl;
 	std::cout<<std::endl;
 
@@ -551,10 +604,23 @@ void BCModelManager::PrintModelComparisonSummary(const char * file)
 	for (int i = 0; i < nmodels; i++)
 		std::cout
 			<<"     p("<< fModelContainer -> at(i) -> GetName()
-			<<"|data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
+			<<" | data) = "<< fModelContainer -> at(i) -> GetModelAPosterioriProbability()
 			<<std::endl;
 	std::cout<<std::endl;
 
+	// Bayes factors summary
+	std::cout
+		<<" - Bayes factors:"<<std::endl
+		<<std::endl;
+	for (int i = 0; i < nmodels-1; i++)
+		for (int j = i+1; j < nmodels; j++)
+			std::cout
+				<<"     K = p(data | "<<fModelContainer -> at(i) -> GetName()<<") / "
+				<<"p(data | "<<fModelContainer -> at(j) -> GetName()<<") = "
+				<<BayesFactor(i,j)<<std::endl;
+	std::cout<<std::endl;
+
+	// p-values summary
 	std::cout
 		<<" - p-values:"<<std::endl
 		<<std::endl;

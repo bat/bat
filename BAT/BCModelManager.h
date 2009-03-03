@@ -276,6 +276,13 @@ class BCModelManager
 		void Normalize();
 
 		/**
+		 * Calculate Bayes factor for two models.
+		 * @param imodel1 index of model 1 (numerator)
+		 * @param imodel2 index of model 2 (denominator)
+		 * @return Bayes factor or -1. on error */
+		double BayesFactor(const unsigned int imodel1, const unsigned int imodel2);
+
+		/**
 		 * Does the mode finding */
 		void FindMode();
 

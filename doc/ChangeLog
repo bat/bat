@@ -1,5 +1,14 @@
 2009-03-03 Daniel Kollar <daniel.kollar@cern.ch>
 
+	* BCModelManager:
+	  - added BayesFactor()
+	  - PrintModelComparisonSummary() now also prints out
+	    the Bayes factors for all combinations of models
+	    assigned to BCModelManager
+
+
+2009-03-03 Daniel Kollar <daniel.kollar@cern.ch>
+
 	* BCLog:
 	  - added several simplified Out() methods so that no
 	    input of loglevel info is necessary
