@@ -1,3 +1,10 @@
+2009-03-03 Daniel Kollar <daniel.kollar@cern.ch>
+
+	* BCLog:
+	  - added several simplified Out() methods so that no
+	    input of loglevel info is necessary
+
+
 2009-02-27 Daniel Kollar <daniel.kollar@cern.ch>
 
 	* BCGraphFitter:

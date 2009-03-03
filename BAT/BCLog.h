@@ -117,6 +117,24 @@ class BCLog
 
 		static void Out(const char * message);
 
+		static void Out(BCLog::LogLevel loglevel, const char * message)
+			{ Out(loglevel,loglevel,message); };
+
+		static void OutError(const char * message)
+			{ Out(error,message); };
+
+		static void OutWarning(const char * message)
+			{ Out(warning,message); };
+
+		static void OutSummary(const char * message)
+			{ Out(summary,message); };
+
+		static void OutDetail(const char * message)
+			{ Out(detail,message); };
+
+		static void OutDebug(const char * message)
+			{ Out(debug,message); };
+
 		/**
 		 * Writes startup information onto screen and into a logfile */
 		static void StartupInfo();
