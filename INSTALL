@@ -57,7 +57,7 @@ BAT-x.x.tar.gz (here x.x is the version number) using command
 A directory called BAT-x.x will be created containing the source code.
 Enter the directory and run the configuration using commands
 
-    cd -x.x
+    cd BAT-x.x
     ./configure
 
 This will check your system for all components needed to compile BAT
@@ -83,19 +83,20 @@ After successful configuration run
 
 to compile and install BAT. Note that depending on the setting of
 installation prefix you might need root priviledges to be able to install
-BAT. If you are installing BAT e.g. in your $HOMEDIR, you need to add
-the path to the library and to the include files to the search path
-in your system. Depending on your shell you can do that via commands
+BAT and run 'sudo make install' instead of plain 'make install'. If you
+are installing BAT e.g. in your $HOMEDIR, you need to add the path to the
+library and to the include files to the search path in your system.
+Depending on your shell you can do that e.g. via commands
 
     export BATINSTALLDIR=/bat/install/prefix
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-    export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
+    export CPATH=$CPATH:$BATINSTALLDIR/include
 
 or
 
-    setenv BATINSTALLDIR       /bat/install/prefix
-    setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-    setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
+    setenv BATINSTALLDIR     /bat/install/prefix
+    setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+    setenv CPATH             $CPATH:$BATINSTALLDIR/include
 
 for bash and csh compatible shells, respectively.
 
