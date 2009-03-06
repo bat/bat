@@ -1,5 +1,12 @@
 2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
 
+	* CreateProject.sh:
+	  - updates and fixes
+	  - added comments
+
+
+2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
+
 	* INSTALL:
 	  - fixed a typo
 	  - fixed a name of enviromental variable for include search
