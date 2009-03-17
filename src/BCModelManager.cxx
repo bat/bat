@@ -184,7 +184,7 @@ void BCModelManager::SetNbins(unsigned int n)
 {
 	// set number of bins for all models registered
 	for (unsigned int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> SetNbins(n);
+		this -> GetModel(i) -> BCIntegrate::SetNbins(n);
 }
 
 // ---------------------------------------------------------

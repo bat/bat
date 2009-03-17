@@ -285,6 +285,12 @@ class BCModel : public BCIntegrate
 		 * Sets the error band flag to continuous function */
 		void SetErrorBandContinuous(bool flag);
 
+		/**
+		 * Set the number of bins for the marginalized distribution of a parameter.
+		 * @param parname The name of the parameter in the parameter set
+		 * @param nbins   Number of bins (default = 100) */
+		void SetNbins(const char * parname, int nbins);
+
 		/* @} */
 
 		/** \name Member functions (miscellaneous methods) */

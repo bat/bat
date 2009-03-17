@@ -1,5 +1,17 @@
 2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
 
+	* BCModel:
+	  - changed all BCLog::Out() calls to their respective
+	    short versions
+	  - added SetNbins() with parameter name as argument
+	  - in GetMarginalized() now works also for reverted order
+	    of parameters
+	* BCModelManager:
+	  - update to work with new BCModel::SetNbins() correctly
+
+
+2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
+
 	* CreateProject.sh:
 	  - updates and fixes
 	  - added comments

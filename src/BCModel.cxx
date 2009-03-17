@@ -100,7 +100,7 @@ int BCModel::GetNDataPoints()
 		npoints = fDataSet -> GetNDataPoints();
 	else
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCModel::GetNDataPoints(). No data set defined.");
+		BCLog::OutWarning("BCModel::GetNDataPoints(). No data set defined.");
 		return ERROR_NOEVENTS;
 	}
 
@@ -114,7 +114,7 @@ BCDataPoint * BCModel::GetDataPoint(unsigned int index)
 	if (fDataSet)
 		return fDataSet -> GetDataPoint(index);
 
-	BCLog::Out(BCLog::warning, BCLog::warning,"BCModel::GetDataPoint. No data set defined.");
+	BCLog::OutWarning("BCModel::GetDataPoint. No data set defined.");
 	return 0;
 }
 
@@ -127,7 +127,7 @@ BCParameter * BCModel::GetParameter(int index)
 
 	if (index < 0 || index >= (int)this -> GetNParameters())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
+		BCLog::OutWarning(
 				Form("BCModel::GetParameter. Parameter index %d not within range.", index));
 		return 0;
 	}
@@ -149,12 +149,30 @@ BCParameter * BCModel::GetParameter(const char * name)
 
 	if (index<0)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				Form("BCModel::GetParameter. Model %s has no parameter named %s.", (this -> GetName()).data(), name));
+		BCLog::OutWarning(
+				Form(
+						"BCModel::GetParameter : Model %s has no parameter named '%s'",
+						(this -> GetName()).data(), name
+						)
+				);
 		return 0;
 	}
 
 	return this->GetParameter(index);
+}
+
+// ---------------------------------------------------------
+
+void BCModel::SetNbins(const char * parname, int nbins)
+{
+	BCParameter * p = this -> GetParameter(parname);
+	if(!p)
+	{
+		BCLog::OutWarning(Form("BCModel::SetNbins : Parameter '%s' not found so Nbins not set",parname));
+		return;
+	}
+
+	this -> BCIntegrate::SetNbins(nbins, p -> GetIndex());
 }
 
 // ---------------------------------------------------------
@@ -355,16 +373,14 @@ void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double
 	// check if data set exists
 	if (!fDataSet)
 	{
-		BCLog::Out(BCLog::error, BCLog::error,
-				 "BCModel::SetDataBoundaries : Need to define data set first.");
+		BCLog::OutError("BCModel::SetDataBoundaries : Need to define data set first.");
 		return;
 	}
 
 	// check if index is within range
 	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
 	{
-		BCLog::Out(BCLog::error, BCLog::error,
-				"BCModel::SetDataBoundaries : Index out of range.");
+		BCLog::OutError("BCModel::SetDataBoundaries : Index out of range.");
 		return;
 	}
 
@@ -422,8 +438,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 	// check if parameter set exists
 	if (!fParameterSet)
 	{
-		BCLog::Out(BCLog::error, BCLog::error,
-				"BCModel::AddParameter : Parameter set does not exist");
+		BCLog::OutError("BCModel::AddParameter : Parameter set does not exist");
 		return ERROR_PARAMETERSETDOESNOTEXIST;
 	}
 
@@ -435,7 +450,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 
 	if (flag_exists < 0)
 	{
-		BCLog::Out(BCLog::error, BCLog::error,
+		BCLog::OutError(
 				Form("BCModel::AddParameter : Parameter with name %s exists already. ", parameter -> GetName().data()));
 		return ERROR_PARAMETEREXISTSALREADY;
 	}
@@ -449,12 +464,6 @@ int BCModel::AddParameter(BCParameter * parameter)
 
 	// add parameters to integation methods
 	this -> SetParameters(fParameterSet);
-
-	// add parameter to MCMC
-	//	this -> MCMCAddParameter(parameter -> GetLowerLimit(), parameter -> GetUpperLimit());
-
-	// re-initialize
-//	this -> MCMCInitialize();
 
 	return 0;
 }
@@ -531,7 +540,7 @@ double BCModel::SamplingFunction(std::vector <double> parameters)
 
 double BCModel::Normalize()
 {
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Model \'%s\': Normalizing probability",this->GetName().data()));
+	BCLog::OutSummary(Form("Model \'%s\': Normalizing probability",this->GetName().data()));
 
 	unsigned int n = this -> GetNvar();
 
@@ -546,7 +555,7 @@ double BCModel::Normalize()
 	// maybe we have to remove the mode finding from here in the future
 	fNormalization = this -> Integrate();
 
-	BCLog::Out(BCLog::detail, BCLog::detail, Form(" --> Normalization factor : %.6g", fNormalization));
+	BCLog::OutDetail(Form(" --> Normalization factor : %.6g", fNormalization));
 
 	return fNormalization;
 }
@@ -567,7 +576,7 @@ int BCModel::CheckParameters(std::vector <double> parameters)
 		if (modelparameter -> GetLowerLimit() > parameters.at(i) ||
 				modelparameter -> GetUpperLimit() < parameters.at(i))
 		{
-			BCLog::Out(BCLog::error, BCLog::error,
+			BCLog::OutError(
 					 Form("BCModel::CheckParameters : Parameter %s not within limits.", fParameterSet -> at(i) -> GetName().data()));
 			return ERROR_PARAMETERNOTWITHINRANGE;
 		}
@@ -582,8 +591,7 @@ void BCModel::FindMode(std::vector<double> start)
 {
 // this implementation is CLEARLY not good we have to work on this.
 
-	BCLog::Out(BCLog::summary, BCLog::summary,
-		Form("Model \'%s\': Finding mode", this -> GetName().data()));
+	BCLog::OutSummary(Form("Model \'%s\': Finding mode", this -> GetName().data()));
 
 	// synchronize parameters in BCIntegrate
 	this -> SetParameters(fParameterSet);
@@ -591,7 +599,7 @@ void BCModel::FindMode(std::vector<double> start)
 	switch(this -> GetOptimizationMethod())
 	{
 		case BCIntegrate::kOptSimulatedAnnealing:
-			BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::FindMode. Simulated annaeling not yet implemented.");
+			BCLog::OutError("BCModel::FindMode : Simulated annaeling not yet implemented");
 			return;
 
 		case BCIntegrate::kOptMinuit:
@@ -603,7 +611,8 @@ void BCModel::FindMode(std::vector<double> start)
 			return;
 		}
 
-	BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::FindMode. Invalid mode finding method: %d. Return.",
+	BCLog::OutError(
+		Form("BCModel::FindMode : Invalid mode finding method: %d",
 			this->GetOptimizationMethod()));
 
 	return;
@@ -657,8 +666,7 @@ int BCModel::ReadMode(const char * file)
 	ifstream ifi(file);
 	if(!ifi.is_open())
 	{
-		BCLog::Out(BCLog::error,BCLog::error,
-				Form("BCModel::ReadMode : Couldn't open file %s.",file));
+		BCLog::OutError(Form("BCModel::ReadMode : Couldn't open file %s.",file));
 		return 0;
 	}
 
@@ -676,22 +684,17 @@ int BCModel::ReadMode(const char * file)
 
 	if(i<npar)
 	{
-		BCLog::Out(BCLog::error,BCLog::error,
-				Form("BCModel::ReadMode : Couldn't read mode from file %s.",file));
-		BCLog::Out(BCLog::error,BCLog::error,
-				Form("BCModel::ReadMode : Expected %d parameters, found %d.",npar,i));
+		BCLog::OutError(Form("BCModel::ReadMode : Couldn't read mode from file %s.",file));
+		BCLog::OutError(Form("BCModel::ReadMode : Expected %d parameters, found %d.",npar,i));
 		return 0;
 	}
 
-	BCLog::Out(BCLog::summary,BCLog::summary,
-			Form("#  Read in best fit parameters (mode) for model \'%s\' from file %s:",fName.data(),file));
+	BCLog::OutSummary(Form("#  Read in best fit parameters (mode) for model \'%s\' from file %s:",fName.data(),file));
 	this->SetMode(mode);
 	for(int j=0 ; j<npar; j++)
-		BCLog::Out(BCLog::summary,BCLog::summary,
-				Form("#    -> Parameter %d : %s = %e", j, fParameterSet->at(j)->GetName().data(), fBestFitParameters[j]));
+		BCLog::OutSummary(Form("#    -> Parameter %d : %s = %e", j, fParameterSet->at(j)->GetName().data(), fBestFitParameters[j]));
 
-	BCLog::Out(BCLog::warning,BCLog::warning,
-			"#  ! Best fit values obtained before this call will be overwritten !");
+	BCLog::OutWarning("#  ! Best fit values obtained before this call will be overwritten !");
 
 	return npar;
 }
@@ -700,8 +703,7 @@ int BCModel::ReadMode(const char * file)
 
 int BCModel::MarginalizeAll()
 {
-	BCLog::Out(BCLog::summary,BCLog::summary,
-		Form("Running MCMC for model \'%s\'",this->GetName().data()));
+	BCLog::OutSummary(Form("Running MCMC for model \'%s\'",this->GetName().data()));
 
 	// prepare function fitting
 	double dx = 0.0;
@@ -789,8 +791,7 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 	TFile * froot = new TFile(file);
 	if(!froot->IsOpen())
 	{
-		BCLog::Out(BCLog::error, BCLog::error,
-				Form("BCModel::ReadMarginalizedFromFile : Couldn't open file %s.",file));
+		BCLog::OutError(Form("BCModel::ReadMarginalizedFromFile : Couldn't open file %s.",file));
 		return 0;
 	}
 
@@ -816,8 +817,8 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 				k++;
 		}
 		else
-			BCLog::Out(BCLog::warning, BCLog::warning,
-				Form("BCModel::ReadMarginalizedFromFile. Couldn't read histogram \"hist_%s_%s\" from file %s.",
+			BCLog::OutWarning(Form(
+					"BCModel::ReadMarginalizedFromFile : Couldn't read histogram \"hist_%s_%s\" from file %s.",
 					this -> GetName().data(), a -> GetName().data(), file));
 	}
 
@@ -836,8 +837,8 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 					k++;
 			}
 			else
-				BCLog::Out(BCLog::warning, BCLog::warning,
-					Form("BCModel::ReadMarginalizedFromFile. Couldn't read histogram \"hist_%s_%s_%s\" from file %s.",
+				BCLog::OutWarning(Form(
+						"BCModel::ReadMarginalizedFromFile : Couldn't read histogram \"hist_%s_%s_%s\" from file %s.",
 						this -> GetName().data(), a -> GetName().data(), b -> GetName().data(), file));
 		}
 	}
@@ -854,7 +855,7 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 	TFile * froot = new TFile(file);
 	if(!froot->IsOpen())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning, Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.",file));
+		BCLog::OutWarning(Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.",file));
 		return 0;
 	}
 
@@ -869,8 +870,9 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 		r=1;
 	}
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,
-			Form("BCModel::ReadErrorBandFromFile : Couldn't read histogram \"errorbandxy\" from file %s.", file));
+		BCLog::OutWarning(Form(
+				"BCModel::ReadErrorBandFromFile : Couldn't read histogram \"errorbandxy\" from file %s.",
+				file));
 
 	froot->Close();
 
@@ -883,8 +885,7 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
 {
 	if(fMCMCH1Marginalized.size()==0)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::PrintAllMarginalized1D : MarginalizeAll() has to be run prior to this to fill the distributions.");
+		BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
 		return 0;
 	}
 
@@ -904,8 +905,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 {
 	if(fMCMCH2Marginalized.size()==0)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::PrintAllMarginalized2D : MarginalizeAll() has to be run prior to this to fill the distributions.");
+		BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
 		return 0;
 	}
 
@@ -942,8 +942,7 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 {
 	if(fMCMCH1Marginalized.size()==0 || (fMCMCH2Marginalized.size()==0 && this -> GetNParameters() > 1))
 	{
-		BCLog::Out(BCLog::error, BCLog::error,
-				"BCModel::PrintAllMarginalized : Marginalized distributions not available.");
+		BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
 		return 0;
 	}
 
@@ -994,11 +993,11 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 	int nplots = npar + nplots2d;
 
 	// give out warning if too many plots
-	BCLog::Out(BCLog::summary,BCLog::summary,
-			Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-					npar,nplots2d,nplots,file));
+	BCLog::OutSummary(Form(
+			"Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
+			npar,nplots2d,nplots,file));
 	if(nplots>100)
-		BCLog::Out(BCLog::detail,BCLog::detail,"This can take a while...");
+		BCLog::OutDetail("This can take a while...");
 
 	// setup the canvas and postscript file
 	TCanvas * c = new TCanvas( "c","canvas",c_width,c_height);
@@ -1037,7 +1036,7 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 		n++;
 
 		if(n%100==0)
-			BCLog::Out(BCLog::detail,BCLog::detail,Form(" --> %d plots done",n));
+			BCLog::OutDetail(Form(" --> %d plots done",n));
 	}
 
 	c->Update();
@@ -1083,12 +1082,12 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 			k++;
 
 			if((n+k)%100==0)
-				BCLog::Out(BCLog::detail,BCLog::detail,Form(" --> %d plots done",n+k));
+				BCLog::OutDetail(Form(" --> %d plots done",n+k));
 		}
 	}
 
 	if( (n+k)>100 && (n+k)%100 != 0 )
-		BCLog::Out(BCLog::detail,BCLog::detail,Form(" --> %d plots done",n+k));
+		BCLog::OutDetail(Form(" --> %d plots done",n+k));
 
 	c->Update();
 	ps->Close();
@@ -1114,11 +1113,17 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 	int index1 = parameter1 -> GetIndex();
 	int index2 = parameter2 -> GetIndex();
 
+	if (index1 == index2)
+	{
+		BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
+		return 0;
+	}
+
 	if (index1 > index2)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				 "BCModel::GetMarginalized. Index 1 has to be smaller than index 2.");
-		return 0;
+		int itmp = index1;
+		index1 = index2;
+		index2 = itmp;
 	}
 
 	// get histogram
@@ -1169,7 +1174,7 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 	BCH1D * hist = 0;
 
 	// print log
-	BCLog::Out(BCLog::summary, BCLog::summary, "Do goodness-of-fit-test");
+	BCLog::OutSummary("Do goodness-of-fit-test");
 
 	// create model test
 	BCGoFTest * goftest = new BCGoFTest("modeltest");
@@ -1218,8 +1223,7 @@ double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std
 	// check number of entries in vector
 	if (point.size() != this -> GetNParameters())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				"BCModel::HessianMatrixElement. Invalid number of entries in the vector.");
+		BCLog::OutWarning("BCModel::HessianMatrixElement. Invalid number of entries in the vector.");
 		return -1;
 	}
 
@@ -1266,7 +1270,7 @@ void BCModel::FixDataAxis(unsigned int index, bool fixed)
 	// check if index is within range
 	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::FixDataAxis. Index out of range.");
+		BCLog::OutWarning("BCModel::FixDataAxis. Index out of range.");
 		return;
 	}
 
@@ -1283,7 +1287,7 @@ bool BCModel::GetFixedDataAxis(unsigned int index)
 	// check if index is within range
 	if (index < 0 || index > fDataSet -> GetDataPoint(0) -> GetNValues())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning, "BCModel::GetFixedDataAxis. Index out of range.");
+		BCLog::OutWarning("BCModel::GetFixedDataAxis. Index out of range.");
 		return false;
 	}
 
@@ -1511,17 +1515,17 @@ void BCModel::PrintResults(const char * file)
 
 void BCModel::PrintShortFitSummary()
 {
-	BCLog::Out(BCLog::summary, BCLog::summary, "---------------------------------------------------");
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("Fit summary for model \'%s\':",this -> GetName().data()));
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("   Number of parameters = %i", this -> GetNParameters()));
+	BCLog::OutSummary("---------------------------------------------------");
+	BCLog::OutSummary(Form("Fit summary for model \'%s\':",this -> GetName().data()));
+	BCLog::OutSummary(Form("   Number of parameters = %i", this -> GetNParameters()));
 
-	BCLog::Out(BCLog::summary, BCLog::summary, "   Best fit parameters (global):");
+	BCLog::OutSummary("   Best fit parameters (global):");
 	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		BCLog::Out(BCLog::summary, BCLog::summary, Form("      %s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
+		BCLog::OutSummary(Form("      %s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
 
-	BCLog::Out(BCLog::summary, BCLog::summary, "   Goodness-of-fit test:");
-	BCLog::Out(BCLog::summary, BCLog::summary, Form("      p-value = %.2lf", this -> GetPValue()));
-	BCLog::Out(BCLog::summary, BCLog::summary, "---------------------------------------------------");
+	BCLog::OutSummary("   Goodness-of-fit test:");
+	BCLog::OutSummary(Form("      p-value = %.2lf", this -> GetPValue()));
+	BCLog::OutSummary("---------------------------------------------------");
 }
 
 // ---------------------------------------------------------
@@ -1531,8 +1535,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 	// check number of entries in vector
 	if (parameters.size() != this -> GetNParameters())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				Form("BCModel::PrintHessianMatrix. Invalid number of entries in the vector."));
+		BCLog::OutError("BCModel::PrintHessianMatrix : Invalid number of entries in the vector");
 		return;
 	}
 
