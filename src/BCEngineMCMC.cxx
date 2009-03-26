@@ -520,11 +520,12 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
 	// calculate index
 	int index = chain * fMCMCNParameters;
 
-	// get proposal point
-	int counter = 0;
+	// increase counter
+	fMCMCNIterations[chain]++;
 
-	while (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca) && counter < 1000)
-		counter++;
+	// get proposal point
+	if (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca))
+		return false; 
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain];
@@ -567,9 +568,6 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
 		fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++;
 	}
 
-	// increase counter
-	fMCMCNIterations[chain]++;
-
 	return accept;
 }
 
@@ -580,11 +578,12 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 	// calculate index
 	int index = chain * fMCMCNParameters;
 
-	// get proposal point
-	int counter = 0;
+	// increase counter
+	fMCMCNIterations[chain]++;
 
-	while (!this -> MCMCGetProposalPointMetropolis(chain, fMCMCxLocal, pca) && counter < 1000)
-		counter++;
+	// get proposal point
+	if (!this -> MCMCGetProposalPointMetropolis(chain, fMCMCxLocal, pca))
+		return false; 
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain];
@@ -630,9 +629,6 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 			fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
 	}
 
-	// increase counter
-	fMCMCNIterations[chain]++;
-
 	return accept;
 }
 
@@ -648,10 +644,12 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolisHastings(int chain)
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		xold.push_back(fMCMCxLocal.at(i));
 
+	// increase counter
+	fMCMCNIterations[chain]++;
+
 	// get proposal point
-	int counter = 0;
-	while (!this -> MCMCGetProposalPointMetropolisHastings(chain, fMCMCxLocal, xold) && counter < 1000)
-		counter++;
+	if (!this -> MCMCGetProposalPointMetropolisHastings(chain, fMCMCxLocal, xold))
+		return false; 
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain] + log(this -> MCMCTrialFunctionIndependent(xold, fMCMCxLocal, false));
@@ -693,9 +691,6 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolisHastings(int chain)
 		for (int i = 0; i < fMCMCNParameters; ++i)
 			fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
 	}
-
-	// increase counter
-	fMCMCNIterations[chain]++;
 
 	return accept;
 }
