@@ -162,7 +162,12 @@ class BCModel : public BCIntegrate
 		/**
 		 * @param name The name of the parameter in the parameter set.
 		 * @return The parameter. */
-		BCParameter* GetParameter(const char * name);
+		BCParameter * GetParameter(const char * name);
+
+		/**
+		 * @return parameter set */
+		BCParameterSet * GetParameterSet()
+			{ return fParameterSet; };
 
 		/**
 		 * Returns the value of a particular parameter (defined by index) at
@@ -234,6 +239,12 @@ class BCModel : public BCIntegrate
 		 * @param index The index of the model */
 		void SetIndex(int index)
 			{ fIndex = index; };
+
+		/**
+		 * Set all parameters of the model using a BCParameterSet container.
+		 * @par pointer to parameter set */
+		void SetParameterSet( BCParameterSet * parset )
+			{ fParameterSet = parset; };
 
 		/**
 		 * Sets the a priori probability for a model.
