@@ -1,6 +1,6 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.2
+version 0.2.1
 -------------------------------
 
 The Bayesian Analysis Toolkit is a software analysis package which allows
@@ -23,7 +23,7 @@ and speed requirements of the numerical operations.
 
 The information about the main features introduced in this version
 can be found in doc/releasnotes.txt. The detailed list of changes
-can be found in doc/changelog.
+can be found in doc/ChangeLog.
 
 
 Availability:
