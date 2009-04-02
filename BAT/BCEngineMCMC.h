@@ -355,17 +355,10 @@ class BCEngineMCMC
 			{ fMCMCFlagWriteChainToFile = flag; };
 
 		/*
-		 * Sets the initial position for a chain.
-		 * @param chain chain index.
-		 * @param x0 intial position
-		 * @see MCMCSetIntitialPositions. */
-		void MCMCSetInitialPosition(std::vector<double> x0);
-		void MCMCSetInitialPosition(int chain, std::vector<double> x0);
-
-		/*
 		 * Sets the initial positions for all chains.
-		 * @param x0s initial positions for all chains */
+		 * @param x0s initial positions for all chains. */
 		void MCMCSetInitialPositions(std::vector<double> x0s);
+		void MCMCSetInitialPositions(std::vector< std::vector<double> > x0s);
 
 		/*
 		 * Sets flag which defined initial position.

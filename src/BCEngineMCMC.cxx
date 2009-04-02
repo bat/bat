@@ -161,75 +161,36 @@ void BCEngineMCMC::MCMCSetNChains(int n)
 }
 
 // --------------------------------------------------------
-
-void BCEngineMCMC::MCMCSetInitialPosition(int chain, std::vector<double> x0)
-{
-	// check consistency
-	if (chain >= fMCMCNChains)
-	{
-		fMCMCInitialPosition.clear();
-		return;
-	}
-
-	if (int(x0.size()) == fMCMCNParameters)
-	{
-		fMCMCInitialPosition.clear();
-		for (int j = 0; j < fMCMCNChains; ++j)
-			for (int i = 0; i < fMCMCNParameters; ++i)
-				fMCMCInitialPosition.push_back(x0.at(i));
-	}
-	else
-		return;
-
-	bool flagin = true;
-	for (int j = 0; j < fMCMCNChains; ++j)
-		for (int i = 0; i < fMCMCNParameters; ++i)
-			if (fMCMCInitialPosition[j * fMCMCNParameters + i] < fMCMCBoundaryMin[i] ||
-					fMCMCInitialPosition[j * fMCMCNParameters + i] > fMCMCBoundaryMax[i])
-				flagin = false;
-
-	if (flagin == false)
-	{
-		fMCMCInitialPosition.clear();
-		return;
-	}
-	// copy this intial position into the particular Markov chain
-	else
-		for (int i = 0; i < fMCMCNParameters; ++i)
-			fMCMCInitialPosition[chain * fMCMCNParameters + i] = x0.at(i);
-
-	// use this intial position for the Markov chain
-	this -> MCMCSetFlagInitialPosition(2);
-}
-
-// --------------------------------------------------------
-
-void BCEngineMCMC::MCMCSetInitialPosition(std::vector<double> x0)
-{
-	for (int i = 0; i < fMCMCNChains; ++i)
-		this -> MCMCSetInitialPosition(i, x0);
-}
-
-// --------------------------------------------------------
-
 void BCEngineMCMC::MCMCSetInitialPositions(std::vector<double> x0s)
 {
-	if (int(fMCMCInitialPosition.size()) != (fMCMCNChains * fMCMCNParameters))
-		return;
+	// clear the existing initial position vector
+	fMCMCInitialPosition.clear(); 
 
-	if (int(x0s.size()) != (fMCMCNChains * fMCMCNParameters))
-		return;
+	// copy the initial positions
+	int n = int(x0s.size()); 
 
-	// copy these intial positions into the Markov chains
-	for (int i = 0; i < (fMCMCNChains * fMCMCNParameters); ++i)
-		fMCMCInitialPosition[i] = x0s.at(i);
+	for (int i = 0; i < n; ++i)
+		fMCMCInitialPosition.push_back(x0s.at(i)); 
 
 	// use these intial positions for the Markov chain
 	this -> MCMCSetFlagInitialPosition(2);
 }
 
 // --------------------------------------------------------
+void BCEngineMCMC::MCMCSetInitialPositions(std::vector< std::vector<double> > x0s)
+{
+	// create new vector 
+	std::vector <double> y0s; 
+	
+	// loop over vector elements
+	for (int i = 0; i < int(x0s.size()); ++i)
+		for (int j = 0; j < int((x0s.at(i)).size()); ++j)
+			y0s.push_back((x0s.at(i)).at(j)); 
 
+	this -> MCMCSetInitialPositions(y0s); 
+}
+
+// --------------------------------------------------------
 void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector <TTree *> trees)
 {
 // clear vector
@@ -1763,30 +1724,55 @@ int BCEngineMCMC::MCMCInitialize()
 				fMCMCTrialFunctionScaleFactor.push_back(fMCMCTrialFunctionScaleFactorStart.at(j));
 
 	// set initial position
-	for (int j = 0; j < fMCMCNChains; ++j)
-		for (int i = 0; i < fMCMCNParameters; ++i)
-			switch(fMCMCFlagInitialPosition)
-			{
-				// use the center of the region
-				case 0 :
-					fMCMCx.push_back(fMCMCBoundaryMin[i] + .5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
-					break;
-				// use a random variable in the valid region
-				case 1 :
-					fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCRandom -> Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
-					break;
-				// use user-defined value
-				case 2 :
-					if (int(fMCMCInitialPosition.size()) == fMCMCNParameters * fMCMCNChains)
-						fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]);
-					else
-						fMCMCx.push_back(fMCMCBoundaryMin[i] + .5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
-					break;
-				// use the center of the region as default
-				default:
-					fMCMCx.push_back(fMCMCBoundaryMin[i] + 0.5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
-					break;
-			}
+	if (fMCMCFlagInitialPosition == 2) // user defined points 
+		{
+			// define flag 
+			bool flag = true; 
+
+			// check the length of the array of initial positions
+			if (int(fMCMCInitialPosition.size()) != (fMCMCNChains * fMCMCNParameters))
+				{
+					 BCLog::Out(BCLog::error, BCLog::error, "BCEngine::MCMCInitialize(). Length of vector containing initial positions does not have required length.");
+					flag = false; 
+				}
+
+			// check the boundaries 
+			if (flag)
+				{
+					for (int j = 0; j < fMCMCNChains; ++j)
+						for (int i = 0; i < fMCMCNParameters; ++i)
+							{
+								if (fMCMCInitialPosition[j * fMCMCNParameters + i] < fMCMCBoundaryMin[i] ||
+										fMCMCInitialPosition[j * fMCMCNParameters + i] > fMCMCBoundaryMax[i])
+									{
+										BCLog::Out(BCLog::error, BCLog::error, "BCEngine::MCMCInitialize(). Initial position out of boundaries.");
+										flag = false; 
+									}
+							}
+				}
+			
+			// check flag
+			if (!flag)
+				fMCMCFlagInitialPosition = 1; 
+
+			else
+				{
+					// copy the initial positions into the current (first) point 
+					for (int j = 0; j < fMCMCNChains; ++j)
+						for (int i = 0; i < fMCMCNParameters; ++i)
+							fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]);
+				}
+		}
+
+	if (fMCMCFlagInitialPosition == 0) // center of the interval 
+		for (int j = 0; j < fMCMCNChains; ++j)
+			for (int i = 0; i < fMCMCNParameters; ++i)
+				fMCMCx.push_back(fMCMCBoundaryMin[i] + .5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
+	
+	else 
+		for (int j = 0; j < fMCMCNChains; ++j) // random number (default)
+			for (int i = 0; i < fMCMCNParameters; ++i)
+				fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCRandom -> Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
 
 	// copy the point of the first chain
 	fMCMCxLocal.clear();
