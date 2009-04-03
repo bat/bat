@@ -36,7 +36,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCFlagPreRun           = false;
 	fMCMCEfficiencyMin        = 0.15;
 	fMCMCEfficiencyMax        = 0.50;
-
+	fMCMCFlagInitialPosition  = 1;
 	this -> MCMCSetValuesDefault();
 
 //	fMCMCRelativePrecisionMode = 1e-3;
@@ -1754,14 +1754,6 @@ int BCEngineMCMC::MCMCInitialize()
 			// check flag
 			if (!flag)
 				fMCMCFlagInitialPosition = 1; 
-
-			else
-				{
-					// copy the initial positions into the current (first) point 
-					for (int j = 0; j < fMCMCNChains; ++j)
-						for (int i = 0; i < fMCMCNParameters; ++i)
-							fMCMCx.push_back(fMCMCInitialPosition[j * fMCMCNParameters + i]);
-				}
 		}
 
 	if (fMCMCFlagInitialPosition == 0) // center of the interval 
@@ -1769,6 +1761,11 @@ int BCEngineMCMC::MCMCInitialize()
 			for (int i = 0; i < fMCMCNParameters; ++i)
 				fMCMCx.push_back(fMCMCBoundaryMin[i] + .5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
 	
+	else if (fMCMCFlagInitialPosition == 2) // user defined 
+		for (int j = 0; j < fMCMCNChains; ++j)
+			for (int i = 0; i < fMCMCNParameters; ++i)
+				fMCMCx.push_back(fMCMCInitialPosition.at(j * fMCMCNParameters + i));	
+
 	else 
 		for (int j = 0; j < fMCMCNChains; ++j) // random number (default)
 			for (int i = 0; i < fMCMCNParameters; ++i)
