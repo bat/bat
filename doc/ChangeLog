@@ -1,4 +1,8 @@
 2009-04-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* BAT-intro.ps:
+	  - added to the distribution
+
+2009-04-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* Makefile.am:
 	  - added CreateProject.sh to the distribution
 	* BCEngineMCMC:
