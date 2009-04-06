@@ -1,0 +1,52 @@
+The following lines describe how I got BAT and the BCRooInterface to
+compile and how to run the example. ROOT 5.22 is required for this to
+work properly.
+
+Compilation of BAT:
+
+    source ~/work/setroot.csh
+    ./configure
+    make
+    setenv BATINSTALLDIR ${PWD}
+    setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${BATINSTALLDIR}/src/.libs
+
+Compilation of BCRooInterface.o and runRooInterface.exe
+
+    cd BCRooInterface
+    ln -s ../BAT
+    ln -s ../.libs/libBAT.a
+    ln -s ../.libs/libBAT.so
+    make
+
+Running the example: you need first to prepare the roodata.root file that
+contains the PDF and prior probability models.
+
+The two examples provided are:
+
+ - Number counting experiment in the presence of signal and background.
+   The likelihood being the Poisson formula and the signal prior flat.
+   The data is transformed into a weighted dataset to make the fit faster.
+
+    root -q -x -l PrepareWorkspace_Poisson.C
+
+ - Unbinned likelihood model: The signal is assumed to have a gaussian PDF
+   and the background a flat shape. The signal prior is flat.
+
+    root -q -x -l PrepareWorkspace_GaussOverFlat.C
+
+Then one can use the compiled interface macro:
+
+    ./runRooInterface.exe
+
+Notes and to-do list:
+ - this is a preliminary version of the interface that will be improved
+ - need to provide an arbitrary .root input file as argument to
+   runRooInterface.exe
+ - perform additional X-checks
+ - RooWorkspace not able to store RooArgList. A work-around has been used.
+   In the next ROOT development/production release this feature will be
+   added and the workaround then corrected.
+ - fModel, ... names are hard coded
+
+----------------------------------------------------------------------------
+Provided by Gregory Schott <gregory.schott@cern.ch>

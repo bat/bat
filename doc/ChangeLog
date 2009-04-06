@@ -1,4 +1,10 @@
 2009-04-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* added models directory
+	* BCRooInterface:
+	  - added to the distribution
+	  - updated README and releasenotes.txt
+
+2009-04-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* BAT-intro.ps:
 	  - added to the distribution
 

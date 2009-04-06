@@ -75,6 +75,14 @@ examples/example05/Pol2Asymm.cxx -text
 examples/example05/Pol2Asymm.h -text
 examples/example05/README -text
 examples/example05/asymmErrorsFitterExample.cxx -text
+models/README -text
+models/RooInterface/BCRooInterface.cxx -text
+models/RooInterface/BCRooInterface.h -text
+models/RooInterface/Makefile -text
+models/RooInterface/PrepareWorkspace_GaussOverFlat.C -text
+models/RooInterface/PrepareWorkspace_Poisson.C -text
+models/RooInterface/README -text
+models/RooInterface/runRooInterface.cxx -text
 /readme.devel -text
 src/BCAux.cxx -text
 src/BCDataPoint.cxx -text

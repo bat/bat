@@ -40,6 +40,7 @@ Directory bat/:
    examples  - directory containing well commented example programs
    BAT       - directory containing BAT header files
    src       - directory containing BAT source files
+   models    - directory containing models and interfaces for BAT
    tools     - directory containing tools useful for BAT
    INSTALL   - information about how to install BAT on your system
    README    - basic information about BAT (this file)

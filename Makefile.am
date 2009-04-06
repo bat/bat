@@ -9,10 +9,12 @@ EXTRA_DIST= \
 	src/libBAT.rootmap \
 	doc/COPYING doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
+	models \
 	tools/CreateProject.sh
 dist-hook: prep-docs
 	rm -f $(distdir)/src/*Dict.*
 	rm -rf `find $(distdir)/examples -name CVS`
+	rm -rf `find $(distdir)/models -name CVS`
 prep-docs: BAT-intro.ps
 BAT-intro.ps:
 	mkdir intro-tmp

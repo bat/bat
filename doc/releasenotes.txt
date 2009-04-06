@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.2.1
-Release date:                 2009-04-02
+Release date:                 2009-04-06
 Urgwncy:                      high
 ------------------------------------------
 
@@ -13,6 +13,7 @@ version.
 Updates:
 o added explicit calculation of Bayes K-factors
 o added simplified output methods to BCLog
+o added interface model for RooFit workspace
 o minor code updates and cleanup
 o updated installation instructions
 o major updates in the introducion to BAT
