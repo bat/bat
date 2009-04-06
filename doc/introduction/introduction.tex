@@ -44,6 +44,12 @@
 
 \thispagestyle{empty}
 
+\vspace{17.0cm}
+
+\begin{center}
+\today
+\end{center}
+
 \pagebreak
 
 % --------------------------------------------------------
@@ -62,28 +68,153 @@
 \section{Introduction}
 \label{section:introduction}
 
-\bat\ is a package for data analysis. It's main purpose is to
-handle different models in a Bayesian sense and to help optimize
-parameters, and check the validity of the model with the data. An
-introduction to \bat\ can be found in~\cite{Caldwell:2008fw}. \\ 
-
-The following introduces the basic principals \bat\ is based on
-and summarizes how to use the program. This is followed by a brief
-example distributed with the software.
+The Bayesian Analysis Toolkit, \bat, is a software package designed to
+help solve statistical problems encountered in Bayesian
+inference. Allowing to formulate models and their parameters, the main
+purpose of the toolkit is to provide methods to solve the numerical
+optimization and integration. It features the possiblity to estimate
+parameters and to compare models. A procedure to estimate the
+goodness-of-fit is included and based on ensemble tests. A detailed
+introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
 
 % --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % installation
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
+
 \section{Installation}
 \label{section:installation}
 
-See \verb|doc/INSTALL| for installation instructions.
+\subsection{Platforms}
+
+\bat\ has been developed on Linux machines running different distributions
+and different versions of the kernel and gcc. As far as we know there
+is nothing distribution dependent inside of \bat. However, we have not
+yet started to systematically check for compatibility and
+portability. This is planned for future releases of \bat. For the
+moment the only statement we can do here is that if you don't have a
+too old or too specific installation of Linux you should be able to
+compile and use \bat\ without problems. \\ 
+
+Windows is not supported for the moment. 
+
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+\subsection{Dependencies}
+
+\subsubsection{\Root:} 
+\Root\ is an object oriented data analysis framework. You can obtain it
+from~\cite{ROOTweb}. To compile and run \bat\ you will need a \Root\
+version 5.16 or later. Please, check your Linux distribution for the
+availability of precompiled packages on your system. Mostly used
+distributions nowdays have the \Root\ packages available
+
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+\subsection{Recommendations}
+
+\paragraph{CUBA:}
+CUBA~\cite{CUBA} is a library containing general purpose
+multidimensional integration algorithms. It can be obtained
+from~\cite{CUBAweb}. In this version \bat\ no longer depends on CUBA
+and you can compile and run without it. However, the use of CUBA is
+recommended as it provides integration routines tuned for performance,
+which are very usefull for integration in problems with large number
+of dimensions. \\
+
+Note: Since version 1.5 the compilation of CUBA no longer crashes if
+you don't have Mathematica installed. To compile and install CUBA
+libraries use commands 'make lib ; make install'.
+
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+\subsection{Installation procedure}
+
+Unpack the tarball containing the \bat\ source usually named like
+BAT-x.x.tar.gz (here x.x is the version number) using command
+%
+\begin{verbatim}
+tar -xzf BAT-x.x.tar.gz
+\end{verbatim}
+%
+A directory called BAT-x.x will be created containing the source code.
+Enter the directory and run the configuration using commands
+%
+\begin{verbatim}
+cd -x.x
+./configure
+\end{verbatim}
+
+This will check your system for all components needed to compile \bat\
+and set up the paths for installation. You can add option
+\verb|--prefix=/path/to/install/bat| to \verb|./configure| to specify
+the the prefix to the \bat\ installation path. The \bat\ library files
+will be installed to \verb|$prefix/lib| and the include files to
+\verb|$prefix/include|. Default installation prefix is
+\verb|/usr/local|. \\ 
+
+The configure script checks for \Root\ availability in the system and
+fails if \Root\ is not installed. You can specify the ROOTSYS directory
+using \verb|--rootsys=/path/to/rootsys|. \\ 
+
+The configure will also search for \verb|libcuba.a| and \verb|cuba.h|
+in the system.  The \verb|libcuba.a| has to be available in the
+standard system library search path. You can specify the \verb|cuba.h|
+location using \verb|--with-cuba-path=/path/to/cuba/header|. \\ 
+
+After successful configuration run
+%
+\begin{verbatim}
+make
+make install
+\end{verbatim}
+%
+to compile and install \bat. Note that depending on the setting of
+installation prefix you might need root priviledges to be able to
+install \bat. If you are installing \bat e.g. in your
+\verb|\$HOMEDIR|, you need to add the path to the library and to the
+include files to the search path in your system. Depending on your
+shell you can do that via commands
+%
+\begin{verbatim}
+export BATINSTALLDIR=/bat/install/prefix
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
+\end{verbatim}
+%
+or
+%
+\begin{verbatim}
+setenv BATINSTALLDIR       /bat/install/prefix
+setenv LD_LIBRARY_PATH     $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+setenv CPLUS_INCLUDE_PATH  $CPLUS_INCLUDE_PATH:$BATINSTALLDIR/include
+\end{verbatim}
+%
+for bash and csh compatible shells, respectively. \\ 
+
+An option for use in compiled programs would also be to add
+\verb|-I/bat/install/include/path| to \verb|CFLAGS| and
+\verb|-L/bat/install/lib/path| to \verb|LDFLAGS| in your
+\verb|Makefile|. However, the interactive \Root\ macros will not work if
+\verb|libBAT.so| and \verb|libBAT.rootmap| both aren't in the system
+library search path. \\ 
+
+See also \verb|doc/INSTALL| for installation instructions.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % analysis chain
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
+
+\pagebreak  
 
 \section{Running \bat}
 \label{section:running}
@@ -794,8 +925,8 @@ BCH2D & \\
 \section{Output}
 \label{section:output}
 
-\subsection{Output: log files}
-\label{subsection:output}
+\subsection{Log file}
+\label{subsection:logfile}
 
 The class \verb|BCLog| is used to write out information during the
 runtime of the program. The output is written to screen and to a log
@@ -843,7 +974,8 @@ The summary contains information about the convergence status, the
 models, their parameters and respective ranges as well as information
 about the marginalization (e.g., mean and rms, median and central 68\%
 interval, and the smallest interval containing 68\% probability). The
-results of the maximization is also printed.
+results of the global maximization of the posterior probability is
+also summarized.
 
 % -------------------------------------------------------- 
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -886,7 +1018,7 @@ The model and filename can be set after construction using
 %
 \begin{verbatim}
 BCModelOutput::SetModel(BCModel * model) 
-BCModelOutput::SetFile(const char * filename) 
+BCModelOutput::SetFile(const char * filename) . 
 \end{verbatim}
 %
 The marginalized distributions can also be stored in the output file
@@ -929,10 +1061,10 @@ further reference see the reference guide:
 %
 \begin{itemize}
 \item \verb|BCModel::SetNChains(int n)| Sets the number of chains
-  which are run in parallel (default: 5).
+  which are ran in parallel (default: 5).
 \item \verb|BCModel::MCMCSetNIterationsBurnIn(int n)| Sets the number
   of iterations of a burn-in run (default: 0). The burn-in run is
-  executed before the pre-run.
+  performed before the pre-run.
 \item \verb|BCModel::MCMCSetNIterationsMax(int n)| Sets the maximum
   number of iterations of the pre-run (default: 1,000,000).  
 \item \verb|BCModel::MCMCSetNIterationsRun(int n)| Sets the number of
@@ -949,13 +1081,13 @@ further reference see the reference guide:
   boundaries, 1: random positions (default), 2: user defined
   positions).
 \item \verb|BCModel::MCMCSetInitialPositions(std::vector<double> x0s)|
-  and
+  and \\ 
   \verb|MCMCSetInitialPositions(std::vector< std::vector<double> > x0s)|
   Set the initial positions of all parameters in all chains.
-\item \verb|BCModel::MCMCSetMinimumEfficiency(double efficiency)| and
+\item \verb|BCModel::MCMCSetMinimumEfficiency(double efficiency)| and \\ 
   \verb|MCMCSetMaximumEfficiency(double efficiency)|. Set the minimum
   (default: 15\%) and maximum (default: 50\%) efficiency of the Markov
-  Chains. The efficiency found in the pre-run has to be within those
+  Chains. The efficiency found in the pre-run has to be within these
   limits otherwise the pre-run continues.
 \item \verb|BCModel::MCMCSetRValueCriterion(double r)| Set the
   $r$-value criterion for convergence of a set of chains (default:
@@ -1011,6 +1143,9 @@ further reference see the reference guide:
   A.~Caldwell, D.~Kollar and K.~Kroeninger,
   ``BAT - The Bayesian Analysis Toolkit,''
   arXiv:0808.2552 [physics.data-an].
+%
+\bibitem{ROOTweb}
+http://root.cern.ch/
 %
 \bibitem{CUBA}
   T.~Hahn, ``CUBA: A library for multidimensional numerical
