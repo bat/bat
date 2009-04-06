@@ -1,52 +1,50 @@
+2009-04-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* Makefile.am:
+	  - added CreateProject.sh to the distribution
+	* BCEngineMCMC:
+	  - added MCMCSetNIterationsPreRunMin()
+	  - minor code cleanup
+	* CreateProject.sh:
+	  - minor update and bugfix
+	* release_notes.txt:
+	  - updates
+
 2009-04-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* doc/introduction.tex:
+	  - Minor update of the short introduction to BAT
 
-	* doc/introduction.tex
-	  - Minor update of the short introduction to BAT. 
-	
 2009-04-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* doc/introduction.tex:
+	  - Major update of the short introduction to BAT
 
-	* doc/introduction.tex
-	  - Major update of the short introduction to BAT. 
-	
 2009-04-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-
 	* BCEngingeMCMC:
 	  - Bug fix in MCMCInitialize() related to MCMCSetInitialPosition().
-	
+
 2009-04-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-
 	* BCEngingeMCMC:
-	  - Re-wrote MCMCSetInitialPositions(...) method(s). 
-	
-2009-04-01 Daniel Kollar <daniel.kollar@cern.ch>
+	  - Re-wrote MCMCSetInitialPositions(...) method(s).
 
+2009-04-01 Daniel Kollar <daniel.kollar@cern.ch>
 	  - release version to 0.2.1
 	  - updated library version
 	  - updated release notes
 
-
 2009-03-31 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCModel:
 	  - added methods to set and retrieve the whole parameter set
 
-
 2009-03-30 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCModelOutput:
 	  - added default argument value for WriteMarkovChain()
 
-
 2009-03-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-
 	* BCEngingeMCMC:
 	  - fixed bug regarding sampling at the boundaries. If a
 	    point falls outside the allowed range it is now counted as
 	    a "not accepted".
 
-
 2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCModel:
 	  - changed all BCLog::Out() calls to their respective
 	    short versions
@@ -56,16 +54,12 @@
 	* BCModelManager:
 	  - update to work with new BCModel::SetNbins() correctly
 
-
 2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* CreateProject.sh:
 	  - updates and fixes
 	  - added comments
 
-
 2009-03-06 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* INSTALL:
 	  - fixed a typo
 	  - fixed a name of enviromental variable for include search
@@ -73,42 +67,32 @@
 	  - improved description for installing with/without root
 	    privileges
 
-
 2009-03-03 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCModelManager:
 	  - added BayesFactor()
 	  - PrintModelComparisonSummary() now also prints out
 	    the Bayes factors for all combinations of models
 	    assigned to BCModelManager
 
-
 2009-03-03 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCLog:
 	  - added several simplified Out() methods so that no
 	    input of loglevel info is necessary
 
-
 2009-02-27 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCGraphFitter:
 	  - It is now allowed to fit if number of data points is
 	    less than 3. The warning is issued if number of parameters
 	    is lower than number of data points.
 
-
 2009-02-25 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCModel:
 	  - FindMode() now can take a starting point as an argument
 	    which is used for Minuit
 	* CreateProject:
 	  - adjusted to use the new BCModel::FindMode()
 
-
 2009-02-25 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCH2D:
 	  - added constructor with TH2D* argument
 	  - added methods GetLevelBoundary() and GetBandGraph() to
@@ -116,24 +100,18 @@
 	* BCDataSet:
 	  - removed some commented out stuff
 
-
 2009-02-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-
 	* added script tool/CreateProject.sh. This script creates a new
 	  directory and header and source files for a blank model.
 
-
 2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCDataSet:
 	  - fixed bug reading data from text file which caused
 	    that the last point was read in twice if there was
 	    newline at the end of the last line of input
 	  - changed example03 and example05 to reflect the fix
 
-
 2009-02-03 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* BCModel:
 	  - removed method DefineParameters() since it's not needed
 	  - cleanup in HessianMatrixElement()
@@ -145,35 +123,24 @@
 	* example05:
 	  - fixed crash
 
-
 2009-01-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-
 	* added installation procedure description to chapter 2 of
 	  the manual.
 
-
 2009-01-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-
 	* updated chapter 3 of the manual to match the current code.
 	  Wording is OK, is there information missing?
 
-
 2009-01-16 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* release version 0.2
 	* updated INSTALL file for the Cuba 1.5 information
 	  and fixed a few typos
 	* completed the releasnotes.txt
 	* renamed changelog to ChangeLog
 
-
 2009-01-15 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* many changes
 	* I will try keep this up to date in the future!
 
-
 2008-09-15 Daniel Kollar <daniel.kollar@cern.ch>
-
 	* First release of beta version 0.1
-

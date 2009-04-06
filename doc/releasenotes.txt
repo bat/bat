@@ -11,10 +11,11 @@ should improve stability. We strongly recommend updating to this
 version.
 
 Updates:
-o added simplified output methods to BCLog
 o added explicit calculation of Bayes K-factors
+o added simplified output methods to BCLog
 o minor code updates and cleanup
 o updated installation instructions
+o major updates in the introducion to BAT
 
 Bugfixes:
 # fixed reading data from textfile which caused that in case there was
@@ -25,6 +26,7 @@ Bugfixes:
 # fixed bug in MCMC which caused incorrect sampling near boundary of the
   parameter space in case the bulk of the distribution was too close
   to the boundary
+# fixed user setup of starting positions of MCMC
 
 For detailed list of changes see the Changelog. For more information
 consult the BAT webpage at http://www.mppmu.mpg.de/bat/

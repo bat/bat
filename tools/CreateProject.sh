@@ -28,12 +28,10 @@ upMYMODEL=`echo $MYMODEL|tr [a-z] [A-Z]`
 function m_header() {
 cat << EOF
 // ***************************************************************
-//
 // This file was created using the $0 script
 // for project $MYPROJECT
 // $0 is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
-//
 // ***************************************************************
 
 #ifndef __|:UP_MODEL:|__H
@@ -69,12 +67,10 @@ EOF
 function m_sourcecode() {
 cat << EOF
 // ***************************************************************
-//
 // This file was created using the $0 script
 // for project $MYPROJECT
 // $0 is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
-//
 // ***************************************************************
 
 #include "|:Model:|.h"
@@ -225,7 +221,7 @@ EXEOBJS      =
 MYPROGS     = \\
         run|:Project:|
 
-GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$MYPROGS
+GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$(MYPROGS)
 
 
 # targets

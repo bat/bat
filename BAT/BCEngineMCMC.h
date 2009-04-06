@@ -326,6 +326,11 @@ class BCEngineMCMC
 			{ fMCMCNIterationsBurnIn = n; };
 
 		/*
+		 * Sets the minimum number of iterations in the pre-run */
+		void MCMCSetNIterationsPreRunMin(int n)
+			{ fMCMCNIterationsPreRunMin = n; };
+
+		/*
 		 * Sets the number of iterations needed for PCA. */
 		void MCMCSetNIterationsPCA(int n)
 			{ fMCMCNIterationsPCA = n; };

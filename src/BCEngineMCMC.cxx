@@ -319,7 +319,6 @@ double BCEngineMCMC::MCMCGetx(int ichain, int ipar)
 }
 
 // --------------------------------------------------------
-
 double BCEngineMCMC::MCMCGetLogProbx(int ichain)
 {
 	// check if ichain is in range
@@ -486,7 +485,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
 
 	// get proposal point
 	if (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca))
-		return false; 
+		return false;
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain];
@@ -544,7 +543,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 
 	// get proposal point
 	if (!this -> MCMCGetProposalPointMetropolis(chain, fMCMCxLocal, pca))
-		return false; 
+		return false;
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain];
@@ -610,7 +609,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolisHastings(int chain)
 
 	// get proposal point
 	if (!this -> MCMCGetProposalPointMetropolisHastings(chain, fMCMCxLocal, xold))
-		return false; 
+		return false;
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain] + log(this -> MCMCTrialFunctionIndependent(xold, fMCMCxLocal, false));
@@ -739,24 +738,24 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 
 void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 {
-  // calculate number of entries in this part of the chain   
-  int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0]; 
+	// calculate number of entries in this part of the chain
+	int npoints = fMCMCNTrialsTrue[0] + fMCMCNTrialsFalse[0];
 
-  // do not evaluate the convergence criterion if the numbers of
-  // elements is too small.
-	//  if (npoints < fMCMCNIterationsPreRunMin) 
+	// do not evaluate the convergence criterion if the numbers of
+	// elements is too small.
+	//  if (npoints < fMCMCNIterationsPreRunMin)
 	//    {
-	//      fMCMCNIterationsConvergenceGlobal = -1;      
-	//      return; 
+	//      fMCMCNIterationsConvergenceGlobal = -1;
+	//      return;
 	//    }
-  
-  if (fMCMCNChains > 1 && npoints > 1)
-    {
-      // define flag for convergence       
-      bool flag_convergence = true; 
-      
-      // loop over parameters       
-      for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
+
+	if (fMCMCNChains > 1 && npoints > 1)
+	{
+		// define flag for convergence
+		bool flag_convergence = true;
+
+		// loop over parameters
+		for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
 				{
 					double sum = 0; 
 					double sum2 = 0; 
@@ -1014,7 +1013,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		convergence = false;
 
 		// debugKK
-		fMCMCNIterationsConvergenceGlobal = -1; 
+		fMCMCNIterationsConvergenceGlobal = -1;
 
 		// if the flag is set then run over the parameters one after the other.
 		if (fMCMCFlagOrderParameters)
@@ -1254,7 +1253,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 // 		// check convergence
 // 		if (fMCMCNIterationsConvergenceGlobal > 0)
 // 			convergence = true;
-	} // end of running 
+	} // end of running
 
 	// ---------------
 	// after chain ran
@@ -1724,49 +1723,51 @@ int BCEngineMCMC::MCMCInitialize()
 				fMCMCTrialFunctionScaleFactor.push_back(fMCMCTrialFunctionScaleFactorStart.at(j));
 
 	// set initial position
-	if (fMCMCFlagInitialPosition == 2) // user defined points 
+	if (fMCMCFlagInitialPosition == 2) // user defined points
+	{
+		// define flag
+		bool flag = true;
+
+		// check the length of the array of initial positions
+		if (int(fMCMCInitialPosition.size()) != (fMCMCNChains * fMCMCNParameters))
 		{
-			// define flag 
-			bool flag = true; 
-
-			// check the length of the array of initial positions
-			if (int(fMCMCInitialPosition.size()) != (fMCMCNChains * fMCMCNParameters))
-				{
-					 BCLog::Out(BCLog::error, BCLog::error, "BCEngine::MCMCInitialize(). Length of vector containing initial positions does not have required length.");
-					flag = false; 
-				}
-
-			// check the boundaries 
-			if (flag)
-				{
-					for (int j = 0; j < fMCMCNChains; ++j)
-						for (int i = 0; i < fMCMCNParameters; ++i)
-							{
-								if (fMCMCInitialPosition[j * fMCMCNParameters + i] < fMCMCBoundaryMin[i] ||
-										fMCMCInitialPosition[j * fMCMCNParameters + i] > fMCMCBoundaryMax[i])
-									{
-										BCLog::Out(BCLog::error, BCLog::error, "BCEngine::MCMCInitialize(). Initial position out of boundaries.");
-										flag = false; 
-									}
-							}
-				}
-			
-			// check flag
-			if (!flag)
-				fMCMCFlagInitialPosition = 1; 
+			BCLog::Out(BCLog::error, BCLog::error, "BCEngine::MCMCInitialize : Length of vector containing initial positions does not have required length.");
+			flag = false;
 		}
 
-	if (fMCMCFlagInitialPosition == 0) // center of the interval 
+		// check the boundaries
+		if (flag)
+		{
+			for (int j = 0; j < fMCMCNChains; ++j)
+				for (int i = 0; i < fMCMCNParameters; ++i)
+				{
+					if (fMCMCInitialPosition[j * fMCMCNParameters + i] < fMCMCBoundaryMin[i] ||
+							fMCMCInitialPosition[j * fMCMCNParameters + i] > fMCMCBoundaryMax[i])
+					{
+						BCLog::OutError("BCEngine::MCMCInitialize : Initial position out of boundaries.");
+						flag = false;
+					}
+				}
+		}
+
+		// check flag
+		if (!flag)
+			fMCMCFlagInitialPosition = 1;
+	}
+
+	if (fMCMCFlagInitialPosition == 0) // center of the interval
 		for (int j = 0; j < fMCMCNChains; ++j)
 			for (int i = 0; i < fMCMCNParameters; ++i)
 				fMCMCx.push_back(fMCMCBoundaryMin[i] + .5 * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
-	
-	else if (fMCMCFlagInitialPosition == 2) // user defined 
+
+	else if (fMCMCFlagInitialPosition == 2) // user defined
+	{
 		for (int j = 0; j < fMCMCNChains; ++j)
 			for (int i = 0; i < fMCMCNParameters; ++i)
-				fMCMCx.push_back(fMCMCInitialPosition.at(j * fMCMCNParameters + i));	
+				fMCMCx.push_back(fMCMCInitialPosition.at(j * fMCMCNParameters + i));
+	}
 
-	else 
+	else
 		for (int j = 0; j < fMCMCNChains; ++j) // random number (default)
 			for (int i = 0; i < fMCMCNParameters; ++i)
 				fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCRandom -> Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
