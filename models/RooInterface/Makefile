@@ -19,12 +19,12 @@ CINT         = rootcint
 CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/BAT -I$(ROOTSYS)/roofit/roofitcore/inc -I$(ROOTSYS)/roofit/roofit/inc
 
-LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/src/.libs -l RooFitCore -l RooFit -lBAT
-GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/src/.libs -l RooFitCore -l RooFit -lBAT
+LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/lib -l RooFitCore -l RooFit -lBAT
+GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/lib -l RooFitCore -l RooFit -lBAT
 
-CXSRCS      =         BCRooInterface.cxx 
+CXSRCS      =         BCRooInterface.cxx
 
-CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
+CXXSRCS      = $(patsubst %.cxx,%.cxx,$(CXSRCS))
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 EXEOBJS      =
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d BCRooInterface.exe

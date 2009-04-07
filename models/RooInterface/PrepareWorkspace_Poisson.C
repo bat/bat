@@ -14,8 +14,8 @@ void PrepareWorkspace_Poisson()
 	// signal yield (with a range used for the integration and posterior plotting)
 	RooRealVar* nsig = new RooRealVar("S","sig yield and range",0,60);
 
-	// background yield (with a default value and a range)
-	RooRealVar* nbkg = new RooRealVar("B","bkg yield and range",10,0,200);
+	// background yield (with a default value)
+	RooRealVar* nbkg = new RooRealVar("B","bkg yield and range",10);
 
 	// total model for the signal+background PDF
 	RooAddPdf* fModel = new RooAddPdf("fModel","pdf for sig+bkg model",RooArgList(*sig,*bkg),RooArgList(*nsig,*nbkg));
@@ -47,8 +47,6 @@ void PrepareWorkspace_Poisson()
 	bat_ws.import(*fData);
 	bat_ws.import(*fModel);
 	bat_ws.import(*fPrior);
-	//bat_ws.import(*fObservables,RooFit::RecycleConflictNodes(kTRUE));
-	//bat_ws.import(*fParams,RooFit::RecycleConflictNodes(kTRUE));
 
 	// store the workspace in a ROOT file
 	TString fileName = "roodata.root";

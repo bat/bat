@@ -14,7 +14,7 @@ void PrepareWorkspace_GaussOverFlat()
 	// signal yield (with a range used for the integration and posterior plotting)
 	RooRealVar* nsig = new RooRealVar("S","sig yield and range",0,60);
 
-	// background yield (with a default value and a range)
+	// background yield (with a default value)
 	RooRealVar* nbkg = new RooRealVar("B","bkg yield and range",10,0,200);
 
 	// total model for the signal+background PDF
@@ -42,8 +42,6 @@ void PrepareWorkspace_GaussOverFlat()
 	bat_ws.import(*fData);
 	bat_ws.import(*fModel);
 	bat_ws.import(*fPrior);
-	//bat_ws.import(*fObservables,RooFit::RecycleConflictNodes(kTRUE));
-	//bat_ws.import(*fParams,RooFit::RecycleConflictNodes(kTRUE));
 
 	// store the workspace in a ROOT file
 	TString fileName = "roodata.root";

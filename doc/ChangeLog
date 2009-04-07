@@ -1,3 +1,7 @@
+2009-04-07 Daniel Kollar <daniel.kollar@cern.ch>
+	* models/BCRooInterface:
+	  - updates
+
 2009-04-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* added models directory
 	* BCRooInterface:
