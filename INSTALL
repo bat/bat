@@ -32,6 +32,9 @@ ROOT:
    for the availability of precompiled packages on your system. Mostly
    used distributions nowdays have the ROOT packages available.
 
+Note: To be able to use the interface to RooFit/RooStats the ROOT verion
+      5.22 or later is necessary.
+
 Recommended
 -----------
 CUBA:

@@ -1,4 +1,8 @@
 2009-04-07 Daniel Kollar <daniel.kollar@cern.ch>
+	* final version 0.2.1 release
+	* updated INSTALL file
+
+2009-04-07 Daniel Kollar <daniel.kollar@cern.ch>
 	* models/BCRooInterface:
 	  - updates
 
