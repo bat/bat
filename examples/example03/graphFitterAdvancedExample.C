@@ -1,3 +1,4 @@
+// $Id: graphFitterAdvancedExample.C,v 1.3 2009-04-15 19:25:19 jliu Exp $
 //
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting
@@ -72,7 +73,7 @@ void graphFitterAdvancedExample()
 	// the file supplied with BAT distribution
 	// is data/datax.txt and contains the data which were
 	// used in the BAT paper
-	TGraphErrors * gr = ReadDataGraph();
+	TGraphErrors * gr = new TGraphErrors("data/datax.txt","%lg %lg %lg");
 
 	gr -> SetMarkerStyle(20);
 	gr -> SetMarkerSize(.5);
@@ -193,66 +194,6 @@ TGraphErrors * CreateDataGraph(int n, double xmin, double xmax)
 		yy[i]=y;
 		err[i]=sigmay;
 	}
-
-	TGraphErrors * g = new TGraphErrors(n,xx,yy,0,err);
-
-	delete [] xx;
-	delete [] yy;
-	delete [] err;
-
-	return g;
-}
-
-// ----------------------------------------------------------------------
-TGraphErrors * ReadDataGraph(const char * file = "data/datax.txt")
-{
-	ifstream ifi(file);
-	if (!ifi.is_open())
-	{
-		std::cerr<<"Couldn't open file "<<file<<std::endl;
-		return 0;
-	}
-
-	std::vector<double> x(0);
-	std::vector<double> y(0);
-	std::vector<double> ey(0);
-
-	std::vector<double> data(3);
-	while (!ifi.eof())
-	{
-		int i=0;
-		while(ifi>>data[i])
-		{
-			if(i==2)
-				break;
-			i++;
-		}
-
-		if(i==2)
-		{
-			x.push_back(data[0]);
-			y.push_back(data[1]);
-			ey.push_back(data[2]);
-		}
-	}
-	ifi.close();
-
-	int n = x.size();
-	double * xx = new double[n];
-	double * yy = new double[n];
-	double * err = new double[n];
-
-	// loop over points
-	for (int i=0;i<n;i++)
-	{
-		xx[i]=x[i];
-		yy[i]=y[i];
-		err[i]=ey[i];
-	}
-
-	x.clear();
-	y.clear();
-	ey.clear();
 
 	TGraphErrors * g = new TGraphErrors(n,xx,yy,0,err);
 
