@@ -1,3 +1,4 @@
+// $Id: efficiencyFitterExample.C,v 1.1 2009-04-15 19:29:36 jliu Exp $
 //
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting
@@ -7,16 +8,16 @@
 //
 // The macro can be run from within ROOT via commands
 //
-//    root[1] .x efficientyFitterExample.C
+//    root[1] .x efficiencyFitterExample.C
 //
 // or
 //
-//    root[1] .L efficientyFitterExample.C
-//    root[2] efficientyFitterExample()
+//    root[1] .L efficiencyFitterExample.C
+//    root[2] efficiencyFitterExample()
 //
 // or from the command line
 //
-//    $ root efficientyFitterExample.C
+//    $ root efficiencyFitterExample.C
 //
 // The data fitted are generated randomly using a function
 // CreateHistograms(nbins,nevents,hist1,hist2,seed), where 'nbins' is
@@ -43,7 +44,7 @@ const double sigma = 15.0;
 double fitfunction(double * x, double * par);
 
 // ---------------------------------------------------------
-void efficientyFitterExample()
+void efficiencyFitterExample()
 {
 	int nbins = 100;
 
