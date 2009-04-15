@@ -1,3 +1,4 @@
+// $Id: graphFitterSimpleExample.C,v 1.3 2009-04-15 15:08:53 jliu Exp $
 //
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting
@@ -19,13 +20,13 @@
 //    $ root graphFitterSimpleExample.C
 //
 // The data fitted are generated randomly to follow a straight line
-// in function CreateDataGraph(n,seed), where 'n' is the number of points
+// in function CreateGraph(n,seed), where 'n' is the number of points
 // to generate and 'seed' is the random seed for the random number generator.
 // The parameters of the true function can be set via variables 'slope'
 // and 'offset'. The sigma of the gaussian for smearing can be defined via
 // the variable 'sigma'. It is also set as the y-error of the data.
 
-TGraphErrors * CreateDataGraph(int n, int seed = 0);
+TGraphErrors * CreateGraph(int n, int seed = 0);
 
 const double slope  =  1.0;
 const double offset = 11.0;
