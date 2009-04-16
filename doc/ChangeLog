@@ -1,3 +1,8 @@
+2009-04-15 Jing Liu <jingliu@mppmu.mpg.de>
+	* examples:
+	  - fixed some typos in example 1 and 4
+	  - used TGraphErrors("filename") to simplify example 3
+
 2009-04-07 Daniel Kollar <daniel.kollar@cern.ch>
 	* final version 0.2.1 release
 	* updated INSTALL file
