@@ -1,3 +1,8 @@
+2009-05-05 Jing Liu <jingliu@mppmu.mpg.de>
+	* BCMath:
+	  - added chi2 distribution
+	  - added voigtian distribution
+
 2009-04-07 Daniel Kollar <daniel.kollar@cern.ch>
 	* releasenotes.txt:
 	  - fixed release date in the cvs

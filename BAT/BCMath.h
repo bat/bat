@@ -6,6 +6,7 @@
  * \brief Some useful mathematic functions.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
+ * \author Jing Liu
  * \version 1.0
  * \date 08.2008
  * \detail A namespace which encapsulates some mathematical functions
@@ -24,6 +25,7 @@
 #define BCMATH_NFACT_ALIMIT 20
 
 // ---------------------------------------------------------
+#include <cstring>
 
 namespace BCMath
 {
@@ -112,12 +114,33 @@ namespace BCMath
 	 */
 	double rms(int n, const double * a);
 
-	/*
+	/**
 	 * Calculates the logarithm of the non-relativistic Breit-Wigner
 	 * distribution.
 	 */
 	double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm = false);
 	double LogBreitWignerRel(double x, double mean, double Gamma);
+
+	/**
+	 * Calculates the logarithm of chi square function:
+	 * chi2(double x; size_t n)
+	 */
+	double LogChi2(double x, size_t n);
+
+	/**
+	 * Calculates the logarithm of normalized voigtian function:
+	 * voigtian(double x, double sigma, double gamma)
+	 *
+	 * voigtian is a convolution of the following two functions:
+	 *  gaussian(x) = 1/(sqrt(2*pi)*sigma) * exp(x*x/(2*sigma*sigma)
+	 *    and
+	 *  lorentz(x) = (1/pi)*(gamma/2) / (x*x + (gamma/2)*(gamma/2))
+	 * 
+	 * it is singly peaked at x=0. 
+	 * The width of the peak is decided by sigma and gamma,
+	 * so they should be positive.
+	 */
+	double LogVoigtian(double x, double sigma, double gamma);
 
 };
 

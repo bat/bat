@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008, Daniel Kollar, Kevin Kroeninger and Jing Liu
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -8,6 +8,7 @@
 // ---------------------------------------------------------
 
 #include "BAT/BCMath.h"
+#include "BAT/BCLog.h"
 
 #include <math.h>
 
@@ -217,6 +218,37 @@ double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool no
 double BCMath::LogBreitWignerRel(double x, double mean, double Gamma)
 {
 	return -log( (x*x - mean*mean) * (x*x - mean*mean) + mean*mean*Gamma*Gamma );
+}
+
+// ---------------------------------------------------------
+
+double BCMath::LogChi2(double x, size_t n)
+{
+	if (x<0) {
+		BCLog::OutWarning("BCMath::LogChi2 : parameter cannot be negative!");      
+		return -1e99; 
+	}
+
+	if (x==0 && n==1){
+		BCLog::OutWarning("BCMath::LogChi2 : returned value is infinity!");      
+		return 1e99; 
+	}
+
+	double nOver2 = ((double) n)/2.;
+
+	return (nOver2-1.)*log(x) - x/2. - nOver2*log(2) - log(TMath::Gamma(nOver2));
+}
+
+// ---------------------------------------------------------
+
+double BCMath::LogVoigtian(double x, double sigma, double gamma)
+{
+	if (sigma<=0 || gamma<=0) {
+		BCLog::OutWarning("BCMath::LogVoigtian : widths are negative or zero!");      
+		return -1e99; 
+	}
+
+	return log(TMath::Voigt(x,sigma,gamma));
 }
 
 // ---------------------------------------------------------
