@@ -1,14 +1,18 @@
-#include "BCLog.h"
+#include "BAT/BCAux.h"
+#include "BAT/BCLog.h"
 
-#include "style.c"
-#include "BCBenchmarkMCMC.h"
 #include <TF1.h>
+#include <TCanvas.h>
+#include <TGraph.h>
+
+#include "BCBenchmarkMCMC.h"
 
 // ---------------------------------------------------------
 
 int main()
 {
-	SetStyle();
+	BCAux::SetStyle();
+
 	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
 	// function range
@@ -34,7 +38,7 @@ int main()
 		// create model and set it up
 		BCBenchmarkMCMC * benchmark = new BCBenchmarkMCMC("benchmark");
 		benchmark -> AddParameter("x",  xmin, xmax);
-		benchmark -> SetNbins(100, 0);
+		//benchmark -> SetNbins(100, 0);
 		benchmark -> SetTestFunction(testfunction2);
 
 		benchmark -> MCMCSetValuesQuick();

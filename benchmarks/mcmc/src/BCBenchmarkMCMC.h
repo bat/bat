@@ -1,7 +1,7 @@
 #ifndef __BCBENCHMARKMCMC__H
 #define __BCBENCHMARKMCMC__H
 
-#include "BCModel.h"
+#include "BAT/BCModel.h"
 
 #include <TF1.h>
 
