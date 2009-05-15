@@ -1,5 +1,12 @@
+#include "BAT/BCMath.h"
+#include "BAT/BCH1D.h"
+#include "BAT/BCLog.h"
+
+#include <TROOT.h>
+#include <TCanvas.h>
+#include <TLatex.h>
+
 #include "BCBenchmarkMCMC.h"
-#include "BCMath.h"
 
 // ---------------------------------------------------------
 
@@ -30,6 +37,7 @@ double BCBenchmarkMCMC::PerformTest(
 	double xmax = this->GetParameter(0)->GetUpperLimit();
 	double normalization = fTestFunction -> Integral(xmin,xmax);
 
+	hist_prob -> Sumw2();
 	hist_prob -> Scale(normalization/hist_prob->Integral("width"));
 
 	// initialize chi2
@@ -42,14 +50,14 @@ double BCBenchmarkMCMC::PerformTest(
 	for (int i = 1; i <= nbins; ++i)
 	{
 		double y = hist_prob -> GetBinContent(i);
-		double sigma2 = hist_temp -> GetBinContent(i);
+		double dy = hist_prob -> GetBinError(i);
 
-		double min = hist_temp -> GetBinLowEdge(i);
-		double max = min + hist_temp -> GetBinWidth(i);
-		double y0 =  fTestFunction -> Integral(min,max);
+		double min = hist_prob -> GetBinLowEdge(i);
+		double max = min + hist_prob -> GetBinWidth(i);
+		double y0 =  fTestFunction -> Integral(min,max)/(max-min);
 
-		if (sigma2 > 0.)
-			chi2 += (y-y0)*(y-y0)/2./sigma2;
+		if (dy > 0.)
+			chi2 += (y-y0)*(y-y0)/(dy*dy);
 	}
 
 	// divide by the number of d.o.f.
@@ -57,24 +65,28 @@ double BCBenchmarkMCMC::PerformTest(
 
 	BCLog::Out(BCLog::summary,BCLog::summary,
 			TString::Format(" Chi2 from test = %f (NDoF = %d)",chi2,nbins));
-	BCLog::Out(BCLog::summary,BCLog::summary,
-			TString::Format(" Results printed to file %s",filename));
 
 	// print to file
 	if (flag_print)
 	{
-		TCanvas * can = new TCanvas("can");
-		can -> cd();
+		TCanvas *can = (TCanvas*) gROOT->GetListOfCanvases()->FindObject("can");
+		if (!can)  can = new TCanvas("can");
+		can -> Clear();
 //		gPad -> SetLogy();
 		hist_prob -> SetStats(0);
-		hist_prob -> GetYaxis() -> SetTitle("f(x)");
+		hist_prob -> GetYaxis() -> SetTitle(fTestFunction->GetName());
 		hist_prob -> Draw();
 		fTestFunction -> SetNpx(1000);
 		fTestFunction -> SetLineColor(kRed);
 		fTestFunction -> SetLineWidth(2);
 		fTestFunction -> Draw("c same");
+		TLatex tx2;
+		tx2.SetNDC();
+		tx2.DrawLatex(0.3,0.9,Form("#chi^{2}/NDF: %f",chi2));
 		can -> Print(filename);
 	}
+	BCLog::Out(BCLog::summary,BCLog::summary,
+			TString::Format(" Results printed to file %s",filename));
 
 	// free memory
 	delete hist_prob;
