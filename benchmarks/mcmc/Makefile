@@ -17,9 +17,9 @@ CINT         = rootcint
 
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
-CXXFLAGS    += -I./src/ -I./ -I../../include/
-LIBS        += $(ROOTLIBS) -L. -L../../ -lBAT -lcuba
-GLIBS       += $(ROOTGLIBS) -L. -L../../ -lBAT -lcuba
+CXXFLAGS    += -I./src/ -I./ -I$(BATINSTALLDIR)/include
+LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
+GLIBS       += $(ROOTGLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 
 CXSRCS      = BCBenchmarkMCMC.cxx
 
@@ -29,9 +29,10 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) benchmark.o link.d benchmark benchmark2
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.ps *.eps *.txt *.log link.d SamplingTest1D.o benchmark2.o SamplingTest1D benchmark2
 
-all : benchmark benchmark2
+#all : SamplingTest1D benchmark2
+all : SamplingTest1D
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -44,7 +45,7 @@ include link.d
 clean :
 	$(RM) $(GARBAGE)
 
-benchmark : benchmark.c $(CXXOBJS)
+SamplingTest1D : SamplingTest1D.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 
@@ -53,15 +54,13 @@ benchmark2 : benchmark2.c $(CXXOBJS)
 	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 
 print :
-	echo compiler  : $(CXX)
-	echo compiler  : $(CXSRCS)
-	echo c++ srcs  : $(CXXSRCS)
-	echo c++ objs  : $(CXXOBJS)
-	echo c++ flags : $(CXXFLAGS)
-	echo libs      : $(LIBS)
-	echo so flags  : $(SOFLAGS)
-
-	echo rootlibs  : $(ROOTLIBS)
-	echo rootglibs : $(ROOTGLIBS)
-
+	@echo compiler  : $(CXX)
+	@echo compiler  : $(CXSRCS)
+	@echo c++ srcs  : $(CXXSRCS)
+	@echo c++ objs  : $(CXXOBJS)
+	@echo c++ flags : $(CXXFLAGS)
+	@echo libs      : $(LIBS)
+	@echo so flags  : $(SOFLAGS)
+	@echo rootlibs  : $(ROOTLIBS)
+	@echo rootglibs : $(ROOTGLIBS)
 
