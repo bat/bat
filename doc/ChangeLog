@@ -1,3 +1,12 @@
+2009-05-15 Jing Liu <jingliu@mppmu.mpg.de>
+	* benchmarks/mcmc:
+	  - mv benchmark.c SamplingTest1D.cc
+	  - added pol0-2,exp,gaus functions to SamplingTest1D.cc
+	  - changed include style in source files so that they can be compiled
+	  - use BATINSTALLDIR to set -L -I directories in Makefile
+	  - corrected x2 calculation in src/BCBenchmarkMCMC.cxx
+	  - plot x2 to output eps in src/BCBenchmarkMCMC.cxx
+
 2009-05-05 Jing Liu <jingliu@mppmu.mpg.de>
 	* BCMath:
 	  - added chi2 distribution
