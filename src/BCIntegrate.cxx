@@ -71,6 +71,10 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fMarkovChainStepSize = 0.1;
 
 	fMarkovChainAutoN = true;
+	
+	fSimulatedAnnealingT0 = 100.0;
+	fSimulatedAnnealingTmin = 0.1;
+	fSimulatedAnnealingSchedule = BCIntegrate::kSACauchy;
 }
 
 // *********************************************
@@ -108,6 +112,9 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 	fMarkovChainStepSize = 0.1;
 
 	fMarkovChainAutoN = true;
+	
+	fSimulatedAnnealingT0 = 100.0;
+	fSimulatedAnnealingTmin = 0.1;
 }
 
 // *********************************************
@@ -1372,6 +1379,347 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 		fMinuit = 0;
 
 	return;
+}
+
+// *********************************************
+
+void BCIntegrate::FindModeSimulatedAnnealing(std::vector<double> start)
+{
+	// note: if f(x) is the function to be minimized, then
+	// f(x) := - this->LogEval(parameters)
+	
+	bool have_start = true;
+	std::vector<double> x, y, best_fit; // vectors for current state, new proposed state and best fit up to now
+	int t = 1; // time iterator
+	
+	// check start values
+	if (int(start.size()) != fNvar)
+		have_start = false;
+
+	// if no starting point is given, set to center of parameter space
+	if (have_start == false)
+	{
+		start.clear();
+		for (int i = 0; i < fNvar; i++)
+		{
+			start.push_back((fMin[i]+fMax[i])/2.);
+		}
+	}
+	
+	// set current state and best fit to starting point
+	x.clear();
+	best_fit.clear();
+	for (int i = 0; i < fNvar; i++)
+	{
+		x.push_back(start[i]);
+		best_fit.push_back(start[i]);
+	}
+	
+	// run while still "hot enough"
+	while ( this->SimulatedAnnealingTemperature(t) > fSimulatedAnnealingTmin )
+	{
+		// generate new state
+		y = this->GetProposalPointSimulatedAnnealing(x, t);
+		
+		// check if the proposed point is inside the phase space
+		// if not, reject it
+		bool is_in_ranges = true;
+		
+		for (int i = 0; i < fNvar; i++)
+		{
+			if (y[i] > fMax[i] || y[i] < fMin[i])
+			{
+				is_in_ranges = false;
+			}
+		}
+		
+		if (is_in_ranges == false)
+		{
+			// do nothing...
+		}
+		// is it better than the last one?
+		// if so, update state and chef if it is the new best fit...
+		else if (this->LogEval(y) >= this->LogEval(x))
+		{
+			x.clear();
+			for (int i = 0; i < fNvar; i++)
+			{
+				x.push_back(y[i]);
+			}
+			
+			if (this->LogEval(y) > this->LogEval(best_fit))
+			{
+				best_fit.clear();
+				for (int i = 0; i < fNvar; i++)
+				{
+					best_fit.push_back(y[i]);
+				}
+			}
+		}
+		// ...else, only accept new state w/ certain probability
+		else
+		{
+			if (fRandom->Rndm() <= exp( (this->LogEval(y) - this->LogEval(y))
+					/ this->SimulatedAnnealingTemperature(t) ))
+			{
+				x.clear();
+				for (int i = 0; i < fNvar; i++)
+				{
+					x.push_back(y[i]);
+				}
+			}
+		}
+		
+		t++;
+	}
+	
+
+	// set best fit parameters
+	fBestFitParameters.clear();
+
+	for (int i = 0; i < fNvar; i++)
+	{
+		fBestFitParameters.push_back(best_fit[i]);
+	}
+	
+	return;
+}
+
+// *********************************************
+
+double BCIntegrate::SimulatedAnnealingTemperature(double t)
+{
+	// do we have Cauchy (default) or Boltzmann annealing schedule?
+	if (this->fSimulatedAnnealingSchedule == BCIntegrate::kSABoltzmann)
+	{
+		return this->SimulatedAnnealingTemperatureBoltzmann(t);
+	}
+	else
+	{
+		return this->SimulatedAnnealingTemperatureCauchy(t);
+	}
+}
+
+// *********************************************
+
+double BCIntegrate::SimulatedAnnealingTemperatureBoltzmann(double t)
+{
+	return fSimulatedAnnealingT0 / log((double)(t + 1));
+}
+
+// *********************************************
+
+double BCIntegrate::SimulatedAnnealingTemperatureCauchy(double t)
+{
+	return fSimulatedAnnealingT0 / (double)t;
+}
+
+// *********************************************
+
+std::vector<double> BCIntegrate::GetProposalPointSimulatedAnnealing(std::vector<double> x, int t)
+{
+	// do we have Cauchy (default) or Boltzmann annealing schedule?
+	if (this->fSimulatedAnnealingSchedule == BCIntegrate::kSABoltzmann)
+	{
+		return this->GetProposalPointSABoltzmann(x, t);
+	}
+	else
+	{
+		return this->GetProposalPointSACauchy(x, t);
+	}
+}
+
+// *********************************************
+
+std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(std::vector<double> x, int t)
+{
+	std::vector<double> y;
+	double new_val, norm;
+	
+	y.clear();
+	
+	for (int i = 0; i < fNvar; i++)
+	{
+		norm = (fMax[i] - fMin[i])
+			* this->SimulatedAnnealingTemperature(t) / 2.;
+
+		new_val = x[i] + norm * fRandom->Gaus();
+			
+		y.push_back(new_val);
+	}
+	
+	return y;
+}
+
+// *********************************************
+
+std::vector<double> BCIntegrate::GetProposalPointSACauchy(std::vector<double> x, int t)
+{
+	std::vector<double> y;
+
+	y.clear();
+	
+	if (fNvar == 1)
+	{
+		double cauchy, new_val, norm;
+		
+		norm = (fMax[0] - fMin[0])
+			* this->SimulatedAnnealingTemperature(t) / 2.;
+		
+		cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
+		new_val = x[0] + norm * cauchy;
+		
+		y.push_back(new_val);
+	}
+	else
+	{
+		// use sampling to get radial n-dim Cauchy distribution
+		
+		// first generate a random point uniformly distributed on a
+		// fNvar-dimensional hypersphere
+		y = this->SAHelperGetRandomPointOnHypersphere();
+		
+		// scale the vector by a random factor determined by the radial
+		// part of the fNvar-dimensional Cauchy distribution
+		double radial;
+		
+		radial = this->SimulatedAnnealingTemperature(t)
+			* this->SAHelperGetRadialCauchy();
+		
+		// scale y by radial part and the size of dimension i in phase space
+		// afterwards, move by x
+		for (int i = 0; i < fNvar; i++)
+		{
+			y[i] = (fMax[i] - fMin[i]) * y[i] * radial / 2. + x[i];
+		}
+	}
+	
+	return y;
+}
+
+// *********************************************
+
+std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
+{
+	std::vector<double> rand_point, gauss_array;
+	double s = 0.,
+		gauss_num;
+	
+	for (int i = 0; i < fNvar; i++)
+	{
+		gauss_num = fRandom->Gaus();
+		gauss_array.push_back(gauss_num);
+		s += gauss_num * gauss_num;
+	}
+	s = sqrt(s);
+	
+	for (int i = 0; i < fNvar; i++)
+	{
+		rand_point.push_back(gauss_array[i] / s);
+	}
+	
+	return rand_point;
+}
+
+// *********************************************
+
+double BCIntegrate::SAHelperGetRadialCauchy()
+{
+	// theta is sampled from a rather complicated distribution,
+	// so first we create a lookup table with 10000 random numbers
+	// once and then, each time we need a new random number,
+	// we just look it up in the table.
+	double theta;
+	
+	// static vectors for theta-sampling-map
+	static std::vector<double> map_u (10001);
+	static std::vector<double> map_theta (10001);
+	static bool initialized = false;
+	static int map_dimension = 0;
+	
+	// is the lookup-table already initialized? if not, do it!
+	if (initialized == false || map_dimension != fNvar)
+	{
+		double init_theta,
+			init_cdf,
+			beta;
+		
+		beta = this->SAHelperSinusToNIntegral(fNvar - 1, 1.57079632679);
+		
+		for (int i = 0; i <= 10000; i++)
+		{
+			init_theta = 3.14159265 * (double)i / 5000.;
+			init_cdf = this->SAHelperSinusToNIntegral(fNvar - 1, init_theta) / beta;
+			
+			map_theta.push_back(init_theta);
+			map_u.push_back(init_cdf);
+		}
+		
+		map_dimension = fNvar;
+		initialized = true;
+	}
+	// initializing is done.
+	
+	// generate uniform random number for sampling
+	double u;
+	u = fRandom->Uniform();
+	
+	// Find the two elements just greater than and less than u
+	// using a binary search (O(log(N))).
+	int lo, up, mid;
+	
+	lo = 0;
+	up = map_u.size() - 1;
+	
+	while (up != lo)
+	{
+		mid = ((up - lo + 1) / 2) + lo;
+		
+		if (u >= map_u[mid])
+		{
+			lo = mid;
+		}
+		else
+		{
+			up = mid - 1;
+		}
+	}
+	up++;
+	
+	
+	// perform linear interpolation:
+	theta = map_theta[lo] + (u - map_u[lo]) / (map_u[up] - map_u[lo])
+		* (map_theta[up] - map_theta[lo]);
+	
+	return tan(theta);
+}
+
+// *********************************************
+
+double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
+{
+	if (dim < 1)
+	{
+		return theta;
+	}
+	else if (dim == 1)
+	{
+		return (1. - cos(theta));
+	}
+	else if (dim == 2)
+	{
+		return 0.5 * (theta - sin(theta) * cos(theta));
+	}
+	else if (dim == 3)
+	{
+		return (2. - sin(theta) * sin(theta) * cos(theta) - 2. * cos(theta)) / 3.;
+	}
+	else
+	{
+		return - pow(sin(theta), (double)(dim - 1)) * cos(theta) / (double)dim
+			+ (double)(dim - 1) / (double)dim
+			* this->SAHelperSinusToNIntegral(dim - 2, theta);
+	}
 }
 
 // *********************************************

@@ -1,3 +1,7 @@
+2009-04-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate:
+	  - added simulated annealing from C. Brachem's code.
+
 2009-05-15 Jing Liu <jingliu@mppmu.mpg.de>
 	* benchmarks/mcmc:
 	  - mv benchmark.c SamplingTest1D.cc

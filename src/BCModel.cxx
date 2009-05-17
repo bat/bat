@@ -599,7 +599,8 @@ void BCModel::FindMode(std::vector<double> start)
 	switch(this -> GetOptimizationMethod())
 	{
 		case BCIntegrate::kOptSimulatedAnnealing:
-			BCLog::OutError("BCModel::FindMode : Simulated annaeling not yet implemented");
+			// BCLog::OutError("BCModel::FindMode : Simulated annaeling not yet implemented");
+			this -> FindModeSimulatedAnnealing(start);
 			return;
 
 		case BCIntegrate::kOptMinuit:

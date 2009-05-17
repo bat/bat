@@ -61,6 +61,10 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * An enumerator for the mode finding algorithm */
 		enum BCOptimizationMethod { kOptSimulatedAnnealing, kOptMetropolis, kOptMinuit };
+		
+		/**
+		 * An enumerator for the Simulated Annealing schedule */
+		enum BCSimulatedAnnealingSchedule { kSACauchy, kSABoltzmann };
 
 		/* @} */
 
@@ -98,6 +102,11 @@ class BCIntegrate : public BCEngineMCMC
 		 * @return The mode finding method */
 		BCIntegrate::BCOptimizationMethod GetOptimizationMethod()
 			{ return fOptimizationMethod; };
+		
+		/**
+		 * @return The Simulated Annealing schedule */
+		BCIntegrate::BCSimulatedAnnealingSchedule GetSimulatedAnnealingSchedule()
+			{ return fSimulatedAnnealingSchedule; };
 
 		/**
 		 * Fills a vector of random numbers between 0 and 1 into a vector
@@ -198,6 +207,16 @@ class BCIntegrate : public BCEngineMCMC
 		 * Returns the value of the loglikelihood at the point fXmetro1 */
 		double * GetMarkovChainValue()
 			{ return &fMarkovChainValue; };
+		
+		/**
+		 * Returns the Simulated Annealing starting temperature. */
+		double GetSimulatedAnnealingT0()
+		{ return fSimulatedAnnealingT0; }
+		
+		/**
+		 * Returns the Simulated Annealing threshhold temperature. */
+		double GetSimulatedAnnealingTmin()
+		{ return fSimulatedAnnealingTmin; }
 
 		/* @} */
 
@@ -234,6 +253,11 @@ class BCIntegrate : public BCEngineMCMC
 		 * @param method The mode finding method */
 		void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
 			{ fOptimizationMethod = method; };
+		
+		/**
+		 * @param method The Simulated Annealing schedule */
+		void SetSimulatedAnnealingSchedule(BCIntegrate::BCSimulatedAnnealingSchedule schedule)
+			{ fSimulatedAnnealingSchedule = schedule; };
 
 		/**
 		 * @param niterations Number of iterations per dimension for Monte Carlo integration. */
@@ -363,6 +387,16 @@ class BCIntegrate : public BCEngineMCMC
 		 * Sets errorband histogram */
 		void SetErrorBandHisto(TH2D * h)
 			{ fErrorBandXY = h; };
+		
+		/**
+		 * @param T0 new value for Simulated Annealing starting temperature. */
+		void SetSimulatedAnnealingT0(double T0)
+		{ fSimulatedAnnealingT0 = T0; }
+		
+		/**
+		 * @param Tmin new value for Simulated Annealing threshold temperature. */
+		void SetSimulatedAnnealingTmin(double Tmin)
+		{ fSimulatedAnnealingTmin = Tmin; }
 
 		/* @} */
 
@@ -561,6 +595,74 @@ class BCIntegrate : public BCEngineMCMC
 		 * Does the mode finding using Markov Chain Monte Carlo */
 		void FindModeMCMC();
 //		void FindModeMCMC(int flag_run = 0);
+		
+		/**
+		 * Does the mode finding using Simulated Annealing. If starting point
+		 * is not specified, finding will start from the center of the
+		 * parameter space.
+		 * @param start point in parameter space from thich the mode finding is started. */
+		void FindModeSimulatedAnnealing(std::vector<double> start = std::vector<double>(0));
+		
+		/**
+		 * Temperature annealing schedule for use with Simulated Annealing.
+		 * Delegates to the appropriate method according to
+		 * fSimulatedAnnealingSchedule.
+		 * @param t iterator for lowering the temperature over time. */
+		double SimulatedAnnealingTemperature(double t);
+		
+		/**
+		 * Temperature annealing schedule for use with Simulated Annealing.
+		 * This method is used for Boltzmann annealing schedule.
+		 * @param t iterator for lowering the temperature over time. */
+		double SimulatedAnnealingTemperatureBoltzmann(double t);
+		
+		/**
+		 * Temperature annealing schedule for use with Simulated Annealing.
+		 * This method is used for Cauchy annealing schedule.
+		 * @param t iterator for lowering the temperature over time. */
+		double SimulatedAnnealingTemperatureCauchy(double t);
+		
+		/**
+		 * Generates a new state in a neighbourhood around x that is to be
+		 * accepted or rejected by the Simulated Annealing algorithm.
+		 * Delegates the generation to the appropriate method according
+		 * to fSimulatedAnnealingSchedule.
+		 * @param x last state.
+		 * @param t time iterator to determine current temperature. */
+		std::vector<double> GetProposalPointSimulatedAnnealing(std::vector<double> x, int t);
+		
+		/**
+		 * Generates a new state in a neighbourhood around x that is to be
+		 * accepted or rejected by the Simulated Annealing algorithm.
+		 * This method is used for Boltzmann annealing schedule.
+		 * @param x last state.
+		 * @param t time iterator to determine current temperature. */
+		std::vector<double> GetProposalPointSABoltzmann(std::vector<double> x, int t);
+		
+		/**
+		 * Generates a new state in a neighbourhood around x that is to be
+		 * accepted or rejected by the Simulated Annealing algorithm.
+		 * This method is used for Cauchy annealing schedule.
+		 * @param x last state.
+		 * @param t time iterator to determine current temperature. */
+		std::vector<double> GetProposalPointSACauchy(std::vector<double> x, int t);
+		
+		/**
+		 * Generates a uniform distributed random point on the surface of
+		 * a fNvar-dimensional Hypersphere.
+		 * Used as a helper to generate proposal points for Cauchy annealing. */
+		std::vector<double> SAHelperGetRandomPointOnHypersphere();
+		
+		/**
+		 * Generates the radial part of a n-dimensional Cauchy distribution.
+		 * Helper function for Cauchy annealing. */
+		double SAHelperGetRadialCauchy();
+		
+		/**
+		 * Returns the Integral of sin^dim from 0 to theta.
+		 * Helper function needed for generating Cauchy distributions. */
+		double SAHelperSinusToNIntegral(int dim, double theta);
+		
 
 		static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag);
 
@@ -605,6 +707,10 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * Current mode finding method */
 		BCIntegrate::BCOptimizationMethod fOptimizationMethod;
+		
+		/**
+		 * Current Simulated Annealing schedule */
+		BCIntegrate::BCSimulatedAnnealingSchedule fSimulatedAnnealingSchedule;
 
 		/**
 		 * Maximum number of iterations */
@@ -744,6 +850,14 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * Iteration of the MCMC */
 		int fMCMCIteration;
+		
+		/**
+		 * Starting temperature for Simulated Annealing */
+		double fSimulatedAnnealingT0;
+		
+		/**
+		 * Minimal/Threshold temperature for Simulated Annealing */
+		double fSimulatedAnnealingTmin;
 
 };
 
