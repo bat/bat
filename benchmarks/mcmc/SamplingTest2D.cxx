@@ -3,6 +3,7 @@
 //
 #include "BAT/BCAux.h"
 #include "BAT/BCLog.h"
+#include "BAT/BCModelOutput.h"
 
 #include "BCBenchmarkMCMC2D.h"
 
@@ -91,9 +92,13 @@ int main()
 	gaus2->SetParameters(1,8,3,1,8,3);
 	benchmark -> SetTestFunction(gaus2);
 
+	BCModelOutput* chainOut = new BCModelOutput(benchmark,"mcmcgaus.root");
+	chainOut->WriteMarkovChain();
+
 	// perform marginalization
 	benchmark -> MCMCSetNIterationsRun(1000000);
 	benchmark -> MarginalizeAll();
+	chainOut->Close();
 
 	// perform test
 	benchmark -> PerformTest(
