@@ -1,6 +1,7 @@
 2009-06-03 Jing Liu <jingliu@mppmu.mpg.de>
 	* benchmarks/mcmc:
 	  - added codes to test 2D MCMC sampling.
+	  - added output of chains in 2D sampling test.
 
 2009-05-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate:
