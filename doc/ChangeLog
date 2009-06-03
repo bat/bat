@@ -2,6 +2,7 @@
 	* benchmarks/mcmc:
 	  - added codes to test 2D MCMC sampling.
 	  - added output of chains in 2D sampling test.
+	  - changed to a better set of parameters for xygausn.
 
 2009-05-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate:

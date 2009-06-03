@@ -89,7 +89,7 @@ int main()
 
 	// define and set test functions: gaus(x)*gaus(y) 
 	TF2 * gaus2 = new TF2("gaus2","xygausn",xmin,xmax,ymin,ymax);
-	gaus2->SetParameters(1,8,3,1,8,3);
+	gaus2->SetParameters(1,10,1,8,2);
 	benchmark -> SetTestFunction(gaus2);
 
 	BCModelOutput* chainOut = new BCModelOutput(benchmark,"mcmcgaus.root");
