@@ -21,7 +21,7 @@ CXXFLAGS    += -I./src/ -I./ -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 GLIBS       += $(ROOTGLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 
-CXSRCS      = BCBenchmarkMCMC.cxx
+CXSRCS      = BCBenchmarkMCMC2D.cxx BCBenchmarkMCMC.cxx
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 
@@ -29,10 +29,10 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.ps *.eps *.txt *.log link.d SamplingTest1D.o benchmark2.o SamplingTest1D benchmark2
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.ps *.eps *.txt *.log link.d SamplingTest2D.o SamplingTest1D.o benchmark2.o SamplingTest2D SamplingTest1D benchmark2
 
 #all : SamplingTest1D benchmark2
-all : SamplingTest1D
+all : SamplingTest2D SamplingTest1D
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -49,7 +49,7 @@ SamplingTest1D : SamplingTest1D.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 
-benchmark2 : benchmark2.c $(CXXOBJS)
+SamplingTest2D : SamplingTest2D.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 

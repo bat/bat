@@ -1,4 +1,8 @@
-2009-04-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2009-06-03 Jing Liu <jingliu@mppmu.mpg.de>
+	* benchmarks/mcmc:
+	  - added codes to test 2D MCMC sampling.
+
+2009-05-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate:
 	  - added simulated annealing from C. Brachem's code.
 
