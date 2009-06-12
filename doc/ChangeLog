@@ -1,9 +1,21 @@
 2009-06-12 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCMath:
+	  - switched from size_t to int in LogChi2()
+	  - removed include of <cstring>
+	* BCModel:
+	  - added methods GetPvalueFromChi2NDoF(),
+	    GetPValueNDoF(), GetChi2NDoF()
+	  - adjusted PrintShortFitSummary() to use them
+	* BCGraphFitter:
+	  - use GetPvalueFromChi2NDoF()
+	  - fixed gcc warning
+
+2009-06-12 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCIntegrate:
 	  - renamed all SA methods and atributes from
 	    ...SimulatedAnnealing... to ...SA...
 	  - small updates to code formating
-	* BCMode:
+	* BCModel:
 	  - updates of the SA methods
 
 2009-06-03 Jing Liu <jingliu@mppmu.mpg.de>

@@ -245,7 +245,7 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 	// check setup
 	BCLog::Out(BCLog::detail,BCLog::detail,
 			Form("Fitting %d data points with function of %d parameters",GetNDataPoints(),GetNParameters()));
-	if(GetNDataPoints() <= GetNParameters())
+	if(GetNDataPoints() <= (int)GetNParameters())
 	{
 		BCLog::Out(BCLog::warning,BCLog::warning,
 				Form("Number of parameters (%d) lower than or equal to number of points (%d)."
@@ -264,9 +264,10 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 	// this is only valid for a product of gaussiang which is the case for
 	// the BCGraphFitter
 	this -> GetPvalueFromChi2(this -> GetBestFitParameters(), 3);
+	this -> GetPvalueFromChi2NDoF(this -> GetBestFitParameters(), 3);
 
 	// print summary to screen
-	this -> PrintShortFitSummary();
+	this -> PrintShortFitSummary(1);
 
 	return 1;
 }

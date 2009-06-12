@@ -511,12 +511,20 @@ class BCModel : public BCIntegrate
 		 *        (for data in format "x y erry" the index would be 2) */
 		double GetPvalueFromChi2(std::vector<double> par, int sigma_index);
 
+		double GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index);
+
 		BCH1D * CalculatePValue(std::vector<double> par, bool flag_histogram=false);
 
 		/*
 		 * @return The p-value */
 		double GetPValue()
 			{ return fPValue; };
+
+		double GetPValueNDoF()
+			{ return fPValueNDoF; };
+
+		double GetChi2NDoF()
+			{ return fChi2NDoF; };
 
 		/*
 		 * Set maximum number of iterations in the MCMC pre-run of the p-value
@@ -553,7 +561,7 @@ class BCModel : public BCIntegrate
 
 		/**
 		 * Prints a short summary of the fit results on the screen. */
-		void PrintShortFitSummary();
+		void PrintShortFitSummary(int chi2flag=0);
 
 		/**
 		 * Prints matrix elements of the Hessian matrix
@@ -605,6 +613,9 @@ class BCModel : public BCIntegrate
 		/**
 		 * The p-value */
 		double fPValue;
+
+		double fChi2NDoF;
+		double fPValueNDoF;
 
 		/*
 		 * Maximum number of iterations in the MCMC pre-run of the p-value

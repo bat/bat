@@ -65,12 +65,12 @@ double BCMath::ApproxBinomial(int n, int k, double p)
 
 double BCMath::LogApproxBinomial(int n, int k, double p)
 {
-	// check p 
+	// check p
 	if (p == 0)
-		return -1e99; 
+		return -1e99;
 
 	else if (p == 1)
-		return 0; 
+		return 0;
 
 	// switch parameters if n < k
 	if(n<k)
@@ -222,16 +222,16 @@ double BCMath::LogBreitWignerRel(double x, double mean, double Gamma)
 
 // ---------------------------------------------------------
 
-double BCMath::LogChi2(double x, size_t n)
+double BCMath::LogChi2(double x, int n)
 {
 	if (x<0) {
-		BCLog::OutWarning("BCMath::LogChi2 : parameter cannot be negative!");      
-		return -1e99; 
+		BCLog::OutWarning("BCMath::LogChi2 : parameter cannot be negative!");
+		return -1e99;
 	}
 
-	if (x==0 && n==1){
-		BCLog::OutWarning("BCMath::LogChi2 : returned value is infinity!");      
-		return 1e99; 
+	if (x==0 && n==1) {
+		BCLog::OutWarning("BCMath::LogChi2 : returned value is infinity!");
+		return 1e99;
 	}
 
 	double nOver2 = ((double) n)/2.;
@@ -244,8 +244,8 @@ double BCMath::LogChi2(double x, size_t n)
 double BCMath::LogVoigtian(double x, double sigma, double gamma)
 {
 	if (sigma<=0 || gamma<=0) {
-		BCLog::OutWarning("BCMath::LogVoigtian : widths are negative or zero!");      
-		return -1e99; 
+		BCLog::OutWarning("BCMath::LogVoigtian : widths are negative or zero!");
+		return -1e99;
 	}
 
 	return log(TMath::Voigt(x,sigma,gamma));

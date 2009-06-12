@@ -42,6 +42,8 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 
 	fIndex = -1;
 	fPValue = -1;
+	fPValueNDoF = -1;
+	fChi2NDoF   = -1;
 
 	fName = (char *) name;
 	flag_ConditionalProbabilityEntry = true;
@@ -66,6 +68,8 @@ BCModel::BCModel() : BCIntegrate()
 
 	fIndex = -1;
 	fPValue = -1;
+	fPValueNDoF = -1;
+	fChi2NDoF   = -1;
 
 	fName = "model";
 	fDataPointUpperBoundaries = 0;
@@ -100,7 +104,7 @@ int BCModel::GetNDataPoints()
 		npoints = fDataSet -> GetNDataPoints();
 	else
 	{
-		BCLog::OutWarning("BCModel::GetNDataPoints(). No data set defined.");
+		BCLog::OutWarning("BCModel::GetNDataPoints() : No data set defined.");
 		return ERROR_NOEVENTS;
 	}
 
@@ -1170,6 +1174,26 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 
 // ---------------------------------------------------------
 
+double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
+{
+	double ll = this -> LogLikelihood(par);
+	int n = this -> GetNDataPoints();
+	int npar = this -> GetNParameters();
+
+	double sum_sigma=0;
+	for (int i=0;i<n;i++)
+		sum_sigma += log(this -> GetDataPoint(i) -> GetValue(sigma_index));
+
+	double chi2 = -2.*(ll + (double)n/2. * log(2.*M_PI) + sum_sigma);
+
+	fChi2NDoF = chi2/double(n-npar);
+	fPValueNDoF = TMath::Prob(chi2,n-npar);
+
+	return fPValueNDoF;
+}
+
+// ---------------------------------------------------------
+
 BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 {
 	BCH1D * hist = 0;
@@ -1514,18 +1538,26 @@ void BCModel::PrintResults(const char * file)
 
 // ---------------------------------------------------------
 
-void BCModel::PrintShortFitSummary()
+void BCModel::PrintShortFitSummary(int chi2flag)
 {
 	BCLog::OutSummary("---------------------------------------------------");
-	BCLog::OutSummary(Form("Fit summary for model \'%s\':",this -> GetName().data()));
-	BCLog::OutSummary(Form("   Number of parameters = %i", this -> GetNParameters()));
+	BCLog::OutSummary(Form("Fit summary for model \'%s\':", GetName().data()));
+	BCLog::OutSummary(Form("   Number of parameters:  Npar  = %i", GetNParameters()));
+	BCLog::OutSummary(Form("   Number of data points: Ndata = %i", GetNDataPoints()));
+	BCLog::OutSummary("   Number of degrees of freedom:");
+	BCLog::OutSummary(Form("      NDoF = Ndata - Npar = %i", GetNDataPoints()-GetNParameters()));
 
 	BCLog::OutSummary("   Best fit parameters (global):");
-	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		BCLog::OutSummary(Form("      %s = %.2lf", this -> GetParameter(i) -> GetName().data(), this -> GetBestFitParameter(i)));
+	for (unsigned int i = 0; i < GetNParameters(); ++i)
+		BCLog::OutSummary(Form("      %s = %.3g", GetParameter(i) -> GetName().data(), GetBestFitParameter(i)));
 
 	BCLog::OutSummary("   Goodness-of-fit test:");
-	BCLog::OutSummary(Form("      p-value = %.2lf", this -> GetPValue()));
+	BCLog::OutSummary(Form("      p-value = %.3g", GetPValue()));
+	if(chi2flag)
+	{
+		BCLog::OutSummary(Form("      p-value corrected for NDoF = %.3g", GetPValueNDoF()));
+		BCLog::OutSummary(Form("      chi2 / NDoF = %.3g", GetChi2NDoF()));
+	}
 	BCLog::OutSummary("---------------------------------------------------");
 }
 
