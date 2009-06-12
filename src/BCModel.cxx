@@ -598,9 +598,9 @@ void BCModel::FindMode(std::vector<double> start)
 
 	switch(this -> GetOptimizationMethod())
 	{
-		case BCIntegrate::kOptSimulatedAnnealing:
+		case BCIntegrate::kOptSA:
 			// BCLog::OutError("BCModel::FindMode : Simulated annaeling not yet implemented");
-			this -> FindModeSimulatedAnnealing(start);
+			this -> FindModeSA(start);
 			return;
 
 		case BCIntegrate::kOptMinuit:
@@ -1453,7 +1453,7 @@ void BCModel::PrintResults(const char * file)
 		<< " Optimization algorithm used: ";
 	switch(this -> GetOptimizationMethod())
 	{
-		case BCIntegrate::kOptSimulatedAnnealing:
+		case BCIntegrate::kOptSA:
 			ofi << " Simulated Annealing" << std::endl;
 			break;
 		case BCIntegrate::kOptMinuit:

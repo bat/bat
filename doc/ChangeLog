@@ -1,3 +1,11 @@
+2009-06-12 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCIntegrate:
+	  - renamed all SA methods and atributes from
+	    ...SimulatedAnnealing... to ...SA...
+	  - small updates to code formating
+	* BCMode:
+	  - updates of the SA methods
+
 2009-06-03 Jing Liu <jingliu@mppmu.mpg.de>
 	* benchmarks/mcmc:
 	  - added codes to test 2D MCMC sampling.
