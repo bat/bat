@@ -1366,6 +1366,7 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 
 	bool have_start = true;
 	std::vector<double> x, y, best_fit; // vectors for current state, new proposed state and best fit up to now
+	double fval_x, fval_y, fval_best_fit; // function values at points x, y and best_fit (we save them rather than to re-calculate them every time)
 	int t = 1; // time iterator
 
 	// check start values
@@ -1388,10 +1389,13 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 		x.push_back(start[i]);
 		best_fit.push_back(start[i]);
 	}
+	// calculate function value at starting point
+	fval_x = fval_best_fit = this->LogEval(x);
 
 	// run while still "hot enough"
 	while ( this->SATemperature(t) > fSATmin )
 	{
+
 		// generate new state
 		y = this->GetProposalPointSA(x, t);
 
@@ -1405,30 +1409,42 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 		
 		if ( !is_in_ranges )
 			; // do nothing...
-		// is it better than the last one?
-		// if so, update state and chef if it is the new best fit...
-		else if (this->LogEval(y) >= this->LogEval(x))
-		{
-			x.clear();
-			for (int i = 0; i < fNvar; i++)
-				x.push_back(y[i]);
-
-			if (this->LogEval(y) > this->LogEval(best_fit))
-			{
-				best_fit.clear();
-				for (int i = 0; i < fNvar; i++)
-					best_fit.push_back(y[i]);
-			}
-		}
-		// ...else, only accept new state w/ certain probability
 		else
 		{
-			if (fRandom->Rndm() <= exp( (this->LogEval(y) - this->LogEval(y))
-					/ this->SATemperature(t) ))
+			// calculate function value at new point
+			fval_y = this->LogEval(y);
+
+			// is it better than the last one?
+			// if so, update state and chef if it is the new best fit...
+			if (fval_y >= fval_x)
 			{
 				x.clear();
 				for (int i = 0; i < fNvar; i++)
 					x.push_back(y[i]);
+
+				fval_x = fval_y;
+
+				if (fval_y > fval_best_fit)
+				{
+					best_fit.clear();
+					for (int i = 0; i < fNvar; i++)
+						best_fit.push_back(y[i]);
+					
+					fval_best_fit = fval_y;
+				}
+			}
+			// ...else, only accept new state w/ certain probability
+			else
+			{
+				if (fRandom->Rndm() <= exp( (fval_y - fval_x)
+						/ this->SATemperature(t) ))
+				{
+					x.clear();
+					for (int i = 0; i < fNvar; i++)
+						x.push_back(y[i]);
+					
+					fval_x = fval_y;
+				}
 			}
 		}
 		t++;
@@ -1578,7 +1594,7 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 		double init_theta;
 		double init_cdf;
 		double beta = this->SAHelperSinusToNIntegral(fNvar - 1, 1.57079632679);
-		
+
 		for (int i = 0; i <= 10000; i++)
 		{
 			init_theta = 3.14159265 * (double)i / 5000.;
@@ -1597,9 +1613,9 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 
 	// Find the two elements just greater than and less than u
 	// using a binary search (O(log(N))).
-	double lo = 0;
-	double up = map_u.size() - 1;
-	double mid;
+	int lo = 0;
+	int up = map_u.size() - 1;
+	int mid;
 
 	while (up != lo)
 	{

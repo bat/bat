@@ -1,3 +1,7 @@
+2009-07-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate:
+	  - bug fix in SA code rom C. Brachem. 
+
 2009-06-12 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCMath:
 	  - switched from size_t to int in LogChi2()
