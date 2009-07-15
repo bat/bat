@@ -114,6 +114,11 @@ class BCEngineMCMC
 			{ return fMCMCNIterationsMax; };
 
 		/*
+		 * @return number of iterations for a Markov chain */
+		int MCMCGetNIterationsRun()
+			{ return fMCMCNIterationsRun; };
+
+		/*
 		 * @return number of iterations needed for burn-in. These
 		 * iterations are not included in fMCMCNIterations */
 		int MCMCGetNIterationsBurnIn()
@@ -152,11 +157,6 @@ class BCEngineMCMC
 		 * of a Markov chain */
 		bool MCMCGetFlagIterationsAuto()
 			{ return fMCMCFlagIterationsAuto; };
-
-		/*
-		 * @return scale factor for the width of the trial function */
-		double MCMCGetTrialFunctionScale()
-			{ return fMCMCTrialFunctionScale; };
 
 		/*
 		 * @return scale factor for all parameters and chains */
@@ -293,11 +293,6 @@ class BCEngineMCMC
 		/* @} */
 		/** \name Setters */
 		/* @{ */
-
-		/*
-		 * Sets the scale factor for the width of the trial function. */
-		void MCMCSetTrialFunctionScale(double scale)
-			{ fMCMCTrialFunctionScale = scale; };
 
 		void MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)
 			{ fMCMCTrialFunctionScaleFactorStart = scale; };
@@ -707,10 +702,6 @@ class BCEngineMCMC
 		/*
 		 * Flag to write Markov chains to file */
 		bool fMCMCFlagWriteChainToFile;
-
-		/*
-		 * Scales the width of the trial functions by a global factor */
-		double fMCMCTrialFunctionScale;
 
 		/*
 		 * Scales the width of the trial functions by a scale factor

@@ -1398,8 +1398,9 @@ void BCModel::PrintResults(const char * file)
 		return;
 	}
 
-	// number of parameters
-	int npar = fParameterSet -> size();
+	// number of parameters and chains
+	int npar = this -> MCMCGetNParameters();
+	int nchains = this -> MCMCGetNChains(); 
 
 	// check convergence
 	bool flag_conv = ((this -> MCMCGetNIterationsConvergenceGlobal() > 0)?1:0);
@@ -1519,8 +1520,26 @@ void BCModel::PrintResults(const char * file)
 			<< std::endl;
 	ofi
 		<< " Number of chains:                       " << this -> MCMCGetNChains() << std::endl
-		<< " Number of iterations of each chain:     " << this -> MCMCGetNIterationsMax() << std::endl
-		<< std::endl;
+		<< " Number of iterations per chain:         " << this -> MCMCGetNIterationsRun() << std::endl
+		<< " Average efficiencies: " << std::endl; 
+
+	std::vector <double> efficiencies; 
+	efficiencies.assign(npar, 0.0); 
+
+	for (int ipar = 0; ipar < npar; ++ipar)
+		for (int ichain = 0; ichain < nchains; ++ichain)
+			{
+				int index = ichain * npar + ipar;
+				
+				efficiencies[ipar] += double(this -> MCMCGetNTrialsTrue().at(index)) / double(this -> MCMCGetNTrialsTrue().at(index) + this -> MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.0; 
+			}
+	
+	for (int ipar = 0; ipar < npar; ++ipar)
+		ofi
+			<< "  (" << ipar << ") Parameter \""
+			<< fParameterSet -> at(ipar) -> GetName().data() << "\": "
+			<< efficiencies.at(ipar) << "%" << std::endl; 
+	ofi << std::endl;
 
 	ofi
 		<< " -----------------------------------------------------" << std::endl

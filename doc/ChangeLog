@@ -1,3 +1,10 @@
+2009-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC:
+	  - Bug fix: efficiencies were not calculated correctly. 
+	  - Bug fix: scale factors for "normal" MCMC were not used. 
+	* BCModel:
+	  - Added efficiency information to results. 
+
 2009-07-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate:
 	  - bug fix in SA code rom C. Brachem. 

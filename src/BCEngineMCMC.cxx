@@ -212,7 +212,7 @@ void BCEngineMCMC::MCMCTrialFunction(std::vector <double> &x)
 {
 	// use uniform distribution for now
 	for (int i = 0; i < fMCMCNParameters; ++i)
-		x[i] = fMCMCTrialFunctionScale * 2.0 * (0.5 - fMCMCRandom -> Rndm());
+		x[i] = fMCMCTrialFunctionScaleFactor[i] * 2.0 * (0.5 - fMCMCRandom -> Rndm());
 }
 
 // --------------------------------------------------------
@@ -367,7 +367,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 
 		// add new trial point to old point
 		for (int i = 0; i < fMCMCNParameters; i++)
-			newp[i] += fMCMCTrialFunctionScale * x[i];
+			newp[i] += fMCMCTrialFunctionScaleFactor[i] * x[i];
 
 		// transform new point back to x space
 //		fMCMCPCA -> P2X(newp, newx, fMCMCNParameters);
@@ -485,7 +485,12 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter, bool pca)
 
 	// get proposal point
 	if (!this -> MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal, pca))
-		return false;
+		{
+			// increase counter
+			fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++;
+
+			return false;
+		}
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain];
@@ -543,7 +548,13 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, bool pca)
 
 	// get proposal point
 	if (!this -> MCMCGetProposalPointMetropolis(chain, fMCMCxLocal, pca))
-		return false;
+		{
+			// increase counter
+			for (int i = 0; i < fMCMCNParameters; ++i)
+				fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
+
+			return false;
+		}
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCLogProbx[chain];
@@ -1882,7 +1893,7 @@ void BCEngineMCMC::MCMCSetValuesQuick()
 	fMCMCNIterationsPCA       = 0;
 	fMCMCNIterationsPreRunMin = 0;
 	fMCMCFlagIterationsAuto   = false;
-	fMCMCTrialFunctionScale   = 1.0;
+	//	fMCMCTrialFunctionScale   = 1.0;
 	fMCMCFlagInitialPosition  = 1;
 	fMCMCRValueCriterion      = 0.1;
 	fMCMCRValueParametersCriterion = 0.1;
@@ -1908,7 +1919,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
 	fMCMCNIterationsPCA       = 10000;
 	fMCMCNIterationsPreRunMin = 500;
 	fMCMCFlagIterationsAuto   = false;
-	fMCMCTrialFunctionScale   = 1.0;
+	//	fMCMCTrialFunctionScale   = 1.0;
 	fMCMCFlagInitialPosition  = 1;
 	fMCMCRValueCriterion      = 0.1;
 	fMCMCRValueParametersCriterion = 0.1;
