@@ -82,6 +82,11 @@ class BCEngineMCMC
 			{ return fMCMCNChains; };
 
 		/*
+		 * @return lag of the Markov chains */ 
+		int MCMCGetNLag()
+		{ return fMCMCNLag; }; 
+
+		/*
 		 * @return number of iterations */
 		std::vector <int> MCMCGetNIterations()
 			{ return fMCMCNIterations; };
@@ -304,6 +309,11 @@ class BCEngineMCMC
 		/*
 		 * Sets the number of Markov chains which are run in parallel. */
 		void MCMCSetNChains(int n);
+
+		/*
+		 * Sets the lag of the Markov chains */ 
+		void MCMCSetNLag(int n)
+		{ fMCMCNLag = n; }; 
 
 		/*
 		 * Sets the maximum number of iterations. */
@@ -599,6 +609,10 @@ class BCEngineMCMC
 		/*
 		 * Number of Markov chains ran in parallel */
 		int fMCMCNChains;
+
+		/*
+		 * The lag for the Markov Chain */ 
+		int fMCMCNLag; 
 
 		/*
 		 * Number of total iterations of the Markov chains. The length of

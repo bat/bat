@@ -37,6 +37,8 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCEfficiencyMin        = 0.15;
 	fMCMCEfficiencyMax        = 0.50;
 	fMCMCFlagInitialPosition  = 1;
+	fMCMCNLag                 = 1; 
+
 	this -> MCMCSetValuesDefault();
 
 //	fMCMCRelativePrecisionMode = 1e-3;
@@ -1486,11 +1488,23 @@ int BCEngineMCMC::MCMCMetropolis()
 					for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 						this -> MCMCGetNewPointMetropolis(ichains, iparameters, fMCMCFlagPCA);
 
-					// update statistics
-					this -> MCMCUpdateStatistics();
+					// update search for maximum
+					this -> MCMCUpdateStatisticsCheckMaximum();
 
-					// do anything interface
-					this -> MCMCIterationInterface();
+					// check if the curret iteration is consistent with the lag
+					if (iiterations % fMCMCNLag == 0)
+						{
+							// fill histograms 
+							this -> MCMCUpdateStatisticsFillHistograms();
+
+							// write chain to file 
+							if (fMCMCFlagWriteChainToFile)
+								this -> MCMCUpdateStatisticsWriteChains();
+
+							// do anything interface
+							this -> MCMCIterationInterface();
+						}
+
 				} // end loop over all parameters
 		}
 		// if the flag is not set then run over the parameters at the same time.
@@ -1501,12 +1515,25 @@ int BCEngineMCMC::MCMCMetropolis()
 				// get new point
 				this -> MCMCGetNewPointMetropolis(ichains, false);
 
-			// update statistics
-			this -> MCMCUpdateStatistics();
-
-			// do anything interface
-			this -> MCMCIterationInterface();
+			// update search for maximum
+			this -> MCMCUpdateStatisticsCheckMaximum();
+			
+			// check if the curret iteration is consistent with the lag
+			if (iiterations % fMCMCNLag == 0)
+				{
+					// fill histograms 
+					this -> MCMCUpdateStatisticsFillHistograms();
+					
+					// write chain to file 
+					if (fMCMCFlagWriteChainToFile)
+						this -> MCMCUpdateStatisticsWriteChains();
+					
+					// do anything interface
+					this -> MCMCIterationInterface();
+				}
+			
 		}
+
 	} // end run
 
 	// print convergence status
