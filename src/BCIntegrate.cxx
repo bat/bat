@@ -1314,6 +1314,9 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 	// set function
 	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood);
 
+	// set UP for likelihood 
+	fMinuit -> SetErrorDef(0.5); 
+
 	// set print level
 	fMinuit -> SetPrintLevel(printlevel);
 
@@ -1341,6 +1344,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 
 	// set best fit parameters
 	fBestFitParameters.clear();
+	fBestFitParameterErrors.clear();
 
 	for (int i = 0; i < fNvar; i++)
 	{
@@ -1348,6 +1352,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 		double parerr;
 		fMinuit -> GetParameter(i, par, parerr);
 		fBestFitParameters.push_back(par);
+		fBestFitParameterErrors.push_back(parerr);
 	}
 
 	// delete minuit
@@ -1395,7 +1400,6 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 	// run while still "hot enough"
 	while ( this->SATemperature(t) > fSATmin )
 	{
-
 		// generate new state
 		y = this->GetProposalPointSA(x, t);
 
@@ -1452,9 +1456,13 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 
 	// set best fit parameters
 	fBestFitParameters.clear();
+	fBestFitParameterErrors.clear(); 
 
 	for (int i = 0; i < fNvar; i++)
-		fBestFitParameters.push_back(best_fit[i]);
+		{
+			fBestFitParameters.push_back(best_fit[i]);
+			fBestFitParameterErrors.push_back(0.0); 
+		}
 
 	return;
 }
@@ -1463,11 +1471,13 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 
 double BCIntegrate::SATemperature(double t)
 {
-	// do we have Cauchy (default) or Boltzmann annealing schedule?
+	// do we have Cauchy (default), Boltzmann or custom annealing schedule?
 	if (this->fSASchedule == BCIntegrate::kSABoltzmann)
 		return this->SATemperatureBoltzmann(t);
-	else
+	else if (this->fSASchedule == BCIntegrate::kSACauchy)
 		return this->SATemperatureCauchy(t);
+	else
+		return this->SATemperatureCustom(t);
 }
 
 // *********************************************
@@ -1486,13 +1496,23 @@ double BCIntegrate::SATemperatureCauchy(double t)
 
 // *********************************************
 
+double BCIntegrate::SATemperatureCustom(double t)
+{
+	BCLog::OutError("BCIntegrate::SATemperatureCustom : No custom temperature schedule defined");
+	return 0.;
+}
+
+// *********************************************
+
 std::vector<double> BCIntegrate::GetProposalPointSA(std::vector<double> x, int t)
 {
-	// do we have Cauchy (default) or Boltzmann annealing schedule?
+	// do we have Cauchy (default), Boltzmann or custom annealing schedule?
 	if (this->fSASchedule == BCIntegrate::kSABoltzmann)
 		return this->GetProposalPointSABoltzmann(x, t);
-	else
+	else if (this->fSASchedule == BCIntegrate::kSACauchy)
 		return this->GetProposalPointSACauchy(x, t);
+	else
+		return this->GetProposalPointSACustom(x, t);
 }
 
 // *********************************************
@@ -1552,6 +1572,14 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(std::vector<double> x,
 
 // *********************************************
 
+std::vector<double> BCIntegrate::GetProposalPointSACustom(std::vector<double> x, int t)
+{
+	BCLog::OutError("BCIntegrate::GetProposalPointSACustom : No custom proposal function defined");
+	return std::vector<double>(fNvar);
+}
+
+// *********************************************
+
 std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 {
 	std::vector<double> rand_point, gauss_array;
@@ -1594,7 +1622,7 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 		double init_theta;
 		double init_cdf;
 		double beta = this->SAHelperSinusToNIntegral(fNvar - 1, 1.57079632679);
-
+		
 		for (int i = 0; i <= 10000; i++)
 		{
 			init_theta = 3.14159265 * (double)i / 5000.;

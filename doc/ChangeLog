@@ -1,5 +1,10 @@
 2009-07-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
+	  - Added user-defined annealing schedule (from C. Brachem) 
+	  - Added errors on best fit parameters (from M. Corradi) 
+
+2009-07-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC:
 	  - Added lag to MCMC. Only every n_th step is used for 
 	    updating histograms, MCMC tree, etc. 
 

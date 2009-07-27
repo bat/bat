@@ -64,7 +64,7 @@ class BCIntegrate : public BCEngineMCMC
 		
 		/**
 		 * An enumerator for the Simulated Annealing schedule */
-		enum BCSASchedule { kSACauchy, kSABoltzmann };
+		enum BCSASchedule { kSACauchy, kSABoltzmann, kSACustom };
 
 		/* @} */
 
@@ -621,6 +621,13 @@ class BCIntegrate : public BCEngineMCMC
 		 * This method is used for Cauchy annealing schedule.
 		 * @param t iterator for lowering the temperature over time. */
 		double SATemperatureCauchy(double t);
+		
+		/**
+		 * Temperature annealing schedule for use with Simulated Annealing.
+		 * This is a virtual method to be overridden by a user-defined
+		 * custom temperature schedule.
+		 * @param t iterator for lowering the temperature over time. */
+		virtual double SATemperatureCustom(double t);
 
 		/**
 		 * Generates a new state in a neighbourhood around x that is to be
@@ -646,6 +653,15 @@ class BCIntegrate : public BCEngineMCMC
 		 * @param x last state.
 		 * @param t time iterator to determine current temperature. */
 		std::vector<double> GetProposalPointSACauchy(std::vector<double> x, int t);
+
+		/**
+		 * Generates a new state in a neighbourhood around x that is to be
+		 * accepted or rejected by the Simulated Annealing algorithm.
+		 * This is a virtual method to be overridden by a user-defined
+		 * custom proposal function.
+		 * @param x last state.
+		 * @param t time iterator to determine current temperature. */
+		virtual std::vector<double> GetProposalPointSACustom(std::vector<double> x, int t);
 
 		/**
 		 * Generates a uniform distributed random point on the surface of
@@ -791,8 +807,10 @@ class BCIntegrate : public BCEngineMCMC
 		TRandom3 * fRandom;
 
 		/**
-		 * A vector of best fit parameters estimated from the global probability */
+		 * A vector of best fit parameters estimated from the global
+		 * probability and the estimate on their uncertainties */
 		std::vector <double> fBestFitParameters;
+		std::vector <double> fBestFitParameterErrors;
 
 		/**
 		 * A vector of best fit parameters estimated from the marginalized probability */
