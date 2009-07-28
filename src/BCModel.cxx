@@ -1494,7 +1494,7 @@ void BCModel::PrintResults(const char * file)
 		ofi
 			<< "  (" << i << ") Parameter \""
 			<< fParameterSet -> at(i) -> GetName().data() << "\": "
-			<< fBestFitParameters.at(i) << std::endl;
+			<< fBestFitParameters.at(i) << " +- " << fBestFitParameterErrors.at(i) << std::endl;
 	ofi << std::endl;
 
 	if (fPValue >= 0.)

@@ -177,12 +177,18 @@ class BCModel : public BCIntegrate
 		double GetBestFitParameter(unsigned int index)
 			{ return fBestFitParameters[index]; };
 
+		double GetBestFitParameterError(unsigned int index)
+		{ return fBestFitParameterErrors[index]; }; 
+
 		/**
 		 * Returns the set of values of the parameters at the global mode of
 		 * the posterior pdf.
 		 * @return The best fit parameters */
 		std::vector <double> GetBestFitParameters()
 			{ return fBestFitParameters; };
+		
+		std::vector <double> GetBestFitParameterErrors() 
+			{ return fBestFitParameterErrors; }; 
 
 		/**
 		 * Returns the value of a particular parameter (defined by index) at
