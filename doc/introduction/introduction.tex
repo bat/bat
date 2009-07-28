@@ -105,7 +105,7 @@ Windows is not supported for the moment.
 
 \subsection{Dependencies}
 
-\subsubsection{\Root:} 
+\subsubsection{\Root} 
 \Root\ is an object oriented data analysis framework. You can obtain it
 from~\cite{ROOTweb}. To compile and run \bat\ you will need a \Root\
 version 5.16 or later. Please, check your Linux distribution for the
@@ -552,21 +552,39 @@ BCModel::FindMode() .
 \end{verbatim} 
 
 \noindent 
-It returns a vector of parameter values which maximize the posterior
-pdf. The implemented algorithms can be chosen with the command
+The vector of parameter values which maximizes the posterior pdf can be obtained using 
+%
+\begin{verbatim}
+std::vector <double> BCModel::GetBestFitParameters() , 
+double BCModel::GetBestFitParameter(unsigned int index) .
+\end{verbatim}
+%
+The implemented algorithms can be chosen with the command
 %
 \begin{verbatim}
 BCModel::SetOptimizationMethod(BCIntegrate::BCOptimization method) .
 \end{verbatim}
 %
-Two methods are available in the current version (\Version): 
+Three methods are available in the current version (\Version): 
 %
 \begin{itemize}
 \item \verb|BCModel::kOptMetropolis|. A sampling algorithm using the
   Metropolis alogorithm.
 \item \verb|BCModel::kOptMinuit|. An interface to the \Root\ version
   of Minuit.
+\item \verb|BCModel::kOptSA|. A Simulated Annealing algorithm. 
 \end{itemize}
+%
+If the interface to Minuit is used the estimated uncertainties on the
+parameters can be obtained using
+%
+\begin{verbatim}
+std::vector <double> BCModel::GetBestFitParameterErrors() , 
+double BCModel::GetBestFitParameterError(unsigned int index) . 
+\end{verbatim}
+%
+Settings and options of the Simulated Annealing algorithm are
+summarized in section~\ref{section:settings:SA}.
 
 % --------------------------------------------------------
 
@@ -623,7 +641,9 @@ where \verb|BCMarginalizationMethod| can be one of the following
 
 \noindent 
 Note that only Markov chains can be used if the marginalization is
-done for all parameters simultaneously. \\
+done for all parameters simultaneously. Settings and options of the
+Markov Chain Monte Carlo algorithm are summarized in
+section~\ref{section:settings:MCMC}. \\
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1055,6 +1075,7 @@ offline diagnostics of the chains.
 % -------------------------------------------------------- 
 
 \subsection{Markov Chain settings and options}
+\label{section:settings:MCMC} 
 
 The most important options for the Markov Chains are listed here. For
 further reference see the reference guide: 
@@ -1092,6 +1113,27 @@ further reference see the reference guide:
 \item \verb|BCModel::MCMCSetRValueCriterion(double r)| Set the
   $r$-value criterion for convergence of a set of chains (default:
   0.1).
+\end{itemize}
+
+% -------------------------------------------------------- 
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% -------------------------------------------------------- 
+
+\subsection{Setting and options for Simulated Annealing} 
+\label{section:settings:SA} 
+
+The most important options for the implemented Simulated Annealing
+algorithm are listed here. For further reference see the reference
+guide:
+%
+\begin{itemize}
+\item \verb|BCModel::SetSASchedule(BCModel::BCSASchedule)|. Set the
+  annealing schedule. This could be \verb|BCModel::kSACauchy|,
+  \verb|BCModel::kSABoltzmann|, \verb|BCModel::kSACustom|. 
+\item \verb|BCModel::SetSAT0(double T0)|. Set the starting
+  temperature. 
+\item \verb|BCModel::SetSATmin(double Tmin)|. Set the threshold
+  temperature. 
 \end{itemize}
 
 % -------------------------------------------------------- 

@@ -274,6 +274,12 @@ class BCEngineMCMC
 		bool MCMCGetFlagPCA()
 			{ return fMCMCFlagPCA; };
 
+
+		/*
+		 * @return the flag if MCMC has been performed or not */ 
+		bool MCMCGetFlagRun()
+		{ return fMCMCFlagRun; };
+		
 		/*
 		 * Rtrieve the tree containing the Markov chain.
 		 * @param i index of the Markov chain
@@ -726,6 +732,10 @@ class BCEngineMCMC
 		/*
 		 * Defines if a prerun has been performed or not */
 		bool fMCMCFlagPreRun;
+
+		/*
+		 * Defines if MCMC has been performed or not */ 
+		bool fMCMCFlagRun; 
 
 		/*
 		 * The intial position of each Markov chain. The length of the

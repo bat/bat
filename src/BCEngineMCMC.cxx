@@ -34,6 +34,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCNParameters          = 0;
 	fMCMCFlagWriteChainToFile = false;
 	fMCMCFlagPreRun           = false;
+	fMCMCFlagRun              = false; 
 	fMCMCEfficiencyMin        = 0.15;
 	fMCMCEfficiencyMax        = 0.50;
 	fMCMCFlagInitialPosition  = 1;
@@ -805,9 +806,6 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 							
 							fMCMCRValueParameters[iparameters] = r; 
 						}
-					// debugKK
-					//					std::cout << " here : " << W << " " << fMCMCRValueParameters[iparameters] << std::endl; 
-					
 					// set flag to false if convergence criterion is not fulfilled for the parameter 					
 					if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
 						flag_convergence = false; 
@@ -1130,9 +1128,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			fMCMCNIterationsConvergenceGlobal = -1; 
 
 			this -> MCMCUpdateStatisticsTestConvergenceAllChains();
-
-			// debugKK
-			//			std::cout << " HERE " << fMCMCRValueParameters[0] << fMCMCNTrialsTrue[0] << " " << fMCMCNTrialsFalse[0] << std::endl; 
 
 			// check convergence
 			if (fMCMCNIterationsConvergenceGlobal > 0)
@@ -1548,12 +1543,12 @@ int BCEngineMCMC::MCMCMetropolis()
 
 	// loop over all chains and find the maximum point
 	for (int i = 1; i < fMCMCNChains; ++i)
-	if (fMCMCMaximumLogProb.at(i) > probmax)
-	{
-		probmax = fMCMCMaximumLogProb.at(i);
-		probmaxindex = i;
-	}
-
+		if (fMCMCMaximumLogProb.at(i) > probmax)
+			{
+				probmax = fMCMCMaximumLogProb.at(i);
+				probmaxindex = i;
+			}
+	
 	BCLog::Out(BCLog::detail, BCLog::detail, " --> Global mode from MCMC:");
 	int ndigits = (int) log10(fMCMCNParameters);
 	for (int i = 0; i < fMCMCNParameters; ++i)
@@ -1561,8 +1556,9 @@ int BCEngineMCMC::MCMCMetropolis()
 				Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
 						i, fMCMCMaximumPoints[probmaxindex * fMCMCNParameters + i]));
 
-	// set flag
+	// set flags
 	fMCMCFlagPreRun = false;
+	fMCMCFlagRun = true; 
 
 	return 1;
 }
@@ -1838,6 +1834,9 @@ int BCEngineMCMC::MCMCInitialize()
 					fMCMCH1NBins[k], hmin2, hmax2);
 			fMCMCH2Marginalized.push_back(h2);
 		}
+
+	fMCMCFlagPreRun = false; 
+	fMCMCFlagRun = false; 
 
 	// define plot for R-value
 //	if (fMCMCNChains > 1)

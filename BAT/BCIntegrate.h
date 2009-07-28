@@ -99,9 +99,14 @@ class BCIntegrate : public BCEngineMCMC
 			{ return fMarginalizationMethod; };
 
 		/**
-		 * @return The mode finding method */
+		 * @return The current optimization method */
 		BCIntegrate::BCOptimizationMethod GetOptimizationMethod()
 			{ return fOptimizationMethod; };
+		
+		/**
+		 * @return The optimization method used to find the mode */
+		BCIntegrate::BCOptimizationMethod GetOptimizationMethodMode()
+			{ return fOptimizationMethodMode; };
 		
 		/**
 		 * @return The Simulated Annealing schedule */
@@ -723,6 +728,11 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * Current mode finding method */
 		BCIntegrate::BCOptimizationMethod fOptimizationMethod;
+
+		/**
+		 * Method with which the global mode was found (can differ from
+		 * fOptimization method in case more than one algorithm is used). */ 
+		BCIntegrate::BCOptimizationMethod fOptimizationMethodMode; 
 
 		/**
 		 * Current Simulated Annealing schedule */

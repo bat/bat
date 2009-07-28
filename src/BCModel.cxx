@@ -1408,17 +1408,9 @@ void BCModel::PrintResults(const char * file)
 	ofi
 		<< std::endl
 		<< " -----------------------------------------------------" << std::endl
-		<< " Summary of the Markov Chain Monte Carlo run" << std::endl
+		<< " Summary " << std::endl
 		<< " -----------------------------------------------------" << std::endl
 		<< std::endl;
-
-	if (!flag_conv)
-	{
-		ofi
-			<< " WARNING: the Markov Chain did not converge! Be" << std::endl
-			<< " cautious using the following results!" << std::endl
-			<< std::endl;
-	}
 
 	ofi
 		<< " Model summary" << std::endl
@@ -1437,7 +1429,16 @@ void BCModel::PrintResults(const char * file)
 	}
 	ofi << std::endl;
 
-	if (flag_conv)
+	if (!flag_conv && fMCMCFlagRun)
+	{
+		ofi
+			<< " WARNING: the Markov Chain did not converge! Be" << std::endl
+			<< " cautious using the following results!" << std::endl
+			<< std::endl;
+	}
+
+	//	if (flag_conv)
+	if ( fMCMCFlagRun )
 	{
 		ofi
 			<< " Results of the marginalization" << std::endl
@@ -1476,7 +1477,7 @@ void BCModel::PrintResults(const char * file)
 		<< " Results of the optimization" << std::endl
 		<< " ===========================" << std::endl
 		<< " Optimization algorithm used: ";
-	switch(this -> GetOptimizationMethod())
+	switch(this -> GetOptimizationMethodMode())
 	{
 		case BCIntegrate::kOptSA:
 			ofi << " Simulated Annealing" << std::endl;
@@ -1506,40 +1507,43 @@ void BCModel::PrintResults(const char * file)
 			<< std::endl;
 	}
 
-	ofi
-		<< " Status of the MCMC" << std::endl
-		<< " ==================" << std::endl
-		<< " Convergence reached: " << ((flag_conv)?"yes":"no") << std::endl;
-
-	if (flag_conv)
-		ofi << " Number of iterations until convergence: " << this -> MCMCGetNIterationsConvergenceGlobal() << std::endl;
-	else
-		ofi
-			<< " WARNING: the Markov Chain did not converge! Be\n"
-			<< " cautious using the following results!" << std::endl
-			<< std::endl;
-	ofi
-		<< " Number of chains:                       " << this -> MCMCGetNChains() << std::endl
-		<< " Number of iterations per chain:         " << this -> MCMCGetNIterationsRun() << std::endl
-		<< " Average efficiencies: " << std::endl; 
-
-	std::vector <double> efficiencies; 
-	efficiencies.assign(npar, 0.0); 
-
-	for (int ipar = 0; ipar < npar; ++ipar)
-		for (int ichain = 0; ichain < nchains; ++ichain)
-			{
-				int index = ichain * npar + ipar;
-				
-				efficiencies[ipar] += double(this -> MCMCGetNTrialsTrue().at(index)) / double(this -> MCMCGetNTrialsTrue().at(index) + this -> MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.0; 
-			}
-	
-	for (int ipar = 0; ipar < npar; ++ipar)
-		ofi
-			<< "  (" << ipar << ") Parameter \""
-			<< fParameterSet -> at(ipar) -> GetName().data() << "\": "
-			<< efficiencies.at(ipar) << "%" << std::endl; 
-	ofi << std::endl;
+	if ( fMCMCFlagRun )
+		{
+			ofi
+				<< " Status of the MCMC" << std::endl
+				<< " ==================" << std::endl
+				<< " Convergence reached: " << ((flag_conv)?"yes":"no") << std::endl;
+			
+			if (flag_conv)
+				ofi << " Number of iterations until convergence: " << this -> MCMCGetNIterationsConvergenceGlobal() << std::endl;
+			else
+				ofi
+					<< " WARNING: the Markov Chain did not converge! Be\n"
+					<< " cautious using the following results!" << std::endl
+					<< std::endl;
+			ofi
+				<< " Number of chains:                       " << this -> MCMCGetNChains() << std::endl
+				<< " Number of iterations per chain:         " << this -> MCMCGetNIterationsRun() << std::endl
+				<< " Average efficiencies: " << std::endl; 
+			
+			std::vector <double> efficiencies; 
+			efficiencies.assign(npar, 0.0); 
+			
+			for (int ipar = 0; ipar < npar; ++ipar)
+				for (int ichain = 0; ichain < nchains; ++ichain)
+					{
+						int index = ichain * npar + ipar;
+						
+						efficiencies[ipar] += double(this -> MCMCGetNTrialsTrue().at(index)) / double(this -> MCMCGetNTrialsTrue().at(index) + this -> MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.0; 
+					}
+			
+			for (int ipar = 0; ipar < npar; ++ipar)
+				ofi
+					<< "  (" << ipar << ") Parameter \""
+					<< fParameterSet -> at(ipar) -> GetName().data() << "\": "
+					<< efficiencies.at(ipar) << "%" << std::endl; 
+			ofi << std::endl;
+		}
 
 	ofi
 		<< " -----------------------------------------------------" << std::endl
@@ -1550,7 +1554,7 @@ void BCModel::PrintResults(const char * file)
 		<< "     marginalized distribution and the intervals from" << std::endl
 		<< "     m to the 16% and 84% quantiles." << std::endl
 		<< " -----------------------------------------------------" << std::endl;
-
+	
 	// close file
 //	ofi.close;
 }

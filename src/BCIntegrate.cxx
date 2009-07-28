@@ -45,6 +45,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 #endif
 	fMarginalizationMethod = BCIntegrate::kMargMetropolis;
 	fOptimizationMethod = BCIntegrate::kOptMinuit;
+	fOptimizationMethodMode = BCIntegrate::kOptMinuit; 
 
 	fNbins=100;
 
@@ -1328,12 +1329,12 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 		if(have_start)
 			starting_point = start[i];
 		fMinuit -> mnparm(i,
-				fx -> at(i) -> GetName().data(),
-				starting_point,
-				(fMax[i]-fMin[i])/100.0,
-				fMin[i],
-				fMax[i],
-				flag);
+											fx -> at(i) -> GetName().data(),
+											starting_point,
+											(fMax[i]-fMin[i])/100.0,
+											fMin[i],
+											fMax[i],
+											flag);
 	}
 
 	// do minimization
@@ -1342,22 +1343,46 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 	// copy flag
 	fMinuitErrorFlag = flag;
 
-	// set best fit parameters
-	fBestFitParameters.clear();
-	fBestFitParameterErrors.clear();
+	// check if mode found by minuit is better than previous estimation 
+	double probmax = 0; 
 
+	if ( int(fBestFitParameters.size()) == fNvar) 
+		{
+			probmax = this -> Eval( fBestFitParameters ); 
+		}
+
+	std::vector<double> tempvec; 
 	for (int i = 0; i < fNvar; i++)
-	{
-		double par;
-		double parerr;
-		fMinuit -> GetParameter(i, par, parerr);
-		fBestFitParameters.push_back(par);
-		fBestFitParameterErrors.push_back(parerr);
-	}
+		{
+			double par;
+			double parerr; 
+			fMinuit -> GetParameter(i, par, parerr);
+			tempvec.push_back(par); 
+		}
+	double probmaxminuit = this -> Eval( tempvec ); 
+	
+	// set best fit parameters
+	if (probmaxminuit > probmax) 
+		{
+			fBestFitParameters.clear();
+			fBestFitParameterErrors.clear();
+
+			for (int i = 0; i < fNvar; i++)
+				{
+					double par;
+					double parerr;
+					fMinuit -> GetParameter(i, par, parerr);
+					fBestFitParameters.push_back(par);
+					fBestFitParameterErrors.push_back(parerr);
+				}
+
+			// set optimization moethod used to find the mode 
+			fOptimizationMethodMode = BCIntegrate::kOptMinuit; 
+		}
 
 	// delete minuit
-		delete fMinuit;
-		fMinuit = 0;
+	delete fMinuit;
+	fMinuit = 0;
 
 	return;
 }
@@ -1454,14 +1479,30 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 		t++;
 	}
 
-	// set best fit parameters
-	fBestFitParameters.clear();
-	fBestFitParameterErrors.clear(); 
+	// check if mode found by minuit is better than previous estimation 
+	double probmax = 0; 
 
-	for (int i = 0; i < fNvar; i++)
+	if ( int(fBestFitParameters.size()) == fNvar) 
 		{
-			fBestFitParameters.push_back(best_fit[i]);
-			fBestFitParameterErrors.push_back(0.0); 
+			probmax = this -> Eval( fBestFitParameters ); 
+		}
+
+	double probmaxsa = this -> Eval( best_fit); 
+
+	if (probmaxsa > probmax) 
+		{
+			// set best fit parameters
+			fBestFitParameters.clear();
+			fBestFitParameterErrors.clear(); 
+
+			for (int i = 0; i < fNvar; i++)
+				{
+					fBestFitParameters.push_back(best_fit[i]);
+					fBestFitParameterErrors.push_back(0.0); 
+				}
+
+			// set optimization moethod used to find the mode 
+			fOptimizationMethodMode = BCIntegrate::kOptSA; 			
 		}
 
 	return;
@@ -1722,24 +1763,37 @@ void BCIntegrate::FindModeMCMC()
 //		this -> MCMCMetropolisPreRun();
 
 	// find global maximum
-	double probmax = (this -> MCMCGetMaximumLogProb()).at(0);
-	fBestFitParameters = this -> MCMCGetMaximumPoint(0);
+	//	double probmax = (this -> MCMCGetMaximumLogProb()).at(0);
+	
+	double probmax = 0; 
+
+	if ( int(fBestFitParameters.size()) == fNvar)
+		{
+			probmax = this -> Eval( fBestFitParameters ); 
+			//			fBestFitParameters = this -> MCMCGetMaximumPoint(0);
+		}
 
 	// loop over all chains and find the maximum point
-	for (int i = 1; i < fMCMCNChains; ++i)
+	for (int i = 0; i < fMCMCNChains; ++i)
 	{
-		double prob = (this -> MCMCGetMaximumLogProb()).at(i);
+		double prob = exp( (this -> MCMCGetMaximumLogProb()).at(i));
 
 		// copy the point into the vector
-		if (prob > probmax)
+		if (prob >= probmax)
 		{
 			probmax = prob;
 
 			fBestFitParameters.clear();
-
+			fBestFitParameterErrors.clear();
 			fBestFitParameters = this -> MCMCGetMaximumPoint(i);
+
+			for (int j = 0; j < fNvar; ++j)
+				fBestFitParameterErrors.push_back(0.0); 
+
+			fOptimizationMethodMode = BCIntegrate::kOptMetropolis; 
 		}
 	}
+
 }
 
 // *********************************************
