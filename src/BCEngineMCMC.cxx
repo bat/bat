@@ -35,6 +35,7 @@ BCEngineMCMC::BCEngineMCMC()
 	fMCMCFlagWriteChainToFile = false;
 	fMCMCFlagPreRun           = false;
 	fMCMCFlagRun              = false; 
+	fMCMCFlagFillHistograms   = true; 
 	fMCMCEfficiencyMin        = 0.15;
 	fMCMCEfficiencyMax        = 0.50;
 	fMCMCFlagInitialPosition  = 1;
@@ -727,6 +728,10 @@ void BCEngineMCMC::MCMCUpdateStatisticsCheckMaximum()
 
 void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 {
+	// check if histogramms are supposed to be filled
+	if (!fMCMCFlagFillHistograms)
+		return; 
+
 	// loop over chains
 	for (int i = 0; i < fMCMCNChains; ++i)
 	{

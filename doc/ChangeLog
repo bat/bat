@@ -1,4 +1,8 @@
-2009-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2009-07-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC:
+	  - added flag for filling marginalized distributions
+
+2009-07-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
 	  - added flag if MCMC has been run at all or not 
 	* BCModel

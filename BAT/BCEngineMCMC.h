@@ -388,6 +388,9 @@ class BCEngineMCMC
 		void MCMCSetFlagOrderParameters(bool flag)
 		{ fMCMCFlagOrderParameters = flag; };
 
+		void MCMCSetFlagFillHistograms(bool flag) 
+		{ fMCMCFlagFillHistograms = flag; }; 
+
 		/*
 		 * Sets the R-value criterion for convergence of all chains. */
 		void MCMCSetRValueCriterion(double r)
@@ -762,6 +765,10 @@ class BCEngineMCMC
 		 * Flag which controls the sequence parameters during the running
 		 * of the MCMC. */
 		bool fMCMCFlagOrderParameters;
+
+		/*
+		 * Flag which controls fill histograms during main run. */ 
+		bool fMCMCFlagFillHistograms; 
 
 		/*
 		 * The current points of each Markov chain. The length of the

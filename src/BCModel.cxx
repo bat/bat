@@ -750,6 +750,12 @@ int BCModel::MarginalizeAll()
 
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
+	if (fMCMCFlagFillHistograms == false)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::GetMarginalized. Histogram filling was switched off. Marginalized distribuions are not generated."); 
+		}
+
 //	if(fMCMCH1Marginalized.size()==0)
 //	{
 //		BCLog::Out(BCLog::warning, BCLog::warning,
@@ -1023,6 +1029,13 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 	int n=0;
 	for(int i=0;i<npar;i++)
 	{
+		// get corresponding parameter 
+		BCParameter * a = this->GetParameter(i);
+
+		// check if histogram is filled
+		if (this -> GetMarginalized(a) -> GetHistogram() -> Integral() <= 0)
+			continue;
+
 		// if current page is full, swith to new page
 		if(i!=0 && i%(hdiv*vdiv)==0)
 		{
@@ -1036,7 +1049,6 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 		// go to next pad
 		c->cd(i%(hdiv*vdiv)+1);
 
-		BCParameter * a = this->GetParameter(i);
 		this -> GetMarginalized(a) -> Draw();
 		n++;
 
@@ -1044,12 +1056,16 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 			BCLog::OutDetail(Form(" --> %d plots done",n));
 	}
 
-	c->Update();
+	if (n > 0)
+		{
+			c->Update();
 
-	// draw all the 2D distributions
-	ps->NewPage();
-	c->cd();
-	c->Clear();
+			// draw all the 2D distributions
+			ps->NewPage();
+			c->cd();
+			c->Clear();
+		}
+
 	c->Divide(hdiv,vdiv);
 
 	int k=0;
@@ -1057,6 +1073,14 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 	{
 		for(int j=i+1;j<npar;j++)
 		{
+			// get corresponding parameters 
+			BCParameter * a = this->GetParameter(i);
+			BCParameter * b = this->GetParameter(j);
+
+			// check if histogram is filled
+			if (this -> GetMarginalized(a,b) -> GetHistogram() -> Integral() <= 0)
+				continue;
+
 			// if current page is full, switch to new page
 			if(k!=0 && k%(hdiv*vdiv)==0)
 			{
@@ -1069,9 +1093,6 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 
 			// go to next pad
 			c->cd(k%(hdiv*vdiv)+1);
-
-			BCParameter * a = this->GetParameter(i);
-			BCParameter * b = this->GetParameter(j);
 
 			double meana = (a -> GetLowerLimit() + a -> GetUpperLimit()) / 2.0;
 			double deltaa = (a -> GetUpperLimit() - a -> GetLowerLimit());
@@ -1108,6 +1129,12 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 
 BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2)
 {
+	if (fMCMCFlagFillHistograms == false)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::GetMarginalized. Histogram filling was switched off. Marginalized distribuions are not generated."); 
+		}
+
 //	if(fMCMCH2Marginalized.size()==0)
 //	{
 //		BCLog::Out(BCLog::warning, BCLog::warning,
@@ -1429,6 +1456,7 @@ void BCModel::PrintResults(const char * file)
 	}
 	ofi << std::endl;
 
+	// give warning if MCMC did not converge 
 	if (!flag_conv && fMCMCFlagRun)
 	{
 		ofi
@@ -1437,8 +1465,8 @@ void BCModel::PrintResults(const char * file)
 			<< std::endl;
 	}
 
-	//	if (flag_conv)
-	if ( fMCMCFlagRun )
+	// print results of marginalization (if MCMC was run) 
+	if ( fMCMCFlagRun && fMCMCFlagFillHistograms)
 	{
 		ofi
 			<< " Results of the marginalization" << std::endl
@@ -1448,7 +1476,7 @@ void BCModel::PrintResults(const char * file)
 		for (int i = 0; i < npar; ++i)
 		{
 			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
-
+			
 			ofi
 				<< "  (" << i << ") Parameter \""
 					<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl
