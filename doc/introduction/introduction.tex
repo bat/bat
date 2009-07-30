@@ -1101,6 +1101,8 @@ further reference see the reference guide:
   to chose the initial positions (0: center of the parameter
   boundaries, 1: random positions (default), 2: user defined
   positions).
+\item \verb|BCModel::MCMCSetFlagFillHistograms(int index, bool flag)| and \\ 
+  \verb|BCModel::MCMCSetFlagFillHistograms(bool flag)|. Set flag to fill the marginalized distribution for a single or all parameters. Not filling the distributions might increase the speed of MCMC run. 
 \item \verb|BCModel::MCMCSetInitialPositions(std::vector<double> x0s)|
   and \\ 
   \verb|MCMCSetInitialPositions(std::vector< std::vector<double> > x0s)|
