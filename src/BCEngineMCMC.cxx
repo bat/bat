@@ -195,6 +195,20 @@ void BCEngineMCMC::MCMCSetInitialPositions(std::vector< std::vector<double> > x0
 }
 
 // --------------------------------------------------------
+void BCEngineMCMC::MCMCSetFlagFillHistograms(int index, bool flag)
+{
+	// check if index is within range
+	if (index < 0 || index > fMCMCNParameters)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEngineMCMC :MCMCSetFlagFillHistograms. Index out of range.");
+			return; 
+		}
+
+	// set flag
+	fMCMCFlagsFillHistograms[index] = flag; 
+}
+
+// --------------------------------------------------------
 void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector <TTree *> trees)
 {
 // clear vector
@@ -737,7 +751,8 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 	{
 		// fill each 1-dimensional histogram
 		for (int j = 0; j < fMCMCNParameters; ++j)
-			fMCMCH1Marginalized[j] -> Fill(fMCMCx[i * fMCMCNParameters + j]);
+			if (fMCMCFlagsFillHistograms.at(j))
+				fMCMCH1Marginalized[j] -> Fill(fMCMCx[i * fMCMCNParameters + j]);
 
 		// fill each 2-dimensional histogram
 		int counter = 0;
@@ -745,9 +760,10 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 		for (int j = 0; j < fMCMCNParameters; ++j)
 			for (int k = 0; k < j; ++k)
 			{
-				fMCMCH2Marginalized[counter] -> Fill(
-						fMCMCx[i * fMCMCNParameters + k],
-						fMCMCx[i * fMCMCNParameters + j]);
+				if (fMCMCFlagsFillHistograms.at(j) && fMCMCFlagsFillHistograms.at(k))
+					fMCMCH2Marginalized[counter] -> Fill(
+																							 fMCMCx[i * fMCMCNParameters + k],
+																							 fMCMCx[i * fMCMCNParameters + j]);
 				counter ++;
 			}
 	}
@@ -1668,6 +1684,9 @@ int BCEngineMCMC::MCMCAddParameter(double min, double max)
 	// add the boundaries to the corresponding vectors
 	fMCMCBoundaryMin.push_back(min);
 	fMCMCBoundaryMax.push_back(max);
+
+	// set flag for individual parameters
+	fMCMCFlagsFillHistograms.push_back(true); 
 
 	// increase the number of parameters by one
 	fMCMCNParameters++;

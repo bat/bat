@@ -388,8 +388,14 @@ class BCEngineMCMC
 		void MCMCSetFlagOrderParameters(bool flag)
 		{ fMCMCFlagOrderParameters = flag; };
 
+		/* Sets the flag for all parameters to either fill histograms or
+       not. */ 
 		void MCMCSetFlagFillHistograms(bool flag) 
 		{ fMCMCFlagFillHistograms = flag; }; 
+
+		/* Sets the flag for a single parameter to either fill histograms
+       or not. */ 
+		void MCMCSetFlagFillHistograms(int index, bool flag); 
 
 		/*
 		 * Sets the R-value criterion for convergence of all chains. */
@@ -614,6 +620,10 @@ class BCEngineMCMC
 		 * Parameter boundaries */
 		std::vector <double> fMCMCBoundaryMin;
 		std::vector <double> fMCMCBoundaryMax;
+
+		/*
+		 * Parameter flags for marginalization */ 
+		std::vector <bool> fMCMCFlagsFillHistograms; 
 
 		/*
 		 * Number of Markov chains ran in parallel */

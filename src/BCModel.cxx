@@ -1475,6 +1475,9 @@ void BCModel::PrintResults(const char * file)
 			<< " distributions:" << std::endl;
 		for (int i = 0; i < npar; ++i)
 		{
+			if (!fMCMCFlagsFillHistograms.at(i))
+				continue; 
+
 			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
 			
 			ofi

@@ -179,6 +179,7 @@ void BCIntegrate::SetParameters(BCParameterSet * par)
 	{
 		fMCMCBoundaryMin.push_back(fMin[i]);
 		fMCMCBoundaryMax.push_back(fMax[i]);
+		fMCMCFlagsFillHistograms.push_back(true); 
 	}
 
 	for (int i = int(fMCMCH1NBins.size()); i<fNvar; ++i)
