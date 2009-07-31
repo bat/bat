@@ -1,47 +1,125 @@
-README file for the BCRooInterface class
-----------------------------------------
+------------------------------------------
+ README file for the BCRooInterface class
+------------------------------------------
+
+The BCRooInterface is a model interface developped in order to allow
+running BAT (Bayesian Analysis Toolkit) from a data/pdf/prior model
+described using RooFit package that is available from ROOT.
+
+Updated documentation as well as eventual patches to the interface
+would be made available from the webpage:
+
+    http://www-ekp.physik.uni-karlsruhe.de/~schott/BCRooInterface/
 
 The following lines describe how to get the BCRooInterface to compile
-and how to run the example. ROOT 5.22 is required for this to work
-properly.
+and how to run the provided examples.
+
+
+INSTALLATION
+------------
+
+ROOT 5.24 is required for this version of the interface to work: this
+is because we are using some new features of the RooWorkspace class
+that has been added in this release of ROOT. The BCRooInterface that
+was included in BAT-0.2.1 on the other hand works using a work-around
+in case you prefer to use ROOT 5.22.
 
 Compilation of BAT: it is assumed you installed BAT according to:
-http://www.mppmu.mpg.de/bat/?page=install&version=0.2.1
+
+    http://www.mppmu.mpg.de/bat/?page=install&version=0.2.1
 
 Compilation of BCRooInterface.o and runRooInterface.exe
 
     cd models/RooInterface
     make
 
-Running the example: you need first to prepare the roodata.root file
-that contains the PDF and prior probability models.
 
-The two examples provided are:
+RUNNING (THE EXAMPLES)
+----------------------
+
+To run the interface, you need first to prepare a ROOT file that
+contains the PDF and prior probability models.
+
+The four examples are provided:
 
  - Number counting experiment in the presence of signal and
    background. The likelihood being the Poisson formula and the signal
-   prior flat. The data is transformed into a weighted dataset to make
-   the fit faster.
+   prior flat.
 
     root -q -x -l PrepareWorkspace_Poisson.C
+
+ - The same but taking the background yield as a nuisance parameter
+   with a Gaussian prior.
+
+    root -q -x -l PrepareWorkspace_Poisson_withSystematics.C
 
  - Unbinned likelihood model: The signal is assumed to have a gaussian
    PDF and the background a flat shape. The signal prior is flat.
 
     root -q -x -l PrepareWorkspace_GaussOverFlat.C
 
-Then one can use the compiled interface macro:
+ - The same but taking the background yield and the sigma of the
+   signal PDF as nuisance parameters with Gaussian priors.
 
-    ./runRooInterface.exe
+    root -q -x -l PrepareWorkspace_Poisson_withSystematics.C
 
-Notes:
- - this is a preliminary version of the interface that will be
-   improved
+Then one can use the compiled interface macro. Calling
+runRooInterface.exe without arguments will display some help
+information and proceed running with default file names. The user can
+specify 4 arguments being the name of the ROOT file that contains the
+RooWorkspace (holding the RooFit objects representing the
+data/pdf/prior/etc), the name of this workspace, the name of the PS
+file that will be used to store the resulting plots of the posterior
+probability and the number of MCMC iterations. In any case, the ROOT
+file should contain a workspace that itself contains:
+
+ - data: a RooAbsData object holding the data measurements
+ - model: a RooAbsPdf object holding the probability density function
+ - priorPOI and priorNuisance: two RooAbsPdf objects representing
+   respectively the prior probability on the parameter of interest and
+   the nuisance parameters. The final prior PDF will be a product of
+   those two distributions. This separation is done in order to be
+   able to re-use these object differently in other statistical
+   methods. In case priorPOI or priorNuisance is a null pointer only
+   the other one will be used (this way correlation between the POI
+   and other nuisance parameters can be accomodated)
+ - POI: a RooArgList holding one single object being the parameter of
+   interest (used to identify it from other nuisance parameters)
+ - parameters: a RooArgList holding all nuisance parameters
+   (used to know on which parameters, in addition to the POI, to
+   perform the MCMC; the range of those variables define the range to
+   use for the MC sampling)
+
+The interface can be run with:
+
+    ./runRooInterface.exe WS_GaussOverFlat_withSystematics.root myWS
+
+Using the default arguments would be similar to:
+
+    ./runRooInterface.exe bat_workspace.root batWS bat_plots.ps 1000000
 
 More documentation, examples and maybe an undated version of this
 interface might be available on the webpage:
 
     http://www-ekp.physik.uni-karlsruhe.de/~schott/BCRooInterface/
 
+
+LOG OF CHANGES
+--------------
+
+27/07/2009: Second version of the interface. Migration to ROOT 5.24:
+RooArgList objects can now be stored in the workspace so the temporary
+patch can be removed and the interface thus simplified. This however
+would not affect any of the results. Some changes are also introduced
+to allow specifying the name of the input ROOT file and output PS file
+from the command line. These modifications are scheduled to be
+included in the next BAT release (version > 0.2.1).
+
+07/04/2009: First version of the interface. While this preliminary
+version of the interface requires ROOT 5.22, some work-around are used
+because of missing functionalities in RooFit and most of the input
+names are hard coded so an updated/simplified version is expected in
+July. This code was added to BAT-0.2.1
+
 ----------------------------------------------------------------------------
-Provided by Gregory Schott <gregory.schott@cern.ch>
+File provided by Gregory Schott <gregory.schott@cern.ch>

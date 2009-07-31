@@ -83,7 +83,9 @@ models/RooInterface/BCRooInterface.cxx -text
 models/RooInterface/BCRooInterface.h -text
 models/RooInterface/Makefile -text
 models/RooInterface/PrepareWorkspace_GaussOverFlat.C -text
+models/RooInterface/PrepareWorkspace_GaussOverFlat_withSystematics.C -text
 models/RooInterface/PrepareWorkspace_Poisson.C -text
+models/RooInterface/PrepareWorkspace_Poisson_withSystematics.C -text
 models/RooInterface/README -text
 models/RooInterface/runRooInterface.cxx -text
 /readme.devel -text

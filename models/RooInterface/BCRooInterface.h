@@ -33,16 +33,17 @@ class BCRooInterface : public BCModel
 
 		// Other method of this class
 		void Initialize( const char* rootFile,
-		     const char* wsName = "bat_ws",
-		     const char* dataName = "fData",
-		     const char* modelName = "fModel",
-		     const char* priorName = "fPrior",
-		     const char* observablesName = "fObservables",
-		     const char* paramsName = "fParams" );
+		     const char* wsName = "batWS",
+		     const char* dataName = "data",
+		     const char* modelName = "model",
+		     const char* priorName = "priorPOI",
+		     const char* priorNuisanceName= "priorNuisance",
+		     const char* paramsName = "parameters",
+		     const char* listPOIName = "POI" );
 
 	private:
 
-		RooDataSet* fData;        // data to test
+		RooAbsData* fData;        // data to test
 		RooAbsPdf*  fModel;       // likelihood model describing the observables
 		RooNLLVar*  fNll;         // pointer to negative log-likelihood function
 		RooArgSet*  fObservables; // list of observables measured for each event

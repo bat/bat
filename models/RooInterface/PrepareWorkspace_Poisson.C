@@ -1,65 +1,72 @@
-// root -q -x -l PrepareWorkspace_Poisson.C
+// root -q -x -l 'PrepareWorkspace_Poisson.C()'
 
-void PrepareWorkspace_Poisson()
+void PrepareWorkspace_Poisson( TString fileName = "WS_Poisson.root" )
 {
+  // In this macro a PDF model is built for a counting analysis.  A
+  // certain number of events are observed (this can be enforced or
+  // left free) while a number of background events is expected.  In
+  // this macro, no systematic uncertainty is considered (see
+  // PrepareWorkspace_Poisson_withSystematics.C) The parameter of
+  // interest is the signal yield and we assume for it a flat prior.
+  // All needed objects are stored in a ROOT file (within a
+  // RooWorkspace container); this ROOT file can then be fed as input
+  // to various statistical methods.
 
-	// use a dummy observable for this counting-type analysis
-	RooRealVar* x = new RooRealVar("x","dummy discriminating variable for event count",0,0,1);
-	RooArgSet* fObservables = new RooArgSet(*x);
+  using namespace RooFit;
+  using namespace RooStats;
 
-	// signal and background PDF are flat (does not depend on the actual value of the observable)
-	RooPolynomial* sig = new RooPolynomial("sig","sig pdf",*x,RooFit::RooConst(0));
-	RooPolynomial* bkg = new RooPolynomial("bkg","bkg pdf",*x,RooFit::RooConst(0));
+  // use an observable for this shape-based analysis
+  RooRealVar* x = new RooRealVar("x","dummy discriminating variable for event count",0,0,1);
+  x->setBins(1);
+  RooArgSet* observables = new RooArgSet(*x,"observables");
 
-	// signal yield (with a range used for the integration and posterior plotting)
-	RooRealVar* nsig = new RooRealVar("S","sig yield and range",0,60);
+  // signal and background PDF are flat (they are constant whatever the actual value of the observable)
+  RooAbsPdf* sigPdf = new RooPolynomial("sigPdf","signal PDF",*x,RooFit::RooConst(0));
+  RooAbsPdf* bkgPdf = new RooPolynomial("bkgPdf","background PDF",*x,RooFit::RooConst(0));
+  
+  // S+B model: the sum of both shapes weighted with the yields
+  RooRealVar* S = new RooRealVar("S","signal yield",0,0,60);
+  RooRealVar* B = new RooRealVar("B","background yield",10);
+  RooAbsPdf* model = new RooAddPdf("model","S+B PDF",RooArgList(*sigPdf,*bkgPdf),RooArgList(*S,*B));
+  
+  // B-only model: the same as with a signal yield fixed to 0
+  RooAbsPdf* modelBkg = new RooExtendPdf("modelBkg","B-only PDF",*bkgPdf,*B);
 
-	// background yield (with a default value)
-	RooRealVar* nbkg = new RooRealVar("B","bkg yield and range",10);
+  // assume a flat prior on our parameter of interest (POI) which is the signal yield
+  RooAbsPdf* priorPOI = new RooPolynomial("priorPOI","flat prior on the POI",*S,RooFit::RooConst(0));
+  RooArgSet* POI = new RooArgSet(*S,"POI");
+  
+  // different options are shown for the data generation from the model
 
-	// total model for the signal+background PDF
-	RooAddPdf* fModel = new RooAddPdf("fModel","pdf for sig+bkg model",RooArgList(*sig,*bkg),RooArgList(*nsig,*nbkg));
+  // binned data with a fixed number of events
+//   RooAbsData* data = (RooDataHist*) model->generateBinned(*observables,S->getVal(),Name("data"));
 
-	// flat prior on the signal yield
-	RooPolynomial* fPrior = new RooPolynomial("fPrior","flat prior",*nsig,RooFit::RooConst(0));
+  // binned data with Poisson fluctuations
+//   RooAbsData* data = (RooDataHist*) model->generateBinned(*observables,Extended(),Name("data"));
+  
+  // binned without any fluctuations (average case)
+  RooAbsData* data = (RooDataHist*) model->generateBinned(*observables,Name("data"),ExpectedData());
 
-	// list of parameters of interest
-	RooArgList* fParams = new RooArgList(*nsig);
+  // control plot of the generated data
+//   RooPlot* plot = x->frame();
+//   data->plotOn(plot);
+//   plot->Draw();
 
-	// create a toy data sample assuming the measurement will be exactly at the expected background value
-	// only one entry, with a proper weight, is created to fasten the calculation in this case
-	double fNObserved = nbkg->getVal();
-	std::cout << "Creating a RooFit dataset of one event with a weight of " << fNObserved << " events\n";
-	RooDataSet* fData = new RooDataSet();
-	fData->add(RooArgSet(*x));
-	RooRealVar* weightVar = new RooRealVar("weightVar","weight variable",fNObserved);
-	fData->addColumn(*weightVar);
-	fData->setWeightVar(*weightVar);
+  // use a RooWorkspace to store the pdf models, prior informations, list of parameters,...
+  RooWorkspace myWS("myWS");
+  myWS.import(*data,Rename("data"));
+  myWS.import(*model,RecycleConflictNodes());
+  myWS.import(*modelBkg,RecycleConflictNodes());
+  myWS.import(*priorPOI,RecycleConflictNodes());
+  myWS.defineSet("observables",*observables,kTRUE);
+  myWS.defineSet("POI",*POI,kTRUE);
 
-	// set the names of the objects (hard coded in the interface so far)
-	fData->SetName("fData");
-	fObservables->setName("fObservables");
-	fParams->setName("fParams");
-	fPrior->SetName("fPrior");
-
-	// store the pdf and prior informations in a RooWorkspace
-	RooWorkspace bat_ws("bat_ws");
-	bat_ws.import(*fData);
-	bat_ws.import(*fModel);
-	bat_ws.import(*fPrior);
-
-	// store the workspace in a ROOT file
-	TString fileName = "roodata.root";
-	TFile file(fileName,"RECREATE");
-	file.cd();
-	bat_ws.Write();
-	// temporarily needed (patch)
-	fObservables->Write();
-	fParams->Write();
-	// end of patch
-	file.Write();
-	file.Close();
-
-	std::cout << "\nRooFit model initialized and stored in " << fileName << std::endl;
-
+  // store the workspace in a ROOT file  
+  TFile file(fileName,"RECREATE");
+  file.cd();
+  myWS.Write();
+  file.Write();
+  file.Close();
+  
+  std::cout << "\nRooFit model initialized and stored in " << fileName << std::endl;
 }

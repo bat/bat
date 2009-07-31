@@ -1,12 +1,13 @@
-// root -q -x -l 'PrepareWorkspace_GaussOverFlat.C()'
+// root -q -x -l 'PrepareWorkspace_Poisson_withSystematics.C()'
 
-void PrepareWorkspace_GaussOverFlat( TString fileName = "WS_GaussOverFlat.root" )
+void PrepareWorkspace_Poisson_withSystematics( TString fileName = "WS_Poisson_withSystematics.root" )
 {
-  // In this macro a PDF model is built assuming signal has a Gaussian
-  // PDF and the background a flat PDF.  The parameter of interest is
-  // the signal yield and we assume for it a flat prior.  In this
-  // macro, no systematic uncertainty is considered (see
-  // PrepareWorkspace_GaussOverFlat_withSystematics.C).  All needed
+  // In this macro a PDF model is built for a counting analysis.  A
+  // certain number of events are observed (this can be enforced or
+  // left free) while a number of background events is expected.  It
+  // is also assumed there is a systematic uncertainty on the number
+  // of expected background events.  The parameter of interest is the
+  // signal yield and we assume for it a flat prior.  All needed
   // objects are stored in a ROOT file (within a RooWorkspace
   // container); this ROOT file can then be fed as input to various
   // statistical methods.
@@ -15,30 +16,34 @@ void PrepareWorkspace_GaussOverFlat( TString fileName = "WS_GaussOverFlat.root" 
   using namespace RooStats;
 
   // use an observable for this shape-based analysis
-  RooRealVar* mass = new RooRealVar("mass","mass",0,500,"GeV/c^{2}");
-  mass->setBins(100);
-  RooArgSet* observables = new RooArgSet(*mass,"observables");
+  RooRealVar* x = new RooRealVar("x","dummy discriminating variable for event count",0,0,1);
+  x->setBins(1);
+  RooArgSet* observables = new RooArgSet(*x,"observables");
 
-  // signal (Gaussian) and background (flat) PDFs
-  RooAbsPdf* sigPdf = new RooGaussian("sigPdf","signal PDF",*mass,RooConst(200),RooConst(50));
-  RooAbsPdf* bkgPdf = new RooPolynomial("bkgPdf","background PDF",*mass,RooFit::RooConst(0));
+  // signal and background PDF are flat (they are constant whatever the actual value of the observable)
+  RooAbsPdf* sigPdf = new RooPolynomial("sigPdf","signal PDF",*x,RooFit::RooConst(0));
+  RooAbsPdf* bkgPdf = new RooPolynomial("bkgPdf","background PDF",*x,RooFit::RooConst(0));
   
   // S+B model: the sum of both shapes weighted with the yields
-  RooRealVar* S = new RooRealVar("S","signal yield",0,0,60);
-  RooRealVar* B = new RooRealVar("B","background yield",10);
+  RooRealVar* S = new RooRealVar("S","signal yield",100,0,1500);
+  RooRealVar* B = new RooRealVar("B","background yield",1000,0,3000);
   RooAbsPdf* model = new RooAddPdf("model","S+B PDF",RooArgList(*sigPdf,*bkgPdf),RooArgList(*S,*B));
   
   // B-only model: the same as with a signal yield fixed to 0
   RooAbsPdf* modelBkg = new RooExtendPdf("modelBkg","B-only PDF",*bkgPdf,*B);
+
+  // take the background yield as a nuisance parameter (assume an uncertainty of 20%)
+  RooAbsPdf* priorNuisance = new RooGaussian("priorNuisance","prior probability on B",*B,RooConst(B->getVal()),RooConst(B->getVal()*0.20));
+  RooArgSet* parameters = new RooArgSet(*B,"parameters");
 
   // assume a flat prior on our parameter of interest (POI) which is the signal yield
   RooAbsPdf* priorPOI = new RooPolynomial("priorPOI","flat prior on the POI",*S,RooFit::RooConst(0));
   RooArgSet* POI = new RooArgSet(*S,"POI");
   
   // different options are shown for the data generation from the model
-  
-  // unbinned data with Poisson fluctuations
-//   RooAbsData* data = (RooDataSet*) model->generate(*observables,RooFit::Extended(),Name("data"));
+
+  // binned data with a fixed number of events
+//   RooAbsData* data = (RooDataHist*) model->generateBinned(*observables,S->getVal(),Name("data"));
 
   // binned data with Poisson fluctuations
 //   RooAbsData* data = (RooDataHist*) model->generateBinned(*observables,Extended(),Name("data"));
@@ -47,7 +52,7 @@ void PrepareWorkspace_GaussOverFlat( TString fileName = "WS_GaussOverFlat.root" 
   RooAbsData* data = (RooDataHist*) model->generateBinned(*observables,Name("data"),ExpectedData());
 
   // control plot of the generated data
-//   RooPlot* plot = mass->frame();
+//   RooPlot* plot = x->frame();
 //   data->plotOn(plot);
 //   plot->Draw();
 
@@ -57,7 +62,9 @@ void PrepareWorkspace_GaussOverFlat( TString fileName = "WS_GaussOverFlat.root" 
   myWS.import(*model,RecycleConflictNodes());
   myWS.import(*modelBkg,RecycleConflictNodes());
   myWS.import(*priorPOI,RecycleConflictNodes());
+  myWS.import(*priorNuisance,RecycleConflictNodes());  
   myWS.defineSet("observables",*observables,kTRUE);
+  myWS.defineSet("parameters",*parameters,kTRUE);
   myWS.defineSet("POI",*POI,kTRUE);
 
   // store the workspace in a ROOT file  
