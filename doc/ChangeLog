@@ -1,3 +1,11 @@
+2009-07-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate.cxx:
+	  - modified Minuit interface to include mnseek() before minimization.
+
+2009-07-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/RooInterface
+	  - updated interface to RooStats (G. Schott) 
+
 2009-07-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
 	  - added flag for filling marginalized distributions
