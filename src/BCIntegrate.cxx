@@ -1352,10 +1352,17 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 
 	// check if mode found by minuit is better than previous estimation 
 	double probmax = 0; 
-
+	bool valid = false; 
+	
 	if ( int(fBestFitParameters.size()) == fNvar) 
 		{
-			probmax = this -> Eval( fBestFitParameters ); 
+			valid = true; 
+			for (int i = 0; i < fNvar; ++i)
+				if (fBestFitParameters.at(i) < fMin[i] || fBestFitParameters.at(i) > fMax[i]) 
+					valid= false; 
+
+			if (valid)
+				probmax = this -> Eval( fBestFitParameters ); 
 		}
 
 	std::vector<double> tempvec; 
@@ -1369,7 +1376,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 	double probmaxminuit = this -> Eval( tempvec ); 
 	
 	// set best fit parameters
-	if (probmaxminuit > probmax) 
+	if (probmaxminuit > probmax || !valid) 
 		{
 			fBestFitParameters.clear();
 			fBestFitParameterErrors.clear();
@@ -1488,15 +1495,22 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 
 	// check if mode found by minuit is better than previous estimation 
 	double probmax = 0; 
-
+	bool valid = false; 
+	
 	if ( int(fBestFitParameters.size()) == fNvar) 
 		{
-			probmax = this -> Eval( fBestFitParameters ); 
+			valid = true; 
+			for (int i = 0; i < fNvar; ++i)
+				if (fBestFitParameters.at(i) < fMin[i] || fBestFitParameters.at(i) > fMax[i]) 
+					valid= false; 
+
+			if (valid)
+				probmax = this -> Eval( fBestFitParameters ); 
 		}
 
 	double probmaxsa = this -> Eval( best_fit); 
 
-	if (probmaxsa > probmax) 
+	if (probmaxsa > probmax || !valid) 
 		{
 			// set best fit parameters
 			fBestFitParameters.clear();
