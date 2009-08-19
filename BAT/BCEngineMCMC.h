@@ -29,8 +29,6 @@ class TH1D;
 class TH2D;
 class TTree;
 class TRandom3;
-class TPrincipal;
-
 
 // ---------------------------------------------------------
 
@@ -97,12 +95,6 @@ class BCEngineMCMC
 			{ return &fMCMCNIterations; };
 
 		/*
-		 * @return number of iterations needed for each chain to
-		 * converge */
-		std::vector <int> MCMCGetNIterationsConvergenceLocal()
-			{ return fMCMCNIterationsConvergenceLocal; };
-
-		/*
 		 * @return number of iterations needed for all chains to
 		 * converge simultaneously */
 		int MCMCGetNIterationsConvergenceGlobal()
@@ -130,12 +122,6 @@ class BCEngineMCMC
 			{ return fMCMCNIterationsBurnIn; };
 
 		/*
-		 * @return number of iterations needed for PCA. These
-		 * iterations are not included in fMCMCNIterations */
-		int MCMCGetNIterationsPCA()
-			{ return fMCMCNIterationsPCA; };
-
-		/*
 		 * @returns number of accepted trials for each chain */
 		std::vector <int> MCMCGetNTrialsTrue()
 			{ return fMCMCNTrialsTrue; };
@@ -156,12 +142,6 @@ class BCEngineMCMC
 		 * the current iteration */
 		std::vector <double> MCMCGetVariance()
 			{ return fMCMCVariance; };
-
-		/*
-		 * @return flag to automatically calculate the number of iterations
-		 * of a Markov chain */
-		bool MCMCGetFlagIterationsAuto()
-			{ return fMCMCFlagIterationsAuto; };
 
 		/*
 		 * @return scale factor for all parameters and chains */
@@ -231,14 +211,6 @@ class BCEngineMCMC
 			{ return fMCMCMaximumLogProb; };
 
 		/*
-		 * @return control plots */
-		//	TH1D * MCMCGetH1RValue()
-		//	  { return fMCMCH1RValue; };
-
-		//	TH1D * MCMCGetH1Efficiency()
-		//	  { return fMCMCH1Efficiency; };
-
-		/*
 		 * @return flag which defined initial position */
 		int MCMCGetFlagInitialPosition()
 			{ return fMCMCFlagInitialPosition; };
@@ -263,17 +235,6 @@ class BCEngineMCMC
 		 * @param i parameter index */
 		double MCMCGetRValueParameters(int i)
 			{ return fMCMCRValueParameters.at(i); };
-
-		/*
-		 * @return the relative precision for the estimate of the mode */
-//		double MCMCGetPrecisionMode()
-//			{ return fMCMCRelativePrecisionMode; };
-
-		/*
-		 * @return the flag for the use of PCA */
-		bool MCMCGetFlagPCA()
-			{ return fMCMCFlagPCA; };
-
 
 		/*
 		 * @return the flag if MCMC has been performed or not */ 
@@ -305,12 +266,11 @@ class BCEngineMCMC
 		/** \name Setters */
 		/* @{ */
 
+		/*
+		 * Set the scale factors for the trial functions
+		 * @param scale a vector of doubles containing the scale factors */ 
 		void MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)
 			{ fMCMCTrialFunctionScaleFactorStart = scale; };
-
-		/*
-		 * Sets the number of parameters of the Markov chain. */
-//		void MCMCSetNParameters(int n);
 
 		/*
 		 * Sets the number of Markov chains which are run in parallel. */
@@ -342,18 +302,12 @@ class BCEngineMCMC
 			{ fMCMCNIterationsPreRunMin = n; };
 
 		/*
-		 * Sets the number of iterations needed for PCA. */
-		void MCMCSetNIterationsPCA(int n)
-			{ fMCMCNIterationsPCA = n; };
-
+		 * Sets the number of iterations in the pre-run after which an
+		 * update on the statistics (convergence, efficiency, etc.) is
+		 * done.
+		 * @param n The number of iterations.*/ 
 		void MCMCSetNIterationsUpdate(int n)
 		{ fMCMCNIterationsUpdate = n; };
-
-		/*
-		 * Sets flag to automatically calculate the number of iterations of
-		 * a Markov chain. */
-		void MCMCSetIterationsAuto(bool flag)
-			{ fMCMCFlagIterationsAuto = flag; };
 
 		/*
 		 * Sets the minimum efficiency required for a chain. */
@@ -408,30 +362,8 @@ class BCEngineMCMC
 			{ fMCMCRValueParametersCriterion = r; };
 
 		/*
-		 * Sets the relative precision for the estimate of the mode. */
-//		void MCMCSetPrecisionMode(double precision)
-//			{ fMCMCRelativePrecisionMode = precision; };
-
-		/*
-		 * Sets the flag to either perform a pre-run with PCA or not. */
-		void MCMCSetFlagPCA(bool flag)
-			{ fMCMCFlagPCA = flag; };
-
-		/*
 		 * Sets the tree containing the Markov chains. */
 		void MCMCSetMarkovChainTrees(std::vector <TTree *> trees);
-
-		/*
-		 * Set a flag to control if during the PCA the least eigenvectors
-		 * should be ignored or not. */
-		void MCMCSetFlagPCATruncate(bool flag)
-			{ fMCMCFlagPCATruncate = flag; };
-
-		/*
-		 * Sets the minimum ratio of an eigenvalue to the largest eigenvalue
-		 * below which it is ignored if fMCMCFlagPCATruncate is true. */
-		void MCMCSetPCAMinimumRatio(double ratio)
-			{ fMCMCPCAMinimumRatio = ratio; };
 
 		/* @} */
 		/** \name Miscellaneous methods */
@@ -445,85 +377,55 @@ class BCEngineMCMC
 		int MCMCAddParameter(double min, double max);
 
 		/*
-		 * Random walk trial function. The function is symmetric and
-		 * used for the Metropolis algorithm.
+		 * Random walk trial function. The default trial function is a
+		 * flat box. It can be overloaded by the user to set the trial
+		 * function.
 		 * @param x point with the dimension fMCMCNParameters */
-		void MCMCTrialFunction(std::vector <double> &x);
-		void MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x);
+		virtual void MCMCTrialFunction(std::vector <double> &x);
 
 		/*
-		 * Independent chain trial function. The function does not
-		 * have to be symmetric and is used for the
-		 * Metropolis-Hastings algorithm.
-		 * @param x point with the dimension fMCMCNParameters
-		 * @return transition probability */
-		double MCMCTrialFunctionIndependent(std::vector <double> &xnew, std::vector <double> &xold, bool newpoint);
-
-		/*
-		 * Trial function.
+		 * Random walk trial function. The default trial function is a
+		 * flat box. It can be overloaded by the user to set the trial
+		 * function.
+		 * @param ichain the chain index
+		 * @param iparameter the parameter index 
 		 * @param x point with the dimension fMCMCNParameters */
-		void MCMCTrialFunctionAuto(std::vector <double> &x);
-
-		/*
-		 * Trial function for the MCMC relative to the old point. No PCA.
-		 * @param pxold pointer to the old point. The length of the vector equals to fMCMCNParameters.
-		 * @param pxnew pointer to the new point. The length of the vector equals to fMCMCNParameters.
-		 * @param flag_compute flag which indicates whether to compute a new point (true) or to just pass the value of the function (flase)
-		 * @return value of the trial function */
-//		double MCMCTrialFunctionRelativeNoPCA(std::vector <double> * xold, std::vector<double> * xnew, bool flag_compute);
-
-		/*
-		 * not documented !!! */
-//		void MCMCGetProposalPoint(int chain, std::vector <double> xnew, std::vector <double> xold);
+		virtual void MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x);
 
 		/*
 		 * Returns a trial point for the Metropolis algorithm.
 		 * @param chain chain index
 		 * @param x proposal point
-		 * @param pca bool whether to use PCA or not
 		 * @return flag indicating whether the new point lies within the allowed range */
-		bool MCMCGetProposalPointMetropolis(int chain, std::vector <double> &x, bool pca);
+		bool MCMCGetProposalPointMetropolis(int chain, std::vector <double> &x);
 
 		/*
 		 * Returns a trial point for the Metropolis algorithm.
 		 * @param chain chain index
 		 * @param x proposal point
-		 * @param pca bool whether to use PCA or not
 		 * @return flag indicating whether the new point lies within the allowed range */
-		bool MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x, bool pca);
-
-		/*
-		 * Returns a trial point for the Metropolis algorithm.
-		 * @param chain chain index
-		 * @param x proposal point
-		 * @param pca bool whether to use PCA or not
-		 * @return flag indicating whether the new point lies within the allowed range */
-		bool MCMCGetProposalPointMetropolisHastings(int chain, std::vector <double> &xnew, std::vector <double> &xold);
-
-		/*
-		 * This method samples uniformly over the allowed parameter space.
-		 * @return new point for the PCA run */
-		void MCMCGetNewPointPCA();
-
-		/*
-		 * Generates a new point using the Metropolis algorithm.
-		 * @param chain chain index
-		 * @param pca bool whether to use PCA or not */
-		bool MCMCGetNewPointMetropolis(int chain = 0, bool pca = false);
-		bool MCMCGetNewPointMetropolis(int chain, int parameter, bool pca = false);
+		bool MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x);
 
 		/*
 		 * Generates a new point using the Metropolis algorithm.
 		 * @param chain chain index */
-		bool MCMCGetNewPointMetropolisHastings(int chain = 0);
+		bool MCMCGetNewPointMetropolis(int chain = 0);
+		bool MCMCGetNewPointMetropolis(int chain, int parameter);
 
 		/*
-		 * Updates statistics, plots, etc. */
-		void MCMCUpdateStatistics();
-		void MCMCUpdateStatisticsModeConvergence();
+		 * Updates statistics: find new maximum */
 		void MCMCUpdateStatisticsCheckMaximum();
+
+		/*
+		 * Updates statistics: fill marginalized distributions */
 		void MCMCUpdateStatisticsFillHistograms();
+
+		/*
+		 * Updates statistics: check convergence */
 		void MCMCUpdateStatisticsTestConvergenceAllChains();
+
+		/*
+		 * Updates statistics: write chains to file */
 		void MCMCUpdateStatisticsWriteChains();
 
 		/*
@@ -532,24 +434,12 @@ class BCEngineMCMC
 		virtual double LogEval(std::vector <double> parameters);
 
 		/*
-		 * Perform a run for the PCA */
-//		void MCMCPCARun();
-
-		/*
 		 * Runs Metropolis algorithm. */
 		int MCMCMetropolis();
 
 		/*
 		 * Runs a pre run for the Metropolis algorithm. */
 		int MCMCMetropolisPreRun();
-
-		/*
-		 * Runs Metropolis-Hastings algorithm. */
-		int MCMCMetropolisHastings();
-
-		/*
-		 * Performs an initial run. */
-//		void MCMCInitialRun();
 
 		/*
 		 * Resets the run statistics. */
@@ -582,15 +472,15 @@ class BCEngineMCMC
 		 * @param h pointer to an existing histogram */
 		int SetMarginalized(int index1, int index2, TH2D * h);
 
-		/**
+		/*
 		 * Set the default values for the MCMC chain. */
 		void MCMCSetValuesDefault();
 
-		/**
+		/*
 		 * Set the values for a quick MCMC run. */
 		void MCMCSetValuesQuick();
 
-		/**
+		/*
 		 * Set the values for a detailed MCMC run. */
 		void MCMCSetValuesDetail();
 
@@ -643,11 +533,6 @@ class BCEngineMCMC
 		int fMCMCNIterationsUpdate;
 
 		/*
-		 * Number of iterations needed for each chain to convergence. The
-		 * size of the vector is equal to fMCMCNChains. */
-		std::vector<int> fMCMCNIterationsConvergenceLocal;
-
-		/*
 		 * Number of iterations needed for all chains to convergence simulaneously */
 		int fMCMCNIterationsConvergenceGlobal;
 
@@ -673,34 +558,6 @@ class BCEngineMCMC
 		int fMCMCNIterationsBurnIn;
 
 		/*
-		 * Number of iterations for PCA. These iterations are not included
-		 * in FMCMCNIterations. */
-		int fMCMCNIterationsPCA;
-
-		/*
-		 * Mean values of the data in the PCA coordinate system */
-		std::vector <double> fMCMCPCAMean;
-
-		/*
-		 * Variance of the data in the PCA coordinate system */
-		std::vector <double> fMCMCPCAVariance;
-
-		/*
-		 * Flag to control if during the PCA the least eigenvectors should
-		 * be ignored or not */
-		bool fMCMCFlagPCATruncate;
-
-		/*
-		 * Minimum ratio of an eigenvalue to the largest eigenvalue below
-		 * which it is ignored if fMCMCFlagPCATruncate is true */
-		double fMCMCPCAMinimumRatio;
-
-		/*
-		 * If the least eigenvectors are ignored this is the number of
-		 * dimensions remaining */
-		int fMCMCNDimensionsPCA;
-
-		/*
 		 * Number of accepted trials and not accepted trials for each
 		 * chain. The length of the vectors is equal to fMCMCNChains *
 		 * fMCMCNParameters. For each chain these numbers add up to
@@ -715,22 +572,10 @@ class BCEngineMCMC
 		std::vector <double> fMCMCVariance;
 
 		/*
-		 * The sum and sum squared of all values of each Markov chain. These
-		 * are used to calculate the mean and variance of each chain. The
-		 * length of the vectors is equal to fMCMCNChains. */
-		std::vector <double> fMCMCSum;
-		std::vector <double> fMCMCSum2;
-
-		/*
 		 * The mean and variance of all parameters of each Markov chain. The
 		 * length of the vectors is equal to fMCMCNChains * fMCMCNParameters. */
 		std::vector <double> fMCMCMeanx;
 		std::vector <double> fMCMCVariancex;
-
-		/*
-		 * Flag to automatically calculate the number of iterations of a
-		 * Markov chain */
-		bool fMCMCFlagIterationsAuto;
 
 		/*
 		 * Flag to write Markov chains to file */
@@ -819,27 +664,12 @@ class BCEngineMCMC
 		 * The R-value at which the chains did converge */
 		double fMCMCRValue;
 
+		/* The R-values for each parameter */ 
 		std::vector <double> fMCMCRValueParameters;
-
-		/*
-		 * The relative precision for the convergence of the modes of
-		 * several chains */
-//		double fMCMCRelativePrecisionMode;
-
-//		std::vector <double> fMCMCRelativePrecisionModeValues;
-		std::vector <double> fMCMCNumericalPrecisionModeValues;
 
 		/*
 		 * Random number generator */
 		TRandom3 * fMCMCRandom;
-
-		/*
-		 * PCA */
-		TPrincipal * fMCMCPCA;
-
-		/*
-		 * Flag to perform PCA or not */
-		bool fMCMCFlagPCA;
 
 		/*
 		 * Number of bins per dimension for the marginalized distributions. */
@@ -849,11 +679,6 @@ class BCEngineMCMC
 		 * An array of marginalized distributions */
 		std::vector <TH1D *> fMCMCH1Marginalized;
 		std::vector <TH2D *> fMCMCH2Marginalized;
-
-		/*
-		 * Control plots */
-//		TH1D * fMCMCH1RValue;     // R-value
-//		TH1D * fMCMCH1Efficiency; // Efficiency of the Markov chain
 
 		/*
 		 * The trees containing the Markov chains. The length of the vector

@@ -287,15 +287,6 @@ void BCModelManager::SetNChains(unsigned int n)
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetFlagPCA(bool flag)
-{
-	// sets the flag for PCA
-	for (unsigned int i = 0; i < this -> GetNModels(); i++)
-		this -> GetModel(i) -> MCMCSetFlagPCA(flag);
-}
-
-// ---------------------------------------------------------
-
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
 	if (fModelContainer -> size() < 0)

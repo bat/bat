@@ -217,10 +217,6 @@ class BCModelManager
 		 * Sets the number of Markov chains */
 		void SetNChains(unsigned int n);
 
-		/*
-		 * Sets the flag for PCA */
-		void SetFlagPCA(bool flag);
-
 		/* @} */
 
 		/** \name Member functions (miscellaneous methods) */
