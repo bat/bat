@@ -1,4 +1,12 @@
 2009-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel.cxx:
+	  - catch if parameter exists when asking ofr index by name.
+	  - bug fix in method PrintResults(). Vector of best fit parameter could have been empty. Now checked. 
+	  - added information of quantiles to the method PrintResults(). 
+	* BCEngineMCMC:
+	  - some minor code clean-up
+	
+2009-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx:
 	  - massive code clean-up
 	  - removed PCA runs

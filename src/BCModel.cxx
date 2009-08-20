@@ -153,12 +153,11 @@ BCParameter * BCModel::GetParameter(const char * name)
 
 	if (index<0)
 	{
-		BCLog::OutWarning(
-				Form(
-						"BCModel::GetParameter : Model %s has no parameter named '%s'",
-						(this -> GetName()).data(), name
-						)
-				);
+		BCLog::OutWarning(Form(
+													 "BCModel::GetParameter : Model %s has no parameter named '%s'",
+													 (this -> GetName()).data(), name
+													 )
+											);
 		return 0;
 	}
 
@@ -750,6 +749,13 @@ int BCModel::MarginalizeAll()
 
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
+	if (!parameter)
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,
+								 "BCModel::GetMarginalized(). Parameter does not exist."); 
+			return 0; 
+		}
+
 	if (fMCMCFlagFillHistograms == false)
 		{
 			BCLog::Out(BCLog::warning, BCLog::warning,
@@ -1474,36 +1480,45 @@ void BCModel::PrintResults(const char * file)
 			<< " List of parameters and properties of the marginalized" << std::endl
 			<< " distributions:" << std::endl;
 		for (int i = 0; i < npar; ++i)
-		{
-			if (!fMCMCFlagsFillHistograms.at(i))
-				continue; 
-
-			BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
-			
-			ofi
-				<< "  (" << i << ") Parameter \""
+			{
+				if (!fMCMCFlagsFillHistograms.at(i))
+					continue; 
+				
+				BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
+				
+				ofi
+					<< "  (" << i << ") Parameter \""
 					<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl
-				<< "      Mean +- RMS:         "
+					<< "      Mean +- RMS:         "
 					<< std::setprecision(4) << bch1d -> GetMean()
 					<< " +- "
 					<< std::setprecision(4) << bch1d -> GetRMS() << std::endl
-				<< "      Median +- sigma:     "
+					<< "      Median +- sigma:     "
 					<< std::setprecision(4) << bch1d -> GetMedian()
 					<< " +  " << std::setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian()
 					<< " - " << std::setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl
-				<< "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl
-				<< "      Smallest interval(s) containing 68% and local modes:" << std::endl;
-
-			std::vector <double> v;
-			v = bch1d -> GetSmallestIntervals(0.68);
-			int ninter = int(v.size());
-
-			for (int j = 0; j < ninter; j+=5)
-				ofi << "       " << v.at(j) << " - " << v.at(j+1) << " (local mode at " << v.at(j+3) << " with rel. height " << v.at(j+2) << "; rel. area " << v.at(j+4) << ")" << std::endl;
-		}
+					<< "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl
+					<< "      Smallest interval(s) containing 68% and local modes:" << std::endl;
+				
+				std::vector <double> v;
+				v = bch1d -> GetSmallestIntervals(0.68);
+				int ninter = int(v.size());
+				
+				for (int j = 0; j < ninter; j+=5)
+					ofi << "       " << v.at(j) << " - " << v.at(j+1) << " (local mode at " << v.at(j+3) << " with rel. height " << v.at(j+2) << "; rel. area " << v.at(j+4) << ")" << std::endl;
+				
+				ofi
+					<< "       5% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.05) << std::endl 
+					<< "      10% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.10) << std::endl 
+					<< "      16% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.16) << std::endl 
+					<< "      84% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.85) << std::endl 
+					<< "      90% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.90) << std::endl 
+					<< "      95% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.95) << std::endl
+					<< std::endl;
+			}
 		ofi << std::endl;
 	}
-
+	
 	ofi
 		<< " Results of the optimization" << std::endl
 		<< " ===========================" << std::endl
@@ -1520,14 +1535,22 @@ void BCModel::PrintResults(const char * file)
 			ofi << " MCMC " << std::endl;
 			break;
 	}
-
-	ofi << " List of parameters and global mode:" << std::endl;
-	for (int i = 0; i < npar; ++i)
-		ofi
-			<< "  (" << i << ") Parameter \""
-			<< fParameterSet -> at(i) -> GetName().data() << "\": "
-			<< fBestFitParameters.at(i) << " +- " << fBestFitParameterErrors.at(i) << std::endl;
-	ofi << std::endl;
+	
+	if (int(fBestFitParameters.size()) > 0)
+		{
+			ofi << " List of parameters and global mode:" << std::endl;
+			for (int i = 0; i < npar; ++i)
+				ofi
+					<< "  (" << i << ") Parameter \""
+					<< fParameterSet -> at(i) -> GetName().data() << "\": "
+					<< fBestFitParameters.at(i) << " +- " << fBestFitParameterErrors.at(i) << std::endl;
+			ofi << std::endl;
+		}
+	else
+		{
+			ofi << " No best fit information available." << std::endl; 
+			ofi << std::endl;
+		}
 
 	if (fPValue >= 0.)
 	{

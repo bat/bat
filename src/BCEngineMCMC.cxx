@@ -19,10 +19,7 @@
 #include <TRandom3.h>
 
 #include <iostream>
-
 #include <math.h>
-
-#define DEBUG 0
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC()
@@ -62,7 +59,6 @@ BCEngineMCMC::~BCEngineMCMC()
 		if (fMCMCH2Marginalized[i])
 			delete fMCMCH2Marginalized[i];
 	fMCMCH2Marginalized.clear();
-
 }
 
 // ---------------------------------------------------------
@@ -81,6 +77,19 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 }
 
 // --------------------------------------------------------
+TH1D * BCEngineMCMC::MCMCGetH1Marginalized(int index) 
+{
+		// check index
+	if (index < 0 || index >= int(fMCMCH1Marginalized.size()))
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEngineMCMC::MCMCGetH1Marginalized. Index out of range.");
+			return 0; 
+		}
+
+	return fMCMCH1Marginalized[index]; 
+}
+
+// --------------------------------------------------------
 TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 {
 	int counter = 0;
@@ -95,6 +104,13 @@ TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 				counter++;
 			}
 	
+	// check index
+	if (index < 0 || index >= int(fMCMCH2Marginalized.size()))
+		{
+			BCLog::Out(BCLog::warning, BCLog::warning,"BCEngineMCMC::MCMCGetH2Marginalized. Index out of range.");
+			return 0; 
+		}
+
 	return fMCMCH2Marginalized[index];
 }
 
@@ -1046,7 +1062,6 @@ int BCEngineMCMC::MCMCMetropolis()
 					// do anything interface
 					this -> MCMCIterationInterface();
 				}
-			
 		}
 
 	} // end run

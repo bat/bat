@@ -252,8 +252,7 @@ class BCEngineMCMC
 		 * Retrieve a histogram of the 1D marginalized distribution of a single parameter.
 		 * @param i index of the parameter
 		 * @return pointer to the histogram */
-		TH1D * MCMCGetH1Marginalized(int i)
-			{ return fMCMCH1Marginalized[i]; };
+		TH1D * MCMCGetH1Marginalized(int i); 
 
 		/*
 		 * Retrieve a histogram of the 2D marginalized distribution for two parameters.
@@ -261,6 +260,11 @@ class BCEngineMCMC
 		 * @param j index of the second parameter
 		 * @return pointer to the histogram */
 		TH2D * MCMCGetH2Marginalized(int i, int j);
+
+		/*
+		 * Return the random number generator */ 
+		TRandom3 * MCMCGetTRandom3()
+		{ return fMCMCRandom; }; 
 
 		/* @} */
 		/** \name Setters */
@@ -328,17 +332,20 @@ class BCEngineMCMC
 		 * Sets the initial positions for all chains.
 		 * @param x0s initial positions for all chains. */
 		void MCMCSetInitialPositions(std::vector<double> x0s);
+
+		/*
+		 * Sets the initial positions for all chains.
+		 * @param x0s initial positions for all chains. */
 		void MCMCSetInitialPositions(std::vector< std::vector<double> > x0s);
 
 		/*
-		 * Sets flag which defined initial position.
-		 */
+		 * Sets flag which defines initial position.  */
 		void MCMCSetFlagInitialPosition(int flag)
 			{ fMCMCFlagInitialPosition = flag; };
 
 		/*
-		 * Sets the flag which controls the sequence parameters during the running
-		 * of the MCMC.  */
+		 * Sets the flag which controls the sequence parameters during the
+		 * running of the MCMC.  */
 		void MCMCSetFlagOrderParameters(bool flag)
 		{ fMCMCFlagOrderParameters = flag; };
 
@@ -364,6 +371,31 @@ class BCEngineMCMC
 		/*
 		 * Sets the tree containing the Markov chains. */
 		void MCMCSetMarkovChainTrees(std::vector <TTree *> trees);
+
+		/*
+		 * Sets the histogram with 1D marginalized distributions for parameter.
+		 * @param i index of the parameter
+		 * @param h pointer to an existing histogram */
+		int SetMarginalized(int index, TH1D * h);
+
+		/*
+		 * Sets the histogram with 2D marginalized distributions for two parameters.
+		 * @param index1 index of the first parameter
+		 * @param index2 index of the second parameter
+		 * @param h pointer to an existing histogram */
+		int SetMarginalized(int index1, int index2, TH2D * h);
+
+		/*
+		 * Set the default values for the MCMC chain. */
+		void MCMCSetValuesDefault();
+
+		/*
+		 * Set the values for a quick MCMC run. */
+		void MCMCSetValuesQuick();
+
+		/*
+		 * Set the values for a detailed MCMC run. */
+		void MCMCSetValuesDetail();
 
 		/* @} */
 		/** \name Miscellaneous methods */
@@ -454,35 +486,11 @@ class BCEngineMCMC
 		int MCMCInitialize();
 
 		/*
-		 * Interface allowing to execute arbitrary code for each iteration of the MCMC.
-		 * This method needs to be overloaded in the derived class. */
+		 * Interface allowing to execute arbitrary code for each iteration
+		 * of the MCMC.  This method needs to be overloaded in the derived
+		 * class. */
 		virtual void MCMCIterationInterface()
 			{};
-
-		/*
-		 * Sets the histogram with 1D marginalized distributions for parameter.
-		 * @param i index of the parameter
-		 * @param h pointer to an existing histogram */
-		int SetMarginalized(int index, TH1D * h);
-
-		/*
-		 * Sets the histogram with 2D marginalized distributions for two parameters.
-		 * @param index1 index of the first parameter
-		 * @param index2 index of the second parameter
-		 * @param h pointer to an existing histogram */
-		int SetMarginalized(int index1, int index2, TH2D * h);
-
-		/*
-		 * Set the default values for the MCMC chain. */
-		void MCMCSetValuesDefault();
-
-		/*
-		 * Set the values for a quick MCMC run. */
-		void MCMCSetValuesQuick();
-
-		/*
-		 * Set the values for a detailed MCMC run. */
-		void MCMCSetValuesDetail();
 
 		/* @} */
 
@@ -533,7 +541,8 @@ class BCEngineMCMC
 		int fMCMCNIterationsUpdate;
 
 		/*
-		 * Number of iterations needed for all chains to convergence simulaneously */
+		 * Number of iterations needed for all chains to convergence
+		 * simulaneously */
 		int fMCMCNIterationsConvergenceGlobal;
 
 		/*
@@ -558,23 +567,33 @@ class BCEngineMCMC
 		int fMCMCNIterationsBurnIn;
 
 		/*
-		 * Number of accepted trials and not accepted trials for each
-		 * chain. The length of the vectors is equal to fMCMCNChains *
-		 * fMCMCNParameters. For each chain these numbers add up to
-		 * fMCMCNIterations. */
+		 * Number of accepted trials for each chain. The length of the
+		 * vector is equal to fMCMCNChains * fMCMCNParameters.  */
 		std::vector<int> fMCMCNTrialsTrue;
+
+		/*
+		 * Number of not accepted trials for each chain. The length of the
+		 * vector is equal to fMCMCNChains * fMCMCNParameters.  */
 		std::vector<int> fMCMCNTrialsFalse;
 
 		/*
-		 * The mean and variance of all values of each Markov chain. The
-		 * length of the vectors is equal to fMCMCNChains. */
+		 * The mean of all log prob values of each Markov chain. The
+		 * length of the vector is equal to fMCMCNChains. */
 		std::vector <double> fMCMCMean;
+
+		/*
+		 * The variance of all log prob values of each Markov chain. The
+		 * length of the vector is equal to fMCMCNChains. */
 		std::vector <double> fMCMCVariance;
 
 		/*
-		 * The mean and variance of all parameters of each Markov chain. The
-		 * length of the vectors is equal to fMCMCNChains * fMCMCNParameters. */
+		 * The mean of all parameters of each Markov chain. The length of
+		 * the vector is equal to fMCMCNChains * fMCMCNParameters. */
 		std::vector <double> fMCMCMeanx;
+
+		/*
+		 * The variance of all parameters of each Markov chain. The length
+		 * of the vector is equal to fMCMCNChains * fMCMCNParameters. */
 		std::vector <double> fMCMCVariancex;
 
 		/*
@@ -582,9 +601,13 @@ class BCEngineMCMC
 		bool fMCMCFlagWriteChainToFile;
 
 		/*
-		 * Scales the width of the trial functions by a scale factor
-		 * for each parameter and chain */
+		 * Scales the width of the trial functions by a scale factor for
+		 * each parameter and chain */
 		std::vector <double> fMCMCTrialFunctionScaleFactor;
+
+
+		/*
+		 * Start values of the scale factors for the trial functions. */
 		std::vector <double> fMCMCTrialFunctionScaleFactorStart;
 
 		/*
@@ -603,11 +626,11 @@ class BCEngineMCMC
 		std::vector <double> fMCMCInitialPosition;
 
 		/*
-		 * Minimum efficiency for MCMC */
+		 * The minimum required efficiency for MCMC */
 		double fMCMCEfficiencyMin;
 
 		/*
-		 * Maximum efficiency for MCMC */
+		 * The maximum allowed efficiency for MCMC */
 		double fMCMCEfficiencyMax;
 
 		/*
