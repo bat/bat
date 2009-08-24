@@ -2,6 +2,10 @@
 	* BCEngineMCMC:
 	  - minor change for the lag.
 
+2009-08-21 Jing Liu <jingliu@mppmu.mpg.de>
+	* benchmarks/mcmc/ChainProperties.C:
+	  - added a simple ROOT script to study properties of Markov Chain
+
 2009-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel.cxx:
 	  - catch if parameter exists when asking ofr index by name.
