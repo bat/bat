@@ -1,3 +1,7 @@
+2009-08-24 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC:
+	  - minor change for the lag.
+
 2009-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel.cxx:
 	  - catch if parameter exists when asking ofr index by name.

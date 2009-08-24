@@ -1023,7 +1023,7 @@ int BCEngineMCMC::MCMCMetropolis()
 					this -> MCMCUpdateStatisticsCheckMaximum();
 
 					// check if the current iteration is consistent with the lag
-					if ( (fMCMCNParameters * iiterations + iparameters) % fMCMCNLag == 0)
+					if ( (fMCMCNParameters * iiterations + iparameters) % (fMCMCNLag * fMCMCNParameters) == 0)
 						{
 							// fill histograms 
 							this -> MCMCUpdateStatisticsFillHistograms();
