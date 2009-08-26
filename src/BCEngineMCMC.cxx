@@ -200,11 +200,15 @@ void BCEngineMCMC::Copy(BCEngineMCMC & enginemcmc) const
 {}
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCTrialFunction(std::vector <double> &x)
+void BCEngineMCMC::MCMCTrialFunction(int chain, std::vector <double> &x)
 {
 	// use uniform distribution for now
+	//	for (int i = 0; i < fMCMCNParameters; ++i)
+		//		x[i] = fMCMCTrialFunctionScaleFactor[i] * 2.0 * (0.5 - fMCMCRandom -> Rndm());
+
+	// Breit-Wigner with adjustable width 
 	for (int i = 0; i < fMCMCNParameters; ++i)
-		x[i] = fMCMCTrialFunctionScaleFactor[i] * 2.0 * (0.5 - fMCMCRandom -> Rndm());
+		x[i] = fMCMCRandom -> BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[chain * fMCMCNParameters + i]);
 }
 
 // --------------------------------------------------------
@@ -213,7 +217,10 @@ void BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter, std::vect
 	// no check of range for performance reasons
 
 	// use uniform distribution
-	x[iparameter] = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fMCMCRandom -> Rndm());
+	//	x[iparameter] = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fMCMCRandom -> Rndm());
+
+	// Breit-Wigner width adjustable width 
+	x[iparameter] = fMCMCRandom -> BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]); 
 }
 
 // --------------------------------------------------------
@@ -295,7 +302,7 @@ double BCEngineMCMC::MCMCGetLogProbx(int ichain)
 bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double> &x)
 {
 	// get unscaled random point. this point might not be in the correct volume.
-	this -> MCMCTrialFunction(x);
+	this -> MCMCTrialFunction(chain, x);
 
 	// get a proposal point from the trial function and scale it
 	for (int i = 0; i < fMCMCNParameters; ++i)

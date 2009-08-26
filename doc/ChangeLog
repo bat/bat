@@ -1,3 +1,7 @@
+2009-08-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC:
+	  - Set Breit-Wigner distribution as default trial function. 
+
 2009-08-24 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
 	  - minor change for the lag.
