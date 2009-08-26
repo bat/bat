@@ -1117,6 +1117,25 @@ further reference see the reference guide:
   0.1).
 \end{itemize}
 
+\paragraph{Proposal function} 
+
+The proposal function is set to a Breit-Wigner function per
+default. The width of the Breit-Wigner is adjusted during the pre-run
+to match the required efficiency of the sampling. The user can
+overload the method
+%
+\begin{verbatim}
+void BCEngineMCMC::MCMCTrialFunction(int chain, std::vector <double> &x) 
+void BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, 
+                                           int iparameter, 
+                                           std::vector <double> &x)
+\end{verbatim}
+
+The first method is used in the case of unordered sampling, the second
+one for ordered sampling. The vector $\verb|x|$ is filled with a
+random number prefereably in the range of 0~to~1. The numbers will be
+scaled to the valied parameter range. \\
+
 % -------------------------------------------------------- 
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % -------------------------------------------------------- 
