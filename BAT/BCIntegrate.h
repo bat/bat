@@ -223,6 +223,18 @@ class BCIntegrate : public BCEngineMCMC
 		double GetSATmin()
 			{ return fSATmin; }
 
+		double * GetSAP2Temperature()
+			{ return &fSATemperature; };
+
+		double * GetSAP2LogProb()
+			{ return &fSALogProb; }; 
+		
+		std::vector<double> * GetSAP2x()
+			{ return &fSAx; }; 
+
+		int * GetSAP2NIterations()
+			{ return &fSANIterations; };
+
 		/* @} */
 
 		/** \name Member functions (set) */
@@ -402,6 +414,14 @@ class BCIntegrate : public BCEngineMCMC
 		 * @param Tmin new value for Simulated Annealing threshold temperature. */
 		void SetSATmin(double Tmin)
 			{ fSATmin = Tmin; }
+
+		void SetFlagWriteSAToFile(bool flag)
+		{ fFlagWriteSAToFile = flag; }; 
+
+		/*
+		 * Sets the tree containing the Markov chains. */
+		void SetSATree(TTree* tree)
+		{ fTreeSA = tree; };
 
 		/* @} */
 
@@ -584,6 +604,8 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * Initializes the Metropolis algorithm (for details see manual) */
 		void InitMetro();
+
+		void SAInitialize(); 
 
 		/**
 		 * Does the mode finding */
@@ -886,6 +908,19 @@ class BCIntegrate : public BCEngineMCMC
 		/**
 		 * Minimal/Threshold temperature for Simulated Annealing */
 		double fSATmin;
+
+		/**
+		 * Tree for the Simulated Annealing */ 
+		TTree * fTreeSA; 
+
+		/**
+		 * Flag deciding whether to write SA to file or not. */
+		bool fFlagWriteSAToFile; 
+
+		int fSANIterations; 
+		double fSATemperature; 
+		double fSALogProb; 
+		std::vector<double> fSAx; 
 
 };
 

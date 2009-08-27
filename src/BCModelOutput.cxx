@@ -22,6 +22,8 @@
 #include <TH1D.h>
 #include <TString.h>
 
+#include <iostream.h>
+
 // ---------------------------------------------------------
 
 BCModelOutput::BCModelOutput()
@@ -31,6 +33,7 @@ BCModelOutput::BCModelOutput()
 	fOutputFile = 0;
 	fMarkovChainTree = 0;
 	fAnalysisTree = 0;
+	fTreeSA = 0; 
 	fModel = 0;
 	fOutputFile = 0;
 }
@@ -50,10 +53,12 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 	fModel = model;
 
 	fModel -> MCMCInitialize();
+	fModel -> SAInitialize(); 
 
 	// initialize trees
 	this -> InitializeAnalysisTree();
 	this -> InitializeMarkovChainTrees();
+	this -> InitializeSATree(); 
 
 	// change again to the old directory
 	gDirectory = dir;
@@ -259,13 +264,9 @@ void BCModelOutput::Close()
 		if (fMarkovChainTrees[i] -> GetEntries() > 0)
 			fMarkovChainTrees[i] -> Write();
 
-	// write control plots to file
-
-	//	if (fModel -> MCMCGetH1RValue())
-	//	  fModel -> MCMCGetH1RValue() -> Write();
-
-	//	if (fModel -> MCMCGetH1Efficiency())
-	//	  fModel -> MCMCGetH1Efficiency() -> Write();
+	// write SA tree to file 
+	if (fTreeSA -> GetEntries() > 0)
+		fTreeSA -> Write(); 
 
 	// close file
 	fOutputFile -> Close();
@@ -336,7 +337,30 @@ void BCModelOutput::InitializeMarkovChainTrees()
 }
 
 // ---------------------------------------------------------
+void BCModelOutput::InitializeSATree()
+{
+	fTreeSA = new TTree("SATree", "SATree"); 
 
+	// connect pointer to parameter vectors
+	fSAIteration     = fModel -> GetSAP2NIterations(); 
+	fSATemperature   = fModel -> GetSAP2Temperature(); 
+	fSALogProb       = fModel -> GetSAP2LogProb(); 
+	fSAParameters    = fModel -> GetSAP2x(); 
+	fSANParameters   = fModel -> GetNParameters(); 
+
+	fTreeSA -> Branch("Iteration",    fSAIteration,   "iteration/I");
+	fTreeSA -> Branch("NParameters", &fSANParameters, "parameters/I");
+	fTreeSA -> Branch("Temperature",  fSATemperature, "temperature/D"); 
+	fTreeSA -> Branch("LogProb",      fSALogProb,     "log probability/D"); 
+	for (int j = 0; j <  fModel -> MCMCGetNParameters(); ++j)
+		fTreeSA -> Branch(TString::Format("Parameter%i", j),
+											&(*fSAParameters)[j], 
+											TString::Format("parameter %i/D", j)); 
+
+	fModel -> SetSATree(fTreeSA);
+}
+
+// ---------------------------------------------------------
 void BCModelOutput::Copy(BCModelOutput & modeloutput) const
 {
 	// don't copy the content

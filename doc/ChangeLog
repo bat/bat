@@ -1,3 +1,7 @@
+2009-08-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModelOutput.cxx:
+	  Added output of simulated annealing to ROOT file
+
 2009-08-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/introduction/introduction.tex: 
 	  update introduction.

@@ -76,6 +76,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fSAT0 = 100.0;
 	fSATmin = 0.1;
 	fSASchedule = BCIntegrate::kSACauchy;
+	fFlagWriteSAToFile = false; 
 }
 
 // *********************************************
@@ -116,6 +117,7 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 	
 	fSAT0 = 100.0;
 	fSATmin = 0.1;
+	fTreeSA = false; 
 }
 
 // *********************************************
@@ -1490,6 +1492,20 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 				}
 			}
 		}
+
+		// update tree variables 
+		fSANIterations = t; 
+		fSATemperature = this -> SATemperature(t); 
+		fSALogProb = fval_x; 
+		fSAx.clear(); 
+		for (int i = 0; i < fNvar; ++i)
+			fSAx.push_back(x[i]); 
+
+		// fill tree
+		if (fFlagWriteSAToFile)
+			fTreeSA -> Fill(); 
+
+		// increate t 
 		t++;
 	}
 
@@ -2074,6 +2090,13 @@ void BCIntegrate::MCMCFillErrorBand()
 			xvec.clear();
 		}
 	}
+}
+
+// *********************************************
+void BCIntegrate::SAInitialize()
+{
+	fSAx.clear(); 
+	fSAx.assign(fNvar, 0.0); 
 }
 
 // *********************************************

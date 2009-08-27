@@ -150,6 +150,10 @@ class BCModelOutput
 		void InitializeMarkovChainTrees();
 
 		/**
+		 * Initialize SA TTree. */ 
+		void InitializeSATree(); 
+
+		/**
 		 * Pointer to the TTree containing the summary output information. */
 		TTree * fAnalysisTree;
 
@@ -161,6 +165,10 @@ class BCModelOutput
 		 * The trees containing the Markov chains. The length of the vector
 		 * is fMCMCNChains. */
 		std::vector<TTree *> fMarkovChainTrees;
+
+		/*
+		 * The tree for the simulated annealing. */ 
+		TTree * fTreeSA; 
 
 		/**
 		 * The output filename */
@@ -197,6 +205,13 @@ class BCModelOutput
 		std::vector<double> * fLogLikelihood;
 		std::vector <int> * fIteration;
 
+		/**
+		 * The simulated annealing tree variables */ 
+		int * fSAIteration;
+		int fSANParameters; 
+		double * fSATemperature; 
+		double * fSALogProb; 
+		std::vector<double> * fSAParameters; 
 };
 
 // ---------------------------------------------------------
