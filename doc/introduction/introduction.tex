@@ -1022,6 +1022,7 @@ or stored in a \Root\ file.
 % -------------------------------------------------------- 
 
 \subsection{The output class}
+\label{section:outputclass}
 
 The results of an analysis can be stored in a \Root\ file using the
 output class \verb|BCModelOutput|. This class is assigned a model
@@ -1115,6 +1116,9 @@ further reference see the reference guide:
 \item \verb|BCModel::MCMCSetRValueCriterion(double r)| Set the
   $r$-value criterion for convergence of a set of chains (default:
   0.1).
+\item \verb|BCModel::WriteMarkovChain(bool flag)|. Set a flag to
+ write the Markov Chain into a ROOT file. See
+ section~\ref{section:outputclass} on how to handle output in BAT.
 \end{itemize}
 
 \paragraph{Proposal function} 
@@ -1155,6 +1159,10 @@ guide:
   temperature. 
 \item \verb|BCModel::SetSATmin(double Tmin)|. Set the threshold
   temperature. 
+\item \verb|BCModel::SetFlagWriteSAToFile(bool flag)|. Set a flag to
+ write the individual steps of the simulated annealing into a ROOT
+ file. See section~\ref{section:outputclass} on how to handle output in
+ BAT.
 \end{itemize}
 
 % -------------------------------------------------------- 
@@ -1203,9 +1211,8 @@ guide:
 
 \begin{thebibliography}{99}
 \bibitem{Caldwell:2008fw}
-  A.~Caldwell, D.~Kollar and K.~Kroeninger,
-  ``BAT - The Bayesian Analysis Toolkit,''
-  arXiv:0808.2552 [physics.data-an].
+  A.~Caldwell, D.~Kollar and K.~Kroeninger, ``BAT - The Bayesian
+  Analysis Toolkit,'' arXiv:0808.2552 [physics.data-an].
 %
 \bibitem{ROOTweb}
 http://root.cern.ch/
