@@ -1,14 +1,20 @@
+2009-09-03 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - added "parameter set aware" FindModeMinuit()
+	* tools/CreateProject.sh:
+	  - added more comments to the main program
+
 2009-08-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModelOutput.cxx:
-	  Added output of simulated annealing to ROOT file
+	  - Added output of simulated annealing to ROOT file
 
 2009-08-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* doc/introduction/introduction.tex: 
-	  update introduction.
+	* doc/introduction/introduction.tex:
+	  - update introduction.
 
 2009-08-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
-	  - Set Breit-Wigner distribution as default trial function. 
+	  - Set Breit-Wigner distribution as default trial function.
 
 2009-08-24 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
@@ -21,21 +27,22 @@
 2009-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel.cxx:
 	  - catch if parameter exists when asking ofr index by name.
-	  - bug fix in method PrintResults(). Vector of best fit parameter could have been empty. Now checked. 
-	  - added information of quantiles to the method PrintResults(). 
+	  - bug fix in method PrintResults(). Vector of best fit parameter
+	    could have been empty. Now checked.
+	  - added information of quantiles to the method PrintResults().
 	* BCEngineMCMC:
 	  - some minor code clean-up
-	
+
 2009-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx:
 	  - massive code clean-up
 	  - removed PCA runs
-	  - removed MetropolisHastings methods (obsolete) 
-	  - made the trial function virtual 
+	  - removed MetropolisHastings methods (obsolete)
+	  - made the trial function virtual
 
 2009-07-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx:
-	  - bug fix when checking how global was found. 
+	  - bug fix when checking how global was found.
 
 2009-07-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx:
@@ -43,7 +50,7 @@
 
 2009-07-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/RooInterface
-	  - updated interface to RooStats (G. Schott) 
+	  - updated interface to RooStats (G. Schott)
 
 2009-07-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
@@ -51,35 +58,36 @@
 
 2009-07-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
-	  - added flag if MCMC has been run at all or not 
-	* BCModel
-	  - bug fix: optimization method in output now agrees 
-	    with method which found the mode. 
-	* doc/introduction/introduction.tex: 
-	  - updated introduction (SA + options, errors on best fit parameters) 
+	  - added flag if MCMC has been run at all or not
+	* BCModel:
+	  - bug fix: optimization method in output now agrees
+	    with method which found the mode.
+	* doc/introduction/introduction.tex:
+	  - updated introduction (SA + options, errors on best fit parameters)
+
 2009-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
-	  - Added user-defined annealing schedule (from C. Brachem) 
-	  - Added errors on best fit parameters (from M. Corradi) 
+	  - Added user-defined annealing schedule (from C. Brachem)
+	  - Added errors on best fit parameters (from M. Corradi)
 	* BCModel:
 	  - Added method to get errors on best fit parameters
 	  - Added error on best fit parameters to PrintResults()
-	
+
 2009-07-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
-	  - Added lag to MCMC. Only every n_th step is used for 
-	    updating histograms, MCMC tree, etc. 
+	  - Added lag to MCMC. Only every n_th step is used for
+	    updating histograms, MCMC tree, etc.
 
 2009-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
-	  - Bug fix: efficiencies were not calculated correctly. 
-	  - Bug fix: scale factors for "normal" MCMC were not used. 
+	  - Bug fix: efficiencies were not calculated correctly.
+	  - Bug fix: scale factors for "normal" MCMC were not used.
 	* BCModel:
-	  - Added efficiency information to results. 
+	  - Added efficiency information to results.
 
 2009-07-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate:
-	  - bug fix in SA code rom C. Brachem. 
+	  - bug fix in SA code rom C. Brachem.
 
 2009-06-12 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCMath:

@@ -22,7 +22,7 @@
 #include <TH1D.h>
 #include <TString.h>
 
-#include <iostream.h>
+#include <iostream>
 
 // ---------------------------------------------------------
 

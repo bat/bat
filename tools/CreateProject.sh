@@ -12,7 +12,7 @@ cat << EOF
 Usage: $0 <project_name> [class_name]
 
 Creates a new directory <project_name> and a new model class <class_name>,
-i.e. the header and source files for the class. Also a Makefile is created
+i.e. the header and source files for the class, together with a Makefile
 for the project.
 
 EOF
@@ -286,11 +286,30 @@ int main()
 	BCLog::OutSummary("Test model created");
 
 	// perform your analysis here
+
+	// normalize the posterior, i.e. integrate posterior
+	// over the full parameter space
 //	m -> Normalize();
+
+	// run MCMC and marginalize posterior wrt. all parameters
+	// and all combinations of two parameters
 //	m -> MarginalizeAll();
+
+	// run mode finding; by default using Minuit
+//	m -> FindMode();
+
+	// if MCMC was run before (MarginalizeAll()) it is
+	// possible to use the mode found by MCMC as
+	// starting point of Minuit minimization
 //	m -> FindMode( m -> GetBestFitParameters() );
+
+	// draw all marginalized distributions into a PostScript file
 //	m -> PrintAllMarginalized("|:Model:|_plots.ps");
+
+	// calculate p-value
 //	m -> CalculatePValue( m -> GetBestFitParameters() );
+
+	// print results of the analysis into a text file
 //	m -> PrintResults("|:Model:|_results.txt");
 
 	// close log file

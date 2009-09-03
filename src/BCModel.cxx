@@ -607,7 +607,7 @@ void BCModel::FindMode(std::vector<double> start)
 			return;
 
 		case BCIntegrate::kOptMinuit:
-			this -> FindModeMinuit(start);
+			this -> BCIntegrate::FindModeMinuit(start);
 			return;
 
 		case BCIntegrate::kOptMetropolis:
@@ -620,6 +620,16 @@ void BCModel::FindMode(std::vector<double> start)
 			this->GetOptimizationMethod()));
 
 	return;
+}
+
+// ---------------------------------------------------------
+
+void BCModel::FindModeMinuit(std::vector<double> start, int printlevel)
+{
+	// synchronize parameters in BCIntegrate
+	this -> SetParameters(fParameterSet);
+
+	this -> BCIntegrate::FindModeMinuit(start,printlevel);
 }
 
 // ---------------------------------------------------------
