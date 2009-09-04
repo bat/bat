@@ -20,7 +20,7 @@
 #include <TObject.h>
 #include <TH2D.h>
 #include <TH1D.h>
-#include <TString.h>
+#include <TString.h> 
 
 #include <iostream>
 
@@ -31,10 +31,9 @@ BCModelOutput::BCModelOutput()
 	fIndex = 0;
 
 	fOutputFile = 0;
-	fMarkovChainTree = 0;
 	fAnalysisTree = 0;
 	fTreeSA = 0; 
-	fModel = 0;
+	fModel = 0; 
 	fOutputFile = 0;
 }
 
@@ -42,48 +41,19 @@ BCModelOutput::BCModelOutput()
 
 BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 {
-	// remeber current directory
-	TDirectory * dir = gDirectory;
-	fFilename = filename;
-
-	// create a new file
-	fOutputFile = new TFile(fFilename, "RECREATE");
-
 	BCModelOutput();
-	fModel = model;
-
-	fModel -> MCMCInitialize();
-	fModel -> SAInitialize(); 
-
-	// initialize trees
-	this -> InitializeAnalysisTree();
-	this -> InitializeMarkovChainTrees();
-	this -> InitializeSATree(); 
-
-	// change again to the old directory
-	gDirectory = dir;
+	SetModel(model);
+	SetFile(filename);
 }
 
 // ---------------------------------------------------------
 
 BCModelOutput::~BCModelOutput()
 {
-	if (fOutputFile)
-	{
+	if (fOutputFile) {
 		fOutputFile -> Close();
 		delete fOutputFile;
 	}
-
-	if (fAnalysisTree)
-		delete fAnalysisTree;
-
-	if (fMarkovChainTree)
-		delete fMarkovChainTree;
-
-	if (fOutputFile)
-		delete fOutputFile;
-
-	fModel = 0;
 }
 
 // ---------------------------------------------------------
@@ -105,6 +75,15 @@ BCModelOutput & BCModelOutput::operator = (const BCModelOutput & modeloutput)
 
 // ---------------------------------------------------------
 
+void BCModelOutput::SetModel(BCModel * model)
+{ 
+	fModel =  model; 
+	fModel -> MCMCInitialize();
+	fModel -> SAInitialize(); 
+}
+
+// ---------------------------------------------------------
+
 void BCModelOutput::SetFile(const char * filename)
 {
 	// delete the old file
@@ -118,13 +97,16 @@ void BCModelOutput::SetFile(const char * filename)
 	TDirectory * dir = gDirectory;
 
 	// create a new file
-	fOutputFile = new TFile(fFilename, "RECREATE");
+	fFileName=filename;
+	fOutputFile = new TFile(fFileName, "RECREATE");
 
+	// initialize trees
+	InitializeAnalysisTree();
+	InitializeMarkovChainTrees();
+	InitializeSATree(); 
+	
 	// change back to the old directory
 	gDirectory = dir;
-
-	// initialize tree
-	this -> InitializeAnalysisTree();
 }
 
 // ---------------------------------------------------------
@@ -364,9 +346,9 @@ void BCModelOutput::InitializeSATree()
 void BCModelOutput::Copy(BCModelOutput & modeloutput) const
 {
 	// don't copy the content
-	modeloutput.fModel           = this -> fModel;
-	modeloutput.fAnalysisTree    = this -> fAnalysisTree;
-	modeloutput.fMarkovChainTree = this -> fMarkovChainTree;
+	modeloutput.fModel            = this -> fModel;
+	modeloutput.fAnalysisTree     = this -> fAnalysisTree;
+	modeloutput.fMarkovChainTrees = this -> fMarkovChainTrees;
 }
 
 // ---------------------------------------------------------
