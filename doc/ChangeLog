@@ -1,3 +1,11 @@
+2009-09-04 Jing Liu <jingliu@mppmu.mpg.de>
+	* BCModelOutput:
+	  - removed confusing private pointer fMarkovChainTree
+	  - simplified constructor and destructor
+	  - fixed some bugs in functions SetFile() and SetModel()
+	* benchmarks/mcmc:
+	  - merged all the tests into benchmark.cxx
+
 2009-09-03 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - added "parameter set aware" FindModeMinuit()
