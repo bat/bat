@@ -29,10 +29,9 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 
 EXEOBJS       =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.ps *.eps *.txt *.log link.d SamplingTest2D.o SamplingTest1D.o benchmark2.o SamplingTest2D SamplingTest1D benchmark2
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *.log link.d benchmark
 
-#all : SamplingTest1D benchmark2
-all : SamplingTest2D SamplingTest1D
+all : benchmark
 
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -45,11 +44,7 @@ include link.d
 clean :
 	$(RM) $(GARBAGE)
 
-SamplingTest1D : SamplingTest1D.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
-
-SamplingTest2D : SamplingTest2D.cxx $(CXXOBJS)
+benchmark : benchmark.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 
