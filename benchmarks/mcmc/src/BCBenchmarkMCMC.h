@@ -1,40 +1,85 @@
+/*!
+ * \class BCBenchmarkMCMC
+ * \brief A class to check MCMC properties
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \author Jing Liu
+ * \version 1.0
+ * \date 01.09.2009
+ * \detail This class create MCMCs according to a known distribution 
+ * and check the statistical properties of the created chains, e.g.
+ * x2, moments, quantiles and fluctuations, etc as functions of 
+ * different lags and iterations.
+ */
+
+/*
+ * Copyright (C) 2009, 
+ * Daniel Kollar, Kevin Kroeninger and Jing Liu.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+//=============================================================================
+
 #ifndef __BCBENCHMARKMCMC__H
 #define __BCBENCHMARKMCMC__H
 
-#include "BAT/BCModel.h"
-
 #include <TF1.h>
+#include <TH1F.h>
 
-// ---------------------------------------------------------
+#include "BAT/BCModel.h"
+#include "BAT/BCModelOutput.h"
 
-class BCBenchmarkMCMC : public BCModel
+//=============================================================================
+
+class BCBenchmarkMCMC : public BCModel, public BCModelOutput
 {
-
 	public:
-		// constructor
-		BCBenchmarkMCMC(const char* name);
-		~BCBenchmarkMCMC()
-			{ ;};
 
-		// methods
+		BCBenchmarkMCMC(
+				TF1* testFunction = NULL,
+				const char* outputFile = "MCMCtest.root",
+				const char* modelName = "BenchmarkMCMC");
+		~BCBenchmarkMCMC();
+
+		// inherited methods
 		double LogAPrioriProbability(std::vector <double> parameters)
-			{ return 0; };
+		{return 0;}
 
-		double LogLikelihood(std::vector <double> parameters);
+		double LogLikelihood(std::vector <double> parameters)
+		{return log(fTestFunction->Eval(parameters[0]));}
 
-		double PerformTest(std::vector<double> parameters,
-				int index,
-				BCH1D * hist,
-				bool flag_print = true,
-				const char * filename = "test.ps");
+		// own methods
+		void ProcessMCTrees();
 
-		void SetTestFunction(TF1 * testfunction)
-			{ fTestFunction = testfunction; };
+		void PerformLagsTest();
+		void PerformIterationsTest();
 
-	TF1 * fTestFunction;
+		void WriteResults();
+
+	private:
+
+		void ProcessMCTree(int chainID=0);
+		void Chi2vsLagsOfChain(int chainID=0);
+		void Chi2vsIterOfChain(int chainID=0);
+
+		int fNbinx;
+		double fXmin, fXmax;
+
+		static const int fMaxChains = 5;
+		static const int fMaxLags = 31; // lag = 1,2,...,30
+		static const int fMax10thOfIters = 11; // iterations/10*(1,2,...10)
+
+		TF1* fTestFunction;
+		TF1* fFitFunction;
+
+		TH1F* fHistXLags[fMaxChains][fMaxLags];
+		TH1F* fHistXIter[fMaxChains][fMax10thOfIters];
+
+		TH1F* fHChi2vsLags[fMaxChains];
+		TH1F* fHChi2vsIter[fMaxChains];
 
 };
-
-// ---------------------------------------------------------
 
 #endif

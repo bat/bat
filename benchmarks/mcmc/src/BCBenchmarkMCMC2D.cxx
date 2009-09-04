@@ -1,107 +1,203 @@
-#include "BAT/BCMath.h"
-#include "BAT/BCH2D.h"
-#include "BAT/BCLog.h"
+/*
+ * Copyright (C) 2009, 
+ * Daniel Kollar, Kevin Kroeninger and Jing Liu.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
 
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TCanvas.h>
-#include <TLatex.h>
-#include <TH2D.h>
+//=============================================================================
+
+#include <TFile.h>
+#include <TTree.h>
+
+#include "BAT/BCLog.h"
 
 #include "BCBenchmarkMCMC2D.h"
 
-// ---------------------------------------------------------
+//=============================================================================
 
-BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(const char* name) : BCModel(name)
-{}
-
-// ---------------------------------------------------------
-
-double BCBenchmarkMCMC2D::LogLikelihood(std::vector <double> parameters)
-{return log (fTestFunction -> Eval(parameters[0],parameters[1]));}
-
-// ---------------------------------------------------------
-
-double BCBenchmarkMCMC2D::PerformTest(
-		std::vector<double> parameters,
-		int index,
-		BCH2D * hist,
-		bool flag_print,
-		const char * filename)
+BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(
+		TF2* testFunction,
+		const char* outputFile,
+		const char* modelName)
+:BCModel(modelName), BCModelOutput(), fNbinx(100), fNbiny(100)
 {
-	// get histogram from BCH2D and clone it
-	TH2D * hist_temp = hist -> GetHistogram();
-	TH2D * hist_prob = (TH2D*) hist_temp -> Clone();
-
-	double xmin = this->GetParameter(0)->GetLowerLimit();
-	double xmax = this->GetParameter(0)->GetUpperLimit();
-	double ymin = this->GetParameter(1)->GetLowerLimit();
-	double ymax = this->GetParameter(1)->GetUpperLimit();
-	double normalization = fTestFunction -> Integral(xmin,xmax,ymin,ymax);
-
-	hist_prob -> Sumw2();
-	hist_prob -> Scale(normalization/hist_prob->Integral("width"));
-
-	// initialize chi2
-	double chi2 = 0;
-
-	// get number of bins
-	int nbinsx = hist_prob -> GetNbinsX();
-	int nbinsy = hist_prob -> GetNbinsY();
-	double XbinWidth = (xmax-xmin)/nbinsx;
-	double YbinWidth = (ymax-ymin)/nbinsy;
-
-	// loop over bins
-	TH2D* hdiff = new TH2D("hdiff","",nbinsx,xmin,xmax,nbinsy,ymin,ymax);
-	for (int i = 1; i <= nbinsx; ++i) {
-		for (int j = 1; j <= nbinsy; ++j) {
-			double v = hist_prob -> GetBinContent(i,j);
-			double fxmin = xmin+(i-1)*XbinWidth;
-			double fxmax = fxmin+XbinWidth;
-			double fymin = ymin+(j-1)*YbinWidth;
-			double fymax = fymin+YbinWidth;
-			double v0 =  fTestFunction -> 
-				Integral(fxmin,fxmax,fymin,fymax)/(XbinWidth*YbinWidth);
-			double vmv0 = v - v0;
-
-			double dv = hist_prob -> GetBinError(i,j);
-			if (dv > 0.) {
-				chi2 += (vmv0*vmv0)/(dv*dv);
-				hdiff->SetBinContent(i,j,vmv0/dv);
-			}
-		}
+	BCLog::Out(BCLog::summary,BCLog::summary," setup test function ...");
+	if (testFunction==NULL) {
+		BCLog::Out(BCLog::error,BCLog::error,
+				" The test function doesn't exist!");
+		abort();
 	}
 
-	// divide by the number of d.o.f.
-	chi2 /= double(nbinsx*nbinsy);
+	fTestFunction = testFunction;
+	fXmin=fTestFunction->GetXmin(); 
+	fXmax=fTestFunction->GetXmax();
+	fYmin=fTestFunction->GetYmin(); 
+	fYmax=fTestFunction->GetYmax();
 
-	BCLog::Out(BCLog::summary,BCLog::summary,
-			TString::Format(" Chi2 from test = %f (NDoF = %d)",chi2,nbinsx*nbinsy));
 
-	// print to file
-	if (flag_print)
-	{
-		TCanvas *can = (TCanvas*) gROOT->GetListOfCanvases()->FindObject("can");
-		if (!can)  can = new TCanvas("can");
-		can -> Clear();
-		//gPad -> SetLogz();
-		gStyle -> SetOptStat(0);
-		hdiff -> GetXaxis() -> SetTitle("x");
-		hdiff -> GetYaxis() -> SetTitle("y");
-		hdiff -> Draw("colz");
-		TLatex tx2;
-		tx2.SetNDC();
-		tx2.DrawLatex(0.3,0.9,Form("#chi^{2}/NDF: %f",chi2));
-		can -> Print(filename);
+	BCLog::Out(BCLog::summary,BCLog::summary," setup fitting function ...");
+	fFitFunction = new TF2("fFitFunction",
+			fTestFunction->GetExpFormula(),fXmin,fXmax,fYmin,fYmax);
+	for (int i=1; i<fTestFunction->GetNpar(); i++)
+		fFitFunction->FixParameter(i,fTestFunction->GetParameter(i));
+
+
+	BCLog::Out(BCLog::summary,BCLog::summary," add parameter x ...");
+	this->AddParameter("x",fXmin,fXmax);
+	BCLog::Out(BCLog::summary,BCLog::summary," add parameter y ...");
+	this->AddParameter("y",fYmin,fYmax);
+
+
+	BCLog::Out(BCLog::summary,BCLog::summary," setup trees for chains ...");
+	SetModel(this);
+	BCModelOutput::WriteMarkovChain(true);
+	SetFile(outputFile);
+	
+
+	BCLog::Out(BCLog::summary,BCLog::summary," book histograms for analysis ...");
+	for (int i=0; i<fMaxChains; i++) {
+		for (int j=1; j<fMaxLags; j++)
+			fHistXYLags[i][j] = new TH2F(Form("fHistXYChain%dLag%d",i,j),
+					Form("lag of %d",j),
+					fNbinx,fXmin,fXmax,fNbiny,fYmin,fYmax);
+
+		for (int j=1; j<fMax10thOfIters; j++)
+			fHistXYIter[i][j] = new TH2F(Form("fHistXYChain%dIter%d0",i,j),
+					Form("after %d%% of total iterations",j*10),
+					fNbinx,fXmin,fXmax,fNbiny,fYmin,fYmax);
+
+		fHChi2vsLags[i] = new TH1F(Form("HChi2vsLagsChain%d",i),"",
+				fMaxLags-1,1,fMaxLags);
+		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
+				fMax10thOfIters-1,1,fMax10thOfIters);
 	}
-	BCLog::Out(BCLog::summary,BCLog::summary,
-			TString::Format(" Results printed to file %s",filename));
-
-	// free memory
-	delete hist_prob;
-	delete hdiff;
-
-	return chi2;
 }
 
-// ---------------------------------------------------------
+//=============================================================================
+
+BCBenchmarkMCMC2D::~BCBenchmarkMCMC2D()
+{
+	if (fFitFunction) delete fFitFunction;
+
+	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
+		for (int j=1; j<fMaxLags; j++)
+			if (fHistXYLags[i][j]) delete fHistXYLags[i][j];
+
+		for (int j=1; j<fMax10thOfIters; j++)
+			if (fHistXYIter[i][j]) delete fHistXYIter[i][j];
+
+		if (fHChi2vsLags[i]) delete fHChi2vsLags[i];
+		if (fHChi2vsIter[i]) delete fHChi2vsIter[i];
+	}
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::ProcessMCTrees()
+{
+	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) ProcessMCTree(i);
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::ProcessMCTree(int chainID)
+{
+	TTree *chain = this->MCMCGetMarkovChainTree(chainID);
+
+	Double_t par0,par1;
+	chain->SetBranchAddress("fParameter0",&par0);
+	chain->SetBranchAddress("fParameter1",&par1);
+
+	int Niters = chain->GetEntries();
+	for (int i=0; i<Niters; i++) {
+		chain->GetEntry(i);
+
+		for (int j=1; j<fMaxLags; j++) {
+			if (i%j==0) fHistXYLags[chainID][j]->Fill(par0,par1);
+		}
+
+		for (int j=1; j<fMax10thOfIters; j++) {
+			if (i<=j*Niters/10) 
+				fHistXYIter[chainID][j]->Fill(par0,par1);
+		}
+	}
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::PerformLagsTest()
+{
+	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
+		Chi2vsLagsOfChain(i);
+	}
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::Chi2vsLagsOfChain(int chainID)
+{
+	for (int i=1; i<fMaxLags; i++) {
+		fHistXYLags[chainID][i]->Fit(fFitFunction,"bq");
+		fHChi2vsLags[chainID]->SetBinContent(i,
+				fFitFunction->GetChisquare()/fFitFunction->GetNDF());
+	}
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::PerformIterationsTest()
+{
+	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
+		Chi2vsIterOfChain(i);
+	}
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::Chi2vsIterOfChain(int chainID)
+{
+	for (int i=1; i<fMax10thOfIters; i++) {
+		fHistXYIter[chainID][i]->Fit(fFitFunction,"bq");
+		fHChi2vsIter[chainID]->SetBinContent(i,
+				fFitFunction->GetChisquare()/fFitFunction->GetNDF());
+	}
+}
+
+//=============================================================================
+
+void BCBenchmarkMCMC2D::WriteResults()
+{
+	TFile *file = this->GetFile();
+
+	file->cd();
+	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
+		file->mkdir(Form("HistsForMCTree%d",i),
+				Form("Histograms for Markov chain tree %d",i));
+		file->cd(Form("HistsForMCTree%d",i));
+
+		for (int j=1; j<fMaxLags; j++) {
+			fHistXYLags[i][j]->SetXTitle("x");
+			fHistXYLags[i][j]->SetYTitle("y");
+			fHistXYLags[i][j]->Write();
+		}
+
+		for (int j=1; j<fMax10thOfIters; j++) {
+			fHistXYIter[i][j]->SetXTitle("x");
+			fHistXYIter[i][j]->SetYTitle("y");
+			fHistXYIter[i][j]->Write();
+		}
+
+		fHChi2vsLags[i]->SetXTitle("Lags");
+		fHChi2vsLags[i]->SetYTitle("#chi^{2}/NDF");
+		fHChi2vsLags[i]->Write();
+
+		fHChi2vsIter[i]->SetXTitle("10% of total iteration");
+		fHChi2vsIter[i]->SetYTitle("#chi^{2}/NDF");
+		fHChi2vsIter[i]->Write();
+	}
+	file->cd();
+
+	this->Close();
+}
