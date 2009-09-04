@@ -95,8 +95,8 @@ class BCModelOutput
 		/**
 		 * Assign a BCModel to this output class.
 		 * @param model A pointer to the BCModel */
-		void SetModel(BCModel * model)
-			{ fModel = model; };
+		void SetModel(BCModel * model);
+
 
 		/**
 		 * Sets the output filename.
@@ -157,10 +157,6 @@ class BCModelOutput
 		 * Pointer to the TTree containing the summary output information. */
 		TTree * fAnalysisTree;
 
-		/**
-		 * Pointer to the TTree containing the Markov chain. */
-		TTree * fMarkovChainTree;
-
 		/*
 		 * The trees containing the Markov chains. The length of the vector
 		 * is fMCMCNChains. */
@@ -172,7 +168,7 @@ class BCModelOutput
 
 		/**
 		 * The output filename */
-		const char * fFilename;
+		const char * fFileName;
 
 		/**
 		 * Pointer to the output TFile. */
