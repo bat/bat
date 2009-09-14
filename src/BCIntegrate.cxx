@@ -1317,14 +1317,14 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 		delete fMinuit;
 	fMinuit = new TMinuit(fNvar);
 
+	// set print level
+	fMinuit -> SetPrintLevel(printlevel);
+
 	// set function
 	fMinuit -> SetFCN(&BCIntegrate::FCNLikelihood);
 
 	// set UP for likelihood 
 	fMinuit -> SetErrorDef(0.5); 
-
-	// set print level
-	fMinuit -> SetPrintLevel(printlevel);
 
 	// set parameters
 	int flag;

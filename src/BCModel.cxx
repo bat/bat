@@ -602,13 +602,19 @@ void BCModel::FindMode(std::vector<double> start)
 	switch(this -> GetOptimizationMethod())
 	{
 		case BCIntegrate::kOptSA:
-			// BCLog::OutError("BCModel::FindMode : Simulated annaeling not yet implemented");
 			this -> FindModeSA(start);
 			return;
 
 		case BCIntegrate::kOptMinuit:
-			this -> BCIntegrate::FindModeMinuit(start);
-			return;
+			{
+				int printlevel = -1; 
+				if (BCLog::GetLogLevelScreen() <= BCLog::detail) 
+					printlevel = 0; 
+				if (BCLog::GetLogLevelScreen() <= BCLog::debug)
+					printlevel = 1; 
+				this -> BCIntegrate::FindModeMinuit(start, printlevel);
+				return;
+			}
 
 		case BCIntegrate::kOptMetropolis:
 			this -> MarginalizeAll();
