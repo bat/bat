@@ -1,3 +1,7 @@
+2009-09-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngine.cxx:
+	  - Added flag to ignore previous result of optimization
+
 2009-09-04 Jing Liu <jingliu@mppmu.mpg.de>
 	* BCModelOutput:
 	  - removed confusing private pointer fMarkovChainTree

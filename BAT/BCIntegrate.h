@@ -244,6 +244,9 @@ class BCIntegrate : public BCEngineMCMC
 			{ fMinuitArglist[0] = arglist[0];
 			  fMinuitArglist[1] = arglist[1]; };
 
+		void SetFlagIgnorePrevOptimization(bool flag)
+		{ fFlagIgnorePrevOptimization = flag; }; 
+
 		/**
 		 * @param par The parameter set which gets translated into array
 		 * needed for the Monte Carlo integration */
@@ -875,7 +878,7 @@ class BCIntegrate : public BCEngineMCMC
 		TH2D * fErrorBandXY;
 
 		/**
-		 * Nnumber of X bins of the error band histogram */
+		 * Number of X bins of the error band histogram */
 		int fErrorBandNbinsX;
 
 		/**
@@ -888,6 +891,10 @@ class BCIntegrate : public BCEngineMCMC
 
 		double fMinuitArglist[2];
 		int fMinuitErrorFlag;
+
+		/**
+		 * Flag for ignoring older results of minimization */ 
+		double fFlagIgnorePrevOptimization; 
 
 		/**
 		 * Flag for writing Markov chain to file */

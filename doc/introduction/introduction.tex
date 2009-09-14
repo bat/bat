@@ -586,6 +586,13 @@ double BCModel::GetBestFitParameterError(unsigned int index) .
 Settings and options of the Simulated Annealing algorithm are
 summarized in section~\ref{section:settings:SA}.
 
+If several algorithms are ran one after the other, a flag controls
+whether to ignore the results from a previous maximization: 
+%
+\begin{verbatim}
+BCModel::SetFlagIgnorePrevOptimization(bool flag) .
+\end{verbatim}
+
 % --------------------------------------------------------
 
 \subsubsection{Marginalization} 

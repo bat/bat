@@ -65,6 +65,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
 	fMinuit = 0;
 	fMinuitArglist[0] = 20000;
 	fMinuitArglist[1] = 0.01;
+	fFlagIgnorePrevOptimization = false; 
 
 	fFlagWriteMarkovChain = false;
 	fMarkovChainTree = 0;
@@ -107,6 +108,7 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
 	fMinuit = 0;
 	fMinuitArglist[0] = 20000;
 	fMinuitArglist[1] = 0.01;
+	fFlagIgnorePrevOptimization = false; 
 
 	fFlagWriteMarkovChain = false;
 	fMarkovChainTree = 0;
@@ -1341,13 +1343,13 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 	}
 
 	// do mcmc minimization
-	fMinuit -> mnseek(); 
+	//	fMinuit -> mnseek(); 
 
 	// do minimization
 	fMinuit -> mnexcm("MIGRAD", fMinuitArglist, 2, flag);
 
 	// improve search for local minimum 
-	fMinuit -> mnimpr(); 
+	//	fMinuit -> mnimpr(); 
 
 	// copy flag
 	fMinuitErrorFlag = flag;
@@ -1378,7 +1380,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 	double probmaxminuit = this -> Eval( tempvec ); 
 	
 	// set best fit parameters
-	if (probmaxminuit > probmax || !valid) 
+	if ( (probmaxminuit > probmax && !fFlagIgnorePrevOptimization) || !valid || fFlagIgnorePrevOptimization) 
 		{
 			fBestFitParameters.clear();
 			fBestFitParameterErrors.clear();
@@ -1392,7 +1394,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 					fBestFitParameterErrors.push_back(parerr);
 				}
 
-			// set optimization moethod used to find the mode 
+			// set optimization method used to find the mode 
 			fOptimizationMethodMode = BCIntegrate::kOptMinuit; 
 		}
 
@@ -1526,7 +1528,7 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 
 	double probmaxsa = this -> Eval( best_fit); 
 
-	if (probmaxsa > probmax || !valid) 
+	if ( (probmaxsa > probmax  && !fFlagIgnorePrevOptimization) || !valid || fFlagIgnorePrevOptimization) 
 		{
 			// set best fit parameters
 			fBestFitParameters.clear();
@@ -1816,7 +1818,7 @@ void BCIntegrate::FindModeMCMC()
 		double prob = exp( (this -> MCMCGetMaximumLogProb()).at(i));
 
 		// copy the point into the vector
-		if (prob >= probmax)
+		if ( (prob >= probmax && !fFlagIgnorePrevOptimization) || fFlagIgnorePrevOptimization)
 		{
 			probmax = prob;
 
