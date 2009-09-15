@@ -35,6 +35,11 @@ BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(
 	fXmax=fTestFunction->GetXmax();
 	fYmin=fTestFunction->GetYmin(); 
 	fYmax=fTestFunction->GetYmax();
+	
+	// set no. of points for histogram representation of test function
+	// (used for Kolmogorov-Smirnov test)
+	fTestFunction->SetNpx(fNbinx);
+	fTestFunction->SetNpy(fNbiny);
 
 
 	BCLog::Out(BCLog::summary,BCLog::summary," setup fitting function ...");
@@ -72,6 +77,13 @@ BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(
 				fMaxLags-1,1,fMaxLags);
 		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
 				fMax10thOfIters-1,1,fMax10thOfIters);
+		
+		fHKolmogorovProbVsLags[i] = new TH1F(
+				Form("HKolmogorovProbVsLagsChain%d", i), "",
+				fMaxLags-1, 1, fMaxLags);
+		fHKolmogorovProbVsIter[i] = new TH1F(
+				Form("HKolmogorovProbVsIterChain%d", i), "",
+				fMax10thOfIters-1, 1, fMax10thOfIters);
 	}
 }
 
@@ -90,6 +102,9 @@ BCBenchmarkMCMC2D::~BCBenchmarkMCMC2D()
 
 		if (fHChi2vsLags[i]) delete fHChi2vsLags[i];
 		if (fHChi2vsIter[i]) delete fHChi2vsIter[i];
+		
+		if (fHKolmogorovProbVsLags[i]) delete fHKolmogorovProbVsLags[i];
+		if (fHKolmogorovProbVsIter[i]) delete fHKolmogorovProbVsIter[i];
 	}
 }
 
@@ -106,13 +121,44 @@ void BCBenchmarkMCMC2D::ProcessMCTree(int chainID)
 {
 	TTree *chain = this->MCMCGetMarkovChainTree(chainID);
 
+	Double_t fMeanX, fMeanY,fVarianceX, fVarianceY,fSkewnessX, fSkewnessY;
+	chain->Branch("fMeanX",&fMeanX,"fMeanX/D");
+	chain->Branch("fMeanY",&fMeanY,"fMeanY/D");
+	chain->Branch("fVarianceX",&fVarianceX,"fVarianceX/D");
+	chain->Branch("fVarianceY",&fVarianceY,"fVarianceY/D");
+	chain->Branch("fSkewnessX",&fSkewnessX,"fSkewnessX/D");
+	chain->Branch("fSkewnessY",&fSkewnessY,"fSkewnessY/D");
+
 	Double_t par0,par1;
 	chain->SetBranchAddress("fParameter0",&par0);
 	chain->SetBranchAddress("fParameter1",&par1);
 
+	Double_t sum1X=0, sum1Y=0, sum2X=0, sum2Y=0, sum3X=0, sum3Y=0;
 	int Niters = chain->GetEntries();
 	for (int i=0; i<Niters; i++) {
 		chain->GetEntry(i);
+		
+		sum1X += par0;
+		fMeanX = sum1X/Double_t(i+1);
+		
+		sum1Y += par1;
+		fMeanY = sum1Y/Double_t(i+1);
+
+		sum2X += (par0-fMeanX)*(par0-fMeanX);
+		fVarianceX = sqrt(sum2X/Double_t(i+1));
+		
+		sum2Y += (par1-fMeanY)*(par1-fMeanY);
+		fVarianceY = sqrt(sum2Y/Double_t(i+1));
+
+		sum3X += (par0-fMeanX)*(par0-fMeanX)*(par0-fMeanX);
+		if (fVarianceX!=0) 
+			fSkewnessX = (sum3X/Double_t(i+1))/(fVarianceX*fVarianceX*fVarianceX);
+		
+		sum3Y += (par1-fMeanY)*(par1-fMeanY)*(par1-fMeanY);
+		if (fVarianceY!=0) 
+			fSkewnessY = (sum3Y/Double_t(i+1))/(fVarianceY*fVarianceY*fVarianceY);
+		
+		chain->Fill();
 
 		for (int j=1; j<fMaxLags; j++) {
 			if (i%j==0) fHistXYLags[chainID][j]->Fill(par0,par1);
@@ -131,6 +177,7 @@ void BCBenchmarkMCMC2D::PerformLagsTest()
 {
 	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
 		Chi2vsLagsOfChain(i);
+		KolmogorovVsLagsOfChain(i);
 	}
 }
 
@@ -151,6 +198,7 @@ void BCBenchmarkMCMC2D::PerformIterationsTest()
 {
 	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
 		Chi2vsIterOfChain(i);
+		KolmogorovVsIterOfChain(i);
 	}
 }
 
@@ -196,8 +244,54 @@ void BCBenchmarkMCMC2D::WriteResults()
 		fHChi2vsIter[i]->SetXTitle("10% of total iteration");
 		fHChi2vsIter[i]->SetYTitle("#chi^{2}/NDF");
 		fHChi2vsIter[i]->Write();
+		
+		fHKolmogorovProbVsLags[i]->SetXTitle("Lags");
+		fHKolmogorovProbVsLags[i]->SetYTitle("Kolmogorov-Smirnov Probability");
+		fHKolmogorovProbVsLags[i]->Write();
+
+		fHKolmogorovProbVsIter[i]->SetXTitle("10% of total iteration");
+		fHKolmogorovProbVsIter[i]->SetYTitle("Kolmogorov-Smirnov Probability");
+		fHKolmogorovProbVsIter[i]->Write();
 	}
 	file->cd();
 
 	this->Close();
+}
+
+//=============================================================================
+
+/**
+ * Perform a Kolmogorov-Smirnov test for all available lagging histograms
+ * against a histogram of corresponding bin size containing the
+ *"real" data obtained from the test function.
+ */
+void BCBenchmarkMCMC2D::KolmogorovVsLagsOfChain(int chainID)
+{
+	for (int i=1; i<fMaxLags; i++) {
+		double kolmogorovProb = 0.;
+		kolmogorovProb = fHistXYLags[chainID][i]->KolmogorovTest(
+				(TH2F*)fTestFunction->CreateHistogram());
+
+		fHKolmogorovProbVsLags[chainID]->SetBinContent(i,
+				kolmogorovProb);
+	}
+}
+
+//=============================================================================
+
+/**
+ * Perform a Kolmogorov-Smirnov tests to see if a histogram of the "real"
+ * data matches the distribution after 10%, 20%, 30%, ... of the total
+ * number of iterations.
+ */
+void BCBenchmarkMCMC2D::KolmogorovVsIterOfChain(int chainID)
+{
+	for (int i=1; i<fMax10thOfIters; i++) {
+		double kolmogorovProb = 0.;
+		kolmogorovProb = fHistXYIter[chainID][i]->KolmogorovTest(
+				(TH2F*)fTestFunction->CreateHistogram());
+
+		fHKolmogorovProbVsIter[chainID]->SetBinContent(i,
+				kolmogorovProb);
+	}
 }

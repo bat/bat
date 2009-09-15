@@ -63,6 +63,9 @@ class BCBenchmarkMCMC2D : public BCModel, public BCModelOutput
 		void ProcessMCTree(int chainID=0);
 		void Chi2vsLagsOfChain(int chainID=0);
 		void Chi2vsIterOfChain(int chainID=0);
+		
+		void KolmogorovVsLagsOfChain(int chainID=0);
+		void KolmogorovVsIterOfChain(int chainID=0);
 
 		int fNbinx, fNbiny;
 		double fXmin, fXmax, fYmin, fYmax;
@@ -80,6 +83,8 @@ class BCBenchmarkMCMC2D : public BCModel, public BCModelOutput
 		TH1F* fHChi2vsLags[fMaxChains];
 		TH1F* fHChi2vsIter[fMaxChains];
 
+		TH1F* fHKolmogorovProbVsLags[fMaxChains];
+		TH1F* fHKolmogorovProbVsIter[fMaxChains];
 };
 
 #endif

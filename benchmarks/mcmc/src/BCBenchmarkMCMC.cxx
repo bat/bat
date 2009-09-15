@@ -33,6 +33,10 @@ BCBenchmarkMCMC::BCBenchmarkMCMC(
 	fTestFunction = testFunction;
 	fXmin=fTestFunction->GetXmin(); 
 	fXmax=fTestFunction->GetXmax();
+	
+	// set no. of points for histogram representation of test function
+	// (used for Kolmogorov-Smirnov test)
+	fTestFunction->SetNpx(fNbinx);
 
 
 	BCLog::Out(BCLog::summary,BCLog::summary," setup fitting function ...");
@@ -67,6 +71,13 @@ BCBenchmarkMCMC::BCBenchmarkMCMC(
 				fMaxLags-1,1,fMaxLags);
 		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
 				fMax10thOfIters-1,1,fMax10thOfIters);
+		
+		fHKolmogorovProbVsLags[i] = new TH1F(
+				Form("HKolmogorovProbVsLagsChain%d", i), "",
+				fMaxLags-1, 1, fMaxLags);
+		fHKolmogorovProbVsIter[i] = new TH1F(
+				Form("HKolmogorovProbVsIterChain%d", i), "",
+				fMax10thOfIters-1, 1, fMax10thOfIters);
 	}
 }
 
@@ -85,6 +96,9 @@ BCBenchmarkMCMC::~BCBenchmarkMCMC()
 
 		if (fHChi2vsLags[i]) delete fHChi2vsLags[i];
 		if (fHChi2vsIter[i]) delete fHChi2vsIter[i];
+		
+		if (fHKolmogorovProbVsLags[i]) delete fHKolmogorovProbVsLags[i];
+		if (fHKolmogorovProbVsIter[i]) delete fHKolmogorovProbVsIter[i];
 	}
 }
 
@@ -131,7 +145,7 @@ void BCBenchmarkMCMC::ProcessMCTree(int chainID)
 		}
 
 		for (int j=1; j<fMax10thOfIters; j++) {
-			if (i<=j*Niters/10) 
+			if (i<j*Niters/10) 
 				fHistXIter[chainID][j]->Fill(par0);
 		}
 	}
@@ -143,6 +157,7 @@ void BCBenchmarkMCMC::PerformLagsTest()
 {
 	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
 		Chi2vsLagsOfChain(i);
+		KolmogorovVsLagsOfChain(i);
 	}
 }
 
@@ -163,6 +178,7 @@ void BCBenchmarkMCMC::PerformIterationsTest()
 {
 	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
 		Chi2vsIterOfChain(i);
+		KolmogorovVsIterOfChain(i);
 	}
 }
 
@@ -208,8 +224,54 @@ void BCBenchmarkMCMC::WriteResults()
 		fHChi2vsIter[i]->SetXTitle("10% of total iteration");
 		fHChi2vsIter[i]->SetYTitle("#chi^{2}/NDF");
 		fHChi2vsIter[i]->Write();
+		
+		fHKolmogorovProbVsLags[i]->SetXTitle("Lags");
+		fHKolmogorovProbVsLags[i]->SetYTitle("Kolmogorov-Smirnov Probability");
+		fHKolmogorovProbVsLags[i]->Write();
+
+		fHKolmogorovProbVsIter[i]->SetXTitle("10% of total iteration");
+		fHKolmogorovProbVsIter[i]->SetYTitle("Kolmogorov-Smirnov Probability");
+		fHKolmogorovProbVsIter[i]->Write();
 	}
 	file->cd();
 
 	this->Close();
+}
+
+//=============================================================================
+
+/**
+ * Perform a Kolmogorov-Smirnov test for all available lagging histograms
+ * against a histogram of corresponding bin size containing the
+ *"real" data obtained from the test function.
+ */
+void BCBenchmarkMCMC::KolmogorovVsLagsOfChain(int chainID)
+{
+	for (int i=1; i<fMaxLags; i++) {
+		double kolmogorovProb = 0.;
+		kolmogorovProb = fHistXLags[chainID][i]->KolmogorovTest(
+				fTestFunction->GetHistogram());
+
+		fHKolmogorovProbVsLags[chainID]->SetBinContent(i,
+				kolmogorovProb);
+	}
+}
+
+//=============================================================================
+
+/**
+ * Perform a Kolmogorov-Smirnov tests to see if a histogram of the "real"
+ * data matches the distribution after 10%, 20%, 30%, ... of the total
+ * number of iterations.
+ */
+void BCBenchmarkMCMC::KolmogorovVsIterOfChain(int chainID)
+{
+	for (int i=1; i<fMax10thOfIters; i++) {
+		double kolmogorovProb = 0.;
+		kolmogorovProb = fHistXIter[chainID][i]->KolmogorovTest(
+				fTestFunction->GetHistogram());
+
+		fHKolmogorovProbVsIter[chainID]->SetBinContent(i,
+				kolmogorovProb);
+	}
 }
