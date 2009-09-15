@@ -1,3 +1,10 @@
+2009-09-15 Carsten Brachem <carsten.brachem@gmail.com>
+	* benchmarks/mcmc/src/BCBenchmarkMCMC:
+	  - Added Kolmogorov-Smirnov test.
+	* benchmarks/mcmc/src/BCBenchmarkMCMC2D:
+	  - Added Kolmogorov-Smirnov test.
+	  - Added TTree branches for Mean, Variance and Skewness.
+
 2009-09-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngine.cxx:
 	  - Added flag to ignore previous result of optimization
