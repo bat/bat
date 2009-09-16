@@ -1,4 +1,11 @@
 2009-09-16 Carsten Brachem <carsten.brachem@gmail.com>
+	* benchmarks/mcmc/src/BCBenchmarkMCMC.cxx:
+	* benchmarks/mcmc/src/BCBenchmarkMCMC2D.cxx:
+	* benchmarks/mcmc/src/BCBenchmarkMCMC3D.cxx:
+	  - Added newlines at the end of these cxx files (not ending with
+	    a newline gives warnings/errors on some compilers).
+
+2009-09-16 Carsten Brachem <carsten.brachem@gmail.com>
 	* benchmarks/mcmc/src/BCBenchmarkMCMC2D.cxx:
 	  - Corrected minor bug that caused the Histograms for analyzing
 	    different fractions of iterations (10%, 20%, ..) to have 1 entry
