@@ -21,7 +21,7 @@ CXXFLAGS    += -I./src/ -I./ -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 GLIBS       += $(ROOTGLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 
-CXSRCS      = BCBenchmarkMCMC2D.cxx BCBenchmarkMCMC.cxx
+CXSRCS      = BCBenchmarkMCMC3D.cxx BCBenchmarkMCMC2D.cxx BCBenchmarkMCMC.cxx
 
 CXXSRCS      = $(patsubst %.cxx,src/%.cxx,$(CXSRCS))
 

@@ -13,6 +13,7 @@
 
 #include "BCBenchmarkMCMC.h"
 #include "BCBenchmarkMCMC2D.h"
+#include "BCBenchmarkMCMC3D.h"
 
 //=============================================================================
 
@@ -122,6 +123,36 @@ int main()
 
 	delete testfunc2;
 	delete benchmark2;
+	
+	
+	// define range for z dimension
+	double zmin = 0.0, zmax = 20.0;
+	
+	
+	// test 3D function: gaus3 (3-dimensional gaussian)
+	// =================================
+	
+	TF3 *testfunc3 = new TF3("gaus3",
+			"[0] * exp(-0.5*((x-[1])/[2])**2) * exp(-0.5*((y-[3])/[4])**2) * exp(-0.5*((z-[5])/[6])**2)",
+			xmin, xmax, ymin, ymax, zmin, zmax);
+	testfunc3->SetParameters(1., 4., 2., 8., 1., 8., 1.);
+	
+	BCBenchmarkMCMC3D *benchmark3 
+		= new BCBenchmarkMCMC3D(testfunc3,"mcmcgaus3d.root");
+
+	benchmark3 -> MCMCSetNIterationsRun(100000);
+
+	benchmark3 -> MCMCMetropolis();
+
+	benchmark3 -> ProcessMCTrees();
+	benchmark3 -> PerformLagsTest();
+	benchmark3 -> PerformIterationsTest();
+
+	benchmark3 -> WriteResults();
+
+	delete testfunc3;
+	delete benchmark3;
+	
 
 	return 0;
 }
