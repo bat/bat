@@ -1,4 +1,9 @@
 2009-09-16 Carsten Brachem <carsten.brachem@gmail.com>
+	* BCIntegrate.cxx:
+	  - Improved performance for generating Cauchy distributed random
+	    numbers for	SA (the spherical part is much more efficient now).
+
+2009-09-16 Carsten Brachem <carsten.brachem@gmail.com>
 	* benchmarks/mcmc/src/BCBenchmarkMCMC.cxx:
 	* benchmarks/mcmc/src/BCBenchmarkMCMC2D.cxx:
 	* benchmarks/mcmc/src/BCBenchmarkMCMC3D.cxx:
