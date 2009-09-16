@@ -1662,21 +1662,43 @@ std::vector<double> BCIntegrate::GetProposalPointSACustom(std::vector<double> x,
 
 std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 {
-	std::vector<double> rand_point, gauss_array;
-	double s = 0.,
-		gauss_num;
-
-	for (int i = 0; i < fNvar; i++)
+	std::vector<double> rand_point(fNvar);
+	
+	// This method can only be called with fNvar >= 2 since the 1-dim case
+	// is already hard wired into the Cauchy annealing proposal function.
+	// To speed things up, hard-code fast method for 2 dimensions.
+	// The algorithm can be found at
+	// http://mathworld.wolfram.com/CirclePointPicking.html
+	// (There are also methods for 3D and 4D, but they are too slow.)
+	if (fNvar == 2)
 	{
-		gauss_num = fRandom->Gaus();
-		gauss_array.push_back(gauss_num);
-		s += gauss_num * gauss_num;
+		double x1, x2, s;
+		do {
+			x1 = fRandom->Uniform(-1,1);
+			x2 = fRandom->Uniform(-1,1);
+			s = x1*x1 + x2*x2;
+		} while (s >= 1);
+		
+		rand_point[0] = (x1*x1 - x2*x2) / s;
+		rand_point[1] = (2*x1*x2) / s;
 	}
-	s = sqrt(s);
+	else
+	{
+		double s = 0.,
+			gauss_num;
 
-	for (int i = 0; i < fNvar; i++)
-		rand_point.push_back(gauss_array[i] / s);
+		for (int i = 0; i < fNvar; i++)
+		{
+			gauss_num = fRandom->Gaus();
+			rand_point[i] = gauss_num;
+			s += gauss_num * gauss_num;
+		}
+		s = sqrt(s);
 
+		for (int i = 0; i < fNvar; i++)
+			rand_point[i] = rand_point[i] / s;
+	}
+	
 	return rand_point;
 }
 
