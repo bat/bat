@@ -165,7 +165,7 @@ void BCBenchmarkMCMC2D::ProcessMCTree(int chainID)
 		}
 
 		for (int j=1; j<fMax10thOfIters; j++) {
-			if (i<=j*Niters/10) 
+			if (i<j*Niters/10) 
 				fHistXYIter[chainID][j]->Fill(par0,par1);
 		}
 	}
