@@ -295,3 +295,4 @@ void BCBenchmarkMCMC2D::KolmogorovVsIterOfChain(int chainID)
 				kolmogorovProb);
 	}
 }
+

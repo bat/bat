@@ -590,3 +590,4 @@ TH3F* BCBenchmarkMCMC3D::GetTestFunctionHistogram()
 	}
 	return testHisto;
 }
+
