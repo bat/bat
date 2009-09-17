@@ -96,7 +96,32 @@ int main()
 
 	delete testfunc;
 	delete benchmark;
+	
+	
+	// test function: Cauchy distribution
+	// (probably interesting because it has no mean, variance or skwness
+	// defined)
+	// ==================================
+	
+	testfunc = new TF1("cauchy", "[0] / (3.14159 * ( (x-[1])**2 +[0]**2))",
+			xmin, xmax);
+	testfunc->SetParameter(1.,3.);
 
+	benchmark = new BCBenchmarkMCMC(testfunc,"mcmccauchy.root");
+
+	benchmark -> MCMCSetNIterationsRun(100000);
+
+	benchmark -> MCMCMetropolis();
+
+	benchmark -> ProcessMCTrees();
+	benchmark -> PerformLagsTest();
+	benchmark -> PerformIterationsTest();
+
+	benchmark -> WriteResults();
+
+	delete testfunc;
+	delete benchmark;
+	
 	
 	// define the range for the test
 	double ymin = 0.0, ymax = 20.0;
@@ -127,7 +152,6 @@ int main()
 	
 	// define range for z dimension
 	double zmin = 0.0, zmax = 20.0;
-	
 	
 	// test 3D function: gaus3 (3-dimensional gaussian)
 	// =================================
