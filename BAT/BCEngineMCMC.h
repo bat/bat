@@ -351,8 +351,7 @@ class BCEngineMCMC
 
 		/* Sets the flag for all parameters to either fill histograms or
        not. */ 
-		void MCMCSetFlagFillHistograms(bool flag) 
-		{ fMCMCFlagFillHistograms = flag; }; 
+		void MCMCSetFlagFillHistograms(bool flag); 
 
 		/* Sets the flag for a single parameter to either fill histograms
        or not. */ 

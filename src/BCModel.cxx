@@ -926,7 +926,8 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
 	for(int i=0;i<n;i++)
 	{
 		BCParameter * a = this->GetParameter(i);
-		this -> GetMarginalized(a) -> Print(Form("%s_1D_%s.ps",filebase,a->GetName().data()));
+		if (this -> GetMarginalized(a))
+			this -> GetMarginalized(a) -> Print(Form("%s_1D_%s.ps",filebase,a->GetName().data()));
 	}
 
 	return n;
@@ -961,6 +962,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 			if (deltab <= 1e-7 * meanb)
 				continue;
 
+			if (this -> GetMarginalized(a,b))
 			this -> GetMarginalized(a,b) -> Print(Form("%s_2D_%s_%s.ps",filebase,a->GetName().data(),b->GetName().data()));
 			k++;
 		}
@@ -1054,11 +1056,15 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 		// get corresponding parameter 
 		BCParameter * a = this->GetParameter(i);
 
+		// check if histogram exists
+		if (!this -> GetMarginalized(a))
+			continue; 
+
 		// check if histogram is filled
 		if (this -> GetMarginalized(a) -> GetHistogram() -> Integral() <= 0)
 			continue;
 
-		// if current page is full, swith to new page
+		// if current page is full, switch to new page
 		if(i!=0 && i%(hdiv*vdiv)==0)
 		{
 			c->Update();
@@ -1098,6 +1104,10 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 			// get corresponding parameters 
 			BCParameter * a = this->GetParameter(i);
 			BCParameter * b = this->GetParameter(j);
+			
+			// check if histogram exists
+			if (!this -> GetMarginalized(a,b))
+				continue;
 
 			// check if histogram is filled
 			if (this -> GetMarginalized(a,b) -> GetHistogram() -> Integral() <= 0)

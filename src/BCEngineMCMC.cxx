@@ -171,6 +171,15 @@ void BCEngineMCMC::MCMCSetInitialPositions(std::vector< std::vector<double> > x0
 }
 
 // --------------------------------------------------------
+void BCEngineMCMC::MCMCSetFlagFillHistograms(bool flag)
+{
+	fMCMCFlagFillHistograms = flag; 
+	
+	for (int i = 0; i < fMCMCNParameters; ++i)
+		fMCMCFlagsFillHistograms[i] = flag; 
+}
+
+// --------------------------------------------------------
 void BCEngineMCMC::MCMCSetFlagFillHistograms(int index, bool flag)
 {
 	// check if index is within range
@@ -1125,10 +1134,12 @@ void BCEngineMCMC::MCMCResetRunStatistics()
 
 	// reset marginalized distributions
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
-		fMCMCH1Marginalized[i] -> Reset();
+		if (fMCMCH1Marginalized[i])
+			fMCMCH1Marginalized[i] -> Reset();
 
 	for (int i = 0; i < int(fMCMCH2Marginalized.size()); ++i)
-		fMCMCH2Marginalized[i] -> Reset();
+		if (fMCMCH2Marginalized[i])
+			fMCMCH2Marginalized[i] -> Reset();
 
 	fMCMCRValue = 100;
 }
@@ -1282,7 +1293,9 @@ int BCEngineMCMC::MCMCInitialize()
 		double hmin1 = fMCMCBoundaryMin.at(i);
 		double hmax1 = fMCMCBoundaryMax.at(i);
 
-		TH1D * h1 = new TH1D(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,i), "", fMCMCH1NBins[i], hmin1, hmax1);
+		TH1D * h1 = 0; 
+		if (fMCMCFlagsFillHistograms.at(i))
+			h1 = new TH1D(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,i), "", fMCMCH1NBins[i], hmin1, hmax1);
 		fMCMCH1Marginalized.push_back(h1);
 	}
 
@@ -1294,10 +1307,13 @@ int BCEngineMCMC::MCMCInitialize()
 			double hmin2 = fMCMCBoundaryMin.at(i);
 			double hmax2 = fMCMCBoundaryMax.at(i);
 
-			TH2D * h2 = new TH2D(Form("h2_%d_parameters_%i_vs_%i", BCLog::GetHIndex(), i, k), "",
-					fMCMCH1NBins[i], hmin1, hmax1,
-					fMCMCH1NBins[k], hmin2, hmax2);
-			fMCMCH2Marginalized.push_back(h2);
+			TH2D * h2 = 0; 
+
+			if (fMCMCFlagsFillHistograms.at(i) && fMCMCFlagsFillHistograms.at(k))
+					h2 = new TH2D(Form("h2_%d_parameters_%i_vs_%i", BCLog::GetHIndex(), i, k), "",
+												fMCMCH1NBins[i], hmin1, hmax1,
+												fMCMCH1NBins[k], hmin2, hmax2);
+					fMCMCH2Marginalized.push_back(h2);
 		}
 
 	fMCMCFlagPreRun = false; 
