@@ -1,3 +1,8 @@
+2009-09-17 Carsten Brachem <carsten.brachem@gmail.com>
+	* benchmarks/mcmc/benchmark.cxx:
+	  - Added Cauchy distribution to the benchmark functions as a more
+	    complicated example (since it does not have mean, variance, ...).
+
 2009-09-16 Carsten Brachem <carsten.brachem@gmail.com>
 	* BCIntegrate.cxx:
 	  - Improved performance for generating Cauchy distributed random
