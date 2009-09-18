@@ -1,4 +1,10 @@
 2009-09-18 Carsten Brachem <carsten.brachem@gmail.com>
+	* BCModel.cxx:
+	  - Disabled histogram booking when calculating the p-value.
+	    This will save the allocation of memory for O(n^2) histograms,
+	    n being the no. of data points, and thus a lot of memory.
+
+2009-09-18 Carsten Brachem <carsten.brachem@gmail.com>
 	* BCIntegrate.cxx:
 	  - Improved performance for generating the radial part of Cauchy
 	    random numbers and added a faster calculation of the spherical

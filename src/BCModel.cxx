@@ -1270,6 +1270,10 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 	// the model testing
 	if (!goftest -> SetTestPoint(par))
 		return 0;
+	
+	// disable the creation of histograms to save _a lot_ of memory
+	// (histograms are not needed for p-value calculation)
+	goftest->MCMCSetFlagFillHistograms(false);
 
 	// set parameters of the MCMC for the GoFTest
 	goftest -> MCMCSetNChains(fGoFNChains);
