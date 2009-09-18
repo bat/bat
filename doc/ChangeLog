@@ -1,3 +1,12 @@
+2009-09-18 Carsten Brachem <carsten.brachem@gmail.com>
+	* BCIntegrate.cxx:
+	  - Improved performance for generating the radial part of Cauchy
+	    random numbers and added a faster calculation of the spherical
+	    part in 3 dimensions.
+	* benchmarks/mcmc/benchmark.cxx:
+	  - Fixed a typo that caused a compiler warning (changed a double
+	    to int).
+
 2009-09-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngine.cxx/BCModel.cxx:
 	  - Fixed problem with histogram booking. Histograms are not

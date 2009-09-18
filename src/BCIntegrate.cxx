@@ -1666,21 +1666,25 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 	
 	// This method can only be called with fNvar >= 2 since the 1-dim case
 	// is already hard wired into the Cauchy annealing proposal function.
-	// To speed things up, hard-code fast method for 2 dimensions.
-	// The algorithm can be found at
+	// To speed things up, hard-code fast method for 2 and dimensions.
+	// The algorithm for 2D can be found at
 	// http://mathworld.wolfram.com/CirclePointPicking.html
-	// (There are also methods for 3D and 4D, but they are too slow.)
+	// For 3D just using ROOT's algorithm.
 	if (fNvar == 2)
 	{
 		double x1, x2, s;
 		do {
-			x1 = fRandom->Uniform(-1,1);
-			x2 = fRandom->Uniform(-1,1);
+			x1 = fRandom->Rndm() * 2. - 1.;
+			x2 = fRandom->Rndm() * 2. - 1.;
 			s = x1*x1 + x2*x2;
 		} while (s >= 1);
 		
 		rand_point[0] = (x1*x1 - x2*x2) / s;
-		rand_point[1] = (2*x1*x2) / s;
+		rand_point[1] = (2.*x1*x2) / s;
+	}
+	else if (fNvar == 3)
+	{
+		fRandom->Sphere(rand_point[0], rand_point[1], rand_point[2], 1.0);
 	}
 	else
 	{
@@ -1713,8 +1717,8 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 	double theta;
 
 	// static vectors for theta-sampling-map
-	static std::vector<double> map_u (10001);
-	static std::vector<double> map_theta (10001);
+	static double map_u[10001];
+	static double map_theta[10001];
 	static bool initialized = false;
 	static int map_dimension = 0;
 
@@ -1722,16 +1726,14 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 	if (!initialized || map_dimension != fNvar)
 	{
 		double init_theta;
-		double init_cdf;
 		double beta = this->SAHelperSinusToNIntegral(fNvar - 1, 1.57079632679);
 		
 		for (int i = 0; i <= 10000; i++)
 		{
 			init_theta = 3.14159265 * (double)i / 5000.;
-			map_theta.push_back(init_theta);
+			map_theta[i] = init_theta;
 
-			init_cdf = this->SAHelperSinusToNIntegral(fNvar - 1, init_theta) / beta;
-			map_u.push_back(init_cdf);
+			map_u[i] = this->SAHelperSinusToNIntegral(fNvar - 1, init_theta) / beta;
 		}
 
 		map_dimension = fNvar;
@@ -1739,12 +1741,12 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 	} // initializing is done.
 
 	// generate uniform random number for sampling
-	double u = fRandom->Uniform();
+	double u = fRandom->Rndm();
 
 	// Find the two elements just greater than and less than u
 	// using a binary search (O(log(N))).
 	int lo = 0;
-	int up = map_u.size() - 1;
+	int up = 10000;
 	int mid;
 
 	while (up != lo)

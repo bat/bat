@@ -105,7 +105,7 @@ int main()
 	
 	testfunc = new TF1("cauchy", "[0] / (3.14159 * ( (x-[1])**2 +[0]**2))",
 			xmin, xmax);
-	testfunc->SetParameter(1.,3.);
+	testfunc->SetParameter(1,3.);
 
 	benchmark = new BCBenchmarkMCMC(testfunc,"mcmccauchy.root");
 
