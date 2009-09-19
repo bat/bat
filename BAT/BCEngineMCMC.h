@@ -80,9 +80,9 @@ class BCEngineMCMC
 			{ return fMCMCNChains; };
 
 		/*
-		 * @return lag of the Markov chains */ 
+		 * @return lag of the Markov chains */
 		int MCMCGetNLag()
-		{ return fMCMCNLag; }; 
+			{ return fMCMCNLag; };
 
 		/*
 		 * @return number of iterations */
@@ -237,10 +237,10 @@ class BCEngineMCMC
 			{ return fMCMCRValueParameters.at(i); };
 
 		/*
-		 * @return the flag if MCMC has been performed or not */ 
+		 * @return the flag if MCMC has been performed or not */
 		bool MCMCGetFlagRun()
 		{ return fMCMCFlagRun; };
-		
+
 		/*
 		 * Rtrieve the tree containing the Markov chain.
 		 * @param i index of the Markov chain
@@ -252,7 +252,7 @@ class BCEngineMCMC
 		 * Retrieve a histogram of the 1D marginalized distribution of a single parameter.
 		 * @param i index of the parameter
 		 * @return pointer to the histogram */
-		TH1D * MCMCGetH1Marginalized(int i); 
+		TH1D * MCMCGetH1Marginalized(int i);
 
 		/*
 		 * Retrieve a histogram of the 2D marginalized distribution for two parameters.
@@ -262,9 +262,9 @@ class BCEngineMCMC
 		TH2D * MCMCGetH2Marginalized(int i, int j);
 
 		/*
-		 * Return the random number generator */ 
+		 * Return the random number generator */
 		TRandom3 * MCMCGetTRandom3()
-		{ return fMCMCRandom; }; 
+		{ return fMCMCRandom; };
 
 		/* @} */
 		/** \name Setters */
@@ -272,7 +272,7 @@ class BCEngineMCMC
 
 		/*
 		 * Set the scale factors for the trial functions
-		 * @param scale a vector of doubles containing the scale factors */ 
+		 * @param scale a vector of doubles containing the scale factors */
 		void MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)
 			{ fMCMCTrialFunctionScaleFactorStart = scale; };
 
@@ -281,9 +281,9 @@ class BCEngineMCMC
 		void MCMCSetNChains(int n);
 
 		/*
-		 * Sets the lag of the Markov chains */ 
+		 * Sets the lag of the Markov chains */
 		void MCMCSetNLag(int n)
-		{ fMCMCNLag = n; }; 
+		{ fMCMCNLag = n; };
 
 		/*
 		 * Sets the maximum number of iterations. */
@@ -307,11 +307,18 @@ class BCEngineMCMC
 
 		/*
 		 * Sets the number of iterations in the pre-run after which an
-		 * update on the statistics (convergence, efficiency, etc.) is
-		 * done.
-		 * @param n The number of iterations.*/ 
+		 * update on the statistics (convergence, efficiency, etc.) is done.
+		 * @param n The number of iterations.*/
 		void MCMCSetNIterationsUpdate(int n)
-		{ fMCMCNIterationsUpdate = n; };
+			{ fMCMCNIterationsUpdate = n; };
+
+		/*
+		 * Sets the maximum number of iterations in the pre-run after which an
+		 * update on the statistics (convergence, efficiency, etc.) is done.
+		 * If set to 0 no maximum is set.
+		 * @param n maximum number of iterations. */
+		void MCMCSetNIterationsUpdateMax(int n)
+			{ fMCMCNIterationsUpdateMax = n; };
 
 		/*
 		 * Sets the minimum efficiency required for a chain. */
@@ -349,13 +356,11 @@ class BCEngineMCMC
 		void MCMCSetFlagOrderParameters(bool flag)
 		{ fMCMCFlagOrderParameters = flag; };
 
-		/* Sets the flag for all parameters to either fill histograms or
-       not. */ 
-		void MCMCSetFlagFillHistograms(bool flag); 
+		/* Sets the flag for all parameters to either fill histograms or not. */
+		void MCMCSetFlagFillHistograms(bool flag);
 
-		/* Sets the flag for a single parameter to either fill histograms
-       or not. */ 
-		void MCMCSetFlagFillHistograms(int index, bool flag); 
+		/* Sets the flag for a single parameter to either fill histograms or not. */
+		void MCMCSetFlagFillHistograms(int index, bool flag);
 
 		/*
 		 * Sets the R-value criterion for convergence of all chains. */
@@ -420,7 +425,7 @@ class BCEngineMCMC
 		 * Breit-Wigner. It can be overloaded by the user to set the trial
 		 * function.
 		 * @param ichain the chain index
-		 * @param iparameter the parameter index 
+		 * @param iparameter the parameter index
 		 * @param x point with the dimension fMCMCNParameters */
 		virtual void MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x);
 
@@ -520,16 +525,16 @@ class BCEngineMCMC
 		std::vector <double> fMCMCBoundaryMax;
 
 		/*
-		 * Parameter flags for marginalization */ 
-		std::vector <bool> fMCMCFlagsFillHistograms; 
+		 * Parameter flags for marginalization */
+		std::vector <bool> fMCMCFlagsFillHistograms;
 
 		/*
 		 * Number of Markov chains ran in parallel */
 		int fMCMCNChains;
 
 		/*
-		 * The lag for the Markov Chain */ 
-		int fMCMCNLag; 
+		 * The lag for the Markov Chain */
+		int fMCMCNLag;
 
 		/*
 		 * Number of total iterations of the Markov chains. The length of
@@ -539,6 +544,10 @@ class BCEngineMCMC
 		/*
 		 * Number of iterations for updating scale factors */
 		int fMCMCNIterationsUpdate;
+
+		/*
+		 * Maximum number of iterations for updating scale factors */
+		int fMCMCNIterationsUpdateMax;
 
 		/*
 		 * Number of iterations needed for all chains to convergence
@@ -615,8 +624,8 @@ class BCEngineMCMC
 		bool fMCMCFlagPreRun;
 
 		/*
-		 * Defines if MCMC has been performed or not */ 
-		bool fMCMCFlagRun; 
+		 * Defines if MCMC has been performed or not */
+		bool fMCMCFlagRun;
 
 		/*
 		 * The intial position of each Markov chain. The length of the
@@ -645,8 +654,8 @@ class BCEngineMCMC
 		bool fMCMCFlagOrderParameters;
 
 		/*
-		 * Flag which controls fill histograms during main run. */ 
-		bool fMCMCFlagFillHistograms; 
+		 * Flag which controls fill histograms during main run. */
+		bool fMCMCFlagFillHistograms;
 
 		/*
 		 * The current points of each Markov chain. The length of the
@@ -687,7 +696,7 @@ class BCEngineMCMC
 		 * The R-value at which the chains did converge */
 		double fMCMCRValue;
 
-		/* The R-values for each parameter */ 
+		/* The R-values for each parameter */
 		std::vector <double> fMCMCRValueParameters;
 
 		/*
