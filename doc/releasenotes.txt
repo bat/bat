@@ -3,7 +3,7 @@ BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.3
 Release date:                 2009-09-21
-Urgwncy:                      medium
+Urgency:                      medium
 ------------------------------------------
 
 This version includes many updates and a few bugfixes. The major
