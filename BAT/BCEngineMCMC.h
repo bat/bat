@@ -286,7 +286,7 @@ class BCEngineMCMC
 		{ fMCMCNLag = n; };
 
 		/*
-		 * Sets the maximum number of iterations. */
+		 * Sets the maximum number of iterations in the pre-run. */
 		void MCMCSetNIterationsMax(int n)
 			{ fMCMCNIterationsMax = n; };
 

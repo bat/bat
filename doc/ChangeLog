@@ -1,5 +1,12 @@
 2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEndineMCMC:
+	  - switched to short versions of BCLog::Out
+	  - added warning when convergence was never checked
+	  - added more progress printouts in the pre-run
+	  - updated some comments
+
+2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCEndineMCMC:
 	  - added maximum number of iterations after which the efficiency
 	    convergence is checked fMCMCNIterationsUpdateMax; set to 10000
 	    by default (was fMCMCNIterationsUpdate*(fMCMCNParameters+1) before)

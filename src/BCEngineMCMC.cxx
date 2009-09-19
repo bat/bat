@@ -135,7 +135,7 @@ TH1D * BCEngineMCMC::MCMCGetH1Marginalized(int index)
 		// check index
 	if (index < 0 || index >= int(fMCMCH1Marginalized.size()))
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCEngineMCMC::MCMCGetH1Marginalized. Index out of range.");
+		BCLog::OutWarning("BCEngineMCMC::MCMCGetH1Marginalized. Index out of range.");
 		return 0;
 	}
 
@@ -160,7 +160,7 @@ TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 	// check index
 	if (index < 0 || index >= int(fMCMCH2Marginalized.size()))
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCEngineMCMC::MCMCGetH2Marginalized. Index out of range.");
+		BCLog::OutWarning("BCEngineMCMC::MCMCGetH2Marginalized. Index out of range.");
 		return 0;
 	}
 
@@ -238,7 +238,7 @@ void BCEngineMCMC::MCMCSetFlagFillHistograms(int index, bool flag)
 	// check if index is within range
 	if (index < 0 || index > fMCMCNParameters)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCEngineMCMC :MCMCSetFlagFillHistograms. Index out of range.");
+		BCLog::OutWarning("BCEngineMCMC :MCMCSetFlagFillHistograms. Index out of range.");
 		return;
 	}
 
@@ -692,7 +692,7 @@ double BCEngineMCMC::LogEval(std::vector <double> parameters)
 int BCEngineMCMC::MCMCMetropolisPreRun()
 {
 	// print on screen
-	BCLog::Out(BCLog::summary, BCLog::summary, "Pre-run Metropolis MCMC...");
+	BCLog::OutSummary("Pre-run Metropolis MCMC...");
 
 	// initialize Markov chain
 	this -> MCMCInitialize();
@@ -705,8 +705,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// perform burn-in run
 	if (fMCMCNIterationsBurnIn > 0)
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form(" --> Start burn-in run with %i iterations", fMCMCNIterationsBurnIn));
+		BCLog::OutDetail(Form(" --> Start burn-in run with %i iterations", fMCMCNIterationsBurnIn));
 
 	// if the flag is set then run over the parameters one after the other.
 	if (fMCMCFlagOrderParameters)
@@ -720,12 +719,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	else
 	{
 		for (int i = 0; i < fMCMCNIterationsBurnIn; ++i)
-		{
 			// loop over chains
 			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 				// get new point
 				this -> MCMCGetNewPointMetropolis(ichains);
-		}
 	}
 
 	// reset run statistics
@@ -733,8 +730,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	fMCMCNIterationsConvergenceGlobal = -1;
 
 	// perform run
-	BCLog::Out(BCLog::summary, BCLog::summary,
-			Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsMax));
+	BCLog::OutSummary(Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsMax));
 
 
 	// don't write to file during pre run
@@ -795,14 +791,17 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			this -> MCMCUpdateStatisticsCheckMaximum();
 		}
 
+		// progress printout
+		if ( counter > 0 && counterupdate % fMCMCNIterationsUpdate == 0 )
+			BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
+
 		//-------------------------------------------
 		// update scale factors and check convergence
 		//-------------------------------------------
 		if (counterupdate % updateLimit == 0 && counterupdate > 0 && counter >= fMCMCNIterationsPreRunMin)
 		{
 			// prompt status
-			BCLog::Out(BCLog::detail, BCLog::detail,
-					Form(" --> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
+			BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
 
 			bool rvalues_ok = true;
 			static bool has_converged = false;
@@ -823,31 +822,27 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 			// print convergence status:
 			if (convergence && fMCMCNChains > 1)
-				BCLog::Out(BCLog::detail, BCLog::detail,
-									 Form("     * Convergence status: Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 			else if (!convergence && fMCMCNChains > 1)
 			{
-				BCLog::Out(BCLog::detail, BCLog::detail,
-						Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, counter));
+				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, counter));
 
-				BCLog::Out(BCLog::detail, BCLog::detail, "       - R-Values:");
+				BCLog::OutDetail("       - R-Values:");
 				for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
 				{
 					if(fabs(fMCMCRValueParameters[iparameter]-1.) < fMCMCRValueParametersCriterion)
-						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form( TString::Format("         parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+						BCLog::OutDetail(Form( TString::Format("         parameter %%%di :  %%.06f",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
 					else
 					{
-						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form( TString::Format("         parameter %%%di :  %%.06f <--",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
+						BCLog::OutDetail(Form( TString::Format("         parameter %%%di :  %%.06f <--",ndigits), iparameter, fMCMCRValueParameters.at(iparameter)));
 						rvalues_ok = false;
 					}
 				}
 				if(fabs(fMCMCRValue-1.) < fMCMCRValueCriterion)
-					BCLog::Out(BCLog::detail, BCLog::detail, Form("         log-likelihood :  %.06f", fMCMCRValue));
+					BCLog::OutDetail(Form("         log-likelihood :  %.06f", fMCMCRValue));
 				else
 				{
-					BCLog::Out(BCLog::detail, BCLog::detail, Form("         log-likelihood :  %.06f <--", fMCMCRValue));
+					BCLog::OutDetail(Form("         log-likelihood :  %.06f <--", fMCMCRValue));
 					rvalues_ok = false;
 				}
 			}
@@ -882,10 +877,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					{
 						if (flagprintefficiency)
 						{
-							BCLog::Out(BCLog::detail, BCLog::detail,
-									Form("     * Efficiency status: Efficiencies not within pre-defined range."));
-							BCLog::Out(BCLog::detail, BCLog::detail,
-									Form("       - Efficiencies:"));
+							BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range."));
+							BCLog::OutDetail(Form("       - Efficiencies:"));
 							flagprintefficiency = false;
 						}
 
@@ -894,9 +887,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 							fscale = 4.;
 						fMCMCTrialFunctionScaleFactor[ipc] /= fscale;
 
-						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form("         Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
-										iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
+						BCLog::OutDetail(Form("         Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
+								iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
 					}
 
 					// adjust scale factors if efficiency is too high
@@ -904,18 +896,15 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 					{
 						if (flagprintefficiency)
 						{
-							BCLog::Out(BCLog::detail, BCLog::detail,
-									Form("   * Efficiency status: Efficiencies not within pre-defined ranges."));
-							BCLog::Out(BCLog::detail, BCLog::detail,
-									Form("     - Efficiencies:"));
+							BCLog::OutDetail(Form("   * Efficiency status: Efficiencies not within pre-defined ranges."));
+							BCLog::OutDetail(Form("     - Efficiencies:"));
 							flagprintefficiency = false;
 						}
 
 						fMCMCTrialFunctionScaleFactor[ipc] *= 2.;
 
-						BCLog::Out(BCLog::detail, BCLog::detail,
-								Form("         Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
-										iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
+						BCLog::OutDetail(Form("         Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
+								iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[ipc], ichains, fMCMCTrialFunctionScaleFactor[ipc]));
 					}
 
 					// check flag
@@ -936,8 +925,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 			// print to scrren
 			if (flagefficiency)
-				BCLog::Out(BCLog::detail, BCLog::detail,
-						Form("     * Efficiency status: Efficiencies within pre-defined ranges."));
+				BCLog::OutDetail(Form("     * Efficiency status: Efficiencies within pre-defined ranges."));
 
 		} // end if update scale factors and check convergence
 
@@ -945,6 +933,14 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		counter++;
 		counterupdate++;
 	} // end of running
+
+	// did we check convergence at least once ?
+	if (counter-1<updateLimit)
+	{
+		BCLog::OutWarning(" Convergence never checked !");
+		BCLog::OutWarning("   Increase maximum number of iterations in the pre-run /MCMCSetNIterationsMax()/");
+		BCLog::OutWarning("   or decrease maximum number of iterations for update  /MCMCSetNIterationsUpdateMax()/");
+	}
 
 	// ---------------
 	// after chain run
@@ -958,28 +954,24 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// print convergence status
 	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && !flagefficiency)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains converged within %i iterations but could not adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations but could not adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 
 	else if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && flagefficiency)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains converged within %i iterations and could adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations and could adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 
 	else if (!fMCMCFlagConvergenceGlobal && (fMCMCNChains > 1) && flagefficiency)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains did not converge within %i iterations.", fMCMCNChains, fMCMCNIterationsMax));
+		BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations.", fMCMCNChains, fMCMCNIterationsMax));
 
 	else if (!fMCMCFlagConvergenceGlobal && (fMCMCNChains > 1) && !flagefficiency)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(" --> Set of %i Markov chains did not converge within %i iterations and could not adjust scales.", fMCMCNChains, fMCMCNIterationsMax));
+		BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations and could not adjust scales.", fMCMCNChains, fMCMCNIterationsMax));
 
 	else if(fMCMCNChains == 1)
-		BCLog::Out(BCLog::summary, BCLog::summary," --> No convergence criterion for a single chain defined.");
+		BCLog::OutSummary(" --> No convergence criterion for a single chain defined.");
 
 	else
-		BCLog::Out(BCLog::summary, BCLog::summary," --> Only one Markov chain. No global convergence criterion defined.");
+		BCLog::OutSummary(" --> Only one Markov chain. No global convergence criterion defined.");
 
-	BCLog::Out(BCLog::summary, BCLog::summary,Form(" --> Markov chains ran for %i iterations.", counter));
+	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", counter));
 
 
 	// print efficiencies
@@ -988,14 +980,13 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		efficiencies.push_back(0.);
 
-	BCLog::Out(BCLog::detail, BCLog::detail, " --> Average efficiencies:");
+	BCLog::OutDetail(" --> Average efficiencies:");
 	for (int i = 0; i < fMCMCNParameters; ++i)
 	{
 		for (int j = 0; j < fMCMCNChains; ++j)
 			efficiencies[i] += efficiency[j * fMCMCNParameters + i] / double(fMCMCNChains);
 
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form( TString::Format(" -->      parameter %%%di :  %%.02f%%%%",ndigits), i, 100. * efficiencies[i]));
+		BCLog::OutDetail(Form(TString::Format(" -->      parameter %%%di :  %%.02f%%%%",ndigits), i, 100. * efficiencies[i]));
 	}
 
 
@@ -1005,14 +996,13 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		scalefactors.push_back(0.0);
 
-	BCLog::Out(BCLog::detail, BCLog::detail, " --> Average scale factors:");
+	BCLog::OutDetail(" --> Average scale factors:");
 	for (int i = 0; i < fMCMCNParameters; ++i)
 	{
 		for (int j = 0; j < fMCMCNChains; ++j)
 			scalefactors[i] += fMCMCTrialFunctionScaleFactor[j * fMCMCNParameters + i] / double(fMCMCNChains);
 
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form( TString::Format(" -->      parameter %%%di :  %%.02f%%%%",ndigits), i, 100. * scalefactors[i]));
+		BCLog::OutDetail(Form( TString::Format(" -->      parameter %%%di :  %%.02f%%%%",ndigits), i, 100. * scalefactors[i]));
 	}
 
 	// reset flag
@@ -1033,14 +1023,13 @@ int BCEngineMCMC::MCMCMetropolis()
 		this -> MCMCMetropolisPreRun();
 
 	// print to screen
-	BCLog::Out(BCLog::summary, BCLog::summary, "Run Metropolis MCMC...");
+	BCLog::OutSummary( "Run Metropolis MCMC...");
 
 	// reset run statistics
 	this -> MCMCResetRunStatistics();
 
 	// perform run
-	BCLog::Out(BCLog::summary, BCLog::summary,
-			Form(" --> Perform MCMC run with %i chains, each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
+	BCLog::OutSummary(Form(" --> Perform MCMC run with %i chains, each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
 
 //	int counterupdate = 0;
 //	bool convergence = false;
@@ -1066,8 +1055,7 @@ int BCEngineMCMC::MCMCMetropolis()
 	for (int iiterations = 0; iiterations < fMCMCNIterationsRun; ++iiterations)
 	{
 		if ( (iiterations+1)%nwrite == 0 )
-			BCLog::Out(BCLog::detail, BCLog::detail,
-					Form(" --> iteration number %i (%.2f%%)", iiterations+1, (double)(iiterations+1)/(double)fMCMCNIterationsRun*100.));
+			BCLog::OutDetail(Form(" --> iteration number %i (%.2f%%)", iiterations+1, (double)(iiterations+1)/(double)fMCMCNIterationsRun*100.));
 
 		// if the flag is set then run over the parameters one after the other.
 		if (fMCMCFlagOrderParameters)
@@ -1127,8 +1115,7 @@ int BCEngineMCMC::MCMCMetropolis()
 	} // end run
 
 	// print convergence status
-	BCLog::Out(BCLog::summary, BCLog::summary,
-			Form(" --> Markov chains ran for %i iterations.", fMCMCNIterationsRun));
+	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", fMCMCNIterationsRun));
 
 	// print modes
 
@@ -1144,12 +1131,11 @@ int BCEngineMCMC::MCMCMetropolis()
 			probmaxindex = i;
 		}
 
-	BCLog::Out(BCLog::detail, BCLog::detail, " --> Global mode from MCMC:");
+	BCLog::OutDetail(" --> Global mode from MCMC:");
 	int ndigits = (int) log10(fMCMCNParameters);
 	for (int i = 0; i < fMCMCNParameters; ++i)
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
-						i, fMCMCMaximumPoints[probmaxindex * fMCMCNParameters + i]));
+		BCLog::OutDetail(Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
+				i, fMCMCMaximumPoints[probmaxindex * fMCMCNParameters + i]));
 
 	// set flags
 	fMCMCFlagPreRun = false;
@@ -1285,7 +1271,7 @@ int BCEngineMCMC::MCMCInitialize()
 		// check the length of the array of initial positions
 		if (int(fMCMCInitialPosition.size()) != (fMCMCNChains * fMCMCNParameters))
 		{
-			BCLog::Out(BCLog::error, BCLog::error, "BCEngine::MCMCInitialize : Length of vector containing initial positions does not have required length.");
+			BCLog::OutError("BCEngine::MCMCInitialize : Length of vector containing initial positions does not have required length.");
 			flag = false;
 		}
 
