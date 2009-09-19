@@ -7,7 +7,7 @@ SUBDIRS= \
 	src
 EXTRA_DIST= \
 	src/libBAT.rootmap \
-	doc/COPYING doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
+	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	models \
 	tools/CreateProject.sh

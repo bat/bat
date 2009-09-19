@@ -1,4 +1,3 @@
-// $Id: efficiencyFitterExample.C,v 1.1 2009-04-15 19:29:36 jliu Exp $
 //
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting

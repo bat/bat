@@ -1,32 +1,29 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.2.1
-Release date:                 2009-04-07
-Urgwncy:                      high
+Release notes for version:    0.3
+Release date:                 2009-09-21
+Urgwncy:                      medium
 ------------------------------------------
 
-This version includes mostly bugfixes and small updates which
-should improve stability. We strongly recommend updating to this
-version.
+This version includes many updates and a few bugfixes. The major
+improvements are:
 
 Updates:
-o added explicit calculation of Bayes K-factors
-o added simplified output methods to BCLog
-o added interface model for RooFit workspace
-o minor code updates and cleanup
-o updated installation instructions
+o added Simulated Annealing algorithm for mode finding
+o added lag to MCMC which reduces the correlation between iterations
+o filling of marginalized distributions can now be turned off
+o default proposal function for MCMC was set to Breit-Wigner
+o further optimizations of MCMC setup
+o introduced performance testing of MCMC
+o added more information to results printouts
+o updated interface for RooFit workspace
+o various code updates and cleanup
 o major updates in the introducion to BAT
 
 Bugfixes:
-# fixed reading data from textfile which caused that in case there was
-  a newline character at the end of file, the last datapoint was included
-  twice
-# fixed crash in example05 caused by late initialization of BCModelOutput
-# fixed bug in MCMC which caused incorrect sampling near boundary of the
-  parameter space in case the bulk of the distribution was too close
-  to the boundary
-# fixed user setup of starting positions of MCMC
+* fixes in efficiency calculation and range scaling during MCMC pre-run
+* fixed memory problem in p-value calculation using MCMC
 
 For detailed list of changes see the Changelog. For more information
 consult the BAT webpage at http://www.mppmu.mpg.de/bat/

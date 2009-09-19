@@ -1,4 +1,12 @@
 2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.3 release candidate 1 (.rc1)
+	* updated release notes
+	* added CREDITS file
+	* small updates in example macros
+	* BCEngineMCMC:
+	  - updated the progress printout in the pre-run
+
+2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEndineMCMC:
 	  - switched to short versions of BCLog::Out
 	  - added warning when convergence was never checked

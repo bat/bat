@@ -792,17 +792,14 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		}
 
 		// progress printout
-		if ( counter > 0 && counterupdate % fMCMCNIterationsUpdate == 0 )
-			BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
+		if ( counter > 0 && counter % fMCMCNIterationsUpdate == 0 )
+			BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0]/fMCMCNParameters - 1));
 
 		//-------------------------------------------
 		// update scale factors and check convergence
 		//-------------------------------------------
 		if (counterupdate % updateLimit == 0 && counterupdate > 0 && counter >= fMCMCNIterationsPreRunMin)
 		{
-			// prompt status
-			BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0] / fMCMCNParameters));
-
 			bool rvalues_ok = true;
 			static bool has_converged = false;
 

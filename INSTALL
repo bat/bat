@@ -1,6 +1,6 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.2.1
+version 0.3
 -------------------------------
 
 This is the INSTALL file of BAT package
@@ -17,7 +17,7 @@ and different versions of the kernel and gcc. As far as we know there
 is nothing distribution dependent inside of BAT. However, we have not yet
 started to systematically check for compatibility and portability. This is
 planned for future releases of BAT. For the moment the only statement
-we can do here is that if you don't have a too old or too specific
+we can make is that if you don't have a too old or too specific
 installation of Linux you should be able to compile and use BAT without
 problems.
 

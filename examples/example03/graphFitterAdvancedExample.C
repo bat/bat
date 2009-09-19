@@ -1,4 +1,3 @@
-// $Id: graphFitterAdvancedExample.C,v 1.3 2009-04-15 19:25:19 jliu Exp $
 //
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting

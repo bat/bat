@@ -35,18 +35,14 @@ void Pol2Asymm::DefineParameters()
 	this -> AddParameter("p2", -0.001,  0.001); // index 2
 
 	// Print parameter summary
-	BCLog::Out(BCLog::summary,BCLog::summary,
+	BCLog::OutSummary(
 			Form("Model \'%s\' has %d parameters:",this->GetName().data(),this -> GetNParameters()));
 	for(unsigned int i=0; i< this -> GetNParameters(); i++)
-		BCLog::Out(BCLog::summary, BCLog::summary,
-				Form(
-					"   %d. %s    range: %g - %g",
-					i,
-					this -> GetParameter(i) -> GetName().data(),
-					this -> GetParameter(i) -> GetLowerLimit(),
-					this -> GetParameter(i) -> GetUpperLimit()
-				)
-		);
+		BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
+				i,
+				this -> GetParameter(i) -> GetName().data(),
+				this -> GetParameter(i) -> GetLowerLimit(),
+				this -> GetParameter(i) -> GetUpperLimit() ) );
 }
 
 // ---------------------------------------------------------

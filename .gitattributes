@@ -53,6 +53,7 @@ development/Makefile -text
 development/runengine.c -text
 development/todo_detail.txt -text
 doc/COPYING -text
+doc/CREDITS -text
 doc/ChangeLog -text
 doc/LICENSE -text
 doc/introduction/bat.eps -text
