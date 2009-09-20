@@ -1,3 +1,8 @@
+2009-09-20 Daniel Kollar <daniel.kollar@cern.ch>
+	* INSTALL:
+	  - fixed typo
+	  - changed ROOT version required by BCRooInterface to 5.24
+
 2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* releasenotes.txt: fixed typo
 
