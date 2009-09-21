@@ -5,6 +5,7 @@
 %\usepackage{epstopdf}
 %\usepackage{graphics}
 \usepackage{graphicx}
+\usepackage{url}
 
 \setlength{\oddsidemargin}{0cm}
 \setlength{\evensidemargin}{0cm}
@@ -34,17 +35,23 @@
 \includegraphics[scale=0.25]{bat.eps}
 \end{figure}
 
-\vspace{1.0cm}
+\vspace*{1cm}
 
 \begin{center}
 
-{\Large \bat\ - a short introduction}
+
+{\Large A short introduction to \bat}
+\\
+
+\vspace{1cm}
+
+{\large \bat\ \version}
 
 \end{center}
 
 \thispagestyle{empty}
 
-\vspace{17.0cm}
+\vfill
 
 \begin{center}
 \today
@@ -85,6 +92,22 @@ introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
 
 \section{Installation}
 \label{section:installation}
+
+\subsection{Availability}
+
+\bat\ can be downloaded from \url{http://www.mppmu.mpg.de/bat}.
+
+\bigskip
+
+\noindent
+\bat\ is a free software: you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation, either version 3 of
+the License, or any later version.
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% --------------------------------------------------------
 
 \subsection{Platforms}
 
@@ -186,8 +209,8 @@ make install
 %
 to compile and install \bat. Note that depending on the setting of
 installation prefix you might need root priviledges to be able to
-install \bat. If you are installing \bat\ e.g. in your
-\verb|\$HOMEDIR|, you need to add the path to the library and to the
+install \bat. If you are installing \bat\ e.g. in your \verb|$HOMEDIR|, %$ workaround for bad highlighting
+you need to add the path to the library and to the
 include files to the search path in your system. Depending on your
 shell you can do that via commands
 %
@@ -222,7 +245,7 @@ See also \verb|doc/INSTALL| for installation instructions.
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\pagebreak
+%\pagebreak
 
 \section{Running \bat}
 \label{section:running}
@@ -1227,19 +1250,20 @@ guide:
 \begin{thebibliography}{99}
 \bibitem{Caldwell:2008fw}
   A.~Caldwell, D.~Kollar and K.~Kroeninger, ``BAT - The Bayesian
-  Analysis Toolkit,'' Comput.\ Phys.\ Commun.\ {\bf 180} (2009) 2197-2209
+  Analysis Toolkit,'' \textit{Comp.\ Phys.\ Comm.}\ {\bf 180} (2009) 2197-2209
   [arXiv:0808.2552]
+  \url{http://www.mppmu.mpg.de/bat/}
 %
 \bibitem{ROOTweb}
-http://root.cern.ch/
+  \url{http://root.cern.ch/}
 %
 \bibitem{CUBA}
   T.~Hahn, ``CUBA: A library for multidimensional numerical
-  integration,'' Comput.\ Phys.\ Commun.\ {\bf 168} (2005) 78
+  integration,'' \textit{Comp.\ Phys.\ Comm.}\ {\bf 168} (2005) 78
   [arXiv:hep-ph/0404043].
 %
 \bibitem{CUBAweb}
-  http://www.feynarts.de/cuba/
+  \url{http://www.feynarts.de/cuba/}
 \end{thebibliography}
 
 % --------------------------------------------------------

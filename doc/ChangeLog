@@ -1,4 +1,10 @@
 2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.3 release candidate 2 (.rc2)
+	* doc/introduction:
+	  - added Availability subsection
+	  - small updates
+
+2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* doc/introduction:
 	  - increased BAT version
 	  - updated inslattation instructions
