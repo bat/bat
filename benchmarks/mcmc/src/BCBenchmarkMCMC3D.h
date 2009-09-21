@@ -7,14 +7,14 @@
  * \author Carsten Brachem
  * \version 1.0
  * \date 16.09.2009
- * \detail This class create MCMCs according to a known 3D distribution 
+ * \detail This class create MCMCs according to a known 3D distribution
  * and check the statistical properties of the created chains, e.g.
- * x2, moments, quantiles and fluctuations, etc. as functions of 
+ * x2, moments, quantiles and fluctuations, etc. as functions of
  * different lags and iterations.
  */
 
 /*
- * Copyright (C) 2009, 
+ * Copyright (C) 2009,
  * Daniel Kollar, Kevin Kroeninger and Jing Liu.
  * All rights reserved.
  *
@@ -65,13 +65,13 @@ class BCBenchmarkMCMC3D : public BCModel, public BCModelOutput
 		void ProcessMCTree(int chainID=0);
 		void Chi2vsLagsOfChain(int chainID=0);
 		void Chi2vsIterOfChain(int chainID=0);
-		
+
 		void KolmogorovVsLagsOfChain(int chainID=0);
 		void KolmogorovVsIterOfChain(int chainID=0);
-		
+
 		Double_t KolmogorovTest(TH1 *h1, TH1 *h2,
 			Option_t *option);
-		
+
 		TH3F* GetTestFunctionHistogram();
 
 		int fNbinx, fNbiny, fNbinz;

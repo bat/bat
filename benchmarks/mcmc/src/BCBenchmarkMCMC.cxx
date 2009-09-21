@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 
+ * Copyright (C) 2009,
  * Daniel Kollar, Kevin Kroeninger and Jing Liu.
  * All rights reserved.
  *
@@ -15,6 +15,8 @@
 
 #include "BCBenchmarkMCMC.h"
 
+#include <cstdlib>
+
 //=============================================================================
 
 BCBenchmarkMCMC::BCBenchmarkMCMC(
@@ -23,40 +25,39 @@ BCBenchmarkMCMC::BCBenchmarkMCMC(
 		const char* modelName)
 :BCModel(modelName), BCModelOutput(), fNbinx(100)
 {
-	BCLog::Out(BCLog::summary,BCLog::summary," setup test function ...");
-	if (testFunction==NULL) {
-		BCLog::Out(BCLog::error,BCLog::error,
-				" The test function doesn't exist!");
-		abort();
+	BCLog::OutSummary(" setup test function ...");
+	if (!testFunction) {
+		BCLog::OutError(" The test function doesn't exist!");
+		std::abort();
 	}
 
 	fTestFunction = testFunction;
-	fXmin=fTestFunction->GetXmin(); 
+	fXmin=fTestFunction->GetXmin();
 	fXmax=fTestFunction->GetXmax();
-	
+
 	// set no. of points for histogram representation of test function
 	// (used for Kolmogorov-Smirnov test)
 	fTestFunction->SetNpx(fNbinx);
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," setup fitting function ...");
+	BCLog::OutSummary(" setup fitting function ...");
 	fFitFunction = new TF1("fFitFunction",
-			fTestFunction->GetExpFormula(),fXmin,fXmax);
+			fTestFunction->GetExpFormula().Data(),fXmin,fXmax);
 	for (int i=1; i<fTestFunction->GetNpar(); i++)
 		fFitFunction->FixParameter(i,fTestFunction->GetParameter(i));
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," add parameter x ...");
+	BCLog::OutSummary(" add parameter x ...");
 	this->AddParameter("x",fXmin,fXmax);
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," setup trees for chains ...");
+	BCLog::OutSummary(" setup trees for chains ...");
 	SetModel(this);
 	BCModelOutput::WriteMarkovChain(true);
 	SetFile(outputFile);
-	
 
-	BCLog::Out(BCLog::summary,BCLog::summary," book histograms for analysis ...");
+
+	BCLog::OutSummary(" book histograms for analysis ...");
 	for (int i=0; i<fMaxChains; i++) {
 		for (int j=1; j<fMaxLags; j++)
 			fHistXLags[i][j] = new TH1F(Form("fHistXChain%dLag%d",i,j),
@@ -71,7 +72,7 @@ BCBenchmarkMCMC::BCBenchmarkMCMC(
 				fMaxLags-1,1,fMaxLags);
 		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
 				fMax10thOfIters-1,1,fMax10thOfIters);
-		
+
 		fHKolmogorovProbVsLags[i] = new TH1F(
 				Form("HKolmogorovProbVsLagsChain%d", i), "",
 				fMaxLags-1, 1, fMaxLags);
@@ -96,7 +97,7 @@ BCBenchmarkMCMC::~BCBenchmarkMCMC()
 
 		if (fHChi2vsLags[i]) delete fHChi2vsLags[i];
 		if (fHChi2vsIter[i]) delete fHChi2vsIter[i];
-		
+
 		if (fHKolmogorovProbVsLags[i]) delete fHKolmogorovProbVsLags[i];
 		if (fHKolmogorovProbVsIter[i]) delete fHKolmogorovProbVsIter[i];
 	}
@@ -135,17 +136,17 @@ void BCBenchmarkMCMC::ProcessMCTree(int chainID)
 		fVariance = sqrt(sum2/Double_t(i+1));
 
 		sum3 += (par0-fMean)*(par0-fMean)*(par0-fMean);
-		if (fVariance!=0) 
+		if (fVariance!=0)
 			fSkewness = (sum3/Double_t(i+1))/(fVariance*fVariance*fVariance);
 
 		chain->Fill();
-		
+
 		for (int j=1; j<fMaxLags; j++) {
 			if (i%j==0) fHistXLags[chainID][j]->Fill(par0);
 		}
 
 		for (int j=1; j<fMax10thOfIters; j++) {
-			if (i<j*Niters/10) 
+			if (i<j*Niters/10)
 				fHistXIter[chainID][j]->Fill(par0);
 		}
 	}
@@ -224,7 +225,7 @@ void BCBenchmarkMCMC::WriteResults()
 		fHChi2vsIter[i]->SetXTitle("10% of total iteration");
 		fHChi2vsIter[i]->SetYTitle("#chi^{2}/NDF");
 		fHChi2vsIter[i]->Write();
-		
+
 		fHKolmogorovProbVsLags[i]->SetXTitle("Lags");
 		fHKolmogorovProbVsLags[i]->SetYTitle("Kolmogorov-Smirnov Probability");
 		fHKolmogorovProbVsLags[i]->Write();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 
+ * Copyright (C) 2009,
  * Daniel Kollar, Kevin Kroeninger and Jing Liu.
  * All rights reserved.
  *
@@ -15,6 +15,8 @@
 
 #include "BCBenchmarkMCMC2D.h"
 
+#include <cstdlib>
+
 //=============================================================================
 
 BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(
@@ -23,45 +25,44 @@ BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(
 		const char* modelName)
 :BCModel(modelName), BCModelOutput(), fNbinx(100), fNbiny(100)
 {
-	BCLog::Out(BCLog::summary,BCLog::summary," setup test function ...");
-	if (testFunction==NULL) {
-		BCLog::Out(BCLog::error,BCLog::error,
-				" The test function doesn't exist!");
-		abort();
+	BCLog::OutSummary(" setup test function ...");
+	if (!testFunction) {
+		BCLog::OutError(" The test function doesn't exist!");
+		std::abort();
 	}
 
 	fTestFunction = testFunction;
-	fXmin=fTestFunction->GetXmin(); 
+	fXmin=fTestFunction->GetXmin();
 	fXmax=fTestFunction->GetXmax();
-	fYmin=fTestFunction->GetYmin(); 
+	fYmin=fTestFunction->GetYmin();
 	fYmax=fTestFunction->GetYmax();
-	
+
 	// set no. of points for histogram representation of test function
 	// (used for Kolmogorov-Smirnov test)
 	fTestFunction->SetNpx(fNbinx);
 	fTestFunction->SetNpy(fNbiny);
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," setup fitting function ...");
+	BCLog::OutSummary(" setup fitting function ...");
 	fFitFunction = new TF2("fFitFunction",
-			fTestFunction->GetExpFormula(),fXmin,fXmax,fYmin,fYmax);
+			fTestFunction->GetExpFormula().Data(),fXmin,fXmax,fYmin,fYmax);
 	for (int i=1; i<fTestFunction->GetNpar(); i++)
 		fFitFunction->FixParameter(i,fTestFunction->GetParameter(i));
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," add parameter x ...");
+	BCLog::OutSummary(" add parameter x ...");
 	this->AddParameter("x",fXmin,fXmax);
-	BCLog::Out(BCLog::summary,BCLog::summary," add parameter y ...");
+	BCLog::OutSummary(" add parameter y ...");
 	this->AddParameter("y",fYmin,fYmax);
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," setup trees for chains ...");
+	BCLog::OutSummary(" setup trees for chains ...");
 	SetModel(this);
 	BCModelOutput::WriteMarkovChain(true);
 	SetFile(outputFile);
-	
 
-	BCLog::Out(BCLog::summary,BCLog::summary," book histograms for analysis ...");
+
+	BCLog::OutSummary(" book histograms for analysis ...");
 	for (int i=0; i<fMaxChains; i++) {
 		for (int j=1; j<fMaxLags; j++)
 			fHistXYLags[i][j] = new TH2F(Form("fHistXYChain%dLag%d",i,j),
@@ -77,7 +78,7 @@ BCBenchmarkMCMC2D::BCBenchmarkMCMC2D(
 				fMaxLags-1,1,fMaxLags);
 		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
 				fMax10thOfIters-1,1,fMax10thOfIters);
-		
+
 		fHKolmogorovProbVsLags[i] = new TH1F(
 				Form("HKolmogorovProbVsLagsChain%d", i), "",
 				fMaxLags-1, 1, fMaxLags);
@@ -102,7 +103,7 @@ BCBenchmarkMCMC2D::~BCBenchmarkMCMC2D()
 
 		if (fHChi2vsLags[i]) delete fHChi2vsLags[i];
 		if (fHChi2vsIter[i]) delete fHChi2vsIter[i];
-		
+
 		if (fHKolmogorovProbVsLags[i]) delete fHKolmogorovProbVsLags[i];
 		if (fHKolmogorovProbVsIter[i]) delete fHKolmogorovProbVsIter[i];
 	}
@@ -137,27 +138,27 @@ void BCBenchmarkMCMC2D::ProcessMCTree(int chainID)
 	int Niters = chain->GetEntries();
 	for (int i=0; i<Niters; i++) {
 		chain->GetEntry(i);
-		
+
 		sum1X += par0;
 		fMeanX = sum1X/Double_t(i+1);
-		
+
 		sum1Y += par1;
 		fMeanY = sum1Y/Double_t(i+1);
 
 		sum2X += (par0-fMeanX)*(par0-fMeanX);
 		fVarianceX = sqrt(sum2X/Double_t(i+1));
-		
+
 		sum2Y += (par1-fMeanY)*(par1-fMeanY);
 		fVarianceY = sqrt(sum2Y/Double_t(i+1));
 
 		sum3X += (par0-fMeanX)*(par0-fMeanX)*(par0-fMeanX);
-		if (fVarianceX!=0) 
+		if (fVarianceX!=0)
 			fSkewnessX = (sum3X/Double_t(i+1))/(fVarianceX*fVarianceX*fVarianceX);
-		
+
 		sum3Y += (par1-fMeanY)*(par1-fMeanY)*(par1-fMeanY);
-		if (fVarianceY!=0) 
+		if (fVarianceY!=0)
 			fSkewnessY = (sum3Y/Double_t(i+1))/(fVarianceY*fVarianceY*fVarianceY);
-		
+
 		chain->Fill();
 
 		for (int j=1; j<fMaxLags; j++) {
@@ -165,7 +166,7 @@ void BCBenchmarkMCMC2D::ProcessMCTree(int chainID)
 		}
 
 		for (int j=1; j<fMax10thOfIters; j++) {
-			if (i<j*Niters/10) 
+			if (i<j*Niters/10)
 				fHistXYIter[chainID][j]->Fill(par0,par1);
 		}
 	}
@@ -244,7 +245,7 @@ void BCBenchmarkMCMC2D::WriteResults()
 		fHChi2vsIter[i]->SetXTitle("10% of total iteration");
 		fHChi2vsIter[i]->SetYTitle("#chi^{2}/NDF");
 		fHChi2vsIter[i]->Write();
-		
+
 		fHKolmogorovProbVsLags[i]->SetXTitle("Lags");
 		fHKolmogorovProbVsLags[i]->SetYTitle("Kolmogorov-Smirnov Probability");
 		fHKolmogorovProbVsLags[i]->Write();

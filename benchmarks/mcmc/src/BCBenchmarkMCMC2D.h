@@ -6,14 +6,14 @@
  * \author Jing Liu
  * \version 1.0
  * \date 01.09.2009
- * \detail This class create MCMCs according to a known 2D distribution 
+ * \detail This class create MCMCs according to a known 2D distribution
  * and check the statistical properties of the created chains, e.g.
- * x2, moments, quantiles and fluctuations, etc. as functions of 
+ * x2, moments, quantiles and fluctuations, etc. as functions of
  * different lags and iterations.
  */
 
 /*
- * Copyright (C) 2009, 
+ * Copyright (C) 2009,
  * Daniel Kollar, Kevin Kroeninger and Jing Liu.
  * All rights reserved.
  *
@@ -63,7 +63,7 @@ class BCBenchmarkMCMC2D : public BCModel, public BCModelOutput
 		void ProcessMCTree(int chainID=0);
 		void Chi2vsLagsOfChain(int chainID=0);
 		void Chi2vsIterOfChain(int chainID=0);
-		
+
 		void KolmogorovVsLagsOfChain(int chainID=0);
 		void KolmogorovVsIterOfChain(int chainID=0);
 

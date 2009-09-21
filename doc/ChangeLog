@@ -1,3 +1,13 @@
+2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* benchmarks/mcmc:
+	  - use short BCLog::Out() forms
+	  - replace printf() with BCLog::Out()
+	  - include <cstdlib>
+	  - remove NULL
+	  - code cleanup
+	  - use TString::Data() in TF1, TF2 and TF3 constructors
+	  - fix parameter initialization for cauchy function
+
 2009-09-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* INSTALL:
 	  - fixed typo

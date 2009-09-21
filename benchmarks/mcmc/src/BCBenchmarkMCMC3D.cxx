@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009, 
+ * Copyright (C) 2009,
  * Daniel Kollar, Kevin Kroeninger and Jing Liu.
  * All rights reserved.
  *
@@ -16,6 +16,8 @@
 
 #include "BCBenchmarkMCMC3D.h"
 
+#include <cstdlib>
+
 //=============================================================================
 
 BCBenchmarkMCMC3D::BCBenchmarkMCMC3D(
@@ -24,21 +26,20 @@ BCBenchmarkMCMC3D::BCBenchmarkMCMC3D(
 		const char* modelName)
 :BCModel(modelName), BCModelOutput(), fNbinx(100), fNbiny(100), fNbinz(100)
 {
-	BCLog::Out(BCLog::summary,BCLog::summary," setup test function ...");
-	if (testFunction==NULL) {
-		BCLog::Out(BCLog::error,BCLog::error,
-				" The test function doesn't exist!");
-		abort();
+	BCLog::OutSummary(" setup test function ...");
+	if (!testFunction) {
+		BCLog::OutError(" The test function doesn't exist!");
+		std::abort();
 	}
 
 	fTestFunction = testFunction;
-	fXmin=fTestFunction->GetXmin(); 
+	fXmin=fTestFunction->GetXmin();
 	fXmax=fTestFunction->GetXmax();
-	fYmin=fTestFunction->GetYmin(); 
+	fYmin=fTestFunction->GetYmin();
 	fYmax=fTestFunction->GetYmax();
 	fZmin=fTestFunction->GetZmin();
 	fZmax=fTestFunction->GetZmax();
-	
+
 	// set no. of points for histogram representation of test function
 	// (used for Kolmogorov-Smirnov test)
 	fTestFunction->SetNpx(fNbinx);
@@ -46,29 +47,29 @@ BCBenchmarkMCMC3D::BCBenchmarkMCMC3D(
 	fTestFunction->SetNpz(fNbinz);
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," setup fitting function ...");
+	BCLog::OutSummary(" setup fitting function ...");
 	fFitFunction = new TF3("fFitFunction",
-			fTestFunction->GetExpFormula(), fXmin, fXmax, fYmin, fYmax,
+			fTestFunction->GetExpFormula().Data(), fXmin, fXmax, fYmin, fYmax,
 			fZmin, fZmax);
 	for (int i=1; i<fTestFunction->GetNpar(); i++)
 		fFitFunction->FixParameter(i,fTestFunction->GetParameter(i));
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," add parameter x ...");
+	BCLog::OutSummary(" add parameter x ...");
 	this->AddParameter("x",fXmin,fXmax);
-	BCLog::Out(BCLog::summary,BCLog::summary," add parameter y ...");
+	BCLog::OutSummary(" add parameter y ...");
 	this->AddParameter("y",fYmin,fYmax);
-	BCLog::Out(BCLog::summary,BCLog::summary," add parameter z ...");
+	BCLog::OutSummary(" add parameter z ...");
 	this->AddParameter("z",fZmin,fZmax);
 
 
-	BCLog::Out(BCLog::summary,BCLog::summary," setup trees for chains ...");
+	BCLog::OutSummary(" setup trees for chains ...");
 	SetModel(this);
 	BCModelOutput::WriteMarkovChain(true);
 	SetFile(outputFile);
-	
 
-	BCLog::Out(BCLog::summary,BCLog::summary," book histograms for analysis ...");
+
+	BCLog::OutSummary(" book histograms for analysis ...");
 	for (int i=0; i<fMaxChains; i++) {
 		for (int j=1; j<fMaxLags; j++)
 			fHistXYZLags[i][j] = new TH3F(Form("fHistXYZChain%dLag%d",i,j),
@@ -88,7 +89,7 @@ BCBenchmarkMCMC3D::BCBenchmarkMCMC3D(
 				fMaxLags-1,1,fMaxLags);
 		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
 				fMax10thOfIters-1,1,fMax10thOfIters);
-		
+
 		fHKolmogorovProbVsLags[i] = new TH1F(
 				Form("HKolmogorovProbVsLagsChain%d", i), "",
 				fMaxLags-1, 1, fMaxLags);
@@ -113,7 +114,7 @@ BCBenchmarkMCMC3D::~BCBenchmarkMCMC3D()
 
 		if (fHChi2vsLags[i]) delete fHChi2vsLags[i];
 		if (fHChi2vsIter[i]) delete fHChi2vsIter[i];
-		
+
 		if (fHKolmogorovProbVsLags[i]) delete fHKolmogorovProbVsLags[i];
 		if (fHKolmogorovProbVsIter[i]) delete fHKolmogorovProbVsIter[i];
 	}
@@ -154,19 +155,19 @@ void BCBenchmarkMCMC3D::ProcessMCTree(int chainID)
 	int Niters = chain->GetEntries();
 	for (int i=0; i<Niters; i++) {
 		chain->GetEntry(i);
-		
+
 		sum1X += par0;
 		fMeanX = sum1X/Double_t(i+1);
-		
+
 		sum1Y += par1;
 		fMeanY = sum1Y/Double_t(i+1);
-		
+
 		sum1Z += par2;
 		fMeanZ = sum1Z/Double_t(i+1);
-		
+
 		sum2X += (par0-fMeanX)*(par0-fMeanX);
 		fVarianceX = sqrt(sum2X/Double_t(i+1));
-		
+
 		sum2Y += (par1-fMeanY)*(par1-fMeanY);
 		fVarianceY = sqrt(sum2Y/Double_t(i+1));
 
@@ -174,17 +175,17 @@ void BCBenchmarkMCMC3D::ProcessMCTree(int chainID)
 		fVarianceZ = sqrt(sum2Z/Double_t(i+1));
 
 		sum3X += (par0-fMeanX)*(par0-fMeanX)*(par0-fMeanX);
-		if (fVarianceX!=0) 
+		if (fVarianceX!=0)
 			fSkewnessX = (sum3X/Double_t(i+1))/(fVarianceX*fVarianceX*fVarianceX);
-		
+
 		sum3Y += (par1-fMeanY)*(par1-fMeanY)*(par1-fMeanY);
-		if (fVarianceY!=0) 
+		if (fVarianceY!=0)
 			fSkewnessY = (sum3Y/Double_t(i+1))/(fVarianceY*fVarianceY*fVarianceY);
-		
+
 		sum3Z += (par2-fMeanZ)*(par2-fMeanZ)*(par2-fMeanZ);
-		if (fVarianceZ!=0) 
+		if (fVarianceZ!=0)
 			fSkewnessZ = (sum3Z/Double_t(i+1))/(fVarianceZ*fVarianceZ*fVarianceZ);
-		
+
 		chain->Fill();
 
 		for (int j=1; j<fMaxLags; j++) {
@@ -192,7 +193,7 @@ void BCBenchmarkMCMC3D::ProcessMCTree(int chainID)
 		}
 
 		for (int j=1; j<fMax10thOfIters; j++) {
-			if (i<j*Niters/10) 
+			if (i<j*Niters/10)
 				fHistXYZIter[chainID][j]->Fill(par0, par1, par2);
 		}
 	}
@@ -273,7 +274,7 @@ void BCBenchmarkMCMC3D::WriteResults()
 		fHChi2vsIter[i]->SetXTitle("10% of total iteration");
 		fHChi2vsIter[i]->SetYTitle("#chi^{2}/NDF");
 		fHChi2vsIter[i]->Write();
-		
+
 		fHKolmogorovProbVsLags[i]->SetXTitle("Lags");
 		fHKolmogorovProbVsLags[i]->SetYTitle("Kolmogorov-Smirnov Probability");
 		fHKolmogorovProbVsLags[i]->Write();
@@ -297,7 +298,7 @@ void BCBenchmarkMCMC3D::WriteResults()
 void BCBenchmarkMCMC3D::KolmogorovVsLagsOfChain(int chainID)
 {
 	TH3F *testHisto = this->GetTestFunctionHistogram();
-	
+
 	for (int i=1; i<fMaxLags; i++) {
 		double kolmogorovProb = 0.;
 		kolmogorovProb = this->KolmogorovTest(fHistXYZLags[chainID][i],
@@ -319,7 +320,7 @@ void BCBenchmarkMCMC3D::KolmogorovVsLagsOfChain(int chainID)
 void BCBenchmarkMCMC3D::KolmogorovVsIterOfChain(int chainID)
 {
 	TH3F *testHisto = this->GetTestFunctionHistogram();
-	
+
 	for (int i=1; i<fMax10thOfIters; i++) {
 		double kolmogorovProb = 0.;
 		kolmogorovProb = this->KolmogorovTest(fHistXYZIter[chainID][i],
@@ -356,12 +357,12 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
    //   The returned function value is the probability of test
    //       (much less than one means NOT compatible)
    //
-   //   The KS test uses the distance between the pseudo-CDF's obtained 
+   //   The KS test uses the distance between the pseudo-CDF's obtained
    //   from the histogram. Since in more than 1D the order for
-   //   generating the pseudo-CDF is 
+   //   generating the pseudo-CDF is
    //   arbitrary, we use the pseudo-CDF's obtained from all the possible
-   //   6 combinatons of the 3 axis. 
-   //   The average of all the maximum  distances obtained is used in the tests.  
+   //   6 combinatons of the 3 axis.
+   //   The average of all the maximum  distances obtained is used in the tests.
 
    TString opt = option;
    opt.ToUpper();
@@ -385,21 +386,21 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
 
    // Check consistency of dimensions
    if (h1->GetDimension() != 3 || h2->GetDimension() != 3) {
-      printf("KolmogorovTest: Histograms must be 3-D\n");
+      BCLog::OutError("KolmogorovTest: Histograms must be 3-D\n");
       return 0;
    }
 
    // Check consistency in number of channels
    if (ncx1 != ncx2) {
-      printf("KolmogorovTest: Number of channels in X is different, %d and %d\n",ncx1,ncx2);
+      BCLog::OutError(Form("KolmogorovTest: Number of channels in X is different, %d and %d\n",ncx1,ncx2));
       return 0;
    }
    if (ncy1 != ncy2) {
-      printf("KolmogorovTest: Number of channels in Y is different, %d and %d\n",ncy1,ncy2);
+      BCLog::OutError(Form("KolmogorovTest: Number of channels in Y is different, %d and %d\n",ncy1,ncy2));
       return 0;
    }
    if (ncz1 != ncz2) {
-      printf("KolmogorovTest: Number of channels in Z is different, %d and %d\n",ncz1,ncz2);
+      BCLog::OutError(Form("KolmogorovTest: Number of channels in Z is different, %d and %d\n",ncz1,ncz2));
       return 0;
    }
 
@@ -410,19 +411,19 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
    Double_t diff1 = TMath::Abs(xaxis1->GetXmin() - xaxis2->GetXmin());
    Double_t diff2 = TMath::Abs(xaxis1->GetXmax() - xaxis2->GetXmax());
    if (diff1 > difprec || diff2 > difprec) {
-      printf("KolmogorovTest: histograms with different binning along X");
+      BCLog::OutError("KolmogorovTest: histograms with different binning along X");
       return 0;
    }
    diff1 = TMath::Abs(yaxis1->GetXmin() - yaxis2->GetXmin());
    diff2 = TMath::Abs(yaxis1->GetXmax() - yaxis2->GetXmax());
    if (diff1 > difprec || diff2 > difprec) {
-      printf("KolmogorovTest: histograms with different binning along Y");
+      BCLog::OutError("KolmogorovTest: histograms with different binning along Y");
       return 0;
    }
    diff1 = TMath::Abs(zaxis1->GetXmin() - zaxis2->GetXmin());
    diff2 = TMath::Abs(zaxis1->GetXmax() - zaxis2->GetXmax());
    if (diff1 > difprec || diff2 > difprec) {
-      printf("KolmogorovTest: histograms with different binning along Z");
+      BCLog::OutError("KolmogorovTest: histograms with different binning along Z");
       return 0;
    }
 
@@ -454,46 +455,46 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
 
    //    Check that both scatterplots contain events
    if (sum1 == 0) {
-      printf("KolmogorovTest: Integral is zero for h1=%s\n",h1->GetName());
+      BCLog::OutError(Form("KolmogorovTest: Integral is zero for h1=%s\n",h1->GetName()));
       return 0;
    }
    if (sum2 == 0) {
-      printf("KolmogorovTest: Integral is zero for h2=%s\n",h2->GetName());
+      BCLog::OutError(Form("KolmogorovTest: Integral is zero for h2=%s\n",h2->GetName()));
       return 0;
    }
-   // calculate the effective entries.  
-   // the case when errors are zero (w1 == 0 or w2 ==0) are equivalent to 
-   // compare to a function. In that case the rescaling is done only on sqrt(esum2) or sqrt(esum1) 
-   Double_t esum1 = 0, esum2 = 0; 
-   if (w1 > 0) 
-      esum1 = sum1 * sum1 / w1; 
-   else 
+   // calculate the effective entries.
+   // the case when errors are zero (w1 == 0 or w2 ==0) are equivalent to
+   // compare to a function. In that case the rescaling is done only on sqrt(esum2) or sqrt(esum1)
+   Double_t esum1 = 0, esum2 = 0;
+   if (w1 > 0)
+      esum1 = sum1 * sum1 / w1;
+   else
       afunc1 = kTRUE;    // use later for calculating z
-   
-   if (w2 > 0) 
-      esum2 = sum2 * sum2 / w2; 
-   else 
+
+   if (w2 > 0)
+      esum2 = sum2 * sum2 / w2;
+   else
       afunc2 = kTRUE;    // use later for calculating z
-   
-   if (afunc2 && afunc1) { 
-      printf("KolmogorovTest: Errors are zero for both histograms\n");
+
+   if (afunc2 && afunc1) {
+      BCLog::OutError("KolmogorovTest: Errors are zero for both histograms\n");
       return 0;
    }
 
    //   Find Kolmogorov distance
-   //   order is arbitrary take average of all possible 6 starting orders x,y,z 
+   //   order is arbitrary take average of all possible 6 starting orders x,y,z
    int order[3] = {0,1,2};
-   int binbeg[3]; 
-   int binend[3]; 
+   int binbeg[3];
+   int binend[3];
    int ibin[3];
-   binbeg[0] = ibeg; binbeg[1] = jbeg; binbeg[2] = kbeg; 
-   binend[0] = iend; binend[1] = jend; binend[2] = kend; 
-   Double_t vdfmax[6]; // there are in total 6 combinations 
-   int icomb = 0; 
+   binbeg[0] = ibeg; binbeg[1] = jbeg; binbeg[2] = kbeg;
+   binend[0] = iend; binend[1] = jend; binend[2] = kend;
+   Double_t vdfmax[6]; // there are in total 6 combinations
+   int icomb = 0;
    Double_t s1 = 1/sum1;
    Double_t s2 = 1/sum2;
    Double_t rsum1=0, rsum2=0;
-   do { 
+   do {
       // loop on bins
       Double_t dmax = 0;
       for (i = binbeg[order[0] ]; i <= binend[order[0] ]; i++) {
@@ -509,14 +510,14 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
             }
          }
       }
-      vdfmax[icomb] = dmax; 
+      vdfmax[icomb] = dmax;
       icomb++;
    } while (TMath::Permute(3,order)  );
 
 
-   // get average of distances 
+   // get average of distances
    Double_t dfmax = TMath::Mean(6,vdfmax);
-   
+
    //    Get Kolmogorov probability
    Double_t factnm;
    if (afunc1)      factnm = TMath::Sqrt(sum2);
@@ -524,11 +525,11 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
    else             factnm = TMath::Sqrt(sum1*sum2/(sum1+sum2));
    Double_t z  = dfmax*factnm;
 
-   prb = TMath::KolmogorovProb(z); 
+   prb = TMath::KolmogorovProb(z);
 
-   Double_t prb1 = 0, prb2 = 0; 
+   Double_t prb1 = 0, prb2 = 0;
    // option N to combine normalization makes sense if both afunc1 and afunc2 are false
-   if (opt.Contains("N")  && !(afunc1 || afunc2 ) ) { 
+   if (opt.Contains("N")  && !(afunc1 || afunc2 ) ) {
       // Combine probabilities for shape and normalization
       prb1   = prb;
       Double_t d12    = esum1-esum2;
@@ -541,15 +542,17 @@ Double_t BCBenchmarkMCMC3D::KolmogorovTest(TH1 *h1, TH1 *h2,
 
    //    debug printout
    if (opt.Contains("D")) {
-      printf(" Kolmo Prob  h1 = %s, sum1=%g\n",h1->GetName(),sum1);
-      printf(" Kolmo Prob  h2 = %s, sum2=%g\n",h2->GetName(),sum2);
-      printf(" Kolmo Probabil = %f, Max Dist = %g\n",prb,dfmax);
+      BCLog::OutSummary(Form(" Kolmo Prob  h1 = %s, sum1=%g\n",h1->GetName(),sum1));
+      BCLog::OutSummary(Form(" Kolmo Prob  h2 = %s, sum2=%g\n",h2->GetName(),sum2));
+      BCLog::OutSummary(Form(" Kolmo Probabil = %f, Max Dist = %g\n",prb,dfmax));
       if (opt.Contains("N"))
-         printf(" Kolmo Probabil = %f for shape alone, =%f for normalisation alone\n",prb1,prb2);
+         BCLog::OutSummary(Form(" Kolmo Probabil = %f for shape alone, =%f for normalisation alone\n",prb1,prb2));
    }
    // This numerical error condition should never occur:
-   if (TMath::Abs(rsum1-6) > 0.004) printf("KolmogorovTest: Numerical problems with h1=%s\n",h1->GetName());
-   if (TMath::Abs(rsum2-6) > 0.004) printf("KolmogorovTest: Numerical problems with h2=%s\n",h2->GetName());
+   if (TMath::Abs(rsum1-6) > 0.004)
+      BCLog::OutWarning(Form("KolmogorovTest: Numerical problems with h1=%s\n",h1->GetName()));
+   if (TMath::Abs(rsum2-6) > 0.004)
+      BCLog::OutWarning(Form("KolmogorovTest: Numerical problems with h2=%s\n",h2->GetName()));
 
    if(opt.Contains("M"))      return dfmax;  // return avergae of max distance
 
@@ -569,14 +572,14 @@ TH3F* BCBenchmarkMCMC3D::GetTestFunctionHistogram()
 	int nbinsX = testHisto->GetXaxis()->GetNbins();
 	int nbinsY = testHisto->GetYaxis()->GetNbins();
 	int nbinsZ = testHisto->GetZaxis()->GetNbins();
-	
+
 	double Xmin = testHisto->GetXaxis()->GetXmin();
 	double Ymin = testHisto->GetYaxis()->GetXmin();
 	double Zmin = testHisto->GetZaxis()->GetXmin();
 	double Xmax = testHisto->GetXaxis()->GetXmax();
 	double Ymax = testHisto->GetYaxis()->GetXmax();
 	double Zmax = testHisto->GetZaxis()->GetXmax();
-	
+
 	for (int i = 0; i < nbinsX; i++) {
 		double coord_x = Xmin + (Xmax - Xmin) / (double)nbinsX * (i + 0.5);
 		for (int j = 0; j < nbinsY; j++) {
