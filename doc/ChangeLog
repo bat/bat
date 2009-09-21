@@ -1,4 +1,11 @@
 2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* final version 0.3
+	* models/README:
+	  - updated ROOT version required by BCRooInterface
+	* CreateProject.sh:
+	  - add exaample code for flat prior
+
+2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* version 0.3 release candidate 2 (.rc2)
 	* doc/introduction:
 	  - added Availability subsection
@@ -37,14 +44,14 @@
 	  - updated the progress printout in the pre-run
 
 2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
-	* BCEndineMCMC:
+	* BCEngineMCMC:
 	  - switched to short versions of BCLog::Out
 	  - added warning when convergence was never checked
 	  - added more progress printouts in the pre-run
 	  - updated some comments
 
 2009-09-19 Daniel Kollar <daniel.kollar@cern.ch>
-	* BCEndineMCMC:
+	* BCEngineMCMC:
 	  - added maximum number of iterations after which the efficiency
 	    convergence is checked fMCMCNIterationsUpdateMax; set to 10000
 	    by default (was fMCMCNIterationsUpdate*(fMCMCNParameters+1) before)

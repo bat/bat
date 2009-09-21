@@ -123,8 +123,9 @@ double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
 
 	double logprob = 0.;
 
-// logprob -= fabs(0.5 - parameters.at(0));
-// logprob -= 0.1*(parameters.at(1)-10.)*(parameters.at(1)-10.);
+	// For flat prior it's very easy.
+//	for(unsigned int i=0; i < this -> GetNParameters(); i++)
+//		logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
 
 	return logprob;
 }
