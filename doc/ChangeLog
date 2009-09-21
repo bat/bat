@@ -1,4 +1,10 @@
 2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* doc/introduction:
+	  - increased BAT version
+	  - updated inslattation instructions
+	  - updated reference to BAT
+
+2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* benchmarks/mcmc:
 	  - use short BCLog::Out() forms
 	  - replace printf() with BCLog::Out()
