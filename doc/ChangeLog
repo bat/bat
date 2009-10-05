@@ -1,4 +1,7 @@
 2009-10-05 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.3.1 release candidate 1 (.rc1)
+
+2009-10-05 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEngineMCMC:
 	  - fixed booking of 2d histograms
 	* BCModel:

@@ -1,13 +1,17 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.3
-Release date:                 2009-09-21
+Release notes for version:    0.3.1
+Release date:                 2009-10-05
 Urgency:                      medium
 ------------------------------------------
 
-This version includes many updates and a few bugfixes. The major
-improvements are:
+This version fixes a few bugs:
+o fixed booking of 2D histograms for marginalized distributions
+o fixed axis title naming for 2D histograms
+
+
+Major improvements from previous major release 0.3:
 
 Updates:
 o added Simulated Annealing algorithm for mode finding
