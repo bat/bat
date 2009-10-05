@@ -1,3 +1,11 @@
+2009-10-05 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCEngineMCMC:
+	  - fixed booking of 2d histograms
+	* BCModel:
+	  - fixed problem in axis name swapping for 2d GetMarginalized()
+	  - better checks for histogram existence in GetMarginalized() methods
+	  - minor code updates
+
 2009-09-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* final version 0.3
 	* models/README:

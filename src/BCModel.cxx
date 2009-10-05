@@ -755,7 +755,7 @@ int BCModel::MarginalizeAll()
 	this -> MCMCMetropolis();
 	this -> FindModeMCMC();
 
-	//	this -> PrintResults(Form("%s.txt", this -> GetName().data()));
+//	PrintResults(Form("%s.txt", this -> GetName().data()));
 
 	return 1;
 }
@@ -766,49 +766,39 @@ int BCModel::MarginalizeAll()
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
 	if (!parameter)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,
-								 "BCModel::GetMarginalized(). Parameter does not exist."); 
-			return 0; 
-		}
-
-	if (fMCMCFlagFillHistograms == false)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,
-								 "BCModel::GetMarginalized. Histogram filling was switched off. Marginalized distribuions are not generated."); 
-		}
-
-//	if(fMCMCH1Marginalized.size()==0)
-//	{
-//		BCLog::Out(BCLog::warning, BCLog::warning,
-//				"BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
-//		return 0;
-//	}
+	{
+		BCLog::OutError("BCModel::GetMarginalized : Parameter does not exist.");
+		return 0;
+	}
 
 	int index = parameter -> GetIndex();
+	if (fMCMCFlagsFillHistograms[index] == false)
+	{
+		BCLog::OutError(Form("BCModel::GetMarginalized : Distribuion for '%s' not filled.",parameter->GetName().data()));
+		return 0;
+	}
 
 	// get histogram
 	TH1D * hist = this -> MCMCGetH1Marginalized(index);
 	if(!hist)
 		return 0;
 
-	BCH1D * hprob = new BCH1D();
-
 	// set axis labels
-	hist -> SetName(Form("hist_%s_%s", this -> GetName().data(), parameter -> GetName().data()));
-	hist -> SetXTitle(parameter -> GetName().data());
-	hist -> SetYTitle(Form("p(%s|data)", parameter -> GetName().data()));
-	hist -> SetStats(kFALSE);
+	hist->SetName(Form("hist_%s_%s", GetName().data(), parameter->GetName().data()));
+	hist->SetXTitle(parameter->GetName().data());
+	hist->SetYTitle(Form("p(%s|data)", parameter->GetName().data()));
+	hist->SetStats(kFALSE);
 
 	// set histogram
-	hprob -> SetHistogram(hist);
+	BCH1D * hprob = new BCH1D();
+	hprob->SetHistogram(hist);
 
 	// set best fit parameter
-	double bestfit = hprob -> GetMode();
+	double bestfit = hprob->GetMode();
 
 	if (fBestFitParametersMarginalized.size() == 0)
-		for (unsigned int i = 0; i < this -> GetNParameters(); i++)
-			fBestFitParametersMarginalized.push_back(0.0);
+		for (unsigned int i = 0; i < GetNParameters(); i++)
+			fBestFitParametersMarginalized.push_back(0.);
 
 	fBestFitParametersMarginalized[index] = bestfit;
 
@@ -975,7 +965,15 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
 int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
 {
-	if(fMCMCH1Marginalized.size()==0 || (fMCMCH2Marginalized.size()==0 && this -> GetNParameters() > 1))
+	if(!fMCMCFlagFillHistograms)
+	{
+		BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not filled.");
+		return 0;
+	}
+
+	int npar = GetNParameters();
+
+	if(fMCMCH1Marginalized.size()==0 || (fMCMCH2Marginalized.size()==0 && npar>1))
 	{
 		BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
 		return 0;
@@ -984,8 +982,8 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 	// if there's only one parameter, we just want to call Print()
 	if (fMCMCH1Marginalized.size()==1 && fMCMCH2Marginalized.size()==0)
 	{
-		BCParameter * a = this->GetParameter(0);
-		this -> GetMarginalized(a) -> Print(file);
+		BCParameter * a = GetParameter(0);
+		GetMarginalized(a)->Print(file);
 		return 1;
 	}
 
@@ -1022,8 +1020,7 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 		type=111;
 	}
 
-	// get number of parameters of the model and calculate number of plots
-	int npar = this -> GetNParameters();
+	// calculate number of plots
 	int nplots2d = npar * (npar-1)/2;
 	int nplots = npar + nplots2d;
 
@@ -1053,15 +1050,15 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 	int n=0;
 	for(int i=0;i<npar;i++)
 	{
-		// get corresponding parameter 
-		BCParameter * a = this->GetParameter(i);
+		// get corresponding parameter
+		BCParameter * a = GetParameter(i);
 
 		// check if histogram exists
-		if (!this -> GetMarginalized(a))
-			continue; 
+		if ( !GetMarginalized(a) )
+			continue;
 
 		// check if histogram is filled
-		if (this -> GetMarginalized(a) -> GetHistogram() -> Integral() <= 0)
+		if ( GetMarginalized(a)->GetHistogram()->Integral() <= 0)
 			continue;
 
 		// if current page is full, switch to new page
@@ -1085,32 +1082,37 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 	}
 
 	if (n > 0)
-		{
-			c->Update();
+	{
+		c->Update();
 
-			// draw all the 2D distributions
-			ps->NewPage();
-			c->cd();
-			c->Clear();
-		}
+		// draw all the 2D distributions
+		ps->NewPage();
+		c->cd();
+		c->Clear();
+	}
 
 	c->Divide(hdiv,vdiv);
 
 	int k=0;
 	for(int i=0;i<npar-1;i++)
 	{
+		if(!fMCMCFlagsFillHistograms[i])
+			continue;
 		for(int j=i+1;j<npar;j++)
 		{
-			// get corresponding parameters 
-			BCParameter * a = this->GetParameter(i);
-			BCParameter * b = this->GetParameter(j);
-			
+			if(!fMCMCFlagsFillHistograms[j])
+				continue;
+
+			// get corresponding parameters
+			BCParameter * a = GetParameter(i);
+			BCParameter * b = GetParameter(j);
+
 			// check if histogram exists
-			if (!this -> GetMarginalized(a,b))
+			if ( !GetMarginalized(a,b) )
 				continue;
 
 			// check if histogram is filled
-			if (this -> GetMarginalized(a,b) -> GetHistogram() -> Integral() <= 0)
+			if ( GetMarginalized(a,b)->GetHistogram()->Integral() <= 0 )
 				continue;
 
 			// if current page is full, switch to new page
@@ -1126,17 +1128,17 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 			// go to next pad
 			c->cd(k%(hdiv*vdiv)+1);
 
-			double meana = (a -> GetLowerLimit() + a -> GetUpperLimit()) / 2.0;
-			double deltaa = (a -> GetUpperLimit() - a -> GetLowerLimit());
+			double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
+			double deltaa = (a->GetUpperLimit() - a->GetLowerLimit());
 			if (deltaa <= 1e-7 * meana)
 				continue;
 
-			double meanb = (b -> GetLowerLimit() + b -> GetUpperLimit()) / 2.0;
-			double deltab = (b -> GetUpperLimit() - b -> GetLowerLimit());
+			double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
+			double deltab = (b->GetUpperLimit() - b->GetLowerLimit());
 			if (deltab <= 1e-7 * meanb)
 				continue;
 
-			this -> GetMarginalized(a,b) -> Draw(52);
+			GetMarginalized(a,b)->Draw(52);
 			k++;
 
 			if((n+k)%100==0)
@@ -1159,23 +1161,17 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 
 // ---------------------------------------------------------
 
-BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * parameter2)
+BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 {
-	if (fMCMCFlagFillHistograms == false)
-		{
-			BCLog::Out(BCLog::warning, BCLog::warning,
-								 "BCModel::GetMarginalized. Histogram filling was switched off. Marginalized distribuions are not generated."); 
-		}
+	int index1 = par1->GetIndex();
+	int index2 = par2->GetIndex();
 
-//	if(fMCMCH2Marginalized.size()==0)
-//	{
-//		BCLog::Out(BCLog::warning, BCLog::warning,
-//				 "BCModel::GetMarginalized. MarginalizeAll() has to be run prior to this.");
-//		return 0;
-//	}
-
-	int index1 = parameter1 -> GetIndex();
-	int index2 = parameter2 -> GetIndex();
+	if (fMCMCFlagsFillHistograms[index1]==false || fMCMCFlagsFillHistograms[index2]==false )
+	{
+		BCLog::OutError(Form("BCModel::GetMarginalized : Distribuion for '%s' and/or '%s' not filled.",
+				par1->GetName().data(),par2->GetName().data()));
+		return 0;
+	}
 
 	if (index1 == index2)
 	{
@@ -1183,8 +1179,14 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 		return 0;
 	}
 
-	if (index1 > index2)
+	BCParameter * npar1 = par1;
+	BCParameter * npar2 = par2;
+
+	if (index1>index2)
 	{
+		npar1 = par2;
+		npar2 = par1;
+
 		int itmp = index1;
 		index1 = index2;
 		index2 = itmp;
@@ -1199,16 +1201,16 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1, BCParameter * paramet
 	BCH2D * hprob = new BCH2D();
 
 	// set axis labels
-	hist -> SetName(Form("hist_%s_%s_%s", this -> GetName().data(), parameter1 -> GetName().data(), parameter2 -> GetName().data()));
-	hist -> SetXTitle(Form("%s", parameter1 -> GetName().data()));
-	hist -> SetYTitle(Form("%s", parameter2 -> GetName().data()));
-	hist -> SetStats(kFALSE);
+	hist->SetName(Form("hist_%s_%s_%s", GetName().data(), npar1->GetName().data(), npar2->GetName().data()));
+	hist->SetXTitle(Form("%s", npar1->GetName().data()));
+	hist->SetYTitle(Form("%s", npar2->GetName().data()));
+	hist->SetStats(kFALSE);
 
 	double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
 	hprob->SetGlobalMode(gmode);
 
 	// set histogram
-	hprob -> SetHistogram(hist);
+	hprob->SetHistogram(hist);
 
 	return hprob;
 }
@@ -1462,16 +1464,16 @@ void BCModel::PrintResults(const char * file)
 	}
 
 	// number of parameters and chains
-	int npar = this -> MCMCGetNParameters();
-	int nchains = this -> MCMCGetNChains(); 
+	int npar = MCMCGetNParameters();
+	int nchains = MCMCGetNChains();
 
 	// check convergence
-	bool flag_conv = ((this -> MCMCGetNIterationsConvergenceGlobal() > 0)?1:0);
+	bool flag_conv = MCMCGetNIterationsConvergenceGlobal() > 0;
 
 	ofi
 		<< std::endl
 		<< " -----------------------------------------------------" << std::endl
-		<< " Summary " << std::endl
+		<< " Summary" << std::endl
 		<< " -----------------------------------------------------" << std::endl
 		<< std::endl;
 
@@ -1482,26 +1484,22 @@ void BCModel::PrintResults(const char * file)
 		<< " Number of parameters: " << npar << std::endl
 		<< " List of Parameters and ranges:" << std::endl;
 	for (int i = 0; i < npar; ++i)
-	{
 		ofi
 			<< "  (" << i << ") Parameter \""
 			<< fParameterSet -> at(i) -> GetName().data() << "\""
 			<< ": " << fParameterSet -> at(i) -> GetLowerLimit()
 			<< " - "
 			<< fParameterSet -> at(i) -> GetUpperLimit() << std::endl;
-	}
 	ofi << std::endl;
 
-	// give warning if MCMC did not converge 
+	// give warning if MCMC did not converge
 	if (!flag_conv && fMCMCFlagRun)
-	{
 		ofi
-			<< " WARNING: the Markov Chain did not converge! Be" << std::endl
-			<< " cautious using the following results!" << std::endl
+			<< " WARNING: the Markov Chain did not converge!" << std::endl
+			<< " Be cautious using the following results!" << std::endl
 			<< std::endl;
-	}
 
-	// print results of marginalization (if MCMC was run) 
+	// print results of marginalization (if MCMC was run)
 	if ( fMCMCFlagRun && fMCMCFlagFillHistograms)
 	{
 		ofi
@@ -1510,50 +1508,55 @@ void BCModel::PrintResults(const char * file)
 			<< " List of parameters and properties of the marginalized" << std::endl
 			<< " distributions:" << std::endl;
 		for (int i = 0; i < npar; ++i)
-			{
-				if (!fMCMCFlagsFillHistograms.at(i))
-					continue; 
-				
-				BCH1D * bch1d = this -> GetMarginalized(fParameterSet -> at(i));
-				
+		{
+			if (!fMCMCFlagsFillHistograms.at(i))
+				continue;
+
+			BCH1D * bch1d = GetMarginalized(fParameterSet -> at(i));
+
+			ofi
+				<< "  (" << i << ") Parameter \""
+				<< fParameterSet->at(i)->GetName().data() << "\"" << std::endl
+				<< "      Mean +- RMS:         "
+				<< std::setprecision(4) << bch1d->GetMean()
+				<< " +- "
+				<< std::setprecision(4) << bch1d->GetRMS() << std::endl
+				<< "      Median +- sigma:     "
+				<< std::setprecision(4) << bch1d->GetMedian()
+				<< " +  " << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
+				<< " - " << std::setprecision(4) << bch1d->GetMedian() - bch1d->GetQuantile(0.16) << std::endl
+				<< "      (Marginalized) mode: " << bch1d->GetMode() << std::endl
+				<< "      Smallest interval(s) containing 68% and local modes:" << std::endl;
+
+			std::vector <double> v;
+			v = bch1d->GetSmallestIntervals(0.68);
+			int ninter = int(v.size());
+
+			for (int j = 0; j < ninter; j+=5)
 				ofi
-					<< "  (" << i << ") Parameter \""
-					<< fParameterSet -> at(i) -> GetName().data() << "\"" << std::endl
-					<< "      Mean +- RMS:         "
-					<< std::setprecision(4) << bch1d -> GetMean()
-					<< " +- "
-					<< std::setprecision(4) << bch1d -> GetRMS() << std::endl
-					<< "      Median +- sigma:     "
-					<< std::setprecision(4) << bch1d -> GetMedian()
-					<< " +  " << std::setprecision(4) << bch1d -> GetQuantile(0.84) - bch1d -> GetMedian()
-					<< " - " << std::setprecision(4) << bch1d -> GetMedian() - bch1d -> GetQuantile(0.16) << std::endl
-					<< "      (Marginalized) mode: " << bch1d -> GetMode() << std::endl
-					<< "      Smallest interval(s) containing 68% and local modes:" << std::endl;
-				
-				std::vector <double> v;
-				v = bch1d -> GetSmallestIntervals(0.68);
-				int ninter = int(v.size());
-				
-				for (int j = 0; j < ninter; j+=5)
-					ofi << "       " << v.at(j) << " - " << v.at(j+1) << " (local mode at " << v.at(j+3) << " with rel. height " << v.at(j+2) << "; rel. area " << v.at(j+4) << ")" << std::endl;
-				
-				ofi
-					<< "       5% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.05) << std::endl 
-					<< "      10% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.10) << std::endl 
-					<< "      16% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.16) << std::endl 
-					<< "      84% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.85) << std::endl 
-					<< "      90% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.90) << std::endl 
-					<< "      95% quantile:        " << std::setprecision(4) << bch1d -> GetQuantile(0.95) << std::endl
+					<< "       " << v.at(j) << " - " << v.at(j+1)
+					<< " (local mode at " << v.at(j+3)
+					<< " with rel. height " << v.at(j+2)
+					<< "; rel. area " << v.at(j+4) << ")"
 					<< std::endl;
-			}
+
+			ofi
+				<< "       5% quantile:        " << std::setprecision(4) << bch1d->GetQuantile(0.05) << std::endl
+				<< "      10% quantile:        " << std::setprecision(4) << bch1d->GetQuantile(0.10) << std::endl
+				<< "      16% quantile:        " << std::setprecision(4) << bch1d->GetQuantile(0.16) << std::endl
+				<< "      84% quantile:        " << std::setprecision(4) << bch1d->GetQuantile(0.85) << std::endl
+				<< "      90% quantile:        " << std::setprecision(4) << bch1d->GetQuantile(0.90) << std::endl
+				<< "      95% quantile:        " << std::setprecision(4) << bch1d->GetQuantile(0.95) << std::endl
+				<< std::endl;
+		}
 		ofi << std::endl;
 	}
-	
+
 	ofi
 		<< " Results of the optimization" << std::endl
 		<< " ===========================" << std::endl
 		<< " Optimization algorithm used: ";
-	switch(this -> GetOptimizationMethodMode())
+	switch(GetOptimizationMethodMode())
 	{
 		case BCIntegrate::kOptSA:
 			ofi << " Simulated Annealing" << std::endl;
@@ -1562,25 +1565,25 @@ void BCModel::PrintResults(const char * file)
 			ofi << " Minuit" << std::endl;
 			break;
 		case BCIntegrate::kOptMetropolis:
-			ofi << " MCMC " << std::endl;
+			ofi << " MCMC" << std::endl;
 			break;
 	}
-	
+
 	if (int(fBestFitParameters.size()) > 0)
-		{
-			ofi << " List of parameters and global mode:" << std::endl;
-			for (int i = 0; i < npar; ++i)
-				ofi
-					<< "  (" << i << ") Parameter \""
-					<< fParameterSet -> at(i) -> GetName().data() << "\": "
-					<< fBestFitParameters.at(i) << " +- " << fBestFitParameterErrors.at(i) << std::endl;
-			ofi << std::endl;
-		}
+	{
+		ofi << " List of parameters and global mode:" << std::endl;
+		for (int i = 0; i < npar; ++i)
+			ofi
+				<< "  (" << i << ") Parameter \""
+				<< fParameterSet->at(i)->GetName().data() << "\": "
+				<< fBestFitParameters.at(i) << " +- " << fBestFitParameterErrors.at(i) << std::endl;
+		ofi << std::endl;
+	}
 	else
-		{
-			ofi << " No best fit information available." << std::endl; 
-			ofi << std::endl;
-		}
+	{
+		ofi << " No best fit information available." << std::endl;
+		ofi << std::endl;
+	}
 
 	if (fPValue >= 0.)
 	{
@@ -1592,42 +1595,41 @@ void BCModel::PrintResults(const char * file)
 	}
 
 	if ( fMCMCFlagRun )
-		{
+	{
+		ofi
+			<< " Status of the MCMC" << std::endl
+			<< " ==================" << std::endl
+			<< " Convergence reached: " << (flag_conv ? "yes" : "no") << std::endl;
+
+		if (flag_conv)
+			ofi << " Number of iterations until convergence: " << MCMCGetNIterationsConvergenceGlobal() << std::endl;
+		else
 			ofi
-				<< " Status of the MCMC" << std::endl
-				<< " ==================" << std::endl
-				<< " Convergence reached: " << ((flag_conv)?"yes":"no") << std::endl;
-			
-			if (flag_conv)
-				ofi << " Number of iterations until convergence: " << this -> MCMCGetNIterationsConvergenceGlobal() << std::endl;
-			else
-				ofi
-					<< " WARNING: the Markov Chain did not converge! Be\n"
-					<< " cautious using the following results!" << std::endl
-					<< std::endl;
+				<< " WARNING: the Markov Chain did not converge! Be\n"
+				<< " cautious using the following results!" << std::endl
+				<< std::endl;
+		ofi
+			<< " Number of chains:                       " << MCMCGetNChains() << std::endl
+			<< " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
+			<< " Average efficiencies:" << std::endl;
+
+		std::vector <double> efficiencies;
+		efficiencies.assign(npar, 0.);
+
+		for (int ipar = 0; ipar < npar; ++ipar)
+			for (int ichain = 0; ichain < nchains; ++ichain)
+			{
+				int index = ichain * npar + ipar;
+				efficiencies[ipar] += double(MCMCGetNTrialsTrue().at(index)) / double(MCMCGetNTrialsTrue().at(index) + MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.;
+			}
+
+		for (int ipar = 0; ipar < npar; ++ipar)
 			ofi
-				<< " Number of chains:                       " << this -> MCMCGetNChains() << std::endl
-				<< " Number of iterations per chain:         " << this -> MCMCGetNIterationsRun() << std::endl
-				<< " Average efficiencies: " << std::endl; 
-			
-			std::vector <double> efficiencies; 
-			efficiencies.assign(npar, 0.0); 
-			
-			for (int ipar = 0; ipar < npar; ++ipar)
-				for (int ichain = 0; ichain < nchains; ++ichain)
-					{
-						int index = ichain * npar + ipar;
-						
-						efficiencies[ipar] += double(this -> MCMCGetNTrialsTrue().at(index)) / double(this -> MCMCGetNTrialsTrue().at(index) + this -> MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.0; 
-					}
-			
-			for (int ipar = 0; ipar < npar; ++ipar)
-				ofi
-					<< "  (" << ipar << ") Parameter \""
-					<< fParameterSet -> at(ipar) -> GetName().data() << "\": "
-					<< efficiencies.at(ipar) << "%" << std::endl; 
-			ofi << std::endl;
-		}
+				<< "  (" << ipar << ") Parameter \""
+				<< fParameterSet->at(ipar)->GetName().data() << "\": "
+				<< efficiencies.at(ipar) << "%" << std::endl;
+		ofi << std::endl;
+	}
 
 	ofi
 		<< " -----------------------------------------------------" << std::endl
@@ -1656,7 +1658,7 @@ void BCModel::PrintShortFitSummary(int chi2flag)
 
 	BCLog::OutSummary("   Best fit parameters (global):");
 	for (unsigned int i = 0; i < GetNParameters(); ++i)
-		BCLog::OutSummary(Form("      %s = %.3g", GetParameter(i) -> GetName().data(), GetBestFitParameter(i)));
+		BCLog::OutSummary(Form("      %s = %.3g", GetParameter(i)->GetName().data(), GetBestFitParameter(i)));
 
 	BCLog::OutSummary("   Goodness-of-fit test:");
 	BCLog::OutSummary(Form("      p-value = %.3g", GetPValue()));
@@ -1673,7 +1675,7 @@ void BCModel::PrintShortFitSummary(int chi2flag)
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
 	// check number of entries in vector
-	if (parameters.size() != this -> GetNParameters())
+	if (parameters.size() != GetNParameters())
 	{
 		BCLog::OutError("BCModel::PrintHessianMatrix : Invalid number of entries in the vector");
 		return;
@@ -1690,12 +1692,12 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 	std::cout << std::endl;
 
 	// loop over all parameter pairs
-	for (unsigned int i = 0; i < this -> GetNParameters(); i++)
+	for (unsigned int i = 0; i < GetNParameters(); i++)
 		for (unsigned int j = 0; j < i; j++)
 		{
 			// calculate Hessian matrix element
-			double hessianmatrixelement = this -> HessianMatrixElement(fParameterSet -> at(i),
-					fParameterSet -> at(j), parameters);
+			double hessianmatrixelement = HessianMatrixElement(fParameterSet->at(i),
+					fParameterSet->at(j), parameters);
 
 			// print to screen
 			std::cout << " " << i << " " << j << " : " << hessianmatrixelement << std::endl;

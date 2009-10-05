@@ -570,7 +570,7 @@ void BCEngineMCMC::MCMCUpdateStatisticsFillHistograms()
 			for (int k = 0; k < j; ++k)
 			{
 				if (fMCMCFlagsFillHistograms.at(j) && fMCMCFlagsFillHistograms.at(k))
-					fMCMCH2Marginalized[counter] -> Fill(fMCMCx[i*fMCMCNParameters+k],fMCMCx[i* fMCMCNParameters+j]);
+					fMCMCH2Marginalized[counter]->Fill(fMCMCx[i*fMCMCNParameters+k],fMCMCx[i* fMCMCNParameters+j]);
 				counter ++;
 			}
 	}
@@ -1328,8 +1328,8 @@ int BCEngineMCMC::MCMCInitialize()
 			TH2D * h2 = 0;
 			if (fMCMCFlagsFillHistograms.at(i) && fMCMCFlagsFillHistograms.at(k))
 				h2 = new TH2D(Form("h2_%d_parameters_%i_vs_%i", BCLog::GetHIndex(), i, k), "",
-						fMCMCH1NBins[i], fMCMCBoundaryMin[i], fMCMCBoundaryMax[i],
-						fMCMCH1NBins[k], fMCMCBoundaryMin[k], fMCMCBoundaryMax[k] );
+						fMCMCH1NBins[k], fMCMCBoundaryMin[k], fMCMCBoundaryMax[k],
+						fMCMCH1NBins[i], fMCMCBoundaryMin[i], fMCMCBoundaryMax[i] );
 			fMCMCH2Marginalized.push_back(h2);
 		}
 
