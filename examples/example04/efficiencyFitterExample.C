@@ -103,6 +103,19 @@ void efficiencyFitterExample()
 }
 
 // ---------------------------------------------------------
+double fitfunction(double * x, double * par)
+{
+	double ff;
+
+	if (x[0] < par[0])
+		ff = TMath::Erfc((par[0]-x[0])/par[1])/2.;
+	else
+		ff = TMath::Erf((x[0]-par[0])/par[1])/2. + 0.5;
+
+	return ff;
+}
+
+// ---------------------------------------------------------
 void CreateHistograms(int nbins, int nevents, TH1D * hist1, TH1D * hist2, int seed)
 {
 	// initialize random number generator
@@ -129,19 +142,6 @@ void CreateHistograms(int nbins, int nevents, TH1D * hist1, TH1D * hist2, int se
 //		hist2 -> SetBinContent(i, gRandom -> Binomial(n, eff));
 		hist2 -> SetBinContent(i, gRandom -> Binomial(hist1 -> GetBinContent(i), eff));
 	}
-}
-
-// ---------------------------------------------------------
-double fitfunction(double * x, double * par)
-{
-	double ff;
-
-	if (x[0] < par[0])
-		ff = TMath::Erfc((par[0]-x[0])/par[1])/2.;
-	else
-		ff = TMath::Erf((x[0]-par[0])/par[1])/2. + 0.5;
-
-	return ff;
 }
 
 // ---------------------------------------------------------

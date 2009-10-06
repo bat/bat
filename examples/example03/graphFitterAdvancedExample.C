@@ -99,7 +99,7 @@ void graphFitterAdvancedExample()
 	f3 -> SetParLimits(3,   2.,   18.); // mean
 	f3 -> SetParLimits(4,   .2,    4.); // sigma
 
-	// define fit function
+	// 2nd order polynomial + gaussian
 	TF1 * f4 = new TF1("f4", "[0]+[1]*x+[2]*x*x+[3]/(sqrt(2.*3.141592)*[5]) * exp(-(x-[4])*(x-[4])/(2.*[5]*[5]))", 0., 100.);
 	f4 -> SetParLimits(0,   0.,   10.); // offset
 	f4 -> SetParLimits(1,   0.,    2.); // slope
