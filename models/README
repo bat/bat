@@ -10,7 +10,10 @@ Interfaces:
      standard RooFit workspace format, requires ROOT 5.24 or later
    - provided by Gregory Schott <gregory.schott@cern.ch>
 
-
+* StackModel
+   - a model for fitting a "data histogram" to a set of "pdf histograms". 
+   - see the tutorial on hypothesis testing for details 
+   - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
 
 --------------------------------------------------------------------------
 More models and interfaces will be added in the future.

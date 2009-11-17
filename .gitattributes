@@ -89,6 +89,13 @@ models/RooInterface/PrepareWorkspace_Poisson.C -text
 models/RooInterface/PrepareWorkspace_Poisson_withSystematics.C -text
 models/RooInterface/README -text
 models/RooInterface/runRooInterface.cxx -text
+models/StackTool/Makefile -text
+models/StackTool/StackModel.cxx -text
+models/StackTool/StackModel.h -text
+models/StackTool/StackModelManager.cxx -text
+models/StackTool/StackModelManager.h -text
+models/StackTool/histograms.root -text
+models/StackTool/runHypothesisTest.cxx -text
 /readme.devel -text
 src/BCAux.cxx -text
 src/BCDataPoint.cxx -text
