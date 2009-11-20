@@ -18,6 +18,7 @@
 #include "BAT/BCLog.h"
 #include "BAT/BCErrorCodes.h"
 #include "BAT/BCMath.h"
+#include "BAT/BCModelOutput.h"
 
 #include <TCanvas.h>
 #include <TPostScript.h>
@@ -28,6 +29,10 @@
 #include <TMath.h>
 #include <TGraph.h>
 #include <TH2D.h>
+#include <TH1I.h>
+#include <TRandom3.h>
+#include <Math/QuantFuncMathCore.h>
+
 
 #include <fstream>
 #include <iomanip>
@@ -56,6 +61,8 @@ BCModel::BCModel(const char * name) : BCIntegrate()
 	fGoFNChains = 5;
 	fGoFNIterationsMax = 100000;
 	fGoFNIterationsRun = 2000;
+
+	flag_discrete=false;
 }
 
 // ---------------------------------------------------------
@@ -80,6 +87,9 @@ BCModel::BCModel() : BCIntegrate()
 	fGoFNChains = 5;
 	fGoFNIterationsMax = 100000;
 	fGoFNIterationsRun = 2000;
+
+	flag_discrete=false;
+
 }
 
 // ---------------------------------------------------------
@@ -1231,6 +1241,176 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 	fPValue = TMath::Prob(chi2,n);
 
 	return fPValue;
+}
+
+// ---------------------------------------------------------
+double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par) {
+	double chi2 = GetChi2Johnson(par);
+	// look up corresponding p value
+	fPValue = TMath::Prob(chi2, NumberBins() - 1);
+	return fPValue;
+}
+
+// ---------------------------------------------------------
+double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
+
+	typedef unsigned int uint;
+
+	// number of observations
+	int n = this -> GetNDataPoints();
+
+	if (nBins < 0);
+		nBins=NumberBins();
+
+	// fixed width quantiles, including final point!
+	std::vector<double> a;
+	for (int i = 0; i <= nBins; i++) {
+		a.push_back(i * 1.0 / double(nBins));
+	}
+
+	// determine the bin counts and fill the histogram with data using the CDF
+	TH1I* hist = new TH1I("h1", "h1 title", nBins, 0.0, 1.0);
+
+	//discrete case requires randomization to allocate counts of bins that cover more
+	// than one quantile
+	if (flag_discrete) {
+		//loop over observations, each may have different likelihood and CDF
+		for (int j = 1; j <= n; j++) {
+			//actual value
+			double CDF = this->CDF(par, j);
+			//for the bin just before
+			double CDFlower = this->CDF(par, j, true);
+
+			//what quantiles q are covered, count from q_1 to q_{nBins}
+			int qMax = 1;
+			for (int i = 0; i < nBins; i++) {
+				if (CDF > a.at(i))
+					qMax = i + 1;
+				else
+					break;
+			}
+			int qMin = 1;
+			for (int i = 0; i < nBins; i++) {
+				if (CDFlower > a.at(i))
+					qMin = i + 1;
+				else
+					break;
+			}
+
+			// simplest case: observation bin entirely contained in one quantile
+			if (qMin == qMax) {
+				hist -> Fill(CDF);
+				continue;//this observation finished
+			}
+
+			// if more than quantile is covered need more work:
+			//determine probabilities of this observation to go for each quantile covered
+			// as follows: If each quantile has size 0.25 and the CDF(integral of likelihood)
+			//for current observation gives gives 0.27, but for observation-1 we would have
+			// 0.20, then 5/7 of the 7% go for first quantile and 2/7 for the second.
+			//This extend to bins covering more than two quantiles
+			std::vector<double> prob;
+			//normalization
+			double norm = 1 / double(CDF - CDFlower);
+
+			for (int i = 0; i < (qMax - qMin + 1); i++) {
+				if (i == 0) {
+					prob.push_back(norm * (a.at(qMin) - CDFlower));
+					continue;
+				}
+				if (i == (qMax - qMin) ) {
+					prob.push_back(norm * (CDF - a.at(qMax-1 )));
+					continue;
+				}
+				//default case
+				prob.push_back(norm * (a.at(i) - a.at(i - 1)));
+			}
+			//have distribution, use inverse-transform method
+			double U = fRandom -> Rndm();
+			//build up the integral (CDF)
+			for (uint i = 1; i < prob.size(); i++)
+				prob.at(i) += prob.at(i - 1);
+			// and search with linear comput. complexity
+			for (uint i = 0; i < prob.size(); i++) {
+				//we finally allocate the count, as center of quantile
+				if (U < prob.at(i)) {
+					hist -> Fill((a.at(qMin + i-1) + a.at(qMin + i)) / 2.0);
+					break;
+				}
+			}
+		}
+	}
+	//TODO check for under/over flow
+	else { //continuous case is simple
+		for (int j = 1; j <= n; j++) {
+			hist -> Fill(this->CDF(par, j));
+		}
+	}
+
+	// calculate chi^2
+	double chi2 = 0.0;
+	double mk, pk;
+	for (int i = 1; i <= nBins; i++) {
+		mk = hist->GetBinContent(i);
+		pk = a.at(i) - a.at(i - 1);
+		chi2 += (mk - n * pk) * (mk - n * pk) / (n * pk);
+	}
+
+
+	delete hist;
+
+	return chi2;
+}
+// ---------------------------------------------------------
+double BCModel::GetAvalueFromChi2Johnson(TTree* tree, TH1D* distribution){
+
+	//model parameters
+	 int nPar = (int)this->GetNParameters();
+	std::vector<double> param(nPar);
+
+	//parameters saved in branches should be the same
+	int nParBranches=-1;
+	tree->SetBranchAddress("fNParameters", &nParBranches);
+
+	//assume all events have same number of parameters, so check only first
+	tree->GetEntry(0);
+	if(nParBranches != nPar){
+		BCLog::OutError(Form("Cannot compute A value: number of parameters in tree (%d)"
+				"doesn't match  number of parameters in model (%d)",nParBranches,nPar));
+		return -1.0;
+	}
+
+
+	//buffer to construct correct branchnames for parameters, e.g. "fParameter3"
+	char* branchName = new char[10+nPar];
+	//set up variables filled for each sample of parameters
+	//assume same order as in model
+	for(int i=0;i<(int)nPar;i++){+
+		sprintf(branchName, "fParameter%d",i);
+		tree->SetBranchAddress(branchName, &param[i]);
+	}
+
+	// get the p value from Johson's definition for each param from posterior
+	long nEntries = tree->GetEntries();
+
+	//RN ~ chi2 with K-1 DoF needed for comparison
+	std::vector<double> randoms(nEntries);
+	int K = NumberBins();
+	BCMath::RandomChi2(randoms,K-1);
+
+	//number of Johnson chi2 values bigger than reference
+	int nBigger=0;
+	for(int i=0;i<nEntries;i++){
+		tree->GetEntry(i);
+		double chi2 = this->GetChi2Johnson(param);
+		if(distribution!=0)
+			distribution->Fill(chi2);
+	// compare to set of chi2 variables
+	if(chi2>randoms.at(i) )
+		nBigger++;
+	}
+
+	return nBigger/double(nEntries);
 }
 
 // ---------------------------------------------------------

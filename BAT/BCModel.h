@@ -524,6 +524,36 @@ class BCModel : public BCIntegrate
 		 *        (for data in format "x y erry" the index would be 2) */
 		double GetPvalueFromChi2(std::vector<double> par, int sigma_index);
 
+		/**
+		 * Calculate p-value from asymptotic Chi2 distribution for arbitrary problems
+		 * using the definition (3) from
+		 * Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+		 *
+		 * @param par Parameter set for the calculation of the likelihood */
+		double GetPvalueFromChi2Johnson(std::vector<double> par);
+
+		/**
+		 * Calculate  Chi2  (also called R^{B}) for arbitrary problems with binned data
+		 * using the definition (3) from
+		 * Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+		 *
+		 * @param par Parameter set for the calculation of the likelihood
+		 * @param nBins how many bins to use for the data, for negative an adapted rule \
+		 * of thumb by  Wald(1942) is used, with at least three bins*/
+		double GetChi2Johnson(std::vector<double> par, const int nBins=-1);
+
+		/**
+		 * Calculate the A-value, a summary statistic. It computes the frequency
+		 * that a Chi2 value determined from the data by Johnson's binning prescription is
+		 * larger than a value sampled from the reference chi2 distribution. They out
+		 * from one chain is used. A=1/2 provides
+		 * no evidence against the null hypothesis. Compare
+		 * Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+		 *
+		 * @param par tree contains the samples of posterior of the parameters
+		 * @param par histogram filled by function with distribution of p values*/
+		double GetAvalueFromChi2Johnson(TTree* tree, TH1D* distribution=0);
+
 		double GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index);
 
 		BCH1D * CalculatePValue(std::vector<double> par, bool flag_histogram=false);
@@ -583,7 +613,21 @@ class BCModel : public BCIntegrate
 
 		void FixDataAxis(unsigned int index, bool fixed);
 
-		/* @} */
+
+		//TODO in general no underflow - no histograms!
+		/**
+		 * 1dim cumulative distribution function of the probability
+		 * to get the data f(x|param) for a single measurement, assumed to
+		 * be identical for all measurements
+		 * @param parameters The parameter values at which point to compute the cdf
+		 * @param index The data point index, 0=underflow, 1 = first data bin...n=last data bin
+		 * @param lower return the CDF for the count one less than actually observed, e.g.
+		 * in Poisson process 3 actually observed, so CDF(2) is returned */
+		virtual double CDF(std::vector<double> parameters,  int index, bool lower=false)
+		{return 0.0;}
+
+
+	/* @} */
 
 	protected:
 
@@ -630,6 +674,10 @@ class BCModel : public BCIntegrate
 		double fChi2NDoF;
 		double fPValueNDoF;
 
+		/**
+		* true for a discrete probability, false for continuous pdf  */
+		bool flag_discrete;
+
 		/*
 		 * Maximum number of iterations in the MCMC pre-run of the p-value
 		 * evaluation using MCMC */
@@ -658,6 +706,15 @@ class BCModel : public BCIntegrate
 		/**
 		 * The Likelihood normalization. */
 		double fNormalization;
+
+		/**
+		 * rule of thumb for good number of bins (Wald1942, Johnson2004) to group observations
+		 * updated so minimum is three bins (for 1-5 observations)!
+		 * @param */
+
+		int NumberBins(){
+			return (int)(exp(0.4 * log(this -> GetNDataPoints())) + 2);
+		}
 
 };
 

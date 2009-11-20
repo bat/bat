@@ -156,6 +156,29 @@ class BCHistogramFitter : public BCModel
 		 * @return An error code */
 		int CalculatePValueFast(std::vector<double> par, double &pvalue);
 
+		/**
+		 * Calculate the p-value using approximate chi^2 distribution of scaled likelihood.
+		 * Approximation is valid for bin contents >5, see eq. (32.12),
+		 * PDG: Statistics, Monte Carlo, Group Theory. Physics Letters B 667, 316-339(2008).
+		 * @param par The set of parameter values used in the model, usually the best fit parameters
+		 * @param  pvalue The pvalue
+		 * @return An error code */
+		int CalculatePValueLikelihood(std::vector<double> par, double &pvalue);
+
+		/**
+		 * Calculate the p-value using approximate chi^2 distribution of squared difference
+		 * for conventional weights.
+		 * Approximation is valid for bin contents >5 and not as as good for little data as
+		 * CalculatePValueLikelihood, see eq. (32.13),
+		 * PDG: Statistics, Monte Carlo, Group Theory. Physics Letters B 667, 316-339(2008).
+		 * @param par The set of parameter values used in the model, usually the best fit parameters
+		 * @param  pvalue The pvalue
+		 * @param  weight use the variance from the expected #counts (true) or the measured counts (false)
+		 * @return An error code */
+		int CalculatePValueLeastSquares(std::vector<double> par, double &pvalue, bool weightExpect=true);
+
+		double CDF(std::vector<double> parameters, int index, bool lower=false);
+
 		/* @} */
 
 	private:
@@ -173,7 +196,7 @@ class BCHistogramFitter : public BCModel
 		 * Flag for using the ROOT TH1D::Integral method (true), or linear
 		 * interpolation (false) */
 		bool fFlagIntegration;
-		
+
 		/**
 		 * Pointer to the error band (for legend) */
 		TGraph * fErrorBand;
@@ -181,6 +204,11 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * Pointer to a graph for displaying the fit function */
 		TGraph * fGraphFitFunction;
+
+		/**
+		 * The histogram containing the expected data.
+		 */
+//		TH1D * fHistogramExpected;
 };
 
 // ---------------------------------------------------------

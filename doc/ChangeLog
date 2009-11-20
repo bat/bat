@@ -1,4 +1,15 @@
-2009-10-06 Frederik Beaujean <beaujean@mppmu.mpg.de>
+2009-11-20 Frederik Beaujean <beaujean@mppmu.mpg.de>
+	* BCModel:
+	  - added methods for goodness of fit test from Johnson(2004) paper based on chi2 statistic
+	  - function prototype for the cumulative distribution function of a single observation
+	* BCMath:
+	  - helper method to sample N random numbers according to a chi2 distribution
+	* BCHistogramFitter:
+	  - added two methods to calculate the p value, one from a  chi2 and one from the likelihood
+	    (cf. PDG ch.32)
+	  - implemented Poisson CDF
+
+2009-11-17 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* StackTool:
 	  - added that folder which missed the migration from CVS to SVN
 

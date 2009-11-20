@@ -13,6 +13,9 @@
 #include <math.h>
 
 #include <TMath.h>
+#include <TF1.h>
+
+#include <Math/PdfFuncMathCore.h>
 
 // ---------------------------------------------------------
 
@@ -252,4 +255,22 @@ double BCMath::LogVoigtian(double x, double sigma, double gamma)
 }
 
 // ---------------------------------------------------------
+
+//wrapper with signature to construct a TF1
+double chi2(double *x, double *par) {
+	return ROOT::Math::chisquared_pdf(x[0], par[0]);
+}
+
+void BCMath::RandomChi2(std::vector<double> &randoms, int K){
+
+	//fixed upper cutoff to 1000, might be too small
+	TF1 *f = new TF1("chi2", chi2, 0.0, 1000, 1);
+	f->SetParameter(0, K);
+	f->SetNpx(500);
+	//uses inverse-transform method
+	//fortunately CDF only built once
+	for (unsigned int i = 0; i < randoms.size(); i++)
+		randoms.at(i) = f->GetRandom();
+}
+
 

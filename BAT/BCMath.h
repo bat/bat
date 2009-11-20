@@ -26,6 +26,7 @@
 
 // ---------------------------------------------------------
 //#include <cstring>
+#include <vector>
 
 namespace BCMath
 {
@@ -141,6 +142,13 @@ namespace BCMath
 	 * so they should be positive.
 	 */
 	double LogVoigtian(double x, double sigma, double gamma);
+
+	/**
+	 * Get N random numbers distributed according to chi square function
+	 * with K degrees of freedom
+	 * chi2(double x; size_t n)
+	 */
+	void RandomChi2(std::vector<double> &randoms, int K);
 
 };
 
