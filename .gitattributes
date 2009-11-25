@@ -79,6 +79,17 @@ examples/example05/Pol2Asymm.cxx -text
 examples/example05/Pol2Asymm.h -text
 examples/example05/README -text
 examples/example05/asymmErrorsFitterExample.cxx -text
+models/BinLikeTool/BinLikeModel.cxx -text
+models/BinLikeTool/BinLikeModel.h -text
+models/BinLikeTool/CreateFitModel.sh -text
+models/BinLikeTool/Makefile -text
+models/BinLikeTool/README -text
+models/BinLikeTool/TemplateFit/CreateHistograms.cxx -text
+models/BinLikeTool/TemplateFit/Makefile -text
+models/BinLikeTool/TemplateFit/TemplateFit.cxx -text
+models/BinLikeTool/TemplateFit/TemplateFit.h -text
+models/BinLikeTool/TemplateFit/runTemplateFit.cxx -text
+models/BinLikeTool/setup.sh -text
 models/README -text
 models/RooInterface/BCRooInterface.cxx -text
 models/RooInterface/BCRooInterface.h -text

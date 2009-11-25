@@ -15,6 +15,17 @@ Interfaces:
    - see the tutorial on hypothesis testing for details 
    - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
 
+* BinLikeTool
+
+   - a model for fitting a single function to a set of histograms. The
+     function depends on one "leading parameter"
+   - this is useful, e.g., for the template method. One can fit several 
+     templates with a smooth function and thus remove statistical functions, 
+     see the examples BinLikeTool/TemplateFit. 
+   - includes a summary of the goodness-of-fit for each histogram. 
+   - includes an easy starter script. 
+   - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
+
 --------------------------------------------------------------------------
 More models and interfaces will be added in the future.
 

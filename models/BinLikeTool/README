@@ -1,0 +1,38 @@
+BinLikeTool: 
+------------
+
+Purpose: 
+--------
+Fit a single function to a set of histograms. Each histogram is
+associated with a "leading parameter". The fit function also depends
+on this parameter. The fitting is done by assuming bin-independent
+Poisson-fluctuations. This tool can be used, e.g., for fitting several
+templates to a smooth function.
+
+How to get started: 
+-------------------
+1. Run the script setup.sh. This will include the current directory
+into the LD_LIBRARY_PATH.
+
+2. Run the script CreateFitModel.sh. This will create a directory
+including a class (.h, .cxx) and a Makefile. The class inherits from
+the BinLikeModel.
+
+3. Modify the .cxx class of the model: 
+   a) DefineParameters : add the model parameters. 
+   b) Expectation : return the expectation value for a bin. 
+
+4. Modify the run file: 
+   a) Read in all necessary histograms.
+   b) Add all histograms with a leading parameter value to the model. 
+
+5. Compile and run. 
+
+Example:
+--------
+An example can be found in the directory TemplateFit. Create a set of
+histograms with the script CreateHistograms.cxx (this needs to be
+compiled in ROOT, i.e., called like this: root -l
+CreateHistograms.cxx++) and then compile and run the model.
+
+K. Kroeninger, 11.2009

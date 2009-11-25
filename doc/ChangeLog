@@ -1,3 +1,6 @@
+2009-11-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/BinLikeTool: added tool for fitting a single function to a set of histograms. 
+	
 2009-11-20 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* BCModel:
 	  - added methods for goodness of fit test from Johnson(2004) paper based on chi2 statistic
