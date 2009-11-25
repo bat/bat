@@ -1,5 +1,6 @@
 2009-11-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/BinLikeTool: added tool for fitting a single function to a set of histograms. 
+	* models/SummaryTool: added tool for printing summary information of a model. 
 	
 2009-11-20 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* BCModel:

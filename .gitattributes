@@ -107,6 +107,15 @@ models/StackTool/StackModelManager.cxx -text
 models/StackTool/StackModelManager.h -text
 models/StackTool/histograms.root -text
 models/StackTool/runHypothesisTest.cxx -text
+models/SummaryTool/Makefile -text
+models/SummaryTool/README -text
+models/SummaryTool/SummaryTool.cxx -text
+models/SummaryTool/SummaryTool.h -text
+models/SummaryTool/TestProject/Makefile -text
+models/SummaryTool/TestProject/TestModel.cxx -text
+models/SummaryTool/TestProject/TestModel.h -text
+models/SummaryTool/TestProject/runTestProject.cxx -text
+models/SummaryTool/setup.sh -text
 /readme.devel -text
 src/BCAux.cxx -text
 src/BCDataPoint.cxx -text

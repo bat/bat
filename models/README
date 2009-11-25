@@ -16,7 +16,6 @@ Interfaces:
    - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
 
 * BinLikeTool
-
    - a model for fitting a single function to a set of histograms. The
      function depends on one "leading parameter"
    - this is useful, e.g., for the template method. One can fit several 
@@ -24,6 +23,12 @@ Interfaces:
      see the examples BinLikeTool/TemplateFit. 
    - includes a summary of the goodness-of-fit for each histogram. 
    - includes an easy starter script. 
+   - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
+
+* SummaryTool
+   - a tool for summarizing the information of a model. 
+   - in the moment this includes a correlation plot and a summary plot
+     of the parameters. 
    - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
 
 --------------------------------------------------------------------------

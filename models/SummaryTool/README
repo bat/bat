@@ -1,0 +1,25 @@
+SummaryTool: 
+------------
+
+Purpose: 
+--------
+Built a collection of summary information for a model. This includes a
+summary plot of the estimated parameter, a plot of the correlation
+among the parameters. In the future, automatically generated Latex
+tables and further summary information are planned. 
+
+How to use it:
+--------------
+1. Create a new SummaryTool object and add the model to be summarized. 
+
+2. Print the corresponding summary information, e.g., 
+   SummaryTool::PrintParameterPlot()
+   SummaryTool::PrintCorrelationPlot() 
+
+Example:
+--------
+An example can be found in the directory TestProject. It has three
+parameters, two of which are correlated and one has a multi-model
+distribution. Simply comile and run the example.
+
+K. Kroeninger, 11.2009 
