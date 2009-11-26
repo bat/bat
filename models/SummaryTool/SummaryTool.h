@@ -159,6 +159,17 @@ class SummaryTool
 	 */ 
 	std::vector <double> fSumProb; 
 
+	/**
+	 * A flag: check if marginalized information is present
+	 */ 
+	bool fFlagInfoMarg; 
+
+	
+	/**
+	 * A flag: check if optimization information is present
+	 */ 
+	bool fFlagInfoOpt; 
+	
 };
 // ---------------------------------------------------------
 

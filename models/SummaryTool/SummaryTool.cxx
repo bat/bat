@@ -1,6 +1,7 @@
 #include "SummaryTool.h"
 #include <BAT/BCH1D.h> 
 #include <BAT/BCH2D.h> 
+#include <BAT/BCLog.h> 
 
 #include <TCanvas.h> 
 #include <TLegend.h>
@@ -15,6 +16,7 @@
 // ---------------------------------------------------------
 SummaryTool::SummaryTool()
 {
+	// set model pointer
 	fModel = 0; 
 
 	// define sum of probabilities for quantiles 
@@ -26,6 +28,11 @@ SummaryTool::SummaryTool()
 	fSumProb.push_back(0.90); 
 	fSumProb.push_back(0.95); 
 
+	// set flags
+	fFlagInfoMarg	= false; 
+	fFlagInfoOpt	= false; 
+
+	// set text style
 	gStyle->SetPaintTextFormat("3.0g"); 
 };
 
@@ -64,29 +71,49 @@ int SummaryTool::CopySummaryData()
 
 	// copy information from marginalized distributions
 	for (int i = 0; i < npar; ++i) {
+
+		// copy parameter information 
 		fParName.push_back( (fModel->GetParameter(i)->GetName()) ); 
 		fParMin.push_back( fModel->GetParameter(i)->GetLowerLimit() ); 
 		fParMax.push_back( fModel->GetParameter(i)->GetUpperLimit() ); 
-		BCH1D* bch1d_temp = fModel->GetMarginalized( fModel->GetParameter(i) ); 
-		fMean.push_back( bch1d_temp->GetMean() ); 
-		fMargMode.push_back( bch1d_temp->GetMode() ); 
-		fGlobalMode.push_back ( (fModel->GetBestFitParameters()).at(i) ); 
-		for (int j = 0; j < nquantiles; ++j) 
-			fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) ); 
-		std::vector <double> intervals = bch1d_temp->GetSmallestIntervals(); 
-		int nintervals = int(intervals.size() / 5); 
-		fSmallInt.push_back(nintervals); 
-		fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() ); 
-		for (int j = 0; j < npar; ++j) { 
-			if (i!=j) {
-				BCH2D* bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i), 
-																										fModel->GetParameter(j)); 
-				fCorrCoeff.push_back( bch2d_temp->GetHistogram()->GetCorrelationFactor() ); 
+
+		// copy 1D marginalized information 
+		if (fModel->MCMCGetFlagRun()) {
+			fFlagInfoMarg = true; 
+			BCH1D* bch1d_temp = fModel->GetMarginalized( fModel->GetParameter(i) ); 
+			fMean.push_back( bch1d_temp->GetMean() ); 
+			fRMS.push_back( bch1d_temp->GetRMS() ); 
+			fMargMode.push_back( bch1d_temp->GetMode() ); 
+			for (int j = 0; j < nquantiles; ++j) 
+				fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) ); 
+			std::vector <double> intervals = bch1d_temp->GetSmallestIntervals(); 
+			int nintervals = int(intervals.size() / 5); 
+			fSmallInt.push_back(nintervals); 
+			fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() ); 
+			
+			// copy 2D margnialized information
+			for (int j = 0; j < npar; ++j) { 
+				if (i!=j) {
+					BCH2D* bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i), 
+																											fModel->GetParameter(j)); 
+					fCorrCoeff.push_back( bch2d_temp->GetHistogram()->GetCorrelationFactor() ); 
+				}
+				else
+					fCorrCoeff.push_back(1.0); 
 			}
-			else
-				fCorrCoeff.push_back(1.0); 
 		}
-		fRMS.push_back( bch1d_temp->GetRMS() ); 
+		else { 
+			//			BCLog::OutWarning("SummaryTool::CopySummaryData(). No information on marginalized distributions present.");
+		}
+		
+		// copy optimization information
+		if ((fModel->GetBestFitParameters()).size() > 0) { 
+			fFlagInfoOpt = true; 
+			fGlobalMode.push_back ( (fModel->GetBestFitParameters()).at(i) ); 
+		}
+		else {
+			//			BCLog::OutWarning("SummaryTool::CopySummaryData(). No information on optimization present.");
+		}
 	}
 
 	// no error
@@ -139,50 +166,60 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	// fill graphs
 	int indexintervals = 0; 
 
-	for (int i = 0; i < npar; ++i) {
-
-		// fill graph quantiles 
-		for (int j = 0; j < nquantiles; ++j) {
-			graph_quantiles->SetPoint(i*nquantiles+j,
-																double(i), 
-																(fQuantiles.at(i*nquantiles+j) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i))); 
-			graph_quantiles->SetPointError(i*nquantiles+j, 0.5, 0.0); 
+	// fill graph quantiles 
+	if (fFlagInfoMarg) { 
+		for (int i = 0; i < npar; ++i) {
+			for (int j = 0; j < nquantiles; ++j) {
+				graph_quantiles->SetPoint(i*nquantiles+j,
+																	double(i), 
+																	(fQuantiles.at(i*nquantiles+j) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i))); 
+				graph_quantiles->SetPointError(i*nquantiles+j, 0.5, 0.0); 
+			}
 		}
-
+	}
+	
+	// fill graph mean and rms  
+	if (fFlagInfoMarg) { 
+		for (int i = 0; i < npar; ++i) {
 		// fill graph mean 
 		graph_mean->SetPoint(i, double(i), (fMean.at(i) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
 		graph_mean->SetPointError(i, 0.0, fRMS.at(i)/(fParMax.at(i)-fParMin.at(i)));
-
-		// fill graph mode 
-		graph_mode->SetPoint(i, double(i), (fGlobalMode.at(i) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
-
-		// fill graph smallest intervals 
-		int nintervals = int(fSmallInt.at(indexintervals++)); 
-		for (int j = 0; j < nintervals; ++j) {
-			double xmin = fSmallInt.at(indexintervals++); 
-			double xmax = fSmallInt.at(indexintervals++); 
-			indexintervals++; 
-			double xlocalmaxpos = fSmallInt.at(indexintervals++); 
-			indexintervals++; 
-			int npoints = graph_intervals->GetN(); 
-			graph_intervals->SetPoint(npoints,
-																double(i), 
-																(xlocalmaxpos - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
-			graph_intervals->SetPointError(npoints, 
-																		 0.5, 0.5, 
-																		 (xlocalmaxpos - xmin)/(fParMax.at(i)-fParMin.at(i)), 
-																		 (xmax - xlocalmaxpos)/(fParMax.at(i)-fParMin.at(i))); 
-			}
+		}
 	}
 
+	// fill graph mode 
+	if (fFlagInfoOpt) { 
+		for (int i = 0; i < npar; ++i) {
+			graph_mode->SetPoint(i, double(i), (fGlobalMode.at(i) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
+		}
+	}
+
+	// fill graph smallest intervals 
+	if (fFlagInfoMarg) { 
+		for (int i = 0; i < npar; ++i) {
+			int nintervals = int(fSmallInt.at(indexintervals++)); 
+			for (int j = 0; j < nintervals; ++j) {
+				double xmin = fSmallInt.at(indexintervals++); 
+				double xmax = fSmallInt.at(indexintervals++); 
+				indexintervals++; 
+				double xlocalmaxpos = fSmallInt.at(indexintervals++); 
+				indexintervals++; 
+				int npoints = graph_intervals->GetN(); 
+				graph_intervals->SetPoint(npoints,
+																	double(i), 
+																	(xlocalmaxpos - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
+				graph_intervals->SetPointError(npoints, 
+																			 0.5, 0.5, 
+																			 (xlocalmaxpos - xmin)/(fParMax.at(i)-fParMin.at(i)), 
+																			 (xmax - xlocalmaxpos)/(fParMax.at(i)-fParMin.at(i))); 
+			}
+		}
+	}
+	
 	// create legend
 	TLegend * legend = new TLegend(0.15, 0.88, 0.85, 0.99); 
 	legend->SetBorderSize(0); 
 	legend->SetFillColor(0); 
-	legend->AddEntry(graph_quantiles, "Quantiles (5%, 10%, 16%, 50%, 84%, 90, 95%)", "L"); 
-	legend->AddEntry(graph_mode,      "Global mode", "P");
-	legend->AddEntry(graph_intervals, "Smallest intervals and local modes", "FL"); 
-	legend->AddEntry(graph_mean,      "Mean and RMS", "LEP");
 
 	// create latex 
 	TLatex * latex = new TLatex();
@@ -192,13 +229,21 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	TCanvas * c_par = new TCanvas("c_par"); 
 	c_par->cd(); 
 	hist_axes->Draw(); 
-	graph_intervals->DrawClone("SAME2"); 
-	for (int i = 0; i < graph_intervals->GetN(); ++i)
-		graph_intervals->SetPointError(i, 0.5, 0.5, 0.0, 0.0); 
+	if (fFlagInfoMarg) { 
+		graph_intervals->DrawClone("SAME2"); 
+		for (int i = 0; i < graph_intervals->GetN(); ++i)
+			graph_intervals->SetPointError(i, 0.5, 0.5, 0.0, 0.0); 
 	graph_intervals->Draw("SAMEPZ"); 
 	graph_quantiles->Draw("SAMEPZ"); 
 	graph_mean->Draw("SAMEP"); 
-	graph_mode->Draw("SAMEP"); 
+	legend->AddEntry(graph_quantiles, "Quantiles (5%, 10%, 16%, 50%, 84%, 90, 95%)", "L"); 
+	legend->AddEntry(graph_mean,      "Mean and RMS", "LEP");
+	legend->AddEntry(graph_intervals, "Smallest intervals and local modes", "FL"); 
+	}
+	if (fFlagInfoOpt) { 
+		graph_mode->Draw("SAMEP"); 
+	legend->AddEntry(graph_mode,      "Global mode", "P");
+	}
 	for (int i = 0; i < npar;++i) {
 		latex->DrawLatex(double(i)-0.1, 0.010, Form("%+3.3f", fParMin.at(i))); 
 		latex->DrawLatex(double(i)-0.1, 0.965, Form("%+3.3f", fParMax.at(i))); 
@@ -215,6 +260,10 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 {
 	// copy summary data 
 	if (!CopySummaryData())
+		return 0; 
+
+	// check if marginalized information is there
+	if (!fFlagInfoMarg)
 		return 0; 
 
 	// get number of parameters 
