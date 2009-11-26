@@ -1,12 +1,16 @@
 #include "SummaryTool.h"
 #include <BAT/BCH1D.h> 
 #include <BAT/BCH2D.h> 
+
 #include <TCanvas.h> 
+#include <TLegend.h>
 #include <TH2D.h> 
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
-#include <iostream>
 #include <TStyle.h> 
+#include <TLatex.h> 
+
+#include <iostream>
 
 // ---------------------------------------------------------
 SummaryTool::SummaryTool()
@@ -60,7 +64,7 @@ int SummaryTool::CopySummaryData()
 
 	// copy information from marginalized distributions
 	for (int i = 0; i < npar; ++i) {
-		fParName.push_back( (fModel->GetParameter(i)->GetName()).c_str() ); 
+		fParName.push_back( (fModel->GetParameter(i)->GetName()) ); 
 		fParMin.push_back( fModel->GetParameter(i)->GetLowerLimit() ); 
 		fParMax.push_back( fModel->GetParameter(i)->GetUpperLimit() ); 
 		BCH1D* bch1d_temp = fModel->GetMarginalized( fModel->GetParameter(i) ); 
@@ -105,7 +109,9 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 														 npar, -0.5, npar-0.5); 
 	hist_axes->SetStats(kFALSE); 
 	for (int i = 0; i < npar; ++i) 
-		hist_axes->GetXaxis()->SetBinLabel( i+1, fParName.at(i) ); 
+		hist_axes->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() ); 
+	hist_axes->GetXaxis()->SetLabelOffset(0.03); 
+	hist_axes->GetXaxis()->SetLabelSize(0.06); 
 	hist_axes->GetXaxis()->SetTickLength(0.0); 
 	hist_axes->GetYaxis()->SetRangeUser(0.0, 1.0); 
 	hist_axes->GetYaxis()->SetTickLength(0.0); 
@@ -151,7 +157,7 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 		graph_mode->SetPoint(i, double(i), (fGlobalMode.at(i) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
 
 		// fill graph smallest intervals 
-		int nintervals = fSmallInt.at(indexintervals++); 
+		int nintervals = int(fSmallInt.at(indexintervals++)); 
 		for (int j = 0; j < nintervals; ++j) {
 			double xmin = fSmallInt.at(indexintervals++); 
 			double xmax = fSmallInt.at(indexintervals++); 
@@ -169,8 +175,21 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 			}
 	}
 
+	// create legend
+	TLegend * legend = new TLegend(0.15, 0.88, 0.85, 0.99); 
+	legend->SetBorderSize(0); 
+	legend->SetFillColor(0); 
+	legend->AddEntry(graph_quantiles, "Quantiles (5%, 10%, 16%, 50%, 84%, 90, 95%)", "L"); 
+	legend->AddEntry(graph_mode,      "Global mode", "P");
+	legend->AddEntry(graph_intervals, "Smallest intervals and local modes", "FL"); 
+	legend->AddEntry(graph_mean,      "Mean and RMS", "LEP");
+
+	// create latex 
+	TLatex * latex = new TLatex();
+	latex->SetTextSize(0.02); 
+
 	// print to file 
-	TCanvas * c_par = new TCanvas("c_corr"); 
+	TCanvas * c_par = new TCanvas("c_par"); 
 	c_par->cd(); 
 	hist_axes->Draw(); 
 	graph_intervals->DrawClone("SAME2"); 
@@ -180,6 +199,11 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	graph_quantiles->Draw("SAMEPZ"); 
 	graph_mean->Draw("SAMEP"); 
 	graph_mode->Draw("SAMEP"); 
+	for (int i = 0; i < npar;++i) {
+		latex->DrawLatex(double(i)-0.1, 0.010, Form("%+3.3f", fParMin.at(i))); 
+		latex->DrawLatex(double(i)-0.1, 0.965, Form("%+3.3f", fParMax.at(i))); 
+	}
+	legend->Draw("SAME"); 
 	c_par->Print(filename); 
 
 	// no error 
@@ -202,19 +226,20 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 															npar, -0.5, npar-0.5); 
 	hist_corr->SetStats(kFALSE); 
 	hist_corr->GetXaxis()->SetTickLength(0.0); 
+	hist_corr->GetXaxis()->SetLabelOffset(0.03); 
 	hist_corr->GetYaxis()->SetTickLength(0.0); 
 	hist_corr->GetZaxis()->SetRangeUser(-1.0, 1.0); 
 
 	for (int i = 0; i < npar; ++i) {
-		hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i) ); 
-		hist_corr->GetYaxis()->SetBinLabel( i+1, fParName.at(i) ); 
+		hist_corr->GetXaxis()->SetLabelSize(0.06);
+		hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() ); 
+		hist_corr->GetYaxis()->SetLabelSize(0.06);
+		hist_corr->GetYaxis()->SetBinLabel( i+1, fParName.at(i).c_str() ); 
 	}
 
 	// fill plot
 	for (int i = 0; i < npar; ++i) {
 		for (int j = 0; j < npar; ++j) {
-			// debugKK
-			// check if this is correct or if it has to be reversed 
 			int index = i * npar + j; 
 			double corr = fCorrCoeff.at(index); 
 			hist_corr->SetBinContent(i+1, j+1, corr); 

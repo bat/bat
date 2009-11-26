@@ -3,6 +3,8 @@
 
 #include <BAT/BCModel.h>
 
+#include <string>
+
 // ---------------------------------------------------------
 class SummaryTool
 {
@@ -95,7 +97,7 @@ class SummaryTool
 	/**
 	 * Parameter names.
 	 */ 
-	std::vector <const char*> fParName; 
+	std::vector <std::string> fParName; 
 
 	/**
 	 * Parameter minimum.
