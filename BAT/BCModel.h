@@ -623,7 +623,7 @@ class BCModel : public BCIntegrate
 		 * @param index The data point index, 0=underflow, 1 = first data bin...n=last data bin
 		 * @param lower return the CDF for the count one less than actually observed, e.g.
 		 * in Poisson process 3 actually observed, so CDF(2) is returned */
-		virtual double CDF(std::vector<double> parameters,  int index, bool lower=false)
+		virtual double CDF(const std::vector<double>& parameters,  int index, bool lower=false)
 		{return 0.0;}
 
 

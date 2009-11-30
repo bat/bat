@@ -1259,7 +1259,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
 	// number of observations
 	int n = this -> GetNDataPoints();
 
-	if (nBins < 0);
+	if (nBins < 0)
 		nBins=NumberBins();
 
 	// fixed width quantiles, including final point!
@@ -1275,7 +1275,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
 	// than one quantile
 	if (flag_discrete) {
 		//loop over observations, each may have different likelihood and CDF
-		for (int j = 1; j <= n; j++) {
+		for (int j = 0; j < n; j++) {
 			//actual value
 			double CDF = this->CDF(par, j);
 			//for the bin just before
@@ -1333,7 +1333,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
 			// and search with linear comput. complexity
 			for (uint i = 0; i < prob.size(); i++) {
 				//we finally allocate the count, as center of quantile
-				if (U < prob.at(i)) {
+				if (U <= prob.at(i)) {
 					hist -> Fill((a.at(qMin + i-1) + a.at(qMin + i)) / 2.0);
 					break;
 				}
@@ -1350,10 +1350,11 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
 	// calculate chi^2
 	double chi2 = 0.0;
 	double mk, pk;
+	double N=double(n);
 	for (int i = 1; i <= nBins; i++) {
 		mk = hist->GetBinContent(i);
 		pk = a.at(i) - a.at(i - 1);
-		chi2 += (mk - n * pk) * (mk - n * pk) / (n * pk);
+		chi2 += (mk - N * pk) * (mk - N * pk) / (N * pk);
 	}
 
 

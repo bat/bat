@@ -570,7 +570,12 @@ int BCHistogramFitter::CalculatePValueLeastSquares (std::vector<double> par, dou
     return 1;
 }
 
-double BCHistogramFitter::CDF(std::vector<double> parameters,  int index, bool lower) {
+double BCHistogramFitter::CDF(const std::vector<double>& parameters,  int index, bool lower) {
+
+	if (parameters.empty())
+		BCLog::OutWarning("BCHistogramFitter::CDF: parameter vector empty!");
+	//histogram stores underflow in bin 0, so datapoint 0 is in bin 1
+	index++;	
 
 	// get the number of observed events (should be integer)
 	double yObs = fHistogram -> GetBinContent(index);
@@ -588,7 +593,7 @@ double BCHistogramFitter::CDF(std::vector<double> parameters,  int index, bool l
 
 	// use ROOT's TH1D::Integral method
 	if (fFlagIntegration)
-		yExp = fFitFunction -> Integral(edgeLow, edgeHigh);
+		yExp = fFitFunction -> Integral(edgeLow, edgeHigh, &parameters[0]);
 
 	// use linear interpolation
 	else {
@@ -608,6 +613,9 @@ double BCHistogramFitter::CDF(std::vector<double> parameters,  int index, bool l
 			return 0.0;
 	}
 	//TODO what if yObs as double doesn't reprepsent a whole number? exceptioN?
+
+//	BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
+//	BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 
 	return ROOT::Math::poisson_cdf((unsigned int)yObs, yExp);
 }

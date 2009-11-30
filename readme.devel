@@ -1,10 +1,13 @@
 
 The procedure to prepare compilation after checking out the package
-from the cvs is the following:
+from the svn repository is the following:
 
 1. Run autogen.sh
    It will create the configure script as well as all Makefile.in files
    based on configure.ac and Makefile.am's
+   
+   In case autoreconf (v 2.64) complains about missing directory `config`:
+   remove/comment out '-I config -I m4' from the command in the autogen.sh file.
 
 2. Run ./configure
    It will prepare the compilation based on the system setup.
@@ -14,13 +17,5 @@ from the cvs is the following:
 
 4. Run make install to install BAT
 
-Note:
------
-There are many (old) empty directories in the BAT cvs structure. Since
-it is not possible to remove them from the cvs completely it is recommended
-to use -P option when checking out etc. This option will caise that
-the empty directories will be ignored.
 
-It is (sort of) important to use this option before creating a distribution.
-Otherwise many empty directories will be added to the tarball.
 

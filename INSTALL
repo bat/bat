@@ -79,6 +79,10 @@ The libcuba.a has to be available in the standard system library search
 path. You can specify the cuba.h location using
 --with-cuba-path=/path/to/cuba/header.
 
+For debugging purposes it is helpful to build BAT without optimization.
+To achieve that pass the following option  to ./configure:
+CXXFLAGS='-ggdb3 -O0'
+
 After successful configuration run
 
     make

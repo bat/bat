@@ -177,7 +177,7 @@ class BCHistogramFitter : public BCModel
 		 * @return An error code */
 		int CalculatePValueLeastSquares(std::vector<double> par, double &pvalue, bool weightExpect=true);
 
-		double CDF(std::vector<double> parameters, int index, bool lower=false);
+		double CDF(const std::vector<double>& parameters, int index, bool lower=false);
 
 		/* @} */
 

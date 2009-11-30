@@ -1,3 +1,15 @@
+2009-11-30 Frederik Beaujean <beaujean@mppmu.mpg.de>
+	* BCModel:
+	  - changed prototype for CDF
+	  - fixed bug about #quantiles in GetChi2Johnson	  
+	* BCHistogramFitter::CDF:
+	  - changed prototype 
+	  - fixed bug with parameter setting in integral
+	* readme.devel:
+	  - removed CVS comments
+	  - added compilation hint for older autoconfigure version
+	* INSTALL:
+	  - added hint for debugging compilation of BAT
 2009-11-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: added more information on the summary plots.
 
