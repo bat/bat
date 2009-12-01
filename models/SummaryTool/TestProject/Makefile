@@ -93,7 +93,7 @@ all : project
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
--include link.d
+include link.d
 
 %.o : %.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@

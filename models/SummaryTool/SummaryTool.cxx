@@ -4,6 +4,7 @@
 #include <BAT/BCLog.h> 
 
 #include <TCanvas.h> 
+#include <TPostScript.h>
 #include <TLegend.h>
 #include <TH2D.h> 
 #include <TGraphErrors.h>
@@ -305,6 +306,78 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 	return 1; 
 }
 
+// ---------------------------------------------------------
+int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
+{
+	// perform analysis
+	this->CalculatePriorModel();
+
+	// create postscript 
+	TPostScript* ps = new TPostScript(filename); 
+
+	// create canvas and prepare postscript
+	TCanvas* c_update = new TCanvas("c_update");
+
+	c_update->Update();
+	ps->NewPage();
+	c_update->cd();
+
+	// create legend
+	TLegend* leg = new TLegend(0.5, 0.7, 0.85, 0.85); 
+	leg->SetBorderSize(0); 
+	leg->SetFillColor(kWhite); 
+
+	// loop over all parameters 
+	int npar = fModel->GetNParameters();
+	for (int i = 0; i < npar; ++i) {
+		// update post script
+		c_update->Update();
+		ps->NewPage();
+		c_update->cd();
+
+		// get histograms; 
+		BCParameter * par = fModel->GetParameter(i); 
+		TH1D * hist_prior = fPriorModel->GetMarginalized(par)->GetHistogram(); 
+		hist_prior->SetLineColor(kRed);
+		TH1D * hist_posterior = fModel->GetMarginalized(par)->GetHistogram(); 
+
+		// add entries 
+		if (!i) {
+			leg->AddEntry(hist_prior, "Prior probability", "L"); 
+			leg->AddEntry(hist_posterior, "Posterior probability", "L"); 
+		}
+
+		// scale histogram
+		hist_prior->Scale(hist_posterior->Integral()/hist_prior->Integral());
+
+		// get maximum
+		double max_prior = hist_prior->GetMaximum(); 
+		double max_posterior = hist_posterior->GetMaximum(); 
+		double max = 1.1 * TMath::Max(max_prior, max_posterior);
+		
+		// plot 
+		c_update->cd();
+		hist_prior->Draw();
+		hist_posterior->Draw("SAME");
+		leg->Draw("SAME");
+
+		// scale axes
+		hist_prior->GetYaxis()->SetRangeUser(0.0, max);
+		hist_posterior->GetYaxis()->SetRangeUser(0.0, max);
+	}
+
+	// close ps
+	c_update->Update(); 
+	ps->Close();
+
+	// free memory 
+	delete ps;
+	delete c_update;
+
+	// no error 
+	return 1;
+}
+
 // // ---------------------------------------------------------
 // int SummaryTool::Print2DOverviewPlots(const char* filename)
 // {
@@ -344,5 +417,26 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 // 	// no error 
 // 	return 1;
 // }
+
+// ---------------------------------------------------------
+int SummaryTool::CalculatePriorModel()
+{
+	// create new prior model
+	if (fPriorModel) {
+		delete fPriorModel; 
+		fPriorModel = 0; 
+	}
+
+	fPriorModel = new PriorModel(); 
+
+	// set model
+	fPriorModel->SetTestModel(fModel); 
+
+	// perform analysis
+	fPriorModel->PerformAnalysis(); 
+
+	// no error 
+	return 1;
+}
 
 // ---------------------------------------------------------

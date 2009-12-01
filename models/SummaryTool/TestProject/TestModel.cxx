@@ -8,11 +8,22 @@
 #include "TestModel.h"
 
 #include <TMath.h>
+#include <BAT/BCMath.h> 
 
 // ---------------------------------------------------------
 TestModel::TestModel() : BCModel()
 {  // default constructor
 	DefineParameters();
+
+	// set data
+	double x[10] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0}; 
+	double y[10] = {1.1, 2.1, 2.9, 4.2, 5.1, 6.2, 7.3, 7.8, 9.0, 10.1}; 
+	
+	for (int i = 0; i < 10; ++i) {
+		fDataX[i] = x[i]; 
+		fDataY[i] = y[i]; 
+	}
+
 };
 
 // ---------------------------------------------------------
@@ -34,9 +45,8 @@ void TestModel::DefineParameters()
 	// of the parameter. The indices increase from 0 according to the
 	// order of adding the parameters.
 
-	this -> AddParameter("par0", -5.0, 5.0);
- 	this -> AddParameter("par1", -5.0, 5.0);
- 	this -> AddParameter("par2", -5.0, 0.0);
+	this -> AddParameter("offset",  -1.0, 2.0);
+ 	this -> AddParameter("slope",  0.8, 1.5);
 }
 
 // ---------------------------------------------------------
@@ -47,14 +57,11 @@ double TestModel::LogLikelihood(std::vector <double> parameters)
 
 	double logprob = 0.;
 
- 	logprob += log ( 2.0 * TMath::Gaus(parameters.at(0), -3.0, 0.5) + 
- 									 1.0 * TMath::Gaus(parameters.at(0), -1.0, 0.5) + 
-									 1.0 * TMath::Gaus(parameters.at(0),  2.0, 0.7) );
-
-	double rho = -0.8; 
- 	double a = (parameters.at(1) - 1.0)/1.5; 
-	double b = (parameters.at(2) + 2.0)/0.5; 
- 	logprob += - 1.0/(1-rho*rho)*(a*a + b*b - 2*rho*a*b); 
+	for (int i = 0; i < 10; ++i) {
+		double x = fDataX[i]; 
+		double yexp = x * parameters.at(1) + parameters.at(0); 
+		logprob += BCMath::LogGaus(yexp, fDataY[i], 0.1); 
+	}
 
 	return logprob;
 }
@@ -66,6 +73,9 @@ double TestModel::LogAPrioriProbability(std::vector <double> parameters)
 	// parameters p(parameters).
 
 	double logprob = 0.;
+
+	logprob += BCMath::LogGaus(parameters.at(0), -0.2, 0.2); 
+	logprob += BCMath::LogGaus(parameters.at(1),  1.2, 0.2); 
 
 	return logprob;
 }

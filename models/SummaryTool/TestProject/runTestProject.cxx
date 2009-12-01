@@ -18,10 +18,9 @@ int main()
 
 	// set mcmc options
 	model->MCMCSetNLag(10);
-	model->MCMCSetNIterationsRun(10000000);
-	model->SetNbins((model->GetParameter(0)->GetName()).c_str(), 500);
-	model->SetNbins((model->GetParameter(1)->GetName()).c_str(), 500);
-	model->SetNbins((model->GetParameter(2)->GetName()).c_str(), 500);
+	model->MCMCSetNIterationsRun(1000000);
+	model->SetNbins((model->GetParameter(0)->GetName()).c_str(), 200);
+	model->SetNbins((model->GetParameter(1)->GetName()).c_str(), 200);
 
 	// run analysis 
 	model->MarginalizeAll(); 
@@ -38,6 +37,7 @@ int main()
 	// print summaries 
 	summarytool->PrintParameterPlot("summary_parameters.eps"); 
 	summarytool->PrintCorrelationPlot("summary_correlation.eps"); 
+	summarytool->PrintKnowlegdeUpdatePlot("summary_update.ps");
 
 	// free memory
 	delete summarytool;

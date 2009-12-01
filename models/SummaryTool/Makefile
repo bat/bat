@@ -73,7 +73,8 @@ GLIBS       += -L$(BATINSTALLDIR)/lib -lBAT
 # Add classes to the end. Baskslash indicates continuation
 # on the next line
 CXXSRCS      = \
-        SummaryTool.cxx 
+        SummaryTool.cxx \
+				PriorModel.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

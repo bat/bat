@@ -1,6 +1,8 @@
 #ifndef __SUMMARYTOOL__H
 #define __SUMMARYTOOL__H
 
+#include "PriorModel.h"
+
 #include <BAT/BCModel.h>
 
 #include <string>
@@ -44,6 +46,13 @@ class SummaryTool
 	/* @{ */
 
 	/**
+	 * Calculate the marginalized distributions using the prior
+	 * knowledge alone.
+	 * @return An error flag.
+	 */
+	int CalculatePriorModel();
+
+	/**
 	 * Copy the summary information from the model. 
 	 * @return An error flag. */ 
 	int CopySummaryData(); 
@@ -62,7 +71,7 @@ class SummaryTool
 	 * Print a comparison of the prior knowledge to the posterior
 	 * knowledge for each parameter. 
 	 * @return An error flag. */ 
-	int PrintKnowlegdeUpdatePlot(); 
+	int PrintKnowlegdeUpdatePlot(const char* filename = "update.eps"); 
 
 	/**
 	 * Print parameter summary as text. 
@@ -158,6 +167,12 @@ class SummaryTool
 	 * Sum of probabilities for quantiles 
 	 */ 
 	std::vector <double> fSumProb; 
+
+	/**
+	 * A model for calculating the marginalized distributions for the
+	 * prior probabilities.
+	 */ 
+	PriorModel* fPriorModel; 
 
 	/**
 	 * A flag: check if marginalized information is present

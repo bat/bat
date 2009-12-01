@@ -27,6 +27,11 @@ class TestModel : public BCModel
 		void DefineParameters();
 		double LogAPrioriProbability(std::vector <double> parameters);
 		double LogLikelihood(std::vector <double> parameters);
+
+ private: 
+
+		double fDataX[10]; 
+		double fDataY[10]; 
 };
 // ---------------------------------------------------------
 

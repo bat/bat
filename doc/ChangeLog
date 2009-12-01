@@ -1,3 +1,6 @@
+2009-12-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/SummaryTool: added plots which show the knowledge update from prior to posterior (in 1-D).
+
 2009-11-30 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* BCModel:
 	  - changed prototype for CDF
@@ -10,6 +13,7 @@
 	  - added compilation hint for older autoconfigure version
 	* INSTALL:
 	  - added hint for debugging compilation of BAT
+
 2009-11-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: added more information on the summary plots.
 
