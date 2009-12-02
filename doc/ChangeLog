@@ -1,5 +1,6 @@
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: added plots which show the knowledge update from prior to posterior (in 2-D).
+	* models/SummaryTool: added PriorModel class.
 	* models/StackTool: added fraction plots, minor modifications.
 	
 2009-12-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

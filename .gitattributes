@@ -108,6 +108,8 @@ models/StackTool/StackModelManager.h -text
 models/StackTool/histograms.root -text
 models/StackTool/runHypothesisTest.cxx -text
 models/SummaryTool/Makefile -text
+models/SummaryTool/PriorModel.cxx -text
+models/SummaryTool/PriorModel.h -text
 models/SummaryTool/README -text
 models/SummaryTool/SummaryTool.cxx -text
 models/SummaryTool/SummaryTool.h -text
