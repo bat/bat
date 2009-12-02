@@ -18,9 +18,9 @@ int main()
 
 	// set mcmc options
 	model->MCMCSetNLag(10);
-	model->MCMCSetNIterationsRun(1000000);
-	model->SetNbins((model->GetParameter(0)->GetName()).c_str(), 200);
-	model->SetNbins((model->GetParameter(1)->GetName()).c_str(), 200);
+	model->MCMCSetNIterationsRun(10000000);
+	model->SetNbins((model->GetParameter(0)->GetName()).c_str(), 100);
+	model->SetNbins((model->GetParameter(1)->GetName()).c_str(), 100);
 
 	// run analysis 
 	model->MarginalizeAll(); 

@@ -11,6 +11,8 @@
 #include <TGraphAsymmErrors.h>
 #include <TStyle.h> 
 #include <TLatex.h> 
+#include <TMarker.h> 
+#include <TArrow.h> 
 
 #include <iostream>
 
@@ -323,9 +325,9 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 	c_update->cd();
 
 	// create legend
-	TLegend* leg = new TLegend(0.5, 0.7, 0.85, 0.85); 
-	leg->SetBorderSize(0); 
-	leg->SetFillColor(kWhite); 
+	TLegend * legend1d = new TLegend(0.15, 0.88, 0.85, 0.94); 
+	legend1d->SetBorderSize(0); 
+	legend1d->SetFillColor(0); 
 
 	// loop over all parameters 
 	int npar = fModel->GetNParameters();
@@ -343,8 +345,8 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 
 		// add entries 
 		if (!i) {
-			leg->AddEntry(hist_prior, "Prior probability", "L"); 
-			leg->AddEntry(hist_posterior, "Posterior probability", "L"); 
+			legend1d->AddEntry(hist_prior, "Prior probability", "L"); 
+			legend1d->AddEntry(hist_posterior, "Posterior probability", "L"); 
 		}
 
 		// scale histogram
@@ -359,13 +361,80 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 		c_update->cd();
 		hist_prior->Draw();
 		hist_posterior->Draw("SAME");
-		leg->Draw("SAME");
+		legend1d->Draw("SAME");
 
 		// scale axes
 		hist_prior->GetYaxis()->SetRangeUser(0.0, max);
 		hist_posterior->GetYaxis()->SetRangeUser(0.0, max);
-	}
+	}	
 
+	// create legend
+	TLegend * legend2d = new TLegend(0.15, 0.88, 0.85, 0.99); 
+	legend2d->SetBorderSize(0); 
+	legend2d->SetFillColor(0); 
+
+	// loop over all parameters 
+	for (int i = 0; i < npar; ++i) {
+		for (int j = 0; j < i; ++j) {
+			// update post script
+			c_update->Update();
+			ps->NewPage();
+			c_update->cd();
+
+			// get parameters 
+			BCParameter * par1 = fModel->GetParameter(i); 
+			BCParameter * par2 = fModel->GetParameter(j); 
+
+			// get 2-d histograms
+			BCH2D* bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2); 
+			BCH2D* bch2d_2dposterior = fModel->GetMarginalized(par1, par2); 
+
+			// get histograms 
+			TH2D* hist_2dprior = bch2d_2dprior->GetHistogram(); 
+			hist_2dprior->SetLineColor(kRed); 
+			TH2D* hist_2dposterior = bch2d_2dposterior->GetHistogram(); 
+
+			// scale histograms
+			hist_2dprior->Scale(1.0/hist_2dprior->Integral("width")); 
+			hist_2dposterior->Scale(1.0/hist_2dposterior->Integral("width")); 
+
+			// calculate contours
+			bch2d_2dprior -> CalculateIntegratedHistogram();
+			bch2d_2dposterior -> CalculateIntegratedHistogram();
+
+			double level[1] = {bch2d_2dprior->GetLevel(0.32)};
+			hist_2dprior->SetContour(1, level); 
+			hist_2dprior->Draw("CONT3"); 
+			level[0] = bch2d_2dposterior->GetLevel(0.32);
+			hist_2dposterior->SetContour(1, level); 
+			hist_2dposterior->Draw("CONT3 SAME"); 
+			
+			std::vector <double> mode_prior = fPriorModel->GetBestFitParameters(); 
+			TMarker * marker_prior = new TMarker(mode_prior.at(j), mode_prior.at(i), 24); 
+			marker_prior->SetMarkerColor(kRed);
+			marker_prior->Draw();
+
+			std::vector <double> mode_posterior = fModel->GetBestFitParameters(); 
+			TMarker * marker_posterior = new TMarker(mode_posterior.at(j), mode_posterior.at(i), 24); 
+			marker_posterior->Draw();
+
+			TArrow* arrow = new TArrow(mode_prior.at(j), mode_prior.at(i), 
+																 mode_posterior.at(j), mode_posterior.at(i), 0.02);
+			arrow->SetLineColor(kBlue);
+			arrow->SetLineStyle(2);
+			arrow->Draw(); 
+
+			if (i==1 && j == 0) {
+				legend2d->AddEntry(hist_2dprior, "68% prior contour", "L");
+				legend2d->AddEntry(hist_2dposterior, "68% posterior contour", "L");
+				legend2d->AddEntry(marker_prior, "Prior mode", "P"); 
+				legend2d->AddEntry(marker_posterior, "Posterior mode", "P"); 
+				legend2d->AddEntry(arrow, "Change in mode", "L"); 
+			}
+			legend2d->Draw();
+		}
+	}
+	
 	// close ps
 	c_update->Update(); 
 	ps->Close();
