@@ -9,6 +9,7 @@
 #include <TMath.h>
 #include <TRandom3.h>
 #include <TGraphAsymmErrors.h>
+#include <TPostScript.h>
 
 #include <BAT/BCMath.h>
 #include <BAT/BCLog.h>
@@ -18,6 +19,9 @@ StackModel::StackModel() : BCModel()
 {
 	fUncertaintyHistogramExp = 0;
 	fUncertaintyHistogramObsPosterior = 0;
+	fHistNorm = 0; 
+	fFlagFixNorm = 0;
+	fNorm = 1; 
 }
 
 // ---------------------------------------------------------
@@ -25,6 +29,9 @@ StackModel::StackModel(const char * name) : BCModel(name)
 {
 	fUncertaintyHistogramExp = 0;
 	fUncertaintyHistogramObsPosterior = 0;
+	fHistNorm = 0; 
+	fFlagFixNorm = 0; 
+	fNorm = 1; 
 }
 
 // ---------------------------------------------------------
@@ -35,6 +42,9 @@ StackModel::~StackModel()
 
 	if (fUncertaintyHistogramObsPosterior)
 		delete fUncertaintyHistogramObsPosterior;
+
+	if (fHistNorm)
+		delete fHistNorm; 
 }
 
 // ---------------------------------------------------------
@@ -45,13 +55,29 @@ double StackModel::LogLikelihood(std::vector <double> parameters)
 	int nbins      = fDataHistogram.GetNbinsX();
 	int ntemplates = int(fTemplateHistogramContainer.size());
 
-	for (int ibin = 1; ibin <= nbins; ++ibin)
-	{
+	std::vector <double> norm = parameters;
+	int npar = int(parameters.size()); 
+
+	// calculate norm
+	double sum = 0; 
+	for (int i = 0; i < npar; ++i)
+		sum += parameters.at(i); 
+
+	// fix norm
+	if (fFlagFixNorm) {
+		for (int i = 0; i < npar; ++i)
+			norm[i] = parameters.at(i) / sum; 
+	}
+	else {
+		fNorm = sum; 
+	}		
+
+	for (int ibin = 1; ibin <= nbins; ++ibin) {
 		double nexp = 0;
 		double ndata = fDataHistogram.GetBinContent(ibin);
-
+		
 		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			nexp += parameters.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+			nexp += norm.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 
 		logprob += BCMath::LogPoisson(ndata, nexp);
 	}
@@ -99,6 +125,24 @@ int StackModel::SetDataHistogram(TH1D hist)
 																							 int(maxi) + 1,
 																							 -0.5,
 																							 double(int(maxi))+0.5);
+
+	// calculate norm
+	fNorm = hist.Integral();
+
+	// create histogram containing the normalization
+	double xmin = 0; 
+	double xmax = 0; 
+	int npar = GetNParameters(); 
+
+	// calculate the limits on the norm from the sum of all parameter limits 
+	for (int i = 0; i < npar; ++i) {
+		BCParameter * par = this->GetParameter(i); 
+		xmin += par->GetLowerLimit(); 
+		xmax += par->GetUpperLimit(); 
+	}
+
+	// create new histogram for norm
+	fHistNorm = new TH1D("hist_norm", ";N_{norm};dN/dN_{norm}", 100, xmin, xmax); 
 
 	// no errors
 	return 1;
@@ -156,6 +200,11 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 	}
 
 	AddParameter(Form("N_%i", index), Nmin, Nmax);
+
+	// add fraction histogram
+	TH1D hist_frac1d(Form("fraction %i", index), ";;", 100, 0.0, 1.0); 
+
+	fHistFraction1D.push_back(hist_frac1d); 
 
 	// successfully added histogram to container
 	return 1;
@@ -528,6 +577,44 @@ void StackModel::MCMCUserIterationInterface()
 				fUncertaintyHistogramObsPosterior->Fill(fDataHistogram.GetBinCenter(ibin), n, TMath::Poisson(bincontent, n));
 		}
 	}
+
+	// fill normalization
+	fHistNorm->Fill(fNorm);
+
+	// fill fractions
+	double sum = 0; 
+	for (int i = 0; i < ntemplates; ++i)
+		sum += fMCMCx.at(i); 
+
+	for (int i = 0; i < ntemplates; ++i)
+		fHistFraction1D.at(i).Fill(fMCMCx.at(i)/sum); 
+}
+
+// ---------------------------------------------------------
+void StackModel::PrintFraction(const char * filename)
+{
+	int ntemplates = int(fTemplateHistogramContainer.size());
+
+	TCanvas* c1 = new TCanvas("c1");
+
+	TPostScript * ps = new TPostScript(filename, 112);
+	ps->NewPage(); 
+
+	c1->cd(); 
+	fHistNorm->Draw(); 
+	c1->Update(); 
+	ps->NewPage(); 
+	for (int i = 0; i < ntemplates; ++i) {
+		c1->Update(); 
+		ps->NewPage();
+		c1->cd(); 
+		fHistFraction1D.at(i).Draw(); 
+	}
+	c1->Update();
+	ps->Close(); 
+
+	delete c1; 
+	delete ps; 
 }
 
 // ---------------------------------------------------------

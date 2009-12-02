@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream> 
 
 #include "StackModelManager.h"
 
@@ -32,6 +33,19 @@ int StackModelManager::SetDataHistogram(TH1D hist)
 
 	// return error code
 	return errcode;
+}
+
+// ---------------------------------------------------------
+void StackModelManager::SetFlagFixNorm(bool flag)
+{
+	int n = int(fStackModelContainer.size());
+
+	// loop over stack models
+	for (int i = 0; i < n; ++i)
+	{
+		StackModel * sm = fStackModelContainer.at(i);
+		sm->SetFlagFixNorm(flag);
+	}
 }
 
 // ---------------------------------------------------------
@@ -123,61 +137,71 @@ int StackModelManager::PerformAnalysis()
 }
 
 // ---------------------------------------------------------
-void StackModelManager::PrintResults()
+void StackModelManager::PrintResults(const char * filename)
 {
+	// open file
+	std::ofstream ofi(filename);
+
+	// check if file is open
+	if(!ofi.is_open())
+		{
+			std::cerr << "Couldn't open file " << filename <<std::endl;
+			return;
+		}
+
 	int n = int(fStackModelContainer.size());
 
-	std::cout << std::endl;
-	std::cout << "Goodness-of-fit results " << std::endl;
-	std::cout << "----------------------- " << std::endl;
-	std::cout << std::endl;
+	ofi << std::endl;
+	ofi << "Goodness-of-fit results " << std::endl;
+	ofi << "----------------------- " << std::endl;
+	ofi << std::endl;
 
-	std::cout << "chi2 / ndf (chiprob): " << std::endl;
-	std::cout << std::endl;
-
-	// loop over stack models
-	for (int i = 0; i < n; ++i)
-		std::cout << " model " << i << " : " << fChi2.at(i) << " / " << fNDF.at(i) << " (" << fChi2Prob.at(i) << ")" << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Kolmogorov-Smirnov probability: " << std::endl;
-	std::cout << std::endl;
+	ofi << "chi2 / ndf (chiprob): " << std::endl;
+	ofi << std::endl;
 
 	// loop over stack models
 	for (int i = 0; i < n; ++i)
-		std::cout << " model " << i << " : " << fKSProb.at(i) << std::endl;
-	std::cout << std::endl;
+		ofi << " model " << i << " : " << fChi2.at(i) << " / " << fNDF.at(i) << " (" << fChi2Prob.at(i) << ")" << std::endl;
+	ofi << std::endl;
 
-	std::cout << "p-value: " << std::endl;
-	std::cout << std::endl;
-
-	// loop over stack models
-	for (int i = 0; i < n; ++i)
-		std::cout << " model " << i << " : " << fPValue.at(i) << std::endl;
-
-	std::cout << std::endl;
-	std::cout << "Model comparison results " << std::endl;
-	std::cout << "------------------------ " << std::endl;
-	std::cout << std::endl;
-
-	std::cout << "Maximum Likelihood: " << std::endl;
-	std::cout << std::endl;
-	// loop over stack models
-	for (int i = 0; i < n; ++i)
-		std::cout << " model " << i << " : " << fMaxLike.at(i) << std::endl;
-	std::cout << std::endl;
-
-
-	std::cout << "posterior probability: " << std::endl;
-	std::cout << std::endl;
+	ofi << "Kolmogorov-Smirnov probability: " << std::endl;
+	ofi << std::endl;
 
 	// loop over stack models
 	for (int i = 0; i < n; ++i)
-		std::cout << " model " << i << " : " << fPosterior.at(i) << std::endl;
-	std::cout << std::endl;
+		ofi << " model " << i << " : " << fKSProb.at(i) << std::endl;
+	ofi << std::endl;
 
-	std::cout << "k-factors: " << std::endl;
-	std::cout << std::endl;
+	ofi << "p-value: " << std::endl;
+	ofi << std::endl;
+
+	// loop over stack models
+	for (int i = 0; i < n; ++i)
+		ofi << " model " << i << " : " << fPValue.at(i) << std::endl;
+
+	ofi << std::endl;
+	ofi << "Model comparison results " << std::endl;
+	ofi << "------------------------ " << std::endl;
+	ofi << std::endl;
+
+	ofi << "Maximum Likelihood: " << std::endl;
+	ofi << std::endl;
+	// loop over stack models
+	for (int i = 0; i < n; ++i)
+		ofi << " model " << i << " : " << fMaxLike.at(i) << std::endl;
+	ofi << std::endl;
+
+
+	ofi << "posterior probability: " << std::endl;
+	ofi << std::endl;
+
+	// loop over stack models
+	for (int i = 0; i < n; ++i)
+		ofi << " model " << i << " : " << fPosterior.at(i) << std::endl;
+	ofi << std::endl;
+
+	ofi << "k-factors: " << std::endl;
+	ofi << std::endl;
 
 	// loop over stack models
 	for (int i = 0; i < n; ++i)
@@ -185,9 +209,9 @@ void StackModelManager::PrintResults()
 		{
 			if (i == j)
 				continue;
-			std::cout << " model " << i << " vs " << j << " : " << (fKFactor.at(i)).at(j) << std::endl;
+			ofi << " model " << i << " vs " << j << " : " << (fKFactor.at(i)).at(j) << std::endl;
 		}
-	std::cout << std::endl;
+	ofi << std::endl;
 
 }
 

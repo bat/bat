@@ -46,6 +46,12 @@ class StackModelManager
 	int SetDataHistogram(TH1D hist);
 
 	/**
+	 * Set the flag for using a fixed normalization (true) or floating
+	 * normalization (false).
+	 */ 
+	void SetFlagFixNorm(bool flag); 
+
+	/**
 	 * Return a stack model.
 	 * @param index The index of the model.
 	 */
@@ -129,9 +135,10 @@ class StackModelManager
 	int PerformAnalysis();
 
 	/**
-	 * Prints the results to screen.
+	 * Prints the results to file. 
+	 * @param filename The name of the file.
 	 */
-	void PrintResults();
+	void PrintResults(const char * filename = "comparison.txt");
 
  protected:
 	/**

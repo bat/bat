@@ -68,10 +68,26 @@ class StackModel : public BCModel
 	int GetNDF()
 		{ return fDataHistogram.GetNbinsX() - GetNParameters(); };
 
+	TH1D* GetHistNorm()
+		{ return fHistNorm; }; 
+
 	/**
 	 * Set the histogram containing the data.
 	 */
 	int SetDataHistogram(TH1D hist);
+
+	/**
+	 * Set the flag for using a fixed normalization (true) or floating
+	 * normalization (false).
+	 */ 
+	void SetFlagFixNorm(bool flag)
+	{ fFlagFixNorm = flag; }; 
+
+	/**
+	 * Set normalization constant.
+	 */ 
+	void SetNorm(double norm)
+	{ fNorm = norm; }; 
 
 	/**
 	 * Add a template histogram. The templates do not have to be
@@ -104,8 +120,14 @@ class StackModel : public BCModel
 	 * @param filename The name of the file the output is printed to.
 	 * @param options Plotting options
 	 */
-	void PrintStack(const char * filename, const char * options="");
+	void PrintStack(const char * filename = "stack.ps", const char * options="");
 
+	/**
+	 * Print the fraction and norm.
+	 * @param filename The filename.
+	 */ 
+	void PrintFraction(const char * filename = "fraction.ps");
+	
 	/**
 	 * Calculates and returns the chi2 value. The chi2 is calculated using
 	 * the expectation value for the uncertainty.
@@ -158,6 +180,31 @@ class StackModel : public BCModel
 	 * A container for the template names.
 	 */
 	std::vector <std::string> fTemplateNameContainer;
+
+	/**
+	 * Histogram containing the overall number of expected events.
+	 */ 
+	TH1D * fHistNorm; 
+
+	/**
+	 * 1-D histograms containing the fractions of each template. 
+	 */ 
+	std::vector <TH1D> fHistFraction1D; 
+
+	/**
+	 * 2-D histograms containing the fractions of templates. 
+	 */ 
+	std::vector <TH2D> fHistFraction2D; 
+
+	/**
+	 * Flag for fixing the normalization or not
+	 */ 
+	bool fFlagFixNorm; 
+
+	/**
+	 * Normalization constant
+	 */ 
+	double fNorm; 
 
 	/**
 	 * A 2-d histogram for calculating the error bars
