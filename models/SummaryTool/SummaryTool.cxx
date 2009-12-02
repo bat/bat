@@ -21,6 +21,7 @@ SummaryTool::SummaryTool()
 {
 	// set model pointer
 	fModel = 0; 
+	fPriorModel = 0; 
 
 	// define sum of probabilities for quantiles 
 	fSumProb.push_back(0.05); 
@@ -43,6 +44,24 @@ SummaryTool::SummaryTool()
 SummaryTool::SummaryTool(BCModel* model) : 
 	fModel(model)
 {
+	// set model pointer
+	fPriorModel = 0; 
+
+	// define sum of probabilities for quantiles 
+	fSumProb.push_back(0.05); 
+	fSumProb.push_back(0.10); 
+	fSumProb.push_back(0.1587); 
+	fSumProb.push_back(0.50); 
+	fSumProb.push_back(0.8413); 
+	fSumProb.push_back(0.90); 
+	fSumProb.push_back(0.95); 
+
+	// set flags
+	fFlagInfoMarg	= false; 
+	fFlagInfoOpt	= false; 
+
+	// set text style
+	gStyle->SetPaintTextFormat("3.0g"); 	
 };
 
 // ---------------------------------------------------------
@@ -286,7 +305,7 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 		hist_corr->GetXaxis()->SetLabelSize(0.06);
 		hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() ); 
 		hist_corr->GetYaxis()->SetLabelSize(0.06);
-		hist_corr->GetYaxis()->SetBinLabel( i+1, fParName.at(i).c_str() ); 
+		hist_corr->GetYaxis()->SetBinLabel( npar-i, fParName.at(i).c_str() ); 
 	}
 
 	// fill plot
@@ -294,7 +313,7 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 		for (int j = 0; j < npar; ++j) {
 			int index = i * npar + j; 
 			double corr = fCorrCoeff.at(index); 
-			hist_corr->SetBinContent(i+1, j+1, corr); 
+			hist_corr->SetBinContent(i+1, npar-j, corr); 
 		}
 	}
 

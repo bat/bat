@@ -35,14 +35,13 @@ int main()
 	summarytool->SetModel(model); 
 
 	// print summaries 
-	summarytool->PrintParameterPlot("summary_parameters.eps"); 
-	summarytool->PrintCorrelationPlot("summary_correlation.eps"); 
+ 	summarytool->PrintParameterPlot("summary_parameters.eps"); 
+ 	summarytool->PrintCorrelationPlot("summary_correlation.eps"); 
 	summarytool->PrintKnowlegdeUpdatePlot("summary_update.ps");
 
 	// free memory
 	delete summarytool;
 	delete model; 
-
 
 	return 0;
 
