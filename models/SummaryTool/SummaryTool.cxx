@@ -162,7 +162,7 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	hist_axes->GetXaxis()->SetLabelOffset(0.03); 
 	hist_axes->GetXaxis()->SetLabelSize(0.06); 
 	hist_axes->GetXaxis()->SetTickLength(0.0); 
-	hist_axes->GetYaxis()->SetRangeUser(0.0, 1.0); 
+	hist_axes->GetYaxis()->SetRangeUser(-0.1, 1.1); 
 	hist_axes->GetYaxis()->SetTickLength(0.0); 
 
 	// create graphs
@@ -247,10 +247,23 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	TLatex * latex = new TLatex();
 	latex->SetTextSize(0.02); 
 
+	// create lines
+	TLine * line_top = new TLine(-0.5, 1.0, npar-0.5, 1.0); 
+	line_top->SetLineColor(kBlack);
+	line_top->SetLineStyle(1);
+	line_top->SetLineWidth(2);
+
+	TLine * line_bot = new TLine(-0.5, 1.0, npar-0.5, 1.0); 
+	line_bot->SetLineColor(kBlack);
+	line_bot->SetLineStyle(1);
+	line_bot->SetLineWidth(2);
+
 	// print to file 
 	TCanvas * c_par = new TCanvas("c_par"); 
 	c_par->cd(); 
 	hist_axes->Draw(); 
+	line_top->Draw();
+	line_bot->Draw();
 	if (fFlagInfoMarg) { 
 		graph_intervals->DrawClone("SAME2"); 
 		for (int i = 0; i < graph_intervals->GetN(); ++i)
@@ -267,10 +280,16 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	legend->AddEntry(graph_mode,      "Global mode", "P");
 	}
 	for (int i = 0; i < npar;++i) {
-		latex->DrawLatex(double(i)-0.1, 0.010, Form("%+3.3f", fParMin.at(i))); 
-		latex->DrawLatex(double(i)-0.1, 0.965, Form("%+3.3f", fParMax.at(i))); 
+		//		latex->DrawLatex(double(i)-0.1, 0.010, Form("%+3.3f", fParMin.at(i))); 
+		//		latex->DrawLatex(double(i)-0.1, 0.965, Form("%+3.3f", fParMax.at(i))); 
+		latex->DrawLatex(double(i)-0.1, 0.010-0.07, Form("%+3.3f", fParMin.at(i))); 
+		latex->DrawLatex(double(i)-0.1, 0.965+0.07, Form("%+3.3f", fParMax.at(i))); 
 	}
+	latex->SetNDC();
+	latex->DrawLatex(0.9, 0.175, "Par. min."); 
+	latex->DrawLatex(0.9, 0.83, "Par. max."); 
 	legend->Draw("SAME"); 
+	gPad->RedrawAxis();
 	c_par->Print(filename); 
 
 	// no error 
@@ -321,6 +340,7 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 	TCanvas * c_corr = new TCanvas("c_corr"); 
 	c_corr->cd(); 
 	hist_corr->Draw("COLZTEXT"); 
+	gPad->RedrawAxis(); 
 	c_corr->Print(filename); 
 
 	// no error 
@@ -378,6 +398,8 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 		
 		// plot 
 		c_update->cd();
+		hist_prior->GetXaxis()->SetNdivisions(508);
+		hist_posterior->GetXaxis()->SetNdivisions(508);
 		hist_prior->Draw();
 		hist_posterior->Draw("SAME");
 		legend1d->Draw("SAME");
