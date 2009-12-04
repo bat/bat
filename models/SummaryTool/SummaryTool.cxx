@@ -15,6 +15,7 @@
 #include <TArrow.h> 
 
 #include <iostream>
+#include <fstream> 
 
 // ---------------------------------------------------------
 SummaryTool::SummaryTool()
@@ -253,7 +254,7 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	line_top->SetLineStyle(1);
 	line_top->SetLineWidth(2);
 
-	TLine * line_bot = new TLine(-0.5, 1.0, npar-0.5, 1.0); 
+	TLine * line_bot = new TLine(-0.5, 0.0, npar-0.5, 0.0); 
 	line_bot->SetLineColor(kBlack);
 	line_bot->SetLineStyle(1);
 	line_bot->SetLineWidth(2);
@@ -527,6 +528,65 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 // 	// no error 
 // 	return 1;
 // }
+
+// ---------------------------------------------------------
+int SummaryTool::PrintParameterLatex(const char* filename)
+{
+	// open file
+	std::ofstream ofi(filename);
+	ofi.precision(3); 
+	
+	// check if file is open
+	if(!ofi.is_open())
+		{
+			std::cerr << "Couldn't open file " << filename <<std::endl;
+			return 0;
+		}
+
+	// get number of parameters and quantiles 
+	int npar = fModel->GetNParameters(); 
+
+	// print table
+	ofi 
+		<< "\\documentclass[11pt, a4paper]{article}" << std::endl 
+		<< std::endl
+		<< "\\begin{document}" << std::endl 
+		<< std::endl
+		<< "\\begin{table}[ht!]" << std::endl
+		<< "\\begin{center}" << std::endl
+		<<"\\begin{tabular}{llllllll}" << std::endl
+		<< "\\hline" << std::endl
+		<< "Parameter & Mean & RMS & Gl. mode & Mode & Median & 16\\% quant. & 84\\% quant. \\\\" << std::endl
+		<< "\\hline" << std::endl;
+	
+	for (int i = 0; i < npar; ++i) {
+		BCParameter * par = fModel->GetParameter(i); 
+		BCH1D * bch1d = fModel->GetMarginalized(par); 
+		ofi 
+			<< par->GetName() << " & " 
+			<< bch1d->GetMean() << " & " 
+			<< bch1d->GetRMS() << " & "
+			<< fModel->GetBestFitParameters().at(i) << " & "
+			<< bch1d->GetMode() << " & " 
+			<< bch1d->GetMedian() << " & " 
+			<< bch1d->GetQuantile(0.16) << " & " 
+			<< bch1d->GetQuantile(0.84) << " \\\\" << std::endl;
+	}		
+	ofi 
+		<< "\\hline" << std::endl
+		<< "\\end{tabular}" << std::endl
+		<< "\\caption{Summary of the parameter estimates.}" << std::endl
+		<< "\\end{center}" << std::endl
+		<< "\\end{table}" << std::endl
+		<< std::endl
+		<< "\\end{document}" << std::endl;
+
+	// close file
+	ofi.close();
+
+	// no error
+	return 1;
+}
 
 // ---------------------------------------------------------
 int SummaryTool::CalculatePriorModel()
