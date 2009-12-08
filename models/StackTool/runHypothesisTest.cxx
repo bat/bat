@@ -83,7 +83,6 @@ int main()
 
 	// create new StackModel object
 	StackModel * m_2bkg1sgn = new StackModel("model 2 bkg 1 sgn");
-	m_2bkg1sgn->MCMCSetNIterationsRun(1000000); 
 	m_2bkg1sgn->MCMCSetNLag(10); 
 
 	// set data histogram
@@ -102,9 +101,9 @@ int main()
 	StackModelManager * smm = new StackModelManager();
 
  	// add models
-	smm->AddStackModel(m_1bkg0sgn);
-	smm->AddStackModel(m_1bkg1sgn);
-	smm->AddStackModel(m_2bkg0sgn);
+ 	smm->AddStackModel(m_1bkg0sgn);
+ 	smm->AddStackModel(m_1bkg1sgn);
+ 	smm->AddStackModel(m_2bkg0sgn);
  	smm->AddStackModel(m_2bkg1sgn);
 
 	smm->SetFlagFixNorm(false); 
@@ -126,28 +125,28 @@ int main()
 	c1.Print("data.ps");
 
 	// print marginalized distribution for signal
-	c1.cd();
-	m_1bkg1sgn->GetMarginalized("N_1")->Draw(0, -95);
-	c1.Print("1bkg1sgn_sgn.ps");
+ 	c1.cd();
+ 	m_1bkg1sgn->GetMarginalized("N_1")->Draw(0, -95);
+ 	c1.Print("1bkg1sgn_sgn.ps");
 
 	c1.cd();
 	m_2bkg1sgn->GetMarginalized("N_2")->Draw(0, -95);
 	c1.Print("2bkg1sgn_sgn.ps");
 
 	// print stack plots and results
-	m_1bkg0sgn->PrintStack("1bkg0sgn_stack.ps", "LE2E3");
-	m_1bkg1sgn->PrintStack("1bkg1sgn_stack.ps", "LE2E3");
-	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.ps", "LE2E3");
-	m_2bkg1sgn->PrintStack("2bkg1sgn_stack.ps", "LE2E3");
+ 	m_1bkg0sgn->PrintStack("1bkg0sgn_stack.eps");
+ 	m_1bkg1sgn->PrintStack("1bkg1sgn_stack.eps");
+ 	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.eps");
+	m_2bkg1sgn->PrintStack("2bkg1sgn_stack.eps");
 
-	m_1bkg0sgn->PrintFraction("1bkg0sgn_fraction.ps");
-	m_1bkg1sgn->PrintFraction("1bkg1sgn_fraction.ps");
-	m_2bkg0sgn->PrintFraction("2bkg0sgn_fraction.ps");
+ 	m_1bkg0sgn->PrintFraction("1bkg0sgn_fraction.ps");
+ 	m_1bkg1sgn->PrintFraction("1bkg1sgn_fraction.ps");
+ 	m_2bkg0sgn->PrintFraction("2bkg0sgn_fraction.ps");
 	m_2bkg1sgn->PrintFraction("2bkg1sgn_fraction.ps");
 
-	m_1bkg0sgn->PrintResults("1bkg0sgn_results.txt"); 
-	m_1bkg1sgn->PrintResults("1bkg1sgn_results.txt"); 
-	m_2bkg0sgn->PrintResults("2bkg0sgn_results.txt"); 
+ 	m_1bkg0sgn->PrintResults("1bkg0sgn_results.txt"); 
+ 	m_1bkg1sgn->PrintResults("1bkg1sgn_results.txt"); 
+ 	m_2bkg0sgn->PrintResults("2bkg0sgn_results.txt"); 
 	m_2bkg1sgn->PrintResults("2bkg1sgn_results.txt"); 
 
 	// ----------------------------------------------------

@@ -1,4 +1,7 @@
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/StackTool: Added difference plot to stack plot.
+
+2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: minor modifications to style. 
 	* models/SummaryTool: added Latex table for parameter estimates. 
 	

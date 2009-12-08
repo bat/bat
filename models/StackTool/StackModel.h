@@ -120,7 +120,7 @@ class StackModel : public BCModel
 	 * @param filename The name of the file the output is printed to.
 	 * @param options Plotting options
 	 */
-	void PrintStack(const char * filename = "stack.ps", const char * options="");
+	void PrintStack(const char * filename = "stack.ps", const char * options="LE2E0D");
 
 	/**
 	 * Print the fraction and norm.

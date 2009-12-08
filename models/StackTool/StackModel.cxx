@@ -10,6 +10,8 @@
 #include <TRandom3.h>
 #include <TGraphAsymmErrors.h>
 #include <TPostScript.h>
+#include <TPad.h> 
+#include <TLine.h> 
 
 #include <BAT/BCMath.h>
 #include <BAT/BCLog.h>
@@ -99,10 +101,18 @@ double StackModel::LogAPrioriProbability(std::vector <double> parameters)
 // ---------------------------------------------------------
 int StackModel::SetDataHistogram(TH1D hist)
 {
-	// set histogram
-	fDataHistogram = hist;
+	// create histogram
+	int nbins = hist.GetNbinsX();
+	double xmin = (hist.GetXaxis())->GetXmin(); 
+	double xmax = (hist.GetXaxis())->GetXmax(); 
+	fDataHistogram = TH1D("hist_data", "", nbins, xmin, xmax); 
+
+	for (int i = 1; i <= nbins; ++i) 
+		fDataHistogram.SetBinContent(i, hist.GetBinContent(i)); 
 
 	// set histogram style
+	fDataHistogram.SetXTitle((hist.GetXaxis())->GetTitle()); 
+	fDataHistogram.SetYTitle((hist.GetYaxis())->GetTitle()); 
 	fDataHistogram.SetMarkerStyle(20);
 	fDataHistogram.SetMarkerSize(1.1);
 	fDataHistogram.SetStats(kFALSE);
@@ -130,8 +140,8 @@ int StackModel::SetDataHistogram(TH1D hist)
 	fNorm = hist.Integral();
 
 	// create histogram containing the normalization
-	double xmin = 0; 
-	double xmax = 0; 
+	xmin = 0; 
+	xmax = 0; 
 	int npar = GetNParameters(); 
 
 	// calculate the limits on the norm from the sum of all parameter limits 
@@ -241,6 +251,7 @@ void StackModel::PrintStack(const char * filename, const char * options)
 	bool flag_error1 = false; // symm. poisson error for exp.
 	bool flag_error2 = false; // asymm. poisson error of expectation value
 	bool flag_error3 = false; // asymm. poisson error of expected no. of events
+	bool flag_diff   = false; // plot difference between data and expectation below stack plot
 
 	if (std::string(options).find("L") < std::string(options).size())
 		flag_legend = true;
@@ -257,33 +268,97 @@ void StackModel::PrintStack(const char * filename, const char * options)
 	if (std::string(options).find("E3") < std::string(options).size())
 		flag_error3 = true;
 
+	if (std::string(options).find("D") < std::string(options).size())
+		flag_diff = true;
+
 	// create canvas
-	TCanvas c1("c1");
-	c1.cd();
+	TCanvas* c1 = new TCanvas("c1", "", 700, 700);
+	c1->cd();
+	TPad * pad1; 
+	TPad * pad2; 
 
-	// draw data
-	double ymin = 0.0;
-	double ymax = 1.1 * fDataHistogram.GetMaximum();
+	double fraction_pads = 0.3; 
+
+	if(!flag_diff)
+		fraction_pads=0.0;
+
+	if (flag_diff) {
+		pad1 = new TPad("pad1", "", 0.0, fraction_pads, 1.0, 1.0); 
+		pad1->SetTopMargin   (0.13/(1.0-fraction_pads));
+		pad1->SetBottomMargin(0.0);
+    pad1->SetLeftMargin  (0.15);
+		pad1->SetRightMargin (0.13);
+		pad1->SetFillColor(kWhite); 
+		pad2 = new TPad("pad2", "", 0.0, 0.0, 1.0, fraction_pads); 
+		pad2->SetTopMargin   (0.0);
+		pad2->SetBottomMargin(0.15 / fraction_pads);
+    pad2->SetLeftMargin  (0.15);
+		pad2->SetRightMargin (0.13);
+		pad2->SetFillColor(kWhite); 
+		pad1->Draw();
+		pad2->Draw();
+	}
+	else {
+		pad1 = new TPad("pad1", "",0.0, 0.0, 1.0, 1.0); 
+		pad1->SetFillColor(kWhite); 
+		pad2 = new TPad(); 
+		pad1->Draw(); 
+	}
+
+	pad1->cd(); 
+
+	// set style and draw data
+	double ymin = 0.01;
+	double ymax = 1.1 * (fDataHistogram.GetMaximum() + sqrt(fDataHistogram.GetMaximum()));
 	fDataHistogram.GetYaxis()->SetRangeUser(ymin, ymax);
-	fDataHistogram.Draw("P");
-
-	// create stack
-	THStack stack("histostack","");
-
-	// create legend
-	TLegend legend(0.7, 0.7, 0.95, 0.95);
-	legend.SetBorderSize(0);
-	legend.SetFillColor(kWhite);
+	fDataHistogram.GetXaxis()->SetNdivisions(505); 
+	if (flag_diff) {
+		fDataHistogram.GetXaxis()->SetLabelSize(fDataHistogram.GetXaxis()->GetLabelSize()/(1.0-fraction_pads)); 
+		fDataHistogram.GetXaxis()->SetLabelOffset(fDataHistogram.GetXaxis()->GetLabelOffset()*(1.0-fraction_pads)); 
+		fDataHistogram.GetXaxis()->SetTitleSize(fDataHistogram.GetXaxis()->GetTitleSize()/(1.0-fraction_pads)); 
+		fDataHistogram.GetXaxis()->SetTitleOffset(fDataHistogram.GetXaxis()->GetTitleOffset()*(1.0-fraction_pads)); 
+		fDataHistogram.GetYaxis()->SetLabelSize(fDataHistogram.GetYaxis()->GetLabelSize()/(1.0-fraction_pads)); 
+		fDataHistogram.GetYaxis()->SetLabelOffset(fDataHistogram.GetYaxis()->GetLabelOffset()/(fraction_pads)); 
+		fDataHistogram.GetYaxis()->SetTitleSize(fDataHistogram.GetYaxis()->GetTitleSize()/(1.0-fraction_pads)); 
+		fDataHistogram.GetYaxis()->SetTitleOffset(fDataHistogram.GetYaxis()->GetTitleOffset()*(1.0-fraction_pads)); 
+	}
+	fDataHistogram.Draw("P");	
 
 	// create a histogram with the sum of all contributions
  	TH1D * histsum = (TH1D*) fDataHistogram.Clone("temp");
+	
+	// create stack
+	THStack stack("histostack","");
+
+	// create legends
+	TLegend* legend1; 
+	TLegend* legend2;
+
+	if (flag_diff)
+		legend1 = new TLegend(0.15, (0.88-fraction_pads)/(1-fraction_pads), 0.50, 0.99);
+	else
+		legend1 = new TLegend(0.15, 0.88, 0.50, 0.99);
+	legend1->SetBorderSize(0);
+	legend1->SetFillColor(kWhite);
+	legend1->AddEntry(&fDataHistogram, "Data", "LEP");
+	legend1->AddEntry(&fDataHistogram, "Total expected uncertainty", "LE");
+
+	double y = 0.99; 
+	if (ntemplates > 2 && ntemplates <7)
+		y -= 0.11 / 4. * double(ntemplates - 2); 
+	legend2 = new TLegend(0.50,(y-fraction_pads)/(1-fraction_pads) , 0.85, 0.99);
+	legend2->SetBorderSize(0);
+	legend2->SetFillColor(kWhite);
 
 	for (int i = 0; i < ntemplates; ++i)
 	{
 		TH1D histtemp = fTemplateHistogramContainer.at(i);
 		fTemplateHistogramContainer.at(i).Scale(GetBestFitParameter(i) / histtemp.Integral());
 		stack.Add(&(fTemplateHistogramContainer.at(i)));
-		legend.AddEntry(&(fTemplateHistogramContainer.at(i)), fTemplateNameContainer.at(i).data(), "F");
+		if (i < 2)
+			legend1->AddEntry(&(fTemplateHistogramContainer.at(i)), fTemplateNameContainer.at(i).data(), "F");
+		else if (i < 6)
+			legend2->AddEntry(&(fTemplateHistogramContainer.at(i)), fTemplateNameContainer.at(i).data(), "F");
 	}
 
 	// loop over all bins
@@ -344,6 +419,55 @@ void StackModel::PrintStack(const char * filename, const char * options)
 			delete proj;
 		}
 
+	// create difference histogram
+	TH1D* hist_diff = 0; 
+
+	TGraphAsymmErrors * graph_diff_exp = 0; 
+	
+	if (flag_diff) {
+		ymin = 0;
+		ymax = 0; 
+		hist_diff = new TH1D("hist_diff", "", nbins, histsum->GetXaxis()->GetXmin(), histsum->GetXaxis()->GetXmax() ); 
+		hist_diff->GetXaxis()->SetTitle(fDataHistogram.GetXaxis()->GetTitle()); 
+		hist_diff->GetYaxis()->SetTitle("#Delta N"); 
+		hist_diff->GetXaxis()->SetNdivisions(505); 
+		hist_diff->GetXaxis()->SetLabelSize(hist_diff->GetXaxis()->GetLabelSize()/(fraction_pads)); 
+		hist_diff->GetXaxis()->SetLabelOffset(hist_diff->GetXaxis()->GetLabelOffset()/fraction_pads*2.); 
+		hist_diff->GetXaxis()->SetTitleSize(hist_diff->GetXaxis()->GetTitleSize()/(fraction_pads)); 
+		hist_diff->GetXaxis()->SetTitleOffset((hist_diff->GetXaxis()->GetTitleOffset()-(1.0-fraction_pads))/(fraction_pads)); 
+		hist_diff->GetYaxis()->SetNdivisions(503); 
+		hist_diff->GetYaxis()->SetLabelSize(hist_diff->GetYaxis()->GetLabelSize()/(fraction_pads)); 
+		hist_diff->GetYaxis()->SetLabelOffset(hist_diff->GetYaxis()->GetLabelOffset()/(fraction_pads)); 
+		hist_diff->GetYaxis()->SetTitleSize(hist_diff->GetYaxis()->GetTitleSize()/(fraction_pads)); 
+		hist_diff->GetYaxis()->SetTitleOffset(hist_diff->GetYaxis()->GetTitleOffset()*(fraction_pads)); 
+		hist_diff->SetStats(kFALSE); 
+
+		graph_diff_exp = new TGraphAsymmErrors(nbins);
+		graph_diff_exp->SetLineWidth(2);
+		graph_diff_exp->SetMarkerStyle(0);
+		graph_diff_exp->SetFillColor(kYellow);
+		for (int i = 0; i < nbins; ++i) {
+			hist_diff->SetBinContent(i+1, fDataHistogram.GetBinContent(i+1)-histsum->GetBinContent(i+1)); 
+			hist_diff->SetBinError(i+1, fDataHistogram.GetBinError(i+1)); 
+			graph_diff_exp->SetPoint(i, (graph_error_exp->GetX())[i], 0.0);
+			graph_diff_exp->SetPointEXlow(i, 0.0); 
+			graph_diff_exp->SetPointEXhigh(i, 0.0); 
+			graph_diff_exp->SetPointEYlow(i, (graph_error_exp->GetEYlow())[i]); 
+			graph_diff_exp->SetPointEYhigh(i, (graph_error_exp->GetEYhigh())[i]); 
+
+			if (-(graph_error_exp->GetEYlow())[i] < ymin)
+				ymin = -(graph_error_exp->GetEYlow())[i]; 
+			if ((graph_error_exp->GetEYhigh())[i] > ymax)
+				ymax = (graph_error_exp->GetEYhigh())[i]; 
+		}
+		if (ymax < (hist_diff->GetMaximum() + hist_diff->GetBinError(hist_diff->GetMaximumBin())))
+			ymax = 1.1 * (hist_diff->GetMaximum() + hist_diff->GetBinError(hist_diff->GetMaximumBin())); 
+		if (ymin>(hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin())))
+			ymin = 1.1 * (hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin()));
+		(hist_diff->GetYaxis())->SetRangeUser(1.1*ymin, 1.1*ymax);
+		
+	}
+	
 	// draw histograms
 	stack.Draw("SAMEA");
 	stack.GetHistogram() -> SetXTitle("");
@@ -365,19 +489,44 @@ void StackModel::PrintStack(const char * filename, const char * options)
 	if (flag_error2)
 		graph_error_exp->Draw("SAME||");
 
-	if (flag_legend)
-		legend.Draw();
+	if (flag_legend) {
+		legend1->Draw();
+		if (ntemplates>2)
+		legend2->Draw();
+	}
 
-	c1.Print(filename);
+	TLine * line = 0; 
+	if (flag_diff) {
+		pad2->cd(); 
+		hist_diff->Draw("P"); 
+		graph_diff_exp->Draw("SAME4");
+		line = new TLine((hist_diff->GetXaxis())->GetXmin(), 0.0, (hist_diff->GetXaxis())->GetXmax(), 0.0); 
+		line->SetLineWidth(2); 
+		line->SetLineColor(kBlack); 
+		line->Draw("SAME"); 
+		hist_diff->Draw("SAMEP"); 
+	}
+
+	c1->Print(filename);
 
 	// rescale
 	for (int i = 0; i < ntemplates; ++i)
 		fTemplateHistogramContainer.at(i).Scale(1.0 / fTemplateHistogramContainer.at(i).Integral());
 
 	// delete temporary histograms
+	delete pad1;
+	delete pad2;
+ 	delete c1;
+	delete legend1;
+ 	delete legend2;
+ 	delete graph_error_exp;
+ 	delete graph_error_obs;
  	delete histsum;
-	delete graph_error_exp;
-	delete graph_error_obs;
+	if (flag_diff) {
+ 		delete hist_diff;
+ 		delete graph_diff_exp;
+ 		delete line; 
+	}
 }
 
 // ---------------------------------------------------------
