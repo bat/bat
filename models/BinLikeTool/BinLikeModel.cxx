@@ -131,7 +131,7 @@ double BinLikeModel::GetLeadParValue(int index)
 }
 
 // ---------------------------------------------------------
-void BinLikeModel::PrintHistograms()
+void BinLikeModel::PrintHistograms(const char* path)
 {
 	// create canvas
 	TCanvas * c1 = new TCanvas("c1"); 
@@ -200,7 +200,7 @@ void BinLikeModel::PrintHistograms()
 		hist->Draw("SAMEPE"); 		
 
 		// print to file 
-		c1 -> Print(Form("histogram_%.0f.eps", GetLeadParValue(ihist))); 
+		c1 -> Print(Form("%shistogram_%.0f.eps", path, GetLeadParValue(ihist))); 
 	}
 
 	// clean up
@@ -228,7 +228,11 @@ void BinLikeModel::PrintChi2Summary()
 			nbinsmax = fHistogramContainer.at(ihist)->GetNbinsX(); 
 			ymax = 2.0 * nbinsmax - GetNParameters();
 		}
+		if (CalculateChi2Hist(ihist) > ymax) {
+			ymax = 1.1*CalculateChi2Hist(ihist); 
+		}
 	}
+
 
 	TH2D * hist_axes = new TH2D("hist_axes", ";lead. par. value;#chi^{2};", 
 															1, xmin, xmax, 

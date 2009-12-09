@@ -102,7 +102,7 @@ class BinLikeModel : public BCModel
 
 	/**
 	 * Print all histograms. */ 
-	void PrintHistograms(); 
+	void PrintHistograms(const char* path = "./"); 
 
 	/**
 	 * Print summary. */
