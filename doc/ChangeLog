@@ -1,4 +1,8 @@
-2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2009-12-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/BinStackTool: added path for printing histograms. 
+	* models/BinStackTool: set ranges for summary plot properly.
+
+2009-12-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/StackTool: Added difference plot to stack plot.
 
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
