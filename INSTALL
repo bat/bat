@@ -72,16 +72,20 @@ installation prefix is /usr/local.
 
 The configure script checks for ROOT availability in the system and
 fails if ROOT is not installed. You can specify the ROOTSYS directory
-using --rootsys=/path/to/rootsys.
+using --with-rootsys=/path/to/rootsys.
 
 The configure will also search for libcuba.a and cuba.h in the system.
 The libcuba.a has to be available in the standard system library search
 path. You can specify the cuba.h location using
 --with-cuba-path=/path/to/cuba/header.
 
-For debugging purposes it is helpful to build BAT without optimization.
-To achieve that pass the following option  to ./configure:
-CXXFLAGS='-ggdb3 -O0'
+To compile BAT in debug mode run configure with an extra CXXFLAGS option:
+
+    ./configure CXXFLAGS='-gddb3 -O0'
+
+You can list all available options using
+
+    ./configure --help
 
 After successful configuration run
 

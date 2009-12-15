@@ -1,4 +1,12 @@
-2009-11-30 Frederik Beaujean <beaujean@mpp.mpg.de>
+2009-12-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* src/Makefile.am:
+	  - all ROOT variables are determined by configure
+	  - add CXXFLAGS to source compilation
+	* INSTALL:
+	  - fix description for specification of ROOTSYS
+	  - add more info on ./configure
+
+2009-12-15 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath:
 	  - removed exponential RN generator method
 	* BCModel:
@@ -16,12 +24,12 @@
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: minor modifications to style. 
 	* models/SummaryTool: added Latex table for parameter estimates. 
-	
+
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: added plots which show the knowledge update from prior to posterior (in 2-D).
 	* models/SummaryTool: added PriorModel class.
 	* models/StackTool: added fraction plots, minor modifications.
-	
+
 2009-12-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: added plots which show the knowledge update from prior to posterior (in 1-D).
 
@@ -44,7 +52,7 @@
 2009-11-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/BinLikeTool: added tool for fitting a single function to a set of histograms. 
 	* models/SummaryTool: added tool for printing summary information of a model. 
-	
+
 2009-11-20 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* BCModel:
 	  - added methods for goodness of fit test from Johnson(2004) paper based on chi2 statistic
