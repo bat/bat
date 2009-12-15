@@ -12,6 +12,7 @@
 #include <TString.h>
 #include <TPad.h>
 #include <TLegend.h>
+#include <Math/ProbFuncMathCore.h>
 
 #include "BAT/BCLog.h"
 #include "BAT/BCDataSet.h"
@@ -323,6 +324,23 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 	}
 
 	gPad -> RedrawAxis();
+}
+
+double BCGraphFitter::CDF(std::vector<double> parameters,  int index, bool lower) {
+
+	//format: x y error_x error_y
+	std::vector<double> values = fDataSet->GetDataPoint(index)->GetValues();
+
+	if (values[2])
+		BCLog::OutWarning("BCGraphFitter::CDF: Non-zero errors in x-direction are ignored!");
+
+	// get the observed value
+	double yObs = values[1];
+
+	// expectation value
+	double yExp = FitFunction(values, parameters);
+
+	return ROOT::Math::normal_cdf(yObs, values[3], yExp);
 }
 
 // ---------------------------------------------------------

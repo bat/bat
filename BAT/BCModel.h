@@ -614,15 +614,15 @@ class BCModel : public BCIntegrate
 		void FixDataAxis(unsigned int index, bool fixed);
 
 
-		//TODO in general no underflow - no histograms!
 		/**
 		 * 1dim cumulative distribution function of the probability
 		 * to get the data f(x|param) for a single measurement, assumed to
 		 * be identical for all measurements
 		 * @param parameters The parameter values at which point to compute the cdf
-		 * @param index The data point index, 0=underflow, 1 = first data bin...n=last data bin
-		 * @param lower return the CDF for the count one less than actually observed, e.g.
-		 * in Poisson process 3 actually observed, so CDF(2) is returned */
+		 * @param index The data point index starting at 0,1...N-1
+		 * @param lower only needed for discrete distributions!
+		 * Return the CDF for the count one less than actually observed, e.g.
+		 * in Poisson process, if 3 actually observed, then CDF(2) is returned */
 		virtual double CDF(const std::vector<double>& parameters,  int index, bool lower=false)
 		{return 0.0;}
 

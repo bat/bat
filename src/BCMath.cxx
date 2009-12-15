@@ -271,6 +271,29 @@ void BCMath::RandomChi2(std::vector<double> &randoms, int K){
 	//fortunately CDF only built once
 	for (unsigned int i = 0; i < randoms.size(); i++)
 		randoms.at(i) = f->GetRandom();
+	delete f;
 }
+
+////wrapper with signature to construct a TF1
+//double expDistribution(double *x, double *par) {
+//	return ROOT::Math::exponential_pdf(x[0], par[0]);
+//}
+//
+//void BCMath::RandomExponential(std::vector<double> &randoms, double lambda, unsigned int seed){
+//
+//	//fixed upper cutoff to 1000 such that CDF(t|lambda)=1-10-5
+//	double cutoff = 5.0/lambda*log(10);
+//	TF1 *f = new TF1("Exp", expDistribution, 0.0, cutoff, 1);
+//	f->SetParameter(0, lambda);
+//	f->SetNpx(500);
+//
+//	//uses inverse-transform method
+//	//fortunately CDF only built once
+//	gRandom->SetSeed(seed);
+//	for (unsigned int i = 0; i < randoms.size(); i++)
+//		randoms.at(i) = f->GetRandom();
+//	delete f;
+//}
+
 
 

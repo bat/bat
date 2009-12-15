@@ -1340,9 +1340,8 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
 			}
 		}
 	}
-	//TODO check for under/over flow
 	else { //continuous case is simple
-		for (int j = 1; j <= n; j++) {
+		for (int j = 0; j < n; j++) {
 			hist -> Fill(this->CDF(par, j));
 		}
 	}

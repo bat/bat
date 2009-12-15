@@ -1,3 +1,11 @@
+2009-11-30 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath:
+	  - removed exponential RN generator method
+	* BCModel:
+	  - fixed bug that causes seg fault
+	* BCGraphFitter:
+	  - added CDF method 
+
 2009-12-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/BinStackTool: added path for printing histograms. 
 	* models/BinStackTool: set ranges for summary plot properly.

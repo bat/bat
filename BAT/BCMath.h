@@ -146,11 +146,20 @@ namespace BCMath
 	/**
 	 * Get N random numbers distributed according to chi square function
 	 * with K degrees of freedom
-	 * chi2(double x; size_t n)
 	 */
 	void RandomChi2(std::vector<double> &randoms, int K);
 
-};
+//	/**
+//	 * Fill vector with N random numbers distributed according to
+//	 * exponential distribution with rate lambda
+//	 * P(x|lambda)=lambda exp(-lambda*x)
+//	 * @param randoms will be filled with random exponentials
+//	 * @param lambda the rate of the exp. distribution
+//	 */
+//	void RandomExponential(std::vector<double> &randoms, double lambda, unsigned int seed=0);
+
+}
+;
 
 // ---------------------------------------------------------
 
