@@ -137,6 +137,10 @@ class BCModelOutput
 
 	private:
 
+		/**
+		 * Initialize the variables */
+		void Init();
+
 		/*
 		 * Copies this BCModelOutput into another one */
 		void Copy(BCModelOutput & modeloutput) const;
@@ -168,7 +172,7 @@ class BCModelOutput
 
 		/**
 		 * The output filename */
-		const char * fFileName;
+		char * fFileName;
 
 		/**
 		 * Pointer to the output TFile. */

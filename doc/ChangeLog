@@ -1,3 +1,13 @@
+2009-12-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* removed empty directories
+	* BCModelOutput:
+	  - don't call defaoult constructor from another constructor,
+	    create Init() method to do what is needed
+	  - un-const fFileName
+	  - protect write methods and give an error if file not opened
+	* BCParameter:
+	  - don't call defaoult constructor from another constructor
+
 2009-12-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* src/Makefile.am:
 	  - all ROOT variables are determined by configure

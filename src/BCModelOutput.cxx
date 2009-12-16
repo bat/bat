@@ -13,6 +13,7 @@
 #include "BAT/BCParameter.h"
 #include "BAT/BCH1D.h"
 #include "BAT/BCH2D.h"
+#include "BAT/BCLog.h"
 
 #include <TDirectory.h>
 #include <TFile.h>
@@ -25,29 +26,20 @@
 #include <iostream>
 
 // ---------------------------------------------------------
-
 BCModelOutput::BCModelOutput()
 {
-	fIndex = 0;
-
-	fOutputFile = 0;
-	fAnalysisTree = 0;
-	fTreeSA = 0; 
-	fModel = 0; 
-	fOutputFile = 0;
+	Init();
 }
 
 // ---------------------------------------------------------
-
 BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 {
-	BCModelOutput();
+	Init();
 	SetModel(model);
 	SetFile(filename);
 }
 
 // ---------------------------------------------------------
-
 BCModelOutput::~BCModelOutput()
 {
 	if (fOutputFile) {
@@ -57,14 +49,12 @@ BCModelOutput::~BCModelOutput()
 }
 
 // ---------------------------------------------------------
-
 BCModelOutput::BCModelOutput(const BCModelOutput & modeloutput)
 {
 	modeloutput.Copy(* this);
 }
 
 // ---------------------------------------------------------
-
 BCModelOutput & BCModelOutput::operator = (const BCModelOutput & modeloutput)
 {
 	if (this != &modeloutput)
@@ -74,16 +64,25 @@ BCModelOutput & BCModelOutput::operator = (const BCModelOutput & modeloutput)
 }
 
 // ---------------------------------------------------------
-
-void BCModelOutput::SetModel(BCModel * model)
-{ 
-	fModel =  model; 
-	fModel -> MCMCInitialize();
-	fModel -> SAInitialize(); 
+void BCModelOutput::Init()
+{
+	fIndex = 0;
+	fOutputFile = 0;
+	fAnalysisTree = 0;
+	fTreeSA = 0; 
+	fModel = 0; 
+	fFileName = 0;
 }
 
 // ---------------------------------------------------------
+void BCModelOutput::SetModel(BCModel * model)
+{ 
+	fModel = model;
+	fModel -> MCMCInitialize();
+	fModel -> SAInitialize();
+}
 
+// ---------------------------------------------------------
 void BCModelOutput::SetFile(const char * filename)
 {
 	// delete the old file
@@ -97,7 +96,7 @@ void BCModelOutput::SetFile(const char * filename)
 	TDirectory * dir = gDirectory;
 
 	// create a new file
-	fFileName=filename;
+	fFileName = const_cast<char *>(filename);
 	fOutputFile = new TFile(fFileName, "RECREATE");
 
 	// initialize trees
@@ -110,7 +109,6 @@ void BCModelOutput::SetFile(const char * filename)
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::WriteMarkovChain(bool flag)
 {
 	if (fModel)
@@ -118,9 +116,14 @@ void BCModelOutput::WriteMarkovChain(bool flag)
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::FillAnalysisTree()
 {
+	if(!fOutputFile)
+	{
+		BCLog::OutError("BCModelOutput::FillAnalysisTree : No file to write to.");
+		return;
+	}
+
 	// get output values from model
 	fNParameters = fModel -> GetNParameters();
 	fProbability_apriori   = fModel -> GetModelAPrioriProbability();
@@ -155,9 +158,14 @@ void BCModelOutput::FillAnalysisTree()
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::WriteMarginalizedDistributions()
 {
+	if(!fOutputFile)
+	{
+		BCLog::OutError("BCModelOutput::WriteMarginalizedDistributions : No file to write to.");
+		return;
+	}
+
 	// remember current directory
 	TDirectory * dir = gDirectory;
 
@@ -179,9 +187,14 @@ void BCModelOutput::WriteMarginalizedDistributions()
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::WriteErrorBand()
 {
+	if(!fOutputFile)
+	{
+		BCLog::OutError("BCModelOutput::WriteErrorBand : No file to write to.");
+		return;
+	}
+
 	// remember current directory
 	TDirectory * dir = gDirectory;
 
@@ -212,9 +225,14 @@ void BCModelOutput::WriteErrorBand()
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::Write(TObject * o)
 {
+	if(!fOutputFile)
+	{
+		BCLog::OutError("BCModelOutput::Write : No file to write to.");
+		return;
+	}
+
 	// remember current directory
 	TDirectory * dir = gDirectory;
 
@@ -228,7 +246,6 @@ void BCModelOutput::Write(TObject * o)
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::Close()
 {
 	// remember current directory
@@ -258,7 +275,6 @@ void BCModelOutput::Close()
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::InitializeAnalysisTree()
 {
 	// create new tree
@@ -282,7 +298,6 @@ void BCModelOutput::InitializeAnalysisTree()
 }
 
 // ---------------------------------------------------------
-
 void BCModelOutput::InitializeMarkovChainTrees()
 {
 	// create new tree
