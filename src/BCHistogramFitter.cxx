@@ -553,7 +553,7 @@ int BCHistogramFitter::CalculatePValueLeastSquares (std::vector<double> par, dou
         if (weightExpect)
             weight = (yexp > 0) ? yexp : 1.0;
         else
-            weight = (y > 0) ? yexp : 1.0;
+            weight = (y > 0) ? y : 1.0;
 
         // get the contribution from this datapoint
         chi2 += (y - yexp) * (y - yexp) / weight;

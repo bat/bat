@@ -1,3 +1,14 @@
+2010-01-14 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* manual.tex:
+	  - fixed numerous typos
+	  - included information on the new p value methods
+	  - changed version to 0.3
+	  - simulated annealing mentioned but not explained
+	  - MAC suppport mentioned
+	
+	* BCHistogramFitter::CalculatePValueLeastSquares
+	  - bugfix in weights for zero count
+
 2010-01-14 Daniel Kollar <daniel.kollar@cern.ch>
 	* version 0.3.2 release candidate 1 (.rc1)
 	* added configure option to enable compilation in debug mode
