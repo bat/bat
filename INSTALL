@@ -1,6 +1,6 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.3.1
+version 0.3.2.rc.1
 -------------------------------
 
 This is the INSTALL file of BAT package
@@ -79,10 +79,6 @@ The libcuba.a has to be available in the standard system library search
 path. You can specify the cuba.h location using
 --with-cuba-path=/path/to/cuba/header.
 
-To compile BAT in debug mode run configure with an extra CXXFLAGS option:
-
-    ./configure CXXFLAGS='-gddb3 -O0'
-
 You can list all available options using
 
     ./configure --help
@@ -109,10 +105,11 @@ or
     setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
     setenv CPATH             $CPATH:$BATINSTALLDIR/include
 
-for bash and csh compatible shells, respectively.
+for bash and csh compatible shells, respectively. On Mac OS X you might
+also need to setup DYLD_LIBRARY_PATH.
 
 An option for use in compiled programs would also be to add
--I/bat/install/include/path to CFLAGS and -L/bat/install/lib/path to
+-I/bat/install/include/path to CXXFLAGS and -L/bat/install/lib/path to
 LDFLAGS in your Makefile. However, the interactive ROOT macros will not
 work if libBAT.so and libBAT.rootmap both aren't in the system library
 search path.

@@ -91,6 +91,7 @@ models/BinLikeTool/TemplateFit/TemplateFit.h -text
 models/BinLikeTool/TemplateFit/runTemplateFit.cxx -text
 models/BinLikeTool/setup.sh -text
 models/README -text
+models/README.full -text
 models/RooInterface/BCRooInterface.cxx -text
 models/RooInterface/BCRooInterface.h -text
 models/RooInterface/Makefile -text

@@ -1,5 +1,5 @@
 AC_INIT(src/BCModel.cxx)
-AM_INIT_AUTOMAKE(BAT, 0.3.1)
+AM_INIT_AUTOMAKE(BAT, 0.3.2.rc1)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -7,6 +7,28 @@ AC_PROG_CXX
 AM_PROG_LIBTOOL
 AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
+
+dnl
+dnl Check for Darwin
+dnl
+AM_CONDITIONAL([IS_DARWIN], [test x$(uname) = xDarwin])
+
+dnl
+dnl Check for debug mode
+dnl
+AC_ARG_ENABLE(
+	[debug],
+	[  --enable-debug          Compile in debug mode],
+	[
+		case "${enableval}" in
+			yes) debug=true ; echo Compiling in debug mode ;;
+			no)  debug=false ;;
+			*) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+		esac
+	],
+	[debug=false]
+)
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
 dnl
 dnl Check for Cuba

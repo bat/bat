@@ -1,3 +1,13 @@
+2010-01-14 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.3.2 release candidate 1 (.rc1)
+	* added configure option to enable compilation in debug mode
+	* if compiled on Darwin (Mac OS X) create symbolic link
+	  from .dylib to .so when running make install
+	* update INSTALL, README and releasenotes.txt
+	* changes due to CVS->SVN migration
+	* copy models/README to models/README.full and remove
+	  not-yet-released models from models/README for the release
+
 2009-12-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* removed empty directories
 	* BCModelOutput:

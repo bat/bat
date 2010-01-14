@@ -1,0 +1,36 @@
+
+This directory contains subdirectories with different models and interfaces
+provided with BAT.
+
+Interfaces:
+-----------
+
+ * RooInterface
+   - interface allowing to run BAT on a problem/data defined in a
+     standard RooFit workspace format, requires ROOT 5.24 or later
+   - provided by Gregory Schott <gregory.schott@cern.ch>
+
+* StackModel
+   - a model for fitting a "data histogram" to a set of "pdf histograms". 
+   - see the tutorial on hypothesis testing for details 
+   - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
+
+* BinLikeTool
+   - a model for fitting a single function to a set of histograms. The
+     function depends on one "leading parameter"
+   - this is useful, e.g., for the template method. One can fit several 
+     templates with a smooth function and thus remove statistical functions, 
+     see the examples BinLikeTool/TemplateFit. 
+   - includes a summary of the goodness-of-fit for each histogram. 
+   - includes an easy starter script. 
+   - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
+
+* SummaryTool
+   - a tool for summarizing the information of a model. 
+   - in the moment this includes a correlation plot and a summary plot
+     of the parameters. 
+   - provided by Kevin Kroeninger <kevin.kroeninger@cern.ch> 
+
+--------------------------------------------------------------------------
+More models and interfaces will be added in the future.
+
