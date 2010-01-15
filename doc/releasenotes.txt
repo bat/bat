@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.3.2
-Release date:                 2010-01-14
+Release date:                 2010-01-15
 Urgency:                      medium
 ------------------------------------------
 
@@ -14,7 +14,9 @@ Bugfixes:
 
 Updates:
 o added several new methods for the p-value calculation
-o updated installation procedure on Mac OS X
+o more p-values defined  for Poisson models / BCHistogramFitter
+o implemented p-value definition due to Johnson(2004) applying to general models
+o improved installation procedure on Mac OS X
 o updated installation instructions
 
 

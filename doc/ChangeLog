@@ -1,3 +1,8 @@
+2010-01-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.3.2 release candidate 2 (.rc2)
+	* updated releasenotes.txt
+	* use rootcint defined by ROOT_PATH macro rather than what's in path
+
 2010-01-14 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* manual.tex:
 	  - fixed numerous typos
@@ -5,7 +10,6 @@
 	  - changed version to 0.3
 	  - simulated annealing mentioned but not explained
 	  - MAC suppport mentioned
-	
 	* BCHistogramFitter::CalculatePValueLeastSquares
 	  - bugfix in weights for zero count
 

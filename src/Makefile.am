@@ -10,7 +10,6 @@ AM_CXXFLAGS += -g -gddb3 -O0
 endif
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
-CINT= rootcint
 if IS_DARWIN
 CREATE_SO_LINK= cd $(DESTDIR)$(libdir); ln -s libBAT.dylib libBAT.so
 endif
@@ -57,7 +56,7 @@ clean-local:
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS)-c $<
 %Dict.cxx : ../BAT/%.h
-	$(CINT) -f $@ -c  -I.. $<
+	$(ROOTCINT) -f $@ -c  -I.. $<
 install-exec-hook:
 	cp libBAT.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
