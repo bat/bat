@@ -79,7 +79,7 @@ The Bayesian Analysis Toolkit, \bat, is a software package designed to
 help solve statistical problems encountered in Bayesian
 inference. Allowing to formulate models and their parameters, the main
 purpose of the toolkit is to provide methods to solve the numerical
-optimization and integration. It features the possiblity to estimate
+optimization and integration. It features the possibility to estimate
 parameters and to compare models. A procedure to estimate the
 goodness-of-fit is included and based on ensemble tests. A detailed
 introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
@@ -137,7 +137,7 @@ Windows is not supported for the moment.
 from~\cite{ROOTweb}. To compile and run \bat\ you will need a \Root\
 version 5.16 or later. Please, check your Linux distribution for the
 availability of precompiled packages on your system. Mostly used
-distributions nowdays have the \Root\ packages available. \\
+distributions nowadays have the \Root\ packages available. \\
 
 \noindent
 Note: To be able to use the interface to {\sc RooFit/RooStats} the \Root\
@@ -155,7 +155,7 @@ multidimensional integration algorithms. It can be obtained
 from~\cite{CUBAweb}. In this version \bat\ no longer depends on CUBA
 and you can compile and run without it. However, the use of CUBA is
 recommended as it provides integration routines tuned for performance,
-which are very usefull for integration in problems with large number
+which are very useful for integration in problems with large number
 of dimensions. \\
 
 Note: Since version 1.5 the compilation of CUBA no longer crashes if
@@ -208,7 +208,7 @@ make install
 \end{verbatim}
 %
 to compile and install \bat. Note that depending on the setting of
-installation prefix you might need root priviledges to be able to
+installation prefix you might need root privileges to be able to
 install \bat. If you are installing \bat\ e.g. in your \verb|$HOMEDIR|, %$ workaround for bad highlighting
 you need to add the path to the library and to the
 include files to the search path in your system. Depending on your
@@ -384,7 +384,7 @@ sets. Data points and sets are implemented as classes
 \noindent
 The class \verb|BCDataPoint| contains a set of double precision
 values. Data points can be generated explicitly by the user with or
-without intial value
+without initial value
 %
 \begin{verbatim}
 BCDataPoint::BCDataPoint(int nvariables) ,
@@ -600,7 +600,7 @@ Three methods are available in the current version (\Version):
 %
 \begin{itemize}
 \item \verb|BCModel::kOptMetropolis|. A sampling algorithm using the
-  Metropolis alogorithm.
+  Metropolis algorithm.
 \item \verb|BCModel::kOptMinuit|. An interface to the \Root\ version
   of Minuit.
 \item \verb|BCModel::kOptSA|. A Simulated Annealing algorithm.
@@ -753,7 +753,9 @@ p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\vec{\lambda}^{*})} f(k) \, \mathrm{d}k \, .
 
 \noindent
 In the most general case, the $p$-value is calculated using Markov
-Chain Monte Carlo. The calculation can be started by
+Chain Monte Carlo. The dimension of the sampled space is the number
+of datapoints. 
+ The calculation can be started by
 %
 \begin{verbatim}
 BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram) ,
@@ -766,6 +768,94 @@ $p$-value is calculated from this distribution and can be obtained by
 %
 \begin{verbatim}
 double BCModel::GetPValue() .
+\end{verbatim}
+
+For a number of models the distribution of test certain statistics 
+is approximately known. Hence the CPU intensive generation of data sets can be avoided, 
+and the $p$-value is computed much faster. 
+
+If the total probability of the data $p\left(D|\vec{\lambda}^{*}\right)$
+ factorizes into $N$ independent observations 
+$$p\left(D|\vec{\lambda}^{*}\right) = \prod_{i=1}^N p_i\left(y_i|\vec{\lambda}^{*}\right)$$
+and the cumulative distribution functions (CDF) 
+$F_i(y)= \int_{-\infty}^{y} p_i(y'|\vec{\lambda}^{*}) \mathrm{d }y'$ 
+are known, the  $\chi^2$ test statistic described by Johnson \cite{Johnson_pValue} can be computed. 
+Asymptotically (i.e. for many observations) it has $N-1$ 
+degrees of freedom for any parameter $\lambda$
+drawn from the posterior. Note that this implies that for bad models and 
+small $N$, one occasionally obtains a moderate $p$-value although $p\approx 0 $
+is expected. This is especially so
+for discrete probability models. For those to work correctly, the \texttt{BCModel} 
+property \verb|flag_discrete| has to be set to to \texttt{true} (default is \texttt{false}).
+To enable the calculation, \verb|BCModels| method 
+\begin{verbatim}
+virtual double CDF(const std::vector<double>& par, int index, bool lower=false)
+\end{verbatim}
+has to be overridden in the user model.  \verb|int index| defines the single 
+data point in the data set. The flag \verb|bool lower| is only needed 
+for models with discrete probabilities (e.g. Poisson) as opposed to
+continuous probability densities (e.g. Gaussian). It controls whether 
+the CDF is computed not for the actual observation, but for the 
+hypothetical one with a value just one quantum lower. An example to clarify this:
+if in a Poisson process, for bin $2$ a count of $4$ has been observed, $n_2=4$,
+then the next lower value is $n_2=3$. 
+With the CDF defined, the $p$-value is returned from 
+\begin{verbatim}
+double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par)
+\end{verbatim}
+
+For \textit{Gaussian} problems (handled by the model \verb|BCGraphFitter|, sec. \ref{BCGraphFitter})
+ the standard $\chi^2$ statistic can be used, 
+including the correction for the number of fitted parameters, from 
+\begin{verbatim}
+double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
+\end{verbatim}
+where \verb|sigma_index| is the index of the standard deviation in each
+data point. 
+
+In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|) has three
+specific choices to obtain a $p$-value: 
+\begin{enumerate}
+ \item 
+\begin{verbatim}
+int CalculatePValueFast(std::vector<double> par, double &pvalue)
+\end{verbatim}
+which uses a discrete Markov chain to vary the bin counts. 
+The conditional probability $k$ is then recomputed, and
+again the proportion of datasets with lower $k$ is
+reported as the $p$-value. 
+\item
+\begin{verbatim}
+int CalculatePValueLikelihood(std::vector<double> par, double &pvalue)
+\end{verbatim}
+uses the fact that the rescaled likelihood ratio defined in Eq. (32.12)
+of \cite{PDGstatistics} has an approximate $\chi^2$-distribution 
+if all the bin counts aren't too small, i.e. $n_i \ge 5$. 
+
+\item
+\begin{verbatim}
+int CalculatePValueLeastSquares(std::vector<double> par,
+                               double &pvalue, bool weightExpect=true)
+\end{verbatim}
+calculates the sum of squared differences between observed counts 
+and expected counts, 
+$$\chi^2 = \sum_{i=1}^N \frac{\left(n_i - \nu_i(\lambda^{*})\right)^2}{\sigma_i^2},$$ 
+where the weights $\sigma_i$ can be chosen as the 
+expectation values from the Poisson distribution $\sigma_i^2 = \nu_i$
+(\verb|weightExpect=true|) or as the observed counts, $\sigma_i^2 = n_i$
+(\verb|weightExpect=false|).
+The latter choice is especially problematic for no observed count,
+$n_i =0$. In that case the weight is arbitrarily set to unity. 
+$\chi^2$ has an approximate $\chi^2$-distribution 
+with $N-dim(\lambda)$ degrees of freedom for $n_i>5$.
+\end{enumerate}
+In all three methods the return value is an integer error code, and the resulting 
+$p$-value is stored in the reference  \verb|double &pvalue|.
+Additionally the cumulative distribution function is 
+implemented so the $p$-value due to Johnson \cite{Johnson_pValue} 
+can be obtained directly by calling
+\begin{verbatim}
+double BCHistogramFitter::GetPvalueFromChi2Johnson(std::vector<double> par)
 \end{verbatim}
 
 % --------------------------------------------------------
@@ -815,6 +905,7 @@ together with a summary.
 % --------------------------------------------------------
 
 \subsubsection{The Gaussian case}
+\label{BCGraphFitter}
 
 The class \verb|BCGraphFitter| allows to fit a \Root\ function
 (\verb|TF1|) to a \Root\ graph (\verb|TGraphErrors|). The
@@ -898,7 +989,7 @@ For one-dimensional histograms the quantiles of the distribution can
 be returned using
 %
 \begin{verbatim}
-double BCH1D::GetQuantile(double probablity) ,
+double BCH1D::GetQuantile(double probability) ,
 \end{verbatim}
 %
 where \verb|probability| is a number between~0 and~1. This information
@@ -929,7 +1020,7 @@ Option & Style \\
 \hline
 BCH1D & \\
 \hline
-0 (default) & \begin{minipage}[l]{12 cm}Draws a colored band at the central 68\% probability region. If the mode is not inside this band, the 95\% probabilty limit is drawn. \end{minipage}\\
+0 (default) & \begin{minipage}[l]{12 cm}Draws a colored band at the central 68\% probability region. If the mode is not inside this band, the 95\% probability limit is drawn. \end{minipage}\\
 1           & Draws a line at the value passed. \\
 2           & Draws a colored band at the smallest interval containing \verb|ovalue|\% probability. \\
 \hline
@@ -1070,7 +1161,7 @@ mode, the marginalized mode, means, limits, etc. The constructors are
 %
 \begin{verbatim}
 BCModelOutput()
-BCModelOutput(BCModel * model, const char * filenname) .
+BCModelOutput(BCModel * model, const char * filename) .
 \end{verbatim}
 %
 The model and filename can be set after construction using
@@ -1175,8 +1266,8 @@ void BCEngineMCMC::MCMCTrialFunctionSingle(int ichain,
 
 The first method is used in the case of unordered sampling, the second
 one for ordered sampling. The vector $\verb|x|$ is filled with a
-random number prefereably in the range of 0~to~1. The numbers will be
-scaled to the valied parameter range. \\
+random number preferably in the range of 0~to~1. The numbers will be
+scaled to the valid parameter range. \\
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1264,6 +1355,14 @@ guide:
 %
 \bibitem{CUBAweb}
   \url{http://www.feynarts.de/cuba/}
+
+\bibitem{PDGstatistics}
+Particle Data Group, Mathematical Tools or Statistics, Monte Carlo, Group Theory, Physics Letters B, Volume 667, Issues 1-5, Review of Particle Physics, 11 September 2008, Pages 316-339, ISSN 0370-2693, DOI: 10.1016/j.physletb.2008.07.030.
+(http://www.sciencedirect.com/science/article/B6TVN-4T4VKPY-G/2/32a7641753a1a6d41124d1992263243a)
+
+\bibitem{Johnson_pValue}
+Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+
 \end{thebibliography}
 
 % --------------------------------------------------------

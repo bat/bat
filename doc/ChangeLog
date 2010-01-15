@@ -1,3 +1,8 @@
+2010-01-15 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* introduction.tex:
+	  - fixed numerous typos
+	  - included information on the new p value methods
+
 2010-01-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* version 0.3.2 release candidate 2 (.rc2)
 	* updated releasenotes.txt
@@ -26,7 +31,7 @@
 2009-12-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* removed empty directories
 	* BCModelOutput:
-	  - don't call defaoult constructor from another constructor,
+	  - don't call default constructor from another constructor,
 	    create Init() method to do what is needed
 	  - un-const fFileName
 	  - protect write methods and give an error if file not opened
