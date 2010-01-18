@@ -1,17 +1,25 @@
 lib_LTLIBRARIES= libBAT.la
 libBAT_la_LDFLAGS= -version-info 1:0:1
-AM_CXXFLAGS= -O2 -Wall -fPIC  -I.. $(ROOTCFLAGS)
+
+AM_CXXFLAGS= -Wall -fPIC  -I.. $(ROOTCFLAGS)
+
 if CUBA
 AM_CXXFLAGS += -I$(CUBADIR)
 endif
+
 if DEBUG
-AM_CXXFLAGS += -g -gddb3 -O0
-endif
+AM_CXXFLAGS += -g -O0
+else !DEBUG
+AM_CXXFLAGS += -O2
+endif !DEBUG
+
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
+
 if IS_DARWIN
 CREATE_SO_LINK= cd $(DESTDIR)$(libdir); ln -s libBAT.dylib libBAT.so
 endif
+
 library_includedir= $(includedir)/BAT
 library_include_HEADERS=../BAT/*.h
 libBAT_la_SOURCES= \
@@ -50,6 +58,7 @@ libBAT_la_SOURCES= \
    BCEfficiencyFitterDict.cxx \
    BCGraphFitterDict.cxx \
    BCHistogramFitterDict.cxx
+
 clean-local:
 	rm -f *.o *.lo *Dict.*
 %.o : %.cxx

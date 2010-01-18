@@ -1,10 +1,11 @@
-2010-01-15 Frederik Beaujean <beaujean@mpp.mpg.de>
+2010-01-18 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixed debug compilation mode
+
+2010-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter::CDF:
 	  - included warning for non-integer bin contents
-
 	* BCModel::GetChi2Johnson
 	  - fix bug for CDF=1 at the limit of probability
-
 
 2010-01-18 Daniel Kollar <daniel.kollar@cern.ch>
 	* version 0.3.2 release candidate 3 (.rc3)

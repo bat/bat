@@ -9,6 +9,13 @@ AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
 
 dnl
+dnl If the user doesn't provide any CXXFLAGS, prevent Autoconf from
+dnl settings its own default ones (e.g., `-g -O2' for g++).
+if test !${CXXFLAGS+set}; then
+	CXXFLAGS=""
+fi
+
+dnl
 dnl Check for Darwin
 dnl
 AM_CONDITIONAL([IS_DARWIN], [test x$(uname) = xDarwin])
