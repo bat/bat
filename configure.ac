@@ -1,5 +1,5 @@
 AC_INIT(src/BCModel.cxx)
-AM_INIT_AUTOMAKE(BAT, 0.3.2.rc2)
+AM_INIT_AUTOMAKE(BAT, 0.3.2.rc3)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -49,6 +49,7 @@ else
 	echo Could not find libcuba.a
 	echo Compiling without cuba
 fi
+AM_CONDITIONAL([CUBA], [test x$with_cuba_lib = xyes])
 
 dnl
 dnl Check for ROOT

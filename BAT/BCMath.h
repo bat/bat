@@ -159,7 +159,6 @@ namespace BCMath
 //	void RandomExponential(std::vector<double> &randoms, double lambda, unsigned int seed=0);
 
 }
-;
 
 // ---------------------------------------------------------
 

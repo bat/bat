@@ -1,10 +1,9 @@
 lib_LTLIBRARIES= libBAT.la
 libBAT_la_LDFLAGS= -version-info 1:0:1
-#ROOTCFLAGS= $(shell root-config --cflags)
-#ROOTLIBS= $(shell root-config --nonew --libs)
-#ROOTGLIBS= $(shell root-config --nonew --glibs)
-#ROOTCINT= rootcint
-AM_CXXFLAGS= -O2 -Wall -fPIC  -I.. $(ROOTCFLAGS)  -I$(CUBADIR)
+AM_CXXFLAGS= -O2 -Wall -fPIC  -I.. $(ROOTCFLAGS)
+if CUBA
+AM_CXXFLAGS += -I$(CUBADIR)
+endif
 if DEBUG
 AM_CXXFLAGS += -g -gddb3 -O0
 endif
@@ -54,7 +53,7 @@ libBAT_la_SOURCES= \
 clean-local:
 	rm -f *.o *.lo *Dict.*
 %.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS)-c $<
+	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 %Dict.cxx : ../BAT/%.h
 	$(ROOTCINT) -f $@ -c  -I.. $<
 install-exec-hook:

@@ -38,7 +38,7 @@ class TMinuit;
 class TTree;
 
 
-#define DEBUG 0
+#define BC_DEBUG 0
 
 // ---------------------------------------------------------
 
