@@ -1252,114 +1252,119 @@ double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par) {
 }
 
 // ---------------------------------------------------------
-double BCModel::GetChi2Johnson(std::vector<double> par, int nBins) {
+double BCModel::GetChi2Johnson(std::vector<double> par, int nBins)
+{
 
-	typedef unsigned int uint;
+   typedef unsigned int uint;
 
-	// number of observations
-	int n = this -> GetNDataPoints();
+   // number of observations
+   int n = this -> GetNDataPoints();
 
-	if (nBins < 0)
-		nBins=NumberBins();
+   if (nBins < 0)
+      nBins = NumberBins();
 
-	// fixed width quantiles, including final point!
-	std::vector<double> a;
-	for (int i = 0; i <= nBins; i++) {
-		a.push_back(i * 1.0 / double(nBins));
-	}
+   // fixed width quantiles, including final point!
+   std::vector<double> a;
+   for (int i = 0; i <= nBins; i++) {
+      a.push_back(i * 1.0 / double(nBins));
+   }
 
-	// determine the bin counts and fill the histogram with data using the CDF
-	TH1I* hist = new TH1I("h1", "h1 title", nBins, 0.0, 1.0);
+   // determine the bin counts and fill the histogram with data using the CDF
+   TH1I* hist = new TH1I("h1", "h1 title", nBins, 0.0, 1.0);
 
-	//discrete case requires randomization to allocate counts of bins that cover more
-	// than one quantile
-	if (flag_discrete) {
-		//loop over observations, each may have different likelihood and CDF
-		for (int j = 0; j < n; j++) {
-			//actual value
-			double CDF = this->CDF(par, j);
-			//for the bin just before
-			double CDFlower = this->CDF(par, j, true);
+   //discrete case requires randomization to allocate counts of bins that cover more
+   // than one quantile
+   if (flag_discrete) {
+      //loop over observations, each may have different likelihood and CDF
+      for (int j = 0; j < n; j++) {
+         //actual value
+         double CDF = this->CDF(par, j);
+         //for the bin just before
+         double CDFlower = this->CDF(par, j, true);
 
-			//what quantiles q are covered, count from q_1 to q_{nBins}
-			int qMax = 1;
-			for (int i = 0; i < nBins; i++) {
-				if (CDF > a.at(i))
-					qMax = i + 1;
-				else
-					break;
-			}
-			int qMin = 1;
-			for (int i = 0; i < nBins; i++) {
-				if (CDFlower > a.at(i))
-					qMin = i + 1;
-				else
-					break;
-			}
+         //what quantiles q are covered, count from q_1 to q_{nBins}
+         int qMax = 1;
+         for (int i = 0; i < nBins; i++) {
+            if (CDF > a.at(i))
+               qMax = i + 1;
+            else
+               break;
+         }
+         int qMin = 1;
+         for (int i = 0; i < nBins; i++) {
+            if (CDFlower > a.at(i))
+               qMin = i + 1;
+            else
+               break;
+         }
 
-			// simplest case: observation bin entirely contained in one quantile
-			if (qMin == qMax) {
-				hist -> Fill(CDF);
-				continue;//this observation finished
-			}
+         // simplest case: observation bin entirely contained in one quantile
+         if (qMin == qMax) {
+            //watch out for overflow because CDF exactly 1
+            if (CDF < 1)
+               hist -> Fill(CDF);
+            else
+               hist -> AddBinContent(qMax);
 
-			// if more than quantile is covered need more work:
-			//determine probabilities of this observation to go for each quantile covered
-			// as follows: If each quantile has size 0.25 and the CDF(integral of likelihood)
-			//for current observation gives gives 0.27, but for observation-1 we would have
-			// 0.20, then 5/7 of the 7% go for first quantile and 2/7 for the second.
-			//This extend to bins covering more than two quantiles
-			std::vector<double> prob;
-			//normalization
-			double norm = 1 / double(CDF - CDFlower);
+            continue;//this observation finished
+         }
 
-			for (int i = 0; i < (qMax - qMin + 1); i++) {
-				if (i == 0) {
-					prob.push_back(norm * (a.at(qMin) - CDFlower));
-					continue;
-				}
-				if (i == (qMax - qMin) ) {
-					prob.push_back(norm * (CDF - a.at(qMax-1 )));
-					continue;
-				}
-				//default case
-				prob.push_back(norm * (a.at(i) - a.at(i - 1)));
-			}
-			//have distribution, use inverse-transform method
-			double U = fRandom -> Rndm();
-			//build up the integral (CDF)
-			for (uint i = 1; i < prob.size(); i++)
-				prob.at(i) += prob.at(i - 1);
-			// and search with linear comput. complexity
-			for (uint i = 0; i < prob.size(); i++) {
-				//we finally allocate the count, as center of quantile
-				if (U <= prob.at(i)) {
-					hist -> Fill((a.at(qMin + i-1) + a.at(qMin + i)) / 2.0);
-					break;
-				}
-			}
-		}
-	}
-	else { //continuous case is simple
-		for (int j = 0; j < n; j++) {
-			hist -> Fill(this->CDF(par, j));
-		}
-	}
+         // if more than quantile is covered need more work:
+         //determine probabilities of this observation to go for each quantile covered
+         // as follows: If each quantile has size 0.25 and the CDF(integral of likelihood)
+         //for current observation gives gives 0.27, but for observation-1 we would have
+         // 0.20, then 5/7 of the 7% go for first quantile and 2/7 for the second.
+         //This extend to bins covering more than two quantiles
+         std::vector<double> prob;
+         //normalization
+         double norm = 1 / double(CDF - CDFlower);
 
-	// calculate chi^2
-	double chi2 = 0.0;
-	double mk, pk;
-	double N=double(n);
-	for (int i = 1; i <= nBins; i++) {
-		mk = hist->GetBinContent(i);
-		pk = a.at(i) - a.at(i - 1);
-		chi2 += (mk - N * pk) * (mk - N * pk) / (N * pk);
-	}
+         for (int i = 0; i < (qMax - qMin + 1); i++) {
+            if (i == 0) {
+               prob.push_back(norm * (a.at(qMin) - CDFlower));
+               continue;
+            }
+            if (i == (qMax - qMin)) {
+               prob.push_back(norm * (CDF - a.at(qMax - 1)));
+               continue;
+            }
+            //default case
+            prob.push_back(norm * (a.at(i) - a.at(i - 1)));
+         }
+         //have distribution, use inverse-transform method
+         double U = fRandom -> Rndm();
+         //build up the integral (CDF)
+         for (uint i = 1; i < prob.size(); i++)
+            prob.at(i) += prob.at(i - 1);
+         // and search with linear comput. complexity
+         for (uint i = 0; i < prob.size(); i++) {
+            //we finally allocate the count, as center of quantile
+            if (U <= prob.at(i)) {
+               hist -> Fill((a.at(qMin + i - 1) + a.at(qMin + i)) / 2.0);
+               break;
+            }
+         }
+      }
+   } else { //continuous case is simple
+      for (int j = 0; j < n; j++) {
+         hist -> Fill(this->CDF(par, j));
+      }
+   }
 
+   // calculate chi^2
+   double chi2 = 0.0;
+   double mk, pk;
+   double N = double(n);
+   for (int i = 1; i <= nBins; i++) {
+      mk = hist->GetBinContent(i);
+      pk = a.at(i) - a.at(i - 1);
+      chi2 += (mk - N * pk) * (mk - N * pk) / (N * pk);
+   }
 
-	delete hist;
+   delete hist;
 
-	return chi2;
+   return chi2;
+
 }
 // ---------------------------------------------------------
 double BCModel::GetAvalueFromChi2Johnson(TTree* tree, TH1D* distribution){
