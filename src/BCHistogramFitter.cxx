@@ -611,16 +611,28 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
       else
          return 0.0;
    }
-   //TODO what if yObs as double doesn't reprepsent a whole number? exceptioN?
-   if ((double) (unsigned int) yObs != yObs)
+   // what if yObs as double doesn't reprepsent a whole number? exceptioN?
+   if ((double) (unsigned int) yObs != yObs){
       BCLog::OutWarning(Form(
             "BCHistogramFitter::CDF: Histogram values should be integer!\n"
                " Bin %d = %f", index, yObs));
 
+      //convert randomly to integer
+      // ex. yObs = 9.785 =>
+//      yObs --> 10 with P = 78.5%
+//      yObs --> 9  with P = 21.5%
+      double U = fRandom -> Rndm() ;
+      double yObsLower = (unsigned int)yObs;
+      if( U > (yObs - yObsLower) )
+         yObs = yObsLower;
+      else
+         yObs = yObsLower + 1;
+   }
+
 //	BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 //	BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 
-return ROOT::Math::poisson_cdf((unsigned int)yObs, yExp);
+return ROOT::Math::poisson_cdf(yObs, yExp);
 }
 
 // ---------------------------------------------------------

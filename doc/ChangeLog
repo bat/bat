@@ -1,3 +1,7 @@
+2010-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCHistogramFitter::CDF:
+	  - random allocation for non-integer bin contents
+
 2010-01-18 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixed debug compilation mode
 
