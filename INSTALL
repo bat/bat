@@ -1,6 +1,6 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.3.2.rc3
+version 0.3.2.rc4
 -------------------------------
 
 This is the INSTALL file of BAT package
@@ -20,6 +20,8 @@ planned for future releases of BAT. For the moment the only statement
 we can make is that if you don't have a too old or too specific
 installation of Linux you should be able to compile and use BAT without
 problems.
+
+The installation and functionality of BAT has also been tested on MAC OS X.
 
 Windows is not supported for the moment.
 

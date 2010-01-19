@@ -1,4 +1,10 @@
-2010-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+2010-01-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.3.2 release candidate 4 (.rc4)
+	* updated CREDITS
+	* added a line about MAC OS X to INSTALL
+	* mentioned tutorials in examples/README
+
+2010-01-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter::CDF:
 	  - random allocation for non-integer bin contents
 
