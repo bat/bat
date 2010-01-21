@@ -1,3 +1,7 @@
+2010-01-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixed use of CXXFLAGS with ./configure
+	* re-up final version 0.3.2
+
 2010-01-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* final version 0.3.2
 

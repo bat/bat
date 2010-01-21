@@ -1,4 +1,7 @@
 AC_INIT(src/BCModel.cxx)
+: ${CXXFLAGS=""}
+: ${CFLAGS=""}
+: ${FFLAGS=""}
 AM_INIT_AUTOMAKE(BAT, 0.3.2)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
@@ -7,13 +10,6 @@ AC_PROG_CXX
 AM_PROG_LIBTOOL
 AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
-
-dnl
-dnl If the user doesn't provide any CXXFLAGS, prevent Autoconf from
-dnl settings its own default ones (e.g., `-g -O2' for g++).
-if test !${CXXFLAGS+set}; then
-	CXXFLAGS=""
-fi
 
 dnl
 dnl Check for Darwin
