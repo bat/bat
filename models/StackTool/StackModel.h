@@ -98,7 +98,17 @@ class StackModel : public BCModel
 	 * @param Nmin The lower limit of the normalization.
 	 * @param Nmax The upper limit of the normalization.
 	 */
-	int AddTemplateHistogram(TH1D hist, const char * name="", double Nmin=0, double Nmax=0);
+	int AddTemplateHistogram(TH1D hist, const char * name, double Nmin=0, double Nmax=0);
+
+	/**
+	 * Add a template histogram. The templates do not have to be
+	 * normalized. The histogram has to have the same number of bins
+	 * and cover the same region as the data histogram.
+	 * @param hist The template histogram
+	 * @param name The name of the template
+	 * @param prior The prior probability
+	 */
+	int AddTemplateHistogram(TH1D hist, const char * name, TH1D prior);
 
 	/**
 	 * Checks if two histograms have the same properties.
@@ -185,6 +195,11 @@ class StackModel : public BCModel
 	 * Histogram containing the overall number of expected events.
 	 */ 
 	TH1D * fHistNorm; 
+
+	/**
+	 * 1-D histograms containing the prior for each template.
+	 */ 
+	std::vector <TH1D> fHistPrior; 
 
 	/**
 	 * 1-D histograms containing the fractions of each template. 

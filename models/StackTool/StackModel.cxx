@@ -92,8 +92,13 @@ double StackModel::LogAPrioriProbability(std::vector <double> parameters)
 {
 	double logprob = 0.;
 
-	for (int i = 0; i < int(GetNParameters()); ++i)
-		logprob -= log(GetParameter(i)->GetUpperLimit() - GetParameter(i)->GetLowerLimit());
+	//	for (int i = 0; i < int(GetNParameters()); ++i)
+	//		logprob -= log(GetParameter(i)->GetUpperLimit() - GetParameter(i)->GetLowerLimit());
+
+	for (int i = 0; i < int(GetNParameters()); ++i) {
+		int bin = fHistPrior.at(i).FindBin(parameters.at(i)); 
+		logprob += log( fHistPrior.at(i).GetBinContent(bin) ); 
+	}
 
 	return logprob;
 }
@@ -211,13 +216,46 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 
 	AddParameter(Form("N_%i", index), Nmin, Nmax);
 
+	// add prior histogram
+	TH1D hist_prior(Form("prior_%i", index), "", 1, Nmin, Nmax); 
+	hist_prior.SetBinContent(1, 1); 
+	fHistPrior.push_back(hist_prior); 
+
 	// add fraction histogram
 	TH1D hist_frac1d(Form("fraction %i", index), ";;", 100, 0.0, 1.0); 
-
 	fHistFraction1D.push_back(hist_frac1d); 
 
 	// successfully added histogram to container
 	return 1;
+}
+
+// ---------------------------------------------------------
+int StackModel::AddTemplateHistogram(TH1D hist, const char * name, TH1D prior)
+{
+	// check if prior histogram exists
+	if (!prior.Integral()) {
+		return 0; 
+	}
+
+	// get boundaries
+	double nmin = prior.GetXaxis()->GetXmin();
+	double nmax = prior.GetXaxis()->GetXmax(); 
+
+	// add template 
+	int err = this->AddTemplateHistogram(hist, name, nmin, nmax); 
+	
+	if (!err) {
+		return err; 
+	}
+
+	// scale prior histogram
+	prior.Scale(1.0/prior.Integral()/prior.GetBinWidth(1)); 
+
+	// set new prior histogram	
+	fHistPrior[int(fHistPrior.size())-1] = prior; 
+
+	// no error
+	return 1; 
 }
 
 // ---------------------------------------------------------

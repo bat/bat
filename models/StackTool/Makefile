@@ -41,8 +41,8 @@ CXXFLAGS    += $(ROOTCFLAGS)
 # system search path then the lines below are correct and the compilation
 # will work
 CXXFLAGS    += -I. -I./include
-LIBS        += $(ROOTLIBS)  -lBAT
-GLIBS       += $(ROOTGLIBS) -lBAT
+LIBS        += $(ROOTLIBS)  -L../SummaryTool -lSummaryTool
+GLIBS       += $(ROOTGLIBS) -L../SummaryTool -lSummaryTool
 
 # In case you see following errors during the compilation,
 #
@@ -66,7 +66,7 @@ GLIBS       += $(ROOTGLIBS) -lBAT
 #
 # BATINSTALLDIR = '/path/to/bat/installation/directory'
  CXXFLAGS    += -I$(BATINSTALLDIR)/include
- LIBS        += -L$(BATINSTALLDIR)/lib -lBAT
+ LIBS        += -L$(BATINSTALLDIR)/lib -lBAT 
  GLIBS       += -L$(BATINSTALLDIR)/lib -lBAT
 
 # List of all classes (models) used in the program
@@ -83,12 +83,13 @@ CXXSRCS      = \
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      = 
 MYPROGS     = \
-        runHypothesisTest
+        runHypothesisTest \
+				runTemplateFit
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 # targets
-all : hypothesistest
+all : hypothesistest templatefit
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -104,6 +105,10 @@ clean :
 hypothesistest : runHypothesisTest.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) runHypothesisTest.o $(CXXOBJS) -o runHypothesisTest
+
+templatefit : runTemplateFit.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runTemplateFit.o $(CXXOBJS) -o runTemplateFit
 
 print :
 	echo compiler  : $(CXX)
