@@ -1,3 +1,10 @@
+2010-01-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+        * Added prior for templates and an example to SummaryTool.
+
+2010-01-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+        * Minor fixes in BinLikeTool.
+        * Minor fix in SummaryTool.
+
 2010-01-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixed use of CXXFLAGS with ./configure
 	* re-up final version 0.3.2
