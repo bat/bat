@@ -8,6 +8,12 @@ void CreateHistograms()
 	int nev_process4 =  0.20 * 10000.0; 
 	int nev_process5 =  1.00 *   500.0; 
 
+	double eff_process1 = 0.90; 
+	double eff_process2 = 0.50; 
+	double eff_process3 = 0.80; 
+	double eff_process4 = 0.70; 
+	double eff_process5 = 0.30; 
+
 	int nbins = 100;
 	double xmin = -1.0; 
 	double xmax =  1.0; 
@@ -18,7 +24,7 @@ void CreateHistograms()
 	TH1D hist_process3("hist_process3", ";x;1/N dN/dx", nbins, xmin, xmax);
 	TH1D hist_process4("hist_process4", ";x;1/N dN/dx", nbins, xmin, xmax);
 	TH1D hist_process5("hist_process5", ";x;1/N dN/dx", nbins, xmin, xmax);
-	TH1D hist_prior_process1("hist_prior_process1", ";x;1/N dN/dx", 100, 4500.0,  8000.0); 
+	TH1D hist_prior_process1("hist_prior_process1", ";x;1/N dN/dx", 100, 3000.0, 10000.0); 
 	TH1D hist_prior_process2("hist_prior_process2", ";x;1/N dN/dx", 100,    0.0, 10000.0);
 	TH1D hist_prior_process3("hist_prior_process3", ";x;1/N dN/dx", 100,    0.0, 10000.0);
 	TH1D hist_prior_process4("hist_prior_process4", ";x;1/N dN/dx", 100,    0.0, 10000.0);
@@ -81,11 +87,11 @@ void CreateHistograms()
 	gRandom = new TRandom3(1000); 
 
 	for (int i = 1; i <= nbins; ++i) {
-		double exp1 = nev_process1 * hist_process1.GetBinContent(i); 
-		double exp2 = nev_process2 * hist_process2.GetBinContent(i); 
-		double exp3 = nev_process3 * hist_process3.GetBinContent(i); 
-		double exp4 = nev_process4 * hist_process4.GetBinContent(i); 
-		double exp5 = nev_process5 * hist_process5.GetBinContent(i); 
+		double exp1 = nev_process1 * eff_process1 * hist_process1.GetBinContent(i); 
+		double exp2 = nev_process2 * eff_process2 * hist_process2.GetBinContent(i); 
+		double exp3 = nev_process3 * eff_process3 * hist_process3.GetBinContent(i); 
+		double exp4 = nev_process4 * eff_process4 * hist_process4.GetBinContent(i); 
+		double exp5 = nev_process5 * eff_process5 * hist_process5.GetBinContent(i); 
 
 		double exptotal = exp1 + exp2 + exp3 + exp4 + exp5; 
 

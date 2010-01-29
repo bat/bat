@@ -16,6 +16,8 @@
 #include <BAT/BCMath.h>
 #include <BAT/BCLog.h>
 
+#include <iostream>
+
 // ---------------------------------------------------------
 StackModel::StackModel() : BCModel()
 {
@@ -57,29 +59,41 @@ double StackModel::LogLikelihood(std::vector <double> parameters)
 	int nbins      = fDataHistogram.GetNbinsX();
 	int ntemplates = int(fTemplateHistogramContainer.size());
 
-	std::vector <double> norm = parameters;
-	int npar = int(parameters.size()); 
+	// define norm and efficiencies 
+	std::vector <double> norm; 
+	std::vector <double> eff; 
+
+	// set norm and efficiency 
+	for (int i = 0; i < ntemplates; ++i) {
+		norm.push_back(parameters.at(2*i)); 
+		eff.push_back(parameters.at(2*i+1)); 
+	}
 
 	// calculate norm
 	double sum = 0; 
-	for (int i = 0; i < npar; ++i)
-		sum += parameters.at(i); 
+	for (int i = 0; i < ntemplates; ++i)
+		sum += norm.at(i); 
 
 	// fix norm
 	if (fFlagFixNorm) {
-		for (int i = 0; i < npar; ++i)
-			norm[i] = parameters.at(i) / sum; 
+		for (int i = 0; i < ntemplates; ++i) {
+			norm[i] = norm.at(i) / sum; 
+		}
 	}
 	else {
 		fNorm = sum; 
 	}		
 
+	// loop over bins
 	for (int ibin = 1; ibin <= nbins; ++ibin) {
 		double nexp = 0;
 		double ndata = fDataHistogram.GetBinContent(ibin);
 		
-		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			nexp += norm.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+		for (int itemp = 0; itemp < ntemplates; ++itemp) {
+			nexp += norm.at(itemp) 
+				* eff.at(itemp) 
+				* fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+		}		
 
 		logprob += BCMath::LogPoisson(ndata, nexp);
 	}
@@ -92,12 +106,23 @@ double StackModel::LogAPrioriProbability(std::vector <double> parameters)
 {
 	double logprob = 0.;
 
-	//	for (int i = 0; i < int(GetNParameters()); ++i)
-	//		logprob -= log(GetParameter(i)->GetUpperLimit() - GetParameter(i)->GetLowerLimit());
+	int ntemplates = int(fTemplateHistogramContainer.size());
 
-	for (int i = 0; i < int(GetNParameters()); ++i) {
-		int bin = fHistPrior.at(i).FindBin(parameters.at(i)); 
+	// define norm and efficiencies 
+	std::vector <double> norm; 
+	std::vector <double> eff; 
+
+	// set norm and efficiency 
+	for (int i = 0; i < ntemplates; ++i) {
+		norm.push_back(parameters.at(2*i)); 
+		eff.push_back(parameters.at(2*i+1)); 
+	}
+
+	for (int i = 0; i < ntemplates; ++i) {
+		int bin = fHistPrior.at(i).FindBin(norm.at(i)); 
 		logprob += log( fHistPrior.at(i).GetBinContent(bin) ); 
+		if (fTemplateEffErr.at(i)> 0); 
+		logprob += BCMath::LogGaus(eff.at(i), fTemplateEff.at(i), fTemplateEffErr.at(i)); 
 	}
 
 	return logprob;
@@ -147,11 +172,11 @@ int StackModel::SetDataHistogram(TH1D hist)
 	// create histogram containing the normalization
 	xmin = 0; 
 	xmax = 0; 
-	int npar = GetNParameters(); 
+	int npar = GetNParameters()/2; 
 
 	// calculate the limits on the norm from the sum of all parameter limits 
 	for (int i = 0; i < npar; ++i) {
-		BCParameter * par = this->GetParameter(i); 
+		BCParameter * par = this->GetParameter(2*i); 
 		xmin += par->GetLowerLimit(); 
 		xmax += par->GetUpperLimit(); 
 	}
@@ -170,41 +195,42 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 	if (hist.Integral() <= 0.)
 		return 0;
 
-	// compare histogram properties
+	// compare template properties with data
 	if (CompareHistogramProperties(fDataHistogram, hist) != 1)
 		return 0;
 
-	// set histogram color
-	hist.SetFillColor( 2 + int(fTemplateHistogramContainer.size()) );
+	// check if prior makes sense 
+	if (Nmin < 0 || Nmax < 0)
+		return 0; 
+
+	if (Nmin > Nmax)
+		return 0; 
+
+	// get number of templates 
+	int ntemplates = int(fTemplateHistogramContainer.size());
+	
+	// set histogram color and style 
+	hist.SetFillColor( 2 + ntemplates );
 	hist.SetFillStyle(1001);
+	
+	// scale histogram
+	hist.Scale(1.0 / hist.Integral());
 
-	// add histogram if it is the first
-	if ( int(fTemplateHistogramContainer.size()) == 0)
-	{
-		hist.Scale(1.0 / hist.Integral());
-		fTemplateHistogramContainer.push_back(hist);
-		fTemplateNameContainer.push_back(name);
-	}
+	// check if template is consistent with other templates 
+	if (ntemplates > 0)
+		if (!CompareHistogramProperties(fTemplateHistogramContainer.at(0), hist))
+			return 0; 
 
-	else
-	{
-		// add histogram if it has the same properties than those in the
-		// container
-		if (CompareHistogramProperties(fTemplateHistogramContainer.at(0), hist))
-		{
-			hist.Scale(1.0 / hist.Integral());
-			fTemplateHistogramContainer.push_back(hist);
-			fTemplateNameContainer.push_back(name);
-		}
-		else
-			return 0;
-	}
+	// add template
+	fTemplateHistogramContainer.push_back(hist);
+	fTemplateNameContainer.push_back(name);
+	fTemplateEff.push_back(1.0); 
+	fTemplateEffErr.push_back(0.0); 
 
 	// add a parameter for the fraction
-	int index = int(fTemplateHistogramContainer.size()) - 1;
-
-	if (Nmax == 0)
-	{
+	int index = ntemplates;
+	
+	if (Nmax == 0) {
 		double sum = fDataHistogram.Integral();
 		if (sum > 0. && sum < 10.)
 			Nmax = 20;
@@ -214,7 +240,11 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 			Nmax = 5.;
 	}
 
+	// a a parameter for the expectation value 
 	AddParameter(Form("N_%i", index), Nmin, Nmax);
+
+	// add a parameter for the efficiency
+	AddParameter(Form("eff_%i", index), 0.0, 1.0);
 
 	// add prior histogram
 	TH1D hist_prior(Form("prior_%i", index), "", 1, Nmin, Nmax); 
@@ -233,7 +263,7 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 int StackModel::AddTemplateHistogram(TH1D hist, const char * name, TH1D prior)
 {
 	// check if prior histogram exists
-	if (!prior.Integral()) {
+	if (prior.Integral() <= 0) {
 		return 0; 
 	}
 
@@ -249,7 +279,7 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, TH1D prior)
 	}
 
 	// scale prior histogram
-	prior.Scale(1.0/prior.Integral()/prior.GetBinWidth(1)); 
+	prior.Scale(1.0/prior.Integral()); 
 
 	// set new prior histogram	
 	fHistPrior[int(fHistPrior.size())-1] = prior; 
@@ -388,10 +418,11 @@ void StackModel::PrintStack(const char * filename, const char * options)
 	legend2->SetBorderSize(0);
 	legend2->SetFillColor(kWhite);
 
+	// scale histograms and add to stack and legend
 	for (int i = 0; i < ntemplates; ++i)
 	{
 		TH1D histtemp = fTemplateHistogramContainer.at(i);
-		fTemplateHistogramContainer.at(i).Scale(GetBestFitParameter(i) / histtemp.Integral());
+		fTemplateHistogramContainer.at(i).Scale(GetBestFitParameter(2*i) * GetBestFitParameter(2*i+1) / histtemp.Integral());
 		stack.Add(&(fTemplateHistogramContainer.at(i)));
 		if (i < 2)
 			legend1->AddEntry(&(fTemplateHistogramContainer.at(i)), fTemplateNameContainer.at(i).data(), "F");
@@ -585,7 +616,7 @@ double StackModel::CalculateChi2()
 
 		// loop over all templates
 		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			nexp += parameters.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+			nexp += parameters.at(2*itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 
 		// add to chi2
 		chi2 += (nexp - ndata) * (nexp - ndata) / nexp;
@@ -630,7 +661,7 @@ double StackModel::CalculateKSProb()
 
 		// loop over all templates
 		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			bincontent += parameters.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+			bincontent += parameters.at(2*itemp) * parameters.at(2*itemp+1) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 
 		// set bin content
 		histsum->SetBinContent(ibin, bincontent);
@@ -677,7 +708,7 @@ double StackModel::CalculatePValue()
 		double nexp = 0;
 
 		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			nexp += par.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+			nexp += par.at(2*itemp) * par.at(2*itemp+1) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 
 		histogram[ibin-1]   = int(nexp);
 		expectation[ibin-1] = nexp;
@@ -740,7 +771,7 @@ double StackModel::CalculatePValue()
 // ---------------------------------------------------------
 void StackModel::MCMCUserIterationInterface()
 {
-	int nbins = fDataHistogram.GetNbinsX();
+	int nbins      = fDataHistogram.GetNbinsX();
 	int ntemplates = int(fTemplateHistogramContainer.size());
 
 	// loop over all bins
@@ -750,7 +781,7 @@ void StackModel::MCMCUserIterationInterface()
 
 		// loop over all templates
 		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			bincontent += fMCMCx.at(itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+			bincontent += fMCMCx.at(2 * itemp) * fMCMCx.at(2 * itemp + 1) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 
 		// set bin content
 		fUncertaintyHistogramExp->Fill(fDataHistogram.GetBinCenter(ibin), bincontent);
@@ -771,7 +802,7 @@ void StackModel::MCMCUserIterationInterface()
 	// fill fractions
 	double sum = 0; 
 	for (int i = 0; i < ntemplates; ++i)
-		sum += fMCMCx.at(i); 
+		sum += fMCMCx.at(2 * i); 
 
 	for (int i = 0; i < ntemplates; ++i)
 		fHistFraction1D.at(i).Fill(fMCMCx.at(i)/sum); 
@@ -802,6 +833,23 @@ void StackModel::PrintFraction(const char * filename)
 
 	delete c1; 
 	delete ps; 
+}
+
+// ---------------------------------------------------------
+int StackModel::SetTemplateEfficiency(int index, double eff, double err)
+{
+	// get number of templates
+	int ntemplates = int(fTemplateHistogramContainer.size());
+
+	if (index < 0 || index >= ntemplates)
+		return 0; 
+
+	// set efficiency and error
+	fTemplateEff[index] = eff; 
+	fTemplateEffErr[index] = err;
+
+	// no error 
+	return 1;
 }
 
 // ---------------------------------------------------------

@@ -64,6 +64,13 @@ int main()
 	model->AddTemplateHistogram(hist_process4, "process 4", hist_prior_process4);
 	model->AddTemplateHistogram(hist_process5, "process 5", hist_prior_process5);
 
+	// set efficiencies
+	model->SetTemplateEfficiency(0, 0.85, 0.03);
+	model->SetTemplateEfficiency(1, 0.52, 0.05);
+	model->SetTemplateEfficiency(2, 0.79, 0.05);
+	model->SetTemplateEfficiency(3, 0.75, 0.05);
+	model->SetTemplateEfficiency(4, 0.27, 0.05);
+
 	// ----------------------------------------------------
 	// set up model manager
 	// ----------------------------------------------------

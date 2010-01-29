@@ -110,6 +110,14 @@ class StackModel : public BCModel
 	 */
 	int AddTemplateHistogram(TH1D hist, const char * name, TH1D prior);
 
+	int ConstrainSum(std::vector <int> indices, double mean, double rms); 
+
+	int SetTemplatePrior(int index, double mean, double rms); 
+	int SetTemplatePrior(int index, TH1D prior); 
+
+	int SetTemplateEfficiency(int index, double eff, double err); 
+	int SetTemplateEfficiency(int index, TH1D eff); 
+
 	/**
 	 * Checks if two histograms have the same properties.
 	 * @return 0 if not, 1 if they have the same properties.
@@ -190,6 +198,16 @@ class StackModel : public BCModel
 	 * A container for the template names.
 	 */
 	std::vector <std::string> fTemplateNameContainer;
+
+	/**
+	 * A constainer of the efficiency. 
+	 */ 
+	std::vector<double> fTemplateEff; 
+
+	/**
+	 * A constainer of the efficiency uncertainty.
+	 */ 
+	std::vector<double> fTemplateEffErr; 
 
 	/**
 	 * Histogram containing the overall number of expected events.

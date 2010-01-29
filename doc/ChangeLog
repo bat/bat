@@ -1,3 +1,6 @@
+2010-01-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+        * Added efficiencies for templates in SummaryTool.
+
 2010-01-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Added prior for templates and an example to SummaryTool.
 
