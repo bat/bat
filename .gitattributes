@@ -102,6 +102,8 @@ models/RooInterface/PrepareWorkspace_Poisson_withSystematics.C -text
 models/RooInterface/README -text
 models/RooInterface/runRooInterface.cxx -text
 models/StackTool/CreateHistograms.c -text
+models/StackTool/EnsembleTestTool.cxx -text
+models/StackTool/EnsembleTestTool.h -text
 models/StackTool/Makefile -text
 models/StackTool/StackModel.cxx -text
 models/StackTool/StackModel.h -text

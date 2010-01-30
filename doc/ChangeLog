@@ -1,8 +1,11 @@
+2010-01-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+        * Added ensemble test tool to StackTool.
+
 2010-01-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Added efficiencies for templates in SummaryTool.
+        * Added efficiencies for templates in StackTool.
 
 2010-01-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Added prior for templates and an example to SummaryTool.
+        * Added prior for templates and an example to StackTool.
 
 2010-01-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Minor fixes in BinLikeTool.

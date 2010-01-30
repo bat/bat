@@ -2,34 +2,35 @@ void CreateHistograms()
 {
 	// settings 
 
-	int nev_process1 =  1.00 *  7000.0; 
-	int nev_process2 =  0.50 * 10000.0; 
-	int nev_process3 =  0.30 * 10000.0; 
-	int nev_process4 =  0.20 * 10000.0; 
-	int nev_process5 =  1.00 *   500.0; 
+	int nev_process1 =  1300000; // W + jets @ 100 pb-1
+	int nev_process2 =  0.6 * 7000.0;
+	int nev_process3 =  0.2 * 7000.0;
+	int nev_process4 =  0.2 * 7000.0; 
+	int nev_process5 =  0.0;
 
-	double eff_process1 = 0.90; 
-	double eff_process2 = 0.50; 
-	double eff_process3 = 0.80; 
-	double eff_process4 = 0.70; 
-	double eff_process5 = 0.30; 
+	double eff_process1 = 0.001;
+	double eff_process2 = 0.20; 
+	double eff_process3 = 0.20; 
+	double eff_process4 = 0.20; 
+	double eff_process5 = 0.0; 
 
 	int nbins = 100;
 	double xmin = -1.0; 
 	double xmax =  1.0; 
 
 	// histograms 
-	TH1D hist_process1("hist_process1", ";x;1/N dN/dx", nbins, xmin, xmax);
-	TH1D hist_process2("hist_process2", ";x;1/N dN/dx", nbins, xmin, xmax);
-	TH1D hist_process3("hist_process3", ";x;1/N dN/dx", nbins, xmin, xmax);
-	TH1D hist_process4("hist_process4", ";x;1/N dN/dx", nbins, xmin, xmax);
-	TH1D hist_process5("hist_process5", ";x;1/N dN/dx", nbins, xmin, xmax);
+	TH1D hist_process1("hist_process1", ";cos #theta^{*};1/N dN/dcos #theta^{*}", nbins, xmin, xmax);
+	TH1D hist_process2("hist_process2", ";cos #theta^{*};1/N dN/dcos #theta^{*}", nbins, xmin, xmax);
+	TH1D hist_process3("hist_process3", ";cos #theta^{*};1/N dN/dcos #theta^{*}", nbins, xmin, xmax);
+	TH1D hist_process4("hist_process4", ";cos #theta^{*};1/N dN/dcos #theta^{*}", nbins, xmin, xmax);
+	TH1D hist_process5("hist_process5", ";cos #theta^{*};1/N dN/dcos #theta^{*}", nbins, xmin, xmax);
+	TH1D hist_sum("hist_sum", ";cos #theta^{*};1/N dN/dcos #theta^{*}", nbins, xmin, xmax);
 	TH1D hist_prior_process1("hist_prior_process1", ";x;1/N dN/dx", 100, 3000.0, 10000.0); 
 	TH1D hist_prior_process2("hist_prior_process2", ";x;1/N dN/dx", 100,    0.0, 10000.0);
 	TH1D hist_prior_process3("hist_prior_process3", ";x;1/N dN/dx", 100,    0.0, 10000.0);
 	TH1D hist_prior_process4("hist_prior_process4", ";x;1/N dN/dx", 100,    0.0, 10000.0);
 	TH1D hist_prior_process5("hist_prior_process5", ";x;1/N dN/dx", 100,    0.0,  1000.0);
-	TH1D hist_data("hist_data", ";x;1/N dN/dx", nbins,xmin, xmax);
+	TH1D hist_data("hist_data", ";cos #theta^{*};dN/dcos #theta^{*}", nbins,xmin, xmax);
 
 	// fill templates 
 	for (int i = 1; i <= nbins; ++i) {
@@ -96,7 +97,7 @@ void CreateHistograms()
 		double exptotal = exp1 + exp2 + exp3 + exp4 + exp5; 
 
 		hist_data.SetBinContent(i, gRandom->Poisson(exptotal)); 
-		//		hist_data.SetBinContent(i, exptotal); 
+		hist_sum.SetBinContent(i, exptotal);
 	}
 	
 	// write histograms to file 
@@ -108,6 +109,7 @@ void CreateHistograms()
  	hist_process3.Write();  
  	hist_process4.Write();  
  	hist_process5.Write();  
+	hist_sum.Write();
  	hist_data.Write();  
  	hist_prior_process1.Write();  
  	hist_prior_process2.Write();  

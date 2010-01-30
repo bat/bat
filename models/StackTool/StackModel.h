@@ -112,10 +112,10 @@ class StackModel : public BCModel
 
 	int ConstrainSum(std::vector <int> indices, double mean, double rms); 
 
-	int SetTemplatePrior(int index, double mean, double rms); 
+	int SetTemplatePrior(int index, double mean, double rms, bool adjust=false); 
 	int SetTemplatePrior(int index, TH1D prior); 
 
-	int SetTemplateEfficiency(int index, double eff, double err); 
+	int SetTemplateEfficiency(int index, double eff, double err, bool adjust=false); 
 	int SetTemplateEfficiency(int index, TH1D eff); 
 
 	/**
@@ -147,8 +147,8 @@ class StackModel : public BCModel
 	void PrintFraction(const char * filename = "fraction.ps");
 	
 	/**
-	 * Calculates and returns the chi2 value. The chi2 is calculated using
-	 * the expectation value for the uncertainty.
+	 * Calculates and returns the chi2 value. The chi2 is calculated
+	 * using the expectation value for the uncertainty.
 	 */
 	double CalculateChi2();
 
@@ -208,6 +208,16 @@ class StackModel : public BCModel
 	 * A constainer of the efficiency uncertainty.
 	 */ 
 	std::vector<double> fTemplateEffErr; 
+
+	/**
+	 * A constainer of the efficiency. 
+	 */ 
+	std::vector<double> fTemplatePriorMean; 
+
+	/**
+	 * A constainer of the efficiency uncertainty.
+	 */ 
+	std::vector<double> fTemplatePriorSigma; 
 
 	/**
 	 * Histogram containing the overall number of expected events.

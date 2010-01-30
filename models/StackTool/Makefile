@@ -75,6 +75,7 @@ GLIBS       += $(ROOTGLIBS) -L../SummaryTool -lSummaryTool
 CXXSRCS      = \
         StackModel.cxx \
         StackModelManager.cxx \
+				EnsembleTestTool.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
@@ -84,12 +85,13 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      = 
 MYPROGS     = \
         runHypothesisTest \
-				runTemplateFit
+				runTemplateFit \
+				runEnsembleTest
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 # targets
-all : hypothesistest templatefit
+all : hypothesistest templatefit ensembletest
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -109,6 +111,10 @@ hypothesistest : runHypothesisTest.cxx $(CXXOBJS)
 templatefit : runTemplateFit.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) runTemplateFit.o $(CXXOBJS) -o runTemplateFit
+
+ensembletest : runEnsembleTest.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runEnsembleTest.o $(CXXOBJS) -o runEnsembleTest
 
 print :
 	echo compiler  : $(CXX)

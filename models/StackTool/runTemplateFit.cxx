@@ -23,12 +23,6 @@ int main()
 	TH1D hist_process2 = *((TH1D*) file->Get("hist_process2"));
 	TH1D hist_process3 = *((TH1D*) file->Get("hist_process3"));
 	TH1D hist_process4 = *((TH1D*) file->Get("hist_process4"));
-	TH1D hist_process5 = *((TH1D*) file->Get("hist_process5"));
-	TH1D hist_prior_process1 = *((TH1D*) file->Get("hist_prior_process1"));
-	TH1D hist_prior_process2 = *((TH1D*) file->Get("hist_prior_process2"));
-	TH1D hist_prior_process3 = *((TH1D*) file->Get("hist_prior_process3"));
-	TH1D hist_prior_process4 = *((TH1D*) file->Get("hist_prior_process4"));
-	TH1D hist_prior_process5 = *((TH1D*) file->Get("hist_prior_process5"));
 	TH1D hist_data = *((TH1D*) file->Get("hist_data"));
 
 	// close file
@@ -46,30 +40,30 @@ int main()
 	BCLog::SetLogLevel(BCLog::detail);
 
  	// ----------------------------------------------------
-	// model: 2 bkg 1 sgn
+	// create model
 	// ----------------------------------------------------
 
 	// create new StackModel object
 	StackModel * model = new StackModel("model");
 	model->MCMCSetNLag(10); 
-	model->MCMCSetNIterationsRun(1000000); 
+	model->MCMCSetNIterationsRun(10000000); 
 
 	// set data histogram
 	model->SetDataHistogram(hist_data);
 
 	// add template histograms
-	model->AddTemplateHistogram(hist_process1, "process 1", hist_prior_process1);
-	model->AddTemplateHistogram(hist_process2, "process 2", hist_prior_process2);
-	model->AddTemplateHistogram(hist_process3, "process 3", hist_prior_process3);
-	model->AddTemplateHistogram(hist_process4, "process 4", hist_prior_process4);
-	model->AddTemplateHistogram(hist_process5, "process 5", hist_prior_process5);
+	model->AddTemplateHistogram(hist_process1, "Background",    0.0, 2000000.0);
+	model->AddTemplateHistogram(hist_process2, "Signal (h= 0)", 0.0,   20000.0);
+	model->AddTemplateHistogram(hist_process3, "Signal (h=-1)", 0.0,   20000.0);
+	model->AddTemplateHistogram(hist_process4, "Signal (h=+1)", 0.0,   20000.0);
 
 	// set efficiencies
-	model->SetTemplateEfficiency(0, 0.85, 0.03);
-	model->SetTemplateEfficiency(1, 0.52, 0.05);
-	model->SetTemplateEfficiency(2, 0.79, 0.05);
-	model->SetTemplateEfficiency(3, 0.75, 0.05);
-	model->SetTemplateEfficiency(4, 0.27, 0.05);
+	model->SetTemplateEfficiency(0, 0.001, 0.0005, true);
+	model->SetTemplateEfficiency(1, 0.20, 0.05, true);
+	model->SetTemplateEfficiency(2, 0.20, 0.05, true);
+	model->SetTemplateEfficiency(3, 0.20, 0.05, true);
+
+	model->SetTemplatePrior(0, 1300000.0, 50000.0);
 
 	// ----------------------------------------------------
 	// set up model manager
@@ -124,6 +118,7 @@ int main()
 	delete smm;
 
 	// delete summary tool
+	delete st; 
 
 	return 0;
 }

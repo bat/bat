@@ -118,11 +118,18 @@ double StackModel::LogAPrioriProbability(std::vector <double> parameters)
 		eff.push_back(parameters.at(2*i+1)); 
 	}
 
+	// loop over templates
 	for (int i = 0; i < ntemplates; ++i) {
-		int bin = fHistPrior.at(i).FindBin(norm.at(i)); 
-		logprob += log( fHistPrior.at(i).GetBinContent(bin) ); 
-		if (fTemplateEffErr.at(i)> 0); 
-		logprob += BCMath::LogGaus(eff.at(i), fTemplateEff.at(i), fTemplateEffErr.at(i)); 
+		//		int bin = fHistPrior.at(i).FindBin(norm.at(i)); 
+		//		logprob += log( fHistPrior.at(i).GetBinContent(bin) ); 
+
+		// efficiency
+		if (fTemplateEffErr.at(i)> 0)
+			logprob += BCMath::LogGaus(eff.at(i), fTemplateEff.at(i), fTemplateEffErr.at(i)); 
+
+		// norm
+		if (fTemplatePriorSigma.at(i) > 0)
+			logprob += BCMath::LogGaus(norm.at(i), fTemplatePriorMean.at(i), fTemplatePriorSigma.at(i)); 
 	}
 
 	return logprob;
@@ -135,7 +142,7 @@ int StackModel::SetDataHistogram(TH1D hist)
 	int nbins = hist.GetNbinsX();
 	double xmin = (hist.GetXaxis())->GetXmin(); 
 	double xmax = (hist.GetXaxis())->GetXmax(); 
-	fDataHistogram = TH1D("hist_data", "", nbins, xmin, xmax); 
+	fDataHistogram = TH1D("", "", nbins, xmin, xmax); 
 
 	for (int i = 1; i <= nbins; ++i) 
 		fDataHistogram.SetBinContent(i, hist.GetBinContent(i)); 
@@ -172,17 +179,17 @@ int StackModel::SetDataHistogram(TH1D hist)
 	// create histogram containing the normalization
 	xmin = 0; 
 	xmax = 0; 
-	int npar = GetNParameters()/2; 
+	int ntemplates = (fTemplateHistogramContainer.size());
 
 	// calculate the limits on the norm from the sum of all parameter limits 
-	for (int i = 0; i < npar; ++i) {
+	for (int i = 0; i < ntemplates; ++i) {
 		BCParameter * par = this->GetParameter(2*i); 
 		xmin += par->GetLowerLimit(); 
 		xmax += par->GetUpperLimit(); 
 	}
 
 	// create new histogram for norm
-	fHistNorm = new TH1D("hist_norm", ";N_{norm};dN/dN_{norm}", 100, xmin, xmax); 
+	fHistNorm = new TH1D("", ";N_{norm};dN/dN_{norm}", 100, xmin, xmax); 
 
 	// no errors
 	return 1;
@@ -226,6 +233,8 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 	fTemplateNameContainer.push_back(name);
 	fTemplateEff.push_back(1.0); 
 	fTemplateEffErr.push_back(0.0); 
+	fTemplatePriorMean.push_back(0.0);
+	fTemplatePriorSigma.push_back(-1.0);
 
 	// add a parameter for the fraction
 	int index = ntemplates;
@@ -533,7 +542,7 @@ void StackModel::PrintStack(const char * filename, const char * options)
 			ymax = 1.1 * (hist_diff->GetMaximum() + hist_diff->GetBinError(hist_diff->GetMaximumBin())); 
 		if (ymin>(hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin())))
 			ymin = 1.1 * (hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin()));
-		(hist_diff->GetYaxis())->SetRangeUser(1.1*ymin, 1.1*ymax);
+		(hist_diff->GetYaxis())->SetRangeUser(-1.1*TMath::Max(-ymin, ymax), 1.1*TMath::Max(-ymin, ymax));
 		
 	}
 	
@@ -616,7 +625,7 @@ double StackModel::CalculateChi2()
 
 		// loop over all templates
 		for (int itemp = 0; itemp < ntemplates; ++itemp)
-			nexp += parameters.at(2*itemp) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
+			nexp += parameters.at(2*itemp) * parameters.at(2*itemp+1) * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 
 		// add to chi2
 		chi2 += (nexp - ndata) * (nexp - ndata) / nexp;
@@ -836,7 +845,7 @@ void StackModel::PrintFraction(const char * filename)
 }
 
 // ---------------------------------------------------------
-int StackModel::SetTemplateEfficiency(int index, double eff, double err)
+int StackModel::SetTemplateEfficiency(int index, double eff, double err, bool adjust)
 {
 	// get number of templates
 	int ntemplates = int(fTemplateHistogramContainer.size());
@@ -847,6 +856,43 @@ int StackModel::SetTemplateEfficiency(int index, double eff, double err)
 	// set efficiency and error
 	fTemplateEff[index] = eff; 
 	fTemplateEffErr[index] = err;
+
+	if (adjust) {
+		int parindex = index*2+1; 
+		double effmin = TMath::Max(0.0, eff - 5.0*err); 
+		double effmax = TMath::Min(1.0, eff + 5.0*err); 
+		this -> GetParameter(parindex) -> SetLowerLimit(effmin); 
+		this -> GetParameter(parindex) -> SetUpperLimit(effmax); 
+		fMCMCBoundaryMin[parindex] = effmin; 
+		fMCMCBoundaryMax[parindex] = effmax; 
+	}
+
+	// no error 
+	return 1;
+}
+
+// ---------------------------------------------------------
+int StackModel::SetTemplatePrior(int index, double mean, double sigma, bool adjust)
+{
+	// get number of templates
+	int ntemplates = int(fTemplateHistogramContainer.size());
+
+	if (index < 0 || index >= ntemplates)
+		return 0; 
+
+	// set efficiency and error
+	fTemplatePriorMean[index] = mean; 
+	fTemplatePriorSigma[index] = sigma;
+
+	if (adjust) {
+		int parindex = index*2; 
+		double parmin = TMath::Max(0.0, mean - 5.0*sigma); 
+		double parmax = TMath::Min(1.0, mean + 5.0*sigma); 
+		this -> GetParameter(parindex) -> SetLowerLimit(parmin); 
+		this -> GetParameter(parindex) -> SetUpperLimit(parmax); 
+		fMCMCBoundaryMin[parindex] = parmin; 
+		fMCMCBoundaryMax[parindex] = parmax; 
+	}
 
 	// no error 
 	return 1;
