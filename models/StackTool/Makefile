@@ -132,6 +132,11 @@ tarball :
         StackModel.h \
         StackModelManager.cxx \
         StackModelManager.h \
+				EnsembleTestTool.h \
+				EnsembleTestTool.cxx \
         runHypothesisTest.cxx \
+				runTemplateFit.cxx \
+				runEnsembleTest.cxx \
+				CreateHistograms.c \
         Makefile
 

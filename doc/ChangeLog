@@ -1,5 +1,6 @@
 2010-02-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Small bug fix in SummaryTool.
+	* Small bug fix in StackTool.
 
 2010-01-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Added ensemble test tool to StackTool.

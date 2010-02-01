@@ -110,6 +110,7 @@ models/StackTool/StackModel.h -text
 models/StackTool/StackModelManager.cxx -text
 models/StackTool/StackModelManager.h -text
 models/StackTool/histograms.root -text
+models/StackTool/runEnsembleTest.cxx -text
 models/StackTool/runHypothesisTest.cxx -text
 models/StackTool/runTemplateFit.cxx -text
 models/SummaryTool/Makefile -text
