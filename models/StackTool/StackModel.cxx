@@ -132,6 +132,29 @@ double StackModel::LogAPrioriProbability(std::vector <double> parameters)
 			logprob += BCMath::LogGaus(norm.at(i), fTemplatePriorMean.at(i), fTemplatePriorSigma.at(i)); 
 	}
 
+	// constraints
+	int nconstraints = int(fConstraintSumIndices.size()); 
+	if (nconstraints > 0) {
+
+		// loop over constraints
+		for (int i = 0; i < nconstraints; ++i) {
+
+			// initialize sum
+			double sum = 0; 
+
+			// get number of summands
+			int nsummands = int( (fConstraintSumIndices.at(i)).size() ); 
+
+			// loop over summands and add to sum
+			for (int j = 0; j < nsummands; ++j) {
+				sum += norm.at( (fConstraintSumIndices.at(i)).at(j) ); 
+			}
+
+			// add to prior
+			logprob += BCMath::LogGaus(sum, fConstraintSumMean.at(i), fConstraintSumRMS.at(i)); 
+		}
+	}
+
 	return logprob;
 }
 
@@ -887,7 +910,7 @@ int StackModel::SetTemplatePrior(int index, double mean, double sigma, bool adju
 	if (adjust) {
 		int parindex = index*2; 
 		double parmin = TMath::Max(0.0, mean - 5.0*sigma); 
-		double parmax = TMath::Min(1.0, mean + 5.0*sigma); 
+		double parmax = mean + 5.0*sigma; 
 		this -> GetParameter(parindex) -> SetLowerLimit(parmin); 
 		this -> GetParameter(parindex) -> SetUpperLimit(parmax); 
 		fMCMCBoundaryMin[parindex] = parmin; 
@@ -895,6 +918,18 @@ int StackModel::SetTemplatePrior(int index, double mean, double sigma, bool adju
 	}
 
 	// no error 
+	return 1;
+}
+
+// ---------------------------------------------------------
+int StackModel::ConstrainSum(std::vector <int> indices, double mean, double rms)
+{
+	// add contraint to container(s)
+	fConstraintSumIndices.push_back(indices); 
+	fConstraintSumMean.push_back(mean); 
+	fConstraintSumRMS.push_back(rms); 
+
+	// no error
 	return 1;
 }
 

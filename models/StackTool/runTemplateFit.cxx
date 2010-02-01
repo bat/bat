@@ -46,16 +46,16 @@ int main()
 	// create new StackModel object
 	StackModel * model = new StackModel("model");
 	model->MCMCSetNLag(10); 
-	model->MCMCSetNIterationsRun(10000000); 
+	model->MCMCSetNIterationsRun(1000000); 
 
 	// set data histogram
 	model->SetDataHistogram(hist_data);
 
 	// add template histograms
 	model->AddTemplateHistogram(hist_process1, "Background",    0.0, 2000000.0);
-	model->AddTemplateHistogram(hist_process2, "Signal (h= 0)", 0.0,   20000.0);
-	model->AddTemplateHistogram(hist_process3, "Signal (h=-1)", 0.0,   20000.0);
-	model->AddTemplateHistogram(hist_process4, "Signal (h=+1)", 0.0,   20000.0);
+	model->AddTemplateHistogram(hist_process2, "Signal (h= 0)", 0.0,    8000.0);
+	model->AddTemplateHistogram(hist_process3, "Signal (h=-1)", 0.0,    8000.0);
+	model->AddTemplateHistogram(hist_process4, "Signal (h=+1)", 0.0,    8000.0);
 
 	// set efficiencies
 	model->SetTemplateEfficiency(0, 0.001, 0.0005, true);
@@ -63,7 +63,15 @@ int main()
 	model->SetTemplateEfficiency(2, 0.20, 0.05, true);
 	model->SetTemplateEfficiency(3, 0.20, 0.05, true);
 
-	model->SetTemplatePrior(0, 1300000.0, 50000.0);
+	// set priors 
+	model->SetTemplatePrior(0, 1300000.0, 2000.0, true);
+
+	// set constraints
+	std::vector <int> indices; 
+	indices.push_back(1);
+	indices.push_back(2);
+	indices.push_back(3);
+	model->ConstrainSum(indices, 7000.0, 100); 
 
 	// ----------------------------------------------------
 	// set up model manager

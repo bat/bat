@@ -220,6 +220,21 @@ class StackModel : public BCModel
 	std::vector<double> fTemplatePriorSigma; 
 
 	/**
+	 * A container for constrained sums: indices.
+	 */ 
+	std::vector< std::vector<int> > fConstraintSumIndices; 
+
+	/**
+	 * A container for constrained sums: mean values. 
+	 */ 
+	std::vector< double > fConstraintSumMean; 
+
+	/**
+	 * A container for constrained sums: mean values. 
+	 */ 
+	std::vector< double > fConstraintSumRMS; 
+
+	/**
 	 * Histogram containing the overall number of expected events.
 	 */ 
 	TH1D * fHistNorm; 

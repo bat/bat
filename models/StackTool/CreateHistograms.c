@@ -3,9 +3,9 @@ void CreateHistograms()
 	// settings 
 
 	int nev_process1 =  1300000; // W + jets @ 100 pb-1
-	int nev_process2 =  0.6 * 7000.0;
-	int nev_process3 =  0.2 * 7000.0;
-	int nev_process4 =  0.2 * 7000.0; 
+	int nev_process2 =  0.7 * 7000.0;
+	int nev_process3 =  0.3 * 7000.0;
+	int nev_process4 =  0.0 * 7000.0; 
 	int nev_process5 =  0.0;
 
 	double eff_process1 = 0.001;
