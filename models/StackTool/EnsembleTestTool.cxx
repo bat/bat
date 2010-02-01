@@ -71,7 +71,7 @@ int EnsembleTestTool::PerformEnsembleTest()
 
 		// print status
 		if ((j+1) % 100 == 0 && j > 0) 
-      cout << "Fraction of ensembles analyzed: " << double(j-1) / double(fNEnsembles) * 100 << "%" << std::endl;
+      cout << "Fraction of ensembles analyzed: " << double(j+1) / double(fNEnsembles) * 100 << "%" << std::endl;
 		
 		// create new ensemble 
 		TH1D ensemble = BuildEnsemble();

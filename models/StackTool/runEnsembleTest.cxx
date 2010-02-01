@@ -6,8 +6,6 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 
-#include <../SummaryTool/SummaryTool.h>
-
 #include <StackModel.h>
 #include <EnsembleTestTool.h>
 
