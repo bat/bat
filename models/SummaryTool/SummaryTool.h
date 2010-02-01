@@ -87,7 +87,7 @@ class SummaryTool
 	/**
 	 * Print a Latex table of the parameters. 
 	 * @return An error flag. */ 
-	int PrintParameterLatex(); 
+	int PrintParameterLatex(const char* filename); 
 
 	/**
 	 * Print a Latex table of the correlations. 
