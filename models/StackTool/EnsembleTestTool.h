@@ -157,10 +157,11 @@ class EnsembleTestTool
 	std::vector<double> fOutQuantile90Marg;
 	std::vector<double> fOutQuantile95Marg;
 	double fOutChi2;
-	double fOutNDF; 
+	int fOutNDF; 
 	double fOutChi2Prob;
 	double fOutKSProb;
 	double fOutPValue;
+	int fOutNEvents;
 };
 
 #endif  

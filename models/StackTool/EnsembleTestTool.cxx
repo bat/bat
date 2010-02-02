@@ -114,6 +114,7 @@ int EnsembleTestTool::PerformEnsembleTest()
 		fOutChi2Prob        = fStackModel->CalculateChi2Prob(); 
 		fOutKSProb          = fStackModel->CalculateKSProb(); 
 		fOutPValue          = fStackModel->CalculatePValue(); 
+		fOutNEvents         = int(fStackModel->GetDataHistogram().Integral());
 
 		// fill the tree 
 		fTree->Fill();
@@ -220,6 +221,10 @@ int EnsembleTestTool::PrepareTree()
 	fTree->Branch("pvalue",
 								&fOutPValue, 
 								"p-value/D");
+
+	fTree->Branch("nevents", 
+								&fOutNEvents,
+								"n events/I"); 
 	
 	for (int i = 0; i < npar; ++i) {
 		// add branches 

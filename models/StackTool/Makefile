@@ -86,12 +86,14 @@ EXEOBJS      =
 MYPROGS     = \
         runHypothesisTest \
 				runTemplateFit \
-				runEnsembleTest
+				runEnsembleTest \
+				runGerda \
+				runTemplateGerda 
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 # targets
-all : hypothesistest templatefit ensembletest
+all : hypothesistest templatefit ensembletest gerda templategerda
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -115,6 +117,14 @@ templatefit : runTemplateFit.cxx $(CXXOBJS)
 ensembletest : runEnsembleTest.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) runEnsembleTest.o $(CXXOBJS) -o runEnsembleTest
+
+gerda : runGerda.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runGerda.o $(CXXOBJS) -o runGerda
+
+templategerda : runTemplateGerda.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runTemplateGerda.o $(CXXOBJS) -o runTemplateGerda
 
 print :
 	echo compiler  : $(CXX)

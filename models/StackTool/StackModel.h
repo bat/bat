@@ -76,6 +76,9 @@ class StackModel : public BCModel
 	 */
 	int SetDataHistogram(TH1D hist);
 
+	TH1D GetDataHistogram()
+	{ return fDataHistogram; }; 
+
 	/**
 	 * Set the flag for using a fixed normalization (true) or floating
 	 * normalization (false).

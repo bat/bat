@@ -120,9 +120,6 @@ double StackModel::LogAPrioriProbability(std::vector <double> parameters)
 
 	// loop over templates
 	for (int i = 0; i < ntemplates; ++i) {
-		//		int bin = fHistPrior.at(i).FindBin(norm.at(i)); 
-		//		logprob += log( fHistPrior.at(i).GetBinContent(bin) ); 
-
 		// efficiency
 		if (fTemplateEffErr.at(i)> 0)
 			logprob += BCMath::LogGaus(eff.at(i), fTemplateEff.at(i), fTemplateEffErr.at(i)); 
@@ -880,7 +877,17 @@ int StackModel::SetTemplateEfficiency(int index, double eff, double err, bool ad
 	fTemplateEff[index] = eff; 
 	fTemplateEffErr[index] = err;
 
-	if (adjust) {
+	if (err < 0) {
+		int parindex = index*2+1; 
+		double effmin = eff;
+		double effmax = eff;
+		this -> GetParameter(parindex) -> SetLowerLimit(effmin); 
+		this -> GetParameter(parindex) -> SetUpperLimit(effmax); 
+		fMCMCBoundaryMin[parindex] = eff; 
+		fMCMCBoundaryMax[parindex] = eff; 
+	}		
+
+	else if (adjust) {
 		int parindex = index*2+1; 
 		double effmin = TMath::Max(0.0, eff - 5.0*err); 
 		double effmax = TMath::Min(1.0, eff + 5.0*err); 
