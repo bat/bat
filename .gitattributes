@@ -111,11 +111,9 @@ models/StackTool/StackModelManager.cxx -text
 models/StackTool/StackModelManager.h -text
 models/StackTool/histograms.root -text
 models/StackTool/runEnsembleTest.cxx -text
-models/StackTool/runGerda -text
 models/StackTool/runGerda.cxx -text
 models/StackTool/runHypothesisTest.cxx -text
 models/StackTool/runTemplateFit.cxx -text
-models/StackTool/runTemplateGerda -text
 models/StackTool/runTemplateGerda.cxx -text
 models/SummaryTool/Makefile -text
 models/SummaryTool/PriorModel.cxx -text
