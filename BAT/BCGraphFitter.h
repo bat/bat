@@ -128,7 +128,7 @@ class BCGraphFitter : public BCModel
 		 * Draw the fit in the current pad. */
 		void DrawFit(const char * options = "", bool flaglegend = false);
 
-		virtual double CDF(std::vector<double> parameters, int index, bool lower=false);
+	    virtual double CDF(const std::vector<double>& parameters,  int index, bool lower=false);
 
 		/* @} */
 

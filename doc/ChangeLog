@@ -1,3 +1,10 @@
+2010-02-03 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCGraphFitter::CDF:
+	  - fixed declaration
+	* BCHistogramFitter
+	  - added methods to compute histogram of expected counts from model
+	  - added Kolmogorov test
+
 2010-02-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Added Gerda example to StackTool.
 

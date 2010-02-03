@@ -58,9 +58,15 @@ class BCHistogramFitter : public BCModel
 		/* @{ */
 
 		/**
-		 * @return The histogram */
+		 * @return The data histogram */
 		TH1D * GetHistogram()
 			{ return fHistogram; };
+
+      /**
+       * @return The  histogram of expected counts*/
+      TH1D * GetHistogramExpected()
+         { return fHistogramExpected; };
+
 
 		/**
 		 * @return The fit function */
@@ -83,10 +89,16 @@ class BCHistogramFitter : public BCModel
 		/* @{ */
 
 		/**
-		 * @param hist The histogram
+		 * @param hist The histogram containing the data
 		 * @ return An error code (1:pass, 0:fail).
 		 */
 		int SetHistogram(TH1D * hist);
+
+      /**
+       * @param hist The histogram with the expected counts (typically non-integer values!)
+       * @ return An error code (1:pass, 0:fail).
+       */
+      int SetHistogramExpected(const std::vector <double>& parameters);
 
 		/**
 		 * @param func The fit function
@@ -177,6 +189,16 @@ class BCHistogramFitter : public BCModel
 		 * @return An error code */
 		int CalculatePValueLeastSquares(std::vector<double> par, double &pvalue, bool weightExpect=true);
 
+		/**
+       * Calculate the p-value using Kolmogorov-Smirnov test. Note that the
+       * reference distribution is known only asymptotically. Some explanation is given in
+       * http://root.cern.ch/root/htmldoc/TMath.html
+       * @param par The set of parameter values used in the model, usually the best fit parameters
+       * @param  pvalue The pvalue
+       * @return An error code */
+      int CalculatePValueKolmogorov(std::vector<double> par, double &pvalue);
+
+
 		double CDF(const std::vector<double>& parameters, int index, bool lower=false);
 
 		/* @} */
@@ -208,7 +230,7 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * The histogram containing the expected data.
 		 */
-//		TH1D * fHistogramExpected;
+		TH1D * fHistogramExpected;
 };
 
 // ---------------------------------------------------------

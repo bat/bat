@@ -55,6 +55,8 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) :
    this -> SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
+
+   fHistogramExpected = 0;
 }
 
 // ---------------------------------------------------------
@@ -107,6 +109,57 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
    this -> SetFitFunctionIndices(0, 1);
 
    // no error
+   return 1;
+}
+
+// ---------------------------------------------------------
+
+int BCHistogramFitter::SetHistogramExpected(const std::vector <double>& parameters)
+{
+   //clear up previous memory
+   if(fHistogramExpected){
+      delete fHistogramExpected;
+   }
+   //copy all properties from the data histogram
+   fHistogramExpected = new TH1D(*fHistogram);
+
+   // get the number of bins
+   int nBins = fHistogramExpected -> GetNbinsX();
+
+   // get bin width
+   double dx = fHistogramExpected -> GetBinWidth(1);
+
+   //set the parameters of fit function
+   fFitFunction -> SetParameters(&parameters[0]);
+
+   // get function value of lower bin edge
+   double fedgelow = fFitFunction -> Eval(fHistogramExpected -> GetBinLowEdge(1));
+
+   // loop over all bins, skip underflow
+   for (int ibin = 1; ibin <= nBins; ++ibin) {
+      // get upper bin edge
+      double xedgehi = fHistogramExpected -> GetBinLowEdge(ibin) + dx;
+
+      //expected count
+      double yexp = 0.;
+
+      // use ROOT's TH1D::Integral method
+      if (fFlagIntegration)
+         yexp = fFitFunction -> Integral(xedgehi - dx, xedgehi);
+
+      // use linear interpolation
+      else {
+         // get function value at upper bin edge
+         double fedgehi = fFitFunction -> Eval(xedgehi);
+         yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
+
+         // make the upper edge the lower edge for the next iteration
+         fedgelow = fedgehi;
+      }
+
+      //write the expectation for the bin
+      fHistogramExpected -> SetBinContent(ibin, yexp);
+   }
    return 1;
 }
 
@@ -444,42 +497,16 @@ int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
    // initialize test statistic -2*lambda
    double logLambda = 0.0;
 
-   // set the parameters of the function
-   fFitFunction -> SetParameters(&par[0]);
+   //Calculate expected counts to compare with
+   this -> SetHistogramExpected(par);
 
-   // get the number of bins
-   int nbins = fHistogram -> GetNbinsX();
-
-   // get bin width
-   double dx = fHistogram -> GetBinWidth(1);
-
-   // get function value of lower bin edge
-   double fedgelow = fFitFunction -> Eval(fHistogram -> GetBinLowEdge(1));
-
-   // loop over all bins, skip underflow
-   for (int ibin = 1; ibin <= nbins; ++ibin) {
-      // get upper bin edge
-      double xedgehi = fHistogram -> GetBinLowEdge(ibin) + dx;
-
-      // get function value at upper bin edge
-      double fedgehi = fFitFunction -> Eval(xedgehi);
+   for (int ibin = 1; ibin <= fHistogram->GetNbinsX(); ++ibin) {
 
       // get the number of observed events
       double y = fHistogram -> GetBinContent(ibin);
 
-      double yexp = 0.;
-
-      // use ROOT's TH1D::Integral method
-      if (fFlagIntegration)
-         yexp = fFitFunction -> Integral(xedgehi - dx, xedgehi);
-
-      // use linear interpolation
-      else {
-         yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
-
-         // make the upper edge the lower edge for the next iteration
-         fedgelow = fedgehi;
-      }
+      // get the number of expected events
+      double yexp = fHistogramExpected -> GetBinContent(ibin);
 
       // get the contribution from this datapoint
       if (y == 0)
@@ -508,42 +535,16 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
    // initialize test statistic chi^2
    double chi2 = 0.0;
 
-   // set the parameters of the function
-   fFitFunction -> SetParameters(&par[0]);
+   //Calculate expected counts to compare with
+   this -> SetHistogramExpected(par);
 
-   // get the number of bins
-   int nbins = fHistogram -> GetNbinsX();
-
-   // get bin width
-   double dx = fHistogram -> GetBinWidth(1);
-
-   // get function value of lower bin edge
-   double fedgelow = fFitFunction -> Eval(fHistogram -> GetBinLowEdge(1));
-
-   // loop over all bins, skip underflow
-   for (int ibin = 1; ibin <= nbins; ++ibin) {
-      // get upper bin edge
-      double xedgehi = fHistogram -> GetBinLowEdge(ibin) + dx;
-
-      // get function value at upper bin edge
-      double fedgehi = fFitFunction -> Eval(xedgehi);
+   for (int ibin = 1; ibin <= fHistogram->GetNbinsX(); ++ibin) {
 
       // get the number of observed events
       double y = fHistogram -> GetBinContent(ibin);
 
-      double yexp = 0.;
-
-      // use ROOT's TH1D::Integral method
-      if (fFlagIntegration)
-         yexp = fFitFunction -> Integral(xedgehi - dx, xedgehi);
-
-      // use linear interpolation
-      else {
-         yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
-
-         // make the upper edge the lower edge for the next iteration
-         fedgelow = fedgehi;
-      }
+      // get the number of expected events
+      double yexp = fHistogramExpected -> GetBinContent(ibin);
 
       //convert 1/0.0 into 1 for weighted sum
       double weight;
@@ -562,6 +563,27 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
    // p value from chi^2 distribution, returns zero if logLambda < 0
    fPValueNDoF = TMath::Prob(chi2, nDoF);
    pvalue = fPValueNDoF;
+
+   // no error
+   return 1;
+}
+
+int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par, double& pvalue)
+{
+   if (!fHistogramExpected || !fHistogram){
+      BCLog::OutError("BCHistogramFitter::CalculatePValueKolmogorov: "
+            "Please define the reference distribution by calling \n"
+            "BCHistogramFitter::SetHistogramExpected() first!");
+      return 0;
+   }
+
+   //update expected counts with current parameters
+   this -> SetHistogramExpected(par);
+
+   //perform the test
+   pvalue = fHistogramExpected -> KolmogorovTest(fHistogram);
+
+   fPValue = pvalue;
 
    // no error
    return 1;

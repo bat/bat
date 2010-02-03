@@ -326,21 +326,21 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 	gPad -> RedrawAxis();
 }
 
-double BCGraphFitter::CDF(std::vector<double> parameters,  int index, bool lower) {
+double BCGraphFitter::CDF(const std::vector<double> & parameters,  int index, bool lower) {
 
 	//format: x y error_x error_y
 	std::vector<double> values = fDataSet->GetDataPoint(index)->GetValues();
 
-	if (values[2])
+	if (values.at(2))
 		BCLog::OutWarning("BCGraphFitter::CDF: Non-zero errors in x-direction are ignored!");
 
 	// get the observed value
-	double yObs = values[1];
+	double yObs = values.at(1);
 
 	// expectation value
 	double yExp = FitFunction(values, parameters);
 
-	return ROOT::Math::normal_cdf(yObs, values[3], yExp);
+	return ROOT::Math::normal_cdf(yObs, values.at(3), yExp);
 }
 
 // ---------------------------------------------------------
