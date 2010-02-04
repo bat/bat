@@ -28,6 +28,8 @@
 //#include <cstring>
 #include <vector>
 
+class TH1D;
+
 namespace BCMath
 {
 
@@ -149,14 +151,17 @@ namespace BCMath
 	 */
 	void RandomChi2(std::vector<double> &randoms, int K);
 
-//	/**
-//	 * Fill vector with N random numbers distributed according to
-//	 * exponential distribution with rate lambda
-//	 * P(x|lambda)=lambda exp(-lambda*x)
-//	 * @param randoms will be filled with random exponentials
-//	 * @param lambda the rate of the exp. distribution
-//	 */
-//	void RandomExponential(std::vector<double> &randoms, double lambda, unsigned int seed=0);
+
+	/**
+    * Calculate the empirical cumulative distribution function for
+    * one dimensional data vector. For consistency, the ECDF
+    * of value smaller than the minimum observed (underflow bin) is zero, and
+    * for larger than maximum (overflow bin) it is one.
+    *
+    * @param   data  the observations
+    * @return  histogram with normalized ECDF
+    */
+	TH1D* ECDF(const std::vector<double>& data);
 
 }
 

@@ -159,6 +159,14 @@ int BCHistogramFitter::SetHistogramExpected(const std::vector <double>& paramete
 
       //write the expectation for the bin
       fHistogramExpected -> SetBinContent(ibin, yexp);
+
+      //avoid automatic error as sqrt(yexp), used e.g. in Kolmogorov correction factor
+      fHistogramExpected -> SetBinError(ibin, 0.0);
+
+      // but the data under this model have that sqrt(yexp) uncertainty
+      fHistogram -> SetBinError(ibin, sqrt(yexp));
+
+
    }
    return 1;
 }
@@ -205,6 +213,7 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
 
 BCHistogramFitter::~BCHistogramFitter()
 {
+   delete fHistogramExpected;
 }
 
 // ---------------------------------------------------------

@@ -12,8 +12,11 @@
 
 #include <math.h>
 
+#include <set>
+
 #include <TMath.h>
 #include <TF1.h>
+#include <TH1D.h>
 
 #include <Math/PdfFuncMathCore.h>
 
@@ -274,26 +277,59 @@ void BCMath::RandomChi2(std::vector<double> &randoms, int K){
 	delete f;
 }
 
-////wrapper with signature to construct a TF1
-//double expDistribution(double *x, double *par) {
-//	return ROOT::Math::exponential_pdf(x[0], par[0]);
-//}
-//
-//void BCMath::RandomExponential(std::vector<double> &randoms, double lambda, unsigned int seed){
-//
-//	//fixed upper cutoff to 1000 such that CDF(t|lambda)=1-10-5
-//	double cutoff = 5.0/lambda*log(10);
-//	TF1 *f = new TF1("Exp", expDistribution, 0.0, cutoff, 1);
-//	f->SetParameter(0, lambda);
-//	f->SetNpx(500);
-//
-//	//uses inverse-transform method
-//	//fortunately CDF only built once
-//	gRandom->SetSeed(seed);
-//	for (unsigned int i = 0; i < randoms.size(); i++)
-//		randoms.at(i) = f->GetRandom();
-//	delete f;
-//}
+TH1D* BCMath::ECDF(const std::vector<double>& data)
+{
 
+   int N = data.size();
 
+   std::set<double> uniqueObservations;
+
+   //sort and filter out multiple instances
+   for (int i = 0; i < N; ++i) {
+      uniqueObservations.insert(data[i]);
+   }
+
+   //extract lower edges for CDF histogram
+   int nUnique = uniqueObservations.size();
+   double lowerEdges[nUnique];
+
+   //traverse the set
+   std::set<double>::iterator iter;
+   int counter = 0;
+   for (iter = uniqueObservations.begin(); iter != uniqueObservations.end(); iter++) {
+      lowerEdges[counter] = *iter;
+      counter++;
+   }
+
+   //create histogram where
+   // lower edge of first bin = min. data
+   // upper edge of last bin = max. data
+   TH1D* ECDF = new TH1D("ECDF", "Empirical cumulative distribution function",
+         nUnique - 1, lowerEdges);
+
+   //fill the data in to find multiplicities
+   for (int i = 0; i < N-1; ++i) {
+      ECDF -> Fill(data[i]);
+   }
+
+   //just in case, empty the underflow
+   ECDF -> SetBinContent(0, 0.0);
+
+   //construct the ecdf
+   for (int nBin = 1; nBin <= ECDF->GetNbinsX(); nBin++) {
+      double previousBin = ECDF -> GetBinContent(nBin - 1);
+      BCLog::OutDebug(Form("n_%d = %.2f", nBin, ECDF -> GetBinContent(nBin) ));
+      BCLog::OutDebug(Form("previous_%d = %.2f", nBin, previousBin));
+      double thisBin = ECDF -> GetBinContent(nBin) / double(N);
+      ECDF -> SetBinContent(nBin, thisBin + previousBin);
+
+      ECDF -> SetBinError(nBin, 0.0);
+   }
+
+   //set the endpoint to 1, so all larger values are at CDF=1
+   ECDF -> SetBinContent( ECDF->GetNbinsX()+1, 1.0);
+
+   return ECDF;
+
+}
 

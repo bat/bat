@@ -1,6 +1,15 @@
+
+2010-02-04 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath:
+	  - included function to create the ECDF from 1D data vector
+	* BCHistogramFitter
+	  - set the error to zero 
+
+
 2010-02-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Cleaned up StackModel. 
 	* Added flag for unphysical parameter ranges to StackModel.
+
 
 2010-02-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCGraphFitter::CDF:
