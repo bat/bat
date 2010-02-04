@@ -6,14 +6,13 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 
-#include <../SummaryTool/SummaryTool.h>
+#include <../../SummaryTool/SummaryTool.h>
 
 #include <StackModel.h>
 #include <StackModelManager.h>
 
 int main()
 {
-
 	// ----------------------------------------------------
 	// open file with data and templates
 	// ----------------------------------------------------
@@ -22,8 +21,8 @@ int main()
 
 	TH1D hist_signal     = *((TH1D*) file->Get("hist_signal"));
 	TH1D hist_background = *((TH1D*) file->Get("hist_background"));
-	TH1D hist_data        = *((TH1D*) file->Get("hist_data"));
 	TH1D hist_sum        = *((TH1D*) file->Get("hist_sum"));
+	TH1D hist_data       = *((TH1D*) file->Get("hist_data"));
 
 	// close file
 	file->Close();

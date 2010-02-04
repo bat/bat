@@ -48,7 +48,7 @@ int main()
 
 	// set options 
 	model->MCMCSetNLag(10); 
-	//	model->MCMCSetNIterationsRun(1000000); 
+	model->MCMCSetNIterationsRun(1000000); 
 	model->SetFlagPhysicalLimits(true);
 
 	// set data histogram

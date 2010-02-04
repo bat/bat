@@ -40,9 +40,8 @@ CXXFLAGS    += $(ROOTCFLAGS)
 # the project is being compiled. If BAT is installed in the standard
 # system search path then the lines below are correct and the compilation
 # will work
-CXXFLAGS    += -I. -I./include
-LIBS        += $(ROOTLIBS)  -L../SummaryTool -lSummaryTool
-GLIBS       += $(ROOTGLIBS) -L../SummaryTool -lSummaryTool
+LIBS        += $(ROOTLIBS)  
+GLIBS       += $(ROOTGLIBS) 
 
 # In case you see following errors during the compilation,
 #
@@ -65,33 +64,22 @@ GLIBS       += $(ROOTGLIBS) -L../SummaryTool -lSummaryTool
 # BATINSTALLDIR):
 #
 # BATINSTALLDIR = '/path/to/bat/installation/directory'
- CXXFLAGS    += -I$(BATINSTALLDIR)/include
- LIBS        += -L$(BATINSTALLDIR)/lib -lBAT 
- GLIBS       += -L$(BATINSTALLDIR)/lib -lBAT
-
-# List of all classes (models) used in the program
-# Add classes to the end. Baskslash indicates continuation
-# on the next line
-CXXSRCS      = \
-        StackModel.cxx \
-        StackModelManager.cxx \
-				EnsembleTestTool.cxx
+ CXXFLAGS    += -I$(BATINSTALLDIR)/include -I../../ -I../
+ LIBS        += -L$(BATINSTALLDIR)/lib -lBAT -L../ -lStackTool
+ GLIBS       += -L$(BATINSTALLDIR)/lib -lBAT -L../ -lStackTool
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
 #
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
+EXEOBJS      = 
+MYPROGS      = runHypothesisTest
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS) libStackTool.so
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 # targets
-all : libstacktool
-
-link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
-	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
-
--include link.d
+all : hypothesistest 
 
 %.o : %.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -99,28 +87,9 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	$(RM) $(GARBAGE)
 
-hypothesistest : runHypothesisTest.cxx $(CXXOBJS)
+hypothesistest : runHypothesisTest.cxx 
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) runHypothesisTest.o $(CXXOBJS) -o runHypothesisTest
-
-templatefit : runTemplateFit.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runTemplateFit.o $(CXXOBJS) -o runTemplateFit
-
-ensembletest : runEnsembleTest.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runEnsembleTest.o $(CXXOBJS) -o runEnsembleTest
-
-gerda : runGerda.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runGerda.o $(CXXOBJS) -o runGerda
-
-templategerda : runTemplateGerda.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runTemplateGerda.o $(CXXOBJS) -o runTemplateGerda
-
-libstacktool: $(CXXOBJS)
-	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o libStackTool.so
 
 print :
 	echo compiler  : $(CXX)
@@ -133,21 +102,3 @@ print :
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
 
-tarball :
-	tar -cf StackTool.tar \
-				README \
-        Makefile \
-        StackModel.h \
-				StackModel.cxx \
-        StackModelManager.h \
-        StackModelManager.cxx \
-				EnsembleTestTool.h \
-				EnsembleTestTool.cxx \
-				Whel/runTemplateFit.cxx \
-				Whel/runEnsembleTest.cxx \
-				Whel/runTemplateFit.cxx \
-				Whel/Makefile \
-				hypothesis/runHypothesisTest.cxx \
-				hypothesis/histograms.root \
-				hypothesis/Makefile 
-	gzip StackTool.tar

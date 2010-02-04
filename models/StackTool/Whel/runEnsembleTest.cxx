@@ -21,7 +21,6 @@ int main()
 	TH1D hist_process2 = *((TH1D*) file->Get("hist_process2"));
 	TH1D hist_process3 = *((TH1D*) file->Get("hist_process3"));
 	TH1D hist_process4 = *((TH1D*) file->Get("hist_process4"));
-	TH1D hist_data = *((TH1D*) file->Get("hist_data"));
 	TH1D hist_sum = *((TH1D*) file->Get("hist_sum"));
 
 	// close file
@@ -44,11 +43,14 @@ int main()
 
 	// create new StackModel object
 	StackModel * model = new StackModel("model");
+
+	// set options
 	model->MCMCSetNLag(10); 
 	//	model->MCMCSetNIterationsRun(10000000); 
+	model->SetFlagPhysicalLimits(true);
 
 	// set data histogram
-	model->SetDataHistogram(hist_data);
+	model->SetDataHistogram(hist_sum);
 
 	// add template histograms
 	model->AddTemplateHistogram(hist_process1, "Background",    0.0, 2000000.0);
@@ -71,6 +73,9 @@ int main()
 	indices.push_back(2);
 	indices.push_back(3);
 	model->ConstrainSum(indices, 7000.0, 100); 
+
+	// set up printing of fractions
+	model->CalculateRatio(3, indices); 
 
 	// ----------------------------------------------------
 	// create ensemble test tool

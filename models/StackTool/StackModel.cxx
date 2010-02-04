@@ -287,7 +287,7 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 	AddParameter(Form("eff_%i", index), 0.0, 1.0);
 
 	// add prior histogram
-	TH1D hist_prior(Form("prior_%i", index), "", 1, Nmin, Nmax); 
+	TH1D hist_prior("", "", 1, Nmin, Nmax); 
 	hist_prior.SetBinContent(1, 1); 
 	fHistPrior.push_back(hist_prior); 
 
