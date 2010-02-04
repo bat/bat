@@ -76,6 +76,9 @@ class StackModel : public BCModel
 	 */
 	int SetDataHistogram(TH1D hist);
 
+	/**
+	 * Return the histogram containing the data. 
+	 */ 
 	TH1D GetDataHistogram()
 	{ return fDataHistogram; }; 
 
@@ -113,13 +116,49 @@ class StackModel : public BCModel
 	 */
 	int AddTemplateHistogram(TH1D hist, const char * name, TH1D prior);
 
+	/**
+	 * Constrains a sum of contributions. Assume a Gaussian prior. 
+	 * @param indices The vector of indicies for the contributions. 
+	 * @param mean The mean value of the prior. 
+	 * @param rms The standard deviation of the prior. 
+	 */ 
 	int ConstrainSum(std::vector <int> indices, double mean, double rms); 
 
+	/**
+	 * Set a Gaussian prior on the expectation value. 
+	 * @param index The index of the contribution. 
+	 * @param mean The mean value of the prior. 
+	 * @param rms The standard deviation of the prior. 
+	 * @param adjust If true, the 5-sigma region around the mean value will be 
+	 * set as the parameter range for the efficiency. 
+	 */ 
 	int SetTemplatePrior(int index, double mean, double rms, bool adjust=false); 
-	int SetTemplatePrior(int index, TH1D prior); 
 
+	/**
+	 * Set a Gaussian prior on the efficiencies. If the err is negative,
+	 * no uncertainty is assumed. 
+	 * @param index The index of the contribution.
+	 * @param eff The mean value of the efficiency prior. 
+	 * @param err The standard deviation of the efficiency prior.
+	 * @param adjust If true, the 5-sigma region around the mean value will be 
+	 * set as the parameter range for the efficiency. 
+	 */ 
 	int SetTemplateEfficiency(int index, double eff, double err, bool adjust=false); 
-	int SetTemplateEfficiency(int index, TH1D eff); 
+
+	/**
+	 * Add the calculation of a certain ratio. 
+	 * @param index Index in the numerator.
+	 * @param indices Vector of indices in the denominator.
+	 */ 
+	int CalculateRatio(int index, std::vector<int> indices); 
+
+	/**
+	 * Set a flag for having physical limits (expectation values greater
+	 * or equal to 0).
+	 * @param flag The flag.
+	 */ 
+	void SetFlagPhysicalLimits(bool flag)
+	{ fFlagPhysicalLimits = flag; }; 
 
 	/**
 	 * Checks if two histograms have the same properties.
@@ -144,10 +183,10 @@ class StackModel : public BCModel
 	void PrintStack(const char * filename = "stack.ps", const char * options="LE2E0D");
 
 	/**
-	 * Print the fraction and norm.
+	 * Print the ratios and the norm.
 	 * @param filename The filename.
 	 */ 
-	void PrintFraction(const char * filename = "fraction.ps");
+	void PrintRatios(const char * filename = "ratio.ps");
 	
 	/**
 	 * Calculates and returns the chi2 value. The chi2 is calculated
@@ -248,19 +287,25 @@ class StackModel : public BCModel
 	std::vector <TH1D> fHistPrior; 
 
 	/**
-	 * 1-D histograms containing the fractions of each template. 
+	 * Vector of indices for the calculation of ratios.
 	 */ 
-	std::vector <TH1D> fHistFraction1D; 
+	std::vector< std::vector<int> > fIndicesRatios1D; 
 
 	/**
-	 * 2-D histograms containing the fractions of templates. 
+	 * 1-D histograms containing ratios. 
 	 */ 
-	std::vector <TH2D> fHistFraction2D; 
+	std::vector <TH1D> fHistRatios1D; 
 
 	/**
 	 * Flag for fixing the normalization or not
 	 */ 
 	bool fFlagFixNorm; 
+
+	/**
+	 * Flag for having physical limits (expectation values greater or
+	 * equal to 0).
+	 */ 
+	bool fFlagPhysicalLimits;
 
 	/**
 	 * Normalization constant

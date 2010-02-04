@@ -60,7 +60,7 @@ class EnsembleTestTool
   /**
    * A function to define the number of events per ensemble.
    */
-  void SetEnsembleExpectation(int expectation)
+  void SetEnsembleExpectation(double expectation)
 	{ fEnsembleExpectation = expectation; };
 
   /**
@@ -123,7 +123,7 @@ class EnsembleTestTool
   /**
    * Exepectation value 
    */
-  int fEnsembleExpectation;
+  double fEnsembleExpectation;
 
   /**
    * Number of ensembles per data set.

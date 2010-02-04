@@ -139,10 +139,10 @@ int main()
  	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.eps");
 	m_2bkg1sgn->PrintStack("2bkg1sgn_stack.eps");
 
- 	m_1bkg0sgn->PrintFraction("1bkg0sgn_fraction.ps");
- 	m_1bkg1sgn->PrintFraction("1bkg1sgn_fraction.ps");
- 	m_2bkg0sgn->PrintFraction("2bkg0sgn_fraction.ps");
-	m_2bkg1sgn->PrintFraction("2bkg1sgn_fraction.ps");
+ 	m_1bkg0sgn->PrintRatios("1bkg0sgn_fraction.ps");
+ 	m_1bkg1sgn->PrintRatios("1bkg1sgn_fraction.ps");
+ 	m_2bkg0sgn->PrintRatios("2bkg0sgn_fraction.ps");
+	m_2bkg1sgn->PrintRatios("2bkg1sgn_fraction.ps");
 
  	m_1bkg0sgn->PrintResults("1bkg0sgn_results.txt"); 
  	m_1bkg1sgn->PrintResults("1bkg1sgn_results.txt"); 

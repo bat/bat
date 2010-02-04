@@ -15,27 +15,30 @@
 
 #include <BAT/BCMath.h>
 #include <BAT/BCLog.h>
+#include <BAT/BCH1D.h>
 
 #include <iostream>
 
 // ---------------------------------------------------------
 StackModel::StackModel() : BCModel()
 {
-	fUncertaintyHistogramExp = 0;
-	fUncertaintyHistogramObsPosterior = 0;
 	fHistNorm = 0; 
 	fFlagFixNorm = 0;
+	fFlagPhysicalLimits = true;
 	fNorm = 1; 
+	fUncertaintyHistogramExp = 0;
+	fUncertaintyHistogramObsPosterior = 0;
 }
 
 // ---------------------------------------------------------
 StackModel::StackModel(const char * name) : BCModel(name)
 {
-	fUncertaintyHistogramExp = 0;
-	fUncertaintyHistogramObsPosterior = 0;
 	fHistNorm = 0; 
 	fFlagFixNorm = 0; 
+	fFlagPhysicalLimits = true;
 	fNorm = 1; 
+	fUncertaintyHistogramExp = 0;
+	fUncertaintyHistogramObsPosterior = 0;
 }
 
 // ---------------------------------------------------------
@@ -94,6 +97,10 @@ double StackModel::LogLikelihood(std::vector <double> parameters)
 				* eff.at(itemp) 
 				* fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 		}		
+		
+		// check that expectation is larger or equal to zero
+		if (nexp < 0)
+			nexp = 0; 
 
 		logprob += BCMath::LogPoisson(ndata, nexp);
 	}
@@ -227,8 +234,8 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 		return 0;
 
 	// check if prior makes sense 
-	if (Nmin < 0 || Nmax < 0)
-		return 0; 
+	if (fFlagPhysicalLimits && Nmin < 0)
+		Nmin = 0; 
 
 	if (Nmin > Nmax)
 		return 0; 
@@ -256,7 +263,7 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 	fTemplatePriorMean.push_back(0.0);
 	fTemplatePriorSigma.push_back(-1.0);
 
-	// add a parameter for the fraction
+	// add a parameter for the expectation value of the process
 	int index = ntemplates;
 	
 	if (Nmax == 0) {
@@ -267,6 +274,10 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 			Nmax = sum + 5.0 * sqrt(sum);
 		else
 			Nmax = 5.;
+		if (!fFlagPhysicalLimits)
+			Nmin = - Nmax;
+		else
+			Nmin = 0; 
 	}
 
 	// a a parameter for the expectation value 
@@ -280,11 +291,55 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 	hist_prior.SetBinContent(1, 1); 
 	fHistPrior.push_back(hist_prior); 
 
-	// add fraction histogram
-	TH1D hist_frac1d(Form("fraction %i", index), ";;", 100, 0.0, 1.0); 
-	fHistFraction1D.push_back(hist_frac1d); 
-
 	// successfully added histogram to container
+	return 1;
+}
+
+
+// ---------------------------------------------------------
+int StackModel::CalculateRatio(int index, std::vector<int> indices)
+{
+	// get number of templates
+	int ntemplates = int( fTemplateHistogramContainer.size() );
+	
+	// check index
+	if (index < 0 || index >= ntemplates) {
+		return 0; 
+	} 
+
+	// check indices
+	for (int i = 0; i < int(indices.size()); ++i) {
+		if (indices.at(i) < 0 || indices.at(i) >= ntemplates) {
+			return 0; 
+		}
+	}
+
+	// create temporary vector
+	std::vector<int> tempvec; 
+	tempvec.push_back(index); 
+	for (int i = 0; i < int(indices.size()); ++i)
+		tempvec.push_back(indices.at(i)); 
+
+	// add ratio
+	fIndicesRatios1D.push_back(tempvec); 
+	
+	// get number of ratios
+	int nratios = int(fHistRatios1D.size());
+
+	// create histogram
+	double fmin = 0.0;
+	double fmax = 1.0;
+	if (!fFlagPhysicalLimits) {
+		fmin = -1.0;
+		fmax =  2.0;
+	}
+
+	TH1D hist_ratio1d(Form("ratio %i", nratios), ";;", 100, fmin, fmax); 
+	hist_ratio1d.SetXTitle(Form("r", nratios)); 
+	hist_ratio1d.SetYTitle(Form("p(r|data)", nratios)); 
+	fHistRatios1D.push_back(hist_ratio1d); 
+
+	// no error
 	return 1;
 }
 
@@ -828,19 +883,26 @@ void StackModel::MCMCUserIterationInterface()
 	// fill normalization
 	fHistNorm->Fill(fNorm);
 
-	// fill fractions
-	double sum = 0; 
-	for (int i = 0; i < ntemplates; ++i)
-		sum += fMCMCx.at(2 * i); 
+	// fill ratios
+	int nratios = int( fIndicesRatios1D.size() ); 
 
-	for (int i = 0; i < ntemplates; ++i)
-		fHistFraction1D.at(i).Fill(fMCMCx.at(i)/sum); 
+	// loop over fractions to fill 
+	for (int i = 0; i < nratios; ++i) {
+		int nsum = int( (fIndicesRatios1D.at(i)).size() ) - 1; 
+		double sum = 0; 
+		for (int j = 1; j <= nsum; ++j) {
+			int indexsum = fIndicesRatios1D.at(i).at(j); 
+			sum += fMCMCx.at(2*indexsum); 
+		}
+		fHistRatios1D.at(i).Fill(fMCMCx.at(2*fIndicesRatios1D.at(i).at(0))/sum); 
+	}
+
 }
 
 // ---------------------------------------------------------
-void StackModel::PrintFraction(const char * filename)
+void StackModel::PrintRatios(const char * filename)
 {
-	int ntemplates = int(fTemplateHistogramContainer.size());
+	int nratios = int(fHistRatios1D.size());
 
 	TCanvas* c1 = new TCanvas("c1");
 
@@ -848,14 +910,16 @@ void StackModel::PrintFraction(const char * filename)
 	ps->NewPage(); 
 
 	c1->cd(); 
-	fHistNorm->Draw(); 
+	BCH1D* h1temp = new BCH1D(fHistNorm); 
+	h1temp->Draw(); 
 	c1->Update(); 
 	ps->NewPage(); 
-	for (int i = 0; i < ntemplates; ++i) {
+	for (int i = 0; i < nratios; ++i) {
 		c1->Update(); 
 		ps->NewPage();
 		c1->cd(); 
-		fHistFraction1D.at(i).Draw(); 
+		BCH1D* h1temp = new BCH1D(&fHistRatios1D.at(i));
+		h1temp->Draw(); 
 	}
 	c1->Update();
 	ps->Close(); 
@@ -916,8 +980,13 @@ int StackModel::SetTemplatePrior(int index, double mean, double sigma, bool adju
 
 	if (adjust) {
 		int parindex = index*2; 
-		double parmin = TMath::Max(0.0, mean - 5.0*sigma); 
-		double parmax = mean + 5.0*sigma; 
+		double parmin;
+		double parmax; 
+		if (fFlagPhysicalLimits) 
+			parmin = TMath::Max(0.0, mean - 5.0*sigma); 
+		else
+			parmin = mean - 5.0 * sigma; 
+			parmax = mean + 5.0*sigma; 
 		this -> GetParameter(parindex) -> SetLowerLimit(parmin); 
 		this -> GetParameter(parindex) -> SetUpperLimit(parmax); 
 		fMCMCBoundaryMin[parindex] = parmin; 
