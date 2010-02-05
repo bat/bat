@@ -68,6 +68,9 @@ class StackModel : public BCModel
 	int GetNDF()
 		{ return fDataHistogram.GetNbinsX() - GetNParameters(); };
 
+	/**
+	 * Return the data histogram.
+	 */ 
 	TH1D* GetHistNorm()
 		{ return fHistNorm; }; 
 

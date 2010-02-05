@@ -105,6 +105,7 @@ models/StackTool/0nubb/Makefile -text
 models/StackTool/0nubb/runEnsembleTest.cxx -text
 models/StackTool/0nubb/runTemplateFit.cxx -text
 models/StackTool/0nubb/templates_gerda.root -text
+models/StackTool/Doxyfile -text
 models/StackTool/EnsembleTestTool.cxx -text
 models/StackTool/EnsembleTestTool.h -text
 models/StackTool/Makefile -text

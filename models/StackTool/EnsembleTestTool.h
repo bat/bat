@@ -141,26 +141,98 @@ class EnsembleTestTool
 	TRandom3* fRandom; 
 
 	/**
-	 * Tree variables. 
+	 * Tree variable: the global mode
 	 */ 
 	std::vector<double> fOutModeGlobal; 
+
+	/**
+	 * Tree variable: positive uncertainty on global mode 
+	 */ 
 	std::vector<double> fOutErrorUpGlobal; 
+
+	/**
+	 * Tree variable: negative uncertainty on global mode
+	 */ 
 	std::vector<double> fOutErrorDownGlobal; 
+
+	/**
+	 * Tree variable: marginalized mode
+	 */ 
 	std::vector<double> fOutModeMarg; 
+
+	/**
+	 * Tree variable: median
+	 */ 
 	std::vector<double> fOutMedianMarg;
+
+	/**
+	 * Tree variable: mean
+	 */ 
 	std::vector<double> fOutMeanMarg;
+
+	/**
+	 * Tree variable: rms
+	 */ 
 	std::vector<double> fOutRMSMarg;
+
+	/**
+	 * Tree variable: 16% quantile
+	 */ 
 	std::vector<double> fOutErrorUpMarg;
+
+	/**
+	 * Tree variable: 84% quantile
+	 */ 
 	std::vector<double> fOutErrorDownMarg;
+
+	/**
+	 * Tree variable: 5% quantile
+	 */ 
 	std::vector<double> fOutQuantile5Marg;
+
+	/**
+	 * Tree variable: 10% quantile
+	 */ 
 	std::vector<double> fOutQuantile10Marg;
+
+	/**
+	 * Tree variable: 90% quantile
+	 */ 
 	std::vector<double> fOutQuantile90Marg;
+
+	/**
+	 * Tree variable: 95% quantile
+	 */ 
 	std::vector<double> fOutQuantile95Marg;
+
+	/**
+	 * Tree variable: chi2
+	 */ 
 	double fOutChi2;
+
+	/**
+	 * Tree variable: ndf
+	 */ 
 	int fOutNDF; 
+
+	/**
+	 * Tree variable: chi2-probability
+	 */ 
 	double fOutChi2Prob;
+
+	/**
+	 * Tree variable: KL probability
+	 */ 
 	double fOutKSProb;
+
+	/**
+	 * Tree variable: p-value
+	 */ 
 	double fOutPValue;
+
+	/**
+	 * Tree variable: number of events in the data
+	 */ 
 	int fOutNEvents;
 };
 
