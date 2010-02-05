@@ -7,32 +7,42 @@ The StackTool is used to fit a set of templates to a histogram. The
 statistical method used is described in the document provided with
 this tool.
 
-Author:
+Authors:
 -------
-Kevin Kroeninger, University of Goettingen 
+* Andrea Knue, University of Goettingen 
+* Daniel Kollar, CERN 
+* Kevin Kroeninger, University of Goettingen 
 
 Version: 
 --------
-v1.0 
+1.0.0 (05.02.2010)  
 
 Features:
 ---------
 * The sum of a set of expectation values can be constrained to some
   value x. x is assumed to be known with some (Gaussian) uncertainty.
+
 * Gaussian priors for the expectation values can be set.
+
 * Gaussian priors for the efficiencies can be set.
+
 * Ratios of any expectation values can be calculated.
+
 * Error propagation without approximations is possible by calculating
   any function of the expectation values.
+
 * Unphysical limits, i.e., expectation values smaller than 0 can be
   used or not.
+
 * The sum of all expectation values can be constrained to the number
   of events in the data histogram.
+
 * A tool for performing ensemble tests is provided.
 
 Examples:
 ---------
 * A simplified template fit for extracting the W-helicity in top
-  decays. (directory ./Whel)
+  decays. (directory ./Whel). Requires the SummaryTool.
+
 * An example on fitting several models and comparing them. (directory
  ./hypothesis)

@@ -3,25 +3,29 @@
 
 /*!
  * \class EnsembleTestTool
- * This class can be used for ensemble tests in template method
- * analyses.  For the template fit, the "StackTool" is used. The
- * fitting can be done with Minuit or with Markov Chains. These
- * Methods are provided by the BAT package.
+ * This class can be used for ensemble tests using the StackTool. The
+ * fitting can be done with Minuit or with Markov Chains. 
  *
  * \brief A class for doing ensemble tests.
- * \author Andrea Knue, Kevin Kroeninger
- * \version 0.1
- * \date 25.12.2009
+ * \author Andrea Knue
+ * \author Daniel Kollar
+ * \author Kevin Kroeninger
+ * \version 1.0.0
+ * \date 05.02.2010
+ */
+
+/*
+ * Copyright (C) 2008, 2009, 2010, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
  *
+ * For the licensing terms see doc/COPYING.
  */
 
 // --------------------------------------------------------------------------------------------
 
-#include <BAT/BCModel.h>
 #include <StackModel.h>
 
 #include <TH1D.h>
-#include <TH2D.h>
 #include <TFile.h>
 #include <TTree.h> 
 

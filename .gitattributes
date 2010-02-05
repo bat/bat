@@ -118,6 +118,7 @@ models/StackTool/Whel/CreateHistograms.c -text
 models/StackTool/Whel/Makefile -text
 models/StackTool/Whel/runEnsembleTest.cxx -text
 models/StackTool/Whel/runTemplateFit.cxx -text
+models/StackTool/doc/COPYING -text
 models/StackTool/hypothesis/Makefile -text
 models/StackTool/hypothesis/histograms.root -text
 models/StackTool/hypothesis/runHypothesisTest.cxx -text

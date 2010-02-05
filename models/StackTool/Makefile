@@ -150,4 +150,4 @@ tarball :
 				hypothesis/runHypothesisTest.cxx \
 				hypothesis/histograms.root \
 				hypothesis/Makefile 
-	gzip StackTool.tar
+	gzip StackTool_1.0.0.tar

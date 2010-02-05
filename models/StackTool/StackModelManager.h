@@ -6,13 +6,14 @@
  * This class can be used for managing several StackModel objects. A
  * variety of methods to compare the different models is available.
  * \brief A class for managing several StackModel objects.
+ * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 10.2009
+ * \version 1.0.0
+ * \date 05.02.2010
  */
 
 /*
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008, 2009, 2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.

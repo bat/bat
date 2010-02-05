@@ -9,13 +9,14 @@
  * Poissonian fluctuations in each bin. Several methods to judge the
  * validity of the model are available.
  * \brief A class for fitting several templates to a data set.
+ * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 10.2009
+ * \version 1.0.0
+ * \date 05.02.2010
  */
 
 /*
- * Copyright (C) 2008, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008, 2009, 2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
