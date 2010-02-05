@@ -134,20 +134,25 @@ print :
 	echo rootglibs : $(ROOTGLIBS)
 
 tarball :
-	tar -cf StackTool.tar \
-				README \
-        Makefile \
-        StackModel.h \
-				StackModel.cxx \
-        StackModelManager.h \
-        StackModelManager.cxx \
-				EnsembleTestTool.h \
-				EnsembleTestTool.cxx \
-				Whel/runTemplateFit.cxx \
-				Whel/runEnsembleTest.cxx \
-				Whel/runTemplateFit.cxx \
-				Whel/Makefile \
-				hypothesis/runHypothesisTest.cxx \
-				hypothesis/histograms.root \
-				hypothesis/Makefile 
+	mkdir StackTool_1.0.0
+	mkdir StackTool_1.0.0/Whel
+	mkdir StackTool_1.0.0/hypothesis
+	cp README StackTool_1.0.0/.
+	cp setup.sh StackTool_1.0.0/.
+	cp Makefile StackTool_1.0.0/.
+	cp StackModel.h StackTool_1.0.0/.
+	cp StackModel.cxx StackTool_1.0.0/.
+	cp StackModelManager.h StackTool_1.0.0/.
+	cp StackModelManager.cxx StackTool_1.0.0/.
+	cp EnsembleTestTool.h StackTool_1.0.0/.
+	cp EnsembleTestTool.cxx StackTool_1.0.0/.
+	cp Whel/runTemplateFit.cxx StackTool_1.0.0/Whel/.
+	cp Whel/runEnsembleTest.cxx StackTool_1.0.0/Whel/.
+	cp Whel/runTemplateFit.cxx StackTool_1.0.0/Whel/.
+	cp Whel/Makefile StackTool_1.0.0/Whel/.
+	cp hypothesis/runHypothesisTest.cxx StackTool_1.0.0/hypothesis/.
+	cp hypothesis/histograms.root StackTool_1.0.0/hypothesis/.
+	cp hypothesis/Makefile StackTool_1.0.0/hypothesis/.
+	tar -cf StackTool_1.0.0.tar StackTool_1.0.0
 	gzip StackTool_1.0.0.tar
+	rm -r StackTool_1.0.0
