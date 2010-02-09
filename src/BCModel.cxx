@@ -1439,7 +1439,56 @@ double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
 }
 
 // ---------------------------------------------------------
+double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,
+      int index)
+{
+   if(this->flag_discrete){
+      BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
+              "test defined only for continuous distributions."));
+   }
 
+   //calculate the ECDF from the 1D data
+   std::vector<double> yData = fDataSet -> GetDataComponents(index);
+   TH1D* ECDF = BCMath::ECDF(yData);
+
+   int N = this -> GetNDataPoints();
+
+   if (N != (int) yData.size())
+      BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
+         "Number of data points doesn't match (%d vs %d", N, yData.size()));
+
+   //create the point sets for comparison
+   double expCDFarray[N];
+   double empCDFarray[N];
+
+   //calculate the arithmetic mean of individual CDFs
+   //at each lower bin edge
+   double xLow = 0;
+   double mean;
+   for (int iBin = 1; iBin <= N; ++iBin) {
+      mean = 0.0;
+      xLow = ECDF -> GetBinLowEdge(iBin);//TODO not used at all
+      for (int jObs = 0; jObs < N; ++jObs) {
+         mean += this -> CDF(par, jObs);
+      }
+      mean /= double(N);
+
+      //fill both double arrays
+      expCDFarray[iBin-1] = mean;
+      empCDFarray[iBin-1] = ECDF -> GetBinContent(iBin);
+   }
+
+   fPValue = TMath::KolmogorovTest(N, expCDFarray, N, empCDFarray, "D");
+//   fPValue = ECDF -> KolmogorovTest(expectedCDF);
+
+   //clean up
+   delete ECDF;
+//   delete expectedCDF;
+
+   return fPValue;
+}
+
+// ---------------------------------------------------------
 BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 {
 	BCH1D * hist = 0;

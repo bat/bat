@@ -1,3 +1,15 @@
+2010-02-09 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCDataSet:
+	  - included Get method to return the ith component of each datapoint
+	* BCDataPoint:
+	  - small fix to warning output
+	* BCHistogramFitter
+	  - set the error to zero
+	* BCModel:
+	  - new Kolmogorov p value
+	* BCMath:
+	  - update comment
+
 2010-02-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Updated documentation of StackModel.
 
@@ -5,10 +17,10 @@
 	* BCMath:
 	  - included function to create the ECDF from 1D data vector
 	* BCHistogramFitter
-	  - set the error to zero 
+	  - initialize data points with histogram lower edges
 
 2010-02-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Cleaned up StackModel. 
+        * Cleaned up StackModel.
 	* Added subdirectories to StackModel. 
 	* Added flag for unphysical parameter ranges to StackModel.
 	* StackModel ready for release.

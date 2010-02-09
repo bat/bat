@@ -323,6 +323,7 @@ TH1D* BCMath::ECDF(const std::vector<double>& data)
       double thisBin = ECDF -> GetBinContent(nBin) / double(N);
       ECDF -> SetBinContent(nBin, thisBin + previousBin);
 
+      // the uncertainty is only correctly estimated in the model
       ECDF -> SetBinError(nBin, 0.0);
    }
 

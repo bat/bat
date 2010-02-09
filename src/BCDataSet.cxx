@@ -81,6 +81,24 @@ BCDataPoint * BCDataSet::GetDataPoint(unsigned int index)
 }
 
 // ---------------------------------------------------------
+std::vector<double> BCDataSet::GetDataComponents( int index)
+{
+   unsigned int N = this->GetNDataPoints();
+   std::vector<double> components( N , 0.0 );
+
+   BCDataPoint* point=0;
+   for (unsigned int i = 0; i < N; ++i) {
+      //rely on index checking in Get... methods
+      point = this -> GetDataPoint(i);
+      components[i] = point -> GetValue(index);
+   }
+
+   return components;
+}
+
+
+
+// ---------------------------------------------------------
 
 int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {

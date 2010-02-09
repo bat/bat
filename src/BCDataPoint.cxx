@@ -51,8 +51,9 @@ double BCDataPoint::GetValue(int index)
 		value = fData[index];
 	// ... or give warning if not.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,
-				TString::Format("BCDataPoint::GetValue : Index %d out of range (%d to %d).",index,0,fData.size()));
+      BCLog::Out(BCLog::warning, BCLog::warning, TString::Format(
+            "BCDataPoint::GetValue : Index %d out of range (%d to %d).", index,
+            0, fData.size() - 1));
 
 	return value;
 }

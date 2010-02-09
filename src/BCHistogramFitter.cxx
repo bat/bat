@@ -75,13 +75,17 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 
    // create a data set. this is necessary in order to calculate the
    // error band. the data set contains as many data points as there
-   // are bins. for now, the data points are empty.
+   // are bins.
    BCDataSet * ds = new BCDataSet();
 
    // create data points and add them to the data set.
+   // the x value is the lower edge of the bin, and
+   // the y value is the bin count
    int nbins = fHistogram -> GetNbinsX();
    for (int i = 0; i < nbins; ++i) {
       BCDataPoint* dp = new BCDataPoint(2);
+      dp ->SetValue(0, fHistogram -> GetBinLowEdge(i+1));
+      dp ->SetValue(1, fHistogram -> GetBinContent(i+1));
       ds -> AddDataPoint(dp);
    }
 
