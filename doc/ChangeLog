@@ -1,9 +1,14 @@
+2010-02-09 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCDataPoint:
+	  - fix another warning printout
+	  - printout update
+
 2010-02-09 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCDataSet:
 	  - included Get method to return the ith component of each datapoint
 	* BCDataPoint:
 	  - small fix to warning output
-	* BCHistogramFitter
+	* BCHistogramFitter:
 	  - set the error to zero
 	* BCModel:
 	  - new Kolmogorov p value
