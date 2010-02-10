@@ -33,6 +33,7 @@
 #include <TRandom3.h>
 #include <Math/QuantFuncMathCore.h>
 
+#include <algorithm>
 
 #include <fstream>
 #include <iomanip>
@@ -1445,6 +1446,7 @@ double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,
    if(this->flag_discrete){
       BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
               "test defined only for continuous distributions."));
+      return -1.0;
    }
 
    //calculate the ECDF from the 1D data
@@ -1458,32 +1460,24 @@ double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,
          "Number of data points doesn't match (%d vs %d", N, yData.size()));
 
    //create the point sets for comparison
-   double expCDFarray[N];
-   double empCDFarray[N];
+   std::vector<double> expCDFarray(N, -1.0);
+   std::vector<double> empCDFarray(N, -1.0);
 
-   //calculate the arithmetic mean of individual CDFs
-   //at each lower bin edge
-   double xLow = 0;
-   double mean;
-   for (int iBin = 1; iBin <= N; ++iBin) {
-      mean = 0.0;
-      xLow = ECDF -> GetBinLowEdge(iBin);//TODO not used at all
-      for (int jObs = 0; jObs < N; ++jObs) {
-         mean += this -> CDF(par, jObs);
-      }
-      mean /= double(N);
-
-      //fill both double arrays
-      expCDFarray[iBin-1] = mean;
-      empCDFarray[iBin-1] = ECDF -> GetBinContent(iBin);
+  //fill both double arrays
+   for (int iBin = 0; iBin < N; ++iBin) {
+     expCDFarray.at(iBin) = this -> CDF(par, iBin);
+     empCDFarray.at(iBin) = ECDF -> GetBinContent(iBin+1);
    }
 
-   fPValue = TMath::KolmogorovTest(N, expCDFarray, N, empCDFarray, "D");
-//   fPValue = ECDF -> KolmogorovTest(expectedCDF);
+   //ascending order of expected CDF
+   std::sort(expCDFarray.begin(), expCDFarray.end() );
+
+   //compute max distance of CDFs, including sample size correction
+   //and return tail area sampling probability
+   fPValue = TMath::KolmogorovTest(N, &expCDFarray[0], N, &empCDFarray[0], "");
 
    //clean up
    delete ECDF;
-//   delete expectedCDF;
 
    return fPValue;
 }

@@ -1,3 +1,9 @@
+2010-02-10 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCModel:
+	  - bug fixes in  Kolmogorov p value
+	* BCMath:
+	  - bug fix in ECDF
+
 2010-02-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * Included output of fractions to ensemble test in StackModel.
 

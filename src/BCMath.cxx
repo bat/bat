@@ -308,7 +308,7 @@ TH1D* BCMath::ECDF(const std::vector<double>& data)
          nUnique - 1, lowerEdges);
 
    //fill the data in to find multiplicities
-   for (int i = 0; i < N-1; ++i) {
+   for (int i = 0; i < N; ++i) {
       ECDF -> Fill(data[i]);
    }
 
@@ -318,8 +318,8 @@ TH1D* BCMath::ECDF(const std::vector<double>& data)
    //construct the ecdf
    for (int nBin = 1; nBin <= ECDF->GetNbinsX(); nBin++) {
       double previousBin = ECDF -> GetBinContent(nBin - 1);
-      BCLog::OutDebug(Form("n_%d = %.2f", nBin, ECDF -> GetBinContent(nBin) ));
-      BCLog::OutDebug(Form("previous_%d = %.2f", nBin, previousBin));
+      // BCLog::OutDebug(Form("n_%d = %.2f", nBin, ECDF -> GetBinContent(nBin) ));
+      // BCLog::OutDebug(Form("previous_%d = %.2f", nBin, previousBin));
       double thisBin = ECDF -> GetBinContent(nBin) / double(N);
       ECDF -> SetBinContent(nBin, thisBin + previousBin);
 
@@ -329,6 +329,10 @@ TH1D* BCMath::ECDF(const std::vector<double>& data)
 
    //set the endpoint to 1, so all larger values are at CDF=1
    ECDF -> SetBinContent( ECDF->GetNbinsX()+1, 1.0);
+
+   //adjust for nice plotting
+   ECDF -> SetMinimum(0.0);
+   ECDF -> SetMaximum(1.0);
 
    return ECDF;
 
