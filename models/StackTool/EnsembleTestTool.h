@@ -95,7 +95,7 @@ class EnsembleTestTool
    * Create a new ensemble.
 	 * @return A histogram with the new ensemble.
    */
-  TH1D BuildEnsemble();
+  TH1D* BuildEnsemble();
 
  protected:
 
@@ -145,69 +145,119 @@ class EnsembleTestTool
 	TRandom3* fRandom; 
 
 	/**
-	 * Tree variable: the global mode
+	 * Tree variable: global mode
 	 */ 
-	std::vector<double> fOutModeGlobal; 
+	std::vector<double> fOutParModeGlobal; 
 
 	/**
 	 * Tree variable: positive uncertainty on global mode 
 	 */ 
-	std::vector<double> fOutErrorUpGlobal; 
+	std::vector<double> fOutParErrorUpGlobal; 
 
 	/**
 	 * Tree variable: negative uncertainty on global mode
 	 */ 
-	std::vector<double> fOutErrorDownGlobal; 
+	std::vector<double> fOutParErrorDownGlobal; 
 
 	/**
 	 * Tree variable: marginalized mode
 	 */ 
-	std::vector<double> fOutModeMarg; 
+	std::vector<double> fOutParModeMarg; 
 
 	/**
 	 * Tree variable: median
 	 */ 
-	std::vector<double> fOutMedianMarg;
+	std::vector<double> fOutParMedianMarg;
 
 	/**
 	 * Tree variable: mean
 	 */ 
-	std::vector<double> fOutMeanMarg;
+	std::vector<double> fOutParMeanMarg;
 
 	/**
 	 * Tree variable: rms
 	 */ 
-	std::vector<double> fOutRMSMarg;
+	std::vector<double> fOutParRMSMarg;
 
 	/**
 	 * Tree variable: 16% quantile
 	 */ 
-	std::vector<double> fOutErrorUpMarg;
+	std::vector<double> fOutParErrorUpMarg;
 
 	/**
 	 * Tree variable: 84% quantile
 	 */ 
-	std::vector<double> fOutErrorDownMarg;
+	std::vector<double> fOutParErrorDownMarg;
 
 	/**
 	 * Tree variable: 5% quantile
 	 */ 
-	std::vector<double> fOutQuantile5Marg;
+	std::vector<double> fOutParQuantile5Marg;
 
 	/**
 	 * Tree variable: 10% quantile
 	 */ 
-	std::vector<double> fOutQuantile10Marg;
+	std::vector<double> fOutParQuantile10Marg;
 
 	/**
 	 * Tree variable: 90% quantile
 	 */ 
-	std::vector<double> fOutQuantile90Marg;
+	std::vector<double> fOutParQuantile90Marg;
 
 	/**
 	 * Tree variable: 95% quantile
 	 */ 
-	std::vector<double> fOutQuantile95Marg;
+	std::vector<double> fOutParQuantile95Marg;
+
+	/**
+	 * Tree variable: marginalized mode (ratio)
+	 */ 
+	std::vector<double> fOutRatioModeMarg; 
+
+	/**
+	 * Tree variable: median (ratio)
+	 */ 
+	std::vector<double> fOutRatioMedianMarg;
+
+	/**
+	 * Tree variable: mean (ratio)
+	 */ 
+	std::vector<double> fOutRatioMeanMarg;
+
+	/**
+	 * Tree variable: rms (ratio)
+	 */ 
+	std::vector<double> fOutRatioRMSMarg;
+
+	/**
+	 * Tree variable: 16% quantile (ratio)
+	 */ 
+	std::vector<double> fOutRatioErrorUpMarg;
+
+	/**
+	 * Tree variable: 84% quantile (ratio)
+	 */ 
+	std::vector<double> fOutRatioErrorDownMarg;
+
+	/**
+	 * Tree variable: 5% quantile (ratio)
+	 */ 
+	std::vector<double> fOutRatioQuantile5Marg;
+
+	/**
+	 * Tree variable: 10% quantile (ratio)
+	 */ 
+	std::vector<double> fOutRatioQuantile10Marg;
+
+	/**
+	 * Tree variable: 90% quantile (ratio)
+	 */ 
+	std::vector<double> fOutRatioQuantile90Marg;
+
+	/**
+	 * Tree variable: 95% quantile (ratio)
+	 */ 
+	std::vector<double> fOutRatioQuantile95Marg;
 
 	/**
 	 * Tree variable: chi2

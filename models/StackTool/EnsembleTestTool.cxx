@@ -74,10 +74,10 @@ int EnsembleTestTool::PerformEnsembleTest()
       cout << "Fraction of ensembles analyzed: " << double(j+1) / double(fNEnsembles) * 100 << "%" << std::endl;
 		
 		// create new ensemble 
-		TH1D ensemble = BuildEnsemble();
+		TH1D* ensemble = BuildEnsemble();
 
 		// set ensemble as new data set
-		fStackModel->SetDataHistogram(ensemble);
+		fStackModel->SetDataHistogram(*ensemble);
 
 		// find mode
 		fStackModel->FindMode();
@@ -92,29 +92,47 @@ int EnsembleTestTool::PerformEnsembleTest()
 			// loop over parameters and set tree variables
 			for (int i = 0; i < npar; ++i) {
 				BCH1D* hist = fStackModel->GetMarginalized(fStackModel->GetParameter(i)); 
-				fOutModeMarg[i]       = hist->GetMode();
-				fOutMedianMarg[i]     = hist->GetMedian();
-				fOutMeanMarg[i]       = hist->GetMean();
-				fOutRMSMarg[i]        = hist->GetRMS();
-				fOutErrorUpMarg[i]    = hist->GetQuantile(0.84)-hist->GetMode();
-				fOutErrorDownMarg[i]  = hist->GetMode()-hist->GetQuantile(0.16);
-				fOutQuantile5Marg[i]  = hist->GetQuantile(0.05);
-				fOutQuantile10Marg[i] = hist->GetQuantile(0.10);
-				fOutQuantile90Marg[i] = hist->GetQuantile(0.90);
-				fOutQuantile95Marg[i] = hist->GetQuantile(0.95);
+				fOutParModeMarg[i]       = hist->GetMode();
+				fOutParMedianMarg[i]     = hist->GetMedian();
+				fOutParMeanMarg[i]       = hist->GetMean();
+				fOutParRMSMarg[i]        = hist->GetRMS();
+				fOutParErrorUpMarg[i]    = hist->GetQuantile(0.84)-hist->GetMode();
+				fOutParErrorDownMarg[i]  = hist->GetMode()-hist->GetQuantile(0.16);
+				fOutParQuantile5Marg[i]  = hist->GetQuantile(0.05);
+				fOutParQuantile10Marg[i] = hist->GetQuantile(0.10);
+				fOutParQuantile90Marg[i] = hist->GetQuantile(0.90);
+				fOutParQuantile95Marg[i] = hist->GetQuantile(0.95);
+			}
+		}
+
+		if (fFlagMCMC) {
+			int nratios = fStackModel->GetNRatios(); 
+			for (int i = 0; i < nratios; ++i) {				
+				TH1D histtemp = fStackModel->GetHistRatio1D(i); 
+ 				BCH1D* hist = new BCH1D( &histtemp );
+ 				fOutRatioModeMarg[i]       = hist->GetMode();
+ 				fOutRatioMedianMarg[i]     = hist->GetMedian();
+ 				fOutRatioMeanMarg[i]       = hist->GetMean();
+ 				fOutRatioRMSMarg[i]        = hist->GetRMS();
+ 				fOutRatioErrorUpMarg[i]    = hist->GetQuantile(0.84)-hist->GetMode();
+				fOutRatioErrorDownMarg[i]  = hist->GetMode()-hist->GetQuantile(0.16);
+ 				fOutRatioQuantile5Marg[i]  = hist->GetQuantile(0.05);
+ 				fOutRatioQuantile10Marg[i] = hist->GetQuantile(0.10);
+ 				fOutRatioQuantile90Marg[i] = hist->GetQuantile(0.90);
+ 				fOutRatioQuantile95Marg[i] = hist->GetQuantile(0.95);
 			}
 		}
 
 		// set tree variables
-		fOutModeGlobal      = fStackModel->GetBestFitParameters();
-		fOutErrorUpGlobal   = fStackModel->GetBestFitParameterErrors();
-		fOutErrorDownGlobal = fStackModel->GetBestFitParameterErrors();
-		fOutChi2            = fStackModel->CalculateChi2(); 
-		fOutNDF             = fStackModel->GetNDF();
-		fOutChi2Prob        = fStackModel->CalculateChi2Prob(); 
-		fOutKSProb          = fStackModel->CalculateKSProb(); 
-		fOutPValue          = fStackModel->CalculatePValue(); 
-		fOutNEvents         = int(fStackModel->GetDataHistogram().Integral());
+		fOutParModeGlobal      = fStackModel->GetBestFitParameters();
+		fOutParErrorUpGlobal   = fStackModel->GetBestFitParameterErrors();
+		fOutParErrorDownGlobal = fStackModel->GetBestFitParameterErrors();
+		fOutChi2               = fStackModel->CalculateChi2(); 
+		fOutNDF                = fStackModel->GetNDF();
+		fOutChi2Prob           = fStackModel->CalculateChi2Prob(); 
+		fOutKSProb             = fStackModel->CalculateKSProb(); 
+		fOutPValue             = fStackModel->CalculatePValue(); 
+		fOutNEvents            = int(fStackModel->GetDataHistogram().Integral());
 
 		// fill the tree 
 		fTree->Fill();
@@ -128,7 +146,7 @@ int EnsembleTestTool::PerformEnsembleTest()
 }
 
 //---------------------------------------------------------------------------------------------------------
-TH1D EnsembleTestTool::BuildEnsemble()
+TH1D* EnsembleTestTool::BuildEnsemble()
 {
 	// get histogram parameters 
   int nbins   = fEnsembleTemplate.GetNbinsX();
@@ -136,7 +154,7 @@ TH1D EnsembleTestTool::BuildEnsemble()
   double xmax = fEnsembleTemplate.GetXaxis()->GetXmax();
 
 	// create new ensemble 
-  TH1D ensemble = TH1D(Form("ensemble_%i", fEnsembleCounter), "", nbins, xmin, xmax);
+  TH1D* ensemble = new TH1D("", "", nbins, xmin, xmax);
 
 	// increase ensemble counter 
 	fEnsembleCounter++; 
@@ -148,7 +166,7 @@ TH1D EnsembleTestTool::BuildEnsemble()
 		double n      = gRandom -> Poisson(lambda);
 
 		// set the bin content
-    ensemble.SetBinContent(i, n);
+    ensemble->SetBinContent(i, n);
   }
 
 	// return the ensemble histogram
@@ -184,23 +202,34 @@ int EnsembleTestTool::PrepareTree()
 	// create new tree 
 	fTree = new TTree("fTree", "fTree"); 
 
-	// get number of parameters
+	// get number of parameters and ratios 
 	int npar = fStackModel->GetNParameters(); 
-	
+	int nratios = fStackModel->GetNRatios(); 
+
 	// initialize variables
-	fOutModeGlobal.assign(npar, 0);
-	fOutErrorUpGlobal.assign(npar, 0);
-	fOutErrorDownGlobal.assign(npar, 0);
-	fOutModeMarg.assign(npar, 0);
-	fOutMeanMarg.assign(npar, 0);
-	fOutMedianMarg.assign(npar, 0);
-	fOutRMSMarg.assign(npar, 0);
-	fOutErrorUpMarg.assign(npar, 0);
-	fOutErrorDownMarg.assign(npar, 0);
-	fOutQuantile5Marg.assign(npar, 0);
-	fOutQuantile10Marg.assign(npar, 0);
-	fOutQuantile90Marg.assign(npar, 0);
-	fOutQuantile95Marg.assign(npar, 0);
+	fOutParModeGlobal.assign(npar, 0);
+	fOutParErrorUpGlobal.assign(npar, 0);
+	fOutParErrorDownGlobal.assign(npar, 0);
+	fOutParModeMarg.assign(npar, 0);
+	fOutParMeanMarg.assign(npar, 0);
+	fOutParMedianMarg.assign(npar, 0);
+	fOutParRMSMarg.assign(npar, 0);
+	fOutParErrorUpMarg.assign(npar, 0);
+	fOutParErrorDownMarg.assign(npar, 0);
+	fOutParQuantile5Marg.assign(npar, 0);
+	fOutParQuantile10Marg.assign(npar, 0);
+	fOutParQuantile90Marg.assign(npar, 0);
+	fOutParQuantile95Marg.assign(npar, 0);
+	fOutRatioModeMarg.assign(nratios, 0);
+	fOutRatioMeanMarg.assign(nratios, 0);
+	fOutRatioMedianMarg.assign(nratios, 0);
+	fOutRatioRMSMarg.assign(nratios, 0);
+	fOutRatioErrorUpMarg.assign(nratios, 0);
+	fOutRatioErrorDownMarg.assign(nratios, 0);
+	fOutRatioQuantile5Marg.assign(nratios, 0);
+	fOutRatioQuantile10Marg.assign(nratios, 0);
+	fOutRatioQuantile90Marg.assign(nratios, 0);
+	fOutRatioQuantile95Marg.assign(nratios, 0);
 
 	fTree->Branch("chi2",
 								&fOutChi2, 
@@ -228,60 +257,103 @@ int EnsembleTestTool::PrepareTree()
 	
 	for (int i = 0; i < npar; ++i) {
 		// add branches 
-		fTree->Branch(Form("global_mode_par_%i", i), 
-									&fOutModeGlobal[i], 
-									Form("global_Mode_par_%i/D", i)); 
+		fTree->Branch(Form("par_global_mode_par_%i", i), 
+									&fOutParModeGlobal[i], 
+									Form("par_global_Mode_par_%i/D", i)); 
 		
-		fTree->Branch(Form("global_error_up_par_%i", i), 
-									&fOutErrorUpGlobal[i], 
-									Form("global_error_up_par_%i/D", i)); 
+		fTree->Branch(Form("par_global_error_up_par_%i", i), 
+									&fOutParErrorUpGlobal[i], 
+									Form("par_global_error_up_par_%i/D", i)); 
 		
-		fTree->Branch(Form("global_error_down_par_%i", i), 
-									&fOutErrorDownGlobal[i], 
-									Form("global_error_down_par_%i/D", i)); 
+		fTree->Branch(Form("par_global_error_down_par_%i", i), 
+									&fOutParErrorDownGlobal[i], 
+									Form("par_global_error_down_par_%i/D", i)); 
 
 		if(fFlagMCMC) {
-			fTree->Branch(Form("marg_mode_par_%i", i), 
-										&fOutModeMarg[i], 
-										Form("marg_mode_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_mode_par_%i", i), 
+										&fOutParModeMarg[i], 
+										Form("par_marg_mode_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_mean_par_%i", i), 
-										&fOutMeanMarg[i], 
-										Form("marg_mean_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_mean_par_%i", i), 
+										&fOutParMeanMarg[i], 
+										Form("par_marg_mean_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_median_par_%i", i), 
-										&fOutMedianMarg[i], 
-										Form("marg_median_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_median_par_%i", i), 
+										&fOutParMedianMarg[i], 
+										Form("par_marg_median_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_rms_par_%i", i), 
-										&fOutRMSMarg[i], 
-										Form("marg_rms_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_rms_par_%i", i), 
+										&fOutParRMSMarg[i], 
+										Form("par_marg_rms_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_error_up_par_%i", i), 
-										&fOutErrorUpMarg[i], 
-										Form("marg_ErrorUp_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_error_up_par_%i", i), 
+										&fOutParErrorUpMarg[i], 
+										Form("par_marg_ErrorUp_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_error_down_par_%i", i), 
-										&fOutErrorDownMarg[i], 
-										Form("marg_error_down_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_error_down_par_%i", i), 
+										&fOutParErrorDownMarg[i], 
+										Form("par_marg_error_down_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_quantile5_par_%i", i), 
-										&fOutQuantile5Marg[i], 
-										Form("marg_Quantile5_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_quantile5_par_%i", i), 
+										&fOutParQuantile5Marg[i], 
+										Form("par_marg_Quantile5_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_quantile10_par_%i", i), 
-										&fOutQuantile10Marg[i], 
-										Form("marg_Quantile10_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_quantile10_par_%i", i), 
+										&fOutParQuantile10Marg[i], 
+										Form("par_marg_Quantile10_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_quantile90_par_%i", i), 
-										&fOutQuantile90Marg[i], 
-										Form("marg_Quantile90_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_quantile90_par_%i", i), 
+										&fOutParQuantile90Marg[i], 
+										Form("par_marg_Quantile90_par_%i/D", i)); 
 			
-			fTree->Branch(Form("marg_quantile95_par_%i", i), 
-										&fOutQuantile95Marg[i], 
-										Form("marg_Quantile95_par_%i/D", i)); 
+			fTree->Branch(Form("par_marg_quantile95_par_%i", i), 
+										&fOutParQuantile95Marg[i], 
+										Form("par_marg_Quantile95_par_%i/D", i)); 
 		}
-		
+	}
+	
+	if (fFlagMCMC) {
+		for (int i = 0; i < nratios; ++i) {
+			fTree->Branch(Form("ratio_marg_mode_ratio_%i", i), 
+										&fOutRatioModeMarg[i], 
+										Form("ratio_marg_mode_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_mean_ratio_%i", i), 
+										&fOutRatioMeanMarg[i], 
+										Form("ratio_marg_mean_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_median_ratio_%i", i), 
+										&fOutRatioMedianMarg[i], 
+										Form("ratio_marg_median_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_rms_ratio_%i", i), 
+										&fOutRatioRMSMarg[i], 
+										Form("ratio_marg_rms_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_error_up_ratio_%i", i), 
+										&fOutRatioErrorUpMarg[i], 
+										Form("ratio_marg_ErrorUp_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_error_down_ratio_%i", i), 
+										&fOutRatioErrorDownMarg[i], 
+										Form("ratio_marg_error_down_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_quantile5_ratio_%i", i), 
+										&fOutRatioQuantile5Marg[i], 
+										Form("ratio_marg_Quantile5_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_quantile10_ratio_%i", i), 
+										&fOutRatioQuantile10Marg[i], 
+										Form("ratio_marg_Quantile10_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_quantile90_ratio_%i", i), 
+										&fOutRatioQuantile90Marg[i], 
+										Form("ratio_marg_Quantile90_ratio_%i/D", i)); 
+			
+			fTree->Branch(Form("ratio_marg_quantile95_ratio_%i", i), 
+										&fOutRatioQuantile95Marg[i], 
+										Form("ratio_marg_Quantile95_ratio_%i/D", i)); 
+		}
 	}
 	
 	// no error 

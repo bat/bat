@@ -46,7 +46,7 @@ int main()
 
 	// set options
 	model->MCMCSetNLag(10); 
-	//	model->MCMCSetNIterationsRun(10000000); 
+	model->MCMCSetNIterationsRun(10000); 
 	model->SetFlagPhysicalLimits(true);
 
 	// set data histogram
@@ -75,6 +75,8 @@ int main()
 	model->ConstrainSum(indices, 7000.0, 100); 
 
 	// set up printing of fractions
+	model->CalculateRatio(1, indices); 
+	model->CalculateRatio(2, indices); 
 	model->CalculateRatio(3, indices); 
 
 	// ----------------------------------------------------
@@ -88,8 +90,8 @@ int main()
 	ett->SetStackModel(model);
 	ett->SetEnsembleTemplate(hist_sum);
 	ett->SetNEnsembles(1000); 
-	ett->SetEnsembleExpectation(1000); 
-	ett->SetFlagMCMC(false); 
+	ett->SetEnsembleExpectation(2700); 
+	ett->SetFlagMCMC(true); 
 
 	// perform ensemble tests
 	ett->PerformEnsembleTest(); 

@@ -76,6 +76,24 @@ class StackModel : public BCModel
 		{ return fHistNorm; }; 
 
 	/**
+	 * Return the number of ratios.
+	 */ 
+	int GetNRatios()
+	{ return int(fHistRatios1D.size()); }; 
+
+	/**
+	 * Return the vector of histgrams containing the ratios. 
+	 */
+	std::vector<TH1D> GetHistRatios1D()
+		{ return fHistRatios1D; }; 
+
+	/**
+	 * Return a ratio histogram
+	 */ 
+	TH1D GetHistRatio1D(int index) 
+	{ return fHistRatios1D.at(index); }; 
+			
+	/**
 	 * Set the histogram containing the data.
 	 */
 	int SetDataHistogram(TH1D hist);

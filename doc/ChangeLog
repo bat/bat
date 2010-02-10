@@ -1,3 +1,6 @@
+2010-02-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+        * Included output of fractions to ensemble test in StackModel.
+
 2010-02-09 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCDataPoint:
 	  - fix another warning printout

@@ -129,10 +129,12 @@ void CreateHistograms()
 	c1->cd(4); 
 	hist_process4.Draw(); 
 	c1->cd(5); 
-	hist_process5.Draw(); 
+	hist_sum.Draw(); 
 	c1->cd(6); 
 	hist_data.Draw(); 
 	c1 -> Print("hist.eps"); 
+
+	cout << hist_data->Integral() << endl;
 
 	// close file 
 	file -> Close(); 
