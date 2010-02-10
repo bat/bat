@@ -34,6 +34,7 @@
 #include <Math/QuantFuncMathCore.h>
 
 #include <algorithm>
+#include <set>
 
 #include <fstream>
 #include <iomanip>
@@ -1441,45 +1442,56 @@ double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
 
 // ---------------------------------------------------------
 double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,
-      int index)
+					int index)
 {
-   if(this->flag_discrete){
-      BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
-              "test defined only for continuous distributions."));
-      return -1.0;
-   }
+  if(this->flag_discrete){
+    BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
+			 "test defined only for continuous distributions."));
+    return -1.0;
+  }
 
-   //calculate the ECDF from the 1D data
-   std::vector<double> yData = fDataSet -> GetDataComponents(index);
-   TH1D* ECDF = BCMath::ECDF(yData);
+  //calculate the ECDF from the 1D data
+  std::vector<double> yData = fDataSet -> GetDataComponents(index);
+  TH1D* ECDF = BCMath::ECDF(yData);
 
-   int N = this -> GetNDataPoints();
+  //calculated expected CDF for unique points only
+  int N = this -> GetNDataPoints();
 
-   if (N != (int) yData.size())
-      BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
-         "Number of data points doesn't match (%d vs %d", N, yData.size()));
+  std::set<double> uniqueObservations;
+  for(int i=0; i < N; i++){
+    uniqueObservations.insert( this -> CDF(par, i));
+  }
+  int nUnique = uniqueObservations.size();
 
-   //create the point sets for comparison
-   std::vector<double> expCDFarray(N, -1.0);
-   std::vector<double> empCDFarray(N, -1.0);
+  if (nUnique != ECDF->GetNbinsX()+1 ){
+    BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
+			 "Number of unique data points doesn't match (%d vs %d)", nUnique, ECDF->GetNbinsX()+1));
+    return -1.0;
+  }
+
+  //create the point sets for comparison
+  std::vector<double> expCDFarray(nUnique, -1.0);
+  std::vector<double> empCDFarray(nUnique, -1.0);
 
   //fill both double arrays
-   for (int iBin = 0; iBin < N; ++iBin) {
-     expCDFarray.at(iBin) = this -> CDF(par, iBin);
-     empCDFarray.at(iBin) = ECDF -> GetBinContent(iBin+1);
-   }
+   
+  std::set<double>::const_iterator iter = uniqueObservations.begin();
+  for (int iBin = 0; iBin < nUnique; ++iBin) {
+    expCDFarray.at(iBin) = *iter;
+    empCDFarray.at(iBin) = ECDF -> GetBinContent(iBin+1);
+    ++iter;
+    // BCLog::OutDebug(Form("BCModel::GetPvalueFromKolmogorov : "
+    // 			  "expected vs empirical (%f vs %f)", expCDFarray.at(iBin), empCDFarray.at(iBin) ));
+  }
 
-   //ascending order of expected CDF
-   std::sort(expCDFarray.begin(), expCDFarray.end() );
+  //compute max distance of CDFs, including sample size correction
+  //and return tail area sampling probability
+  fPValue = TMath::KolmogorovTest(nUnique, &expCDFarray[0], nUnique, &empCDFarray[0], "");
 
-   //compute max distance of CDFs, including sample size correction
-   //and return tail area sampling probability
-   fPValue = TMath::KolmogorovTest(N, &expCDFarray[0], N, &empCDFarray[0], "");
+  //clean up
+  delete ECDF;
 
-   //clean up
-   delete ECDF;
-
-   return fPValue;
+  return fPValue;
 }
 
 // ---------------------------------------------------------
