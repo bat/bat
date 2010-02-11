@@ -297,7 +297,7 @@ int StackModel::AddTemplateHistogram(TH1D hist, const char * name, double Nmin, 
 
 
 // ---------------------------------------------------------
-int StackModel::CalculateRatio(int index, std::vector<int> indices)
+int StackModel::CalculateRatio(int index, std::vector<int> indices, double rmin, double rmax)
 {
 	// get number of templates
 	int ntemplates = int( fTemplateHistogramContainer.size() );
@@ -329,9 +329,9 @@ int StackModel::CalculateRatio(int index, std::vector<int> indices)
 	// create histogram
 	double fmin = 0.0;
 	double fmax = 1.0;
-	if (!fFlagPhysicalLimits) {
-		fmin = -1.0;
-		fmax =  2.0;
+	if (fFlagPhysicalLimits) {
+		fmin = TMath::Max(rmin, 0.0); 
+		fmax = TMath::Min(1.0, rmax); 
 	}
 
 	TH1D hist_ratio1d(Form("ratio %i", nratios), ";;", 100, fmin, fmax); 
@@ -900,7 +900,7 @@ void StackModel::MCMCUserIterationInterface()
 }
 
 // ---------------------------------------------------------
-void StackModel::PrintRatios(const char * filename)
+void StackModel::PrintRatios(const char * filename, int options, double ovalue)
 {
 	int nratios = int(fHistRatios1D.size());
 
@@ -919,7 +919,7 @@ void StackModel::PrintRatios(const char * filename)
 		ps->NewPage();
 		c1->cd(); 
 		BCH1D* h1temp = new BCH1D(&fHistRatios1D.at(i));
-		h1temp->Draw(); 
+		h1temp->Draw(options, ovalue); 
 	}
 	c1->Update();
 	ps->Close(); 

@@ -171,8 +171,10 @@ class StackModel : public BCModel
 	 * Add the calculation of a certain ratio. 
 	 * @param index Index in the numerator.
 	 * @param indices Vector of indices in the denominator.
+	 * @param rmin The minimum ratio
+	 * @param rmax The maximum ratio
 	 */ 
-	int CalculateRatio(int index, std::vector<int> indices); 
+	int CalculateRatio(int index, std::vector<int> indices, double rmin = -1.0, double rmax = 1.0); 
 
 	/**
 	 * Set a flag for having physical limits (expectation values greater
@@ -207,8 +209,10 @@ class StackModel : public BCModel
 	/**
 	 * Print the ratios and the norm.
 	 * @param filename The filename.
+	 * @param option Plot options
+	 * @param pvalue Value which goes with plot options (see BAT manual).
 	 */ 
-	void PrintRatios(const char * filename = "ratio.ps");
+	void PrintRatios(const char * filename = "ratio.ps", int option = 0, double ovalue = 0.);
 	
 	/**
 	 * Calculates and returns the chi2 value. The chi2 is calculated

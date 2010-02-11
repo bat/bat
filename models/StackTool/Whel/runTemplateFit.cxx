@@ -58,7 +58,7 @@ int main()
 	model->AddTemplateHistogram(hist_process1, "Background",    0.0, 2000000.0);
 	model->AddTemplateHistogram(hist_process2, "Signal (h= 0)", 0.0,    8000.0);
 	model->AddTemplateHistogram(hist_process3, "Signal (h=-1)", 0.0,    8000.0);
-	model->AddTemplateHistogram(hist_process4, "Signal (h=+1)", -4000.0, 4000.0);
+	model->AddTemplateHistogram(hist_process4, "Signal (h=+1)", 0.0,    4000.0);
 
 	// set efficiencies
 	model->SetTemplateEfficiency(0, 0.001, 0.0005, true);
@@ -77,7 +77,7 @@ int main()
 	model->ConstrainSum(indices, 7000.0, 100); 
 
 	// set up printing of fractions
-	model->CalculateRatio(3, indices); 
+	model->CalculateRatio(3, indices, 0.0, 0.3); 
 
 	// ----------------------------------------------------
 	// set up model manager
@@ -111,7 +111,7 @@ int main()
 	// print results
 	model->PrintAllMarginalized("model_marginalized.eps"); 
 	model->PrintStack("model_stack.eps");
-	model->PrintRatios("model_fraction.ps");
+	model->PrintRatios("model_fraction.ps", 0, -95.);
 	model->PrintResults("model_results.txt"); 
 
 	st->PrintParameterPlot("model_parameters.eps"); 

@@ -1,3 +1,6 @@
+2010-02-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+        * StackModel: added user-defined ranges for fractions.
+
 2010-02-10 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCModel:
 	  - bug fixes in  Kolmogorov p value
