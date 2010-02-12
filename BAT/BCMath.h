@@ -163,6 +163,31 @@ namespace BCMath
     */
 	TH1D* ECDF(const std::vector<double>& data);
 
+	/**
+    * Find the longest runs of zeros and ones in
+    * the bit stream
+    *
+    * @param   bitStream input sequence of boolean values
+    * @return  runs  first entry the longest zeros run, second entry the longest ones run
+	 */
+
+	std::vector<int> longestRuns(const std::vector<bool>& bitStream);
+
+   /**
+    * Find the sampling probability that, given n independent Bernoulli
+    * trials with success rate = failure rate = 1/2, the longest run of
+    * consecutive successes is greater than the longest observed run.
+    * Key idea from
+    * Burr, E.J. & Cane, G. Longest Run of Consecutive Observations Having a Specified Attribute. Biometrika 48, 461-465 (1961).
+    *
+    *
+    * @param   longestObserved  actual longest run
+    * @param   nTrials number of independent trials
+    * @return  frequency
+    */
+
+	double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
+
 }
 
 // ---------------------------------------------------------

@@ -1,3 +1,10 @@
+2010-02-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath:
+	  - included two methods needed for runs p value
+	* benchmarks/pValue:
+	  - added a test suite, from the template for nBat, to
+	    to check the above methods
+
 2010-02-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
         * StackModel: minor modification to the Makefile
 	* SummaryTool: clean-up to prepare for web-page
