@@ -26,7 +26,7 @@ int main()
 	model->MarginalizeAll(); 
 	model->FindMode(model->GetBestFitParameters()); 
 	model->PrintAllMarginalized("model_plots.ps"); 
-	model->PrintResults("results.txt"); 
+	model->PrintResults("model_results.txt"); 
 
 	// create new SummaryTool object
 	SummaryTool * summarytool = new SummaryTool();

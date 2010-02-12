@@ -114,3 +114,21 @@ print :
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
 
+tarball :
+	mkdir SummaryTool_1.0.0
+	mkdir SummaryTool_1.0.0/doc
+	mkdir SummaryTool_1.0.0/TestProject
+	cp README SummaryTool_1.0.0/.
+	cp setup.sh SummaryTool_1.0.0/.
+	cp Makefile SummaryTool_1.0.0/.
+	cp SummaryTool.h SummaryTool_1.0.0/.
+	cp SummaryTool.cxx SummaryTool_1.0.0/.
+	cp PriorModel.h SummaryTool_1.0.0/.
+	cp PriorModel.cxx SummaryTool_1.0.0/.
+	cp TestProject/Makefile SummaryTool_1.0.0/TestProject/Makefile
+	cp TestProject/TestModel.h SummaryTool_1.0.0/TestProject/TestModel.h
+	cp TestProject/TestModel.cxx SummaryTool_1.0.0/TestProject/TestModel.cxx
+	cp TestProject/runTestProject.cxx SummaryTool_1.0.0/TestProject/runTestProject.cxx
+	tar -cf SummaryTool_1.0.0.tar SummaryTool_1.0.0
+	gzip SummaryTool_1.0.0.tar
+	rm -r SummaryTool_1.0.0

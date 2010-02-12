@@ -10,10 +10,8 @@
 
 #include <BAT/BCModel.h>
 
-// This is a TestModel header file.
-// Model source code is located in file TestProject/TestModel.cxx
-
 // ---------------------------------------------------------
+
 class TestModel : public BCModel
 {
 	public:

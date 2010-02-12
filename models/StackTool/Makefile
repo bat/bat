@@ -135,6 +135,7 @@ print :
 
 tarball :
 	mkdir StackTool_1.0.0
+	mkdir StackTool_1.0.0/doc
 	mkdir StackTool_1.0.0/Whel
 	mkdir StackTool_1.0.0/hypothesis
 	cp README StackTool_1.0.0/.
@@ -146,6 +147,7 @@ tarball :
 	cp StackModelManager.cxx StackTool_1.0.0/.
 	cp EnsembleTestTool.h StackTool_1.0.0/.
 	cp EnsembleTestTool.cxx StackTool_1.0.0/.
+	cp doc/COPYING StackTool_1.0.0/doc/COPYING
 	cp Whel/runTemplateFit.cxx StackTool_1.0.0/Whel/.
 	cp Whel/runEnsembleTest.cxx StackTool_1.0.0/Whel/.
 	cp Whel/runTemplateFit.cxx StackTool_1.0.0/Whel/.

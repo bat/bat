@@ -1,13 +1,5 @@
-// ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project TestProject
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
-// ***************************************************************
-
 #include "TestModel.h"
 
-#include <TMath.h>
 #include <BAT/BCMath.h> 
 
 // ---------------------------------------------------------

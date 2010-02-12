@@ -1,6 +1,27 @@
 #ifndef __SUMMARYTOOL__H
 #define __SUMMARYTOOL__H
 
+/*!
+ * \class SummaryTool
+
+ * This class can be used to summarize the results of an analysis. The
+ * prior and posterior probabilities are compared. 
+ * \brief A class for summarizing the results of an analysis.
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0.0
+ * \date 11.02.2010
+ */
+
+/*
+ * Copyright (C) 2008, 2009, 2010, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include "PriorModel.h"
 
 #include <BAT/BCModel.h>
@@ -8,6 +29,7 @@
 #include <string>
 
 // ---------------------------------------------------------
+
 class SummaryTool
 {
  public:

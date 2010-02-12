@@ -123,6 +123,7 @@ models/StackTool/hypothesis/Makefile -text
 models/StackTool/hypothesis/histograms.root -text
 models/StackTool/hypothesis/runHypothesisTest.cxx -text
 models/StackTool/setup.sh -text
+models/SummaryTool/Doxyfile -text
 models/SummaryTool/Makefile -text
 models/SummaryTool/PriorModel.cxx -text
 models/SummaryTool/PriorModel.h -text
@@ -133,6 +134,7 @@ models/SummaryTool/TestProject/Makefile -text
 models/SummaryTool/TestProject/TestModel.cxx -text
 models/SummaryTool/TestProject/TestModel.h -text
 models/SummaryTool/TestProject/runTestProject.cxx -text
+models/SummaryTool/doc/COPYING -text
 models/SummaryTool/setup.sh -text
 /readme.devel -text
 src/BCAux.cxx -text

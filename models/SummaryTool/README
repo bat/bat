@@ -10,7 +10,7 @@ tables and further summary information are planned.
 
 How to use it:
 --------------
-1. Create a new SummaryTool object and add the model to be summarized. 
+1. Create a new SummaryTool object and add the model to be summarized.
 
 2. Print the corresponding summary information, e.g., 
    SummaryTool::PrintParameterPlot()
@@ -18,8 +18,7 @@ How to use it:
 
 Example:
 --------
-An example can be found in the directory TestProject. It has three
-parameters, two of which are correlated and one has a multi-model
-distribution. Simply comile and run the example.
+An example can be found in the directory TestProject. It has two
+parameters which are correlated. Simply compile and run the example.
 
-K. Kroeninger, 11.2009 
+K. Kroeninger, 12.02.2010
