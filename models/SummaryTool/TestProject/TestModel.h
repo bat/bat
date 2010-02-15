@@ -1,10 +1,3 @@
-// ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project TestProject
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
-// ***************************************************************
-
 #ifndef __TESTMODEL__H
 #define __TESTMODEL__H
 

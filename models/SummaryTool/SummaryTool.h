@@ -10,7 +10,7 @@
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \version 1.0.0
- * \date 11.02.2010
+ * \date 15.02.2010
  */
 
 /*
