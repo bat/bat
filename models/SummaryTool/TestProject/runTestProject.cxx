@@ -38,6 +38,7 @@ int main()
  	summarytool->PrintParameterPlot("summary_parameters.eps"); 
  	summarytool->PrintCorrelationPlot("summary_correlation.eps"); 
 	summarytool->PrintKnowlegdeUpdatePlot("summary_update.ps");
+	summarytool->PrintParameterLatex("summary_parameters.tex");
 
 	// free memory
 	delete summarytool;
