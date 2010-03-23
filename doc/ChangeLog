@@ -1,3 +1,14 @@
+2010-03-23 Daniel Kollar <daniel.kollar@cern.ch>
+	* models/SummaryTool:
+	  - building ROOT CINT dictionary to allow using in root
+	    interactive session
+	  - fixed typos in legends in parameter summary plot
+	  - moved the axis tick labels to top for correlation plot
+	    to more resemble a matrix
+	  - fixed some style issues for plots
+	* benchmarks/mcmc:
+	  - adjusted Cauchy test function to correct the performance test
+
 2010-02-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* SummaryTool: edited README file, some minor modifications
 

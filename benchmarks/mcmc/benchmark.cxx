@@ -31,24 +31,26 @@ int main()
 	// define the range for the test
 	double xmin = -4.0, xmax = 16.0;
 
+	TF1 * testfunc = 0;
+	BCBenchmarkMCMC * benchmark = 0;
 
 	// test function: gaus
 	// =================================
 
-	TF1 *testfunc = new TF1("Gaussian", "gaus", xmin, xmax);
+	testfunc = new TF1("Gaussian", "gaus", xmin, xmax);
 	testfunc->SetParameters(2,3,4);
 
-	BCBenchmarkMCMC *benchmark = new BCBenchmarkMCMC(testfunc,"mcmcgaus1d.root");
+	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcgaus1d.root");
 
-	benchmark -> MCMCSetNIterationsRun(100000);
+	benchmark->MCMCSetNIterationsRun(100000);
 
-	benchmark -> MCMCMetropolis();
+	benchmark->MCMCMetropolis();
 
-	benchmark -> ProcessMCTrees();
-	benchmark -> PerformLagsTest();
-	benchmark -> PerformIterationsTest();
+	benchmark->ProcessMCTrees();
+	benchmark->PerformLagsTest();
+	benchmark->PerformIterationsTest();
 
-	benchmark -> WriteResults();
+	benchmark->WriteResults();
 
 	delete testfunc;
 	delete benchmark;
@@ -62,15 +64,15 @@ int main()
 
 	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcexpo1d.root");
 
-	benchmark -> MCMCSetNIterationsRun(100000);
+	benchmark->MCMCSetNIterationsRun(100000);
 
-	benchmark -> MCMCMetropolis();
+	benchmark->MCMCMetropolis();
 
-	benchmark -> ProcessMCTrees();
-	benchmark -> PerformLagsTest();
-	benchmark -> PerformIterationsTest();
+	benchmark->ProcessMCTrees();
+	benchmark->PerformLagsTest();
+	benchmark->PerformIterationsTest();
 
-	benchmark -> WriteResults();
+	benchmark->WriteResults();
 
 	delete testfunc;
 	delete benchmark;
@@ -84,15 +86,15 @@ int main()
 
 	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcx4sin2x1d.root");
 
-	benchmark -> MCMCSetNIterationsRun(100000);
+	benchmark->MCMCSetNIterationsRun(100000);
 
-	benchmark -> MCMCMetropolis();
+	benchmark->MCMCMetropolis();
 
-	benchmark -> ProcessMCTrees();
-	benchmark -> PerformLagsTest();
-	benchmark -> PerformIterationsTest();
+	benchmark->ProcessMCTrees();
+	benchmark->PerformLagsTest();
+	benchmark->PerformIterationsTest();
 
-	benchmark -> WriteResults();
+	benchmark->WriteResults();
 
 	delete testfunc;
 	delete benchmark;
@@ -103,20 +105,20 @@ int main()
 	// defined)
 	// ==================================
 
-	testfunc = new TF1("cauchy", "[0] / (3.14159 * ( (x-[1])**2 +[0]**2))",xmin, xmax);
-	testfunc->SetParameters(1.,3.);
+	testfunc = new TF1("cauchy", "[0] * [1] / (3.14159 * ( (x-[2])**2 +[1]**2))",xmin, xmax);
+	testfunc->SetParameters(1.,1.,3.);
 
 	benchmark = new BCBenchmarkMCMC(testfunc,"mcmccauchy.root");
 
-	benchmark -> MCMCSetNIterationsRun(100000);
+	benchmark->MCMCSetNIterationsRun(100000);
 
-	benchmark -> MCMCMetropolis();
+	benchmark->MCMCMetropolis();
 
-	benchmark -> ProcessMCTrees();
-	benchmark -> PerformLagsTest();
-	benchmark -> PerformIterationsTest();
+	benchmark->ProcessMCTrees();
+	benchmark->PerformLagsTest();
+	benchmark->PerformIterationsTest();
 
-	benchmark -> WriteResults();
+	benchmark->WriteResults();
 
 	delete testfunc;
 	delete benchmark;
@@ -132,18 +134,17 @@ int main()
 	TF2 *testfunc2 = new TF2("gaus2","xygausn",xmin,xmax,ymin,ymax);
 	testfunc2->SetParameters(1,4,2,8,1);
 
-	BCBenchmarkMCMC2D *benchmark2
-		= new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
+	BCBenchmarkMCMC2D *benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
 
-	benchmark2 -> MCMCSetNIterationsRun(100000);
+	benchmark2->MCMCSetNIterationsRun(100000);
 
-	benchmark2 -> MCMCMetropolis();
+	benchmark2->MCMCMetropolis();
 
-	benchmark2 -> ProcessMCTrees();
-	benchmark2 -> PerformLagsTest();
-	benchmark2 -> PerformIterationsTest();
+	benchmark2->ProcessMCTrees();
+	benchmark2->PerformLagsTest();
+	benchmark2->PerformIterationsTest();
 
-	benchmark2 -> WriteResults();
+	benchmark2->WriteResults();
 
 	delete testfunc2;
 	delete benchmark2;
@@ -160,18 +161,17 @@ int main()
 			xmin, xmax, ymin, ymax, zmin, zmax);
 	testfunc3->SetParameters(1., 4., 2., 8., 1., 8., 1.);
 
-	BCBenchmarkMCMC3D *benchmark3
-		= new BCBenchmarkMCMC3D(testfunc3,"mcmcgaus3d.root");
+	BCBenchmarkMCMC3D *benchmark3 = new BCBenchmarkMCMC3D(testfunc3,"mcmcgaus3d.root");
 
-	benchmark3 -> MCMCSetNIterationsRun(100000);
+	benchmark3->MCMCSetNIterationsRun(100000);
 
-	benchmark3 -> MCMCMetropolis();
+	benchmark3->MCMCMetropolis();
 
-	benchmark3 -> ProcessMCTrees();
-	benchmark3 -> PerformLagsTest();
-	benchmark3 -> PerformIterationsTest();
+	benchmark3->ProcessMCTrees();
+	benchmark3->PerformLagsTest();
+	benchmark3->PerformIterationsTest();
 
-	benchmark3 -> WriteResults();
+	benchmark3->WriteResults();
 
 	delete testfunc3;
 	delete benchmark3;

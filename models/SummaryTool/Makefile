@@ -18,6 +18,7 @@
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs) -lMinuit
 ROOTGLIBS    := $(shell root-config --glibs)
+ROOTCINT     := rootcint
 
 # compiler and flags
 CXX          = g++
@@ -59,10 +60,10 @@ GLIBS       += $(ROOTGLIBS) -lBAT
 # LIBS        += -lcuba
 # GLIBS       += -lcuba
 
-# If BAT was installed in a non-standard path (e.g. user home
-# directory) then one can specify the location of the header
-# files here (uncomment following lines and adjust the path in
-# BATINSTALLDIR):
+# To generate ROOT dictionaries to be able to use the library
+# in CINT (interactive ROOT session) the path to the directory
+# with BAT include files. Easiest is to specify the
+# BATINSTALLDIR below
 #
 # BATINSTALLDIR = '/path/to/bat/installation/directory'
 CXXFLAGS    += -I$(BATINSTALLDIR)/include
@@ -72,19 +73,22 @@ GLIBS       += -L$(BATINSTALLDIR)/lib -lBAT
 # List of all classes (models) used in the program
 # Add classes to the end. Baskslash indicates continuation
 # on the next line
-CXXSRCS      = \
-        SummaryTool.cxx \
-				PriorModel.cxx
+CXXSRCS = \
+		SummaryTool.cxx \
+		PriorModel.cxx \
+		\
+		SummaryToolDict.cxx \
+		PriorModelDict.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
 #
 
-CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
-EXEOBJS      =
-MYPROGS     = 
+CXXOBJS = $(patsubst %.cxx,%.o,$(CXXSRCS))
+EXEOBJS =
+MYPROGS = 
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS) libSummaryTool.so
+GARBAGE = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS) *Dict.* libSummaryTool.so
 
 # targets
 all : libsummarytool.so
@@ -97,11 +101,14 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 %.o : %.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+%Dict.cxx : %.h
+	$(ROOCINT) $(CXXFLAGS) -f $@ -c -I. $<
+
 clean :
 	$(RM) $(GARBAGE)
 
 libsummarytool.so : $(CXXOBJS)
-	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o libSummaryTool.so 
+	$(CXX) $(SOFLAGS) $(LDFLAGS) $(LIBS) $^ -o libSummaryTool.so
 
 print :
 	echo compiler  : $(CXX)
