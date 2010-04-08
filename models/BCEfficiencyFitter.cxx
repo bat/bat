@@ -23,7 +23,7 @@
 #include "BAT/BCDataPoint.h"
 #include "BAT/BCMath.h"
 
-#include "BAT/BCEfficiencyFitter.h"
+#include "BCEfficiencyFitter.h"
 
 // ---------------------------------------------------------
 

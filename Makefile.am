@@ -1,22 +1,31 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL = aclocal
 AUTOMAKE= automake
+
 clean-local:
 	rm -rf autom4te.cache
+
 SUBDIRS= \
-	src
+	src \
+	models
+
 EXTRA_DIST= \
 	src/libBAT.rootmap \
+	models/BCRooInterface.rootmap \
+	models/libBATmodels.rootmap.in \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
-	models/README \
-	models/RooInterface \
 	tools/CreateProject.sh
+
 dist-hook: prep-docs
 	rm -f $(distdir)/src/*Dict.*
+	rm -f $(distdir)/models/*Dict.*
+	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name .svn`
 	rm -rf `find $(distdir)/models -name .svn`
+
 prep-docs: BAT-intro.ps
+
 BAT-intro.ps:
 	mkdir intro-tmp
 	cp -r doc/introduction intro-tmp

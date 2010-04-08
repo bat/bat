@@ -17,7 +17,7 @@ AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
 if IS_DARWIN
-CREATE_SO_LINK= cd $(DESTDIR)$(libdir); ln -s libBAT.dylib libBAT.so
+CREATE_SO_LINK= cd $(DESTDIR)$(libdir); rm -f libBAT.so; ln -s libBAT.dylib libBAT.so
 endif
 
 library_includedir= $(includedir)/BAT
@@ -37,9 +37,8 @@ libBAT_la_SOURCES= \
    BCMath.cxx \
    BCGoFTest.cxx \
    BCAux.cxx \
-   BCEfficiencyFitter.cxx \
-   BCGraphFitter.cxx \
-   BCHistogramFitter.cxx \
+   BCSummaryTool.cxx \
+   BCSPriorModel.cxx \
    \
    BCDataPointDict.cxx \
    BCH2DDict.cxx \
@@ -55,16 +54,18 @@ libBAT_la_SOURCES= \
    BCMathDict.cxx \
    BCGoFTestDict.cxx \
    BCAuxDict.cxx \
-   BCEfficiencyFitterDict.cxx \
-   BCGraphFitterDict.cxx \
-   BCHistogramFitterDict.cxx
+   BCSummaryToolDict.cxx \
+   BCSPriorModelDict.cxx
 
 clean-local:
 	rm -f *.o *.lo *Dict.*
+
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
+
 %Dict.cxx : ../BAT/%.h
 	$(ROOTCINT) -f $@ -c  -I.. $<
+
 install-exec-hook:
 	cp libBAT.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)

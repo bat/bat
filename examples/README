@@ -8,30 +8,34 @@ You can also find tutorials on BAT webpage: www.mppmu.mpg.de/bat
 Examples in this directory:
 -------------------------------
 
-Example01:
+example01:
    Straight line fit using GraphFitter assuming gaussian uncertainties.
    It demonstrates the most simplest usage of BAT.
    (ROOT macro)
 
-Example02:
+example02:
    Histogram fit using poissonian uncertainties.
    (ROOT macro)
 
-Example03:
+example03:
    Graph fits using 4 different functions assuming gaussian uncertainties.
    This example represents the example from the BAT paper showing
-   a comparison between different fits.
+   a comparison between different fits. It also sdemonstrates the usage of
+	the SummaryTool.
    (ROOT macro)
 
-Example04:
+example04:
    Efficiency fit. Shows how to fit a histogram ratio where the numerator
    histogram is a subset of the denominator histogram. Binomial
    uncertainties are used.
    (ROOT macro)
 
-Example05:
+example05:
    Example showing how to define own complicated models and build
    a program for running with BAT. It shows fits using two functions
    when assuming asymmetric uncertainties.
    (Compiled program)
 
+roointerface:
+   Examples of usage of the RooInterface showing how BAT analysis can be
+	performed on a RooFit workspace.

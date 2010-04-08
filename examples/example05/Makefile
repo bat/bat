@@ -25,8 +25,10 @@ CXXFLAGS    += -I.
 # need to remove '-lcuba' from the two following lines.
 # Otherwise the example won't compile.
 ###
-LIBS        += $(ROOTLIBS)  -lBAT -lcuba
-GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
+LIBS        += $(ROOTLIBS)  -lBAT -lBATmodels
+#-lcuba
+GLIBS       += $(ROOTGLIBS) -lBAT -lBATmodels
+#-lcuba
 
 CXXSRCS      = \
 	Pol1Asymm.cxx \

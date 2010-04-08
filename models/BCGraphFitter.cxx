@@ -19,7 +19,7 @@
 #include "BAT/BCDataPoint.h"
 #include "BAT/BCMath.h"
 
-#include "BAT/BCGraphFitter.h"
+#include "BCGraphFitter.h"
 
 // ---------------------------------------------------------
 

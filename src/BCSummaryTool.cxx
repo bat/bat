@@ -1,8 +1,3 @@
-#include "SummaryTool.h"
-#include <BAT/BCH1D.h>
-#include <BAT/BCH2D.h>
-#include <BAT/BCLog.h>
-
 #include <TCanvas.h>
 #include <TPostScript.h>
 #include <TLegend.h>
@@ -13,20 +8,30 @@
 #include <TLatex.h>
 #include <TMarker.h>
 #include <TArrow.h>
-#include <TGAxis.h>
+#include <TGaxis.h>
 #include <TF1.h>
 #include <TLine.h>
 
 #include <iostream>
 #include <fstream>
 
-// ---------------------------------------------------------
-SummaryTool::SummaryTool()
-{
-	// set model pointer
-	fModel = 0;
-	fPriorModel = 0;
+#include <BAT/BCModel.h>
+#include <BAT/BCSPriorModel.h>
+#include <BAT/BCH1D.h>
+#include <BAT/BCH2D.h>
+#include <BAT/BCLog.h>
 
+#include <BAT/BCSummaryTool.h>
+
+unsigned int BCSummaryTool::fHCounter=0;
+
+// ---------------------------------------------------------
+BCSummaryTool::BCSummaryTool()
+	: fModel(0)
+	, fPriorModel(0)
+	, fFlagInfoMarg(false)
+	, fFlagInfoOpt(false)
+{
 	// define sum of probabilities for quantiles
 	fSumProb.push_back(0.05);
 	fSumProb.push_back(0.10);
@@ -36,21 +41,17 @@ SummaryTool::SummaryTool()
 	fSumProb.push_back(0.90);
 	fSumProb.push_back(0.95);
 
-	// set flags
-	fFlagInfoMarg	= false;
-	fFlagInfoOpt	= false;
-
 	// set text style
-	gStyle->SetPaintTextFormat("3.0g");
-};
+	gStyle->SetPaintTextFormat(".2g");
+}
 
 // ---------------------------------------------------------
-SummaryTool::SummaryTool(BCModel* model) :
-	fModel(model)
+BCSummaryTool::BCSummaryTool(BCModel * model)
+	: fModel(model)
+	, fPriorModel(0)
+	, fFlagInfoMarg(false)
+	, fFlagInfoOpt(false)
 {
-	// set model pointer
-	fPriorModel = 0;
-
 	// define sum of probabilities for quantiles
 	fSumProb.push_back(0.05);
 	fSumProb.push_back(0.10);
@@ -60,20 +61,18 @@ SummaryTool::SummaryTool(BCModel* model) :
 	fSumProb.push_back(0.90);
 	fSumProb.push_back(0.95);
 
-	// set flags
-	fFlagInfoMarg	= false;
-	fFlagInfoOpt	= false;
-
 	// set text style
-	gStyle->SetPaintTextFormat("3.0g");
-};
+	gStyle->SetPaintTextFormat(".2g");
+}
 
 // ---------------------------------------------------------
-SummaryTool::~SummaryTool()
-{};
+BCSummaryTool::~BCSummaryTool()
+{
+	delete fPriorModel;
+}
 
 // ---------------------------------------------------------
-int SummaryTool::CopySummaryData()
+int BCSummaryTool::CopySummaryData()
 {
 	// check if model exists
 	if (!fModel)
@@ -128,7 +127,7 @@ int SummaryTool::CopySummaryData()
 			}
 		}
 		else {
-			//			BCLog::OutWarning("SummaryTool::CopySummaryData(). No information on marginalized distributions present.");
+			//			BCLog::OutWarning("BCSummaryTool::CopySummaryData(). No information on marginalized distributions present.");
 		}
 
 		// copy optimization information
@@ -137,7 +136,7 @@ int SummaryTool::CopySummaryData()
 			fGlobalMode.push_back ( (fModel->GetBestFitParameters()).at(i) );
 		}
 		else {
-			//			BCLog::OutWarning("SummaryTool::CopySummaryData(). No information on optimization present.");
+			//			BCLog::OutWarning("BCSummaryTool::CopySummaryData(). No information on optimization present.");
 		}
 	}
 
@@ -146,7 +145,7 @@ int SummaryTool::CopySummaryData()
 };
 
 // ---------------------------------------------------------
-int SummaryTool::PrintParameterPlot(const char* filename)
+int BCSummaryTool::PrintParameterPlot(const char * filename)
 {
 	// copy summary data
 	if (!CopySummaryData())
@@ -157,7 +156,9 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	int nquantiles = int( fSumProb.size() );
 
 	// create histogram
-	TH1D * hist_axes = new TH1D("hist_axes_par", ";;Scaled parameter range [a.u.]",npar, -0.5, npar-0.5);
+	TH1D * hist_axes = new TH1D(
+			TString::Format("hist_axes_par_%d",getNextIndex()),
+			";;Scaled parameter range [a.u.]",npar, -0.5, npar-0.5);
 	hist_axes->SetStats(kFALSE);
 	for (int i = 0; i < npar; ++i)
 		hist_axes->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
@@ -257,7 +258,7 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 	line_bot->SetLineWidth(2);
 
 	// print to file
-	TCanvas * c_par = new TCanvas("c_par");
+	TCanvas * c_par = new TCanvas(TString::Format("c_par_%d",getNextIndex()));
 	c_par->cd();
 	hist_axes->Draw();
 	line_top->Draw();
@@ -295,7 +296,7 @@ int SummaryTool::PrintParameterPlot(const char* filename)
 }
 
 // ---------------------------------------------------------
-int SummaryTool::PrintCorrelationPlot(const char* filename)
+int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 {
 	// copy summary data
 	if (!CopySummaryData())
@@ -309,7 +310,9 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 	int npar = fModel->GetNParameters();
 
 	// create histogram
-	TH2D * hist_corr = new TH2D("hist_corr", ";;",npar, -0.5, npar-0.5,npar, -0.5, npar-0.5);
+	TH2D * hist_corr = new TH2D(
+			TString::Format("hist_corr_%d",getNextIndex()),
+			";;",npar, -0.5, npar-0.5,npar, -0.5, npar-0.5);
 	hist_corr->SetStats(kFALSE);
 	hist_corr->GetXaxis()->SetTickLength(0.0);
 //	hist_corr->GetXaxis()->SetLabelOffset(0.03);
@@ -325,20 +328,18 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 	}
 
 	// fill plot
-	for (int i = 0; i < npar; ++i) {
+	for (int i = 0; i < npar; ++i)
 		for (int j = 0; j < npar; ++j) {
 			int index = i * npar + j;
 			double corr = fCorrCoeff.at(index);
 			hist_corr->SetBinContent(i+1, npar-j, corr);
 		}
-	}
 
 	// print to file
-	TCanvas * c_corr = new TCanvas("c_corr");
+	TCanvas * c_corr = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
 	c_corr->cd();
 	hist_corr->Draw("colz text");
 
-	// plot top axis
 	TF1 * f = new TF1("fUp","x",-0.5,npar-0.5);
 	TGaxis * A1 = new TGaxis(-0.5,npar-0.5,npar-0.5,npar-0.5,"fUp",100,"-");
 	A1->ImportAxisAttributes(hist_corr->GetXaxis());
@@ -358,33 +359,28 @@ int SummaryTool::PrintCorrelationPlot(const char* filename)
 	gPad->RedrawAxis();
 	c_corr->Print(filename);
 
-	// in general we should delete everything
-	// but now if the plots are opened in the interactive
-	// ROOT session the user might want to do some postadjustments.
-	// but we have to review this
-	// perhaps we should add a switch?
-//	delete f;
-//	delete A1;
-//	delete lA1;
-//	delete lA2;
-//	delete hist_corr;
-//	delete c_corr;
+	delete f;
+	delete A1;
+	delete lA1;
+	delete lA2;
+	delete hist_corr;
+	delete c_corr;
 
 	// no error
 	return 1;
 }
 
 // ---------------------------------------------------------
-int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
+int BCSummaryTool::PrintKnowlegdeUpdatePlot(const char * filename)
 {
 	// perform analysis
-	this->CalculatePriorModel();
+	CalculatePriorModel();
 
 	// create postscript
-	TPostScript* ps = new TPostScript(filename);
+	TPostScript * ps = new TPostScript(filename);
 
 	// create canvas and prepare postscript
-	TCanvas* c_update = new TCanvas("c_update");
+	TCanvas * c_update = new TCanvas(TString::Format("c_update_%d",getNextIndex()));
 
 	c_update->Update();
 	ps->NewPage();
@@ -441,6 +437,20 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 	legend2d->SetBorderSize(0);
 	legend2d->SetFillColor(0);
 
+	// create markers and arrows
+	TMarker * marker_prior = new TMarker();
+	marker_prior->SetMarkerStyle(24);
+	marker_prior->SetMarkerColor(kRed);
+
+	TMarker * marker_posterior = new TMarker();
+	marker_posterior->SetMarkerStyle(24);
+	marker_posterior->SetMarkerColor(kBlack);
+
+	TArrow * arrow = new TArrow();
+	arrow->SetArrowSize(0.02);
+	arrow->SetLineColor(kBlue);
+	arrow->SetLineStyle(2);
+
 	// loop over all parameters
 	for (int i = 0; i < npar; ++i) {
 		for (int j = 0; j < i; ++j) {
@@ -454,13 +464,13 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 			BCParameter * par2 = fModel->GetParameter(j);
 
 			// get 2-d histograms
-			BCH2D* bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
-			BCH2D* bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
+			BCH2D * bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
+			BCH2D * bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
 
 			// get histograms
-			TH2D* hist_2dprior = bch2d_2dprior->GetHistogram();
+			TH2D * hist_2dprior = bch2d_2dprior->GetHistogram();
 			hist_2dprior->SetLineColor(kRed);
-			TH2D* hist_2dposterior = bch2d_2dposterior->GetHistogram();
+			TH2D * hist_2dposterior = bch2d_2dposterior->GetHistogram();
 
 			// scale histograms
 			hist_2dprior->Scale(1.0/hist_2dprior->Integral("width"));
@@ -478,19 +488,11 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 			hist_2dposterior->Draw("CONT3 SAME");
 
 			std::vector <double> mode_prior = fPriorModel->GetBestFitParameters();
-			TMarker * marker_prior = new TMarker(mode_prior.at(j), mode_prior.at(i), 24);
-			marker_prior->SetMarkerColor(kRed);
-			marker_prior->Draw();
-
 			std::vector <double> mode_posterior = fModel->GetBestFitParameters();
-			TMarker * marker_posterior = new TMarker(mode_posterior.at(j), mode_posterior.at(i), 24);
-			marker_posterior->Draw();
 
-			TArrow* arrow = new TArrow(mode_prior.at(j), mode_prior.at(i),
-																 mode_posterior.at(j), mode_posterior.at(i), 0.02);
-			arrow->SetLineColor(kBlue);
-			arrow->SetLineStyle(2);
-			arrow->Draw();
+			marker_prior->DrawMarker(mode_prior.at(j), mode_prior.at(i));
+			marker_posterior->DrawMarker(mode_posterior.at(j), mode_posterior.at(i));
+			arrow->DrawArrow(mode_prior.at(j), mode_prior.at(i), mode_posterior.at(j), mode_posterior.at(i));
 
 			if (i==1 && j == 0) {
 				legend2d->AddEntry(hist_2dprior, "68% prior contour", "L");
@@ -508,6 +510,11 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 	ps->Close();
 
 	// free memory
+	delete legend1d;
+	delete legend2d;
+	delete marker_prior;
+	delete marker_posterior;
+	delete arrow;
 	delete ps;
 	delete c_update;
 
@@ -516,7 +523,7 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 }
 
 // // ---------------------------------------------------------
-// int SummaryTool::Print2DOverviewPlots(const char* filename)
+// int BCSummaryTool::Print2DOverviewPlots(const char* filename)
 // {
 // 	// copy summary data
 // 	if (!CopySummaryData())
@@ -556,18 +563,17 @@ int SummaryTool::PrintKnowlegdeUpdatePlot(const char* filename)
 // }
 
 // ---------------------------------------------------------
-int SummaryTool::PrintParameterLatex(const char* filename)
+int BCSummaryTool::PrintParameterLatex(const char * filename)
 {
 	// open file
 	std::ofstream ofi(filename);
 	ofi.precision(3);
 
 	// check if file is open
-	if(!ofi.is_open())
-		{
-			std::cerr << "Couldn't open file " << filename <<std::endl;
-			return 0;
-		}
+	if(!ofi.is_open()) {
+		std::cerr << "Couldn't open file " << filename <<std::endl;
+		return 0;
+	}
 
 	// get number of parameters and quantiles
 	int npar = fModel->GetNParameters();
@@ -615,15 +621,12 @@ int SummaryTool::PrintParameterLatex(const char* filename)
 }
 
 // ---------------------------------------------------------
-int SummaryTool::CalculatePriorModel()
+int BCSummaryTool::CalculatePriorModel()
 {
 	// create new prior model
-	if (fPriorModel) {
-		delete fPriorModel;
-		fPriorModel = 0;
-	}
+	delete fPriorModel;
 
-	fPriorModel = new PriorModel();
+	fPriorModel = new BCSPriorModel();
 
 	// set model
 	fPriorModel->SetTestModel(fModel);

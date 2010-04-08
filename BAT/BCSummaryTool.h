@@ -1,8 +1,8 @@
-#ifndef __SUMMARYTOOL__H
-#define __SUMMARYTOOL__H
+#ifndef __BCSUMMARYTOOL__H
+#define __BCSUMMARYTOOL__H
 
 /*!
- * \class SummaryTool
+ * \class BCSummaryTool
 
  * This class can be used to summarize the results of an analysis. The
  * prior and posterior probabilities are compared.
@@ -22,15 +22,14 @@
 
 // ---------------------------------------------------------
 
-#include "PriorModel.h"
-
-#include <BAT/BCModel.h>
-
 #include <string>
+
+class BCModel;
+class BCSPriorModel;
 
 // ---------------------------------------------------------
 
-class SummaryTool
+class BCSummaryTool
 {
  public:
 
@@ -39,15 +38,15 @@ class SummaryTool
 
 	/**
 	 * The default constructor. */
-	SummaryTool();
+	BCSummaryTool();
 
 	/**
 	 * A constructor. */
-	SummaryTool(BCModel* model);
+	BCSummaryTool(BCModel * model);
 
 	/**
 	 * The default destructor. */
-	~SummaryTool();
+	~BCSummaryTool();
 
 	/* @} */
 	/** \name Member functions (get) */
@@ -60,8 +59,8 @@ class SummaryTool
 	/**
 	 * Set the model to be summarized.
 	 * @param model The BCModel to be summarized.*/
-	void SetModel(BCModel* model)
-	{ fModel = model; };
+	void SetModel(BCModel * model)
+		{ fModel = model; };
 
 	/* @} */
 	/** \name Member functions (misc) */
@@ -82,37 +81,36 @@ class SummaryTool
 	/**
 	 * Print a summary plot for the parameters.
 	 * @return An error flag. */
-	int PrintParameterPlot(const char* filename = "parameters.eps");
+	int PrintParameterPlot(const char * filename = "parameters.eps");
 
 	/**
 	 * Print a correlation plot for the parameters.
 	 * @return An error flag. */
-	int PrintCorrelationPlot(const char* filename = "correlation.eps");
+	int PrintCorrelationPlot(const char * filename = "correlation.eps");
 
 	/**
 	 * Print a comparison of the prior knowledge to the posterior
 	 * knowledge for each parameter.
 	 * @return An error flag. */
-	int PrintKnowlegdeUpdatePlot(const char* filename = "update.eps");
+	int PrintKnowlegdeUpdatePlot(const char * filename = "update.eps");
 
 	/**
-	 * Print parameter summary as text.
+	 * Print parameter summary as text. (not yet implemented)
 	 * @return An error flag.*/
-
 	int PrintParameterSummary() { return 1; };
 
 	/**
-	 * Print correlation summary as text.
+	 * Print correlation summary as text. (not yet implemented)
 	 * @return An error flag. */
 	int PrintCorrelationSummary() { return 1; };
 
 	/**
 	 * Print a Latex table of the parameters.
 	 * @return An error flag. */
-	int PrintParameterLatex(const char* filename);
+	int PrintParameterLatex(const char * filename);
 
 	/**
-	 * Print a Latex table of the correlations.
+	 * Print a Latex table of the correlations. (not yet implemented)
 	 * @return An error flag. */
 	int PrintCorrelationLatex() { return 1; };
 
@@ -120,91 +118,82 @@ class SummaryTool
 
  private:
 
-	/**
-	 * The model which results are summarized.
-	 */
-	BCModel* fModel;
+	/** Helper method to get an unique number to be used in histogram naming */
+	static unsigned int getNextIndex()
+		{ return ++fHCounter; }
+
+	/** helper variable to get an unique number to be used in histogram naming */
+	static unsigned int fHCounter;
 
 	/**
-	 * Parameter names.
-	 */
+	 * The model which results are summarized */
+	BCModel * fModel;
+
+	/**
+	 * parameter names */
 	std::vector <std::string> fParName;
 
 	/**
-	 * Parameter minimum.
-	 */
+	 * parameter minima */
 	std::vector <double> fParMin;
 
 	/**
-	 * Parameter maximum.
-	 */
+	 * Parameter maxima */
 	std::vector <double> fParMax;
 
 	/**
 	 * Correlation coefficients.
-	 * Length of vector equals number of parameters * number of parameters.
-	 */
+	 * Length of vector equals number of parameters * number of parameters. */
 	std::vector <double> fCorrCoeff;
 
 	/**
 	 * Marginalized modes.\n
-	 * Length of vector equals number of parameters.
-	 */
+	 * Length of vector equals number of parameters. */
 	std::vector <double> fMargMode;
 
 	/**
 	 * Mean values.\n
-	 * Length of vector equals number of parameters.
-	 */
+	 * Length of vector equals number of parameters. */
 	std::vector <double> fMean;
 
 	/**
 	 * Global modes.\n
-	 * Length of vector equals number of parameters.
-	 */
+	 * Length of vector equals number of parameters. */
 	std::vector <double> fGlobalMode;
 
 	/**
 	 * Quantiles.\n
 	 * The following quantiles are stored: 0.05, 0.10, 0.16, 0.5, 0.84, 0.90, 0.95.\n
-	 * Length of vector equals number of parameters * number of quantiles.
-	 */
+	 * Length of vector equals number of parameters * number of quantiles. */
 	std::vector <double> fQuantiles;
 
 	/**
 	 * Smallest intervals.\n
 	 * For each parameter a set of the smallest intervals is recorded.\n
 	 * Structure: number of intervals n + n * (start, stop, local max, local max pos, integral)
-	 * Length of vector equals number of parameters * number of quantiles.
-	 */
+	 * Length of vector equals number of parameters * number of quantiles. */
 	std::vector <double> fSmallInt;
 
 	/**
 	 * RMS values.\n
-	 * Length of vector equals number of parameters.
-	 */
+	 * Length of vector equals number of parameters. */
 	std::vector <double> fRMS;
 
 	/**
-	 * Sum of probabilities for quantiles
-	 */
+	 * Sum of probabilities for quantiles */
 	std::vector <double> fSumProb;
 
 	/**
 	 * A model for calculating the marginalized distributions for the
-	 * prior probabilities.
-	 */
-	PriorModel* fPriorModel;
+	 * prior probabilities. */
+	BCSPriorModel * fPriorModel;
 
 	/**
-	 * A flag: check if marginalized information is present
-	 */
+	 * A flag: check if marginalized information is present */
 	bool fFlagInfoMarg;
 
-
 	/**
-	 * A flag: check if optimization information is present
-	 */
+	 * A flag: check if optimization information is present */
 	bool fFlagInfoOpt;
 
 };

@@ -2,7 +2,7 @@ AC_INIT(src/BCModel.cxx)
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.3.2)
+AM_INIT_AUTOMAKE(BAT, 0.4.pre1)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -57,9 +57,27 @@ AM_CONDITIONAL([CUBA], [test x$with_cuba_lib = xyes])
 dnl
 dnl Check for ROOT
 dnl
+AC_DEFUN(
+	[REQUIRE_ROOT_VERSION],
+	[require_ROOT_version=$1]
+)
+REQUIRE_ROOT_VERSION([5.16])
+dnl RooStats
+AC_ARG_WITH(
+	[roostats],
+	[AS_HELP_STRING([--with-roostats],[compile with RooStats support (default no)])],
+	[
+		use_roostats=yes
+		REQUIRE_ROOT_VERSION([5.24])
+		echo "compiling with RooStats support: required ROOT version $require_ROOT_version or later"
+	],
+	[use_roostats=no]
+)
+AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
+dnl ROOT
 m4_include(tools/build/root.m4)
 ROOT_PATH(
-	5.16,
+	$require_ROOT_version,
 	,
 	[
 		AC_MSG_ERROR([ROOT cannot be found. Please ensure that it is installed
@@ -69,4 +87,5 @@ ROOT_PATH(
 	]
 )
 
-AC_OUTPUT(Makefile src/Makefile)
+
+AC_OUTPUT(Makefile src/Makefile models/Makefile)

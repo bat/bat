@@ -1,0 +1,3 @@
+Library.BCGraphFitter:      libBATmodels.so libBAT.so libCore.so libGraf.so libHist.so libMathCore.so
+Library.BCEfficiencyFitter: libBATmodels.so libBAT.so libCore.so libGraf.so libHist.so libMathCore.so
+Library.BCHistogramFitter:  libBATmodels.so libBAT.so libCore.so libGraf.so libHist.so libMathCore.so

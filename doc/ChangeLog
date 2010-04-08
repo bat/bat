@@ -1,3 +1,18 @@
+2010-04-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* large reorganization of the package
+	* building second library libBATmodels.so
+	  - moved fast fitters here
+	  - moved BCRooInterface here
+	* BCRooInterface now optionally built with BAT
+	  - added examples/roointerface
+	* moved BinLikeTool and StackTool to new directory 'extras'
+	* SummaryTool now moved to main BAT
+	  - 2 new classes BCSummaryTool and BCSPriorModel
+	  - fixed typos and memory leaks
+	  - cleanup
+	* example03 now uses SummaryTool
+	* increased version to 0.4.pre1
+
 2010-03-23 Daniel Kollar <daniel.kollar@cern.ch>
 	* models/SummaryTool:
 	  - building ROOT CINT dictionary to allow using in root
