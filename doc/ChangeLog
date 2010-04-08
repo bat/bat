@@ -1,3 +1,7 @@
+2010-02-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCHistogramFitter:
+	  - fixed numerical conversion compiler warning
+
 2010-04-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* large reorganization of the package
 	* building second library libBATmodels.so
