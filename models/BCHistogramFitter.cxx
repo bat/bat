@@ -667,7 +667,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
 //	BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 //	BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 
-	return ROOT::Math::poisson_cdf(yObs, yExp);
+	return ROOT::Math::poisson_cdf((unsigned int)yObs, yExp);
 }
 
 // ---------------------------------------------------------
