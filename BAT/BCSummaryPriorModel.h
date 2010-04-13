@@ -1,8 +1,8 @@
-#ifndef __BCSPRIORMODEL__H
-#define __BCSPRIORMODEL__H
+#ifndef __BCSUMMARYPRIORMODEL__H
+#define __BCSUMMARYPRIORMODEL__H
 
 /*!
- * \class BCSPriorModel
+ * \class BCSummaryPriorModel
 
  * A helper class for the BCSummaryTool.
  * \brief A helper class for the BCSummaryTool.
@@ -25,7 +25,7 @@
 
 // ---------------------------------------------------------
 
-class BCSPriorModel : public BCModel
+class BCSummaryPriorModel : public BCModel
 {
  public:
 
@@ -33,16 +33,16 @@ class BCSPriorModel : public BCModel
 
 	/**
 	 * The default constructor. */
-	BCSPriorModel();
+	BCSummaryPriorModel();
 
 	/**
 	 * A constructor.
 	 * @param name The name of the model. */
-	BCSPriorModel(const char * name);
+	BCSummaryPriorModel(const char * name);
 
 	/**
 	 * The default destructor. */
-	~BCSPriorModel();
+	~BCSummaryPriorModel();
 
 	/**
 	 * Set a pointer to the model under study.

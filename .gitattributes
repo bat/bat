@@ -14,7 +14,7 @@ BAT/BCModel.h -text
 BAT/BCModelManager.h -text
 BAT/BCModelOutput.h -text
 BAT/BCParameter.h -text
-BAT/BCSPriorModel.h -text
+BAT/BCSummaryPriorModel.h -text
 BAT/BCSummaryTool.h -text
 /INSTALL -text
 /Makefile.am -text
@@ -168,7 +168,7 @@ src/BCModel.cxx -text
 src/BCModelManager.cxx -text
 src/BCModelOutput.cxx -text
 src/BCParameter.cxx -text
-src/BCSPriorModel.cxx -text
+src/BCSummaryPriorModel.cxx -text
 src/BCSummaryTool.cxx -text
 src/Makefile.am -text
 src/libBAT.rootmap -text

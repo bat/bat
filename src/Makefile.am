@@ -38,7 +38,7 @@ libBAT_la_SOURCES= \
    BCGoFTest.cxx \
    BCAux.cxx \
    BCSummaryTool.cxx \
-   BCSPriorModel.cxx \
+   BCSummaryPriorModel.cxx \
    \
    BCDataPointDict.cxx \
    BCH2DDict.cxx \
@@ -55,7 +55,7 @@ libBAT_la_SOURCES= \
    BCGoFTestDict.cxx \
    BCAuxDict.cxx \
    BCSummaryToolDict.cxx \
-   BCSPriorModelDict.cxx
+   BCSummaryPriorModelDict.cxx
 
 clean-local:
 	rm -f *.o *.lo *Dict.*

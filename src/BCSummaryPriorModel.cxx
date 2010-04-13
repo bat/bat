@@ -3,44 +3,44 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCH1D.h>
 
-#include <BAT/BCSPriorModel.h>
+#include <BAT/BCSummaryPriorModel.h>
 
 // ---------------------------------------------------------
-BCSPriorModel::BCSPriorModel()
+BCSummaryPriorModel::BCSummaryPriorModel()
 	: BCModel()
 	, fTestModel(0)
 {
 }
 
 // ---------------------------------------------------------
-BCSPriorModel::BCSPriorModel(const char * name)
+BCSummaryPriorModel::BCSummaryPriorModel(const char * name)
 	: BCModel(name)
 	, fTestModel(0)
 {
 }
 
 // ---------------------------------------------------------
-BCSPriorModel::~BCSPriorModel()
+BCSummaryPriorModel::~BCSummaryPriorModel()
 {}
 
 // ---------------------------------------------------------
-double BCSPriorModel::LogLikelihood(std::vector <double> parameters)
+double BCSummaryPriorModel::LogLikelihood(std::vector <double> parameters)
 {
 	return fTestModel->LogAPrioriProbability(parameters);
 }
 
 // ---------------------------------------------------------
-double BCSPriorModel::LogAPrioriProbability(std::vector <double> parameters)
+double BCSummaryPriorModel::LogAPrioriProbability(std::vector <double> parameters)
 {
 	return 0;
 }
 
 // ---------------------------------------------------------
-int BCSPriorModel::PerformAnalysis()
+int BCSummaryPriorModel::PerformAnalysis()
 {
 	// check if model is set
 	if (!fTestModel) {
-		BCLog::OutError("BCSPriorModel::PerformAnalysis. Model not defined.");
+		BCLog::OutError("BCSummaryPriorModel::PerformAnalysis : Model not defined.");
 		return 0;
 	}
 

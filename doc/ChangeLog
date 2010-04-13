@@ -1,3 +1,7 @@
+2010-04-13 Daniel Kollar <daniel.kollar@cern.ch>
+	* renamed BCSPriorModel to BCSummaryPriorModel
+	* added -lBATmodels to CreateProject.sh
+
 2010-04-13 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* TemplateTool: cleaned up some examples, TemplateModelManager is not needed anymore.
 

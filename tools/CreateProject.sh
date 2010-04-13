@@ -179,8 +179,8 @@ CXXFLAGS    += \$(ROOTCFLAGS)
 # system search path then the lines below are correct and the compilation
 # will work
 CXXFLAGS    += -I. -I./include
-LIBS        += \$(ROOTLIBS)  -lBAT
-GLIBS       += \$(ROOTGLIBS) -lBAT
+LIBS        += \$(ROOTLIBS)  -lBAT -lBATmodels
+GLIBS       += \$(ROOTGLIBS) -lBAT -lBATmodels
 
 # In case you see following errors during the compilation,
 #
@@ -204,8 +204,8 @@ GLIBS       += \$(ROOTGLIBS) -lBAT
 #
 # BATINSTALLDIR = '/path/to/bat/installation/directory'
 # CXXFLAGS    += -I\$(BATINSTALLDIR)/include
-# LIBS        += -L\$(BATINSTALLDIR)/lib -lBAT
-# GLIBS       += -L\$(BATINSTALLDIR)/lib -lBAT
+# LIBS        += -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+# GLIBS       += -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 
 # List of all classes (models) used in the program
 # Add classes to the end. Baskslash indicates continuation

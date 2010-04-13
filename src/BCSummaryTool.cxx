@@ -16,7 +16,7 @@
 #include <fstream>
 
 #include <BAT/BCModel.h>
-#include <BAT/BCSPriorModel.h>
+#include <BAT/BCSummaryPriorModel.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
@@ -626,7 +626,7 @@ int BCSummaryTool::CalculatePriorModel()
 	// create new prior model
 	delete fPriorModel;
 
-	fPriorModel = new BCSPriorModel();
+	fPriorModel = new BCSummaryPriorModel();
 
 	// set model
 	fPriorModel->SetTestModel(fModel);

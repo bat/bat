@@ -32,10 +32,6 @@ Updated on 9/10/2008
 - c  improve the installation procedure
      - use Vegas from ROOT and drop dependence on Cuba?
 
-- d  mode finding
-     - stable version
-     - simulated annealing
-
 
 3.
 =============

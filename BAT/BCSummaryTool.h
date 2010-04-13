@@ -25,7 +25,7 @@
 #include <string>
 
 class BCModel;
-class BCSPriorModel;
+class BCSummaryPriorModel;
 
 // ---------------------------------------------------------
 
@@ -186,7 +186,7 @@ class BCSummaryTool
 	/**
 	 * A model for calculating the marginalized distributions for the
 	 * prior probabilities. */
-	BCSPriorModel * fPriorModel;
+	BCSummaryPriorModel * fPriorModel;
 
 	/**
 	 * A flag: check if marginalized information is present */
