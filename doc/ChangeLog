@@ -1,6 +1,12 @@
+2010-04-13 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* TemplateTool: cleaned up some examples, TemplateModelManager is not needed anymore.
+
 2010-02-12 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter:
 	  - fixed numerical conversion compiler warning
+
+2010-04-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Added TemplateTool to directory extras
 
 2010-04-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* large reorganization of the package

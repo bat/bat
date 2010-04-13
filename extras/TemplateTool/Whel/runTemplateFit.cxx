@@ -9,7 +9,6 @@
 
 
 #include <TemplateModel.h>
-#include <TemplateModelManager.h>
 
 int main()
 {
@@ -85,8 +84,8 @@ int main()
 	// set MCMC options 
 	model->MCMCSetNLag(10); 
 	model->MCMCSetNChains(10); 
-	model->MCMCSetNIterationsRun(10000000); 
 	//	model->MCMCSetNIterationsRun(1000000); 
+	//	model->MCMCSetNIterationsRun(10000000); 
 
 	// set template fitting options
 	model->SetFlagPhysicalLimits(true);
@@ -141,27 +140,30 @@ int main()
 	model->SetTemplateSystError("syst. error 3", "signal (h=+1)", hist_systerror3_sgn_hR);
 
 	// ----------------------------------------------------
-	// set up template model manager
+	// perform analysis
 	// ----------------------------------------------------
 
- 	// create new TemplateModelManager object
-	TemplateModelManager * tmm = new TemplateModelManager();
+	// initialize model
+	model->Initialize();
 
- 	// add models
- 	tmm->AddTemplateModel(model);
+	// run MCMC
+	model->MarginalizeAll(); 
 	
- 	// compare models
-	tmm->PerformAnalysis();
+	// find global mode
+	model->FindMode();
 
 	// ----------------------------------------------------
 	// print
 	// ----------------------------------------------------
 
+	// print chi2 to screen 
+	std::cout << " Chi2 / ndf = " << model->CalculateChi2() << " / " << model->GetNDF() << " (" << model->CalculateChi2Prob() << ")" << std::endl;
+	
+	// print KS test results to screen
+	std::cout << " KS probability = " << model->CalculateKSProb() << std::endl;
+
 	// create summary tool
 	BCSummaryTool* st = new BCSummaryTool(model); 
-
-	// print results 
-	tmm->PrintResults("comparison.txt");
 
 	// print data
  	TCanvas c1("c1");
@@ -196,12 +198,10 @@ int main()
 	// delete models
  	delete model;
 
-	// delete model manager
-	delete tmm;
-
 	// delete summary tool
 	delete st; 
 
+	// no error
 	return 0;
 }
 

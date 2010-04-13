@@ -8,7 +8,6 @@
 #include <TCanvas.h>
 
 #include <TemplateModel.h>
-#include <TemplateModelManager.h>
 
 int main()
 {
@@ -69,17 +68,18 @@ int main()
 	// ... no constraints 
 
 	// ----------------------------------------------------
-	// set up model manager
+	// perform analysis
 	// ----------------------------------------------------
 
- 	// create new TemplateModelManager object
-	TemplateModelManager * tmm = new TemplateModelManager();
+	// initialize model
+	model->Initialize();
 
- 	// add models
- 	tmm->AddTemplateModel(model);
+	// run MCMC
+	model->MarginalizeAll(); 
+	
+	// find global mode
+	model->FindMode();
 
- 	// compare models
-	tmm->PerformAnalysis();
 
 	// ----------------------------------------------------
 	// print
@@ -87,9 +87,6 @@ int main()
 
 	// create summary tool
 	BCSummaryTool* st = new BCSummaryTool(model); 
-
-	// print results 
-	tmm->PrintResults("comparison.txt");
 
 	// print data
  	TCanvas c1("c1");
@@ -116,9 +113,6 @@ int main()
 
 	// delete models
  	delete model;
-
-	// delete model manager
-	delete tmm;
 
 	// delete summary tool
 	delete st; 

@@ -2,7 +2,6 @@
 #include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <TemplateModel.h>
-#include <TemplateModelManager.h>
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -93,29 +92,57 @@ int main()
 	m_2bkg1sgn->AddTemplate(hist_sgn, "sgn", 0., 50.);
 
 	// ----------------------------------------------------
-	// set up model manager
+	// perform analyses
 	// ----------------------------------------------------
 
- 	// create new TemplateModelManager object
-	TemplateModelManager * tmm = new TemplateModelManager();
+	// initialize models
+	m_1bkg0sgn->Initialize();
+	m_1bkg1sgn->Initialize();
+	m_2bkg0sgn->Initialize();
+	m_2bkg1sgn->Initialize();
 
- 	// add models
- 	tmm->AddTemplateModel(m_1bkg0sgn);
- 	tmm->AddTemplateModel(m_1bkg1sgn);
- 	tmm->AddTemplateModel(m_2bkg0sgn);
- 	tmm->AddTemplateModel(m_2bkg1sgn);
-
-	tmm->SetFlagFixNorm(false); 
-
- 	// compare models
-	tmm->PerformAnalysis();
-
+	// run MCMC and find global mode
+	m_1bkg0sgn->MarginalizeAll(); 
+	m_1bkg0sgn->FindMode(); 
+	m_1bkg1sgn->MarginalizeAll(); 
+	m_1bkg1sgn->FindMode(); 
+	m_2bkg0sgn->MarginalizeAll(); 
+	m_2bkg0sgn->FindMode(); 
+	m_2bkg1sgn->MarginalizeAll(); 
+	m_2bkg1sgn->FindMode(); 
+	
 	// ----------------------------------------------------
 	// print
 	// ----------------------------------------------------
 
-	// print results 
-	tmm->PrintResults("comparison.txt");
+	std::cout << " Model 1 bkg 0 sgn : " << std::endl;
+	std::cout << " Chi2 / ndf = " << m_1bkg0sgn->CalculateChi2() << " / ";
+	std::cout << m_1bkg0sgn->GetNDF() << " (";
+	std::cout << m_1bkg0sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << " KS probability = " << m_1bkg0sgn->CalculateKSProb() << std::endl;
+	std::cout << std::endl;
+
+	std::cout << " Model 1 bkg 1 sgn : " << std::endl;
+	std::cout << " Chi2 / ndf = " << m_1bkg1sgn->CalculateChi2() << " / ";
+	std::cout << m_1bkg1sgn->GetNDF() << " (";
+	std::cout << m_1bkg1sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << " KS probability = " << m_1bkg1sgn->CalculateKSProb() << std::endl;
+	std::cout << std::endl;
+
+	std::cout << " Model 2 bkg 0 sgn : " << std::endl;
+	std::cout << " Chi2 / ndf = " << m_2bkg0sgn->CalculateChi2() << " / ";
+	std::cout << m_2bkg0sgn->GetNDF() << " (";
+	std::cout << m_2bkg0sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << " KS probability = " << m_2bkg0sgn->CalculateKSProb() << std::endl;
+	std::cout << std::endl;
+
+	std::cout << " Model 2 bkg 1 sgn : " << std::endl;
+	std::cout << " Chi2 / ndf = " << m_2bkg1sgn->CalculateChi2() << " / ";
+	std::cout << m_2bkg1sgn->GetNDF() << " (";
+	std::cout << m_2bkg1sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << " KS probability = " << m_2bkg1sgn->CalculateKSProb() << std::endl;
+	std::cout << std::endl;
+
 
 	// print data
  	TCanvas c1("c1");
@@ -160,9 +187,6 @@ int main()
  	delete m_1bkg1sgn;
  	delete m_2bkg0sgn;
  	delete m_2bkg1sgn;
-
-	// delete model manager
-	delete tmm;
 
 	return 0;
 }
