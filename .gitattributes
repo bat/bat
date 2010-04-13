@@ -151,6 +151,10 @@ models/BCHistogramFitter.h -text
 models/BCRooInterface.cxx -text
 models/BCRooInterface.h -text
 models/BCRooInterface.rootmap -text
+models/BCTemplateEnsembleTest.cxx -text
+models/BCTemplateEnsembleTest.h -text
+models/BCTemplateFitter.cxx -text
+models/BCTemplateFitter.h -text
 models/Makefile.am -text
 models/libBATmodels.rootmap.in -text
 /readme.devel -text

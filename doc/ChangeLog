@@ -1,4 +1,7 @@
 2010-04-13 Daniel Kollar <daniel.kollar@cern.ch>
+	* added BCTemplateFitter and BCTemplateEnsambleTest to models
+
+2010-04-13 Daniel Kollar <daniel.kollar@cern.ch>
 	* renamed BCSPriorModel to BCSummaryPriorModel
 	* added -lBATmodels to CreateProject.sh
 

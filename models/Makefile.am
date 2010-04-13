@@ -24,15 +24,22 @@ library_includedir= $(includedir)/BAT
 library_include_HEADERS= \
 	BCEfficiencyFitter.h \
 	BCGraphFitter.h \
-	BCHistogramFitter.h
+	BCHistogramFitter.h \
+	BCTemplateFitter.h \
+	BCTemplateEnsembleTest.h
+
 libBATmodels_la_SOURCES= \
 	BCEfficiencyFitter.cxx \
 	BCGraphFitter.cxx \
 	BCHistogramFitter.cxx \
+	BCTemplateFitter.cxx \
+	BCTemplateEnsembleTest.cxx \
 	\
 	BCEfficiencyFitterDict.cxx \
 	BCGraphFitterDict.cxx \
-	BCHistogramFitterDict.cxx
+	BCHistogramFitterDict.cxx \
+	BCTemplateFitterDict.cxx \
+	BCTemplateEnsembleTestDict.cxx
 
 if ROOSTATS
 AM_LDFLAGS += -lRooFitCore -lRooFit

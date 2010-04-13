@@ -1,3 +1,5 @@
 Library.BCGraphFitter:      libBATmodels.so libBAT.so libCore.so libGraf.so libHist.so libMathCore.so
 Library.BCEfficiencyFitter: libBATmodels.so libBAT.so libCore.so libGraf.so libHist.so libMathCore.so
 Library.BCHistogramFitter:  libBATmodels.so libBAT.so libCore.so libGraf.so libHist.so libMathCore.so
+Library.BCTemplateFitter:       libBATmodels.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libPostscript.so libRIO.so libTree.so
+Library.BCTemplateEnsembleTest: libBATmodels.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libPostscript.so libRIO.so libTree.so
