@@ -21,7 +21,7 @@ example03:
    Graph fits using 4 different functions assuming gaussian uncertainties.
    This example represents the example from the BAT paper showing
    a comparison between different fits. It also sdemonstrates the usage of
-	the SummaryTool.
+	 the SummaryTool.
    (ROOT macro)
 
 example04:
@@ -38,4 +38,10 @@ example05:
 
 roointerface:
    Examples of usage of the RooInterface showing how BAT analysis can be
-	performed on a RooFit workspace.
+	 performed on a RooFit workspace.
+
+template:
+   Examples for how to fit several templates to a data set using
+   1-dim. histograms. The examples feature the BCTemplateFitter which
+   is included in the models directory. 
+   (ROOT macros and compiled programs)

@@ -11,6 +11,7 @@
 #include <TPostScript.h>
 #include <TPad.h>
 #include <TLine.h>
+#include <TDirectory.h>
 
 #include <BAT/BCMath.h>
 #include <BAT/BCLog.h>
@@ -51,8 +52,11 @@ BCTemplateFitter::BCTemplateFitter(const char * name)
 // ---------------------------------------------------------
 BCTemplateFitter::~BCTemplateFitter()
 {
-	delete fUncertaintyHistogramExp;
-	delete fUncertaintyHistogramObsPosterior;
+	if (fUncertaintyHistogramExp)
+		delete fUncertaintyHistogramExp;
+
+	if (fUncertaintyHistogramObsPosterior)
+		delete fUncertaintyHistogramObsPosterior;
 }
 
 // ---------------------------------------------------------
@@ -586,7 +590,7 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 		flag_diff = true;
 
 	// create canvas
-	TCanvas* c1 = new TCanvas("c1", "", 700, 700);
+	TCanvas* c1 = new TCanvas("", "", 700, 700);
 	c1->cd();
 	TPad * pad1;
 	TPad * pad2;
@@ -1132,7 +1136,7 @@ void BCTemplateFitter::PrintRatios(const char * filename, int options, double ov
 {
 	int nratios = int(fHistRatios1D.size());
 
-	TCanvas * c1 = new TCanvas("c1");
+	TCanvas * c1 = new TCanvas("");
 
 	TPostScript * ps = new TPostScript(filename, 112);
 	ps->NewPage();
@@ -1233,7 +1237,7 @@ int BCTemplateFitter::ConstrainSum(std::vector <int> indices, double mean, doubl
 // ---------------------------------------------------------
 void BCTemplateFitter::PrintTemp()
 {
-	TCanvas * c1 = new TCanvas("c1");
+	TCanvas * c1 = new TCanvas("");
 
 	c1->cd();
 	fUncertaintyHistogramExp->Draw("COL");
@@ -1261,11 +1265,14 @@ int BCTemplateFitter::PrintTemplate(const char * name, const char * filename)
 		return 0;
 	}
 
+	// remember old directory
+	TDirectory* dir = gDirectory;
+
 	// create postscript
 	TPostScript * ps = new TPostScript(filename);
 
 	// create new canvas
-	TCanvas * c1 = new TCanvas("c1", "", 700, 700);
+	TCanvas * c1 = new TCanvas("", "", 700, 700);
 
 	c1->Update();
 	ps->NewPage();
@@ -1354,13 +1361,12 @@ int BCTemplateFitter::PrintTemplate(const char * name, const char * filename)
 	c1->Update();
 	ps->Close();
 
-	// print canvas
-	//	c1->Print(filename);
+	// change to old directory
+	dir->cd();
 
 	// free memory
 	delete c1;
 	delete ps;
-
 
 	// no error
 	return 1;

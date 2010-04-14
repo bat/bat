@@ -126,7 +126,7 @@ class BCTemplateFitter : public BCModel
 		 * Return a template histogram.
 		 * @param name The template name.
 		 */
-		TH1D GetTemplate(const char * name);
+		//		TH1D GetTemplate(const char * name);
 
 		/**
 		 * Return the histogram containing the data.
@@ -237,7 +237,7 @@ class BCTemplateFitter : public BCModel
 		 * @param corr The correlation coefficiency.
 		 * @return An error code.
 		 */
-		int AddSystErrorCorrelation(const char * errorname1, const char * errnorame2, double corr);
+		//		int AddSystErrorCorrelation(const char * errorname1, const char * errnorame2, double corr);
 
 		/**
 		 * Constrains a sum of contributions. Assume a Gaussian prior.
