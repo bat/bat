@@ -42,11 +42,12 @@ if test $with_cuba_lib = yes; then
 	if test -n "$with_cuba_path"; then
 		echo "checking for cuba.h in path $with_cuba_path"
 		AC_CACHE_CHECK([for the directory containing cuba.h], cuba_cv_pathdir,cuba_cv_pathdir=$with_cuba_path)
-		AC_SUBST(CUBADIR,$cuba_cv_pathdir)
+		AC_SUBST(CUBAINCLUDE,[-I$cuba_cv_pathdir])
 		AC_CHECK_HEADER($cuba_cv_pathdir/cuba.h, ,[echo Could not find cuba.h; echo Compiling without cuba])
 	else
 		echo "checking for cuba.h in system default directories"
 		AC_CHECK_HEADERS(cuba.h, ,[echo Could not find cuba.h; echo Compiling without cuba])
+		AC_SUBST(CUBAINCLUDE,[])
 	fi
 else
 	echo Could not find libcuba.a

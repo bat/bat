@@ -1,7 +1,10 @@
+2010-04-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixes to building with cuba support on MAC OS X
+
 2010-04-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BATemplateFitter: minor bug fixes.
 	* Added examples for template fitting.
-	
+
 2010-04-13 Daniel Kollar <daniel.kollar@cern.ch>
 	* added BCTemplateFitter and BCTemplateEnsambleTest to models
 

@@ -3,8 +3,13 @@ libBATmodels_la_LDFLAGS= -version-info 1:0:1
 
 AM_CXXFLAGS= -Wall -fPIC  -I.. $(ROOTCFLAGS)
 
+AM_LDFLAGS= -O
+AM_SOFLAGS= -shared
+
 if CUBA
-AM_CXXFLAGS += -I$(CUBADIR)
+AM_CXXFLAGS += $(CUBAINCLUDE)
+AM_LDFLAGS += -lcuba
+libBATmodels_la_LDFLAGS += -lcuba
 endif
 
 if DEBUG
@@ -12,9 +17,6 @@ AM_CXXFLAGS += -g -O0
 else !DEBUG
 AM_CXXFLAGS += -O2
 endif !DEBUG
-
-AM_LDFLAGS= -O
-AM_SOFLAGS= -shared
 
 if IS_DARWIN
 CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmodels.so; ln -s libBATmodels.dylib libBATmodels.so

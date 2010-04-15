@@ -5,11 +5,6 @@ provided with BAT.
 Interfaces:
 -----------
 
- * RooInterface
-   - interface allowing to run BAT on a problem/data defined in a
-     standard RooFit workspace format, requires ROOT 5.24 or later
-   - Author: Gregory Schott <gregory.schott@cern.ch>
-
 * StackModel
    - a model for fitting a "data histogram" to a set of "pdf histograms". 
    - see the tutorial on hypothesis testing for details 
@@ -23,12 +18,6 @@ Interfaces:
      see the examples BinLikeTool/TemplateFit. 
    - includes a summary of the goodness-of-fit for each histogram. 
    - includes an easy starter script. 
-   - Author: Kevin Kroeninger <kevin.kroeninger@cern.ch> 
-
-* SummaryTool
-   - a tool for summarizing the information of a model. 
-   - in the moment this includes a correlation plot and a summary plot
-     of the parameters. 
    - Author: Kevin Kroeninger <kevin.kroeninger@cern.ch> 
 
 --------------------------------------------------------------------------
