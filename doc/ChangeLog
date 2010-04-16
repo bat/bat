@@ -1,3 +1,14 @@
+2010-04-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* removed obsolete directories:
+	  extras/TemplateTool
+	  extras/StackTool
+	  development
+	* moved todo_detailed.txt to doc
+	* renamed examples/template to examples/templatefitter
+	* updated examples/README
+	* small updates in examples/templatefitter/README
+	  - will need more changes before the release
+
 2010-04-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixes to building with cuba support on MAC OS X
 

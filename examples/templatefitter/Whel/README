@@ -6,10 +6,10 @@ commented and exaplains the individual steps. Three files are part of
 this example: 
 
 CreateHistogram.c - this needs to be run first to generate the
-										templates and a data set
+                    templates and a data set
 
 templatefit.cxx   - this macro performs a template fit to a single data
                     set
 
 ensembletest.cxx  - this macro performs an ensemble test for a given
-								 	  combination of templates.
+                    combination of templates.

@@ -2,13 +2,8 @@
 This directory contains subdirectories with different models and interfaces
 provided with BAT.
 
-Interfaces:
+Models:
 -----------
-
-* StackModel
-   - a model for fitting a "data histogram" to a set of "pdf histograms". 
-   - see the tutorial on hypothesis testing for details 
-   - Authors: Kevin Kroeninger <kevin.kroeninger@cern.ch>, Andrea Knue <andrea.knue@phys.uni-goettingen.de> 
 
 * BinLikeTool
    - a model for fitting a single function to a set of histograms. The

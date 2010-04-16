@@ -1,9 +1,10 @@
-StackTool: 
-==========
+TemplateFitter: 
+=============
 
 Description: 
 ------------
-The StackTool is used to fit a set of templates to a histogram. The
+
+The TemplateFitter is used to fit a set of templates to a histogram. The
 statistical method used is described in the document provided with
 this tool.
 
@@ -12,10 +13,6 @@ Authors:
 * Andrea Knue, University of Goettingen 
 * Daniel Kollar, CERN 
 * Kevin Kroeninger, University of Goettingen 
-
-Version: 
---------
-1.0.0 (05.02.2010)  
 
 Features:
 ---------
@@ -36,6 +33,9 @@ Features:
 
 * The sum of all expectation values can be constrained to the number
   of events in the data histogram.
+
+* Systematic uncertainties can be included as a function of the
+  variable under study.
 
 * A tool for performing ensemble tests is provided.
 

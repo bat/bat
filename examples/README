@@ -40,7 +40,7 @@ roointerface:
    Examples of usage of the RooInterface showing how BAT analysis can be
 	 performed on a RooFit workspace.
 
-template:
+templatefitter:
    Examples for how to fit several templates to a data set using
    1-dim. histograms. The examples feature the BCTemplateFitter which
    is included in the models directory. 
