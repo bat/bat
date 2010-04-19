@@ -2,7 +2,7 @@
 This example is part of BAT. It will only run if BAT is correctly
 installed in the system.
 
-The example05 shows how to preperly define a new model class
+The eample shows how to preperly define a new model class
 based on the BCModel class or on any previously defined class
 which inherits from BCModel. It demonstrates how to create
 a simple compiled program using BAT.

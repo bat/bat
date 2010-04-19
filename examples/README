@@ -10,10 +10,10 @@ Examples in this directory:
 
 fastfitter:
    Examples showing the most basic usage of BAT for fitting data
-	using TF1 ROOT function
+   using ROOT TF1 function.
    (ROOT macros)
 
-example05:
+simplecompiled:
    Example showing how to define own complicated models and build
    a program for running with BAT. It shows fits using two functions
    when assuming asymmetric uncertainties.
@@ -21,7 +21,7 @@ example05:
 
 roointerface:
    Examples of usage of the RooInterface showing how BAT analysis can be
-	 performed on a RooFit workspace.
+   performed on a RooFit workspace.
 
 templatefitter:
    Examples for how to fit several templates to a data set using

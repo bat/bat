@@ -1,4 +1,7 @@
 2010-04-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* renamed example05 to simplecompiled
+
+2010-04-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - errors on mode are negative if unavailable
 	  - errors on mode are not prinyed for SA and MCMC
