@@ -147,7 +147,6 @@ void BCLog::StartupInfo()
 
 const char * BCLog::ToString(BCLog::LogLevel loglevel)
 {
-
 	switch (loglevel)
 	{
 		case debug:
@@ -163,7 +162,6 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 		default:
 			return "";
 	}
-
 }
 
 // ---------------------------------------------------------

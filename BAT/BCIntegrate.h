@@ -419,12 +419,12 @@ class BCIntegrate : public BCEngineMCMC
 			{ fSATmin = Tmin; }
 
 		void SetFlagWriteSAToFile(bool flag)
-		{ fFlagWriteSAToFile = flag; }; 
+			{ fFlagWriteSAToFile = flag; }; 
 
 		/*
 		 * Sets the tree containing the Markov chains. */
 		void SetSATree(TTree* tree)
-		{ fTreeSA = tree; };
+			{ fTreeSA = tree; };
 
 		/* @} */
 

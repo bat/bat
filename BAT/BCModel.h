@@ -157,7 +157,7 @@ class BCModel : public BCIntegrate
 		/**
 		 * @param index The index of the parameter in the parameter set.
 		 * @return The parameter. */
-		BCParameter* GetParameter(int index);
+		BCParameter * GetParameter(int index);
 
 		/**
 		 * @param name The name of the parameter in the parameter set.
@@ -170,15 +170,18 @@ class BCModel : public BCIntegrate
 			{ return fParameterSet; };
 
 		/**
-		 * Returns the value of a particular parameter (defined by index) at
+		 * Returns the value of a parameter (defined by index) at
 		 * the global mode of the posterior pdf.
-		 * @param index The index of the parameter.
-		 * @return The best fit parameter. */
-		double GetBestFitParameter(unsigned int index)
-			{ return fBestFitParameters[index]; };
+		 * @param index index of the parameter.
+		 * @return best fit value of the parameter or -1e+111 on error or center of the range if mode finding not yer run */
+		double GetBestFitParameter(unsigned int index);
 
-		double GetBestFitParameterError(unsigned int index)
-		{ return fBestFitParameterErrors[index]; }; 
+		/**
+		 * Returns the error on the value of a parameter (defined by index) at
+		 * the global mode of the posterior pdf.
+		 * @param index index of the parameter.
+		 * @return error on the best fit value of the parameter or -1 if undefined */
+		double GetBestFitParameterError(unsigned int index);
 
 		/**
 		 * Returns the set of values of the parameters at the global mode of
@@ -193,17 +196,15 @@ class BCModel : public BCIntegrate
 		/**
 		 * Returns the value of a particular parameter (defined by index) at
 		 * the modes of the marginalized posterior pdfs.
-		 * @param index The index of the parameter.
-		 * @return The best fit parameter */
-		double GetBestFitParameterMarginalized(unsigned int index)
-			{ return fBestFitParametersMarginalized[index]; };
+		 * @param index index of the parameter.
+		 * @return best fit parameter or -1e+111 on error or center of the range if marginalization not yet run */
+		double GetBestFitParameterMarginalized(unsigned int index);
 
 		/**
 		 * Returns the set of values of the parameters at the modes of the
 		 * marginalized posterior pdfs.
-		 * @return The best fit parameters. */
-		std::vector <double> GetBestFitParametersMarginalized()
-			{ return fBestFitParametersMarginalized; };
+		 * @return best fit parameters */
+		std::vector <double> GetBestFitParametersMarginalized();
 
 		/**
 		 * @return The 2-d histogram of the error band. */
@@ -215,7 +216,7 @@ class BCModel : public BCIntegrate
 		/**
 		 * Returns a vector of y-values at a certain probability level.
 		 * @param level The level of probability
-		 * @return The vector of y-values */
+		 * @return vector of y-values */
 		std::vector <double> GetErrorBand(double level);
 
 		TGraph * GetErrorBandGraph(double level1, double level2);

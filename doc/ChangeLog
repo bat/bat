@@ -1,3 +1,12 @@
+2010-04-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - errors on mode are negative if unavailable
+	  - errors on mode are not prinyed for SA and MCMC
+	  - fix return values for mode and its error in no mode finding was run
+	* code formating
+	* reorganized fast fitter examples
+	* version 0.4.pre2
+
 2010-04-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* removed obsolete directories:
 	  extras/TemplateTool

@@ -61,11 +61,6 @@ doc/manual/scheme.eps -text
 doc/releasenotes.txt -text
 doc/todo_detail.txt -text
 examples/README -text
-examples/example01/graphFitterSimpleExample.C -text
-examples/example02/histogramFitterExample.C -text
-examples/example03/data/datax.txt -text
-examples/example03/graphFitterAdvancedExample.C -text
-examples/example04/efficiencyFitterExample.C -text
 examples/example05/CreateData.C -text
 examples/example05/Makefile -text
 examples/example05/Pol1Asymm.cxx -text
@@ -74,6 +69,12 @@ examples/example05/Pol2Asymm.cxx -text
 examples/example05/Pol2Asymm.h -text
 examples/example05/README -text
 examples/example05/asymmErrorsFitterExample.cxx -text
+examples/fastfitter/README -text
+examples/fastfitter/advancedGraphFitter/data/datax.txt -text
+examples/fastfitter/advancedGraphFitter/graphFitterAdvancedExample.C -text
+examples/fastfitter/efficiencyFitter/efficiencyFitterExample.C -text
+examples/fastfitter/graphFitter/graphFitterSimpleExample.C -text
+examples/fastfitter/histogramFitter/histogramFitterExample.C -text
 examples/roointerface/Makefile -text
 examples/roointerface/PrepareWorkspace_GaussOverFlat.C -text
 examples/roointerface/PrepareWorkspace_GaussOverFlat_withSystematics.C -text
