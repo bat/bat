@@ -1,3 +1,7 @@
+2010-04-20 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - put back the removed body of GetBestFitParametersMarginalized()
+
 2010-04-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* renamed example05 to simplecompiled
 

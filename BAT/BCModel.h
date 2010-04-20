@@ -204,7 +204,8 @@ class BCModel : public BCIntegrate
 		 * Returns the set of values of the parameters at the modes of the
 		 * marginalized posterior pdfs.
 		 * @return best fit parameters */
-		std::vector <double> GetBestFitParametersMarginalized();
+		std::vector <double> GetBestFitParametersMarginalized()
+			{ return fBestFitParametersMarginalized; };
 
 		/**
 		 * @return The 2-d histogram of the error band. */
