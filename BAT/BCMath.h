@@ -188,6 +188,8 @@ namespace BCMath
 
 	double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
 
+	double SplitGaussian(double* x, double* par); 
+
 }
 
 // ---------------------------------------------------------

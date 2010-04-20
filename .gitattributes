@@ -107,6 +107,12 @@ extras/BinLikeTool/TemplateFit/TemplateFit.cxx -text
 extras/BinLikeTool/TemplateFit/TemplateFit.h -text
 extras/BinLikeTool/TemplateFit/runTemplateFit.cxx -text
 extras/BinLikeTool/setup.sh -text
+extras/CombinationTool/CombinationModel.cxx -text
+extras/CombinationTool/CombinationModel.h -text
+extras/CombinationTool/CombinationXSec.cxx -text
+extras/CombinationTool/CombinationXSec.h -text
+extras/CombinationTool/Makefile -text
+extras/CombinationTool/runCombinationTool.cxx -text
 extras/README -text
 models/BCEfficiencyFitter.cxx -text
 models/BCEfficiencyFitter.h -text

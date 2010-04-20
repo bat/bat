@@ -251,7 +251,6 @@ double BCMath::LogChi2(double x, int n)
 }
 
 // ---------------------------------------------------------
-
 double BCMath::LogVoigtian(double x, double sigma, double gamma)
 {
    if (sigma <= 0 || gamma <= 0) {
@@ -260,6 +259,21 @@ double BCMath::LogVoigtian(double x, double sigma, double gamma)
    }
 
    return log(TMath::Voigt(x, sigma, gamma));
+}
+
+// ---------------------------------------------------------
+double BCMath::SplitGaussian(double* x, double* par)
+{
+	double mean = par[0]; 
+	double sigmadown = par[1]; 
+	double sigmaup = par[2];
+
+	double sigma = sigmadown;
+
+	if (x[0] > mean)
+		sigma = sigmaup; 
+	
+	return 1.0/sqrt(2.0*TMath::Pi())/sigma * exp(- (x[0]-mean)*(x[0]-mean)/2./sigma/sigma);
 }
 
 // ---------------------------------------------------------

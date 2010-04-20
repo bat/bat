@@ -23,6 +23,7 @@
 // ---------------------------------------------------------
 
 #include <string>
+#include <vector>
 
 class BCModel;
 class BCSummaryPriorModel;

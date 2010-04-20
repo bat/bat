@@ -1,3 +1,8 @@
+2010-04-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel: Added priors for individual parameters
+	* BCSummaryTool: Included vector.h (bug fix)
+	* extras: added first draft of combination tool
+
 2010-04-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - put back the removed body of GetBestFitParametersMarginalized()

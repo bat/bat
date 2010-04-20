@@ -35,6 +35,7 @@ class TH2D;
 class TGraph;
 class TCanvas;
 class TPostscript;
+class TF1;
 
 //BAT classes
 class BCDataPoint;
@@ -205,7 +206,7 @@ class BCModel : public BCIntegrate
 		 * marginalized posterior pdfs.
 		 * @return best fit parameters */
 		std::vector <double> GetBestFitParametersMarginalized()
-			{ return fBestFitParametersMarginalized; };
+			{ return fBestFitParametersMarginalized; };                                                          
 
 		/**
 		 * @return The 2-d histogram of the error band. */
@@ -310,6 +311,60 @@ class BCModel : public BCIntegrate
 		 * @param nbins   Number of bins (default = 100) */
 		void SetNbins(const char * parname, int nbins);
 
+		/**
+		 * Set prior for a parameter. 
+		 * @param index The parameter index
+		 * @param f A pointer to a function describing the prior
+		 * @return An error code.
+		 */ 
+		int SetPrior(int index, TF1* f); 
+
+		/**
+		 * Set prior for a parameter. 
+		 * @param name The parameter name
+		 * @param f A pointer to a function describing the prior
+		 * @return An error code.
+		 */ 
+		int SetPrior(const char* name, TF1* f); 
+
+		/**
+		 * Set Gaussian prior for a parameter. 
+		 * @param index The parameter index
+		 * @param mean The mean of the Gaussian
+		 * @param sigma The sigma of the Gaussian
+		 * @return An error code.
+		 */ 
+		int SetPriorGauss(int index, double mean, double sigma); 
+
+		/**
+		 * Set Gaussian prior for a parameter. 
+		 * @param name The parameter name
+		 * @param mean The mean of the Gaussian
+		 * @param sigma The sigma of the Gaussian
+		 * @return An error code.
+		 */ 
+		int SetPriorGauss(const char* name, double mean, double sigma); 
+
+		/**
+		 * Set Gaussian prior for a parameter with two different widths.
+		 * @param index The parameter index
+		 * @param mean The mean of the Gaussian
+		 * @param sigmadown The sigma (down) of the Gaussian
+		 * @param sigmaup The sigma (up)of the Gaussian
+		 * @return An error code.
+		 */ 
+		int SetPriorGauss(int index, double mean, double sigmadown, double sigmaup);
+
+		/**
+		 * Set Gaussian prior for a parameter with two different widths.
+		 * @param name The parameter name
+		 * @param mean The mean of the Gaussian
+		 * @param sigmadown The sigma (down) of the Gaussian
+		 * @param sigmaup The sigma (up)of the Gaussian
+		 * @return An error code.
+		 */ 
+		int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup);
+
 		/* @} */
 
 		/** \name Member functions (miscellaneous methods) */
@@ -343,8 +398,7 @@ class BCModel : public BCIntegrate
 		 * @param parameters A set of parameter values
 		 * @return The prior probability p(parameters)
 		 * @see GetPrior(std::vector <double> parameters) */
-		virtual double LogAPrioriProbability(std::vector <double> parameters)
-			{ return 0.; };
+		virtual double LogAPrioriProbability(std::vector <double> parameters); 
 
 		/**
 		 * Returns the likelihood
@@ -706,6 +760,10 @@ class BCModel : public BCIntegrate
 		 * Number of chains in the MCMC of the p-value
 		 * evaluation using MCMC */
 		int fGoFNChains;
+
+		/*
+		 * A vector of prior functions. */ 
+		std::vector<TF1*> fPriorContainer;
 
 	private:
 
