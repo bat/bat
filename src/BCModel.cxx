@@ -588,6 +588,8 @@ double BCModel::LogAPrioriProbability(std::vector <double> parameters)
     // check if prior exists 
 		if (f) 
 			logprob += log( f->Eval(parameters.at(i)) ); 
+		else
+			logprob -= log(GetParameter(i)->GetRangeWidth());
 	}
 
   return logprob; 
@@ -1314,7 +1316,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins)
       // loop over observations, each may have different likelihood and CDF
       for (int j = 0; j < n; j++) {
          // actual value
-         double CDFval = CDF(par, j);
+				double CDFval = CDF(par, j, false);
          // for the bin just before
          double CDFlower = CDF(par, j, true);
 
@@ -1384,7 +1386,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins)
    }
    else { //continuous case is simple
       for (int j = 0; j < n; j++)
-         hist->Fill(CDF(par, j));
+				hist->Fill(CDF(par, j, false));
    }
 
    // calculate chi^2
@@ -1493,7 +1495,7 @@ double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,int index
    // calculated expected CDF for unique points only
    std::set<double> uniqueObservations;
    for (int i = 0; i < N; i++)
-      uniqueObservations.insert(CDF(par, i));
+		 uniqueObservations.insert(CDF(par, i, false));
 
    int nUnique = uniqueObservations.size();
    if (nUnique != ECDF->GetNbinsX() + 1) {
