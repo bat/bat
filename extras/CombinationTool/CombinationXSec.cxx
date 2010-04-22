@@ -9,6 +9,9 @@
 #include <TGraphAsymmErrors.h>
 #include <TH2D.h> 
 #include <TPostScript.h> 
+#include <TLatex.h> 
+#include <TLine.h> 
+#include <TBox.h> 
 
 // ---------------------------------------------------------
 CombinationXSec::CombinationXSec(const char * name, double xmin, double xmax) : CombinationModel(name, xmin, xmax)
@@ -29,7 +32,7 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 	// loop over all channels 
 	for (int i = 0; i < nchannels; ++i) {
 		// calculate expectation for this channel
-		double expectation = parameters.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i); 
+		double expectation = parameters.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i) * fChannelBR.at(i); 
 		
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
@@ -61,7 +64,7 @@ double CombinationXSec::LogAPrioriProbability(std::vector <double> parameters)
 
 		// add channel signal prior
 		if (fChannelSignalPriorContainer.at(i))
-			logprob += log( fChannelSignalPriorContainer.at(i)->Eval(parameters.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i)) );
+			logprob += log( fChannelSignalPriorContainer.at(i)->Eval(parameters.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i) * fChannelBR.at(i)) );
 
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
@@ -100,13 +103,9 @@ int CombinationXSec::AddChannel(const char* channelname)
 	fChannelLuminosity.push_back(1.0); 
 	fChannelLuminosityPriorContainer.push_back(0); 
 
-	// add histogram
-	TH1D* hist = new TH1D(Form("sigma_%s", channelname), Form(";#sigma_{%s};p(#sigma_{%s})", channelname, channelname),
-												100, 
-												GetParameter(0)->GetLowerLimit(), 
-												GetParameter(0)->GetUpperLimit());
-	BCH1D* bchist = new BCH1D(hist); 
-	fChannelSignal.push_back(bchist);
+	// add BR
+	fChannelBR.push_back(1.0); 
+	fChannelBR.push_back(0); 
 
 	// no error 
 	return 1; 
@@ -139,7 +138,7 @@ int CombinationXSec::SetChannelLuminosity(const char* channelname, double lumino
 
 	// check channel index
 	if (channelindex < 0) {
-		BCLog::OutError("CombinationXSec::SetChannelEfficiency : Can not find channel index."); 
+		BCLog::OutError("CombinationXSec::SetChannelLuminosity : Can not find channel index."); 
 		return 0; 
 	}
 
@@ -151,51 +150,190 @@ int CombinationXSec::SetChannelLuminosity(const char* channelname, double lumino
 }
 
 // ---------------------------------------------------------
+int CombinationXSec::SetChannelBR(const char* channelname, double BR)
+{
+	// get channel index
+	int channelindex = GetContIndexChannel(channelname); 
+
+	// check channel index
+	if (channelindex < 0) {
+		BCLog::OutError("CombinationXSec::SetChannelBR : Can not find channel index."); 
+		return 0; 
+	}
+
+	// set efficiency
+	fChannelBR[channelindex] = BR;
+
+	// no error 
+	return 1; 
+}
+
+// ---------------------------------------------------------
 void CombinationXSec::MCMCUserIterationInterface()
 {
 	// debugKK
 	return;
 
-	// get number of channels
-	int nchannels = GetNChannels(); 
+// 	// get number of channels
+// 	int nchannels = GetNChannels(); 
 
-	// loop over all channels 
-	for (int i = 0; i < nchannels; ++i) {
-		// calculate expectation for this channel
-		double expectation = fMCMCx.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i); 
+// 	// loop over all channels 
+// 	for (int i = 0; i < nchannels; ++i) {
+// 		// calculate expectation for this channel
+// 		double expectation = fMCMCx.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i); 
 
-		// fill histogram
-		fChannelSignal.at(i)->GetHistogram()->Fill(expectation); 
-	}
+// 		// fill histogram
+// 		fChannelSignal.at(i)->GetHistogram()->Fill(expectation); 
+// 	}
 }
 
 // ---------------------------------------------------------
 void CombinationXSec::PrintChannelOverview(const char* filename)
 {
+	// get number of channels
+	int nchannels = GetNChannels(); 
+
+	// define vector of histograms 
+	std::vector<BCH1D*> histos; 
+
+	// loop over all channels 
+	for (int i = 0; i < nchannels; ++i) {
+		
+		// create analyses for each channel 
+		CombinationXSec* model = new CombinationXSec( GetParameter(0)->GetName().c_str(), 
+																									GetParameter(0)->GetLowerLimit(), 
+																									GetParameter(0)->GetUpperLimit());
+	
+		// copy settings
+		model->MCMCSetNLag( MCMCGetNLag() );
+		model->MCMCSetNIterationsRun( MCMCGetNIterationsRun() );
+		model->AddChannel( fChannelNameContainer.at(i).c_str() );
+		model->SetChannelObservation( fChannelNameContainer.at(i).c_str(), 
+																	fChannelObservation.at(i) );
+		
+		model->SetChannelEfficiency( fChannelNameContainer.at(i).c_str(), 
+																 fChannelEfficiency.at(i) );
+		model->SetChannelLuminosity( fChannelNameContainer.at(i).c_str(), 
+																 fChannelLuminosity.at(i) ); 
+		model->SetChannelBR( fChannelNameContainer.at(i).c_str(), 
+												 fChannelBR.at(i) ); 
+
+		int nbkg = int(fChannelBackgroundNameContainer.at(i).size());
+		for (int j = 0; j < nbkg; ++j) {
+			int parindex = GetParIndexChannelBackground(i, j);
+			double xmin = GetParameter(parindex)->GetLowerLimit();
+			double xmax = GetParameter(parindex)->GetUpperLimit();
+			model->AddChannelBackground( fChannelNameContainer.at(i).c_str(),
+																	 fChannelBackgroundNameContainer.at(i).at(j).c_str(),
+																	 xmin, 
+																	 xmax );
+			model->SetChannelBackgroundPrior( fChannelNameContainer.at(i).c_str(), 
+																				fChannelBackgroundNameContainer.at(i).at(j).c_str(),
+																				fChannelBackgroundPriorContainer.at(i).at(j)); 
+		}
+
+		// debugKK
+		// add systematics and all other settings here
+
+		model->MarginalizeAll();
+		model->FindMode( model->GetBestFitParameters() );
+
+		histos.push_back( model->GetMarginalized( model->GetParameter(0)->GetName().c_str() ) );
+	}
+
 	// create graph
 	TGraphAsymmErrors* g = new TGraphAsymmErrors(GetNChannels()+1); 
 	g->SetMarkerStyle(20); 
 	g->SetMarkerSize(1); 
 
-	// get number of channels
-	int nchannels = GetNChannels(); 
-
-	TH2D* hist_axes = new TH2D("", ";#sigma;", 1, GetParameter(0)->GetLowerLimit(), GetParameter(0)->GetUpperLimit(), nchannels+1, -0.5, double(nchannels)+1.5); 
-	hist_axes->SetStats(kFALSE);
+	// coordinate system
+	double xmin = 0.0; 
+	double xmax = 0.0; 
+	double xwidth = 0.0;
+	double ymin = -0.5;
+	double ymax = double(nchannels)+0.5;
 
 	// loop over all channels 
 	for (int i = 0; i < nchannels; ++i) {
 		// get histogram
-		BCH1D* h = fChannelSignal.at(i); 
-		g->SetPoint(i, h->GetMode(), double(nchannels-i+1));
+		BCH1D* h = histos.at(i);
+		double median = h->GetMedian(); 
+		double q16 = h->GetQuantile(0.16);
+		double q84 = h->GetQuantile(0.84);
+		double errlow = median - q16;
+		double errhigh = q84 - median; 
+
+		// update coordinate system
+		if (q16 < xmin || i == 0)
+			xmin = q16;
+		if (q84 > xmax || i == 0)
+			xmax = q84; 
+		xwidth = xmax - xmin; 
+
+		// set point and error 
+		g->SetPoint(i, median, double(nchannels-i));
+		g->SetPointError(i, errlow, errhigh, 0, 0);
 	}
 
+	// set point from combination
+	BCH1D* h = GetMarginalized( GetParameter(0)->GetName().c_str() );
+	double median = h->GetMedian(); 
+	double q16 = h->GetQuantile(0.16);
+	double q84 = h->GetQuantile(0.84);
+	double errlow = median - q16;
+	double errhigh = q84 - median; 
+	
+	// set point and error 
+	g->SetPoint(nchannels, median, 0.);
+	g->SetPointError(nchannels, errlow, errhigh, 0, 0);
+	
+	// create histogram for axes
+	TH2D* hist_axes = new TH2D("", Form(";%s;Channel", GetParameter(0)->GetName().c_str()), 1, xmin - 0.25*xwidth, xmax + 1.75 * xwidth, nchannels+1, ymin, ymax); 
+	hist_axes->SetStats(kFALSE);
+	hist_axes->GetYaxis()->SetNdivisions(0);
+	hist_axes->GetYaxis()->SetTitleOffset(1.0);
+
+	// create canvas
 	TCanvas* c1 = new TCanvas();
 	c1->cd(); 
-	
+
+	// create latex
+	TLatex* l = new TLatex(); 
+	l->SetTextSize(0.04);
+	if (nchannels>=10)
+		l->SetTextSize(0.02);
+	l->SetTextAlign(12);
+
+	// create lines
+	TLine* line_mode = new TLine(); 
+	line_mode->SetLineWidth(1);
+	line_mode->SetLineStyle(1);
+	line_mode->SetLineColor(kRed);
+	TBox* box = new TBox();
+	box->SetLineWidth(0); 
+	box->SetFillColor(kYellow);
+	box->SetFillStyle(1001);
+	TBox* box_help = new TBox();
+	box_help->SetLineWidth(1); 
+	box_help->SetFillColor(kBlack);
+	box_help->SetFillStyle(0);
+
+	// draw
 	hist_axes->Draw();
-	g->Draw("SAME"); 
+	box->DrawBox(q16, ymin, q84, ymax);
+	line_mode->DrawLine(median, ymin, median, ymax);
+	g->Draw("SAMEP"); 
+	// loop over all channels 
+	for (int i = 0; i < nchannels; ++i) {
+		l->DrawLatex(xmax + 0.25*xwidth, double(nchannels-i), fChannelNameContainer.at(i).c_str());
+	}
+	l->DrawLatex(xmax + 0.25*xwidth, 0., "combination");
+	hist_axes->Draw("SAMEAXIS");
+	box_help->DrawBox(xmin - 0.25*xwidth, ymin, xmax + 1.75 * xwidth, ymax);
+
+	// print to file 
 	c1->Print(filename);
+
 }
 
 // ---------------------------------------------------------

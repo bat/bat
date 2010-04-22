@@ -24,6 +24,8 @@ class CombinationXSec : public CombinationModel
 	int SetChannelLuminosityPrior(const char* channelname, TF1* prior); 
 	int SetChannelLuminosityPriorGauss(const char* channelname, double mean, double sigma); 
 
+	int SetChannelBR(const char* channelname, double BR);
+
 	void DefineParameters();
 	double LogAPrioriProbability(std::vector <double> parameters);
 	double LogLikelihood(std::vector <double> parameters);
@@ -40,6 +42,8 @@ class CombinationXSec : public CombinationModel
 	std::vector<double> fChannelLuminosity;
 	std::vector<TF1*> fChannelLuminosityPriorContainer;
 	
+	std::vector<double> fChannelBR; 
+
 	std::vector<BCH1D*> fChannelSignal; 
 
 };
