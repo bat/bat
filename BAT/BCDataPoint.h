@@ -66,7 +66,7 @@ class BCDataPoint
 
 		/**
 		 * Returns the number of values. */
-		const unsigned int GetNValues()
+		unsigned int GetNValues()
 			{ return fData.size(); };
 
 		/* @} */

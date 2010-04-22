@@ -487,7 +487,7 @@ class BCIntegrate : public BCEngineMCMC
 		 * @param parameters A set of parameter values
 		 * @param x A vector of x-values
 		 * @return The value of the fit function at the x-values given a set of parameters */
-		virtual double FitFunction(std::vector <double> x, std::vector <double> parameters)
+		virtual double FitFunction(std::vector <double> /*x*/, std::vector <double> /*parameters*/)
 			{ return 0.; };
 
 		/**

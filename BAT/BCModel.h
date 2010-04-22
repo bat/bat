@@ -458,7 +458,7 @@ class BCModel : public BCIntegrate
 		 * @param parameters A set of parameter values
 		 * @return The conditional probability p(datapoint|parameters)
 		 * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) */
-		virtual double LogConditionalProbabilityEntry(BCDataPoint * datapoint, std::vector <double> parameters)
+		virtual double LogConditionalProbabilityEntry(BCDataPoint * /*datapoint*/, std::vector <double> /*parameters*/)
 			{ flag_ConditionalProbabilityEntry = false; return 0.; };
 
 		/**
@@ -689,7 +689,7 @@ class BCModel : public BCIntegrate
 		 * @param lower only needed for discrete distributions!
 		 * Return the CDF for the count one less than actually observed, e.g.
 		 * in Poisson process, if 3 actually observed, then CDF(2) is returned */
-		virtual double CDF(const std::vector<double>& parameters,  int index, bool lower=false)
+		virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
 		{return 0.0;}
 
 

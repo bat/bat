@@ -1,3 +1,6 @@
+2010-04-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Removed names in the declaration of methods to suppress warnings when using compiled ROOT scripts.
+
 2010-04-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: Added priors for individual parameters
 	* BCSummaryTool: Included vector.h (bug fix)
