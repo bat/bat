@@ -1,4 +1,5 @@
 2010-04-23 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Work on CombinationTool.
 	* Update documentation of templatefitter examples.
 	* Update of example on efficiencyfitter
 	* Minor bug-fix in BCTemplateFitter and modification in corresponding example.

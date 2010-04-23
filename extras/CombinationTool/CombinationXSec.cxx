@@ -32,7 +32,10 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 	// loop over all channels 
 	for (int i = 0; i < nchannels; ++i) {
 		// calculate expectation for this channel
-		double expectation = parameters.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i) * fChannelBR.at(i); 
+		double luminosity = fChannelLuminosity.at(i); 
+		double efficiency = parameters.at( fParIndexChannelEfficiency.at(i) ); 
+		double br = fChannelBR.at(i);
+		double expectation = parameters.at(0) * luminosity * efficiency * br; 
 		
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
@@ -63,8 +66,16 @@ double CombinationXSec::LogAPrioriProbability(std::vector <double> parameters)
 	for (int i = 0; i < nchannels; ++i) {
 
 		// add channel signal prior
-		if (fChannelSignalPriorContainer.at(i))
-			logprob += log( fChannelSignalPriorContainer.at(i)->Eval(parameters.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i) * fChannelBR.at(i)) );
+		if (fChannelSignalPriorContainer.at(i)) {
+			double luminosity = fChannelLuminosity.at(i); 
+			double efficiency = parameters.at( fParIndexChannelEfficiency.at(i) ); 
+			double br = fChannelBR.at(i);
+			logprob += log( fChannelSignalPriorContainer.at(i)->Eval(parameters.at(0) * luminosity * efficiency * br) );
+		}
+
+		// add channel efficiency prior
+		if (fChannelEfficiencyPriorContainer.at(i))
+			logprob += log( fChannelEfficiencyPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelEfficiency.at(i))) ); 
 
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
@@ -95,9 +106,14 @@ int CombinationXSec::AddChannel(const char* channelname)
 	if (errcode != 1)
 		return errcode; 
 
-	// add efficiency
-	fChannelEfficiency.push_back(1.0); 
+	// add efficiency parameter
+	AddParameter(Form("efficiency_%s", channelname), 0.0, 1.0);
+
+	// add efficiency prior 
 	fChannelEfficiencyPriorContainer.push_back(0); 
+
+	// add parameter index
+	fParIndexChannelEfficiency.push_back(GetNParameters()-1);
 
 	// add luminosity
 	fChannelLuminosity.push_back(1.0); 
@@ -112,22 +128,80 @@ int CombinationXSec::AddChannel(const char* channelname)
 }
 
 // ---------------------------------------------------------
-int CombinationXSec::SetChannelEfficiency(const char* channelname, double efficiency)
+int CombinationXSec::GetParIndexChannelEfficiency(const char* channelname)
+{
+ 	// get channel container index
+	int channelindex = GetContIndexChannel(channelname); 
+
+	// check index
+	if (channelindex < 0){ 
+		return 1;
+	}
+
+	// return index
+	return fParIndexChannelEfficiency.at(channelindex); 
+}
+
+// ---------------------------------------------------------
+int CombinationXSec::SetChannelEfficiencyPrior(const char* channelname, TF1* prior)
 {
 	// get channel index
 	int channelindex = GetContIndexChannel(channelname); 
 
 	// check channel index
 	if (channelindex < 0) {
-		BCLog::OutError("CombinationXSec::SetChannelEfficiency : Can not find channel index."); 
+		BCLog::OutError("CombinationModel::SetChannelEfficiencyPrior : Can not find channel index."); 
 		return 0; 
 	}
 
-	// set efficiency
-	fChannelEfficiency[channelindex] = efficiency;
+	// set parameter range
+	double effmin = 0.;
+	double effmax = 1.;
+	double x, y;
+	prior->GetRange(x, y);
+	if (x > effmin)
+		effmin = x;
+	if (y < effmax)
+		effmax = y; 
 
-	// no error 
-	return 1; 
+	// rescale parameter ranges
+	int parindex = GetParIndexChannelEfficiency(channelname); 
+	GetParameter(parindex)->SetLowerLimit(effmin); 
+	GetParameter(parindex)->SetUpperLimit(effmax); 
+	fMCMCBoundaryMin[parindex] = effmin; 
+	fMCMCBoundaryMax[parindex] = effmax; 
+
+	// set prior
+	fChannelEfficiencyPriorContainer[channelindex] = prior;
+
+	// no error
+	return 1;
+}
+
+// ---------------------------------------------------------
+int CombinationXSec::SetChannelEfficiencyPriorGauss(const char* channelname, double mean, double sigma)
+{
+	// create new function
+	TF1* f = new TF1(Form("f_eff_%s", channelname), "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2/[1]/[1] )");
+	f->SetParameter(0, mean); 
+	f->SetParameter(1, sigma); 
+
+	// rescale parameter ranges
+	int parindex = GetParIndexChannelEfficiency(channelname); 
+	double effmin = TMath::Max(mean - 5.0*sigma, 0.);
+	double effmax = TMath::Min(mean + 5.0*sigma, 1.);
+
+	GetParameter(parindex)->SetLowerLimit(effmin); 
+	GetParameter(parindex)->SetUpperLimit(effmax); 
+	fMCMCBoundaryMin[parindex] = effmin; 
+	fMCMCBoundaryMax[parindex] = effmax; 
+	f->SetRange(effmin, effmax);
+
+	// add function to container
+	fFunctionContainer.push_back(f); 
+
+	// set channel background prior
+	return SetChannelEfficiencyPrior(channelname, f); 
 }
 
 // ---------------------------------------------------------
@@ -210,9 +284,10 @@ void CombinationXSec::PrintChannelOverview(const char* filename)
 		model->AddChannel( fChannelNameContainer.at(i).c_str() );
 		model->SetChannelObservation( fChannelNameContainer.at(i).c_str(), 
 																	fChannelObservation.at(i) );
-		
-		model->SetChannelEfficiency( fChannelNameContainer.at(i).c_str(), 
-																 fChannelEfficiency.at(i) );
+		model->SetChannelEfficiencyPrior( fChannelNameContainer.at(i).c_str(),
+																			fChannelEfficiencyPriorContainer.at(i) );
+		//		model->SetChannelEfficiency( fChannelNameContainer.at(i).c_str(), 
+		//																 fChannelEfficiency.at(i) );
 		model->SetChannelLuminosity( fChannelNameContainer.at(i).c_str(), 
 																 fChannelLuminosity.at(i) ); 
 		model->SetChannelBR( fChannelNameContainer.at(i).c_str(), 
@@ -235,9 +310,14 @@ void CombinationXSec::PrintChannelOverview(const char* filename)
 		// debugKK
 		// add systematics and all other settings here
 
+		// perform analysis
 		model->MarginalizeAll();
 		model->FindMode( model->GetBestFitParameters() );
 
+		// debugKK
+		//		model->PrintAllMarginalized(Form("channel_%i_plots.ps", i)); 
+
+		// save signal histogram for summary
 		histos.push_back( model->GetMarginalized( model->GetParameter(0)->GetName().c_str() ) );
 	}
 

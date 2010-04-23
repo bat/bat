@@ -5,9 +5,6 @@
 
 #include "CombinationXSec.h"
 
-#include <TROOT.h>
-#include <TRandom3.h>
-
 // ------------------------------------------------------------
 int main()
 {
@@ -29,7 +26,8 @@ int main()
 
 	// set mcmc options
 	model->MCMCSetNLag(10);
-	model->MCMCSetNIterationsRun(100000);
+	//	model->MCMCSetNIterationsRun(1000);
+	//	model->MCMCSetNIterationsRun(100000);
 
 	// ----------------------------------------------------------
 	// define cross-section contributions, background sources and
@@ -41,7 +39,7 @@ int main()
 
 	// set channel observations, efficiency, luminosity and branching ratio
 	model->SetChannelObservation("e+jets",  200.0); 
-	model->SetChannelEfficiency("e+jets",     0.01);
+	model->SetChannelEfficiencyPriorGauss("e+jets", 0.01, 0.001);
 	model->SetChannelLuminosity("e+jets",  1000.0);
 	model->SetChannelBR("e+jets", 0.9);
 
@@ -62,7 +60,7 @@ int main()
 
 	// set channel observations, efficiency, luminosity and branching ratio
 	model->SetChannelObservation("mu+jets", 200.0); 
-	model->SetChannelEfficiency("mu+jets",    0.01);
+	model->SetChannelEfficiencyPriorGauss("mu+jets", 0.01, 0.001);
 	model->SetChannelLuminosity("mu+jets", 1000.0);
 	model->SetChannelBR("mu+jets", 0.9);
 
