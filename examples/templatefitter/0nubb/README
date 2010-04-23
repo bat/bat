@@ -1,9 +1,16 @@
-Example on template fitting "0nubb":
+Example on template fitting "Neutrinoless double beta-decay":
+=============================================================
 
+Motivation:
+-----------
 The physics motivation for this analysis is the search for
-neutrinoless double beta-decay. The source code is commented and
-exaplains the individual steps. Four files are part of this example:
+neutrinoless double beta-decay. Two template (Gaussian signal and flat
+background) are fitted to histogram with a very small number of
+entries. The source code is commented and exaplains the individual
+steps. Four files are part of this example.
 
+Files:
+------
 CreateHistogram.c   - this needs to be run first to generate the
                       templates and a data set
 
@@ -14,3 +21,23 @@ runTemplateFit.cxx  - this macro performs a template fit to a single data
 
 runEnsembleTest.cxx - this macro performs an ensemble test for a given
                       combination of templates.
+
+How to run:
+-----------
+1) Create the necessary histograms for the example by running the
+   macro:
+
+   root CreateHistograms.c
+
+2) Create the executables: 
+
+   make 
+
+3) To perform an analysis on a single data set run the executable:
+
+   ./runTemplateFit
+
+4) To perform ensemble tests run the executable:
+
+   ./runEnsembleTest
+

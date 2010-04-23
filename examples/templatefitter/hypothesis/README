@@ -1,9 +1,17 @@
-Example on template fitting "hypothesis":
+Example on template fitting "hypothesis testing":
+=================================================
+
+Motivation:
+-----------
 
 The motivation for this analysis is to fit different models to a
-histogram and compare the models. The source code is commented and
-exaplains the individual steps. Three files are part of this example:
+histogram and compare the models. Each model has different number of
+templates which are fitted to a histogram. The source code is
+commented and exaplains the individual steps. Three files are part of
+this example.
 
+Files:
+------
 Makefile               - the Makefile
 
 runHypothesisTest.cxx  - this macro performs a template fit to a single data
@@ -11,3 +19,13 @@ runHypothesisTest.cxx  - this macro performs a template fit to a single data
 
 histograms.root        - the file containing all templates and the data
                          histogram
+
+How to run:
+-----------
+1) Create the executable:
+
+   make
+
+2) To perform an analysis on a single data set run the executable:
+
+   ./runHypothesisTest
