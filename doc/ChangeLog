@@ -1,6 +1,7 @@
 2010-04-23 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Update documentation of templatefitter examples.
 	* Update of example on efficiencyfitter
+	* Minor bug-fix in BCTemplateFitter and modification in corresponding example.
 
 2010-04-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Removed names in the declaration of methods to suppress warnings when using compiled ROOT scripts.

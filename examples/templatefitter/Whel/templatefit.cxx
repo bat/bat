@@ -92,7 +92,6 @@ int templatefit()
 	model->SetFlagPhysicalLimits(true);
 
 	// set data histogram
-	//	model->SetData(*hist_data);
 	model->SetData(hist_data);
 
 	// add template histograms

@@ -102,9 +102,11 @@ double BCTemplateFitter::LogLikelihood(std::vector <double> parameters)
 					efficiency += deff * parameters.at(systindex);
 			}
 
-			// make sure efficiency is positive
+			// make sure efficiency is between 0 and 1
 			if (efficiency < 0.)
 				efficiency = 0.;
+			if (efficiency > 1.)
+				efficiency = 1.;
 
 			// calculate expectation nvalue
 			nexp += parameters.at(templateindex)
