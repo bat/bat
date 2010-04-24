@@ -18,7 +18,7 @@ int main()
 
 	// open log file
 	BCLog::OpenLog("log.txt");
-	BCLog::SetLogLevel(BCLog::summary);
+	BCLog::SetLogLevel(BCLog::detail);
 
 	// create new CombinationModel object
 	// and define the parameter region
@@ -40,7 +40,7 @@ int main()
 	// set channel observations, efficiency, luminosity and branching ratio
 	model->SetChannelObservation("e+jets",  200.0); 
 	model->SetChannelEfficiencyPriorGauss("e+jets", 0.01, 0.001);
-	model->SetChannelLuminosity("e+jets",  1000.0);
+	model->SetChannelLuminosityPriorGauss("e+jets", 1000.0, 50.0);
 	model->SetChannelBR("e+jets", 0.9);
 
 	// add backgrounds for this channel 
@@ -61,7 +61,7 @@ int main()
 	// set channel observations, efficiency, luminosity and branching ratio
 	model->SetChannelObservation("mu+jets", 200.0); 
 	model->SetChannelEfficiencyPriorGauss("mu+jets", 0.01, 0.001);
-	model->SetChannelLuminosity("mu+jets", 1000.0);
+	model->SetChannelLuminosityPriorGauss("mu+jets", 1000.0, 50.0);
 	model->SetChannelBR("mu+jets", 0.9);
 
 	// add backgrounds
@@ -75,6 +75,19 @@ int main()
 	model->SetChannelBackgroundPriorGauss("mu+jets", "Z+jets", 10.0, 1.0); 
 	model->SetChannelBackgroundPriorGauss("mu+jets", "QCD",    10.0, 1.9, 2.0); 
 	model->SetChannelBackgroundPriorGauss("mu+jets", "other",  10.0, 1.5, 1.4); 
+
+	//
+	// systematics
+	//
+
+	// add systematic
+	model->AddSystError("JES");
+	
+	model->SetSystErrorChannelBackground("e+jets", "W+jets", 2.0, 3.0);
+	model->SetSystErrorChannelBackground("e+jets", "Z+jets", 0.5, 0.7);
+	model->SetSystErrorChannelBackground("e+jets", "QCD",    1.2, 1.0);
+	model->SetSystErrorChannelBackground("e+jets", "other",  0.4, 0.5);
+	
 
 	// ----------------------------------------------------------
 	// run analysis and plotting

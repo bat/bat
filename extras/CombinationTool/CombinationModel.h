@@ -1,19 +1,9 @@
-// ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project CombinationTool
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
-// ***************************************************************
-
 #ifndef __COMBINATIONMODEL__H
 #define __COMBINATIONMODEL__H
 
 #include <BAT/BCModel.h>
 
 class TF1;
-
-// This is a CombinationModel header file.
-// Model source code is located in file CombinationTool/CombinationModel.cxx
 
 // ---------------------------------------------------------
 class CombinationModel : public BCModel
@@ -28,6 +18,12 @@ class CombinationModel : public BCModel
 
 		int AddChannel(const char* channelname); 
 		int AddChannelBackground(const char* channelname, const char* backgroundname, double xmin, double xmax);
+
+		int AddSystError(const char* systerrorname); 
+		int SetSystErrorChannelSignal(const char channelname, double sigmadown, double sigmaup)
+		{ return 1; }; 
+		int SetSystErrorChannelBackground(const char* channelname, const char* backgroundname, double sigmadown, double sigmaup)
+		{ return 1; };
 
 		int GetNChannels()
 		{ return int(fChannelNameContainer.size()); }; 
@@ -48,19 +44,10 @@ class CombinationModel : public BCModel
 		int SetChannelSignalPrior(const char* channelname, TF1* prior); 
 		int SetChannelSignalPriorGauss(const char* channelname, double mean, double sigma); 
 		int SetChannelSignalPriorGauss(const char* channelname, double mean, double sigmadown, double sigmaup); 
+
 		int SetChannelBackgroundPrior(const char* channelname, const char* backgroundname, TF1* prior);
 		int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigma);
 		int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigmadown, double sigmaup);
-
-		//		int SetChannelEfficiency(const char* channelname, double efficiency); 
-		//		int SetChannelEfficiencyPrior(const char* channelname, TF1* prior);
-		//		int SetChannelBackgroundEfficiency(const char* channelname, double efficiency); 
-		//		int SetChannelBackgroundEfficiencyPrior(const char* channelname, TF1* prior);
-
-		
-		// set lumi and uncertainty
-		// set efficiency and uncertainty
-		// ...
 
 		// Methods to overload, see file CombinationModel.cxx
 		double LogAPrioriProbability(std::vector <double> parameters);
@@ -82,6 +69,8 @@ class CombinationModel : public BCModel
 		// uncertainty container
 		std::vector<TF1*> fChannelUncertaintyContainer;
 		std::vector<TF1*> fChannelEfficiencyPriorContainer;
+		std::vector< std::vector<double> > fSystErrorSigmaUpContainer;
+		std::vector< std::vector<double> > fSystErrorSigmaDownContainer;
 
 		// prior container
 		std::vector<TF1*> fChannelSignalPriorContainer;

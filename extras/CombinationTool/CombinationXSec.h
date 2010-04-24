@@ -17,11 +17,11 @@ class CombinationXSec : public CombinationModel
 	int AddChannel(const char* channelname); 
 
 	int GetParIndexChannelEfficiency(const char* channelname); 
+	int GetParIndexChannelLuminosity(const char* channelname); 
 
 	int SetChannelEfficiencyPrior(const char* channelname, TF1* prior); 
 	int SetChannelEfficiencyPriorGauss(const char* channelname, double mean, double sigma);
 
-	int SetChannelLuminosity(const char* channelname, double efficiency); 
 	int SetChannelLuminosityPrior(const char* channelname, TF1* prior); 
 	int SetChannelLuminosityPriorGauss(const char* channelname, double mean, double sigma); 
 
@@ -33,20 +33,16 @@ class CombinationXSec : public CombinationModel
 	void MCMCUserIterationInterface();
 
 	void PrintChannelOverview(const char* filename); 
-	void PrintChannels(const char* filename); 
 
  private:
 
 	std::vector<TF1*> fChannelEfficiencyPriorContainer;
 	std::vector<int> fParIndexChannelEfficiency;
 
-	std::vector<double> fChannelLuminosity;
 	std::vector<TF1*> fChannelLuminosityPriorContainer;
+	std::vector<int> fParIndexChannelLuminosity;
 	
 	std::vector<double> fChannelBR; 
-
-	std::vector<BCH1D*> fChannelSignal; 
-
 };
 // ---------------------------------------------------------
 

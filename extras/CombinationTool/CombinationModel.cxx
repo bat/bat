@@ -186,6 +186,16 @@ int CombinationModel::AddChannelBackground(const char* channelname, const char* 
 }
 
 // ---------------------------------------------------------
+int CombinationModel::AddSystError(const char* systerrorname)
+{
+	// add syst error name to container
+	fSystErrorNameContainer.push_back(systerrorname); 
+
+	// no error 
+	return 1;
+}
+
+// ---------------------------------------------------------
 int CombinationModel::SetChannelObservation(const char* channelname, double observation)
 {
 	// get channel index
