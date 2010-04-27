@@ -1852,10 +1852,11 @@ void BCModel::PrintResults(const char * file)
    // check convergence
    bool flag_conv = MCMCGetNIterationsConvergenceGlobal() > 0;
 
-   ofi << std::endl << " -----------------------------------------------------"
-       << std::endl << " Summary" << std::endl
-       << " -----------------------------------------------------"
-       << std::endl << std::endl;
+   ofi << std::endl 
+			 << " -----------------------------------------------------" << std::endl 
+			 << " Summary" << std::endl
+       << " -----------------------------------------------------" << std::endl
+       << std::endl;
 
    ofi << " Model summary" << std::endl << " =============" << std::endl
        << " Model: " << fName.data() << std::endl
@@ -1864,8 +1865,8 @@ void BCModel::PrintResults(const char * file)
    for (int i = 0; i < npar; ++i)
       ofi << "  (" << i << ") Parameter \""
           << fParameterSet->at(i)->GetName().data() << "\"" << ": "
-          << fParameterSet->at(i)->GetLowerLimit() << " - "
-          << fParameterSet->at(i)->GetUpperLimit() << std::endl;
+          << "(" << fParameterSet->at(i)->GetLowerLimit() << ", "
+          << fParameterSet->at(i)->GetUpperLimit() << ")" << std::endl;
    ofi << std::endl;
 
    // give warning if MCMC did not converge
@@ -1887,48 +1888,51 @@ void BCModel::PrintResults(const char * file)
          BCH1D * bch1d = GetMarginalized(fParameterSet->at(i));
 
          ofi << "  (" << i << ") Parameter \""
-             << fParameterSet->at(i)->GetName().data() << "\"" << std::endl
-             << "      Mean +- RMS:         " << std::setprecision(4)
+             << fParameterSet->at(i)->GetName().data() << "\":" << std::endl
+
+             << "      Mean +- sqrt(V):                " << std::setprecision(4)
              << bch1d->GetMean() << " +- " << std::setprecision(4)
-             << bch1d->GetRMS() << std::endl << "      Median +- sigma:     "
+             << bch1d->GetRMS() << std::endl 
+
+						 << "      Median +- central 68% interval: "
              << std::setprecision(4) << bch1d->GetMedian() << " +  "
              << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
              << " - " << std::setprecision(4)
              << bch1d->GetMedian() - bch1d->GetQuantile(0.16) << std::endl
-             << "      (Marginalized) mode: " << bch1d->GetMode()
-             << std::endl
-             << "      Smallest interval(s) containing 68% and local modes:"
-             << std::endl;
+
+             << "      (Marginalized) mode:            " << bch1d->GetMode() << std::endl;
+
+         ofi << "       5% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.05) << std::endl
+             << "      10% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.10) << std::endl
+             << "      16% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.16) << std::endl
+             << "      84% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.85) << std::endl
+             << "      90% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.90) << std::endl
+             << "      95% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.95) << std::endl;
 
          std::vector<double> v;
          v = bch1d->GetSmallestIntervals(0.68);
          int ninter = int(v.size());
-
+				 
+				 ofi << "      Smallest interval(s) containing 68% and local modes:"
+						 << std::endl;
          for (int j = 0; j < ninter; j += 5)
-            ofi << "       " << v[j] << " - " << v[j + 1]
-                << " (local mode at " << v[j + 3] << " with rel. height "
-                << v[j + 2] << "; rel. area " << v[j + 4] << ")"
-                << std::endl;
-
-         ofi << "       5% quantile:        " << std::setprecision(4)
-             << bch1d->GetQuantile(0.05) << std::endl
-             << "      10% quantile:        " << std::setprecision(4)
-             << bch1d->GetQuantile(0.10) << std::endl
-             << "      16% quantile:        " << std::setprecision(4)
-             << bch1d->GetQuantile(0.16) << std::endl
-             << "      84% quantile:        " << std::setprecision(4)
-             << bch1d->GetQuantile(0.85) << std::endl
-             << "      90% quantile:        " << std::setprecision(4)
-             << bch1d->GetQuantile(0.90) << std::endl
-             << "      95% quantile:        " << std::setprecision(4)
-             << bch1d->GetQuantile(0.95) << std::endl << std::endl;
+					 ofi << "       (" << v[j] << ", " << v[j + 1]
+							 << ") (local mode at " << v[j + 3] << " with rel. height "
+							 << v[j + 2] << "; rel. area " << v[j + 4] << ")"
+							 << std::endl;
+				 ofi << std::endl;
       }
-      ofi << std::endl;
    }
 
    ofi << " Results of the optimization" << std::endl
        << " ===========================" << std::endl
-       << " Optimization algorithm used: ";
+       << " Optimization algorithm used:";
    switch (GetOptimizationMethodMode()) {
       case BCIntegrate::kOptSA:
          ofi << " Simulated Annealing" << std::endl;
@@ -1965,8 +1969,8 @@ void BCModel::PrintResults(const char * file)
    }
 
    if (fMCMCFlagRun) {
-      ofi << " Status of the MCMC" << std::endl << " =================="
-          << std::endl << " Convergence reached: " << (flag_conv ? "yes" : "no")
+      ofi << " Status of the MCMC" << std::endl << " ==================" << std::endl
+					<< " Convergence reached:                    " << (flag_conv ? "yes" : "no")
           << std::endl;
 
       if (flag_conv)
@@ -1998,13 +2002,15 @@ void BCModel::PrintResults(const char * file)
       ofi << std::endl;
    }
 
-   ofi << " -----------------------------------------------------" << std::endl
-       << std::endl << " Notes" << std::endl << " =====" << std::endl
-       << " (i) Median +- sigma denotes the median, m, of the" << std::endl
-       << "     marginalized distribution and the intervals from"
-       << std::endl << "     m to the 16% and 84% quantiles." << std::endl
-       << " -----------------------------------------------------"
-       << std::endl;
+	 ofi << " -----------------------------------------------------" << std::endl
+			 << " Notation: " << std::endl
+			 << " Mean        : mean value of the marg. pdf" << std::endl
+			 << " Median      : maximum of the marg. pdf" << std::endl
+			 << " Marg. mode  : most probable value of the marg. pdf" << std::endl
+			 << " V           : Variance of the marg. pdf" << std::endl
+			 << " Quantiles   : most commonly used quantiles" <<std::endl
+			 << " -----------------------------------------------------" << std::endl
+			 << std::endl;
 
    // close file
    //   ofi.close;
