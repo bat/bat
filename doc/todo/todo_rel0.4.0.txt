@@ -1,0 +1,21 @@
+To do for release 0.4.0:
+------------------------
+
+Priority:	Task:					Status:
+-----------------------------------------------------------------
+
+High		Update introduction/manual		not started
+High		Update documentation for examples	not started 
+High		Check fixing parameters			not started
+High		Test TF1 priors on parameters		not started
+High		Perform compilation tests		not started
+High		Perform numerical tests			not started
+High		Perform example tests			not started
+
+Medium		Change text in results file		not started
+Medium		Add models page on web page		not started
+
+Low		Include CombinationTool			ongoing (Kevin)
+Low		Add further examples			not started
+Low		Fix axis labels for SummaryTool		not started
+Low		Add legend to plots by default		not started
