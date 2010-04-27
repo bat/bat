@@ -1669,116 +1669,116 @@ bool BCModel::GetFixedDataAxis(unsigned int index)
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPrior(int index, TF1* f)
+int BCModel::SetPrior(int index, TF1 * f)
 {
-  // check index range
-  if (index < 0 && index >= int(GetNParameters())) {
-    BCLog::OutError("BCModel::SetPrior. Index out of range."); 
-    return 0;
-  }
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      return 0;
+   }
 
-  // set function
-  fPriorContainer[index] = f; 
+   // set function
+   fPriorContainer[index] = f; 
 
-  // no error 
-  return 1; 
+   // no error 
+   return 1; 
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPrior(const char* name, TF1* f)
+int BCModel::SetPrior(const char * name, TF1 * f)
 {
-  // find index
-  int index = -1;
-  for (unsigned int i = 0; i < GetNParameters(); i++)
-    if (name == GetParameter(i)->GetName())
-      index = i;
+   // find index
+   int index = -1;
+   for (unsigned int i = 0; i < GetNParameters(); i++)
+      if (name == GetParameter(i)->GetName())
+        index = i;
 
-  // set prior
-  return SetPrior(index, f);
+   // set prior
+   return SetPrior(index, f);
 }
 
 // ---------------------------------------------------------
 int BCModel::SetPriorGauss(int index, double mean, double sigma)
 {
-  // check index range
-  if (index < 0 && index >= int(GetNParameters())) {
-    BCLog::OutError("BCModel::SetPrior. Index out of range."); 
-    return 0;
-  }
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      return 0;
+   }
 
-  // create new function
-  TF1* f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()), 
-									 "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2./[1]/[1])",
-									 GetParameter(index)->GetLowerLimit(), 
-									 GetParameter(index)->GetUpperLimit()); 
-	f->SetParameter(0, mean); 
-	f->SetParameter(1, sigma);
+   // create new function
+   TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
+                     "1./sqrt(2.*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2./[1]/[1])",
+                     GetParameter(index)->GetLowerLimit(), 
+                     GetParameter(index)->GetUpperLimit()); 
+   f->SetParameter(0, mean); 
+   f->SetParameter(1, sigma);
 
-  //set prior
-  return SetPrior(index, f); 
+   // set prior
+   return SetPrior(index, f); 
 }
 
 // ---------------------------------------------------------
 int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
 {
-  // find index
-  int index = -1;
-  for (unsigned int i = 0; i < GetNParameters(); i++)
-    if (name == GetParameter(i)->GetName())
-      index = i;
+   // find index
+   int index = -1;
+   for (unsigned int i = 0; i < GetNParameters(); i++)
+      if (name == GetParameter(i)->GetName())
+         index = i;
 
-  // check index range
-  if (index < 0 && index >= int(GetNParameters())) {
-    BCLog::OutError("BCModel::SetPrior. Index out of range."); 
-    return 0;
-  }
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      return 0;
+   }
 
-  //set prior
-  return SetPriorGauss(index, mean, sigma); 
+   // set prior
+   return SetPriorGauss(index, mean, sigma); 
 }
 
 // ---------------------------------------------------------
 int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigmaup)
 {
-  // check index range
-  if (index < 0 && index >= int(GetNParameters())) {
-    BCLog::OutError("BCModel::SetPrior. Index out of range."); 
-    return 0;
-  }
-	
-  // create new function
-  TF1* f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()), 
-									 BCMath::SplitGaussian,
-									 GetParameter(index)->GetLowerLimit(), 
-									 GetParameter(index)->GetUpperLimit(),
-									 3);
-	f->SetParameter(0, mean); 
-	f->SetParameter(1, sigmadown);
-	f->SetParameter(2, sigmaup);
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      return 0;
+   }
 
-  //set prior
-  return SetPrior(index, f); 
+   // create new function
+   TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
+                     BCMath::SplitGaussian,
+                     GetParameter(index)->GetLowerLimit(),
+                     GetParameter(index)->GetUpperLimit(),
+                     3);
+   f->SetParameter(0, mean); 
+   f->SetParameter(1, sigmadown);
+   f->SetParameter(2, sigmaup);
 
-	return 0;
+   // set prior
+   return SetPrior(index, f); 
+
+   return 0;
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup)
+int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, double sigmaup)
 {
    // find index
-  int index = -1;
-  for (unsigned int i = 0; i < GetNParameters(); i++)
-    if (name == GetParameter(i)->GetName())
-      index = i;
+   int index = -1;
+   for (unsigned int i = 0; i < GetNParameters(); i++)
+      if (name == GetParameter(i)->GetName())
+        index = i;
 
-  // check index range
-  if (index < 0 && index >= int(GetNParameters())) {
-    BCLog::OutError("BCModel::SetPrior. Index out of range."); 
-    return 0;
-  }
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      return 0;
+   }
 
-	//set prior
-  return SetPriorGauss(index, mean, sigmadown, sigmaup); 
+   // set prior
+   return SetPriorGauss(index, mean, sigmadown, sigmaup); 
 }
 
 // ---------------------------------------------------------
@@ -1788,12 +1788,13 @@ void BCModel::PrintSummary()
    int nparameters = GetNParameters();
 
    // model summary
-   std::cout << std::endl << "   ---------------------------------"
-             << std::endl << "    Model : " << fName.data() << std::endl
+   std::cout << std::endl
+             << "   ---------------------------------" << std::endl
+             << "    Model : " << fName.data() << std::endl
              << "   ---------------------------------" << std::endl
              << "     Index                : " << fIndex << std::endl
-             << "     Number of parameters : " << nparameters << std::endl
-             << std::endl << "     - Parameters : " << std::endl << std::endl;
+             << "     Number of parameters : " << nparameters << std::endl << std::endl
+             << "     - Parameters : " << std::endl << std::endl;
 
    // parameter summary
    for (int i = 0; i < nparameters; i++)

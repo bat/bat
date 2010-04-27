@@ -49,7 +49,7 @@ double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 double BCMath::LogPoisson(double x, double par)
 {
    if (par > 899)
-      return BCMath::LogGaus(x, par, sqrt(par), true);
+      return LogGaus(x, par, sqrt(par), true);
 
    if (x < 0)
       return 0;
@@ -57,14 +57,14 @@ double BCMath::LogPoisson(double x, double par)
    if (x == 0.)
       return -par;
 
-   return x * log(par) - par - BCMath::ApproxLogFact(x);
+   return x * log(par) - par - ApproxLogFact(x);
 }
 
 // ---------------------------------------------------------
 
 double BCMath::ApproxBinomial(int n, int k, double p)
 {
-   return exp(BCMath::LogApproxBinomial(n, k, p));
+   return exp(LogApproxBinomial(n, k, p));
 }
 
 // ---------------------------------------------------------
@@ -85,8 +85,7 @@ double BCMath::LogApproxBinomial(int n, int k, double p)
       k = a;
    }
 
-   return BCMath::LogBinomFactor(n, k) + (double) k * log(p) + (double) (n - k)
-         * log(1. - p);
+   return LogBinomFactor(n, k) + (double) k * log(p) + (double) (n - k) * log(1. - p);
 }
 
 // ---------------------------------------------------------
@@ -107,11 +106,10 @@ double BCMath::LogBinomFactor(int n, int k)
 
    // if no approximation needed
    if (n < BCMATH_NFACT_ALIMIT || (n - k) < 5)
-      return BCMath::LogNoverK(n, k);
+      return LogNoverK(n, k);
 
    // calculate final log(n over k) using approximations if necessary
-   return BCMath::ApproxLogFact((double) n) - BCMath::ApproxLogFact((double) k)
-         - BCMath::ApproxLogFact((double) (n - k));
+   return ApproxLogFact((double)n) - ApproxLogFact((double)k) - ApproxLogFact((double)(n - k));
 }
 
 // ---------------------------------------------------------
@@ -119,11 +117,10 @@ double BCMath::LogBinomFactor(int n, int k)
 double BCMath::ApproxLogFact(double x)
 {
    if (x > BCMATH_NFACT_ALIMIT)
-      return x * log(x) - x + log(x * (1. + 4. * x * (1. + 2. * x))) / 6.
-            + log(M_PI) / 2.;
+      return x * log(x) - x + log(x * (1. + 4. * x * (1. + 2. * x))) / 6. + log(M_PI) / 2.;
 
    else
-      return BCMath::LogFact((int) x);
+      return LogFact((int) x);
 }
 
 // ---------------------------------------------------------
@@ -153,14 +150,14 @@ double BCMath::LogNoverK(int n, int k)
    if (k == 1 || k == n - 1)
       return log((double) n);
 
-   int lmax = BCMath::Max(k, n - k);
-   int lmin = BCMath::Min(k, n - k);
+   int lmax = Max(k, n - k);
+   int lmin = Min(k, n - k);
 
    double ln = 0.;
 
    for (int i = n; i > lmax; i--)
       ln += log((double) i);
-   ln -= BCMath::LogFact(lmin);
+   ln -= LogFact(lmin);
 
    return ln;
 }
@@ -174,15 +171,12 @@ int BCMath::Nint(double x)
 
    if (x >= 0) {
       i = (int) (x + .5);
-
-      if (x + .5 == (double) i && i & 1)
+      if (x + .5 == (double) i && i&1)
          i--;
    }
-
    else {
       i = int(x - 0.5);
-
-      if (x - 0.5 == double(i) && i & 1)
+      if (x - 0.5 == double(i) && i&1)
          i++;
    }
 
@@ -211,10 +205,9 @@ double BCMath::rms(int n, const double *a)
 
 // ---------------------------------------------------------
 
-double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma,
-      bool norm)
+double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm)
 {
-   double bw = log(Gamma) - log((x - mean) * (x - mean) + Gamma * Gamma / 4.0);
+   double bw = log(Gamma) - log((x - mean) * (x - mean) + Gamma*Gamma / 4.);
 
    if (norm)
       bw -= log(2. * M_PI);
@@ -226,8 +219,7 @@ double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma,
 
 double BCMath::LogBreitWignerRel(double x, double mean, double Gamma)
 {
-   return -log((x * x - mean * mean) * (x * x - mean * mean) + mean * mean
-         * Gamma * Gamma);
+   return -log((x*x - mean*mean) * (x*x - mean*mean) + mean*mean * Gamma*Gamma);
 }
 
 // ---------------------------------------------------------
@@ -246,8 +238,7 @@ double BCMath::LogChi2(double x, int n)
 
    double nOver2 = ((double) n) / 2.;
 
-   return (nOver2 - 1.) * log(x) - x / 2. - nOver2 * log(2) - log(TMath::Gamma(
-         nOver2));
+   return (nOver2 - 1.) * log(x) - x / 2. - nOver2 * log(2) - log(TMath::Gamma(nOver2));
 }
 
 // ---------------------------------------------------------
@@ -277,66 +268,62 @@ double BCMath::SplitGaussian(double* x, double* par)
 }
 
 // ---------------------------------------------------------
-
-//wrapper with signature to construct a TF1
+// wrapper with signature to construct a TF1
 double chi2(double *x, double *par)
 {
    return ROOT::Math::chisquared_pdf(x[0], par[0]);
 }
 
+// ---------------------------------------------------------
 void BCMath::RandomChi2(std::vector<double> &randoms, int K)
 {
-
-   //fixed upper cutoff to 1000, might be too small
+   // fixed upper cutoff to 1000, might be too small
    TF1 *f = new TF1("chi2", chi2, 0.0, 1000, 1);
    f->SetParameter(0, K);
    f->SetNpx(500);
-   //uses inverse-transform method
-   //fortunately CDF only built once
+   // uses inverse-transform method
+   // fortunately CDF only built once
    for (unsigned int i = 0; i < randoms.size(); i++)
       randoms.at(i) = f->GetRandom();
+
    delete f;
 }
 
-TH1D* BCMath::ECDF(const std::vector<double>& data)
+// ---------------------------------------------------------
+TH1D * BCMath::ECDF(const std::vector<double> & data)
 {
-
    int N = data.size();
 
    std::set<double> uniqueObservations;
-
-   //sort and filter out multiple instances
-   for (int i = 0; i < N; ++i) {
+   // sort and filter out multiple instances
+   for (int i = 0; i < N; ++i)
       uniqueObservations.insert(data[i]);
-   }
 
-   //extract lower edges for CDF histogram
+   // extract lower edges for CDF histogram
    int nUnique = uniqueObservations.size();
    double lowerEdges[nUnique];
 
-   //traverse the set
+   // traverse the set
    std::set<double>::iterator iter;
    int counter = 0;
-   for (iter = uniqueObservations.begin(); iter != uniqueObservations.end(); iter++) {
+   for (iter = uniqueObservations.begin(); iter != uniqueObservations.end(); ++iter) {
       lowerEdges[counter] = *iter;
       counter++;
    }
 
-   //create histogram where
+   // create histogram where
    // lower edge of first bin = min. data
    // upper edge of last bin = max. data
-   TH1D* ECDF = new TH1D("ECDF", "Empirical cumulative distribution function",
-         nUnique - 1, lowerEdges);
+   TH1D * ECDF = new TH1D("ECDF", "Empirical cumulative distribution function", nUnique - 1, lowerEdges);
 
-   //fill the data in to find multiplicities
-   for (int i = 0; i < N; ++i) {
+   // fill the data in to find multiplicities
+   for (int i = 0; i < N; ++i)
       ECDF -> Fill(data[i]);
-   }
 
-   //just in case, empty the underflow
+   // just in case, empty the underflow
    ECDF -> SetBinContent(0, 0.0);
 
-   //construct the ecdf
+   // construct the ecdf
    for (int nBin = 1; nBin <= ECDF->GetNbinsX(); nBin++) {
       double previousBin = ECDF -> GetBinContent(nBin - 1);
       // BCLog::OutDebug(Form("n_%d = %.2f", nBin, ECDF -> GetBinContent(nBin) ));
@@ -348,94 +335,90 @@ TH1D* BCMath::ECDF(const std::vector<double>& data)
       ECDF -> SetBinError(nBin, 0.0);
    }
 
-   //set the endpoint to 1, so all larger values are at CDF=1
-   ECDF -> SetBinContent(ECDF->GetNbinsX() + 1, 1.0);
+   // set the endpoint to 1, so all larger values are at CDF=1
+   ECDF -> SetBinContent(ECDF->GetNbinsX() + 1, 1.);
 
-   //adjust for nice plotting
-   ECDF -> SetMinimum(0.0);
-   ECDF -> SetMaximum(1.0);
+   // adjust for nice plotting
+   ECDF -> SetMinimum(0.);
+   ECDF -> SetMaximum(1.);
 
    return ECDF;
-
 }
 
 // ---------------------------------------------------------
 
-std::vector<int> BCMath::longestRuns(const std::vector<bool>& bitStream)
+std::vector<int> BCMath::longestRuns(const std::vector<bool> &bitStream)
 {
-   //initialize counter variables
+   // initialize counter variables
    unsigned int maxRunAbove, maxRunBelow, currRun;
    maxRunAbove = 0;
    maxRunBelow = 0;
    currRun = 1;
-   //set both entries to zero
+   // set both entries to zero
    std::vector<int> runs(2, 0);
 
    if (bitStream.empty())
       return runs;
 
-   //flag about kind of the currently considered run
+   // flag about kind of the currently considered run
    bool aboveRun = bitStream.at(0);
 
-   //start at second variable
+   // start at second variable
    std::vector<bool>::const_iterator iter = bitStream.begin();
-   iter++;
+   ++iter;
    while (iter != bitStream.end()) {
 
-      //increase counter if run continues
+      // increase counter if run continues
       if (*(iter - 1) == *iter)
          currRun++;
       else {
-         //compare terminated run to maximum
+         // compare terminated run to maximum
          if (aboveRun)
             maxRunAbove = TMath::Max(maxRunAbove, currRun);
          else
             maxRunBelow = TMath::Max(maxRunBelow, currRun);
-         //set flag to run of opposite kind
+         // set flag to run of opposite kind
          aboveRun = !aboveRun;
-         //restart at length one
+         // restart at length one
          currRun = 1;
       }
-      //move to next bit
-      iter++;
+      // move to next bit
+      ++iter;
    }
 
-   //check last run
+   // check last run
    if (aboveRun)
       maxRunAbove = TMath::Max(maxRunAbove, currRun);
    else
       maxRunBelow = TMath::Max(maxRunBelow, currRun);
 
-   //save the longest runs
+   // save the longest runs
    runs.at(0) = maxRunBelow;
    runs.at(1) = maxRunAbove;
 
    return runs;
-
 }
 
 // ---------------------------------------------------------
-
-double BCMath::longestRunFrequency(unsigned longestObserved,
-      unsigned int nTrials)
+double BCMath::longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
 {
-   //can't observe run that's longer than the whole sequence
+   // can't observe run that's longer than the whole sequence
    if(longestObserved >= nTrials)
-      return 0.0;
+      return 0.;
 
-   //return value
-   double prob = 0.0;
+   // return value
+   double prob = 0.;
 
-   //short cuts
+   // short cuts
    typedef unsigned int uint;
    uint Lobs = longestObserved;
    uint n = nTrials;
 
-   //the result of the inner loop is the cond. P given r successes
+   // the result of the inner loop is the cond. P given r successes
    double conditionalProb;
 
-   //first method: use the gamma function for the factorials: bit slower and more inaccurate
-   //in fact may return NaN for n >= 1000
+   // first method: use the gamma function for the factorials: bit slower and more inaccurate
+   // in fact may return NaN for n >= 1000
 
 //   double Gup, Gdown1, Gdown2, Gdown3;
 //
@@ -464,7 +447,7 @@ double BCMath::longestRunFrequency(unsigned longestObserved,
 ////      printf("prob outside (r=%d) = %.2f",r, prob);
 //   }
 
-   //alternative using log factorial approximations, is faster and more accurate
+   // alternative using log factorial approximations, is faster and more accurate
 
    double tempLog = 0;
    for (uint r = 0; r <= n; r++) {
@@ -473,7 +456,7 @@ double BCMath::longestRunFrequency(unsigned longestObserved,
       for (uint i = 1; ( i <= n-r+1) && (i <= uint(r / double(Lobs + 1)) ); i++) {
          tempLog = ApproxLogFact(n - i * (Lobs + 1))
                - ApproxLogFact(i) - ApproxLogFact(n - r - i + 1)
-               - ApproxLogFact(r - i* (Lobs + 1));
+               - ApproxLogFact(r - i * (Lobs + 1));
          if(i%2)
             conditionalProb += exp(tempLog);
          else
@@ -481,11 +464,11 @@ double BCMath::longestRunFrequency(unsigned longestObserved,
 //         printf("tempLog inside = %.2f",prob);
       }
 //      printf("tempLog outside = %.2f",prob);
-      prob += (1 + n - r)*conditionalProb;
+      prob += (1 + n - r) * conditionalProb;
    }
 
    //Bernoulli probability of each permutation
-   prob *= TMath::Power(2.0, - double(n) );
+   prob *= TMath::Power(2., -double(n));
 
    return prob;
 }
