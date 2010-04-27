@@ -27,12 +27,12 @@ class CombinationXSec : public CombinationModel
 
 	int SetChannelBR(const char* channelname, double BR);
 
+	TH1D PerformSingleChannelAnalysis(const char* channelname, bool flag_syst = true);
+
 	void DefineParameters();
 	double LogAPrioriProbability(std::vector <double> parameters);
 	double LogLikelihood(std::vector <double> parameters);
 	void MCMCUserIterationInterface();
-
-	void PrintChannelOverview(const char* filename); 
 
  private:
 

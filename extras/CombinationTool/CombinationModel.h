@@ -14,16 +14,21 @@ class CombinationModel : public BCModel
 		CombinationModel(const char * name, double xmin, double xmax);
 		~CombinationModel();
 
+		int PerformAnalysis(); 
+
+		virtual TH1D PerformSingleChannelAnalysis(const char* channelname, bool flag_syst) = 0;
+
 		int SetSignalPrior(TF1* prior);
 
 		int AddChannel(const char* channelname); 
 		int AddChannelBackground(const char* channelname, const char* backgroundname, double xmin, double xmax);
 
 		int AddSystError(const char* systerrorname); 
-		int SetSystErrorChannelSignal(const char channelname, double sigmadown, double sigmaup)
-		{ return 1; }; 
-		int SetSystErrorChannelBackground(const char* channelname, const char* backgroundname, double sigmadown, double sigmaup)
-		{ return 1; };
+		int SetSystErrorChannelSignal(const char* channelname, double sigmadown, double sigmaup);
+		int SetSystErrorChannelBackground(const char* systerrorname, const char* channelname, const char* backgroundname, double sigmadown, double sigmaup); 
+
+		int GetNSystErrors()
+		{ return int(fSystErrorNameContainer.size()); };
 
 		int GetNChannels()
 		{ return int(fChannelNameContainer.size()); }; 
@@ -33,10 +38,12 @@ class CombinationModel : public BCModel
 
 		int GetContIndexChannel(const char* channelname);
 		int GetContIndexChannelBackground(const char* channelname, const char* backgroundname);
+		int GetContIndexSystError(const char* systerrorname);
 
 		int GetParIndexChannel(const char* channelname);
 		int GetParIndexChannelBackground(const char* channelname, const char* backgroundname);
 		int GetParIndexChannelBackground(int channelindex, int backgroundindex);
+		int GetParIndexSystError(int systerrorindex);
 
 		int SetChannelObservation(const char* channelname, double observation);
 		int SetChannelUncertainty(const char* channelname, TF1* uncertainty);
@@ -48,6 +55,14 @@ class CombinationModel : public BCModel
 		int SetChannelBackgroundPrior(const char* channelname, const char* backgroundname, TF1* prior);
 		int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigma);
 		int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigmadown, double sigmaup);
+
+		void PrintChannelOverview(const char* filename); 
+
+		void SetFlagSystErrors(bool flag) 
+		{ fFlagSystErrors = flag; }; 
+
+		bool GetFlagSystErrors()
+		{ return fFlagSystErrors; }; 
 
 		// Methods to overload, see file CombinationModel.cxx
 		double LogAPrioriProbability(std::vector <double> parameters);
@@ -69,8 +84,8 @@ class CombinationModel : public BCModel
 		// uncertainty container
 		std::vector<TF1*> fChannelUncertaintyContainer;
 		std::vector<TF1*> fChannelEfficiencyPriorContainer;
-		std::vector< std::vector<double> > fSystErrorSigmaUpContainer;
-		std::vector< std::vector<double> > fSystErrorSigmaDownContainer;
+		std::vector< std::vector< std::vector<double> > > fSystErrorSigmaUpContainer;
+		std::vector< std::vector< std::vector<double> > > fSystErrorSigmaDownContainer;
 
 		// prior container
 		std::vector<TF1*> fChannelSignalPriorContainer;
@@ -81,9 +96,12 @@ class CombinationModel : public BCModel
 		std::vector< std::vector<int> > fParIndexChannelBackground; 
 		std::vector<int> fParIndexChannelObservationContainer;
 		std::vector<int> fParIndexChannelEfficiencyContainer;
+		std::vector<int> fParIndexSystErrorContainer;
 
 		// function container
 		std::vector<TF1*> fFunctionContainer; 
+
+		bool fFlagSystErrors; 
 };
 // ---------------------------------------------------------
 
