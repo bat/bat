@@ -1,10 +1,3 @@
-// ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project CombinationTool
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
-// ***************************************************************
-
 #include "CombinationModel.h"
 
 #include <BAT/BCLog.h>
@@ -20,11 +13,17 @@
 #include <TBox.h> 
 #include <TMath.h> 
 
+#include <fstream>
+#include <iostream>
+#include <iomanip>
+
 double SplitGaussian(double* x, double* par);
 
 // ---------------------------------------------------------
 CombinationModel::CombinationModel(const char * name, double xmin, double xmax) : BCModel()
 																																								, fFlagSystErrors(true)
+																																								, fSummaryCombinationNoSyst(0)
+																																								, fSummaryCombinationSyst(0)
 {
 	AddParameter(name, xmin, xmax);
 };
@@ -39,33 +38,18 @@ CombinationModel::~CombinationModel()
 	}
 	fFunctionContainer.clear(); 
 
-};  // default destructor
+	// delete summary container
+	for (int i = 0; i < int(fSummaryChannelNoSyst.size()); ++i) 
+		delete fSummaryChannelNoSyst[i]; 
+	fSummaryChannelNoSyst.clear(); 
 
-// ---------------------------------------------------------
-double CombinationModel::LogLikelihood(std::vector <double> parameters)
-{
-	// This methods returns the logarithm of the conditional probability
-	// p(data|parameters). This is where you have to define your model.
+	for (int i = 0; i < int(fSummaryChannelSyst.size()); ++i) 
+		delete fSummaryChannelSyst[i]; 
+	fSummaryChannelSyst.clear(); 
 
-	double logprob = 0.;
-
-	return logprob;
-}
-
-// ---------------------------------------------------------
-double CombinationModel::LogAPrioriProbability(std::vector <double> parameters)
-{
-	// This method returns the logarithm of the prior probability for the
-	// parameters p(parameters).
-
-	double logprob = 0.;
-
-	// For flat prior it's very easy.
-//	for(unsigned int i=0; i < this -> GetNParameters(); i++)
-//		logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
-
-	return logprob;
-}
+	delete fSummaryCombinationNoSyst;
+	delete fSummaryCombinationSyst;
+}; 
 
 // ---------------------------------------------------------
 int CombinationModel::GetContIndexSystError(const char* systerrorname)
@@ -348,7 +332,7 @@ int CombinationModel::SetChannelSignalPrior(const char* channelname, TF1* prior)
 
 	// check if function exists
 	if (!prior) {
-		BCLog::OutError("CombinationModel::SetChannelSignalPrior : Function does not exist."); 
+		//		BCLog::OutError("CombinationModel::SetChannelSignalPrior : Function does not exist."); 
 		return 0; 
 	}
 
@@ -382,7 +366,7 @@ int CombinationModel::SetChannelBackgroundPrior(const char* channelname, const c
 
 	// check if function exists
 	if (!prior) {
-		BCLog::OutError("CombinationModel::SetChannelBackgroundPrior : Function does not exist."); 
+		//		BCLog::OutError("CombinationModel::SetChannelBackgroundPrior : Function does not exist."); 
 		return 0; 
 	}
 
@@ -472,45 +456,111 @@ int CombinationModel::PerformAnalysis()
 }
 
 // ---------------------------------------------------------
+int CombinationModel::PerformFullAnalysis()
+{
+	// ---- perform combination analysis without systematics ---- //
+
+	// print to screen
+	BCLog::OutSummary("Perform combination without systematics"); 
+
+	// set flags
+	SetFlagSystErrors(false);
+
+	// perform analysis
+	PerformAnalysis();
+
+	// delete old summary information
+	delete fSummaryCombinationNoSyst; 
+
+	// copy summary information
+	fSummaryCombinationNoSyst = new ParameterSummary("combination");
+	fSummaryCombinationNoSyst->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
+
+	// ---- perform combination analysis with systematics ---- //
+
+	// print to screen
+	BCLog::OutSummary("Perform combination with systematics"); 
+
+	// set flags
+	SetFlagSystErrors(true);
+
+	// perform analysis
+	PerformAnalysis();
+
+	// delete old summary information
+	delete fSummaryCombinationSyst; 
+
+	// copy summary information
+	fSummaryCombinationSyst = new ParameterSummary("combination");
+	fSummaryCombinationSyst->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
+
+	// ---- perform single channel analysis without systematics ---- //
+
+	// get number of channels
+	int nchannels = GetNChannels();
+
+	// print to screen
+	BCLog::OutSummary("Perform single channel analysis without systematics"); 
+
+	// delete old summaries
+	for (int i = 0; i < int(fSummaryChannelNoSyst.size()); ++i) 
+		delete fSummaryChannelNoSyst[i]; 
+	fSummaryChannelNoSyst.clear(); 
+
+	// loop over all channels 
+	for (int i = 0; i < nchannels; ++i) {
+		ParameterSummary* ps = new ParameterSummary(fChannelNameContainer.at(i).c_str());
+		*ps = PerformSingleChannelAnalysis( fChannelNameContainer.at(i).c_str(), false );
+		fSummaryChannelNoSyst.push_back(ps);
+	}
+
+	// ---- perform single channel analysis with systematics ---- //
+
+	// print to screen
+	BCLog::OutSummary("Perform single channel analysis with systematics"); 
+
+	// delete old summaries
+	for (int i = 0; i < int(fSummaryChannelSyst.size()); ++i) 
+		delete fSummaryChannelSyst[i]; 
+	fSummaryChannelSyst.clear(); 
+
+	// loop over all channels 
+	for (int i = 0; i < nchannels; ++i) {
+		ParameterSummary* ps = new ParameterSummary(fChannelNameContainer.at(i).c_str());
+		*ps = PerformSingleChannelAnalysis( fChannelNameContainer.at(i).c_str(), true );
+		fSummaryChannelSyst.push_back(ps);
+	}
+
+	// no error 
+	return 1;
+}
+
+// ---------------------------------------------------------
 int CombinationModel::GetParIndexSystError(int systerrorindex)
 {
 	return fParIndexSystErrorContainer.at(systerrorindex);
 }
 
 // ---------------------------------------------------------
-void CombinationModel::PrintChannelOverview(const char* filename)
+int CombinationModel::PrintChannelOverview(const char* filename)
 {
+	// check if summary information is available
+	if (!fSummaryCombinationNoSyst || !fSummaryCombinationSyst) {
+		BCLog::OutError("CombinationModel::PrintChannelOverview : Summary information not available."); 
+		return -1; 
+	}
+
 	// get number of channels
 	int nchannels = GetNChannels(); 
 
-	// define vector of histograms 
-	std::vector<BCH1D*> histos_with_syst_error; 
-	std::vector<BCH1D*> histos_without_syst_error; 
-
-	// perform studies without systematics
-	// loop over all channels 
-	for (int i = 0; i < nchannels; ++i) {
-		TH1D* h = new TH1D( PerformSingleChannelAnalysis( fChannelNameContainer.at(i).c_str(), false ));
-		BCH1D* hist = new BCH1D( h ); 		
-		histos_without_syst_error.push_back( hist );
-	}
-
-	// perform studies with systematics
-	// loop over all channels 
-	for (int i = 0; i < nchannels; ++i) {
-		TH1D* h = new TH1D( PerformSingleChannelAnalysis( fChannelNameContainer.at(i).c_str(), true ));
-		BCH1D* hist = new BCH1D( h ); 		
-		histos_with_syst_error.push_back( hist );
-	}
-
 	// create graph
-	TGraphAsymmErrors* graph_without_syst_error = new TGraphAsymmErrors(GetNChannels()+1); 
-	graph_without_syst_error->SetMarkerStyle(20); 
-	graph_without_syst_error->SetMarkerSize(0); 
+	TGraphAsymmErrors* graph_nosyst = new TGraphAsymmErrors(GetNChannels()+1); 
+	graph_nosyst->SetMarkerStyle(20); 
+	graph_nosyst->SetMarkerSize(0); 
 
-	TGraphAsymmErrors* graph_with_syst_error = new TGraphAsymmErrors(GetNChannels()+1); 
-	graph_with_syst_error->SetMarkerStyle(20); 
-	graph_with_syst_error->SetMarkerSize(1); 
+	TGraphAsymmErrors* graph_syst = new TGraphAsymmErrors(GetNChannels()+1); 
+	graph_syst->SetMarkerStyle(20); 
+	graph_syst->SetMarkerSize(1); 
 
 	// coordinate system
 	double xmin = 0.0; 
@@ -519,18 +569,25 @@ void CombinationModel::PrintChannelOverview(const char* filename)
 	double ymin = -0.5;
 	double ymax = double(nchannels)+0.5;
 
-	// loop over all channels 
+	// ---- single channel analysis without systematics ---- // 
+
+	// loop over all channels
 	for (int i = 0; i < nchannels; ++i) {
 
-		// get histogram
-		BCH1D* h = histos_without_syst_error.at(i);
+		// get summary
+		ParameterSummary* ps = fSummaryChannelNoSyst.at(i); 
+
+		if (!ps) {
+			BCLog::OutError("CombinationModel::PrintChannelOverview : Single channel summary information not available."); 
+			return -1; 
+		}
 
 		// get summary information
-		double median = h->GetMedian(); 
-		double q16 = h->GetQuantile(0.16);
-		double q84 = h->GetQuantile(0.84);
-		double errlow = median - q16;
-		double errhigh = q84 - median; 
+		double mode = ps->GetMode(); 
+		double q16 = ps->GetQuantile16();
+		double q84 = ps->GetQuantile84();
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
 
 		// update coordinate system
 		if (q16 < xmin || i == 0)
@@ -540,22 +597,29 @@ void CombinationModel::PrintChannelOverview(const char* filename)
 		xwidth = xmax - xmin; 
 
 		// set point and error 
-		graph_without_syst_error->SetPoint(i, median, double(nchannels-i));
-		graph_without_syst_error->SetPointError(i, errlow, errhigh, 0, 0);
+		graph_nosyst->SetPoint(i, mode, double(nchannels-i));
+		graph_nosyst->SetPointError(i, errlow, errhigh, 0, 0);
 	}
 
-	// loop over all channels 
+	// ---- single channel analysis with systematics ---- // 
+
+	// loop over all channels
 	for (int i = 0; i < nchannels; ++i) {
 
-		// get histogram
-		BCH1D* h = histos_with_syst_error.at(i);
+		// get summary
+		ParameterSummary* ps = fSummaryChannelSyst.at(i); 
+
+		if (!ps) {
+			BCLog::OutError("CombinationModel::PrintChannelOverview : Single channel summary information not available."); 
+			return -1; 
+		}
 
 		// get summary information
-		double median = h->GetMedian(); 
-		double q16 = h->GetQuantile(0.16);
-		double q84 = h->GetQuantile(0.84);
-		double errlow = median - q16;
-		double errhigh = q84 - median; 
+		double mode = ps->GetMode(); 
+		double q16 = ps->GetQuantile16();
+		double q84 = ps->GetQuantile84();
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
 
 		// update coordinate system
 		if (q16 < xmin || i == 0)
@@ -565,38 +629,37 @@ void CombinationModel::PrintChannelOverview(const char* filename)
 		xwidth = xmax - xmin; 
 
 		// set point and error 
-		graph_with_syst_error->SetPoint(i, median, double(nchannels-i));
-		graph_with_syst_error->SetPointError(i, errlow, errhigh, 0, 0);
+		graph_syst->SetPoint(i, mode, double(nchannels-i));
+		graph_syst->SetPointError(i, errlow, errhigh, 0, 0);
 	}
 
-	// set point from combination
-	BCH1D* h = GetMarginalized( GetParameter(0)->GetName().c_str() );
-	double median_with_syst_error = h->GetMedian(); 
-	double q16_with_syst_error = h->GetQuantile(0.16);
-	double q84_with_syst_error = h->GetQuantile(0.84);
-	double errlow_with_syst_error = median_with_syst_error - q16_with_syst_error;
-	double errhigh_with_syst_error = q84_with_syst_error - median_with_syst_error; 
-	
-	// set point and error 
-	graph_with_syst_error->SetPoint(nchannels, median_with_syst_error, 0.);
-	graph_with_syst_error->SetPointError(nchannels, errlow_with_syst_error, errhigh_with_syst_error, 0, 0);
+	// ---- combined analysis without systematics
 
-	// repeat studies without systematic errors
-	SetFlagSystErrors(false);
-	PerformAnalysis(); 
-	h = GetMarginalized( GetParameter(0)->GetName().c_str() );
-	SetFlagSystErrors(true);
-	
 	// set point from combination
-	double median_without_syst_error = h->GetMedian(); 
-	double q16_without_syst_error = h->GetQuantile(0.16);
-	double q84_without_syst_error = h->GetQuantile(0.84);
-	double errlow_without_syst_error = median_without_syst_error - q16_without_syst_error;
-	double errhigh_without_syst_error = q84_without_syst_error - median_without_syst_error;
+	double mode_nosyst = fSummaryCombinationNoSyst->GetMode(); 
+	double q16_nosyst = fSummaryCombinationNoSyst->GetQuantile16();
+	double q84_nosyst = fSummaryCombinationNoSyst->GetQuantile84();
+	double errlow_nosyst = mode_nosyst - q16_nosyst;
+	double errhigh_nosyst = q84_nosyst - mode_nosyst; 
 	
 	// set point and error 
-	graph_without_syst_error->SetPoint(nchannels, median_without_syst_error, 0.);
-	graph_without_syst_error->SetPointError(nchannels, errlow_without_syst_error, errhigh_without_syst_error, 0, 0);
+	graph_nosyst->SetPoint(nchannels, mode_nosyst, 0.);
+	graph_nosyst->SetPointError(nchannels, errlow_nosyst, errhigh_nosyst, 0, 0);
+
+	// ---- combined analysis with systematics
+
+	// set point from combination
+	double mode_syst = fSummaryCombinationSyst->GetMode(); 
+	double q16_syst = fSummaryCombinationSyst->GetQuantile16();
+	double q84_syst = fSummaryCombinationSyst->GetQuantile84();
+	double errlow_syst = mode_syst - q16_syst;
+	double errhigh_syst = q84_syst - mode_syst; 
+	
+	// set point and error 
+	graph_syst->SetPoint(nchannels, mode_syst, 0.);
+	graph_syst->SetPointError(nchannels, errlow_syst, errhigh_syst, 0, 0);
+
+	// ---- do the plotting ---- // 
 
 	// create histogram for axes
 	TH2D* hist_axes = new TH2D("", Form(";%s;Channel", GetParameter(0)->GetName().c_str()), 1, xmin - 0.25*xwidth, xmax + 1.75 * xwidth, nchannels+1, ymin, ymax); 
@@ -635,11 +698,11 @@ void CombinationModel::PrintChannelOverview(const char* filename)
 
 	// draw
 	hist_axes->Draw();
-	box_total->DrawBox(q16_with_syst_error, ymin, q84_with_syst_error, ymax);
-	box_stat->DrawBox(q16_without_syst_error, ymin, q84_without_syst_error, ymax);
-	line_mode->DrawLine(median_with_syst_error, ymin, median_with_syst_error, ymax);
-	graph_with_syst_error->Draw("SAMEPZ"); 
-	graph_without_syst_error->Draw("SAMEP"); 
+	box_total->DrawBox(q16_syst, ymin, q84_syst, ymax);
+	box_stat->DrawBox(q16_nosyst, ymin, q84_nosyst, ymax);
+	line_mode->DrawLine(mode_syst, ymin, mode_syst, ymax);
+	graph_syst->Draw("SAMEPZ"); 
+	graph_nosyst->Draw("SAMEP"); 
 
 	// loop over all channels and draw labels
 	for (int i = 0; i < nchannels; ++i) {
@@ -652,6 +715,7 @@ void CombinationModel::PrintChannelOverview(const char* filename)
 	// print to file 
 	c1->Print(filename);
 
+	/*
 	// create postscript
 	TPostScript* ps = new TPostScript("summary_signal.ps");
 
@@ -664,33 +728,184 @@ void CombinationModel::PrintChannelOverview(const char* filename)
 		c2->Update();
 		ps->NewPage();
 		c2->cd(1);
-		histos_without_syst_error.at(i)->Draw(); 
+		histos_nosyst.at(i)->Draw(); 
 		c2->cd(2);
-		histos_with_syst_error.at(i)->Draw(); 
+		histos_syst.at(i)->Draw(); 
 	}
 
 	// close ps
 	c2->Update();
 	ps->Close();
+	*/
 
 	// free memory 
 	delete c1; 
-	delete c2;
 	delete line_mode; 
 	delete box_total; 
 	delete box_stat;
 	delete box_help; 
 	delete latex;
 	delete hist_axes;
-	delete graph_without_syst_error;
-	delete graph_with_syst_error;
+	delete graph_nosyst;
+	delete graph_syst;
+	/*
+	delete c2;
 	delete ps;
 	for (int i = 0; i < nchannels; ++i) {
-		delete histos_with_syst_error[i];
-		delete histos_without_syst_error[i];
+		delete histos_syst[i];
+		delete histos_nosyst[i];
 	} 
-	histos_with_syst_error.clear();
-	histos_without_syst_error.clear();
+	histos_syst.clear();
+	histos_nosyst.clear();
+	*/
+
+	// no error 
+	return 1;
+}
+
+// ---------------------------------------------------------
+int CombinationModel::PrintChannelSummary(const char* filename)
+{
+	// check if summary information is available
+	if (!fSummaryCombinationNoSyst || !fSummaryCombinationSyst) {
+		BCLog::OutError("CombinationModel::PrintChannelOverview : Summary information not available."); 
+		return -1; 
+	}
+
+	// create stream
+	fstream output;
+	output.open(filename, std::fstream::out);
+
+	output << std::endl;
+	output << " --------------------------------------------- " << std::endl;
+	output << " Combination summary                           " << std::endl;
+	output << " --------------------------------------------- " << std::endl;
+	output << std::endl;
+
+	// get number of channels
+	int nchannels = GetNChannels(); 
+
+	// ---- single channel analysis without systematics ---- // 
+
+	output << " Single channels without systematics : " << std::endl;
+	output << std::endl;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
+	output << std::endl;
+
+	// loop over all channels
+	for (int i = 0; i < nchannels; ++i) {
+
+		// get summary
+		ParameterSummary* ps = fSummaryChannelNoSyst.at(i); 
+
+		if (!ps) {
+			BCLog::OutError("CombinationModel::PrintChannelSummary : Single channel summary information not available."); 
+			return -1; 
+		}
+
+		// get summary information
+		double mode = ps->GetMode(); 
+		double q16 = ps->GetQuantile16();
+		double q84 = ps->GetQuantile84();
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
+
+		output << " ";
+		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh << std::endl;
+	}
+	output << std::endl;
+
+	// ---- single channel analysis with systematics ---- // 
+
+	output << " Single channels with systematics : " << std::endl;
+	output << std::endl;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
+	output << std::endl;
+
+	// loop over all channels
+	for (int i = 0; i < nchannels; ++i) {
+
+		// get summary
+		ParameterSummary* ps = fSummaryChannelSyst.at(i); 
+
+		if (!ps) {
+			BCLog::OutError("CombinationModel::PrintChannelSummary : Single channel summary information not available."); 
+			return -1; 
+		}
+
+		// get summary information
+		double mode = ps->GetMode(); 
+		double q16 = ps->GetQuantile16();
+		double q84 = ps->GetQuantile84();
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
+
+		output << " ";
+		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh << std::endl;
+	}
+	output << std::endl;
+
+	// ---- combined analysis with and without systematics ---- // 
+
+	output << " Combined channels : " << std::endl;
+	output << std::endl;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Systematics";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
+	output << std::endl;
+
+	// get summaries
+	ParameterSummary* ps_nosyst = fSummaryCombinationNoSyst;
+	ParameterSummary* ps_syst = fSummaryCombinationSyst;
+
+	// get summary information
+	double mode_nosyst = ps_nosyst->GetMode(); 
+	double q16_nosyst = ps_nosyst->GetQuantile16();
+	double q84_nosyst = ps_nosyst->GetQuantile84();
+	double errlow_nosyst = mode_nosyst - q16_nosyst;
+	double errhigh_nosyst = q84_nosyst - mode_nosyst; 
+
+	output << " ";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << "off";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_nosyst; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_nosyst;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh_nosyst << std::endl;
+
+	// get summary information
+	double mode_syst = ps_syst->GetMode(); 
+	double q16_syst = ps_syst->GetQuantile16();
+	double q84_syst = ps_syst->GetQuantile84();
+	double errlow_syst = mode_syst - q16_syst;
+	double errhigh_syst = q84_syst - mode_syst; 
+
+	output << " ";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << "on";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_syst; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_syst;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh_syst << std::endl;
+
+	output << std::endl;
+	output << " --------------------------------------------- " << std::endl;
+	output << std::endl;
+
+	// close stream
+	output.close();
+
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------

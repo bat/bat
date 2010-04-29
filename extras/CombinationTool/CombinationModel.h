@@ -3,6 +3,8 @@
 
 #include <BAT/BCModel.h>
 
+#include "ParameterSummary.h"
+
 class TF1;
 
 // ---------------------------------------------------------
@@ -15,8 +17,9 @@ class CombinationModel : public BCModel
 		~CombinationModel();
 
 		int PerformAnalysis(); 
+		int PerformFullAnalysis(); 
 
-		virtual TH1D PerformSingleChannelAnalysis(const char* channelname, bool flag_syst) = 0;
+		virtual ParameterSummary PerformSingleChannelAnalysis(const char* channelname, bool flag_syst) = 0;
 
 		int SetSignalPrior(TF1* prior);
 
@@ -56,7 +59,8 @@ class CombinationModel : public BCModel
 		int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigma);
 		int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigmadown, double sigmaup);
 
-		void PrintChannelOverview(const char* filename); 
+		int PrintChannelOverview(const char* filename); 
+		int PrintChannelSummary(const char* filename); 
 
 		void SetFlagSystErrors(bool flag) 
 		{ fFlagSystErrors = flag; }; 
@@ -65,10 +69,13 @@ class CombinationModel : public BCModel
 		{ return fFlagSystErrors; }; 
 
 		// Methods to overload, see file CombinationModel.cxx
-		double LogAPrioriProbability(std::vector <double> parameters);
-		double LogLikelihood(std::vector <double> parameters);
+		double LogAPrioriProbability(std::vector <double> parameters) = 0;
+		double LogLikelihood(std::vector <double> parameters) = 0;
 
  protected:
+
+		// flags
+		bool fFlagSystErrors; 
 
 		// name container
 		std::vector<std::string> fChannelNameContainer; 
@@ -101,7 +108,13 @@ class CombinationModel : public BCModel
 		// function container
 		std::vector<TF1*> fFunctionContainer; 
 
-		bool fFlagSystErrors; 
+		// analysis summaries
+		ParameterSummary* fSummaryCombinationNoSyst; 
+		ParameterSummary* fSummaryCombinationSyst; 
+	
+		std::vector<ParameterSummary*> fSummaryChannelNoSyst; 
+		std::vector<ParameterSummary*> fSummaryChannelSyst; 
+
 };
 // ---------------------------------------------------------
 

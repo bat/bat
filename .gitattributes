@@ -113,6 +113,8 @@ extras/CombinationTool/CombinationModel.h -text
 extras/CombinationTool/CombinationXSec.cxx -text
 extras/CombinationTool/CombinationXSec.h -text
 extras/CombinationTool/Makefile -text
+extras/CombinationTool/ParameterSummary.cxx -text
+extras/CombinationTool/ParameterSummary.h -text
 extras/CombinationTool/runCombinationTool.cxx -text
 extras/README -text
 models/BCEfficiencyFitter.cxx -text

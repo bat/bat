@@ -3,6 +3,8 @@
 
 #include <CombinationModel.h>
 
+#include "ParameterSummary.h" 
+
 class BCH1D; 
 
 // ---------------------------------------------------------
@@ -27,7 +29,7 @@ class CombinationXSec : public CombinationModel
 
 	int SetChannelBR(const char* channelname, double BR);
 
-	TH1D PerformSingleChannelAnalysis(const char* channelname, bool flag_syst = true);
+	ParameterSummary PerformSingleChannelAnalysis(const char* channelname, bool flag_syst = true);
 
 	void DefineParameters();
 	double LogAPrioriProbability(std::vector <double> parameters);

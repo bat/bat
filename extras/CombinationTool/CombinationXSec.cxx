@@ -329,13 +329,13 @@ int CombinationXSec::SetChannelBR(const char* channelname, double BR)
 }
 
 // ---------------------------------------------------------
-TH1D CombinationXSec::PerformSingleChannelAnalysis(const char* channelname, bool flag_syst)
+ParameterSummary CombinationXSec::PerformSingleChannelAnalysis(const char* channelname, bool flag_syst)
 {
  	// get channel container index
 	int channelindex = GetContIndexChannel(channelname); 
 
-	// define histogram
-	TH1D hist;
+	// define summary
+	ParameterSummary ps(channelname); 
 
 	// create analyses for each channel 
 	CombinationXSec* model = new CombinationXSec( GetParameter(0)->GetName().c_str(), 
@@ -389,13 +389,16 @@ TH1D CombinationXSec::PerformSingleChannelAnalysis(const char* channelname, bool
 	model->PerformAnalysis();
 
 	// get histogram
-	hist = *(model->GetMarginalized( model->GetParameter(0)->GetName().c_str() )->GetHistogram()); 
+	BCH1D* hist = model->GetMarginalized( model->GetParameter(0)->GetName().c_str() ); 
+
+	// copy summary information
+	ps.Summarize(hist);
 
 	// free memory
 	delete model;
 
-	// return histogram 
-	return hist; 
+	// return summary 
+	return ps; 
 }
 
 // ---------------------------------------------------------

@@ -27,6 +27,8 @@ int main()
 	// set mcmc options
 	model->MCMCSetNLag(10);
 	model->MCMCSetNChains(10);
+	//	model->MCMCSetNIterationsRun(1000);
+	//	model->MCMCSetNIterationsMax(1000);
 
 	// ----------------------------------------------------------
 	// define cross-section contributions, background sources and
@@ -46,24 +48,22 @@ int main()
 	model->AddChannel("e+jets");
 
 	// set channel observations, efficiency, luminosity and branching ratio
-	model->SetChannelObservation("e+jets",  200.0); 
-	model->SetChannelEfficiencyPriorGauss("e+jets", 0.01, 0.001);
-	model->SetChannelLuminosityPriorGauss("e+jets", 1000.0, 50.0);
-	model->SetChannelBR("e+jets", 0.9);
+	model->SetChannelObservation("e+jets",  270.0); 
+	model->SetChannelEfficiencyPriorGauss("e+jets", 0.01, 0.0001);
+	model->SetChannelLuminosityPriorGauss("e+jets", 1000.0, 1.0);
+	model->SetChannelBR("e+jets", 1.0);
 
 	// add backgrounds for this channel 
-	model->AddChannelBackground("e+jets", "W+jets", 0.0, 100.0); 
-	model->AddChannelBackground("e+jets", "Z+jets", 0.0,  12.0);
-	model->AddChannelBackground("e+jets", "QCD",    0.0,  50.0);
-	model->AddChannelBackground("e+jets", "other",  5.0,  15.0);
+	model->AddChannelBackground("e+jets", "W+jets", 0.0, 100.0);
+	model->AddChannelBackground("e+jets", "Z+jets", 5.0,  15.0); 
+	model->AddChannelBackground("e+jets", "QCD",    0.0,  50.0); 
+	model->AddChannelBackground("e+jets", "other",  0.0,  20.0); 
 
 	// set channel priors
  	model->SetChannelBackgroundPriorGauss("e+jets", "W+jets", 55.0,  4.8, 5.0); 
  	model->SetChannelBackgroundPriorGauss("e+jets", "Z+jets",  5.0,  1.5);
  	model->SetChannelBackgroundPriorGauss("e+jets", "QCD",    30.0,  3.7, 3.5);
  	model->SetChannelBackgroundPriorGauss("e+jets", "other",  10.0,  1.1, 1.0); 
-
-
 
 	// add channel
 	model->AddChannel("mu+jets");
@@ -109,7 +109,7 @@ int main()
 	// ----------------------------------------------------------
 
 	// perform analysis
-	model->PerformAnalysis();
+	model->PerformFullAnalysis();
 
 	// print summary plots
 	BCSummaryTool* summary = new BCSummaryTool(model);
@@ -121,6 +121,7 @@ int main()
 	model->PrintAllMarginalized("model_plots.ps");
 	model->PrintResults("model_results.txt");
 	model->PrintChannelOverview("channels.ps");
+	model->PrintChannelSummary("summary.txt");
 
 	// ----------------------------------------------------------
 	// clean-up and return

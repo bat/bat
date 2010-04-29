@@ -74,7 +74,8 @@ GLIBS       += $(ROOTGLIBS) -lBAT -L$(BATINSTALLDIR)/lib -lBATmodels
 # on the next line
 CXXSRCS      = \
         CombinationModel.cxx \
-        CombinationXSec.cxx
+        CombinationXSec.cxx \
+				ParameterSummary.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
