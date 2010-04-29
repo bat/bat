@@ -86,7 +86,7 @@ EXEOBJS      =
 MYPROGS     = \
         runCombinationTool
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS) test_poisson
 
 
 # targets
@@ -106,6 +106,10 @@ clean :
 project : runCombinationTool.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) runCombinationTool.o $(CXXOBJS) -o runCombinationTool
+
+tests : test_poisson.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) test_poisson.o $(CXXOBJS) -o test_poisson
 
 print :
 	echo compiler  : $(CXX)

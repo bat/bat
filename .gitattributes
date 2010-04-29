@@ -116,6 +116,7 @@ extras/CombinationTool/Makefile -text
 extras/CombinationTool/ParameterSummary.cxx -text
 extras/CombinationTool/ParameterSummary.h -text
 extras/CombinationTool/runCombinationTool.cxx -text
+extras/CombinationTool/test_poisson.cxx -text
 extras/README -text
 models/BCEfficiencyFitter.cxx -text
 models/BCEfficiencyFitter.h -text

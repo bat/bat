@@ -89,11 +89,13 @@ double CombinationXSec::LogAPrioriProbability(std::vector <double> parameters)
 
 		// add channel luminosty prior
 		if (fChannelLuminosityPriorContainer.at(i))
-			logprob += log( fChannelLuminosityPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelLuminosity.at(i))) ); 
+			if (fChannelLuminosityPriorContainer.at(i)->GetParameter(1) > 0)
+				logprob += log( fChannelLuminosityPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelLuminosity.at(i))) ); 
 
 		// add channel efficiency prior
 		if (fChannelEfficiencyPriorContainer.at(i))
-			logprob += log( fChannelEfficiencyPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelEfficiency.at(i))) ); 
+			if (fChannelEfficiencyPriorContainer.at(i)->GetParameter(1) > 0)
+				logprob += log( fChannelEfficiencyPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelEfficiency.at(i))) ); 
 
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
