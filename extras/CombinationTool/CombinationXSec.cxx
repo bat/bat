@@ -38,6 +38,24 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 		double efficiency = parameters.at( fParIndexChannelEfficiency.at(i) ); 
 		double br = fChannelBR.at(i);
 		double expectation = parameters.at(0) * luminosity * efficiency * br; 
+
+		// loop over all systematic uncertainties
+		for (int k = 0; k < nsysterrors; ++k) {
+			int systparindex = GetParIndexSystError(k);
+			double par = parameters.at(systparindex);
+			
+			// debugKK
+			//			std::cout << k << " " << expectation << " ";
+
+			if (par < 0)
+				expectation += fSystErrorChannelSigmaDownContainer.at(k).at(i) * par * luminosity * efficiency * br;
+			else
+				expectation += fSystErrorChannelSigmaUpContainer.at(k).at(i) * par * luminosity * efficiency * br;
+
+			// debugKK
+			//			std::cout << expectation << " " << std::endl;
+			
+		}
 		
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
@@ -229,6 +247,15 @@ int CombinationXSec::SetChannelEfficiencyPrior(const char* channelname, TF1* pri
 // ---------------------------------------------------------
 int CombinationXSec::SetChannelEfficiencyPriorGauss(const char* channelname, double mean, double sigma)
 {
+	// get channel index
+	int channelindex = GetContIndexChannel(channelname); 
+
+	// check channel index
+	if (channelindex < 0) {
+		BCLog::OutError("CombinationModel::SetChannelEfficiencyPriorGauss : Can not find channel index."); 
+		return 0; 
+	}
+
 	// create new function
 	TF1* f = new TF1(Form("f_eff_%s", channelname), "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2/[1]/[1] )");
 	f->SetParameter(0, mean); 
@@ -248,8 +275,11 @@ int CombinationXSec::SetChannelEfficiencyPriorGauss(const char* channelname, dou
 	// add function to container
 	fFunctionContainer.push_back(f); 
 
-	// set channel background prior
-	return SetChannelEfficiencyPrior(channelname, f); 
+	// set prior
+	fChannelEfficiencyPriorContainer[channelindex] = f;
+
+	// no error 
+	return 1;
 }
 
 // ---------------------------------------------------------
@@ -288,6 +318,15 @@ int CombinationXSec::SetChannelLuminosityPrior(const char* channelname, TF1* pri
 // ---------------------------------------------------------
 int CombinationXSec::SetChannelLuminosityPriorGauss(const char* channelname, double mean, double sigma)
 {
+	// get channel index
+	int channelindex = GetContIndexChannel(channelname); 
+
+	// check channel index
+	if (channelindex < 0) {
+		BCLog::OutError("CombinationModel::SetChannelLuminosityPriorGauss : Can not find channel index."); 
+		return 0; 
+	}
+
 	// create new function
 	TF1* f = new TF1(Form("f_eff_%s", channelname), "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2/[1]/[1] )");
 	f->SetParameter(0, mean); 
@@ -307,8 +346,11 @@ int CombinationXSec::SetChannelLuminosityPriorGauss(const char* channelname, dou
 	// add function to container
 	fFunctionContainer.push_back(f); 
 
-	// set channel background prior
-	return SetChannelLuminosityPrior(channelname, f); 
+	// set prior
+	fChannelLuminosityPriorContainer[channelindex] = f;
+
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------
@@ -401,25 +443,6 @@ ParameterSummary CombinationXSec::PerformSingleChannelAnalysis(const char* chann
 
 	// return summary 
 	return ps; 
-}
-
-// ---------------------------------------------------------
-void CombinationXSec::MCMCUserIterationInterface()
-{
-	// debugKK
-	return;
-
-// 	// get number of channels
-// 	int nchannels = GetNChannels(); 
-
-// 	// loop over all channels 
-// 	for (int i = 0; i < nchannels; ++i) {
-// 		// calculate expectation for this channel
-// 		double expectation = fMCMCx.at(0) * fChannelLuminosity.at(i) * fChannelEfficiency.at(i); 
-
-// 		// fill histogram
-// 		fChannelSignal.at(i)->GetHistogram()->Fill(expectation); 
-// 	}
 }
 
 // ---------------------------------------------------------

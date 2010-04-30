@@ -112,6 +112,7 @@ extras/CombinationTool/CombinationModel.cxx -text
 extras/CombinationTool/CombinationModel.h -text
 extras/CombinationTool/CombinationXSec.cxx -text
 extras/CombinationTool/CombinationXSec.h -text
+extras/CombinationTool/Doxyfile -text
 extras/CombinationTool/Makefile -text
 extras/CombinationTool/ParameterSummary.cxx -text
 extras/CombinationTool/ParameterSummary.h -text
