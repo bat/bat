@@ -19,3 +19,7 @@ Low		Include CombinationTool			ongoing (Kevin)
 Low		Add further examples			not started
 Low		Fix axis labels for SummaryTool		not started
 Low		Add legend to plots by default		not started
+Low		Simplify retrieving parameter 		not started
+		uncertainty
+Low		Speed up HistogramFitter		not started
+		by cutting data range to TF1 range		
