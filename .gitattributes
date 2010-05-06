@@ -59,8 +59,8 @@ doc/manual/example01_data.eps -text
 doc/manual/manual.tex -text
 doc/manual/scheme.eps -text
 doc/releasenotes.txt -text
+doc/todo/todo.txt -text
 doc/todo/todo_detail.txt -text
-doc/todo/todo_rel0.4.0.txt -text
 examples/README -text
 examples/fastfitter/README -text
 examples/fastfitter/advancedGraphFitter/data/datax.txt -text
