@@ -14,6 +14,7 @@ High         0.4.0?      Allocate BestFitParameters, Errors, Marginalized... upo
 High         0.4.0?      Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 High         0.4.0?      Test RooStats examples
 High         0.4.0       Fix axis labels for SummaryTool (numbers for larger number of parameters)
+High         0.4.0       Important check: compare marginalized mode (1D) with predictions
 
 Medium                   Add models page on web page
 Medium                   Method to set parameter ranges, method to fix parameters
@@ -29,3 +30,4 @@ Low                      Look into sparse histograms
 Low                      Remove MCMC code from BCIntegrate
 Low                      Remove ConditionalProbabilityEntry stuff
 Low                      Library of common priors
+Low                      Use Kernel Density Estimator for filling histograms as option
