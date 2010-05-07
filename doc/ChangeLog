@@ -1,3 +1,8 @@
+2010-05-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx: removed convergence criterion for log likelihood.
+	  this fixes two problems: flat functions and fixed parameters converge.
+	* Updated todo list.
+
 2010-05-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated todo list
 

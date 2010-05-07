@@ -629,6 +629,10 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 				flag_convergence = false;
 		}
 
+		/**
+		 * debugKK
+		 * removed this since it makes flat function not converge. 
+
 		// convergence criterion applied on the log-likelihood
 		double sum = 0;
 		double sum2 = 0;
@@ -665,6 +669,8 @@ void BCEngineMCMC::MCMCUpdateStatisticsTestConvergenceAllChains()
 		// set flag to false if convergence criterion is not fulfilled for the log-likelihood
 		if (! ((fMCMCRValue-1.0) < fMCMCRValueCriterion))
 			flag_convergence = false;
+
+		*/
 
 		// remember number of iterations needed to converge
 		if (fMCMCNIterationsConvergenceGlobal == -1 && flag_convergence == true)
@@ -1063,7 +1069,7 @@ int BCEngineMCMC::MCMCMetropolis()
 				// loop over chains
 				for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 					this->MCMCGetNewPointMetropolis(ichains, iparameters);
-
+				
 				// update search for maximum
 				this->MCMCUpdateStatisticsCheckMaximum();
 
