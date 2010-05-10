@@ -398,12 +398,86 @@ std::vector<int> BCMath::longestRuns(const std::vector<bool> &bitStream)
 
    return runs;
 }
+// ---------------------------------------------------------
 
+std::vector<double> BCMath::longestRunsChi2(
+      const std::vector<double>& yMeasured,
+      const std::vector<double>& yExpected, const std::vector<double>& sigma)
+{
+   //initialize counter variables
+   double maxRunAbove, maxRunBelow, currRun;
+   maxRunAbove = 0;
+   maxRunBelow = 0;
+   currRun = 0;
+   //set both entries to zero
+   std::vector<double> runs(2, 0);
+
+   //check input size
+   if (yMeasured.size() != yExpected.size() || yMeasured.size() != sigma.size()
+         || yExpected.size() != sigma.size()) {
+      //should throw exception
+      return runs;
+   }
+
+   //exclude zero uncertainty
+   //...
+
+    int N = yMeasured.size();
+   //BCLog::OutDebug(Form("N = %d", N));
+
+
+   //flag about kind of the currently considered run
+   double residue = (yMeasured.at(0) - yExpected.at(0)) / sigma.at(0);
+   bool aboveRun = residue >= 0 ? true : false;
+   currRun = residue * residue;
+
+   //start at second variable
+   for (int i = 1; i < N; i++) {
+      residue = (yMeasured.at(i) - yExpected.at(i)) / sigma.at(i);
+      //run continues
+      if ((residue >= 0) == aboveRun) {
+         currRun += residue * residue;
+      } else {
+         //compare terminated run to maximum
+         if (aboveRun)
+            maxRunAbove = TMath::Max(maxRunAbove, currRun);
+         else
+            maxRunBelow = TMath::Max(maxRunBelow, currRun);
+         //set flag to run of opposite kind
+         aboveRun = !aboveRun;
+         //restart at current residual
+         currRun = residue * residue;
+      }
+      //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
+      //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
+      //BCLog::OutDebug(Form("currRun = %g", currRun));
+
+   }
+
+   //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
+   //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
+   //BCLog::OutDebug(Form("currRun = %g", currRun));
+
+   //check last run
+   if (aboveRun)
+      maxRunAbove = TMath::Max(maxRunAbove, currRun);
+   else
+      maxRunBelow = TMath::Max(maxRunBelow, currRun);
+
+   //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
+   //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
+
+   //save the longest runs
+   runs.at(0) = maxRunBelow;
+   runs.at(1) = maxRunAbove;
+
+   return runs;
+}
 // ---------------------------------------------------------
 double BCMath::longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
 {
    // can't observe run that's longer than the whole sequence
-   if(longestObserved >= nTrials)
+   if (longestObserved >= nTrials)
       return 0.;
 
    // return value
@@ -420,32 +494,32 @@ double BCMath::longestRunFrequency(unsigned longestObserved, unsigned int nTrial
    // first method: use the gamma function for the factorials: bit slower and more inaccurate
    // in fact may return NaN for n >= 1000
 
-//   double Gup, Gdown1, Gdown2, Gdown3;
-//
-//   for (uint r = 0; r <= n; r++) {
-//      conditionalProb = 0.0;
-//      for (uint i = 1; ( i <= n-r+1) && (i <= uint(r / double(Lobs + 1)) ); i++) {
-//
-//         Gup =  TMath::Gamma(1 - i * (Lobs + 1) + n);
-//         Gdown1 = TMath::Gamma(1 + i);
-//         Gdown2 = TMath::Gamma(2 - i + n - r);
-//         Gdown3 = TMath::Gamma(1 - i * (Lobs + 1) + r);
-//
-//         //consider the sign of contribution
-//         Gup = i%2 ? Gup : - Gup;
-//
-//         conditionalProb += Gup/(Gdown1 * Gdown2 * Gdown3);
-//
-////         printf("G(%d,%d)= %.2f %.2f %.2f %.2f",r,i,Gup, Gdown1, Gdown2, Gdown3);
-//
-////         prob += TMath::Gamma(1 - i * (Lobs + 1) + n)
-////               / ( TMath::Gamma(1 + i) * TMath::Gamma(2 - i + n - r)
-////                     * TMath::Gamma(1 - i * (Lobs + 1) + r) );
-////         printf("prob inside (i=%d) = %.2f",i, prob);
-//      }
-//      prob += (1 + n - r)*conditionalProb;
-////      printf("prob outside (r=%d) = %.2f",r, prob);
-//   }
+   //   double Gup, Gdown1, Gdown2, Gdown3;
+   //
+   //   for (uint r = 0; r <= n; r++) {
+   //      conditionalProb = 0.0;
+   //      for (uint i = 1; ( i <= n-r+1) && (i <= uint(r / double(Lobs + 1)) ); i++) {
+   //
+   //         Gup =  TMath::Gamma(1 - i * (Lobs + 1) + n);
+   //         Gdown1 = TMath::Gamma(1 + i);
+   //         Gdown2 = TMath::Gamma(2 - i + n - r);
+   //         Gdown3 = TMath::Gamma(1 - i * (Lobs + 1) + r);
+   //
+   //         //consider the sign of contribution
+   //         Gup = i%2 ? Gup : - Gup;
+   //
+   //         conditionalProb += Gup/(Gdown1 * Gdown2 * Gdown3);
+   //
+   ////         printf("G(%d,%d)= %.2f %.2f %.2f %.2f",r,i,Gup, Gdown1, Gdown2, Gdown3);
+   //
+   ////         prob += TMath::Gamma(1 - i * (Lobs + 1) + n)
+   ////               / ( TMath::Gamma(1 + i) * TMath::Gamma(2 - i + n - r)
+   ////                     * TMath::Gamma(1 - i * (Lobs + 1) + r) );
+   ////         printf("prob inside (i=%d) = %.2f",i, prob);
+   //      }
+   //      prob += (1 + n - r)*conditionalProb;
+   ////      printf("prob outside (r=%d) = %.2f",r, prob);
+   //   }
 
    // alternative using log factorial approximations, is faster and more accurate
 
@@ -453,17 +527,17 @@ double BCMath::longestRunFrequency(unsigned longestObserved, unsigned int nTrial
    for (uint r = 0; r <= n; r++) {
       conditionalProb = 0.0;
 
-      for (uint i = 1; ( i <= n-r+1) && (i <= uint(r / double(Lobs + 1)) ); i++) {
-         tempLog = ApproxLogFact(n - i * (Lobs + 1))
-               - ApproxLogFact(i) - ApproxLogFact(n - r - i + 1)
+      for (uint i = 1; (i <= n - r + 1) && (i <= uint(r / double(Lobs + 1))); i++) {
+         tempLog = ApproxLogFact(n - i * (Lobs + 1)) - ApproxLogFact(i)
+               - ApproxLogFact(n - r - i + 1)
                - ApproxLogFact(r - i * (Lobs + 1));
-         if(i%2)
+         if (i % 2)
             conditionalProb += exp(tempLog);
          else
             conditionalProb -= exp(tempLog);
-//         printf("tempLog inside = %.2f",prob);
+         //         printf("tempLog inside = %.2f",prob);
       }
-//      printf("tempLog outside = %.2f",prob);
+      //      printf("tempLog outside = %.2f",prob);
       prob += (1 + n - r) * conditionalProb;
    }
 

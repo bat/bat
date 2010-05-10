@@ -274,7 +274,7 @@ cat << EOF
 int main()
 {
 
-	// set nice style for drawing than the ROOT default
+	// set nicer style for drawing than the ROOT default
 	BCAux::SetStyle();
 
 	// open log file

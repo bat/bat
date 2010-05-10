@@ -635,6 +635,13 @@ class BCModel : public BCIntegrate
 		double GetChi2NDoF()
 			{ return fChi2NDoF; };
 
+		/**
+       * For a Gaussian problem, calculate the chi2 of the longest run of consecutive
+       * values above/below the expected values
+       * @param dataIndex component of datapoint with the observed value
+       * @param sigmaIndex component of datapoint with uncertainty */
+		std::vector<double> GetChi2Runs(int dataIndex, int sigmaIndex);
+
 		/*
 		 * Set maximum number of iterations in the MCMC pre-run of the p-value
 		 * evaluation using MCMC */

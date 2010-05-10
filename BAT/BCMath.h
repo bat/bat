@@ -173,6 +173,20 @@ namespace BCMath
 
 	std::vector<int> longestRuns(const std::vector<bool>& bitStream);
 
+     /**
+       * Find the longest success/failure run in set of norm. distributed variables.
+       *  Success = observation >= expectation.
+       * Runs are weighted by the total chi^2 of all elements in the run
+       *
+       * @param   yMeasured the observations
+       * @param  yExpected   the expected values
+       * @param  sigma the theoretical uncertainties on the expectations
+       * @return  runs  first entry the max. weight failure run,
+       *            second entry the max. success run	    */
+
+	std::vector<double> longestRunsChi2(const std::vector<double>& yMeasured,
+      const std::vector<double>& yExpected, const std::vector<double>& sigma);
+
    /**
     * Find the sampling probability that, given n independent Bernoulli
     * trials with success rate = failure rate = 1/2, the longest run of
@@ -187,6 +201,8 @@ namespace BCMath
     */
 
 	double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
+
+
 
 	double SplitGaussian(double* x, double* par); 
 

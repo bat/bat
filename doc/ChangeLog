@@ -1,3 +1,9 @@
+2010-05-10 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath, BCModel:
+	  - Updated inline documentation
+	  - methods to compute runs statistics
+	* CreateProject.sh: fixed type
+
 2010-05-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: removed convergence criterion for log likelihood.
 	  this fixes two problems: flat functions and fixed parameters converge.
@@ -6,6 +12,9 @@
 2010-05-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated todo list
 
+2010-05-03 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* More points in release to do list
+		
 2010-04-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Work on CombinationTool.
 
@@ -81,7 +90,7 @@
 2010-04-13 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* TemplateTool: cleaned up some examples, TemplateModelManager is not needed anymore.
 
-2010-02-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+2010-04-11 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter:
 	  - fixed numerical conversion compiler warning
 
