@@ -24,6 +24,7 @@ int main()
 	// set mcmc options
 	model->MCMCSetNLag(10);
 	model->MCMCSetNChains(10);
+	model->MCMCSetNIterationsRun(1000000);
 
 	// ----------------------------------------------------------
 	// define cross-section contributions, background sources and
@@ -39,36 +40,36 @@ int main()
 	// add channels 
 	// 
 
+	/*
 	// add channel
-	model->AddChannel("e+jets");
+	model->AddChannel("ee");
 
 	// set channel observations, efficiency, luminosity and branching ratio
-	model->SetChannelObservation("e+jets",  3); 
-	model->SetChannelEfficiencyPriorGauss("e+jets", 1., 0.);
-	model->SetChannelLuminosityPriorGauss("e+jets", 1., 0.);
-	model->SetChannelBR("e+jets", 1.0);
+	model->SetChannelObservation("ee",  55); 
+	model->SetChannelEfficiency("ee", 0.011);
+	model->SetChannelLuminosity("ee", 4270.);
+	model->SetChannelBR("ee", 0.10498);
 
 	// add backgrounds for this channel 
-	model->AddChannelBackground("e+jets", "W+jets", 0.4, 0.4);
-	model->AddChannelBackground("e+jets", "Z+jets", 0.2, 0.2); 
-	model->AddChannelBackground("e+jets", "QCD",    0.5, 0.5); 
-	model->AddChannelBackground("e+jets", "other",  0.9, 0.9); 
-
+	model->AddChannelBackground("ee", "Z->ll",   8.5, 8.5);
+	model->AddChannelBackground("ee", "Diboson", 2.1, 2.1); 
+	model->AddChannelBackground("ee", "fake e",  0.1, 0.1); 
+	*/
 
 	// add channel
-	model->AddChannel("mu+jets");
+	model->AddChannel("emu");
 
 	// set channel observations, efficiency, luminosity and branching ratio
-	model->SetChannelObservation("mu+jets",  9); 
-	model->SetChannelEfficiencyPriorGauss("mu+jets", 1., 0.);
-	model->SetChannelLuminosityPriorGauss("mu+jets", 1., 0.);
-	model->SetChannelBR("mu+jets", 1.0);
+	model->SetChannelObservation("emu", 204 ); 
+	model->SetChannelEfficiency("emu", 0.0427);
+	model->SetChannelLuminosity("emu", 4270.);
+	model->SetChannelBR("emu", 0.10498);
 
 	// add backgrounds for this channel 
-	model->AddChannelBackground("mu+jets", "W+jets", 1.4, 1.4);
-	model->AddChannelBackground("mu+jets", "Z+jets", 0.2, 0.2); 
-	model->AddChannelBackground("mu+jets", "QCD",    1.5, 1.5); 
-	model->AddChannelBackground("mu+jets", "other",  0.9, 0.9); 
+	model->AddChannelBackground("emu", "Z->tautau", 11.9, 11.9);
+	model->AddChannelBackground("emu", "Diboson",    6.5, 6.5); 
+	model->AddChannelBackground("emu", "fake e",     8.1, 8.1); 
+	model->AddChannelBackground("emu", "fake mu",    2.6, 2.6); 
 
 	// ----------------------------------------------------------
 	// run analysis and plot
@@ -91,9 +92,11 @@ int main()
 
 	// calculate function
 	for (int i = 1; i <= 100; ++i) {
-		double x = hist_calc->GetBinCenter(i); 
-		double p = TMath::PoissonI(3, x+2)
-			* TMath::PoissonI(9, x+4);
+		double x1 = hist_calc->GetBinCenter(i) * 4270. * 0.011 * 0.10498;
+		double x2 = hist_calc->GetBinCenter(i) * 4270. * 0.0427 * 0.10498;
+		double p = 1.0 
+			//			* TMath::PoissonI(55, x1+8.5+2.1+0.1)
+			* TMath::PoissonI(204, x2+11.9+6.5+8.1+2.6);
 		hist_calc->SetBinContent(i, p); 
 	}
 

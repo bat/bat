@@ -34,8 +34,8 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 	// loop over all channels 
 	for (int i = 0; i < nchannels; ++i) {
 		// calculate expectation for this channel
-		double luminosity = parameters.at( fParIndexChannelLuminosity.at(i) ); 
-		double efficiency = parameters.at( fParIndexChannelEfficiency.at(i) ); 
+		double luminosity = fChannelLuminosity.at(i);
+		double efficiency = fChannelEfficiency.at(i);  
 		double br = fChannelBR.at(i);
 		double expectation = parameters.at(0) * luminosity * efficiency * br; 
 
@@ -99,21 +99,11 @@ double CombinationXSec::LogAPrioriProbability(std::vector <double> parameters)
 
 		// add channel signal prior
 		if (fChannelSignalPriorContainer.at(i)) {
-			double luminosity = parameters.at( fParIndexChannelLuminosity.at(i) ); 
-			double efficiency = parameters.at( fParIndexChannelEfficiency.at(i) ); 
+			double luminosity = fChannelLuminosity.at(i);
+			double efficiency = fChannelEfficiency.at(i);
 			double br = fChannelBR.at(i);
 			logprob += log( fChannelSignalPriorContainer.at(i)->Eval(parameters.at(0) * luminosity * efficiency * br) );
 		}
-
-		// add channel luminosty prior
-		if (fChannelLuminosityPriorContainer.at(i))
-			if (fChannelLuminosityPriorContainer.at(i)->GetParameter(1) > 0)
-				logprob += log( fChannelLuminosityPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelLuminosity.at(i))) ); 
-
-		// add channel efficiency prior
-		if (fChannelEfficiencyPriorContainer.at(i))
-			if (fChannelEfficiencyPriorContainer.at(i)->GetParameter(1) > 0)
-				logprob += log( fChannelEfficiencyPriorContainer.at(i)->Eval(parameters.at(fParIndexChannelEfficiency.at(i))) ); 
 
 		// get number of background sources in this channel
 		int nbackground = GetNChannelBackgrounds(i);
@@ -153,201 +143,52 @@ int CombinationXSec::AddChannel(const char* channelname)
 	if (errcode != 1)
 		return errcode; 
 
-	// add efficiency parameter
-	AddParameter(Form("efficiency_%s", channelname), 0.0, 1.0);
+	// set efficiency
+	fChannelEfficiency.push_back(1.); 
 
-	// add efficiency prior 
-	fChannelEfficiencyPriorContainer.push_back(0); 
+	// set luminosity
+	fChannelLuminosity.push_back(1.);
 
-	// add parameter index
-	fParIndexChannelEfficiency.push_back(GetNParameters()-1);
-
-	// add Luminosity parameter
-	AddParameter(Form("luminosity_%s", channelname), 0.0, 1.0);
-
-	// add efficiency prior 
-	fChannelLuminosityPriorContainer.push_back(0); 
-
-	// add parameter index
-	fParIndexChannelLuminosity.push_back(GetNParameters()-1);
-
-	// add BR
-	fChannelBR.push_back(1.0); 
+	// set branching ratio
+	fChannelBR.push_back(1.); 
 
 	// no error 
 	return 1; 
 }
 
 // ---------------------------------------------------------
-int CombinationXSec::GetParIndexChannelEfficiency(const char* channelname)
-{
- 	// get channel container index
-	int channelindex = GetContIndexChannel(channelname); 
-
-	// check index
-	if (channelindex < 0){ 
-		return 1;
-	}
-
-	// return index
-	return fParIndexChannelEfficiency.at(channelindex); 
-}
-
-// ---------------------------------------------------------
-int CombinationXSec::GetParIndexChannelLuminosity(const char* channelname)
-{
- 	// get channel container index
-	int channelindex = GetContIndexChannel(channelname); 
-
-	// check index
-	if (channelindex < 0){ 
-		return 1;
-	}
-
-	// return index
-	return fParIndexChannelLuminosity.at(channelindex); 
-}
-
-// ---------------------------------------------------------
-int CombinationXSec::SetChannelEfficiencyPrior(const char* channelname, TF1* prior)
+int CombinationXSec::SetChannelEfficiency(const char* channelname, double efficiency)
 {
 	// get channel index
 	int channelindex = GetContIndexChannel(channelname); 
 
 	// check channel index
 	if (channelindex < 0) {
-		BCLog::OutError("CombinationModel::SetChannelEfficiencyPrior : Can not find channel index."); 
+		BCLog::OutError("CombinationModel::SetChannelEfficiency : Can not find channel index."); 
 		return 0; 
 	}
 
-	// set parameter range
-	double effmin = 0.;
-	double effmax = 1.;
-	double x, y;
-	prior->GetRange(x, y);
-	if (x > effmin)
-		effmin = x;
-	if (y < effmax)
-		effmax = y; 
-
-	// rescale parameter ranges
-	int parindex = GetParIndexChannelEfficiency(channelname); 
-	GetParameter(parindex)->SetLowerLimit(effmin); 
-	GetParameter(parindex)->SetUpperLimit(effmax); 
-	fMCMCBoundaryMin[parindex] = effmin; 
-	fMCMCBoundaryMax[parindex] = effmax; 
-
-	// set prior
-	fChannelEfficiencyPriorContainer[channelindex] = prior;
+	// set efficiency
+	fChannelEfficiency[channelindex] = efficiency;
 
 	// no error
 	return 1;
 }
 
 // ---------------------------------------------------------
-int CombinationXSec::SetChannelEfficiencyPriorGauss(const char* channelname, double mean, double sigma)
+int CombinationXSec::SetChannelLuminosity(const char* channelname, double luminosity)
 {
 	// get channel index
 	int channelindex = GetContIndexChannel(channelname); 
 
 	// check channel index
 	if (channelindex < 0) {
-		BCLog::OutError("CombinationModel::SetChannelEfficiencyPriorGauss : Can not find channel index."); 
+		BCLog::OutError("CombinationModel::SetChannelLuminosity : Can not find channel index."); 
 		return 0; 
 	}
 
-	// create new function
-	TF1* f = new TF1(Form("f_eff_%s", channelname), "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2/[1]/[1] )");
-	f->SetParameter(0, mean); 
-	f->SetParameter(1, sigma); 
-
-	// rescale parameter ranges
-	int parindex = GetParIndexChannelEfficiency(channelname); 
-	double effmin = TMath::Max(mean - 5.0*sigma, 0.);
-	double effmax = TMath::Min(mean + 5.0*sigma, 1.);
-
-	GetParameter(parindex)->SetLowerLimit(effmin); 
-	GetParameter(parindex)->SetUpperLimit(effmax); 
-	fMCMCBoundaryMin[parindex] = effmin; 
-	fMCMCBoundaryMax[parindex] = effmax; 
-	f->SetRange(effmin, effmax);
-
-	// add function to container
-	fFunctionContainer.push_back(f); 
-
-	// set prior
-	fChannelEfficiencyPriorContainer[channelindex] = f;
-
-	// no error 
-	return 1;
-}
-
-// ---------------------------------------------------------
-int CombinationXSec::SetChannelLuminosityPrior(const char* channelname, TF1* prior)
-{
-	// get channel index
-	int channelindex = GetContIndexChannel(channelname); 
-
-	// check channel index
-	if (channelindex < 0) {
-		BCLog::OutError("CombinationModel::SetChannelLuminosityPrior : Can not find channel index."); 
-		return 0; 
-	}
-
-	// set parameter range
-	double lumimin = 0.;
-	double lumimax = 1.;
-	prior->GetRange(lumimin, lumimax);
-	if (lumimin < 0.)
-			lumimin = 0.;
-
-	// rescale parameter ranges
-	int parindex = GetParIndexChannelLuminosity(channelname); 
-	GetParameter(parindex)->SetLowerLimit(lumimin); 
-	GetParameter(parindex)->SetUpperLimit(lumimax); 
-	fMCMCBoundaryMin[parindex] = lumimin; 
-	fMCMCBoundaryMax[parindex] = lumimax; 
-
-	// set prior
-	fChannelLuminosityPriorContainer[channelindex] = prior;
-
-	// no error
-	return 1;
-}
-
-// ---------------------------------------------------------
-int CombinationXSec::SetChannelLuminosityPriorGauss(const char* channelname, double mean, double sigma)
-{
-	// get channel index
-	int channelindex = GetContIndexChannel(channelname); 
-
-	// check channel index
-	if (channelindex < 0) {
-		BCLog::OutError("CombinationModel::SetChannelLuminosityPriorGauss : Can not find channel index."); 
-		return 0; 
-	}
-
-	// create new function
-	TF1* f = new TF1(Form("f_eff_%s", channelname), "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2/[1]/[1] )");
-	f->SetParameter(0, mean); 
-	f->SetParameter(1, sigma); 
-
-	// rescale parameter ranges
-	int parindex = GetParIndexChannelLuminosity(channelname); 
-	double effmin = TMath::Max(mean - 5.0*sigma, 0.);
-	double effmax = mean + 5.0*sigma;
-
-	GetParameter(parindex)->SetLowerLimit(effmin); 
-	GetParameter(parindex)->SetUpperLimit(effmax); 
-	fMCMCBoundaryMin[parindex] = effmin; 
-	fMCMCBoundaryMax[parindex] = effmax; 
-	f->SetRange(effmin, effmax);
-
-	// add function to container
-	fFunctionContainer.push_back(f); 
-
-	// set prior
-	fChannelLuminosityPriorContainer[channelindex] = f;
+	// set luminosity
+	fChannelLuminosity[channelindex] = luminosity;
 
 	// no error
 	return 1;
@@ -393,10 +234,10 @@ ParameterSummary CombinationXSec::PerformSingleChannelAnalysis(const char* chann
 	model->AddChannel( fChannelNameContainer.at(channelindex).c_str() );
 	model->SetChannelObservation( fChannelNameContainer.at(channelindex).c_str(), 
 																fChannelObservation.at(channelindex) );
-	model->SetChannelEfficiencyPrior( fChannelNameContainer.at(channelindex).c_str(),
-																		fChannelEfficiencyPriorContainer.at(channelindex) );
-	model->SetChannelLuminosityPrior( fChannelNameContainer.at(channelindex).c_str(),
-																		fChannelLuminosityPriorContainer.at(channelindex) );
+	model->SetChannelEfficiency( fChannelNameContainer.at(channelindex).c_str(),
+															 fChannelEfficiency.at(channelindex) );
+	model->SetChannelLuminosity( fChannelNameContainer.at(channelindex).c_str(),
+															 fChannelLuminosity.at(channelindex) );
 	model->SetChannelBR( fChannelNameContainer.at(channelindex).c_str(), 
 											 fChannelBR.at(channelindex) ); 
 	

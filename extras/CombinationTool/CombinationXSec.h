@@ -41,56 +41,26 @@ class CombinationXSec : public CombinationModel
 	/** \name Public member functions (get) */
 	/* @{ */
 
-	/**
-	 * Return the parameter index for the channel efficiency.
-	 * @param channelname The name of the channel.
-	 */ 
-	int GetParIndexChannelEfficiency(const char* channelname); 
-
-	/**
-	 * Return the parameter index for the channel luminosity.
-	 * @param channelname The name of the channel.
-	 */ 
-	int GetParIndexChannelLuminosity(const char* channelname); 
-
 	/* @} */
 
 	/** \name Public member functions (set) */
 	/* @{ */
 
 	/**
-	 * Set the efficiency prior for one channel. 
+	 * Set the signal efficiency for one channel. 
 	 * @param channelname The name of the channel. 
-	 * @param prior The prior TF1 function.
+	 * @param efficiency The signal efficiency.
 	 * @return An error code. 
 	 */ 
-	int SetChannelEfficiencyPrior(const char* channelname, TF1* prior); 
+	int SetChannelEfficiency(const char* channelname, double efficiency); 
 
 	/**
-	 * Set a Gaussian efficiency prior for one channel. 
+	 * Set the luminosity for one channel. 
 	 * @param channelname The name of the channel. 
-	 * @param mean The mean value of the Gauss function.
-	 * @param sigma The standard deviation of the Gauss function.
-	 * @return An error code.
-	 */ 
-	int SetChannelEfficiencyPriorGauss(const char* channelname, double mean, double sigma = 0.);
-
-	/**
-	 * Set the luminosity prior for one channel. 
-	 * @param channelname The name of the channel. 
-	 * @param prior The prior TF1 function.
+	 * @param luminosity The luminosity.
 	 * @return An error code. 
 	 */ 
-	int SetChannelLuminosityPrior(const char* channelname, TF1* prior); 
-
-	/**
-	 * Set a Gaussian luminosity prior for one channel. 
-	 * @param channelname The name of the channel. 
-	 * @param mean The mean value of the Gauss function.
-	 * @param sigma The standard deviation of the Gauss function.
-	 * @return An error code.
-	 */ 
-	int SetChannelLuminosityPriorGauss(const char* channelname, double mean, double sigma = 0.); 
+	int SetChannelLuminosity(const char* channelname, double luminosity); 
 
 	/**
 	 * Set the branching ratio for a channel. 
@@ -149,31 +119,19 @@ class CombinationXSec : public CombinationModel
  private:
 
 	/**
-	 * The container of the efficiency priors. The index is the channel
+	 * The container of the efficiencies. The index is the channel
 	 * container index.
 	 */ 
-	std::vector<TF1*> fChannelEfficiencyPriorContainer;
+	std::vector<double> fChannelEfficiency;
 
 	/**
-	 * The container of the luminosity priors. The index is the channel
+	 * The container of the luminosities. The index is the channel
 	 * container index.
 	 */ 
-	std::vector<TF1*> fChannelLuminosityPriorContainer;
+	std::vector<double> fChannelLuminosity;
 
 	/**
-	 * The container of the efficiency parameter index. The index is the
-	 * channel container index.
-	 */ 
-	std::vector<int> fParIndexChannelEfficiency;
-
-	/**
-	 * The container of the luminosity parameter index. The index is the
-	 * channel container index.
-	 */ 
-	std::vector<int> fParIndexChannelLuminosity;
-
-	/**
-	 * The containe of branching ratio. The index ist he channel
+	 * The container of branching ratio. The index ist he channel
 	 * container index.
 	 */ 	
 	std::vector<double> fChannelBR; 
