@@ -26,9 +26,9 @@ int main()
 
 	// set mcmc options
 	model->MCMCSetNLag(10);
-	model->MCMCSetNIterationsRun(100000);
+	model->MCMCSetNIterationsRun(1000000);
 	model->MCMCSetNChains(5);
-	model->SetNbins("#sigma [pb]", 1000);
+	model->SetNbins("#sigma [pb]", 200);
 
 	// ----------------------------------------------------------
 	// define cross-section contributions, background sources and
@@ -54,9 +54,9 @@ int main()
 	model->SetChannelBR("ee", 0.10498);
 
 	// add backgrounds for this channel 
-	model->AddChannelBackground("ee", "Z->ll",   -5., 25.);
-	model->AddChannelBackground("ee", "Diboson", -3.,  6.); 
-	model->AddChannelBackground("ee", "fakes",   -1.,  1.); 
+	model->AddChannelBackground("ee", "Z->ll",   8.5);
+	model->AddChannelBackground("ee", "Diboson", 2.1); 
+	model->AddChannelBackground("ee", "fakes",   0.1); 
 
 	// set channel priors
 	//	model->SetChannelBackgroundPriorGauss("ee", "Z->ll", 8.5, 3.4); 

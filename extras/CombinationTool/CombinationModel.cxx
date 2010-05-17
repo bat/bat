@@ -121,36 +121,6 @@ int CombinationModel::GetContIndexChannelBackground(const char* channelname, con
 }
 
 // ---------------------------------------------------------
-int CombinationModel::GetParIndexChannelBackground(const char* channelname, const char* backgroundname)
-{
-	// get channel container index
-	int channelindex = GetContIndexChannel(channelname); 
-
-	// check index
-	if (channelindex < 0){ 
-		return 1;
-	}
-
-	// get channel container index
-	int backgroundindex = GetContIndexChannelBackground(channelname, backgroundname); 
-
-	// check index
-	if (backgroundindex < 0){ 
-		return 1;
-	}
-
-	// return index
-	return fParIndexChannelBackground.at(channelindex).at(backgroundindex); 
-}
-
-// ---------------------------------------------------------
-int CombinationModel::GetParIndexChannelBackground(int channelindex, int backgroundindex)
-{
-	// no checks for CPU-time reasons
-	return fParIndexChannelBackground.at(channelindex).at(backgroundindex); 
-}
-
-// ---------------------------------------------------------
 int CombinationModel::AddChannel(const char* channelname)
 {
 	// add channel name to container
@@ -158,8 +128,7 @@ int CombinationModel::AddChannel(const char* channelname)
 
 	// add background container
 	fChannelBackgroundNameContainer.push_back(std::vector<std::string>(0));
-	fChannelBackgroundPriorContainer.push_back(std::vector<TF1*>(0)); 
-	fParIndexChannelBackground.push_back(std::vector<int>(0));
+	fChannelBackground.push_back(std::vector<double>(0)); 
 
 	// add signal prior to container
 	fChannelSignalPriorContainer.push_back(0); 
@@ -172,7 +141,7 @@ int CombinationModel::AddChannel(const char* channelname)
 }
 
 // ---------------------------------------------------------
-int CombinationModel::AddChannelBackground(const char* channelname, const char* backgroundname, double xmin, double xmax)
+int CombinationModel::AddChannelBackground(const char* channelname, const char* backgroundname, double bkg)
 {
 	// get channel index
 	int channelindex = GetContIndexChannel(channelname); 
@@ -186,14 +155,8 @@ int CombinationModel::AddChannelBackground(const char* channelname, const char* 
 	// add background name
 	fChannelBackgroundNameContainer.at(channelindex).push_back(backgroundname);
 
-	// add prior
-	fChannelBackgroundPriorContainer.at(channelindex).push_back(0); 
-
-	// add parameter
-	AddParameter(Form("%s_%s", channelname, backgroundname), xmin, xmax);
-	
-	// add parameter index
-	fParIndexChannelBackground.at(channelindex).push_back(GetNParameters()-1);
+	// add contribution
+	fChannelBackground.at(channelindex).push_back(bkg); 
 
 	// no error 
 	return 1;
@@ -365,40 +328,6 @@ int CombinationModel::SetChannelSignalPrior(const char* channelname, TF1* prior)
 }
 
 // ---------------------------------------------------------
-int CombinationModel::SetChannelBackgroundPrior(const char* channelname, const char* backgroundname, TF1* prior)
-{
-	// get channel index
-	int channelindex = GetContIndexChannel(channelname); 
-
-	// check channel index
-	if (channelindex < 0) {
-		BCLog::OutError("CombinationModel::SetChannelBackgroundPrior : Can not find channel index."); 
-		return 0; 
-	}
-
-	// get background index
-	int backgroundindex = GetContIndexChannelBackground(channelname, backgroundname); 
-
-	// check background index
-	if (backgroundindex < 0) {
-		BCLog::OutError("CombinationModel::SetChannelBackgroundPrior : Can not find background index."); 
-		return 0; 
-	}
-
-	// check if function exists
-	if (!prior) {
-		//		BCLog::OutError("CombinationModel::SetChannelBackgroundPrior : Function does not exist."); 
-		return 0; 
-	}
-
-	// set prior
-	(fChannelBackgroundPriorContainer.at(channelindex))[backgroundindex] = prior;
-
-	// no error 
-	return 1; 
-}
-
-// ---------------------------------------------------------
 int CombinationModel::SetChannelSignalPriorGauss(const char* channelname, double mean, double sigma)
 {
 	// create new function
@@ -427,40 +356,6 @@ int CombinationModel::SetChannelSignalPriorGauss(const char* channelname, double
 
 	// set channel background prior
 	return SetChannelSignalPrior(channelname, f); 
-}
-
-// ---------------------------------------------------------
-int CombinationModel::SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigma)
-{
-	// create new function
-	TF1* f = new TF1(Form("f_%s_%s", channelname, backgroundname), "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2/[1]/[1] )");
-	f->SetParameter(0, mean); 
-	f->SetParameter(1, sigma); 
-
-	// add function to container
-	fFunctionContainer.push_back(f); 
-
-	// set channel background prior
-	return SetChannelBackgroundPrior(channelname, backgroundname, f); 
-}
-
-// ---------------------------------------------------------
-int CombinationModel::SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigmadown, double sigmaup)
-{
-	// get parameter index
-	int parindex = GetParIndexChannelBackground(channelname, backgroundname);
-
-	// create new function
-	TF1* f = new TF1(Form("f_%s_%s", channelname, backgroundname), SplitGaussian, GetParameter(parindex)->GetLowerLimit(), GetParameter(parindex)->GetUpperLimit(), 3);
-	f->SetParameter(0, mean); 
-	f->SetParameter(1, sigmadown); 
-	f->SetParameter(2, sigmaup); 
-
-	// add function to container
-	fFunctionContainer.push_back(f); 
-
-	// set channel background prior
-	return SetChannelBackgroundPrior(channelname, backgroundname, f); 
 }
 
 // ---------------------------------------------------------

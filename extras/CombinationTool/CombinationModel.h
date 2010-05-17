@@ -123,38 +123,6 @@ class CombinationModel : public BCModel
 	int SetChannelSignalPriorGauss(const char* channelname, double mean, double sigmadown, double sigmaup); 
 
 	/**
-	 * Set the background prior for one channel. *
-	 * @param channelname The name of the channel. 
-	 * @param backgroundname The name of the background. 
-	 * @param prior The prior TF1 function.
-	 * @return An error code. 
-	 */ 
-	int SetChannelBackgroundPrior(const char* channelname, const char* backgroundname, TF1* prior);
-
-	/**
-	 * Set a Gaussian background prior for one channel. *
-	 * @param channelname The name of the channel. 
-	 * @param backgroundname The name of the background. 
-	 * @param mean The mean value of the Gauss function.
-	 * @param sigma The standard deviation of the Gauss function.
-	 * @return An error code. 
-	 */ 
-	int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigma);
-
-	/**
-	 * Set a Gaussian background prior for one channel. The Gaussian has
-	 * different standard deviations for values left and right of the
-	 * mean.
-	 * @param channelname The name of the channel. 
-	 * @param backgroundname The name of the background. 
-	 * @param mean The mean value of the Gauss function.
-	 * @param sigmadown The (left) standard deviation of the Gauss function.
-	 * @param sigmaup The (right) standard deviation of the Gauss function.
-	 * @return An error code. 
-	 */ 
-	int SetChannelBackgroundPriorGauss(const char* channelname, const char* backgroundname, double mean, double sigmadown, double sigmaup);
-
-	/**
 	 * Set the systematic uncertainty on the signal for one channel. 
 	 * @param systerrorname The name of the systematic uncertainty. 
 	 * @param channelname The name of the channel.
@@ -216,11 +184,10 @@ class CombinationModel : public BCModel
 	 * Add a background source to a channel. 
 	 * @param channelname The name of the channel.
 	 * @param backgroundname The name of the background
-	 * @param xmin The minimum value of the background contribution. 
-	 * @param xmax The maximum value of the background contribution. 
+	 * @param bkg The background contribution. 
 	 * @return An error code. 
 	 */ 
-	int AddChannelBackground(const char* channelname, const char* backgroundname, double xmin, double xmax);
+	int AddChannelBackground(const char* channelname, const char* backgroundname, double bkg);
 
 	/**
 	 * Add a source of systematic uncertainty. 
@@ -293,20 +260,6 @@ class CombinationModel : public BCModel
 	int GetParIndexChannel(const char* channelname);
 
 	/**
-	 * Return the parameter index for a background. 
-	 * @param channelname The name of the channel.
-	 * @param backgroundname The name of the background.
-	 */ 
-	int GetParIndexChannelBackground(const char* channelname, const char* backgroundname);
-
-	/**
-	 * Return the parameter index for a background. 
-	 * @param channelindex The container index of the channel.
-	 * @param backgroundindex The container index of the background.
-	 */ 
-	int GetParIndexChannelBackground(int channelindex, int backgroundindex);
-
-	/**
 	 * Return the container index for a systematic uncertainty. 
 	 * @param systerrorindex The container index of the systematic uncertainty.
 	 */ 
@@ -376,21 +329,15 @@ class CombinationModel : public BCModel
 	std::vector<TF1*> fChannelSignalPriorContainer;
 
 	/**
-	 * The container of background priors. The indeces are channel
-	container index and background container index. 
+	 * The container of background contributions. The indeces are
+	channel container index and background container index.
 	*/ 
-	std::vector< std::vector<TF1*> > fChannelBackgroundPriorContainer;
+	std::vector< std::vector<double> > fChannelBackground;
 
 	/**
 	 * The parameter index of the signal. 
 	 */ 
 	int fParIndexSignal; 
-
-	/**
-	 * The parameter index container of the background. Indeces are the
-	 * channel container index and the background container index.
-	 */ 
-	std::vector< std::vector<int> > fParIndexChannelBackground; 
 
 	/**
 	 * The parameter index container for systematic errors. Index is the

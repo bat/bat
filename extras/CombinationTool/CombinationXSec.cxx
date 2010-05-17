@@ -44,17 +44,10 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 			int systparindex = GetParIndexSystError(k);
 			double par = parameters.at(systparindex);
 			
-			// debugKK
-			//			std::cout << k << " " << expectation << " ";
-
 			if (par < 0)
 				expectation += fSystErrorChannelSigmaDownContainer.at(k).at(i) * par * luminosity * efficiency * br;
 			else
 				expectation += fSystErrorChannelSigmaUpContainer.at(k).at(i) * par * luminosity * efficiency * br;
-
-			// debugKK
-			//			std::cout << expectation << " " << std::endl;
-			
 		}
 		
 		// get number of background sources in this channel
@@ -63,8 +56,7 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 		// loop over all background sources
 		for (int j = 0; j < nbackground; ++j) {
 			// get parameter index
-			int parindex = GetParIndexChannelBackground(i, j); 
-			expectation += parameters.at(parindex);
+			expectation += fChannelBackground.at(i).at(j);
 
 			if (fFlagSystErrors) {
 				// loop over all systematic uncertainties
@@ -104,20 +96,6 @@ double CombinationXSec::LogAPrioriProbability(std::vector <double> parameters)
 			double br = fChannelBR.at(i);
 			logprob += log( fChannelSignalPriorContainer.at(i)->Eval(parameters.at(0) * luminosity * efficiency * br) );
 		}
-
-		// get number of background sources in this channel
-		int nbackground = GetNChannelBackgrounds(i);
-
-		// loop over all background sources
-		for (int j = 0; j < nbackground; ++j) {
-			// get parameter index
-			int parindex = GetParIndexChannelBackground(i, j); 
-
-			// add channel background prior
-			if (fChannelBackgroundPriorContainer.at(i).at(j))
-				logprob += log( fChannelBackgroundPriorContainer.at(i).at(j)->Eval(parameters.at(parindex)) ); 
-		}
-
 	}
 
 	// loop over all systematic uncertainties
@@ -243,16 +221,9 @@ ParameterSummary CombinationXSec::PerformSingleChannelAnalysis(const char* chann
 	
 	int nbkg = int(fChannelBackgroundNameContainer.at(channelindex).size());
 	for (int j = 0; j < nbkg; ++j) {
-		int parindex = GetParIndexChannelBackground(channelindex, j);
-		double xmin = GetParameter(parindex)->GetLowerLimit();
-		double xmax = GetParameter(parindex)->GetUpperLimit();
 		model->AddChannelBackground( fChannelNameContainer.at(channelindex).c_str(),
 																 fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(),
-																 xmin, 
-																 xmax );
-		model->SetChannelBackgroundPrior( fChannelNameContainer.at(channelindex).c_str(), 
-																			fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(),
-																			fChannelBackgroundPriorContainer.at(channelindex).at(j)); 
+																 fChannelBackground.at(channelindex).at(j) );
 	}
 	
 	if (flag_syst) {
