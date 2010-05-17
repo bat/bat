@@ -113,8 +113,8 @@ int main()
 	// ----------------------------------------------------------
 
 	// perform analysis
-	//	model->PerformFullAnalysis();
-	model->PerformAnalysis();
+	model->PerformFullAnalysis();
+	//	model->PerformAnalysis();
 
 	// print summary plots
 	BCSummaryTool* summary = new BCSummaryTool(model);
@@ -127,7 +127,7 @@ int main()
 
 	model->PrintResults("model_results.txt");
 	//	model->PrintChannelOverview("channels.ps");
-	//	model->PrintChannelSummary("summary.txt");
+	model->PrintChannelSummary("summary.txt");
 
 	// ----------------------------------------------------------
 	// clean-up and return

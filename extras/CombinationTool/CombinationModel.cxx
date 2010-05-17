@@ -707,6 +707,9 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
 	output << std::endl;
@@ -724,14 +727,18 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 		// get summary information
 		double median = ps->GetMedian(); 
+		double mode = ps->GetMedian(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
-		double errlow = median - q16;
-		double errhigh = q84 - median; 
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh << std::endl;
 	}

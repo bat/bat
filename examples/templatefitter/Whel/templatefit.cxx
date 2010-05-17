@@ -84,7 +84,7 @@ int templatefit()
 
 	// set MCMC options 
 	model->MCMCSetNLag(10); 
-	model->MCMCSetNChains(10); 
+	model->MCMCSetNChains(100); 
 	//	model->MCMCSetNIterationsRun(1000000); // use more iterations
 	//	model->MCMCSetNIterationsRun(10000000); // use even more iterations
 

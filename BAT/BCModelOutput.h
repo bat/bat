@@ -204,6 +204,8 @@ class BCModelOutput
 		std::vector<double> * fParameters;
 		std::vector<double> * fLogLikelihood;
 		std::vector <int> * fIteration;
+		int* fCycle;
+		int* fPhase;
 
 		/**
 		 * The simulated annealing tree variables */ 

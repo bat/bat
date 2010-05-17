@@ -312,6 +312,8 @@ void BCModelOutput::InitializeMarkovChainTrees()
 	fParameters    = fModel -> MCMCGetP2x();
 	fIteration     = fModel -> MCMCGetP2NIterations();
 	fLogLikelihood = fModel -> MCMCGetP2LogProbx();
+	fPhase         = fModel -> MCMCGetP2Phase(); 
+	fCycle         = fModel -> MCMCGetP2Cycle();
 	fNParameters   = fModel -> MCMCGetNParameters();
 
 	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
@@ -319,6 +321,9 @@ void BCModelOutput::InitializeMarkovChainTrees()
 		fMarkovChainTrees[i] -> Branch("fIteration",      &(*fIteration)[i],   "iteration/I");
 		fMarkovChainTrees[i] -> Branch("fNParameters",    &fNParameters,       "parameters/I");
 		fMarkovChainTrees[i] -> Branch("fLogLikelihood",  &(*fLogLikelihood)[i], "log (likelihood)/D");
+
+		fMarkovChainTrees[i] -> Branch("fPhase", fPhase, "phase/I"); 
+		fMarkovChainTrees[i] -> Branch("fCycle", fCycle, "cycle/I"); 
 	}
 
 	// loop over all parameters

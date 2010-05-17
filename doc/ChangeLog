@@ -1,3 +1,10 @@
+2010-05-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx: included convergence of posterior again
+	* BCEngineMCMC.cxx: bug fix on convergence check
+	* BCEngineMCMC.cxx: renaming of methods and variables for statistics
+	* BCEngineMCMC.cxx: removed burn-in
+	* Minor fixes
+	
 2010-05-10 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath, BCModel:
 	  - Updated inline documentation

@@ -116,12 +116,6 @@ class BCEngineMCMC
 			{ return fMCMCNIterationsRun; };
 
 		/*
-		 * @return number of iterations needed for burn-in. These
-		 * iterations are not included in fMCMCNIterations */
-		int MCMCGetNIterationsBurnIn()
-			{ return fMCMCNIterationsBurnIn; };
-
-		/*
 		 * @returns number of accepted trials for each chain */
 		std::vector <int> MCMCGetNTrialsTrue()
 			{ return fMCMCNTrialsTrue; };
@@ -134,14 +128,14 @@ class BCEngineMCMC
 		/*
 		 * @return mean value of the probability for each chain up to
 		 * the current iteration  */
-		std::vector <double> MCMCGetMean()
-			{ return fMCMCMean; };
+		std::vector <double> MCMCGetprobMean()
+			{ return fMCMCprobMean; };
 
 		/*
 		 * @return mean value of the probability for each chain up to
 		 * the current iteration */
 		std::vector <double> MCMCGetVariance()
-			{ return fMCMCVariance; };
+			{ return fMCMCprobVar; };
 
 		/*
 		 * @return scale factor for all parameters and chains */
@@ -183,7 +177,7 @@ class BCEngineMCMC
 		/*
 		 * @return log of the probability of the current points of each Markov chain */
 		std::vector <double> MCMCGetLogProbx()
-			{ return fMCMCLogProbx; };
+			{ return fMCMCprob; };
 
 		/*
 		 * @return log of the probability of the current points of the Markov chain.
@@ -193,12 +187,22 @@ class BCEngineMCMC
 		/*
 		 * @return pointer to the log of the probability of the current points of each Markov chain */
 		std::vector <double> * MCMCGetP2LogProbx()
-			{ return &fMCMCLogProbx; };
+			{ return &fMCMCprob; };
+
+		/*
+		 * @return pointer to the phase of a run. */ 
+		int* MCMCGetP2Phase()
+		{ return &fMCMCPhase; };
+
+		/*
+		 * @return pointer to the cycle of a pre-run. */ 
+		int* MCMCGetP2Cycle()
+		{ return &fMCMCCycle; };
 
 		/*
 		 * @return maximum points of each Markov chain */
 		std::vector <double> MCMCGetMaximumPoints()
-			{ return fMCMCMaximumPoints; };
+			{ return fMCMCxMax; };
 
 		/*
 		 * @return maximum point of  Markov chain
@@ -208,7 +212,7 @@ class BCEngineMCMC
 		/*
 		 * @return maximum (log) probability of each Markov chain */
 		std::vector <double> MCMCGetMaximumLogProb()
-			{ return fMCMCMaximumLogProb; };
+			{ return fMCMCprobMax; };
 
 		/*
 		 * @return flag which defined initial position */
@@ -296,11 +300,6 @@ class BCEngineMCMC
 			{ fMCMCNIterationsRun = n; };
 
 		/*
-		 * Sets the number of iterations needed for burn-in. */
-		void MCMCSetNIterationsBurnIn(int n)
-			{ fMCMCNIterationsBurnIn = n; };
-
-		/*
 		 * Sets the minimum number of iterations in the pre-run */
 		void MCMCSetNIterationsPreRunMin(int n)
 			{ fMCMCNIterationsPreRunMin = n; };
@@ -334,6 +333,11 @@ class BCEngineMCMC
 		 * Sets flag to write Markov chains to file. */
 		void MCMCSetWriteChainToFile(bool flag)
 			{ fMCMCFlagWriteChainToFile = flag; };
+
+		/*
+		 * Sets flag to write pre run to file. */
+		void MCMCSetWritePreRunToFile(bool flag)
+			{ fMCMCFlagWritePreRunToFile = flag; };
 
 		/*
 		 * Sets the initial positions for all chains.
@@ -451,19 +455,23 @@ class BCEngineMCMC
 
 		/*
 		 * Updates statistics: find new maximum */
-		void MCMCUpdateStatisticsCheckMaximum();
+		void MCMCInChainCheckMaximum();
+
+		/*
+		 * Updates statistics:  */
+		void MCMCInChainUpdateStatistics();
 
 		/*
 		 * Updates statistics: fill marginalized distributions */
-		void MCMCUpdateStatisticsFillHistograms();
+		void MCMCInChainFillHistograms();
 
 		/*
 		 * Updates statistics: check convergence */
-		void MCMCUpdateStatisticsTestConvergenceAllChains();
+		void MCMCInChainTestConvergenceAllChains();
 
 		/*
 		 * Updates statistics: write chains to file */
-		void MCMCUpdateStatisticsWriteChains();
+		void MCMCInChainWriteChains();
 
 		/*
 		 * Needs to be overloaded in the derived class.
@@ -571,11 +579,6 @@ class BCEngineMCMC
 		int fMCMCNIterationsPreRunMin;
 
 		/*
-		 * Number of iterations for burn-in. These iterations are not
-		 * included in fMCMCNIterations. */
-		int fMCMCNIterationsBurnIn;
-
-		/*
 		 * Number of accepted trials for each chain. The length of the
 		 * vector is equal to fMCMCNChains * fMCMCNParameters.  */
 		std::vector<int> fMCMCNTrialsTrue;
@@ -586,28 +589,12 @@ class BCEngineMCMC
 		std::vector<int> fMCMCNTrialsFalse;
 
 		/*
-		 * The mean of all log prob values of each Markov chain. The
-		 * length of the vector is equal to fMCMCNChains. */
-		std::vector <double> fMCMCMean;
-
-		/*
-		 * The variance of all log prob values of each Markov chain. The
-		 * length of the vector is equal to fMCMCNChains. */
-		std::vector <double> fMCMCVariance;
-
-		/*
-		 * The mean of all parameters of each Markov chain. The length of
-		 * the vector is equal to fMCMCNChains * fMCMCNParameters. */
-		std::vector <double> fMCMCMeanx;
-
-		/*
-		 * The variance of all parameters of each Markov chain. The length
-		 * of the vector is equal to fMCMCNChains * fMCMCNParameters. */
-		std::vector <double> fMCMCVariancex;
-
-		/*
 		 * Flag to write Markov chains to file */
 		bool fMCMCFlagWriteChainToFile;
+
+		/*
+		 * Flag to write pre run to file */
+		bool fMCMCFlagWritePreRunToFile;
 
 		/*
 		 * Scales the width of the trial functions by a scale factor for
@@ -658,11 +645,38 @@ class BCEngineMCMC
 		bool fMCMCFlagFillHistograms;
 
 		/*
+		 * The phase of the run.
+		 * 1: pre-run, 2: main run. 
+		 */ 
+		int fMCMCPhase;
+
+		/*
+		 * The cycle of the pre-run
+		 */ 
+		int fMCMCCycle;
+
+		/*
 		 * The current points of each Markov chain. The length of the
 		 * vectors is equal to fMCMCNChains * fMCMCNParameters. First, the
 		 * values of the first Markov chain are saved, then those of the
 		 * second and so on. */
 		std::vector <double> fMCMCx;
+
+		/*
+		 * The maximum points of each Markov chain. The length of the vector
+		 * is fMCMCNChains * fMCMCNParameters. First, the values of the
+		 * first Markov chain are saved, then those of the second and so on. */
+		std::vector <double> fMCMCxMax;
+
+		/*
+		 * The mean of all parameters of each Markov chain. The length of
+		 * the vector is equal to fMCMCNChains * fMCMCNParameters. */
+		std::vector <double> fMCMCxMean;
+
+		/*
+		 * The variance of all parameters of each Markov chain. The length
+		 * of the vector is equal to fMCMCNChains * fMCMCNParameters. */
+		std::vector <double> fMCMCxVar;
 
 		/*
 		 * A temporary vector for a single Markov chain */
@@ -671,18 +685,22 @@ class BCEngineMCMC
 		/*
 		 * The log of the probability of the current points of each Markov
 		 * chain. The length of the vectors is fMCMCNChains. */
-		std::vector<double> fMCMCLogProbx;
-
-		/*
-		 * The maximum points of each Markov chain. The length of the vector
-		 * is fMCMCNChains * fMCMCNParameters. First, the values of the
-		 * first Markov chain are saved, then those of the second and so on. */
-		std::vector <double> fMCMCMaximumPoints;
+		std::vector<double> fMCMCprob;
 
 		/*
 		 * The maximum (log) probability of each Markov chain. The length of
 		 * the vector is fMCMCNChains. */
-		std::vector <double> fMCMCMaximumLogProb;
+		std::vector <double> fMCMCprobMax;
+
+		/*
+		 * The mean of all log prob values of each Markov chain. The
+		 * length of the vector is equal to fMCMCNChains. */
+		std::vector <double> fMCMCprobMean;
+
+		/*
+		 * The variance of all log prob values of each Markov chain. The
+		 * length of the vector is equal to fMCMCNChains. */
+		std::vector <double> fMCMCprobVar;
 
 		/*
 		 * The R-value criterion for convergence of log-likelihood*/
