@@ -60,6 +60,12 @@ class ParameterSummary
 	{ return fMode; }; 
 
 	/**
+	 * Return global mode.
+	 */ 
+	double GetGlobalMode()
+	{ return fGlobalMode; }; 
+
+	/**
 	 * Return mean. 
 	 */ 
 	double GetMean()
@@ -124,6 +130,14 @@ class ParameterSummary
 	 */ 
 	void SetMode(double mode)
 	{ fMode = mode; }; 
+
+	/**
+	 * Set the global mode. 
+	 * @param mode The global mode.
+	 */ 
+	void SetGlobalMode(double mode)
+	{ fGlobalMode = mode; }; 
+
 
 	/**
 	 * Set the mean. 
@@ -212,6 +226,11 @@ class ParameterSummary
 	 * The mode.
 	 */ 
 	double fMode;
+
+	/**
+	 * The global mode.
+	 */ 
+	double fGlobalMode;
 
 	/**
 	 * The mean.

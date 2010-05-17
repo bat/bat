@@ -249,6 +249,7 @@ ParameterSummary CombinationXSec::PerformSingleChannelAnalysis(const char* chann
 
 	// copy summary information
 	ps.Summarize(hist);
+	ps.SetGlobalMode( model->GetBestFitParameter(0) );
 
 	// free memory
 	delete model;

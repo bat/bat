@@ -7,7 +7,7 @@
 #include <TF1.h> 
 
 #include "CombinationXSec.h"
-
+#include <iostream>
 int main()
 {
 	// ----------------------------------------------------------
@@ -40,7 +40,6 @@ int main()
 	// add channels 
 	// 
 
-	/*
 	// add channel
 	model->AddChannel("ee");
 
@@ -51,25 +50,26 @@ int main()
 	model->SetChannelBR("ee", 0.10498);
 
 	// add backgrounds for this channel 
-	model->AddChannelBackground("ee", "Z->ll",   8.5, 8.5);
-	model->AddChannelBackground("ee", "Diboson", 2.1, 2.1); 
-	model->AddChannelBackground("ee", "fake e",  0.1, 0.1); 
-	*/
+	model->AddChannelBackground("ee", "Z->ll",   8.5);
+	model->AddChannelBackground("ee", "Diboson", 2.1); 
+	model->AddChannelBackground("ee", "fake e",  0.1); 
 
+	/*
 	// add channel
 	model->AddChannel("emu");
 
 	// set channel observations, efficiency, luminosity and branching ratio
 	model->SetChannelObservation("emu", 204 ); 
 	model->SetChannelEfficiency("emu", 0.0427);
-	model->SetChannelLuminosity("emu", 4270.);
+	model->SetChannelLuminosity("emu", 4280.);
 	model->SetChannelBR("emu", 0.10498);
 
 	// add backgrounds for this channel 
-	model->AddChannelBackground("emu", "Z->tautau", 11.9, 11.9);
-	model->AddChannelBackground("emu", "Diboson",    6.5, 6.5); 
-	model->AddChannelBackground("emu", "fake e",     8.1, 8.1); 
-	model->AddChannelBackground("emu", "fake mu",    2.6, 2.6); 
+	model->AddChannelBackground("emu", "Z->tautau", 11.9);
+	model->AddChannelBackground("emu", "Diboson",    6.5); 
+	model->AddChannelBackground("emu", "fake e",     8.1); 
+	model->AddChannelBackground("emu", "fake mu",    2.6); 
+	*/
 
 	// ----------------------------------------------------------
 	// run analysis and plot
@@ -92,11 +92,11 @@ int main()
 
 	// calculate function
 	for (int i = 1; i <= 100; ++i) {
-		double x1 = hist_calc->GetBinCenter(i) * 4270. * 0.011 * 0.10498;
-		double x2 = hist_calc->GetBinCenter(i) * 4270. * 0.0427 * 0.10498;
+		double x1 = hist_calc->GetBinCenter(i) * 4280. * 0.011 * 0.10498;
+		double x2 = hist_calc->GetBinCenter(i) * 4280. * 0.0427 * 0.10498;
 		double p = 1.0 
-			//			* TMath::PoissonI(55, x1+8.5+2.1+0.1)
-			* TMath::PoissonI(204, x2+11.9+6.5+8.1+2.6);
+			* TMath::PoissonI(55, x1+8.5+2.1+0.1);
+			//			* TMath::PoissonI(204, x2+11.9+6.5+8.1+2.6);
 		hist_calc->SetBinContent(i, p); 
 	}
 
@@ -109,6 +109,8 @@ int main()
 	hist_calc->Scale( 1.0/hist_calc->Integral() );
 	hist_calc->Draw("SAME");
 	c1->Print("test_poisson_plots.ps"); 
+
+	std::cout << hist_calc->GetBinCenter(hist_calc->GetMinimumBin()) << std::endl;
 
 	// print results
 	model->PrintResults("test_poisson_results.txt");

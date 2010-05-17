@@ -22,7 +22,7 @@ int main()
 
 	// create new CombinationModel object
 	// and define the parameter region
-	CombinationXSec * model = new CombinationXSec("#sigma [pb]", 0.0, 25.0);
+	CombinationXSec * model = new CombinationXSec("#sigma [pb]", 0.0, 20.0);
 
 	// set mcmc options
 	model->MCMCSetNLag(10);
@@ -50,7 +50,7 @@ int main()
 	// set channel observations, efficiency, luminosity and branching ratio
 	model->SetChannelObservation("ee",  55); 
 	model->SetChannelEfficiency("ee", 0.011);
-	model->SetChannelLuminosity("ee", 4270.);
+	model->SetChannelLuminosity("ee", 4280.);
 	model->SetChannelBR("ee", 0.10498);
 
 	// add backgrounds for this channel 
@@ -58,33 +58,20 @@ int main()
 	model->AddChannelBackground("ee", "Diboson", 2.1); 
 	model->AddChannelBackground("ee", "fakes",   0.1); 
 
-	// set channel priors
-	//	model->SetChannelBackgroundPriorGauss("ee", "Z->ll", 8.5, 3.4); 
-	//	model->SetChannelBackgroundPriorGauss("ee", "Diboson", 2.1, 0.8);
-	//	model->SetChannelBackgroundPriorGauss("ee", "fakes", 0.1, 0.1, 0.2);
-
-	/*
 	// add channel
-	model->AddChannel("mu+jets");
-
+	model->AddChannel("emu");
+	
 	// set channel observations, efficiency, luminosity and branching ratio
-	model->SetChannelObservation("mu+jets", 200.0); 
-	model->SetChannelEfficiency("mu+jets", 0.01);
-	model->SetChannelLuminosity("mu+jets", 1000.);
-	model->SetChannelBR("mu+jets", 1.0);
-
-	// add backgrounds
-	model->AddChannelBackground("mu+jets", "W+jets", 0.0, 100.0);
-	model->AddChannelBackground("mu+jets", "Z+jets", 5.0,  15.0); 
-	model->AddChannelBackground("mu+jets", "QCD",    0.0,  50.0); 
-	model->AddChannelBackground("mu+jets", "other",  0.0,  20.0); 
-
-	// set channel priors
-	model->SetChannelBackgroundPriorGauss("mu+jets", "W+jets", 60.0, 2.0); 
-	model->SetChannelBackgroundPriorGauss("mu+jets", "Z+jets", 10.0, 0.5); 
-	model->SetChannelBackgroundPriorGauss("mu+jets", "QCD",    15.0, 2.6, 2.5); 
-	model->SetChannelBackgroundPriorGauss("mu+jets", "other",  15.0, 1.5, 1.4); 
-	*/
+	model->SetChannelObservation("emu", 204 );                             
+	model->SetChannelEfficiency("emu", 0.0427);                            
+	model->SetChannelLuminosity("emu", 4280.);
+	model->SetChannelBR("emu", 0.10498);
+	
+	// add backgrounds for this channel
+	model->AddChannelBackground("emu", "Z->tautau", 11.9);
+	model->AddChannelBackground("emu", "Diboson",    6.5);
+	model->AddChannelBackground("emu", "fake e",     8.1);
+	model->AddChannelBackground("emu", "fake mu",    2.6);
 
 	//
 	// add systematics

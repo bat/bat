@@ -391,6 +391,7 @@ int CombinationModel::PerformFullAnalysis()
 	// copy summary information
 	fSummaryCombinationNoSyst = new ParameterSummary("combination");
 	fSummaryCombinationNoSyst->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
+	fSummaryCombinationNoSyst->SetGlobalMode( GetBestFitParameter(0) );
 
 	// ---- perform combination analysis with systematics ---- //
 
@@ -409,6 +410,7 @@ int CombinationModel::PerformFullAnalysis()
 	// copy summary information
 	fSummaryCombinationSyst = new ParameterSummary("combination");
 	fSummaryCombinationSyst->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
+	fSummaryCombinationSyst->SetGlobalMode( GetBestFitParameter(0) );
 
 	// ---- perform single channel analysis without systematics ---- //
 
@@ -706,6 +708,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << " Single channels without systematics : " << std::endl;
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Gl. mode";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
@@ -727,7 +730,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 		// get summary information
 		double median = ps->GetMedian(); 
-		double mode = ps->GetMedian(); 
+		double glmode = ps->GetGlobalMode(); 
+		double mode = ps->GetMode(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
 		double errlow = mode - q16;
@@ -735,6 +739,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
@@ -749,7 +754,11 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << " Single channels with systematics : " << std::endl;
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Gl. mode";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
 	output << std::endl;
@@ -767,14 +776,20 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 		// get summary information
 		double median = ps->GetMedian(); 
+		double glmode = ps->GetGlobalMode(); 
+		double mode = ps->GetMode(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
-		double errlow = median - q16;
-		double errhigh = q84 - median; 
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh << std::endl;
 	}
@@ -785,7 +800,11 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << " Combined channels : " << std::endl;
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Systematics";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Gl. mode";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
 	output << std::endl;
@@ -796,27 +815,39 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 	// get summary information
 	double median_nosyst = ps_nosyst->GetMedian(); 
+	double glmode_nosyst = ps_nosyst->GetGlobalMode(); 
+	double mode_nosyst = ps_nosyst->GetMode(); 
 	double q16_nosyst = ps_nosyst->GetQuantile16();
 	double q84_nosyst = ps_nosyst->GetQuantile84();
-	double errlow_nosyst = median_nosyst - q16_nosyst;
-	double errhigh_nosyst = q84_nosyst - median_nosyst; 
+	double errlow_nosyst = mode_nosyst - q16_nosyst;
+	double errhigh_nosyst = q84_nosyst - mode_nosyst; 
 
 	output << " ";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << "off";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode_nosyst; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median_nosyst; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_nosyst; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16_nosyst;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84_nosyst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_nosyst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh_nosyst << std::endl;
 
 	// get summary information
+	double glmode_syst = ps_syst->GetGlobalMode(); 
 	double median_syst = ps_syst->GetMedian(); 
+	double mode_syst = ps_syst->GetMode(); 
 	double q16_syst = ps_syst->GetQuantile16();
 	double q84_syst = ps_syst->GetQuantile84();
-	double errlow_syst = median_syst - q16_syst;
-	double errhigh_syst = q84_syst - median_syst; 
+	double errlow_syst = mode_syst - q16_syst;
+	double errhigh_syst = q84_syst - mode_syst; 
 
 	output << " ";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << "on";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode_syst; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median_syst; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_syst; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16_syst;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84_syst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_syst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh_syst << std::endl;
 
