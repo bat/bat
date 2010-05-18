@@ -117,6 +117,7 @@ extras/CombinationTool/Doxyfile -text
 extras/CombinationTool/Makefile -text
 extras/CombinationTool/ParameterSummary.cxx -text
 extras/CombinationTool/ParameterSummary.h -text
+extras/CombinationTool/runCombination.cxx -text
 extras/CombinationTool/runCombinationXSec.cxx -text
 extras/CombinationTool/test_poisson.cxx -text
 extras/README -text

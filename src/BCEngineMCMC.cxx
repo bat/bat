@@ -655,7 +655,7 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
 					flag_convergence = false;
 			}
 			// else: leave convergence flag true for that parameter
-
+		}
 		// convergence criterion applied on the log-likelihood
 		double sum = 0;
 		double sum2 = 0;
