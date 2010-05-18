@@ -3,6 +3,7 @@
 
 #include <BAT/BCLog.h>
 #include <BAT/BCH1D.h>
+#include <BAT/BCMath.h>
 
 #include <TF1.h>
 #include <TCanvas.h> 
@@ -51,6 +52,64 @@ CombinationModel::~CombinationModel()
 	delete fSummaryCombinationNoSyst;
 	delete fSummaryCombinationSyst;
 }; 
+
+// ---------------------------------------------------------
+double CombinationModel::LogAPrioriProbability(std::vector <double> parameters)
+{
+	double logprob = 0.;
+
+	// get number of channels
+	int nchannels = GetNChannels(); 
+
+	// loop over all channels 
+	for (int i = 0; i < nchannels; ++i) {
+		double x = parameters.at(0);
+
+		// loop over all systematic uncertainties
+		int nsysterrors = GetNSystErrors();
+		
+		if (fFlagSystErrors) {
+			// loop over all systematic uncertainties
+			for (int k = 0; k < nsysterrors; ++k) {
+				int systparindex = GetParIndexSystError(k);
+				double par = parameters.at(systparindex);
+				
+				if (par < 0)
+					x += fSystErrorChannelSigmaDownContainer.at(k).at(i) * par;
+				else
+					x += fSystErrorChannelSigmaUpContainer.at(k).at(i) * par;
+			}
+		}
+
+		logprob += log( fChannelSignalPriorContainer.at(i)->Eval(x) );
+	}
+
+	return logprob;
+}
+
+// ---------------------------------------------------------
+double CombinationModel::LogLikelihood(std::vector <double> parameters)
+{
+	double logprob = 0.;
+
+	// get number of channels
+	int nchannels = GetNChannels(); 
+
+	// loop over all channels 
+	for (int i = 0; i < nchannels; ++i) {
+
+		// loop over all systematic uncertainties
+		int nsysterrors = GetNSystErrors();
+
+		if (fFlagSystErrors) {
+			for (int i = 0; i < nsysterrors; ++i) {
+				logprob += BCMath::LogGaus(parameters.at( GetParIndexSystError(i) ) ); 
+			}
+		}
+	}
+	
+	return logprob;
+}
 
 // ---------------------------------------------------------
 int CombinationModel::GetContIndexSystError(const char* systerrorname)
@@ -451,6 +510,66 @@ int CombinationModel::PerformFullAnalysis()
 
 	// no error 
 	return 1;
+}
+
+// ---------------------------------------------------------
+ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* channelname, bool flag_syst)
+{
+ 	// get channel container index
+	int channelindex = GetContIndexChannel(channelname); 
+
+	// define summary
+	ParameterSummary ps(channelname); 
+
+	// create analyses for each channel 
+	CombinationModel* model = new CombinationModel( GetParameter(0)->GetName().c_str(), 
+																									GetParameter(0)->GetLowerLimit(), 
+																									GetParameter(0)->GetUpperLimit());
+
+	// copy settings
+	model->MCMCSetNLag( MCMCGetNLag() );
+	model->MCMCSetNIterationsRun( MCMCGetNIterationsRun() );
+	model->SetFlagSystErrors(flag_syst);
+	model->AddChannel( fChannelNameContainer.at(channelindex).c_str() );
+	model->SetChannelSignalPrior( channelname, fChannelSignalPriorContainer.at(channelindex) ); 
+	
+	int nbkg = int(fChannelBackgroundNameContainer.at(channelindex).size());
+	for (int j = 0; j < nbkg; ++j) {
+		model->AddChannelBackground( fChannelNameContainer.at(channelindex).c_str(),
+																 fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(),
+																 fChannelBackground.at(channelindex).at(j) );
+	}
+	
+	if (flag_syst) {
+		int nsyst = GetNSystErrors();
+		for (int i = 0; i < nsyst; ++i) {
+			model->AddSystError( fSystErrorNameContainer.at(i).c_str() ); 
+			
+			for (int j = 0; j < nbkg; ++j) {
+				model->SetSystErrorChannelBackground( fSystErrorNameContainer.at(i).c_str(), 
+																							fChannelNameContainer.at(channelindex).c_str(),
+																							fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(), 
+																							fSystErrorSigmaDownContainer.at(i).at(channelindex).at(j), 
+																							fSystErrorSigmaUpContainer.at(i).at(channelindex).at(j) );
+			}
+		}
+	}
+	
+	// perform analysis
+	model->PerformAnalysis();
+
+	// get histogram
+	BCH1D* hist = model->GetMarginalized( model->GetParameter(0)->GetName().c_str() ); 
+
+	// copy summary information
+	ps.Summarize(hist);
+	ps.SetGlobalMode( model->GetBestFitParameter(0) );
+
+	// free memory
+	delete model;
+
+	// return summary 
+	return ps; 
 }
 
 // ---------------------------------------------------------

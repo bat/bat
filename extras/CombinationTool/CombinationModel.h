@@ -11,6 +11,7 @@
  */
 
 #include <BAT/BCModel.h>
+#include "ParameterSummary.h" 
 
 class ParameterSummary;
 class TF1;
@@ -166,7 +167,7 @@ class CombinationModel : public BCModel
 	 * @param flag_syst Flag: systematics on (1) or off (0).
 	 * @return A summary object of the signal parameter.
 	 */ 
-	virtual ParameterSummary PerformSingleChannelAnalysis(const char* channelname, bool flag_syst) = 0;
+	virtual ParameterSummary PerformSingleChannelAnalysis(const char* channelname, bool flag_syst); 
 
 	/* @} */
 
@@ -220,14 +221,14 @@ class CombinationModel : public BCModel
 	 * @param parameters A vector of parameters. 
 	 * @return The log of the prior probability.
 	 */
-	double LogAPrioriProbability(std::vector <double> parameters) = 0;
+	virtual double LogAPrioriProbability(std::vector <double> parameters);
 
 	/**
 	 * Calculate the log of the likelihood
 	 * @param parameters A vector of parameters. 
 	 * @return The log of the likelihood.
 	 */
-	double LogLikelihood(std::vector <double> parameters) = 0;
+	virtual double LogLikelihood(std::vector <double> parameters);
 
  protected:
 

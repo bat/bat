@@ -84,13 +84,14 @@ CXXSRCS      = \
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      =
 MYPROGS     = \
-        runCombinationTool
+        runCombinationXSec \
+				runCombination
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS) test_poisson
 
 
 # targets
-all : project
+all : project project2
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -103,9 +104,13 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	$(RM) $(GARBAGE)
 
-project : runCombinationTool.cxx $(CXXOBJS)
+project : runCombinationXSec.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) runCombinationTool.o $(CXXOBJS) -o runCombinationTool
+	$(CXX) $(LDFLAGS) $(LIBS) runCombinationXSec.o $(CXXOBJS) -o runCombinationXSec
+
+project2 : runCombination.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) runCombination.o $(CXXOBJS) -o runCombination
 
 tests : test_poisson.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
@@ -128,6 +133,7 @@ tarball :
 	ParameterSummary.* \
 	CombinationXSec.* \
 	CombinationModel.* \
-	runCombinationTool.cxx \
+	runCombinationXSec.cxx \
+	runCombination.cxx \
 	Makefile
 	gzip CombinationTool.tar
