@@ -1,7 +1,6 @@
 // BAT 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h> 
 
 #include "CombinationXSec.h"
 
@@ -124,12 +123,6 @@ int main()
 	model->PerformFullAnalysis();
 	//	model->PerformAnalysis();
 
-	// print summary plots
-	BCSummaryTool* summary = new BCSummaryTool(model);
-	summary->PrintParameterPlot("summary_parameters.ps");
-	summary->PrintCorrelationPlot("summary_correlation.ps");
-	//	summary->PrintKnowlegdeUpdatePlot("summary_update.ps"); 
-
 	// print results
 	model->PrintAllMarginalized("model_plots.ps");
 
@@ -146,7 +139,6 @@ int main()
 
 	// clean up memory
 	delete model;
-	delete summary;
 
 	return 0;
 

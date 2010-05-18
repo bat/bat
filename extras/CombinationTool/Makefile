@@ -41,8 +41,8 @@ CXXFLAGS    += $(ROOTCFLAGS)
 # system search path then the lines below are correct and the compilation
 # will work
 CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)
-LIBS        += $(ROOTLIBS)  -lBAT -L$(BATINSTALLDIR)/lib -lBATmodels
-GLIBS       += $(ROOTGLIBS) -lBAT -L$(BATINSTALLDIR)/lib -lBATmodels
+LIBS        += $(ROOTLIBS)  -lBAT -L$(BATINSTALLDIR)/lib 
+GLIBS       += $(ROOTGLIBS) -lBAT -L$(BATINSTALLDIR)/lib 
 
 # In case you see following errors during the compilation,
 #
@@ -122,3 +122,12 @@ print :
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
 
+tarball :
+	rm -f CombinationTool.tar.gz
+	tar -cf CombinationTool.tar \
+	ParameterSummary.* \
+	CombinationXSec.* \
+	CombinationModel.* \
+	runCombinationTool.cxx \
+	Makefile
+	gzip CombinationTool.tar
