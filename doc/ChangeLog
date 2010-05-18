@@ -1,3 +1,10 @@
+2010-05-18 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - GetChi2Runs() returns empty vector
+	* BCH1D:
+	  - fix bug in drawing lower limit
+	  - change allowed range from 68-100 to 0-100
+
 2010-05-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* work on combination tool
 	* update todo-list
@@ -9,7 +16,7 @@
 	* BCEngineMCMC.cxx: renaming of methods and variables for statistics
 	* BCEngineMCMC.cxx: removed burn-in
 	* Minor fixes
-	
+
 2010-05-10 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath, BCModel:
 	  - Updated inline documentation
@@ -26,7 +33,7 @@
 
 2010-05-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* More points in release to do list
-		
+
 2010-04-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Work on CombinationTool.
 
@@ -41,7 +48,7 @@
 	* Minor modifications to CombinationModel.
 	* Modified results output
 	* Code clean-up.
-	
+
 2010-04-23 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Work on CombinationTool.
 	* Update documentation of templatefitter examples.

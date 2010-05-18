@@ -1284,8 +1284,10 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 // ---------------------------------------------------------
 std::vector<double> BCModel::GetChi2Runs(int dataIndex, int sigmaIndex)
 {
-
+   std::vector<double> x;
+   return x;
 }
+
 // ---------------------------------------------------------
 double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par)
 {

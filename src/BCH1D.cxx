@@ -158,9 +158,9 @@ void BCH1D::Draw(int options, double ovalue)
 		// Draw a band between 16% and 84% probability.
 		// If the mode is outside the band only draw a limit.
 		case 0:
-
-			if (fabs(ovalue) >= 100 || fabs(ovalue) < 68)
+			if (fabs(ovalue) >= 100 || ovalue==0.)
 			{
+
 				min = this -> GetQuantile(.16);
 				max = this -> GetQuantile(.84);
 
@@ -188,7 +188,7 @@ void BCH1D::Draw(int options, double ovalue)
 			}
 			else
 			{
-				min = this -> GetQuantile((1-ovalue)/100.);
+				min = this -> GetQuantile(1. - ovalue/100.);
 				max = fHistogram->GetXaxis()->GetXmax();
 			}
 
