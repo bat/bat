@@ -37,17 +37,20 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 		double luminosity = fChannelLuminosity.at(i);
 		double efficiency = fChannelEfficiency.at(i);  
 		double br = fChannelBR.at(i);
-		double expectation = parameters.at(0) * luminosity * efficiency * br; 
+		double exp_cross = parameters.at(0) * luminosity * efficiency * br;
+		double expectation = exp_cross; 
 
-		// loop over all systematic uncertainties
-		for (int k = 0; k < nsysterrors; ++k) {
-			int systparindex = GetParIndexSystError(k);
-			double par = parameters.at(systparindex);
-			
-			if (par < 0)
-				expectation += fSystErrorChannelSigmaDownContainer.at(k).at(i) * par * luminosity * efficiency * br;
-			else
-				expectation += fSystErrorChannelSigmaUpContainer.at(k).at(i) * par * luminosity * efficiency * br;
+		if (fFlagSystErrors) {
+			// loop over all systematic uncertainties
+			for (int k = 0; k < nsysterrors; ++k) {
+				int systparindex = GetParIndexSystError(k);
+				double par = parameters.at(systparindex);
+				
+				if (par < 0)
+					expectation += fSystErrorChannelSigmaDownContainer.at(k).at(i) * par * exp_cross;
+				else
+					expectation += fSystErrorChannelSigmaUpContainer.at(k).at(i) * par * exp_cross;
+			}
 		}
 		
 		// get number of background sources in this channel
@@ -56,7 +59,8 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 		// loop over all background sources
 		for (int j = 0; j < nbackground; ++j) {
 			// get parameter index
-			expectation += fChannelBackground.at(i).at(j);
+			double exp_bkg = fChannelBackground.at(i).at(j);
+			expectation += exp_bkg;
 
 			if (fFlagSystErrors) {
 				// loop over all systematic uncertainties
@@ -64,9 +68,9 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 					int systparindex = GetParIndexSystError(k);
 					double par = parameters.at(systparindex);
 					if (par < 0)
-						expectation += fSystErrorSigmaDownContainer.at(k).at(i).at(j) * par;
+						expectation += fSystErrorSigmaDownContainer.at(k).at(i).at(j) * par * exp_bkg;
 					else
-						expectation += fSystErrorSigmaUpContainer.at(k).at(i).at(j) * par;
+						expectation += fSystErrorSigmaUpContainer.at(k).at(i).at(j) * par * exp_bkg;
 				}
 			}
 		}
