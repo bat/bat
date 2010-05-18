@@ -50,6 +50,7 @@ doc/COPYING -text
 doc/CREDITS -text
 doc/ChangeLog -text
 doc/LICENSE -text
+doc/introduction/Makefile -text
 doc/introduction/bat.eps -text
 doc/introduction/introduction.tex -text
 doc/manual/bat.eps -text

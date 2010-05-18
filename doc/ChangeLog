@@ -1,6 +1,7 @@
 2010-05-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* work on combination tool
 	* update todo-list
+	* started updating introduction.tex and added Makefile
 
 2010-05-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: included convergence of posterior again

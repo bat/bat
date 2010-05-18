@@ -17,7 +17,7 @@
 
 \newcommand{\bat}{{\sc BAT}}
 \newcommand{\Root}{{\sc Root}}
-\newcommand{\versionno}{0.3}
+\newcommand{\versionno}{0.4}
 \newcommand{\version}{version~\versionno}
 \newcommand{\Version}{Version~\versionno}
 
@@ -862,83 +862,6 @@ double BCHistogramFitter::GetPvalueFromChi2Johnson(std::vector<double> par)
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\subsection{Fitting a function}
-\label{subsection:fitting}
-
-A common application in data analysis is fitting a function, $y(x)$,
-to a (one-dimensional) distribution or a set of data
-points. \bat\ offers three dedicated tools for this purpose, depending
-on the uncertainties on each data point. These classes and the assumed
-uncertainties are summarized in the following. \\
-
-\noindent
-In all three cases, the uncertainties for each data point (or bin
-content) are assumed to be independent of each other. I.e., in the
-case of histograms bin-by-bin migration is not included. The overall
-conditional probability is a product of the individual probabilities
-for the expectation value given the $y$-value (or bin content). \\
-
-\noindent
-An uncertainty band is calculated for each fit. During the
-marginalization, each point in parameter space is sampled with a
-frequency proportional to the posterior pdf at this point (if the
-Markov chain has converged). The uncertainty band is obtained by
-evaluating the fit function, $y(x)$, for each $x$ at each point in
-parameter space. The values are histogrammed in
-$x$--$y(x)$--space. Each slice of $x$ is normalized to unity and
-interpreted as probability density for $y$ given $x$. The~0.16 and
-0.84~quantiles are then interpreted as the uncertainty on $y$ at that
-particular $x$. The uncertainty band can be returned from a model using
-%
-\begin{verbatim}
-TGraph * BCModel::GetErrorBandGraph(double level1, double level2) ,
-\end{verbatim}
-%
-where the levels correspond to the quantiles of the distribution
-$p(y(x))$ (default: 0.16 and 0.84). \\
-
-\noindent
-In all three cases, the fast methods for evaluating the $p$-value are
-implemented. The $p$-value is evaluated automatically and returned
-together with a summary.
-
-% --------------------------------------------------------
-
-\subsubsection{The Gaussian case}
-\label{BCGraphFitter}
-
-The class \verb|BCGraphFitter| allows to fit a \Root\ function
-(\verb|TF1|) to a \Root\ graph (\verb|TGraphErrors|). The
-uncertainties on $y$ at a given $x$, defined by the uncertainties of
-the \verb|TGraphErrors|, are assumed to be Gaussian, i.e., the
-uncertainty on $y$ corresponds to the width, $\sigma$, of the
-Gaussian. The uncertainties on $x$ are not taken into account.
-
-% --------------------------------------------------------
-
-\subsubsection{The Poissonian case}
-
-The class \verb|BCHistogramFitter| allows to fit a \Root\ function
-(\verb|TF1|) to a \Root\ histogram (\verb|TH1D|). The uncertainty on
-the expectation value in each bin is assumed to be Poissonian, and
-thus non-symmetric around the number of entries in this bin.
-
-% --------------------------------------------------------
-
-\subsubsection{The Binomial case}
-
-The class \verb|BCEfficiencyFitter| allows to fit a \Root\ function
-(\verb|TF1|) to the ratio of two \Root\ histograms (\verb|TH1D|). The
-uncertainty on the expectation value in each bin is assumed to be
-Binomial, and thus non-symmetric around the ratio of entries in this
-bin. The ratio is assumed to be between 0 and 1, i.e., one histogram
-contains a subset of the other.
-
-
-% --------------------------------------------------------
-% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% --------------------------------------------------------
-
 \subsection{Propagation of uncertainties}
 
 During the marginalization, each point in parameter space is sampled
@@ -1064,6 +987,98 @@ BCH2D & \\
 %a data set without reloading and redefining it for each analysis. \\
 %
 %See \verb|example05| for an application of these features.
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% Tools and models
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% --------------------------------------------------------
+
+\section{Tools and models}
+\label{section:tools}
+
+\subsection{Tools}
+\label{subsection:tools}
+
+\subsubsection{The summary tool}
+
+{\it To do}
+
+\subsection{Models for function fitting}
+\label{subsection:fitting}
+
+A common application in data analysis is fitting a function, $y(x)$,
+to a (one-dimensional) distribution or a set of data
+points. \bat\ offers three dedicated tools for this purpose, depending
+on the uncertainties on each data point. These classes and the assumed
+uncertainties are summarized in the following. \\
+
+\noindent
+In all three cases, the uncertainties for each data point (or bin
+content) are assumed to be independent of each other. I.e., in the
+case of histograms bin-by-bin migration is not included. The overall
+conditional probability is a product of the individual probabilities
+for the expectation value given the $y$-value (or bin content). \\
+
+\noindent
+An uncertainty band is calculated for each fit. During the
+marginalization, each point in parameter space is sampled with a
+frequency proportional to the posterior pdf at this point (if the
+Markov chain has converged). The uncertainty band is obtained by
+evaluating the fit function, $y(x)$, for each $x$ at each point in
+parameter space. The values are histogrammed in
+$x$--$y(x)$--space. Each slice of $x$ is normalized to unity and
+interpreted as probability density for $y$ given $x$. The~0.16 and
+0.84~quantiles are then interpreted as the uncertainty on $y$ at that
+particular $x$. The uncertainty band can be returned from a model
+using
+%
+\begin{verbatim}
+TGraph * BCModel::GetErrorBandGraph(double level1, double level2) ,
+\end{verbatim}
+%
+where the levels correspond to the quantiles of the distribution
+$p(y(x))$ (default: 0.16 and 0.84). \\
+
+\noindent
+In all three cases, the fast methods for evaluating the $p$-value are
+implemented. The $p$-value is evaluated automatically and returned
+together with a summary.
+
+% --------------------------------------------------------
+\subsubsection{The Gaussian case}
+\label{BCGraphFitter}
+
+The class \verb|BCGraphFitter| allows to fit a \Root\ function
+(\verb|TF1|) to a \Root\ graph (\verb|TGraphErrors|). The
+uncertainties on $y$ at a given $x$, defined by the uncertainties of
+the \verb|TGraphErrors|, are assumed to be Gaussian, i.e., the
+uncertainty on $y$ corresponds to the width, $\sigma$, of the
+Gaussian. The uncertainties on $x$ are not taken into account.
+
+% --------------------------------------------------------
+\subsubsection{The Poissonian case}
+
+The class \verb|BCHistogramFitter| allows to fit a \Root\ function
+(\verb|TF1|) to a \Root\ histogram (\verb|TH1D|). The uncertainty on
+the expectation value in each bin is assumed to be Poissonian, and
+thus non-symmetric around the number of entries in this bin.
+
+% --------------------------------------------------------
+\subsubsection{The Binomial case}
+
+The class \verb|BCEfficiencyFitter| allows to fit a \Root\ function
+(\verb|TF1|) to the ratio of two \Root\ histograms (\verb|TH1D|). The
+uncertainty on the expectation value in each bin is assumed to be
+Binomial, and thus non-symmetric around the ratio of entries in this
+bin. The ratio is assumed to be between 0 and 1, i.e., one histogram
+contains a subset of the other.
+
+\subsection{A model for template fitting}
+
+{\it To do}
+
+
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1213,9 +1228,6 @@ further reference see the reference guide:
 \begin{itemize}
 \item \verb|BCModel::SetNChains(int n)| Sets the number of chains
   which are ran in parallel (default: 5).
-\item \verb|BCModel::MCMCSetNIterationsBurnIn(int n)| Sets the number
-  of iterations of a burn-in run (default: 0). The burn-in run is
-  performed before the pre-run.
 \item \verb|BCModel::MCMCSetNIterationsMax(int n)| Sets the maximum
   number of iterations of the pre-run (default: 1,000,000).
 \item \verb|BCModel::MCMCSetNIterationsRun(int n)| Sets the number of
