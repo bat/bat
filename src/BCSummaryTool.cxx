@@ -322,9 +322,15 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 
 	for (int i = 0; i < npar; ++i) {
 		hist_corr->GetXaxis()->SetLabelSize(0.06);
-		hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
 		hist_corr->GetYaxis()->SetLabelSize(0.06);
-		hist_corr->GetYaxis()->SetBinLabel( npar-i, fParName.at(i).c_str() );
+		if (npar < 5) {
+			hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
+			hist_corr->GetYaxis()->SetBinLabel( npar-i, fParName.at(i).c_str() );
+		}
+		else {
+			hist_corr->GetXaxis()->SetBinLabel( i+1, TString::Format("%d",i) );
+			hist_corr->GetYaxis()->SetBinLabel( npar-i, TString::Format("%d",i) );			
+		}
 	}
 
 	// fill plot

@@ -13,7 +13,7 @@ High         0.4.0                 Caching of flat prior (Fred)
 High         0.4.0?                Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 High         0.4.0?                Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 High         0.4.0?                Test RooStats examples
-High         0.4.0                 Fix axis labels for SummaryTool (numbers for larger number of parameters)
+High         0.4.0       fixed     Fix axis labels for SummaryTool (numbers for larger number of parameters)
 High         0.4.0                 Important check: compare marginalized mode (1D) with predictions
 
 Medium                             Add models page on web page

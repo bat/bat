@@ -1,5 +1,7 @@
 2010-05-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Tested setting of single prior
+	* BCSummaryTool.cxx: set labels of correlation plot to 
+	  parameter number instead of name.
 	* Updated to do list
 
 2010-05-18 Daniel Kollar <daniel.kollar@cern.ch>
