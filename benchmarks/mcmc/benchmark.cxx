@@ -155,10 +155,10 @@ int main()
 	// test 2D function: gaus2
 	// =================================
 
-	TF2 *testfunc2 = new TF2("gaus2","xygausn",xmin,xmax,ymin,ymax);
+	testfunc2 = new TF2("gaus2","xygausn",xmin,xmax,ymin,ymax);
 	testfunc2->SetParameters(1,4,2,8,1);
 
-	BCBenchmarkMCMC2D *benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
+	benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
 
 	benchmark2->MCMCSetNIterationsRun(100000);
 

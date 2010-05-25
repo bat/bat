@@ -38,7 +38,7 @@ all : benchmark
 link.d : $(patsubst %.cxx,src/%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
-include link.d
+-include link.d
 
 %.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@

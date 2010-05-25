@@ -12,6 +12,9 @@
 
 2010-05-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: fill histograms not in loop for ordered parameters
+	* benchmarks/mcmc:
+	  - fixed bug (repeated declaration of some variables)
+	  - added minus sign for for "include link.d"
 
 2010-05-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Tested setting of single prior
