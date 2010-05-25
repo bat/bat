@@ -1,3 +1,15 @@
+2010-05-18 Daniel Kollar <daniel.kollar@cern.ch>
+	* examples/simplecompiled:
+	  - fixed likelihood calculation
+	* examples/templatefitter:
+	  - renamed macros to '.C'
+	  - fixed includes
+	  - cleanup makefiles
+	  - print hint to run CreateHistograms.C if file with histograms not found
+	* benchmarks/mcmc:
+	  - add 1D function '2 separated gaussians'
+	  - add 2D function '2 separated gaussians'
+
 2010-05-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: fill histograms not in loop for ordered parameters
 

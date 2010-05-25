@@ -26,9 +26,9 @@ CXXFLAGS    += -I.
 # Otherwise the example won't compile.
 ###
 LIBS        += $(ROOTLIBS)  -lBAT -lBATmodels
-#-lcuba
+# -lcuba
 GLIBS       += $(ROOTGLIBS) -lBAT -lBATmodels
-#-lcuba
+# -lcuba
 
 CXXSRCS      = \
 	Pol1Asymm.cxx \

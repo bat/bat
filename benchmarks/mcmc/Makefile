@@ -19,7 +19,9 @@ CINT         = rootcint
 CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I./src/ -I./ -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
+# -lcuba
 GLIBS       += $(ROOTGLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
+# -lcuba
 
 CXSRCS      = BCBenchmarkMCMC3D.cxx BCBenchmarkMCMC2D.cxx BCBenchmarkMCMC.cxx
 

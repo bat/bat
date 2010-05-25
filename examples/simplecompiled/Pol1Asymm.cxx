@@ -84,7 +84,7 @@ double Pol1Asymm::LogLikelihood(std::vector <double> par)
 
 		// if measured value is below the expectation value we use 'eylo' as
 		// the width of the half-gaussian, if it is above we use 'eyhi'
-		double yerr = (y < yexp) ? eylo : eyhi;
+		double yerr = (y > yexp) ? eylo : eyhi;
 
 		logl += BCMath::LogGaus(y, yexp, yerr, true);
 	}

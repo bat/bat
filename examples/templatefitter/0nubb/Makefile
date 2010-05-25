@@ -40,8 +40,8 @@ CXXFLAGS    += $(ROOTCFLAGS)
 # the project is being compiled. If BAT is installed in the standard
 # system search path then the lines below are correct and the compilation
 # will work
-LIBS        += $(ROOTLIBS)  
-GLIBS       += $(ROOTGLIBS) 
+LIBS        += $(ROOTLIBS) -lBAT -lBATmodels
+GLIBS       += $(ROOTGLIBS) -lBAT -lBATmodels
 
 # In case you see following errors during the compilation,
 #
@@ -55,8 +55,8 @@ GLIBS       += $(ROOTGLIBS)
 # also need to add the path to libcuba.a to the lines below
 # as -L/path/to/cuba/lib
 #
-# LIBS        += -lcuba
-# GLIBS       += -lcuba
+#LIBS        += -lcuba
+#GLIBS       += -lcuba
 
 # If BAT was installed in a non-standard path (e.g. user home
 # directory) then one can specify the location of the header
@@ -64,9 +64,9 @@ GLIBS       += $(ROOTGLIBS)
 # BATINSTALLDIR):
 #
 # BATINSTALLDIR = '/path/to/bat/installation/directory'
- CXXFLAGS    += -I$(BATINSTALLDIR)/ -I$(BATINSTALLDIR)
- LIBS        += -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
- GLIBS       += -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+#CXXFLAGS    += -I$(BATINSTALLDIR)/include
+#LIBS        += -L$(BATINSTALLDIR)/lib
+#GLIBS       += -L$(BATINSTALLDIR)/lib
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

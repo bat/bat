@@ -13,6 +13,7 @@ int templatefit()
 	// check if file is open
 	if (!file->IsOpen()) {
 		std::cout << "Could not open file. Exit." << std::endl;
+		std::cerr << "Run macro CreateHistograms.C in Root to create the file." << std::endl;
 		return 1;
 	}
 

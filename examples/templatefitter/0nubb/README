@@ -11,7 +11,7 @@ steps. Four files are part of this example.
 
 Files:
 ------
-CreateHistogram.c   - this needs to be run first to generate the
+CreateHistogram.C   - this needs to be run first to generate the
                       templates and a data set
 
 Makefile            - the Makefile
@@ -27,7 +27,7 @@ How to run:
 1) Create the necessary histograms for the example by running the
    macro:
 
-   root CreateHistograms.c
+   root CreateHistograms.C
 
 2) Create the executables: 
 

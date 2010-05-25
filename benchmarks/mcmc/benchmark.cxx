@@ -55,7 +55,6 @@ int main()
 	delete testfunc;
 	delete benchmark;
 
-
 	// test function: exponential decay
 	// ==================================
 
@@ -63,6 +62,29 @@ int main()
 	testfunc->SetParameters(1,0.2);
 
 	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcexpo1d.root");
+
+	benchmark->MCMCSetNIterationsRun(100000);
+
+	benchmark->MCMCMetropolis();
+
+	benchmark->ProcessMCTrees();
+	benchmark->PerformLagsTest();
+	benchmark->PerformIterationsTest();
+
+	benchmark->WriteResults();
+
+	delete testfunc;
+	delete benchmark;
+
+
+	// test function: two gaussians far away from each other
+	// ==================================
+
+	testfunc = new TF1("twoGaus",
+		"[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2) + [4]*exp(-0.5*((x-[5])/[6])**2))", xmin, xmax);
+	testfunc->SetParameters(1.,   10., 0., 0.1,  10., 5., 0.2);
+
+	benchmark = new BCBenchmarkMCMC(testfunc,"twoGaus.root");
 
 	benchmark->MCMCSetNIterationsRun(100000);
 
@@ -127,6 +149,8 @@ int main()
 	// define the range for the test
 	double ymin = 0.0, ymax = 20.0;
 
+	TF2 * testfunc2 = 0;
+	BCBenchmarkMCMC2D * benchmark2 = 0;
 
 	// test 2D function: gaus2
 	// =================================
@@ -135,6 +159,30 @@ int main()
 	testfunc2->SetParameters(1,4,2,8,1);
 
 	BCBenchmarkMCMC2D *benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
+
+	benchmark2->MCMCSetNIterationsRun(100000);
+
+	benchmark2->MCMCMetropolis();
+
+	benchmark2->ProcessMCTrees();
+	benchmark2->PerformLagsTest();
+	benchmark2->PerformIterationsTest();
+
+	benchmark2->WriteResults();
+
+	delete testfunc2;
+	delete benchmark2;
+
+
+	// test function: two gaussians far away from each other
+	// ==================================
+
+	testfunc2 = new TF2("twoGaus2",
+		"[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2)*exp(-0.5*((y-[4])/[5])**2) + [6]*exp(-0.5*((x-[7])/[8])**2)*exp(-0.5*((y-[9])/[10])**2))",
+		xmin, xmax, ymin, ymax);
+	testfunc2->SetParameters(1.,   10., 0., 0.1,  5., 0.3,    10., 5., 0.2,  10., 0.2);
+
+	benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"twoGaus2.root");
 
 	benchmark2->MCMCSetNIterationsRun(100000);
 
@@ -175,7 +223,6 @@ int main()
 
 	delete testfunc3;
 	delete benchmark3;
-
 
 	return 0;
 }

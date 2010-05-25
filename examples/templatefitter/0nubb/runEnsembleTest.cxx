@@ -1,8 +1,8 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
-#include <models/BCTemplateFitter.h>
-#include <models/BCTemplateEnsembleTest.h>
+#include <BAT/BCTemplateFitter.h>
+#include <BAT/BCTemplateEnsembleTest.h>
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -18,7 +18,8 @@ int main()
 
 	// check if file is open
 	if (!file->IsOpen()) {
-		std::cout << "Could not open file. Exit." << std::endl;
+		std::cerr << "Could not open file. Exit." << std::endl;
+		std::cerr << "Run macro CreateHistograms.C in Root to create the file." << std::endl;
 		return 1;
 	}
 

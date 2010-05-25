@@ -1,7 +1,7 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
-#include <models/BCTemplateFitter.h>
+#include <BAT/BCTemplateFitter.h>
 
 #include <TFile.h>
 #include <TH1D.h>

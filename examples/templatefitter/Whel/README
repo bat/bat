@@ -11,28 +11,28 @@ exaplains the individual steps. Three files are part of this example.
 
 Files: 
 ------
-CreateHistogram.c - this needs to be run first to generate the
+CreateHistogram.C - this needs to be run first to generate the
                     templates and a data set. Feel free to modify the 
                     templates here. 
 
-templatefit.cxx   - this macro performs a template fit to a single data
+templatefit.C     - this macro performs a template fit to a single data
                     set
 
-ensembletest.cxx  - this macro performs an ensemble test for a given
+ensembletest.C    - this macro performs an ensemble test for a given
                     combination of templates.
 
 How to run:
 -----------
 1) Create the necessary histograms for the example by running the
-   macro CreateHistograms.c:
+   macro CreateHistograms.C:
 
-   root CreateHistograms.c
+   root CreateHistograms.C
 
 2) To perform an analysis on a single data set run the macro:
 
-   root templatefit.cxx 
+   root templatefit.C
 
 3) To perform ensemble tests run the macro:
 
-   root ensembletest.cxx 
+   root ensembletest.C
 
