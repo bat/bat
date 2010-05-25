@@ -24,127 +24,140 @@
 // the first parameter of the function should be a normalization factor
 int main()
 {
+	
+	// tests to be performed:
+	bool test_1d_gaus         = true; 
+	bool test_1d_exponential  = true;
+	bool test_1d_twogaussians = true;
+	bool test_1d_sin2x2       = true;
+	bool test_1d_cauchy       = true;
+	bool test_2d_gaus         = true;
+	bool test_2d_twogaussians = true;
+	bool test_3d_gaus         = true;
+	
 	//BCAux::SetStyle();
-
+	
 	BCLog::OpenLog("benchmark.log", BCLog::detail, BCLog::detail);
-
+	
 	// define the range for the test
 	double xmin = -4.0, xmax = 16.0;
-
+	
 	TF1 * testfunc = 0;
 	BCBenchmarkMCMC * benchmark = 0;
-
+	
 	// test function: gaus
 	// =================================
-
-	testfunc = new TF1("Gaussian", "gaus", xmin, xmax);
-	testfunc->SetParameters(2,3,4);
-
-	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcgaus1d.root");
-
-	benchmark->MCMCSetNIterationsRun(100000);
-
-	benchmark->MCMCMetropolis();
-
-	benchmark->ProcessMCTrees();
-	benchmark->PerformLagsTest();
-	benchmark->PerformIterationsTest();
-
-	benchmark->WriteResults();
-
-	delete testfunc;
-	delete benchmark;
-
+	if (test_1d_gaus) {
+		testfunc = new TF1("Gaussian", "gaus", xmin, xmax);
+		testfunc->SetParameters(2,3,4);
+		
+		benchmark = new BCBenchmarkMCMC(testfunc,"mcmcgaus1d.root");
+		
+		benchmark->MCMCSetNIterationsRun(100000);
+		
+		benchmark->MCMCMetropolis();
+		
+		benchmark->ProcessMCTrees();
+		benchmark->PerformLagsTest();
+		benchmark->PerformIterationsTest();
+		
+		benchmark->WriteResults();
+		
+		delete testfunc;
+		delete benchmark;
+	}
+	
 	// test function: exponential decay
 	// ==================================
-
-	testfunc = new TF1("Exponential decay", "[0]*exp(-[1]*x)", xmin, xmax);
-	testfunc->SetParameters(1,0.2);
-
-	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcexpo1d.root");
-
-	benchmark->MCMCSetNIterationsRun(100000);
-
-	benchmark->MCMCMetropolis();
-
-	benchmark->ProcessMCTrees();
-	benchmark->PerformLagsTest();
-	benchmark->PerformIterationsTest();
-
-	benchmark->WriteResults();
-
-	delete testfunc;
-	delete benchmark;
-
+	if (test_1d_exponential) {
+		testfunc = new TF1("Exponential decay", "[0]*exp(-[1]*x)", xmin, xmax);
+		testfunc->SetParameters(1,0.2);
+		
+		benchmark = new BCBenchmarkMCMC(testfunc,"mcmcexpo1d.root");
+		
+		benchmark->MCMCSetNIterationsRun(100000);
+		
+		benchmark->MCMCMetropolis();
+		
+		benchmark->ProcessMCTrees();
+		benchmark->PerformLagsTest();
+		benchmark->PerformIterationsTest();
+		
+		benchmark->WriteResults();
+		
+		delete testfunc;
+		delete benchmark;
+	}
 
 	// test function: two gaussians far away from each other
 	// ==================================
 
-	testfunc = new TF1("twoGaus",
-		"[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2) + [4]*exp(-0.5*((x-[5])/[6])**2))", xmin, xmax);
-	testfunc->SetParameters(1.,   10., 0., 0.1,  10., 5., 0.2);
-
-	benchmark = new BCBenchmarkMCMC(testfunc,"twoGaus.root");
-
-	benchmark->MCMCSetNIterationsRun(100000);
-
-	benchmark->MCMCMetropolis();
-
-	benchmark->ProcessMCTrees();
-	benchmark->PerformLagsTest();
-	benchmark->PerformIterationsTest();
-
-	benchmark->WriteResults();
-
-	delete testfunc;
-	delete benchmark;
-
+	if (test_1d_twogaussians) {
+		testfunc = new TF1("twoGaus",
+											 "[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2) + [4]*exp(-0.5*((x-[5])/[6])**2))", xmin, xmax);
+		testfunc->SetParameters(1.,   10., 0., 0.1,  10., 5., 0.2);
+		
+		benchmark = new BCBenchmarkMCMC(testfunc,"twoGaus.root");
+		
+		benchmark->MCMCSetNIterationsRun(100000);
+		
+		benchmark->MCMCMetropolis();
+		
+		benchmark->ProcessMCTrees();
+		benchmark->PerformLagsTest();
+		benchmark->PerformIterationsTest();
+		
+		benchmark->WriteResults();
+		
+		delete testfunc;
+		delete benchmark;
+	}
 
 	// test function: x^4 * sin^2(x)
 	// ==================================
+	if (test_1d_sin2x2) {
+		testfunc = new TF1("x4sin2x", "[0]*x*x*x*x*sin(x)*sin(x)", xmin, xmax);
+		testfunc->SetParameter(0,1.);
+		
+		benchmark = new BCBenchmarkMCMC(testfunc,"mcmcx4sin2x1d.root");
 
-	testfunc = new TF1("x4sin2x", "[0]*x*x*x*x*sin(x)*sin(x)", xmin, xmax);
-	testfunc->SetParameter(0,1.);
+		benchmark->MCMCSetNIterationsRun(100000);
 
-	benchmark = new BCBenchmarkMCMC(testfunc,"mcmcx4sin2x1d.root");
+		benchmark->MCMCMetropolis();
 
-	benchmark->MCMCSetNIterationsRun(100000);
+		benchmark->ProcessMCTrees();
+		benchmark->PerformLagsTest();
+		benchmark->PerformIterationsTest();
 
-	benchmark->MCMCMetropolis();
-
-	benchmark->ProcessMCTrees();
-	benchmark->PerformLagsTest();
-	benchmark->PerformIterationsTest();
-
-	benchmark->WriteResults();
-
-	delete testfunc;
-	delete benchmark;
-
+		benchmark->WriteResults();
+		
+		delete testfunc;
+		delete benchmark;
+	}
 
 	// test function: Cauchy distribution
 	// (probably interesting because it has no mean, variance or skwness
 	// defined)
 	// ==================================
+	if (test_1d_cauchy) {
+		testfunc = new TF1("cauchy", "[0] * [1] / (3.14159 * ( (x-[2])**2 +[1]**2))",xmin, xmax);
+		testfunc->SetParameters(1.,1.,3.);
 
-	testfunc = new TF1("cauchy", "[0] * [1] / (3.14159 * ( (x-[2])**2 +[1]**2))",xmin, xmax);
-	testfunc->SetParameters(1.,1.,3.);
+		benchmark = new BCBenchmarkMCMC(testfunc,"mcmccauchy.root");
 
-	benchmark = new BCBenchmarkMCMC(testfunc,"mcmccauchy.root");
+		benchmark->MCMCSetNIterationsRun(100000);
 
-	benchmark->MCMCSetNIterationsRun(100000);
+		benchmark->MCMCMetropolis();
 
-	benchmark->MCMCMetropolis();
+		benchmark->ProcessMCTrees();
+		benchmark->PerformLagsTest();
+		benchmark->PerformIterationsTest();
 
-	benchmark->ProcessMCTrees();
-	benchmark->PerformLagsTest();
-	benchmark->PerformIterationsTest();
+		benchmark->WriteResults();
 
-	benchmark->WriteResults();
-
-	delete testfunc;
-	delete benchmark;
-
+		delete testfunc;
+		delete benchmark;
+	}
 
 	// define the range for the test
 	double ymin = 0.0, ymax = 20.0;
@@ -154,75 +167,76 @@ int main()
 
 	// test 2D function: gaus2
 	// =================================
+	if (test_2d_gaus) {
+		testfunc2 = new TF2("gaus2","xygausn",xmin,xmax,ymin,ymax);
+		testfunc2->SetParameters(1,4,2,8,1);
 
-	testfunc2 = new TF2("gaus2","xygausn",xmin,xmax,ymin,ymax);
-	testfunc2->SetParameters(1,4,2,8,1);
+		benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
 
-	benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"mcmcgaus2d.root");
+		benchmark2->MCMCSetNIterationsRun(100000);
 
-	benchmark2->MCMCSetNIterationsRun(100000);
+		benchmark2->MCMCMetropolis();
 
-	benchmark2->MCMCMetropolis();
+		benchmark2->ProcessMCTrees();
+		benchmark2->PerformLagsTest();
+		benchmark2->PerformIterationsTest();
 
-	benchmark2->ProcessMCTrees();
-	benchmark2->PerformLagsTest();
-	benchmark2->PerformIterationsTest();
+		benchmark2->WriteResults();
 
-	benchmark2->WriteResults();
-
-	delete testfunc2;
-	delete benchmark2;
-
+		delete testfunc2;
+		delete benchmark2;
+	}
 
 	// test function: two gaussians far away from each other
 	// ==================================
+	if (test_2d_twogaussians) {
+		testfunc2 = new TF2("twoGaus2",
+												"[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2)*exp(-0.5*((y-[4])/[5])**2) + [6]*exp(-0.5*((x-[7])/[8])**2)*exp(-0.5*((y-[9])/[10])**2))",
+												xmin, xmax, ymin, ymax);
+		testfunc2->SetParameters(1.,   10., 0., 0.1,  5., 0.3,    10., 5., 0.2,  10., 0.2);
+		
+		benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"twoGaus2.root");
+		
+		benchmark2->MCMCSetNIterationsRun(100000);
 
-	testfunc2 = new TF2("twoGaus2",
-		"[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2)*exp(-0.5*((y-[4])/[5])**2) + [6]*exp(-0.5*((x-[7])/[8])**2)*exp(-0.5*((y-[9])/[10])**2))",
-		xmin, xmax, ymin, ymax);
-	testfunc2->SetParameters(1.,   10., 0., 0.1,  5., 0.3,    10., 5., 0.2,  10., 0.2);
+		benchmark2->MCMCMetropolis();
 
-	benchmark2 = new BCBenchmarkMCMC2D(testfunc2,"twoGaus2.root");
+		benchmark2->ProcessMCTrees();
+		benchmark2->PerformLagsTest();
+		benchmark2->PerformIterationsTest();
 
-	benchmark2->MCMCSetNIterationsRun(100000);
+		benchmark2->WriteResults();
 
-	benchmark2->MCMCMetropolis();
-
-	benchmark2->ProcessMCTrees();
-	benchmark2->PerformLagsTest();
-	benchmark2->PerformIterationsTest();
-
-	benchmark2->WriteResults();
-
-	delete testfunc2;
-	delete benchmark2;
-
+		delete testfunc2;
+		delete benchmark2;
+	}
 
 	// define range for z dimension
 	double zmin = 0.0, zmax = 20.0;
 
 	// test 3D function: gaus3 (3-dimensional gaussian)
 	// =================================
-
-	TF3 *testfunc3 = new TF3("gaus3",
-			"[0] * exp(-0.5*((x-[1])/[2])**2) * exp(-0.5*((y-[3])/[4])**2) * exp(-0.5*((z-[5])/[6])**2)",
-			xmin, xmax, ymin, ymax, zmin, zmax);
-	testfunc3->SetParameters(1., 4., 2., 8., 1., 8., 1.);
-
-	BCBenchmarkMCMC3D *benchmark3 = new BCBenchmarkMCMC3D(testfunc3,"mcmcgaus3d.root");
-
-	benchmark3->MCMCSetNIterationsRun(100000);
-
-	benchmark3->MCMCMetropolis();
-
-	benchmark3->ProcessMCTrees();
-	benchmark3->PerformLagsTest();
-	benchmark3->PerformIterationsTest();
-
-	benchmark3->WriteResults();
-
-	delete testfunc3;
-	delete benchmark3;
+	if (test_3d_gaus) {
+		TF3 *testfunc3 = new TF3("gaus3",
+														 "[0] * exp(-0.5*((x-[1])/[2])**2) * exp(-0.5*((y-[3])/[4])**2) * exp(-0.5*((z-[5])/[6])**2)",
+														 xmin, xmax, ymin, ymax, zmin, zmax);
+		testfunc3->SetParameters(1., 4., 2., 8., 1., 8., 1.);
+		
+		BCBenchmarkMCMC3D *benchmark3 = new BCBenchmarkMCMC3D(testfunc3,"mcmcgaus3d.root");
+		
+		benchmark3->MCMCSetNIterationsRun(100000);
+		
+		benchmark3->MCMCMetropolis();
+		
+		benchmark3->ProcessMCTrees();
+		benchmark3->PerformLagsTest();
+		benchmark3->PerformIterationsTest();
+		
+		benchmark3->WriteResults();
+		
+		delete testfunc3;
+		delete benchmark3;
+	}
 
 	return 0;
 }
