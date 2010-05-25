@@ -1,3 +1,6 @@
+2010-05-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC: fill histograms not in loop for ordered parameters
+
 2010-05-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Tested setting of single prior
 	* BCSummaryTool.cxx: set labels of correlation plot to 

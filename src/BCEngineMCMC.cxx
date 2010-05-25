@@ -1149,6 +1149,7 @@ int BCEngineMCMC::MCMCMetropolis()
 				// update search for maximum
 				this->MCMCInChainCheckMaximum();
 
+				/*
 				// check if the current iteration is consistent with the lag
 				if ( (fMCMCNParameters * iiterations + iparameters) % (fMCMCNLag * fMCMCNParameters) == 0)
 				{
@@ -1162,8 +1163,23 @@ int BCEngineMCMC::MCMCMetropolis()
 					// do anything interface
 					this->MCMCIterationInterface();
 				}
+				*/
 
 			} // end loop over all parameters
+			
+			// check if the current iteration is consistent with the lag
+			if ( iiterations % fMCMCNLag == 0)
+				{
+					// fill histograms
+					this->MCMCInChainFillHistograms();
+					
+					// write chain to file
+					if (fMCMCFlagWriteChainToFile)
+						this->MCMCInChainWriteChains();
+					
+					// do anything interface
+					this->MCMCIterationInterface();
+				}
 		}
 		// if the flag is not set then run over the parameters at the same time.
 		else
