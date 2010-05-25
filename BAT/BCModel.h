@@ -365,6 +365,30 @@ class BCModel : public BCIntegrate
 		 */ 
 		int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup);
 
+		/**
+		 * Set constant prior for this parameter
+		 * @param index the index of the parameter
+		 * @return An error code
+		 */
+		int SetPriorConstant(int index);
+
+      /**
+       * Set constant prior for this parameter
+       * @param name the name of the parameter
+       * @return An error code
+       */
+		int SetPriorConstant(const char* name);
+
+      /**
+       * Enable caching the constant value of the prior, so LogAPrioriProbability
+       * is called only once. Note that the prior for ALL parameters is
+       * assumed to be constant. The value is computed from
+       * the parameter ranges, so make sure these are defined before this method is
+       * called.
+       * @return An error code
+       */
+      int SetPriorConstantAll();
+
 		/* @} */
 
 		/** \name Member functions (miscellaneous methods) */
@@ -771,6 +795,22 @@ class BCModel : public BCIntegrate
 		/*
 		 * A vector of prior functions. */ 
 		std::vector<TF1*> fPriorContainer;
+
+		/**
+		 * Flag to indicate that all parameters have constant prior.
+		 */
+		bool fPriorConstantAll;
+
+		/**
+		 * The value of the product of constant priors of
+		 * individual parameters.
+		 */
+		double fPriorConstantValue;
+
+		/**
+		 * List the parameters whose prior is constant
+		 */
+		std::vector<bool> fPriorContainerConstant;
 
 	private:
 

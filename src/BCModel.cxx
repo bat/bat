@@ -68,6 +68,9 @@ BCModel::BCModel(const char * name)
    fGoFNIterationsRun = 2000;
 
    flag_discrete = false;
+
+   fPriorConstantAll = false;
+   fPriorConstantValue = 0;
 }
 
 // ---------------------------------------------------------
@@ -95,6 +98,9 @@ BCModel::BCModel()
    fGoFNIterationsRun = 2000;
 
    flag_discrete = false;
+
+   fPriorConstantAll = false;
+   fPriorConstantValue = 0;
 }
 
 // ---------------------------------------------------------
@@ -525,7 +531,10 @@ int BCModel::AddParameter(BCParameter * parameter)
    // add empty function to prior container
    fPriorContainer.push_back(0); 
 
-   // add parameters to integation methods
+   // prior assumed to be non-constant in general case
+   fPriorContainerConstant.push_back(false);
+
+   // add parameters to integration methods
    SetParameters(fParameterSet);
 
    return 0;
@@ -539,7 +548,10 @@ double BCModel::LogProbabilityNN(std::vector<double> parameters)
    double logprob = LogLikelihood(parameters);
 
    // add log of prior probability
-   logprob += LogAPrioriProbability(parameters);
+   if(fPriorConstantAll)
+      logprob += fPriorConstantValue;
+   else
+      logprob += LogAPrioriProbability(parameters);
 
    return logprob;
 }
@@ -573,26 +585,38 @@ double BCModel::LogLikelihood(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCModel::LogAPrioriProbability(std::vector <double> parameters)
+double BCModel::LogAPrioriProbability(std::vector<double> parameters)
 {
-  double logprob = 0; 
+   double logprob = 0;
 
-  // get number of parameters
-  int npar = GetNParameters(); 
+   // get number of parameters
+   int npar = GetNParameters();
 
-  // loop over all 1-d priors
-  for (int i = 0; i < npar; ++i) {
-    // get prior function
-    TF1* f = fPriorContainer.at(i);
+   // loop over all 1-d priors
+   for (int i = 0; i < npar; ++i) {
+      // get prior function
+      TF1* f = fPriorContainer.at(i);
 
-    // check if prior exists 
-		if (f) 
-			logprob += log( f->Eval(parameters.at(i)) ); 
-		else
-			logprob -= log(GetParameter(i)->GetRangeWidth());
-	}
+      // check if prior exists
+      if (f)
+         logprob += log(f->Eval(parameters.at(i)));
 
-  return logprob; 
+      //use constant only if user has defined it
+      else {
+         if (!fPriorContainerConstant[i]) {
+            BCLog::OutWarning(Form(
+                  "BCModel::LogAPrioriProbability: Prior for parameter %s "
+                     "is undefined. Using constant prior to proceed.",
+                  GetParameter(i)->GetName().c_str()));
+            logprob -= log(GetParameter(i)->GetRangeWidth());
+         }
+      }
+   }
+
+   //add the contribution from constant priors in one step
+   logprob += fPriorConstantValue;
+
+   return logprob;
 }
 
 // ---------------------------------------------------------
@@ -1788,7 +1812,71 @@ int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, dou
 }
 
 // ---------------------------------------------------------
+int BCModel::SetPriorConstant(int index)
+{
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior. Index out of range.");
+      return 0;
+   }
 
+   //set prior to a constant
+   fPriorContainerConstant[index] = true;
+
+   //update value of constant
+   fPriorConstantValue -= log(GetParameter(index)->GetRangeWidth());
+
+   //no error in Kevin's funny convention
+   return 1;
+}
+
+// ---------------------------------------------------------
+int BCModel::SetPriorConstant(const char* name)
+{
+   // find index
+   int index = -1;
+   for (unsigned int i = 0; i < GetNParameters(); i++) {
+      if (name == GetParameter(i)->GetName()) {
+         index = i;
+         break;
+      }
+   }
+
+   if (index == -1) {
+      BCLog::OutError(Form(
+            "BCModel::SetPriorConstant. parameter '%s' doesn't exist.", name));
+      return 0;
+   }
+
+   return SetPriorConstant(index);
+}
+
+// ---------------------------------------------------------
+int BCModel::SetPriorConstantAll()
+{
+   double logprob = 0;
+
+   // get number of parameters
+   int nPar = GetNParameters();
+
+   if (nPar == 0)
+      BCLog::OutWarning("BCModel::SetPriorConstantAll. No parameters defined.");
+
+   // loop over all 1-d priors
+   for (int i = 0; i < nPar; ++i) {
+
+      logprob -= log(GetParameter(i)->GetRangeWidth());
+   }
+
+   fPriorConstantAll = true;
+
+   fPriorConstantValue = logprob;
+
+   //no error in Kevin's funny convention
+   return 1;
+}
+
+// ---------------------------------------------------------
 void BCModel::PrintSummary()
 {
    int nparameters = GetNParameters();

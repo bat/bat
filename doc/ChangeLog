@@ -1,3 +1,9 @@
+2010-04-25 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCModel:
+	  - methods to set constant prior for individual and all parameters at once
+	  - warnings if no prior is set for a parameter
+	  - automatic caching of the value of the constant prior
+
 2010-05-18 Daniel Kollar <daniel.kollar@cern.ch>
 	* examples/simplecompiled:
 	  - fixed likelihood calculation
