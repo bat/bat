@@ -35,56 +35,58 @@
 
 class BCBenchmarkMCMC : public BCModel, public BCModelOutput
 {
-	public:
+ public:
+	
+	BCBenchmarkMCMC(
+									TF1* testFunction = NULL,
+									const char* outputFile = "MCMCtest.root",
+									const char* modelName = "BenchmarkMCMC"
+									);
+	~BCBenchmarkMCMC();
 
-		BCBenchmarkMCMC(
-				TF1* testFunction = NULL,
-				const char* outputFile = "MCMCtest.root",
-				const char* modelName = "BenchmarkMCMC");
-		~BCBenchmarkMCMC();
+	// inherited methods
+	double LogAPrioriProbability(std::vector <double> parameters)
+	{return 0;}
 
-		// inherited methods
-		double LogAPrioriProbability(std::vector <double> parameters)
-		{return 0;}
+	double LogLikelihood(std::vector <double> parameters)
+	{return log(fTestFunction->Eval(parameters[0]));}
 
-		double LogLikelihood(std::vector <double> parameters)
-		{return log(fTestFunction->Eval(parameters[0]));}
+	// own methods
+	void ProcessMCTrees();
 
-		// own methods
-		void ProcessMCTrees();
+	void PerformLagsTest();
+	void PerformIterationsTest();
 
-		void PerformLagsTest();
-		void PerformIterationsTest();
+	void WriteResults();
+	void PrintComparison(const char* filename);
 
-		void WriteResults();
+ private:
 
-	private:
+	void ProcessMCTree(int chainID=0);
+	void Chi2vsLagsOfChain(int chainID=0);
+	void Chi2vsIterOfChain(int chainID=0);
 
-		void ProcessMCTree(int chainID=0);
-		void Chi2vsLagsOfChain(int chainID=0);
-		void Chi2vsIterOfChain(int chainID=0);
+	void KolmogorovVsLagsOfChain(int chainID=0);
+	void KolmogorovVsIterOfChain(int chainID=0);
 
-		void KolmogorovVsLagsOfChain(int chainID=0);
-		void KolmogorovVsIterOfChain(int chainID=0);
+	int fNbinx;
+	double fXmin, fXmax;
 
-		int fNbinx;
-		double fXmin, fXmax;
+	static const int fMaxChains = 5;
+	static const int fMaxLags = 31; // lag = 1,2,...,30
+	static const int fMax10thOfIters = 11; // iterations/10*(1,2,...10)
 
-		static const int fMaxChains = 5;
-		static const int fMaxLags = 31; // lag = 1,2,...,30
-		static const int fMax10thOfIters = 11; // iterations/10*(1,2,...10)
+	TF1* fTestFunction;
+	TF1* fFitFunction;
 
-		TF1* fTestFunction;
-		TF1* fFitFunction;
+	TH1F* fHistXLags[fMaxChains][fMaxLags];
+	TH1F* fHistXIter[fMaxChains][fMax10thOfIters];
 
-		TH1F* fHistXLags[fMaxChains][fMaxLags];
-		TH1F* fHistXIter[fMaxChains][fMax10thOfIters];
+	TH1F* fHChi2vsLags[fMaxChains];
+	TH1F* fHChi2vsIter[fMaxChains];
 
-		TH1F* fHChi2vsLags[fMaxChains];
-		TH1F* fHChi2vsIter[fMaxChains];
-
-		TH1F* fHKolmogorovProbVsLags[fMaxChains];
-		TH1F* fHKolmogorovProbVsIter[fMaxChains];
+	TH1F* fHKolmogorovProbVsLags[fMaxChains];
+	TH1F* fHKolmogorovProbVsIter[fMaxChains];
 
 };
 

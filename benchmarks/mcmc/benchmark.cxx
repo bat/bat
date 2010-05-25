@@ -8,7 +8,7 @@
 
 //=============================================================================
 
-//#include "BAT/BCAux.h"
+#include "BAT/BCAux.h"
 #include "BAT/BCLog.h"
 
 #include "BCBenchmarkMCMC.h"
@@ -26,16 +26,17 @@ int main()
 {
 	
 	// tests to be performed:
-	bool test_1d_gaus         = true; 
-	bool test_1d_exponential  = true;
-	bool test_1d_twogaussians = true;
-	bool test_1d_sin2x2       = true;
-	bool test_1d_cauchy       = true;
-	bool test_2d_gaus         = true;
-	bool test_2d_twogaussians = true;
-	bool test_3d_gaus         = true;
+	bool test_1d_gaus         = false; 
+	bool test_1d_exponential  = false;
+	bool test_1d_poisson      = true;
+	bool test_1d_twogaussians = false;
+	bool test_1d_sin2x2       = false;
+	bool test_1d_cauchy       = false;
+	bool test_2d_gaus         = false;
+	bool test_2d_twogaussians = false;
+	bool test_3d_gaus         = false;
 	
-	//BCAux::SetStyle();
+	BCAux::SetStyle();
 	
 	BCLog::OpenLog("benchmark.log", BCLog::detail, BCLog::detail);
 	
@@ -89,25 +90,50 @@ int main()
 		delete benchmark;
 	}
 
-	// test function: two gaussians far away from each other
-	// ==================================
-
-	if (test_1d_twogaussians) {
-		testfunc = new TF1("twoGaus",
-											 "[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2) + [4]*exp(-0.5*((x-[5])/[6])**2))", xmin, xmax);
-		testfunc->SetParameters(1.,   10., 0., 0.1,  10., 5., 0.2);
+	// test function: Poisson
+	// =================================
+	if (test_1d_poisson) {
+		testfunc = new TF1("Poisson", "TMath::PoissonI([0], x)", 0, 40);
+		testfunc->SetParameter(0, 10);
 		
-		benchmark = new BCBenchmarkMCMC(testfunc,"twoGaus.root");
+		benchmark = new BCBenchmarkMCMC(testfunc,"poisson1d.root");
 		
 		benchmark->MCMCSetNIterationsRun(100000);
+		benchmark->MCMCSetNLag(10);
 		
-		benchmark->MCMCMetropolis();
+		benchmark->MarginalizeAll();
 		
 		benchmark->ProcessMCTrees();
 		benchmark->PerformLagsTest();
 		benchmark->PerformIterationsTest();
 		
 		benchmark->WriteResults();
+		benchmark->PrintComparison("comparison_poisson1d.ps");
+		
+		delete testfunc;
+		delete benchmark;
+	}
+	
+	// test function: two gaussians far away from each other
+	// ==================================
+
+	if (test_1d_twogaussians) {
+		testfunc = new TF1("twoGaus",
+											 "[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2) + [4]*exp(-0.5*((x-[5])/[6])**2))", -2., 8.);
+		testfunc->SetParameters(1.,   10., 0., 0.1,  10., 5., 0.2);
+		
+		benchmark = new BCBenchmarkMCMC(testfunc,"twoGaus.root");
+		
+		benchmark->MCMCSetNIterationsRun(100000);
+		
+		benchmark->MarginalizeAll();
+		
+		benchmark->ProcessMCTrees();
+		benchmark->PerformLagsTest();
+		benchmark->PerformIterationsTest();
+		
+		benchmark->WriteResults();
+		benchmark->PrintComparison("comparison_twoGaus.ps");
 		
 		delete testfunc;
 		delete benchmark;

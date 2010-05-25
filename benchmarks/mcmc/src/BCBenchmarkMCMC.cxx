@@ -10,8 +10,11 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TCanvas.h>
+#include <TPostScript.h> 
 
 #include "BAT/BCLog.h"
+#include "BAT/BCH1D.h"
 
 #include "BCBenchmarkMCMC.h"
 
@@ -20,10 +23,11 @@
 //=============================================================================
 
 BCBenchmarkMCMC::BCBenchmarkMCMC(
-		TF1* testFunction,
-		const char* outputFile,
-		const char* modelName)
-:BCModel(modelName), BCModelOutput(), fNbinx(100)
+																 TF1* testFunction,
+																 const char* outputFile,
+																 const char* modelName
+																 )
+	: BCModel(modelName), BCModelOutput(), fNbinx(100)
 {
 	BCLog::OutSummary(" setup test function ...");
 	if (!testFunction) {
@@ -42,7 +46,7 @@ BCBenchmarkMCMC::BCBenchmarkMCMC(
 
 	BCLog::OutSummary(" setup fitting function ...");
 	fFitFunction = new TF1("fFitFunction",
-			fTestFunction->GetExpFormula().Data(),fXmin,fXmax);
+												 fTestFunction->GetExpFormula().Data(),fXmin,fXmax);
 	for (int i=1; i<fTestFunction->GetNpar(); i++)
 		fFitFunction->FixParameter(i,fTestFunction->GetParameter(i));
 
@@ -61,24 +65,24 @@ BCBenchmarkMCMC::BCBenchmarkMCMC(
 	for (int i=0; i<fMaxChains; i++) {
 		for (int j=1; j<fMaxLags; j++)
 			fHistXLags[i][j] = new TH1F(Form("fHistXChain%dLag%d",i,j),
-					Form("lag of %d",j), fNbinx,fXmin,fXmax);
+																	Form("lag of %d",j), fNbinx,fXmin,fXmax);
 
 		for (int j=1; j<fMax10thOfIters; j++)
 			fHistXIter[i][j] = new TH1F(Form("fHistXChain%dIter%d0",i,j),
-					Form("after %d%% of total iterations",j*10),
-					fNbinx,fXmin,fXmax);
+																	Form("after %d%% of total iterations",j*10),
+																	fNbinx,fXmin,fXmax);
 
 		fHChi2vsLags[i] = new TH1F(Form("HChi2vsLagsChain%d",i),"",
-				fMaxLags-1,1,fMaxLags);
+															 fMaxLags-1,1,fMaxLags);
 		fHChi2vsIter[i] = new TH1F(Form("HChi2vsIterChain%d",i),"",
-				fMax10thOfIters-1,1,fMax10thOfIters);
+															 fMax10thOfIters-1,1,fMax10thOfIters);
 
 		fHKolmogorovProbVsLags[i] = new TH1F(
-				Form("HKolmogorovProbVsLagsChain%d", i), "",
-				fMaxLags-1, 1, fMaxLags);
+																				 Form("HKolmogorovProbVsLagsChain%d", i), "",
+																				 fMaxLags-1, 1, fMaxLags);
 		fHKolmogorovProbVsIter[i] = new TH1F(
-				Form("HKolmogorovProbVsIterChain%d", i), "",
-				fMax10thOfIters-1, 1, fMax10thOfIters);
+																				 Form("HKolmogorovProbVsIterChain%d", i), "",
+																				 fMax10thOfIters-1, 1, fMax10thOfIters);
 	}
 }
 
@@ -169,7 +173,7 @@ void BCBenchmarkMCMC::Chi2vsLagsOfChain(int chainID)
 	for (int i=1; i<fMaxLags; i++) {
 		fHistXLags[chainID][i]->Fit(fFitFunction,"bq");
 		fHChi2vsLags[chainID]->SetBinContent(i,
-				fFitFunction->GetChisquare()/fFitFunction->GetNDF());
+																				 fFitFunction->GetChisquare()/fFitFunction->GetNDF());
 	}
 }
 
@@ -190,7 +194,7 @@ void BCBenchmarkMCMC::Chi2vsIterOfChain(int chainID)
 	for (int i=1; i<fMax10thOfIters; i++) {
 		fHistXIter[chainID][i]->Fit(fFitFunction,"bq");
 		fHChi2vsIter[chainID]->SetBinContent(i,
-				fFitFunction->GetChisquare()/fFitFunction->GetNDF());
+																				 fFitFunction->GetChisquare()/fFitFunction->GetNDF());
 	}
 }
 
@@ -203,7 +207,7 @@ void BCBenchmarkMCMC::WriteResults()
 	file->cd();
 	for (int i=0; i<BCEngineMCMC::fMCMCNChains; i++) {
 		file->mkdir(Form("HistsForMCTree%d",i),
-				Form("Histograms for Markov chain tree %d",i));
+								Form("Histograms for Markov chain tree %d",i));
 		file->cd(Form("HistsForMCTree%d",i));
 
 		for (int j=1; j<fMaxLags; j++) {
@@ -251,10 +255,10 @@ void BCBenchmarkMCMC::KolmogorovVsLagsOfChain(int chainID)
 	for (int i=1; i<fMaxLags; i++) {
 		double kolmogorovProb = 0.;
 		kolmogorovProb = fHistXLags[chainID][i]->KolmogorovTest(
-				fTestFunction->GetHistogram());
+																														fTestFunction->GetHistogram());
 
 		fHKolmogorovProbVsLags[chainID]->SetBinContent(i,
-				kolmogorovProb);
+																									 kolmogorovProb);
 	}
 }
 
@@ -270,9 +274,98 @@ void BCBenchmarkMCMC::KolmogorovVsIterOfChain(int chainID)
 	for (int i=1; i<fMax10thOfIters; i++) {
 		double kolmogorovProb = 0.;
 		kolmogorovProb = fHistXIter[chainID][i]->KolmogorovTest(
-				fTestFunction->GetHistogram());
+																														fTestFunction->GetHistogram());
 
 		fHKolmogorovProbVsIter[chainID]->SetBinContent(i,
-				kolmogorovProb);
+																									 kolmogorovProb);
 	}
 }
+
+//--------------------------------------------------------------
+void BCBenchmarkMCMC::PrintComparison(const char* filename)
+{
+	// create postscript
+	TPostScript * ps = new TPostScript(filename);
+
+	// create canvas and prepare postscript
+	TCanvas * c1 = new TCanvas();
+
+	// -------------------
+	// create first page
+	// -------------------
+	c1->Update();
+	ps->NewPage();
+	c1->cd();
+	c1->SetLogy(kFALSE);
+
+	TH1D* hist = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone();
+	hist->Scale(1.0 / hist->Integral()/hist->GetBinWidth(0));
+	hist->Draw();
+	fTestFunction->SetLineColor(kRed);
+	fTestFunction->Draw("SAMEC");
+
+	// -------------------
+	// update post script
+	// -------------------
+	c1->Update();
+	ps->NewPage();
+	c1->cd();
+	c1->SetLogy(kTRUE);
+
+	hist->Draw();
+	fTestFunction->Draw("SAMEC");
+
+	// -------------------
+	// update post script
+	// -------------------
+	c1->Update();
+	ps->NewPage();
+	c1->cd();
+	c1->SetLogy(kFALSE);
+
+	TH1D* hist_line = new TH1D(*hist);
+	TH1D* hist_diff = new TH1D(*hist);
+	TH1D* hist_diff_1sigma = new TH1D(*(GetMarginalized( GetParameter(0) )->GetHistogram()));
+	hist_diff_1sigma->SetFillColor(kGreen);
+	hist_diff_1sigma->SetFillStyle(1001);
+	hist_diff_1sigma->SetMarkerSize(0); 
+	TH1D* hist_diff_2sigma = new TH1D(*hist_diff_1sigma);
+	hist_diff_2sigma->SetFillColor(kYellow);
+	TH1D* hist_diff_3sigma = new TH1D(*hist_diff_1sigma);
+	hist_diff_3sigma->SetFillColor(kRed);
+	double norm = hist_diff_1sigma->Integral(); 
+	for (int i = 1; i <= hist_diff->GetNbinsX(); ++i) {
+		hist_line->SetBinContent(i, 0);
+		hist_diff->SetBinContent(i, hist->GetBinContent(i) - fTestFunction->Eval(hist->GetBinCenter(i)));
+		hist_diff_1sigma->SetBinError(i, sqrt(hist_diff_1sigma->GetBinContent(i)) / norm);		
+		hist_diff_1sigma->SetBinContent(i, 0);		
+		hist_diff_2sigma->SetBinError(i, 2.*sqrt(hist_diff_2sigma->GetBinContent(i)) / norm);		
+		hist_diff_2sigma->SetBinContent(i, 0);		
+		hist_diff_3sigma->SetBinError(i, 3.*sqrt(hist_diff_3sigma->GetBinContent(i)) / norm);		
+		hist_diff_3sigma->SetBinContent(i, 0);		
+	}
+	hist_diff_3sigma->Draw("E3");
+	hist_diff_2sigma->Draw("SAMEE3");
+	hist_diff_1sigma->Draw("SAMECE3");
+	hist_diff->Draw("SAMEP");
+	hist_line->Draw("SAMEC");
+	hist_diff_3sigma->GetYaxis()->SetRangeUser(1.1*hist_diff->GetMinimum(), 
+																						 1.1*hist_diff->GetMaximum());
+
+	// -------------------
+	// close ps
+	c1->Update();
+	ps->Close();
+
+	// free memory
+	delete ps;
+	delete c1;
+	delete hist;
+	delete hist_line;
+	delete hist_diff;
+	delete hist_diff_1sigma;
+	delete hist_diff_2sigma;
+	delete hist_diff_3sigma;
+}
+
+//--------------------------------------------------------------
