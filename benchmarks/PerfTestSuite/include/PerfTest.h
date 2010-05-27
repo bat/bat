@@ -82,6 +82,11 @@ class PerfTest
 	std::string GetStatusString()
 		{ return ToString(GetStatus()); }; 
 
+	/** Return the current status as a string. 
+	 * @return a string. */ 
+	std::string GetStatusStringHTML()
+		{ return ToStringHTML(GetStatus()); }; 
+
 	/** Find a subtest by index
 	 * @param index the index of the subtest.
 	 * @return the subtest. */ 
@@ -106,6 +111,11 @@ class PerfTest
 	 * @param status the status code. 
 	 * @return a string. */ 
 	std::string ToString(PerfSubTest::Status status); 
+
+	/** Return the status code as a string for HTML. 
+	 * @param status the status code. 
+	 * @return a string. */ 
+	std::string ToStringHTML(PerfSubTest::Status status); 
 
 	/** Add a subtest to the container. 
 	 * @param a subtest. */ 

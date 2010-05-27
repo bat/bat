@@ -60,6 +60,34 @@ std::string PerfSubTest::ToString(PerfSubTest::Status status)
 }
 
 //______________________________________________________________________________
+std::string PerfSubTest::ToStringHTML(PerfSubTest::Status status)
+{
+	switch (status) 
+		{
+		case PerfSubTest::kGood : 
+			return std::string("<font color=\"#01DF01\">good</font>"); 
+
+		case PerfSubTest::kFlawed : 
+			return std::string("<font color=\"#FFFF00\">flawed</font>"); 
+
+		case PerfSubTest::kBad : 
+			return std::string("<font color=\"#FF8000\">bad</font>"); 
+
+		case PerfSubTest::kFatal : 
+			return std::string("<font color=\"#FF0000\">fatal</font>"); 
+
+		case PerfSubTest::kUnknown : 
+			return std::string("<font color=\"#0174DF\">unknown</font>"); 
+
+		case PerfSubTest::kOff : 
+			return std::string("<font color=\"#A4A4A4\">off</font>"); 
+
+		default :
+			return std::string("-"); 				
+		}
+}
+
+//______________________________________________________________________________
 void PerfSubTest::SetStatusRegion(PerfSubTest::Status status, double delta) 
 {
 	switch (status)

@@ -35,6 +35,13 @@ std::string PerfTest::ToString(PerfSubTest::Status status)
 }
 
 //______________________________________________________________________________
+std::string PerfTest::ToStringHTML(PerfSubTest::Status status)
+{
+	PerfSubTest st; 
+	return st.ToStringHTML(status); 
+}
+
+//______________________________________________________________________________
 int PerfTest::GetNSubtests(PerfSubTest::Status status)
 {
 	// get number of sub tests 
@@ -81,14 +88,14 @@ PerfSubTest::Status PerfTest::GetStatus()
 	else if (nunknown > 0)
 		return PerfSubTest::kUnknown;
 
-	else if (nflawed > 0 && nbad == 0)
-		return PerfSubTest::kFlawed;
+	else if (nfatal > 0)
+		return PerfSubTest::kFatal;
 
 	else if (nbad > 0)
 		return PerfSubTest::kBad;
 
-	else if (nfatal > 0)
-		return PerfSubTest::kFatal;
+	else if (nflawed > 0)
+		return PerfSubTest::kFlawed;
 
 	return PerfSubTest::kUnknown;
 }

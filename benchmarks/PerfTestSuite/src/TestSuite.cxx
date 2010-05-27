@@ -10,6 +10,7 @@
 
 #include <iostream> 
 #include <fstream>
+#include <iomanip>
 
 //______________________________________________________________________________
 TestSuite::TestSuite()
@@ -132,12 +133,12 @@ void TestSuite::PrintResultsHTML(std::string filename)
 
 	file << "<h1>Overview</h1>" << std::endl << std::endl;
 	file << "<table border=\"0\">" << std::endl;
-	file << " <tr> <th align=\"left\"> Number of tests </th> <th>" << GetNTests() << " </th> </tr>" << std::endl; 
-	file << " <tr> <th align=\"left\"> Number of successful tests </th> <th>" << GetNTests(PerfSubTest::kGood) << " </th> </tr>" << std::endl; 
-	file << " <tr> <th align=\"left\"> Number of flawed tests </th> <th>" << GetNTests(PerfSubTest::kFlawed) << " </th> </tr>" << std::endl; 
-	file << " <tr> <th align=\"left\"> Number of bad tests </th> <th>" << GetNTests(PerfSubTest::kBad) << " </th> </tr>" << std::endl; 
-	file << " <tr> <th align=\"left\"> Number of fatal tests </th> <th>" << GetNTests(PerfSubTest::kFatal) << " </th> </tr>" << std::endl; 
-	file << " <tr> <th align=\"left\"> Number of tests unkown status </th> <th>" << GetNTests(PerfSubTest::kUnknown) << " </th> </tr>" << std::endl; 
+	file << " <tr> <td align=\"left\"> Number of tests </td> <td>" << GetNTests() << " </td> </tr>" << std::endl; 
+	file << " <tr> <td align=\"left\"> Number of successful tests </td> <td>" << GetNTests(PerfSubTest::kGood) << " </td> </tr>" << std::endl; 
+	file << " <tr> <td align=\"left\"> Number of flawed tests </td> <td>" << GetNTests(PerfSubTest::kFlawed) << " </td> </tr>" << std::endl; 
+	file << " <tr> <td align=\"left\"> Number of bad tests </td> <td>" << GetNTests(PerfSubTest::kBad) << " </td> </tr>" << std::endl; 
+	file << " <tr> <td align=\"left\"> Number of fatal tests </td> <td>" << GetNTests(PerfSubTest::kFatal) << " </td> </tr>" << std::endl; 
+	file << " <tr> <td align=\"left\"> Number of tests unkown status </td> <td>" << GetNTests(PerfSubTest::kUnknown) << " </td> </tr>" << std::endl; 
 	file <<"</table>" << std::endl;
 	file << std::endl;
 
@@ -145,11 +146,15 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file << "<h1>Tests</h1>" << std::endl << std::endl;
 	int n = GetNTests(); 
 	for (int i = 0; i < n; ++i){
-		file << " <h3>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h3> " << std::endl;
+		file << " <h3>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h3>" << std::endl;
+
+		file << " Status: " << GetTest(i)->GetStatusStringHTML().data() << " </br>" << std::endl;
+		file << " Plots:  " << "<a href=\"\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </br>" << std::endl;
+		file << "<br>" << std::endl;
 
 		// loop over subtests
 		int nsub = GetTest(i) -> GetNSubtests(); 
-		file << "<table border=\"0\"" << std::endl;
+		file << "<table border=\"0\" width=\"70%\">" << std::endl;
 		file << "<tr>" << std::endl;
 		file << "  <th align=\"left\"> Subtest </th>" << std::endl; 
 		file << "  <th align=\"left\"> Status </th>" << std::endl; 
@@ -158,21 +163,25 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << "  <th align=\"left\"> delta Good </th>" << std::endl;
 		file << "  <th align=\"left\"> delta Flawed </th>" << std::endl;
 		file << "  <th align=\"left\"> delta Bad </th>" << std::endl;
+
 		file << "</tr>" << std::endl;
 		for (int j = 0; j < nsub; ++j) {
 			file << "<tr>" << std::endl;
-			file << "  <th align=\"left\"> " <<(GetTest(i) -> GetSubtest(j))->GetName() << " </th> " <<std::endl;
-			file << "  <th align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusString().data() << "</th>" << std::endl;
-			file << "  <th align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetTestValue() << "</th>" << std::endl;
-			file << "  <th align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetTargetValue()  << "</th>" << std::endl;
-			file << "  <th align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</th>" << std::endl;
-			file << "  <th align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kFlawed) << "</th>" << std::endl;
-			file << "  <th align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</th>" << std::endl;
+			file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetName() << " </td> " <<std::endl;
+			file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusStringHTML().data() << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetTestValue() << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetTargetValue()  << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kFlawed) << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</td>" << std::endl;
 			file << "</tr>" << std::endl; 
 		}
 		file << "</table>" << std::endl; 
 	}
-	file <<std::endl;
+	file << std::endl;
+	file << "<br>" << std::endl;
+	file << "<br>" << std::endl;
+	file << std::endl;
 	file <<"</body>" << std::endl << std::endl;
 	file <<"</html>" << std::endl;
 

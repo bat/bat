@@ -90,6 +90,11 @@ class PerfSubTest
 	std::string GetStatusString()
 		{ return ToString(GetStatus()); }; 
 
+	/** Return the current status as a string for HTML. 
+	 * @return a string. */ 
+	std::string GetStatusStringHTML()
+		{ return ToStringHTML(GetStatus()); }; 
+
 	/** Return the test value range of the region for the status "good",
 	 * "flawed" and "bad".
 	 * @param status the status code.
@@ -124,6 +129,11 @@ class PerfSubTest
 	 * @param status the status code. 
 	 * @return a string. */ 
 	std::string ToString(PerfSubTest::Status status); 
+
+	/** Return the status code as a string for HTML. 
+	 * @param status the status code. 
+	 * @return a string. */ 
+	std::string ToStringHTML(PerfSubTest::Status status); 
 
 	/* @} */
 
