@@ -149,7 +149,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << " <h3>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h3>" << std::endl;
 
 		file << " Status: " << GetTest(i)->GetStatusStringHTML().data() << " </br>" << std::endl;
-		file << " Plots:  " << "<a href=\"\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </br>" << std::endl;
+		file << " Plots:  " << "<a href=\""<< GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </br>" << std::endl;
 		file << "<br>" << std::endl;
 
 		// loop over subtests
