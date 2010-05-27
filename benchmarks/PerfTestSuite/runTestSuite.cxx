@@ -23,6 +23,7 @@ int main()
 	PerfTest1DFunction*	perftest_1d_flat = new PerfTest1DFunction("1d_flat", testfunc_1d_flat); 
 	ts->AddTest(perftest_1d_flat); 
 
+	/*
 	//______________________
 	// 1D slope
 	TF1* testfunc_1d_slope = new TF1("Slope", "x", 0., 10.);
@@ -105,15 +106,17 @@ int main()
 	PerfTest1DFunction*	perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus); 
 	perftest_1d_2gaus->SetNbins("x", 200);
 	ts->AddTest(perftest_1d_2gaus); 
+	*/
 
 	//______________________________________________________________________________
 	// perform all tests 
 	ts -> RunTests(); 
 
-	//	ts -> GetTest("MCMC_Poisson") -> ReadResults(); 
-
 	// print results to screen
 	ts -> PrintResultsScreen(); 
+
+	// print results to html
+	ts -> PrintResultsHTML(); 
 
 	// delete test suite 
 	delete ts;  
