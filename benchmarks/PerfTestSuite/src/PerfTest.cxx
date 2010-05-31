@@ -18,6 +18,9 @@
 PerfTest::PerfTest(std::string name) 
 	: fSubtestContainer(std::vector<PerfSubTest *>(0))
 	, fCanvasContainer(std::vector<TCanvas *>(0))
+	, fTestType(PerfTest::kUnknown)
+	, fRealTime(0.)
+	, fCpuTime(0.)
 {
 	fName = name;
 }

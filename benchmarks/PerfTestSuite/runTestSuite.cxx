@@ -21,6 +21,7 @@ int main()
 	// 1D flat
 	TF1* testfunc_1d_flat = new TF1("Flat", "1", -5., 5.0);
 	PerfTest1DFunction*	perftest_1d_flat = new PerfTest1DFunction("1d_flat", testfunc_1d_flat); 
+	perftest_1d_flat->GetSubtest("mode")->SetStatusOff(true);
 	ts->AddTest(perftest_1d_flat); 
 
 	//______________________
@@ -29,6 +30,7 @@ int main()
 	PerfTest1DFunction*	perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
 	ts->AddTest(perftest_1d_slope); 
 
+	/*
 	//______________________
 	// 1D squared
 	TF1* testfunc_1d_squared = new TF1("Squared", "400.-x*x", -20., 20.);
@@ -105,6 +107,7 @@ int main()
 	PerfTest1DFunction*	perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus); 
 	perftest_1d_2gaus->SetNbins("x", 200);
 	ts->AddTest(perftest_1d_2gaus); 
+	*/
 
 	//______________________________________________________________________________
 	// perform all tests 

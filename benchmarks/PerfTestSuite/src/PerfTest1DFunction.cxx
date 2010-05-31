@@ -22,6 +22,9 @@ PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func) : PerfTest(n
 																																		,	BCModel(name.c_str())
 																																		, fFunction(func)
 {
+	// set test type 
+	fTestType = PerfTest::kUnknown; 
+
 	// set style
 	BCAux::SetStyle();
 

@@ -31,7 +31,7 @@ class PerfTest
 	/* @{ */
 		 
 	/** An enumerator for the test categories. */ 
-	enum Status { kSampling }; 
+	enum TestType{ kUnknown, kFunction1D, kFunction2D }; 
 		 
 	/* @} */
 	/** \name Constructors and destructors  */
@@ -46,6 +46,14 @@ class PerfTest
 	/* @} */
 	/** \name Member functions (Set)  */
 	/* @{ */
+
+	/** Set real time of test. */ 
+	void SetRealTime(double time)
+	{ fRealTime = time; }; 
+
+	/** Set CPU time of test. */ 
+	void SetCpuTime(double time)
+	{ fCpuTime = time; }; 
 
 	/* @} */
 	/** \name Member functions (Get)  */
@@ -70,8 +78,7 @@ class PerfTest
 	/** Get the number of canvases.
 	 * @return the number of canvases. */
 	int GetNCanvases() 
-	{ return int(fCanvasContainer.size()); };
-	 
+	{ return int(fCanvasContainer.size()); };	 
 
 	/** Calculate and return the overall status of the test. 
 	 * @return a status code. */ 
@@ -102,6 +109,14 @@ class PerfTest
 	 * @param index the canvas index. 
 	 * @return the canvas. */
 	TCanvas* GetCanvas(int index); 
+
+	/** Get real time. */
+	double GetRealTime()
+	{ return fRealTime; }; 
+
+	/** Get CPU time. */
+	double GetCpuTime()
+	{ return fCpuTime; }; 
 
 	/* @} */
 	/** \name Member functions (misc)  */
@@ -144,6 +159,11 @@ class PerfTest
 
 	/* @} */
 
+ protected:
+
+	/** The test type. */
+	TestType fTestType;
+
  private:
 
 	/** A container of subtest which belong to the test. */ 
@@ -154,6 +174,12 @@ class PerfTest
 	
 	/** The name of the test. */ 
 	std::string fName; 
+
+	/** Real time test was running. */
+	double fRealTime; 
+
+	/** CPU time test was running. */
+	double fCpuTime; 
 };
 
 #endif
