@@ -1,3 +1,6 @@
+2010-06-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* PerfTestSuite: add tests for 2-d histograms.
+
 2010-05-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite: minor modifications of html output
 

@@ -28,7 +28,8 @@ GLIBS       += $(ROOTGLIBS) -L.-L$(BATINSTALLDIR)/lib -lBAT
 CXSRCS      = TestSuite.cxx \
               PerfTest.cxx \
               PerfSubTest.cxx \
-              PerfTest1DFunction.cxx
+              PerfTest1DFunction.cxx \
+              PerfTest2DFunction.cxx
 
 LIBA         = libBATTS.a
 LIBSO        = libBATTS.so
