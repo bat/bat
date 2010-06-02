@@ -31,6 +31,22 @@ PerfTest::~PerfTest()
 }
 	
 //______________________________________________________________________________
+std::string TypeToString(PerfTest::TestType type)
+{
+	switch (type) 
+		{
+		case PerfTest::kFunction1D : 
+			return std::string("Function1D"); 
+
+		case PerfTest::kFunction2D : 
+			return std::string("Function2D"); 
+
+		default :
+			return std::string("-"); 				
+		}
+}
+
+//______________________________________________________________________________
 std::string PerfTest::ToString(PerfSubTest::Status status)
 {
 	PerfSubTest st; 

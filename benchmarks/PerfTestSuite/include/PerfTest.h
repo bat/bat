@@ -64,6 +64,10 @@ class PerfTest
 	std::string GetName()
 		{ return fName; }; 
 
+	/** Return the test type. */
+	PerfTest::TestType GetTestType()
+		{ return fTestType; };
+
 	/** Get the number of subtests which belong to this test. 
 	 * @return the number of subtests. */ 
 	int GetNSubtests()
@@ -121,6 +125,11 @@ class PerfTest
 	/* @} */
 	/** \name Member functions (misc)  */
 	/* @{ */
+
+	/** Return the status code as a string. 
+	 * @param status the status code. 
+	 * @return a string. */ 
+	std::string TypeToString(PerfTest::TestType type); 
 
 	/** Return the status code as a string. 
 	 * @param status the status code. 

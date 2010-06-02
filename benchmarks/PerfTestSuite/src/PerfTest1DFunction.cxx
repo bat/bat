@@ -9,6 +9,8 @@
 #include <TF1.h>
 #include <TH1D.h> 
 #include <TMath.h>
+#include <TROOT.h> 
+#include <TStyle.h> 
 
 #include <BAT/BCH1D.h>
 #include <BAT/BCAux.h> 
@@ -27,6 +29,8 @@ PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func) : PerfTest(n
 
 	// set style
 	BCAux::SetStyle();
+	gStyle->SetOptFit(1);
+	//	gStyle->SetOptStat(111111);
 
 	// set options
 	MCMCSetNLag(10);
@@ -68,6 +72,7 @@ int PerfTest1DFunction::Run()
 	hist_diff_2sigma->SetFillColor(kYellow);
 	TH1D* hist_diff_3sigma = new TH1D(*hist_diff_1sigma);
 	hist_diff_3sigma->SetFillColor(kRed);
+	TH1D* hist_pull = new TH1D("", ";#Deltaf/sqrt(f);N", 50, -5.0, 5.0);
 
 	// calculate ndf 
 	int ndf = hist_marg->GetNbinsX();
@@ -89,6 +94,7 @@ int PerfTest1DFunction::Run()
 
 		// fill histograms
 		hist_diff->SetBinContent(i, n-e);
+		hist_pull->Fill( (n-e)/sqrt(e) );
 		hist_line->SetBinContent(i, 0);
 		hist_diff_1sigma->SetBinError(i, sqrt(e));		
 		hist_diff_1sigma->SetBinContent(i, 0);		
@@ -159,6 +165,12 @@ int PerfTest1DFunction::Run()
 																						 1.1*TMath::Max(hist_diff->GetMaximum(),
 																														3.0*sqrt(norm_hist*fFunction->GetMaximum()*binwidth/norm_func)));
 	AddCanvas(c2);
+
+	TCanvas* c_pull = new TCanvas();
+	c_pull->cd();
+	hist_pull->Draw();
+	hist_pull->Fit("gaus");
+	AddCanvas(c_pull); 
 
 	// no error 
 	return 1; 

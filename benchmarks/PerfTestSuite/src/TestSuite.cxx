@@ -139,7 +139,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file_main << "<body>" << std::endl << std::endl;
 
 	file_main << "<h2>Overview</h2>" << std::endl << std::endl;
-	file_main << "<table border=\"0\"  width=\"30%\">" << std::endl;
+	file_main << "<table border=\"0\"  width=\"400\">" << std::endl;
 	file_main << " <tr> <td align=\"left\"> Number of tests </td> <td>" << GetNTests() << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of successful tests </td> <td>" << GetNTests(PerfSubTest::kGood) << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of flawed tests </td> <td>" << GetNTests(PerfSubTest::kFlawed) << " </td> </tr>" << std::endl; 
@@ -149,23 +149,62 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file_main <<"</table>" << std::endl;
 	file_main << std::endl;
 
-	file_main << "<h2>Tests</h2>" << std::endl << std::endl;
-	file_main << "<table border=\"0\" width=\"30%\">" << std::endl;
-	file_main << " <tr> <th align=\"left\"> Test </th> <th align=\"left\"> Status </th> <th align=\"left\"> Link </th> </tr>" << std::endl; 		
-
-	// loop over tests
-	int n = GetNTests(); 
-	for (int i = 0; i < n; ++i){
-		file_main << " <tr>" << std::endl;
-		file_main << " <td align=\"left\"> " << (GetTest(i) -> GetName()).c_str() << " </td>" 
-							<< " <td align=\"left\"> " << GetTest(i)->GetStatusStringHTML().c_str() << " </td>"
-							<< " <td align=\"left\"> <a href=\"" << (GetTest(i)->GetName()).c_str() << ".html\">" << (GetTest(i)->GetName()).c_str() << ".html</a> </td>" << std::endl;
-		file_main << " </tr>" << std::endl; 		
+	file_main << "<h3>Function1D</h3>" << std::endl << std::endl;
+	file_main << "<table border=\"0\"  width=\"70\">" << std::endl;
+	file_main << "<tr>" << std::endl;
+	file_main << "  <th align=\"left\" width=\"15%\"> Test </th>" << std::endl; 
+	file_main << "  <th align=\"left\"> Status </th>" << std::endl; 
+	file_main << "  <th align=\"left\"> Subtests </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Good </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Flawed </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Bad </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
+	file_main << "</tr>" << std::endl;
+	for (int i = 0; i < GetNTests(); ++i) {
+		if (GetTest(i)->GetTestType() == PerfTest::kFunction1D) {
+			file_main << " <tr>";
+			file_main << " <td align=\"left\"><a href=\"" << (GetTest(i)->GetName()).c_str() << ".html\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFlawed) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kBad) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFatal) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kUnknown) << "</td></tr>" << std::endl;
+		}
 	}
 	file_main <<"</table>" << std::endl;
 
+	file_main << "<h3>Function2D</h3>" << std::endl << std::endl;
+	file_main << "<table border=\"0\"  width=\"400\">" << std::endl;
+	file_main << "<tr>" << std::endl;
+	file_main << "  <th align=\"left\" width=\"70\"> Test </th>" << std::endl; 
+	file_main << "  <th align=\"left\"> Status </th>" << std::endl; 
+	file_main << "  <th align=\"left\"> Subtests </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Good </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Flawed </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Bad </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
+	file_main << "</tr>" << std::endl;
+	for (int i = 0; i < GetNTests(); ++i) {
+		if (GetTest(i)->GetTestType() == PerfTest::kFunction2D) {
+			file_main << " <tr>";
+			file_main << " <td align=\"left\"><a href=\"" << (GetTest(i)->GetName()).c_str() << ".html\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFlawed) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kBad) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFatal) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kUnknown) << "</td> </tr>" << std::endl;
+		}
+	}
+	file_main <<"</table>" << std::endl;
+	
 	// loop over tests
-	for (int i = 0; i < n; ++i){
+	for (int i = 0; i < GetNTests(); ++i){
 		
 		// open file
 		std::ofstream file; 
@@ -178,12 +217,30 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << "<body>" << std::endl << std::endl;
 		
 		file << " <h2>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h2>" << std::endl;
-		
-		file << " Status:    " << GetTest(i)->GetStatusStringHTML().data() << " </br>" << std::endl;
-		file << " CPU time:  " << GetTest(i)->GetCpuTime() << " s </br>" << std::endl;
-		file << " Real time: " << GetTest(i)->GetRealTime() << " s </br>" << std::endl;
-		file << " Plots:     " << "<a href=\""<< GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </br>" << std::endl;
-		file << "<br>" << std::endl;
+
+		file << "<table border=\"0\" width=\"30%\">" << std::endl;
+		file << "<tr>";
+		file << "  <th align=\"left\">Results</th>" << std::endl; 
+		file << "</tr>" << std::endl;		
+
+		file << " <tr> <td>Status</td> <td>" << GetTest(i)->GetStatusStringHTML().data() << " </td> </tr>" << std::endl;
+		file << " <tr> <td>CPU time</td> <td>" << std::setprecision(4) << GetTest(i)->GetCpuTime() << " s </td></tr>" << std::endl;
+		file << " <tr> <td>Real time</td> <td>" << std::setprecision(4) << GetTest(i)->GetRealTime() << " s </td></tr>" << std::endl;
+		file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </td> </tr>" << std::endl;
+		file << "</table>" << std::endl;
+		file << "</br>" << std::endl;		
+
+		file << "<table border=\"0\" width=\"30%\">" << std::endl;
+		file << "<tr>";
+		file << "  <th align=\"left\">Settings</th>" << std::endl; 
+		file << "</tr>" << std::endl;		
+		file << " <tr> <td>N chains</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNChains() << " </td></tr>"  << std::endl;
+		file << " <tr> <td>N lag</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNLag() << " </td></tr>"  << std::endl;
+		file << " <tr> <td>Convergence</td> <td>" << (((PerfTest1DFunction*) GetTest(i))->MCMCGetFlagConvergenceGlobal() ? "<font color=\"#01DF01\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
+		file << " <tr> <td>N iterations (pre-run) </td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsConvergenceGlobal() << " </td></tr>"  << std::endl;
+		file << " <tr> <td>N iterations (run)</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsRun() << " </td></tr>"  << std::endl;
+		file << "</table>" << std::endl;
+		file << "</br>" << std::endl;		
 
 		// loop over subtests
 		int nsub = GetTest(i) -> GetNSubtests(); 
@@ -193,9 +250,9 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << "  <th align=\"left\"> Status </th>" << std::endl; 
 		file << "  <th align=\"left\"> Test </th>" << std::endl;
 		file << "  <th align=\"left\"> Target </th>" << std::endl;
-		file << "  <th align=\"left\"> Tolerance (Good) </th>" << std::endl;
-		file << "  <th align=\"left\"> Tolerance (Flawed) </th>" << std::endl;
-		file << "  <th align=\"left\"> Tolerance (Bad) </th>" << std::endl;
+		file << "  <th align=\"left\"> Tol. (Good) </th>" << std::endl;
+		file << "  <th align=\"left\"> Tol. (Flawed) </th>" << std::endl;
+		file << "  <th align=\"left\"> Tol. (Bad) </th>" << std::endl;
 		file << "</tr>" << std::endl;
 
 		for (int j = 0; j < nsub; ++j) {

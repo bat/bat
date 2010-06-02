@@ -68,7 +68,7 @@ std::string PerfSubTest::ToStringHTML(PerfSubTest::Status status)
 			return std::string("<font color=\"#01DF01\">good</font>"); 
 
 		case PerfSubTest::kFlawed : 
-			return std::string("<font color=\"#FFFF00\">flawed</font>"); 
+			return std::string("<font color=\"#FF00FF\">flawed</font>"); 
 
 		case PerfSubTest::kBad : 
 			return std::string("<font color=\"#FF8000\">bad</font>"); 

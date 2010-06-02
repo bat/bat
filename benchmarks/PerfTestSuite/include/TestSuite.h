@@ -87,7 +87,7 @@
 		/** Run all tests.
 		 * @return an error code. */
 		int RunTests(); 
-		
+
 		/* @} */
 
 	private:

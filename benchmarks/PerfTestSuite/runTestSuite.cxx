@@ -18,7 +18,6 @@ int main()
 	//______________________________________________________________________________
 	// add tests
 
-	/*
 	//______________________
 	// 1D flat
 	TF1* testfunc_1d_flat = new TF1("Flat", "1", -5., 5.0);
@@ -32,6 +31,7 @@ int main()
 	PerfTest1DFunction*	perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
 	ts->AddTest(perftest_1d_slope); 
 
+	/*
 	//______________________
 	// 1D squared
 	TF1* testfunc_1d_squared = new TF1("Squared", "400.-x*x", -20., 20.);
@@ -98,7 +98,7 @@ int main()
 
 	//______________________
 	// 1D 2 Gaussians
-	TF1* testfunc_1d_2gaus = new TF1("2gaus", "gaus + gaus(3)", -25., 50.);
+	TF1* testfunc_1d_2gaus = new TF1("2gaus1d", "gaus + gaus(3)", -25., 50.);
 	testfunc_1d_2gaus->FixParameter(0,  1.0);
 	testfunc_1d_2gaus->FixParameter(1, -10.0);
 	testfunc_1d_2gaus->FixParameter(2,  2.0);
@@ -108,15 +108,15 @@ int main()
 	PerfTest1DFunction*	perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus); 
 	perftest_1d_2gaus->SetNbins("x", 200);
 	ts->AddTest(perftest_1d_2gaus); 
+
 	*/
-
-
 	//______________________
 	// 2D flat
-	//	TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
-	//	PerfTest2DFunction*	perftest_2d_flat = new PerfTest2DFunction("2d_flat", testfunc_2d_flat); 
-	//	ts->AddTest(perftest_2d_flat); 
+ 	TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
+	PerfTest2DFunction*	perftest_2d_flat = new PerfTest2DFunction("2d_flat", testfunc_2d_flat); 
+	ts->AddTest(perftest_2d_flat); 
 
+	/*
 	//______________________
 	// 2D Gaussian
 	TF2* testfunc_2d_gaus = new TF2("Gaus", "xygausn", -3., 3., -5., 7.);
@@ -124,7 +124,15 @@ int main()
 	PerfTest2DFunction*	perftest_2d_gaus = new PerfTest2DFunction("2d_gaus", testfunc_2d_gaus); 
 	ts->AddTest(perftest_2d_gaus); 
 
-
+	//______________________
+	// 1D 2 Gaussians
+	TF2* testfunc_2d_2gaus = new TF2("2twoGaus2d", 
+																	 "[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2)*exp(-0.5*((y-[4])/[5])**2) + [6]*exp(-0.5*((x-[7])/[8])**2)*exp(-0.5*((y-[9])/[10])**2))",
+																	 -20., 20., -20., 20);
+	testfunc_2d_2gaus->SetParameters(1.,   10., 0., 1.0,  5., 1.0,    10., 5., 1.0,  10., 1.0);
+	PerfTest2DFunction*	perftest_2d_2gaus = new PerfTest2DFunction("2d_2gaus", testfunc_2d_2gaus); 
+	ts->AddTest(perftest_2d_2gaus); 
+	*/	
 	//______________________________________________________________________________
 	// perform all tests 
 	ts -> RunTests(); 

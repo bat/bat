@@ -9,6 +9,8 @@
 #include <TF2.h>
 #include <TH2D.h> 
 #include <TMath.h>
+#include <TROOT.h> 
+#include <TStyle.h> 
 
 #include <BAT/BCH2D.h>
 #include <BAT/BCAux.h> 
@@ -27,10 +29,12 @@ PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTest(n
 
 	// set style
 	BCAux::SetStyle();
+	gStyle->SetOptFit(1);
+	//	gStyle->SetOptStat(111111);
 
 	// set options
-	MCMCSetNLag(50);
-	MCMCSetNIterationsRun(1000000);
+	MCMCSetNLag(10);
+	MCMCSetNIterationsRun(10000000);
 
 	// manipulate function
 	fFunction->SetNDF(100000);
@@ -69,7 +73,7 @@ int PerfTest2DFunction::Run()
 	TH2D* hist_func = (TH2D*) GetMarginalized( GetParameter(0), GetParameter(1) )->GetHistogram()->Clone(); 
 	hist_func->SetContour(20);
 
-	TH1D* hist_pull = new TH1D("hist_pull", ";#Deltaf/f;N", 11, -5.5, 5.5);
+	TH1D* hist_pull = new TH1D("", ";#Deltaf/sqrt(f);N", 50, -5.0, 5.0);
 
 	// calculate ndf 
 	int nbinsx = hist_marg->GetNbinsX();
@@ -102,8 +106,12 @@ int PerfTest2DFunction::Run()
 		for (int j = 1; j <= nbinsy; ++j) {
 			double n = hist_marg->GetBinContent(i, j);
 			double e = hist_func->GetBinContent(i, j); 
-			chi2 += (n-e)*(n-e)/e; 
-			
+
+			if (e >= 10) 
+				chi2 += (n-e)*(n-e)/e; 
+			else 
+				ndf--;
+
 			// fill histograms
 			hist_func->SetBinContent(i, j, e);
 			hist_diff->SetBinContent(i, j, n-e);
@@ -149,6 +157,7 @@ int PerfTest2DFunction::Run()
 	TCanvas* c_pull = new TCanvas();
 	c_pull->cd();
 	hist_pull->Draw();
+	hist_pull->Fit("gaus");
 	AddCanvas(c_pull); 
 
 	// debugKK
