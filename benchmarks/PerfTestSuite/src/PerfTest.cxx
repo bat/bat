@@ -19,6 +19,7 @@ PerfTest::PerfTest(std::string name)
 	: fTestType(PerfTest::kUnknown)
 	, fSubtestContainer(std::vector<PerfSubTest *>(0))
 	, fCanvasContainer(std::vector<TCanvas *>(0))
+	, fCanvasDescriptionContainer(std::vector<std::string>(0))
 	, fRealTime(0.)
 	, fCpuTime(0.)
 {
@@ -146,6 +147,19 @@ TCanvas* PerfTest::GetCanvas(int index)
 	
 	// return canvas pointer
 	return fCanvasContainer.at(index);
+}
+
+//______________________________________________________________________________
+std::string PerfTest::GetCanvasDescription(int index)
+{
+	int ncanvases = int(fCanvasDescriptionContainer.size());
+
+	// check index
+	if (index < 0 || index >= ncanvases)
+		return std::string("-");
+	
+	// return canvas pointer
+	return fCanvasDescriptionContainer.at(index);
 }
 
 //______________________________________________________________________________
@@ -282,6 +296,14 @@ int PerfTest::WriteResults()
 
 	// close ps
 	ps->Close();
+
+	// print thumbnials 
+	for (int i = 0; i < nhist; ++i) {
+		// get canvas
+		TCanvas* c = GetCanvas(i);
+		c->Print( Form("%s_%i.png", GetName().c_str(), i) );
+		c->Print( Form("%s_%i.eps", GetName().c_str(), i) );
+	}
 
 	// no error 
 	return 1; 

@@ -31,7 +31,6 @@ int main()
 	PerfTest1DFunction*	perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
 	ts->AddTest(perftest_1d_slope); 
 
-	/*
 	//______________________
 	// 1D squared
 	TF1* testfunc_1d_squared = new TF1("Squared", "400.-x*x", -20., 20.);
@@ -109,14 +108,12 @@ int main()
 	perftest_1d_2gaus->SetNbins("x", 200);
 	ts->AddTest(perftest_1d_2gaus); 
 
-	*/
 	//______________________
 	// 2D flat
  	TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
 	PerfTest2DFunction*	perftest_2d_flat = new PerfTest2DFunction("2d_flat", testfunc_2d_flat); 
 	ts->AddTest(perftest_2d_flat); 
 
-	/*
 	//______________________
 	// 2D Gaussian
 	TF2* testfunc_2d_gaus = new TF2("Gaus", "xygausn", -3., 3., -5., 7.);
@@ -132,7 +129,7 @@ int main()
 	testfunc_2d_2gaus->SetParameters(1.,   10., 0., 1.0,  5., 1.0,    10., 5., 1.0,  10., 1.0);
 	PerfTest2DFunction*	perftest_2d_2gaus = new PerfTest2DFunction("2d_2gaus", testfunc_2d_2gaus); 
 	ts->AddTest(perftest_2d_2gaus); 
-	*/	
+
 	//______________________________________________________________________________
 	// perform all tests 
 	ts -> RunTests(); 

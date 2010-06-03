@@ -220,6 +220,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 
 		file << "<table border=\"0\" width=\"30%\">" << std::endl;
 		file << "<tr>";
+
 		file << "  <th align=\"left\">Results</th>" << std::endl; 
 		file << "</tr>" << std::endl;		
 
@@ -229,6 +230,30 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </td> </tr>" << std::endl;
 		file << "</table>" << std::endl;
 		file << "</br>" << std::endl;		
+
+		// plots
+		file << "<b>Plots</b>"<<std::endl;
+		int nplots = GetTest(i)->GetNCanvases();
+		int rows = nplots / 4;
+		std::cout << " rows " << nplots << " " << rows << std::endl;
+		file << "<table border=\"0\" width=\"80%\">" << std::endl;
+		for (int j = 0; j <= rows; ++j) {
+			file << "<tr>";		
+			for (int k = 0; k < 4; ++k) {
+				if (j*4+k < nplots)
+					file << "<td width=\"20%\"><a href=\"" << GetTest(i)->GetName().c_str() << "_" << j*4+k << ".eps\"><img src=\"" << GetTest(i)->GetName().c_str() << "_" << j*4+k << ".png\" width=\"200\" height=\"200\"></a></td>";
+			}
+				file << "</tr>" << std::endl;
+				file << "<tr>" << std::endl;
+			for (int k = 0; k < 4; ++k) {
+				if (j*4+k < nplots)
+					file << "<td width=\"20%\">" << GetTest(i)->GetCanvasDescription(j*4+k) << "</td>";
+			}
+				file << "</tr>" << std::endl;
+		}
+		file << "</table>" << std::endl;
+		file << "</br>" << std::endl;		
+
 
 		file << "<table border=\"0\" width=\"30%\">" << std::endl;
 		file << "<tr>";
@@ -246,13 +271,13 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		int nsub = GetTest(i) -> GetNSubtests(); 
 		file << "<table border=\"0\" width=\"80%\">" << std::endl;
 		file << "<tr>" << std::endl;
-		file << "  <th align=\"left\"> Subtest </th>" << std::endl; 
-		file << "  <th align=\"left\"> Status </th>" << std::endl; 
-		file << "  <th align=\"left\"> Test </th>" << std::endl;
-		file << "  <th align=\"left\"> Target </th>" << std::endl;
-		file << "  <th align=\"left\"> Tol. (Good) </th>" << std::endl;
-		file << "  <th align=\"left\"> Tol. (Flawed) </th>" << std::endl;
-		file << "  <th align=\"left\"> Tol. (Bad) </th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Subtest</th>" << std::endl; 
+		file << "  <th align=\"left\" width = \"150\">Status</th>" << std::endl; 
+		file << "  <th align=\"left\" width = \"150\">Test</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Target</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Tol. (Good)</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Tol. (Flawed)</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Tol. (Bad)</th>" << std::endl;
 		file << "</tr>" << std::endl;
 
 		for (int j = 0; j < nsub; ++j) {
@@ -264,6 +289,21 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</td>" << std::endl;
 			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kFlawed) << "</td>" << std::endl;
 			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</td>" << std::endl;
+			file << "</tr>" << std::endl; 
+		}
+		file << "</table>" << std::endl; 
+		file << "<br>" << std::endl;
+
+		// loop over subtests
+		file << "<table border=\"0\" width=\"100%\">" << std::endl;
+		file << "<tr>" << std::endl;
+		file << "  <th align=\"left\" valign=\"top\">Subtest</th>" << std::endl; 
+		file << "  <th align=\"left\">Description</th>" << std::endl; 
+		file << "</tr>" << std::endl;
+		for (int j = 0; j < nsub; ++j) {
+			file << "<tr>" << std::endl;
+			file << "  <td align=\"left\" width = \"150\"  valign=\"top\"> " << (GetTest(i) -> GetSubtest(j))->GetName() << " </td> " <<std::endl;
+			file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetDescription().data() << "</td>" << std::endl;
 			file << "</tr>" << std::endl; 
 		}
 		file << "</table>" << std::endl; 

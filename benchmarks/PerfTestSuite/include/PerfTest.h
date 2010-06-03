@@ -114,6 +114,11 @@ class PerfTest
 	 * @return the canvas. */
 	TCanvas* GetCanvas(int index); 
 
+	/** Return a canvas description from the container.
+	 * @param index the canvas index. 
+	 * @return the canvas description. */
+	std::string GetCanvasDescription(int index); 
+
 	/** Get real time. */
 	double GetRealTime()
 	{ return fRealTime; }; 
@@ -151,6 +156,11 @@ class PerfTest
 	void AddCanvas(TCanvas* canvas)
 	{ fCanvasContainer.push_back(canvas); }; 
 
+	/** Add a canvas description to the container. 
+	 * @param hist a canvas. */
+	void AddCanvasDescription(std::string description)
+	{ fCanvasDescriptionContainer.push_back(description); }; 
+
 	/** Read test results from file. 
 	 * @return an error code. */ 
 	int ReadResults(); 
@@ -180,6 +190,9 @@ class PerfTest
 
 	/** A container of canvases for the test. */
 	std::vector <TCanvas*> fCanvasContainer;
+	
+	/** A container of canvases descriptions for the test. */
+	std::vector <std::string> fCanvasDescriptionContainer;
 	
 	/** The name of the test. */ 
 	std::string fName; 

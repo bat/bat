@@ -147,12 +147,14 @@ int PerfTest1DFunction::Run()
 	hist_marg->Draw();
 	fFunction->Draw("SAMEC");
 	AddCanvas(c_marg);
+	AddCanvasDescription("Marginalized distribution and function.");
 
 	TCanvas* c_marg_log = new TCanvas();
 	c_marg_log->SetLogy(kTRUE);
 	hist_marg->Draw();
 	fFunction->Draw("SAMEC");
 	AddCanvas(c_marg_log);
+	AddCanvasDescription("Marginalized distribution and function in log-scale.");
 
 	TCanvas* c2 = new TCanvas();
 	hist_diff_3sigma->Draw("E3");
@@ -165,12 +167,14 @@ int PerfTest1DFunction::Run()
 																						 1.1*TMath::Max(hist_diff->GetMaximum(),
 																														3.0*sqrt(norm_hist*fFunction->GetMaximum()*binwidth/norm_func)));
 	AddCanvas(c2);
+	AddCanvasDescription("Difference between the marginalized distribution and the function. The one, two and three sigma uncertainty bands are colored green, yellow, red.");
 
 	TCanvas* c_pull = new TCanvas();
 	c_pull->cd();
 	hist_pull->Draw();
 	hist_pull->Fit("gaus");
 	AddCanvas(c_pull); 
+	AddCanvasDescription("Pull between the marginalized distribution and the function, and Gaussian fit to the pull.");
 
 	// no error 
 	return 1; 
@@ -180,39 +184,51 @@ int PerfTest1DFunction::Run()
 void PerfTest1DFunction::DefineSubtests()
 {
 	PerfSubTest * subtest = new PerfSubTest("chi2"); 
+	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("mean"); 
+	subtest->SetDescription("Compare sample mean, &lt;x&gt;, with expectation value of function, E[x].<br> Tolerance good: |&lt;x&gt; -E[x]| < 3 &middot; V[x]/n<sup>1/2</sup>,</br>Tolerance flawed: |&lt;x&gt; -E[x]| < 5 &middot; V[x]/n<sup>1/2</sup>,</br>Tolerance bad: |&lt;x&gt; -E[x]| < 7 &middot; V[x]/n<sup>1/2</sup>."); 
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("mode"); 
+	subtest->SetDescription("Compare mode of distribution with mode of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile10"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile20"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile30"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile40"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile50"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile60"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile70"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile80"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile90"); 
+	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
 }
 

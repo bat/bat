@@ -47,6 +47,11 @@ class PerfSubTest
 	void SetName(std::string name)
 	{ fName = name; }; 
 
+	/** Set the description of the subtest. 
+	 * @param description the description of the subtest. */ 
+	void SetDescription(std::string description)
+	{ fDescription = description; }; 
+
 	/** Set the test value range for the status. 
 	 * @param status the status code.
 	 * @param delta the allowed range around the target value. */
@@ -80,6 +85,11 @@ class PerfSubTest
 	 * @return a string. */
 	std::string GetName()
 		{ return fName; }; 
+
+	/** Return the description of the subtest. 
+	 * @return a string. */
+	std::string GetDescription()
+		{ return fDescription; }; 
 
 	/** Calculate and return the overall status of the subtest. 
 	 * @return a status code. */ 
@@ -141,6 +151,9 @@ class PerfSubTest
 
 	/** The name of the subtest. */ 
 	std::string fName; 
+
+	/** A description of the subtest. */ 
+	std::string fDescription; 
 
 	/** The test value. */ 
 	double fTestValue; 

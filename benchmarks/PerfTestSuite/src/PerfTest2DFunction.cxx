@@ -114,7 +114,7 @@ int PerfTest2DFunction::Run()
 
 			// fill histograms
 			hist_func->SetBinContent(i, j, e);
-			hist_diff->SetBinContent(i, j, n-e);
+			hist_diff->SetBinContent(i, j, (n-e)/sqrt(e));
 			hist_pull->Fill((n-e)/sqrt(e));
 		}
 	}
@@ -130,35 +130,42 @@ int PerfTest2DFunction::Run()
 	TCanvas* c_func1 = new TCanvas();
 	fFunction->Draw();
 	AddCanvas(c_func1);
+	AddCanvasDescription("The function drawn with contours.");
 
 	TCanvas* c_func2 = new TCanvas();
 	hist_func->Draw("COLZ");
 	AddCanvas(c_func2);
+	AddCanvasDescription("The histogrammed function. Each bin contains the integral of the function over the bin.");
 
 	TCanvas* c_marg = new TCanvas();
 	hist_marg->Draw("COLZ");
 	AddCanvas(c_marg);
+	AddCanvasDescription("The marginalized distribution.");
 
 	TCanvas* c_func3 = new TCanvas();
 	c_func3->SetLogz(kTRUE);
 	hist_func->Draw("COLZ");
 	AddCanvas(c_func3);
+	AddCanvasDescription("The histogrammed function in log-scale. Each bin contains the integral of the function over the bin.");
 
 	TCanvas* c_marg_log = new TCanvas();
 	c_marg_log->SetLogz(kTRUE);
 	hist_marg->Draw("COLZ");
 	AddCanvas(c_marg_log);
+	AddCanvasDescription("The marginalized distribution in log-scale.");
 
 	TCanvas* c_diff = new TCanvas();
 	c_diff->cd();
 	hist_diff->Draw("COLZ");
 	AddCanvas(c_diff); 
+	AddCanvasDescription("The difference between the marginalized distribution and the function divided by the sqrt of the function value in the corresponding bin.");
 
 	TCanvas* c_pull = new TCanvas();
 	c_pull->cd();
 	hist_pull->Draw();
 	hist_pull->Fit("gaus");
 	AddCanvas(c_pull); 
+	AddCanvasDescription("The pull between the marginalized distribution and the function.");
 
 	// debugKK
 	// also add projections?
@@ -171,6 +178,7 @@ int PerfTest2DFunction::Run()
 void PerfTest2DFunction::DefineSubtests()
 {
 	PerfSubTest * subtest = new PerfSubTest("chi2"); 
+	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
 }
 
