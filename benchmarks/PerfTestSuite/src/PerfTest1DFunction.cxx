@@ -14,6 +14,7 @@
 
 #include <BAT/BCH1D.h>
 #include <BAT/BCAux.h> 
+#include <BAT/BCMath.h> 
 
 #include <iostream>
 
@@ -113,9 +114,14 @@ int PerfTest1DFunction::Run()
 
 	fFunction->GetQuantiles(9, quantiles_func, probsum);
 	hist_marg->GetQuantiles(9, quantiles_hist, probsum);
-	
+
 	// calculate KS probability
 	double KS = hist_marg->KolmogorovTest(hist_func);
+
+	// calculate variance of variance
+	double mu2 = fFunction->CentralMoment( 2, fFunction->GetXmin(), fFunction->GetXmax() );
+	double mu4 = fFunction->CentralMoment( 4, fFunction->GetXmin(), fFunction->GetXmax() );
+	double var_s2 = 1./double(ndf) * (mu4 - (double(ndf)-3)/(double(ndf)-1)*mu2*mu2);
 
 	// define test results
 	GetSubtest("chi2")->SetTargetValue(ndf);
@@ -142,6 +148,12 @@ int PerfTest1DFunction::Run()
 	GetSubtest("mode")->SetStatusRegion(PerfSubTest::kBad, 3.*binwidth);
 	GetSubtest("mode")->SetStatusRegion(PerfSubTest::kFatal, binwidth*ndf);
 	GetSubtest("mode")->SetTestValue(hist_marg->GetBinCenter(hist_marg->GetMaximumBin())); 
+
+	GetSubtest("variance")->SetTargetValue(fFunction->Variance( fFunction->GetXmin(), fFunction->GetXmax()) );
+	GetSubtest("variance")->SetStatusRegion(PerfSubTest::kGood, 3.*sqrt(var_s2));
+	GetSubtest("variance")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(var_s2));
+	GetSubtest("variance")->SetStatusRegion(PerfSubTest::kBad, 7.*sqrt(var_s2));
+	GetSubtest("variance")->SetTestValue(hist_marg->GetRMS()*hist_marg->GetRMS()*double(ndf*ndf)/(double(ndf)-1)/(double(ndf)-1)); 
 
 	for (int i = 0; i < 9; ++i) {
 		GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTargetValue(quantiles_func[i]);
@@ -208,6 +220,10 @@ void PerfTest1DFunction::DefineSubtests()
 
 	subtest = new PerfSubTest("mode"); 
 	subtest->SetDescription("Compare mode of distribution with mode of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
+	AddSubtest(subtest);
+
+	subtest = new PerfSubTest("variance"); 
+	subtest->SetDescription("Compare sample variance s<sup>2</sup> of distribution with variance of function. </br> Tolerance good: 3 &middot; V[s<sup>2</sup>], </br> Tolerance flawed: 5 &middot; V[s<sup>2</sup>], <br> Tolerance bad: 7 &middot; V[s<sup>2</sup>].");
 	AddSubtest(subtest);
 
 	subtest = new PerfSubTest("quantile10"); 

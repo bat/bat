@@ -89,6 +89,15 @@ int main()
 	ts->AddTest(perftest_1d_cauchy); 
 
 	//______________________
+	// 1D Lognormal
+
+	TF1* testfunc_1d_lognormal = new TF1("Lognormal", "1./sqrt(2*TMath::Pi()*[1])*1/x*exp(-(log(x)-[0])*(log(x)-[0])/2/[1]/[1])", 0., 10.);
+	testfunc_1d_lognormal->FixParameter(0, 0.);
+	testfunc_1d_lognormal->FixParameter(1, 1.);
+	PerfTest1DFunction* perftest_1d_lognormal = new PerfTest1DFunction("1d_lognormal", testfunc_1d_lognormal); 
+	ts->AddTest(perftest_1d_lognormal); 
+
+	//______________________
 	// 1D x^4 sin^2(x)
 
 	TF1* testfunc_1d_sin2 = new TF1("Sin2", "x*x*x*x*sin(x)*sin(x)", 2., 25.);

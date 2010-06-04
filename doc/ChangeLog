@@ -1,6 +1,8 @@
 2010-07-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Update todo list.
-	* PerfTestSuite: added Kolmogorov-Smirnov test to 1D distributions, added link to log file to html output
+	* PerfTestSuite: added Kolmogorov-Smirnov test to 1D distributions, 
+	* PerfTestSuite: added variance subtest to 1D distributions.
+	* PerfTestSuite: added link to log file to html output
 
 2010-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite: further work
