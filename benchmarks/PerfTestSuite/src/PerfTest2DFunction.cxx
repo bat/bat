@@ -183,4 +183,14 @@ void PerfTest2DFunction::DefineSubtests()
 }
 
 //______________________________________________________________________________
+int PerfTest2DFunction::WriteResults()
+{
+	PerfTest::WriteResults(); 
+
+	PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
+
+	return 1;
+}
+
+//______________________________________________________________________________
 	

@@ -228,6 +228,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << " <tr> <td>CPU time</td> <td>" << std::setprecision(4) << GetTest(i)->GetCpuTime() << " s </td></tr>" << std::endl;
 		file << " <tr> <td>Real time</td> <td>" << std::setprecision(4) << GetTest(i)->GetRealTime() << " s </td></tr>" << std::endl;
 		file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </td> </tr>" << std::endl;
+		file << " <tr> <td>Log</td> <td>" << "<a href=\""<< GetTest(i)->GetName().data() << ".log" << "\">" << GetTest(i)->GetName().data() << ".log</a>" << " </td> </tr>" << std::endl;
 		file << "</table>" << std::endl;
 		file << "</br>" << std::endl;		
 
@@ -235,7 +236,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << "<b>Plots</b>"<<std::endl;
 		int nplots = GetTest(i)->GetNCanvases();
 		int rows = nplots / 4;
-		std::cout << " rows " << nplots << " " << rows << std::endl;
+
 		file << "<table border=\"0\" width=\"80%\">" << std::endl;
 		for (int j = 0; j <= rows; ++j) {
 			file << "<tr>";		

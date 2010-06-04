@@ -46,6 +46,10 @@ class PerfTest1DFunction : public PerfTest, public BCModel
 	/** Defines the subtests. */ 
 	void DefineSubtests(); 
 
+	/** Writes the test to file. 
+	 * @return an error code. */ 
+	int WriteResults(); 
+
 	/* @} */
 
 	// inherited methods

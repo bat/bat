@@ -55,6 +55,10 @@ class PerfTest2DFunction : public PerfTest, public BCModel
 	double LogLikelihood(std::vector <double> parameters)
 	{ return log(fFunction->Eval(parameters[0], parameters[1])); }
 
+	/** Writes the test to file. 
+	 * @return an error code. */ 
+	int WriteResults(); 
+
  private:
 		
 	/** The test function. */

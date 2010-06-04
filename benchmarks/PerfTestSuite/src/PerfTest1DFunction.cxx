@@ -62,6 +62,7 @@ int PerfTest1DFunction::Run()
 	
 	// get histogram
 	TH1D* hist_marg = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone(); 
+	TH1D* hist_func = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone(); 
 	TH1D* hist_diff = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone(); 
 	TH1D* hist_line = new TH1D(*hist_marg);
 	TH1D* hist_diff_1sigma = new TH1D(*(GetMarginalized( GetParameter(0) )->GetHistogram()));
@@ -94,6 +95,7 @@ int PerfTest1DFunction::Run()
 
 		// fill histograms
 		hist_diff->SetBinContent(i, n-e);
+		hist_func->SetBinContent(i, e);
 		hist_pull->Fill( (n-e)/sqrt(e) );
 		hist_line->SetBinContent(i, 0);
 		hist_diff_1sigma->SetBinError(i, sqrt(e));		
@@ -112,12 +114,21 @@ int PerfTest1DFunction::Run()
 	fFunction->GetQuantiles(9, quantiles_func, probsum);
 	hist_marg->GetQuantiles(9, quantiles_hist, probsum);
 	
+	// calculate KS probability
+	double KS = hist_marg->KolmogorovTest(hist_func);
+
 	// define test results
 	GetSubtest("chi2")->SetTargetValue(ndf);
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kGood, 3.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kFlawed, 5.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kBad, 7.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetTestValue(chi2); 
+
+	GetSubtest("KS")->SetTargetValue(1);
+	GetSubtest("KS")->SetStatusRegion(PerfSubTest::kGood, 1.-0.05); 
+	GetSubtest("KS")->SetStatusRegion(PerfSubTest::kFlawed, 1.-0.01); 
+	GetSubtest("KS")->SetStatusRegion(PerfSubTest::kBad, 1.-0.0001); 
+	GetSubtest("KS")->SetTestValue(KS); 
 
 	GetSubtest("mean")->SetTargetValue(fFunction->Mean( fFunction->GetXmin(), fFunction->GetXmax()) );
 	GetSubtest("mean")->SetStatusRegion(PerfSubTest::kGood, 3.*hist_marg->GetRMS()/sqrt(ndf));
@@ -187,6 +198,10 @@ void PerfTest1DFunction::DefineSubtests()
 	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
 
+	subtest = new PerfSubTest("KS"); 
+	subtest->SetDescription("Calculate the Kolmogorov-Smirnov probability based on the ROOT implemention. <br> Tolerance good: KS prob > 0.05, <br> Tolerance flawed:  KS prob > 0.01<br> Tolerance bad: KS prob > 0.0001."); 
+	AddSubtest(subtest);
+
 	subtest = new PerfSubTest("mean"); 
 	subtest->SetDescription("Compare sample mean, &lt;x&gt;, with expectation value of function, E[x].<br> Tolerance good: |&lt;x&gt; -E[x]| < 3 &middot; V[x]/n<sup>1/2</sup>,</br>Tolerance flawed: |&lt;x&gt; -E[x]| < 5 &middot; V[x]/n<sup>1/2</sup>,</br>Tolerance bad: |&lt;x&gt; -E[x]| < 7 &middot; V[x]/n<sup>1/2</sup>."); 
 	AddSubtest(subtest);
@@ -230,6 +245,16 @@ void PerfTest1DFunction::DefineSubtests()
 	subtest = new PerfSubTest("quantile90"); 
 	subtest->SetDescription("Compare quantile of distribution with quantile of function. </br> Tolerance good: 1 bin width, </br> Tolerance flawed: 2 bin widths, <br> Tolerance bad: 3 bin widths.");
 	AddSubtest(subtest);
+}
+
+//______________________________________________________________________________
+int PerfTest1DFunction::WriteResults()
+{
+	PerfTest::WriteResults(); 
+
+	PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
+
+	return 1;
 }
 
 //______________________________________________________________________________

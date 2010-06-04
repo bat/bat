@@ -167,7 +167,7 @@ class PerfTest
 
 	/** Writes the test to file. 
 	 * @return an error code. */ 
-	int WriteResults(); 
+	virtual int WriteResults(); 
 
 	/** Run the test. 
 	 * @return an error code. */ 
