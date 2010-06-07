@@ -248,7 +248,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 				file << "<tr>" << std::endl;
 			for (int k = 0; k < 4; ++k) {
 				if (j*4+k < nplots)
-					file << "<td width=\"20%\">" << GetTest(i)->GetCanvasDescription(j*4+k) << "</td>";
+					file << "<td width=\"20%\" valign=\"top\">" << GetTest(i)->GetCanvasDescription(j*4+k) << "</td>";
 			}
 				file << "</tr>" << std::endl;
 		}

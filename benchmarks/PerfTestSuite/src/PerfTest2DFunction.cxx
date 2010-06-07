@@ -130,42 +130,42 @@ int PerfTest2DFunction::Run()
 	TCanvas* c_func1 = new TCanvas();
 	fFunction->Draw();
 	AddCanvas(c_func1);
-	AddCanvasDescription("The function drawn with contours.");
+	AddCanvasDescription("The analytic function drawn with contours.");
 
 	TCanvas* c_func2 = new TCanvas();
 	hist_func->Draw("COLZ");
 	AddCanvas(c_func2);
-	AddCanvasDescription("The histogrammed function. Each bin contains the integral of the function over the bin.");
+	AddCanvasDescription("The histogrammed analytic function. Each bin contains the integral of the analytic function over the bin.");
 
 	TCanvas* c_marg = new TCanvas();
 	hist_marg->Draw("COLZ");
 	AddCanvas(c_marg);
-	AddCanvasDescription("The marginalized distribution.");
+	AddCanvasDescription("The distribution from MCMC.");
 
 	TCanvas* c_func3 = new TCanvas();
 	c_func3->SetLogz(kTRUE);
 	hist_func->Draw("COLZ");
 	AddCanvas(c_func3);
-	AddCanvasDescription("The histogrammed function in log-scale. Each bin contains the integral of the function over the bin.");
+	AddCanvasDescription("The histogrammed analytic function in log-scale. Each bin contains the integral of the analytic function over the bin.");
 
 	TCanvas* c_marg_log = new TCanvas();
 	c_marg_log->SetLogz(kTRUE);
 	hist_marg->Draw("COLZ");
 	AddCanvas(c_marg_log);
-	AddCanvasDescription("The marginalized distribution in log-scale.");
+	AddCanvasDescription("The distribution from MCMC in log-scale.");
 
 	TCanvas* c_diff = new TCanvas();
 	c_diff->cd();
 	hist_diff->Draw("COLZ");
 	AddCanvas(c_diff); 
-	AddCanvasDescription("The difference between the marginalized distribution and the function divided by the sqrt of the function value in the corresponding bin.");
+	AddCanvasDescription("The difference between the distribution from MCMC and the analytic function divided by the square root of the analytic function value in the corresponding bin.");
 
 	TCanvas* c_pull = new TCanvas();
 	c_pull->cd();
 	hist_pull->Draw();
 	hist_pull->Fit("gaus");
 	AddCanvas(c_pull); 
-	AddCanvasDescription("The pull between the marginalized distribution and the function.");
+	AddCanvasDescription("The pull between the distribution from MCMC and the analytic function.");
 
 	// debugKK
 	// also add projections?

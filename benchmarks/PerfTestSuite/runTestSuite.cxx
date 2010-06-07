@@ -20,7 +20,7 @@ int main()
 
 	//______________________
 	// 1D flat
-	TF1* testfunc_1d_flat = new TF1("Flat", "1", -5., 5.0);
+	TF1* testfunc_1d_flat = new TF1("Flat", "1.", -5., 5.0);
 	PerfTest1DFunction*	perftest_1d_flat = new PerfTest1DFunction("1d_flat", testfunc_1d_flat); 
 	perftest_1d_flat->GetSubtest("mode")->SetStatusOff(true);
 	ts->AddTest(perftest_1d_flat); 

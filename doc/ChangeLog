@@ -1,7 +1,10 @@
-2010-04-25 Frederik Beaujean <beaujean@mpp.mpg.de>
+2010-06-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* PerfTestSuite: added uncertainty for mode and quantiles
+	
+2010-06-07 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Update todo list
 
-2010-07-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2010-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Update todo list.
 	* PerfTestSuite: added Kolmogorov-Smirnov test to 1D distributions, 
 	* PerfTestSuite: added variance subtest to 1D distributions.
