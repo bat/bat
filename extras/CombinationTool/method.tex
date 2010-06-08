@@ -1,0 +1,92 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{color}
+
+\setlength{\oddsidemargin}{0.0 cm}
+\setlength{\evensidemargin}{0.0 cm}
+\setlength{\topmargin}{0cm}
+\setlength{\textheight}{23 cm}
+\setlength{\textwidth}{16 cm}
+
+%\pagestyle{empty}
+
+\setlength{\parindent}{0in}
+
+\begin{document}
+
+\section*{Method}
+
+\subsection*{Notation}
+%
+\begin{itemize}
+\item Cross-section parameter $\sigma$;
+\item Data sets $\vec{x}$; 
+\item All data sets $\{ \vec{x}_{i}\}$;
+\item Nuisance parameters $\nu_{j}$ for $j$th source;
+\item Number of channels: $N_{ch}$;
+\item Number of systematics: $N_{syst}$;
+\item Prior on cross-section $p(\sigma)$ assumed to be flat;
+\end{itemize}
+
+\subsection*{Method without systematics} 
+%
+Channel $i$ contributes with posterior $p_{i}(\sigma|\vec{x}_{i})$
+which are Gaussians (either symmetric or with different widths below
+and above mean): 
+%
+\begin{equation}
+p_{i}(\sigma|\vec{x}_{i}) = \mathrm{Gau{\ss}}(\sigma|\mu_{i}\, , \Delta \sigma_{i}) \, .
+\end{equation}
+
+Combiation:
+%
+\begin{eqnarray}
+p(\sigma|\{ \vec{x}_{i}\}) & \propto & \left( \prod_{i=1}^{N_{ch}} p_{i}(\sigma|\vec{x}_{i}) \right) \cdot p_{0}(\sigma) \,  \\
+                          &    =     & \left( \prod_{i=1}^{N_{ch}} \mathrm{Gau{\ss}}(\sigma|\mu_{i}\, , \Delta \sigma_{i}) \right) \cdot p_{0}(\sigma) \,  \\
+\end{eqnarray}
+
+\subsection*{Method with systematics} 
+%
+Each source of systematic uncertainty is incorporated by one nuisance
+parameter, $\nu_{j}$. Priors for nuisance parameters have Gaussian
+shape:
+%
+\begin{equation}
+p(\nu_{j}) = \mathrm{Gau{\ss}}(\nu_{j}|0 \, , 1) \, .
+\end{equation}
+
+The $j$th source of systematic uncertainty can influence each
+channel. The nuisance parameters are subtracted from the parameter
+$\sigma$:
+%
+\begin{equation}
+\mathrm{Gau{\ss}}(\sigma|\mu_{i}\, , \Delta \sigma_{i}) \rightarrow \mathrm{Gau{\ss}}(\sigma|\mu_{i}-\sum_{j=1}^{N_{syst}}\nu_{ij}  \, , \Delta \sigma_{i}) \, ,
+\end{equation}
+%
+where
+%
+\begin{equation}
+\nu_{ij} = \nu_{j} \cdot \Delta \sigma_{ij} \, ,
+\end{equation}
+%
+and $\Delta \sigma_{ij}$ is the impact of the $j$th systematics on the $i$th channel. \\
+
+Combination:
+%
+\begin{eqnarray}
+p(\sigma, \vec{\nu}|\{ \vec{x}_{i}\}) & \propto \left( \prod_{i=1}^{N_{ch}} \mathrm{Gau{\ss}}(\sigma|\mu_{i}-\sum_{j=1}^{N_{syst}}\nu_{ij} \, , \Delta \sigma_{i}) \right) \cdot \prod_{j}^{N_{syst}} p(\nu_{j}) \cdot p_{0}(\sigma) \,  \\
+\end{eqnarray}
+
+Integrating over all nuisance parameters yields the posterior for $\sigma$:
+%
+%
+\begin{eqnarray}
+p(\sigma|\{ \vec{x}_{i}\}) & \propto \int d\vec{\nu} \left( \prod_{i=1}^{N_{ch}} \mathrm{Gau{\ss}}(\sigma|\mu_{i}-\sum_{j=1}^{N_{syst}}\nu_{ij} \, , \Delta \sigma_{i}) \right) \cdot \prod_{j}^{N_{syst}} p(\nu_{j}) \cdot p_{0}(\sigma) \,  \\
+\end{eqnarray}
+
+
+
+\end{document}
+
