@@ -135,5 +135,6 @@ tarball :
 	CombinationModel.* \
 	runCombinationXSec.cxx \
 	runCombination.cxx \
-	Makefile
+	Makefile \
+	method.ps
 	gzip CombinationTool.tar

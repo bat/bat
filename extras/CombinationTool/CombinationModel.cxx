@@ -63,24 +63,30 @@ double CombinationModel::LogAPrioriProbability(std::vector <double> parameters)
 
 	// loop over all channels 
 	for (int i = 0; i < nchannels; ++i) {
-		double x = parameters.at(0);
 
-		// loop over all systematic uncertainties
-		int nsysterrors = GetNSystErrors();
+		// get parameter
+		double x = parameters.at(0);
 		
+		// systematics
 		if (fFlagSystErrors) {
+			// loop over all systematic uncertainties
+			int nsysterrors = GetNSystErrors();
+			
 			// loop over all systematic uncertainties
 			for (int k = 0; k < nsysterrors; ++k) {
 				int systparindex = GetParIndexSystError(k);
 				double par = parameters.at(systparindex);
 				
+				x -= fSystErrorChannelShiftContainer.at(k).at(i);
+				
 				if (par < 0)
-					x += fSystErrorChannelSigmaDownContainer.at(k).at(i) * par;
+					x -= fSystErrorChannelSigmaDownContainer.at(k).at(i) * par;
 				else
-					x += fSystErrorChannelSigmaUpContainer.at(k).at(i) * par;
+					x -= fSystErrorChannelSigmaUpContainer.at(k).at(i) * par;
 			}
-		}
+		} // end if systematics 
 
+		// add measurements
 		logprob += log( fChannelSignalPriorContainer.at(i)->Eval(x) );
 	}
 
@@ -103,7 +109,7 @@ double CombinationModel::LogLikelihood(std::vector <double> parameters)
 
 		if (fFlagSystErrors) {
 			for (int i = 0; i < nsysterrors; ++i) {
-				logprob += BCMath::LogGaus(parameters.at( GetParIndexSystError(i) ) ); 
+				logprob += BCMath::LogGaus(parameters.at( GetParIndexSystError(i) ), 0., 1., true ); 
 			}
 		}
 	}
@@ -238,6 +244,7 @@ int CombinationModel::AddSystError(const char* systerrorname)
 
 	std::vector< std::vector<double> > sdown;
 	std::vector< std::vector<double> > sup;
+	std::vector< std::vector<double> > sshift;
 
 	// loop over all channels 
 	for (int i = 0; i < nchannels; ++i) {
@@ -246,37 +253,44 @@ int CombinationModel::AddSystError(const char* systerrorname)
 		
 		std::vector<double> schanneldown(nbackground);
 		std::vector<double> schannelup(nbackground);
+		std::vector<double> schannelshift(nbackground);
 
 		// loop over all background sources
 		for (int j = 0; j < nbackground; ++j) {
 			schanneldown[j] = 0.0;
 			schannelup[j] = 0.0;
+			schannelshift[j] = 0.0;
 		}
 
 		sdown.push_back(schanneldown);
 		sup.push_back(schannelup);
+		sshift.push_back(schannelup);
 	}	
 
 	// add vectors to container
 	fSystErrorSigmaDownContainer.push_back(sdown);
 	fSystErrorSigmaUpContainer.push_back(sup);
+	fSystErrorShiftContainer.push_back(sshift);
 
 	// add systematic uncertainties for signal
 	std::vector< double > sigma_signal_down;
 	sigma_signal_down.assign(nchannels, 0.0);
 	std::vector< double > sigma_signal_up(nchannels);
 	sigma_signal_up.assign(nchannels, 0.0);
+	std::vector< double > sigma_signal_shift(nchannels);
+	sigma_signal_shift.assign(nchannels, 0.0);
 
 	// add to container
 	fSystErrorChannelSigmaDownContainer.push_back(sigma_signal_down);
 	fSystErrorChannelSigmaUpContainer.push_back(sigma_signal_up);
+	fSystErrorChannelShiftContainer.push_back(sigma_signal_shift);
 
 	// no error 
 	return 1;
 }
 
 // ---------------------------------------------------------
-int CombinationModel::SetSystErrorChannelSignal(const char* systerrorname, const char* channelname, double sigmadown, double sigmaup)
+int CombinationModel::SetSystErrorChannelSignal(const char* systerrorname, const char* channelname, double sigmadown, double sigmaup, double shift)
 {
 	// get syst error index
 	int systerrorindex = GetContIndexSystError(systerrorname); 
@@ -299,13 +313,14 @@ int CombinationModel::SetSystErrorChannelSignal(const char* systerrorname, const
 	// set systematic error sigmas
 	fSystErrorChannelSigmaDownContainer.at(systerrorindex)[channelindex] = sigmadown;
 	fSystErrorChannelSigmaUpContainer.at(systerrorindex)[channelindex] = sigmaup;
+	fSystErrorChannelShiftContainer.at(systerrorindex)[channelindex] = shift;
 
 	// no error 
 	return 1;
 }
 
 // ---------------------------------------------------------
-int CombinationModel::SetSystErrorChannelBackground(const char* systerrorname, const char* channelname, const char* backgroundname, double sigmadown, double sigmaup)
+int CombinationModel::SetSystErrorChannelBackground(const char* systerrorname, const char* channelname, const char* backgroundname, double sigmadown, double sigmaup, double shift)
 {
 	// get syst error index
 	int systerrorindex = GetContIndexSystError(systerrorname); 
@@ -337,6 +352,7 @@ int CombinationModel::SetSystErrorChannelBackground(const char* systerrorname, c
 	// set systematic error sigmas
 	fSystErrorSigmaUpContainer.at(systerrorindex).at(channelindex)[backgroundindex] = sigmaup;
 	fSystErrorSigmaDownContainer.at(systerrorindex).at(channelindex)[backgroundindex] = sigmadown;
+	fSystErrorShiftContainer.at(systerrorindex).at(channelindex)[backgroundindex] = shift;
 	
 	// no error 
 	return 1;
@@ -544,13 +560,21 @@ ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* chan
 		int nsyst = GetNSystErrors();
 		for (int i = 0; i < nsyst; ++i) {
 			model->AddSystError( fSystErrorNameContainer.at(i).c_str() ); 
+
+			model->SetSystErrorChannelSignal( fSystErrorNameContainer.at(i).c_str(),
+																				fChannelNameContainer.at(channelindex).c_str(),
+																				fSystErrorChannelSigmaDownContainer.at(i).at(channelindex), 
+																				fSystErrorChannelSigmaUpContainer.at(i).at(channelindex),
+																				fSystErrorChannelShiftContainer.at(i).at(channelindex) );
+				
 			
 			for (int j = 0; j < nbkg; ++j) {
 				model->SetSystErrorChannelBackground( fSystErrorNameContainer.at(i).c_str(), 
 																							fChannelNameContainer.at(channelindex).c_str(),
 																							fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(), 
 																							fSystErrorSigmaDownContainer.at(i).at(channelindex).at(j), 
-																							fSystErrorSigmaUpContainer.at(i).at(channelindex).at(j) );
+																							fSystErrorSigmaUpContainer.at(i).at(channelindex).at(j),
+																							fSystErrorShiftContainer.at(i).at(channelindex).at(j) );
 			}
 		}
 	}
@@ -827,9 +851,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << " Single channels without systematics : " << std::endl;
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Gl. mode";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Gl. mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " RMS";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
@@ -851,6 +876,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		double median = ps->GetMedian(); 
 		double glmode = ps->GetGlobalMode(); 
 		double mode = ps->GetMode(); 
+		double rms = ps->GetRMS(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
 		double errlow = mode - q16;
@@ -858,9 +884,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << rms; 
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
@@ -873,9 +900,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << " Single channels with systematics : " << std::endl;
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Gl. mode";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Gl. mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " RMS";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
@@ -897,6 +925,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		double median = ps->GetMedian(); 
 		double glmode = ps->GetGlobalMode(); 
 		double mode = ps->GetMode(); 
+		double rms = ps->GetRMS(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
 		double errlow = mode - q16;
@@ -904,9 +933,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << rms; 
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
@@ -919,9 +949,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << " Combined channels : " << std::endl;
 	output << std::endl;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Systematics";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Gl. mode";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Median";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Gl. mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " RMS";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
@@ -936,6 +967,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	double median_nosyst = ps_nosyst->GetMedian(); 
 	double glmode_nosyst = ps_nosyst->GetGlobalMode(); 
 	double mode_nosyst = ps_nosyst->GetMode(); 
+	double rms_nosyst = ps_nosyst->GetRMS(); 
 	double q16_nosyst = ps_nosyst->GetQuantile16();
 	double q84_nosyst = ps_nosyst->GetQuantile84();
 	double errlow_nosyst = mode_nosyst - q16_nosyst;
@@ -943,9 +975,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 	output << " ";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << "off";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode_nosyst; 
-	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median_nosyst; 
-	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_nosyst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode_nosyst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << median_nosyst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_nosyst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << rms_nosyst; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16_nosyst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84_nosyst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_nosyst;
@@ -955,6 +988,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	double glmode_syst = ps_syst->GetGlobalMode(); 
 	double median_syst = ps_syst->GetMedian(); 
 	double mode_syst = ps_syst->GetMode(); 
+	double rms_syst = ps_syst->GetRMS(); 
 	double q16_syst = ps_syst->GetQuantile16();
 	double q84_syst = ps_syst->GetQuantile84();
 	double errlow_syst = mode_syst - q16_syst;
@@ -962,9 +996,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 
 	output << " ";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << "on";
-	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode_syst; 
-	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << median_syst; 
-	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_syst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode_syst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << median_syst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode_syst; 
+	output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << rms_syst; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16_syst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84_syst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_syst;

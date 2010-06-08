@@ -129,9 +129,10 @@ class CombinationModel : public BCModel
 	 * @param channelname The name of the channel.
 	 * @param sigmadown The down-scale uncertainty. 
 	 * @param sigmaup The up-scale uncertainty. 
+	 * @param shift The shift wrt to the stat. uncertainty only case.
 	 * @return An error code. 
 	 */ 
-	int SetSystErrorChannelSignal(const char* systerrorname, const char* channelname, double sigmadown, double sigmaup);
+	int SetSystErrorChannelSignal(const char* systerrorname, const char* channelname, double sigmadown, double sigmaup, double shift=0);
 
 	/**
 	 * Set the systematic uncertainty on the background for one channel. 
@@ -140,9 +141,10 @@ class CombinationModel : public BCModel
 	 * @param backgroundname The name of the background. 
 	 * @param sigmadown The down-scale uncertainty. 
 	 * @param sigmaup The up-scale uncertainty. 
+	 * @param shift The shift wrt to the stat. uncertainty only case.
 	 * @return An error code. 
 	 */ 
-	int SetSystErrorChannelBackground(const char* systerrorname, const char* channelname, const char* backgroundname, double sigmadown, double sigmaup); 
+	int SetSystErrorChannelBackground(const char* systerrorname, const char* channelname, const char* backgroundname, double sigmadown, double sigmaup, double shift=0); 
 
 	/* @} */
 
@@ -311,6 +313,13 @@ class CombinationModel : public BCModel
 	std::vector< std::vector<double> > fSystErrorChannelSigmaDownContainer;
 
 	/**
+	 * The container of shift signal systematic
+	 * uncertainties. Indeces are error container index and channel
+	 * container index.
+	 */ 
+	std::vector< std::vector<double> > fSystErrorChannelShiftContainer;
+
+	/**
 	 * The container of up-scale background systematic
 	 * uncertainties. Indeces are error container index, channel
 	 * container index and background container index.
@@ -323,6 +332,12 @@ class CombinationModel : public BCModel
 	 * container index and background container index.
 	 */ 
 	std::vector< std::vector< std::vector<double> > > fSystErrorSigmaDownContainer;
+	/**
+	 * The container of shift background systematic
+	 * uncertainties. Indeces are error container index, channel
+	 * container index and background container index.
+	 */ 
+	std::vector< std::vector< std::vector<double> > > fSystErrorShiftContainer;
 
 	/**
 	 * The container of signal priors. The index is the channel container index. 
