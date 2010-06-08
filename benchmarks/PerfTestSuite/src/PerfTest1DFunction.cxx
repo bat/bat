@@ -174,6 +174,14 @@ int PerfTest1DFunction::Run()
 		delete hist;
 	}	
 
+	// limit uncertainties on on quantiles and mode to at least on bin width
+	if (sqrt(mode_variance) < hist_marg->GetBinWidth(1))
+		mode_variance = hist_marg->GetBinWidth(1);
+	for (int iquant = 0; iquant<9; ++iquant) {
+		if (sqrt(quantile_variance[iquant]) < hist_marg->GetBinWidth(1))
+			quantile_variance[iquant] = hist_marg->GetBinWidth(1);
+	}
+
 	// define test results
 	GetSubtest("chi2")->SetTargetValue(nbins);
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kGood, 3.0*sqrt(2.0*nbins)); 
