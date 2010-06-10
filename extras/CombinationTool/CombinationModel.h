@@ -160,16 +160,19 @@ class CombinationModel : public BCModel
 	/**
 	 * Run the combination with and without systematics. Perform
 	 * analysis for each channel separately.
+	 * @param index_syst index of the systematic uncertainty used (-1: all).
+	 * @return An error code
 	 */ 
-	int PerformFullAnalysis(); 
+	int PerformFullAnalysis(int index_syst = -1); 
 
 	/**
 	 * Perform analysis on one channel.
 	 * @param channelname The name of the channel
 	 * @param flag_syst Flag: systematics on (1) or off (0).
+	 * @param index_syst index of the systematic uncertainty used (-1: all).
 	 * @return A summary object of the signal parameter.
 	 */ 
-	virtual ParameterSummary PerformSingleChannelAnalysis(const char* channelname, bool flag_syst); 
+	virtual ParameterSummary PerformSingleChannelAnalysis(const char* channelname, bool flag_syst, int index_syst = -1); 
 
 	/* @} */
 
@@ -200,11 +203,12 @@ class CombinationModel : public BCModel
 	int AddSystError(const char* systerrorname); 
 
 	/**
-	 * Print an overview on all channels and the combination.
-	 * @param filename The name of the file. 
+	 * Print an overview on all channels, the combination and the systematics.
+	 * @param filename1 The name of the file for the channel overview.
+	 * @param filename2 The name of the file for the systematics overview.
 	 * @return An error code. 
 	 */ 
-	int PrintChannelOverview(const char* filename); 
+	int PrintChannelOverview(const char* filename1 = "overview_channels.eps", const char* filename2 = "overview_systematics.eps"); 
 
 	/**
 	 * Write the summary of the analysis to a file.
@@ -294,6 +298,12 @@ class CombinationModel : public BCModel
 	std::vector<std::string> fSystErrorNameContainer; 
 
 	/**
+	 * The container of systematic uncertainy names. Index is error
+	 * container index. 
+	 */ 
+	std::vector<bool> fSystErrorStatusContainer; 
+
+	/**
 	 * The container of observations. 
 	 */ 
 	std::vector<double> fChannelObservation;
@@ -377,6 +387,12 @@ class CombinationModel : public BCModel
 	 * systematic errors.
 	 */ 
 	ParameterSummary* fSummaryCombinationSyst; 
+	
+	/**
+	 * A summary of the signal parameter for the combination with each
+	 * systematic errors separately.
+	 */ 
+	std::vector<ParameterSummary*> fSummaryCombinationSingleSyst; 
 	
 	/**
 	 * The container of summaries of the signal parameter for the single

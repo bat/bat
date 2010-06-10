@@ -1,3 +1,6 @@
+2010-06-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* CombinationTool: added analysis of systematics separately
+
 2010-06-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* CombinationTool: minor fixes
 	* PerfTestSuite: minor modification to uncertainties of quantiles and mode

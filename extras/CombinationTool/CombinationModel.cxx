@@ -74,16 +74,20 @@ double CombinationModel::LogAPrioriProbability(std::vector <double> parameters)
 			
 			// loop over all systematic uncertainties
 			for (int k = 0; k < nsysterrors; ++k) {
-				int systparindex = GetParIndexSystError(k);
-				double par = parameters.at(systparindex);
+
+				// check status
+				if (fSystErrorStatusContainer.at(k)) {
+					int systparindex = GetParIndexSystError(k);
+					double par = parameters.at(systparindex);
 				
-				x -= fSystErrorChannelShiftContainer.at(k).at(i);
-				
-				if (par < 0)
-					x -= fSystErrorChannelSigmaDownContainer.at(k).at(i) * par;
-				else
-					x -= fSystErrorChannelSigmaUpContainer.at(k).at(i) * par;
-			}
+					x -= fSystErrorChannelShiftContainer.at(k).at(i);
+					
+					if (par < 0)
+						x -= fSystErrorChannelSigmaDownContainer.at(k).at(i) * par;
+					else
+						x -= fSystErrorChannelSigmaUpContainer.at(k).at(i) * par;
+				} // end of check status
+			} // end of loop over systematics
 		} // end if systematics 
 
 		// add measurements
@@ -232,6 +236,9 @@ int CombinationModel::AddSystError(const char* systerrorname)
 {
 	// add syst error name to container
 	fSystErrorNameContainer.push_back(systerrorname); 
+	
+	// add status "on"
+	fSystErrorStatusContainer.push_back(true);
 
 	// add parameter
 	AddParameter(systerrorname, -5.0, 5.0);
@@ -447,7 +454,7 @@ int CombinationModel::PerformAnalysis()
 }
 
 // ---------------------------------------------------------
-int CombinationModel::PerformFullAnalysis()
+int CombinationModel::PerformFullAnalysis(int index_syst)
 {
 	// ---- perform combination analysis without systematics ---- //
 
@@ -486,6 +493,36 @@ int CombinationModel::PerformFullAnalysis()
 	fSummaryCombinationSyst = new ParameterSummary("combination");
 	fSummaryCombinationSyst->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
 	fSummaryCombinationSyst->SetGlobalMode( GetBestFitParameter(0) );
+
+	// ---- perform combination analysis with each systematic separately ---- //
+
+	// print to screen
+	BCLog::OutSummary("Perform combination with each systematic separately"); 
+
+	// set flags
+	SetFlagSystErrors(true);
+
+	// loop over all systematic uncertainties
+	int nsysterrors = GetNSystErrors();
+	for (int k = 0; k < nsysterrors; ++k) {
+
+		// loop over all systematic uncertainties and set status of syst. errors to false
+		for (int j = 0; j < nsysterrors; ++j) {
+			fSystErrorStatusContainer[j] = false;
+		}
+
+		// set status to true
+		fSystErrorStatusContainer[k] = true;
+
+		// perform analysis
+		PerformAnalysis();
+
+		// copy summary information
+		ParameterSummary* ps = new ParameterSummary(fSystErrorNameContainer.at(k).c_str());
+		ps->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
+		ps->SetGlobalMode( GetBestFitParameter(0) );
+		fSummaryCombinationSingleSyst.push_back(ps);
+	}
 
 	// ---- perform single channel analysis without systematics ---- //
 
@@ -529,7 +566,7 @@ int CombinationModel::PerformFullAnalysis()
 }
 
 // ---------------------------------------------------------
-ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* channelname, bool flag_syst)
+ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* channelname, bool flag_syst, int index_syst)
 {
  	// get channel container index
 	int channelindex = GetContIndexChannel(channelname); 
@@ -559,22 +596,24 @@ ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* chan
 	if (flag_syst) {
 		int nsyst = GetNSystErrors();
 		for (int i = 0; i < nsyst; ++i) {
-			model->AddSystError( fSystErrorNameContainer.at(i).c_str() ); 
-
-			model->SetSystErrorChannelSignal( fSystErrorNameContainer.at(i).c_str(),
-																				fChannelNameContainer.at(channelindex).c_str(),
-																				fSystErrorChannelSigmaDownContainer.at(i).at(channelindex), 
-																				fSystErrorChannelSigmaUpContainer.at(i).at(channelindex),
-																				fSystErrorChannelShiftContainer.at(i).at(channelindex) );
+			if (index_syst < 0 || index_syst == i) {
+				model->AddSystError( fSystErrorNameContainer.at(i).c_str() ); 
 				
-			
-			for (int j = 0; j < nbkg; ++j) {
-				model->SetSystErrorChannelBackground( fSystErrorNameContainer.at(i).c_str(), 
-																							fChannelNameContainer.at(channelindex).c_str(),
-																							fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(), 
-																							fSystErrorSigmaDownContainer.at(i).at(channelindex).at(j), 
-																							fSystErrorSigmaUpContainer.at(i).at(channelindex).at(j),
-																							fSystErrorShiftContainer.at(i).at(channelindex).at(j) );
+				model->SetSystErrorChannelSignal( fSystErrorNameContainer.at(i).c_str(),
+																					fChannelNameContainer.at(channelindex).c_str(),
+																					fSystErrorChannelSigmaDownContainer.at(i).at(channelindex), 
+																					fSystErrorChannelSigmaUpContainer.at(i).at(channelindex),
+																					fSystErrorChannelShiftContainer.at(i).at(channelindex) );
+				
+				
+				for (int j = 0; j < nbkg; ++j) {
+					model->SetSystErrorChannelBackground( fSystErrorNameContainer.at(i).c_str(), 
+																								fChannelNameContainer.at(channelindex).c_str(),
+																								fChannelBackgroundNameContainer.at(channelindex).at(j).c_str(), 
+																								fSystErrorSigmaDownContainer.at(i).at(channelindex).at(j), 
+																								fSystErrorSigmaUpContainer.at(i).at(channelindex).at(j),
+																								fSystErrorShiftContainer.at(i).at(channelindex).at(j) );
+				}
 			}
 		}
 	}
@@ -603,7 +642,7 @@ int CombinationModel::GetParIndexSystError(int systerrorindex)
 }
 
 // ---------------------------------------------------------
-int CombinationModel::PrintChannelOverview(const char* filename)
+int CombinationModel::PrintChannelOverview(const char* filename1, const char* filename2)
 {
 	// check if summary information is available
 	if (!fSummaryCombinationNoSyst || !fSummaryCombinationSyst) {
@@ -622,6 +661,10 @@ int CombinationModel::PrintChannelOverview(const char* filename)
 	TGraphAsymmErrors* graph_syst = new TGraphAsymmErrors(GetNChannels()+1); 
 	graph_syst->SetMarkerStyle(20); 
 	graph_syst->SetMarkerSize(1); 
+
+	TGraphAsymmErrors* graph_singlesyst = new TGraphAsymmErrors(GetNSystErrors()); 
+	graph_singlesyst->SetMarkerStyle(20); 
+	graph_singlesyst->SetMarkerSize(1); 
 
 	// coordinate system
 	double xmin = 0.0; 
@@ -720,6 +763,34 @@ int CombinationModel::PrintChannelOverview(const char* filename)
 	graph_syst->SetPoint(nchannels, median_syst, 0.);
 	graph_syst->SetPointError(nchannels, errlow_syst, errhigh_syst, 0, 0);
 
+	// ---- combined analysis with each systematic separately
+
+	// loop over all systematic uncertainties
+	int nsysterrors = GetNSystErrors();
+			
+	// loop over all systematic uncertainties
+	for (int k = 0; k < nsysterrors; ++k) {
+
+		// get summary
+		ParameterSummary* ps = fSummaryCombinationSingleSyst.at(k); 
+
+		if (!ps) {
+			BCLog::OutError("CombinationModel::PrintChannelOverview : Combined channel summary information not available."); 
+			return -1; 
+		}
+
+		// set point from combination
+		double median = ps ->GetMedian(); 
+		double q16 = ps ->GetQuantile16();
+		double q84 = ps ->GetQuantile84();
+		double errlow = median - q16;
+		double errhigh = q84 - median; 
+	
+		// set point and error 
+		graph_singlesyst->SetPoint(k, median, k);
+		graph_singlesyst->SetPointError(k, errlow, errhigh, 0, 0);
+	}
+
 	// ---- do the plotting ---- // 
 
 	// create histogram for axes
@@ -774,8 +845,31 @@ int CombinationModel::PrintChannelOverview(const char* filename)
 	box_help->DrawBox(xmin - 0.25*xwidth, ymin, xmax + 1.75 * xwidth, ymax);
 
 	// print to file 
-	c1->Print(filename);
+	c1->Print(filename1);
 
+	// create histogram for axes
+	TH2D* hist_axes2 = new TH2D("", Form(";%s;Systematic uncertainty", GetParameter(0)->GetName().c_str()), 1, xmin - 0.25*xwidth, xmax + 1.75 * xwidth, GetNSystErrors(), -0.5, GetNSystErrors() - 0.5); 
+	hist_axes2->SetStats(kFALSE);
+	hist_axes2->GetYaxis()->SetNdivisions(0);
+	hist_axes2->GetYaxis()->SetTitleOffset(1.0);
+
+	// create canvas
+	if (GetNSystErrors() > 0) {
+		TCanvas* c2 = new TCanvas();
+		c2->cd(); 
+
+		hist_axes2->Draw();
+		graph_singlesyst->Draw("SAMEP");
+
+		// loop over all systematics and draw labels
+		for (int i = 0; i < nchannels; ++i) {
+			latex->DrawLatex(xmax + 0.25*xwidth, i, fSystErrorNameContainer.at(i).c_str());
+		}
+		line_median->DrawLine(median_syst, -0.5, median_syst, GetNSystErrors() - 0.5);
+
+		c2->Print(filename2);
+	}
+	
 	/*
 	// create postscript
 	TPostScript* ps = new TPostScript("summary_signal.ps");
@@ -1004,6 +1098,56 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84_syst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow_syst;
 	output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh_syst << std::endl;
+	output << std::endl;
+
+	// ---- combined analysis with each systematic separately ---- // 
+
+	output << " Combined analysis with each systematic separately : " << std::endl;
+	output << std::endl;
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Channel";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Gl. mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Median";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " Mode";
+	output << std::setw(10) << std::setiosflags(std::ios::left) << " RMS";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 16% quantile";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
+	output << std::endl;
+
+	// loop over all channels
+	for (int i = 0; i < GetNSystErrors(); ++i) {
+
+		// get summary
+		ParameterSummary* ps = fSummaryCombinationSingleSyst.at(i); 
+
+		if (!ps) {
+			BCLog::OutError("CombinationModel::PrintChannelSummary : Single channel summary information not available."); 
+			return -1; 
+		}
+
+		// get summary information
+		double median = ps->GetMedian(); 
+		double glmode = ps->GetGlobalMode(); 
+		double mode = ps->GetMode(); 
+		double rms = ps->GetRMS(); 
+		double q16 = ps->GetQuantile16();
+		double q84 = ps->GetQuantile84();
+		double errlow = mode - q16;
+		double errhigh = q84 - mode; 
+
+		output << " ";
+		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << glmode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << median; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << mode; 
+		output << std::setw(10) << std::setiosflags(std::ios::left) << std::setprecision(4) << rms; 
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh << std::endl;
+	}
+	output << std::endl;
 
 	output << std::endl;
 	output << " --------------------------------------------- " << std::endl;

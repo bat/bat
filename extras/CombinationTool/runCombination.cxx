@@ -169,7 +169,7 @@ int main()
 	model->PrintAllMarginalized("model_plots.ps");
 
 	model->PrintResults("model_results.txt");
-	model->PrintChannelOverview("channels.ps");
+	model->PrintChannelOverview("channels.ps", "systematics.ps");
 	model->PrintChannelSummary("summary.txt");
 
 	// ----------------------------------------------------------

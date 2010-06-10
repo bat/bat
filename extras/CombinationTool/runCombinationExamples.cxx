@@ -23,13 +23,13 @@ int main()
 
 	// create new CombinationModel object
 	// and define the parameter region
-	CombinationModel * model = new CombinationModel("#sigma [pb]", 0.0, 12.0);
+	CombinationModel * model = new CombinationModel("#sigma [pb]", -5.0, 19.0);
 
 	// set mcmc options
 	model->MCMCSetNLag(10);
 	model->MCMCSetNChains(5);
-	model->MCMCSetNIterationsRun(10000000); // high precision
-	//	model->MCMCSetNIterationsRun(1000000); // low precision
+	//	model->MCMCSetNIterationsRun(10000000); // high precision
+	model->MCMCSetNIterationsRun(100000); // low precision
 	model->SetNbins("#sigma [pb]", 400); // high precision 
 	//	model->SetNbins("#sigma [pb]", 100); // low precision
 
@@ -42,7 +42,7 @@ int main()
 	//
 	model->SetFlagSystErrors(true);
 
-	int runtype = 9;
+	int runtype = 11;
 
 	if (runtype == 0) {
 		// add channel
@@ -197,6 +197,39 @@ int main()
 		model->SetSystErrorChannelSignal("syst1", "channel2", 1.0, 1.0, -1.00);
 	}
 
+	if (runtype == 10) {
+		// add channel
+		model->AddChannel("channel1");
+		model->AddChannel("channel2");
+		
+		// add channels
+		// parameters: channel name, mean value, -sigma, +sigma
+		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
+		model->SetChannelSignalPriorGauss("channel2", 7.0, 3.0, 3.0);
+	}
+
+	if (runtype == 11) {
+		// add channel
+		model->AddChannel("channel1");
+		model->AddChannel("channel2");
+		
+		// add channels
+		// parameters: channel name, mean value, -sigma, +sigma
+		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
+		model->SetChannelSignalPriorGauss("channel2", 7.0, 1.0, 1.0);
+
+		// add systematics
+		// parameters: uncertainty, channel, -sigma, +sigma, mean
+		model->AddSystError("syst1");
+		model->SetNbins("syst1", 400); // high precision 
+		model->SetSystErrorChannelSignal("syst1", "channel1", 1.0, 1.0, 0.00);
+		model->SetSystErrorChannelSignal("syst1", "channel2", 0.0, 0.0, 0.00);
+
+		model->AddSystError("syst2");
+		model->SetNbins("syst2", 400); // high precision 
+		model->SetSystErrorChannelSignal("syst2", "channel1", 1.0, 1.0, 0.00);
+		model->SetSystErrorChannelSignal("syst2", "channel2", 1.0, 1.0, 0.00);
+	}
 
 	// ----------------------------------------------------------
 	// run analysis and plotting
@@ -204,12 +237,12 @@ int main()
 
 	// perform analysis
 	model->PerformFullAnalysis();
-	model->PerformAnalysis();
+	//	model->PerformAnalysis();
 
 	// print results
 	model->PrintAllMarginalized(Form("model_plots_%i.ps", runtype));
 	model->PrintResults(Form("model_results_%i.txt", runtype));
-	model->PrintChannelOverview(Form("model_channels_%i.ps", runtype));
+	model->PrintChannelOverview(Form("model_channels_%i.ps", runtype), Form("model_systematics_%i.ps", runtype));
 	model->PrintChannelSummary(Form("model_summary_%i.txt", runtype));
 
 	// ----------------------------------------------------------
