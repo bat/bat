@@ -70,10 +70,12 @@ class BCDataSet
 		 * @return The data point at the index. */
 		BCDataPoint * GetDataPoint(unsigned int index);
 
-		/*
+		/**
+		 * Viewing the data set as a table with one row per point,
+		 * this method returns a specified column.
        * @param index The index of the component to be returned.
-       * @return The (index)th component of  data point */
-		std::vector<double> GetDataComponents(  int index);
+       * @return The (index)th component of all data points */
+		std::vector<double> GetDataComponents(int index);
 
 
 		/* @} */

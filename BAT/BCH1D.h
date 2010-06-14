@@ -172,6 +172,13 @@ class BCH1D
 		void DrawSmallest(double mode, double prob, bool drawmean=true);
 
 		/**
+		 * Include a legend for the symbols of mean, mode, median and
+		 * confidence band used in 1D marginalized posterior distributions.
+		 * @param text the text used to name the legend entry for the confidence band
+		 */
+		void DrawLegend(const char* text);
+
+		/**
 		 * Calculate the minimal interval of the distribution containing a given content.
 		 * @param min calculated minimum of the interval
 		 * @param max calculated maximum of the interval

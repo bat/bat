@@ -423,6 +423,8 @@ std::vector<double> BCMath::longestRunsChi2(
    //...
 
     int N = yMeasured.size();
+    if ( N<=0)
+       return runs;
    //BCLog::OutDebug(Form("N = %d", N));
 
 

@@ -195,6 +195,10 @@ void BCH1D::Draw(int options, double ovalue)
 			// do the drawing
 			this->DrawShadedLimits(mode, min, max, ovalue);
 
+			// add legend for the symbols mean, mode, median, confidence band
+			this ->DrawLegend("Central 68%");
+
+
 			break;
 
 		// Draw a line at "ovalue".
@@ -221,6 +225,8 @@ void BCH1D::Draw(int options, double ovalue)
 			this->GetSmallestInterval(min, max, ovalue/100.);
 			this->DrawShadedLimits(mode, min, max, 0.);
 
+//			this -> DrawLegend(TString::Format("Smallest %g%",ovalue));
+
 			break;
 
 		// Draw a shaded band at the smallest intervals
@@ -240,8 +246,40 @@ void BCH1D::Draw(int options, double ovalue)
 			break;
 	}
 }
+// ---------------------------------------------------------
+
+void BCH1D::DrawLegend(const char* text)
+{
+   TLegend* legend = new TLegend(0.73, 0.65, 0.86, 0.78);
+   legend -> SetFillColor(kWhite);
+   legend -> SetBorderSize(1);
+
+   TMarker* triangle = new TMarker(0, 0, 23);
+   triangle -> SetMarkerColor(kRed);
+   legend -> AddEntry(triangle, "Global mode", "P");
+
+   TMarker* diamond = new TMarker(0, 0, 27);
+   diamond -> SetMarkerColor(kBlue);
+   legend -> AddEntry(diamond, "Mean", "P");
+
+   TLine * line;
+   line = new TLine();
+   line -> SetLineStyle(2);
+   line -> SetLineColor(kGreen + 2);
+   legend -> AddEntry(line, "Median", "l");
+
+   TLegend* band = new TLegend(0, 0, 1, 1);
+   band -> SetFillColor(kYellow);
+   legend -> AddEntry(band, text, "F");
+
+   legend -> SetTextAlign(12);
+
+   legend -> Draw();
+}
 
 // ---------------------------------------------------------
+
+//TODO Are graphics objects ever deleted from the heap?
 
 void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 {
@@ -299,7 +337,6 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 	tmax->Draw();
 	tmax->Draw("f");
 
-	// draw triangle for mean
 	// draw diamond for mean
 	TPolyLine * tmean;
 
@@ -341,6 +378,7 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 	line -> SetLineStyle(2);
 	line -> SetLineColor(kGreen+2);
 	line -> DrawLine(x2, 0., x2, y2);
+
 
 	// write mode location and shaded band
 
