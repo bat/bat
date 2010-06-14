@@ -102,20 +102,13 @@ double CombinationModel::LogLikelihood(std::vector <double> parameters)
 {
 	double logprob = 0.;
 
-	// get number of channels
-	int nchannels = GetNChannels(); 
+	// loop over all systematic uncertainties
+	int nsysterrors = GetNSystErrors();
 
-	// loop over all channels 
-	for (int i = 0; i < nchannels; ++i) {
-
-		// loop over all systematic uncertainties
-		int nsysterrors = GetNSystErrors();
-
-		if (fFlagSystErrors) {
-			for (int i = 0; i < nsysterrors; ++i) {
-				logprob += BCMath::LogGaus(parameters.at( GetParIndexSystError(i) ), 0., 1., true ); 
-			}
-		}
+	if (fFlagSystErrors) {
+	  for (int j = 0; j < nsysterrors; ++j) {
+	    logprob += BCMath::LogGaus(parameters.at( GetParIndexSystError(j) ), 0., 1., true ); 
+	  }
 	}
 	
 	return logprob;
@@ -862,7 +855,7 @@ int CombinationModel::PrintChannelOverview(const char* filename1, const char* fi
 		graph_singlesyst->Draw("SAMEP");
 
 		// loop over all systematics and draw labels
-		for (int i = 0; i < nchannels; ++i) {
+		for (int i = 0; i < GetNSystErrors(); ++i) {
 			latex->DrawLatex(xmax + 0.25*xwidth, i, fSystErrorNameContainer.at(i).c_str());
 		}
 		line_median->DrawLine(median_syst, -0.5, median_syst, GetNSystErrors() - 0.5);
@@ -921,6 +914,7 @@ int CombinationModel::PrintChannelOverview(const char* filename1, const char* fi
 // ---------------------------------------------------------
 int CombinationModel::PrintChannelSummary(const char* filename)
 {
+
 	// check if summary information is available
 	if (!fSummaryCombinationNoSyst || !fSummaryCombinationSyst) {
 		BCLog::OutError("CombinationModel::PrintChannelOverview : Summary information not available."); 
