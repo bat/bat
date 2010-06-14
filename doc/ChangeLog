@@ -1,3 +1,8 @@
+2010-06-14 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCH1D: draw legend to explain mean, mode... symbols
+	* todo: checked off legend
+	* BCMath: extra safety check
+
 2010-06-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated to-do list.
 	* Bug fix in CombinationTool.
