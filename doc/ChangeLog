@@ -1,3 +1,6 @@
+2010-06-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* version 0.4.pre3
+
 2010-06-14 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCH1D: draw legend to explain mean, mode... symbols
 	* todo: checked off legend
@@ -16,7 +19,7 @@
 
 2010-06-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite: added uncertainty for mode and quantiles
-	
+
 2010-06-07 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Update todo list
 

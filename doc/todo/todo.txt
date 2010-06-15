@@ -5,7 +5,7 @@ Priority:    Release:    Status:   Task:
 ------------------------------------------------------------------------------------------------
 
 High         0.4.0                 Update introduction
-High	     0.4.0                 Update documentation for examples (Kevin)
+High         0.4.0                 Update documentation for examples (Kevin)
 High         0.4.0       fixed     Bug: summary tool does not work with fixed parameters (Kevin)
 High         0.4.0       fixed     Test TF1 priors on parameters (Kevin)
 High         0.4.0       fixed     Add legend to marginalized plots by default (Fred)
