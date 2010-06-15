@@ -3,6 +3,7 @@
 
 #include <BAT/BCLog.h>
 #include <BAT/BCH1D.h>
+#include <BAT/BCH2D.h>
 #include <BAT/BCMath.h>
 
 #include <TF1.h>
@@ -514,6 +515,7 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 		ParameterSummary* ps = new ParameterSummary(fSystErrorNameContainer.at(k).c_str());
 		ps->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
 		ps->SetGlobalMode( GetBestFitParameter(0) );
+		ps->SetBuffer( GetMarginalized( GetParameter(0)->GetName().c_str(), GetParameter(1)->GetName().c_str())->GetHistogram()->GetCorrelationFactor() );
 		fSummaryCombinationSingleSyst.push_back(ps);
 	}
 
@@ -1107,6 +1109,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " 84% quantile";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (low)"; 
 	output << std::setw(15) << std::setiosflags(std::ios::left) << " Uncert. (high)"; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Contribution"; 
+	output << std::setw(15) << std::setiosflags(std::ios::left) << " Corr." << std::endl;; 
 	output << std::endl;
 
 	// loop over all channels
@@ -1129,6 +1133,7 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		double q84 = ps->GetQuantile84();
 		double errlow = mode - q16;
 		double errhigh = q84 - mode; 
+		double corr = ps->GetBuffer();
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
@@ -1139,7 +1144,9 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q16;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << q84;
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errlow;
-		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh << std::endl;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << errhigh;
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << sqrt(rms*rms-rms_nosyst*rms_nosyst);
+		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << corr << std::endl;
 	}
 	output << std::endl;
 

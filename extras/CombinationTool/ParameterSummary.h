@@ -119,9 +119,15 @@ class ParameterSummary
 	double GetRMS()
 	{ return fRMS; }; 
 
+	/**
+	 * Return arbitrary buffer
+	 */
+	double GetBuffer()
+	{ return fBuffer; };
+
 	/* @} */
 
-	/** \name Public member functions (get) */
+	/** \name Public member functions (set) */
 	/* @{ */
 
 	/**
@@ -202,6 +208,13 @@ class ParameterSummary
 	void SetRMS(double rms)
 	{ fRMS = rms; }; 
 
+	/**
+	 * Set the arbitrary buffer. 
+	 * @param val The buffer value.
+	 */ 
+	void SetBuffer(double val)
+	{ fBuffer = val; }; 
+
 	/* @} */
 
 	/** \name Public member functions (misc) */
@@ -276,6 +289,11 @@ class ParameterSummary
 	 * The standard deviation.
 	 */
 	double fRMS; 
+
+	/**
+	 * A buffer for additional information. 
+	 */ 
+	double fBuffer;
 };
 
 // ---------------------------------------------------------
