@@ -26,6 +26,7 @@ LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 GLIBS       += $(ROOTGLIBS) -L.-L$(BATINSTALLDIR)/lib -lBAT
 
 CXSRCS      = TestSuite.cxx \
+              ReleaseTestSuite.cxx \
               PerfTest.cxx \
               PerfSubTest.cxx \
               PerfTest1DFunction.cxx \

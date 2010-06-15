@@ -21,6 +21,10 @@
 
 	public:
 
+		/** \name Enumerators  */
+		/* @{ */
+		
+		/* @} */
 		/** \name Constructors and destructors */
 		/* @{ */
 
@@ -33,6 +37,10 @@
 		/* @} */
 		/** \name Member functions (Set) */
 		/* @{ */ 
+		
+		/** Set the precision of the tests
+		 * @param the precision. */ 
+		void SetPrecision(PerfTest::Precision precision);
 		
 		/* @} */ 
 		/** \name Member functions (Get) */ 

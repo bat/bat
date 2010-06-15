@@ -32,6 +32,9 @@ class PerfTest
 		 
 	/** An enumerator for the test categories. */ 
 	enum TestType{ kUnknown, kFunction1D, kFunction2D }; 
+
+	/** An enumerator for the test precision. */
+	enum Precision{ kCoarse, kMedium, kDetail }; 
 		 
 	/* @} */
 	/** \name Constructors and destructors  */
@@ -46,6 +49,9 @@ class PerfTest
 	/* @} */
 	/** \name Member functions (Set)  */
 	/* @{ */
+
+	/** Set the precision of the test. */
+	void SetPrecision(PerfTest::Precision precision); 
 
 	/** Set real time of test. */ 
 	void SetRealTime(double time)
@@ -67,6 +73,10 @@ class PerfTest
 	/** Return the test type. */
 	PerfTest::TestType GetTestType()
 		{ return fTestType; };
+
+	/** Return the precision. */
+	PerfTest::Precision GetPrecision()
+		{ return fPrecision; };
 
 	/** Get the number of subtests which belong to this test. 
 	 * @return the number of subtests. */ 
@@ -176,12 +186,18 @@ class PerfTest
 	/** Defines the subtests. */ 
 	virtual void DefineSubtests() = 0; 
 
+	/** Define precision settings. */ 
+	virtual void PrecisionSettings(PerfTest::Precision);
+
 	/* @} */
 
  protected:
 
 	/** The test type. */
 	TestType fTestType;
+
+	/** The precision of the test. */
+	Precision fPrecision; 
 
  private:
 

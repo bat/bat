@@ -59,6 +59,9 @@ class PerfTest2DFunction : public PerfTest, public BCModel
 	 * @return an error code. */ 
 	int WriteResults(); 
 
+	/** Define precision settings. */ 
+	void PrecisionSettings(PerfTest::Precision);
+
  private:
 		
 	/** The test function. */

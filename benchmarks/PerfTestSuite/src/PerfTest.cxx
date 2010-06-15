@@ -17,6 +17,7 @@
 //______________________________________________________________________________
 PerfTest::PerfTest(std::string name) 
 	: fTestType(PerfTest::kUnknown)
+	, fPrecision(PerfTest::kCoarse)
 	, fSubtestContainer(std::vector<PerfSubTest *>(0))
 	, fCanvasContainer(std::vector<TCanvas *>(0))
 	, fCanvasDescriptionContainer(std::vector<std::string>(0))
@@ -59,6 +60,14 @@ std::string PerfTest::ToStringHTML(PerfSubTest::Status status)
 {
 	PerfSubTest st; 
 	return st.ToStringHTML(status); 
+}
+
+//______________________________________________________________________________
+void PerfTest::SetPrecision(PerfTest::Precision precision)
+{
+	fPrecision = precision;
+
+	PrecisionSettings(precision);
 }
 
 //______________________________________________________________________________
@@ -307,6 +316,11 @@ int PerfTest::WriteResults()
 
 	// no error 
 	return 1; 
+}
+
+//______________________________________________________________________________
+void PerfTest::PrecisionSettings(PerfTest::Precision precision)
+{
 }
 
 //______________________________________________________________________________

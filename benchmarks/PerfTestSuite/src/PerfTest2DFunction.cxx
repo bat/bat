@@ -33,8 +33,8 @@ PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTest(n
 	//	gStyle->SetOptStat(111111);
 
 	// set options
-	MCMCSetNLag(10);
-	MCMCSetNIterationsRun(10000000);
+	//	MCMCSetNLag(10);
+	//	MCMCSetNIterationsRun(10000000);
 
 	// manipulate function
 	fFunction->SetNDF(100000);
@@ -163,7 +163,9 @@ int PerfTest2DFunction::Run()
 	TCanvas* c_pull = new TCanvas();
 	c_pull->cd();
 	hist_pull->Draw();
-	hist_pull->Fit("gaus");
+	TF1* g = new TF1("g", "[0]/sqrt(2.0*TMath::Pi())*exp(-x*x/2.)", -5.0, 5.0);
+	g->SetParameter(0, hist_pull->Integral("")*hist_pull->GetBinWidth(1));
+	g->Draw("SAMEP");
 	AddCanvas(c_pull); 
 	AddCanvasDescription("The pull between the distribution from MCMC and the analytic function.");
 
@@ -178,7 +180,7 @@ int PerfTest2DFunction::Run()
 void PerfTest2DFunction::DefineSubtests()
 {
 	PerfSubTest * subtest = new PerfSubTest("chi2"); 
-	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
+	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
 }
 
@@ -190,6 +192,24 @@ int PerfTest2DFunction::WriteResults()
 	PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
 
 	return 1;
+}
+
+//______________________________________________________________________________
+void PerfTest2DFunction::PrecisionSettings(PerfTest::Precision precision)
+{
+	if (precision == PerfTest::kCoarse) {
+		MCMCSetNLag(1);
+		MCMCSetNIterationsRun(10000);
+	}
+	else if (precision == PerfTest::kMedium) {
+		MCMCSetNLag(5);
+		MCMCSetNIterationsRun(100000);
+
+	}
+	else if (precision == PerfTest::kDetail) {
+		MCMCSetNLag(10);
+		MCMCSetNIterationsRun(1000000);
+	}
 }
 
 //______________________________________________________________________________

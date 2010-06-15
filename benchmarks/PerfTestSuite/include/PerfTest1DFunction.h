@@ -11,8 +11,8 @@
  */
 
 
-#ifndef BAT_PERFTEST1DFunction
-#define BAT_PERFTEST1DFunction
+#ifndef BAT_PERFTEST1DFUNCTION
+#define BAT_PERFTEST1DFUNCTION
 
 #include <string>
 #include <vector>
@@ -49,6 +49,9 @@ class PerfTest1DFunction : public PerfTest, public BCModel
 	/** Writes the test to file. 
 	 * @return an error code. */ 
 	int WriteResults(); 
+
+	/** Define precision settings. */ 
+	void PrecisionSettings(PerfTest::Precision);
 
 	/* @} */
 

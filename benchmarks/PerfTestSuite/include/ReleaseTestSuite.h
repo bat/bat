@@ -15,47 +15,47 @@
 #ifndef BAT_RELEASETESTSUITE
 #define BAT_RELEASETESTSUITE
 
+#include <include/TestSuite.h>
 
-namespace BAT
+class ReleaseTestSuite : public TestSuite
 {
+	
+ public:
+	
+	/** \name Enumerators  */
+	/* @{ */
+	
+	/* @} */
+	/** \name Constructors and destructors  */
+	/* @{ */
+	
+	/** The default constructor */
+	ReleaseTestSuite();
+	
+	/** The default destructor */
+	~ReleaseTestSuite();
+	
+	/* @} */
+	/** \name Member functions (Set)  */
+	/* @{ */
+	
+	/* @} */
+	/** \name Member functions (Get)  */
+	/* @{ */
+	
+	/* @} */
+	/** \name Member functions (misc)  */
+	/* @{ */
 
-	class ReleaseTestSuite
-	{
+	/**
+	 * Prepare all tests. 
+	 * @return An error code. */ 
+	int PrepareTests();
 
-	public:
-
-		/** \name Enumerators  */
-		/* @{ */
-
-		/* @} */
-		/** \name Constructors and destructors  */
-		/* @{ */
-
-		/** The default constructor */
-		ReleaseTestSuite();
-
-		/** The default destructor */
-		~ReleaseTestSuite();
-
-		/* @} */
-		/** \name Member functions (Set)  */
-		/* @{ */
-
-		/* @} */
-		/** \name Member functions (Get)  */
-		/* @{ */
-
-
-		/* @} */
-		/** \name Member functions (misc)  */
-		/* @{ */
-
-		/* @} */
-
-	private:
-
-	};
-
-} // namespace BAT
+	/* @} */
+	
+ private:
+	
+};
 
 #endif

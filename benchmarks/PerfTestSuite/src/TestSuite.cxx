@@ -27,6 +27,20 @@ TestSuite::~TestSuite()
 }
 	
 //______________________________________________________________________________
+void TestSuite::SetPrecision(PerfTest::Precision precision)
+{
+	// get number of sub tests 
+	int n = GetNTests(); 
+
+	// loop over all tests and set precision
+	for (int i = 0; i < n; ++i) {
+		fTestContainer.at(i)->SetPrecision(precision);
+	}
+		
+
+}
+
+//______________________________________________________________________________
 int TestSuite::GetNTests(PerfSubTest::Status status)
 {
 	// get number of sub tests 
@@ -37,7 +51,7 @@ int TestSuite::GetNTests(PerfSubTest::Status status)
 
 	// loop over all tests and compare status
 	for (int i = 0; i < n; ++i) {
-		if (fTestContainer.at(i) -> GetStatus() == status)
+		if (fTestContainer.at(i)->GetStatus() == status)
 			counter++;
 	}
 		
@@ -90,7 +104,7 @@ int TestSuite::RunTests()
 		fTestContainer.at(i)->SetRealTime(sw->RealTime());
 		err *= fTestContainer.at(i) -> WriteResults(); 
 	}
-		
+
 	// return error code
 	return err;
 }
