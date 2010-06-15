@@ -64,9 +64,28 @@ int main()
 
 ////////////////// all shifts set to 0        ////////////////
    // systematic: event preselection, correlated among signal channels
-   model->AddSystError("preselection");
-   model->SetSystErrorChannelSignal("preselection", "e+jets",     0.12, 0.12,  0.00);
-   model->SetSystErrorChannelSignal("preselection", "mu+jets",    0.15, 0.15,  0.00);
+	 //   model->AddSystError("preselection");
+	 //   model->SetSystErrorChannelSignal("preselection", "e+jets",     0.12, 0.12,  0.00);
+	 //   model->SetSystErrorChannelSignal("preselection", "mu+jets",    0.15, 0.15,  0.00);
+
+   model->AddSystError("syst1");
+   model->SetSystErrorChannelSignal("syst1", "e+jets",     0.50, 0.50,  0.50);
+   model->SetSystErrorChannelSignal("syst1", "mu+jets",    0.50, 0.50,  0.50);
+
+   model->AddSystError("syst2");
+   model->SetSystErrorChannelSignal("syst2", "e+jets",     0.50, 0.50,  -0.50);
+   model->SetSystErrorChannelSignal("syst2", "mu+jets",    0.50, 0.50,  -0.50);
+
+   model->AddSystError("syst3");
+   model->SetSystErrorChannelSignal("syst3", "e+jets",     0.50, 0.50,  0.50);
+   model->SetSystErrorChannelSignal("syst3", "mu+jets",    0.50, 0.50,  0.50);
+
+   model->AddSystError("syst4");
+   model->SetSystErrorChannelSignal("syst4", "e+jets",     0.50, 0.50,  -0.50);
+   model->SetSystErrorChannelSignal("syst4", "mu+jets",    0.50, 0.50,  -0.50);
+
+
+
 
    // ----------------------------------------------------------
    // run analysis and plotting
@@ -74,7 +93,6 @@ int main()
 
    // perform analysis
    model->PerformFullAnalysis();
-   //   model->PerformAnalysis();
 
    // print results
    model->PrintAllMarginalized("model_plots.ps");

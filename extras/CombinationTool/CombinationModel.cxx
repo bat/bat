@@ -657,7 +657,7 @@ int CombinationModel::PrintChannelOverview(const char* filename1, const char* fi
 	graph_syst->SetMarkerStyle(20); 
 	graph_syst->SetMarkerSize(1); 
 
-	TGraphAsymmErrors* graph_singlesyst = new TGraphAsymmErrors(GetNSystErrors()); 
+	TGraphAsymmErrors* graph_singlesyst = new TGraphAsymmErrors(GetNSystErrors()+2); 
 	graph_singlesyst->SetMarkerStyle(20); 
 	graph_singlesyst->SetMarkerSize(1); 
 
@@ -785,6 +785,10 @@ int CombinationModel::PrintChannelOverview(const char* filename1, const char* fi
 		graph_singlesyst->SetPoint(k, median, k);
 		graph_singlesyst->SetPointError(k, errlow, errhigh, 0, 0);
 	}
+	graph_singlesyst->SetPoint(nsysterrors, median_nosyst, nsysterrors);
+	graph_singlesyst->SetPointError(nsysterrors, errlow_nosyst, errhigh_nosyst, 0, 0);
+	graph_singlesyst->SetPoint(nsysterrors+1, median_syst, nsysterrors+1.);
+	graph_singlesyst->SetPointError(nsysterrors+1, errlow_syst, errhigh_syst, 0, 0);
 
 	// ---- do the plotting ---- // 
 
@@ -843,7 +847,7 @@ int CombinationModel::PrintChannelOverview(const char* filename1, const char* fi
 	c1->Print(filename1);
 
 	// create histogram for axes
-	TH2D* hist_axes2 = new TH2D("", Form(";%s;Systematic uncertainty", GetParameter(0)->GetName().c_str()), 1, xmin - 0.25*xwidth, xmax + 1.75 * xwidth, GetNSystErrors(), -0.5, GetNSystErrors() - 0.5); 
+	TH2D* hist_axes2 = new TH2D("", Form(";%s;Systematic uncertainty", GetParameter(0)->GetName().c_str()), 1, xmin - 0.25*xwidth, xmax + 1.75 * xwidth, GetNSystErrors() + 2, -0.5, GetNSystErrors() - 0.5 + 2.0); 
 	hist_axes2->SetStats(kFALSE);
 	hist_axes2->GetYaxis()->SetNdivisions(0);
 	hist_axes2->GetYaxis()->SetTitleOffset(1.0);
@@ -860,7 +864,10 @@ int CombinationModel::PrintChannelOverview(const char* filename1, const char* fi
 		for (int i = 0; i < GetNSystErrors(); ++i) {
 			latex->DrawLatex(xmax + 0.25*xwidth, i, fSystErrorNameContainer.at(i).c_str());
 		}
-		line_median->DrawLine(median_syst, -0.5, median_syst, GetNSystErrors() - 0.5);
+		latex->DrawLatex(xmax + 0.25*xwidth, GetNSystErrors(), "no systematics");
+		latex->DrawLatex(xmax + 0.25*xwidth, GetNSystErrors()+1., "all systematics");
+		line_median->DrawLine(median_syst, -0.5, median_syst, GetNSystErrors() - 0.5 + 2.0);
+		line_median->DrawLine(median_nosyst, -0.5, median_nosyst, GetNSystErrors() - 0.5 + 2.0);
 
 		c2->Print(filename2);
 	}
