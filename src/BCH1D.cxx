@@ -152,6 +152,10 @@ void BCH1D::Draw(int options, double ovalue)
 	// define temporary line.
 	TLine * line;
 
+	//control if legend is required
+	bool flagLegend=false;
+	char confidenceLabel[25];
+
 	// check drawing option.
 	switch(options)
 	{
@@ -159,11 +163,14 @@ void BCH1D::Draw(int options, double ovalue)
 		// If the mode is outside the band only draw a limit.
 		case 0:
 			if (fabs(ovalue) >= 100 || ovalue==0.)
-			{
+			{//default case if no args to Draw() supplied
 
 				min = this -> GetQuantile(.16);
 				max = this -> GetQuantile(.84);
 
+				//draw a legend later
+				flagLegend = true;
+				sprintf(confidenceLabel, "Central 68%%");
 
 //				if ( thismode > max || fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
 				if ( fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
@@ -171,6 +178,7 @@ void BCH1D::Draw(int options, double ovalue)
 					min = this -> GetQuantile(1.-(double)fDefaultCLLimit/100.);
 					max = fHistogram->GetXaxis()->GetXmax();
 					ovalue = fDefaultCLLimit;
+					sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
 				}
 //				else if (thismode < min || fHistogram->FindBin(thismode)==1)
 				else if ( fHistogram->FindBin(thismode)==1)
@@ -178,6 +186,7 @@ void BCH1D::Draw(int options, double ovalue)
 					min = fHistogram->GetXaxis()->GetXmin();
 					max = this -> GetQuantile((double)fDefaultCLLimit/100.);
 					ovalue = -fDefaultCLLimit;
+					sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
 				}
 			}
 
@@ -196,7 +205,8 @@ void BCH1D::Draw(int options, double ovalue)
 			this->DrawShadedLimits(mode, min, max, ovalue);
 
 			// add legend for the symbols mean, mode, median, confidence band
-			this ->DrawLegend("Central 68%");
+			if(flagLegend)
+			   this ->DrawLegend(confidenceLabel);
 
 
 			break;
@@ -250,6 +260,8 @@ void BCH1D::Draw(int options, double ovalue)
 
 void BCH1D::DrawLegend(const char* text)
 {
+   //draw on top right corner
+
    TLegend* legend = new TLegend(0.73, 0.65, 0.86, 0.78);
    legend -> SetFillColor(kWhite);
    legend -> SetBorderSize(1);
