@@ -1,0 +1,165 @@
+
+ -----------------------------------------------------
+ Summary
+ -----------------------------------------------------
+
+ Model summary
+ =============
+ Model: model
+ Number of parameters: 8
+ List of Parameters and ranges:
+  (0) Parameter "N_0": 1.29e+06 - 1.31e+06
+  (1) Parameter "eff_0": 0 - 0.0035
+  (2) Parameter "N_1": 0 - 8000
+  (3) Parameter "eff_1": 0 - 0.45
+  (4) Parameter "N_2": 0 - 8000
+  (5) Parameter "eff_2": 0 - 0.45
+  (6) Parameter "N_3": 0 - 8000
+  (7) Parameter "eff_3": 0 - 0.45
+
+ Results of the marginalization
+ ==============================
+ List of parameters and properties of the marginalized
+ distributions:
+  (0) Parameter "N_0"
+      Mean +- RMS:         1.3e+06 +- 2000
+      Median +- sigma:     1.3e+06 +  1987 - 1991
+      (Marginalized) mode: 1.3e+06
+      Smallest interval(s) containing 68% and local modes:
+       1.298e+06 - 1.302e+06 (local mode at 1.3e+06 with rel. height 1; rel. area 0.6827)
+       5% quantile:        1.297e+06
+      10% quantile:        1.297e+06
+      16% quantile:        1.298e+06
+      84% quantile:        1.302e+06
+      90% quantile:        1.303e+06
+      95% quantile:        1.303e+06
+
+  (1) Parameter "eff_0"
+      Mean +- RMS:         0.0008943 +- 0.0001198
+      Median +- sigma:     0.0009 +  0.0001123 - 0.0001245
+      (Marginalized) mode: 0.0009275
+      Smallest interval(s) containing 68% and local modes:
+       0.00077 - 0.00105 (local mode at 0.0009275 with rel. height 1; rel. area 0.698)
+       5% quantile:        0.0006857
+      10% quantile:        0.0007373
+      16% quantile:        0.0007755
+      84% quantile:        0.001017
+      90% quantile:        0.001044
+      95% quantile:        0.001082
+
+  (2) Parameter "N_1"
+      Mean +- RMS:         4354 +- 545.7
+      Median +- sigma:     4367 +  546.3 - 571.8
+      (Marginalized) mode: 4360
+      Smallest interval(s) containing 68% and local modes:
+       3840 - 5040 (local mode at 4360 with rel. height 1; rel. area 0.6824)
+       5% quantile:        3433
+      10% quantile:        3633
+      16% quantile:        3795
+      84% quantile:        4935
+      90% quantile:        5057
+      95% quantile:        5231
+
+  (3) Parameter "eff_1"
+      Mean +- RMS:         0.2293 +- 0.0354
+      Median +- sigma:     0.2266 +  0.03784 - 0.0323
+      (Marginalized) mode: 0.2228
+      Smallest interval(s) containing 68% and local modes:
+       0.189 - 0.2655 (local mode at 0.2228 with rel. height 1; rel. area 0.699)
+       5% quantile:        0.1759
+      10% quantile:        0.1859
+      16% quantile:        0.1943
+      84% quantile:        0.2662
+      90% quantile:        0.2764
+      95% quantile:        0.2919
+
+  (4) Parameter "N_2"
+      Mean +- RMS:         2318 +- 479
+      Median +- sigma:     2280 +  513.8 - 436.7
+      (Marginalized) mode: 2200
+      Smallest interval(s) containing 68% and local modes:
+       1760 - 2800 (local mode at 2200 with rel. height 1; rel. area 0.6917)
+       5% quantile:        1598
+      10% quantile:        1730
+      16% quantile:        1844
+      84% quantile:        2818
+      90% quantile:        2956
+      95% quantile:        3170
+
+  (5) Parameter "eff_2"
+      Mean +- RMS:         0.2113 +- 0.04275
+      Median +- sigma:     0.2094 +  0.04491 - 0.04124
+      (Marginalized) mode: 0.2048
+      Smallest interval(s) containing 68% and local modes:
+       0.162 - 0.2565 (local mode at 0.2048 with rel. height 1; rel. area 0.7042)
+       5% quantile:        0.1442
+      10% quantile:        0.1573
+      16% quantile:        0.1681
+      84% quantile:        0.2562
+      90% quantile:        0.2677
+      95% quantile:        0.2848
+
+  (6) Parameter "N_3"
+      Mean +- RMS:         334.5 +- 261.7
+      Median +- sigma:     278.9 +  313.7 - 197
+      (Marginalized) mode: 40
+      Smallest interval(s) containing 68% and local modes:
+       0 - 560 (local mode at 0 with rel. height 1; rel. area 0.7504)
+       5% quantile:        25.55
+      10% quantile:        51.1
+      16% quantile:        81.85
+      84% quantile:        607.8
+      90% quantile:        698.6
+      95% quantile:        843.2
+
+  (7) Parameter "eff_3"
+      Mean +- RMS:         0.1909 +- 0.0508
+      Median +- sigma:     0.191 +  0.05049 - 0.05063
+      (Marginalized) mode: 0.1913
+      Smallest interval(s) containing 68% and local modes:
+       0.1395 - 0.2475 (local mode at 0.1913 with rel. height 1; rel. area 0.6916)
+       5% quantile:        0.1071
+      10% quantile:        0.1257
+      16% quantile:        0.1404
+      84% quantile:        0.2436
+      90% quantile:        0.256
+      95% quantile:        0.2744
+
+
+ Results of the optimization
+ ===========================
+ Optimization algorithm used:  Minuit
+ List of parameters and global mode:
+  (0) Parameter "N_0": 1.3e+06 +- 1963
+  (1) Parameter "eff_0": 0.0009882 +- 0.0003002
+  (2) Parameter "N_1": 4856 +- 846.4
+  (3) Parameter "eff_1": 0.1996 +- 0.04931
+  (4) Parameter "N_2": 2139 +- 343
+  (5) Parameter "eff_2": 0.1998 +- 0.07434
+  (6) Parameter "N_3": 4.878 +- 6431
+  (7) Parameter "eff_3": 0.2 +- 0.04902
+
+ Status of the MCMC
+ ==================
+ Convergence reached: yes
+ Number of iterations until convergence: 4500
+ Number of chains:                       5
+ Number of iterations per chain:         100000000
+ Average efficiencies:
+  (0) Parameter "N_0": 16.12%
+  (1) Parameter "eff_0": 16.12%
+  (2) Parameter "N_1": 16.12%
+  (3) Parameter "eff_1": 16.12%
+  (4) Parameter "N_2": 16.12%
+  (5) Parameter "eff_2": 16.12%
+  (6) Parameter "N_3": 16.12%
+  (7) Parameter "eff_3": 16.12%
+
+ -----------------------------------------------------
+
+ Notes
+ =====
+ (i) Median +- sigma denotes the median, m, of the
+     marginalized distribution and the intervals from
+     m to the 16% and 84% quantiles.
+ -----------------------------------------------------
