@@ -1,6 +1,7 @@
 2010-06-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated introduction: added BCSummaryTool and BCTemplateFitter
-
+	* BCEngineMCMC: Added method to set precision
+	
 2010-06-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCH1D: improved legend drawing
 

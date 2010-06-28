@@ -95,6 +95,52 @@ void BCEngineMCMC::MCMCSetValuesDetail()
 }
 
 // ---------------------------------------------------------
+void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
+{
+	switch(precision) {
+	case BCEngineMCMC::kLow:
+		fMCMCNChains              = 1;
+		fMCMCNLag                 = 1;
+		fMCMCNIterationsMax       = 10000;
+		fMCMCNIterationsRun       = 10000;
+		fMCMCNIterationsPreRunMin = 100;
+		fMCMCNIterationsUpdate    = 1000;
+		fMCMCNIterationsUpdateMax = 10000;
+		fMCMCRValueCriterion      = 0.1;
+		fMCMCRValueParametersCriterion = 0.1;
+		fMCMCRValue               = 100;
+		break;
+	case  BCEngineMCMC::kMedium:
+		fMCMCNChains              = 5;
+		fMCMCNLag                 = 1;
+		fMCMCNIterationsMax       = 100000;
+		fMCMCNIterationsRun       = 100000;
+		fMCMCNIterationsPreRunMin = 100;
+		fMCMCNIterationsUpdate    = 1000;
+		fMCMCNIterationsUpdateMax = 10000;
+		fMCMCRValueCriterion      = 0.1;
+		fMCMCRValueParametersCriterion = 0.1;
+		fMCMCRValue               = 100;
+		break;
+	case  BCEngineMCMC::kHigh:
+		fMCMCNChains              = 10;
+		fMCMCNLag                 = 10;
+		fMCMCNIterationsMax       = 10000000;
+		fMCMCNIterationsRun       = 10000000;
+		fMCMCNIterationsPreRunMin = 100;
+		fMCMCNIterationsUpdate    = 1000;
+		fMCMCNIterationsUpdateMax = 10000;
+		fMCMCRValueCriterion      = 0.1;
+		fMCMCRValueParametersCriterion = 0.1;
+		fMCMCRValue               = 100;		
+		break;
+	}
+
+	// re-initialize
+	MCMCInitialize();
+}
+
+// ---------------------------------------------------------
 BCEngineMCMC::~BCEngineMCMC()
 {
 	// delete random number generator

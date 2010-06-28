@@ -37,9 +37,16 @@ class BCEngineMCMC
 
 	public:
 
-		/** \name Constructors and destructors */
-		/* @{ */
-
+	/** \name Enumerators  */
+	/* @{ */
+	
+	/** An enumerator for the status of a test. */ 
+	enum Precision{ kLow, kMedium, kHigh }; 
+	
+	/* @} */
+	/** \name Constructors and destructors */
+	/* @{ */
+	
 		/**
 		 * Default constructor. */
 		BCEngineMCMC();
@@ -404,6 +411,10 @@ class BCEngineMCMC
 		/*
 		 * Set the values for a detailed MCMC run. */
 		void MCMCSetValuesDetail();
+
+		/**
+		 * Set the precision for the MCMC run. */ 
+		void MCMCSetPrecision(BCEngineMCMC::Precision precision);
 
 		/* @} */
 		/** \name Miscellaneous methods */
