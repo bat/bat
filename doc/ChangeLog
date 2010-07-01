@@ -1,7 +1,11 @@
+2010-07-01 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated release notes
+
 2010-07-01 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Updated introduction: prior definition and caching
-	* PerfTestSuite: Added mathematica notebook BATquantiles.nb,
-	which calculates distribution of mode and quantiles for 1D tests
+	* PerfTestSuite:
+	  - Added mathematica notebook BATquantiles.nb which calculates 
+	    distribution of mode and quantiles for 1D tests
 
 2010-06-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated introduction: added BCSummaryTool and BCTemplateFitter
@@ -167,7 +171,7 @@
 2010-04-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - errors on mode are negative if unavailable
-	  - errors on mode are not prinyed for SA and MCMC
+	  - errors on mode are not printed for SA and MCMC
 	  - fix return values for mode and its error in no mode finding was run
 	* code formating
 	* reorganized fast fitter examples
@@ -188,7 +192,7 @@
 	* fixes to building with cuba support on MAC OS X
 
 2010-04-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BATemplateFitter: minor bug fixes.
+	* BCTemplateFitter: minor bug fixes.
 	* Added examples for template fitting.
 
 2010-04-13 Daniel Kollar <daniel.kollar@cern.ch>
@@ -245,11 +249,11 @@
 	    to check the above methods
 
 2010-02-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * StackModel: minor modification to the Makefile
+	* StackModel: minor modification to the Makefile
 	* SummaryTool: clean-up to prepare for web-page
 
 2010-02-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * StackModel: added user-defined ranges for fractions.
+	* StackModel: added user-defined ranges for fractions.
 
 2010-02-10 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCModel:
@@ -258,7 +262,7 @@
 	  - bug fix in ECDF
 
 2010-02-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Included output of fractions to ensemble test in StackModel.
+	* Included output of fractions to ensemble test in StackModel.
 
 2010-02-09 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCDataPoint:
@@ -278,16 +282,16 @@
 	  - update comment
 
 2010-02-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Updated documentation of StackModel.
+	* Updated documentation of StackModel.
 
 2010-02-04 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath:
 	  - included function to create the ECDF from 1D data vector
-	* BCHistogramFitter
+	* BCHistogramFitter:
 	  - initialize data points with histogram lower edges
 
 2010-02-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Cleaned up StackModel.
+	* Cleaned up StackModel.
 	* Added subdirectories to StackModel. 
 	* Added flag for unphysical parameter ranges to StackModel.
 	* StackModel ready for release.
@@ -295,30 +299,30 @@
 2010-02-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCGraphFitter::CDF:
 	  - fixed declaration
-	* BCHistogramFitter
+	* BCHistogramFitter:
 	  - added methods to compute histogram of expected counts from model
 	  - added Kolmogorov test
 
 2010-02-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Added Gerda example to StackTool.
+	* Added Gerda example to StackTool.
 
 2010-02-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Small bug fix in SummaryTool.
+	* Small bug fix in SummaryTool.
 	* Small bug fix in StackTool.
 	* Added constrained sums to StackTool.
 
 2010-01-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Added ensemble test tool to StackTool.
+	* Added ensemble test tool to StackTool.
 
 2010-01-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Added efficiencies for templates in StackTool.
+	* Added efficiencies for templates in StackTool.
 
 2010-01-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Added prior for templates and an example to StackTool.
+	* Added prior for templates and an example to StackTool.
 
 2010-01-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * Minor fixes in BinLikeTool.
-        * Minor fix in SummaryTool.
+	* Minor fixes in BinLikeTool.
+	* Minor fix in SummaryTool.
 
 2010-01-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixed use of CXXFLAGS with ./configure

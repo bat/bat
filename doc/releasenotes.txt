@@ -1,23 +1,31 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.3.2
-Release date:                 2010-01-20
+Release notes for version:    0.4.preX
+Release date:                 2010-XX-XX
 Urgency:                      medium
 ------------------------------------------
 
-This version contains several bugfixes and minor improvements:
-
-Bugfixes:
-* fixed configuration of the ROOT version for the compilation
-* fixed crash when opening BCModelOutput file
+This version contains major improvements and several bugfixes:
 
 Updates:
-o added several new methods for the p-value calculation
-o more p-values defined  for Poisson models / BCHistogramFitter
-o implemented p-value definition due to Johnson(2004) applying to general models
-o improved installation procedure on Mac OS X
-o updated installation instructions
+o added possibility to set priors for parameters via TF1
+o caching flat priors
+o for sequential MCMC setup only fill marginalized distributions once per sequence
+o added predefined levels of MCMC precision
+o added test on runs statistics (arXiv:1005.3233)
+o separated pre-defined models to libBATmodels.so shared library
+o added BCTemplateFitter
+o added BCSummaryTool providing an plots and tables summarizing the MCMC
+o build interface to RooStats during BAT installation procedure
+o added performance test suite to be run for every new release
+o added many new examples
+o draw legend in plots of marginalized distributions
+
+Bugfixes:
+* fixed MCMC convergence check
+* fixed plotting of limits
+* fixed installation procedure on MAC OS X when compiling with Cuba support
 
 
 For detailed list of changes see the Changelog. For more information
