@@ -331,6 +331,35 @@ definition of parameters.
 A class derived from \verb|BCModel| can contain any number of
 additional member functions.
 
+If the parameters are considered independent in the prior probability, then
+
+\noindent
+\verb|double BCModel::LogAPrioriProbability(std::vector <double> parameters)|
+need not be overloaded.
+Alternatively, they can be set for individual parameters through \verb|TF1| 
+function objects using
+\begin{verbatim}
+ int BCModel::SetPrior(int index, TF1 * f)
+\end{verbatim}
+For ease of use, frequently used priors are predefined.
+\begin{verbatim}
+int SetPriorGauss(int index, double mean, double sigma);
+int SetPriorGauss(int index, double mean, double sigmadown, double sigmaup);
+\end{verbatim}
+The prior maybe chosen constant over one or all
+dimensions of the parameter space using
+\begin{verbatim}
+int SetPriorConstant(int index);
+int SetPriorConstantAll();
+\end{verbatim}
+Note that the correct constant is calculated from the parameter ranges only 
+once, and then cached for reuse during the Markov chain run. For simple
+problems,  caching can significantly speed up the execution, while for
+complicated likelihoods, the time spent calculating the prior probability
+is usually negligible.
+
+In case the prior is undefined for one of the parameters, a constant prior
+for that parameter is assumed, and a warning is issued.
 % --------------------------------------------------------
 
 \subsubsection{Definition of parameters of a model}

@@ -1,14 +1,19 @@
+2010-07-01 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* Updated introduction: prior definition and caching
+	* PerfTestSuite: Added mathematica notebook BATquantiles.nb,
+	which calculates distribution of mode and quantiles for 1D tests
+
 2010-06-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated introduction: added BCSummaryTool and BCTemplateFitter
 	* BCEngineMCMC: Added method to set precision
-	
+
 2010-06-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCH1D: improved legend drawing
 
 2010-06-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated CombinationModel.
 	* Updated PerfTestSuite.
-	
+
 2010-06-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* version 0.4.pre3
 

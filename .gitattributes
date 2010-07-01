@@ -20,6 +20,7 @@ BAT/BCSummaryTool.h -text
 /Makefile.am -text
 /README -text
 /autogen.sh -text
+benchmarks/PerfTestSuite/BATquantiles.nb -text
 benchmarks/PerfTestSuite/Makefile -text
 benchmarks/PerfTestSuite/include/PerfSubTest.h -text
 benchmarks/PerfTestSuite/include/PerfTest.h -text
