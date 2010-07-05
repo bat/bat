@@ -316,7 +316,8 @@ void BCEngineMCMC::MCMCTrialFunction(int chain, std::vector <double> &x)
 
 	// Breit-Wigner with adjustable width
 	for (int i = 0; i < fMCMCNParameters; ++i)
-		x[i] = fMCMCRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[chain * fMCMCNParameters + i]);
+	  //		x[i] = fMCMCRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[chain * fMCMCNParameters + i]);
+	  MCMCTrialFunctionSingle(chain, i, x);
 }
 
 // --------------------------------------------------------
