@@ -96,7 +96,6 @@ doc/note_template/fig/model_update.eps -text
 doc/note_template/note.tex -text
 doc/releasenotes.txt -text
 doc/todo/todo.txt -text
-doc/todo/todo_detail.txt -text
 examples/README -text
 examples/fastfitter/README -text
 examples/fastfitter/advancedGraphFitter/data/datax.txt -text

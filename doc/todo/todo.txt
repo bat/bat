@@ -36,3 +36,5 @@ Low                                Remove MCMC code from BCIntegrate
 Low                                Remove ConditionalProbabilityEntry stuff
 Low                                Library of common priors
 Low                                Use Kernel Density Estimator for filling histograms as option
+Low				   Constraints
+Low				   Sub-space integration
