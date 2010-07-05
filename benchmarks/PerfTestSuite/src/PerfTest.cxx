@@ -21,10 +21,12 @@ PerfTest::PerfTest(std::string name)
 	, fSubtestContainer(std::vector<PerfSubTest *>(0))
 	, fCanvasContainer(std::vector<TCanvas *>(0))
 	, fCanvasDescriptionContainer(std::vector<std::string>(0))
+	, fName(name)
 	, fRealTime(0.)
 	, fCpuTime(0.)
 {
-	fName = name;
+	// define subtests
+	//	DefineSubtests();
 }
 	
 //______________________________________________________________________________
@@ -316,11 +318,6 @@ int PerfTest::WriteResults()
 
 	// no error 
 	return 1; 
-}
-
-//______________________________________________________________________________
-void PerfTest::PrecisionSettings(PerfTest::Precision precision)
-{
 }
 
 //______________________________________________________________________________

@@ -72,6 +72,11 @@ class PerfSubTest
 	void SetTestValue(double value)
 	{ fTestValue = value; }; 
 
+	/** Set the test uncertainty. 
+	 * @param value the value returned from the test. */ 
+	void SetTestUncertainty(double value)
+	{ fTestUncertainty = value; }; 
+
 	/** Set the aim value.
 	 * @param value the value aimed at. */ 
 	void SetTargetValue(double value) 
@@ -116,6 +121,11 @@ class PerfSubTest
 	double GetTestValue()
 	{ return fTestValue; }; 
 
+	/** Return the current test uncertainty. 
+	 * @return the test uncertainty. */ 
+	double GetTestUncertainty()
+	{ return fTestUncertainty; }; 
+
 	/** Return the target value. 
 	 * @return the target value. */ 
 	double GetTargetValue()
@@ -157,6 +167,9 @@ class PerfSubTest
 
 	/** The test value. */ 
 	double fTestValue; 
+
+	/** The test uncertainty. */ 
+	double fTestUncertainty; 
 
 	/** The target value. */ 
 	double fTargetValue; 

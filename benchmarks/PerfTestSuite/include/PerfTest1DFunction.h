@@ -19,11 +19,10 @@
 
 #include <TF1.h>
 
-#include <BAT/BCModel.h>
-
+#include <include/PerfTestMCMC.h>
 #include <include/PerfTest.h>
 
-class PerfTest1DFunction : public PerfTest, public BCModel
+class PerfTest1DFunction : public PerfTestMCMC
 {
 	
  public:
@@ -39,19 +38,12 @@ class PerfTest1DFunction : public PerfTest, public BCModel
 
 	/* @} */
 
-	/** Run the test. 
+	/** Run after the test
 	 * @return an error code. */ 
-	int Run(); 
+	int PostTest(); 
 
 	/** Defines the subtests. */ 
 	void DefineSubtests(); 
-
-	/** Writes the test to file. 
-	 * @return an error code. */ 
-	int WriteResults(); 
-
-	/** Define precision settings. */ 
-	void PrecisionSettings(PerfTest::Precision);
 
 	/* @} */
 

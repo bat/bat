@@ -29,6 +29,7 @@ CXSRCS      = TestSuite.cxx \
               ReleaseTestSuite.cxx \
               PerfTest.cxx \
               PerfSubTest.cxx \
+              PerfTestMCMC.cxx \
               PerfTest1DFunction.cxx \
               PerfTest2DFunction.cxx
 

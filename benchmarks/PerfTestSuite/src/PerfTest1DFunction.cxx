@@ -24,8 +24,7 @@
 #include "include/PerfTest1DFunction.h"
 
 //______________________________________________________________________________
-PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func) : PerfTest(name)
-																																		,	BCModel(name.c_str())
+PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func) : PerfTestMCMC(name)
 																																		, fFunction(func)
 {
 	// set test type 
@@ -33,12 +32,6 @@ PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func) : PerfTest(n
 
 	// set style
 	BCAux::SetStyle();
-	//	gStyle->SetOptFit(1);
-	//	gStyle->SetOptStat(111111);
-
-	// set options
-	//	MCMCSetNLag(10);
-	//	MCMCSetNIterationsRun(1000000);
 
 	// manipulate function
 	fFunction->SetNDF(100000);
@@ -50,7 +43,8 @@ PerfTest1DFunction::PerfTest1DFunction(std::string name, TF1* func) : PerfTest(n
 	// add parameter
 	AddParameter("x", xmin, xmax);
 
-	DefineSubtests(); 
+	// define subtests
+	DefineSubtests();
 }
 	
 //______________________________________________________________________________
@@ -59,11 +53,10 @@ PerfTest1DFunction::~PerfTest1DFunction()
 }
 	
 //______________________________________________________________________________
-int PerfTest1DFunction::Run()
+int PerfTest1DFunction::PostTest()
 {
-	// perform mcmc
-	MarginalizeAll(); 
-	
+	PerfTestMCMC::PostTest();
+
 	// define histograms
 	TH1D* hist_marg = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone(); 
 	TH1D* hist_func = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone(); 
@@ -194,30 +187,35 @@ int PerfTest1DFunction::Run()
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kFlawed, 5.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kBad,    7.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetTestValue(chi2); 
+	GetSubtest("chi2")->SetTestUncertainty(sqrt(2.0*ndf)); 
 
 	GetSubtest("KS")->SetTargetValue(1);
 	GetSubtest("KS")->SetStatusRegion(PerfSubTest::kGood,   1.-0.05); 
 	GetSubtest("KS")->SetStatusRegion(PerfSubTest::kFlawed, 1.-0.01); 
 	GetSubtest("KS")->SetStatusRegion(PerfSubTest::kBad,    1.-0.0001); 
 	GetSubtest("KS")->SetTestValue(KS); 
+	GetSubtest("KS")->SetTestUncertainty(1-0.05); 
 
 	GetSubtest("mean")->SetTargetValue(fFunction->Mean( fFunction->GetXmin(), fFunction->GetXmax()) );
 	GetSubtest("mean")->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(mean_variance));
 	GetSubtest("mean")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(mean_variance));
 	GetSubtest("mean")->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(mean_variance));
 	GetSubtest("mean")->SetTestValue(hist_marg->GetMean()); 
+	GetSubtest("mean")->SetTestUncertainty(sqrt(mean_variance)); 
 
 	GetSubtest("mode")->SetTargetValue(fFunction->GetMaximumX());
 	GetSubtest("mode")->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(mode_variance));
 	GetSubtest("mode")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(mode_variance));
 	GetSubtest("mode")->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(mode_variance));
 	GetSubtest("mode")->SetTestValue(hist_marg->GetBinCenter(hist_marg->GetMaximumBin())); 
+	GetSubtest("mode")->SetTestUncertainty(sqrt(mode_variance)); 
 
 	GetSubtest("variance")->SetTargetValue(fFunction->Variance( fFunction->GetXmin(), fFunction->GetXmax()) );
 	GetSubtest("variance")->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(var_s2));
 	GetSubtest("variance")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(var_s2));
 	GetSubtest("variance")->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(var_s2));
 	GetSubtest("variance")->SetTestValue(hist_marg->GetRMS()*hist_marg->GetRMS()*double(nbins*nbins)/(double(nbins)-1)/(double(nbins)-1)); 
+	GetSubtest("variance")->SetTestUncertainty(sqrt(var_s2));
 
 	for (int i = 0; i < 9; ++i) {
 		GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTargetValue(quantiles_func[i]);
@@ -225,6 +223,7 @@ int PerfTest1DFunction::Run()
 		GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(quantile_variance[i]));
 		GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(quantile_variance[i]));
 		GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTestValue(quantiles_hist[i]); 
+		GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTestUncertainty(sqrt(quantile_variance[i])); 
 	} 
 
 	// define graph and axes histogram
@@ -299,6 +298,8 @@ int PerfTest1DFunction::Run()
 //______________________________________________________________________________
 void PerfTest1DFunction::DefineSubtests()
 {
+	PerfTestMCMC::DefineSubtests();
+
 	PerfSubTest * subtest = new PerfSubTest("chi2"); 
 	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
@@ -355,35 +356,6 @@ void PerfTest1DFunction::DefineSubtests()
 	subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
 	AddSubtest(subtest);
 
-
-}
-
-//______________________________________________________________________________
-int PerfTest1DFunction::WriteResults()
-{
-	PerfTest::WriteResults(); 
-
-	PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
-
-	return 1;
-}
-
-//______________________________________________________________________________
-void PerfTest1DFunction::PrecisionSettings(PerfTest::Precision precision)
-{
-	if (precision == PerfTest::kCoarse) {
-		MCMCSetNLag(1);
-		MCMCSetNIterationsRun(10000);
-	}
-	else if (precision == PerfTest::kMedium) {
-		MCMCSetNLag(5);
-		MCMCSetNIterationsRun(100000);
-
-	}
-	else if (precision == PerfTest::kDetail) {
-		MCMCSetNLag(10);
-		MCMCSetNIterationsRun(1000000);
-	}
 }
 
 //______________________________________________________________________________

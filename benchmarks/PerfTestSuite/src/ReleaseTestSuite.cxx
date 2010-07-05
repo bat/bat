@@ -30,7 +30,7 @@ int ReleaseTestSuite::PrepareTests()
 	PerfTest1DFunction*	perftest_1d_flat = new PerfTest1DFunction("1d_flat", testfunc_1d_flat); 
 	perftest_1d_flat->GetSubtest("mode")->SetStatusOff(true);
 	AddTest(perftest_1d_flat); 
-	
+
 	// 1D slope
 	TF1* testfunc_1d_slope = new TF1("Slope", "x", 0., 10.);
 	PerfTest1DFunction*	perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
@@ -49,7 +49,7 @@ int ReleaseTestSuite::PrepareTests()
 	AddTest(perftest_1d_gaus); 
 	
 	// 1D Poissons	
-	for (int i = 20; i <= 20; i++) {
+	for (int i = 0; i <= 20; i++) {
 		double xmax = 15; 
 		if (i > 3)
 			xmax = 10.0 * sqrt(double(i)); 
@@ -60,7 +60,7 @@ int ReleaseTestSuite::PrepareTests()
 	}
 	
 	// 1D Binomials
-	for (int N = 2; N < 3; N++) {
+	for (int N = 0; N < 10; N++) {
 		for (int k = 0; k <= N; ++k) {
 			TF1* testfunc = new TF1("Binomial", "([0]+1)*TMath::Binomial([0], [1]) * TMath::Power(x, [1]) * TMath::Power(1-x, [0]-[1])", 0., 1.);
 			testfunc->FixParameter(0, N);

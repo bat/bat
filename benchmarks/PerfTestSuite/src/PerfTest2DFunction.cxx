@@ -20,8 +20,7 @@
 #include "include/PerfTest2DFunction.h"
 
 //______________________________________________________________________________
-PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTest(name)
-																																		,	BCModel(name.c_str())
+PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTestMCMC(name)
 																																		, fFunction(func)
 {
 	// set test type 
@@ -29,12 +28,6 @@ PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTest(n
 
 	// set style
 	BCAux::SetStyle();
-	gStyle->SetOptFit(1);
-	//	gStyle->SetOptStat(111111);
-
-	// set options
-	//	MCMCSetNLag(10);
-	//	MCMCSetNIterationsRun(10000000);
 
 	// manipulate function
 	fFunction->SetNDF(100000);
@@ -42,7 +35,6 @@ PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTest(n
 	// get limits
 	double xmin = fFunction->GetXmin();
 	double xmax = fFunction->GetXmax();
-
 	double ymin = fFunction->GetYmin();
 	double ymax = fFunction->GetYmax();
 
@@ -59,11 +51,10 @@ PerfTest2DFunction::~PerfTest2DFunction()
 }
 	
 //______________________________________________________________________________
-int PerfTest2DFunction::Run()
+int PerfTest2DFunction::PostTest()
 {
-	// perform mcmc
-	MarginalizeAll(); 
-	
+	PerfTestMCMC::PostTest();
+
 	// get histogram
 	TH2D* hist_marg = (TH2D*) GetMarginalized( GetParameter(0), GetParameter(1) )->GetHistogram()->Clone(); 
 	hist_marg->SetContour(20);
@@ -125,6 +116,7 @@ int PerfTest2DFunction::Run()
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kFlawed, 5.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kBad,    7.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetTestValue(chi2); 
+	GetSubtest("chi2")->SetTestUncertainty(sqrt(2.0*ndf)); 
 
 	// add canvases
 	TCanvas* c_func1 = new TCanvas();
@@ -179,37 +171,11 @@ int PerfTest2DFunction::Run()
 //______________________________________________________________________________
 void PerfTest2DFunction::DefineSubtests()
 {
+	PerfTestMCMC::DefineSubtests();
+
 	PerfSubTest * subtest = new PerfSubTest("chi2"); 
 	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
-}
-
-//______________________________________________________________________________
-int PerfTest2DFunction::WriteResults()
-{
-	PerfTest::WriteResults(); 
-
-	PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
-
-	return 1;
-}
-
-//______________________________________________________________________________
-void PerfTest2DFunction::PrecisionSettings(PerfTest::Precision precision)
-{
-	if (precision == PerfTest::kCoarse) {
-		MCMCSetNLag(1);
-		MCMCSetNIterationsRun(10000);
-	}
-	else if (precision == PerfTest::kMedium) {
-		MCMCSetNLag(5);
-		MCMCSetNIterationsRun(100000);
-
-	}
-	else if (precision == PerfTest::kDetail) {
-		MCMCSetNLag(10);
-		MCMCSetNIterationsRun(1000000);
-	}
 }
 
 //______________________________________________________________________________

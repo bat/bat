@@ -19,11 +19,10 @@
 
 #include <TF2.h>
 
-#include <BAT/BCModel.h>
-
 #include <include/PerfTest.h>
+#include <include/PerfTestMCMC.h>
 
-class PerfTest2DFunction : public PerfTest, public BCModel
+class PerfTest2DFunction : public PerfTestMCMC
 {
 	
  public:
@@ -39,12 +38,12 @@ class PerfTest2DFunction : public PerfTest, public BCModel
 
 	/* @} */
 
-	/** Run the test. 
-	 * @return an error code. */ 
-	int Run(); 
-
 	/** Defines the subtests. */ 
 	void DefineSubtests(); 
+
+	/** Run after the test
+	 * @return an error code. */ 
+	int PostTest(); 
 
 	/* @} */
 
@@ -54,13 +53,6 @@ class PerfTest2DFunction : public PerfTest, public BCModel
 
 	double LogLikelihood(std::vector <double> parameters)
 	{ return log(fFunction->Eval(parameters[0], parameters[1])); }
-
-	/** Writes the test to file. 
-	 * @return an error code. */ 
-	int WriteResults(); 
-
-	/** Define precision settings. */ 
-	void PrecisionSettings(PerfTest::Precision);
 
  private:
 		

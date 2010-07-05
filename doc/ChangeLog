@@ -2,6 +2,7 @@
 	* BCEngineMCMC.cxx : make use of MCMCTrialFunctionSingle in MCMCTrialFunction
 	* Updated todo list
 	* Removed doc/todo/todo_detail.txt
+	* PerfTestSuite: Updated test suite and include auto-correlation.
 
 2010-07-01 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated release notes

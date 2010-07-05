@@ -179,15 +179,24 @@ class PerfTest
 	 * @return an error code. */ 
 	virtual int WriteResults(); 
 
+	/** Run before test. 
+	 * @return an error code. */ 
+	virtual int PreTest() 
+	{ return 1; }; 
+
+	/** Run after the test. 
+	 * @return an error code. */ 
+	virtual int PostTest() = 0;
+
 	/** Run the test. 
 	 * @return an error code. */ 
-	virtual int Run() = 0; 
+	virtual int RunTest() = 0; 
 
 	/** Defines the subtests. */ 
-	virtual void DefineSubtests() = 0; 
+	//	virtual void DefineSubtests() = 0;
 
 	/** Define precision settings. */ 
-	virtual void PrecisionSettings(PerfTest::Precision);
+	virtual void PrecisionSettings(PerfTest::Precision) = 0;
 
 	/* @} */
 

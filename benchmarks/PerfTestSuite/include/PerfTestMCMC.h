@@ -17,38 +17,61 @@
 #include <string>
 #include <vector>
 
+#include <TF1.h>
+
+#include <BAT/BCModel.h>
+
 #include <include/PerfTest.h>
 
-namespace BAT
+class PerfTestMCMC : public PerfTest, public BCModel
 {
+	
+ public:
+	
+	/** \name Constructors and destructors  */
+	/* @{ */
+	
+	/** The default constructor */
+	PerfTestMCMC(std::string name = "unknown");
 
-	class PerfTestMCMC : public PerfTest
-	{
+	/** The default destructor */
+	~PerfTestMCMC();
 
-	public:
+	/* @} */
 
-		/** \name Constructors and destructors  */
-		/* @{ */
-		 
-		/** The default constructor */
-		PerfTestMCMC(std::string name = "unknown");
+	/** Run before test. 
+	 * @return an error code. */ 
+	int PreTest();
 
-		/** The default destructor */
-		~PerfTestMCMC();
+	/** Run after test. 
+	 * @return an error code. */ 
+	int PostTest();
 
-		/* @} */
+	/** Run the test. 
+	 * @return an error code. */ 
+	int RunTest(); 
 
-		/** Run the test. 
-		 * @return an error code. */ 
-		int Run(); 
+	/** Defines the subtests. */ 
+	void DefineSubtests();
 
-		/** Defines the subtests. */ 
-		void DefineSubtests(); 
+	/** Writes the test to file. 
+	 * @return an error code. */ 
+	int WriteResults(); 
 
-		/* @} */
-	};
+	/** Define precision settings. */ 
+	void PrecisionSettings(PerfTest::Precision);
 
-} // namespace BAT
+	/* @} */
+
+	// inherited methods
+	void MCMCUserIterationInterface();
+
+ private:
+
+	std::vector <TGraph*> fCorrelation;
+	std::vector <TH2D*> fHistCorr;
+	std::vector <double> fXOld;
+};
 
 #endif
 

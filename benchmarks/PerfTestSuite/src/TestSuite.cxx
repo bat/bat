@@ -36,7 +36,6 @@ void TestSuite::SetPrecision(PerfTest::Precision precision)
 	for (int i = 0; i < n; ++i) {
 		fTestContainer.at(i)->SetPrecision(precision);
 	}
-		
 
 }
 
@@ -98,7 +97,7 @@ int TestSuite::RunTests()
 	for (int i = 0; i < n; ++i) {
 		TStopwatch* sw = new TStopwatch(); 
 		sw->Start();
-		err *= fTestContainer.at(i) -> Run(); 
+		err *= fTestContainer.at(i) -> RunTest(); 
 		sw->Stop();
 		fTestContainer.at(i)->SetCpuTime(sw->CpuTime());
 		fTestContainer.at(i)->SetRealTime(sw->RealTime());
@@ -288,19 +287,31 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << "<tr>" << std::endl;
 		file << "  <th align=\"left\" width = \"150\">Subtest</th>" << std::endl; 
 		file << "  <th align=\"left\" width = \"150\">Status</th>" << std::endl; 
-		file << "  <th align=\"left\" width = \"150\">Test</th>" << std::endl;
 		file << "  <th align=\"left\" width = \"150\">Target</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Test</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Uncertainty</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Deviation [%]</th>" << std::endl;
+		file << "  <th align=\"left\" width = \"150\">Deviation [sigma]</th>" << std::endl;
 		file << "  <th align=\"left\" width = \"150\">Tol. (Good)</th>" << std::endl;
 		file << "  <th align=\"left\" width = \"150\">Tol. (Flawed)</th>" << std::endl;
 		file << "  <th align=\"left\" width = \"150\">Tol. (Bad)</th>" << std::endl;
 		file << "</tr>" << std::endl;
 
 		for (int j = 0; j < nsub; ++j) {
+			double target = (GetTest(i) -> GetSubtest(j))->GetTargetValue();
+			double test = (GetTest(i) -> GetSubtest(j))->GetTestValue();
+			double err = (GetTest(i) -> GetSubtest(j))->GetTestUncertainty();
 			file << "<tr>" << std::endl;
 			file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetName() << " </td> " <<std::endl;
 			file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusStringHTML().data() << "</td>" << std::endl;
-			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetTestValue() << "</td>" << std::endl;
-			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetTargetValue()  << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << target  << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << test << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << err << "</td>" << std::endl;
+			if (target != 0)
+				file << "  <td align=\"left\"> " << std::setprecision(4) << -(target-test)/target*100. << "</td>" << std::endl;
+			else
+				file << "  <td align=\"left\"> " << std::setprecision(4) << " - " << "</td>" << std::endl;
+			file << "  <td align=\"left\"> " << std::setprecision(4) << (target-test)/err << "</td>" << std::endl;
 			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</td>" << std::endl;
 			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kFlawed) << "</td>" << std::endl;
 			file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</td>" << std::endl;

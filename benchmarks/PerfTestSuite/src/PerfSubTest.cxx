@@ -13,6 +13,7 @@
 //______________________________________________________________________________
 PerfSubTest::PerfSubTest(std::string name) 
 	: fTestValue(-1)
+	,	fTestUncertainty(-1)
 	, fStatusRegion(std::vector<double>(3))
 	, fStatusUnknown(true)
 	, fStatusOff(false)
