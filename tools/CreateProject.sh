@@ -56,6 +56,7 @@ class |:Model:| : public BCModel
 		void DefineParameters();
 		double LogAPrioriProbability(std::vector <double> parameters);
 		double LogLikelihood(std::vector <double> parameters);
+    // void MCMCIterationInterface(); 
 };
 // ---------------------------------------------------------
 
@@ -75,21 +76,27 @@ cat << EOF
 
 #include "|:Model:|.h"
 
+#include <BAT/BCMath.h>
+
 // ---------------------------------------------------------
 |:Model:|::|:Model:|() : BCModel()
-{  // default constructor
+{  
+	// default constructor
 	DefineParameters();
 };
 
 // ---------------------------------------------------------
 |:Model:|::|:Model:|(const char * name) : BCModel(name)
-{  // constructor
+{ 
+	// constructor
 	DefineParameters();
 };
 
 // ---------------------------------------------------------
 |:Model:|::~|:Model:|()
-{};  // default destructor
+	// default destructor
+{
+};
 
 // ---------------------------------------------------------
 void |:Model:|::DefineParameters()
@@ -100,8 +107,8 @@ void |:Model:|::DefineParameters()
 	// of the parameter. The indices increase from 0 according to the
 	// order of adding the parameters.
 
-//	this -> AddParameter("par1", 0.0, 1.0);   // index 0
-//	this -> AddParameter("par2", -7.0, 28.0); // index 1
+//	AddParameter("x", -10.0, 10.0); // index 0
+//	AddParameter("y",  -5.0,  5.0); // index 1
 }
 
 // ---------------------------------------------------------
@@ -111,6 +118,14 @@ double |:Model:|::LogLikelihood(std::vector <double> parameters)
 	// p(data|parameters). This is where you have to define your model.
 
 	double logprob = 0.;
+
+//	double x = parameters.at(0);
+//	double y = parameters.at(1);
+//	double eps = 0.5;
+
+	// Breit-Wigner distribution of x with nuisance parameter y
+//	logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
+
 
 	return logprob;
 }
@@ -123,9 +138,13 @@ double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
 
 	double logprob = 0.;
 
-	// For flat prior it's very easy.
-//	for(unsigned int i=0; i < this -> GetNParameters(); i++)
-//		logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
+//	double x = parameters.at(0);
+//	double y = parameters.at(1);
+
+//	double dx = GetParameter(0)->GetRangeWidth(); 
+
+//	logprob += log(1./dx);                    // flat prior for x
+//	logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
 
 	return logprob;
 }
@@ -268,6 +287,7 @@ cat << EOF
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
+#include <BAT/BCSummaryTool.h>
 
 #include "|:Model:|.h"
 
@@ -278,45 +298,54 @@ int main()
 	BCAux::SetStyle();
 
 	// open log file
-//	BCLog::OpenLog("log.txt");
+	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
 
 	// create new |:Model:| object
-	|:Model:| * m = new |:Model:|();
+//	|:Model:|* m = new |:Model:|();
 
 	BCLog::OutSummary("Test model created");
+
+	// create a new summary tool object
+	BCSummaryTool* summary = new BCSummaryTool(m);
 
 	// perform your analysis here
 
 	// normalize the posterior, i.e. integrate posterior
 	// over the full parameter space
-//	m -> Normalize();
+//	m->Normalize();
 
 	// run MCMC and marginalize posterior wrt. all parameters
 	// and all combinations of two parameters
-//	m -> MarginalizeAll();
+//	m->MarginalizeAll();
 
 	// run mode finding; by default using Minuit
-//	m -> FindMode();
+//	m->FindMode();
 
 	// if MCMC was run before (MarginalizeAll()) it is
 	// possible to use the mode found by MCMC as
 	// starting point of Minuit minimization
-//	m -> FindMode( m -> GetBestFitParameters() );
+//	m->FindMode( m->GetBestFitParameters() );
 
 	// draw all marginalized distributions into a PostScript file
-//	m -> PrintAllMarginalized("|:Model:|_plots.ps");
+//	m->PrintAllMarginalized("|:Model:|_plots.ps");
 
+	// print all summary plots
+//	summary->PrintParameterPlot("|:Model:|_parameters.ps");
+//	summary->PrintCorrelationPlot("|:Model:|_correlation.ps");
+//	summary->PrintKnowlegdeUpdatePlot("|:Model:|_update.ps");
+ 
 	// calculate p-value
-//	m -> CalculatePValue( m -> GetBestFitParameters() );
+//	m->CalculatePValue( m->GetBestFitParameters() );
 
 	// print results of the analysis into a text file
-//	m -> PrintResults("|:Model:|_results.txt");
+//	m->PrintResults("|:Model:|_results.txt");
 
 	// close log file
 //	BCLog::CloseLog();
 
 	delete m;
+//	delete summary;
 
 	BCLog::OutSummary("Test program ran successfully");
 	BCLog::OutSummary("Exiting");
