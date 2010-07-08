@@ -96,6 +96,11 @@ class BCEngineMCMC
 		std::vector <int> MCMCGetNIterations()
 			{ return fMCMCNIterations; };
 
+		/**
+		 * @return current iterations */
+		int MCMCGetCurrentIteration()
+		{ return fMCMCCurrentIteration; }; 
+
 		/*
 		 * @return pointer to the number of iterations */
 		std::vector <int> * MCMCGetP2NIterations()
@@ -572,6 +577,13 @@ class BCEngineMCMC
 		 * Number of total iterations of the Markov chains. The length of
 		 * the vector is equal to fMCMCNChains. */
 		std::vector<int> fMCMCNIterations;
+
+		/*
+		 * The current iteration number. If not called within
+		 * the running of the algorithm, this variable is set
+		 * to -1.
+		 */ 
+		int fMCMCCurrentIteration;
 
 		/*
 		 * Number of iterations for updating scale factors */

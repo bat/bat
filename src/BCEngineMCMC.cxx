@@ -54,6 +54,7 @@ void BCEngineMCMC::MCMCSetValuesDefault()
 	fMCMCEfficiencyMax        = 0.50;
 	fMCMCFlagInitialPosition  = 1;
 	fMCMCNLag                 = 1;
+	fMCMCCurrentIteration     = -1;
 
 	this->MCMCSetValuesDetail();
 }
@@ -74,6 +75,7 @@ void BCEngineMCMC::MCMCSetValuesQuick()
 	fMCMCNIterationsUpdate    = 1000;
 	fMCMCNIterationsUpdateMax = 10000;
 	fMCMCFlagOrderParameters  = true;
+	fMCMCCurrentIteration     = -1;
 }
 
 // ---------------------------------------------------------
@@ -92,6 +94,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
 	fMCMCNIterationsUpdate    = 1000;
 	fMCMCNIterationsUpdateMax = 10000;
 	fMCMCFlagOrderParameters  = true;
+	fMCMCCurrentIteration     = -1;
 }
 
 // ---------------------------------------------------------
@@ -788,7 +791,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	fMCMCFlagWriteChainToFile = false;
 
 	// initialize counter variables and flags
-	int counter = 1;              // counts the number of iterations 
+	fMCMCCurrentIteration = 1;   // counts the number of iterations 
 	int counterupdate = 1;        // after how many iterations is an update needed?
 	bool convergence = false;     // convergence reached?
 	bool flagefficiency = false;  // efficiency reached?
@@ -829,7 +832,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	// (b) until a maximum number of iterations is reached,
 	// (c) or until convergence is reached and the efficiency is in the
 	//     specified region
-	while (counter < fMCMCNIterationsPreRunMin || (counter < fMCMCNIterationsMax && !(convergence && flagefficiency)))
+	while (fMCMCCurrentIteration < fMCMCNIterationsPreRunMin || (fMCMCCurrentIteration < fMCMCNIterationsMax && !(convergence && flagefficiency)))
 	{
 		//-------------------------------------------
 		// reset flags and counters
@@ -877,7 +880,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		//-------------------------------------------
 
 		// progress printout
-		if ( counter > 0 && counter % fMCMCNIterationsUpdate == 0 )
+		if ( fMCMCCurrentIteration > 0 && fMCMCCurrentIteration % fMCMCNIterationsUpdate == 0 )
 			BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0]/fMCMCNParameters));
 
 		//-------------------------------------------
@@ -893,8 +896,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 		// debugKK 
 		// check if this line makes sense
-		if ( counterupdate % updateLimit == 0 && counterupdate > 0 && counter >= fMCMCNIterationsPreRunMin)
-//		if ( counter % fMCMCNIterationsUpdate == 0 && counterupdate > 1 && counter >= fMCMCNIterationsPreRunMin)
+		if ( counterupdate % updateLimit == 0 && counterupdate > 0 && fMCMCCurrentIteration >= fMCMCNIterationsPreRunMin)
+//		if ( fMCMCCurrentIteration % fMCMCNIterationsUpdate == 0 && counterupdate > 1 && fMCMCCurrentIteration >= fMCMCNIterationsPreRunMin)
 		{
 			// -----------------------------
 			// reset flags and counters
@@ -924,7 +927,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 			else if (!convergence && fMCMCNChains > 1)
 			{
-				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, counter));
+				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
 
 				BCLog::OutDetail("       - R-Values:");
 				for (int iparameter = 0; iparameter < fMCMCNParameters; ++iparameter)
@@ -1053,24 +1056,20 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		// increase counters
 		//-------------------------------------------
 
-		if (counterupdate == 1 && counter != 1)
+		if (counterupdate == 1 && fMCMCCurrentIteration != 1)
 			fMCMCCycle++;
-		counter++;
+		fMCMCCurrentIteration++;
 		counterupdate++;
 
 	} // end of running
 
-	// debugKK
-	// check that this line makes sense
-	/*
 	// did we check convergence at least once ?
-	if (counter-1<updateLimit)
+	if (fMCMCCurrentIteration-1<updateLimit)
 	{
 		BCLog::OutWarning(" Convergence never checked !");
 		BCLog::OutWarning("   Increase maximum number of iterations in the pre-run /MCMCSetNIterationsMax()/");
 		BCLog::OutWarning("   or decrease maximum number of iterations for update  /MCMCSetNIterationsUpdateMax()/");
 	}
-	*/
 
 	// ---------------
 	// after chain run
@@ -1081,6 +1080,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		fMCMCFlagConvergenceGlobal = true;
 	else
 		fMCMCFlagConvergenceGlobal = false;
+
+	// reset current iteration
+	fMCMCCurrentIteration = -1;
 
 	// print convergence status
 	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && !flagefficiency)
@@ -1101,7 +1103,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	else
 		BCLog::OutSummary(" --> Only one Markov chain. No global convergence criterion defined.");
 
-	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", counter));
+	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", fMCMCCurrentIteration));
 
 
 	// print efficiencies
@@ -1186,10 +1188,10 @@ int BCEngineMCMC::MCMCMetropolis()
 		nwrite=10000;
 
 	// start the run
-	for (int iiterations = 0; iiterations < fMCMCNIterationsRun; ++iiterations)
+	for (fMCMCCurrentIteration = 1; fMCMCCurrentIteration <= fMCMCNIterationsRun; ++fMCMCCurrentIteration)
 	{
-		if ( (iiterations+1)%nwrite == 0 )
-			BCLog::OutDetail(Form(" --> iteration number %i (%.2f%%)", iiterations+1, (double)(iiterations+1)/(double)fMCMCNIterationsRun*100.));
+		if ( (fMCMCCurrentIteration)%nwrite == 0 )
+			BCLog::OutDetail(Form(" --> iteration number %i (%.2f%%)", fMCMCCurrentIteration+1, (double)(fMCMCCurrentIteration+1)/(double)fMCMCNIterationsRun*100.));
 
 		// if the flag is set then run over the parameters one after the other.
 		if (fMCMCFlagOrderParameters)
@@ -1206,7 +1208,7 @@ int BCEngineMCMC::MCMCMetropolis()
 
 				/*
 				// check if the current iteration is consistent with the lag
-				if ( (fMCMCNParameters * iiterations + iparameters) % (fMCMCNLag * fMCMCNParameters) == 0)
+				if ( (fMCMCNParameters * fMCMCCurrentIteration + iparameters) % (fMCMCNLag * fMCMCNParameters) == 0)
 				{
 					// fill histograms
 					this->MCMCInChainFillHistograms();
@@ -1223,7 +1225,7 @@ int BCEngineMCMC::MCMCMetropolis()
 			} // end loop over all parameters
 
 			// check if the current iteration is consistent with the lag
-			if ( iiterations % fMCMCNLag == 0)
+			if ( fMCMCCurrentIteration % fMCMCNLag == 0)
 			{
 				// fill histograms
 				this->MCMCInChainFillHistograms();
@@ -1248,7 +1250,7 @@ int BCEngineMCMC::MCMCMetropolis()
 			this->MCMCInChainCheckMaximum();
 
 			// check if the current iteration is consistent with the lag
-			if (iiterations % fMCMCNLag == 0)
+			if (fMCMCCurrentIteration % fMCMCNLag == 0)
 			{
 				// fill histograms
 				this->MCMCInChainFillHistograms();
@@ -1286,6 +1288,9 @@ int BCEngineMCMC::MCMCMetropolis()
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		BCLog::OutDetail(Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
 				i, fMCMCxMax[probmaxindex * fMCMCNParameters + i]));
+
+	// reset coutner
+	fMCMCCurrentIteration = -1;
 
 	// set flags
 	fMCMCFlagPreRun = false;
