@@ -43,22 +43,34 @@ libBATmodels_la_SOURCES= \
 	BCTemplateFitterDict.cxx \
 	BCTemplateEnsembleTestDict.cxx
 
+## RooStats specific options
 if ROOSTATS
 AM_LDFLAGS += -lRooFitCore -lRooFit
 libBATmodels_la_SOURCES += \
 	BCRooInterface.cxx \
+	BATCalculator.cxx \
 	\
-	BCRooInterfaceDict.cxx
+	BCRooInterfaceDict.cxx \
+	BATCalculatorDict.cxx
 library_include_HEADERS += \
-	BCRooInterface.h
+	BCRooInterface.h \
+	BATCalculator.h
 ADD_ROOINTERFACE_ROOTMAP = cat BCRooInterface.rootmap >> libBATmodels.rootmap
 endif
+## End of RooStats specific options
 
 clean-local:
 	rm -f *.o *.lo *Dict.* libBATmodels.rootmap
 
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
+
+## RooStats specific targers
+if ROOSTATS
+BATCalculatorDict.cxx : BATCalculator.h
+	$(ROOTCINT) -f $@ -c  -I.. $< BATCalculatorLinkDef.h
+endif
+## End of RooStats specific targets
 
 %Dict.cxx : %.h
 	$(ROOTCINT) -f $@ -c  -I.. $<

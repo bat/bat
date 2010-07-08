@@ -157,6 +157,9 @@ extras/CombinationTool/runCombinationExamples.cxx -text
 extras/CombinationTool/runCombinationXSec.cxx -text
 extras/CombinationTool/test_poisson.cxx -text
 extras/README -text
+models/BATCalculator.cxx -text
+models/BATCalculator.h -text
+models/BATCalculatorLinkDef.h -text
 models/BCEfficiencyFitter.cxx -text
 models/BCEfficiencyFitter.h -text
 models/BCGraphFitter.cxx -text

@@ -1,9 +1,13 @@
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* added BATCalculator
+	* increased version to 0.4.pre4
+
 2010-07-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-        * BCEngineMCMC:
+	* BCEngineMCMC:
 	  - re-implemented warning if convergence was never checked.
 	  - add method to get the current iteration number
 	* introduction: added comment on the method MCMCSetPrecision.
-	
+
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEngineMCMC:
 	  - checking convergence npar*1000, was (npar+1)*1000 before
