@@ -74,7 +74,6 @@ AC_ARG_WITH(
 	],
 	[use_roostats=no]
 )
-AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
 dnl ROOT
 m4_include(tools/build/root.m4)
 ROOT_PATH(
@@ -87,6 +86,18 @@ ROOT_PATH(
 		exit
 	]
 )
-
+dnl RooFit
+if test $use_roostats = yes; then
+	HAS_ROOSTATS(
+		,
+		[
+			AC_MSG_ERROR([ROOT was compiled without RooFit support.
+				Recompile ROOT or provide path to different version.])
+			AC_MSG_ERROR([Compiling BAT without RooStats support.])
+			use_roostats=no
+		]
+	)
+fi
+AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
 
 AC_OUTPUT(Makefile src/Makefile models/Makefile)

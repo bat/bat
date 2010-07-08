@@ -3,16 +3,16 @@
 
 #include <BAT/BCModel.h>
 
+class RooAbsReal;
+class RooAbsData;
+class RooAbsPdf;
+class RooArgSet;
+class RooArgList;
+
 /* ---------------------------------------------------------
  * interface allowing to run BAT on a problem/data defined in a
  * standard RooFit workspace format
  * --------------------------------------------------------- */
-
-class RooAbsData;
-class RooAbsPdf;
-class RooNLLVar;
-class RooArgSet;
-class RooArgList;
 
 class BCRooInterface : public BCModel
 {
@@ -22,7 +22,7 @@ class BCRooInterface : public BCModel
 		// Constructors and destructor
 		BCRooInterface( );
 
-		BCRooInterface( const char * name );
+		BCRooInterface( const char* name );
 
 		~BCRooInterface();
 
@@ -32,25 +32,22 @@ class BCRooInterface : public BCModel
 		double LogLikelihood(std::vector <double> parameters);
 
 		// Other method of this class
-		void Initialize( const char * rootFile,
-		     const char * wsName = "batWS",
-		     const char * dataName = "data",
-		     const char * modelName = "model",
-		     const char * priorName = "priorPOI",
-		     const char * priorNuisanceName= "priorNuisance",
-		     const char * paramsName = "parameters",
-		     const char * listPOIName = "POI" );
+		void Initialize( RooAbsData& data,
+				 RooAbsPdf& model,
+				 RooAbsPdf& prior,
+				 RooAbsPdf* priorNuisance,
+				 RooArgSet* params,
+				 RooArgSet& listPOI );
 
 	private:
 
-		RooAbsData * fData;        // data to test
-		RooAbsPdf  * fModel;       // likelihood model describing the observables
-		RooNLLVar  * fNll;         // pointer to negative log-likelihood function
-		RooArgSet  * fObservables; // list of observables measured for each event
-		RooArgList * fParams;      // list of parameters of interest
-		RooAbsPdf  * fPrior;       // function describing the prior probability of the parameters
+		RooAbsData* fData;        // data to test
+		RooAbsPdf*  fModel;       // likelihood model describing the observables
+		RooAbsReal*  fNll;         // pointer to negative log-likelihood function
+		RooArgSet*  fObservables; // list of observables measured for each event
+		RooArgList* fParams;      // list of parameters of interest
+		RooAbsPdf*  fPrior;       // function describing the prior probability of the parameters
 
 };
 
 #endif
-

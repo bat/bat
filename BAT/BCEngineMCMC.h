@@ -431,18 +431,18 @@ class BCEngineMCMC
 		 * Random walk trial function. The default trial function is a
 		 * Breit-Wigner. It can be overloaded by the user to set the trial
 		 * function.
-		 * @param chain the chain index
+		 * @param ichain the chain index
 		 * @param x point with the dimension fMCMCNParameters */
-		virtual void MCMCTrialFunction(int chain, std::vector <double> &x);
+		virtual void MCMCTrialFunction(int ichain, std::vector <double> &x);
 
 		/*
 		 * Random walk trial function. The default trial function is a
 		 * Breit-Wigner. It can be overloaded by the user to set the trial
 		 * function.
 		 * @param ichain the chain index
-		 * @param iparameter the parameter index
-		 * @param x point with the dimension fMCMCNParameters */
-		virtual void MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x);
+		 * @param ipar the parameter index
+		 * @return the unscaled proposal point */
+		virtual double MCMCTrialFunctionSingle(int ichain, int ipar);
 
 		/*
 		 * Returns a trial point for the Metropolis algorithm.

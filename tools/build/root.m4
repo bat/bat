@@ -95,6 +95,35 @@ AC_DEFUN([ROOT_PATH],
   fi
 ])
 
+dnl
+dnl macro to check whether ROOT is compiled with RooFit support
+dnl
+AC_DEFUN([HAS_ROOSTATS],
+[
+  AC_PATH_PROG(ROOTCONF, root-config , no, $rootbin)
+
+  if test ! x"$ROOTCONF" = "xno" ; then
+
+    AC_MSG_CHECKING(whether ROOT is compiled with RooFit/RooStats support)
+	 hasroofit=`$ROOTCONF --has-roofit`
+    if test x$hasroofit = xno ; then
+      AC_MSG_RESULT(no)
+      no_roofit="yes"
+    else
+      AC_MSG_RESULT(yes)
+    fi
+  else
+    # otherwise, we say no_root
+    no_roofit="yes"
+  fi
+
+  if test "x$no_roofit" = "x" ; then
+    ifelse([$1], , :, [$1])
+  else
+    ifelse([$2], , :, [$2])
+  fi
+])
+
 
 #
 # EOF

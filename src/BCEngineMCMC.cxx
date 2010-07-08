@@ -308,28 +308,23 @@ void BCEngineMCMC::Copy(BCEngineMCMC & enginemcmc) const
 {}
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCTrialFunction(int chain, std::vector <double> &x)
+void BCEngineMCMC::MCMCTrialFunction(int ichain, std::vector <double> &x)
 {
-	// use uniform distribution for now
-//	for (int i = 0; i < fMCMCNParameters; ++i)
-//		x[i] = fMCMCTrialFunctionScaleFactor[i] * 2.0 * (0.5 - fMCMCRandom->Rndm());
-
-	// Breit-Wigner with adjustable width
+	// call MCMCTrialFunctionSingle() for all parameters by default
 	for (int i = 0; i < fMCMCNParameters; ++i)
-	  //		x[i] = fMCMCRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[chain * fMCMCNParameters + i]);
-	  MCMCTrialFunctionSingle(chain, i, x);
+		x[i] = MCMCTrialFunctionSingle(ichain, i);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter, std::vector <double> &x)
+double BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter)
 {
 	// no check of range for performance reasons
 
 	// use uniform distribution
-//	x[iparameter] = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fMCMCRandom->Rndm());
+//	return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fMCMCRandom->Rndm());
 
 	// Breit-Wigner width adjustable width
-	x[iparameter] = fMCMCRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]);
+	return fMCMCRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]);
 }
 
 // --------------------------------------------------------
@@ -426,24 +421,22 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x)
+bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int ichain, int ipar, std::vector <double> &x)
 {
 	// get unscaled random point in the dimension of the chosen
 	// parameter. this point might not be in the correct volume.
-	this->MCMCTrialFunctionSingle(chain, parameter, x);
+	double proposal = MCMCTrialFunctionSingle(ichain, ipar);
 
 	// copy the old point into the new
 	for (int i = 0; i < fMCMCNParameters; ++i)
-		if (i != parameter)
-			x[i] = fMCMCx[chain * fMCMCNParameters + i];
+		x[i] = fMCMCx[ichain * fMCMCNParameters + i];
 
 	// modify the parameter under study
-	x[parameter] = fMCMCx[chain * fMCMCNParameters + parameter] + x[parameter] * (fMCMCBoundaryMax.at(parameter) - fMCMCBoundaryMin.at(parameter));
+	x[ipar] += proposal * (fMCMCBoundaryMax[ipar] - fMCMCBoundaryMin[ipar]);
 
 	// check if the point is in the correct volume.
-	for (int i = 0; i < fMCMCNParameters; ++i)
-		if ((x[i] < fMCMCBoundaryMin[i]) || (x[i] > fMCMCBoundaryMax[i]))
-			return false;
+	if ((x[ipar] < fMCMCBoundaryMin[ipar]) || (x[ipar] > fMCMCBoundaryMax[ipar]))
+		return false;
 
 	return true;
 }
@@ -885,8 +878,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 		// debugKK 
 		// check if this line makes sense
-		//		if ( counterupdate % updateLimit == 0 && counterupdate > 0 && counter >= fMCMCNIterationsPreRunMin)
-		if ( counter % fMCMCNIterationsUpdate == 0 && counterupdate > 1 && counter >= fMCMCNIterationsPreRunMin)
+		if ( counterupdate % updateLimit == 0 && counterupdate > 0 && counter >= fMCMCNIterationsPreRunMin)
+//		if ( counter % fMCMCNIterationsUpdate == 0 && counterupdate > 1 && counter >= fMCMCNIterationsPreRunMin)
 		{
 			// -----------------------------
 			// reset flags and counters
@@ -1192,7 +1185,7 @@ int BCEngineMCMC::MCMCMetropolis()
 				// loop over chains
 				for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 					this->MCMCGetNewPointMetropolis(ichains, iparameters);
-				
+
 				// update search for maximum
 				this->MCMCInChainCheckMaximum();
 
@@ -1213,20 +1206,20 @@ int BCEngineMCMC::MCMCMetropolis()
 				*/
 
 			} // end loop over all parameters
-			
+
 			// check if the current iteration is consistent with the lag
 			if ( iiterations % fMCMCNLag == 0)
-				{
-					// fill histograms
-					this->MCMCInChainFillHistograms();
+			{
+				// fill histograms
+				this->MCMCInChainFillHistograms();
 					
-					// write chain to file
-					if (fMCMCFlagWriteChainToFile)
-						this->MCMCInChainWriteChains();
+				// write chain to file
+				if (fMCMCFlagWriteChainToFile)
+					this->MCMCInChainWriteChains();
 					
-					// do anything interface
-					this->MCMCIterationInterface();
-				}
+				// do anything interface
+				this->MCMCIterationInterface();
+			}
 		}
 		// if the flag is not set then run over the parameters at the same time.
 		else
