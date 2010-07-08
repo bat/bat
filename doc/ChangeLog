@@ -1,3 +1,10 @@
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCEngineMCMC:
+	  - change MCMCTrialFunctionSingle() to return double, i.e., the proposal
+	    point in a single dimension
+	  - putting back the original check on limit of updating the convergence
+	    and efficiencies
+
 2010-07-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx : make use of MCMCTrialFunctionSingle in MCMCTrialFunction
 	* Updated todo list
