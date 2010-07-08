@@ -1,4 +1,10 @@
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* added automake macro HAS_ROOSTATS to check whether ROOT is compiled
+	  with RooFit/RooStats support
+	* removed BATCalculator stuff from models/Makefile.am since it is
+	  not yet in the SVN
+
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEngineMCMC:
 	  - change MCMCTrialFunctionSingle() to return double, i.e., the proposal
 	    point in a single dimension

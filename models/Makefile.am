@@ -47,13 +47,10 @@ if ROOSTATS
 AM_LDFLAGS += -lRooFitCore -lRooFit
 libBATmodels_la_SOURCES += \
 	BCRooInterface.cxx \
-	BATCalculator.cxx \
 	\
-	BCRooInterfaceDict.cxx \
-	BATCalculatorDict.cxx
+	BCRooInterfaceDict.cxx
 library_include_HEADERS += \
-	BCRooInterface.h \
-	BATCalculator.h
+	BCRooInterface.h
 ADD_ROOINTERFACE_ROOTMAP = cat BCRooInterface.rootmap >> libBATmodels.rootmap
 endif
 
@@ -64,11 +61,7 @@ clean-local:
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 
 %Dict.cxx : %.h
-	extra_LinkDef=""
-	if test $< = "BATCalculator.h"; then
-		extra_LinkDef="BATCalculatorLinkDef.h"
-	fi
-	$(ROOTCINT) -f $@ -c  -I.. $< $(extra_LinkDef)
+	$(ROOTCINT) -f $@ -c  -I.. $<
 
 install-exec-hook:
 	rm -rf libBATmodels.rootmap
