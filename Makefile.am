@@ -15,7 +15,7 @@ EXTRA_DIST= \
 	models/libBATmodels.rootmap.in \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
-	tools/CreateProject.sh
+	tools/CreateProject.sh.in
 
 dist-hook: prep-docs
 	rm -f $(distdir)/src/*Dict.*

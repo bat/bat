@@ -1,4 +1,7 @@
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* added forgotten dist-hook for the new CreateProject.sh.in
+
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* CreateProject.sh:
 	  - bugfixes in generated source code
 	  - now generated according to the BAT setup during ./configure
