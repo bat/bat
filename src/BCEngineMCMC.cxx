@@ -798,8 +798,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	efficiency.assign(fMCMCNParameters * fMCMCNChains, 0.0);
 
 	// how often to check convergence and efficiencies?
-	int updateLimit = ( fMCMCNIterationsUpdateMax<fMCMCNIterationsUpdate*(fMCMCNParameters+1)  && fMCMCNIterationsUpdateMax>0 ) ?
-			fMCMCNIterationsUpdateMax : fMCMCNIterationsUpdate*(fMCMCNParameters+1);
+	// it's either every fMCMCNParameters*nMCMCNIterationsUpdate (for 5 parameters the default would be 5000)
+	// or it's fMCMCNIterationsUpdateMax (10000 by default)
+	// whichever of the two is smaller
+	int updateLimit = ( fMCMCNIterationsUpdateMax<fMCMCNIterationsUpdate*(fMCMCNParameters)  && fMCMCNIterationsUpdateMax>0 ) ?
+			fMCMCNIterationsUpdateMax : fMCMCNIterationsUpdate*(fMCMCNParameters);
 
 	// loop over chains
 	for (int ichains = 0; ichains < fMCMCNChains; ++ichains) {
