@@ -1,6 +1,12 @@
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCEngineMCMC:
+	  - added MCMCCurrentPointInterface() method which is called for each
+	    newly generated point after we know whether it is accepted or not
+
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* added automake macro HAS_ROOSTATS to check whether ROOT is compiled
 	  with RooFit/RooStats support
+	* new version of BCRooInterface
 	* removed BATCalculator stuff from models/Makefile.am since it is
 	  not yet in the SVN
 

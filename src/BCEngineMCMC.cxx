@@ -456,6 +456,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
 		// increase counter
 		fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++;
 
+		// execute user code for every point
+		MCMCCurrentPointInterface(fMCMCxLocal, chain, false);
+
 		return false;
 	}
 
@@ -500,6 +503,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
 		fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++;
 	}
 
+	// execute user code for every point
+	MCMCCurrentPointInterface(fMCMCxLocal, chain, accept);
+
 	return accept;
 }
 
@@ -518,6 +524,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
 		// increase counter
 		for (int i = 0; i < fMCMCNParameters; ++i)
 			fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
+
+		// execute user code for every point
+		MCMCCurrentPointInterface(fMCMCxLocal, chain, false);
 
 		return false;
 	}
@@ -565,6 +574,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
 		for (int i = 0; i < fMCMCNParameters; ++i)
 			fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
 	}
+
+	// execute user code for every point
+	MCMCCurrentPointInterface(fMCMCxLocal, chain, accept);
 
 	return accept;
 }

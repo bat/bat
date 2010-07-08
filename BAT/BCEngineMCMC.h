@@ -511,9 +511,22 @@ class BCEngineMCMC
 
 		/*
 		 * Interface allowing to execute arbitrary code for each iteration
-		 * of the MCMC.  This method needs to be overloaded in the derived
+		 * of the MCMC. The frequency of calling this method is influenced
+		 * by the setup of the Lag and whether or not the MCMC is run with
+		 * ordered parameters. This method needs to be overloaded in the derived
 		 * class. */
 		virtual void MCMCIterationInterface()
+			{};
+
+		/*
+		 * Interface allowing to execute arbitrary code for each new point
+		 * of the MCMC. This method needs to be overloaded in the derived
+		 * class
+		 * @param point point that was generated and checked
+		 * @param ichain index of the chain
+		 * @param accepted flag whether or not the point was accepted for the chain
+		 */
+		virtual void MCMCCurrentPointInterface(std::vector <double> & point, int ichain, bool accepted)
 			{};
 
 		/* @} */
