@@ -45,7 +45,7 @@ libBATmodels_la_SOURCES= \
 
 ## RooStats specific options
 if ROOSTATS
-AM_LDFLAGS += -lRooFitCore -lRooFit
+AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam
 libBATmodels_la_SOURCES += \
 	BCRooInterface.cxx \
 	BATCalculator.cxx \

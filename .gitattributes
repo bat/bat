@@ -194,7 +194,7 @@ src/BCSummaryPriorModel.cxx -text
 src/BCSummaryTool.cxx -text
 src/Makefile.am -text
 src/libBAT.rootmap -text
-tools/CreateProject.sh -text
+tools/CreateProject.sh.in -text
 tools/analyzeMCMC/Makefile -text
 tools/analyzeMCMC/analyzeMCMC.c -text
 tools/build/root.m4 -text

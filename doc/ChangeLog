@@ -1,4 +1,10 @@
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* CreateProject.sh:
+	  - bugfixes in generated source code
+	  - now generated according to the BAT setup during ./configure
+	* fixed linking with RooStats
+
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* added BATCalculator
 	* increased version to 0.4.pre4
 
@@ -8,7 +14,7 @@
 	  - add method to get the current iteration number
 	* introduction: added comment on the method MCMCSetPrecision.
 	* CreateProject.sh: updated script.
-	
+
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEngineMCMC:
 	  - checking convergence npar*1000, was (npar+1)*1000 before
