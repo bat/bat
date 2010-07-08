@@ -1,6 +1,6 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.3.2
+version 0.4.X
 -------------------------------
 
 This is the INSTALL file of BAT package
@@ -76,6 +76,11 @@ The configure script checks for ROOT availability in the system and
 fails if ROOT is not installed. You can specify the ROOTSYS directory
 using --with-rootsys=/path/to/rootsys.
 
+You can compile BAT with the RooFit/RooStats support using
+--with-roostats. The configure script will check whether the version of
+ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
+support.
+
 The configure will also search for libcuba.a and cuba.h in the system.
 The libcuba.a has to be available in the standard system library search
 path. You can specify the cuba.h location using
@@ -113,8 +118,8 @@ also need to setup DYLD_LIBRARY_PATH.
 An option for use in compiled programs would also be to add
 -I/bat/install/include/path to CXXFLAGS and -L/bat/install/lib/path to
 LDFLAGS in your Makefile. However, the interactive ROOT macros will not
-work if libBAT.so and libBAT.rootmap both aren't in the system library
-search path.
+work if libBAT.so, libBATmodels, libBAT.rootmap and libBATmodels.rootmap
+aren't in the system library search path.
 
 
 ----------------------------------------------------------------------------
