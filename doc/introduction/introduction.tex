@@ -1333,6 +1333,12 @@ further reference see the reference guide:
 \item \verb|BCModel::WriteMarkovChain(bool flag)|. Set a flag to
  write the Markov Chain into a ROOT file. See
  section~\ref{section:outputclass} on how to handle output in BAT.
+\item
+  \verb|BCModel::MCMCSetPrecision(BCEngineMCMC::Precision precision)|. Set
+  predefined values for running the algorithm with different
+  precision. Possible varguments are \linebreak \verb|BCEngineMCMC::kLow| (for
+  quick runs), \verb|BCEngineMCMC::kMedium| (for ``normal'' running),
+  \linebreak \verb|BCEngineMCMC::kHigh| (for publications).
 \end{itemize}
 
 \paragraph{Proposal function}
