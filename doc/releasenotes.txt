@@ -6,7 +6,7 @@ Release date:                 2010-XX-XX
 Urgency:                      medium
 ------------------------------------------
 
-This version contains major improvements and several bugfixes:
+This version contains many improvements and updates and several bugfixes:
 
 Updates:
 o added possibility to set priors for parameters via TF1
@@ -18,6 +18,7 @@ o separated pre-defined models to libBATmodels.so shared library
 o added BCTemplateFitter
 o added BCSummaryTool providing an plots and tables summarizing the MCMC
 o build interface to RooStats during BAT installation procedure
+o added BATCalculator which can be called from within RooStats
 o added performance test suite to be run for every new release
 o added many new examples
 o draw legend in plots of marginalized distributions

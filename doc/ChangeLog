@@ -1,4 +1,11 @@
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated
+	  - releasenotes.txt
+	  - CREDITS
+	  - INSTALL
+	  - README
+
+2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* added forgotten dist-hook for the new CreateProject.sh.in
 
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
