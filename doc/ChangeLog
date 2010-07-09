@@ -1,4 +1,7 @@
 2010-07-09 Daniel Kollar <daniel.kollar@cern.ch>
+	* increased version to 0.4.pre5
+
+2010-07-09 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - abort marginalization, normalization and mode finding
 	    if no parameters are defined
