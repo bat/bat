@@ -13,6 +13,7 @@ EXTRA_DIST= \
 	src/libBAT.rootmap \
 	models/BCRooInterface.rootmap \
 	models/libBATmodels.rootmap.in \
+	models/BATCalculatorLinkDef.h \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/CreateProject.sh.in
