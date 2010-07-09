@@ -647,6 +647,11 @@ double BCModel::SamplingFunction(std::vector<double> parameters)
 
 double BCModel::Normalize()
 {
+	if(fParameterSet->size()<1) {
+		BCLog::OutError(Form("Normalize : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+		return -1.;
+	}
+
    BCLog::OutSummary(Form("Model \'%s\': Normalizing probability",GetName().data()));
 
    unsigned int n = GetNvar();
@@ -694,6 +699,11 @@ int BCModel::CheckParameters(std::vector<double> parameters)
 
 void BCModel::FindMode(std::vector<double> start)
 {
+	if(fParameterSet->size()<1) {
+		BCLog::OutError(Form("FindMode : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+		return;
+	}
+
    // this implementation is CLEARLY not good we have to work on this.
 
    BCLog::OutSummary(Form("Model \'%s\': Finding mode",GetName().data()));
@@ -730,6 +740,11 @@ void BCModel::FindMode(std::vector<double> start)
 
 void BCModel::FindModeMinuit(std::vector<double> start, int printlevel)
 {
+	if(fParameterSet->size()<1) {
+		BCLog::OutError(Form("FindModeMinuit : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+		return;
+	}
+
    // synchronize parameters in BCIntegrate
    SetParameters(fParameterSet);
    BCIntegrate::FindModeMinuit(start, printlevel);
@@ -822,6 +837,11 @@ int BCModel::ReadMode(const char * file)
 
 int BCModel::MarginalizeAll()
 {
+	if(fParameterSet->size()<1) {
+		BCLog::OutError(Form("MarginalizeAll : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+		return 0;
+	}
+
    BCLog::OutSummary(Form("Running MCMC for model \'%s\'",GetName().data()));
 
    // prepare function fitting

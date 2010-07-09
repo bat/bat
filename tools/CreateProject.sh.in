@@ -292,12 +292,12 @@ int main()
 	BCLog::SetLogLevel(BCLog::detail);
 
 	// create new |:Model:| object
-	|:Model:|* m = new |:Model:|();
+	|:Model:| * m = new |:Model:|();
 
 	BCLog::OutSummary("Test model created");
 
 	// create a new summary tool object
-	BCSummaryTool* summary = new BCSummaryTool(m);
+	BCSummaryTool * summary = new BCSummaryTool(m);
 
 	// perform your analysis here
 
