@@ -40,10 +40,33 @@ PerfTestMCMC::~PerfTestMCMC()
 }
 	
 //______________________________________________________________________________
+int PerfTestMCMC::SetVarPar(double value, std::string name)
+{
+	if (name == "lag") {
+		int n = MCMCGetNIterationsRun();
+		int lag = MCMCGetNLag();
+		int iter = int( n * value/double(lag) );
+		MCMCSetNLag(int(value));
+		MCMCSetNIterationsRun(iter);
+		return 1;
+	}
+	else if (name == "iterations") {
+		MCMCSetNIterationsRun(int(value));
+		return 1;
+	}
+	else 
+		return 0;
+}
+
+//______________________________________________________________________________
 int PerfTestMCMC::PreTest()
 {
 	//add histograms
 	int npar = GetNParameters();
+
+	// clear histograms
+	fHistCorr.clear();
+	fCorrelation.clear();
 
 	// loop over parameters
 	for (int i = 0; i < npar; ++i) {
@@ -65,12 +88,24 @@ int PerfTestMCMC::PostTest()
 	int npar = GetNParameters();
 	for (int i = 0; i < npar; ++i) {
 		TCanvas* c_corr = new TCanvas();
-		TH2D* hist = new TH2D("", ";Iteration; Auto-correlation]", 1, 0., fMCMCNIterations.at(0), 1, -1., 1.0);
+		TH2D* hist = new TH2D("", ";Iteration; Auto-correlation]", 1, 0., MCMCGetNIterationsRun()+1, 1, -1., 1.0);
 		hist->SetStats(kFALSE);
 		hist->Draw();
 		fCorrelation.at(i)->Draw("SAMEP");
 		AddCanvas(c_corr);
 		AddCanvasDescription("Auto-correlation for the parameter.");
+		
+		double x; 
+		double y;
+		fCorrelation.at(i)->GetPoint(fCorrelation.at(i)->GetN()-1, x, y);
+		
+		// define test results
+		GetSubtest(Form("correlation par %i", i))->SetTargetValue(0.0);
+		GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kGood,   0.3); 
+		GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kFlawed, 0.5); 
+		GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kBad,    0.7); 
+		GetSubtest(Form("correlation par %i", i))->SetTestValue(y); 
+		GetSubtest(Form("correlation par %i", i))->SetTestUncertainty(fCorrelation.at(i)->GetRMS(2)); 
 	}
 
 	// no error
@@ -83,14 +118,8 @@ int PerfTestMCMC::RunTest()
 	// define error code
 	int err = 1;
 
-	// call pre-test
-	err *= PreTest();
-
 	// perform mcmc
 	err *= MarginalizeAll(); 
-
-	// call post-test
-	err *= PostTest();
 
 	// return error code
 	return err;
@@ -99,6 +128,14 @@ int PerfTestMCMC::RunTest()
 //______________________________________________________________________________
 void PerfTestMCMC::DefineSubtests()
 {
+
+	// loop over parameters
+	int npar = GetNParameters();
+	for (int i = 0; i < npar; ++i) {	
+		PerfSubTest * subtest = new PerfSubTest(Form("correlation par %i", i));
+		subtest->SetDescription("Calculate the auto-correlation among the points."); 
+		AddSubtest(subtest);
+	}
 }
 
 //______________________________________________________________________________
@@ -138,21 +175,20 @@ void PerfTestMCMC::MCMCUserIterationInterface()
 	// loop over parameters
 	int npar = GetNParameters();
 	int nlag = MCMCGetNLag();
+	int iteration = MCMCGetCurrentIteration();
 	int nchains = MCMCGetNChains(); 
 
 	for (int i = 0; i < npar; ++i) {
 		TH2D* hist = fHistCorr.at(i); 
 
-		if (fMCMCNIterations.at(0)>npar)
-			for (int j = 0; j < nchains; ++j)
+		if (iteration > nlag) {
+			for (int j = 0; j < nchains; ++j) 
 				hist->Fill(fXOld.at(j * npar + i), fMCMCx.at(j * npar + i));
+		}
 
-		int counter = (fMCMCNIterations.at(0)-npar)/nlag/npar;
-		int countermax = fMCMCNIterationsRun/nlag;
-
-		if (counter % (countermax/500) == 0) {
-			(fCorrelation[i])->SetPoint(counter / (countermax/500),
-																	fMCMCNIterations.at(0), 
+		if (iteration/nlag % (MCMCGetNIterationsRun()/100/nlag) == 0) {
+			(fCorrelation[i])->SetPoint(iteration/nlag, 
+																	iteration, 
 																	hist->GetCorrelationFactor());
 		}
 	}

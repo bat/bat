@@ -1,3 +1,6 @@
+2010-07-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* PerfTestSuite: added tests with varying parameters
+
 2010-07-09 Daniel Kollar <daniel.kollar@cern.ch>
 	* increased version to 0.4.pre5
 

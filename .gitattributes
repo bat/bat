@@ -27,6 +27,7 @@ benchmarks/PerfTestSuite/include/PerfTest.h -text
 benchmarks/PerfTestSuite/include/PerfTest1DFunction.h -text
 benchmarks/PerfTestSuite/include/PerfTest2DFunction.h -text
 benchmarks/PerfTestSuite/include/PerfTestMCMC.h -text
+benchmarks/PerfTestSuite/include/PerfTestVarPar.h -text
 benchmarks/PerfTestSuite/include/QuickTestSuite.h -text
 benchmarks/PerfTestSuite/include/ReleaseTestSuite.h -text
 benchmarks/PerfTestSuite/include/TestSuite.h -text
@@ -37,6 +38,7 @@ benchmarks/PerfTestSuite/src/PerfTest.cxx -text
 benchmarks/PerfTestSuite/src/PerfTest1DFunction.cxx -text
 benchmarks/PerfTestSuite/src/PerfTest2DFunction.cxx -text
 benchmarks/PerfTestSuite/src/PerfTestMCMC.cxx -text
+benchmarks/PerfTestSuite/src/PerfTestVarPar.cxx -text
 benchmarks/PerfTestSuite/src/QuickTestSuite.cxx -text
 benchmarks/PerfTestSuite/src/ReleaseTestSuite.cxx -text
 benchmarks/PerfTestSuite/src/TestSuite.cxx -text

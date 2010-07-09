@@ -39,6 +39,12 @@ class PerfTestMCMC : public PerfTest, public BCModel
 
 	/* @} */
 
+	/** Set the variation parameter. 
+	 * @param par the parameter value
+	 * @param name the name of the varied parameter. 
+	 * @return an error code. */ 
+	virtual int SetVarPar(double value, std::string name);
+
 	/** Run before test. 
 	 * @return an error code. */ 
 	int PreTest();

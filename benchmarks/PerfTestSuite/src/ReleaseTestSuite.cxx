@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "include/ReleaseTestSuite.h"
+#include <include/PerfTestVarPar.h>
 #include <include/PerfTest1DFunction.h>
 #include <include/PerfTest2DFunction.h>
 
@@ -25,12 +26,6 @@ ReleaseTestSuite::~ReleaseTestSuite()
 //______________________________________________________________________________
 int ReleaseTestSuite::PrepareTests()
 {
-	// 1D flat
-	TF1* testfunc_1d_flat = new TF1("Flat", "1.", -5., 5.0);
-	PerfTest1DFunction*	perftest_1d_flat = new PerfTest1DFunction("1d_flat", testfunc_1d_flat); 
-	perftest_1d_flat->GetSubtest("mode")->SetStatusOff(true);
-	AddTest(perftest_1d_flat); 
-
 	// 1D slope
 	TF1* testfunc_1d_slope = new TF1("Slope", "x", 0., 10.);
 	PerfTest1DFunction*	perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
@@ -126,6 +121,48 @@ int ReleaseTestSuite::PrepareTests()
 	testfunc_2d_2gaus->SetParameters(1.,   10., 0., 1.0,  5., 1.0,    10., 5., 1.0,  10., 1.0);
 	PerfTest2DFunction*	perftest_2d_2gaus = new PerfTest2DFunction("2d_2gaus", testfunc_2d_2gaus); 
 	AddTest(perftest_2d_2gaus); 
+
+	std::vector<double> values_lag; 	
+	for (int i = 1; i <= 10; ++i)
+		values_lag.push_back(i);
+
+	// 1D Gauss with varying lag
+	TF1* testfunc_1d_gaus_lag = new TF1("1dGaus_lag", "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(-(x-[0])*(x-[0])/2/[1]/[1])", -25., 25.);
+	testfunc_1d_gaus_lag->FixParameter(0, 0.0);
+	testfunc_1d_gaus_lag->FixParameter(1, 5.0);
+	PerfTest1DFunction*	perftest_1d_gaus_lag = new PerfTest1DFunction("1d_gaus_lag", testfunc_1d_gaus_lag); 
+	PerfTestVarPar* varpar_gaus_lag = new PerfTestVarPar("1d_gaus_lag", perftest_1d_gaus_lag);
+	varpar_gaus_lag->AddVarPar(values_lag, "lag");
+	AddTest(varpar_gaus_lag); 
+
+	// 2D Gaussian with varying lag
+	TF2* testfunc_2d_gaus_lag = new TF2("2dGaus_lag", "xygausn", -3., 3., -5., 7.);
+	testfunc_2d_gaus_lag->SetParameters(1,0,1,1,2);
+	PerfTest2DFunction*	perftest_2d_gaus_lag = new PerfTest2DFunction("2d_gaus_lag", testfunc_2d_gaus_lag); 
+	PerfTestVarPar* varpar_2dgaus_lag = new PerfTestVarPar("2d_gaus_lag", perftest_2d_gaus_lag);
+	varpar_2dgaus_lag->AddVarPar(values_lag, "lag");
+	AddTest(varpar_2dgaus_lag); 
+
+	std::vector<double> values_iter; 	
+	for (int i = 1; i <= 10; ++i)
+		values_iter.push_back(i*100000);
+
+	// 1D Gauss with varying number of iterations
+	TF1* testfunc_1d_gaus_iter = new TF1("Gaus", "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(-(x-[0])*(x-[0])/2/[1]/[1])", -25., 25.);
+	testfunc_1d_gaus_iter->FixParameter(0, 0.0);
+	testfunc_1d_gaus_iter->FixParameter(1, 5.0);
+	PerfTest1DFunction*	perftest_1d_gaus_iter = new PerfTest1DFunction("1d_gaus_iter", testfunc_1d_gaus_iter); 
+	PerfTestVarPar* varpar_gaus_iter = new PerfTestVarPar("1d_gaus_iter", perftest_1d_gaus_iter);
+	varpar_gaus_iter->AddVarPar(values_iter, "iterations");
+	AddTest(varpar_gaus_iter); 
+	
+	// 2D Gaussian with varying iter
+	TF2* testfunc_2d_gaus_iter = new TF2("2dGaus_iter", "xygausn", -3., 3., -5., 7.);
+	testfunc_2d_gaus_iter->SetParameters(1,0,1,1,2);
+	PerfTest2DFunction*	perftest_2d_gaus_iter = new PerfTest2DFunction("2d_gaus_iter", testfunc_2d_gaus_iter); 
+	PerfTestVarPar* varpar_2dgaus_iter = new PerfTestVarPar("2d_gaus_iter", perftest_2d_gaus_iter);
+	varpar_2dgaus_iter->AddVarPar(values_iter, "iteration");
+	AddTest(varpar_2dgaus_iter); 
 
 	// no error
 	return 1;

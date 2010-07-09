@@ -31,7 +31,7 @@ class PerfTest
 	/* @{ */
 		 
 	/** An enumerator for the test categories. */ 
-	enum TestType{ kUnknown, kFunction1D, kFunction2D }; 
+	enum TestType{ kUnknown, kFunction1D, kFunction2D, kVarPar }; 
 
 	/** An enumerator for the test precision. */
 	enum Precision{ kCoarse, kMedium, kDetail }; 
@@ -60,6 +60,13 @@ class PerfTest
 	/** Set CPU time of test. */ 
 	void SetCpuTime(double time)
 	{ fCpuTime = time; }; 
+
+	/** Set the variation parameter. 
+	 * @param par the parameter value
+	 * @param name the name of the varied parameter. 
+	 * @return an error code. */ 
+	virtual int SetVarPar(double value, std::string name)
+	{ return 0; };
 
 	/* @} */
 	/** \name Member functions (Get)  */
@@ -186,17 +193,25 @@ class PerfTest
 
 	/** Run after the test. 
 	 * @return an error code. */ 
-	virtual int PostTest() = 0;
+	virtual int PostTest()
+	{ return 1; };
 
 	/** Run the test. 
 	 * @return an error code. */ 
-	virtual int RunTest() = 0; 
+	virtual int RunTest()
+	{ return 1;} ; 
+
+	/**
+	 * Perform the whole analysis. 
+	 * @return An error code. */
+	int Run();
 
 	/** Defines the subtests. */ 
 	//	virtual void DefineSubtests() = 0;
 
 	/** Define precision settings. */ 
-	virtual void PrecisionSettings(PerfTest::Precision) = 0;
+	virtual void PrecisionSettings(PerfTest::Precision) 
+	{ return; }; 
 
 	/* @} */
 

@@ -28,6 +28,7 @@ GLIBS       += $(ROOTGLIBS) -L.-L$(BATINSTALLDIR)/lib -lBAT
 CXSRCS      = TestSuite.cxx \
               ReleaseTestSuite.cxx \
               PerfTest.cxx \
+              PerfTestVarPar.cxx \
               PerfSubTest.cxx \
               PerfTestMCMC.cxx \
               PerfTest1DFunction.cxx \
@@ -88,3 +89,11 @@ print :
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
 
+web :
+	tar -cf web.tar \
+	*.html \
+	*.png \
+	*.eps \
+	*.ps \
+	*.log
+	gzip web.tar

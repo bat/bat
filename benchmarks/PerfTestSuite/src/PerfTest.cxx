@@ -321,4 +321,23 @@ int PerfTest::WriteResults()
 }
 
 //______________________________________________________________________________
+int PerfTest::Run()
+{
+	// define error code
+	int err = 1;
+	
+	// call pre-test
+	err *= PreTest();
+
+	// perform mcmc
+	err *= RunTest(); 
+
+	// call post-test
+	err *= PostTest();
+
+	// return error code
+	return err;
+}
+
+//______________________________________________________________________________
 	
