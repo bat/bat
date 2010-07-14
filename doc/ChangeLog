@@ -1,3 +1,6 @@
+2010-07-14 Daniel Kollar <daniel.kollar@cern.ch>
+	* updates in BATCalculator (obo Stefan Schmitz)
+
 2010-07-09 Daniel Kollar <daniel.kollar@cern.ch>
 	* added forgotten file to the distribution
 	* increased version to 0.4.pre6
@@ -31,7 +34,7 @@
 	* fixed linking with RooStats
 
 2010-07-08 Daniel Kollar <daniel.kollar@cern.ch>
-	* added BATCalculator
+	* added BATCalculator (obo Gregory Schott and Stefan Schmitz)
 	* increased version to 0.4.pre4
 
 2010-07-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

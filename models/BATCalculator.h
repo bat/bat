@@ -5,9 +5,11 @@
 #define ROOSTATS_BATCalculator
 
 #include <TNamed.h>
+#include <TH1D.h>
 
 #include <RooStats/IntervalCalculator.h>
 #include <RooStats/SimpleInterval.h>
+#include <RooStats/ModelConfig.h>
 
 #include <RooArgSet.h>
 #include <RooAbsData.h>
@@ -16,6 +18,9 @@
 #include <RooAbsReal.h>
 
 #include <BCRooInterface.h>
+
+#include <map>
+#include <vector>
 
 
 namespace RooStats
@@ -30,32 +35,41 @@ namespace RooStats
       BATCalculator( );
 
       BATCalculator( RooAbsData & data,
-                     RooAbsPdf & pdf,
-                     RooArgSet & POI,
-                     RooAbsPdf & priorPOI,
-                     RooAbsPdf * PriorNuisance = 0,
-                     RooArgSet * params = 0 );
+                     RooAbsPdf  & pdf,
+                     RooArgSet  & POI,
+                     RooAbsPdf  & priorPOI,
+                     RooAbsPdf  * PriorNuisance = 0,
+                     RooArgSet  * params = 0 );
 
 
-      BATCalculator( RooAbsData & data,
+      BATCalculator( RooAbsData  & data,
                      ModelConfig & model ); 
 
       // destructor
       virtual ~BATCalculator();
 
-      /*RooPlot * GetPosteriorPlot() const; */
+      RooPlot * GetPosteriorPlot1D() const; 
 
       // return posterior pdf (object is managed by the BayesianCalculator class)
-      RooAbsPdf * GetPosteriorPdf() const ; 
+      RooAbsPdf * GetPosteriorPdf1D() const;
+      RooAbsPdf * GetPosteriorPdf1D(const char * POIname) const;
 
-      virtual SimpleInterval * GetInterval() const ; 
+      virtual SimpleInterval * GetInterval() const;
+      virtual SimpleInterval * GetInterval(const char * POIname) const;
+
+      SimpleInterval * GetShortestInterval1D() const;
+      SimpleInterval * GetShortestInterval1D(const char * POIname, bool & checkConnected) const;
+
+      // just a temporary solution
+      Double_t GetOneSidedUperLim();
+
 
       virtual void SetData( RooAbsData & data ) {
          fData = &data;
          ClearAll();
       }
 
-      virtual void SetModel( const ModelConfig& model ); 
+      virtual void SetModel( const ModelConfig & model );
 
       // set the size of the test (rate of Type I error) ( Eg. 0.05 for a 95% Confidence Interval)
       virtual void SetTestSize( Double_t size ) {
@@ -75,9 +89,25 @@ namespace RooStats
       virtual Double_t ConfidenceLevel() const
 		   { return 1.-fSize; }
 
-      void SetBrfPrecision( double precision ) { fBrfPrecision = precision; }
+      void SetBrfPrecision( double precision )
+		   { fBrfPrecision = precision; }
+      double GetBrfPrecision()
+		   { return fBrfPrecision; }
 
-      void CleanCalculatorForNewData() { ClearAll();}
+      void SetnMCMC(int nMCMC)
+		   { _nMCMC = nMCMC; }
+
+      int  GetnMCMC()
+		   { return _nMCMC; }
+
+      //interface to SetNbins method in BAT (allows customized precision for histograms)
+      void SetNbins(const char * parname, int nbins);
+
+      // would be more complete if we had this -> ask BAT developers to implement this functionality (not high priority)
+      //int GetNbins(const char * parname);
+
+      void CleanCalculatorForNewData()
+		   { ClearAll(); }
 
    protected:
 
@@ -90,34 +120,40 @@ namespace RooStats
       RooArgSet * GetMode( RooArgSet * parameters ) const;
       // plan to replace the above: return a SimpleInterval integrating 
       // over all other parameters except the one specified as argument
-      //virtual SimpleInterval* GetInterval( RooRealVar* parameter  ) const { return 0; }
+      // virtual SimpleInterval* GetInterval( RooRealVar* parameter  ) const { return 0; }
     
       RooAbsData * fData;
-      RooAbsPdf  * fPdf;
+      RooAbsPdf * fPdf;
       mutable RooArgSet fPOI;
-      RooAbsPdf  * fPriorPOI;
-      RooAbsPdf  * fPriorNuisance;
-      RooArgSet  * fparams;
+      RooAbsPdf * fPriorPOI;
+      RooAbsPdf * fPriorNuisance;
+      RooArgSet * fparams;
       BCRooInterface * _myRooInterface;
+      mutable TH1D * _posteriorTH1D;
 
 
-      mutable RooAbsPdf  * fProductPdf; 
+      mutable RooAbsPdf * fProductPdf; 
       mutable RooAbsReal * fLogLike; 
       mutable RooAbsReal * fLikelihood; 
       mutable RooAbsReal * fIntegratedLikelihood; 
-      mutable RooAbsPdf  * fPosteriorPdf; 
-      mutable Double_t  fLower; 
-      mutable Double_t  fUpper; 
-      double  fBrfPrecision;
-      mutable Bool_t    fValidInterval;
-
+      mutable RooAbsPdf * fPosteriorPdf; 
+      mutable Double_t fLower; 
+      mutable Double_t fUpper; 
+      double fBrfPrecision;
+      mutable Bool_t fValidInterval;
+      mutable bool fConnectedInterval;
+      
+      int _nMCMC; // number of chain elements per Markov Chain
       double fSize;  // size used for getting the interval
+      mutable vector<double> _intervalBorders1D;
 
    protected:
 
       ClassDef(BATCalculator,1)  // BATCalculator class
 
    };
+
+   bool sortbyposterior(pair< Int_t,Double_t > pair1, pair< Int_t,Double_t > pair2);
 }
 
 #endif
