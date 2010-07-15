@@ -1,4 +1,7 @@
 2010-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel.cxx: Added a function to re-set parameter ranges
+
+2010-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: added "UltraHigh" precision pre-setting option.
 	* Added a simple Poisson example to the examples
 

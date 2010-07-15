@@ -255,6 +255,14 @@ class BCModel : public BCIntegrate
 		void SetParameterSet( BCParameterSet * parset )
 			{ fParameterSet = parset; };
 
+		/** 
+		 * Set the range of a parameter
+		 * @param index The parameter index
+		 * @param parmin The parameter minimum
+		 * @param parmax The parameter maximum
+		 * @return An error code. */
+		int SetParameterRange(int index, double parmin, double parmax);
+
 		/**
 		 * Sets the a priori probability for a model.
 		 * @param model The model

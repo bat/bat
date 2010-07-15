@@ -1897,6 +1897,26 @@ int BCModel::SetPriorConstantAll()
 }
 
 // ---------------------------------------------------------
+int BCModel::SetParameterRange(int index, double parmin, double parmax)
+{
+  // check index
+  if (index < 0 || index >= int(GetNParameters()))
+    {
+      BCLog::OutWarning("BCModel::SetParameterRange() : Index out of range.");
+      return 0; 
+    }
+  
+  // set parameter ranges in BAT 
+  GetParameter(index)->SetLowerLimit(parmin); 
+  GetParameter(index)->SetUpperLimit(parmax); 
+  fMCMCBoundaryMin[index] = parmin; 
+  fMCMCBoundaryMax[index] = parmax; 
+  
+  // no error 
+  return 1; 
+}
+
+// ---------------------------------------------------------
 void BCModel::PrintSummary()
 {
    int nparameters = GetNParameters();

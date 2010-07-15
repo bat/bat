@@ -28,3 +28,8 @@ templatefitter:
    1-dim. histograms. The examples feature the BCTemplateFitter which
    is included in the models directory. 
    (ROOT macros and compiled programs)
+
+poisson:
+   A simple example for a Poisson counting experiment. The expectation
+   value for a Poisson distribution is estimated given a certain
+   number of observations.
