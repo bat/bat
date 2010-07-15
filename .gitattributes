@@ -105,6 +105,10 @@ examples/fastfitter/advancedGraphFitter/graphFitterAdvancedExample.C -text
 examples/fastfitter/efficiencyFitter/efficiencyFitterExample.C -text
 examples/fastfitter/graphFitter/graphFitterSimpleExample.C -text
 examples/fastfitter/histogramFitter/histogramFitterExample.C -text
+examples/poisson/Makefile -text
+examples/poisson/PoissonModel.cxx -text
+examples/poisson/PoissonModel.h -text
+examples/poisson/runPoissonCounting.cxx -text
 examples/roointerface/Makefile -text
 examples/roointerface/PrepareWorkspace_GaussOverFlat.C -text
 examples/roointerface/PrepareWorkspace_GaussOverFlat_withSystematics.C -text

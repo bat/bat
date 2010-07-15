@@ -41,7 +41,7 @@ class BCEngineMCMC
 	/* @{ */
 	
 	/** An enumerator for the status of a test. */ 
-	enum Precision{ kLow, kMedium, kHigh }; 
+  enum Precision{ kLow, kMedium, kHigh, kUltraHigh }; 
 	
 	/* @} */
 	/** \name Constructors and destructors */

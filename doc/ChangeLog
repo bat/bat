@@ -1,4 +1,8 @@
 2010-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx: added "UltraHigh" precision pre-setting option.
+	* Added a simple Poisson example to the examples
+
+2010-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: fixed the summary of the number of iterations.
 
 2010-07-14 Daniel Kollar <daniel.kollar@cern.ch>
