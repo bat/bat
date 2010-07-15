@@ -1081,9 +1081,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	else
 		fMCMCFlagConvergenceGlobal = false;
 
-	// reset current iteration
-	fMCMCCurrentIteration = -1;
-
 	// print convergence status
 	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && !flagefficiency)
 		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations but could not adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
@@ -1142,6 +1139,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// set pre-run flag
 	fMCMCFlagPreRun = true;
+
+	// reset current iteration
+	fMCMCCurrentIteration = -1;
 
 	// no error
 	return 1;
