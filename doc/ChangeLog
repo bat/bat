@@ -1,4 +1,8 @@
 2010-07-16 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Added a simple example for combining two quantities to the
+	  examples
+
+2010-07-16 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Added a simple example for error propagation to the examples
 
 2010-07-16 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

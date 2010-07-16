@@ -42,3 +42,7 @@ binomial:
 errorpropagation:
    A simple example for error propagation. The probability
    distribution for the ratio of two random variables is calculated.
+
+combination1d:
+   A simple example for thw combination of two measurements where one
+   is the result from an earlier measurement. 
