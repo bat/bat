@@ -1,0 +1,7 @@
+This example shows how to implement a simple binomial model in
+BAT. 
+
+The free parameter of the model is the efficiency, while the total
+number of "events" is given as well as a number of selected "events".
+
+

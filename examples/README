@@ -33,3 +33,8 @@ poisson:
    A simple example for a Poisson counting experiment. The expectation
    value for a Poisson distribution is estimated given a certain
    number of observations.
+
+binomial:
+   A simple example for a binomial experiment. The efficiency for a
+   certain process is estimated given a total and selected number of
+   "events" or observations.

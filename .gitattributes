@@ -99,6 +99,11 @@ doc/note_template/note.tex -text
 doc/releasenotes.txt -text
 doc/todo/todo.txt -text
 examples/README -text
+examples/binomial/BinomialModel.cxx -text
+examples/binomial/BinomialModel.h -text
+examples/binomial/Makefile -text
+examples/binomial/README -text
+examples/binomial/runEfficiency.cxx -text
 examples/fastfitter/README -text
 examples/fastfitter/advancedGraphFitter/data/datax.txt -text
 examples/fastfitter/advancedGraphFitter/graphFitterAdvancedExample.C -text
@@ -108,6 +113,7 @@ examples/fastfitter/histogramFitter/histogramFitterExample.C -text
 examples/poisson/Makefile -text
 examples/poisson/PoissonModel.cxx -text
 examples/poisson/PoissonModel.h -text
+examples/poisson/README -text
 examples/poisson/runPoissonCounting.cxx -text
 examples/roointerface/Makefile -text
 examples/roointerface/PrepareWorkspace_GaussOverFlat.C -text

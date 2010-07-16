@@ -1,0 +1,5 @@
+This example shows how to implement a simple poisson model in BAT.
+
+The free parameter of the model is the expected number of "event",
+while the number of observed "events" is given. 
+

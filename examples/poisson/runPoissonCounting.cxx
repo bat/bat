@@ -48,9 +48,6 @@ int main()
 
   delete m;
 
-  BCLog::OutSummary("Test program ran successfully");
-  BCLog::OutSummary("Exiting");
-
   return 0;
 
 }
