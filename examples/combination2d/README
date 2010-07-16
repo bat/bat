@@ -1,0 +1,6 @@
+This example shows how to combine two measurements in BAT.
+
+Two correlated quantities ("mass" and "cross section") have been
+measured and the result is combined with the results from two earlier
+and independent experiments. The latter is implemented as the prior
+knowledge while the former is the Likelihood.

@@ -2,4 +2,4 @@ This example shows how to combine two measurements in BAT.
 
 A quantity ("mass") has been measured and the result is combined with
 the results from an earlier experiment. The latter is implemented as
-the prior knowledge while the latter is the Likelihood. 
+the prior knowledge while the former is the Likelihood. 

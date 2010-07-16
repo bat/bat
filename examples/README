@@ -44,5 +44,9 @@ errorpropagation:
    distribution for the ratio of two random variables is calculated.
 
 combination1d:
-   A simple example for thw combination of two measurements where one
+   A simple example for the combination of two measurements where one
    is the result from an earlier measurement. 
+
+combination2d:
+   A simple example for the combination of two measurements with two
+   variables where one is the result from an earlier measurement. 

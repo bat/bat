@@ -109,6 +109,11 @@ examples/combination1d/CombinationModel.h -text
 examples/combination1d/Makefile -text
 examples/combination1d/README -text
 examples/combination1d/runCombineGaussians.cxx -text
+examples/combination2d/CombinationModel.cxx -text
+examples/combination2d/CombinationModel.h -text
+examples/combination2d/Makefile -text
+examples/combination2d/README -text
+examples/combination2d/runCombineGaussians.cxx -text
 examples/errorpropagation/Makefile -text
 examples/errorpropagation/README -text
 examples/errorpropagation/RatioModel.cxx -text
