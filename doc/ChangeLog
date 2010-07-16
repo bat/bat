@@ -1,4 +1,7 @@
 2010-07-16 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Added a simple example for error propagation to the examples
+
+2010-07-16 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Added a simple binomial example to the examples
 
 2010-07-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

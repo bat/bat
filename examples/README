@@ -38,3 +38,7 @@ binomial:
    A simple example for a binomial experiment. The efficiency for a
    certain process is estimated given a total and selected number of
    "events" or observations.
+
+errorpropagation:
+   A simple example for error propagation. The probability
+   distribution for the ratio of two random variables is calculated.

@@ -1,0 +1,6 @@
+This example shows how to implement error propagation in BAT.
+
+Two values, x and y, are measured with a certain (Gaussian)
+precision. The quantity of interest is the ratio of the two, r=x/y,
+i.e., the probability density for r, p(r|x,y). 
+

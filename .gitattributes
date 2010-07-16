@@ -104,6 +104,11 @@ examples/binomial/BinomialModel.h -text
 examples/binomial/Makefile -text
 examples/binomial/README -text
 examples/binomial/runEfficiency.cxx -text
+examples/errorpropagation/Makefile -text
+examples/errorpropagation/README -text
+examples/errorpropagation/RatioModel.cxx -text
+examples/errorpropagation/RatioModel.h -text
+examples/errorpropagation/runErrorPropagation.cxx -text
 examples/fastfitter/README -text
 examples/fastfitter/advancedGraphFitter/data/datax.txt -text
 examples/fastfitter/advancedGraphFitter/graphFitterAdvancedExample.C -text
