@@ -158,7 +158,6 @@ examples/basic/poisson/PoissonModel.cxx -text
 examples/basic/poisson/PoissonModel.h -text
 examples/basic/poisson/README -text
 examples/basic/poisson/runPoissonCounting.cxx -text
-examples/fastfitter/README -text
 extras/BinLikeTool/BinLikeModel.cxx -text
 extras/BinLikeTool/BinLikeModel.h -text
 extras/BinLikeTool/CreateFitModel.sh -text
