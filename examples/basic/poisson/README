@@ -1,5 +1,50 @@
-This example shows how to implement a simple poisson model in BAT.
+Description: 
+------------
 
-The free parameter of the model is the expected number of "event",
-while the number of observed "events" is given. 
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
 
+The example shows how to properly define a new model class based on
+the BCModel class or on any previously defined class which inherits
+from BCModel. It demonstrates how to create a simple compiled program
+using BAT. 
+
+It shows how to implement a simple Poisson model in BAT. The free
+parameter of the model is the expected number of "events", while the
+number of observed "events" is given. No prior knowledge of the
+parameter is assumed. 
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://www.mppmu.mpg.de/bat/
+
+
+Files:
+------
+
+  README                  - this file 
+  Makefile                - makefile for the example program
+  PoissonModel.h          - definition of the model class for a Poisson 
+                            problem
+  PoissonModel.cxx        - source code of the model class
+  runPoissonCouting.cxx   - the source code of the main program
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Compile the example by running 'make' in the example directory
+
+   If your version of BAT was not compiled with Cuba and you don't
+   have Cuba installed on your system you might need to remove
+   '-lcuba' from the two following lines in the Makefile before
+   running 'make'. Otherwise the example will not compile.
+
+   LIBS        += $(ROOTLIBS)  -lBAT -lcuba
+   GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
+
+3. Run the executable 'runPoissonCounting'.
