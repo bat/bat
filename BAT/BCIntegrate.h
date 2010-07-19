@@ -718,6 +718,11 @@ class BCIntegrate : public BCEngineMCMC
 		virtual void MCMCUserIterationInterface()
 			{};
 
+		/**
+		 * Reset all information on the best fit parameters. 
+		 * @return An error code */
+		int IntegrateResetResults(); 
+		
 		/* @} */
 
 	private:

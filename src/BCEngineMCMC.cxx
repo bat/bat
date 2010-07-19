@@ -1376,7 +1376,7 @@ void BCEngineMCMC::MCMCInitializeMarkovChains()
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::MCMCInitialize()
+int BCEngineMCMC::MCMCResetResults()
 {
 	// reset variables
 	fMCMCNIterations.clear();
@@ -1392,7 +1392,6 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCxMax.clear();
 	fMCMCprobMax.clear();
 	fMCMCNIterationsConvergenceGlobal = -1;
-	fMCMCFlagConvergenceGlobal = false;
 	fMCMCRValueParameters.clear();
 
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
@@ -1407,7 +1406,22 @@ int BCEngineMCMC::MCMCInitialize()
 	fMCMCH1Marginalized.clear();
 	fMCMCH2Marginalized.clear();
 
-// free memory for vectors
+	// reset flags
+  	fMCMCFlagPreRun = false;
+	fMCMCFlagRun = false;
+	fMCMCFlagConvergenceGlobal = false;
+
+	// no errors
+	return 1;
+}
+
+// --------------------------------------------------------
+int BCEngineMCMC::MCMCInitialize()
+{
+	// reset values
+	MCMCResetResults(); 
+
+	// free memory for vectors
 	fMCMCNIterations.assign(fMCMCNChains, 0);
 	fMCMCprobMean.assign(fMCMCNChains, 0);
 	fMCMCprobVar.assign(fMCMCNChains, 0);
@@ -1502,9 +1516,6 @@ int BCEngineMCMC::MCMCInitialize()
 						fMCMCH1NBins[i], fMCMCBoundaryMin[i], fMCMCBoundaryMax[i] );
 			fMCMCH2Marginalized.push_back(h2);
 		}
-
-	fMCMCFlagPreRun = false;
-	fMCMCFlagRun = false;
 
 	return 1;
 }

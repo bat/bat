@@ -1730,6 +1730,9 @@ int BCModel::SetPrior(int index, TF1 * f)
    // set function
    fPriorContainer[index] = f; 
 
+   // reset all results
+   ResetResults();
+
    // no error 
    return 1; 
 }
@@ -1846,6 +1849,9 @@ int BCModel::SetPriorConstant(int index)
    //update value of constant
    fPriorConstantValue -= log(GetParameter(index)->GetRangeWidth());
 
+   // reset all results
+   ResetResults();
+
    //no error in Kevin's funny convention
    return 1;
 }
@@ -1892,6 +1898,9 @@ int BCModel::SetPriorConstantAll()
 
    fPriorConstantValue = logprob;
 
+   // reset all results
+   ResetResults();
+
    //no error in Kevin's funny convention
    return 1;
 }
@@ -1912,8 +1921,22 @@ int BCModel::SetParameterRange(int index, double parmin, double parmax)
   fMCMCBoundaryMin[index] = parmin; 
   fMCMCBoundaryMax[index] = parmax; 
   
+  // reset results
+  ResetResults();
+
   // no error 
   return 1; 
+}
+
+// ---------------------------------------------------------
+int BCModel::ResetResults()
+{
+  BCIntegrate::IntegrateResetResults();
+  
+  BCEngineMCMC::MCMCResetResults();
+
+  // no error
+  return 1;
 }
 
 // ---------------------------------------------------------

@@ -511,8 +511,14 @@ class BCEngineMCMC
 		void MCMCInitializeMarkovChains();
 
 		/*
-		 * Initializes the engine. */
+		 * Initializes the engine. 
+		 * @return An error code */
 		int MCMCInitialize();
+
+		/*
+		 * Reset the MCMC variables. 
+		 * @return An error code */
+		int MCMCResetResults();
 
 		/*
 		 * Interface allowing to execute arbitrary code for each iteration

@@ -341,6 +341,14 @@ void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 }
 
 // *********************************************
+int BCIntegrate::IntegrateResetResults()
+{
+  fBestFitParameters.clear();
+  fBestFitParameterErrors.clear();
+  fBestFitParametersMarginalized.clear();
+}
+
+// *********************************************
 double BCIntegrate::Integrate()
 {
    std::vector <double> parameter;

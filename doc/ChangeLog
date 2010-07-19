@@ -1,4 +1,8 @@
 2010-07-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Added methods to reset results. Done for BCEngineMCMC,
+	  BCIntegrate and BCModel.
+
+2010-07-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Further reorganization of the examples.
 
 2010-07-19 Daniel Kollar <daniel.kollar@cern.ch>

@@ -732,7 +732,10 @@ class BCModel : public BCIntegrate
 		{return 0.0;}
 
 
-
+		/** 
+		 * Reset all results. 
+		 * @return An error code. */ 
+		int ResetResults();
 
 	/* @} */
 
