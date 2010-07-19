@@ -63,7 +63,7 @@ double RatioModel::LogAPrioriProbability(std::vector <double> parameters)
   double logprob = 0.;
 
   double dx = GetParameter(0)->GetRangeWidth(); 
-  double dy = GetParameter(0)->GetRangeWidth(); 
+  double dy = GetParameter(1)->GetRangeWidth(); 
 
   logprob += log(1./dx);                    // flat prior for x
   logprob += log(1./dy);                    // flat prior for y
