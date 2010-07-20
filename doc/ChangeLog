@@ -1,3 +1,15 @@
+2010-07-20 Daniel Kollar <daniel.kollar@cern.ch>
+	* configure:
+	  - print ROOT version number if insufficient
+	  - BCRooInterface needs ROOT 5.27.04 or later
+	* BCRooInterface:
+	  - support for ModelConfig
+	  - improved constructor for BATCalculator and BCRooInterface
+	  - added example macro running BATCalculator
+	  - code formatting
+	* BCEngineMCMC updated printouts
+	* increased version to 0.4.pre7
+
 2010-07-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Added comments to examples/basic/poisson and examples/basic/binomial
 

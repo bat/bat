@@ -1,4 +1,4 @@
-// 
+//
 // Author: Kyle Cranmer, Lorenzo Moneta, Gregory Schott, Wouter Verkerke, Stefan A. Schmitz
 
 #ifndef ROOSTATS_BATCalculator
@@ -37,18 +37,17 @@ namespace RooStats
       BATCalculator( RooAbsData & data,
                      RooAbsPdf  & pdf,
                      RooArgSet  & POI,
-                     RooAbsPdf  & priorPOI,
-                     RooAbsPdf  * PriorNuisance = 0,
+                     RooAbsPdf  & prior,
                      RooArgSet  * params = 0 );
 
 
       BATCalculator( RooAbsData  & data,
-                     ModelConfig & model ); 
+                     ModelConfig & model );
 
       // destructor
       virtual ~BATCalculator();
 
-      RooPlot * GetPosteriorPlot1D() const; 
+      RooPlot * GetPosteriorPlot1D() const;
 
       // return posterior pdf (object is managed by the BayesianCalculator class)
       RooAbsPdf * GetPosteriorPdf1D() const;
@@ -63,19 +62,14 @@ namespace RooStats
       // just a temporary solution
       Double_t GetOneSidedUperLim();
 
-
-      virtual void SetData( RooAbsData & data ) {
-         fData = &data;
-         ClearAll();
-      }
+      virtual void SetData( RooAbsData & data )
+		   { fData = &data; ClearAll(); }
 
       virtual void SetModel( const ModelConfig & model );
 
       // set the size of the test (rate of Type I error) ( Eg. 0.05 for a 95% Confidence Interval)
-      virtual void SetTestSize( Double_t size ) {
-         fSize = size;
-         fValidInterval = false; 
-      }
+      virtual void SetTestSize( Double_t size )
+		   { fSize = size; fValidInterval = false; }
 
       // set the confidence level for the interval (eg. 0.95 for a 95% Confidence Interval)
       virtual void SetConfidenceLevel( Double_t cl )
@@ -91,6 +85,7 @@ namespace RooStats
 
       void SetBrfPrecision( double precision )
 		   { fBrfPrecision = precision; }
+
       double GetBrfPrecision()
 		   { return fBrfPrecision; }
 
@@ -99,6 +94,15 @@ namespace RooStats
 
       int  GetnMCMC()
 		   { return _nMCMC; }
+
+      //returns if last calculated shortest interval is connected
+      bool GetConnected()
+		   { return fConnectedInterval; }
+
+      vector<double> GetIntervalBorders1D()
+		   { return _intervalBorders1D; }
+
+      //returns interval borders od the last calculated shortest interval
 
       //interface to SetNbins method in BAT (allows customized precision for histograms)
       void SetNbins(const char * parname, int nbins);
@@ -111,38 +115,37 @@ namespace RooStats
 
    protected:
 
-      void ClearAll() const; 
-   
+      void ClearAll() const;
+
    private:
 
       // compute the most probable value: move to public once implemented
       // returns a RooArgSet
       RooArgSet * GetMode( RooArgSet * parameters ) const;
-      // plan to replace the above: return a SimpleInterval integrating 
+      // plan to replace the above: return a SimpleInterval integrating
       // over all other parameters except the one specified as argument
-      // virtual SimpleInterval* GetInterval( RooRealVar* parameter  ) const { return 0; }
-    
+      //virtual SimpleInterval* GetInterval( RooRealVar* parameter  ) const { return 0; }
+
       RooAbsData * fData;
       RooAbsPdf * fPdf;
-      mutable RooArgSet fPOI;
-      RooAbsPdf * fPriorPOI;
-      RooAbsPdf * fPriorNuisance;
-      RooArgSet * fparams;
+      const RooArgSet fPOI;
+      RooAbsPdf * fPrior;
+      const RooArgSet * fparams;
       BCRooInterface * _myRooInterface;
       mutable TH1D * _posteriorTH1D;
 
 
-      mutable RooAbsPdf * fProductPdf; 
-      mutable RooAbsReal * fLogLike; 
-      mutable RooAbsReal * fLikelihood; 
-      mutable RooAbsReal * fIntegratedLikelihood; 
-      mutable RooAbsPdf * fPosteriorPdf; 
-      mutable Double_t fLower; 
-      mutable Double_t fUpper; 
+      mutable RooAbsPdf * fProductPdf;
+      mutable RooAbsReal * fLogLike;
+      mutable RooAbsReal * fLikelihood;
+      mutable RooAbsReal * fIntegratedLikelihood;
+      mutable RooAbsPdf * fPosteriorPdf;
+      mutable Double_t fLower;
+      mutable Double_t fUpper;
       double fBrfPrecision;
       mutable Bool_t fValidInterval;
       mutable bool fConnectedInterval;
-      
+
       int _nMCMC; // number of chain elements per Markov Chain
       double fSize;  // size used for getting the interval
       mutable vector<double> _intervalBorders1D;

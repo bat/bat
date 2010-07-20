@@ -936,7 +936,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 			// print convergence status:
 			if (convergence && fMCMCNChains > 1)
-				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains converged within %i iterations.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal+1));
 			else if (!convergence && fMCMCNChains > 1)
 			{
 				BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
@@ -1095,10 +1095,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 	// print convergence status
 	if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && !flagefficiency)
-		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations but could not adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations but could not adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal+1));
 
 	else if (fMCMCFlagConvergenceGlobal && fMCMCNChains > 1 && flagefficiency)
-		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations and could adjust scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+		BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations and all scales are adjusted.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal+1));
 
 	else if (!fMCMCFlagConvergenceGlobal && (fMCMCNChains > 1) && flagefficiency)
 		BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations.", fMCMCNChains, fMCMCNIterationsMax));

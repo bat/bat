@@ -2,7 +2,7 @@ AC_INIT(src/BCModel.cxx)
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.4.pre6)
+AM_INIT_AUTOMAKE(BAT, 0.4.pre7)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -69,7 +69,7 @@ AC_ARG_WITH(
 	[AS_HELP_STRING([--with-roostats],[compile with RooStats support (default no)])],
 	[
 		use_roostats=yes
-		REQUIRE_ROOT_VERSION([5.24])
+		REQUIRE_ROOT_VERSION([5.27.04])
 		echo "compiling with RooStats support: required ROOT version $require_ROOT_version or later"
 	],
 	[use_roostats=no]
@@ -81,8 +81,8 @@ ROOT_PATH(
 	,
 	[
 		AC_MSG_ERROR([ROOT cannot be found. Please ensure that it is installed
-			and that either \$ROOTSYS is defined corectly or root-config is in the path.
-			One can pass --with-rootsys=/path/to/rootsys to configure as well.])
+                  and that either \$ROOTSYS is defined corectly or root-config is in the path.
+                  One can pass --with-rootsys=/path/to/rootsys to configure as well.])
 		exit
 	]
 )

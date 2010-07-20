@@ -35,9 +35,17 @@ class BCRooInterface : public BCModel
 		void Initialize( RooAbsData& data,
 				 RooAbsPdf& model,
 				 RooAbsPdf& prior,
-				 RooAbsPdf* priorNuisance,
-				 RooArgSet* params,
-				 RooArgSet& listPOI );
+				 const RooArgSet* params,
+				 const RooArgSet& listPOI );
+
+      void Initialize( const char* rootFile,
+            const char* wsName = "batWS",
+            const char* dataName = "data",
+            const char* modelName = "model",
+            const char* priorName = "priorPOI",
+            const char* priorNuisanceName= "priorNuisance",
+            const char* paramsName = "parameters",
+            const char* listPOIName = "POI" );
 
 	private:
 
