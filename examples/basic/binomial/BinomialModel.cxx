@@ -55,7 +55,7 @@ double BinomialModel::LogAPrioriProbability(std::vector <double> parameters)
 
   double logprob = 0.;
 
-    // get width of the parameter range
+  // get width of the parameter range
   double deps = GetParameter(0)->GetRangeWidth(); 
 
   // add a flat prior probability

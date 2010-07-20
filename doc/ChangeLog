@@ -1,3 +1,7 @@
+2010-07-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Added comments to examples/basic/errorpropagation
+	* Added comments to examples/basic/binomial
+
 2010-07-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* examples/advanced/polynomialfit:
 	  - Makefiles are set up during cBAT configuration and use

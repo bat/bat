@@ -20,10 +20,10 @@ int main()
   // set precision
   m->MCMCSetPrecision(BCEngineMCMC::kHigh);
 
-  // marginalize
+  // run the MCMC and marginalize w.r.t. to all parameters
   m->MarginalizeAll();
 
-  // find mode
+  // find mode using the best fit parameters as start values
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
@@ -38,8 +38,10 @@ int main()
   // close log file
   BCLog::CloseLog();
 
+  // free memory
   delete m;
 
+  // no error
   return 0;
 
 }
