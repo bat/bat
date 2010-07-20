@@ -109,6 +109,7 @@ AC_OUTPUT(
 	examples/basic/combination2d/Makefile
 	examples/basic/errorpropagation/Makefile
 	examples/basic/poisson/Makefile
+	examples/advanced/polynomialfit/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
 )
 

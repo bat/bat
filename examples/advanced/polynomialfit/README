@@ -32,14 +32,10 @@ Running the example:
 1. Make sure that BAT is correctly installed in the system
 
 2. Compile the example by running 'make' in the example directory
-   o  If your version of BAT was not compiled with cuba and
-      you don't have Cuba installed in your system you might
-      need to remove '-lcuba' from the two following lines
-      in the Makefile before running 'make'. Otherwise the
-      example won't compile.
 
-      LIBS        += $(ROOTLIBS)  -lBAT -lcuba
-      GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
+	For the compilation to work properly BAT needs to be installed
+	in the standard system accessible location or in the path defined
+	by the BATINSTALLDIR environmental variable.
 
 3. Prepare the dataset to fit using the ROOT macro CreateData.C
    (e.g. by running root CreateData.C from the command line)
