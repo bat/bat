@@ -40,13 +40,9 @@ Running the example:
 
 2. Compile the example by running 'make' in the example directory
 
-   If your version of BAT was not compiled with Cuba and you don't
-   have Cuba installed on your system you might need to remove
-   '-lcuba' from the two following lines in the Makefile before
-   running 'make'. Otherwise the example will not compile.
-
-   LIBS        += $(ROOTLIBS)  -lBAT -lcuba
-   GLIBS       += $(ROOTGLIBS) -lBAT -lcuba
+	For the compilation to work properly BAT needs to be installed
+	in the standard system accessible location or in the path defined
+	by the BATINSTALLDIR environmental variable.
 
 3. Run the executable 'runCombineGaussians'.
 

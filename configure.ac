@@ -105,6 +105,10 @@ AC_OUTPUT(
 	src/Makefile
 	models/Makefile
 	examples/basic/binomial/Makefile
+	examples/basic/combination1d/Makefile
+	examples/basic/combination2d/Makefile
+	examples/basic/errorpropagation/Makefile
+	examples/basic/poisson/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
 )
 
