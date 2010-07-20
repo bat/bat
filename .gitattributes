@@ -146,6 +146,7 @@ examples/basic/combination2d/CombinationModel.h -text
 examples/basic/combination2d/Makefile.in -text
 examples/basic/combination2d/README -text
 examples/basic/combination2d/runCombineGaussians.cxx -text
+examples/basic/efficiencyFitter/README -text
 examples/basic/efficiencyFitter/efficiencyFitterExample.C -text
 examples/basic/errorpropagation/Makefile.in -text
 examples/basic/errorpropagation/README -text
