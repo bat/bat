@@ -1,10 +1,3 @@
-// ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project Counting
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
-// ***************************************************************
-
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCSummaryTool.h>
@@ -34,7 +27,7 @@ int main()
   // and all combinations of two parameters
   m->MarginalizeAll();
 
-  // find mode
+  // find mode starting from the best fit parameters
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
@@ -46,8 +39,10 @@ int main()
   // close log file
   BCLog::CloseLog();
 
+  // free memory
   delete m;
 
+  // no error
   return 0;
 
 }

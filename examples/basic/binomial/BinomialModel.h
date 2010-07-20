@@ -27,7 +27,10 @@ class BinomialModel : public BCModel
   double LogLikelihood(std::vector <double> parameters);
 
  private:
+  // the total number of events
   int fNTotal; 
+  
+  // the selected (observed) number of events
   int fNSelected;
 };
 // ---------------------------------------------------------

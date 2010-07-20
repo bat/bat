@@ -1,4 +1,7 @@
 2010-07-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Added comments to examples/basic/poisson and examples/basic/binomial
+
+2010-07-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel.cxx: reset results when adding a parameter.
 
 2010-07-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

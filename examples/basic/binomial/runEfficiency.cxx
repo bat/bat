@@ -24,10 +24,10 @@ int main()
   m->SetNTotal(20);
   m->SetNSelected(3);
 
-  // marginalize
+  // run the MCMC and calculate the marginalized distributions
   m->MarginalizeAll();
 
-  // find mode
+  // find mode starting from the best fit parameters
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
@@ -39,8 +39,10 @@ int main()
   // close log file
   BCLog::CloseLog();
 
+  // free memory
   delete m;
 
+  // no errors
   return 0;
 
 }

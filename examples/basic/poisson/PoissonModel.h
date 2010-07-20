@@ -26,6 +26,7 @@ class PoissonModel : public BCModel
   double LogLikelihood(std::vector <double> parameters);
 
  private:
+  // number of observed events
   int fNObs;
 };
 // ---------------------------------------------------------
