@@ -537,6 +537,9 @@ int BCModel::AddParameter(BCParameter * parameter)
    // add parameters to integration methods
    SetParameters(fParameterSet);
 
+   // reset results
+   ResetResults();
+
    return 0;
 }
 
