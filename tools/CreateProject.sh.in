@@ -200,21 +200,12 @@ CXXFLAGS    += \$(ROOTCFLAGS)
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
 # the project is being compiled. If BAT is installed in the standard
-# system search path then the lines below are correct and the compilation
-# will work
-CXXFLAGS    += -I. -I./include
-LIBS        += \$(ROOTLIBS)  -lBAT -lBATmodels
-GLIBS       += \$(ROOTGLIBS) -lBAT -lBATmodels
-
-# If BAT was installed in a non-standard path (e.g. user home
-# directory) then one can specify the location of the header
-# files here (uncomment following lines and adjust the path in
-# BATINSTALLDIR):
-#
-# BATINSTALLDIR = '/path/to/bat/installation/directory'
-# CXXFLAGS    += -I\$(BATINSTALLDIR)/include
-# LIBS        += -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
-# GLIBS       += -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+# system search path or the installation directory is defined in the
+# BATINSTALLDIR environmental variable then the lines below are correct
+# and the compilation will work
+CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
+LIBS        += \$(ROOTLIBS)  -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+GLIBS       += \$(ROOTGLIBS) -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 
 # List of all classes (models) used in the program
 # Add classes to the end. Baskslash indicates continuation

@@ -133,7 +133,7 @@ examples/advanced/templatefitter/hypothesis/histograms.root -text
 examples/advanced/templatefitter/hypothesis/runHypothesisTest.cxx -text
 examples/basic/binomial/BinomialModel.cxx -text
 examples/basic/binomial/BinomialModel.h -text
-examples/basic/binomial/Makefile -text
+examples/basic/binomial/Makefile.in -text
 examples/basic/binomial/README -text
 examples/basic/binomial/runEfficiency.cxx -text
 examples/basic/combination1d/CombinationModel.cxx -text

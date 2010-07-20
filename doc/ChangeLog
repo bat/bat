@@ -1,4 +1,9 @@
 2010-07-20 Daniel Kollar <daniel.kollar@cern.ch>
+	* use BATINSTALLDIR in the Makefile created by CreateProject.sh
+	* Makefile of examples/basic/binary now set up during configure
+	  and uses BATINSTALLDIR
+
+2010-07-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* configure:
 	  - print ROOT version number if insufficient
 	  - BCRooInterface needs ROOT 5.27.04 or later

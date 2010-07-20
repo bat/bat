@@ -100,6 +100,12 @@ if test $use_roostats = yes; then
 fi
 AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
 
-AC_OUTPUT(Makefile src/Makefile models/Makefile tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh])
+AC_OUTPUT(
+	Makefile
+	src/Makefile
+	models/Makefile
+	examples/basic/binomial/Makefile
+	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
+)
 
 
