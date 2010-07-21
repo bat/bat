@@ -43,7 +43,7 @@ void runBATCalculator(){
    // certainly a bit of overhead but better from an educative point of view.
    cout << "preparing the RooWorkspace object" << endl;
 
-   RooWorkspace* myWS = new RooWorkspace("myWS",true);
+   RooWorkspace * myWS = new RooWorkspace("myWS",true);
 
    // combined prior for signal contribution
    myWS->factory("Product::signal({sigma_s[0,20],L[5,15],epsilon[0,1]})");
@@ -121,7 +121,7 @@ void runBATCalculator(){
       // prepare data input for the the observed number of events
       // adjust number of observed events in the workspace. This is communicated to ModelConfig!
       myWS->var("n")->setVal(obs);
-      //create data
+      // create data
       RooDataSet data("data","",*(modelconfig.GetObservables()));
       data.add( *(modelconfig.GetObservables()));
 
@@ -141,7 +141,7 @@ void runBATCalculator(){
 
       // retrieve SimpleInterval object containing the information about the interval (this 
       // triggers the actual calculations)
-      SimpleInterval* interval = batcalc.GetInterval();
+      SimpleInterval * interval = batcalc.GetInterval();
 
       std::cout << "BATCalculator: 90% CL interval: [ " << interval->LowerLimit() << " - " << interval->UpperLimit() << " ] or 95% CL upper limit\n";
 

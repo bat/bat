@@ -137,7 +137,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
 		fMCMCRValueParametersCriterion = 0.1;
 		fMCMCRValue               = 100;
 		break;
-	case  BCEngineMCMC::kUltraHigh:
+	case  BCEngineMCMC::kVeryHigh:
 		fMCMCNChains              = 10;
 		fMCMCNLag                 = 10;
 		fMCMCNIterationsMax       = 10000000;
