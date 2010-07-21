@@ -1,31 +1,34 @@
-Example on template fitting "hypothesis testing":
-=================================================
+Description: 
+------------
 
-Motivation:
------------
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
 
 The motivation for this analysis is to fit different models to a
 histogram and compare the models. Each model has different number of
 templates which are fitted to a histogram. The source code is
-commented and exaplains the individual steps. Three files are part of
-this example.
+commented and exaplains the individual steps. 
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://www.mppmu.mpg.de/bat/
+
 
 Files:
 ------
-Makefile               - the Makefile
 
-runHypothesisTest.cxx  - this macro performs a template fit to a single data
-                         set for different models
+  README                  - this file 
+  hypothesistest.C        - this macro performs four different template 
+                            fits to a single data set
 
-histograms.root        - the file containing all templates and the data
-                         histogram
 
-How to run:
------------
-1) Create the executable:
+Running the example:
+--------------------
 
-   make
+1. Make sure that BAT is correctly installed in the system.
 
-2) To perform an analysis on a single data set run the executable:
+2. Compile the macro using ROOT's CINT by calling 
+   'root hypothesistest.C++'
 
-   ./runHypothesisTest

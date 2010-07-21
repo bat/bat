@@ -119,7 +119,6 @@ examples/advanced/roointerface/README -text
 examples/advanced/roointerface/runBATCalculator.C -text
 examples/advanced/roointerface/runRooInterface.cxx -text
 examples/advanced/templatefitter/0nubb/CreateHistograms.C -text
-examples/advanced/templatefitter/0nubb/Makefile -text
 examples/advanced/templatefitter/0nubb/README -text
 examples/advanced/templatefitter/0nubb/ensembletest.C -text
 examples/advanced/templatefitter/0nubb/templatefit.C -text
@@ -128,10 +127,9 @@ examples/advanced/templatefitter/Whel/CreateHistograms.C -text
 examples/advanced/templatefitter/Whel/README -text
 examples/advanced/templatefitter/Whel/ensembletest.C -text
 examples/advanced/templatefitter/Whel/templatefit.C -text
-examples/advanced/templatefitter/hypothesis/Makefile -text
 examples/advanced/templatefitter/hypothesis/README -text
 examples/advanced/templatefitter/hypothesis/histograms.root -text
-examples/advanced/templatefitter/hypothesis/runHypothesisTest.cxx -text
+examples/advanced/templatefitter/hypothesis/hypothesistest.C -text
 examples/basic/binomial/BinomialModel.cxx -text
 examples/basic/binomial/BinomialModel.h -text
 examples/basic/binomial/Makefile.in -text

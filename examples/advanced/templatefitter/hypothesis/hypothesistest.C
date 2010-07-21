@@ -7,7 +7,7 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 
-int main()
+int hypothesistest()
 {
 	// ----------------------------------------------------
 	// open file with data and templates
