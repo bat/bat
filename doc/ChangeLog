@@ -1,4 +1,9 @@
 2010-07-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCEngineMCMC:
+	  - renamed kUltraHigh to kVeryHigh
+	* updated release notes
+
+2010-07-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated tools/map_solibs.sh
 	* fixed libBATmodels.rootmap
 	* BCIntegrate: added forgotten return statement in ResetResults()
