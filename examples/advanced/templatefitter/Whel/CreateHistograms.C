@@ -91,16 +91,16 @@ void CreateHistograms()
 
 	// fill systematic uncertainties for uncertainty 1
 	for (int i = 1; i <= nbins; ++i) {
-		hist_systerror1_bkg->SetBinContent(i, 0.0005); 
-		hist_systerror1_sgn_h0->SetBinContent(i, 0.02); 
-		hist_systerror1_sgn_hL->SetBinContent(i, 0.02); 
-		hist_systerror1_sgn_hR->SetBinContent(i, 0.02); 
+		hist_systerror1_bkg->SetBinContent(i, 0.0001); 
+		hist_systerror1_sgn_h0->SetBinContent(i, 0.01); 
+		hist_systerror1_sgn_hL->SetBinContent(i, 0.01); 
+		hist_systerror1_sgn_hR->SetBinContent(i, 0.01); 
 	}	
 
 	// fill systematic uncertainties for uncertainty 2
 	for (int i = 1; i <= nbins; ++i) {
 		double x = hist_data->GetBinCenter(i); 
-		double syst = 0.5*(x + 1.) * 0.01;
+		double syst = 0.5*(x + 1.) * 0.005;
 		hist_systerror2_bkg->SetBinContent(i, syst/10.); 
 		hist_systerror2_sgn_h0->SetBinContent(i, syst); 
 		hist_systerror2_sgn_hL->SetBinContent(i, syst); 
@@ -110,7 +110,7 @@ void CreateHistograms()
 	// fill systematic uncertainties for uncertainty 3
 	for (int i = 1; i <= nbins; ++i) {
 		double x = hist_data->GetBinCenter(i); 
-		double syst = 0.01 - 0.5*(x + 1.) * 0.5*(x + 1.) * 0.01;
+		double syst = 0.01 - 0.5*(x + 1.) * 0.5*(x + 1.) * 0.005;
 		hist_systerror3_bkg->SetBinContent(i, syst/10.); 
 		hist_systerror3_sgn_h0->SetBinContent(i, syst+0.01); 
 		hist_systerror3_sgn_hL->SetBinContent(i, syst+0.01); 

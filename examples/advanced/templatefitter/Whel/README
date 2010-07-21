@@ -1,38 +1,45 @@
-Example on template fitting "W helicity":
-=========================================
+Description: 
+------------
 
-Motivation:
------------
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
 The physics motivation for this analysis is the extraction of the
 fraction of right-handed W-bosons in top decays. Four templates are
-fitted to a single histogram. Three different sources of systematic
+fitted to a single histogram. Two different sources of systematic
 uncertainty are taken into account. The source code is commented and
-exaplains the individual steps. Three files are part of this example.
+explains the individual steps.
 
-Files: 
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://www.mppmu.mpg.de/bat/
+
+
+Files:
 ------
-CreateHistogram.C - this needs to be run first to generate the
-                    templates and a data set. Feel free to modify the 
-                    templates here. 
 
-templatefit.C     - this macro performs a template fit to a single data
-                    set
+  README                  - this file 
+  CreateHistogram.C       - a macro which create the templates and the 
+                            pseudo data histograms.
+  templatefit.C           - this macro performs a template fit to a single data
+                            set
+  ensembletest.C          - this macro performs an ensemble test for a given
+                            combination of templates.
 
-ensembletest.C    - this macro performs an ensemble test for a given
-                    combination of templates.
 
-How to run:
------------
-1) Create the necessary histograms for the example by running the
-   macro CreateHistograms.C:
+Running the example:
+--------------------
 
-   root CreateHistograms.C
+1. Make sure that BAT is correctly installed in the system.
 
-2) To perform an analysis on a single data set run the macro:
+2. Create the templates and data histograms by calling the ROOT
+   macro 'root CreateHistogram.C' 
 
-   root templatefit.C
+3. Compile the macro using ROOT's CINT by calling 
+   'root templatefit.C++'
 
-3) To perform ensemble tests run the macro:
-
-   root ensembletest.C
+4. If you would like to perform an ensemble test call the 
+   the root macro 'ensembletest.C++'
 

@@ -99,6 +99,7 @@ doc/note_template/note.tex -text
 doc/releasenotes.txt -text
 doc/todo/todo.txt -text
 examples/README -text
+examples/advanced/advancedGraphFitter/README -text
 examples/advanced/advancedGraphFitter/data/datax.txt -text
 examples/advanced/advancedGraphFitter/graphFitterAdvancedExample.C -text
 examples/advanced/polynomialfit/CreateData.C -text
@@ -153,7 +154,9 @@ examples/basic/errorpropagation/README -text
 examples/basic/errorpropagation/RatioModel.cxx -text
 examples/basic/errorpropagation/RatioModel.h -text
 examples/basic/errorpropagation/runErrorPropagation.cxx -text
+examples/basic/graphFitter/README -text
 examples/basic/graphFitter/graphFitterSimpleExample.C -text
+examples/basic/histogramFitter/README -text
 examples/basic/histogramFitter/histogramFitterExample.C -text
 examples/basic/poisson/Makefile.in -text
 examples/basic/poisson/PoissonModel.cxx -text

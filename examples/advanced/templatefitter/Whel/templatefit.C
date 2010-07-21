@@ -1,3 +1,13 @@
+#include <TDirectory.h>
+#include <TFile.h> 
+#include <TH1D.h> 
+#include <TCanvas.h> 
+
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCTemplateFitter.h>
+#include <BAT/BCSummaryTool.h>
+
 int templatefit()
 {
 	// ----------------------------------------------------
@@ -83,11 +93,8 @@ int templatefit()
 	// create new TemplateModel object
 	BCTemplateFitter * model = new BCTemplateFitter("model");
 
-	// set MCMC options 
-	model->MCMCSetNLag(10); 
-	model->MCMCSetNChains(100); 
-	//	model->MCMCSetNIterationsRun(1000000); // use more iterations
-	//	model->MCMCSetNIterationsRun(10000000); // use even more iterations
+	// set precision
+	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	// set template fitting options
 	model->SetFlagPhysicalLimits(true);
@@ -96,13 +103,13 @@ int templatefit()
 	model->SetData(hist_data);
 
 	// add template histograms
-	model->AddTemplate(hist_bkg, "background", 1300000.-10000., 1300000.+10000.);
-	model->AddTemplate(hist_sgn_h0, "signal (h= 0)", 0.0, 15000.0);
-	model->AddTemplate(hist_sgn_hL, "signal (h=-1)", 0.0, 15000.0);
-	model->AddTemplate(hist_sgn_hR, "signal (h=+1)", 0.0, 15000.0);
+	model->AddTemplate(hist_bkg, "background",       1300000.-10000., 1300000.+10000.);
+	model->AddTemplate(hist_sgn_h0, "signal (h= 0)", 0.0,               10000.);
+	model->AddTemplate(hist_sgn_hL, "signal (h=-1)", 0.0,               10000.);
+	model->AddTemplate(hist_sgn_hR, "signal (h=+1)", 0.0,               10000.);
 
 	// set efficiencies and uncertainties
-	model->SetTemplateEfficiency("background", hist_efficiency_bkg, hist_efferror_bkg);
+	model->SetTemplateEfficiency("background",    hist_efficiency_bkg,    hist_efferror_bkg);
 	model->SetTemplateEfficiency("signal (h= 0)", hist_efficiency_sgn_h0, hist_efferror_sgn_h0);
 	model->SetTemplateEfficiency("signal (h=-1)", hist_efficiency_sgn_hL, hist_efferror_sgn_hL);
 	model->SetTemplateEfficiency("signal (h=+1)", hist_efficiency_sgn_hR, hist_efferror_sgn_hR);
@@ -119,24 +126,24 @@ int templatefit()
 
 	// set up printing of fractions
 	model->CalculateRatio(3, indices, 0.0, 1.0); 
-
+	
 	// add systematic uncertainty 1
 	model->AddSystError("syst. error 1", "gauss");
-	model->SetTemplateSystError("syst. error 1", "background", hist_systerror1_bkg);
+	model->SetTemplateSystError("syst. error 1", "background",    hist_systerror1_bkg);
 	model->SetTemplateSystError("syst. error 1", "signal (h= 0)", hist_systerror1_sgn_h0);
 	model->SetTemplateSystError("syst. error 1", "signal (h=-1)", hist_systerror1_sgn_hL);
 	model->SetTemplateSystError("syst. error 1", "signal (h=+1)", hist_systerror1_sgn_hR);
-
+	
 	// add systematic uncertainty 2
 	model->AddSystError("syst. error 2", "gauss");
-	model->SetTemplateSystError("syst. error 2", "background", hist_systerror2_bkg);
+	model->SetTemplateSystError("syst. error 2", "background",    hist_systerror2_bkg);
 	model->SetTemplateSystError("syst. error 2", "signal (h= 0)", hist_systerror2_sgn_h0);
 	model->SetTemplateSystError("syst. error 2", "signal (h=-1)", hist_systerror2_sgn_hL);
 	model->SetTemplateSystError("syst. error 2", "signal (h=+1)", hist_systerror2_sgn_hR);
 
 	// add systematic uncertainty 3
 	model->AddSystError("syst. error 3", "gauss");
-	model->SetTemplateSystError("syst. error 3", "background", hist_systerror3_bkg);
+	model->SetTemplateSystError("syst. error 3", "background",    hist_systerror3_bkg);
 	model->SetTemplateSystError("syst. error 3", "signal (h= 0)", hist_systerror3_sgn_h0);
 	model->SetTemplateSystError("syst. error 3", "signal (h=-1)", hist_systerror3_sgn_hL);
 	model->SetTemplateSystError("syst. error 3", "signal (h=+1)", hist_systerror3_sgn_hR);
@@ -188,7 +195,6 @@ int templatefit()
 	// print summary plots
 	st->PrintParameterPlot("model_parameters.eps"); 
 	st->PrintCorrelationPlot("model_correlation.eps"); 
-	st->PrintKnowlegdeUpdatePlot("model_update.eps"); 
 
 	// ----------------------------------------------------
 	// clean-up and end
