@@ -6,7 +6,7 @@ installed on the system.
 
 The physics motivation for this analysis is the extraction of the
 fraction of right-handed W-bosons in top decays. Four templates are
-fitted to a single histogram. Two different sources of systematic
+fitted to a single histogram. Three different sources of systematic
 uncertainty are taken into account. The source code is commented and
 explains the individual steps.
 

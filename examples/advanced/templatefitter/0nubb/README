@@ -1,43 +1,45 @@
-Example on template fitting "Neutrinoless double beta-decay":
-=============================================================
+Description: 
+------------
 
-Motivation:
------------
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
 The physics motivation for this analysis is the search for
 neutrinoless double beta-decay. Two template (Gaussian signal and flat
 background) are fitted to histogram with a very small number of
 entries. The source code is commented and exaplains the individual
-steps. Four files are part of this example.
+steps. 
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://www.mppmu.mpg.de/bat/
+
 
 Files:
 ------
-CreateHistogram.C   - this needs to be run first to generate the
-                      templates and a data set
 
-Makefile            - the Makefile
+  README                  - this file 
+  CreateHistogram.C       - a macro which create the templates and the 
+                            pseudo data histograms.
+  templatefit.C           - this macro performs a template fit to a single data
+                            set
+  ensembletest.C          - this macro performs an ensemble test for a given
+                            combination of templates.
 
-runTemplateFit.cxx  - this macro performs a template fit to a single data
-                      set
 
-runEnsembleTest.cxx - this macro performs an ensemble test for a given
-                      combination of templates.
+Running the example:
+--------------------
 
-How to run:
------------
-1) Create the necessary histograms for the example by running the
-   macro:
+1. Make sure that BAT is correctly installed in the system.
 
-   root CreateHistograms.C
+2. Create the templates and data histograms by calling the ROOT
+   macro 'root CreateHistogram.C' 
 
-2) Create the executables: 
+3. Compile the macro using ROOT's CINT by calling 
+   'root templatefit.C++'
 
-   make 
-
-3) To perform an analysis on a single data set run the executable:
-
-   ./runTemplateFit
-
-4) To perform ensemble tests run the executable:
-
-   ./runEnsembleTest
+4. If you would like to perform an ensemble test call the 
+   the root macro 'ensembletest.C++'
 

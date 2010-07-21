@@ -1,4 +1,7 @@
 2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* templatefitter: updated 0nubb example
+
+2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* templatefitter: updated ensembletest macro in the Whel example
 	* BCTemplateEnsembleTest : set the MCMC flag to false by default
 

@@ -8,7 +8,7 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 
-int main()
+int templatefit()
 {
 	// ----------------------------------------------------
 	// open file with data and templates
@@ -48,8 +48,9 @@ int main()
 
 	// create new BCTemplateFitter object
 	BCTemplateFitter * model = new BCTemplateFitter("model");
-	model->MCMCSetNLag(10); 
-	model->MCMCSetNIterationsRun(10000); 
+
+	// set precision
+	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	// set data histogram
 	model->SetData(hist_data);
@@ -59,11 +60,11 @@ int main()
 
 	// add template histograms
 	model->AddTemplate(hist_background, "Background", 0.0,  nbkg+2.5*nbkg); 
-	model->AddTemplate(hist_signal,     "Signal", 0.0,      2.5*nbkg); 
+	model->AddTemplate(hist_signal,     "Signal",     0.0,  2.5*nbkg); 
 
 	// set efficiencies
-	//	model->SetTemplateEfficiency("Signal", 1., 0.);
-	//	model->SetTemplateEfficiency("Background", 1., 0.);
+	model->SetTemplateEfficiency("Signal",     1., 0.);
+	model->SetTemplateEfficiency("Background", 1., 0.);
 
 	// set priors 
 	model->SetTemplatePrior("Background", nbkg, nbkg/2.0);
@@ -83,7 +84,6 @@ int main()
 	
 	// find global mode
 	model->FindMode();
-
 
 	// ----------------------------------------------------
 	// print
