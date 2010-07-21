@@ -35,7 +35,7 @@ ROOT:
    used distributions nowdays have the ROOT packages available.
 
 Note: To be able to use the interface to RooFit/RooStats the ROOT version
-      5.24 or later is necessary.
+      5.27/04 or later is necessary.
 
 Recommended
 -----------
@@ -118,7 +118,7 @@ also need to setup DYLD_LIBRARY_PATH.
 An option for use in compiled programs would also be to add
 -I/bat/install/include/path to CXXFLAGS and -L/bat/install/lib/path to
 LDFLAGS in your Makefile. However, the interactive ROOT macros will not
-work if libBAT.so, libBATmodels, libBAT.rootmap and libBATmodels.rootmap
+work if libBAT.so, libBATmodels.so, libBAT.rootmap and libBATmodels.rootmap
 aren't in the system library search path.
 
 
