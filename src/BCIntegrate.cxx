@@ -343,9 +343,12 @@ void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 // *********************************************
 int BCIntegrate::IntegrateResetResults()
 {
-  fBestFitParameters.clear();
-  fBestFitParameterErrors.clear();
-  fBestFitParametersMarginalized.clear();
+   fBestFitParameters.clear();
+   fBestFitParameterErrors.clear();
+   fBestFitParametersMarginalized.clear();
+
+   // no errors
+	return 1;
 }
 
 // *********************************************

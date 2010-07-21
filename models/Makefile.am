@@ -55,7 +55,10 @@ libBATmodels_la_SOURCES += \
 library_include_HEADERS += \
 	BCRooInterface.h \
 	BATCalculator.h
-ADD_ROOINTERFACE_ROOTMAP = cat BCRooInterface.rootmap >> libBATmodels.rootmap
+ADD_ROOINTERFACE_ROOTMAP = \
+	rm -f libBATmodels.rootmap; \
+	sed -e 's/$$/ libRooFit.so libRooFitCore.so libRooStats.so/' libBATmodels.rootmap.in > libBATmodels.rootmap; \
+	cat BCRooInterface.rootmap >> libBATmodels.rootmap
 endif
 ## End of RooStats specific options
 

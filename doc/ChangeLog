@@ -1,11 +1,17 @@
+2010-07-21 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated tools/map_solibs.sh
+	* fixed libBATmodels.rootmap
+	* BCIntegrate: added forgotten return statement in ResetResults()
+	* increased version to 0.4.pre8
+
 2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: fixed inconsistency of counters
 
 2010-07-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Added comments to examples/basic/errorpropagation
 	* Added comments to examples/basic/binomial
-        * Added comments to examples/basic/efficiencyFitter
-	
+	* Added comments to examples/basic/efficiencyFitter
+
 2010-07-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* examples/advanced/polynomialfit:
 	  - Makefiles are set up during cBAT configuration and use

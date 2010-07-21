@@ -1934,12 +1934,12 @@ int BCModel::SetParameterRange(int index, double parmin, double parmax)
 // ---------------------------------------------------------
 int BCModel::ResetResults()
 {
-  BCIntegrate::IntegrateResetResults();
+   BCIntegrate::IntegrateResetResults();
   
-  BCEngineMCMC::MCMCResetResults();
+   BCEngineMCMC::MCMCResetResults();
 
-  // no error
-  return 1;
+   // no error
+   return 1;
 }
 
 // ---------------------------------------------------------
