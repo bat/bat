@@ -74,7 +74,7 @@ Examples in this directory:
                 two functions when assuming asymmetric uncertainties.
 
   Directory:    templatefitter
-  Type:         Compiled programs and ROOT macros.
+  Type:         ROOT macros
   Description:  Examples for how to fit several templates to a data set
                 using 1-dim. histograms. The examples feature the
                 BCTemplateFitter which is included in the models
