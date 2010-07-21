@@ -78,7 +78,7 @@ class BCTemplateEnsembleTest
 	   * A function to set the MCMC flag.
 	   */
 	  void SetFlagMCMC(bool flag)
-			{ fFlagMCMC = flag; }
+	  { fFlagMCMC = false; } // debugKK
 
 		/**
 		 * Write tree to file

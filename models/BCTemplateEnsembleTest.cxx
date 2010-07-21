@@ -24,7 +24,7 @@ BCTemplateEnsembleTest::BCTemplateEnsembleTest()
 	, fEnsembleCounter(0)
 	, fEnsembleExpectation(0)
 	, fNEnsembles(0)
-	, fFlagMCMC(true)
+	, fFlagMCMC(false)
 {
 	fRandom = new TRandom3(0);
 }
