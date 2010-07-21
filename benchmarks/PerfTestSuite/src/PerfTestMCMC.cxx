@@ -152,16 +152,13 @@ int PerfTestMCMC::WriteResults()
 void PerfTestMCMC::PrecisionSettings(PerfTest::Precision precision)
 {
 	if (precision == PerfTest::kCoarse) {
-		MCMCSetNLag(1);
-		MCMCSetNIterationsRun(10000);
+	  MCMCSetPrecision(BCEngineMCMC::kLow);
 	}
 	else if (precision == PerfTest::kMedium) {
-		MCMCSetNLag(5);
-		MCMCSetNIterationsRun(100000);
+	  MCMCSetPrecision(BCEngineMCMC::kMedium);
 	}
 	else if (precision == PerfTest::kDetail) {
-		MCMCSetNLag(10);
-		MCMCSetNIterationsRun(1000000);
+	  MCMCSetPrecision(BCEngineMCMC::kVeryHigh);
 	}
 	else {
 		MCMCSetNLag(5);
@@ -187,7 +184,7 @@ void PerfTestMCMC::MCMCUserIterationInterface()
 		}
 
 		if (iteration/nlag % (MCMCGetNIterationsRun()/100/nlag) == 0) {
-			(fCorrelation[i])->SetPoint(iteration/nlag, 
+			(fCorrelation[i])->SetPoint( (iteration/nlag) / (MCMCGetNIterationsRun()/100/nlag), 
 																	iteration, 
 																	hist->GetCorrelationFactor());
 		}
