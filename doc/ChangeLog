@@ -1,7 +1,10 @@
-2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2010-07-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/BCTemplateFitter.cxx: fix bug in definition of ranges for ratios
+
+2010-07-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite: chose better ranges for some of the functions
 
-2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2010-07-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: quick fix of the iteration counter
 
 2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

@@ -526,8 +526,8 @@ int BCTemplateFitter::CalculateRatio(int index, std::vector<int> indices, double
 	int nratios = int(fHistRatios1D.size());
 
 	// create histogram
-	double fmin = 0.0;
-	double fmax = 1.0;
+	double fmin = rmin;
+	double fmax = rmax;
 	if (fFlagPhysicalLimits) {
 		fmin = TMath::Max(rmin, 0.0);
 		fmax = TMath::Min(1.0, rmax);
