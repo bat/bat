@@ -311,6 +311,8 @@
 	* BCEngineMCMC.cxx: bug fix on convergence check
 	* BCEngineMCMC.cxx: renaming of methods and variables for statistics
 	* BCEngineMCMC.cxx: removed burn-in
+	* BCEngineMCMC.cxx: added 'cycle' and 'phase' to MCMC. This can be
+	  used to analyze the MCMC chain afterwards
 	* Minor fixes
 
 2010-05-10 Frederik Beaujean <beaujean@mpp.mpg.de>
