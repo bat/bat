@@ -106,6 +106,7 @@ int PerfTestMCMC::PostTest()
 		GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kBad,    0.7); 
 		GetSubtest(Form("correlation par %i", i))->SetTestValue(y); 
 		GetSubtest(Form("correlation par %i", i))->SetTestUncertainty(fCorrelation.at(i)->GetRMS(2)); 
+		GetSubtest(Form("correlation par %i", i))->SetStatusOff(true);
 	}
 
 	// no error

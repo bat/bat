@@ -49,7 +49,7 @@ int ReleaseTestSuite::PrepareTests()
 		if (i > 3)
 			xmax = 10.0 * sqrt(double(i)); 
 		TF1* testfunc_1d_poisson = new TF1("Poisson", "TMath::PoissonI([0], x)", 0., xmax);
-		testfunc_1d_poisson->FixParameter(0, 10);
+		testfunc_1d_poisson->FixParameter(0, double(i));
 		PerfTest1DFunction* perftest = new PerfTest1DFunction(Form("1d_poisson_%i", i), testfunc_1d_poisson); 
 		AddTest(perftest); 
 	}
@@ -72,7 +72,7 @@ int ReleaseTestSuite::PrepareTests()
 	AddTest(perftest_1d_exponential); 
 
 	// 1D Cauchy
-	TF1* testfunc_1d_cauchy = new TF1("Cauchy", "[1] / (3.14159 * ( (x-[2])**2 +[1]**2))", -25., 25.);
+	TF1* testfunc_1d_cauchy = new TF1("Cauchy", "[1] / (3.14159 * ( (x-[2])**2 +[1]**2))", -50., 50.);
 	testfunc_1d_cauchy->FixParameter(0, 0.);
 	testfunc_1d_cauchy->FixParameter(1, 5.);
 	PerfTest1DFunction* perftest_1d_cauchy = new PerfTest1DFunction("1d_cauchy", testfunc_1d_cauchy); 
