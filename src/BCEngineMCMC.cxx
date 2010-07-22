@@ -1076,8 +1076,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	} // end of running
 
 	// decrease counter by one since it didn't really run that long
-	fMCMCCurrentIteration--;
-	counterupdate--;
+	//	fMCMCCurrentIteration--;
+	//	counterupdate--;
 
 	// did we check convergence at least once ?
 	if (fMCMCCurrentIteration<updateLimit)

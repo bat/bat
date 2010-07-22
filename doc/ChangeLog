@@ -1,4 +1,7 @@
 2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx: quick fix of the iteration counter
+
+2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite: re-defined precision (match with BCEngineMCMC).
 
 2010-07-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
