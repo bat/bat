@@ -65,6 +65,8 @@
 
 \thispagestyle{empty}
 
+\enlargethispage{2cm}
+
 \tableofcontents
 
 \pagebreak
@@ -149,6 +151,8 @@ version 5.24 or later is necessary.
 
 \subsection{Recommendations}
 
+\enlargethispage{1cm}
+
 \paragraph{CUBA:}
 CUBA~\cite{CUBA} is a library containing general purpose
 multidimensional integration algorithms. It can be obtained
@@ -158,6 +162,7 @@ recommended as it provides integration routines tuned for performance,
 which are very useful for integration in problems with large number
 of dimensions. \\
 
+\noindent
 Note: Since version 1.5 the compilation of CUBA no longer crashes if
 you don't have Mathematica installed. To compile and install CUBA
 libraries use commands ~\verb|make lib;| ~\verb|make install|.
@@ -183,6 +188,7 @@ cd BAT-x.x
 ./configure
 \end{verbatim}
 
+\noindent 
 This will check your system for all components needed to compile \bat\
 and set up the paths for installation. You can add option
 \verb|--prefix=/path/to/install/bat| to \verb|./configure| to specify
@@ -191,15 +197,20 @@ will be installed to \verb|$prefix/lib| and the include files to
 \verb|$prefix/include|. Default installation prefix is
 \verb|/usr/local|. \\
 
+\noindent
 The configure script checks for \Root\ availability in the system and
 fails if \Root\ is not installed. You can specify the ROOTSYS directory
 using \verb|--rootsys=/path/to/rootsys|. \\
 
+\noindent
 The configure will also search for \verb|libcuba.a| and \verb|cuba.h|
 in the system.  The \verb|libcuba.a| has to be available in the
 standard system library search path. You can specify the \verb|cuba.h|
 location using \verb|--with-cuba-path=/path/to/cuba/header|. \\
 
+\enlargethispage{1cm}
+
+\noindent
 After successful configuration run
 %
 \begin{verbatim}
@@ -209,10 +220,10 @@ make install
 %
 to compile and install \bat. Note that depending on the setting of
 installation prefix you might need root privileges to be able to
-install \bat. If you are installing \bat\ e.g. in your \verb|$HOMEDIR|, %$ workaround for bad highlighting
-you need to add the path to the library and to the
-include files to the search path in your system. Depending on your
-shell you can do that via commands
+install \bat. If you are installing \bat\ e.g. in your
+\verb|$HOMEDIR|, %$ workaround for bad highlighting you need to add
+the path to the library and to the include files to the search path in
+your system. Depending on your shell you can do that via commands
 %
 \begin{verbatim}
 export BATINSTALLDIR=/bat/install/prefix
@@ -230,6 +241,7 @@ setenv CPATH            $PATH:$BATINSTALLDIR/include
 %
 for \verb|bash| and \verb|csh| compatible shells, respectively. \\
 
+\noindent
 An option for use in compiled programs would also be to add
 \verb|-I/bat/install/include/path| to \verb|CFLAGS| and
 \verb|-L/bat/install/lib/path| to \verb|LDFLAGS| in your
@@ -237,6 +249,7 @@ An option for use in compiled programs would also be to add
 \verb|libBAT.so| and \verb|libBAT.rootmap| both aren't in the system
 library search path. \\
 
+\noindent
 See also \verb|doc/INSTALL| for installation instructions.
 
 % --------------------------------------------------------
@@ -329,37 +342,48 @@ definition of parameters.
 
 \noindent
 A class derived from \verb|BCModel| can contain any number of
-additional member functions.
-
-If the parameters are considered independent in the prior probability, then
+additional member functions. \\
 
 \noindent
-\verb|double BCModel::LogAPrioriProbability(std::vector <double> parameters)|
-need not be overloaded.
-Alternatively, they can be set for individual parameters through \verb|TF1| 
-function objects using
+If the parameters are considered independent in the prior probability,
+then
+%
 \begin{verbatim}
- int BCModel::SetPrior(int index, TF1 * f)
+BCModel::LogAPrioriProbability(std::vector <double> parameters)
 \end{verbatim}
+%
+need not be overloaded.  Alternatively, they can be set for individual
+parameters through \verb|TF1| function objects using
+%
+\begin{verbatim}
+int BCModel::SetPrior(int index, TF1 * f)
+\end{verbatim}
+%
 For ease of use, frequently used priors are predefined.
+%
 \begin{verbatim}
 int SetPriorGauss(int index, double mean, double sigma);
 int SetPriorGauss(int index, double mean, double sigmadown, double sigmaup);
 \end{verbatim}
-The prior maybe chosen constant over one or all
-dimensions of the parameter space using
+%
+The prior maybe chosen constant over one or all dimensions of the
+parameter space using
+%
 \begin{verbatim}
 int SetPriorConstant(int index);
 int SetPriorConstantAll();
 \end{verbatim}
-Note that the correct constant is calculated from the parameter ranges only 
-once, and then cached for reuse during the Markov chain run. For simple
-problems,  caching can significantly speed up the execution, while for
-complicated likelihoods, the time spent calculating the prior probability
-is usually negligible.
+%
+Note that the correct constant is calculated from the parameter ranges
+only once, and then cached for reuse during the Markov chain run. For
+simple problems, caching can significantly speed up the execution,
+while for complicated likelihoods, the time spent calculating the
+prior probability is usually negligible. \\
 
-In case the prior is undefined for one of the parameters, a constant prior
-for that parameter is assumed, and a warning is issued.
+\noindent 
+In case the prior is undefined for one of the parameters, a constant
+prior for that parameter is assumed, and a warning is issued.
+
 % --------------------------------------------------------
 
 \subsubsection{Definition of parameters of a model}
@@ -395,6 +419,17 @@ returned from a model using the methods
 BCModel::GetParameter(int index),
 BCModel::GetParameter(char* name).
 \end{verbatim}
+
+\noindent
+It is possible to change the lower and upper limit of a parameter
+after it has been added to the model: 
+%
+\begin{verbatim}
+BCModel::SetParameterRange(int index, double parmin, double parmax) .
+\end{verbatim}
+%
+A call to this method resets all results obtained so far since the
+model has changed. 
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -644,8 +679,9 @@ double BCModel::GetBestFitParameterError(unsigned int index) .
 \end{verbatim}
 %
 Settings and options of the Simulated Annealing algorithm are
-summarized in section~\ref{section:settings:SA}.
+summarized in section~\ref{section:settings:SA}. \\
 
+\noindent 
 If several algorithms are ran one after the other, a flag controls
 whether to ignore the results from a previous maximization:
 %
@@ -749,10 +785,11 @@ following method:
 double BCModel::GetModelAPosterioriProbability() .
 \end{verbatim}
 
+\noindent 
 Alternatively, Bayes factors can be calculated for two models using
 %
 \begin{verbatim}
-double BayesFactor(const unsigned int imodel1, const unsigned int imodel2) \, ,
+double BayesFactor(const unsigned int imodel1, const unsigned int imodel2) ,
 \end{verbatim}
 %
 \noindent
@@ -799,10 +836,12 @@ $p$-value is calculated from this distribution and can be obtained by
 double BCModel::GetPValue() .
 \end{verbatim}
 
-For a number of models the distribution of test certain statistics 
-is approximately known. Hence the CPU intensive generation of data sets can be avoided, 
-and the $p$-value is computed much faster. 
+\noindent
+For a number of models the distribution of test certain statistics is
+approximately known. Hence the CPU intensive generation of data sets
+can be avoided, and the $p$-value is computed much faster. \\
 
+\noindent 
 If the total probability of the data $p\left(D|\vec{\lambda}^{*}\right)$
  factorizes into $N$ independent observations 
 $$p\left(D|\vec{\lambda}^{*}\right) = \prod_{i=1}^N
@@ -821,8 +860,8 @@ calculation, \verb|BCModels| method
 %
 \begin{verbatim}
 virtual double CDF(const std::vector<double>& par, int index, bool lower=false)
-%
 \end{verbatim}
+%
 has to be overridden in the user model.  \verb|int index| defines the
 single data point in the data set. The flag \verb|bool lower| is only
 needed for models with discrete probabilities (e.g. Poisson) as
@@ -836,15 +875,20 @@ $n_2=3$.  With the CDF defined, the $p$-value is returned from
 double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par)
 \end{verbatim}
 
-For \textit{Gaussian} problems (handled by the model \verb|BCGraphFitter|, sec. \ref{BCGraphFitter})
- the standard $\chi^2$ statistic can be used, 
-including the correction for the number of fitted parameters, from 
+\noindent 
+For \textit{Gaussian} problems (handled by the model
+\verb|BCGraphFitter|, sec. \ref{BCGraphFitter}) the standard $\chi^2$
+statistic can be used, including the correction for the number of
+fitted parameters, from
+%
 \begin{verbatim}
 double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
 \end{verbatim}
-where \verb|sigma_index| is the index of the standard deviation in each
-data point. 
+%
+where \verb|sigma_index| is the index of the standard deviation in
+each data point. \\
 
+\noindent
 In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|) has three
 specific choices to obtain a $p$-value: 
 \begin{enumerate}
@@ -912,7 +956,42 @@ be done by overloading the following method:
 BCModel::MCMCUserIterationInterface()
 \end{verbatim}
 %
-which is called at every iteration during the main run of the MCMC.
+which is called at every iteration during the main run of the
+MCMC. The user has to loop over all chains and parameters using the
+private variable \verb|fMCMCx| which is a vector of double values with
+a length of the number of chains times the number of parameters. An
+example code is given here which calculates a radius in 3D for each
+iteration (and chain) and fills it into a histogram:
+
+\begin{verbatim}
+void MyModel::MCMCIterationInterface()
+{
+  // get number of chains
+  int nchains = MCMCGetNChains();
+
+  // get number of parameters
+  int npar = GetNParameters();
+
+  // loop over all chains and fill histogram
+  for (int i = 0; i < nchains; ++i) {
+    // get the current values of the parameters x, y, z. These are
+    // stored in fMCMCx.
+    double x = fMCMCx.at(i * npar + 0); // parameter with index 0 in chain i
+    double y = fMCMCx.at(i * npar + 1); // parameter with index 1 in chain i
+    double z = fMCMCx.at(i * npar + 2); // parameter with index 2 in chain i
+
+    // calculate the radius
+    double r = sqrt(x*x + y*y + z*z); 
+
+    // fill the histogram
+    myHistogramR->Fill(r);
+  }
+}
+\end{verbatim}
+
+\noindent 
+An example for the propagation of uncertainties can be found in
+\linebreak \verb|examples/basic/errorpropagation|. 
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1026,6 +1105,9 @@ BCH2D & \\
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
+\clearpage
+\pagebreak
+
 \section{Tools and models}
 \label{section:tools}
 
@@ -1125,7 +1207,10 @@ The class \verb|BCGraphFitter| allows to fit a \Root\ function
 uncertainties on $y$ at a given $x$, defined by the uncertainties of
 the \verb|TGraphErrors|, are assumed to be Gaussian, i.e., the
 uncertainty on $y$ corresponds to the width, $\sigma$, of the
-Gaussian. The uncertainties on $x$ are not taken into account.
+Gaussian. The uncertainties on $x$ are not taken into account.  An
+example for this fitter can be found in
+\verb|examples/basic/graphFitter|.
+
 
 % --------------------------------------------------------
 \subsubsection{The Poissonian case}
@@ -1133,7 +1218,10 @@ Gaussian. The uncertainties on $x$ are not taken into account.
 The class \verb|BCHistogramFitter| allows to fit a \Root\ function
 (\verb|TF1|) to a \Root\ histogram (\verb|TH1D|). The uncertainty on
 the expectation value in each bin is assumed to be Poissonian, and
-thus non-symmetric around the number of entries in this bin.
+thus non-symmetric around the number of entries in this bin.  An
+example for this fitter can be found in
+\verb|examples/basic/histogramFitter|.
+
 
 % --------------------------------------------------------
 \subsubsection{The Binomial case}
@@ -1143,7 +1231,8 @@ The class \verb|BCEfficiencyFitter| allows to fit a \Root\ function
 uncertainty on the expectation value in each bin is assumed to be
 Binomial, and thus non-symmetric around the ratio of entries in this
 bin. The ratio is assumed to be between 0 and 1, i.e., one histogram
-contains a subset of the other.
+contains a subset of the other.  An example for this fitter can be
+found in \verb|examples/basic/efficiencyFitter|.
 
 \enlargethispage{1cm}
 
@@ -1151,13 +1240,17 @@ contains a subset of the other.
 
 A model for template fitting, \verb|BCTemplateFitter|, is provided
 with BAT. A description of the method can be downloaded on the web
-page. Three working examples are provided with the current release.
+page. Three working examples are provided with the current release in
+\verb|examples/advanced/templatefitter|.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % output
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
+
+\clearpage
+\pagebreak
 
 \section{Output}
 \label{section:output}
