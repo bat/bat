@@ -1068,8 +1068,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		// increase counters
 		//-------------------------------------------
 
-		if (counterupdate == 1 && fMCMCCurrentIteration != 1)
-			fMCMCCycle++;
+		if (counterupdate == 0 && fMCMCCurrentIteration > 1)
+		  fMCMCCycle++;
 		fMCMCCurrentIteration++;
 		counterupdate++;
 

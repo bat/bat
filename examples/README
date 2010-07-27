@@ -57,6 +57,11 @@ Examples in this directory:
                 the numerator histogram is a subset of the denominator
                 histogram. Binomial uncertainties are used.
 
+  Directory:    RootOutput
+  Type:         Compiled program
+  Description:  A simple 2D-Gaussian posterior. The example shows how to
+                write the MCMC to a ROOT file.
+
 * Directory: advanced
 
   Directory:    advancedGraphFitter
