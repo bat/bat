@@ -134,7 +134,6 @@ examples/basic/RootOutput/GaussModel.cxx -text
 examples/basic/RootOutput/GaussModel.h -text
 examples/basic/RootOutput/Makefile -text
 examples/basic/RootOutput/README -text
-examples/basic/RootOutput/log.txt -text
 examples/basic/RootOutput/runRootOutput.cxx -text
 examples/basic/binomial/BinomialModel.cxx -text
 examples/basic/binomial/BinomialModel.h -text
@@ -167,6 +166,11 @@ examples/basic/poisson/PoissonModel.cxx -text
 examples/basic/poisson/PoissonModel.h -text
 examples/basic/poisson/README -text
 examples/basic/poisson/runPoissonCounting.cxx -text
+examples/expert/TrialFunction/GaussModel.cxx -text
+examples/expert/TrialFunction/GaussModel.h -text
+examples/expert/TrialFunction/Makefile -text
+examples/expert/TrialFunction/README -text
+examples/expert/TrialFunction/runTrialFunction.cxx -text
 extras/BinLikeTool/BinLikeModel.cxx -text
 extras/BinLikeTool/BinLikeModel.h -text
 extras/BinLikeTool/CreateFitModel.sh -text

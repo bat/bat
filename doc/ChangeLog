@@ -1,4 +1,8 @@
 2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples: added first expert example for changing the trial function.
+	* doc/introduction: updated the introduction.
+
+2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate: Set writing of prerun to ROOT file by default
 	* BCEngineMCMC: Minor change in output criterion for TTree filling.
 	* examples: added an example showing how to store the MCMC in a file

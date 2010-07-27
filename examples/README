@@ -90,4 +90,11 @@ Examples in this directory:
   Description:  Examples of usage of the RooInterface showing how BAT
                 analysis can be performed on a RooFit workspace.
 
+* Directory: expert
+
+  Directory:    TrialFunction
+  Type:         Compiled program
+  Description:  A simple 2D-Gaussian posterior. The example shows how to
+                change the trial function for the MCMC.
+
 

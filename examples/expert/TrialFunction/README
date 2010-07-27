@@ -1,0 +1,43 @@
+Description: 
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+The example shows how to properly define a new model class based on
+the BCModel class or on any previously defined class which inherits
+from BCModel. It demonstrates how to create a simple compiled program
+using BAT. 
+
+It shows how to change the trial function for the MCMC. The actual
+model is a simple 2D Gaussian.
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://www.mppmu.mpg.de/bat/
+
+
+Files:
+------
+
+  README                  - this file 
+  Makefile                - makefile for the example program
+  GaussModel.h            - definition of the model class
+  GaussModel.cxx          - source code of the model class
+  runTrialFunction.cxx    - the source code of the main program
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Compile the example by running 'make' in the example directory
+
+	For the compilation to work properly BAT needs to be installed
+	in the standard system accessible location or in the path defined
+	by the BATINSTALLDIR environmental variable.
+
+3. Run the executable 'runTrialFunction'.
