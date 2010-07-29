@@ -163,7 +163,7 @@ examples/basic/poisson/README -text
 examples/basic/poisson/runPoissonCounting.cxx -text
 examples/basic/rootOutput/GaussModel.cxx -text
 examples/basic/rootOutput/GaussModel.h -text
-examples/basic/rootOutput/Makefile -text
+examples/basic/rootOutput/Makefile.in -text
 examples/basic/rootOutput/README -text
 examples/basic/rootOutput/runRootOutput.cxx -text
 examples/expert/TrialFunction/GaussModel.cxx -text

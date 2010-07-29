@@ -19,7 +19,7 @@ ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs) -lMinuit
 ROOTGLIBS    := $(shell root-config --glibs)
 
-#ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
 
 # compiler and flags
 CXX          = g++
@@ -37,8 +37,8 @@ CINT         = rootcint
 # add ROOT flags
 CXXFLAGS    += $(ROOTCFLAGS)
 
-#LIBS        += -lcuba
-#GLIBS       += -lcuba
+@CUBA_TRUE@LIBS        += -lcuba
+@CUBA_TRUE@GLIBS       += -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
