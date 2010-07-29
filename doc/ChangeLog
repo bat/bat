@@ -1,4 +1,7 @@
 2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* added autoconfig Makefile to expert example
+
+2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/todo/todo.txt: updated todo list.
 
 2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

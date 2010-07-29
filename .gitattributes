@@ -168,7 +168,7 @@ examples/basic/poisson/README -text
 examples/basic/poisson/runPoissonCounting.cxx -text
 examples/expert/TrialFunction/GaussModel.cxx -text
 examples/expert/TrialFunction/GaussModel.h -text
-examples/expert/TrialFunction/Makefile -text
+examples/expert/TrialFunction/Makefile.in -text
 examples/expert/TrialFunction/README -text
 examples/expert/TrialFunction/runTrialFunction.cxx -text
 extras/BinLikeTool/BinLikeModel.cxx -text
