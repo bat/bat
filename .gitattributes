@@ -130,11 +130,6 @@ examples/advanced/templatefitter/Whel/templatefit.C -text
 examples/advanced/templatefitter/hypothesis/README -text
 examples/advanced/templatefitter/hypothesis/histograms.root -text
 examples/advanced/templatefitter/hypothesis/hypothesistest.C -text
-examples/basic/AA/GaussModel.cxx -text
-examples/basic/AA/GaussModel.h -text
-examples/basic/AA/Makefile -text
-examples/basic/AA/README -text
-examples/basic/AA/runRootOutput.cxx -text
 examples/basic/binomial/BinomialModel.cxx -text
 examples/basic/binomial/BinomialModel.h -text
 examples/basic/binomial/Makefile.in -text
@@ -166,6 +161,11 @@ examples/basic/poisson/PoissonModel.cxx -text
 examples/basic/poisson/PoissonModel.h -text
 examples/basic/poisson/README -text
 examples/basic/poisson/runPoissonCounting.cxx -text
+examples/basic/rootOutput/GaussModel.cxx -text
+examples/basic/rootOutput/GaussModel.h -text
+examples/basic/rootOutput/Makefile -text
+examples/basic/rootOutput/README -text
+examples/basic/rootOutput/runRootOutput.cxx -text
 examples/expert/TrialFunction/GaussModel.cxx -text
 examples/expert/TrialFunction/GaussModel.h -text
 examples/expert/TrialFunction/Makefile.in -text
