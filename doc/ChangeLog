@@ -1,6 +1,8 @@
 2010-07-29 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModelOutput:
 	  - moved initialization of MCMC trees to BCEngineMCMC
+	  - renamed fLogLokelihood to fProbability since that's what it is
+	    (well actually it's LogProbability so maybe we'll have to rename again :))
 	* BCEngineMCMC:
 	  - removed all MCMCGetP2...() methods which are not needed anymore
 	* will do the same with SA tree
