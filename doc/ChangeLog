@@ -1,3 +1,7 @@
+2010-07-29 Daniel Kollar <daniel.kollar@cern.ch>
+	* rename examples/basic/RootOutput to rootOutput
+	* setup Makefile of rootOutput example via configure
+
 2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* added autoconfig Makefile to expert example
 
@@ -13,7 +17,7 @@
 	* BCEngineMCMC: Minor change in output criterion for TTree filling.
 	* examples: added an example showing how to store the MCMC in a file
 	* doc/introduction: updated introduction (added description of ROOT output)
-	
+
 2010-07-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/introduction: updated introduction.
 
