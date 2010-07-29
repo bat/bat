@@ -102,11 +102,6 @@ class BCEngineMCMC
 		{ return fMCMCCurrentIteration; }; 
 
 		/*
-		 * @return pointer to the number of iterations */
-		std::vector <int> * MCMCGetP2NIterations()
-			{ return &fMCMCNIterations; };
-
-		/*
 		 * @return number of iterations needed for all chains to
 		 * converge simultaneously */
 		int MCMCGetNIterationsConvergenceGlobal()
@@ -171,11 +166,6 @@ class BCEngineMCMC
 			{ return fMCMCx; };
 
 		/*
-		 * @return pointer of each Markov chain */
-		std::vector <double> * MCMCGetP2x()
-			{ return &fMCMCx; };
-
-		/*
 		 * @param ichain index of the Markov chain
 		 * @return current point of the Markov chain */
 		std::vector <double> MCMCGetx(int ichain);
@@ -197,19 +187,14 @@ class BCEngineMCMC
 		double MCMCGetLogProbx(int ichain);
 
 		/*
-		 * @return pointer to the log of the probability of the current points of each Markov chain */
-		std::vector <double> * MCMCGetP2LogProbx()
-			{ return &fMCMCprob; };
-
-		/*
 		 * @return pointer to the phase of a run. */ 
-		int* MCMCGetP2Phase()
-		{ return &fMCMCPhase; };
+		int MCMCGetPhase()
+			{ return fMCMCPhase; };
 
 		/*
 		 * @return pointer to the cycle of a pre-run. */ 
-		int* MCMCGetP2Cycle()
-		{ return &fMCMCCycle; };
+		int MCMCGetCycle()
+			{ return fMCMCCycle; };
 
 		/*
 		 * @return maximum points of each Markov chain */
@@ -280,7 +265,7 @@ class BCEngineMCMC
 		/*
 		 * Return the random number generator */
 		TRandom3 * MCMCGetTRandom3()
-		{ return fMCMCRandom; };
+			{ return fMCMCRandom; };
 
 		/* @} */
 		/** \name Setters */
@@ -299,7 +284,7 @@ class BCEngineMCMC
 		/*
 		 * Sets the lag of the Markov chains */
 		void MCMCSetNLag(int n)
-		{ fMCMCNLag = n; };
+			{ fMCMCNLag = n; };
 
 		/*
 		 * Sets the maximum number of iterations in the pre-run. */
@@ -370,7 +355,7 @@ class BCEngineMCMC
 		 * Sets the flag which controls the sequence parameters during the
 		 * running of the MCMC.  */
 		void MCMCSetFlagOrderParameters(bool flag)
-		{ fMCMCFlagOrderParameters = flag; };
+			{ fMCMCFlagOrderParameters = flag; };
 
 		/* Sets the flag for all parameters to either fill histograms or not. */
 		void MCMCSetFlagFillHistograms(bool flag);
@@ -391,6 +376,10 @@ class BCEngineMCMC
 		/*
 		 * Sets the tree containing the Markov chains. */
 		void MCMCSetMarkovChainTrees(std::vector <TTree *> trees);
+
+		/*
+		 * Initialize trees containing the Markov chains. */
+		void MCMCInitializeMarkovChainTrees();
 
 		/*
 		 * Sets the histogram with 1D marginalized distributions for parameter.

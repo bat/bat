@@ -245,7 +245,7 @@ class BCIntegrate : public BCEngineMCMC
 			  fMinuitArglist[1] = arglist[1]; };
 
 		void SetFlagIgnorePrevOptimization(bool flag)
-		{ fFlagIgnorePrevOptimization = flag; }; 
+			{ fFlagIgnorePrevOptimization = flag; }; 
 
 		/**
 		 * @param par The parameter set which gets translated into array
@@ -372,7 +372,9 @@ class BCIntegrate : public BCEngineMCMC
 		 * Flag for writing Markov chain to ROOT file (true) or not (false)
 		 */
 		void WriteMarkovChain(bool flag)
-		{ fFlagWriteMarkovChain = flag; fMCMCFlagWriteChainToFile = flag; fMCMCFlagWritePreRunToFile = flag; };
+			{ fFlagWriteMarkovChain = flag;
+			  fMCMCFlagWriteChainToFile = flag;
+			  fMCMCFlagWritePreRunToFile = flag; };
 
 		/**
 		 * Sets the ROOT tree containing the Markov chain */
@@ -933,6 +935,8 @@ class BCIntegrate : public BCEngineMCMC
 		double fSATemperature; 
 		double fSALogProb; 
 		std::vector<double> fSAx; 
+
+//		friend class BCModelOutput;
 
 };
 

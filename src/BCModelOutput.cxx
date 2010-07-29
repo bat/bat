@@ -85,6 +85,11 @@ void BCModelOutput::SetModel(BCModel * model)
 // ---------------------------------------------------------
 void BCModelOutput::SetFile(const char * filename)
 {
+	if(!fModel) {
+		BCLog::OutError("BCModelOutput::SetFile : Cannot set file if model is not set.");
+		return;
+	}
+
 	// delete the old file
 	if (fOutputFile)
 	{
@@ -101,7 +106,8 @@ void BCModelOutput::SetFile(const char * filename)
 
 	// initialize trees
 	InitializeAnalysisTree();
-	InitializeMarkovChainTrees();
+//	InitializeMarkovChainTrees();
+	fModel->MCMCInitializeMarkovChainTrees();
 	InitializeSATree(); 
 	
 	// change back to the old directory
@@ -259,11 +265,11 @@ void BCModelOutput::Close()
 		fAnalysisTree -> Write();
 
 	// write markov chain tree to file
-	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
-		if (fMarkovChainTrees[i] -> GetEntries() > 0)
-			fMarkovChainTrees[i] -> Write();
+	for (int i = 0; i < fModel->MCMCGetNChains(); ++i)
+		if (fModel->MCMCGetMarkovChainTree(i)->GetEntries() > 0)
+			fModel->MCMCGetMarkovChainTree(i)->Write();
 
-	// write SA tree to file 
+	// write SA tree to file
 	if (fTreeSA -> GetEntries() > 0)
 		fTreeSA -> Write(); 
 
@@ -295,47 +301,6 @@ void BCModelOutput::InitializeAnalysisTree()
 	fAnalysisTree -> Branch("fQuantile_84" ,             fQuantile_84,             "quantile 84% [parameters]/D");
 	fAnalysisTree -> Branch("fQuantile_90" ,             fQuantile_90,             "quantile 90% [parameters]/D");
 	fAnalysisTree -> Branch("fQuantile_95" ,             fQuantile_95,             "quantile 95% [parameters]/D");
-}
-
-// ---------------------------------------------------------
-void BCModelOutput::InitializeMarkovChainTrees()
-{
-	// create new tree
-	fMarkovChainTrees.clear();
-	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
-	{
-		TTree * tree = new TTree(TString::Format("MarkovChainTree_%i", i), "MarkovChainTree");
-		fMarkovChainTrees.push_back(tree);
-	}
-
-	// connect pointer to parameter vectors
-	fParameters    = fModel -> MCMCGetP2x();
-	fIteration     = fModel -> MCMCGetP2NIterations();
-	fLogLikelihood = fModel -> MCMCGetP2LogProbx();
-	fPhase         = fModel -> MCMCGetP2Phase(); 
-	fCycle         = fModel -> MCMCGetP2Cycle();
-	fNParameters   = fModel -> MCMCGetNParameters();
-
-	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
-	{
-		fMarkovChainTrees[i] -> Branch("fIteration",      &(*fIteration)[i],   "iteration/I");
-		fMarkovChainTrees[i] -> Branch("fNParameters",    &fNParameters,       "parameters/I");
-		fMarkovChainTrees[i] -> Branch("fLogLikelihood",  &(*fLogLikelihood)[i], "log (likelihood)/D");
-
-		fMarkovChainTrees[i] -> Branch("fPhase", fPhase, "phase/I"); 
-		fMarkovChainTrees[i] -> Branch("fCycle", fCycle, "cycle/I"); 
-	}
-
-	// loop over all parameters
-	for (int i = 0; i < fModel -> MCMCGetNChains(); ++i)
-		for (int j = 0; j <  fModel -> MCMCGetNParameters(); ++j)
-		{
-			fMarkovChainTrees[i] -> Branch(TString::Format("fParameter%i", j),
-					&(*fParameters)[i * fModel -> MCMCGetNParameters() + j],
-					TString::Format("parameter %i/D", j));
-		}
-
-	fModel -> MCMCSetMarkovChainTrees(fMarkovChainTrees);
 }
 
 // ---------------------------------------------------------

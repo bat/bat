@@ -150,10 +150,6 @@ class BCModelOutput
 		void InitializeAnalysisTree();
 
 		/**
-		 * Initialize the Markov Chain TTree. */
-		void InitializeMarkovChainTrees();
-
-		/**
 		 * Initialize SA TTree. */ 
 		void InitializeSATree(); 
 
@@ -198,14 +194,6 @@ class BCModelOutput
 		double fQuantile_84[MAXNPARAMETERS];
 		double fQuantile_90[MAXNPARAMETERS];
 		double fQuantile_95[MAXNPARAMETERS];
-
-		/**
-		 * The markov chain tree variables */
-		std::vector<double> * fParameters;
-		std::vector<double> * fLogLikelihood;
-		std::vector <int> * fIteration;
-		int* fCycle;
-		int* fPhase;
 
 		/**
 		 * The simulated annealing tree variables */ 

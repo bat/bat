@@ -42,7 +42,6 @@
 #include <iomanip>
 
 // ---------------------------------------------------------
-
 BCModel::BCModel(const char * name)
    : BCIntegrate()
 {
@@ -74,7 +73,6 @@ BCModel::BCModel(const char * name)
 }
 
 // ---------------------------------------------------------
-
 BCModel::BCModel()
    : BCIntegrate()
 {
@@ -104,7 +102,6 @@ BCModel::BCModel()
 }
 
 // ---------------------------------------------------------
-
 BCModel::~BCModel()
 {
 	for (unsigned int i = 0; i < GetNParameters(); ++i) 
@@ -118,7 +115,6 @@ BCModel::~BCModel()
 }
 
 // ---------------------------------------------------------
-
 int BCModel::GetNDataPoints()
 {
    int npoints = 0;
@@ -133,7 +129,6 @@ int BCModel::GetNDataPoints()
 }
 
 // ---------------------------------------------------------
-
 BCDataPoint * BCModel::GetDataPoint(unsigned int index)
 {
    if (fDataSet)
@@ -144,7 +139,6 @@ BCDataPoint * BCModel::GetDataPoint(unsigned int index)
 }
 
 // ---------------------------------------------------------
-
 BCParameter * BCModel::GetParameter(int index)
 {
    if (!fParameterSet)
@@ -160,7 +154,6 @@ BCParameter * BCModel::GetParameter(int index)
 }
 
 // ---------------------------------------------------------
-
 BCParameter * BCModel::GetParameter(const char * name)
 {
    if (!fParameterSet)
@@ -182,7 +175,6 @@ BCParameter * BCModel::GetParameter(const char * name)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::GetBestFitParameter(unsigned int index)
 {
    if(index >= GetNParameters()) {
@@ -199,7 +191,6 @@ double BCModel::GetBestFitParameter(unsigned int index)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::GetBestFitParameterError(unsigned int index)
 {
    if(index >= GetNParameters()) {
@@ -219,7 +210,6 @@ double BCModel::GetBestFitParameterError(unsigned int index)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::GetBestFitParameterMarginalized(unsigned int index)
 {
    if(index >= GetNParameters()) {
@@ -236,7 +226,6 @@ double BCModel::GetBestFitParameterMarginalized(unsigned int index)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::SetNbins(const char * parname, int nbins)
 {
    BCParameter * p = GetParameter(parname);
@@ -250,7 +239,6 @@ void BCModel::SetNbins(const char * parname, int nbins)
 }
 
 // ---------------------------------------------------------
-
 std::vector<double> BCModel::GetErrorBand(double level)
 {
    std::vector<double> errorband;
@@ -279,7 +267,6 @@ std::vector<double> BCModel::GetErrorBand(double level)
 }
 
 // ---------------------------------------------------------
-
 TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 {
    if (!fErrorBandXY)
@@ -305,7 +292,6 @@ TGraph * BCModel::GetErrorBandGraph(double level1, double level2)
 }
 
 // ---------------------------------------------------------
-
 TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
 {
    if (!fErrorBandXY)
@@ -343,7 +329,6 @@ TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
 }
 
 // ---------------------------------------------------------
-
 TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters)
 {
    if (!fErrorBandXY)
@@ -369,7 +354,6 @@ TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters, double xmin, double xmax, int n)
 {
    // define new graph
@@ -393,7 +377,6 @@ TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters, double xmi
 }
 
 // ---------------------------------------------------------
-
 bool BCModel::GetFlagBoundaries()
 {
    if (!fDataPointLowerBoundaries)
@@ -412,7 +395,6 @@ bool BCModel::GetFlagBoundaries()
 }
 
 // ---------------------------------------------------------
-
 void BCModel::SetSingleDataPoint(BCDataPoint * datapoint)
 {
    // create new data set consisting of a single data point
@@ -426,7 +408,6 @@ void BCModel::SetSingleDataPoint(BCDataPoint * datapoint)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 {
    if (index < 0 || index > dataset->GetNDataPoints())
@@ -436,7 +417,6 @@ void BCModel::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double upperboundary, bool fixed)
 {
    // check if data set exists
@@ -468,7 +448,6 @@ void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double
 }
 
 // ---------------------------------------------------------
-
 void BCModel::SetErrorBandContinuous(bool flag)
 {
    fErrorBandContinuous = flag;
@@ -485,7 +464,6 @@ void BCModel::SetErrorBandContinuous(bool flag)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimit)
 {
    // create new parameter
@@ -499,7 +477,6 @@ int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimi
 }
 
 // ---------------------------------------------------------
-
 int BCModel::AddParameter(BCParameter * parameter)
 {
    // check if parameter set exists
@@ -544,7 +521,6 @@ int BCModel::AddParameter(BCParameter * parameter)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::LogProbabilityNN(std::vector<double> parameters)
 {
    // add log of conditional probability
@@ -560,7 +536,6 @@ double BCModel::LogProbabilityNN(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::LogProbability(std::vector<double> parameters)
 {
    // check if normalized
@@ -573,7 +548,6 @@ double BCModel::LogProbability(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::LogLikelihood(std::vector<double> parameters)
 {
    double logprob = 0.;
@@ -623,21 +597,18 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::LogEval(std::vector<double> parameters)
 {
    return LogProbabilityNN(parameters);
 }
 
 // ---------------------------------------------------------
-
 double BCModel::EvalSampling(std::vector<double> parameters)
 {
    return SamplingFunction(parameters);
 }
 
 // ---------------------------------------------------------
-
 double BCModel::SamplingFunction(std::vector<double> parameters)
 {
    double probability = 1.;
@@ -647,7 +618,6 @@ double BCModel::SamplingFunction(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::Normalize()
 {
 	if(fParameterSet->size()<1) {
@@ -675,7 +645,6 @@ double BCModel::Normalize()
 }
 
 // ---------------------------------------------------------
-
 int BCModel::CheckParameters(std::vector<double> parameters)
 {
    // check if vectors are of equal size
@@ -699,7 +668,6 @@ int BCModel::CheckParameters(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::FindMode(std::vector<double> start)
 {
 	if(fParameterSet->size()<1) {
@@ -740,7 +708,6 @@ void BCModel::FindMode(std::vector<double> start)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::FindModeMinuit(std::vector<double> start, int printlevel)
 {
 	if(fParameterSet->size()<1) {
@@ -754,7 +721,6 @@ void BCModel::FindModeMinuit(std::vector<double> start, int printlevel)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::WriteMode(const char * file)
 {
    ofstream ofi(file);
@@ -797,7 +763,6 @@ void BCModel::WriteMode(const char * file)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::ReadMode(const char * file)
 {
    ifstream ifi(file);
@@ -837,7 +802,6 @@ int BCModel::ReadMode(const char * file)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::MarginalizeAll()
 {
 	if(fParameterSet->size()<1) {
@@ -884,7 +848,6 @@ int BCModel::MarginalizeAll()
 }
 
 // ---------------------------------------------------------
-
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
    if (!parameter) {
@@ -930,7 +893,6 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::ReadMarginalizedFromFile(const char * file)
 {
    TFile * froot = new TFile(file);
@@ -989,7 +951,6 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::ReadErrorBandFromFile(const char * file)
 {
    TFile * froot = new TFile(file);
@@ -1017,7 +978,6 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::PrintAllMarginalized1D(const char * filebase)
 {
    if (fMCMCH1Marginalized.size() == 0) {
@@ -1036,7 +996,6 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::PrintAllMarginalized2D(const char * filebase)
 {
    if (fMCMCH2Marginalized.size() == 0) {
@@ -1072,7 +1031,6 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
 {
    if (!fMCMCFlagFillHistograms) {
@@ -1258,7 +1216,6 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 }
 
 // ---------------------------------------------------------
-
 BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 {
    int index1 = par1->GetIndex();
@@ -1312,7 +1269,6 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 {
    double ll = LogLikelihood(par);
@@ -1328,6 +1284,7 @@ double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
 
    return fPValue;
 }
+
 // ---------------------------------------------------------
 std::vector<double> BCModel::GetChi2Runs(int dataIndex, int sigmaIndex)
 {
@@ -1511,7 +1468,6 @@ double BCModel::GetAvalueFromChi2Johnson(TTree * tree, TH1D * distribution)
 }
 
 // ---------------------------------------------------------
-
 double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
 {
    double ll = LogLikelihood(par);
@@ -1639,14 +1595,12 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::CorrelateDataPointValues(std::vector<double> &x)
 {
    // ...
 }
 
 // ---------------------------------------------------------
-
 double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std::vector<double> point)
 {
    // check number of entries in vector
@@ -1692,7 +1646,6 @@ double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std
 }
 
 // ---------------------------------------------------------
-
 void BCModel::FixDataAxis(unsigned int index, bool fixed)
 {
    // check if index is within range
@@ -1709,7 +1662,6 @@ void BCModel::FixDataAxis(unsigned int index, bool fixed)
 }
 
 // ---------------------------------------------------------
-
 bool BCModel::GetFixedDataAxis(unsigned int index)
 {
    // check if index is within range
@@ -1846,16 +1798,16 @@ int BCModel::SetPriorConstant(int index)
       return 0;
    }
 
-   //set prior to a constant
+   // set prior to a constant
    fPriorContainerConstant[index] = true;
 
-   //update value of constant
+   // update value of constant
    fPriorConstantValue -= log(GetParameter(index)->GetRangeWidth());
 
    // reset all results
    ResetResults();
 
-   //no error in Kevin's funny convention
+   // no error
    return 1;
 }
 
@@ -1904,31 +1856,30 @@ int BCModel::SetPriorConstantAll()
    // reset all results
    ResetResults();
 
-   //no error in Kevin's funny convention
+   // no error
    return 1;
 }
 
 // ---------------------------------------------------------
 int BCModel::SetParameterRange(int index, double parmin, double parmax)
 {
-  // check index
-  if (index < 0 || index >= int(GetNParameters()))
-    {
+   // check index
+   if (index < 0 || index >= int(GetNParameters())) {
       BCLog::OutWarning("BCModel::SetParameterRange() : Index out of range.");
       return 0; 
-    }
-  
-  // set parameter ranges in BAT 
-  GetParameter(index)->SetLowerLimit(parmin); 
-  GetParameter(index)->SetUpperLimit(parmax); 
-  fMCMCBoundaryMin[index] = parmin; 
-  fMCMCBoundaryMax[index] = parmax; 
-  
-  // reset results
-  ResetResults();
+   }
 
-  // no error 
-  return 1; 
+   // set parameter ranges in BAT 
+   GetParameter(index)->SetLowerLimit(parmin); 
+   GetParameter(index)->SetUpperLimit(parmax); 
+   fMCMCBoundaryMin[index] = parmin; 
+   fMCMCBoundaryMax[index] = parmax; 
+
+   // reset results
+   ResetResults();
+
+   // no error 
+   return 1; 
 }
 
 // ---------------------------------------------------------
@@ -1991,7 +1942,6 @@ void BCModel::PrintSummary()
 }
 
 // ---------------------------------------------------------
-
 void BCModel::PrintResults(const char * file)
 {
    // print summary of Markov Chain Monte Carlo
@@ -2177,7 +2127,6 @@ void BCModel::PrintResults(const char * file)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::PrintShortFitSummary(int chi2flag)
 {
    BCLog::OutSummary("---------------------------------------------------");
@@ -2201,7 +2150,6 @@ void BCModel::PrintShortFitSummary(int chi2flag)
 }
 
 // ---------------------------------------------------------
-
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
    // check number of entries in vector
@@ -2230,7 +2178,6 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-
 BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data)
 {
    int sizeofvector = int(data.size());
@@ -2240,7 +2187,6 @@ BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data)
 }
 
 // ---------------------------------------------------------
-
 int BCModel::CompareStrings(const char * string1, const char * string2)
 {
    int flag_same = 0;

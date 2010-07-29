@@ -319,6 +319,28 @@ void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector <TTree *> trees)
 }
 
 // --------------------------------------------------------
+void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
+{
+// clear vector
+	fMCMCTrees.clear();
+
+// create new trees
+	for (int i = 0; i < fMCMCNChains; ++i) {
+		fMCMCTrees.push_back(new TTree(TString::Format("MarkovChainTree_%i", i), "MarkovChainTree"));
+		fMCMCTrees[i]->Branch("fIteration",    &fMCMCNIterations[i],  "iteration/I");
+		fMCMCTrees[i]->Branch("fNParameters",  &fMCMCNParameters,     "parameters/I");
+		fMCMCTrees[i]->Branch("fProbability",  &fMCMCprob,            "log(probability)/D");
+		fMCMCTrees[i]->Branch("fPhase",        &fMCMCPhase,           "phase/I");
+		fMCMCTrees[i]->Branch("fCycle",        &fMCMCCycle,           "cycle/I");
+
+		for (int j = 0; j < fMCMCNParameters; ++j)
+			fMCMCTrees[i]->Branch(TString::Format("fParameter%i", j),
+					&fMCMCx[i * fMCMCNParameters + j],
+					TString::Format("parameter %i/D", j));
+	}
+}
+
+// --------------------------------------------------------
 void BCEngineMCMC::Copy(BCEngineMCMC & enginemcmc) const
 {}
 

@@ -842,9 +842,8 @@ class BCModel : public BCIntegrate
 		 * updated so minimum is three bins (for 1-5 observations)!
 		 * @param */
 
-		int NumberBins(){
-			return (int)(exp(0.4 * log(this -> GetNDataPoints())) + 2);
-		}
+		int NumberBins()
+			{ return (int)(exp(0.4 * log(this -> GetNDataPoints())) + 2); }
 
 };
 
