@@ -1,4 +1,8 @@
 2010-07-31 Daniel Kollar <daniel.kollar@cern.ch>
+	* introduction.tex:
+	  - updated the names of the branches in MCMC trees
+
+2010-07-31 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModelOutput:
 	  - moved initialization of SA tree to BCIntegrate
 	* BCIntegrate:
