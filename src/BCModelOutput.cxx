@@ -78,8 +78,8 @@ void BCModelOutput::Init()
 void BCModelOutput::SetModel(BCModel * model)
 { 
 	fModel = model;
-	fModel -> MCMCInitialize();
-	fModel -> SAInitialize();
+	fModel->MCMCInitialize();
+	fModel->SAInitialize();
 }
 
 // ---------------------------------------------------------
@@ -93,7 +93,7 @@ void BCModelOutput::SetFile(const char * filename)
 	// delete the old file
 	if (fOutputFile)
 	{
-		fOutputFile -> Close();
+		fOutputFile->Close();
 		delete fOutputFile;
 	}
 
@@ -106,9 +106,8 @@ void BCModelOutput::SetFile(const char * filename)
 
 	// initialize trees
 	InitializeAnalysisTree();
-//	InitializeMarkovChainTrees();
 	fModel->MCMCInitializeMarkovChainTrees();
-	InitializeSATree(); 
+	fModel->InitializeSATree(); 
 	
 	// change back to the old directory
 	gDirectory = dir;
@@ -270,8 +269,8 @@ void BCModelOutput::Close()
 			fModel->MCMCGetMarkovChainTree(i)->Write();
 
 	// write SA tree to file
-	if (fTreeSA -> GetEntries() > 0)
-		fTreeSA -> Write(); 
+	if (fModel->GetSATree()->GetEntries() > 0)
+		fModel->GetSATree()->Write(); 
 
 	// close file
 	fOutputFile -> Close();
@@ -304,36 +303,12 @@ void BCModelOutput::InitializeAnalysisTree()
 }
 
 // ---------------------------------------------------------
-void BCModelOutput::InitializeSATree()
-{
-	fTreeSA = new TTree("SATree", "SATree"); 
-
-	// connect pointer to parameter vectors
-	fSAIteration     = fModel -> GetSAP2NIterations(); 
-	fSATemperature   = fModel -> GetSAP2Temperature(); 
-	fSALogProb       = fModel -> GetSAP2LogProb(); 
-	fSAParameters    = fModel -> GetSAP2x(); 
-	fSANParameters   = fModel -> GetNParameters(); 
-
-	fTreeSA -> Branch("Iteration",    fSAIteration,   "iteration/I");
-	fTreeSA -> Branch("NParameters", &fSANParameters, "parameters/I");
-	fTreeSA -> Branch("Temperature",  fSATemperature, "temperature/D"); 
-	fTreeSA -> Branch("LogProb",      fSALogProb,     "log probability/D"); 
-	for (int j = 0; j <  fModel -> MCMCGetNParameters(); ++j)
-		fTreeSA -> Branch(TString::Format("Parameter%i", j),
-											&(*fSAParameters)[j], 
-											TString::Format("parameter %i/D", j)); 
-
-	fModel -> SetSATree(fTreeSA);
-}
-
-// ---------------------------------------------------------
 void BCModelOutput::Copy(BCModelOutput & modeloutput) const
 {
 	// don't copy the content
 	modeloutput.fModel            = this -> fModel;
 	modeloutput.fAnalysisTree     = this -> fAnalysisTree;
-	modeloutput.fMarkovChainTrees = this -> fMarkovChainTrees;
+//	modeloutput.fMarkovChainTrees = this -> fMarkovChainTrees;
 }
 
 // ---------------------------------------------------------

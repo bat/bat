@@ -1,3 +1,12 @@
+2010-07-31 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModelOutput:
+	  - moved initialization of SA tree to BCIntegrate
+	* BCIntegrate:
+	  - removed all GetP2...() methods which are not needed anymore
+	* BCEngineMCMC:
+	  - removed the leading "f" from names of all branches
+	  - renamed Probability to LogProbability
+
 2010-07-29 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModelOutput:
 	  - moved initialization of MCMC trees to BCEngineMCMC

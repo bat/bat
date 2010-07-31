@@ -223,18 +223,6 @@ class BCIntegrate : public BCEngineMCMC
 		double GetSATmin()
 			{ return fSATmin; }
 
-		double * GetSAP2Temperature()
-			{ return &fSATemperature; };
-
-		double * GetSAP2LogProb()
-			{ return &fSALogProb; }; 
-		
-		std::vector<double> * GetSAP2x()
-			{ return &fSAx; }; 
-
-		int * GetSAP2NIterations()
-			{ return &fSANIterations; };
-
 		/* @} */
 
 		/** \name Member functions (set) */
@@ -424,9 +412,18 @@ class BCIntegrate : public BCEngineMCMC
 			{ fFlagWriteSAToFile = flag; }; 
 
 		/*
-		 * Sets the tree containing the Markov chains. */
-		void SetSATree(TTree* tree)
+		 * Sets the tree containing the Simulated Annealing  chain. */
+		void SetSATree(TTree * tree)
 			{ fTreeSA = tree; };
+
+		/*
+		 * Getter for the tree containing the  Simulated Annealing  chain. */
+		TTree * GetSATree()
+			{ return fTreeSA; };
+
+		/*
+		 * Initialization of the tree for the Simulated Annealing */
+		void InitializeSATree();
 
 		/* @} */
 

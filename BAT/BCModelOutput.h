@@ -195,13 +195,6 @@ class BCModelOutput
 		double fQuantile_90[MAXNPARAMETERS];
 		double fQuantile_95[MAXNPARAMETERS];
 
-		/**
-		 * The simulated annealing tree variables */ 
-		int * fSAIteration;
-		int fSANParameters; 
-		double * fSATemperature; 
-		double * fSALogProb; 
-		std::vector<double> * fSAParameters; 
 };
 
 // ---------------------------------------------------------

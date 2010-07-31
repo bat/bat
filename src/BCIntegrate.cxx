@@ -1336,7 +1336,21 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 }
 
 // *********************************************
+void BCIntegrate::InitializeSATree()
+{
+	delete fTreeSA;
+	fTreeSA = new TTree("SATree", "SATree");
 
+	fTreeSA->Branch("Iteration",      &fSANIterations,   "iteration/I");
+	fTreeSA->Branch("NParameters",    &fNvar,            "parameters/I");
+	fTreeSA->Branch("Temperature",    &fSATemperature,   "temperature/D");
+	fTreeSA->Branch("LogProbability", &fSALogProb,       "log(probability)/D");
+
+	for (int i = 0; i < fNvar; ++i)
+		fTreeSA->Branch(TString::Format("Parameter%i", i), &fSAx[i], TString::Format("parameter %i/D", i));
+}
+
+// *********************************************
 void BCIntegrate::FindModeSA(std::vector<double> start)
 {
    // note: if f(x) is the function to be minimized, then
