@@ -1,4 +1,7 @@
 2010-08-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx: bug fix, log probability was not written to the tree.
+
+2010-08-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated todo list
 
 2010-07-31 Daniel Kollar <daniel.kollar@cern.ch>

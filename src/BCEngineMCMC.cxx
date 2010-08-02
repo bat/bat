@@ -329,7 +329,7 @@ void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
 		fMCMCTrees.push_back(new TTree(TString::Format("MarkovChainTree_%i", i), "MarkovChainTree"));
 		fMCMCTrees[i]->Branch("Iteration",       &fMCMCNIterations[i],  "iteration/I");
 		fMCMCTrees[i]->Branch("NParameters",     &fMCMCNParameters,     "parameters/I");
-		fMCMCTrees[i]->Branch("LogProbability",  &fMCMCprob,            "log(probability)/D");
+		fMCMCTrees[i]->Branch("LogProbability",  &fMCMCprob[i],         "log(probability)/D");
 		fMCMCTrees[i]->Branch("Phase",           &fMCMCPhase,           "phase/I");
 		fMCMCTrees[i]->Branch("Cycle",           &fMCMCCycle,           "cycle/I");
 
