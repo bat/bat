@@ -1,3 +1,7 @@
+2010-08-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Modified existing examples and CreateProject.sh: added a "-" before the include link.d
+	* Updated todo list
+
 2010-08-02 Daniel Kollar <daniel.kollar@cern.ch>
 	* further updates in the todo list
 

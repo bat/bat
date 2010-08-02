@@ -14,6 +14,7 @@ High         0.4.0       fixed     Fix axis labels for SummaryTool (numbers for 
 High         0.4.0       done      Important check: compare marginalized mode (1D) with predictions (Kevin)
 High         0.4.0       done      access to iteration/chain number and point accepted flag (Dano)
 High         0.4.0       done      Raise library version
+High         0.4.0       done      Makefile: put "-include link.d"
 
 Medium                   done      Method to set parameter ranges (Kevin)
 Medium                   done      Storing of MCMC pre-run in a ROOT file, flag (Kevin)
@@ -22,7 +23,6 @@ Low                      done      Add further examples (Kevin)
 
 ------------------------------------------------------------------------------------------------
 
-High         0.4.0                 Makefile: put "-link.d : $(patsubst..."
 high         0.4.0                 Fix memory leaks in BCH1D and other classes
 High         0.4.0                 Test RooStats examples
 High         0.4.0                 Check/change tutorials
