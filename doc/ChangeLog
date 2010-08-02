@@ -1,4 +1,7 @@
 2010-08-02 Daniel Kollar <daniel.kollar@cern.ch>
+	* further updates in the todo list
+
+2010-08-02 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEngineMCMC:
 	  - added interface to current chain index
 	  - minor code cleanup

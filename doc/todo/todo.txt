@@ -4,37 +4,43 @@ To do for releases:
 Priority:    Release:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
 
-High         0.4.0                 Makefile: put "-link.d : $(patsubst..."
-High         0.4.0                 Raise library version
-high         0.4.0                 Fix memory leaks in BCH1D and other classes
 High         0.4.0       done      Update introduction (Kevin)
 High         0.4.0       done      Update documentation for examples (Kevin)
 High         0.4.0       fixed     Bug: summary tool does not work with fixed parameters (Kevin)
 High         0.4.0       done      Test TF1 priors on parameters (Kevin)
 High         0.4.0       done      Add legend to marginalized plots by default (Fred)
 High         0.4.0       done      Caching of flat prior (Fred)
-High         0.4.0?                Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
-High         0.4.0?                Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
-High         0.4.0?                Test RooStats examples
 High         0.4.0       fixed     Fix axis labels for SummaryTool (numbers for larger number of parameters)
 High         0.4.0       done      Important check: compare marginalized mode (1D) with predictions (Kevin)
-High         0.4.0                 Check/change tutorials
-High         0.4.0                 Web page: test suite (Kevin)
-High         0.4.0                 Web page: FAQ (Fred)
 High         0.4.0       done      access to iteration/chain number and point accepted flag (Dano)
+High         0.4.0       done      Raise library version
+
+Medium                   done      Method to set parameter ranges (Kevin)
+Medium                   done      Storing of MCMC pre-run in a ROOT file, flag (Kevin)
+
+Low                      done      Add further examples (Kevin)
+
+------------------------------------------------------------------------------------------------
+
+High         0.4.0                 Makefile: put "-link.d : $(patsubst..."
+high         0.4.0                 Fix memory leaks in BCH1D and other classes
+High         0.4.0                 Test RooStats examples
+High         0.4.0                 Check/change tutorials
+
+High                               Web page: test suite (Kevin)
+High                               Web page: FAQ (Fred)
+High                               Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
+High                               Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 
 Medium                             Add models page on web page
-Medium                   done      Method to set parameter ranges (Kevin)
 Medium                             method to fix parameters
 Medium                             Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts
 Medium                             Speed up FastFitters by cutting data range to TF1 range
-Medium                   done      Storing of MCMC pre-run in a ROOT file, flag (Kevin)
 Medium                             Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
 Medium                             Allow user to set scales for MCMC 
 Medium                             Perform analysis of MCMC tree from ROOT file
 Medium                             SummaryTool: triangular plots
 
-Low                      done      Add further examples (Kevin)
 Low                                Look into sparse histograms
 Low                                Remove MCMC code from BCIntegrate
 Low                                Remove ConditionalProbabilityEntry stuff
