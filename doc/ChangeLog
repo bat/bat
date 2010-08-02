@@ -1,3 +1,12 @@
+2010-08-02 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCEngineMCMC:
+	  - added interface to current chain index
+	  - minor code cleanup
+	* incremented library version for libBAT.so
+	* reset library version for libBATmodels.so
+	* updated todo list
+	* increased version to 0.4.pre9
+
 2010-08-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: bug fix, log probability was not written to the tree.
 

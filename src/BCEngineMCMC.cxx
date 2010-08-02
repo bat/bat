@@ -55,6 +55,7 @@ void BCEngineMCMC::MCMCSetValuesDefault()
 	fMCMCFlagInitialPosition  = 1;
 	fMCMCNLag                 = 1;
 	fMCMCCurrentIteration     = -1;
+	fMCMCCurrentChain         = -1;
 
 	this->MCMCSetValuesDetail();
 }
@@ -76,6 +77,7 @@ void BCEngineMCMC::MCMCSetValuesQuick()
 	fMCMCNIterationsUpdateMax = 10000;
 	fMCMCFlagOrderParameters  = true;
 	fMCMCCurrentIteration     = -1;
+	fMCMCCurrentChain         = -1;
 }
 
 // ---------------------------------------------------------
@@ -95,6 +97,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
 	fMCMCNIterationsUpdateMax = 10000;
 	fMCMCFlagOrderParameters  = true;
 	fMCMCCurrentIteration     = -1;
+	fMCMCCurrentChain         = -1;
 }
 
 // ---------------------------------------------------------
@@ -484,6 +487,8 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
 	// calculate index
 	int index = chain * fMCMCNParameters;
 
+	fMCMCCurrentChain = chain;
+
 	// increase counter
 	fMCMCNIterations[chain]++;
 
@@ -551,6 +556,8 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
 {
 	// calculate index
 	int index = chain * fMCMCNParameters;
+
+	fMCMCCurrentChain = chain;
 
 	// increase counter
 	fMCMCNIterations[chain]++;
@@ -1181,6 +1188,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	// reset current iteration
 	fMCMCCurrentIteration = -1;
 
+	// reset current chain
+	fMCMCCurrentChain = -1;
+
 	// no error
 	return 1;
 }
@@ -1241,24 +1251,11 @@ int BCEngineMCMC::MCMCMetropolis()
 				for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 					this->MCMCGetNewPointMetropolis(ichains, iparameters);
 
+				// reset current chain
+				fMCMCCurrentChain = -1;
+
 				// update search for maximum
 				this->MCMCInChainCheckMaximum();
-
-				/*
-				// check if the current iteration is consistent with the lag
-				if ( (fMCMCNParameters * fMCMCCurrentIteration + iparameters) % (fMCMCNLag * fMCMCNParameters) == 0)
-				{
-					// fill histograms
-					this->MCMCInChainFillHistograms();
-
-					// write chain to file
-					if (fMCMCFlagWriteChainToFile)
-						this->MCMCInChainWriteChains();
-
-					// do anything interface
-					this->MCMCIterationInterface();
-				}
-				*/
 
 			} // end loop over all parameters
 
@@ -1271,7 +1268,7 @@ int BCEngineMCMC::MCMCMetropolis()
 				// write chain to file
 				if (fMCMCFlagWriteChainToFile)
 					this->MCMCInChainWriteChains();
-					
+
 				// do anything interface
 				this->MCMCIterationInterface();
 			}
@@ -1284,6 +1281,9 @@ int BCEngineMCMC::MCMCMetropolis()
 				// get new point
 				this->MCMCGetNewPointMetropolis(ichains);
 
+			// reset current chain
+			fMCMCCurrentChain = -1;
+					
 			// update search for maximum
 			this->MCMCInChainCheckMaximum();
 
@@ -1329,6 +1329,9 @@ int BCEngineMCMC::MCMCMetropolis()
 
 	// reset coutner
 	fMCMCCurrentIteration = -1;
+
+	// reset current chain
+	fMCMCCurrentChain = -1;
 
 	// set flags
 	fMCMCFlagPreRun = false;

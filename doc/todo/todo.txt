@@ -5,40 +5,40 @@ Priority:    Release:    Status:   Task:
 ------------------------------------------------------------------------------------------------
 
 High         0.4.0                 Makefile: put "-link.d : $(patsubst..."
-High         0.4.0                 Rename libraries to libBAT.so.0.4.0
+High         0.4.0                 Raise library version
 high         0.4.0                 Fix memory leaks in BCH1D and other classes
-High         0.4.0       fixed     Update introduction (Kevin)
-High         0.4.0       fixed     Update documentation for examples (Kevin)
+High         0.4.0       done      Update introduction (Kevin)
+High         0.4.0       done      Update documentation for examples (Kevin)
 High         0.4.0       fixed     Bug: summary tool does not work with fixed parameters (Kevin)
-High         0.4.0       fixed     Test TF1 priors on parameters (Kevin)
-High         0.4.0       fixed     Add legend to marginalized plots by default (Fred)
-High         0.4.0       fixed     Caching of flat prior (Fred)
+High         0.4.0       done      Test TF1 priors on parameters (Kevin)
+High         0.4.0       done      Add legend to marginalized plots by default (Fred)
+High         0.4.0       done      Caching of flat prior (Fred)
 High         0.4.0?                Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 High         0.4.0?                Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 High         0.4.0?                Test RooStats examples
 High         0.4.0       fixed     Fix axis labels for SummaryTool (numbers for larger number of parameters)
-High         0.4.0       fixed     Important check: compare marginalized mode (1D) with predictions (Kevin)
+High         0.4.0       done      Important check: compare marginalized mode (1D) with predictions (Kevin)
 High         0.4.0                 Check/change tutorials
 High         0.4.0                 Web page: test suite (Kevin)
 High         0.4.0                 Web page: FAQ (Fred)
-High         0.4.0                 access to iteration/chain number and point accepted flag (Dano)
+High         0.4.0       done      access to iteration/chain number and point accepted flag (Dano)
 
 Medium                             Add models page on web page
-Medium                   fixed     Method to set parameter ranges (Kevin)
+Medium                   done      Method to set parameter ranges (Kevin)
 Medium                             method to fix parameters
 Medium                             Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts
 Medium                             Speed up FastFitters by cutting data range to TF1 range
-Medium                   fixed     Storing of MCMC pre-run in a ROOT file, flag (Kevin)
+Medium                   done      Storing of MCMC pre-run in a ROOT file, flag (Kevin)
 Medium                             Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
 Medium                             Allow user to set scales for MCMC 
 Medium                             Perform analysis of MCMC tree from ROOT file
 Medium                             SummaryTool: triangular plots
 
-Low                      fixed     Add further examples (Kevin)
+Low                      done      Add further examples (Kevin)
 Low                                Look into sparse histograms
 Low                                Remove MCMC code from BCIntegrate
 Low                                Remove ConditionalProbabilityEntry stuff
 Low                                Library of common priors
 Low                                Use Kernel Density Estimator for filling histograms as option
-Low				   Constraints
-Low				   Sub-space integration
+Low                                Constraints
+Low                                Sub-space integration

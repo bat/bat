@@ -99,7 +99,12 @@ class BCEngineMCMC
 		/**
 		 * @return current iterations */
 		int MCMCGetCurrentIteration()
-		{ return fMCMCCurrentIteration; }; 
+			{ return fMCMCCurrentIteration; }; 
+
+		/**
+		 * @return current chain index */
+		int MCMCGetCurrentChain()
+			{ return fMCMCCurrentChain; }; 
 
 		/*
 		 * @return number of iterations needed for all chains to
@@ -574,11 +579,14 @@ class BCEngineMCMC
 		std::vector<int> fMCMCNIterations;
 
 		/*
-		 * The current iteration number. If not called within
-		 * the running of the algorithm, this variable is set
-		 * to -1.
-		 */ 
+		 * The current iteration number. If not called within the running
+		 * of the algorithm, return -1. */
 		int fMCMCCurrentIteration;
+
+		/*
+		 * The current chain index. If not called within the running of the
+		 * algorithm, return -1. */
+		int fMCMCCurrentChain;
 
 		/*
 		 * Number of iterations for updating scale factors */
