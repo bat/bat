@@ -4,6 +4,9 @@ To do for releases:
 Priority:    Release:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
 
+High         0.4.0                 Makefile: put "-link.d : $(patsubst..."
+High         0.4.0                 Rename libraries to libBAT.so.0.4.0
+high         0.4.0                 Fix memory leaks in BCH1D and other classes
 High         0.4.0       fixed     Update introduction (Kevin)
 High         0.4.0       fixed     Update documentation for examples (Kevin)
 High         0.4.0       fixed     Bug: summary tool does not work with fixed parameters (Kevin)
