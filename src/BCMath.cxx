@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008, Daniel Kollar, Kevin Kroeninger and Jing Liu
+ * Copyright (C) 2008-2010, Daniel Kollar, Kevin Kroeninger and Jing Liu
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.

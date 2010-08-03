@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include <TH1D.h>
 
 #include <BAT/BCLog.h>

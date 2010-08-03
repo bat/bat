@@ -1,4 +1,7 @@
 2010-08-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* all .h and .cxx files: updated Copyright information (2008-2010)
+
+2010-08-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite: changed a parameter in Cauchy example
 	* PerfTestSuite: delete memory at deletion of objects
 

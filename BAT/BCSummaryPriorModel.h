@@ -13,7 +13,7 @@
  */
 
 /*
- * Copyright (C) 2008, 2009, 2010, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
