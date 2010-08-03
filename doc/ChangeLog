@@ -1,3 +1,7 @@
+2010-08-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* PerfTestSuite: changed a parameter in Cauchy example
+	* PerfTestSuite: delete memory at deletion of objects
+
 2010-08-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Modified existing examples and CreateProject.sh: added a "-" before the include link.d
 	* Updated todo list

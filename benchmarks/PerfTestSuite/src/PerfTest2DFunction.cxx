@@ -48,6 +48,8 @@ PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func) : PerfTestMC
 //______________________________________________________________________________
 PerfTest2DFunction::~PerfTest2DFunction()
 {
+  if (fFunction)
+    delete fFunction; 
 }
 	
 //______________________________________________________________________________

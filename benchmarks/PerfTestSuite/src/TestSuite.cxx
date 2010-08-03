@@ -24,6 +24,15 @@ TestSuite::TestSuite()
 //______________________________________________________________________________
 TestSuite::~TestSuite()
 {
+  // delete all tests
+  while (!fTestContainer.empty())
+    {
+      PerfTest* test = fTestContainer.front(); 
+      fTestContainer.erase(fTestContainer.begin()); 
+      delete test; 
+    }
+  fTestContainer.clear();
+
 }
 	
 //______________________________________________________________________________
@@ -102,6 +111,7 @@ int TestSuite::RunTests()
 		fTestContainer.at(i)->SetCpuTime(sw->CpuTime());
 		fTestContainer.at(i)->SetRealTime(sw->RealTime());
 		err *= fTestContainer.at(i)->WriteResults(); 
+		delete sw;
 	}
 
 	// return error code

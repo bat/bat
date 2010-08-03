@@ -28,19 +28,19 @@ int ReleaseTestSuite::PrepareTests()
 {
 	// 1D slope
 	TF1* testfunc_1d_slope = new TF1("Slope", "x", 0., 10.);
-	PerfTest1DFunction*	perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
+	PerfTest1DFunction* perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope); 
 	AddTest(perftest_1d_slope); 
 	
 	// 1D squared
 	TF1* testfunc_1d_squared = new TF1("Squared", "400.-x*x", -20., 20.);
-	PerfTest1DFunction*	perftest_1d_squared = new PerfTest1DFunction("1d_squared", testfunc_1d_squared); 
+	PerfTest1DFunction* perftest_1d_squared = new PerfTest1DFunction("1d_squared", testfunc_1d_squared); 
 	AddTest(perftest_1d_squared); 
 	
 	// 1D Gaussian
 	TF1* testfunc_1d_gaus = new TF1("Gaus", "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(-(x-[0])*(x-[0])/2/[1]/[1])", -25., 25.);
 	testfunc_1d_gaus->FixParameter(0, 0.0);
 	testfunc_1d_gaus->FixParameter(1, 5.0);
-	PerfTest1DFunction*	perftest_1d_gaus = new PerfTest1DFunction("1d_gaus", testfunc_1d_gaus); 
+	PerfTest1DFunction* perftest_1d_gaus = new PerfTest1DFunction("1d_gaus", testfunc_1d_gaus); 
 	AddTest(perftest_1d_gaus); 
 	
 	// 1D Poissons	
@@ -72,7 +72,7 @@ int ReleaseTestSuite::PrepareTests()
 	AddTest(perftest_1d_exponential); 
 
 	// 1D Cauchy
-	TF1* testfunc_1d_cauchy = new TF1("Cauchy", "[1] / (3.14159 * ( (x-[2])**2 +[1]**2))", -50., 50.);
+	TF1* testfunc_1d_cauchy = new TF1("Cauchy", "[1] / (3.14159 * ( (x-[0])**2 +[1]**2))", -50., 50.);
 	testfunc_1d_cauchy->FixParameter(0, 0.);
 	testfunc_1d_cauchy->FixParameter(1, 5.);
 	PerfTest1DFunction* perftest_1d_cauchy = new PerfTest1DFunction("1d_cauchy", testfunc_1d_cauchy); 

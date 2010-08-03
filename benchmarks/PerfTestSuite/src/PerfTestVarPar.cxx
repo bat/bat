@@ -29,6 +29,24 @@ PerfTestVarPar::PerfTestVarPar(std::string name, PerfTestMCMC* test) : PerfTest(
 //______________________________________________________________________________
 PerfTestVarPar::~PerfTestVarPar()
 {
+  // delete all target value graphs
+  while (!fTargetContainer.empty())
+    {
+      TGraphErrors* graph = fTargetContainer.front(); 
+      fTargetContainer.erase(fTargetContainer.begin()); 
+      delete graph; 
+    }
+  fTargetContainer.clear();
+
+  // delete all test value graphs
+  while (!fTestContainer.empty())
+    {
+      TGraphErrors* graph = fTestContainer.front(); 
+      fTestContainer.erase(fTestContainer.begin()); 
+      delete graph; 
+    }
+  fTestContainer.clear();
+
 }
 	
 //______________________________________________________________________________

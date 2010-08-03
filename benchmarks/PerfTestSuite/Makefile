@@ -5,9 +5,9 @@ ROOTGLIBS    := $(shell root-config --glibs)
 
 # Programs
 CXX          = g++
-CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O0
+CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
 LD           = g++
-LDFLAGS      = -g -O0
+LDFLAGS      = -g -O2
 SOFLAGS      = -shared
 
 AR           = ar

@@ -18,7 +18,8 @@ int main()
 	rts->PrepareTests(); 
 
 	// set precision
-	rts->SetPrecision(PerfTest::kDetail);
+	//	rts->SetPrecision(PerfTest::kDetail);
+	rts->SetPrecision(PerfTest::kCoarse);
 
 	// run all tests
 	rts->RunTests();
