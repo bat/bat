@@ -97,6 +97,7 @@ doc/note_template/fig/model_stack.eps -text
 doc/note_template/fig/model_update.eps -text
 doc/note_template/note.tex -text
 doc/releasenotes.txt -text
+doc/todo/plans.txt -text
 doc/todo/todo.txt -text
 examples/README -text
 examples/advanced/advancedGraphFitter/README -text
