@@ -842,10 +842,6 @@ class BCIntegrate : public BCEngineMCMC
 		std::vector <bool> fDataFixedValues;
 
 		/**
-		 * A ROOT random number generator */
-		TRandom3 * fRandom;
-
-		/**
 		 * A vector of best fit parameters estimated from the global
 		 * probability and the estimate on their uncertainties */
 		std::vector <double> fBestFitParameters;

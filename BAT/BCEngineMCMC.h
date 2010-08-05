@@ -270,7 +270,7 @@ class BCEngineMCMC
 		/*
 		 * Return the random number generator */
 		TRandom3 * MCMCGetTRandom3()
-			{ return fMCMCRandom; };
+			{ return fRandom; };
 
 		/* @} */
 		/** \name Setters */
@@ -758,7 +758,7 @@ class BCEngineMCMC
 
 		/*
 		 * Random number generator */
-		TRandom3 * fMCMCRandom;
+		TRandom3 * fRandom;
 
 		/*
 		 * Number of bins per dimension for the marginalized distributions. */

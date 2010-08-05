@@ -33,7 +33,6 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC()
    fNvar=0;
    fNiterPerDimension = 100;
    fNSamplesPer2DBin = 100;
-   fRandom = new TRandom3(0);
 
    fNIterationsMax    = 1000000;
    fRelativePrecision = 1e-3;
@@ -86,7 +85,6 @@ BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
    fNvar=0;
    fNiterPerDimension = 100;
    fNSamplesPer2DBin = 100;
-   fRandom = new TRandom3(0);
 
    fNbins=100;
 
@@ -128,9 +126,6 @@ BCIntegrate::~BCIntegrate()
    DeleteVarList();
 
    fx=0;
-
-   delete fRandom;
-   fRandom=0;
 
    if (fMinuit)
       delete fMinuit;

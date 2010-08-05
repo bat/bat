@@ -1,3 +1,6 @@
+2010-08-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC and BCIntegrate: removed fMCMCRandom3. Now we have one TRandom3 object which is defined in BCEngineMCMC and can be obtained from there. 
+
 2010-08-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* all .h and .cxx files: updated Copyright information (2008-2010)
 

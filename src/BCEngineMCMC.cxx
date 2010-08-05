@@ -28,7 +28,7 @@ BCEngineMCMC::BCEngineMCMC()
 	this->MCMCSetValuesDefault();
 
 	// initialize random number generator
-	fMCMCRandom = new TRandom3(0);
+	fRandom = new TRandom3(0);
 }
 
 // ---------------------------------------------------------
@@ -162,8 +162,8 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
 BCEngineMCMC::~BCEngineMCMC()
 {
 	// delete random number generator
-	if (fMCMCRandom)
-		delete fMCMCRandom;
+	if (fRandom)
+		delete fRandom;
 
 	// delete 1-d marginalized distributions
 	for (int i = 0; i < int(fMCMCH1Marginalized.size()); ++i)
@@ -361,10 +361,10 @@ double BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter)
 	// no check of range for performance reasons
 
 	// use uniform distribution
-//	return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fMCMCRandom->Rndm());
+//	return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fRandom->Rndm());
 
 	// Breit-Wigner width adjustable width
-	return fMCMCRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]);
+	return fRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]);
 }
 
 // --------------------------------------------------------
@@ -517,7 +517,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
 	// ... or else throw dice.
 	else
 	{
-		double r = log(fMCMCRandom->Rndm());
+		double r = log(fRandom->Rndm());
 
 		if(r < p1 - p0)
 			accept = true;
@@ -589,7 +589,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
 	// ... or else throw dice.
 	else
 	{
-		double r = log(fMCMCRandom->Rndm());
+		double r = log(fRandom->Rndm());
 
 		if(r < p1 - p0)
 			accept = true;
@@ -1518,7 +1518,7 @@ int BCEngineMCMC::MCMCInitialize()
 	else
 		for (int j = 0; j < fMCMCNChains; ++j) // random number (default)
 			for (int i = 0; i < fMCMCNParameters; ++i)
-				fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCRandom->Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
+				fMCMCx.push_back(fMCMCBoundaryMin[i] + fRandom->Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
 
 	// copy the point of the first chain
 	fMCMCxLocal.clear();

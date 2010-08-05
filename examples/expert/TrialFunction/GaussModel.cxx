@@ -76,19 +76,19 @@ double GaussModel::MCMCTrialFunctionSingle(int ichain, int iparameter)
   // choose trial function by uncommenting any of the lines below
 
   // Gaussian with fixed width
-  //  return fMCMCRandom->Gaus(0.0, 1.0);
+  //  return fRandom->Gaus(0.0, 1.0);
 
   // Gaussian with adjustable width
-  //  return fMCMCRandom->Gaus(0.0, scale);
+  //  return fRandom->Gaus(0.0, scale);
 
   // Breit-Wigner with adjustable width
-  //  return fMCMCRandom->BreitWigner(0.0, scale);
+  //  return fRandom->BreitWigner(0.0, scale);
 
   // Flat function with adjustable width
-  //  return scale * 2. * (0.5 - fMCMCRandom->Uniform());
+  //  return scale * 2. * (0.5 - fRandom->Uniform());
 
   // Flat function with fixed width
-  return 0.02 * (0.5 - fMCMCRandom->Uniform());
+  return 0.02 * (0.5 - fRandom->Uniform());
 
 }
 // ---------------------------------------------------------
