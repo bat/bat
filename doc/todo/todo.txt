@@ -26,12 +26,12 @@ Low                      done      Add further examples (Kevin)
 high         0.4.0                 Fix memory leaks in BCH1D and other classes
 High         0.4.0                 Test RooStats examples
 High         0.4.0                 Check/change tutorials
-
 High                               Web page: test suite (Kevin)
 High                               Web page: FAQ (Fred)
 High                               Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 High                               Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 
+Medium                             Update introduction on R-value criterion (Fred)
 Medium                             Add models page on web page
 Medium                             method to fix parameters
 Medium                             Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts

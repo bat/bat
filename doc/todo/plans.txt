@@ -18,4 +18,5 @@ Hybrid chains   long            Harrison Prosper brought up the topic. Looks lik
 
 Sub-space int.  long            Can we implement sub-space integration into the current version?
 
-Nested sampling long            Alan Tua showed interest in implementing it. New version? 
+Nested sampling long            Alan Tua showed interest in implementing it. New version?
+								Interface to MultiNest? 

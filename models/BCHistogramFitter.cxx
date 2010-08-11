@@ -405,8 +405,9 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
+
 int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
-      double &pvalue)
+      double &pvalue, int nIterations)
 {
    // check size of parameter vector
    if (par.size() != this -> GetNParameters()) {
@@ -436,28 +437,28 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
    double logp_start = 0;
    int counter_pvalue = 0;
 
-   // define starting distribution
+   //update the expected number of events for all bins
+   this -> SetHistogramExpected(par);
+
+   // define starting distribution as histogram with most likely entries
    for (int ibin = 0; ibin < nbins; ++ibin) {
-      // get bin boundaries
-      double xmin = fHistogram -> GetBinLowEdge(ibin + 1);
-      double xmax = fHistogram -> GetBinLowEdge(ibin + 2);
 
-      // get the number of expected events
-      double yexp = fFitFunction -> Integral(xmin, xmax);
+     // get the number of expected events
+     double yexp = fHistogramExpected -> GetBinContent(ibin +1);
 
+     //most likely observed value = int(expected value)
       histogram[ibin] = int(yexp);
       expectation[ibin] = yexp;
 
-      // calculate p;
+      // calculate test statistic (= likelihood of entire histogram) for starting distr.
       logp += BCMath::LogPoisson(double(int(yexp)), yexp);
+      //statistic of the observed data set
       logp_start += BCMath::LogPoisson(fHistogram -> GetBinContent(ibin + 1),
             yexp);
    }
 
-   int niter = 100000;
-
    // loop over iterations
-   for (int iiter = 0; iiter < niter; ++iiter) {
+   for (int iiter = 0; iiter < nIterations; ++iiter) {
       // loop over bins
       for (int ibin = 0; ibin < nbins; ++ibin) {
          // random step up or down in statistics for this bin
@@ -486,9 +487,6 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
                logp += log(r);
             }
          }
-         // debugKK
-         //   std::cout << " negative " << std::endl;
-
       } // end of looping over bins
 
       // increase counter
@@ -498,11 +496,13 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
    } // end of looping over iterations
 
    // calculate p-value
-   pvalue = double(counter_pvalue) / double(niter);
+   pvalue = double(counter_pvalue) / double(nIterations);
 
    // no error
    return 1;
 }
+
+// ---------------------------------------------------------
 
 int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
       double &pvalue)
