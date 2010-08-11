@@ -1,3 +1,8 @@
+2010-08-11 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCHistogramFitter: fixed bug in fast p-value calculation which gave non-sense p-values
+	* todo, plans: more work for me in the future
+	* introduction: minor update
+
 2010-08-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* added todo/plans.txt which contains short to long term plans and ideas
 
