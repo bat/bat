@@ -2,6 +2,7 @@
 	* BCHistogramFitter: fixed bug in DrawFit(). Now doesn't crash if fit
 	has not been performed yet.
 	* readme.devel: warning about trouble with reinstalling BAT
+	* BCH1D: drawing of legend improved for several plots on one page
 
 2010-08-11 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter: fixed bug in fast p-value calculation which gave non-sense p-values

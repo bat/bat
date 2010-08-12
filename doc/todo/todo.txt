@@ -40,6 +40,7 @@ Medium                             Implement better selection of marginalized di
 Medium                             Allow user to set scales for MCMC 
 Medium                             Perform analysis of MCMC tree from ROOT file
 Medium                             SummaryTool: triangular plots
+Medium                             ROOT: enable compiling programs with 'root BATcode.C++'
 
 Low                                Look into sparse histograms
 Low                                Remove MCMC code from BCIntegrate

@@ -262,7 +262,7 @@ void BCH1D::DrawLegend(const char* text)
 {
    //draw on top right corner
 
-   TLegend* legend = new TLegend(0.73, 0.65, 0.86, 0.78);
+   TLegend* legend = new TLegend(0.73, 0.72, 0.86, 0.85);
    legend -> SetFillColor(kWhite);
    legend -> SetBorderSize(1);
 
@@ -285,6 +285,9 @@ void BCH1D::DrawLegend(const char* text)
    legend -> AddEntry(band, text, "F");
 
    legend -> SetTextAlign(12);
+
+   //fine tuned by hand so text legible even with several plots in a row
+   legend -> SetTextSize(0.016);
 
    legend -> Draw();
 }
