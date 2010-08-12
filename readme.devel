@@ -16,6 +16,9 @@ from the svn repository is the following:
 3. Run make to compile BAT
 
 4. Run make install to install BAT
+   Note: Occasionally problems occur when reinstalling BAT. Old files from previous
+   BAT versions may persist. It is useful to remove all files in 
+   $(BATDIR)/lib and $(BATDIR)/include before installing.
 
 
 

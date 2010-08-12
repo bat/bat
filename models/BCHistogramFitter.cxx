@@ -368,6 +368,12 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
       return;
    }
 
+   if (!fErrorBandXY || fBestFitParameters.empty() ) {
+      BCLog::Out(BCLog::warning, BCLog::warning,
+            "BCHistogramFitter::DrawFit() : Fit not performed yet.");
+      return;
+   }
+
    // check wheather options contain "same"
    TString opt = options;
    opt.ToLower();
