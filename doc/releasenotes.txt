@@ -1,36 +1,67 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.4.preX
+Release notes for version:    0.4
 Release date:                 2010-XX-XX
 Urgency:                      medium
 ------------------------------------------
 
-This version contains many improvements and updates and several bugfixes:
-
-Updates:
-o added possibility to set priors for parameters via TF1
-o added predefined levels of MCMC precision
-o added possibility to re-set parameter ranges
-o added test on runs statistics (arXiv:1005.3233)
-o added BCTemplateFitter
-o added BCSummaryTool providing an plots and tables summarizing the MCMC
-o added BATCalculator which can be called from within RooStats
-o build interface to RooStats during BAT installation procedure
-o added performance test suite to be run for every new release
-o added many new examples
-o draw legend in plots of marginalized distributions
-o for sequential MCMC setup only fill marginalized distributions once per sequence
-o separated pre-defined models to libBATmodels.so shared library
-o improved the installation procedure
-o updated introduction to BAT
-
-Bugfixes:
-* fixed MCMC convergence check
-* fixed plotting of limits
-* fixed installation procedure on MAC OS X when compiling with Cuba support
+This version contains many improvements and updates and several bugfixes. The
+most important changes are summarized below. For detailed list of changes see
+the Changelog. For more information consult the BAT webpage at
+http://www.mppmu.mpg.de/bat/
 
 
-For detailed list of changes see the Changelog. For more information
-consult the BAT webpage at http://www.mppmu.mpg.de/bat/
+Installation procedure
+----------------------
+o Fixed compilation with Cuba support on Mac OS X.
+o Pre-defined models were separated into a separate shared library libBATmodels.so
+  which needs to be included when linking a program that uses them. No change is
+  needed if they are used in the Root interactive session.
+o Makefiles for all examples are now automatically setup during configuration
+  step to use/not use Cuba or RooFit/RooStats. Also they include a reference to
+  environmental variable $BATINSTALLDIR such that if this variable is set properly
+  it is no longer necessary to adjust the makefiles with the installation of the
+  new BAT version.
+  Same adjustments were done to CreateProject.sh script which is now also setup
+  during configuration.
+
+Model setup
+-----------
+o Added a possibility to set priors for parameters as TF1 objects.
+o Flat priors are being cached to speed up the MCMC.
+o Added a possibility to re-set parameter ranges.
+
+MCMC
+----
+o Fixed MCMC convergence check.
+o Added pre-defined levels of MCMC precision (Low, Medium, High, VeryHigh).
+o For sequential MCMC setup only fill marginalized distributions once per sequence.
+o Added virtual method MCMCCurrentPointInterface() which gives user access to each
+  generated point in the MCMC regardless of whether it has been assepted or not.
+o Virtual method MCMCTrialFunctionSingle() now returns double, i.e., the proposal
+  point in a single dimension.
+o Allowed storing of pre-run in the Root file.
+o Renamed branch names in the tree containing the MCMC:
+  - removed prefix 'f' from the names
+  - renamed LogLokelihood to LogProbability as that is what's being recorded
+
+Additions
+---------
+o Added a fast-fitter class BCTemplateFitter which allows an easy way of template
+  fitting.
+o Added BCSummaryTool providing plots and tables summarizing the output of the MCMC.
+o Examples were reorganized to three cathegories: basic, advanced, expert; and many
+  new examples were added.
+
+Interface to RooFit/RooStats
+----------------------------
+o Support for RooFit workspaces and an interface allowing to run BAT from within
+  RooStats can now be optionally compiled with BAT. They require Root version
+  5.27/04 or later.
+
+Plots
+-----
+o Legend is now printed on all marginalized distributions by default.
+o Fixed bug in plotting of upper limits.
 

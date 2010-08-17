@@ -1,4 +1,7 @@
 2010-08-17 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated releasenotes.txt
+
+2010-08-17 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixed .rootmap file for BATCalculator
 	* small adjustment in the BATCalculator example
 	* increased version to 0.4.pre11
@@ -26,7 +29,9 @@
 	* introduction: added sentence on how to get random number generator from BCEngineMCMC.
 
 2010-08-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCEngineMCMC and BCIntegrate: removed fMCMCRandom3. Now we have one TRandom3 object which is defined in BCEngineMCMC and can be obtained from there. 
+	* BCEngineMCMC and BCIntegrate:
+	  - removed fMCMCRandom3. Now we have one TRandom3 object which is defined
+	    in BCEngineMCMC and can be obtained from there. 
 
 2010-08-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* all .h and .cxx files: updated Copyright information (2008-2010)
@@ -424,7 +429,7 @@
 	* BCMath, BCModel:
 	  - Updated inline documentation
 	  - methods to compute runs statistics
-	* CreateProject.sh: fixed type
+	* CreateProject.sh: fixed typo
 
 2010-05-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: removed convergence criterion for log likelihood.
