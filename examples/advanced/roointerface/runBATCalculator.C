@@ -29,14 +29,15 @@ using namespace RooFit;
 using namespace RooStats;
 using namespace std;
 
-void runBATCalculator(){
+void runBATCalculator()
+{
 
-   cout << "***" << endl;
-   cout << "The macro assumes that libBATmodels.so is found in $BATINSTALLDIR/lib. Please change the respective line in the macro to the correct path for your system! " << endl;
-   cout << "***" << endl;
+//   cout << "***" << endl;
+//   cout << "The macro assumes that libBATmodels.so is found in $BATINSTALLDIR/lib. Please change the respective line in the macro to the correct path for your system! " << endl;
+//   cout << "***" << endl;
 
 //   gSystem->Load("$BATINSTALLDIR/lib/libBATmodels.so");
-   gSystem->Load("libBATmodels.so");
+//   gSystem->Load("libBATmodels.so");
 
    // Definiton of a RooWorkspace containing the statistics model. Later the 
    // information for BATCalculator is retrieved from the workspace. This is

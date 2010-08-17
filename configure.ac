@@ -2,7 +2,7 @@ AC_INIT(src/BCModel.cxx)
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.4.pre10)
+AM_INIT_AUTOMAKE(BAT, 0.4.pre11)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77

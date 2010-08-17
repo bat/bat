@@ -1,4 +1,9 @@
 2010-08-17 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixed .rootmap file for BATCalculator
+	* small adjustment in the BATCalculator example
+	* increased version to 0.4.pre11
+
+2010-08-17 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated INSTALL file
 	* updated installation instructions in the introduction to BAT
 	* increased version to 0.4.pre10
