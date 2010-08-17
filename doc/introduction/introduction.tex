@@ -20,6 +20,8 @@
 \newcommand{\versionno}{0.4}
 \newcommand{\version}{version~\versionno}
 \newcommand{\Version}{Version~\versionno}
+\newcommand{\RootVersion}{5.16}
+\newcommand{\RooStatsVersion}{5.27/04}
 
 %--------------------------------------------------------
 
@@ -137,13 +139,13 @@ Windows is not supported for the moment.
 \subsubsection{\Root}
 \Root\ is an object oriented data analysis framework. You can obtain it
 from~\cite{ROOTweb}. To compile and run \bat\ you will need a \Root\
-version 5.16 or later. Please, check your Linux distribution for the
+version \RootVersion\ or later. Please, check your Linux distribution for the
 availability of precompiled packages on your system. Mostly used
 distributions nowadays have the \Root\ packages available. \\
 
 \noindent
-Note: To be able to use the interface to {\sc RooFit/RooStats} the \Root\
-version 5.24 or later is necessary.
+Note: To be able to use the interface to RooFit/RooStats the \Root\
+version \RooStatsVersion\ or later is necessary.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -177,15 +179,15 @@ Unpack the tarball containing the \bat\ source usually named like
 \verb|BAT-x.x.tar.gz| (here x.x is the version number) using command
 %
 \begin{verbatim}
-tar -xzf BAT-x.x.tar.gz
+   tar -xzf BAT-x.x.tar.gz
 \end{verbatim}
 %
 A directory called \verb|BAT-x.x| will be created containing the source code.
 Enter the directory and run the configuration using commands
 %
 \begin{verbatim}
-cd BAT-x.x
-./configure
+   cd BAT-x.x
+   ./configure
 \end{verbatim}
 
 \noindent 
@@ -203,10 +205,23 @@ fails if \Root\ is not installed. You can specify the ROOTSYS directory
 using \verb|--rootsys=/path/to/rootsys|. \\
 
 \noindent
+You can compile BAT with the RooFit/RooStats support using
+\verb|--with-roostats|. The configure script will check whether the version of
+\Root\ is sufficient and whether it was compiled with RooFit/RooStats
+support. \\
+
+\noindent
 The configure will also search for \verb|libcuba.a| and \verb|cuba.h|
 in the system.  The \verb|libcuba.a| has to be available in the
 standard system library search path. You can specify the \verb|cuba.h|
 location using \verb|--with-cuba-path=/path/to/cuba/header|. \\
+
+\noindent
+You can list all available options using
+%
+\begin{verbatim}
+   ./configure --help
+\end{verbatim}
 
 \enlargethispage{1cm}
 
@@ -214,8 +229,8 @@ location using \verb|--with-cuba-path=/path/to/cuba/header|. \\
 After successful configuration run
 %
 \begin{verbatim}
-make
-make install
+   make
+   make install
 \end{verbatim}
 %
 to compile and install \bat. Note that depending on the setting of
@@ -226,17 +241,17 @@ the path to the library and to the include files to the search path in
 your system. Depending on your shell you can do that via commands
 %
 \begin{verbatim}
-export BATINSTALLDIR=/bat/install/prefix
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-export CPATH=$CPATH:$BATINSTALLDIR/include
+   export BATINSTALLDIR=/bat/install/prefix
+   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+   export CPATH=$CPATH:$BATINSTALLDIR/include
 \end{verbatim}
 %
 or
 %
 \begin{verbatim}
-setenv BATINSTALLDIR    /bat/install/prefix
-setenv LD_LIBRARY_PATH  $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-setenv CPATH            $PATH:$BATINSTALLDIR/include
+   setenv BATINSTALLDIR    /bat/install/prefix
+   setenv LD_LIBRARY_PATH  $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+   setenv CPATH            $PATH:$BATINSTALLDIR/include
 \end{verbatim}
 %
 for \verb|bash| and \verb|csh| compatible shells, respectively. \\
@@ -246,11 +261,11 @@ An option for use in compiled programs would also be to add
 \verb|-I/bat/install/include/path| to \verb|CFLAGS| and
 \verb|-L/bat/install/lib/path| to \verb|LDFLAGS| in your
 \verb|Makefile|. However, the interactive \Root\ macros will not work if
-\verb|libBAT.so| and \verb|libBAT.rootmap| both aren't in the system
-library search path. \\
+\verb|libBAT.so|, \verb|libBATmodels.so|, \verb|libBAT.rootmap| and
+\verb|libBATmodels.rootmap| aren't in the system library search path. \\
 
 \noindent
-See also \verb|doc/INSTALL| for installation instructions.
+See also \verb|INSTALL| file in the \bat\ distribution for installation instructions.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

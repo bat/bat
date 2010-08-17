@@ -1,6 +1,11 @@
+2010-08-17 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated INSTALL file
+	* updated installation instructions in the introduction to BAT
+	* increased version to 0.4.pre10
+
 2010-08-11 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter: fixed bug in DrawFit(). Now doesn't crash if fit
-	has not been performed yet.
+	  has not been performed yet.
 	* readme.devel: warning about trouble with reinstalling BAT
 	* BCH1D: drawing of legend improved for several plots on one page
 
