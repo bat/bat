@@ -46,6 +46,11 @@ o Renamed branch names in the tree containing the MCMC:
   - removed prefix 'f' from the names
   - renamed LogLokelihood to LogProbability as that is what's being recorded
 
+Plotting
+--------
+o Legend is now printed on all marginalized distributions by default.
+o Fixed bug in plotting of upper limits.
+
 Additions
 ---------
 o Added a fast-fitter class BCTemplateFitter which allows an easy way of template
@@ -59,9 +64,4 @@ Interface to RooFit/RooStats
 o Support for RooFit workspaces and an interface allowing to run BAT from within
   RooStats can now be optionally compiled with BAT. They require Root version
   5.27/04 or later.
-
-Plots
------
-o Legend is now printed on all marginalized distributions by default.
-o Fixed bug in plotting of upper limits.
 
