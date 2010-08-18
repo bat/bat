@@ -111,7 +111,7 @@ examples/advanced/polynomialfit/Pol2Asymm.cxx -text
 examples/advanced/polynomialfit/Pol2Asymm.h -text
 examples/advanced/polynomialfit/README -text
 examples/advanced/polynomialfit/asymmErrorsFitterExample.cxx -text
-examples/advanced/roointerface/Makefile -text
+examples/advanced/roointerface/Makefile.in -text
 examples/advanced/roointerface/PrepareWorkspace_GaussOverFlat.C -text
 examples/advanced/roointerface/PrepareWorkspace_GaussOverFlat_withSystematics.C -text
 examples/advanced/roointerface/PrepareWorkspace_Poisson.C -text

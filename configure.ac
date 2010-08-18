@@ -111,6 +111,7 @@ AC_OUTPUT(
 	examples/basic/poisson/Makefile
 	examples/basic/rootOutput/Makefile
 	examples/advanced/polynomialfit/Makefile
+	examples/advanced/roointerface/Makefile
 	examples/expert/TrialFunction/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
 )

@@ -1,8 +1,4 @@
 ###################################################################
-# This Makefile was created using the ./CreateProject.sh script.
-# CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://www.mppmu.mpg.de/bat
-###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
 # all compiled parts and 'clean' the directory.
@@ -10,7 +6,7 @@
 # You might need to adjust the CFLAGS, LIBS, and GLIBS based on
 # the BAT installation on your system. Consult the gmake manual
 # for details.
-#
+# 
 ###################################################################
 
 # Root variables
@@ -18,7 +14,8 @@ ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs) -lMinuit
 ROOTGLIBS    := $(shell root-config --glibs)
 
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+# This program needs RooFit and RooStats, otherwise it won't compile
+ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
 
 # Programs
 CXX          = g++
@@ -32,7 +29,7 @@ MV           = mv
 ECHO         = echo
 CINT         = rootcint
 
-# add ROOT flags
+# Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
 
 @CUBA_TRUE@LIBS        += -lcuba
@@ -48,20 +45,21 @@ CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 
-# List of all classes (models) used in the program
-# Add classes to the end. Baskslash indicates continuation
-# on the next line
-CXXSRCS      = \
-	Pol1Asymm.cxx \
-	Pol2Asymm.cxx
 
-CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
+#CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/BAT -I$(ROOTSYS)/roofit/roofitcore/inc -I$(ROOTSYS)/roofit/roofit/inc
+
+#LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/lib -lRooFit -lRooFitCore -lFoam -lRooStats -lBAT -lBATmodels
+#GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/lib -lRooFit -lRooFitCore -lFoam -lRooStats -lBAT -lBATmodels
+
+CXSRCS      = 
+CXXSRCS      = $(patsubst %.cxx,%.cxx,$(CXSRCS))
+CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 EXEOBJS      =
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d asymmErrorsFitterExample
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runRooInterface
 
-all : asymmErrorsFitterExample
+all : runRooInterface
 
-link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
+link.d : $(patsubst %.cxx,%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
 -include link.d
@@ -72,7 +70,7 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	$(RM) $(GARBAGE)
 
-asymmErrorsFitterExample : asymmErrorsFitterExample.cxx $(CXXOBJS)
+runRooInterface : runRooInterface.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
 
@@ -87,5 +85,4 @@ print :
 
 	echo rootlibs  : $(ROOTLIBS)
 	echo rootglibs : $(ROOTGLIBS)
-
 

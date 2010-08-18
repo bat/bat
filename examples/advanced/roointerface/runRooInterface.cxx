@@ -2,12 +2,13 @@
 #include "RooRandom.h"
 #include "RooWorkspace.h"
 
-#include "BCRooInterface.h"
+#include <BAT/BCRooInterface.h>
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
+
 #include <TFile.h>
 #include <TH1D.h>
 #include <TH2D.h>

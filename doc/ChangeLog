@@ -1,3 +1,9 @@
+2010-08-18 Daniel Kollar <daniel.kollar@cern.ch>
+	* examples/advanced/roointerface:
+	  - Makefile now setup in the configuration
+	  - small bugfix in the runRooInterface.cxx
+	* updated comments in Makefiles of all examples
+
 2010-08-17 Daniel Kollar <daniel.kollar@cern.ch>
 	* another small update to releasenotes.txt
 
