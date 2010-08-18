@@ -24,6 +24,7 @@ dist-hook: prep-docs
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name .svn`
 	rm -rf `find $(distdir)/models -name .svn`
+	rm -rf `find $(distdir)/examples -name Makefile`
 
 prep-docs: BAT-intro.ps
 

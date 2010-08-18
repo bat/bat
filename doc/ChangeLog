@@ -1,4 +1,7 @@
 2010-08-18 Daniel Kollar <daniel.kollar@cern.ch>
+	* don't include configured Makefiles in examples into the distribution
+
+2010-08-18 Daniel Kollar <daniel.kollar@cern.ch>
 	* examples/advanced/roointerface:
 	  - Makefile now setup in the configuration
 	  - small bugfix in the runRooInterface.cxx
