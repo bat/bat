@@ -68,7 +68,8 @@ int main()
 	// resolution is fixed. in general this can be solved by fixing the
 	// "axes".
 	mgr -> FixDataAxis(0, true); // fixes x-values
-//	mgr -> FixDataAxis(2, true); // fixes resolution
+	mgr -> FixDataAxis(2, true); // fixes resolution
+	mgr -> FixDataAxis(3, true); // fixes resolution
 
 	// during the marginalization, the error propagation can be done
 	// thus, the x- and y-indices of the data values have to be set.

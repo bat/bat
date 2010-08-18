@@ -1,3 +1,11 @@
+2010-08-11 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* examples/advanced/polynomialfit: 
+	  - bugfix: fix both uncertainties
+	  - now p-values are reasonable
+
+	* releasenotes:
+	  - comments about p-values
+
 2010-08-18 Daniel Kollar <daniel.kollar@cern.ch>
 	* don't include configured Makefiles in examples into the distribution
 

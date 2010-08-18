@@ -38,7 +38,7 @@ o Fixed MCMC convergence check.
 o Added pre-defined levels of MCMC precision (Low, Medium, High, VeryHigh).
 o For sequential MCMC setup only fill marginalized distributions once per sequence.
 o Added virtual method MCMCCurrentPointInterface() which gives user access to each
-  generated point in the MCMC regardless of whether it has been assepted or not.
+  generated point in the MCMC regardless of whether it has been accepted or not.
 o Virtual method MCMCTrialFunctionSingle() now returns double, i.e., the proposal
   point in a single dimension.
 o Allowed storing of pre-run in the Root file.
@@ -48,7 +48,7 @@ o Renamed branch names in the tree containing the MCMC:
 
 Plotting
 --------
-o Legend is now printed on all marginalized distributions by default.
+o Legend is now printed on all 1D marginalized distributions by default.
 o Fixed bug in plotting of upper limits.
 
 Additions
@@ -64,4 +64,14 @@ Interface to RooFit/RooStats
 o Support for RooFit workspaces and an interface allowing to run BAT from within
   RooStats can now be optionally compiled with BAT. They require Root version
   5.27/04 or later.
+
+Goodness-of-fit
+----------------------------
+o many new test statistics and associated p-values are available:
+  likelihood-ratio, Kolmogorov-Smirnov, two chi2-related statistics due 
+  to Johnson(2004).
+o method to calculate the runs test statistic
+o method to create the empirical cumulative distribution function for 1D 
+  problems
+o bugfix in BCHistogramFitter's fast p-value calculation
 
