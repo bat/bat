@@ -1,4 +1,7 @@
-2010-08-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* final version 0.4
+
+2010-08-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: bugfix to FindModeMCMC, simply crashed due to
 	  unhandled exception before
 	* CreateProject.sh: Minor polishing 
