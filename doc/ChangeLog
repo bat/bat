@@ -1,6 +1,7 @@
 2010-08-18 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: bugfix to FindModeMCMC, simply crashed due to
 	  unhandled exception before
+	* CreateProject.sh: Minor polishing 
 
 2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated CREDITS file

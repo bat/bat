@@ -208,7 +208,7 @@ LIBS        += \$(ROOTLIBS)  -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 GLIBS       += \$(ROOTGLIBS) -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 
 # List of all classes (models) used in the program
-# Add classes to the end. Baskslash indicates continuation
+# Add classes to the end. Backslash indicates continuation
 # on the next line
 CXXSRCS      = \\
         |:Model:|.cxx
@@ -356,7 +356,7 @@ Once the program is compiled successfully, you can run it and it should
 print some basic information on the screen.
 
 Implement your model in file:    $MYMODEL.cxx
-Implement your analysis in file: $MYPROJECT.cxx
+Implement your analysis in file: run$MYPROJECT.cxx
 
 Consult BAT webpage for details: http://www.mppmu.mpg.de/bat
 --------------------------------------------------------------------------
