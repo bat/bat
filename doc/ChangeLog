@@ -1,4 +1,7 @@
 2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated CREDITS file
+
+2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* small update in the release notes
 	* examples/advanced/roointerface:
 	  - bugfixes, updates and cleanup (obo Stefan Schmitz)
