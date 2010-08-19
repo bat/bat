@@ -621,7 +621,7 @@ class BCIntegrate : public BCEngineMCMC
 		virtual void FindModeMinuit(std::vector<double> start = std::vector<double>(0), int printlevel = 1);
 
 		/**
-		 * Does the mode finding using Markov Chain Monte Carlo */
+		 * Does the mode finding using Markov Chain Monte Carlo (prerun only!) */
 		void FindModeMCMC();
 //		void FindModeMCMC(int flag_run = 0);
 

@@ -1738,8 +1738,8 @@ void BCIntegrate::FindModeMCMC()
 {
    // call PreRun
 //   if (flag_run == 0)
-//   if (!fMCMCFlagPreRun)
-//      MCMCMetropolisPreRun();
+   if (!fMCMCFlagPreRun)
+      MCMCMetropolisPreRun();
 
    // find global maximum
    //   double probmax = (MCMCGetMaximumLogProb()).at(0);

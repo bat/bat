@@ -1,3 +1,7 @@
+2010-08-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCIntegrate: bugfix to FindModeMCMC, simply crashed due to
+	  unhandled exception before
+
 2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated CREDITS file
 
@@ -11,7 +15,7 @@
 	* 0.4 release candidate 1 (.rc1)
 
 2010-08-18 Frederik Beaujean <beaujean@mpp.mpg.de>
-	* examples/advanced/polynomialfit: 
+	* examples/advanced/polynomialfit:
 	  - bugfix: fix both uncertainties
 	  - now p-values are reasonable
 	* releasenotes:
