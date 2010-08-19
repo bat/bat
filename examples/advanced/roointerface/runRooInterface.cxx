@@ -1,6 +1,6 @@
 // RooFit headers needed before the other BAT headers (this is strange)
-#include "RooRandom.h"
-#include "RooWorkspace.h"
+#include <RooRandom.h>
+#include <RooWorkspace.h>
 
 #include <BAT/BCRooInterface.h>
 
@@ -19,29 +19,40 @@ int main(int argc, char **argv)
   std::cout << "Running BAT via the BCRooInterface...\n";
 
   // retrieve the command line arguments
-  char* rootFile = "bat_workspace.root";
-  char* wsName = "batWS";
-  char* outputFile = "bat_plots.ps";
+  const char* rootFile = "bat_workspace.root";
+  const char* wsName = "batWS";
+  const char* outputFile = "bat_plots.ps";
   int nMCMC = 1000000;
 
   // display a quick help if no arguments are specified
-  if (argc==0) {
-    std::cout << "Run with: ./runRooInterface bat_workspace.root batWS bat_plots.ps\n";
-    std::cout << "the four arguments are:\n";
-    std::cout << " - the name of the ROOT file that contains a workspace. This workspace should contain:\n";
-    std::cout << "  - data: a RooAbsData object holding the data measurements\n";
-    std::cout << "  - model: a RooAbsPdf object holding the probability density function\n";
-    std::cout << "  - priorPOI and priorNuisance: two RooAbsPdf objects representing respectively the prior probability on the parameter of interest and the nuisance parameters.\n";
-    std::cout << "  - POI: a RooArgList holding one single object being the parameter of interest\n";
-    std::cout << "  - parameters: a RooArgList holding all nuisance parameters\n";
+  if (argc<2) {
+//    std::cout << "Run with: ./runRooInterface bat_workspace.root batWS bat_plots.ps\n";
+    std::cout << "Run with: ./runRooInterface bat_workspace.root batWS\n";
+//    std::cout << "the four arguments are:\n";
+    std::cout << "the two arguments are:\n";
+    std::cout << " - the name of the ROOT file that contains a workspace. This workspace\n";
+    std::cout << "   should contain:\n";
+    std::cout << "   * data: a RooAbsData object holding the data measurements\n";
+    std::cout << "   * model: a RooAbsPdf object holding the probability density function\n";
+    std::cout << "   * priorPOI and priorNuisance: two RooAbsPdf objects representing\n";
+    std::cout << "     respectively the prior probability on the parameter of interest and\n";
+    std::cout << "     the nuisance parameters.\n";
+    std::cout << "   * POI: a RooArgList holding one single object being the parameter of\n";
+    std::cout << "     interest\n";
+    std::cout << "   * parameters: a RooArgList holding all nuisance parameters\n";
     std::cout << " - the name workspace to retrieve from the ROOT file\n";
-    std::cout << " - the name of the postscript file that will contain the resulting posterior probability plots\n";
-    std::cout << " - the number of MCMC iterations (default = 1000000)\n";
-    std::cout << "For more information see the README file of the BCRooInterface\n";
+//    std::cout << " - the name of the postscript file that will contain the resulting\n";
+//    std::cout << "   posterior probability plots\n";
+//    std::cout << " - the number of MCMC iterations (default = 1000000)\n";
+//    std::cout << "For more information see the README file of the BCRooInterface\n";
+    std::cout << std::endl;
+
+    // clean exit
+    return 0;
   }
 
-  if (argc>=1) rootFile = argv[1];
-  if (argc>=2) wsName = argv[2];
+  if (argc>=2) rootFile = argv[1];
+  if (argc>=3) wsName = argv[2];
   //if (argc>=3) outputFile = argv[3];
   //if (argc>=4) nMCMC = int(argv[4]);
 

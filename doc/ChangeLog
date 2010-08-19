@@ -1,8 +1,16 @@
-2010-08-11 Frederik Beaujean <beaujean@mpp.mpg.de>
+2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* small update in the release notes
+	* examples/advanced/roointerface:
+	  - bugfixes, updates and cleanup (obo Stefan Schmitz)
+	  - added a paragraph about BATCalculator to README (obo Stefan Schmitz)
+	  - further updates and cleanup
+	* updated examples/README
+	* 0.4 release candidate 1 (.rc1)
+
+2010-08-18 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples/advanced/polynomialfit: 
 	  - bugfix: fix both uncertainties
 	  - now p-values are reasonable
-
 	* releasenotes:
 	  - comments about p-values
 

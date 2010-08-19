@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.4
-Release date:                 2010-XX-XX
+Release date:                 2010-08-19
 Urgency:                      medium
 ------------------------------------------
 
@@ -15,14 +15,14 @@ http://www.mppmu.mpg.de/bat/
 Installation procedure
 ----------------------
 o Fixed compilation with Cuba support on Mac OS X.
-o Pre-defined models were separated into a separate shared library libBATmodels.so
-  which needs to be included when linking a program that uses them. No change is
-  needed if they are used in the Root interactive session.
+o Pre-defined models were separated into a separate shared library
+  libBATmodels.so which needs to be included when linking a program that uses
+  them. No change is needed if they are used in the Root interactive session.
 o Makefiles for all examples are now automatically setup during configuration
-  step to use/not use Cuba or RooFit/RooStats. Also they include a reference to
-  environmental variable $BATINSTALLDIR such that if this variable is set properly
-  it is no longer necessary to adjust the makefiles with the installation of the
-  new BAT version.
+  step to use/not use Cuba or RooFit/RooStats. Also they include a reference
+  to environmental variable $BATINSTALLDIR such that if this variable is set
+  properly it is no longer necessary to adjust the makefiles with the
+  installation of the new BAT version.
   Same adjustments were done to CreateProject.sh script which is now also setup
   during configuration.
 
@@ -36,11 +36,13 @@ MCMC
 ----
 o Fixed MCMC convergence check.
 o Added pre-defined levels of MCMC precision (Low, Medium, High, VeryHigh).
-o For sequential MCMC setup only fill marginalized distributions once per sequence.
-o Added virtual method MCMCCurrentPointInterface() which gives user access to each
-  generated point in the MCMC regardless of whether it has been accepted or not.
-o Virtual method MCMCTrialFunctionSingle() now returns double, i.e., the proposal
-  point in a single dimension.
+o For sequential MCMC setup only fill marginalized distributions once per
+  sequence.
+o Added virtual method MCMCCurrentPointInterface() which gives user access to
+  each generated point in the MCMC regardless of whether it has been accepted
+  or not.
+o Virtual method MCMCTrialFunctionSingle() now returns double, i.e., the
+  proposal point in a single dimension.
 o Allowed storing of pre-run in the Root file.
 o Renamed branch names in the tree containing the MCMC:
   - removed prefix 'f' from the names
@@ -53,25 +55,32 @@ o Fixed bug in plotting of upper limits.
 
 Additions
 ---------
-o Added a fast-fitter class BCTemplateFitter which allows an easy way of template
-  fitting.
-o Added BCSummaryTool providing plots and tables summarizing the output of the MCMC.
-o Examples were reorganized to three cathegories: basic, advanced, expert; and many
-  new examples were added.
+o Added a fast-fitter class BCTemplateFitter which allows an easy way of
+  template fitting.
+o Added BCSummaryTool providing plots and tables summarizing the output of
+  the MCMC.
+o Examples were reorganized to three cathegories: basic, advanced, expert;
+  and many new examples were added.
 
 Interface to RooFit/RooStats
 ----------------------------
-o Support for RooFit workspaces and an interface allowing to run BAT from within
-  RooStats can now be optionally compiled with BAT. They require Root version
-  5.27/04 or later.
+o Support for RooFit workspaces and an interface allowing to run BAT from
+  within RooStats can now be optionally compiled during the BAT compilation.
+  They require Root version 5.27/04 or later.
 
 Goodness-of-fit
-----------------------------
-o many new test statistics and associated p-values are available:
+---------------
+o Many new test statistics and associated p-values are available:
   likelihood-ratio, Kolmogorov-Smirnov, two chi2-related statistics due 
   to Johnson(2004).
-o method to calculate the runs test statistic
-o method to create the empirical cumulative distribution function for 1D 
-  problems
-o bugfix in BCHistogramFitter's fast p-value calculation
+o Added calculation of the runs test statistic (arXiv:1005.3233).
+o Added possibility to create the empirical cumulative distribution function
+  for 1D problems
+o Fixed small bug in BCHistogramFitter's fast p-value calculation.
+
+Performance testing
+-------------------
+o We will start to run a performance tests of the MCMC in BAT. These will be
+  shortly after the release is made public on the BAT webpage. In the future
+  the performance test suite will be included in the release.
 

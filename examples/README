@@ -86,9 +86,11 @@ Examples in this directory:
                 directory.
 
   Directory:    roointerface
-  Type:         Compiled program.
-  Description:  Examples of usage of the RooInterface showing how BAT
-                analysis can be performed on a RooFit workspace.
+  Type:         Compiled program and ROOT macros
+  Description:  Examples of usage of the RooInterface and BATCalculator.
+                The former shows how BAT analysis can be performed on a
+                RooFit workspace. The later shows how BAT can be run from
+                within RooStats.
 
 * Directory: expert
 
