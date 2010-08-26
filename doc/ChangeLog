@@ -1,3 +1,10 @@
+2010-08-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* Perormance test suite:
+	  - changes to allow custom html output
+	  - added method which sets up the html output to format as needed
+	    for BAT webpage
+	  - updates in the Makefile
+
 2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* final version 0.4
 

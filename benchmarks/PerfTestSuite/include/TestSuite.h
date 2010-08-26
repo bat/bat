@@ -41,7 +41,35 @@
 		/** Set the precision of the tests
 		 * @param the precision. */ 
 		void SetPrecision(PerfTest::Precision precision);
-		
+
+		/** Set number of plots per line in the model html page */
+		void SetNPlotColumns(int n)
+			{ fNPlotColumns = n; };
+
+		/** Set size of the thumbnail in the html page of the model results */
+		void SetThumbSize(int n)
+			{ fThumbSize = n; };
+
+		/** Flag whether or not to include html header in the output html files */
+		void IncludeHtmlHeader(bool flag = true)
+			{ fIncludeHtmlHeader = flag; };
+
+		/** Flag whether or not to include html footer in the output html files */
+		void IncludeHtmlFooter(bool flag = true)
+			{ fIncludeHtmlFooter = flag; };
+
+		/** Prefix to be used for internal html links */
+		void SetLinkPrefix(std::string prefix)
+			{ fLinkPrefix = prefix; };
+
+		/** Prefix to be used for html links to external files */
+		void SetFileLinkPrefix(std::string prefix)
+			{ fFileLinkPrefix = prefix; };
+
+		/** Set file extension for the html files (.html by default) */
+		void SetHtmlFileExtension(std::string ext)
+			{ fHtmlFileExtension = ext; };
+
 		/* @} */ 
 		/** \name Member functions (Get) */ 
 		/* @{ */ 
@@ -49,7 +77,7 @@
 		/** Get the number of tests which belong to this test. 
 		 * @return the number of tests. */ 
 		int GetNTests()
-		{ return int(fTestContainer.size()); }; 
+			{ return int(fTestContainer.size()); }; 
 		
 		/** Get the number of tests which belong to this test with
 		 * specified status. 
@@ -61,7 +89,7 @@
 		 * @param index the index of the test.
 		 * @return the subtest. */
 		PerfTest * GetTest(int index)
-		{ return fTestContainer.at(index); }; 
+			{ return fTestContainer.at(index); }; 
 
 		/** Find a test by name
 		 * @param name the name of the test.
@@ -102,6 +130,28 @@
 			
 		/** A container of tests which belong to the test suite. */
 		std::vector <PerfTest *> fTestContainer; 
+
+		/** Number of plots per line in the html page of the model results */
+		int fNPlotColumns;
+
+		/** Size of the thumbnail in the html page of the model results */
+		int fThumbSize;
+
+		/** Flag whether or not to include html header in the output html files */
+		bool fIncludeHtmlHeader;
+
+		/** Flag whether or not to include html footer in the output html files */
+		bool fIncludeHtmlFooter;
+
+		/** Prefix to be used for internal html links */
+		std::string fLinkPrefix;
+
+		/** Prefix to be used for html links to external files */
+		std::string fFileLinkPrefix;
+
+		/** Set file extension for the html files (.html by default) */
+		std::string fHtmlFileExtension;
+
 	};
 
 #endif

@@ -42,7 +42,7 @@ int ReleaseTestSuite::PrepareTests()
 	testfunc_1d_gaus->FixParameter(1, 5.0);
 	PerfTest1DFunction* perftest_1d_gaus = new PerfTest1DFunction("1d_gaus", testfunc_1d_gaus); 
 	AddTest(perftest_1d_gaus); 
-	
+
 	// 1D Poissons	
 	for (int i = 0; i <= 20; i++) {
 		double xmax = 15; 
@@ -168,5 +168,14 @@ int ReleaseTestSuite::PrepareTests()
 	return 1;
 }	
 	
+//______________________________________________________________________________
+void ReleaseTestSuite::WebpageSetup()
+{
+	IncludeHtmlHeader(false);
+	IncludeHtmlFooter(false);
+	SetLinkPrefix("<?php echo $linkPrefix; ?>");
+	SetFileLinkPrefix("<?php echo $fileLinkPrefix; ?>");
+	SetHtmlFileExtension(".php");
+}
 
 //______________________________________________________________________________

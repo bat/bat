@@ -52,6 +52,9 @@ class ReleaseTestSuite : public TestSuite
 	 * @return An error code. */ 
 	int PrepareTests();
 
+	/** Setup html as needed for BAT webpage */
+	void WebpageSetup();
+
 	/* @} */
 	
  private:

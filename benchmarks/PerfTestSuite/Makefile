@@ -51,6 +51,8 @@ EXEOBJS      =
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d runTestSuite.exe 
 
+RESULTS      = *.png *.eps *.ps *.log *.tst *.html *.php *.htm
+
 all : $(LIBSO) runTestSuite
 
 libs : $(LIBA) $(LIBSO)
@@ -68,14 +70,17 @@ runTestSuite : runTestSuite.cxx
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LIBS) -lBATTS  obj/runTestSuite.o -o runTestSuite.exe
 
 $(LIBSO) : $(CXXOBJS) 
-	$(CXX) $(SOFLAGS) $(LDFLAGS) $^ -o $(LIBSO)
+	$(CXX) $(SOFLAGS) $(LDFLAGS) $(LIBS) $^ -o $(LIBSO)
 
 $(LIBA) : $(CXXOBJS)
-	$(AR)  $(ARFLAGS) $(LIBA) $(CXXOBJS)
+	$(AR)  $(ARFLAGS) $(LIBS) $(LIBA) $(CXXOBJS)
 	$(RANLIB) $(LIBA)
 
 clean :
 	$(RM) $(GARBAGE)
+
+resclean :
+	$(RM) $(RESULTS)
 
 print :
 	echo compiler  : $(CXX)

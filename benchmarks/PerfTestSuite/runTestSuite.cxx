@@ -17,6 +17,9 @@ int main()
 	// prepare test suite
 	rts->PrepareTests(); 
 
+	// setup html output as needed for BAT webpage
+	//rts->WebpageSetup();
+
 	// set precision
 	//	rts->SetPrecision(PerfTest::kDetail);
 	rts->SetPrecision(PerfTest::kCoarse);
@@ -28,7 +31,7 @@ int main()
 	rts->PrintResultsScreen(); 
 
 	// print results to html
-	rts->PrintResultsHTML(); 
+	rts->PrintResultsHTML("results.php");
 
 	// delete test suite 
 	delete rts;  

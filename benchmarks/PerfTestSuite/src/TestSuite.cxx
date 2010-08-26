@@ -16,7 +16,14 @@
 
 //______________________________________________________________________________
 TestSuite::TestSuite()
-	: fTestContainer(std::vector<PerfTest *>(0)) 
+	: fTestContainer(std::vector<PerfTest *>(0))
+	, fNPlotColumns(3)
+	, fThumbSize(300)
+	, fIncludeHtmlHeader(true)
+	, fIncludeHtmlFooter(true)
+	, fLinkPrefix("")
+	, fFileLinkPrefix("")
+	, fHtmlFileExtension(".html")
 {
 	DefineTests(); 
 }
@@ -74,11 +81,10 @@ PerfTest * TestSuite::GetTest(std::string name)
 	int n = GetNTests(); 
 		
 	// loop over all subtests and compare status
-	for (int i = 0; i < n; ++i) 
-		{
+	for (int i = 0; i < n; ++i) {
 			if (!name.compare(GetTest(i) -> GetName()))
 				return GetTest(i); 
-		}
+	}
 
 	return 0;
 }
@@ -155,13 +161,15 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	std::ofstream file_main; 
 	file_main.open(filename.c_str());
 
-	file_main << "<html>" << std::endl;
-	file_main << "<head>" << std::endl;
-	file_main << "<title>Test suite results</title>" << std::endl;
-	file_main << "</head>" << std::endl << std::endl;
-	file_main << "<body>" << std::endl << std::endl;
+	if (fIncludeHtmlHeader) {
+		file_main << "<html>" << std::endl;
+		file_main << "<head>" << std::endl;
+		file_main << "<title>Test suite results</title>" << std::endl;
+		file_main << "</head>" << std::endl << std::endl;
+		file_main << "<body>" << std::endl << std::endl;
+	}
 
-	file_main << "<h2>Overview</h2>" << std::endl << std::endl;
+	file_main << "<h3>Overview</h3>" << std::endl << std::endl;
 	file_main << "<table border=\"0\"  width=\"400\">" << std::endl;
 	file_main << " <tr> <td align=\"left\"> Number of tests </td> <td>" << GetNTests() << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of successful tests </td> <td>" << GetNTests(PerfSubTest::kGood) << " </td> </tr>" << std::endl; 
@@ -187,7 +195,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	for (int i = 0; i < GetNTests(); ++i) {
 		if (GetTest(i)->GetTestType() == PerfTest::kFunction1D) {
 			file_main << " <tr>";
-			file_main << " <td align=\"left\"><a href=\"" << (GetTest(i)->GetName()).c_str() << ".html\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
+			file_main << " <td align=\"left\"><a href=\"" << fLinkPrefix << (GetTest(i)->GetName()).c_str() << fHtmlFileExtension.c_str() << "\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
@@ -214,7 +222,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	for (int i = 0; i < GetNTests(); ++i) {
 		if (GetTest(i)->GetTestType() == PerfTest::kFunction2D) {
 			file_main << " <tr>";
-			file_main << " <td align=\"left\"><a href=\"" << (GetTest(i)->GetName()).c_str() << ".html\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
+			file_main << " <td align=\"left\"><a href=\"" << fLinkPrefix << (GetTest(i)->GetName()).c_str() << fHtmlFileExtension.c_str() << "\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
@@ -241,7 +249,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	for (int i = 0; i < GetNTests(); ++i) {
 		if (GetTest(i)->GetTestType() == PerfTest::kVarPar) {
 			file_main << " <tr>";
-			file_main << " <td align=\"left\"><a href=\"" << (GetTest(i)->GetName()).c_str() << ".html\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
+			file_main << " <td align=\"left\"><a href=\"" << fLinkPrefix << (GetTest(i)->GetName()).c_str() << fHtmlFileExtension.c_str() << "\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
@@ -258,15 +266,17 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		
 		// open file
 		std::ofstream file; 
-		file.open((GetTest(i) -> GetName()+std::string(".html")).c_str());
+		file.open((GetTest(i)->GetName()+fHtmlFileExtension).c_str());
+
+		if (fIncludeHtmlHeader) {
+			file << "<html>" << std::endl;
+			file << "<head>" << std::endl;
+			file << "<title>Test \"" << (GetTest(i) -> GetName()).data() << "\" </title>" << std::endl;
+			file << "</head>" << std::endl << std::endl;
+			file << "<body>" << std::endl << std::endl;
+		}
 		
-		file << "<html>" << std::endl;
-		file << "<head>" << std::endl;
-		file << "<title>Test \"" << (GetTest(i) -> GetName()).data() << "\" </title>" << std::endl;
-		file << "</head>" << std::endl << std::endl;
-		file << "<body>" << std::endl << std::endl;
-		
-		file << " <h2>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h2>" << std::endl;
+		file << " <h3>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h3>" << std::endl;
 
 		file << "<table border=\"0\" width=\"30%\">" << std::endl;
 		file << "<tr>";
@@ -277,34 +287,10 @@ void TestSuite::PrintResultsHTML(std::string filename)
 		file << " <tr> <td>Status</td> <td>" << GetTest(i)->GetStatusStringHTML().data() << " </td> </tr>" << std::endl;
 		file << " <tr> <td>CPU time</td> <td>" << std::setprecision(4) << GetTest(i)->GetCpuTime() << " s </td></tr>" << std::endl;
 		file << " <tr> <td>Real time</td> <td>" << std::setprecision(4) << GetTest(i)->GetRealTime() << " s </td></tr>" << std::endl;
-		file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </td> </tr>" << std::endl;
-		file << " <tr> <td>Log</td> <td>" << "<a href=\""<< GetTest(i)->GetName().data() << ".log" << "\">" << GetTest(i)->GetName().data() << ".log</a>" << " </td> </tr>" << std::endl;
+		file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< fFileLinkPrefix << GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </td> </tr>" << std::endl;
+		file << " <tr> <td>Log</td> <td>" << "<a href=\""<< fFileLinkPrefix << GetTest(i)->GetName().data() << ".log" << "\">" << GetTest(i)->GetName().data() << ".log</a>" << " </td> </tr>" << std::endl;
 		file << "</table>" << std::endl;
 		file << "</br>" << std::endl;		
-
-		// plots
-		file << "<b>Plots</b>"<<std::endl;
-		int nplots = GetTest(i)->GetNCanvases();
-		int rows = nplots / 4;
-
-		file << "<table border=\"0\" width=\"80%\">" << std::endl;
-		for (int j = 0; j <= rows; ++j) {
-			file << "<tr>";		
-			for (int k = 0; k < 4; ++k) {
-				if (j*4+k < nplots)
-					file << "<td width=\"20%\"><a href=\"" << GetTest(i)->GetName().c_str() << "_" << j*4+k << ".eps\"><img src=\"" << GetTest(i)->GetName().c_str() << "_" << j*4+k << ".png\" width=\"200\" height=\"200\"></a></td>";
-			}
-				file << "</tr>" << std::endl;
-				file << "<tr>" << std::endl;
-			for (int k = 0; k < 4; ++k) {
-				if (j*4+k < nplots)
-					file << "<td width=\"20%\" valign=\"top\">" << GetTest(i)->GetCanvasDescription(j*4+k) << "</td>";
-			}
-				file << "</tr>" << std::endl;
-		}
-		file << "</table>" << std::endl;
-		file << "</br>" << std::endl;		
-
 
 		if (GetTest(i)->GetTestType() ==  PerfTest::kFunction1D || GetTest(i)->GetTestType() ==  PerfTest::kFunction2D) {
 			file << "<table border=\"0\" width=\"30%\">" << std::endl;
@@ -319,6 +305,29 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file << "</table>" << std::endl;
 			file << "</br>" << std::endl;		
 		}
+
+		// plots
+		file << "<b>Plots</b>"<<std::endl;
+		int nplots = GetTest(i)->GetNCanvases();
+		int rows = nplots / fNPlotColumns;
+
+		file << "<table border=\"0\" width=\"80%\">" << std::endl;
+		for (int j = 0; j <= rows; ++j) {
+			file << "<tr>";
+			for (int k = 0; k < fNPlotColumns; ++k) {
+				if (j*fNPlotColumns+k < nplots)
+					file << "<td width=\"20%\"><a href=\"" << fFileLinkPrefix << GetTest(i)->GetName().c_str() << "_" << j*fNPlotColumns+k << ".eps\"><img src=\"" << fFileLinkPrefix << GetTest(i)->GetName().c_str() << "_" << j*fNPlotColumns+k << ".png\" width=\""<< fThumbSize<<"\" height=\""<<fThumbSize<<"\"></a></td>";
+			}
+			file << "</tr>" << std::endl;
+			file << "<tr>" << std::endl;
+			for (int k = 0; k < fNPlotColumns; ++k) {
+				if (j*fNPlotColumns+k < nplots)
+					file << "<td width=\"20%\" valign=\"top\">" << GetTest(i)->GetCanvasDescription(j*fNPlotColumns+k) << "</td>";
+			}
+			file << "</tr>" << std::endl;
+		}
+		file << "</table>" << std::endl;
+		file << "</br>" << std::endl;		
 
 		// loop over subtests
 		int nsub = GetTest(i) -> GetNSubtests(); 
@@ -374,24 +383,28 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			}
 			file << "</table>" << std::endl; 
 		}
-		
-		file << std::endl;
-		file << "<br>" << std::endl;
-		file << "<br>" << std::endl;
-		file << std::endl;
-		file <<"</body>" << std::endl << std::endl;
-		file <<"</html>" << std::endl;
+
+		if (fIncludeHtmlFooter) {
+			file << std::endl;
+			file << "<br>" << std::endl;
+			file << "<br>" << std::endl;
+			file << std::endl;
+			file <<"</body>" << std::endl << std::endl;
+			file <<"</html>" << std::endl;
+		}
 		
 		// close file
 		file.close();
 	} // end loop tests
 
-	file_main << std::endl;
-	file_main << "<br>" << std::endl;
-	file_main << "<br>" << std::endl;
-	file_main << std::endl;
-	file_main <<"</body>" << std::endl << std::endl;
-	file_main <<"</html>" << std::endl;
+	if (fIncludeHtmlFooter) {
+		file_main << std::endl;
+		file_main << "<br>" << std::endl;
+		file_main << "<br>" << std::endl;
+		file_main << std::endl;
+		file_main <<"</body>" << std::endl << std::endl;
+		file_main <<"</html>" << std::endl;
+	}
 
 	// close file
 	file_main.close();
