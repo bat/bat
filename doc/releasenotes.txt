@@ -1,13 +1,20 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.4
-Release date:                 2010-08-19
-Urgency:                      medium
+Release notes for version:    0.4.1
+Release date:                 2010-08-30
+Urgency:                      high
 ------------------------------------------
 
-This version contains many improvements and updates and several bugfixes. The
-most important changes are summarized below. For detailed list of changes see
+This version contains an important bugfix for the Metropolis MCMC:
+At the end of every MCMC run the pre-run was run again which caused that
+all the results of the main run were reset. This bug was introduced in 0.4
+and is not present in previous versions.
+
+==========================================
+
+Previous version 0.4 contains many improvements and updates and several bugfixes.
+The most important changes are summarized below. For detailed list of changes see
 the Changelog. For more information consult the BAT webpage at
 http://www.mppmu.mpg.de/bat/
 
