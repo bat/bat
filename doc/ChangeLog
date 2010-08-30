@@ -1,4 +1,8 @@
 2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>
+	* don't reset pre-run flag after the main run since the MCMC
+	  setup remains valid; adjust FindModeMCMC() for this change
+
+2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>
 	* models:
 	  - small update of the makefile allowing to make dist when
 	    RooStats is not available

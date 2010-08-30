@@ -1334,7 +1334,7 @@ int BCEngineMCMC::MCMCMetropolis()
 	fMCMCCurrentChain = -1;
 
 	// set flags
-	fMCMCFlagPreRun = false;
+//	fMCMCFlagPreRun = false;
 	fMCMCFlagRun = true;
 
 	return 1;
