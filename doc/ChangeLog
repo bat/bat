@@ -1,4 +1,7 @@
 2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>
+	* final version 0.4.1
+
+2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>
 	* don't reset pre-run flag after the main run since the MCMC
 	  setup remains valid; adjust FindModeMCMC() for this change
 
