@@ -1,4 +1,9 @@
 2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>
+	* models:
+	  - small update of the makefile allowing to make dist when
+	    RooStats is not available
+
+2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>
 	* version 0.4.1.pre1
 	* prepared release notes for 0.4.1
 

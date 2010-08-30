@@ -69,10 +69,10 @@ clean-local:
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 
 ## RooStats specific targers
-if ROOSTATS
+#if ROOSTATS
 BATCalculatorDict.cxx : BATCalculator.h
 	$(ROOTCINT) -f $@ -c  -I.. $< BATCalculatorLinkDef.h
-endif
+#endif
 ## End of RooStats specific targets
 
 %Dict.cxx : %.h
