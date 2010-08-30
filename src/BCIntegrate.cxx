@@ -1738,7 +1738,7 @@ void BCIntegrate::FindModeMCMC()
 {
    // call PreRun
 //   if (flag_run == 0)
-   if (!fMCMCFlagPreRun)
+   if (!fMCMCFlagPreRun && !fMCMCFlagRun)
       MCMCMetropolisPreRun();
 
    // find global maximum
