@@ -299,7 +299,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file << "</tr>" << std::endl;		
 			file << " <tr> <td>N chains</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNChains() << " </td></tr>"  << std::endl;
 			file << " <tr> <td>N lag</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNLag() << " </td></tr>"  << std::endl;
-			file << " <tr> <td>Convergence</td> <td>" << (((PerfTest1DFunction*) GetTest(i))->MCMCGetFlagConvergenceGlobal() ? "<font color=\"#01DF01\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
+			file << " <tr> <td>Convergence</td> <td>" << (((PerfTest1DFunction*) GetTest(i))->MCMCGetFlagConvergenceGlobal() ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
 			file << " <tr> <td>N iterations (pre-run) </td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsConvergenceGlobal() << " </td></tr>"  << std::endl;
 			file << " <tr> <td>N iterations (run)</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsRun() << " </td></tr>"  << std::endl;
 			file << "</table>" << std::endl;
