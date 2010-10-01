@@ -1,5 +1,8 @@
+2010-10-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel.cxx: added normalization to summary output
+
 2010-08-31 Daniel Kollar <daniel.kollar@cern.ch>
-	* Perormance test suite:
+	* Performance test suite:
 	  - changed html colors
 
 2010-08-30 Daniel Kollar <daniel.kollar@cern.ch>

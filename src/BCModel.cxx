@@ -2061,8 +2061,9 @@ void BCModel::PrintResults(const char * file)
          ofi << "  (" << i << ") Parameter \""
              << fParameterSet->at(i)->GetName().data() << "\": "
              << fBestFitParameters[i];
-         if(fBestFitParameterErrors[i]>=0.)
-            ofi << " +- " << fBestFitParameterErrors[i];
+				 if (int(fBestFitParameterErrors.size()) == npar)
+					 if(fBestFitParameterErrors[i]>=0.)
+						 ofi << " +- " << fBestFitParameterErrors[i];
          ofi << std::endl;
       }
       ofi << std::endl;
@@ -2076,6 +2077,26 @@ void BCModel::PrintResults(const char * file)
       ofi << " Results of the model test" << std::endl
           << " =========================" << std::endl
           << " p-value at global mode: " << fPValue << std::endl << std::endl;
+   }
+
+   if (fNormalization >= 0.) {
+		 ofi << " Results of the normalization" << std::endl
+				 << " ============================" << std::endl
+				 << " Integration method used:";
+		 switch (GetIntegrationMethod()) {
+		 case BCIntegrate::kIntMonteCarlo:
+			 ofi << " Monte Carlo" << std::endl;
+			 break;
+		 case BCIntegrate::kIntImportance:
+			 ofi << " Importance Sampling" << std::endl;
+			 break;
+		 case BCIntegrate::kIntMetropolis:
+			 ofi << " Metropolis" << std::endl;
+		 case BCIntegrate::kIntCuba:
+			 ofi << " Cuba" << std::endl;
+			 break;
+		 }
+		 ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
    }
 
    if (fMCMCFlagRun) {
