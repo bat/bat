@@ -1772,8 +1772,8 @@ void BCIntegrate::FindModeMCMC()
 }
 
 // *********************************************
-void BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
-      const int *ncomp, double ff[])
+int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
+															 const int *ncomp, double ff[], void *userdata)
 {
 #ifdef HAVE_CUBA_H
    // scale variables
@@ -1806,6 +1806,8 @@ void BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
    BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
    BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
 #endif
+
+	 return 0;
 }
 
 // *********************************************
@@ -1851,6 +1853,11 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
 #ifdef HAVE_CUBA_H
    const int NDIM      = int(fx ->size());
    const int NCOMP     = 1;
+	 const int USERDATA  = 0;
+	 const int SEED      = 0;
+	 const int NBATCH    = 1000;
+	 const int GRIDNO    = -1;
+	 const char*STATEFILE = "";
 
    const double EPSREL = parameters_double[0];
    const double EPSABS = parameters_double[1];
@@ -1875,22 +1882,41 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
       const int NINCREASE = int(parameters_int[4]);
 
       // call VEGAS integration method
-      Vegas(NDIM, NCOMP, an_integrand,
-         EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
-         NSTART, NINCREASE,
-         &neval, &fail, integral, error, prob);
+			Vegas(NDIM, NCOMP, an_integrand, USERDATA,
+						EPSREL, EPSABS, VERBOSE, SEED,       
+						MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
+						GRIDNO, STATEFILE,
+						&neval, &fail, integral, error, prob);
+			
+			// interface for Cuba version 1.5
+			/*
+				Vegas(NDIM, NCOMP, an_integrand,
+				EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
+				NSTART, NINCREASE,
+				&neval, &fail, integral, error, prob);
+			*/
    }
    else if (method == 1) {
       // set SUAVE specific parameters
-      const int LAST     = int(parameters_int[3]);
+		 //      const int LAST     = int(parameters_int[3]);
       const int NNEW     = int(parameters_int[4]);
       const int FLATNESS = int(parameters_int[5]);
+			const int FLAGS    = 0;
 
       // call SUAVE integration method
+      Suave(NDIM, NCOMP, an_integrand,
+						USERDATA, EPSREL, EPSABS, FLAGS, SEED, 
+						MINEVAL, MAXEVAL,
+						NNEW, FLATNESS, 
+						&nregions, &neval, &fail, integral, error, prob);
+			
+			// interface for Cuba version 1.5
+			/*
       Suave(NDIM, NCOMP, an_integrand,
          EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL,
          NNEW, FLATNESS,
          &nregions, &neval, &fail, integral, error, prob);
+			*/
    }
    else if (method == 2) {
       // set DIVONNE specific parameters
@@ -1904,23 +1930,42 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
       const int NGIVEN       = int(parameters_int[10]);
       const int LDXGIVEN     = int(parameters_int[11]);
       const int NEXTRA       = int(parameters_int[12]);
+			const int FLAGS    = 0;
 
-      // call DIVONNE integration method
-      Divonne(NDIM, NCOMP, an_integrand,
-         EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
-         KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
-         NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
-         &nregions, &neval, &fail, integral, error, prob);
+			// call DIVONNE integration method
+			Divonne(NDIM, NCOMP, an_integrand, USERDATA,
+							EPSREL, EPSABS, FLAGS, SEED, MINEVAL, MAXEVAL,
+							KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
+							NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
+							&nregions, &neval, &fail, integral, error, prob);
+			
+
+      // interface for Cuba version 1.5
+			/*
+				Divonne(NDIM, NCOMP, an_integrand,
+				EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
+				KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
+				NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
+				&nregions, &neval, &fail, integral, error, prob);
+			*/
    }
    else if (method == 3) {
       // set CUHRE specific parameters
-      const int LAST = int(parameters_int[3]);
+		 //      const int LAST = int(parameters_int[3]);
       const int KEY  = int(parameters_int[4]);
+			const int FLAGS    = 0;
 
       // call CUHRE integration method
-      Cuhre(NDIM, NCOMP, an_integrand,
-         EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL, KEY,
-         &nregions, &neval, &fail, integral, error, prob);
+			Cuhre(NDIM, NCOMP, an_integrand, USERDATA,
+						EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY,
+						&nregions, &neval, &fail, integral, error, prob);
+
+			// interface for Cuba version 1.5
+			/*
+				Cuhre(NDIM, NCOMP, an_integrand,
+				EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL, KEY,
+				&nregions, &neval, &fail, integral, error, prob);
+			*/
    }
    else {
       std::cout << " Integration method not available. " << std::endl;

@@ -532,7 +532,8 @@ class BCIntegrate : public BCEngineMCMC
 		 * @param ncomp The number of components of the integrand (usually 1)
 		 * @param ff The function value
 		 * @return The integral */
-		static void CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[]);
+		//		static void CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[]);
+		static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
 
 		/**
 		 * Performs the marginalization with respect to one parameter.

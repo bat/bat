@@ -1,3 +1,6 @@
+2010-10-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate.cxx: Updated Cuba interface.
+
 2010-10-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel.cxx: added normalization to summary output
 
