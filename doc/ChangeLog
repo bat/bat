@@ -1,3 +1,6 @@
+2010-08-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* introduction.tex: how to change nbins. Allen needed this.
+
 2010-10-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx: Updated Cuba interface.
 

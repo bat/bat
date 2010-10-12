@@ -1017,7 +1017,14 @@ An example for the propagation of uncertainties can be found in
 The classes \verb|BCH1D| and \verb|BCH2D| are one- and two-dimensional
 histogram classes which inherit from the \Root\-classes \verb|TH1D|
 and \verb|TH2D|, respectively. They are filled, e.g., during
-marginalization. Pointers to the \Root\ histograms can be returned
+marginalization. To change the number of bins used for a particular parameter
+use
+%
+\begin{verbatim}
+void BCModel::SetNbins(const char * parname, int nbins=100)
+\end{verbatim}
+%
+Pointers to the \Root\ histograms can be returned
 using
 %
 \begin{verbatim}
