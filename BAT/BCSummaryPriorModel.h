@@ -47,8 +47,7 @@ class BCSummaryPriorModel : public BCModel
 	/**
 	 * Set a pointer to the model under study.
 	 * @param model The model under study. */
-	void SetTestModel(BCModel* model)
-		{ fTestModel = model; };
+	void SetTestModel(BCModel * model);
 
 	/**
 	 * Run the MCMC and find the global mode for this model, i.e., only

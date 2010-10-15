@@ -53,6 +53,11 @@ class BCSummaryTool
 	/** \name Member functions (get) */
 	/* @{ */
 
+	/**
+	 * Retrieve pointer to the Prior model to allow for its detailed setup */
+   BCSummaryPriorModel * GetPriorModel()
+	   { return fPriorModel; }
+
 	/* @} */
 	/** \name Member functions (set) */
 	/* @{ */

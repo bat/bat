@@ -1,4 +1,9 @@
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCSummaryTool:
+	  - move initialization of the model to BCSummaryPriorModel::SetModel()
+	  - allow retrieving of pointer to BCSummaryPriorModel from BCSummaryTool
+
+2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* configure:
 	  - changed configuration with cuba, added possibility
 	    to explicitely compile without cuba, added options
