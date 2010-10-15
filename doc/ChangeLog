@@ -1,4 +1,8 @@
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* INSTALL:
+	  - updated the description for Cuba
+
+2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCSummaryTool:
 	  - move initialization of the model to BCSummaryPriorModel::SetModel()
 	  - allow retrieving of pointer to BCSummaryPriorModel from BCSummaryTool

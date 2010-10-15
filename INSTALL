@@ -41,15 +41,10 @@ Recommended
 CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
-   http://www.feynarts.de/cuba/. In this version BAT no longer depends
-   on CUBA and you can compile and run without it. However, the use of
-   CUBA is recommended as it provides integration routines tuned for
-   performance, which are very usefull for integration in problems with
-   large number of dimensions.
-
-Note: Since version 1.5 the compilation of Cuba no longer crashes
-      if you don't have Mathematica installed. To compile and install CUBA
-      libraries use commands 'make lib ; make install'.
+   http://www.feynarts.de/cuba/. Cuba version 2.0 or later is necessary.
+	Cuba is not necessary to run BAT, however, its use is recommended as
+	it provides integration routines tuned for performance, which are very
+	usefull for integration in problems with large number of dimensions.
 
 Installation Procedure
 ----------------------
@@ -80,10 +75,11 @@ You can compile BAT with the RooFit/RooStats support using
 ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
 support.
 
-The configure will also search for libcuba.a and cuba.h in the system.
-The libcuba.a has to be available in the standard system library search
-path. You can specify the cuba.h location using
---with-cuba-path=/path/to/cuba/header.
+You can compile BAT with Cuba support using option --with-cuba.
+The configure will then search for libcuba.a and cuba.h in the system.
+They either have to be available in the standard system path or you can
+specify the location using --with-cuba-include-dir=/path/to/cuba/header
+and --with-cuba-include-dir=/path/to/cuba/lib.
 
 You can list all available options using
 
