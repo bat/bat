@@ -1,6 +1,5 @@
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
-	* INSTALL:
-	  - updated the description for Cuba
+	* updated installation instructions for Cuba
 
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCSummaryTool:

@@ -22,6 +22,7 @@
 \newcommand{\Version}{Version~\versionno}
 \newcommand{\RootVersion}{5.16}
 \newcommand{\RooStatsVersion}{5.27/04}
+\newcommand{\CubaVersion}{2.0}
 
 %--------------------------------------------------------
 
@@ -158,16 +159,11 @@ version \RooStatsVersion\ or later is necessary.
 \paragraph{CUBA:}
 CUBA~\cite{CUBA} is a library containing general purpose
 multidimensional integration algorithms. It can be obtained
-from~\cite{CUBAweb}. In this version \bat\ no longer depends on CUBA
-and you can compile and run without it. However, the use of CUBA is
-recommended as it provides integration routines tuned for performance,
-which are very useful for integration in problems with large number
-of dimensions. \\
-
-\noindent
-Note: Since version 1.5 the compilation of CUBA no longer crashes if
-you don't have Mathematica installed. To compile and install CUBA
-libraries use commands ~\verb|make lib;| ~\verb|make install|.
+from~\cite{CUBAweb}. BAT will compile and run with Cuba version
+\CubaVersion\ or later. Cuba is not necessary to run BAT, however, its
+use is recommended as it provides integration routines tuned for
+performance, which are very usefull for integration in problems with
+large number of dimensions.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -211,10 +207,12 @@ You can compile BAT with the RooFit/RooStats support using
 support. \\
 
 \noindent
-The configure will also search for \verb|libcuba.a| and \verb|cuba.h|
-in the system.  The \verb|libcuba.a| has to be available in the
-standard system library search path. You can specify the \verb|cuba.h|
-location using \verb|--with-cuba-path=/path/to/cuba/header|. \\
+You can compile BAT with Cuba support using option \verb|--with-cuba|.
+The configure will then search for \verb|libcuba.a| and \verb|cuba.h| in
+the system. They either have to be available in the standard system path
+or you can specify the location using
+\verb|--with-cuba-include-dir=/path/to/cuba/header|
+and \verb|--with-cuba-include-dir=/path/to/cuba/lib|. \\
 
 \noindent
 You can list all available options using

@@ -41,10 +41,11 @@ Recommended
 CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
-   http://www.feynarts.de/cuba/. Cuba version 2.0 or later is necessary.
-	Cuba is not necessary to run BAT, however, its use is recommended as
-	it provides integration routines tuned for performance, which are very
-	usefull for integration in problems with large number of dimensions.
+   http://www.feynarts.de/cuba/. BAT will compile and run with Cuba
+	version 2.0 or later. Cuba is not necessary to run BAT, however, its
+	use is recommended as it provides integration routines tuned for
+	performance, which are very usefull for integration in problems with
+	large number of dimensions.
 
 Installation Procedure
 ----------------------
