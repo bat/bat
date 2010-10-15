@@ -242,7 +242,7 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 }
 
 // ---------------------------------------------------------
-
+/*
 double BCEfficiencyFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
 	// using flat probability in all parameters
@@ -252,6 +252,7 @@ double BCEfficiencyFitter::LogAPrioriProbability(std::vector <double> parameters
 
 	return logprob;
 }
+*/
 
 // ---------------------------------------------------------
 

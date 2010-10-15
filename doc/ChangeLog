@@ -1,3 +1,12 @@
+2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* configure:
+	  - changed configuration with cuba, added possibility
+	    to explicitely compile without cuba, added options
+		 to separately specify path to cuba.h and libcuba.a
+	* fast fitters:
+	  - removed implementation of LogAPrioriProbability() as
+	    it was impossible to use SetPrior() methods
+
 2010-08-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* introduction.tex: how to change nbins. Allen needed this.
 

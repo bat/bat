@@ -120,7 +120,7 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * The log of the prior probability. Overloaded from BCModel.
 		 * @param parameters A vector of doubles containing the parameter values. */
-		virtual double LogAPrioriProbability(std::vector <double> parameters);
+//		virtual double LogAPrioriProbability(std::vector <double> parameters);
 
 		/**
 		 * The log of the conditional probability. Overloaded from BCModel.

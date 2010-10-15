@@ -221,7 +221,7 @@ BCHistogramFitter::~BCHistogramFitter()
 }
 
 // ---------------------------------------------------------
-
+/*
 double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
 {
    // using flat probability in all parameters
@@ -231,7 +231,7 @@ double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
 
    return logprob;
 }
-
+*/
 // ---------------------------------------------------------
 
 double BCHistogramFitter::LogLikelihood(std::vector<double> params)

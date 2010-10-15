@@ -7,8 +7,8 @@ AM_SOFLAGS= -shared
 
 if CUBA
 AM_CXXFLAGS += $(CUBAINCLUDE)
-AM_LDFLAGS += -lcuba
-libBAT_la_LDFLAGS += -lcuba
+AM_LDFLAGS += $(CUBALIB) -lcuba
+libBAT_la_LDFLAGS += $(CUBALIB) -lcuba
 endif
 
 if DEBUG

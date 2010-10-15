@@ -176,7 +176,7 @@ BCGraphFitter::~BCGraphFitter()
 {}
 
 // ---------------------------------------------------------
-
+/*
 double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
 	// using flat probability in all parameters
@@ -186,7 +186,7 @@ double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 
 	return logprob;
 }
-
+*/
 // ---------------------------------------------------------
 
 double BCGraphFitter::LogLikelihood(std::vector <double> params)

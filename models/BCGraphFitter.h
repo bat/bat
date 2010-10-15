@@ -97,7 +97,7 @@ class BCGraphFitter : public BCModel
 		/**
 		 * The log of the prior probability. It is set to be flat in all parameters.
 		 * @param parameters vector containing the parameter values */
-		double LogAPrioriProbability(std::vector <double> parameters);
+//		double LogAPrioriProbability(std::vector <double> parameters);
 
 		/**
 		 * The log of the conditional probability.
