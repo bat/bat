@@ -65,6 +65,9 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 	BCLog::LogLevel ll = BCLog::GetLogLevelScreen();
 	BCLog::SetLogLevel(BCLog::nothing);
 
+	// initialize template fitter
+	fTemplateFitter->Initialize();
+
 	// Prepare tree
 	PrepareTree();
 
@@ -87,6 +90,9 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 		// perform MCMC
 		if(fFlagMCMC) {
 			fTemplateFitter->MarginalizeAll();
+
+			// find mode with MCMC best fit
+			fTemplateFitter->FindMode(fTemplateFitter->GetBestFitParameters());
 
 			// get number of parameters
 			int npar = fTemplateFitter->GetNParameters();

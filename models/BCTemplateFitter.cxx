@@ -807,7 +807,7 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 	}
 
 	// draw histograms
-	stack.Draw("SAMEA");
+	stack.Draw("SAMEAF");
 	stack.GetHistogram() -> SetXTitle("");
 	stack.GetHistogram() -> SetYTitle("");
 	stack.GetHistogram() -> GetXaxis() -> SetLabelSize(0);

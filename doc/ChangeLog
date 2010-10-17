@@ -1,3 +1,6 @@
+2010-10-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* template fitter: bug fix: missing Initionalization and mode finding added.
+
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated installation instructions for Cuba
 
