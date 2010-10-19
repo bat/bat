@@ -190,27 +190,28 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
    fFitFunction = func;
 
    // update the model name to contain the function name
-   this -> SetName(TString::Format("HistogramFitter with %s",
-         fFitFunction->GetName()));
+   SetName(TString::Format("HistogramFitter with %s",fFitFunction->GetName()));
 
    // reset parameters
-   fParameterSet -> clear();
+   fParameterSet->clear();
 
    // get the new number of parameters
-   int n = func -> GetNpar();
+   int n = func->GetNpar();
 
    // add parameters
    for (int i = 0; i < n; ++i) {
       double xmin;
       double xmax;
 
-      func -> GetParLimits(i, xmin, xmax);
+      func->GetParLimits(i, xmin, xmax);
 
-      this -> AddParameter(func->GetParName(i), xmin, xmax);
+      AddParameter(func->GetParName(i), xmin, xmax);
    }
 
-   // no error
-   return 1;
+	// set flat prior for all parameters by default
+	SetPriorConstantAll();
+
+   return GetNParameters();
 }
 
 // ---------------------------------------------------------
@@ -221,6 +222,7 @@ BCHistogramFitter::~BCHistogramFitter()
 }
 
 // ---------------------------------------------------------
+
 /*
 double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
 {
@@ -232,6 +234,7 @@ double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
    return logprob;
 }
 */
+
 // ---------------------------------------------------------
 
 double BCHistogramFitter::LogLikelihood(std::vector<double> params)

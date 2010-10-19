@@ -203,8 +203,12 @@ namespace BCMath
 	double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
 
 
-
 	double SplitGaussian(double* x, double* par); 
+
+
+	/** Cache factorials for first \arg \c n integers.
+	 * The cache is filled upon first call of LogFact(). */
+	void CacheFactorial(unsigned int n);
 
 }
 

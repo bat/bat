@@ -141,7 +141,7 @@ int BCGraphFitter::SetFitFunction(TF1 * func)
 	}
 
 	// get the new number of parameters
-	int npar = func -> GetNpar();
+	int npar = func->GetNpar();
 	if(!npar)
 	{
 		BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetFitFunction() : TF1 has zero parameters. Not able to fit.");
@@ -152,22 +152,25 @@ int BCGraphFitter::SetFitFunction(TF1 * func)
 	fFitFunction = func;
 
 	// update the model name to contain the function name
-	this -> SetName(TString::Format("GraphFitter with %s",fFitFunction->GetName()));
+	SetName(TString::Format("GraphFitter with %s",fFitFunction->GetName()));
 
 	// reset parameters
-	fParameterSet -> clear();
+	fParameterSet->clear();
 
 	// add parameters
 	for (int i = 0; i < npar; ++i)
 	{
 		double xmin;
 		double xmax;
-		fFitFunction -> GetParLimits(i, xmin, xmax);
+		fFitFunction->GetParLimits(i, xmin, xmax);
 
-		this -> AddParameter(fFitFunction->GetParName(i), xmin, xmax);
+		AddParameter(fFitFunction->GetParName(i), xmin, xmax);
 	}
 
-	return this -> GetNParameters();
+	// set flat prior for all parameters by default
+	SetPriorConstantAll();
+
+	return GetNParameters();
 }
 
 // ---------------------------------------------------------
@@ -176,6 +179,7 @@ BCGraphFitter::~BCGraphFitter()
 {}
 
 // ---------------------------------------------------------
+
 /*
 double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
@@ -187,6 +191,7 @@ double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 	return logprob;
 }
 */
+
 // ---------------------------------------------------------
 
 double BCGraphFitter::LogLikelihood(std::vector <double> params)

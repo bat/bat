@@ -201,13 +201,13 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
 	fFitFunction = func;
 
 	// update the model name to contain the function name
-	this -> SetName(TString::Format("BCEfficiencyFitter with %s",fFitFunction->GetName()));
+	SetName(TString::Format("BCEfficiencyFitter with %s",fFitFunction->GetName()));
 
 	// reset parameters
-	fParameterSet -> clear();
+	fParameterSet->clear();
 
 	// get the new number of parameters
-	int n = func -> GetNpar();
+	int n = func->GetNpar();
 
 	// add parameters
 	for (int i = 0; i < n; ++i)
@@ -215,13 +215,15 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
 		double xmin;
 		double xmax;
 
-		func -> GetParLimits(i, xmin, xmax);
+		func->GetParLimits(i, xmin, xmax);
 
-		this -> AddParameter(func->GetParName(i), xmin, xmax);
+		AddParameter(func->GetParName(i), xmin, xmax);
 	}
 
-	// no error
-	return 1;
+	// set flat prior for all parameters by default
+	SetPriorConstantAll();
+
+	return GetNParameters();;
 }
 
 // ---------------------------------------------------------
@@ -242,6 +244,7 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 }
 
 // ---------------------------------------------------------
+
 /*
 double BCEfficiencyFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
@@ -253,6 +256,7 @@ double BCEfficiencyFitter::LogAPrioriProbability(std::vector <double> parameters
 	return logprob;
 }
 */
+
 
 // ---------------------------------------------------------
 

@@ -20,9 +20,14 @@
 
 #include <Math/PdfFuncMathCore.h>
 
+namespace BCMath {
+
+static unsigned int nCacheFact = 1000;
+static double * logfact = 0;
+
 // ---------------------------------------------------------
 
-double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
+double LogGaus(double x, double mean, double sigma, bool norm)
 {
    // if we have a delta function, return fixed value
    if (sigma == 0.)
@@ -46,7 +51,7 @@ double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
 
 // ---------------------------------------------------------
 
-double BCMath::LogPoisson(double x, double par)
+double LogPoisson(double x, double par)
 {
    if (par > 899)
       return LogGaus(x, par, sqrt(par), true);
@@ -62,14 +67,14 @@ double BCMath::LogPoisson(double x, double par)
 
 // ---------------------------------------------------------
 
-double BCMath::ApproxBinomial(int n, int k, double p)
+double ApproxBinomial(int n, int k, double p)
 {
    return exp(LogApproxBinomial(n, k, p));
 }
 
 // ---------------------------------------------------------
 
-double BCMath::LogApproxBinomial(int n, int k, double p)
+double LogApproxBinomial(int n, int k, double p)
 {
    // check p
    if (p == 0)
@@ -90,7 +95,7 @@ double BCMath::LogApproxBinomial(int n, int k, double p)
 
 // ---------------------------------------------------------
 
-double BCMath::LogBinomFactor(int n, int k)
+double LogBinomFactor(int n, int k)
 {
    // switch parameters if n < k
    if (n < k) {
@@ -105,7 +110,7 @@ double BCMath::LogBinomFactor(int n, int k)
       return log((double) n);
 
    // if no approximation needed
-   if (n < BCMATH_NFACT_ALIMIT || (n - k) < 5)
+   if ( n < BCMATH_NFACT_ALIMIT || (n < BCMath::nCacheFact &&  (n - k) < 10) )
       return LogNoverK(n, k);
 
    // calculate final log(n over k) using approximations if necessary
@@ -114,9 +119,9 @@ double BCMath::LogBinomFactor(int n, int k)
 
 // ---------------------------------------------------------
 
-double BCMath::ApproxLogFact(double x)
+double ApproxLogFact(double x)
 {
-   if (x > BCMATH_NFACT_ALIMIT)
+   if (x > BCMath::nCacheFact)
       return x * log(x) - x + log(x * (1. + 4. * x * (1. + 2. * x))) / 6. + log(M_PI) / 2.;
 
    else
@@ -124,11 +129,33 @@ double BCMath::ApproxLogFact(double x)
 }
 
 // ---------------------------------------------------------
-double BCMath::LogFact(int n)
+double LogFact(int n)
 {
-   double ln = 0.;
+	// return NaN for negative argument
+	if (n<0)
+		return std::numeric_limits<double>::quiet_NaN();
 
-   for (int i = 1; i <= n; i++)
+	// cache the factorials on first call
+	if ( !BCMath::logfact && BCMath::nCacheFact>=0 ) {
+		BCMath::logfact = new double[BCMath::nCacheFact+1];
+		double tmplogfact = 0;
+		BCMath::logfact[0] = tmplogfact;
+		for (unsigned int i=1; i<=BCMath::nCacheFact; i++) {
+			tmplogfact += log((double) i);
+			BCMath::logfact[i] = tmplogfact;
+		}
+	}
+
+	// return cached value if available
+	if (n <= (int) BCMath::nCacheFact)
+		return BCMath::logfact[n];
+
+	// calculate factorial starting from the highest cached value
+   double ln(0.);
+	if (BCMath::logfact)
+		ln = BCMath::logfact[nCacheFact];
+
+   for (int i = BCMath::nCacheFact+1; i <= n; i++)
       ln += log((double) i);
 
    return ln;
@@ -136,7 +163,14 @@ double BCMath::LogFact(int n)
 
 // ---------------------------------------------------------
 
-double BCMath::LogNoverK(int n, int k)
+void CacheFactorial(unsigned int n)
+{
+	nCacheFact = n;
+}
+
+// ---------------------------------------------------------
+
+double LogNoverK(int n, int k)
 {
    // switch parameters if n < k
    if (n < k) {
@@ -164,7 +198,7 @@ double BCMath::LogNoverK(int n, int k)
 
 // ---------------------------------------------------------
 
-int BCMath::Nint(double x)
+int Nint(double x)
 {
    // round to integer
    int i;
@@ -185,7 +219,7 @@ int BCMath::Nint(double x)
 
 // ---------------------------------------------------------
 
-double BCMath::rms(int n, const double *a)
+double rms(int n, const double *a)
 {
    if (n <= 0 || !a)
       return 0;
@@ -205,7 +239,7 @@ double BCMath::rms(int n, const double *a)
 
 // ---------------------------------------------------------
 
-double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm)
+double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm)
 {
    double bw = log(Gamma) - log((x - mean) * (x - mean) + Gamma*Gamma / 4.);
 
@@ -217,14 +251,14 @@ double BCMath::LogBreitWignerNonRel(double x, double mean, double Gamma, bool no
 
 // ---------------------------------------------------------
 
-double BCMath::LogBreitWignerRel(double x, double mean, double Gamma)
+double LogBreitWignerRel(double x, double mean, double Gamma)
 {
    return -log((x*x - mean*mean) * (x*x - mean*mean) + mean*mean * Gamma*Gamma);
 }
 
 // ---------------------------------------------------------
 
-double BCMath::LogChi2(double x, int n)
+double LogChi2(double x, int n)
 {
    if (x < 0) {
       BCLog::OutWarning("BCMath::LogChi2 : parameter cannot be negative!");
@@ -242,7 +276,7 @@ double BCMath::LogChi2(double x, int n)
 }
 
 // ---------------------------------------------------------
-double BCMath::LogVoigtian(double x, double sigma, double gamma)
+double LogVoigtian(double x, double sigma, double gamma)
 {
    if (sigma <= 0 || gamma <= 0) {
       BCLog::OutWarning("BCMath::LogVoigtian : widths are negative or zero!");
@@ -253,7 +287,7 @@ double BCMath::LogVoigtian(double x, double sigma, double gamma)
 }
 
 // ---------------------------------------------------------
-double BCMath::SplitGaussian(double* x, double* par)
+double SplitGaussian(double* x, double* par)
 {
 	double mean = par[0]; 
 	double sigmadown = par[1]; 
@@ -275,7 +309,7 @@ double chi2(double *x, double *par)
 }
 
 // ---------------------------------------------------------
-void BCMath::RandomChi2(std::vector<double> &randoms, int K)
+void RandomChi2(std::vector<double> &randoms, int K)
 {
    // fixed upper cutoff to 1000, might be too small
    TF1 *f = new TF1("chi2", chi2, 0.0, 1000, 1);
@@ -290,7 +324,7 @@ void BCMath::RandomChi2(std::vector<double> &randoms, int K)
 }
 
 // ---------------------------------------------------------
-TH1D * BCMath::ECDF(const std::vector<double> & data)
+TH1D * ECDF(const std::vector<double> & data)
 {
    int N = data.size();
 
@@ -347,7 +381,7 @@ TH1D * BCMath::ECDF(const std::vector<double> & data)
 
 // ---------------------------------------------------------
 
-std::vector<int> BCMath::longestRuns(const std::vector<bool> &bitStream)
+std::vector<int> longestRuns(const std::vector<bool> &bitStream)
 {
    // initialize counter variables
    unsigned int maxRunAbove, maxRunBelow, currRun;
@@ -400,7 +434,7 @@ std::vector<int> BCMath::longestRuns(const std::vector<bool> &bitStream)
 }
 // ---------------------------------------------------------
 
-std::vector<double> BCMath::longestRunsChi2(
+std::vector<double> longestRunsChi2(
       const std::vector<double>& yMeasured,
       const std::vector<double>& yExpected, const std::vector<double>& sigma)
 {
@@ -476,7 +510,7 @@ std::vector<double> BCMath::longestRunsChi2(
    return runs;
 }
 // ---------------------------------------------------------
-double BCMath::longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
+double longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
 {
    // can't observe run that's longer than the whole sequence
    if (longestObserved >= nTrials)
@@ -548,4 +582,6 @@ double BCMath::longestRunFrequency(unsigned longestObserved, unsigned int nTrial
 
    return prob;
 }
+
+} // end of namespace BCMath
 

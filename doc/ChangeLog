@@ -1,3 +1,12 @@
+2010-10-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* fast fitters:
+	  - set prior for all parameters to constants in the SetFunction() methods;
+	    removes warnings
+	  - SetFunction() method returns number of parameters
+	* BCMath:
+	  - caching factorial values up to a value settable by the user, by
+	    default up to 1000
+
 2010-10-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* template fitter: bug fix: missing Initionalization and mode finding added.
 
