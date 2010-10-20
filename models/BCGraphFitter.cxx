@@ -314,7 +314,7 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 
 	// now draw the histogram again since it was covered by the band and
 	// the best fit
-	fGraph -> Draw("p same");
+	fGraph->Draw("p same");
 
 	// draw legend
 	if (flaglegend)

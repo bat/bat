@@ -390,7 +390,7 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
    fErrorBand -> Draw("f same");
 
    // now draw the histogram again since it was covered by the band
-   fHistogram -> Draw(TString::Format("%ssame", opt.Data()));
+   fHistogram->Draw(TString::Format("%ssame", opt.Data()));
 
    // draw the fit function on top
    fGraphFitFunction

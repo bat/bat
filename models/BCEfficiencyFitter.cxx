@@ -104,46 +104,45 @@ int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 	int npoints = 0;
 
 	// set points
-	for (int i = 1; i <= hist1 -> GetNbinsX(); ++i)
+	for (int i = 1; i <= hist1->GetNbinsX(); ++i)
 	{
+		if(int(hist1->GetBinContent(i)) == 0) {
+			++npoints;
+			continue;
+		}
+
 		// calculate uncertainties
 		double xmin;
 		double xmax;
-		int flag = this -> GetUncertainties(
-				int(hist1 -> GetBinContent(i)),
-				int(hist2 -> GetBinContent(i)),
-				0.68, xmin, xmax);
+		GetUncertainties( int(hist1->GetBinContent(i)), int(hist2->GetBinContent(i)), 0.68, xmin, xmax);
 
+		fHistogramRatio->SetPoint( npoints, hist1->GetBinCenter(i), hist2->GetBinContent(i) / hist1->GetBinContent(i));
+
+		// no X uncertainties
+		fHistogramRatio->SetPointEXhigh(npoints, 0.);
+		fHistogramRatio->SetPointEXlow(npoints, 0.);
+
+		// set Y uncertainties
+		fHistogramRatio->SetPointEYhigh(npoints, xmax - hist2->GetBinContent(i) / hist1->GetBinContent(i));
+		fHistogramRatio->SetPointEYlow(npoints, hist2->GetBinContent(i) / hist1->GetBinContent(i) - xmin);
+/*
 		if (flag == 1)
 		{
-			fHistogramRatio -> SetPoint(
-					npoints,
-					hist1 -> GetBinCenter(i),
-					hist2 -> GetBinContent(i) / hist1 -> GetBinContent(i));
-			// set uncertainties
-			fHistogramRatio -> SetPointEXhigh(npoints, 0.);
-			fHistogramRatio -> SetPointEXlow(npoints, 0.);
-			fHistogramRatio -> SetPointEYhigh(npoints, xmax - hist2 -> GetBinContent(i) / hist1 -> GetBinContent(i));
-			fHistogramRatio -> SetPointEYlow(npoints++, hist2 -> GetBinContent(i) / hist1 -> GetBinContent(i) - xmin);
+			fHistogramRatio->SetPointEYhigh(npoints, xmax - hist2->GetBinContent(i) / hist1->GetBinContent(i));
+			fHistogramRatio->SetPointEYlow(npoints, hist2->GetBinContent(i) / hist1->GetBinContent(i) - xmin);
 		}
 		else if (flag == -2)
 		{
-			fHistogramRatio -> SetPoint(npoints, hist1 -> GetBinCenter(i), 0.);
-			// set uncertainties
-			fHistogramRatio -> SetPointEXhigh(npoints, 0.);
-			fHistogramRatio -> SetPointEXlow(npoints, 0.);
-			fHistogramRatio -> SetPointEYhigh(npoints, xmax);
-			fHistogramRatio -> SetPointEYlow(npoints++, 0.);
+			fHistogramRatio->SetPointEYhigh(npoints, xmax);
+			fHistogramRatio->SetPointEYlow(npoints, 0.);
 		}
 		else if (flag == -1)
 		{
-			fHistogramRatio -> SetPoint(npoints, hist1 -> GetBinCenter(i), 1.);
-			// set uncertainties
-			fHistogramRatio -> SetPointEXhigh(npoints, 0.);
-			fHistogramRatio -> SetPointEXlow(npoints, 0.);
-			fHistogramRatio -> SetPointEYhigh(npoints, 0.);
-			fHistogramRatio -> SetPointEYlow(npoints++, 1.-xmin);
+			fHistogramRatio->SetPointEYhigh(npoints, 0.);
+			fHistogramRatio->SetPointEYlow(npoints, 1.-xmin);
 		}
+*/
+		++npoints;
 	}
 
 	// create a data set. this is necessary in order to calculate the
@@ -152,7 +151,7 @@ int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 	BCDataSet * ds = new BCDataSet();
 
 	// create data points and add them to the data set.
-	int nbins = fHistogram1 -> GetNbinsX();
+	int nbins = fHistogram1->GetNbinsX();
 	for (int i = 0; i < nbins; ++i)
 	{
 		BCDataPoint* dp = new BCDataPoint(2);
@@ -163,12 +162,12 @@ int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 	this -> SetDataSet(ds);
 
 	// calculate the lower and upper edge in x.
-	double xmin = hist1 -> GetBinLowEdge(1);
-	double xmax = hist1 -> GetBinLowEdge(nbins+1);
+	double xmin = hist1->GetBinLowEdge(1);
+	double xmax = hist1->GetBinLowEdge(nbins+1);
 
 //	// calculate the minimum and maximum range in y.
-//	double histymin = hist2 -> GetMinimum();
-//	double histymax = hist1 -> GetMaximum();
+//	double histymin = hist2->GetMinimum();
+//	double histymax = hist1->GetMaximum();
 
 //	// calculate the minimum and maximum of the function value based on
 //	// the minimum and maximum value in y.
@@ -176,11 +175,11 @@ int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
 //	double ymax = histymax + 5.*sqrt(histymax);
 
 	// set the data boundaries for x and y values.
-	this -> SetDataBoundaries(0, xmin, xmax);
-	this -> SetDataBoundaries(1, 0.0, 1.0);
+	SetDataBoundaries(0, xmin, xmax);
+	SetDataBoundaries(1, 0.0, 1.0);
 
 	// set the indeces for fitting.
-	this -> SetFitFunctionIndices(0, 1);
+	SetFitFunctionIndices(0, 1);
 
 	// no error
 	return 1;
@@ -398,7 +397,8 @@ void BCEfficiencyFitter::DrawFit(const char * options, bool flaglegend)
 	fErrorBand -> Draw("f same");
 
 	// now draw the histogram again since it was covered by the band
-	fHistogramRatio -> Draw(TString::Format("%ssamep",opt.Data()));
+	fHistogramRatio->SetMarkerSize(.7);
+	fHistogramRatio->Draw(TString::Format("%ssamep",opt.Data()));
 
 	// draw the fit function on top
 	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
@@ -545,6 +545,13 @@ int BCEfficiencyFitter::CalculatePValueFast(std::vector<double> par, double &pva
 // ---------------------------------------------------------
 int BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double &xmin, double &xmax)
 {
+	if (n == 0)
+	{
+		xmin = 0.0;
+		xmax = 0.0;
+		return -3;
+	}
+
 	// create a histogram with binomial distribution
 	if (fHistogramBinomial)
 		fHistogramBinomial -> Reset();
@@ -555,7 +562,8 @@ int BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double &xmin, d
 	for (int i = 1; i <= 1000; ++i)
 	{
 		double x   = fHistogramBinomial -> GetBinCenter(i);
-		double val = TMath::Binomial(n, k) * TMath::Power(x, double(k)) * TMath::Power(1-x, double(n-k));
+		double val = BCMath::ApproxBinomial(n, k, x);
+//		double val = TMath::Binomial(n, k) * TMath::Power(x, double(k)) * TMath::Power(1-x, double(n-k));
 		fHistogramBinomial -> SetBinContent(i, val);
 	}
 
@@ -568,27 +576,20 @@ int BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double &xmin, d
 	double probSum[4];
 	probSum[0] = (1.-p)/2.;
 	probSum[1] = 1.-(1.-p)/2.;
-	probSum[2] = 0.05;
-	probSum[3] = 0.95;
+	probSum[2] = 1.-p;
+	probSum[3] = p;
 
 	fHistogramBinomial -> GetQuantiles(nprobSum, q, probSum);
 
 	double xexp = double(k)/double(n);
 
 	// calculate uncertainties
-	if (n == 0)
-	{
-		xmin = 0.0;
-		xmax = 0.0;
-		return -3;
-	}
-	else if (xexp < q[0])
+	if (xexp < q[0])
 	{
 		xmin = 0;
 		xmax = q[3];
 		return -2;
 	}
-
 	else if (xexp > q[1])
 	{
 		xmin = q[2];
