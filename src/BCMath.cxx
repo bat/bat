@@ -11,7 +11,7 @@
 #include "BAT/BCLog.h"
 
 #include <math.h>
-
+#include <limits>
 #include <set>
 
 #include <TMath.h>
@@ -110,7 +110,7 @@ double LogBinomFactor(int n, int k)
       return log((double) n);
 
    // if no approximation needed
-   if ( n < BCMATH_NFACT_ALIMIT || (n < BCMath::nCacheFact &&  (n - k) < 10) )
+   if ( n < (int) BCMATH_NFACT_ALIMIT || (n < (int) BCMath::nCacheFact &&  (n - k) < 10) )
       return LogNoverK(n, k);
 
    // calculate final log(n over k) using approximations if necessary

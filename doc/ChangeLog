@@ -1,3 +1,6 @@
+2010-10-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCMath: added include <vector> and added (int) to unsigned ints
+
 2010-10-20 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEfficiencyFitter:
 	  - always use the ratio as a central value for the points when plotting
@@ -14,7 +17,7 @@
 	  - caching factorial values up to a value settable by the user, by
 	    default up to 1000
 
-2010-10-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2010-10-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* template fitter: bug fix: missing Initionalization and mode finding added.
 
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
