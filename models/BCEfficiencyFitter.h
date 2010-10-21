@@ -92,14 +92,15 @@ class BCEfficiencyFitter : public BCModel
 			{ return fGraphFitFunction; };
 
 		/**
-		 * Calculates the lower and upper limits for a given probability.
+		 * Calculates the central value and the lower and upper limits for a given probability.
 		 * @param n n for the binomial.
 		 * @param k k for the binomial.
 		 * @param p The central probability defining the limits.
+		 * @param xmin The central value.
 		 * @param xmin The lower limit.
 		 * @param xmax The upper limit.
 		 * @return A flag (=1 plot point, !=1 do not plot point). */
-		int GetUncertainties(int n, int k, double p, double &xmin, double &xmax);
+		int GetUncertainties(int n, int k, double p, double &xexp, double &xmin, double &xmax);
 
 		/* @} */
 		/** \name Member functions (set) */
@@ -122,6 +123,12 @@ class BCEfficiencyFitter : public BCModel
 		 * false: use linear interpolation */
 		void SetFlagIntegration(bool flag)
 			{ fFlagIntegration = flag; };
+
+		/** Set type of point to be used to plot the efficiency data
+		  * 0 - mean + rms
+		  * 1 - mode + smallest 68%
+		  * 2 - median + central 68% */
+		void SetDataPointType(int type);
 
 		/* @} */
 		/** \name Member functions (miscellaneous methods) */
@@ -205,6 +212,12 @@ class BCEfficiencyFitter : public BCModel
 		/**
 		 * Temporary histogram for calculating the binomial qunatiles */
 		TH1D * fHistogramBinomial;
+
+		/** Type of point to plot for efficiency data
+		  * 0 - mean + rms
+		  * 1 - mode + smallest 68%
+		  * 2 - median + central 68% */
+      unsigned int fDataPointType;
 
 };
 

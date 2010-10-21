@@ -593,11 +593,11 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 	double xdown=xmin;
 	double xup=xmax;
 
-	int ndiv = 100;
-	if(nbins<100)
-		ndiv = 1000;
-	if(nbins>1000)
-		ndiv = 10;
+	int ndiv = 10;
+//	if(nbins<100)
+//		ndiv = 1000;
+//	if(nbins>1000)
+//		ndiv = 10;
 
 	int warn=0;
 
