@@ -194,7 +194,8 @@ int BCTemplateFitter::SetData(const TH1D& hist)
 	fNBins = hist.GetNbinsX();
 	fXmin = (hist.GetXaxis())->GetXmin();
 	fXmax = (hist.GetXaxis())->GetXmax();
-	fHistData = TH1D("", "", fNBins, fXmin, fXmax);
+	//	fHistData = TH1D("", "", fNBins, fXmin, fXmax);
+	fHistData = TH1D(hist);
 
 	// copy histogram content
 	for (int i = 1; i <= fNBins; ++i)
@@ -258,7 +259,8 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 
 	// histograms
 	TH1D histprior = TH1D("", "", fPriorNBins, Nmin, Nmax);
-	TH1D histsysterror = TH1D("", "", fNBins, fXmin, fXmax);
+	//	TH1D histsysterror = TH1D("", "", fNBins, fXmin, fXmax);
+	TH1D histsysterror = TH1D(fHistData);
 
 	// set style
 	histprior.SetXTitle(name);
@@ -388,7 +390,8 @@ int BCTemplateFitter::AddSystError(const char * errorname, const char * errtype)
 	fSystErrorParIndexContainer.push_back(GetNParameters()-1);
 
 	// create histogram
-	TH1D hist = TH1D("", "", fNBins, fXmin, fXmax);
+	//	TH1D hist = TH1D("", "", fNBins, fXmin, fXmax);
+	TH1D hist = TH1D(fHistData);
 
 	// fill histograms
 	for (int i = 1; i <= fNBins; ++i)
@@ -455,16 +458,26 @@ int BCTemplateFitter::Initialize()
 	}
 
 	// create histograms for uncertainty determination
-	double maximum = 1.5 * fHistData.GetMaximum();
+	//	double maximum = 1.5 * fHistData.GetMaximum();
+	double minimum = TMath::Max(0., fHistData.GetMinimum() - 5.*sqrt(fHistData.GetMinimum()));
+	double maximum = fHistData.GetMaximum() + 5.*sqrt(fHistData.GetMaximum());
+	
+	Double_t a[fHistData.GetNbinsX()+1];
+	for (int i = 0; i < fHistData.GetNbinsX()+1; ++i) {
+		a[i] = fHistData.GetXaxis()->GetBinLowEdge(i+1);
+	}
 
 	fUncertaintyHistogramExp = new TH2D(
 			TString::Format("UncertaintyExp_%i", BCLog::GetHIndex()), "",
-			fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXmin(), fHistData.GetXaxis()->GetXmax(),
-			100, 0., maximum);
+			//			fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXbins()->GetArray(),
+			fHistData.GetNbinsX(), a,
+			//			fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXmin(), fHistData.GetXaxis()->GetXmax(),
+			100, minimum, maximum);
 
 	fUncertaintyHistogramObsPosterior = new TH2D(
 			TString::Format("UncertaintyObsPosterior_%i", BCLog::GetHIndex()), "",
-			fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXmin(), fHistData.GetXaxis()->GetXmax(),
+			fHistData.GetNbinsX(), a,
+			//			fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXbins()->GetArray(),			//			fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXmin(), fHistData.GetXaxis()->GetXmax(),
 			int(maximum) + 1, -0.5, double(int(maximum))+0.5);
 
 	// create histogram containing the normalization
@@ -645,7 +658,8 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 	fHistData.Draw("P");
 
 	// create a histogram with the sum of all contributions
- 	TH1D * histsum = (TH1D*) fHistData.Clone("temp");
+	// 	TH1D * histsum = (TH1D*) fHistData.Clone("temp");
+ 	TH1D * histsum = new TH1D(fHistData);
 
 	// create stack
 	THStack stack("histostack","");
@@ -765,7 +779,15 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 	if (flag_diff) {
 		ymin = 0;
 		ymax = 0;
-		hist_diff = new TH1D("hist_diff", "", nbins, histsum->GetXaxis()->GetXmin(), histsum->GetXaxis()->GetXmax() );
+		//		hist_diff = new TH1D("hist_diff", "", nbins, histsum->GetXaxis()->GetXmin(), histsum->GetXaxis()->GetXmax() );
+		//		hist_diff = new TH1D(*histsum);
+		Double_t a[fHistData.GetNbinsX()+1];
+		for (int i = 0; i < fHistData.GetNbinsX()+1; ++i) {
+			a[i] = fHistData.GetXaxis()->GetBinLowEdge(i+1);
+		}
+
+		hist_diff = new TH1D("hist_diff", "", nbins, a);
+		hist_diff->SetName("hist_diff");
 		hist_diff->GetXaxis()->SetTitle(fHistData.GetXaxis()->GetTitle());
 		hist_diff->GetYaxis()->SetTitle("#Delta N");
 		hist_diff->GetXaxis()->SetNdivisions(505);
@@ -802,7 +824,7 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 			ymax = 1.1 * (hist_diff->GetMaximum() + hist_diff->GetBinError(hist_diff->GetMaximumBin()));
 		if (ymin>(hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin())))
 			ymin = 1.1 * (hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin()));
-		(hist_diff->GetYaxis())->SetRangeUser(-1.1*TMath::Max(-ymin, ymax), 1.1*TMath::Max(-ymin, ymax));
+		(hist_diff->GetYaxis())->SetRangeUser(TMath::Floor(-1.1*TMath::Max(-ymin, ymax)), TMath::Ceil(1.1*TMath::Max(-ymin, ymax)));
 
 	}
 
@@ -1208,8 +1230,10 @@ int BCTemplateFitter::SetTemplateEfficiency(const char * name, double effmean, d
 	}
 
 	// create histograms
-	TH1D histeff = TH1D("", "", fNBins, fXmin, fXmax);
- 	TH1D histefferr = TH1D("", "", fNBins, fXmin, fXmax);
+	//	TH1D histeff = TH1D("", "", fNBins, fXmin, fXmax);
+	TH1D histeff = TH1D(fHistData);
+	// 	TH1D histefferr = TH1D("", "", fNBins, fXmin, fXmax);
+ 	TH1D histefferr = TH1D(fHistData);
 
 	// fill histograms
 	for (int i = 1; i <= fNBins; ++i) {
@@ -1412,7 +1436,8 @@ TH1D BCTemplateFitter::CombineUncertainties(const char * name)
 	int tempindex = GetIndexTemplate(name);
 
 	// create new histogram
- 	TH1D hist = TH1D("", "", fNBins, fXmin, fXmax);
+	// 	TH1D hist = TH1D("", "", fNBins, fXmin, fXmax);
+ 	TH1D hist = TH1D(fHistData);
 
 	// fill histogram
 	for (int ibin = 1; ibin <= fNBins; ++ibin) {

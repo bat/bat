@@ -1,3 +1,6 @@
+2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter: Added possibility to use histograms with non-equal bin sizes
+
 2010-10-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCEfficiencyFitter:
 	  - rewritten calculation of data points and their error-bars
