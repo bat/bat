@@ -22,7 +22,7 @@
 
 namespace BCMath {
 
-static unsigned int nCacheFact = 1000;
+static unsigned int nCacheFact = 10000;
 static double * logfact = 0;
 
 // ---------------------------------------------------------

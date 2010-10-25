@@ -1,3 +1,9 @@
+2010-10-25 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCMath:
+	  - increased default factorial cache to 10000
+	* updated todo list
+	* increased version to 0.4.2.pre1
+
 2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateFitter: Added possibility to use histograms with non-equal bin sizes
 	* BCTemplateFitter: Added logx and logy option for drawing

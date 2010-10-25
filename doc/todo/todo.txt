@@ -24,9 +24,9 @@ Low                      done      Add further examples (Kevin)
 ------------------------------------------------------------------------------------------------
 
 high         0.4.0                 Fix memory leaks in BCH1D and other classes
-High         0.4.0                 Test RooStats examples
+High         0.4.0       done      Test RooStats examples
 High         0.4.0                 Check/change tutorials
-High                               Web page: test suite (Kevin)
+High                     done      Web page: test suite (Kevin)
 High                               Web page: FAQ (Fred)
 High                               Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 High                               Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
