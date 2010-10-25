@@ -1,4 +1,7 @@
 2010-10-25 Daniel Kollar <daniel.kollar@cern.ch>
+	* added description of the tarball preparation to readme.devel
+
+2010-10-25 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCMath:
 	  - increased default factorial cache to 10000
 	* updated todo list
