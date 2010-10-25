@@ -585,6 +585,8 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 	bool flag_error2 = false; // asymm. poisson error of expectation value
 	bool flag_error3 = false; // asymm. poisson error of expected no. of events
 	bool flag_diff   = false; // plot difference between data and expectation below stack plot
+	bool flag_logx   = false; // plot x-axis in log-scale
+	bool flag_logy   = false; // plot y-axis in log-scale
 
 	if (std::string(options).find("L") < std::string(options).size())
 		flag_legend = true;
@@ -603,6 +605,12 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 
 	if (std::string(options).find("D") < std::string(options).size())
 		flag_diff = true;
+
+	if (std::string(options).find("logx") < std::string(options).size())
+		flag_logx = true;
+
+	if (std::string(options).find("logy") < std::string(options).size())
+		flag_logy = true;
 
 	// create canvas
 	TCanvas* c1 = new TCanvas("", "", 700, 700);
@@ -628,6 +636,12 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 		pad2->SetLeftMargin  (0.15);
 		pad2->SetRightMargin (0.13);
 		pad2->SetFillColor(kWhite);
+		if (flag_logx) {
+			pad1->SetLogx();
+			pad2->SetLogx();
+		}
+		if (flag_logy)
+			pad1->SetLogy();
 		pad1->Draw();
 		pad2->Draw();
 	}
@@ -635,6 +649,10 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 		pad1 = new TPad("pad1", "",0.0, 0.0, 1.0, 1.0);
 		pad1->SetFillColor(kWhite);
 		pad2 = new TPad();
+		if (flag_logx)
+			pad1->SetLogx();
+		if (flag_logy)
+			pad1->SetLogy();
 		pad1->Draw();
 	}
 
