@@ -1,51 +1,54 @@
-To do for releases:
--------------------
+ToDo list:
+----------
 
-Priority:    Release:    Status:   Task:                     
+For release 0.4.2
+=================
+Priority:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
+high         done      Fix fast fitters to allow use of SetPrior*() methods (Dano)
+high                   Fix template fitter to allow use of SetPrior*() methods (Kevin)
+high         done      Adjust interface to new Cuba version (Kevin)
+high         done      Improve installation procedure when compiling with Cuba (Dano)
+high         done      Fix efficiency fitter crash for histograms with large number of entries (Dano)
 
-High         0.4.0       done      Update introduction (Kevin)
-High         0.4.0       done      Update documentation for examples (Kevin)
-High         0.4.0       fixed     Bug: summary tool does not work with fixed parameters (Kevin)
-High         0.4.0       done      Test TF1 priors on parameters (Kevin)
-High         0.4.0       done      Add legend to marginalized plots by default (Fred)
-High         0.4.0       done      Caching of flat prior (Fred)
-High         0.4.0       fixed     Fix axis labels for SummaryTool (numbers for larger number of parameters)
-High         0.4.0       done      Important check: compare marginalized mode (1D) with predictions (Kevin)
-High         0.4.0       done      access to iteration/chain number and point accepted flag (Dano)
-High         0.4.0       done      Raise library version
-High         0.4.0       done      Makefile: put "-include link.d"
+medium       done      Allow caching of factorials (Dano)
+medium                 Improvements (user requests) in template fitter (Kevin)
 
-Medium                   done      Method to set parameter ranges (Kevin)
-Medium                   done      Storing of MCMC pre-run in a ROOT file, flag (Kevin)
+low          done      provide access to prior model in summary tool
 
-Low                      done      Add further examples (Kevin)
 
+For later releases:
+===================
+Priority:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
+high                   Fix BAT configuration to be able to make dist without RooStats
+high                   Fix memory leaks in BCH1D and other classes
+high                   Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
+high                   Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 
-high         0.4.0                 Fix memory leaks in BCH1D and other classes
-High         0.4.0       done      Test RooStats examples
-High         0.4.0                 Check/change tutorials
-High                     done      Web page: test suite (Kevin)
-High                               Web page: FAQ (Fred)
-High                               Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
-High                               Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
+medium                 method to fix parameters
+medium                 Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts
+medium                 Speed up FastFitters by cutting data range to TF1 range
+medium                 Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
+medium                 Allow user to set scales for MCMC 
+medium                 Perform analysis of MCMC tree from ROOT file
+medium                 SummaryTool: triangular plots
+medium                 ROOT: enable compiling programs with 'root BATcode.C++'
 
-Medium                             Update introduction on R-value criterion (Fred)
-Medium                             Add models page on web page
-Medium                             method to fix parameters
-Medium                             Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts
-Medium                             Speed up FastFitters by cutting data range to TF1 range
-Medium                             Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
-Medium                             Allow user to set scales for MCMC 
-Medium                             Perform analysis of MCMC tree from ROOT file
-Medium                             SummaryTool: triangular plots
-Medium                             ROOT: enable compiling programs with 'root BATcode.C++'
+low                    Look into sparse histograms
+low                    Remove MCMC code from BCIntegrate
+low                    Remove ConditionalProbabilityEntry stuff
+low                    Library of common priors
+low                    Use Kernel Density Estimator for filling histograms as option
+low                    Constraints
+low                    Sub-space integration
 
-Low                                Look into sparse histograms
-Low                                Remove MCMC code from BCIntegrate
-Low                                Remove ConditionalProbabilityEntry stuff
-Low                                Library of common priors
-Low                                Use Kernel Density Estimator for filling histograms as option
-Low                                Constraints
-Low                                Sub-space integration
+
+Release independent:
+====================
+Priority:    Status:   Task:                     
+------------------------------------------------------------------------------------------------
+high                   Check/change tutorials
+
+medium                 Update introduction on R-value criterion (Fred)
+medium                 Add models page on web page
