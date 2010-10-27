@@ -23,36 +23,18 @@ CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmodels.so; ln -s libBATmode
 endif
 
 library_includedir= $(includedir)/BAT
-library_include_HEADERS= \
+
+incs = \
 	BCEfficiencyFitter.h \
 	BCGraphFitter.h \
 	BCHistogramFitter.h \
 	BCTemplateFitter.h \
 	BCTemplateEnsembleTest.h
 
-libBATmodels_la_SOURCES= \
-	BCEfficiencyFitter.cxx \
-	BCGraphFitter.cxx \
-	BCHistogramFitter.cxx \
-	BCTemplateFitter.cxx \
-	BCTemplateEnsembleTest.cxx \
-	\
-	BCEfficiencyFitterDict.cxx \
-	BCGraphFitterDict.cxx \
-	BCHistogramFitterDict.cxx \
-	BCTemplateFitterDict.cxx \
-	BCTemplateEnsembleTestDict.cxx
-
 ## RooStats specific options
 if ROOSTATS
 AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam
-libBATmodels_la_SOURCES += \
-	BCRooInterface.cxx \
-	BATCalculator.cxx \
-	\
-	BCRooInterfaceDict.cxx \
-	BATCalculatorDict.cxx
-library_include_HEADERS += \
+incs += \
 	BCRooInterface.h \
 	BATCalculator.h
 ADD_ROOINTERFACE_ROOTMAP = \
@@ -61,6 +43,17 @@ ADD_ROOINTERFACE_ROOTMAP = \
 	cat BCRooInterface.rootmap >> libBATmodels.rootmap
 endif
 ## End of RooStats specific options
+
+library_include_HEADERS= $(incs)
+libBATmodels_la_SOURCES= \
+	$(incs:.h=.cxx)
+
+#	$(incs:.h=Dict.cxx)
+
+nodist_libBATmodels_la_SOURCES= \
+	$(incs:.h=Dict.cxx)
+
+BUILT_SOURCES = $(incs:.h=Dict.cxx)
 
 clean-local:
 	rm -f *.o *.lo *Dict.* libBATmodels.rootmap

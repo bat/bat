@@ -19,8 +19,8 @@ EXTRA_DIST= \
 	tools/CreateProject.sh.in
 
 dist-hook: prep-docs
-	rm -f $(distdir)/src/*Dict.*
-	rm -f $(distdir)/models/*Dict.*
+#	rm -f $(distdir)/src/*Dict.*
+#	rm -f $(distdir)/models/*Dict.*
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name .svn`
 	rm -rf `find $(distdir)/models -name .svn`

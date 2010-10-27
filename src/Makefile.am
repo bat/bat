@@ -22,41 +22,33 @@ CREATE_SO_LINK= cd $(DESTDIR)$(libdir); rm -f libBAT.so; ln -s libBAT.dylib libB
 endif
 
 library_includedir= $(includedir)/BAT
-library_include_HEADERS=../BAT/*.h
+
+incs= \
+	BCDataPoint.h \
+	BCDataSet.h \
+	BCH1D.h \
+	BCH2D.h \
+	BCParameter.h \
+	BCEngineMCMC.h \
+	BCIntegrate.h \
+	BCModel.h \
+	BCModelManager.h \
+	BCModelOutput.h \
+	BCGoFTest.h \
+	BCLog.h \
+	BCMath.h \
+	BCAux.h \
+	BCSummaryTool.h \
+	BCSummaryPriorModel.h
+
+library_include_HEADERS= $(patsubst %.h, ../BAT/%.h, $(incs))
 libBAT_la_SOURCES= \
-   BCDataPoint.cxx \
-   BCH2D.cxx \
-   BCModel.cxx \
-   BCParameter.cxx \
-   BCDataSet.cxx \
-   BCIntegrate.cxx \
-   BCModelManager.cxx \
-   BCEngineMCMC.cxx \
-   BCLog.cxx \
-   BCModelOutput.cxx \
-   BCH1D.cxx \
-   BCMath.cxx \
-   BCGoFTest.cxx \
-   BCAux.cxx \
-   BCSummaryTool.cxx \
-   BCSummaryPriorModel.cxx \
-   \
-   BCDataPointDict.cxx \
-   BCH2DDict.cxx \
-   BCModelDict.cxx \
-   BCParameterDict.cxx \
-   BCDataSetDict.cxx \
-   BCIntegrateDict.cxx \
-   BCModelManagerDict.cxx \
-   BCEngineMCMCDict.cxx \
-   BCLogDict.cxx \
-   BCModelOutputDict.cxx \
-   BCH1DDict.cxx \
-   BCMathDict.cxx \
-   BCGoFTestDict.cxx \
-   BCAuxDict.cxx \
-   BCSummaryToolDict.cxx \
-   BCSummaryPriorModelDict.cxx
+	$(incs:.h=.cxx)
+
+nodist_libBAT_la_SOURCES= \
+	$(incs:.h=Dict.cxx)
+
+BUILT_SOURCES = $(incs:.h=Dict.cxx)
 
 clean-local:
 	rm -f *.o *.lo *Dict.*
