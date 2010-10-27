@@ -352,6 +352,8 @@ double BCIntegrate::Integrate()
    std::vector <double> parameter;
    parameter.assign(fNvar, 0.0);
 
+	BCLog::OutSummary(Form("Running numerical integration using %s",DumpIntegrationMethod().c_str()));
+
    switch(fIntegrationMethod)
    {
       case BCIntegrate::kIntMonteCarlo:
@@ -370,10 +372,10 @@ double BCIntegrate::Integrate()
          BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
          BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
 #endif
+		default:
+		   BCLog::OutError(
+      	   Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
    }
-
-   BCLog::OutError(
-         Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
 
    return 0;
 }
@@ -611,7 +613,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 // *********************************************
 TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 {
-   BCLog::OutDebug(Form(" --> Marginalizing model wrt. parameter %s using method %d.", parameter->GetName().data(), fMarginalizationMethod));
+   BCLog::OutDebug(Form(" --> Marginalizing model wrt. parameter %s using %d.", parameter->GetName().data(), DumpMarginalizationMethod().c_str()));
 
    switch(fMarginalizationMethod)
    {
@@ -620,9 +622,12 @@ TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 
       case BCIntegrate::kMargMetropolis:
          return MarginalizeByMetro(parameter);
-   }
 
-   BCLog::OutWarning(Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+		default:
+		   BCLog::OutError(
+				Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+
+   }
 
    return 0;
 }
@@ -637,9 +642,11 @@ TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * paramete
 
       case BCIntegrate::kMargMetropolis:
          return MarginalizeByMetro(parameter1,parameter2);
-   }
 
-   BCLog::OutWarning(Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+		default:
+		   BCLog::OutError(
+				Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+   }
 
    return 0;
 }
@@ -2066,6 +2073,51 @@ void BCIntegrate::SAInitialize()
 {
    fSAx.clear();
    fSAx.assign(fNvar, 0.0);
+}
+
+// *********************************************
+std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type)
+{
+	switch(type) {
+		case BCIntegrate::kIntMonteCarlo:
+			return "Sampled Mean Monte Carlo";
+		case BCIntegrate::kIntImportance:
+			return "Importance Sampling";
+		case BCIntegrate::kIntMetropolis:
+			return "Metropolis";
+		case BCIntegrate::kIntCuba:
+			return "Cuba (Vegas)";
+		default:
+			return "Undefined";
+	}
+}
+
+// *********************************************
+std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
+{
+	switch(type) {
+		case BCIntegrate::kMargMonteCarlo:
+			return "Monte Carlo Integration";
+		case BCIntegrate::kMargMetropolis:
+			return "Metropolis MCMC";
+		default:
+			return "Undefined";
+	}
+}
+
+// *********************************************
+std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMethod type)
+{
+	switch(type) {
+		case BCIntegrate::kOptSA:
+			return "Simulated Annealing";
+		case BCIntegrate::kOptMetropolis:
+			return "Metropolis MCMC";
+		case BCIntegrate::kOptMinuit:
+			return "Metropolis MCMC";
+		default:
+			return "Undefined";
+	}
 }
 
 // *********************************************

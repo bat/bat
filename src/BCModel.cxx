@@ -677,7 +677,7 @@ void BCModel::FindMode(std::vector<double> start)
 
    // this implementation is CLEARLY not good we have to work on this.
 
-   BCLog::OutSummary(Form("Model \'%s\': Finding mode",GetName().data()));
+   BCLog::OutSummary(Form("Model \'%s\': Finding mode using %s",GetName().data(), DumpOptimizationMethod().c_str()));
 
    // synchronize parameters in BCIntegrate
    SetParameters(fParameterSet);
@@ -700,9 +700,11 @@ void BCModel::FindMode(std::vector<double> start)
       case BCIntegrate::kOptMetropolis:
           MarginalizeAll();
          return;
+
+		default:
+		   BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d",GetOptimizationMethod()));
    }
 
-   BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d",GetOptimizationMethod()));
 
    return;
 }
@@ -2040,18 +2042,8 @@ void BCModel::PrintResults(const char * file)
 
    ofi << " Results of the optimization" << std::endl
        << " ===========================" << std::endl
-       << " Optimization algorithm used:";
-   switch (GetOptimizationMethodMode()) {
-      case BCIntegrate::kOptSA:
-         ofi << " Simulated Annealing" << std::endl;
-         break;
-      case BCIntegrate::kOptMinuit:
-         ofi << " Minuit" << std::endl;
-         break;
-      case BCIntegrate::kOptMetropolis:
-         ofi << " MCMC" << std::endl;
-         break;
-   }
+       << " Optimization algorithm used:"
+		 << DumpOptimizationMethod() << std::endl;
 
    if (int(fBestFitParameters.size()) > 0) {
       ofi << " List of parameters and global mode:" << std::endl;
@@ -2080,20 +2072,8 @@ void BCModel::PrintResults(const char * file)
    if (fNormalization >= 0.) {
 		 ofi << " Results of the normalization" << std::endl
 				 << " ============================" << std::endl
-				 << " Integration method used:";
-		 switch (GetIntegrationMethod()) {
-		 case BCIntegrate::kIntMonteCarlo:
-			 ofi << " Monte Carlo" << std::endl;
-			 break;
-		 case BCIntegrate::kIntImportance:
-			 ofi << " Importance Sampling" << std::endl;
-			 break;
-		 case BCIntegrate::kIntMetropolis:
-			 ofi << " Metropolis" << std::endl;
-		 case BCIntegrate::kIntCuba:
-			 ofi << " Cuba" << std::endl;
-			 break;
-		 }
+				 << " Integration method used:"
+				 << DumpIntegrationMethod() << std::endl;
 		 ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
    }
 

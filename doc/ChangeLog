@@ -1,4 +1,16 @@
 2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCIntegrate:
+	  - added NxxxMethods to all Method enums
+	  - added methods to dump integration, marginalization and
+	    optimization method as string
+	  - added summary message showing the integration method used
+	* BCModel:
+	  - added summary message showing the optimization method used
+	* BCIntegrate, BCModel:
+	  - clean up of some switch statements
+	  - changed some warnings to errors
+
+2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
 	* code cleanup and formatting
 	* changed some warnings to errors
 

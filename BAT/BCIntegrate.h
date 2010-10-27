@@ -52,19 +52,19 @@ class BCIntegrate : public BCEngineMCMC
 
 		/**
 		 * An enumerator for the integration algorithm */
-		enum BCIntegrationMethod { kIntMonteCarlo, kIntImportance, kIntMetropolis, kIntCuba };
+		enum BCIntegrationMethod { kIntMonteCarlo, kIntImportance, kIntMetropolis, kIntCuba, NIntMethods };
 
 		/**
 		 * An enumerator for the marginalization algorithm */
-		enum BCMarginalizationMethod { kMargMonteCarlo, kMargMetropolis };
+		enum BCMarginalizationMethod { kMargMonteCarlo, kMargMetropolis, NMargMethods };
 
 		/**
 		 * An enumerator for the mode finding algorithm */
-		enum BCOptimizationMethod { kOptSA, kOptMetropolis, kOptMinuit };
+		enum BCOptimizationMethod { kOptSA, kOptMetropolis, kOptMinuit, NOptMethods };
 		
 		/**
 		 * An enumerator for the Simulated Annealing schedule */
-		enum BCSASchedule { kSACauchy, kSABoltzmann, kSACustom };
+		enum BCSASchedule { kSACauchy, kSABoltzmann, kSACustom, NSAMethods };
 
 		/* @} */
 
@@ -722,7 +722,22 @@ class BCIntegrate : public BCEngineMCMC
 		 * Reset all information on the best fit parameters. 
 		 * @return An error code */
 		int IntegrateResetResults(); 
-		
+
+		std::string DumpIntegrationMethod(BCIntegrationMethod type);
+		std::string DumpIntegrationMethod()
+			{ return DumpIntegrationMethod(fIntegrationMethod); };
+
+		std::string DumpMarginalizationMethod(BCMarginalizationMethod type);
+		std::string DumpMarginalizationMethod()
+			{ return DumpMarginalizationMethod(fMarginalizationMethod); };
+
+		std::string DumpOptimizationMethod(BCOptimizationMethod type);
+		std::string DumpOptimizationMethod()
+			{ return DumpOptimizationMethod(fOptimizationMethod); };
+		std::string DumpUsedOptimizationMethod()
+			{ return DumpOptimizationMethod(fOptimizationMethodMode); };
+
+
 		/* @} */
 
 	private:
