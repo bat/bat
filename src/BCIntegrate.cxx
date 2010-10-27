@@ -464,8 +464,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
          double error = sqrt(variance);
          relprecision = error / integral;
 
-         BCLog::Out(BCLog::debug, BCLog::debug,
-            Form("BCIntegrate::IntegralMC. Iteration %i, integral: %e +- %e.", fNIterations, integral, error));
+         BCLog::OutDebug(Form("BCIntegrate::IntegralMC. Iteration %i, integral: %e +- %e.", fNIterations, integral, error));
       }
    }
 

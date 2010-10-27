@@ -1,4 +1,8 @@
 2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
+	* code cleanup and formatting
+	* changed some warnings to errors
+
+2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
 	* Makefile.am:
 	  - improved logic
 	  - cleanup

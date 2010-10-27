@@ -49,11 +49,10 @@ double BCDataPoint::GetValue(int index)
 	// check if index is in range. return value if true ...
 	if (index >= 0 && index < int(fData.size()))
 		value = fData[index];
-	// ... or give warning if not.
+	// ... or give error if not.
 	else
-      BCLog::Out(BCLog::warning, BCLog::warning, TString::Format(
-            "BCDataPoint::GetValue : Index %d out of range (%d to %d).", index,
-            0, fData.size()-1));
+      BCLog::OutError(
+				TString::Format("BCDataPoint::GetValue : Index %d out of range (%d to %d).", index,0, fData.size()-1));
 
 	return value;
 }
@@ -70,11 +69,10 @@ void BCDataPoint::SetValue(int index, double value)
 	// check if index is in range. set value if true ...
 	if (index >= 0 && index < int(fData.size()))
 		fData[index] = value;
-	// ... or give warning if not.
+	// ... or give error if not.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,TString::Format(
-				"BCDataPoint::SetValue : Index %d out of range (%d to %d).",
-				index, 0 ,fData.size()-1));
+		BCLog::OutError(
+				TString::Format("BCDataPoint::SetValue : Index %d out of range (%d to %d).",index, 0 ,fData.size()-1));
 }
 
 // ---------------------------------------------------------
@@ -89,9 +87,9 @@ void BCDataPoint::SetValues(std::vector <double> values)
 		for (std::vector<double>::const_iterator it = values.begin(); it != values.end(); ++it)
 			fData.push_back(*it);
 	}
-	// ... or give warning if the size if not the same.
+	// ... or give error if the size if not the same.
 	else
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCDataPoint::SetValues : Vectors have different ranges.");
+		BCLog::OutError("BCDataPoint::SetValues : Vectors have different ranges.");
 }
 
 // ---------------------------------------------------------

@@ -540,7 +540,7 @@ double BCModel::LogProbability(std::vector<double> parameters)
 {
    // check if normalized
    if (fNormalization < 0. || fNormalization == 0.) {
-      BCLog::Out(BCLog::warning, BCLog::warning,"BCModel::LogProbability. Normalization not available or zero.");
+      BCLog::OutError("BCModel::LogProbability. Normalization not available or zero.");
       return 0.;
    }
 
@@ -955,7 +955,7 @@ int BCModel::ReadErrorBandFromFile(const char * file)
 {
    TFile * froot = new TFile(file);
    if (!froot->IsOpen()) {
-      BCLog::OutWarning(Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.", file));
+      BCLog::OutError(Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.", file));
       return 0;
    }
 
@@ -1605,7 +1605,7 @@ double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std
 {
    // check number of entries in vector
    if (point.size() != GetNParameters()) {
-      BCLog::OutWarning("BCModel::HessianMatrixElement. Invalid number of entries in the vector.");
+      BCLog::OutError("BCModel::HessianMatrixElement : Invalid number of entries in the vector.");
       return -1;
    }
 
@@ -1650,7 +1650,7 @@ void BCModel::FixDataAxis(unsigned int index, bool fixed)
 {
    // check if index is within range
    if (index < 0 || index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutWarning("BCModel::FixDataAxis. Index out of range.");
+      BCLog::OutError("BCModel::FixDataAxis : Index out of range.");
       return;
    }
 
@@ -1666,7 +1666,7 @@ bool BCModel::GetFixedDataAxis(unsigned int index)
 {
    // check if index is within range
    if (index < 0 || index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutWarning("BCModel::GetFixedDataAxis. Index out of range.");
+      BCLog::OutError("BCModel::GetFixedDataAxis : Index out of range.");
       return false;
    }
 
@@ -1678,7 +1678,7 @@ int BCModel::SetPrior(int index, TF1 * f)
 {
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      BCLog::OutError("BCModel::SetPrior : Index out of range."); 
       return 0;
    }
 
@@ -1710,7 +1710,7 @@ int BCModel::SetPriorGauss(int index, double mean, double sigma)
 {
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
       return 0;
    }
 
@@ -1737,7 +1737,7 @@ int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
 
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
       return 0;
    }
 
@@ -1750,7 +1750,7 @@ int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigm
 {
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
       return 0;
    }
 
@@ -1781,7 +1781,7 @@ int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, dou
 
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior. Index out of range."); 
+      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
       return 0;
    }
 
@@ -1794,7 +1794,7 @@ int BCModel::SetPriorConstant(int index)
 {
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior. Index out of range.");
+      BCLog::OutError("BCModel::SetPriorConstant : Index out of range.");
       return 0;
    }
 
@@ -1825,7 +1825,7 @@ int BCModel::SetPriorConstant(const char* name)
 
    if (index == -1) {
       BCLog::OutError(Form(
-            "BCModel::SetPriorConstant. parameter '%s' doesn't exist.", name));
+            "BCModel::SetPriorConstant : parameter '%s' doesn't exist.", name));
       return 0;
    }
 
@@ -1841,13 +1841,11 @@ int BCModel::SetPriorConstantAll()
    int nPar = GetNParameters();
 
    if (nPar == 0)
-      BCLog::OutWarning("BCModel::SetPriorConstantAll. No parameters defined.");
+      BCLog::OutWarning("BCModel::SetPriorConstantAll : No parameters defined.");
 
    // loop over all 1-d priors
-   for (int i = 0; i < nPar; ++i) {
-
+   for (int i = 0; i < nPar; ++i)
       logprob -= log(GetParameter(i)->GetRangeWidth());
-   }
 
    fPriorConstantAll = true;
 
@@ -1865,7 +1863,7 @@ int BCModel::SetParameterRange(int index, double parmin, double parmax)
 {
    // check index
    if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutWarning("BCModel::SetParameterRange() : Index out of range.");
+      BCLog::OutError("BCModel::SetParameterRange : Index out of range.");
       return 0; 
    }
 

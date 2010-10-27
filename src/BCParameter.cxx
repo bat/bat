@@ -81,11 +81,11 @@ void BCParameter::PrintSummary()
 
 void BCParameter::Copy(BCParameter & parameter) const
 {
-	parameter.fName       = this -> fName;
-	parameter.fIndex      = this -> fIndex;
-	parameter.fLowerLimit = this -> fLowerLimit;
-	parameter.fUpperLimit = this -> fUpperLimit;
-	parameter.fNuisance   = this -> fNuisance;
+	parameter.fName       = fName;
+	parameter.fIndex      = fIndex;
+	parameter.fLowerLimit = fLowerLimit;
+	parameter.fUpperLimit = fUpperLimit;
+	parameter.fNuisance   = fNuisance;
 }
 
 // ---------------------------------------------------------

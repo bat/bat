@@ -39,9 +39,9 @@ BCGoFTest::BCGoFTest(const char* name) : BCModel(name)
 	fHistogramLogProb = 0;
 
 	// set defaults for the MCMC
-	this -> MCMCSetNChains(5);
-	this -> MCMCSetNIterationsMax(100000);
-	this -> MCMCSetNIterationsRun(2000);
+	MCMCSetNChains(5);
+	MCMCSetNIterationsMax(100000);
+	MCMCSetNIterationsRun(2000);
 }
 
 // ---------------------------------------------------------
@@ -51,19 +51,19 @@ BCGoFTest::~BCGoFTest()
 	// restore original data set
 
 	// get number of data points and values
-	int ndatapoints = fTemporaryDataSet -> GetNDataPoints();
-	int ndatavalues = fTemporaryDataSet -> GetDataPoint(0) -> GetNValues();
+	int ndatapoints = fTemporaryDataSet->GetNDataPoints();
+	int ndatavalues = fTemporaryDataSet->GetDataPoint(0)->GetNValues();
 
 	for (int i = 0; i < ndatapoints; ++i)
 		for (int j = 0; j < ndatavalues; ++j)
-			fTestModel -> GetDataSet() -> GetDataPoint(i) -> SetValue(j, fTemporaryDataSet -> GetDataPoint(i) -> GetValue(j));
+			fTestModel->GetDataSet()->GetDataPoint(i)->SetValue(j, fTemporaryDataSet->GetDataPoint(i)->GetValue(j));
 
 	// restore data point limits
-	for (unsigned int i = 0; i < this -> GetNParameters(); ++i)
-		fTestModel -> SetDataBoundaries(
+	for (unsigned int i = 0; i < GetNParameters(); ++i)
+		fTestModel->SetDataBoundaries(
 				fMapDataValue[i],
-				this -> GetParameter(i) -> GetLowerLimit(),
-				this -> GetParameter(i) -> GetUpperLimit());
+				GetParameter(i)->GetLowerLimit(),
+				GetParameter(i)->GetUpperLimit());
 
 	// delete temporary data set
 	delete fTemporaryDataSet;
@@ -75,10 +75,10 @@ double BCGoFTest::LogLikelihood(std::vector <double> parameters)
 {
 	// set the original data set to the new parameters
 	for (int i = 0; i < int(parameters.size()); ++i)
-		fTestModel -> GetDataSet() -> GetDataPoint(fMapDataPoint[i]) -> SetValue(fMapDataValue[i], parameters.at(i));
+		fTestModel->GetDataSet()->GetDataPoint(fMapDataPoint[i])->SetValue(fMapDataValue[i], parameters.at(i));
 
 	// calculate likelihood at the point of the original parameters
-	double loglikelihood = fTestModel -> LogLikelihood(fDataSet -> GetDataPoint(0) -> GetValues());
+	double loglikelihood = fTestModel->LogLikelihood(fDataSet->GetDataPoint(0)->GetValues());
 
 	// return likelihood
 	return loglikelihood;
@@ -88,12 +88,12 @@ double BCGoFTest::LogLikelihood(std::vector <double> parameters)
 
 void BCGoFTest::MCMCUserIterationInterface()
 {
-	int nchains = this -> MCMCGetNChains();
+	int nchains = MCMCGetNChains();
 
 	for (int i = 0; i < nchains; ++i)
 	{
 		// get likelihood at the point of the original parameters
-		double loglikelihood = this -> MCMCGetLogProbx(i);
+		double loglikelihood = MCMCGetLogProbx(i);
 
 		// calculate pvalue
 		if (loglikelihood < fLogLikelihood)
@@ -103,7 +103,7 @@ void BCGoFTest::MCMCUserIterationInterface()
 
 		// if histogram exists already, then fill it ...
 		if (fHistogramLogProb)
-			fHistogramLogProb -> Fill(loglikelihood);
+			fHistogramLogProb->Fill(loglikelihood);
 		// ...otherwise find range
 		else
 		{
@@ -120,9 +120,9 @@ void BCGoFTest::MCMCUserIterationInterface()
 int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 {
 	// check if the boundaries of the original data set exist.
-	if (!fTestModel -> GetFlagBoundaries())
+	if (!fTestModel->GetFlagBoundaries())
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCGoFTest::SetTestDataPoint(). Boundaries of the original data set are not defined.");
+		BCLog::OutError("BCGoFTest::SetTestDataPoint : Boundaries of the original data set are not defined.");
 		return 0;
 	}
 
@@ -144,13 +144,13 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 	// ... and fill with the original one
 
 	// get number of data points and values
-	int ndatapoints = fTestModel -> GetDataSet() -> GetNDataPoints();
-	int ndatavalues = fTestModel -> GetDataSet() -> GetDataPoint(0) -> GetNValues();
+	int ndatapoints = fTestModel->GetDataSet()->GetNDataPoints();
+	int ndatavalues = fTestModel->GetDataSet()->GetDataPoint(0)->GetNValues();
 
 	for (int i = 0; i < ndatapoints; ++i)
 	{
-		BCDataPoint * dp = new BCDataPoint(fTestModel -> GetDataSet() -> GetDataPoint(i) -> GetValues());
-		fTemporaryDataSet -> AddDataPoint(dp);
+		BCDataPoint * dp = new BCDataPoint(fTestModel->GetDataSet()->GetDataPoint(i)->GetValues());
+		fTemporaryDataSet->AddDataPoint(dp);
 	}
 
 	// clear maps
@@ -160,7 +160,7 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 	int counter = 0;
 
 	// remove parameters
-	fParameterSet -> clear();
+	fParameterSet->clear();
 	delete fParameterSet;
 	fParameterSet = new BCParameterSet;
 
@@ -168,14 +168,14 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 	for (int i = 0; i < ndatapoints; ++i)
 		for (int j = 0; j < ndatavalues; ++j)
 		{
-			if (fTestModel -> GetFixedDataAxis(j))
+			if (fTestModel->GetFixedDataAxis(j))
 				continue;
 
 			// add parameter to this model
-			this -> AddParameter(
+			AddParameter(
 					Form("parameter_%i", counter),
-					fTestModel -> GetDataPointLowerBoundary(j),
-					fTestModel -> GetDataPointUpperBoundary(j));
+					fTestModel->GetDataPointLowerBoundary(j),
+					fTestModel->GetDataPointUpperBoundary(j));
 
 			// add another element to the maps
 			fMapDataPoint.push_back(i);
@@ -188,7 +188,7 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 	// check if there are any non-fixed data values left
 	if (counter == 0)
 	{
-		BCLog::Out(BCLog::warning, BCLog::warning,"BCGoFTest::SetTestDataPoint(). No non-fixed data values left.");
+		BCLog::OutError("BCGoFTest::SetTestDataPoint : No non-fixed data values left.");
 		return 0;
 	}
 
@@ -196,10 +196,10 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 	// are to be tested
 	BCDataPoint * datapoint = new BCDataPoint(parameters);
 	BCDataSet * dataset = new BCDataSet();
-	dataset -> AddDataPoint(datapoint);
+	dataset->AddDataPoint(datapoint);
 
 	// calculate likelihood of the original data set
-	fLogLikelihood = fTestModel -> LogLikelihood(parameters);
+	fLogLikelihood = fTestModel->LogLikelihood(parameters);
 
 	// if data set has been set before, delete
 	if (fDataSet)
@@ -210,10 +210,10 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 
 	// put proper range to new data set
 	for (int i = 0; i < int(parameters.size()); ++i)
-		this -> SetDataBoundaries(
+		SetDataBoundaries(
 				i,
-				fTestModel -> GetParameter(i) -> GetLowerLimit(),
-				fTestModel -> GetParameter(i) -> GetUpperLimit());
+				fTestModel->GetParameter(i)->GetLowerLimit(),
+				fTestModel->GetParameter(i)->GetUpperLimit());
 
 	return 1;
 }
@@ -228,36 +228,35 @@ double BCGoFTest::GetCalculatedPValue(bool flag_histogram)
 	if (flag_histogram)
 	{
 		// modify MCMC for first run
-//		this -> MCMCSetNIterationsMax(100000);
-//		this -> MCMCSetNIterationsRun(10000);
+//		MCMCSetNIterationsMax(100000);
+//		MCMCSetNIterationsRun(10000);
 
 		// perform first run to obtain limits for the log(likelihood)
-		this -> MarginalizeAll();
+		MarginalizeAll();
 
 		// modify MCMC for second run
-//		this -> MCMCSetNIterationsMax(100000);
-//		this -> MCMCSetNIterationsRun(10000);
+//		MCMCSetNIterationsMax(100000);
+//		MCMCSetNIterationsRun(10000);
 
 		// create histogram
 		double D = fLogLikelihoodMax - fLogLikelihoodMin;
-		fHistogramLogProb = new TH1D(Form("hist_%s_logprob", this -> GetName().data()), ";ln(prob);N", 100, fLogLikelihoodMin - 0.1*D, fLogLikelihoodMax + 0.1*D);
-		fHistogramLogProb -> SetStats(kFALSE);
+		fHistogramLogProb = new TH1D(Form("hist_%s_logprob", GetName().data()), ";ln(prob);N", 100, fLogLikelihoodMin - 0.1*D, fLogLikelihoodMax + 0.1*D);
+		fHistogramLogProb->SetStats(kFALSE);
 	}
 	else
 	{
 		// modify MCMC
-//		this -> MCMCSetNIterationsMax(100000);
-//		this -> MCMCSetNIterationsRun(10000);
+//		MCMCSetNIterationsMax(100000);
+//		MCMCSetNIterationsRun(10000);
 	}
 
 	// run MCMC
-	this -> MarginalizeAll();
+	MarginalizeAll();
 
 	// check for convergence
-	if (this -> MCMCGetNIterationsConvergenceGlobal() < 0.)
+	if (MCMCGetNIterationsConvergenceGlobal() < 0.)
 	{
-		BCLog::Out(BCLog::detail, BCLog::detail,
-				" --> MCMC did not converge in evaluation of the p-value.");
+		BCLog::OutDetail(" --> MCMC did not converge in evaluation of the p-value.");
 		return -1;
 	}
 

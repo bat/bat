@@ -136,7 +136,7 @@ int BCSummaryTool::CopySummaryData()
 			}
 		}
 		else {
-			//			BCLog::OutWarning("BCSummaryTool::CopySummaryData(). No information on marginalized distributions present.");
+			//			BCLog::OutWarning("BCSummaryTool::CopySummaryData : No information on marginalized distributions present.");
 		}
 
 		// copy optimization information
@@ -145,7 +145,7 @@ int BCSummaryTool::CopySummaryData()
 			fGlobalMode.push_back ( (fModel->GetBestFitParameters()).at(i) );
 		}
 		else {
-			//			BCLog::OutWarning("BCSummaryTool::CopySummaryData(). No information on optimization present.");
+			//			BCLog::OutWarning("BCSummaryTool::CopySummaryData : No information on optimization present.");
 		}
 	}
 
@@ -492,8 +492,8 @@ int BCSummaryTool::PrintKnowlegdeUpdatePlot(const char * filename)
 			hist_2dposterior->Scale(1.0/hist_2dposterior->Integral("width"));
 
 			// calculate contours
-			bch2d_2dprior -> CalculateIntegratedHistogram();
-			bch2d_2dposterior -> CalculateIntegratedHistogram();
+			bch2d_2dprior->CalculateIntegratedHistogram();
+			bch2d_2dposterior->CalculateIntegratedHistogram();
 
 			double level[1] = {bch2d_2dprior->GetLevel(0.32)};
 			hist_2dprior->SetContour(1, level);

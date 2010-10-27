@@ -47,7 +47,7 @@ BCH1D::~BCH1D()
 
 double BCH1D::GetMode()
 {
-	return fHistogram -> GetBinCenter(fHistogram -> GetMaximumBin());
+	return fHistogram->GetBinCenter(fHistogram->GetMaximumBin());
 }
 
 // ---------------------------------------------------------
@@ -61,7 +61,7 @@ double BCH1D::GetQuantile(double probability)
 	probsum[0] = probability;
 
 	// use ROOT function to calculat quantile.
-	fHistogram -> GetQuantiles(nquantiles, quantiles, probsum);
+	fHistogram->GetQuantiles(nquantiles, quantiles, probsum);
 
 	return quantiles[0];
 }
@@ -72,11 +72,11 @@ double BCH1D::GetIntegral(double valuemin, double valuemax)
 {
 	double integral = 0;
 
-	int binmin = fHistogram -> FindBin(valuemin);
-	int binmax = fHistogram -> FindBin(valuemax);
+	int binmin = fHistogram->FindBin(valuemin);
+	int binmax = fHistogram->FindBin(valuemax);
 
 	// use ROOT function to calculate integral.
-	integral = fHistogram -> Integral(binmin, binmax);
+	integral = fHistogram->Integral(binmin, binmax);
 
 	return integral;
 }
@@ -86,7 +86,7 @@ double BCH1D::GetIntegral(double valuemin, double valuemax)
 double BCH1D::GetPValue(double probability)
 {
 	// use ROOT function to calculate the integral from 0 to "probability".
-	return fHistogram -> Integral(1, fHistogram -> FindBin(probability));
+	return fHistogram->Integral(1, fHistogram->FindBin(probability));
 }
 
 // ---------------------------------------------------------
@@ -95,7 +95,7 @@ void BCH1D::SetDefaultCLLimit(double limit)
 {
 	// check if limit is between 68% and 100%. Give a warning if not ...
 	if(limit>=100. || limit<68.)
-		BCLog::Out(BCLog::warning,BCLog::warning,
+		BCLog::OutWarning(
 			Form("BCH1D::SetDefaultCLLimit : Value %.1f out of range. Keeping default %.1f%% CL limit.",limit,fDefaultCLLimit));
 
 	// ... or set value if true.
@@ -114,7 +114,7 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
 	file[i]='\0';
 
 // temporary
-	fHistogram -> SetLineWidth(1);
+	fHistogram->SetLineWidth(1);
 
 	// create temporary canvas
 	TCanvas * c;
@@ -123,13 +123,13 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
 	else
 		c = new TCanvas("c","c");
 
-	c -> cd();
-	this->Draw(options, ovalue);
+	c->cd();
+	Draw(options, ovalue);
 
 	gPad->RedrawAxis();
 
 	// print to file.
-	c -> Print(file);
+	c->Print(file);
 }
 
 // ---------------------------------------------------------
@@ -138,7 +138,7 @@ void BCH1D::Draw(int options, double ovalue)
 {
 	double min, max;
 	double mode;
-	double thismode = this->GetMode();
+	double thismode = GetMode();
 
 	int nbins = fHistogram->GetNbinsX();
 
@@ -165,17 +165,17 @@ void BCH1D::Draw(int options, double ovalue)
 			if (fabs(ovalue) >= 100 || ovalue==0.)
 			{//default case if no args to Draw() supplied
 
-				min = this -> GetQuantile(.16);
-				max = this -> GetQuantile(.84);
+				min = GetQuantile(.16);
+				max = GetQuantile(.84);
 
 				//draw a legend later
 				flagLegend = true;
 				sprintf(confidenceLabel, "Central 68%%");
 
-//				if ( thismode > max || fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
-				if ( fHistogram -> FindBin(thismode) == fHistogram -> GetNbinsX() )
+//				if ( thismode > max || fHistogram->FindBin(thismode) == fHistogram->GetNbinsX() )
+				if ( fHistogram->FindBin(thismode) == fHistogram->GetNbinsX() )
 				{
-					min = this -> GetQuantile(1.-(double)fDefaultCLLimit/100.);
+					min = GetQuantile(1.-(double)fDefaultCLLimit/100.);
 					max = fHistogram->GetXaxis()->GetXmax();
 					ovalue = fDefaultCLLimit;
 					sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
@@ -184,7 +184,7 @@ void BCH1D::Draw(int options, double ovalue)
 				else if ( fHistogram->FindBin(thismode)==1)
 				{
 					min = fHistogram->GetXaxis()->GetXmin();
-					max = this -> GetQuantile((double)fDefaultCLLimit/100.);
+					max = GetQuantile((double)fDefaultCLLimit/100.);
 					ovalue = -fDefaultCLLimit;
 					sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
 				}
@@ -193,16 +193,16 @@ void BCH1D::Draw(int options, double ovalue)
 			else if(ovalue < 0)
 			{
 				min = fHistogram->GetXaxis()->GetXmin();
-				max = this -> GetQuantile(-ovalue/100.);
+				max = GetQuantile(-ovalue/100.);
 			}
 			else
 			{
-				min = this -> GetQuantile(1. - ovalue/100.);
+				min = GetQuantile(1. - ovalue/100.);
 				max = fHistogram->GetXaxis()->GetXmax();
 			}
 
 			// do the drawing
-			this->DrawShadedLimits(mode, min, max, ovalue);
+			DrawShadedLimits(mode, min, max, ovalue);
 
 			// add legend for the symbols mean, mode, median, confidence band
 			if(flagLegend)
@@ -214,14 +214,14 @@ void BCH1D::Draw(int options, double ovalue)
 		// Draw a line at "ovalue".
 		case 1:
 
-			fHistogram -> Draw();
+			fHistogram->Draw();
 			min = fHistogram->GetBinLowEdge(1);
 			max = fHistogram->GetBinLowEdge(nbins+1);
 			if(min<=ovalue && ovalue<=max)
 			{
 				line = new TLine();
-				line -> SetLineColor(kRed);
-				line -> DrawLine(ovalue, 0., ovalue, 1.05 * fHistogram -> GetMaximum());
+				line->SetLineColor(kRed);
+				line->DrawLine(ovalue, 0., ovalue, 1.05 * fHistogram->GetMaximum());
 			}
 
 			break;
@@ -232,10 +232,10 @@ void BCH1D::Draw(int options, double ovalue)
 			if(ovalue<50) // just to ensure there's some sense in the number
 				ovalue = 68.; // default is 68%
 
-			this->GetSmallestInterval(min, max, ovalue/100.);
-			this->DrawShadedLimits(mode, min, max, 0.);
+			GetSmallestInterval(min, max, ovalue/100.);
+			DrawShadedLimits(mode, min, max, 0.);
 
-//			this -> DrawLegend(TString::Format("Smallest %g%",ovalue));
+//			DrawLegend(TString::Format("Smallest %g%",ovalue));
 
 			break;
 
@@ -245,14 +245,14 @@ void BCH1D::Draw(int options, double ovalue)
 			if(ovalue<50) // just to ensure there's some sense in the number
 				ovalue = 68.; // default is 68%
 
-			this -> DrawSmallest(mode,ovalue);
+			DrawSmallest(mode,ovalue);
 
 			break;
 
 		// Sort out bad options and warn.
 		default:
 
-			BCLog::Out(BCLog::warning, BCLog::warning, Form("BCH1D::Draw : Invalid option %d",options));
+			BCLog::OutError(Form("BCH1D::Draw : Invalid option %d",options));
 			break;
 	}
 }
@@ -263,33 +263,33 @@ void BCH1D::DrawLegend(const char* text)
    //draw on top right corner
 
    TLegend* legend = new TLegend(0.73, 0.72, 0.86, 0.85);
-   legend -> SetFillColor(kWhite);
-   legend -> SetBorderSize(1);
+   legend->SetFillColor(kWhite);
+   legend->SetBorderSize(1);
 
    TMarker* triangle = new TMarker(0, 0, 23);
-   triangle -> SetMarkerColor(kRed);
-   legend -> AddEntry(triangle, "Global mode", "P");
+   triangle->SetMarkerColor(kRed);
+   legend->AddEntry(triangle, "Global mode", "P");
 
    TMarker* diamond = new TMarker(0, 0, 27);
-   diamond -> SetMarkerColor(kBlue);
-   legend -> AddEntry(diamond, "Mean", "P");
+   diamond->SetMarkerColor(kBlue);
+   legend->AddEntry(diamond, "Mean", "P");
 
    TLine * line;
    line = new TLine();
-   line -> SetLineStyle(2);
-   line -> SetLineColor(kGreen + 2);
-   legend -> AddEntry(line, "Median", "l");
+   line->SetLineStyle(2);
+   line->SetLineColor(kGreen + 2);
+   legend->AddEntry(line, "Median", "l");
 
    TLegend* band = new TLegend(0, 0, 1, 1);
-   band -> SetFillColor(kYellow);
-   legend -> AddEntry(band, text, "F");
+   band->SetFillColor(kYellow);
+   legend->AddEntry(band, text, "F");
 
-   legend -> SetTextAlign(12);
+   legend->SetTextAlign(12);
 
    //fine tuned by hand so text legible even with several plots in a row
-   legend -> SetTextSize(0.016);
+   legend->SetTextSize(0.016);
 
-   legend -> Draw();
+   legend->Draw();
 }
 
 // ---------------------------------------------------------
@@ -298,7 +298,7 @@ void BCH1D::DrawLegend(const char* text)
 
 void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 {
-	double maximum = fHistogram -> GetMaximum();
+	double maximum = fHistogram->GetMaximum();
 
 	double x0 = mode;
 	double y0 = fHistogram->GetBinContent( fHistogram->FindBin(mode) );
@@ -306,7 +306,7 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 	double x1 = fHistogram->GetMean();
 	double y1 = fHistogram->GetBinContent( fHistogram->FindBin(x1) );
 
-	double x2 = this -> GetQuantile(.5); // median
+	double x2 = GetQuantile(.5); // median
 	double y2 = fHistogram->GetBinContent( fHistogram->FindBin(x2) );
 
 	double ysize = maximum*1.3;
@@ -318,22 +318,22 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 	TH2D * hsc = new TH2D(
 			TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
 			10, xmin, xmax, 10, 0., ysize);
-	hsc -> SetStats(0);
-	hsc -> SetXTitle(fHistogram->GetXaxis()->GetTitle());
-	hsc -> SetYTitle(fHistogram->GetYaxis()->GetTitle());
-	hsc -> Draw();
+	hsc->SetStats(0);
+	hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
+	hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
+	hsc->Draw();
 
 	// draw histogram
-	fHistogram -> SetLineWidth(1);
-	fHistogram -> Draw("same");
+	fHistogram->SetLineWidth(1);
+	fHistogram->Draw("same");
 
 	// draw yellow shaded region between min and max
-	TH1D * hist_shaded = this->GetSubHisto(min,max,TString::Format("%s_sub_%d",fHistogram->GetName(),BCLog::GetHIndex()));
-	hist_shaded -> SetFillStyle(1001);
-	hist_shaded -> SetFillColor(kYellow);
+	TH1D * hist_shaded = GetSubHisto(min,max,TString::Format("%s_sub_%d",fHistogram->GetName(),BCLog::GetHIndex()));
+	hist_shaded->SetFillStyle(1001);
+	hist_shaded->SetFillColor(kYellow);
 
 	// draw shaded histogram
-	hist_shaded -> Draw("same");
+	hist_shaded->Draw("same");
 
 	gPad->RedrawAxis();
 
@@ -390,9 +390,9 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 	// draw dashed line for median
 	TLine * line;
 	line = new TLine();
-	line -> SetLineStyle(2);
-	line -> SetLineColor(kGreen+2);
-	line -> DrawLine(x2, 0., x2, y2);
+	line->SetLineStyle(2);
+	line->SetLineColor(kGreen+2);
+	line->DrawLine(x2, 0., x2, y2);
 
 
 	// write mode location and shaded band
@@ -432,21 +432,21 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 
 /*
 	TLegend * leg = new TLegend(.61,.7,.9,.88);
-	leg -> SetFillColor(kWhite);
-	leg -> SetFillStyle(0);
-	leg -> SetBorderSize(0);
-	leg -> AddEntry(line,"Median", "l");
+	leg->SetFillColor(kWhite);
+	leg->SetFillStyle(0);
+	leg->SetBorderSize(0);
+	leg->AddEntry(line,"Median", "l");
 	TH1D * hh0 = new TH1D("hh0","",10,0,10);
 	hh0->SetMarkerStyle(23);
 	hh0->SetMarkerColor(kBlue);
 	hh0->SetMarkerSize(1);
-	leg -> AddEntry(hh0,"Mean","p");
+	leg->AddEntry(hh0,"Mean","p");
 	TH1D * hh1 = new TH1D("hh1","",10,0,10);
 	hh1->SetMarkerStyle(23);
 	hh1->SetMarkerColor(kRed);
 	hh1->SetMarkerSize(1);
-	leg -> AddEntry(hh1,"Mode","p");
-	leg -> AddEntry(hist_shaded, "Central 68%", "f");
+	leg->AddEntry(hh1,"Mode","p");
+	leg->AddEntry(hist_shaded, "Central 68%", "f");
 	leg ->Draw();
 */
 
@@ -463,12 +463,12 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
 	double y0 = fHistogram->GetBinContent( fHistogram->FindBin(mode) );
 	double xmin = fHistogram->GetXaxis()->GetXmin();
 	double xmax = fHistogram->GetXaxis()->GetXmax();
-	double ysize = 1.3 * fHistogram -> GetMaximum();
+	double ysize = 1.3 * fHistogram->GetMaximum();
 
 	double x1 = fHistogram->GetMean();
 	double y1 = fHistogram->GetBinContent( fHistogram->FindBin(x1) );
 
-	double x2 = this -> GetQuantile(.5); // median
+	double x2 = GetQuantile(.5); // median
 	double y2 = fHistogram->GetBinContent( fHistogram->FindBin(x2) );
 
 	double dx = 0.01*(xmax-xmin);
@@ -483,23 +483,23 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
 	TH2D * hsc = new TH2D(
 			TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
 			10, xmin, xmax, 10, 0., ysize);
-	hsc -> SetStats(0);
-	hsc -> SetXTitle(fHistogram->GetXaxis()->GetTitle());
-	hsc -> SetYTitle(fHistogram->GetYaxis()->GetTitle());
-	hsc -> Draw();
+	hsc->SetStats(0);
+	hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
+	hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
+	hsc->Draw();
 
 	// histogram to be filled with band
-	TH1D * hist_temp1 = (TH1D*) fHistogram -> Clone();
-	hist_temp1 -> Scale(1.0/fHistogram -> Integral("width"));
-	hist_temp1 -> SetFillColor(kYellow);
-	hist_temp1 -> SetFillStyle(1001);
+	TH1D * hist_temp1 = (TH1D*) fHistogram->Clone();
+	hist_temp1->Scale(1.0/fHistogram->Integral("width"));
+	hist_temp1->SetFillColor(kYellow);
+	hist_temp1->SetFillStyle(1001);
 
 	// temporary histogram
-	TH1D * hist_temp2 = (TH1D*) fHistogram -> Clone();
-	hist_temp2 -> Scale(1.0/fHistogram -> Integral("width"));
+	TH1D * hist_temp2 = (TH1D*) fHistogram->Clone();
+	hist_temp2->Scale(1.0/fHistogram->Integral("width"));
 
 	// clear content
-	hist_temp1 -> Reset();
+	hist_temp1->Reset();
 
 	// loop over original histogram and copy bin untils integral equals
 	// "prob"
@@ -517,25 +517,25 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
 		n++;
 
 		// find bin with maximum
-		int bin = hist_temp2 -> GetMaximumBin();
+		int bin = hist_temp2->GetMaximumBin();
 
 		// copy bin to new histogram
-		double val = hist_temp2 -> GetBinContent(bin);
-		hist_temp1 -> SetBinContent(bin, val);
+		double val = hist_temp2->GetBinContent(bin);
+		hist_temp1->SetBinContent(bin, val);
 
 		// remove maximum from temporary histogram
-		hist_temp2 -> SetBinContent(bin, 0.0);
+		hist_temp2->SetBinContent(bin, 0.0);
 
 		// integrate by summing
 		sum += val * hist_temp2->GetBinWidth(bin);
 	}
 
 	// scale histogram
-	hist_temp1 -> Scale(fHistogram -> Integral("width"));
+	hist_temp1->Scale(fHistogram->Integral("width"));
 
 	// draw histograms
-	fHistogram -> Draw("same");
-	hist_temp1 -> Draw("same");
+	fHistogram->Draw("same");
+	hist_temp1->Draw("same");
 
 	// draw triangle for mode
 	tmax->Draw("f");
@@ -561,9 +561,9 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
 		// draw dashed line for median
 		TLine * line;
 		line = new TLine();
-		line -> SetLineStyle(2);
-		line -> SetLineColor(kGreen+2);
-		line -> DrawLine(x2, 0., x2, y2);
+		line->SetLineStyle(2);
+		line->SetLineColor(kGreen+2);
+		line->DrawLine(x2, 0., x2, y2);
 	}
 
 	// free memory
@@ -577,7 +577,7 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 	if(content<=0. || content>= 1.)
 		return 0.;
 
-	int nbins = fHistogram -> GetNbinsX();
+	int nbins = fHistogram->GetNbinsX();
 
 	double factor = fHistogram->Integral("width");
 	if(factor==0)
@@ -664,10 +664,9 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 
 	if(warn)
 	{
-		BCLog::Out(BCLog::warning,BCLog::warning,
+		BCLog::OutWarning(
 				Form("BCH1D::GetSmallestInterval : The requested content of %d%% fits within one bin.",(int)(content*100)));
-		BCLog::Out(BCLog::warning,BCLog::warning,
-				"BCH1D::GetSmallestInterval : MAKE FINER BINNING (OR CHANGE RANGE) !!!");
+		BCLog::OutWarning("BCH1D::GetSmallestInterval : MAKE FINER BINNING (OR CHANGE RANGE) !!!");
 	}
 
 	// restore normalization to state before calling this method
@@ -802,19 +801,19 @@ TH1D * BCH1D::GetSubHisto(double min, double max, const char * name)
 TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 {
 	// create a new histogram which will be returned and all yellow
-	TH1D * hist_yellow = (TH1D*) fHistogram -> Clone();
-	hist_yellow -> Reset();
-	hist_yellow -> SetFillStyle(1001);
-	hist_yellow -> SetFillColor(kYellow);
+	TH1D * hist_yellow = (TH1D*) fHistogram->Clone();
+	hist_yellow->Reset();
+	hist_yellow->SetFillStyle(1001);
+	hist_yellow->SetFillColor(kYellow);
 
 	// copy a temporary histogram
-	TH1D * hist_temp = (TH1D*) fHistogram -> Clone(TString::Format("%s_%i",fHistogram->GetName(),BCLog::GetHIndex()));
-	double factor = hist_temp -> Integral("");
+	TH1D * hist_temp = (TH1D*) fHistogram->Clone(TString::Format("%s_%i",fHistogram->GetName(),BCLog::GetHIndex()));
+	double factor = hist_temp->Integral("");
 
 	if(factor == 0)
 		return 0;
 
-	hist_temp -> Scale(1. / factor);
+	hist_temp->Scale(1. / factor);
 
 	// here's the algorithm:
 	// 1. find the maximum bin in the temporary histogram and copy it to
@@ -828,14 +827,14 @@ TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 	while (sumprob < level)
 	{
 		// find maximum bin and value
-		int bin = hist_temp -> GetMaximumBin();
-		double value = hist_temp -> GetMaximum();
+		int bin = hist_temp->GetMaximumBin();
+		double value = hist_temp->GetMaximum();
 
 		// copy "1" into the corresponding bin in the yellow histogram
-		hist_yellow -> SetBinContent(bin, 1.0);
+		hist_yellow->SetBinContent(bin, 1.0);
 
 		// set the bin value in the temporary histogram to zero
-		hist_temp -> SetBinContent(bin, 0.0);
+		hist_temp->SetBinContent(bin, 0.0);
 
 		// increase probability sum
 		sumprob += value;
@@ -852,9 +851,9 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 {
 	std::vector <double> v;
 
-	TH1D * hist = this -> GetSmallestIntervalHistogram(content);
+	TH1D * hist = GetSmallestIntervalHistogram(content);
 
-	int nbins = hist -> GetNbinsX();
+	int nbins = hist->GetNbinsX();
 	int ninter = 0;
 	int lastbin = -1;
 
@@ -867,10 +866,10 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 	for (int i = 1; i <= nbins; ++i)
 	{
 		// interval starts here
-		if (!flag && hist -> GetBinContent(i) > 0.)
+		if (!flag && hist->GetBinContent(i) > 0.)
 		{
 			flag = true;
-			v.push_back(hist -> GetBinLowEdge(i));
+			v.push_back(hist->GetBinLowEdge(i));
 
 			// remember start position of the interval
 			lastbin = i;
@@ -879,22 +878,22 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 			ninter++;
 
 			// reset local maximum
-			localmax = fHistogram -> GetBinContent(i);
-			localmaxpos = hist -> GetBinLowEdge(i);
+			localmax = fHistogram->GetBinContent(i);
+			localmaxpos = hist->GetBinLowEdge(i);
 
 			// reset local integral
 			localint = 0;
 		}
 
 		// interval stops here
-		if ((flag && !(hist -> GetBinContent(i) > 0.)) || (flag && i == nbins))
+		if ((flag && !(hist->GetBinContent(i) > 0.)) || (flag && i == nbins))
 		{
 			flag = false;
-			v.push_back(hist -> GetBinLowEdge(i) + hist -> GetBinWidth(i));
+			v.push_back(hist->GetBinLowEdge(i) + hist->GetBinWidth(i));
 
 			// set right bin to maximum if on edge
-			if (i == nbins && localmax < fHistogram -> GetBinContent(i))
-				localmaxpos = hist -> GetBinCenter(i) + 0.5 * hist -> GetBinWidth(i);
+			if (i == nbins && localmax < fHistogram->GetBinContent(i))
+				localmaxpos = hist->GetBinCenter(i) + 0.5 * hist->GetBinWidth(i);
 
 			// find the absolute maximum
 			if (localmax > max)
@@ -909,14 +908,14 @@ std::vector <double> BCH1D::GetSmallestIntervals(double content)
 		}
 
 		// find local maximum
-		if (i < nbins && localmax < fHistogram -> GetBinContent(i))
+		if (i < nbins && localmax < fHistogram->GetBinContent(i))
 		{
-			localmax = fHistogram -> GetBinContent(i);
-			localmaxpos = hist -> GetBinCenter(i);
+			localmax = fHistogram->GetBinContent(i);
+			localmaxpos = hist->GetBinCenter(i);
 		}
 
 		// increase area
-		localint += fHistogram -> GetBinContent(i) / fHistogram -> Integral();
+		localint += fHistogram->GetBinContent(i) / fHistogram->Integral();
 	}
 
 	// rescale absolute heights to relative heights

@@ -25,7 +25,7 @@
 BCEngineMCMC::BCEngineMCMC()
 {
 	// set default parameters for the mcmc
-	this->MCMCSetValuesDefault();
+	MCMCSetValuesDefault();
 
 	// initialize random number generator
 	fRandom = new TRandom3(0);
@@ -57,7 +57,7 @@ void BCEngineMCMC::MCMCSetValuesDefault()
 	fMCMCCurrentIteration     = -1;
 	fMCMCCurrentChain         = -1;
 
-	this->MCMCSetValuesDetail();
+	MCMCSetValuesDetail();
 }
 
 // ---------------------------------------------------------
@@ -254,7 +254,7 @@ void BCEngineMCMC::MCMCSetNChains(int n)
 	fMCMCNChains = n;
 
 	// re-initialize
-	this->MCMCInitialize();
+	MCMCInitialize();
 }
 
 // --------------------------------------------------------
@@ -270,7 +270,7 @@ void BCEngineMCMC::MCMCSetInitialPositions(std::vector<double> x0s)
 		fMCMCInitialPosition.push_back(x0s.at(i));
 
 	// use these intial positions for the Markov chain
-	this->MCMCSetFlagInitialPosition(2);
+	MCMCSetFlagInitialPosition(2);
 }
 
 // --------------------------------------------------------
@@ -284,7 +284,7 @@ void BCEngineMCMC::MCMCSetInitialPositions(std::vector< std::vector<double> > x0
 		for (int j = 0; j < int((x0s.at(i)).size()); ++j)
 			y0s.push_back((x0s.at(i)).at(j));
 
-	this->MCMCSetInitialPositions(y0s);
+	MCMCSetInitialPositions(y0s);
 }
 
 // --------------------------------------------------------
@@ -446,7 +446,7 @@ double BCEngineMCMC::MCMCGetLogProbx(int ichain)
 bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double> &x)
 {
 	// get unscaled random point. this point might not be in the correct volume.
-	this->MCMCTrialFunction(chain, x);
+	MCMCTrialFunction(chain, x);
 
 	// get a proposal point from the trial function and scale it
 	for (int i = 0; i < fMCMCNParameters; ++i)
@@ -493,7 +493,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
 	fMCMCNIterations[chain]++;
 
 	// get proposal point
-	if (!this->MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal))
+	if (!MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal))
 	{
 		// increase counter
 		fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++;
@@ -506,7 +506,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCprob[chain];
-	double p1 = this->LogEval(fMCMCxLocal);
+	double p1 = LogEval(fMCMCxLocal);
 
 	// flag for accept
 	bool accept = false;
@@ -563,7 +563,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
 	fMCMCNIterations[chain]++;
 
 	// get proposal point
-	if (!this->MCMCGetProposalPointMetropolis(chain, fMCMCxLocal))
+	if (!MCMCGetProposalPointMetropolis(chain, fMCMCxLocal))
 	{
 		// increase counter
 		for (int i = 0; i < fMCMCNParameters; ++i)
@@ -577,7 +577,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
 
 	// calculate probabilities of the old and new points
 	double p0 = fMCMCprob[chain];
-	double p1 = this->LogEval(fMCMCxLocal);
+	double p1 = LogEval(fMCMCxLocal);
 
 	// flag for accept
 	bool accept = false;
@@ -811,8 +811,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	BCLog::OutSummary("Pre-run Metropolis MCMC...");
 
 	// initialize Markov chain
-	this->MCMCInitialize();
-	this->MCMCInitializeMarkovChains();
+	MCMCInitialize();
+	MCMCInitializeMarkovChains();
 
 	// helper variable containing number of digits in the number of parameters
 	int ndigits = (int)log10(fMCMCNParameters) +1;
@@ -820,7 +820,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 		ndigits=4;
 
 	// reset run statistics
-	this->MCMCResetRunStatistics();
+	MCMCResetRunStatistics();
 	fMCMCNIterationsConvergenceGlobal = -1;
 
 	// perform run
@@ -897,10 +897,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			{
 				// loop over chains
 				for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-					this->MCMCGetNewPointMetropolis(ichains, iparameters);
+					MCMCGetNewPointMetropolis(ichains, iparameters);
 
 				// search for global maximum
-				this->MCMCInChainCheckMaximum();
+				MCMCInChainCheckMaximum();
 			} 
 		} 
 
@@ -910,10 +910,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			// loop over chains
 			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 				// get new point
-				this->MCMCGetNewPointMetropolis(ichains);
+				MCMCGetNewPointMetropolis(ichains);
 
 			// search for global maximum
-			this->MCMCInChainCheckMaximum();
+			MCMCInChainCheckMaximum();
 		}
 
 		//-------------------------------------------
@@ -957,7 +957,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 			// -----------------------------
 
 			// test convergence 
-			this->MCMCInChainTestConvergenceAllChains();
+			MCMCInChainTestConvergenceAllChains();
 
 			// set convergence flag
 			if (fMCMCNIterationsConvergenceGlobal > 0)
@@ -1091,7 +1091,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 		// write chain to file
 		if (fMCMCFlagWritePreRunToFile)
-			this->MCMCInChainWriteChains();
+			MCMCInChainWriteChains();
 
 		//-------------------------------------------
 		// increase counters
@@ -1200,13 +1200,13 @@ int BCEngineMCMC::MCMCMetropolis()
 {
 	// check if prerun has been performed
 	if (!fMCMCFlagPreRun)
-		this->MCMCMetropolisPreRun();
+		MCMCMetropolisPreRun();
 
 	// print to screen
 	BCLog::OutSummary( "Run Metropolis MCMC...");
 
 	// reset run statistics
-	this->MCMCResetRunStatistics();
+	MCMCResetRunStatistics();
 
 	// set phase and cycle number
 	fMCMCPhase = 2; 
@@ -1249,13 +1249,13 @@ int BCEngineMCMC::MCMCMetropolis()
 			{
 				// loop over chains
 				for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-					this->MCMCGetNewPointMetropolis(ichains, iparameters);
+					MCMCGetNewPointMetropolis(ichains, iparameters);
 
 				// reset current chain
 				fMCMCCurrentChain = -1;
 
 				// update search for maximum
-				this->MCMCInChainCheckMaximum();
+				MCMCInChainCheckMaximum();
 
 			} // end loop over all parameters
 
@@ -1263,14 +1263,14 @@ int BCEngineMCMC::MCMCMetropolis()
 			if ( fMCMCCurrentIteration % fMCMCNLag == 0)
 			{
 				// fill histograms
-				this->MCMCInChainFillHistograms();
+				MCMCInChainFillHistograms();
 					
 				// write chain to file
 				if (fMCMCFlagWriteChainToFile)
-					this->MCMCInChainWriteChains();
+					MCMCInChainWriteChains();
 
 				// do anything interface
-				this->MCMCIterationInterface();
+				MCMCIterationInterface();
 			}
 		}
 		// if the flag is not set then run over the parameters at the same time.
@@ -1279,26 +1279,26 @@ int BCEngineMCMC::MCMCMetropolis()
 			// loop over chains
 			for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
 				// get new point
-				this->MCMCGetNewPointMetropolis(ichains);
+				MCMCGetNewPointMetropolis(ichains);
 
 			// reset current chain
 			fMCMCCurrentChain = -1;
 					
 			// update search for maximum
-			this->MCMCInChainCheckMaximum();
+			MCMCInChainCheckMaximum();
 
 			// check if the current iteration is consistent with the lag
 			if (fMCMCCurrentIteration % fMCMCNLag == 0)
 			{
 				// fill histograms
-				this->MCMCInChainFillHistograms();
+				MCMCInChainFillHistograms();
 
 				// write chain to file
 				if (fMCMCFlagWriteChainToFile)
-					this->MCMCInChainWriteChains();
+					MCMCInChainWriteChains();
 
 				// do anything interface
-				this->MCMCIterationInterface();
+				MCMCIterationInterface();
 			}
 		}
 
@@ -1398,7 +1398,7 @@ void BCEngineMCMC::MCMCInitializeMarkovChains()
 		x0.clear();
 		for (int i = 0; i < fMCMCNParameters; ++i)
 			x0.push_back(fMCMCx[j * fMCMCNParameters + i]);
-		fMCMCprob[j] = this->LogEval(x0);
+		fMCMCprob[j] = LogEval(x0);
 	}
 
 	x0.clear();

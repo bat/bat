@@ -21,7 +21,7 @@ For later releases:
 ===================
 Priority:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
-high                   Fix BAT configuration to be able to make dist without RooStats
+high         done      Fix BAT configuration to be able to make dist without RooStats
 high                   Fix memory leaks in BCH1D and other classes
 high                   Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 high                   Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)

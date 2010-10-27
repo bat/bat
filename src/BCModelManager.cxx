@@ -290,7 +290,7 @@ void BCModelManager::SetNChains(unsigned int n)
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
    if (fModelContainer->size() < 0) {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree : No model defined.");
+      BCLog::OutError("BCModelManager::ReadDataFromFileTree : No model defined.");
       return ERROR_NOMODELS;
    }
 
@@ -322,7 +322,7 @@ int BCModelManager::ReadDataFromFileTree(const char * filename, const char * tre
 int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
    if (fModelContainer->size() < 0) {
-      BCLog::Out(BCLog::warning, BCLog::warning, "BCModelManager::ReadDataFromFileTree. No model defined.");
+      BCLog::OutError("BCModelManager::ReadDataFromFileTree. No model defined.");
       return ERROR_NOMODELS;
    }
 
@@ -356,7 +356,6 @@ void BCModelManager::Normalize()
    // initialize likelihood norm
    double normalization = 0.0;
 
-//   BCLog::Out(BCLog::summary, BCLog::summary, "Running normalization of all models.");
    BCLog::OutSummary("Running normalization of all models.");
 
    for (unsigned int i = 0; i < GetNModels(); i++) {
@@ -388,7 +387,7 @@ double BCModelManager::BayesFactor(const unsigned int imodel1, const unsigned in
    // check model 1
    if(norm1<0.) {
       BCLog::OutError(
-         Form("Model %s (index %d) not normalized. Cannot calculate Bayes factor.",
+         Form("BCModelManager::BayesFactor : Model %s (index %d) not normalized. Cannot calculate Bayes factor.",
               fModelContainer->at(imodel1)->GetName().data(),imodel1));
       return -1.;
    }
@@ -396,7 +395,7 @@ double BCModelManager::BayesFactor(const unsigned int imodel1, const unsigned in
    // check model 2
    if(norm2<0.) {
       BCLog::OutError(
-         Form("Model %s (index %d) not normalized. Cannot calculate Bayes factor.",
+         Form("BCModelManager::BayesFactor : Model %s (index %d) not normalized. Cannot calculate Bayes factor.",
               fModelContainer->at(imodel2)->GetName().data(),imodel2));
       return -1.;
    }
@@ -404,7 +403,7 @@ double BCModelManager::BayesFactor(const unsigned int imodel1, const unsigned in
    // denominator cannot be zero
    if(norm2==0. && norm1!=0.) {// not good since norm2 is double !!!
       BCLog::OutError(
-         Form("Model %s (index %d) has ZERO probability. Bayes factor is infinite.",
+         Form("BCModelManager::BayesFactor : Model %s (index %d) has ZERO probability. Bayes factor is infinite.",
               fModelContainer->at(imodel2)->GetName().data(),imodel2));
       return -1.;
    }
@@ -412,7 +411,7 @@ double BCModelManager::BayesFactor(const unsigned int imodel1, const unsigned in
    // denominator cannot be zero unless also numerator is zero
    if(norm2==0. && norm1==0.) {// not good since norm2 and norm1 are both double !!!
       BCLog::OutWarning(
-         Form("Models %s and %s have ZERO probability. Bayes factor is unknown. Returning 1.",
+         Form("BCModelManager::BayesFactor : Models %s and %s have ZERO probability. Bayes factor is unknown. Returning 1.",
               fModelContainer->at(imodel2)->GetName().data(),fModelContainer->at(imodel1)->GetName().data()));
       return 1.;
    }
