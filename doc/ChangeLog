@@ -1,3 +1,6 @@
+2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter and BCTemplateEnsemble: Minor code modifications. Plan is to include variation of nuisance parameters when performing ensemble tests.
+
 2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCIntegrate:
 	  - added NxxxMethods to all Method enums

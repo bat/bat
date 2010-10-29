@@ -157,24 +157,41 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 TH1D* BCTemplateEnsembleTest::BuildEnsemble()
 {
 	// get histogram parameters
-  int nbins   = fEnsembleTemplate.GetNbinsX();
-  double xmin = fEnsembleTemplate.GetXaxis()->GetXmin();
-  double xmax = fEnsembleTemplate.GetXaxis()->GetXmax();
+  int nbins   = fTemplateFitter->GetData().GetNbinsX();
+
+	// get number of templates
+	int ntemplates = fTemplateFitter->GetNTemplates();
 
 	// create new ensemble
-  TH1D* ensemble = new TH1D("", "", nbins, xmin, xmax);
+	TH1D* ensemble = new TH1D(fTemplateFitter->GetData());
 
 	// increase ensemble counter
 	fEnsembleCounter++;
 
+	// get new parameter if needed
+	std::vector<double> parameters = fTemplateParameters;
+
+// 	// throw random numbers for template prior
+// 	for (int i = 0; i < ntemplates; ++i) {
+		
+// 		// prior on process contributions
+// 		double dpar = (fTemplateFitter->GetPriorContainer()).at(i).GetRandom(); 
+// 		parameters[fTemplateFitter->GetTemplateParIndexContainer().at(i)] += dpar;
+// 	}
+	
+	// throw random numbers for efficiency uncertainty
+	// ...
+
+	// throw random numbers for nuisance parameters
+	// ...
+
 	// loop over bins and fill them
-  for(int i = 1; i <= nbins; ++i){
-    double p      = fEnsembleTemplate.GetBinContent(i);
-    double lambda = p * fEnsembleExpectation;
-		double n      = gRandom -> Poisson(lambda);
+  for(int ibin = 1; ibin <= nbins; ++ibin){
+		double nexp = fTemplateFitter->Expectation(ibin, parameters);
+		double nobs = gRandom->Poisson(nexp);
 
 		// set the bin content
-    ensemble->SetBinContent(i, n);
+    ensemble->SetBinContent(ibin, nobs);
   }
 
 	// return the ensemble histogram

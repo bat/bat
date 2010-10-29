@@ -55,7 +55,14 @@ class BCTemplateEnsembleTest
 		 * Set the BCTemplateFitter used to analyze the ensembles.
 		 */
 		void SetTemplateFitter(BCTemplateFitter * model)
-			{ fTemplateFitter = model; }
+		{ fTemplateFitter = model; };
+
+		/**
+		 * Set the parameters used for generating ensembles using the
+		 * current template fitter model.
+		 */ 
+		void SetTemplateParameters(std::vector<double> parameters)	
+			{ fTemplateParameters = parameters; }; 
 
 	  /**
 	   * A function to perform an ensemble test for each data set in the container.
@@ -66,13 +73,13 @@ class BCTemplateEnsembleTest
 	   * A function to define the number of events per ensemble.
 	   */
 	  void SetEnsembleExpectation(double expectation)
-			{ fEnsembleExpectation = expectation; }
+		{ fEnsembleExpectation = expectation; };
 
 	  /**
 	   * A function to define the number of ensembles per data set.
 	   */
 	  void SetNEnsembles(int n)
-			{ fNEnsembles = n; }
+		{ fNEnsembles = n; };
 
 	  /**
 	   * A function to set the MCMC flag.
@@ -119,6 +126,11 @@ class BCTemplateEnsembleTest
 		 * Output tree.
 		 */
 		TTree * fTree;
+
+		/**
+		 * The parameters used to generate ensembles
+		 */ 
+		std::vector<double> fTemplateParameters; 
 
 		/**
 		 * A counter for the number of ensembles.

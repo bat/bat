@@ -64,61 +64,13 @@ double BCTemplateFitter::LogLikelihood(std::vector <double> parameters)
 {
 	double logprob = 0.;
 
-	// get number pf templates
-	int ntemplates = GetNTemplates();
-
-	// get number of sources of systematic uncertainties
-	int nsyst = GetNSystErrors();
-
 	// loop over bins
 	for (int ibin = 1; ibin <= fNBins; ++ibin) {
-		double nexp = 0;
+		// get expectation
+		double nexp = Expectation(ibin, parameters);
+
+		// get data
 		double ndata = fHistData.GetBinContent(ibin);
-
-		// loop over all templates
-		for (int itemp = 0; itemp < ntemplates; ++itemp) {
-			int templateindex = fTemplateParIndexContainer.at(itemp);
-			int effindex = fEffParIndexContainer.at(itemp);
-
-			// get efficiency for the bin
-			double efficiency = fEffHistogramContainer.at(itemp).GetBinContent(ibin);
-
-			// modify efficiency by uncertainty
-			double efferr = fEffErrHistogramContainer.at(itemp).GetBinContent(ibin);
-
-			// check efficiency error
-			if (efferr > 0)
-				efficiency += parameters.at(effindex) * efferr;
-
-			// loop over sources of systematic uncertainties
-			for (int isyst = 0; isyst < nsyst; ++isyst) {
-				// get parameter index
-				int systindex = fSystErrorParIndexContainer.at(isyst);
-
-				// add efficiency
-				double deff = fSystErrorHistogramContainer.at(isyst).at(itemp).GetBinContent(ibin);
-
-				if (deff > 0)
-					efficiency += deff * parameters.at(systindex);
-			}
-
-			// make sure efficiency is between 0 and 1
-			if (efficiency < 0.)
-				efficiency = 0.;
-			if (efficiency > 1.)
-				efficiency = 1.;
-
-			// calculate expectation nvalue
-			nexp += parameters.at(templateindex)
-					* efficiency
-					* fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
-		}
-
-		// check that expectation is larger or equal to zero
-		if (nexp < 0) {
-			BCLog::OutWarning("BCTemplateFitter::LogLikelihood : Expectation value smaller than 0. Force it to be 0.");
-			nexp = 0;
-		}
 
 		// add Poisson term
 		logprob += BCMath::LogPoisson(ndata, nexp);
@@ -185,6 +137,65 @@ double BCTemplateFitter::LogAPrioriProbability(std::vector <double> parameters)
  	}
 
 	return logprob;
+}
+
+// ---------------------------------------------------------
+double BCTemplateFitter::Expectation(int binindex, std::vector<double> parameters, bool flageff, bool flagsyst)
+{
+	double nexp = 0;
+
+	// get number pf templates
+	int ntemplates = GetNTemplates();
+
+	// get number of sources of systematic uncertainties
+	int nsyst = GetNSystErrors();
+
+	// loop over all templates
+	for (int itemp = 0; itemp < ntemplates; ++itemp) {
+		int templateindex = fTemplateParIndexContainer.at(itemp);
+		int effindex = fEffParIndexContainer.at(itemp);
+		
+		// get efficiency for the bin
+		double efficiency = fEffHistogramContainer.at(itemp).GetBinContent(binindex);
+		
+		// modify efficiency by uncertainty
+		double efferr = fEffErrHistogramContainer.at(itemp).GetBinContent(binindex);
+		
+		// check efficiency error
+		if (efferr > 0)
+			efficiency += parameters.at(effindex) * efferr;
+
+		// loop over sources of systematic uncertainties
+		for (int isyst = 0; isyst < nsyst; ++isyst) {
+			// get parameter index
+			int systindex = fSystErrorParIndexContainer.at(isyst);
+			
+			// add efficiency
+			double deff = fSystErrorHistogramContainer.at(isyst).at(itemp).GetBinContent(binindex);
+			
+				if (deff > 0)
+					efficiency += deff * parameters.at(systindex);
+		}
+		
+		// make sure efficiency is between 0 and 1
+		if (efficiency < 0.)
+			efficiency = 0.;
+		if (efficiency > 1.)
+			efficiency = 1.;
+		
+		// calculate expectation nvalue
+		nexp += parameters.at(templateindex)
+			* efficiency
+			* fTemplateHistogramContainer.at(itemp).GetBinContent(binindex);
+		}
+	
+	// check that expectation is larger or equal to zero
+	if (nexp < 0) {
+		BCLog::OutWarning("BCTemplateFitter::Expectation : Expectation value smaller than 0. Force it to be 0.");
+		nexp = 0;
+	}
+	
+	return nexp;
 }
 
 // ---------------------------------------------------------
@@ -910,36 +921,18 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 // ---------------------------------------------------------
 double BCTemplateFitter::CalculateChi2()
 {
-	int nbins = fHistData.GetNbinsX();
-	int ntemplates = int(fTemplateHistogramContainer.size());
-
-	std::vector <double> parameters = GetBestFitParameters();
+	// get best fit parameters
+	std::vector<double> parameters = GetBestFitParameters();
 
 	double chi2 = 0;
 
-	// loop over all bins
-	for (int ibin = 1; ibin <= nbins; ++ibin) {
-		double nexp = 0;
+	// loop over bins
+	for (int ibin = 1; ibin <= fNBins; ++ibin) {
+		// get expectation
+		double nexp = Expectation(ibin, parameters);
+
+		// get data
 		double ndata = fHistData.GetBinContent(ibin);
-
-		// loop over all templates
-		for (int itemp = 0; itemp < ntemplates; ++itemp) {
-			int tempindex = fTemplateParIndexContainer.at(itemp);
-			int effindex = fEffParIndexContainer.at(itemp);
-
-			// get efficiency for the bin
-			double efficiency = fEffHistogramContainer.at(itemp).GetBinContent(ibin);
-
-			// modify efficiency by uncertainty
-			double efferr = fEffErrHistogramContainer.at(itemp).GetBinContent(ibin);
-
-			// check efficiency error
-			if (efferr > 0)
-				efficiency = TMath::Max(0., efficiency + parameters.at(effindex) * efferr);
-
-			// add expectation from bin
-			nexp += parameters.at(tempindex) * efficiency * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
-		}
 
 		// add to chi2
 		chi2 += (nexp - ndata) * (nexp - ndata) / nexp;
@@ -969,39 +962,19 @@ double BCTemplateFitter::CalculateMaxLike()
 // ---------------------------------------------------------
 double BCTemplateFitter::CalculateKSProb()
 {
-	// create a histogram with the sum of all contributions
-	TH1 * histsum = (TH1D*)(fTemplateHistogramContainer.at(0)).Clone("temp");
+	// create a temporary histogram with the sum of all contributions
+ 	TH1D * histsum = new TH1D(fHistData);
 
-	int nbins = fHistData.GetNbinsX();
-	int ntemplates = int(fTemplateHistogramContainer.size());
+	// get best fit parameters
+	std::vector<double> parameters = GetBestFitParameters();
 
-	std::vector <double> parameters = GetBestFitParameters();
-
-	// loop over all bins
-	for (int ibin = 1; ibin <= nbins; ++ibin) {
-		double bincontent = 0;
-
-		// loop over all templates
-		for (int itemp = 0; itemp < ntemplates; ++itemp) {
-			int tempindex = fTemplateParIndexContainer.at(itemp);
-			int effindex = fEffParIndexContainer.at(itemp);
-
-			// get efficiency for the bin
-			double efficiency = fEffHistogramContainer.at(itemp).GetBinContent(ibin);
-
-			// modify efficiency by uncertainty
-			double efferr = fEffErrHistogramContainer.at(itemp).GetBinContent(ibin);
-
-			// check efficiency error
-			if (efferr > 0)
-				efficiency = TMath::Max(0., efficiency + parameters.at(effindex) * efferr);
-
-			// add expectation from bin
-			bincontent += parameters.at(tempindex) * efficiency * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
-		}
+	// loop over bins
+	for (int ibin = 1; ibin <= fNBins; ++ibin) {
+		// get expectation
+		double nexp = Expectation(ibin, parameters);
 
 		// set bin content
-		histsum->SetBinContent(ibin, bincontent);
+		histsum->SetBinContent(ibin, nexp);
 	}
 
 	// perform KS test
@@ -1025,21 +998,22 @@ double BCTemplateFitter::CalculatePValue()
 		return -1;
 	}
 
-	// define temporary variables
-	int nbins = fHistData.GetNbinsX();
-	int ntemplates = int( fTemplateHistogramContainer.size() );
-
 	std::vector <int> histogram;
 	std::vector <double> expectation;
-	histogram.assign(nbins, 0);
-	expectation.assign(nbins, 0);
+	histogram.assign(fNBins, 0);
+	expectation.assign(fNBins, 0);
 
 	double logp = 0;
 	double logp_start = 0;
 	int counter_pvalue = 0;
 
 	// define starting distribution
-	for (int ibin = 1; ibin <= nbins; ++ibin) {
+	for (int ibin = 1; ibin <= fNBins; ++ibin) {
+
+		// get expectation
+		double nexp = Expectation(ibin, par);
+		
+		/*
 		double nexp = 0;
 
 		// loop over all templates
@@ -1060,6 +1034,8 @@ double BCTemplateFitter::CalculatePValue()
 			// add expectation from bin
 			nexp += par.at(tempindex) * efficiency * fTemplateHistogramContainer.at(itemp).GetBinContent(ibin);
 		}
+		*/
+
 
 		histogram[ibin-1]   = int(nexp);
 		expectation[ibin-1] = nexp;
@@ -1074,7 +1050,7 @@ double BCTemplateFitter::CalculatePValue()
 	// loop over iterations
 	for (int iiter = 0; iiter < niter; ++iiter) {
 		// loop over bins
-		for (int ibin = 0; ibin < nbins; ++ibin) {
+		for (int ibin = 0; ibin < fNBins; ++ibin) {
 			// random step up or down in statistics for this bin
 			double ptest = fRandom->Rndm() - 0.5;
 
@@ -1116,11 +1092,10 @@ double BCTemplateFitter::CalculatePValue()
 // ---------------------------------------------------------
 void BCTemplateFitter::MCMCUserIterationInterface()
 {
-	int nbins      = fHistData.GetNbinsX();
 	int ntemplates = int(fTemplateHistogramContainer.size());
 
 	// loop over all bins
-	for (int ibin = 1; ibin <= nbins; ++ibin) {
+	for (int ibin = 1; ibin <= fNBins; ++ibin) {
 		double bincontent = 0;
 
 		// loop over all templates

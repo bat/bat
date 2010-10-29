@@ -135,6 +135,26 @@ class BCTemplateFitter : public BCModel
 			{ return fHistData; }
 
 		/**
+		 * Return container of parameter indeces for templates
+		 */
+		std::vector<int> GetTemplateParIndexContainer()
+			{ return fTemplateParIndexContainer; };
+
+		/**
+		 * Return container of prior histograms. */
+		std::vector<TH1D> GetPriorContainer()
+			{ return fPriorContainer; };
+
+		/**
+		 * Return the expectation value in a certain bin.
+		 * @param binindex The index of the bin.
+		 * @param parameters The parameter values.
+		 * @param flageff Flag for including the uncertainty of the efficiency
+		 * @param flagsyst Flag for including systematic uncertainties.
+		 */
+		double Expectation(int binindex, std::vector<double> parameters, bool flageff=1, bool flagsyst=1);
+
+		/**
 		 * Set a flag for having physical limits (expectation values greater
 		 * or equal to 0).
 		 * @param flag The flag.
