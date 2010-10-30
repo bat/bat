@@ -90,6 +90,11 @@ class BCSummaryTool
 	int PrintParameterPlot(const char * filename = "parameters.eps");
 
 	/**
+	 * Print a correlation matrix for the parameters.
+	 * @return An error flag. */
+	int PrintCorrelationMatrix(const char * filename = "matrix.eps");
+
+	/**
 	 * Print a correlation plot for the parameters.
 	 * @return An error flag. */
 	int PrintCorrelationPlot(const char * filename = "correlation.eps");

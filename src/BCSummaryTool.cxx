@@ -24,13 +24,14 @@
 #include <iostream>
 #include <fstream>
 
-#include <BAT/BCModel.h>
-#include <BAT/BCSummaryPriorModel.h>
-#include <BAT/BCH1D.h>
-#include <BAT/BCH2D.h>
-#include <BAT/BCLog.h>
+#include "BAT/BCModel.h"
+#include "BAT/BCSummaryPriorModel.h"
+#include "BAT/BCH1D.h"
+#include "BAT/BCH2D.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCMath.h"
 
-#include <BAT/BCSummaryTool.h>
+#include "BAT/BCSummaryTool.h"
 
 unsigned int BCSummaryTool::fHCounter=0;
 
@@ -115,24 +116,40 @@ int BCSummaryTool::CopySummaryData()
 		if (fModel->MCMCGetFlagRun()) {
 			fFlagInfoMarg = true;
 			BCH1D * bch1d_temp = fModel->GetMarginalized( fModel->GetParameter(i) );
-			fMean.push_back( bch1d_temp->GetMean() );
-			fRMS.push_back( bch1d_temp->GetRMS() );
-			fMargMode.push_back( bch1d_temp->GetMode() );
-			for (int j = 0; j < nquantiles; ++j)
-				fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) );
-			std::vector <double> intervals = bch1d_temp->GetSmallestIntervals();
-			int nintervals = int(intervals.size() / 5);
-			fSmallInt.push_back(nintervals);
-			fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
+			if (bch1d_temp) {
+				fMean.push_back( bch1d_temp->GetMean() );
+				fRMS.push_back( bch1d_temp->GetRMS() );
+				fMargMode.push_back( bch1d_temp->GetMode() );
+				for (int j = 0; j < nquantiles; ++j)
+					fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) );
+				std::vector <double> intervals = bch1d_temp->GetSmallestIntervals();
+				int nintervals = int(intervals.size() / 5);
+				fSmallInt.push_back(nintervals);
+				fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
+			}
+			else {
+				double tmpval = fModel->GetParameter(i)->GetUpperLimit() - fModel->GetParameter(i)->GetLowerLimit();
+				tmpval = fModel->GetParameter(i)->GetLowerLimit() - 2. * tmpval;
+				fMean.push_back( tmpval );
+				fRMS.push_back( tmpval );
+				fMargMode.push_back( tmpval );
+				for (int j = 0; j < nquantiles; ++j)
+					fQuantiles.push_back( tmpval );
+				fSmallInt.push_back( 0 );
+//				fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
+			}
 
 			// copy 2D margnialized information
 			for (int j = 0; j < npar; ++j) {
 				if (i!=j) {
 					BCH2D * bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
-					fCorrCoeff.push_back( bch2d_temp->GetHistogram()->GetCorrelationFactor() );
+					if ( bch2d_temp )
+						fCorrCoeff.push_back( bch2d_temp->GetHistogram()->GetCorrelationFactor() );
+					else
+						fCorrCoeff.push_back( 0. );
 				}
 				else
-					fCorrCoeff.push_back(1.0);
+					fCorrCoeff.push_back(1.);
 			}
 		}
 		else {
@@ -305,7 +322,7 @@ int BCSummaryTool::PrintParameterPlot(const char * filename)
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintCorrelationPlot(const char * filename)
+int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
 {
 	// copy summary data
 	if (!CopySummaryData())
@@ -351,7 +368,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 		}
 
 	// print to file
-	TCanvas * c_corr = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
+	TCanvas * c_corr = new TCanvas(TString::Format("c_corr_matrix_%d",getNextIndex()));
 	c_corr->cd();
 	hist_corr->Draw("colz text");
 
@@ -364,6 +381,24 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 	// we don't know how to make them disappear
 	hist_corr->GetXaxis()->SetLabelSize(0.);
 	hist_corr->Draw("colz text same");
+
+	for (int i = 0; i < npar; ++i)
+		for (int j = 0; j < npar; ++j) {
+			BCH2D * bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
+			if ( bch2d_temp || i==j )
+				continue;
+
+			TBox * bempty = new TBox(
+				hist_corr->GetXaxis()->GetBinLowEdge(i+1),
+				hist_corr->GetYaxis()->GetBinLowEdge(npar-j),
+				hist_corr->GetXaxis()->GetBinLowEdge(i+2),
+				hist_corr->GetYaxis()->GetBinLowEdge(npar-j+1)
+			);
+			bempty->SetLineStyle(0);
+			bempty->SetLineWidth(0);
+			bempty->SetFillColor(kWhite);
+			bempty->Draw();
+		}
 
 	// redraw top and right axes
 	TLine * lA1 = new TLine(-0.5,npar-0.5,npar-0.5,npar-0.5);
@@ -382,6 +417,146 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 	delete c_corr;
 
 	// no error
+	return 1;
+}
+
+// ---------------------------------------------------------
+int BCSummaryTool::PrintCorrelationPlot(const char * filename)
+{
+	// check if marginalized information is there
+	if (!fModel->MCMCGetFlagRun()) {
+		BCLog::OutError("BCSummaryTool::PrintCorrelationPlot : MCMC was not run. Marginalized distributions not available.");
+		return 0;
+	}
+
+	// get number of parameters
+	int npar = fModel->GetNParameters();
+
+	TCanvas * c = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
+	c->cd();
+
+	double margin = .1;
+	double padsize = (1. - 2.*margin) / (double)npar;
+
+	// array with pads holding the histograms
+	TPad ** pad = new TPad*[npar*npar];
+
+	// position of pads
+	double xlow, xup, ylow, yup;
+	double marginleft, marginright, margintop, marginbottom;
+	marginleft=marginright=margintop=marginbottom=0.01;
+
+	// drawing all histograms
+	for (int i=npar-1;i>=0;--i) {
+		xlow = (double)i*padsize + margin;
+		xup = xlow+padsize;
+
+		for (int j=i;j<=npar-1;j++) {
+			yup = 1. - (double)j*padsize - margin;
+			ylow = yup-padsize;
+
+			// preparing the pad
+			int ipad=i*npar+j;
+			pad[ipad]=new TPad(TString::Format("pad_%d_%d",ipad,getNextIndex()), "", xlow, ylow, xup, yup);
+			pad[ipad]->SetTopMargin(margintop);
+			pad[ipad]->SetBottomMargin(marginbottom);
+			pad[ipad]->SetLeftMargin(marginleft);
+			pad[ipad]->SetRightMargin(marginright);
+			pad[ipad]->SetFillColor(kWhite);
+
+			pad[ipad]->Draw();
+			pad[ipad]->cd();
+
+
+			TH1 * hh = 0;
+			// get the histogram
+			if(i==j) {
+				BCH1D * bh1 = fModel->GetMarginalized(fModel->GetParameter(i));
+				if (bh1)
+					hh = (TH1D*)bh1->GetHistogram()->Clone();
+			}
+			else {
+				BCH2D * bh2 = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
+				if (bh2)
+					hh = (TH2D*)bh2->GetHistogram()->Clone();
+			}
+
+			// if the histogram is not available, draw N/A
+			if (!hh) {
+				pad[ipad]->SetFillColor(kGray);
+				TBox * box = new TBox(marginleft,marginbottom,1.-marginright,1.-margintop);
+				box->SetLineWidth(1);
+				box->SetLineColor(kGray+1);
+				box->SetFillColor(kWhite);
+				box->Draw();
+
+				TText * text_na = new TText(.5,.5,"N/A");
+				text_na->SetTextFont(42);
+				text_na->SetTextAlign(22);
+				text_na->SetTextSize(.8/(double)npar);
+				text_na->SetTextColor(kGray+1);
+				text_na->Draw();
+			}
+			// otherwise draw the histogram
+			else {
+				if(i==j) {
+					hh->SetFillStyle(1001);
+					hh->SetFillColor(kYellow);
+					hh->Draw("hist");
+				}
+				else {
+					hh->SetContour(20);
+					hh->Draw("col");
+				}
+
+				hh->GetXaxis()->SetLabelOffset(999);
+				hh->GetYaxis()->SetLabelOffset(999);
+	
+				hh->GetXaxis()->SetTitleSize(0.);
+				hh->GetYaxis()->SetTitleSize(0.);
+			}
+
+			c->cd();
+
+			// draw axis label
+			double labelsize = .8/(double)npar/5.;
+			double xtext, ytext;
+
+			// y axis
+			if(i==0) {
+				TText * label = new TText;
+				label->SetTextFont(62);
+				label->SetTextSize(labelsize);
+				label->SetTextAlign(22);
+				label->SetNDC();
+
+				label->SetTextAngle(90);
+
+				xtext = margin * (1. - 8. * labelsize);
+				ytext = yup - padsize / 2.;
+
+				label->DrawText(xtext,ytext,fModel->GetParameter(j)->GetName().c_str());
+			}
+
+			// x axis
+			if(j==npar-1) {
+				TText * label = new TText;
+				label->SetTextFont(62);
+				label->SetTextSize(labelsize);
+				label->SetTextAlign(22);
+				label->SetNDC();
+
+				xtext = xlow + padsize / 2.;
+				ytext = margin * (1. - 6. * labelsize);
+
+				label->DrawText(xtext,ytext,fModel->GetParameter(i)->GetName().c_str());
+			}
+		}
+	}
+
+	gPad->RedrawAxis();
+	c->Print(filename);
+
 	return 1;
 }
 
