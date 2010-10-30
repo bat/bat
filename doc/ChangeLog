@@ -1,4 +1,10 @@
-2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
+2010-10-30 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - don't print error message in GetMarginalized() if histogram
+	    not filled (should be handled upstream)
+	  - check BCH1D pointer before using it in PrintAllMarginalized() 
+
+2010-10-30 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCMath:
 	  - added several overloaded Min() and Max() methods
 	  - use BCMath::Min() and BCMath::Max() instead of TMath:: methods

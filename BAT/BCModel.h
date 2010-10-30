@@ -585,7 +585,7 @@ class BCModel : public BCIntegrate
 
 		/**
 		 * If MarginalizeAll method was used, the individual marginalized distributions
-		 * with respect to otwo parameters can be retrieved using this method.
+		 * with respect to two parameters can be retrieved using this method.
 		 * @param parameter1 First parameter
 		 * @param parameter2 Second parameter
 		 * @return 2D marginalized probability */

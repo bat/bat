@@ -853,15 +853,17 @@ int BCModel::MarginalizeAll()
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 {
    if (!parameter) {
-      BCLog::OutError("BCModel::GetMarginalized : Parameter does not exist.");
+// don't print any error message, should be done upstream
+//      BCLog::OutError("BCModel::GetMarginalized : Parameter does not exist.");
       return 0;
    }
 
    int index = parameter->GetIndex();
    if (fMCMCFlagsFillHistograms[index] == false) {
-      BCLog::OutError(Form(
-            "BCModel::GetMarginalized : Distribuion for '%s' not filled.",
-            parameter->GetName().data()));
+// don't print any error message, should be done upstream
+//      BCLog::OutError(Form(
+//            "BCModel::GetMarginalized : Distribuion for '%s' not filled.",
+//            parameter->GetName().data()));
       return 0;
    }
 
@@ -1052,7 +1054,8 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
    // if there's only one parameter, we just want to call Print()
    if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
       BCParameter * a = GetParameter(0);
-      GetMarginalized(a)->Print(file);
+		if (GetMarginalized(a))
+	      GetMarginalized(a)->Print(file);
       return 1;
    }
 
@@ -1224,14 +1227,16 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
    int index2 = par2->GetIndex();
 
    if (fMCMCFlagsFillHistograms[index1] == false || fMCMCFlagsFillHistograms[index2] == false) {
-      BCLog::OutError(
-            Form("BCModel::GetMarginalized : Distribuion for '%s' and/or '%s' not filled.",
-                  par1->GetName().data(), par2->GetName().data()));
+// don't print any error message, should be done upstream
+//      BCLog::OutError(
+//            Form("BCModel::GetMarginalized : Distribuion for '%s' and/or '%s' not filled.",
+//                  par1->GetName().data(), par2->GetName().data()));
       return 0;
    }
 
    if (index1 == index2) {
-      BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
+// don't print any error message, should be done upstream
+//      BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
       return 0;
    }
 
