@@ -95,7 +95,13 @@ namespace BCMath
 	inline int Max(int x, int y)
 		{ return x >= y ? x : y; }
 
+	inline int Max(unsigned int x, unsigned int y)
+		{ return x >= y ? x : y; }
+
 	inline double Max(double x, double y)
+		{ return x >= y ? x : y; }
+
+	inline double Max(float x, float y)
 		{ return x >= y ? x : y; }
 
 	/**
@@ -104,8 +110,14 @@ namespace BCMath
 	inline int Min(int x, int y)
 		{ return x <= y ? x : y; }
 
+	inline int Min(unsigned int x, unsigned int y)
+		{ return x <= y ? x : y; }
+
 	inline double Min(double x, double y)
-	{ return x <= y ? x : y; }
+		{ return x <= y ? x : y; }
+
+	inline double Min(float x, float y)
+		{ return x <= y ? x : y; }
 
 	/**
 	 * Returns the nearest integer of a double number.

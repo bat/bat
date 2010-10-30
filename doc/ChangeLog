@@ -1,3 +1,10 @@
+2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCMath:
+	  - added several overloaded Min() and Max() methods
+	  - use BCMath::Min() and BCMath::Max() instead of TMath:: methods
+	  - use M_PI instead of TMath::Pi()
+	  - use pow() instead of TMath::Power()
+
 2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateFitter and BCTemplateEnsemble: Minor code modifications. Plan is to include variation of nuisance parameters when performing ensemble tests.
 

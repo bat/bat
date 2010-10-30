@@ -298,7 +298,7 @@ double SplitGaussian(double* x, double* par)
 	if (x[0] > mean)
 		sigma = sigmaup; 
 	
-	return 1.0/sqrt(2.0*TMath::Pi())/sigma * exp(- (x[0]-mean)*(x[0]-mean)/2./sigma/sigma);
+	return 1.0/sqrt(2.0*M_PI)/sigma * exp(- (x[0]-mean)*(x[0]-mean)/2./sigma/sigma);
 }
 
 // ---------------------------------------------------------
@@ -408,9 +408,9 @@ std::vector<int> longestRuns(const std::vector<bool> &bitStream)
       else {
          // compare terminated run to maximum
          if (aboveRun)
-            maxRunAbove = TMath::Max(maxRunAbove, currRun);
+            maxRunAbove = Max(maxRunAbove, currRun);
          else
-            maxRunBelow = TMath::Max(maxRunBelow, currRun);
+            maxRunBelow = Max(maxRunBelow, currRun);
          // set flag to run of opposite kind
          aboveRun = !aboveRun;
          // restart at length one
@@ -422,9 +422,9 @@ std::vector<int> longestRuns(const std::vector<bool> &bitStream)
 
    // check last run
    if (aboveRun)
-      maxRunAbove = TMath::Max(maxRunAbove, currRun);
+      maxRunAbove = Max(maxRunAbove, currRun);
    else
-      maxRunBelow = TMath::Max(maxRunBelow, currRun);
+      maxRunBelow = Max(maxRunBelow, currRun);
 
    // save the longest runs
    runs.at(0) = maxRunBelow;
@@ -476,9 +476,9 @@ std::vector<double> longestRunsChi2(
       } else {
          //compare terminated run to maximum
          if (aboveRun)
-            maxRunAbove = TMath::Max(maxRunAbove, currRun);
+            maxRunAbove = Max(maxRunAbove, currRun);
          else
-            maxRunBelow = TMath::Max(maxRunBelow, currRun);
+            maxRunBelow = Max(maxRunBelow, currRun);
          //set flag to run of opposite kind
          aboveRun = !aboveRun;
          //restart at current residual
@@ -496,9 +496,9 @@ std::vector<double> longestRunsChi2(
 
    //check last run
    if (aboveRun)
-      maxRunAbove = TMath::Max(maxRunAbove, currRun);
+      maxRunAbove = Max(maxRunAbove, currRun);
    else
-      maxRunBelow = TMath::Max(maxRunBelow, currRun);
+      maxRunBelow = Max(maxRunBelow, currRun);
 
    //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
    //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
@@ -577,8 +577,8 @@ double longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
       prob += (1 + n - r) * conditionalProb;
    }
 
-   //Bernoulli probability of each permutation
-   prob *= TMath::Power(2., -double(n));
+   // Bernoulli probability of each permutation
+   prob *= pow(2., -double(n));
 
    return prob;
 }
