@@ -919,11 +919,8 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::CalculateChi2()
+double BCTemplateFitter::CalculateChi2(std::vector<double> parameters)
 {
-	// get best fit parameters
-	std::vector<double> parameters = GetBestFitParameters();
-
 	double chi2 = 0;
 
 	// loop over bins
@@ -943,9 +940,9 @@ double BCTemplateFitter::CalculateChi2()
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::CalculateChi2Prob()
+double BCTemplateFitter::CalculateChi2Prob(std::vector<double> parameters)
 {
-	double chi2 = CalculateChi2();
+	double chi2 = CalculateChi2(parameters);
 	int ndf = GetNDF();
 
 	// return chi2 probability

@@ -87,15 +87,15 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 		// find mode
 		fTemplateFitter->FindMode();
 
+		// get number of parameters
+		int npar = fTemplateFitter->GetNParameters();
+
 		// perform MCMC
 		if(fFlagMCMC) {
 			fTemplateFitter->MarginalizeAll();
 
 			// find mode with MCMC best fit
 			fTemplateFitter->FindMode(fTemplateFitter->GetBestFitParameters());
-
-			// get number of parameters
-			int npar = fTemplateFitter->GetNParameters();
 
 			// loop over parameters and set tree variables
 			for (int i = 0; i < npar; ++i) {
@@ -110,7 +110,13 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 				fOutParQuantile10Marg[i] = hist->GetQuantile(0.10);
 				fOutParQuantile90Marg[i] = hist->GetQuantile(0.90);
 				fOutParQuantile95Marg[i] = hist->GetQuantile(0.95);
+				fOutParPullMarg[i]       = -1;
+				double error = 0.5 * (fOutParErrorUpMarg.at(i) + fOutParErrorDownMarg.at(i));
+				if (error > 0)
+					fOutParPullMarg[i]     = (fOutParModeMarg.at(i) - fTemplateParameters.at(i)) / ( error );
 			}
+			fOutChi2Marg             = fTemplateFitter->CalculateChi2( fTemplateFitter->GetBestFitParametersMarginalized() );
+			fOutChi2ProbMarg         = fTemplateFitter->CalculateChi2Prob(fTemplateFitter->GetBestFitParametersMarginalized());
 		}
 
 		if (fFlagMCMC) {
@@ -135,12 +141,19 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 		fOutParModeGlobal      = fTemplateFitter->GetBestFitParameters();
 		fOutParErrorUpGlobal   = fTemplateFitter->GetBestFitParameterErrors();
 		fOutParErrorDownGlobal = fTemplateFitter->GetBestFitParameterErrors();
-		fOutChi2               = fTemplateFitter->CalculateChi2();
+		fOutChi2Global         = fTemplateFitter->CalculateChi2( fTemplateFitter->GetBestFitParameters() );
 		fOutNDF                = fTemplateFitter->GetNDF();
-		fOutChi2Prob           = fTemplateFitter->CalculateChi2Prob();
+		fOutChi2ProbGlobal     = fTemplateFitter->CalculateChi2Prob(fTemplateFitter->GetBestFitParameters());
 		fOutKSProb             = fTemplateFitter->CalculateKSProb();
 		fOutPValue             = fTemplateFitter->CalculatePValue();
 		fOutNEvents            = int(fTemplateFitter->GetData().Integral());
+
+		for (int i = 0; i < npar; ++i) {
+			fOutParPullGlobal[i] = -1;
+			double error = 0.5 * (fOutParErrorUpGlobal.at(i) + fOutParErrorDownGlobal.at(i));
+			if (error > 0)
+				fOutParPullGlobal[i] = (fOutParModeGlobal.at(i) - fTemplateParameters.at(i)) / ( error );
+		}
 
 		// fill the tree
 		fTree->Fill();
@@ -160,7 +173,7 @@ TH1D* BCTemplateEnsembleTest::BuildEnsemble()
   int nbins   = fTemplateFitter->GetData().GetNbinsX();
 
 	// get number of templates
-	int ntemplates = fTemplateFitter->GetNTemplates();
+	//	int ntemplates = fTemplateFitter->GetNTemplates();
 
 	// create new ensemble
 	TH1D* ensemble = new TH1D(fTemplateFitter->GetData());
@@ -235,12 +248,14 @@ int BCTemplateEnsembleTest::PrepareTree()
 	fOutParModeGlobal.assign(npar, 0);
 	fOutParErrorUpGlobal.assign(npar, 0);
 	fOutParErrorDownGlobal.assign(npar, 0);
+	fOutParPullGlobal.assign(npar, 0);
 	fOutParModeMarg.assign(npar, 0);
 	fOutParMeanMarg.assign(npar, 0);
 	fOutParMedianMarg.assign(npar, 0);
 	fOutParRMSMarg.assign(npar, 0);
 	fOutParErrorUpMarg.assign(npar, 0);
 	fOutParErrorDownMarg.assign(npar, 0);
+	fOutParPullMarg.assign(npar, 0);
 	fOutParQuantile5Marg.assign(npar, 0);
 	fOutParQuantile10Marg.assign(npar, 0);
 	fOutParQuantile90Marg.assign(npar, 0);
@@ -256,9 +271,9 @@ int BCTemplateEnsembleTest::PrepareTree()
 	fOutRatioQuantile90Marg.assign(nratios, 0);
 	fOutRatioQuantile95Marg.assign(nratios, 0);
 
-	fTree->Branch("chi2",     &fOutChi2,     "chi2/D");
+	fTree->Branch("chi2_global", &fOutChi2Global,     "chi2 (global)/D");
 	fTree->Branch("ndf",      &fOutNDF,      "ndf/I");
-	fTree->Branch("chi2prob", &fOutChi2Prob, "chi2 prob probability/D");
+	fTree->Branch("chi2prob_global", &fOutChi2ProbGlobal, "chi2 prob probability (global)/D");
 	fTree->Branch("KSprob",   &fOutKSProb,   "KS probability/D");
 	fTree->Branch("pvalue",   &fOutPValue,   "p-value/D");
 	fTree->Branch("nevents",  &fOutNEvents,  "n events/I");
@@ -268,6 +283,7 @@ int BCTemplateEnsembleTest::PrepareTree()
 		fTree->Branch(Form("par_global_mode_par_%i", i),       &fOutParModeGlobal[i],      Form("par_global_Mode_par_%i/D", i));
 		fTree->Branch(Form("par_global_error_up_par_%i", i),   &fOutParErrorUpGlobal[i],   Form("par_global_error_up_par_%i/D", i));
 		fTree->Branch(Form("par_global_error_down_par_%i", i), &fOutParErrorDownGlobal[i], Form("par_global_error_down_par_%i/D", i));
+		fTree->Branch(Form("par_global_pull_par_%i", i),       &fOutParPullGlobal[i],      Form("par_global_pull_par_%i/D", i));
 
 		if(fFlagMCMC) {
 			fTree->Branch(Form("par_marg_mode_par_%i", i),       &fOutParModeMarg[i],       Form("par_marg_mode_par_%i/D", i));
@@ -276,6 +292,7 @@ int BCTemplateEnsembleTest::PrepareTree()
 			fTree->Branch(Form("par_marg_rms_par_%i", i),        &fOutParRMSMarg[i],        Form("par_marg_rms_par_%i/D", i));
 			fTree->Branch(Form("par_marg_error_up_par_%i", i),   &fOutParErrorUpMarg[i],    Form("par_marg_ErrorUp_par_%i/D", i));
 			fTree->Branch(Form("par_marg_error_down_par_%i", i), &fOutParErrorDownMarg[i],  Form("par_marg_error_down_par_%i/D", i));
+			fTree->Branch(Form("par_marg_pull_par_%i", i),       &fOutParPullMarg[i],       Form("par_marg_pull_par_%i/D", i));
 			fTree->Branch(Form("par_marg_quantile5_par_%i", i),  &fOutParQuantile5Marg[i],  Form("par_marg_Quantile5_par_%i/D", i));
 			fTree->Branch(Form("par_marg_quantile10_par_%i", i), &fOutParQuantile10Marg[i], Form("par_marg_Quantile10_par_%i/D", i));
 			fTree->Branch(Form("par_marg_quantile90_par_%i", i), &fOutParQuantile90Marg[i], Form("par_marg_Quantile90_par_%i/D", i));
@@ -284,6 +301,9 @@ int BCTemplateEnsembleTest::PrepareTree()
 	}
 
 	if (fFlagMCMC) {
+		fTree->Branch("chi2_marg", &fOutChi2Marg,     "chi2 (marginalized)/D");
+		fTree->Branch("chi2prob_marg", &fOutChi2ProbMarg, "chi2 prob probability (marginalized)/D");
+
 		for (int i = 0; i < nratios; ++i) {
 			fTree->Branch(Form("ratio_marg_mode_ratio_%i", i),       &fOutRatioModeMarg[i],       Form("ratio_marg_mode_ratio_%i/D", i));
 			fTree->Branch(Form("ratio_marg_mean_ratio_%i", i),       &fOutRatioMeanMarg[i],       Form("ratio_marg_mean_ratio_%i/D", i));

@@ -1,3 +1,6 @@
+2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter and BCTemplateEnsemble: added chi2 calculated with global and marginalized mode, added pull
+
 2010-10-30 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCSummaryTool:
 	  - renamed PrintCorrelationPlot() renamed to PrintCorrelationMatrix()

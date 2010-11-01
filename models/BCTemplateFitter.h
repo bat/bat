@@ -288,12 +288,12 @@ class BCTemplateFitter : public BCModel
 		 * Calculates and returns the chi2 value. The chi2 is calculated
 		 * using the expectation value for the uncertainty.
 		 */
-		double CalculateChi2();
+		double CalculateChi2(std::vector<double> parameters);
 
 		/**
 		 * Calculates and returns the chi2-probability.
 		 */
-		double CalculateChi2Prob();
+		double CalculateChi2Prob(std::vector<double> parameters);
 
 		/**
 		 * Calculates and returns the Likelihood at the global mode.

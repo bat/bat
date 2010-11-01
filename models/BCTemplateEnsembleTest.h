@@ -173,6 +173,11 @@ class BCTemplateEnsembleTest
 		std::vector<double> fOutParErrorDownGlobal;
 
 		/**
+		 * Tree variable: global mode
+		 */
+		std::vector<double> fOutParPullGlobal;
+
+		/**
 		 * Tree variable: marginalized mode
 		 */
 		std::vector<double> fOutParModeMarg;
@@ -201,6 +206,11 @@ class BCTemplateEnsembleTest
 		 * Tree variable: 84% quantile
 		 */
 		std::vector<double> fOutParErrorDownMarg;
+
+		/**
+		 * Tree variable: global mode
+		 */
+		std::vector<double> fOutParPullMarg;
 
 		/**
 		 * Tree variable: 5% quantile
@@ -273,9 +283,15 @@ class BCTemplateEnsembleTest
 		std::vector<double> fOutRatioQuantile95Marg;
 
 		/**
-		 * Tree variable: chi2
+		 * Tree variable: chi2 calculated with global best fit parameters
 		 */
-		double fOutChi2;
+		double fOutChi2Global;
+
+		/**
+		 * Tree variable: chi2 calculated with marginalized best fit
+		 * parameters
+		 */
+		double fOutChi2Marg;
 
 		/**
 		 * Tree variable: ndf
@@ -283,9 +299,16 @@ class BCTemplateEnsembleTest
 		int fOutNDF;
 
 		/**
-		 * Tree variable: chi2-probability
+		 * Tree variable: chi2-probability calculated with global best fit
+		 * parameters
 		 */
-		double fOutChi2Prob;
+		double fOutChi2ProbGlobal;
+
+		/**
+		 * Tree variable: chi2-probability calculated with marginalized
+		 * best fit parameters
+		 */
+		double fOutChi2ProbMarg;
 
 		/**
 		 * Tree variable: KL probability
