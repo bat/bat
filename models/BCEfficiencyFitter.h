@@ -154,8 +154,7 @@ class BCEfficiencyFitter : public BCModel
 		/**
 		 * Performs the fit.
 		 * @return An error code. */
-		int Fit()
-			{ return this -> Fit(fHistogram1, fHistogram2, fFitFunction); };
+		int Fit();
 
 		/**
 		 * Performs the fit.

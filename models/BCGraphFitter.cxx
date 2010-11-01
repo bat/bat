@@ -30,9 +30,9 @@ BCGraphFitter::BCGraphFitter() : BCModel("GraphFitter")
 	fErrorBand = 0;
 	fGraphFitFunction = 0;
 
-	this -> MCMCSetNIterationsRun(2000);
+	MCMCSetNIterationsRun(2000);
 
-	this -> SetFillErrorBand();
+	SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
@@ -44,12 +44,12 @@ BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func) : BCModel("GraphF
 	fErrorBand = 0;
 	fGraphFitFunction = 0;
 
-	this -> MCMCSetNIterationsRun(2000);
+	MCMCSetNIterationsRun(2000);
 
-	this -> SetGraph(graph);
-	this -> SetFitFunction(func);
+	SetGraph(graph);
+	SetFitFunction(func);
 
-	this -> SetFillErrorBand();
+	SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
@@ -62,7 +62,7 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
 		return 0;
 	}
 
-	int npoints = graph -> GetN();
+	int npoints = graph->GetN();
 	if(!npoints)
 	{
 		BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetGraph() : TGraphErrors is empty.");
@@ -76,10 +76,10 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
 
 	fGraph = graph;
 
-	double * x = fGraph -> GetX();
-	double * y = fGraph -> GetY();
-	double * ex = fGraph -> GetEX();
-	double * ey = fGraph -> GetEY();
+	double * x = fGraph->GetX();
+	double * y = fGraph->GetY();
+	double * ex = fGraph->GetEX();
+	double * ey = fGraph->GetEY();
 
 	if(!ey)
 	{
@@ -102,11 +102,11 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
 
 		// create the data point
 		BCDataPoint * dp = new BCDataPoint(4);
-		dp -> SetValue(0, x[i]);
-		dp -> SetValue(1, y[i]);
-		dp -> SetValue(2, errx);
-		dp -> SetValue(3, ey[i]);
-		ds -> AddDataPoint(dp);
+		dp->SetValue(0, x[i]);
+		dp->SetValue(1, y[i]);
+		dp->SetValue(2, errx);
+		dp->SetValue(3, ey[i]);
+		ds->AddDataPoint(dp);
 
 		if(x[i]-errx < xmin)
 			xmin = x[i]-errx;
@@ -119,15 +119,15 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
 			ymax = y[i] + 5.*ey[i];
 	}
 
-	this -> SetDataSet(ds);
+	SetDataSet(ds);
 
 	// set boundaries for the error band calculation
-	this -> SetDataBoundaries(0, xmin, xmax);
-	this -> SetDataBoundaries(1, ymin, ymax);
+	SetDataBoundaries(0, xmin, xmax);
+	SetDataBoundaries(1, ymin, ymax);
 
-	this -> SetFitFunctionIndices(0, 1);
+	SetFitFunctionIndices(0, 1);
 
-	return this -> GetNDataPoints();
+	return GetNDataPoints();
 }
 
 // ---------------------------------------------------------
@@ -185,8 +185,8 @@ double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
 	// using flat probability in all parameters
 	double logprob = 0.;
-	for(unsigned int i=0; i < this -> GetNParameters(); i++)
-		logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
+	for(unsigned int i=0; i < GetNParameters(); i++)
+		logprob -= log(GetParameter(i)->GetRangeWidth());
 
 	return logprob;
 }
@@ -205,18 +205,18 @@ double BCGraphFitter::LogLikelihood(std::vector <double> params)
 	// the vector elements are not stored consecutively in memory.
 	// however it is much faster than copying the contents, especially
 	// for large number of parameters
-	fFitFunction -> SetParameters(&params[0]);
+	fFitFunction->SetParameters(&params[0]);
 
 	// loop over all data points
-	for (int i = 0; i < this -> GetNDataPoints(); i++)
+	for (int i = 0; i < GetNDataPoints(); i++)
 	{
-		std::vector <double> x = GetDataPoint(i) -> GetValues();
+		std::vector <double> x = GetDataPoint(i)->GetValues();
 
 		// her we ignore the errors on x even when they're available
 		// i.e. we treat them just as the region specifiers
 		double y = x[1];
 		double yerr = x[3];
-		double yexp = this -> FitFunction(x,params);
+		double yexp = FitFunction(x,params);
 
 		// calculate log of probability assuming
 		// a Gaussian distribution for each point
@@ -231,9 +231,9 @@ double BCGraphFitter::LogLikelihood(std::vector <double> params)
 double BCGraphFitter::FitFunction(std::vector <double> x, std::vector <double> params)
 {
 	// set the parameters of the function
-	fFitFunction -> SetParameters(&params[0]);
+	fFitFunction->SetParameters(&params[0]);
 
-	return fFitFunction -> Eval(x[0]);
+	return fFitFunction->Eval(x[0]);
 }
 
 // ---------------------------------------------------------
@@ -241,12 +241,35 @@ double BCGraphFitter::FitFunction(std::vector <double> x, std::vector <double> p
 int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 {
 	// set graph
-	if (!this -> SetGraph(graph))
+	if (!SetGraph(graph)) {
+		BCLog::OutError("BCEfficiencyFitter::Fit : Graph not defined.");
 		return 0;
+	}
 
 	// set function
-	if (!this -> SetFitFunction(func))
+	if (!SetFitFunction(func)) {
 		return 0;
+		BCLog::OutError("BCEfficiencyFitter::Fit : Fit function not defined.");
+	}
+
+	return Fit();
+}
+
+// ---------------------------------------------------------
+
+int BCGraphFitter::Fit()
+{
+	// set graph
+	if (!fGraph) {
+		BCLog::OutError("BCEfficiencyFitter::Fit : Graph not defined.");
+		return 0;
+	}
+
+	// set function
+	if (!fFitFunction) {
+		BCLog::OutError("BCEfficiencyFitter::Fit : Fit function not defined.");
+		return 0;
+	}
 
 	// check setup
 	BCLog::Out(BCLog::detail,BCLog::detail,
@@ -260,20 +283,20 @@ int BCGraphFitter::Fit(TGraphErrors * graph, TF1 * func)
 	}
 
 	// perform marginalization
-	this -> MarginalizeAll();
+	MarginalizeAll();
 
 	// maximize posterior probability, using the best-fit values close
 	// to the global maximum from the MCMC
-	this -> FindModeMinuit( this -> GetBestFitParameters(), -1);
+	FindModeMinuit( GetBestFitParameters(), -1);
 
 	// calculate p-value from the chi2 probability
 	// this is only valid for a product of gaussiang which is the case for
 	// the BCGraphFitter
-	this -> GetPvalueFromChi2(this -> GetBestFitParameters(), 3);
-	this -> GetPvalueFromChi2NDoF(this -> GetBestFitParameters(), 3);
+	GetPvalueFromChi2(GetBestFitParameters(), 3);
+	GetPvalueFromChi2NDoF(GetBestFitParameters(), 3);
 
 	// print summary to screen
-	this -> PrintShortFitSummary(1);
+	PrintShortFitSummary(1);
 
 	return 1;
 }
@@ -300,17 +323,17 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 
 	// if not same, draw the histogram first to get the axes
 	if(!opt.Contains("same"))
-		fGraph -> Draw("ap");
+		fGraph->Draw("ap");
 
 	// draw the error band as central 68% probability interval
-	fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
-	fErrorBand -> Draw("f same");
+	fErrorBand = GetErrorBandGraph(0.16, 0.84);
+	fErrorBand->Draw("f same");
 
 	// draw the fit function on top
-	fGraphFitFunction = this -> GetFitFunctionGraph( this->GetBestFitParameters() );
-	fGraphFitFunction -> SetLineColor(kRed);
-	fGraphFitFunction -> SetLineWidth(2);
-	fGraphFitFunction -> Draw("l same");
+	fGraphFitFunction = GetFitFunctionGraph( GetBestFitParameters() );
+	fGraphFitFunction->SetLineColor(kRed);
+	fGraphFitFunction->SetLineWidth(2);
+	fGraphFitFunction->Draw("l same");
 
 	// now draw the histogram again since it was covered by the band and
 	// the best fit
@@ -320,15 +343,15 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 	if (flaglegend)
 	{
 		TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95);
-		legend -> SetBorderSize(0);
-		legend -> SetFillColor(kWhite);
-		legend -> AddEntry(fGraph, "Data", "P");
-		legend -> AddEntry(fGraphFitFunction, "Best fit", "L");
-		legend -> AddEntry(fErrorBand, "Error band", "F");
-		legend -> Draw();
+		legend->SetBorderSize(0);
+		legend->SetFillColor(kWhite);
+		legend->AddEntry(fGraph, "Data", "P");
+		legend->AddEntry(fGraphFitFunction, "Best fit", "L");
+		legend->AddEntry(fErrorBand, "Error band", "F");
+		legend->Draw();
 	}
 
-	gPad -> RedrawAxis();
+	gPad->RedrawAxis();
 }
 
 // ---------------------------------------------------------

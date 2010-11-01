@@ -1,5 +1,14 @@
 2010-11-01 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
+	  - copy TF1 and TH1D objects to prior container
+	  - delete prior objects when needed
+	* BCHistogramFitter, BCEfficiencyFitter, BCGraphFitter:
+	  - reorganized Fit() methods to allow for correct setting of priors
+	    via SetPrior() methods
+	  - code formatting
+
+2010-11-01 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
 	  - allow SetPrior from TH1 histogram
 	  - recalculate flat part of the prior on every SetPrior() call;
 	    fixes prior normalization problem that could happen if, e.g.,

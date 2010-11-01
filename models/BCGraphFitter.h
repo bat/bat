@@ -114,8 +114,7 @@ class BCGraphFitter : public BCModel
 		/**
 		 * Performs the fit. The graph and the function has to beset beforehand.
 		 * @return An error code. */
-		int Fit()
-			{ return this -> Fit(fGraph, fFitFunction); };
+		int Fit();
 
 		/**
 		 * Performs the fit of the graph with the function.

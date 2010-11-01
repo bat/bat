@@ -147,8 +147,7 @@ class BCHistogramFitter : public BCModel
 		/**
 		 * Performs the fit.
 		 * @return An error code. */
-		int Fit()
-			{ return this -> Fit(fHistogram, fFitFunction); };
+		int Fit();
 
 		/**
 		 * Performs the fit.

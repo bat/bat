@@ -269,6 +269,25 @@ int BCEfficiencyFitter::Fit(TH1D * hist1, TH1D * hist2, TF1 * func)
 		return 0;
 	}
 
+	return Fit();
+}
+
+// ---------------------------------------------------------
+
+int BCEfficiencyFitter::Fit()
+{
+	// set histogram
+	if (!fHistogram1 || !fHistogram2) {
+		BCLog::OutError("BCEfficiencyFitter::Fit : Histogram(s) not defined.");
+		return 0;
+	}
+
+	// set function
+	if (!fFitFunction) {
+		BCLog::OutError("BCEfficiencyFitter::Fit : Fit function not defined.");
+		return 0;
+	}
+
 	// perform marginalization
 	MarginalizeAll();
 

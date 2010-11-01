@@ -576,21 +576,18 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
 
    // loop over all 1-d priors
    for (int i = 0; i < npar; ++i) {
-      // get prior
-		TNamed * fn = fPriorContainer[i];
-		if (fn) {
-			// check what type of prior is stored
-			TF1 * f = dynamic_cast<TF1*>(fn);
-			TH1 * h = dynamic_cast<TH1*>(fn);
+		if (fPriorContainer[i]) {
+			// check what type of object is stored
+			TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
+			TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
 
 	      if (f) // TF1
 	         logprob += log(f->Eval(parameters[i]));
 			else if (h) { // TH1
 				if(fPriorContainerInterpolate[i])
 		         logprob += log(h->Interpolate(parameters[i]));
-				else {
+				else
 					logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
-				}
 			}
 	      else
      	      BCLog::OutError(Form(
@@ -599,14 +596,12 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
                GetParameter(i)->GetName().c_str())); // this should never happen
 		}
       // use constant only if user has defined it
-      else {
-         if (!fPriorContainerConstant[i]) {
-            BCLog::OutWarning(Form(
-                  "BCModel::LogAPrioriProbability: Prior for parameter %s "
-                     "is undefined. Using constant prior to proceed.",
-                  GetParameter(i)->GetName().c_str()));
-            logprob -= log(GetParameter(i)->GetRangeWidth());
-         }
+      else if (!fPriorContainerConstant[i]) {
+         BCLog::OutWarning(Form(
+               "BCModel::LogAPrioriProbability: Prior for parameter %s "
+               "is undefined. Using constant prior to proceed.",
+               GetParameter(i)->GetName().c_str()));
+         logprob -= log(GetParameter(i)->GetRangeWidth());
       }
    }
 
@@ -1709,8 +1704,13 @@ int BCModel::SetPrior(int index, TF1 * f)
       return 0;
    }
 
-   // set function
-   fPriorContainer[index] = f; 
+	if (fPriorContainer[index])
+		delete fPriorContainer[index];
+
+   // copy function
+   fPriorContainer[index] = new TF1(*f);
+
+	fPriorContainerConstant[index] = false;
 
 	RecalculatePriorConstant();
 
@@ -1839,11 +1839,16 @@ int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
 		// normalize the histogram
 		h->Scale(1./h->Integral("width"));
 
+		if(fPriorContainer[index])
+			delete fPriorContainer[index];
+
 	   // set function
-	   fPriorContainer[index] = h; 
+	   fPriorContainer[index] = new TH1(*h);
 
 		if (interpolate)
 			fPriorContainerInterpolate[index] = true;
+
+		fPriorContainerConstant[index] = false;
 	}
 
 	RecalculatePriorConstant();
@@ -1876,6 +1881,11 @@ int BCModel::SetPriorConstant(int index)
       BCLog::OutError("BCModel::SetPriorConstant : Index out of range.");
       return 0;
    }
+
+	if(fPriorContainer[index]) {
+		delete fPriorContainer[index];
+		fPriorContainer[index] = 0;
+	}
 
    // set prior to a constant
    fPriorContainerConstant[index] = true;
@@ -1920,8 +1930,13 @@ int BCModel::SetPriorConstantAll()
       BCLog::OutWarning("BCModel::SetPriorConstantAll : No parameters defined.");
 
    // loop over all 1-d priors
-   for (int i = 0; i < nPar; ++i)
+   for (int i = 0; i < nPar; ++i) {
+		if (fPriorContainer[i]) {
+			delete fPriorContainer[i];
+			fPriorContainer[i]=0;
+		}
 		fPriorContainerConstant[i] = true;
+	}
 
 	RecalculatePriorConstant();
 

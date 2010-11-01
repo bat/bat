@@ -34,8 +34,8 @@ BCHistogramFitter::BCHistogramFitter() :
    fFitFunction = 0;
 
    // set default options and values
-   this -> MCMCSetNIterationsRun(2000);
-   this -> SetFillErrorBand();
+   MCMCSetNIterationsRun(2000);
+   SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
 }
@@ -48,11 +48,11 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) :
    fHistogram = 0;
    fFitFunction = 0;
 
-   this -> SetHistogram(hist);
-   this -> SetFitFunction(func);
+   SetHistogram(hist);
+   SetFitFunction(func);
 
-   this -> MCMCSetNIterationsRun(2000);
-   this -> SetFillErrorBand();
+   MCMCSetNIterationsRun(2000);
+   SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
 
@@ -81,24 +81,24 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
    // create data points and add them to the data set.
    // the x value is the lower edge of the bin, and
    // the y value is the bin count
-   int nbins = fHistogram -> GetNbinsX();
+   int nbins = fHistogram->GetNbinsX();
    for (int i = 0; i < nbins; ++i) {
       BCDataPoint* dp = new BCDataPoint(2);
-      dp ->SetValue(0, fHistogram -> GetBinLowEdge(i+1));
-      dp ->SetValue(1, fHistogram -> GetBinContent(i+1));
-      ds -> AddDataPoint(dp);
+      dp ->SetValue(0, fHistogram->GetBinLowEdge(i+1));
+      dp ->SetValue(1, fHistogram->GetBinContent(i+1));
+      ds->AddDataPoint(dp);
    }
 
    // set the new data set.
-   this -> SetDataSet(ds);
+   SetDataSet(ds);
 
    // calculate the lower and upper edge in x.
-   double xmin = hist -> GetBinLowEdge(1);
-   double xmax = hist -> GetBinLowEdge(nbins + 1);
+   double xmin = hist->GetBinLowEdge(1);
+   double xmax = hist->GetBinLowEdge(nbins + 1);
 
    // calculate the minimum and maximum range in y.
-   double histymin = hist -> GetMinimum();
-   double histymax = hist -> GetMaximum();
+   double histymin = hist->GetMinimum();
+   double histymax = hist->GetMaximum();
 
    // calculate the minimum and maximum of the function value based on
    // the minimum and maximum value in y.
@@ -106,11 +106,11 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
    double ymax = histymax + 5. * sqrt(histymax);
 
    // set the data boundaries for x and y values.
-   this -> SetDataBoundaries(0, xmin, xmax);
-   this -> SetDataBoundaries(1, ymin, ymax);
+   SetDataBoundaries(0, xmin, xmax);
+   SetDataBoundaries(1, ymin, ymax);
 
    // set the indeces for fitting.
-   this -> SetFitFunctionIndices(0, 1);
+   SetFitFunctionIndices(0, 1);
 
    // no error
    return 1;
@@ -128,33 +128,33 @@ int BCHistogramFitter::SetHistogramExpected(const std::vector <double>& paramete
    fHistogramExpected = new TH1D(*fHistogram);
 
    // get the number of bins
-   int nBins = fHistogramExpected -> GetNbinsX();
+   int nBins = fHistogramExpected->GetNbinsX();
 
    // get bin width
-   double dx = fHistogramExpected -> GetBinWidth(1);
+   double dx = fHistogramExpected->GetBinWidth(1);
 
    //set the parameters of fit function
-   fFitFunction -> SetParameters(&parameters[0]);
+   fFitFunction->SetParameters(&parameters[0]);
 
    // get function value of lower bin edge
-   double fedgelow = fFitFunction -> Eval(fHistogramExpected -> GetBinLowEdge(1));
+   double fedgelow = fFitFunction->Eval(fHistogramExpected->GetBinLowEdge(1));
 
    // loop over all bins, skip underflow
    for (int ibin = 1; ibin <= nBins; ++ibin) {
       // get upper bin edge
-      double xedgehi = fHistogramExpected -> GetBinLowEdge(ibin) + dx;
+      double xedgehi = fHistogramExpected->GetBinLowEdge(ibin) + dx;
 
       //expected count
       double yexp = 0.;
 
       // use ROOT's TH1D::Integral method
       if (fFlagIntegration)
-         yexp = fFitFunction -> Integral(xedgehi - dx, xedgehi);
+         yexp = fFitFunction->Integral(xedgehi - dx, xedgehi);
 
       // use linear interpolation
       else {
          // get function value at upper bin edge
-         double fedgehi = fFitFunction -> Eval(xedgehi);
+         double fedgehi = fFitFunction->Eval(xedgehi);
          yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
 
          // make the upper edge the lower edge for the next iteration
@@ -162,13 +162,13 @@ int BCHistogramFitter::SetHistogramExpected(const std::vector <double>& paramete
       }
 
       //write the expectation for the bin
-      fHistogramExpected -> SetBinContent(ibin, yexp);
+      fHistogramExpected->SetBinContent(ibin, yexp);
 
       //avoid automatic error as sqrt(yexp), used e.g. in Kolmogorov correction factor
-      fHistogramExpected -> SetBinError(ibin, 0.0);
+      fHistogramExpected->SetBinError(ibin, 0.0);
 
       // but the data under this model have that sqrt(yexp) uncertainty
-      fHistogram -> SetBinError(ibin, sqrt(yexp));
+      fHistogram->SetBinError(ibin, sqrt(yexp));
 
 
    }
@@ -228,8 +228,8 @@ double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
 {
    // using flat probability in all parameters
    double logprob = 0.;
-   for (unsigned int i = 0; i < this -> GetNParameters(); i++)
-      logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
+   for (unsigned int i = 0; i < GetNParameters(); i++)
+      logprob -= log(GetParameter(i)->GetRangeWidth());
 
    return logprob;
 }
@@ -243,33 +243,33 @@ double BCHistogramFitter::LogLikelihood(std::vector<double> params)
    double loglikelihood = 0;
 
    // set the parameters of the function
-   fFitFunction -> SetParameters(&params[0]);
+   fFitFunction->SetParameters(&params[0]);
 
    // get the number of bins
-   int nbins = fHistogram -> GetNbinsX();
+   int nbins = fHistogram->GetNbinsX();
 
    // get bin width
-   double dx = fHistogram -> GetBinWidth(1);
+   double dx = fHistogram->GetBinWidth(1);
 
    // get function value of lower bin edge
-   double fedgelow = fFitFunction -> Eval(fHistogram -> GetBinLowEdge(1));
+   double fedgelow = fFitFunction->Eval(fHistogram->GetBinLowEdge(1));
 
    // loop over all bins
    for (int ibin = 1; ibin <= nbins; ++ibin) {
       // get upper bin edge
-      double xedgehi = fHistogram -> GetBinLowEdge(ibin) + dx;
+      double xedgehi = fHistogram->GetBinLowEdge(ibin) + dx;
 
       // get function value at upper bin edge
-      double fedgehi = fFitFunction -> Eval(xedgehi);
+      double fedgehi = fFitFunction->Eval(xedgehi);
 
       // get the number of observed events
-      double y = fHistogram -> GetBinContent(ibin);
+      double y = fHistogram->GetBinContent(ibin);
 
       double yexp = 0.;
 
       // use ROOT's TH1D::Integral method
       if (fFlagIntegration)
-         yexp = fFitFunction -> Integral(xedgehi - dx, xedgehi);
+         yexp = fFitFunction->Integral(xedgehi - dx, xedgehi);
 
       // use linear interpolation
       else {
@@ -284,14 +284,14 @@ double BCHistogramFitter::LogLikelihood(std::vector<double> params)
    }
 
    // // get bin boundaries
-   // double xmin = fHistogram -> GetBinLowEdge(ibin);
-   // double xmax = fHistogram -> GetBinLowEdge(ibin+1);
+   // double xmin = fHistogram->GetBinLowEdge(ibin);
+   // double xmax = fHistogram->GetBinLowEdge(ibin+1);
 
    // // get the number of observed events
-   // double y = fHistogram -> GetBinContent(ibin);
+   // double y = fHistogram->GetBinContent(ibin);
 
    // // get the number of expected events
-   // double yexp = fFitFunction -> Integral(xmin, xmax);
+   // double yexp = fFitFunction->Integral(xmin, xmax);
 
    // // get the value of the Poisson distribution
    // loglikelihood += BCMath::LogPoisson(y, yexp);
@@ -301,14 +301,12 @@ double BCHistogramFitter::LogLikelihood(std::vector<double> params)
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::FitFunction(std::vector<double> x,
-      std::vector<double> params)
+double BCHistogramFitter::FitFunction(std::vector<double> x, std::vector<double> params)
 {
    // set the parameters of the function
-   fFitFunction -> SetParameters(&params[0]);
+   fFitFunction->SetParameters(&params[0]);
 
-   return fFitFunction -> Eval(x[0]) * fHistogram -> GetBinWidth(
-         fHistogram -> FindBin(x[0]));
+   return fFitFunction->Eval(x[0]) * fHistogram->GetBinWidth(fHistogram->FindBin(x[0]));
 }
 
 // ---------------------------------------------------------
@@ -317,39 +315,56 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
 {
    // set histogram
    if (hist)
-      this -> SetHistogram(hist);
+      SetHistogram(hist);
    else {
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::Fit() : Histogram not defined.");
+      BCLog::OutError("BCHistogramFitter::Fit : Histogram not defined.");
       return 0;
    }
 
    // set function
    if (func)
-      this -> SetFitFunction(func);
+      SetFitFunction(func);
    else {
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::Fit() : Fit function not defined.");
+      BCLog::OutError("BCHistogramFitter::Fit : Fit function not defined.");
+      return 0;
+   }
+
+	return Fit();
+}
+
+// ---------------------------------------------------------
+
+int BCHistogramFitter::Fit()
+{
+   // set histogram
+   if (!fHistogram) {
+      BCLog::OutError("BCHistogramFitter::Fit : Histogram not defined.");
+      return 0;
+   }
+
+   // set function
+   if (!fFitFunction) {
+      BCLog::OutError("BCHistogramFitter::Fit : Fit function not defined.");
       return 0;
    }
 
    // perform marginalization
-   this -> MarginalizeAll();
+   MarginalizeAll();
 
    // maximize posterior probability, using the best-fit values close
    // to the global maximum from the MCMC
-   this -> FindModeMinuit(this -> GetBestFitParameters(), -1);
+   FindModeMinuit(GetBestFitParameters(), -1);
 
    // calculate the p-value using the fast MCMC algorithm
    double pvalue;
-   if (this -> CalculatePValueFast(this -> GetBestFitParameters(), pvalue))
+   if (CalculatePValueFast(GetBestFitParameters(), pvalue))
       fPValue = pvalue;
    else
       BCLog::Out(BCLog::warning, BCLog::warning,
             "BCHistogramFitter::Fit() : Could not use the fast p-value evaluation.");
 
    // print summary to screen
-   this -> PrintShortFitSummary();
+   PrintShortFitSummary();
 
    // no error
    return 1;
@@ -383,34 +398,34 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 
    // if not same, draw the histogram first to get the axes
    if (!opt.Contains("same"))
-      fHistogram -> Draw(opt.Data());
+      fHistogram->Draw(opt.Data());
 
    // draw the error band as central 68% probability interval
-   fErrorBand = this -> GetErrorBandGraph(0.16, 0.84);
-   fErrorBand -> Draw("f same");
+   fErrorBand = GetErrorBandGraph(0.16, 0.84);
+   fErrorBand->Draw("f same");
 
    // now draw the histogram again since it was covered by the band
    fHistogram->Draw(TString::Format("%ssame", opt.Data()));
 
    // draw the fit function on top
    fGraphFitFunction
-         = this -> GetFitFunctionGraph(this->GetBestFitParameters());
-   fGraphFitFunction -> SetLineColor(kRed);
-   fGraphFitFunction -> SetLineWidth(2);
-   fGraphFitFunction -> Draw("l same");
+         = GetFitFunctionGraph(GetBestFitParameters());
+   fGraphFitFunction->SetLineColor(kRed);
+   fGraphFitFunction->SetLineWidth(2);
+   fGraphFitFunction->Draw("l same");
 
    // draw legend
    if (flaglegend) {
       TLegend * legend = new TLegend(0.25, 0.75, 0.55, 0.95);
-      legend -> SetBorderSize(0);
-      legend -> SetFillColor(kWhite);
-      legend -> AddEntry(fHistogram, "Data", "L");
-      legend -> AddEntry(fGraphFitFunction, "Best fit", "L");
-      legend -> AddEntry(fErrorBand, "Error band", "F");
-      legend -> Draw();
+      legend->SetBorderSize(0);
+      legend->SetFillColor(kWhite);
+      legend->AddEntry(fHistogram, "Data", "L");
+      legend->AddEntry(fGraphFitFunction, "Best fit", "L");
+      legend->AddEntry(fErrorBand, "Error band", "F");
+      legend->Draw();
    }
 
-   gPad -> RedrawAxis();
+   gPad->RedrawAxis();
 }
 
 // ---------------------------------------------------------
@@ -419,7 +434,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
       double &pvalue, int nIterations)
 {
    // check size of parameter vector
-   if (par.size() != this -> GetNParameters()) {
+   if (par.size() != GetNParameters()) {
       BCLog::Out(
             BCLog::warning,
             BCLog::warning,
@@ -435,7 +450,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
    }
 
    // define temporary variables
-   int nbins = fHistogram -> GetNbinsX();
+   int nbins = fHistogram->GetNbinsX();
 
    std::vector<int> histogram;
    std::vector<double> expectation;
@@ -447,13 +462,13 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
    int counter_pvalue = 0;
 
    //update the expected number of events for all bins
-   this -> SetHistogramExpected(par);
+   SetHistogramExpected(par);
 
    // define starting distribution as histogram with most likely entries
    for (int ibin = 0; ibin < nbins; ++ibin) {
 
      // get the number of expected events
-     double yexp = fHistogramExpected -> GetBinContent(ibin +1);
+     double yexp = fHistogramExpected->GetBinContent(ibin +1);
 
      //most likely observed value = int(expected value)
       histogram[ibin] = int(yexp);
@@ -462,7 +477,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
       // calculate test statistic (= likelihood of entire histogram) for starting distr.
       logp += BCMath::LogPoisson(double(int(yexp)), yexp);
       //statistic of the observed data set
-      logp_start += BCMath::LogPoisson(fHistogram -> GetBinContent(ibin + 1),
+      logp_start += BCMath::LogPoisson(fHistogram->GetBinContent(ibin + 1),
             yexp);
    }
 
@@ -471,7 +486,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
       // loop over bins
       for (int ibin = 0; ibin < nbins; ++ibin) {
          // random step up or down in statistics for this bin
-         double ptest = fRandom -> Rndm() - 0.5;
+         double ptest = fRandom->Rndm() - 0.5;
 
          // increase statistics by 1
          if (ptest > 0) {
@@ -479,7 +494,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
             double r = expectation.at(ibin) / double(histogram.at(ibin) + 1);
 
             // walk, or don't (this is the Metropolis part)
-            if (fRandom -> Rndm() < r) {
+            if (fRandom->Rndm() < r) {
                histogram[ibin] = histogram.at(ibin) + 1;
                logp += log(r);
             }
@@ -491,7 +506,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
             double r = double(histogram.at(ibin)) / expectation.at(ibin);
 
             // walk, or don't (this is the Metropolis part)
-            if (fRandom -> Rndm() < r) {
+            if (fRandom->Rndm() < r) {
                histogram[ibin] = histogram.at(ibin) - 1;
                logp += log(r);
             }
@@ -520,15 +535,15 @@ int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
    double logLambda = 0.0;
 
    //Calculate expected counts to compare with
-   this -> SetHistogramExpected(par);
+   SetHistogramExpected(par);
 
    for (int ibin = 1; ibin <= fHistogram->GetNbinsX(); ++ibin) {
 
       // get the number of observed events
-      double y = fHistogram -> GetBinContent(ibin);
+      double y = fHistogram->GetBinContent(ibin);
 
       // get the number of expected events
-      double yexp = fHistogramExpected -> GetBinContent(ibin);
+      double yexp = fHistogramExpected->GetBinContent(ibin);
 
       // get the contribution from this datapoint
       if (y == 0)
@@ -541,7 +556,7 @@ int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
    logLambda *= 2.0;
 
    // compute degrees of freedom for Poisson case
-   int nDoF = this->GetNDataPoints() - this->GetNParameters();
+   int nDoF = GetNDataPoints() - GetNParameters();
 
    //p value from chi^2 distribution, returns zero if logLambda < 0
    fPValueNDoF = TMath::Prob(logLambda, nDoF);
@@ -558,15 +573,15 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
    double chi2 = 0.0;
 
    //Calculate expected counts to compare with
-   this -> SetHistogramExpected(par);
+   SetHistogramExpected(par);
 
    for (int ibin = 1; ibin <= fHistogram->GetNbinsX(); ++ibin) {
 
       // get the number of observed events
-      double y = fHistogram -> GetBinContent(ibin);
+      double y = fHistogram->GetBinContent(ibin);
 
       // get the number of expected events
-      double yexp = fHistogramExpected -> GetBinContent(ibin);
+      double yexp = fHistogramExpected->GetBinContent(ibin);
 
       //convert 1/0.0 into 1 for weighted sum
       double weight;
@@ -580,7 +595,7 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
    }
 
    // compute degrees of freedom for Poisson case
-   int nDoF = this->GetNDataPoints() - this->GetNParameters();
+   int nDoF = GetNDataPoints() - GetNParameters();
 
    // p value from chi^2 distribution, returns zero if logLambda < 0
    fPValueNDoF = TMath::Prob(chi2, nDoF);
@@ -600,10 +615,10 @@ int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par, double
    }
 
    //update expected counts with current parameters
-   this -> SetHistogramExpected(par);
+   SetHistogramExpected(par);
 
    //perform the test
-   pvalue = fHistogramExpected -> KolmogorovTest(fHistogram);
+   pvalue = fHistogramExpected->KolmogorovTest(fHistogram);
 
    fPValue = pvalue;
 
@@ -621,28 +636,28 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
    index++;
 
    // get the number of observed events (should be integer)
-   double yObs = fHistogram -> GetBinContent(index);
+   double yObs = fHistogram->GetBinContent(index);
 
    //	if(double( (unsigned int)yObs)==yObs)
    //		BCLog::OutWarning(Form(
    //				"BCHistogramFitter::CDF: using bin count %f that  is not an integer!",yObs));
 
    // get function value of lower bin edge
-   double edgeLow = fHistogram -> GetBinLowEdge(index);
-   double edgeHigh = edgeLow + fHistogram -> GetBinWidth(index);
+   double edgeLow = fHistogram->GetBinLowEdge(index);
+   double edgeHigh = edgeLow + fHistogram->GetBinWidth(index);
 
    // expectation value of this bin
    double yExp = 0.0;
 
    // use ROOT's TH1D::Integral method
    if (fFlagIntegration)
-      yExp = fFitFunction -> Integral(edgeLow, edgeHigh, &parameters[0]);
+      yExp = fFitFunction->Integral(edgeLow, edgeHigh, &parameters[0]);
 
    // use linear interpolation
    else {
-      double dx = fHistogram -> GetBinWidth(index);
-      double fEdgeLow = fFitFunction -> Eval(edgeLow);
-      double fEdgeHigh = fFitFunction -> Eval(edgeHigh);
+      double dx = fHistogram->GetBinWidth(index);
+      double fEdgeLow = fFitFunction->Eval(edgeLow);
+      double fEdgeHigh = fFitFunction->Eval(edgeHigh);
       yExp = fEdgeLow * dx + (fEdgeHigh - fEdgeLow) * dx / 2.;
    }
 
@@ -665,7 +680,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
       // ex. yObs = 9.785 =>
 //      yObs --> 10 with P = 78.5%
 //      yObs --> 9  with P = 21.5%
-      double U = fRandom -> Rndm() ;
+      double U = fRandom->Rndm() ;
       double yObsLower = (unsigned int)yObs;
       if( U > (yObs - yObsLower) )
          yObs = yObsLower;
