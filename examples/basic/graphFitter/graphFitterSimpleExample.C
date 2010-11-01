@@ -52,8 +52,8 @@ void graphFitterSimpleExample()
 	TF1 * f1 = new TF1("f1", "[0] + [1]*x", 0.0, 100.0);
 
 	// allowed range has to be defined for every parameter
-	f1 -> SetParLimits(0, -20.0, 30.0);
-	f1 -> SetParLimits(1,   0.5,  1.5);
+	f1->SetParLimits(0, -20.0, 30.0);
+	f1->SetParLimits(1,   0.5,  1.5);
 
 	// create a new graph fitter
 	BCGraphFitter * gf = new BCGraphFitter(graph, f1);
@@ -62,21 +62,21 @@ void graphFitterSimpleExample()
 	// set number of iterations of Markov Chain after convergence
 	// by default 5 chains are run in paralell, i.e. total number
 	// of iterations will be 5 times what is set below
-	gf -> MCMCSetNIterationsRun(100000);
+	gf->MCMCSetNIterationsRun(100000);
 
 	// perform the fit
-	gf -> Fit();
+	gf->Fit();
 
 	// print data and the fit
 	TCanvas * c1 = new TCanvas("c1");
-	gf -> DrawFit("", true);
-	c1 -> Print("fit.ps");
+	gf->DrawFit("", true);
+	c1->Print("fit.ps");
 
 	// print marginalized distributions
-	gf -> PrintAllMarginalized("distributions.ps");
+	gf->PrintAllMarginalized("distributions.ps");
 
 	// print results
-	gf -> PrintResults("results.txt");
+	gf->PrintResults("results.txt");
 }
 
 // ---------------------------------------------------------
@@ -94,14 +94,14 @@ TGraphErrors * CreateGraph(int n, int seed)
 	for (int i = 0; i < n; ++i)
 	{
 		x[i] = 100. / double(n) * double(i+0.5);
-		y[i] = gRandom -> Gaus(offset + slope*x[i], sigma);
+		y[i] = gRandom->Gaus(offset + slope*x[i], sigma);
 		ey[i] = sigma;
 	}
 
 	// create new graph
 	TGraphErrors * graph = new TGraphErrors(n, x, y, 0, ey);
-	graph -> SetMarkerStyle(20);
-	graph -> SetMarkerSize(1.5);
+	graph->SetMarkerStyle(20);
+	graph->SetMarkerSize(1.5);
 
 	// return the graph
 	return graph;

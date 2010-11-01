@@ -55,54 +55,54 @@ void efficiencyFitterExample()
 
 	// create new histograms
 	hist1 = new TH1D("data1", ";x;N", nbins, 0.0, 100.0);
-	hist1 -> SetStats(kFALSE);
-	hist1 -> SetLineColor(kBlack);
-	hist1 -> SetFillColor(5);
-	hist1 -> SetFillStyle(1001);
+	hist1->SetStats(kFALSE);
+	hist1->SetLineColor(kBlack);
+	hist1->SetFillColor(5);
+	hist1->SetFillStyle(1001);
 
 	hist2 = new TH1D("data2", ";x;N", nbins, 0.0, 100.0);
-	hist2 -> SetStats(kFALSE);
-	hist2 -> SetLineColor(kRed);
+	hist2->SetStats(kFALSE);
+	hist2->SetLineColor(kRed);
 
 	// create data
 	CreateHistograms(nbins, 1000, hist1, hist2, 1000);
 
 	// define a fit function
 	TF1 * f1 = new TF1("f1", fitfunction, 0.0, 100.0, 2);
-	f1 -> SetParLimits(0, 20.0, 70.0);
-	f1 -> SetParLimits(1, 0.0,  20.0);
+	f1->SetParLimits(0, 20.0, 70.0);
+	f1->SetParLimits(1, 0.0,  20.0);
 
 	// create a new efficiency fitter
 	BCEfficiencyFitter * hef = new BCEfficiencyFitter(hist1, hist2, f1);
 
 	// set options for evaluating the fit function
-	hef -> SetFlagIntegration(false);
+	hef->SetFlagIntegration(false);
 
 	// set options for MCMC
-	//	hef -> MCMCSetNIterationsMax(100);
-	//	hef -> MCMCSetNIterationsRun(100);
+	//	hef->MCMCSetNIterationsMax(100);
+	//	hef->MCMCSetNIterationsRun(100);
 
 	// set priors
 	hef->SetPriorGauss(0, 50.0, 5.0);
 	hef->SetPriorGauss(1,  5.0, 1.0);
 
 	// perform fit
-	hef -> Fit();
+	hef->Fit();
 
 	// print data and fit
 	TCanvas * c = new TCanvas("c1","",800,400);
-	c -> Divide(2, 1);
-	c -> cd(1);
-	hist1 -> Draw();
-	hist2 -> Draw("same");
-	c -> cd(2);
-	hef -> DrawFit("", true); // draw with a legend
+	c->Divide(2, 1);
+	c->cd(1);
+	hist1->Draw();
+	hist2->Draw("same");
+	c->cd(2);
+	hef->DrawFit("", true); // draw with a legend
 
 	// print to file
-	c -> Print("fit.ps");
+	c->Print("fit.ps");
 
 	// print marginalized distributions
-	hef -> PrintAllMarginalized("distributions.ps");
+	hef->PrintAllMarginalized("distributions.ps");
 
 }
 
@@ -128,23 +128,23 @@ void CreateHistograms(int nbins, int nevents, TH1D * hist1, TH1D * hist2, int se
 	// fill histogram 1
 	for (int i = 0; i < nevents ; ++i)
 	{
-		double x = gRandom -> Landau(30., 8.);
-		hist1 -> Fill(x);
+		double x = gRandom->Landau(30., 8.);
+		hist1->Fill(x);
 	}
 
 	// fill histogram 2
 	for (int i = 1; i <= nbins; ++i)
 	{
-		double x = hist1 -> GetXaxis() -> GetBinCenter(i);
+		double x = hist1->GetXaxis()->GetBinCenter(i);
 		double eff = 0;
 		if (x < mean)
 			eff = TMath::Erfc((mean-x)/sigma)/2.;
 		else
 			eff = TMath::Erf((x-mean)/sigma)/2. + 0.5;
-//		int n = gRandom -> Poisson(nevents);
-//		hist1 -> SetBinContent(i, n);
-//		hist2 -> SetBinContent(i, gRandom -> Binomial(n, eff));
-		hist2 -> SetBinContent(i, gRandom -> Binomial(hist1 -> GetBinContent(i), eff));
+//		int n = gRandom->Poisson(nevents);
+//		hist1->SetBinContent(i, n);
+//		hist2->SetBinContent(i, gRandom->Binomial(n, eff));
+		hist2->SetBinContent(i, gRandom->Binomial(hist1->GetBinContent(i), eff));
 	}
 }
 

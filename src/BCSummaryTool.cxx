@@ -561,7 +561,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintKnowlegdeUpdatePlot(const char * filename)
+int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 {
 	// perform analysis
 	CalculatePriorModel();

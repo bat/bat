@@ -331,6 +331,8 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 	gPad -> RedrawAxis();
 }
 
+// ---------------------------------------------------------
+
 double BCGraphFitter::CDF(const std::vector<double> & parameters,  int index, bool lower) {
 
 	//format: x y error_x error_y
@@ -347,7 +349,5 @@ double BCGraphFitter::CDF(const std::vector<double> & parameters,  int index, bo
 
 	return ROOT::Math::normal_cdf(yObs, values.at(3), yExp);
 }
-
-// ---------------------------------------------------------
 
 // ---------------------------------------------------------

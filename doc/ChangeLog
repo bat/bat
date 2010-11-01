@@ -1,5 +1,20 @@
+2010-11-01 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - allow SetPrior from TH1 histogram
+	  - recalculate flat part of the prior on every SetPrior() call;
+	    fixes prior normalization problem that could happen if, e.g.,
+		 SetPriorGauss() was called after SetPriorConstantAll()
+	* BCH1D:
+	  - reset histogram line/fill attributes before drawing
+	* BCSummaryTool:
+	  - renamed PrintKnowlegdeUpdatePlot() to PrintKnowledgeUpdatePlots()
+	* fast fitter examples:
+	  - code formatting
+	* updated todo
+
 2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCTemplateFitter and BCTemplateEnsemble: added chi2 calculated with global and marginalized mode, added pull
+	* BCTemplateFitter and BCTemplateEnsemble:
+	  - added chi2 calculated with global and marginalized mode, added pull
 
 2010-10-30 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCSummaryTool:

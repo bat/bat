@@ -156,6 +156,11 @@ void BCH1D::Draw(int options, double ovalue)
 	bool flagLegend=false;
 	char confidenceLabel[25];
 
+	// reset histogram
+	fHistogram->SetLineColor(kBlack);
+	fHistogram->SetLineWidth(1);
+	fHistogram->SetFillStyle(0);
+
 	// check drawing option.
 	switch(options)
 	{
@@ -294,7 +299,7 @@ void BCH1D::DrawLegend(const char* text)
 
 // ---------------------------------------------------------
 
-//TODO Are graphics objects ever deleted from the heap?
+// TODO Are graphics objects ever deleted from the heap?
 
 void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 {

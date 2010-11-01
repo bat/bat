@@ -22,6 +22,8 @@ For later releases:
 Priority:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
 high         done      Fix BAT configuration to be able to make dist without RooStats
+medium       done      SummaryTool: triangular plots
+
 high                   Fix memory leaks in BCH1D and other classes
 high                   Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 high                   Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
@@ -32,8 +34,9 @@ medium                 Speed up FastFitters by cutting data range to TF1 range
 medium                 Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
 medium                 Allow user to set scales for MCMC 
 medium                 Perform analysis of MCMC tree from ROOT file
-medium                 SummaryTool: triangular plots
 medium                 ROOT: enable compiling programs with 'root BATcode.C++'
+medium                 allow to select Cuba algorithm (Vegas, Suave, Divonne)
+medium                 allow to tune Cuba intergation parameters
 
 low                    Look into sparse histograms
 low                    Remove MCMC code from BCIntegrate

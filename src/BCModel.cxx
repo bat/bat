@@ -21,6 +21,7 @@
 #include "BAT/BCModelOutput.h"
 
 #include <TROOT.h>
+#include <TNamed.h>
 #include <TCanvas.h>
 #include <TPostScript.h>
 #include <TDirectory.h>
@@ -29,6 +30,7 @@
 #include <TTree.h>
 #include <TMath.h>
 #include <TGraph.h>
+#include <TH1.h>
 #include <TH2D.h>
 #include <TH1I.h>
 #include <TRandom3.h>
@@ -505,8 +507,11 @@ int BCModel::AddParameter(BCParameter * parameter)
    // add parameter to parameter container
    fParameterSet->push_back(parameter);
 
-   // add empty function to prior container
+   // add empty object to prior container
    fPriorContainer.push_back(0); 
+
+   // don't interpolate the prior histogram by default
+   fPriorContainerInterpolate.push_back(false);
 
    // prior assumed to be non-constant in general case
    fPriorContainerConstant.push_back(false);
@@ -571,14 +576,29 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
 
    // loop over all 1-d priors
    for (int i = 0; i < npar; ++i) {
-      // get prior function
-      TF1* f = fPriorContainer.at(i);
+      // get prior
+		TNamed * fn = fPriorContainer[i];
+		if (fn) {
+			// check what type of prior is stored
+			TF1 * f = dynamic_cast<TF1*>(fn);
+			TH1 * h = dynamic_cast<TH1*>(fn);
 
-      // check if prior exists
-      if (f)
-         logprob += log(f->Eval(parameters.at(i)));
-
-      //use constant only if user has defined it
+	      if (f) // TF1
+	         logprob += log(f->Eval(parameters[i]));
+			else if (h) { // TH1
+				if(fPriorContainerInterpolate[i])
+		         logprob += log(h->Interpolate(parameters[i]));
+				else {
+					logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
+				}
+			}
+	      else
+     	      BCLog::OutError(Form(
+               "BCModel::LogAPrioriProbability : Prior for parameter %s "
+               "is defined but not recodnized.",
+               GetParameter(i)->GetName().c_str())); // this should never happen
+		}
+      // use constant only if user has defined it
       else {
          if (!fPriorContainerConstant[i]) {
             BCLog::OutWarning(Form(
@@ -590,7 +610,7 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
       }
    }
 
-   //add the contribution from constant priors in one step
+   // add the contribution from constant priors in one step
    logprob += fPriorConstantValue;
 
    return logprob;
@@ -1692,6 +1712,8 @@ int BCModel::SetPrior(int index, TF1 * f)
    // set function
    fPriorContainer[index] = f; 
 
+	RecalculatePriorConstant();
+
    // reset all results
    ResetResults();
 
@@ -1797,6 +1819,56 @@ int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, dou
 }
 
 // ---------------------------------------------------------
+int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
+{
+   // check index range
+   if (index < 0 && index >= int(GetNParameters())) {
+      BCLog::OutError("BCModel::SetPrior : Index out of range."); 
+      return 0;
+   }
+
+	// if the histogram exists
+	if(h) {
+
+	   // check if histogram is 1d
+	   if (h->GetDimension() != 1) {
+	      BCLog::OutError(Form("BCModel::SetPrior : Histogram given for parameter %d is not 1D.",index)); 
+	      return 0;
+	   }
+
+		// normalize the histogram
+		h->Scale(1./h->Integral("width"));
+
+	   // set function
+	   fPriorContainer[index] = h; 
+
+		if (interpolate)
+			fPriorContainerInterpolate[index] = true;
+	}
+
+	RecalculatePriorConstant();
+
+   // reset all results
+   ResetResults();
+
+   // no error 
+   return 1; 
+}
+
+// ---------------------------------------------------------
+int BCModel::SetPrior(const char * name, TH1 * h, bool interpolate)
+{
+   // find index
+   int index = -1;
+   for (unsigned int i = 0; i < GetNParameters(); i++)
+      if (name == GetParameter(i)->GetName())
+        index = i;
+
+   // set prior
+   return SetPrior(index, h, interpolate);
+}
+
+// ---------------------------------------------------------
 int BCModel::SetPriorConstant(int index)
 {
    // check index range
@@ -1808,8 +1880,7 @@ int BCModel::SetPriorConstant(int index)
    // set prior to a constant
    fPriorContainerConstant[index] = true;
 
-   // update value of constant
-   fPriorConstantValue -= log(GetParameter(index)->GetRangeWidth());
+	RecalculatePriorConstant();
 
    // reset all results
    ResetResults();
@@ -1842,8 +1913,6 @@ int BCModel::SetPriorConstant(const char* name)
 // ---------------------------------------------------------
 int BCModel::SetPriorConstantAll()
 {
-   double logprob = 0;
-
    // get number of parameters
    int nPar = GetNParameters();
 
@@ -1852,17 +1921,37 @@ int BCModel::SetPriorConstantAll()
 
    // loop over all 1-d priors
    for (int i = 0; i < nPar; ++i)
-      logprob -= log(GetParameter(i)->GetRangeWidth());
+		fPriorContainerConstant[i] = true;
 
-   fPriorConstantAll = true;
-
-   fPriorConstantValue = logprob;
+	RecalculatePriorConstant();
 
    // reset all results
    ResetResults();
 
    // no error
    return 1;
+}
+
+// ---------------------------------------------------------
+void BCModel::RecalculatePriorConstant()
+{
+	fPriorConstantValue = 0.;
+
+	// get number of parameters
+	int npar = GetNParameters();
+
+	int nconstant = 0;
+
+	for (int i=0; i<npar; ++i)
+		if (fPriorContainerConstant[i]) {
+			fPriorConstantValue -= log(GetParameter(i)->GetRangeWidth());
+			++nconstant;
+		}
+
+	if (nconstant == npar)
+		fPriorConstantAll = true;
+	else
+		fPriorConstantAll = false;
 }
 
 // ---------------------------------------------------------

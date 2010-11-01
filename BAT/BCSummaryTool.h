@@ -103,7 +103,7 @@ class BCSummaryTool
 	 * Print a comparison of the prior knowledge to the posterior
 	 * knowledge for each parameter.
 	 * @return An error flag. */
-	int PrintKnowlegdeUpdatePlot(const char * filename = "update.eps");
+	int PrintKnowledgeUpdatePlots(const char * filename = "update.ps");
 
 	/**
 	 * Print parameter summary as text. (not yet implemented)

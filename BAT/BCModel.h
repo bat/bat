@@ -28,9 +28,11 @@
 #include <vector>
 #include <string>
 
-#include "BAT/BCIntegrate.h"
+#include <BAT/BCIntegrate.h>
 
 // ROOT classes
+class TNamed;
+class TH1;
 class TH2D;
 class TGraph;
 class TCanvas;
@@ -372,6 +374,24 @@ class BCModel : public BCIntegrate
 		 * @return An error code.
 		 */ 
 		int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup);
+
+		/**
+		 * Set prior for a parameter. 
+		 * @param index parameter index
+		 * @param h pointer to a histogram describing the prior
+		 * @param flag whether or not to use linear interpolation
+		 * @return An error code.
+		 */ 
+		int SetPrior(int index, TH1 * h, bool flag=false); 
+
+		/**
+		 * Set prior for a parameter. 
+		 * @param name parameter name
+		 * @param h pointer to a histogram describing the prior
+		 * @param flag whether or not to use linear interpolation
+		 * @return An error code.
+		 */ 
+		int SetPrior(const char* name, TH1 * h, bool flag=false); 
 
 		/**
 		 * Set constant prior for this parameter
@@ -804,24 +824,26 @@ class BCModel : public BCIntegrate
 		int fGoFNChains;
 
 		/*
-		 * A vector of prior functions. */ 
-		std::vector<TF1*> fPriorContainer;
+		 * A vector of prior functions/histograms/graphs. */ 
+//		std::vector<TF1*> fPriorContainer;
+		std::vector<TNamed*> fPriorContainer;
 
 		/**
-		 * Flag to indicate that all parameters have constant prior.
-		 */
+		 * Flag to indicate that all parameters have constant prior. */
 		bool fPriorConstantAll;
 
 		/**
 		 * The value of the product of constant priors of
-		 * individual parameters.
-		 */
+		 * individual parameters. */
 		double fPriorConstantValue;
 
 		/**
-		 * List the parameters whose prior is constant
-		 */
+		 * List the parameters whose prior is constant */
 		std::vector<bool> fPriorContainerConstant;
+
+		/**
+		 * List the parameters for which the histogram prior should be interpolated */
+		std::vector<bool> fPriorContainerInterpolate;
 
 	private:
 
@@ -841,10 +863,12 @@ class BCModel : public BCIntegrate
 		 * rule of thumb for good number of bins (Wald1942, Johnson2004) to group observations
 		 * updated so minimum is three bins (for 1-5 observations)!
 		 * @param */
-
 		int NumberBins()
 			{ return (int)(exp(0.4 * log(this -> GetNDataPoints())) + 2); }
 
+		/**
+		 * Update the constant part of the prior. */
+		void RecalculatePriorConstant();
 };
 
 // ---------------------------------------------------------
