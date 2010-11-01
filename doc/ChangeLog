@@ -1,4 +1,7 @@
 2010-11-01 Daniel Kollar <daniel.kollar@cern.ch>
+	* first draft release notes for version 0.4.2
+
+2010-11-01 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - copy TF1 and TH1D objects to prior container
 	  - delete prior objects when needed
@@ -47,7 +50,9 @@
 	  - use pow() instead of TMath::Power()
 
 2010-10-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCTemplateFitter and BCTemplateEnsemble: Minor code modifications. Plan is to include variation of nuisance parameters when performing ensemble tests.
+	* BCTemplateFitter and BCTemplateEnsemble:
+	  - Minor code modifications. Plan is to include variation of
+	    nuisance parameters when performing ensemble tests.
 
 2010-10-27 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCIntegrate:
@@ -132,7 +137,7 @@
 2010-10-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* configure:
 	  - changed configuration with cuba, added possibility
-	    to explicitely compile without cuba, added options
+	    to explicitly compile without cuba, added options
 		 to separately specify path to cuba.h and libcuba.a
 	* fast fitters:
 	  - removed implementation of LogAPrioriProbability() as

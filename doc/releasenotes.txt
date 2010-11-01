@@ -1,93 +1,52 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.4.1
-Release date:                 2010-08-30
-Urgency:                      high
+Release notes for version:    0.4.2
+Release date:                 2010-11-05
+Urgency:                      medium
 ------------------------------------------
 
-This version contains an important bugfix for the Metropolis MCMC:
-At the end of every MCMC run the pre-run was run again which caused that
-all the results of the main run were reset. This bug was introduced in 0.4
-and is not present in previous versions.
-
-==========================================
-
-Previous version 0.4 contains many improvements and updates and several bugfixes.
+This version contains several improvements and updates and a few bugfixes.
 The most important changes are summarized below. For detailed list of changes see
 the Changelog. For more information consult the BAT webpage at
 http://www.mppmu.mpg.de/bat/
 
 
-Installation procedure
-----------------------
-o Fixed compilation with Cuba support on Mac OS X.
-o Pre-defined models were separated into a separate shared library
-  libBATmodels.so which needs to be included when linking a program that uses
-  them. No change is needed if they are used in the Root interactive session.
-o Makefiles for all examples are now automatically setup during configuration
-  step to use/not use Cuba or RooFit/RooStats. Also they include a reference
-  to environmental variable $BATINSTALLDIR such that if this variable is set
-  properly it is no longer necessary to adjust the makefiles with the
-  installation of the new BAT version.
-  Same adjustments were done to CreateProject.sh script which is now also setup
-  during configuration.
+Cuba interface
+--------------
+o Improved configuration with Cuba support. Compilation with Cuba has to
+  be explicitly requested when running configure script.
+o Changes to allow running with Cuba 2.0 or later.
 
-Model setup
------------
-o Added a possibility to set priors for parameters as TF1 objects.
-o Flat priors are being cached to speed up the MCMC.
-o Added a possibility to re-set parameter ranges.
 
-MCMC
+Priors
+------
+o Fixed fast fitters to allow setting of priors vie SetPrior*() methods.
+o Added possibility to set prior via a histogram.
+
+
+EfficiencyFitter
+----------------
+o Plot with the fit now shows data points represented as mode + smallest 68%
+  interval by default. It is also possible to plot mean + rms and median  +
+  central 68% interval.
+o Fixed numerical instability when plotting the fit.
+
+
+TemplateFitter
+--------------
+o ...
+o ...
+
+
+Math
 ----
-o Fixed MCMC convergence check.
-o Added pre-defined levels of MCMC precision (Low, Medium, High, VeryHigh).
-o For sequential MCMC setup only fill marginalized distributions once per
-  sequence.
-o Added virtual method MCMCCurrentPointInterface() which gives user access to
-  each generated point in the MCMC regardless of whether it has been accepted
-  or not.
-o Virtual method MCMCTrialFunctionSingle() now returns double, i.e., the
-  proposal point in a single dimension.
-o Allowed storing of pre-run in the Root file.
-o Renamed branch names in the tree containing the MCMC:
-  - removed prefix 'f' from the names
-  - renamed LogLokelihood to LogProbability as that is what's being recorded
+o Caching factorial values up to 1000. Settable by the user.
 
-Plotting
---------
-o Legend is now printed on all 1D marginalized distributions by default.
-o Fixed bug in plotting of upper limits.
 
-Additions
----------
-o Added a fast-fitter class BCTemplateFitter which allows an easy way of
-  template fitting.
-o Added BCSummaryTool providing plots and tables summarizing the output of
-  the MCMC.
-o Examples were reorganized to three cathegories: basic, advanced, expert;
-  and many new examples were added.
-
-Interface to RooFit/RooStats
-----------------------------
-o Support for RooFit workspaces and an interface allowing to run BAT from
-  within RooStats can now be optionally compiled during the BAT compilation.
-  They require Root version 5.27/04 or later.
-
-Goodness-of-fit
----------------
-o Many new test statistics and associated p-values are available:
-  likelihood-ratio, Kolmogorov-Smirnov, two chi2-related statistics due 
-  to Johnson(2004).
-o Added calculation of the runs test statistic (arXiv:1005.3233).
-o Added possibility to create the empirical cumulative distribution function
-  for 1D problems
-o Fixed small bug in BCHistogramFitter's fast p-value calculation.
-
-Performance testing
--------------------
-o We will start to run a performance tests of the MCMC in BAT. These will be
-  shortly after the release is made public on the BAT webpage. In the future
-  the performance test suite will be included in the release.
+SummaryTool
+-----------
+o PrintCorrelationPlot() method now draws a 'triangle plot' with all available
+  1D and 2D marginalized distributions.
+o Renamed PrintKnowlegdeUpdatePlot() to PrintKnowledgeUpdatePlots().
 
