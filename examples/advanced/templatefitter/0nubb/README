@@ -21,6 +21,7 @@ Files:
 ------
 
   README                  - this file 
+  Makefile                - makefile for the example program
   CreateHistogram.C       - a macro which create the templates and the 
                             pseudo data histograms.
   templatefit.C           - this macro performs a template fit to a single data
@@ -37,9 +38,15 @@ Running the example:
 2. Create the templates and data histograms by calling the ROOT
    macro 'root CreateHistogram.C' 
 
-3. Compile the macro using ROOT's CINT by calling 
-   'root templatefit.C++'
+3. Compile the example by running 'make' in the example directory
 
-4. If you would like to perform an ensemble test call the 
-   the root macro 'ensembletest.C++'
+   For the compilation to work properly BAT needs to be installed in
+   the standard system accessible location or in the path defined by
+   the BATINSTALLDIR environmental variable.
+
+4. If you would like to perform a template fit run the executable
+   'templatefit'
+
+5. If you would like to perform an ensemble test run the executable
+   'ensembletest.C++'
 

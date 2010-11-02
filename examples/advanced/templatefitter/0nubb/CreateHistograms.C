@@ -3,8 +3,8 @@ void CreateHistograms()
 	// settings 
 
 	// number of expected events to be produced
-	int nev_bkg =  100; 
-	int nev_sgn =   20;
+	int nev_bkg =  300; 
+	int nev_sgn =  100;
 
 	// histogram settings
 	int nbins = 100;

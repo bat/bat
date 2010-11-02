@@ -79,7 +79,7 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 			cout << "Fraction of ensembles analyzed: " << double(j+1) / double(fNEnsembles) * 100 << "%" << std::endl;
 
 		// create new ensemble
-		TH1D * ensemble = BuildEnsemble();
+		TH1D* ensemble = BuildEnsemble();
 
 		// set ensemble as new data set
 		fTemplateFitter->SetData(*ensemble);
@@ -92,6 +92,8 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 
 		// perform MCMC
 		if(fFlagMCMC) {
+			fTemplateFitter->MCMCInitialize();
+
 			fTemplateFitter->MarginalizeAll();
 
 			// find mode with MCMC best fit
@@ -99,7 +101,7 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 
 			// loop over parameters and set tree variables
 			for (int i = 0; i < npar; ++i) {
-				BCH1D * hist = fTemplateFitter->GetMarginalized(fTemplateFitter->GetParameter(i));
+				BCH1D* hist = fTemplateFitter->GetMarginalized(fTemplateFitter->GetParameter(i));
 				fOutParModeMarg[i]       = hist->GetMode();
 				fOutParMedianMarg[i]     = hist->GetMedian();
 				fOutParMeanMarg[i]       = hist->GetMean();

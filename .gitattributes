@@ -120,6 +120,7 @@ examples/advanced/roointerface/README -text
 examples/advanced/roointerface/runBATCalculator.C -text
 examples/advanced/roointerface/runRooInterface.cxx -text
 examples/advanced/templatefitter/0nubb/CreateHistograms.C -text
+examples/advanced/templatefitter/0nubb/Makefile -text
 examples/advanced/templatefitter/0nubb/README -text
 examples/advanced/templatefitter/0nubb/ensembletest.C -text
 examples/advanced/templatefitter/0nubb/templatefit.C -text

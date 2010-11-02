@@ -1,3 +1,8 @@
+2010-11-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateEnsemble:
+	  - bug fix: didn't initialize MCMC before marginalization
+	  - modified example 0nubb
+
 2010-11-02 Daniel Kollar <daniel.kollar@cern.ch>
 	* introduction.tex:
 	  - increased version number to 0.4.2

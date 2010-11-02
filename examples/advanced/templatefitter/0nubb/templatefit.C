@@ -8,7 +8,7 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 
-int templatefit()
+int main()
 {
 	// ----------------------------------------------------
 	// open file with data and templates
@@ -56,7 +56,7 @@ int templatefit()
 	model->SetData(hist_data);
 
 	// calculate number of events
-	double nbkg = 100.0; // background assumption
+	double nbkg = 300.0; // background assumption
 
 	// add template histograms
 	model->AddTemplate(hist_background, "Background", 0.0,  nbkg+2.5*nbkg); 
@@ -106,7 +106,8 @@ int templatefit()
 
 	st->PrintParameterPlot("model_parameters.eps"); 
 	st->PrintCorrelationPlot("model_correlation.eps"); 
-	st->PrintKnowlegdeUpdatePlot("model_update.eps"); 
+	st->PrintKnowledgeUpdatePlots("model_update.eps"); 
+	st->PrintCorrelationMatrix("model_matrix.eps");
 
 	// ----------------------------------------------------
 	// clean-up and end
