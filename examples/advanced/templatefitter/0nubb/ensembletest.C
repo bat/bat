@@ -68,7 +68,8 @@ int main()
 	model->SetTemplateEfficiency("Background", 1.0, 0.);
 
 	// set priors 
-	model->SetTemplatePrior("Background", nbkg, 2.*sqrt(nbkg));
+	model->SetPriorGauss("Background", nbkg, 2.*sqrt(nbkg));
+	model->SetPriorConstant("Signal");
 
 	// set constraints
 	// ... no constraints 
@@ -114,8 +115,8 @@ int main()
 	// settings
 	tet->SetTemplateFitter(model);
 	tet->SetTemplateParameters( model->GetBestFitParameters() );
-	//	tet->SetFlagMCMC(true);
-	tet->SetNEnsembles(100); 
+	tet->SetFlagMCMC(true);
+	tet->SetNEnsembles(200); 
 	tet->SetEnsembleExpectation(nbkg); 
 
 	// perform ensemble tests
