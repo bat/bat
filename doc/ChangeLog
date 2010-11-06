@@ -1,4 +1,8 @@
 2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC: removed old methods for set prior
+	* template fitter: fixed all examples 
+
+2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: added some getters
 	* BCSummaryPriorModel: copied settings from original model
 

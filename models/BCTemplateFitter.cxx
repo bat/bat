@@ -81,6 +81,7 @@ double BCTemplateFitter::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
+/*
 double BCTemplateFitter::LogAPrioriProbability(std::vector <double> parameters)
 {
  	double logprob = 0.;
@@ -138,6 +139,7 @@ double BCTemplateFitter::LogAPrioriProbability(std::vector <double> parameters)
 
 	return logprob;
 }
+*/
 
 // ---------------------------------------------------------
 double BCTemplateFitter::Expectation(int binindex, std::vector<double> parameters, bool flageff, bool flagsyst)
@@ -270,7 +272,6 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 
 	// histograms
 	TH1D histprior = TH1D("", "", fPriorNBins, Nmin, Nmax);
-	//	TH1D histsysterror = TH1D("", "", fNBins, fXmin, fXmax);
 	TH1D histsysterror = TH1D(fHistData);
 
 	// set style
@@ -284,16 +285,15 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 
 	// get parameter index
 	int parindex = GetNParameters();
-	int partemplateindex = GetNTemplates();
 
 	// add a parameter for the expectation value
-	AddParameter(Form("N_%i", partemplateindex), Nmin, Nmax);
+	AddParameter(name, Nmin, Nmax);
 
 	// get efficiency parameter index
 	int effindex = GetNParameters();
 
-	// add a parameter for the efficiency
-	AddParameter(Form("eff_%i", partemplateindex), -5.0, 5.0);
+ 	// add a parameter for the efficiency
+	AddParameter(Form("Efficiency_%s", name), -5.0, 5.0);
 
 	// add histogram, name and index to containers
 	fTemplateHistogramContainer.push_back(hist);
@@ -307,6 +307,9 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 	fEffErrHistogramContainer.push_back(TH1D());
 	SetTemplateEfficiency(name, 1., 0.);
 
+	// set prior for efficiencies
+	SetPriorGauss(Form("Efficiency_%s", name), 0., 1.);
+
 	// add systematic uncertainties
 	for (int i = 0; i < GetNSystErrors(); ++i) {
 		std::vector <TH1D> histvector = fSystErrorHistogramContainer.at(i);
@@ -318,6 +321,7 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 }
 
 // ---------------------------------------------------------
+/*
 int BCTemplateFitter::SetTemplatePrior(const char * name, TH1D prior)
 {
 	// get index
@@ -376,6 +380,7 @@ int BCTemplateFitter::SetTemplatePrior(const char * name, double mean, double si
 	// return error code
 	return err;
 }
+*/
 
 // ---------------------------------------------------------
 int BCTemplateFitter::AddSystError(const char * errorname, const char * errtype)
@@ -394,14 +399,16 @@ int BCTemplateFitter::AddSystError(const char * errorname, const char * errtype)
 	}
 
 	// add a parameter for the expectation value
-	AddParameter(Form("systerr_%i", GetNSystErrors()), -dx, dx);
+	AddParameter(Form("%s", errorname), -dx, dx);
+
+	// set prior for systematics
+	SetPriorGauss(Form("%s", errorname), 0., 1.);
 
 	// add name and index to containers
 	fSystErrorNameContainer.push_back(errorname);
 	fSystErrorParIndexContainer.push_back(GetNParameters()-1);
 
 	// create histogram
-	//	TH1D hist = TH1D("", "", fNBins, fXmin, fXmax);
 	TH1D hist = TH1D(fHistData);
 
 	// fill histograms
@@ -1220,9 +1227,7 @@ int BCTemplateFitter::SetTemplateEfficiency(const char * name, double effmean, d
 	}
 
 	// create histograms
-	//	TH1D histeff = TH1D("", "", fNBins, fXmin, fXmax);
 	TH1D histeff = TH1D(fHistData);
-	// 	TH1D histefferr = TH1D("", "", fNBins, fXmin, fXmax);
  	TH1D histefferr = TH1D(fHistData);
 
 	// fill histograms

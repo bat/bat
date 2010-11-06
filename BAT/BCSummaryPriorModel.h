@@ -47,12 +47,7 @@ class BCSummaryPriorModel : public BCModel
 	/**
 	 * Set a pointer to the model under study.
 	 * @param model The model under study. */
-	void SetTestModel(BCModel * model);
-
-	/**
-	 * Run the MCMC and find the global mode for this model, i.e., only
-	 * the prior knowledge of the test model is considered. */
-	int PerformAnalysis();
+	void SetModel(BCModel * model);
 
 	/**
 	 * Calculates and returns the log of the prior probability at a

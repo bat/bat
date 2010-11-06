@@ -819,10 +819,13 @@ int BCSummaryTool::CalculatePriorModel()
 	fPriorModel = new BCSummaryPriorModel();
 
 	// set model
-	fPriorModel->SetTestModel(fModel);
+	fPriorModel->SetModel(fModel);
 
-	// perform analysis
-	fPriorModel->PerformAnalysis();
+	// perform marginalization
+	fPriorModel->MarginalizeAll(); 
+
+	// perform minimization
+	fPriorModel->FindMode( fPriorModel->GetBestFitParameters() );
 
 	// no error
 	return 1;

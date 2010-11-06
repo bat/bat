@@ -206,7 +206,7 @@ class BCTemplateFitter : public BCModel
 		 * @param rms The standard deviation of the prior.
 		 * @return An error code.
 		 */
-		int SetTemplatePrior(const char * name, double mean, double sigma);
+		//		int SetTemplatePrior(const char * name, double mean, double sigma);
 
 		/**
 		 * Set an arbitrary prior on the template
@@ -214,7 +214,7 @@ class BCTemplateFitter : public BCModel
 		 * @param prior A histogram describing the prior.
 		 * @return An error code.
 		 */
-		int SetTemplatePrior(const char * name, TH1D prior);
+		//		int SetTemplatePrior(const char * name, TH1D prior);
 
 		/**
 		 * Describe the efficiency and the uncertainty for all bins.
@@ -364,7 +364,7 @@ class BCTemplateFitter : public BCModel
 		 * Calculates and returns the log of the prior probability at a
 		 * given point in parameter space.
 		 */
-		double LogAPrioriProbability(std::vector <double> parameters);
+		//		double LogAPrioriProbability(std::vector <double> parameters);
 
 		/**
 		 * Calculates and returns the log of the Likelihood at a given point

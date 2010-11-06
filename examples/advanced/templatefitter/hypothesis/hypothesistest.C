@@ -7,7 +7,7 @@
 #include <TH1D.h>
 #include <TCanvas.h>
 
-int hypothesistest()
+int main()
 {
 	// ----------------------------------------------------
 	// open file with data and templates
@@ -47,6 +47,9 @@ int hypothesistest()
 	// add template histograms
 	m_1bkg0sgn->AddTemplate(hist_bkg1, "bkg 1",0., 100.0);
 
+	// set prior
+	m_1bkg0sgn->SetPriorConstant("bkg 1");
+
 	// ----------------------------------------------------
 	// model: 1 bkg 1 sgn
 	// ----------------------------------------------------
@@ -60,6 +63,10 @@ int hypothesistest()
 	// add template histograms
 	m_1bkg1sgn->AddTemplate(hist_bkg1, "bkg 1", 0., 100.0);
 	m_1bkg1sgn->AddTemplate(hist_sgn, "sgn", 0., 50.);
+
+	// set priors
+	m_1bkg1sgn->SetPriorConstant("bkg 1");
+	m_1bkg1sgn->SetPriorConstant("sgn");
 
 	// ----------------------------------------------------
 	// model: 2 bkg 0 sgn
@@ -75,6 +82,10 @@ int hypothesistest()
 	m_2bkg0sgn->AddTemplate(hist_bkg1, "bkg 1", 0., 100.0);
 	m_2bkg0sgn->AddTemplate(hist_bkg2, "bkg 2", 0., 100.0);
  
+	// set priors
+	m_2bkg0sgn->SetPriorConstant("bkg 1");
+	m_2bkg0sgn->SetPriorConstant("bkg 2");
+
 	// ----------------------------------------------------
 	// model: 2 bkg 1 sgn
 	// ----------------------------------------------------
@@ -90,6 +101,11 @@ int hypothesistest()
 	m_2bkg1sgn->AddTemplate(hist_bkg1, "bkg 1", 0., 100.);
 	m_2bkg1sgn->AddTemplate(hist_bkg2, "bkg 2", 0., 100.);
 	m_2bkg1sgn->AddTemplate(hist_sgn, "sgn", 0., 50.);
+
+	// set priors
+	m_2bkg1sgn->SetPriorConstant("bkg 1");
+	m_2bkg1sgn->SetPriorConstant("bkg 2");
+	m_2bkg1sgn->SetPriorConstant("sgn");
 
 	// ----------------------------------------------------
 	// perform analyses
@@ -116,30 +132,30 @@ int hypothesistest()
 	// ----------------------------------------------------
 
 	std::cout << " Model 1 bkg 0 sgn : " << std::endl;
-	std::cout << " Chi2 / ndf = " << m_1bkg0sgn->CalculateChi2() << " / ";
+	std::cout << " Chi2 / ndf = " << m_1bkg0sgn->CalculateChi2( m_1bkg0sgn->GetBestFitParameters() ) << " / ";
 	std::cout << m_1bkg0sgn->GetNDF() << " (";
-	std::cout << m_1bkg0sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << m_1bkg0sgn->CalculateChi2Prob( m_1bkg0sgn->GetBestFitParameters() ) << ")" << std::endl;
 	std::cout << " KS probability = " << m_1bkg0sgn->CalculateKSProb() << std::endl;
 	std::cout << std::endl;
 
 	std::cout << " Model 1 bkg 1 sgn : " << std::endl;
-	std::cout << " Chi2 / ndf = " << m_1bkg1sgn->CalculateChi2() << " / ";
+	std::cout << " Chi2 / ndf = " << m_1bkg1sgn->CalculateChi2( m_1bkg1sgn->GetBestFitParameters() ) << " / ";
 	std::cout << m_1bkg1sgn->GetNDF() << " (";
-	std::cout << m_1bkg1sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << m_1bkg1sgn->CalculateChi2Prob( m_1bkg1sgn->GetBestFitParameters() ) << ")" << std::endl;
 	std::cout << " KS probability = " << m_1bkg1sgn->CalculateKSProb() << std::endl;
 	std::cout << std::endl;
 
 	std::cout << " Model 2 bkg 0 sgn : " << std::endl;
-	std::cout << " Chi2 / ndf = " << m_2bkg0sgn->CalculateChi2() << " / ";
+	std::cout << " Chi2 / ndf = " << m_2bkg0sgn->CalculateChi2( m_2bkg0sgn->GetBestFitParameters() ) << " / ";
 	std::cout << m_2bkg0sgn->GetNDF() << " (";
-	std::cout << m_2bkg0sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << m_2bkg0sgn->CalculateChi2Prob( m_2bkg0sgn->GetBestFitParameters() ) << ")" << std::endl;
 	std::cout << " KS probability = " << m_2bkg0sgn->CalculateKSProb() << std::endl;
 	std::cout << std::endl;
 
 	std::cout << " Model 2 bkg 1 sgn : " << std::endl;
-	std::cout << " Chi2 / ndf = " << m_2bkg1sgn->CalculateChi2() << " / ";
+	std::cout << " Chi2 / ndf = " << m_2bkg1sgn->CalculateChi2( m_2bkg1sgn->GetBestFitParameters() ) << " / ";
 	std::cout << m_2bkg1sgn->GetNDF() << " (";
-	std::cout << m_2bkg1sgn->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << m_2bkg1sgn->CalculateChi2Prob( m_2bkg1sgn->GetBestFitParameters() ) << ")" << std::endl;
 	std::cout << " KS probability = " << m_2bkg1sgn->CalculateKSProb() << std::endl;
 	std::cout << std::endl;
 
@@ -152,11 +168,11 @@ int hypothesistest()
 
 	// print marginalized distribution for signal
  	c1.cd();
- 	m_1bkg1sgn->GetMarginalized("N_1")->Draw(0, -95);
+ 	m_1bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
  	c1.Print("1bkg1sgn_sgn.ps");
 
 	c1.cd();
-	m_2bkg1sgn->GetMarginalized("N_2")->Draw(0, -95);
+	m_2bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
 	c1.Print("2bkg1sgn_sgn.ps");
 
 	// print stack plots and results

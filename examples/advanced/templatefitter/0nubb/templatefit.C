@@ -50,7 +50,8 @@ int main()
 	BCTemplateFitter * model = new BCTemplateFitter("model");
 
 	// set precision
-	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
+	//	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
+	model->MCMCSetPrecision(BCEngineMCMC::kLow);
 
 	// set data histogram
 	model->SetData(hist_data);
@@ -67,7 +68,11 @@ int main()
 	model->SetTemplateEfficiency("Background", 1., 0.);
 
 	// set priors 
-	model->SetTemplatePrior("Background", nbkg, nbkg/2.0);
+	//	model->SetTemplatePrior("Background", nbkg, nbkg/2.0);
+	model->SetPriorConstant("Signal");
+	model->SetPriorGauss("Background", nbkg, nbkg/2.);
+	model->SetPriorConstant("Efficiency_Signal");
+	model->SetPriorConstant("Efficiency_Background");
 
 	// set constraints
 	// ... no constraints 

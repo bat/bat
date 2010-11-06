@@ -8,7 +8,7 @@
 #include <BAT/BCTemplateFitter.h>
 #include <BAT/BCSummaryTool.h>
 
-int templatefit()
+int main()
 {
 	// ----------------------------------------------------
 	// open file with data and templates
@@ -114,19 +114,12 @@ int templatefit()
 	model->SetTemplateEfficiency("signal (h=-1)", hist_efficiency_sgn_hL, hist_efferror_sgn_hL);
 	model->SetTemplateEfficiency("signal (h=+1)", hist_efficiency_sgn_hR, hist_efferror_sgn_hR);
 
-	// set prior on background
-	model->SetTemplatePrior("background", 1300000., 2000.);
+	// set priors
+	model->SetPriorGauss("background", 1300000., 2000.);
+	model->SetPriorConstant("signal (h= 0)");
+	model->SetPriorConstant("signal (h=-1)");
+	model->SetPriorConstant("signal (h=+1)");
 
-	// set prior on signal contribution
-	std::vector<int> indices; 
-	indices.push_back(1);
-	indices.push_back(2);
-	indices.push_back(3);
-	model->ConstrainSum(indices, 10000., 100.); 
-
-	// set up printing of fractions
-	model->CalculateRatio(3, indices, 0.0, 1.0); 
-	
 	// add systematic uncertainty 1
 	model->AddSystError("syst. error 1", "gauss");
 	model->SetTemplateSystError("syst. error 1", "background",    hist_systerror1_bkg);
@@ -166,7 +159,7 @@ int templatefit()
 	// ----------------------------------------------------
 
 	// print chi2 to screen 
-	std::cout << " Chi2 / ndf = " << model->CalculateChi2() << " / " << model->GetNDF() << " (" << model->CalculateChi2Prob() << ")" << std::endl;
+	std::cout << " Chi2 / ndf = " << model->CalculateChi2( model->GetBestFitParameters()  ) << " / " << model->GetNDF() << " (" << model->CalculateChi2Prob( model->GetBestFitParameters() ) << ")" << std::endl;
 	
 	// print KS test results to screen
 	std::cout << " KS probability = " << model->CalculateKSProb() << std::endl;
@@ -195,6 +188,8 @@ int templatefit()
 	// print summary plots
 	st->PrintParameterPlot("model_parameters.eps"); 
 	st->PrintCorrelationPlot("model_correlation.eps"); 
+	st->PrintKnowledgeUpdatePlots("model_update.eps"); 
+	st->PrintCorrelationMatrix("model_matrix.eps");
 
 	// ----------------------------------------------------
 	// clean-up and end

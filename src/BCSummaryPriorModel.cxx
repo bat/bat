@@ -33,7 +33,7 @@ BCSummaryPriorModel::~BCSummaryPriorModel()
 {}
 
 // ---------------------------------------------------------
-void BCSummaryPriorModel::SetTestModel(BCModel * model)
+void BCSummaryPriorModel::SetModel(BCModel * model)
 {
 	fTestModel = model;
 
@@ -93,22 +93,6 @@ double BCSummaryPriorModel::LogLikelihood(std::vector <double> parameters)
 double BCSummaryPriorModel::LogAPrioriProbability(std::vector <double> parameters)
 {
 	return 0;
-}
-
-// ---------------------------------------------------------
-int BCSummaryPriorModel::PerformAnalysis()
-{
-	// check if model is set
-	if (!fTestModel) {
-		BCLog::OutError("BCSummaryPriorModel::PerformAnalysis : Model not defined.");
-		return 0;
-	}
-
-	MarginalizeAll();
-	FindModeMinuit( GetBestFitParameters() );
-
-	// no error
-	return 1;
 }
 
 // ---------------------------------------------------------
