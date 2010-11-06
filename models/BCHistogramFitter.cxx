@@ -360,8 +360,7 @@ int BCHistogramFitter::Fit()
    if (CalculatePValueFast(GetBestFitParameters(), pvalue))
       fPValue = pvalue;
    else
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::Fit() : Could not use the fast p-value evaluation.");
+      BCLog::OutWarning("BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
 
    // print summary to screen
    PrintShortFitSummary();
@@ -375,20 +374,17 @@ int BCHistogramFitter::Fit()
 void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 {
    if (!fHistogram) {
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::DrawFit() : Histogram not defined.");
+      BCLog::OutError("BCHistogramFitter::DrawFit : Histogram not defined.");
       return;
    }
 
    if (!fFitFunction) {
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::DrawFit() : Fit function not defined.");
+      BCLog::OutError("BCHistogramFitter::DrawFit : Fit function not defined.");
       return;
    }
 
    if (!fErrorBandXY || fBestFitParameters.empty() ) {
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::DrawFit() : Fit not performed yet.");
+      BCLog::OutError("BCHistogramFitter::DrawFit : Fit not performed yet.");
       return;
    }
 
@@ -430,22 +426,17 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
-      double &pvalue, int nIterations)
+int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pvalue, int nIterations)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {
-      BCLog::Out(
-            BCLog::warning,
-            BCLog::warning,
-            "BCHistogramFitter::CalculatePValueFast() : Number of parameters is inconsistent.");
+      BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
       return 0;
    }
 
    // check if histogram exists
    if (!fHistogram) {
-      BCLog::Out(BCLog::warning, BCLog::warning,
-            "BCHistogramFitter::CalculatePValueFast() : Histogram not defined.");
+      BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Histogram not defined.");
       return 0;
    }
 
@@ -566,8 +557,9 @@ int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
    return 1;
 }
 
-int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
-      double &pvalue, bool weightExpect)
+// ---------------------------------------------------------
+
+int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par, double &pvalue, bool weightExpect)
 {
    // initialize test statistic chi^2
    double chi2 = 0.0;
@@ -605,9 +597,11 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
    return 1;
 }
 
+// ---------------------------------------------------------
+
 int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par, double& pvalue)
 {
-   if (!fHistogramExpected || !fHistogram){
+   if (!fHistogramExpected || !fHistogram) {
       BCLog::OutError("BCHistogramFitter::CalculatePValueKolmogorov: "
             "Please define the reference distribution by calling \n"
             "BCHistogramFitter::SetHistogramExpected() first!");
@@ -626,8 +620,9 @@ int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par, double
    return 1;
 }
 
-double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
-      bool lower)
+// ---------------------------------------------------------
+
+double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, bool lower)
 {
 
    if (parameters.empty())

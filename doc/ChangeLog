@@ -1,3 +1,8 @@
+2010-11-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCHistogramFitter:
+	  - changed some warnings to errors
+	  - code formatting
+
 2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: removed old methods for set prior
 	* template fitter: fixed all examples 
