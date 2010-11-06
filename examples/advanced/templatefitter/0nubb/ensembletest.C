@@ -27,6 +27,7 @@ int main()
 	TH1D hist_signal     = *((TH1D*) file->Get("hist_sgn"));
 	TH1D hist_background = *((TH1D*) file->Get("hist_bkg"));
 	TH1D hist_sum        = *((TH1D*) file->Get("hist_sum"));
+	TH1D hist_data       = *((TH1D*) file->Get("hist_data"));
 
 	// close file
 	file->Close();
@@ -53,14 +54,14 @@ int main()
 	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	// set data histogram
-	model->SetData(hist_sum);
+	model->SetData(hist_data);
 
 	// set number of events
 	double nbkg = 300.0; // prior assumption
 
 	// add template histograms
-	model->AddTemplate(hist_background, "Background", 100., 400.); 
-	model->AddTemplate(hist_signal,     "Signal", 50., 150.); 
+	model->AddTemplate(hist_background, "Background", 100., 500.); 
+	model->AddTemplate(hist_signal,     "Signal", 0., 200.); 
 
 	// set efficiencies
 	model->SetTemplateEfficiency("Signal",     1.0, 0.);
@@ -113,7 +114,7 @@ int main()
 	// settings
 	tet->SetTemplateFitter(model);
 	tet->SetTemplateParameters( model->GetBestFitParameters() );
-	tet->SetFlagMCMC(true);
+	//	tet->SetFlagMCMC(true);
 	tet->SetNEnsembles(100); 
 	tet->SetEnsembleExpectation(nbkg); 
 

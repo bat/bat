@@ -1,3 +1,6 @@
+2010-11-06Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter fixed 0nubb example
+
 2010-11-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateEnsemble:
 	  - bug fix: didn't initialize MCMC before marginalization

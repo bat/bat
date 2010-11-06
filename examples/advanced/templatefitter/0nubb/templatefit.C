@@ -59,8 +59,8 @@ int main()
 	double nbkg = 300.0; // background assumption
 
 	// add template histograms
-	model->AddTemplate(hist_background, "Background", 0.0,  nbkg+2.5*nbkg); 
-	model->AddTemplate(hist_signal,     "Signal",     0.0,  2.5*nbkg); 
+	model->AddTemplate(hist_background, "Background", 100., 500.);
+	model->AddTemplate(hist_signal,     "Signal",     0., 200. ); 
 
 	// set efficiencies
 	model->SetTemplateEfficiency("Signal",     1., 0.);
