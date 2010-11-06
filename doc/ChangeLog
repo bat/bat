@@ -1,4 +1,8 @@
-2010-11-06Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC: added some getters
+	* BCSummaryPriorModel: copied settings from original model
+
+2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateFitter fixed 0nubb example
 
 2010-11-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

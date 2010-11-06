@@ -128,6 +128,21 @@ class BCEngineMCMC
 			{ return fMCMCNIterationsRun; };
 
 		/*
+		 * @return minimum number of pre-run iterations for a Markov chain */
+		int MCMCGetNIterationsPreRunMin()
+			{ return fMCMCNIterationsPreRunMin; };
+
+		/*
+		 * @return number of iterations after statistics update. */
+		int MCMCGetNIterationsUpdate()
+			{ return fMCMCNIterationsUpdate; };
+
+		/*
+		 * @return maximum number of iterations after statistics update. */
+		int MCMCGetNIterationsUpdateMax()
+			{ return fMCMCNIterationsUpdateMax; };
+
+		/*
 		 * @returns number of accepted trials for each chain */
 		std::vector <int> MCMCGetNTrialsTrue()
 			{ return fMCMCNTrialsTrue; };

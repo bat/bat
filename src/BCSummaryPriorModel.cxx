@@ -51,11 +51,36 @@ void BCSummaryPriorModel::SetTestModel(BCModel * model)
 	}
 
 	// set large default lag
-	MCMCSetNLag(10);
+	//	MCMCSetNLag(10);
 
 	// set default MCMC setup to the one of the original model
 	MCMCSetNChains( fTestModel->MCMCGetNChains() );
+	MCMCSetNLag( fTestModel->MCMCGetNLag() );
+	MCMCSetNIterationsMax( fTestModel->MCMCGetNIterationsMax() );
 	MCMCSetNIterationsRun( fTestModel->MCMCGetNIterationsRun() );
+	MCMCSetNIterationsPreRunMin( fTestModel->MCMCGetNIterationsPreRunMin() ); 
+	MCMCSetNIterationsUpdate( fTestModel->MCMCGetNIterationsUpdate() );
+	MCMCSetNIterationsUpdateMax( fTestModel->MCMCGetNIterationsUpdateMax() );
+	MCMCSetRValueCriterion( fTestModel->MCMCGetRValueCriterion() );
+	MCMCSetRValueParametersCriterion( fTestModel->MCMCGetRValueParametersCriterion() );
+
+	/*
+		fMCMCNChains              = 5;
+		fMCMCNLag                 = 1;
+		fMCMCNIterationsMax       = 100000;
+		fMCMCNIterationsRun       = 100000;
+		fMCMCNIterationsPreRunMin = 100;
+		fMCMCNIterationsUpdate    = 1000;
+		fMCMCNIterationsUpdateMax = 10000;
+		fMCMCRValueCriterion      = 0.1;
+		fMCMCRValueParametersCriterion = 0.1;
+		fMCMCRValue               = 100;
+	*/
+
+
+	//	MCMCSetNChains( fTestModel->MCMCGetNChains() );
+	//	MCMCSetNIterationsRun( fTestModel->MCMCGetNIterationsRun() );
+
 }
 
 // ---------------------------------------------------------
