@@ -143,6 +143,9 @@ AC_OUTPUT(
 	examples/basic/rootOutput/Makefile
 	examples/advanced/polynomialfit/Makefile
 	examples/advanced/roointerface/Makefile
+	examples/advanced/templatefitter/0nubb/Makefile
+	examples/advanced/templatefitter/Whel/Makefile
+	examples/advanced/templatefitter/hypothesis/Makefile
 	examples/expert/TrialFunction/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
 )

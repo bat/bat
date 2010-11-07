@@ -61,14 +61,14 @@ CXXSRCS      = \
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      =
 MYPROGS     = \
-        templatefit \
+        hypothesistest \
 				ensembletest
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 
 # targets
-all : project1 project2
+all : project1
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -81,13 +81,9 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	$(RM) $(GARBAGE)
 
-project1 : templatefit.C $(CXXOBJS)
+project1 : hypothesistest.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) templatefit.o $(CXXOBJS) -o templatefit
-
-project2 : ensembletest.C $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) ensembletest.o $(CXXOBJS) -o ensembletest
+	$(CXX) $(LDFLAGS) $(LIBS) hypothesistest.o $(CXXOBJS) -o hypothesistest
 
 print :
 	echo compiler  : $(CXX)

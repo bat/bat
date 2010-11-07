@@ -81,11 +81,11 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	$(RM) $(GARBAGE)
 
-project1 : templatefit.C $(CXXOBJS)
+project1 : templatefit.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) templatefit.o $(CXXOBJS) -o templatefit
 
-project2 : ensembletest.C $(CXXOBJS)
+project2 : ensembletest.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) ensembletest.o $(CXXOBJS) -o ensembletest
 

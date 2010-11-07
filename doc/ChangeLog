@@ -1,3 +1,7 @@
+2010-11-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* renamed .C files to .cxx in examples/advanced/templatefitter/...
+	* added corresponding Makefiles to configure.ac
+
 2010-11-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCHistogramFitter:
 	  - changed some warnings to errors

@@ -21,7 +21,7 @@ Files:
 
   README                  - this file 
   Makefile                - makefile for the example program
-  hypothesistest.C        - this macro performs four different template 
+  hypothesistest.cxx      - this macro performs four different template 
                             fits to a single data set
 
 

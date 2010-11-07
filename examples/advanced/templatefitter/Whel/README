@@ -24,9 +24,9 @@ Files:
   Makefile                - makefile for the example program
   CreateHistogram.C       - a macro which create the templates and the 
                             pseudo data histograms.
-  templatefit.C           - this macro performs a template fit to a single data
+  templatefit.cxx         - this macro performs a template fit to a single data
                             set
-  ensembletest.C          - this macro performs an ensemble test for a given
+  ensembletest.cxx        - this macro performs an ensemble test for a given
                             combination of templates.
 
 
