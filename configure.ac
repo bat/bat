@@ -36,7 +36,6 @@ AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 dnl
 dnl Check for Cuba
 dnl
-dnl RooStats
 AC_ARG_WITH(
 	[cuba],
 	[AS_HELP_STRING([--with-cuba],[compile with Cuba support (default no)])],
@@ -50,10 +49,11 @@ AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    pat
 AC_ARG_WITH(cuba_lib_dir, AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 if test $use_cuba = yes; then
   	if test -n "$with_cuba_include_dir"; then
-  		echo "checking for cuba.h in path $with_cuba_include_dir"
-  		AC_CACHE_CHECK([for the directory containing cuba.h], cuba_cv_incdir,cuba_cv_incdir=$with_cuba_include_dir)
-  		AC_SUBST(CUBAINCLUDE,[-I$cuba_cv_incdir])
-  		AC_CHECK_HEADER($cuba_cv_incdir/cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
+  		echo "checking for cuba.h in $with_cuba_include_dir"
+		CFLAGS=-I$with_cuba_include_dir
+		CPPFLAGS=-I$with_cuba_include_dir
+  		AC_SUBST(CUBAINCLUDE,[-I$with_cuba_include_dir])
+  		AC_CHECK_HEADER(cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
 	else
   		echo "checking for cuba.h in system default directories"
   		AC_SUBST(CUBAINCLUDE,[])
@@ -66,12 +66,11 @@ if test $use_cuba = yes; then
 	else
 	  	if test -n "$with_cuba_lib_dir"; then
 	  		echo "checking for cuba library in path $with_cuba_lib_dir"
-	  		AC_CACHE_CHECK([for the directory containing cuba.h], cuba_cv_incdir,cuba_cv_incdir=$with_cuba_include_dir)
-	  		AC_SUBST(CUBALIB,[-L$cuba_cv_libdir])
+			LDFLAGS=-L$with_cuba_lib_dir
+	  		AC_SUBST(CUBALIB,[-L$with_cuba_lib_dir])
 		   AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
 	  	else
-	  		echo "checking for cuba.h in system default directories"
-	  		AC_CHECK_HEADERS(cuba.h, ,[echo Could not find cuba.h; echo Compiling without cuba])
+	  		echo "checking for cuba library in system default directories"
 	  		AC_SUBST(CUBALIB,[])
 		   AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
 	  	fi
