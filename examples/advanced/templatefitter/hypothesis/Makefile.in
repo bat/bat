@@ -34,10 +34,10 @@ ECHO         = echo
 CINT         = rootcint
 
 # add ROOT flags
-CXXFLAGS    += $(ROOTCFLAGS)
+CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
 
-#LIBS        += -lcuba
-#GLIBS       += -lcuba
+#LIBS        += @CUBALIB@ -lcuba
+#GLIBS       += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where

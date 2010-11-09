@@ -45,38 +45,44 @@ AC_ARG_WITH(
 	],
 	[use_cuba=no]
 )
+
 AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    path to cuba.h file]))
 AC_ARG_WITH(cuba_lib_dir, AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
+
 if test $use_cuba = yes; then
+	cubaincflags=""
   	if test -n "$with_cuba_include_dir"; then
   		echo "checking for cuba.h in $with_cuba_include_dir"
-		CFLAGS=-I$with_cuba_include_dir
-		CPPFLAGS=-I$with_cuba_include_dir
-  		AC_SUBST(CUBAINCLUDE,[-I$with_cuba_include_dir])
-  		AC_CHECK_HEADER(cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
+		cubaincflags=-I$with_cuba_include_dir
+		CFLAGS+=" $cubaincflags"
+		CPPFLAGS+=" $cubaincflags"
 	else
   		echo "checking for cuba.h in system default directories"
-  		AC_SUBST(CUBAINCLUDE,[])
-  		AC_CHECK_HEADERS(cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
 	fi
+
+	AC_CHECK_HEADERS(cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
 
    if test x$with_cuba_inc = xno; then
    	echo could not find cuba.h
    	echo compiling without cuba
 	else
+		cubaldflags=""
 	  	if test -n "$with_cuba_lib_dir"; then
 	  		echo "checking for cuba library in path $with_cuba_lib_dir"
-			LDFLAGS=-L$with_cuba_lib_dir
-	  		AC_SUBST(CUBALIB,[-L$with_cuba_lib_dir])
-		   AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
+			cubaldflags="-L$with_cuba_lib_dir"
+			LDFLAGS+=" $cubaldflags"
 	  	else
 	  		echo "checking for cuba library in system default directories"
-	  		AC_SUBST(CUBALIB,[])
-		   AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
 	  	fi
+
+	   AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
+
 	   if test x$with_cuba_lib = xno; then
 	   	echo could not find libcuba.a
 	   	echo compiling without cuba
+		else
+	  		AC_SUBST(CUBAINCLUDE,[$cubaincflags])
+	  		AC_SUBST(CUBALIB,[$cubaldflags])
 	   fi
 	fi
    AM_CONDITIONAL([CUBA], [test x$with_cuba_lib = xyes && test x$with_cuba_inc = xyes])

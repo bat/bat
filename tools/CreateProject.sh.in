@@ -192,10 +192,10 @@ ECHO         = echo
 CINT         = rootcint
 
 # add ROOT flags
-CXXFLAGS    += \$(ROOTCFLAGS)
+CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
 
-@CUBA_TRUE@LIBS        += -lcuba
-@CUBA_TRUE@GLIBS       += -lcuba
+@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
+@CUBA_TRUE@GLIBS       += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where

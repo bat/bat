@@ -1,3 +1,9 @@
+2010-11-10 Daniel Kollar <daniel.kollar@cern.ch>
+	* configure.ac:
+	  - more fixes in configuration of non-standard location for cuba library
+	* examples/*/Makefile.in, CreateProject.sh.in:
+	  - added location of cuba lib and include to all makefiles
+
 2010-11-08 Daniel Kollar <daniel.kollar@cern.ch>
 	* configure.ac:
 	  - fixed configuration of of non-standard location for cuba library
