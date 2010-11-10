@@ -1738,7 +1738,7 @@ int BCModel::SetPrior(const char * name, TF1 * f)
 int BCModel::SetPriorGauss(int index, double mean, double sigma)
 {
    // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
+   if (index < 0 || index >= int(GetNParameters())) {
       BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
       return 0;
    }
@@ -1764,12 +1764,6 @@ int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
       if (name == GetParameter(i)->GetName())
          index = i;
 
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
-      return 0;
-   }
-
    // set prior
    return SetPriorGauss(index, mean, sigma); 
 }
@@ -1778,7 +1772,7 @@ int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
 int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigmaup)
 {
    // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
+   if (index < 0 || index >= int(GetNParameters())) {
       BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
       return 0;
    }
@@ -1807,12 +1801,6 @@ int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, dou
    for (unsigned int i = 0; i < GetNParameters(); i++)
       if (name == GetParameter(i)->GetName())
         index = i;
-
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
-      return 0;
-   }
 
    // set prior
    return SetPriorGauss(index, mean, sigmadown, sigmaup); 

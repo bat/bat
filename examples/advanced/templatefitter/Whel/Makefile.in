@@ -62,13 +62,14 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      =
 MYPROGS     = \
         templatefit \
-				ensembletest
+				ensembletest \
+				sensitivity
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 
 # targets
-all : project1 project2
+all : project1 project2 project3
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -88,6 +89,10 @@ project1 : templatefit.cxx $(CXXOBJS)
 project2 : ensembletest.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) $(LIBS) ensembletest.o $(CXXOBJS) -o ensembletest
+
+project3 : sensitivity.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $(LIBS) sensitivity.o $(CXXOBJS) -o sensitivity
 
 print :
 	echo compiler  : $(CXX)

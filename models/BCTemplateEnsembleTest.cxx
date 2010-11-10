@@ -3,6 +3,8 @@
 #include <TTree.h>
 #include <TROOT.h>
 #include <TRandom3.h>
+#include <TPostScript.h>
+#include <TCanvas.h>
 
 #include <math.h>
 #include <vector>
@@ -59,7 +61,7 @@ int BCTemplateEnsembleTest::SetEnsembleTemplate(TH1D hist)
 };
 
 // ---------------------------------------------------------
-int BCTemplateEnsembleTest::PerformEnsembleTest()
+int BCTemplateEnsembleTest::PerformEnsembleTest(TTree* tree)
 {
 	// set log level to nothing
 	BCLog::LogLevel ll = BCLog::GetLogLevelScreen();
@@ -71,12 +73,29 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 	// Prepare tree
 	PrepareTree();
 
+	// get number of parameters
+	int npar = fTemplateFitter->GetNParameters();
+
+	// connect tree
+	if (tree) {
+		fTemplateParameters = std::vector<double>(npar);
+		for (int i = 0; i < npar; ++i) {
+			tree->SetBranchAddress(Form("Parameter%i", i), &(fTemplateParameters[i]));
+		}
+	}
+
 	// loop over ensembles
 	for(int j = 0; j < fNEnsembles; j++){
 
 		// print status
 		if ((j+1) % 100 == 0 && j > 0)
-			cout << "Fraction of ensembles analyzed: " << double(j+1) / double(fNEnsembles) * 100 << "%" << std::endl;
+			std::cout << "Fraction of ensembles analyzed: " << double(j+1) / double(fNEnsembles) * 100 << "%" << std::endl;
+
+		// get parameters from tree
+		if (tree) {
+			int index = fRandom->Uniform(tree->GetEntries());
+			tree->GetEntry(index);
+		}
 
 		// create new ensemble
 		TH1D* ensemble = BuildEnsemble();
@@ -86,9 +105,6 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 
 		// find mode
 		fTemplateFitter->FindMode();
-
-		// get number of parameters
-		int npar = fTemplateFitter->GetNParameters();
 
 		// perform MCMC
 		if(fFlagMCMC) {
@@ -140,6 +156,7 @@ int BCTemplateEnsembleTest::PerformEnsembleTest()
 		}
 
 		// set tree variables
+		fOutParValue           = fTemplateParameters;
 		fOutParModeGlobal      = fTemplateFitter->GetBestFitParameters();
 		fOutParErrorUpGlobal   = fTemplateFitter->GetBestFitParameterErrors();
 		fOutParErrorDownGlobal = fTemplateFitter->GetBestFitParameterErrors();
@@ -174,9 +191,6 @@ TH1D* BCTemplateEnsembleTest::BuildEnsemble()
 	// get histogram parameters
   int nbins   = fTemplateFitter->GetData().GetNbinsX();
 
-	// get number of templates
-	//	int ntemplates = fTemplateFitter->GetNTemplates();
-
 	// create new ensemble
 	TH1D* ensemble = new TH1D(fTemplateFitter->GetData());
 
@@ -185,20 +199,6 @@ TH1D* BCTemplateEnsembleTest::BuildEnsemble()
 
 	// get new parameter if needed
 	std::vector<double> parameters = fTemplateParameters;
-
-// 	// throw random numbers for template prior
-// 	for (int i = 0; i < ntemplates; ++i) {
-		
-// 		// prior on process contributions
-// 		double dpar = (fTemplateFitter->GetPriorContainer()).at(i).GetRandom(); 
-// 		parameters[fTemplateFitter->GetTemplateParIndexContainer().at(i)] += dpar;
-// 	}
-	
-	// throw random numbers for efficiency uncertainty
-	// ...
-
-	// throw random numbers for nuisance parameters
-	// ...
 
 	// loop over bins and fill them
   for(int ibin = 1; ibin <= nbins; ++ibin){
@@ -247,6 +247,7 @@ int BCTemplateEnsembleTest::PrepareTree()
 	int nratios = fTemplateFitter->GetNRatios();
 
 	// initialize variables
+	fOutParValue.assign(npar, 0);
 	fOutParModeGlobal.assign(npar, 0);
 	fOutParErrorUpGlobal.assign(npar, 0);
 	fOutParErrorDownGlobal.assign(npar, 0);
@@ -282,6 +283,7 @@ int BCTemplateEnsembleTest::PrepareTree()
 
 	for (int i = 0; i < npar; ++i) {
 		// add branches
+		fTree->Branch(Form("parameter_%i", i),                 &fOutParValue[i],      Form("parameter_%i/D", i));
 		fTree->Branch(Form("par_global_mode_par_%i", i),       &fOutParModeGlobal[i],      Form("par_global_Mode_par_%i/D", i));
 		fTree->Branch(Form("par_global_error_up_par_%i", i),   &fOutParErrorUpGlobal[i],   Form("par_global_error_up_par_%i/D", i));
 		fTree->Branch(Form("par_global_error_down_par_%i", i), &fOutParErrorDownGlobal[i], Form("par_global_error_down_par_%i/D", i));
@@ -322,6 +324,64 @@ int BCTemplateEnsembleTest::PrepareTree()
 
 	// no error
 	return 1;
+}
+
+//---------------------------------------------------------------------------------------------------------
+
+void BCTemplateEnsembleTest::PrintPulls(const char* filename)
+{
+	// create postscript
+	TPostScript * ps = new TPostScript(filename);
+
+	// create canvas and prepare postscript
+	TCanvas * canvas = new TCanvas();
+
+	canvas->Update();
+	ps->NewPage();
+	canvas->cd();
+
+	// get number of parameters
+	int npar = fTemplateFitter->GetNParameters();
+
+	// create histogram container
+	std::vector<TH1D*> histcontainer = std::vector<TH1D*>(0);
+
+	// loop over all parameters
+	for (int j = 0; j < npar; ++j) { 
+		TH1D* hist = new TH1D("", "Pull;N", 11, -5.5, 5.5);
+		histcontainer.push_back(hist);
+	}
+
+	// loop over all ensembles
+	for (int i = 0; i < fNEnsembles; ++i) {
+
+		// get ensemble
+		fTree->GetEntry(i);
+
+		// loop over all parameters
+		for (int j = 0; j < npar; ++j) { 
+			histcontainer[j]->Fill(fOutParPullGlobal[j]);
+		}
+	}
+
+	// loop over all parameters
+	for (int j = 0; j < npar; ++j) { 
+		// update post script
+		canvas->Update();
+		ps->NewPage();
+		canvas->cd();
+
+		canvas->cd();
+		histcontainer.at(j)->Draw();
+	}
+	// close ps
+	canvas->Update();
+	ps->Close();
+
+	// free memory
+	delete ps;
+	delete canvas;
+
 }
 
 //---------------------------------------------------------------------------------------------------------

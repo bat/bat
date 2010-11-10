@@ -30,7 +30,6 @@ BCTemplateFitter::BCTemplateFitter()
 	, fNBins(-1)
 	, fXmin(1.)
 	, fXmax(0.)
-	, fPriorNBins(1000)
 {
 }
 
@@ -45,7 +44,6 @@ BCTemplateFitter::BCTemplateFitter(const char * name)
 	, fNBins(-1)
 	, fXmin(1.)
 	, fXmax(0.)
-	, fPriorNBins(1000)
 {
 }
 
@@ -79,67 +77,6 @@ double BCTemplateFitter::LogLikelihood(std::vector <double> parameters)
 	// return log likelihood
 	return logprob;
 }
-
-// ---------------------------------------------------------
-/*
-double BCTemplateFitter::LogAPrioriProbability(std::vector <double> parameters)
-{
- 	double logprob = 0.;
-
-	// get number of templates
-	int ntemplates = GetNTemplates();
-
-	// loop over templates
-	for (int i = 0; i < ntemplates; ++i) {
-
-		// prior on process contributions
-		double par = parameters.at(fTemplateParIndexContainer.at(i));
-		int bin = fPriorContainer.at(i).FindBin(par);
-		logprob += log( fPriorContainer.at(i).GetBinContent(bin) );
-
-		// prior on efficiences
-		par = parameters.at(fEffParIndexContainer.at(i));
-		logprob += BCMath::LogGaus(par, 0.0, 1.0);
-	}
-
-	// get number of sources of systematic uncertainties
-	int nsyst = GetNSystErrors();
-
-	// loop over sources of systematic uncertainties
-	for (int i = 0; i < nsyst; ++i) {
-		double par = parameters.at(fSystErrorParIndexContainer.at(i));
-		if (fSystErrorTypeContainer.at(i) == "gauss")
-			logprob += BCMath::LogGaus(par, 0.0, 1.0);
-	}
-
- 	// constraints
- 	int nconstraints = int(fConstraintSumIndices.size());
- 	if (nconstraints > 0) {
-
- 		// loop over constraints
-		for (int i = 0; i < nconstraints; ++i) {
-
- 			// initialize sum
- 			double sum = 0;
-
- 			// get number of summands
- 			int nsummands = int( (fConstraintSumIndices.at(i)).size() );
-
- 			// loop over summands and add to sum
- 			for (int j = 0; j < nsummands; ++j) {
-				int index = fConstraintSumIndices.at(i).at(j);
-				double par = parameters.at(fTemplateParIndexContainer.at(index));
-				sum += par;
- 			}
-
- 			// add to prior
- 			logprob += BCMath::LogGaus(sum, fConstraintSumMean.at(i), fConstraintSumRMS.at(i));
- 		}
- 	}
-
-	return logprob;
-}
-*/
 
 // ---------------------------------------------------------
 double BCTemplateFitter::Expectation(int binindex, std::vector<double> parameters, bool flageff, bool flagsyst)
@@ -176,7 +113,7 @@ double BCTemplateFitter::Expectation(int binindex, std::vector<double> parameter
 			double deff = fSystErrorHistogramContainer.at(isyst).at(itemp).GetBinContent(binindex);
 			
 				if (deff > 0)
-					efficiency += deff * parameters.at(systindex);
+					efficiency += parameters.at(systindex) * deff;
 		}
 		
 		// make sure efficiency is between 0 and 1
@@ -203,11 +140,18 @@ double BCTemplateFitter::Expectation(int binindex, std::vector<double> parameter
 // ---------------------------------------------------------
 int BCTemplateFitter::SetData(const TH1D& hist)
 {
+	// compare previous data set with this one
+	if (fHistData.Integral() > 0.) {
+		if (CompareHistogramProperties(fHistData, hist) != 1) {
+			BCLog::OutError("BCTemplateFitter::SetData : Data and this histogram properties are incompatible.");
+			return 0;
+		}
+	}
+	
 	// create histogram
 	fNBins = hist.GetNbinsX();
 	fXmin = (hist.GetXaxis())->GetXmin();
 	fXmax = (hist.GetXaxis())->GetXmax();
-	//	fHistData = TH1D("", "", fNBins, fXmin, fXmax);
 	fHistData = TH1D(hist);
 
 	// copy histogram content
@@ -238,10 +182,15 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 	}
 
 	// compare template properties with data
-	if (CompareHistogramProperties(fHistData, hist) != 1) {
-		BCLog::OutError("BCTemplateFitter::AddTemplate : Data and template histogram properties are incompatible.");
-		return 0;
+	if (fHistData.Integral() > 0.) {
+		if (CompareHistogramProperties(fHistData, hist) != 1) {
+			BCLog::OutError("BCTemplateFitter::AddTemplate : Data and template histogram properties are incompatible.");
+			return 0;
+		}
 	}
+	else { 
+		SetData( TH1D("", "", hist.GetNbinsX(), hist.GetXaxis()->GetXmin(), hist.GetXaxis()->GetXmax()) );
+	} 
 
 	// check if prior makes sense
 	if (fFlagPhysicalLimits && Nmin < 0)
@@ -271,15 +220,9 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 		}
 
 	// histograms
-	TH1D histprior = TH1D("", "", fPriorNBins, Nmin, Nmax);
 	TH1D histsysterror = TH1D(fHistData);
 
-	// set style
-	histprior.SetXTitle(name);
-
 	// fill histograms
-	for (int i = 1; i <= fPriorNBins; ++i)
-		histprior.SetBinContent(i, 1.);
 	for (int i = 1; i <= fNBins; ++i)
 		histsysterror.SetBinContent(i, 0.);
 
@@ -297,7 +240,6 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 
 	// add histogram, name and index to containers
 	fTemplateHistogramContainer.push_back(hist);
-	fPriorContainer.push_back(histprior);
 	fTemplateNameContainer.push_back(name);
 	fTemplateParIndexContainer.push_back(parindex);
 	fEffParIndexContainer.push_back(effindex);
@@ -319,68 +261,6 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 	// successfully added histogram to container
 	return 1;
 }
-
-// ---------------------------------------------------------
-/*
-int BCTemplateFitter::SetTemplatePrior(const char * name, TH1D prior)
-{
-	// get index
-	int parindex = GetIndexTemplate(name);
-
-	// check parameter index
-	if (parindex < 0) {
-		BCLog::OutError("BCTemplateFitter::SetTemplatePrior : Did not find parameter.");
-		return 0;
-	}
-
-	// check prior
-	if (prior.Integral() <= 0) {
-		BCLog::OutError("BCTemplateFitter::SetTemplatePrior : Integral of prior is equal to zero or less than that.");
-		return 0;
-	}
-
-	// normalize prior to unity
-	prior.Scale(1.0/prior.Integral());
-
-	// replace histogram
-	fPriorContainer[parindex] = prior;
-
-	// no error
-	return 1;
-}
-
-// ---------------------------------------------------------
-int BCTemplateFitter::SetTemplatePrior(const char * name, double mean, double sigma)
-{
-	// get index
-	int parindex = GetParIndexTemplate(name);
-
-	// check parameter index
-	if (parindex < 0) {
-		BCLog::OutError("BCTemplateFitter::SetTemplatePrior : Did not find parameter.");
-		return 0;
-	}
-
-	// get parameter
-	BCParameter * par = this->GetParameter(parindex);
-
-	// create new histogram
-	TH1D hist("", "", fPriorNBins, par->GetLowerLimit(), par->GetUpperLimit());
-
-	// loop over bins and fill histogram
-	for (int i = 1; i < fPriorNBins; ++i) {
-		double x = hist.GetBinCenter(i);
-		double fx = TMath::Gaus(x, mean, sigma);
-		hist.SetBinContent(i, fx);
-	}
-
-	// set template prior
-	int err = SetTemplatePrior(name, hist);
-
-	// return error code
-	return err;
-}
-*/
 
 // ---------------------------------------------------------
 int BCTemplateFitter::AddSystError(const char * errorname, const char * errtype)
@@ -860,6 +740,8 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 			ymax = 1.1 * (hist_diff->GetMaximum() + hist_diff->GetBinError(hist_diff->GetMaximumBin()));
 		if (ymin>(hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin())))
 			ymin = 1.1 * (hist_diff->GetMinimum() - hist_diff->GetBinError(hist_diff->GetMaximumBin()));
+		// debugKK
+		
 		(hist_diff->GetYaxis())->SetRangeUser(TMath::Floor(-1.1*TMath::Max(-ymin, ymax)), TMath::Ceil(1.1*TMath::Max(-ymin, ymax)));
 
 	}
@@ -1177,6 +1059,7 @@ void BCTemplateFitter::PrintRatios(const char * filename, int options, double ov
 	c1->Update();
 	ps->Close();
 
+	// free memory
 	delete c1;
 	delete ps;
 }

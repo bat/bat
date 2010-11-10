@@ -2,7 +2,7 @@
 #include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCModelOutput.h>
-#include <BAT/BCSummaryTool.h>
+#include <BAT/BCSummaryPriorModel.h>
 #include <BAT/BCTemplateFitter.h>
 #include <BAT/BCTemplateEnsembleTest.h>
 
@@ -13,10 +13,6 @@
 
 int main()
 {
-	// modify these settings
-	bool flag_posterior = true; // create ensembles according to posterior (true)
-                              // or according to the best fit parameter (false)
-
 	// ----------------------------------------------------
 	// open file with data and templates
 	// ----------------------------------------------------
@@ -32,7 +28,6 @@ int main()
 
 	TH1D hist_signal     = *((TH1D*) file->Get("hist_sgn"));
 	TH1D hist_background = *((TH1D*) file->Get("hist_bkg"));
-	TH1D hist_data       = *((TH1D*) file->Get("hist_data"));
 
 	// close file
 	file->Close();
@@ -58,9 +53,6 @@ int main()
 	// set precision
 	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
-	// set data histogram
-	model->SetData(hist_data);
-
 	// set number of events
 	double nbkg = 300.0; // prior assumption
 
@@ -80,11 +72,21 @@ int main()
 	// ... no constraints 
 
 	// ----------------------------------------------------
-	// create output model
+	// create prior model
+	// ----------------------------------------------------
+
+	// create new prior model
+	BCSummaryPriorModel* pmodel = new BCSummaryPriorModel();
+
+	// set model
+	pmodel->SetModel(model);
+
+	// ----------------------------------------------------
+	// create output for prior model
 	// ----------------------------------------------------
 
   // create new output object
-  BCModelOutput* mout = new BCModelOutput(model, "posterior.root");
+  BCModelOutput* mout = new BCModelOutput(pmodel, "prior.root");
 
   // switch writing of Markov Chains on
   mout->WriteMarkovChain(true);
@@ -93,32 +95,11 @@ int main()
 	// perform analysis
 	// ----------------------------------------------------
 
-	// initialize model
-	model->Initialize();
-
 	// run MCMC
-	model->MarginalizeAll(); 
+	pmodel->MarginalizeAll(); 
 	
 	// find global mode
-	model->FindMode( model->GetBestFitParameters() );
-
-	// ----------------------------------------------------
-	// print
-	// ----------------------------------------------------
-
-	// create summary tool
-	BCSummaryTool* st = new BCSummaryTool(model); 
-
-	// print results
-	model->PrintAllMarginalized("model_marginalized.eps"); 
-	model->PrintStack("model_stack.eps");
-	model->PrintRatios("model_fraction.ps");
-	model->PrintResults("model_results.txt"); 
-
-	st->PrintParameterPlot("model_parameters.eps"); 
-	st->PrintCorrelationPlot("model_correlation.eps"); 
-	st->PrintKnowledgeUpdatePlots("model_update.eps"); 
-	st->PrintCorrelationMatrix("model_matrix.eps");
+	pmodel->FindMode( pmodel->GetBestFitParameters() );
 
 	// ----------------------------------------------------
 	// create ensemble test tool
@@ -129,7 +110,6 @@ int main()
 
 	// settings
 	tet->SetTemplateFitter(model);
-	tet->SetTemplateParameters( model->GetBestFitParameters() );
 	tet->SetFlagMCMC(false);
 	tet->SetNEnsembles(100); 
 	tet->SetEnsembleExpectation(nbkg); 
@@ -137,21 +117,14 @@ int main()
 	// get tree from output file
 	TTree* tree = (TTree*) mout->GetFile()->Get("MarkovChainTree_0");
 
-	// perform ensemble tests with varying parameters for ensemble
-	// generation. Parameters are varied according to posterior
-	if (flag_posterior)
-		tet->PerformEnsembleTest(tree); 
+	// perform ensemble tests
+	tet->PerformEnsembleTest(tree); 
 
-	// perform ensemble tests with fixed parameter for ensemble
-	// generation
-	else
-		tet->PerformEnsembleTest();
+	// print pulls
+	tet->PrintPulls("pulls_prior.ps");
 
 	// write results to file
-	if (flag_posterior)
-		tet->Write("ensembles_posterior.root"); 
-	else 
-		tet->Write("ensembles_bestfit.root"); 
+	tet->Write("ensembles_prior.root"); 
 
 	// ----------------------------------------------------
 	// clean-up and end
@@ -166,12 +139,12 @@ int main()
 	// delete model
  	delete model;
 
+	// delete prior model
+	delete pmodel;
+
 	// delete model output
 	delete mout;
 	
-	// delete summary tool
-	delete st; 
-
 	// delete ensemble test tool
 	delete tet;
 

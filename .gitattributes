@@ -123,12 +123,14 @@ examples/advanced/templatefitter/0nubb/CreateHistograms.C -text
 examples/advanced/templatefitter/0nubb/Makefile.in -text
 examples/advanced/templatefitter/0nubb/README -text
 examples/advanced/templatefitter/0nubb/ensembletest.cxx -text
+examples/advanced/templatefitter/0nubb/sensitivity.cxx -text
 examples/advanced/templatefitter/0nubb/templatefit.cxx -text
 examples/advanced/templatefitter/README -text
 examples/advanced/templatefitter/Whel/CreateHistograms.C -text
 examples/advanced/templatefitter/Whel/Makefile.in -text
 examples/advanced/templatefitter/Whel/README -text
 examples/advanced/templatefitter/Whel/ensembletest.cxx -text
+examples/advanced/templatefitter/Whel/sensitivity.cxx -text
 examples/advanced/templatefitter/Whel/templatefit.cxx -text
 examples/advanced/templatefitter/hypothesis/Makefile.in -text
 examples/advanced/templatefitter/hypothesis/README -text

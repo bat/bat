@@ -65,9 +65,12 @@ class BCTemplateEnsembleTest
 			{ fTemplateParameters = parameters; }; 
 
 	  /**
-	   * A function to perform an ensemble test for each data set in the container.
+	   * A function to perform an ensemble test for each data set in the
+	   * container.
+		 * @param tree: A tree from which the parameters are taken, e.g.,
+		 * the poesterior
 	   */
-	  int PerformEnsembleTest();
+	  int PerformEnsembleTest(TTree* tree = 0);
 
 	  /**
 	   * A function to define the number of events per ensemble.
@@ -96,6 +99,11 @@ class BCTemplateEnsembleTest
 		 * Prepare tree.
 		 */
 		int PrepareTree();
+
+		/**
+		 * Print pulls
+		 */ 
+		void PrintPulls(const char* filename);
 
 	private:
 
@@ -156,6 +164,11 @@ class BCTemplateEnsembleTest
 		 * The random number generator.
 		 */
 		TRandom3 * fRandom;
+
+		/**
+		 * Tree variable: parameter values
+		 */
+		std::vector<double> fOutParValue;
 
 		/**
 		 * Tree variable: global mode

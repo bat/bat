@@ -27,7 +27,12 @@ Files:
   templatefit.cxx         - this macro performs a template fit to a single data
                             set
   ensembletest.cxx        - this macro performs an ensemble test for a given
-                            combination of templates.
+                            combination of templates. The ensembles can be 
+                            generated with fixed parameters or according to the
+                            posterior pdf.
+  sensitivity.cxx         - this macro performs an ensemble test for a given
+                            combination of templates. The ensembles are 
+                            generated according to the prior pdf.
 
 
 Running the example:
@@ -49,4 +54,7 @@ Running the example:
 
 5. If you would like to perform an ensemble test run the executable
    'ensembletest'
+
+6. If you would like to perform an ensemble test run the executable
+   'sensitivity'
 

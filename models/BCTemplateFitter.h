@@ -141,11 +141,6 @@ class BCTemplateFitter : public BCModel
 			{ return fTemplateParIndexContainer; };
 
 		/**
-		 * Return container of prior histograms. */
-		std::vector<TH1D> GetPriorContainer()
-			{ return fPriorContainer; };
-
-		/**
 		 * Return the expectation value in a certain bin.
 		 * @param binindex The index of the bin.
 		 * @param parameters The parameter values.
@@ -198,23 +193,6 @@ class BCTemplateFitter : public BCModel
 		 * @param Nmax The upper limit of the normalization.
 		 */
 		int AddTemplate(TH1D hist, const char * name, double Nmin=0, double Nmax=0);
-
-		/**
-		 * Set a Gaussian prior on the template.
-		 * @param name The name of the template.
-		 * @param mean The mean value of the prior.
-		 * @param rms The standard deviation of the prior.
-		 * @return An error code.
-		 */
-		//		int SetTemplatePrior(const char * name, double mean, double sigma);
-
-		/**
-		 * Set an arbitrary prior on the template
-		 * @param name The name of the template.
-		 * @param prior A histogram describing the prior.
-		 * @return An error code.
-		 */
-		//		int SetTemplatePrior(const char * name, TH1D prior);
 
 		/**
 		 * Describe the efficiency and the uncertainty for all bins.
@@ -361,12 +339,6 @@ class BCTemplateFitter : public BCModel
 		TH1D CreateErrorHist(TH1D hist, TH1D histerr);
 
 		/**
-		 * Calculates and returns the log of the prior probability at a
-		 * given point in parameter space.
-		 */
-		//		double LogAPrioriProbability(std::vector <double> parameters);
-
-		/**
 		 * Calculates and returns the log of the Likelihood at a given point
 		 * in parameter space.
 		 */
@@ -410,10 +382,6 @@ class BCTemplateFitter : public BCModel
 		/**
 		 * A matrix of histograms describing systematic uncertainties. */
 		std::vector< std::vector<TH1D> > fSystErrorHistogramContainer;
-
-		/**
-		 * A container of prior histograms. */
-		std::vector <TH1D> fPriorContainer;
 
 		// name container
 
@@ -513,10 +481,6 @@ class BCTemplateFitter : public BCModel
 		/**
 		 * The maximum value of the data range. */
 		double fXmax;
-
-		/**
-		 * The number of bins for a prior distribution. */
-		int fPriorNBins;
 
 };
 

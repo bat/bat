@@ -50,8 +50,7 @@ int main()
 	BCTemplateFitter * model = new BCTemplateFitter("model");
 
 	// set precision
-	//	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
-	model->MCMCSetPrecision(BCEngineMCMC::kLow);
+	model->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	// set data histogram
 	model->SetData(hist_data);

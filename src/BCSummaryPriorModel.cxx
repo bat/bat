@@ -46,12 +46,16 @@ void BCSummaryPriorModel::SetModel(BCModel * model)
 
 	// set default histogram binning to the one of the original model
 	for (int i = 0; i < npar; ++i) {
-		int nbins = fTestModel->GetMarginalized( fTestModel->GetParameter(i) )->GetHistogram()->GetNbinsX();
-		SetNbins( (fTestModel->GetParameter(i)->GetName()).c_str(), nbins);
+		// this construct has to go here, because otherwise there is a
+		// warning from BCEngineMCMC:: MCMCGetH1Marginalized
+		if (fTestModel->GetBestFitParameters().size() > 0){
+			BCH1D* hist = fTestModel->GetMarginalized( fTestModel->GetParameter(i) );
+			if (hist) {
+				int nbins = hist->GetHistogram()->GetNbinsX();
+				SetNbins( (fTestModel->GetParameter(i)->GetName()).c_str(), nbins);
+			}
+		}
 	}
-
-	// set large default lag
-	//	MCMCSetNLag(10);
 
 	// set default MCMC setup to the one of the original model
 	MCMCSetNChains( fTestModel->MCMCGetNChains() );
@@ -63,23 +67,6 @@ void BCSummaryPriorModel::SetModel(BCModel * model)
 	MCMCSetNIterationsUpdateMax( fTestModel->MCMCGetNIterationsUpdateMax() );
 	MCMCSetRValueCriterion( fTestModel->MCMCGetRValueCriterion() );
 	MCMCSetRValueParametersCriterion( fTestModel->MCMCGetRValueParametersCriterion() );
-
-	/*
-		fMCMCNChains              = 5;
-		fMCMCNLag                 = 1;
-		fMCMCNIterationsMax       = 100000;
-		fMCMCNIterationsRun       = 100000;
-		fMCMCNIterationsPreRunMin = 100;
-		fMCMCNIterationsUpdate    = 1000;
-		fMCMCNIterationsUpdateMax = 10000;
-		fMCMCRValueCriterion      = 0.1;
-		fMCMCRValueParametersCriterion = 0.1;
-		fMCMCRValue               = 100;
-	*/
-
-
-	//	MCMCSetNChains( fTestModel->MCMCGetNChains() );
-	//	MCMCSetNIterationsRun( fTestModel->MCMCGetNIterationsRun() );
 
 }
 
