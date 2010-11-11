@@ -28,96 +28,109 @@
 class BCIntegrate * global_this;
 
 // *********************************************
-BCIntegrate::BCIntegrate() : BCEngineMCMC()
-{
-   fNvar=0;
-   fNiterPerDimension = 100;
-   fNSamplesPer2DBin = 100;
+BCIntegrate::BCIntegrate()
+   : BCEngineMCMC()
+   , fNvar(0)
+   , fNbins(100)
+   , fNSamplesPer2DBin(100)
+   , fMarkovChainStepSize(0.1)
+   , fMarkovChainAutoN(true)
+   , fDataPointLowerBoundaries(0)
+   , fDataPointUpperBoundaries(0)
+   , fFillErrorBand(false)
+   , fFitFunctionIndexX(-1)
+   , fFitFunctionIndexY(-1)
+   , fErrorBandContinuous(true)
+   , fErrorBandNbinsX(100)
+   , fErrorBandNbinsY(500)
+   , fMinuit(0)
+   , fFlagIgnorePrevOptimization(false)
+   , fFlagWriteMarkovChain(false)
+   , fMarkovChainTree(0)
+   , fSAT0(100)
+   , fSATmin(0.1)
+   , fFlagWriteSAToFile(false)
 
-   fNIterationsMax    = 1000000;
-   fRelativePrecision = 1e-3;
-
+   , fNiterPerDimension(100)
 #ifdef HAVE_CUBA_H
-   fIntegrationMethod = BCIntegrate::kIntCuba;
+   , fIntegrationMethod(BCIntegrate::kIntCuba)
 #else
-   fIntegrationMethod = BCIntegrate::kIntMonteCarlo;
+   , fIntegrationMethod(BCIntegrate::kIntMonteCarlo)
 #endif
-   fMarginalizationMethod = BCIntegrate::kMargMetropolis;
-   fOptimizationMethod = BCIntegrate::kOptMinuit;
-   fOptimizationMethodMode = BCIntegrate::kOptMinuit;
-
-   fNbins=100;
-
-   fDataPointLowerBoundaries = 0;
-   fDataPointUpperBoundaries = 0;
-
-   fFillErrorBand = false;
-
-   fFitFunctionIndexX = -1;
-   fFitFunctionIndexY = -1;
-
-   fErrorBandNbinsX = 100;
-   fErrorBandNbinsY = 500;
-
-   fErrorBandContinuous = true;
-
-   fMinuit = 0;
+   , fMarginalizationMethod(BCIntegrate::kMargMetropolis)
+   , fOptimizationMethod(BCIntegrate::kOptMinuit)
+   , fOptimizationMethodMode(BCIntegrate::kOptMinuit)
+   , fSASchedule(BCIntegrate::kSACauchy)
+   , fNIterationsMax(1000000)
+   , fNIterations(0)
+   , fRelativePrecision(1e-3)
+   , fAbsolutePrecision(1e-12)
+   , fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+   , fCubaMinEval(0)
+   , fCubaMaxEval(2000000)
+   , fCubaVerbosity(0)
+   , fCubaVegasNStart(25000)
+   , fCubaVegasNIncrease(25000)
+   , fCubaSuaveNNew(10000)
+   , fCubaSuaveFlatness(50)
+   , fError(-999.)
+{
    fMinuitArglist[0] = 20000;
    fMinuitArglist[1] = 0.01;
-   fFlagIgnorePrevOptimization = false;
-
-   fFlagWriteMarkovChain = false;
-   fMarkovChainTree = 0;
-
-   fMarkovChainStepSize = 0.1;
-
-   fMarkovChainAutoN = true;
-
-   fSAT0 = 100.0;
-   fSATmin = 0.1;
-   fSASchedule = BCIntegrate::kSACauchy;
-   fFlagWriteSAToFile = false;
 }
 
 // *********************************************
-BCIntegrate::BCIntegrate(BCParameterSet * par) : BCEngineMCMC(1)
+BCIntegrate::BCIntegrate(BCParameterSet * par)
+   : BCEngineMCMC()
+   , fNvar(0)
+   , fNbins(100)
+   , fNSamplesPer2DBin(100)
+   , fMarkovChainStepSize(0.1)
+   , fMarkovChainAutoN(true)
+   , fDataPointLowerBoundaries(0)
+   , fDataPointUpperBoundaries(0)
+   , fFillErrorBand(false)
+   , fFitFunctionIndexX(-1)
+   , fFitFunctionIndexY(-1)
+   , fErrorBandContinuous(true)
+   , fErrorBandNbinsX(100)
+   , fErrorBandNbinsY(500)
+   , fMinuit(0)
+   , fFlagIgnorePrevOptimization(false)
+   , fFlagWriteMarkovChain(false)
+   , fMarkovChainTree(0)
+   , fSAT0(100)
+   , fSATmin(0.1)
+   , fFlagWriteSAToFile(false)
+
+   , fNiterPerDimension(100)
+#ifdef HAVE_CUBA_H
+   , fIntegrationMethod(BCIntegrate::kIntCuba)
+#else
+   , fIntegrationMethod(BCIntegrate::kIntMonteCarlo)
+#endif
+   , fMarginalizationMethod(BCIntegrate::kMargMetropolis)
+   , fOptimizationMethod(BCIntegrate::kOptMinuit)
+   , fOptimizationMethodMode(BCIntegrate::kOptMinuit)
+   , fSASchedule(BCIntegrate::kSACauchy)
+   , fNIterationsMax(1000000)
+   , fNIterations(0)
+   , fRelativePrecision(1e-3)
+   , fAbsolutePrecision(1e-12)
+   , fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+   , fCubaMinEval(0)
+   , fCubaMaxEval(2000000)
+   , fCubaVerbosity(0)
+   , fCubaVegasNStart(25000)
+   , fCubaVegasNIncrease(25000)
+   , fCubaSuaveNNew(10000)
+   , fCubaSuaveFlatness(50)
+   , fError(-999.)
 {
-   fNvar=0;
-   fNiterPerDimension = 100;
-   fNSamplesPer2DBin = 100;
-
-   fNbins=100;
-
    SetParameters(par);
 
-   fDataPointLowerBoundaries = 0;
-   fDataPointUpperBoundaries = 0;
-
-   fFillErrorBand = false;
-
-   fFitFunctionIndexX = -1;
-   fFitFunctionIndexY = -1;
-
-   fErrorBandNbinsX = 100;
-   fErrorBandNbinsY = 200;
-
-   fErrorBandContinuous = true;
-
-   fMinuit = 0;
    fMinuitArglist[0] = 20000;
    fMinuitArglist[1] = 0.01;
-   fFlagIgnorePrevOptimization = false;
-
-   fFlagWriteMarkovChain = false;
-   fMarkovChainTree = 0;
-
-   fMarkovChainStepSize = 0.1;
-
-   fMarkovChainAutoN = true;
-
-   fSAT0 = 100.0;
-   fSATmin = 0.1;
-   fTreeSA = false;
 }
 
 // *********************************************
@@ -343,7 +356,7 @@ int BCIntegrate::IntegrateResetResults()
    fBestFitParametersMarginalized.clear();
 
    // no errors
-	return 1;
+   return 1;
 }
 
 // *********************************************
@@ -352,7 +365,7 @@ double BCIntegrate::Integrate()
    std::vector <double> parameter;
    parameter.assign(fNvar, 0.0);
 
-	BCLog::OutSummary(Form("Running numerical integration using %s",DumpIntegrationMethod().c_str()));
+   BCLog::OutSummary(Form("Running numerical integration using %s",DumpIntegrationMethod().c_str()));
 
    switch(fIntegrationMethod)
    {
@@ -372,9 +385,9 @@ double BCIntegrate::Integrate()
          BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
          BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
 #endif
-		default:
-		   BCLog::OutError(
-      	   Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
+      default:
+         BCLog::OutError(
+            Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
    }
 
    return 0;
@@ -623,9 +636,9 @@ TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
       case BCIntegrate::kMargMetropolis:
          return MarginalizeByMetro(parameter);
 
-		default:
-		   BCLog::OutError(
-				Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+      default:
+         BCLog::OutError(
+            Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
 
    }
 
@@ -643,9 +656,9 @@ TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * paramete
       case BCIntegrate::kMargMetropolis:
          return MarginalizeByMetro(parameter1,parameter2);
 
-		default:
-		   BCLog::OutError(
-				Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+      default:
+         BCLog::OutError(
+            Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
    }
 
    return 0;
@@ -1339,16 +1352,16 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 // *********************************************
 void BCIntegrate::InitializeSATree()
 {
-	delete fTreeSA;
-	fTreeSA = new TTree("SATree", "SATree");
+   delete fTreeSA;
+   fTreeSA = new TTree("SATree", "SATree");
 
-	fTreeSA->Branch("Iteration",      &fSANIterations,   "iteration/I");
-	fTreeSA->Branch("NParameters",    &fNvar,            "parameters/I");
-	fTreeSA->Branch("Temperature",    &fSATemperature,   "temperature/D");
-	fTreeSA->Branch("LogProbability", &fSALogProb,       "log(probability)/D");
+   fTreeSA->Branch("Iteration",      &fSANIterations,   "iteration/I");
+   fTreeSA->Branch("NParameters",    &fNvar,            "parameters/I");
+   fTreeSA->Branch("Temperature",    &fSATemperature,   "temperature/D");
+   fTreeSA->Branch("LogProbability", &fSALogProb,       "log(probability)/D");
 
-	for (int i = 0; i < fNvar; ++i)
-		fTreeSA->Branch(TString::Format("Parameter%i", i), &fSAx[i], TString::Format("parameter %i/D", i));
+   for (int i = 0; i < fNvar; ++i)
+      fTreeSA->Branch(TString::Format("Parameter%i", i), &fSAx[i], TString::Format("parameter %i/D", i));
 }
 
 // *********************************************
@@ -1778,8 +1791,34 @@ void BCIntegrate::FindModeMCMC()
 }
 
 // *********************************************
+void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
+{
+#ifdef HAVE_CUBA_H
+   switch(type) {
+      case BCIntegrate::kCubaVegas:
+      case BCIntegrate::kCubaSuave:
+         fCubaIntegrationMethod = type;
+         return;
+      case BCIntegrate::kCubaDivonne:
+      case BCIntegrate::kCubaCuhre:
+         BCLog::OutError(TString::Format(
+            "BAT does not yet support global setting of Cuba integration method to %s. "
+            "To use this method use explicit call to CubaIntegrate() with arguments.",
+            DumpCubaIntegrationMethod(type)));
+         return;
+      default:
+         BCLog::OutError(TString::Format("Integration method of type %d is not defined for Cuba",type));
+         return;
+   }
+#else
+   BCLog::OutWarning("!!! This version of BAT is compiled without Cuba.");
+   BCLog::OutWarning("    Setting Cuba integration method will have no effect.");
+#endif
+}
+
+// *********************************************
 int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
-															 const int *ncomp, double ff[], void *userdata)
+                                              const int *ncomp, double ff[], void *userdata)
 {
 #ifdef HAVE_CUBA_H
    // scale variables
@@ -1813,39 +1852,44 @@ int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
    BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
 #endif
 
-	 return 0;
+    return 0;
 }
 
 // *********************************************
 double BCIntegrate::CubaIntegrate()
 {
 #ifdef HAVE_CUBA_H
-   double EPSREL = 1e-3;
-   double EPSABS = 1e-12;
-   double VERBOSE   = 0;
-   double MINEVAL   = 0;
-   double MAXEVAL   = 2000000;
-   double NSTART    = 25000;
-   double NINCREASE = 25000;
-
    std::vector<double> parameters_double;
    std::vector<double>    parameters_int;
 
-   parameters_double.push_back(EPSREL);
-   parameters_double.push_back(EPSABS);
+   parameters_double.push_back(fRelativePrecision);
+   parameters_double.push_back(fAbsolutePrecision);
 
-   parameters_int.push_back(VERBOSE);
-   parameters_int.push_back(MINEVAL);
-   parameters_int.push_back(MAXEVAL);
-   parameters_int.push_back(NSTART);
-   parameters_int.push_back(NINCREASE);
+   parameters_int.push_back(fCubaVerbosity);
+   parameters_int.push_back(fCubaMinEval);
+   parameters_int.push_back(fCubaMaxEval);
+
+   switch (fCubaIntegrationMethod) {
+      case BCIntegrate::kCubaSuave:
+         parameters_int.push_back(fCubaSuaveNNew);
+         parameters_int.push_back(fCubaSuaveFlatness)
+         break;
+      case BCIntegrate::kCubaDivonne:
+         break;
+      case BCIntegrate::kCubaCuhre:
+         break;
+      default: // if unknown method run Vegas. Shouldn't ever happen anyway
+      case BCIntegrate::kCubaVegas:
+         parameters_int.push_back(fCubaVegasNStart);
+         parameters_int.push_back(fCubaVegasNIncrease);
+   }
 
    // print to log
-   BCLog::OutDebug( Form(" --> Running Cuba/Vegas integation over %i dimensions.", fNvar));
-   BCLog::OutDebug( Form(" --> Maximum number of iterations: %i", (int)MAXEVAL));
-   BCLog::OutDebug( Form(" --> Aimed relative precision:     %e", EPSREL));
+   BCLog::OutDebug( Form(" --> Running Cuba/%s integation over %i dimensions.", DumpCubaIntegrationMethod(), fNvar));
+   BCLog::OutDebug( Form(" --> Maximum number of iterations: %i", fCubaMaxEval));
+   BCLog::OutDebug( Form(" --> Aimed relative precision:     %e", fRelativePrecision));
 
-   return CubaIntegrate(0, parameters_double, parameters_int);
+   return CubaIntegrate(fCubaIntegrationMethod, parameters_double, parameters_int);
 #else
    BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
    BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
@@ -1854,16 +1898,16 @@ double BCIntegrate::CubaIntegrate()
 }
 
 // *********************************************
-double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_double, std::vector<double> parameters_int)
+double BCIntegrate::CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<double> parameters_double, std::vector<double> parameters_int)
 {
 #ifdef HAVE_CUBA_H
    const int NDIM      = int(fx ->size());
    const int NCOMP     = 1;
-	 const int USERDATA  = 0;
-	 const int SEED      = 0;
-	 const int NBATCH    = 1000;
-	 const int GRIDNO    = -1;
-	 const char*STATEFILE = "";
+   const int USERDATA  = 0;
+   const int SEED      = 0;
+   const int NBATCH    = 1000;
+   const int GRIDNO    = -1;
+   const char*STATEFILE = "";
 
    const double EPSREL = parameters_double[0];
    const double EPSABS = parameters_double[1];
@@ -1888,41 +1932,40 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
       const int NINCREASE = int(parameters_int[4]);
 
       // call VEGAS integration method
-			Vegas(NDIM, NCOMP, an_integrand, USERDATA,
-						EPSREL, EPSABS, VERBOSE, SEED,       
-						MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
-						GRIDNO, STATEFILE,
-						&neval, &fail, integral, error, prob);
-			
-			// interface for Cuba version 1.5
-			/*
-				Vegas(NDIM, NCOMP, an_integrand,
-				EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
-				NSTART, NINCREASE,
-				&neval, &fail, integral, error, prob);
-			*/
+         Vegas(NDIM, NCOMP, an_integrand, USERDATA,
+                  EPSREL, EPSABS, VERBOSE, SEED,
+                  MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
+                  GRIDNO, STATEFILE,
+                  &neval, &fail, integral, error, prob);
+
+         // interface for Cuba version 1.5
+         /*
+            Vegas(NDIM, NCOMP, an_integrand,
+            EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
+            NSTART, NINCREASE,
+            &neval, &fail, integral, error, prob);
+         */
    }
    else if (method == 1) {
       // set SUAVE specific parameters
-		 //      const int LAST     = int(parameters_int[3]);
-      const int NNEW     = int(parameters_int[4]);
-      const int FLATNESS = int(parameters_int[5]);
-			const int FLAGS    = 0;
+       //      const int LAST     = int(parameters_int[3]);
+      const int NNEW        = int(parameters_int[3]);
+      const double FLATNESS = (parameters_int[4];
 
       // call SUAVE integration method
       Suave(NDIM, NCOMP, an_integrand,
-						USERDATA, EPSREL, EPSABS, FLAGS, SEED, 
-						MINEVAL, MAXEVAL,
-						NNEW, FLATNESS, 
-						&nregions, &neval, &fail, integral, error, prob);
-			
-			// interface for Cuba version 1.5
-			/*
+                  USERDATA, EPSREL, EPSABS, VERBOSE, SEED,
+                  MINEVAL, MAXEVAL,
+                  NNEW, FLATNESS,
+                  &nregions, &neval, &fail, integral, error, prob);
+
+         // interface for Cuba version 1.5
+         /*
       Suave(NDIM, NCOMP, an_integrand,
          EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL,
          NNEW, FLATNESS,
          &nregions, &neval, &fail, integral, error, prob);
-			*/
+         */
    }
    else if (method == 2) {
       // set DIVONNE specific parameters
@@ -1936,42 +1979,42 @@ double BCIntegrate::CubaIntegrate(int method, std::vector<double> parameters_dou
       const int NGIVEN       = int(parameters_int[10]);
       const int LDXGIVEN     = int(parameters_int[11]);
       const int NEXTRA       = int(parameters_int[12]);
-			const int FLAGS    = 0;
+         const int FLAGS    = 0;
 
-			// call DIVONNE integration method
-			Divonne(NDIM, NCOMP, an_integrand, USERDATA,
-							EPSREL, EPSABS, FLAGS, SEED, MINEVAL, MAXEVAL,
-							KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
-							NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
-							&nregions, &neval, &fail, integral, error, prob);
-			
+         // call DIVONNE integration method
+         Divonne(NDIM, NCOMP, an_integrand, USERDATA,
+                     EPSREL, EPSABS, FLAGS, SEED, MINEVAL, MAXEVAL,
+                     KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
+                     NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
+                     &nregions, &neval, &fail, integral, error, prob);
+
 
       // interface for Cuba version 1.5
-			/*
-				Divonne(NDIM, NCOMP, an_integrand,
-				EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
-				KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
-				NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
-				&nregions, &neval, &fail, integral, error, prob);
-			*/
+         /*
+            Divonne(NDIM, NCOMP, an_integrand,
+            EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
+            KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
+            NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
+            &nregions, &neval, &fail, integral, error, prob);
+         */
    }
    else if (method == 3) {
       // set CUHRE specific parameters
-		 //      const int LAST = int(parameters_int[3]);
+       //      const int LAST = int(parameters_int[3]);
       const int KEY  = int(parameters_int[4]);
-			const int FLAGS    = 0;
+         const int FLAGS    = 0;
 
       // call CUHRE integration method
-			Cuhre(NDIM, NCOMP, an_integrand, USERDATA,
-						EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY,
-						&nregions, &neval, &fail, integral, error, prob);
+         Cuhre(NDIM, NCOMP, an_integrand, USERDATA,
+                  EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY,
+                  &nregions, &neval, &fail, integral, error, prob);
 
-			// interface for Cuba version 1.5
-			/*
-				Cuhre(NDIM, NCOMP, an_integrand,
-				EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL, KEY,
-				&nregions, &neval, &fail, integral, error, prob);
-			*/
+         // interface for Cuba version 1.5
+         /*
+            Cuhre(NDIM, NCOMP, an_integrand,
+            EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL, KEY,
+            &nregions, &neval, &fail, integral, error, prob);
+         */
    }
    else {
       std::cout << " Integration method not available. " << std::endl;
@@ -2078,46 +2121,63 @@ void BCIntegrate::SAInitialize()
 // *********************************************
 std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type)
 {
-	switch(type) {
-		case BCIntegrate::kIntMonteCarlo:
-			return "Sampled Mean Monte Carlo";
-		case BCIntegrate::kIntImportance:
-			return "Importance Sampling";
-		case BCIntegrate::kIntMetropolis:
-			return "Metropolis";
-		case BCIntegrate::kIntCuba:
-			return "Cuba (Vegas)";
-		default:
-			return "Undefined";
-	}
+   switch(type) {
+      case BCIntegrate::kIntMonteCarlo:
+         return "Sampled Mean Monte Carlo";
+      case BCIntegrate::kIntImportance:
+         return "Importance Sampling";
+      case BCIntegrate::kIntMetropolis:
+         return "Metropolis";
+      case BCIntegrate::kIntCuba:
+         return "Cuba";
+      default:
+         return "Undefined";
+   }
 }
 
 // *********************************************
 std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
 {
-	switch(type) {
-		case BCIntegrate::kMargMonteCarlo:
-			return "Monte Carlo Integration";
-		case BCIntegrate::kMargMetropolis:
-			return "Metropolis MCMC";
-		default:
-			return "Undefined";
-	}
+   switch(type) {
+      case BCIntegrate::kMargMonteCarlo:
+         return "Monte Carlo Integration";
+      case BCIntegrate::kMargMetropolis:
+         return "Metropolis MCMC";
+      default:
+         return "Undefined";
+   }
 }
 
 // *********************************************
 std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMethod type)
 {
-	switch(type) {
-		case BCIntegrate::kOptSA:
-			return "Simulated Annealing";
-		case BCIntegrate::kOptMetropolis:
-			return "Metropolis MCMC";
-		case BCIntegrate::kOptMinuit:
-			return "Metropolis MCMC";
-		default:
-			return "Undefined";
-	}
+   switch(type) {
+      case BCIntegrate::kOptSA:
+         return "Simulated Annealing";
+      case BCIntegrate::kOptMetropolis:
+         return "Metropolis MCMC";
+      case BCIntegrate::kOptMinuit:
+         return "Metropolis MCMC";
+      default:
+         return "Undefined";
+   }
+}
+
+// *********************************************
+std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
+{
+   switch(type) {
+      case BCIntegrate::kCubaVegas:
+         return "Vegas";
+      case BCIntegrate::kCubaSuave:
+         return "Suave";
+      case BCIntegrate::kCubaDivonne:
+         return "Divonne";
+      case BCIntegrate::kCubaCuhre:
+         return "Cuhre";
+      default:
+         return "Undefined";
+   }
 }
 
 // *********************************************

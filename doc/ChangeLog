@@ -1,4 +1,16 @@
 2010-11-11 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCTemplateFitter, BCEnsembleTestFitter:
+	  - added includes of <vector>
+	* increased required version of Root to 5.22 due to use of
+	  TH1::Interpolate() which only appeared in that version
+	* BCIntegrate:
+	  - allowed to change Cuba integration method, for the moment
+	    it's only Vegas and Suave, while Divonne and Cuhre need special
+		 user setup; they will be included in the near future
+	  - added methods to allow user setup of Cuba integration parameters
+	  - cleanup of constructors
+
+2010-11-11 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated release notes
 	* increased version to 0.4.2.rc1
 

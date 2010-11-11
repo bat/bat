@@ -28,10 +28,11 @@ Dependencies
 -------------
 ROOT:
    ROOT is an object oriented data analysis framework. You can obtain
-   it from http://root.cern.ch/. To compile and run BAT you will need
-   a ROOT version 5.16 or later. Please, check your linux distribution
-   for the availability of precompiled packages on your system. Mostly
-   used distributions nowdays have the ROOT packages available.
+   it from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version
+	5.22 or later is needed to compile and run BAT. Please, check your
+	linux distribution for the availability of precompiled packages on
+	your system. Mostly used distributions nowdays have the ROOT packages
+	available.
 
 Note: To be able to use the interface to RooFit/RooStats the ROOT version
       5.27/04 or later is necessary.

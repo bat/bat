@@ -98,7 +98,7 @@ AC_DEFUN(
 	[REQUIRE_ROOT_VERSION],
 	[require_ROOT_version=$1]
 )
-REQUIRE_ROOT_VERSION([5.16])
+REQUIRE_ROOT_VERSION([5.22])
 dnl RooStats
 AC_ARG_WITH(
 	[roostats],

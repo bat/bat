@@ -1,4 +1,3 @@
-#include <TH1D.h>
 #include <TFile.h>
 #include <TTree.h>
 #include <TROOT.h>
@@ -7,7 +6,6 @@
 #include <TCanvas.h>
 
 #include <math.h>
-#include <vector>
 #include <iostream>
 
 #include <BAT/BCLog.h>

@@ -17,6 +17,7 @@ Cuba interface
 o Improved configuration with Cuba support. Compilation with Cuba has to
   be explicitly requested when running configure script.
 o Changes to allow running with Cuba 2.0 or later.
+o User can now tune Cuba integration parameters.
 
 
 Priors
