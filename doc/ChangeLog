@@ -1,5 +1,11 @@
+2010-11-11 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated release notes
+	* increased version to 0.4.2.rc1
+
 2010-11-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCTemplateFitter and BCTemplateEnsembleTest: added possibility to generate psedo-data using any arbitrary set of parameters, e.g. prior or posterior.
+	* BCTemplateFitter and BCTemplateEnsembleTest:
+	  - added possibility to generate psedo-data using any arbitrary set
+	    of parameters, e.g. prior or posterior.
 	* Minor bug fix in BCModel
 
 2010-11-10 Daniel Kollar <daniel.kollar@cern.ch>

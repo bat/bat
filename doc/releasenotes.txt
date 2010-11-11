@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.4.2
-Release date:                 2010-11-05
+Release date:                 2010-11-11
 Urgency:                      medium
 ------------------------------------------
 
@@ -35,8 +35,14 @@ o Fixed numerical instability when plotting the fit.
 
 TemplateFitter
 --------------
-o ...
-o ...
+o Added possibility to use histograms with non-equal bin sizes as templates.
+o Added calculation of Chi2 with global and marginalized mode and calculation
+  of pull.
+o It is now possible to generate pseudo-data using any arbitrary set of
+  parameters, e.g. prior or posterior.
+o Added some drawing options.
+o Fixed initialization of fitting and ensemble testing.
+o Updated examples.
 
 
 Math
