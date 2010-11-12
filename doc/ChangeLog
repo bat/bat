@@ -1,4 +1,8 @@
 2010-11-12 Daniel Kollar <daniel.kollar@cern.ch>
+	* introduction.tex:
+	  - added small section on Cuba interface
+
+2010-11-12 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCIntegrate:
 	  - more small updates to Cuba interface
 

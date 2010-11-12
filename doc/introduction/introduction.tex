@@ -605,6 +605,7 @@ where \verb|BCIntegrationType| can be one of the following
 \item \verb|BCModel::kIntCuba|. An interface to the CUBA
   library~\cite{CUBA,CUBAweb}.
 \end{itemize}
+%
 
 \noindent
 The normalization can be performed for each model separately or for
@@ -633,6 +634,35 @@ BCModel::LogProbability(std::vector <double> parameter) ,
 \end{verbatim}
 %
 where the latter returns the logarithm of the posterior pdf.
+
+\subsubsection{Cuba interface}
+\label{section:cubainterface}
+
+Cuba library contains four different integration algorithms. In BAT
+one can choose the method using
+%
+\begin{verbatim}
+BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod method)
+\end{verbatim}
+%
+where \verb|BCCubaMethod| can be either \verb|kCubaVegas| (default)
+or \verb|kCubaSuave|. The interface to the other two integration
+algorithms (Divonne and Cuhre) will be implemented in the future.
+
+\noindent
+One can tune the main parameters of Cuba using the following methods:
+%
+\begin{verbatim}
+SetCubaMinEval(int n)
+SetCubaMaxEval(int n)
+SetCubaVerbosityLevel(int level)
+SetCubaVegasNStart(int n)
+SetCubaVegasNIncrease(int n)
+SetCubaSuaveNNew(int n)
+SetCubaSuaveFlatness(double p)
+\end{verbatim}
+%
+See Cuba manual for details.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
