@@ -65,7 +65,7 @@ int main()
 	model->SetTemplateEfficiency("Background", 1.0, 0.);
 
 	// set priors 
-	model->SetPriorGauss("Background", nbkg, 2.*sqrt(nbkg));
+	model->SetPriorGauss("Background", nbkg, nbkg/4.);
 	model->SetPriorConstant("Signal");
 
 	// set constraints

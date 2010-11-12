@@ -116,7 +116,7 @@ int main()
 
 	// set priors
 	model->SetPriorGauss("background", 1300000., 2000.);
-	model->SetPriorConstant("signal (h= 0)");
+	model->SetPriorGauss("signal (h= 0)", 5000.0, sqrt(5000.));
 	model->SetPriorConstant("signal (h=-1)");
 	model->SetPriorConstant("signal (h=+1)");
 

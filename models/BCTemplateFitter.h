@@ -28,6 +28,9 @@
 
 #include <BAT/BCModel.h>
 
+#include <TH1D.h>
+#include <TF1.h>
+
 class TH2D;
 
 // ---------------------------------------------------------
@@ -56,6 +59,12 @@ class BCTemplateFitter : public BCModel
 		 */
 		int GetNTemplates()
 			{ return int(fTemplateParIndexContainer.size()); }
+
+		/**
+		 * Return the number of templates of a certain type
+		 * @param templatetype the type of the template
+		 */
+		int GetNTemplatesType(int templatetype); 
 
 		/**
 		 * Return the number of sources of systematic uncertainties.
@@ -136,6 +145,20 @@ class BCTemplateFitter : public BCModel
 			{ return fHistData; }
 
 		/**
+		 * Get histogram index of template.
+		 * @templatenumber The number of the template
+		 */ 
+		int GetHistogramIndex(int templatenumber)
+		{ return fHistogramIndexContainer.at(templatenumber); }; 
+
+		/**
+		 * Get function index of template.
+		 * @templatenumber The number of the template
+		 */ 
+		int GetFunctionIndex(int templatenumber)
+		{ return fFunctionIndexContainer.at(templatenumber); }; 
+
+		/**
 		 * Return container of parameter indeces for templates
 		 */
 		std::vector<int> GetTemplateParIndexContainer()
@@ -143,12 +166,27 @@ class BCTemplateFitter : public BCModel
 
 		/**
 		 * Return the expectation value in a certain bin.
-		 * @param binindex The index of the bin.
+		 * @param binnumber The number of the bin.
 		 * @param parameters The parameter values.
-		 * @param flageff Flag for including the uncertainty of the efficiency
-		 * @param flagsyst Flag for including systematic uncertainties.
 		 */
-		double Expectation(int binindex, std::vector<double> parameters, bool flageff=1, bool flagsyst=1);
+		double Expectation(int binnumber, std::vector<double>& parameters);
+
+		/**
+		 * Return the efficiency of a template in a certain bin.
+		 * @param templatenumber The number of the template.
+		 * @param binnumber The bin number.
+		 * @param parameters The parameter values.
+		 */
+		double TemplateEfficiency(int templatenumber, int binnumber, std::vector<double>& parameters);
+					
+		/**
+		 * Return the probability of a template in a certain bin.
+		 * @param templateindex The number of the template.
+		 * @param binnumber The bin number.
+		 * @param parameters The parameter values.
+		 */
+		double TemplateProbability(int templatenumber, int binnumber, std::vector<double>& parameters);
+
 
 		/**
 		 * Set a flag for having physical limits (expectation values greater
@@ -178,6 +216,8 @@ class BCTemplateFitter : public BCModel
 		 */
 		int SetData(const TH1D& hist);
 
+		int FixTemplateFunctions(std::vector<double>& parameters);
+
 		/**
 		 * Initialize the fitting procedure.
 		 * @return An error code.
@@ -194,6 +234,8 @@ class BCTemplateFitter : public BCModel
 		 * @param Nmax The upper limit of the normalization.
 		 */
 		int AddTemplate(TH1D hist, const char * name, double Nmin=0, double Nmax=0);
+
+		int AddTemplate(TF1 func, const char * name, double Nmin=0, double Nmax=0, const char* options="");
 
 		/**
 		 * Describe the efficiency and the uncertainty for all bins.
@@ -373,6 +415,10 @@ class BCTemplateFitter : public BCModel
 		std::vector<TH1D> fTemplateHistogramContainer;
 
 		/**
+		 * A container of template functions. */
+		std::vector<TF1> fTemplateFunctionContainer;
+
+		/**
 		 * A container of efficiency histograms. */
 		std::vector<TH1D> fEffHistogramContainer;
 
@@ -401,6 +447,14 @@ class BCTemplateFitter : public BCModel
 		std::vector<int> fTemplateParIndexContainer;
 
 		/**
+		 * A container of histogram indeces for templates. */
+		std::vector<int> fHistogramIndexContainer;
+
+		/**
+		 * A container of function indeces for templates. */
+		std::vector<int> fFunctionIndexContainer;
+
+		/**
 		 * A container of parameter indeces for efficiencies. */
 		std::vector<int> fEffParIndexContainer;
 
@@ -414,6 +468,13 @@ class BCTemplateFitter : public BCModel
 		/**
 		 * A container of error types. */
 		std::vector<std::string> fSystErrorTypeContainer;
+
+
+		/**
+		 * A container for template types. \n
+		 * 0: histogram 
+		 * 1: function */
+		std::vector<int> fTemplateTypeContainer;
 
 		/**
 		 * A container for constrained sums: indices.

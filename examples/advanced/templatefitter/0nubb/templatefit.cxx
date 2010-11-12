@@ -6,6 +6,7 @@
 
 #include <TFile.h>
 #include <TH1D.h>
+#include <TF1.h>
 #include <TCanvas.h>
 
 int main()
@@ -27,6 +28,12 @@ int main()
 	TH1D hist_background = *((TH1D*) file->Get("hist_bkg"));
 	TH1D hist_sum        = *((TH1D*) file->Get("hist_sum"));
 	TH1D hist_data       = *((TH1D*) file->Get("hist_data"));
+
+	TF1 func_signal = TF1("signal", "1./sqrt((2.*3.14159265358979312)*[1])*exp(- (x-[0])*(x-[0])/2./[1]/[1])", 2039. - 50., 2039. + 50.);
+	func_signal.SetParName(0, "Signal mass");
+	func_signal.SetParName(1, "Signal width");
+	func_signal.SetParLimits(0, 2039.-5., 2039.+5.);
+	func_signal.SetParLimits(1, 0.5, 10.0);
 
 	// close file
 	file->Close();
@@ -59,19 +66,18 @@ int main()
 	double nbkg = 300.0; // background assumption
 
 	// add template histograms
-	model->AddTemplate(hist_background, "Background", 100., 500.);
-	model->AddTemplate(hist_signal,     "Signal",     0., 200. ); 
+	model->AddTemplate(hist_background, "Background", 200., 400.);
+	model->AddTemplate(func_signal, "Signal",     0., 200. ); 
 
 	// set efficiencies
 	model->SetTemplateEfficiency("Signal",     1., 0.);
 	model->SetTemplateEfficiency("Background", 1., 0.);
 
 	// set priors 
-	//	model->SetTemplatePrior("Background", nbkg, nbkg/2.0);
 	model->SetPriorConstant("Signal");
-	model->SetPriorGauss("Background", nbkg, nbkg/2.);
-	model->SetPriorConstant("Efficiency_Signal");
-	model->SetPriorConstant("Efficiency_Background");
+	model->SetPriorGauss("Background", nbkg, nbkg/4.);
+	model->SetPriorConstant("Signal mass");
+	model->SetPriorGauss("Signal width", 5.0, 1.0);
 
 	// set constraints
 	// ... no constraints 
@@ -105,7 +111,8 @@ int main()
 	// print results
 	model->PrintAllMarginalized("model_marginalized.eps"); 
 	model->PrintStack("model_stack.eps");
-	model->PrintRatios("model_fraction.ps");
+
+	//	model->PrintRatios("model_fraction.ps");
 	model->PrintResults("model_results.txt"); 
 
 	st->PrintParameterPlot("model_parameters.eps"); 

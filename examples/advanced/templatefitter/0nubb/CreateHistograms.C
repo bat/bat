@@ -27,7 +27,7 @@ void CreateHistograms()
 	for (int i = 1; i <= nbins; ++i) {
 		double x = hist_data->GetBinCenter(i); 
 		double y1 = 1; 
-		double y2 = TMath::Gaus(x, 2039.0, 2.0); 
+		double y2 = TMath::Gaus(x, 2039.0, 5.0); 
 
 		hist_bkg->SetBinContent(i, y1); 
 		hist_sgn->SetBinContent(i, y2); 

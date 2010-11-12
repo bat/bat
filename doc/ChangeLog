@@ -1,3 +1,9 @@
+2010-11-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter: 
+	  - added possibility to use TF1 functions as templates
+	  - changes to the examples
+	  - minor code clean-up
+
 2010-11-12 Daniel Kollar <daniel.kollar@cern.ch>
 	* introduction.tex:
 	  - added small section on Cuba interface
