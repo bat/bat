@@ -365,7 +365,10 @@ double BCIntegrate::Integrate()
    std::vector <double> parameter;
    parameter.assign(fNvar, 0.0);
 
-   BCLog::OutSummary(Form("Running numerical integration using %s",DumpIntegrationMethod().c_str()));
+   BCLog::OutSummary(
+			Form("Running numerical integration using %s (%s)",
+			DumpIntegrationMethod().c_str(),
+			DumpCubaIntegrationMethod().c_str()));
 
    switch(fIntegrationMethod)
    {

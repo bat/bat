@@ -359,7 +359,7 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
         * Set verbosity level of Cuba integration */
-      void SetCubaVerbositylevel(int n)
+      void SetCubaVerbosityLevel(int n)
          { fCubaVerbosity = n; };
 
       /**
