@@ -1804,7 +1804,7 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
          BCLog::OutError(TString::Format(
             "BAT does not yet support global setting of Cuba integration method to %s. "
             "To use this method use explicit call to CubaIntegrate() with arguments.",
-            DumpCubaIntegrationMethod(type)));
+            DumpCubaIntegrationMethod(type).c_str()));
          return;
       default:
          BCLog::OutError(TString::Format("Integration method of type %d is not defined for Cuba",type));
@@ -1872,7 +1872,7 @@ double BCIntegrate::CubaIntegrate()
    switch (fCubaIntegrationMethod) {
       case BCIntegrate::kCubaSuave:
          parameters_int.push_back(fCubaSuaveNNew);
-         parameters_int.push_back(fCubaSuaveFlatness)
+         parameters_double.push_back(fCubaSuaveFlatness);
          break;
       case BCIntegrate::kCubaDivonne:
          break;
@@ -1885,7 +1885,7 @@ double BCIntegrate::CubaIntegrate()
    }
 
    // print to log
-   BCLog::OutDebug( Form(" --> Running Cuba/%s integation over %i dimensions.", DumpCubaIntegrationMethod(), fNvar));
+   BCLog::OutDebug( Form(" --> Running Cuba/%s integation over %i dimensions.", DumpCubaIntegrationMethod().c_str(), fNvar));
    BCLog::OutDebug( Form(" --> Maximum number of iterations: %i", fCubaMaxEval));
    BCLog::OutDebug( Form(" --> Aimed relative precision:     %e", fRelativePrecision));
 
@@ -1950,7 +1950,7 @@ double BCIntegrate::CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<
       // set SUAVE specific parameters
        //      const int LAST     = int(parameters_int[3]);
       const int NNEW        = int(parameters_int[3]);
-      const double FLATNESS = (parameters_int[4];
+      const double FLATNESS = parameters_double[2];
 
       // call SUAVE integration method
       Suave(NDIM, NCOMP, an_integrand,

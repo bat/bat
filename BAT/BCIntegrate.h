@@ -1019,10 +1019,10 @@ class BCIntegrate : public BCEngineMCMC
       BCCubaMethod fCubaIntegrationMethod;
 
       /** Minimum number of evaluations in Cuba integration */
-      double fCubaMinEval;
+      int fCubaMinEval;
 
       /** Maximum number of evaluations in Cuba integration */
-      double fCubaMaxEval;
+      int fCubaMaxEval;
 
       /** Verbosity level of Cuba integration */
       int fCubaVerbosity;
@@ -1037,7 +1037,7 @@ class BCIntegrate : public BCEngineMCMC
       int fCubaSuaveNNew;
 
       /** Flatness for Cuba Suave */
-      int fCubaSuaveFlatness;
+      double fCubaSuaveFlatness;
 
       /**
        * The uncertainty in the most recent Monte Carlo integration */

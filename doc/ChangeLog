@@ -1,3 +1,7 @@
+2010-11-12 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCIntegrate:
+	  - few small fixes to Cuba interface
+
 2010-11-11 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCTemplateFitter, BCEnsembleTestFitter:
 	  - added includes of <vector>
