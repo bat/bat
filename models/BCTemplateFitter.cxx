@@ -3,7 +3,6 @@
 #include <TROOT.h>
 #include <TH2D.h>
 #include <THStack.h>
-#include <TF1.h>
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TMath.h>

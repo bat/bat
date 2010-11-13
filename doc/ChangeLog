@@ -1,3 +1,7 @@
+2010-11-13 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCTemplateFitter:
+	  - removed duplicate includes
+
 2010-11-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateFitter: 
 	  - added possibility to use TF1 functions as templates

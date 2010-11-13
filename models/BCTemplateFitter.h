@@ -24,12 +24,11 @@
 // ---------------------------------------------------------
 
 #include <vector>
-#include <TH1D.h>
-
-#include <BAT/BCModel.h>
 
 #include <TH1D.h>
 #include <TF1.h>
+
+#include <BAT/BCModel.h>
 
 class TH2D;
 
