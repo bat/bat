@@ -41,6 +41,7 @@ o Added calculation of Chi2 with global and marginalized mode and calculation
   of pull.
 o It is now possible to generate pseudo-data using any arbitrary set of
   parameters, e.g. prior or posterior.
+o Templates can now be defined as TF1 objects.
 o Added some drawing options.
 o Fixed initialization of fitting and ensemble testing.
 o Updated examples.
