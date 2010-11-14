@@ -90,6 +90,18 @@ class BCTemplateFitter : public BCModel
 			{ return fHistRatios1D; }
 
 		/**
+		 * Return the container of template histograms. 
+		 */ 
+		std::vector<TH1D> GetTemplateHistogramContainer()
+			{ return fTemplateHistogramContainer; }; 
+
+		/**
+		 * Return the container of template functions. 
+		 */ 
+		std::vector<TF1> GetTemplateFunctionContainer()
+			{ return fTemplateFunctionContainer; }; 
+
+		/**
 		 * Return a ratio histogram
 		 */
 		TH1D GetHistRatio1D(int index)

@@ -1,3 +1,6 @@
+2010-11-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter: added getter for template histograms and functions
+
 2010-11-13 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCTemplateFitter:
 	  - removed duplicate includes
