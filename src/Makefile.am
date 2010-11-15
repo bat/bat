@@ -6,9 +6,11 @@ AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
 if CUBA
-AM_CXXFLAGS += $(CUBAINCLUDE)
-AM_LDFLAGS += $(CUBALIB) -lcuba
-libBAT_la_LDFLAGS += $(CUBALIB) -lcuba
+#AM_CXXFLAGS += $(CUBAINCLUDE)
+#AM_LDFLAGS += $(CUBALIB) -lcuba
+#libBAT_la_LDFLAGS += $(CUBALIB) -lcuba
+AM_LDFLAGS += -lcuba
+libBAT_la_LDFLAGS += -lcuba
 endif
 
 if DEBUG
@@ -41,7 +43,9 @@ incs= \
 	BCSummaryTool.h \
 	BCSummaryPriorModel.h
 
-library_include_HEADERS= $(patsubst %.h, ../BAT/%.h, $(incs))
+library_include_HEADERS= \
+	$(patsubst %.h, ../BAT/%.h, $(incs)) \
+	../BAT/BCErrorCodes.h
 libBAT_la_SOURCES= \
 	$(incs:.h=.cxx)
 
