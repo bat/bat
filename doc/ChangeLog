@@ -1,5 +1,14 @@
+2010-11-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated release notes
+	* increased version to 0.4.2.rc3
+
 2010-11-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCTemplateFitter: added getter for template histograms and functions
+	* BCTemplateFitter:
+	  o added getter for template histograms and functions
+
+2010-11-13 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated release notes
+	* increased version to 0.4.2.rc2
 
 2010-11-13 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCTemplateFitter:

@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.4.2
-Release date:                 2010-11-11
+Release date:                 2010-11-18
 Urgency:                      medium
 ------------------------------------------
 
@@ -11,12 +11,16 @@ The most important changes are summarized below. For detailed list of changes se
 the Changelog. For more information consult the BAT webpage at
 http://www.mppmu.mpg.de/bat/
 
+ROOT
+----
+o Required version of ROOT is 5.22 or later.
+
 
 Cuba interface
 --------------
+o Required version of Cuba is 2.0 or later.
 o Improved configuration with Cuba support. Compilation with Cuba has to
   be explicitly requested when running configure script.
-o Changes to allow running with Cuba 2.0 or later.
 o User can now tune Cuba integration parameters.
 
 
