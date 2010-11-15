@@ -13,12 +13,12 @@ http://www.mppmu.mpg.de/bat/
 
 ROOT
 ----
-o Required version of ROOT is 5.22 or later.
+o Required version of ROOT is now 5.22 or later.
 
 
 Cuba interface
 --------------
-o Required version of Cuba is 2.0 or later.
+o Required version of Cuba is now 2.0 or later.
 o Improved configuration with Cuba support. Compilation with Cuba has to
   be explicitly requested when running configure script.
 o User can now tune Cuba integration parameters.

@@ -81,7 +81,7 @@ You can compile BAT with Cuba support using option --with-cuba.
 The configure will then search for libcuba.a and cuba.h in the system.
 They either have to be available in the standard system path or you can
 specify the location using --with-cuba-include-dir=/path/to/cuba/header
-and --with-cuba-include-dir=/path/to/cuba/lib.
+and --with-cuba-lib-dir=/path/to/cuba/lib.
 
 You can list all available options using
 
