@@ -1,4 +1,9 @@
 2010-11-15 Daniel Kollar <daniel.kollar@cern.ch>
+	* added forgotten BCErrorCodes.h to the dist
+	* minor update to configuration
+	* increased version to 0.4.2.rc4
+
+2010-11-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* small updates in the documentation
 
 2010-11-15 Daniel Kollar <daniel.kollar@cern.ch>
