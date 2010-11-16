@@ -6,13 +6,17 @@ For release 0.4.2
 Priority:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
 high         done      Fix fast fitters to allow use of SetPrior*() methods (Dano)
-high                   Fix template fitter to allow use of SetPrior*() methods (Kevin)
+high         done      Fix template fitter to allow use of SetPrior*() methods (Kevin)
 high         done      Adjust interface to new Cuba version (Kevin)
 high         done      Improve installation procedure when compiling with Cuba (Dano)
 high         done      Fix efficiency fitter crash for histograms with large number of entries (Dano)
+high         done      Fix BAT configuration to be able to make dist without RooStats
 
 medium       done      Allow caching of factorials (Dano)
-medium                 Improvements (user requests) in template fitter (Kevin)
+medium       done      Improvements (user requests) in template fitter (Kevin)
+medium       done      allow to select Cuba algorithm (Vegas, Suave)
+medium       done      allow to tune Cuba intergation parameters (Vegas, Suave)
+medium       done      SummaryTool: triangular plots
 
 low          done      provide access to prior model in summary tool
 
@@ -21,13 +25,9 @@ For later releases:
 ===================
 Priority:    Status:   Task:                     
 ------------------------------------------------------------------------------------------------
-high         done      Fix BAT configuration to be able to make dist without RooStats
-medium       done      SummaryTool: triangular plots
-
-high                   Fix memory leaks in BCH1D and other classes
-high                   Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
-high                   Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
-
+medium                 Fix memory leaks in BCH1D and other classes
+medium                 Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
+medium                 Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
 medium                 method to fix parameters
 medium                 Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts
 medium                 Speed up FastFitters by cutting data range to TF1 range
@@ -35,8 +35,8 @@ medium                 Implement better selection of marginalized distributions 
 medium                 Allow user to set scales for MCMC 
 medium                 Perform analysis of MCMC tree from ROOT file
 medium                 ROOT: enable compiling programs with 'root BATcode.C++'
-medium                 allow to select Cuba algorithm (Vegas, Suave, Divonne)
-medium                 allow to tune Cuba intergation parameters
+medium                 allow to select Cuba algorithm (Divonne, Cuhre)
+medium                 allow to tune Cuba intergation parameters (Divonne, Cuhre)
 
 low                    Look into sparse histograms
 low                    Remove MCMC code from BCIntegrate
