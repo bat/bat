@@ -244,7 +244,4 @@ tools/analyzeMCMC/Makefile -text
 tools/analyzeMCMC/analyzeMCMC.c -text
 tools/build/root.m4 -text
 tools/map_solibs.sh -text
-tools/release/Makefile -text
-tools/release/README -text
-tools/release/removeCVS.sh -text
 tools/setup.sh -text

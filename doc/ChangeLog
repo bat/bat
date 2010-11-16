@@ -1,5 +1,8 @@
 2010-11-16 Daniel Kollar <daniel.kollar@cern.ch>
-	* aised version info for the libraries
+	* removed obsolete scripts for dist making
+
+2010-11-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* raised version info for the libraries
 
 2010-11-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* added forgotten BCErrorCodes.h to the dist
