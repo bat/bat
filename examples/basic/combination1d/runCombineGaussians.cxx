@@ -33,7 +33,7 @@ int main()
   m->PrintAllMarginalized("CombinationModel_plots.ps");
 
   // print all summary plots
-  summary->PrintKnowlegdeUpdatePlot("CombinationModel_update.ps");
+  summary->PrintKnowledgeUpdatePlots("CombinationModel_update.ps");
  
   // print results of the analysis into a text file
   m->PrintResults("CombinationModel_results.txt");
