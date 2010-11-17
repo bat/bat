@@ -21,7 +21,7 @@ CINT         = rootcint
 
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
-CXXFLAGS    += -I./include -I./src -I./
+CXXFLAGS    += -I./ -I./include -I/src -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
 GLIBS       += $(ROOTGLIBS) -L.-L$(BATINSTALLDIR)/lib -lBAT
 
@@ -96,7 +96,7 @@ print :
 
 web :
 	tar -cf web.tar \
-	*.html \
+	*.php \
 	*.png \
 	*.eps \
 	*.ps \

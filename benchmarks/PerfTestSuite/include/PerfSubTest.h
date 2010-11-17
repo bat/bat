@@ -26,7 +26,7 @@ class PerfSubTest
 	/* @{ */
 
 	/** An enumerator for the status of a test. */ 
-	enum Status { kGood, kFlawed, kBad, kFatal, kUnknown, kOff }; 
+	enum Status { kGood, kAcceptable, kBad, kFatal, kUnknown, kOff }; 
 		 
 	/* @} */
 	/** \name Constructors and destructors  */
@@ -111,7 +111,7 @@ class PerfSubTest
 		{ return ToStringHTML(GetStatus()); }; 
 
 	/** Return the test value range of the region for the status "good",
-	 * "flawed" and "bad".
+	 * "acceptable" and "bad".
 	 * @param status the status code.
 	 * @return the minimum value. */ 
 	double GetStatusRegion(PerfSubTest::Status status); 

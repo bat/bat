@@ -120,7 +120,7 @@ int PerfTestMCMC::PostTest()
     // define test results
     GetSubtest(Form("correlation par %i", i))->SetTargetValue(0.0);
     GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kGood,   0.3); 
-    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kFlawed, 0.5); 
+    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kAcceptable, 0.5); 
     GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kBad,    0.7); 
     GetSubtest(Form("correlation par %i", i))->SetTestValue(y); 
     GetSubtest(Form("correlation par %i", i))->SetTestUncertainty(fCorrelation.at(i)->GetRMS(2)); 

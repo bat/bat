@@ -186,35 +186,35 @@ int PerfTest1DFunction::PostTest()
   // define test results
   GetSubtest("chi2")->SetTargetValue(ndf);
   GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kGood,   3.0*sqrt(2.0*ndf)); 
-  GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kFlawed, 5.0*sqrt(2.0*ndf)); 
+  GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kAcceptable, 5.0*sqrt(2.0*ndf)); 
   GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kBad,    7.0*sqrt(2.0*ndf)); 
   GetSubtest("chi2")->SetTestValue(chi2); 
   GetSubtest("chi2")->SetTestUncertainty(sqrt(2.0*ndf)); 
 
   GetSubtest("KS")->SetTargetValue(1);
   GetSubtest("KS")->SetStatusRegion(PerfSubTest::kGood,   1.-0.05); 
-  GetSubtest("KS")->SetStatusRegion(PerfSubTest::kFlawed, 1.-0.01); 
+  GetSubtest("KS")->SetStatusRegion(PerfSubTest::kAcceptable, 1.-0.01); 
   GetSubtest("KS")->SetStatusRegion(PerfSubTest::kBad,    1.-0.0001); 
   GetSubtest("KS")->SetTestValue(KS); 
   GetSubtest("KS")->SetTestUncertainty(1-0.05); 
 
   GetSubtest("mean")->SetTargetValue(fFunction->Mean( fFunction->GetXmin(), fFunction->GetXmax()) );
   GetSubtest("mean")->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(mean_variance));
-  GetSubtest("mean")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(mean_variance));
+  GetSubtest("mean")->SetStatusRegion(PerfSubTest::kAcceptable, 5.*sqrt(mean_variance));
   GetSubtest("mean")->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(mean_variance));
   GetSubtest("mean")->SetTestValue(hist_marg->GetMean()); 
   GetSubtest("mean")->SetTestUncertainty(sqrt(mean_variance)); 
 
   GetSubtest("mode")->SetTargetValue(fFunction->GetMaximumX());
   GetSubtest("mode")->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(mode_variance));
-  GetSubtest("mode")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(mode_variance));
+  GetSubtest("mode")->SetStatusRegion(PerfSubTest::kAcceptable, 5.*sqrt(mode_variance));
   GetSubtest("mode")->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(mode_variance));
   GetSubtest("mode")->SetTestValue(hist_marg->GetBinCenter(hist_marg->GetMaximumBin())); 
   GetSubtest("mode")->SetTestUncertainty(sqrt(mode_variance)); 
 
   GetSubtest("variance")->SetTargetValue(fFunction->Variance( fFunction->GetXmin(), fFunction->GetXmax()) );
   GetSubtest("variance")->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(var_s2));
-  GetSubtest("variance")->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(var_s2));
+  GetSubtest("variance")->SetStatusRegion(PerfSubTest::kAcceptable, 5.*sqrt(var_s2));
   GetSubtest("variance")->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(var_s2));
   GetSubtest("variance")->SetTestValue(hist_marg->GetRMS()*hist_marg->GetRMS()*double(nbins*nbins)/(double(nbins)-1)/(double(nbins)-1)); 
   GetSubtest("variance")->SetTestUncertainty(sqrt(var_s2));
@@ -222,7 +222,7 @@ int PerfTest1DFunction::PostTest()
   for (int i = 0; i < 9; ++i) {
     GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTargetValue(quantiles_func[i]);
     GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(quantile_variance[i]));
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kFlawed, 5.*sqrt(quantile_variance[i]));
+    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kAcceptable, 5.*sqrt(quantile_variance[i]));
     GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(quantile_variance[i]));
     GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTestValue(quantiles_hist[i]); 
     GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTestUncertainty(sqrt(quantile_variance[i])); 
@@ -303,59 +303,59 @@ void PerfTest1DFunction::DefineSubtests()
   PerfTestMCMC::DefineSubtests();
 
   PerfSubTest * subtest = new PerfSubTest("chi2"); 
-  subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
+  subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance acceptable: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("KS"); 
-  subtest->SetDescription("Calculate the Kolmogorov-Smirnov probability based on the ROOT implemention. <br> Tolerance good: KS prob > 0.05, <br> Tolerance flawed:  KS prob > 0.01<br> Tolerance bad: KS prob > 0.0001."); 
+  subtest->SetDescription("Calculate the Kolmogorov-Smirnov probability based on the ROOT implemention. <br> Tolerance good: KS prob > 0.05, <br> Tolerance acceptable:  KS prob > 0.01<br> Tolerance bad: KS prob > 0.0001."); 
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("mean"); 
-  subtest->SetDescription("Compare sample mean, &lt;x&gt;, with expectation value of function, E[x].<br> Tolerance good: |&lt;x&gt; -E[x]| < 3 &middot; (V[x]/n)<sup>1/2</sup>,</br>Tolerance flawed: |&lt;x&gt; -E[x]| < 5 &middot; (V[x]/n)<sup>1/2</sup>,</br>Tolerance bad: |&lt;x&gt; -E[x]| < 7 &middot; (V[x]/n)<sup>1/2</sup>."); 
+  subtest->SetDescription("Compare sample mean, &lt;x&gt;, with expectation value of function, E[x].<br> Tolerance good: |&lt;x&gt; -E[x]| < 3 &middot; (V[x]/n)<sup>1/2</sup>,</br>Tolerance acceptable: |&lt;x&gt; -E[x]| < 5 &middot; (V[x]/n)<sup>1/2</sup>,</br>Tolerance bad: |&lt;x&gt; -E[x]| < 7 &middot; (V[x]/n)<sup>1/2</sup>."); 
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("mode"); 
-  subtest->SetDescription("Compare mode of distribution with mode of the analytic function. </br> Tolerance good: |x<sup>*</sup>-mode| < 3 &middot V[mode]<sup>1/2</sup>, </br> Tolerance flawed: |x<sup>*</sup>-mode| < 5 &middot V[mode]<sup>1/2</sup> bin widths, <br> Tolerance bad: |x<sup>*</sup>-mode| < 7 &middot V[mode]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare mode of distribution with mode of the analytic function. </br> Tolerance good: |x<sup>*</sup>-mode| < 3 &middot V[mode]<sup>1/2</sup>, </br> Tolerance acceptable: |x<sup>*</sup>-mode| < 5 &middot V[mode]<sup>1/2</sup> bin widths, <br> Tolerance bad: |x<sup>*</sup>-mode| < 7 &middot V[mode]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("variance"); 
-  subtest->SetDescription("Compare sample variance s<sup>2</sup> of distribution with variance of function. </br> Tolerance good: 3 &middot; V[s<sup>2</sup>]<sup>1/2</sup>, </br> Tolerance flawed: 5 &middot; V[s<sup>2</sup>]<sup>1/2</sup>, <br> Tolerance bad: 7 &middot; V[s<sup>2</sup>]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare sample variance s<sup>2</sup> of distribution with variance of function. </br> Tolerance good: 3 &middot; V[s<sup>2</sup>]<sup>1/2</sup>, </br> Tolerance acceptable: 5 &middot; V[s<sup>2</sup>]<sup>1/2</sup>, <br> Tolerance bad: 7 &middot; V[s<sup>2</sup>]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile10"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile20"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile30"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile40"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile50"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile60"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile70"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile80"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
   subtest = new PerfSubTest("quantile90"); 
-  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance flawed: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
+  subtest->SetDescription("Compare quantile of distribution from MCMC with the quantile of analytic function. </br> Tolerance good: |q_{X}-E[q_{X}]|<3&middot;V[q]<sup>1/2</sup>, </br> Tolerance acceptable: |q_{X}-E[q_{X}]|<5&middot;V[q]<sup>1/2</sup>, <br> Tolerance bad: |q_{X}-E[q_{X}]|<7&middot;V[q]<sup>1/2</sup>.");
   AddSubtest(subtest);
 
 }

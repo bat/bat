@@ -115,7 +115,7 @@ int PerfTest2DFunction::PostTest()
 	// define test results
 	GetSubtest("chi2")->SetTargetValue(ndf);
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kGood,   3.0*sqrt(2.0*ndf)); 
-	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kFlawed, 5.0*sqrt(2.0*ndf)); 
+	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kAcceptable, 5.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetStatusRegion(PerfSubTest::kBad,    7.0*sqrt(2.0*ndf)); 
 	GetSubtest("chi2")->SetTestValue(chi2); 
 	GetSubtest("chi2")->SetTestUncertainty(sqrt(2.0*ndf)); 
@@ -176,7 +176,7 @@ void PerfTest2DFunction::DefineSubtests()
 	PerfTestMCMC::DefineSubtests();
 
 	PerfSubTest * subtest = new PerfSubTest("chi2"); 
-	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance flawed: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
+	subtest->SetDescription("Calculate &chi;<sup>2</sup> and compare with prediction for dof=number of bins with an expectation >= 10. <br> Tolerance good: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 3 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance acceptable: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 5 &middot; (2 dof)<sup>1/2</sup>, <br> Tolerance bad: |&chi;<sup>2</sup>-E[&chi;<sup>2</sup>]| < 7 &middot; (2 dof)<sup>1/2</sup>."); 
 	AddSubtest(subtest);
 }
 

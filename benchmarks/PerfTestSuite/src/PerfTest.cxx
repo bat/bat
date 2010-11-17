@@ -118,8 +118,8 @@ PerfSubTest::Status PerfTest::GetStatus()
   // get number of successful sub tests
   int ngood = GetNSubtests(PerfSubTest::kGood); 
 
-  // get number of flawed sub tests
-  int nflawed = GetNSubtests(PerfSubTest::kFlawed); 
+  // get number of acceptable sub tests
+  int nacceptable = GetNSubtests(PerfSubTest::kAcceptable); 
 
   // get number of failed sub tests
   int nbad = GetNSubtests(PerfSubTest::kBad); 
@@ -143,8 +143,8 @@ PerfSubTest::Status PerfTest::GetStatus()
   else if (nbad > 0)
     return PerfSubTest::kBad;
 
-  else if (nflawed > 0)
-    return PerfSubTest::kFlawed;
+  else if (nacceptable > 0)
+    return PerfSubTest::kAcceptable;
 
   return PerfSubTest::kUnknown;
 }
@@ -249,7 +249,7 @@ int PerfTest::ReadResults()
   file >> dummy_double; 
   subtest->SetStatusRegion(PerfSubTest::kGood, dummy_double);
   file >> dummy_double; 
-  subtest->SetStatusRegion(PerfSubTest::kFlawed, dummy_double);
+  subtest->SetStatusRegion(PerfSubTest::kAcceptable, dummy_double);
   file >> dummy_double; 
   subtest->SetStatusRegion(PerfSubTest::kBad, dummy_double);
   file >> dummy_bool; 
@@ -293,7 +293,7 @@ int PerfTest::WriteResults()
     file << fSubtestContainer.at(i)->GetTestValue() << std::endl;
     file << fSubtestContainer.at(i)->GetTargetValue() << std::endl;
     file << fSubtestContainer.at(i)->GetStatusRegion(PerfSubTest::kGood) << std::endl;
-    file << fSubtestContainer.at(i)->GetStatusRegion(PerfSubTest::kFlawed) << std::endl;
+    file << fSubtestContainer.at(i)->GetStatusRegion(PerfSubTest::kAcceptable) << std::endl;
     file << fSubtestContainer.at(i)->GetStatusRegion(PerfSubTest::kBad) << std::endl;
     file << fSubtestContainer.at(i)->GetStatusRegion(PerfSubTest::kFatal) << std::endl;
     file << fSubtestContainer.at(i)->GetStatusUnknown() << std::endl;

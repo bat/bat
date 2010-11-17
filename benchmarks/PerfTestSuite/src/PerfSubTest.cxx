@@ -41,8 +41,8 @@ std::string PerfSubTest::ToString(PerfSubTest::Status status)
 		case PerfSubTest::kGood : 
 			return std::string("good"); 
 
-		case PerfSubTest::kFlawed : 
-			return std::string("flawed"); 
+		case PerfSubTest::kAcceptable : 
+			return std::string("acceptable"); 
 
 		case PerfSubTest::kBad : 
 			return std::string("bad"); 
@@ -69,8 +69,8 @@ std::string PerfSubTest::ToStringHTML(PerfSubTest::Status status)
 		case PerfSubTest::kGood : 
 			return std::string("<font color=\"#4cc417\">good</font>"); 
 
-		case PerfSubTest::kFlawed : 
-			return std::string("<font color=\"#0174de\">flawed</font>"); 
+		case PerfSubTest::kAcceptable : 
+			return std::string("<font color=\"#0174de\">acceptable</font>"); 
 
 		case PerfSubTest::kBad : 
 			return std::string("<font color=\"#FF8000\">bad</font>"); 
@@ -97,7 +97,7 @@ void PerfSubTest::SetStatusRegion(PerfSubTest::Status status, double delta)
 		case PerfSubTest::kGood : 
 			fStatusRegion[0] = delta;
 			break; 
-		case PerfSubTest::kFlawed : 
+		case PerfSubTest::kAcceptable : 
 			fStatusRegion[1] = delta;
 			break; 
 		case PerfSubTest::kBad : 
@@ -127,13 +127,13 @@ PerfSubTest::Status PerfSubTest::GetStatus()
 	// define status flag
 	fStatusUnknown = false;
 
-	// check for "good", "flawed" and "bad" 
+	// check for "good", "acceptable" and "bad" 
 	if (diff < fStatusRegion.at(0)) {
 		return PerfSubTest::kGood;
 	}
 
 	else if (diff < fStatusRegion.at(1)) {
-		return PerfSubTest::kFlawed;
+		return PerfSubTest::kAcceptable;
 	}
 
 	else if (diff < fStatusRegion.at(2)) {
@@ -153,7 +153,7 @@ double PerfSubTest::GetStatusRegion(PerfSubTest::Status status)
 		case PerfSubTest::kGood : 
 			return fStatusRegion[0]; 
 
-		case PerfSubTest::kFlawed : 
+		case PerfSubTest::kAcceptable : 
 			return fStatusRegion[1]; 
 
 		case PerfSubTest::kBad : 

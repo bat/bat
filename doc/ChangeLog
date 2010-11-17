@@ -1,3 +1,8 @@
+2010-11-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* PerfTestSuite:
+	  - Minor modification to Makefile
+	  - changed "flawed" to "acceptable"
+
 2010-11-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* fix in examples/basic/combination1d
 
@@ -24,7 +29,7 @@
 
 2010-11-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateFitter:
-	  o added getter for template histograms and functions
+	  - added getter for template histograms and functions
 
 2010-11-13 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated release notes

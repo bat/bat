@@ -133,7 +133,7 @@ void TestSuite::PrintResultsScreen()
 	std::cout << " Overview: " << std::endl; 
 	std::cout << " Number of tests               : " << GetNTests() << std::endl; 
 	std::cout << " Number of successful tests    : " << GetNTests(PerfSubTest::kGood) << std::endl; 
-	std::cout << " Number of flawed tests        : " << GetNTests(PerfSubTest::kFlawed) << std::endl; 
+	std::cout << " Number of acceptable tests        : " << GetNTests(PerfSubTest::kAcceptable) << std::endl; 
 	std::cout << " Number of bad tests           : " << GetNTests(PerfSubTest::kBad) << std::endl; 
 	std::cout << " Number of fatal tests         : " << GetNTests(PerfSubTest::kFatal) << std::endl; 
 	std::cout << " Number of tests unkown status : " << GetNTests(PerfSubTest::kUnknown) << std::endl; 
@@ -173,7 +173,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file_main << "<table border=\"0\"  width=\"400\">" << std::endl;
 	file_main << " <tr> <td align=\"left\"> Number of tests </td> <td>" << GetNTests() << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of successful tests </td> <td>" << GetNTests(PerfSubTest::kGood) << " </td> </tr>" << std::endl; 
-	file_main << " <tr> <td align=\"left\"> Number of flawed tests </td> <td>" << GetNTests(PerfSubTest::kFlawed) << " </td> </tr>" << std::endl; 
+	file_main << " <tr> <td align=\"left\"> Number of acceptable tests </td> <td>" << GetNTests(PerfSubTest::kAcceptable) << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of bad tests </td> <td>" << GetNTests(PerfSubTest::kBad) << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of fatal tests </td> <td>" << GetNTests(PerfSubTest::kFatal) << " </td> </tr>" << std::endl; 
 	file_main << " <tr> <td align=\"left\"> Number of tests unkown status </td> <td>" << GetNTests(PerfSubTest::kUnknown) << " </td> </tr>" << std::endl; 
@@ -187,7 +187,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file_main << "  <th align=\"left\"> Status </th>" << std::endl; 
 	file_main << "  <th align=\"left\"> Subtests </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Good </th>" << std::endl;
-	file_main << "  <th align=\"left\"> Flawed </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Acceptable </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Bad </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
@@ -199,7 +199,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
-			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFlawed) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kAcceptable) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kBad) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFatal) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kUnknown) << "</td></tr>" << std::endl;
@@ -214,7 +214,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file_main << "  <th align=\"left\"> Status </th>" << std::endl; 
 	file_main << "  <th align=\"left\"> Subtests </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Good </th>" << std::endl;
-	file_main << "  <th align=\"left\"> Flawed </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Acceptable </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Bad </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
@@ -226,7 +226,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
-			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFlawed) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kAcceptable) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kBad) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFatal) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kUnknown) << "</td> </tr>" << std::endl;
@@ -241,7 +241,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 	file_main << "  <th align=\"left\"> Status </th>" << std::endl; 
 	file_main << "  <th align=\"left\"> Subtests </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Good </th>" << std::endl;
-	file_main << "  <th align=\"left\"> Flawed </th>" << std::endl;
+	file_main << "  <th align=\"left\"> Acceptable </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Bad </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
 	file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
@@ -253,7 +253,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetStatusStringHTML().c_str() << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests()-GetTest(i)->GetNSubtests(PerfSubTest::kOff) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kGood) << "</td>" << std::endl;
-			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFlawed) << "</td>" << std::endl;
+			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kAcceptable) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kBad) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kFatal) << "</td>" << std::endl;
 			file_main << " <td align=\"left\">"<< GetTest(i)->GetNSubtests(PerfSubTest::kUnknown) << "</td></tr>" << std::endl;
@@ -342,7 +342,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 			file << "  <th align=\"left\" width = \"150\">Deviation [%]</th>" << std::endl;
 			file << "  <th align=\"left\" width = \"150\">Deviation [sigma]</th>" << std::endl;
 			file << "  <th align=\"left\" width = \"150\">Tol. (Good)</th>" << std::endl;
-			file << "  <th align=\"left\" width = \"150\">Tol. (Flawed)</th>" << std::endl;
+			file << "  <th align=\"left\" width = \"150\">Tol. (Acceptable)</th>" << std::endl;
 			file << "  <th align=\"left\" width = \"150\">Tol. (Bad)</th>" << std::endl;
 			file << "</tr>" << std::endl;
 
@@ -362,7 +362,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 					file << "  <td align=\"left\"> " << std::setprecision(4) << " - " << "</td>" << std::endl;
 				file << "  <td align=\"left\"> " << std::setprecision(4) << (target-test)/err << "</td>" << std::endl;
 				file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</td>" << std::endl;
-				file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kFlawed) << "</td>" << std::endl;
+				file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kAcceptable) << "</td>" << std::endl;
 				file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</td>" << std::endl;
 				file << "</tr>" << std::endl; 
 			}
