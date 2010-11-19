@@ -1,3 +1,6 @@
+2010-11-19 Daniel Kollar <daniel.kollar@cern.ch>
+	* final version 0.4.2
+
 2010-11-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PerfTestSuite:
 	  - Minor modification to Makefile
