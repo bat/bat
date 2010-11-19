@@ -49,6 +49,7 @@ BCIntegrate::BCIntegrate()
    , fMarkovChainTree(0)
    , fSAT0(100)
    , fSATmin(0.1)
+   , fTreeSA(0)
    , fFlagWriteSAToFile(false)
 
    , fNiterPerDimension(100)
@@ -101,6 +102,7 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
    , fMarkovChainTree(0)
    , fSAT0(100)
    , fSATmin(0.1)
+   , fTreeSA(0)
    , fFlagWriteSAToFile(false)
 
    , fNiterPerDimension(100)
@@ -1355,8 +1357,9 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 // *********************************************
 void BCIntegrate::InitializeSATree()
 {
-   delete fTreeSA;
-   fTreeSA = new TTree("SATree", "SATree");
+  if (fTreeSA)
+    delete fTreeSA;
+  fTreeSA = new TTree("SATree", "SATree");
 
    fTreeSA->Branch("Iteration",      &fSANIterations,   "iteration/I");
    fTreeSA->Branch("NParameters",    &fNvar,            "parameters/I");
