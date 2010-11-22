@@ -333,7 +333,7 @@ double BCIntegrate::LogEvalSampling(std::vector <double> x)
 double BCIntegrate::EvalPrint(std::vector <double> x)
 {
    double val=Eval(x);
-   BCLog::OutDebug(Form("BCIntegrate::EvalPrint. Value: %d.", val));
+   BCLog::OutDebug(Form("BCIntegrate::EvalPrint. Value: %g.", val));
 
    return val;
 }
@@ -509,7 +509,7 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
 
    // print if more than 100,000 iterations
    if(Niter>1e5)
-      BCLog::OutDebug(Form(" --> Total number of iterations in Metropolis: %d.", Niter));
+      BCLog::OutDebug(Form(" --> Total number of iterations in Metropolis: %d.", (int)Niter));
 
    // reset sum
    double sumI = 0;
@@ -552,14 +552,14 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
 
       // write intermediate results
       if((i+1)%100000 == 0)
-         BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Iteration %d, integral: %d.", i+1, sumI/(i+1)));
+         BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Iteration %d, integral: %g.", i+1, sumI/double(i+1)));
    }
 
    // calculate integral
    double result=sumI/Niter;
 
    // print debug information
-   BCLog::OutDebug(Form(" --> Integral is %f in %i iterations.", result, Niter));
+   BCLog::OutDebug(Form(" --> Integral is %g in %g iterations.", result, Niter));
 
    return result;
 }
@@ -575,7 +575,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 
    // print if more than 100,000 iterations
    if(Niter>1e5)
-      BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Total number of iterations: %d.", Niter));
+      BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Total number of iterations: %d.", (int)Niter));
 
    // reset sum
    double sumI = 0;
@@ -616,14 +616,14 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 
       // write intermediate results
       if((i+1)%100000 == 0)
-         BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Iteration %d, integral: %d.", i+1, sumI/(i+1)));
+         BCLog::OutDebug(Form("BCIntegrate::IntegralImportance : Iteration %d, integral: %g.", i+1, sumI/double(i+1)));
    }
 
    // calculate integral
    double result=sumI/Niter;
 
    // print debug information
-   BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Integral %f in %i iterations.", result, Niter));
+   BCLog::OutDebug(Form("BCIntegrate::IntegralImportance : Integral %g in %i iterations.", result, (int)Niter));
 
    return result;
 }
@@ -631,7 +631,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
 // *********************************************
 TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 {
-   BCLog::OutDebug(Form(" --> Marginalizing model wrt. parameter %s using %d.", parameter->GetName().data(), DumpMarginalizationMethod().c_str()));
+   BCLog::OutDebug(Form(" --> Marginalizing model wrt. parameter %s using %s.", parameter->GetName().data(), DumpMarginalizationMethod().c_str()));
 
    switch(fMarginalizationMethod)
    {

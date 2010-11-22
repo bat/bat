@@ -188,7 +188,7 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
 void BCEfficiencyFitter::SetDataPointType(int type)
 {
 	if(type < 0 || type > 2)
-		BCLog::OutError(Form("BCEfficiencyFitter::SetDataPointType : Unknown data point type %d (should be between 0 and 2)."));
+		BCLog::OutError(Form("BCEfficiencyFitter::SetDataPointType : Unknown data point type %d (should be between 0 and 2).",type));
 	else
 		fDataPointType = type;
 }

@@ -52,7 +52,7 @@ double BCDataPoint::GetValue(int index)
 	// ... or give error if not.
 	else
       BCLog::OutError(
-				TString::Format("BCDataPoint::GetValue : Index %d out of range (%d to %d).", index,0, fData.size()-1));
+				TString::Format("BCDataPoint::GetValue : Index %d out of range (%d to %ld).", index,0, fData.size()-1));
 
 	return value;
 }
@@ -72,7 +72,7 @@ void BCDataPoint::SetValue(int index, double value)
 	// ... or give error if not.
 	else
 		BCLog::OutError(
-				TString::Format("BCDataPoint::SetValue : Index %d out of range (%d to %d).",index, 0 ,fData.size()-1));
+				TString::Format("BCDataPoint::SetValue : Index %d out of range (%d to %ld).",index, 0 ,fData.size()-1));
 }
 
 // ---------------------------------------------------------

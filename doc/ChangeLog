@@ -1,3 +1,6 @@
+2010-11-22 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixed some compiler warnings
+
 2010-11-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* final version 0.4.2
 
