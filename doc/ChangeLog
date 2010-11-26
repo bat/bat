@@ -1,4 +1,8 @@
 2010-11-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCModel:
+	  - update to avoid log(int) ambiguity on some systems
+
+2010-11-26 Daniel Kollar <daniel.kollar@cern.ch>
 	* removed previous changes to asymmErrorsFitterExample.cxx which
 	  were not intentional
 
