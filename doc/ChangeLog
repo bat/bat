@@ -1,3 +1,6 @@
+2010-11-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateEnsembleTest.cxx: fixed compiler warning.
+
 2010-11-26 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCModel:
 	  - update to avoid log(int) ambiguity on some systems

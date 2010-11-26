@@ -91,8 +91,8 @@ int BCTemplateEnsembleTest::PerformEnsembleTest(TTree* tree)
 
 		// get parameters from tree
 		if (tree) {
-			int index = fRandom->Uniform(tree->GetEntries());
-			tree->GetEntry(index);
+		  int index = (int) fRandom->Uniform(tree->GetEntries());
+		  tree->GetEntry(index);
 		}
 
 		// create new ensemble
