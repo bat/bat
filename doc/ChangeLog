@@ -1,3 +1,7 @@
+2010-11-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated CreateProject.sh for the changed name of
+	  PrintKnowledgeUpdatePlots()
+
 2010-11-22 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixed some compiler warnings
 

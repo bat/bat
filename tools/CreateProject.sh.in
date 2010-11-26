@@ -314,7 +314,7 @@ int main()
 	// print all summary plots
 //	summary->PrintParameterPlot("|:Model:|_parameters.ps");
 //	summary->PrintCorrelationPlot("|:Model:|_correlation.ps");
-//	summary->PrintKnowlegdeUpdatePlot("|:Model:|_update.ps");
+//	summary->PrintKnowledgeUpdatePlots("|:Model:|_update.ps");
  
 	// calculate p-value
 //	m->CalculatePValue( m->GetBestFitParameters() );
