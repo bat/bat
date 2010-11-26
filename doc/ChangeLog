@@ -1,4 +1,8 @@
 2010-11-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* removed previous changes to asymmErrorsFitterExample.cxx which
+	  were not intentional
+
+2010-11-26 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated CreateProject.sh for the changed name of
 	  PrintKnowledgeUpdatePlots()
 

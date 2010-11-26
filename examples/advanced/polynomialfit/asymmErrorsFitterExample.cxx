@@ -53,17 +53,9 @@ int main()
 	// assigns the data set to the model manager.
 	mgr -> SetDataSet(data);
 
-	m2 -> SetCubaMaxEval(5000000);
-//	m2 -> SetCubaVerbosityLevel(1);
-   m2 -> Normalize();
-
-	m2 -> SetCubaIntegrationMethod(BCIntegrate::kCubaSuave);
-
 	// normalize all models and calculate the Basyes factors
 //	mgr -> SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 	mgr -> Normalize();
-
-	return 0;
 
 	// the allowed range of data values has to be defined for error
 	// propagation and fitting.
