@@ -1,7 +1,9 @@
 2010-11-29 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC:
-	  - included strict R value definition. By default, 
+	  - included strict R value definition. By default,
 	    the old, relaxed definition is used.
+	* plans.txt: some ideas for nBAT
+	* introduction: note on R definition and link to source paper
 
 2010-11-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateEnsembleTest.cxx: fixed compiler warning.

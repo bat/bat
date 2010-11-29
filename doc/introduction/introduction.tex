@@ -1480,8 +1480,13 @@ further reference see the reference guide:
   Chains. The efficiency found in the pre-run has to be within these
   limits otherwise the pre-run continues.
 \item \verb|BCModel::MCMCSetRValueCriterion(double r)| Set the
-  $r$-value criterion for convergence of a set of chains (default:
+  $R$-value criterion for convergence of a set of chains (default:
   0.1).
+\item \verb|BCModel::MCMCSetRValueStrict(bool flag)| Calculate the
+  $R$-value criterion for convergence with the strict definition (true)
+  by~\cite{R_value}  or use a relaxed version (false) which doesn't guarantee
+  $R \ge 1$, but allows for similarly robust convergence checking in slightly
+  less iterations. (default: relaxed definition)
 \item \verb|BCModel::WriteMarkovChain(bool flag)|. Set a flag to
  write the Markov Chain into a ROOT file. See
  section~\ref{section:outputclass} on how to handle output in BAT.
@@ -1592,7 +1597,7 @@ guide:
   A.~Caldwell, D.~Kollar and K.~Kroeninger, ``BAT - The Bayesian
   Analysis Toolkit,'' \textit{Comp.\ Phys.\ Comm.}\ {\bf 180} (2009) 2197-2209
   [arXiv:0808.2552]
-  \url{http://www.mppmu.mpg.de/bat/}
+  \url{http://www.mpp.mpg.de/bat/}
 %
 \bibitem{ROOTweb}
   \url{http://root.cern.ch/}
@@ -1610,7 +1615,11 @@ Particle Data Group, Mathematical Tools or Statistics, Monte Carlo, Group Theory
 (http://www.sciencedirect.com/science/article/B6TVN-4T4VKPY-G/2/32a7641753a1a6d41124d1992263243a)
 
 \bibitem{Johnson_pValue}
-Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+V.E. Johnson,  A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+
+\bibitem{R_value}
+A. Gelman and D. B. Rubin, ``Inference from Iterative Simulation Using Multiple Sequences,`` \emph{Statistical Science}   {\bf 7} (1992) 4,  457-472.
+
 
 \end{thebibliography}
 
