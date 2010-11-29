@@ -68,6 +68,7 @@ void BCEngineMCMC::MCMCSetValuesQuick()
 	fMCMCNIterationsRun       = 10000;
 	fMCMCNIterationsPreRunMin = 0;
 	fMCMCFlagInitialPosition  = 1;
+	fMCMCRValueUseStrict = false;
 	fMCMCRValueCriterion      = 0.1;
 	fMCMCRValueParametersCriterion = 0.1;
 	fMCMCNIterationsConvergenceGlobal = -1;
@@ -88,6 +89,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
 	fMCMCNIterationsRun       = 100000;
 	fMCMCNIterationsPreRunMin = 500;
 	fMCMCFlagInitialPosition  = 1;
+	fMCMCRValueUseStrict = false;
 	fMCMCRValueCriterion      = 0.1;
 	fMCMCRValueParametersCriterion = 0.1;
 	fMCMCNIterationsConvergenceGlobal = -1;
@@ -739,13 +741,13 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
 			double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints);
 			double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains);
 
-			double r = 100.0;
-
 			// check denominator and convergence
 			if (W > 0) {
-				r = sqrt( ( (1-1/double(npoints)) * W + 1/double(npoints) * B ) / W);
-				fMCMCRValueParameters[iparameters] = r;
+
+				fMCMCRValueParameters[iparameters] = MCMCCalculateRValue(
+                  fMCMCxMean, fMCMCxVar, mean, B, W, npoints, iparameters);
 				
+
 				// set flag to false if convergence criterion is not fulfilled for the parameter
 				if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
 					flag_convergence = false;
@@ -766,19 +768,27 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
 		}
 
 		// calculate r-value for log-likelihood
+
+		//target mean
 		double mean = sum / double(fMCMCNChains);
+		//variance between the sequence means
 		double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints);
+		//average of within-sequence variances
 		double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains);
-		double r = 100.0;
+//		double r = 100.0;
 
 		if (W > 0)
 		{
-			r = sqrt( ( (1-1/double(npoints)) * W + 1/double(npoints) * B ) / W);
-			fMCMCRValue = r;
 
-			// set flag to false if convergence criterion is not fulfilled for the log-likelihood
-			if (! ((fMCMCRValue-1.0) < fMCMCRValueCriterion))
-				flag_convergence = false;
+
+
+         fMCMCRValue = MCMCCalculateRValue(fMCMCprobMean, fMCMCprobVar, mean, B, W,
+               npoints);
+
+
+         // set flag to false if convergence criterion is not fulfilled for the log-likelihood
+         if (!((fMCMCRValue - 1.0) < fMCMCRValueCriterion))
+            flag_convergence = false;
 		}
 		// else: leave convergence flag true for the posterior
 
@@ -786,6 +796,69 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
 		if (fMCMCNIterationsConvergenceGlobal == -1 && flag_convergence == true)
 			fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters;
 	}
+}
+
+// --------------------------------------------------------
+double BCEngineMCMC::MCMCCalculateRValue(
+      const std::vector<double> & chainMeans,
+      const std::vector<double> & chainVariances, double mean, double B,
+      double W, int nPoints, int iParam)
+{
+   //estimated scale reduction
+   double r = 0;
+
+   //relaxed R definition
+   if (!fMCMCRValueUseStrict){
+      r = sqrt(((1 - 1 / double(nPoints)) * W + 1 / double(nPoints)
+            * B) / W);
+      return r;
+   }
+   //else: strict R value
+
+   //(co)variances of the chains
+   double varS = 0;
+   double cov1 = 0;
+   double cov2 = 0;
+
+   // loop over chains to estimate (co)variances
+   for (int i = 0; i < fMCMCNChains; ++i) {
+      //where is the i-th element? Trickier for parameters
+      int index = i;
+      if (iParam >= 0)
+         index = i * fMCMCNParameters + iParam;
+
+      varS += chainVariances[index] * chainVariances[index];
+      cov1 += (chainVariances[index] - W) * (chainMeans[index] * chainMeans[index]
+            - mean * mean);
+      cov2 += (chainVariances[index] - W) * (chainMeans[index] - mean);
+   }
+
+   //number of chains
+   double m = double(fMCMCNChains);
+
+   //number of points in each chain
+   double n = double(nPoints);
+
+   // only m-1 degrees of freedom => unbiased estimators!
+   varS = (varS / m - W * W) * m / (m - 1);
+   cov1 = cov1 / (m - 1);
+   cov2 = cov2 / (m - 1);
+
+   //scale of t-distribution
+   double V = 1 / n * ((n - 1) * W + (1 + 1 / m) * B);
+
+   //estimate of scale variance
+   double varV = (n - 1) * (n - 1) / (n * n * m) * varS + (m + 1) * (m + 1)
+         / (m * n * m * n) * 2 / (m - 1) * B * B + 2 * (m + 1) * (n - 1) / (m
+         * m * n) * (cov1 - 2 * mean * cov2);
+
+   //degrees of freedom of t-distribution
+   double df = 2 * V * V / varV;
+
+   //sqrt of estimated scale reduction if sampling were continued
+   r = sqrt(V / W * df / (df - 2));
+
+   return r;
 }
 
 // --------------------------------------------------------

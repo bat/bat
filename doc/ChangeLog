@@ -1,3 +1,8 @@
+2010-11-29 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCEngineMCMC:
+	  - included strict R value definition. By default, 
+	    the old, relaxed definition is used.
+
 2010-11-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateEnsembleTest.cxx: fixed compiler warning.
 

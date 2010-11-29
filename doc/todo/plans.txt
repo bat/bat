@@ -9,9 +9,15 @@ Nightlies       short           Allows to create patches for smaller bug
 Constraints     medium          Implement constraints among the parameters.
 
 ROOT analysis   medium          Perform analysis of MCMC tree from ROOT file. This could include
-                                a set of macros and a GUI. Nice studen project. 
+                                a set of macros and a GUI. Nice student project. 
 KDE             medium          Use Kernel Density Estimator for filling histograms as option.
                                 This goes together with the ROOT tree analysis.
+
+
+ECDF			medium			For 1 dim. marginalized distributions and all samples available,
+								it is more accurate to use the empirical cumulative to calculate
+								limits, the median etc. Even the 1D mode using the empirical PDF is 
+								easily accessible.
 
 Hybrid chains   long            Harrison Prosper brought up the topic. Looks like an 
                                 interesting extension to the Metropolis algorithm.
@@ -19,4 +25,12 @@ Hybrid chains   long            Harrison Prosper brought up the topic. Looks lik
 Sub-space int.  long            Can we implement sub-space integration into the current version?
 
 Nested sampling long            Alan Tua showed interest in implementing it. New version?
-								Interface to MultiNest? 
+								Interface to MultiNest?
+
+Parallel		nBAT			allow BAT to run in parallel, for example using one processor/chain
+								and communication with MPI. Or OpenMP for simple multicore.
+
+Resume			nBAT			Need ability to checkpoint and resume to run bigger jobs on clusters.
+								
+Rerun			nBAT			Rerun marginalization on existing posterior samples. This way the samples
+								could come from an arbitrary sampling algorithm. e.g. MultiNest

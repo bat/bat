@@ -257,6 +257,10 @@ class BCEngineMCMC
 		double MCMCGetRValueParameters(int i)
 			{ return fMCMCRValueParameters.at(i); };
 
+	    /** Use strict or relaxed rule for Gelman/Rubin R-value */
+      bool MCMCGetRValueStrict()
+         { return fMCMCRValueUseStrict; }
+
 		/*
 		 * @return the flag if MCMC has been performed or not */
 		bool MCMCGetFlagRun()
@@ -282,8 +286,10 @@ class BCEngineMCMC
 		 * @return pointer to the histogram */
 		TH2D * MCMCGetH2Marginalized(int i, int j);
 
-		/*
-		 * Return the random number generator */
+		/**
+		 * Return the random number generator.
+		 * Any  non-zero seed gives reproducible behavior,e.g.
+		 * m->MCMCGetTRandom3()->SetSeed(21340) */
 		TRandom3 * MCMCGetTRandom3()
 			{ return fRandom; };
 
@@ -393,6 +399,10 @@ class BCEngineMCMC
 		void MCMCSetRValueParametersCriterion(double r)
 			{ fMCMCRValueParametersCriterion = r; };
 
+		/** Use strict or relaxed rule for Gelman/Rubin R-value */
+		void MCMCSetRValueStrict(bool strict=true)
+		{ fMCMCRValueUseStrict = strict; }
+
 		/*
 		 * Sets the tree containing the Markov chains. */
 		void MCMCSetMarkovChainTrees(std::vector <TTree *> trees);
@@ -429,6 +439,7 @@ class BCEngineMCMC
 		/**
 		 * Set the precision for the MCMC run. */ 
 		void MCMCSetPrecision(BCEngineMCMC::Precision precision);
+
 
 		/* @} */
 		/** \name Miscellaneous methods */
@@ -493,6 +504,30 @@ class BCEngineMCMC
 		/*
 		 * Updates statistics: check convergence */
 		void MCMCInChainTestConvergenceAllChains();
+
+		/**
+		 * Calculate the R-value for a given quantity x (=param, loglikelihood...)
+		 * according to Gelman, Rubin (1992), p. 461. Using their notation.
+		 * Included DoF estimation for the t-distribution.
+		 * @param chainMeans
+		 * @param chainVariances
+		 * @param mean the average of the chain means
+		 * @param B
+		 * @param W
+		 * @param iParam flag to determing how element is found in the vectors.
+		 * Ex.: i >= 0 => index of average of x in i-th chain obtained as
+		 * i * fMCMCNParameters + iParam
+		 * i < 0 => index = i
+		 * @return the R-value
+		 *
+		 * @note There is an implementation that strictly follows the paper.
+		 * In addition, there is a simplified version. The actual
+		 * definition used is controlled by a flag, see also
+		 * MCMCSetRValueStrict .
+		 */
+		double MCMCCalculateRValue(const std::vector<double> & chainMeans,
+         const std::vector<double> & chainVariances, double mean, double B,
+         double W, int nPoints, int iParam = -1);
 
 		/*
 		 * Updates statistics: write chains to file */
@@ -755,6 +790,14 @@ class BCEngineMCMC
 		 * The variance of all log prob values of each Markov chain. The
 		 * length of the vector is equal to fMCMCNChains. */
 		std::vector <double> fMCMCprobVar;
+
+		/**
+		 * flag: use exactly the R-value definition of Gelman/Rubin (R_strict)
+		 * or a relaxed, simplified version (R_relax) [default].
+		 * Note that R_relax <= R_strict, and in some cases even
+		 * R_relax < 1, but we always have R_strict >= 1.
+		 */
+		bool fMCMCRValueUseStrict;
 
 		/*
 		 * The R-value criterion for convergence of log-likelihood*/
