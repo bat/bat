@@ -1,3 +1,8 @@
+2011-01-05 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCEngineMCMC: fix compiler warning
+	* introduction: added info on MCMC settings
+	* CreateProject: default to eps for single page plots
+
 2010-11-29 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC:
 	  - included strict R value definition. By default,
