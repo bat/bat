@@ -312,8 +312,8 @@ int main()
 //	m->PrintAllMarginalized("|:Model:|_plots.ps");
 
 	// print all summary plots
-//	summary->PrintParameterPlot("|:Model:|_parameters.ps");
-//	summary->PrintCorrelationPlot("|:Model:|_correlation.ps");
+//	summary->PrintParameterPlot("|:Model:|_parameters.eps");
+//	summary->PrintCorrelationPlot("|:Model:|_correlation.eps");
 //	summary->PrintKnowledgeUpdatePlots("|:Model:|_update.ps");
  
 	// calculate p-value

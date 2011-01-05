@@ -582,7 +582,13 @@ class BCEngineMCMC
 		 * @param accepted flag whether or not the point was accepted for the chain
 		 */
 		virtual void MCMCCurrentPointInterface(std::vector <double> & point, int ichain, bool accepted)
-			{};
+			{
+		   //suppress warnings for unused parameters
+		   //with optimization, no code should be generated
+		   (void)point;
+		   (void)ichain;
+		   (void)accepted;
+			}
 
 		/* @} */
 

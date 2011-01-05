@@ -1444,7 +1444,7 @@ offline diagnostics of the chains. The variables stored are:
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\subsection{Markov Chain settings and options}
+\subsection{ Markov Chain settings and options}
 \label{section:settings:MCMC}
 
 The most important options for the Markov Chains are listed here. For
@@ -1460,7 +1460,10 @@ further reference see the reference guide:
 \item \verb|BCModel::MCMCSetNIterationsUpdate(int n)| Sets the number
   of iterations (default: 1,000) after which the chains are updated in
   the pre-run (e.g., for the calculation of the efficiency and
-  convergence tests).
+  convergence tests). Note that if there are $k$ parameters, each changed one 
+  at a time, the actual number of posterior evaluations between 
+  two convergence checks is $\min \left(k \cdot n, 10000\right)$, where $n$ is the number of iterations in
+  which a new value of exactly one of the $k$ parameters is proposed.
 \item \verb|BCEngine::MCMCSetFlagOrderParameters(bool flag)|. Decides
   if all parameters should be varied one after each other (true) or
   all at the same time (default: true).
@@ -1527,7 +1530,7 @@ function can be found in \verb|examples/expert/TrialFunction|.\\
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\subsection{Setting and options for Simulated Annealing}
+\subsection{Settings and options for Simulated Annealing}
 \label{section:settings:SA}
 
 The most important options for the implemented Simulated Annealing
