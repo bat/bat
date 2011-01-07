@@ -84,8 +84,8 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
    int nbins = fHistogram->GetNbinsX();
    for (int i = 0; i < nbins; ++i) {
       BCDataPoint* dp = new BCDataPoint(2);
-      dp ->SetValue(0, fHistogram->GetBinLowEdge(i+1));
-      dp ->SetValue(1, fHistogram->GetBinContent(i+1));
+      dp ->SetValue(0, fHistogram->GetBinLowEdge(i + 1));
+      dp ->SetValue(1, fHistogram->GetBinContent(i + 1));
       ds->AddDataPoint(dp);
    }
 
@@ -118,10 +118,11 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::SetHistogramExpected(const std::vector <double>& parameters)
+int BCHistogramFitter::SetHistogramExpected(
+      const std::vector<double>& parameters)
 {
    //clear up previous memory
-   if(fHistogramExpected){
+   if (fHistogramExpected) {
       delete fHistogramExpected;
    }
    //copy all properties from the data histogram
@@ -170,7 +171,6 @@ int BCHistogramFitter::SetHistogramExpected(const std::vector <double>& paramete
       // but the data under this model have that sqrt(yexp) uncertainty
       fHistogram->SetBinError(ibin, sqrt(yexp));
 
-
    }
    return 1;
 }
@@ -190,7 +190,7 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
    fFitFunction = func;
 
    // update the model name to contain the function name
-   SetName(TString::Format("HistogramFitter with %s",fFitFunction->GetName()));
+   SetName(TString::Format("HistogramFitter with %s", fFitFunction->GetName()));
 
    // reset parameters
    fParameterSet->clear();
@@ -208,8 +208,8 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
       AddParameter(func->GetParName(i), xmin, xmax);
    }
 
-	// set flat prior for all parameters by default
-	SetPriorConstantAll();
+   // set flat prior for all parameters by default
+   SetPriorConstantAll();
 
    return GetNParameters();
 }
@@ -224,16 +224,16 @@ BCHistogramFitter::~BCHistogramFitter()
 // ---------------------------------------------------------
 
 /*
-double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
-{
-   // using flat probability in all parameters
-   double logprob = 0.;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      logprob -= log(GetParameter(i)->GetRangeWidth());
+ double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
+ {
+ // using flat probability in all parameters
+ double logprob = 0.;
+ for (unsigned int i = 0; i < GetNParameters(); i++)
+ logprob -= log(GetParameter(i)->GetRangeWidth());
 
-   return logprob;
-}
-*/
+ return logprob;
+ }
+ */
 
 // ---------------------------------------------------------
 
@@ -301,12 +301,14 @@ double BCHistogramFitter::LogLikelihood(std::vector<double> params)
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::FitFunction(std::vector<double> x, std::vector<double> params)
+double BCHistogramFitter::FitFunction(std::vector<double> x,
+      std::vector<double> params)
 {
    // set the parameters of the function
    fFitFunction->SetParameters(&params[0]);
 
-   return fFitFunction->Eval(x[0]) * fHistogram->GetBinWidth(fHistogram->FindBin(x[0]));
+   return fFitFunction->Eval(x[0]) * fHistogram->GetBinWidth(
+         fHistogram->FindBin(x[0]));
 }
 
 // ---------------------------------------------------------
@@ -329,7 +331,7 @@ int BCHistogramFitter::Fit(TH1D * hist, TF1 * func)
       return 0;
    }
 
-	return Fit();
+   return Fit();
 }
 
 // ---------------------------------------------------------
@@ -360,7 +362,8 @@ int BCHistogramFitter::Fit()
    if (CalculatePValueFast(GetBestFitParameters(), pvalue))
       fPValue = pvalue;
    else
-      BCLog::OutWarning("BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
+      BCLog::OutWarning(
+            "BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
 
    // print summary to screen
    PrintShortFitSummary();
@@ -383,7 +386,7 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
       return;
    }
 
-   if (!fErrorBandXY || fBestFitParameters.empty() ) {
+   if (!fErrorBandXY || fBestFitParameters.empty()) {
       BCLog::OutError("BCHistogramFitter::DrawFit : Fit not performed yet.");
       return;
    }
@@ -404,8 +407,7 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
    fHistogram->Draw(TString::Format("%ssame", opt.Data()));
 
    // draw the fit function on top
-   fGraphFitFunction
-         = GetFitFunctionGraph(GetBestFitParameters());
+   fGraphFitFunction = GetFitFunctionGraph(GetBestFitParameters());
    fGraphFitFunction->SetLineColor(kRed);
    fGraphFitFunction->SetLineWidth(2);
    fGraphFitFunction->Draw("l same");
@@ -425,18 +427,28 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
+int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
+      double &pvalue, int nIterations)
+{
+   //use NULL pointer for no callback
+   return CalculatePValueFast(par, 0, pvalue,  nIterations);
+}
 
-int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pvalue, int nIterations)
+// ---------------------------------------------------------
+int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, BCHistogramFitterToyDataInterface* callback,
+      double &pvalue,  int nIterations)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {
-      BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
+      BCLog::OutError(
+            "BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
       return 0;
    }
 
    // check if histogram exists
    if (!fHistogram) {
-      BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Histogram not defined.");
+      BCLog::OutError(
+            "BCHistogramFitter::CalculatePValueFast : Histogram not defined.");
       return 0;
    }
 
@@ -458,10 +470,10 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pval
    // define starting distribution as histogram with most likely entries
    for (int ibin = 0; ibin < nbins; ++ibin) {
 
-     // get the number of expected events
-     double yexp = fHistogramExpected->GetBinContent(ibin +1);
+      // get the number of expected events
+      double yexp = fHistogramExpected->GetBinContent(ibin + 1);
 
-     //most likely observed value = int(expected value)
+      //most likely observed value = int(expected value)
       histogram[ibin] = int(yexp);
       expectation[ibin] = yexp;
 
@@ -503,6 +515,11 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, double &pval
             }
          }
       } // end of looping over bins
+
+      //one new toy data set is created
+      //call user interface to calculate arbitrary statistic's distribution
+      if (callback)
+         (*callback)(expectation, histogram);
 
       // increase counter
       if (logp < logp_start)
@@ -559,7 +576,8 @@ int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par, double &pvalue, bool weightExpect)
+int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
+      double &pvalue, bool weightExpect)
 {
    // initialize test statistic chi^2
    double chi2 = 0.0;
@@ -599,12 +617,13 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par, doub
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par, double& pvalue)
+int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par,
+      double& pvalue)
 {
    if (!fHistogramExpected || !fHistogram) {
       BCLog::OutError("BCHistogramFitter::CalculatePValueKolmogorov: "
-            "Please define the reference distribution by calling \n"
-            "BCHistogramFitter::SetHistogramExpected() first!");
+         "Please define the reference distribution by calling \n"
+         "BCHistogramFitter::SetHistogramExpected() first!");
       return 0;
    }
 
@@ -622,7 +641,8 @@ int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par, double
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, bool lower)
+double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
+      bool lower)
 {
 
    if (parameters.empty())
@@ -666,27 +686,27 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
          return 0.0;
    }
    // what if yObs as double doesn't reprepsent a whole number? exceptioN?
-   if ((double) (unsigned int) yObs != yObs){
+   if ((double) (unsigned int) yObs != yObs) {
       BCLog::OutWarning(Form(
             "BCHistogramFitter::CDF: Histogram values should be integer!\n"
                " Bin %d = %f", index, yObs));
 
       //convert randomly to integer
       // ex. yObs = 9.785 =>
-//      yObs --> 10 with P = 78.5%
-//      yObs --> 9  with P = 21.5%
-      double U = fRandom->Rndm() ;
-      double yObsLower = (unsigned int)yObs;
-      if( U > (yObs - yObsLower) )
+      //      yObs --> 10 with P = 78.5%
+      //      yObs --> 9  with P = 21.5%
+      double U = fRandom->Rndm();
+      double yObsLower = (unsigned int) yObs;
+      if (U > (yObs - yObsLower))
          yObs = yObsLower;
       else
          yObs = yObsLower + 1;
    }
 
-//	BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
-//	BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
+   //	BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
+   //	BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 
-	return ROOT::Math::poisson_cdf((unsigned int)yObs, yExp);
+   return ROOT::Math::poisson_cdf((unsigned int) yObs, yExp);
 }
 
 // ---------------------------------------------------------

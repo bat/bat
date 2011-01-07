@@ -1,3 +1,8 @@
+2011-01-07 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCHistogramFitter: introduced interface allowing the user to
+	  use the data sets from the fast MC to calculate the distribution
+	  of an arbitrary statistic
+
 2011-01-05 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC: fix compiler warning
 	* introduction: added info on MCMC settings
