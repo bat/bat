@@ -1,3 +1,6 @@
+2011-02-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCTemplateFitter.cxx: bug fixed (efficiencies were cut off)
+
 2011-01-07 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCHistogramFitter: introduced interface allowing the user to
 	  use the data sets from the fast MC to calculate the distribution

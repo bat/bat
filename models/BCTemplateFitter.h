@@ -107,6 +107,12 @@ class BCTemplateFitter : public BCModel
 		TH1D GetHistRatio1D(int index)
 			{ return fHistRatios1D.at(index); }
 
+		TH2D* GetUncertaintyHistogramExp()
+		{ return fUncertaintyHistogramExp; }; 
+
+		TH2D* GetUncertaintyHistogramObsPosterior()
+		{ return fUncertaintyHistogramObsPosterior; }; 
+
 		/**
 		 * Return the index of a template.
 		 * @param name The template name.

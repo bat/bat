@@ -134,8 +134,7 @@ double BCTemplateFitter::TemplateEfficiency(int templatenumber, int binnumber, s
 	
 	// check that efficiency error is larger than 0
 	// add efficiency contribution from template
-	if (efferr > 0)
-		efficiency += parameters.at(effindex) * efferr;
+	efficiency += parameters.at(effindex) * efferr;
 	
 	// loop over sources of systematic uncertainties
 	for (int isyst = 0; isyst < nsyst; ++isyst) {
@@ -145,10 +144,8 @@ double BCTemplateFitter::TemplateEfficiency(int templatenumber, int binnumber, s
 		// add efficiency
 		double deff = fSystErrorHistogramContainer.at(isyst).at(templatenumber).GetBinContent(binnumber);
 		
-		// check that efficiency error is larger than 0
 		// add efficiency contribution from systematic
-		if (deff > 0)
-			efficiency += parameters.at(systindex) * deff;
+		efficiency += parameters.at(systindex) * deff;
 	}
 	
 	// make sure efficiency is between 0 and 1
