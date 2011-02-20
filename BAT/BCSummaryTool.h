@@ -100,6 +100,18 @@ class BCSummaryTool
 	int PrintCorrelationPlot(const char * filename = "correlation.eps");
 
 	/**
+	 * Draw a comparison of the prior knowledge to the posterior
+	 * knowledge for each parameter.
+	 * @return An error flag. */
+	int DrawKnowledgeUpdatePlot1D(int index, double min=0., double max=0.);
+
+	/**
+	 * Print a comparison of the prior knowledge to the posterior
+	 * knowledge for each parameter.
+	 * @return An error flag. */
+	int PrintKnowledgeUpdatePlot1D(int index, const char * filename, double min=0., double max=0.);
+
+	/**
 	 * Print a comparison of the prior knowledge to the posterior
 	 * knowledge for each parameter.
 	 * @return An error flag. */

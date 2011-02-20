@@ -561,6 +561,79 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 }
 
 // ---------------------------------------------------------
+int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, double min, double max)
+{
+	// create canvas
+	TCanvas * c = new TCanvas();
+	c->cd();
+
+	// draw
+	DrawKnowledgeUpdatePlot1D(index, min, max);
+
+	// print
+	c->Print(filename);
+
+	// no error
+	return 1;
+
+}
+
+// ---------------------------------------------------------
+int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
+{
+	// create legend
+	TLegend * legend1d = new TLegend(0.50, 0.88, 0.85, 0.99);
+	legend1d->SetBorderSize(0);
+	legend1d->SetFillColor(0);
+
+	// get histograms;
+	BCParameter * par = fModel->GetParameter(index);
+	TH1D * hist_prior = fPriorModel->GetMarginalized(par)->GetHistogram();
+	hist_prior->SetLineColor(kRed);
+	TH1D * hist_posterior = fModel->GetMarginalized(par)->GetHistogram();
+
+	legend1d->AddEntry(hist_prior, "Prior probability", "L");
+	legend1d->AddEntry(hist_posterior, "Posterior probability", "L");
+
+	// scale histogram
+	hist_prior->Scale(hist_posterior->Integral()/hist_prior->Integral());
+
+	// get maximum
+	double max_prior = hist_prior->GetMaximum();
+	double max_posterior = hist_posterior->GetMaximum();
+	double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
+
+	// plot
+	hist_prior->GetXaxis()->SetNdivisions(508);
+	hist_posterior->GetXaxis()->SetNdivisions(508);
+	// debugKK
+	if (min != max) {
+		double qmin = fModel->GetMarginalized(par)->GetQuantile(min);			
+		double qmax = fModel->GetMarginalized(par)->GetQuantile(max);			
+		hist_posterior->Draw();
+		TH1D * hist_shaded = fModel->GetMarginalized(par)->GetSubHisto(qmin,qmax,"");
+		hist_shaded->SetFillStyle(1001);
+		hist_shaded->SetFillColor(kYellow);
+		legend1d->AddEntry(hist_shaded, Form("%.0f%% - %.0f%% prob.", min*100., max*100.), "F");
+		hist_shaded->Draw("same");
+		hist_prior->Draw("SAME");
+		hist_posterior->Draw("SAME");
+	}
+	else {
+		hist_prior->Draw();
+		hist_posterior->Draw("SAME");
+	}
+
+	legend1d->Draw("SAME");
+
+	// scale axes
+	hist_prior->GetYaxis()->SetRangeUser(0.0, maxy);
+	hist_posterior->GetYaxis()->SetRangeUser(0.0, maxy);
+
+	return 1;
+}
+
+// ---------------------------------------------------------
 int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 {
 	// perform analysis
@@ -577,9 +650,9 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 	c_update->cd();
 
 	// create legend
-	TLegend * legend1d = new TLegend(0.50, 0.88, 0.85, 0.94);
-	legend1d->SetBorderSize(0);
-	legend1d->SetFillColor(0);
+	//	TLegend * legend1d = new TLegend(0.50, 0.88, 0.85, 0.94);
+	//	legend1d->SetBorderSize(0);
+	//	legend1d->SetFillColor(0);
 
 	// loop over all parameters
 	int npar = fModel->GetNParameters();
@@ -589,6 +662,7 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 		ps->NewPage();
 		c_update->cd();
 
+		/*
 		// get histograms;
 		BCParameter * par = fModel->GetParameter(i);
 		TH1D * hist_prior = fPriorModel->GetMarginalized(par)->GetHistogram();
@@ -613,13 +687,29 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 		c_update->cd();
 		hist_prior->GetXaxis()->SetNdivisions(508);
 		hist_posterior->GetXaxis()->SetNdivisions(508);
-		hist_prior->Draw();
-		hist_posterior->Draw("SAME");
+		// debugKK
+		if (min != max) {
+			double qmin = fModel->GetMarginalized(par)->GetQuantile(min);			
+			double qmax = fModel->GetMarginalized(par)->GetQuantile(max);			
+			hist_posterior->Draw("SAME");
+			TH1D * hist_shaded = fModel->GetMarginalized(par)->GetSubHisto(qmin,qmax,"");
+			hist_shaded->SetFillStyle(1001);
+			hist_shaded->SetFillColor(kYellow);
+			hist_shaded->Draw("same");
+			hist_prior->Draw("SAME");
+			hist_posterior->Draw("SAME");
+		}
+		// debugKK
+		//		hist_prior->Draw();
+		//		hist_posterior->Draw("SAME");
 		legend1d->Draw("SAME");
 
 		// scale axes
 		hist_prior->GetYaxis()->SetRangeUser(0.0, max);
 		hist_posterior->GetYaxis()->SetRangeUser(0.0, max);
+		*/
+		c_update->cd();
+		DrawKnowledgeUpdatePlot1D(i, 0., 0.);
 	}
 
 	// create legend
@@ -700,7 +790,6 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 	ps->Close();
 
 	// free memory
-	delete legend1d;
 	delete legend2d;
 	delete marker_prior;
 	delete marker_posterior;
