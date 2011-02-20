@@ -618,6 +618,7 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
 		hist_shaded->Draw("same");
 		hist_prior->Draw("SAME");
 		hist_posterior->Draw("SAME");
+		gPad->RedrawAxis();
 	}
 	else {
 		hist_prior->Draw();
