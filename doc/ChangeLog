@@ -1,3 +1,6 @@
+2011-02-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCSummaryTool.cxx: moved legend to the right in knowledge plots
+
 2011-02-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCTemplateFitter.cxx: bug fixed (efficiencies were cut off)
 

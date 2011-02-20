@@ -577,7 +577,7 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 	c_update->cd();
 
 	// create legend
-	TLegend * legend1d = new TLegend(0.15, 0.88, 0.85, 0.94);
+	TLegend * legend1d = new TLegend(0.50, 0.88, 0.85, 0.94);
 	legend1d->SetBorderSize(0);
 	legend1d->SetFillColor(0);
 
@@ -623,7 +623,7 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 	}
 
 	// create legend
-	TLegend * legend2d = new TLegend(0.15, 0.88, 0.85, 0.99);
+	TLegend * legend2d = new TLegend(0.50, 0.88, 0.85, 0.99);
 	legend2d->SetBorderSize(0);
 	legend2d->SetFillColor(0);
 
