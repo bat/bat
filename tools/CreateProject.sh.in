@@ -3,17 +3,13 @@
 MYPROJECT=$1
 MYMODEL=$2
 
-if [[ $2 == '' ]]; then
-	MYMODEL=$MYPROJECT
-fi
-
 function usage() {
 cat << EOF
-Usage: $0 <project_name> [class_name]
+Usage: $0 <project_name> [model_name]
 
-Creates a new directory <project_name> and a new model class <class_name>,
-i.e. the header and source files for the class, together with a Makefile
-for the project.
+Creates a new directory <project_name>. If a model name is specified  a new
+model class [model_name] is created, i.e. the header and source files for the
+class, together with a Makefile for the project.
 
 EOF
 }
@@ -153,7 +149,7 @@ double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
 EOF
 }
 
-function m_makefile() {
+function m_makefile1() {
 cat << EOF
 ###################################################################
 # This Makefile was created using the $0 script
@@ -257,7 +253,99 @@ print :
 EOF
 }
 
-function m_main() {
+function m_makefile2() {
+cat << EOF
+###################################################################
+# This Makefile was created using the $0 script
+# for project $MYPROJECT
+# $0 is part of Bayesian Analysis Toolkit (BAT).
+# BAT can be downloaded from http://www.mppmu.mpg.de/bat
+###################################################################
+#
+# Run 'make' to compile the program and 'make clean' to remove
+# all compiled parts and 'clean' the directory.
+#
+# You might need to adjust the CFLAGS, LIBS, and GLIBS based on
+# the BAT installation on your system. Consult the gmake manual
+# for details.
+#
+###################################################################
+
+# Root variables
+ROOTCFLAGS   := \$(shell root-config --cflags)
+ROOTLIBS     := \$(shell root-config --libs) -lMinuit
+ROOTGLIBS    := \$(shell root-config --glibs)
+
+@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+
+# compiler and flags
+CXX          = g++
+CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
+LD           = g++
+LDFLAGS      = -g -O2
+SOFLAGS      = -shared
+
+# standard commands
+RM           = rm -f
+MV           = mv
+ECHO         = echo
+CINT         = rootcint
+
+# add ROOT flags
+CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
+
+@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
+@CUBA_TRUE@GLIBS       += @CUBALIB@ -lcuba
+
+# ----------------------------------------------------------------------
+# The following definitions depend on the setup of the system where
+# the project is being compiled. If BAT is installed in the standard
+# system search path or the installation directory is defined in the
+# BATINSTALLDIR environmental variable then the lines below are correct
+# and the compilation will work
+CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
+LIBS        += \$(ROOTLIBS)  -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+GLIBS       += \$(ROOTGLIBS) -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+
+# ----------------------------------------------------------------------
+# don't change lines below unless you know what you're doing
+#
+
+CXXOBJS      = 
+EXEOBJS      =
+MYPROGS     = \\
+        run|:Project:|
+
+GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$(MYPROGS)
+
+
+# targets
+all : project
+
+%.o : %.cxx
+	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
+
+clean :
+	\$(RM) \$(GARBAGE)
+
+project : run|:Project:|.cxx 
+	\$(CXX) \$(CXXFLAGS) -c \$<
+	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o  -o run|:Project:|
+
+print :
+	echo compiler  : \$(CXX)
+	echo c++ objs  : \$(CXXOBJS)
+	echo c++ flags : \$(CXXFLAGS)
+	echo libs      : \$(LIBS)
+	echo so flags  : \$(SOFLAGS)
+
+	echo rootlibs  : \$(ROOTLIBS)
+	echo rootglibs : \$(ROOTGLIBS)
+
+EOF
+}
+
+function m_main1() {
 cat << EOF
 // ***************************************************************
 // This file was created using the $0 script
@@ -322,11 +410,48 @@ int main()
 	// print results of the analysis into a text file
 //	m->PrintResults("|:Model:|_results.txt");
 
-	// close log file
-//	BCLog::CloseLog();
-
 	delete m;
 	delete summary;
+
+	BCLog::OutSummary("Test program ran successfully");
+	BCLog::OutSummary("Exiting");
+
+	// close log file
+	BCLog::CloseLog();
+
+	return 0;
+
+}
+
+EOF
+}
+
+function m_main2() {
+cat << EOF
+// ***************************************************************
+// This file was created using the $0 script
+// for project $MYPROJECT
+// $0 is part of Bayesian Analysis Toolkit (BAT).
+// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// ***************************************************************
+
+#include <BAT/BCLog.h>
+#include <BAT/BCAux.h>
+
+int main()
+{
+
+	// set nicer style for drawing than the ROOT default
+	BCAux::SetStyle();
+
+	// open log file
+	BCLog::OpenLog("log.txt");
+	BCLog::SetLogLevel(BCLog::detail);
+
+	// perform your analysis here
+
+	// close log file
+	BCLog::CloseLog();
 
 	BCLog::OutSummary("Test program ran successfully");
 	BCLog::OutSummary("Exiting");
@@ -340,10 +465,16 @@ EOF
 
 mkdir $MYPROJECT
 
-m_header | sed -e "s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/$MYMODEL.h
-m_sourcecode | sed -e "s/|\:Model\:|/$MYMODEL/g" > $MYPROJECT/$MYMODEL.cxx
-m_makefile | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
-m_main | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
+if [[ "$2" == '' ]]; 
+    then
+    m_makefile2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
+    m_main2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
+else
+    m_header | sed -e "s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/$MYMODEL.h
+    m_sourcecode | sed -e "s/|\:Model\:|/$MYMODEL/g" > $MYPROJECT/$MYMODEL.cxx
+    m_makefile1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
+    m_main1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
+fi
 
 cat << EOF
 --------------------------------------------------------------------------

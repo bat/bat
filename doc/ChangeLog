@@ -1,3 +1,7 @@
+2011-02-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* CreatePorject.sh: modified script to allow the creation of
+	models without user-defined models.
+
 2011-02-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCSummaryTool.cxx: re-draw axes
 
