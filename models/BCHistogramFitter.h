@@ -160,7 +160,7 @@ class BCHistogramFitter : public BCModel
 
 		/**
 		 * Draw the fit in the current pad. */
-		void DrawFit(const char * options = "", bool flaglegend = false);
+		void DrawFit(const char * options = "HIST", bool flaglegend = false);
 
 		/**
 		 * Calculate the p-value using fast-MCMC and the likelihood as test statistic. The method is explained in the appendix of
