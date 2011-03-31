@@ -63,10 +63,10 @@ void BCEngineMCMC::MCMCSetValuesDefault()
 // ---------------------------------------------------------
 void BCEngineMCMC::MCMCSetValuesQuick()
 {
-	fMCMCNChains              = 1;
-	fMCMCNIterationsMax       = 1000;
+	fMCMCNChains              = 2;
+	fMCMCNIterationsMax       = 10000;
 	fMCMCNIterationsRun       = 10000;
-	fMCMCNIterationsPreRunMin = 0;
+	fMCMCNIterationsPreRunMin = 500;
 	fMCMCFlagInitialPosition  = 1;
 	fMCMCRValueUseStrict = false;
 	fMCMCRValueCriterion      = 0.1;
