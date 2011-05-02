@@ -1,26 +1,6 @@
 ToDo list:
 ----------
 
-For release 0.4.2
-=================
-Priority:    Status:   Task:                     
-------------------------------------------------------------------------------------------------
-high         done      Fix fast fitters to allow use of SetPrior*() methods (Dano)
-high         done      Fix template fitter to allow use of SetPrior*() methods (Kevin)
-high         done      Adjust interface to new Cuba version (Kevin)
-high         done      Improve installation procedure when compiling with Cuba (Dano)
-high         done      Fix efficiency fitter crash for histograms with large number of entries (Dano)
-high         done      Fix BAT configuration to be able to make dist without RooStats
-
-medium       done      Allow caching of factorials (Dano)
-medium       done      Improvements (user requests) in template fitter (Kevin)
-medium       done      allow to select Cuba algorithm (Vegas, Suave)
-medium       done      allow to tune Cuba intergation parameters (Vegas, Suave)
-medium       done      SummaryTool: triangular plots
-
-low          done      provide access to prior model in summary tool
-
-
 For later releases:
 ===================
 Priority:    Status:   Task:                     
@@ -46,7 +26,6 @@ low                    Use Kernel Density Estimator for filling histograms as op
 low                    Constraints
 low                    Sub-space integration
 
-
 Release independent:
 ====================
 Priority:    Status:   Task:                     
@@ -55,3 +34,14 @@ high                   Check/change tutorials
 
 medium                 Update introduction on R-value criterion (Fred)
 medium                 Add models page on web page
+
+Clean-up issues:
+================
+
+Update user's guide
+Add web page for "How to get started"
+Add web page for models and tools
+Add web page for published results and examples
+Add bug tracker
+Update FAQ
+Add BANFF challenge tutorial to web page

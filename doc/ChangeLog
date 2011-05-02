@@ -1,3 +1,7 @@
+2011-05-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* doc/todo.txt: updated todo list
+	* doc/plans.txt: updated plans
+
 2011-03-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx: set number of chains to 2 for quick setting.
 
