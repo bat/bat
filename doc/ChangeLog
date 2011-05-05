@@ -1,3 +1,6 @@
+2011-05-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* extras/CombinationTool: fixed definition of uncertainties
+
 2011-05-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/todo.txt: updated todo list
 	* doc/plans.txt: updated plans

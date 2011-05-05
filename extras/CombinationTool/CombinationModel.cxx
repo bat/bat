@@ -976,8 +976,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		double rms = ps->GetRMS(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
-		double errlow = mode - q16;
-		double errhigh = q84 - mode; 
+		double errlow = median - q16;
+		double errhigh = q84 - median; 
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
@@ -1025,8 +1025,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		double rms = ps->GetRMS(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
-		double errlow = mode - q16;
-		double errhigh = q84 - mode; 
+		double errlow = median - q16;
+		double errhigh = q84 - median; 
 
 		output << " ";
 		output << std::setw(15) << std::setiosflags(std::ios::left) << ps->GetName();
@@ -1067,8 +1067,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	double rms_nosyst = ps_nosyst->GetRMS(); 
 	double q16_nosyst = ps_nosyst->GetQuantile16();
 	double q84_nosyst = ps_nosyst->GetQuantile84();
-	double errlow_nosyst = mode_nosyst - q16_nosyst;
-	double errhigh_nosyst = q84_nosyst - mode_nosyst; 
+	double errlow_nosyst = median_nosyst - q16_nosyst;
+	double errhigh_nosyst = q84_nosyst - median_nosyst; 
 
 	output << " ";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << "off";
@@ -1088,8 +1088,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	double rms_syst = ps_syst->GetRMS(); 
 	double q16_syst = ps_syst->GetQuantile16();
 	double q84_syst = ps_syst->GetQuantile84();
-	double errlow_syst = mode_syst - q16_syst;
-	double errhigh_syst = q84_syst - mode_syst; 
+	double errlow_syst = median_syst - q16_syst;
+	double errhigh_syst = q84_syst - median_syst; 
 
 	output << " ";
 	output << std::setw(15) << std::setiosflags(std::ios::left) << "on";
@@ -1138,8 +1138,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		double rms = ps->GetRMS(); 
 		double q16 = ps->GetQuantile16();
 		double q84 = ps->GetQuantile84();
-		double errlow = mode - q16;
-		double errhigh = q84 - mode; 
+		double errlow = median - q16;
+		double errhigh = q84 - median; 
 		double corr = ps->GetBuffer();
 
 		output << " ";
@@ -1155,7 +1155,10 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << sqrt(rms*rms-rms_nosyst*rms_nosyst);
 		output << std::setw(15) << std::setiosflags(std::ios::left) << std::setprecision(4) << corr << std::endl;
 	}
-	output << std::endl;
+	output << std::endl << std::endl;
+
+	output << " Uncert. (low)  = median - 16% quantile " << std::endl;
+	output << " Uncert. (high) = 84% quantile - median" << std::endl;
 
 	output << std::endl;
 	output << " --------------------------------------------- " << std::endl;
