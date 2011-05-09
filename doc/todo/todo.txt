@@ -12,19 +12,13 @@ medium                 method to fix parameters
 medium                 Simplify retrieving parameter uncertainty, add histogram pointer to BCParameter and add short cuts
 medium                 Speed up FastFitters by cutting data range to TF1 range
 medium                 Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
-medium                 Allow user to set scales for MCMC 
 medium                 Perform analysis of MCMC tree from ROOT file
 medium                 ROOT: enable compiling programs with 'root BATcode.C++'
-medium                 allow to select Cuba algorithm (Divonne, Cuhre)
-medium                 allow to tune Cuba intergation parameters (Divonne, Cuhre)
 
 low                    Look into sparse histograms
-low                    Remove MCMC code from BCIntegrate
-low                    Remove ConditionalProbabilityEntry stuff
 low                    Library of common priors
 low                    Use Kernel Density Estimator for filling histograms as option
 low                    Constraints
-low                    Sub-space integration
 
 Release independent:
 ====================
@@ -46,3 +40,18 @@ Add web page for published results and examples
 Add bug tracker
 Update FAQ
 Add BANFF challenge tutorial to web page
+
+Change of interface: reference instead of copy vector 
+clean up: remove everything that is not used
+Allow user to set scales for MCMC * 
+Remove MCMC code from BCIntegrate * 
+Remove ConditionalProbabilityEntry stuff * 
+
+optional:
+allow to select Cuba algorithm (Divonne, Cuhre) (*) 
+allow to tune Cuba intergation parameters (Divonne, Cuhre) (*) 
+Sub-space integration (*)
+
+discussion:
+
+0.9 or 1.0b or 1.0?
