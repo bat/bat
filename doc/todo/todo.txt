@@ -41,6 +41,7 @@ Clean-up issues:
 Update user's guide
 Add web page for "How to get started"
 Add web page for models and tools
+Add web page for "screen shots"
 Add web page for published results and examples
 Add bug tracker
 Update FAQ
