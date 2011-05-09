@@ -29,7 +29,7 @@ high                   Check/change tutorials
 medium                 Update introduction on R-value criterion (Fred)
 medium                 Add models page on web page
 
-Clean-up issues:
+For release 1.0:
 ================
 
 Update user's guide
@@ -40,7 +40,6 @@ Add web page for published results and examples
 Add bug tracker
 Update FAQ
 Add BANFF challenge tutorial to web page
-
 Change of interface: reference instead of copy vector 
 clean up: remove everything that is not used
 Allow user to set scales for MCMC * 
@@ -49,9 +48,25 @@ Remove ConditionalProbabilityEntry stuff *
 
 optional:
 allow to select Cuba algorithm (Divonne, Cuhre) (*) 
-allow to tune Cuba intergation parameters (Divonne, Cuhre) (*) 
+allow to tune Cuba integration parameters (Divonne, Cuhre) (*) 
 Sub-space integration (*)
 
-discussion:
+Web page structure:
+===================
 
-0.9 or 1.0b or 1.0?
+* Home
+* Download
+* Documentation
+  * How to get started
+  * Screen shots
+  * Examples and published results
+  * Models and tools
+  * FAQ
+  * Tutorials
+  * Models and tools
+  * Talks and presentations
+  * Reference guide
+* Development
+  * Performance suite
+  * Bug tracker
+* Contact
