@@ -235,7 +235,7 @@ int CombinationModel::AddSystError(const char* systerrorname)
 	fSystErrorStatusContainer.push_back(true);
 
 	// add parameter
-	AddParameter(systerrorname, -5.0, 5.0);
+	AddParameter(systerrorname, -4.0, 4.0);
 
 	// add parameter index
 	fParIndexSystErrorContainer.push_back(GetNParameters()-1);
@@ -455,8 +455,19 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 	// print to screen
 	BCLog::OutSummary("Perform combination without systematics"); 
 
+	// copy flags
+	bool flagsysterrors = GetFlagSystErrors();
+	int nsyst = int(fSystErrorStatusContainer.size());
+	std::vector<bool> systerrorstatuscontainer(nsyst);
+	for (int i = 0; i < nsyst; ++i) {
+		systerrorstatuscontainer[i]=fSystErrorStatusContainer.at(i);
+	}
+
 	// set flags
-	SetFlagSystErrors(false);
+	for (int i = 0; i < nsyst; ++i) {
+		fSystErrorStatusContainer[i]=false;
+	}
+
 
 	// perform analysis
 	PerformAnalysis();
@@ -475,7 +486,9 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 	BCLog::OutSummary("Perform combination with systematics"); 
 
 	// set flags
-	SetFlagSystErrors(true);
+	for (int i = 0; i < nsyst; ++i) {
+		fSystErrorStatusContainer[i]=true;
+	}
 
 	// perform analysis
 	PerformAnalysis();
@@ -495,6 +508,11 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 
 	// set flags
 	SetFlagSystErrors(true);
+
+	// delete old summaries
+	for (int i = 0; i < int(fSummaryCombinationSingleSyst.size()); ++i) 
+		delete fSummaryCombinationSingleSyst[i]; 
+	fSummaryCombinationSingleSyst.clear(); 
 
 	// loop over all systematic uncertainties
 	int nsysterrors = GetNSystErrors();
@@ -517,6 +535,11 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 		ps->SetGlobalMode( GetBestFitParameter(0) );
 		ps->SetBuffer( GetMarginalized( GetParameter(0)->GetName().c_str(), GetParameter(fParIndexSystErrorContainer.at(k))->GetName().c_str())->GetHistogram()->GetCorrelationFactor() );
 		fSummaryCombinationSingleSyst.push_back(ps);
+	}
+
+	// loop over all systematic uncertainties and set status of syst. errors to false
+	for (int j = 0; j < nsysterrors; ++j) {
+		fSystErrorStatusContainer[j] = false;
 	}
 
 	// ---- perform single channel analysis without systematics ---- //
@@ -556,6 +579,12 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 		fSummaryChannelSyst.push_back(ps);
 	}
 
+	// reset flags
+	SetFlagSystErrors(flagsysterrors);
+	for (int i = 0; i < nsyst; ++i) {
+		fSystErrorStatusContainer[i] = systerrorstatuscontainer.at(i);
+	}
+
 	// no error 
 	return 1;
 }
@@ -575,8 +604,16 @@ ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* chan
 																									GetParameter(0)->GetUpperLimit());
 
 	// copy settings
+	model->MCMCSetNChains( MCMCGetNChains() );
 	model->MCMCSetNLag( MCMCGetNLag() );
+	model->MCMCSetNIterationsMax( MCMCGetNIterationsMax() );
 	model->MCMCSetNIterationsRun( MCMCGetNIterationsRun() );
+	model->MCMCSetNIterationsPreRunMin( MCMCGetNIterationsPreRunMin() ); 
+	model->MCMCSetNIterationsUpdate( MCMCGetNIterationsUpdate() );
+	model->MCMCSetNIterationsUpdateMax( MCMCGetNIterationsUpdateMax() );
+	model->MCMCSetRValueCriterion( MCMCGetRValueCriterion() );
+	model->MCMCSetRValueParametersCriterion( MCMCGetRValueParametersCriterion() );
+
 	model->SetFlagSystErrors(flag_syst);
 	model->AddChannel( fChannelNameContainer.at(channelindex).c_str() );
 	model->SetChannelSignalPrior( channelname, fChannelSignalPriorContainer.at(channelindex) ); 
@@ -613,6 +650,19 @@ ParameterSummary CombinationModel::PerformSingleChannelAnalysis(const char* chan
 		}
 	}
 	
+	// set default histogram binning to the one of the original model
+	for (int i = 0; i < int(model->GetNParameters()); ++i) {
+		// this construct has to go here, because otherwise there is a
+		// warning from BCEngineMCMC:: MCMCGetH1Marginalized
+		if (model->GetBestFitParameters().size() > 0){
+			BCH1D* hist = model->GetMarginalized( model->GetParameter(i) );
+			if (hist) {
+				int nbins = hist->GetHistogram()->GetNbinsX();
+				SetNbins( (model->GetParameter(i)->GetName()).c_str(), nbins);
+			}
+		}
+	}	
+
 	// perform analysis
 	model->PerformAnalysis();
 
@@ -1157,7 +1207,8 @@ int CombinationModel::PrintChannelSummary(const char* filename)
 	}
 	output << std::endl << std::endl;
 
-	output << " Uncert. (low)  = median - 16% quantile " << std::endl;
+	output << " Contribution   = sqrt(rms*rms - rms(no syst)*rms(nosyst))" << std::endl;
+	output << " Uncert. (low)  = median - 16% quantile" << std::endl;
 	output << " Uncert. (high) = 84% quantile - median" << std::endl;
 
 	output << std::endl;
