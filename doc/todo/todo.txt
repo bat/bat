@@ -13,12 +13,17 @@ medium                 Simplify retrieving parameter uncertainty, add histogram 
 medium                 Speed up FastFitters by cutting data range to TF1 range
 medium                 Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
 medium                 Perform analysis of MCMC tree from ROOT file
+medium		       get 1D limits from ECDF and tree
 medium                 ROOT: enable compiling programs with 'root BATcode.C++'
+medium		       Jeffrey's +reference prior from RooStats
+medium		       Adaptive multidimensional proposal function (see e.g. Examples of Adaptive MCMC, Roberts, G. and Rosenthal, J.; 2008)
 
 low                    Look into sparse histograms
 low                    Library of common priors
 low                    Use Kernel Density Estimator for filling histograms as option
 low                    Constraints
+low		       p-value from arbitrary test statistic for data generated with MCMC. Possible already for BCHistogramFitter
+
 
 Release independent:
 ====================
@@ -42,11 +47,17 @@ Update FAQ
 Add BANFF challenge tutorial to web page
 Change of interface: reference instead of copy vector 
 clean up: remove everything that is not used
+Check if integration correct in >3 dimensions
 Allow user to set scales for MCMC * 
 Remove MCMC code from BCIntegrate * 
 Remove ConditionalProbabilityEntry stuff * 
+option to tag parameter as nuisance and ignore nuisance in marginal distributions
+Export tested R-value calculation routine to BCMath
+Consistent (de-)allocation of resources. Make user aware that his data passed by pointers to BAT is typically not deleted by BAT.
+
 
 optional:
+use ROOT integration methods instead of slow MC for d <= 3 
 allow to select Cuba algorithm (Divonne, Cuhre) (*) 
 allow to tune Cuba integration parameters (Divonne, Cuhre) (*) 
 Sub-space integration (*)
