@@ -1,3 +1,6 @@
+2011-05-13 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* extras/CombinationTool/CombinationModel.cxx: fix bug in calculation of correlation coefficient.
+
 2011-05-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/todo.txt: updated todo list
 

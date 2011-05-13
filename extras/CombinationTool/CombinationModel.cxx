@@ -515,7 +515,7 @@ int CombinationModel::PerformFullAnalysis(int index_syst)
 		ParameterSummary* ps = new ParameterSummary(fSystErrorNameContainer.at(k).c_str());
 		ps->Summarize( GetMarginalized( GetParameter(0)->GetName().c_str() ));
 		ps->SetGlobalMode( GetBestFitParameter(0) );
-		ps->SetBuffer( GetMarginalized( GetParameter(0)->GetName().c_str(), GetParameter(1)->GetName().c_str())->GetHistogram()->GetCorrelationFactor() );
+		ps->SetBuffer( GetMarginalized( GetParameter(0)->GetName().c_str(), GetParameter(fParIndexSystErrorContainer.at(k))->GetName().c_str())->GetHistogram()->GetCorrelationFactor() );
 		fSummaryCombinationSingleSyst.push_back(ps);
 	}
 

@@ -42,7 +42,7 @@ int main()
 	//
 	model->SetFlagSystErrors(true);
 
-	int runtype = 11;
+	int runtype = 12;
 
 	if (runtype == 0) {
 		// add channel
@@ -231,17 +231,44 @@ int main()
 		model->SetSystErrorChannelSignal("syst2", "channel2", 1.0, 1.0, 0.00);
 	}
 
+	if (runtype == 12) {
+		// add channel
+		model->AddChannel("channel1");
+		model->AddChannel("channel2");
+		
+		// add channels
+		// parameters: channel name, mean value, -sigma, +sigma
+		model->SetChannelSignalPriorGauss("channel1", 6.0, 1.0, 1.0);
+		model->SetChannelSignalPriorGauss("channel2", 6.0, 1.0, 1.0);
+
+		// add systematics
+		// parameters: uncertainty, channel, -sigma, +sigma, mean
+		model->AddSystError("syst1");
+		model->SetNbins("syst1", 400); // high precision 
+		model->SetSystErrorChannelSignal("syst1", "channel1", 1.0, 1.0, -1.50);
+		model->SetSystErrorChannelSignal("syst1", "channel2", 1.0, 1.0, -1.50);
+
+		model->AddSystError("syst2");
+		model->SetNbins("syst2", 400); // high precision 
+		model->SetSystErrorChannelSignal("syst2", "channel1", 1.0, 1.0,  1.00);
+		model->SetSystErrorChannelSignal("syst2", "channel2", 1.0, 1.0,  1.00);
+	}
+
 	// ----------------------------------------------------------
 	// run analysis and plotting
 	// ----------------------------------------------------------
 
-	// perform analysis
-	model->PerformFullAnalysis();
+	// perform default analysis
 	//	model->PerformAnalysis();
 
+	// print default plots
+	//	model->PrintAllMarginalized(Form("model_plots_%i.ps", runtype));
+	//	model->PrintResults(Form("model_results_%i.txt", runtype));
+
+	// perform full analysis
+	model->PerformFullAnalysis();
+
 	// print results
-	model->PrintAllMarginalized(Form("model_plots_%i.ps", runtype));
-	model->PrintResults(Form("model_results_%i.txt", runtype));
 	model->PrintChannelOverview(Form("model_channels_%i.ps", runtype), Form("model_systematics_%i.ps", runtype));
 	model->PrintChannelSummary(Form("model_summary_%i.txt", runtype));
 
