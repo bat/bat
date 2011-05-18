@@ -845,19 +845,28 @@ manager.
 \subsubsection{Goodness-of-fit test}
 
 Once the most suitable set of parameters, $\vec{\lambda}^{*}$, for a
-given model and data set, $D$, is estimated the appropriateness of the
-model (and this choice of parameters) to describe the data can be
-calculated. Data sets, $\{ \tilde{D} \}$, are generated under the
+given model and data set, $D$, is estimated it is necessary
+to verify that the one  model under consideration 
+gives a reasonable representation of the data
+(regardless of any alternative models). To this end, one can 
+define a test statistic and calculate a $p$-value. Many more
+details on the interpretation of $p$-values and the various
+choices of test statistics for common fitting problems can be found
+in \cite{BAT_pValue}.
+
+For the most general model, this is accomplished as follows.
+Data sets, $\{ \tilde{D} \}$, are generated under the
 assumption of the model and the best-fit-parameters. A frequency
 distribution $f$ of the obtained conditional probability
 $k=p(\tilde{D}|\vec{\lambda}^{*})$ is calculated and interpreted as
-probability density. The $p$-value is defined as the probability to
+probability density. $k$ is used as the test statistic.
+The $p$-value is defined as the probability to
 find a conditional probability $p(\tilde{D}|\vec{\lambda}^{*})$ equal
 or less than that found for the original data set,
 $k_{0}=p(D|\vec{\lambda}^{*})$, i.e.
 %
 \begin{equation}
-p = \frac{1}{n} \int_{0}^{k_{0}=p(D|\vec{\lambda}^{*})} f(k) \, \mathrm{d}k \, .
+p \equiv  \int_{0}^{k_{0}=p(D|\vec{\lambda}^{*})} f(k) \, \mathrm{d}k \, .
 \end{equation}
 
 \noindent
@@ -932,8 +941,10 @@ where \verb|sigma_index| is the index of the standard deviation in
 each data point. \\
 
 \noindent
-In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|) has three
-specific choices to obtain a $p$-value: 
+In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|)
+there are the following three
+specific choices to obtain a $p$-value 
+(for details see \cite{BAT_pValue}, Sec. III.D and IV.B):
 \begin{enumerate}
  \item 
 \begin{verbatim}
@@ -942,7 +953,9 @@ int CalculatePValueFast(std::vector<double> par, double &pvalue)
 which uses a discrete Markov chain to vary the bin counts. 
 The conditional probability $k$ is then recomputed, and
 again the proportion of datasets with lower $k$ is
-reported as the $p$-value. 
+reported as the $p$-value. A more thorough explanation
+of the algorithm is given
+in the appendix of \cite{BAT_pValue}.
 \item
 \begin{verbatim}
 int CalculatePValueLikelihood(std::vector<double> par, double &pvalue)
@@ -1616,6 +1629,11 @@ guide:
 \bibitem{PDGstatistics}
 Particle Data Group, Mathematical Tools or Statistics, Monte Carlo, Group Theory, Physics Letters B, Volume 667, Issues 1-5, Review of Particle Physics, 11 September 2008, Pages 316-339, ISSN 0370-2693, DOI: 10.1016/j.physletb.2008.07.030.
 (http://www.sciencedirect.com/science/article/B6TVN-4T4VKPY-G/2/32a7641753a1a6d41124d1992263243a)
+
+\bibitem{BAT_pValue}
+F.~Beaujean and A.~Caldwell and D.~Koll{\'a}r and K.~Kr{\"o}ninger,
+``$p$-values for model evaluation'', \textit{Phys.\ Rev.\ D} {\bf 83} (2011) 
+[arxiv:1011.1674]
 
 \bibitem{Johnson_pValue}
 V.E. Johnson,  A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
