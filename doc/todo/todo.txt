@@ -39,33 +39,41 @@ medium                 Add models page on web page
 For release 1.0:
 ================
 
-Update user's guide (Kevin, everyone)
- - Consistent (de-)allocation of resources. Make user aware that his data passed by pointers to BAT is typically not deleted by BAT.
-Add web page for "How to get started" (Fred)
-Add web page for models and tools (Kevin/Dano?)
-Add web page for "screen shots" (Kevin/Dano?)
-Add web page for published results and examples (Kevin/Dano?)
-Add bug tracker (Fred)
-Update FAQ (everyone)
-Add BANFF challenge tutorial to web page (Shabnaz)
-Update tutorials (Shabanz)
-Change of interface: reference instead of copy vector (Kevin)
-clean up: remove everything that is not used (everyone)
-Check if integration correct in >3 dimensions: test suite (Jens?)
-Allow user to set scales for MCMC (Kevin will check)
-Allow user to define multivariate proposal function (Kevin)
-Remove MCMC code from BCIntegrate (Dano?)
-Remove ConditionalProbabilityEntry stuff (Dano?)
-Export tested R-value calculation routine to BCMath (Fred)
-More warning options and compiler options (Fred)
-Public/virtual methods (Shabnaz)
-Is the p-value calculator reliable (Shabnaz)
+Necessary tasks: 
 
-optional:
-use ROOT integration methods instead of slow MC for d <= 3 (Jens?)
-allow to select Cuba algorithm (Divonne, Cuhre) (Jens?) 
-allow to tune Cuba integration parameters (Divonne, Cuhre) (Jens?) 
-Sub-space integration, post-processing? (Arnulf?)
+Status:		Task:
+------------------------------------------------------------------------------------------------
+                Update user's guide (Kevin, everyone)
+                 - Consistent (de-)allocation of resources. Make user aware that his data passed by pointers to BAT is typically not deleted by BAT.
+                Add web page for "How to get started" (Fred)
+                Add web page for models and tools (Kevin/Dano?)
+                Add web page for "screen shots" (Kevin/Dano?)
+                Add web page for published results and examples (Kevin/Dano?)
+                Add bug tracker (Fred)
+                Update FAQ (everyone)
+                Add BANFF challenge tutorial to web page (Shabnaz)
+                Update tutorials (Shabanz)
+                Change of interface: reference instead of copy vector (Kevin)
+                clean up: remove everything that is not used (everyone)
+                Check if integration correct in >3 dimensions: test suite (Jens?)
+fixed           Allow user to set scales for MCMC (Kevin will check) -> yes 
+fixed           Allow user to define multivariate proposal function (Kevin) -> yes
+                Remove MCMC code from BCIntegrate (Dano?)
+                Remove ConditionalProbabilityEntry stuff (Dano?)
+                Export tested R-value calculation routine to BCMath (Fred)
+                More warning options and compiler options (Fred)
+                Public/virtual methods (Shabnaz)
+                Is the p-value calculator reliable (Shabnaz)
+                Continuous running of MCMC (Kevin)
+
+Optional tasks:
+
+Status:		Task:
+------------------------------------------------------------------------------------------------
+                use ROOT integration methods instead of slow MC for d <= 3 (Jens?)
+                allow to select Cuba algorithm (Divonne, Cuhre) (Jens?) 
+                allow to tune Cuba integration parameters (Divonne, Cuhre) (Jens?) 
+                Sub-space integration, post-processing? (Arnulf?)
 
 Web page structure:
 ===================
