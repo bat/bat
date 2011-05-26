@@ -1,4 +1,7 @@
 2011-05-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* raise version to 0.4.3.rc1
+
+2011-05-26 Daniel Kollar <daniel.kollar@cern.ch>
 	* started preparation of new release
 	* RooInterface && BATCalculator: obo Stefan Schmitz
 	  - added possibility of constructing a RooStats Markov chain
