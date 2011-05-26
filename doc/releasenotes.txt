@@ -1,9 +1,9 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.4.2
-Release date:                 2010-11-19
-Urgency:                      medium
+Release notes for version:    0.4.3
+Release date:                 2010-??-??
+Urgency:                      low
 ------------------------------------------
 
 This version contains several improvements and updates and a few bugfixes.
@@ -13,52 +13,10 @@ http://www.mppmu.mpg.de/bat/
 
 ROOT
 ----
-o Required version of ROOT is now 5.22 or later.
+o ... maybe something about the installation...
 
 
-Cuba interface
---------------
-o Required version of Cuba is now 2.0 or later.
-o Improved configuration with Cuba support. Compilation with Cuba has to
-  be explicitly requested when running configure script.
-o User can now tune Cuba integration parameters.
-
-
-Priors
-------
-o Fixed fast fitters to allow setting of priors vie SetPrior*() methods.
-o Added possibility to set prior via a histogram.
-
-
-EfficiencyFitter
-----------------
-o Plot with the fit now shows data points represented as mode + smallest 68%
-  interval by default. It is also possible to plot mean + rms and median  +
-  central 68% interval.
-o Fixed numerical instability when plotting the fit.
-
-
-TemplateFitter
---------------
-o Added possibility to use histograms with non-equal bin sizes as templates.
-o Added calculation of Chi2 with global and marginalized mode and calculation
-  of pull.
-o It is now possible to generate pseudo-data using any arbitrary set of
-  parameters, e.g. prior or posterior.
-o Templates can now be defined as TF1 objects.
-o Added some drawing options.
-o Fixed initialization of fitting and ensemble testing.
-o Updated examples.
-
-
-Math
-----
-o Caching factorial values up to 1000. Settable by the user.
-
-
-SummaryTool
------------
-o PrintCorrelationPlot() method now draws a 'triangle plot' with all available
-  1D and 2D marginalized distributions.
-o Renamed PrintKnowlegdeUpdatePlot() to PrintKnowledgeUpdatePlots().
+RooStats Interface
+------------------
+o 
 

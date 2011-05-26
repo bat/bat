@@ -106,7 +106,7 @@ void runBATCalculator()
    TVectorD BATll;   
 
    // fix upper limit of tested observed number of events
-   int obslimit = 7;
+   int obslimit = 10;
 
    obsEvents.ResizeTo(obslimit);
    BATul.ResizeTo(obslimit);
@@ -142,7 +142,7 @@ void runBATCalculator()
 
       // retrieve SimpleInterval object containing the information about the interval (this 
       // triggers the actual calculations)
-      SimpleInterval * interval = batcalc.GetInterval();
+      SimpleInterval * interval = batcalc.GetInterval1D();
 
       std::cout << "BATCalculator: 90% CL interval: [ " << interval->LowerLimit() << " - " << interval->UpperLimit() << " ] or 95% CL upper limit\n";
 
@@ -181,7 +181,7 @@ void runBATCalculator()
    mg->Draw("AC");
 
    mg->GetXaxis()->SetTitle ("# observed events");
-   mg->GetYaxis()->SetTitle("limits on signal S (size of test: 0.05)");
+   mg->GetYaxis()->SetTitle("limits on signal S (size of test: 0.1)");
    
    mg->Draw("AC");
 

@@ -1,3 +1,21 @@
+2011-05-26 Daniel Kollar <daniel.kollar@cern.ch>
+	* started preparation of new release
+	* RooInterface && BATCalculator: obo Stefan Schmitz
+	  - added possibility of constructing a RooStats Markov chain
+	    object while running BAT (activated by a switch in the constructor)
+	  - added functionality to retrieve RooStats MarkovChain and MCMCInterval
+	    objects from BATCalculator (as a byproduct this allows to construct
+		 also 2D intervals using BATCalculator. If demand for this
+		 functionality rises I will also add a way to get the 2D interval
+		 in a more direct way from BAT itself.)
+	  - added function allowing to fix the left side tail fraction
+	    of the 1D interval
+	  - renamed a few functions to improve the consistency with other
+	    RooStats classes
+	  - removed a problem with the "shortest" 1D interval if central
+	    interval had not been called before
+	  - fixed function for the adjustment of the bin numbers for variables
+
 2011-05-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/todo/todo.txt: updated todo list.
 
