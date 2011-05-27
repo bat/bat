@@ -12,7 +12,7 @@
  * \date 15.02.2010
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *

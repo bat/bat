@@ -13,7 +13,7 @@
  * provides functions to read in data from a file.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -38,34 +38,34 @@ class BCDataSet
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
-		/*
+		/**
 		 * Default constructor */
 		BCDataSet();
 
-		/*
+		/**
 		 * Default destructor */
 		virtual ~BCDataSet();
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (get) */
-		/* @{ */
+		/** @{ */
 
-		/*
+		/**
 		 * @param The vector of data points. */
 //		BCDataVector * GetDataVector();
 
-		/*
+		/**
 		 * @return The number of data points. */
 		unsigned int GetNDataPoints();
 
-		/*
+		/**
 		 * @return number of values per data point (dimension of data). */
 		unsigned int GetNValuesPerPoint();
 
-		/*
+		/**
 		 * @param index The index of the data point to be returned.
 		 * @return The data point at the index. */
 		BCDataPoint * GetDataPoint(unsigned int index);
@@ -78,10 +78,10 @@ class BCDataSet
 		std::vector<double> GetDataComponents(int index);
 
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Reads data from a file. For a description see the following
@@ -129,11 +129,11 @@ class BCDataSet
 		 * Dump the data to the standard output */
 		void Dump();
 
-		/* @} */
+		/** @} */
 
 	private:
 
-		/*
+		/**
 		 * A vector containing the data points */
 		BCDataVector * fBCDataVector;
 

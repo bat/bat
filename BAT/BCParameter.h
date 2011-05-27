@@ -12,7 +12,7 @@
  * information about the name and the range of the parameter.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -32,7 +32,7 @@ class BCParameter
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The default constructor. */
@@ -53,19 +53,19 @@ class BCParameter
 		 * The default destructor. */
 		~BCParameter();
 
-		/* @} */
+		/** @} */
 
 		/** \name Assignment operators */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The defaut assignment operator. */
 		BCParameter & operator = (const BCParameter & parameter);
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (get) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @return The name of the parameter. */
@@ -96,10 +96,10 @@ class BCParameter
 		double GetRangeWidth()
 			{ return (fUpperLimit>fLowerLimit)?fUpperLimit-fLowerLimit:fLowerLimit-fUpperLimit; };
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (set) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @param name The name of the parameter. */
@@ -138,10 +138,10 @@ class BCParameter
 		void SetNuisance(int nuisance = 1)
 			{ fNuisance = nuisance; };
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Returns 1 if parameter is a nuisance parameter or 0 if not.
@@ -158,11 +158,11 @@ class BCParameter
 		 * Prints a parameter summary on the screen. */
 		void PrintSummary();
 
-		/* @} */
+		/** @} */
 
 	private:
 
-		/*
+		/**
 		 * Copies this BCParameter into another one */
 		void Copy(BCParameter & parameter) const;
 
@@ -190,7 +190,7 @@ class BCParameter
 
 // ---------------------------------------------------------
 
-/*
+/**
  * \typedef
  * \brief A vector of pointer to BCParameter.*/
 typedef std::vector<BCParameter*> BCParameterSet;

@@ -11,7 +11,7 @@
  * \detail This class is used for calculating the p-value of a model.
  */
 
- /*
+ /**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -35,7 +35,7 @@ class BCGoFTest : public BCModel
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Default constructor.
@@ -46,45 +46,45 @@ class BCGoFTest : public BCModel
 		 * Default destructor. */
 		~BCGoFTest();
 
-		/* @} */
+		/** @} */
 		/** \name Member functions (get) */
-		/* @{ */
+		/** @{ */
 
-		/*
+		/**
 		 * Calculated the p-value.
 		 * @param flag_histogram A histogram is either filled or not.
 		 * @return p-value */
 		double GetCalculatedPValue(bool flag_histogram = false);
 
-		/*
+		/**
 		 * @return distribution of log(likelihood) */
 		TH1D * GetHistogramLogProb()
 			{ return fHistogramLogProb; };
 
-		/*
+		/**
 		 * @return pointer to the tested model */
 		BCModel * GetTestModel()
 			{ return fTestModel; };
 
-		/* @} */
+		/** @} */
 		/** \name Member functions (set) */
-		/* @{ */
+		/** @{ */
 
-		/*
+		/**
 		 * Set the model to be tested.
 		 * @param testmodel pointer to the model to be tested */
 		void SetTestModel(BCModel * testmodel)
 			{ fTestModel = testmodel; };
 
-		/*
+		/**
 		 * Sets the set of parameters which the p-values is calculated for.
 		 * @param parameters parameters
 		 * @return error code */
 		int SetTestPoint(std::vector<double> parameters);
 
-		/* @} */
+		/** @} */
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		double LogLikelihood(std::vector <double> parameters);
 
@@ -93,35 +93,35 @@ class BCGoFTest : public BCModel
 
 		void MCMCUserIterationInterface();
 
-		/* @} */
+		/** @} */
 
 	private:
 
-		/*
+		/**
 		 * A map of data points and data values. */
 		std::vector<int> fMapDataPoint;
 		std::vector<int> fMapDataValue;
 
-		/*
+		/**
 		 * Counter for the evaluation of the p-value. */
 		int fPValueBelow;
 		int fPValueAbove;
 
-		/*
+		/**
 		 * A pointer to the model which is tested. */
 		BCModel * fTestModel;
 
-		/*
+		/**
 		 * A data set used for temporary storage. */
 		BCDataSet * fTemporaryDataSet;
 
-		/*
+		/**
 		 * The log(likelihood) and its range. */
 		double fLogLikelihood;
 		double fLogLikelihoodMin;
 		double fLogLikelihoodMax;
 
-		/*
+		/**
 		 * The distribution of log(likelihood). */
 		TH1D * fHistogramLogProb;
 };

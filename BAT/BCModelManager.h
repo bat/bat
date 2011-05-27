@@ -14,7 +14,7 @@
  * probabilities is only possible with this class.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -36,7 +36,7 @@ class BCModelManager
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The default constructor. */
@@ -50,19 +50,19 @@ class BCModelManager
 		 * The default destructor. */
 		virtual ~BCModelManager();
 
-		/* @} */
+		/** @} */
 
 		/** \name Assignment operators */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The defaut assignment operator */
 		BCModelManager & operator = (const BCModelManager & modelmanager);
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (get) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @return The number of models. */
@@ -95,10 +95,10 @@ class BCModelManager
 		BCDataSet * GetDataSet()
 			{ return fDataSet; };
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (set) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Sets the data set common to all BCModels in this
@@ -209,18 +209,18 @@ class BCModelManager
 		 * particular variable */
 		void SetDataBoundaries(int index, double lowerboundary, double upperboundary);
 
-		/*
+		/**
 		 * Fixes an axis */
 		void FixDataAxis(int index, bool fixed);
 
-		/*
+		/**
 		 * Sets the number of Markov chains */
 		void SetNChains(unsigned int n);
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Adds a model to the container
@@ -287,7 +287,7 @@ class BCModelManager
 		 * combinations of two parameters for all models. */
 		void MarginalizeAll();
 
-		/*
+		/**
 		 * Flag for writing Markov chain to file */
 		void WriteMarkovChain(bool flag);
 
@@ -309,19 +309,19 @@ class BCModelManager
 		 * @param filename name of the file to write into. */
 		void PrintSummary(const char * filename=0);
 
-		/*
+		/**
 		 * Prints summaries of all files */
 		void PrintResults();
 
-		/*
+		/**
 		 * Calculates the p-value for all models. */
 		void CalculatePValue(bool flag_histogram=false);
 
-		/* @} */
+		/** @} */
 
 	private:
 
-		/*
+		/**
 		 * Copies this BCModelManager into another one */
 		void Copy(BCModelManager & modelmanager) const;
 

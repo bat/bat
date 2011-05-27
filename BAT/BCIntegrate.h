@@ -13,7 +13,7 @@
  * peak finding etc.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -48,7 +48,7 @@ class BCIntegrate : public BCEngineMCMC
    public:
 
       /** \name Enumerators */
-      /* @{ */
+      /** @{ */
 
       /**
        * An enumerator for the integration algorithm */
@@ -70,10 +70,10 @@ class BCIntegrate : public BCEngineMCMC
        * An enumerator for Cuba integration method */
       enum BCCubaMethod { kCubaVegas, kCubaSuave, kCubaDivonne, kCubaCuhre };
 
-      /* @} */
+      /** @} */
 
       /** \name Constructors and destructors */
-      /* @{ */
+      /** @{ */
 
       /**
        * The default constructor */
@@ -87,10 +87,10 @@ class BCIntegrate : public BCEngineMCMC
        * The default destructor */
       virtual ~BCIntegrate();
 
-      /* @} */
+      /** @} */
 
       /** \name Member functions (get) */
-      /* @{ */
+      /** @{ */
 
       /**
        * @return The integration method */
@@ -225,29 +225,29 @@ class BCIntegrate : public BCEngineMCMC
       double GetCubaSuaveFlatness()
          { return fCubaSuaveFlatness; }
 
-      /*
+      /**
        * @return The uncertainty in the most recent Monte Carlo integration */
       double GetError()
          { return fError; };
 
-      /*
+      /**
        * @return number of bins per dimension for the marginalized distributions */
       int GetNbins()
          { return fNbins; };
 
-      /*
+      /**
        * @return Minuit used for mode finding */
       TMinuit * GetMinuit();
 
       int GetMinuitErrorFlag()
          { return fMinuitErrorFlag; };
 
-      /*
+      /**
        * @return The ROOT tree containing the Markov chain */
       TTree * GetMarkovChainTree()
          { return fMarkovChainTree; };
 
-      /*
+      /**
        * Returns the actual point in the markov chain */
       std::vector<double> * GetMarkovChainPoint()
          { return &fXmetro1; };
@@ -272,10 +272,10 @@ class BCIntegrate : public BCEngineMCMC
       double GetSATmin()
          { return fSATmin; }
 
-      /* @} */
+      /** @} */
 
       /** \name Member functions (set) */
-      /* @{ */
+      /** @{ */
 
       void SetMinuitArlist(double * arglist)
          { fMinuitArglist[0] = arglist[0];
@@ -397,13 +397,13 @@ class BCIntegrate : public BCEngineMCMC
 //      void SetNbinsX(int n);
 //      void SetNbinsY(int n);
 
-      /*
+      /**
        * Turn on or off the filling of the error band during the MCMC run.
        * @param flag set to true for turning on the filling */
       void SetFillErrorBand(bool flag = true)
          { fFillErrorBand=flag; };
 
-      /*
+      /**
        * Turn off filling of the error band during the MCMC run.
        * This method is equivalent to SetFillErrorBand(false) */
       void UnsetFillErrorBand()
@@ -504,24 +504,24 @@ class BCIntegrate : public BCEngineMCMC
       void SetFlagWriteSAToFile(bool flag)
          { fFlagWriteSAToFile = flag; };
 
-      /*
+      /**
        * Sets the tree containing the Simulated Annealing  chain. */
       void SetSATree(TTree * tree)
          { fTreeSA = tree; };
 
-      /*
+      /**
        * Getter for the tree containing the  Simulated Annealing  chain. */
       TTree * GetSATree()
          { return fTreeSA; };
 
-      /*
+      /**
        * Initialization of the tree for the Simulated Annealing */
       void InitializeSATree();
 
-      /* @} */
+      /** @} */
 
       /** \name Member functions (miscellaneous methods) */
-      /* @{ */
+      /** @{ */
 
       /**
        * Frees the memory for integration variables */
@@ -805,7 +805,7 @@ class BCIntegrate : public BCEngineMCMC
 
       static void FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag);
 
-      /*
+      /**
        * Method executed for every iteration of the MCMC. User's code should be
        * provided via overloading in the derived class*/
       virtual void MCMCUserIterationInterface()
@@ -835,7 +835,7 @@ class BCIntegrate : public BCEngineMCMC
          { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); };
 
 
-      /* @} */
+      /** @} */
 
    protected:
 
@@ -1060,11 +1060,11 @@ class BCIntegrate : public BCEngineMCMC
        * A double containing the log likelihood value at the point fXmetro1 */
       double fMarkovChainValue;
 
-      /*
+      /**
        * Method executed for every iteration of the MCMC, overloaded from BCEngineMCMC. */
       void MCMCIterationInterface();
 
-      /*
+      /**
        * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
       void MCMCFillErrorBand();
 

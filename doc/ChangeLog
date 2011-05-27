@@ -1,9 +1,12 @@
+2011-05-28 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BC*.h: turn all method comments into doxygen format
+
 2011-05-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel.cxx/.h: added delta-function prior.
 	* BCEngineMCMC.cxx/.h: allow user to skip pre-run using a flag. Prerun will now automatically be done.
 	* doc/todo/todo.txt: updated todo list
 	* BCEngineMCMC.cxx/.h: added warning statement when prerun is not run.
-	
+
 2011-05-26 Daniel Kollar <daniel.kollar@cern.ch>
 	* raise version to 0.4.3.rc1
 

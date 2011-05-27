@@ -12,7 +12,7 @@
  * functions. It is used for marginalized distributions.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -36,7 +36,7 @@ class BCH2D
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The default constructor. */
@@ -50,9 +50,9 @@ class BCH2D
 		 * The default destructor. */
 		~BCH2D();
 
-		/* @} */
+		/** @} */
 		/** \name Member functions (get)  */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @return The 2D histogram. */
@@ -67,9 +67,9 @@ class BCH2D
 		 * @return The mode of the distribution */
 		void GetMode(double& mode);
 
-		/* @} */
+		/** @} */
 		/** \name Member functions (set)  */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Set the 2D histogram. */
@@ -82,9 +82,9 @@ class BCH2D
 		void SetGlobalMode(double mode[2])
 			{ fMode[0] = mode[0]; fMode[1] = mode[1]; fModeFlag =1; };
 
-		/* @} */
+		/** @} */
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Print 2-d histogram to file
@@ -101,12 +101,12 @@ class BCH2D
 		 * @param drawmode specify whether a marker should be drawn at the location of the mode */
 		void Draw(int options=0, bool drawmode=true);
 
-		/*
+		/**
 		 * Calculates the integral of the distribution as a function of the
 		 * height. */
 		void CalculateIntegratedHistogram();
 
-		/*
+		/**
 		 * Calculates the height below which the integrated probability has
 		 * a certain value.
 		 * @param p The integrated probability in the region below the height to be estimated. */
@@ -133,7 +133,7 @@ class BCH2D
 //		TGraph ** GetBandGraphs(TH2D * h);
 		TGraph ** GetBandGraphs(TH2D * h, int &n);
 
-		/* @} */
+		/** @} */
 
 	private:
 

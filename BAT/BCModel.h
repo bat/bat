@@ -16,7 +16,7 @@
  * this class.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -56,7 +56,7 @@ class BCModel : public BCIntegrate
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The default constructor. */
@@ -71,10 +71,10 @@ class BCModel : public BCIntegrate
 		 * The default destructor. */
 		virtual ~BCModel();
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (get) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @return The name of the model. */
@@ -128,7 +128,7 @@ class BCModel : public BCIntegrate
 		double GetDataPointUpperBoundary(unsigned int index)
 			{ return fDataPointUpperBoundaries -> GetValue(index); };
 
-		/*
+		/**
 		 * Checks if the boundaries have been defined
 		 * @return true, if the boundaries have been set, false otherwise */
 		bool GetFlagBoundaries();
@@ -234,10 +234,10 @@ class BCModel : public BCIntegrate
 
 		bool GetFixedDataAxis(unsigned int index);
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (set) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Sets the name of the model.
@@ -437,10 +437,10 @@ class BCModel : public BCIntegrate
        */
       int SetPriorConstantAll();
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Adds a parameter to the parameter set
@@ -696,7 +696,7 @@ class BCModel : public BCIntegrate
 
 		BCH1D * CalculatePValue(std::vector<double> par, bool flag_histogram=false);
 
-		/*
+		/**
 		 * @return The p-value */
 		double GetPValue()
 			{ return fPValue; };
@@ -714,19 +714,19 @@ class BCModel : public BCIntegrate
        * @param sigmaIndex component of datapoint with uncertainty */
 		std::vector<double> GetChi2Runs(int dataIndex, int sigmaIndex);
 
-		/*
+		/**
 		 * Set maximum number of iterations in the MCMC pre-run of the p-value
 		 * evaluation using MCMC */
 		void SetGoFNIterationsMax(int n)
 			{ fGoFNIterationsMax=n; };
 
-		/*
+		/**
 		 * Set number of iterations in the MCMC normal run of the p-value
 		 * evaluation using MCMC */
 		void SetGoFNIterationsRun(int n)
 			{ fGoFNIterationsRun=n; };
 
-		/*
+		/**
 		 * Set number of chains in the MCMC of the p-value
 		 * evaluation using MCMC */
 		void SetGoFNChains(int n)
@@ -777,7 +777,7 @@ class BCModel : public BCIntegrate
 		 * @return An error code. */ 
 		int ResetResults();
 
-	/* @} */
+	/** @} */
 
 	protected:
 
@@ -828,22 +828,22 @@ class BCModel : public BCIntegrate
 		* true for a discrete probability, false for continuous pdf  */
 		bool flag_discrete;
 
-		/*
+		/**
 		 * Maximum number of iterations in the MCMC pre-run of the p-value
 		 * evaluation using MCMC */
 		int fGoFNIterationsMax;
 
-		/*
+		/**
 		 * Number of iterations in the MCMC normal run of the p-value
 		 * evaluation using MCMC */
 		int fGoFNIterationsRun;
 
-		/*
+		/**
 		 * Number of chains in the MCMC of the p-value
 		 * evaluation using MCMC */
 		int fGoFNChains;
 
-		/*
+		/**
 		 * A vector of prior functions/histograms/graphs. */ 
 //		std::vector<TF1*> fPriorContainer;
 		std::vector<TNamed*> fPriorContainer;

@@ -14,7 +14,7 @@
  * The variables are organized in a vector.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -32,7 +32,7 @@ class BCDataPoint
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * A constructor.
@@ -49,10 +49,10 @@ class BCDataPoint
 		 * A destructor. */
 		~BCDataPoint();
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (get) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @param index The index of the variable.
@@ -69,10 +69,10 @@ class BCDataPoint
 		unsigned int GetNValues()
 			{ return fData.size(); };
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (set) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Set the value of a variable.
@@ -85,7 +85,7 @@ class BCDataPoint
 		 * @param values A vector of values */
 		void SetValues(std::vector <double> values);
 
-		/* @} */
+		/** @} */
 
 	private:
 

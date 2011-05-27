@@ -13,7 +13,7 @@
  * \date 15.02.2010
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -35,7 +35,7 @@ class BCSummaryTool
  public:
 
 	/** \name Constructors and destructors */
-	/* @{ */
+	/** @{ */
 
 	/**
 	 * The default constructor. */
@@ -49,18 +49,18 @@ class BCSummaryTool
 	 * The default destructor. */
 	~BCSummaryTool();
 
-	/* @} */
+	/** @} */
 	/** \name Member functions (get) */
-	/* @{ */
+	/** @{ */
 
 	/**
 	 * Retrieve pointer to the Prior model to allow for its detailed setup */
    BCSummaryPriorModel * GetPriorModel()
 	   { return fPriorModel; }
 
-	/* @} */
+	/** @} */
 	/** \name Member functions (set) */
-	/* @{ */
+	/** @{ */
 
 	/**
 	 * Set the model to be summarized.
@@ -68,9 +68,9 @@ class BCSummaryTool
 	void SetModel(BCModel * model)
 		{ fModel = model; };
 
-	/* @} */
+	/** @} */
 	/** \name Member functions (misc) */
-	/* @{ */
+	/** @{ */
 
 	/**
 	 * Calculate the marginalized distributions using the prior
@@ -137,7 +137,7 @@ class BCSummaryTool
 	 * @return An error flag. */
 	int PrintCorrelationLatex() { return 1; };
 
-	/* @} */
+	/** @} */
 
  private:
 

@@ -13,7 +13,7 @@
  * histograms and Markov chains.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -41,7 +41,7 @@ class BCModelOutput
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The default constructor. */
@@ -61,19 +61,19 @@ class BCModelOutput
 		 * The default destructor. */
 		virtual ~BCModelOutput();
 
-		/* @} */
+		/** @} */
 
 		/** \name Assignment operators */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The defaut assignment operator */
 		BCModelOutput & operator = (const BCModelOutput & modeloutput);
 
-		/* @} */
+		/** @} */
 
 		/** \name Getters */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Returns the output TTree tree.
@@ -87,10 +87,10 @@ class BCModelOutput
 		TFile * GetFile()
 			{ return fOutputFile; };
 
-		/* @} */
+		/** @} */
 
 		/** \name Setters */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Assign a BCModel to this output class.
@@ -103,10 +103,10 @@ class BCModelOutput
 		 * @param filename The filename */
 		void SetFile(const char * filename);
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Flag for writing Markov chain to file
@@ -133,7 +133,7 @@ class BCModelOutput
 		 * Closes the TFile. */
 		void Close();
 
-		/* @} */
+		/** @} */
 
 	private:
 
@@ -141,7 +141,7 @@ class BCModelOutput
 		 * Initialize the variables */
 		void Init();
 
-		/*
+		/**
 		 * Copies this BCModelOutput into another one */
 		void Copy(BCModelOutput & modeloutput) const;
 
@@ -157,12 +157,12 @@ class BCModelOutput
 		 * Pointer to the TTree containing the summary output information. */
 		TTree * fAnalysisTree;
 
-		/*
+		/**
 		 * The trees containing the Markov chains. The length of the vector
 		 * is fMCMCNChains. */
 		std::vector<TTree *> fMarkovChainTrees;
 
-		/*
+		/**
 		 * The tree for the simulated annealing. */ 
 		TTree * fTreeSA; 
 

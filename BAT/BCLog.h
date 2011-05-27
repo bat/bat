@@ -12,7 +12,7 @@
  * and into a log file
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -108,7 +108,7 @@ class BCLog
 		 * Closes the log file */
 		static void CloseLog();
 
-		/*
+		/**
 		 * Writes string to the file and screen log if the log level is equal or greater than the minimum
 		 * @param loglevelfile loglevel for the current message
 		 * @param loglevelscreen loglevel for the current message

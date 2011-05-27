@@ -12,7 +12,7 @@
  * functions. It is used for marginalized distributions.
  */
 
-/*
+/**
  * Copyright (C) 2008-2010, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
@@ -32,7 +32,7 @@ class BCH1D
 	public:
 
 		/** \name Constructors and destructors */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * The default constructor. */
@@ -47,10 +47,10 @@ class BCH1D
 		 * The default destructor. */
 		~BCH1D();
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (get)  */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * @return The one-dimensional histogram. */
@@ -105,10 +105,10 @@ class BCH1D
 		 * @return The p-value. */
 		double GetPValue(double probability);
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (set)  */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Sets the histogram. */
@@ -125,10 +125,10 @@ class BCH1D
 		void SetGlobalMode(double mode)
 			{ fMode=mode; fModeFlag=1; };
 
-		/* @} */
+		/** @} */
 
 		/** \name Member functions (miscellaneous methods) */
-		/* @{ */
+		/** @{ */
 
 		/**
 		 * Print distribution into a PostScript file.
@@ -208,7 +208,7 @@ class BCH1D
 		 * @return new histogram which is nonzero only between min and max */
 		TH1D * GetSubHisto(double min, double max, const char * name);
 
-		/* @} */
+		/** @} */
 
 	private:
 
