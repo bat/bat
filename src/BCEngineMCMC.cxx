@@ -1271,6 +1271,8 @@ int BCEngineMCMC::MCMCMetropolis()
 	// check if prerun should be performed
 	if (fMCMCFlagPreRun)
 		MCMCMetropolisPreRun();
+	else 
+		BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Not running prerun. This can cause trouble if the data have changed.");
 
 	// print to screen
 	BCLog::OutSummary( "Run Metropolis MCMC...");
