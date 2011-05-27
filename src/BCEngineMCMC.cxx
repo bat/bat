@@ -47,7 +47,7 @@ void BCEngineMCMC::MCMCSetValuesDefault()
 	fMCMCNParameters          = 0;
 	fMCMCFlagWriteChainToFile = false;
 	fMCMCFlagWritePreRunToFile = false;
-	fMCMCFlagPreRun           = false;
+	fMCMCFlagPreRun           = true;
 	fMCMCFlagRun              = false;
 	fMCMCFlagFillHistograms   = true;
 	fMCMCEfficiencyMin        = 0.15;
@@ -1255,9 +1255,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 	// reset flag
 	fMCMCFlagWriteChainToFile = tempflag_writetofile;
 
-	// set pre-run flag
-	fMCMCFlagPreRun = true;
-
 	// reset current iteration
 	fMCMCCurrentIteration = -1;
 
@@ -1271,8 +1268,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 // --------------------------------------------------------
 int BCEngineMCMC::MCMCMetropolis()
 {
-	// check if prerun has been performed
-	if (!fMCMCFlagPreRun)
+	// check if prerun should be performed
+	if (fMCMCFlagPreRun)
 		MCMCMetropolisPreRun();
 
 	// print to screen
@@ -1406,10 +1403,6 @@ int BCEngineMCMC::MCMCMetropolis()
 	// reset current chain
 	fMCMCCurrentChain = -1;
 
-	// set flags
-//	fMCMCFlagPreRun = false;
-	fMCMCFlagRun = true;
-
 	return 1;
 }
 
@@ -1509,7 +1502,7 @@ int BCEngineMCMC::MCMCResetResults()
 	fMCMCH2Marginalized.clear();
 
 	// reset flags
-  	fMCMCFlagPreRun = false;
+	fMCMCFlagPreRun = true;
 	fMCMCFlagRun = false;
 	fMCMCFlagConvergenceGlobal = false;
 

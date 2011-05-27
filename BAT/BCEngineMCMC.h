@@ -389,6 +389,10 @@ class BCEngineMCMC
 		/* Sets the flag for a single parameter to either fill histograms or not. */
 		void MCMCSetFlagFillHistograms(int index, bool flag);
 
+		/* Sets the flag if a prerun should be performed or not. */
+		void MCMCSetFlagPreRun(bool flag) 
+		{ fMCMCFlagPreRun = flag; }; 
+
 		/*
 		 * Sets the R-value criterion for convergence of all chains. */
 		void MCMCSetRValueCriterion(double r)
@@ -702,7 +706,7 @@ class BCEngineMCMC
 		std::vector <double> fMCMCTrialFunctionScaleFactorStart;
 
 		/*
-		 * Defines if a prerun has been performed or not */
+		 * Defines if a prerun should be performed or not */
 		bool fMCMCFlagPreRun;
 
 		/*
