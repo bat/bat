@@ -1,3 +1,6 @@
+2011-05-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel.cxx/.h: added delta-function prior.
+
 2011-05-26 Daniel Kollar <daniel.kollar@cern.ch>
 	* raise version to 0.4.3.rc1
 

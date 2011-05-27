@@ -857,7 +857,7 @@ int BCModel::MarginalizeAll()
    }
 
    MCMCMetropolis();
-   FindModeMCMC();
+	 //   FindModeMCMC();
 
    //   PrintResults(Form("%s.txt", GetName().data()));
 
@@ -1732,6 +1732,29 @@ int BCModel::SetPrior(const char * name, TF1 * f)
 
    // set prior
    return SetPrior(index, f);
+}
+
+// ---------------------------------------------------------
+int BCModel::SetPriorDelta(int index, double value)
+{
+	// set range to value
+	SetParameterRange(index, value, value);
+
+	// set prior
+	return SetPriorConstant(index);
+}
+
+// ---------------------------------------------------------
+int BCModel::SetPriorDelta(const char* name, double value)
+{
+  // find index
+   int index = -1;
+   for (unsigned int i = 0; i < GetNParameters(); i++)
+      if (name == GetParameter(i)->GetName())
+        index = i;
+
+	// set prior
+	 return SetPriorDelta(index, value);
 }
 
 // ---------------------------------------------------------

@@ -338,6 +338,26 @@ class BCModel : public BCIntegrate
 		int SetPrior(const char* name, TF1* f); 
 
 		/**
+		 * Set delta-function prior for a parameter. Note: this sets the
+		 * parameter range to the specified value. The old parameter range
+		 * is lost.
+ 		 * @param index The parameter index
+		 * @param value The position of the delta function.
+		 * @return An error code.
+		 */ 
+		int SetPriorDelta(int index, double value); 
+
+		/**
+		 * Set delta-function prior for a parameter. Note: this sets the
+		 * parameter range to the specified value. The old parameter range
+		 * is lost.
+		 * @param name The parameter name
+		 * @param value The position of the delta function.
+		 * @return An error code.
+		 */ 
+		int SetPriorDelta(const char* name, double value); 
+
+		/**
 		 * Set Gaussian prior for a parameter. 
 		 * @param index The parameter index
 		 * @param mean The mean of the Gaussian
