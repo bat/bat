@@ -19,7 +19,6 @@ medium                 Jeffrey's +reference prior from RooStats
 medium                 Adaptive multidimensional proposal function (see e.g. Examples of Adaptive MCMC, Roberts, G. and Rosenthal, J.; 2008)
 medium                 option to tag parameter as nuisance and ignore nuisance in marginal distributions
 
-
 low                    Look into sparse histograms
 low                    Library of common priors
 low                    Use Kernel Density Estimator for filling histograms as option
@@ -64,8 +63,8 @@ fixed           Allow user to define multivariate proposal function (Kevin) -> y
                 More warning options and compiler options (Fred)
                 Public/virtual methods (Shabnaz)
                 Is the p-value calculator reliable (Shabnaz)
-                Continuous running of MCMC (Kevin)
-                Delta-function priors (Kevin)
+fixed           Continuous running of MCMC (Kevin)
+fixed           Delta-function priors (Kevin)
 
 Optional tasks:
 
