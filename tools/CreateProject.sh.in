@@ -52,7 +52,7 @@ class |:Model:| : public BCModel
 		void DefineParameters();
 		double LogAPrioriProbability(std::vector <double> parameters);
 		double LogLikelihood(std::vector <double> parameters);
-    // void MCMCIterationInterface(); 
+		// void MCMCIterationInterface();
 };
 // ---------------------------------------------------------
 
@@ -76,14 +76,14 @@ cat << EOF
 
 // ---------------------------------------------------------
 |:Model:|::|:Model:|() : BCModel()
-{  
+{
 	// default constructor
 	DefineParameters();
 };
 
 // ---------------------------------------------------------
 |:Model:|::|:Model:|(const char * name) : BCModel(name)
-{ 
+{
 	// constructor
 	DefineParameters();
 };
@@ -137,7 +137,7 @@ double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
 //	double x = parameters.at(0);
 //	double y = parameters.at(1);
 
-//	double dx = GetParameter(0)->GetRangeWidth(); 
+//	double dx = GetParameter(0)->GetRangeWidth();
 
 //	logprob += log(1./dx);                    // flat prior for x
 //	logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
@@ -172,7 +172,7 @@ ROOTCFLAGS   := \$(shell root-config --cflags)
 ROOTLIBS     := \$(shell root-config --libs) -lMinuit
 ROOTGLIBS    := \$(shell root-config --glibs)
 
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
 CXX          = g++
@@ -328,7 +328,7 @@ all : project
 clean :
 	\$(RM) \$(GARBAGE)
 
-project : run|:Project:|.cxx 
+project : run|:Project:|.cxx
 	\$(CXX) \$(CXXFLAGS) -c \$<
 	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o  -o run|:Project:|
 
@@ -465,8 +465,7 @@ EOF
 
 mkdir $MYPROJECT
 
-if [[ "$2" == '' ]]; 
-    then
+if [[ "$2" == '' ]]; then
     m_makefile2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
     m_main2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
 else

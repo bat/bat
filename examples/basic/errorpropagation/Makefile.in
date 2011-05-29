@@ -18,7 +18,7 @@ ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs) -lMinuit
 ROOTGLIBS    := $(shell root-config --glibs)
 
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
 CXX          = g++

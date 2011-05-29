@@ -6,7 +6,7 @@
 # You might need to adjust the CFLAGS, LIBS, and GLIBS based on
 # the BAT installation on your system. Consult the gmake manual
 # for details.
-# 
+#
 ###################################################################
 
 # Root variables
@@ -15,7 +15,7 @@ ROOTLIBS     := $(shell root-config --libs) -lMinuit
 ROOTGLIBS    := $(shell root-config --glibs)
 
 # This program needs RooFit and RooStats, otherwise it won't compile
-ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # Programs
 CXX          = g++
