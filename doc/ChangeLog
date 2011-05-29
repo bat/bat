@@ -1,3 +1,9 @@
+2011-05-29 Daniel Kollar <daniel.kollar@cern.ch>
+	* examples and CreateProject.sh:
+	  - added CXXFLAGS and LDFLAGS setting specified at ./configure
+	    (if any) to all makefiles -> this fixes linking problems
+	    for 32 bits on 64 bit architectures
+
 2011-05-28 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BC*.h: turn all method comments into doxygen format
 
