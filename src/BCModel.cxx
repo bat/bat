@@ -104,6 +104,54 @@ BCModel::BCModel()
 }
 
 // ---------------------------------------------------------
+BCModel::BCModel(const BCModel & bcmodel) : BCIntegrate(bcmodel)
+{
+	fIndex                           = bcmodel.fIndex;
+	fName                            = bcmodel.fName;
+	fModelAPriori                    = bcmodel.fModelAPriori;
+	fModelAPosteriori                = bcmodel.fModelAPosteriori;
+	for (int i = 0; i < int(bcmodel.fParameterSet->size()); ++i) {
+		if (bcmodel.fParameterSet->at(i)) {
+			fParameterSet->push_back(new BCParameter(*(bcmodel.fParameterSet->at(i)))); 
+
+		}
+		else
+			fParameterSet->push_back(0);
+	}
+	if (fDataSet)
+		fDataSet = bcmodel.fDataSet;
+	else
+		fDataSet = 0;
+	if (bcmodel.fNDataPointsMinimum)
+		fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
+	else
+		fNDataPointsMinimum = 0;
+	if (bcmodel.fNDataPointsMaximum)
+		fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
+	else
+		fNDataPointsMaximum = 0;
+	flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
+	fPValue                          = bcmodel.fPValue;
+	fChi2NDoF                        = bcmodel.fChi2NDoF;
+	fPValueNDoF                      = bcmodel.fPValueNDoF;
+	flag_discrete                    = bcmodel.flag_discrete;
+	fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
+	fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
+	fGoFNChains                      = bcmodel.fGoFNChains;
+	for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
+		if (bcmodel.fPriorContainer.at(i))
+			fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
+		else
+			fPriorContainer.push_back(0);
+	}
+	fPriorConstantAll                = bcmodel.fPriorConstantAll;
+	fPriorConstantValue              = bcmodel.fPriorConstantValue;
+	fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
+	fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
+	fNormalization                   = bcmodel.fNormalization;
+}
+
+// ---------------------------------------------------------
 BCModel::~BCModel()
 {
 	for (unsigned int i = 0; i < GetNParameters(); ++i) 
@@ -114,6 +162,58 @@ BCModel::~BCModel()
 
    delete fDataPointLowerBoundaries;
    delete fDataPointUpperBoundaries;
+}
+
+// ---------------------------------------------------------
+BCModel & BCModel::operator = (const BCModel & bcmodel)
+{
+	BCIntegrate::operator=(bcmodel);
+	fIndex                           = bcmodel.fIndex;
+	fName                            = bcmodel.fName;
+	fModelAPriori                    = bcmodel.fModelAPriori;
+	fModelAPosteriori                = bcmodel.fModelAPosteriori;
+	for (int i = 0; i < int(bcmodel.fParameterSet->size()); ++i) {
+		if (bcmodel.fParameterSet->at(i)) {
+			fParameterSet->push_back(new BCParameter(*(bcmodel.fParameterSet->at(i)))); 
+
+		}
+		else
+			fParameterSet->push_back(0);
+	}
+	if (fDataSet)
+		fDataSet = bcmodel.fDataSet;
+	else
+		fDataSet = 0;
+	if (bcmodel.fNDataPointsMinimum)
+		fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
+	else
+		fNDataPointsMinimum = 0;
+	if (bcmodel.fNDataPointsMaximum)
+		fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
+	else
+		fNDataPointsMaximum = 0;
+	flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
+	fPValue                          = bcmodel.fPValue;
+	fChi2NDoF                        = bcmodel.fChi2NDoF;
+	fPValueNDoF                      = bcmodel.fPValueNDoF;
+	flag_discrete                    = bcmodel.flag_discrete;
+	fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
+	fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
+	fGoFNChains                      = bcmodel.fGoFNChains;
+	for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
+		if (bcmodel.fPriorContainer.at(i))
+			fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
+		else
+			fPriorContainer.push_back(0);
+	}
+	fPriorConstantAll                = bcmodel.fPriorConstantAll;
+	fPriorConstantValue              = bcmodel.fPriorConstantValue;
+	fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
+	fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
+	fNormalization                   = bcmodel.fNormalization;
+
+	// return this
+	return *this;
 }
 
 // ---------------------------------------------------------

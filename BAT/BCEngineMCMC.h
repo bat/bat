@@ -47,15 +47,15 @@ class BCEngineMCMC
 	/** \name Constructors and destructors */
 	/** @{ */
 	
-		/**
-		 * Default constructor. */
-		BCEngineMCMC();
-
-		/**
-		 * Constructor.
-		 * @param n number of chains */
-		BCEngineMCMC(int n);
-
+	/**
+	 * Default constructor. */
+	BCEngineMCMC();
+	
+	/**
+	 * Constructor.
+	 * @param n number of chains */
+	BCEngineMCMC(int n);
+	
 		/**
 		 * Default copy constructor. */
 		BCEngineMCMC(const BCEngineMCMC & enginemcmc);
@@ -597,10 +597,6 @@ class BCEngineMCMC
 		/** @} */
 
 	private:
-
-		/**
-		 * Copies this BCEngineMCMC into another one. */
-		void Copy(BCEngineMCMC & enginemcmc) const;
 
 		/**
 		 * Defines a type of a pointer to a member function. */

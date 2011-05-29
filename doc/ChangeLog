@@ -1,3 +1,11 @@
+2011-05-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx/.h: added copy constructor
+	* BCIntegrate.cxx/.h: added copy constructor
+	* BCModel.cxx/.h: added copy constructor
+	* BCDataSet.cxx/.h: added copy constructor
+	* BCDataPoint.cxx/.h: added copy constructor
+	* BCParameter.cxx/.h: added copy constructor
+
 2011-05-29 Daniel Kollar <daniel.kollar@cern.ch>
 	* examples and CreateProject.sh:
 	  - added -lMathMore to all makefiles to fix compiling/linking

@@ -45,7 +45,7 @@ class TTree;
 class BCIntegrate : public BCEngineMCMC
 {
 
-   public:
+ public:
 
       /** \name Enumerators */
       /** @{ */
@@ -84,11 +84,22 @@ class BCIntegrate : public BCEngineMCMC
       BCIntegrate(BCParameterSet * par);
 
       /**
+       * The copy constructor */
+      BCIntegrate(const BCIntegrate & bcintegrate);
+
+      /**
        * The default destructor */
       virtual ~BCIntegrate();
 
-      /** @} */
+			/** @} */
+			/** \name Assignment operators */
+			/** @{ */
+			
+			/**
+			 * Defaut assignment operator */
+			BCIntegrate & operator = (const BCIntegrate & bcintegrate);
 
+			/** @} */
       /** \name Member functions (get) */
       /** @{ */
 

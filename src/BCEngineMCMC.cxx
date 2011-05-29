@@ -10,7 +10,6 @@
 #include "BAT/BCEngineMCMC.h"
 
 #include "BAT/BCParameter.h"
-#include "BAT/BCDataPoint.h"
 #include "BAT/BCLog.h"
 
 #include <TH1D.h>
@@ -183,17 +182,158 @@ BCEngineMCMC::~BCEngineMCMC()
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC & enginemcmc)
 {
-	enginemcmc.Copy(*this);
+	fMCMCPointerToGetProposalPoint = enginemcmc.fMCMCPointerToGetProposalPoint;
+	fMCMCNParameters           = enginemcmc.fMCMCNParameters;
+	fMCMCBoundaryMin           = enginemcmc.fMCMCBoundaryMin;
+	fMCMCBoundaryMax           = enginemcmc.fMCMCBoundaryMax; 
+	fMCMCFlagsFillHistograms   = enginemcmc.fMCMCFlagsFillHistograms;
+	fMCMCNChains               = enginemcmc.fMCMCNChains;
+	fMCMCNLag                  = enginemcmc.fMCMCNLag;
+	fMCMCNIterations           = enginemcmc.fMCMCNIterations;
+	fMCMCCurrentIteration      = enginemcmc.fMCMCCurrentIteration;
+	fMCMCCurrentChain          = enginemcmc.fMCMCCurrentChain;
+	fMCMCNIterationsUpdate     = enginemcmc.fMCMCNIterationsUpdate;
+	fMCMCNIterationsUpdateMax  = enginemcmc.fMCMCNIterationsUpdateMax;
+	fMCMCNIterationsConvergenceGlobal = enginemcmc.fMCMCNIterationsConvergenceGlobal;
+	fMCMCFlagConvergenceGlobal = enginemcmc.fMCMCFlagConvergenceGlobal;
+	fMCMCNIterationsMax        = enginemcmc.fMCMCNIterationsMax;
+	fMCMCNIterationsRun        = enginemcmc.fMCMCNIterationsRun; 
+	fMCMCNIterationsPreRunMin  = enginemcmc.fMCMCNIterationsPreRunMin; 
+	fMCMCNTrialsTrue           = enginemcmc.fMCMCNTrialsTrue;
+	fMCMCNTrialsFalse          = enginemcmc.fMCMCNTrialsFalse;
+	fMCMCFlagWriteChainToFile  = enginemcmc.fMCMCFlagWriteChainToFile;
+	fMCMCFlagWritePreRunToFile = enginemcmc.fMCMCFlagWritePreRunToFile;
+	fMCMCTrialFunctionScaleFactor = enginemcmc.fMCMCTrialFunctionScaleFactor;
+	fMCMCTrialFunctionScaleFactorStart = enginemcmc.fMCMCTrialFunctionScaleFactorStart;
+	fMCMCFlagPreRun            = enginemcmc.fMCMCFlagPreRun;
+	fMCMCFlagRun               = enginemcmc.fMCMCFlagRun;
+	fMCMCInitialPosition       = enginemcmc.fMCMCInitialPosition;
+	fMCMCEfficiencyMin         = enginemcmc.fMCMCEfficiencyMin;
+	fMCMCEfficiencyMax         = enginemcmc.fMCMCEfficiencyMax;
+	fMCMCFlagInitialPosition   = enginemcmc.fMCMCFlagInitialPosition;
+	fMCMCFlagOrderParameters   = enginemcmc.fMCMCFlagOrderParameters;
+	fMCMCFlagFillHistograms    = enginemcmc.fMCMCFlagFillHistograms;
+	fMCMCPhase                 = enginemcmc.fMCMCPhase;
+	fMCMCCycle                 = enginemcmc.fMCMCCycle;
+	fMCMCx                     = enginemcmc.fMCMCx;
+	fMCMCxMax                  = enginemcmc.fMCMCxMax;
+	fMCMCxMean                 = enginemcmc.fMCMCxMean; 
+	fMCMCxVar                  = enginemcmc.fMCMCxVar;
+	fMCMCxLocal                = enginemcmc.fMCMCxLocal;
+	fMCMCprob                  = enginemcmc.fMCMCprob;
+	fMCMCprobMax               = enginemcmc.fMCMCprobMax;
+	fMCMCprobMean              = enginemcmc.fMCMCprobMean;
+	fMCMCprobVar               = enginemcmc.fMCMCprobVar;
+	fMCMCRValueUseStrict       = enginemcmc.fMCMCRValueUseStrict;
+	fMCMCRValueCriterion       = enginemcmc.fMCMCRValueCriterion ;
+	fMCMCRValueParametersCriterion = enginemcmc.fMCMCRValueParametersCriterion;
+	fMCMCRValue                = enginemcmc.fMCMCRValue;
+	fMCMCRValueParameters      = enginemcmc.fMCMCRValueParameters;
+	if (enginemcmc.fRandom)
+		fRandom = new TRandom3(*enginemcmc.fRandom);
+	else
+		fRandom = 0;
+	fMCMCH1NBins               = enginemcmc.fMCMCH1NBins;
+
+	for (int i = 0; i < int(enginemcmc.fMCMCH1Marginalized.size()); ++i) {
+		if (enginemcmc.fMCMCH1Marginalized.at(i))
+			fMCMCH1Marginalized.push_back(new TH1D(*(enginemcmc.fMCMCH1Marginalized.at(i)))); 
+		else 
+			fMCMCH1Marginalized.push_back(0);
+	}
+
+	for (int i = 0; i < int(enginemcmc.fMCMCH2Marginalized.size()); ++i) {
+		if (enginemcmc.fMCMCH2Marginalized.at(i))
+			fMCMCH2Marginalized.push_back(new TH2D(*(enginemcmc.fMCMCH2Marginalized.at(i)))); 
+		else
+			fMCMCH2Marginalized.push_back(0);
+	}
+
+	for (int i = 0; i < int(enginemcmc.fMCMCTrees.size()); ++i) {
+		// debugKK
+		fMCMCTrees.push_back(0);
+	}
 }
 
 // ---------------------------------------------------------
 BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 {
-	if (this != &enginemcmc)
-		enginemcmc.Copy(* this);
+	fMCMCPointerToGetProposalPoint = enginemcmc.fMCMCPointerToGetProposalPoint;
+	fMCMCNParameters           = enginemcmc.fMCMCNParameters;
+	fMCMCBoundaryMin           = enginemcmc.fMCMCBoundaryMin;
+	fMCMCBoundaryMax           = enginemcmc.fMCMCBoundaryMax; 
+	fMCMCFlagsFillHistograms   = enginemcmc.fMCMCFlagsFillHistograms;
+	fMCMCNChains               = enginemcmc.fMCMCNChains;
+	fMCMCNLag                  = enginemcmc.fMCMCNLag;
+	fMCMCNIterations           = enginemcmc.fMCMCNIterations;
+	fMCMCCurrentIteration      = enginemcmc.fMCMCCurrentIteration;
+	fMCMCCurrentChain          = enginemcmc.fMCMCCurrentChain;
+	fMCMCNIterationsUpdate     = enginemcmc.fMCMCNIterationsUpdate;
+	fMCMCNIterationsUpdateMax  = enginemcmc.fMCMCNIterationsUpdateMax;
+	fMCMCNIterationsConvergenceGlobal = enginemcmc.fMCMCNIterationsConvergenceGlobal;
+	fMCMCFlagConvergenceGlobal = enginemcmc.fMCMCFlagConvergenceGlobal;
+	fMCMCNIterationsMax        = enginemcmc.fMCMCNIterationsMax;
+	fMCMCNIterationsRun        = enginemcmc.fMCMCNIterationsRun; 
+	fMCMCNIterationsPreRunMin  = enginemcmc.fMCMCNIterationsPreRunMin; 
+	fMCMCNTrialsTrue           = enginemcmc.fMCMCNTrialsTrue;
+	fMCMCNTrialsFalse          = enginemcmc.fMCMCNTrialsFalse;
+	fMCMCFlagWriteChainToFile  = enginemcmc.fMCMCFlagWriteChainToFile;
+	fMCMCFlagWritePreRunToFile = enginemcmc.fMCMCFlagWritePreRunToFile;
+	fMCMCTrialFunctionScaleFactor = enginemcmc.fMCMCTrialFunctionScaleFactor;
+	fMCMCTrialFunctionScaleFactorStart = enginemcmc.fMCMCTrialFunctionScaleFactorStart;
+	fMCMCFlagPreRun            = enginemcmc.fMCMCFlagPreRun;
+	fMCMCFlagRun               = enginemcmc.fMCMCFlagRun;
+	fMCMCInitialPosition       = enginemcmc.fMCMCInitialPosition;
+	fMCMCEfficiencyMin         = enginemcmc.fMCMCEfficiencyMin;
+	fMCMCEfficiencyMax         = enginemcmc.fMCMCEfficiencyMax;
+	fMCMCFlagInitialPosition   = enginemcmc.fMCMCFlagInitialPosition;
+	fMCMCFlagOrderParameters   = enginemcmc.fMCMCFlagOrderParameters;
+	fMCMCFlagFillHistograms    = enginemcmc.fMCMCFlagFillHistograms;
+	fMCMCPhase                 = enginemcmc.fMCMCPhase;
+	fMCMCCycle                 = enginemcmc.fMCMCCycle;
+	fMCMCx                     = enginemcmc.fMCMCx;
+	fMCMCxMax                  = enginemcmc.fMCMCxMax;
+	fMCMCxMean                 = enginemcmc.fMCMCxMean; 
+	fMCMCxVar                  = enginemcmc.fMCMCxVar;
+	fMCMCxLocal                = enginemcmc.fMCMCxLocal;
+	fMCMCprob                  = enginemcmc.fMCMCprob;
+	fMCMCprobMax               = enginemcmc.fMCMCprobMax;
+	fMCMCprobMean              = enginemcmc.fMCMCprobMean;
+	fMCMCprobVar               = enginemcmc.fMCMCprobVar;
+	fMCMCRValueUseStrict       = enginemcmc.fMCMCRValueUseStrict;
+	fMCMCRValueCriterion       = enginemcmc.fMCMCRValueCriterion ;
+	fMCMCRValueParametersCriterion = enginemcmc.fMCMCRValueParametersCriterion;
+	fMCMCRValue                = enginemcmc.fMCMCRValue;
+	fMCMCRValueParameters      = enginemcmc.fMCMCRValueParameters;
+	if (enginemcmc.fRandom)
+		fRandom = new TRandom3(*enginemcmc.fRandom);
+	else
+		fRandom = 0;
+	fMCMCH1NBins               = enginemcmc.fMCMCH1NBins;
 
-	return * this;
+	for (int i = 0; i < int(enginemcmc.fMCMCH1Marginalized.size()); ++i) {
+		if (enginemcmc.fMCMCH1Marginalized.at(i))
+			fMCMCH1Marginalized.push_back(new TH1D(*(enginemcmc.fMCMCH1Marginalized.at(i)))); 
+		else 
+			fMCMCH1Marginalized.push_back(0);
+	}
+
+	for (int i = 0; i < int(enginemcmc.fMCMCH2Marginalized.size()); ++i) {
+		if (enginemcmc.fMCMCH2Marginalized.at(i))
+			fMCMCH2Marginalized.push_back(new TH2D(*(enginemcmc.fMCMCH2Marginalized.at(i)))); 
+		else
+			fMCMCH2Marginalized.push_back(0);
+	}
+
+	for (int i = 0; i < int(enginemcmc.fMCMCTrees.size()); ++i) {
+		// debugKK
+		fMCMCTrees.push_back(0);
+	}
+
+	// return this
+	return *this;
 }
+
 
 // --------------------------------------------------------
 TH1D * BCEngineMCMC::MCMCGetH1Marginalized(int index)
@@ -344,10 +484,6 @@ void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
 					TString::Format("parameter %i/D", j));
 	}
 }
-
-// --------------------------------------------------------
-void BCEngineMCMC::Copy(BCEngineMCMC & enginemcmc) const
-{}
 
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCTrialFunction(int ichain, std::vector <double> &x)

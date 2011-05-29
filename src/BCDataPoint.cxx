@@ -8,13 +8,11 @@
 // ---------------------------------------------------------
 
 #include "BAT/BCDataPoint.h"
-
 #include "BAT/BCLog.h"
 
 #include <TString.h>
 
 // ---------------------------------------------------------
-
 BCDataPoint::BCDataPoint(int nvariables)
 {
 	// assign the specified number of variables to the data
@@ -23,7 +21,6 @@ BCDataPoint::BCDataPoint(int nvariables)
 }
 
 // ---------------------------------------------------------
-
 BCDataPoint::BCDataPoint(std::vector<double> x)
 {
 	// copy all values of x to the data point
@@ -32,12 +29,27 @@ BCDataPoint::BCDataPoint(std::vector<double> x)
 }
 
 // ---------------------------------------------------------
+BCDataPoint::BCDataPoint(const BCDataPoint & datapoint)
+{
+	// debugKK
+	fData = datapoint.fData;
+}
 
+// ---------------------------------------------------------
 BCDataPoint::~BCDataPoint()
 {}
 
 // ---------------------------------------------------------
+BCDataPoint & BCDataPoint::operator = (const BCDataPoint & datapoint)
+{
+	// debugKK
+	fData = datapoint.fData;
+	
+	// return this
+	return *this;
+}
 
+// ---------------------------------------------------------
 double BCDataPoint::GetValue(int index)
 {
 // this is not good at all
@@ -58,7 +70,6 @@ double BCDataPoint::GetValue(int index)
 }
 
 // ---------------------------------------------------------
-
 void BCDataPoint::SetValue(int index, double value)
 {
 // this is not good at all
@@ -76,7 +87,6 @@ void BCDataPoint::SetValue(int index, double value)
 }
 
 // ---------------------------------------------------------
-
 void BCDataPoint::SetValues(std::vector <double> values)
 {
 	// check if sizes are the same. if true, clear the data point and copy from

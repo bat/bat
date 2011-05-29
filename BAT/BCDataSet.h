@@ -45,11 +45,22 @@ class BCDataSet
 		BCDataSet();
 
 		/**
+		 * The copy constructor */
+		BCDataSet(const BCDataSet & bcdataset);
+
+		/**
 		 * Default destructor */
 		virtual ~BCDataSet();
 
 		/** @} */
-
+		/** \name Assignment operators */
+		/** @{ */
+		
+		/**
+		 * Defaut assignment operator */
+		BCDataSet & operator = (const BCDataSet & bcdataset);
+		
+		/** @} */
 		/** \name Member functions (get) */
 		/** @{ */
 

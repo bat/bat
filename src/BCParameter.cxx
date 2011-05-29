@@ -40,17 +40,25 @@ BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit
 
 BCParameter::BCParameter(const BCParameter & parameter)
 {
-	parameter.Copy(*this);
+	fName       = parameter.fName;
+	fIndex      = parameter.fIndex;
+	fLowerLimit = parameter.fLowerLimit;
+	fUpperLimit = parameter.fUpperLimit;
+	fNuisance   = parameter.fNuisance;
 }
 
 // ---------------------------------------------------------
 
 BCParameter & BCParameter::operator = (const BCParameter & parameter)
 {
-	if (this != &parameter)
-		parameter.Copy(* this);
+	fName       = parameter.fName;
+	fIndex      = parameter.fIndex;
+	fLowerLimit = parameter.fLowerLimit;
+	fUpperLimit = parameter.fUpperLimit;
+	fNuisance   = parameter.fNuisance;
 
-	return * this;
+	// return this
+	return *this;
 }
 
 // ---------------------------------------------------------
@@ -75,17 +83,6 @@ void BCParameter::PrintSummary()
 		std::cout<<"No"<<std::endl;
 
 	std::cout << std::endl;
-}
-
-// ---------------------------------------------------------
-
-void BCParameter::Copy(BCParameter & parameter) const
-{
-	parameter.fName       = fName;
-	parameter.fIndex      = fIndex;
-	parameter.fLowerLimit = fLowerLimit;
-	parameter.fUpperLimit = fUpperLimit;
-	parameter.fNuisance   = fNuisance;
 }
 
 // ---------------------------------------------------------

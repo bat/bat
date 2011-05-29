@@ -46,11 +46,23 @@ class BCDataPoint
 		BCDataPoint(std::vector<double> x);
 
 		/**
+		 * The copy constructor. */
+		BCDataPoint(const BCDataPoint & datapoint);
+
+		/**
 		 * A destructor. */
 		~BCDataPoint();
 
 		/** @} */
-
+		/** \name Assignment operators */
+		/** @{ */
+			
+		/**
+		 * Defaut assignment operator */
+		BCDataPoint & operator = (const BCDataPoint & datapoint);
+		
+		/** @} */
+		
 		/** \name Member functions (get) */
 		/** @{ */
 
@@ -91,7 +103,7 @@ class BCDataPoint
 
 		/**
 		 * The vector containing the values of the variables. */
-		std::vector <double> fData;
+		std::vector<double> fData;
 
 };
 

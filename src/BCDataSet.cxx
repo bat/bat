@@ -21,7 +21,6 @@
 #include <fstream>
 
 // ---------------------------------------------------------
-
 BCDataSet::BCDataSet()
 {
 	fBCDataVector = 0;
@@ -31,8 +30,48 @@ BCDataSet::BCDataSet()
 
 BCDataSet::~BCDataSet()
 {
-	if (fBCDataVector)
+	if (fBCDataVector) {
+		int ndatapoints = int(fBCDataVector->size());
+		for (int i = 0; i < ndatapoints; ++i)
+			delete fBCDataVector->at(i);
+		fBCDataVector->clear();
 		delete fBCDataVector;
+	}
+}
+
+// ---------------------------------------------------------
+BCDataSet::BCDataSet(const BCDataSet & bcdataset)
+{
+	if (bcdataset.fBCDataVector) {
+		fBCDataVector = new BCDataVector();
+		for (int i = 0; i < int(bcdataset.fBCDataVector->size()); ++i) {
+			if (bcdataset.fBCDataVector->at(i))
+				fBCDataVector->push_back(new BCDataPoint(*(bcdataset.fBCDataVector->at(i))));
+			else
+				fBCDataVector->push_back(0);
+		}
+	}
+	else
+		fBCDataVector = 0;
+}
+
+// ---------------------------------------------------------
+BCDataSet & BCDataSet::operator = (const BCDataSet & bcdataset)
+{
+	if (bcdataset.fBCDataVector) {
+		fBCDataVector = new BCDataVector();
+		for (int i = 0; i < int(bcdataset.fBCDataVector->size()); ++i) {
+			if (bcdataset.fBCDataVector->at(i))
+				fBCDataVector->push_back(new BCDataPoint(*(bcdataset.fBCDataVector->at(i))));
+			else
+				fBCDataVector->push_back(0);
+		}
+	}
+	else
+		fBCDataVector = 0;
+
+	// return this
+	return *this;
 }
 
 // ---------------------------------------------------------

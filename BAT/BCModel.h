@@ -68,11 +68,22 @@ class BCModel : public BCIntegrate
 		BCModel(const char * name);
 
 		/**
+		 * The copy constructor. */
+		BCModel(const BCModel & bcmodel);
+
+		/**
 		 * The default destructor. */
 		virtual ~BCModel();
 
 		/** @} */
-
+		/** \name Assignment operators */
+		/** @{ */
+		
+		/**
+		 * Defaut assignment operator */
+		BCModel & operator = (const BCModel & bcmodel);
+		
+		/** @} */
 		/** \name Member functions (get) */
 		/** @{ */
 

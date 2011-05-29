@@ -27,7 +27,7 @@
 
 class BCIntegrate * global_this;
 
-// *********************************************
+// ---------------------------------------------------------
 BCIntegrate::BCIntegrate()
    : BCEngineMCMC()
    , fNvar(0)
@@ -80,7 +80,7 @@ BCIntegrate::BCIntegrate()
    fMinuitArglist[1] = 0.01;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 BCIntegrate::BCIntegrate(BCParameterSet * par)
    : BCEngineMCMC()
    , fNvar(0)
@@ -135,7 +135,206 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
    fMinuitArglist[1] = 0.01;
 }
 
-// *********************************************
+// ---------------------------------------------------------
+BCIntegrate::BCIntegrate(const BCIntegrate & bcintegrate) : BCEngineMCMC(bcintegrate)
+ {
+	 fNvar                     = bcintegrate.fNvar;
+	 fNbins                    = bcintegrate.fNbins;
+	 fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
+	 fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
+	 fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
+	 fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
+	 if (bcintegrate.fDataPointLowerBoundaries)
+		 fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
+	 else
+		 fDataPointLowerBoundaries = 0;
+	 if (bcintegrate.fDataPointUpperBoundaries)
+		 fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
+	 else
+		 fDataPointUpperBoundaries = 0;
+	 fDataFixedValues          = bcintegrate.fDataFixedValues;
+	 fBestFitParameters        = bcintegrate.fBestFitParameters;
+	 fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
+	 fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
+	 for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
+		 if (bcintegrate.fHProb1D.at(i))
+			 fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
+		 else
+			 fHProb1D.push_back(0);
+	 }
+	 for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
+		 if (bcintegrate.fHProb2D.at(i))
+			 fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
+		 else
+			 fHProb2D.push_back(0);
+	 }
+	 fFillErrorBand            = bcintegrate.fFillErrorBand;
+	 fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
+	 fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
+	 fErrorBandX               = bcintegrate.fErrorBandX;
+	 if (bcintegrate.fErrorBandXY)
+		 fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
+	 else
+		 fErrorBandXY = 0;
+	 fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
+	 fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
+	 fMinuit                   = new TMinuit();
+	 // debugKK
+	 //	 *fMinuit = *(bcintegrate.fMinuit);
+	 fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
+	 fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
+	 fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
+	 fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
+	 fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
+	 fMarkovChainTree          = bcintegrate.fMarkovChainTree;
+	 fMCMCIteration            = bcintegrate.fMCMCIteration;
+ 	 fSAT0                     = bcintegrate.fSAT0;
+	 fSATmin                   = bcintegrate.fSATmin; 
+	 // debugKK
+	 fTreeSA = 0;
+	 fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
+	 fSANIterations            = bcintegrate.fSANIterations;
+	 fSATemperature            = bcintegrate.fSATemperature;
+	 fSALogProb                = bcintegrate.fSALogProb;
+	 fSAx                      = bcintegrate.fSAx;
+	 if (bcintegrate.fx)
+		 fx = new BCParameterSet(*(bcintegrate.fx));
+	 else
+		 fx = 0;
+	 fMin                      = new double[fNvar]; 
+	 fMax                      = new double[fNvar];
+	 fVarlist                  = new int[fNvar];
+	 fMin                      = bcintegrate.fMin;
+	 fMax                      = bcintegrate.fMax;
+	 fVarlist                  = bcintegrate.fVarlist;
+	 fNiterPerDimension        = bcintegrate.fNiterPerDimension;
+	 fIntegrationMethod        = bcintegrate.fIntegrationMethod;
+	 fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
+	 fOptimizationMethod       = bcintegrate.fOptimizationMethod;
+	 fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
+	 fSASchedule               = bcintegrate.fSASchedule;
+	 fNIterationsMax           = bcintegrate.fNIterationsMax;
+	 fNIterations              = bcintegrate.fNIterations;
+	 fRelativePrecision        = bcintegrate.fRelativePrecision;
+	 fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
+	 fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
+	 fCubaMinEval              = bcintegrate.fCubaMinEval;
+	 fCubaMaxEval              = bcintegrate.fCubaMaxEval;
+	 fCubaVerbosity            = bcintegrate.fCubaVerbosity;
+	 fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
+	 fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
+	 fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
+	 fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
+	 fError                    = bcintegrate.fError;
+	 fNmetro                   = bcintegrate.fNmetro;
+	 fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
+	 fXmetro0                  = bcintegrate.fXmetro0;
+	 fXmetro1                  = bcintegrate.fXmetro1;
+	 fMarkovChainValue         = bcintegrate.fMarkovChainValue;
+}
+
+// ---------------------------------------------------------
+BCIntegrate & BCIntegrate::operator = (const BCIntegrate & bcintegrate)
+{
+	 BCEngineMCMC::operator=(bcintegrate);
+
+	 fNvar                     = bcintegrate.fNvar;
+	 fNbins                    = bcintegrate.fNbins;
+	 fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
+	 fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
+	 fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
+	 fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
+	 if (bcintegrate.fDataPointLowerBoundaries)
+		 fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
+	 else
+		 fDataPointLowerBoundaries = 0;
+	 if (bcintegrate.fDataPointUpperBoundaries)
+		 fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
+	 else
+		 fDataPointUpperBoundaries = 0;
+	 fDataFixedValues          = bcintegrate.fDataFixedValues;
+	 fBestFitParameters        = bcintegrate.fBestFitParameters;
+	 fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
+	 fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
+	 for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
+		 if (bcintegrate.fHProb1D.at(i))
+			 fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
+		 else
+			 fHProb1D.push_back(0);
+	 }
+	 for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
+		 if (bcintegrate.fHProb2D.at(i))
+			 fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
+		 else
+			 fHProb2D.push_back(0);
+	 }
+	 fFillErrorBand            = bcintegrate.fFillErrorBand;
+	 fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
+	 fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
+	 fErrorBandX               = bcintegrate.fErrorBandX;
+	 if (bcintegrate.fErrorBandXY)
+		 fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
+	 else
+		 fErrorBandXY = 0;
+	 fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
+	 fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
+	 fMinuit                   = new TMinuit();
+	 // debugKK
+	 //	 *fMinuit = *(bcintegrate.fMinuit);
+	 fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
+	 fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
+	 fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
+	 fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
+	 fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
+	 fMarkovChainTree          = bcintegrate.fMarkovChainTree;
+	 fMCMCIteration            = bcintegrate.fMCMCIteration;
+ 	 fSAT0                     = bcintegrate.fSAT0;
+	 fSATmin                   = bcintegrate.fSATmin; 
+	 // debugKK
+	 fTreeSA = 0;
+	 fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
+	 fSANIterations            = bcintegrate.fSANIterations;
+	 fSATemperature            = bcintegrate.fSATemperature;
+	 fSALogProb                = bcintegrate.fSALogProb;
+	 fSAx                      = bcintegrate.fSAx;
+	 if (bcintegrate.fx)
+		 fx = new BCParameterSet(*(bcintegrate.fx));
+	 else
+		 fx = 0;
+	 fMin                      = new double[fNvar]; 
+	 fMax                      = new double[fNvar];
+	 fVarlist                  = new int[fNvar];
+	 fNiterPerDimension        = bcintegrate.fNiterPerDimension;
+	 fIntegrationMethod        = bcintegrate.fIntegrationMethod;
+	 fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
+	 fOptimizationMethod       = bcintegrate.fOptimizationMethod;
+	 fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
+	 fSASchedule               = bcintegrate.fSASchedule;
+
+	 fNIterationsMax           = bcintegrate.fNIterationsMax;
+	 fNIterations              = bcintegrate.fNIterations;
+	 fRelativePrecision        = bcintegrate.fRelativePrecision;
+	 fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
+	 fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
+	 fCubaMinEval              = bcintegrate.fCubaMinEval;
+	 fCubaMaxEval              = bcintegrate.fCubaMaxEval;
+	 fCubaVerbosity            = bcintegrate.fCubaVerbosity;
+	 fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
+	 fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
+	 fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
+	 fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
+	 fError                    = bcintegrate.fError;
+	 fNmetro                   = bcintegrate.fNmetro;
+	 fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
+	 fXmetro0                  = bcintegrate.fXmetro0;
+	 fXmetro1                  = bcintegrate.fXmetro1;
+	 fMarkovChainValue         = bcintegrate.fMarkovChainValue;
+
+	// return this
+	return *this;
+}
+
+// ---------------------------------------------------------
 BCIntegrate::~BCIntegrate()
 {
    DeleteVarList();
@@ -158,7 +357,7 @@ BCIntegrate::~BCIntegrate()
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SetParameters(BCParameterSet * par)
 {
    DeleteVarList();
@@ -198,7 +397,7 @@ void BCIntegrate::SetParameters(BCParameterSet * par)
    fMCMCNParameters = fNvar;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SetMarkovChainInitialPosition(std::vector<double> position)
 {
    int n = position.size();
@@ -209,7 +408,7 @@ void BCIntegrate::SetMarkovChainInitialPosition(std::vector<double> position)
       fXmetro0.push_back(position.at(i));
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::DeleteVarList()
 {
    if(fNvar) {
@@ -227,7 +426,7 @@ void BCIntegrate::DeleteVarList()
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SetNbins(int nbins, int index)
 {
    if (fNvar == 0)
@@ -266,7 +465,7 @@ void BCIntegrate::SetNbins(int nbins, int index)
    //   fMCMCH2NBinsY = n;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 // void BCIntegrate::SetNbinsX(int n)
 // {
 //    if(n<2) {
@@ -276,7 +475,7 @@ void BCIntegrate::SetNbins(int nbins, int index)
 //    fMCMCH2NBinsX = n;
 // }
 
-// *********************************************
+// ---------------------------------------------------------
 // void BCIntegrate::SetNbinsY(int n)
 // {
 //    if(n<2) {
@@ -288,48 +487,48 @@ void BCIntegrate::SetNbins(int nbins, int index)
 //    fMCMCH2NBinsY = n;
 // }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SetVarList(int * varlist)
 {
    for(int i=0;i<fNvar;i++)
       fVarlist[i]=varlist[i];
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::ResetVarlist(int v)
 {
    for(int i=0;i<fNvar;i++)
       fVarlist[i]=v;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::Eval(std::vector <double> x)
 {
    BCLog::OutWarning( "BCIntegrate::Eval. No function. Function needs to be overloaded.");
    return 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::LogEval(std::vector <double> x)
 {
    // this method should better also be overloaded
    return log(Eval(x));
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::EvalSampling(std::vector <double> x)
 {
    BCLog::OutWarning( "BCIntegrate::EvalSampling. No function. Function needs to be overloaded.");
    return 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::LogEvalSampling(std::vector <double> x)
 {
    return log(EvalSampling(x));
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::EvalPrint(std::vector <double> x)
 {
    double val=Eval(x);
@@ -338,7 +537,7 @@ double BCIntegrate::EvalPrint(std::vector <double> x)
    return val;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 {
 #ifdef HAVE_CUBA_H
@@ -350,7 +549,7 @@ void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 #endif
 }
 
-// *********************************************
+// ---------------------------------------------------------
 int BCIntegrate::IntegrateResetResults()
 {
    fBestFitParameters.clear();
@@ -361,7 +560,7 @@ int BCIntegrate::IntegrateResetResults()
    return 1;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::Integrate()
 {
    std::vector <double> parameter;
@@ -398,14 +597,14 @@ double BCIntegrate::Integrate()
    return 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::IntegralMC(std::vector <double> x, int * varlist)
 {
    SetVarList(varlist);
    return IntegralMC(x);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::IntegralMC(std::vector <double> x)
 {
    // count the variables to integrate over
@@ -498,7 +697,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 }
 
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::IntegralMetro(std::vector <double> x)
 {
    // print debug information
@@ -564,7 +763,7 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
    return result;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::IntegralImportance(std::vector <double> x)
 {
    // print debug information
@@ -628,7 +827,7 @@ double BCIntegrate::IntegralImportance(std::vector <double> x)
    return result;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
 {
    BCLog::OutDebug(Form(" --> Marginalizing model wrt. parameter %s using %s.", parameter->GetName().data(), DumpMarginalizationMethod().c_str()));
@@ -650,7 +849,7 @@ TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
    return 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * parameter2)
 {
    switch(fMarginalizationMethod)
@@ -669,7 +868,7 @@ TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * paramete
    return 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
 {
    // set parameter to marginalize
@@ -700,7 +899,7 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
    return hist;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter * parameter2)
 {
    // set parameter to marginalize
@@ -743,7 +942,7 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
    return hist;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
 {
    int niter = fMarkovChainNIterations;
@@ -777,7 +976,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
    return hist;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * parameter2)
 {
    int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
@@ -813,7 +1012,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
    return hist;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 int BCIntegrate::MarginalizeAllByMetro(const char * name="")
 {
    int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
@@ -988,7 +1187,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
    return fNvar+nh2d;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH1D * BCIntegrate::GetH1D(int parIndex)
 {
    if(fHProb1D.size()==0) {
@@ -1004,7 +1203,7 @@ TH1D * BCIntegrate::GetH1D(int parIndex)
    return fHProb1D[parIndex];
 }
 
-// *********************************************
+// ---------------------------------------------------------
 int BCIntegrate::GetH2DIndex(int parIndex1, int parIndex2)
 {
    if(parIndex1>fNvar-1 || parIndex1<0) {
@@ -1040,7 +1239,7 @@ int BCIntegrate::GetH2DIndex(int parIndex1, int parIndex2)
    return -1;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TH2D * BCIntegrate::GetH2D(int parIndex1, int parIndex2)
 {
    if(fHProb2D.size()==0) {
@@ -1060,7 +1259,7 @@ TH2D * BCIntegrate::GetH2D(int parIndex1, int parIndex2)
    return fHProb2D[hindex];
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::GetRandomPoint(std::vector <double> &x)
 {
    GetRandomVector(x);
@@ -1071,7 +1270,7 @@ double BCIntegrate::GetRandomPoint(std::vector <double> &x)
    return Eval(x);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::GetRandomPointImportance(std::vector <double> &x)
 {
    double p = 1.1;
@@ -1091,7 +1290,7 @@ double BCIntegrate::GetRandomPointImportance(std::vector <double> &x)
    return Eval(x);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::InitMetro()
 {
    fNmetro=0;
@@ -1114,7 +1313,7 @@ void BCIntegrate::InitMetro()
    fNmetro = 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 {
    // get new point
@@ -1169,7 +1368,7 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
    fNmetro++;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
 {
    // get new point
@@ -1216,7 +1415,7 @@ void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
    fNmetro++;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::GetRandomVector(std::vector <double> &x)
 {
    double * randx = new double[fNvar];
@@ -1230,7 +1429,7 @@ void BCIntegrate::GetRandomVector(std::vector <double> &x)
    randx = 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::GetRandomVectorMetro(std::vector <double> &x)
 {
    double * randx = new double[fNvar];
@@ -1244,7 +1443,7 @@ void BCIntegrate::GetRandomVectorMetro(std::vector <double> &x)
    randx = 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 TMinuit * BCIntegrate::GetMinuit()
 {
    if (!fMinuit)
@@ -1253,7 +1452,7 @@ TMinuit * BCIntegrate::GetMinuit()
    return fMinuit;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 {
@@ -1354,7 +1553,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
    return;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::InitializeSATree()
 {
   if (fTreeSA)
@@ -1370,7 +1569,7 @@ void BCIntegrate::InitializeSATree()
       fTreeSA->Branch(TString::Format("Parameter%i", i), &fSAx[i], TString::Format("parameter %i/D", i));
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::FindModeSA(std::vector<double> start)
 {
    // note: if f(x) is the function to be minimized, then
@@ -1499,7 +1698,7 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
    return;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 double BCIntegrate::SATemperature(double t)
 {
@@ -1512,21 +1711,21 @@ double BCIntegrate::SATemperature(double t)
       return SATemperatureCustom(t);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 double BCIntegrate::SATemperatureBoltzmann(double t)
 {
    return fSAT0 / log((double)(t + 1));
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 double BCIntegrate::SATemperatureCauchy(double t)
 {
    return fSAT0 / (double)t;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 double BCIntegrate::SATemperatureCustom(double t)
 {
@@ -1534,7 +1733,7 @@ double BCIntegrate::SATemperatureCustom(double t)
    return 0.;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 std::vector<double> BCIntegrate::GetProposalPointSA(std::vector<double> x, int t)
 {
@@ -1547,7 +1746,7 @@ std::vector<double> BCIntegrate::GetProposalPointSA(std::vector<double> x, int t
       return GetProposalPointSACustom(x, t);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(std::vector<double> x, int t)
 {
@@ -1564,7 +1763,7 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(std::vector<double>
    return y;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 std::vector<double> BCIntegrate::GetProposalPointSACauchy(std::vector<double> x, int t)
 {
@@ -1599,7 +1798,7 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(std::vector<double> x,
    return y;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 std::vector<double> BCIntegrate::GetProposalPointSACustom(std::vector<double> x, int t)
 {
@@ -1607,7 +1806,7 @@ std::vector<double> BCIntegrate::GetProposalPointSACustom(std::vector<double> x,
    return std::vector<double>(fNvar);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 {
@@ -1652,7 +1851,7 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
    return rand_point;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 double BCIntegrate::SAHelperGetRadialCauchy()
 {
@@ -1709,7 +1908,7 @@ double BCIntegrate::SAHelperGetRadialCauchy()
    return tan(theta);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
 {
@@ -1727,7 +1926,7 @@ double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
          * SAHelperSinusToNIntegral(dim - 2, theta);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 void BCIntegrate::SetMode(std::vector <double> mode)
 {
@@ -1738,7 +1937,7 @@ void BCIntegrate::SetMode(std::vector <double> mode)
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag)
 {
@@ -1756,7 +1955,7 @@ void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double *
    parameters.clear();
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
 //void BCIntegrate::FindModeMCMC(int flag_run)
 void BCIntegrate::FindModeMCMC()
@@ -1796,7 +1995,7 @@ void BCIntegrate::FindModeMCMC()
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 {
 #ifdef HAVE_CUBA_H
@@ -1822,7 +2021,7 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 #endif
 }
 
-// *********************************************
+// ---------------------------------------------------------
 int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
                                               const int *ncomp, double ff[], void *userdata)
 {
@@ -1861,7 +2060,7 @@ int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
     return 0;
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::CubaIntegrate()
 {
 #ifdef HAVE_CUBA_H
@@ -1903,7 +2102,7 @@ double BCIntegrate::CubaIntegrate()
 #endif
 }
 
-// *********************************************
+// ---------------------------------------------------------
 double BCIntegrate::CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<double> parameters_double, std::vector<double> parameters_int)
 {
 #ifdef HAVE_CUBA_H
@@ -2044,7 +2243,7 @@ double BCIntegrate::CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<
 #endif
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::MCMCIterationInterface()
 {
    // what's within this method will be executed
@@ -2057,7 +2256,7 @@ void BCIntegrate::MCMCIterationInterface()
    MCMCUserIterationInterface();
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::MCMCFillErrorBand()
 {
    if (!fFillErrorBand)
@@ -2117,14 +2316,14 @@ void BCIntegrate::MCMCFillErrorBand()
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 void BCIntegrate::SAInitialize()
 {
    fSAx.clear();
    fSAx.assign(fNvar, 0.0);
 }
 
-// *********************************************
+// ---------------------------------------------------------
 std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type)
 {
    switch(type) {
@@ -2141,7 +2340,7 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
 {
    switch(type) {
@@ -2154,7 +2353,7 @@ std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizatio
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMethod type)
 {
    switch(type) {
@@ -2169,7 +2368,7 @@ std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMetho
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 {
    switch(type) {
@@ -2186,5 +2385,5 @@ std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod typ
    }
 }
 
-// *********************************************
+// ---------------------------------------------------------
 
