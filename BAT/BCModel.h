@@ -90,54 +90,54 @@ class BCModel : public BCIntegrate
 		/**
 		 * @return The name of the model. */
 		std::string GetName()
-			{ return fName; };
+			{ return fName; }
 
 		/**
 		 * @return The index of the model. */
 		int GetIndex()
-			{ return fIndex; };
+			{ return fIndex; }
 
 		/**
 		 * @return The a priori probability. */
 		double GetModelAPrioriProbability()
-			{ return fModelAPriori; };
+			{ return fModelAPriori; }
 
 		/**
 		 * @return The a posteriori probability. */
 		double GetModelAPosterioriProbability()
-			{ return fModelAPosteriori; };
+			{ return fModelAPosteriori; }
 
 		/**
 		 * @return The normalization factor of the probability */
 		double GetNormalization()
-			{ return fNormalization; };
+			{ return fNormalization; }
 
 		/**
 		 * @return The data set. */
 		BCDataSet* GetDataSet()
-			{ return fDataSet; };
+			{ return fDataSet; }
 
 		/**
 		 * @return The lower boundaries of possible data values. */
 		BCDataPoint* GetDataPointLowerBoundaries()
-			{ return fDataPointLowerBoundaries; };
+			{ return fDataPointLowerBoundaries; }
 
 		/**
 		 * @return The upper boundaries of possible data values. */
 		BCDataPoint* GetDataPointUpperBoundaries()
-			{ return fDataPointUpperBoundaries; };
+			{ return fDataPointUpperBoundaries; }
 
 		/**
 		 * @param index The index of the variable.
 		 * @return The lower boundary of possible data values for a particular variable. */
 		double GetDataPointLowerBoundary(unsigned int index)
-			{ return fDataPointLowerBoundaries -> GetValue(index); };
+			{ return fDataPointLowerBoundaries -> GetValue(index); }
 
 		/**
 		 * @param index The index of the variable.
 		 * @return The upper boundary of possible data values for a particular variable. */
 		double GetDataPointUpperBoundary(unsigned int index)
-			{ return fDataPointUpperBoundaries -> GetValue(index); };
+			{ return fDataPointUpperBoundaries -> GetValue(index); }
 
 		/**
 		 * Checks if the boundaries have been defined
@@ -156,17 +156,17 @@ class BCModel : public BCIntegrate
 		/**
 		 * @return The minimum number of data points. */
 		unsigned int GetNDataPointsMinimum()
-			{ return fNDataPointsMinimum; };
+			{ return fNDataPointsMinimum; }
 
 		/**
 		 * @return The maximum number of data points. */
 		unsigned int GetNDataPointsMaximum()
-			{ return fNDataPointsMaximum; };
+			{ return fNDataPointsMaximum; }
 
 		/**
 		 * @return The number of parameters of the model. */
 		unsigned int GetNParameters()
-			{ return fParameterSet ? fParameterSet -> size() : 0; };
+			{ return fParameterSet ? fParameterSet -> size() : 0; }
 
 		/**
 		 * @param index The index of the parameter in the parameter set.
@@ -181,7 +181,7 @@ class BCModel : public BCIntegrate
 		/**
 		 * @return parameter set */
 		BCParameterSet * GetParameterSet()
-			{ return fParameterSet; };
+			{ return fParameterSet; }
 
 		/**
 		 * Returns the value of a parameter (defined by index) at
@@ -202,10 +202,10 @@ class BCModel : public BCIntegrate
 		 * the posterior pdf.
 		 * @return The best fit parameters */
 		std::vector <double> GetBestFitParameters()
-			{ return fBestFitParameters; };
+			{ return fBestFitParameters; }
 		
 		std::vector <double> GetBestFitParameterErrors() 
-			{ return fBestFitParameterErrors; }; 
+			{ return fBestFitParameterErrors; }
 
 		/**
 		 * Returns the value of a particular parameter (defined by index) at
@@ -219,12 +219,12 @@ class BCModel : public BCIntegrate
 		 * marginalized posterior pdfs.
 		 * @return best fit parameters */
 		std::vector <double> GetBestFitParametersMarginalized()
-			{ return fBestFitParametersMarginalized; };                                                          
+			{ return fBestFitParametersMarginalized; }
 
 		/**
 		 * @return The 2-d histogram of the error band. */
 		TH2D * GetErrorBandXY()
-			{ return fErrorBandXY; };
+			{ return fErrorBandXY; }
 
 		TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0);
 
@@ -239,7 +239,7 @@ class BCModel : public BCIntegrate
 		TGraph * GetFitFunctionGraph(std::vector <double> parameters);
 
 		TGraph * GetFitFunctionGraph()
-			{ return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); };
+			{ return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); }
 
 		TGraph * GetFitFunctionGraph(std::vector <double> parameters, double xmin, double xmax, int n=1000);
 
@@ -254,19 +254,19 @@ class BCModel : public BCIntegrate
 		 * Sets the name of the model.
 		 * @param name Name of the model */
 		void SetName(const char * name)
-			{ fName = name; };
+			{ fName = name; }
 
 		/**
 		 * Sets the index of the model within the BCModelManager.
 		 * @param index The index of the model */
 		void SetIndex(int index)
-			{ fIndex = index; };
+			{ fIndex = index; }
 
 		/**
 		 * Set all parameters of the model using a BCParameterSet container.
 		 * @par pointer to parameter set */
 		void SetParameterSet( BCParameterSet * parset )
-			{ fParameterSet = parset; };
+			{ fParameterSet = parset; }
 
 		/** 
 		 * Set the range of a parameter
@@ -281,27 +281,27 @@ class BCModel : public BCIntegrate
 		 * @param model The model
 		 * @param probability The a priori probability */
 		void SetModelAPrioriProbability(double probability)
-			{ fModelAPriori = probability; };
+			{ fModelAPriori = probability; }
 
 		/**
 		 * Sets the a posteriori probability for a model.
 		 * @param model The model
 		 * @param probability The a posteriori probability */
 		void SetModelAPosterioriProbability(double probability)
-			{ fModelAPosteriori = probability; };
+			{ fModelAPosteriori = probability; }
 
 		/**
 		 * Sets the normalization of the likelihood.
 		 * The normalization is the integral of likelihood over all parameters.
 		 * @param norm The normalization of the likelihood */
 		void SetNormalization(double norm)
-			{ fNormalization = norm; };
+			{ fNormalization = norm; }
 
 		/**
 		 * Sets the data set.
 		 * @param dataset A data set */
 		void SetDataSet(BCDataSet* dataset)
-			{ fDataSet = dataset; fNormalization = -1.0; };
+			{ fDataSet = dataset; fNormalization = -1.0; }
 
 		/**
 		 * Sets a single data point as data set.
@@ -313,12 +313,12 @@ class BCModel : public BCIntegrate
 		/**
 		 * Sets the minimum number of data points. */
 		void SetNDataPointsMinimum(unsigned int minimum)
-			{ fNDataPointsMinimum = minimum; };
+			{ fNDataPointsMinimum = minimum; }
 
 		/**
 		 * Sets the maximum number of data points. */
 		void SetNDataPointsMaximum(unsigned int maximum)
-			{ fNDataPointsMaximum = maximum; };
+			{ fNDataPointsMaximum = maximum; }
 
 		void SetDataBoundaries(unsigned int index, double lowerboundary, double upperboundary, bool fixed=false);
 
@@ -473,7 +473,7 @@ class BCModel : public BCIntegrate
 		 * @return The prior probability p(parameters)
 		 * @see GetPrior(std::vector <double> parameters) */
 		double APrioriProbability(std::vector <double> parameters)
-			{ return exp( this->LogAPrioriProbability(parameters) ); };
+			{ return exp( this->LogAPrioriProbability(parameters) ); }
 
 		/**
 		 * Returns natural logarithm of the prior probability.
@@ -488,7 +488,7 @@ class BCModel : public BCIntegrate
 		 * @param parameters A set of parameter values
 		 * @return The likelihood */
 		double Likelihood(std::vector <double> parameter)
-			{ return exp( this->LogLikelihood(parameter) ); };
+			{ return exp( this->LogLikelihood(parameter) ); }
 
 		/**
 		 * Calculates natural logarithm of the likelihood.
@@ -502,7 +502,7 @@ class BCModel : public BCIntegrate
 		 * @param parameters A set of parameter values
 		 * @return The likelihood times prior probability */
 		double ProbabilityNN(std::vector <double> parameter)
-			{ return exp( this->LogProbabilityNN(parameter) ); };
+			{ return exp( this->LogProbabilityNN(parameter) ); }
 
 		/**
 		 * Returns the natural logarithm of likelihood times prior probability given
@@ -516,7 +516,7 @@ class BCModel : public BCIntegrate
 		 * @param parameters A set of parameter values
 		 * @return The a posteriori probability */
 		double Probability(std::vector <double> parameter)
-			{ return exp( this->LogProbability(parameter) ); };
+			{ return exp( this->LogProbability(parameter) ); }
 
 		/**
 		 * Returns natural logarithm of the  a posteriori probability given a set of parameter values
@@ -532,7 +532,7 @@ class BCModel : public BCIntegrate
 		 * @return The conditional probability p(datapoint|parameters)
 		 * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) */
 		double ConditionalProbabilityEntry(BCDataPoint * datapoint, std::vector <double> parameters)
-			{ return exp( this->LogConditionalProbabilityEntry(datapoint, parameters) ); };
+			{ return exp( this->LogConditionalProbabilityEntry(datapoint, parameters) ); }
 
 		/**
 		 * Returns a natural logarithm of conditional probability.
@@ -542,7 +542,7 @@ class BCModel : public BCIntegrate
 		 * @return The conditional probability p(datapoint|parameters)
 		 * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) */
 		virtual double LogConditionalProbabilityEntry(BCDataPoint * /*datapoint*/, std::vector <double> /*parameters*/)
-			{ flag_ConditionalProbabilityEntry = false; return 0.; };
+			{ flag_ConditionalProbabilityEntry = false; return 0.; }
 
 		/**
 		 * Sampling function used for importance sampling.
@@ -554,7 +554,7 @@ class BCModel : public BCIntegrate
 		/**
 		 * Overloaded function to evaluate integral. */
 		double Eval(std::vector <double> parameters)
-			{ return exp( this->LogEval(parameters) ); };
+			{ return exp( this->LogEval(parameters) ); }
 
 		/**
 		 * Overloaded function to evaluate integral. */
@@ -632,7 +632,7 @@ class BCModel : public BCIntegrate
 		BCH1D * GetMarginalized(BCParameter * parameter);
 
 		BCH1D * GetMarginalized(const char * name)
-			{ return this -> GetMarginalized(this -> GetParameter(name)); };
+			{ return this -> GetMarginalized(this -> GetParameter(name)); }
 
 		/**
 		 * If MarginalizeAll method was used, the individual marginalized distributions
@@ -643,7 +643,7 @@ class BCModel : public BCIntegrate
 		BCH2D * GetMarginalized(BCParameter * parameter1, BCParameter * parameter2);
 
 		BCH2D * GetMarginalized(const char * name1, const char * name2)
-			{ return this -> GetMarginalized(this -> GetParameter(name1), this -> GetParameter(name2)); };
+			{ return this -> GetMarginalized(this -> GetParameter(name1), this -> GetParameter(name2)); }
 
 		/**
 		 *   */
@@ -710,13 +710,13 @@ class BCModel : public BCIntegrate
 		/**
 		 * @return The p-value */
 		double GetPValue()
-			{ return fPValue; };
+			{ return fPValue; }
 
 		double GetPValueNDoF()
-			{ return fPValueNDoF; };
+			{ return fPValueNDoF; }
 
 		double GetChi2NDoF()
-			{ return fChi2NDoF; };
+			{ return fChi2NDoF; }
 
 		/**
        * For a Gaussian problem, calculate the chi2 of the longest run of consecutive
@@ -729,19 +729,19 @@ class BCModel : public BCIntegrate
 		 * Set maximum number of iterations in the MCMC pre-run of the p-value
 		 * evaluation using MCMC */
 		void SetGoFNIterationsMax(int n)
-			{ fGoFNIterationsMax=n; };
+			{ fGoFNIterationsMax=n; }
 
 		/**
 		 * Set number of iterations in the MCMC normal run of the p-value
 		 * evaluation using MCMC */
 		void SetGoFNIterationsRun(int n)
-			{ fGoFNIterationsRun=n; };
+			{ fGoFNIterationsRun=n; }
 
 		/**
 		 * Set number of chains in the MCMC of the p-value
 		 * evaluation using MCMC */
 		void SetGoFNChains(int n)
-			{ fGoFNChains=n; };
+			{ fGoFNChains=n; }
 
 		/**
 		 * Calculates the matrix element of the Hessian matrix
@@ -878,17 +878,13 @@ class BCModel : public BCIntegrate
 
 	private:
 
-		/**
-		 * Converts a vector of doubles into a BCDataPoint */
-		BCDataPoint * VectorToDataPoint(std::vector<double> data);
+      /**
+       * The posterior normalization (evidence). */
+      double fNormalization;
 
 		/**
 		 * Compares to strings */
 		int CompareStrings(const char * string1, const char * string2);
-
-		/**
-		 * The Likelihood normalization. */
-		double fNormalization;
 
 		/**
 		 * rule of thumb for good number of bins (Wald1942, Johnson2004) to group observations
@@ -900,6 +896,15 @@ class BCModel : public BCIntegrate
 		/**
 		 * Update the constant part of the prior. */
 		void RecalculatePriorConstant();
+
+		/**
+		 * save parameters at the mode after marginalization
+		 */
+		void StoreMode();
+
+      /**
+       * Converts a vector of doubles into a BCDataPoint */
+      BCDataPoint * VectorToDataPoint(std::vector<double> data);
 };
 
 // ---------------------------------------------------------

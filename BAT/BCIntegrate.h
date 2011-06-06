@@ -106,27 +106,27 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * @return The integration method */
       BCIntegrate::BCIntegrationMethod GetIntegrationMethod()
-         { return fIntegrationMethod; };
+         { return fIntegrationMethod; }
 
       /**
        * @return The marginalization method */
       BCIntegrate::BCMarginalizationMethod GetMarginalizationMethod()
-         { return fMarginalizationMethod; };
+         { return fMarginalizationMethod; }
 
       /**
        * @return The current optimization method */
       BCIntegrate::BCOptimizationMethod GetOptimizationMethod()
-         { return fOptimizationMethod; };
+         { return fOptimizationMethod; }
 
       /**
        * @return The optimization method used to find the mode */
       BCIntegrate::BCOptimizationMethod GetOptimizationMethodMode()
-         { return fOptimizationMethodMode; };
+         { return fOptimizationMethodMode; }
 
       /**
        * @return The Simulated Annealing schedule */
       BCIntegrate::BCSASchedule GetSASchedule()
-         { return fSASchedule; };
+         { return fSASchedule; }
 
       /**
        * Fills a vector of random numbers between 0 and 1 into a vector
@@ -164,72 +164,72 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * @return The number of iterations per dimension for the Monte Carlo integration */
       int GetNiterationsPerDimension()
-         { return fNiterPerDimension; };
+         { return fNiterPerDimension; }
 
       /**
        * @return Number of samples per 2D bin per variable in the Metropolis marginalization. */
       int GetNSamplesPer2DBin()
-         { return fNSamplesPer2DBin; };
+         { return fNSamplesPer2DBin; }
 
       /**
        * @return The number of variables to integrate over */
       int GetNvar()
-         { return fNvar; };
+         { return fNvar; }
 
       /**
        * @return The number of maximum iterations for Monte Carlo integration */
       int GetNIterationsMax()
-         { return fNIterationsMax; };
+         { return fNIterationsMax; }
 
       /**
        * @return The number of iterations for the most recent Monte Carlo integration */
       int GetNIterations()
-         { return fNIterations; };
+         { return fNIterations; }
 
       /**
        * @return Requested relative precision of the numerical integation */
       double GetRelativePrecision()
-         { return fRelativePrecision; };
+         { return fRelativePrecision; }
 
       /**
         * @return Requested absolute precision of the numerical integation */
       double GetAbsolutePrecision()
-         { return fAbsolutePrecision; };
+         { return fAbsolutePrecision; }
 
       /**
         * @return Cuba Integration method */
       BCCubaMethod GetCubaIntegrationMethod()
-         { return fCubaIntegrationMethod; };
+         { return fCubaIntegrationMethod; }
 
       /**
         * @return Minimum number of evaluations in Cuba integration */
       int GetCubaMinEval()
-         { return fCubaMinEval; };
+         { return fCubaMinEval; }
 
       /**
         * @return Maximum number of evaluations in Cuba integration */
       int GetCubaMaxEval()
-         { return fCubaMaxEval; };
+         { return fCubaMaxEval; }
 
       /**
         * @return Verbosity level of Cuba integration */
       int GetCubaVerbositylevel()
-         { return fCubaVerbosity; };
+         { return fCubaVerbosity; }
 
       /**
         * @return Initial number of evaluations per iteration for Cuba Vegas */
       int GetCubaVegasNStart()
-         { return fCubaVegasNStart; };
+         { return fCubaVegasNStart; }
 
       /**
         * @return Increase in number of evaluations per iteration for Cuba Vegas */
       int GetCubaVegasNIncrease()
-         { return fCubaVegasNIncrease; };
+         { return fCubaVegasNIncrease; }
 
       /**
         * @return Number of new integrand evaluations in each subdivision for Cuba Suave */
       int GetCubaSuaveNNew()
-         { return fCubaSuaveNNew; };
+         { return fCubaSuaveNNew; }
 
       /**
         * @return Flatness for Cuba Suave */
@@ -239,39 +239,39 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * @return The uncertainty in the most recent Monte Carlo integration */
       double GetError()
-         { return fError; };
+         { return fError; }
 
       /**
        * @return number of bins per dimension for the marginalized distributions */
       int GetNbins()
-         { return fNbins; };
+         { return fNbins; }
 
       /**
        * @return Minuit used for mode finding */
       TMinuit * GetMinuit();
 
       int GetMinuitErrorFlag()
-         { return fMinuitErrorFlag; };
+         { return fMinuitErrorFlag; }
 
       /**
        * @return The ROOT tree containing the Markov chain */
       TTree * GetMarkovChainTree()
-         { return fMarkovChainTree; };
+         { return fMarkovChainTree; }
 
       /**
        * Returns the actual point in the markov chain */
       std::vector<double> * GetMarkovChainPoint()
-         { return &fXmetro1; };
+         { return &fXmetro1; }
 
       /**
        * Returns the iteration of the MCMC */
       int * GetMCMCIteration()
-         { return &fMCMCIteration; };
+         { return &fMCMCIteration; }
 
       /**
        * Returns the value of the loglikelihood at the point fXmetro1 */
       double * GetMarkovChainValue()
-         { return &fMarkovChainValue; };
+         { return &fMarkovChainValue; }
 
       /**
        * Returns the Simulated Annealing starting temperature. */
@@ -290,10 +290,10 @@ class BCIntegrate : public BCEngineMCMC
 
       void SetMinuitArlist(double * arglist)
          { fMinuitArglist[0] = arglist[0];
-           fMinuitArglist[1] = arglist[1]; };
+           fMinuitArglist[1] = arglist[1]; }
 
       void SetFlagIgnorePrevOptimization(bool flag)
-         { fFlagIgnorePrevOptimization = flag; };
+         { fFlagIgnorePrevOptimization = flag; }
 
       /**
        * @param par The parameter set which gets translated into array
@@ -306,7 +306,8 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
        * @param index The index of the variable to be set */
-      void SetVar(int index){fVarlist[index]=1;};
+      void SetVar(int index)
+         {fVarlist[index]=1;}
 
       /**
        * @param method The integration method */
@@ -315,44 +316,51 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * @param method The marginalization method */
       void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
-         { fMarginalizationMethod = method; };
+         { fMarginalizationMethod = method; }
 
       /**
        * @param method The mode finding method */
       void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
-         { fOptimizationMethod = method; };
+         { fOptimizationMethod = method; }
+
+      /**
+       * @param method The mode finding method that was used to find the current
+       * best estimate of the parameters at the mode*/
+      void SetOptimizationMethodMode(BCIntegrate::BCOptimizationMethod method)
+         { fOptimizationMethodMode = method; }
+
 
       /**
        * @param method The Simulated Annealing schedule */
       void SetSASchedule(BCIntegrate::BCSASchedule schedule)
-         { fSASchedule = schedule; };
+         { fSASchedule = schedule; }
 
       /**
        * @param niterations Number of iterations per dimension for Monte Carlo integration. */
       void SetNiterationsPerDimension(int niterations)
-         { fNiterPerDimension = niterations; };
+         { fNiterPerDimension = niterations; }
 
       /**
        * @param n Number of samples per 2D bin per variable in the Metropolis marginalization.
        * Default is 100. */
       void SetNSamplesPer2DBin(int n)
-         { fNSamplesPer2DBin = n; };
+         { fNSamplesPer2DBin = n; }
 
       /**
        * @param niterations The maximum number of iterations for Monte Carlo integration */
       void SetNIterationsMax(int niterations)
-         { fNIterationsMax = niterations; };
+         { fNIterationsMax = niterations; }
 
       /**
        * @param relprecision The relative precision envisioned for Monte
        * Carlo integration */
       void SetRelativePrecision(double relprecision)
-         { fRelativePrecision = relprecision; };
+         { fRelativePrecision = relprecision; }
 
       /**
         * Set absolute precision of the numerical integation */
       void SetAbsolutePrecision(double absprecision)
-         { fAbsolutePrecision = absprecision; };
+         { fAbsolutePrecision = absprecision; }
 
       /**
         * Set Cuba integration method */
@@ -361,32 +369,32 @@ class BCIntegrate : public BCEngineMCMC
       /**
         * Set minimum number of evaluations in Cuba integration */
       void SetCubaMinEval(int n)
-         { fCubaMinEval = n; };
+         { fCubaMinEval = n; }
 
       /**
         * Set maximum number of evaluations in Cuba integration */
       void SetCubaMaxEval(int n)
-         { fCubaMaxEval = n; };
+         { fCubaMaxEval = n; }
 
       /**
         * Set verbosity level of Cuba integration */
       void SetCubaVerbosityLevel(int n)
-         { fCubaVerbosity = n; };
+         { fCubaVerbosity = n; }
 
       /**
         * Set initial number of evaluations per iteration for Cuba Vegas */
       void SetCubaVegasNStart(int n)
-         { fCubaVegasNStart = n; };
+         { fCubaVegasNStart = n; }
 
       /**
         * Set increase in number of evaluations per iteration for Cuba Vegas */
       void SetCubaVegasNIncrease(int n)
-         { fCubaVegasNIncrease = n; };
+         { fCubaVegasNIncrease = n; }
 
       /**
         * Set number of new integrand evaluations in each subdivision for Cuba Suave */
       void SetCubaSuaveNNew(int n)
-         { fCubaSuaveNNew = n; };
+         { fCubaSuaveNNew = n; }
 
       /**
         * Set flatness for Cuba Suave */
@@ -404,61 +412,57 @@ class BCIntegrate : public BCEngineMCMC
        * @param index Index of the parameter. */
       void SetNbins(int nbins, int index = -1);
 
-//      void SetNbins(int n);
-//      void SetNbinsX(int n);
-//      void SetNbinsY(int n);
-
       /**
        * Turn on or off the filling of the error band during the MCMC run.
        * @param flag set to true for turning on the filling */
       void SetFillErrorBand(bool flag = true)
-         { fFillErrorBand=flag; };
+         { fFillErrorBand=flag; }
 
       /**
        * Turn off filling of the error band during the MCMC run.
        * This method is equivalent to SetFillErrorBand(false) */
       void UnsetFillErrorBand()
-         { fFillErrorBand=false; };
+         { fFillErrorBand=false; }
 
       /**
        * Sets index of the x values in function fits.
        * @param index Index of the x values */
       void SetFitFunctionIndexX(int index)
-         { fFitFunctionIndexX = index; };
+         { fFitFunctionIndexX = index; }
 
       /**
        * Sets index of the y values in function fits. @param index Index
        * of the y values */
       void SetFitFunctionIndexY(int index)
-         { fFitFunctionIndexY = index; };
+         { fFitFunctionIndexY = index; }
 
       void SetFitFunctionIndices(int indexx, int indexy)
          { this -> SetFitFunctionIndexX(indexx);
-            this -> SetFitFunctionIndexY(indexy); };
+            this -> SetFitFunctionIndexY(indexy); }
 
       /**
        * Sets the data point containing the lower boundaries of possible
        * data values */
       void SetDataPointLowerBoundaries(BCDataPoint * datasetlowerboundaries)
-         { fDataPointLowerBoundaries = datasetlowerboundaries; };
+         { fDataPointLowerBoundaries = datasetlowerboundaries; }
 
       /**
        * Sets the data point containing the upper boundaries of possible
        * data values */
       void SetDataPointUpperBoundaries(BCDataPoint * datasetupperboundaries)
-         { fDataPointUpperBoundaries = datasetupperboundaries; };
+         { fDataPointUpperBoundaries = datasetupperboundaries; }
 
       /**
        * Sets the lower boundary of possible data values for a particular
        * variable */
       void SetDataPointLowerBoundary(int index, double lowerboundary)
-         { fDataPointLowerBoundaries -> SetValue(index, lowerboundary); };
+         { fDataPointLowerBoundaries -> SetValue(index, lowerboundary); }
 
       /**
        * Sets the upper boundary of possible data values for a particular
        * variable */
       void SetDataPointUpperBoundary(int index, double upperboundary)
-         { fDataPointUpperBoundaries -> SetValue(index, upperboundary); };
+         { fDataPointUpperBoundaries -> SetValue(index, upperboundary); }
 
       /**
        * Flag for writing Markov chain to ROOT file (true) or not (false)
@@ -466,12 +470,12 @@ class BCIntegrate : public BCEngineMCMC
       void WriteMarkovChain(bool flag)
          { fFlagWriteMarkovChain = flag;
            fMCMCFlagWriteChainToFile = flag;
-           fMCMCFlagWritePreRunToFile = flag; };
+           fMCMCFlagWritePreRunToFile = flag; }
 
       /**
        * Sets the ROOT tree containing the Markov chain */
       void SetMarkovChainTree(TTree * tree)
-         { fMarkovChainTree = tree; };
+         { fMarkovChainTree = tree; }
 
       /**
        * Sets the initial position for the Markov chain */
@@ -480,7 +484,7 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Sets the step size for Markov chains */
       void SetMarkovChainStepSize(double stepsize)
-         { fMarkovChainStepSize = stepsize; };
+         { fMarkovChainStepSize = stepsize; }
 
       /**
        * Sets the number of iterations in the markov chain */
@@ -491,7 +495,7 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Sets a flag for automatically calculating the number of iterations */
       void SetMarkovChainAutoN(bool flag)
-         { fMarkovChainAutoN = flag; };
+         { fMarkovChainAutoN = flag; }
 
       /**
        * Sets mode */
@@ -500,7 +504,7 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Sets errorband histogram */
       void SetErrorBandHisto(TH2D * h)
-         { fErrorBandXY = h; };
+         { fErrorBandXY = h; }
 
       /**
        * @param T0 new value for Simulated Annealing starting temperature. */
@@ -513,17 +517,17 @@ class BCIntegrate : public BCEngineMCMC
          { fSATmin = Tmin; }
 
       void SetFlagWriteSAToFile(bool flag)
-         { fFlagWriteSAToFile = flag; };
+         { fFlagWriteSAToFile = flag; }
 
       /**
        * Sets the tree containing the Simulated Annealing  chain. */
       void SetSATree(TTree * tree)
-         { fTreeSA = tree; };
+         { fTreeSA = tree; }
 
       /**
        * Getter for the tree containing the  Simulated Annealing  chain. */
       TTree * GetSATree()
-         { return fTreeSA; };
+         { return fTreeSA; }
 
       /**
        * Initialization of the tree for the Simulated Annealing */
@@ -547,7 +551,7 @@ class BCIntegrate : public BCEngineMCMC
        * Set value of a particular integration variable to 0.
        * @param index The index of the variable */
       void UnsetVar(int index)
-         { fVarlist[index] = 0; };
+         { fVarlist[index] = 0; }
 
       /**
        * Evaluate the unnormalized probability at a point in parameter space.
@@ -591,7 +595,7 @@ class BCIntegrate : public BCEngineMCMC
        * @param x A vector of x-values
        * @return The value of the fit function at the x-values given a set of parameters */
       virtual double FitFunction(std::vector <double> /*x*/, std::vector <double> /*parameters*/)
-         { return 0.; };
+         { return 0.; }
 
       /**
        * Does the integration over the un-normalized probability.
@@ -820,7 +824,7 @@ class BCIntegrate : public BCEngineMCMC
        * Method executed for every iteration of the MCMC. User's code should be
        * provided via overloading in the derived class*/
       virtual void MCMCUserIterationInterface()
-         {};
+         {}
 
       /**
        * Reset all information on the best fit parameters.
@@ -829,21 +833,21 @@ class BCIntegrate : public BCEngineMCMC
 
       std::string DumpIntegrationMethod(BCIntegrationMethod type);
       std::string DumpIntegrationMethod()
-         { return DumpIntegrationMethod(fIntegrationMethod); };
+         { return DumpIntegrationMethod(fIntegrationMethod); }
 
       std::string DumpMarginalizationMethod(BCMarginalizationMethod type);
       std::string DumpMarginalizationMethod()
-         { return DumpMarginalizationMethod(fMarginalizationMethod); };
+         { return DumpMarginalizationMethod(fMarginalizationMethod); }
 
       std::string DumpOptimizationMethod(BCOptimizationMethod type);
       std::string DumpOptimizationMethod()
-         { return DumpOptimizationMethod(fOptimizationMethod); };
+         { return DumpOptimizationMethod(fOptimizationMethod); }
       std::string DumpUsedOptimizationMethod()
-         { return DumpOptimizationMethod(fOptimizationMethodMode); };
+         { return DumpOptimizationMethod(fOptimizationMethodMode); }
 
       std::string DumpCubaIntegrationMethod(BCCubaMethod type);
       std::string DumpCubaIntegrationMethod()
-         { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); };
+         { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); }
 
 
       /** @} */
@@ -1078,9 +1082,6 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
       void MCMCFillErrorBand();
-
-//      friend class BCModelOutput;
-
 };
 
 // ---------------------------------------------------------

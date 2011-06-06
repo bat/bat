@@ -37,24 +37,24 @@ class BCEngineMCMC
 
 	public:
 
-	/** \name Enumerators  */
-	/** @{ */
-	
-	/** An enumerator for the status of a test. */ 
-  enum Precision{ kLow, kMedium, kHigh, kVeryHigh }; 
-	
-	/** @} */
-	/** \name Constructors and destructors */
-	/** @{ */
-	
-	/**
-	 * Default constructor. */
-	BCEngineMCMC();
-	
-	/**
-	 * Constructor.
-	 * @param n number of chains */
-	BCEngineMCMC(int n);
+      /** \name Enumerators  */
+      /** @{ */
+
+      /** An enumerator for the status of a test. */
+     enum Precision{ kLow, kMedium, kHigh, kVeryHigh };
+
+      /** @} */
+      /** \name Constructors and destructors */
+      /** @{ */
+
+      /**
+       * Default constructor. */
+      BCEngineMCMC();
+
+      /**
+       * Constructor.
+       * @param n number of chains */
+      BCEngineMCMC(int n);
 	
 		/**
 		 * Default copy constructor. */
@@ -79,95 +79,95 @@ class BCEngineMCMC
 		/**
 		 * @return number of parameters of the Markov chain */
 		int MCMCGetNParameters()
-			{ return fMCMCNParameters; };
+			{ return fMCMCNParameters; }
 
 		/**
 		 * @return number of Markov chains */
 		int MCMCGetNChains()
-			{ return fMCMCNChains; };
+			{ return fMCMCNChains; }
 
 		/**
 		 * @return lag of the Markov chains */
 		int MCMCGetNLag()
-			{ return fMCMCNLag; };
+			{ return fMCMCNLag; }
 
 		/**
 		 * @return number of iterations */
 		std::vector <int> MCMCGetNIterations()
-			{ return fMCMCNIterations; };
+			{ return fMCMCNIterations; }
 
 		/**
 		 * @return current iterations */
 		int MCMCGetCurrentIteration()
-			{ return fMCMCCurrentIteration; }; 
+			{ return fMCMCCurrentIteration; }
 
 		/**
 		 * @return current chain index */
 		int MCMCGetCurrentChain()
-			{ return fMCMCCurrentChain; }; 
+			{ return fMCMCCurrentChain; }
 
 		/**
 		 * @return number of iterations needed for all chains to
 		 * converge simultaneously */
 		int MCMCGetNIterationsConvergenceGlobal()
-			{ return fMCMCNIterationsConvergenceGlobal; };
+			{ return fMCMCNIterationsConvergenceGlobal; }
 
 		/**
 		 * @return flag if converged or not */
 		bool MCMCGetFlagConvergenceGlobal()
-			{ return fMCMCFlagConvergenceGlobal; };
+			{ return fMCMCFlagConvergenceGlobal; }
 
 		/**
 		 * @return maximum number of iterations for a Markov chain */
 		int MCMCGetNIterationsMax()
-			{ return fMCMCNIterationsMax; };
+			{ return fMCMCNIterationsMax; }
 
 		/**
 		 * @return number of iterations for a Markov chain */
 		int MCMCGetNIterationsRun()
-			{ return fMCMCNIterationsRun; };
+			{ return fMCMCNIterationsRun; }
 
 		/**
 		 * @return minimum number of pre-run iterations for a Markov chain */
 		int MCMCGetNIterationsPreRunMin()
-			{ return fMCMCNIterationsPreRunMin; };
+			{ return fMCMCNIterationsPreRunMin; }
 
 		/**
 		 * @return number of iterations after statistics update. */
 		int MCMCGetNIterationsUpdate()
-			{ return fMCMCNIterationsUpdate; };
+			{ return fMCMCNIterationsUpdate; }
 
 		/**
 		 * @return maximum number of iterations after statistics update. */
 		int MCMCGetNIterationsUpdateMax()
-			{ return fMCMCNIterationsUpdateMax; };
+			{ return fMCMCNIterationsUpdateMax; }
 
 		/**
 		 * @returns number of accepted trials for each chain */
 		std::vector <int> MCMCGetNTrialsTrue()
-			{ return fMCMCNTrialsTrue; };
+			{ return fMCMCNTrialsTrue; }
 
 		/**
 		 * @returns number of not-accepted trials for each chain */
 		std::vector <int> MCMCGetNTrialsFalse()
-			{ return fMCMCNTrialsFalse; };
+			{ return fMCMCNTrialsFalse; }
 
 		/**
 		 * @return mean value of the probability for each chain up to
 		 * the current iteration  */
 		std::vector <double> MCMCGetprobMean()
-			{ return fMCMCprobMean; };
+			{ return fMCMCprobMean; }
 
 		/**
 		 * @return mean value of the probability for each chain up to
 		 * the current iteration */
 		std::vector <double> MCMCGetVariance()
-			{ return fMCMCprobVar; };
+			{ return fMCMCprobVar; }
 
 		/**
 		 * @return scale factor for all parameters and chains */
 		std::vector <double> MCMCGetTrialFunctionScaleFactor()
-			{ return fMCMCTrialFunctionScaleFactor; };
+			{ return fMCMCTrialFunctionScaleFactor; }
 
 		/**
 		 * @return scale factor for all parameters and achain.
@@ -183,7 +183,7 @@ class BCEngineMCMC
 		/**
 		 * @return current point of each Markov chain */
 		std::vector <double> MCMCGetx()
-			{ return fMCMCx; };
+			{ return fMCMCx; }
 
 		/**
 		 * @param ichain index of the Markov chain
@@ -199,7 +199,7 @@ class BCEngineMCMC
 		/**
 		 * @return log of the probability of the current points of each Markov chain */
 		std::vector <double> MCMCGetLogProbx()
-			{ return fMCMCprob; };
+			{ return fMCMCprob; }
 
 		/**
 		 * @return log of the probability of the current points of the Markov chain.
@@ -209,17 +209,17 @@ class BCEngineMCMC
 		/**
 		 * @return pointer to the phase of a run. */ 
 		int MCMCGetPhase()
-			{ return fMCMCPhase; };
+			{ return fMCMCPhase; }
 
 		/**
 		 * @return pointer to the cycle of a pre-run. */ 
 		int MCMCGetCycle()
-			{ return fMCMCCycle; };
+			{ return fMCMCCycle; }
 
 		/**
 		 * @return maximum points of each Markov chain */
 		std::vector <double> MCMCGetMaximumPoints()
-			{ return fMCMCxMax; };
+			{ return fMCMCxMax; }
 
 		/**
 		 * @return maximum point of  Markov chain
@@ -229,33 +229,33 @@ class BCEngineMCMC
 		/**
 		 * @return maximum (log) probability of each Markov chain */
 		std::vector <double> MCMCGetMaximumLogProb()
-			{ return fMCMCprobMax; };
+			{ return fMCMCprobMax; }
 
 		/**
 		 * @return flag which defined initial position */
 		int MCMCGetFlagInitialPosition()
-			{ return fMCMCFlagInitialPosition; };
+			{ return fMCMCFlagInitialPosition; }
 
 		/**
 		 * @return R-value criterion */
 		double MCMCGetRValueCriterion()
-			{ return fMCMCRValueCriterion; };
+			{ return fMCMCRValueCriterion; }
 
 		/**
 		 * @return R-value criterion for parameters */
 		double MCMCGetRValueParametersCriterion()
-			{ return fMCMCRValueParametersCriterion; };
+			{ return fMCMCRValueParametersCriterion; }
 
 		/**
 		 * @return R-value */
 		double MCMCGetRValue()
-			{ return fMCMCRValue; };
+			{ return fMCMCRValue; }
 
 		/**
 		 * @return R-value for a parameter
 		 * @param i parameter index */
 		double MCMCGetRValueParameters(int i)
-			{ return fMCMCRValueParameters.at(i); };
+			{ return fMCMCRValueParameters.at(i); }
 
 	    /** Use strict or relaxed rule for Gelman/Rubin R-value */
       bool MCMCGetRValueStrict()
@@ -264,14 +264,14 @@ class BCEngineMCMC
 		/**
 		 * @return the flag if MCMC has been performed or not */
 		bool MCMCGetFlagRun()
-		{ return fMCMCFlagRun; };
+		{ return fMCMCFlagRun; }
 
 		/**
 		 * Rtrieve the tree containing the Markov chain.
 		 * @param i index of the Markov chain
 		 * @return pointer to the tree */
 		TTree * MCMCGetMarkovChainTree(int i)
-			{ return fMCMCTrees.at(i); };
+			{ return fMCMCTrees.at(i); }
 
 		/**
 		 * Retrieve a histogram of the 1D marginalized distribution of a single parameter.
@@ -291,7 +291,7 @@ class BCEngineMCMC
 		 * Any  non-zero seed gives reproducible behavior,e.g.
 		 * m->MCMCGetTRandom3()->SetSeed(21340) */
 		TRandom3 * MCMCGetTRandom3()
-			{ return fRandom; };
+			{ return fRandom; }
 
 		/** @} */
 		/** \name Setters */
@@ -301,7 +301,7 @@ class BCEngineMCMC
 		 * Set the scale factors for the trial functions
 		 * @param scale a vector of doubles containing the scale factors */
 		void MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)
-			{ fMCMCTrialFunctionScaleFactorStart = scale; };
+			{ fMCMCTrialFunctionScaleFactorStart = scale; }
 
 		/**
 		 * Sets the number of Markov chains which are run in parallel. */
@@ -310,29 +310,29 @@ class BCEngineMCMC
 		/**
 		 * Sets the lag of the Markov chains */
 		void MCMCSetNLag(int n)
-			{ fMCMCNLag = n; };
+			{ fMCMCNLag = n; }
 
 		/**
 		 * Sets the maximum number of iterations in the pre-run. */
 		void MCMCSetNIterationsMax(int n)
-			{ fMCMCNIterationsMax = n; };
+			{ fMCMCNIterationsMax = n; }
 
 		/**
 		 * Sets the number of iterations. */
 		void MCMCSetNIterationsRun(int n)
-			{ fMCMCNIterationsRun = n; };
+			{ fMCMCNIterationsRun = n; }
 
 		/**
 		 * Sets the minimum number of iterations in the pre-run */
 		void MCMCSetNIterationsPreRunMin(int n)
-			{ fMCMCNIterationsPreRunMin = n; };
+			{ fMCMCNIterationsPreRunMin = n; }
 
 		/**
 		 * Sets the number of iterations in the pre-run after which an
 		 * update on the statistics (convergence, efficiency, etc.) is done.
 		 * @param n The number of iterations.*/
 		void MCMCSetNIterationsUpdate(int n)
-			{ fMCMCNIterationsUpdate = n; };
+			{ fMCMCNIterationsUpdate = n; }
 
 		/**
 		 * Sets the maximum number of iterations in the pre-run after which an
@@ -340,27 +340,27 @@ class BCEngineMCMC
 		 * If set to 0 no maximum is set.
 		 * @param n maximum number of iterations. */
 		void MCMCSetNIterationsUpdateMax(int n)
-			{ fMCMCNIterationsUpdateMax = n; };
+			{ fMCMCNIterationsUpdateMax = n; }
 
 		/**
 		 * Sets the minimum efficiency required for a chain. */
 		void MCMCSetMinimumEfficiency(double efficiency)
-			{ fMCMCEfficiencyMin = efficiency; };
+			{ fMCMCEfficiencyMin = efficiency; }
 
 		/**
 		 * Sets the maximum efficiency required for a chain. */
 		void MCMCSetMaximumEfficiency(double efficiency)
-			{ fMCMCEfficiencyMax = efficiency; };
+			{ fMCMCEfficiencyMax = efficiency; }
 
 		/**
 		 * Sets flag to write Markov chains to file. */
 		void MCMCSetWriteChainToFile(bool flag)
-			{ fMCMCFlagWriteChainToFile = flag; };
+			{ fMCMCFlagWriteChainToFile = flag; }
 
 		/**
 		 * Sets flag to write pre run to file. */
 		void MCMCSetWritePreRunToFile(bool flag)
-			{ fMCMCFlagWritePreRunToFile = flag; };
+			{ fMCMCFlagWritePreRunToFile = flag; }
 
 		/**
 		 * Sets the initial positions for all chains.
@@ -375,13 +375,13 @@ class BCEngineMCMC
 		/**
 		 * Sets flag which defines initial position.  */
 		void MCMCSetFlagInitialPosition(int flag)
-			{ fMCMCFlagInitialPosition = flag; };
+			{ fMCMCFlagInitialPosition = flag; }
 
 		/**
 		 * Sets the flag which controls the sequence parameters during the
 		 * running of the MCMC.  */
 		void MCMCSetFlagOrderParameters(bool flag)
-			{ fMCMCFlagOrderParameters = flag; };
+			{ fMCMCFlagOrderParameters = flag; }
 
 		/** Sets the flag for all parameters to either fill histograms or not. */
 		void MCMCSetFlagFillHistograms(bool flag);
@@ -391,17 +391,17 @@ class BCEngineMCMC
 
 		/** Sets the flag if a prerun should be performed or not. */
 		void MCMCSetFlagPreRun(bool flag) 
-		{ fMCMCFlagPreRun = flag; }; 
+		{ fMCMCFlagPreRun = flag; }
 
 		/**
 		 * Sets the R-value criterion for convergence of all chains. */
 		void MCMCSetRValueCriterion(double r)
-			{ fMCMCRValueCriterion = r; };
+			{ fMCMCRValueCriterion = r; }
 
 		/**
 		 * Sets the parameter R-value criterion for convergence of all chains */
 		void MCMCSetRValueParametersCriterion(double r)
-			{ fMCMCRValueParametersCriterion = r; };
+			{ fMCMCRValueParametersCriterion = r; }
 
 		/** Use strict or relaxed rule for Gelman/Rubin R-value */
 		void MCMCSetRValueStrict(bool strict=true)
@@ -575,7 +575,7 @@ class BCEngineMCMC
 		 * ordered parameters. This method needs to be overloaded in the derived
 		 * class. */
 		virtual void MCMCIterationInterface()
-			{};
+			{}
 
 		/**
 		 * Interface allowing to execute arbitrary code for each new point

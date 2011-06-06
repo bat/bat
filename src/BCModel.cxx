@@ -956,10 +956,11 @@ int BCModel::MarginalizeAll()
             fErrorBandXY->SetBinContent(ix, iy, 0.);
    }
 
+   // run the Markov chains
    MCMCMetropolis();
-	 //   FindModeMCMC();
 
-   //   PrintResults(Form("%s.txt", GetName().data()));
+   // store the mode found by the chains
+   StoreMode();
 
    return 1;
 }
@@ -1000,9 +1001,8 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
    // set best fit parameter
    double bestfit = hprob->GetMode();
 
-   if (fBestFitParametersMarginalized.size() == 0)
-      for (unsigned int i = 0; i < GetNParameters(); i++)
-         fBestFitParametersMarginalized.push_back(0.);
+   if (fBestFitParametersMarginalized.empty())
+       fBestFitParametersMarginalized.assign(GetNParameters(), 0.0);
 
    fBestFitParametersMarginalized[index] = bestfit;
 
@@ -2202,7 +2202,7 @@ void BCModel::PrintResults(const char * file)
    ofi << " Results of the optimization" << std::endl
        << " ===========================" << std::endl
        << " Optimization algorithm used: "
-		 << DumpOptimizationMethod() << std::endl;
+		 << DumpUsedOptimizationMethod()<< std::endl;
 
    if (int(fBestFitParameters.size()) > 0) {
       ofi << " List of parameters and global mode:" << std::endl;
@@ -2296,7 +2296,6 @@ void BCModel::PrintResults(const char * file)
 				 ofi << std::endl;
       }
    }
-
    if (fMCMCFlagRun) {
       ofi << " Status of the MCMC" << std::endl << " ==================" << std::endl
 					<< " Convergence reached:                    " << (flag_conv ? "yes" : "no")
@@ -2418,6 +2417,30 @@ int BCModel::CompareStrings(const char * string1, const char * string2)
          flag_same = -1;
 
    return flag_same;
+}
+
+void BCModel::StoreMode()
+{
+   //start with max. of posterior at first chain
+   double probmax = fMCMCprobMax.at(0);
+   int probmaxindex = 0;
+
+   // loop over all chains and find the maximum point
+   for (int i = 1; i < fMCMCNChains; ++i) {
+      if (fMCMCprobMax.at(i) > probmax) {
+         probmax = fMCMCprobMax.at(i);
+         probmaxindex = i;
+      }
+   }
+
+   // save if improved the log posterior
+   if (fBestFitParameters.empty() || probmax > LogEval(fBestFitParameters)) {
+      fBestFitParameters.assign(fMCMCNParameters, 0.0);
+      for (int i = 0; i < fMCMCNParameters; ++i)
+         fBestFitParameters[i] = fMCMCxMax[probmaxindex * fMCMCNParameters + i];
+
+      SetOptimizationMethodMode(BCIntegrate::kOptMetropolis);
+   }
 }
 
 // ---------------------------------------------------------

@@ -903,7 +903,7 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
 			sumv += fMCMCprobVar[i];
 		}
 
-		// calculate r-value for log-likelihood
+		// calculate r-value for log-posterior
 
 		//target mean
 		double mean = sum / double(fMCMCNChains);
@@ -911,16 +911,11 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
 		double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints);
 		//average of within-sequence variances
 		double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains);
-//		double r = 100.0;
 
 		if (W > 0)
 		{
-
-
-
          fMCMCRValue = MCMCCalculateRValue(fMCMCprobMean, fMCMCprobVar, mean, B, W,
                npoints);
-
 
          // set flag to false if convergence criterion is not fulfilled for the log-likelihood
          if (!((fMCMCRValue - 1.0) < fMCMCRValueCriterion))
@@ -1522,14 +1517,16 @@ int BCEngineMCMC::MCMCMetropolis()
 	int probmaxindex = 0;
 
 	// loop over all chains and find the maximum point
-	for (int i = 1; i < fMCMCNChains; ++i)
+	for (int i = 1; i < fMCMCNChains; ++i) {
 		if (fMCMCprobMax.at(i) > probmax)
 		{
 			probmax = fMCMCprobMax.at(i);
 			probmaxindex = i;
 		}
+	}
 
 	BCLog::OutDetail(" --> Global mode from MCMC:");
+	BCLog::OutDebug(Form(" --> Posterior value: %g", probmax));
 	int ndigits = (int) log10(fMCMCNParameters);
 	for (int i = 0; i < fMCMCNParameters; ++i)
 		BCLog::OutDetail(Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
