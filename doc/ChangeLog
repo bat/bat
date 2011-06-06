@@ -1,7 +1,20 @@
+2011-06-06 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BC[EngineMCMC|Integrate|Model].h:
+	  - remove trailing semicola
+	  - format inline methods uniformly
+	* BC[EngineMCMC|].cxx:
+	  - code clean up
+	* BCIntegrate.cxx:
+	  - fix bug in DumpOptimizationMethod
+	* BCModel.cxx:
+	  - clean up
+	  - store the mode found during marginalization properly
+	  - bugfix: PrintAllMarginalized works without MINUIT called before
+
 2011-06-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx: fixed dumping of optimization method
 	* BCModel.cxx: changed order in PrintSummary()
-	* Updated todo list
+	* Updated todo list  
 
 2011-05-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx/.h: added copy constructor
