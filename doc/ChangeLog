@@ -1,3 +1,8 @@
+2011-06-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate.cxx: fixed dumping of optimization method
+	* BCModel.cxx: changed order in PrintSummary()
+	* Updated todo list
+
 2011-05-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx/.h: added copy constructor
 	* BCIntegrate.cxx/.h: added copy constructor

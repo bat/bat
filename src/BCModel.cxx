@@ -2199,6 +2199,43 @@ void BCModel::PrintResults(const char * file)
           << fParameterSet->at(i)->GetUpperLimit() << ")" << std::endl;
    ofi << std::endl;
 
+   ofi << " Results of the optimization" << std::endl
+       << " ===========================" << std::endl
+       << " Optimization algorithm used: "
+		 << DumpOptimizationMethod() << std::endl;
+
+   if (int(fBestFitParameters.size()) > 0) {
+      ofi << " List of parameters and global mode:" << std::endl;
+      for (int i = 0; i < npar; ++i) {
+         ofi << "  (" << i << ") Parameter \""
+             << fParameterSet->at(i)->GetName().data() << "\": "
+             << fBestFitParameters[i];
+				 if (int(fBestFitParameterErrors.size()) == npar)
+					 if(fBestFitParameterErrors[i]>=0.)
+						 ofi << " +- " << fBestFitParameterErrors[i];
+         ofi << std::endl;
+      }
+      ofi << std::endl;
+   }
+   else {
+      ofi << " No best fit information available." << std::endl;
+      ofi << std::endl;
+   }
+
+   if (fPValue >= 0.) {
+      ofi << " Results of the model test" << std::endl
+          << " =========================" << std::endl
+          << " p-value at global mode: " << fPValue << std::endl << std::endl;
+   }
+
+   if (fNormalization >= 0.) {
+		 ofi << " Results of the normalization" << std::endl
+				 << " ============================" << std::endl
+				 << " Integration method used:"
+				 << DumpIntegrationMethod() << std::endl;
+		 ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
+   }
+
    // give warning if MCMC did not converge
    if (!flag_conv && fMCMCFlagRun)
       ofi << " WARNING: the Markov Chain did not converge!" << std::endl
@@ -2258,43 +2295,6 @@ void BCModel::PrintResults(const char * file)
 							 << std::endl;
 				 ofi << std::endl;
       }
-   }
-
-   ofi << " Results of the optimization" << std::endl
-       << " ===========================" << std::endl
-       << " Optimization algorithm used:"
-		 << DumpOptimizationMethod() << std::endl;
-
-   if (int(fBestFitParameters.size()) > 0) {
-      ofi << " List of parameters and global mode:" << std::endl;
-      for (int i = 0; i < npar; ++i) {
-         ofi << "  (" << i << ") Parameter \""
-             << fParameterSet->at(i)->GetName().data() << "\": "
-             << fBestFitParameters[i];
-				 if (int(fBestFitParameterErrors.size()) == npar)
-					 if(fBestFitParameterErrors[i]>=0.)
-						 ofi << " +- " << fBestFitParameterErrors[i];
-         ofi << std::endl;
-      }
-      ofi << std::endl;
-   }
-   else {
-      ofi << " No best fit information available." << std::endl;
-      ofi << std::endl;
-   }
-
-   if (fPValue >= 0.) {
-      ofi << " Results of the model test" << std::endl
-          << " =========================" << std::endl
-          << " p-value at global mode: " << fPValue << std::endl << std::endl;
-   }
-
-   if (fNormalization >= 0.) {
-		 ofi << " Results of the normalization" << std::endl
-				 << " ============================" << std::endl
-				 << " Integration method used:"
-				 << DumpIntegrationMethod() << std::endl;
-		 ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
    }
 
    if (fMCMCFlagRun) {

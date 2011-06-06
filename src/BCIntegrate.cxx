@@ -2362,7 +2362,7 @@ std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMetho
       case BCIntegrate::kOptMetropolis:
          return "Metropolis MCMC";
       case BCIntegrate::kOptMinuit:
-         return "Metropolis MCMC";
+         return "Minuit";
       default:
          return "Undefined";
    }

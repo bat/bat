@@ -65,6 +65,7 @@ fixed           Allow user to define multivariate proposal function (Kevin) -> y
                 Is the p-value calculator reliable (Shabnaz)
 fixed           Continuous running of MCMC (Kevin)
 fixed           Delta-function priors (Kevin)
+                Check normalization of Likelihood (all)
 
 Optional tasks:
 
