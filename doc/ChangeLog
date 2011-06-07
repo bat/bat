@@ -1,3 +1,8 @@
+2011-06-07 Daniel Kollar <daniel.kollar@cern.ch>
+	* updated release notes
+	* raised versions of libraries
+	* raised BAT version to 0.4.3.rc2
+
 2011-06-06 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BC[EngineMCMC|Integrate|Model].h:
 	  - remove trailing semicola
@@ -14,7 +19,7 @@
 2011-06-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx: fixed dumping of optimization method
 	* BCModel.cxx: changed order in PrintSummary()
-	* Updated todo list  
+	* Updated todo list
 
 2011-05-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx/.h: added copy constructor
@@ -55,9 +60,9 @@
 	    object while running BAT (activated by a switch in the constructor)
 	  - added functionality to retrieve RooStats MarkovChain and MCMCInterval
 	    objects from BATCalculator (as a byproduct this allows to construct
-		 also 2D intervals using BATCalculator. If demand for this
-		 functionality rises I will also add a way to get the 2D interval
-		 in a more direct way from BAT itself.)
+	    also 2D intervals using BATCalculator. If demand for this
+	    functionality rises I will also add a way to get the 2D interval
+	    in a more direct way from BAT itself.)
 	  - added function allowing to fix the left side tail fraction
 	    of the 1D interval
 	  - renamed a few functions to improve the consistency with other
