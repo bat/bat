@@ -25,6 +25,12 @@ o Quick setting now runs two chains by default (was one before).
 o Added strict definition of r-value.
 
 
+BCHistogramFitter
+-----------------
+o Introduced interface allowing the user to use the data sets from the fast MC
+  to calculate the distribution of an arbitrary statistic.
+
+
 RooStats Interface
 ------------------
 o Added possibility to construct RooStats Markov Chain object.

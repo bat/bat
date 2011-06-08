@@ -1,3 +1,7 @@
+2011-06-08 Daniel Kollar <daniel.kollar@cern.ch>
+	* print BAT version info to screen upon loading of library
+	* update release notes
+
 2011-06-07 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated release notes
 	* raised versions of libraries

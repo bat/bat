@@ -137,8 +137,8 @@ void BCLog::StartupInfo()
 	if (BCLog::IsOpen() && BCLog::fMinimumLogLevelFile<BCLog::nothing)
 		BCLog::fOutputStream << message;
 
-	if (BCLog::fMinimumLogLevelScreen<BCLog::nothing)
-		std::cout << message;
+//	if (BCLog::fMinimumLogLevelScreen<BCLog::nothing)
+//		std::cout << message;
 
 	fFirstOutputDone = true;
 }
@@ -165,3 +165,21 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 }
 
 // ---------------------------------------------------------
+
+int printBATUponLoading()
+{
+   std::cout <<
+      " +------------------------------\n"
+      " |\n"
+      " |     Running with BAT\n"
+      " |      Version " << VERSION << "\n"
+      " |\n"
+      " | http://www.mppmu.mpg.de/bat\n"
+      " +------------------------------\n";
+   return 0;
+}
+
+static int tmpvarPrint = printBATUponLoading();
+
+// ---------------------------------------------------------
+
