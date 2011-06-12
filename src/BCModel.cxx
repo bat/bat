@@ -2331,7 +2331,7 @@ void BCModel::PrintResults(const char * file)
    }
 
 	 ofi << " -----------------------------------------------------" << std::endl
-			 << " Notation: " << std::endl
+			 << " Notation:" << std::endl
 			 << " Mean        : mean value of the marg. pdf" << std::endl
 			 << " Median      : maximum of the marg. pdf" << std::endl
 			 << " Marg. mode  : most probable value of the marg. pdf" << std::endl
