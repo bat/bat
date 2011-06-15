@@ -29,13 +29,14 @@ Dependencies
 ROOT:
    ROOT is an object oriented data analysis framework. You can obtain
    it from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version
-	5.22 or later is needed to compile and run BAT. Please, check your
-	linux distribution for the availability of precompiled packages on
-	your system. Mostly used distributions nowdays have the ROOT packages
-	available.
+   5.22 or later is needed to compile and run BAT. Please, check your
+   linux distribution for the availability of precompiled packages on
+   your system. Mostly used distributions nowdays have the ROOT packages
+   available.
 
 Note: To be able to use the interface to RooFit/RooStats the ROOT version
-      5.27/04 or later is necessary.
+      5.27/04 or later is necessary and ROOT has to be compiled with
+      MathMore enabled.
 
 Recommended
 -----------
@@ -43,10 +44,10 @@ CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
    http://www.feynarts.de/cuba/. BAT will compile and run with Cuba
-	version 2.0 or later. Cuba is not necessary to run BAT, however, its
-	use is recommended as it provides integration routines tuned for
-	performance, which are very usefull for integration in problems with
-	large number of dimensions.
+   version 2.0 or later. Cuba is not necessary to run BAT, however, its
+   use is recommended as it provides integration routines tuned for
+   performance, which are very usefull for integration in problems with
+   large number of dimensions.
 
 Installation Procedure
 ----------------------

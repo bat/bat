@@ -110,10 +110,19 @@ AC_DEFUN([HAS_ROOSTATS],
   if test ! x"$ROOTCONF" = "xno" ; then
 
     AC_MSG_CHECKING(whether ROOT is compiled with RooFit/RooStats support)
-	 hasroofit=`$ROOTCONF --has-roofit`
+    hasroofit=`$ROOTCONF --has-roofit`
     if test x$hasroofit = xno ; then
       AC_MSG_RESULT(no)
       no_roofit="yes"
+    else
+      AC_MSG_RESULT(yes)
+    fi
+
+    AC_MSG_CHECKING(whether ROOT is compiled with MathMore support)
+    hasmathmore=`$ROOTCONF --has-mathmore`
+    if test x$hasmathmore = xno ; then
+      AC_MSG_RESULT(no)
+      no_mathmore="yes"
     else
       AC_MSG_RESULT(yes)
     fi
@@ -122,7 +131,7 @@ AC_DEFUN([HAS_ROOSTATS],
     no_roofit="yes"
   fi
 
-  if test "x$no_roofit" = "x" ; then
+  if test "x$no_roofit" = "x" && test "x$no_mathmore" = "x"; then
     ifelse([$1], , :, [$1])
   else
     ifelse([$2], , :, [$2])

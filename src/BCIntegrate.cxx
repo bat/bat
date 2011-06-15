@@ -289,7 +289,7 @@ BCIntegrate & BCIntegrate::operator = (const BCIntegrate & bcintegrate)
 	 fMarkovChainTree          = bcintegrate.fMarkovChainTree;
 	 fMCMCIteration            = bcintegrate.fMCMCIteration;
  	 fSAT0                     = bcintegrate.fSAT0;
-	 fSATmin                   = bcintegrate.fSATmin; 
+	 fSATmin                   = bcintegrate.fSATmin;
 	 // debugKK
 	 fTreeSA = 0;
 	 fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
@@ -301,7 +301,7 @@ BCIntegrate & BCIntegrate::operator = (const BCIntegrate & bcintegrate)
 		 fx = new BCParameterSet(*(bcintegrate.fx));
 	 else
 		 fx = 0;
-	 fMin                      = new double[fNvar]; 
+	 fMin                      = new double[fNvar];
 	 fMax                      = new double[fNvar];
 	 fVarlist                  = new int[fNvar];
 	 fNiterPerDimension        = bcintegrate.fNiterPerDimension;
@@ -567,9 +567,9 @@ double BCIntegrate::Integrate()
    parameter.assign(fNvar, 0.0);
 
    BCLog::OutSummary(
-			Form("Running numerical integration using %s (%s)",
-			DumpIntegrationMethod().c_str(),
-			DumpCubaIntegrationMethod().c_str()));
+         Form("Running numerical integration using %s (%s)",
+         DumpIntegrationMethod().c_str(),
+         DumpCubaIntegrationMethod().c_str()));
 
    switch(fIntegrationMethod)
    {

@@ -146,7 +146,8 @@ distributions nowadays have the \Root\ packages available. \\
 
 \noindent
 Note: To be able to use the interface to RooFit/RooStats the \Root\
-version \RooStatsVersion\ or later is necessary.
+version \RooStatsVersion\ or later is necessary and \Root\ has to be compiled
+with \verb|MathMore| support.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -186,7 +187,7 @@ Enter the directory and run the configuration using commands
    ./configure
 \end{verbatim}
 
-\noindent 
+\noindent
 This will check your system for all components needed to compile \bat\
 and set up the paths for installation. You can add option
 \verb|--prefix=/path/to/install/bat| to \verb|./configure| to specify
@@ -393,7 +394,7 @@ simple problems, caching can significantly speed up the execution,
 while for complicated likelihoods, the time spent calculating the
 prior probability is usually negligible. \\
 
-\noindent 
+\noindent
 In case the prior is undefined for one of the parameters, a constant
 prior for that parameter is assumed, and a warning is issued.
 
@@ -435,14 +436,14 @@ BCModel::GetParameter(char* name).
 
 \noindent
 It is possible to change the lower and upper limit of a parameter
-after it has been added to the model: 
+after it has been added to the model:
 %
 \begin{verbatim}
 BCModel::SetParameterRange(int index, double parmin, double parmax) .
 \end{verbatim}
 %
 A call to this method resets all results obtained so far since the
-model has changed. 
+model has changed.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -724,7 +725,7 @@ double BCModel::GetBestFitParameterError(unsigned int index) .
 Settings and options of the Simulated Annealing algorithm are
 summarized in section~\ref{section:settings:SA}. \\
 
-\noindent 
+\noindent
 If several algorithms are ran one after the other, a flag controls
 whether to ignore the results from a previous maximization:
 %
@@ -828,7 +829,7 @@ following method:
 double BCModel::GetModelAPosterioriProbability() .
 \end{verbatim}
 
-\noindent 
+\noindent
 Alternatively, Bayes factors can be calculated for two models using
 %
 \begin{verbatim}
@@ -846,9 +847,9 @@ manager.
 
 Once the most suitable set of parameters, $\vec{\lambda}^{*}$, for a
 given model and data set, $D$, is estimated it is necessary
-to verify that the one  model under consideration 
+to verify that the one  model under consideration
 gives a reasonable representation of the data
-(regardless of any alternative models). To this end, one can 
+(regardless of any alternative models). To this end, one can
 define a test statistic and calculate a $p$-value. Many more
 details on the interpretation of $p$-values and the various
 choices of test statistics for common fitting problems can be found
@@ -872,7 +873,7 @@ p \equiv  \int_{0}^{k_{0}=p(D|\vec{\lambda}^{*})} f(k) \, \mathrm{d}k \, .
 \noindent
 In the most general case, the $p$-value is calculated using Markov
 Chain Monte Carlo. The dimension of the sampled space is the number
-of datapoints. 
+of datapoints.
  The calculation can be started by
 %
 \begin{verbatim}
@@ -893,9 +894,9 @@ For a number of models the distribution of test certain statistics is
 approximately known. Hence the CPU intensive generation of data sets
 can be avoided, and the $p$-value is computed much faster. \\
 
-\noindent 
+\noindent
 If the total probability of the data $p\left(D|\vec{\lambda}^{*}\right)$
- factorizes into $N$ independent observations 
+ factorizes into $N$ independent observations
 $$p\left(D|\vec{\lambda}^{*}\right) = \prod_{i=1}^N
 p_i\left(y_i|\vec{\lambda}^{*}\right)$$ and the cumulative
 distribution functions (CDF) $F_i(y)= \int_{-\infty}^{y}
@@ -927,7 +928,7 @@ $n_2=3$.  With the CDF defined, the $p$-value is returned from
 double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par)
 \end{verbatim}
 
-\noindent 
+\noindent
 For \textit{Gaussian} problems (handled by the model
 \verb|BCGraphFitter|, sec. \ref{BCGraphFitter}) the standard $\chi^2$
 statistic can be used, including the correction for the number of
@@ -943,14 +944,14 @@ each data point. \\
 \noindent
 In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|)
 there are the following three
-specific choices to obtain a $p$-value 
+specific choices to obtain a $p$-value
 (for details see \cite{BAT_pValue}, Sec. III.D and IV.B):
 \begin{enumerate}
- \item 
+ \item
 \begin{verbatim}
 int CalculatePValueFast(std::vector<double> par, double &pvalue)
 \end{verbatim}
-which uses a discrete Markov chain to vary the bin counts. 
+which uses a discrete Markov chain to vary the bin counts.
 The conditional probability $k$ is then recomputed, and
 again the proportion of datasets with lower $k$ is
 reported as the $p$-value. A more thorough explanation
@@ -1037,7 +1038,7 @@ void MyModel::MCMCIterationInterface()
     double z = fMCMCx.at(i * npar + 2); // parameter with index 2 in chain i
 
     // calculate the radius
-    double r = sqrt(x*x + y*y + z*z); 
+    double r = sqrt(x*x + y*y + z*z);
 
     // fill the histogram
     myHistogramR->Fill(r);
@@ -1045,9 +1046,9 @@ void MyModel::MCMCIterationInterface()
 }
 \end{verbatim}
 
-\noindent 
+\noindent
 An example for the propagation of uncertainties can be found in
-\linebreak \verb|examples/basic/errorpropagation|. 
+\linebreak \verb|examples/basic/errorpropagation|.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1433,7 +1434,7 @@ BCModelOutput::WriteMarkovChain(bool flag = true) .
 %
 Please note that the file size can be large in case you chose this
 options. Each chain is stored as a \Root\ tree. This option allows for
-offline diagnostics of the chains. The variables stored are: 
+offline diagnostics of the chains. The variables stored are:
 
 \begin{itemize}
 \item Phase: describes the phase of the running (1: pre-run, 2: main run),
@@ -1473,8 +1474,8 @@ further reference see the reference guide:
 \item \verb|BCModel::MCMCSetNIterationsUpdate(int n)| Sets the number
   of iterations (default: 1,000) after which the chains are updated in
   the pre-run (e.g., for the calculation of the efficiency and
-  convergence tests). Note that if there are $k$ parameters, each changed one 
-  at a time, the actual number of posterior evaluations between 
+  convergence tests). Note that if there are $k$ parameters, each changed one
+  at a time, the actual number of posterior evaluations between
   two convergence checks is $\min \left(k \cdot n, 10000\right)$, where $n$ is the number of iterations in
   which a new value of exactly one of the $k$ parameters is proposed.
 \item \verb|BCEngine::MCMCSetFlagOrderParameters(bool flag)|. Decides
@@ -1514,7 +1515,7 @@ further reference see the reference guide:
   \linebreak \verb|BCEngineMCMC::kHigh| (for publications).
 \item \verb|BCModel::MCMCGetTRandom3()|. Returns the random number
 generator used with the Markov chain. The default seed is 0, i.e.,
-it is randomly initialized. To obtain reproducible results, use 
+it is randomly initialized. To obtain reproducible results, use
 a non-zero seed. E.g.
 \verb|m->MCMCGetTRandom3()->SetSeed(21340);|.
 \end{itemize}
@@ -1632,7 +1633,7 @@ Particle Data Group, Mathematical Tools or Statistics, Monte Carlo, Group Theory
 
 \bibitem{BAT_pValue}
 F.~Beaujean and A.~Caldwell and D.~Koll{\'a}r and K.~Kr{\"o}ninger,
-``$p$-values for model evaluation'', \textit{Phys.\ Rev.\ D} {\bf 83} (2011) 
+``$p$-values for model evaluation'', \textit{Phys.\ Rev.\ D} {\bf 83} (2011)
 [arxiv:1011.1674]
 
 \bibitem{Johnson_pValue}
