@@ -7,10 +7,10 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCH1D.h"
+#include "BCH1D.h"
 
-#include "BAT/BCLog.h"
-#include "BAT/BCMath.h"
+#include "BCLog.h"
+#include "BCMath.h"
 
 #include <TH1D.h>
 #include <TH2.h>

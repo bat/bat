@@ -1,7 +1,7 @@
 lib_LTLIBRARIES= libBATmodels.la
 libBATmodels_la_LDFLAGS= -version-info 2:0:0
 
-AM_CXXFLAGS= -Wall -fPIC  -I.. $(ROOTCFLAGS)
+AM_CXXFLAGS= -Wall -fPIC  -I.. -I. -I../BAT $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
@@ -35,7 +35,7 @@ incs = \
 
 ## RooStats specific options
 if ROOSTATS
-AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam
+AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 incs += \
 	BCRooInterface.h \
 	BATCalculator.h
@@ -66,20 +66,29 @@ clean-local:
 ## RooStats specific targers
 #if ROOSTATS
 BATCalculatorDict.cxx : BATCalculator.h
-	$(ROOTCINT) -f $@ -c  -I.. $< BATCalculatorLinkDef.h
+	$(ROOTCINT) -f $@ -c  -I.. -I. -I../BAT $< BATCalculatorLinkDef.h
 #endif
 ## End of RooStats specific targets
 
 %Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c  -I.. $<
+	$(ROOTCINT) -f $@ -c  -I.. -I. -I../BAT $<
 
 install-exec-hook:
 	rm -rf libBATmodels.rootmap
 	cp libBATmodels.rootmap.in libBATmodels.rootmap
 	$(ADD_ROOINTERFACE_ROOTMAP)
 	cp libBATmodels.rootmap $(DESTDIR)$(libdir)
-	
-	cp $(library_include_HEADERS) $(DESTDIR)$(includedir)/BAT
 	$(CREATE_SO_LINK)
+
+install-data-hook:
+	for i in $(incs); do \
+		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/' $$i > $$i.h; \
+		if ! diff -q "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i" > /dev/null; then \
+			echo "updating $$i"; \
+			cp -f "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i"; \
+			chmod 664 "$(DESTDIR)$(includedir)/BAT/$$i"; \
+		fi; \
+		rm -f $$i.h; \
+	done
 
 

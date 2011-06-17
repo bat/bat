@@ -8,8 +8,8 @@
 #include <math.h>
 #include <iostream>
 
-#include <BAT/BCLog.h>
-#include <BAT/BCH1D.h>
+#include "BCLog.h"
+#include "BCH1D.h"
 
 #include "BCTemplateFitter.h"
 #include "BCTemplateEnsembleTest.h"

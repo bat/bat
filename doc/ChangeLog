@@ -1,4 +1,9 @@
 2011-06-16 Daniel Kollar <daniel.kollar@cern.ch>
+	* fixing some examples
+	* cleanup all includes
+	* raise version 0.4.3.rc4
+
+2011-06-15 Daniel Kollar <daniel.kollar@cern.ch>
 	* more tiny updates
 	* require Root to be compiled MathMore support for RooInterface, it is
 	  on by default anyway

@@ -10,7 +10,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "BAT/BCParameter.h"
+#include "BCParameter.h"
 
 // ---------------------------------------------------------
 

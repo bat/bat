@@ -7,13 +7,13 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCModelManager.h"
+#include "BCModelManager.h"
 
-#include "BAT/BCModel.h"
-#include "BAT/BCDataSet.h"
-#include "BAT/BCDataPoint.h"
-#include "BAT/BCLog.h"
-#include "BAT/BCErrorCodes.h"
+#include "BCModel.h"
+#include "BCDataSet.h"
+#include "BCDataPoint.h"
+#include "BCLog.h"
+#include "BCErrorCodes.h"
 
 #include <fstream>
 #include <iostream>

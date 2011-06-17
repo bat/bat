@@ -1,7 +1,7 @@
 #include <TDirectory.h>
-#include <TFile.h> 
-#include <TH1D.h> 
-#include <TCanvas.h> 
+#include <TFile.h>
+#include <TH1D.h>
+#include <TCanvas.h>
 
 #include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
@@ -20,7 +20,7 @@ int main()
 
 	// open file
 	TFile * file = new TFile("templates.root", "READ");
-	
+
 	// check if file is open
 	if (!file->IsOpen()) {
 		std::cout << "Could not open file. Exit." << std::endl;
@@ -38,16 +38,16 @@ int main()
 	TH1D hist_sgn_hR = *((TH1D*) file->Get("hist_sgn_hR"));
 
 	// efficiency parameterization
-	TH1D hist_efficiency_bkg = *((TH1D*) file->Get("hist_efficiency_bkg")); 
-	TH1D hist_efficiency_sgn_h0 = *((TH1D*) file->Get("hist_efficiency_sgn_h0")); 
-	TH1D hist_efficiency_sgn_hL = *((TH1D*) file->Get("hist_efficiency_sgn_hL")); 
-	TH1D hist_efficiency_sgn_hR = *((TH1D*) file->Get("hist_efficiency_sgn_hR")); 
+	TH1D hist_efficiency_bkg = *((TH1D*) file->Get("hist_efficiency_bkg"));
+	TH1D hist_efficiency_sgn_h0 = *((TH1D*) file->Get("hist_efficiency_sgn_h0"));
+	TH1D hist_efficiency_sgn_hL = *((TH1D*) file->Get("hist_efficiency_sgn_hL"));
+	TH1D hist_efficiency_sgn_hR = *((TH1D*) file->Get("hist_efficiency_sgn_hR"));
 
 	// efficiency uncertainty parameterization
-	TH1D hist_efferror_bkg = *((TH1D*) file->Get("hist_efferror_bkg")); 
-	TH1D hist_efferror_sgn_h0 = *((TH1D*) file->Get("hist_efferror_sgn_h0")); 
-	TH1D hist_efferror_sgn_hL = *((TH1D*) file->Get("hist_efferror_sgn_hL")); 
-	TH1D hist_efferror_sgn_hR = *((TH1D*) file->Get("hist_efferror_sgn_hR")); 
+	TH1D hist_efferror_bkg = *((TH1D*) file->Get("hist_efferror_bkg"));
+	TH1D hist_efferror_sgn_h0 = *((TH1D*) file->Get("hist_efferror_sgn_h0"));
+	TH1D hist_efferror_sgn_hL = *((TH1D*) file->Get("hist_efferror_sgn_hL"));
+	TH1D hist_efferror_sgn_hR = *((TH1D*) file->Get("hist_efferror_sgn_hR"));
 
 	// systematic uncertainty 1 for all four contributions
 	TH1D hist_systerror1_bkg = *((TH1D*) file->Get("hist_systerror1_bkg"));
@@ -87,7 +87,7 @@ int main()
 	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
 
- 	// ----------------------------------------------------
+	// ----------------------------------------------------
 	// create model
 	// ----------------------------------------------------
 
@@ -127,7 +127,7 @@ int main()
 	model->SetTemplateSystError("syst. error 1", "signal (h= 0)", hist_systerror1_sgn_h0);
 	model->SetTemplateSystError("syst. error 1", "signal (h=-1)", hist_systerror1_sgn_hL);
 	model->SetTemplateSystError("syst. error 1", "signal (h=+1)", hist_systerror1_sgn_hR);
-	
+
 	// add systematic uncertainty 2
 	model->AddSystError("syst. error 2", "gauss");
 	model->SetTemplateSystError("syst. error 2", "background",    hist_systerror2_bkg);
@@ -150,8 +150,8 @@ int main()
 	model->Initialize();
 
 	// run MCMC
-	model->MarginalizeAll(); 
-	
+	model->MarginalizeAll();
+
 	// find global mode
 	model->FindMode();
 
@@ -159,37 +159,37 @@ int main()
 	// print
 	// ----------------------------------------------------
 
-	// print chi2 to screen 
+	// print chi2 to screen
 	std::cout << " Chi2 / ndf = " << model->CalculateChi2( model->GetBestFitParameters()  ) << " / " << model->GetNDF() << " (" << model->CalculateChi2Prob( model->GetBestFitParameters() ) << ")" << std::endl;
-	
+
 	// print KS test results to screen
 	std::cout << " KS probability = " << model->CalculateKSProb() << std::endl;
 
 	// create summary tool
-	BCSummaryTool* st = new BCSummaryTool(model); 
+	BCSummaryTool* st = new BCSummaryTool(model);
 
 	// print data
- 	TCanvas c1("c1");
+	TCanvas c1("c1");
 	c1.cd();
 	hist_data.Draw();
 	c1.Print("data.ps");
 
 	// print results
-	model->PrintAllMarginalized("model_marginalized.eps"); 
+	model->PrintAllMarginalized("model_marginalized.ps");
 	model->PrintStack("model_stack.eps");
 	model->PrintRatios("model_fraction.ps", 0, -95.);
-	model->PrintResults("model_results.txt"); 
+	model->PrintResults("model_results.txt");
 
-	// print templates 
+	// print templates
 	model->PrintTemplate("background", "background.eps");
 	model->PrintTemplate("signal (h= 0)", "signal_h0.eps");
 	model->PrintTemplate("signal (h=-1)", "signal_hL.eps");
 	model->PrintTemplate("signal (h=+1)", "signal_hR.eps");
 
 	// print summary plots
-	st->PrintParameterPlot("model_parameters.eps"); 
-	st->PrintCorrelationPlot("model_correlation.eps"); 
-	st->PrintKnowledgeUpdatePlots("model_update.eps"); 
+	st->PrintParameterPlot("model_parameters.eps");
+	st->PrintCorrelationPlot("model_correlation.eps");
+	st->PrintKnowledgeUpdatePlots("model_update.ps");
 	st->PrintCorrelationMatrix("model_matrix.eps");
 
 	// ----------------------------------------------------
@@ -197,20 +197,20 @@ int main()
 	// ----------------------------------------------------
 
 	// create ensemble test tool
-	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest(); 
+	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest();
 
 	// settings
 	tet->SetTemplateFitter(model);
 	tet->SetTemplateParameters( model->GetBestFitParameters() );
 	//	tet->SetFlagMCMC(true);
-	tet->SetNEnsembles(100); 
-	tet->SetEnsembleExpectation(3151); 
+	tet->SetNEnsembles(100);
+	tet->SetEnsembleExpectation(3151);
 
 	// perform ensemble tests
-	tet->PerformEnsembleTest(); 
+	tet->PerformEnsembleTest();
 
 	// write results to file
-	tet->Write("ensembles.root"); 
+	tet->Write("ensembles.root");
 
 	// ----------------------------------------------------
 	// clean-up and end
@@ -223,7 +223,7 @@ int main()
 	delete model;
 
 	// delete summary tool
-	delete st; 
+	delete st;
 
 	// delete ensemble test tool
 	delete tet;
@@ -232,7 +232,6 @@ int main()
 	return 0;
 
 
-	
 
 
 
@@ -277,16 +276,16 @@ int main()
 	TH1D hist_sgn_hR = *((TH1D*) file->Get("hist_sgn_hR"));
 
 	// efficiency parameterization
-	TH1D hist_efficiency_bkg = *((TH1D*) file->Get("hist_efficiency_bkg")); 
-	TH1D hist_efficiency_sgn_h0 = *((TH1D*) file->Get("hist_efficiency_sgn_h0")); 
-	TH1D hist_efficiency_sgn_hL = *((TH1D*) file->Get("hist_efficiency_sgn_hL")); 
-	TH1D hist_efficiency_sgn_hR = *((TH1D*) file->Get("hist_efficiency_sgn_hR")); 
+	TH1D hist_efficiency_bkg = *((TH1D*) file->Get("hist_efficiency_bkg"));
+	TH1D hist_efficiency_sgn_h0 = *((TH1D*) file->Get("hist_efficiency_sgn_h0"));
+	TH1D hist_efficiency_sgn_hL = *((TH1D*) file->Get("hist_efficiency_sgn_hL"));
+	TH1D hist_efficiency_sgn_hR = *((TH1D*) file->Get("hist_efficiency_sgn_hR"));
 
 	// efficiency uncertainty parameterization
-	TH1D hist_efferror_bkg = *((TH1D*) file->Get("hist_efferror_bkg")); 
-	TH1D hist_efferror_sgn_h0 = *((TH1D*) file->Get("hist_efferror_sgn_h0")); 
-	TH1D hist_efferror_sgn_hL = *((TH1D*) file->Get("hist_efferror_sgn_hL")); 
-	TH1D hist_efferror_sgn_hR = *((TH1D*) file->Get("hist_efferror_sgn_hR")); 	
+	TH1D hist_efferror_bkg = *((TH1D*) file->Get("hist_efferror_bkg"));
+	TH1D hist_efferror_sgn_h0 = *((TH1D*) file->Get("hist_efferror_sgn_h0"));
+	TH1D hist_efferror_sgn_hL = *((TH1D*) file->Get("hist_efferror_sgn_hL"));
+	TH1D hist_efferror_sgn_hR = *((TH1D*) file->Get("hist_efferror_sgn_hR"));
 
 	// data template
 	TH1D hist_sum = *((TH1D*) file->Get("hist_sum"));
@@ -308,7 +307,7 @@ int main()
 	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
 
- 	// ----------------------------------------------------
+	// ----------------------------------------------------
 	// Create new model
 	// ----------------------------------------------------
 
@@ -316,8 +315,8 @@ int main()
 	BCTemplateFitter * model = new BCTemplateFitter("model");
 
 	// set options
-	model->MCMCSetNLag(10); 
-	model->MCMCSetNIterationsRun(10000); 
+	model->MCMCSetNLag(10);
+	model->MCMCSetNIterationsRun(10000);
 	model->SetFlagPhysicalLimits(true);
 
 	// set data histogram
@@ -346,20 +345,20 @@ int main()
 	// ----------------------------------------------------
 
 	// create ensemble test tool
-	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest(); 
+	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest();
 
 	// stetings
 	tet->SetTemplateFitter(model);
 	tet->SetTemplateParameters( model->GetBestFitParameters() );
 	tet->SetEnsembleTemplate(hist_sum); // this histogram is used as a template for the pseudo data
-	tet->SetNEnsembles(1000); 
-	tet->SetEnsembleExpectation(3251); 
+	tet->SetNEnsembles(1000);
+	tet->SetEnsembleExpectation(3251);
 
 	// perform ensemble tests
-	tet->PerformEnsembleTest(); 
+	tet->PerformEnsembleTest();
 
 	// write results to file
-	tet->Write("ensemble.root"); 
+	tet->Write("ensemble.root");
 
 	// ----------------------------------------------------
 	// clean-up and end
@@ -369,7 +368,7 @@ int main()
 	BCLog::CloseLog();
 
 	// delete model
- 	delete model;
+	delete model;
 
 	return 0;
 	*/

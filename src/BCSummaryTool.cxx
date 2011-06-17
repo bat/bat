@@ -24,14 +24,14 @@
 #include <iostream>
 #include <fstream>
 
-#include "BAT/BCModel.h"
-#include "BAT/BCSummaryPriorModel.h"
-#include "BAT/BCH1D.h"
-#include "BAT/BCH2D.h"
-#include "BAT/BCLog.h"
-#include "BAT/BCMath.h"
+#include "BCModel.h"
+#include "BCSummaryPriorModel.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
+#include "BCLog.h"
+#include "BCMath.h"
 
-#include "BAT/BCSummaryTool.h"
+#include "BCSummaryTool.h"
 
 unsigned int BCSummaryTool::fHCounter=0;
 

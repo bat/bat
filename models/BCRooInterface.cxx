@@ -4,7 +4,7 @@
 #include <RooWorkspace.h>
 #include <TFile.h>
 
-#include <BAT/BCMath.h>
+#include "BCMath.h"
 #include <iostream>
 
 #include "BCRooInterface.h"

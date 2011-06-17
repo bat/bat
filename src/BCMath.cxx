@@ -7,8 +7,8 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCMath.h"
-#include "BAT/BCLog.h"
+#include "BCMath.h"
+#include "BCLog.h"
 
 #include <math.h>
 #include <limits>

@@ -9,9 +9,9 @@
 
 #include "config.h"
 
-#include "BAT/BCIntegrate.h"
-#include "BAT/BCLog.h"
-#include "BAT/BCMath.h"
+#include "BCIntegrate.h"
+#include "BCLog.h"
+#include "BCMath.h"
 
 #include <TH1D.h>
 #include <TH2D.h>

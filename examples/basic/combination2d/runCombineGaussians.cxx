@@ -35,8 +35,8 @@ int main()
   // print all summary plots
   summary->PrintParameterPlot("CombinationModel_parameters.ps");
   summary->PrintCorrelationPlot("CombinationModel_correlation.ps");
-  summary->PrintKnowlegdeUpdatePlot("CombinationModel_update.ps");
- 
+  summary->PrintKnowledgeUpdatePlots("CombinationModel_update.ps");
+
   // print results of the analysis into a text file
   m->PrintResults("CombinationModel_results.txt");
 

@@ -49,7 +49,7 @@ int main()
 	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
 
- 	// ----------------------------------------------------
+	// ----------------------------------------------------
 	// Create new model
 	// ----------------------------------------------------
 
@@ -67,20 +67,20 @@ int main()
 
 	// add template histograms
 	model->AddTemplate(hist_background, "Background", 200., 400.);
-	model->AddTemplate(func_signal, "Signal",     0., 200. ); 
+	model->AddTemplate(func_signal, "Signal",     0., 200. );
 
 	// set efficiencies
 	model->SetTemplateEfficiency("Signal",     1., 0.);
 	model->SetTemplateEfficiency("Background", 1., 0.);
 
-	// set priors 
+	// set priors
 	model->SetPriorConstant("Signal");
 	model->SetPriorGauss("Background", nbkg, nbkg/4.);
 	model->SetPriorConstant("Signal mass");
 	model->SetPriorGauss("Signal width", 5.0, 1.0);
 
 	// set constraints
-	// ... no constraints 
+	// ... no constraints
 
 	// ----------------------------------------------------
 	// perform analysis
@@ -90,8 +90,8 @@ int main()
 	model->Initialize();
 
 	// run MCMC
-	model->MarginalizeAll(); 
-	
+	model->MarginalizeAll();
+
 	// find global mode
 	model->FindMode();
 
@@ -100,24 +100,24 @@ int main()
 	// ----------------------------------------------------
 
 	// create summary tool
-	BCSummaryTool* st = new BCSummaryTool(model); 
+	BCSummaryTool* st = new BCSummaryTool(model);
 
 	// print data
- 	TCanvas c1("c1");
+	TCanvas c1("c1");
 	c1.cd();
 	hist_data.Draw();
 	c1.Print("data.ps");
 
 	// print results
-	model->PrintAllMarginalized("model_marginalized.eps"); 
+	model->PrintAllMarginalized("model_marginalized.ps");
 	model->PrintStack("model_stack.eps");
 
 	//	model->PrintRatios("model_fraction.ps");
-	model->PrintResults("model_results.txt"); 
+	model->PrintResults("model_results.txt");
 
-	st->PrintParameterPlot("model_parameters.eps"); 
-	st->PrintCorrelationPlot("model_correlation.eps"); 
-	st->PrintKnowledgeUpdatePlots("model_update.eps"); 
+	st->PrintParameterPlot("model_parameters.eps");
+	st->PrintCorrelationPlot("model_correlation.eps");
+	st->PrintKnowledgeUpdatePlots("model_update.ps");
 	st->PrintCorrelationMatrix("model_matrix.eps");
 
 	// ----------------------------------------------------
@@ -128,10 +128,10 @@ int main()
 	BCLog::CloseLog();
 
 	// delete models
- 	delete model;
+	delete model;
 
 	// delete summary tool
-	delete st; 
+	delete st;
 
 	return 0;
 }

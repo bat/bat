@@ -1,7 +1,7 @@
 #ifndef __BCROOINTERFACE__H
 #define __BCROOINTERFACE__H
 
-#include <BAT/BCModel.h>
+#include "BCModel.h"
 #include <RooStats/MarkovChain.h>
 #include <RooRealVar.h>
 #include <list>

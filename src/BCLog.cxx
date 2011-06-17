@@ -14,7 +14,7 @@
 
 #include "config.h"
 
-#include "BAT/BCLog.h"
+#include "BCLog.h"
 
 std::ofstream BCLog::fOutputStream;
 

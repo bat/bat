@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 
-#include <BAT/BCIntegrate.h>
+#include "BCIntegrate.h"
 
 // ROOT classes
 class TNamed;

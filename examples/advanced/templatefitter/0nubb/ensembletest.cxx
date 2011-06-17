@@ -48,7 +48,7 @@ int main()
 	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
 
- 	// ----------------------------------------------------
+	// ----------------------------------------------------
 	// Create new model
 	// ----------------------------------------------------
 
@@ -65,29 +65,29 @@ int main()
 	double nbkg = 300.0; // prior assumption
 
 	// add template histograms
-	model->AddTemplate(hist_background, "Background", 100., 500.); 
-	model->AddTemplate(hist_signal,     "Signal", 0., 200.); 
+	model->AddTemplate(hist_background, "Background", 100., 500.);
+	model->AddTemplate(hist_signal,     "Signal", 0., 200.);
 
 	// set efficiencies
 	model->SetTemplateEfficiency("Signal",     1.0, 0.);
 	model->SetTemplateEfficiency("Background", 1.0, 0.);
 
-	// set priors 
+	// set priors
 	model->SetPriorGauss("Background", nbkg, nbkg/4.);
 	model->SetPriorConstant("Signal");
 
 	// set constraints
-	// ... no constraints 
+	// ... no constraints
 
 	// ----------------------------------------------------
 	// create output model
 	// ----------------------------------------------------
 
-  // create new output object
-  BCModelOutput* mout = new BCModelOutput(model, "posterior.root");
+	// create new output object
+	BCModelOutput* mout = new BCModelOutput(model, "posterior.root");
 
-  // switch writing of Markov Chains on
-  mout->WriteMarkovChain(true);
+	// switch writing of Markov Chains on
+	mout->WriteMarkovChain(true);
 
 	// ----------------------------------------------------
 	// perform analysis
@@ -97,8 +97,8 @@ int main()
 	model->Initialize();
 
 	// run MCMC
-	model->MarginalizeAll(); 
-	
+	model->MarginalizeAll();
+
 	// find global mode
 	model->FindMode( model->GetBestFitParameters() );
 
@@ -107,17 +107,17 @@ int main()
 	// ----------------------------------------------------
 
 	// create summary tool
-	BCSummaryTool* st = new BCSummaryTool(model); 
+	BCSummaryTool* st = new BCSummaryTool(model);
 
 	// print results
-	model->PrintAllMarginalized("model_marginalized.eps"); 
+	model->PrintAllMarginalized("model_marginalized.ps");
 	model->PrintStack("model_stack.eps");
 	model->PrintRatios("model_fraction.ps");
-	model->PrintResults("model_results.txt"); 
+	model->PrintResults("model_results.txt");
 
-	st->PrintParameterPlot("model_parameters.eps"); 
-	st->PrintCorrelationPlot("model_correlation.eps"); 
-	st->PrintKnowledgeUpdatePlots("model_update.eps"); 
+	st->PrintParameterPlot("model_parameters.eps");
+	st->PrintCorrelationPlot("model_correlation.eps");
+	st->PrintKnowledgeUpdatePlots("model_update.ps");
 	st->PrintCorrelationMatrix("model_matrix.eps");
 
 	// ----------------------------------------------------
@@ -125,14 +125,14 @@ int main()
 	// ----------------------------------------------------
 
 	// create ensemble test tool
-	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest(); 
+	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest();
 
 	// settings
 	tet->SetTemplateFitter(model);
 	tet->SetTemplateParameters( model->GetBestFitParameters() );
 	tet->SetFlagMCMC(false);
-	tet->SetNEnsembles(100); 
-	tet->SetEnsembleExpectation(nbkg); 
+	tet->SetNEnsembles(100);
+	tet->SetEnsembleExpectation(nbkg);
 
 	// get tree from output file
 	TTree* tree = (TTree*) mout->GetFile()->Get("MarkovChainTree_0");
@@ -140,7 +140,7 @@ int main()
 	// perform ensemble tests with varying parameters for ensemble
 	// generation. Parameters are varied according to posterior
 	if (flag_posterior)
-		tet->PerformEnsembleTest(tree); 
+		tet->PerformEnsembleTest(tree);
 
 	// perform ensemble tests with fixed parameter for ensemble
 	// generation
@@ -149,9 +149,9 @@ int main()
 
 	// write results to file
 	if (flag_posterior)
-		tet->Write("ensembles_posterior.root"); 
-	else 
-		tet->Write("ensembles_bestfit.root"); 
+		tet->Write("ensembles_posterior.root");
+	else
+		tet->Write("ensembles_bestfit.root");
 
 	// ----------------------------------------------------
 	// clean-up and end
@@ -160,17 +160,17 @@ int main()
 	// close log file
 	BCLog::CloseLog();
 
-  // close output file
-  mout->Close();
+	// close output file
+	mout->Close();
 
 	// delete model
- 	delete model;
+	delete model;
 
 	// delete model output
 	delete mout;
-	
+
 	// delete summary tool
-	delete st; 
+	delete st;
 
 	// delete ensemble test tool
 	delete tet;

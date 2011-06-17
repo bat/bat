@@ -81,7 +81,7 @@ int main()
 	// add template histograms
 	m_2bkg0sgn->AddTemplate(hist_bkg1, "bkg 1", 0., 100.0);
 	m_2bkg0sgn->AddTemplate(hist_bkg2, "bkg 2", 0., 100.0);
- 
+
 	// set priors
 	m_2bkg0sgn->SetPriorConstant("bkg 1");
 	m_2bkg0sgn->SetPriorConstant("bkg 2");
@@ -118,15 +118,15 @@ int main()
 	m_2bkg1sgn->Initialize();
 
 	// run MCMC and find global mode
-	m_1bkg0sgn->MarginalizeAll(); 
-	m_1bkg0sgn->FindMode(); 
-	m_1bkg1sgn->MarginalizeAll(); 
-	m_1bkg1sgn->FindMode(); 
-	m_2bkg0sgn->MarginalizeAll(); 
-	m_2bkg0sgn->FindMode(); 
-	m_2bkg1sgn->MarginalizeAll(); 
-	m_2bkg1sgn->FindMode(); 
-	
+	m_1bkg0sgn->MarginalizeAll();
+	m_1bkg0sgn->FindMode();
+	m_1bkg1sgn->MarginalizeAll();
+	m_1bkg1sgn->FindMode();
+	m_2bkg0sgn->MarginalizeAll();
+	m_2bkg0sgn->FindMode();
+	m_2bkg1sgn->MarginalizeAll();
+	m_2bkg1sgn->FindMode();
+
 	// ----------------------------------------------------
 	// print
 	// ----------------------------------------------------
@@ -161,35 +161,35 @@ int main()
 
 
 	// print data
- 	TCanvas c1("c1");
+	TCanvas c1("c1");
 	c1.cd();
 	hist_data.Draw();
 	c1.Print("data.ps");
 
 	// print marginalized distribution for signal
- 	c1.cd();
- 	m_1bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
- 	c1.Print("1bkg1sgn_sgn.ps");
+	c1.cd();
+	m_1bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
+	c1.Print("1bkg1sgn_sgn.ps");
 
 	c1.cd();
 	m_2bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
 	c1.Print("2bkg1sgn_sgn.ps");
 
 	// print stack plots and results
- 	m_1bkg0sgn->PrintStack("1bkg0sgn_stack.eps");
- 	m_1bkg1sgn->PrintStack("1bkg1sgn_stack.eps");
- 	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.eps");
+	m_1bkg0sgn->PrintStack("1bkg0sgn_stack.eps");
+	m_1bkg1sgn->PrintStack("1bkg1sgn_stack.eps");
+	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.eps");
 	m_2bkg1sgn->PrintStack("2bkg1sgn_stack.eps");
 
- 	m_1bkg0sgn->PrintRatios("1bkg0sgn_fraction.ps");
- 	m_1bkg1sgn->PrintRatios("1bkg1sgn_fraction.ps");
- 	m_2bkg0sgn->PrintRatios("2bkg0sgn_fraction.ps");
+	m_1bkg0sgn->PrintRatios("1bkg0sgn_fraction.ps");
+	m_1bkg1sgn->PrintRatios("1bkg1sgn_fraction.ps");
+	m_2bkg0sgn->PrintRatios("2bkg0sgn_fraction.ps");
 	m_2bkg1sgn->PrintRatios("2bkg1sgn_fraction.ps");
 
- 	m_1bkg0sgn->PrintResults("1bkg0sgn_results.txt"); 
- 	m_1bkg1sgn->PrintResults("1bkg1sgn_results.txt"); 
- 	m_2bkg0sgn->PrintResults("2bkg0sgn_results.txt"); 
-	m_2bkg1sgn->PrintResults("2bkg1sgn_results.txt"); 
+	m_1bkg0sgn->PrintResults("1bkg0sgn_results.txt");
+	m_1bkg1sgn->PrintResults("1bkg1sgn_results.txt");
+	m_2bkg0sgn->PrintResults("2bkg0sgn_results.txt");
+	m_2bkg1sgn->PrintResults("2bkg1sgn_results.txt");
 
 	// ----------------------------------------------------
 	// clean-up and end
@@ -199,10 +199,10 @@ int main()
 	BCLog::CloseLog();
 
 	// delete models
- 	delete m_1bkg0sgn;
- 	delete m_1bkg1sgn;
- 	delete m_2bkg0sgn;
- 	delete m_2bkg1sgn;
+	delete m_1bkg0sgn;
+	delete m_1bkg1sgn;
+	delete m_2bkg0sgn;
+	delete m_2bkg1sgn;
 
 	return 0;
 }

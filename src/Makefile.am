@@ -1,7 +1,7 @@
 lib_LTLIBRARIES= libBAT.la
 libBAT_la_LDFLAGS= -version-info 4:0:1
 
-AM_CXXFLAGS= -Wall -fPIC  -I.. $(ROOTCFLAGS)
+AM_CXXFLAGS= -Wall -fPIC  -I.. -I. -I../BAT $(ROOTCFLAGS)
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
@@ -66,3 +66,15 @@ clean-local:
 install-exec-hook:
 	cp libBAT.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
+
+install-data-hook:
+	for i in $(library_include_HEADERS); do \
+		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/' $$i > $$i.h; \
+		if ! diff -q "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i" > /dev/null; then \
+			echo "updating $$i"; \
+			cp -f "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i"; \
+			chmod 664 "$(DESTDIR)$(includedir)/BAT/$$i"; \
+		fi; \
+		rm -f $$i.h; \
+	done
+

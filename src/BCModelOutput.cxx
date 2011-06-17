@@ -7,13 +7,13 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCModelOutput.h"
+#include "BCModelOutput.h"
 
-#include "BAT/BCModel.h"
-#include "BAT/BCParameter.h"
-#include "BAT/BCH1D.h"
-#include "BAT/BCH2D.h"
-#include "BAT/BCLog.h"
+#include "BCModel.h"
+#include "BCParameter.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
+#include "BCLog.h"
 
 #include <TDirectory.h>
 #include <TFile.h>
@@ -21,7 +21,7 @@
 #include <TObject.h>
 #include <TH2D.h>
 #include <TH1D.h>
-#include <TString.h> 
+#include <TString.h>
 
 #include <iostream>
 

@@ -7,7 +7,7 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCAux.h"
+#include "BCAux.h"
 
 #include <TStyle.h>
 

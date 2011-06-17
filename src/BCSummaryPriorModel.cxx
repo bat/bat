@@ -9,10 +9,10 @@
 
 #include <TH1D.h>
 
-#include <BAT/BCLog.h>
-#include <BAT/BCH1D.h>
+#include "BCLog.h"
+#include "BCH1D.h"
 
-#include <BAT/BCSummaryPriorModel.h>
+#include "BCSummaryPriorModel.h"
 
 // ---------------------------------------------------------
 BCSummaryPriorModel::BCSummaryPriorModel()

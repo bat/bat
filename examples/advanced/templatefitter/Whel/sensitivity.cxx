@@ -1,7 +1,7 @@
 #include <TDirectory.h>
-#include <TFile.h> 
-#include <TH1D.h> 
-#include <TCanvas.h> 
+#include <TFile.h>
+#include <TH1D.h>
+#include <TCanvas.h>
 
 #include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
@@ -21,7 +21,7 @@ int main()
 
 	// open file
 	TFile * file = new TFile("templates.root", "READ");
-	
+
 	// check if file is open
 	if (!file->IsOpen()) {
 		std::cout << "Could not open file. Exit." << std::endl;
@@ -39,16 +39,16 @@ int main()
 	TH1D hist_sgn_hR = *((TH1D*) file->Get("hist_sgn_hR"));
 
 	// efficiency parameterization
-	TH1D hist_efficiency_bkg = *((TH1D*) file->Get("hist_efficiency_bkg")); 
-	TH1D hist_efficiency_sgn_h0 = *((TH1D*) file->Get("hist_efficiency_sgn_h0")); 
-	TH1D hist_efficiency_sgn_hL = *((TH1D*) file->Get("hist_efficiency_sgn_hL")); 
-	TH1D hist_efficiency_sgn_hR = *((TH1D*) file->Get("hist_efficiency_sgn_hR")); 
+	TH1D hist_efficiency_bkg = *((TH1D*) file->Get("hist_efficiency_bkg"));
+	TH1D hist_efficiency_sgn_h0 = *((TH1D*) file->Get("hist_efficiency_sgn_h0"));
+	TH1D hist_efficiency_sgn_hL = *((TH1D*) file->Get("hist_efficiency_sgn_hL"));
+	TH1D hist_efficiency_sgn_hR = *((TH1D*) file->Get("hist_efficiency_sgn_hR"));
 
 	// efficiency uncertainty parameterization
-	TH1D hist_efferror_bkg = *((TH1D*) file->Get("hist_efferror_bkg")); 
-	TH1D hist_efferror_sgn_h0 = *((TH1D*) file->Get("hist_efferror_sgn_h0")); 
-	TH1D hist_efferror_sgn_hL = *((TH1D*) file->Get("hist_efferror_sgn_hL")); 
-	TH1D hist_efferror_sgn_hR = *((TH1D*) file->Get("hist_efferror_sgn_hR")); 
+	TH1D hist_efferror_bkg = *((TH1D*) file->Get("hist_efferror_bkg"));
+	TH1D hist_efferror_sgn_h0 = *((TH1D*) file->Get("hist_efferror_sgn_h0"));
+	TH1D hist_efferror_sgn_hL = *((TH1D*) file->Get("hist_efferror_sgn_hL"));
+	TH1D hist_efferror_sgn_hR = *((TH1D*) file->Get("hist_efferror_sgn_hR"));
 
 	// systematic uncertainty 1 for all four contributions
 	TH1D hist_systerror1_bkg = *((TH1D*) file->Get("hist_systerror1_bkg"));
@@ -85,7 +85,7 @@ int main()
 	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
 
- 	// ----------------------------------------------------
+	// ----------------------------------------------------
 	// create model
 	// ----------------------------------------------------
 
@@ -122,7 +122,7 @@ int main()
 	model->SetTemplateSystError("syst. error 1", "signal (h= 0)", hist_systerror1_sgn_h0);
 	model->SetTemplateSystError("syst. error 1", "signal (h=-1)", hist_systerror1_sgn_hL);
 	model->SetTemplateSystError("syst. error 1", "signal (h=+1)", hist_systerror1_sgn_hR);
-	
+
 	// add systematic uncertainty 2
 	model->AddSystError("syst. error 2", "gauss");
 	model->SetTemplateSystError("syst. error 2", "background",    hist_systerror2_bkg);
@@ -151,19 +151,19 @@ int main()
 	// create output model
 	// ----------------------------------------------------
 
-  // create new output object
-  BCModelOutput* mout = new BCModelOutput(pmodel, "prior.root");
+	// create new output object
+	BCModelOutput* mout = new BCModelOutput(pmodel, "prior.root");
 
-  // switch writing of Markov Chains on
-  mout->WriteMarkovChain(true);
+	// switch writing of Markov Chains on
+	mout->WriteMarkovChain(true);
 
 	// ----------------------------------------------------
 	// perform analysis
 	// ----------------------------------------------------
 
 	// run MCMC
-	pmodel->MarginalizeAll(); 
-	
+	pmodel->MarginalizeAll();
+
 	// find global mode
 	pmodel->FindMode( pmodel->GetBestFitParameters() );
 
@@ -172,26 +172,26 @@ int main()
 	// ----------------------------------------------------
 
 	// create ensemble test tool
-	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest(); 
+	BCTemplateEnsembleTest* tet = new BCTemplateEnsembleTest();
 
 	// settings
 	tet->SetTemplateFitter(model);
 	tet->SetTemplateParameters( model->GetBestFitParameters() );
 	tet->SetFlagMCMC(false);
-	tet->SetNEnsembles(100); 
-	tet->SetEnsembleExpectation(3151); 
+	tet->SetNEnsembles(100);
+	tet->SetEnsembleExpectation(3151);
 
 	// get tree from output file
 	TTree* tree = (TTree*) mout->GetFile()->Get("MarkovChainTree_0");
 
 	// perform ensemble tests
-	tet->PerformEnsembleTest(tree); 
+	tet->PerformEnsembleTest(tree);
 
 	// print pulls
-	tet->PrintPulls("pulls_prior.ps");	
+	tet->PrintPulls("pulls_prior.ps");
 
 	// write results to file
-	tet->Write("ensembles_prior.root"); 
+	tet->Write("ensembles_prior.root");
 
 	// ----------------------------------------------------
 	// clean-up and end
@@ -200,8 +200,8 @@ int main()
 	// close log file
 	BCLog::CloseLog();
 
-  // close output file
-  mout->Close();
+	// close output file
+	mout->Close();
 
 	// delete model
 	delete model;

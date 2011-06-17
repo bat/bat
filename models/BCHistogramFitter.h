@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include <BAT/BCModel.h>
+#include "BCModel.h"
 
 class BCHistogramFitterToyDataInterface;
 

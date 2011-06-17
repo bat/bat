@@ -7,10 +7,10 @@
 
 // ---------------------------------------------------------
 
-#include "BAT/BCEngineMCMC.h"
+#include "BCEngineMCMC.h"
 
-#include "BAT/BCParameter.h"
-#include "BAT/BCLog.h"
+#include "BCParameter.h"
+#include "BCLog.h"
 
 #include <TH1D.h>
 #include <TH2D.h>

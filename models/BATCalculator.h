@@ -18,7 +18,7 @@
 #include <RooPlot.h>
 #include <RooAbsReal.h>
 
-#include <BCRooInterface.h>
+#include "BCRooInterface.h"
 
 #include <map>
 #include <vector>
