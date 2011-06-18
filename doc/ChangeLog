@@ -1,3 +1,9 @@
+2011-06-18 Daniel Kollar <daniel.kollar@cern.ch>
+	* CreateProject.sh:
+	  - update and cleanup
+	  - fix printouts
+	  - with single argument only create the model files
+
 2011-06-16 Daniel Kollar <daniel.kollar@cern.ch>
 	* fixing some examples
 	* cleanup all includes
@@ -495,7 +501,7 @@
 2010-08-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: bugfix to FindModeMCMC, simply crashed due to
 	  unhandled exception before
-	* CreateProject.sh: Minor polishing 
+	* CreateProject.sh: Minor polishing
 
 2010-08-19 Daniel Kollar <daniel.kollar@cern.ch>
 	* updated CREDITS file
@@ -561,7 +567,7 @@
 2010-08-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC and BCIntegrate:
 	  - removed fMCMCRandom3. Now we have one TRandom3 object which is defined
-	    in BCEngineMCMC and can be obtained from there. 
+	    in BCEngineMCMC and can be obtained from there.
 
 2010-08-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* all .h and .cxx files: updated Copyright information (2008-2010)

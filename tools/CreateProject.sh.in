@@ -5,18 +5,26 @@ MYMODEL=$2
 
 function usage() {
 cat << EOF
-Usage: $0 <project_name> [model_name]
+Usage: $0 <project_name> <model_name>
+       $0 <model_name>
 
-Creates a new directory <project_name>. If a model name is specified  a new
-model class [model_name] is created, i.e. the header and source files for the
-class, together with a Makefile for the project.
+Creates a new directory <project_name> and a new model class <model_name>,
+i.e., the header and source files for the class, together with a Makefile
+for the project. To only create the project files, specify '-' as <model_name>.
+If only a single argument is given, only the header and source files for the
+model class are created.
 
 EOF
 }
 
 if [[ "$1" == '' ]]; then
-	usage
-	exit 0
+   usage
+   exit 0
+fi
+
+if [[ "$2" == "" ]]; then
+   MYMODEL=$1
+   MYPROJECT=""
 fi
 
 upMYMODEL=`echo $MYMODEL|tr [a-z] [A-Z]`
@@ -24,14 +32,13 @@ upMYMODEL=`echo $MYMODEL|tr [a-z] [A-Z]`
 function m_header() {
 cat << EOF
 // ***************************************************************
-// This file was created using the $0 script
-// for project $MYPROJECT
+// This file was created using the $0 script.
 // $0 is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
 
-#ifndef __|:UP_MODEL:|__H
-#define __|:UP_MODEL:|__H
+#ifndef __BAT__|:UP_MODEL:|__H
+#define __BAT__|:UP_MODEL:|__H
 
 #include <BAT/BCModel.h>
 
@@ -41,18 +48,18 @@ cat << EOF
 // ---------------------------------------------------------
 class |:Model:| : public BCModel
 {
-	public:
+   public:
 
-		// Constructors and destructor
-		|:Model:|();
-		|:Model:|(const char * name);
-		~|:Model:|();
+      // Constructors and destructor
+      |:Model:|();
+      |:Model:|(const char * name);
+      ~|:Model:|();
 
-		// Methods to overload, see file |:Model:|.cxx
-		void DefineParameters();
-		double LogAPrioriProbability(std::vector <double> parameters);
-		double LogLikelihood(std::vector <double> parameters);
-		// void MCMCIterationInterface();
+      // Methods to overload, see file |:Model:|.cxx
+      void DefineParameters();
+      double LogAPrioriProbability(std::vector <double> parameters);
+      double LogLikelihood(std::vector <double> parameters);
+      // void MCMCIterationInterface();
 };
 // ---------------------------------------------------------
 
@@ -64,8 +71,7 @@ EOF
 function m_sourcecode() {
 cat << EOF
 // ***************************************************************
-// This file was created using the $0 script
-// for project $MYPROJECT
+// This file was created using the $0 script.
 // $0 is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
@@ -77,72 +83,72 @@ cat << EOF
 // ---------------------------------------------------------
 |:Model:|::|:Model:|() : BCModel()
 {
-	// default constructor
-	DefineParameters();
+   // default constructor
+   DefineParameters();
 };
 
 // ---------------------------------------------------------
 |:Model:|::|:Model:|(const char * name) : BCModel(name)
 {
-	// constructor
-	DefineParameters();
+   // constructor
+   DefineParameters();
 };
 
 // ---------------------------------------------------------
 |:Model:|::~|:Model:|()
-	// default destructor
+   // default destructor
 {
 };
 
 // ---------------------------------------------------------
 void |:Model:|::DefineParameters()
 {
-	// Add parameters to your model here.
-	// You can then use them in the methods below by calling the
-	// parameters.at(i) or parameters[i], where i is the index
-	// of the parameter. The indices increase from 0 according to the
-	// order of adding the parameters.
+   // Add parameters to your model here.
+   // You can then use them in the methods below by calling the
+   // parameters.at(i) or parameters[i], where i is the index
+   // of the parameter. The indices increase from 0 according to the
+   // order of adding the parameters.
 
-//	AddParameter("x", -10.0, 10.0); // index 0
-//	AddParameter("y",  -5.0,  5.0); // index 1
+//   AddParameter("x", -10.0, 10.0); // index 0
+//   AddParameter("y",  -5.0,  5.0); // index 1
 }
 
 // ---------------------------------------------------------
 double |:Model:|::LogLikelihood(std::vector <double> parameters)
 {
-	// This methods returns the logarithm of the conditional probability
-	// p(data|parameters). This is where you have to define your model.
+   // This methods returns the logarithm of the conditional probability
+   // p(data|parameters). This is where you have to define your model.
 
-	double logprob = 0.;
+   double logprob = 0.;
 
-//	double x = parameters.at(0);
-//	double y = parameters.at(1);
-//	double eps = 0.5;
+//   double x = parameters.at(0);
+//   double y = parameters.at(1);
+//   double eps = 0.5;
 
-	// Breit-Wigner distribution of x with nuisance parameter y
-//	logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
+   // Breit-Wigner distribution of x with nuisance parameter y
+//   logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
 
 
-	return logprob;
+   return logprob;
 }
 
 // ---------------------------------------------------------
 double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
 {
-	// This method returns the logarithm of the prior probability for the
-	// parameters p(parameters).
+   // This method returns the logarithm of the prior probability for the
+   // parameters p(parameters).
 
-	double logprob = 0.;
+   double logprob = 0.;
 
-//	double x = parameters.at(0);
-//	double y = parameters.at(1);
+//   double x = parameters.at(0);
+//   double y = parameters.at(1);
 
-//	double dx = GetParameter(0)->GetRangeWidth();
+//   double dx = GetParameter(0)->GetRangeWidth();
 
-//	logprob += log(1./dx);                    // flat prior for x
-//	logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
+//   logprob += log(1./dx);                    // flat prior for x
+//   logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
 
-	return logprob;
+   return logprob;
 }
 // ---------------------------------------------------------
 
@@ -153,7 +159,7 @@ function m_makefile1() {
 cat << EOF
 ###################################################################
 # This Makefile was created using the $0 script
-# for project $MYPROJECT
+# for project $MYPROJECT.
 # $0 is part of Bayesian Analysis Toolkit (BAT).
 # BAT can be downloaded from http://www.mppmu.mpg.de/bat
 ###################################################################
@@ -225,30 +231,30 @@ GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$(MYPROGS)
 all : project
 
 link.d : \$(patsubst %.cxx,%.h,\$(CXXSRCS))
-	\$(CXX) -MM \$(CXXFLAGS) \$(CXXSRCS) > link.d;
+   \$(CXX) -MM \$(CXXFLAGS) \$(CXXSRCS) > link.d;
 
 -include link.d
 
 %.o : %.cxx
-	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
+   \$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
 clean :
-	\$(RM) \$(GARBAGE)
+   \$(RM) \$(GARBAGE)
 
 project : run|:Project:|.cxx \$(CXXOBJS)
-	\$(CXX) \$(CXXFLAGS) -c \$<
-	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o \$(CXXOBJS) -o run|:Project:|
+   \$(CXX) \$(CXXFLAGS) -c \$<
+   \$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o \$(CXXOBJS) -o run|:Project:|
 
 print :
-	echo compiler  : \$(CXX)
-	echo c++ srcs  : \$(CXXSRCS)
-	echo c++ objs  : \$(CXXOBJS)
-	echo c++ flags : \$(CXXFLAGS)
-	echo libs      : \$(LIBS)
-	echo so flags  : \$(SOFLAGS)
+   echo compiler  : \$(CXX)
+   echo c++ srcs  : \$(CXXSRCS)
+   echo c++ objs  : \$(CXXOBJS)
+   echo c++ flags : \$(CXXFLAGS)
+   echo libs      : \$(LIBS)
+   echo so flags  : \$(SOFLAGS)
 
-	echo rootlibs  : \$(ROOTLIBS)
-	echo rootglibs : \$(ROOTGLIBS)
+   echo rootlibs  : \$(ROOTLIBS)
+   echo rootglibs : \$(ROOTGLIBS)
 
 EOF
 }
@@ -257,7 +263,7 @@ function m_makefile2() {
 cat << EOF
 ###################################################################
 # This Makefile was created using the $0 script
-# for project $MYPROJECT
+# for project $MYPROJECT.
 # $0 is part of Bayesian Analysis Toolkit (BAT).
 # BAT can be downloaded from http://www.mppmu.mpg.de/bat
 ###################################################################
@@ -276,7 +282,7 @@ ROOTCFLAGS   := \$(shell root-config --cflags)
 ROOTLIBS     := \$(shell root-config --libs) -lMinuit
 ROOTGLIBS    := \$(shell root-config --glibs)
 
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam
+@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
 CXX          = g++
@@ -311,7 +317,7 @@ GLIBS       += \$(ROOTGLIBS) -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 # don't change lines below unless you know what you're doing
 #
 
-CXXOBJS      = 
+CXXOBJS      =
 EXEOBJS      =
 MYPROGS     = \\
         run|:Project:|
@@ -323,24 +329,24 @@ GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$(MYPROGS)
 all : project
 
 %.o : %.cxx
-	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
+   \$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
 clean :
-	\$(RM) \$(GARBAGE)
+   \$(RM) \$(GARBAGE)
 
 project : run|:Project:|.cxx
-	\$(CXX) \$(CXXFLAGS) -c \$<
-	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o  -o run|:Project:|
+   \$(CXX) \$(CXXFLAGS) -c \$<
+   \$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o  -o run|:Project:|
 
 print :
-	echo compiler  : \$(CXX)
-	echo c++ objs  : \$(CXXOBJS)
-	echo c++ flags : \$(CXXFLAGS)
-	echo libs      : \$(LIBS)
-	echo so flags  : \$(SOFLAGS)
+   echo compiler  : \$(CXX)
+   echo c++ objs  : \$(CXXOBJS)
+   echo c++ flags : \$(CXXFLAGS)
+   echo libs      : \$(LIBS)
+   echo so flags  : \$(SOFLAGS)
 
-	echo rootlibs  : \$(ROOTLIBS)
-	echo rootglibs : \$(ROOTGLIBS)
+   echo rootlibs  : \$(ROOTLIBS)
+   echo rootglibs : \$(ROOTGLIBS)
 
 EOF
 }
@@ -349,7 +355,7 @@ function m_main1() {
 cat << EOF
 // ***************************************************************
 // This file was created using the $0 script
-// for project $MYPROJECT
+// for project $MYPROJECT.
 // $0 is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
@@ -363,63 +369,63 @@ cat << EOF
 int main()
 {
 
-	// set nicer style for drawing than the ROOT default
-	BCAux::SetStyle();
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
 
-	// open log file
-	BCLog::OpenLog("log.txt");
-	BCLog::SetLogLevel(BCLog::detail);
+   // open log file
+   BCLog::OpenLog("log.txt");
+   BCLog::SetLogLevel(BCLog::detail);
 
-	// create new |:Model:| object
-	|:Model:| * m = new |:Model:|();
+   // create new |:Model:| object
+   |:Model:| * m = new |:Model:|();
 
-	BCLog::OutSummary("Test model created");
+   BCLog::OutSummary("Test model created");
 
-	// create a new summary tool object
-	BCSummaryTool * summary = new BCSummaryTool(m);
+   // create a new summary tool object
+   BCSummaryTool * summary = new BCSummaryTool(m);
 
-	// perform your analysis here
+   // perform your analysis here
 
-	// normalize the posterior, i.e. integrate posterior
-	// over the full parameter space
-//	m->Normalize();
+   // normalize the posterior, i.e. integrate posterior
+   // over the full parameter space
+//   m->Normalize();
 
-	// run MCMC and marginalize posterior wrt. all parameters
-	// and all combinations of two parameters
-//	m->MarginalizeAll();
+   // run MCMC and marginalize posterior wrt. all parameters
+   // and all combinations of two parameters
+//   m->MarginalizeAll();
 
-	// run mode finding; by default using Minuit
-//	m->FindMode();
+   // run mode finding; by default using Minuit
+//   m->FindMode();
 
-	// if MCMC was run before (MarginalizeAll()) it is
-	// possible to use the mode found by MCMC as
-	// starting point of Minuit minimization
-//	m->FindMode( m->GetBestFitParameters() );
+   // if MCMC was run before (MarginalizeAll()) it is
+   // possible to use the mode found by MCMC as
+   // starting point of Minuit minimization
+//   m->FindMode( m->GetBestFitParameters() );
 
-	// draw all marginalized distributions into a PostScript file
-//	m->PrintAllMarginalized("|:Model:|_plots.ps");
+   // draw all marginalized distributions into a PostScript file
+//   m->PrintAllMarginalized("|:Model:|_plots.ps");
 
-	// print all summary plots
-//	summary->PrintParameterPlot("|:Model:|_parameters.eps");
-//	summary->PrintCorrelationPlot("|:Model:|_correlation.eps");
-//	summary->PrintKnowledgeUpdatePlots("|:Model:|_update.ps");
- 
-	// calculate p-value
-//	m->CalculatePValue( m->GetBestFitParameters() );
+   // print all summary plots
+//   summary->PrintParameterPlot("|:Model:|_parameters.eps");
+//   summary->PrintCorrelationPlot("|:Model:|_correlation.eps");
+//   summary->PrintKnowledgeUpdatePlots("|:Model:|_update.ps");
 
-	// print results of the analysis into a text file
-//	m->PrintResults("|:Model:|_results.txt");
+   // calculate p-value
+//   m->CalculatePValue( m->GetBestFitParameters() );
 
-	delete m;
-	delete summary;
+   // print results of the analysis into a text file
+//   m->PrintResults("|:Model:|_results.txt");
 
-	BCLog::OutSummary("Test program ran successfully");
-	BCLog::OutSummary("Exiting");
+   delete m;
+   delete summary;
 
-	// close log file
-	BCLog::CloseLog();
+   BCLog::OutSummary("Test program ran successfully");
+   BCLog::OutSummary("Exiting");
 
-	return 0;
+   // close log file
+   BCLog::CloseLog();
+
+   return 0;
 
 }
 
@@ -430,7 +436,7 @@ function m_main2() {
 cat << EOF
 // ***************************************************************
 // This file was created using the $0 script
-// for project $MYPROJECT
+// for project $MYPROJECT.
 // $0 is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
@@ -441,41 +447,41 @@ cat << EOF
 int main()
 {
 
-	// set nicer style for drawing than the ROOT default
-	BCAux::SetStyle();
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
 
-	// open log file
-	BCLog::OpenLog("log.txt");
-	BCLog::SetLogLevel(BCLog::detail);
+   // open log file
+   BCLog::OpenLog("log.txt");
+   BCLog::SetLogLevel(BCLog::detail);
 
-	// perform your analysis here
+   // perform your analysis here
 
-	// close log file
-	BCLog::CloseLog();
+   // close log file
+   BCLog::CloseLog();
 
-	BCLog::OutSummary("Test program ran successfully");
-	BCLog::OutSummary("Exiting");
+   BCLog::OutSummary("Test program ran successfully");
+   BCLog::OutSummary("Exiting");
 
-	return 0;
+   return 0;
 
 }
 
 EOF
 }
 
-mkdir $MYPROJECT
+##########################################################################
+##########################################################################
+###
+###  Main processing is below
+###
 
-if [[ "$2" == '' ]]; then
-    m_makefile2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
-    m_main2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
-else
-    m_header | sed -e "s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/$MYMODEL.h
-    m_sourcecode | sed -e "s/|\:Model\:|/$MYMODEL/g" > $MYPROJECT/$MYMODEL.cxx
-    m_makefile1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
-    m_main1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
-fi
+#
+# if we create project
+#
+if [[ "x$MYPROJECT" != "x" ]]; then
+   mkdir $MYPROJECT
 
-cat << EOF
+   cat << EOF
 --------------------------------------------------------------------------
 The new BAT project was created in the directory '$MYPROJECT'.
 To test the configuration try to compile the project by running 'make'
@@ -485,10 +491,43 @@ to adjust the parameters inside the 'Makefile'.
 Once the program is compiled successfully, you can run it and it should
 print some basic information on the screen.
 
-Implement your model in file:    $MYMODEL.cxx
+EOF
+
+   if [[ "$MYMODEL" == "-" ]]; then
+      m_makefile2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
+      m_main2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
+   else
+      m_header | sed -e "s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/$MYMODEL.h
+      m_sourcecode | sed -e "s/|\:Model\:|/$MYMODEL/g" > $MYPROJECT/$MYMODEL.cxx
+      m_makefile1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
+      m_main1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
+      echo "Implement your model in files:   $MYMODEL.h  $MYMODEL.cxx"
+   fi
+
+cat << EOF
 Implement your analysis in file: run$MYPROJECT.cxx
 
-Consult BAT webpage for details: http://www.mppmu.mpg.de/bat
+For details consult BAT webpage: http://www.mppmu.mpg.de/bat
 --------------------------------------------------------------------------
 
 EOF
+
+#
+# if we only create a new model in the current directory
+#
+else
+   m_header | sed -e "s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYMODEL.h
+   m_sourcecode | sed -e "s/|\:Model\:|/$MYMODEL/g" > $MYMODEL.cxx
+   cat << EOF
+--------------------------------------------------------------------------
+The new BAT model '$MYMODEL' was created in the current directory.
+
+Implement your model in files:   $MYMODEL.h  $MYMODEL.cxx
+
+For details consult BAT webpage: http://www.mppmu.mpg.de/bat
+--------------------------------------------------------------------------
+
+EOF
+
+fi
+
