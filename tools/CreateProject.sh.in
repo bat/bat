@@ -1,12 +1,15 @@
 #!/bin/bash
 
+PROGRAM=${0##*\/}
+
+
 MYPROJECT=$1
 MYMODEL=$2
 
 function usage() {
 cat << EOF
-Usage: $0 <project_name> <model_name>
-       $0 <model_name>
+Usage:  $PROGRAM  <project_name>  <model_name>
+        $PROGRAM  <model_name>
 
 Creates a new directory <project_name> and a new model class <model_name>,
 i.e., the header and source files for the class, together with a Makefile
@@ -32,8 +35,8 @@ upMYMODEL=`echo $MYMODEL|tr [a-z] [A-Z]`
 function m_header() {
 cat << EOF
 // ***************************************************************
-// This file was created using the $0 script.
-// $0 is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the $PROGRAM script.
+// $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
 
@@ -71,8 +74,8 @@ EOF
 function m_sourcecode() {
 cat << EOF
 // ***************************************************************
-// This file was created using the $0 script.
-// $0 is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the $PROGRAM script.
+// $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
 
@@ -158,9 +161,9 @@ EOF
 function m_makefile1() {
 cat << EOF
 ###################################################################
-# This Makefile was created using the $0 script
+# This Makefile was created using the $PROGRAM script
 # for project $MYPROJECT.
-# $0 is part of Bayesian Analysis Toolkit (BAT).
+# $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
 # BAT can be downloaded from http://www.mppmu.mpg.de/bat
 ###################################################################
 #
@@ -262,9 +265,9 @@ EOF
 function m_makefile2() {
 cat << EOF
 ###################################################################
-# This Makefile was created using the $0 script
+# This Makefile was created using the $PROGRAM script
 # for project $MYPROJECT.
-# $0 is part of Bayesian Analysis Toolkit (BAT).
+# $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
 # BAT can be downloaded from http://www.mppmu.mpg.de/bat
 ###################################################################
 #
@@ -354,9 +357,9 @@ EOF
 function m_main1() {
 cat << EOF
 // ***************************************************************
-// This file was created using the $0 script
+// This file was created using the $PROGRAM script
 // for project $MYPROJECT.
-// $0 is part of Bayesian Analysis Toolkit (BAT).
+// $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
 
@@ -435,9 +438,9 @@ EOF
 function m_main2() {
 cat << EOF
 // ***************************************************************
-// This file was created using the $0 script
+// This file was created using the $PROGRAM script
 // for project $MYPROJECT.
-// $0 is part of Bayesian Analysis Toolkit (BAT).
+// $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
 
