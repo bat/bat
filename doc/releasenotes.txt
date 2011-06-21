@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.4.3
-Release date:                 2010-06-17
+Release date:                 2010-06-21
 Urgency:                      low
 ------------------------------------------
 
@@ -15,7 +15,7 @@ General
 -------
 o Fixed several bugs and compiler warnings.
 o Improved compilation of examples.
-o Updated CreateProject.sh script.
+o Improved CreateProject.sh script.
 
 
 MCMC

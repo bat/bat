@@ -2,7 +2,7 @@ AC_INIT(src/BCModel.cxx)
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.4.3.rc)
+AM_INIT_AUTOMAKE(BAT, 0.4.3)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -51,44 +51,44 @@ AC_ARG_WITH(cuba_lib_dir, AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to
 
 if test $use_cuba = yes; then
 	cubaincflags=""
-  	if test -n "$with_cuba_include_dir"; then
-  		echo "checking for cuba.h in $with_cuba_include_dir"
+	if test -n "$with_cuba_include_dir"; then
+		echo "checking for cuba.h in $with_cuba_include_dir"
 		cubaincflags=-I$with_cuba_include_dir
 		CFLAGS+=" $cubaincflags"
 		CPPFLAGS+=" $cubaincflags"
 	else
-  		echo "checking for cuba.h in system default directories"
+		echo "checking for cuba.h in system default directories"
 	fi
 
 	AC_CHECK_HEADERS(cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
 
-   if test x$with_cuba_inc = xno; then
-   	echo could not find cuba.h
-   	echo compiling without cuba
+	if test x$with_cuba_inc = xno; then
+		echo could not find cuba.h
+		echo compiling without cuba
 	else
 		cubaldflags=""
-	  	if test -n "$with_cuba_lib_dir"; then
-	  		echo "checking for cuba library in path $with_cuba_lib_dir"
+		if test -n "$with_cuba_lib_dir"; then
+			echo "checking for cuba library in path $with_cuba_lib_dir"
 			cubaldflags="-L$with_cuba_lib_dir"
 			LDFLAGS+=" $cubaldflags"
-	  	else
-	  		echo "checking for cuba library in system default directories"
-	  	fi
-
-	   AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
-
-	   if test x$with_cuba_lib = xno; then
-	   	echo could not find libcuba.a
-	   	echo compiling without cuba
 		else
-	  		AC_SUBST(CUBAINCLUDE,[$cubaincflags])
-	  		AC_SUBST(CUBALIB,[$cubaldflags])
-	   fi
+			echo "checking for cuba library in system default directories"
+		fi
+
+		AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
+
+		if test x$with_cuba_lib = xno; then
+			echo could not find libcuba.a
+			echo compiling without cuba
+		else
+			AC_SUBST(CUBAINCLUDE,[$cubaincflags])
+			AC_SUBST(CUBALIB,[$cubaldflags])
+		fi
 	fi
-   AM_CONDITIONAL([CUBA], [test x$with_cuba_lib = xyes && test x$with_cuba_inc = xyes])
+	AM_CONDITIONAL([CUBA], [test x$with_cuba_lib = xyes && test x$with_cuba_inc = xyes])
 else
-  	echo compiling without cuba
-   AM_CONDITIONAL([CUBA], [test x$use_cuba = xyes])
+	echo compiling without cuba
+	AM_CONDITIONAL([CUBA], [test x$use_cuba = xyes])
 fi
 
 dnl
