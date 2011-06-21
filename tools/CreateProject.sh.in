@@ -8,14 +8,15 @@ MYMODEL=$2
 
 function usage() {
 cat << EOF
-Usage:  $PROGRAM  <project_name>  <model_name>
-        $PROGRAM  <model_name>
+Usage:  $PROGRAM  <project> [<model>]
 
-Creates a new directory <project_name> and a new model class <model_name>,
+Creates a new directory named <project> and a new model class named <model>,
 i.e., the header and source files for the class, together with a Makefile
-for the project. To only create the project files, specify '-' as <model_name>.
-If only a single argument is given, only the header and source files for the
-model class are created.
+for the project.
+
+If <model> is omitted, the name of the model class will be set to <project>.
+To only create the project files, use '-' for <model>.
+To only create the model class, use '-' for <project>.
 
 EOF
 }
@@ -26,8 +27,7 @@ if [[ "$1" == '' ]]; then
 fi
 
 if [[ "$2" == "" ]]; then
-   MYMODEL=$1
-   MYPROJECT=""
+   MYMODEL=$MYPROJECT
 fi
 
 upMYMODEL=`echo $MYMODEL|tr [a-z] [A-Z]`
@@ -481,7 +481,7 @@ EOF
 #
 # if we create project
 #
-if [[ "x$MYPROJECT" != "x" ]]; then
+if [[ "$MYPROJECT" != "-" ]]; then
    mkdir $MYPROJECT
 
    cat << EOF
