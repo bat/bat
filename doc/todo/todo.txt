@@ -66,6 +66,7 @@ fixed           Allow user to define multivariate proposal function (Kevin) -> y
 fixed           Continuous running of MCMC (Kevin)
 fixed           Delta-function priors (Kevin)
                 Check normalization of Likelihood (all)
+		Remove GLIBS from makefiles
 
 Optional tasks:
 
