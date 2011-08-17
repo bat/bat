@@ -1,3 +1,8 @@
+2011-08-17 Daniel Kollar <daniel.kollar@cern.ch>
+	* CreateProject.sh: (obo Fred Beaujean)
+	  - fixed Makefile creation
+	  - removed GLIBS
+
 2011-06-21 Daniel Kollar <daniel.kollar@cern.ch>
 	* final version 0.4.3
 
