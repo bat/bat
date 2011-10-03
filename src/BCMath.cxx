@@ -131,29 +131,29 @@ double ApproxLogFact(double x)
 // ---------------------------------------------------------
 double LogFact(int n)
 {
-	// return NaN for negative argument
-	if (n<0)
-		return std::numeric_limits<double>::quiet_NaN();
+   // return NaN for negative argument
+   if (n<0)
+      return std::numeric_limits<double>::quiet_NaN();
 
-	// cache the factorials on first call
-	if ( !BCMath::logfact && BCMath::nCacheFact>=0 ) {
-		BCMath::logfact = new double[BCMath::nCacheFact+1];
-		double tmplogfact = 0;
-		BCMath::logfact[0] = tmplogfact;
-		for (unsigned int i=1; i<=BCMath::nCacheFact; i++) {
-			tmplogfact += log((double) i);
-			BCMath::logfact[i] = tmplogfact;
-		}
-	}
+   // cache the factorials on first call
+   if ( !BCMath::logfact && BCMath::nCacheFact>=0 ) {
+      BCMath::logfact = new double[BCMath::nCacheFact+1];
+      double tmplogfact = 0;
+      BCMath::logfact[0] = tmplogfact;
+      for (unsigned int i=1; i<=BCMath::nCacheFact; i++) {
+         tmplogfact += log((double) i);
+         BCMath::logfact[i] = tmplogfact;
+      }
+   }
 
-	// return cached value if available
-	if (n <= (int) BCMath::nCacheFact)
-		return BCMath::logfact[n];
+   // return cached value if available
+   if (n <= (int) BCMath::nCacheFact)
+      return BCMath::logfact[n];
 
-	// calculate factorial starting from the highest cached value
+   // calculate factorial starting from the highest cached value
    double ln(0.);
-	if (BCMath::logfact)
-		ln = BCMath::logfact[nCacheFact];
+   if (BCMath::logfact)
+      ln = BCMath::logfact[nCacheFact];
 
    for (int i = BCMath::nCacheFact+1; i <= n; i++)
       ln += log((double) i);
@@ -165,7 +165,7 @@ double LogFact(int n)
 
 void CacheFactorial(unsigned int n)
 {
-	nCacheFact = n;
+   nCacheFact = n;
 }
 
 // ---------------------------------------------------------
@@ -289,16 +289,16 @@ double LogVoigtian(double x, double sigma, double gamma)
 // ---------------------------------------------------------
 double SplitGaussian(double* x, double* par)
 {
-	double mean = par[0]; 
-	double sigmadown = par[1]; 
-	double sigmaup = par[2];
+   double mean = par[0]; 
+   double sigmadown = par[1]; 
+   double sigmaup = par[2];
 
-	double sigma = sigmadown;
+   double sigma = sigmadown;
 
-	if (x[0] > mean)
-		sigma = sigmaup; 
-	
-	return 1.0/sqrt(2.0*M_PI)/sigma * exp(- (x[0]-mean)*(x[0]-mean)/2./sigma/sigma);
+   if (x[0] > mean)
+      sigma = sigmaup; 
+   
+   return 1.0/sqrt(2.0*M_PI)/sigma * exp(- (x[0]-mean)*(x[0]-mean)/2./sigma/sigma);
 }
 
 // ---------------------------------------------------------

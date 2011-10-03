@@ -45,7 +45,7 @@ namespace RooStats
 
 
       BATCalculator( RooAbsData  & data,
-                     ModelConfig & model, 
+                     ModelConfig & model,
                      bool fillChain = false);
 
 
@@ -54,7 +54,7 @@ namespace RooStats
 
       RooPlot * GetPosteriorPlot1D() const;
 
-      // return posterior pdf 
+      // return posterior pdf
       RooAbsPdf * GetPosteriorPdf1D() const;
       RooAbsPdf * GetPosteriorPdf1D(const char * POIname) const;
 
@@ -76,8 +76,7 @@ namespace RooStats
 
       // set the size of the test (rate of Type I error) ( Eg. 0.05 for a 95% Confidence Interval)
       virtual void SetTestSize( Double_t size )
-         {  fSize = size; 
-            fValidInterval = false; }
+         {  fSize = size; fValidInterval = false; }
 
       // set left side tail fraction (only for 1D interval, not meaningful for shortest interval)
       void SetLeftSideTailFraction(Double_t leftSideFraction );
@@ -86,12 +85,13 @@ namespace RooStats
       virtual void SetConfidenceLevel( Double_t cl )
          { SetTestSize(1.-cl); }
 
-      // Get the size of the test 
+      // Get the size of the test
       virtual Double_t Size() const
          { return fSize; }
+
       // Get left side tail fraction (only for 1D interval, not meaningful for shortest interval)
       double GetLeftSideTailFraction()
-         {return fLeftSideFraction;} 
+         {return fLeftSideFraction;}
 
       // Get the Confidence level for the test
       virtual Double_t ConfidenceLevel() const
@@ -124,16 +124,16 @@ namespace RooStats
       bool GetConnected()
          { return fConnectedInterval; }
 
-      // returns  interval borders of shortest interval (1 poi only) 
+      // returns  interval borders of shortest interval (1 poi only)
       vector<double> GetIntervalBorders1D()
          { return _intervalBorders1D; }
 
       //returns interval borders od the last calculated shortest interval
 
-      //set the number of histogram bins for a specific parameter 
+      //set the number of histogram bins for a specific parameter
       void SetNumBins(const char * parname, int nbins);
 
-      //set the number of histogram bins for all parameters 
+      //set the number of histogram bins for all parameters
       void SetNumBins(int nbins);
 
       // would be more complete if we had this -> ask BAT developers to implement this functionality (not high priority)

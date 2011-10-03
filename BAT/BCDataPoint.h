@@ -29,81 +29,81 @@
 
 class BCDataPoint
 {
-	public:
+   public:
 
-		/** \name Constructors and destructors */
-		/** @{ */
+      /** \name Constructors and destructors */
+      /** @{ */
 
-		/**
-		 * A constructor.
-		 * @param nvariables The number of variables stored in a data.
-		 * object */
-		BCDataPoint(int nvariables);
+      /**
+       * A constructor.
+       * @param nvariables The number of variables stored in a data.
+       * object */
+      BCDataPoint(int nvariables);
 
-		/**
-		 * A constructor.
-		 * @param x The vector containing the data. */
-		BCDataPoint(std::vector<double> x);
+      /**
+       * A constructor.
+       * @param x The vector containing the data. */
+      BCDataPoint(std::vector<double> x);
 
-		/**
-		 * The copy constructor. */
-		BCDataPoint(const BCDataPoint & datapoint);
+      /**
+       * The copy constructor. */
+      BCDataPoint(const BCDataPoint & datapoint);
 
-		/**
-		 * A destructor. */
-		~BCDataPoint();
+      /**
+       * A destructor. */
+      ~BCDataPoint();
 
-		/** @} */
-		/** \name Assignment operators */
-		/** @{ */
-			
-		/**
-		 * Defaut assignment operator */
-		BCDataPoint & operator = (const BCDataPoint & datapoint);
-		
-		/** @} */
-		
-		/** \name Member functions (get) */
-		/** @{ */
+      /** @} */
+      /** \name Assignment operators */
+      /** @{ */
 
-		/**
-		 * @param index The index of the variable.
-		 * @return The value of the variable. */
-		double GetValue(int index);
+      /**
+       * Defaut assignment operator */
+      BCDataPoint & operator = (const BCDataPoint & datapoint);
 
-		/**
-		 * @return A vector of values. */
-		std::vector <double> GetValues()
-			{ return fData; };
+      /** @} */
 
-		/**
-		 * Returns the number of values. */
-		unsigned int GetNValues()
-			{ return fData.size(); };
+      /** \name Member functions (get) */
+      /** @{ */
 
-		/** @} */
+      /**
+       * @param index The index of the variable.
+       * @return The value of the variable. */
+      double GetValue(int index);
 
-		/** \name Member functions (set) */
-		/** @{ */
+      /**
+       * @return A vector of values. */
+      std::vector <double> GetValues()
+         { return fData; };
 
-		/**
-		 * Set the value of a variable.
-		 * @param index The index of the variable
-		 * @param value The value of the variable */
-		void SetValue(int index, double value);
+      /**
+       * Returns the number of values. */
+      unsigned int GetNValues()
+         { return fData.size(); };
 
-		/**
-		 * Set the values of all variables.
-		 * @param values A vector of values */
-		void SetValues(std::vector <double> values);
+      /** @} */
 
-		/** @} */
+      /** \name Member functions (set) */
+      /** @{ */
 
-	private:
+      /**
+       * Set the value of a variable.
+       * @param index The index of the variable
+       * @param value The value of the variable */
+      void SetValue(int index, double value);
 
-		/**
-		 * The vector containing the values of the variables. */
-		std::vector<double> fData;
+      /**
+       * Set the values of all variables.
+       * @param values A vector of values */
+      void SetValues(std::vector <double> values);
+
+      /** @} */
+
+   private:
+
+      /**
+       * The vector containing the values of the variables. */
+      std::vector<double> fData;
 
 };
 

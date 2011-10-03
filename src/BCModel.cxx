@@ -106,57 +106,57 @@ BCModel::BCModel()
 // ---------------------------------------------------------
 BCModel::BCModel(const BCModel & bcmodel) : BCIntegrate(bcmodel)
 {
-	fIndex                           = bcmodel.fIndex;
-	fName                            = bcmodel.fName;
-	fModelAPriori                    = bcmodel.fModelAPriori;
-	fModelAPosteriori                = bcmodel.fModelAPosteriori;
-	for (int i = 0; i < int(bcmodel.fParameterSet->size()); ++i) {
-		if (bcmodel.fParameterSet->at(i)) {
-			fParameterSet->push_back(new BCParameter(*(bcmodel.fParameterSet->at(i)))); 
+   fIndex                           = bcmodel.fIndex;
+   fName                            = bcmodel.fName;
+   fModelAPriori                    = bcmodel.fModelAPriori;
+   fModelAPosteriori                = bcmodel.fModelAPosteriori;
+   for (int i = 0; i < int(bcmodel.fParameterSet->size()); ++i) {
+      if (bcmodel.fParameterSet->at(i)) {
+         fParameterSet->push_back(new BCParameter(*(bcmodel.fParameterSet->at(i))));
 
-		}
-		else
-			fParameterSet->push_back(0);
-	}
-	if (fDataSet)
-		fDataSet = bcmodel.fDataSet;
-	else
-		fDataSet = 0;
-	if (bcmodel.fNDataPointsMinimum)
-		fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
-	else
-		fNDataPointsMinimum = 0;
-	if (bcmodel.fNDataPointsMaximum)
-		fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
-	else
-		fNDataPointsMaximum = 0;
-	flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
-	fPValue                          = bcmodel.fPValue;
-	fChi2NDoF                        = bcmodel.fChi2NDoF;
-	fPValueNDoF                      = bcmodel.fPValueNDoF;
-	flag_discrete                    = bcmodel.flag_discrete;
-	fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
-	fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
-	fGoFNChains                      = bcmodel.fGoFNChains;
-	for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
-		if (bcmodel.fPriorContainer.at(i))
-			fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
-		else
-			fPriorContainer.push_back(0);
-	}
-	fPriorConstantAll                = bcmodel.fPriorConstantAll;
-	fPriorConstantValue              = bcmodel.fPriorConstantValue;
-	fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
-	fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
-	fNormalization                   = bcmodel.fNormalization;
+      }
+      else
+         fParameterSet->push_back(0);
+   }
+   if (fDataSet)
+      fDataSet = bcmodel.fDataSet;
+   else
+      fDataSet = 0;
+   if (bcmodel.fNDataPointsMinimum)
+      fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
+   else
+      fNDataPointsMinimum = 0;
+   if (bcmodel.fNDataPointsMaximum)
+      fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
+   else
+      fNDataPointsMaximum = 0;
+   flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
+   fPValue                          = bcmodel.fPValue;
+   fChi2NDoF                        = bcmodel.fChi2NDoF;
+   fPValueNDoF                      = bcmodel.fPValueNDoF;
+   flag_discrete                    = bcmodel.flag_discrete;
+   fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
+   fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
+   fGoFNChains                      = bcmodel.fGoFNChains;
+   for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
+      if (bcmodel.fPriorContainer.at(i))
+         fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
+      else
+         fPriorContainer.push_back(0);
+   }
+   fPriorConstantAll                = bcmodel.fPriorConstantAll;
+   fPriorConstantValue              = bcmodel.fPriorConstantValue;
+   fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
+   fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
+   fNormalization                   = bcmodel.fNormalization;
 }
 
 // ---------------------------------------------------------
 BCModel::~BCModel()
 {
-	for (unsigned int i = 0; i < GetNParameters(); ++i) 
-		delete fPriorContainer[i]; 
-	fPriorContainer.clear();
+   for (unsigned int i = 0; i < GetNParameters(); ++i)
+      delete fPriorContainer[i];
+   fPriorContainer.clear();
 
    delete fParameterSet;
 
@@ -167,53 +167,53 @@ BCModel::~BCModel()
 // ---------------------------------------------------------
 BCModel & BCModel::operator = (const BCModel & bcmodel)
 {
-	BCIntegrate::operator=(bcmodel);
-	fIndex                           = bcmodel.fIndex;
-	fName                            = bcmodel.fName;
-	fModelAPriori                    = bcmodel.fModelAPriori;
-	fModelAPosteriori                = bcmodel.fModelAPosteriori;
-	for (int i = 0; i < int(bcmodel.fParameterSet->size()); ++i) {
-		if (bcmodel.fParameterSet->at(i)) {
-			fParameterSet->push_back(new BCParameter(*(bcmodel.fParameterSet->at(i)))); 
+   BCIntegrate::operator=(bcmodel);
+   fIndex                           = bcmodel.fIndex;
+   fName                            = bcmodel.fName;
+   fModelAPriori                    = bcmodel.fModelAPriori;
+   fModelAPosteriori                = bcmodel.fModelAPosteriori;
+   for (int i = 0; i < int(bcmodel.fParameterSet->size()); ++i) {
+      if (bcmodel.fParameterSet->at(i)) {
+         fParameterSet->push_back(new BCParameter(*(bcmodel.fParameterSet->at(i))));
 
-		}
-		else
-			fParameterSet->push_back(0);
-	}
-	if (fDataSet)
-		fDataSet = bcmodel.fDataSet;
-	else
-		fDataSet = 0;
-	if (bcmodel.fNDataPointsMinimum)
-		fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
-	else
-		fNDataPointsMinimum = 0;
-	if (bcmodel.fNDataPointsMaximum)
-		fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
-	else
-		fNDataPointsMaximum = 0;
-	flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
-	fPValue                          = bcmodel.fPValue;
-	fChi2NDoF                        = bcmodel.fChi2NDoF;
-	fPValueNDoF                      = bcmodel.fPValueNDoF;
-	flag_discrete                    = bcmodel.flag_discrete;
-	fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
-	fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
-	fGoFNChains                      = bcmodel.fGoFNChains;
-	for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
-		if (bcmodel.fPriorContainer.at(i))
-			fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
-		else
-			fPriorContainer.push_back(0);
-	}
-	fPriorConstantAll                = bcmodel.fPriorConstantAll;
-	fPriorConstantValue              = bcmodel.fPriorConstantValue;
-	fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
-	fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
-	fNormalization                   = bcmodel.fNormalization;
+      }
+      else
+         fParameterSet->push_back(0);
+   }
+   if (fDataSet)
+      fDataSet = bcmodel.fDataSet;
+   else
+      fDataSet = 0;
+   if (bcmodel.fNDataPointsMinimum)
+      fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
+   else
+      fNDataPointsMinimum = 0;
+   if (bcmodel.fNDataPointsMaximum)
+      fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
+   else
+      fNDataPointsMaximum = 0;
+   flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
+   fPValue                          = bcmodel.fPValue;
+   fChi2NDoF                        = bcmodel.fChi2NDoF;
+   fPValueNDoF                      = bcmodel.fPValueNDoF;
+   flag_discrete                    = bcmodel.flag_discrete;
+   fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
+   fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
+   fGoFNChains                      = bcmodel.fGoFNChains;
+   for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
+      if (bcmodel.fPriorContainer.at(i))
+         fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
+      else
+         fPriorContainer.push_back(0);
+   }
+   fPriorConstantAll                = bcmodel.fPriorConstantAll;
+   fPriorConstantValue              = bcmodel.fPriorConstantValue;
+   fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
+   fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
+   fNormalization                   = bcmodel.fNormalization;
 
-	// return this
-	return *this;
+   // return this
+   return *this;
 }
 
 // ---------------------------------------------------------
@@ -608,7 +608,7 @@ int BCModel::AddParameter(BCParameter * parameter)
    fParameterSet->push_back(parameter);
 
    // add empty object to prior container
-   fPriorContainer.push_back(0); 
+   fPriorContainer.push_back(0);
 
    // don't interpolate the prior histogram by default
    fPriorContainerInterpolate.push_back(false);
@@ -676,25 +676,25 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
 
    // loop over all 1-d priors
    for (int i = 0; i < npar; ++i) {
-		if (fPriorContainer[i]) {
-			// check what type of object is stored
-			TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
-			TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
+      if (fPriorContainer[i]) {
+         // check what type of object is stored
+         TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
+         TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
 
-	      if (f) // TF1
-	         logprob += log(f->Eval(parameters[i]));
-			else if (h) { // TH1
-				if(fPriorContainerInterpolate[i])
-		         logprob += log(h->Interpolate(parameters[i]));
-				else
-					logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
-			}
-	      else
-     	      BCLog::OutError(Form(
+         if (f) // TF1
+            logprob += log(f->Eval(parameters[i]));
+         else if (h) { // TH1
+            if(fPriorContainerInterpolate[i])
+               logprob += log(h->Interpolate(parameters[i]));
+            else
+               logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
+         }
+         else
+              BCLog::OutError(Form(
                "BCModel::LogAPrioriProbability : Prior for parameter %s "
                "is defined but not recodnized.",
                GetParameter(i)->GetName().c_str())); // this should never happen
-		}
+      }
       // use constant only if user has defined it
       else if (!fPriorContainerConstant[i]) {
          BCLog::OutWarning(Form(
@@ -735,10 +735,10 @@ double BCModel::SamplingFunction(std::vector<double> parameters)
 // ---------------------------------------------------------
 double BCModel::Normalize()
 {
-	if(fParameterSet->size()<1) {
-		BCLog::OutError(Form("Normalize : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
-		return -1.;
-	}
+   if(fParameterSet->size()<1) {
+      BCLog::OutError(Form("Normalize : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+      return -1.;
+   }
 
    BCLog::OutSummary(Form("Model \'%s\': Normalizing probability",GetName().data()));
 
@@ -785,10 +785,10 @@ int BCModel::CheckParameters(std::vector<double> parameters)
 // ---------------------------------------------------------
 void BCModel::FindMode(std::vector<double> start)
 {
-	if(fParameterSet->size()<1) {
-		BCLog::OutError(Form("FindMode : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
-		return;
-	}
+   if(fParameterSet->size()<1) {
+      BCLog::OutError(Form("FindMode : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+      return;
+   }
 
    // this implementation is CLEARLY not good we have to work on this.
 
@@ -816,8 +816,8 @@ void BCModel::FindMode(std::vector<double> start)
           MarginalizeAll();
          return;
 
-		default:
-		   BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d",GetOptimizationMethod()));
+      default:
+         BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d",GetOptimizationMethod()));
    }
 
 
@@ -827,10 +827,10 @@ void BCModel::FindMode(std::vector<double> start)
 // ---------------------------------------------------------
 void BCModel::FindModeMinuit(std::vector<double> start, int printlevel)
 {
-	if(fParameterSet->size()<1) {
-		BCLog::OutError(Form("FindModeMinuit : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
-		return;
-	}
+   if(fParameterSet->size()<1) {
+      BCLog::OutError(Form("FindModeMinuit : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+      return;
+   }
 
    // synchronize parameters in BCIntegrate
    SetParameters(fParameterSet);
@@ -921,10 +921,10 @@ int BCModel::ReadMode(const char * file)
 // ---------------------------------------------------------
 int BCModel::MarginalizeAll()
 {
-	if(fParameterSet->size()<1) {
-		BCLog::OutError(Form("MarginalizeAll : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
-		return 0;
-	}
+   if(fParameterSet->size()<1) {
+      BCLog::OutError(Form("MarginalizeAll : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
+      return 0;
+   }
 
    BCLog::OutSummary(Form("Running MCMC for model \'%s\'",GetName().data()));
 
@@ -1169,8 +1169,8 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
    // if there's only one parameter, we just want to call Print()
    if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
       BCParameter * a = GetParameter(0);
-		if (GetMarginalized(a))
-	      GetMarginalized(a)->Print(file);
+      if (GetMarginalized(a))
+         GetMarginalized(a)->Print(file);
       return 1;
    }
 
@@ -1448,7 +1448,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins)
       // loop over observations, each may have different likelihood and CDF
       for (int j = 0; j < n; j++) {
          // actual value
-				double CDFval = CDF(par, j, false);
+            double CDFval = CDF(par, j, false);
          // for the bin just before
          double CDFlower = CDF(par, j, true);
 
@@ -1518,7 +1518,7 @@ double BCModel::GetChi2Johnson(std::vector<double> par, int nBins)
    }
    else { //continuous case is simple
       for (int j = 0; j < n; j++)
-				hist->Fill(CDF(par, j, false));
+            hist->Fill(CDF(par, j, false));
    }
 
    // calculate chi^2
@@ -1626,7 +1626,7 @@ double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,int index
    // calculated expected CDF for unique points only
    std::set<double> uniqueObservations;
    for (int i = 0; i < N; i++)
-		 uniqueObservations.insert(CDF(par, i, false));
+       uniqueObservations.insert(CDF(par, i, false));
 
    int nUnique = uniqueObservations.size();
    if (nUnique != ECDF->GetNbinsX() + 1) {
@@ -1800,25 +1800,25 @@ int BCModel::SetPrior(int index, TF1 * f)
 {
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior : Index out of range."); 
+      BCLog::OutError("BCModel::SetPrior : Index out of range.");
       return 0;
    }
 
-	if (fPriorContainer[index])
-		delete fPriorContainer[index];
+   if (fPriorContainer[index])
+      delete fPriorContainer[index];
 
    // copy function
    fPriorContainer[index] = new TF1(*f);
 
-	fPriorContainerConstant[index] = false;
+   fPriorContainerConstant[index] = false;
 
-	RecalculatePriorConstant();
+   RecalculatePriorConstant();
 
    // reset all results
    ResetResults();
 
-   // no error 
-   return 1; 
+   // no error
+   return 1;
 }
 
 // ---------------------------------------------------------
@@ -1837,11 +1837,11 @@ int BCModel::SetPrior(const char * name, TF1 * f)
 // ---------------------------------------------------------
 int BCModel::SetPriorDelta(int index, double value)
 {
-	// set range to value
-	SetParameterRange(index, value, value);
+   // set range to value
+   SetParameterRange(index, value, value);
 
-	// set prior
-	return SetPriorConstant(index);
+   // set prior
+   return SetPriorConstant(index);
 }
 
 // ---------------------------------------------------------
@@ -1853,8 +1853,8 @@ int BCModel::SetPriorDelta(const char* name, double value)
       if (name == GetParameter(i)->GetName())
         index = i;
 
-	// set prior
-	 return SetPriorDelta(index, value);
+   // set prior
+    return SetPriorDelta(index, value);
 }
 
 // ---------------------------------------------------------
@@ -1862,20 +1862,20 @@ int BCModel::SetPriorGauss(int index, double mean, double sigma)
 {
    // check index range
    if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
+      BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
       return 0;
    }
 
    // create new function
    TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
                      "1./sqrt(2.*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2./[1]/[1])",
-                     GetParameter(index)->GetLowerLimit(), 
-                     GetParameter(index)->GetUpperLimit()); 
-   f->SetParameter(0, mean); 
+                     GetParameter(index)->GetLowerLimit(),
+                     GetParameter(index)->GetUpperLimit());
+   f->SetParameter(0, mean);
    f->SetParameter(1, sigma);
 
    // set prior
-   return SetPrior(index, f); 
+   return SetPrior(index, f);
 }
 
 // ---------------------------------------------------------
@@ -1888,7 +1888,7 @@ int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
          index = i;
 
    // set prior
-   return SetPriorGauss(index, mean, sigma); 
+   return SetPriorGauss(index, mean, sigma);
 }
 
 // ---------------------------------------------------------
@@ -1896,7 +1896,7 @@ int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigm
 {
    // check index range
    if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range."); 
+      BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
       return 0;
    }
 
@@ -1906,12 +1906,12 @@ int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigm
                      GetParameter(index)->GetLowerLimit(),
                      GetParameter(index)->GetUpperLimit(),
                      3);
-   f->SetParameter(0, mean); 
+   f->SetParameter(0, mean);
    f->SetParameter(1, sigmadown);
    f->SetParameter(2, sigmaup);
 
    // set prior
-   return SetPrior(index, f); 
+   return SetPrior(index, f);
 
    return 0;
 }
@@ -1926,7 +1926,7 @@ int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, dou
         index = i;
 
    // set prior
-   return SetPriorGauss(index, mean, sigmadown, sigmaup); 
+   return SetPriorGauss(index, mean, sigmadown, sigmaup);
 }
 
 // ---------------------------------------------------------
@@ -1934,41 +1934,41 @@ int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
 {
    // check index range
    if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior : Index out of range."); 
+      BCLog::OutError("BCModel::SetPrior : Index out of range.");
       return 0;
    }
 
-	// if the histogram exists
-	if(h) {
+   // if the histogram exists
+   if(h) {
 
-	   // check if histogram is 1d
-	   if (h->GetDimension() != 1) {
-	      BCLog::OutError(Form("BCModel::SetPrior : Histogram given for parameter %d is not 1D.",index)); 
-	      return 0;
-	   }
+      // check if histogram is 1d
+      if (h->GetDimension() != 1) {
+         BCLog::OutError(Form("BCModel::SetPrior : Histogram given for parameter %d is not 1D.",index)); 
+         return 0;
+      }
 
-		// normalize the histogram
-		h->Scale(1./h->Integral("width"));
+      // normalize the histogram
+      h->Scale(1./h->Integral("width"));
 
-		if(fPriorContainer[index])
-			delete fPriorContainer[index];
+      if(fPriorContainer[index])
+         delete fPriorContainer[index];
 
-	   // set function
-	   fPriorContainer[index] = new TH1(*h);
+      // set function
+      fPriorContainer[index] = new TH1(*h);
 
-		if (interpolate)
-			fPriorContainerInterpolate[index] = true;
+      if (interpolate)
+         fPriorContainerInterpolate[index] = true;
 
-		fPriorContainerConstant[index] = false;
-	}
+      fPriorContainerConstant[index] = false;
+   }
 
-	RecalculatePriorConstant();
+   RecalculatePriorConstant();
 
    // reset all results
    ResetResults();
 
-   // no error 
-   return 1; 
+   // no error
+   return 1;
 }
 
 // ---------------------------------------------------------
@@ -1993,15 +1993,15 @@ int BCModel::SetPriorConstant(int index)
       return 0;
    }
 
-	if(fPriorContainer[index]) {
-		delete fPriorContainer[index];
-		fPriorContainer[index] = 0;
-	}
+   if(fPriorContainer[index]) {
+      delete fPriorContainer[index];
+      fPriorContainer[index] = 0;
+   }
 
    // set prior to a constant
    fPriorContainerConstant[index] = true;
 
-	RecalculatePriorConstant();
+   RecalculatePriorConstant();
 
    // reset all results
    ResetResults();
@@ -2042,14 +2042,14 @@ int BCModel::SetPriorConstantAll()
 
    // loop over all 1-d priors
    for (int i = 0; i < nPar; ++i) {
-		if (fPriorContainer[i]) {
-			delete fPriorContainer[i];
-			fPriorContainer[i]=0;
-		}
-		fPriorContainerConstant[i] = true;
-	}
+      if (fPriorContainer[i]) {
+         delete fPriorContainer[i];
+         fPriorContainer[i]=0;
+      }
+      fPriorContainerConstant[i] = true;
+   }
 
-	RecalculatePriorConstant();
+   RecalculatePriorConstant();
 
    // reset all results
    ResetResults();
@@ -2061,23 +2061,23 @@ int BCModel::SetPriorConstantAll()
 // ---------------------------------------------------------
 void BCModel::RecalculatePriorConstant()
 {
-	fPriorConstantValue = 0.;
+   fPriorConstantValue = 0.;
 
-	// get number of parameters
-	int npar = GetNParameters();
+   // get number of parameters
+   int npar = GetNParameters();
 
-	int nconstant = 0;
+   int nconstant = 0;
 
-	for (int i=0; i<npar; ++i)
-		if (fPriorContainerConstant[i]) {
-			fPriorConstantValue -= log(GetParameter(i)->GetRangeWidth());
-			++nconstant;
-		}
+   for (int i=0; i<npar; ++i)
+      if (fPriorContainerConstant[i]) {
+         fPriorConstantValue -= log(GetParameter(i)->GetRangeWidth());
+         ++nconstant;
+      }
 
-	if (nconstant == npar)
-		fPriorConstantAll = true;
-	else
-		fPriorConstantAll = false;
+   if (nconstant == npar)
+      fPriorConstantAll = true;
+   else
+      fPriorConstantAll = false;
 }
 
 // ---------------------------------------------------------
@@ -2086,27 +2086,27 @@ int BCModel::SetParameterRange(int index, double parmin, double parmax)
    // check index
    if (index < 0 || index >= int(GetNParameters())) {
       BCLog::OutError("BCModel::SetParameterRange : Index out of range.");
-      return 0; 
+      return 0;
    }
 
-   // set parameter ranges in BAT 
-   GetParameter(index)->SetLowerLimit(parmin); 
-   GetParameter(index)->SetUpperLimit(parmax); 
-   fMCMCBoundaryMin[index] = parmin; 
-   fMCMCBoundaryMax[index] = parmax; 
+   // set parameter ranges in BAT
+   GetParameter(index)->SetLowerLimit(parmin);
+   GetParameter(index)->SetUpperLimit(parmax);
+   fMCMCBoundaryMin[index] = parmin;
+   fMCMCBoundaryMax[index] = parmax;
 
    // reset results
    ResetResults();
 
-   // no error 
-   return 1; 
+   // no error
+   return 1;
 }
 
 // ---------------------------------------------------------
 int BCModel::ResetResults()
 {
    BCIntegrate::IntegrateResetResults();
-  
+
    BCEngineMCMC::MCMCResetResults();
 
    // no error
@@ -2183,8 +2183,8 @@ void BCModel::PrintResults(const char * file)
    bool flag_conv = MCMCGetNIterationsConvergenceGlobal() > 0;
 
    ofi << std::endl 
-			 << " -----------------------------------------------------" << std::endl 
-			 << " Summary" << std::endl
+          << " -----------------------------------------------------" << std::endl
+          << " Summary" << std::endl
        << " -----------------------------------------------------" << std::endl
        << std::endl;
 
@@ -2202,7 +2202,7 @@ void BCModel::PrintResults(const char * file)
    ofi << " Results of the optimization" << std::endl
        << " ===========================" << std::endl
        << " Optimization algorithm used: "
-		 << DumpUsedOptimizationMethod()<< std::endl;
+       << DumpUsedOptimizationMethod()<< std::endl;
 
    if (int(fBestFitParameters.size()) > 0) {
       ofi << " List of parameters and global mode:" << std::endl;
@@ -2210,9 +2210,9 @@ void BCModel::PrintResults(const char * file)
          ofi << "  (" << i << ") Parameter \""
              << fParameterSet->at(i)->GetName().data() << "\": "
              << fBestFitParameters[i];
-				 if (int(fBestFitParameterErrors.size()) == npar)
-					 if(fBestFitParameterErrors[i]>=0.)
-						 ofi << " +- " << fBestFitParameterErrors[i];
+             if (int(fBestFitParameterErrors.size()) == npar)
+                if(fBestFitParameterErrors[i]>=0.)
+                   ofi << " +- " << fBestFitParameterErrors[i];
          ofi << std::endl;
       }
       ofi << std::endl;
@@ -2229,11 +2229,11 @@ void BCModel::PrintResults(const char * file)
    }
 
    if (fNormalization >= 0.) {
-		 ofi << " Results of the normalization" << std::endl
-				 << " ============================" << std::endl
-				 << " Integration method used:"
-				 << DumpIntegrationMethod() << std::endl;
-		 ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
+       ofi << " Results of the normalization" << std::endl
+             << " ============================" << std::endl
+             << " Integration method used:"
+             << DumpIntegrationMethod() << std::endl;
+       ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
    }
 
    // give warning if MCMC did not converge
@@ -2259,9 +2259,9 @@ void BCModel::PrintResults(const char * file)
 
              << "      Mean +- sqrt(V):                " << std::setprecision(4)
              << bch1d->GetMean() << " +- " << std::setprecision(4)
-             << bch1d->GetRMS() << std::endl 
+             << bch1d->GetRMS() << std::endl
 
-						 << "      Median +- central 68% interval: "
+                   << "      Median +- central 68% interval: "
              << std::setprecision(4) << bch1d->GetMedian() << " +  "
              << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
              << " - " << std::setprecision(4)
@@ -2285,20 +2285,19 @@ void BCModel::PrintResults(const char * file)
          std::vector<double> v;
          v = bch1d->GetSmallestIntervals(0.68);
          int ninter = int(v.size());
-				 
-				 ofi << "      Smallest interval(s) containing 68% and local modes:"
-						 << std::endl;
+         ofi << "      Smallest interval(s) containing 68% and local modes:"
+             << std::endl;
          for (int j = 0; j < ninter; j += 5)
-					 ofi << "       (" << v[j] << ", " << v[j + 1]
-							 << ") (local mode at " << v[j + 3] << " with rel. height "
-							 << v[j + 2] << "; rel. area " << v[j + 4] << ")"
-							 << std::endl;
-				 ofi << std::endl;
+            ofi << "       (" << v[j] << ", " << v[j + 1]
+                << ") (local mode at " << v[j + 3] << " with rel. height "
+                << v[j + 2] << "; rel. area " << v[j + 4] << ")"
+                << std::endl;
+            ofi << std::endl;
       }
    }
    if (fMCMCFlagRun) {
       ofi << " Status of the MCMC" << std::endl << " ==================" << std::endl
-					<< " Convergence reached:                    " << (flag_conv ? "yes" : "no")
+          << " Convergence reached:                    " << (flag_conv ? "yes" : "no")
           << std::endl;
 
       if (flag_conv)
@@ -2330,15 +2329,15 @@ void BCModel::PrintResults(const char * file)
       ofi << std::endl;
    }
 
-	 ofi << " -----------------------------------------------------" << std::endl
-			 << " Notation:" << std::endl
-			 << " Mean        : mean value of the marg. pdf" << std::endl
-			 << " Median      : maximum of the marg. pdf" << std::endl
-			 << " Marg. mode  : most probable value of the marg. pdf" << std::endl
-			 << " V           : Variance of the marg. pdf" << std::endl
-			 << " Quantiles   : most commonly used quantiles" <<std::endl
-			 << " -----------------------------------------------------" << std::endl
-			 << std::endl;
+    ofi << " -----------------------------------------------------" << std::endl
+          << " Notation:" << std::endl
+          << " Mean        : mean value of the marg. pdf" << std::endl
+          << " Median      : maximum of the marg. pdf" << std::endl
+          << " Marg. mode  : most probable value of the marg. pdf" << std::endl
+          << " V           : Variance of the marg. pdf" << std::endl
+          << " Quantiles   : most commonly used quantiles" <<std::endl
+          << " -----------------------------------------------------" << std::endl
+          << std::endl;
 
    // close file
    //   ofi.close;

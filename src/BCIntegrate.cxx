@@ -138,200 +138,200 @@ BCIntegrate::BCIntegrate(BCParameterSet * par)
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate(const BCIntegrate & bcintegrate) : BCEngineMCMC(bcintegrate)
  {
-	 fNvar                     = bcintegrate.fNvar;
-	 fNbins                    = bcintegrate.fNbins;
-	 fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
-	 fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
-	 fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
-	 fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
-	 if (bcintegrate.fDataPointLowerBoundaries)
-		 fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
-	 else
-		 fDataPointLowerBoundaries = 0;
-	 if (bcintegrate.fDataPointUpperBoundaries)
-		 fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
-	 else
-		 fDataPointUpperBoundaries = 0;
-	 fDataFixedValues          = bcintegrate.fDataFixedValues;
-	 fBestFitParameters        = bcintegrate.fBestFitParameters;
-	 fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
-	 fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
-	 for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
-		 if (bcintegrate.fHProb1D.at(i))
-			 fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
-		 else
-			 fHProb1D.push_back(0);
-	 }
-	 for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
-		 if (bcintegrate.fHProb2D.at(i))
-			 fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
-		 else
-			 fHProb2D.push_back(0);
-	 }
-	 fFillErrorBand            = bcintegrate.fFillErrorBand;
-	 fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
-	 fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
-	 fErrorBandX               = bcintegrate.fErrorBandX;
-	 if (bcintegrate.fErrorBandXY)
-		 fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
-	 else
-		 fErrorBandXY = 0;
-	 fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
-	 fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
-	 fMinuit                   = new TMinuit();
-	 // debugKK
-	 //	 *fMinuit = *(bcintegrate.fMinuit);
-	 fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
-	 fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
-	 fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
-	 fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
-	 fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
-	 fMarkovChainTree          = bcintegrate.fMarkovChainTree;
-	 fMCMCIteration            = bcintegrate.fMCMCIteration;
- 	 fSAT0                     = bcintegrate.fSAT0;
-	 fSATmin                   = bcintegrate.fSATmin; 
-	 // debugKK
-	 fTreeSA = 0;
-	 fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
-	 fSANIterations            = bcintegrate.fSANIterations;
-	 fSATemperature            = bcintegrate.fSATemperature;
-	 fSALogProb                = bcintegrate.fSALogProb;
-	 fSAx                      = bcintegrate.fSAx;
-	 if (bcintegrate.fx)
-		 fx = new BCParameterSet(*(bcintegrate.fx));
-	 else
-		 fx = 0;
-	 fMin                      = new double[fNvar]; 
-	 fMax                      = new double[fNvar];
-	 fVarlist                  = new int[fNvar];
-	 fMin                      = bcintegrate.fMin;
-	 fMax                      = bcintegrate.fMax;
-	 fVarlist                  = bcintegrate.fVarlist;
-	 fNiterPerDimension        = bcintegrate.fNiterPerDimension;
-	 fIntegrationMethod        = bcintegrate.fIntegrationMethod;
-	 fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
-	 fOptimizationMethod       = bcintegrate.fOptimizationMethod;
-	 fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
-	 fSASchedule               = bcintegrate.fSASchedule;
-	 fNIterationsMax           = bcintegrate.fNIterationsMax;
-	 fNIterations              = bcintegrate.fNIterations;
-	 fRelativePrecision        = bcintegrate.fRelativePrecision;
-	 fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
-	 fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
-	 fCubaMinEval              = bcintegrate.fCubaMinEval;
-	 fCubaMaxEval              = bcintegrate.fCubaMaxEval;
-	 fCubaVerbosity            = bcintegrate.fCubaVerbosity;
-	 fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
-	 fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
-	 fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
-	 fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
-	 fError                    = bcintegrate.fError;
-	 fNmetro                   = bcintegrate.fNmetro;
-	 fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
-	 fXmetro0                  = bcintegrate.fXmetro0;
-	 fXmetro1                  = bcintegrate.fXmetro1;
-	 fMarkovChainValue         = bcintegrate.fMarkovChainValue;
+    fNvar                     = bcintegrate.fNvar;
+    fNbins                    = bcintegrate.fNbins;
+    fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
+    fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
+    fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
+    fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
+    if (bcintegrate.fDataPointLowerBoundaries)
+       fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
+    else
+       fDataPointLowerBoundaries = 0;
+    if (bcintegrate.fDataPointUpperBoundaries)
+       fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
+    else
+       fDataPointUpperBoundaries = 0;
+    fDataFixedValues          = bcintegrate.fDataFixedValues;
+    fBestFitParameters        = bcintegrate.fBestFitParameters;
+    fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
+    fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
+    for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
+       if (bcintegrate.fHProb1D.at(i))
+          fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
+       else
+          fHProb1D.push_back(0);
+    }
+    for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
+       if (bcintegrate.fHProb2D.at(i))
+          fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
+       else
+          fHProb2D.push_back(0);
+    }
+    fFillErrorBand            = bcintegrate.fFillErrorBand;
+    fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
+    fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
+    fErrorBandX               = bcintegrate.fErrorBandX;
+    if (bcintegrate.fErrorBandXY)
+       fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
+    else
+       fErrorBandXY = 0;
+    fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
+    fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
+    fMinuit                   = new TMinuit();
+    // debugKK
+    //    *fMinuit = *(bcintegrate.fMinuit);
+    fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
+    fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
+    fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
+    fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
+    fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
+    fMarkovChainTree          = bcintegrate.fMarkovChainTree;
+    fMCMCIteration            = bcintegrate.fMCMCIteration;
+     fSAT0                     = bcintegrate.fSAT0;
+    fSATmin                   = bcintegrate.fSATmin; 
+    // debugKK
+    fTreeSA = 0;
+    fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
+    fSANIterations            = bcintegrate.fSANIterations;
+    fSATemperature            = bcintegrate.fSATemperature;
+    fSALogProb                = bcintegrate.fSALogProb;
+    fSAx                      = bcintegrate.fSAx;
+    if (bcintegrate.fx)
+       fx = new BCParameterSet(*(bcintegrate.fx));
+    else
+       fx = 0;
+    fMin                      = new double[fNvar]; 
+    fMax                      = new double[fNvar];
+    fVarlist                  = new int[fNvar];
+    fMin                      = bcintegrate.fMin;
+    fMax                      = bcintegrate.fMax;
+    fVarlist                  = bcintegrate.fVarlist;
+    fNiterPerDimension        = bcintegrate.fNiterPerDimension;
+    fIntegrationMethod        = bcintegrate.fIntegrationMethod;
+    fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
+    fOptimizationMethod       = bcintegrate.fOptimizationMethod;
+    fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
+    fSASchedule               = bcintegrate.fSASchedule;
+    fNIterationsMax           = bcintegrate.fNIterationsMax;
+    fNIterations              = bcintegrate.fNIterations;
+    fRelativePrecision        = bcintegrate.fRelativePrecision;
+    fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
+    fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
+    fCubaMinEval              = bcintegrate.fCubaMinEval;
+    fCubaMaxEval              = bcintegrate.fCubaMaxEval;
+    fCubaVerbosity            = bcintegrate.fCubaVerbosity;
+    fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
+    fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
+    fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
+    fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
+    fError                    = bcintegrate.fError;
+    fNmetro                   = bcintegrate.fNmetro;
+    fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
+    fXmetro0                  = bcintegrate.fXmetro0;
+    fXmetro1                  = bcintegrate.fXmetro1;
+    fMarkovChainValue         = bcintegrate.fMarkovChainValue;
 }
 
 // ---------------------------------------------------------
 BCIntegrate & BCIntegrate::operator = (const BCIntegrate & bcintegrate)
 {
-	 BCEngineMCMC::operator=(bcintegrate);
+    BCEngineMCMC::operator=(bcintegrate);
 
-	 fNvar                     = bcintegrate.fNvar;
-	 fNbins                    = bcintegrate.fNbins;
-	 fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
-	 fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
-	 fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
-	 fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
-	 if (bcintegrate.fDataPointLowerBoundaries)
-		 fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
-	 else
-		 fDataPointLowerBoundaries = 0;
-	 if (bcintegrate.fDataPointUpperBoundaries)
-		 fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
-	 else
-		 fDataPointUpperBoundaries = 0;
-	 fDataFixedValues          = bcintegrate.fDataFixedValues;
-	 fBestFitParameters        = bcintegrate.fBestFitParameters;
-	 fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
-	 fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
-	 for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
-		 if (bcintegrate.fHProb1D.at(i))
-			 fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
-		 else
-			 fHProb1D.push_back(0);
-	 }
-	 for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
-		 if (bcintegrate.fHProb2D.at(i))
-			 fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
-		 else
-			 fHProb2D.push_back(0);
-	 }
-	 fFillErrorBand            = bcintegrate.fFillErrorBand;
-	 fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
-	 fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
-	 fErrorBandX               = bcintegrate.fErrorBandX;
-	 if (bcintegrate.fErrorBandXY)
-		 fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
-	 else
-		 fErrorBandXY = 0;
-	 fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
-	 fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
-	 fMinuit                   = new TMinuit();
-	 // debugKK
-	 //	 *fMinuit = *(bcintegrate.fMinuit);
-	 fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
-	 fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
-	 fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
-	 fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
-	 fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
-	 fMarkovChainTree          = bcintegrate.fMarkovChainTree;
-	 fMCMCIteration            = bcintegrate.fMCMCIteration;
- 	 fSAT0                     = bcintegrate.fSAT0;
-	 fSATmin                   = bcintegrate.fSATmin;
-	 // debugKK
-	 fTreeSA = 0;
-	 fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
-	 fSANIterations            = bcintegrate.fSANIterations;
-	 fSATemperature            = bcintegrate.fSATemperature;
-	 fSALogProb                = bcintegrate.fSALogProb;
-	 fSAx                      = bcintegrate.fSAx;
-	 if (bcintegrate.fx)
-		 fx = new BCParameterSet(*(bcintegrate.fx));
-	 else
-		 fx = 0;
-	 fMin                      = new double[fNvar];
-	 fMax                      = new double[fNvar];
-	 fVarlist                  = new int[fNvar];
-	 fNiterPerDimension        = bcintegrate.fNiterPerDimension;
-	 fIntegrationMethod        = bcintegrate.fIntegrationMethod;
-	 fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
-	 fOptimizationMethod       = bcintegrate.fOptimizationMethod;
-	 fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
-	 fSASchedule               = bcintegrate.fSASchedule;
+    fNvar                     = bcintegrate.fNvar;
+    fNbins                    = bcintegrate.fNbins;
+    fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
+    fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
+    fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
+    fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
+    if (bcintegrate.fDataPointLowerBoundaries)
+       fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
+    else
+       fDataPointLowerBoundaries = 0;
+    if (bcintegrate.fDataPointUpperBoundaries)
+       fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
+    else
+       fDataPointUpperBoundaries = 0;
+    fDataFixedValues          = bcintegrate.fDataFixedValues;
+    fBestFitParameters        = bcintegrate.fBestFitParameters;
+    fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
+    fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
+    for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
+       if (bcintegrate.fHProb1D.at(i))
+          fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
+       else
+          fHProb1D.push_back(0);
+    }
+    for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
+       if (bcintegrate.fHProb2D.at(i))
+          fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
+       else
+          fHProb2D.push_back(0);
+    }
+    fFillErrorBand            = bcintegrate.fFillErrorBand;
+    fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
+    fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
+    fErrorBandX               = bcintegrate.fErrorBandX;
+    if (bcintegrate.fErrorBandXY)
+       fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
+    else
+       fErrorBandXY = 0;
+    fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
+    fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
+    fMinuit                   = new TMinuit();
+    // debugKK
+    //    *fMinuit = *(bcintegrate.fMinuit);
+    fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
+    fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
+    fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
+    fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
+    fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
+    fMarkovChainTree          = bcintegrate.fMarkovChainTree;
+    fMCMCIteration            = bcintegrate.fMCMCIteration;
+     fSAT0                     = bcintegrate.fSAT0;
+    fSATmin                   = bcintegrate.fSATmin;
+    // debugKK
+    fTreeSA = 0;
+    fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
+    fSANIterations            = bcintegrate.fSANIterations;
+    fSATemperature            = bcintegrate.fSATemperature;
+    fSALogProb                = bcintegrate.fSALogProb;
+    fSAx                      = bcintegrate.fSAx;
+    if (bcintegrate.fx)
+       fx = new BCParameterSet(*(bcintegrate.fx));
+    else
+       fx = 0;
+    fMin                      = new double[fNvar];
+    fMax                      = new double[fNvar];
+    fVarlist                  = new int[fNvar];
+    fNiterPerDimension        = bcintegrate.fNiterPerDimension;
+    fIntegrationMethod        = bcintegrate.fIntegrationMethod;
+    fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
+    fOptimizationMethod       = bcintegrate.fOptimizationMethod;
+    fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
+    fSASchedule               = bcintegrate.fSASchedule;
 
-	 fNIterationsMax           = bcintegrate.fNIterationsMax;
-	 fNIterations              = bcintegrate.fNIterations;
-	 fRelativePrecision        = bcintegrate.fRelativePrecision;
-	 fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
-	 fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
-	 fCubaMinEval              = bcintegrate.fCubaMinEval;
-	 fCubaMaxEval              = bcintegrate.fCubaMaxEval;
-	 fCubaVerbosity            = bcintegrate.fCubaVerbosity;
-	 fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
-	 fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
-	 fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
-	 fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
-	 fError                    = bcintegrate.fError;
-	 fNmetro                   = bcintegrate.fNmetro;
-	 fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
-	 fXmetro0                  = bcintegrate.fXmetro0;
-	 fXmetro1                  = bcintegrate.fXmetro1;
-	 fMarkovChainValue         = bcintegrate.fMarkovChainValue;
+    fNIterationsMax           = bcintegrate.fNIterationsMax;
+    fNIterations              = bcintegrate.fNIterations;
+    fRelativePrecision        = bcintegrate.fRelativePrecision;
+    fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
+    fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
+    fCubaMinEval              = bcintegrate.fCubaMinEval;
+    fCubaMaxEval              = bcintegrate.fCubaMaxEval;
+    fCubaVerbosity            = bcintegrate.fCubaVerbosity;
+    fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
+    fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
+    fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
+    fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
+    fError                    = bcintegrate.fError;
+    fNmetro                   = bcintegrate.fNmetro;
+    fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
+    fXmetro0                  = bcintegrate.fXmetro0;
+    fXmetro1                  = bcintegrate.fXmetro1;
+    fMarkovChainValue         = bcintegrate.fMarkovChainValue;
 
-	// return this
-	return *this;
+   // return this
+   return *this;
 }
 
 // ---------------------------------------------------------

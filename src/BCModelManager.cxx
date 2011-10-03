@@ -498,7 +498,7 @@ void BCModelManager::PrintSummary(const char * file)
 
    // probability summary
    std::cout<<" - A priori probabilities:"<<std::endl<<std::endl;
-  
+
    for (int i=0; i<nmodels; i++)
       std::cout<<"     p("<< fModelContainer->at(i)->GetName()
                <<") = "<< fModelContainer->at(i)->GetModelAPrioriProbability()
@@ -548,7 +548,7 @@ void BCModelManager::PrintModelComparisonSummary(const char * file)
 
    // probability summary
    std::cout<<" - A priori probabilities:"<<std::endl<<std::endl;
-  
+
    for (int i=0; i<nmodels; i++)
       std::cout<<"     p("<< fModelContainer->at(i)->GetName()
                <<") = "<< fModelContainer->at(i)->GetModelAPrioriProbability()

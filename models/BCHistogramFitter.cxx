@@ -653,9 +653,9 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
    // get the number of observed events (should be integer)
    double yObs = fHistogram->GetBinContent(index);
 
-   //	if(double( (unsigned int)yObs)==yObs)
-   //		BCLog::OutWarning(Form(
-   //				"BCHistogramFitter::CDF: using bin count %f that  is not an integer!",yObs));
+   //   if(double( (unsigned int)yObs)==yObs)
+   //      BCLog::OutWarning(Form(
+   //            "BCHistogramFitter::CDF: using bin count %f that  is not an integer!",yObs));
 
    // get function value of lower bin edge
    double edgeLow = fHistogram->GetBinLowEdge(index);
@@ -703,8 +703,8 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
          yObs = yObsLower + 1;
    }
 
-   //	BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
-   //	BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
+   //   BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
+   //   BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 
    return ROOT::Math::poisson_cdf((unsigned int) yObs, yExp);
 }

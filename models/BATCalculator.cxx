@@ -86,7 +86,7 @@ BATCalculator::BATCalculator( /* const char * name,  const char * title, */
 {
    // constructor
    //if (nuisanceParameters)
-	//   fNuisanceParameters.add(*nuisanceParameters);
+   //   fNuisanceParameters.add(*nuisanceParameters);
    _myRooInterface = new BCRooInterface("BCRooInterfaceForBAT",fillChain);
 }
 
@@ -108,7 +108,7 @@ BATCalculator::BATCalculator( RooAbsData & data, ModelConfig & model, bool fillC
    , fValidInterval(false)
    , _nMCMC(1000000)
    , fSize(0.05)
-   , fLeftSideFraction(0.5) 
+   , fLeftSideFraction(0.5)
 {
    cout << "BATCalculator calling constructor ..." << endl;
    // constructor from Model Config
@@ -257,7 +257,6 @@ RooAbsPdf * BATCalculator::GetPosteriorPdf1D(const char * POIname) const
 // return a RooPlot with the posterior PDF and the credibility region
 RooPlot * BATCalculator::GetPosteriorPlot1D() const
 {
-  
 
    if (!fPosteriorPdf)
       GetPosteriorPdf1D();
@@ -302,7 +301,7 @@ SimpleInterval * BATCalculator::GetInterval1D(const char * POIname) const
    assert(poi);
 
    if (!fPosteriorPdf)
-	   fPosteriorPdf = (RooAbsPdf*) GetPosteriorPdf1D();
+      fPosteriorPdf = (RooAbsPdf*) GetPosteriorPdf1D();
 
    RooAbsReal * cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanParameters(100,2));
    //RooAbsReal* cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanNoCdf());
@@ -366,7 +365,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
 
    // get pointer to poserior pdf
    if (!fPosteriorPdf)
-	   fPosteriorPdf = (RooAbsPdf*) GetPosteriorPdf1D();
+      fPosteriorPdf = (RooAbsPdf*) GetPosteriorPdf1D();
    //RooAbsReal * cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanParameters(100,2));
 
    // range of poi
@@ -448,7 +447,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
          cout << "updating upper lim to: " << upperLim << endl;
       }
 
-      fLower = lowerLim * stepsize; // 
+      fLower = lowerLim * stepsize;
       fUpper = upperLim * stepsize;
       j++;
    }
@@ -544,8 +543,7 @@ void BATCalculator::SetLeftSideTailFraction(Double_t leftSideFraction ){
       std::cout << "BATCalculator::SetLeftSideTailFraction(Double_t leftSideFraction ) - value needs to be in the interval [0.,1.] to be meaningful, your value: " << leftSideFraction <<  " ,left side tail fraction has not been changed!" << std::endl;
    }
 
-} 
-
+}
 
 // ---------------------------------------------------------
 Double_t BATCalculator::GetOneSidedUperLim()

@@ -22,26 +22,26 @@ class RooArgList;
 class BCRooInterface : public BCModel
 {
 
-	public:
+   public:
 
-		// Constructors and destructor
-		BCRooInterface( );
+      // Constructors and destructor
+      BCRooInterface( );
 
-		BCRooInterface( const char* name, bool fillChain = false );
+      BCRooInterface( const char* name, bool fillChain = false );
 
-		~BCRooInterface();
+      ~BCRooInterface();
 
-		// Overloaded methods
-		void DefineParameters();
-		double LogAPrioriProbability(std::vector <double> parameters);
-		double LogLikelihood(std::vector <double> parameters);
+      // Overloaded methods
+      void DefineParameters();
+      double LogAPrioriProbability(std::vector <double> parameters);
+      double LogLikelihood(std::vector <double> parameters);
 
-		// Other method of this class
-		void Initialize( RooAbsData& data,
-				 RooAbsPdf& model,
-				 RooAbsPdf& prior,
-				 const RooArgSet* params,
-				 const RooArgSet& listPOI );
+      // Other method of this class
+      void Initialize( RooAbsData& data,
+             RooAbsPdf& model,
+             RooAbsPdf& prior,
+             const RooArgSet* params,
+             const RooArgSet& listPOI );
 
       void Initialize( const char* rootFile,
             const char* wsName = "batWS",
@@ -52,11 +52,11 @@ class BCRooInterface : public BCModel
             const char* paramsName = "parameters",
             const char* listPOIName = "POI" );
 
-      //set the number of histogram bins for a specific parameter 
+      //set the number of histogram bins for a specific parameter
       void SetNumBins(const char * parname, int nbins);
-      //set the number of histogram bins for all parameters 
+      //set the number of histogram bins for all parameters
       void SetNumBins(int nbins);
-      //setup RooStats Markov Chain 
+      //setup RooStats Markov Chain
       void SetupRooStatsMarkovChain();
       //overloaded function from BCIntegrate to fill RooStats Markov Chain with every accepted step
       void MCMCIterationInterface();
@@ -66,19 +66,19 @@ class BCRooInterface : public BCModel
       //RooArgSet GetArgSetForMarkovChainTest(){return _parametersForMarkovChain_test;}
 
 
-	private:
+   private:
 
       void AddToCurrentChainElement(double xij, int chainNum, int poiNum); //help function for construction of RooStats Markov Chain
       bool EqualsLastChainElement(int chainNum); //help function for construction of RooStats Markov Chain
       double GetWeightForChain(int chainNum); //help function for construction of RooStats Markov Chain
 
-		RooAbsData* fData;        // data to test
-		RooAbsPdf*  fModel;       // likelihood model describing the observables
-		RooAbsReal*  fNll;         // pointer to negative log-likelihood function
-		RooArgSet*  fObservables; // list of observables measured for each event
-		RooArgList* fParams;      // list of parameters 
+      RooAbsData* fData;        // data to test
+      RooAbsPdf*  fModel;       // likelihood model describing the observables
+      RooAbsReal*  fNll;         // pointer to negative log-likelihood function
+      RooArgSet*  fObservables; // list of observables measured for each event
+      RooArgList* fParams;      // list of parameters
       RooArgList* fParamsPOI;   // list of parameters of interest
-		RooAbsPdf*  fPrior;       // function describing the prior probability of the parameters
+      RooAbsPdf*  fPrior;       // function describing the prior probability of the parameters
       int _default_nbins;
 
       RooRealVar* priorhelpvar;

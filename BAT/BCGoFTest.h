@@ -32,98 +32,98 @@ class BCDataSet;
 
 class BCGoFTest : public BCModel
 {
-	public:
+   public:
 
-		/** \name Constructors and destructors */
-		/** @{ */
+      /** \name Constructors and destructors */
+      /** @{ */
 
-		/**
-		 * Default constructor.
-		 */
-		BCGoFTest(const char * name);
+      /**
+       * Default constructor.
+       */
+      BCGoFTest(const char * name);
 
-		/**
-		 * Default destructor. */
-		~BCGoFTest();
+      /**
+       * Default destructor. */
+      ~BCGoFTest();
 
-		/** @} */
-		/** \name Member functions (get) */
-		/** @{ */
+      /** @} */
+      /** \name Member functions (get) */
+      /** @{ */
 
-		/**
-		 * Calculated the p-value.
-		 * @param flag_histogram A histogram is either filled or not.
-		 * @return p-value */
-		double GetCalculatedPValue(bool flag_histogram = false);
+      /**
+       * Calculated the p-value.
+       * @param flag_histogram A histogram is either filled or not.
+       * @return p-value */
+      double GetCalculatedPValue(bool flag_histogram = false);
 
-		/**
-		 * @return distribution of log(likelihood) */
-		TH1D * GetHistogramLogProb()
-			{ return fHistogramLogProb; };
+      /**
+       * @return distribution of log(likelihood) */
+      TH1D * GetHistogramLogProb()
+         { return fHistogramLogProb; };
 
-		/**
-		 * @return pointer to the tested model */
-		BCModel * GetTestModel()
-			{ return fTestModel; };
+      /**
+       * @return pointer to the tested model */
+      BCModel * GetTestModel()
+         { return fTestModel; };
 
-		/** @} */
-		/** \name Member functions (set) */
-		/** @{ */
+      /** @} */
+      /** \name Member functions (set) */
+      /** @{ */
 
-		/**
-		 * Set the model to be tested.
-		 * @param testmodel pointer to the model to be tested */
-		void SetTestModel(BCModel * testmodel)
-			{ fTestModel = testmodel; };
+      /**
+       * Set the model to be tested.
+       * @param testmodel pointer to the model to be tested */
+      void SetTestModel(BCModel * testmodel)
+         { fTestModel = testmodel; };
 
-		/**
-		 * Sets the set of parameters which the p-values is calculated for.
-		 * @param parameters parameters
-		 * @return error code */
-		int SetTestPoint(std::vector<double> parameters);
+      /**
+       * Sets the set of parameters which the p-values is calculated for.
+       * @param parameters parameters
+       * @return error code */
+      int SetTestPoint(std::vector<double> parameters);
 
-		/** @} */
-		/** \name Member functions (miscellaneous methods) */
-		/** @{ */
+      /** @} */
+      /** \name Member functions (miscellaneous methods) */
+      /** @{ */
 
-		double LogLikelihood(std::vector <double> parameters);
+      double LogLikelihood(std::vector <double> parameters);
 
-		double LogAPrioriProbability(std::vector <double> parameters)
-			{ return 0; };
+      double LogAPrioriProbability(std::vector <double> parameters)
+         { return 0; };
 
-		void MCMCUserIterationInterface();
+      void MCMCUserIterationInterface();
 
-		/** @} */
+      /** @} */
 
-	private:
+   private:
 
-		/**
-		 * A map of data points and data values. */
-		std::vector<int> fMapDataPoint;
-		std::vector<int> fMapDataValue;
+      /**
+       * A map of data points and data values. */
+      std::vector<int> fMapDataPoint;
+      std::vector<int> fMapDataValue;
 
-		/**
-		 * Counter for the evaluation of the p-value. */
-		int fPValueBelow;
-		int fPValueAbove;
+      /**
+       * Counter for the evaluation of the p-value. */
+      int fPValueBelow;
+      int fPValueAbove;
 
-		/**
-		 * A pointer to the model which is tested. */
-		BCModel * fTestModel;
+      /**
+       * A pointer to the model which is tested. */
+      BCModel * fTestModel;
 
-		/**
-		 * A data set used for temporary storage. */
-		BCDataSet * fTemporaryDataSet;
+      /**
+       * A data set used for temporary storage. */
+      BCDataSet * fTemporaryDataSet;
 
-		/**
-		 * The log(likelihood) and its range. */
-		double fLogLikelihood;
-		double fLogLikelihoodMin;
-		double fLogLikelihoodMax;
+      /**
+       * The log(likelihood) and its range. */
+      double fLogLikelihood;
+      double fLogLikelihoodMin;
+      double fLogLikelihoodMax;
 
-		/**
-		 * The distribution of log(likelihood). */
-		TH1D * fHistogramLogProb;
+      /**
+       * The distribution of log(likelihood). */
+      TH1D * fHistogramLogProb;
 };
 
 // ---------------------------------------------------------

@@ -1,3 +1,6 @@
+2011-10-03 Daniel Kollar <daniel.kollar@cern.ch>
+	* replace tabs with spaces
+
 2011-08-17 Daniel Kollar <daniel.kollar@cern.ch>
 	* CreateProject.sh: (obo Fred Beaujean)
 	  - fixed Makefile creation

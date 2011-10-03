@@ -21,10 +21,10 @@
 
 // ---------------------------------------------------------
 void BCRooInterface::Initialize( RooAbsData& data,
-				 RooAbsPdf& model,
-				 RooAbsPdf& prior_trans,
-				 const RooArgSet* params,
-				 const RooArgSet& listPOI )
+             RooAbsPdf& model,
+             RooAbsPdf& prior_trans,
+             const RooArgSet* params,
+             const RooArgSet& listPOI )
 {
 
   fData = &data;
@@ -36,7 +36,7 @@ void BCRooInterface::Initialize( RooAbsData& data,
     fPrior = prior_total;
   }
   else {
-	      std::cout << "No prior PDF: without taking action the program would crash\n";
+         std::cout << "No prior PDF: without taking action the program would crash\n";
          std::cout << "No prior PDF: adding dummy uniform pdf on the interval [0..1]\n";
          priorhelpvar = new RooRealVar("priorhelpvar","",0.0, 1.0 );
          _addeddummyprior = true;
@@ -66,7 +66,6 @@ void BCRooInterface::Initialize( RooAbsData& data,
 }
 
 // ---------------------------------------------------------
-
 void BCRooInterface::Initialize( const char* rootFile,
              const char* wsName,
              const char* dataName,
@@ -107,13 +106,13 @@ void BCRooInterface::Initialize( const char* rootFile,
    if (priorNuisance!=0 && priorPOI!=0) {
       fPrior = new RooProdPdf("fPrior","complete prior",*priorPOI,*priorNuisance);
    }
-	else {
+   else {
       if ( priorNuisance!=0 )
-		   fPrior=priorNuisance;
+         fPrior=priorNuisance;
       else if ( priorPOI!=0 )
-		   fPrior = priorPOI;
+         fPrior = priorPOI;
       else
-		   std::cout << "No prior PDF: without taking action the program would crash\n";
+         std::cout << "No prior PDF: without taking action the program would crash\n";
          std::cout << "No prior PDF: adding dummy uniform pdf on the interval [0..1]\n";
          priorhelpvar = new RooRealVar("priorhelpvar","",0.0, 1.0 );
          _addeddummyprior = true;
@@ -127,9 +126,9 @@ void BCRooInterface::Initialize( const char* rootFile,
    if (paramsTmp!=0) {
       fParams->add(*paramsTmp);
    }
-   if (_addeddummyprior == true ){
+   if (_addeddummyprior == true ) {
       fParams->add(*priorhelpvar);
-   } 
+   }
    fParams->Print("v");
 
    // create the log-likelihood function
@@ -145,7 +144,7 @@ void BCRooInterface::Initialize( const char* rootFile,
 
 // ---------------------------------------------------------
 BCRooInterface::BCRooInterface() : BCModel()
-{	// default constructor
+{   // default constructor
    _default_nbins = 500;
    _fillChain = false;
    _addeddummyprior = false;
@@ -153,14 +152,14 @@ BCRooInterface::BCRooInterface() : BCModel()
 
 // ---------------------------------------------------------
 BCRooInterface::BCRooInterface(const char* name, bool fillChain) : BCModel(name)
-{	// another constructor
+{   // another constructor
    _default_nbins = 500;
    _fillChain = fillChain;
 }
 
 // ---------------------------------------------------------
 BCRooInterface::~BCRooInterface()
-{	// default destructor
+{   // default destructor
    if(_fillChain){
       delete _roostatsMarkovChain;
    }
@@ -171,7 +170,7 @@ BCRooInterface::~BCRooInterface()
 
 // ---------------------------------------------------------
 void BCRooInterface::DefineParameters()
-{	// define for BAT the list of parameters, range and plot binning
+{   // define for BAT the list of parameters, range and plot binning
 
   int nParams = fParams->getSize();
   for (int iParam=0; iParam<nParams; iParam++) {
@@ -180,19 +179,19 @@ void BCRooInterface::DefineParameters()
     this->SetNbins(ipar->GetName(),_default_nbins);
     std::cout << "added parameter: " << ipar->GetName() << " defined in range [ " << ipar->getMin() << " - " << ipar->getMax() << " ] with number of bins: " << _default_nbins << " \n";
   }
-  
-for(list< pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
-   this->SetNbins((*listiter).first,(*listiter).second);
-   std::cout << "adjusted parameter: " << (*listiter).first << " to number of bins: " << (*listiter).second << " \n";
-}
+
+   for(list< pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
+      this->SetNbins((*listiter).first,(*listiter).second);
+      std::cout << "adjusted parameter: " << (*listiter).first << " to number of bins: " << (*listiter).second << " \n";
+   }
 
 }
 
 // ---------------------------------------------------------
 double BCRooInterface::LogLikelihood(std::vector <double> parameters)
-{	// this methods returns the logarithm of the conditional probability: p(data|parameters)
+{   // this methods returns the logarithm of the conditional probability: p(data|parameters)
 
-	// retrieve the values of the parameters to be tested
+   // retrieve the values of the parameters to be tested
   int nParams = fParams->getSize();
   for (int iParam=0; iParam<nParams; iParam++) {
     RooRealVar* ipar = (RooRealVar*) fParams->at(iParam);
@@ -206,8 +205,8 @@ double BCRooInterface::LogLikelihood(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 double BCRooInterface::LogAPrioriProbability(std::vector <double> parameters)
-{	// this method returs the logarithm of the prior probability for the parameters: p(parameters).
-	// retrieve the values of the parameters to be tested
+{   // this method returs the logarithm of the prior probability for the parameters: p(parameters).
+   // retrieve the values of the parameters to be tested
   int nParams = fParams->getSize();
   for (int iParam=0; iParam<nParams; iParam++) {
     RooRealVar* ipar = (RooRealVar*) fParams->at(iParam);
@@ -222,6 +221,7 @@ double BCRooInterface::LogAPrioriProbability(std::vector <double> parameters)
   return log(prob);
 }
 
+// ---------------------------------------------------------
 void BCRooInterface::SetNumBins(const char * parname, int nbins)
 {
    for(list< pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
@@ -233,15 +233,17 @@ void BCRooInterface::SetNumBins(const char * parname, int nbins)
    _nbins_list.push_back( make_pair(parname,nbins) );
 }
 
+// ---------------------------------------------------------
 void BCRooInterface::SetNumBins(int nbins)
 {
    _default_nbins = nbins;
 }
 
+// ---------------------------------------------------------
 void BCRooInterface::SetupRooStatsMarkovChain()
 {
    //RooArgSet * tempRooArgSetPointer = new RooArgSet(* fParams, "paramsMarkovChainPointer");
-   //_parametersForMarkovChain = RooArgSet(* fParams, "paramsMarkovChainPointer"); 
+   //_parametersForMarkovChain = RooArgSet(* fParams, "paramsMarkovChainPointer");
    //fParams->snapshot(_parametersForMarkovChain);
    _parametersForMarkovChainPrevious.add(*fParamsPOI);
    _parametersForMarkovChainCurrent.add(*fParamsPOI);
@@ -260,13 +262,13 @@ void BCRooInterface::SetupRooStatsMarkovChain()
 
    //initialize fPreviousStep, fCurrentStep, fVecWeights
    int nchains = MCMCGetNChains();
-   for(int countChains = 1; countChains<=nchains ; countChains++ ){
+   for(int countChains = 1; countChains<=nchains ; countChains++ ) {
       double tempweight = 1.0;
       fVecWeights.push_back(tempweight);
       vector<double> tempvec;
       TIterator* setiter = fParamsPOI->createIterator();
       double tempval = 0.;
-      while(setiter->Next()){
+      while(setiter->Next()) {
          tempvec.push_back(tempval);
       }
       fPreviousStep.push_back(tempvec);
@@ -284,6 +286,7 @@ void BCRooInterface::SetupRooStatsMarkovChain()
    //test stuff end
 }
 
+// ---------------------------------------------------------
 // to be added: add elements with higher weights if elements repeat to avoid unneccessarily long chains
 void BCRooInterface::MCMCIterationInterface()
 {
@@ -301,7 +304,7 @@ void BCRooInterface::MCMCIterationInterface()
       // loop over all chains and fill histogram
       for (int i = 0; i < nchains; ++i) {
          // get the current values of the parameters. These are
-         // stored in fMCMCx. 
+         // stored in fMCMCx.
 
          TIterator* setiter = fParamsPOI->createIterator();
          int j = 0;
@@ -314,7 +317,7 @@ void BCRooInterface::MCMCIterationInterface()
 
             const char * paramnamepointer = (tempBCparam->GetName()).c_str();
 
-            double xij = fMCMCx.at(i * npar + j); 
+            double xij = fMCMCx.at(i * npar + j);
             AddToCurrentChainElement(xij, i, j);
             RooRealVar* parampointer = (RooRealVar*) &(_parametersForMarkovChainCurrent[paramnamepointer]);
             parampointer->setVal(xij);
@@ -329,26 +332,28 @@ void BCRooInterface::MCMCIterationInterface()
 //
 //test stuff end
 
-         if( !(EqualsLastChainElement(i)) ){
+         if( !(EqualsLastChainElement(i)) ) {
             double weight = GetWeightForChain(i);
             _roostatsMarkovChain->Add(_parametersForMarkovChainPrevious, -1.* MCMCGetLogProbx(j), weight); 
             _parametersForMarkovChainPrevious = _parametersForMarkovChainCurrent;
          }
       }
    }
-} 
-
-void BCRooInterface::AddToCurrentChainElement(double xij, int chainNum, int poiNum)
-{
-fCurrentStep[chainNum][poiNum] = xij;
 }
 
+// ---------------------------------------------------------
+void BCRooInterface::AddToCurrentChainElement(double xij, int chainNum, int poiNum)
+{
+   fCurrentStep[chainNum][poiNum] = xij;
+}
+
+// ---------------------------------------------------------
 bool BCRooInterface::EqualsLastChainElement(int chainNum)
 {
    bool equals = true;
    vector<double>::iterator itPrevious = fPreviousStep[chainNum].begin();
 
-   if(fFirstComparison == true){
+   if(fFirstComparison == true) {
       fFirstComparison = false;
       _parametersForMarkovChainPrevious = _parametersForMarkovChainCurrent;
       return true;
@@ -356,7 +361,7 @@ bool BCRooInterface::EqualsLastChainElement(int chainNum)
 
 
    for (vector<double>::iterator itCurrent = fCurrentStep[chainNum].begin(); itCurrent != fCurrentStep[chainNum].end(); ++itCurrent) {
-      if(*itCurrent != *itPrevious){
+      if(*itCurrent != *itPrevious) {
          equals = false;
          fPreviousStep[chainNum] = fCurrentStep[chainNum];
          break;
@@ -372,6 +377,7 @@ bool BCRooInterface::EqualsLastChainElement(int chainNum)
 
 }
 
+// ---------------------------------------------------------
 double BCRooInterface::GetWeightForChain(int chainNum)
 {
    double retval = fVecWeights[chainNum];

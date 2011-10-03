@@ -91,15 +91,15 @@ class BCIntegrate : public BCEngineMCMC
        * The default destructor */
       virtual ~BCIntegrate();
 
-			/** @} */
-			/** \name Assignment operators */
-			/** @{ */
-			
-			/**
-			 * Defaut assignment operator */
-			BCIntegrate & operator = (const BCIntegrate & bcintegrate);
+      /** @} */
+      /** \name Assignment operators */
+      /** @{ */
 
-			/** @} */
+      /**
+       * Defaut assignment operator */
+      BCIntegrate & operator = (const BCIntegrate & bcintegrate);
+
+      /** @} */
       /** \name Member functions (get) */
       /** @{ */
 
