@@ -1,4 +1,8 @@
 2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* CreateProject.sh:
+	  - adjusted to the new user interface
+
+2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCGraphFitter:
 	  - don't call FitFunction() from LogLikelihood() but rather
 	    call fFitFunction-Eval() directly

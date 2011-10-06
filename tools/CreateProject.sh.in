@@ -60,8 +60,8 @@ class |:Model:| : public BCModel
 
       // Methods to overload, see file |:Model:|.cxx
       void DefineParameters();
-      double LogAPrioriProbability(std::vector <double> parameters);
-      double LogLikelihood(std::vector <double> parameters);
+      double LogAPrioriProbability(const std::vector <double> &parameters);
+      double LogLikelihood(const std::vector <double> &parameters);
       // void MCMCIterationInterface();
 };
 // ---------------------------------------------------------
@@ -117,7 +117,7 @@ void |:Model:|::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double |:Model:|::LogLikelihood(std::vector <double> parameters)
+double |:Model:|::LogLikelihood(const std::vector <double> &parameters)
 {
    // This methods returns the logarithm of the conditional probability
    // p(data|parameters). This is where you have to define your model.
@@ -136,7 +136,7 @@ double |:Model:|::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double |:Model:|::LogAPrioriProbability(std::vector <double> parameters)
+double |:Model:|::LogAPrioriProbability(const std::vector <double> &parameters)
 {
    // This method returns the logarithm of the prior probability for the
    // parameters p(parameters).
