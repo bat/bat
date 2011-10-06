@@ -431,7 +431,7 @@ TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth)
 }
 
 // ---------------------------------------------------------
-TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters)
+TGraph * BCModel::GetFitFunctionGraph(const std::vector<double> &parameters)
 {
    if (!fErrorBandXY)
       return 0;
@@ -456,7 +456,7 @@ TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-TGraph * BCModel::GetFitFunctionGraph(std::vector<double> parameters, double xmin, double xmax, int n)
+TGraph * BCModel::GetFitFunctionGraph(const std::vector<double> &parameters, double xmin, double xmax, int n)
 {
    // define new graph
    TGraph * graph = new TGraph(n + 1);
@@ -626,7 +626,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 }
 
 // ---------------------------------------------------------
-double BCModel::LogProbabilityNN(std::vector<double> parameters)
+double BCModel::LogProbabilityNN(const std::vector<double> &parameters)
 {
    // add log of conditional probability
    double logprob = LogLikelihood(parameters);
@@ -641,7 +641,7 @@ double BCModel::LogProbabilityNN(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCModel::LogProbability(std::vector<double> parameters)
+double BCModel::LogProbability(const std::vector<double> &parameters)
 {
    // check if normalized
    if (fNormalization < 0. || fNormalization == 0.) {
@@ -653,7 +653,7 @@ double BCModel::LogProbability(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCModel::LogLikelihood(std::vector<double> parameters)
+double BCModel::LogLikelihood(const std::vector<double> &parameters)
 {
    double logprob = 0.;
 
@@ -667,7 +667,7 @@ double BCModel::LogLikelihood(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCModel::LogAPrioriProbability(std::vector<double> parameters)
+double BCModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
    double logprob = 0;
 
@@ -712,19 +712,19 @@ double BCModel::LogAPrioriProbability(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCModel::LogEval(std::vector<double> parameters)
+double BCModel::LogEval(const std::vector<double> &parameters)
 {
    return LogProbabilityNN(parameters);
 }
 
 // ---------------------------------------------------------
-double BCModel::EvalSampling(std::vector<double> parameters)
+double BCModel::EvalSampling(const std::vector<double> &parameters)
 {
    return SamplingFunction(parameters);
 }
 
 // ---------------------------------------------------------
-double BCModel::SamplingFunction(std::vector<double> parameters)
+double BCModel::SamplingFunction(const std::vector<double> &parameters)
 {
    double probability = 1.;
    for (std::vector<BCParameter *>::const_iterator it = fParameterSet->begin(); it != fParameterSet->end(); ++it)
@@ -760,7 +760,7 @@ double BCModel::Normalize()
 }
 
 // ---------------------------------------------------------
-int BCModel::CheckParameters(std::vector<double> parameters)
+int BCModel::CheckParameters(const std::vector<double> &parameters)
 {
    // check if vectors are of equal size
    if (!parameters.size() == fParameterSet->size())
@@ -1391,7 +1391,7 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 }
 
 // ---------------------------------------------------------
-double BCModel::GetPvalueFromChi2(std::vector<double> par, int sigma_index)
+double BCModel::GetPvalueFromChi2(const std::vector<double> &par, int sigma_index)
 {
    double ll = LogLikelihood(par);
    int n = GetNDataPoints();
@@ -2395,7 +2395,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-BCDataPoint * BCModel::VectorToDataPoint(std::vector<double> data)
+BCDataPoint * BCModel::VectorToDataPoint(const std::vector<double> &data)
 {
    int sizeofvector = int(data.size());
    BCDataPoint * datapoint = new BCDataPoint(sizeofvector);

@@ -1,7 +1,8 @@
 #ifndef __BCROOINTERFACE__H
 #define __BCROOINTERFACE__H
 
-#include "BCModel.h"
+#include "../BAT/BCModel.h"
+
 #include <RooStats/MarkovChain.h>
 #include <RooRealVar.h>
 #include <list>
@@ -33,8 +34,8 @@ class BCRooInterface : public BCModel
 
       // Overloaded methods
       void DefineParameters();
-      double LogAPrioriProbability(std::vector <double> parameters);
-      double LogLikelihood(std::vector <double> parameters);
+      double LogAPrioriProbability(const std::vector <double> & parameters);
+      double LogLikelihood(const std::vector <double> &parameters);
 
       // Other method of this class
       void Initialize( RooAbsData& data,

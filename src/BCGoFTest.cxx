@@ -71,7 +71,7 @@ BCGoFTest::~BCGoFTest()
 
 // ---------------------------------------------------------
 
-double BCGoFTest::LogLikelihood(std::vector <double> parameters)
+double BCGoFTest::LogLikelihood(const std::vector <double> & parameters)
 {
    // set the original data set to the new parameters
    for (int i = 0; i < int(parameters.size()); ++i)

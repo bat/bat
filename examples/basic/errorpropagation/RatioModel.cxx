@@ -3,25 +3,27 @@
 #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
-RatioModel::RatioModel() : BCModel()
-			 , fHistRatio(new BCH1D())
-{  
+RatioModel::RatioModel()
+ : BCModel()
+ , fHistRatio(new BCH1D())
+{
   // define the parameters x and y
   DefineParameters();
 
   // define the additional histogram for the ratio r
-  DefineHistogram(); 
+  DefineHistogram();
 };
 
 // ---------------------------------------------------------
-RatioModel::RatioModel(const char * name) : BCModel(name)
-			 , fHistRatio(new BCH1D())
-{ 
+RatioModel::RatioModel(const char * name)
+ : BCModel(name)
+ , fHistRatio(new BCH1D())
+{
   // define the parameters x and y
   DefineParameters();
 
   // define the additional histogram for the ratio r
-  DefineHistogram(); 
+  DefineHistogram();
 };
 
 // ---------------------------------------------------------
@@ -34,7 +36,7 @@ RatioModel::~RatioModel()
 // ---------------------------------------------------------
 void RatioModel::DefineParameters()
 {
-  // add two parameters, x and y. 
+  // add two parameters, x and y.
   AddParameter("x", 1., 17.); // index 0
   AddParameter("y", 6., 14.); // index 1
 }
@@ -55,7 +57,7 @@ void RatioModel::PrintHistogram()
 }
 
 // ---------------------------------------------------------
-double RatioModel::LogLikelihood(std::vector <double> parameters)
+double RatioModel::LogLikelihood(const std::vector <double> &parameters)
 {
   // This methods returns the logarithm of the conditional probability
   // p(data|parameters). This is where you have to define your model.
@@ -66,15 +68,15 @@ double RatioModel::LogLikelihood(std::vector <double> parameters)
   double y = parameters.at(1);
 
   // calculate the Gaussian probability densities
-  logprob += BCMath::LogGaus(x, 9., 2.); 
-  logprob += BCMath::LogGaus(y, 10., 1.0); 
+  logprob += BCMath::LogGaus(x, 9., 2.);
+  logprob += BCMath::LogGaus(y, 10., 1.0);
 
   // return the log likelihood
   return logprob;
 }
 
 // ---------------------------------------------------------
-double RatioModel::LogAPrioriProbability(std::vector <double> parameters)
+double RatioModel::LogAPrioriProbability(const std::vector <double> &parameters)
 {
   // This method returns the logarithm of the prior probability for the
   // parameters p(parameters).
@@ -82,8 +84,8 @@ double RatioModel::LogAPrioriProbability(std::vector <double> parameters)
   double logprob = 0.;
 
   // get width of the parameter ranges
-  double dx = GetParameter(0)->GetRangeWidth(); 
-  double dy = GetParameter(1)->GetRangeWidth(); 
+  double dx = GetParameter(0)->GetRangeWidth();
+  double dy = GetParameter(1)->GetRangeWidth();
 
   // add flat prior probabilities for x and y
   logprob += log(1./dx); // flat prior for x
@@ -105,9 +107,9 @@ void RatioModel::MCMCIterationInterface()
   // loop over all chains and fill histogram
   for (int i = 0; i < nchains; ++i) {
     // get the current values of the parameters x and y. These are
-    // stored in fMCMCx. 
-    double x = fMCMCx.at(i * npar + 0); 
-    double y = fMCMCx.at(i * npar + 1); 
+    // stored in fMCMCx.
+    double x = fMCMCx.at(i * npar + 0);
+    double y = fMCMCx.at(i * npar + 1);
 
     // fill the ratio histogram
     fHistRatio->GetHistogram()->Fill(x/y);

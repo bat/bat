@@ -28,7 +28,7 @@
 #include <TH1D.h>
 #include <TF1.h>
 
-#include "BCModel.h"
+#include "../BAT/BCModel.h"
 
 class TH2D;
 
@@ -186,7 +186,7 @@ class BCTemplateFitter : public BCModel
        * @param binnumber The number of the bin.
        * @param parameters The parameter values.
        */
-      double Expectation(int binnumber, std::vector<double>& parameters);
+      double Expectation(int binnumber, const std::vector<double>& parameters);
 
       /**
        * Return the efficiency of a template in a certain bin.
@@ -194,7 +194,7 @@ class BCTemplateFitter : public BCModel
        * @param binnumber The bin number.
        * @param parameters The parameter values.
        */
-      double TemplateEfficiency(int templatenumber, int binnumber, std::vector<double>& parameters);
+      double TemplateEfficiency(int templatenumber, int binnumber, const std::vector<double>& parameters);
 
       /**
        * Return the probability of a template in a certain bin.
@@ -202,7 +202,7 @@ class BCTemplateFitter : public BCModel
        * @param binnumber The bin number.
        * @param parameters The parameter values.
        */
-      double TemplateProbability(int templatenumber, int binnumber, std::vector<double>& parameters);
+      double TemplateProbability(int templatenumber, int binnumber, const std::vector<double>& parameters);
 
 
       /**
@@ -233,7 +233,7 @@ class BCTemplateFitter : public BCModel
        */
       int SetData(const TH1D& hist);
 
-      int FixTemplateFunctions(std::vector<double>& parameters);
+      int FixTemplateFunctions(const std::vector<double>& parameters);
 
       /**
        * Initialize the fitting procedure.
@@ -326,12 +326,12 @@ class BCTemplateFitter : public BCModel
        * Calculates and returns the chi2 value. The chi2 is calculated
        * using the expectation value for the uncertainty.
        */
-      double CalculateChi2(std::vector<double> parameters);
+      double CalculateChi2(const std::vector<double> & parameters);
 
       /**
        * Calculates and returns the chi2-probability.
        */
-      double CalculateChi2Prob(std::vector<double> parameters);
+      double CalculateChi2Prob(const std::vector<double> & parameters);
 
       /**
        * Calculates and returns the Likelihood at the global mode.
@@ -402,7 +402,7 @@ class BCTemplateFitter : public BCModel
        * Calculates and returns the log of the Likelihood at a given point
        * in parameter space.
        */
-      double LogLikelihood(std::vector <double> parameters);
+      double LogLikelihood(const std::vector <double> & parameters);
 
       /**
        * Perform the template fit.

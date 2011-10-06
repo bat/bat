@@ -3,7 +3,7 @@ ToDo list:
 
 For later releases:
 ===================
-Priority:    Status:   Task:                     
+Priority:    Status:   Task:
 ------------------------------------------------------------------------------------------------
 medium                 Fix memory leaks in BCH1D and other classes
 medium                 Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
@@ -13,7 +13,7 @@ medium                 Simplify retrieving parameter uncertainty, add histogram 
 medium                 Speed up FastFitters by cutting data range to TF1 range
 medium                 Implement better selection of marginalized distributions to fill, switch on/off 1-d and 2-d histogram
 medium                 Perform analysis of MCMC tree from ROOT file
-medium        	       get 1D limits from ECDF and tree
+medium                 get 1D limits from ECDF and tree
 medium                 ROOT: enable compiling programs with 'root BATcode.C++'
 medium                 Jeffrey's +reference prior from RooStats
 medium                 Adaptive multidimensional proposal function (see e.g. Examples of Adaptive MCMC, Roberts, G. and Rosenthal, J.; 2008)
@@ -28,7 +28,7 @@ low                    p-value from arbitrary test statistic for data generated 
 
 Release independent:
 ====================
-Priority:    Status:   Task:                     
+Priority:    Status:   Task:
 ------------------------------------------------------------------------------------------------
 high                   Check/change tutorials
 
@@ -38,9 +38,9 @@ medium                 Add models page on web page
 For release 1.0:
 ================
 
-Necessary tasks: 
+Necessary tasks:
 
-Status:		Task:
+Status:         Task:
 ------------------------------------------------------------------------------------------------
                 Update user's guide (Kevin, everyone)
                  - Consistent (de-)allocation of resources. Make user aware that his data passed by pointers to BAT is typically not deleted by BAT.
@@ -55,7 +55,7 @@ Status:		Task:
                 Change of interface: reference instead of copy vector (Kevin)
                 clean up: remove everything that is not used (everyone)
                 Check if integration correct in >3 dimensions: test suite (Jens?)
-fixed           Allow user to set scales for MCMC (Kevin will check) -> yes 
+fixed           Allow user to set scales for MCMC (Kevin will check) -> yes
 fixed           Allow user to define multivariate proposal function (Kevin) -> yes
                 Remove MCMC code from BCIntegrate (Dano?)
                 Remove ConditionalProbabilityEntry stuff (Dano?)
@@ -66,15 +66,16 @@ fixed           Allow user to define multivariate proposal function (Kevin) -> y
 fixed           Continuous running of MCMC (Kevin)
 fixed           Delta-function priors (Kevin)
                 Check normalization of Likelihood (all)
-		Remove GLIBS from makefiles
+                Remove GLIBS from makefiles
+                change examples to use quick priors
 
 Optional tasks:
 
-Status:		Task:
+Status:         Task:
 ------------------------------------------------------------------------------------------------
                 use ROOT integration methods instead of slow MC for d <= 3 (Jens?)
-                allow to select Cuba algorithm (Divonne, Cuhre) (Jens?) 
-                allow to tune Cuba integration parameters (Divonne, Cuhre) (Jens?) 
+                allow to select Cuba algorithm (Divonne, Cuhre) (Jens?)
+                allow to tune Cuba integration parameters (Divonne, Cuhre) (Jens?)
                 Sub-space integration, post-processing? (Arnulf?)
 
 Web page structure:

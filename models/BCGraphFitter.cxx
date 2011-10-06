@@ -14,10 +14,10 @@
 #include <TLegend.h>
 #include <Math/ProbFuncMathCore.h>
 
-#include "BCLog.h"
-#include "BCDataSet.h"
-#include "BCDataPoint.h"
-#include "BCMath.h"
+#include "../BAT/BCLog.h"
+#include "../BAT/BCDataSet.h"
+#include "../BAT/BCDataPoint.h"
+#include "../BAT/BCMath.h"
 
 #include "BCGraphFitter.h"
 
@@ -194,18 +194,10 @@ double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
-double BCGraphFitter::LogLikelihood(std::vector <double> params)
+double BCGraphFitter::LogLikelihood(const std::vector <double> & params)
 {
    // initialize probability
    double logl = 0.;
-
-   // set the parameters of the function
-   // passing the pointer to first element of the vector is
-   // not completely safe as there might be an implementation where
-   // the vector elements are not stored consecutively in memory.
-   // however it is much faster than copying the contents, especially
-   // for large number of parameters
-   fFitFunction->SetParameters(&params[0]);
 
    // loop over all data points
    for (int i = 0; i < GetNDataPoints(); i++)
@@ -228,9 +220,14 @@ double BCGraphFitter::LogLikelihood(std::vector <double> params)
 
 // ---------------------------------------------------------
 
-double BCGraphFitter::FitFunction(std::vector <double> x, std::vector <double> params)
+double BCGraphFitter::FitFunction(const std::vector <double> & x, const std::vector <double> & params)
 {
    // set the parameters of the function
+   // passing the pointer to first element of the vector is
+   // not completely safe as there might be an implementation where
+   // the vector elements are not stored consecutively in memory.
+   // however it is much faster than copying the contents, especially
+   // for large number of parameters
    fFitFunction->SetParameters(&params[0]);
 
    return fFitFunction->Eval(x[0]);

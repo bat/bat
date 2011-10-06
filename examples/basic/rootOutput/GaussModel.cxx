@@ -4,14 +4,14 @@
 
 // ---------------------------------------------------------
 GaussModel::GaussModel() : BCModel()
-{  
+{
   // default constructor
   DefineParameters();
 };
 
 // ---------------------------------------------------------
 GaussModel::GaussModel(const char * name) : BCModel(name)
-{ 
+{
   // constructor
   DefineParameters();
 };
@@ -31,7 +31,7 @@ void GaussModel::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double GaussModel::LogLikelihood(std::vector <double> parameters)
+double GaussModel::LogLikelihood(const std::vector <double> &parameters)
 {
   // assume a simple Gaussian Likelihood with two independent
   // variables
@@ -48,13 +48,13 @@ double GaussModel::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double GaussModel::LogAPrioriProbability(std::vector <double> parameters)
+double GaussModel::LogAPrioriProbability(const std::vector <double> &parameters)
 {
   // assume flat prior in both variables
   double logprob = 0.;
 
-  double dx = GetParameter(0)->GetRangeWidth(); 
-  double dy = GetParameter(1)->GetRangeWidth(); 
+  double dx = GetParameter(0)->GetRangeWidth();
+  double dy = GetParameter(1)->GetRangeWidth();
 
   logprob += log(1./dx); // flat prior for x
   logprob += log(1./dy); // flat prior for y

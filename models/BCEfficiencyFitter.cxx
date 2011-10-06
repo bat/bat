@@ -18,11 +18,11 @@
 #include <TLegend.h>
 #include <TMath.h>
 
-#include "BCLog.h"
-#include "BCDataSet.h"
-#include "BCDataPoint.h"
-#include "BCMath.h"
-#include "BCH1D.h"
+#include "../BAT/BCLog.h"
+#include "../BAT/BCDataSet.h"
+#include "../BAT/BCDataPoint.h"
+#include "../BAT/BCMath.h"
+#include "../BAT/BCH1D.h"
 
 #include "BCEfficiencyFitter.h"
 
@@ -195,7 +195,7 @@ void BCEfficiencyFitter::SetDataPointType(int type)
 
 // ---------------------------------------------------------
 
-double BCEfficiencyFitter::LogLikelihood(std::vector <double> params)
+double BCEfficiencyFitter::LogLikelihood(const std::vector <double> & params)
 {
 
    // initialize probability
@@ -241,7 +241,7 @@ double BCEfficiencyFitter::LogLikelihood(std::vector <double> params)
 
 // ---------------------------------------------------------
 
-double BCEfficiencyFitter::FitFunction(std::vector <double> x, std::vector <double> params)
+double BCEfficiencyFitter::FitFunction(const std::vector <double> & x, const std::vector <double> & params)
 {
    // set the parameters of the function
    fFitFunction->SetParameters(&params[0]);
@@ -405,7 +405,7 @@ void BCEfficiencyFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-int BCEfficiencyFitter::CalculatePValueFast(std::vector<double> par, double &pvalue)
+int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {

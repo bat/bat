@@ -82,7 +82,7 @@ install-exec-hook:
 
 install-data-hook:
 	for i in $(incs); do \
-		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/' $$i > $$i.h; \
+		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/ ; s/include \"\.\.\/\(BAT\/BC.*.h\)\"/include <\1>/' $$i > $$i.h; \
 		if ! diff -q "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i" > /dev/null; then \
 			echo "updating $$i"; \
 			cp -f "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i"; \

@@ -558,28 +558,28 @@ class BCIntegrate : public BCEngineMCMC
        * Method needs to be overloaded by the user.
        * @param x The point in parameter space
        * @return The unnormalized probability */
-      virtual double Eval(std::vector <double> x);
+      virtual double Eval(const std::vector <double> &x);
 
       /**
        * Evaluate the natural logarithm of the Eval function. For better numerical
        * stability, this method should also be overloaded by the user.
        * @param x The point in parameter space
        * @return log(Eval(x)) */
-      virtual double LogEval(std::vector <double> x);
+      virtual double LogEval(const std::vector <double> &x);
 
       /**
        * Evaluate the sampling function at a point in parameter space.
        * Method needs to be overloaded by the user.
        * @param x The point in parameter space
        * @return The value of the sampling function */
-      virtual double EvalSampling(std::vector <double> x);
+      virtual double EvalSampling(const std::vector <double> &x);
 
       /**
        * Evaluate the natural logarithm of the EvalSampling function.
        * Method needs to be overloaded by the user.
        * @param x The point in parameter space
        * @return log(EvalSampling(x)) */
-      double LogEvalSampling(std::vector <double> x);
+      double LogEvalSampling(const std::vector <double> &x);
 
       /**
        * Evaluate the un-normalized probability at a point in parameter space
@@ -587,14 +587,14 @@ class BCIntegrate : public BCEngineMCMC
        * @param x The point in parameter space
        * @return The un-normalized probability
        * @see Eval(std::vector <double> x) */
-      double EvalPrint(std::vector <double> x);
+      double EvalPrint(const std::vector <double> &x);
 
       /**
        * Defines a fit function.
        * @param parameters A set of parameter values
        * @param x A vector of x-values
        * @return The value of the fit function at the x-values given a set of parameters */
-      virtual double FitFunction(std::vector <double> /*x*/, std::vector <double> /*parameters*/)
+      virtual double FitFunction(const std::vector <double> &/*x*/, const std::vector <double> &/*parameters*/)
          { return 0.; }
 
       /**
@@ -607,21 +607,21 @@ class BCIntegrate : public BCEngineMCMC
        * @param x An initial point in parameter space
        * @param varlist A list of variables
        * @return The integral */
-      double IntegralMC(std::vector <double> x, int * varlist);
+      double IntegralMC(const std::vector <double> &x, int * varlist);
 
-      double IntegralMC(std::vector <double> x);
+      double IntegralMC(const std::vector <double> &x);
 
       /**
        * Perfoms the Metropolis Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @return The integral */
-      double IntegralMetro(std::vector <double> x);
+      double IntegralMetro(const std::vector <double> &x);
 
       /**
        * Perfoms the importance sampling Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @return The integral */
-      double IntegralImportance(std::vector <double> x);
+      double IntegralImportance(const std::vector <double> &x);
 
       /**
        * Calculate integral using the Cuba library. For details see documentation.
@@ -774,7 +774,7 @@ class BCIntegrate : public BCEngineMCMC
        * to fSASchedule.
        * @param x last state.
        * @param t time iterator to determine current temperature. */
-      std::vector<double> GetProposalPointSA(std::vector<double> x, int t);
+      std::vector<double> GetProposalPointSA(const std::vector<double> &x, int t);
 
       /**
        * Generates a new state in a neighbourhood around x that is to be
@@ -782,7 +782,7 @@ class BCIntegrate : public BCEngineMCMC
        * This method is used for Boltzmann annealing schedule.
        * @param x last state.
        * @param t time iterator to determine current temperature. */
-      std::vector<double> GetProposalPointSABoltzmann(std::vector<double> x, int t);
+      std::vector<double> GetProposalPointSABoltzmann(const std::vector<double> &x, int t);
 
       /**
        * Generates a new state in a neighbourhood around x that is to be
@@ -790,7 +790,7 @@ class BCIntegrate : public BCEngineMCMC
        * This method is used for Cauchy annealing schedule.
        * @param x last state.
        * @param t time iterator to determine current temperature. */
-      std::vector<double> GetProposalPointSACauchy(std::vector<double> x, int t);
+      std::vector<double> GetProposalPointSACauchy(const std::vector<double> &x, int t);
 
       /**
        * Generates a new state in a neighbourhood around x that is to be
@@ -799,7 +799,7 @@ class BCIntegrate : public BCEngineMCMC
        * custom proposal function.
        * @param x last state.
        * @param t time iterator to determine current temperature. */
-      virtual std::vector<double> GetProposalPointSACustom(std::vector<double> x, int t);
+      virtual std::vector<double> GetProposalPointSACustom(const std::vector<double> &x, int t);
 
       /**
        * Generates a uniform distributed random point on the surface of

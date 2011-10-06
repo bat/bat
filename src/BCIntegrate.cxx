@@ -502,34 +502,34 @@ void BCIntegrate::ResetVarlist(int v)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::Eval(std::vector <double> x)
+double BCIntegrate::Eval(const std::vector <double> &x)
 {
    BCLog::OutWarning( "BCIntegrate::Eval. No function. Function needs to be overloaded.");
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::LogEval(std::vector <double> x)
+double BCIntegrate::LogEval(const std::vector <double> &x)
 {
    // this method should better also be overloaded
    return log(Eval(x));
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalSampling(std::vector <double> x)
+double BCIntegrate::EvalSampling(const std::vector <double> &x)
 {
    BCLog::OutWarning( "BCIntegrate::EvalSampling. No function. Function needs to be overloaded.");
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::LogEvalSampling(std::vector <double> x)
+double BCIntegrate::LogEvalSampling(const std::vector <double> &x)
 {
    return log(EvalSampling(x));
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalPrint(std::vector <double> x)
+double BCIntegrate::EvalPrint(const std::vector <double> &x)
 {
    double val=Eval(x);
    BCLog::OutDebug(Form("BCIntegrate::EvalPrint. Value: %g.", val));
@@ -598,14 +598,14 @@ double BCIntegrate::Integrate()
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMC(std::vector <double> x, int * varlist)
+double BCIntegrate::IntegralMC(const std::vector <double> &x, int * varlist)
 {
    SetVarList(varlist);
    return IntegralMC(x);
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMC(std::vector <double> x)
+double BCIntegrate::IntegralMC(const std::vector <double> &x)
 {
    // count the variables to integrate over
    int NvarNow=0;
@@ -698,7 +698,7 @@ double BCIntegrate::IntegralMC(std::vector <double> x)
 
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMetro(std::vector <double> x)
+double BCIntegrate::IntegralMetro(const std::vector <double> &x)
 {
    // print debug information
    BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Integate over %i dimensions.", fNvar));
@@ -764,7 +764,7 @@ double BCIntegrate::IntegralMetro(std::vector <double> x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralImportance(std::vector <double> x)
+double BCIntegrate::IntegralImportance(const std::vector <double> &x)
 {
    // print debug information
    BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Integate over %i dimensions.", fNvar));
@@ -1699,7 +1699,6 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 }
 
 // ---------------------------------------------------------
-
 double BCIntegrate::SATemperature(double t)
 {
    // do we have Cauchy (default), Boltzmann or custom annealing schedule?
@@ -1712,21 +1711,18 @@ double BCIntegrate::SATemperature(double t)
 }
 
 // ---------------------------------------------------------
-
 double BCIntegrate::SATemperatureBoltzmann(double t)
 {
    return fSAT0 / log((double)(t + 1));
 }
 
 // ---------------------------------------------------------
-
 double BCIntegrate::SATemperatureCauchy(double t)
 {
    return fSAT0 / (double)t;
 }
 
 // ---------------------------------------------------------
-
 double BCIntegrate::SATemperatureCustom(double t)
 {
    BCLog::OutError("BCIntegrate::SATemperatureCustom : No custom temperature schedule defined");
@@ -1734,8 +1730,7 @@ double BCIntegrate::SATemperatureCustom(double t)
 }
 
 // ---------------------------------------------------------
-
-std::vector<double> BCIntegrate::GetProposalPointSA(std::vector<double> x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSA(const std::vector<double> &x, int t)
 {
    // do we have Cauchy (default), Boltzmann or custom annealing schedule?
    if (fSASchedule == BCIntegrate::kSABoltzmann)
@@ -1747,8 +1742,7 @@ std::vector<double> BCIntegrate::GetProposalPointSA(std::vector<double> x, int t
 }
 
 // ---------------------------------------------------------
-
-std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(std::vector<double> x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<double> &x, int t)
 {
    std::vector<double> y;
    y.clear();
@@ -1764,8 +1758,7 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(std::vector<double>
 }
 
 // ---------------------------------------------------------
-
-std::vector<double> BCIntegrate::GetProposalPointSACauchy(std::vector<double> x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<double> &x, int t)
 {
    std::vector<double> y;
    y.clear();
@@ -1799,15 +1792,13 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(std::vector<double> x,
 }
 
 // ---------------------------------------------------------
-
-std::vector<double> BCIntegrate::GetProposalPointSACustom(std::vector<double> x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSACustom(const std::vector<double> &x, int t)
 {
    BCLog::OutError("BCIntegrate::GetProposalPointSACustom : No custom proposal function defined");
    return std::vector<double>(fNvar);
 }
 
 // ---------------------------------------------------------
-
 std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 {
    std::vector<double> rand_point(fNvar);
@@ -1852,7 +1843,6 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 }
 
 // ---------------------------------------------------------
-
 double BCIntegrate::SAHelperGetRadialCauchy()
 {
    // theta is sampled from a rather complicated distribution,
@@ -1909,7 +1899,6 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 }
 
 // ---------------------------------------------------------
-
 double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
 {
    if (dim < 1)

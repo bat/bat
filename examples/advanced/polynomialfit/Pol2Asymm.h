@@ -32,7 +32,7 @@ class Pol2Asymm : public Pol1Asymm
 		virtual void DefineParameters();
 
 		// fit function returning expectation value for each data point
-		virtual double FitFunction(std::vector <double> x, std::vector <double> par);
+		virtual double FitFunction(const std::vector <double> &x, const std::vector <double> & par);
 
 		// NOTE ON LogLikelihood:
 		// ----------------------

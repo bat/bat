@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "BCModel.h"
+#include "../BAT/BCModel.h"
 
 // ROOT classes
 class TH1D;
@@ -137,19 +137,19 @@ class BCEfficiencyFitter : public BCModel
       /**
        * The log of the prior probability. Overloaded from BCModel.
        * @param parameters A vector of doubles containing the parameter values. */
-//      virtual double LogAPrioriProbability(std::vector <double> parameters);
+//      virtual double LogAPrioriProbability(const std::vector <double> & parameters);
 
       /**
        * The log of the conditional probability. Overloaded from BCModel.
        * @param parameters A vector of doubles containing the parameter values. */
-      virtual double LogLikelihood(std::vector <double> parameters);
+      virtual double LogLikelihood(const std::vector <double> & parameters);
 
       /**
        * Returns the y-value of the 1-dimensional fit function at an x and
        * for a set of parameters.
        * @param x A vector with the x-value.
        * @param parameters A set of parameters. */
-      double FitFunction(std::vector <double> x, std::vector <double> parameters);
+      double FitFunction(const std::vector <double> & x, const std::vector <double> & parameters);
 
       /**
        * Performs the fit.
@@ -173,7 +173,7 @@ class BCEfficiencyFitter : public BCModel
        * @param par A set of parameter values
        * @param  pvalue The pvalue
        * @return An error code */
-      int CalculatePValueFast(std::vector<double> par, double &pvalue);
+      int CalculatePValueFast(const std::vector<double> & par, double &pvalue);
 
       /* @} */
 

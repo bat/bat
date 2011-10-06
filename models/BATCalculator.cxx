@@ -20,9 +20,9 @@
 
 #include <RooStats/MarkovChain.h>
 
-#include "BCLog.h"
-#include "BCAux.h"
-#include "BCH1D.h"
+#include "../BAT/BCLog.h"
+#include "../BAT/BCAux.h"
+#include "../BAT/BCH1D.h"
 
 #include "BCRooInterface.h"
 #include "BATCalculator.h"

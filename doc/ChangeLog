@@ -1,3 +1,17 @@
+2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* CHANGE OF THE USER INTERFACE !!!
+	  - passing vector of parameters as constant reference instead of
+	    by value; affects user-overloaded LogLikelihood(), LogAPrioriProbability()
+	    and FitFunction() methods (and potentially others)
+	  - significant speed-up of MCMC
+	  - changes in almost all source files
+	  - adjusted most of the examples to the new interface
+	* small update in the todo list
+	* changed includes in the modules subdir to force usage of local BAT headers
+	  in case older version of BAT is installed in the system
+	* BCGraphFitter:
+	  - removed duplicate call to SetParameters()
+
 2011-10-03 Daniel Kollar <daniel.kollar@cern.ch>
 	* replace tabs with spaces
 
@@ -53,7 +67,7 @@
 
 2011-06-06 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BC[EngineMCMC|Integrate|Model].h:
-	  - remove trailing semicola
+	  - remove trailing semicolons
 	  - format inline methods uniformly
 	* BC[EngineMCMC|].cxx:
 	  - code clean up

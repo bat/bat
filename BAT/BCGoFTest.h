@@ -86,9 +86,9 @@ class BCGoFTest : public BCModel
       /** \name Member functions (miscellaneous methods) */
       /** @{ */
 
-      double LogLikelihood(std::vector <double> parameters);
+      double LogLikelihood(const std::vector <double> &parameters);
 
-      double LogAPrioriProbability(std::vector <double> parameters)
+      double LogAPrioriProbability(const std::vector <double> &parameters)
          { return 0; };
 
       void MCMCUserIterationInterface();

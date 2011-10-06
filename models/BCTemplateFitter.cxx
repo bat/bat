@@ -13,9 +13,9 @@
 #include <TLine.h>
 #include <TDirectory.h>
 
-#include "BCMath.h"
-#include "BCLog.h"
-#include "BCH1D.h"
+#include "../BAT/BCMath.h"
+#include "../BAT/BCLog.h"
+#include "../BAT/BCH1D.h"
 
 #include "BCTemplateFitter.h"
 
@@ -58,7 +58,7 @@ BCTemplateFitter::~BCTemplateFitter()
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::LogLikelihood(std::vector <double> parameters)
+double BCTemplateFitter::LogLikelihood(const std::vector <double> & parameters)
 {
    double logprob = 0.;
 
@@ -82,7 +82,7 @@ double BCTemplateFitter::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::Expectation(int binnumber, std::vector<double>& parameters)
+double BCTemplateFitter::Expectation(int binnumber, const std::vector<double>& parameters)
 {
    // initialize number of expected events with 0
    double nexp = 0;
@@ -118,7 +118,7 @@ double BCTemplateFitter::Expectation(int binnumber, std::vector<double>& paramet
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::TemplateEfficiency(int templatenumber, int binnumber, std::vector<double>& parameters)
+double BCTemplateFitter::TemplateEfficiency(int templatenumber, int binnumber, const std::vector<double>& parameters)
 {
    // get number of sources of systematic uncertainties
    int nsyst = GetNSystErrors();
@@ -159,7 +159,7 @@ double BCTemplateFitter::TemplateEfficiency(int templatenumber, int binnumber, s
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::TemplateProbability(int templatenumber, int binnumber, std::vector<double>& parameters)
+double BCTemplateFitter::TemplateProbability(int templatenumber, int binnumber, const std::vector<double>& parameters)
 {
    // initialize probability
    double probability = 0;
@@ -184,7 +184,7 @@ double BCTemplateFitter::TemplateProbability(int templatenumber, int binnumber, 
 }
 
 // ---------------------------------------------------------
-int BCTemplateFitter::FixTemplateFunctions(std::vector<double>& parameters)
+int BCTemplateFitter::FixTemplateFunctions(const std::vector<double>& parameters)
 {
    // get number of templates
    int ntemplates = GetNTemplates();
@@ -959,7 +959,7 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::CalculateChi2(std::vector<double> parameters)
+double BCTemplateFitter::CalculateChi2(const std::vector<double> & parameters)
 {
    double chi2 = 0;
 
@@ -980,7 +980,7 @@ double BCTemplateFitter::CalculateChi2(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::CalculateChi2Prob(std::vector<double> parameters)
+double BCTemplateFitter::CalculateChi2Prob(const std::vector<double> & parameters)
 {
    double chi2 = CalculateChi2(parameters);
    int ndf = GetNDF();

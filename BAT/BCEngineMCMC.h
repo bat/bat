@@ -207,12 +207,12 @@ class BCEngineMCMC
       double MCMCGetLogProbx(int ichain);
 
       /**
-       * @return pointer to the phase of a run. */ 
+       * @return pointer to the phase of a run. */
       int MCMCGetPhase()
          { return fMCMCPhase; }
 
       /**
-       * @return pointer to the cycle of a pre-run. */ 
+       * @return pointer to the cycle of a pre-run. */
       int MCMCGetCycle()
          { return fMCMCCycle; }
 
@@ -365,7 +365,7 @@ class BCEngineMCMC
       /**
        * Sets the initial positions for all chains.
        * @param x0s initial positions for all chains. */
-      void MCMCSetInitialPositions(std::vector<double> x0s);
+      void MCMCSetInitialPositions(const std::vector<double> &x0s);
 
       /**
        * Sets the initial positions for all chains.
@@ -540,7 +540,7 @@ class BCEngineMCMC
       /**
        * Needs to be overloaded in the derived class.
        * @return natural logarithm of the function to map with MCMC */
-      virtual double LogEval(std::vector <double> parameters);
+      virtual double LogEval(const std::vector <double> & parameters);
 
       /**
        * Runs Metropolis algorithm. */
@@ -587,11 +587,11 @@ class BCEngineMCMC
        */
       virtual void MCMCCurrentPointInterface(std::vector <double> & point, int ichain, bool accepted)
          {
-         //suppress warnings for unused parameters
-         //with optimization, no code should be generated
-         (void)point;
-         (void)ichain;
-         (void)accepted;
+            // suppress warnings for unused parameters
+            // with optimization, no code should be generated
+            (void)point;
+            (void)ichain;
+            (void)accepted;
          }
 
       /** @} */

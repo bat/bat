@@ -6,28 +6,28 @@
 // ---------------------------------------------------------
 class PoissonModel : public BCModel
 {
- public:
-  
-  // Constructors and destructor
-  PoissonModel();
-  PoissonModel(const char * name);
-  ~PoissonModel();
+   public:
 
-  // set number of observed events
-  int SetNObs(int nobs);
+      // Constructors and destructor
+      PoissonModel();
+      PoissonModel(const char * name);
+      ~PoissonModel();
 
-  // get number of observed events
-  int GetNObs()
-  { return fNObs; };
+      // set number of observed events
+      int SetNObs(int nobs);
 
-  // Methods to overload, see file PoissonModel.cxx
-  void DefineParameters();
-  double LogAPrioriProbability(std::vector <double> parameters);
-  double LogLikelihood(std::vector <double> parameters);
+      // get number of observed events
+      int GetNObs()
+         { return fNObs; };
 
- private:
-  // number of observed events
-  int fNObs;
+      // Methods to overload, see file PoissonModel.cxx
+      void DefineParameters();
+      double LogAPrioriProbability(const std::vector <double> &parameters);
+      double LogLikelihood(const std::vector <double> &parameters);
+
+   private:
+      // number of observed events
+      int fNObs;
 };
 // ---------------------------------------------------------
 

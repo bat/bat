@@ -3,15 +3,16 @@
 #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
-PoissonModel::PoissonModel() : BCModel()
-			     , fNObs(0)
-{  
+PoissonModel::PoissonModel()
+ : BCModel()
+ , fNObs(0)
+{
   DefineParameters();
 };
 
 // ---------------------------------------------------------
 PoissonModel::PoissonModel(const char * name) : BCModel(name)
-{ 
+{
   DefineParameters();
 };
 
@@ -33,10 +34,10 @@ int PoissonModel::SetNObs(int nobs)
 {
   // check that number is positive and greater than 0
   if (nobs < 0)
-    return 0; 
+    return 0;
 
   // set number of observed events
-  fNObs = nobs; 
+  fNObs = nobs;
 
   // adjust parameter ranges
   double lambdamin = 0;
@@ -52,8 +53,8 @@ int PoissonModel::SetNObs(int nobs)
     lambdamax = 40;
   }
   else if (nobs >= 20 && nobs < 30) {
-    lambdamin = 5; 
-    lambdamax = 55; 
+    lambdamin = 5;
+    lambdamax = 55;
   }
   else if (nobs >= 30) {
     lambdamin = double(nobs) - 5*sqrt(double(nobs));
@@ -68,7 +69,7 @@ int PoissonModel::SetNObs(int nobs)
 }
 
 // ---------------------------------------------------------
-double PoissonModel::LogLikelihood(std::vector <double> parameters)
+double PoissonModel::LogLikelihood(const std::vector <double> &parameters)
 {
   // This methods returns the logarithm of the conditional probability
   // p(data|parameters). This is where you have to define your model.
@@ -78,14 +79,14 @@ double PoissonModel::LogLikelihood(std::vector <double> parameters)
   double lambda = parameters.at(0);
 
   // log Poisson term
-  logprob += BCMath::LogPoisson( double(fNObs), lambda ); 
+  logprob += BCMath::LogPoisson( double(fNObs), lambda );
 
   // return log likelihood
   return logprob;
 }
 
 // ---------------------------------------------------------
-double PoissonModel::LogAPrioriProbability(std::vector <double> parameters)
+double PoissonModel::LogAPrioriProbability(const std::vector <double> &parameters)
 {
   // This method returns the logarithm of the prior probability for the
   // parameters p(parameters).
@@ -93,11 +94,11 @@ double PoissonModel::LogAPrioriProbability(std::vector <double> parameters)
   double logprob = 0.;
 
   // get width of the parameter range
-  double dlambda = GetParameter(0)->GetRangeWidth(); 
+  double dlambda = GetParameter(0)->GetRangeWidth();
 
   // add a flat prior probability
   logprob += log(1./dlambda); // flat prior
-  
+
   // return log prior
   return logprob;
 }

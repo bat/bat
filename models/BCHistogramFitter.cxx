@@ -18,10 +18,10 @@
 #include <Math/ProbFuncMathCore.h> //for ROOT::Math namespace
 #include <TString.h>
 
-#include "BCLog.h"
-#include "BCDataSet.h"
-#include "BCDataPoint.h"
-#include "BCMath.h"
+#include "../BAT/BCLog.h"
+#include "../BAT/BCDataSet.h"
+#include "../BAT/BCDataPoint.h"
+#include "../BAT/BCMath.h"
 
 #include "BCHistogramFitter.h"
 
@@ -118,8 +118,7 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::SetHistogramExpected(
-      const std::vector<double>& parameters)
+int BCHistogramFitter::SetHistogramExpected(const std::vector <double> & parameters)
 {
    //clear up previous memory
    if (fHistogramExpected) {
@@ -237,7 +236,7 @@ BCHistogramFitter::~BCHistogramFitter()
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::LogLikelihood(std::vector<double> params)
+double BCHistogramFitter::LogLikelihood(const std::vector <double> & params)
 {
    // initialize probability
    double loglikelihood = 0;
@@ -301,14 +300,12 @@ double BCHistogramFitter::LogLikelihood(std::vector<double> params)
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::FitFunction(std::vector<double> x,
-      std::vector<double> params)
+double BCHistogramFitter::FitFunction(const std::vector<double> & x, const std::vector <double> & params)
 {
    // set the parameters of the function
    fFitFunction->SetParameters(&params[0]);
 
-   return fFitFunction->Eval(x[0]) * fHistogram->GetBinWidth(
-         fHistogram->FindBin(x[0]));
+   return fFitFunction->Eval(x[0]) * fHistogram->GetBinWidth(fHistogram->FindBin(x[0]));
 }
 
 // ---------------------------------------------------------
@@ -427,16 +424,15 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-int BCHistogramFitter::CalculatePValueFast(std::vector<double> par,
-      double &pvalue, int nIterations)
+int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue, int nIterations)
 {
    //use NULL pointer for no callback
    return CalculatePValueFast(par, 0, pvalue,  nIterations);
 }
 
 // ---------------------------------------------------------
-int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, BCHistogramFitterToyDataInterface* callback,
-      double &pvalue,  int nIterations)
+int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
+      BCHistogramFitterToyDataInterface* callback, double &pvalue,  int nIterations)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {
@@ -536,8 +532,7 @@ int BCHistogramFitter::CalculatePValueFast(std::vector<double> par, BCHistogramF
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
-      double &pvalue)
+int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par, double &pvalue)
 {
    // initialize test statistic -2*lambda
    double logLambda = 0.0;
@@ -576,8 +571,7 @@ int BCHistogramFitter::CalculatePValueLikelihood(std::vector<double> par,
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
-      double &pvalue, bool weightExpect)
+int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> & par, double &pvalue, bool weightExpect)
 {
    // initialize test statistic chi^2
    double chi2 = 0.0;
@@ -617,8 +611,7 @@ int BCHistogramFitter::CalculatePValueLeastSquares(std::vector<double> par,
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par,
-      double& pvalue)
+int BCHistogramFitter::CalculatePValueKolmogorov(const std::vector<double> & par, double& pvalue)
 {
    if (!fHistogramExpected || !fHistogram) {
       BCLog::OutError("BCHistogramFitter::CalculatePValueKolmogorov: "
@@ -641,8 +634,7 @@ int BCHistogramFitter::CalculatePValueKolmogorov(std::vector<double> par,
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index,
-      bool lower)
+double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, bool lower)
 {
 
    if (parameters.empty())

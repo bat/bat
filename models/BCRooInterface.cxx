@@ -4,7 +4,7 @@
 #include <RooWorkspace.h>
 #include <TFile.h>
 
-#include "BCMath.h"
+#include "../BAT/BCMath.h"
 #include <iostream>
 
 #include "BCRooInterface.h"
@@ -188,7 +188,7 @@ void BCRooInterface::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double BCRooInterface::LogLikelihood(std::vector <double> parameters)
+double BCRooInterface::LogLikelihood(const std::vector <double> & parameters)
 {   // this methods returns the logarithm of the conditional probability: p(data|parameters)
 
    // retrieve the values of the parameters to be tested
@@ -204,7 +204,7 @@ double BCRooInterface::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double BCRooInterface::LogAPrioriProbability(std::vector <double> parameters)
+double BCRooInterface::LogAPrioriProbability(const std::vector <double> & parameters)
 {   // this method returs the logarithm of the prior probability for the parameters: p(parameters).
    // retrieve the values of the parameters to be tested
   int nParams = fParams->getSize();

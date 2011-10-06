@@ -400,7 +400,7 @@ void BCEngineMCMC::MCMCSetNChains(int n)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCSetInitialPositions(std::vector<double> x0s)
+void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double> & x0s)
 {
    // clear the existing initial position vector
    fMCMCInitialPosition.clear();
@@ -1000,7 +1000,7 @@ void BCEngineMCMC::MCMCInChainWriteChains()
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::LogEval(std::vector <double> parameters)
+double BCEngineMCMC::LogEval(const std::vector <double> & parameters)
 {
    // test function for now
    // this will be overloaded by the user
