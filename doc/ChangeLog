@@ -1,4 +1,11 @@
 2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
+	* BCGraphFitter:
+	  - don't call FitFunction() from LogLikelihood() but rather
+	    call fFitFunction-Eval() directly
+	  - speed up
+	  - now this is done in the same way for the fast fitters
+
+2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* CHANGE OF THE USER INTERFACE !!!
 	  - passing vector of parameters as constant reference instead of
 	    by value; affects user-overloaded LogLikelihood(), LogAPrioriProbability()

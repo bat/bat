@@ -199,6 +199,14 @@ double BCGraphFitter::LogLikelihood(const std::vector <double> & params)
    // initialize probability
    double logl = 0.;
 
+   // set the parameters of the function
+   // passing the pointer to first element of the vector is
+   // not completely safe as there might be an implementation where
+   // the vector elements are not stored consecutively in memory.
+   // however it is much faster than copying the contents, especially
+   // for large number of parameters
+   fFitFunction->SetParameters(&params[0]);
+
    // loop over all data points
    for (int i = 0; i < GetNDataPoints(); i++)
    {
@@ -208,7 +216,7 @@ double BCGraphFitter::LogLikelihood(const std::vector <double> & params)
       // i.e. we treat them just as the region specifiers
       double y = x[1];
       double yerr = x[3];
-      double yexp = FitFunction(x,params);
+      double yexp = fFitFunction->Eval(x[0]);
 
       // calculate log of probability assuming
       // a Gaussian distribution for each point
