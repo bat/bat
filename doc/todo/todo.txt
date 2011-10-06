@@ -52,7 +52,7 @@ Status:         Task:
                 Update FAQ (everyone)
                 Add BANFF challenge tutorial to web page (Shabnaz)
                 Update tutorials (Shabanz)
-                Change of interface: reference instead of copy vector (Kevin)
+fixed           Change of interface: reference instead of copy vector (Kevin)
                 clean up: remove everything that is not used (everyone)
                 Check if integration correct in >3 dimensions: test suite (Jens?)
 fixed           Allow user to set scales for MCMC (Kevin will check) -> yes

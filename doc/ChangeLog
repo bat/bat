@@ -1,6 +1,7 @@
 2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* CreateProject.sh:
 	  - adjusted to the new user interface
+	* updated todo list
 
 2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* BCGraphFitter:
