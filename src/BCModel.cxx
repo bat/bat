@@ -57,7 +57,6 @@ BCModel::BCModel(const char * name)
    fChi2NDoF = -1;
 
    fName = (char *) name;
-   flag_ConditionalProbabilityEntry = true;
 
    fDataPointUpperBoundaries = 0;
    fDataPointLowerBoundaries = 0;
@@ -90,8 +89,6 @@ BCModel::BCModel()
    fName = "model";
    fDataPointUpperBoundaries = 0;
    fDataPointLowerBoundaries = 0;
-
-   flag_ConditionalProbabilityEntry = true;
 
    fGoFNChains = 5;
    fGoFNIterationsMax = 100000;
@@ -130,7 +127,6 @@ BCModel::BCModel(const BCModel & bcmodel) : BCIntegrate(bcmodel)
       fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
    else
       fNDataPointsMaximum = 0;
-   flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
    fPValue                          = bcmodel.fPValue;
    fChi2NDoF                        = bcmodel.fChi2NDoF;
    fPValueNDoF                      = bcmodel.fPValueNDoF;
@@ -192,7 +188,6 @@ BCModel & BCModel::operator = (const BCModel & bcmodel)
       fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
    else
       fNDataPointsMaximum = 0;
-   flag_ConditionalProbabilityEntry = bcmodel.flag_ConditionalProbabilityEntry;
    fPValue                          = bcmodel.fPValue;
    fChi2NDoF                        = bcmodel.fChi2NDoF;
    fPValueNDoF                      = bcmodel.fPValueNDoF;
@@ -628,7 +623,7 @@ int BCModel::AddParameter(BCParameter * parameter)
 // ---------------------------------------------------------
 double BCModel::LogProbabilityNN(const std::vector<double> &parameters)
 {
-   // add log of conditional probability
+   // add log of likelihood
    double logprob = LogLikelihood(parameters);
 
    // add log of prior probability
@@ -650,20 +645,6 @@ double BCModel::LogProbability(const std::vector<double> &parameters)
    }
 
    return LogProbabilityNN(parameters) - log(fNormalization);
-}
-
-// ---------------------------------------------------------
-double BCModel::LogLikelihood(const std::vector<double> &parameters)
-{
-   double logprob = 0.;
-
-   // add log of conditional probabilities event-by-event
-   for (unsigned int i = 0; i < fDataSet->GetNDataPoints(); i++) {
-      BCDataPoint * datapoint = GetDataPoint(i);
-      logprob += LogConditionalProbabilityEntry(datapoint, parameters);
-   }
-
-   return logprob;
 }
 
 // ---------------------------------------------------------

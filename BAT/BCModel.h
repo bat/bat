@@ -9,11 +9,10 @@
  * \version 1.0
  * \date 08.2008
  * \detail This class represents a model. It contains a container of
- * parameters, their prior distributions and the conditional
- * probabilities given those parameters.  The methods which implement
- * the prior and conditional probabilities have to be overloaded by
- * the user in the user defined model class which will inherit from
- * this class.
+ * parameters, their prior distributions and the likelihood for the
+ * parameters.  The methods which implement the prior and the likelihood
+ * have to be overloaded by the user in the user defined model class
+ * derived from this class.
  */
 
 /**
@@ -495,7 +494,7 @@ class BCModel : public BCIntegrate
        * Method needs to be overloaded by the user.
        * @param params A set of parameter values
        * @return Natural logarithm of the likelihood */
-      virtual double LogLikelihood(const std::vector <double> &params);
+      virtual double LogLikelihood(const std::vector <double> &params) = 0;
 
       /**
        * Returns the likelihood times prior probability given a set of parameter values
@@ -523,26 +522,6 @@ class BCModel : public BCIntegrate
        * @param parameters A set of parameter values
        * @return The a posteriori probability */
       double LogProbability(const std::vector <double> &parameter);
-
-      /**
-       * Returns a conditional probability.
-       * Method needs to be overloaded by the user.
-       * @param datapoint A data point
-       * @param parameters A set of parameter values
-       * @return The conditional probability p(datapoint|parameters)
-       * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) */
-      double ConditionalProbabilityEntry(BCDataPoint * datapoint, const std::vector <double> &parameters)
-         { return exp( this->LogConditionalProbabilityEntry(datapoint, parameters) ); }
-
-      /**
-       * Returns a natural logarithm of conditional probability.
-       * Method needs to be overloaded by the user.
-       * @param datapoint A data point
-       * @param parameters A set of parameter values
-       * @return The conditional probability p(datapoint|parameters)
-       * @see GetConditionalEntry(BCDataPoint* datapoint, std::vector <double> parameters) */
-      virtual double LogConditionalProbabilityEntry(BCDataPoint * /*datapoint*/, const std::vector <double> &/*parameters*/)
-         { flag_ConditionalProbabilityEntry = false; return 0.; }
 
       /**
        * Sampling function used for importance sampling.
@@ -823,10 +802,6 @@ class BCModel : public BCIntegrate
       /**
        * Maximum number of data points */
       unsigned int fNDataPointsMaximum;
-
-      /**
-       * A flag for overloading ConditionalProbabilityEntry */
-      bool flag_ConditionalProbabilityEntry;
 
       /**
        * The p-value */

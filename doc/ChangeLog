@@ -1,3 +1,8 @@
+2011-10-07 Daniel Kollar <kollar.dan@gmail.com>
+	* BCModel:
+	  - removed the obsolete ConditionalProbabilityEntry() stuff
+	  - made LogLikelihood() pure virtual
+
 2011-10-06 Daniel Kollar <daniel.kollar@cern.ch>
 	* CreateProject.sh:
 	  - adjusted to the new user interface
