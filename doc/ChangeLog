@@ -1,3 +1,6 @@
+2011-10-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* introduction: added a section on the CreateProject script
+
 2011-10-07 Daniel Kollar <kollar.dan@gmail.com>
 	* BCModel:
 	  - removed the obsolete ConditionalProbabilityEntry() stuff

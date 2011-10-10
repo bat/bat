@@ -313,7 +313,18 @@ used in the analysis (see next section).
 \end{itemize}
 %
 The script \verb|BAT/tools/CreateProject.sh| can be used to create an
-empty analysis skeleton including the above listed files.
+empty analysis skeleton including the above listed files. This is a
+good starting point. \\
+
+\noindent
+The script can take up to two parameters. The first parameter is the
+name of the project, the second one is the name of new model class. If
+only the name of the project is specified, only a Makefile and a main
+C++ file are provided. This can be useful if predefined classes are
+used in an analysis (see, e.g., the fast fitter classes described
+later in this manual). If also a model class name is given, a C++
+include and source file are created. These can be modified to the need
+of user.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -446,13 +457,170 @@ A call to this method resets all results obtained so far since the
 model has changed.
 
 % --------------------------------------------------------
+
+\subsubsection{A skeleton created by the CreateProject.sh script}
+\label{subsubsection:createproject}
+
+\noindent
+If the \verb|CreateProject.sh| script is called with two parameters,
+C++ include and source files are created. One example is
+
+\begin{verbatim}
+./CreateProject.sh MyProject MyModel
+--------------------------------------------------------------------------
+The new BAT project was created in the directory 'MyProject'.
+To test the configuration try to compile the project by running 'make'
+inside the directory. In case there are some compilation errors you need
+to adjust the parameters inside the 'Makefile'.
+
+Once the program is compiled successfully, you can run it and it should
+print some basic information on the screen.
+
+Implement your model in file:    MyModel.cxx
+Implement your analysis in file: runMyProject.cxx
+
+Consult BAT webpage for details: http://www.mppmu.mpg.de/bat
+--------------------------------------------------------------------------
+\end{verbatim}
+
+\noindent
+The include file will look like this
+
+\begin{verbatim}
+// ***************************************************************
+// This file was created using the ./CreateProject.sh script
+// for project MyProject
+// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// ***************************************************************
+
+#ifndef __MYMODEL__H
+#define __MYMODEL__H
+
+#include <BAT/BCModel.h>
+
+// This is a MyModel header file.
+// Model source code is located in file MyProject/MyModel.cxx
+
+// ---------------------------------------------------------
+class MyModel : public BCModel
+{
+	public:
+
+		// Constructors and destructor
+		MyModel();
+		MyModel(const char * name);
+		~MyModel();
+
+		// Methods to overload, see file MyModel.cxx
+		void DefineParameters();
+		double LogAPrioriProbability(std::vector <double> parameters);
+		double LogLikelihood(std::vector <double> parameters);
+    // void MCMCIterationInterface(); 
+};
+// ---------------------------------------------------------
+
+#endif
+\end{verbatim}
+
+\noindent
+The constructors and the destructor are defined as well as the key
+methods which define the Likelihood and prior. The source file looks
+like this
+
+\begin{verbatim}
+// ***************************************************************
+// This file was created using the ./CreateProject.sh script
+// for project MyProject
+// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// ***************************************************************
+
+#include "MyModel.h"
+
+#include <BAT/BCMath.h>
+
+// ---------------------------------------------------------
+MyModel::MyModel() : BCModel()
+{  
+	// default constructor
+	DefineParameters();
+};
+
+// ---------------------------------------------------------
+MyModel::MyModel(const char * name) : BCModel(name)
+{ 
+	// constructor
+	DefineParameters();
+};
+
+// ---------------------------------------------------------
+MyModel::~MyModel()
+	// default destructor
+{
+};
+
+// ---------------------------------------------------------
+void MyModel::DefineParameters()
+{
+	// Add parameters to your model here.
+	// You can then use them in the methods below by calling the
+	// parameters.at(i) or parameters[i], where i is the index
+	// of the parameter. The indices increase from 0 according to the
+	// order of adding the parameters.
+
+//	AddParameter("x", -10.0, 10.0); // index 0
+//	AddParameter("y",  -5.0,  5.0); // index 1
+}
+
+// ---------------------------------------------------------
+double MyModel::LogLikelihood(std::vector <double> parameters)
+{
+	// This methods returns the logarithm of the conditional probability
+	// p(data|parameters). This is where you have to define your model.
+
+	double logprob = 0.;
+
+//	double x = parameters.at(0);
+//	double y = parameters.at(1);
+//	double eps = 0.5;
+
+	// Breit-Wigner distribution of x with nuisance parameter y
+//	logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
+
+
+	return logprob;
+}
+
+// ---------------------------------------------------------
+double MyModel::LogAPrioriProbability(std::vector <double> parameters)
+{
+	// This method returns the logarithm of the prior probability for the
+	// parameters p(parameters).
+
+	double logprob = 0.;
+
+//	double x = parameters.at(0);
+//	double y = parameters.at(1);
+
+//	double dx = GetParameter(0)->GetRangeWidth(); 
+
+//	logprob += log(1./dx);                    // flat prior for x
+//	logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
+
+	return logprob;
+}
+// ---------------------------------------------------------
+\end{verbatim}
+
+% --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
 \subsection{Data}
 \label{subsection:data}
 
-\subsection{Data format and handling}
+\subsubsection{Data format and handling}
 \label{subsection:dataformat}
 
 Data is managed in the form of data points which are combined to data
