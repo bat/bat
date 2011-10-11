@@ -89,6 +89,162 @@ parameters and to compare models. A procedure to estimate the
 goodness-of-fit is included and based on ensemble tests. A detailed
 introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
 
+\subsection{Bayesian inference}
+
+The goal of data analysis is to compare model predictions with data,
+and draw conclusions on the validity of the model as a representation
+of the data, or to estimate best-fit parameter values within the
+context of a model. The paradigm for our data analysis package is
+shown in Fig.~\ref{fig:scheme}.  Here, the model M can range from a
+model purporting to represent nature (e.g., the Standard Model in
+particle physics) to a simple parametrization of data useful for
+making predictions or for summarizing data.  In the latter case, the
+intermediate steps in the figure would be skipped. \\
+
+\begin{figure}[htbp] %  figure placement: here, top, bottom, or page
+\centering
+\includegraphics[width=0.75\textwidth]{scheme.eps} 
+\caption{Paradigm for data analysis.  Knowledge is gained from a
+comparison of model predictions with data.  Intermediate steps may be
+necessary, e.g., to model experimental conditions.}
+\label{fig:scheme}
+\end{figure}
+
+Note that the model provides `Direct Probabilities'; i.e., frequency
+distributions of possible outcomes of the results were one to
+reproduce the experiment many times under identical conditions.  The
+function
+%
+\begin{equation}
+f(\vec{x}|\vec{\lambda},M)
+\end{equation}
+%
+gives the probability (density) of getting result $\vec{x}$ assuming
+the model $M$ and parameters $\vec{\lambda}$\footnote{The modeling of
+the experiment will usually add extra parameters and assumptions,
+which then also appear as arguments}.
+
+The probability of a model, $M$, will be quantified as $P(M)$, with:
+%
+\begin{equation}
+\label{eq:norm}
+0 \leq P(M) \leq 1
+\end{equation}
+%
+while the probability (density) of the parameters are typically
+continuous functions.  The probability (densities) satisfy
+%
+\begin{eqnarray*}
+P(\vec{\lambda}) & \ge & 0 \\
+\int P(\vec{\lambda}) d\vec{\lambda} &=&1 \;\; .\\
+\end{eqnarray*}
+
+In the Bayesian approach, the quantities $P(M), P(\vec{\lambda})$ are
+treated on the same footing as the direct probabilities, although they
+are not in any sense frequency distributions and must be determined
+via inductive reasoning.  The procedure for learning from experiment
+is:
+%
+\begin{equation}
+P_{i+1}(\vec{\lambda},M) \propto f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M) 
+\end{equation}
+%
+where the index represents a `state-of-knowledge'.  
+
+In order to satisfy Eq.~\ref{eq:norm}, we set
+%
+\begin{equation}
+P_{i+1}(\vec{\lambda},M) =\frac{f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M)}
+{\sum_M \int f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{i}(\vec{\lambda},M) d{\vec{\lambda}}}
+\end{equation}
+%
+We usually just write $P_i=P_0$, and this quantity is called the
+`prior'.  The function $f$ does not need to be normalized, since the
+overall normalization is taken care of automatically.  When $f$ is
+viewed as a function of $\vec{\lambda}$ for fixed $\vec{x}=\vec{D}$,
+it is known as the likelihood.
+
+\subsubsection{Validity of Model}
+\label{subsection:validity}
+
+The following quantity is proposed to evaluate the validity of a
+model,$M$, (including any modeling of the experimental conditions):
+%
+\begin{equation}
+p=\int_{f(\vec{x}|\vec{\lambda^*},M)<f(\vec{x}=\vec{D}|\vec{\lambda^*},M)} \frac{f(\vec{x}|\vec{\lambda^*},M) d\vec{x}}{\int f(\vec{x}|\vec{\lambda^*},M) d\vec{x}}
+\end{equation}
+%
+where $\vec{\lambda^*}$ are the optimal values of $\lambda$ (e.g.,
+best-fit values). The quantity $p$ is just the `tail-area' probability
+to have found any result with smaller $f$ than that given by the
+measured data, given $M,\vec{\lambda^*}$.  This quantity is analogous
+to the usual $\chi^2$ probability, but is more general since it can be
+used for any function $f$.
+
+\subsubsection{Parameter estimation}
+%
+Parameter estimation is performed while keeping the model fixed.  In
+this case, we write
+%
+\begin{equation}
+P_{1}(\vec{\lambda}|M) =\frac{f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{0}(\vec{\lambda}|M)}
+{\int f(\vec{x}=\vec{D}|\vec{\lambda},M) P_{0}(\vec{\lambda}|M) d\vec{\lambda}} \;\; .
+\label{eqn:BayesTheorem}
+\end{equation}
+%
+The output of the evaluation is a (multidimensional) normalized
+probability density for the parameters, including all correlations.
+This output can be used to give best-fit values, probability intervals
+for the parameters, etc.
+
+The scheme for updating knowledge, as written down here, is quite
+general and straightforward.  There can be difficulties in
+implementation when dealing with multi-dimensional spaces, and the
+toolkit presented here is designed to help the user solve these
+technical issues.  As a general statement, it should be obvious that
+the `garbage in, garbage out' rule applies.  It is up to the user to
+carefully define the model, parameters, predictions, and priors.  The
+BAT program will then be useful as a tool for model testing and
+parameter estimation.
+
+In the following, we will give several examples of parameter
+estimation and model testing to make the ideas more concrete.
+
+% --------------------------------------------------------
+
+\subsection{Example uses of Bayesian Inference} 
+\label{subsection:exampleuses} 
+
+Describe in general terms how a problem is formulated. Some examples:
+
+\paragraph{Structure functions} 
+
+\paragraph{Neutrinoless double beta-decay} 
+
+Neutrinoless double beta-decay ($0\nu\beta\beta$) is rare nuclear
+process predicted to occur if the neutrino is a Majorana
+particle~\cite{Yao:2006px}. It has two electrons and no neutrinos in
+the final state. Experiments searching for $0\nu\beta\beta$-decay of
+$^{76}$Ge measure the ionization energy deposited in Ge-semiconductor
+detectors. Since the energy released in the decay, the $Q$-value, is
+fully transferred to the electrons the experimental signature of such
+a decay is a sharp line at that energy. In experiments like
+GERDA~\cite{Schonert:2005zn} the background in the region of interest
+is expected to be flat. \\ 
+
+\noindent 
+Due to the small number of signal events predicted special care has to
+be taken when analyzing the measured energy spectrum. Common
+approximations which are only valid for a large number of events
+cannot hold in that case. A spectral analysis based on Bayes' Theorem
+has been developed for that purpose~\cite{Caldwell:2006yj}. The
+sensitivity of the GERDA experiment has been evaluated using Monte
+Carlo techniques. A simplified version of the analysis is given as an
+example in the code. 
+
+\paragraph{Cosmological models} 
+
+
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % installation
@@ -1783,6 +1939,23 @@ guide:
   Analysis Toolkit,'' \textit{Comp.\ Phys.\ Comm.}\ {\bf 180} (2009) 2197-2209
   [arXiv:0808.2552]
   \url{http://www.mpp.mpg.de/bat/}
+%
+\bibitem{Yao:2006px}
+  W.~M.~Yao {\it et al.}  [Particle Data Group],
+  ``Review of particle physics,''
+  J.\ Phys.\ G {\bf 33} (2006) 1.
+%
+\bibitem{Schonert:2005zn}
+  S.~Sch{\"o}nert {\it et al.}  [GERDA Collaboration],
+  ``The GERmanium Detector Array (GERDA) for the search of neutrinoless beta
+  beta decays of Ge-76 at LNGS,''
+  Nucl.\ Phys.\ Proc.\ Suppl.\  {\bf 145} (2005) 242.
+%
+\bibitem{Caldwell:2006yj}
+  A.~Caldwell and K.~Kr{\"o}ninger,
+  ``Signal discovery in sparse spectra: A Bayesian analysis,''
+  Phys.\ Rev.\  D {\bf 74}, 092003 (2006)
+  [arXiv:physics/0608249].
 %
 \bibitem{ROOTweb}
   \url{http://root.cern.ch/}
