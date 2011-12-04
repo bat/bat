@@ -1,7 +1,6 @@
 # Root variables
 ROOTCFLAGS   := $(shell root-config --cflags)
-ROOTLIBS     := $(shell root-config --libs) -lMinuit 
-ROOTGLIBS    := $(shell root-config --glibs)
+ROOTLIBS     := $(shell root-config --libs) -lMinuit
 
 # Programs
 CXX          = g++
@@ -23,7 +22,6 @@ CINT         = rootcint
 CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I./ -I./include -I/src -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
-GLIBS       += $(ROOTGLIBS) -L.-L$(BATINSTALLDIR)/lib -lBAT
 
 CXSRCS      = TestSuite.cxx \
               ReleaseTestSuite.cxx \
@@ -49,7 +47,7 @@ DICTOBJS     = $(patsubst %.cxx,obj/%Dict.o,$(CXSRCS))
 
 EXEOBJS      =
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d runTestSuite.exe 
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d runTestSuite.exe
 
 RESULTS      = *.png *.eps *.ps *.log *.tst *.html *.php *.htm
 
@@ -65,11 +63,11 @@ link.d : $(patsubst %.cxx,include/%.h,$(CXSRCS))
 obj/%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-runTestSuite : runTestSuite.cxx 
+runTestSuite : runTestSuite.cxx
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LIBS) -lBATTS -c runTestSuite.cxx -o obj/runTestSuite.o
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LIBS) -lBATTS  obj/runTestSuite.o -o runTestSuite.exe
 
-$(LIBSO) : $(CXXOBJS) 
+$(LIBSO) : $(CXXOBJS)
 	$(CXX) $(SOFLAGS) $(LDFLAGS) $(LIBS) $^ -o $(LIBSO)
 
 $(LIBA) : $(CXXOBJS)
@@ -92,7 +90,6 @@ print :
 	echo so flags  : $(SOFLAGS)
 
 	echo rootlibs  : $(ROOTLIBS)
-	echo rootglibs : $(ROOTGLIBS)
 
 web :
 	tar -cf web.tar \

@@ -7,7 +7,7 @@
 # Run 'make' to compile the program and 'make clean' to remove
 # all compiled parts and 'clean' the directory.
 #
-# You might need to adjust the CFLAGS, LIBS, and GLIBS based on
+# You might need to adjust the CFLAGS and LIBS based on
 # the BAT installation on your system. Consult the gmake manual
 # for details.
 #
@@ -16,7 +16,6 @@
 # Root variables
 ROOTCFLAGS   := $(shell root-config --cflags)
 ROOTLIBS     := $(shell root-config --libs) -lMinuit
-ROOTGLIBS    := $(shell root-config --glibs)
 
 @ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
@@ -37,7 +36,6 @@ CINT         = rootcint
 CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
 
 #LIBS        += @CUBALIB@ -lcuba
-#GLIBS       += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
@@ -47,7 +45,6 @@ CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
 # and the compilation will work
 CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/include
 LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
-GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 
 # List of all classes (models) used in the program
 # Add classes to the end. Baskslash indicates continuation
@@ -103,5 +100,3 @@ print :
 	echo so flags  : $(SOFLAGS)
 
 	echo rootlibs  : $(ROOTLIBS)
-	echo rootglibs : $(ROOTGLIBS)
-

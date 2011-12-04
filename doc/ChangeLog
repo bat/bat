@@ -1,3 +1,9 @@
+2011-12-05 Daniel Kollar <kollar.dan@gmail.com>
+	* examples:
+	  - removed GLIBS from Makefiles since it's not used for anything
+	* BCIntegrate:
+	  - updates in screen printout for MC integration
+
 2011-10-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* introduction: added the introdution part from the manual draft.
 

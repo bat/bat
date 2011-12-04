@@ -188,8 +188,8 @@ BCIntegrate::BCIntegrate(const BCIntegrate & bcintegrate) : BCEngineMCMC(bcinteg
     fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
     fMarkovChainTree          = bcintegrate.fMarkovChainTree;
     fMCMCIteration            = bcintegrate.fMCMCIteration;
-     fSAT0                     = bcintegrate.fSAT0;
-    fSATmin                   = bcintegrate.fSATmin; 
+    fSAT0                     = bcintegrate.fSAT0;
+    fSATmin                   = bcintegrate.fSATmin;
     // debugKK
     fTreeSA = 0;
     fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
@@ -201,7 +201,7 @@ BCIntegrate::BCIntegrate(const BCIntegrate & bcintegrate) : BCEngineMCMC(bcinteg
        fx = new BCParameterSet(*(bcintegrate.fx));
     else
        fx = 0;
-    fMin                      = new double[fNvar]; 
+    fMin                      = new double[fNvar];
     fMax                      = new double[fNvar];
     fVarlist                  = new int[fNvar];
     fMin                      = bcintegrate.fMin;
@@ -288,7 +288,7 @@ BCIntegrate & BCIntegrate::operator = (const BCIntegrate & bcintegrate)
     fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
     fMarkovChainTree          = bcintegrate.fMarkovChainTree;
     fMCMCIteration            = bcintegrate.fMCMCIteration;
-     fSAT0                     = bcintegrate.fSAT0;
+    fSAT0                     = bcintegrate.fSAT0;
     fSATmin                   = bcintegrate.fSATmin;
     // debugKK
     fTreeSA = 0;
@@ -608,33 +608,51 @@ double BCIntegrate::IntegralMC(const std::vector <double> &x, int * varlist)
 double BCIntegrate::IntegralMC(const std::vector <double> &x)
 {
    // count the variables to integrate over
+   // and calculate D (integrated volume)
    int NvarNow=0;
-
+   double D=1.;
    for(int i = 0; i < fNvar; i++)
-      if(fVarlist[i])
+      if(fVarlist[i]) {
          NvarNow++;
+         D *= fMax[i] - fMin[i];
+      }
 
    // print to log
-   BCLog::OutDebug(Form(" --> Running MC integation over %i dimensions.", NvarNow));
-   BCLog::OutDebug(Form(" --> Maximum number of iterations: %i", GetNIterationsMax()));
-   BCLog::OutDebug(Form(" --> Aimed relative precision:     %e", GetRelativePrecision()));
-
-   // calculate D (the integrated volume)
-   double D = 1.0;
-   for(int i = 0; i < fNvar; i++)
-      if (fVarlist[i])
-         D = D * (fMax[i] - fMin[i]);
+   BCLog::LogLevel level=BCLog::summary;
+   if(fNvar!=NvarNow) {
+      level=BCLog::detail;
+      BCLog::OutDetail(Form("Running MC integation over %i dimensions out of %i.", NvarNow, fNvar));
+      BCLog::OutDetail(" --> Fixed parameters:");
+      for(int i = 0; i < fNvar; i++)
+         if(!fVarlist[i])
+            BCLog::OutDetail(Form("      %3i :  %g", i, x[i]));
+   }
+   else
+      BCLog::OutSummary(Form("Running MC integation over %i dimensions.", NvarNow));
+   BCLog::Out(level, Form(" --> Maximum number of iterations: %i", GetNIterationsMax()));
+   BCLog::Out(level, Form(" --> Aimed relative precision:     %e", GetRelativePrecision()));
 
    // reset variables
-   double pmax = 0.0;
-   double sumW  = 0.0;
-   double sumW2 = 0.0;
-   double integral = 0.0;
-   double variance = 0.0;
-   double relprecision = 1.0;
+   double pmax = 0.;
+   double sumW  = 0.;
+   double sumW2 = 0.;
+   double integral = 0.;
+   double variance = 0.;
+   double relprecision = 1.;
 
    std::vector <double> randx;
-   randx.assign(fNvar, 0.0);
+   randx.assign(fNvar, 0.);
+
+   // how often to print out the info line to screen
+   int nwrite = fNIterationsMax/10;
+   if(nwrite < 10000)
+      nwrite=1000;
+   else if(nwrite < 100000)
+      nwrite=10000;
+   else if(nwrite < 1000000)
+      nwrite=100000;
+   else
+      nwrite=1000000;
 
    // reset number of iterations
    fNIterations = 0;
@@ -675,23 +693,24 @@ double BCIntegrate::IntegralMC(const std::vector <double> &x)
             fBestFitParameters.push_back(randx.at(i));
       }
 
-      // calculate integral and variance
-      integral = D * sumW / fNIterations;
-
-      if (fNIterations%10000 == 0) {
+      if (fNIterations%1000 == 0 || fNIterations%nwrite == 0) {
+         // calculate integral and variance
+         integral = D * sumW / fNIterations;
          variance = (1.0 / double(fNIterations)) * (D * D * sumW2 / double(fNIterations) - integral * integral);
          double error = sqrt(variance);
          relprecision = error / integral;
 
-         BCLog::OutDebug(Form("BCIntegrate::IntegralMC. Iteration %i, integral: %e +- %e.", fNIterations, integral, error));
+         if (fNIterations%nwrite == 0)
+            BCLog::OutDetail(Form("BCIntegrate::IntegralMC. Iteration %i, integral: %e +- %e.", fNIterations, integral, error));
       }
    }
 
+   integral = D * sumW / fNIterations;
    fError = variance / fNIterations;
 
    // print to log
-   BCLog::OutDebug(Form(" --> Result of integration:        %e +- %e   in %i iterations.", integral, sqrt(variance), fNIterations));
-   BCLog::OutDebug(Form(" --> Obtained relative precision:  %e. ", sqrt(variance) / integral));
+   BCLog::OutSummary(Form(" --> Result of integration:        %e +- %e   in %i iterations.", integral, sqrt(variance), fNIterations));
+   BCLog::OutSummary(Form(" --> Obtained relative precision:  %e. ", sqrt(variance) / integral));
 
    return integral;
 }
@@ -2021,7 +2040,7 @@ int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
    std::vector<double> scaled_parameters;
 
    for (int i = 0; i < *ndim; i++) {
-      double range = global_this->fx->at(i)->GetUpperLimit() -  global_this->fx->at(i)->GetLowerLimit();
+      double range = global_this->fx->at(i)->GetUpperLimit() - global_this->fx->at(i)->GetLowerLimit();
 
       // multiply range to jacobian
       jacobian *= range;
