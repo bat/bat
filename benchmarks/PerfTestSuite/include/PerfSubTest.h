@@ -22,166 +22,166 @@ class PerfSubTest
 
  public:
 
-	/** \name Enumerators  */
-	/* @{ */
+   /** \name Enumerators  */
+   /* @{ */
 
-	/** An enumerator for the status of a test. */ 
-	enum Status { kGood, kAcceptable, kBad, kFatal, kUnknown, kOff }; 
-		 
-	/* @} */
-	/** \name Constructors and destructors  */
-	/* @{ */
+   /** An enumerator for the status of a test. */
+   enum Status { kGood, kAcceptable, kBad, kFatal, kUnknown, kOff };
 
-	/** The default constructor */
-	PerfSubTest(std::string name = "unknown");
+   /* @} */
+   /** \name Constructors and destructors  */
+   /* @{ */
 
-	/** The default destructor */
-	~PerfSubTest();
+   /** The default constructor */
+   PerfSubTest(std::string name = "unknown");
 
-	/* @} */
-	/** \name Member functions (Set)  */
-	/* @{ */
+   /** The default destructor */
+   ~PerfSubTest();
 
-	/** Set the name of the subtest. 
-	 * @param name the name of the subtest. */ 
-	void SetName(std::string name)
-	{ fName = name; }; 
+   /* @} */
+   /** \name Member functions (Set)  */
+   /* @{ */
 
-	/** Set the description of the subtest. 
-	 * @param description the description of the subtest. */ 
-	void SetDescription(std::string description)
-	{ fDescription = description; }; 
+   /** Set the name of the subtest.
+    * @param name the name of the subtest. */
+   void SetName(std::string name)
+      { fName = name; };
 
-	/** Set the test value range for the status. 
-	 * @param status the status code.
-	 * @param delta the allowed range around the target value. */
-	void SetStatusRegion(PerfSubTest::Status status, double delta);
+   /** Set the description of the subtest.
+    * @param description the description of the subtest. */
+   void SetDescription(std::string description)
+      { fDescription = description; };
 
-	/** Set the flag for status "unknown". 
-	 * @param flag the flag. */ 
-	void SetStatusUnknown(bool flag) 
-	{ fStatusUnknown = flag; }; 
+   /** Set the test value range for the status.
+    * @param status the status code.
+    * @param delta the allowed range around the target value. */
+   void SetStatusRegion(PerfSubTest::Status status, double delta);
 
-	/** Set the flag for status "off". 
-	 * @param flag the flag. */ 
-	void SetStatusOff(bool flag) 
-	{ fStatusOff = flag; }; 
+   /** Set the flag for status "unknown".
+    * @param flag the flag. */
+   void SetStatusUnknown(bool flag)
+      { fStatusUnknown = flag; };
 
-	/** Set the test value. 
-	 * @param value the value returned from the test. */ 
-	void SetTestValue(double value)
-	{ fTestValue = value; }; 
+   /** Set the flag for status "off".
+    * @param flag the flag. */
+   void SetStatusOff(bool flag)
+      { fStatusOff = flag; };
 
-	/** Set the test uncertainty. 
-	 * @param value the value returned from the test. */ 
-	void SetTestUncertainty(double value)
-	{ fTestUncertainty = value; }; 
+   /** Set the test value.
+    * @param value the value returned from the test. */
+   void SetTestValue(double value)
+      { fTestValue = value; };
 
-	/** Set the aim value.
-	 * @param value the value aimed at. */ 
-	void SetTargetValue(double value) 
-	{ fTargetValue = value; }; 
+   /** Set the test uncertainty.
+    * @param value the value returned from the test. */
+   void SetTestUncertainty(double value)
+      { fTestUncertainty = value; };
 
-	/* @} */
-	/** \name Member functions (Get)  */
-	/* @{ */
+   /** Set the aim value.
+    * @param value the value aimed at. */
+   void SetTargetValue(double value)
+      { fTargetValue = value; };
 
-	/** Return the name of the subtest. 
-	 * @return a string. */
-	std::string GetName()
-		{ return fName; }; 
+   /* @} */
+   /** \name Member functions (Get)  */
+   /* @{ */
 
-	/** Return the description of the subtest. 
-	 * @return a string. */
-	std::string GetDescription()
-		{ return fDescription; }; 
+   /** Return the name of the subtest.
+    * @return a string. */
+   std::string GetName()
+      { return fName; };
 
-	/** Calculate and return the overall status of the subtest. 
-	 * @return a status code. */ 
-	PerfSubTest::Status GetStatus(); 
+   /** Return the description of the subtest.
+    * @return a string. */
+   std::string GetDescription()
+      { return fDescription; };
 
-	/** Return the current status as a string. 
-	 * @return a string. */ 
-	std::string GetStatusString()
-		{ return ToString(GetStatus()); }; 
+   /** Calculate and return the overall status of the subtest.
+    * @return a status code. */
+   PerfSubTest::Status GetStatus();
 
-	/** Return the current status as a string for HTML. 
-	 * @return a string. */ 
-	std::string GetStatusStringHTML()
-		{ return ToStringHTML(GetStatus()); }; 
+   /** Return the current status as a string.
+    * @return a string. */
+   std::string GetStatusString()
+      { return ToString(GetStatus()); };
 
-	/** Return the test value range of the region for the status "good",
-	 * "acceptable" and "bad".
-	 * @param status the status code.
-	 * @return the minimum value. */ 
-	double GetStatusRegion(PerfSubTest::Status status); 
+   /** Return the current status as a string for HTML.
+    * @return a string. */
+   std::string GetStatusStringHTML()
+      { return ToStringHTML(GetStatus()); };
 
-	/** Return the current test value. 
-	 * @return the test value. */ 
-	double GetTestValue()
-	{ return fTestValue; }; 
+   /** Return the test value range of the region for the status "good",
+    * "acceptable" and "bad".
+    * @param status the status code.
+    * @return the minimum value. */
+   double GetStatusRegion(PerfSubTest::Status status);
 
-	/** Return the current test uncertainty. 
-	 * @return the test uncertainty. */ 
-	double GetTestUncertainty()
-	{ return fTestUncertainty; }; 
+   /** Return the current test value.
+    * @return the test value. */
+   double GetTestValue()
+      { return fTestValue; };
 
-	/** Return the target value. 
-	 * @return the target value. */ 
-	double GetTargetValue()
-	{ return fTargetValue; }; 
+   /** Return the current test uncertainty.
+    * @return the test uncertainty. */
+   double GetTestUncertainty()
+      { return fTestUncertainty; };
 
-	/** Return flag for unknown status. 
-	 * @return a flag. */ 
-	bool GetStatusUnknown()
-	{ return fStatusUnknown; }; 
+   /** Return the target value.
+    * @return the target value. */
+   double GetTargetValue()
+      { return fTargetValue; };
 
-	/** Return flag for off status. 
-	 * @return a flag. */ 
-	bool GetStatusOff()
-	{ return fStatusOff; }; 
+   /** Return flag for unknown status.
+    * @return a flag. */
+   bool GetStatusUnknown()
+      { return fStatusUnknown; };
 
-	/* @} */
-	/** \name Member functions (misc)  */
-	/* @{ */
+   /** Return flag for off status.
+    * @return a flag. */
+   bool GetStatusOff()
+      { return fStatusOff; };
 
-	/** Return the status code as a string. 
-	 * @param status the status code. 
-	 * @return a string. */ 
-	std::string ToString(PerfSubTest::Status status); 
+   /* @} */
+   /** \name Member functions (misc)  */
+   /* @{ */
 
-	/** Return the status code as a string for HTML. 
-	 * @param status the status code. 
-	 * @return a string. */ 
-	std::string ToStringHTML(PerfSubTest::Status status); 
+   /** Return the status code as a string.
+    * @param status the status code.
+    * @return a string. */
+   std::string ToString(PerfSubTest::Status status);
 
-	/* @} */
+   /** Return the status code as a string for HTML.
+    * @param status the status code.
+    * @return a string. */
+   std::string ToStringHTML(PerfSubTest::Status status);
+
+   /* @} */
 
  private:
 
-	/** The name of the subtest. */ 
-	std::string fName; 
+   /** The name of the subtest. */
+   std::string fName;
 
-	/** A description of the subtest. */ 
-	std::string fDescription; 
+   /** A description of the subtest. */
+   std::string fDescription;
 
-	/** The test value. */ 
-	double fTestValue; 
+   /** The test value. */
+   double fTestValue;
 
-	/** The test uncertainty. */ 
-	double fTestUncertainty; 
+   /** The test uncertainty. */
+   double fTestUncertainty;
 
-	/** The target value. */ 
-	double fTargetValue; 
+   /** The target value. */
+   double fTargetValue;
 
-	/** The test value range for the status. */
-	std::vector <double> fStatusRegion; 
+   /** The test value range for the status. */
+   std::vector <double> fStatusRegion;
 
-	/** A flag for status "unknown". */ 
-	bool fStatusUnknown; 
+   /** A flag for status "unknown". */
+   bool fStatusUnknown;
 
-	/** A flag for status "off". */ 
-	bool fStatusOff; 
+   /** A flag for status "off". */
+   bool fStatusOff;
 };
 
 #endif

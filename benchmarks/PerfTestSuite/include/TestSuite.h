@@ -1,12 +1,12 @@
 /*!
-	\class BAT::TestSuite
-	\brief A test suite class for BAT
-	
-	Copyright (C) 2009, Daniel Kollar and Kevin Kroeninger.
-	All rights reserved.
-	
-	For the licensing terms see doc/COPYING.
-*/ 
+   \class BAT::TestSuite
+   \brief A test suite class for BAT
+
+   Copyright (C) 2009, Daniel Kollar and Kevin Kroeninger.
+   All rights reserved.
+
+   For the licensing terms see doc/COPYING.
+*/
 
 #ifndef BAT_TESTSUITE
 #define BAT_TESTSUITE
@@ -16,143 +16,143 @@
 
 #include <include/PerfTest.h>
 
-	class TestSuite
-	{
+   class TestSuite
+   {
 
-	public:
+   public:
 
-		/** \name Enumerators  */
-		/* @{ */
-		
-		/* @} */
-		/** \name Constructors and destructors */
-		/* @{ */
+      /** \name Enumerators  */
+      /* @{ */
 
-		/** The default constructor */
-		TestSuite();
-		
-		/** The default destructor */
-		~TestSuite();
+      /* @} */
+      /** \name Constructors and destructors */
+      /* @{ */
 
-		/* @} */
-		/** \name Member functions (Set) */
-		/* @{ */ 
-		
-		/** Set the precision of the tests
-		 * @param the precision. */ 
-		void SetPrecision(PerfTest::Precision precision);
+      /** The default constructor */
+      TestSuite();
 
-		/** Set number of plots per line in the model html page */
-		void SetNPlotColumns(int n)
-			{ fNPlotColumns = n; };
+      /** The default destructor */
+      ~TestSuite();
 
-		/** Set size of the thumbnail in the html page of the model results */
-		void SetThumbSize(int n)
-			{ fThumbSize = n; };
+      /* @} */
+      /** \name Member functions (Set) */
+      /* @{ */
 
-		/** Flag whether or not to include html header in the output html files */
-		void IncludeHtmlHeader(bool flag = true)
-			{ fIncludeHtmlHeader = flag; };
+      /** Set the precision of the tests
+       * @param the precision. */
+      void SetPrecision(PerfTest::Precision precision);
 
-		/** Flag whether or not to include html footer in the output html files */
-		void IncludeHtmlFooter(bool flag = true)
-			{ fIncludeHtmlFooter = flag; };
+      /** Set number of plots per line in the model html page */
+      void SetNPlotColumns(int n)
+         { fNPlotColumns = n; };
 
-		/** Prefix to be used for internal html links */
-		void SetLinkPrefix(std::string prefix)
-			{ fLinkPrefix = prefix; };
+      /** Set size of the thumbnail in the html page of the model results */
+      void SetThumbSize(int n)
+         { fThumbSize = n; };
 
-		/** Prefix to be used for html links to external files */
-		void SetFileLinkPrefix(std::string prefix)
-			{ fFileLinkPrefix = prefix; };
+      /** Flag whether or not to include html header in the output html files */
+      void IncludeHtmlHeader(bool flag = true)
+         { fIncludeHtmlHeader = flag; };
 
-		/** Set file extension for the html files (.html by default) */
-		void SetHtmlFileExtension(std::string ext)
-			{ fHtmlFileExtension = ext; };
+      /** Flag whether or not to include html footer in the output html files */
+      void IncludeHtmlFooter(bool flag = true)
+         { fIncludeHtmlFooter = flag; };
 
-		/* @} */ 
-		/** \name Member functions (Get) */ 
-		/* @{ */ 
+      /** Prefix to be used for internal html links */
+      void SetLinkPrefix(std::string prefix)
+         { fLinkPrefix = prefix; };
 
-		/** Get the number of tests which belong to this test. 
-		 * @return the number of tests. */ 
-		int GetNTests()
-			{ return int(fTestContainer.size()); }; 
-		
-		/** Get the number of tests which belong to this test with
-		 * specified status. 
-		 * @param status the status code. 
-		 * @return the number of tests. */
-		int GetNTests(PerfSubTest::Status status); 
+      /** Prefix to be used for html links to external files */
+      void SetFileLinkPrefix(std::string prefix)
+         { fFileLinkPrefix = prefix; };
 
-		/** Find a test by index
-		 * @param index the index of the test.
-		 * @return the subtest. */
-		PerfTest * GetTest(int index)
-			{ return fTestContainer.at(index); }; 
+      /** Set file extension for the html files (.html by default) */
+      void SetHtmlFileExtension(std::string ext)
+         { fHtmlFileExtension = ext; };
 
-		/** Find a test by name
-		 * @param name the name of the test.
-		 * @return the test. */
-		PerfTest * GetTest(std::string name);
+      /* @} */
+      /** \name Member functions (Get) */
+      /* @{ */
 
-		/* @} */
-		/** \name Member functions (misc) */
-		/* @{ */
+      /** Get the number of tests which belong to this test.
+       * @return the number of tests. */
+      int GetNTests()
+         { return int(fTestContainer.size()); };
 
-		/** Define all tests here. */
-		void DefineTests(); 
+      /** Get the number of tests which belong to this test with
+       * specified status.
+       * @param status the status code.
+       * @return the number of tests. */
+      int GetNTests(PerfSubTest::Status status);
 
-		/** Add a test. 
-		 * @param test the test to be added.
-		 * @return An error code. */
-		int AddTest(PerfTest* test);
+      /** Find a test by index
+       * @param index the index of the test.
+       * @return the subtest. */
+      PerfTest * GetTest(int index)
+         { return fTestContainer.at(index); };
 
-		/** Create the HTML output of the tests. 
-		 * @param filename the name of the HTML file. */ 
-		void PrintResultsHTML(std::string filename = "results.html"); 
+      /** Find a test by name
+       * @param name the name of the test.
+       * @return the test. */
+      PerfTest * GetTest(std::string name);
 
-		/** Create an ASCII output of the tests.
-		 * @param filename the name of the ASCII file. */
-		void PrintResultsASCII(std::string filename = "results.txt"); 
+      /* @} */
+      /** \name Member functions (misc) */
+      /* @{ */
 
-		/** Create an ASCII output of the tests.
-		 * @param filename the name of the ASCII file. */
-		void PrintResultsScreen(); 
+      /** Define all tests here. */
+      void DefineTests();
 
-		/** Run all tests.
-		 * @return an error code. */
-		int RunTests(); 
+      /** Add a test.
+       * @param test the test to be added.
+       * @return An error code. */
+      int AddTest(PerfTest* test);
 
-		/* @} */
+      /** Create the HTML output of the tests.
+       * @param filename the name of the HTML file. */
+      void PrintResultsHTML(std::string filename = "results.html");
 
-	private:
-			
-		/** A container of tests which belong to the test suite. */
-		std::vector <PerfTest *> fTestContainer; 
+      /** Create an ASCII output of the tests.
+       * @param filename the name of the ASCII file. */
+      void PrintResultsASCII(std::string filename = "results.txt");
 
-		/** Number of plots per line in the html page of the model results */
-		int fNPlotColumns;
+      /** Create an ASCII output of the tests.
+       * @param filename the name of the ASCII file. */
+      void PrintResultsScreen();
 
-		/** Size of the thumbnail in the html page of the model results */
-		int fThumbSize;
+      /** Run all tests.
+       * @return an error code. */
+      int RunTests();
 
-		/** Flag whether or not to include html header in the output html files */
-		bool fIncludeHtmlHeader;
+      /* @} */
 
-		/** Flag whether or not to include html footer in the output html files */
-		bool fIncludeHtmlFooter;
+   private:
 
-		/** Prefix to be used for internal html links */
-		std::string fLinkPrefix;
+      /** A container of tests which belong to the test suite. */
+      std::vector <PerfTest *> fTestContainer;
 
-		/** Prefix to be used for html links to external files */
-		std::string fFileLinkPrefix;
+      /** Number of plots per line in the html page of the model results */
+      int fNPlotColumns;
 
-		/** Set file extension for the html files (.html by default) */
-		std::string fHtmlFileExtension;
+      /** Size of the thumbnail in the html page of the model results */
+      int fThumbSize;
 
-	};
+      /** Flag whether or not to include html header in the output html files */
+      bool fIncludeHtmlHeader;
+
+      /** Flag whether or not to include html footer in the output html files */
+      bool fIncludeHtmlFooter;
+
+      /** Prefix to be used for internal html links */
+      std::string fLinkPrefix;
+
+      /** Prefix to be used for html links to external files */
+      std::string fFileLinkPrefix;
+
+      /** Set file extension for the html files (.html by default) */
+      std::string fHtmlFileExtension;
+
+   };
 
 #endif
 

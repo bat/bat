@@ -27,221 +27,221 @@ class PerfTest
 
  public:
 
-	/** \name Enumerators  */
-	/* @{ */
-		 
-	/** An enumerator for the test categories. */ 
-	enum TestType{ kUnknown, kFunction1D, kFunction2D, kVarPar }; 
+   /** \name Enumerators  */
+   /* @{ */
 
-	/** An enumerator for the test precision. */
-	enum Precision{ kCoarse, kMedium, kDetail }; 
-		 
-	/* @} */
-	/** \name Constructors and destructors  */
-	/* @{ */
-		 
-	/** The default constructor */
-	PerfTest(std::string name = "unknown");
+   /** An enumerator for the test categories. */
+   enum TestType{ kUnknown, kFunction1D, kFunction2D, kVarPar };
 
-	/** The default destructor */
-	~PerfTest();
+   /** An enumerator for the test precision. */
+   enum Precision{ kCoarse, kMedium, kDetail };
 
-	/* @} */
-	/** \name Member functions (Set)  */
-	/* @{ */
+   /* @} */
+   /** \name Constructors and destructors  */
+   /* @{ */
 
-	/** Set the precision of the test. */
-	void SetPrecision(PerfTest::Precision precision); 
+   /** The default constructor */
+   PerfTest(std::string name = "unknown");
 
-	/** Set real time of test. */ 
-	void SetRealTime(double time)
-	{ fRealTime = time; }; 
+   /** The default destructor */
+   ~PerfTest();
 
-	/** Set CPU time of test. */ 
-	void SetCpuTime(double time)
-	{ fCpuTime = time; }; 
+   /* @} */
+   /** \name Member functions (Set)  */
+   /* @{ */
 
-	/** Set the variation parameter. 
-	 * @param par the parameter value
-	 * @param name the name of the varied parameter. 
-	 * @return an error code. */ 
-	virtual int SetVarPar(double value, std::string name)
-	{ return 0; };
+   /** Set the precision of the test. */
+   void SetPrecision(PerfTest::Precision precision);
 
-	/* @} */
-	/** \name Member functions (Get)  */
-	/* @{ */
+   /** Set real time of test. */
+   void SetRealTime(double time)
+      { fRealTime = time; };
 
-	/** Return the name of the test. 
-	 * @return the name of the test. */ 
-	std::string GetName()
-		{ return fName; }; 
+   /** Set CPU time of test. */
+   void SetCpuTime(double time)
+      { fCpuTime = time; };
 
-	/** Return the test type. */
-	PerfTest::TestType GetTestType()
-		{ return fTestType; };
+   /** Set the variation parameter.
+    * @param par the parameter value
+    * @param name the name of the varied parameter.
+    * @return an error code. */
+   virtual int SetVarPar(double value, std::string name)
+      { return 0; };
 
-	/** Return the precision. */
-	PerfTest::Precision GetPrecision()
-		{ return fPrecision; };
+   /* @} */
+   /** \name Member functions (Get)  */
+   /* @{ */
 
-	/** Get the number of subtests which belong to this test. 
-	 * @return the number of subtests. */ 
-	int GetNSubtests()
-	{ return int(fSubtestContainer.size()); }; 
+   /** Return the name of the test.
+    * @return the name of the test. */
+   std::string GetName()
+      { return fName; };
 
-	/** Get the number of subtests which belong to this test with
-	 * specified status. 
-	 * @param status the status code. 
-	 * @return the number of subtests. */ 		
-	int GetNSubtests(PerfSubTest::Status status); 
+   /** Return the test type. */
+   PerfTest::TestType GetTestType()
+      { return fTestType; };
 
-	/** Get the number of canvases.
-	 * @return the number of canvases. */
-	int GetNCanvases() 
-	{ return int(fCanvasContainer.size()); };	 
+   /** Return the precision. */
+   PerfTest::Precision GetPrecision()
+      { return fPrecision; };
 
-	/** Calculate and return the overall status of the test. 
-	 * @return a status code. */ 
-	PerfSubTest::Status GetStatus(); 
+   /** Get the number of subtests which belong to this test.
+    * @return the number of subtests. */
+   int GetNSubtests()
+      { return int(fSubtestContainer.size()); };
 
-	/** Return the current status as a string. 
-	 * @return a string. */ 
-	std::string GetStatusString()
-		{ return ToString(GetStatus()); }; 
+   /** Get the number of subtests which belong to this test with
+    * specified status.
+    * @param status the status code.
+    * @return the number of subtests. */
+   int GetNSubtests(PerfSubTest::Status status);
 
-	/** Return the current status as a string. 
-	 * @return a string. */ 
-	std::string GetStatusStringHTML()
-		{ return ToStringHTML(GetStatus()); }; 
+   /** Get the number of canvases.
+    * @return the number of canvases. */
+   int GetNCanvases()
+      { return int(fCanvasContainer.size()); };
 
-	/** Find a subtest by index
-	 * @param index the index of the subtest.
-	 * @return the subtest. */ 
-	PerfSubTest * GetSubtest(int index)
-	{ return fSubtestContainer.at(index); }; 
+   /** Calculate and return the overall status of the test.
+    * @return a status code. */
+   PerfSubTest::Status GetStatus();
 
-	/** Find a subtest by name
-	 * @param name the name of the subtest.
-	 * @return the subtest. */ 
-	PerfSubTest * GetSubtest(std::string name);
+   /** Return the current status as a string.
+    * @return a string. */
+   std::string GetStatusString()
+      { return ToString(GetStatus()); };
 
-	/** Return a canvas from the container.
-	 * @param index the canvas index. 
-	 * @return the canvas. */
-	TCanvas* GetCanvas(int index); 
+   /** Return the current status as a string.
+    * @return a string. */
+   std::string GetStatusStringHTML()
+      { return ToStringHTML(GetStatus()); };
 
-	/** Return a canvas description from the container.
-	 * @param index the canvas index. 
-	 * @return the canvas description. */
-	std::string GetCanvasDescription(int index); 
+   /** Find a subtest by index
+    * @param index the index of the subtest.
+    * @return the subtest. */
+   PerfSubTest * GetSubtest(int index)
+      { return fSubtestContainer.at(index); };
 
-	/** Get real time. */
-	double GetRealTime()
-	{ return fRealTime; }; 
+   /** Find a subtest by name
+    * @param name the name of the subtest.
+    * @return the subtest. */
+   PerfSubTest * GetSubtest(std::string name);
 
-	/** Get CPU time. */
-	double GetCpuTime()
-	{ return fCpuTime; }; 
+   /** Return a canvas from the container.
+    * @param index the canvas index.
+    * @return the canvas. */
+   TCanvas* GetCanvas(int index);
 
-	/* @} */
-	/** \name Member functions (misc)  */
-	/* @{ */
+   /** Return a canvas description from the container.
+    * @param index the canvas index.
+    * @return the canvas description. */
+   std::string GetCanvasDescription(int index);
 
-	/** Return the status code as a string. 
-	 * @param status the status code. 
-	 * @return a string. */ 
-	std::string TypeToString(PerfTest::TestType type); 
+   /** Get real time. */
+   double GetRealTime()
+      { return fRealTime; };
 
-	/** Return the status code as a string. 
-	 * @param status the status code. 
-	 * @return a string. */ 
-	std::string ToString(PerfSubTest::Status status); 
+   /** Get CPU time. */
+   double GetCpuTime()
+      { return fCpuTime; };
 
-	/** Return the status code as a string for HTML. 
-	 * @param status the status code. 
-	 * @return a string. */ 
-	std::string ToStringHTML(PerfSubTest::Status status); 
+   /* @} */
+   /** \name Member functions (misc)  */
+   /* @{ */
 
-	/** Add a subtest to the container. 
-	 * @param a subtest. */ 
-	void AddSubtest(PerfSubTest * test)
-	{ fSubtestContainer.push_back(test); }; 
+   /** Return the status code as a string.
+    * @param status the status code.
+    * @return a string. */
+   std::string TypeToString(PerfTest::TestType type);
 
-	/** Add a canvas to the container. 
-	 * @param hist a canvas. */
-	void AddCanvas(TCanvas* canvas)
-	{ fCanvasContainer.push_back(canvas); }; 
+   /** Return the status code as a string.
+    * @param status the status code.
+    * @return a string. */
+   std::string ToString(PerfSubTest::Status status);
 
-	/** Add a canvas description to the container. 
-	 * @param hist a canvas. */
-	void AddCanvasDescription(std::string description)
-	{ fCanvasDescriptionContainer.push_back(description); }; 
+   /** Return the status code as a string for HTML.
+    * @param status the status code.
+    * @return a string. */
+   std::string ToStringHTML(PerfSubTest::Status status);
 
-	/** Read test results from file. 
-	 * @return an error code. */ 
-	int ReadResults(); 
+   /** Add a subtest to the container.
+    * @param a subtest. */
+   void AddSubtest(PerfSubTest * test)
+      { fSubtestContainer.push_back(test); };
 
-	/** Writes the test to file. 
-	 * @return an error code. */ 
-	virtual int WriteResults(); 
+   /** Add a canvas to the container.
+    * @param hist a canvas. */
+   void AddCanvas(TCanvas* canvas)
+      { fCanvasContainer.push_back(canvas); };
 
-	/** Run before test. 
-	 * @return an error code. */ 
-	virtual int PreTest() 
-	{ return 1; }; 
+   /** Add a canvas description to the container.
+    * @param hist a canvas. */
+   void AddCanvasDescription(std::string description)
+      { fCanvasDescriptionContainer.push_back(description); };
 
-	/** Run after the test. 
-	 * @return an error code. */ 
-	virtual int PostTest()
-	{ return 1; };
+   /** Read test results from file.
+    * @return an error code. */
+   int ReadResults();
 
-	/** Run the test. 
-	 * @return an error code. */ 
-	virtual int RunTest()
-	{ return 1;} ; 
+   /** Writes the test to file.
+    * @return an error code. */
+   virtual int WriteResults();
 
-	/**
-	 * Perform the whole analysis. 
-	 * @return An error code. */
-	int Run();
+   /** Run before test.
+    * @return an error code. */
+   virtual int PreTest()
+      { return 1; };
 
-	/** Defines the subtests. */ 
-	//	virtual void DefineSubtests() = 0;
+   /** Run after the test.
+    * @return an error code. */
+   virtual int PostTest()
+      { return 1; };
 
-	/** Define precision settings. */ 
-	virtual void PrecisionSettings(PerfTest::Precision) 
-	{ return; }; 
+   /** Run the test.
+    * @return an error code. */
+   virtual int RunTest()
+      { return 1;} ;
 
-	/* @} */
+   /**
+    * Perform the whole analysis.
+    * @return An error code. */
+   int Run();
+
+   /** Defines the subtests. */
+   //   virtual void DefineSubtests() = 0;
+
+   /** Define precision settings. */
+   virtual void PrecisionSettings(PerfTest::Precision)
+      { return; };
+
+   /* @} */
 
  protected:
 
-	/** The test type. */
-	TestType fTestType;
+   /** The test type. */
+   TestType fTestType;
 
-	/** The precision of the test. */
-	Precision fPrecision; 
+   /** The precision of the test. */
+   Precision fPrecision;
 
  private:
 
-	/** A container of subtest which belong to the test. */ 
-	std::vector <PerfSubTest *> fSubtestContainer; 
+   /** A container of subtest which belong to the test. */
+   std::vector <PerfSubTest *> fSubtestContainer;
 
-	/** A container of canvases for the test. */
-	std::vector <TCanvas*> fCanvasContainer;
-	
-	/** A container of canvases descriptions for the test. */
-	std::vector <std::string> fCanvasDescriptionContainer;
-	
-	/** The name of the test. */ 
-	std::string fName; 
+   /** A container of canvases for the test. */
+   std::vector <TCanvas*> fCanvasContainer;
 
-	/** Real time test was running. */
-	double fRealTime; 
+   /** A container of canvases descriptions for the test. */
+   std::vector <std::string> fCanvasDescriptionContainer;
 
-	/** CPU time test was running. */
-	double fCpuTime; 
+   /** The name of the test. */
+   std::string fName;
+
+   /** Real time test was running. */
+   double fRealTime;
+
+   /** CPU time test was running. */
+   double fCpuTime;
 };
 
 #endif

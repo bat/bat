@@ -22,86 +22,86 @@
 
 class TH1D;
 class TCanvas;
-class TGraphErrors; 
+class TGraphErrors;
 
 class PerfTestVarPar : public PerfTest
 {
-	
+
  public:
-	
-	/** \name Enumerators  */
-	/* @{ */
-	
-	/* @} */
-	/** \name Constructors and destructors  */
-	/* @{ */
-		 
-	/** The default constructor */
-	PerfTestVarPar(std::string name, PerfTestMCMC* test);
 
-	/** The default destructor */
-	~PerfTestVarPar();
+   /** \name Enumerators  */
+   /* @{ */
 
-	/* @} */
-	/** \name Member functions (Set)  */
-	/* @{ */
+   /* @} */
+   /** \name Constructors and destructors  */
+   /* @{ */
 
-	/** Set the variation parameter. 
-	 * @param par the parameter value
-	 * @param name the name of the varied parameter. 
-	 * @return an error code. */ 
-	virtual int SetVarPar(double value, std::string name)
-	{ return 0; };
+   /** The default constructor */
+   PerfTestVarPar(std::string name, PerfTestMCMC * test);
 
-	/* @} */
-	/** \name Member functions (Get)  */
-	/* @{ */
+   /** The default destructor */
+   ~PerfTestVarPar();
 
-	/** Add variation parameter. 
-	 * @param par a vector of parameter values. 
-	 * @param name the name of the varied parameter. 
-	 * @return an error code */ 
-	int AddVarPar(std::vector <double> values, std::string name);
+   /* @} */
+   /** \name Member functions (Set)  */
+   /* @{ */
 
-	/** Return the number of variation parameters. */ 
-	int GetNVarPar() 
-	{ return int(fVarParValues.size()); }; 
+   /** Set the variation parameter.
+    * @param par the parameter value
+    * @param name the name of the varied parameter.
+    * @return an error code. */
+   virtual int SetVarPar(double value, std::string name)
+      { return 0; };
 
-	/* @} */
+   /* @} */
+   /** \name Member functions (Get)  */
+   /* @{ */
 
-	/** Run before test. 
-	 * @return an error code. */ 
-	int PreTest();
+   /** Add variation parameter.
+    * @param par a vector of parameter values.
+    * @param name the name of the varied parameter.
+    * @return an error code */
+   int AddVarPar(std::vector <double> values, std::string name);
 
-	/** Run the test. 
-	 * @return an error code. */ 
-	int RunTest();
+   /** Return the number of variation parameters. */
+   int GetNVarPar()
+      { return int(fVarParValues.size()); };
 
- 	/** Run after test. 
-	 * @return an error code. */ 
-	int PostTest();
+   /* @} */
 
-	/** Define precision settings. */ 
-	virtual void PrecisionSettings(PerfTest::Precision);
+   /** Run before test.
+    * @return an error code. */
+   int PreTest();
+
+   /** Run the test.
+    * @return an error code. */
+   int RunTest();
+
+    /** Run after test.
+    * @return an error code. */
+   int PostTest();
+
+   /** Define precision settings. */
+   virtual void PrecisionSettings(PerfTest::Precision);
 
 protected:
 
-	/** A container of varation parameters. */ 
-	std::vector<double> fVarParValues;
+   /** A container of varation parameters. */
+   std::vector<double> fVarParValues;
 
-	/** Name of the variation parameter. */
-	std::string fVarParName;
+   /** Name of the variation parameter. */
+   std::string fVarParName;
 
  private:
 
-	/** The associated test. */ 
-	PerfTestMCMC* fTest;
+   /** The associated test. */
+   PerfTestMCMC * fTest;
 
-	/** A container of graphs. */
-	std::vector<TGraphErrors*> fTargetContainer; 
+   /** A container of graphs. */
+   std::vector<TGraphErrors *> fTargetContainer;
 
-	/** A container of graphs. */
-	std::vector<TGraphErrors*> fTestContainer; 
+   /** A container of graphs. */
+   std::vector<TGraphErrors *> fTestContainer;
 
 };
 

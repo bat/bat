@@ -25,58 +25,58 @@
 
 class PerfTestMCMC : public PerfTest, public BCModel
 {
-	
+
  public:
-	
-	/** \name Constructors and destructors  */
-	/* @{ */
-	
-	/** The default constructor */
-	PerfTestMCMC(std::string name = "unknown");
 
-	/** The default destructor */
-	~PerfTestMCMC();
+   /** \name Constructors and destructors  */
+   /* @{ */
 
-	/* @} */
+   /** The default constructor */
+   PerfTestMCMC(std::string name = "unknown");
 
-	/** Set the variation parameter. 
-	 * @param par the parameter value
-	 * @param name the name of the varied parameter. 
-	 * @return an error code. */ 
-	virtual int SetVarPar(double value, std::string name);
+   /** The default destructor */
+   ~PerfTestMCMC();
 
-	/** Run before test. 
-	 * @return an error code. */ 
-	int PreTest();
+   /* @} */
 
-	/** Run after test. 
-	 * @return an error code. */ 
-	int PostTest();
+   /** Set the variation parameter.
+    * @param par the parameter value
+    * @param name the name of the varied parameter.
+    * @return an error code. */
+   virtual int SetVarPar(double value, std::string name);
 
-	/** Run the test. 
-	 * @return an error code. */ 
-	int RunTest(); 
+   /** Run before test.
+    * @return an error code. */
+   int PreTest();
 
-	/** Defines the subtests. */ 
-	void DefineSubtests();
+   /** Run after test.
+    * @return an error code. */
+   int PostTest();
 
-	/** Writes the test to file. 
-	 * @return an error code. */ 
-	int WriteResults(); 
+   /** Run the test.
+    * @return an error code. */
+   int RunTest();
 
-	/** Define precision settings. */ 
-	void PrecisionSettings(PerfTest::Precision);
+   /** Defines the subtests. */
+   void DefineSubtests();
 
-	/* @} */
+   /** Writes the test to file.
+    * @return an error code. */
+   int WriteResults();
 
-	// inherited methods
-	void MCMCUserIterationInterface();
+   /** Define precision settings. */
+   void PrecisionSettings(PerfTest::Precision);
+
+   /* @} */
+
+   // inherited methods
+   void MCMCUserIterationInterface();
 
  private:
 
-	std::vector <TGraph*> fCorrelation;
-	std::vector <TH2D*> fHistCorr;
-	std::vector <double> fXOld;
+   std::vector <TGraph *> fCorrelation;
+   std::vector <TH2D *> fHistCorr;
+   std::vector <double> fXOld;
 };
 
 #endif

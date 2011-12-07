@@ -1,4 +1,4 @@
-#include <include/ReleaseTestSuite.h> 
+#include <include/ReleaseTestSuite.h>
 #include <include/PerfTest.h>
 
 #include <TROOT.h>
@@ -7,34 +7,34 @@
 
 #include <iostream>
 
-using namespace std; 
+using namespace std;
 
 int main()
 {
-	// create new test suite 
-	ReleaseTestSuite* rts = new ReleaseTestSuite(); 
+   // create new test suite
+   ReleaseTestSuite* rts = new ReleaseTestSuite();
 
-	// prepare test suite
-	rts->PrepareTests(); 
+   // prepare test suite
+   rts->PrepareTests();
 
-	// setup html output as needed for BAT webpage
-	//rts->WebpageSetup();
+   // setup html output as needed for BAT webpage
+   //rts->WebpageSetup();
 
-	// set precision
-	//	rts->SetPrecision(PerfTest::kDetail);
-	rts->SetPrecision(PerfTest::kCoarse);
+   // set precision
+   //   rts->SetPrecision(PerfTest::kDetail);
+   rts->SetPrecision(PerfTest::kCoarse);
 
-	// run all tests
-	rts->RunTests();
+   // run all tests
+   rts->RunTests();
 
-	// print results to screen
-	rts->PrintResultsScreen(); 
+   // print results to screen
+   rts->PrintResultsScreen();
 
-	// print results to html
-	rts->PrintResultsHTML("results.php");
+   // print results to html
+   rts->PrintResultsHTML("results.php");
 
-	// delete test suite 
-	delete rts;  
+   // delete test suite
+   delete rts;
 
-	return 0; 
+   return 0;
 }

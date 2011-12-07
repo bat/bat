@@ -1,3 +1,7 @@
+2011-12-07 Daniel Kollar <kollar.dan@gmail.com>
+	* test suite:
+	  - code formatting
+
 2011-12-05 Daniel Kollar <kollar.dan@gmail.com>
 	* examples:
 	  - removed GLIBS from Makefiles since it's not used for anything

@@ -24,40 +24,40 @@
 
 class PerfTest2DFunction : public PerfTestMCMC
 {
-	
+
  public:
-	
-	/** \name Constructors and destructors  */
-	/* @{ */
-	
-	/** The default constructor */
-	PerfTest2DFunction(std::string name = "unknown", TF2* func = 0);
 
-	/** The default destructor */
-	~PerfTest2DFunction();
+   /** \name Constructors and destructors  */
+   /* @{ */
 
-	/* @} */
+   /** The default constructor */
+   PerfTest2DFunction(std::string name = "unknown", TF2 * func = 0);
 
-	/** Defines the subtests. */ 
-	void DefineSubtests(); 
+   /** The default destructor */
+   ~PerfTest2DFunction();
 
-	/** Run after the test
-	 * @return an error code. */ 
-	int PostTest(); 
+   /* @} */
 
-	/* @} */
+   /** Defines the subtests. */
+   void DefineSubtests();
 
-	// inherited methods
-	double LogAPrioriProbability(std::vector <double> parameters)
-	{return 0;}
+   /** Run after the test
+    * @return an error code. */
+   int PostTest();
 
-	double LogLikelihood(std::vector <double> parameters)
-	{ return log(fFunction->Eval(parameters[0], parameters[1])); }
+   /* @} */
+
+   // inherited methods
+   double LogAPrioriProbability(std::vector <double> parameters)
+      { return 0; }
+
+   double LogLikelihood(std::vector <double> parameters)
+      { return log(fFunction->Eval(parameters[0], parameters[1])); }
 
  private:
-		
-	/** The test function. */
-	TF2* fFunction;
+
+   /** The test function. */
+   TF2 * fFunction;
 };
 
 #endif

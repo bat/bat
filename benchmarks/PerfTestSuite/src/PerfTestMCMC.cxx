@@ -7,28 +7,29 @@
 
 #include <TCanvas.h>
 #include <TF1.h>
-#include <TH1D.h> 
-#include <TH2D.h> 
+#include <TH1D.h>
+#include <TH2D.h>
 #include <TMath.h>
-#include <TROOT.h> 
-#include <TStyle.h> 
-#include <TRandom3.h> 
+#include <TROOT.h>
+#include <TStyle.h>
+#include <TRandom3.h>
 #include <TGraph.h>
 
 #include <BAT/BCH1D.h>
-#include <BAT/BCAux.h> 
-#include <BAT/BCMath.h> 
+#include <BAT/BCAux.h>
+#include <BAT/BCMath.h>
 
 #include <iostream>
 
 #include "include/PerfTestMCMC.h"
 
 //______________________________________________________________________________
-PerfTestMCMC::PerfTestMCMC(std::string name) : PerfTest(name)
-					     , BCModel(name.c_str())
-					     , fCorrelation(std::vector<TGraph*>(0))
-					     , fHistCorr(std::vector<TH2D*>(0))
-					     , fXOld(std::vector<double>(0))
+PerfTestMCMC::PerfTestMCMC(std::string name)
+   : PerfTest(name)
+   , BCModel(name.c_str())
+   , fCorrelation(std::vector<TGraph*>(0))
+   , fHistCorr(std::vector<TH2D*>(0))
+   , fXOld(std::vector<double>(0))
 {
   // define subtests
   DefineSubtests();
@@ -38,25 +39,23 @@ PerfTestMCMC::PerfTestMCMC(std::string name) : PerfTest(name)
 PerfTestMCMC::~PerfTestMCMC()
 {
   // delete all graphs
-  while (!fCorrelation.empty())
-    {
-      TGraph* can = fCorrelation.front(); 
-      fCorrelation.erase(fCorrelation.begin()); 
-      delete can; 
-    }
+  while (!fCorrelation.empty()) {
+    TGraph * can = fCorrelation.front();
+    fCorrelation.erase(fCorrelation.begin());
+    delete can;
+  }
   fCorrelation.clear();
 
   // delete all histograms
-  while (!fHistCorr.empty())
-    {
-      TH2D* hist = fHistCorr.front(); 
-      fHistCorr.erase(fHistCorr.begin()); 
-      delete hist; 
-    }
+  while (!fHistCorr.empty()) {
+    TH2D * hist = fHistCorr.front();
+    fHistCorr.erase(fHistCorr.begin());
+    delete hist;
+  }
   fHistCorr.clear();
 
 }
-	
+
 //______________________________________________________________________________
 int PerfTestMCMC::SetVarPar(double value, std::string name)
 {
@@ -72,7 +71,7 @@ int PerfTestMCMC::SetVarPar(double value, std::string name)
     MCMCSetNIterationsRun(int(value));
     return 1;
   }
-  else 
+  else
     return 0;
 }
 
@@ -112,18 +111,18 @@ int PerfTestMCMC::PostTest()
     fCorrelation.at(i)->Draw("SAMEP");
     AddCanvas(c_corr);
     AddCanvasDescription("Auto-correlation for the parameter.");
-		
-    double x; 
+
+    double x;
     double y;
     fCorrelation.at(i)->GetPoint(fCorrelation.at(i)->GetN()-1, x, y);
-		
+
     // define test results
     GetSubtest(Form("correlation par %i", i))->SetTargetValue(0.0);
-    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kGood,   0.3); 
-    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kAcceptable, 0.5); 
-    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kBad,    0.7); 
-    GetSubtest(Form("correlation par %i", i))->SetTestValue(y); 
-    GetSubtest(Form("correlation par %i", i))->SetTestUncertainty(fCorrelation.at(i)->GetRMS(2)); 
+    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kGood,   0.3);
+    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kAcceptable, 0.5);
+    GetSubtest(Form("correlation par %i", i))->SetStatusRegion(PerfSubTest::kBad,    0.7);
+    GetSubtest(Form("correlation par %i", i))->SetTestValue(y);
+    GetSubtest(Form("correlation par %i", i))->SetTestUncertainty(fCorrelation.at(i)->GetRMS(2));
     GetSubtest(Form("correlation par %i", i))->SetStatusOff(true);
   }
 
@@ -138,7 +137,7 @@ int PerfTestMCMC::RunTest()
   int err = 1;
 
   // perform mcmc
-  err *= MarginalizeAll(); 
+  err *= MarginalizeAll();
 
   // return error code
   return err;
@@ -150,9 +149,9 @@ void PerfTestMCMC::DefineSubtests()
 
   // loop over parameters
   int npar = GetNParameters();
-  for (int i = 0; i < npar; ++i) {	
+  for (int i = 0; i < npar; ++i) {
     PerfSubTest * subtest = new PerfSubTest(Form("correlation par %i", i));
-    subtest->SetDescription("Calculate the auto-correlation among the points."); 
+    subtest->SetDescription("Calculate the auto-correlation among the points.");
     AddSubtest(subtest);
   }
 }
@@ -160,7 +159,7 @@ void PerfTestMCMC::DefineSubtests()
 //______________________________________________________________________________
 int PerfTestMCMC::WriteResults()
 {
-  PerfTest::WriteResults(); 
+  PerfTest::WriteResults();
 
   PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
 
@@ -192,27 +191,27 @@ void PerfTestMCMC::MCMCUserIterationInterface()
   int npar = GetNParameters();
   int nlag = MCMCGetNLag();
   int iteration = MCMCGetCurrentIteration();
-  int nchains = MCMCGetNChains(); 
+  int nchains = MCMCGetNChains();
 
   for (int i = 0; i < npar; ++i) {
-    TH2D* hist = fHistCorr.at(i); 
+    TH2D* hist = fHistCorr.at(i);
 
     if (iteration > nlag) {
-      for (int j = 0; j < nchains; ++j) 
-	hist->Fill(fXOld.at(j * npar + i), fMCMCx.at(j * npar + i));
+      for (int j = 0; j < nchains; ++j)
+   hist->Fill(fXOld.at(j * npar + i), fMCMCx.at(j * npar + i));
     }
 
     if (iteration/nlag % (MCMCGetNIterationsRun()/100/nlag) == 0) {
-      (fCorrelation[i])->SetPoint( (iteration/nlag) / (MCMCGetNIterationsRun()/100/nlag), 
-				   iteration, 
-				   hist->GetCorrelationFactor());
+      (fCorrelation[i])->SetPoint( (iteration/nlag) / (MCMCGetNIterationsRun()/100/nlag),
+               iteration,
+               hist->GetCorrelationFactor());
     }
   }
 
   // copy point
-  fXOld = fMCMCx; 
+  fXOld = fMCMCx;
 
 }
 
 //______________________________________________________________________________
-	
+

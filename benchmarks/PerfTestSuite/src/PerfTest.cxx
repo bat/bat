@@ -11,11 +11,11 @@
 #include <TH1D.h>
 #include <TPostScript.h>
 
-#include <iostream> 
-#include <fstream> 
+#include <iostream>
+#include <fstream>
 
 //______________________________________________________________________________
-PerfTest::PerfTest(std::string name) 
+PerfTest::PerfTest(std::string name)
   : fTestType(PerfTest::kUnknown)
   , fPrecision(PerfTest::kCoarse)
   , fSubtestContainer(std::vector<PerfSubTest *>(0))
@@ -26,60 +26,60 @@ PerfTest::PerfTest(std::string name)
   , fCpuTime(0.)
 {
   // define subtests
-  //	DefineSubtests();
+  //   DefineSubtests();
 }
-	
+
 //______________________________________________________________________________
 PerfTest::~PerfTest()
 {
   // delete all subtests
   while (!fSubtestContainer.empty())
     {
-      PerfSubTest* test = fSubtestContainer.front(); 
-      fSubtestContainer.erase(fSubtestContainer.begin()); 
-      delete test; 
+      PerfSubTest* test = fSubtestContainer.front();
+      fSubtestContainer.erase(fSubtestContainer.begin());
+      delete test;
     }
   fSubtestContainer.clear();
 
   // delete all canvases
   while (!fCanvasContainer.empty())
     {
-      TCanvas* can = fCanvasContainer.front(); 
-      fCanvasContainer.erase(fCanvasContainer.begin()); 
-      delete can; 
+      TCanvas* can = fCanvasContainer.front();
+      fCanvasContainer.erase(fCanvasContainer.begin());
+      delete can;
     }
   fCanvasContainer.clear();
 
 }
-	
+
 //______________________________________________________________________________
 std::string TypeToString(PerfTest::TestType type)
 {
-  switch (type) 
+  switch (type)
     {
-    case PerfTest::kFunction1D : 
-      return std::string("Function1D"); 
+    case PerfTest::kFunction1D :
+      return std::string("Function1D");
 
-    case PerfTest::kFunction2D : 
-      return std::string("Function2D"); 
+    case PerfTest::kFunction2D :
+      return std::string("Function2D");
 
     default :
-      return std::string("-"); 				
+      return std::string("-");
     }
 }
 
 //______________________________________________________________________________
 std::string PerfTest::ToString(PerfSubTest::Status status)
 {
-  PerfSubTest st; 
-  return st.ToString(status); 
+  PerfSubTest st;
+  return st.ToString(status);
 }
 
 //______________________________________________________________________________
 std::string PerfTest::ToStringHTML(PerfSubTest::Status status)
 {
-  PerfSubTest st; 
-  return st.ToStringHTML(status); 
+  PerfSubTest st;
+  return st.ToStringHTML(status);
 }
 
 //______________________________________________________________________________
@@ -93,11 +93,11 @@ void PerfTest::SetPrecision(PerfTest::Precision precision)
 //______________________________________________________________________________
 int PerfTest::GetNSubtests(PerfSubTest::Status status)
 {
-  // get number of sub tests 
-  int n = GetNSubtests(); 
+  // get number of sub tests
+  int n = GetNSubtests();
 
-  // initialize counter 
-  int counter = 0; 
+  // initialize counter
+  int counter = 0;
 
   // loop over all subtests and compare status
   for (int i = 0; i < n; ++i) {
@@ -105,34 +105,34 @@ int PerfTest::GetNSubtests(PerfSubTest::Status status)
       counter++;
   }
 
-  // return counter 
+  // return counter
   return counter;
 }
-	
+
 //______________________________________________________________________________
 PerfSubTest::Status PerfTest::GetStatus()
 {
-  // get number of active sub tests 
-  int n = GetNSubtests() - GetNSubtests(PerfSubTest::kOff); 
+  // get number of active sub tests
+  int n = GetNSubtests() - GetNSubtests(PerfSubTest::kOff);
 
   // get number of successful sub tests
-  int ngood = GetNSubtests(PerfSubTest::kGood); 
+  int ngood = GetNSubtests(PerfSubTest::kGood);
 
   // get number of acceptable sub tests
-  int nacceptable = GetNSubtests(PerfSubTest::kAcceptable); 
+  int nacceptable = GetNSubtests(PerfSubTest::kAcceptable);
 
   // get number of failed sub tests
-  int nbad = GetNSubtests(PerfSubTest::kBad); 
+  int nbad = GetNSubtests(PerfSubTest::kBad);
 
   // get number of failed sub tests
-  int nfatal = GetNSubtests(PerfSubTest::kFatal); 
+  int nfatal = GetNSubtests(PerfSubTest::kFatal);
 
   // get number of unkown
-  int nunknown = GetNSubtests(PerfSubTest::kUnknown); 
-		
+  int nunknown = GetNSubtests(PerfSubTest::kUnknown);
+
   // calculate overall status
   if (n == ngood)
-    return PerfSubTest::kGood; 
+    return PerfSubTest::kGood;
 
   else if (nunknown > 0)
     return PerfSubTest::kUnknown;
@@ -148,32 +148,32 @@ PerfSubTest::Status PerfTest::GetStatus()
 
   return PerfSubTest::kUnknown;
 }
-	
+
 //______________________________________________________________________________
 PerfSubTest * PerfTest::GetSubtest(std::string name)
 {
-  // get number of sub tests 
-  int n = GetNSubtests(); 
+  // get number of sub tests
+  int n = GetNSubtests();
 
   // loop over all subtests and compare status
-  for (int i = 0; i < n; ++i) 
+  for (int i = 0; i < n; ++i)
     {
       if (!name.compare(GetSubtest(i)->GetName()))
-	return GetSubtest(i); 
+   return GetSubtest(i);
     }
 
-  return 0; 
+  return 0;
 }
 
 //______________________________________________________________________________
 TCanvas* PerfTest::GetCanvas(int index)
 {
-  int ncanvases = GetNCanvases(); 
+  int ncanvases = GetNCanvases();
 
   // check index
   if (index < 0 || index >= ncanvases)
     return 0;
-	
+
   // return canvas pointer
   return fCanvasContainer.at(index);
 }
@@ -186,7 +186,7 @@ std::string PerfTest::GetCanvasDescription(int index)
   // check index
   if (index < 0 || index >= ncanvases)
     return std::string("-");
-	
+
   // return canvas pointer
   return fCanvasDescriptionContainer.at(index);
 }
@@ -196,97 +196,97 @@ int PerfTest::ReadResults()
 {
   /*
   // open file
-  std::fstream file; 
-  file.open((fName+std::string(".tst")).c_str(), std::fstream::in); 
+  std::fstream file;
+  file.open((fName+std::string(".tst")).c_str(), std::fstream::in);
 
   // check if file is open
   if (!file.is_open())
   {
   std::cout << "Could not open file." << std::endl;
-  return 0; 
+  return 0;
   }
 
-  // read data from file 
-  std::string dummy_string; 
+  // read data from file
+  std::string dummy_string;
   double dummy_double;
   bool dummy_bool;
-  int dummy_int; 
+  int dummy_int;
 
-  file >> dummy_string; 
-  file >> dummy_int; 
+  file >> dummy_string;
+  file >> dummy_int;
 
   // check name
-  if (fName.compare(dummy_string)) { 
+  if (fName.compare(dummy_string)) {
   std::cout << "Test name and name in file do not agree." << std::endl;
   file.close();
-  return 0; 
+  return 0;
   }
 
   // check number of subtests
   if (GetNSubtests() != dummy_int) {
   std::cout << "Number of subtests no consistent." << std::endl;
   file.close();
-  return 0; 
+  return 0;
   }
-		
+
   // loop over all subtests and read results
   for (int i = 0; i < dummy_int; ++i) {
 
   // get subtest
-  PerfSubTest * subtest = GetSubtest(i); 
+  PerfSubTest * subtest = GetSubtest(i);
 
-  file >> dummy_string; 
+  file >> dummy_string;
 
   // check name
-  if (!(subtest->GetName().compare(dummy_string)==0)) { 
-  std::cout << "Subtest name and name in file do not agree." << std::endl; 
+  if (!(subtest->GetName().compare(dummy_string)==0)) {
+  std::cout << "Subtest name and name in file do not agree." << std::endl;
   file.close();
-  return 0; 
+  return 0;
   }
 
-  file >> dummy_double; 
+  file >> dummy_double;
   subtest->SetTestValue(dummy_double);
-  file >> dummy_double; 
+  file >> dummy_double;
   subtest->SetStatusRegion(PerfSubTest::kGood, dummy_double);
-  file >> dummy_double; 
+  file >> dummy_double;
   subtest->SetStatusRegion(PerfSubTest::kAcceptable, dummy_double);
-  file >> dummy_double; 
+  file >> dummy_double;
   subtest->SetStatusRegion(PerfSubTest::kBad, dummy_double);
-  file >> dummy_bool; 
+  file >> dummy_bool;
   subtest->SetStatusUnknown(dummy_bool);
-  file >> dummy_bool; 
+  file >> dummy_bool;
   subtest->SetStatusOff(dummy_bool);
-  }	
+  }
 
   // close file
-  file.close(); 
+  file.close();
   */
 
-  // no error 
-  return 1; 
+  // no error
+  return 1;
 }
 
 //______________________________________________________________________________
 int PerfTest::WriteResults()
 {
   // open file
-  std::fstream file; 
-  file.open((fName.data()+std::string(".tst")).c_str(), std::fstream::out); 
+  std::fstream file;
+  file.open((fName.data()+std::string(".tst")).c_str(), std::fstream::out);
 
   // check if file is open
   if (!file.is_open())
     {
       std::cout << "Could not open file." << std::endl;
-      return 0; 
+      return 0;
     }
 
-  // write to file 
+  // write to file
   file << fName.data() << std::endl;
-  file << GetNSubtests() << std::endl; 
-		
-  // get number of active sub tests 
-  int n = GetNSubtests() - GetNSubtests(PerfSubTest::kOff); 
-		
+  file << GetNSubtests() << std::endl;
+
+  // get number of active sub tests
+  int n = GetNSubtests() - GetNSubtests(PerfSubTest::kOff);
+
   // loop over all subtests and write results
   for (int i = 0; i < n; ++i) {
     file << fSubtestContainer.at(i)->GetName().c_str() << std::endl;
@@ -300,14 +300,14 @@ int PerfTest::WriteResults()
     file << fSubtestContainer.at(i)->GetStatusOff() << std::endl;
   }
 
-  // close file 
-  file.close(); 
+  // close file
+  file.close();
 
   // create postscript
   TPostScript * ps = new TPostScript((fName.data()+std::string(".ps")).c_str());
 
   // get number of canvases
-  int nhist = GetNCanvases(); 
+  int nhist = GetNCanvases();
 
   ps->NewPage();
 
@@ -315,7 +315,7 @@ int PerfTest::WriteResults()
   for (int i = 0; i < nhist; ++i) {
     // get canvas
     TCanvas* c = GetCanvas(i);
-		
+
     // update post script
     c->Update();
     if (i != nhist-1)
@@ -326,7 +326,7 @@ int PerfTest::WriteResults()
   // close ps
   ps->Close();
 
-  // print thumbnials 
+  // print thumbnials
   for (int i = 0; i < nhist; ++i) {
     // get canvas
     TCanvas* c = GetCanvas(i);
@@ -337,8 +337,8 @@ int PerfTest::WriteResults()
   // delete postscript
   delete ps;
 
-  // no error 
-  return 1; 
+  // no error
+  return 1;
 }
 
 //______________________________________________________________________________
@@ -346,12 +346,12 @@ int PerfTest::Run()
 {
   // define error code
   int err = 1;
-	
+
   // call pre-test
   err *= PreTest();
 
   // perform mcmc
-  err *= RunTest(); 
+  err *= RunTest();
 
   // call post-test
   err *= PostTest();
@@ -361,4 +361,4 @@ int PerfTest::Run()
 }
 
 //______________________________________________________________________________
-	
+

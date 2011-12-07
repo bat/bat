@@ -24,40 +24,40 @@
 
 class PerfTest1DFunction : public PerfTestMCMC
 {
-	
+
  public:
-	
-	/** \name Constructors and destructors  */
-	/* @{ */
-	
-	/** The default constructor */
-	PerfTest1DFunction(std::string name = "unknown", TF1* func = 0);
 
-	/** The default destructor */
-	~PerfTest1DFunction();
+   /** \name Constructors and destructors  */
+   /* @{ */
 
-	/* @} */
+   /** The default constructor */
+   PerfTest1DFunction(std::string name = "unknown", TF1* func = 0);
 
-	/** Run after the test
-	 * @return an error code. */ 
-	int PostTest(); 
+   /** The default destructor */
+   ~PerfTest1DFunction();
 
-	/** Defines the subtests. */ 
-	void DefineSubtests(); 
+   /* @} */
 
-	/* @} */
+   /** Run after the test
+    * @return an error code. */
+   int PostTest();
 
-	// inherited methods
-	double LogAPrioriProbability(std::vector <double> parameters)
-	{return 0;}
+   /** Defines the subtests. */
+   void DefineSubtests();
 
-	double LogLikelihood(std::vector <double> parameters)
-	{ return log(fFunction->Eval(parameters[0])); }
+   /* @} */
+
+   // inherited methods
+   double LogAPrioriProbability(std::vector <double> parameters)
+      { return 0; }
+
+   double LogLikelihood(std::vector <double> parameters)
+      { return log(fFunction->Eval(parameters[0])); }
 
  private:
-		
-	/** The test function. */
-	TF1* fFunction;
+
+   /** The test function. */
+   TF1 * fFunction;
 };
 
 #endif
