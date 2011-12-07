@@ -1,5 +1,9 @@
 2011-12-07 Daniel Kollar <kollar.dan@gmail.com>
 	* test suite:
+	  - adapt to the new BCModel interface
+
+2011-12-07 Daniel Kollar <kollar.dan@gmail.com>
+	* test suite:
 	  - code formatting
 
 2011-12-05 Daniel Kollar <kollar.dan@gmail.com>
