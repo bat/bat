@@ -1,3 +1,11 @@
+2011-12-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCH1D:
+	  - add plot option for a delta prior
+	  - adjust font size to avoid overlap of title with legend
+	  - remove some commented code
+	* BCModel:
+	  - Remove 2D plots in which one parameter is fixed
+	  - bugfix: don't add infinity when recalculating prior constant
 2011-12-07 Daniel Kollar <kollar.dan@gmail.com>
 	* test suite:
 	  - adapt to the new BCModel interface

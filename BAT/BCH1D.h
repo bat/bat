@@ -145,6 +145,8 @@ class BCH1D
        * @param options Drawing options: \n 0 = band mode [default], \n
        *                1 = draw vertical line, \n
        *                2 = band mode with minimal interval
+       *                3 = ??
+       *                4 = Delta prior, i.e. fixed parameter value
        * @param ovalue Option specific value. For option 0, if ovalue is nonzero
        *    a limit is to be drawn rather than central band with ovalue being the
        *    per cent value of the limit. If negative, limit is drawn from minimum,
@@ -156,8 +158,15 @@ class BCH1D
        *    where the line is drawn. \n
        *    For option 2 the ovalue sets the content of
        *    the minimal interval in per cent. If omitted a 68% minimal interval
-       *    will be drawn. */
+       *    will be drawn.
+       *    For option 3 ???
+       *    For option 4 draw one bin representing the delta prior around ovalue. */
       void Draw(int options=0, double ovalue=0.);
+
+      /**
+       * Draw the 1D marginal for a parameter fixed by a delta prior.
+       * @param value The fixed value of the parameter. */
+      void DrawDelta(double value) const;
 
       /**
        * Draw distribution with band between min and max and with marker at the mode.

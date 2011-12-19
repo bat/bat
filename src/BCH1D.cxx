@@ -177,7 +177,6 @@ void BCH1D::Draw(int options, double ovalue)
             flagLegend = true;
             sprintf(confidenceLabel, "Central 68%%");
 
-//            if ( thismode > max || fHistogram->FindBin(thismode) == fHistogram->GetNbinsX() )
             if ( fHistogram->FindBin(thismode) == fHistogram->GetNbinsX() )
             {
                min = GetQuantile(1.-(double)fDefaultCLLimit/100.);
@@ -185,7 +184,6 @@ void BCH1D::Draw(int options, double ovalue)
                ovalue = fDefaultCLLimit;
                sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
             }
-//            else if (thismode < min || fHistogram->FindBin(thismode)==1)
             else if ( fHistogram->FindBin(thismode)==1)
             {
                min = fHistogram->GetXaxis()->GetXmin();
@@ -213,7 +211,6 @@ void BCH1D::Draw(int options, double ovalue)
          if(flagLegend)
             this ->DrawLegend(confidenceLabel);
 
-
          break;
 
       // Draw a line at "ovalue".
@@ -240,8 +237,6 @@ void BCH1D::Draw(int options, double ovalue)
          GetSmallestInterval(min, max, ovalue/100.);
          DrawShadedLimits(mode, min, max, 0.);
 
-//         DrawLegend(TString::Format("Smallest %g%",ovalue));
-
          break;
 
       // Draw a shaded band at the smallest intervals
@@ -254,6 +249,13 @@ void BCH1D::Draw(int options, double ovalue)
 
          break;
 
+      // Draw just one bin for fixed delta prior
+      case 4:
+
+          DrawDelta(ovalue);
+
+          break;
+
       // Sort out bad options and warn.
       default:
 
@@ -262,7 +264,41 @@ void BCH1D::Draw(int options, double ovalue)
    }
 }
 // ---------------------------------------------------------
+void BCH1D::DrawDelta(double value) const
+{
+    // draw histogram with axes first
+    double xmin = fHistogram->GetXaxis()->GetXmin();
+    double xmax = fHistogram->GetXaxis()->GetXmax();
+    double ysize = 1.3 * fHistogram->GetMaximum();
 
+    TH2D*  hsc = new TH2D(
+          TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
+          50, xmin, xmax, 10, 0., ysize);
+    hsc->SetStats(0);
+    hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
+    hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
+    hsc->Draw();
+
+    // write mode location
+
+   TLatex * tmax_text = new TLatex();
+   tmax_text->SetTextSize(0.035);
+   tmax_text->SetTextFont(62);
+   tmax_text->SetTextAlign(22); // center
+
+   double xprint=(xmax+xmin)/2.;
+   double yprint=ysize*(1-1.4*tmax_text->GetTextSize());
+
+   tmax_text->DrawLatex(xprint,yprint, TString::Format("%s = %g", fHistogram->GetXaxis()->GetTitle(), value));
+   delete tmax_text;
+
+   // create a temporary histogram, to hold only one non-zero bin
+   TH1D * hist_temp = new TH1D(TString::Format("h1scale_%s_%d", fHistogram->GetName(), BCLog::GetHIndex()), "", 100, xmin, xmax);
+   hist_temp->SetBinContent(hist_temp->FindBin(value), fHistogram->GetMaximum());
+   hist_temp->Draw("same");
+}
+
+// ---------------------------------------------------------
 void BCH1D::DrawLegend(const char* text)
 {
    //draw on top right corner
@@ -299,7 +335,9 @@ void BCH1D::DrawLegend(const char* text)
 
 // ---------------------------------------------------------
 
-// TODO Are graphics objects ever deleted from the heap?
+// TODO Are graphics objects ever deleted from the heap? search for new TH*
+// In most cases, plotting won't work as expected if the histograms are deleted in here
+// as the TCanvas then remains empty.
 
 void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 {
@@ -411,7 +449,7 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
       sd++;
 
    TLatex * tmax_text = new TLatex();
-   tmax_text->SetTextSize(0.045);
+   tmax_text->SetTextSize(0.035);
    tmax_text->SetTextFont(62);
    tmax_text->SetTextAlign(22); // center
 //   tmax_text->SetTextAlign(13); // top-left

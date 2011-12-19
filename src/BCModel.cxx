@@ -1235,7 +1235,12 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
       // go to next pad
       c->cd(i % (hdiv * vdiv) + 1);
 
-      GetMarginalized(a)->Draw();
+      // just draw a line for a delta prior
+      if (a->GetRangeWidth() == 0)
+          GetMarginalized(a)->Draw(4, a->GetLowerLimit());
+      else
+          GetMarginalized(a)->Draw();
+
       n++;
 
       if (n % 100 == 0)
@@ -1244,28 +1249,17 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 
    if (n > 0) {
       c->Update();
-
-      // draw all the 2D distributions
-      ps->NewPage();
-      c->cd();
-      c->Clear();
    }
 
-   c->Divide(hdiv, vdiv);
-
+   // check how many 2D plots are actually drawn, despite no histogram filling or delta prior
    int k = 0;
    for (int i = 0; i < npar - 1; i++) {
-      if (!fMCMCFlagsFillHistograms[i])
-         continue;
       for (int j = i + 1; j < npar; j++) {
-         if (!fMCMCFlagsFillHistograms[j])
-            continue;
-
          // get corresponding parameters
          BCParameter * a = GetParameter(i);
          BCParameter * b = GetParameter(j);
 
-         // check if histogram exists
+         // check if histogram exists, or skip if one par has a delta prior
          if (!GetMarginalized(a, b))
             continue;
 
@@ -1273,8 +1267,8 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
          if (GetMarginalized(a, b)->GetHistogram()->Integral() <= 0)
             continue;
 
-         // if current page is full, switch to new page
-         if (k != 0 && k % (hdiv * vdiv) == 0) {
+         // if current page is full, switch to new page, but only if there is data to plot
+         if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
             c->Update();
             ps->NewPage();
             c->cd();
@@ -1334,6 +1328,10 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 // don't print any error message, should be done upstream
 //      BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
       return 0;
+   }
+
+   if (par1->GetRangeWidth() == 0 || par2->GetRangeWidth() == 0){
+       return 0;
    }
 
    BCParameter * npar1 = par1;
@@ -2051,7 +2049,10 @@ void BCModel::RecalculatePriorConstant()
 
    for (int i=0; i<npar; ++i)
       if (fPriorContainerConstant[i]) {
-         fPriorConstantValue -= log(GetParameter(i)->GetRangeWidth());
+         // default case
+         if (GetParameter(i)->GetRangeWidth() > 0)
+             fPriorConstantValue -= log(GetParameter(i)->GetRangeWidth());
+         // do not add infinity due to zero width for delta prior
          ++nconstant;
       }
 
