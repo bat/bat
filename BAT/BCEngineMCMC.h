@@ -510,30 +510,6 @@ class BCEngineMCMC
       void MCMCInChainTestConvergenceAllChains();
 
       /**
-       * Calculate the R-value for a given quantity x (=param, loglikelihood...)
-       * according to Gelman, Rubin (1992), p. 461. Using their notation.
-       * Included DoF estimation for the t-distribution.
-       * @param chainMeans
-       * @param chainVariances
-       * @param mean the average of the chain means
-       * @param B
-       * @param W
-       * @param iParam flag to determing how element is found in the vectors.
-       * Ex.: i >= 0 => index of average of x in i-th chain obtained as
-       * i * fMCMCNParameters + iParam
-       * i < 0 => index = i
-       * @return the R-value
-       *
-       * @note There is an implementation that strictly follows the paper.
-       * In addition, there is a simplified version. The actual
-       * definition used is controlled by a flag, see also
-       * MCMCSetRValueStrict .
-       */
-      double MCMCCalculateRValue(const std::vector<double> & chainMeans,
-         const std::vector<double> & chainVariances, double mean, double B,
-         double W, int nPoints, int iParam = -1);
-
-      /**
        * Updates statistics: write chains to file */
       void MCMCInChainWriteChains();
 

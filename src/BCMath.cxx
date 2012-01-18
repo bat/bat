@@ -583,5 +583,110 @@ double longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
    return prob;
 }
 
-} // end of namespace BCMath
+double Rvalue(const std::vector<double> & chain_means, const std::vector<double> & chain_variances,
+              const unsigned & chain_length, const bool & strict)  throw (std::invalid_argument, std::domain_error)
+{
+    if (chain_means.size() != chain_variances.size())
+        throw std::invalid_argument("BCMath::RValue: chain means and chain variances are not aligned!");
 
+    const double n = chain_length;
+    const double m = chain_means.size();
+
+    if (m <= 1)
+        throw std::invalid_argument("BCMath:RValue: Need at least two chains to compute R-value!");
+
+    // init
+    double variance_of_means = 0.0;
+    double mean_of_means = 0.0;
+    double mean_of_variances = 0.0;
+    double variance_of_variances = 0.0;
+
+    // use Welford's method here as well with temporary variables
+    double previous_mean_of_means = 0;
+    double previous_mean_of_variances = 0;
+    for (unsigned i = 0 ; i < m ; ++i)
+    {
+        if (0 == i)
+        {
+            mean_of_means = chain_means.front();
+            variance_of_means = 0;
+            mean_of_variances = chain_variances.front();
+            variance_of_variances = 0;
+
+            continue;
+        }
+
+        // temporarily store previous mean of step (i-1)
+        previous_mean_of_means = mean_of_means;
+        previous_mean_of_variances = mean_of_variances;
+
+        // update step
+        mean_of_means += (chain_means[i] - previous_mean_of_means) / (i + 1.0);
+        variance_of_means += (chain_means[i] - previous_mean_of_means) * (chain_means[i] - mean_of_means);
+        mean_of_variances += (chain_variances[i] - previous_mean_of_variances) / (i + 1.0);
+        variance_of_variances += (chain_variances[i] - previous_mean_of_variances) * (chain_variances[i] - mean_of_variances);
+    }
+
+    variance_of_means /= m - 1.0;
+    variance_of_variances /= m - 1.0;
+
+    //use Gelman/Rubin notation
+    double B = variance_of_means * n;
+    double W = mean_of_variances;
+    double sigma_squared = (n - 1.0) / n * W + B / n;
+
+    // avoid NaN due to divide by zero
+    if (0.0 == W)
+    {
+        BCLog::OutDebug("BCMath::Rvalue: W = 0. Avoiding R = NaN.");
+        return std::numeric_limits<double>::max();
+    }
+
+    // the lax implementation stops here
+    if (!strict)
+        return sqrt(sigma_squared / W);
+
+    //estimated scale reduction
+    double R = 0.0;
+
+    // compute covariances using the means from above
+    double covariance_22 = 0.0; // cov(s_i^2, \bar{x_i}^2
+    double covariance_21 = 0.0; // cov(s_i^2, \bar{x_i}
+
+    for (unsigned i = 0 ; i < m ; ++i)
+    {
+        covariance_21 += (chain_variances[i] - mean_of_variances) * (chain_means.at(i) - mean_of_means);
+        covariance_22 += (chain_variances[i] - mean_of_variances) * (chain_means[i] * chain_means[i] - mean_of_means * mean_of_means);
+    }
+
+    covariance_21 /= m - 1.0;
+    covariance_22 /= m - 1.0;
+
+    // scale of t-distribution
+    double V = sigma_squared + B / (m * n);
+
+    // estimation of scale variance
+    double a = (n - 1.0) * (n - 1.0) / (n * n * m) * variance_of_variances;
+    double b = (m + 1) * (m + 1) / (m * n * m * n) * 2.0 / (m - 1) * B * B;
+    double c = 2.0 * (m + 1.0) * (n - 1.0) / (m * n * n) * n / m * (covariance_22 - 2.0 * mean_of_means * covariance_21);
+    double variance_of_V = a + b + c;
+
+    // degrees of freedom of t-distribution
+    double df = 2.0 * V * V / variance_of_V;
+
+    if (df <= 2)
+    {
+        BCLog::OutDebug(Form("BCMath::Rvalue: DoF (%g) below 2. Avoiding R = NaN.", df));
+        return std::numeric_limits<double>::max();;
+    }
+
+    // sqrt of estimated scale reduction if sampling were continued
+    R = sqrt(V / W * df / (df - 2.0));
+
+    // R smaller, but close to 1 is OK.
+    if (R < 0.99 && n > 100)
+        throw std::domain_error(Form("BCMath::Rvalue: %g < 0.99. Check for a bug in the implementation!", R));
+
+    return R;
+}
+} // end of namespace BCMath

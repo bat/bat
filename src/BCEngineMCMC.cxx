@@ -9,15 +9,15 @@
 
 #include "BCEngineMCMC.h"
 
-#include "BCParameter.h"
 #include "BCLog.h"
+#include "BCMath.h"
+#include "BCParameter.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TTree.h>
 #include <TRandom3.h>
 
-#include <iostream>
 #include <math.h>
 
 // ---------------------------------------------------------
@@ -855,142 +855,39 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
       bool flag_convergence = true;
 
       // loop over parameters
-      for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
-      {
-         double sum = 0;
-         double sum2 = 0;
-         double sumv = 0;
+      for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters){
+         // extract means and variances
+         std::vector<double> means(fMCMCNChains);
+         std::vector<double> variances(fMCMCNChains);
 
          // loop over chains
          for (int ichains = 0; ichains < fMCMCNChains; ++ichains) {
             // get parameter index
             int index = ichains * fMCMCNParameters + iparameters;
-
-            // add to sums
-            sum  += fMCMCxMean[index];
-            sum2 += fMCMCxMean[index] * fMCMCxMean[index];
-            sumv += fMCMCxVar[index];
+            means[ichains] = fMCMCxMean[index];
+            variances[ichains] = fMCMCxVar[index];
          }
 
-         // calculate r-value for each parameter
-         double mean = sum / double(fMCMCNChains);
-         double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints);
-         double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains);
+         fMCMCRValueParameters[iparameters] = BCMath::Rvalue(means, variances, npoints, fMCMCRValueUseStrict);
 
-         // check denominator and convergence
-         if (W > 0) {
+         // set flag to false if convergence criterion is not fulfilled for the parameter
+         if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
+            flag_convergence = false;
 
-            fMCMCRValueParameters[iparameters] = MCMCCalculateRValue(
-                  fMCMCxMean, fMCMCxVar, mean, B, W, npoints, iparameters);
-
-            // set flag to false if convergence criterion is not fulfilled for the parameter
-            if (! ((fMCMCRValueParameters[iparameters]-1.0) < fMCMCRValueParametersCriterion))
-               flag_convergence = false;
-         }
          // else: leave convergence flag true for that parameter
       }
-      // convergence criterion applied on the log-likelihood
-      double sum = 0;
-      double sum2 = 0;
-      double sumv = 0;
 
-      // loop over chains
-      for (int i = 0; i < fMCMCNChains; ++i)
-      {
-         sum  += fMCMCprobMean[i];
-         sum2 += fMCMCprobMean[i] * fMCMCprobMean[i]; ;
-         sumv += fMCMCprobVar[i];
-      }
+      fMCMCRValue = BCMath::Rvalue(fMCMCprobMean, fMCMCprobVar, npoints, fMCMCRValueUseStrict);
 
-      // calculate r-value for log-posterior
-
-      //target mean
-      double mean = sum / double(fMCMCNChains);
-      //variance between the sequence means
-      double B = (sum2 / double(fMCMCNChains) - mean * mean) * double(fMCMCNChains) / double(fMCMCNChains-1) * double(npoints);
-      //average of within-sequence variances
-      double W = sumv * double(npoints) / double(npoints - 1) / double(fMCMCNChains);
-
-      if (W > 0)
-      {
-         fMCMCRValue = MCMCCalculateRValue(fMCMCprobMean, fMCMCprobVar, mean, B, W,
-               npoints);
-
-         // set flag to false if convergence criterion is not fulfilled for the log-likelihood
-         if (!((fMCMCRValue - 1.0) < fMCMCRValueCriterion))
-            flag_convergence = false;
-      }
-      // else: leave convergence flag true for the posterior
+      // set flag to false if convergence criterion is not fulfilled for the log-likelihood
+      if (!((fMCMCRValue - 1.0) < fMCMCRValueCriterion))
+         flag_convergence = false;
 
       // remember number of iterations needed to converge
       if (fMCMCNIterationsConvergenceGlobal == -1 && flag_convergence == true)
          fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / fMCMCNParameters;
    }
 }
-
-// --------------------------------------------------------
-double BCEngineMCMC::MCMCCalculateRValue(
-      const std::vector<double> & chainMeans,
-      const std::vector<double> & chainVariances, double mean, double B,
-      double W, int nPoints, int iParam)
-{
-   //estimated scale reduction
-   double r = 0;
-
-   //relaxed R definition
-   if (!fMCMCRValueUseStrict){
-      r = sqrt(((1 - 1 / double(nPoints)) * W + 1 / double(nPoints)
-            * B) / W);
-      return r;
-   }
-   //else: strict R value
-
-   //(co)variances of the chains
-   double varS = 0;
-   double cov1 = 0;
-   double cov2 = 0;
-
-   // loop over chains to estimate (co)variances
-   for (int i = 0; i < fMCMCNChains; ++i) {
-      //where is the i-th element? Trickier for parameters
-      int index = i;
-      if (iParam >= 0)
-         index = i * fMCMCNParameters + iParam;
-
-      varS += chainVariances[index] * chainVariances[index];
-      cov1 += (chainVariances[index] - W) * (chainMeans[index] * chainMeans[index]
-            - mean * mean);
-      cov2 += (chainVariances[index] - W) * (chainMeans[index] - mean);
-   }
-
-   //number of chains
-   double m = double(fMCMCNChains);
-
-   //number of points in each chain
-   double n = double(nPoints);
-
-   // only m-1 degrees of freedom => unbiased estimators!
-   varS = (varS / m - W * W) * m / (m - 1);
-   cov1 = cov1 / (m - 1);
-   cov2 = cov2 / (m - 1);
-
-   //scale of t-distribution
-   double V = 1 / n * ((n - 1) * W + (1 + 1 / m) * B);
-
-   //estimate of scale variance
-   double varV = (n - 1) * (n - 1) / (n * n * m) * varS + (m + 1) * (m + 1)
-         / (m * n * m * n) * 2 / (m - 1) * B * B + 2 * (m + 1) * (n - 1) / (m
-         * m * n) * (cov1 - 2 * mean * cov2);
-
-   //degrees of freedom of t-distribution
-   double df = 2 * V * V / varV;
-
-   //sqrt of estimated scale reduction if sampling were continued
-   r = sqrt(V / W * df / (df - 2));
-
-   return r;
-}
-
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCInChainWriteChains()
 {
@@ -1531,7 +1428,7 @@ int BCEngineMCMC::MCMCMetropolis()
       BCLog::OutDetail(Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
             i, fMCMCxMax[probmaxindex * fMCMCNParameters + i]));
 
-   // reset coutner
+   // reset counter
    fMCMCCurrentIteration = -1;
 
    // reset current chain

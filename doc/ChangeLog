@@ -1,3 +1,10 @@
+2012-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath:
+	  - introduce separate function to calculate Gelman-Rubin R-value
+	* BCEngineMCMC:
+	  - use the new R-value function in convergence checking
+	  - remove old separate R-value method
+
 2011-12-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCH1D:
 	  - add plot option for a delta prior
@@ -6,6 +13,7 @@
 	* BCModel:
 	  - Remove 2D plots in which one parameter is fixed
 	  - bugfix: don't add infinity when recalculating prior constant
+
 2011-12-07 Daniel Kollar <kollar.dan@gmail.com>
 	* test suite:
 	  - adapt to the new BCModel interface

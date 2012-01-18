@@ -7,6 +7,7 @@
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \author Jing Liu
+ * \author Frederik Beaujean
  * \version 1.0
  * \date 08.2008
  * \detail A namespace which encapsulates some mathematical functions
@@ -25,7 +26,7 @@
 #define BCMATH_NFACT_ALIMIT 20
 
 // ---------------------------------------------------------
-//#include <cstring>
+#include <stdexcept>
 #include <vector>
 
 class TH1D;
@@ -219,6 +220,21 @@ namespace BCMath
     * The cache is filled upon first call of LogFact(). */
    void CacheFactorial(unsigned int n);
 
+	/**
+	 * Compute the R-value according to Gelman-Rubin,
+	 * GR1992 : Gelman, A. and Rubin, D.B.
+     * Inference from Iterative Simulation Using Multiple Sequences
+     * Statistical Science, Vol. 7, No. 4 (Nov. 1992), pp. 457-472
+	 *
+	 * @param chain_means
+	 * @param chain_variances
+	 * @param chain_length
+	 * @param strict If true, use the algorithm laid forth in the paper,
+	 *               else use a relaxed version which generally leads to smaller R-values.
+	 * @return R-value
+	 */
+	double Rvalue(const std::vector<double> & chain_means, const std::vector<double> & chain_variances,
+                  const unsigned & chain_length, const bool & strict = true) throw (std::invalid_argument, std::domain_error);
 }
 
 // ---------------------------------------------------------
