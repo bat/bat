@@ -28,7 +28,7 @@ namespace BCAux
     * Sets the default BAT style for drawing plots. */
    void SetStyle();
 
-};
+}
 
 // ---------------------------------------------------------
 

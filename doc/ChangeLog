@@ -1,4 +1,12 @@
-2012-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+2012-01-30 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* debug compilation:
+	  - add additional warning flags
+	* src/, BAT/, models/:
+	  - clean up code to yield no warnings in debug mode
+	  - remove old, unused code
+	  - fix doxygen comments
+
+2012-01-30 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* test suite:
 	  - add infrastructure for unit testing in /benchmarks/test
 	  - incorporate in configure.ac and top-level Makefile.am

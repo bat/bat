@@ -77,7 +77,7 @@ double BCSummaryPriorModel::LogLikelihood(const std::vector <double> & parameter
 }
 
 // ---------------------------------------------------------
-double BCSummaryPriorModel::LogAPrioriProbability(const std::vector <double> & parameters)
+double BCSummaryPriorModel::LogAPrioriProbability(const std::vector <double> & /*parameters*/)
 {
    return 0;
 }

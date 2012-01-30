@@ -15,7 +15,7 @@ libBATmodels_la_LDFLAGS += -lcuba
 endif
 
 if DEBUG
-AM_CXXFLAGS += -g -O0
+AM_CXXFLAGS += -g -O0 -Wextra -pedantic -Wno-long-long
 else !DEBUG
 AM_CXXFLAGS += -O2
 endif !DEBUG

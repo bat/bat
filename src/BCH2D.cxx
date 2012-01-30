@@ -53,21 +53,6 @@ BCH2D::~BCH2D()
 
 // ---------------------------------------------------------
 
-void BCH2D::GetMode(double& mode)
-{
-   // what is this?
-
-//   double mode[2];
-//   int binx, biny, binz;
-
-//   fHistogram->GetMaximumBin(binx, biny, binz);
-//   mode = fHistogram->GetBinCenter();
-
-//   return mode;
-}
-
-// ---------------------------------------------------------
-
 void BCH2D::Print(const char * filename, int options, int ww, int wh)
 {
    // create temporary canvas

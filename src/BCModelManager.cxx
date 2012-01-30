@@ -85,7 +85,7 @@ void BCModelManager::SetSingleDataPoint(BCDataPoint * datapoint)
 
 void BCModelManager::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 {
-   if (index < 0 || index > dataset->GetNDataPoints())
+   if (index > dataset->GetNDataPoints())
       return;
 
    SetSingleDataPoint(dataset->GetDataPoint(index));
@@ -140,7 +140,7 @@ void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMeth
    // set marginalization method for all models registered
    for (unsigned int i = 0; i < GetNModels(); i++)
       GetModel(i)->SetMarginalizationMethod(method);
-};
+}
 
 // ---------------------------------------------------------
 
@@ -289,7 +289,7 @@ void BCModelManager::SetNChains(unsigned int n)
 
 int BCModelManager::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
-   if (fModelContainer->size() < 0) {
+   if (fModelContainer->size() == 0) {
       BCLog::OutError("BCModelManager::ReadDataFromFileTree : No model defined.");
       return ERROR_NOMODELS;
    }
@@ -321,7 +321,7 @@ int BCModelManager::ReadDataFromFileTree(const char * filename, const char * tre
 
 int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
-   if (fModelContainer->size() < 0) {
+   if (fModelContainer->size() == 0) {
       BCLog::OutError("BCModelManager::ReadDataFromFileTree. No model defined.");
       return ERROR_NOMODELS;
    }

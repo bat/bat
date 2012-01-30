@@ -502,7 +502,7 @@ void BCIntegrate::ResetVarlist(int v)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::Eval(const std::vector <double> &x)
+double BCIntegrate::Eval(const std::vector <double> & /*x*/)
 {
    BCLog::OutWarning( "BCIntegrate::Eval. No function. Function needs to be overloaded.");
    return 0;
@@ -516,7 +516,7 @@ double BCIntegrate::LogEval(const std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalSampling(const std::vector <double> &x)
+double BCIntegrate::EvalSampling(const std::vector <double> & /*x*/)
 {
    BCLog::OutWarning( "BCIntegrate::EvalSampling. No function. Function needs to be overloaded.");
    return 0;
@@ -588,10 +588,12 @@ double BCIntegrate::Integrate()
 #else
          BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
          BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
+         break;
 #endif
       default:
          BCLog::OutError(
             Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
+         break;
    }
 
    return 0;
@@ -717,7 +719,7 @@ double BCIntegrate::IntegralMC(const std::vector <double> &x)
 
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMetro(const std::vector <double> &x)
+double BCIntegrate::IntegralMetro(const std::vector <double> & /*x*/)
 {
    // print debug information
    BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Integate over %i dimensions.", fNvar));
@@ -783,7 +785,7 @@ double BCIntegrate::IntegralMetro(const std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralImportance(const std::vector <double> &x)
+double BCIntegrate::IntegralImportance(const std::vector <double> & /*x*/)
 {
    // print debug information
    BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Integate over %i dimensions.", fNvar));
@@ -862,6 +864,7 @@ TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
       default:
          BCLog::OutError(
             Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+         break;
 
    }
 
@@ -882,6 +885,7 @@ TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * paramete
       default:
          BCLog::OutError(
             Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
+         break;
    }
 
    return 0;
@@ -1742,7 +1746,7 @@ double BCIntegrate::SATemperatureCauchy(double t)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SATemperatureCustom(double t)
+double BCIntegrate::SATemperatureCustom(double /*t*/)
 {
    BCLog::OutError("BCIntegrate::SATemperatureCustom : No custom temperature schedule defined");
    return 0.;
@@ -1811,7 +1815,7 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::GetProposalPointSACustom(const std::vector<double> &x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSACustom(const std::vector<double> & /*x*/, int /*t*/)
 {
    BCLog::OutError("BCIntegrate::GetProposalPointSACustom : No custom proposal function defined");
    return std::vector<double>(fNvar);
@@ -1947,7 +1951,7 @@ void BCIntegrate::SetMode(std::vector <double> mode)
 
 // ---------------------------------------------------------
 
-void BCIntegrate::FCNLikelihood(int &npar, double * grad, double &fval, double * par, int flag)
+void BCIntegrate::FCNLikelihood(int & /*npar*/, double * /*grad*/, double &fval, double * par, int /*flag*/)
 {
    // copy parameters
    std::vector <double> parameters;
@@ -2031,7 +2035,7 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 
 // ---------------------------------------------------------
 int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
-                                              const int *ncomp, double ff[], void *userdata)
+                                              const int * /*ncomp*/, double ff[], void * /*userdata*/)
 {
 #ifdef HAVE_CUBA_H
    // scale variables

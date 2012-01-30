@@ -56,7 +56,7 @@ int BCTemplateEnsembleTest::SetEnsembleTemplate(TH1D hist)
 
    // no error
    return 1;
-};
+}
 
 // ---------------------------------------------------------
 int BCTemplateEnsembleTest::PerformEnsembleTest(TTree* tree)

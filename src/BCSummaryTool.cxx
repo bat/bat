@@ -168,7 +168,7 @@ int BCSummaryTool::CopySummaryData()
 
    // no error
    return 1;
-};
+}
 
 // ---------------------------------------------------------
 int BCSummaryTool::PrintParameterPlot(const char * filename)

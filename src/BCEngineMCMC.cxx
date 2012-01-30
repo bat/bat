@@ -897,7 +897,7 @@ void BCEngineMCMC::MCMCInChainWriteChains()
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::LogEval(const std::vector <double> & parameters)
+double BCEngineMCMC::LogEval(const std::vector <double> & /*parameters*/)
 {
    // test function for now
    // this will be overloaded by the user

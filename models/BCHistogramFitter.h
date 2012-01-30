@@ -92,19 +92,19 @@ class BCHistogramFitter : public BCModel
 
       /**
        * @param hist The histogram containing the data
-       * @ return An error code (1:pass, 0:fail).
+       * @return An error code (1:pass, 0:fail).
        */
       int SetHistogram(TH1D * hist);
 
       /**
        * @param hist The histogram with the expected counts (typically non-integer values!)
-       * @ return An error code (1:pass, 0:fail).
+       * @return An error code (1:pass, 0:fail).
        */
       int SetHistogramExpected(const std::vector <double>& parameters);
 
       /**
        * @param func The fit function
-       * @ return An error code (1:pass, 0:fail).
+       * @return An error code (1:pass, 0:fail).
        */
       int SetFitFunction(TF1 * func);
 

@@ -110,7 +110,7 @@ BCDataPoint * BCDataSet::GetDataPoint(unsigned int index)
    }
 
    // check if index is within range. Return the data point if true ...
-   if(index >= 0 && index < GetNDataPoints())
+   if(index < GetNDataPoints())
       return fBCDataVector->at(index);
 
    // ... or give out warning and return 0 if not.

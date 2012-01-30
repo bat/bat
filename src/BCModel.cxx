@@ -507,7 +507,7 @@ void BCModel::SetSingleDataPoint(BCDataPoint * datapoint)
 // ---------------------------------------------------------
 void BCModel::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 {
-   if (index < 0 || index > dataset->GetNDataPoints())
+   if (index > dataset->GetNDataPoints())
       return;
 
    SetSingleDataPoint(dataset->GetDataPoint(index));
@@ -523,7 +523,7 @@ void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double
    }
 
    // check if index is within range
-   if (index < 0 || index > fDataSet->GetDataPoint(0)->GetNValues()) {
+   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
       BCLog::OutError("BCModel::SetDataBoundaries : Index out of range.");
       return;
    }
@@ -705,7 +705,7 @@ double BCModel::EvalSampling(const std::vector<double> &parameters)
 }
 
 // ---------------------------------------------------------
-double BCModel::SamplingFunction(const std::vector<double> &parameters)
+double BCModel::SamplingFunction(const std::vector<double> & /*parameters*/)
 {
    double probability = 1.;
    for (std::vector<BCParameter *>::const_iterator it = fParameterSet->begin(); it != fParameterSet->end(); ++it)
@@ -799,8 +799,8 @@ void BCModel::FindMode(std::vector<double> start)
 
       default:
          BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d",GetOptimizationMethod()));
+         break;
    }
-
 
    return;
 }
@@ -1387,7 +1387,7 @@ double BCModel::GetPvalueFromChi2(const std::vector<double> &par, int sigma_inde
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCModel::GetChi2Runs(int dataIndex, int sigmaIndex)
+std::vector<double> BCModel::GetChi2Runs(int /*dataIndex*/, int /*sigmaIndex*/)
 {
    std::vector<double> x;
    return x;
@@ -1541,7 +1541,7 @@ double BCModel::GetAvalueFromChi2Johnson(TTree * tree, TH1D * distribution)
    // set up variables filled for each sample of parameters
    // assume same order as in model
    for (int i = 0; i < (int) nPar; i++) {
-      +sprintf(branchName, "fParameter%d", i);
+      sprintf(branchName, "fParameter%d", i);
       tree->SetBranchAddress(branchName, &param[i]);
    }
 
@@ -1696,7 +1696,7 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 }
 
 // ---------------------------------------------------------
-void BCModel::CorrelateDataPointValues(std::vector<double> &x)
+void BCModel::CorrelateDataPointValues(std::vector<double> & /*x*/)
 {
    // ...
 }
@@ -1750,7 +1750,7 @@ double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std
 void BCModel::FixDataAxis(unsigned int index, bool fixed)
 {
    // check if index is within range
-   if (index < 0 || index > fDataSet->GetDataPoint(0)->GetNValues()) {
+   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
       BCLog::OutError("BCModel::FixDataAxis : Index out of range.");
       return;
    }
@@ -1766,7 +1766,7 @@ void BCModel::FixDataAxis(unsigned int index, bool fixed)
 bool BCModel::GetFixedDataAxis(unsigned int index)
 {
    // check if index is within range
-   if (index < 0 || index > fDataSet->GetDataPoint(0)->GetNValues()) {
+   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
       BCLog::OutError("BCModel::GetFixedDataAxis : Index out of range.");
       return false;
    }

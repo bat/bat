@@ -136,7 +136,7 @@ double LogFact(int n)
       return std::numeric_limits<double>::quiet_NaN();
 
    // cache the factorials on first call
-   if ( !BCMath::logfact && BCMath::nCacheFact>=0 ) {
+   if ( !BCMath::logfact) {
       BCMath::logfact = new double[BCMath::nCacheFact+1];
       double tmplogfact = 0;
       BCMath::logfact[0] = tmplogfact;
@@ -205,12 +205,12 @@ int Nint(double x)
 
    if (x >= 0) {
       i = (int) (x + .5);
-      if (x + .5 == (double) i && i&1)
+      if (x + .5 == (double) i && (i&1))
          i--;
    }
    else {
       i = int(x - 0.5);
-      if (x - 0.5 == double(i) && i&1)
+      if (x - 0.5 == double(i) && (i&1))
          i++;
    }
 
@@ -334,8 +334,8 @@ TH1D * ECDF(const std::vector<double> & data)
       uniqueObservations.insert(data[i]);
 
    // extract lower edges for CDF histogram
-   int nUnique = uniqueObservations.size();
-   double lowerEdges[nUnique];
+   unsigned nUnique = uniqueObservations.size();
+   std::vector<double> lowerEdges(nUnique);
 
    // traverse the set
    std::set<double>::iterator iter;
@@ -348,7 +348,7 @@ TH1D * ECDF(const std::vector<double> & data)
    // create histogram where
    // lower edge of first bin = min. data
    // upper edge of last bin = max. data
-   TH1D * ECDF = new TH1D("ECDF", "Empirical cumulative distribution function", nUnique - 1, lowerEdges);
+   TH1D * ECDF = new TH1D("ECDF", "Empirical cumulative distribution function", nUnique - 1, &lowerEdges[0]);
 
    // fill the data in to find multiplicities
    for (int i = 0; i < N; ++i)

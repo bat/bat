@@ -109,12 +109,12 @@ class BCEfficiencyFitter : public BCModel
       /**
        * @param hist The histogram 1
        * @param hist The histogram 2
-       * @ return An error code (1:pass, 0:fail). */
+       * @return An error code (1:pass, 0:fail). */
       int SetHistograms(TH1D * hist1, TH1D * hist2);
 
       /**
        * @param func The fit function
-       * @ return An error code (1:pass, 0:fail). */
+       * @return An error code (1:pass, 0:fail). */
       int SetFitFunction(TF1 * func);
 
       /**

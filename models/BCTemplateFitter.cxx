@@ -159,7 +159,7 @@ double BCTemplateFitter::TemplateEfficiency(int templatenumber, int binnumber, c
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::TemplateProbability(int templatenumber, int binnumber, const std::vector<double>& parameters)
+double BCTemplateFitter::TemplateProbability(int templatenumber, int binnumber, const std::vector<double>& /*parameters*/)
 {
    // initialize probability
    double probability = 0;
@@ -334,7 +334,7 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 }
 
 // ---------------------------------------------------------
-int BCTemplateFitter::AddTemplate(TF1 func, const char * name, double Nmin, double Nmax, const char* options)
+int BCTemplateFitter::AddTemplate(TF1 func, const char * name, double Nmin, double Nmax, const char* /*options*/)
 {
    // check if prior makes sense
    if (fFlagPhysicalLimits && Nmin < 0)
@@ -487,7 +487,7 @@ int BCTemplateFitter::Initialize()
    double minimum = TMath::Max(0., fHistData.GetMinimum() - 5.*sqrt(fHistData.GetMinimum()));
    double maximum = fHistData.GetMaximum() + 5.*sqrt(fHistData.GetMaximum());
 
-   Double_t a[fHistData.GetNbinsX()+1];
+   std::vector<double> a(fHistData.GetNbinsX()+1);
    for (int i = 0; i < fHistData.GetNbinsX()+1; ++i) {
       a[i] = fHistData.GetXaxis()->GetBinLowEdge(i+1);
    }
@@ -495,13 +495,13 @@ int BCTemplateFitter::Initialize()
    fUncertaintyHistogramExp = new TH2D(
          TString::Format("UncertaintyExp_%i", BCLog::GetHIndex()), "",
          //         fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXbins()->GetArray(),
-         fHistData.GetNbinsX(), a,
+         fHistData.GetNbinsX(), &a[0],
          //         fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXmin(), fHistData.GetXaxis()->GetXmax(),
          100, minimum, maximum);
 
    fUncertaintyHistogramObsPosterior = new TH2D(
          TString::Format("UncertaintyObsPosterior_%i", BCLog::GetHIndex()), "",
-         fHistData.GetNbinsX(), a,
+         fHistData.GetNbinsX(), &a[0],
          //         fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXbins()->GetArray(),         //         fHistData.GetNbinsX(), fHistData.GetXaxis()->GetXmin(), fHistData.GetXaxis()->GetXmax(),
          int(maximum) + 1, -0.5, double(int(maximum))+0.5);
 
@@ -854,12 +854,12 @@ void BCTemplateFitter::PrintStack(const char * filename, const char * options)
       ymax = 0;
       //      hist_diff = new TH1D("hist_diff", "", nbins, histsum->GetXaxis()->GetXmin(), histsum->GetXaxis()->GetXmax() );
       //      hist_diff = new TH1D(*histsum);
-      Double_t a[fHistData.GetNbinsX()+1];
+      std::vector<double> a(fHistData.GetNbinsX()+1);
       for (int i = 0; i < fHistData.GetNbinsX()+1; ++i) {
          a[i] = fHistData.GetXaxis()->GetBinLowEdge(i+1);
       }
 
-      hist_diff = new TH1D("hist_diff", "", nbins, a);
+      hist_diff = new TH1D("hist_diff", "", nbins, &a[0]);
       hist_diff->SetName("hist_diff");
       hist_diff->GetXaxis()->SetTitle(fHistData.GetXaxis()->GetTitle());
       hist_diff->GetYaxis()->SetTitle("#Delta N");

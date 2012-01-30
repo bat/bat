@@ -361,7 +361,7 @@ void BCGraphFitter::DrawFit(const char * options, bool flaglegend)
 
 // ---------------------------------------------------------
 
-double BCGraphFitter::CDF(const std::vector<double> & parameters,  int index, bool lower) {
+double BCGraphFitter::CDF(const std::vector<double> & parameters,  int index, bool /*lower*/) {
 
    //format: x y error_x error_y
    std::vector<double> values = fDataSet->GetDataPoint(index)->GetValues();

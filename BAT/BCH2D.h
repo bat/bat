@@ -59,14 +59,6 @@ class BCH2D
       TH2D * GetHistogram()
          { return fHistogram; };
 
-      /**
-       * @return The mean of the distribution. */
-//      void GetMean(double& mean);
-
-      /**
-       * @return The mode of the distribution */
-      void GetMode(double& mode);
-
       /** @} */
       /** \name Member functions (set)  */
       /** @{ */
