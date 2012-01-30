@@ -67,6 +67,11 @@ benchmarks/mcmc/src/BCBenchmarkMCMC2D.cxx -text
 benchmarks/mcmc/src/BCBenchmarkMCMC2D.h -text
 benchmarks/mcmc/src/BCBenchmarkMCMC3D.cxx -text
 benchmarks/mcmc/src/BCBenchmarkMCMC3D.h -text
+benchmarks/test/BCMath_TEST.cxx -text
+benchmarks/test/Makefile.am -text
+benchmarks/test/test.cxx -text
+benchmarks/test/test.h -text
+benchmarks/test/test_TEST.cxx -text
 /configure.ac -text
 doc/COPYING -text
 doc/CREDITS -text

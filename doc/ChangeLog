@@ -1,4 +1,15 @@
 2012-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* test suite:
+	  - add infrastructure for unit testing in /benchmarks/test
+	  - incorporate in configure.ac and top-level Makefile.am
+	  - tests of testing framework
+	  - run by 'make check'
+	* BCMath:
+	  - add R-value test case
+	* introduction:
+	  - add paragraph on initial proposal scale
+
+2012-01-18 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath:
 	  - introduce separate function to calculate Gelman-Rubin R-value
 	* BCEngineMCMC:

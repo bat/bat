@@ -1828,6 +1828,13 @@ further reference see the reference guide:
   by~\cite{R_value}  or use a relaxed version (false) which doesn't guarantee
   $R \ge 1$, but allows for similarly robust convergence checking in slightly
   less iterations. (default: relaxed definition)
+\item \verb|BCModel::MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)|
+  Set the the initial scale for all one dimensional proposal functions (default: 1).
+  BAT updates the individual scales until the efficiency is in the desired range
+  (see also \\ \verb|BCModel::MCMCSetMinimumEfficiency|). If it is known that the 
+  support of the posterior concentrates in a small region of parameter space, 
+  setting the scales to a value smaller than 1 will help the chain to achieve 
+  the desired efficiency faster. Alternatively, one can shrink the parameter range.
 \item \verb|BCModel::WriteMarkovChain(bool flag)|. Set a flag to
  write the Markov Chain into a ROOT file. See
  section~\ref{section:outputclass} on how to handle output in BAT.

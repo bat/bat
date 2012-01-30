@@ -7,7 +7,8 @@ clean-local:
 
 SUBDIRS= \
 	src \
-	models
+	models \
+	benchmarks/test
 
 EXTRA_DIST= \
 	src/libBAT.rootmap \

@@ -140,6 +140,7 @@ AC_OUTPUT(
 	Makefile
 	src/Makefile
 	models/Makefile
+	benchmarks/test/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile
 	examples/basic/combination2d/Makefile
