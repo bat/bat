@@ -64,7 +64,9 @@ if test $use_cuba = yes; then
 
 	if test x$with_cuba_inc = xno; then
 		echo could not find cuba.h
-		echo compiling without cuba
+		echo Try compiling without cuba
+		echo
+		exit 1
 	else
 		cubaldflags=""
 		if test -n "$with_cuba_lib_dir"; then
@@ -79,7 +81,9 @@ if test $use_cuba = yes; then
 
 		if test x$with_cuba_lib = xno; then
 			echo could not find libcuba.a
-			echo compiling without cuba
+			echo Try compiling without cuba
+			echo
+			exit 1
 		else
 			AC_SUBST(CUBAINCLUDE,[$cubaincflags])
 			AC_SUBST(CUBALIB,[$cubaldflags])

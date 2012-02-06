@@ -1,3 +1,7 @@
+2012-02-06 Daniel Kollar <kollar.dan@gmail.com>
+	* configure:
+	  - stop configure script if cuba requested but not found
+
 2012-01-30 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* debug compilation:
 	  - add additional warning flags
