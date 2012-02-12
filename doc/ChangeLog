@@ -1,3 +1,9 @@
+2012-02-12 Daniel Kollar <kollar.dan@gmail.com>
+	* all Makefiles, CreateProject.sh:
+	  - change linking order
+	  - use compiler and linker selected at configure time for all Makefiles
+	* make uninstall now uninstalls all installed files
+
 2012-02-06 Daniel Kollar <kollar.dan@gmail.com>
 	* configure:
 	  - stop configure script if cuba requested but not found

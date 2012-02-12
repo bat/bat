@@ -177,14 +177,14 @@ cat << EOF
 
 # Root variables
 ROOTCFLAGS   := \$(shell root-config --cflags)
-ROOTLIBS     := \$(shell root-config --libs) -lMinuit
+ROOTLIBS     := -lMinuit \$(shell root-config --libs)
 
 @ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
-CXX          = g++
+CXX          = @CXX@
 CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
-LD           = g++
+LD           = @LD@
 LDFLAGS      = @LDFLAGS@ -g -O2
 SOFLAGS      = -shared
 
@@ -192,12 +192,10 @@ SOFLAGS      = -shared
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = rootcint
+CINT         = @ROOTCINT@
 
 # add ROOT flags
 CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
-
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
@@ -206,7 +204,9 @@ CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
 CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
-LIBS        += \$(ROOTLIBS)  -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBAT \$(ROOTLIBS)
+
+@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
 # List of all classes (models) used in the program
 # Add classes to the end. Backslash indicates continuation
@@ -242,7 +242,7 @@ clean :
 
 project : run|:Project:|.cxx \$(CXXOBJS)
 	\$(CXX) \$(CXXFLAGS) -c \$<
-	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o \$(CXXOBJS) -o run|:Project:|
+	\$(CXX) \$(LDFLAGS) run|:Project:|.o \$(CXXOBJS) \$(LIBS) -o run|:Project:|
 
 print :
 	echo compiler  : \$(CXX)
@@ -281,22 +281,20 @@ ROOTLIBS     := \$(shell root-config --libs) -lMinuit
 @ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
-CXX          = g++
-CXXFLAGS     = -g -Wall -fPIC -Wno-deprecated -O2
-LD           = g++
-LDFLAGS      = -g -O2
+CXX          = @CXX@
+CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
+LD           = @LD@
+LDFLAGS      = @LDFLAGS@ -g -O2
 SOFLAGS      = -shared
 
 # standard commands
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = rootcint
+CINT         = @ROOTCINT@
 
 # add ROOT flags
 CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
-
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
@@ -305,7 +303,9 @@ CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
 CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
-LIBS        += \$(ROOTLIBS)  -L\$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBAT \$(ROOTLIBS)
+
+@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
@@ -330,7 +330,7 @@ clean :
 
 project : run|:Project:|.cxx
 	\$(CXX) \$(CXXFLAGS) -c \$<
-	\$(CXX) \$(LDFLAGS) \$(LIBS) run|:Project:|.o  -o run|:Project:|
+	\$(CXX) \$(LDFLAGS) run|:Project:|.o \$(LIBS) -o run|:Project:|
 
 print :
 	echo compiler  : \$(CXX)

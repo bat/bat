@@ -78,3 +78,5 @@ install-data-hook:
 		rm -f $$i.h; \
 	done
 
+uninstall-hook:
+	rm -f $(DESTDIR)$(libdir)/libBAT.rootmap

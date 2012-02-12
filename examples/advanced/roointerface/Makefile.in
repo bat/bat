@@ -11,27 +11,25 @@
 
 # Root variables
 ROOTCFLAGS   := $(shell root-config --cflags)
-ROOTLIBS     := $(shell root-config --libs) -lMinuit
+ROOTLIBS     := -lMinuit $(shell root-config --libs)
 
 # This program needs RooFit and RooStats, otherwise it won't compile
 ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # Programs
-CXX          = g++
+CXX          = @CXX@
 CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
-LD           = g++
+LD           = @LD@
 LDFLAGS      = @LDFLAGS@ -g -O2
 SOFLAGS      = -shared
 
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = rootcint
+CINT         = @ROOTCINT@
 
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
-
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
@@ -40,8 +38,9 @@ CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
 CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/include
-LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
+LIBS        += -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT $(ROOTLIBS)
 
+@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
 #CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/BAT -I$(ROOTSYS)/roofit/roofitcore/inc -I$(ROOTSYS)/roofit/roofit/inc
 
@@ -68,7 +67,7 @@ clean :
 
 runRooInterface : runRooInterface.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $(LIBS) $@.o $(CXXOBJS) -o $@
+	$(CXX) $(LDFLAGS) $@.o $(CXXOBJS) $(LIBS) -o $@
 
 print :
 	echo compiler  : $(CXX)
