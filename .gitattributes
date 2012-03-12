@@ -80,10 +80,12 @@ doc/LICENSE -text
 doc/introduction/Makefile -text
 doc/introduction/bat.eps -text
 doc/introduction/introduction.tex -text
+doc/manual/Makefile -text
 doc/manual/bat.eps -text
 doc/manual/example01_constant.eps -text
 doc/manual/example01_correlation.eps -text
 doc/manual/example01_data.eps -text
+doc/manual/introduction.tex -text
 doc/manual/manual.tex -text
 doc/manual/scheme.eps -text
 doc/note_template/doit.sh -text

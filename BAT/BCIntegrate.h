@@ -250,6 +250,8 @@ class BCIntegrate : public BCEngineMCMC
        * @return Minuit used for mode finding */
       TMinuit * GetMinuit();
 
+      /**
+       * @return Error flag from Minuit run */
       int GetMinuitErrorFlag()
          { return fMinuitErrorFlag; }
 
@@ -288,10 +290,14 @@ class BCIntegrate : public BCEngineMCMC
       /** \name Member functions (set) */
       /** @{ */
 
+      /**
+       * @arglist pointer to list of doubles to be passed as arguments to Minuit */
       void SetMinuitArlist(double * arglist)
          { fMinuitArglist[0] = arglist[0];
            fMinuitArglist[1] = arglist[1]; }
 
+      /**
+       * @flag Flag whether or not to ignore result of previous mode finding */
       void SetFlagIgnorePrevOptimization(bool flag)
          { fFlagIgnorePrevOptimization = flag; }
 
@@ -402,12 +408,7 @@ class BCIntegrate : public BCEngineMCMC
          { fCubaSuaveFlatness = p; }
 
       /**
-       * @param n Number of bins per dimension for the marginalized
-       * distributions.  Default is 100. Minimum number allowed is 2. */
-
-      /**
-       * Set the number of bins for the marginalized distribution of a
-       * parameter.
+       * Set the number of bins for the marginalized distribution of a parameter.
        * @param nbins Number of bins (default = 100)
        * @param index Index of the parameter. */
       void SetNbins(int nbins, int index = -1);
@@ -431,14 +432,18 @@ class BCIntegrate : public BCEngineMCMC
          { fFitFunctionIndexX = index; }
 
       /**
-       * Sets index of the y values in function fits. @param index Index
-       * of the y values */
+       * Sets index of the y values in function fits.
+       * @param index Index of the y values */
       void SetFitFunctionIndexY(int index)
          { fFitFunctionIndexY = index; }
 
+      /**
+       * Sets indices of the x and y values in function fits.
+       * @param indexx Index of the x values
+       * @param indexy Index of the y values */
       void SetFitFunctionIndices(int indexx, int indexy)
-         { this -> SetFitFunctionIndexX(indexx);
-            this -> SetFitFunctionIndexY(indexy); }
+         { SetFitFunctionIndexX(indexx);
+           SetFitFunctionIndexY(indexy); }
 
       /**
        * Sets the data point containing the lower boundaries of possible
@@ -465,8 +470,7 @@ class BCIntegrate : public BCEngineMCMC
          { fDataPointUpperBoundaries -> SetValue(index, upperboundary); }
 
       /**
-       * Flag for writing Markov chain to ROOT file (true) or not (false)
-       */
+       * Flag for writing Markov chain to ROOT file (true) or not (false) */
       void WriteMarkovChain(bool flag)
          { fFlagWriteMarkovChain = flag;
            fMCMCFlagWriteChainToFile = flag;
@@ -603,12 +607,16 @@ class BCIntegrate : public BCEngineMCMC
       double Integrate();
 
       /**
-       * Perfoms the Monte Carlo integration. For details see documentation.
+       * Perfoms a Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @param varlist A list of variables
        * @return The integral */
       double IntegralMC(const std::vector <double> &x, int * varlist);
 
+      /**
+       * Perfoms a Monte Carlo integration. For details see documentation.
+       * @param x An initial point in parameter space
+       * @return The integral */
       double IntegralMC(const std::vector <double> &x);
 
       /**
@@ -631,6 +639,9 @@ class BCIntegrate : public BCEngineMCMC
        * @return The integral */
       double CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<double> parameters_double, std::vector<double> parameters_int);
 
+      /**
+       * Calculate integral using the Cuba library. For details see documentation.
+       * @return The integral */
       double CubaIntegrate();
 
       /**
@@ -639,8 +650,7 @@ class BCIntegrate : public BCEngineMCMC
        * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension)
        * @param ncomp The number of components of the integrand (usually 1)
        * @param ff The function value
-       * @return The integral */
-      //      static void CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[]);
+       * @return An error code */
       static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
 
       /**
@@ -694,8 +704,7 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
        * @param parIndex1 Index of parameter
-       * @return Pointer to 1D histogram (TH1D) of marginalized distribution wrt. parameter with given index.
-       */
+       * @return Pointer to 1D histogram (TH1D) of marginalized distribution wrt. parameter with given index. */
       TH1D * GetH1D(int parIndex);
 
       /**
@@ -716,6 +725,8 @@ class BCIntegrate : public BCEngineMCMC
        * Initializes the Metropolis algorithm (for details see manual) */
       void InitMetro();
 
+      /**
+       * Initializes the Simulated Annealing algorithm (for details see manual) */
       void SAInitialize();
 
       /**
@@ -732,7 +743,6 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Does the mode finding using Markov Chain Monte Carlo (prerun only!) */
       void FindModeMCMC();
-//      void FindModeMCMC(int flag_run = 0);
 
       /**
        * Does the mode finding using Simulated Annealing. If starting point
@@ -831,21 +841,57 @@ class BCIntegrate : public BCEngineMCMC
        * @return An error code */
       int IntegrateResetResults();
 
+      /**
+       * Return string with the name for a given integration type.
+       * @param type code for the integration type
+       * @return string containing the name of the integration type */
       std::string DumpIntegrationMethod(BCIntegrationMethod type);
+
+      /**
+       * Return string with the name for the currently set integration type.
+       * @return string containing the name of the integration type */
       std::string DumpIntegrationMethod()
          { return DumpIntegrationMethod(fIntegrationMethod); }
 
+      /**
+       * Return string with the name for a given marginalization type.
+       * @param type code for the marginalization type
+       * @return string containing the name of the marginalization type */
       std::string DumpMarginalizationMethod(BCMarginalizationMethod type);
+
+      /**
+       * Return string with the name for the currently set marginalization type.
+       * @return string containing the name of the marginalization type */
       std::string DumpMarginalizationMethod()
          { return DumpMarginalizationMethod(fMarginalizationMethod); }
 
+      /**
+       * Return string with the name for a given optimization type.
+       * @param type code for the optimization type
+       * @return string containing the name of the optimization type */
       std::string DumpOptimizationMethod(BCOptimizationMethod type);
+
+      /**
+       * Return string with the name for the currently set optimization type.
+       * @return string containing the name of the optimization type */
       std::string DumpOptimizationMethod()
          { return DumpOptimizationMethod(fOptimizationMethod); }
+
+      /**
+       * Return string with the name for the optimization type used to find the current mode.
+       * @return string containing the name of the optimization type */
       std::string DumpUsedOptimizationMethod()
          { return DumpOptimizationMethod(fOptimizationMethodMode); }
 
+      /**
+       * Return string with the name for a given Cuba integration type.
+       * @param type code for the Cuba integration type
+       * @return string containing the name of the Cuba integration type */
       std::string DumpCubaIntegrationMethod(BCCubaMethod type);
+
+      /**
+       * Return string with the name for the currently set Cuba integration type.
+       * @return string containing the name of the Cuba integration type */
       std::string DumpCubaIntegrationMethod()
          { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); }
 
