@@ -1,6 +1,9 @@
 2012-03-12 Daniel Kollar <kollar.dan@gmail.com>
 	* introduction:
 	  - temporarily removed introduction part from manual
+	* BCIntegrate:
+	  - added Doxygen comments to many methods
+	  - code cleanup
 
 2012-02-12 Daniel Kollar <kollar.dan@gmail.com>
 	* all Makefiles, CreateProject.sh:
