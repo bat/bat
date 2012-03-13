@@ -54,19 +54,19 @@ Status:         Task:
                 Update tutorials (Shabanz)
 fixed           Change of interface: reference instead of copy vector (Kevin)
                 clean up: remove everything that is not used (everyone)
-                Check if integration correct in >3 dimensions: test suite (Jens?)
+                Check if integration correct in >3 dimensions: test suite (Dan)
 fixed           Allow user to set scales for MCMC (Kevin will check) -> yes
 fixed           Allow user to define multivariate proposal function (Kevin) -> yes
                 Remove MCMC code from BCIntegrate (Dano?)
                 Remove ConditionalProbabilityEntry stuff (Dano?)
-                Export tested R-value calculation routine to BCMath (Fred)
-                More warning options and compiler options (Fred)
+fixed           Export tested R-value calculation routine to BCMath (Fred)
+fixed           More warning options and compiler options (Fred)
                 Public/virtual methods (Shabnaz)
                 Is the p-value calculator reliable (Shabnaz)
 fixed           Continuous running of MCMC (Kevin)
 fixed           Delta-function priors (Kevin)
                 Check normalization of Likelihood (all)
-                Remove GLIBS from makefiles
+fixed           Remove GLIBS from makefiles
                 change examples to use quick priors
 
 Optional tasks:

@@ -1,3 +1,9 @@
+2012-03-13 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCIntegrate:
+	  - remove EvalPrint(...)
+	* todo:
+	  - add 'fixed' tag where applicable
+
 2012-03-12 Daniel Kollar <kollar.dan@gmail.com>
 	* introduction:
 	  - temporarily removed introduction part from manual

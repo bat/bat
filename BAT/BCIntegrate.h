@@ -586,14 +586,6 @@ class BCIntegrate : public BCEngineMCMC
       double LogEvalSampling(const std::vector <double> &x);
 
       /**
-       * Evaluate the un-normalized probability at a point in parameter space
-       * and prints the result to the log.
-       * @param x The point in parameter space
-       * @return The un-normalized probability
-       * @see Eval(std::vector <double> x) */
-      double EvalPrint(const std::vector <double> &x);
-
-      /**
        * Defines a fit function.
        * @param parameters A set of parameter values
        * @param x A vector of x-values

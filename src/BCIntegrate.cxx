@@ -529,15 +529,6 @@ double BCIntegrate::LogEvalSampling(const std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalPrint(const std::vector <double> &x)
-{
-   double val=Eval(x);
-   BCLog::OutDebug(Form("BCIntegrate::EvalPrint. Value: %g.", val));
-
-   return val;
-}
-
-// ---------------------------------------------------------
 void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 {
 #ifdef HAVE_CUBA_H
