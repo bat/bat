@@ -57,7 +57,7 @@ void RatioModel::PrintHistogram()
 }
 
 // ---------------------------------------------------------
-double RatioModel::LogLikelihood(const std::vector <double> &parameters)
+double RatioModel::LogLikelihood(const std::vector<double> &parameters)
 {
   // This methods returns the logarithm of the conditional probability
   // p(data|parameters). This is where you have to define your model.
@@ -76,7 +76,7 @@ double RatioModel::LogLikelihood(const std::vector <double> &parameters)
 }
 
 // ---------------------------------------------------------
-double RatioModel::LogAPrioriProbability(const std::vector <double> &parameters)
+double RatioModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
   // This method returns the logarithm of the prior probability for the
   // parameters p(parameters).

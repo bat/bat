@@ -35,7 +35,7 @@ class TemplateFit : public BinLikeModel
 	 * Calculates and returns the log of the prior probability at a
 	 * given point in parameter space.
 	 */
-	double LogAPrioriProbability(std::vector <double> parameters); 
+	double LogAPrioriProbability(std::vector<double> parameters); 
 
   /**
    * Calculates the expectation value. 
@@ -43,7 +43,7 @@ class TemplateFit : public BinLikeModel
    * @param parvalue the leading parameter value. 
    * @param x the x-value
    * @return The expectation value. */ 
-  double Expectation(std::vector <double> parameters, double parvalue, double x); 
+  double Expectation(std::vector<double> parameters, double parvalue, double x); 
 };
 // ---------------------------------------------------------
 

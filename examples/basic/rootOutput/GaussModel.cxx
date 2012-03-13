@@ -31,7 +31,7 @@ void GaussModel::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double GaussModel::LogLikelihood(const std::vector <double> &parameters)
+double GaussModel::LogLikelihood(const std::vector<double> &parameters)
 {
   // assume a simple Gaussian Likelihood with two independent
   // variables
@@ -48,7 +48,7 @@ double GaussModel::LogLikelihood(const std::vector <double> &parameters)
 }
 
 // ---------------------------------------------------------
-double GaussModel::LogAPrioriProbability(const std::vector <double> &parameters)
+double GaussModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
   // assume flat prior in both variables
   double logprob = 0.;

@@ -100,7 +100,7 @@ class BCHistogramFitter : public BCModel
        * @param hist The histogram with the expected counts (typically non-integer values!)
        * @return An error code (1:pass, 0:fail).
        */
-      int SetHistogramExpected(const std::vector <double>& parameters);
+      int SetHistogramExpected(const std::vector<double>& parameters);
 
       /**
        * @param func The fit function
@@ -122,12 +122,12 @@ class BCHistogramFitter : public BCModel
       /**
        * The log of the prior probability. Overloaded from BCModel.
        * @param parameters A vector of doubles containing the parameter values. */
-//      virtual double LogAPrioriProbability(const std::vector <double> & parameters);
+//      virtual double LogAPrioriProbability(const std::vector<double> & parameters);
 
       /**
        * The log of the conditional probability. Overloaded from BCModel.
        * @param parameters A vector of doubles containing the parameter values. */
-      virtual double LogLikelihood(const std::vector <double> & parameters);
+      virtual double LogLikelihood(const std::vector<double> & parameters);
 
       /**
        * Plots the histogram
@@ -144,7 +144,7 @@ class BCHistogramFitter : public BCModel
        * for a set of parameters.
        * @param x A vector with the x-value.
        * @param parameters A set of parameters. */
-      double FitFunction(const std::vector <double> & x, const std::vector <double> & parameters);
+      double FitFunction(const std::vector<double> & x, const std::vector<double> & parameters);
 
       /**
        * Performs the fit.

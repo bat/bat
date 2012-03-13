@@ -502,28 +502,28 @@ void BCIntegrate::ResetVarlist(int v)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::Eval(const std::vector <double> & /*x*/)
+double BCIntegrate::Eval(const std::vector<double> & /*x*/)
 {
    BCLog::OutWarning( "BCIntegrate::Eval. No function. Function needs to be overloaded.");
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::LogEval(const std::vector <double> &x)
+double BCIntegrate::LogEval(const std::vector<double> &x)
 {
    // this method should better also be overloaded
    return log(Eval(x));
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalSampling(const std::vector <double> & /*x*/)
+double BCIntegrate::EvalSampling(const std::vector<double> & /*x*/)
 {
    BCLog::OutWarning( "BCIntegrate::EvalSampling. No function. Function needs to be overloaded.");
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::LogEvalSampling(const std::vector <double> &x)
+double BCIntegrate::LogEvalSampling(const std::vector<double> &x)
 {
    return log(EvalSampling(x));
 }
@@ -554,7 +554,7 @@ int BCIntegrate::IntegrateResetResults()
 // ---------------------------------------------------------
 double BCIntegrate::Integrate()
 {
-   std::vector <double> parameter;
+   std::vector<double> parameter;
    parameter.assign(fNvar, 0.0);
 
    BCLog::OutSummary(
@@ -591,14 +591,14 @@ double BCIntegrate::Integrate()
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMC(const std::vector <double> &x, int * varlist)
+double BCIntegrate::IntegralMC(const std::vector<double> &x, int * varlist)
 {
    SetVarList(varlist);
    return IntegralMC(x);
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMC(const std::vector <double> &x)
+double BCIntegrate::IntegralMC(const std::vector<double> &x)
 {
    // count the variables to integrate over
    // and calculate D (integrated volume)
@@ -633,7 +633,7 @@ double BCIntegrate::IntegralMC(const std::vector <double> &x)
    double variance = 0.;
    double relprecision = 1.;
 
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar, 0.);
 
    // how often to print out the info line to screen
@@ -710,7 +710,7 @@ double BCIntegrate::IntegralMC(const std::vector <double> &x)
 
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMetro(const std::vector <double> & /*x*/)
+double BCIntegrate::IntegralMetro(const std::vector<double> & /*x*/)
 {
    // print debug information
    BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Integate over %i dimensions.", fNvar));
@@ -726,7 +726,7 @@ double BCIntegrate::IntegralMetro(const std::vector <double> & /*x*/)
    double sumI = 0;
 
    // prepare Metropolis algorithm
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar,0.);
    InitMetro();
 
@@ -776,7 +776,7 @@ double BCIntegrate::IntegralMetro(const std::vector <double> & /*x*/)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralImportance(const std::vector <double> & /*x*/)
+double BCIntegrate::IntegralImportance(const std::vector<double> & /*x*/)
 {
    // print debug information
    BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Integate over %i dimensions.", fNvar));
@@ -791,7 +791,7 @@ double BCIntegrate::IntegralImportance(const std::vector <double> & /*x*/)
    // reset sum
    double sumI = 0;
 
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar,0.);
 
    // prepare maximum value
@@ -897,7 +897,7 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
    TH1D * hist = new TH1D("hist","", fNbins, hmin, hmax);
 
    // integrate
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar, 0.);
 
    for(int i=0;i<=fNbins;i++) {
@@ -937,7 +937,7 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
          fNbins, hmin2, hmax2);
 
    // integrate
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar, 0.0);
 
    for(int i=0;i<=fNbins;i++) {
@@ -975,7 +975,7 @@ TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
    TH1D * hist = new TH1D("hist","", fNbins, hmin, hmax);
 
    // prepare Metro
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar, 0.0);
    InitMetro();
 
@@ -1011,7 +1011,7 @@ TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * p
          fNbins, hmin2, hmax2);
 
    // prepare Metro
-   std::vector <double> randx;
+   std::vector<double> randx;
    randx.assign(fNvar, 0.0);
    InitMetro();
 
@@ -1097,7 +1097,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
    }
 
    // prepare Metro
-   std::vector <double> randx;
+   std::vector<double> randx;
 
    randx.assign(fNvar, 0.0);
    InitMetro();
@@ -1140,7 +1140,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
                x = fErrorBandXY->GetXaxis()->GetBinCenter(ix + 1);
 
                // calculate y
-               std::vector <double> xvec;
+               std::vector<double> xvec;
                xvec.push_back(x);
                double y = FitFunction(xvec, randx);
                xvec.clear();
@@ -1160,7 +1160,7 @@ int BCIntegrate::MarginalizeAllByMetro(const char * name="")
                x = fErrorBandX.at(ix);
 
                // calculate y
-               std::vector <double> xvec;
+               std::vector<double> xvec;
                xvec.push_back(x);
                double y = FitFunction(xvec, randx);
                xvec.clear();
@@ -1274,7 +1274,7 @@ TH2D * BCIntegrate::GetH2D(int parIndex1, int parIndex2)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::GetRandomPoint(std::vector <double> &x)
+double BCIntegrate::GetRandomPoint(std::vector<double> &x)
 {
    GetRandomVector(x);
 
@@ -1285,7 +1285,7 @@ double BCIntegrate::GetRandomPoint(std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::GetRandomPointImportance(std::vector <double> &x)
+double BCIntegrate::GetRandomPointImportance(std::vector<double> &x)
 {
    double p = 1.1;
    double g = 1.0;
@@ -1318,7 +1318,7 @@ void BCIntegrate::InitMetro()
    fMarkovChainValue =  LogEval(fXmetro0);
 
    // run metropolis for a few times and dump the result... (to forget the initial position)
-   std::vector <double> x;
+   std::vector<double> x;
    x.assign(fNvar,0.);
 
    for(int i=0;i<1000;i++)
@@ -1328,7 +1328,7 @@ void BCIntegrate::InitMetro()
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
+void BCIntegrate::GetRandomPointMetro(std::vector<double> &x)
 {
    // get new point
    GetRandomVectorMetro(fXmetro1);
@@ -1383,7 +1383,7 @@ void BCIntegrate::GetRandomPointMetro(std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
+void BCIntegrate::GetRandomPointSamplingMetro(std::vector<double> &x)
 {
    // get new point
    GetRandomVectorMetro(fXmetro1);
@@ -1430,7 +1430,7 @@ void BCIntegrate::GetRandomPointSamplingMetro(std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomVector(std::vector <double> &x)
+void BCIntegrate::GetRandomVector(std::vector<double> &x)
 {
    double * randx = new double[fNvar];
 
@@ -1444,7 +1444,7 @@ void BCIntegrate::GetRandomVector(std::vector <double> &x)
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomVectorMetro(std::vector <double> &x)
+void BCIntegrate::GetRandomVectorMetro(std::vector<double> &x)
 {
    double * randx = new double[fNvar];
 
@@ -1931,7 +1931,7 @@ double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
 
 // ---------------------------------------------------------
 
-void BCIntegrate::SetMode(std::vector <double> mode)
+void BCIntegrate::SetMode(std::vector<double> mode)
 {
    if((int)mode.size() == fNvar) {
       fBestFitParameters.clear();
@@ -1945,7 +1945,7 @@ void BCIntegrate::SetMode(std::vector <double> mode)
 void BCIntegrate::FCNLikelihood(int & /*npar*/, double * /*grad*/, double &fval, double * par, int /*flag*/)
 {
    // copy parameters
-   std::vector <double> parameters;
+   std::vector<double> parameters;
 
    int n = global_this->GetNvar();
 
@@ -2279,7 +2279,7 @@ void BCIntegrate::MCMCFillErrorBand()
          x = fErrorBandXY->GetXaxis()->GetBinCenter(ix + 1);
 
          // calculate y
-         std::vector <double> xvec;
+         std::vector<double> xvec;
          xvec.push_back(x);
 
          // loop over all chains
@@ -2304,7 +2304,7 @@ void BCIntegrate::MCMCFillErrorBand()
          x = fErrorBandX.at(ix);
 
          // calculate y
-         std::vector <double> xvec;
+         std::vector<double> xvec;
          xvec.push_back(x);
 
          // loop over all chains

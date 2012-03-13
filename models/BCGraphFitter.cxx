@@ -181,7 +181,7 @@ BCGraphFitter::~BCGraphFitter()
 // ---------------------------------------------------------
 
 /*
-double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
+double BCGraphFitter::LogAPrioriProbability(std::vector<double> parameters)
 {
    // using flat probability in all parameters
    double logprob = 0.;
@@ -194,7 +194,7 @@ double BCGraphFitter::LogAPrioriProbability(std::vector <double> parameters)
 
 // ---------------------------------------------------------
 
-double BCGraphFitter::LogLikelihood(const std::vector <double> & params)
+double BCGraphFitter::LogLikelihood(const std::vector<double> & params)
 {
    // initialize probability
    double logl = 0.;
@@ -210,7 +210,7 @@ double BCGraphFitter::LogLikelihood(const std::vector <double> & params)
    // loop over all data points
    for (int i = 0; i < GetNDataPoints(); i++)
    {
-      std::vector <double> x = GetDataPoint(i)->GetValues();
+      std::vector<double> x = GetDataPoint(i)->GetValues();
 
       // her we ignore the errors on x even when they're available
       // i.e. we treat them just as the region specifiers
@@ -228,7 +228,7 @@ double BCGraphFitter::LogLikelihood(const std::vector <double> & params)
 
 // ---------------------------------------------------------
 
-double BCGraphFitter::FitFunction(const std::vector <double> & x, const std::vector <double> & params)
+double BCGraphFitter::FitFunction(const std::vector<double> & x, const std::vector<double> & params)
 {
    // set the parameters of the function
    // passing the pointer to first element of the vector is

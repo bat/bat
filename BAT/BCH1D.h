@@ -197,7 +197,7 @@ class BCH1D
 
       TH1D * GetSmallestIntervalHistogram(double level);
 
-      std::vector <double> GetSmallestIntervals(double content = 0.68);
+      std::vector<double> GetSmallestIntervals(double content = 0.68);
 
       /**
        * Calculate integral of the distribution between min and max.

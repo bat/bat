@@ -28,7 +28,7 @@ void CombinationModel::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double CombinationModel::LogLikelihood(const std::vector <double> &parameters)
+double CombinationModel::LogLikelihood(const std::vector<double> &parameters)
 {
   double logprob = 0.;
 
@@ -57,7 +57,7 @@ double CombinationModel::LogLikelihood(const std::vector <double> &parameters)
 }
 
 // ---------------------------------------------------------
-double CombinationModel::LogAPrioriProbability(const std::vector <double> &parameters)
+double CombinationModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
   double logprob = 0.;
 

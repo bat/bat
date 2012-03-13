@@ -52,19 +52,19 @@ class BinLikeModel : public BCModel
 	 * @param parvalue the leading parameter value. 
 	 * @param x the x-value 
 	 * @return The expectation value. */ 
-	virtual double Expectation(std::vector <double> parameters, double parvalue, double x) = 0; 
+	virtual double Expectation(std::vector<double> parameters, double parvalue, double x) = 0; 
 
 	/**
 	 * Calculates and returns the log of the prior probability at a
 	 * given point in parameter space.
 	 */
-	virtual double LogAPrioriProbability(std::vector <double> parameters);
+	virtual double LogAPrioriProbability(std::vector<double> parameters);
 
 	/**
 	 * Calculates and returns the log of the Likelihood at a given point
 	 * in parameter space.
 	 */
-	virtual double LogLikelihood(std::vector <double> parameters);
+	virtual double LogLikelihood(std::vector<double> parameters);
 
 	/**
 	 * Add a histogram for a certain value of the leading parameter. 
@@ -145,22 +145,22 @@ class BinLikeModel : public BCModel
 	/**
 	 * A container for the template histograms.
 	 */
-	std::vector <TH1D*> fHistogramContainer;
+	std::vector<TH1D*> fHistogramContainer;
 
 	/**
 	 * A container for the leading parameter values. 
 	 */
-	std::vector <double> fLeadParContainer;
+	std::vector<double> fLeadParContainer;
 
 	/**
 	 * A container for the histogram weights. 
 	 */
-	std::vector <double> fHistWeightContainer;
+	std::vector<double> fHistWeightContainer;
 
 	/**
 	 * A container of 2-d histograms for calculating the error bars
 	 */
-	std::vector <TH2D*> fErrHistContainer;
+	std::vector<TH2D*> fErrHistContainer;
 };
 
 // ---------------------------------------------------------

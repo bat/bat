@@ -51,7 +51,7 @@ PerfTestVarPar::~PerfTestVarPar()
 }
 
 //______________________________________________________________________________
-int PerfTestVarPar::AddVarPar(std::vector <double> values, std::string name)
+int PerfTestVarPar::AddVarPar(std::vector<double> values, std::string name)
 {
    // get number of values
    int nval = int(values.size());

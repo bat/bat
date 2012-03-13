@@ -129,7 +129,7 @@
    private:
 
       /** A container of tests which belong to the test suite. */
-      std::vector <PerfTest *> fTestContainer;
+      std::vector<PerfTest *> fTestContainer;
 
       /** Number of plots per line in the html page of the model results */
       int fNPlotColumns;

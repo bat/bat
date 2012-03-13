@@ -48,7 +48,7 @@ void Pol1Asymm::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double Pol1Asymm::FitFunction(const std::vector <double> & x, const std::vector <double> & par)
+double Pol1Asymm::FitFunction(const std::vector<double> & x, const std::vector<double> & par)
 {
 	// function to fit with
 	// get the parameters of the function
@@ -60,7 +60,7 @@ double Pol1Asymm::FitFunction(const std::vector <double> & x, const std::vector 
 }
 
 // ---------------------------------------------------------
-double Pol1Asymm::LogLikelihood(const std::vector <double> & par)
+double Pol1Asymm::LogLikelihood(const std::vector<double> & par)
 {
 	double logl = 0.;
 
@@ -68,7 +68,7 @@ double Pol1Asymm::LogLikelihood(const std::vector <double> & par)
 	for(int i=0 ; i < this -> GetNDataPoints(); i++)
 	{
 		// get data point
-		std::vector <double> x = this -> GetDataPoint(i) -> GetValues();
+		std::vector<double> x = this -> GetDataPoint(i) -> GetValues();
 		double y    = x[1];
 		double eylo = x[2];
 		double eyhi = x[3];
@@ -93,7 +93,7 @@ double Pol1Asymm::LogLikelihood(const std::vector <double> & par)
 }
 
 // ---------------------------------------------------------
-double Pol1Asymm::LogAPrioriProbability(const std::vector <double> & parameters)
+double Pol1Asymm::LogAPrioriProbability(const std::vector<double> & parameters)
 {
 	// Definition of the Prior of the model.
 	// For flat prior it's very easy.

@@ -381,7 +381,7 @@ TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
    int nbands=0;
    TH2D * hcopy = (TH2D*)h->Clone(TString::Format("%s_copy_%d",h->GetName(),BCLog::GetHIndex()));
 
-   std::vector <int> nint=GetNIntervalsY(hcopy,nbands);
+   std::vector<int> nint=GetNIntervalsY(hcopy,nbands);
 
    if(nbands>2)
    {
@@ -415,9 +415,9 @@ TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
 
 // ---------------------------------------------------------
 
-std::vector <int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
+std::vector<int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
 {
-   std::vector <int> nint;
+   std::vector<int> nint;
 
    int nx = h->GetNbinsX();
    int ny = h->GetNbinsY();
@@ -503,16 +503,16 @@ TGraph * BCH2D::GetLowestBandGraph(TH2D * h, std::vector<int> nint)
 
 // ---------------------------------------------------------
 
-std::vector <double> BCH2D::GetLevelBoundary(double level)
+std::vector<double> BCH2D::GetLevelBoundary(double level)
 {
    return GetLevelBoundary(fHistogram, level);
 }
 
 // ---------------------------------------------------------
 
-std::vector <double> BCH2D::GetLevelBoundary(TH2D * h, double level)
+std::vector<double> BCH2D::GetLevelBoundary(TH2D * h, double level)
 {
-   std::vector <double> b;
+   std::vector<double> b;
 
    int nx = h->GetNbinsX();
 
@@ -554,8 +554,8 @@ TGraph * BCH2D::GetBandGraph(TH2D * h , double l1, double l2)
 //   g->SetFillColor(kYellow);
 
    // get error bands
-   std::vector <double> ymin = GetLevelBoundary(h,l1);
-   std::vector <double> ymax = GetLevelBoundary(h,l2);
+   std::vector<double> ymin = GetLevelBoundary(h,l1);
+   std::vector<double> ymax = GetLevelBoundary(h,l2);
 
    for (int i = 0; i < nx; i++)
    {

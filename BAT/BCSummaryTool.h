@@ -154,57 +154,57 @@ class BCSummaryTool
 
    /**
     * parameter names */
-   std::vector <std::string> fParName;
+   std::vector<std::string> fParName;
 
    /**
     * parameter minima */
-   std::vector <double> fParMin;
+   std::vector<double> fParMin;
 
    /**
     * Parameter maxima */
-   std::vector <double> fParMax;
+   std::vector<double> fParMax;
 
    /**
     * Correlation coefficients.
     * Length of vector equals number of parameters * number of parameters. */
-   std::vector <double> fCorrCoeff;
+   std::vector<double> fCorrCoeff;
 
    /**
     * Marginalized modes.\n
     * Length of vector equals number of parameters. */
-   std::vector <double> fMargMode;
+   std::vector<double> fMargMode;
 
    /**
     * Mean values.\n
     * Length of vector equals number of parameters. */
-   std::vector <double> fMean;
+   std::vector<double> fMean;
 
    /**
     * Global modes.\n
     * Length of vector equals number of parameters. */
-   std::vector <double> fGlobalMode;
+   std::vector<double> fGlobalMode;
 
    /**
     * Quantiles.\n
     * The following quantiles are stored: 0.05, 0.10, 0.16, 0.5, 0.84, 0.90, 0.95.\n
     * Length of vector equals number of parameters * number of quantiles. */
-   std::vector <double> fQuantiles;
+   std::vector<double> fQuantiles;
 
    /**
     * Smallest intervals.\n
     * For each parameter a set of the smallest intervals is recorded.\n
     * Structure: number of intervals n + n * (start, stop, local max, local max pos, integral)
     * Length of vector equals number of parameters * number of quantiles. */
-   std::vector <double> fSmallInt;
+   std::vector<double> fSmallInt;
 
    /**
     * RMS values.\n
     * Length of vector equals number of parameters. */
-   std::vector <double> fRMS;
+   std::vector<double> fRMS;
 
    /**
     * Sum of probabilities for quantiles */
-   std::vector <double> fSumProb;
+   std::vector<double> fSumProb;
 
    /**
     * A model for calculating the marginalized distributions for the

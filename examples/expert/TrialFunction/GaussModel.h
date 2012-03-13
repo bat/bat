@@ -15,8 +15,8 @@ class GaussModel : public BCModel
 
       // Methods to overload, see file GaussModel.cxx
       void DefineParameters();
-      double LogAPrioriProbability(const std::vector <double> &parameters);
-      double LogLikelihood(const std::vector <double> &parameters);
+      double LogAPrioriProbability(const std::vector<double> &parameters);
+      double LogLikelihood(const std::vector<double> &parameters);
 
       // overloaded trial function
       virtual double MCMCTrialFunctionSingle(int ichain, int ipar);

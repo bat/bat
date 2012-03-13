@@ -109,7 +109,7 @@ class BCH2D
        * @param h The histogram.
        * @param nfoundmax The maximum number of intervals.
        * @return A vector containing the number of intervals for all bins in x. */
-      std::vector <int> GetNIntervalsY(TH2D * h, int &nfoundmax);
+      std::vector<int> GetNIntervalsY(TH2D * h, int &nfoundmax);
 
       /**
        *   */
@@ -117,8 +117,8 @@ class BCH2D
       TGraph * GetLowestBandGraph(TH2D * h);
 
 
-      std::vector <double> GetLevelBoundary(double level);
-      std::vector <double> GetLevelBoundary(TH2D * h, double level);
+      std::vector<double> GetLevelBoundary(double level);
+      std::vector<double> GetLevelBoundary(TH2D * h, double level);
       TGraph * GetBandGraph(double level1, double level2);
       TGraph * GetBandGraph(TH2D * h , double level1, double level2);
 

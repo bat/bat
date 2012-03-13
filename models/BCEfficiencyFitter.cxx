@@ -195,7 +195,7 @@ void BCEfficiencyFitter::SetDataPointType(int type)
 
 // ---------------------------------------------------------
 
-double BCEfficiencyFitter::LogLikelihood(const std::vector <double> & params)
+double BCEfficiencyFitter::LogLikelihood(const std::vector<double> & params)
 {
 
    // initialize probability
@@ -241,7 +241,7 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector <double> & params)
 
 // ---------------------------------------------------------
 
-double BCEfficiencyFitter::FitFunction(const std::vector <double> & x, const std::vector <double> & params)
+double BCEfficiencyFitter::FitFunction(const std::vector<double> & x, const std::vector<double> & params)
 {
    // set the parameters of the function
    fFitFunction->SetParameters(&params[0]);
@@ -422,8 +422,8 @@ int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, dou
    // define temporary variables
    int nbins = fHistogram1->GetNbinsX();
 
-   std::vector <int> histogram;
-   std::vector <double> expectation;
+   std::vector<int> histogram;
+   std::vector<double> expectation;
    histogram.assign(nbins, 0);
    expectation.assign(nbins, 0);
 

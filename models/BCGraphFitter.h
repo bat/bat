@@ -97,19 +97,19 @@ class BCGraphFitter : public BCModel
       /**
        * The log of the prior probability. It is set to be flat in all parameters.
        * @param parameters vector containing the parameter values */
-//      double LogAPrioriProbability(const std::vector <double> & parameters);
+//      double LogAPrioriProbability(const std::vector<double> & parameters);
 
       /**
        * The log of the conditional probability.
        * @param parameters vector containing the parameter values */
-      double LogLikelihood(const std::vector <double> & parameters);
+      double LogLikelihood(const std::vector<double> & parameters);
 
       /**
        * Returns the value of the 1D fit function for a given set of parameters
        * at a given x.
        * @param x point to calculate the function value at
        * @param parameters parameters of the function */
-      double FitFunction(const std::vector <double> & x, const std::vector <double> & parameters);
+      double FitFunction(const std::vector<double> & x, const std::vector<double> & parameters);
 
       /**
        * Performs the fit. The graph and the function has to beset beforehand.

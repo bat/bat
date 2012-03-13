@@ -71,13 +71,13 @@ void BCSummaryPriorModel::SetModel(BCModel * model)
 }
 
 // ---------------------------------------------------------
-double BCSummaryPriorModel::LogLikelihood(const std::vector <double> & parameters)
+double BCSummaryPriorModel::LogLikelihood(const std::vector<double> & parameters)
 {
    return fTestModel->LogAPrioriProbability(parameters);
 }
 
 // ---------------------------------------------------------
-double BCSummaryPriorModel::LogAPrioriProbability(const std::vector <double> & /*parameters*/)
+double BCSummaryPriorModel::LogAPrioriProbability(const std::vector<double> & /*parameters*/)
 {
    return 0;
 }

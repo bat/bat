@@ -200,10 +200,10 @@ class BCModel : public BCIntegrate
        * Returns the set of values of the parameters at the global mode of
        * the posterior pdf.
        * @return The best fit parameters */
-      std::vector <double> GetBestFitParameters()
+      std::vector<double> GetBestFitParameters()
          { return fBestFitParameters; }
 
-      std::vector <double> GetBestFitParameterErrors()
+      std::vector<double> GetBestFitParameterErrors()
          { return fBestFitParameterErrors; }
 
       /**
@@ -217,7 +217,7 @@ class BCModel : public BCIntegrate
        * Returns the set of values of the parameters at the modes of the
        * marginalized posterior pdfs.
        * @return best fit parameters */
-      std::vector <double> GetBestFitParametersMarginalized()
+      std::vector<double> GetBestFitParametersMarginalized()
          { return fBestFitParametersMarginalized; }
 
       /**
@@ -231,16 +231,16 @@ class BCModel : public BCIntegrate
        * Returns a vector of y-values at a certain probability level.
        * @param level The level of probability
        * @return vector of y-values */
-      std::vector <double> GetErrorBand(double level);
+      std::vector<double> GetErrorBand(double level);
 
       TGraph * GetErrorBandGraph(double level1, double level2);
 
-      TGraph * GetFitFunctionGraph(const std::vector <double> &parameters);
+      TGraph * GetFitFunctionGraph(const std::vector<double> &parameters);
 
       TGraph * GetFitFunctionGraph()
          { return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); }
 
-      TGraph * GetFitFunctionGraph(const std::vector <double> &parameters, double xmin, double xmax, int n=1000);
+      TGraph * GetFitFunctionGraph(const std::vector<double> &parameters, double xmin, double xmax, int n=1000);
 
       bool GetFixedDataAxis(unsigned int index);
 
@@ -470,8 +470,8 @@ class BCModel : public BCIntegrate
        * Returns the prior probability.
        * @param parameters A set of parameter values
        * @return The prior probability p(parameters)
-       * @see GetPrior(std::vector <double> parameters) */
-      double APrioriProbability(const std::vector <double> &parameters)
+       * @see GetPrior(std::vector<double> parameters) */
+      double APrioriProbability(const std::vector<double> &parameters)
          { return exp( this->LogAPrioriProbability(parameters) ); }
 
       /**
@@ -479,14 +479,14 @@ class BCModel : public BCIntegrate
        * Method needs to be overloaded by the user.
        * @param parameters A set of parameter values
        * @return The prior probability p(parameters)
-       * @see GetPrior(std::vector <double> parameters) */
-      virtual double LogAPrioriProbability(const std::vector <double> &parameters);
+       * @see GetPrior(std::vector<double> parameters) */
+      virtual double LogAPrioriProbability(const std::vector<double> &parameters);
 
       /**
        * Returns the likelihood
        * @param params A set of parameter values
        * @return The likelihood */
-      double Likelihood(const std::vector <double> &params)
+      double Likelihood(const std::vector<double> &params)
          { return exp( this->LogLikelihood(params) ); }
 
       /**
@@ -494,13 +494,13 @@ class BCModel : public BCIntegrate
        * Method needs to be overloaded by the user.
        * @param params A set of parameter values
        * @return Natural logarithm of the likelihood */
-      virtual double LogLikelihood(const std::vector <double> &params) = 0;
+      virtual double LogLikelihood(const std::vector<double> &params) = 0;
 
       /**
        * Returns the likelihood times prior probability given a set of parameter values
        * @param params A set of parameter values
        * @return The likelihood times prior probability */
-      double ProbabilityNN(const std::vector <double> &params)
+      double ProbabilityNN(const std::vector<double> &params)
          { return exp( this->LogProbabilityNN(params) ); }
 
       /**
@@ -508,40 +508,40 @@ class BCModel : public BCIntegrate
        * a set of parameter values
        * @param parameters A set of parameter values
        * @return The likelihood times prior probability */
-      double LogProbabilityNN(const std::vector <double> &parameter);
+      double LogProbabilityNN(const std::vector<double> &parameter);
 
       /**
        * Returns the a posteriori probability given a set of parameter values
        * @param parameters A set of parameter values
        * @return The a posteriori probability */
-      double Probability(const std::vector <double> &parameter)
+      double Probability(const std::vector<double> &parameter)
          { return exp( this->LogProbability(parameter) ); }
 
       /**
        * Returns natural logarithm of the  a posteriori probability given a set of parameter values
        * @param parameters A set of parameter values
        * @return The a posteriori probability */
-      double LogProbability(const std::vector <double> &parameter);
+      double LogProbability(const std::vector<double> &parameter);
 
       /**
        * Sampling function used for importance sampling.
        * Method needs to be overloaded by the user.
        * @param parameters A set of parameter values
        * @return The probability density at the parameter values */
-      virtual double SamplingFunction(const std::vector <double> &parameters);
+      virtual double SamplingFunction(const std::vector<double> &parameters);
 
       /**
        * Overloaded function to evaluate integral. */
-      double Eval(const std::vector <double> &parameters)
+      double Eval(const std::vector<double> &parameters)
          { return exp( this->LogEval(parameters) ); }
 
       /**
        * Overloaded function to evaluate integral. */
-      double LogEval(const std::vector <double> &parameters);
+      double LogEval(const std::vector<double> &parameters);
 
       /**
        * Overloaded function to evaluate integral. */
-      double EvalSampling(const std::vector <double> &parameters);
+      double EvalSampling(const std::vector<double> &parameters);
 
       /**
        * Integrates over the un-normalized probability and updates fNormalization. */
@@ -552,7 +552,7 @@ class BCModel : public BCIntegrate
        * @param parameters A set of parameter values
        * @return Error code (0: OK, -1 length of parameters not correct, -2 values not within range)
        */
-      int CheckParameters(const std::vector <double> &parameters);
+      int CheckParameters(const std::vector<double> &parameters);
 
       /**
        * Do the mode finding using a method set via SetOptimizationMethod.

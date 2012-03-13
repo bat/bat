@@ -105,14 +105,14 @@ class CombinationXSec : public CombinationModel
 	 * @param parameters A vector of parameters. 
 	 * @return The log of the prior probability.
 	 */
-	double LogAPrioriProbability(std::vector <double> parameters);
+	double LogAPrioriProbability(std::vector<double> parameters);
 
 	/**
 	 * Calculate the log of the likelihood
 	 * @param parameters A vector of parameters. 
 	 * @return The log of the likelihood.
 	 */
-	double LogLikelihood(std::vector <double> parameters);
+	double LogLikelihood(std::vector<double> parameters);
 
 	/* @} */
 

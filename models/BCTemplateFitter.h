@@ -304,7 +304,7 @@ class BCTemplateFitter : public BCModel
        * @param rms The standard deviation of the prior.
        * @return An error code.
        */
-      int ConstrainSum(std::vector <int> indices, double mean, double rms);
+      int ConstrainSum(std::vector<int> indices, double mean, double rms);
 
       /**
        * Add the calculation of a certain ratio.
@@ -402,7 +402,7 @@ class BCTemplateFitter : public BCModel
        * Calculates and returns the log of the Likelihood at a given point
        * in parameter space.
        */
-      double LogLikelihood(const std::vector <double> & parameters);
+      double LogLikelihood(const std::vector<double> & parameters);
 
       /**
        * Perform the template fit.
@@ -521,7 +521,7 @@ class BCTemplateFitter : public BCModel
       /**
        * 1-D histograms containing ratios.
        */
-      std::vector <TH1D> fHistRatios1D;
+      std::vector<TH1D> fHistRatios1D;
 
       /**
        * Flag for fixing the normalization or not

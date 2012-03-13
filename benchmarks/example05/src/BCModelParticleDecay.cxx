@@ -37,7 +37,7 @@ void BCModelParticleDecay::DefineParameters()
 
 // --------------------------------------------------------- 
 
-double BCModelParticleDecay::LogAPrioriProbability(std::vector <double> parameters)
+double BCModelParticleDecay::LogAPrioriProbability(std::vector<double> parameters)
 {
 
 	return 0; 
@@ -46,7 +46,7 @@ double BCModelParticleDecay::LogAPrioriProbability(std::vector <double> paramete
 
 // --------------------------------------------------------- 
 
-double BCModelParticleDecay::LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector <double> parameters)
+double BCModelParticleDecay::LogConditionalProbabilityEntry(BCDataPoint* datapoint, std::vector<double> parameters)
 {
 
 	double logprob = 0.0; 
@@ -67,7 +67,7 @@ double BCModelParticleDecay::LogConditionalProbabilityEntry(BCDataPoint* datapoi
 
 // --------------------------------------------------------- 
 
-double BCModelParticleDecay::LogPoissonProbability(int nentries, std::vector <double> parameters)
+double BCModelParticleDecay::LogPoissonProbability(int nentries, std::vector<double> parameters)
 {
 
 	// Poisson term is 1. => Log of it is 0.

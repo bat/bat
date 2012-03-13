@@ -22,8 +22,8 @@ class PoissonModel : public BCModel
 
       // Methods to overload, see file PoissonModel.cxx
       void DefineParameters();
-      double LogAPrioriProbability(const std::vector <double> &parameters);
-      double LogLikelihood(const std::vector <double> &parameters);
+      double LogAPrioriProbability(const std::vector<double> &parameters);
+      double LogLikelihood(const std::vector<double> &parameters);
 
    private:
       // number of observed events

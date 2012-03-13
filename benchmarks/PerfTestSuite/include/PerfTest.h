@@ -226,13 +226,13 @@ class PerfTest
  private:
 
    /** A container of subtest which belong to the test. */
-   std::vector <PerfSubTest *> fSubtestContainer;
+   std::vector<PerfSubTest *> fSubtestContainer;
 
    /** A container of canvases for the test. */
-   std::vector <TCanvas*> fCanvasContainer;
+   std::vector<TCanvas*> fCanvasContainer;
 
    /** A container of canvases descriptions for the test. */
-   std::vector <std::string> fCanvasDescriptionContainer;
+   std::vector<std::string> fCanvasDescriptionContainer;
 
    /** The name of the test. */
    std::string fName;

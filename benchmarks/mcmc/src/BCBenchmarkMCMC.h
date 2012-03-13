@@ -45,10 +45,10 @@ class BCBenchmarkMCMC : public BCModel, public BCModelOutput
 	~BCBenchmarkMCMC();
 
 	// inherited methods
-	double LogAPrioriProbability(std::vector <double> parameters)
+	double LogAPrioriProbability(std::vector<double> parameters)
 	{return 0;}
 
-	double LogLikelihood(std::vector <double> parameters)
+	double LogLikelihood(std::vector<double> parameters)
 	{return log(fTestFunction->Eval(parameters[0]));}
 
 	// own methods

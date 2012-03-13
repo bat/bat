@@ -58,7 +58,7 @@ BCTemplateFitter::~BCTemplateFitter()
 }
 
 // ---------------------------------------------------------
-double BCTemplateFitter::LogLikelihood(const std::vector <double> & parameters)
+double BCTemplateFitter::LogLikelihood(const std::vector<double> & parameters)
 {
    double logprob = 0.;
 
@@ -325,7 +325,7 @@ int BCTemplateFitter::AddTemplate(TH1D hist, const char * name, double Nmin, dou
 
    // add systematic uncertainties
    for (int i = 0; i < GetNSystErrors(); ++i) {
-      std::vector <TH1D> histvector = fSystErrorHistogramContainer.at(i);
+      std::vector<TH1D> histvector = fSystErrorHistogramContainer.at(i);
       histvector.push_back(histsysterror);
    }
 
@@ -1035,8 +1035,8 @@ double BCTemplateFitter::CalculatePValue()
       return -1;
    }
 
-   std::vector <int> histogram;
-   std::vector <double> expectation;
+   std::vector<int> histogram;
+   std::vector<double> expectation;
    histogram.assign(fNBins, 0);
    expectation.assign(fNBins, 0);
 
@@ -1260,7 +1260,7 @@ int BCTemplateFitter::SetTemplateEfficiency(const char * name, double effmean, d
 }
 
 // ---------------------------------------------------------
-int BCTemplateFitter::ConstrainSum(std::vector <int> indices, double mean, double rms)
+int BCTemplateFitter::ConstrainSum(std::vector<int> indices, double mean, double rms)
 {
    // add contraint to container(s)
    fConstraintSumIndices.push_back(indices);

@@ -32,7 +32,7 @@ void BinomialModel::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double BinomialModel::LogLikelihood(const std::vector <double> &parameters)
+double BinomialModel::LogLikelihood(const std::vector<double> &parameters)
 {
    // This methods returns the logarithm of the conditional probability
    // p(data|parameters). This is where you have to define your model.
@@ -50,7 +50,7 @@ double BinomialModel::LogLikelihood(const std::vector <double> &parameters)
 }
 
 // ---------------------------------------------------------
-double BinomialModel::LogAPrioriProbability(const std::vector <double> &parameters)
+double BinomialModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
    // This method returns the logarithm of the prior probability for the
    // parameters p(parameters).

@@ -48,10 +48,10 @@ class PerfTest1DFunction : public PerfTestMCMC
    /* @} */
 
    // inherited methods
-   double LogAPrioriProbability(const std::vector <double> & pars)
+   double LogAPrioriProbability(const std::vector<double> & pars)
       { return 0; }
 
-   double LogLikelihood(const std::vector <double> & pars)
+   double LogLikelihood(const std::vector<double> & pars)
       { return log(fFunction->Eval(pars[0])); }
 
  private:

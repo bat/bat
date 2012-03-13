@@ -74,9 +74,9 @@ class PerfTestMCMC : public PerfTest, public BCModel
 
  private:
 
-   std::vector <TGraph *> fCorrelation;
-   std::vector <TH2D *> fHistCorr;
-   std::vector <double> fXOld;
+   std::vector<TGraph *> fCorrelation;
+   std::vector<TH2D *> fHistCorr;
+   std::vector<double> fXOld;
 };
 
 #endif

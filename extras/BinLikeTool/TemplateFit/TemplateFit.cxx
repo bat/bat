@@ -27,7 +27,7 @@ void TemplateFit::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double TemplateFit::LogAPrioriProbability(std::vector <double> parameters)
+double TemplateFit::LogAPrioriProbability(std::vector<double> parameters)
 {
 	double logprob = 0.;
 
@@ -35,7 +35,7 @@ double TemplateFit::LogAPrioriProbability(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double TemplateFit::Expectation(std::vector <double> parameters, double parvalue, double x)
+double TemplateFit::Expectation(std::vector<double> parameters, double parvalue, double x)
 {
   // initialize expectation
   double expectation = 0; 

@@ -46,9 +46,9 @@ class BCModelTop : public BCModel
 
 	void DefineParameters(); 
 
-	double LogAPrioriProbability(std::vector <double> parameters); 
+	double LogAPrioriProbability(std::vector<double> parameters); 
 
-	virtual double LogLikelihood(std::vector <double> parameters);
+	virtual double LogLikelihood(std::vector<double> parameters);
 
 	double EnergyResolutionBJets(double Emeasured, double Eestimated); 
 	double EnergyResolutionLightJets(double Emeasured, double Eestimated);
@@ -59,7 +59,7 @@ class BCModelTop : public BCModel
 	void InitializeEvent(BCDataSet * dataset, int index); 
 
 	void SetPermutation(int index); 
-	void CalculateLorentzVectors(std::vector <double> parameters); 
+	void CalculateLorentzVectors(std::vector<double> parameters); 
 
 	int fPermutationTable[12][4]; 
 

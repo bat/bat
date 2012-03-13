@@ -37,7 +37,7 @@ void BCModelGauss::DefineParameters()
 
 // --------------------------------------------------------- 
 
-double BCModelGauss::LogAPrioriProbability(std::vector <double> parameters)
+double BCModelGauss::LogAPrioriProbability(std::vector<double> parameters)
 {
 
 	return 0;
@@ -46,7 +46,7 @@ double BCModelGauss::LogAPrioriProbability(std::vector <double> parameters)
 
 // --------------------------------------------------------- 
 
-double BCModelGauss::LogLikelihood(std::vector <double> parameters)
+double BCModelGauss::LogLikelihood(std::vector<double> parameters)
 {
 
 	double logprob = 0; 

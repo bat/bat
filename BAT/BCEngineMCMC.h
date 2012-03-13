@@ -93,7 +93,7 @@ class BCEngineMCMC
 
       /**
        * @return number of iterations */
-      std::vector <int> MCMCGetNIterations()
+      std::vector<int> MCMCGetNIterations()
          { return fMCMCNIterations; }
 
       /**
@@ -144,35 +144,35 @@ class BCEngineMCMC
 
       /**
        * @returns number of accepted trials for each chain */
-      std::vector <int> MCMCGetNTrialsTrue()
+      std::vector<int> MCMCGetNTrialsTrue()
          { return fMCMCNTrialsTrue; }
 
       /**
        * @returns number of not-accepted trials for each chain */
-      std::vector <int> MCMCGetNTrialsFalse()
+      std::vector<int> MCMCGetNTrialsFalse()
          { return fMCMCNTrialsFalse; }
 
       /**
        * @return mean value of the probability for each chain up to
        * the current iteration  */
-      std::vector <double> MCMCGetprobMean()
+      std::vector<double> MCMCGetprobMean()
          { return fMCMCprobMean; }
 
       /**
        * @return mean value of the probability for each chain up to
        * the current iteration */
-      std::vector <double> MCMCGetVariance()
+      std::vector<double> MCMCGetVariance()
          { return fMCMCprobVar; }
 
       /**
        * @return scale factor for all parameters and chains */
-      std::vector <double> MCMCGetTrialFunctionScaleFactor()
+      std::vector<double> MCMCGetTrialFunctionScaleFactor()
          { return fMCMCTrialFunctionScaleFactor; }
 
       /**
        * @return scale factor for all parameters and achain.
        * @param ichain chain index */
-      std::vector <double> MCMCGetTrialFunctionScaleFactor(int ichain);
+      std::vector<double> MCMCGetTrialFunctionScaleFactor(int ichain);
 
       /**
        * @return scale factor for a parameter and a chain.
@@ -182,13 +182,13 @@ class BCEngineMCMC
 
       /**
        * @return current point of each Markov chain */
-      std::vector <double> MCMCGetx()
+      std::vector<double> MCMCGetx()
          { return fMCMCx; }
 
       /**
        * @param ichain index of the Markov chain
        * @return current point of the Markov chain */
-      std::vector <double> MCMCGetx(int ichain);
+      std::vector<double> MCMCGetx(int ichain);
 
       /**
        * @param ichain chain index
@@ -198,7 +198,7 @@ class BCEngineMCMC
 
       /**
        * @return log of the probability of the current points of each Markov chain */
-      std::vector <double> MCMCGetLogProbx()
+      std::vector<double> MCMCGetLogProbx()
          { return fMCMCprob; }
 
       /**
@@ -218,17 +218,17 @@ class BCEngineMCMC
 
       /**
        * @return maximum points of each Markov chain */
-      std::vector <double> MCMCGetMaximumPoints()
+      std::vector<double> MCMCGetMaximumPoints()
          { return fMCMCxMax; }
 
       /**
        * @return maximum point of  Markov chain
        * @param i The index of the Markov chain */
-      std::vector <double> MCMCGetMaximumPoint(int i);
+      std::vector<double> MCMCGetMaximumPoint(int i);
 
       /**
        * @return maximum (log) probability of each Markov chain */
-      std::vector <double> MCMCGetMaximumLogProb()
+      std::vector<double> MCMCGetMaximumLogProb()
          { return fMCMCprobMax; }
 
       /**
@@ -300,7 +300,7 @@ class BCEngineMCMC
       /**
        * Set the scale factors for the trial functions
        * @param scale a vector of doubles containing the scale factors */
-      void MCMCSetTrialFunctionScaleFactor(std::vector <double> scale)
+      void MCMCSetTrialFunctionScaleFactor(std::vector<double> scale)
          { fMCMCTrialFunctionScaleFactorStart = scale; }
 
       /**
@@ -409,7 +409,7 @@ class BCEngineMCMC
 
       /**
        * Sets the tree containing the Markov chains. */
-      void MCMCSetMarkovChainTrees(std::vector <TTree *> trees);
+      void MCMCSetMarkovChainTrees(std::vector<TTree *> trees);
 
       /**
        * Initialize trees containing the Markov chains. */
@@ -462,7 +462,7 @@ class BCEngineMCMC
        * function.
        * @param ichain the chain index
        * @param x point with the dimension fMCMCNParameters */
-      virtual void MCMCTrialFunction(int ichain, std::vector <double> &x);
+      virtual void MCMCTrialFunction(int ichain, std::vector<double> &x);
 
       /**
        * Random walk trial function. The default trial function is a
@@ -478,14 +478,14 @@ class BCEngineMCMC
        * @param chain chain index
        * @param x proposal point
        * @return flag indicating whether the new point lies within the allowed range */
-      bool MCMCGetProposalPointMetropolis(int chain, std::vector <double> &x);
+      bool MCMCGetProposalPointMetropolis(int chain, std::vector<double> &x);
 
       /**
        * Returns a trial point for the Metropolis algorithm.
        * @param chain chain index
        * @param x proposal point
        * @return flag indicating whether the new point lies within the allowed range */
-      bool MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector <double> &x);
+      bool MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector<double> &x);
 
       /**
        * Generates a new point using the Metropolis algorithm.
@@ -516,7 +516,7 @@ class BCEngineMCMC
       /**
        * Needs to be overloaded in the derived class.
        * @return natural logarithm of the function to map with MCMC */
-      virtual double LogEval(const std::vector <double> & parameters);
+      virtual double LogEval(const std::vector<double> & parameters);
 
       /**
        * Runs Metropolis algorithm. */
@@ -561,7 +561,7 @@ class BCEngineMCMC
        * @param ichain index of the chain
        * @param accepted flag whether or not the point was accepted for the chain
        */
-      virtual void MCMCCurrentPointInterface(std::vector <double> & point, int ichain, bool accepted)
+      virtual void MCMCCurrentPointInterface(std::vector<double> & point, int ichain, bool accepted)
          {
             // suppress warnings for unused parameters
             // with optimization, no code should be generated
@@ -576,7 +576,7 @@ class BCEngineMCMC
 
       /**
        * Defines a type of a pointer to a member function. */
-      typedef bool (BCEngineMCMC::*MCMCPointerToGetProposalPoint) (int chain, std::vector <double> xnew, std::vector <double> xold) const;
+      typedef bool (BCEngineMCMC::*MCMCPointerToGetProposalPoint) (int chain, std::vector<double> xnew, std::vector<double> xold) const;
 
       /**
        * Pointer to a member function */
@@ -590,12 +590,12 @@ class BCEngineMCMC
 
       /**
        * Parameter boundaries */
-      std::vector <double> fMCMCBoundaryMin;
-      std::vector <double> fMCMCBoundaryMax;
+      std::vector<double> fMCMCBoundaryMin;
+      std::vector<double> fMCMCBoundaryMax;
 
       /**
        * Parameter flags for marginalization */
-      std::vector <bool> fMCMCFlagsFillHistograms;
+      std::vector<bool> fMCMCFlagsFillHistograms;
 
       /**
        * Number of Markov chains ran in parallel */
@@ -670,12 +670,12 @@ class BCEngineMCMC
       /**
        * Scales the width of the trial functions by a scale factor for
        * each parameter and chain */
-      std::vector <double> fMCMCTrialFunctionScaleFactor;
+      std::vector<double> fMCMCTrialFunctionScaleFactor;
 
 
       /**
        * Start values of the scale factors for the trial functions. */
-      std::vector <double> fMCMCTrialFunctionScaleFactorStart;
+      std::vector<double> fMCMCTrialFunctionScaleFactorStart;
 
       /**
        * Defines if a prerun should be performed or not */
@@ -690,7 +690,7 @@ class BCEngineMCMC
        * vectors is equal to fMCMCNChains * fMCMCNParameters. First, the
        * values of the first Markov chain are saved, then those of the
        * second and so on */
-      std::vector <double> fMCMCInitialPosition;
+      std::vector<double> fMCMCInitialPosition;
 
       /**
        * The minimum required efficiency for MCMC */
@@ -731,27 +731,27 @@ class BCEngineMCMC
        * vectors is equal to fMCMCNChains * fMCMCNParameters. First, the
        * values of the first Markov chain are saved, then those of the
        * second and so on. */
-      std::vector <double> fMCMCx;
+      std::vector<double> fMCMCx;
 
       /**
        * The maximum points of each Markov chain. The length of the vector
        * is fMCMCNChains * fMCMCNParameters. First, the values of the
        * first Markov chain are saved, then those of the second and so on. */
-      std::vector <double> fMCMCxMax;
+      std::vector<double> fMCMCxMax;
 
       /**
        * The mean of all parameters of each Markov chain. The length of
        * the vector is equal to fMCMCNChains * fMCMCNParameters. */
-      std::vector <double> fMCMCxMean;
+      std::vector<double> fMCMCxMean;
 
       /**
        * The variance of all parameters of each Markov chain. The length
        * of the vector is equal to fMCMCNChains * fMCMCNParameters. */
-      std::vector <double> fMCMCxVar;
+      std::vector<double> fMCMCxVar;
 
       /**
        * A temporary vector for a single Markov chain */
-      std::vector <double> fMCMCxLocal;
+      std::vector<double> fMCMCxLocal;
 
       /**
        * The log of the probability of the current points of each Markov
@@ -761,17 +761,17 @@ class BCEngineMCMC
       /**
        * The maximum (log) probability of each Markov chain. The length of
        * the vector is fMCMCNChains. */
-      std::vector <double> fMCMCprobMax;
+      std::vector<double> fMCMCprobMax;
 
       /**
        * The mean of all log prob values of each Markov chain. The
        * length of the vector is equal to fMCMCNChains. */
-      std::vector <double> fMCMCprobMean;
+      std::vector<double> fMCMCprobMean;
 
       /**
        * The variance of all log prob values of each Markov chain. The
        * length of the vector is equal to fMCMCNChains. */
-      std::vector <double> fMCMCprobVar;
+      std::vector<double> fMCMCprobVar;
 
       /**
        * flag: use exactly the R-value definition of Gelman/Rubin (R_strict)
@@ -794,7 +794,7 @@ class BCEngineMCMC
       double fMCMCRValue;
 
       /** The R-values for each parameter */
-      std::vector <double> fMCMCRValueParameters;
+      std::vector<double> fMCMCRValueParameters;
 
       /**
        * Random number generator */
@@ -806,8 +806,8 @@ class BCEngineMCMC
 
       /**
        * An array of marginalized distributions */
-      std::vector <TH1D *> fMCMCH1Marginalized;
-      std::vector <TH2D *> fMCMCH2Marginalized;
+      std::vector<TH1D *> fMCMCH1Marginalized;
+      std::vector<TH2D *> fMCMCH2Marginalized;
 
       /**
        * The trees containing the Markov chains. The length of the vector

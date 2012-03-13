@@ -374,10 +374,10 @@ TH2D * BCEngineMCMC::MCMCGetH2Marginalized(int index1, int index2)
 }
 
 // --------------------------------------------------------
-std::vector <double> BCEngineMCMC::MCMCGetMaximumPoint(int i)
+std::vector<double> BCEngineMCMC::MCMCGetMaximumPoint(int i)
 {
    // create a new vector with the lenght of fMCMCNParameters
-   std::vector <double> x;
+   std::vector<double> x;
 
    // check if i is in range
    if (i < 0 || i >= fMCMCNChains)
@@ -419,7 +419,7 @@ void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double> & x0s)
 void BCEngineMCMC::MCMCSetInitialPositions(std::vector< std::vector<double> > x0s)
 {
    // create new vector
-   std::vector <double> y0s;
+   std::vector<double> y0s;
 
    // loop over vector elements
    for (int i = 0; i < int(x0s.size()); ++i)
@@ -453,7 +453,7 @@ void BCEngineMCMC::MCMCSetFlagFillHistograms(int index, bool flag)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector <TTree *> trees)
+void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector<TTree *> trees)
 {
 // clear vector
    fMCMCTrees.clear();
@@ -486,7 +486,7 @@ void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCTrialFunction(int ichain, std::vector <double> &x)
+void BCEngineMCMC::MCMCTrialFunction(int ichain, std::vector<double> &x)
 {
    // call MCMCTrialFunctionSingle() for all parameters by default
    for (int i = 0; i < fMCMCNParameters; ++i)
@@ -506,10 +506,10 @@ double BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter)
 }
 
 // --------------------------------------------------------
-std::vector <double> BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int ichain)
+std::vector<double> BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int ichain)
 {
    // create a new vector with the length of fMCMCNParameters
-   std::vector <double> x;
+   std::vector<double> x;
 
    // check if ichain is in range
    if (ichain < 0 || ichain >= fMCMCNChains)
@@ -538,10 +538,10 @@ double BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(int ichain, int ipar)
 }
 
 // --------------------------------------------------------
-std::vector <double> BCEngineMCMC::MCMCGetx(int ichain)
+std::vector<double> BCEngineMCMC::MCMCGetx(int ichain)
 {
    // create a new vector with the length of fMCMCNParameters
-   std::vector <double> x;
+   std::vector<double> x;
 
    // check if ichain is in range
    if (ichain < 0 || ichain >= fMCMCNChains)
@@ -581,7 +581,7 @@ double BCEngineMCMC::MCMCGetLogProbx(int ichain)
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double> &x)
+bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector<double> &x)
 {
    // get unscaled random point. this point might not be in the correct volume.
    MCMCTrialFunction(chain, x);
@@ -599,7 +599,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int chain, std::vector <double
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int ichain, int ipar, std::vector <double> &x)
+bool BCEngineMCMC::MCMCGetProposalPointMetropolis(int ichain, int ipar, std::vector<double> &x)
 {
    // get unscaled random point in the dimension of the chosen
    // parameter. this point might not be in the correct volume.
@@ -897,7 +897,7 @@ void BCEngineMCMC::MCMCInChainWriteChains()
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::LogEval(const std::vector <double> & /*parameters*/)
+double BCEngineMCMC::LogEval(const std::vector<double> & /*parameters*/)
 {
    // test function for now
    // this will be overloaded by the user
@@ -938,7 +938,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
    bool flagefficiency = false;  // efficiency reached?
 
    // array of efficiencies
-   std::vector <double> efficiency;
+   std::vector<double> efficiency;
    efficiency.assign(fMCMCNParameters * fMCMCNChains, 0.0);
 
    // how often to check convergence and efficiencies?
@@ -1249,7 +1249,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 
    // print efficiencies
-   std::vector <double> efficiencies;
+   std::vector<double> efficiencies;
 
    for (int i = 0; i < fMCMCNParameters; ++i)
       efficiencies.push_back(0.);
@@ -1265,7 +1265,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
 
    // print scale factors
-   std::vector <double> scalefactors;
+   std::vector<double> scalefactors;
 
    for (int i = 0; i < fMCMCNParameters; ++i)
       scalefactors.push_back(0.0);
@@ -1318,7 +1318,7 @@ int BCEngineMCMC::MCMCMetropolis()
 //   bool convergence = false;
 //   bool flagefficiency = false;
 
-//   std::vector <double> efficiency;
+//   std::vector<double> efficiency;
 
 //   for (int i = 0; i < fMCMCNParameters; ++i)
 //      for (int j = 0; j < fMCMCNChains; ++j)
@@ -1491,7 +1491,7 @@ int BCEngineMCMC::MCMCAddParameter(double min, double max)
 void BCEngineMCMC::MCMCInitializeMarkovChains()
 {
    // evaluate function at the starting point
-   std::vector <double> x0;
+   std::vector<double> x0;
 
    for (int j = 0; j < fMCMCNChains; ++j)
    {

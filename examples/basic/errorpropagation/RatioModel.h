@@ -18,8 +18,8 @@ class RatioModel : public BCModel
       void DefineParameters();
       void DefineHistogram();
       void PrintHistogram();
-      double LogAPrioriProbability(const std::vector <double> &parameters);
-      double LogLikelihood(const std::vector <double> &parameters);
+      double LogAPrioriProbability(const std::vector<double> &parameters);
+      double LogLikelihood(const std::vector<double> &parameters);
       void MCMCIterationInterface();
 
    private:

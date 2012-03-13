@@ -122,7 +122,7 @@ int BCSummaryTool::CopySummaryData()
             fMargMode.push_back( bch1d_temp->GetMode() );
             for (int j = 0; j < nquantiles; ++j)
                fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) );
-            std::vector <double> intervals = bch1d_temp->GetSmallestIntervals();
+            std::vector<double> intervals = bch1d_temp->GetSmallestIntervals();
             int nintervals = int(intervals.size() / 5);
             fSmallInt.push_back(nintervals);
             fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
@@ -767,8 +767,8 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
          hist_2dposterior->SetContour(1, level);
          hist_2dposterior->Draw("CONT3 SAME");
 
-         std::vector <double> mode_prior = fPriorModel->GetBestFitParameters();
-         std::vector <double> mode_posterior = fModel->GetBestFitParameters();
+         std::vector<double> mode_prior = fPriorModel->GetBestFitParameters();
+         std::vector<double> mode_posterior = fModel->GetBestFitParameters();
 
          marker_prior->DrawMarker(mode_prior.at(j), mode_prior.at(i));
          marker_posterior->DrawMarker(mode_posterior.at(j), mode_posterior.at(i));

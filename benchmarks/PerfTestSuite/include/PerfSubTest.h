@@ -175,7 +175,7 @@ class PerfSubTest
    double fTargetValue;
 
    /** The test value range for the status. */
-   std::vector <double> fStatusRegion;
+   std::vector<double> fStatusRegion;
 
    /** A flag for status "unknown". */
    bool fStatusUnknown;

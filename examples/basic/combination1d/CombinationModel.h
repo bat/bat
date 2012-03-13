@@ -15,8 +15,8 @@ class CombinationModel : public BCModel
 
       // Methods to overload, see file CombinationModel.cxx
       void DefineParameters();
-      double LogAPrioriProbability(const std::vector <double> &parameters);
-      double LogLikelihood(const std::vector <double> &parameters);
+      double LogAPrioriProbability(const std::vector<double> &parameters);
+      double LogLikelihood(const std::vector<double> &parameters);
 };
 // ---------------------------------------------------------
 

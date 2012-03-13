@@ -73,7 +73,7 @@ class BCDataPoint
 
       /**
        * @return A vector of values. */
-      std::vector <double> GetValues()
+      std::vector<double> GetValues()
          { return fData; };
 
       /**
@@ -95,7 +95,7 @@ class BCDataPoint
       /**
        * Set the values of all variables.
        * @param values A vector of values */
-      void SetValues(std::vector <double> values);
+      void SetValues(std::vector<double> values);
 
       /** @} */
 

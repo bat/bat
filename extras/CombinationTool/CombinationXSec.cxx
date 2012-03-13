@@ -21,7 +21,7 @@ CombinationXSec::~CombinationXSec()
 {};
 
 // ---------------------------------------------------------
-double CombinationXSec::LogLikelihood(std::vector <double> parameters)
+double CombinationXSec::LogLikelihood(std::vector<double> parameters)
 {
 	double logprob = 0.;
 
@@ -83,7 +83,7 @@ double CombinationXSec::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double CombinationXSec::LogAPrioriProbability(std::vector <double> parameters)
+double CombinationXSec::LogAPrioriProbability(std::vector<double> parameters)
 {
 	double logprob = 0.;
 

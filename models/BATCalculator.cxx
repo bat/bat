@@ -381,7 +381,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
    cout << "stepsize is: " << stepsize << endl;
 
    // pair: first entry: bin number , second entry: value of posterior
-   vector < pair< Int_t,Double_t > > posteriorVector;
+   vector< pair< Int_t,Double_t > > posteriorVector;
 
    // for normalization
    Double_t histoIntegral = 0;
@@ -393,8 +393,8 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
 
    // initialize elements of posteriorVector
    int i = 0;
-   vector < pair< Int_t,Double_t > >::iterator vecit = posteriorVector.begin();
-   vector < pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
+   vector< pair< Int_t,Double_t > >::iterator vecit = posteriorVector.begin();
+   vector< pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
    for( ; vecit != vecit_end ; ++vecit) {
       poi->setVal(poi->getMin()+i*stepsize);
       posteriorVector[i] = make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin

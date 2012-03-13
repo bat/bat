@@ -23,8 +23,8 @@ class BinomialModel : public BCModel
 
       // Methods to overload, see file BinomialModel.cxx
       void DefineParameters();
-      double LogAPrioriProbability(const std::vector <double> &parameters);
-      double LogLikelihood(const std::vector <double> &parameters);
+      double LogAPrioriProbability(const std::vector<double> &parameters);
+      double LogLikelihood(const std::vector<double> &parameters);
 
    private:
       // the total number of events

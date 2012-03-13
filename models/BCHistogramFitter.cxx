@@ -118,7 +118,7 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::SetHistogramExpected(const std::vector <double> & parameters)
+int BCHistogramFitter::SetHistogramExpected(const std::vector<double> & parameters)
 {
    //clear up previous memory
    if (fHistogramExpected) {
@@ -236,7 +236,7 @@ BCHistogramFitter::~BCHistogramFitter()
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::LogLikelihood(const std::vector <double> & params)
+double BCHistogramFitter::LogLikelihood(const std::vector<double> & params)
 {
    // initialize probability
    double loglikelihood = 0;
@@ -300,7 +300,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector <double> & params)
 
 // ---------------------------------------------------------
 
-double BCHistogramFitter::FitFunction(const std::vector<double> & x, const std::vector <double> & params)
+double BCHistogramFitter::FitFunction(const std::vector<double> & x, const std::vector<double> & params)
 {
    // set the parameters of the function
    fFitFunction->SetParameters(&params[0]);

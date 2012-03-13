@@ -69,7 +69,7 @@ void BCModelTop::DefineParameters()
 
 // --------------------------------------------------------- 
 
-double BCModelTop::LogAPrioriProbability(std::vector <double> parameters)
+double BCModelTop::LogAPrioriProbability(std::vector<double> parameters)
 {
 
 	double logprob = 0.; 
@@ -80,7 +80,7 @@ double BCModelTop::LogAPrioriProbability(std::vector <double> parameters)
 
 // --------------------------------------------------------- 
 
-double BCModelTop::LogLikelihood(std::vector <double> parameters)
+double BCModelTop::LogLikelihood(std::vector<double> parameters)
 {
 
 	this -> CalculateLorentzVectors(parameters); 
@@ -125,7 +125,7 @@ void BCModelTop::InitializeEvent(BCDataSet * dataset, int index)
 	*fDataPoint = *dataset -> GetDataPoint(index); 
 
 	// chose measured values as starting values 
-	std::vector <double> xstart; 
+	std::vector<double> xstart; 
 	xstart.push_back(fDataPoint -> GetValue(0)); 
 	xstart.push_back(fDataPoint -> GetValue(4)); 
 	xstart.push_back(fDataPoint -> GetValue(8)); 
@@ -195,7 +195,7 @@ void BCModelTop::SetPermutation(int index)
 
 // --------------------------------------------------------- 
 
-void BCModelTop::CalculateLorentzVectors(std::vector <double> parameters) 
+void BCModelTop::CalculateLorentzVectors(std::vector<double> parameters) 
 {
 
 	// hadronic b quark 

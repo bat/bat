@@ -131,35 +131,35 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Fills a vector of random numbers between 0 and 1 into a vector
        * @param A vector of doubles */
-      void GetRandomVector(std::vector <double> &x);
+      void GetRandomVector(std::vector<double> &x);
 
-      virtual void GetRandomVectorMetro(std::vector <double> &x);
+      virtual void GetRandomVectorMetro(std::vector<double> &x);
 
       /**
        * Fills a vector of (flat) random numbers in the limits of the parameters and returns
        * the probability at that point
        * @param x A vector of doubles
        * @return The (unnormalized) probability at the random point */
-      double GetRandomPoint(std::vector <double> &x);
+      double GetRandomPoint(std::vector<double> &x);
 
       /**
        * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
        * function and returns the probability at that point
        * @param x A vector of doubles
        * @return The (unnormalized) probability at the random point */
-      double GetRandomPointImportance(std::vector <double> &x);
+      double GetRandomPointImportance(std::vector<double> &x);
 
       /**
        * Fills a vector of random numbers in the limits of the parameters sampled by the probality
        * function and returns the probability at that point (Metropolis)
        * @param x A vector of doubles */
-      void GetRandomPointMetro(std::vector <double> &x);
+      void GetRandomPointMetro(std::vector<double> &x);
 
       /**
        * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
        * function and returns the probability at that point (Metropolis)
        * @param x A vector of doubles */
-      void GetRandomPointSamplingMetro(std::vector <double> &x);
+      void GetRandomPointSamplingMetro(std::vector<double> &x);
 
       /**
        * @return The number of iterations per dimension for the Monte Carlo integration */
@@ -503,7 +503,7 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
        * Sets mode */
-      void SetMode(std::vector <double> mode);
+      void SetMode(std::vector<double> mode);
 
       /**
        * Sets errorband histogram */
@@ -562,35 +562,35 @@ class BCIntegrate : public BCEngineMCMC
        * Method needs to be overloaded by the user.
        * @param x The point in parameter space
        * @return The unnormalized probability */
-      virtual double Eval(const std::vector <double> &x);
+      virtual double Eval(const std::vector<double> &x);
 
       /**
        * Evaluate the natural logarithm of the Eval function. For better numerical
        * stability, this method should also be overloaded by the user.
        * @param x The point in parameter space
        * @return log(Eval(x)) */
-      virtual double LogEval(const std::vector <double> &x);
+      virtual double LogEval(const std::vector<double> &x);
 
       /**
        * Evaluate the sampling function at a point in parameter space.
        * Method needs to be overloaded by the user.
        * @param x The point in parameter space
        * @return The value of the sampling function */
-      virtual double EvalSampling(const std::vector <double> &x);
+      virtual double EvalSampling(const std::vector<double> &x);
 
       /**
        * Evaluate the natural logarithm of the EvalSampling function.
        * Method needs to be overloaded by the user.
        * @param x The point in parameter space
        * @return log(EvalSampling(x)) */
-      double LogEvalSampling(const std::vector <double> &x);
+      double LogEvalSampling(const std::vector<double> &x);
 
       /**
        * Defines a fit function.
        * @param parameters A set of parameter values
        * @param x A vector of x-values
        * @return The value of the fit function at the x-values given a set of parameters */
-      virtual double FitFunction(const std::vector <double> &/*x*/, const std::vector <double> &/*parameters*/)
+      virtual double FitFunction(const std::vector<double> &/*x*/, const std::vector<double> &/*parameters*/)
          { return 0.; }
 
       /**
@@ -603,25 +603,25 @@ class BCIntegrate : public BCEngineMCMC
        * @param x An initial point in parameter space
        * @param varlist A list of variables
        * @return The integral */
-      double IntegralMC(const std::vector <double> &x, int * varlist);
+      double IntegralMC(const std::vector<double> &x, int * varlist);
 
       /**
        * Perfoms a Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @return The integral */
-      double IntegralMC(const std::vector <double> &x);
+      double IntegralMC(const std::vector<double> &x);
 
       /**
        * Perfoms the Metropolis Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @return The integral */
-      double IntegralMetro(const std::vector <double> &x);
+      double IntegralMetro(const std::vector<double> &x);
 
       /**
        * Perfoms the importance sampling Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @return The integral */
-      double IntegralImportance(const std::vector <double> &x);
+      double IntegralImportance(const std::vector<double> &x);
 
       /**
        * Calculate integral using the Cuba library. For details see documentation.
@@ -921,25 +921,25 @@ class BCIntegrate : public BCEngineMCMC
        * data point containing the upper boundaries of possible data values */
       BCDataPoint * fDataPointUpperBoundaries;
 
-      std::vector <bool> fDataFixedValues;
+      std::vector<bool> fDataFixedValues;
 
       /**
        * A vector of best fit parameters estimated from the global
        * probability and the estimate on their uncertainties */
-      std::vector <double> fBestFitParameters;
-      std::vector <double> fBestFitParameterErrors;
+      std::vector<double> fBestFitParameters;
+      std::vector<double> fBestFitParameterErrors;
 
       /**
        * A vector of best fit parameters estimated from the marginalized probability */
-      std::vector <double> fBestFitParametersMarginalized;
+      std::vector<double> fBestFitParametersMarginalized;
 
       /**
        * Vector of TH1D histograms for marginalized probability distributions */
-      std::vector <TH1D *> fHProb1D;
+      std::vector<TH1D *> fHProb1D;
 
       /**
        * Vector of TH2D histograms for marginalized probability distributions */
-      std::vector <TH2D *> fHProb2D;
+      std::vector<TH2D *> fHProb2D;
 
       /**
        * Flag whether or not to fill the error band */
@@ -953,7 +953,7 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * A flag for single point evaluation of the error "band" */
       bool fErrorBandContinuous;
-      std::vector <double> fErrorBandX;
+      std::vector<double> fErrorBandX;
 
       /**
        * The error band histogram */
@@ -1103,11 +1103,11 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
        * A vector of points in parameter space used for the Metropolis algorithm */
-      std::vector <double> fXmetro0;
+      std::vector<double> fXmetro0;
 
       /**
        * A vector of points in parameter space used for the Metropolis algorithm */
-      std::vector <double> fXmetro1;
+      std::vector<double> fXmetro1;
 
       /**
        * A double containing the log likelihood value at the point fXmetro1 */

@@ -32,13 +32,13 @@ class Pol1Asymm : public BCModel
 		virtual void DefineParameters();
 
 		// fit function returning expectation value for each data point
-		virtual double FitFunction(const std::vector <double> & x, const std::vector <double> & par);
+		virtual double FitFunction(const std::vector<double> & x, const std::vector<double> & par);
 
 		// loglikelihood function - probability of the data given the parameters
-		virtual double LogLikelihood(const std::vector <double> & par);
+		virtual double LogLikelihood(const std::vector<double> & par);
 
 		// prior probability
-		virtual double LogAPrioriProbability(const std::vector <double> & par);
+		virtual double LogAPrioriProbability(const std::vector<double> & par);
 };
 
 // All methods were defined virtual so that we can derive from this class

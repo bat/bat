@@ -87,7 +87,7 @@ void BCDataPoint::SetValue(int index, double value)
 }
 
 // ---------------------------------------------------------
-void BCDataPoint::SetValues(std::vector <double> values)
+void BCDataPoint::SetValues(std::vector<double> values)
 {
    // check if sizes are the same. if true, clear the data point and copy from
    // the vector passed to the method ...

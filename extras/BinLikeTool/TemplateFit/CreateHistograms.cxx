@@ -21,7 +21,7 @@ int CreateHistograms()
 	double m[6] = {150, 160, 170, 180, 190, 200}; 
 	double nevents[6] = {0.1*nev, 0.5*nev, nev, 0.5*nev, 0.3*nev, 0.1*nev}; 
 
-	std::vector <TH1D*> HistCont; 
+	std::vector<TH1D*> HistCont; 
 
 	for (int i = 0; i < nm; ++i) {
 		TH1D * hist = new TH1D(Form("temp_%i", i), "", nbins, 100.0, 250.0); 

@@ -32,7 +32,7 @@ BinLikeModel::~BinLikeModel()
 }
 
 // ---------------------------------------------------------
-double BinLikeModel::LogLikelihood(std::vector <double> parameters)
+double BinLikeModel::LogLikelihood(std::vector<double> parameters)
 {
 	double logprob = 0.;
 
@@ -71,7 +71,7 @@ double BinLikeModel::LogLikelihood(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double BinLikeModel::LogAPrioriProbability(std::vector <double> parameters)
+double BinLikeModel::LogAPrioriProbability(std::vector<double> parameters)
 {
 	double logprob = 0.;
 
@@ -353,7 +353,7 @@ double BinLikeModel::CalculateChi2()
 	double chi2 = 0; 
 	
 	// get best fit parameters
-	std::vector <double> parameters = GetBestFitParameters();
+	std::vector<double> parameters = GetBestFitParameters();
 
 	// loop over histograms
 	int nhist = GetNHistograms(); 
@@ -374,7 +374,7 @@ double BinLikeModel::CalculateChi2Hist(int index)
 	double chi2 = 0; 
 	
 	// get best fit parameters
-	std::vector <double> parameters = GetBestFitParameters();
+	std::vector<double> parameters = GetBestFitParameters();
 
 	// get histogram
 	TH1D* hist = fHistogramContainer.at(index); 

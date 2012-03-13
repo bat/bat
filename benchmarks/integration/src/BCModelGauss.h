@@ -35,9 +35,9 @@ class BCModelGauss : public BCModel
 
 	void DefineParameters(); 
 
-	double LogAPrioriProbability(std::vector <double> parameters); 
+	double LogAPrioriProbability(std::vector<double> parameters); 
 
-	double LogLikelihood(std::vector <double> parameters); 
+	double LogLikelihood(std::vector<double> parameters); 
 
 }; 
 

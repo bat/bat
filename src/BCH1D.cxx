@@ -890,9 +890,9 @@ TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 
 // ---------------------------------------------------------
 
-std::vector <double> BCH1D::GetSmallestIntervals(double content)
+std::vector<double> BCH1D::GetSmallestIntervals(double content)
 {
-   std::vector <double> v;
+   std::vector<double> v;
 
    TH1D * hist = GetSmallestIntervalHistogram(content);
 

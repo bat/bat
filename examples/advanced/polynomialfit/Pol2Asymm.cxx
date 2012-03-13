@@ -46,7 +46,7 @@ void Pol2Asymm::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double Pol2Asymm::FitFunction(const std::vector <double> & x, const std::vector <double> & par)
+double Pol2Asymm::FitFunction(const std::vector<double> & x, const std::vector<double> & par)
 {
 	// function to fit with
 	// get the parameters of the function

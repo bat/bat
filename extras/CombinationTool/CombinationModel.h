@@ -227,14 +227,14 @@ class CombinationModel : public BCModel
 	 * @param parameters A vector of parameters. 
 	 * @return The log of the prior probability.
 	 */
-	virtual double LogAPrioriProbability(std::vector <double> parameters);
+	virtual double LogAPrioriProbability(std::vector<double> parameters);
 
 	/**
 	 * Calculate the log of the likelihood
 	 * @param parameters A vector of parameters. 
 	 * @return The log of the likelihood.
 	 */
-	virtual double LogLikelihood(std::vector <double> parameters);
+	virtual double LogLikelihood(std::vector<double> parameters);
 
  protected:
 

@@ -55,7 +55,7 @@ CombinationModel::~CombinationModel()
 }; 
 
 // ---------------------------------------------------------
-double CombinationModel::LogAPrioriProbability(std::vector <double> parameters)
+double CombinationModel::LogAPrioriProbability(std::vector<double> parameters)
 {
 	double logprob = 0.;
 
@@ -99,7 +99,7 @@ double CombinationModel::LogAPrioriProbability(std::vector <double> parameters)
 }
 
 // ---------------------------------------------------------
-double CombinationModel::LogLikelihood(std::vector <double> parameters)
+double CombinationModel::LogLikelihood(std::vector<double> parameters)
 {
 	double logprob = 0.;
 

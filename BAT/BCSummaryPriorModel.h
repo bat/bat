@@ -54,14 +54,14 @@ class BCSummaryPriorModel : public BCModel
     * given point in parameter space.
     * @param parameters A vector of coordinates in the parameter space.
     * @return The prior probability. */
-   double LogAPrioriProbability(const std::vector <double> &parameters);
+   double LogAPrioriProbability(const std::vector<double> &parameters);
 
    /**
     * Calculates and returns the log of the Likelihood at a given point
     * in parameter space.
     * @param parameters A vector of coordinates in the parameter space.
     * @return The log likelihood. */
-   double LogLikelihood(const std::vector <double> &parameters);
+   double LogLikelihood(const std::vector<double> &parameters);
 
  private:
 

@@ -137,19 +137,19 @@ class BCEfficiencyFitter : public BCModel
       /**
        * The log of the prior probability. Overloaded from BCModel.
        * @param parameters A vector of doubles containing the parameter values. */
-//      virtual double LogAPrioriProbability(const std::vector <double> & parameters);
+//      virtual double LogAPrioriProbability(const std::vector<double> & parameters);
 
       /**
        * The log of the conditional probability. Overloaded from BCModel.
        * @param parameters A vector of doubles containing the parameter values. */
-      virtual double LogLikelihood(const std::vector <double> & parameters);
+      virtual double LogLikelihood(const std::vector<double> & parameters);
 
       /**
        * Returns the y-value of the 1-dimensional fit function at an x and
        * for a set of parameters.
        * @param x A vector with the x-value.
        * @param parameters A set of parameters. */
-      double FitFunction(const std::vector <double> & x, const std::vector <double> & parameters);
+      double FitFunction(const std::vector<double> & x, const std::vector<double> & parameters);
 
       /**
        * Performs the fit.

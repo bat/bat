@@ -61,7 +61,7 @@ class PerfTestVarPar : public PerfTest
     * @param par a vector of parameter values.
     * @param name the name of the varied parameter.
     * @return an error code */
-   int AddVarPar(std::vector <double> values, std::string name);
+   int AddVarPar(std::vector<double> values, std::string name);
 
    /** Return the number of variation parameters. */
    int GetNVarPar()
