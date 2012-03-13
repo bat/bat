@@ -1,4 +1,8 @@
 2012-03-13 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BAT/, benchmarks/, examples/, models/, src/, tools/:
+	  - code formatting of vector<...>, remove extra space
+
+2012-03-13 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate:
 	  - remove EvalPrint(...)
 	* todo:
