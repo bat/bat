@@ -68,9 +68,27 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
        * An enumerator for Cuba integration method */
-      enum BCCubaMethod { kCubaVegas, kCubaSuave, kCubaDivonne, kCubaCuhre };
+      enum BCCubaMethod { kCubaVegas, kCubaSuave, kCubaDivonne, kCubaCuhre, NCubaMethods};
 
       /** @} */
+
+      /** \name Function pointer types */
+      /** @{ */
+			
+			/**
+			 * A pointer for a function that chooses a next random point */
+			typedef void (BCIntegrate::*tRandomizer)(std::vector<double> &, const std::vector<double> &);
+			
+			/**
+			 * A pointer for a function that evaluates at a point */
+			typedef double (BCIntegrate::*tEvaluator)(std::vector<double> &, const std::vector<double> &);
+			
+			/**
+			 * A pointer for a function that updates the integral and absolute precision */
+			typedef void (BCIntegrate::*tIntegralUpdater)(const std::vector<double> &, const int &, double &, double &);
+	 
+      /** @} */
+
 
       /** \name Constructors and destructors */
       /** @{ */
@@ -78,7 +96,7 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * The default constructor */
       BCIntegrate();
-
+	 
       /**
        * A constructor */
       BCIntegrate(BCParameterSet * par);
@@ -131,9 +149,23 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Fills a vector of random numbers between 0 and 1 into a vector
        * @param A vector of doubles */
-      void GetRandomVector(std::vector<double> &x);
+      void GetRandomVectorUnitHypercube(std::vector<double> &x);
+
+      /**
+       * Fills a vector of random numbers x[i] between fMin[i] and fMax[i] into a vector
+       * @param A vector of doubles */
+      void GetRandomVectorInParameterSpace(std::vector<double> &x);
+	 
+      /**
+       * Fills a vector of random numbers x[i] between fMin[i] and fMax[i] into a vector
+			 * leaving values fixed to fix_x according to fVarlist flags
+       * @param A vector of doubles
+			 * @param A vector of doubles containing the fixed values */
+      void GetRandomVectorInParameterSpaceFixed(std::vector<double> &x, const std::vector<double> &fix_x);
 
       virtual void GetRandomVectorMetro(std::vector<double> &x);
+			bool GetRandomVectorMetroScaled(std::vector<double> &x, const std::vector<double> &prev_x);
+			bool GetRandomVectorMetroScaledFixed(std::vector<double> &x, const std::vector<double> &prev_x);
 
       /**
        * Fills a vector of (flat) random numbers in the limits of the parameters and returns
@@ -145,26 +177,43 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
        * function and returns the probability at that point
-       * @param x A vector of doubles
-       * @return The (unnormalized) probability at the random point */
-      double GetRandomPointImportance(std::vector<double> &x);
+       * @param x A vector of doubles */
+			void GetRandomPointImportance(std::vector<double> &x);
+
+      /**
+       * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
+			 * function, leaving values fixed to fix_x according to fVarlist flags
+       * @param A vector of doubles
+			 * @param A vector of doubles containing the fixed values */
+      void GetRandomPointImportanceFixed(std::vector<double> &x, const std::vector<double> &fix_x);
+
+			bool UpdatePointsMetro(std::vector<double> &old_point, double p_old, std::vector<double> &new_point, double p_in, std::vector<double> &x, bool in);
 
       /**
        * Fills a vector of random numbers in the limits of the parameters sampled by the probality
-       * function and returns the probability at that point (Metropolis)
+       * function
        * @param x A vector of doubles */
       void GetRandomPointMetro(std::vector<double> &x);
 
       /**
+       * Fills a vector of random numbers in the limits of the parameters sampled by the probality
+       * function, leaving values fixed to fix_x according to fVarlist flags
+       * @param x A vector of doubles
+			 * @param A vector of doubles containing the fixed values */
+      void GetRandomPointMetroFixed(std::vector<double> &x, const std::vector<double> &fix_x);
+
+      /**
        * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
-       * function and returns the probability at that point (Metropolis)
+       * function
        * @param x A vector of doubles */
       void GetRandomPointSamplingMetro(std::vector<double> &x);
 
       /**
-       * @return The number of iterations per dimension for the Monte Carlo integration */
-      int GetNiterationsPerDimension()
-         { return fNiterPerDimension; }
+       * Fills a vector of random numbers in the limits of the parameters sampled by the sampling
+       * function, leaving values fixed to fix_x according to fVarlist flags
+       * @param x A vector of doubles
+			 * @param A vector of doubles containing the fixed values */
+      void GetRandomPointSamplingMetroFixed(std::vector<double> &x, const std::vector<double> &fix_x);
 
       /**
        * @return Number of samples per 2D bin per variable in the Metropolis marginalization. */
@@ -177,9 +226,24 @@ class BCIntegrate : public BCEngineMCMC
          { return fNvar; }
 
       /**
-       * @return The number of maximum iterations for Monte Carlo integration */
+       * @return The number of minimum iterations for integration */
+      int GetNIterationsMin()
+         { return fNIterationsMin; }
+
+      /**
+       * @return The number of maximum iterations for integration */
       int GetNIterationsMax()
          { return fNIterationsMax; }
+
+			/**
+			 * @return The interval for checking precision in integration */
+			int GetNIterationsPrecisionCheck()
+			{ return fNIterationsPrecisionCheck; }
+
+			/**
+			 * @return The interval for outputting during integration */
+			int GetNIterationsOutput()
+			{ return fNIterationsOutput; }
 
       /**
        * @return The number of iterations for the most recent Monte Carlo integration */
@@ -200,16 +264,6 @@ class BCIntegrate : public BCEngineMCMC
         * @return Cuba Integration method */
       BCCubaMethod GetCubaIntegrationMethod()
          { return fCubaIntegrationMethod; }
-
-      /**
-        * @return Minimum number of evaluations in Cuba integration */
-      int GetCubaMinEval()
-         { return fCubaMinEval; }
-
-      /**
-        * @return Maximum number of evaluations in Cuba integration */
-      int GetCubaMaxEval()
-         { return fCubaMaxEval; }
 
       /**
         * @return Verbosity level of Cuba integration */
@@ -342,20 +396,30 @@ class BCIntegrate : public BCEngineMCMC
          { fSASchedule = schedule; }
 
       /**
-       * @param niterations Number of iterations per dimension for Monte Carlo integration. */
-      void SetNiterationsPerDimension(int niterations)
-         { fNiterPerDimension = niterations; }
-
-      /**
        * @param n Number of samples per 2D bin per variable in the Metropolis marginalization.
        * Default is 100. */
       void SetNSamplesPer2DBin(int n)
          { fNSamplesPer2DBin = n; }
 
       /**
-       * @param niterations The maximum number of iterations for Monte Carlo integration */
+       * @param niterations The maximum number of iterations for integration */
+      void SetNIterationsMin(int niterations)
+         { fNIterationsMin = niterations; }
+
+      /**
+       * @param niterations The maximum number of iterations for integration */
       void SetNIterationsMax(int niterations)
          { fNIterationsMax = niterations; }
+
+			/**
+			 * @param niterations interval for checking precision in integration routines */
+			void SetNIterationsPrecisionCheck(int niterations)
+			{ fNIterationsPrecisionCheck = niterations; }
+
+			/**
+			 * @param niterations interval for outputting during integration. If negative, frequency is autogenerated. */
+			void SetNIterationsOutput(int niterations)
+			{ fNIterationsOutput = niterations; }
 
       /**
        * @param relprecision The relative precision envisioned for Monte
@@ -372,15 +436,6 @@ class BCIntegrate : public BCEngineMCMC
         * Set Cuba integration method */
       void SetCubaIntegrationMethod(BCCubaMethod type);
 
-      /**
-        * Set minimum number of evaluations in Cuba integration */
-      void SetCubaMinEval(int n)
-         { fCubaMinEval = n; }
-
-      /**
-        * Set maximum number of evaluations in Cuba integration */
-      void SetCubaMaxEval(int n)
-         { fCubaMaxEval = n; }
 
       /**
         * Set verbosity level of Cuba integration */
@@ -599,42 +654,63 @@ class BCIntegrate : public BCEngineMCMC
       double Integrate();
 
       /**
+       * Does the integration over the un-normalized probability.
+			 * @param type The integration method to used
+       * @return The normalization value */
+      double Integrate(BCIntegrationMethod type);
+
+      /**
+       * Does the integration over the un-normalized probability.
+			 * @param type The integration method to used
+			 * @param x An initial point to start integration routine at
+       * @return The normalization value */
+      double Integrate(BCIntegrationMethod type, const std::vector<double> &x);
+
+      /**
+       * Does the integration over the un-normalized probability.
+			 * @param type The integration method to used (for printing out status updates by name)
+			 * @param randomizer Pointer to function to choose next random point
+			 * @param evaluator Pointer to function to evaluate point
+			 * @param updater Pointer to function to update integral and precision
+			 * @param sums Vector of doubles holding values used in integral calculation
+			 * @param x An initial point to start integration routine at
+       * @return The integral value */
+			double Integrate(BCIntegrationMethod type, tRandomizer randomizer, tEvaluator evaluator, tIntegralUpdater updater, std::vector<double> sums, const std::vector<double> &x);
+
+			double EvaluatorMC(std::vector<double> &sums, const std::vector<double> &point);
+			void IntegralUpdaterMC(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision);
+
+      /**
        * Perfoms a Monte Carlo integration. For details see documentation.
        * @param x An initial point in parameter space
        * @param varlist A list of variables
        * @return The integral */
       double IntegralMC(const std::vector<double> &x, int * varlist);
-
-      /**
-       * Perfoms a Monte Carlo integration. For details see documentation.
-       * @param x An initial point in parameter space
-       * @return The integral */
-      double IntegralMC(const std::vector<double> &x);
-
-      /**
-       * Perfoms the Metropolis Monte Carlo integration. For details see documentation.
-       * @param x An initial point in parameter space
-       * @return The integral */
-      double IntegralMetro(const std::vector<double> &x);
-
-      /**
-       * Perfoms the importance sampling Monte Carlo integration. For details see documentation.
-       * @param x An initial point in parameter space
-       * @return The integral */
-      double IntegralImportance(const std::vector<double> &x);
+	 
+			double EvaluatorMetro(std::vector<double> &sums, const std::vector<double> &point);
+			void IntegralUpdaterMetro(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision);
 
       /**
        * Calculate integral using the Cuba library. For details see documentation.
        * @param method A short cut for the method
        * @param parameters_double A vector of parameters (double)
        * @param parameters_int A vector of parameters (int)
+       * @param x An initial point in parameter space
        * @return The integral */
-      double CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<double> parameters_double, std::vector<double> parameters_int);
+			double IntegrateCuba(BCIntegrate::BCCubaMethod method, std::vector<double> parameters_double, std::vector<double> parameters_int, const std::vector<double> &x);
+	 
+      /**
+       * Calculate integral using the Cuba library. For details see documentation.
+       * @param x An initial point in parameter space
+       * @return The integral */
+			double IntegrateCuba(const std::vector<double> &x);
 
       /**
        * Calculate integral using the Cuba library. For details see documentation.
+       * @param Cuba integration method to use
+       * @param x An initial point in parameter space
        * @return The integral */
-      double CubaIntegrate();
+	 double IntegrateCuba(BCCubaMethod cubatype, const std::vector<double> &x);
 
       /**
        * Integrand for the Cuba library.
@@ -716,6 +792,8 @@ class BCIntegrate : public BCEngineMCMC
       /**
        * Initializes the Metropolis algorithm (for details see manual) */
       void InitMetro();
+
+			void InitMetroFixed(const std::vector<double> &fix_x);
 
       /**
        * Initializes the Simulated Annealing algorithm (for details see manual) */
@@ -887,9 +965,32 @@ class BCIntegrate : public BCEngineMCMC
       std::string DumpCubaIntegrationMethod()
          { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); }
 
+	 /**
+	  * Set best fit parameters values*/
+	 void SetBestFitParameters(const std::vector<double> &x);
+		  
+	 /**
+	  * Set best fit parameters if best fit
+	  * @param new_value is the value of the function at x
+	  * @param old_value is the old best fit value, updated to new_value, if it is larger */
+	 void SetBestFitParameters(const std::vector<double> &x, const double &new_value, double &old_value);
 
-      /** @} */
+	 /**
+	  * Get number of variables that are varied in the integration
+	  * @return fNvar minus the number of fixed variables */
+	 int GetNIntegrationVariables();
 
+	 /**
+	  * Calculate the integration volume
+	  * @return integration volume */
+	 double CalculateIntegrationVolume();
+	 
+	 /**
+	  * Get the latest integration volume */
+	 double GetIntegrationVolume() {return fIntegrationVolume;}
+
+	 /** @} */
+	 
    protected:
 
       /**
@@ -1011,6 +1112,14 @@ class BCIntegrate : public BCEngineMCMC
       double fSALogProb;
       std::vector<double> fSAx;
 
+	 /**
+	  * Determine frequency of output during integration */
+	 int IntegrationOutputFrequency();
+
+	 void LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCubaMethod cubatype, const std::vector<double> &x);
+	 void LogOutputAtIntegrationStatusUpdate(BCIntegrationMethod type, double integral, double absprecision, int nIterations);
+	 void LogOutputAtEndOfIntegration(double integral, double absprecision, double relprecision, int nIterations);
+
    private:
 
       /**
@@ -1029,9 +1138,9 @@ class BCIntegrate : public BCEngineMCMC
        * List of variables containing a flag whether to integrate over them or not. */
       int * fVarlist;
 
-      /**
-       * Number of iteration per dimension for Monte Carlo integration. */
-      int fNiterPerDimension;
+			/**
+			 * Volume of most recent integration */
+			double fIntegrationVolume;
 
       /**
        * Current integration method */
@@ -1056,7 +1165,19 @@ class BCIntegrate : public BCEngineMCMC
 
       /**
        * Maximum number of iterations */
+      int fNIterationsMin;
+
+      /**
+       * Maximum number of iterations */
       int fNIterationsMax;
+
+      /**
+       * Maximum number of iterations */
+      int fNIterationsPrecisionCheck;
+
+      /**
+       * Output frequency during integration */
+      int fNIterationsOutput;
 
       /**
        * Number of iterations in the most recent Monte Carlo integation */
@@ -1070,12 +1191,6 @@ class BCIntegrate : public BCEngineMCMC
 
       /** Cuba integration method */
       BCCubaMethod fCubaIntegrationMethod;
-
-      /** Minimum number of evaluations in Cuba integration */
-      int fCubaMinEval;
-
-      /** Maximum number of evaluations in Cuba integration */
-      int fCubaMaxEval;
 
       /** Verbosity level of Cuba integration */
       int fCubaVerbosity;
@@ -1125,3 +1240,4 @@ class BCIntegrate : public BCEngineMCMC
 // ---------------------------------------------------------
 
 #endif
+	 

@@ -1,3 +1,12 @@
+2012-03-15 Daniel Greenwald <deg@mpp.mpg.de>
+	* BCIntegrate:
+	  - Massive overhaul to consolidate all native BAT integration routines into one class of methods using function pointers
+	  - All native integration routines now obey minimum number of iterations, maximum number of iterations, and target precisions
+	  - Cuba integration routines brought into conformity with native routines
+	  - code cleanup / breaking off of common functionality into new methods
+	* BCModelManager:
+	  - Removed methods pertaining to NIterationsPerDimension, which no longer exists in BCIntegrate
+
 2012-03-13 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BAT/, benchmarks/, examples/, models/, src/, tools/:
 	  - code formatting of vector<...>, remove extra space

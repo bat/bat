@@ -141,11 +141,6 @@ class BCModelManager
       void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method);
 
       /**
-       * @param niterations Number of iterations per dimension for Monte
-       * Carlo integration. */
-      void SetNiterationsPerDimension(unsigned int niterations);
-
-      /**
        * @param n Number of samples per 2D bin per variable in the
        * Metropolis marginalization.  Default is 100. */
       void SetNSamplesPer2DBin(unsigned int n);
