@@ -153,6 +153,15 @@ void BCModelManager::SetOptimizationMethod(BCIntegrate::BCOptimizationMethod met
 
 // ---------------------------------------------------------
 
+void BCModelManager::SetNiterationsPerDimension(unsigned int niterations)
+{
+   // set number of iterations per dimension for all models registered
+   for (unsigned int i = 0; i < GetNModels(); i++)
+      GetModel(i)->SetNiterationsPerDimension(niterations);
+}
+
+// ---------------------------------------------------------
+
 void BCModelManager::SetNSamplesPer2DBin(unsigned int n)
 {
    // set samples per 2d bin for all models registered
