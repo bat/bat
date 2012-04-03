@@ -88,20 +88,20 @@ cat << EOF
 {
    // default constructor
    DefineParameters();
-};
+}
 
 // ---------------------------------------------------------
 |:Model:|::|:Model:|(const char * name) : BCModel(name)
 {
    // constructor
    DefineParameters();
-};
+}
 
 // ---------------------------------------------------------
 |:Model:|::~|:Model:|()
    // default destructor
 {
-};
+}
 
 // ---------------------------------------------------------
 void |:Model:|::DefineParameters()

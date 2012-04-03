@@ -1,3 +1,7 @@
+2012-04-03 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* CreateProject.sh
+	  - remove superfluous ';'
+
 2012-04-02 Daniel Kollar <kollar.dan@gmail.com>
 	* raised version to 0.9.rc1
 
