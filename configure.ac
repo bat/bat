@@ -2,7 +2,7 @@ AC_INIT(src/BCModel.cxx)
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.9.rc1)
+AM_INIT_AUTOMAKE(BAT, 0.9.rc2)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -143,7 +143,8 @@ AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
 AC_OUTPUT(
 	Makefile
 	src/Makefile
-	models/Makefile
+	models/base/Makefile
+	models/mtf/Makefile
 	benchmarks/test/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile

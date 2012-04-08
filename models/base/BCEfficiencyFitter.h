@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "../BAT/BCModel.h"
+#include "../../BAT/BCModel.h"
 
 // ROOT classes
 class TH1D;

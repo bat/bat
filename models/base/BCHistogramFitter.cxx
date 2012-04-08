@@ -18,10 +18,10 @@
 #include <Math/ProbFuncMathCore.h> //for ROOT::Math namespace
 #include <TString.h>
 
-#include "../BAT/BCLog.h"
-#include "../BAT/BCDataSet.h"
-#include "../BAT/BCDataPoint.h"
-#include "../BAT/BCMath.h"
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCDataSet.h"
+#include "../../BAT/BCDataPoint.h"
+#include "../../BAT/BCMath.h"
 
 #include "BCHistogramFitter.h"
 

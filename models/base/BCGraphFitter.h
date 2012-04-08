@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include "../BAT/BCModel.h"
+#include "../../BAT/BCModel.h"
 
 class TGraphErrors;
 class TF1;

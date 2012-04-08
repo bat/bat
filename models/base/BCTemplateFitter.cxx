@@ -13,9 +13,9 @@
 #include <TLine.h>
 #include <TDirectory.h>
 
-#include "../BAT/BCMath.h"
-#include "../BAT/BCLog.h"
-#include "../BAT/BCH1D.h"
+#include "../../BAT/BCMath.h"
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCH1D.h"
 
 #include "BCTemplateFitter.h"
 

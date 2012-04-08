@@ -14,10 +14,10 @@
 #include <TLegend.h>
 #include <Math/ProbFuncMathCore.h>
 
-#include "../BAT/BCLog.h"
-#include "../BAT/BCDataSet.h"
-#include "../BAT/BCDataPoint.h"
-#include "../BAT/BCMath.h"
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCDataSet.h"
+#include "../../BAT/BCDataPoint.h"
+#include "../../BAT/BCMath.h"
 
 #include "BCGraphFitter.h"
 

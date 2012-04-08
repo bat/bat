@@ -1,7 +1,7 @@
 lib_LTLIBRARIES= libBATmodels.la
 libBATmodels_la_LDFLAGS= -version-info 2:0:0
 
-AM_CXXFLAGS= -Wall -fPIC  -I.. -I. -I../BAT $(ROOTCFLAGS)
+AM_CXXFLAGS= -Wall -fPIC  -I../.. -I. -I../../BAT $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
@@ -66,12 +66,12 @@ clean-local:
 ## RooStats specific targers
 #if ROOSTATS
 BATCalculatorDict.cxx : BATCalculator.h
-	$(ROOTCINT) -f $@ -c  -I.. -I. -I../BAT $< BATCalculatorLinkDef.h
+	$(ROOTCINT) -f $@ -c  -I../.. -I. -I../../BAT $< BATCalculatorLinkDef.h
 #endif
 ## End of RooStats specific targets
 
 %Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c  -I.. -I. -I../BAT $<
+	$(ROOTCINT) -f $@ -c  -I../.. -I. -I../../BAT $<
 
 install-exec-hook:
 	rm -rf libBATmodels.rootmap
@@ -82,7 +82,7 @@ install-exec-hook:
 
 install-data-hook:
 	for i in $(incs); do \
-		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/ ; s/include \"\.\.\/\(BAT\/BC.*.h\)\"/include <\1>/' $$i > $$i.h; \
+		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/ ; s/include \"\.\.\/\.\.\/\(BAT\/BC.*.h\)\"/include <\1>/' $$i > $$i.h; \
 		if ! diff -q "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i" > /dev/null; then \
 			echo "updating $$i"; \
 			cp -f "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i"; \

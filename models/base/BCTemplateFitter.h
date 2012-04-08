@@ -28,7 +28,7 @@
 #include <TH1D.h>
 #include <TF1.h>
 
-#include "../BAT/BCModel.h"
+#include "../../BAT/BCModel.h"
 
 class TH2D;
 

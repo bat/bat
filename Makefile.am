@@ -7,14 +7,16 @@ clean-local:
 
 SUBDIRS= \
 	src \
-	models \
+	models/base \
+	models/mtf \
 	benchmarks/test
 
 EXTRA_DIST= \
 	src/libBAT.rootmap \
-	models/BCRooInterface.rootmap \
-	models/libBATmodels.rootmap.in \
-	models/BATCalculatorLinkDef.h \
+	models/base/BCRooInterface.rootmap \
+	models/base/libBATmodels.rootmap.in \
+	models/base/BATCalculatorLinkDef.h \
+	models/mtf/libBATmtf.rootmap \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/CreateProject.sh.in
