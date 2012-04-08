@@ -1,41 +1,29 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.4.3
-Release date:                 2010-06-21
+Release notes for version:    0.9
+Release date:                 2010-04-xx
 Urgency:                      low
 ------------------------------------------
 
-This version contains several improvements and updates and a few bugfixes.
-The most important changes are summarized below. For detailed list of changes see
-the Changelog. For more information consult the BAT webpage at
-http://www.mppmu.mpg.de/bat/
+This version is intended to be a pre-release for the stable BAT version 1.0.
+It contains many improvements and a few bugfixes. The most important changes
+are summarized below. For detailed list of changes see the Changelog. For
+more information consult the BAT webpage at http://www.mpp.mpg.de/bat/.
 
-General
--------
-o Fixed several bugs and compiler warnings.
-o Improved compilation of examples.
-o Improved CreateProject.sh script.
+o The user interface for the models has changed. The vector of parameters
+  is now passed as const reference which leads to significant speed up
+  especially for models with large number of parameters.
+  All user models have to be adjusted!!!
 
+o Added new fully rewritten template fitter - BCMTF (MTF stands for
+  MultiTemplateFitter). 
+  ...
+  The old BCTemplateFitter is kept for the moment but is depreceted.
 
-MCMC
-----
-o It is now possible to skip the pre-run.
-o Quick setting now runs two chains by default (was one before).
-o Added strict definition of r-value.
+o Fixed Makefile generation in CreateProject.sh script.
 
+o Fixed compilation in the presence of more BAT versions in the system.
 
-HistogramFitter
------------------
-o Introduced interface allowing the user to use the data sets from the fast MC
-  to calculate the distribution of an arbitrary statistic.
-
-
-RooStats Interface
-------------------
-o Added possibility to construct RooStats Markov Chain object.
-o It is now possible to retrieve RooStats MarkovChain and MCMCInterval.
-o Allowed to fix left side tail fraction of 1D interval.
-o Renamed few functions to improve the consistency with other RooStats classes.
-o Fixed few bugs.
+o Global code cleanup.
 
