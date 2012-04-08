@@ -1,0 +1,8 @@
+Library.BCMTFAnalysisFacility:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTFChannel:              libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTFComparisonTool:       libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTF:                     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTFProcess:              libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTFSystematic:           libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTFSystematicVariation:  libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
+Library.BCMTFTemplate:             libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so

@@ -1,4 +1,7 @@
 2012-04-08 Daniel Kollar <kollar.dan@gmail.com>
+	* updated libBATmtf.rootmap
+
+2012-04-08 Daniel Kollar <kollar.dan@gmail.com>
 	* moved files from models to models/base
 	* added BCMTF (MultiTemplateFitter) in models/mtf
 	* raised version to 0.9.rc2
