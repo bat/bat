@@ -112,7 +112,7 @@ class BCGraphFitter : public BCModel
       double FitFunction(const std::vector<double> & x, const std::vector<double> & parameters);
 
       /**
-       * Performs the fit. The graph and the function has to beset beforehand.
+       * Performs the fit. The graph and the function has to be set beforehand.
        * @return An error code. */
       int Fit();
 

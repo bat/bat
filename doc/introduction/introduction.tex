@@ -119,11 +119,10 @@ the License, or any later version.
 \bat\ has been developed on Linux machines running different distributions
 and different versions of the kernel and gcc. As far as we know there
 is nothing distribution dependent inside of \bat. However, we have not
-yet started to systematically check for compatibility and
-portability. This is planned for future releases of \bat. For the
-moment the only statement we can do here is that if you don't have a
-too old or too specific installation of Linux you should be able to
-compile and use \bat\ without problems. \\
+systematically checked for compatibility and portability so the only
+statement we can do here is that if you don't have a too old or too
+specific installation of Linux you should be able to compile and use
+\bat\ without problems. \\
 
 \noindent
 The installation and functionality of BAT has also been tested on MACs. \\
@@ -260,8 +259,9 @@ An option for use in compiled programs would also be to add
 \verb|-I/bat/install/include/path| to \verb|CFLAGS| and
 \verb|-L/bat/install/lib/path| to \verb|LDFLAGS| in your
 \verb|Makefile|. However, the interactive \Root\ macros will not work if
-\verb|libBAT.so|, \verb|libBATmodels.so|, \verb|libBAT.rootmap| and
-\verb|libBATmodels.rootmap| aren't in the system library search path. \\
+\verb|libBAT.so|, \verb|libBATmodels.so|, \verb|libBATmtf.so|,
+\verb|libBAT.rootmap|, \verb|libBATmodels.rootmap| and
+\verb|libBATmtf.rootmap| are not in the system library search path. \\
 
 \noindent
 See also \verb|INSTALL| file in the \bat\ distribution for installation instructions.
