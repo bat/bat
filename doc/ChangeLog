@@ -1,7 +1,15 @@
+2012-04-16 Daniel Kollar <kollar.dan@gmail.com>
+	* introduction.tex:
+	  - reintroduced the removed update of the installation instructions
+	* examples:
+	  - basic/rootOutput: added script for offline analysis of the MCMC
+	    stored in the ROOT file
+	  - added a simple BCMTF example, more will follow
+
 2012-04-10 Daniel Greenwald <daniel.greenwald@tum.de>
 	* doc/introduction/introduction.tex
 	  - Cleaned up so that all methods, members. function arguments,
- 	    and namespaces are correct for version 0.9
+	    and namespaces are correct for version 0.9
 
 2012-04-09 Daniel Kollar <kollar.dan@gmail.com>
 	* updated installation instructions and fixed a few typos
