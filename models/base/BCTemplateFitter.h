@@ -3,19 +3,22 @@
 
 /*!
  * \class BCTemplateFitter
+ * This class is DEPRECETED and it will be removed in the future version
+ * of BAT. Use BCMTF instead.
+ *
  * This class can be used for fitting several template
  * histograms to a data histogram. The templates are assumed to have
  * no statistical uncertainty whereas the data are assumed to have
  * Poissonian fluctuations in each bin. Several methods to judge the
  * validity of the model are available.
- * \brief A class for fitting several templates to a data set.
+ * \brief DEPRECETED class for fitting several templates to a data set.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \date 10.04.2010
  */
 
 /*
- * Copyright (C) 2008-2011, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.

@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include <iostream>
 
 #include <TROOT.h>
@@ -31,6 +40,8 @@ BCTemplateFitter::BCTemplateFitter()
    , fXmin(1.)
    , fXmax(0.)
 {
+   BCLog::OutWarning("Class BCTemplateFitter is depreceted and it will be removed");
+   BCLog::OutWarning("in the future version of BAT. Use the new class BCMTF instead.");
 }
 
 // ---------------------------------------------------------
@@ -45,6 +56,8 @@ BCTemplateFitter::BCTemplateFitter(const char * name)
    , fXmin(1.)
    , fXmax(0.)
 {
+   BCLog::OutWarning("Class BCTemplateFitter is depreceted and it will be removed");
+   BCLog::OutWarning("in the future version of BAT. Use the new class BCMTF instead.");
 }
 
 // ---------------------------------------------------------

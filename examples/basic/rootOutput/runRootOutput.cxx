@@ -34,7 +34,7 @@ int main()
   // possible to use the mode found by MCMC as
   // starting point of Minuit minimization
   m->FindMode( m->GetBestFitParameters() );
-  
+
   // draw all marginalized distributions into a PostScript file
   m->PrintAllMarginalized("GaussModel_plots.ps");
 

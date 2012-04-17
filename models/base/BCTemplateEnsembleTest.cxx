@@ -1,3 +1,12 @@
+/*
+ * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include <TFile.h>
 #include <TTree.h>
 #include <TROOT.h>
@@ -27,6 +36,11 @@ BCTemplateEnsembleTest::BCTemplateEnsembleTest()
    , fFlagMCMC(false)
 {
    fRandom = new TRandom3(0);
+
+   BCLog::OutWarning("Class BCTemplateFitter is depreceted and it will be removed");
+   BCLog::OutWarning("in the future version of BAT. The same is true for the class");
+   BCLog::OutWarning("BCTemplateEnsembleTest. Use the new class BCMTF and its ensemble");
+   BCLog::OutWarning("testing capabilities instead.");
 }
 
 // ---------------------------------------------------------

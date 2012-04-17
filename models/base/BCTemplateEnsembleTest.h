@@ -3,10 +3,13 @@
 
 /*!
  * \class BCTemplateEnsembleTest
- * This class can be used for ensemble tests using the StackTool. The
+ * This class is DEPRECETED and it will be removed in the future version
+ * of BAT. Use BCMTF and its ensemble testing capabilities.
+ *
+ * This class can be used for ensemble tests using the BCTemplateFitter. The
  * fitting can be done with Minuit or with Markov Chains.
  *
- * \brief A class for doing ensemble tests.
+ * \brief DEPRECETED class for ensemble testing.
  * \author Andrea Knue
  * \author Daniel Kollar
  * \author Kevin Kroeninger
@@ -14,7 +17,7 @@
  */
 
 /*
- * Copyright (C) 2008-2011, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.

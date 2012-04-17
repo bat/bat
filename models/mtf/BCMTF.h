@@ -1,6 +1,29 @@
 #ifndef __BCMTF__H
 #define __BCMTF__H
 
+/*!
+ * \class BCMTF
+ * \brief A class for ...
+ * \author Daniel Kollar
+ * \author Kevin Kr&ouml;ninger
+ * \version 1.0
+ * \date 04.2012
+ * \detail
+ *
+ *
+ *
+ *
+ */
+
+/*
+ * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ */
+
+// ---------------------------------------------------------
+
 #include "../../BAT/BCModel.h"
 
 #include <TH1D.h>
