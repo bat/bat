@@ -1,0 +1,15 @@
+example1.C:
+A simple fit of a Gaussian peak on top of a flat background
+
+example2.C:
+
+A fit with two channels. The signal is a Gaussian in both channels,
+but wider in the second one. Also, the efficiency in both channels is
+different. Each channel has one channel-specific background. 
+
+example3.C:
+
+Same setting as in example2.C, but now ensemble tests are
+performed. The ensembles are generated assuming the same statistical
+model using the best-fit parameters.
+

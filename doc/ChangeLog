@@ -1,4 +1,7 @@
 2012-04-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mtf: added three examples for the MTF tool
+
+2012-04-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/BCMTF.cxx: bug fix: checked size of vector containing expectatiion functions
 
 2012-04-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
