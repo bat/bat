@@ -415,8 +415,6 @@ int BCMTF::SetSystematicVariation(const char * channelname, const char * process
 
    TH1D * hist_template = bctemplate->GetHistogram();
 
-   // debugKK
-
    TH1D hist_up = TH1D(*hist_template);
    TH1D hist_down = TH1D(*hist_template);
 
@@ -583,24 +581,24 @@ int BCMTF::PrintSummary(const char * filename)
 double BCMTF::Expectation(int channelindex, int binindex, const std::vector<double> & parameters)
 {
    double expectation = 0.;
-
+	 
    // loop over all processes
    for (int i = 0; i < fNProcesses; ++i) {
-      // get efficiency
-      double efficiency = Efficiency(channelindex, i, binindex, parameters);
-
-      // get probability
-      double probability = Probability(channelindex, i, binindex, parameters);
-
-      // get parameter index
-      int parindex = fProcessParIndexContainer[i];
-
-      // add to expectation
-      expectation += ExpectationFunction(parindex, channelindex, i, parameters)
-         * efficiency
-         * probability;
+		 // get efficiency
+		 double efficiency = Efficiency(channelindex, i, binindex, parameters);
+		 
+		 // get probability
+		 double probability = Probability(channelindex, i, binindex, parameters);
+		 
+		 // get parameter index
+		 int parindex = fProcessParIndexContainer[i];
+		 
+		 // add to expectation
+		 expectation += ExpectationFunction(parindex, channelindex, i, parameters)
+			 * efficiency
+			 * probability;
    }
-
+	 
    // check if expectation is positive
    if (expectation < 0)
       expectation = 0.;
@@ -660,9 +658,6 @@ double BCMTF::Efficiency(int channelindex, int processindex, int binindex, const
       defficiency += parameters[parindex] * hist->GetBinContent(binindex);
    }
 
-   // debugKK
-   // does this make sense?
-
    // calculate efficiency
    efficiency *= defficiency;
 
@@ -687,7 +682,7 @@ double BCMTF::Probability(int channelindex, int processindex, int binindex, cons
    std::vector<TF1 *> * funccont = fChannelContainer[channelindex]->GetTemplate(processindex)->GetFunctionContainer();
 
    // this needs to be fast
-   if (!hist && !funccont)
+   if (!hist && !(funccont->size()>0))
       return 0.;
 
    if (hist)
@@ -976,7 +971,7 @@ double BCMTF::LogLikelihood(const std::vector<double> & parameters)
       if (!(channel->GetFlagChannelActive()))
          continue;
 
-      // get data
+     // get data
       BCMTFTemplate * data = channel->GetData();
 
       // get histogram
@@ -991,6 +986,7 @@ double BCMTF::LogLikelihood(const std::vector<double> & parameters)
 
       // loop over all bins
       for (int ibin = 1; ibin <= nbins; ++ibin) {
+
          // get expectation value
          double expectation = Expectation(ichannel, ibin, parameters);
 
