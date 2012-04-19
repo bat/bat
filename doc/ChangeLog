@@ -1,4 +1,9 @@
 2012-04-19 Daniel Kollar <kollar.dan@gmail.com>
+	* quickstart:
+	  - removed binary tth from the svn
+	  - added comment on the availability of tth to the Makefile
+
+2012-04-19 Daniel Kollar <kollar.dan@gmail.com>
 	* performance suite:
 	  - added workaround for 2D constant function
 	  - fixed rounding problem in PerfTest1DFunction()

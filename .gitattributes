@@ -106,7 +106,6 @@ doc/note_template/note.tex -text
 doc/quickstart/Makefile -text
 doc/quickstart/bat.eps -text
 doc/quickstart/quickstart.tex -text
-doc/quickstart/tth -text
 doc/releasenotes.txt -text
 doc/todo/plans.txt -text
 doc/todo/todo.txt -text
