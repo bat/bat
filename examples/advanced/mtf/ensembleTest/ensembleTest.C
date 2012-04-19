@@ -1,5 +1,5 @@
 
-void example3()
+void ensembleTest()
 {
    // ---- set style and open log files ---- //
 
@@ -54,15 +54,15 @@ void example3()
    m->SetData("channel2", hist_data2);
 
    // set template and histograms
-	 // note: the process "background_channel2" is ignored in channel 1
+   // note: the process "background_channel2" is ignored in channel 1
    m->SetTemplate("channel1", "signal", hist_sgn1, 0.5);
    m->SetTemplate("channel1", "background_channel1", hist_bkg1, 1.0);
-	 //	 m->SetTemplate("channel1", "background_channel2", hist_bkg1, 0.0);
+//   m->SetTemplate("channel1", "background_channel2", hist_bkg1, 0.0);
 
-	 // note: the process "background_channel1" is ignored in channel 2
+   // note: the process "background_channel1" is ignored in channel 2
    m->SetTemplate("channel2", "signal", hist_sgn2, 1.0);
    m->SetTemplate("channel2", "background_channel2", hist_bkg2, 1.0);
-	 //   m->SetTemplate("channel2", "background_channel1", hist_bkg2, 0.0);
+//   m->SetTemplate("channel2", "background_channel1", hist_bkg2, 0.0);
 
    // set priors
    m->SetPriorGauss("background_channel1", 800., 10.);
@@ -88,35 +88,34 @@ void example3()
       m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.eps", channel->GetName().c_str()), "");
    }
 
-	// ---- perform ensemble tests ---- //
+   // ---- perform ensemble tests ---- //
 
-	// create new analysis facility 
-	BCMTFAnalysisFacility* facility = new BCMTFAnalysisFacility(m); 
+   // create new analysis facility
+   BCMTFAnalysisFacility* facility = new BCMTFAnalysisFacility(m);
 
-	// settings
-	facility->SetFlagMCMC(false);
-	//	facility->SetFlagMCMC(true);
-	
-	// open new file
-	file = new TFile("ensembles.root", "RECREATE");
-	file->cd(); 
+   // settings
+   facility->SetFlagMCMC(false);
+//   facility->SetFlagMCMC(true);
 
-	// create ensembles
-	TTree* tree = facility->BuildEnsembles( m->GetBestFitParameters(), 10000 );
-	//	TTree* tree = facility->BuildEnsembles( priortree, 10000 );
-	
-	// run ensemble test
-	TTree* tree_out = facility->PerformEnsembleTest(tree, 100);
+   // open new file
+   file = new TFile("ensembles.root", "RECREATE");
+   file->cd();
 
-	// write trees into file
-	tree->Write();
-	tree_out->Write(); 
+   // create ensembles
+   TTree* tree = facility->BuildEnsembles( m->GetBestFitParameters(), 10000 );
 
-	// close file
-	file->Close();
-	
-	// free memory
-	delete file;
+   // run ensemble test
+   TTree* tree_out = facility->PerformEnsembleTest(tree, 100);
+
+   // write trees into file
+   tree->Write();
+   tree_out->Write();
+
+   // close file
+   file->Close();
+
+   // free memory
+   delete file;
 
    // ---- clean up ---- //
 

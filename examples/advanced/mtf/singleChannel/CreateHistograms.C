@@ -11,29 +11,25 @@ void CreateHistograms()
    double eff_sgn1 = 1.0;
    double eff_bkg1 = 1.0;
 
-   double eff_sgn2 = 0.5;
-   double eff_bkg2 = 1.0;
-
    // histogram settings
    int nbins = 100;
-   double xmin = 2039. - 50.;
-   double xmax = 2039. + 50.;
+   double xmin = 1000. - 50.;
+   double xmax = 1000. + 50.;
 
    // histograms
 
    // templates
-   TH1D * hist_bkg = new TH1D("hist_bkg", ";E [keV];p(E)", nbins, xmin, xmax);
-   TH1D * hist_sgn = new TH1D("hist_sgn", ";E [keV];p(E)", nbins, xmin, xmax);
+   TH1D * hist_bkg = new TH1D("hist_bkg", ";E [a.u.];p(E)", nbins, xmin, xmax);
+   TH1D * hist_sgn = new TH1D("hist_sgn", ";E [a.u.];p(E)", nbins, xmin, xmax);
 
    // data
-   TH1D * hist_data1 = new TH1D("hist_data1", ";E [keV];p(E)", nbins,xmin, xmax);
-   TH1D * hist_data2 = new TH1D("hist_data2", ";E [keV];p(E)", nbins,xmin, xmax);
+   TH1D * hist_data = new TH1D("hist_data", ";E [a.u.];p(E)", nbins,xmin, xmax);
 
    // fill templates
    for (int i = 1; i <= nbins; ++i) {
-      double x = hist_data1->GetBinCenter(i);
+      double x = hist_data->GetBinCenter(i);
       double y1 = 1;
-      double y2 = TMath::Gaus(x, 2039, 5);
+      double y2 = TMath::Gaus(x, 1000, 5);
 
       hist_bkg->SetBinContent(i, y1);
       hist_sgn->SetBinContent(i, y2);
@@ -53,11 +49,9 @@ void CreateHistograms()
 
       // total expectation
       double exptotal1 = eff_bkg1 *exp_bkg + eff_sgn1 *exp_sgn;
-      double exptotal2 = eff_bkg2 *exp_bkg + eff_sgn2 *exp_sgn;
 
       // fill data and sum histograms
-      hist_data1->SetBinContent(i, gRandom->Poisson(exptotal1));
-      hist_data2->SetBinContent(i, gRandom->Poisson(exptotal2));
+      hist_data->SetBinContent(i, gRandom->Poisson(exptotal1));
    }
 
    // write histograms to file
@@ -66,33 +60,25 @@ void CreateHistograms()
 
    hist_bkg->Write();
    hist_sgn->Write();
-   hist_data1->Write();
-   hist_data2->Write();
+   hist_data->Write();
 
    // print .eps file
-   TCanvas * c1 = new TCanvas("c1", "", 1000, 1000);
-   c1->Divide(2, 2);
+   TCanvas * c1 = new TCanvas("c1", "", 1500, 500);
+   c1->Divide(3, 1);
    c1->cd(1);
    hist_bkg->Draw();
    c1->cd(2);
    hist_sgn->Draw();
    c1->cd(3);
-   hist_data1->Draw();
-   c1->cd(4);
-   hist_data2->Draw();
+   hist_data->Draw();
    c1->Print("hist.eps");
-
-   // print integral
-   cout << "Number of events in data1: " << hist_data1->Integral() << endl;
-   cout << "Number of events in data2: " << hist_data2->Integral() << endl;
 
    // close file
    file->Close();
 
    // free memory
-   delete c1;
-   delete hist_bkg;
-   delete hist_sgn;
-   delete hist_data1;
-   delete hist_data2;
+//   delete c1;
+//   delete hist_bkg;
+//   delete hist_sgn;
+//   delete hist_data;
 }

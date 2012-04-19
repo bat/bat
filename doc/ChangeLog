@@ -1,4 +1,8 @@
 2012-04-19 Daniel Kollar <kollar.dan@gmail.com>
+	* examples/advanced/mtf:
+	  - reorganized the examples
+
+2012-04-19 Daniel Kollar <kollar.dan@gmail.com>
 	* quickstart:
 	  - removed binary tth from the svn
 	  - added comment on the availability of tth to the Makefile

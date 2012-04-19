@@ -1,5 +1,5 @@
 
-void CreateHistograms3()
+void CreateHistograms()
 {
    // settings
 
@@ -87,16 +87,16 @@ void CreateHistograms3()
    c1->Divide(2, 2);
    c1->cd(1);
    hist_bkg1->Draw();
-	 hist_bkg1->GetYaxis()->SetRangeUser(0., 1.1*hist_bkg1->GetMaximum());
+   hist_bkg1->GetYaxis()->SetRangeUser(0., 1.1*hist_bkg1->GetMaximum());
    c1->cd(2);
    hist_sgn1->Draw();
-	 hist_sgn1->GetYaxis()->SetRangeUser(0., 1.1*hist_sgn1->GetMaximum());
+   hist_sgn1->GetYaxis()->SetRangeUser(0., 1.1*hist_sgn1->GetMaximum());
    c1->cd(3);
    hist_bkg2->Draw();
-	 hist_bkg2->GetYaxis()->SetRangeUser(0., 1.1*hist_bkg2->GetMaximum());
+   hist_bkg2->GetYaxis()->SetRangeUser(0., 1.1*hist_bkg2->GetMaximum());
    c1->cd(4);
    hist_sgn2->Draw();
-	 hist_sgn2->GetYaxis()->SetRangeUser(0., 1.1*hist_sgn2->GetMaximum());
+   hist_sgn2->GetYaxis()->SetRangeUser(0., 1.1*hist_sgn2->GetMaximum());
    c1->Print("hist1.eps");
 
    TCanvas * c2 = new TCanvas("c2", "", 500, 500);
@@ -107,19 +107,19 @@ void CreateHistograms3()
    hist_data2->Draw();
    c2->Print("hist2.eps");
 
-	 std::cout << "Number of data events in channel 1: " << hist_data1->Integral() << std::endl;
-	 std::cout << "Number of data events in channel 2: " << hist_data2->Integral() << std::endl;
+   std::cout << "Number of data events in channel 1: " << hist_data1->Integral() << std::endl;
+   std::cout << "Number of data events in channel 2: " << hist_data2->Integral() << std::endl;
 
    // close file
    file->Close();
 
    // free memory
-	 //   delete c1;
-	 //   delete c2;
-	 //   delete hist_bkg1;
-	 //   delete hist_bkg2;
-	 //   delete hist_sgn1;
-	 //   delete hist_sgn2;
-	 //   delete hist_data1;
-	 //   delete hist_data2;
+//   delete c1;
+//   delete c2;
+//   delete hist_bkg1;
+//   delete hist_bkg2;
+//   delete hist_sgn1;
+//   delete hist_sgn2;
+//   delete hist_data1;
+//   delete hist_data2;
 }

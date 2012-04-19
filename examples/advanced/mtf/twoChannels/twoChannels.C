@@ -1,5 +1,5 @@
 
-void example2()
+void twoChannels()
 {
    // ---- set style and open log files ---- //
 
@@ -54,15 +54,15 @@ void example2()
    m->SetData("channel2", hist_data2);
 
    // set template and histograms
-	 // note: the process "background_channel2" is ignored in channel 1
+   // note: the process "background_channel2" is ignored in channel 1
    m->SetTemplate("channel1", "signal", hist_sgn1, 0.5);
    m->SetTemplate("channel1", "background_channel1", hist_bkg1, 1.0);
-	 //	 m->SetTemplate("channel1", "background_channel2", hist_bkg1, 0.0);
+//   m->SetTemplate("channel1", "background_channel2", hist_bkg1, 0.0);
 
-	 // note: the process "background_channel1" is ignored in channel 2
+   // note: the process "background_channel1" is ignored in channel 2
    m->SetTemplate("channel2", "signal", hist_sgn2, 1.0);
    m->SetTemplate("channel2", "background_channel2", hist_bkg2, 1.0);
-	 //   m->SetTemplate("channel2", "background_channel1", hist_bkg2, 0.0);
+//   m->SetTemplate("channel2", "background_channel1", hist_bkg2, 0.0);
 
    // set priors
    m->SetPriorGauss("background_channel1", 800., 10.);
