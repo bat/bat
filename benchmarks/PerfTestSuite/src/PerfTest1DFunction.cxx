@@ -159,18 +159,19 @@ int PerfTest1DFunction::PostTest()
     mode_mean += (mode-mode_mean)/double(ihist);
     if (ihist>1)
       mode_variance = (1.-1./double(ihist))*mode_variance
-   + (mode-mode_mean) * (mode-mode_mean)/double(ihist-1);
+                      + (mode-mode_mean) * (mode-mode_mean)/double(ihist-1);
     // update statistics: mean
     mean_mean += (mean-mean_mean)/double(ihist);
     if (ihist>1)
       mean_variance = (1.-1./double(ihist))*mean_variance
-   + (mean-mean_mean) * (mean-mean_mean)/double(ihist-1);
+                      + (mean-mean_mean) * (mean-mean_mean)/double(ihist-1);
     // update statistics: quantiles
     for (int iquant = 0; iquant<9; ++iquant) {
       quantile_mean[iquant] += (q[iquant]-quantile_mean[iquant])/double(ihist);
       if (ihist>1)
-   quantile_variance[iquant] = (1.-1./double(ihist))*quantile_variance[iquant]
-     + (q[iquant]-quantile_mean[iquant]) * (q[iquant]-quantile_mean[iquant])/double(ihist-1);
+         quantile_variance[iquant] = (1.-1./double(ihist))*quantile_variance[iquant]
+                                     + (q[iquant]-quantile_mean[iquant])
+                                     * (q[iquant]-quantile_mean[iquant])/double(ihist-1);
     }
     // free memory
     delete hist;
@@ -221,12 +222,13 @@ int PerfTest1DFunction::PostTest()
   GetSubtest("variance")->SetTestUncertainty(sqrt(var_s2));
 
   for (int i = 0; i < 9; ++i) {
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTargetValue(quantiles_func[i]);
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(quantile_variance[i]));
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kAcceptable, 5.*sqrt(quantile_variance[i]));
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(quantile_variance[i]));
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTestValue(quantiles_hist[i]);
-    GetSubtest(Form("quantile%i", int(probsum[i]*100)))->SetTestUncertainty(sqrt(quantile_variance[i]));
+    int rq = probsum[i]*100+0.5;
+    GetSubtest(Form("quantile%i", rq))->SetTargetValue(quantiles_func[i]);
+    GetSubtest(Form("quantile%i", rq))->SetStatusRegion(PerfSubTest::kGood,   3.*sqrt(quantile_variance[i]));
+    GetSubtest(Form("quantile%i", rq))->SetStatusRegion(PerfSubTest::kAcceptable, 5.*sqrt(quantile_variance[i]));
+    GetSubtest(Form("quantile%i", rq))->SetStatusRegion(PerfSubTest::kBad,    7.*sqrt(quantile_variance[i]));
+    GetSubtest(Form("quantile%i", rq))->SetTestValue(quantiles_hist[i]);
+    GetSubtest(Form("quantile%i", rq))->SetTestUncertainty(sqrt(quantile_variance[i]));
   }
 
   // define graph and axes histogram

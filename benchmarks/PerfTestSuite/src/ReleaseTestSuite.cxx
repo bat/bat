@@ -104,7 +104,11 @@ int ReleaseTestSuite::PrepareTests()
    AddTest(perftest_1d_2gaus);
 
    // 2D flat
-    TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
+//   TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
+// the above definition of a constant 2d function doesn't work in Root (not sure why)
+// so we use a workaround
+// using TF2("Flat", "1", 1.) would also work but would not have the range defined correctly
+   TF2* testfunc_2d_flat = new TF2("Flat", "y*0. + 1", -5., 5., -5., 5.);
    PerfTest2DFunction*   perftest_2d_flat = new PerfTest2DFunction("2d_flat", testfunc_2d_flat);
    AddTest(perftest_2d_flat);
 
@@ -116,7 +120,7 @@ int ReleaseTestSuite::PrepareTests()
 
    // 2D 2 Gaussians
    TF2* testfunc_2d_2gaus = new TF2("2twoGaus2d",
-                                                    "[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2)*exp(-0.5*((y-[4])/[5])**2) + [6]*exp(-0.5*((x-[7])/[8])**2)*exp(-0.5*((y-[9])/[10])**2))",
+   "[0] * ( [1]*exp(-0.5*((x-[2])/[3])**2)*exp(-0.5*((y-[4])/[5])**2) + [6]*exp(-0.5*((x-[7])/[8])**2)*exp(-0.5*((y-[9])/[10])**2))",
                                                     -20., 20., -20., 20);
    testfunc_2d_2gaus->SetParameters(1.,   10., 0., 1.0,  5., 1.0,    10., 5., 1.0,  10., 1.0);
    PerfTest2DFunction*   perftest_2d_2gaus = new PerfTest2DFunction("2d_2gaus", testfunc_2d_2gaus);
