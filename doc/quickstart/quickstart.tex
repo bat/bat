@@ -1,0 +1,304 @@
+\documentclass[a4paper,11pt]{article}
+
+\addtolength{\oddsidemargin}{-0.7cm}
+\addtolength{\evensidemargin}{-0.7cm}
+\addtolength{\textwidth}{1.4cm}
+
+\usepackage{graphicx}
+
+\newcommand{\acronym}[1]{\textsc{#1}}
+\newcommand{\BAT}{\acronym{bat}}
+\newcommand{\C}{\textsc{c}}
+\newcommand{\CPP}{\C\texttt{++}}
+\newcommand{\RMS}{\acronym{rms}}
+\newcommand{\ROOT}{\acronym{root}}
+\newcommand{\xD}[1]{#1\textsc{d}}
+
+\newcommand{\Icode}[1]{\texttt{#1}}
+
+\newcommand{\BProb}[2]{\ensuremath{P(#1|#2)}}
+\newcommand{\BPars}{\ensuremath{\vec{\lambda}}}
+\newcommand{\BData}{\ensuremath{D}}
+\newcommand{\BPrior}{\ensuremath{P_0(\BPars)}}
+\newcommand{\BPosterior}{\BProb{\BPars}{\BData}}
+\newcommand{\BConditional}{\BProb{\BData}{\BPars}}
+
+\newcommand{\versionno}{0.9}
+\newcommand{\version}{version~\versionno}
+
+\begin{document}
+
+%%%%% Logo + Title
+
+\begin{figure}[t]
+\includegraphics[scale=0.25]{bat.eps}
+\end{figure}
+\quad\\
+\vspace{2\baselineskip}
+
+\begin{center}
+  {\Large Quick-start Guide to BAT}\\
+  \vspace{1\baselineskip}
+  {\large \BAT\ \version}
+\end{center}
+
+\vspace{4\baselineskip}
+
+This guide is intended to provide all the necessary information to
+quickly set up a \BAT-based analysis code and is aimed at the
+programmer experienced with object-oriented \CPP. It explains how to
+create the barest classes necessary for a successful compilation and
+analysis of a single model. For more detailed use of the \BAT\
+software, including model comparison, and installation instructions,
+consult the full \BAT\ introduction.
+
+The simplest nontrivial analysis code one can build with \BAT\
+contains a model, a data set, and a main program to instatiate the
+first two. The following instructions will create the pieces necessary
+to map out the \emph{a posteriori} (or posterior) likelihood
+\BPosterior\ for a given parameter set \BPars\ given our data set
+\BData.  This is done according to Bayes\ theorem
+\begin{displaymath}
+  \BPosterior \propto \BConditional\BPrior,
+\end{displaymath}
+where \BConditional\ is the conditional probability of the data given
+the parameter set, and \BPrior\ is the \emph{a priori} (or prior)
+probability of \BPars.
+
+\section{The Model}
+
+Our model class \Icode{MyModel} must inherit from the \Icode{BCModel}
+class. This class must setup the parameters of our model and report
+back the log of the likelihood and the \emph{a priori} probability for
+our parameter set.
+
+\subsection{Model Parameters}
+
+\Icode{BCModel} contains a \Icode{BCParameterSet} member, which can be
+accessed directly through
+\begin{verbatim}
+BCParameterSet * BCModel::GetParameterSet()
+void * BCModel::SetParameterSet(BCParameterSet * parset),
+\end{verbatim}
+where \Icode{BCParameterSet} is a \Icode{typedef} of a vector of
+pointers to \Icode{BCParameter} objects.
+
+One can also access the parameter set indirectly to add parameters
+through
+\begin{verbatim}
+int BCModel::AddParameter(const char * name,
+                          double lowerlimit, double upperlimit)
+int BCModel::AddParameter(BCParameter * parameter).
+\end{verbatim}
+We must add parameters, with unique names, to our model before running
+our analysis. Preferably this is done in the constructor to
+\Icode{MyModel} or through an additional method, say,
+\begin{verbatim}
+void MyModel::DefineParameters()
+{
+     this -> AddParameter("par1", 0, 100);
+     this -> AddParameter("par2", -1, 1);
+     ...
+}.
+\end{verbatim}
+
+\subsection{Priors}
+Our model class reports the \emph{a priori} probability, \BPrior, for
+a set of parameter values through the method
+\begin{verbatim}
+double BCModel::LogAPrioriProbability(std:vector<double> parameters),
+\end{verbatim}
+which need not be overloaded if our parameters are independent in our
+\emph{a priori} probability.
+
+
+\subsubsection{Independent Priors}
+
+In this case, we may set the \emph{a priori} probability for each
+parameter to a value returned by an arbitary function
+with\footnote{All functions in this section have corresponding
+  partners that allow access to the parameter by name instead of
+  index.}
+\begin{verbatim}
+int BCModel::SetPrior(int index, TF1 * f)
+\end{verbatim}
+or the corresponding value from an arbitrary histogram with
+\begin{verbatim}
+int BCModel::SetPrior(int index, TH1 * h, bool flag=false)
+\end{verbatim}
+
+We may also quickly set the \emph{a priori} probability of a
+parameter to one of four often-used distributions:
+\begin{verbatim}
+int BCModel::SetPriorDelta(int index, double value)
+int BCModel::SetPriorGauss(int index, double mean, double sigma)
+int BCModel::SetPriorGauss(int index, double mean,
+                           double sigmadown, double sigmaup)
+int BCModel::SetPriorConstant(int index),
+\end{verbatim}
+where the second \Icode{SetPriorGauss} creates a normalized Gaussian
+distribution with distinct upper and lower widths.
+
+
+\subsubsection{Single Prior Function}
+
+We may also overload \Icode{BCModel::LogAPrioriProbability},
+especially when our model parameters are not independent of each
+other, to return a double through any arbitrary \CPP\ function. The
+\Icode{BCMath} namespace contains methods for the logarithms of
+several often-used distributions that can be used in this method. It
+contains, among many others, \Icode{LogGaus} and \Icode{LogPoisson}.
+
+
+\subsection{Likelihood}
+
+It is essential that \Icode{MyModel} overload
+\begin{verbatim}
+BCModel::LogLikelihood(std::vector<double> parameters),
+\end{verbatim}
+which reports the log of the conditional probability, \BConditional,
+of the data set given particular values of our parameters. Again, the
+namespace \Icode{BCMath} contains methods to return the logarithms of
+many useful often-used distributions.
+
+
+
+\section{Data Set}
+
+The other essential ingredient to an analysis in \BAT\ is a data set
+to analyze. We need not necessarily write our own class that inherits
+from \Icode{BCDataSet}, since it contains all the essential minimal
+functionality for a simple analysis---in this case, we may read the
+data in directly in \Icode{main()}.
+
+We may read our data directly from a file through the methods
+\begin{verbatim}
+int BCDataSet::ReadDataFromFile(const char * filename,
+                                const char * treename,
+                                const char branchnames)
+int BCDataSet::ReadDataFromFile(const char * filename, int nvariables),
+\end{verbatim}
+or add data points directly to the object through
+\begin{verbatim}
+void BCDataSet::AddDataPoint(BCDataPoint * datapoint),
+\end{verbatim}
+and the \Icode{BCDataPoint} class' methods for directly setting the
+data values.
+
+We must be careful that all data points have the same dimensionality,
+which is set in the constructor of the \Icode{BCDataPoint} class
+\begin{verbatim}
+BCDataPoint::BCDataPoint(int nvariables).
+\end{verbatim}
+
+
+
+\section{Putting It All Together}
+
+Our \Icode{main()} program need now only instatiate an object of
+\Icode{MyModel}, read in a data set, and add it to our model, before
+running the analysis.  This is accomplished (depending on how we've
+written \Icode{MyModel}) as follows:
+\begin{verbatim}
+#include <BAT/BCDataSet.h>
+#include "MyModel.h"
+
+int main()
+{
+     BCDataSet * data = new BCDataSet();
+     ... [read data from source] ...
+
+     MyModel model("MyModel");
+     // MyModel::DefineParameters() is called in constructor
+
+     model.SetDataSet(data);
+
+     ...
+}
+\end{verbatim}
+
+The final step of the program is to map out the posterior likelihood
+in our parameter space. This is achieved by
+\begin{verbatim}
+void BCModel::MarginalizeAll(),
+\end{verbatim}
+which produces marginalized likelihoods for each parameter (in \xD{1})
+and each pair of parameters (in \xD{2}). These are accessed
+through\footnote{These methods also exist with the \Icode{BCParameter}
+  arguments replaced by \Icode{const char} pointers to access the
+  parameters by name.}
+\begin{verbatim}
+BCH1D * GetMarginalized(BCParameter * parameter)
+BCH2D * GetMarginalized(BCParameter * parameter1,
+                        BCParameter * parameter2),
+\end{verbatim}
+where \Icode{BCH1D} and \Icode{BCH2D} are wrapper classes for \ROOT's
+\Icode{TH1D} and \Icode{TH2D}. The marginalization method is set through
+\begin{verbatim}
+BCModel::SetMarginalizationMethod(BCMarginalizationMethod method)
+\end{verbatim}
+where \Icode{BCMarginizationMethod} is \Icode{enum} defined in
+\Icode{BCIntegrate} with the values \Icode{kMargMonteCarlo} for
+uncorrelated Monte Carlo sampling, and \Icode{kMargMetropolis}
+(default) for correlated sampling using a Markov Chain Monte Carlo.
+
+The best-fit parameter set is accessed through
+\begin{verbatim}
+std::vector<double> GetBestFitParameters()
+double GetBestFitParameter(unsigned int index),
+\end{verbatim}
+and the associated errors through
+\begin{verbatim}
+std::vector<double> GetBestFitParameterErrors()
+double GetBestFitParameterError(unsigned int index).
+\end{verbatim}
+The best-fit value for each parameter according to its \xD{1}
+marginalized distribution is accessed through,
+\begin{verbatim}
+std::vector<double> GetBestFitParametersMarginalized()
+double GetBestFitParameterMarginalized(unsigned int index).
+\end{verbatim}
+
+Marginalized distributions can also be printed directly to file using
+\begin{verbatim}
+int BCModel::PrintAllMarginalized1D(const char * filebase)
+int BCModel::PrintAllMarginalized2D(const char * filebase)
+int BCModel::PrintAllMarginalized(const char * filebase,
+                                  unsigned int hdiv, unsigned int ndiv)
+\end{verbatim}
+
+\subsection{Generating Log Output}
+
+Detailed information on the running of \BAT\ can be output to the
+screen or file through the static class \Icode{BCLog}. At the start of
+our program, we can designate a log file and the level or output to
+the file and (independently) the screen through
+\begin{verbatim}
+BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile,
+               BCLog::LogLevel loglevelscreen),
+\end{verbatim}
+where \Icode{BCLog::LogLevel} is an \Icode{enum} with the following values
+\begin{description}
+\item[\quad\Icode{debug}] lowest level of output;
+\item[\quad\Icode{detail}] details of functions and status of marginalization;
+\item[\quad\Icode{summary}] results, including best-fit values and normalization;
+\item[\quad\Icode{warning}] warning messages;
+\item[\quad\Icode{nothing}] no output.
+\end{description}
+
+\subsection{Further Accessing \& Outputting Marginalized
+  Distributions}
+
+The results of a \BAT\ analysis can be saved to file through the
+\Icode{BCModelOutput} class. Through \ROOT\ classes, it handles the
+storage of the marginalized distributions and the results of the
+Markov Chain used to generate them.
+
+The classes \Icode{BCH1D} and \Icode{BCH2D} have several methods for
+obtaining useful information from the marginalized distributions,
+including access to the mean, median, mode, and limits at given
+credibility levels. As well, these classes contain methods for drawing
+their distributions with the information such as credibility intervals
+highlighted.
+
+\end{document}

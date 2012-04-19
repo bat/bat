@@ -103,6 +103,10 @@ doc/note_template/fig/model_results.txt -text
 doc/note_template/fig/model_stack.eps -text
 doc/note_template/fig/model_update.eps -text
 doc/note_template/note.tex -text
+doc/quickstart/Makefile -text
+doc/quickstart/bat.eps -text
+doc/quickstart/quickstart.tex -text
+doc/quickstart/tth -text
 doc/releasenotes.txt -text
 doc/todo/plans.txt -text
 doc/todo/todo.txt -text
