@@ -29,7 +29,16 @@
 
 // ---------------------------------------------------------
 BCMTF::BCMTF()
- : BCModel()
+ : BCModel("Multi-template Fitter")
+ , fNChannels(0)
+ , fNProcesses(0)
+ , fNSystematics(0)
+ , fFlagEfficiencyConstraint(false)
+{}
+
+// ---------------------------------------------------------
+BCMTF::BCMTF(const char * name)
+ : BCModel(name)
  , fNChannels(0)
  , fNProcesses(0)
  , fNSystematics(0)

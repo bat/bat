@@ -41,6 +41,7 @@ class BCMTF : public BCModel
 
       // Constructors and destructor
       BCMTF();
+      BCMTF(const char * name);
       ~BCMTF();
 
       // setters

@@ -70,28 +70,28 @@ class BCMTFAnalysisFacility
       int PerformSingleSystematicAnalyses(const char * dirname, const char * options = "");
 
       // perform calibration curve
-      int PerformCalibrationAnalysis(const char * dirname, std::vector<double> default_parameters, int index, std::vector<double> parametervalues, int nensembles = 1000);
+      int PerformCalibrationAnalysis(const char * dirname, const std::vector<double> & default_parameters, int index, const std::vector<double> & parametervalues, int nensembles = 1000);
 
       // perform full ensemble test
-      int PerformEnsembleTest(std::vector<double> parameters);
+      int PerformEnsembleTest(const std::vector<double> & parameters);
 
       // build a single ensemble based on a single set of parameters
-      std::vector<TH1D> BuildEnsemble(std::vector<double> parameters);
+      std::vector<TH1D> BuildEnsemble(const std::vector<double> & parameters);
 
       // build ensembles based on a single set of parameters
-      TTree * BuildEnsembles(std::vector<double> parameters, int nensembles);
+      TTree * BuildEnsembles(const std::vector<double> & parameters, int nensembles);
 
       // build ensembles based on a varying sets of parameters, e.g., using the prior or posterior
       TTree * BuildEnsembles(TTree * tree, int nensembles);
 
       // perform ensemble test based on one set of parameters
-      TTree * PerformEnsembleTest(std::vector<double> parameters, int nensembles);
+      TTree * PerformEnsembleTest(const std::vector<double> & parameters, int nensembles);
 
       // perform ensemble test based on varying sets of parameters
       TTree * PerformEnsembleTest(TTree * tree, int nensembles, int start = 0);
 
       // transform a matrix to a set of histograms
-      std::vector<TH1D> MatrixToHistograms(std::vector< std::vector<double> > matrix);
+      std::vector<TH1D> MatrixToHistograms(const std::vector< std::vector<double> > & matrix);
 
  private:
 

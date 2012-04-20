@@ -42,7 +42,7 @@ BCMTFAnalysisFacility::~BCMTFAnalysisFacility()
 };
 
 // ---------------------------------------------------------
-std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(std::vector<double> parameters)
+std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double> & parameters)
 {
    // create vector of histograms
    std::vector<TH1D> histograms;
@@ -181,7 +181,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
 }
 
 // ---------------------------------------------------------
-TTree * BCMTFAnalysisFacility::BuildEnsembles(std::vector<double> parameters, int nensembles)
+TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parameters, int nensembles)
 {
    // create tree
    TTree * tree = new TTree("ensembles", "ensembles");
@@ -273,7 +273,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(std::vector<double> parameters, in
 }
 
 // ---------------------------------------------------------
-TTree * BCMTFAnalysisFacility::PerformEnsembleTest(std::vector<double> parameters, int nensembles)
+TTree * BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double> & parameters, int nensembles)
 {
    // create new tree
    TTree * tree = 0;
@@ -534,7 +534,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
 }
 
 // ---------------------------------------------------------
-std::vector<TH1D> BCMTFAnalysisFacility::MatrixToHistograms(std::vector< std::vector<double> > matrix)
+std::vector<TH1D> BCMTFAnalysisFacility::MatrixToHistograms(const std::vector< std::vector<double> > & matrix)
 {
    // create vector of histograms
    std::vector<TH1D> histograms;
@@ -1088,7 +1088,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, std::vector<double> default_parameters, int index, std::vector<double> parametervalues, int nensembles)
+int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, const std::vector<double> & default_parameters, int index, const std::vector<double> & parametervalues, int nensembles)
 {
 
    // ---- create new directory ---- //

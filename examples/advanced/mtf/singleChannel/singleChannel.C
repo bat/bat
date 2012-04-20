@@ -31,7 +31,7 @@ void singleChannel()
    // ---- perform fitting ---- //
 
    // create new fitter object
-   BCMTF * m = new BCMTF();
+   BCMTF * m = new BCMTF("SingleChannelMTF");
 
    // set the required precision of the MCMC (kLow, kMedium, kHigh)
    // the higher the precision the longer the MCMC run

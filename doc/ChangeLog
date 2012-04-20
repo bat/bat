@@ -1,3 +1,13 @@
+2012-04-20 Daniel Kollar <kollar.dan@gmail.com>
+	* BCMTF:
+	  - added constructor with model name
+	  - changed vector arguments of methods to const reference
+	* introduction:
+	  - moved MTF under tools and models
+	  - changed description of the MTF to match the code
+	  - added 'Depreceted' comment to BCTemplateFitter
+
+
 2012-04-19 Daniel Kollar <kollar.dan@gmail.com>
 	* examples/advanced/mtf:
 	  - reorganized the examples

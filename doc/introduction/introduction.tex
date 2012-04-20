@@ -1440,9 +1440,517 @@ found in \verb|examples/basic/efficiencyFitter|.
 \subsection{A model for template fitting}
 
 A model for template fitting, \verb|BCTemplateFitter|, is provided
-with BAT. A description of the method can be downloaded on the web
-page. Three working examples are provided with the current release in
+with BAT. Three working examples are provided with the current release in
 \verb|examples/advanced/templatefitter|.
+
+\smallskip
+
+THIS CLASS IS NOW DEPRECETED. \newline
+It will be removed from BAT in the future.
+Please use the Multi-template Fitter instead.
+
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% Multi-template fitter
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% --------------------------------------------------------
+
+\clearpage
+\pagebreak
+
+\subsection{Multi-template fitter}
+\label{section:MTF}
+
+% --------------------------------------------------------
+% introduction
+% --------------------------------------------------------
+%\subsection{Introduction}
+%\label{section:mtfintroduction}
+
+The Multi Template Fitter (MTF) is a tool which allows to fit several
+template histograms to a data histogram. The content of the bins in
+the templates are assumed to fluctuate independently according to
+Poisson distributions. Several channels can be fitted simultaneously.
+
+% --------------------------------------------------------
+% Mathematical formulation
+% --------------------------------------------------------
+\subsubsection{Mathematical formulation}
+\label{section:math}
+
+The multi-template fitter is formulated in terms of Bayesian reasoning. The
+posterior probability is proportional to the product of the Likelihood
+and the prior probability. The latter can be freely chosen by the user
+whereas the Likelihood is predefined. It is a binned Likelihood which
+assumes that the fluctuations in each bin are of Poisson nature and
+independent of each other. All channels, processes and sources of
+systematic uncertainties are assumed to be uncorrelated.
+
+The parameters of the model are thus the expectation values of the
+different processes, $\lambda_{k}$, and the nuisance parameters,
+$\delta_{l}$.
+
+\paragraph{Excluding systematic uncertainies.}
+In case no sources of systematic uncertainty are taken into account
+the Likelihood is defined as
+%
+\begin{eqnarray}
+L = \prod_{i=1}^{N_{\mathrm{ch}}} \prod_{j=1}^{N_{\mathrm{bin}}} \frac{\lambda_{ij}^{n_{ij}}}{n_{ij}!} e^{-\lambda_{ij}} \, ,
+\label{eqn:likelihood}
+\end{eqnarray}
+%
+where $N_{\mathrm{ch}}$ and $N_{\mathrm{bin}}$ are the number of
+channels and bins, respectively. $n_{ij}$ and $\lambda_{ij}$ are the
+observed and expected number of events in the $j$th bin of the $i$th
+channel. The expected number of events are calculated via
+%
+\begin{eqnarray}
+\lambda_{ij} & = & \sum_{k=1}^{N_{\mathrm{p}}} \lambda_{ijk} \\
+            & = & \sum_{k=1}^{N_{\mathrm{p}}} \lambda_{k} \cdot f_{ijk} \cdot \epsilon_{ik} \, ,
+\label{eqn:expectation}
+\end{eqnarray}
+%
+where $f_{ij}$ is the bin content of the $j$th bin in the normalized
+template of the $k$th process in the $i$th channel. $\epsilon_{ik}$ is
+the efficiency of the $k$th process in the $i$th channel specified
+when setting the template. $\lambda_{k}$ is the contribution of the
+$k$th process and is a free parameter of the fit.
+
+\paragraph{Including systematic uncertainties.}
+In case sources of systematic uncertainties are taken into account,
+the efficiency $\epsilon_{ik}$ is modified according to a nuisance
+parameter:
+%
+\begin{eqnarray}
+\epsilon_{ik} \rightarrow \epsilon_{ik} \cdot (1 + \sum_{l=1}^{N_{\mathrm{syst}}} \delta_{l}\cdot \Delta\epsilon_{ijkl}) \, ,
+\label{eqn:systematic}
+\end{eqnarray}
+%
+where $\delta_{l}$ is the nuisance parameter associated with the
+source of systematic uncertainty and $\Delta\epsilon_{ijkl}$ is the
+change in efficiency due to the $l$th source of systematic uncertainty
+in the $i$th channel and $j$th bin for the $k$th process.
+
+% --------------------------------------------------------
+% Basics
+% --------------------------------------------------------
+\subsubsection{Creating the fitter}
+\label{section:basics}
+
+The main MTF class \verb|mtf| is derived from the \verb|BCModel| class.
+A new instance can be created via
+%
+\begin{verbatim}
+BCMTF::BCMTF()
+BCMTF::BCMTF(const char * name) ,
+\end{verbatim}
+%
+where the name of the MTF can be specified via argument \verb|name|.
+
+\subsubsection{Adding a channel}
+
+The MTF fits several channels simultaneously. These channels can be
+physics channels, e.g., $Z^{0}\rightarrow e^{+}e^{-}$ and %$
+$Z^{0}\rightarrow \mu^{+}\mu^{-}$, samples with disjunct jet
+multiplicity or entirely different classes altogether. A new channel
+can be added using the following method:
+%
+\begin{verbatim}
+int BCMTF::AddChannel(const char * name) ,
+\end{verbatim}
+%
+where \verb|name| is the name of the process, and the return value is
+an error code. Note that at least one channel has to be added.
+
+\subsubsection{Adding a data set}
+
+Each channel added to the MTF has a unique data set which comes in
+form of a (\verb|TH1D|) histogram. It can be defined using the
+following method:
+%
+\begin{verbatim}
+int BCMTF::SetData(const char * channelname,
+                   TH1D hist) ,
+\end{verbatim}
+%
+where \verb|channelname| is the name of the channel and \verb|hist| is
+the histogram representing the data. The return value is an error
+code.
+
+\subsubsection{Adding a process}
+
+Each template that is fit to the data set corresponds to a process,
+where one process can occur in several channels. The fit then defines
+the contribution of the process and thus each process comes with one
+model parameter. A process can be added using the following method:
+%
+\begin{verbatim}
+int BCMTF::AddProcess(const char* name,
+                      double nmin = 0.,
+                      double nmax = 1.) ,
+\end{verbatim}
+%
+where \verb|name| is the name of the process and \verb|nmin| and
+\verb|nmax| are the lower and upper bound of the parameter associated
+with the contribution of the process. The parameter is denoted
+$\lambda_{k} \, (k=1\dots N_{\mathrm{p}})$ in
+section~\ref{section:math}. Note that at least one process has to be
+added. A prior needs to be defined for each process, using the default
+\verb|BCModel| methods.
+
+It is likely that a single process will have different shapes in
+different channels. Thus, templates for a process need to be defined
+for each channel separately using the following method:
+%
+\begin{verbatim}
+int BCMTF::SetTemplate(const char * channelname,
+                       const char * processname,
+                       TH1D hist,
+                       double efficiency = 1.) ,
+\end{verbatim}
+%
+where \verb|channelname| and \verb|processname| are the names of the
+channel and the process, respectively. The parameter \verb|hist| is
+the (\verb|TH1D|) histogram (or template) which represents the
+process. The histogram will be normalized to unity and the entries in
+the normalized histogram are the probabilities to find an event of a
+process~$k$ and channel~$i$ in bin~$j$. This probability is denoted
+$f_{ijk}\,(i=1\dots N_{\mathrm{ch}}, \, j=1\dots N_{\mathrm{b}}, \,
+k=1\dots N_{\mathrm{p}})$ in section~\ref{section:math}. The last
+parameter, \verb|efficiency|, is the efficiency of the process in that
+channel and is used to scale to template during the fit. This is
+needed if a process contributes with different amounts in two separate
+channels. The efficiency is denoted $\epsilon_{ik} \, (i=1\dots
+N_{\mathrm{ch}}, \, k=1\dots N_{\mathrm{p}})$ in
+section~\ref{section:math}. The return value is an error code. Note
+that templates do not have to be set if the process does not
+contribute to a particular channel.
+
+\subsubsection{Adding systematic uncertainties}
+
+Systematic uncertainties can alter the shape of a template. Sources of
+systematic uncertainty can be included in the fit using nuisance
+parameters. This nuisance parameter is assumed to alter the original
+template linearly, where values of~-1,~0, and~1 correspond to the
+``downwards'' shifted, nominal and ``upwards shifted'' template,
+respectively. The nuisance parameters are denoted $\delta_{l} \,
+(l=1\dots N_{\mathrm{syst}})$ in section~\ref{section:math}. Shifted
+refers to a change of one standard deviation. An example for a
+nuisance parameter could be the jet energy scale (JES). With a nominal
+JES of~1 and and uncertainty of 5\%, the scaled templates correspond
+to a JES of 0.95 and 1.05, respectively. A prior needs to be defined
+for each nuisance parameter which is usually chosen to be a standard
+normal distribution. A source of systematic uncertainty can be added
+using the following method:
+%
+\begin{verbatim}
+int BCMTF::AddSystematic(const char * name,
+                         double min = -5.,
+                         double max = 5.) ,
+\end{verbatim}
+%
+where \verb|name| is the name of the source of systematic uncertainty
+and \verb|min| and \verb|max| are the lower and upper bound of the
+nuisance parameter, respectively. The return value is an error code.
+
+Since the different sources of systematic uncertainty have an
+individual impact on each process and in each channel, these need to
+be specified. Two method can be used to define the impact:
+%
+\begin{verbatim}
+int BCMTF::SetSystematicVariation(const char * channelname,
+                                  const char * processname,
+                                  const char * systematicname,
+                                  TH1D hist_up,
+                                  TH1D hist_down) ,
+\end{verbatim}
+%
+where \verb|channelname|, \verb|processname| and \verb|systematicname|
+are the names of the channel, the process and the source of systematic
+uncertainty. The (\verb|TH1D|) histograms \verb|hist_up| and
+\verb|hist_down| are the histograms corresponding to an ``up''- and
+``down''-scaling of the systematic uncertainty of one standard
+deviation, i.e., for each bin entry $y$ they are calculated as
+%
+\begin{eqnarray}
+\label{eqn:deltay}
+\Delta_{\mathrm{up}}   & = & (y_{\mathrm{up}} - y_{\mathrm{nominal}})/y_{\mathrm{nominal}} \, , \\
+\Delta_{\mathrm{down}} & = & (y_{\mathrm{nominal}} - y_{\mathrm{down}})/y_{\mathrm{nominal}} \, .
+\end{eqnarray}
+%
+Note the sign of the down-ward fluctuation. These histograms define
+the change of the bins in each template in the efficiency which is
+denoted $\Delta\epsilon_{ijkl} \, (i=1\dots N_{\mathrm{ch}}, \,
+j=1\dots N_{\mathrm{b}}, \, k=1\dots N_{\mathrm{p}}, \, l=1\dots
+N_{\mathrm{syst}})$. For example, if the value for a particular bin of
+\verb|hist_up| is 0.05, i.e., if the systematic uncertaintiy is 5\% in
+that bin, then the efficiency of the process in that channel will be
+multiplied by $(1+0.05)$. The return value is an error code.
+
+The second variant does not take the difference in efficiency, but
+calculates it internally from the absolute values:
+%
+\begin{verbatim}
+int BCMTF::SetSystematicVariation(const char * channelname,
+                                  const char * processname,
+                                  const char * systematicname,
+                                  TH1D hist,
+                                  TH1D hist_up,
+                                  TH1D hist_down) ,
+\end{verbatim}
+%
+where \verb|channelname|, \verb|processname| and \verb|systematicname|
+are the names of the channel, the process and the source of systematic
+uncertainty. The (\verb|TH1D|) histograms \verb|hist|, \verb|hist_up|
+and \verb|hist_down| are the nominal histogram and the histograms
+corresponding to an ``up''- and ``down''-scaling of the systematic
+uncertainty of one standard deviation. In this case, the histograms
+are not the relative differences but the absolute values. The return
+value is an error code.
+
+\subsubsection{Running the fit}
+
+The fit can be started using one of the standard \verb|BCModel| fitting methods,
+e.g.
+%
+\begin{verbatim}
+BCMTF::MarginalizeAll() ,
+BCMTF::FindMode() .
+\end{verbatim}
+
+% --------------------------------------------------------
+% Output
+% --------------------------------------------------------
+\subsubsection{Output}
+\label{section:mtfoutput}
+
+The MTF produces several outputs:
+%
+\begin{itemize}
+\item \verb|PrintAllMarginalized(const char* name)| prints the
+  marginalized distributions in 1D and 2D for all parameters, i.e.,
+  the processes and nuisance parameters into a PostScript file
+  \verb|name|.
+\item \verb|PrintResults(const char* name)| writes a summary of the
+  fit into a text file \verb|name|.
+\item
+\begin{verbatim}
+PrintStack(int channelindex,
+           const std::vector<double> &parameters,
+           const char * filename = "stack.eps",
+           const char * options = "")
+PrintStack(const char * channelname,
+           const std::vector<double> &parameters,
+           const char * filename = "stack.eps",
+           const char * options = "")
+\end{verbatim}
+  prints a stacked histogram of the templates and the data histogram
+  in the file \verb|name| using a set of parameters
+  \verb|parameters|. For example, these could be the best fit
+  results. Several options can be specified:
+  \begin{itemize}
+    \item \verb|logx|: uses a log-scale for the x-axis.
+    \item \verb|logy|: uses a log-scale for the y-axis.
+  \end{itemize}
+\end{itemize}
+
+% --------------------------------------------------------
+% Settings
+% --------------------------------------------------------
+\subsubsection{Settings}
+\label{section:mtfsettings}
+
+Several settings can be changed which impact the fit.
+%
+\begin{itemize}
+\item \verb|SetFlagEfficiencyConstraint| sets a flag if the overall
+  efficiency (calculated from the value given when setting a template
+  and the corresponding systematic uncertainties) is constrained to be
+  between~0 and~1 or not. The default value is \verb|true|.
+\end{itemize}
+
+% --------------------------------------------------------
+% Analysis Facility
+% --------------------------------------------------------
+\subsubsection{Analysis facility}
+\label{section:facility}
+
+The analysis facility allows to perform a variety of analyses and
+ensemble tests for a given MTF. It can be created using the
+constructor:
+%
+\begin{verbatim}
+BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf) ,
+\end{verbatim}
+%
+where \verb|mtf| is the corresponding MTF object.
+
+\subsubsection{Performing ensemble tests}
+
+Ensemble testing is done in two steps: first, ensembles are generated
+according to the processes defined in the MTF. The ensembles are
+stored in root files. In a second step, the ensembles are analyzed
+using the MTF specified.
+
+\paragraph{Creating ensembles.}
+
+Ensembles can be generated using several methods. A single ensemble
+can be generated using the following method:
+%
+\begin{verbatim}
+std::vector<TH1D> BCMTFAnalysisFacility::
+                  BuildEnsemble(const std::vector<double> & parameters) ,
+\end{verbatim}
+%
+where \verb|parameters| is a set of parameters which corresponds to
+those in the template fitter, i.e., the process contributions and
+nuisance parameters. For most applications, the best fit parameters of
+the data set at hand is used. The return value is a set of histograms
+corresponding to a pseudo data set for the different channels.
+
+A similar method is used to generate multiple ensembles:
+%
+\begin{verbatim}
+std::vector<TH1D> BCMTFAnalysisFacility::
+                  BuildEnsembles(const std::vector<double> & parameters,
+                                 int nensembles) ,
+\end{verbatim}
+%
+where \verb|nensembles| is the number of ensembles to be
+generated. The return value is a pointer to a \verb|TTree| object in
+which the ensembles are stored. The entries in the tree are the
+parameters and the number of entries in each bin of the data
+histograms.
+
+The third method is based on a tree where the tree contains a set of
+parameters for each ensemble. This option is preferred if, e.g., the
+ensembles should be varied accoring to the prior probabilities. The
+method used to generate ensembles is
+%
+\begin{verbatim}
+std::vector<TH1D> BCMTFAnalysisFacility::
+                  BuildEnsembles(TTree * tree,
+                                 int nensembles) ,
+\end{verbatim}
+%
+where \verb|tree| is the input tree. Note that the ensembles are
+randomized, i.e., the first event in the tree does not correspond to
+the first ensemble. This is done to avoid biases if the tree itself is
+the output of a Markov Chain.
+
+\paragraph{Analyzing ensembles.}
+
+Ensemble tests can be performed usign the ensembles defined earlier or
+using a set of parameters. In the former case, the method is:
+%
+\begin{verbatim}
+TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree,
+                                                   int nensembles) ,
+\end{verbatim}
+%
+where \verb|tree| is the tree of ensembles and \verb|nensembles| is
+the number of ensembles to be analyzed. The return value is a tree
+containing the information about the analyzed ensemble. The list of
+variables is
+%
+\begin{itemize}
+\item \verb|parameter_i|: the $i$th parameter value used at the
+  generation of the ensemble.
+\item \verb|mode_global_i|: the $i$th global mode.
+\item \verb|std_global_i|: the $i$th standard deviation evaluated with
+  the global mode.
+\item \verb|chi2_generated_i|: the $\chi^{2}$ calculated using the
+  parameters at generation of the ensemble for channel $i$.
+\item \verb|chi2_mode_i|: the $\chi^{2}$ calculated using the
+  global mode parameters for channel $i$.
+\item \verb|cash_generated_i|: the Cash statistic (Likelihood ratio)
+  calculated using the parameters at generation of the ensemble for
+  channel $i$.
+\item \verb|cash_mode_i|: the Cash statistic (Likelihood ratio)
+  calculated using the global mode parameters for channel $i$.
+\item \verb|n_events_i|: the number of events in the ensemble in
+  channel $i$.
+\item \verb|chi2_generated_total|: the total $\chi^{2}$ calculated
+  using the parameters at generation of the ensemble.
+\item \verb|chi2_mode_total|: the total $\chi^{2}$ calculated using
+  the global mode parameters.
+\item \verb|cash_generated_total|: the total Cash statistic calculated
+  using the parameters at generation of the ensemble.
+\item \verb|cash_mode_total|: the total Cash statistic calculated
+  using the global mode parameters.
+\item \verb|n_events_total|: the total number of events in the
+  ensemble.
+\end{itemize}
+
+Ensemble tests can also be performed using the following methd:
+%
+\begin{verbatim}
+TTree * BCMTFAnalysisFacility::
+        PerformEnsembleTest(const std::vector<double> & parameters,
+                           int nensembles) ,
+\end{verbatim}
+%
+in which case the ensembles are generated internally using the
+parameters and are then analyzed.
+
+\subsubsection{Performing automated analyses}
+
+The analysis facility also allows to perform an automated analysis
+over individual channels and or systematic uncertainties. 
+
+\paragraph{Performing single channel analyses.}
+
+The current data set can be analyzed automatically for each channel
+separately using the analysis facility method
+%
+\begin{verbatim}
+int BCMTFAnalysisFacility::
+    PerformSingleChannelAnalyses(const char * dirname,
+                                 const char * options = "")
+\end{verbatim}
+%
+where \verb|dirname| is the name of a directory which will be created
+and into which all plots will be copied. If \verb|mcmc| is specified
+in the \verb|options| then the MCMC will be run for each channel. The
+method creates all marginalized distributions and results as well as
+an overview plot. If the option \verb|nosyst| is specified, the
+systematic uncertainties are all switched off.
+
+\paragraph{Performing single systematic analyses.}
+
+Similarly, the method
+%
+\begin{verbatim}
+int BCMTFAnalysisFacility::
+    PerformSingleSystematicAnalyses(const char * dirname,
+                                    const char * options = "")
+\end{verbatim}
+%
+can be used to perform a set of analyses for each systematic
+uncertainty separately.
+
+\paragraph{Performing calibration analyses.}
+
+Ensemble tests for different sets of parameters can be automized by
+using the method
+%
+\begin{verbatim}
+int BCMTFAnalysisFacility::
+    PerformCalibrationAnalysis(const char * dirname,
+                               const std::vector<double> & default_parameters,
+                               int index,
+                               const std::vector<double> & parametervalues,
+                               int nensembles = 1000)
+\end{verbatim}
+%
+which can be used to easily generate calibration curves. The ensembles
+are generated for a set of parameters, \verb|default_parameters| where
+one of the parameters, \verb|index|, can vary. The paramter values are
+defined by \verb|parametervalues|. \verb|nensembles| defines the
+number of pseudo data sets used for each ensemble.
+
+
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1579,7 +2087,7 @@ offline diagnostics of the chains. The variables stored are:
 \item Iteration: the current iteration number,
 \item NParameters: the number of parameters,
 \item LogProbability: the log of the posterior probability,
-\item Parameter{\it i}: the parameter value of the {\it i}th parameter.
+\item Parameter{\it i}: the parameter value of the \textit{i}th parameter.
 \end{itemize}
 
 % --------------------------------------------------------
@@ -1595,7 +2103,7 @@ offline diagnostics of the chains. The variables stored are:
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\subsection{ Markov Chain settings and options}
+\subsection{Markov Chain settings and options}
 \label{section:settings:MCMC}
 
 The most important options for the Markov Chains are listed here. For
@@ -1723,499 +2231,6 @@ guide:
  file. See section~\ref{section:outputclass} on how to handle output in
  BAT.
 \end{itemize}
-
-\clearpage
-\pagebreak
-
-% --------------------------------------------------------
-% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% --------------------------------------------------------
-
-\section{The MTF tool}
-\label{section:MTF}
-
-% --------------------------------------------------------
-% introduction
-% --------------------------------------------------------
-\subsection{Introduction}
-\label{section:introduction}
-
-The Multi Template Fitter (MTF) is a tool which allows to fit several
-template histograms to a data histogram. The content of the bins in
-the templates are assumed to fluctuate independently according to
-Poisson distributions. Several channels can be fitted
-simultaneously. 
-
-% --------------------------------------------------------
-% Basics
-% --------------------------------------------------------
-\subsection{Basics}
-\label{section:basics}
-
-The main MTF class inherits from the \verb|BCModel| class and is named
-\verb|BCMTF|. The constructor does not take any arguments, so a new
-instance can be created via
-%
-\begin{verbatim}
-BCMTF::BCMTF() .
-\end{verbatim}
-
-\subsubsection{Adding a channel}
-
-The MTF fits several channels simultaneously. These channels can be
-physics channels, e.g., $Z^{0}\rightarrow e^{+}e^{-}$ and
-$Z^{0}\rightarrow \mu^{+}\mu^{-}$, samples with disjunct jet
-multiplicity or entirely different classes altogether. A new channel
-can be added using the following method:
-%
-\begin{verbatim}
-int BCMTF::AddChannel(const char* name) ,
-\end{verbatim}
-%
-where \verb|name| is the name of the process, and the return value is
-an error code. Note that at least one channel has to be added.
-
-\subsubsection{Adding a data set}
-
-Each channel added to the MTF has a unique data set which comes in
-form of a (\verb|TH1D|) histogram. It can be defined using the
-following method:
-%
-\begin{verbatim}
-int BCMTF::SetData(const char* channelname,
-                   TH1D hist) ,
-\end{verbatim}
-%
-where \verb|channelname| is the name of the channel and \verb|hist| is
-the histogram representing the data. The return value is an error
-code.
-
-\subsubsection{Adding a process}
-
-Each template that is fit to the data set corresponds to a process,
-where one process can occur in several channels. The fit then defines
-the contribution of the process and thus each process comes with one
-model parameter. A process can be added using the following method:
-%
-\begin{verbatim}
-int  BCMTF::AddProcess(const char* name,
-                       double nmin = 0., 
-                       double nmax = 1.) ,
-\end{verbatim}
-%
-where \verb|name| is the name of the process and \verb|nmin| and
-\verb|nmax| are the lower and upper bound of the parameter associated
-with the contribution of the process. The parameter is denoted
-$\lambda_{k} \, (k=1\dots N_{\mathrm{p}})$ in
-section~\ref{section:math}. Note that at least one process has to be
-added. A prior needs to be defined for each process, using the default
-\verb|BCModel| methods.
-
-It is likely that a single process will have different shapes in
-different channels. Thus, templates for a process need to be defined
-for each channel separately using the following method:
-%
-\begin{verbatim}
-int BCMTF::SetTemplate(const char* channelname, 
-                       const char* processname, 
-                       TH1D hist, 
-                       double efficiency = 1.) ,
-\end{verbatim}
-%
-where \verb|channelname| and \verb|processname| are the names of the
-channel and the process, respectively. The parameter \verb|hist| is
-the (\verb|TH1D|) histogram (or template) which represents the
-process. The histogram will be normalized to unity and the entries in
-the normalized histogram are the probabilities to find an event of a
-process~$k$ and channel~$i$ in bin~$j$. This probability is denoted
-$f_{ijk}\,(i=1\dots N_{\mathrm{ch}}, \, j=1\dots N_{\mathrm{b}}, \,
-k=1\dots N_{\mathrm{p}})$ in section~\ref{section:math}. The last
-parameter, \verb|efficiency|, is the efficiency of the process in that
-channel and is used to scale to template during the fit. This is
-needed if a process contributes with different amounts in two separate
-channels. The efficiency is denoted $\epsilon_{ik} \, (i=1\dots
-N_{\mathrm{ch}}, \, k=1\dots N_{\mathrm{p}})$ in
-section~\ref{section:math}. The return value is an error code. Note
-that templates do not have to be set if the process does not
-contribute to a particular channel.
-
-\subsubsection{Adding systematic uncertainties}
-
-Systematic uncertainties can alter the shape of a template. Sources of
-systematic uncertainty can be included in the fit using nuisance
-parameters. This nuisance parameter is assumed to alter the original
-template linearly, where values of~-1,~0, and~1 correspond to the
-``downwards'' shifted, nominal and ``upwards shifted'' template,
-respectively. The nuisance parameters are denoted $\delta_{l} \,
-(l=1\dots N_{\mathrm{syst}})$ in section~\ref{section:math}. Shifted
-refers to a change of one standard deviation. An example for a
-nuisance parameter could be the jet energy scale (JES). With a nominal
-JES of~1 and and uncertainty of 5\%, the scaled templates correspond
-to a JES of 0.95 and 1.05, respectively. A prior needs to be defined
-for each nuisance parameter which is usually chosen to be a standard
-normal distribution. A source of systematic uncertainty can be added
-using the following method:
-%
-\begin{verbatim}
-int BCMTF::AddSystematic(const char* name,
-                         double min = -5.,
-                         double max = 5.) ,
-\end{verbatim}
-%
-where \verb|name| is the name of the source of systematic uncertainty
-and \verb|min| and \verb|max| are the lower and upper bound of the
-nuisance parameter, respectively. The return value is an error code.
-
-Since the different sources of systematic uncertainty have an
-individual impact on each process and in each channel, these need to
-be specified. Two method can be used to define the impact:
-%
-\begin{verbatim}
-int BCMTF::SetSystematicVariation(const char* channelname,
-                                  const char* processname,
-                                  const char* systematicname,
-                                  TH1D hist_up, 
-                                  TH1D hist_down) ,
-\end{verbatim}
-%
-where \verb|channelname|, \verb|processname| and \verb|systematicname|
-are the names of the channel, the process and the source of systematic
-uncertainty. The (\verb|TH1D|) histograms \verb|hist_up| and
-\verb|hist_down| are the histograms corresponding to an ``up''- and
-``down''-scaling of the systematic uncertainty of one standard
-deviation, i.e., for each bin entry $y$ they are calculated as
-%
-\begin{eqnarray}
-\label{eqn:deltay}
-\Delta_{\mathrm{up}}   & = & (y_{\mathrm{up}} - y_{\mathrm{nominal}})/y_{\mathrm{nominal}} \, , \\
-\Delta_{\mathrm{down}} & = & (y_{\mathrm{nominal}} - y_{\mathrm{down}})/y_{\mathrm{nominal}} \, .
-\end{eqnarray}
-%
-Note the sign of the down-ward fluctuation. These histograms define
-the change of the bins in each template in the efficiency which is
-denoted $\Delta\epsilon_{ijkl} \, (i=1\dots N_{\mathrm{ch}}, \,
-j=1\dots N_{\mathrm{b}}, \, k=1\dots N_{\mathrm{p}}, \, l=1\dots
-N_{\mathrm{syst}})$. For example, if the value for a particular bin of
-\verb|hist_up| is 0.05, i.e., if the systematic uncertaintiy is 5\% in
-that bin, then the efficiency of the process in that channel will be
-multiplied by $(1+0.05)$. The return value is an error code.
-
-The second variant does not take the difference in efficiency, but
-calculates it internally from the absolute values:
-%
-\begin{verbatim}
-int BCMTF::SetSystematicVariation(const char* channelname,
-                                  const char* processname,
-                                  const char* systematicname,
-                                  TH1D hist, 
-                                  TH1D hist_up,
-                                  TH1D hist_down) ,
-\end{verbatim}
-%
-where \verb|channelname|, \verb|processname| and \verb|systematicname|
-are the names of the channel, the process and the source of systematic
-uncertainty. The (\verb|TH1D|) histograms \verb|hist|, \verb|hist_up|
-and \verb|hist_down| are the nominal histogram and the histograms
-corresponding to an ``up''- and ``down''-scaling of the systematic
-uncertainty of one standard deviation. In this case, the histograms
-are not the relative differences but the absolute values. The return
-value is an error code.
-
-\subsubsection{Running the fit}
-
-Since the MTF inherits on \verb|BCModel|, the fit can be started like
-other fits in BAT, e.g., using one of the following methods:
-%
-\begin{verbatim}
-BCMTF::MarginalizeAll() ,
-BCMTF::FindMode() .
-\end{verbatim}
-
-% --------------------------------------------------------
-% Output
-% --------------------------------------------------------
-\subsection{Output}
-\label{section:output}
-
-The MTF produces several outputs:
-%
-\begin{itemize}
-\item \verb|PrintAllMarginalized(const char* name)| prints the
-  marginalized distributions in 1D and 2D for all parameters, i.e.,
-  the processes and nuisance parameters into the file \verb|name|.
-\item \verb|PrintResults(const char* name)| writes a summary of the
-  fit into the file \verb|name|.
-\item 
-\begin{verbatim} 
-PrintStack(int channelindex,
-           std::vector<double> parameters, 
-           const char* filename = "stack.eps",
-           const char* options = "")
-PrintStack(const char* channelname,
-           std::vector<double> parameters, 
-           const char* filename = "stack.eps",
-           const char* options = "")
-\end{verbatim}
-  prints a stacked histogram of the templates and the data histogram
-  in the file \verb|name| using a set of parameters
-  \verb|parameters|. For example, these could be the best fit
-  results. Several options can be specified:
-  \begin{itemize}
-    \item \verb|logx|: uses a log-scale for the x-axis.
-    \item \verb|logy|: uses a log-scale for the y-axis.
-  \end{itemize}
-\end{itemize}
-
-% --------------------------------------------------------
-% Settings
-% --------------------------------------------------------
-\subsection{Settings}
-\label{section:settings}
-
-Several settings can be changed which impact the fit. 
-%
-\begin{itemize}
-\item \verb|SetFlagEfficiencyConstraint| sets a flag if the overall
-  efficiency (calculated from the value given when setting a template
-  and the corresponding systematic uncertainties) is constrained to be
-  between~0 and~1 or not. The default value is \verb|true|.
-\end{itemize}
-
-% --------------------------------------------------------
-% Analysis Facility
-% --------------------------------------------------------
-\subsection{Analysis facility}
-\label{section:facility}
-
-The analysis facility allows to perform a variety of analyses and
-ensemble tests for a given MTF. It can be created using the
-constructor:
-%
-\begin{verbatim}
-BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF* mtf) ,
-\end{verbatim}
-%
-where \verb|mtf| is the corresponding MTF object.
-
-\subsubsection{Performing ensemble tests}
-
-Ensemble testing is done in two steps: first, ensembles are generated
-according to the processes defined in the MTF. The ensembles are
-stored in root files. In a second step, the ensembles are analyzed
-using the MTF specified.
-
-\paragraph{Creating ensembles}
-
-Ensembles can be generated using several methods. A single ensemble
-can be generated using the following method:
-%
-\begin{verbatim}
-std::vector<TH1D> BCMTFAnalysisFacility::
-                  BuildEnsemble(std::vector<double> parameters) , 
-\end{verbatim}
-%
-where \verb|parameters| is a set of parameters which corresponds to
-those in the template fitter, i.e., the process contributions and
-nuisance parameters. For most applications, the best fit parameters of
-the data set at hand is used. The return value is a set of histograms
-corresponding to a pseudo data set for the different channels.
-
-A similar method is used to generate multiple ensembles:
-%
-\begin{verbatim}
-std::vector<TH1D> BCMTFAnalysisFacility::
-                  BuildEnsembles(std::vector<double> parameters, 
-                                 int nensembles) , 
-\end{verbatim}
-%
-where \verb|nensembles| is the number of ensembles to be
-generated. The return value is a pointer to a \verb|TTree| object in
-which the ensembles are stored. The entries in the tree are the
-parameters and the number of entries in each bin of the data
-histograms. 
-
-The third method is based on a tree where the tree contains a set of
-parameters for each ensemble. This option is preferred if, e.g., the
-ensembles should be varied accoring to the prior probabilities. The
-method used to generate ensembles is 
-%
-\begin{verbatim}
-std::vector<TH1D> BCMTFAnalysisFacility::
-                  BuildEnsembles(TTree* tree, 
-                                 int nensembles) , 
-\end{verbatim}
-%
-where \verb|tree| is the input tree. Note that the ensembles are
-randomized, i.e., the first event in the tree does not correspond to
-the first ensemble. This is done to avoid biases if the tree itself is
-the output of a Markov Chain.
-
-\paragraph{Analyzing ensembles}
-
-Ensemble tests can be performed usign the ensembles defined earlier or
-using a set of parameters. In the former case, the method is:
-%
-\begin{verbatim}
-TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree,
-                                                  int nensembles) ,
-\end{verbatim}
-%
-where \verb|tree| is the tree of ensembles and \verb|nensembles| is
-the number of ensembles to be analyzed. The return value is a tree
-containing the information about the analyzed ensemble. The list of
-variables is
-%
-\begin{itemize}
-\item \verb|parameter_i|: the $i$th parameter value used at the
-  generation of the ensemble.
-\item \verb|mode_global_i|: the $i$th global mode.
-\item \verb|std_global_i|: the $i$th standard deviation evaluated with
-  the global mode.
-\item \verb|chi2_generated_i|: the $\chi^{2}$ calculated using the
-  parameters at generation of the ensemble for channel $i$.
-\item \verb|chi2_mode_i|: the $\chi^{2}$ calculated using the
-  global mode parameters for channel $i$.
-\item \verb|cash_generated_i|: the Cash statistic (Likelihood ratio)
-  calculated using the parameters at generation of the ensemble for
-  channel $i$.
-\item \verb|cash_mode_i|: the Cash statistic (Likelihood ratio)
-  calculated using the global mode parameters for channel $i$.
-\item \verb|n_events_i|: the number of events in the ensemble in
-  channel $i$.
-\item \verb|chi2_generated_total|: the total $\chi^{2}$ calculated
-  using the parameters at generation of the ensemble.
-\item \verb|chi2_mode_total|: the total $\chi^{2}$ calculated using
-  the global mode parameters. 
-\item \verb|cash_generated_total|: the total Cash statistic calculated
-  using the parameters at generation of the ensemble.
-\item \verb|cash_mode_total|: the total Cash statistic calculated
-  using the global mode parameters.
-\item \verb|n_events_total|: the total number of events in the
-  ensemble.
-\end{itemize}
-
-Ensemble tests can also be performed using the following methd:
-%
-\begin{verbatim}
-TTree* BCMTFAnalysisFacility::
-       PerformEnsembleTest(std::vector<double> parameters,
-                           int nensembles) ,
-\end{verbatim}
-%
-in which case the ensembles are generated internally using the
-parameters and are then analyzed.
-
-\subsubsection{Performing automated analyses}
-
-The analysis facility also allows to perform an automated analysis
-over individual channels and or systematic uncertainties. 
-
-\paragraph{Performing single channel analyses}
-
-The current data set can be analyzed automatically for each channel
-separately using the analysis facility method
-%
-\begin{verbatim}
-int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, 
-                                                        const char* options = "")
-\end{verbatim}
-%
-where \verb|dirname| is the name of a directory which will be created
-and into which all plots will be copied. If \verb|mcmc| is specified
-in the \verb|options| then the MCMC will be run for each channel. The
-method creates all marginalized distributions and results as well as
-an overview plot. If the option \verb|nosyst| is specified, the
-systematic uncertainties are all switched off.
-
-\paragraph{Performing single systematic analyses}
-
-Similarly, the method 
-%
-\begin{verbatim}
-int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname,
-                                                           const char* options = "")
-\end{verbatim}
-%
-can be used to perform a set of analyses for each systematic
-uncertainty separately. 
-
-\paragraph{Performing calibration analyses}
-
-Ensemble tests for different sets of parameters can be automized by
-using the method
-%
-\begin{verbatim}
-int  BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char* dirname,
-                            std::vector<double> default_parameters,
-                            int index, 
-                            std::vector<double> parametervalues,
-                            int nensembles = 1000)
-\end{verbatim}
-%
-which can be used to easily generate calibration curves. The ensembles
-are generated for a set of parameters, \verb|default_parameters| where
-one of the parameters, \verb|index|, can vary. The paramter values are
-defined by \verb|parametervalues|. \verb|nensembles| defines the
-number of pseudo data sets used for each ensemble. 
-
-% --------------------------------------------------------
-% Mathematical formulation
-% --------------------------------------------------------
-\subsection{Mathematical formulation}
-\label{section:math}
-
-The template fitter is formulated in terms of Bayesian reasoning. The
-posterior probability is proportional to the product of the Likelihood
-and the prior probability. The latter can be freely chosen by the user
-whereas the Likelihood is predefined. It is a binned Likelihood which
-assumes that the fluctuations in each bin are of Poisson nature and
-independent of each other. All channels, processes and sources of
-systematic uncertainties are assumed to be uncorrelated. 
-
-The parameters of the model are thus the expectation values of the
-different processes, $\lambda_{k}$, and the nuisance parameters,
-$\delta_{l}$.
-
-\subsubsection{Excluding systematic uncertainies}
-In case no sources of systematic uncertainty are taken into account
-the Likelihood is defined as 
-%
-\begin{eqnarray}
-L = \prod_{i=1}^{N_{\mathrm{ch}}} \prod_{j=1}^{N_{\mathrm{bin}}} \frac{\lambda_{ij}^{n_{ij}}}{n_{ij}!} e^{-\lambda_{ij}} \, ,
-\label{eqn:likelihood}
-\end{eqnarray}
-%
-where $N_{\mathrm{ch}}$ and $N_{\mathrm{bin}}$ are the number of
-channels and bins, respectively. $n_{ij}$ and $\lambda_{ij}$ are the
-observed and expected number of events in the $j$th bin of the $i$th
-channel. The expected number of events are calculated via
-%
-\begin{eqnarray}
-\lambda_{ij} & = & \sum_{k=1}^{N_{\mathrm{p}}} \lambda_{ijk} \\
-            & = & \sum_{k=1}^{N_{\mathrm{p}}} \lambda_{k} \cdot f_{ijk} \cdot \epsilon_{ik} \, ,
-\label{eqn:expectation}
-\end{eqnarray}
-%
-where $f_{ij}$ is the bin content of the $j$th bin in the normalized
-template of the $k$th process in the $i$th channel. $\epsilon_{ik}$ is
-the efficiency of the $k$th process in the $i$th channel specified
-when setting the template. $\lambda_{k}$ is the contribution of the
-$k$th process and is a free parameter of the fit.
-
-\subsubsection{Including systematic uncertainties}
-In case sources of systematic uncertainties are taken into account,
-the efficiency $\epsilon_{ik}$ is modified according to a nuisance
-parameter:
-%
-\begin{eqnarray}
-\epsilon_{ik} \rightarrow \epsilon_{ik} \cdot (1 + \sum_{l=1}^{N_{\mathrm{syst}}} \delta_{l}\cdot \Delta\epsilon_{ijkl}) \, ,
-\label{eqn:systematic}
-\end{eqnarray}
-%
-where $\delta_{l}$ is the nuisance parameter associated with the
-source of systematic uncertainty and $\Delta\epsilon_{ijkl}$ is the
-change in efficiency due to the $l$th source of systematic uncertainty
-in the $i$th channel and $j$th bin for the $k$th process. 
 
 
 
