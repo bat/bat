@@ -27,12 +27,12 @@
 
 // ---------------------------------------------------------
 
-BCHistogramFitter::BCHistogramFitter() :
-   BCModel("HistogramFitter")
+BCHistogramFitter::BCHistogramFitter()
+ : BCModel()
+ , fHistogram(0)
+ , fFitFunction(0)
+ , fHistogramExpected(0)
 {
-   fHistogram = 0;
-   fFitFunction = 0;
-
    // set default options and values
    MCMCSetNIterationsRun(2000);
    SetFillErrorBand();
@@ -42,12 +42,27 @@ BCHistogramFitter::BCHistogramFitter() :
 
 // ---------------------------------------------------------
 
-BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) :
-   BCModel("HistogramFitter")
+BCHistogramFitter::BCHistogramFitter(const char * name)
+ : BCModel(name)
+ , fHistogram(0)
+ , fFitFunction(0)
+ , fHistogramExpected(0)
 {
-   fHistogram = 0;
-   fFitFunction = 0;
+   // set default options and values
+   MCMCSetNIterationsRun(2000);
+   SetFillErrorBand();
+   fFlagIntegration = true;
+   flag_discrete = true;
+}
 
+// ---------------------------------------------------------
+
+BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
+ : BCModel()
+ , fHistogram(0)
+ , fFitFunction(0)
+ , fHistogramExpected(0)
+{
    SetHistogram(hist);
    SetFitFunction(func);
 
@@ -55,8 +70,23 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func) :
    SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
+}
 
-   fHistogramExpected = 0;
+// ---------------------------------------------------------
+
+BCHistogramFitter::BCHistogramFitter(const char * name, TH1D * hist, TF1 * func)
+ : BCModel(name)
+ , fHistogram(0)
+ , fFitFunction(0)
+ , fHistogramExpected(0)
+{
+   SetHistogram(hist);
+   SetFitFunction(func);
+
+   MCMCSetNIterationsRun(2000);
+   SetFillErrorBand();
+   fFlagIntegration = true;
+   flag_discrete = true;
 }
 
 // ---------------------------------------------------------
@@ -65,8 +95,7 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
 {
    // check if histogram exists
    if (!hist) {
-      BCLog::Out(BCLog::error, BCLog::error,
-            "BCHistogramFitter::SetHistogram() : TH1D not created.");
+      BCLog::OutError("BCHistogramFitter::SetHistogram : TH1D not created.");
       return 0;
    }
 
@@ -180,8 +209,7 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
 {
    // check if function exists
    if (!func) {
-      BCLog::Out(BCLog::error, BCLog::error,
-            "BCHistogramFitter::SetFitFunction() : TF1 not created.");
+      BCLog::OutError("BCHistogramFitter::SetFitFunction : TF1 not created.");
       return 0;
    }
 
@@ -189,7 +217,8 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
    fFitFunction = func;
 
    // update the model name to contain the function name
-   SetName(TString::Format("HistogramFitter with %s", fFitFunction->GetName()));
+   if(fName=="model")
+      SetName(TString::Format("HistogramFitter with %s", fFitFunction->GetName()));
 
    // reset parameters
    fParameterSet->clear();

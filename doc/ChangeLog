@@ -1,3 +1,8 @@
+2012-04-21 Daniel Kollar <kollar.dan@gmail.com>
+	* fast fitters:
+	  - added constructors with model name
+	  - small updates
+
 2012-04-20 Daniel Kollar <kollar.dan@gmail.com>
 	* BCMTF:
 	  - added constructor with model name

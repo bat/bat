@@ -23,13 +23,13 @@
 
 // ---------------------------------------------------------
 
-BCGraphFitter::BCGraphFitter() : BCModel("GraphFitter")
+BCGraphFitter::BCGraphFitter()
+ : BCModel()
+ , fGraph(0)
+ , fFitFunction(0)
+ , fErrorBand(0)
+ , fGraphFitFunction(0)
 {
-   fGraph = 0;
-   fFitFunction = 0;
-   fErrorBand = 0;
-   fGraphFitFunction = 0;
-
    MCMCSetNIterationsRun(2000);
 
    SetFillErrorBand();
@@ -37,13 +37,44 @@ BCGraphFitter::BCGraphFitter() : BCModel("GraphFitter")
 
 // ---------------------------------------------------------
 
-BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func) : BCModel("GraphFitter")
+BCGraphFitter::BCGraphFitter(const char * name)
+ : BCModel(name)
+ , fGraph(0)
+ , fFitFunction(0)
+ , fErrorBand(0)
+ , fGraphFitFunction(0)
 {
-   fGraph = 0;
-   fFitFunction = 0;
-   fErrorBand = 0;
-   fGraphFitFunction = 0;
+   MCMCSetNIterationsRun(2000);
 
+   SetFillErrorBand();
+}
+
+// ---------------------------------------------------------
+
+BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func)
+ : BCModel()
+ , fGraph(0)
+ , fFitFunction(0)
+ , fErrorBand(0)
+ , fGraphFitFunction(0)
+{
+   MCMCSetNIterationsRun(2000);
+
+   SetGraph(graph);
+   SetFitFunction(func);
+
+   SetFillErrorBand();
+}
+
+// ---------------------------------------------------------
+
+BCGraphFitter::BCGraphFitter(const char * name, TGraphErrors * graph, TF1 * func)
+ : BCModel(name)
+ , fGraph(0)
+ , fFitFunction(0)
+ , fErrorBand(0)
+ , fGraphFitFunction(0)
+{
    MCMCSetNIterationsRun(2000);
 
    SetGraph(graph);
@@ -56,8 +87,7 @@ BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func) : BCModel("GraphF
 
 int BCGraphFitter::SetGraph(TGraphErrors * graph)
 {
-   if(!graph)
-   {
+   if(!graph) {
       BCLog::Out(BCLog::error,BCLog::error,"BCGraphFitter::SetGraph() : TGraphErrors not created.");
       return 0;
    }
@@ -152,7 +182,8 @@ int BCGraphFitter::SetFitFunction(TF1 * func)
    fFitFunction = func;
 
    // update the model name to contain the function name
-   SetName(TString::Format("GraphFitter with %s",fFitFunction->GetName()));
+   if(fName=="model")
+      SetName(TString::Format("GraphFitter with %s",fFitFunction->GetName()));
 
    // reset parameters
    fParameterSet->clear();

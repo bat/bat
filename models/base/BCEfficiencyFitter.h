@@ -47,11 +47,24 @@ class BCEfficiencyFitter : public BCModel
       BCEfficiencyFitter();
 
       /**
+       * Constructor
+       * @param name name fo the model */
+      BCEfficiencyFitter(const char * name);
+
+      /**
        * A constructor.
        * @param hist1 The histogram with the larger numbers
        * @param hist2 The histogram with the smaller numbers
        * @param func The fit function. */
       BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func);
+
+      /**
+       * Constructor.
+       * @param name name fo the model
+       * @param hist1 The histogram with the larger numbers
+       * @param hist2 The histogram with the smaller numbers
+       * @param func The fit function. */
+      BCEfficiencyFitter(const char * name, TH1D * hist1, TH1D * hist2, TF1 * func);
 
       /**
        * The default destructor. */

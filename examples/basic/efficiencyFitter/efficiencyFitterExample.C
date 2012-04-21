@@ -79,8 +79,8 @@ void efficiencyFitterExample()
 	hef->SetFlagIntegration(false);
 
 	// set options for MCMC
-	//	hef->MCMCSetNIterationsMax(100);
-	//	hef->MCMCSetNIterationsRun(100);
+//	hef->MCMCSetNIterationsMax(100);
+//	hef->MCMCSetNIterationsRun(100);
 
 	// set priors
 	hef->SetPriorGauss(0, 50.0, 5.0);

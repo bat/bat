@@ -44,9 +44,21 @@ class BCGraphFitter : public BCModel
 
       /**
        * Constructor
+       * @param name name of the model */
+      BCGraphFitter(const char * name);
+
+      /**
+       * Constructor
        * @param graph pointer to TGraphErrors
        * @param func pointer to TF1 */
       BCGraphFitter(TGraphErrors * graph, TF1 * func);
+
+      /**
+       * Constructor
+       * @param name name of the model
+       * @param graph pointer to TGraphErrors
+       * @param func pointer to TF1 */
+      BCGraphFitter(const char * name, TGraphErrors * graph, TF1 * func);
 
       /**
        * The default destructor. */

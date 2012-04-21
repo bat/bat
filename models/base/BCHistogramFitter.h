@@ -45,10 +45,22 @@ class BCHistogramFitter : public BCModel
       BCHistogramFitter();
 
       /**
-       * A constructor.
-       * @param hist The histogram (TH1D).
-       * @param func The fit function. */
+       * Constructor
+       * @param name name of the model */
+      BCHistogramFitter(const char * name);
+
+      /**
+       * Constructor.
+       * @param hist histogram to fit
+       * @param func fit function */
       BCHistogramFitter(TH1D * hist, TF1 * func);
+
+      /**
+       * Constructor
+       * @param name name of the model
+       * @param hist histogram to fit
+       * @param func fit function */
+      BCHistogramFitter(const char * name, TH1D * hist, TF1 * func);
 
       /**
        * The default destructor. */

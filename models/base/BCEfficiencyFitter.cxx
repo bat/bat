@@ -28,15 +28,14 @@
 
 // ---------------------------------------------------------
 
-BCEfficiencyFitter::BCEfficiencyFitter() : BCModel("EfficiencyFitter")
+BCEfficiencyFitter::BCEfficiencyFitter()
+ : BCModel()
+ , fHistogram1(0)
+ , fHistogram2(0)
+ , fFitFunction(0)
+ , fHistogramBinomial(0)
+ , fDataPointType(1)
 {
-   fHistogram1 = 0;
-   fHistogram2 = 0;
-   fHistogramBinomial = 0;
-   fFitFunction = 0;
-
-   fDataPointType = 1;
-
    // set default options and values
    MCMCSetNIterationsRun(2000);
    MCMCSetRValueCriterion(0.01);
@@ -46,15 +45,50 @@ BCEfficiencyFitter::BCEfficiencyFitter() : BCModel("EfficiencyFitter")
 
 // ---------------------------------------------------------
 
-BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func) : BCModel("EfficiencyFitter")
+BCEfficiencyFitter::BCEfficiencyFitter(const char * name)
+ : BCModel(name)
+ , fHistogram1(0)
+ , fHistogram2(0)
+ , fFitFunction(0)
+ , fHistogramBinomial(0)
+ , fDataPointType(1)
 {
-   fHistogram1 = 0;
-   fHistogram2 = 0;
-   fHistogramBinomial = 0;
-   fFitFunction = 0;
+   // set default options and values
+   MCMCSetNIterationsRun(2000);
+   MCMCSetRValueCriterion(0.01);
+   SetFillErrorBand();
+   fFlagIntegration = false;
+}
 
-   fDataPointType = 1;
+// ---------------------------------------------------------
 
+BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func)
+ : BCModel()
+ , fHistogram1(0)
+ , fHistogram2(0)
+ , fFitFunction(0)
+ , fHistogramBinomial(0)
+ , fDataPointType(1)
+{
+   SetHistograms(hist1, hist2);
+   SetFitFunction(func);
+
+   MCMCSetNIterationsRun(2000);
+   MCMCSetRValueCriterion(0.01);
+   SetFillErrorBand();
+   fFlagIntegration = false;
+}
+
+// ---------------------------------------------------------
+
+BCEfficiencyFitter::BCEfficiencyFitter(const char * name, TH1D * hist1, TH1D * hist2, TF1 * func)
+ : BCModel(name)
+ , fHistogram1(0)
+ , fHistogram2(0)
+ , fFitFunction(0)
+ , fHistogramBinomial(0)
+ , fDataPointType(1)
+{
    SetHistograms(hist1, hist2);
    SetFitFunction(func);
 
@@ -144,7 +178,8 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
    fFitFunction = func;
 
    // update the model name to contain the function name
-   SetName(TString::Format("BCEfficiencyFitter with %s",fFitFunction->GetName()));
+   if(fName=="model")
+      SetName(TString::Format("BCEfficiencyFitter with %s",fFitFunction->GetName()));
 
    // reset parameters
    fParameterSet->clear();
