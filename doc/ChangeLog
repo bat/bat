@@ -1,3 +1,19 @@
+2012-04-23 Daniel Kollar <kollar.dan@gmail.com>
+	* models/mtf/Makefile:
+	  - don't delete rootmap on make clean
+	* BCDataPoint:
+	  - exit on error
+	  - fixed compiler warnings
+	* BCLog:
+	  - added method to set different log levels for screen and file
+	    in one call
+	  - made ToString() public
+	* BCMTFAnalysisFacility:
+	  - added info printouts
+	  - possibility to set log level for the ensemble test
+	* examples/advanced/mtf/ensembleTest:
+	  - small update
+
 2012-04-21 Daniel Kollar <kollar.dan@gmail.com>
 	* fast fitters:
 	  - added constructors with model name
@@ -11,7 +27,6 @@
 	  - moved MTF under tools and models
 	  - changed description of the MTF to match the code
 	  - added 'Depreceted' comment to BCTemplateFitter
-
 
 2012-04-19 Daniel Kollar <kollar.dan@gmail.com>
 	* examples/advanced/mtf:

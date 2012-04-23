@@ -54,7 +54,7 @@ nodist_libBATmtf_la_SOURCES= \
 BUILT_SOURCES = $(incs:.h=Dict.cxx)
 
 clean-local:
-	rm -f *.o *.lo *Dict.* libBATmtf.rootmap
+	rm -f *.o *.lo *Dict.*
 
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<

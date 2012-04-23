@@ -12,6 +12,8 @@
 
 #include <TString.h>
 
+#include <cstdlib>
+
 // ---------------------------------------------------------
 BCDataPoint::BCDataPoint(int nvariables)
 {
@@ -42,7 +44,6 @@ BCDataPoint::~BCDataPoint()
 // ---------------------------------------------------------
 BCDataPoint & BCDataPoint::operator = (const BCDataPoint & datapoint)
 {
-   // debugKK
    fData = datapoint.fData;
 
    // return this
@@ -52,19 +53,19 @@ BCDataPoint & BCDataPoint::operator = (const BCDataPoint & datapoint)
 // ---------------------------------------------------------
 double BCDataPoint::GetValue(int index)
 {
-// this is not good at all
-// -1 can be ok value
-// and one can turn off warnings
-// so if index is out of range the program should stop
-   double value = -1.0;
+   double value;
 
    // check if index is in range. return value if true ...
    if (index >= 0 && index < int(fData.size()))
       value = fData[index];
    // ... or give error if not.
-   else
+   else {
+      // exit on error
       BCLog::OutError(
-            TString::Format("BCDataPoint::GetValue : Index %d out of range (%d to %ld).", index,0, fData.size()-1));
+            Form("BCDataPoint::GetValue : Index %d out of range (%d to %d).",
+                 index,0, (int)fData.size()-1));
+      exit(1);
+   }
 
    return value;
 }
@@ -72,18 +73,17 @@ double BCDataPoint::GetValue(int index)
 // ---------------------------------------------------------
 void BCDataPoint::SetValue(int index, double value)
 {
-// this is not good at all
-// -1 can be ok value
-// and one can turn off warnings
-// so if index is out of range the program should stop
-
    // check if index is in range. set value if true ...
    if (index >= 0 && index < int(fData.size()))
       fData[index] = value;
    // ... or give error if not.
-   else
+   else {
+      // exit on error
       BCLog::OutError(
-            TString::Format("BCDataPoint::SetValue : Index %d out of range (%d to %ld).",index, 0 ,fData.size()-1));
+            Form("BCDataPoint::SetValue : Index %d out of range (%d to %d).",
+                 index, 0 ,(int)fData.size()-1));
+      exit(1);
+   }
 }
 
 // ---------------------------------------------------------
@@ -98,8 +98,10 @@ void BCDataPoint::SetValues(std::vector<double> values)
          fData.push_back(*it);
    }
    // ... or give error if the size if not the same.
-   else
+   else {
       BCLog::OutError("BCDataPoint::SetValues : Vectors have different ranges.");
+      exit(1);
+   }
 }
 
 // ---------------------------------------------------------

@@ -34,7 +34,7 @@ void ensembleTest()
    // ---- perform fitting ---- //
 
    // create new fitter object
-   BCMTF * m = new BCMTF();
+   BCMTF * m = new BCMTF("MyModel");
 
    // set the required precision of the MCMC (kLow, kMedium, kHigh)
    // the higher the precision the longer the MCMC run
@@ -91,7 +91,7 @@ void ensembleTest()
    // ---- perform ensemble tests ---- //
 
    // create new analysis facility
-   BCMTFAnalysisFacility* facility = new BCMTFAnalysisFacility(m);
+   BCMTFAnalysisFacility * facility = new BCMTFAnalysisFacility(m);
 
    // settings
    facility->SetFlagMCMC(false);
@@ -102,10 +102,10 @@ void ensembleTest()
    file->cd();
 
    // create ensembles
-   TTree* tree = facility->BuildEnsembles( m->GetBestFitParameters(), 10000 );
+   TTree * tree = facility->BuildEnsembles( m->GetBestFitParameters(), 1000 );
 
    // run ensemble test
-   TTree* tree_out = facility->PerformEnsembleTest(tree, 100);
+   TTree * tree_out = facility->PerformEnsembleTest(tree, 1000);
 
    // write trees into file
    tree->Write();

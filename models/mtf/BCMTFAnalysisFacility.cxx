@@ -32,23 +32,28 @@
 BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf)
  : fRandom(new TRandom3(0))
  , fFlagMCMC(false)
+ , fLogLevel(BCLog::nothing)
 {
    fMTF = mtf;
-};
+   BCLog::OutDetail(Form("Prepared Analysis Facility for MTF model \'%s\'",mtf->GetName().c_str()));
+}
 
 // ---------------------------------------------------------
 BCMTFAnalysisFacility::~BCMTFAnalysisFacility()
 {
-};
+}
 
 // ---------------------------------------------------------
 std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double> & parameters)
 {
+   // get number of channels
+   int nchannels = fMTF->GetNChannels();
+
    // create vector of histograms
    std::vector<TH1D> histograms;
 
    // loop over channels
-   for (int ichannel = 0; ichannel < fMTF->GetNChannels(); ++ichannel) {
+   for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
 
       // get channel
       BCMTFChannel * channel = fMTF->GetChannel(ichannel);
@@ -79,6 +84,11 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
 // ---------------------------------------------------------
 TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
 {
+   // get number of channels
+   int nchannels = fMTF->GetNChannels();
+
+   BCLog::OutDetail(Form("MTF Building %d ensambles for %d channels.",nensembles,nchannels));
+
    // get number of parameters
    int nparameters = fMTF->GetNParameters();
 
@@ -92,9 +102,6 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
 
    // create tree
    TTree * tree_out = new TTree("ensembles", "ensembles");
-
-   // get number of channels
-   int nchannels = fMTF->GetNChannels();
 
    // create matrix of number of bins
    std::vector< std::vector<double> > nbins_matrix;
@@ -130,8 +137,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
       for (int ibin = 1; ibin <= nbins; ++ibin) {
          // create branches
          tree_out->Branch(Form("channel_%i_bin_%i", ichannel, ibin),
-                                  &(nbins_matrix[ichannel])[ibin-1],
-                                  "n/D");
+                          &(nbins_matrix[ichannel])[ibin-1], "n/D");
       }
    }
 
@@ -183,11 +189,13 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
 // ---------------------------------------------------------
 TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parameters, int nensembles)
 {
-   // create tree
-   TTree * tree = new TTree("ensembles", "ensembles");
-
    // get number of channels
    int nchannels = fMTF->GetNChannels();
+
+   BCLog::OutDetail(Form("MTF Building %d ensambles for %d channels.",nensembles,nchannels));
+
+   // create tree
+   TTree * tree = new TTree("ensembles", "ensembles");
 
    // create matrix of number of bins
    std::vector< std::vector<double> > nbins_matrix;
@@ -226,8 +234,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
       for (int ibin = 1; ibin <= nbins; ++ibin) {
          // create branches
          tree->Branch(Form("channel_%i_bin_%i", ichannel, ibin),
-                            &(nbins_matrix[ichannel])[ibin-1],
-                            "n/D");
+                      &(nbins_matrix[ichannel])[ibin-1], "n/D");
       }
    }
 
@@ -288,9 +295,24 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double> & p
 // ---------------------------------------------------------
 TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles, int start)
 {
-   // set log level to nothing
-   BCLog::LogLevel ll = BCLog::GetLogLevelScreen();
-   BCLog::SetLogLevel(BCLog::nothing);
+   BCLog::OutSummary("Running ensemble test.");
+   if (fFlagMCMC) {
+      BCLog::OutSummary("Fit for each ensemble is going to be run using MCMC. It can take a while.");
+   }
+
+   // set log level
+   // It would be better to set the level for the screen and for the file
+   // separately. Perhaps in the future.
+   BCLog::LogLevel lls = BCLog::GetLogLevelScreen();
+   BCLog::LogLevel llf = BCLog::GetLogLevelFile();
+   if(fLogLevel==BCLog::nothing) {
+      BCLog::OutSummary("No log messages for the ensemble fits are going to be printed.");
+      BCLog::SetLogLevel(fLogLevel);
+   }
+   else if(fLogLevel!=lls) {
+      BCLog::OutSummary(Form("The log level for the ensemble test is set to \'%s\'.",BCLog::ToString(fLogLevel)));
+      BCLog::SetLogLevel(fLogLevel);
+   }
 
    // get number of channels
    int nchannels = fMTF->GetNChannels();
@@ -414,8 +436,12 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
    // loop over ensembles
    for (int iensemble = 0; iensemble < nensembles; ++iensemble) {
       // print status
-      if ((iensemble+1) % 100 == 0 && iensemble > 0)
-         std::cout << "Fraction of ensembles analyzed: " << double(iensemble+1) / double(nensembles) * 100 << "%" << std::endl;
+      if ((iensemble+1)%100 == 0 && iensemble > 0) {
+         BCLog::SetLogLevel(lls,llf);
+         int frac = double(iensemble+1) / double(nensembles) * 100.;
+         BCLog::OutDetail(Form("Fraction of ensembles analyzed: %i%%",frac));
+         BCLog::SetLogLevel(fLogLevel);
+      }
 
       // get next (commented out: random) event from tree
       //      int index = (int) fRandom->Uniform(tree->GetEntries());
@@ -443,6 +469,10 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
 
       // check if MCMC should be run and perform analysis
       if (fFlagMCMC) {
+         BCLog::SetLogLevel(lls,llf);
+         BCLog::OutDetail(Form("Running MCMC for ensemble %i",iensemble));
+         BCLog::SetLogLevel(fLogLevel);
+
          // work-around: force initialization
          fMTF->MCMCResetResults();
 
@@ -524,10 +554,12 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
    }
 
    // reset log level
-   BCLog::SetLogLevel(ll);
+   BCLog::SetLogLevel(lls,llf);
 
    // work-around: force initialization
    fMTF->MCMCResetResults();
+
+   BCLog::OutSummary("Ensemble test ran successfully.");
 
    // return output tree
    return tree_out;

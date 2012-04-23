@@ -28,6 +28,8 @@
 
 #include <TH1D.h>
 
+#include "../../BAT/BCLog.h"
+
 class BCMTF;
 class TTree;
 class TRandom3;
@@ -59,6 +61,14 @@ class BCMTFAnalysisFacility
          { return fMTF; };
 
       // misc
+
+      // get the log level for the ensemble test
+      BCLog::LogLevel GetLogLevel()
+         { return fLogLevel; };
+
+      // set the log level for the ensemble test
+      void SetLogLevel(BCLog::LogLevel level)
+         { fLogLevel=level; };
 
       // perform the full set of single channel analyses and the
       // combination
@@ -103,6 +113,10 @@ class BCMTFAnalysisFacility
 
       // flag: use MCMC for analysis
       bool fFlagMCMC;
+
+      // log level for the ensemble tests
+      BCLog::LogLevel fLogLevel;
+
 };
 // ---------------------------------------------------------
 

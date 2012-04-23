@@ -83,9 +83,16 @@ class BCLog
 
       /**
        * Sets the minimum log level for file and screen output.
+       * @param loglevelscreen log level for screen
+       * @param loglevelfile log level for file */
+      static void SetLogLevel(BCLog::LogLevel loglevelscreen, BCLog::LogLevel loglevelfile)
+         { BCLog::fMinimumLogLevelFile = loglevelfile; BCLog::fMinimumLogLevelScreen = loglevelscreen; };
+
+      /**
+       * Sets the minimum log level for file and screen output.
        * @param loglevel log level */
       static void SetLogLevel(BCLog::LogLevel loglevel)
-         { BCLog::fMinimumLogLevelFile = loglevel; BCLog::fMinimumLogLevelScreen = loglevel; };
+         { SetLogLevel(loglevel, loglevel); };
 
       // methods
 
@@ -149,6 +156,10 @@ class BCLog
       static int GetHIndex()
          { return BCLog::fHindex++; };
 
+      /**
+       * Converts a log level to a string */
+      static const char * ToString(BCLog::LogLevel);
+
    private:
 
       /**
@@ -170,10 +181,6 @@ class BCLog
       /**
        * Specifies wheather there were output printouts already */
       static bool fFirstOutputDone;
-
-      /**
-       * Converts a log level to a string */
-      static const char * ToString(BCLog::LogLevel);
 
       /**
        * Global histogram counter */
