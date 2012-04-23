@@ -605,6 +605,8 @@ std::vector<TH1D> BCMTFAnalysisFacility::MatrixToHistograms(const std::vector< s
 // ---------------------------------------------------------
 int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, const char * options)
 {
+   BCLog::OutSummary(Form("Running single channel analysis in directory \'%s\'.",dirname));
+
    // ---- create new directory ---- //
 
    mkdir(dirname, 0777);
@@ -880,6 +882,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 
    chdir("../");
 
+   BCLog::OutSummary("Single channel analysis ran successfully");
+
    // no error
    return 1;
 }
@@ -887,6 +891,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 // ---------------------------------------------------------
 int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname, const char * options)
 {
+   BCLog::OutSummary(Form("Running single channel systematic analysis in directory \'%s\'.",dirname));
+
    // ---- create new directory ---- //
 
    mkdir(dirname, 0777);
@@ -1115,6 +1121,8 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
    chdir("../");
 
+   BCLog::OutSummary("Single channel analysis ran successfully");
+
    // no error
    return 1;
 }
@@ -1122,6 +1130,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 // ---------------------------------------------------------
 int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, const std::vector<double> & default_parameters, int index, const std::vector<double> & parametervalues, int nensembles)
 {
+   BCLog::OutSummary(Form("Running calibration analysis in directory \'%s\'.",dirname));
 
    // ---- create new directory ---- //
 
@@ -1157,6 +1166,8 @@ int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, cons
    // ---- change directory ---- //
 
    chdir("../");
+
+   BCLog::OutSummary("Calibration analysis ran successfully");
 
    // no error
    return 1;

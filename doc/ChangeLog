@@ -1,4 +1,8 @@
 2012-04-23 Daniel Kollar <kollar.dan@gmail.com>
+	* BCMTFAnalysisFacility:
+	  - added more printouts
+
+2012-04-23 Daniel Kollar <kollar.dan@gmail.com>
 	* models/mtf/Makefile:
 	  - don't delete rootmap on make clean
 	* BCDataPoint:
