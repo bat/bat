@@ -83,7 +83,7 @@ class BCMTFAnalysisFacility
       int PerformCalibrationAnalysis(const char * dirname, const std::vector<double> & default_parameters, int index, const std::vector<double> & parametervalues, int nensembles = 1000);
 
       // perform full ensemble test
-      int PerformEnsembleTest(const std::vector<double> & parameters);
+//      int PerformEnsembleTest(const std::vector<double> & parameters);
 
       // build a single ensemble based on a single set of parameters
       std::vector<TH1D> BuildEnsemble(const std::vector<double> & parameters);

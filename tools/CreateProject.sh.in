@@ -204,7 +204,7 @@ CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
 CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
-LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBAT \$(ROOTLIBS)
+LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBAT \$(ROOTLIBS)
 
 @CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
@@ -303,7 +303,7 @@ CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
 CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
-LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBAT \$(ROOTLIBS)
+LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBAT \$(ROOTLIBS)
 
 @CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
 
