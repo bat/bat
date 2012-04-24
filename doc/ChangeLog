@@ -1,3 +1,9 @@
+2012-04-25 Daniel Kollar <kollar.dan@gmail.com>
+	* introduction:
+	  - BCMTFAnalysisFacility update
+	  - BCLog update
+	  - small updates
+
 2012-04-23 Daniel Kollar <kollar.dan@gmail.com>
 	* added example/advanced/mtf/systematics
 	* updated CreateProject.sh.in to link with libBATmtf

@@ -340,7 +340,7 @@ classes. All model classes inherit from the pure-virtual base class
 \verb|BCModel|, which has one member function that must be overloaded:
 %
 \begin{verbatim}
-double BCModel::LogLikelihood(const std::vector <double> &params)
+double BCModel::LogLikelihood(const std::vector <double> & params)
 \end{verbatim}
 %
 This function calculates the conditional probability of the data given
@@ -352,7 +352,7 @@ stability.
 The member function
 %
 \begin{verbatim}
-double BCModel::LogAPrioriProbability(const std::vector <double> &parameters)
+double BCModel::LogAPrioriProbability(const std::vector <double> & parameters)
 \end{verbatim}
 %
 may also be overrided. It calculates the {\it a priori} probability
@@ -417,8 +417,9 @@ The parameters of a model are implemented as a C++ class named
 Parameters can be defined explicitly and then added to a model via
 %
 \begin{verbatim}
-BCParameter * parameter = new BCParameter(const char* name,
-                                          double lowerlimit, double upperlimit);
+BCParameter * parameter = new BCParameter(const char * name,
+                                          double lowerlimit,
+                                          double upperlimit);
 int BCModel::AddParameter(BCParameter * parameter),
 \end{verbatim}
 %
@@ -437,7 +438,7 @@ returned from a model using the methods
 %
 \begin{verbatim}
 BCParameter * BCModel::GetParameter(int index),
-BCParameter * BCModel::GetParameter(char* name).
+BCParameter * BCModel::GetParameter(char * name).
 \end{verbatim}
 
 It is possible to change the lower and upper limits of a parameter
@@ -508,7 +509,7 @@ class MyModel : public BCModel
 		void DefineParameters();
 		double LogAPrioriProbability(const std::vector <double> &parameters);
 		double LogLikelihood(const std::vector <double> &parameters);
-    // void MCMCIterationInterface(); 
+    // void MCMCIterationInterface();
 };
 // ---------------------------------------------------------
 
@@ -565,7 +566,7 @@ void MyModel::DefineParameters()
 }
 
 // ---------------------------------------------------------
-double MyModel::LogLikelihood(const std::vector <double> &parameters)
+double MyModel::LogLikelihood(const std::vector <double> & parameters)
 {
 	// This methods returns the logarithm of the conditional probability
 	// p(data|parameters). This is where you have to define your model.
@@ -584,7 +585,7 @@ double MyModel::LogLikelihood(const std::vector <double> &parameters)
 }
 
 // ---------------------------------------------------------
-double MyModel::LogAPrioriProbability(const std::vector <double> &parameters)
+double MyModel::LogAPrioriProbability(const std::vector <double> & parameters)
 {
 	// This method returns the logarithm of the prior probability for the
 	// parameters p(parameters).
@@ -594,7 +595,7 @@ double MyModel::LogAPrioriProbability(const std::vector <double> &parameters)
 //	double x = parameters.at(0);
 //	double y = parameters.at(1);
 
-//	double dx = GetParameter(0)->GetRangeWidth(); 
+//	double dx = GetParameter(0)->GetRangeWidth();
 
 //	logprob += log(1./dx);                    // flat prior for x
 //	logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
@@ -644,7 +645,7 @@ double BCDataPoint::GetValue(int index).
 A data point can be added to a data set with
 %
 \begin{verbatim}
-void BCDataSet::AddDataPoint(BCDataPoint* datapoint).
+void BCDataSet::AddDataPoint(BCDataPoint * datapoint).
 \end{verbatim}
 
 Alternatively, data can be read in from a file
@@ -664,7 +665,7 @@ Alternatively, data can be read in from a file
 Once a data set is defined it can be assigned to a model with
 %
 \begin{verbatim}
-void BCModel::SetDataSet(BCDataSet* dataset).
+void BCModel::SetDataSet(BCDataSet * dataset).
 \end{verbatim}
 
 Similarly, a data set can be returned from a model with
@@ -689,7 +690,7 @@ the data set:
 %
 \begin{verbatim}
 void BCModel::SetDataBoundaries(int index, double lowerboundary,
-      													double upperboundary, bool fixed=false).
+                                double upperboundary, bool fixed=false).
 \end{verbatim}
 
 % --------------------------------------------------------
@@ -723,9 +724,9 @@ void BCModelManager::SetDataSet(BCDataSet * dataset),
 or by reading data from a file via
 %
 \begin{verbatim}
-int BCModelManager::ReadDataFromFile(char* filename, char* treename,
-		    														 const char* branchnames),
-int BCModelManager::ReadDataFromFile(char* filename, int nvariables).
+int BCModelManager::ReadDataFromFile(char * filename, char * treename,
+                                     const char * branchnames),
+int BCModelManager::ReadDataFromFile(char * filename, int nvariables).
 \end{verbatim}
 
 % --------------------------------------------------------
@@ -779,8 +780,8 @@ Once the integral is calculated the posterior pdf for a set of
 parameter values can be evaluated
 %
 \begin{verbatim}
-double BCModel::Probability(const std::vector <double> &parameter),
-double BCModel::LogProbability(const std::vector <double> &parameter),
+double BCModel::Probability(const std::vector <double> & parameter),
+double BCModel::LogProbability(const std::vector <double> & parameter),
 \end{verbatim}
 %
 where the latter returns the logarithm of the posterior pdf.
@@ -907,7 +908,7 @@ Alternatively, the marginalization can be done for one or two
 parameters individually:
 %
 \begin{verbatim}
-TH1D * BCModel::Marginalize(BCParameter* parameter),
+TH1D * BCModel::Marginalize(BCParameter * parameter),
 TH2D * BCModel::Marginalize(BCParameter * parameter1, BCParameter * parameter2),
 \end{verbatim}
 
@@ -1047,7 +1048,7 @@ be set to to \texttt{true} (default is \texttt{false}).  To enable the
 calculation, the virtual method
 %
 \begin{verbatim}
-double BCModel::CDF(const std::vector<double>& par, int index, bool lower=false)
+double BCModel::CDF(const std::vector<double> & par, int index, bool lower=false)
 \end{verbatim}
 %
 must be overridden in the user model.  \verb|int index| defines the
@@ -1084,8 +1085,8 @@ specific choices to obtain a $p$-value
 \item
 %
 \begin{verbatim}
-int BCHistogramFitter::CalculatePValueFast(const std::vector<double> &par,
-                                           double &pvalue,
+int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
+                                           double & pvalue,
                                            int nIterations=100000)
 \end{verbatim}
 %
@@ -1098,8 +1099,8 @@ in the appendix of \cite{BAT_pValue}.
 \item
 %
 \begin{verbatim}
-int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> &par,
-                                                 double &pvalue)
+int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par,
+                                                 double & pvalue)
 \end{verbatim}
 %
 ues the fact that the rescaled likelihood ratio defined in
@@ -1110,8 +1111,8 @@ i.e. $n_i \ge 5$.
 \item
 %
 \begin{verbatim}
-int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> &par,
-                                                   double &pvalue,
+int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> & par,
+                                                   double & pvalue,
                                                    bool weightExpect=true)
 \end{verbatim}
 %
@@ -1586,7 +1587,7 @@ the contribution of the process and thus each process comes with one
 model parameter. A process can be added using the following method:
 %
 \begin{verbatim}
-int BCMTF::AddProcess(const char* name,
+int BCMTF::AddProcess(const char * name,
                       double nmin = 0.,
                       double nmax = 1.) ,
 \end{verbatim}
@@ -1737,11 +1738,11 @@ The MTF produces several outputs:
 \item
 \begin{verbatim}
 PrintStack(int channelindex,
-           const std::vector<double> &parameters,
+           const std::vector<double> & parameters,
            const char * filename = "stack.eps",
            const char * options = "")
 PrintStack(const char * channelname,
-           const std::vector<double> &parameters,
+           const std::vector<double> & parameters,
            const char * filename = "stack.eps",
            const char * options = "")
 \end{verbatim}
@@ -1894,10 +1895,19 @@ TTree * BCMTFAnalysisFacility::
 in which case the ensembles are generated internally using the
 parameters and are then analyzed.
 
+By default the log messages for both the screen and the log-file
+are suppressed while performing the ensemble test. This can be
+changed using method:
+%
+\begin{verbatim}
+void BCMTFAnalysisFacility::SetLogLevel(BCLog::LogLevel level) .
+\end{verbatim}
+
+
 \subsubsection{Performing automated analyses}
 
 The analysis facility also allows to perform an automated analysis
-over individual channels and or systematic uncertainties. 
+over individual channels and or systematic uncertainties.
 
 \paragraph{Performing single channel analyses.}
 
@@ -1973,8 +1983,9 @@ file. The level of detail can be set independently for both
 via
 %
 \begin{verbatim}
-void BCLog::SetLogLevelFile(BCLog::LogLevel loglevel),
-void BCLog::SetLogLevelScreen(BCLog::LogLevel loglevel),
+void BCLog::SetLogLevelFile(BCLog::LogLevel level),
+void BCLog::SetLogLevelScreen(BCLog::LogLevel level),
+void BCLog::SetLogLevel(BCLog::LogLevel levelscreen, BCLog::LogLevel levelfile),
 \end{verbatim}
 %
 where the level is one of the following
