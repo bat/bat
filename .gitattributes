@@ -115,13 +115,17 @@ examples/advanced/advancedGraphFitter/data/datax.txt -text
 examples/advanced/advancedGraphFitter/graphFitterAdvancedExample.C -text
 examples/advanced/mtf/README -text
 examples/advanced/mtf/ensembleTest/CreateHistograms.C -text
+examples/advanced/mtf/ensembleTest/README -text
 examples/advanced/mtf/ensembleTest/ensembleTest.C -text
 examples/advanced/mtf/singleChannel/CreateHistograms.C -text
+examples/advanced/mtf/singleChannel/README -text
 examples/advanced/mtf/singleChannel/singleChannel.C -text
 examples/advanced/mtf/systematics/CreateHistograms.C -text
 examples/advanced/mtf/systematics/Makefile.in -text
+examples/advanced/mtf/systematics/README -text
 examples/advanced/mtf/systematics/runSystematics.cxx -text
 examples/advanced/mtf/twoChannels/CreateHistograms.C -text
+examples/advanced/mtf/twoChannels/README -text
 examples/advanced/mtf/twoChannels/twoChannels.C -text
 examples/advanced/polynomialfit/CreateData.C -text
 examples/advanced/polynomialfit/Makefile.in -text
