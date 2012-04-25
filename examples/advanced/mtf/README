@@ -14,3 +14,7 @@ Same setting as in twoChannels example, but now ensemble tests are
 performed. The ensembles are generated assuming the same statistical
 model using the best-fit parameters.
 
+systematics:
+------------
+A similar example, but now including two sources of systematic
+uncertainty which alter the templates.
