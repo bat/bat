@@ -1,4 +1,8 @@
 2012-04-25 Daniel Kollar <kollar.dan@gmail.com>
+	* BCIntegrate:
+	  - don't delete the TMinuit object at the end of FindModeMinuit()
+
+2012-04-25 Daniel Kollar <kollar.dan@gmail.com>
 	* introduction:
 	  - BCMTFAnalysisFacility update
 	  - BCLog update

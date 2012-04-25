@@ -1561,7 +1561,6 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
    }
 
    // delete minuit
-   delete fMinuit;
    fMinuit = 0;
 
    return;
