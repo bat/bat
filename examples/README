@@ -12,8 +12,8 @@ Examples in this directory:
 
 * Directory: basic
 
-  Directory:	poisson
-  Type:		Compiled program
+  Directory:	  poisson
+  Type:         Compiled program
   Description:  A simple example for a Poisson counting experiment. The
                 expectation value for a Poisson distribution is
                 estimated given a certain number of observations.
@@ -84,6 +84,14 @@ Examples in this directory:
                 using 1-dim. histograms. The examples feature the
                 BCTemplateFitter which is included in the models
                 directory.
+
+  Directory:    mtf
+  Type:         ROOT macros and compiled programs
+  Description:  Examples for how to fit several templates to a data set
+                using 1-dim. histograms. The examples feature the
+                BCMTF which is included in the models directory. This
+                code will replace the BCTemplateFitter in future
+                versions.
 
   Directory:    roointerface
   Type:         Compiled program and ROOT macros
