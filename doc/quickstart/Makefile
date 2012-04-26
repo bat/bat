@@ -3,10 +3,10 @@ EPSFILES=bat.eps
 
 .PHONY : latex html mostly.clean clean
 
-all: latex html
+all: latex
 
 latex: $(TEXFILE).pdf
-latex: $(TEXFILE).html
+#latex: $(TEXFILE).html
 
 %.dvi %.aux: %.tex
 	latex $< && latex $< && latex $<

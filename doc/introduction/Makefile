@@ -1,6 +1,6 @@
 default: latex
 
-latex: 
+latex:
 	latex introduction.tex
 	latex introduction.tex
 	dvips introduction.dvi -o introduction.ps

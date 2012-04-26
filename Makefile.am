@@ -29,13 +29,19 @@ dist-hook: prep-docs
 	rm -rf `find $(distdir)/models -name .svn`
 	rm -rf `find $(distdir)/examples -name Makefile`
 
-prep-docs: BAT-intro.ps
+prep-docs: BAT-intro.pdf BAT-quickstart.pdf
 
-BAT-intro.ps:
+BAT-intro.pdf:
 	mkdir intro-tmp
 	cp -r doc/introduction intro-tmp
-	cd intro-tmp/introduction; latex introduction; latex introduction; dvips -o introduction.ps introduction
-	mv intro-tmp/introduction/introduction.ps $(distdir)/doc/BAT-intro.ps
+	cd intro-tmp/introduction; latex introduction; latex introduction; dvips -o introduction.ps introduction; ps2pdf introduction.ps
+	mv intro-tmp/introduction/introduction.pdf $(distdir)/doc/BAT-intro.pdf
 	rm -rf intro-tmp
 
+BAT-quickstart.pdf:
+	mkdir quickstart-tmp
+	cp -r doc/quickstart quickstart-tmp
+	cd quickstart-tmp/quickstart; latex quickstart; latex quickstart; dvips -o quickstart.ps quickstart; ps2pdf quickstart.ps
+	mv quickstart-tmp/quickstart/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
+	rm -rf quickstart-tmp
 

@@ -1,10 +1,17 @@
 \documentclass[a4paper,11pt]{article}
 
-\addtolength{\oddsidemargin}{-0.7cm}
-\addtolength{\evensidemargin}{-0.7cm}
-\addtolength{\textwidth}{1.4cm}
-
 \usepackage{graphicx}
+\usepackage{parskip}
+
+%\addtolength{\oddsidemargin}{-0.7cm}
+%\addtolength{\evensidemargin}{-0.7cm}
+%\addtolength{\textwidth}{1.4cm}
+\setlength{\oddsidemargin}{0cm}
+\setlength{\evensidemargin}{0cm}
+\setlength{\topmargin}{-1cm}
+\setlength{\textheight}{23cm}
+\setlength{\textwidth}{16cm}
+
 
 \newcommand{\acronym}[1]{\textsc{#1}}
 \newcommand{\BAT}{\acronym{bat}}
@@ -106,7 +113,7 @@ void MyModel::DefineParameters()
 Our model class reports the \emph{a priori} probability, \BPrior, for
 a set of parameter values through the method
 \begin{verbatim}
-double BCModel::LogAPrioriProbability(std:vector<double> parameters),
+double BCModel::LogAPrioriProbability(const std:vector<double> & parameters),
 \end{verbatim}
 which need not be overloaded if our parameters are independent in our
 \emph{a priori} probability.
@@ -154,7 +161,7 @@ contains, among many others, \Icode{LogGaus} and \Icode{LogPoisson}.
 
 It is essential that \Icode{MyModel} overload
 \begin{verbatim}
-BCModel::LogLikelihood(std::vector<double> parameters),
+BCModel::LogLikelihood(const std::vector<double> & parameters),
 \end{verbatim}
 which reports the log of the conditional probability, \BConditional,
 of the data set given particular values of our parameters. Again, the

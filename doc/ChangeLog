@@ -1,3 +1,11 @@
+2012-04-26 Daniel Kollar <kollar.dan@gmail.com>
+	* raise BAT version to 0.9.rc3
+	* quickstart:
+	  - added to the BAT tarball
+	  - fixed the model interface
+	  - small formatting updates
+	  - default make target does not make the html
+
 2012-04-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mtf: added README files to each example.
 
