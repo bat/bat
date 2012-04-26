@@ -5,6 +5,8 @@
 	  - fixed the model interface
 	  - small formatting updates
 	  - default make target does not make the html
+	* introduction:
+	  - use PDF instead of PostScript for the release tarball
 
 2012-04-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mtf: added README files to each example.
