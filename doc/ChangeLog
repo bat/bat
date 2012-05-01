@@ -1,3 +1,7 @@
+2012-05-01 Daniel Kollar <kollar.dan@gmail.com>
+	* BCModel:
+	  - call LogAPrioriProbability() even if fPriorConstantAll is set
+
 2012-04-26 Daniel Kollar <kollar.dan@gmail.com>
 	* raise BAT version to 0.9.rc3
 	* quickstart:

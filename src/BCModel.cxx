@@ -627,10 +627,7 @@ double BCModel::LogProbabilityNN(const std::vector<double> &parameters)
    double logprob = LogLikelihood(parameters);
 
    // add log of prior probability
-   if(fPriorConstantAll)
-      logprob += fPriorConstantValue;
-   else
-      logprob += LogAPrioriProbability(parameters);
+   logprob += LogAPrioriProbability(parameters);
 
    return logprob;
 }
@@ -652,37 +649,40 @@ double BCModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
    double logprob = 0;
 
-   // get number of parameters
-   int npar = GetNParameters();
+   if(!fPriorConstantAll) {
 
-   // loop over all 1-d priors
-   for (int i = 0; i < npar; ++i) {
-      if (fPriorContainer[i]) {
-         // check what type of object is stored
-         TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
-         TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
+      // get number of parameters
+      int npar = GetNParameters();
 
-         if (f) // TF1
-            logprob += log(f->Eval(parameters[i]));
-         else if (h) { // TH1
-            if(fPriorContainerInterpolate[i])
-               logprob += log(h->Interpolate(parameters[i]));
+      // loop over all 1-d priors
+      for (int i = 0; i < npar; ++i) {
+         if (fPriorContainer[i]) {
+            // check what type of object is stored
+            TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
+            TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
+
+            if (f) // TF1
+               logprob += log(f->Eval(parameters[i]));
+            else if (h) { // TH1
+               if(fPriorContainerInterpolate[i])
+                  logprob += log(h->Interpolate(parameters[i]));
+               else
+                  logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
+            }
             else
-               logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
+                 BCLog::OutError(Form(
+                  "BCModel::LogAPrioriProbability : Prior for parameter %s "
+                  "is defined but not recodnized.",
+                  GetParameter(i)->GetName().c_str())); // this should never happen
          }
-         else
-              BCLog::OutError(Form(
-               "BCModel::LogAPrioriProbability : Prior for parameter %s "
-               "is defined but not recodnized.",
-               GetParameter(i)->GetName().c_str())); // this should never happen
-      }
-      // use constant only if user has defined it
-      else if (!fPriorContainerConstant[i]) {
-         BCLog::OutWarning(Form(
-               "BCModel::LogAPrioriProbability: Prior for parameter %s "
-               "is undefined. Using constant prior to proceed.",
-               GetParameter(i)->GetName().c_str()));
-         logprob -= log(GetParameter(i)->GetRangeWidth());
+         // use constant only if user has defined it
+         else if (!fPriorContainerConstant[i]) {
+            BCLog::OutWarning(Form(
+                  "BCModel::LogAPrioriProbability: Prior for parameter %s "
+                  "is undefined. Using constant prior to proceed.",
+                  GetParameter(i)->GetName().c_str()));
+            logprob -= log(GetParameter(i)->GetRangeWidth());
+         }
       }
    }
 
