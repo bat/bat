@@ -1,3 +1,46 @@
+//
+// This ROOT macro is part of BAT and can only be run if BAT
+// was installed correctly.
+//
+// The macro can be run from within ROOT via commands
+//
+//    root[1] .x singleChannel.C
+//
+// or
+//
+//    root[1] .L singleChannel.C
+//    root[2] singleChannel()
+//
+// or from the command line
+//
+//    $ root singleChannel.C
+//
+// To improve the performance the macro can be run in a compiled
+// mode. The commands are the same as above but with a '+' sign
+// added to the name of the file, e.g.,
+//
+//    root[1] .x singleChannel.C+
+//
+// See ROOT documentation for details.
+//
+//
+// Below are the includes needed for compilation of the macro
+// the #if ... #endif directives around the includes allow to
+// run the macro in both normal and compiled mode.
+#if !defined(__CINT__) || defined(__MAKECINT__)
+
+#include <string>
+
+#include <TFile.h>
+#include <TH1D.h>
+
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMTF.h>
+#include <BAT/BCMTFChannel.h>
+
+#endif
+
 
 void singleChannel()
 {

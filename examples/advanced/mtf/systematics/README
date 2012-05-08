@@ -31,13 +31,13 @@ Running the example:
 1. Make sure that BAT is correctly installed in the system.
 
 2. Create the templates and data histograms by calling the ROOT
-   macro 'root CreateHistogram.C' 
+   macro 'root CreateHistogram.C'
 
 3. Compile the example by running 'make' in the example directory
 
-	For the compilation to work properly BAT needs to be installed
-	in the standard system accessible location or in the path defined
-	by the BATINSTALLDIR environmental variable.
+   For the compilation to work properly BAT needs to be installed
+   in the standard system accessible location or in the path defined
+   by the BATINSTALLDIR environmental variable.
 
 4. Run the executable 'runSystematics'.
 

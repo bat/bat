@@ -1,3 +1,47 @@
+//
+// This ROOT macro is part of BAT and can only be run if BAT
+// was installed correctly.
+//
+// The macro can be run from within ROOT via commands
+//
+//    root[1] .x ensembleTest.C
+//
+// or
+//
+//    root[1] .L ensembleTest.C
+//    root[2] ensembleTest()
+//
+// or from the command line
+//
+//    $ root ensembleTest.C
+//
+// To improve the performance the macro can be run in a compiled
+// mode. The commands are the same as above but with a '+' sign
+// added to the name of the file, e.g.,
+//
+//    root[1] .x ensembleTest.C+
+//
+// See ROOT documentation for details.
+//
+//
+// Below are the includes needed for compilation of the macro
+// the #if ... #endif directives around the includes allow to
+// run the macro in both normal and compiled mode.
+#if !defined(__CINT__) || defined(__MAKECINT__)
+
+#include <string>
+
+#include <TFile.h>
+#include <TH1D.h>
+#include <TTree.h>
+
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMTF.h>
+#include <BAT/BCMTFChannel.h>
+#include <BAT/BCMTFAnalysisFacility.h>
+
+#endif
 
 void ensembleTest()
 {
@@ -38,7 +82,7 @@ void ensembleTest()
 
    // set the required precision of the MCMC (kLow, kMedium, kHigh)
    // the higher the precision the longer the MCMC run
-   m->MCMCSetPrecision(BCEngineMCMC::kLow);
+   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
    // add channels
    m->AddChannel("channel1");
@@ -102,10 +146,10 @@ void ensembleTest()
    file->cd();
 
    // create ensembles
-   TTree * tree = facility->BuildEnsembles( m->GetBestFitParameters(), 1000 );
+   TTree * tree = facility->BuildEnsembles( m->GetBestFitParameters(), 2000 );
 
    // run ensemble test
-   TTree * tree_out = facility->PerformEnsembleTest(tree, 1000);
+   TTree * tree_out = facility->PerformEnsembleTest(tree, 2000);
 
    // write trees into file
    tree->Write();

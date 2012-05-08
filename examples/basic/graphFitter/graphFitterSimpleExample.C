@@ -18,6 +18,31 @@
 //
 //    $ root graphFitterSimpleExample.C
 //
+// To improve the performance the macro can be run in a compiled
+// mode. The commands are the same as above but with a '+' sign
+// added to the name of the file, e.g.,
+//
+//    root[1] .x graphFitterSimpleExample.C+
+//
+// See ROOT documentation for details.
+//
+//
+// Below are the includes needed for compilation of the macro
+// the #if ... #endif directives around the includes allow to
+// run the macro in both normal and compiled mode.
+#if !defined(__CINT__) || defined(__MAKECINT__)
+
+#include <TGraphErrors.h>
+#include <TF1.h>
+#include <TCanvas.h>
+#include <TRandom3.h>
+
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCGraphFitter.h>
+
+#endif
+
 // The data fitted are generated randomly to follow a straight line
 // in function CreateGraph(n,seed), where 'n' is the number of points
 // to generate and 'seed' is the random seed for the random number generator.

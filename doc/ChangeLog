@@ -1,3 +1,9 @@
+2012-05-08 Daniel Kollar <kollar.dan@gmail.com>
+	* examples:
+	  - macros can now be run with and without compilation with
+	    no changes needed to the code
+	  - update README files
+
 2012-05-01 Daniel Kollar <kollar.dan@gmail.com>
 	* BCModel:
 	  - call LogAPrioriProbability() even if fPriorConstantAll is set

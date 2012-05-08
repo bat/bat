@@ -18,6 +18,32 @@
 //
 //    $ root efficiencyFitterExample.C
 //
+// To improve the performance the macro can be run in a compiled
+// mode. The commands are the same as above but with a '+' sign
+// added to the name of the file, e.g.,
+//
+//    root[1] .x efficiencyFitterExample.C+
+//
+// See ROOT documentation for details.
+//
+//
+// Below are the includes needed for compilation of the macro
+// the #if ... #endif directives around the includes allow to
+// run the macro in both normal and compiled mode.
+#if !defined(__CINT__) || defined(__MAKECINT__)
+
+#include <TH1D.h>
+#include <TF1.h>
+#include <TCanvas.h>
+#include <TRandom3.h>
+#include <TMath.h>
+
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCEfficiencyFitter.h>
+
+#endif
+
 // The data fitted are generated randomly using a function
 // CreateHistograms(nbins,nevents,hist1,hist2,seed), where 'nbins' is
 // the number of bins in both histograms, nevents is the number of
@@ -54,13 +80,13 @@ void efficiencyFitterExample()
 	BCAux::SetStyle();
 
 	// create new histograms
-	hist1 = new TH1D("data1", ";x;N", nbins, 0.0, 100.0);
+	TH1D * hist1 = new TH1D("data1", ";x;N", nbins, 0.0, 100.0);
 	hist1->SetStats(kFALSE);
 	hist1->SetLineColor(kBlack);
 	hist1->SetFillColor(5);
 	hist1->SetFillStyle(1001);
 
-	hist2 = new TH1D("data2", ";x;N", nbins, 0.0, 100.0);
+	TH1D * hist2 = new TH1D("data2", ";x;N", nbins, 0.0, 100.0);
 	hist2->SetStats(kFALSE);
 	hist2->SetLineColor(kRed);
 

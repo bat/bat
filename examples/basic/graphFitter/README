@@ -1,4 +1,4 @@
-Description: 
+Description:
 ------------
 
 This example is part of BAT. It will only run if BAT is correctly
@@ -18,8 +18,8 @@ http://www.mppmu.mpg.de/bat/
 Files:
 ------
 
-  README                  - this file 
-  graphFitterSimpleExample.C - the source code of the main program
+  README                      - this file
+  graphFitterSimpleExample.C  - the source code of the main program
 
 
 Running the example:

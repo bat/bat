@@ -1,4 +1,4 @@
-Description: 
+Description:
 ------------
 
 This example is part of BAT. It will only run if BAT is correctly
@@ -20,9 +20,9 @@ http://www.mppmu.mpg.de/bat/
 Files:
 ------
 
-  README                  - this file 
-  graphFitterAdvancedExample.C - the source code of the main program
-  data/                   - a directory containing the data
+  README                        - this file
+  graphFitterAdvancedExample.C  - the source code of the main program
+  data/                         - a directory containing the data
 
 Running the example:
 --------------------
