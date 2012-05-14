@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.9
-Release date:                 2010-04-xx
+Release date:                 2010-05-xx
 Urgency:                      low
 ------------------------------------------
 
@@ -11,19 +11,50 @@ It contains many improvements and a few bugfixes. The most important changes
 are summarized below. For detailed list of changes see the Changelog. For
 more information consult the BAT webpage at http://www.mpp.mpg.de/bat/.
 
-o The user interface for the models has changed. The vector of parameters
-  is now passed as const reference which leads to significant speed up
-  especially for models with large number of parameters.
-  All user models have to be adjusted!!!
+!!! IMPORTANT !!!
+-----------------
+ALL USER MODELS HAVE TO BE ADJUSTED !!!
 
-o Added new fully rewritten template fitter - BCMTF (MTF stands for
-  MultiTemplateFitter). 
-  ...
-  The old BCTemplateFitter is kept for the moment but is depreceted.
+The user interface for the models has changed. The vector of parameters
+is now passed as const reference which leads to significant speed up
+especially for models with large number of parameters.
+Read below how to update your model to the new interface.
 
+Code updates:
+-------------
+o Change allowing use of overloaded LogAPrioriProbability() with models
+  derived from fast fitters.
+o Do not delete the TMinuit object after the fit.
+o Global code cleanup.
+
+Multi Template Fitter:
+----------------------
+o Added new fully rewritten template fitter with plenty of improvements and
+  many new features.
+o Detailed description of the fitter added to the documentation.
+o The old BCTemplateFitter is kept for the moment but is depreceted and will
+  be removed in the future.
+
+Compilation:
+------------
 o Fixed Makefile generation in CreateProject.sh script.
-
 o Fixed compilation in the presence of more BAT versions in the system.
 
-o Global code cleanup.
+Documentation:
+--------------
+o Added a quick start guide document.
+o Updated the BAT introduction document.
+o Added many Doxygen comments.
+
+Examples:
+---------
+o Updated macro examples so they can be run in standard as well as in
+  compiled mode without changes.
+o In rootOutput example added a macro showing how to offline analyze the
+  chains stored in a root file.
+
+
+=========================================================================
+
+HOW TO UPDATE PRE-0.9 BAT MODEL TO THE NEW INTERFACE
 

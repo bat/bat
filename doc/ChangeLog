@@ -1,3 +1,7 @@
+2012-05-14 Daniel Kollar <kollar.dan@gmail.com>
+	* releasenotes.txt:
+	  - updated for the new release
+
 2012-05-08 Daniel Kollar <kollar.dan@gmail.com>
 	* examples:
 	  - macros can now be run with and without compilation with
@@ -107,7 +111,7 @@
 2012-04-17 Daniel Kollar <kollar.dan@gmail.com>
 	* BCMTF:
 	  - added copyright notes to all source files
-	  - added Doxzgen info templates to the headers
+	  - added Doxygen info templates to the headers
 	* BCTemplateFitter:
 	  - added warning that this class is depreceted and will be
 	    removed in the future
