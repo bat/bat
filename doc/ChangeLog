@@ -1,3 +1,8 @@
+2012-05-15 Daniel Kollar <kollar.dan@gmail.com>
+	* releasenotes.txt:
+	  - added information on adjusting user models to the new interface
+	* raised version to 0.9.rc4
+
 2012-05-14 Daniel Kollar <kollar.dan@gmail.com>
 	* releasenotes.txt:
 	  - updated for the new release

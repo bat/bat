@@ -54,7 +54,53 @@ o In rootOutput example added a macro showing how to offline analyze the
   chains stored in a root file.
 
 
+
+=========================================================================
+=========================================================================
+HOW TO UPDATE PRE-0.9 BAT MODEL TO THE NEW INTERFACE
 =========================================================================
 
-HOW TO UPDATE PRE-0.9 BAT MODEL TO THE NEW INTERFACE
+The user interface for the models has changed in BAT version 0.9 as
+compared to BAT 0.4.3. In a number of methods of varius BAT classes
+the argument containing the vector of parameter values in double
+precision was passed by value, i.e. as
+
+   std::vector<double> parameters
+
+In BAT 0.9 the vector of parameters is passed as constant reference to
+vector, i.e. as
+
+   const std::vector<double> & parameters
+
+This reduces the CPU time spent on copying and thus increases the
+overal performance. This is especially significant for models with
+large number of parameters.
+
+In order to adapt a user defined model that was working with BAT
+versions prior to 0.9 to the new interface, the argument parameters
+has to be changed as described above in all model source files.
+Generally, the change only affects the method declarations in the
+model header file and the method definition line in the model source
+file. The body of the method should not be affected.
+
+In most cases this means that the following lines have to be adjusted
+in both .h and .cxx files for the user model
+
+double LogLikelihood(std::vector<double> params)
+  -->  double LogLikelihood(const std::vector<double> & params)
+
+double LogAPrioriProbability(std::vector<double> params)
+  -->  double LogAPrioriProbability(const std::vector<double> & params)
+
+Further affected methods potentially overloaded in the user model
+class are:
+
+double               BCIntegrate::FitFunction(const std::vector<double> & x, std::vector<double> & par)
+double               BCEngineMCMC::LogEval(const std::vector<double> & parameters)
+std::vector<double>  BCIntegrate::GetProposalPointSACustom(const std::vector<double> & x, int t)
+double               BCModel::SamplingFunction(const std::vector<double> & parameters);
+
+
+If you need help with adjusting your existing model to the new version
+of BAT do not hesitate to contact us at bat@mppmu.mpg.de.
 
