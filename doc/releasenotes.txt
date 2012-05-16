@@ -9,14 +9,14 @@ Urgency:                      low
 This version is intended to be a pre-release for the stable BAT version 1.0.
 It contains many improvements and a few bugfixes. The most important changes
 are summarized below. For detailed list of changes see the Changelog. For
-more information consult the BAT webpage at http://www.mpp.mpg.de/bat/.
+more information consult the BAT webpage at http://mpp.mpg.de/bat/.
 
 !!! IMPORTANT !!!
 -----------------
 ALL USER MODELS HAVE TO BE ADJUSTED !!!
 
 The user interface for the models has changed. The vector of parameters
-is now passed as const reference which leads to significant speed up
+is now passed as a const reference which leads to significant speed up
 especially for models with large number of parameters.
 Read below how to update your model to the new interface.
 
@@ -25,6 +25,7 @@ Code updates:
 o Change allowing use of overloaded LogAPrioriProbability() with models
   derived from fast fitters.
 o Do not delete the TMinuit object after the fit.
+o Fix handling of delta priors, especially during plotting
 o Global code cleanup.
 
 Multi Template Fitter:
@@ -61,7 +62,7 @@ HOW TO UPDATE PRE-0.9 BAT MODEL TO THE NEW INTERFACE
 =========================================================================
 
 The user interface for the models has changed in BAT version 0.9 as
-compared to BAT 0.4.3. In a number of methods of varius BAT classes
+compared to BAT 0.4.3. In a number of methods of various BAT classes
 the argument containing the vector of parameter values in double
 precision was passed by value, i.e. as
 
@@ -74,7 +75,7 @@ vector, i.e. as
 
 This reduces the CPU time spent on copying and thus increases the
 overal performance. This is especially significant for models with
-large number of parameters.
+a large number of parameters.
 
 In order to adapt a user defined model that was working with BAT
 versions prior to 0.9 to the new interface, the argument parameters
@@ -102,5 +103,5 @@ double               BCModel::SamplingFunction(const std::vector<double> & param
 
 
 If you need help with adjusting your existing model to the new version
-of BAT do not hesitate to contact us at bat@mppmu.mpg.de.
+of BAT, do not hesitate to contact us at bat@mpp.mpg.de.
 
