@@ -2,7 +2,7 @@ AC_INIT(src/BCModel.cxx)
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.9.rc4)
+AM_INIT_AUTOMAKE(BAT, 0.9.rc5)
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CC
 AC_PROG_F77
@@ -145,7 +145,6 @@ AC_OUTPUT(
 	src/Makefile
 	models/base/Makefile
 	models/mtf/Makefile
-	benchmarks/test/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile
 	examples/basic/combination2d/Makefile

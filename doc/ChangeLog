@@ -1,3 +1,8 @@
+2012-05-16 Daniel Kollar <kollar.dan@gmail.com>
+	* removed benchmark test from the distribution for now
+	* update release notes
+	* raised version to 0.9.rc5
+
 2012-05-16 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* releasenotes.txt: add delta priors, fix typos
 
