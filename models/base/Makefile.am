@@ -1,5 +1,5 @@
 lib_LTLIBRARIES= libBATmodels.la
-libBATmodels_la_LDFLAGS= -version-info 2:0:0
+libBATmodels_la_LDFLAGS= -version-info 3:0:0
 
 AM_CXXFLAGS= -Wall -fPIC  -I../.. -I. -I../../BAT $(ROOTCFLAGS)
 

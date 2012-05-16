@@ -2,7 +2,7 @@
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
 Release notes for version:    0.9
-Release date:                 2010-05-16
+Release date:                 2010-05-17
 Urgency:                      medium
 ------------------------------------------
 
@@ -96,7 +96,7 @@ double LogAPrioriProbability(std::vector<double> params)
 Further affected methods potentially overloaded in the user model
 class are:
 
-double               BCIntegrate::FitFunction(const std::vector<double> & x, std::vector<double> & par)
+double               BCIntegrate::FitFunction(const std::vector<double> & x, const std::vector<double> & par)
 double               BCEngineMCMC::LogEval(const std::vector<double> & parameters)
 std::vector<double>  BCIntegrate::GetProposalPointSACustom(const std::vector<double> & x, int t)
 double               BCModel::SamplingFunction(const std::vector<double> & parameters);

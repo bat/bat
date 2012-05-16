@@ -27,11 +27,19 @@
 // See ROOT documentation for details.
 //
 //
-// Below are the includes needed for compilation of the macro
-// the #if ... #endif directives around the includes allow to
+// Below are the includes needed for compilation of the macro.
+// The #if ... #endif directives around the includes allow to
 // run the macro in both normal and compiled mode.
 #if !defined(__CINT__) || defined(__MAKECINT__)
 
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCGraphFitter.h>
+#include <BAT/BCSummaryTool.h>
+
+#endif
+
+// The includes below need to be always present
 #include <fstream>
 #include <vector>
 
@@ -40,13 +48,6 @@
 #include <TCanvas.h>
 #include <TRandom3.h>
 #include <TString.h>
-
-#include <BAT/BCAux.h>
-#include <BAT/BCLog.h>
-#include <BAT/BCGraphFitter.h>
-#include <BAT/BCSummaryTool.h>
-
-#endif
 
 // By default the data in the file data/datax.txt are fitted. These
 // are the same data that are used for the example in the BAT paper
