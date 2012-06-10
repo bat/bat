@@ -1,3 +1,6 @@
+2012-06-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/mtf: first work on uncertainty bands
+
 2012-05-16 Daniel Kollar <kollar.dan@gmail.com>
 	* updated release notes
 	* fix of running advancedGraphFitter in non-compiled mode

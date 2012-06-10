@@ -13,8 +13,10 @@
 #include <TCanvas.h>
 #include <THStack.h>
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TAxis.h>
 #include <TF1.h>
+#include <TMath.h>
 
 #include "../../BAT/BCMath.h"
 #include "../../BAT/BCLog.h"
@@ -222,8 +224,30 @@ int BCMTF::SetData(const char * channelname, TH1D hist)
       data->SetHistogram(0);
    }
 
-   // set histogram
+	 // create new histograms for uncertainty bands
+	 double minimum = floor(TMath::Max(0., hist.GetMinimum() - 3.*sqrt(hist.GetMinimum())));
+   double maximum = ceil(hist.GetMaximum() + 3.*sqrt(hist.GetMaximum()));
+
+   std::vector<double> a(hist.GetNbinsX()+1);
+   for (int i = 0; i < hist.GetNbinsX()+1; ++i) {
+      a[i] = hist.GetXaxis()->GetBinLowEdge(i+1);
+   }
+
+   TH2D* hist_uncbandexp = new TH2D(TString::Format("UncertaintyBandExpectation_%i", BCLog::GetHIndex()), "",
+																		hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
+	 hist_uncbandexp->SetStats(kFALSE);
+
+   TH2D* hist_uncbandpoisson = new TH2D(TString::Format("UncertaintyBandPoisson_%i", BCLog::GetHIndex()), "",
+																				hist.GetNbinsX(), &a[0], int(maximum-minimum), minimum, maximum);
+	 hist_uncbandpoisson->SetStats(kFALSE);
+
+   // set histograms
    data->SetHistogram(new TH1D(hist));
+	 channel->SetHistUncertaintyBandExpectation(hist_uncbandexp); 
+	 channel->SetHistUncertaintyBandPoisson(hist_uncbandpoisson); 
+
+	 // set y-range for printing
+	 channel->SetRangeY(minimum, maximum);
 
    // no error
    return 1;
@@ -722,6 +746,13 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    bool flag_logy   = false; // plot y-axis in log-scale
    bool flag_bw     = false; // plot in black and white
 
+	 bool flag_e0     = false; // do not draw error bars on data
+	 bool flag_e1     = true;  // draw sqrt(N) error bars on data
+
+	 bool flag_b0     = true;  // do not draw an error band
+	 bool flag_b1     = false; // draw an error band on the expectation
+	 bool flag_b2     = false; // draw an error band on the number of events
+
    if (std::string(options).find("logx") < std::string(options).size())
       flag_logx = true;
 
@@ -730,6 +761,21 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
    if (std::string(options).find("bw") < std::string(options).size())
       flag_bw = true;
+
+   if (std::string(options).find("e0") < std::string(options).size())
+      flag_e0 = true;
+
+   if (std::string(options).find("e1") < std::string(options).size())
+      flag_e1 = true;
+
+   if (std::string(options).find("b0") < std::string(options).size())
+      flag_b0 = true;
+
+   if (std::string(options).find("b1") < std::string(options).size())
+      flag_b1 = true;
+
+   if (std::string(options).find("b2") < std::string(options).size())
+      flag_b2 = true;
 
    // get channel
    BCMTFChannel * channel = GetChannel(channelindex);
@@ -816,7 +862,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    channel->GetData()->GetHistogram()->Draw("PE");
 
    // set range user
-   channel->GetData()->GetHistogram()->GetYaxis()->SetRangeUser(0., channel->GetData()->GetHistogram()->GetMaximum() + 2. * sqrt(channel->GetData()->GetHistogram()->GetMaximum()));
+   channel->GetData()->GetHistogram()->GetYaxis()->SetRangeUser(channel->GetRangeYMin(), channel->GetRangeYMax());
 
    // draw stack
    stack->Draw("SAMEHIST");
@@ -1008,6 +1054,64 @@ double BCMTF::LogLikelihood(const std::vector<double> & parameters)
    }
 
    return logprob;
+}
+
+// ---------------------------------------------------------
+void BCMTF::MCMCUserIterationInterface()
+{
+   // loop over all channels
+   for (int ichannel = 0; ichannel < fNChannels; ++ichannel) {
+
+      // get channel
+      BCMTFChannel * channel = fChannelContainer[ichannel];
+
+      // check if channel is active
+      if (!(channel->GetFlagChannelActive()))
+         continue;
+
+     // get data
+      BCMTFTemplate * data = channel->GetData();
+
+      // get histogram
+      TH1D * hist_data = data->GetHistogram();
+
+      // check if histogram exists
+      if (!hist_data)
+         continue;
+
+			TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation(); 
+			TH2D* hist_uncbandpoisson = channel->GetHistUncertaintyBandPoisson(); 
+
+      // check if histogram exists
+      if (!hist_uncbandexp)
+         continue;
+
+      // get number of bins in data
+      int nbins = hist_data->GetNbinsX();
+
+      // loop over all bins
+      for (int ibin = 1; ibin <= nbins; ++ibin) {
+
+         // get expectation value
+         double expectation = Expectation(ichannel, ibin, fMCMCx);
+
+				 // fill uncertainty band on expectation
+				 hist_uncbandexp->Fill(hist_data->GetBinCenter(ibin), expectation);
+
+				 // loop over all y-bins
+				 int nbinsy = hist_uncbandpoisson->GetNbinsY();
+				 double sum_all = 0;
+				 double sum_new = 0;
+				 for (int jbin = 1; jbin <= nbinsy; ++jbin) {
+					 double p = TMath::Poisson(double(jbin-1), expectation);
+					 double bincontent = hist_uncbandpoisson->GetBinContent(jbin);
+					 sum_all += bincontent;
+					 sum_new += p;
+					 hist_uncbandpoisson->SetBinContent(ibin, jbin, bincontent+p);
+				 }
+      }
+   }
+
 }
 
 // ---------------------------------------------------------

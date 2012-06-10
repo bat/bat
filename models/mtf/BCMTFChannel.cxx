@@ -11,6 +11,7 @@
 
 #include <TCanvas.h>
 #include <TH1D.h>
+#include <TH2D.h>
 
 #include "BCMTFTemplate.h"
 #include "BCMTFSystematicVariation.h"
@@ -21,6 +22,8 @@
 BCMTFChannel::BCMTFChannel(const char * name)
  : fData(0)
  , fFlagChannelActive(true)
+ , fHistUncertaintyBandExpectation(0)
+ , fHistUncertaintyBandPoisson(0)
 {
    fName = name;
 }
@@ -36,6 +39,12 @@ BCMTFChannel::~BCMTFChannel()
 
    for (unsigned int i = 0; i < fSystematicVariationContainer.size(); ++i)
       delete (fSystematicVariationContainer.at(i));
+
+	 if (fHistUncertaintyBandExpectation)
+		 delete fHistUncertaintyBandExpectation;
+
+	 if (fHistUncertaintyBandPoisson)
+		 delete fHistUncertaintyBandPoisson;
 }
 
 // ---------------------------------------------------------
@@ -169,6 +178,42 @@ void BCMTFChannel::PrintTemplate(int index, const char * filename)
 
    // free memory
    delete c1;
+}
+
+// ---------------------------------------------------------
+void BCMTFChannel::PrintHistUncertaintyBandExpectation(const char* filename)
+{
+   // create new canvas
+   TCanvas * c1 = new TCanvas();
+   c1->cd();
+	 
+	 // draw histogram
+	 fHistUncertaintyBandExpectation->Draw("COLZ");
+	 c1->Draw();
+
+	 // print
+	 c1->Print(filename);
+
+	 // free memory
+	 delete c1;
+}
+
+// ---------------------------------------------------------
+void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename)
+{
+   // create new canvas
+   TCanvas * c1 = new TCanvas();
+   c1->cd();
+	 
+	 // draw histogram
+	 fHistUncertaintyBandPoisson->Draw("COLZ");
+	 c1->Draw();
+
+	 // print
+	 c1->Print(filename);
+
+	 // free memory
+	 delete c1;
 }
 
 // ---------------------------------------------------------

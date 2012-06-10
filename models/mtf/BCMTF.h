@@ -89,6 +89,8 @@ class BCMTF : public BCModel
       BCMTFSystematic * GetSystematic(int index)
          { return fSystematicContainer.at(index); };
 
+
+
       // misc
 
       // add a channel
@@ -164,7 +166,8 @@ class BCMTF : public BCModel
       // the log likelihood
       double LogLikelihood(const std::vector<double> & parameters);
 
-    // void MCMCIterationInterface();
+			// iteration interface
+			void MCMCUserIterationInterface();
 
  private:
 
