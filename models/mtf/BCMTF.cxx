@@ -818,7 +818,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
 	 // define sum of templates
 	 TH1D* hist_sum = new TH1D(*hist_data);
-	 hist_sum->SetLineColor(kRed);
+	 hist_sum->SetLineColor(kBlack);
 	 for (int i = 1; i <= nbins; ++i)
 		 hist_sum->SetBinContent(i, 0);
 

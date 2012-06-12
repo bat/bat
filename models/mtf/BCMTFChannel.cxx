@@ -254,7 +254,7 @@ TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maxim
 			double p = fHistUncertaintyBandPoisson->GetBinContent(ix, jbin);
 			sum_p+=p;
 			if (sum_p < minimum)
-				limit_min=jbin-1;
+				limit_min=jbin;
 			if (sum_p > maximum && (sum_p - p) < maximum ) 
 				limit_max=jbin-1;
 		}
