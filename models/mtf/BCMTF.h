@@ -118,7 +118,7 @@ class BCMTF : public BCModel
       int SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, TH1D hist, TH1D hist_up, TH1D hist_down);
 
       // set data
-      int SetData(const char * channelname, TH1D hist);
+      int SetData(const char * channelname, TH1D hist, double minimum=-1, double maximum=-1);
 
       // set flag (efficiency constraint on (true) or off (false)
       void SetFlagEfficiencyConstraint(bool flag)
@@ -144,10 +144,10 @@ class BCMTF : public BCModel
       double Probability(int channelindex, int processindex, int binindex, const std::vector<double> & parameters);
 
       // print stack
-      int PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "");
+      int PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "e1b0stack");
 
       // print stack
-      int PrintStack(const char * channelname, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "");
+      int PrintStack(const char * channelname, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "e1b0stack");
 
       // calculate chi2 for single channel
       double CalculateChi2(int channelindex, const std::vector<double> & parameters);

@@ -26,6 +26,7 @@
 
 #include <string>
 #include <vector>
+#include <TH1D.h>
 
 class BCMTFTemplate;
 class BCMTFSystematicVariation;
@@ -124,6 +125,15 @@ class BCMTFChannel
 
 			// print histogram for uncertainty band calculation 
 			void PrintHistUncertaintyBandPoisson(const char* filename); 
+
+			// print histogram for uncertainty band calculation 
+			void PrintHistCumulativeUncertaintyBandPoisson(const char* filename); 
+
+			// calculate histogram for uncertainty band calculation 
+			void CalculateHistUncertaintyBandPoisson();
+
+			// calculate histogram for uncertainty band calculation 
+			TH1D* CalculateUncertaintyBandPoisson(double minimum, double maximumm, int color);
 
  private:
 

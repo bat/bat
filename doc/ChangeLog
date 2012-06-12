@@ -1,3 +1,6 @@
+2012-06-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/mtf: include more plotting options for stacks
+
 2012-06-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mtf: first work on uncertainty bands
 

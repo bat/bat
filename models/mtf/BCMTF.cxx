@@ -17,6 +17,7 @@
 #include <TAxis.h>
 #include <TF1.h>
 #include <TMath.h>
+#include <TGraphAsymmErrors.h>
 
 #include "../../BAT/BCMath.h"
 #include "../../BAT/BCLog.h"
@@ -195,7 +196,7 @@ int BCMTF::SetTemplate(const char * channelname, const char * processname, std::
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetData(const char * channelname, TH1D hist)
+int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double maximum)
 {
    int channelindex = GetChannelIndex(channelname);
 
@@ -216,7 +217,10 @@ int BCMTF::SetData(const char * channelname, TH1D hist)
 
    // set marker
    hist.SetMarkerStyle(20);
-   hist.SetMarkerSize(1.1);
+	 hist.SetMarkerSize(1.1);
+
+	 // set divisions
+	 hist.SetNdivisions(509);
 
    // remove old data set if it exists
    if (data->GetHistogram()) {
@@ -225,8 +229,11 @@ int BCMTF::SetData(const char * channelname, TH1D hist)
    }
 
 	 // create new histograms for uncertainty bands
-	 double minimum = floor(TMath::Max(0., hist.GetMinimum() - 3.*sqrt(hist.GetMinimum())));
-   double maximum = ceil(hist.GetMaximum() + 3.*sqrt(hist.GetMaximum()));
+	 //	 double minimum = floor(TMath::Max(0., hist.GetMinimum() - 7.*sqrt(hist.GetMinimum())));
+	 if (minimum==-1)
+		 minimum = 0;
+	 if (maximum==-1)
+		 maximum = ceil(hist.GetMaximum() + 5.*sqrt(hist.GetMaximum()));
 
    std::vector<double> a(hist.GetNbinsX()+1);
    for (int i = 0; i < hist.GetNbinsX()+1; ++i) {
@@ -737,6 +744,10 @@ int BCMTF::PrintStack(const char * channelname, const std::vector<double> & para
 // ---------------------------------------------------------
 int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename, const char * options)
 {
+	// todo:
+	// - remove x-error on data points
+	// - use hatched fill for error band
+
    // check if parameters are filled
    if (!parameters.size())
       return -1;
@@ -746,12 +757,14 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    bool flag_logy   = false; // plot y-axis in log-scale
    bool flag_bw     = false; // plot in black and white
 
-	 bool flag_e0     = false; // do not draw error bars on data
-	 bool flag_e1     = true;  // draw sqrt(N) error bars on data
+	 bool flag_sum    = false; // plot sum of all templates
+	 bool flag_stack  = false; // plot stack of templates
 
-	 bool flag_b0     = true;  // do not draw an error band
-	 bool flag_b1     = false; // draw an error band on the expectation
-	 bool flag_b2     = false; // draw an error band on the number of events
+	 bool flag_e0     = false; // do not draw error bars on data
+	 bool flag_e1     = false; // draw sqrt(N) error bars on data
+
+	 bool flag_b0     = false; // draw an error band on the expectation
+	 bool flag_b1     = false; // draw an error band on the number of events
 
    if (std::string(options).find("logx") < std::string(options).size())
       flag_logx = true;
@@ -761,6 +774,12 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
    if (std::string(options).find("bw") < std::string(options).size())
       flag_bw = true;
+
+   if (std::string(options).find("sum") < std::string(options).size())
+      flag_sum = true;
+
+   if (std::string(options).find("stack") < std::string(options).size())
+      flag_stack = true;
 
    if (std::string(options).find("e0") < std::string(options).size())
       flag_e0 = true;
@@ -774,8 +793,8 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    if (std::string(options).find("b1") < std::string(options).size())
       flag_b1 = true;
 
-   if (std::string(options).find("b2") < std::string(options).size())
-      flag_b2 = true;
+	 if (!flag_e0)
+		 flag_e1=true;
 
    // get channel
    BCMTFChannel * channel = GetChannel(channelindex);
@@ -790,7 +809,53 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
    if (flag_logy)
       c1->SetLogy();
+	 
+	 // get data histogram
+	 TH1D* hist_data = channel->GetData()->GetHistogram();
 
+	 // get number of bins
+	 int nbins = hist_data->GetNbinsX();
+
+	 // define sum of templates
+	 TH1D* hist_sum = new TH1D(*hist_data);
+	 hist_sum->SetLineColor(kRed);
+	 for (int i = 1; i <= nbins; ++i)
+		 hist_sum->SetBinContent(i, 0);
+
+  // define error band
+	 TH1D* hist_error_band = new TH1D(*hist_data);
+	 hist_error_band->SetFillColor(kBlack);
+	 hist_error_band->SetFillStyle(3005);
+	 hist_error_band->SetLineWidth(1);
+	 hist_error_band->SetStats(kFALSE);
+	 hist_error_band->SetMarkerSize(0);
+
+   TGraphAsymmErrors * graph_error_exp = new TGraphAsymmErrors(nbins);
+	 //   graph_error_exp->SetLineWidth(2);
+	 graph_error_exp->SetMarkerStyle(0);
+	 graph_error_exp->SetFillColor(kBlack);
+	 graph_error_exp->SetFillStyle(3005);
+
+	 // get histogram for uncertainty band
+	 TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation(); 
+
+	 // fill error band
+  if (flag_b0) {
+		 for (int i = 1; i <= nbins; ++i) {
+			 TH1D * proj = hist_uncbandexp->ProjectionY("_py", i, i);
+			 if (proj->Integral() > 0)
+				 proj->Scale(1.0 / proj->Integral());
+			 double quantiles[3];
+			 double sums[3] = {0.16, 0.5, 0.84};
+			 proj->GetQuantiles(3, quantiles, sums);
+			 graph_error_exp->SetPoint(i-1, hist_data->GetBinCenter(i), quantiles[1]);
+			 graph_error_exp->SetPointError(i-1, 0.0, 0.0, quantiles[1] - quantiles[0], quantiles[2]-quantiles[1]);
+			 hist_error_band->SetBinContent(i, 0.5*(quantiles[2]+quantiles[0]));
+			 hist_error_band->SetBinError(i, 0, 0.5*(quantiles[2]-quantiles[0]));
+			 delete proj;
+		 }
+	 }
+	 
    // create stack
    THStack * stack = new THStack("", "");
 
@@ -821,16 +886,13 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
       if (flag_bw) {
          hist->SetFillColor(0);
-         hist->SetLineWidth(0);
+         hist->SetLineWidth(1);
          hist->SetLineStyle(int(1+i));
       }
       else {
          hist->SetFillColor(2 + i);
          hist->SetFillStyle(1001);
       }
-
-      // get number of bins
-      int nbins = hist->GetNbinsX();
 
       // scale histogram
       for (int ibin = 1; ibin <= nbins; ++ibin) {
@@ -849,6 +911,9 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
          // set bin content
          hist->SetBinContent(ibin, expectation);
+
+				 // add bin content
+				 hist_sum->SetBinContent(ibin, hist_sum->GetBinContent(ibin) + expectation);
       }
 
       // add histogram to container (for memory management)
@@ -859,16 +924,36 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    }
 
    //draw data
-   channel->GetData()->GetHistogram()->Draw("PE");
+   hist_data->Draw("P0");
 
    // set range user
-   channel->GetData()->GetHistogram()->GetYaxis()->SetRangeUser(channel->GetRangeYMin(), channel->GetRangeYMax());
+   hist_data->GetYaxis()->SetRangeUser(channel->GetRangeYMin(), channel->GetRangeYMax());
 
-   // draw stack
-   stack->Draw("SAMEHIST");
+	 // draw stack
+	 if (flag_stack)
+		 stack->Draw("SAMEHIST");
 
-   //draw data again
-   channel->GetData()->GetHistogram()->Draw("SAMEPE");
+	 // draw error band on number of observed events
+	 if (flag_b1) {
+		 channel->CalculateUncertaintyBandPoisson(0.001, 0.999, kRed)->Draw("SAMEE2");
+		 channel->CalculateUncertaintyBandPoisson(0.023, 0.977, kOrange)->Draw("SAMEE2");
+		 channel->CalculateUncertaintyBandPoisson(0.159, 0.841, kGreen)->Draw("SAMEE2");
+	 }
+
+	 // draw error band on expectation
+	 if (flag_b0) {
+		 hist_error_band->Draw("SAMEE2");
+	 }
+
+	 if (flag_sum)
+		 hist_sum->Draw("SAME");
+
+	 //draw data again
+	 if (flag_e0)
+		 hist_data->Draw("SAMEP0");
+
+	 if (flag_e1)
+		 hist_data->Draw("SAMEP0E");
 
    // redraw the axes
    gPad->RedrawAxis();
@@ -883,6 +968,9 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    }
    delete stack;
    delete c1;
+	 delete graph_error_exp;
+	 delete hist_error_band;
+	 delete hist_sum;
 
    // no error
    return 1;
@@ -1079,8 +1167,8 @@ void BCMTF::MCMCUserIterationInterface()
       if (!hist_data)
          continue;
 
+			// get histogram for uncertainty band
 			TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation(); 
-			TH2D* hist_uncbandpoisson = channel->GetHistUncertaintyBandPoisson(); 
 
       // check if histogram exists
       if (!hist_uncbandexp)
@@ -1097,18 +1185,6 @@ void BCMTF::MCMCUserIterationInterface()
 
 				 // fill uncertainty band on expectation
 				 hist_uncbandexp->Fill(hist_data->GetBinCenter(ibin), expectation);
-
-				 // loop over all y-bins
-				 int nbinsy = hist_uncbandpoisson->GetNbinsY();
-				 double sum_all = 0;
-				 double sum_new = 0;
-				 for (int jbin = 1; jbin <= nbinsy; ++jbin) {
-					 double p = TMath::Poisson(double(jbin-1), expectation);
-					 double bincontent = hist_uncbandpoisson->GetBinContent(jbin);
-					 sum_all += bincontent;
-					 sum_new += p;
-					 hist_uncbandpoisson->SetBinContent(ibin, jbin, bincontent+p);
-				 }
       }
    }
 

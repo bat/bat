@@ -12,6 +12,7 @@
 #include <TCanvas.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TMath.h>
 
 #include "BCMTFTemplate.h"
 #include "BCMTFSystematicVariation.h"
@@ -199,12 +200,119 @@ void BCMTFChannel::PrintHistUncertaintyBandExpectation(const char* filename)
 }
 
 // ---------------------------------------------------------
+void BCMTFChannel::CalculateHistUncertaintyBandPoisson()
+{
+	// calculate histogram
+	int nbinsy_exp = fHistUncertaintyBandExpectation->GetNbinsY();
+	int nbinsx_poisson = fHistUncertaintyBandPoisson->GetNbinsX();
+	int nbinsy_poisson = fHistUncertaintyBandPoisson->GetNbinsY();
+	
+	// loop over x-axis of observation
+	for (int ix = 1; ix <= nbinsx_poisson; ++ix) {
+		double sum_w = 0;
+		// loop over y-axis of expectation and calculate sum of weights
+		for (int iy = 1; iy <= nbinsy_exp; ++iy) {
+			double w = fHistUncertaintyBandExpectation->GetBinContent(ix, iy);
+			sum_w += w;
+		}
+		// loop over y-axis of expectation
+		for (int iy = 1; iy <= nbinsy_exp; ++iy) {
+			double w = fHistUncertaintyBandExpectation->GetBinContent(ix, iy)/sum_w;
+			double expectation = fHistUncertaintyBandExpectation->GetYaxis()->GetBinCenter(iy);
+			// loop over y-axis of observation
+			for (int jbin = 1; jbin <= nbinsy_poisson; ++jbin) {
+				double p = TMath::Poisson(double(jbin-1), expectation);
+				double bincontent = 0;
+				if (iy>1)
+					bincontent=fHistUncertaintyBandPoisson->GetBinContent(ix, jbin);
+				fHistUncertaintyBandPoisson->SetBinContent(ix, jbin, bincontent+p*w);
+			}
+		}
+	}
+	
+}
+
+// ---------------------------------------------------------
+TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maximum, int color)
+{
+	TH1D* hist = new TH1D(*(fData->GetHistogram()));
+	hist->SetMarkerSize(0);
+	hist->SetFillColor(color);
+	hist->SetFillStyle(1001);
+
+	int nbinsx_poisson = fHistUncertaintyBandPoisson->GetNbinsX();
+	int nbinsy_poisson = fHistUncertaintyBandPoisson->GetNbinsY();
+
+	// loop over x-axis of observation
+	for (int ix = 1; ix <= nbinsx_poisson; ++ix) {
+		double sum_p = 0;  // sum of all probabilities inside the interval
+		int limit_min = 0;
+		int limit_max = nbinsx_poisson-1;
+		
+		// loop over y-axis of observation
+		for (int jbin = 1; jbin <= nbinsy_poisson; ++jbin) {
+			double p = fHistUncertaintyBandPoisson->GetBinContent(ix, jbin);
+			sum_p+=p;
+			if (sum_p < minimum)
+				limit_min=jbin-1;
+			if (sum_p > maximum && (sum_p - p) < maximum ) 
+				limit_max=jbin-1;
+		}
+		hist->SetBinContent(ix, 0.5*double(limit_min+limit_max));
+		hist->SetBinError(ix, 0.5*double(limit_max-limit_min));
+	}
+
+	return hist;
+}
+
+// ---------------------------------------------------------
+void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(const char* filename)
+{
+   // create new canvas
+   TCanvas * c1 = new TCanvas();
+   c1->cd();
+
+	 // calculate error band
+	 this->CalculateHistUncertaintyBandPoisson();
+
+	 TH2D hist(*fHistUncertaintyBandPoisson);
+
+	int nbinsx_poisson = hist.GetNbinsX();
+	int nbinsy_poisson = hist.GetNbinsY();
+
+	// loop over x-axis of observation
+	for (int ix = 1; ix <= nbinsx_poisson; ++ix) {
+		double sum_p = 0;  // sum of all probabilities inside the interval
+		
+		// loop over y-axis of observation
+		for (int jbin = 1; jbin <= nbinsy_poisson; ++jbin) {
+			double p = hist.GetBinContent(ix, jbin);
+			sum_p+=p;
+			hist.SetBinContent(ix, jbin, sum_p);
+		}
+	}
+
+	 // draw histogram
+	 hist.Draw("COLZ");
+	 c1->Draw();
+
+	 // print
+	 c1->Print(filename);
+
+	 // free memory
+	 delete c1;
+}
+
+// ---------------------------------------------------------
 void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename)
 {
    // create new canvas
    TCanvas * c1 = new TCanvas();
    c1->cd();
-	 
+
+	 // calculate error band
+	 this->CalculateHistUncertaintyBandPoisson();
+
 	 // draw histogram
 	 fHistUncertaintyBandPoisson->Draw("COLZ");
 	 c1->Draw();
