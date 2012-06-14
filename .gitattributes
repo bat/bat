@@ -227,6 +227,14 @@ extras/CombinationTool/runCombinationExamples.cxx -text
 extras/CombinationTool/runCombinationXSec.cxx -text
 extras/CombinationTool/test_poisson.cxx -text
 extras/README -text
+models/FBU/Makefile -text
+models/FBU/examples/rectangular/CreateHistograms.C -text
+models/FBU/examples/rectangular/Makefile -text
+models/FBU/examples/rectangular/runrectangular.cxx -text
+models/FBU/examples/rectangular/setup.sh -text
+models/FBU/include/BCFBU.h -text
+models/FBU/notes.txt -text
+models/FBU/src/BCFBU.cxx -text
 models/base/BATCalculator.cxx -text
 models/base/BATCalculator.h -text
 models/base/BATCalculatorLinkDef.h -text

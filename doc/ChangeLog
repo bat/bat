@@ -1,3 +1,6 @@
+2012-06-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/FBU: added first instance of full bayesian unfolding (code from Kerim Suruliz).
+
 2012-06-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mtf: include more plotting options for stacks
 

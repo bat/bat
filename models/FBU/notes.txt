@@ -1,0 +1,19 @@
+Notes on FBU:
+-------------
+
+* Example with a simple shape and few bins
+* Example with a simple shape and many bins
+* Example with a complictated shape 
+
+
+* with or without background
+
+* do the number of bins of the reponse matrix and the truth
+  distribution have to be the same?
+
+* BCFBU::PrepareResponse should not need the background histogram
+  -> is the binning of the background histogram and the reco axis of the migration matrix the same?
+
+* how do you build the migration matrix? how do you treat events
+  outside the acceptance region?
+
