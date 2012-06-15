@@ -1,3 +1,6 @@
+2012-06-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/FBU: moved code to extras/FBU
+	
 2012-06-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/FBU: added first instance of full bayesian unfolding (code from Kerim Suruliz).
 
