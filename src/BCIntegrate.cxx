@@ -1509,13 +1509,13 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
    }
 
    // do mcmc minimization
-   //   fMinuit->mnseek();
+//   fMinuit->mnseek();
 
    // do minimization
    fMinuit->mnexcm("MIGRAD", fMinuitArglist, 2, flag);
 
    // improve search for local minimum
-   //   fMinuit->mnimpr();
+//   fMinuit->mnimpr();
 
    // copy flag
    fMinuitErrorFlag = flag;
@@ -1561,7 +1561,7 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
    }
 
    // delete minuit
-   fMinuit = 0;
+//   fMinuit = 0;
 
    return;
 }

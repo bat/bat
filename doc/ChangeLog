@@ -1,3 +1,6 @@
+2012-06-16 Daniel Kollar <kollar.dan@gmail.com>
+	* BCIntegrate: don't set fMinuit to 0 after the fit (bugfix)
+
 2012-06-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/FBU: moved code to extras/FBU
 	
