@@ -1840,8 +1840,7 @@ method used to generate ensembles is
 %
 \begin{verbatim}
 std::vector<TH1D> BCMTFAnalysisFacility::
-                  BuildEnsembles(TTree * tree,
-                                 int nensembles) ,
+                  BuildEnsembles(TTree * tree, int nensembles) ,
 \end{verbatim}
 %
 where \verb|tree| is the input tree. Note that the ensembles are
@@ -1855,8 +1854,8 @@ Ensemble tests can be performed usign the ensembles defined earlier or
 using a set of parameters. In the former case, the method is:
 %
 \begin{verbatim}
-TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree,
-                                                   int nensembles) ,
+TTree * BCMTFAnalysisFacility::
+        PerformEnsembleTest(TTree * tree, int nensembles) ,
 \end{verbatim}
 %
 where \verb|tree| is the tree of ensembles and \verb|nensembles| is
@@ -1898,7 +1897,7 @@ Ensemble tests can also be performed using the following methd:
 \begin{verbatim}
 TTree * BCMTFAnalysisFacility::
         PerformEnsembleTest(const std::vector<double> & parameters,
-                           int nensembles) ,
+                            int nensembles) ,
 \end{verbatim}
 %
 in which case the ensembles are generated internally using the

@@ -1,4 +1,10 @@
 2012-06-19 Daniel Kollar <kollar.dan@gmail.com>
+	* increased library version info for libBAT.so and libBATmtf.so
+	* updated release notes
+	* small update in introduction.tex
+	* final version BAT 0.9.1
+
+2012-06-19 Daniel Kollar <kollar.dan@gmail.com>
 	* raised version to 0.9.1.rc1
 	* prepared release notes for 0.9.1
 

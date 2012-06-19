@@ -7,7 +7,7 @@ Urgency:                      high
 ------------------------------------------
 
 This version is intended to be a pre-release for the stable BAT version 1.0.
-It contains an important bugfix and a few improvements of Multi-template fitter
+It contains an important bugfix and a few improvements of Multi-template fitter.
 If you are upgrading from BAT version 0.4.3 or older, please also read the
 release notes to BAT version 0.9 below. The most important changes are
 summarized here. For detailed list of changes see the Changelog. For more
@@ -19,9 +19,9 @@ o Fixed memory leak in FindModeMinuit()
 
 Multi Template Fitter:
 ----------------------
-o Added more plotting options for stacks
-o Added description of new options to manual
-o Added Doxygen comments and improved the reference manual
+o Added more plotting options for stacks.
+o Added description of new options to BAT introduction document.
+o Added Doxygen comments and improved the reference manual.
 
 
 
