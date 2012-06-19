@@ -3,16 +3,12 @@
 
 /*!
  * \class BCMTFTemplate
- * \brief A class for ...
+ * \brief A class describing a template
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 04.2012
- * \detail
- *
- *
- *
- *
+ * \version 1.1
+ * \date 06.2012
+ * \detail This class describes a template. 
  */
 
 /*
@@ -34,66 +30,102 @@ class BCMTFTemplate
 {
  public:
 
-   // Constructors and destructor
+   /** \name Constructors and destructors */
+   /** @{ */
+
+	 /**
+    * The default constructor. 
+    * @param channelname The name of the channel. 
+    * @param process name The name of the process. */
    BCMTFTemplate(const char * channelname, const char * processname);
+
+   /**
+    * The default destructor. */
    ~BCMTFTemplate();
 
-   // setters
+   /** @} */
 
-   // set efficiency
-   void SetEfficiency(double eff)
-      { fEfficiency = eff; };
+   /** \name Member functions (get) */
+   /** @{ */
 
-   // set histogram
-   void SetHistogram(TH1D * hist);
-
-   // set function container
-   void SetFunctionContainer(std::vector<TF1 *> * funccont, int nbins);
-
-   // getters
-
-   // return the name of the channel
+	 /**
+		* @return The name of the channel. */
    std::string GetChannelName()
       { return fChannelName; };
 
-   // return the name of the process
+   /**
+    * @return The name of the process. */ 
    std::string GetProcessName()
       { return fProcessName; };
 
-   // return efficiency
+   /** 
+    * @return The efficiency. */
    double GetEfficiency()
       { return fEfficiency; };
 
-   // return histogram
+   /**
+    * @return The TH1D histogram. */
    TH1D * GetHistogram()
       { return fHistogram; };
 
+	 /**
+    * @return The function container. */
    std::vector<TF1 *> * GetFunctionContainer()
       { return fFunctionContainer; };
 
-   // return the number of bins
+	 /** 
+    * @return The number of bins. */
    int GetNBins()
       { return fNBins; };
 
+   /** @} */
+
+   /** \name Member functions (set) */
+   /** @{ */
+
+   /**
+    * Set the efficiency.
+    * @param eff The efficiency. */
+   void SetEfficiency(double eff)
+      { fEfficiency = eff; };
+
+   /**
+    * Set the histogram.
+    * @param hist The TH1D histogram. */
+   void SetHistogram(TH1D * hist);
+
+   /** Set a function container
+    * funccont The function container
+    * nbins The number of bins (and functions) */
+   void SetFunctionContainer(std::vector<TF1 *> * funccont, int nbins);
+
+   /** @} */
+
  private:
 
-      // the efficiency of the contribution
-      double fEfficiency;
+	 /**
+    * The efficiency of the contribution. */
+   double fEfficiency;
 
-      // the template histogram
-      TH1D * fHistogram;
+	 /** 
+    * The TH1D histogram. */
+   TH1D * fHistogram;
 
-      // a histogram alternative for templates: a vector of TF1 functions
-      std::vector<TF1 *> * fFunctionContainer;
+   /**
+    * A histogram alternative for templates: a vector of TF1 functions. */
+   std::vector<TF1 *> * fFunctionContainer;
 
-      // number of bins in the histogram
-      int fNBins;
+   /**
+    * The number of bins in the histogram. */
+   int fNBins;
 
-      // channel name
-      std::string fChannelName;
+   /**
+    * The name of the channel. */
+   std::string fChannelName;
 
-      // process name
-      std::string fProcessName;
+   /** 
+    * The name of the process. */
+   std::string fProcessName;
 
 };
 // ---------------------------------------------------------

@@ -3,16 +3,13 @@
 
 /*!
  * \class BCMTFSystematicVariation
- * \brief A class for ...
+ * \brief A class describing a systematic variation.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 04.2012
- * \detail
- *
- *
- *
- *
+ * \version 1.1
+ * \date 06.2012
+ * \detail This class describes the impact of a systematic
+ * uncertainty.
  */
 
 /*
@@ -34,60 +31,125 @@ class BCMTFSystematicVariation
 {
  public:
 
-   // Constructors and destructor
+   /** \name Constructors and destructors */
+   /** @{ */
+
+	 /**
+	  * The default constructor. 
+		* @param channelname The name of the channel. 
+		* @param systematicname The name of the systematic. 
+		* @param nprocesses The number of processes. */
    BCMTFSystematicVariation(const char * channelname, const char * systematicname, int nprocesses);
+
+	 /** 
+		* The default destructor. */
    ~BCMTFSystematicVariation();
 
-   // setters
+   /** @} */
+   /** \name Member functions (get) */
+   /** @{ */
 
-   // set histogram
+	 /**
+		* Returns the histogram correponding to the up-scale variation of
+		* the systematic.
+		* @param index The process index.
+		* @return The histogram. */
+   TH1D * GetHistogramUp(int index)
+      { return fHistogramUpContainer.at(index); };
+
+	 /**
+		* Returns the histogram correponding to the down-scale variation
+		* of the systematic.
+		* @param index The process index.
+		* @return The histogram. */
+   TH1D * GetHistogramDown(int index)
+      { return fHistogramDownContainer.at(index); };
+
+   /** @} */
+   /** \name Member functions (set) */
+   /** @{ */
+
+	 /**
+		* Set the histogram correponding to the up-scale variation of the
+		* systematic.
+		* @param index The process index.
+		* @param hist The histogram. 
+		* @see SetHistogramDown(int index, TH1D * hist)
+		* @see SetHistograms(int index, TH1D * hist_up, TH1D * hist_down)*/
    void SetHistogramUp(int index, TH1D * hist)
       { fHistogramUpContainer[index] = hist; };
 
-   // set histogram
+	 /**
+		* Set the histogram correponding to the down-scale variation of
+		* the systematic.
+		* @param index The process index.
+		* @param hist The histogram. 
+		* @see SetHistogramUp(int index, TH1D * hist)
+		* @see SetHistograms(int index, TH1D * hist_up, TH1D * hist_down)*/
    void SetHistogramDown(int index, TH1D * hist)
       { fHistogramDownContainer[index] = hist; };
 
-   // set histogram
+	 /**
+		* Set the histograms correponding to the up- and down-scale
+		* variations of the systematic.
+		* @param index The process index.
+		* @param hist_up The up-scale histogram. 
+		* @param hist_down The down-scale histogram. 
+		* @see SetHistogramUp(int index, TH1D * hist)
+		* @see SetHistogramDown(int index, TH1D * hist) */
    void SetHistograms(int index, TH1D * hist_up, TH1D * hist_down)
       { fHistogramUpContainer[index] = hist_up;
         fHistogramDownContainer[index] = hist_down; };
 
-   // getters
+   /** @} */
+   /** \name Member functions (miscellaneous methods) */
+   /** @{ */
 
-   // return histogram
-   TH1D * GetHistogramUp(int index)
-      { return fHistogramUpContainer.at(index); };
-
-   // return histogram
-   TH1D * GetHistogramDown(int index)
-      { return fHistogramDownContainer.at(index); };
-
-   // misc
+	 /**
+		* Add a histogram for up-scale variations.
+		* @param hist The histogram. 
+		* @see AddHistogramDown(TH1D * hist)
+		* @see AddHistograms(TH1D * hist_up, TH1D * hist_down)*/
    void AddHistogramUp(TH1D * hist)
       { fHistogramUpContainer.push_back(hist); };
 
-   // misc
+	 /**
+		* Add a histogram for down-scale variations.
+		* @param hist The histogram. 
+		* @see AddHistogramUp(TH1D * hist)
+		* @see AddHistograms(TH1D * hist_up, TH1D * hist_down)*/
    void AddHistogramDown(TH1D * hist)
       { fHistogramDownContainer.push_back(hist); };
 
-   // misc
+	 /**
+		* Add a histograms for up- and down-scale variations.
+		* @param hist_up The up-scale histogram. 
+		* @param hist_down The down-scale histogram. 
+		* @see AddHistogramUp(TH1D * hist)
+		* @see AddHistogramDown(TH1D * hist) */
    void AddHistograms(TH1D * hist_up, TH1D * hist_down)
       { fHistogramUpContainer.push_back(hist_up);
         fHistogramDownContainer.push_back(hist_down); };
 
+   /** @} */
+
  private:
 
-   // a container of histograms
+   /**
+		* A container of histograms. */
    std::vector<TH1D *> fHistogramUpContainer;
 
-   // a container of histograms
+   /** 
+		* A container of histograms. */
    std::vector<TH1D *> fHistogramDownContainer;
 
-   // channel name
+   /**
+		* The name of the corresponding channel. */
    std::string fChannelName;
 
-   // systematic name
+	 /**
+		* The name of the corresponding source of systematic
+		* uncertainty. */
    std::string fSystematicName;
 
 };

@@ -3,16 +3,12 @@
 
 /*!
  * \class BCMTFComparisonTool
- * \brief A class for ...
+ * \brief A helper class for BCMTFAnalysisFacility storing information.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
- * \version 1.0
- * \date 04.2012
- * \detail
- *
- *
- *
- *
+ * \version 1.1
+ * \date 06.2012
+ * \detail This is a helper class for BCMTFAnalysisFacility storing information.
  */
 
 /*
@@ -34,54 +30,89 @@ class BCMTFComparisonTool
 
    public:
 
-      // Constructors and destructor
+      /** \name Constructors and destructors */
+      /** @{ */
+
+	    /**
+			 * The default constructor. 
+			 * @param name The name of the class. */
       BCMTFComparisonTool(const char * name);
+
+			/** 
+			 * The defaul destructor. */
       ~BCMTFComparisonTool();
 
-      // setters
+      /** @} */
+      /** \name Member functions (get) */
+      /** @{ */
 
-
-      // getters
-
-      // return the name
+			/**
+			 * @return The name of the class. */
       std::string GetName()
          { return fName; };
 
-      // return number of contributions
+			/**
+			 * @return The number of contributions. */
       int GetNContributions()
          { return (int) fHistogramContainer.size(); };
 
-      // misc
-      // add a contribution
+      /** @} */
+      /** \name Member functions (miscellaneous methods) */
+      /** @{ */
+
+			/**
+			 * Add a constribution. 
+			 * @param name The name of the contribution.
+			 * @param hist The histogram. */
       void AddContribution(const char * name, TH1D hist);
 
-      // add a contribution
+			/**
+			 * Add a constribution. 
+			 * @param name The name of the contribution.
+			 * @param centralvalue The central value.
+			 * @param uncertainty The uncertainty. */
       void AddContribution(const char * name, double centralvalue, double uncertainty);
 
-      // print histograms to file
-      void PrintHistograms(const char * filename);
-
-      // draw overview
+      /** 
+			 * Draw an overview. */ 
       void DrawOverview();
 
-      // print overview to file
+      /** @} */
+      /** \name Member functions (output methods) */
+      /** @{ */
+
+      /**
+			 * Print all histograms to a file. 
+			 * @param filename The name of the file. */
+      void PrintHistograms(const char * filename);
+
+			/**
+			 * Print an overview to a file.
+			 * @param filename The name of the file. */
       void PrintOverview(const char * filename);
+
+      /** @} */
 
  private:
 
-      // the name of the comparison
+			/**
+			 * The name of the class. */
       std::string fName;
 
-      // the name of the contributions
+			/**
+			 * The names of the contributions. */
       std::vector<std::string> fNameContainer;
 
-      // a container of histograms
+			/** 
+			 * A container of TH1D histograms. */
       std::vector<TH1D *> fHistogramContainer;
 
-      // a container of central values
+      /**
+			 * A container of central values. */
       std::vector<double> fCentralValueContainer;
 
-      // a container of uncertainties
+      /**
+			 * A container of uncertainties. */
       std::vector<double> fUncertaintyContainer;
 
 };
