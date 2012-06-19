@@ -1,23 +1,42 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
-Release notes for version:    0.9
-Release date:                 2010-05-17
-Urgency:                      medium
+Release notes for version:    0.9.1
+Release date:                 2012-06-19
+Urgency:                      high
 ------------------------------------------
 
 This version is intended to be a pre-release for the stable BAT version 1.0.
-It contains many improvements and a few bugfixes. The most important changes
-are summarized below. For detailed list of changes see the Changelog. For
-more information consult the BAT webpage at http://mpp.mpg.de/bat/.
+It contains an important bugfix and a few improvements of Multi-template fitter
+If you are upgrading from BAT version 0.4.3 or older, please also read the
+release notes to BAT version 0.9 below. The most important changes are
+summarized here. For detailed list of changes see the Changelog. For more
+information consult the BAT webpage at http://mpp.mpg.de/bat/.
+
+Mode finding:
+-------------
+o Fixed memory leak in FindModeMinuit()
+
+Multi Template Fitter:
+----------------------
+o Added more plotting options for stacks
+o Added description of new options to manual
+o Added Doxygen comments and improved the reference manual
+
+
+
+=========================================================================
+=========================================================================
+Release notes for version:    0.9
+=========================================================================
 
 !!! IMPORTANT !!!
 -----------------
 ALL USER MODELS HAVE TO BE ADJUSTED !!!
 
-The user interface for the models has changed. The vector of parameters
-is now passed as a const reference which leads to significant speed up
-especially for models with large number of parameters.
+The user interface for the models has changed in version 0.9. The vector
+of parameters is now passed as a const reference which leads to significant
+speed up especially for models with large number of parameters.
 Read below how to update your model to the new interface.
 
 Code updates:

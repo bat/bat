@@ -1,3 +1,7 @@
+2012-06-19 Daniel Kollar <kollar.dan@gmail.com>
+	* raised version to 0.9.1.rc1
+	* prepared release notes for 0.9.1
+
 2012-06-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mtf: added Doxygen comments to all classes.
 	* doc/introduction: added plot options for MTF tool into introduction.
@@ -7,7 +11,7 @@
 
 2012-06-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/FBU: moved code to extras/FBU
-	
+
 2012-06-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/FBU: added first instance of full bayesian unfolding (code from Kerim Suruliz).
 
