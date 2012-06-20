@@ -1,3 +1,6 @@
+2012-06-20 Kerim Suruliz <kerim.suruliz@cern.ch>
+	* added double gaussian example to FBU
+
 2012-06-19 Daniel Kollar <kollar.dan@gmail.com>
 	* increased library version info for libBAT.so and libBATmtf.so
 	* updated release notes
