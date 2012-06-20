@@ -227,6 +227,11 @@ extras/CombinationTool/runCombinationExamples.cxx -text
 extras/CombinationTool/runCombinationXSec.cxx -text
 extras/CombinationTool/test_poisson.cxx -text
 extras/FBU/Makefile -text
+extras/FBU/examples/doublegauss/CreateHistograms.C -text
+extras/FBU/examples/doublegauss/Makefile -text
+extras/FBU/examples/doublegauss/log.txt -text
+extras/FBU/examples/doublegauss/rundoublegaussian.cxx -text
+extras/FBU/examples/doublegauss/setup.sh -text
 extras/FBU/examples/rectangular/CreateHistograms.C -text
 extras/FBU/examples/rectangular/Makefile -text
 extras/FBU/examples/rectangular/runrectangular.cxx -text
