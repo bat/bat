@@ -282,6 +282,10 @@ class BCFBU : public BCModel
       std::string IntToString(int x);
       
       void Dump(TH2D *bla);
+
+			// helper variables
+			std::vector<double> fVectorTruth;
+			std::vector<double> fVectorReco;
 };
 // ---------------------------------------------------------
 

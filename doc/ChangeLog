@@ -1,3 +1,6 @@
+2012-06-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* extras/FBU: improved log likelihood in terms of CPU
+
 2012-06-28 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* PerfTestSuite: change linking order
 	* examples/basic/rootOutput: set precision before output is initialized

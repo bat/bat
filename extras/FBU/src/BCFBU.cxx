@@ -7,8 +7,8 @@
 #include "BCFBU.h"
 
 #include <BAT/BCMath.h>
-#include <BAT/BCDataSet.h>
-#include <BAT/BCDataPoint.h>
+//#include <BAT/BCDataSet.h>
+//#include <BAT/BCDataPoint.h>
 #include <BAT/BCLog.h>
 
 #include <TFile.h>
@@ -49,7 +49,6 @@ BCFBU::BCFBU()
 	, fNNormSyst(0)
 	, fNormSystNames(0)
 	, fNormSystSizes(0)
-	, fDataSet(0)
 	, fInterpolationType(1)
 {
 };
@@ -80,7 +79,6 @@ BCFBU::BCFBU(const char * name)
 	, fNNormSyst(0)
 	, fNormSystNames(0)
 	, fNormSystSizes(0)
-	, fDataSet(0)
 	, fInterpolationType(1)
 {
 };
@@ -154,7 +152,14 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 	// get number of bins
   fNBinsTruth = h_migration->GetXaxis()->GetNbins();
   fNBinsReco  = h_migration->GetYaxis()->GetNbins();
-      
+
+	// prepare helper varible for log likelihood calculation
+	fVectorTruth.clear();
+	fVectorTruth.assign(fNBinsTruth, 0);
+	
+	fVectorReco.clear();
+	fVectorReco.assign(fNBinsReco, 0);
+  
 	// print statements
   BCLog::OutDetail(Form("Dimension of problem : %i", fNDim));
   BCLog::OutDetail(Form("Number of truth bins : %i", fNBinsTruth));
@@ -536,9 +541,6 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 	    
 								//	    std::cout << curr_sample << " nominal " << nominal << " nominal*norm " << nominal*norm << std::endl;
 
-								// debugKK: commented out since not used
-								//								double contrib =  r(i_rec1,i_rec2);
-	    
 								r(i_rec1,i_rec2) += norm * nominal;
 	    
 	   
@@ -606,24 +608,15 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 
   if (fNDim==1)
     {
-      TVectorD t = TVectorD(fNBinsTruth);
-      
-      for (int i=0;i<fNBinsTruth;++i)
-				t(i) = parameters.at(i);
-      
-      TVectorD d = TVectorD(fNBinsReco);
-            
-      TVectorD r = TVectorD(fNBinsReco);
-
-      for (int i=0;i<fNBinsReco;++i)
-				{
-					d(i) = GetDataPoint(0)->GetValue(i);	  
-				}
+      for (int i=0;i<fNBinsTruth;++i) 
+ 				fVectorTruth[i] = parameters[i];
 
       for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
 				{
 					double sum = 0;
 	  
+					fVectorReco[i_rec] = 0;
+
 					for (int i_tru=0;i_tru<fNBinsTruth;++i_tru)
 						{
 	  
@@ -661,7 +654,7 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 		
 								}
 
-							sum += t(i_tru)*fHistEfficiency->GetBinContent(i_tru+1)*varresp;
+							sum += fVectorTruth[i_tru]*fHistEfficiency->GetBinContent(i_tru+1)*varresp;
 
 							//	      std::cout << " bin " << i_rec << " truth contrib " << sum << " truth " << t(i_tru) << " eff " << fHistEfficiency->GetBinContent(i_tru+1) << " response " << varresp << std::endl;
 						}
@@ -695,13 +688,8 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 		      
 								}
 		  
-							// debugKK: commented out since not used
-							//							double contrib =  r(i_rec);
-		  
-							r(i_rec) += norm * nominal;
+							fVectorReco[i_rec] += norm * nominal;
 
-							//		  std::cout << "background in bin " << i_rec << " " << norm*nominal << std::endl;
-		  
 							for( std::map<std::string, std::map<std::string, TH1*> >::iterator it_map=fSystUpHisto.begin(); it_map!=fSystUpHisto.end(); it_map++)
 								{
 		      
@@ -723,24 +711,21 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 													int syst_param_num = GetSystParamNumber(curr_syst);
 			      
 													if (fInterpolationType==0)
-														r(i_rec) += norm * LinearInterpolate(parameters.at(syst_param_num),nominal,up,down);
+														fVectorReco[i_rec] += norm * LinearInterpolate(parameters.at(syst_param_num),nominal,up,down);
 													else if (fInterpolationType==1)
 														{
-															r(i_rec) *= ExponentialInterpolate(parameters.at(syst_param_num),nominal,up,down);
+															fVectorReco[i_rec] *= ExponentialInterpolate(parameters.at(syst_param_num),nominal,up,down);
 														}
 													else if (fInterpolationType==2)
 														{
-															r(i_rec) += NoInterpolation(parameters.at(syst_param_num),nominal,up,down);
+															fVectorReco[i_rec] += NoInterpolation(parameters.at(syst_param_num),nominal,up,down);
 														}
 												}		  		  
 										}
 								}
 						}
 	      
-	    
-	  
-					r(i_rec) += sum;
-
+					fVectorReco[i_rec] += sum;
 				}
      
 
@@ -748,18 +733,17 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
       for (int i=0;i<fNBinsReco;++i)
 				{
 					//	    std::cout << i << " " << r(i) << " " << d(i) << std::endl;
-					if (r(i)>0)
-						logprob += -r(i)+d(i)*log(r(i)) - BCMath::LogFact(d(i));
+					double r = fVectorReco[i];
+					if (r>0) {
+						double d = fHistData->GetBinContent(i+1);
+						logprob += BCMath::LogPoisson(d, r);
+					}
 					else
 						logprob = -9999.0;
 				}
 
     }
       
-
-  // Breit-Wigner distribution of x with nuisance parameter y
-  //   logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
-  
   return logprob;
 }
 
@@ -1225,33 +1209,11 @@ void BCFBU::PrintSystematicsPosteriors()
 // ---------------------------------------------------------
 void BCFBU::SetDataHistogram(TH1 *h_data)
 {
-  BCDataPoint * bsMeasurement  = new BCDataPoint(GetNBinsReco());
-
   if (fNDim==1)
-    {
-			fHistData = (TH1D*) h_data->Clone(); 
-
-      for (int i=0;i<GetNBinsReco();++i)
-				bsMeasurement->SetValue(i, h_data->GetBinContent(i+1));
-
-      
-    }
+		fHistData = (TH1D*) h_data->Clone(); 
 
   if (fNDim==2)
-    {
-
-      
-      for (int i=0;i<GetNBinsRecoX();++i)
-				for (int j=0;j<GetNBinsRecoY();++j)
-					bsMeasurement->SetValue(Get1DIndex(i,j), h_data->GetBinContent(i+1,j+1));
-      
-      
-    }
-
-  fDataSet = new BCDataSet();
-  fDataSet->AddDataPoint(bsMeasurement);
-  this->SetDataSet(fDataSet);
-  
+		fHistData = (TH2D*) h_data->Clone();
 }
 
 // ---------------------------------------------------------
