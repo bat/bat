@@ -17,14 +17,14 @@ int main()
   // create new GaussModel object
   GaussModel * m = new GaussModel();
 
+  // set MCMC precision
+  m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+
   // create new output object
   BCModelOutput* mout = new BCModelOutput(m, "output.root");
 
   // switch writing of Markov Chains on
   mout->WriteMarkovChain(true);
-
-  // set MCMC precision
-  m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
   // run MCMC and marginalize posterior wrt. all parameters
   // and all combinations of two parameters

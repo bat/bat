@@ -21,7 +21,7 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I./ -I./include -I/src -I$(BATINSTALLDIR)/include
-LIBS        += $(ROOTLIBS) -L. -L$(BATINSTALLDIR)/lib -lBAT
+LIBS        += -L$(BATINSTALLDIR)/lib -lBAT $(ROOTLIBS) -L. 
 
 CXSRCS      = TestSuite.cxx \
               ReleaseTestSuite.cxx \
@@ -64,8 +64,8 @@ obj/%.o : src/%.cxx
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 runTestSuite : runTestSuite.cxx
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LIBS) -lBATTS -c runTestSuite.cxx -o obj/runTestSuite.o
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(LIBS) -lBATTS  obj/runTestSuite.o -o runTestSuite.exe
+	$(CXX) $(CXXFLAGS) $(LDFLAGS)  $(LIBS) -lBATTS -c runTestSuite.cxx -o obj/runTestSuite.o
+	$(CXX) $(CXXFLAGS) $(LDFLAGS)  obj/runTestSuite.o -lBATTS $(LIBS)   -o runTestSuite.exe
 
 $(LIBSO) : $(CXXOBJS)
 	$(CXX) $(SOFLAGS) $(LDFLAGS) $(LIBS) $^ -o $(LIBSO)
