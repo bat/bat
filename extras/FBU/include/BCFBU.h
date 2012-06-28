@@ -101,7 +101,7 @@ class BCFBU : public BCModel
       /** \name Member functions (set) */
       /** @{ */
 
-      void SetDataHistogram(TH1 *h_data);
+      int SetDataHistogram(TH1 *h_data);
 
        /** @} */
       /** \name Member functions (miscellaneous methods) */

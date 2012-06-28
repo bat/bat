@@ -1,5 +1,6 @@
 2012-06-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: improved log likelihood in terms of CPU
+	* extras/FBU: minor updates
 
 2012-06-28 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* PerfTestSuite: change linking order

@@ -126,18 +126,31 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 {
 	// check if migration matrix histogram exists 
   if (!h_migration) {
-		BCLog::OutWarning("BCFBU::PrepareResponseMatrix: migration matrix histogram not found. Exit.");
-		exit(1);
+		BCLog::OutWarning("BCFBU::PrepareResponseMatrix: migration matrix histogram not found.");
+		return 0;
 	}
   
 	// check if truth histogram exists 
   if (!h_truth){
-		BCLog::OutWarning("BCFBU::PrepareResponseMatrix: truth histogram not found. Exit.");
-		exit(1);
+		BCLog::OutWarning("BCFBU::PrepareResponseMatrix: truth histogram not found.");
+		return 0;
 	}
 
-	// get dimension
-  fNDim = h_truth->GetDimension();
+	// check dimension
+	if( (fNDim > 0) && (fNDim != h_truth->GetDimension()) ) {
+		BCLog::OutWarning("BCBFU::PrepareResponseMatrix. Dimensions of truth histogram does not match previously defined dimension. Truth histogram rejected.");
+		return 0; 
+	}
+	else if (fNDim <= 0) {
+		// set dimension
+		fNDim = h_truth->GetDimension();
+	}
+
+	// check number of reco bins
+	if ( (fNBinsReco > 0) && (fNBinsReco != h_migration->GetYaxis()->GetNbins()) ) {
+		BCLog::OutWarning("BCBFU::SetDataHistogram. Number of reco bins doens't match number of bins in the migration matrix. Migration matrix rejected.");
+		return 0; 
+		}
 
 	// clone truth distribution
 	if (fNDim==1) {
@@ -228,6 +241,9 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 
 			// set efficiency
 			fHistEfficiency->SetBinContent(i_tru+1, eff);
+
+			// add parameter
+			AddParameter(("T"+IntToString(i_tru+1)).c_str(), 0, 20e4);
 		} 
 	}
   
@@ -356,19 +372,6 @@ void BCFBU::DefineParameters()
 				}
     }
 }
-
-// debugKK: is this needed somewhere?
-//----
-double UnitResponse(int i_tru1, int i_tru2, int i_rec1, int i_rec2)
-{
-  double res = 0;
-  
-  if ((i_tru1==i_rec1) && (i_tru2==i_rec2))
-    res = 1.0;
-
-  return res;
-}
-//----
 
 // ---------------------------------------------------------
 double BCFBU::LinearInterpolate(double alpha, double nominal, double up, double down)
@@ -1207,13 +1210,49 @@ void BCFBU::PrintSystematicsPosteriors()
 }
 
 // ---------------------------------------------------------
-void BCFBU::SetDataHistogram(TH1 *h_data)
+int BCFBU::SetDataHistogram(TH1 *h_data)
 {
-  if (fNDim==1)
-		fHistData = (TH1D*) h_data->Clone(); 
+	// check dimension
+	if( (fNDim > 0) && fNDim != h_data->GetDimension()) {
+		BCLog::OutWarning("BCBFU::SetDataHistogram. Dimensions of data histogram does not match previously defined dimension. Data histogram rejected.");
+		return 0; 
+	}
+	else if (fNDim <= 0) {
+		// set dimension
+		fNDim = h_data->GetDimension();
+	}
 
-  if (fNDim==2)
+	// handle 1-D case
+  if (fNDim==1) {
+		// check number of bins
+		if ( (fNBinsReco > 0) && (fNBinsReco != h_data->GetNbinsX()) ) {
+			BCLog::OutWarning("BCBFU::SetDataHistogram. Number of reco bins doens't match number of bins in the data histogram. Data histogram rejected.");
+			return 0; 
+		}
+		
+		// clone histogram
+		fHistData = (TH1D*) h_data->Clone(); 
+		
+		// (re)set number of reco bins
+		fNBinsReco = fHistData->GetNbinsX();
+	}
+
+	// handle 2-D case
+  if (fNDim==2) {
+		// check number of bins
+		if (fNBinsReco != (h_data->GetNbinsX() * h_data->GetNbinsY()) ) {
+			BCLog::OutWarning("BCBFU::SetDataHistogram. Number of reco bins doens't match number of bins in the data histogram. Data histogram rejected.");
+			return 0; 
+		}
+
 		fHistData = (TH2D*) h_data->Clone();
+
+		// (re)set number of reco bins
+		fNBinsReco = fHistData->GetNbinsX() * h_data->GetNbinsY();
+	}
+
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------

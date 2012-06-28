@@ -62,19 +62,16 @@ int main()
 
 	// prepare response matrix and calculate efficiency
 	m->PrepareResponseMatrix(hist_migration, hist_truth, hist_bkg);
- 
+	
 	// set data
 	m->SetDataHistogram(hist_data);
-	
+
 	// print
 	m->PrintResponseMatrix("response_matrix.eps");
 	m->PrintMigrationMatrix("migration_matrix.eps");
 	m->PrintEfficiencyHistogram("efficiency.eps");
 	m->PrintTruthHistogram("truth.eps");
 	m->PrintDataHistogram("data.eps");
-
-
-	m->DefineParameters();
 
 	m->MarginalizeAll();
 
