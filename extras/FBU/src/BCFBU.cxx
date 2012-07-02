@@ -122,7 +122,7 @@ int BCFBU::RebinHistograms(int rebin, TH2* h_migration, TH1 *h_truth, TH1 *h_bac
 }
 
 // ---------------------------------------------------------
-int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_background)
+int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_background, std::vector<double> parmin, std::vector<double> parmax)
 {
 	// check if migration matrix histogram exists 
   if (!h_migration) {
@@ -242,8 +242,17 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 			// set efficiency
 			fHistEfficiency->SetBinContent(i_tru+1, eff);
 
+			// check parameter ranges
+			double mini = 0.;
+			double maxi = 20e4;
+
+			if ( (parmin.size()) > 0 && (parmin.size() == parmax.size()) ) {
+				mini = parmin[i_tru];
+				maxi = parmax[i_tru];
+			}
+
 			// add parameter
-			AddParameter(("T"+IntToString(i_tru+1)).c_str(), 0, 20e4);
+			AddParameter(("T"+IntToString(i_tru+1)).c_str(), mini, maxi);
 		} 
 	}
   

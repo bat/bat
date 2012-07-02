@@ -1,3 +1,6 @@
+2012-07-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* extras/FBU: allow user to specify parameter ranges
+
 2012-06-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: improved log likelihood in terms of CPU
 	* extras/FBU: minor updates

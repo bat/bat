@@ -120,7 +120,7 @@ class BCFBU : public BCModel
 			 * @param h_background the background distribution
 			 * @return an error code
 			 */
-      int PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1 *h_background);
+      int PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1 *h_background, std::vector<double> paramin = std::vector<double>(0), std::vector<double> parmax = std::vector<double>(0));
 
       /**
        * Rebins all histograms
