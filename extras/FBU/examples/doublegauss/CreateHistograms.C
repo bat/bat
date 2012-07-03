@@ -3,7 +3,7 @@ void CreateHistograms()
 	// settings 
 
 
-  // convention followed throughout: 1st index: truth, 2nd index: reco
+  // convention followed throughout: 1st index: reco, 2nd index: truth
         
 
   int nbin = 12;
@@ -38,22 +38,27 @@ void CreateHistograms()
       // corresponding to efficiency 1
     }
 
-   for (int j=1;j<=nbin;j++)
+  /*
+    for (int j=1;j<=nbin;j++)
      for (int i=1;i<=nbin;i++)
 	response(i-1,j-1) = 0; 
 
    for (int j=1;j<=nbin;j++)
      response(j-1,j-1) = hist_truth->GetBinContent(j);
 
-    for (int i=1;i<=nbin;i++)
-      {
-	for (int j=1;j<=nbin;j++)
-	  cout << response(i-1,j-1) << " ";
-	cout << endl;
-      }
+  */
 
+  for (int i=1;i<=nbin;i++)
+    {
+      for (int j=1;j<=nbin;j++)
+	cout << response(i-1,j-1) << " ";
+      cout << endl;
+    }
+  
     TMatrix normresponse(nbin,nbin);
        
+    TH1F *hist_eff = new TH1F("hist_eff","hist_eff",nbin,0,1);
+    
     for (int j=1;j<=nbin;j++)
       {
 	double eff = 0;
@@ -65,7 +70,9 @@ void CreateHistograms()
 	
 	cout << "efficiency " << j << " = " << eff/hist_truth->GetBinContent(j) << endl;
 
+	hist_eff->SetBinContent(j, eff/hist_truth->GetBinContent(j));
 
+	
 	for (int i=1; i<=nbin;i++)
 	  normresponse(i-1,j-1) = response(i-1,j-1)/eff;
 	
@@ -81,7 +88,7 @@ void CreateHistograms()
 
 	for (int j=1;j<=nbin;j++)
 	  {
-	    temp += normresponse(i-1,j-1)*hist_truth->GetBinContent(i);
+	    temp += normresponse(i-1,j-1)*hist_truth->GetBinContent(j);
 	  }
 	
 	hist_reco->SetBinContent(i,temp);
@@ -107,16 +114,35 @@ void CreateHistograms()
       }
 
     TRandom3 *r = new TRandom3();
+
+    r->SetSeed(1000);
     
     TH1F *hist_data = new TH1F("hist_data","hist_data",nbin,0,1);
     
     for (int i=1;i<=nbin;i++)
       {
-	//	double newentry = r->PoissonD(hist_reco->GetBinContent(i));
+       	double newentry = r->PoissonD(hist_reco->GetBinContent(i));
 	
-	double newentry = hist_reco->GetBinContent(i);
+	// double newentry = hist_reco->GetBinContent(i);
 
 	hist_data->SetBinContent(i,newentry);
+	
+      }
+
+
+    for (int i=1;i<=nbin;i++)
+      {
+	sum = 0;
+
+	for (int j=1;j<=nbin;j++)
+	  {
+	    sum+ = hist_truth->GetBinContent(j)*hist_eff->GetBinContent(j)*normresponse(i-1,j-1);
+
+	    std::cout << " bin " << i << " truth contrib " << sum << " truth " << hist_truth->GetBinContent(j) << " eff " << hist_eff->GetBinContent(j) << " response " << normresponse(i-1,j-1) << std::endl;
+	  }
+
+	cout << " data " << hist_data->GetBinContent(i) << " sum " << sum << " truth " << hist_truth->GetBinContent(i) << endl;
+	  
       }
     
 

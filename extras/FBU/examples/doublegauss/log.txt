@@ -9,18 +9,6 @@ Summary : Opening logfile log.txt
 Detail  : Dimension of problem : 1
 Detail  : Number of truth bins : 12
 Detail  : Number of reco bins  : 12
-Detail  : Upper limit of param 1 is 2203.000000
-Detail  : Upper limit of param 2 is 7749.000000
-Detail  : Upper limit of param 3 is 15130.000000
-Detail  : Upper limit of param 4 is 15136.000000
-Detail  : Upper limit of param 5 is 7988.000000
-Detail  : Upper limit of param 6 is 2492.000000
-Detail  : Upper limit of param 7 is 2495.000000
-Detail  : Upper limit of param 8 is 8000.000000
-Detail  : Upper limit of param 9 is 14999.000000
-Detail  : Upper limit of param 10 is 14995.000000
-Detail  : Upper limit of param 11 is 7788.000000
-Detail  : Upper limit of param 12 is 2225.000000
 Summary : Running MCMC for model 'BFU'
 Summary : Pre-run Metropolis MCMC...
 Summary :  --> Perform MCMC pre-run with 5 chains, each with maximum 1000000 iterations
@@ -39,18 +27,18 @@ Detail  :      * Efficiency status: Efficiencies within pre-defined ranges.
 Summary :  --> Set of 5 Markov chains converged within 10000 iterations and all scales are adjusted.
 Summary :  --> Markov chains ran for 10001 iterations.
 Detail  :  --> Average efficiencies:
-Detail  :  -->      parameter    0 :  34.42%
-Detail  :  -->      parameter    1 :  41.17%
-Detail  :  -->      parameter    2 :  43.37%
-Detail  :  -->      parameter    3 :  42.76%
-Detail  :  -->      parameter    4 :  41.64%
-Detail  :  -->      parameter    5 :  35.46%
-Detail  :  -->      parameter    6 :  35.20%
-Detail  :  -->      parameter    7 :  41.77%
-Detail  :  -->      parameter    8 :  43.26%
-Detail  :  -->      parameter    9 :  43.36%
-Detail  :  -->      parameter   10 :  41.44%
-Detail  :  -->      parameter   11 :  34.47%
+Detail  :  -->      parameter    0 :  34.20%
+Detail  :  -->      parameter    1 :  35.93%
+Detail  :  -->      parameter    2 :  39.03%
+Detail  :  -->      parameter    3 :  38.23%
+Detail  :  -->      parameter    4 :  37.75%
+Detail  :  -->      parameter    5 :  36.20%
+Detail  :  -->      parameter    6 :  34.76%
+Detail  :  -->      parameter    7 :  33.78%
+Detail  :  -->      parameter    8 :  39.42%
+Detail  :  -->      parameter    9 :  39.21%
+Detail  :  -->      parameter   10 :  35.66%
+Detail  :  -->      parameter   11 :  34.12%
 Detail  :  --> Average scale factors:
 Detail  :  -->      parameter    0 :  100.00%
 Detail  :  -->      parameter    1 :  100.00%
@@ -78,15 +66,15 @@ Detail  :  --> iteration number 90000 (90.00%)
 Detail  :  --> iteration number 100000 (100.00%)
 Summary :  --> Markov chains ran for 100000 iterations.
 Detail  :  --> Global mode from MCMC:
-Detail  :  -->      parameter  0:   2113
-Detail  :  -->      parameter  1:   7670
-Detail  :  -->      parameter  2:   1.5e+04
-Detail  :  -->      parameter  3:   1.5e+04
-Detail  :  -->      parameter  4:   7901
-Detail  :  -->      parameter  5:   2390
-Detail  :  -->      parameter  6:   2405
-Detail  :  -->      parameter  7:   7898
-Detail  :  -->      parameter  8:   1.489e+04
-Detail  :  -->      parameter  9:   1.489e+04
-Detail  :  -->      parameter 10:   7681
-Detail  :  -->      parameter 11:   2132
+Detail  :  -->      parameter  0:   2237
+Detail  :  -->      parameter  1:   7455
+Detail  :  -->      parameter  2:   1.502e+04
+Detail  :  -->      parameter  3:   1.522e+04
+Detail  :  -->      parameter  4:   7918
+Detail  :  -->      parameter  5:   2209
+Detail  :  -->      parameter  6:   2569
+Detail  :  -->      parameter  7:   8086
+Detail  :  -->      parameter  8:   1.491e+04
+Detail  :  -->      parameter  9:   1.475e+04
+Detail  :  -->      parameter 10:   7675
+Detail  :  -->      parameter 11:   2121

@@ -1,3 +1,7 @@
+2012-07-03 Kerim Suruliz <kerim.suruliz@cern.ch>
+	* extras/FBU: deleted references to Ac, changed definitions of response/migration matrices
+	* extras/FBU/examples/doublegauss: example works now, using nontrivial response
+
 2012-07-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: allow user to specify parameter ranges
 

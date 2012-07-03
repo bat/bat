@@ -38,8 +38,6 @@ BCFBU::BCFBU()
 	, fResponseMatrix(0)
 	, fMigrationMatrix(0)
 	, fHistEfficiency(0)
-	, fHistRatio(0)
-	, fAcTotal(0)
 	, fNDim(-1)
 	, fNSyst(0)
 	, fNSamples(0)
@@ -68,8 +66,6 @@ BCFBU::BCFBU(const char * name)
 	, fResponseMatrix(0)
 	, fMigrationMatrix(0)
 	, fHistEfficiency(0)
-	, fHistRatio(0)
-	, fAcTotal(0)
 	, fNDim(-1)
 	, fNSyst(0)
 	, fNSamples(0)
@@ -190,7 +186,7 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 
   for (int i_tru = 0; i_tru < fNBinsTruth; ++i_tru) 
     for (int i_rec = 0; i_rec < fNBinsReco; ++i_rec) 
-      m(i_tru,i_rec) = h_migration->GetBinContent(i_tru+1, i_rec+1);
+      m(i_tru,i_rec) = h_migration->GetBinContent(i_rec+1, i_tru+1);
 	
 	// normalization factor of h_migration
 	double norm = 0;
@@ -209,13 +205,16 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 
 		// normalize response matrix
 		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-			(*fResponseMatrix)(i_tru,i_rec) = m(i_tru,i_rec)/sum;
+		        (*fResponseMatrix)(i_tru,i_rec) = m(i_tru,i_rec);
+
+		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
+		        (*fMigrationMatrix)(i_tru,i_rec) = m(i_tru,i_rec)/sum;
 	}
 	
 	// normalize migration matrix
-  for (int i_tru=0;i_tru<fNBinsTruth;++i_tru) 
-		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-			(*fMigrationMatrix)(i_tru,i_rec) = m(i_tru,i_rec)/norm;
+  //  for (int i_tru=0;i_tru<fNBinsTruth;++i_tru) 
+  //		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
+  //			(*fMigrationMatrix)(i_tru,i_rec) = m(i_tru,i_rec)/norm;
 	
 	// debugKK: really print them? 
 	//  m.Print();
@@ -225,7 +224,7 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
   if (fNDim==1) {
 		// create new efficiency histogram based on the same binning as
 		// the truth distribution
-		fHistEfficiency = (TH1D*) fHistTruth->Clone();
+                fHistEfficiency = (TH1D*) fHistTruth->Clone();
 		fHistEfficiency->GetYaxis()->SetTitle("efficiency");
 		
 		// loop over all truth bins
@@ -243,14 +242,21 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 			fHistEfficiency->SetBinContent(i_tru+1, eff);
 
 			// check parameter ranges
+
 			double mini = 0.;
 			double maxi = 20e4;
+
 
 			if ( (parmin.size()) > 0 && (parmin.size() == parmax.size()) ) {
 				mini = parmin[i_tru];
 				maxi = parmax[i_tru];
 			}
+			
 
+			maxi = fHistTruth->GetBinContent(i_tru+1)+200;
+			mini = fHistTruth->GetBinContent(i_tru+1)-200;
+		       
+			
 			// add parameter
 			AddParameter(("T"+IntToString(i_tru+1)).c_str(), mini, maxi);
 		} 
@@ -303,26 +309,8 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 						std::cout << "truth bin " << i_tru1 << " " << i_tru2 << " " << fHistTruth->GetBinContent(i_tru1+1,i_tru2+1) << std::endl;
 					}
       
-      for (int j=0;j<fNBinsTruth2;++j)
-				{
-					TH1D* hist = new TH1D("", "A_C", 500, -0.35, 0.35);
-	  
-					BCH1D *histptr = new BCH1D();
-	  
-					histptr->SetHistogram(hist);
-	  
-					fHistRatio.push_back(histptr);
-	  
-				}
     }
 
-	// debugKK: can the lines below be removed?
-	//----
-  TH1D* totalac = new TH1D("", "A_C", 500, -0.35, 0.35);
-  
-  fAcTotal = new BCH1D();
-  
-  fAcTotal->SetHistogram(totalac);
 	//----
 
 	// no error 
@@ -330,31 +318,39 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 }
 
 // ---------------------------------------------------------
-void BCFBU::DefineParameters()
+void BCFBU::DefineParameters(int mode, double min, double max) // (default) mode = 0: take (0.1*truth, 10*truth); mode = 1: take (min,max) - default range is (0,1.0e6)
 {
-	// add parameters for 1D case
+        // add parameters for 1D case
   if (fNDim==1) {
-		// add one parameter per truth bin
-		for (int i=1; i<=fNBinsTruth; ++i) {
-			// debugKK: how to set the upper range?
-			AddParameter(("T"+IntToString(i)).c_str(), 0, 20e4);
-		}
+                // add one parameter per truth bin
+                for (int i=1; i<=fNBinsTruth; ++i) {
+                        // debugKK: how to set the upper range?
+                  //                    AddParameter(("T"+IntToString(i)).c_str(), 0, 20e4);
 
-		// add one parameter per source of systematic shape uncertainty
-		for (int i=0; i<fNSyst; ++i) {
-			AddParameter(fSystNames[i].c_str(), -5, 5);
-			// debugKK: what is this?
-			fSystParamMap[fSystNames[i]] = GetNBinsTruth() + i; 
-		}
-      
-		// add one parameter per source of systematic normalization
-		// uncertainty
-		for (int i=0;i<fNNormSyst;++i) {
-			AddParameter(fNormSystNames[i].c_str(), -5, 5);
-			// debugKK: what is this?
-			fSystParamMap[fNormSystNames[i]] = GetNBinsTruth() + fNSyst + i;
-		}
-	}
+                  if (mode==0)
+                    AddParameter(("T"+IntToString(i)).c_str(), fHistTruth->GetBinContent(i)/0.5, fHistTruth->GetBinContent(i)*1.5);
+                  else if (mode==1)
+                    AddParameter(("T"+IntToString(i)).c_str(), min, max);
+
+                  BCLog::OutDetail(Form("Upper limit of param %i is %f", i, fHistTruth->GetBinContent(i)+100));
+                }
+
+                // add one parameter per source of systematic shape uncertainty
+                for (int i=0; i<fNSyst; ++i) {
+                        AddParameter(fSystNames[i].c_str(), -5, 5);
+                        // debugKK: what is this?
+                        fSystParamMap[fSystNames[i]] = GetNBinsTruth() + i;
+                }
+
+                // add one parameter per source of systematic normalization
+                // uncertainty
+                for (int i=0;i<fNNormSyst;++i) {
+                        AddParameter(fNormSystNames[i].c_str(), -5, 5);
+                        // debugKK: what is this?
+                        fSystParamMap[fNormSystNames[i]] = GetNBinsTruth() + fNSyst + i;
+                }
+        }
+
 
 	// debugKK: did not check the 2D case yet
   if (fNDim==2)
@@ -632,12 +628,12 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 					for (int i_tru=0;i_tru<fNBinsTruth;++i_tru)
 						{
 	  
-							double nominalresp = (*fMigrationMatrix)(i_tru, i_rec); // find appropriate entry of response matrix
+						  double nominalresp = (*fMigrationMatrix)(i_tru, i_rec); // find appropriate entry of response matrix
 	      
-							double varresp = nominalresp;
+						  double varresp = nominalresp;
 	      
 	      
-							// loop through the systematics, compute shifts in response matrix, add them to nominal response
+						  // loop through the systematics, compute shifts in response matrix, add them to nominal response
 	      
 							for( std::map<std::string, TH2*>::iterator it_map2=fSystResponseUpMap.begin(); it_map2!=fSystResponseUpMap.end(); it_map2++)
 								{
@@ -668,7 +664,9 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 
 							sum += fVectorTruth[i_tru]*fHistEfficiency->GetBinContent(i_tru+1)*varresp;
 
-							//	      std::cout << " bin " << i_rec << " truth contrib " << sum << " truth " << t(i_tru) << " eff " << fHistEfficiency->GetBinContent(i_tru+1) << " response " << varresp << std::endl;
+							
+							
+							//							std::cout << " bin " << i_rec << " truth contrib " << sum << " truth " << fVectorTruth[i_tru] << " eff " << fHistEfficiency->GetBinContent(i_tru+1) << " response " << varresp << std::endl;
 						}
 	      
 					for (int i_sam=0;i_sam<fNSamples; i_sam++) // loop over all background samples
@@ -744,7 +742,8 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
   
       for (int i=0;i<fNBinsReco;++i)
 				{
-					//	    std::cout << i << " " << r(i) << " " << d(i) << std::endl;
+				  //				  std::cout << i << " " << fVectorReco[i] << " " << fHistData->GetBinContent(i+1) << std::endl;
+				  
 					double r = fVectorReco[i];
 					if (r>0) {
 						double d = fHistData->GetBinContent(i+1);
@@ -828,67 +827,14 @@ void BCFBU::MCMCIterationInterface()
   int npar = GetNParameters();
      
   // loop over all chains and fill histogram
-  for (int i = 0; i < nchains; ++i) {
-    // get the current values of the parameters x and y. These are
-    // stored in fMCMCx.
-    double sum1, sum2;
-    
-    double sum1tot, sum2tot;
 
-    sum1tot = 0; sum2tot = 0;
-
-    for (int j=0;j<fNBinsTruth2;++j)
-      {
-				sum1 = 0;
-				sum2 = 0;
-
-				/*
-					for (int i_tru=0;i_tru<(fNBinsTruth1/2);++i_tru)
-					{
-					std::cout << i_tru + j << std::endl;
-					sum1 += fMCMCx.at(i * npar + i_tru + j );
-					}
-	
-					for (int i_tru=(fNBinsTruth1/2);i_tru<fNBinsTruth1;++i_tru)
-					{
-					std::cout << i_tru + fNBinsTruth2 << std::endl;
-					sum2 += fMCMCx.at(i * npar + i_tru + fNBinsTruth2);
-					}
-				*/
-	
-				sum1 = fMCMCx.at(i * npar + j );
-				sum2 = fMCMCx.at(i * npar + j + fNBinsTruth2);
-	
-				sum1tot+=sum1;
-				sum2tot+=sum2;
-
-				// fill the ratio histogram
-	
-				double ac = (sum2-sum1)/(sum1+sum2);
-	
-				//    std::cout << " ac = " << ac << std::endl;
-	
-				(fHistRatio.at(j))->GetHistogram()->Fill(ac);
-      }
-    
-    fAcTotal->GetHistogram()->Fill((sum2tot-sum1tot)/(sum2tot+sum1tot));
-  }
 }
 
 // ---------------------------------------------------------
 void BCFBU::PrintHistogram()
 {  
   // print the BAT histogram to an eps file
-  for (int j=0;j<fNBinsTruth2;++j)
-    {
 
-      (fHistRatio.at(j))->Print(("ac"+IntToString(j)+".eps").c_str());
-
-      (fHistRatio.at(j))->Print(("ac"+IntToString(j)+".png").c_str());
-    }
-
-  fAcTotal->Print("acTotal.eps");
-  fAcTotal->Print("acTotal.png");
 }
 
 // ---------------------------------------------------------
@@ -1127,8 +1073,9 @@ TH1* BCFBU::GetUnfoldedResult()
 	  
 					temph->GetSmallestInterval (lowbound, upbound);
 					std::cout << " bin " << i << " mode " << temph->GetMode() << " mean " << temph->GetMean() << " median " << temph->GetMedian() << " low " << lowbound << " up " << upbound << std::endl;
-	  
+					
 					unfolded->SetBinContent(i,(upbound+lowbound)/2);
+
 					unfolded->SetBinError(i,(upbound-lowbound)/2);
 				}
     }

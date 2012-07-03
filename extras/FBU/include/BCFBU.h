@@ -108,7 +108,7 @@ class BCFBU : public BCModel
       /** @{ */
 
      // Methods to overload, see file src/BCFBU.cxx
-      void DefineParameters();
+      void DefineParameters(int mode=0, double min=0, double max=1.0e6);
       double LogAPrioriProbability(const std::vector <double> & params);
       double LogLikelihood(const std::vector<double> & params);
 			void MCMCIterationInterface();
