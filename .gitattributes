@@ -227,6 +227,9 @@ extras/CombinationTool/runCombinationExamples.cxx -text
 extras/CombinationTool/runCombinationXSec.cxx -text
 extras/CombinationTool/test_poisson.cxx -text
 extras/FBU/Makefile -text
+extras/FBU/examples/datagenerator/DataGen.cxx -text
+extras/FBU/examples/datagenerator/DataGen.h -text
+extras/FBU/examples/datagenerator/test.C -text
 extras/FBU/examples/doublegauss/CreateHistograms.C -text
 extras/FBU/examples/doublegauss/Makefile -text
 extras/FBU/examples/doublegauss/log.txt -text
