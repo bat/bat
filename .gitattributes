@@ -237,8 +237,10 @@ extras/FBU/examples/rectangular/Makefile -text
 extras/FBU/examples/rectangular/runrectangular.cxx -text
 extras/FBU/examples/rectangular/setup.sh -text
 extras/FBU/include/BCFBU.h -text
+extras/FBU/include/BCFBUBackground.h -text
 extras/FBU/notes.txt -text
 extras/FBU/src/BCFBU.cxx -text
+extras/FBU/src/BCFBUBackground.cxx -text
 extras/README -text
 models/base/BATCalculator.cxx -text
 models/base/BATCalculator.h -text

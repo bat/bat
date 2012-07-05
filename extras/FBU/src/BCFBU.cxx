@@ -7,8 +7,6 @@
 #include "BCFBU.h"
 
 #include <BAT/BCMath.h>
-//#include <BAT/BCDataSet.h>
-//#include <BAT/BCDataPoint.h>
 #include <BAT/BCLog.h>
 
 #include <TFile.h>
@@ -39,6 +37,7 @@ BCFBU::BCFBU()
 	, fMigrationMatrix(0)
 	, fHistEfficiency(0)
 	, fNDim(-1)
+	, fBackgroundProcesses(0)
 	, fNSyst(0)
 	, fNSamples(0)
 	, fSystNames(0)
@@ -67,6 +66,7 @@ BCFBU::BCFBU(const char * name)
 	, fMigrationMatrix(0)
 	, fHistEfficiency(0)
 	, fNDim(-1)
+	, fBackgroundProcesses(0)
 	, fNSyst(0)
 	, fNSamples(0)
 	, fSystNames(0)
@@ -87,6 +87,9 @@ BCFBU::~BCFBU()
 
 	if (fHistEfficiency)
 		delete fHistEfficiency;
+
+	// debugKK
+	// delete background processes
 };
 
 // ---------------------------------------------------------
@@ -120,6 +123,7 @@ int BCFBU::RebinHistograms(int rebin, TH2* h_migration, TH1 *h_truth, TH1 *h_bac
 // ---------------------------------------------------------
 int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_background, std::vector<double> parmin, std::vector<double> parmax)
 {
+
 	// check if migration matrix histogram exists 
   if (!h_migration) {
 		BCLog::OutWarning("BCFBU::PrepareResponseMatrix: migration matrix histogram not found.");
@@ -151,6 +155,7 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 	// clone truth distribution
 	if (fNDim==1) {
 		fHistTruth = (TH1D*) h_truth->Clone();
+		fHistTruth->Scale(1./fHistTruth->Integral());
 		int nbins = fHistTruth->GetNbinsX();
 		fRecoMin = fHistTruth->GetXaxis()->GetBinLowEdge(1);
 		fRecoMax = fHistTruth->GetXaxis()->GetBinUpEdge(nbins);
@@ -182,43 +187,27 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
   
 	// bring unnormalized migration matrix into matrix form (TMatrixD)
 	// and switch axes
+	// debugKK: remove this once 2D case is settled
   TMatrix m = TMatrixD(fNBinsTruth, fNBinsReco);
 
   for (int i_tru = 0; i_tru < fNBinsTruth; ++i_tru) 
     for (int i_rec = 0; i_rec < fNBinsReco; ++i_rec) 
-      m(i_tru,i_rec) = h_migration->GetBinContent(i_rec+1, i_tru+1);
+			m(i_tru,i_rec) = h_migration->GetBinContent(i_tru+1, i_rec+1);
 	
 	// normalization factor of h_migration
-	double norm = 0;
+	//	double norm = 0;
 
-	// normalize migration matrix
+	// define migration and response matrices
   for (int i_tru=0;i_tru<fNBinsTruth;++i_tru) {
-		// sum over all reco bins
-		double sum = 0;
 
-		// increase sum over all reco bins
-		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)  
-			sum += m(i_tru,i_rec);
-
-		// increase norm		
-		norm+= sum; 
-
-		// normalize response matrix
+		// define migration matrix
 		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-		        (*fResponseMatrix)(i_tru,i_rec) = m(i_tru,i_rec);
+			(*fMigrationMatrix)(i_tru,i_rec) = h_migration->GetBinContent(i_tru+1, i_rec+1);
 
+		// define response matrix
 		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-		        (*fMigrationMatrix)(i_tru,i_rec) = m(i_tru,i_rec)/sum;
+			(*fResponseMatrix)(i_tru,i_rec) = (*fMigrationMatrix)(i_tru, i_rec)/fHistTruth->GetBinContent(i_tru+1);
 	}
-	
-	// normalize migration matrix
-  //  for (int i_tru=0;i_tru<fNBinsTruth;++i_tru) 
-  //		for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-  //			(*fMigrationMatrix)(i_tru,i_rec) = m(i_tru,i_rec)/norm;
-	
-	// debugKK: really print them? 
-	//  m.Print();
-	//  fMigrationMatrix->Print();
 
 	// calculate efficiency for 1D case
   if (fNDim==1) {
@@ -233,7 +222,7 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 			
 			// sum all reco bins
 			for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-				sum += m(i_tru,i_rec);
+				sum += (*fMigrationMatrix)(i_tru, i_rec);
 			
 			// calculate efficiency
 			double eff = sum/fHistTruth->GetBinContent(i_tru+1); 
@@ -246,16 +235,14 @@ int BCFBU::PrepareResponseMatrix(TH2* h_migration, TH1* h_truth, TH1* h_backgrou
 			double mini = 0.;
 			double maxi = 20e4;
 
-
 			if ( (parmin.size()) > 0 && (parmin.size() == parmax.size()) ) {
 				mini = parmin[i_tru];
 				maxi = parmax[i_tru];
 			}
-			
-
-			maxi = fHistTruth->GetBinContent(i_tru+1)+200;
-			mini = fHistTruth->GetBinContent(i_tru+1)-200;
-		       
+			else {
+				maxi = fHistTruth->GetBinContent(i_tru+1)+200;
+				mini = fHistTruth->GetBinContent(i_tru+1)-200;
+			}
 			
 			// add parameter
 			AddParameter(("T"+IntToString(i_tru+1)).c_str(), mini, maxi);
@@ -614,147 +601,132 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
     }
   
 
-  if (fNDim==1)
-    {
-      for (int i=0;i<fNBinsTruth;++i) 
- 				fVectorTruth[i] = parameters[i];
+  if (fNDim==1) {
 
-      for (int i_rec=0;i_rec<fNBinsReco;++i_rec)
-				{
-					double sum = 0;
-	  
-					fVectorReco[i_rec] = 0;
+		// copy truth parameters into a vector for CPU reasons
+		for (int i=0;i<fNBinsTruth;++i) 
+			fVectorTruth[i] = parameters[i];
 
-					for (int i_tru=0;i_tru<fNBinsTruth;++i_tru)
-						{
-	  
-						  double nominalresp = (*fMigrationMatrix)(i_tru, i_rec); // find appropriate entry of response matrix
+		// loop over all reco bins
+		for (int i_rec=0; i_rec < fNBinsReco; ++i_rec) {
+			// define expectation value
+			double expectation = 0;
+
+			// set reco vector to 0
+			fVectorReco[i_rec] = 0;
+
+			// loop over all truth bins
+			for (int i_tru=0; i_tru < fNBinsTruth; ++i_tru) {
+				// get migration matrix entry
+				double nominalresp = (*fResponseMatrix)(i_tru, i_rec); 
+						
+				// copy into another variable
+				double varresp = nominalresp;
 	      
-						  double varresp = nominalresp;
-	      
-	      
-						  // loop through the systematics, compute shifts in response matrix, add them to nominal response
-	      
-							for( std::map<std::string, TH2*>::iterator it_map2=fSystResponseUpMap.begin(); it_map2!=fSystResponseUpMap.end(); it_map2++)
-								{
-									std::string curr_syst = (*it_map2).first;
+				// loop through the systematics, compute shifts in response matrix, add them to nominal response	      
+				for( std::map<std::string, TH2*>::iterator it_map2=fSystResponseUpMap.begin(); it_map2!=fSystResponseUpMap.end(); it_map2++) {
+					std::string curr_syst = (*it_map2).first;
 		  
-									int syst_param_num = GetSystParamNumber(curr_syst);
+					int syst_param_num = GetSystParamNumber(curr_syst);
 		  
-									double responseup = fSystResponseUpMap[curr_syst]->GetBinContent(i_tru+1, i_rec+1); // find shifted up response for current syst
+					double responseup = fSystResponseUpMap[curr_syst]->GetBinContent(i_tru+1, i_rec+1); // find shifted up response for current syst
 		  
+					double responsedown = fSystResponseDownMap[curr_syst]->GetBinContent(i_tru+1, i_rec+1); // find shifted down response for current syst
 		  
-									double responsedown = fSystResponseDownMap[curr_syst]->GetBinContent(i_tru+1, i_rec+1); // find shifted down response for current syst
-		  
-									// find interpolated response matrix
-		  
-									if (fInterpolationType==0) 
-										varresp += LinearInterpolate(parameters.at(syst_param_num),nominalresp,responseup,responsedown);
-									else if (fInterpolationType==1)
-										varresp *= ExponentialInterpolate(parameters.at(syst_param_num),nominalresp,responseup,responsedown);
-									else if (fInterpolationType==2)
-										varresp = NoInterpolation(parameters.at(syst_param_num),nominalresp,responseup,responsedown);
-									else
-										{
-											std::cout << "Unknown extrapolation type, exiting" << std::endl;
-											exit(1);
-										}
+					// find interpolated response matrix
+					if (fInterpolationType==0) 
+						varresp += LinearInterpolate(parameters.at(syst_param_num),nominalresp,responseup,responsedown);
+					else if (fInterpolationType==1)
+						varresp *= ExponentialInterpolate(parameters.at(syst_param_num),nominalresp,responseup,responsedown);
+					else if (fInterpolationType==2)
+						varresp = NoInterpolation(parameters.at(syst_param_num),nominalresp,responseup,responsedown);
+					else {
+						std::cout << "Unknown extrapolation type, exiting" << std::endl;
+						exit(1);
+					}
 		
-								}
-
-							sum += fVectorTruth[i_tru]*fHistEfficiency->GetBinContent(i_tru+1)*varresp;
-
-							
-							
-							//							std::cout << " bin " << i_rec << " truth contrib " << sum << " truth " << fVectorTruth[i_tru] << " eff " << fHistEfficiency->GetBinContent(i_tru+1) << " response " << varresp << std::endl;
-						}
-	      
-					for (int i_sam=0;i_sam<fNSamples; i_sam++) // loop over all background samples
-						{	    
-		  
-							std::string curr_sample = fSampleNames[i_sam];
-		  
-							// there must be a nominal histo for each sample
-		  
-							double nominal = fNominalHisto[i_sam]->GetBinContent(i_rec+1);
-		  
-							// check if affected by normalisation systematic
-		  
-							double norm = 1.0;
-		  
-							if (fNNormSyst>0)
-								{
-									for( std::map<std::string, std::string >::iterator it_map=fNormUncer.begin(); it_map!=fNormUncer.end(); it_map++)
-										{
-											if ((*it_map).first==curr_sample)
-												{
-			      
-													int paramnumber = GetSystParamNumber(fNormUncer[curr_sample]);
-			      
-													norm *= 1 + parameters.at(paramnumber);
-			      
-												}		     		    
-										}
-		      
-								}
-		  
-							fVectorReco[i_rec] += norm * nominal;
-
-							for( std::map<std::string, std::map<std::string, TH1*> >::iterator it_map=fSystUpHisto.begin(); it_map!=fSystUpHisto.end(); it_map++)
-								{
-		      
-									std::map<std::string,TH1*> map_sys = (*it_map).second;
-		      
-									if ( ((*it_map).first)==curr_sample)  // for each sample, loop over the systematics affecting it
-										{
-			  
-											for( std::map<std::string, TH1*>::iterator it_map2=map_sys.begin(); it_map2!=map_sys.end(); it_map2++)
-												{
-			      
-													std::string curr_syst = (*it_map2).first;
-			      
-													double up = fSystUpHisto[curr_sample][curr_syst]->GetBinContent(i_rec+1);
-													double down = fSystDownHisto[curr_sample][curr_syst]->GetBinContent(i_rec+1);
-			      
-													// find parameter number this systematic corresponds to
-			      
-													int syst_param_num = GetSystParamNumber(curr_syst);
-			      
-													if (fInterpolationType==0)
-														fVectorReco[i_rec] += norm * LinearInterpolate(parameters.at(syst_param_num),nominal,up,down);
-													else if (fInterpolationType==1)
-														{
-															fVectorReco[i_rec] *= ExponentialInterpolate(parameters.at(syst_param_num),nominal,up,down);
-														}
-													else if (fInterpolationType==2)
-														{
-															fVectorReco[i_rec] += NoInterpolation(parameters.at(syst_param_num),nominal,up,down);
-														}
-												}		  		  
-										}
-								}
-						}
-	      
-					fVectorReco[i_rec] += sum;
 				}
+
+				// calculate expectation value
+				expectation += fVectorTruth[i_tru] * varresp;							
+			}
+	      
+			// loop over all background samples 
+			for (int i_sam=0;i_sam<fNSamples; i_sam++) {	    
+		  
+				std::string curr_sample = fSampleNames[i_sam];
+		  
+				// there must be a nominal histo for each sample
+		  
+				double nominal = fNominalHisto[i_sam]->GetBinContent(i_rec+1);
+		  
+				// check if affected by normalisation systematic
+		  
+				double norm = 1.0;
+		  
+				if (fNNormSyst>0) {
+					for( std::map<std::string, std::string >::iterator it_map=fNormUncer.begin(); it_map!=fNormUncer.end(); it_map++) {
+						if ((*it_map).first==curr_sample) {
+			      
+							int paramnumber = GetSystParamNumber(fNormUncer[curr_sample]);
+			      
+							norm *= 1 + parameters.at(paramnumber);
+						}		     		    
+					}
+		      
+				}
+		  
+				fVectorReco[i_rec] += norm * nominal;
+							
+				for( std::map<std::string, std::map<std::string, TH1*> >::iterator it_map=fSystUpHisto.begin(); it_map!=fSystUpHisto.end(); it_map++) {
+		      
+					std::map<std::string,TH1*> map_sys = (*it_map).second;
+		      
+					// for each sample, loop over the systematics affecting it
+					if ( ((*it_map).first)==curr_sample) {
+			  
+						for( std::map<std::string, TH1*>::iterator it_map2=map_sys.begin(); it_map2!=map_sys.end(); it_map2++) {
+			      
+							std::string curr_syst = (*it_map2).first;
+			      
+							double up = fSystUpHisto[curr_sample][curr_syst]->GetBinContent(i_rec+1);
+							double down = fSystDownHisto[curr_sample][curr_syst]->GetBinContent(i_rec+1);
+			      
+							// find parameter number this systematic corresponds to
+			      
+							int syst_param_num = GetSystParamNumber(curr_syst);
+			      
+							if (fInterpolationType==0)
+								fVectorReco[i_rec] += norm * LinearInterpolate(parameters.at(syst_param_num),nominal,up,down);
+							else if (fInterpolationType==1)
+								fVectorReco[i_rec] *= ExponentialInterpolate(parameters.at(syst_param_num),nominal,up,down);
+							else if (fInterpolationType==2)
+								fVectorReco[i_rec] += NoInterpolation(parameters.at(syst_param_num),nominal,up,down);
+						}		  		  
+					}
+				}
+			}
+	      
+			// add to expectation
+			fVectorReco[i_rec] += expectation;
+		}
      
 
-  
-      for (int i=0;i<fNBinsReco;++i)
-				{
-				  //				  std::cout << i << " " << fVectorReco[i] << " " << fHistData->GetBinContent(i+1) << std::endl;
-				  
-					double r = fVectorReco[i];
-					if (r>0) {
-						double d = fHistData->GetBinContent(i+1);
-						logprob += BCMath::LogPoisson(d, r);
-					}
-					else
-						logprob = -9999.0;
-				}
+		// calculate product of poisson probabilities
+		for (int i=0;i<fNBinsReco;++i) {
+			double r = fVectorReco[i];
 
-    }
-      
+			// check if expectation value is greater than 0
+			if (r>=0) {
+				double d = fHistData->GetBinContent(i+1);
+				logprob += BCMath::LogPoisson(d, r);
+			}
+			else
+				logprob = -1e50;
+		}
+	}
+
+	// return log likelihood
   return logprob;
 }
 
@@ -794,12 +766,12 @@ double BCFBU::LogAPrioriProbability(const std::vector <double> & parameters)
 
 	if (fNDim==1)
 		{
-			for (int i = 0; i < GetNBinsTruth(); ++i)
-				logprob -= log(GetParameter(i)->GetRangeWidth());
+			// debugKK
+			// does the prior really be normalized?
+			//			for (int i = 0; i < GetNBinsTruth(); ++i)
+				//				logprob -= log(GetParameter(i)->GetRangeWidth());
 	
-			// gaussian profile for systematics
-	
-
+			// gaussian priors for systematics
 			for (int i = GetNBinsTruth(); i < GetNBinsTruth() + fNSyst; ++i)
 				logprob += BCMath::LogGaus(parameters.at(i), 0., 1.0);
 	
@@ -889,13 +861,15 @@ void BCFBU::FillCurvatureMatrix( TMatrixD& tCurv, TMatrixD& tC, int fDdim )
 }
 
 // ---------------------------------------------------------
-void BCFBU::DefineSample(std::string samplename, TH1 *nominal)
+void BCFBU::AddBackgroundProcess(std::string backgroundname, TH1 *h_background)
 {
-  
-  fNSamples++;
-  fSampleNames.push_back(samplename);
-  fNominalHisto.push_back(nominal);
-  
+	BCFBUBackground* background = new BCFBUBackground(backgroundname);
+	// debugKK: I am here
+	//	background->SetHistogram((TH1D*) h_background->Clone());
+
+	fNSamples++;
+	fSampleNames.push_back(backgroundname);
+	fNominalHisto.push_back(h_background);
 }
 
 // ---------------------------------------------------------
@@ -1058,7 +1032,7 @@ TH1* BCFBU::GetUnfoldedResult()
 
   if (fNDim==1)
     {
-      for (int i=1;i<=GetNBinsReco();++i)
+      for (int i=1;i<=GetNBinsTruth();++i)
 				{
 					std::stringstream ss;//create a std::stringstream
 					ss << i;//add number to the stream
@@ -1069,7 +1043,6 @@ TH1* BCFBU::GetUnfoldedResult()
 	  
 					double lowbound = 0;
 					double upbound = 0;
-	  
 	  
 					temph->GetSmallestInterval (lowbound, upbound);
 					std::cout << " bin " << i << " mode " << temph->GetMode() << " mean " << temph->GetMean() << " median " << temph->GetMedian() << " low " << lowbound << " up " << upbound << std::endl;
@@ -1122,19 +1095,19 @@ TH1* BCFBU::GetUnfoldedResult()
 							unfoldedX->SetBinError(i,unfolded->GetBinError(i,j));
 	      
 							std::cout << "Y bin " << j << " X bin " << i << " truth value = " << fHistTruth->GetBinContent(i,j) << " unfolded value " << unfolded->GetBinContent(i,j) << std::endl;
-	      
+							
 						}
-	  
+					
 					truthX->Draw();
-	  
+					
 					unfoldedX->SetMarkerColor(kBlue);
 					unfoldedX->SetLineColor(kBlue);
 					unfoldedX->Draw("E same");
-	  
-	  
+					
+					
 					bla->SaveAs(("unfolded_Ybin"+IntToString(j)+".eps").c_str());
 					bla->SaveAs(("unfolded_Ybin"+IntToString(j)+".png").c_str());
-   
+					
 				}
     }
 

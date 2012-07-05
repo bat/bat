@@ -4,6 +4,8 @@
 #include <BAT/BCModel.h>
 #include <BAT/BCH1D.h>
 
+#include <BCFBUBackground.h>
+
 #include <TMatrixD.h>
 
 #include <map>
@@ -135,7 +137,7 @@ class BCFBU : public BCModel
       Double_t GetCurvature(const TVectorD& vec, const TMatrixD& curv);
       void FillCurvatureMatrix( TMatrixD& tCurv, TMatrixD& tC, int fDdim );
 
-      void DefineSample(std::string samplename, TH1 *nominal);
+      void AddBackgroundProcess(std::string backgroundname, TH1 *h_background);
 
       void DefineSystematic(std::string samplename, std::string parname, TH1 *up, TH1 *down);
       
@@ -228,14 +230,14 @@ class BCFBU : public BCModel
 			 * Response matrix: describes conditional probability of observing r if t was produced, P(r;t).
 			 * x: truth
 			 * y: reco
-			 * normalization: sum over all reco = 1 for a given truth value */
+			 * normalization: sum over all reco <= 1 for a given truth value */
       TMatrixD *fResponseMatrix;     
       
 			/**
-			 * Response matrix: describes joint probability of observing r and having produced t, P(r,t).
+			 * Migration matrix: describes joint probability of observing r and having produced t, P(r,t).
 			 * x: truth
 			 * y: reco
-			 * normalization: 1 */
+			 * normalization: <= 1 */
       TMatrixD *fMigrationMatrix;     
       
 			/**
@@ -250,6 +252,9 @@ class BCFBU : public BCModel
 			/**
 			 * The dimension of the data spectrum (1D or 2D). */
       int fNDim;
+
+			// a container of background processes
+			std::vector<BCFBUBackground*> fBackgroundProcesses;
       
       int fNSyst, fNSamples;
       std::vector<std::string> fSystNames;
@@ -286,6 +291,7 @@ class BCFBU : public BCModel
 			// helper variables
 			std::vector<double> fVectorTruth;
 			std::vector<double> fVectorReco;
+
 };
 // ---------------------------------------------------------
 
