@@ -235,6 +235,10 @@ extras/FBU/examples/doublegauss/Makefile -text
 extras/FBU/examples/doublegauss/log.txt -text
 extras/FBU/examples/doublegauss/rundoublegaussian.cxx -text
 extras/FBU/examples/doublegauss/setup.sh -text
+extras/FBU/examples/gauss/CreateHistograms.C -text
+extras/FBU/examples/gauss/Makefile -text
+extras/FBU/examples/gauss/rungauss.cxx -text
+extras/FBU/examples/gauss/setup.sh -text
 extras/FBU/examples/rectangular/CreateHistograms.C -text
 extras/FBU/examples/rectangular/Makefile -text
 extras/FBU/examples/rectangular/runrectangular.cxx -text
