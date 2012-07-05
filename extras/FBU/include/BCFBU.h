@@ -137,7 +137,7 @@ class BCFBU : public BCModel
       Double_t GetCurvature(const TVectorD& vec, const TMatrixD& curv);
       void FillCurvatureMatrix( TMatrixD& tCurv, TMatrixD& tC, int fDdim );
 
-      void AddBackgroundProcess(std::string backgroundname, TH1 *h_background);
+      void AddBackgroundProcess(std::string backgroundname, TH1 *h_background, int nevents);
 
       void DefineSystematic(std::string samplename, std::string parname, TH1 *up, TH1 *down);
       
@@ -255,6 +255,10 @@ class BCFBU : public BCModel
 
 			// a container of background processes
 			std::vector<BCFBUBackground*> fBackgroundProcesses;
+
+			/**
+			 * The number of background processes. */
+			int fNBackgroundProcesses;
       
       int fNSyst, fNSamples;
       std::vector<std::string> fSystNames;

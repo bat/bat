@@ -650,16 +650,19 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 				// calculate expectation value
 				expectation += fVectorTruth[i_tru] * varresp;							
 			}
-	      
-			// loop over all background samples 
-			for (int i_sam=0;i_sam<fNSamples; i_sam++) {	    
-		  
-				std::string curr_sample = fSampleNames[i_sam];
-		  
-				// there must be a nominal histo for each sample
-		  
-				double nominal = fNominalHisto[i_sam]->GetBinContent(i_rec+1);
-		  
+	
+			// loop over all background samples
+			for (int i_bkg = 0; i_bkg < fNBackgroundProcesses; ++i_bkg) {
+				TH1D* hist_background = fBackgroundProcesses[i_bkg]->GetHistogram();
+
+				double nominal = hist_background->GetBinContent(i_rec+1);
+
+				// debugKK: no systematics for now
+				fVectorReco[i_rec] += nominal;
+
+				// debugKK
+				/* 
+
 				// check if affected by normalisation systematic
 		  
 				double norm = 1.0;
@@ -705,6 +708,8 @@ double BCFBU::LogLikelihood(const std::vector<double> & parameters)
 						}		  		  
 					}
 				}
+				*/
+
 			}
 	      
 			// add to expectation
@@ -793,10 +798,10 @@ double BCFBU::LogAPrioriProbability(const std::vector <double> & parameters)
 void BCFBU::MCMCIterationInterface()
 {
   // get number of chains
-  int nchains = MCMCGetNChains();
+	//  int nchains = MCMCGetNChains();
   
   // get number of parameters
-  int npar = GetNParameters();
+	//  int npar = GetNParameters();
      
   // loop over all chains and fill histogram
 
@@ -861,12 +866,27 @@ void BCFBU::FillCurvatureMatrix( TMatrixD& tCurv, TMatrixD& tC, int fDdim )
 }
 
 // ---------------------------------------------------------
-void BCFBU::AddBackgroundProcess(std::string backgroundname, TH1 *h_background)
+void BCFBU::AddBackgroundProcess(std::string backgroundname, TH1 *h_background, int nevents)
 {
+	// create backgroudn object
 	BCFBUBackground* background = new BCFBUBackground(backgroundname);
-	// debugKK: I am here
-	//	background->SetHistogram((TH1D*) h_background->Clone());
+	
+	// clone histogram 
+	TH1D* hist_background = (TH1D*) h_background->Clone();
 
+	// normalize histogram
+	hist_background->Scale(double(nevents)/hist_background->Integral());
+
+	// set histogram
+	background->SetHistogram(hist_background);
+
+	// add background object to container
+	fBackgroundProcesses.push_back(background);
+
+	// increase number of background processes
+	fNBackgroundProcesses++;
+
+	// debugKK: can be removed later on
 	fNSamples++;
 	fSampleNames.push_back(backgroundname);
 	fNominalHisto.push_back(h_background);

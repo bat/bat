@@ -110,24 +110,26 @@ int DataGen::FillHistograms(int nevents, int nsignal, int nbackground)
 		// get smearing
 		double s = fFuncResolution->GetRandom();
 
+		// get background value
+		double b = 0;
+		if (fFuncBackground)
+			b = fFuncBackground->GetRandom();
+
 		// calculate reco value
 		double r = t+s;
 
-		// get background value
-		double b = 0; 
-		if (fFuncBackground)
-			b = fFuncBackground->GetRandom();
-		
 		// fill histograms
 		fHistMigrationMatrix->Fill(t, r);
 		fHistTruthSignal->Fill(t);
-		if (fFuncBackground)
+		if (fHistBackground)
 			fHistBackground->Fill(b);
 	}
 
 	// normalize histograms
 	fHistTruthSignal->Scale(1./double(nevents));
 	fHistMigrationMatrix->Scale(1./double(nevents));
+	if (fHistBackground)
+		fHistBackground->Scale(1./double(nevents));
 
 	// loop over all truth bins
 	for (int i = 1; i <= fNbinsTruth; ++i) {
