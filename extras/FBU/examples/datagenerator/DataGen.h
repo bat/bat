@@ -78,6 +78,11 @@ class DataGen
 
    /**
     * @return The TH1D histogram. */
+   TH1D* GetHistTruthData()
+	 { return fHistTruthData; };
+
+   /**
+    * @return The TH1D histogram. */
    TH1D* GetHistTruthSignal()
 	 { return fHistTruthSignal; };
 
@@ -198,6 +203,10 @@ class DataGen
 	 /**
 		* The data histogram including smeared signal and background. */
 	 TH1D* fHistData;
+
+	 /**
+		* The truth distribution for signal in the data, the concrete data set. */
+	 TH1D* fHistTruthData;
 
 	 /**
 		* The truth pdf for signal. */

@@ -15,6 +15,7 @@ DataGen::DataGen(std::string name, int nbinstruth, double truthmin, double truth
 	, fFuncTruthSignal(0)
 	, fFuncBackground(0)
 	, fHistData(0)
+	, fHistTruthData(0)
 	, fHistTruthSignal(0)
 	, fHistBackground(0)
 	, fHistMigrationMatrix(0)
@@ -37,6 +38,9 @@ DataGen::~DataGen()
 
 	if (fHistTruthSignal)
 		delete fHistTruthSignal;
+
+	if (fHistTruthData)
+		delete fHistTruthData;
 
 	if (fHistBackground)
 		delete fHistBackground;
@@ -77,6 +81,12 @@ int DataGen::FillHistograms(int nevents, int nsignal, int nbackground)
 	// check if data histogram exists
 	if (!fHistData) {
 		std::cout << "Warning: data histogram does not exist. Migration matrix not filled" << std::endl;
+		return 0;
+	}
+
+	// check if data truth histogram exists
+	if (!fHistTruthData) {
+		std::cout << "Warning: data truth histogram does not exist. Migration matrix not filled" << std::endl;
 		return 0;
 	}
 
@@ -142,6 +152,7 @@ int DataGen::FillHistograms(int nevents, int nsignal, int nbackground)
 
 		// fill histograms
 		fHistData->Fill(r);
+		fHistTruthData->Fill(t);
 	}
 
 	// loop over all background events
@@ -167,6 +178,9 @@ int DataGen::Write(std::string filename)
 
 	if (fHistData)
 		fHistData->Write();
+
+	if (fHistTruthData)
+		fHistTruthData->Write();
 
 	if (fHistTruthSignal)
 		fHistTruthSignal->Write();
@@ -196,6 +210,10 @@ int DataGen::CreateHistograms()
 	// create data histogram
 	fHistData = new TH1D("hist_data", ";;", fNbinsReco, fRecoMin, fRecoMax );
 	fHistData->SetStats(kFALSE);
+
+	// create histogram for truth data signal
+	fHistTruthData = new TH1D("hist_truthdata", ";;", fNbinsTruth, fTruthMin, fTruthMax);
+	fHistTruthData->SetStats(kFALSE);
 
 	// create histogram for truth signal pdf
 	fHistTruthSignal = new TH1D("hist_truthsignal", ";;", fNbinsTruth, fTruthMin, fTruthMax);
