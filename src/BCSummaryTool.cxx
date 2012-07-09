@@ -108,7 +108,7 @@ int BCSummaryTool::CopySummaryData()
    for (int i = 0; i < npar; ++i) {
 
       // copy parameter information
-      fParName.push_back( (fModel->GetParameter(i)->GetName()) );
+      fParName.push_back( (fModel->GetParameter(i)->GetLatexName()) );
       fParMin.push_back( fModel->GetParameter(i)->GetLowerLimit() );
       fParMax.push_back( fModel->GetParameter(i)->GetUpperLimit() );
 
@@ -188,7 +188,7 @@ int BCSummaryTool::PrintParameterPlot(const char * filename)
    hist_axes->SetStats(kFALSE);
    for (int i = 0; i < npar; ++i)
       hist_axes->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
-//   hist_axes->GetXaxis()->SetLabelOffset(0.03);
+   hist_axes->GetXaxis()->SetLabelOffset(0.015);
    hist_axes->GetXaxis()->SetLabelSize(0.06);
    hist_axes->GetXaxis()->SetTickLength(0.0);
    hist_axes->GetYaxis()->SetRangeUser(-0.1, 1.1);
@@ -307,8 +307,8 @@ int BCSummaryTool::PrintParameterPlot(const char * filename)
    for (int i = 0; i < npar;++i) {
       //      latex->DrawLatex(double(i)-0.1, 0.010, Form("%+3.3f", fParMin.at(i)));
       //      latex->DrawLatex(double(i)-0.1, 0.965, Form("%+3.3f", fParMax.at(i)));
-      latex->DrawLatex(double(i)-0.1, 0.010-0.07, Form("%+3.3f", fParMin.at(i)));
-      latex->DrawLatex(double(i)-0.1, 0.965+0.07, Form("%+3.3f", fParMax.at(i)));
+      latex->DrawLatex(double(i)-0.1, 0.010-0.07, Form("%+3.3g", fParMin.at(i)));
+      latex->DrawLatex(double(i)-0.1, 0.965+0.07, Form("%+3.3g", fParMax.at(i)));
    }
    latex->SetNDC();
    latex->DrawLatex(0.9, 0.175, "Par. min.");
@@ -539,7 +539,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 
          // y axis
          if(i==0) {
-            TText * label = new TText;
+            TLatex * label = new TLatex();
             label->SetTextFont(62);
             label->SetTextSize(labelsize);
             label->SetTextAlign(yalignment);
@@ -549,13 +549,13 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 
             xtext = margin * (1. - 8. * labelsize);
             ytext = yup - padsize / 2.;
-
-            label->DrawText(xtext, ytext, fModel->GetParameter(j)->GetName().c_str());
+            
+            label->DrawLatex(xtext,ytext,fModel->GetParameter(j)->GetLatexName().c_str());
          }
 
          // x axis
          if(j==npar-1) {
-            TText * label = new TText;
+            TLatex * label = new TLatex();
             label->SetTextFont(62);
             label->SetTextSize(labelsize);
             label->SetTextAlign(xalignment);
@@ -565,8 +565,8 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 
             xtext = xlow + padsize / 2.;
             ytext = margin * (1. - 6. * labelsize);
-
-            label->DrawText(xtext, ytext, fModel->GetParameter(i)->GetName().c_str());
+            
+            label->DrawLatex(xtext,ytext, fModel->GetParameter(i)->GetLatexName().c_str());
          }
       }
    }
@@ -667,65 +667,13 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
    ps->NewPage();
    c_update->cd();
 
-   // create legend
-   //   TLegend * legend1d = new TLegend(0.50, 0.88, 0.85, 0.94);
-   //   legend1d->SetBorderSize(0);
-   //   legend1d->SetFillColor(0);
-
    // loop over all parameters
    int npar = fModel->GetNParameters();
    for (int i = 0; i < npar; ++i) {
       // update post script
       c_update->Update();
       ps->NewPage();
-      c_update->cd();
 
-      /*
-      // get histograms;
-      BCParameter * par = fModel->GetParameter(i);
-      TH1D * hist_prior = fPriorModel->GetMarginalized(par)->GetHistogram();
-      hist_prior->SetLineColor(kRed);
-      TH1D * hist_posterior = fModel->GetMarginalized(par)->GetHistogram();
-
-      // add entries
-      if (!i) {
-         legend1d->AddEntry(hist_prior, "Prior probability", "L");
-         legend1d->AddEntry(hist_posterior, "Posterior probability", "L");
-      }
-
-      // scale histogram
-      hist_prior->Scale(hist_posterior->Integral()/hist_prior->Integral());
-
-      // get maximum
-      double max_prior = hist_prior->GetMaximum();
-      double max_posterior = hist_posterior->GetMaximum();
-      double max = 1.1 * TMath::Max(max_prior, max_posterior);
-
-      // plot
-      c_update->cd();
-      hist_prior->GetXaxis()->SetNdivisions(508);
-      hist_posterior->GetXaxis()->SetNdivisions(508);
-      // debugKK
-      if (min != max) {
-         double qmin = fModel->GetMarginalized(par)->GetQuantile(min);
-         double qmax = fModel->GetMarginalized(par)->GetQuantile(max);
-         hist_posterior->Draw("SAME");
-         TH1D * hist_shaded = fModel->GetMarginalized(par)->GetSubHisto(qmin,qmax,"");
-         hist_shaded->SetFillStyle(1001);
-         hist_shaded->SetFillColor(kYellow);
-         hist_shaded->Draw("same");
-         hist_prior->Draw("SAME");
-         hist_posterior->Draw("SAME");
-      }
-      // debugKK
-      //      hist_prior->Draw();
-      //      hist_posterior->Draw("SAME");
-      legend1d->Draw("SAME");
-
-      // scale axes
-      hist_prior->GetYaxis()->SetRangeUser(0.0, max);
-      hist_posterior->GetYaxis()->SetRangeUser(0.0, max);
-      */
       c_update->cd();
       DrawKnowledgeUpdatePlot1D(i, 0., 0.);
    }

@@ -17,26 +17,23 @@
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter()
+BCParameter::BCParameter():
+    fName("parameter"),
+    fLowerLimit(0.),
+    fUpperLimit(1.),
+    fNuisance(0)
 {
-   fName       = "parameter";
-   fLowerLimit = 0.;
-   fUpperLimit = 1.;
-   fNuisance   = 0;
 }
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit)
+BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
+    fName(name),
+    fLowerLimit(lowerlimit),
+    fUpperLimit(upperlimit),
+    fLatexName(latexname),
+    fNuisance(0)
 {
-   fName       = "parameter";
-   fLowerLimit = 0.;
-   fUpperLimit = 1.;
-   fNuisance   = 0;
-
-   fName       = name;
-   fLowerLimit = lowerlimit;
-   fUpperLimit = upperlimit;
 }
 
 // ---------------------------------------------------------
@@ -44,6 +41,7 @@ BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit
 BCParameter::BCParameter(const BCParameter & parameter)
 {
    fName       = parameter.fName;
+   fLatexName  = parameter.fLatexName;
    fIndex      = parameter.fIndex;
    fLowerLimit = parameter.fLowerLimit;
    fUpperLimit = parameter.fUpperLimit;
@@ -55,6 +53,7 @@ BCParameter::BCParameter(const BCParameter & parameter)
 BCParameter & BCParameter::operator = (const BCParameter & parameter)
 {
    fName       = parameter.fName;
+   fLatexName  = parameter.fLatexName;
    fIndex      = parameter.fIndex;
    fLowerLimit = parameter.fLowerLimit;
    fUpperLimit = parameter.fUpperLimit;

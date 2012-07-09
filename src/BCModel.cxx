@@ -561,10 +561,10 @@ void BCModel::SetErrorBandContinuous(bool flag)
 }
 
 // ---------------------------------------------------------
-int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimit)
+int BCModel::AddParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname)
 {
    // create new parameter
-   BCParameter * parameter = new BCParameter(name, lowerlimit, upperlimit);
+    BCParameter * parameter = new BCParameter(name, lowerlimit, upperlimit, latexname);
 
    int flag_ok = AddParameter(parameter);
    if (flag_ok)
@@ -971,8 +971,8 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 
    // set axis labels
    hist->SetName(Form("hist_%s_%s", GetName().data(), parameter->GetName().data()));
-   hist->SetXTitle(parameter->GetName().data());
-   hist->SetYTitle(Form("p(%s|data)", parameter->GetName().data()));
+   hist->SetXTitle(parameter->GetLatexName().data());
+   hist->SetYTitle(Form("p(%s|data)", parameter->GetLatexName().data()));
    hist->SetStats(kFALSE);
 
    // set histogram
@@ -1354,10 +1354,11 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 
    BCH2D * hprob = new BCH2D();
 
+
    // set axis labels
    hist->SetName(Form("hist_%s_%s_%s", GetName().data(), npar1->GetName().data(), npar2->GetName().data()));
-   hist->SetXTitle(Form("%s", npar1->GetName().data()));
-   hist->SetYTitle(Form("%s", npar2->GetName().data()));
+   hist->SetXTitle(Form("%s", npar1->GetLatexName().data()));
+   hist->SetYTitle(Form("%s", npar2->GetLatexName().data()));
    hist->SetStats(kFALSE);
 
    double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };

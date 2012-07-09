@@ -42,8 +42,10 @@ class BCParameter
        * A constructor.
        * @param name The name of the parameter.
        * @param lowerlimit The lower limit of the parameter values.
-       * @param upperlimit The upper limit of the parameter values. */
-      BCParameter(const char* name, double lowerlimit, double upperlimit);
+       * @param upperlimit The upper limit of the parameter values.
+       * @param latexname The latex name of the parameter used in axis labeling.
+        */
+      BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
 
       /**
        * The default copy constructor. */
@@ -69,32 +71,43 @@ class BCParameter
 
       /**
        * @return The name of the parameter. */
-      std::string GetName()
-         { return fName; };
+      const std::string & GetName()
+         { return fName; }
+
+      /**
+       * Returns latex name if set, else identical to GetName().
+       */
+      const std::string & GetLatexName()
+      {
+         if (fLatexName.empty())
+            return fName;
+         else
+            return fLatexName;
+      }
 
       /**
        * Returns the index of the parameter within the parameter
        * container of a BCModel.
        * @return The index of the parameter in the model. */
       int GetIndex()
-         { return fIndex; };
+         { return fIndex; }
 
       /**
        * @return The lower limit of the parameter values. */
       double GetLowerLimit()
-         { return fLowerLimit; };
+         { return fLowerLimit; }
 
       /**
        * @return The upper limit of the parameter values. */
       double GetUpperLimit()
-         { return fUpperLimit; };
+         { return fUpperLimit; }
 
       /**
        * Returns the range width of the parameter values. It is
        * always a positive value.
        * @return The range width of the parameter values. */
       double GetRangeWidth()
-         { return (fUpperLimit>fLowerLimit)?fUpperLimit-fLowerLimit:fLowerLimit-fUpperLimit; };
+         { return (fUpperLimit>fLowerLimit)?fUpperLimit-fLowerLimit:fLowerLimit-fUpperLimit; }
 
       /** @} */
 
@@ -104,39 +117,42 @@ class BCParameter
       /**
        * @param name The name of the parameter. */
       void SetName(const char * name)
-         { fName = name; };
+         { fName = name; }
+
+      void SetLatexName(const char * latex_name)
+         { fLatexName = latex_name; }
 
       /**
        * Set the index of the parameter within the parameter
        * container of a BCModel.
        * @param index The index of the parameter. */
       void SetIndex(int index)
-         { fIndex = index; };
+         { fIndex = index; }
 
       /**
        * Set the lower limit of the parameter values.
        * @param limit The lower limit of the parameter values. */
       void SetLowerLimit(double limit = 0)
-         { fLowerLimit = limit; };
+         { fLowerLimit = limit; }
 
       /**
        * Set the upper limit of the parameter values.
        * @param limit The upper limit of the parameter values. */
       void SetUpperLimit(double limit = 1)
-         { fUpperLimit = limit; };
+         { fUpperLimit = limit; }
 
       /**
        * Set the limits of the parameter values.
        * @param lowerlimit The lower limit of the parameter values.
        * @param upperlimit The upper limit of the parameter values. */
       void SetLimits(double lowerlimit = 0, double upperlimit = 1)
-         { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; };
+         { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
 
       /**
        * Set parameter to be nuisance.
        * @param nuisance 1 - nuisance, 0 - not nuisance */
       void SetNuisance(int nuisance = 1)
-         { fNuisance = nuisance; };
+         { fNuisance = nuisance; }
 
       /** @} */
 
@@ -147,7 +163,7 @@ class BCParameter
        * Returns 1 if parameter is a nuisance parameter or 0 if not.
        * @return 1 - is nuisance paramete, 0 - is not nuisance parameter */
       double IsNuisance()
-         { return fNuisance; };
+         { return fNuisance; }
 
       /**
        * Returns true if the value is at a parameter limit.
@@ -181,6 +197,10 @@ class BCParameter
       /**
        * The upper limit of the parameter value. */
       double fUpperLimit;
+
+      /**
+       * The latex name of the parameter. */
+      std::string fLatexName;
 
       /**
        * Flag to specify whether to integrate over this parameter or not. */

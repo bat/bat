@@ -1,6 +1,7 @@
 2012-10-11 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCSummaryTool: rotate labels in correlation plot for long parameter names
 	* configure: remove superfluous checks
+	* Model, Parameter: introduce optional latex variable name for axis labeling
 
 2012-10-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Continued to update plotting of 1D and 2D histograms.

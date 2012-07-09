@@ -457,8 +457,9 @@ class BCModel : public BCIntegrate
        * @param name The name of the parameter
        * @param lowerlimit The lower limit of the parameter values
        * @param upperlimit The upper limit of the parameter values
+       * @param latexname The latex name of the parameter.
        * @see AddParameter(BCParameter* parameter); */
-      int AddParameter(const char * name, double lowerlimit, double upperlimit);
+      int AddParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname = "");
 
       /**
        * Adds a parameter to the model.
