@@ -635,6 +635,12 @@ double Rvalue(const std::vector<double> & chain_means, const std::vector<double>
     double W = mean_of_variances;
     double sigma_squared = (n - 1.0) / n * W + B / n;
 
+    // avoid case with no variance whatsoever
+    if (0.0 == W && 0.0 == B)
+    {
+       BCLog::OutDebug("BCMath::Rvalue: All samples in all chains identical!");
+        return 1.0;
+    }
     // avoid NaN due to divide by zero
     if (0.0 == W)
     {

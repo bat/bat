@@ -1,3 +1,7 @@
+2012-07-11 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath: bugfix R value in case all samples agree
+	* models/mtf: Add missing include to fix compilation on mac os 10.7 with gcc-4.7
+
 2012-07-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: more work on FBU, try consistency with the paper
 	* extras/FBU: added data generator
