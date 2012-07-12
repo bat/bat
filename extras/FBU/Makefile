@@ -36,7 +36,8 @@ GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 # Add classes to the end. Backslash indicates continuation
 # on the next line
 CXSRCS      = \
-        BCFBU.cxx 
+        BCFBU.cxx \
+        BCFBUBackground.cxx 
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
