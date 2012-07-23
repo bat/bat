@@ -874,8 +874,12 @@ void BCFBU::AddBackgroundProcess(std::string backgroundname, TH1 *h_background, 
 	// clone histogram 
 	TH1D* hist_background = (TH1D*) h_background->Clone();
 
+	// get normalization
+	double norm = hist_background->Integral();
+
 	// normalize histogram
-	hist_background->Scale(double(nevents)/hist_background->Integral());
+	if (nevents > 0)
+	  hist_background->Scale(double(nevents)/norm);
 
 	// set histogram
 	background->SetHistogram(hist_background);

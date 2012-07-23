@@ -1,4 +1,7 @@
 2012-07-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* extras/FBU: allow user to specifiy background normalization in histogram directly.
+
+2012-07-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: updated Makefile
 
 2012-07-11 Frederik Beaujean <beaujean@mpp.mpg.de>
