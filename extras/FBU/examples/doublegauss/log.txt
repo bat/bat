@@ -7,8 +7,8 @@
  +------------------------------
 Summary : Opening logfile log.txt
 Detail  : Dimension of problem : 1
-Detail  : Number of truth bins : 12
-Detail  : Number of reco bins  : 12
+Detail  : Number of truth bins : 10
+Detail  : Number of reco bins  : 10
 Summary : Running MCMC for model 'BFU'
 Summary : Pre-run Metropolis MCMC...
 Summary :  --> Perform MCMC pre-run with 5 chains, each with maximum 1000000 iterations
@@ -27,18 +27,16 @@ Detail  :      * Efficiency status: Efficiencies within pre-defined ranges.
 Summary :  --> Set of 5 Markov chains converged within 10000 iterations and all scales are adjusted.
 Summary :  --> Markov chains ran for 10001 iterations.
 Detail  :  --> Average efficiencies:
-Detail  :  -->      parameter    0 :  34.20%
-Detail  :  -->      parameter    1 :  35.93%
-Detail  :  -->      parameter    2 :  39.03%
-Detail  :  -->      parameter    3 :  38.23%
-Detail  :  -->      parameter    4 :  37.75%
-Detail  :  -->      parameter    5 :  36.20%
-Detail  :  -->      parameter    6 :  34.76%
-Detail  :  -->      parameter    7 :  33.78%
-Detail  :  -->      parameter    8 :  39.42%
-Detail  :  -->      parameter    9 :  39.21%
-Detail  :  -->      parameter   10 :  35.66%
-Detail  :  -->      parameter   11 :  34.12%
+Detail  :  -->      parameter    0 :  36.12%
+Detail  :  -->      parameter    1 :  37.92%
+Detail  :  -->      parameter    2 :  39.76%
+Detail  :  -->      parameter    3 :  38.41%
+Detail  :  -->      parameter    4 :  38.01%
+Detail  :  -->      parameter    5 :  37.75%
+Detail  :  -->      parameter    6 :  37.62%
+Detail  :  -->      parameter    7 :  35.37%
+Detail  :  -->      parameter    8 :  37.60%
+Detail  :  -->      parameter    9 :  36.05%
 Detail  :  --> Average scale factors:
 Detail  :  -->      parameter    0 :  100.00%
 Detail  :  -->      parameter    1 :  100.00%
@@ -50,8 +48,6 @@ Detail  :  -->      parameter    6 :  100.00%
 Detail  :  -->      parameter    7 :  100.00%
 Detail  :  -->      parameter    8 :  100.00%
 Detail  :  -->      parameter    9 :  100.00%
-Detail  :  -->      parameter   10 :  100.00%
-Detail  :  -->      parameter   11 :  100.00%
 Summary : Run Metropolis MCMC...
 Summary :  --> Perform MCMC run with 5 chains, each with 100000 iterations.
 Detail  :  --> iteration number 10000 (10.00%)
@@ -66,15 +62,13 @@ Detail  :  --> iteration number 90000 (90.00%)
 Detail  :  --> iteration number 100000 (100.00%)
 Summary :  --> Markov chains ran for 100000 iterations.
 Detail  :  --> Global mode from MCMC:
-Detail  :  -->      parameter  0:   2237
-Detail  :  -->      parameter  1:   7455
-Detail  :  -->      parameter  2:   1.502e+04
-Detail  :  -->      parameter  3:   1.522e+04
-Detail  :  -->      parameter  4:   7918
-Detail  :  -->      parameter  5:   2209
-Detail  :  -->      parameter  6:   2569
-Detail  :  -->      parameter  7:   8086
-Detail  :  -->      parameter  8:   1.491e+04
-Detail  :  -->      parameter  9:   1.475e+04
-Detail  :  -->      parameter 10:   7675
-Detail  :  -->      parameter 11:   2121
+Detail  :  -->      parameter  0:   3212
+Detail  :  -->      parameter  1:   1.198e+04
+Detail  :  -->      parameter  2:   1.927e+04
+Detail  :  -->      parameter  3:   1.231e+04
+Detail  :  -->      parameter  4:   3402
+Detail  :  -->      parameter  5:   3194
+Detail  :  -->      parameter  6:   1.237e+04
+Detail  :  -->      parameter  7:   1.933e+04
+Detail  :  -->      parameter  8:   1.217e+04
+Detail  :  -->      parameter  9:   2931

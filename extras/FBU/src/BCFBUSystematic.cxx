@@ -7,28 +7,18 @@
 
 // ---------------------------------------------------------
 
-#include <TH1.h>
-
-#include "BCFBUBackground.h"
+#include "BCFBUSystematic.h"
 
 // ---------------------------------------------------------
-BCFBUBackground::BCFBUBackground(std::string name)
-	: fHistogram(0)
-	, fName(name)
+BCFBUSystematic::BCFBUSystematic(const char* name)
+ : fFlagSystematicActive(true)
 {
+   fSystematicName = name;
 }
 
-// ---------------------------------------------------------
-BCFBUBackground::~BCFBUBackground()
-{
-	if (fHistogram)
-		delete fHistogram;
-}
 
 // ---------------------------------------------------------
-void BCFBUBackground::SetHistogram(TH1 * hist)
-{
-	fHistogram = hist;
-}
+BCFBUSystematic::~BCFBUSystematic()
+{}
 
 // ---------------------------------------------------------

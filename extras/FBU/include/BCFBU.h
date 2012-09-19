@@ -11,6 +11,10 @@
 #include <map>
 #include <utility>
 
+#include <BAT/BCMTFSystematic.h>
+#include <BCFBUNormSystematic.h>
+#include <BCFBUBkgSystematic.h>
+
 class TH1;
 class TH2;
 class TH1D;
@@ -86,18 +90,12 @@ class BCFBU : public BCModel
       int GetNSyst() 
 			{return this->fNSyst;};
 
-      int GetNNormSyst() 
-			{return this->fNNormSyst;};
-
       std::pair<int,int> Get2DIndex(int i,int j, int p, int q) 
 			{ std::pair<int,int> res(fNBinsTruth1*j+i,fNBinsReco1*q+p); 
 				return res;};
 
       std::string GetSystName(int i) 
 				{return fSystNames[i];};
-
-      std::string GetNormSystName(int i) 
-				{return fNormSystNames[i];};
 
       /** @} */
       /** \name Member functions (set) */
@@ -110,7 +108,7 @@ class BCFBU : public BCModel
       /** @{ */
 
      // Methods to overload, see file src/BCFBU.cxx
-      void DefineParameters(int mode=0, double min=0, double max=1.0e6);
+      //      void DefineParameters(int mode=0, double min=0, double max=1.0e6);
       double LogAPrioriProbability(const std::vector <double> & params);
       double LogLikelihood(const std::vector<double> & params);
 			void MCMCIterationInterface();
@@ -266,18 +264,19 @@ class BCFBU : public BCModel
       std::vector<TH1*> fNominalHisto;
 
       int fNNormSyst;
-      std::vector<std::string> fNormSystNames;
-      std::vector<double> fNormSystSizes;
-      std::map<std::string, std::string> fNormUncer;
-
-      std::map<std::string, std::map<std::string, TH1*> > fSystUpHisto;
-      std::map<std::string, std::map<std::string, TH1*> > fSystDownHisto;
-      std::map<std::string, std::map<std::string, TH2*> > fSystResponseUp;
-      std::map<std::string, std::map<std::string, TH2*> > fSystResponseDown;
       
+      std::vector<BCFBUNormSystematic> fNormSystematicContainer;
+      std::map<std::string, int> fNormSystParIndexContainer;
+
+      std::vector<BCFBUBkgSystematic> fSystematicContainer;
+      std::map<std::string, int> fSystParIndexContainer;
+
+      
+
       std::map<std::string, int> fSystParamMap;
-      std::map<std::string, TH2*> fSystResponseUpMap;
-      std::map<std::string, TH2*> fSystResponseDownMap;
+
+      std::vector<BCFBUBkgSystematic> fBkgSystematicContainer;      
+      
       
       BCDataSet * fDataSet;
       
@@ -292,9 +291,14 @@ class BCFBU : public BCModel
       
       void Dump(TH2D *bla);
 
-			// helper variables
-			std::vector<double> fVectorTruth;
-			std::vector<double> fVectorReco;
+      // helper variables
+      std::vector<double> fVectorTruth;
+      std::vector<double> fVectorReco;
+
+      std::vector<std::vector<double> > fMatrixTruth;
+      std::vector<std::vector<double> > fMatrixReco;
+
+      
 
 };
 // ---------------------------------------------------------

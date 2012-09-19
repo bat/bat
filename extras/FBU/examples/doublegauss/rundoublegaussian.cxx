@@ -31,7 +31,7 @@ int main()
 	}
 
 	// read histograms
-	TH2D* hist_migration = (TH2D*) file->Get("hist_migration"); 
+	TH2D* hist_migration = (TH2D*) file->Get("hist_migration");
 	TH1D* hist_truth     = (TH1D*) file->Get("hist_truth"); 
 	TH1D* hist_bkg       = (TH1D*) file->Get("hist_bkg");
 	TH1D* hist_data      = (TH1D*) file->Get("hist_data");
@@ -78,12 +78,15 @@ int main()
 	TH1D *unfolded = (TH1D*) m->GetUnfoldedResult();
 
 	TCanvas *bla = new TCanvas("bla","bla",600,600);
-	//	 bla->SetLogy(); 
+
+	//	bla->SetLogy();
 	
-	hist_truth->Draw();
+
 	unfolded->SetMarkerColor(kBlue);
 	unfolded->SetLineColor(kBlue);
-	unfolded->Draw("E same");
+	unfolded->Draw("E");
+
+	hist_truth->Draw("same");
 	
 	bla->SaveAs("unfolded.eps"); 
 

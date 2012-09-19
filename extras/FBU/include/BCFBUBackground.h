@@ -7,6 +7,7 @@
 
 class TH1D;
 class TF1;
+class TH1;
 
 // ---------------------------------------------------------
 class BCFBUBackground
@@ -37,7 +38,7 @@ class BCFBUBackground
 
    /**
     * @return The TH1D histogram. */
-   TH1D* GetHistogram()
+   TH1* GetHistogram()
       { return fHistogram; };
 
    /** @} */
@@ -47,16 +48,16 @@ class BCFBUBackground
 
    /**
     * Set the histogram.
-    * @param hist The TH1D histogram. */
-   void SetHistogram(TH1D* hist);
+    * @param hist The TH1 histogram. */
+   void SetHistogram(TH1* hist);
 
    /** @} */
 
  private:
 
 	 /** 
-    * The TH1D histogram. */
-   TH1D* fHistogram;
+    * The TH1 histogram. */
+   TH1* fHistogram;
 
    /**
     * The name of the background process. */

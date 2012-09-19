@@ -37,7 +37,10 @@ GLIBS       += $(ROOTGLIBS) -L$(BATINSTALLDIR)/lib -lBAT -lBATmodels
 # on the next line
 CXSRCS      = \
         BCFBU.cxx \
-        BCFBUBackground.cxx 
+        BCFBUBackground.cxx \
+	BCFBUSystematic.cxx \
+	BCFBUNormSystematic.cxx \
+	BCFBUBkgSystematic.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

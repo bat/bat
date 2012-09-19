@@ -1,8 +1,8 @@
-#ifndef __BCMTFSYSTEMATIC__H
-#define __BCMTFSYSTEMATIC__H
+#ifndef __BCFBUSYSTEMATIC__H
+#define __BCFBUSYSTEMATIC__H
 
 /*!
- * \class BCMTFSystematic
+ * \class BCFBUSystematic
  * \brief A class desribing a systematic uncertainty.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
@@ -23,7 +23,7 @@
 #include <string>
 
 // ---------------------------------------------------------
-class BCMTFSystematic
+class BCFBUSystematic
 {
  public:
 
@@ -33,11 +33,11 @@ class BCMTFSystematic
 	 /**
 	  * The default constructor. 
 		* @param name The name of the source of systematic uncertainty. */
-   BCMTFSystematic(const char * name);
+   BCFBUSystematic(const char * name);
 
 	 /** 
 		* The default destructor. */
-   ~BCMTFSystematic();
+   ~BCFBUSystematic();
 
    /** @} */
    /** \name Member functions (get) */
@@ -65,7 +65,7 @@ class BCMTFSystematic
 
    /** @} */
 
- private:
+ protected:
 
 	 /**
 		* The name of the source of the systematic uncertainty. */

@@ -4,9 +4,13 @@ void CreateHistograms()
 
 
   // convention followed throughout: 1st index: reco, 2nd index: truth
+
+  // migration matrix transposed when it's filled 
+  // at the end, since convention in FBU code
+  // is 1st index: truth, 2nd index: reco
         
 
-  int nbin = 12;
+  int nbin = 10;
 
   TH1F *hist_truth = new TH1F("hist_truth","hist_truth",nbin,0,1);
   
@@ -78,6 +82,24 @@ void CreateHistograms()
 	
       }
 
+
+    // check that efficiency = sum_{truth ind} normresponse(reco,truth)
+
+
+      for (int j=1;j<=nbin;j++)
+      {
+	
+	double tmp = 0;
+
+
+	for (int i=1;i<=nbin;i++)	  
+	  {
+	    tmp += normresponse(i-1,j-1);
+	  }
+	cout << "efficiency for bin " << j << " " << hist_eff->GetBinContent(j) << 
+	  " calculated from normalised response " << tmp << endl;
+	
+      }
       
 
     TH1F *hist_reco = new TH1F("hist_reco","hist_reco",nbin,0,1);
@@ -108,7 +130,7 @@ void CreateHistograms()
 	  {
 	    double tmp = response(i-1,j-1);
 	    cout << tmp << " ";
-	    hist_migration->SetBinContent(i,j,tmp);
+	    hist_migration->SetBinContent(j,i,tmp);
 	  }
 	cout << endl;
       }

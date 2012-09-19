@@ -7,28 +7,18 @@
 
 // ---------------------------------------------------------
 
-#include <TH1.h>
-
-#include "BCFBUBackground.h"
+#include "BCFBUNormSystematic.h"
 
 // ---------------------------------------------------------
-BCFBUBackground::BCFBUBackground(std::string name)
-	: fHistogram(0)
-	, fName(name)
+BCFBUNormSystematic::BCFBUNormSystematic(std::string name, double uncertainty):
+  BCFBUSystematic(name.c_str())
 {
+  fNormUncertainty = uncertainty;
 }
 
-// ---------------------------------------------------------
-BCFBUBackground::~BCFBUBackground()
-{
-	if (fHistogram)
-		delete fHistogram;
-}
 
 // ---------------------------------------------------------
-void BCFBUBackground::SetHistogram(TH1 * hist)
-{
-	fHistogram = hist;
-}
+BCFBUNormSystematic::~BCFBUNormSystematic()
+{}
 
 // ---------------------------------------------------------

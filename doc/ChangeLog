@@ -1,3 +1,8 @@
+2012-09-19 Kerim Suruliz <kerim.suruliz@cern.ch>
+	* extras/FBU: added systematics classes
+	* extras/FBU: replaced TMatrixD with vector<vector<double> > in likelihood computation for 2D case
+	* extras/FBU: both 1D and 2D cases now support systematics
+	
 2012-07-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: allow user to specifiy background normalization in histogram directly.
 
