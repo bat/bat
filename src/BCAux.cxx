@@ -19,13 +19,13 @@ void BCAux::SetStyle()
    gStyle->SetCanvasColor     (kWhite);
    gStyle->SetCanvasBorderMode(0);
    gStyle->SetCanvasDefH      (700);
-   gStyle->SetCanvasDefW      (700);
+   gStyle->SetCanvasDefW      (735);
 
    // pads
-   gStyle->SetPadTopMargin   (0.13);
-   gStyle->SetPadBottomMargin(0.15);
+   gStyle->SetPadTopMargin   (0.05);
+   gStyle->SetPadBottomMargin(0.11);
    gStyle->SetPadLeftMargin  (0.15);
-   gStyle->SetPadRightMargin (0.13);
+   gStyle->SetPadRightMargin (0.05);
    gStyle->SetPadBorderMode  (0);
 
    // Frames
@@ -82,7 +82,7 @@ void BCAux::SetStyle()
 
    gStyle->SetTitleFont      (62,   "Y");
 //   gStyle->SetTitleSize      (0.06, "Y");
-   gStyle->SetTitleOffset    (1.6,  "Y");
+   gStyle->SetTitleOffset    (1.8,  "Y");
 
    // ticks
    gStyle->SetTickLength(0.03);

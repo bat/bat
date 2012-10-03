@@ -180,7 +180,7 @@ void BCRooInterface::DefineParameters()
     std::cout << "added parameter: " << ipar->GetName() << " defined in range [ " << ipar->getMin() << " - " << ipar->getMax() << " ] with number of bins: " << _default_nbins << " \n";
   }
 
-   for(list< pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
+	for(std::list< std::pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
       this->SetNbins((*listiter).first,(*listiter).second);
       std::cout << "adjusted parameter: " << (*listiter).first << " to number of bins: " << (*listiter).second << " \n";
    }
@@ -224,13 +224,13 @@ double BCRooInterface::LogAPrioriProbability(const std::vector<double> & paramet
 // ---------------------------------------------------------
 void BCRooInterface::SetNumBins(const char * parname, int nbins)
 {
-   for(list< pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
+	for(std::list< std::pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++){
       if(!strcmp((*listiter).first, parname)){
          (*listiter).second = nbins;
          return;
       }
    }
-   _nbins_list.push_back( make_pair(parname,nbins) );
+	_nbins_list.push_back( std::make_pair(parname,nbins) );
 }
 
 // ---------------------------------------------------------
@@ -248,8 +248,8 @@ void BCRooInterface::SetupRooStatsMarkovChain()
    _parametersForMarkovChainPrevious.add(*fParamsPOI);
    _parametersForMarkovChainCurrent.add(*fParamsPOI);
 
-   cout << "size of _parametersForMarkovChain: " << _parametersForMarkovChainCurrent.getSize() << endl;
-   cout << "size of fParamsPOI: " << fParamsPOI->getSize() << endl;
+	 std::cout << "size of _parametersForMarkovChain: " << _parametersForMarkovChainCurrent.getSize() << std::endl;
+	 std::cout << "size of fParamsPOI: " << fParamsPOI->getSize() << std::endl;
    //cout << "size of tempRooArgSetPointer: " << tempRooArgSetPointer->getSize() << endl;
 
     _roostatsMarkovChain = new RooStats::MarkovChain();
@@ -257,15 +257,15 @@ void BCRooInterface::SetupRooStatsMarkovChain()
    //the following way of creating the MArkovChain object does not work!:
    //_roostatsMarkovChain = new RooStats::MarkovChain(_parametersForMarkovChain);
    //test stuff end
-   cout << "setting up parameters for RooStats markov chain" << endl;
-   _parametersForMarkovChainPrevious.writeToStream(cout, false);
+		std::cout << "setting up parameters for RooStats markov chain" << std::endl;
+		_parametersForMarkovChainPrevious.writeToStream(std::cout, false);
 
    //initialize fPreviousStep, fCurrentStep, fVecWeights
    int nchains = MCMCGetNChains();
    for(int countChains = 1; countChains<=nchains ; countChains++ ) {
       double tempweight = 1.0;
       fVecWeights.push_back(tempweight);
-      vector<double> tempvec;
+			std::vector<double> tempvec;
       TIterator* setiter = fParamsPOI->createIterator();
       double tempval = 0.;
       while(setiter->Next()) {
@@ -351,7 +351,7 @@ void BCRooInterface::AddToCurrentChainElement(double xij, int chainNum, int poiN
 bool BCRooInterface::EqualsLastChainElement(int chainNum)
 {
    bool equals = true;
-   vector<double>::iterator itPrevious = fPreviousStep[chainNum].begin();
+	 std::vector<double>::iterator itPrevious = fPreviousStep[chainNum].begin();
 
    if(fFirstComparison == true) {
       fFirstComparison = false;
@@ -360,7 +360,7 @@ bool BCRooInterface::EqualsLastChainElement(int chainNum)
    }
 
 
-   for (vector<double>::iterator itCurrent = fCurrentStep[chainNum].begin(); itCurrent != fCurrentStep[chainNum].end(); ++itCurrent) {
+   for (std::vector<double>::iterator itCurrent = fCurrentStep[chainNum].begin(); itCurrent != fCurrentStep[chainNum].end(); ++itCurrent) {
       if(*itCurrent != *itPrevious) {
          equals = false;
          fPreviousStep[chainNum] = fCurrentStep[chainNum];

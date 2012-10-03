@@ -228,6 +228,16 @@ int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double m
       data->SetHistogram(0);
    }
 
+	 // remove old uncertainty histograms if they exist
+	 if (channel->GetHistUncertaintyBandExpectation()) {
+		 delete channel->GetHistUncertaintyBandExpectation();
+		 channel->SetHistUncertaintyBandExpectation(0);
+	 }
+	 if (channel->GetHistUncertaintyBandPoisson()) {
+		 delete channel->GetHistUncertaintyBandPoisson();
+		 channel->SetHistUncertaintyBandPoisson(0);
+	 }
+
 	 // create new histograms for uncertainty bands
 	 //	 double minimum = floor(TMath::Max(0., hist.GetMinimum() - 7.*sqrt(hist.GetMinimum())));
 	 if (minimum==-1)

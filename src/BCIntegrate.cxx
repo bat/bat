@@ -2226,17 +2226,17 @@ double BCIntegrate::CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<
       */
    }
    else {
-      std::cout << " Integration method not available. " << std::endl;
+		 BCLog::OutError(" Integration method not available. Set integral to -1e99.");
       integral[0] = -1e99;
    }
 
    if (fail != 0) {
-      std::cout << " Warning, integral did not converge with the given set of parameters. "<< std::endl;
-      std::cout << " neval    = " << neval       << std::endl;
-      std::cout << " fail     = " << fail        << std::endl;
-      std::cout << " integral = " << integral[0] << std::endl;
-      std::cout << " error    = " << error[0]    << std::endl;
-      std::cout << " prob     = " << prob[0]     << std::endl;
+		 BCLog::OutWarning("Warning, integral did not converge with the given set of parameters. ");
+		 BCLog::OutWarning(Form(" nevel       : %d", neval));
+		 BCLog::OutWarning(Form(" fail        : %d", fail));
+		 BCLog::OutWarning(Form(" integral[0] : %f", integral[0]));
+		 BCLog::OutWarning(Form(" error[0]    : %f", error[0]));
+		 BCLog::OutWarning(Form(" prob[0]     : %f", prob[0]));
    }
 
    return integral[0] / 1e99;

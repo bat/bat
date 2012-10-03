@@ -125,7 +125,7 @@ namespace RooStats
          { return fConnectedInterval; }
 
       // returns  interval borders of shortest interval (1 poi only)
-      vector<double> GetIntervalBorders1D()
+			std::vector<double> GetIntervalBorders1D()
          { return _intervalBorders1D; }
 
       //returns interval borders od the last calculated shortest interval
@@ -177,7 +177,7 @@ namespace RooStats
       int _nMCMC; // number of chain elements per Markov Chain
       double fSize;  // size used for the interval object
       double fLeftSideFraction; //
-      mutable vector<double> _intervalBorders1D;
+      mutable std::vector<double> _intervalBorders1D;
 
    protected:
 
@@ -185,7 +185,7 @@ namespace RooStats
 
    };
 
-   bool sortbyposterior(pair< Int_t,Double_t > pair1, pair< Int_t,Double_t > pair2); //help function for calculating the shortest interval
+	bool sortbyposterior(std::pair< Int_t,Double_t > pair1, std::pair< Int_t,Double_t > pair2); //help function for calculating the shortest interval
 }
 
 #endif

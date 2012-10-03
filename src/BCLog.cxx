@@ -8,6 +8,7 @@
 // ---------------------------------------------------------
 
 #include <fstream>
+#include <iomanip>
 
 #include <TROOT.h>
 #include <TError.h>
@@ -168,6 +169,7 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 
 int printBATUponLoading()
 {
+	/*
    std::cout <<
       " +------------------------------\n"
       " |\n"
@@ -176,6 +178,18 @@ int printBATUponLoading()
       " |\n"
       " | http://www.mppmu.mpg.de/bat\n"
       " +------------------------------\n";
+
+	*/
+   std::cout <<
+		 " +--------------------------------------------------------------+\n"
+		 " |                                                              |\n"
+		 " | BAT version " << std::setw(7) << VERSION << "                                          |\n"
+		 " | Copyright (C) 2007-2012, Daniel Kollar and Kevin Kroeninger, |\n"
+     " | all rights reserved.                                         |\n"
+		 " | For the licensing terms see doc/COPYING                      |\n"
+		 " | For documentation  see http://www.mppmu.mpg.de/bat           |\n"
+		 " |                                                              |\n"
+     " +--------------------------------------------------------------+\n";
    return 0;
 }
 

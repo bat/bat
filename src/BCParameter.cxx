@@ -10,6 +10,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <TROOT.h>
+
+#include "BCLog.h"
 #include "BCParameter.h"
 
 // ---------------------------------------------------------
@@ -70,19 +73,11 @@ BCParameter::~BCParameter()
 
 void BCParameter::PrintSummary()
 {
-   std::cout
-      <<"       > Parameter   : "<< fName << std::endl
-      <<"         Index       : "<< fIndex << std::endl
-      <<"         Lower Limit : "<< fLowerLimit << std::endl
-      <<"         Upper Limit : "<< fUpperLimit << std::endl
-      <<"         Nuisance    : ";
-
-   if(fNuisance)
-      std::cout<<"Yes"<<std::endl;
-   else
-      std::cout<<"No"<<std::endl;
-
-   std::cout << std::endl;
+	BCLog::OutSummary("Parameter summary:");
+	BCLog::OutSummary(Form("Parameter   : %s", fName.c_str()));
+	BCLog::OutSummary(Form("Index       : %d", fIndex));
+	BCLog::OutSummary(Form("Lower limit : %f", fLowerLimit));
+	BCLog::OutSummary(Form("Upper limit : %f", fUpperLimit));
 }
 
 // ---------------------------------------------------------

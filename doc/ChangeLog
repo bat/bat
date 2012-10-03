@@ -1,3 +1,11 @@
+2012-10-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Replace statements with BCLog output where applicable, not done in BCLog (startup information) and BCModelManager (as information is dumped into file).
+	* Remove "using namespace std" in BCTemplateEnsembleTest.cxx
+	* Added "std::" where missing (mostly in RooRoots interface)
+	* Bug fix in MTF: had to delete uncertainty histograms when setting a new data set.
+	* Changed startup information to prompt proper copyright statement
+	* Minor changes in BCAux: adjusted title offset and margins
+	
 2012-09-19 Kerim Suruliz <kerim.suruliz@cern.ch>
 	* extras/FBU: added systematics classes
 	* extras/FBU: replaced TMatrixD with vector<vector<double> > in likelihood computation for 2D case

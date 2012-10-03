@@ -91,9 +91,9 @@ class BCRooInterface : public BCModel
       RooArgSet _parametersForMarkovChainPrevious; // parameters of interest in previous step (bookkeeping required for construction of the RooStats MarkovChain object)
       RooArgSet _parametersForMarkovChainCurrent; // parameters of interest in previous step (bookkeeping required for construction of the RooStats MarkovChain object)
 
-      vector< vector<double> > fPreviousStep; // bookkeeping required for construction of the RooStats MarkovChain object
-      vector< vector<double> > fCurrentStep; // bookkeeping required for construction of the RooStats MarkovChain object
-      vector< double > fVecWeights; // keep track of weights if proposal step not accepted (bookkeeping required for construction of the RooStats MarkovChain object)
+			std::vector< std::vector<double> > fPreviousStep; // bookkeeping required for construction of the RooStats MarkovChain object
+			std::vector< std::vector<double> > fCurrentStep; // bookkeeping required for construction of the RooStats MarkovChain object
+			std::vector< double > fVecWeights; // keep track of weights if proposal step not accepted (bookkeeping required for construction of the RooStats MarkovChain object)
 
       //test stuff begin
       //RooRealVar* var1;
@@ -102,7 +102,7 @@ class BCRooInterface : public BCModel
       //long fIterationInterfacecount;
       //test stuff end
 
-      list< pair<const char*,int> > _nbins_list;
+			std::list< std::pair<const char*,int> > _nbins_list;
 };
 
 #endif

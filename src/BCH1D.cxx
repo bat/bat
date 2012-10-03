@@ -144,6 +144,28 @@ void BCH1D::Draw(int options, double ovalue)
 
    fHistogram->Scale(1./fHistogram->Integral("width"));
 
+	 // todoKK:
+   // - fix legend size, position and style
+   // - maybe write a painer class?
+   // options should start with letter indicating type, e.g.
+	 // L: legend
+	 //    - add legend
+   //    - add written summary on plot (mean = xyz, ...)
+   // B: band (or shaded area)
+   //    - band type: smallest, central, ...
+   //    - draw shaded band between two arbitrary values
+   //    - add second (and third) band with arbitrary values, e.g. 90%, 95% prob. regions
+   // D: drawing
+	 //    - draw histogram as normal histogram
+	 //    - draw histogram as smooth curve
+   //    - black&white version with hatching
+   //    - draw in log-scale
+   //    - draw cumulative pdf
+   // S: summary values (mean, rms, ...)
+   //    - add indicator for mode, mean, median individually
+   //    - add indicator for rms, smallest interval, central interval individually 
+   //    - add indicator for quantiles (decentiles, quartiles) e.g. as red lines going through the whole histogram
+
    if(fModeFlag)
       mode=fMode;
    else

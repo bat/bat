@@ -821,7 +821,7 @@ void BCModel::FindModeMinuit(std::vector<double> start, int printlevel)
 // ---------------------------------------------------------
 void BCModel::WriteMode(const char * file)
 {
-   ofstream ofi(file);
+	std::ofstream ofi(file);
    if (!ofi.is_open()) {
       std::cerr << "Couldn't open file " << file << std::endl;
       return;
@@ -863,7 +863,7 @@ void BCModel::WriteMode(const char * file)
 // ---------------------------------------------------------
 int BCModel::ReadMode(const char * file)
 {
-   ifstream ifi(file);
+	std::ifstream ifi(file);
    if (!ifi.is_open()) {
       BCLog::OutError(Form("BCModel::ReadMode : Couldn't open file %s.", file));
       return 0;
@@ -2101,13 +2101,10 @@ void BCModel::PrintSummary()
    int nparameters = GetNParameters();
 
    // model summary
-   std::cout << std::endl
-             << "   ---------------------------------" << std::endl
-             << "    Model : " << fName.data() << std::endl
-             << "   ---------------------------------" << std::endl
-             << "     Index                : " << fIndex << std::endl
-             << "     Number of parameters : " << nparameters << std::endl << std::endl
-             << "     - Parameters : " << std::endl << std::endl;
+	 BCLog::OutSummary(Form("Model : %s", fName.data()));
+	 BCLog::OutSummary(Form("Index                : %d", fIndex));
+	 BCLog::OutSummary(Form("Number of parameters : %d", nparameters));
+	 BCLog::OutSummary("Parameters:");
 
    // parameter summary
    for (int i = 0; i < nparameters; i++)
@@ -2115,32 +2112,29 @@ void BCModel::PrintSummary()
 
    // best fit parameters
    if (GetBestFitParameters().size() > 0) {
-      std::cout << std::endl << "     - Best fit parameters :" << std::endl << std::endl;
-
-      for (int i = 0; i < nparameters; i++) {
-         std::cout << "       " << fParameterSet->at(i)->GetName().data()
-                   << " = " << GetBestFitParameter(i) << " (overall)" << std::endl;
-         if ((int) fBestFitParametersMarginalized.size() == nparameters)
-            std::cout << "       "
-                      << fParameterSet->at(i)->GetName().data() << " = "
-                      << GetBestFitParameterMarginalized(i)
-                      << " (marginalized)" << std::endl;
+		 BCLog::OutSummary("Best fit parameters:");
+		 
+		 for (int i = 0; i < nparameters; i++) {
+			 BCLog::OutSummary(Form(" %s = %f (global)", fParameterSet->at(i)->GetName().data(), GetBestFitParameter(i)));
+			 
+			 if ((int) fBestFitParametersMarginalized.size() == nparameters)
+				 BCLog::OutSummary(Form(" %s = %f (marginalized)", fParameterSet->at(i)->GetName().data(), GetBestFitParameterMarginalized(i)));
       }
    }
 
-   std::cout << std::endl;
-
    // model testing
    if (fPValue >= 0) {
-      double likelihood = Likelihood(GetBestFitParameters());
-      std::cout << "   - Model testing:" << std::endl << std::endl
-                << "       p(data|lambda*) = " << likelihood << std::endl
-                << "       p-value         = " << fPValue << std::endl << std::endl;
+		 double likelihood = Likelihood(GetBestFitParameters());
+		 BCLog::OutSummary(" Model testing:");
+		 BCLog::OutSummary(Form("  p(data|lambda*) = %f", likelihood));
+		 BCLog::OutSummary(Form("  p-value         = %f", fPValue));
    }
 
    // normalization
-   if (fNormalization > 0)
-      std::cout << "     Normalization        : " << fNormalization << std::endl;
+   if (fNormalization > 0) {
+		 BCLog::OutSummary(" Normalization:");
+		 BCLog::OutSummary(Form(" - normalization : %f", fNormalization));
+	 }
 }
 
 // ---------------------------------------------------------
@@ -2149,7 +2143,7 @@ void BCModel::PrintResults(const char * file)
    // print summary of Markov Chain Monte Carlo
 
    // open file
-   ofstream ofi(file);
+	std::ofstream ofi(file);
 
    // check if file is open
    if (!ofi.is_open()) {
@@ -2267,7 +2261,7 @@ void BCModel::PrintResults(const char * file)
          std::vector<double> v;
          v = bch1d->GetSmallestIntervals(0.68);
          int ninter = int(v.size());
-         ofi << "      Smallest interval(s) containing 68% and local modes:"
+         ofi << "      Smallest interval(s) containing at least 68% and local mode(s):"
              << std::endl;
          for (int j = 0; j < ninter; j += 5)
             ofi << "       (" << v[j] << ", " << v[j + 1]
@@ -2358,12 +2352,13 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
    }
 
    // print to screen
-   std::cout << std::endl << " Hessian matrix elements: " << std::endl << " Point: ";
-
+	 BCLog::OutSummary("Hessian matrix elements: ");
+	 BCLog::OutSummary("Parameter values:");
+	 
    for (int i = 0; i < int(parameters.size()); i++)
-      std::cout << parameters.at(i) << " ";
-   std::cout << std::endl;
+		 BCLog::OutSummary(Form("Parameter %d : %f", i, parameters.at(i)));
 
+	 BCLog::OutSummary("Hessian matrix:");
    // loop over all parameter pairs
    for (unsigned int i = 0; i < GetNParameters(); i++)
       for (unsigned int j = 0; j < i; j++) {
@@ -2372,7 +2367,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
                fParameterSet->at(i), fParameterSet->at(j), parameters);
 
          // print to screen
-         std::cout << " " << i << " " << j << " : " << hessianmatrixelement << std::endl;
+				 BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
       }
 }
 

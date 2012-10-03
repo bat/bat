@@ -31,7 +31,9 @@ int main()
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("PoissonModel_plots.ps");
+  m->PrintAllMarginalized("PoissonModel_plots.eps");
+
+	//	m->PrintSummary();
 
   // print results of the analysis into a text file
   m->PrintResults("PoissonModel_results.txt");

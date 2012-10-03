@@ -23,8 +23,6 @@
 #include "BCTemplateFitter.h"
 #include "BCTemplateEnsembleTest.h"
 
-using namespace std;
-
 // ---------------------------------------------------------
 BCTemplateEnsembleTest::BCTemplateEnsembleTest()
    : fTemplateFitter(0)

@@ -50,6 +50,10 @@ int main()
 		return -1;
 	}
 
+	data->Dump();
+
+	//	return 1;
+
 	// assigns the data set to the model manager.
 	mgr -> SetDataSet(data);
 
@@ -125,6 +129,8 @@ int main()
 		gdata -> SetPointEYlow(i, mgr -> GetDataPoint(i) -> GetValue(2));
 		gdata -> SetPointEYhigh(i, mgr -> GetDataPoint(i) -> GetValue(3));
 	}
+
+	mgr->PrintSummary("summary.txt");
 
 	// defines a histogram for the axes and draws it.
 	TH2D * haxes = new TH2D("haxes", ";x;y", 1, 0., 100., 1, 0., 5.);

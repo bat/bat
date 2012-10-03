@@ -460,8 +460,8 @@ void BCModelManager::CalculatePValue(bool flag_histogram)
 
 void BCModelManager::PrintSummary(const char * file)
 {
-   ofstream out;
-   std::streambuf * old_buffer = 0;
+  std::ofstream out;
+  std::streambuf * old_buffer = 0;
 
    if(file) {
       out.open(file);
@@ -473,7 +473,7 @@ void BCModelManager::PrintSummary(const char * file)
    }
 
    // model summary
-   int nmodels = fModelContainer->size();
+   int nmodels = int(fModelContainer->size());
    std::cout<<std::endl
             <<"======================================"<<std::endl
             <<" Summary"<<std::endl
@@ -524,7 +524,7 @@ void BCModelManager::PrintSummary(const char * file)
 
 void BCModelManager::PrintModelComparisonSummary(const char * file)
 {
-   ofstream out;
+   std::ofstream out;
    std::streambuf * old_buffer = 0;
 
    if(file) {

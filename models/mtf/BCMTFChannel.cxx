@@ -41,11 +41,13 @@ BCMTFChannel::~BCMTFChannel()
    for (unsigned int i = 0; i < fSystematicVariationContainer.size(); ++i)
       delete (fSystematicVariationContainer.at(i));
 
+	 /*
 	 if (fHistUncertaintyBandExpectation)
 		 delete fHistUncertaintyBandExpectation;
 
 	 if (fHistUncertaintyBandPoisson)
 		 delete fHistUncertaintyBandPoisson;
+	 */
 }
 
 // ---------------------------------------------------------

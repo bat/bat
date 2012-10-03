@@ -390,29 +390,20 @@ void BCDataSet::Reset()
 
 void BCDataSet::Dump()
 {
-   if (!fBCDataVector)
-   {
-      BCLog::OutError("BCDataSet::Dump : Data set is empty. Nothing to dump.");
-      return;
+   if (!fBCDataVector) {
+		 BCLog::OutError("BCDataSet::Dump : Data set is empty. Nothing to dump.");
+		 return;
    }
 
-   std::cout << std::endl
-      << "Dumping dataset:" << std::endl
-      << "----------------" << std::endl
-      << " - number of points:            " << fBCDataVector->size() << std::endl
-      << " - number of values per point:  " << GetDataPoint(0)->GetNValues() << std::endl
-      << " - values:" << std::endl;
+	 BCLog::OutSummary("Data set summary:");
+	 BCLog::OutSummary(Form("Number of points           : %d", int(fBCDataVector->size())));
+	 BCLog::OutSummary(Form("Number of values per point : %d", GetDataPoint(0)->GetNValues()));
    unsigned int n = GetDataPoint(0)->GetNValues();
-   for (unsigned int i=0; i< fBCDataVector->size(); i++)
-   {
-      std::cout << Form("%5d :  ", i);
-      for (unsigned int j=0; j<n; j++)
-         std::cout << Form("%12.5g", GetDataPoint(i)->GetValue(j));
-      std::cout << std::endl;
-   }
-   std::cout << std::endl;
-
+   for (unsigned int i=0; i< fBCDataVector->size(); i++) {
+		 BCLog::OutSummary(Form("Data point %5d :  ", i));
+		 for (unsigned int j=0; j<n; j++)
+			 BCLog::OutSummary(Form("%d : %12.5g", j, GetDataPoint(i)->GetValue(j)));
+	 }
 }
-
 
 // ---------------------------------------------------------

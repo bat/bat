@@ -110,17 +110,17 @@ BATCalculator::BATCalculator( RooAbsData & data, ModelConfig & model, bool fillC
    , fSize(0.05)
    , fLeftSideFraction(0.5)
 {
-   cout << "BATCalculator calling constructor ..." << endl;
+   std::cout << "BATCalculator calling constructor ..." << std::endl;
    // constructor from Model Config
  //  SetModel(model);
    _myRooInterface = new BCRooInterface("BCRooInterfaceForBAT",fillChain);
-   cout << "BATCalculator constructed" << endl;
+   std::cout << "BATCalculator constructed" << std::endl;
 }
 
 // ---------------------------------------------------------
 BATCalculator::~BATCalculator()
 {
-   cout << "BATCalculator calling destructor ..." << endl;
+   std::cout << "BATCalculator calling destructor ..." << std::endl;
    // destructor
    ClearAll();
    delete _myRooInterface;
@@ -228,7 +228,7 @@ RooAbsPdf * BATCalculator::GetPosteriorPdf1D(const char * POIname) const
    // plots for debugging
    TFile * debugfile = new TFile( "debug_posterior.root" ,"RECREATE");
    if ( debugfile->IsOpen() )
-      cout << "File debug_posterior opened successfully" << endl;
+      std::cout << "File debug_posterior opened successfully" << std::endl;
    debugfile->cd();
    //posteriorTH1D->Write("posteriorTH1D");
    //posteriorRooDataHist->Write("posteriorRooDataHist");
@@ -374,14 +374,14 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
 
    // bin number of histogram for posterior
    Int_t stepnumber = _posteriorTH1D->GetNbinsX();
-   cout << "stepnumber is: " << stepnumber << endl;
+   std::cout << "stepnumber is: " << stepnumber << std::endl;
 
    // width of one bin in histogram of posterior
    Double_t stepsize = (maxpoi-minpoi)/stepnumber;
-   cout << "stepsize is: " << stepsize << endl;
+   std::cout << "stepsize is: " << stepsize << std::endl;
 
    // pair: first entry: bin number , second entry: value of posterior
-   vector< pair< Int_t,Double_t > > posteriorVector;
+   std::vector< std::pair< Int_t,Double_t > > posteriorVector;
 
    // for normalization
    Double_t histoIntegral = 0;
@@ -393,17 +393,17 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
 
    // initialize elements of posteriorVector
    int i = 0;
-   vector< pair< Int_t,Double_t > >::iterator vecit = posteriorVector.begin();
-   vector< pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
+   std::vector< std::pair< Int_t,Double_t > >::iterator vecit = posteriorVector.begin();
+   std::vector< std::pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
    for( ; vecit != vecit_end ; ++vecit) {
       poi->setVal(poi->getMin()+i*stepsize);
-      posteriorVector[i] = make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
+      posteriorVector[i] = std::make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
       histoIntegral+=_posteriorTH1D->GetBinContent(i); // better to get this directly from the histogram ?!
-      //cout << "pair with binnumber: " << i << " and postriorprob: " << _posteriorTH1D->GetBinContent(i+1) << endl;
+      //std::cout << "pair with binnumber: " << i << " and postriorprob: " << _posteriorTH1D->GetBinContent(i+1) << std::endl;
       i++;
    }
 
-   cout << "histoIntegral is: " << histoIntegral << endl;
+   std::cout << "histoIntegral is: " << histoIntegral << std::endl;
 
    // sort posteriorVector with respect to posterior pdf
    std::sort(posteriorVector.begin(), posteriorVector.end(), sortbyposterior);
@@ -416,7 +416,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
    Double_t upperLim=0;
 
    // store the bins in the intervall
-   vector<bool> inInterval;
+   std::vector<bool> inInterval;
    inInterval.resize(posteriorVector.size());
 
    // set all values in inInterval to false
@@ -425,26 +425,26 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
 
    unsigned int j = 0;
    // add bins to interval while CL not reached
-   //cout << "integratedposterior: " << integratedposterior << "histoIntegral: " << histoIntegral << endl;
-   //cout << " integratedposterior/histoIntegral : " << integratedposterior/histoIntegral << endl;
-   //cout << " 1-fSize : " << 1-fSize << endl;
-   //cout << " posteriorVector.size(): " << posteriorVector.size() << endl;
+   //std::cout << "integratedposterior: " << integratedposterior << "histoIntegral: " << histoIntegral << std::endl;
+   //std::cout << " integratedposterior/histoIntegral : " << integratedposterior/histoIntegral << std::endl;
+   //std::cout << " 1-fSize : " << 1-fSize << std::endl;
+   //std::cout << " posteriorVector.size(): " << posteriorVector.size() << std::endl;
    while(((integratedposterior/histoIntegral) < (1-fSize)) && (j < posteriorVector.size())) {
-      //cout << "j is: " << j << " , int prob: " << integratedposterior/histoIntegral << endl;
+      //std::cout << "j is: " << j << " , int prob: " << integratedposterior/histoIntegral << std::endl;
       integratedposterior+=posteriorVector[j].second;
 
-      //cout << "bin number: " << posteriorVector[j].first << " with posterior prob.: " << posteriorVector[j].second << endl;
+      //std::cout << "bin number: " << posteriorVector[j].first << " with posterior prob.: " << posteriorVector[j].second << std::endl;
 
-      // update vector with bins included in the interval
+      // update std::vector with bins included in the interval
       inInterval[posteriorVector[j].first] = true;
 
       if(posteriorVector[j].first < lowerLim) {
          lowerLim = posteriorVector[j].first; // update lowerLim
-         cout << "updating lower lim to: " << lowerLim << endl;
+         std::cout << "updating lower lim to: " << lowerLim << std::endl;
       }
       if(posteriorVector[j].first > upperLim) {
          upperLim = posteriorVector[j].first; // update upperLim
-         cout << "updating upper lim to: " << upperLim << endl;
+         std::cout << "updating upper lim to: " << upperLim << std::endl;
       }
 
       fLower = lowerLim * stepsize;
@@ -452,7 +452,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
       j++;
    }
 
-   // initialize vector with interval borders
+   // initialize std::vector with interval borders
 
    bool runInside = false;
    for (unsigned int l = 0; l < inInterval.size(); l++) {
@@ -550,7 +550,7 @@ Double_t BATCalculator::GetOneSidedUperLim()
 {
 //   double safeVal = fSize;
 //   fSize = safeVal/2.;
-   cout << "calculating " << (1.-fSize/2) << "upper limit" << endl;
+   std::cout << "calculating " << (1.-fSize/2) << "upper limit" << std::endl;
    return GetInterval1D()->UpperLimit();
 }
 
@@ -563,7 +563,7 @@ int BATCalculator::GetNbins(const char * parname)
 */
 
 // ---------------------------------------------------------
-bool sortbyposterior(pair< Int_t,Double_t > pair1, pair< Int_t,Double_t > pair2)
+bool sortbyposterior(std::pair< Int_t,Double_t > pair1, std::pair< Int_t,Double_t > pair2)
 {
    return (pair1.second > pair2.second);
 }
