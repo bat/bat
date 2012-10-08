@@ -3,7 +3,7 @@
 // 'Using BATCalculator ' macro No. 1
 // author: Stefan A. Schmitz
 // date: July 2010
-//
+// last update: October 2012
 /////////////////////////////////////////////////////////////////////////
 
 // this macro shows how to use the RooStats Interface (BATCalculator) to BAT
@@ -142,7 +142,7 @@ void runBATCalculator()
 
       // retrieve SimpleInterval object containing the information about the interval (this 
       // triggers the actual calculations)
-      SimpleInterval * interval = batcalc.GetInterval1D();
+      SimpleInterval * interval = batcalc.GetInterval1D("sigma_s");
 
       std::cout << "BATCalculator: 90% CL interval: [ " << interval->LowerLimit() << " - " << interval->UpperLimit() << " ] or 95% CL upper limit\n";
 

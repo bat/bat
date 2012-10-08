@@ -378,7 +378,7 @@ class BCTemplateFitter : public BCModel
        * @param option Plot options
        * @param pvalue Value which goes with plot options (see BAT manual).
        */
-      void PrintRatios(const char * filename = "ratio.ps", int option = 0, double ovalue = 0.);
+      void PrintRatios(const char * filename = "ratio.ps", std::string option = "", double ovalue = 0.);
 
       /**
        * Print a template to a file.

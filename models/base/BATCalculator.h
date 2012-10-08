@@ -54,14 +54,14 @@ namespace RooStats
 
       RooPlot * GetPosteriorPlot1D() const;
 
-      // return posterior pdf
+      // return posterior pdf 
       RooAbsPdf * GetPosteriorPdf1D() const;
       RooAbsPdf * GetPosteriorPdf1D(const char * POIname) const;
 
       // return SimpleInterval object: central interval (one poi only)
       virtual SimpleInterval * GetInterval1D() const;
       virtual SimpleInterval * GetInterval1D(const char * POIname) const;
-
+      //virtual SimpleInterval * GetInterval1Dv0(const char * POIname) const;
       // return SimpleInterval object: shortest interval (not necessarily connected, one poi only)
       SimpleInterval * GetShortestInterval1D() const;
       SimpleInterval * GetShortestInterval1D(const char * POIname, bool & checkConnected) const;
@@ -88,10 +88,9 @@ namespace RooStats
       // Get the size of the test
       virtual Double_t Size() const
          { return fSize; }
-
       // Get left side tail fraction (only for 1D interval, not meaningful for shortest interval)
       double GetLeftSideTailFraction()
-         {return fLeftSideFraction;}
+         {return fLeftSideFraction;} 
 
       // Get the Confidence level for the test
       virtual Double_t ConfidenceLevel() const
@@ -172,6 +171,7 @@ namespace RooStats
       mutable Double_t fUpper;
       double fBrfPrecision;
       mutable Bool_t fValidInterval;
+      mutable Bool_t fValidMCMCInterval;
       mutable bool fConnectedInterval;
 
       int _nMCMC; // number of chain elements per Markov Chain

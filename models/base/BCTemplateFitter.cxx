@@ -1180,7 +1180,7 @@ void BCTemplateFitter::MCMCUserIterationInterface()
 }
 
 // ---------------------------------------------------------
-void BCTemplateFitter::PrintRatios(const char * filename, int options, double ovalue)
+void BCTemplateFitter::PrintRatios(const char * filename, std::string options, double ovalue)
 {
    int nratios = int(fHistRatios1D.size());
 

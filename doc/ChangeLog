@@ -1,3 +1,6 @@
+2012-10-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Updated RooInterface based on new code from Stefan Schmitz.
+	
 2012-10-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Replace statements with BCLog output where applicable, not done in BCLog (startup information) and BCModelManager (as information is dumped into file).
 	* Remove "using namespace std" in BCTemplateEnsembleTest.cxx

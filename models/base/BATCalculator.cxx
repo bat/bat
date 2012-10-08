@@ -50,6 +50,7 @@ BATCalculator::BATCalculator()
    , fUpper(0)
    , fBrfPrecision(0.00005)
    , fValidInterval(false)
+   , fValidMCMCInterval(false)
    , fSize(0.05)
    , fLeftSideFraction(0.5)
 {
@@ -79,6 +80,7 @@ BATCalculator::BATCalculator( /* const char * name,  const char * title, */
    , fUpper(0)
    , fBrfPrecision(0.00005)
    , fValidInterval(false)
+   , fValidMCMCInterval(false)
    , _nMCMC(1000000)
    , fSize(0.05)
    , fLeftSideFraction(0.5)
@@ -106,13 +108,14 @@ BATCalculator::BATCalculator( RooAbsData & data, ModelConfig & model, bool fillC
    , fUpper(0)
    , fBrfPrecision(0.00005)
    , fValidInterval(false)
+   , fValidMCMCInterval(false)
    , _nMCMC(1000000)
    , fSize(0.05)
-   , fLeftSideFraction(0.5)
+   , fLeftSideFraction(0.5) 
 {
    std::cout << "BATCalculator calling constructor ..." << std::endl;
    // constructor from Model Config
- //  SetModel(model);
+   //  SetModel(model);
    _myRooInterface = new BCRooInterface("BCRooInterfaceForBAT",fillChain);
    std::cout << "BATCalculator constructed" << std::endl;
 }
@@ -148,6 +151,7 @@ void BATCalculator::ClearAll() const
    fLower = 0;
    fUpper = 0;
    fValidInterval = false;
+   fValidMCMCInterval = false;
 }
 
 // ---------------------------------------------------------
@@ -257,11 +261,18 @@ RooAbsPdf * BATCalculator::GetPosteriorPdf1D(const char * POIname) const
 // return a RooPlot with the posterior PDF and the credibility region
 RooPlot * BATCalculator::GetPosteriorPlot1D() const
 {
+  
 
-   if (!fPosteriorPdf)
+   if (!fPosteriorPdf){
+      std::cout << "BATCalculator::GetPosteriorPlot1D:"
+                << "Warning : posterior not available" << std::endl;
       GetPosteriorPdf1D();
-   if (!fValidInterval)
+   }
+   if ((!fValidInterval) && (!fValidMCMCInterval)){
+      std::cout << "BATCalculator::GetPosteriorPlot1D:"
+                << "Warning : interval not available" << std::endl;
       GetInterval1D();
+   }
 
    RooAbsRealLValue * poi = dynamic_cast<RooAbsRealLValue *>( fPOI.first() );
    assert(poi);
@@ -284,58 +295,177 @@ SimpleInterval * BATCalculator::GetInterval1D() const
    return GetInterval1D(POIname); //is of type RooAbsPdf *
 }
 
+
 // ---------------------------------------------------------
-// returns central interval for requested POI
+// returns central interval for the defined POI in the POI ArgSet -> test code because orginal version is not working anymore
 SimpleInterval * BATCalculator::GetInterval1D(const char * POIname) const
 {
-  /// returns a SimpleInterval with lower and upper bounds on the
-  /// parameter of interest. Applies the central ordering rule to
-  /// compute the credibility interval. Covers only the case with one
-  /// single parameter of interest
+   //const char * POIname = fPOI.first()->GetName();
 
    if (fValidInterval)
-      std::cout << "BATCalculator::GetInterval1D:"
-                << "Warning : recomputing interval for the same CL and same model" << std::endl;
+   std::cout << "BATCalculator::GetShortestInterval1D:"
+             << "Warning : recomputing interval for the same CL and same model" << std::endl;
 
-   RooRealVar * poi = dynamic_cast<RooRealVar *>( fPOI.find(POIname) );
+   // get pointer to selected parameter of interest
+   RooRealVar * poi = dynamic_cast<RooRealVar*>( fPOI.find(POIname) );
    assert(poi);
 
+   // get pointer to poserior pdf
    if (!fPosteriorPdf)
       fPosteriorPdf = (RooAbsPdf*) GetPosteriorPdf1D();
+   //RooAbsReal * cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanParameters(100,2));
 
-   RooAbsReal * cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanParameters(100,2));
-   //RooAbsReal* cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanNoCdf());
-   RooAbsFunc * cdf_bind = cdf->bindVars(fPOI,&fPOI);
-   RooBrentRootFinder brf(*cdf_bind);
-   brf.setTol(fBrfPrecision); // set the brf precision
+   // range of poi
+   Double_t minpoi = poi->getMin();
+   Double_t maxpoi = poi->getMax();
 
-   double tmpVal = poi->getVal();  // patch used because findRoot changes the value of poi
+   // bin number of histogram for posterior
+   Int_t stepnumber = _posteriorTH1D->GetNbinsX();
+   std::cout << "stepnumber is: " << stepnumber << std::endl;
 
-   double y = fSize*fLeftSideFraction; //adjust lower tail prob. according to fLeftSideFraction
+   // width of one bin in histogram of posterior
+   Double_t stepsize = (maxpoi-minpoi)/stepnumber;
+   std::cout << "stepsize is: " << stepsize << std::endl;
 
-   brf.findRoot(fLower,poi->getMin(),poi->getMax(),y);
+   // pair: first entry: bin number , second entry: value of posterior
+   std::vector< std::pair< Int_t,Double_t > > posteriorVector;
 
-   y = 1.-(fSize*(1.-fLeftSideFraction) ); //adjust upper tail prob. according to fLeftSideFraction
+   // for normalization
+   Double_t histoIntegral = 0;
+   // give posteriorVector the right length
+   posteriorVector.resize(stepnumber);
 
-   bool ret = brf.findRoot(fUpper,poi->getMin(),poi->getMax(),y);
-   if (!ret)
-      std::cout << "BATCalculator::GetInterval1D: Warning:"
-                << "Error returned from Root finder, estimated interval is not fully correct"
-                << std::endl;
+   // see in BayesianCalculator for details about this "feature"
+   Double_t tmpVal = poi->getVal();
 
-   poi->setVal(tmpVal); // patch: restore the original value of poi
+  // initialize elements of posteriorVector
+   int i = 0;
+   std::vector< std::pair< Int_t,Double_t > >::iterator vecit = posteriorVector.begin();
+   std::vector< std::pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
+   for( ; vecit != vecit_end ; ++vecit) {
+      poi->setVal(poi->getMin()+i*stepsize);
+      posteriorVector[i] = make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
+      histoIntegral+=_posteriorTH1D->GetBinContent(i); // better to get this directly from the histogram ?!
+      //std::cout << "pair with binnumber: " << i << " and postriorprob: " << _posteriorTH1D->GetBinContent(i+1) << std::endl;
+      i++;
+   }
 
-   delete cdf_bind;
-   delete cdf;
-   fValidInterval = true;
-   fConnectedInterval = true;
+   std::cout << "histoIntegral is: " << histoIntegral << std::endl;
+
+   double lowerProbLim = (1.-ConfidenceLevel())*fLeftSideFraction;
+   double upperProbLim = 1. -( (1.-ConfidenceLevel())*(1.-fLeftSideFraction) );
+   std::cout << "lowerProbLim is: " << lowerProbLim  << "upperProbLim is: " << histoIntegral << std::endl;
+
+   fLower = -1.;
+   fUpper = -1.;
+   bool lowerlimset = false;
+   bool upperlimset = false;
+
+
+   if(fLeftSideFraction == 0){
+      fLower = minpoi;
+      lowerlimset = true;
+   }
+
+   if(fLeftSideFraction == 1){
+      fUpper = maxpoi;
+      upperlimset = true;
+   }
+
+   // keep track of integrated posterior in the interval
+   Double_t integratedposterior = 0.;
+
+   i = 0;
+   vecit = posteriorVector.begin();
+   for( ; vecit != vecit_end ; ++vecit) {
+      integratedposterior += posteriorVector[i].second;
+      if( (lowerlimset != true) && ((integratedposterior/histoIntegral) >= lowerProbLim) ){
+         fLower = poi->getMin()+i*stepsize;
+         lowerlimset = true;
+      }
+      if( (upperlimset != true) && ((integratedposterior/histoIntegral) >= upperProbLim) ){
+         fUpper = poi->getMin()+i*stepsize;
+         upperlimset = true;
+         break;
+      }
+      i++;
+   }
 
    TString interval_name = TString("CentralBayesianInterval_a") + TString(this->GetName());
    SimpleInterval * interval = new SimpleInterval(interval_name,*poi,fLower,fUpper,ConfidenceLevel());
    interval->SetTitle("SimpleInterval from BATCalculator");
 
    return interval;
+
 }
+
+// ---------------------------------------------------------
+// returns central interval for requested POI -> no longer working since root v5_32
+// SimpleInterval * BATCalculator::GetInterval1Dv0(const char * POIname) const
+// {
+//   /// returns a SimpleInterval with lower and upper bounds on the
+//   /// parameter of interest. Applies the central ordering rule to
+//   /// compute the credibility interval. Covers only the case with one
+//   /// single parameter of interest
+// 
+//    if (fValidInterval)
+//       std::cout << "BATCalculator::GetInterval1D:"
+//                 << "Warning : recomputing interval for the same CL and same model" << std::endl;
+// 
+//    RooRealVar * poi = dynamic_cast<RooRealVar *>( fPOI.find(POIname) );
+//    assert(poi);
+// 
+//    if (!fPosteriorPdf)
+// 	   fPosteriorPdf = (RooAbsPdf*) GetPosteriorPdf1D();
+// 
+//    Double_t* myarr = new Double_t[1];
+//    myarr[0]= 0.001;
+//    std::cout << "fPosteriorPdf: " << fPosteriorPdf->maxVal(1) << std::endl;
+//    std::cout << "fPosteriorPdf: " << fPosteriorPdf->getVal() << std::endl;
+// //   std::cout << "fPosteriorPdf: " << fPosteriorPdf->evaluate() << std::endl;
+// 
+//    RooAbsReal * cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanParameters(100,2));
+//    //RooAbsReal* cdf = fPosteriorPdf->createCdf(fPOI,RooFit::ScanNoCdf());
+// 
+//    RooAbsFunc * cdf_bind = cdf->bindVars(fPOI,&fPOI);
+//    std::cout << "cdf_bind: " << std::endl;
+//    std::cout << "cdf_bind: " << cdf_bind->isValid() << std::endl;
+//    std::cout << "cdf_bind: " << cdf_bind->getDimension() << std::endl;
+//    //Double_t test = (*_function)(&a) - value;
+//    std::cout << "cdf_bind: " << (*cdf_bind)(myarr) << std::endl;
+//    std::cout << "cdf_bind: " << cdf_bind->getMaxLimit(1) << std::endl;
+// 
+//    RooBrentRootFinder brf(*cdf_bind);
+//    brf.setTol(fBrfPrecision); // set the brf precision
+// 
+//    double tmpVal = poi->getVal();  // patch used because findRoot changes the value of poi
+// 
+//    double y = fSize*fLeftSideFraction; //adjust lower tail prob. according to fLeftSideFraction
+// 
+//    brf.findRoot(fLower,poi->getMin(),poi->getMax(),y);
+// 
+//    y = 1.-(fSize*(1.-fLeftSideFraction) ); //adjust upper tail prob. according to fLeftSideFraction
+// 
+//    bool ret = brf.findRoot(fUpper,poi->getMin(),poi->getMax(),y);
+//    std::cout << " brf.findRoot: " << fUpper << " " << poi->getMin() << " " << poi->getMax() << " " << y << std::endl;
+//    if (!ret)
+//       std::cout << "BATCalculator::GetInterval1D: Warning:"
+//                 << "Error returned from Root finder, estimated interval is not fully correct"
+//                 << std::endl;
+// 
+//    poi->setVal(tmpVal); // patch: restore the original value of poi
+// 
+//    delete cdf_bind;
+//    delete cdf;
+//    fValidInterval = true;
+//    fConnectedInterval = true;
+// 
+//    TString interval_name = TString("CentralBayesianInterval_a") + TString(this->GetName());
+//    SimpleInterval * interval = new SimpleInterval(interval_name,*poi,fLower,fUpper,ConfidenceLevel());
+//    interval->SetTitle("SimpleInterval from BATCalculator");
+// 
+//    return interval;
+// }
 
 // ---------------------------------------------------------
 SimpleInterval * BATCalculator::GetShortestInterval1D() const
@@ -397,7 +527,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
    std::vector< std::pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
    for( ; vecit != vecit_end ; ++vecit) {
       poi->setVal(poi->getMin()+i*stepsize);
-      posteriorVector[i] = std::make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
+      posteriorVector[i] = make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
       histoIntegral+=_posteriorTH1D->GetBinContent(i); // better to get this directly from the histogram ?!
       //std::cout << "pair with binnumber: " << i << " and postriorprob: " << _posteriorTH1D->GetBinContent(i+1) << std::endl;
       i++;
@@ -435,7 +565,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
 
       //std::cout << "bin number: " << posteriorVector[j].first << " with posterior prob.: " << posteriorVector[j].second << std::endl;
 
-      // update std::vector with bins included in the interval
+      // update vector with bins included in the interval
       inInterval[posteriorVector[j].first] = true;
 
       if(posteriorVector[j].first < lowerLim) {
@@ -447,12 +577,12 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
          std::cout << "updating upper lim to: " << upperLim << std::endl;
       }
 
-      fLower = lowerLim * stepsize;
+      fLower = lowerLim * stepsize; // 
       fUpper = upperLim * stepsize;
       j++;
    }
 
-   // initialize std::vector with interval borders
+   // initialize vector with interval borders
 
    bool runInside = false;
    for (unsigned int l = 0; l < inInterval.size(); l++) {
@@ -518,9 +648,11 @@ MCMCInterval* BATCalculator::GetInterval() const{
    }
 
    MarkovChain * roostats_chain = GetBCRooInterface()->GetRooStatsMarkovChain();
-   MCMCInterval * mcmcInterval = new MCMCInterval("roostatsmcmcinterval", *(GetBCRooInterface()->GetArgSetForMarkovChain()) , *roostats_chain);
+   MCMCInterval * mcmcInterval = new MCMCInterval("roostatsmcmcinterval", fPOI , *roostats_chain);
+   //MCMCInterval * mcmcInterval = new MCMCInterval("roostatsmcmcinterval", *(GetBCRooInterface()->GetArgSetForMarkovChain()) , *roostats_chain);
    mcmcInterval->SetUseKeys(false);
    mcmcInterval->SetConfidenceLevel(1.-fSize);
+   fValidMCMCInterval = true;
    return mcmcInterval;
 }
 
@@ -543,7 +675,8 @@ void BATCalculator::SetLeftSideTailFraction(Double_t leftSideFraction ){
       std::cout << "BATCalculator::SetLeftSideTailFraction(Double_t leftSideFraction ) - value needs to be in the interval [0.,1.] to be meaningful, your value: " << leftSideFraction <<  " ,left side tail fraction has not been changed!" << std::endl;
    }
 
-}
+} 
+
 
 // ---------------------------------------------------------
 Double_t BATCalculator::GetOneSidedUperLim()
