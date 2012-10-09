@@ -196,10 +196,10 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
   // create temporary canvas
   TCanvas * ctemp;
   if(ww > 0 && wh > 0) {
-    ctemp = new TCanvas("ctemp","ctemp",ww,wh);
+    ctemp = new TCanvas("","",ww,wh);
   }
   else
-    ctemp = new TCanvas("ctemp","ctemp", 700, 735);
+    ctemp = new TCanvas("","");
 
   // add ctemp to list of objects
   fROOTObjects.push_back(ctemp);
@@ -225,7 +225,14 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 }
 
 // ---------------------------------------------------------
+void BCH1D::myPrint(const char* filename, std::string options, double interval, int ww, int wh)
+{
+  std::vector<double> tempvec;
+  tempvec.push_back(interval);
+  myPrint(filename, options, tempvec, ww, wh);
+}
 
+// ---------------------------------------------------------
 void BCH1D::Draw(int options, double ovalue)
 {
    double min, max;
@@ -446,8 +453,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     draw_options.append("C");
   }
 
-  if (options.find("BT1") < options.size()) {
+  if (options.find("BTsi") < options.size()) {
     bandtype = 1;
+  }
+  else if (options.find("BTul") < options.size()) {
+    bandtype = 2;
+  }
+  else if (options.find("BTll") < options.size()) {
+    bandtype = 3;
   }
   else {
     bandtype = 0;
@@ -456,22 +469,27 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   if (options.find("B1") < options.size()) {
     nbands = 1;
     if (bandtype == 0 && intervals.size() != 2) {
-      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
       intervals.clear();
       intervals.push_back(0.1587);
       intervals.push_back(0.8413);
     }
     else if (bandtype == 1 && intervals.size() != 1) {
-      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
       intervals.clear();
       intervals.push_back(0.6827);
+    }
+    else if (bandtype == 2 && intervals.size() != 1) {
+      intervals.clear();
+      intervals.push_back(0.90);
+    }
+    else if (bandtype == 3 && intervals.size() != 1) {
+      intervals.clear();
+      intervals.push_back(0.10);
     }
   }
 
   if (options.find("B2") < options.size()) {
     nbands = 2;
     if (bandtype == 0 && intervals.size() != 4) {
-      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%) and (2.28%, 97.72%)");
       intervals.clear();
       intervals.push_back(0.1587);
       intervals.push_back(0.8413);
@@ -479,17 +497,25 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
       intervals.push_back(0.9772);
     }
     else if (bandtype == 1 && intervals.size() != 2) {
-      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
       intervals.clear();
       intervals.push_back(0.6827);
       intervals.push_back(0.9545);
+    }
+    else if (bandtype == 2 && intervals.size() != 2) {
+      intervals.clear();
+      intervals.push_back(0.90);
+      intervals.push_back(0.95);
+    }
+    else if (bandtype == 3 && intervals.size() != 2) {
+      intervals.clear();
+      intervals.push_back(0.10);
+      intervals.push_back(0.15);
     }
   }
 	
   if (options.find("B3") < options.size()) {
     nbands = 3;
     if (bandtype == 0 && intervals.size() != 6) {
-      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%), (2.28%, 97.72%) and (0.13%, 99.87%)");
       intervals.clear();
       intervals.push_back(0.1587);
       intervals.push_back(0.8413);
@@ -499,11 +525,22 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
       intervals.push_back(0.9987);
     }
     else if (bandtype == 1 && intervals.size() != 3) {
-      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
       intervals.clear();
       intervals.push_back(0.6827);
       intervals.push_back(0.9545);
       intervals.push_back(0.9973);
+    }
+    else if (bandtype == 2 && intervals.size() != 3) {
+      intervals.clear();
+      intervals.push_back(0.90);
+      intervals.push_back(0.95);
+      intervals.push_back(0.99);
+    }
+    else if (bandtype == 3 && intervals.size() != 3) {
+      intervals.clear();
+      intervals.push_back(0.10);
+      intervals.push_back(0.05);
+      intervals.push_back(0.01);
     }
   }
 
@@ -580,6 +617,18 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
       for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
 	hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
     }
+    else if(bandtype == 2) {
+      xlow = 0.;
+      xhigh = GetQuantile(intervals[nbands-1-i]);
+      hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+      prob_interval = intervals[nbands-1-i];
+    }
+    else if(bandtype == 3) {
+      xlow = GetQuantile(intervals[nbands-1-i]);
+      xhigh = GetQuantile(1.);
+      hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+      prob_interval = 1.-intervals[nbands-1-i];
+    }
 
     // set style of band histogram
     hist_band->SetFillStyle(1001);
@@ -591,10 +640,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     // add to legend
     std::string legend_label;
     if (bandtype == 0)
-      legend_label.append(Form("central interval containing %.3f", prob_interval));
+      legend_label.append(Form("central interval containing %.1f%%", prob_interval*100));
     else if (bandtype == 1)
-      legend_label.append(Form("smallest interval(s) with %.3f", prob_interval));
-		
+      legend_label.append(Form("smallest interval(s) with %.1f%%", prob_interval*100));
+    else if (bandtype == 2)
+      legend_label.append(Form("%.0f%% upper limit", prob_interval*100));
+    else if (bandtype == 3)
+      legend_label.append(Form("%.0f%% lower limit", prob_interval*100));
+    
     legend->AddEntry(hist_band, legend_label.c_str(), "F");
 
     // add hist_band to list of objects
@@ -644,6 +697,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   gPad->RedrawAxis();
 
   return;
+}
+
+// ---------------------------------------------------------
+void BCH1D::myDraw(std::string options, double interval)
+{
+  std::vector<double> tempvec;
+  tempvec.push_back(interval);
+  myDraw(options, tempvec);  
 }
 
 // ---------------------------------------------------------

@@ -161,6 +161,7 @@ class BCH1D
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
       void myPrint(const char * filename, std::string options="BT0B3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+      void myPrint(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
       /**
        * Draw distribution into the active canvas.
@@ -188,8 +189,10 @@ class BCH1D
       /**
        * Draw distribution into the active canvas.
        * @param options Drawing options: \n 
-       * BT0 : band type is central interval [default] \n
-       * BT1 : band type is smallest interval \n
+       * BTci : band type is central interval [default] \n
+       * BTsi : band type is smallest interval \n
+       * BTul : band type is upper limit \n
+       * BTll : band type is lower limit \n
        * B1 : draw one band between values specified in intervals [default] \n
        * B2 : draw two bands between values specified in intervals \n
        * B3 : draw three bands between values specified in intervals \n
@@ -201,7 +204,8 @@ class BCH1D
        * pdf1 : draw cumulative pdf \n
        * @param intervals:
        */
-      void myDraw(std::string options="BT0B3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0));
+      void myDraw(std::string options="BTciB3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0));
+      void myDraw(std::string options, double interval);
 
      /**
        * Draw the 1D marginal for a parameter fixed by a delta prior.
