@@ -105,6 +105,13 @@ class BCH1D
        * @return The p-value. */
       double GetPValue(double probability);
 
+      /**
+       * Returns a color of the current color scheme.
+       * @param index the color index 
+       * @return the color number. */
+      int GetColor(int index) {
+	return fColors.at(index); };
+
       /** @} */
 
       /** \name Member functions (set)  */

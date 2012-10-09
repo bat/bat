@@ -117,25 +117,33 @@ void BCH1D::SetColorScheme(int scheme)
 {
   fColors.clear();
 	
+  // color numbering
+  // 0,1,2 : intervals
+  // 3 : quantile lines
+
   if (scheme == 0) {
     fColors.push_back(14);
     fColors.push_back(16);
     fColors.push_back(18);
+    fColors.push_back(20);
   }
   else if (scheme == 1) {
     fColors.push_back(kGreen);
     fColors.push_back(kYellow);
     fColors.push_back(kRed);
+    fColors.push_back(kBlue);
   }
   else if (scheme == 2) {
     fColors.push_back(kBlue);
     fColors.push_back(kBlue+2);
     fColors.push_back(kBlue+4);
+    fColors.push_back(kBlue+6);
   }
   else if (scheme == 3) {
     fColors.push_back(kRed);
     fColors.push_back(kRed+2);
     fColors.push_back(kRed+4);
+    fColors.push_back(kRed+6);
   }
   else {
     SetColorScheme(1);
@@ -424,6 +432,12 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   bool flag_legend = false;
   bool flag_logx;
   bool flag_logy;
+  bool flag_median = false;
+  bool flag_mean = false;
+  bool flag_mode = false;
+  bool flag_quartiles = false;
+  bool flag_deciles = false;
+  bool flag_percentiles = false;
 
   // band type
   int bandtype = 0;
@@ -570,6 +584,25 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     flag_pdf1 = true;
   }
 
+  if (options.find("median") < options.size()) {
+    flag_median = true;
+  }
+  if (options.find("mean") < options.size()) {
+    flag_mean = true;
+  }
+  if (options.find("mode") < options.size()) {
+    flag_mode = true;
+  }
+  if (options.find("quartiles") < options.size()) {
+    flag_quartiles = true;
+  }
+  if (options.find("deciles") < options.size()) {
+    flag_deciles = true;
+  }
+  if (options.find("percentiles") < options.size()) {
+    flag_percentiles = true;
+  }
+
   // normalize histogram to unity
   fHistogram->Scale(1./fHistogram->Integral("width"));
 	
@@ -592,7 +625,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 
   // draw bands
   for (int i = 0; i < nbands; ++i) {
-    int col = fColors[nbands-i-1];
+    int col = GetColor(nbands-i-1);
 
     double prob_low  = 0;
     double prob_high = 0;
@@ -676,6 +709,56 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     ymax*=1.1;
 
   fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+
+  // mean, mode, median
+  // ...
+
+  // quantiles
+  TLine* line_quantiles = new TLine();
+  line_quantiles->SetLineStyle(2);
+  line_quantiles->SetLineColor(GetColor(3));
+
+  if (flag_quartiles) {
+    for (int i = 1; i < 4; ++i) {
+      double quantile_x = GetQuantile(0.25*i);
+      int quantile_xbin = fHistogram->FindBin(quantile_x);
+      double quantile_y = fHistogram->GetBinContent(quantile_xbin);
+      double quantile_ymin = 0;
+      if (flag_logy)
+	quantile_ymin = 1e-4*ymaxhist;
+      line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
+    }
+    legend->AddEntry(line_quantiles, "quartiles", "L");
+  }
+
+  if (flag_deciles) {
+    for (int i = 1; i < 10; ++i) {
+      double quantile_x = GetQuantile(0.10*i);
+      int quantile_xbin = fHistogram->FindBin(quantile_x);
+      double quantile_y = fHistogram->GetBinContent(quantile_xbin);
+      double quantile_ymin = 0;
+      if (flag_logy)
+	quantile_ymin = 1e-4*ymaxhist;
+      line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
+    }
+    legend->AddEntry(line_quantiles, "deciles", "L");
+  }
+  
+  if (flag_percentiles) {
+    for (int i = 1; i < 100; ++i) {
+      double quantile_x = GetQuantile(0.01*i);
+      int quantile_xbin = fHistogram->FindBin(quantile_x);
+      double quantile_y = fHistogram->GetBinContent(quantile_xbin);
+      double quantile_ymin = 0;
+      if (flag_logy)
+	quantile_ymin = 1e-4*ymaxhist;
+      line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
+    }
+    legend->AddEntry(line_quantiles, "percentiles", "L");
+  }
+
+  // add line_quantiles to list of ROOT objects
+  fROOTObjects.push_back(line_quantiles);
 
   // calculate dimensions in NDC variables
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
