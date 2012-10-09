@@ -23,7 +23,9 @@
 #include <TError.h>
 #include <TCanvas.h>
 #include <TMarker.h>
+#include <TArrow.h>
 #include <TLegend.h>
+#include <TLegendEntry.h>
 #include <TString.h>
 
 #include <math.h>
@@ -120,30 +122,35 @@ void BCH1D::SetColorScheme(int scheme)
   // color numbering
   // 0,1,2 : intervals
   // 3 : quantile lines
+	// 4 : mean, mode, median
 
   if (scheme == 0) {
     fColors.push_back(14);
     fColors.push_back(16);
     fColors.push_back(18);
-    fColors.push_back(20);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
   }
   else if (scheme == 1) {
     fColors.push_back(kGreen);
     fColors.push_back(kYellow);
     fColors.push_back(kRed);
-    fColors.push_back(kBlue);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
   }
   else if (scheme == 2) {
     fColors.push_back(kBlue);
     fColors.push_back(kBlue+2);
     fColors.push_back(kBlue+4);
-    fColors.push_back(kBlue+6);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
   }
   else if (scheme == 3) {
     fColors.push_back(kRed);
     fColors.push_back(kRed+2);
     fColors.push_back(kRed+4);
-    fColors.push_back(kRed+6);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
   }
   else {
     SetColorScheme(1);
@@ -434,7 +441,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   bool flag_logy;
   bool flag_median = false;
   bool flag_mean = false;
-  bool flag_mode = false;
   bool flag_quartiles = false;
   bool flag_deciles = false;
   bool flag_percentiles = false;
@@ -590,9 +596,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   if (options.find("mean") < options.size()) {
     flag_mean = true;
   }
-  if (options.find("mode") < options.size()) {
-    flag_mode = true;
-  }
   if (options.find("quartiles") < options.size()) {
     flag_quartiles = true;
   }
@@ -673,9 +676,9 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     // add to legend
     std::string legend_label;
     if (bandtype == 0)
-      legend_label.append(Form("central interval containing %.1f%%", prob_interval*100));
+      legend_label.append(Form("central %.1f%% interval ", prob_interval*100));
     else if (bandtype == 1)
-      legend_label.append(Form("smallest interval(s) with %.1f%%", prob_interval*100));
+      legend_label.append(Form("smallest %.1f%% interval(s)", prob_interval*100));
     else if (bandtype == 2)
       legend_label.append(Form("%.0f%% upper limit", prob_interval*100));
     else if (bandtype == 3)
@@ -699,20 +702,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   if (flag_logy)
     ymin = 1e-4*ymaxhist;
 
-  // calculate legend height in NDC coordinates
-  double height = 0.08*legend->GetNRows();
-
-  // make room for legend
-  if (flag_legend)
-    ymax*=(1.1+height);
-  else 
-    ymax*=1.1;
-
-  fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
-
-  // mean, mode, median
-  // ...
-
   // quantiles
   TLine* line_quantiles = new TLine();
   line_quantiles->SetLineStyle(2);
@@ -725,10 +714,15 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
       double quantile_y = fHistogram->GetBinContent(quantile_xbin);
       double quantile_ymin = 0;
       if (flag_logy)
-	quantile_ymin = 1e-4*ymaxhist;
+				quantile_ymin = 1e-4*ymaxhist;
       line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
     }
-    legend->AddEntry(line_quantiles, "quartiles", "L");
+    TLegendEntry* le = legend->AddEntry(line_quantiles, "quartiles", "L");
+		if (nbands>0) 
+			le->SetFillColor(GetColor(0));
+		else
+			le->SetFillColor(kWhite);
+		le->SetFillStyle(1001);
   }
 
   if (flag_deciles) {
@@ -738,10 +732,12 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
       double quantile_y = fHistogram->GetBinContent(quantile_xbin);
       double quantile_ymin = 0;
       if (flag_logy)
-	quantile_ymin = 1e-4*ymaxhist;
+				quantile_ymin = 1e-4*ymaxhist;
       line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
     }
-    legend->AddEntry(line_quantiles, "deciles", "L");
+    TLegendEntry* le = legend->AddEntry(line_quantiles, "deciles", "FL");
+		le->SetFillColor(GetColor(0));
+		le->SetFillStyle(1001);
   }
   
   if (flag_percentiles) {
@@ -751,14 +747,76 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
       double quantile_y = fHistogram->GetBinContent(quantile_xbin);
       double quantile_ymin = 0;
       if (flag_logy)
-	quantile_ymin = 1e-4*ymaxhist;
+				quantile_ymin = 1e-4*ymaxhist;
       line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
     }
-    legend->AddEntry(line_quantiles, "percentiles", "L");
+    TLegendEntry* le = legend->AddEntry(line_quantiles, "percentiles", "L");		
+		le->SetFillColor(GetColor(0));
+		le->SetFillStyle(1001);
   }
 
   // add line_quantiles to list of ROOT objects
   fROOTObjects.push_back(line_quantiles);
+
+  // mean, mode, median
+	TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
+	marker_mean->SetMarkerColor(GetColor(4));
+	marker_mean->SetMarkerSize(1.5);
+
+	TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
+	marker_median->SetMarkerColor(GetColor(4));
+	marker_median->SetMarkerSize(1.5);
+
+	// standard deviation
+	TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
+																 GetMean()+GetRMS(), 0.55*ymaxhist,
+																 0.02, "<|>");
+	arrow_std->SetLineColor(GetColor(4));
+	arrow_std->SetFillColor(GetColor(4));
+
+	// central interval
+	TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
+																GetQuantile(0.8413), 0.45*ymaxhist,
+																0.02, "<|>");
+	arrow_ci->SetLineColor(GetColor(4));
+	arrow_ci->SetFillColor(GetColor(4));
+
+	// add marker_mean and arrow_std to list of ROOT objects
+	fROOTObjects.push_back(marker_mean);
+	fROOTObjects.push_back(marker_median);
+	fROOTObjects.push_back(arrow_std);
+	fROOTObjects.push_back(arrow_ci);
+
+	if (flag_mean) {
+		arrow_std->Draw();
+		marker_mean->Draw();
+		TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
+		le->SetLineColor(GetColor(4));
+		le->SetMarkerStyle(20);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
+	
+	if (flag_median) {
+		arrow_ci->Draw();
+		marker_median->Draw();
+		TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
+		le->SetLineColor(GetColor(4));
+		le->SetMarkerStyle(21);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
+	
+  // calculate legend height in NDC coordinates
+  double height = 0.08*legend->GetNRows();
+
+  // make room for legend
+  if (flag_legend)
+    ymax*=(1.1+height);
+  else 
+    ymax*=1.1;
+
+  fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
 
   // calculate dimensions in NDC variables
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;

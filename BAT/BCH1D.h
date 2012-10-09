@@ -197,18 +197,26 @@ class BCH1D
        * Draw distribution into the active canvas.
        * @param options Drawing options: \n 
        * BTci : band type is central interval [default] \n
-       * BTsi : band type is smallest interval \n
+       * BTsi : band type is/are smallest interval(s) \n
        * BTul : band type is upper limit \n
        * BTll : band type is lower limit \n
        * B1 : draw one band between values specified in intervals [default] \n
        * B2 : draw two bands between values specified in intervals \n
        * B3 : draw three bands between values specified in intervals \n
-       * CS0 : choose color scheme 0\n
-       * CS2 : choose color scheme 1  [default] \n
-       * CS3 : choose color scheme 2 \n
-       * CS4 : choose color scheme 3 \n
+       * D0 : draw histogram [default] \n
+			 * D1 : draw smooth curve \n
+       * CS0 : choose color scheme 0 (B&W) \n
+       * CS2 : choose color scheme 1 (green/yellow/red) [default] \n
+       * CS3 : choose color scheme 2 (blueish colors) \n
+       * CS4 : choose color scheme 3 (redish colors) \n
        * pdf0 : draw pdf [default] \n
        * pdf1 : draw cumulative pdf \n
+			 * median : draw median and central interval \n
+			 * mode : draw mode and standard deviation \n
+			 * quartiles : indicate quartiles \n
+			 * deciles : indicate deciles \n
+			 * percentiles : indicate percentiles \n
+			 * L : add legend \n
        * @param intervals:
        */
       void myDraw(std::string options="BTciB3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0));
