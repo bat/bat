@@ -123,8 +123,8 @@ void BCH1D::SetColorScheme(int scheme)
     fColors.push_back(18);
   }
   else if (scheme == 1) {
-    fColors.push_back(kYellow);
     fColors.push_back(kGreen);
+    fColors.push_back(kYellow);
     fColors.push_back(kRed);
   }
   else if (scheme == 2) {
