@@ -205,6 +205,11 @@ class BCMTFChannel
 			 * @param filename The name of the file. */
 			void PrintHistCumulativeUncertaintyBandPoisson(const char* filename); 
 
+			/** 
+			 * Print uncertainty band.
+			 * @param filename The name of the file. */
+			void PrintUncertaintyBandPoisson(const char* filename, double minimum, double maximum, int color);
+
       /** @} */
 
  private:
