@@ -109,8 +109,19 @@ class BCH1D
 
       /** \name Member functions (set)  */
       /** @{ */
-
+      
       /**
+       * Sets the color scheme. 
+       * @param scheme the scheme index \n
+       * 0 : black and white
+       * 1 : yellow-green-red
+       * 2 : blueish colors
+       * 2 : redish colors
+       * 2 : blueish colors
+       */
+      void SetColorScheme(int scheme);
+      
+     /**
        * Sets the histogram. */
       void SetHistogram(TH1D * hist)
          { fHistogram = hist; };
@@ -140,6 +151,17 @@ class BCH1D
        * method. */
       void Print(const char * filename, int options=0, double ovalue=0., int ww=0, int wh=0);
 
+     /**
+       * Print distribution into a PostScript file.
+       * @param filename Output filename
+       * @param option the draw options
+       * @param ww canvas size in pixels along X
+       * @param ww canvas size in pixels along Y
+       * If ww and wh are set to 0, default ROOT canvas size is used.
+       * For explanation of parameters options and ovalue look at BCH1D::Draw()
+       * method. */
+      void myPrint(const char * filename, std::string options="BT0B3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+
       /**
        * Draw distribution into the active canvas.
        * @param options Drawing options: \n 0 = band mode [default], \n
@@ -164,6 +186,24 @@ class BCH1D
       void Draw(int options=0, double ovalue=0.);
 
       /**
+       * Draw distribution into the active canvas.
+       * @param options Drawing options: \n 
+       * BT0 : band type is central interval [default] \n
+       * BT1 : band type is smallest interval \n
+       * B1 : draw one band between values specified in intervals [default] \n
+       * B2 : draw two bands between values specified in intervals \n
+       * B3 : draw three bands between values specified in intervals \n
+       * CS0 : choose color scheme 0\n
+       * CS2 : choose color scheme 1  [default] \n
+       * CS3 : choose color scheme 2 \n
+       * CS4 : choose color scheme 3 \n
+       * pdf0 : draw pdf [default] \n
+       * pdf1 : draw cumulative pdf \n
+       * @param intervals:
+       */
+      void myDraw(std::string options="BT0B3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0));
+
+     /**
        * Draw the 1D marginal for a parameter fixed by a delta prior.
        * @param value The fixed value of the parameter. */
       void DrawDelta(double value) const;
@@ -237,6 +277,13 @@ class BCH1D
        * "Is there a global mode?" flag */
       int fModeFlag;
 
+      /**
+       * The colors of the color scheme. */
+      std::vector<int> fColors;
+      
+      /**
+       * The colors of the color scheme. */
+      std::vector<TObject*> fROOTObjects;
 };
 
 // ---------------------------------------------------------

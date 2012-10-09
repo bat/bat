@@ -1,3 +1,7 @@
+2012-10-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Updated printing of 1D marginalized histograms, not yet default (use myDraw and myPrint)
+	* Fixed draw options in BCTemplateFitter
+
 2012-10-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated RooInterface based on new code from Stefan Schmitz.
 	

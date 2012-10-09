@@ -13,6 +13,8 @@
 #include "BCMath.h"
 
 #include <TH1D.h>
+#include <TROOT.h>
+#include <TStyle.h>
 #include <TH2.h>
 #include <TLine.h>
 #include <TPolyLine.h>
@@ -29,8 +31,9 @@
 // ---------------------------------------------------------
 
 BCH1D::BCH1D()
+  : fHistogram(0)
+  , fROOTObjects(std::vector<TObject*>(0))
 {
-   fHistogram = 0;
    fDefaultCLLimit = 95.; // in percent
 
    fModeFlag = 0;
@@ -41,6 +44,12 @@ BCH1D::BCH1D()
 BCH1D::~BCH1D()
 {
    if (fHistogram) delete fHistogram;
+
+   // clear memory
+   int nobjects = (int) fROOTObjects.size();
+   for (int i = 0; i < nobjects; ++i) 
+     if (fROOTObjects[i])
+       delete fROOTObjects[i];
 }
 
 // ---------------------------------------------------------
@@ -104,7 +113,36 @@ void BCH1D::SetDefaultCLLimit(double limit)
 }
 
 // ---------------------------------------------------------
+void BCH1D::SetColorScheme(int scheme)
+{
+  fColors.clear();
+	
+  if (scheme == 0) {
+    fColors.push_back(14);
+    fColors.push_back(16);
+    fColors.push_back(18);
+  }
+  else if (scheme == 1) {
+    fColors.push_back(kYellow);
+    fColors.push_back(kGreen);
+    fColors.push_back(kRed);
+  }
+  else if (scheme == 2) {
+    fColors.push_back(kBlue);
+    fColors.push_back(kBlue+2);
+    fColors.push_back(kBlue+4);
+  }
+  else if (scheme == 3) {
+    fColors.push_back(kRed);
+    fColors.push_back(kRed+2);
+    fColors.push_back(kRed+4);
+  }
+  else {
+    SetColorScheme(1);
+  }
+}
 
+// ---------------------------------------------------------
 void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int wh)
 {
    char file[256];
@@ -130,6 +168,60 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
 
    // print to file.
    c->Print(file);
+}
+
+// ---------------------------------------------------------
+
+void BCH1D::myPrint(const char* filename, std::string options, std::vector<double> intervals, int ww, int wh)
+{
+  char file[256];
+  int i=0;
+  while(i<255 && *filename!='\0')
+    file[i++]=*filename++;
+  file[i]='\0';
+
+  // option flags
+  bool flag_logx = false;
+  bool flag_logy = false;
+
+  // check content of options string
+  if (options.find("logx") < options.size()) {
+    flag_logx = true;
+  }
+
+  if (options.find("logy") < options.size()) {
+    flag_logy = true;
+  }
+
+  // create temporary canvas
+  TCanvas * ctemp;
+  if(ww > 0 && wh > 0) {
+    ctemp = new TCanvas("ctemp","ctemp",ww,wh);
+  }
+  else
+    ctemp = new TCanvas("ctemp","ctemp", 700, 735);
+
+  // add ctemp to list of objects
+  fROOTObjects.push_back(ctemp);
+
+  ctemp->cd();
+
+  // set log axis 
+  if (flag_logx) {
+    ctemp->SetLogx();
+  }
+
+  // set log axis
+  if (flag_logy) {
+    ctemp->SetLogy();
+  }
+
+  myDraw(options, intervals);
+
+  gPad->RedrawAxis();
+
+  // print to file.
+  ctemp->Print(file);
 }
 
 // ---------------------------------------------------------
@@ -285,6 +377,275 @@ void BCH1D::Draw(int options, double ovalue)
          break;
    }
 }
+
+// ---------------------------------------------------------
+void BCH1D::myDraw(std::string options, std::vector<double> intervals)
+{
+  // todoKK:
+  // - fix legend size, position and style
+  // - maybe write a painer class?
+  // options should start with letter indicating type, e.g.
+  // L: legend
+  //    - L  : legend : simple legend
+  //    - L1 : legend : written summary on plot (mean = xyz, ...)
+  // B: band (or shaded area)
+  //    - BT0 : band type : smallest intervals
+  //    - BT1 : band type : central interval
+  //    - B1  : band : draw one band between arbitrary values (yellow)
+  //    - B2  : band : draw two bands between arbitrary values (+red)
+  //    - B3  : band : draw three bands between arbitrary values (+green)
+  // D: drawing
+  //    - D0  : draw : draw histogram as normal histogram
+  //    - D1  : draw : draw histogram as smooth curve
+  //    - CS0  : color scheme : black&white version with hatching
+  //    - CS1  : color scheme : colored version with hatching
+  //    - logx : log-scale : use log-scale for x-axis
+  //    - logy : log-scale : use log-scale for y-axis
+  //    - pdf0 : pdf : draw pdf
+  //    - pdf1 : pdf : draw cumulative pdf
+  // S: summary values (mean, rms, ...)
+  //    - S0 : summary : add indicator for mode, mean, median individually
+  //    - S1 : summary : add indicator for rms, smallest interval, central interval individually 
+  //    - Q0 : quantiles : add indicator for the median
+  //    - Q1 : quantiles : add indicator for quartiles
+  //    - Q2 : quantiles : add indicator for deciles 
+  //    - Q3 : quantiles : add indicator for percentiles 
+
+  // option flags
+  bool flag_pdf0 = true;
+  bool flag_pdf1 = false;
+  bool flag_legend = false;
+  bool flag_logx;
+  bool flag_logy;
+
+  // band type
+  int bandtype = 0;
+
+  // number of bands
+  int nbands = 0; // number of shaded bands
+
+  // color scheme
+  std::vector<int> colors(0); // colors
+
+  std::string draw_options = ""; // draw options called in TH1D::Draw(...)
+
+  // check content of options string
+  if (options.find("logx") < options.size()) {
+    flag_logx = true;
+  }
+
+  if (options.find("logy") < options.size()) {
+    flag_logy = true;
+  }
+
+  if (options.find("L") < options.size()) {
+    flag_legend = true;
+  }
+
+  if (options.find("D1") < options.size()) {
+    draw_options.append("C");
+  }
+
+  if (options.find("BT1") < options.size()) {
+    bandtype = 1;
+  }
+  else {
+    bandtype = 0;
+  }
+
+  if (options.find("B1") < options.size()) {
+    nbands = 1;
+    if (bandtype == 0 && intervals.size() != 2) {
+      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
+      intervals.clear();
+      intervals.push_back(0.1587);
+      intervals.push_back(0.8413);
+    }
+    else if (bandtype == 1 && intervals.size() != 1) {
+      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
+      intervals.clear();
+      intervals.push_back(0.6827);
+    }
+  }
+
+  if (options.find("B2") < options.size()) {
+    nbands = 2;
+    if (bandtype == 0 && intervals.size() != 4) {
+      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%) and (2.28%, 97.72%)");
+      intervals.clear();
+      intervals.push_back(0.1587);
+      intervals.push_back(0.8413);
+      intervals.push_back(0.0228);
+      intervals.push_back(0.9772);
+    }
+    else if (bandtype == 1 && intervals.size() != 2) {
+      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
+      intervals.clear();
+      intervals.push_back(0.6827);
+      intervals.push_back(0.9545);
+    }
+  }
+	
+  if (options.find("B3") < options.size()) {
+    nbands = 3;
+    if (bandtype == 0 && intervals.size() != 6) {
+      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%), (2.28%, 97.72%) and (0.13%, 99.87%)");
+      intervals.clear();
+      intervals.push_back(0.1587);
+      intervals.push_back(0.8413);
+      intervals.push_back(0.0228);
+      intervals.push_back(0.9772);
+      intervals.push_back(0.0013);
+      intervals.push_back(0.9987);
+    }
+    else if (bandtype == 1 && intervals.size() != 3) {
+      BCLog::OutWarning("Intervals need to be specified. Will use (15.87%, 84.13%)");
+      intervals.clear();
+      intervals.push_back(0.6827);
+      intervals.push_back(0.9545);
+      intervals.push_back(0.9973);
+    }
+  }
+
+  if (options.find("CS0") < options.size()) {
+    SetColorScheme(0);
+  }
+  else if (options.find("CS1") < options.size()) {
+    SetColorScheme(1);
+  }
+  else if (options.find("CS2") < options.size()) {
+    SetColorScheme(2);
+  }
+  else if (options.find("CS3") < options.size()) {
+    SetColorScheme(3);
+  }
+  else  {
+    SetColorScheme(1);
+  }
+	
+  if (options.find("pdf0") < options.size()) {
+    flag_pdf0 = true;
+    flag_pdf1 = false;
+  }
+
+  if (options.find("pdf1") < options.size()) {
+    flag_pdf0 = false;
+    flag_pdf1 = true;
+  }
+
+  // normalize histogram to unity
+  fHistogram->Scale(1./fHistogram->Integral("width"));
+	
+  // prepare legend
+  TLegend* legend = new TLegend();
+  legend->SetBorderSize(0);
+  legend->SetFillColor(kWhite);
+  legend->SetTextAlign(12);
+  legend->SetTextFont(62);
+  legend->SetTextSize(0.03);
+
+  legend->AddEntry(fHistogram, "posterior", "L");
+
+  // add legend to list of objects
+  fROOTObjects.push_back(legend);
+
+  // draw histogram
+  if (flag_pdf0)
+    fHistogram->Draw(draw_options.c_str());
+
+  // draw bands
+  for (int i = 0; i < nbands; ++i) {
+    int col = fColors[nbands-i-1];
+
+    double prob_low  = 0;
+    double prob_high = 0;
+    double prob_interval = 0;
+    double xlow  = 0;
+    double xhigh = 0;
+
+    TH1D * hist_band = 0;
+
+    if (bandtype == 0) {
+      prob_low  = intervals[2*(nbands-i)-2];
+      prob_high = intervals[2*(nbands-i)-1];
+      xlow  = GetQuantile(prob_low);
+      xhigh = GetQuantile(prob_high);
+      prob_interval = prob_high - prob_low;
+
+      hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+    }
+    else if (bandtype == 1) {
+      prob_interval = GetSmallestInterval(xlow, xhigh, intervals[nbands-1-i]);
+      hist_band = GetSmallestIntervalHistogram(intervals[nbands-1-i]);
+      for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
+	hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
+    }
+
+    // set style of band histogram
+    hist_band->SetFillStyle(1001);
+    hist_band->SetFillColor(col);
+
+    // draw shaded histogram
+    hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
+
+    // add to legend
+    std::string legend_label;
+    if (bandtype == 0)
+      legend_label.append(Form("central interval containing %.3f", prob_interval));
+    else if (bandtype == 1)
+      legend_label.append(Form("smallest interval(s) with %.3f", prob_interval));
+		
+    legend->AddEntry(hist_band, legend_label.c_str(), "F");
+
+    // add hist_band to list of objects
+    fROOTObjects.push_back(hist_band);
+  }
+
+  gPad->RedrawAxis();
+
+  // prepare size of histogram
+  double ymin     = 0;
+  double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
+  double ymax     = ymaxhist;
+  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
+  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin();
+  // check if log axis
+  if (flag_logy)
+    ymin = 1e-4*ymaxhist;
+
+  // calculate legend height in NDC coordinates
+  double height = 0.08*legend->GetNRows();
+
+  // make room for legend
+  if (flag_legend)
+    ymax*=(1.1+height);
+  else 
+    ymax*=1.1;
+
+  fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+
+  // calculate dimensions in NDC variables
+  double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
+  double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
+  double ylegend1 = gStyle->GetPadBottomMargin() + 1.05*ymaxhist/ymax*yfraction;
+  double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
+
+  // place legend on top of histogram
+  legend->SetX1NDC(xlegend1);
+  legend->SetX2NDC(xlegend2);
+  legend->SetY1NDC(ylegend1);
+  legend->SetY2NDC(ylegend2);
+
+  // draw legend
+  if (flag_legend) {
+    legend->Draw();
+  }
+
+  gPad->RedrawAxis();
+
+  return;
+}
+
 // ---------------------------------------------------------
 void BCH1D::DrawDelta(double value) const
 {

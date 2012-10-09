@@ -15,18 +15,18 @@
 
 void BCAux::SetStyle()
 {
-   // canvases
-   gStyle->SetCanvasColor     (kWhite);
-   gStyle->SetCanvasBorderMode(0);
-   gStyle->SetCanvasDefH      (700);
-   gStyle->SetCanvasDefW      (735);
-
    // pads
    gStyle->SetPadTopMargin   (0.05);
    gStyle->SetPadBottomMargin(0.11);
    gStyle->SetPadLeftMargin  (0.15);
    gStyle->SetPadRightMargin (0.05);
    gStyle->SetPadBorderMode  (0);
+
+   // canvases
+   gStyle->SetCanvasColor     (kWhite);
+   gStyle->SetCanvasBorderMode(0);
+   gStyle->SetCanvasDefH      (700.);
+	 gStyle->SetCanvasDefW      (700.*(1.-gStyle->GetPadTopMargin()-gStyle->GetPadBottomMargin())/(1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin()));
 
    // Frames
    gStyle->SetFrameFillStyle (0);
