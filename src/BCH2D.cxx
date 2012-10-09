@@ -18,6 +18,7 @@
 #include <TCanvas.h>
 #include <TLine.h>
 #include <TMarker.h>
+#include <TObject.h>
 #include <TLegend.h>
 #include <TString.h>
 
@@ -26,10 +27,10 @@
 // ---------------------------------------------------------
 
 BCH2D::BCH2D()
+  : fHistogram(0)
+	, fIntegratedHistogram(0)
+  , fROOTObjects(std::vector<TObject*>(0))
 {
-   fHistogram = 0;
-   fIntegratedHistogram = 0;
-
    fModeFlag = 0;
 }
 
@@ -47,8 +48,17 @@ BCH2D::BCH2D(TH2D * h)
 
 BCH2D::~BCH2D()
 {
-   if (fHistogram) delete fHistogram;
-   if (fIntegratedHistogram) delete fIntegratedHistogram;
+   if (fHistogram) 
+		 delete fHistogram;
+   if (fIntegratedHistogram) 
+		 delete fIntegratedHistogram;
+
+   // clear memory
+   int nobjects = (int) fROOTObjects.size();
+   for (int i = 0; i < nobjects; ++i) 
+     if (fROOTObjects[i])
+       delete fROOTObjects[i];
+
 }
 
 // ---------------------------------------------------------
@@ -70,6 +80,35 @@ void BCH2D::Print(const char * filename, int options, int ww, int wh)
 
    // print to file
    c->Print(filename);
+}
+
+// ---------------------------------------------------------
+
+void BCH2D::myPrint(const char * filename, std::string options, std::vector<double> intervals, int ww, int wh)
+{
+   // create temporary canvas
+   TCanvas * c;
+   if(ww >0 && wh > 0)
+      c = new TCanvas("c","c",ww,wh);
+   else
+      c = new TCanvas("c","c",700,700);
+   c->cd();
+
+	 // add ctemp to list of objects
+	 fROOTObjects.push_back(c);
+
+   // draw histogram
+   myDraw(options, intervals);
+
+   gPad->RedrawAxis();
+
+   // print to file
+   c->Print(filename);
+}
+
+// ---------------------------------------------------------
+void BCH2D::myDraw(std::string options, std::vector<double> intervals)
+{
 }
 
 // ---------------------------------------------------------

@@ -22,11 +22,12 @@
 // ---------------------------------------------------------
 
 #include <vector>
-
+#include <string>
 // ROOT classes
 class TH1D;
 class TH2D;
 class TGraph;
+class TObject;
 
 // ---------------------------------------------------------
 
@@ -87,11 +88,15 @@ class BCH2D
        * For explanation of the parameter options see the Draw() method. */
       void Print(const char * filename, int options=0, int ww=0, int wh=0);
 
+			void myPrint(const char * filename, std::string options="BT0B3CS1D0pdf0L", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+
       /**
        * Draw 2-d distribution into the active canvas
        * @param options explanation to come
        * @param drawmode specify whether a marker should be drawn at the location of the mode */
       void Draw(int options=0, bool drawmode=true);
+
+      void myDraw(std::string options, std::vector<double> intervals=std::vector<double>(0));
 
       /**
        * Calculates the integral of the distribution as a function of the
@@ -145,6 +150,9 @@ class BCH2D
        * "Is there a global mode?" flag */
       int fModeFlag;
 
+      /**
+       * The colors of the color scheme. */
+      std::vector<TObject*> fROOTObjects;
 };
 
 // ---------------------------------------------------------
