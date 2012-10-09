@@ -509,7 +509,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     else if (bandtype == 3 && intervals.size() != 2) {
       intervals.clear();
       intervals.push_back(0.10);
-      intervals.push_back(0.15);
+      intervals.push_back(0.05);
     }
   }
 	
