@@ -1,3 +1,6 @@
+2012-10-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Continued to update plotting of 1D and 2D histograms.
+	
 2012-10-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated printing of 1D marginalized histograms, not yet default (use myDraw and myPrint)
 	* Fixed draw options in BCTemplateFitter

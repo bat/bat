@@ -451,10 +451,8 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   // number of bands
   int nbands = 0; // number of shaded bands
 
-  // color scheme
-  std::vector<int> colors(0); // colors
-
-  std::string draw_options = ""; // draw options called in TH1D::Draw(...)
+	// define draw options called in TH1D::Draw(...)
+	std::string draw_options = ""; 
 
   // check content of options string
   if (options.find("logx") < options.size()) {

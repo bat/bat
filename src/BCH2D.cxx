@@ -62,7 +62,49 @@ BCH2D::~BCH2D()
 }
 
 // ---------------------------------------------------------
+void BCH2D::SetColorScheme(int scheme)
+{
+  fColors.clear();
+	
+  // color numbering
+  // 0,1,2 : intervals
+  // 3 : quantile lines
+	// 4 : mean, mode, median
 
+  if (scheme == 0) {
+    fColors.push_back(14);
+    fColors.push_back(16);
+    fColors.push_back(18);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
+  }
+  else if (scheme == 1) {
+    fColors.push_back(kGreen);
+    fColors.push_back(kYellow);
+    fColors.push_back(kRed);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
+  }
+  else if (scheme == 2) {
+    fColors.push_back(kBlue);
+    fColors.push_back(kBlue+2);
+    fColors.push_back(kBlue+4);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
+  }
+  else if (scheme == 3) {
+    fColors.push_back(kRed);
+    fColors.push_back(kRed+2);
+    fColors.push_back(kRed+4);
+    fColors.push_back(kBlack);
+    fColors.push_back(kBlack);
+  }
+  else {
+    SetColorScheme(1);
+  }
+}
+
+// ---------------------------------------------------------
 void BCH2D::Print(const char * filename, int options, int ww, int wh)
 {
    // create temporary canvas
@@ -109,6 +151,83 @@ void BCH2D::myPrint(const char * filename, std::string options, std::vector<doub
 // ---------------------------------------------------------
 void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 {
+  // option flags
+  bool flag_legend = false;
+
+  // number of bands
+  int nbands = 0; // number of shaded bands
+
+	// define draw options called in TH1D::Draw(...)
+	std::string draw_options = "COLZ"; 
+
+  // check content of options string
+  if (options.find("L") < options.size()) {
+    flag_legend = true;
+  }
+
+  if (options.find("B1") < options.size()) {
+    nbands = 1;
+    if (intervals.size() != 1) {
+      intervals.clear();
+      intervals.push_back(0.6827);
+    }
+  }
+
+  if (options.find("B2") < options.size()) {
+    nbands = 2;
+    if (intervals.size() != 2) {
+      intervals.clear();
+      intervals.push_back(0.6827);
+      intervals.push_back(0.9545);
+    }
+  }
+	
+  if (options.find("B3") < options.size()) {
+    nbands = 3;
+    if (intervals.size() != 6) {
+      intervals.clear();
+      intervals.push_back(0.6827);
+      intervals.push_back(0.9545);
+      intervals.push_back(0.9973);
+    }
+  }
+
+  if (options.find("CS0") < options.size()) {
+    SetColorScheme(0);
+  }
+  else if (options.find("CS1") < options.size()) {
+    SetColorScheme(1);
+  }
+  else if (options.find("CS2") < options.size()) {
+    SetColorScheme(2);
+  }
+  else if (options.find("CS3") < options.size()) {
+    SetColorScheme(3);
+  }
+  else  {
+    SetColorScheme(1);
+  }
+	
+  // normalize histogram to unity
+  fHistogram->Scale(1./fHistogram->Integral("width"));
+	
+  // prepare legend
+  TLegend* legend = new TLegend();
+  legend->SetBorderSize(0);
+  legend->SetFillColor(kWhite);
+  legend->SetTextAlign(12);
+  legend->SetTextFont(62);
+  legend->SetTextSize(0.03);
+
+  legend->AddEntry(fHistogram, "posterior", "L");
+
+  // add legend to list of objects
+  fROOTObjects.push_back(legend);
+
+  // draw histogram
+	fHistogram->Draw(draw_options.c_str());
+
+	return;
 }
 
 // ---------------------------------------------------------

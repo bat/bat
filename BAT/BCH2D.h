@@ -60,9 +60,27 @@ class BCH2D
       TH2D * GetHistogram()
          { return fHistogram; };
 
-      /** @} */
+			/**
+       * Returns a color of the current color scheme.
+       * @param index the color index 
+       * @return the color number. */
+      int GetColor(int index) {
+				return fColors.at(index); };
+			
+     /** @} */
       /** \name Member functions (set)  */
       /** @{ */
+
+      /**
+       * Sets the color scheme. 
+       * @param scheme the scheme index \n
+       * 0 : black and white
+       * 1 : yellow-green-red
+       * 2 : blueish colors
+       * 2 : redish colors
+       * 2 : blueish colors
+       */
+			void SetColorScheme(int scheme);
 
       /**
        * Set the 2D histogram. */
@@ -150,7 +168,11 @@ class BCH2D
        * "Is there a global mode?" flag */
       int fModeFlag;
 
-      /**
+			/**
+       * The colors of the color scheme. */
+      std::vector<int> fColors;
+
+			/**
        * The colors of the color scheme. */
       std::vector<TObject*> fROOTObjects;
 };
