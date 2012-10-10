@@ -12,6 +12,8 @@
 #include "BCMath.h"
 #include "BCLog.h"
 
+#include <TROOT.h>
+#include <TStyle.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TGraph.h>
@@ -72,9 +74,9 @@ void BCH2D::SetColorScheme(int scheme)
 	// 4 : mean, mode, median
 
   if (scheme == 0) {
-    fColors.push_back(14);
-    fColors.push_back(16);
     fColors.push_back(18);
+    fColors.push_back(16);
+    fColors.push_back(14);
     fColors.push_back(kBlack);
     fColors.push_back(kBlack);
   }
@@ -86,16 +88,16 @@ void BCH2D::SetColorScheme(int scheme)
     fColors.push_back(kBlack);
   }
   else if (scheme == 2) {
-    fColors.push_back(kBlue);
-    fColors.push_back(kBlue+2);
     fColors.push_back(kBlue+4);
+    fColors.push_back(kBlue+2);
+    fColors.push_back(kBlue);
     fColors.push_back(kBlack);
     fColors.push_back(kBlack);
   }
   else if (scheme == 3) {
-    fColors.push_back(kRed);
-    fColors.push_back(kRed+2);
     fColors.push_back(kRed+4);
+    fColors.push_back(kRed+2);
+    fColors.push_back(kRed);
     fColors.push_back(kBlack);
     fColors.push_back(kBlack);
   }
@@ -169,7 +171,7 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
     nbands = 1;
     if (intervals.size() != 1) {
       intervals.clear();
-      intervals.push_back(0.6827);
+      intervals.push_back(0.3935);
     }
   }
 
@@ -177,18 +179,18 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
     nbands = 2;
     if (intervals.size() != 2) {
       intervals.clear();
-      intervals.push_back(0.6827);
-      intervals.push_back(0.9545);
+      intervals.push_back(0.3935);
+      intervals.push_back(0.8647);
     }
   }
 	
   if (options.find("B3") < options.size()) {
     nbands = 3;
-    if (intervals.size() != 6) {
+    if (intervals.size() != 3) {
       intervals.clear();
-      intervals.push_back(0.6827);
-      intervals.push_back(0.9545);
-      intervals.push_back(0.9973);
+			intervals.push_back(0.3935);
+			intervals.push_back(0.8647);
+			intervals.push_back(0.9889);
     }
   }
 
@@ -224,8 +226,43 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
   // add legend to list of objects
   fROOTObjects.push_back(legend);
 
+	 // copy histograms for bands
+	 TH2D* hist_band = new TH2D(*fHistogram);
+	 
+	 // calculate integrated histogram
+	 CalculateIntegratedHistogram();
+
+	 for (int ix = 1; ix <= fHistogram->GetNbinsX(); ++ix) {
+		 for (int iy = 1; iy <= fHistogram->GetNbinsY(); ++iy) {
+			 double p = fHistogram->GetBinContent(ix, iy);
+			 hist_band->SetBinContent(ix, iy, p);
+		 }
+	 }
+	 double levels[nbands+2];
+	 levels[0] = 0.;
+	 for (int i = 1; i <= nbands; ++i) {
+		 levels[i] = GetLevel((1.-intervals[nbands-i]));
+	 }
+	 levels[nbands+1] = fHistogram->GetMaximum()+1.;
+	 hist_band->SetContour(nbands+2, levels);
+
+	 // debugKK: something's not right with the contours
+	 for (int i = 0; i < 5; ++i)
+		 std::cout << i << " " << levels[i] << std::endl;
+
+	 int colors[3] = {GetColor(2), GetColor(1), GetColor(0)};
+	 
+	 // set colors
+	 gStyle->SetPalette(3, colors); 
+
+	 // draw colored bands
+	 // debugKK
+	 // todo: set proper color
+	 hist_band->Draw("COLZ");
+	 hist_band->Draw("CONT3 SAME");
+	 
   // draw histogram
-	fHistogram->Draw(draw_options.c_str());
+	 //	fHistogram->Draw(draw_options.c_str());
 
 	return;
 }

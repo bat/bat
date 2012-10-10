@@ -125,9 +125,9 @@ void BCH1D::SetColorScheme(int scheme)
 	// 4 : mean, mode, median
 
   if (scheme == 0) {
-    fColors.push_back(14);
-    fColors.push_back(16);
     fColors.push_back(18);
+    fColors.push_back(16);
+    fColors.push_back(14);
     fColors.push_back(kBlack);
     fColors.push_back(kBlack);
   }
@@ -139,16 +139,16 @@ void BCH1D::SetColorScheme(int scheme)
     fColors.push_back(kBlack);
   }
   else if (scheme == 2) {
-    fColors.push_back(kBlue);
-    fColors.push_back(kBlue+2);
     fColors.push_back(kBlue+4);
+    fColors.push_back(kBlue+2);
+    fColors.push_back(kBlue);
     fColors.push_back(kBlack);
     fColors.push_back(kBlack);
   }
   else if (scheme == 3) {
-    fColors.push_back(kRed);
-    fColors.push_back(kRed+2);
     fColors.push_back(kRed+4);
+    fColors.push_back(kRed+2);
+    fColors.push_back(kRed);
     fColors.push_back(kBlack);
     fColors.push_back(kBlack);
   }
