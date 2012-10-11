@@ -26,7 +26,7 @@ void PoissonModel::DefineParameters()
 {
   // add a parameter for the number of expected events. The range will
   // be adjusted later according to the number of observed events.
-  AddParameter("lambda", 0., 7.); // index 0
+  AddParameter("#lambda", 0., 7.); // index 0
 }
 
 // ---------------------------------------------------------

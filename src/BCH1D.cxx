@@ -694,6 +694,8 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   gPad->RedrawAxis();
 
   // prepare size of histogram
+	double xmin     = fHistogram->GetXaxis()->GetXmin();
+	double xmax     = fHistogram->GetXaxis()->GetXmax();
   double ymin     = 0;
   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
   double ymax     = ymaxhist;
@@ -813,7 +815,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 
   // make room for legend
   if (flag_legend)
-    ymax*=(1.1+height);
+    ymax*=(1.15+height);
   else 
     ymax*=1.1;
 
@@ -822,7 +824,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   // calculate dimensions in NDC variables
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
   double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
-  double ylegend1 = gStyle->GetPadBottomMargin() + 1.05*ymaxhist/ymax*yfraction;
+  double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
   double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
 
   // place legend on top of histogram
@@ -835,6 +837,15 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   if (flag_legend) {
     legend->Draw();
   }
+
+	// draw line to separate legend
+	if (flag_legend) {
+		TLine* line_boundary = new TLine();
+		line_boundary->SetLineColor(kBlack);
+		line_boundary->DrawLine(xmin, 1.05*ymaxhist,
+														xmax, 1.05*ymaxhist);
+		fROOTObjects.push_back(line_boundary);
+	}
 
   gPad->RedrawAxis();
 

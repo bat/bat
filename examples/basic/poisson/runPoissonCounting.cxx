@@ -1,5 +1,6 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
+#include <BAT/BCH1D.h>
 #include <BAT/BCSummaryTool.h>
 
 #include "PoissonModel.h"
@@ -32,6 +33,10 @@ int main()
 
   // draw all marginalized distributions into a PostScript file
   m->PrintAllMarginalized("PoissonModel_plots.eps");
+
+	m->GetMarginalized("#lambda")->myPrint("lambda1.pdf", "BT0B3CS1D0pdf0Ldecilesmeanmedian");
+	m->GetMarginalized("#lambda")->myPrint("lambda2.pdf", "BT0B3CS2D0pdf0Ldecilesmeanmedian");
+	m->GetMarginalized("#lambda")->myPrint("lambda3.pdf", "BT0B3CS3D0pdf0Ldecilesmeanmedian");
 
 	//	m->PrintSummary();
 

@@ -297,7 +297,8 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 			 le->SetFillStyle(1001);
 		 }
 		 else if (bandtype == 1) {
-			 ; // debugKK: todo
+			 TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
+			 le->SetLineColor(GetColor(nbands-1-i));
 		 }
 	 }
 
@@ -321,17 +322,16 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	 if (bandtype == 0)
 		 hist_band->Draw("COL SAME");
 	 else if (bandtype == 1)
-		 hist_band->Draw("CONT3 SAME");
+		 hist_band->Draw("CONT1 SAME");
 
 	 fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
 
-	/*
+	 // draw line to separate legend
 	TLine* line_boundary = new TLine();
 	line_boundary->SetLineColor(kBlack);
-	line_boundary->DrawLine(xmin, fHistogram->GetXaxis()->GetXmax(),
-								 xmax, fHistogram->GetXaxis()->GetXmax());
+	line_boundary->DrawLine(xmin, fHistogram->GetYaxis()->GetXmax(),
+								 xmax, fHistogram->GetYaxis()->GetXmax());
 	fROOTObjects.push_back(line_boundary);
-	*/
 
   // calculate dimensions in NDC variables
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
