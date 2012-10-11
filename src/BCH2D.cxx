@@ -166,6 +166,8 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 {
   // option flags
   bool flag_legend = true;
+  bool flag_mode = false;
+  bool flag_mean = false;
 
 	// band type
 	int bandtype = 0;

@@ -439,6 +439,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   bool flag_legend = false;
   bool flag_logx;
   bool flag_logy;
+  bool flag_mode = false;
   bool flag_median = false;
   bool flag_mean = false;
   bool flag_quartiles = false;
@@ -588,6 +589,10 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     flag_pdf1 = true;
   }
 
+  if (options.find("mode") < options.size()) {
+    if (fModeFlag)
+			flag_mode = true;
+  }
   if (options.find("median") < options.size()) {
     flag_median = true;
   }
@@ -762,6 +767,10 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   fROOTObjects.push_back(line_quantiles);
 
   // mean, mode, median
+	TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
+	marker_mode->SetMarkerColor(GetColor(4));
+	marker_mode->SetMarkerSize(1.5);
+
 	TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
 	marker_mean->SetMarkerColor(GetColor(4));
 	marker_mean->SetMarkerSize(1.5);
@@ -789,6 +798,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	fROOTObjects.push_back(marker_median);
 	fROOTObjects.push_back(arrow_std);
 	fROOTObjects.push_back(arrow_ci);
+
+	if (flag_mode) {
+		marker_mode->Draw();
+		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
+		le->SetMarkerStyle(24);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
 
 	if (flag_mean) {
 		arrow_std->Draw();
