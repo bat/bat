@@ -322,6 +322,54 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 		 }
 	 }
 
+  // mean, mode, median
+	TMarker* marker_mode = new TMarker(fMode[0], fMode[1], 24);
+	marker_mode->SetMarkerColor(GetColor(4));
+	marker_mode->SetMarkerSize(1.5);
+
+	double xmean = fHistogram->GetMean(1);
+	double ymean = fHistogram->GetMean(2);
+	double xrms = fHistogram->GetRMS(1);
+	double yrms = fHistogram->GetRMS(2);
+
+	TMarker* marker_mean = new TMarker(xmean, ymean, 20);
+	marker_mean->SetMarkerColor(GetColor(4));
+	marker_mean->SetMarkerSize(1.5);
+
+	// standard deviation
+	TArrow* arrow_std1 = new TArrow(xmean-xrms, ymean,
+																	xmean+xrms, ymean,
+																	0.02, "<|>");
+	arrow_std1->SetLineColor(GetColor(4));
+	arrow_std1->SetFillColor(GetColor(4));
+
+	TArrow* arrow_std2 = new TArrow(xmean, ymean-yrms,
+																	xmean, ymean+yrms,
+																	0.02, "<|>");
+	arrow_std2->SetLineColor(GetColor(4));
+	arrow_std2->SetFillColor(GetColor(4));
+
+	// add marker_mean and arrow_std to list of ROOT objects
+	fROOTObjects.push_back(marker_mean);
+	fROOTObjects.push_back(marker_mode);
+	fROOTObjects.push_back(arrow_std1);
+	fROOTObjects.push_back(arrow_std2);
+
+	if (flag_mode) {
+		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
+		le->SetMarkerStyle(24);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
+
+	if (flag_mean) {
+		TLegendEntry* le = legend->AddEntry(arrow_std1, "mean and standard deviation", "PL");
+		le->SetLineColor(GetColor(4));
+		le->SetMarkerStyle(20);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
+	
   // calculate legend height in NDC coordinates
   double height = 0.08*legend->GetNRows();
 
@@ -357,55 +405,14 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	}
 
   // mean, mode, median
-	TMarker* marker_mode = new TMarker(fMode[0], fMode[1], 24);
-	marker_mode->SetMarkerColor(GetColor(4));
-	marker_mode->SetMarkerSize(1.5);
-
-	double xmean = fHistogram->GetMean(1);
-	double ymean = fHistogram->GetMean(2);
-	double xrms = fHistogram->GetRMS(1);
-	double yrms = fHistogram->GetRMS(2);
-
-	TMarker* marker_mean = new TMarker(xmean, ymean, 20);
-	marker_mean->SetMarkerColor(GetColor(4));
-	marker_mean->SetMarkerSize(1.5);
-
-	// standard deviation
-	TArrow* arrow_std1 = new TArrow(xmean-xrms, ymean,
-																	xmean+xrms, ymean,
-																	0.02, "<|>");
-	arrow_std1->SetLineColor(GetColor(4));
-	arrow_std1->SetFillColor(GetColor(4));
-
-	TArrow* arrow_std2 = new TArrow(xmean, ymean-yrms,
-																	xmean, ymean+yrms,
-																	0.02, "<|>");
-	arrow_std2->SetLineColor(GetColor(4));
-	arrow_std2->SetFillColor(GetColor(4));
-
-	// add marker_mean and arrow_std to list of ROOT objects
-	fROOTObjects.push_back(marker_mean);
-	fROOTObjects.push_back(marker_mode);
-	fROOTObjects.push_back(arrow_std1);
-	fROOTObjects.push_back(arrow_std2);
-
 	if (flag_mode) {
 		marker_mode->Draw();
-		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
-		le->SetMarkerStyle(24);
-		le->SetMarkerSize(1.5);
-		le->SetMarkerColor(GetColor(4));
 	}
 
 	if (flag_mean) {
 		arrow_std1->Draw();
 		arrow_std2->Draw();
 		marker_mean->Draw();
-		TLegendEntry* le = legend->AddEntry(arrow_std1, "mean and standard deviation", "PL");
-		le->SetLineColor(GetColor(4));
-		le->SetMarkerStyle(20);
-		le->SetMarkerSize(1.5);
-		le->SetMarkerColor(GetColor(4));
 	}
 	
   // calculate dimensions in NDC variables

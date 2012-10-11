@@ -115,7 +115,7 @@ class BCH2D
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-			void myPrint(const char * filename, std::string options="BTfB3CS1meanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+			void myPrint(const char * filename, std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
 			void myPrint(const char * filename, std::string options, double interval, int ww=0, int wh=0);
       /**
        * Draw 2-d distribution into the active canvas
@@ -140,7 +140,7 @@ class BCH2D
 			 * nL : remove legend \n
        * @param intervals the intervals
        */			
-      void myDraw(std::string options="BTfB3CS1meanmode", std::vector<double> intervals=std::vector<double>(0));
+      void myDraw(std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0));
       void myDraw(std::string options, double interval);
 
       /**
