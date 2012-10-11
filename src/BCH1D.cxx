@@ -142,15 +142,15 @@ void BCH1D::SetColorScheme(int scheme)
     fColors.push_back(kBlue+4);
     fColors.push_back(kBlue+2);
     fColors.push_back(kBlue);
-    fColors.push_back(kBlack);
-    fColors.push_back(kBlack);
+    fColors.push_back(kOrange);
+    fColors.push_back(kOrange);
   }
   else if (scheme == 3) {
     fColors.push_back(kRed+4);
     fColors.push_back(kRed+2);
     fColors.push_back(kRed);
-    fColors.push_back(kBlack);
-    fColors.push_back(kBlack);
+    fColors.push_back(kGreen);
+    fColors.push_back(kGreen);
   }
   else {
     SetColorScheme(1);
@@ -615,8 +615,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   legend->SetTextFont(62);
   legend->SetTextSize(0.03);
 
-  legend->AddEntry(fHistogram, "posterior", "L");
-
   // add legend to list of objects
   fROOTObjects.push_back(legend);
 
@@ -667,9 +665,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     // set style of band histogram
     hist_band->SetFillStyle(1001);
     hist_band->SetFillColor(col);
+    hist_band->SetLineColor(col);
 
     // draw shaded histogram
     hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
+
+		// draw histogram again
+		if (flag_pdf0)
+			fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
 
     // add to legend
     std::string legend_label;
