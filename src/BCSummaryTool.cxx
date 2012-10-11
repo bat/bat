@@ -350,11 +350,11 @@ int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
       hist_corr->GetXaxis()->SetLabelSize(0.06);
       hist_corr->GetYaxis()->SetLabelSize(0.06);
       if (npar < 5) {
-         hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
+    	 hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
          hist_corr->GetYaxis()->SetBinLabel( npar-i, fParName.at(i).c_str() );
       }
       else {
-         hist_corr->GetXaxis()->SetBinLabel( i+1, TString::Format("%d",i) );
+    	 hist_corr->GetXaxis()->SetBinLabel( i+1, TString::Format("%d",i) );
          hist_corr->GetYaxis()->SetBinLabel( npar-i, TString::Format("%d",i) );
       }
    }
@@ -446,6 +446,22 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
    double marginleft, marginright, margintop, marginbottom;
    marginleft=marginright=margintop=marginbottom=0.01;
 
+   // rotate label to avoid overlap with long parameter names
+   size_t maxlength = 0;
+   for (int i = 0; i < npar ; ++i) {
+      maxlength = std::max(maxlength, fModel->GetParameter(i)->GetName().length());
+   }
+         
+   double rotation = 0;
+   short xalignment = 22;
+   short yalignment = 22;
+
+   if (maxlength > 20) {
+      rotation = 10;
+      xalignment = 12;
+      yalignment = 32;
+   }
+
    // drawing all histograms
    for (int i=npar-1;i>=0;--i) {
       xlow = (double)i*padsize + margin;
@@ -509,16 +525,16 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
                hh->Draw("col");
             }
 
-            hh->GetXaxis()->SetLabelOffset(999);
-            hh->GetYaxis()->SetLabelOffset(999);
-            hh->GetXaxis()->SetTitleSize(0.);
-            hh->GetYaxis()->SetTitleSize(0.);
+            hh->GetXaxis()->SetLabelOffset(5500);
+            hh->GetYaxis()->SetLabelOffset(5500);
+            hh->GetXaxis()->SetTitleSize(10.00);
+            hh->GetYaxis()->SetTitleSize(10.00);
          }
 
          c->cd();
 
          // draw axis label
-         double labelsize = .8/(double)npar/5.;
+         double labelsize = .8/(double)npar/10.;
          double xtext, ytext;
 
          // y axis
@@ -526,15 +542,15 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
             TText * label = new TText;
             label->SetTextFont(62);
             label->SetTextSize(labelsize);
-            label->SetTextAlign(22);
+            label->SetTextAlign(yalignment);
             label->SetNDC();
 
-            label->SetTextAngle(90);
+            label->SetTextAngle(90 - rotation);
 
             xtext = margin * (1. - 8. * labelsize);
             ytext = yup - padsize / 2.;
 
-            label->DrawText(xtext,ytext,fModel->GetParameter(j)->GetName().c_str());
+            label->DrawText(xtext, ytext, fModel->GetParameter(j)->GetName().c_str());
          }
 
          // x axis
@@ -542,13 +558,15 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
             TText * label = new TText;
             label->SetTextFont(62);
             label->SetTextSize(labelsize);
-            label->SetTextAlign(22);
+            label->SetTextAlign(xalignment);
             label->SetNDC();
+
+            label->SetTextAngle(360 - rotation);
 
             xtext = xlow + padsize / 2.;
             ytext = margin * (1. - 6. * labelsize);
 
-            label->DrawText(xtext,ytext,fModel->GetParameter(i)->GetName().c_str());
+            label->DrawText(xtext, ytext, fModel->GetParameter(i)->GetName().c_str());
          }
       }
    }

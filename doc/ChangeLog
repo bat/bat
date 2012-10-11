@@ -1,17 +1,21 @@
+2012-10-11 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCSummaryTool: rotate labels in correlation plot for long parameter names
+	* configure: remove superfluous checks
+
 2012-10-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Continued to update plotting of 1D and 2D histograms.
 
 2012-10-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Continued to update plotting of 1D and 2D histograms.
-	
+
 2012-10-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated printing of 1D marginalized histograms, not yet default (use myDraw and myPrint)
 	* Fixed draw options in BCTemplateFitter
 	* Added a method to print the error band in BCMTFChannel.
-	
+
 2012-10-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Updated RooInterface based on new code from Stefan Schmitz.
-	
+
 2012-10-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Replace statements with BCLog output where applicable, not done in BCLog (startup information) and BCModelManager (as information is dumped into file).
 	* Remove "using namespace std" in BCTemplateEnsembleTest.cxx
@@ -19,12 +23,12 @@
 	* Bug fix in MTF: had to delete uncertainty histograms when setting a new data set.
 	* Changed startup information to prompt proper copyright statement
 	* Minor changes in BCAux: adjusted title offset and margins
-	
+
 2012-09-19 Kerim Suruliz <kerim.suruliz@cern.ch>
 	* extras/FBU: added systematics classes
 	* extras/FBU: replaced TMatrixD with vector<vector<double> > in likelihood computation for 2D case
 	* extras/FBU: both 1D and 2D cases now support systematics
-	
+
 2012-07-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* extras/FBU: allow user to specifiy background normalization in histogram directly.
 
@@ -626,7 +630,7 @@
 	  - removed duplicate includes
 
 2010-11-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCTemplateFitter: 
+	* BCTemplateFitter:
 	  - added possibility to use TF1 functions as templates
 	  - changes to the examples
 	  - minor code clean-up
@@ -686,7 +690,7 @@
 
 2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: removed old methods for set prior
-	* template fitter: fixed all examples 
+	* template fitter: fixed all examples
 
 2010-11-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: added some getters
@@ -1245,7 +1249,7 @@
 2010-07-01 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Updated introduction: prior definition and caching
 	* PerfTestSuite:
-	  - Added mathematica notebook BATquantiles.nb which calculates 
+	  - Added mathematica notebook BATquantiles.nb which calculates
 	    distribution of mode and quantiles for 1D tests
 
 2010-06-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
@@ -1286,7 +1290,7 @@
 
 2010-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Update todo list.
-	* PerfTestSuite: added Kolmogorov-Smirnov test to 1D distributions, 
+	* PerfTestSuite: added Kolmogorov-Smirnov test to 1D distributions,
 	* PerfTestSuite: added variance subtest to 1D distributions.
 	* PerfTestSuite: added link to log file to html output
 
@@ -1331,7 +1335,7 @@
 
 2010-05-18 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Tested setting of single prior
-	* BCSummaryTool.cxx: set labels of correlation plot to 
+	* BCSummaryTool.cxx: set labels of correlation plot to
 	  parameter number instead of name.
 	* Updated to do list
 
@@ -1535,7 +1539,7 @@
 
 2010-02-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Cleaned up StackModel.
-	* Added subdirectories to StackModel. 
+	* Added subdirectories to StackModel.
 	* Added flag for unphysical parameter ranges to StackModel.
 	* StackModel ready for release.
 
@@ -1652,18 +1656,18 @@
 	* BCModel:
 	  - fixed bug that causes seg fault
 	* BCGraphFitter:
-	  - added CDF method 
+	  - added CDF method
 
 2009-12-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* models/BinStackTool: added path for printing histograms. 
+	* models/BinStackTool: added path for printing histograms.
 	* models/BinStackTool: set ranges for summary plot properly.
 
 2009-12-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/StackTool: Added difference plot to stack plot.
 
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* models/SummaryTool: minor modifications to style. 
-	* models/SummaryTool: added Latex table for parameter estimates. 
+	* models/SummaryTool: minor modifications to style.
+	* models/SummaryTool: added Latex table for parameter estimates.
 
 2009-12-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/SummaryTool: added plots which show the knowledge update from prior to posterior (in 2-D).
@@ -1676,9 +1680,9 @@
 2009-11-30 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* BCModel:
 	  - changed prototype for CDF
-	  - fixed bug about #quantiles in GetChi2Johnson	  
+	  - fixed bug about #quantiles in GetChi2Johnson
 	* BCHistogramFitter::CDF:
-	  - changed prototype 
+	  - changed prototype
 	  - fixed bug with parameter setting in integral
 	* readme.devel:
 	  - removed CVS comments
@@ -1690,8 +1694,8 @@
 	* models/SummaryTool: added more information on the summary plots.
 
 2009-11-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* models/BinLikeTool: added tool for fitting a single function to a set of histograms. 
-	* models/SummaryTool: added tool for printing summary information of a model. 
+	* models/BinLikeTool: added tool for fitting a single function to a set of histograms.
+	* models/SummaryTool: added tool for printing summary information of a model.
 
 2009-11-20 Frederik Beaujean <beaujean@mppmu.mpg.de>
 	* BCModel:
