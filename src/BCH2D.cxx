@@ -94,15 +94,15 @@ void BCH2D::SetColorScheme(int scheme)
     fColors.push_back(kBlue+4);
     fColors.push_back(kBlue+2);
     fColors.push_back(kBlue);
-    fColors.push_back(kBlack);
-    fColors.push_back(kBlack);
+    fColors.push_back(kOrange);
+    fColors.push_back(kOrange);
   }
   else if (scheme == 3) {
     fColors.push_back(kRed+4);
     fColors.push_back(kRed+2);
     fColors.push_back(kRed);
-    fColors.push_back(kBlack);
-    fColors.push_back(kBlack);
+    fColors.push_back(kGreen);
+    fColors.push_back(kGreen);
   }
   else {
     SetColorScheme(1);
