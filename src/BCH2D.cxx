@@ -21,6 +21,7 @@
 #include <TLine.h>
 #include <TMarker.h>
 #include <TObject.h>
+#include <TArrow.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
 #include <TString.h>
@@ -138,7 +139,6 @@ void BCH2D::Print(const char * filename, int options, int ww, int wh)
 }
 
 // ---------------------------------------------------------
-
 void BCH2D::myPrint(const char * filename, std::string options, std::vector<double> intervals, int ww, int wh)
 {
    // create temporary canvas
@@ -162,6 +162,14 @@ void BCH2D::myPrint(const char * filename, std::string options, std::vector<doub
 }
 
 // ---------------------------------------------------------
+void BCH2D::myPrint(const char* filename, std::string options, double interval, int ww, int wh)
+{
+  std::vector<double> tempvec;
+  tempvec.push_back(interval);
+  myPrint(filename, options, tempvec, ww, wh);
+}
+
+// ---------------------------------------------------------
 void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 {
   // option flags
@@ -173,14 +181,15 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	int bandtype = 0;
 
   // number of bands
-  int nbands = 0; // number of shaded bands
+  int nbands = 1; // number of shaded bands
+	intervals.push_back(0.3935);
 
 	// define draw options called in TH1D::Draw(...)
 	std::string draw_options = "COLZ"; 
 
   // check content of options string
-  if (options.find("L") < options.size()) {
-    flag_legend = true;
+  if (options.find("nL") < options.size()) {
+    flag_legend = false;
   }
 
   if (options.find("BTf") < options.size()) {
@@ -193,7 +202,16 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
     bandtype = 0;
   }
 
-  if (options.find("B1") < options.size()) {
+	if (options.find("mode") < options.size()) {
+    if (fModeFlag)
+			flag_mode = true;
+  }
+	
+  if (options.find("mean") < options.size()) {
+    flag_mean = true;
+  }
+	
+ if (options.find("B1") < options.size()) {
     nbands = 1;
     if (intervals.size() != 1) {
       intervals.clear();
@@ -314,27 +332,82 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymax);
 	hist_axes->SetXTitle(fHistogram->GetXaxis()->GetTitle());
 	hist_axes->SetYTitle(fHistogram->GetYaxis()->GetTitle());
+	hist_axes->SetLineWidth(fHistogram->GetLineWidth());
 	hist_axes->SetStats(kFALSE);
 	fROOTObjects.push_back(hist_axes);
 
 	// draw axes
 	hist_axes->Draw();
 
-	 // draw histogram
-	 if (bandtype == 0)
-		 hist_band->Draw("COL SAME");
-	 else if (bandtype == 1)
-		 hist_band->Draw("CONT1 SAME");
+	// draw histogram
+	if (bandtype == 0)
+		hist_band->Draw("COL SAME");
+	else if (bandtype == 1)
+		hist_band->Draw("CONT1 SAME");
+		
+	// draw line to separate legend
+	if (flag_legend) {
+		fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+	
+		TLine* line_boundary = new TLine();
+		line_boundary->SetLineColor(kBlack);
+		line_boundary->DrawLine(xmin, fHistogram->GetYaxis()->GetXmax(),
+														xmax, fHistogram->GetYaxis()->GetXmax());
+		fROOTObjects.push_back(line_boundary);
+	}
 
-	 fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+  // mean, mode, median
+	TMarker* marker_mode = new TMarker(fMode[0], fMode[1], 24);
+	marker_mode->SetMarkerColor(GetColor(4));
+	marker_mode->SetMarkerSize(1.5);
 
-	 // draw line to separate legend
-	TLine* line_boundary = new TLine();
-	line_boundary->SetLineColor(kBlack);
-	line_boundary->DrawLine(xmin, fHistogram->GetYaxis()->GetXmax(),
-								 xmax, fHistogram->GetYaxis()->GetXmax());
-	fROOTObjects.push_back(line_boundary);
+	double xmean = fHistogram->GetMean(1);
+	double ymean = fHistogram->GetMean(2);
+	double xrms = fHistogram->GetRMS(1);
+	double yrms = fHistogram->GetRMS(2);
 
+	TMarker* marker_mean = new TMarker(xmean, ymean, 20);
+	marker_mean->SetMarkerColor(GetColor(4));
+	marker_mean->SetMarkerSize(1.5);
+
+	// standard deviation
+	TArrow* arrow_std1 = new TArrow(xmean-xrms, ymean,
+																	xmean+xrms, ymean,
+																	0.02, "<|>");
+	arrow_std1->SetLineColor(GetColor(4));
+	arrow_std1->SetFillColor(GetColor(4));
+
+	TArrow* arrow_std2 = new TArrow(xmean, ymean-yrms,
+																	xmean, ymean+yrms,
+																	0.02, "<|>");
+	arrow_std2->SetLineColor(GetColor(4));
+	arrow_std2->SetFillColor(GetColor(4));
+
+	// add marker_mean and arrow_std to list of ROOT objects
+	fROOTObjects.push_back(marker_mean);
+	fROOTObjects.push_back(marker_mode);
+	fROOTObjects.push_back(arrow_std1);
+	fROOTObjects.push_back(arrow_std2);
+
+	if (flag_mode) {
+		marker_mode->Draw();
+		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
+		le->SetMarkerStyle(24);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
+
+	if (flag_mean) {
+		arrow_std1->Draw();
+		arrow_std2->Draw();
+		marker_mean->Draw();
+		TLegendEntry* le = legend->AddEntry(arrow_std1, "mean and standard deviation", "PL");
+		le->SetLineColor(GetColor(4));
+		le->SetMarkerStyle(20);
+		le->SetMarkerSize(1.5);
+		le->SetMarkerColor(GetColor(4));
+	}
+	
   // calculate dimensions in NDC variables
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
   double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
@@ -352,9 +425,19 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
     legend->Draw();
   }
 
-  gPad->RedrawAxis();
+ 	hist_axes->Draw("SAME");
 
+  gPad->RedrawAxis();
+	
 	return;
+}
+
+// ---------------------------------------------------------
+void BCH2D::myDraw(std::string options, double interval)
+{
+  std::vector<double> tempvec;
+  tempvec.push_back(interval);
+  myDraw(options, tempvec);  
 }
 
 // ---------------------------------------------------------

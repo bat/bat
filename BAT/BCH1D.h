@@ -161,13 +161,13 @@ class BCH1D
      /**
        * Print distribution into a PostScript file.
        * @param filename Output filename
-       * @param option the draw options
+       * @param option the draw options (see myDraw())
        * @param ww canvas size in pixels along X
        * @param ww canvas size in pixels along Y
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-      void myPrint(const char * filename, std::string options="BTciB1CS1D0pdf0Lmean", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+      void myPrint(const char * filename, std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
       void myPrint(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
       /**
@@ -206,20 +206,21 @@ class BCH1D
        * D0 : draw histogram [default] \n
 			 * D1 : draw smooth curve \n
        * CS0 : choose color scheme 0 (B&W) \n
-       * CS2 : choose color scheme 1 (green/yellow/red) [default] \n
-       * CS3 : choose color scheme 2 (blueish colors) \n
-       * CS4 : choose color scheme 3 (redish colors) \n
+       * CS1 : choose color scheme 1 (green/yellow/red) [default] \n
+       * CS2 : choose color scheme 2 (blueish colors) \n
+       * CS3 : choose color scheme 3 (redish colors) \n
        * pdf0 : draw pdf [default] \n
        * pdf1 : draw cumulative pdf \n
 			 * median : draw median and central interval \n
-			 * mode : draw mode and standard deviation \n
+			 * mode : draw global mode and standard deviation \n
+			 * mean : draw mean value and standard deviation \n
 			 * quartiles : indicate quartiles \n
 			 * deciles : indicate deciles \n
 			 * percentiles : indicate percentiles \n
 			 * L : add legend \n
-       * @param intervals:
+       * @param intervals the intervals
        */
-      void myDraw(std::string options="BTciB1CS1D0pdf0Lmean", std::vector<double> intervals=std::vector<double>(0));
+      void myDraw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));
       void myDraw(std::string options, double interval);
 
      /**
