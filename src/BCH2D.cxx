@@ -22,6 +22,7 @@
 #include <TMarker.h>
 #include <TObject.h>
 #include <TLegend.h>
+#include <TLegendEntry.h>
 #include <TString.h>
 
 #include <math.h>
@@ -164,7 +165,10 @@ void BCH2D::myPrint(const char * filename, std::string options, std::vector<doub
 void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 {
   // option flags
-  bool flag_legend = false;
+  bool flag_legend = true;
+
+	// band type
+	int bandtype = 0;
 
   // number of bands
   int nbands = 0; // number of shaded bands
@@ -175,6 +179,16 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
   // check content of options string
   if (options.find("L") < options.size()) {
     flag_legend = true;
+  }
+
+  if (options.find("BTf") < options.size()) {
+    bandtype = 0;
+  }
+  else if (options.find("BTc") < options.size()) {
+    bandtype = 1;
+  }
+  else {
+    bandtype = 0;
   }
 
   if (options.find("B1") < options.size()) {
@@ -220,9 +234,15 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
     SetColorScheme(1);
   }
 	
-  // normalize histogram to unity
-	//  fHistogram->Scale(1./fHistogram->Integral("width"));
-	
+  // prepare size of histogram
+	double xmin     = fHistogram->GetXaxis()->GetXmin();
+	double xmax     = fHistogram->GetXaxis()->GetXmax();
+  double ymin     = fHistogram->GetYaxis()->GetXmin();
+  double ymaxhist = fHistogram->GetYaxis()->GetXmax();
+  double ymax     = ymaxhist;
+  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
+  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin();
+
   // prepare legend
   TLegend* legend = new TLegend();
   legend->SetBorderSize(0);
@@ -231,14 +251,15 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
   legend->SetTextFont(62);
   legend->SetTextSize(0.03);
 
-  legend->AddEntry(fHistogram, "posterior", "L");
-
   // add legend to list of objects
   fROOTObjects.push_back(legend);
 
 	 // copy histograms for bands
 	 TH2D* hist_band = new TH2D(*fHistogram);
 	 
+	 // add hist_band to list of ROOT objects
+	 fROOTObjects.push_back(hist_band);
+
 	 // calculate integrated histogram
 	 CalculateIntegratedHistogram();
 
@@ -268,14 +289,68 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	 // set colors
 	 gStyle->SetPalette(nbands+1, colors); 
 
-	 // draw colored bands
-	 // debugKK
-	 // todo: set proper color
-	 hist_band->Draw("COLZ");
-	 hist_band->Draw("CONT3 SAME");
-	 
-  // draw histogram
-	 //	fHistogram->Draw(draw_options.c_str());
+	 // add hist_band to legend
+	 for (int i = 0; i < nbands; ++i) {
+		 if (bandtype == 0) {
+			 TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
+			 le->SetFillColor(GetColor(nbands-1-i));
+			 le->SetFillStyle(1001);
+		 }
+		 else if (bandtype == 1) {
+			 ; // debugKK: todo
+		 }
+	 }
+
+  // calculate legend height in NDC coordinates
+  double height = 0.08*legend->GetNRows();
+
+  // make room for legend
+  if (flag_legend)
+    ymax+=(ymax-ymin)*(0.1+height);
+
+	TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymax);
+	hist_axes->SetXTitle(fHistogram->GetXaxis()->GetTitle());
+	hist_axes->SetYTitle(fHistogram->GetYaxis()->GetTitle());
+	hist_axes->SetStats(kFALSE);
+	fROOTObjects.push_back(hist_axes);
+
+	// draw axes
+	hist_axes->Draw();
+
+	 // draw histogram
+	 if (bandtype == 0)
+		 hist_band->Draw("COL SAME");
+	 else if (bandtype == 1)
+		 hist_band->Draw("CONT3 SAME");
+
+	 fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+
+	/*
+	TLine* line_boundary = new TLine();
+	line_boundary->SetLineColor(kBlack);
+	line_boundary->DrawLine(xmin, fHistogram->GetXaxis()->GetXmax(),
+								 xmax, fHistogram->GetXaxis()->GetXmax());
+	fROOTObjects.push_back(line_boundary);
+	*/
+
+  // calculate dimensions in NDC variables
+  double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
+  double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
+  double ylegend1 = gStyle->GetPadBottomMargin() + 1.05*(ymaxhist-ymin)/(ymax-ymin)*yfraction;
+  double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
+
+  // place legend on top of histogram
+  legend->SetX1NDC(xlegend1);
+  legend->SetX2NDC(xlegend2);
+  legend->SetY1NDC(ylegend1);
+  legend->SetY2NDC(ylegend2);
+
+  // draw legend
+  if (flag_legend) {
+    legend->Draw();
+  }
+
+  gPad->RedrawAxis();
 
 	return;
 }
