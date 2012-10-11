@@ -39,11 +39,12 @@ BCH2D::BCH2D()
 // ---------------------------------------------------------
 
 BCH2D::BCH2D(TH2D * h)
+	: fIntegratedHistogram(0)
+	, fROOTObjects(std::vector<TObject*>(0))
 {
-   fHistogram = h;
-   fIntegratedHistogram = 0;
-
    fModeFlag = 0;
+
+	 SetHistogram(h);
 }
 
 // ---------------------------------------------------------
@@ -104,6 +105,15 @@ void BCH2D::SetColorScheme(int scheme)
   else {
     SetColorScheme(1);
   }
+}
+
+// ---------------------------------------------------------
+void BCH2D::SetHistogram(TH2D * hist)
+{
+	fHistogram = hist;
+	if (fHistogram)
+		if (fHistogram->Integral()>0)
+			fHistogram->Scale(1.0/fHistogram->Integral("width"));
 }
 
 // ---------------------------------------------------------
@@ -211,7 +221,7 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
   }
 	
   // normalize histogram to unity
-  fHistogram->Scale(1./fHistogram->Integral("width"));
+	//  fHistogram->Scale(1./fHistogram->Integral("width"));
 	
   // prepare legend
   TLegend* legend = new TLegend();
@@ -238,22 +248,25 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 			 hist_band->SetBinContent(ix, iy, p);
 		 }
 	 }
+
+	 // define levels and colors
 	 double levels[nbands+2];
 	 levels[0] = 0.;
+
+	 int colors[nbands+1]; 
+	 colors[0] = kWhite;
+
 	 for (int i = 1; i <= nbands; ++i) {
 		 levels[i] = GetLevel((1.-intervals[nbands-i]));
+		 colors[i] = GetColor(nbands-i);
 	 }
-	 levels[nbands+1] = fHistogram->GetMaximum()+1.;
+	 levels[nbands+1] = fIntegratedHistogram->GetXaxis()->GetXmax(); 
+
+	 // set contour
 	 hist_band->SetContour(nbands+2, levels);
 
-	 // debugKK: something's not right with the contours
-	 for (int i = 0; i < 5; ++i)
-		 std::cout << i << " " << levels[i] << std::endl;
-
-	 int colors[3] = {GetColor(2), GetColor(1), GetColor(0)};
-	 
 	 // set colors
-	 gStyle->SetPalette(3, colors); 
+	 gStyle->SetPalette(nbands+1, colors); 
 
 	 // draw colored bands
 	 // debugKK
@@ -521,13 +534,26 @@ void BCH2D::Draw(int options, bool drawmode)
 }
 
 // ---------------------------------------------------------
+void BCH2D::PrintIntegratedHistogram(const char* filename)
+{
+	TCanvas* c = new TCanvas();
+	c->cd();
+	c->SetLogy();
+	CalculateIntegratedHistogram();
+	fIntegratedHistogram->Draw();
+	c->Print(filename);
+	
+	delete c;
+}
 
+// ---------------------------------------------------------
 void BCH2D::CalculateIntegratedHistogram()
 {
    int nz = 100;
 
+	 double zmin = fHistogram->GetMinimum();
    double zmax = fHistogram->GetMaximum();
-   double dz   = zmax / double(nz);
+   double dz   = (zmax-zmin);
 
    double nx = fHistogram->GetNbinsX();
    double ny = fHistogram->GetNbinsY();
@@ -537,21 +563,22 @@ void BCH2D::CalculateIntegratedHistogram()
       delete fIntegratedHistogram;
 
    fIntegratedHistogram = new TH1D(
-         TString::Format("%s_int_prob_%d",fHistogram->GetName(),BCLog::GetHIndex()), "", nz, 0.0, zmax);
+         TString::Format("%s_int_prob_%d",fHistogram->GetName(),BCLog::GetHIndex()), "", nz, zmin, zmax+0.05*dz);
    fIntegratedHistogram->SetXTitle("z");
    fIntegratedHistogram->SetYTitle("Integrated probability");
-   fIntegratedHistogram->SetStats(kFALSE);
+	 fIntegratedHistogram->SetStats(kFALSE);
 
    // loop over histogram
-   for (int ix = 1; ix <= nx; ix++)
-      for (int iy = 1; iy <= ny; iy++)
-      {
-         int binmin = BCMath::Nint(fHistogram->GetBinContent(ix, iy) / dz);
-         for (int i = binmin; i <= nz; i++)
-            fIntegratedHistogram->SetBinContent(i,
-                  fIntegratedHistogram->GetBinContent(i) +
-                  fHistogram->GetBinContent(ix, iy));
-      }
+   for (int ix = 1; ix <= nx; ix++) {
+		 for (int iy = 1; iy <= ny; iy++) {
+			 double p = fHistogram->GetBinContent(ix, iy);
+			 fIntegratedHistogram->Fill(p, p);
+		 }
+	 }
+
+	 // normalize histogram
+	 fIntegratedHistogram->Scale(1.0/fIntegratedHistogram->GetEntries());
+	 
 }
 
 // ---------------------------------------------------------

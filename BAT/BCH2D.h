@@ -84,8 +84,7 @@ class BCH2D
 
       /**
        * Set the 2D histogram. */
-      void SetHistogram(TH2D * hist)
-         { fHistogram = hist; };
+      void SetHistogram(TH2D * hist);
 
       /**
        * Set global mode.
@@ -121,6 +120,11 @@ class BCH2D
        * height. */
       void CalculateIntegratedHistogram();
 
+			/**
+			 * Print the integrated histogram.
+			 * @param filename the name of the file. */
+			void PrintIntegratedHistogram(const char* filename);
+	
       /**
        * Calculates the height below which the integrated probability has
        * a certain value.
