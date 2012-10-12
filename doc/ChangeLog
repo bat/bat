@@ -1,3 +1,11 @@
+2012-10-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* Add support for openMP thread parallelization
+	* BCEngineMCMC: add openMP thread parallelization, remove old TRandom access
+	* configure.ac, Makefile.am: enable openMP, improve warning flags
+	* test/test: resolve static initialization fiasko
+	* test: add parallel_TEST and GaussModel to verify parallelization yields identical results
+	* Makefile.in: update examples and CreateProject.sh to compile with openMP
+
 2012-10-11 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCSummaryTool: rotate labels in correlation plot for long parameter names
 	* configure: remove superfluous checks

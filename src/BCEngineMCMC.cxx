@@ -27,7 +27,8 @@ BCEngineMCMC::BCEngineMCMC()
    MCMCSetValuesDefault();
 
    // initialize random number generator
-   fRandom = new TRandom3(0);
+   fRandom = new TRandom3();
+   MCMCSetRandomSeed(0);
 }
 
 // ---------------------------------------------------------
@@ -219,7 +220,6 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC & enginemcmc)
    fMCMCxMax                  = enginemcmc.fMCMCxMax;
    fMCMCxMean                 = enginemcmc.fMCMCxMean;
    fMCMCxVar                  = enginemcmc.fMCMCxVar;
-   fMCMCxLocal                = enginemcmc.fMCMCxLocal;
    fMCMCprob                  = enginemcmc.fMCMCprob;
    fMCMCprobMax               = enginemcmc.fMCMCprobMax;
    fMCMCprobMean              = enginemcmc.fMCMCprobMean;
@@ -230,9 +230,16 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC & enginemcmc)
    fMCMCRValue                = enginemcmc.fMCMCRValue;
    fMCMCRValueParameters      = enginemcmc.fMCMCRValueParameters;
    if (enginemcmc.fRandom)
+   {
       fRandom = new TRandom3(*enginemcmc.fRandom);
+   }
    else
-      fRandom = 0;
+   {
+      fRandom = NULL;
+   }
+
+   fMCMCThreadLocalStorage    = enginemcmc.fMCMCThreadLocalStorage;
+
    fMCMCH1NBins               = enginemcmc.fMCMCH1NBins;
 
    for (int i = 0; i < int(enginemcmc.fMCMCH1Marginalized.size()); ++i) {
@@ -295,7 +302,6 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
    fMCMCxMax                  = enginemcmc.fMCMCxMax;
    fMCMCxMean                 = enginemcmc.fMCMCxMean;
    fMCMCxVar                  = enginemcmc.fMCMCxVar;
-   fMCMCxLocal                = enginemcmc.fMCMCxLocal;
    fMCMCprob                  = enginemcmc.fMCMCprob;
    fMCMCprobMax               = enginemcmc.fMCMCprobMax;
    fMCMCprobMean              = enginemcmc.fMCMCprobMean;
@@ -306,9 +312,16 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
    fMCMCRValue                = enginemcmc.fMCMCRValue;
    fMCMCRValueParameters      = enginemcmc.fMCMCRValueParameters;
    if (enginemcmc.fRandom)
+   {
       fRandom = new TRandom3(*enginemcmc.fRandom);
+   }
    else
-      fRandom = 0;
+   {
+      fRandom = NULL;
+   }
+
+   fMCMCThreadLocalStorage    = enginemcmc.fMCMCThreadLocalStorage;
+
    fMCMCH1NBins               = enginemcmc.fMCMCH1NBins;
 
    for (int i = 0; i < int(enginemcmc.fMCMCH1Marginalized.size()); ++i) {
@@ -338,7 +351,7 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 // --------------------------------------------------------
 TH1D * BCEngineMCMC::MCMCGetH1Marginalized(int index)
 {
-      // check index
+   // check index
    if (index < 0 || index >= int(fMCMCH1Marginalized.size()))
    {
       BCLog::OutWarning("BCEngineMCMC::MCMCGetH1Marginalized. Index out of range.");
@@ -385,7 +398,7 @@ std::vector<double> BCEngineMCMC::MCMCGetMaximumPoint(int i)
 
    // copy the point in the ith chain into the temporary vector
    for (int j = 0; j < fMCMCNParameters; ++j)
-   x.push_back(fMCMCxMax.at(i * fMCMCNParameters + j));
+      x.push_back(fMCMCxMax.at(i * fMCMCNParameters + j));
 
    return x;
 }
@@ -455,7 +468,7 @@ void BCEngineMCMC::MCMCSetFlagFillHistograms(int index, bool flag)
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector<TTree *> trees)
 {
-// clear vector
+   // clear vector
    fMCMCTrees.clear();
 
    // copy tree
@@ -463,13 +476,39 @@ void BCEngineMCMC::MCMCSetMarkovChainTrees(std::vector<TTree *> trees)
       fMCMCTrees.push_back(trees[i]);
 }
 
+void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
+{
+   if (!fRandom)
+      fRandom = new TRandom3();
+
+   // set main generator
+   fRandom->SetSeed(seed);
+
+   // call once so return value of GetSeed() fixed
+   fRandom->Rndm();
+
+   SyncThreadStorage();
+
+   // type conversion to avoid compiler warnings
+   if (size_t(fMCMCNChains) != fMCMCThreadLocalStorage.size())
+      BCLog::OutError(Form("#chains does not match #(thread local storages): %d vs %u",
+                           fMCMCNChains, unsigned(fMCMCThreadLocalStorage.size())));
+
+   // set all single chain generators
+   for (int i = 0; i < fMCMCNChains ; ++i){
+      // call once so return value of GetSeed() fixed
+      fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom->GetSeed() + i);
+      fMCMCThreadLocalStorage[i].rng->Rndm();
+   }
+}
+
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
 {
-// clear vector
+    // clear vector
    fMCMCTrees.clear();
 
-// create new trees
+   // create new trees
    for (int i = 0; i < fMCMCNChains; ++i) {
       fMCMCTrees.push_back(new TTree(TString::Format("MarkovChainTree_%i", i), "MarkovChainTree"));
       fMCMCTrees[i]->Branch("Iteration",       &fMCMCNIterations[i],  "iteration/I");
@@ -499,10 +538,11 @@ double BCEngineMCMC::MCMCTrialFunctionSingle(int ichain, int iparameter)
    // no check of range for performance reasons
 
    // use uniform distribution
-//   return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fRandom->Rndm());
+    //   return = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter] * 2.0 * (0.5 - fRandom->Rndm());
 
    // Breit-Wigner width adjustable width
-   return fRandom->BreitWigner(0.0, fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]);
+   return fMCMCThreadLocalStorage[ichain].rng->BreitWigner(0.0,
+                                                               fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter]);
 }
 
 // --------------------------------------------------------
@@ -631,20 +671,20 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
    fMCMCNIterations[chain]++;
 
    // get proposal point
-   if (!MCMCGetProposalPointMetropolis(chain, parameter, fMCMCxLocal))
+   if (!MCMCGetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal))
    {
       // increase counter
       fMCMCNTrialsFalse[chain * fMCMCNParameters + parameter]++;
 
       // execute user code for every point
-      MCMCCurrentPointInterface(fMCMCxLocal, chain, false);
+      MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, false);
 
       return false;
    }
 
    // calculate probabilities of the old and new points
    double p0 = fMCMCprob[chain];
-   double p1 = LogEval(fMCMCxLocal);
+   double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
 
    // flag for accept
    bool accept = false;
@@ -655,7 +695,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
    // ... or else throw dice.
    else
    {
-      double r = log(fRandom->Rndm());
+      double r = log(fMCMCThreadLocalStorage[chain].rng->Rndm());
 
       if(r < p1 - p0)
          accept = true;
@@ -671,7 +711,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
       for(int i = 0; i < fMCMCNParameters; ++i)
       {
          // save the point
-         fMCMCx[index + i] = fMCMCxLocal[i];
+         fMCMCx[index + i] = fMCMCThreadLocalStorage[chain].xLocal[i];
 
          // save the probability of the point
          fMCMCprob[chain] = p1;
@@ -684,7 +724,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain, int parameter)
    }
 
    // execute user code for every point
-   MCMCCurrentPointInterface(fMCMCxLocal, chain, accept);
+   MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, accept);
 
    return accept;
 }
@@ -701,21 +741,21 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
    fMCMCNIterations[chain]++;
 
    // get proposal point
-   if (!MCMCGetProposalPointMetropolis(chain, fMCMCxLocal))
+   if (!MCMCGetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal))
    {
       // increase counter
       for (int i = 0; i < fMCMCNParameters; ++i)
          fMCMCNTrialsFalse[chain * fMCMCNParameters + i]++;
 
       // execute user code for every point
-      MCMCCurrentPointInterface(fMCMCxLocal, chain, false);
+      MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, false);
 
       return false;
    }
 
    // calculate probabilities of the old and new points
    double p0 = fMCMCprob[chain];
-   double p1 = LogEval(fMCMCxLocal);
+   double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
 
    // flag for accept
    bool accept = false;
@@ -727,7 +767,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
    // ... or else throw dice.
    else
    {
-      double r = log(fRandom->Rndm());
+      double r = log(fMCMCThreadLocalStorage[chain].rng->Rndm());
 
       if(r < p1 - p0)
          accept = true;
@@ -744,7 +784,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
       for(int i = 0; i < fMCMCNParameters; ++i)
       {
          // save the point
-         fMCMCx[index + i] = fMCMCxLocal[i];
+         fMCMCx[index + i] = fMCMCThreadLocalStorage[chain].xLocal[i];
 
          // save the probability of the point
          fMCMCprob[chain] = p1;
@@ -758,7 +798,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(int chain)
    }
 
    // execute user code for every point
-   MCMCCurrentPointInterface(fMCMCxLocal, chain, accept);
+   MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, accept);
 
    return accept;
 }
@@ -926,7 +966,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
    // perform run
    BCLog::OutSummary(Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsMax));
 
-
    // don't write to file during pre run
    bool tempflag_writetofile = fMCMCFlagWriteChainToFile;
    fMCMCFlagWriteChainToFile = false;
@@ -946,7 +985,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
    // or it's fMCMCNIterationsUpdateMax (10000 by default)
    // whichever of the two is smaller
    int updateLimit = ( fMCMCNIterationsUpdateMax<fMCMCNIterationsUpdate*(fMCMCNParameters)  && fMCMCNIterationsUpdateMax>0 ) ?
-         fMCMCNIterationsUpdateMax : fMCMCNIterationsUpdate*(fMCMCNParameters);
+      fMCMCNIterationsUpdateMax : fMCMCNIterationsUpdate*(fMCMCNParameters);
 
    // loop over chains
    for (int ichains = 0; ichains < fMCMCNChains; ++ichains) {
@@ -958,14 +997,14 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
          fMCMCNTrialsTrue[index] = 0;
          fMCMCNTrialsFalse[index] = 0;
          fMCMCxMean[index] = fMCMCx[index];
-         fMCMCxVar[index] = 0; 
+         fMCMCxVar[index] = 0;
       }
       fMCMCprobMean[ichains] = fMCMCprob[ichains];
       fMCMCprobVar[ichains] = 0;
    }
 
    // set phase and cycle number
-   fMCMCPhase = 1; 
+   fMCMCPhase = 1;
    fMCMCCycle = 0;
 
    // run chain ...
@@ -993,14 +1032,20 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
       if (fMCMCFlagOrderParameters)
       {
          // loop over parameters
-         for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
          {
-            // loop over chains
-            for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-               MCMCGetNewPointMetropolis(ichains, iparameters);
+            for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
+            {
+               // loop over chains
 
-            // search for global maximum
-            MCMCInChainCheckMaximum();
+               int chunk = 1; (void) chunk;
+               int ichains; (void) ichains;
+#pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
+               for (ichains = 0; ichains < fMCMCNChains; ++ichains){
+                  MCMCGetNewPointMetropolis(ichains, iparameters);
+               }
+               // search for global maximum
+               MCMCInChainCheckMaximum();
+            }
          }
       }
 
@@ -1008,10 +1053,14 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
       else
       {
          // loop over chains
-         for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-            // get new point
-            MCMCGetNewPointMetropolis(ichains);
-
+         {
+            int chunk = 1; (void) chunk;
+            int ichains;  (void) ichains;
+#pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
+            for (ichains = 0; ichains < fMCMCNChains; ++ichains){
+               MCMCGetNewPointMetropolis(ichains);
+            }
+         }
          // search for global maximum
          MCMCInChainCheckMaximum();
       }
@@ -1038,7 +1087,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
       // debugKK
       // check if this line makes sense
       if ( counterupdate % updateLimit == 0 && counterupdate > 0 && fMCMCCurrentIteration >= fMCMCNIterationsPreRunMin)
-//      if ( fMCMCCurrentIteration % fMCMCNIterationsUpdate == 0 && counterupdate > 1 && fMCMCCurrentIteration >= fMCMCNIterationsPreRunMin)
       {
          // -----------------------------
          // reset flags and counters
@@ -1131,8 +1179,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
                      fscale = 4.;
                   fMCMCTrialFunctionScaleFactor[index] /= fscale;
 
-                  BCLog::OutDetail(Form("         Efficiency of parameter %i dropped below %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
-                        iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
+                  BCLog::OutDetail(Form("         Efficiency of parameter %i dropped below %.2f%% (eps = %.2f%%) in chain %i. Set scale to %.4g",
+                                        iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
                }
 
                // adjust scale factors if efficiency is too high
@@ -1147,13 +1195,13 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 
                   fMCMCTrialFunctionScaleFactor[index] *= 2.;
 
-                  BCLog::OutDetail(Form("         Efficiency of parameter %i above %.2lf%% (eps = %.2lf%%) in chain %i. Set scale to %.4g",
-                        iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
+                  BCLog::OutDetail(Form("         Efficiency of parameter %i above %.2f%% (eps = %.2f%%) in chain %i. Set scale to %.4g",
+                                        iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
                }
 
                // check flag
                if ((efficiency[index] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[index] > .01)
-                     || (efficiency[index] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[index] < 1.))
+                   || (efficiency[index] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[index] < 1.))
                   flagefficiency = false;
             } // end of running over all parameters
          } // end of running over all chains
@@ -1314,16 +1362,6 @@ int BCEngineMCMC::MCMCMetropolis()
    // perform run
    BCLog::OutSummary(Form(" --> Perform MCMC run with %i chains, each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
 
-//   int counterupdate = 0;
-//   bool convergence = false;
-//   bool flagefficiency = false;
-
-//   std::vector<double> efficiency;
-
-//   for (int i = 0; i < fMCMCNParameters; ++i)
-//      for (int j = 0; j < fMCMCNChains; ++j)
-//         efficiency.push_back(0.0);
-
    int nwrite = fMCMCNIterationsRun/10;
    if(nwrite < 100)
       nwrite=100;
@@ -1347,9 +1385,15 @@ int BCEngineMCMC::MCMCMetropolis()
          for (int iparameters = 0; iparameters < fMCMCNParameters; ++iparameters)
          {
             // loop over chains
-            for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-               MCMCGetNewPointMetropolis(ichains, iparameters);
-
+            {
+               int chunk = 1; (void) chunk;
+               int ichains; (void) ichains;
+#pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
+               for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+               {
+                  MCMCGetNewPointMetropolis(ichains, iparameters);
+               }
+            }
             // reset current chain
             fMCMCCurrentChain = -1;
 
@@ -1376,10 +1420,16 @@ int BCEngineMCMC::MCMCMetropolis()
       else
       {
          // loop over chains
-         for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
-            // get new point
-            MCMCGetNewPointMetropolis(ichains);
-
+         {
+            int chunk = 1; (void) chunk;
+            int ichains; (void) ichains;
+#pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
+            for (int ichains = 0; ichains < fMCMCNChains; ++ichains)
+            {
+               // get new point
+               MCMCGetNewPointMetropolis(ichains);
+            }
+         }
          // reset current chain
          fMCMCCurrentChain = -1;
 
@@ -1547,6 +1597,7 @@ int BCEngineMCMC::MCMCResetResults()
 // --------------------------------------------------------
 int BCEngineMCMC::MCMCInitialize()
 {
+   // resource allocation must be done only by one thread
    // reset values
    MCMCResetResults();
 
@@ -1564,6 +1615,8 @@ int BCEngineMCMC::MCMCInitialize()
    fMCMCxVar.assign(fMCMCNChains * fMCMCNParameters, 0);
 
    fMCMCRValueParameters.assign(fMCMCNParameters, 0.);
+
+   SyncThreadStorage();
 
    if (fMCMCTrialFunctionScaleFactorStart.size() == 0)
       fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains * fMCMCNParameters, 1.0);
@@ -1591,7 +1644,7 @@ int BCEngineMCMC::MCMCInitialize()
          for (int j = 0; j < fMCMCNChains; ++j)
             for (int i = 0; i < fMCMCNParameters; ++i)
                if (fMCMCInitialPosition[j * fMCMCNParameters + i] < fMCMCBoundaryMin[i] ||
-                     fMCMCInitialPosition[j * fMCMCNParameters + i] > fMCMCBoundaryMax[i])
+                   fMCMCInitialPosition[j * fMCMCNParameters + i] > fMCMCBoundaryMax[i])
                {
                   BCLog::OutError("BCEngine::MCMCInitialize : Initial position out of boundaries.");
                   flag = false;
@@ -1616,14 +1669,14 @@ int BCEngineMCMC::MCMCInitialize()
    }
 
    else
+   {
       for (int j = 0; j < fMCMCNChains; ++j) // random number (default)
          for (int i = 0; i < fMCMCNParameters; ++i)
-            fMCMCx.push_back(fMCMCBoundaryMin[i] + fRandom->Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
+            fMCMCx.push_back(fMCMCBoundaryMin[i] + fMCMCThreadLocalStorage[j].rng->Rndm() * (fMCMCBoundaryMax[i] - fMCMCBoundaryMin[i]));
+   }
 
    // copy the point of the first chain
-   fMCMCxLocal.clear();
-   for (int i = 0; i < fMCMCNParameters; ++i)
-      fMCMCxLocal.push_back(fMCMCx[i]);
+   std::copy(fMCMCx.begin(), fMCMCx.begin() + fMCMCNParameters, fMCMCThreadLocalStorage.at(0).xLocal.begin());
 
    // define 1-dimensional histograms for marginalization
    for(int i = 0; i < fMCMCNParameters; ++i)
@@ -1696,4 +1749,65 @@ int BCEngineMCMC::SetMarginalized(int index1, int index2, TH2D * h)
 }
 
 // ---------------------------------------------------------
+BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const unsigned & dim) :
+   xLocal(dim, 0.0),
+   rng(new TRandom3(0))
+{
+}
 
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const MCMCThreadLocalStorage & other)    :
+   xLocal(other.xLocal),
+   rng(new TRandom3(*other.rng))
+{
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCThreadLocalStorage & BCEngineMCMC::MCMCThreadLocalStorage::operator = (const MCMCThreadLocalStorage & other)
+{
+   xLocal = other.xLocal;
+   if (rng)
+   {
+      // call = operator
+      *rng = *other.rng;
+   }
+   else
+      rng = new TRandom3(*other.rng);
+
+   return *this;
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
+{
+   delete rng;
+}
+
+void BCEngineMCMC::SyncThreadStorage()
+{
+   // always need as many local storage as #chains
+   const int n = fMCMCThreadLocalStorage.size() - fMCMCNChains;
+   if (n < 0)
+   {
+      // fix return value of GetSeed()
+      fRandom->Rndm();
+
+      for (int i = 0; i < -n; ++i){
+         // append one new storage
+         fMCMCThreadLocalStorage.push_back(MCMCThreadLocalStorage(fMCMCNParameters));
+         // each chains gets a different seed
+         // We assume that fRandom always returns same seed, presumably as it has generated at least one random number
+         fMCMCThreadLocalStorage.back().rng->SetSeed(fRandom->GetSeed() + fMCMCThreadLocalStorage.size());
+      }
+   }
+   else if (n > 0)
+   {
+      for (int i = 0; i < n; ++i){
+         fMCMCThreadLocalStorage.pop_back();
+      }
+   }
+
+   // update parameter size for each chain
+   for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i)
+      fMCMCThreadLocalStorage[i].xLocal.assign(fMCMCNParameters, 0.0);
+}

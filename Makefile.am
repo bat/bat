@@ -8,7 +8,8 @@ clean-local:
 SUBDIRS= \
 	src \
 	models/base \
-	models/mtf
+	models/mtf \
+	benchmarks/test
 
 EXTRA_DIST= \
 	src/libBAT.rootmap \

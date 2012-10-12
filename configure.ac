@@ -32,6 +32,26 @@ AC_ARG_ENABLE(
 AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
 dnl
+dnl Check for parallelization mode
+dnl
+AC_ARG_ENABLE(
+	[parallelization],
+	[AS_HELP_STRING([--enable-parallelization],[compile with OpenMP thread parallelization (default no)])],
+	[
+		case "${enableval}" in
+			yes) parallelization=1 ; 
+				 LDFLAGS+=" -fopenmp" ;;
+			no)  parallelization=0 ;;
+			*) AC_MSG_ERROR([bad value ${enableval} for --enable-parallelization]) ;;
+		esac
+	],
+	[parallelization=0]
+)
+
+AC_DEFINE_UNQUOTED([THREAD_PARALLELIZATION], [$parallelization], [OpenMP thread parallelization])
+AM_CONDITIONAL([THREAD_PARALLELIZATION], [test $parallelization = 1])
+
+dnl
 dnl Check for Cuba
 dnl
 AC_ARG_WITH(
@@ -143,6 +163,7 @@ AC_OUTPUT(
 	src/Makefile
 	models/base/Makefile
 	models/mtf/Makefile
+	benchmarks/test/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile
 	examples/basic/combination2d/Makefile
@@ -158,5 +179,3 @@ AC_OUTPUT(
 	examples/expert/TrialFunction/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
 )
-
-

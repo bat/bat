@@ -286,13 +286,6 @@ class BCEngineMCMC
        * @return pointer to the histogram */
       TH2D * MCMCGetH2Marginalized(int i, int j);
 
-      /**
-       * Return the random number generator.
-       * Any  non-zero seed gives reproducible behavior,e.g.
-       * m->MCMCGetTRandom3()->SetSeed(21340) */
-      TRandom3 * MCMCGetTRandom3()
-         { return fRandom; }
-
       /** @} */
       /** \name Setters */
       /** @{ */
@@ -351,6 +344,10 @@ class BCEngineMCMC
        * Sets the maximum efficiency required for a chain. */
       void MCMCSetMaximumEfficiency(double efficiency)
          { fMCMCEfficiencyMax = efficiency; }
+
+      /**
+       * Set the random number seed */
+      void MCMCSetRandomSeed(unsigned seed);
 
       /**
        * Sets flag to write Markov chains to file. */
@@ -582,6 +579,44 @@ class BCEngineMCMC
        * Pointer to a member function */
       MCMCPointerToGetProposalPoint fMCMCPointerToGetProposalPoint;
 
+      /**
+       * Keeps variables that need to be both members and thread local.
+       */
+      struct MCMCThreadLocalStorage
+      {
+          /**
+           * Store local proposal point
+           */
+          std::vector<double> xLocal;
+
+          /**
+           * Random number generator
+           */
+          TRandom3 * rng;
+
+          /**
+           * ctor
+           * @param dim Dimension of a temporary parameter vector
+           */
+          MCMCThreadLocalStorage(const unsigned & dim);
+
+          MCMCThreadLocalStorage(const MCMCThreadLocalStorage & other);
+
+          MCMCThreadLocalStorage & operator = (const MCMCThreadLocalStorage & other);
+
+          virtual ~MCMCThreadLocalStorage();
+      };
+
+      /**
+       * Keep thread local variables private.
+       */
+      std::vector<MCMCThreadLocalStorage> fMCMCThreadLocalStorage;
+
+      /**
+       * Ensure that there are as many storages as chains
+       */
+      void SyncThreadStorage();
+
    protected:
 
       /**
@@ -748,10 +783,6 @@ class BCEngineMCMC
        * The variance of all parameters of each Markov chain. The length
        * of the vector is equal to fMCMCNChains * fMCMCNParameters. */
       std::vector<double> fMCMCxVar;
-
-      /**
-       * A temporary vector for a single Markov chain */
-      std::vector<double> fMCMCxLocal;
 
       /**
        * The log of the probability of the current points of each Markov

@@ -15,9 +15,9 @@ libBATmodels_la_LDFLAGS += -lcuba
 endif
 
 if DEBUG
-AM_CXXFLAGS += -g -O0 -Wextra -pedantic -Wno-long-long
+AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
 else !DEBUG
-AM_CXXFLAGS += -O2
+AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
 endif !DEBUG
 
 if IS_DARWIN

@@ -15,12 +15,33 @@
 
 namespace test
 {
-    std::list<const TestCase *> test_cases;
+
+    // Use a singleton to avoid the static initialization fiasco
+    // Use a small, local singleton in order to avoid linking against libeosutils
+    struct TestCasesHolder
+    {
+        std::list<const TestCase *> test_cases;
+
+        TestCasesHolder()
+        {
+        }
+
+        ~TestCasesHolder()
+        {
+        }
+
+        static TestCasesHolder * instance()
+        {
+            static TestCasesHolder result;
+
+            return &result;
+        }
+    };
 
     TestCase::TestCase(const std::string & name) :
         _name(name)
     {
-        test_cases.push_back(this);
+        TestCasesHolder::instance()->test_cases.push_back(this);
     }
 
     TestCase::~TestCase()
@@ -69,8 +90,8 @@ int main(int, char ** argv)
     BCLog::OpenLog();
     BCLog::SetLogLevelScreen(BCLog::debug);
 
-    for (std::list<const test::TestCase *>::const_iterator i(test::test_cases.begin()),
-            i_end(test::test_cases.end()) ; i != i_end ; ++i)
+    for (std::list<const test::TestCase *>::const_iterator i(test::TestCasesHolder::instance()->test_cases.begin()),
+            i_end(test::TestCasesHolder::instance()->test_cases.end()) ; i != i_end ; ++i)
     {
         std::cout << "Running test case '" << (*i)->name() << "'" << std::endl;
 

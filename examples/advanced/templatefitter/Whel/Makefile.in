@@ -24,6 +24,7 @@ CXX          = @CXX@
 CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
 LD           = @LD@
 LDFLAGS      = @LDFLAGS@ -g -O2
+@THREAD_PARALLELIZATION_TRUE@LDFLAGS += -fopenmp
 SOFLAGS      = -shared
 
 # standard commands

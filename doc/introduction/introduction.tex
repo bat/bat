@@ -2199,11 +2199,10 @@ further reference see the reference guide:
   quick runs), \verb|BCEngineMCMC::kMedium| (for ``normal'' running),
   \linebreak \verb|BCEngineMCMC::kHigh| (for publications).
 
-\item \verb|BCEngineMCMC::MCMCGetTRandom3()|. Returns the random number
-generator used with the Markov chain. The default seed is 0, i.e.,
-it is randomly initialized. To obtain reproducible results, use
-a non-zero seed. E.g.
-\verb|m->MCMCGetTRandom3()->SetSeed(21340);|.
+  \item \verb|BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)|. Set  the
+  random number generator used with the Markov chain. The default seed is 0,
+  i.e., it is randomly initialized. To obtain reproducible results, use a
+  non-zero seed. E.g.  \verb|m->MCMCSetRandomSeed(21340)|.
 \end{itemize}
 
 \paragraph{Proposal function}
