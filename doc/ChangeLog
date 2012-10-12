@@ -5,6 +5,7 @@
 	* test/test: resolve static initialization fiasko
 	* test: add parallel_TEST and GaussModel to verify parallelization yields identical results
 	* Makefile.in: update examples and CreateProject.sh to compile with openMP
+	* add .gitignore
 
 2012-10-11 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCSummaryTool: rotate labels in correlation plot for long parameter names

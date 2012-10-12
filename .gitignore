@@ -1,0 +1,49 @@
+# Autotools
+aclocal.m4
+*.cache
+config/
+config.*
+configure
+.deps/
+depcomp
+*Dict.h
+*Dict.cxx
+*.in
+install-sh
+libtool
+*LinkDef.h
+link.d
+*.log
+ltmain.sh
+Makefile
+missing
+stamp-h1
+*.status
+
+# Results
+*.[oa]
+CreateProject.sh
+*.l[oa]
+*.libs/
+*.so
+
+
+# Tests
+*_TEST
+
+# Example output
+log.txt
+*_results.txt
+
+# Documentation
+doc/introduction/
+!doc/introduction/introduction.tex
+
+# Editors
+.autotools
+*.*project
+.settings/org.eclipse*
+*~
+
+# File managers
+.directory
