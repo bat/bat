@@ -668,7 +668,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
     }
 
     // set style of band histogram
-    hist_band->SetFillStyle(1001);
+		hist_band->SetFillStyle(1001);
     hist_band->SetFillColor(col);
     hist_band->SetLineColor(col);
 
