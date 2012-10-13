@@ -1,3 +1,6 @@
+2012-10-13 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCH1D.cxx: move legend outside of histogram.
+
 2012-10-12 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Add support for openMP thread parallelization
 	* BCEngineMCMC: add openMP thread parallelization, remove old TRandom access

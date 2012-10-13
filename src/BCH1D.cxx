@@ -233,6 +233,18 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 
   myDraw(options, intervals);
 
+	// debugKK
+	double top = gPad->GetTopMargin();
+	double bottom = gPad->GetBottomMargin();
+	double left = gPad->GetLeftMargin();
+	double right = gPad->GetRightMargin();
+	
+	double dx = 1.-right - left;
+	double dy = 1.-top-bottom;
+	double ratio = dy/dx;
+	double ynew = ratio * ctemp->GetWindowWidth();
+	ctemp->SetWindowSize(ctemp->GetWindowWidth(), ynew);
+
   gPad->RedrawAxis();
 
   // print to file.
@@ -404,34 +416,8 @@ void BCH1D::Draw(int options, double ovalue)
 void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 {
   // todoKK:
-  // - fix legend size, position and style
-  // - maybe write a painer class?
-  // options should start with letter indicating type, e.g.
-  // L: legend
-  //    - L  : legend : simple legend
-  //    - L1 : legend : written summary on plot (mean = xyz, ...)
-  // B: band (or shaded area)
-  //    - BT0 : band type : smallest intervals
-  //    - BT1 : band type : central interval
-  //    - B1  : band : draw one band between arbitrary values (yellow)
-  //    - B2  : band : draw two bands between arbitrary values (+red)
-  //    - B3  : band : draw three bands between arbitrary values (+green)
-  // D: drawing
-  //    - D0  : draw : draw histogram as normal histogram
-  //    - D1  : draw : draw histogram as smooth curve
-  //    - CS0  : color scheme : black&white version with hatching
-  //    - CS1  : color scheme : colored version with hatching
-  //    - logx : log-scale : use log-scale for x-axis
-  //    - logy : log-scale : use log-scale for y-axis
-  //    - pdf0 : pdf : draw pdf
-  //    - pdf1 : pdf : draw cumulative pdf
-  // S: summary values (mean, rms, ...)
-  //    - S0 : summary : add indicator for mode, mean, median individually
-  //    - S1 : summary : add indicator for rms, smallest interval, central interval individually 
-  //    - Q0 : quantiles : add indicator for the median
-  //    - Q1 : quantiles : add indicator for quartiles
-  //    - Q2 : quantiles : add indicator for deciles 
-  //    - Q3 : quantiles : add indicator for percentiles 
+  // plot cumulative pdf
+  // plot probability density/probability
 
   // option flags
   bool flag_pdf0 = true;
@@ -615,7 +601,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   // prepare legend
   TLegend* legend = new TLegend();
   legend->SetBorderSize(0);
-  legend->SetFillColor(kWhite);
+	legend->SetFillColor(kWhite);
   legend->SetTextAlign(12);
   legend->SetTextFont(62);
   legend->SetTextSize(0.03);
@@ -705,7 +691,8 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
   double ymax     = ymaxhist;
   double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin();
+  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
+
   // check if log axis
   if (flag_logy)
     ymin = 1e-4*ymaxhist;
@@ -828,7 +815,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	}
 	
   // calculate legend height in NDC coordinates
-  double height = 0.08*legend->GetNRows();
+  double height = 0.05*legend->GetNRows();
 
   // make room for legend
   if (flag_legend)
@@ -836,13 +823,23 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   else 
     ymax*=1.1;
 
-  fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+  fHistogram->GetYaxis()->SetRangeUser(ymin, 1.05*ymaxhist);
 
   // calculate dimensions in NDC variables
+	/*
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
   double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
   double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
-  double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
+	double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
+	*/
+	// debugKK
+	if (flag_legend)
+		gStyle->SetPadTopMargin(0.02);
+
+  double xlegend1 = gStyle->GetPadLeftMargin();
+  double xlegend2 = 1.0-gStyle->GetPadRightMargin();
+  double ylegend1 = 1.-gStyle->GetPadTopMargin()-height;
+	double ylegend2 = 1.-gStyle->GetPadTopMargin();
 
   // place legend on top of histogram
   legend->SetX1NDC(xlegend1);
@@ -856,6 +853,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   }
 
 	// draw line to separate legend
+	/*
 	if (flag_legend) {
 		TLine* line_boundary = new TLine();
 		line_boundary->SetLineColor(kBlack);
@@ -863,6 +861,13 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 														xmax, 1.05*ymaxhist);
 		fROOTObjects.push_back(line_boundary);
 	}
+	*/
+
+	// rescale top margin
+	double cm_top = gPad->GetTopMargin();
+	double margin_fraction = (ymax - 1.05*ymaxhist)/ymax*yfraction; 
+
+	gPad->SetTopMargin(1.-ylegend1+0.01);
 
   gPad->RedrawAxis();
 
