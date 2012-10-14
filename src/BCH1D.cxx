@@ -233,7 +233,6 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 
   myDraw(options, intervals);
 
-	// debugKK
 	double top = gPad->GetTopMargin();
 	double bottom = gPad->GetBottomMargin();
 	double left = gPad->GetLeftMargin();
@@ -242,10 +241,12 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 	double dx = 1.-right - left;
 	double dy = 1.-top-bottom;
 	double ratio = dy/dx;
-	double ynew = ratio * ctemp->GetWindowWidth();
-	ctemp->SetWindowSize(ctemp->GetWindowWidth(), ynew);
-
+	double ynew = ctemp->GetWindowWidth()/ratio;
+	ctemp->SetCanvasSize(ctemp->GetWindowWidth(), ynew);
   gPad->RedrawAxis();
+
+	ctemp->Modified();
+	ctemp->Update();
 
   // print to file.
   ctemp->Print(file);
@@ -832,7 +833,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
 	double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
 	*/
-	// debugKK
 	if (flag_legend)
 		gStyle->SetPadTopMargin(0.02);
 

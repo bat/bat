@@ -1,3 +1,6 @@
+2012-10-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCH1D.cxx: resize canvas when adding a legend
+
 2012-10-13 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH1D.cxx: move legend outside of histogram.
 
