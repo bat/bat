@@ -1,3 +1,7 @@
+2012-10-15 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* introduction: latex parameter names
+	* gitignore: fix
+
 2012-10-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH1D.cxx: made resizing the canvas an option
 

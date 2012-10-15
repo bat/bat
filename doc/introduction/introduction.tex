@@ -417,18 +417,20 @@ The parameters of a model are implemented as a C++ class named
 Parameters can be defined explicitly and then added to a model via
 %
 \begin{verbatim}
-BCParameter * parameter = new BCParameter(const char * name,
-                                          double lowerlimit,
-                                          double upperlimit);
+BCParameter * parameter = new BCParameter(const char * name, double lowerlimit,
+                                          double upperlimit,
+                                          const char* latexname = "");
 int BCModel::AddParameter(BCParameter * parameter),
 \end{verbatim}
 %
-where the arguments in the \code{BCParameter} constructor are the
-name, lower limit, and upper limit of the parameter. Parameters can
-also be defined implicitly via
+where the arguments in the \code{BCParameter} constructor are the name, lower
+limit, and upper limit of the parameter. The optional \verb|latexname| is used
+to label axes in output plots. When omitted, \verb|name| is used instead.
+Parameters can also be defined implicitly via
 %
 \begin{verbatim}
-int BCModel::AddParameter(const char* name, double lowerlimit, double upperlimit) .
+int BCModel::AddParameter(const char* name, double lowerlimit,
+                          double upperlimit, const char* latexname = "").
 \end{verbatim}
 
 Each parameter must have a unique name and valid limits. Once added to

@@ -6,8 +6,6 @@ config.*
 configure
 .deps/
 depcomp
-*Dict.h
-*Dict.cxx
 *.in
 install-sh
 libtool
@@ -20,13 +18,17 @@ missing
 stamp-h1
 *.status
 
+# ROOT
+*Dict.h
+*Dict.cxx
+*.rootmap
+
 # Results
 *.[oa]
 CreateProject.sh
 *.l[oa]
 *.libs/
 *.so
-
 
 # Tests
 *_TEST
@@ -36,7 +38,7 @@ log.txt
 *_results.txt
 
 # Documentation
-doc/introduction/
+doc/introduction/*
 !doc/introduction/introduction.tex
 
 # Editors
