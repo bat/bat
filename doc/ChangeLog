@@ -1,3 +1,6 @@
+2012-10-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCH1D.cxx: made resizing the canvas an option
+
 2012-10-14 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH1D.cxx: resize canvas when adding a legend
 

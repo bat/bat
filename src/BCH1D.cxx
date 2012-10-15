@@ -198,6 +198,7 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
   // option flags
   bool flag_logx = false;
   bool flag_logy = false;
+  bool flag_rescale = false;
 
   // check content of options string
   if (options.find("logx") < options.size()) {
@@ -206,6 +207,10 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 
   if (options.find("logy") < options.size()) {
     flag_logy = true;
+  }
+
+  if (options.find("R") < options.size()) {
+    flag_rescale = true;
   }
 
   // create temporary canvas
@@ -233,20 +238,22 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 
   myDraw(options, intervals);
 
-	double top = gPad->GetTopMargin();
-	double bottom = gPad->GetBottomMargin();
-	double left = gPad->GetLeftMargin();
-	double right = gPad->GetRightMargin();
+	if (flag_rescale) {
+		double top = gPad->GetTopMargin();
+		double bottom = gPad->GetBottomMargin();
+		double left = gPad->GetLeftMargin();
+		double right = gPad->GetRightMargin();
 	
-	double dx = 1.-right - left;
-	double dy = 1.-top-bottom;
-	double ratio = dy/dx;
-	double ynew = ctemp->GetWindowWidth()/ratio;
-	ctemp->SetCanvasSize(ctemp->GetWindowWidth(), ynew);
-  gPad->RedrawAxis();
-
-	ctemp->Modified();
-	ctemp->Update();
+		double dx = 1.-right - left;
+		double dy = 1.-top-bottom;
+		double ratio = dy/dx;
+		double ynew = ctemp->GetWindowWidth()/ratio;
+		ctemp->SetCanvasSize(ctemp->GetWindowWidth(), ynew);
+		gPad->RedrawAxis();
+		
+		ctemp->Modified();
+		ctemp->Update();
+	}
 
   // print to file.
   ctemp->Print(file);
