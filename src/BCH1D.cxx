@@ -693,12 +693,12 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   gPad->RedrawAxis();
 
   // prepare size of histogram
-	double xmin     = fHistogram->GetXaxis()->GetXmin();
-	double xmax     = fHistogram->GetXaxis()->GetXmax();
+	//	double xmin     = fHistogram->GetXaxis()->GetXmin();
+	//	double xmax     = fHistogram->GetXaxis()->GetXmax();
   double ymin     = 0;
   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
   double ymax     = ymaxhist;
-  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
+	//  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
   double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
 
   // check if log axis
@@ -840,13 +840,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
 	double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
 	*/
-	if (flag_legend)
-		gStyle->SetPadTopMargin(0.02);
 
-  double xlegend1 = gStyle->GetPadLeftMargin();
-  double xlegend2 = 1.0-gStyle->GetPadRightMargin();
-  double ylegend1 = 1.-gStyle->GetPadTopMargin()-height;
-	double ylegend2 = 1.-gStyle->GetPadTopMargin();
+	if (flag_legend)
+		gPad->SetTopMargin(0.02);
+
+  double xlegend1 = gPad->GetLeftMargin();
+  double xlegend2 = 1.0-gPad->GetRightMargin();
+  double ylegend1 = 1.-gPad->GetTopMargin()-height;
+	double ylegend2 = 1.-gPad->GetTopMargin();
 
   // place legend on top of histogram
   legend->SetX1NDC(xlegend1);
@@ -871,9 +872,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	*/
 
 	// rescale top margin
-	double cm_top = gPad->GetTopMargin();
-	double margin_fraction = (ymax - 1.05*ymaxhist)/ymax*yfraction; 
-
 	gPad->SetTopMargin(1.-ylegend1+0.01);
 
   gPad->RedrawAxis();
