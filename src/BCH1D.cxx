@@ -30,6 +30,8 @@
 
 #include <math.h>
 
+unsigned int BCH1D::fHCounter=0;
+
 // ---------------------------------------------------------
 
 BCH1D::BCH1D()
@@ -172,9 +174,9 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
    // create temporary canvas
    TCanvas * c;
    if(ww > 0 && wh > 0)
-      c = new TCanvas("c","c",ww,wh);
+      c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()),TString::Format("c_bch1d_%d",getNextIndex()),ww,wh);
    else
-      c = new TCanvas("c","c");
+      c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()));
 
    c->cd();
    Draw(options, ovalue);
@@ -214,26 +216,26 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
   }
 
   // create temporary canvas
-  TCanvas * ctemp;
-  if(ww > 0 && wh > 0) {
-    ctemp = new TCanvas("","",ww,wh);
-  }
-  else
-    ctemp = new TCanvas("","");
+  TCanvas * c;
+	unsigned int cindex = getNextIndex();
+	if(ww > 0 && wh > 0)
+		c = new TCanvas(TString::Format("c_bch1d_%d",cindex), TString::Format("c_bch1d_%d",cindex), ww, wh);
+	else
+		c = new TCanvas(TString::Format("c_bch1d_%d",cindex));
+	
+  // add c to list of objects
+  fROOTObjects.push_back(c);
 
-  // add ctemp to list of objects
-  fROOTObjects.push_back(ctemp);
-
-  ctemp->cd();
+  c->cd();
 
   // set log axis 
   if (flag_logx) {
-    ctemp->SetLogx();
+    c->SetLogx();
   }
 
   // set log axis
   if (flag_logy) {
-    ctemp->SetLogy();
+    c->SetLogy();
   }
 
   myDraw(options, intervals);
@@ -247,16 +249,16 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 		double dx = 1.-right - left;
 		double dy = 1.-top-bottom;
 		double ratio = dy/dx;
-		double ynew = ctemp->GetWindowWidth()/ratio;
-		ctemp->SetCanvasSize(ctemp->GetWindowWidth(), ynew);
+		double ynew = c->GetWindowWidth()/ratio;
+		c->SetCanvasSize(c->GetWindowWidth(), ynew);
 		gPad->RedrawAxis();
 		
-		ctemp->Modified();
-		ctemp->Update();
+		c->Modified();
+		c->Update();
 	}
 
   // print to file.
-  ctemp->Print(file);
+  c->Print(file);
 }
 
 // ---------------------------------------------------------
@@ -699,7 +701,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
   double ymax     = ymaxhist;
 	//  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
+	//  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
 
   // check if log axis
   if (flag_logy)
@@ -823,7 +825,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	}
 	
   // calculate legend height in NDC coordinates
-  double height = 0.05*legend->GetNRows();
+  double height = 0.03*legend->GetNRows();
 
   // make room for legend
   if (flag_legend)

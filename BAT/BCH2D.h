@@ -209,6 +209,13 @@ class BCH2D
 			/**
        * The colors of the color scheme. */
       std::vector<TObject*> fROOTObjects;
+
+			/** Helper method to get an unique number to be used in histogram naming */
+			static unsigned int getNextIndex()
+      { return ++fHCounter; }
+
+			/** helper variable to get an unique number to be used in histogram naming */
+			static unsigned int fHCounter;
 };
 
 // ---------------------------------------------------------

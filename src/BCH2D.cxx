@@ -28,6 +28,8 @@
 
 #include <math.h>
 
+unsigned int BCH2D::fHCounter=0;
+
 // ---------------------------------------------------------
 
 BCH2D::BCH2D()
@@ -156,11 +158,11 @@ void BCH2D::myPrint(const char * filename, std::string options, std::vector<doub
 
    // create temporary canvas
    TCanvas * c;
-   if(ww >0 && wh > 0)
-      c = new TCanvas("c","c",ww,wh);
-   else
-      c = new TCanvas("c","c",700,700);
-   c->cd();
+	 unsigned int cindex = getNextIndex();
+	 if(ww > 0 && wh > 0)
+		 c = new TCanvas(TString::Format("c_bch2d_%d",cindex), TString::Format("c_bch2d_%d",cindex), ww, wh);
+	 else
+		 c = new TCanvas(TString::Format("c_bch2d_%d",cindex));
 
 	 // add c to list of objects
 	 fROOTObjects.push_back(c);
@@ -349,10 +351,16 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 			 le->SetFillColor(GetColor(nbands-1-i));
 			 le->SetFillStyle(1001);
 			 le->SetLineColor(GetColor(nbands-1-i));
+			 le->SetTextAlign(12);
+			 le->SetTextFont(62);
+			 le->SetTextSize(0.03);
 		 }
 		 else if (bandtype == 1) {
 			 TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
 			 le->SetLineColor(GetColor(nbands-1-i));
+			 le->SetTextAlign(12);
+			 le->SetTextFont(62);
+			 le->SetTextSize(0.03);
 		 }
 	 }
 
@@ -405,13 +413,13 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	}
 	
   // calculate legend height in NDC coordinates
-  double height = 0.05*legend->GetNRows();
+  double height = 0.03*legend->GetNRows();
 
   // make room for legend
   if (flag_legend)
     ymax+=(ymax-ymin)*(0.1+height);
 
-	TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymax);
+	TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymaxhist);
 	hist_axes->SetXTitle(fHistogram->GetXaxis()->GetTitle());
 	hist_axes->SetYTitle(fHistogram->GetYaxis()->GetTitle());
 	hist_axes->SetLineWidth(fHistogram->GetLineWidth());
@@ -419,7 +427,7 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	fROOTObjects.push_back(hist_axes);
 
 	// draw axes
-	hist_axes->Draw();
+	hist_axes->Draw("COL");
 
 	// draw histogram
 	if (bandtype == 0)
