@@ -33,9 +33,18 @@
 unsigned int BCH1D::fHCounter=0;
 
 // ---------------------------------------------------------
-
 BCH1D::BCH1D()
   : fHistogram(0)
+  , fROOTObjects(std::vector<TObject*>(0))
+{
+   fDefaultCLLimit = 95.; // in percent
+
+   fModeFlag = 0;
+}
+
+// ---------------------------------------------------------
+BCH1D::BCH1D(TH1D * hist)
+  : fHistogram(hist)
   , fROOTObjects(std::vector<TObject*>(0))
 {
    fDefaultCLLimit = 95.; // in percent

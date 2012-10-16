@@ -40,8 +40,7 @@ class BCH1D
 
       /**
        * The default constructor. */
-      BCH1D(TH1D * hist)
-         { fHistogram = hist; };
+      BCH1D(TH1D * hist);
 
       /**
        * The default destructor. */
