@@ -776,6 +776,13 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	marker_median->SetMarkerColor(GetColor(4));
 	marker_median->SetMarkerSize(1.5);
 
+	// mode
+	TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
+																	fMode, ymin,
+																	0.02, "|>");
+	arrow_mode->SetLineColor(GetColor(4));
+	arrow_mode->SetFillColor(GetColor(4));
+
 	// standard deviation
 	TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
 																 GetMean()+GetRMS(), 0.55*ymaxhist,
@@ -797,6 +804,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	fROOTObjects.push_back(arrow_ci);
 
 	if (flag_mode) {
+		arrow_mode->Draw();
 		marker_mode->Draw();
 		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
 		le->SetMarkerStyle(24);
