@@ -1,5 +1,6 @@
 2012-10-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: fix off-by-one bug in sample-mean integration
+	* Todo: update
 
 2012-10-16 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH1D.cxx: added arrow to global mode.

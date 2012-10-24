@@ -5,6 +5,8 @@ For later releases:
 ===================
 Priority:    Status:   Task:
 ------------------------------------------------------------------------------------------------
+high                   Help with multimodal distributions in manual. Improve sampling (global-local proposal, adaptive IS, multinest)
+
 medium                 Fix memory leaks in BCH1D and other classes
 medium                 Allocate BestFitParameters, Errors, Marginalized... upon parameter addition
 medium                 Move getters and setters to the class where the attributes are defined (not the case for BestFitParameters, Errors, Marginalized, etc.)
@@ -68,6 +70,8 @@ fixed           Delta-function priors (Kevin)
                 Check normalization of Likelihood (all)
 fixed           Remove GLIBS from makefiles
                 change examples to use quick priors
+fixed           parallelize Markov chains
+                Improve sample mean: parallelization is trivial, but MarginalizeAll(), bin settings etc. not usable as with MCMC
 
 Optional tasks:
 
