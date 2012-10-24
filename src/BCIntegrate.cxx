@@ -904,7 +904,8 @@ TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
       randx[index] = hmin + (double)i * hdx;
 
       double val = IntegralMC(randx);
-      hist->Fill(randx[index], val);
+      // remember i = 0 => underflow bin
+      hist->SetBinContent(i+1, val);
    }
 
    // normalize
@@ -946,7 +947,8 @@ TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter
          randx[index2] = hmin2 + (double)j * hdx2;
 
          double val = IntegralMC(randx);
-         hist->Fill(randx[index1],randx[index2], val);
+         // remember i = 0 => underflow bin
+         hist->SetBinContent(i+1, j+1, val);
       }
    }
 
