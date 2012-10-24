@@ -40,8 +40,7 @@ class BCH1D
 
       /**
        * The default constructor. */
-      BCH1D(TH1D * hist)
-         { fHistogram = hist; };
+      BCH1D(TH1D * hist);
 
       /**
        * The default destructor. */
@@ -161,7 +160,10 @@ class BCH1D
      /**
        * Print distribution into a PostScript file.
        * @param filename Output filename
-       * @param option the draw options (see myDraw())
+       * @param option the draw options (see myDraw()), plus \n
+			 * logx : draw x-axis in log-scale \n
+			 * logy : draw y-axis in log-scale \n
+			 * R : rescale canvas to have a squared histogram
        * @param ww canvas size in pixels along X
        * @param ww canvas size in pixels along Y
        * If ww and wh are set to 0, default ROOT canvas size is used.
@@ -304,6 +306,13 @@ class BCH1D
       /**
        * The colors of the color scheme. */
       std::vector<TObject*> fROOTObjects;
+
+			/** Helper method to get an unique number to be used in histogram naming */
+			static unsigned int getNextIndex()
+      { return ++fHCounter; }
+
+			/** helper variable to get an unique number to be used in histogram naming */
+			static unsigned int fHCounter;
 };
 
 // ---------------------------------------------------------

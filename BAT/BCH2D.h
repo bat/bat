@@ -109,7 +109,9 @@ class BCH2D
      /**
        * Print distribution into a PostScript file.
        * @param filename Output filename
-       * @param option the draw options (see myDraw())
+       * @param option the draw options (see myDraw()) plus \n
+			 * logz : draw z-axis in log-scale \n
+			 * R : rescale canvas to have a squared histogram
        * @param ww canvas size in pixels along X
        * @param ww canvas size in pixels along Y
        * If ww and wh are set to 0, default ROOT canvas size is used.
@@ -207,6 +209,13 @@ class BCH2D
 			/**
        * The colors of the color scheme. */
       std::vector<TObject*> fROOTObjects;
+
+			/** Helper method to get an unique number to be used in histogram naming */
+			static unsigned int getNextIndex()
+      { return ++fHCounter; }
+
+			/** helper variable to get an unique number to be used in histogram naming */
+			static unsigned int fHCounter;
 };
 
 // ---------------------------------------------------------

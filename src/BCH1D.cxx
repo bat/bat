@@ -30,10 +30,21 @@
 
 #include <math.h>
 
-// ---------------------------------------------------------
+unsigned int BCH1D::fHCounter=0;
 
+// ---------------------------------------------------------
 BCH1D::BCH1D()
   : fHistogram(0)
+  , fROOTObjects(std::vector<TObject*>(0))
+{
+   fDefaultCLLimit = 95.; // in percent
+
+   fModeFlag = 0;
+}
+
+// ---------------------------------------------------------
+BCH1D::BCH1D(TH1D * hist)
+  : fHistogram(hist)
   , fROOTObjects(std::vector<TObject*>(0))
 {
    fDefaultCLLimit = 95.; // in percent
@@ -172,9 +183,9 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
    // create temporary canvas
    TCanvas * c;
    if(ww > 0 && wh > 0)
-      c = new TCanvas("c","c",ww,wh);
+      c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()),TString::Format("c_bch1d_%d",getNextIndex()),ww,wh);
    else
-      c = new TCanvas("c","c");
+      c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()));
 
    c->cd();
    Draw(options, ovalue);
@@ -214,26 +225,26 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
   }
 
   // create temporary canvas
-  TCanvas * ctemp;
-  if(ww > 0 && wh > 0) {
-    ctemp = new TCanvas("","",ww,wh);
-  }
-  else
-    ctemp = new TCanvas("","");
+  TCanvas * c;
+	unsigned int cindex = getNextIndex();
+	if(ww > 0 && wh > 0)
+		c = new TCanvas(TString::Format("c_bch1d_%d",cindex), TString::Format("c_bch1d_%d",cindex), ww, wh);
+	else
+		c = new TCanvas(TString::Format("c_bch1d_%d",cindex));
+	
+  // add c to list of objects
+  fROOTObjects.push_back(c);
 
-  // add ctemp to list of objects
-  fROOTObjects.push_back(ctemp);
-
-  ctemp->cd();
+  c->cd();
 
   // set log axis 
   if (flag_logx) {
-    ctemp->SetLogx();
+    c->SetLogx();
   }
 
   // set log axis
   if (flag_logy) {
-    ctemp->SetLogy();
+    c->SetLogy();
   }
 
   myDraw(options, intervals);
@@ -247,16 +258,16 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 		double dx = 1.-right - left;
 		double dy = 1.-top-bottom;
 		double ratio = dy/dx;
-		double ynew = ctemp->GetWindowWidth()/ratio;
-		ctemp->SetCanvasSize(ctemp->GetWindowWidth(), ynew);
+		double ynew = c->GetWindowWidth()/ratio;
+		c->SetCanvasSize(c->GetWindowWidth(), ynew);
 		gPad->RedrawAxis();
 		
-		ctemp->Modified();
-		ctemp->Update();
+		c->Modified();
+		c->Update();
 	}
 
   // print to file.
-  ctemp->Print(file);
+  c->Print(file);
 }
 
 // ---------------------------------------------------------
@@ -693,13 +704,13 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   gPad->RedrawAxis();
 
   // prepare size of histogram
-	double xmin     = fHistogram->GetXaxis()->GetXmin();
-	double xmax     = fHistogram->GetXaxis()->GetXmax();
+	//	double xmin     = fHistogram->GetXaxis()->GetXmin();
+	//	double xmax     = fHistogram->GetXaxis()->GetXmax();
   double ymin     = 0;
   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
   double ymax     = ymaxhist;
-  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
+	//  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
+	//  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
 
   // check if log axis
   if (flag_logy)
@@ -774,6 +785,13 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	marker_median->SetMarkerColor(GetColor(4));
 	marker_median->SetMarkerSize(1.5);
 
+	// mode
+	TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
+																	fMode, ymin,
+																	0.02, "|>");
+	arrow_mode->SetLineColor(GetColor(4));
+	arrow_mode->SetFillColor(GetColor(4));
+
 	// standard deviation
 	TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
 																 GetMean()+GetRMS(), 0.55*ymaxhist,
@@ -795,6 +813,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	fROOTObjects.push_back(arrow_ci);
 
 	if (flag_mode) {
+		arrow_mode->Draw();
 		marker_mode->Draw();
 		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
 		le->SetMarkerStyle(24);
@@ -823,7 +842,7 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	}
 	
   // calculate legend height in NDC coordinates
-  double height = 0.05*legend->GetNRows();
+  double height = 0.03*legend->GetNRows();
 
   // make room for legend
   if (flag_legend)
@@ -840,13 +859,14 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
   double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
 	double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
 	*/
-	if (flag_legend)
-		gStyle->SetPadTopMargin(0.02);
 
-  double xlegend1 = gStyle->GetPadLeftMargin();
-  double xlegend2 = 1.0-gStyle->GetPadRightMargin();
-  double ylegend1 = 1.-gStyle->GetPadTopMargin()-height;
-	double ylegend2 = 1.-gStyle->GetPadTopMargin();
+	if (flag_legend)
+		gPad->SetTopMargin(0.02);
+
+  double xlegend1 = gPad->GetLeftMargin();
+  double xlegend2 = 1.0-gPad->GetRightMargin();
+  double ylegend1 = 1.-gPad->GetTopMargin()-height;
+	double ylegend2 = 1.-gPad->GetTopMargin();
 
   // place legend on top of histogram
   legend->SetX1NDC(xlegend1);
@@ -871,9 +891,6 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 	*/
 
 	// rescale top margin
-	double cm_top = gPad->GetTopMargin();
-	double margin_fraction = (ymax - 1.05*ymaxhist)/ymax*yfraction; 
-
 	gPad->SetTopMargin(1.-ylegend1+0.01);
 
   gPad->RedrawAxis();

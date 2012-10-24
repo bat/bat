@@ -28,6 +28,8 @@
 
 #include <math.h>
 
+unsigned int BCH2D::fHCounter=0;
+
 // ---------------------------------------------------------
 
 BCH2D::BCH2D()
@@ -141,21 +143,54 @@ void BCH2D::Print(const char * filename, int options, int ww, int wh)
 // ---------------------------------------------------------
 void BCH2D::myPrint(const char * filename, std::string options, std::vector<double> intervals, int ww, int wh)
 {
+  // option flags
+  bool flag_logz = false;
+  bool flag_rescale = false;
+
+  // check content of options string
+  if (options.find("logz") < options.size()) {
+    flag_logz = true;
+  }
+
+  if (options.find("R") < options.size()) {
+    flag_rescale = true;
+  }
+
    // create temporary canvas
    TCanvas * c;
-   if(ww >0 && wh > 0)
-      c = new TCanvas("c","c",ww,wh);
-   else
-      c = new TCanvas("c","c",700,700);
-   c->cd();
+	 unsigned int cindex = getNextIndex();
+	 if(ww > 0 && wh > 0)
+		 c = new TCanvas(TString::Format("c_bch2d_%d",cindex), TString::Format("c_bch2d_%d",cindex), ww, wh);
+	 else
+		 c = new TCanvas(TString::Format("c_bch2d_%d",cindex));
 
-	 // add ctemp to list of objects
+	 // add c to list of objects
 	 fROOTObjects.push_back(c);
+
+  // set log axis 
+  if (flag_logz) {
+    c->SetLogz();
+  }
 
    // draw histogram
    myDraw(options, intervals);
-
-   gPad->RedrawAxis();
+	 
+	if (flag_rescale) {
+		double top = gPad->GetTopMargin();
+		double bottom = gPad->GetBottomMargin();
+		double left = gPad->GetLeftMargin();
+		double right = gPad->GetRightMargin();
+		
+		double dx = 1.-right - left;
+		double dy = 1.-top-bottom;
+		double ratio = dy/dx;
+		double ynew = c->GetWindowWidth()/ratio;
+		c->SetCanvasSize(c->GetWindowWidth(), ynew);
+		gPad->RedrawAxis();
+		
+		c->Modified();
+		c->Update();
+	}
 
    // print to file
    c->Print(filename);
@@ -260,8 +295,8 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
   double ymin     = fHistogram->GetYaxis()->GetXmin();
   double ymaxhist = fHistogram->GetYaxis()->GetXmax();
   double ymax     = ymaxhist;
-  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin();
+	//  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
+	//  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin();
 
   // prepare legend
   TLegend* legend = new TLegend();
@@ -315,10 +350,17 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 			 TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
 			 le->SetFillColor(GetColor(nbands-1-i));
 			 le->SetFillStyle(1001);
+			 le->SetLineColor(GetColor(nbands-1-i));
+			 le->SetTextAlign(12);
+			 le->SetTextFont(62);
+			 le->SetTextSize(0.03);
 		 }
 		 else if (bandtype == 1) {
 			 TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
 			 le->SetLineColor(GetColor(nbands-1-i));
+			 le->SetTextAlign(12);
+			 le->SetTextFont(62);
+			 le->SetTextSize(0.03);
 		 }
 	 }
 
@@ -371,13 +413,13 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	}
 	
   // calculate legend height in NDC coordinates
-  double height = 0.08*legend->GetNRows();
+  double height = 0.03*legend->GetNRows();
 
   // make room for legend
   if (flag_legend)
     ymax+=(ymax-ymin)*(0.1+height);
 
-	TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymax);
+	TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymaxhist);
 	hist_axes->SetXTitle(fHistogram->GetXaxis()->GetTitle());
 	hist_axes->SetYTitle(fHistogram->GetYaxis()->GetTitle());
 	hist_axes->SetLineWidth(fHistogram->GetLineWidth());
@@ -385,7 +427,7 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	fROOTObjects.push_back(hist_axes);
 
 	// draw axes
-	hist_axes->Draw();
+	hist_axes->Draw("COL");
 
 	// draw histogram
 	if (bandtype == 0)
@@ -394,15 +436,17 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 		hist_band->Draw("CONT1 SAME");
 		
 	// draw line to separate legend
-	if (flag_legend) {
-		fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
-	
+	//	if (flag_legend) {
+		//		fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
+
+		/*	
 		TLine* line_boundary = new TLine();
 		line_boundary->SetLineColor(kBlack);
 		line_boundary->DrawLine(xmin, fHistogram->GetYaxis()->GetXmax(),
 														xmax, fHistogram->GetYaxis()->GetXmax());
 		fROOTObjects.push_back(line_boundary);
-	}
+		*/
+	//	}
 
   // mean, mode, median
 	if (flag_mode) {
@@ -416,10 +460,21 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 	}
 	
   // calculate dimensions in NDC variables
+
+	/*
   double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
   double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
   double ylegend1 = gStyle->GetPadBottomMargin() + 1.05*(ymaxhist-ymin)/(ymax-ymin)*yfraction;
   double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
+	*/
+
+	if (flag_legend)
+		gPad->SetTopMargin(0.02);
+
+  double xlegend1 = gPad->GetLeftMargin();
+  double xlegend2 = 1.0-gPad->GetRightMargin();
+  double ylegend1 = 1.-gPad->GetTopMargin()-height;
+	double ylegend2 = 1.-gPad->GetTopMargin();
 
   // place legend on top of histogram
   legend->SetX1NDC(xlegend1);
@@ -433,6 +488,8 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
   }
 
  	hist_axes->Draw("SAME");
+
+	gPad->SetTopMargin(1.-ylegend1+0.01);
 
   gPad->RedrawAxis();
 	
