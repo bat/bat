@@ -32,13 +32,9 @@ int main()
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("PoissonModel_plots.eps");
+  m->PrintAllMarginalized("PoissonModel_plots.ps");
 
-	m->GetMarginalized("#lambda")->myPrint("lambda1.pdf", "BT0B3CS1D0pdf0Ldecilesmeanmedian");
-	m->GetMarginalized("#lambda")->myPrint("lambda2.pdf", "BT0B3CS2D0pdf0Ldecilesmeanmedian");
-	m->GetMarginalized("#lambda")->myPrint("lambda3.pdf", "BT0B3CS3D0pdf0Ldecilesmeanmedian");
-
-	//	m->PrintSummary();
+	m->PrintSummary();
 
   // print results of the analysis into a text file
   m->PrintResults("PoissonModel_results.txt");
