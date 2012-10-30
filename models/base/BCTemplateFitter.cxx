@@ -1199,7 +1199,9 @@ void BCTemplateFitter::PrintRatios(const char * filename, int options, double ov
       ps->NewPage();
       c1->cd();
       BCH1D* h1temp = new BCH1D(&fHistRatios1D.at(i));
-      h1temp->Draw(options, ovalue);
+			// debugKK: need to adjust to new plotting style
+			//      h1temp->Draw(options, ovalue);
+			h1temp->Draw();
    }
    c1->Update();
    ps->Close();

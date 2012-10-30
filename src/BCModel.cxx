@@ -1237,7 +1237,9 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 
       // just draw a line for a delta prior
       if (a->GetRangeWidth() == 0)
-          GetMarginalized(a)->Draw(4, a->GetLowerLimit());
+				// debugKK: don't draw delta prior distributions for now
+				//          GetMarginalized(a)->Draw(4, a->GetLowerLimit());
+				;
       else
           GetMarginalized(a)->Draw();
 
@@ -1289,7 +1291,9 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
          if (deltab <= 1e-7 * meanb)
             continue;
 
-         GetMarginalized(a, b)->Draw(52);
+				 // debugKK: check if this works
+				 //         GetMarginalized(a, b)->Draw(52);
+				 GetMarginalized(a, b)->Draw();
          k++;
 
          if ((n + k) % 100 == 0)

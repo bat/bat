@@ -169,7 +169,7 @@ void BCH1D::SetColorScheme(int scheme)
 }
 
 // ---------------------------------------------------------
-void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int wh)
+void BCH1D::PrintOld(const char * filename, int options, double ovalue, int ww, int wh)
 {
    char file[256];
    int i=0;
@@ -188,7 +188,7 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
       c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()));
 
    c->cd();
-   Draw(options, ovalue);
+   DrawOld(options, ovalue);
 
    gPad->RedrawAxis();
 
@@ -198,7 +198,7 @@ void BCH1D::Print(const char * filename, int options, double ovalue, int ww, int
 
 // ---------------------------------------------------------
 
-void BCH1D::myPrint(const char* filename, std::string options, std::vector<double> intervals, int ww, int wh)
+void BCH1D::Print(const char* filename, std::string options, std::vector<double> intervals, int ww, int wh)
 {
   char file[256];
   int i=0;
@@ -247,7 +247,7 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
     c->SetLogy();
   }
 
-  myDraw(options, intervals);
+  Draw(options, intervals);
 
 	if (flag_rescale) {
 		double top = gPad->GetTopMargin();
@@ -271,15 +271,15 @@ void BCH1D::myPrint(const char* filename, std::string options, std::vector<doubl
 }
 
 // ---------------------------------------------------------
-void BCH1D::myPrint(const char* filename, std::string options, double interval, int ww, int wh)
+void BCH1D::Print(const char* filename, std::string options, double interval, int ww, int wh)
 {
   std::vector<double> tempvec;
   tempvec.push_back(interval);
-  myPrint(filename, options, tempvec, ww, wh);
+  Print(filename, options, tempvec, ww, wh);
 }
 
 // ---------------------------------------------------------
-void BCH1D::Draw(int options, double ovalue)
+void BCH1D::DrawOld(int options, double ovalue)
 {
    double min, max;
    double mode;
@@ -432,7 +432,7 @@ void BCH1D::Draw(int options, double ovalue)
 }
 
 // ---------------------------------------------------------
-void BCH1D::myDraw(std::string options, std::vector<double> intervals)
+void BCH1D::Draw(std::string options, std::vector<double> intervals)
 {
   // todoKK:
   // plot cumulative pdf
@@ -899,11 +899,11 @@ void BCH1D::myDraw(std::string options, std::vector<double> intervals)
 }
 
 // ---------------------------------------------------------
-void BCH1D::myDraw(std::string options, double interval)
+void BCH1D::Draw(std::string options, double interval)
 {
   std::vector<double> tempvec;
   tempvec.push_back(interval);
-  myDraw(options, tempvec);  
+  Draw(options, tempvec);  
 }
 
 // ---------------------------------------------------------

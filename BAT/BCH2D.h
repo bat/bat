@@ -102,8 +102,8 @@ class BCH2D
        * @param ww canvas size in pixels along X
        * @param ww canvas size in pixels along Y
        * If ww and wh are set to 0, default ROOT canvas size is used.
-       * For explanation of the parameter options see the Draw() method. */
-      void Print(const char * filename, int options=0, int ww=0, int wh=0);
+       * For explanation of the parameter options see the DrawOld() method. */
+      void PrintOld(const char * filename, int options=0, int ww=0, int wh=0);
 
 
      /**
@@ -117,13 +117,13 @@ class BCH2D
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-			void myPrint(const char * filename, std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
-			void myPrint(const char * filename, std::string options, double interval, int ww=0, int wh=0);
+			void Print(const char * filename, std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+			void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
       /**
        * Draw 2-d distribution into the active canvas
        * @param options explanation to come
        * @param drawmode specify whether a marker should be drawn at the location of the mode */
-      void Draw(int options=0, bool drawmode=true);
+      void DrawOld(int options=0, bool drawmode=true);
 
       /**
        * Draw distribution into the active canvas.
@@ -142,8 +142,8 @@ class BCH2D
 			 * nL : remove legend \n
        * @param intervals the intervals
        */			
-      void myDraw(std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0));
-      void myDraw(std::string options, double interval);
+      void Draw(std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0));
+      void Draw(std::string options, double interval);
 
       /**
        * Calculates the integral of the distribution as a function of the

@@ -121,7 +121,7 @@ void BCH2D::SetHistogram(TH2D * hist)
 }
 
 // ---------------------------------------------------------
-void BCH2D::Print(const char * filename, int options, int ww, int wh)
+void BCH2D::PrintOld(const char * filename, int options, int ww, int wh)
 {
    // create temporary canvas
    TCanvas * c;
@@ -132,7 +132,7 @@ void BCH2D::Print(const char * filename, int options, int ww, int wh)
    c->cd();
 
    // draw histogram
-   Draw(options);
+   DrawOld(options);
 
    gPad->RedrawAxis();
 
@@ -141,7 +141,7 @@ void BCH2D::Print(const char * filename, int options, int ww, int wh)
 }
 
 // ---------------------------------------------------------
-void BCH2D::myPrint(const char * filename, std::string options, std::vector<double> intervals, int ww, int wh)
+void BCH2D::Print(const char * filename, std::string options, std::vector<double> intervals, int ww, int wh)
 {
   // option flags
   bool flag_logz = false;
@@ -173,7 +173,7 @@ void BCH2D::myPrint(const char * filename, std::string options, std::vector<doub
   }
 
    // draw histogram
-   myDraw(options, intervals);
+   Draw(options, intervals);
 	 
 	if (flag_rescale) {
 		double top = gPad->GetTopMargin();
@@ -197,15 +197,15 @@ void BCH2D::myPrint(const char * filename, std::string options, std::vector<doub
 }
 
 // ---------------------------------------------------------
-void BCH2D::myPrint(const char* filename, std::string options, double interval, int ww, int wh)
+void BCH2D::Print(const char* filename, std::string options, double interval, int ww, int wh)
 {
   std::vector<double> tempvec;
   tempvec.push_back(interval);
-  myPrint(filename, options, tempvec, ww, wh);
+  Print(filename, options, tempvec, ww, wh);
 }
 
 // ---------------------------------------------------------
-void BCH2D::myDraw(std::string options, std::vector<double> intervals)
+void BCH2D::Draw(std::string options, std::vector<double> intervals)
 {
   // option flags
   bool flag_legend = true;
@@ -497,16 +497,16 @@ void BCH2D::myDraw(std::string options, std::vector<double> intervals)
 }
 
 // ---------------------------------------------------------
-void BCH2D::myDraw(std::string options, double interval)
+void BCH2D::Draw(std::string options, double interval)
 {
   std::vector<double> tempvec;
   tempvec.push_back(interval);
-  myDraw(options, tempvec);  
+  Draw(options, tempvec);  
 }
 
 // ---------------------------------------------------------
 
-void BCH2D::Draw(int options, bool drawmode)
+void BCH2D::DrawOld(int options, bool drawmode)
 {
    // draw histogram
    fHistogram->SetLineColor(kBlack);

@@ -155,12 +155,12 @@ class BCH1D
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-      void Print(const char * filename, int options=0, double ovalue=0., int ww=0, int wh=0);
+      void PrintOld(const char * filename, int options=0, double ovalue=0., int ww=0, int wh=0);
 
      /**
        * Print distribution into a PostScript file.
        * @param filename Output filename
-       * @param option the draw options (see myDraw()), plus \n
+       * @param option the draw options (see Draw()), plus \n
 			 * logx : draw x-axis in log-scale \n
 			 * logy : draw y-axis in log-scale \n
 			 * R : rescale canvas to have a squared histogram
@@ -169,8 +169,8 @@ class BCH1D
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-      void myPrint(const char * filename, std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
-      void myPrint(const char * filename, std::string options, double interval, int ww=0, int wh=0);
+      void Print(const char * filename, std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+      void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
       /**
        * Draw distribution into the active canvas.
@@ -193,7 +193,7 @@ class BCH1D
        *    will be drawn.
        *    For option 3 ???
        *    For option 4 draw one bin representing the delta prior around ovalue. */
-      void Draw(int options=0, double ovalue=0.);
+      void DrawOld(int options=0, double ovalue=0.);
 
       /**
        * Draw distribution into the active canvas.
@@ -222,8 +222,8 @@ class BCH1D
 			 * L : add legend \n
        * @param intervals the intervals
        */
-      void myDraw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));
-      void myDraw(std::string options, double interval);
+      void Draw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));
+      void Draw(std::string options, double interval);
 
      /**
        * Draw the 1D marginal for a parameter fixed by a delta prior.
