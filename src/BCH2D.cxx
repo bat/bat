@@ -217,7 +217,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
   // number of bands
   int nbands = 1; // number of shaded bands
-	intervals.push_back(0.3935);
+	intervals.push_back(0.6827);
 
 	// define draw options called in TH1D::Draw(...)
 	std::string draw_options = "COLZ"; 
@@ -250,7 +250,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
     nbands = 1;
     if (intervals.size() != 1) {
       intervals.clear();
-      intervals.push_back(0.3935);
+      intervals.push_back(0.6827);
     }
   }
 
@@ -258,8 +258,8 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
     nbands = 2;
     if (intervals.size() != 2) {
       intervals.clear();
-      intervals.push_back(0.3935);
-      intervals.push_back(0.8647);
+      intervals.push_back(0.6827);
+      intervals.push_back(0.9545);
     }
   }
 	
@@ -267,9 +267,9 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
     nbands = 3;
     if (intervals.size() != 3) {
       intervals.clear();
-			intervals.push_back(0.3935);
-			intervals.push_back(0.8647);
-			intervals.push_back(0.9889);
+			intervals.push_back(0.6827);
+			intervals.push_back(0.9545);
+			intervals.push_back(0.9973);
     }
   }
 
