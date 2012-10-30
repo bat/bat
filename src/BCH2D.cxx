@@ -211,6 +211,10 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   bool flag_legend = true;
   bool flag_mode = false;
   bool flag_mean = false;
+	bool flag_smooth1 = false;
+	bool flag_smooth3 = false;
+	bool flag_smooth5 = false;
+	bool flag_smooth10 = false;
 
 	// band type
 	int bandtype = 0;
@@ -223,6 +227,22 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 	std::string draw_options = "COLZ"; 
 
   // check content of options string
+  if (options.find("smooth1") < options.size()) {
+    flag_smooth1 = true;
+  }
+
+  if (options.find("smooth3") < options.size()) {
+    flag_smooth3 = true;
+  }
+
+  if (options.find("smooth5") < options.size()) {
+    flag_smooth5 = true;
+  }
+
+  if (options.find("smooth10") < options.size()) {
+    flag_smooth10 = true;
+  }
+
   if (options.find("nL") < options.size()) {
     flag_legend = false;
   }
@@ -428,6 +448,24 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
 	// draw axes
 	hist_axes->Draw("COL");
+
+	// smooth
+	if (flag_smooth1) {
+		fHistogram->Smooth(1);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
+	if (flag_smooth3) {
+		fHistogram->Smooth(3);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
+	if (flag_smooth5) {
+		fHistogram->Smooth(5);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
+	if (flag_smooth10) {
+		fHistogram->Smooth(10);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
 
 	// draw histogram
 	if (bandtype == 0)

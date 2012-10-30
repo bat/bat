@@ -450,6 +450,10 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   bool flag_quartiles = false;
   bool flag_deciles = false;
   bool flag_percentiles = false;
+	bool flag_smooth1 = false;
+	bool flag_smooth3 = false;
+	bool flag_smooth5 = false;
+	bool flag_smooth10 = false;
 
   // band type
   int bandtype = 0;
@@ -461,6 +465,22 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
 	std::string draw_options = ""; 
 
   // check content of options string
+  if (options.find("smooth1") < options.size()) {
+    flag_smooth1 = true;
+  }
+
+  if (options.find("smooth3") < options.size()) {
+    flag_smooth3 = true;
+  }
+
+  if (options.find("smooth5") < options.size()) {
+    flag_smooth5 = true;
+  }
+
+  if (options.find("smooth10") < options.size()) {
+    flag_smooth10 = true;
+  }
+
   if (options.find("logx") < options.size()) {
     flag_logx = true;
   }
@@ -627,6 +647,25 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
 
   // add legend to list of objects
   fROOTObjects.push_back(legend);
+
+	// smooth
+	if (flag_smooth1) {
+		fHistogram->Smooth(1);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
+	if (flag_smooth3) {
+		fHistogram->Smooth(3);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
+
+	if (flag_smooth5) {
+		fHistogram->Smooth(5);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
+	if (flag_smooth10) {
+		fHistogram->Smooth(10);
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	}
 
   // draw histogram
   if (flag_pdf0)

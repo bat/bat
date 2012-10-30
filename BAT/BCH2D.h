@@ -137,6 +137,9 @@ class BCH2D
        * CS1 : choose color scheme 1 (green/yellow/red) [default] \n
        * CS2 : choose color scheme 2 (blueish colors) \n
        * CS3 : choose color scheme 3 (redish colors) \n
+       * smooth1 : use ROOT smoothing algorithm once \n
+       * smooth3 : use ROOT smoothing algorithm three times \n
+       * smooth5 : use ROOT smoothing algorithm five times \n
 			 * mean : draw mean value and standard deviation \n
 			 * mode : draw global mode \n
 			 * nL : remove legend \n
