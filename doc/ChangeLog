@@ -1,5 +1,6 @@
 2012-10-31 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* benchmarks: remove C++0x dependence
+	* BCH2D: Replace variable length arrays with vectors to remove warnings
 
 2012-10-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Clean up in plotting code

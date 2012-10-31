@@ -55,14 +55,14 @@ BCH2D::BCH2D(TH2D * h)
 
 BCH2D::~BCH2D()
 {
-   if (fHistogram) 
+   if (fHistogram)
 		 delete fHistogram;
-   if (fIntegratedHistogram) 
+   if (fIntegratedHistogram)
 		 delete fIntegratedHistogram;
 
    // clear memory
    int nobjects = (int) fROOTObjects.size();
-   for (int i = 0; i < nobjects; ++i) 
+   for (int i = 0; i < nobjects; ++i)
      if (fROOTObjects[i])
        delete fROOTObjects[i];
 
@@ -72,7 +72,7 @@ BCH2D::~BCH2D()
 void BCH2D::SetColorScheme(int scheme)
 {
   fColors.clear();
-	
+
   // color numbering
   // 0,1,2 : intervals
   // 3 : quantile lines
@@ -167,27 +167,27 @@ void BCH2D::Print(const char * filename, std::string options, std::vector<double
 	 // add c to list of objects
 	 fROOTObjects.push_back(c);
 
-  // set log axis 
+  // set log axis
   if (flag_logz) {
     c->SetLogz();
   }
 
    // draw histogram
    Draw(options, intervals);
-	 
+
 	if (flag_rescale) {
 		double top = gPad->GetTopMargin();
 		double bottom = gPad->GetBottomMargin();
 		double left = gPad->GetLeftMargin();
 		double right = gPad->GetRightMargin();
-		
+
 		double dx = 1.-right - left;
 		double dy = 1.-top-bottom;
 		double ratio = dy/dx;
 		double ynew = c->GetWindowWidth()/ratio;
 		c->SetCanvasSize(c->GetWindowWidth(), ynew);
 		gPad->RedrawAxis();
-		
+
 		c->Modified();
 		c->Update();
 	}
@@ -218,14 +218,14 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
   // band type
   int bandtype = 0;
-  
+
   // number of bands
   int nbands = 1; // number of shaded bands
   intervals.push_back(0.6827);
-  
+
   // define draw options called in TH1D::Draw(...)
-  std::string draw_options = "COLZ"; 
-  
+  std::string draw_options = "COLZ";
+
   // check content of options string
   if (options.find("smooth1") < options.size()) {
     flag_smooth1 = true;
@@ -261,11 +261,11 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
     if (fModeFlag)
 			flag_mode = true;
   }
-	
+
   if (options.find("mean") < options.size()) {
     flag_mean = true;
   }
-	
+
  if (options.find("B1") < options.size()) {
     nbands = 1;
     if (intervals.size() != 1) {
@@ -282,7 +282,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
       intervals.push_back(0.9545);
     }
   }
-	
+
   if (options.find("B3") < options.size()) {
     nbands = 3;
     if (intervals.size() != 3) {
@@ -308,7 +308,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   else  {
     SetColorScheme(1);
   }
-	
+
   // prepare size of histogram
 	double xmin     = fHistogram->GetXaxis()->GetXmin();
 	double xmax     = fHistogram->GetXaxis()->GetXmax();
@@ -331,7 +331,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
 	 // copy histograms for bands
 	 TH2D* hist_band = new TH2D(*fHistogram);
-	 
+
 	 // add hist_band to list of ROOT objects
 	 fROOTObjects.push_back(hist_band);
 
@@ -346,23 +346,23 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 	 }
 
 	 // define levels and colors
-	 double levels[nbands+2];
+	 std::vector<double> levels(nbands+2);
 	 levels[0] = 0.;
 
-	 int colors[nbands+1]; 
+	 std::vector<int> colors(nbands+1);
 	 colors[0] = kWhite;
 
 	 for (int i = 1; i <= nbands; ++i) {
 		 levels[i] = GetLevel((1.-intervals[nbands-i]));
 		 colors[i] = GetColor(nbands-i);
 	 }
-	 levels[nbands+1] = fIntegratedHistogram->GetXaxis()->GetXmax(); 
+	 levels[nbands+1] = fIntegratedHistogram->GetXaxis()->GetXmax();
 
 	 // set contour
-	 hist_band->SetContour(nbands+2, levels);
+	 hist_band->SetContour(nbands+2, &levels[0]);
 
 	 // set colors
-	 gStyle->SetPalette(nbands+1, colors); 
+	 gStyle->SetPalette(nbands+1, &colors[0]);
 
 	 // add hist_band to legend
 	 for (int i = 0; i < nbands; ++i) {
@@ -431,7 +431,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 		le->SetMarkerSize(1.5);
 		le->SetMarkerColor(GetColor(4));
 	}
-	
+
   // calculate legend height in NDC coordinates
   double height = 0.03*legend->GetNRows();
 
@@ -472,12 +472,12 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 		hist_band->Draw("COL SAME");
 	else if (bandtype == 1)
 		hist_band->Draw("CONT1 SAME");
-		
+
 	// draw line to separate legend
 	//	if (flag_legend) {
 		//		fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
 
-		/*	
+		/*
 		TLine* line_boundary = new TLine();
 		line_boundary->SetLineColor(kBlack);
 		line_boundary->DrawLine(xmin, fHistogram->GetYaxis()->GetXmax(),
@@ -496,7 +496,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 		arrow_std2->Draw();
 		marker_mean->Draw();
 	}
-	
+
   // calculate dimensions in NDC variables
 
 	/*
@@ -530,7 +530,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 	gPad->SetTopMargin(1.-ylegend1+0.01);
 
   gPad->RedrawAxis();
-	
+
 	return;
 }
 
@@ -539,7 +539,7 @@ void BCH2D::Draw(std::string options, double interval)
 {
   std::vector<double> tempvec;
   tempvec.push_back(interval);
-  Draw(options, tempvec);  
+  Draw(options, tempvec);
 }
 
 // ---------------------------------------------------------
@@ -804,7 +804,7 @@ void BCH2D::PrintIntegratedHistogram(const char* filename)
 	CalculateIntegratedHistogram();
 	fIntegratedHistogram->Draw();
 	c->Print(filename);
-	
+
 	delete c;
 }
 
@@ -840,7 +840,7 @@ void BCH2D::CalculateIntegratedHistogram()
 
 	 // normalize histogram
 	 fIntegratedHistogram->Scale(1.0/fIntegratedHistogram->GetEntries());
-	 
+
 }
 
 // ---------------------------------------------------------
