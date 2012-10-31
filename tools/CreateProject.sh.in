@@ -354,6 +354,8 @@ cat << EOF
 // BAT can be downloaded from http://www.mppmu.mpg.de/bat
 // ***************************************************************
 
+#include <BAT/BCH1D.h>
+#include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCSummaryTool.h>
@@ -398,6 +400,11 @@ int main()
 
    // draw all marginalized distributions into a PostScript file
 //   m->PrintAllMarginalized("|:Model:|_plots.ps");
+
+   // print individual histograms
+//   m->GetMarginalized("x")->Print("x.pdf");
+//   m->GetMarginalized("y")->Print("y.pdf");
+//   m->GetMarginalized("x", "y")->Print("xy.pdf");
 
    // print all summary plots
 //   summary->PrintParameterPlot("|:Model:|_parameters.eps");
