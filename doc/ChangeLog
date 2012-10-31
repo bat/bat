@@ -5,6 +5,7 @@
 2012-10-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Clean up in plotting code
 	* Added plotting of individual distributions to CreateProject script.
+	* Added local mode to 2D histograms
 
 2012-10-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* New plotting methods are now default. Problems with legends and 2D plot not yet fixed.

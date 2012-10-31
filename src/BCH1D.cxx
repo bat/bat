@@ -461,8 +461,8 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   // number of bands
   int nbands = 0; // number of shaded bands
 
-	// define draw options called in TH1D::Draw(...)
-	std::string draw_options = ""; 
+  // define draw options called in TH1D::Draw(...)
+  std::string draw_options = ""; 
 
   // check content of options string
   if (options.find("smooth1") < options.size()) {
@@ -616,7 +616,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
 
   if (options.find("mode") < options.size()) {
     if (fModeFlag)
-			flag_mode = true;
+      flag_mode = true;
   }
   if (options.find("median") < options.size()) {
     flag_median = true;
@@ -640,7 +640,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   // prepare legend
   TLegend* legend = new TLegend();
   legend->SetBorderSize(0);
-	legend->SetFillColor(kWhite);
+  legend->SetFillColor(kWhite);
   legend->SetTextAlign(12);
   legend->SetTextFont(62);
   legend->SetTextSize(0.03);
@@ -648,24 +648,24 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   // add legend to list of objects
   fROOTObjects.push_back(legend);
 
-	// smooth
-	if (flag_smooth1) {
-		fHistogram->Smooth(1);
-		fHistogram->Scale(1.0/fHistogram->Integral("width"));
-	}
-	if (flag_smooth3) {
-		fHistogram->Smooth(3);
-		fHistogram->Scale(1.0/fHistogram->Integral("width"));
-	}
+  // smooth
+  if (flag_smooth1) {
+    fHistogram->Smooth(1);
+    fHistogram->Scale(1.0/fHistogram->Integral("width"));
+  }
+  if (flag_smooth3) {
+    fHistogram->Smooth(3);
+    fHistogram->Scale(1.0/fHistogram->Integral("width"));
+  }
 
-	if (flag_smooth5) {
-		fHistogram->Smooth(5);
-		fHistogram->Scale(1.0/fHistogram->Integral("width"));
-	}
-	if (flag_smooth10) {
-		fHistogram->Smooth(10);
-		fHistogram->Scale(1.0/fHistogram->Integral("width"));
-	}
+  if (flag_smooth5) {
+    fHistogram->Smooth(5);
+    fHistogram->Scale(1.0/fHistogram->Integral("width"));
+  }
+  if (flag_smooth10) {
+    fHistogram->Smooth(10);
+    fHistogram->Scale(1.0/fHistogram->Integral("width"));
+  }
 
   // draw histogram
   if (flag_pdf0)
@@ -712,16 +712,16 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
     }
 
     // set style of band histogram
-		hist_band->SetFillStyle(1001);
+    hist_band->SetFillStyle(1001);
     hist_band->SetFillColor(col);
     hist_band->SetLineColor(col);
 
     // draw shaded histogram
     hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
 
-		// draw histogram again
-		if (flag_pdf0)
-			fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
+    // draw histogram again
+    if (flag_pdf0)
+      fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
 
     // add to legend
     std::string legend_label;
@@ -743,13 +743,13 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   gPad->RedrawAxis();
 
   // prepare size of histogram
-	//	double xmin     = fHistogram->GetXaxis()->GetXmin();
-	//	double xmax     = fHistogram->GetXaxis()->GetXmax();
+  //	double xmin     = fHistogram->GetXaxis()->GetXmin();
+  //	double xmax     = fHistogram->GetXaxis()->GetXmax();
   double ymin     = 0;
   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
   double ymax     = ymaxhist;
-	//  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-	//  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
+  //  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
+  //  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
 
   // check if log axis
   if (flag_logy)
@@ -767,15 +767,15 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       double quantile_y = fHistogram->GetBinContent(quantile_xbin);
       double quantile_ymin = 0;
       if (flag_logy)
-				quantile_ymin = 1e-4*ymaxhist;
+	quantile_ymin = 1e-4*ymaxhist;
       line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
     }
     TLegendEntry* le = legend->AddEntry(line_quantiles, "quartiles", "L");
-		if (nbands>0) 
-			le->SetFillColor(GetColor(0));
-		else
-			le->SetFillColor(kWhite);
-		le->SetFillStyle(1001);
+    if (nbands>0) 
+      le->SetFillColor(GetColor(0));
+    else
+      le->SetFillColor(kWhite);
+    le->SetFillStyle(1001);
   }
 
   if (flag_deciles) {
@@ -785,12 +785,12 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       double quantile_y = fHistogram->GetBinContent(quantile_xbin);
       double quantile_ymin = 0;
       if (flag_logy)
-				quantile_ymin = 1e-4*ymaxhist;
+	quantile_ymin = 1e-4*ymaxhist;
       line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
     }
     TLegendEntry* le = legend->AddEntry(line_quantiles, "deciles", "FL");
-		le->SetFillColor(GetColor(0));
-		le->SetFillStyle(1001);
+    le->SetFillColor(GetColor(0));
+    le->SetFillStyle(1001);
   }
   
   if (flag_percentiles) {
@@ -800,85 +800,85 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       double quantile_y = fHistogram->GetBinContent(quantile_xbin);
       double quantile_ymin = 0;
       if (flag_logy)
-				quantile_ymin = 1e-4*ymaxhist;
+	quantile_ymin = 1e-4*ymaxhist;
       line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
     }
     TLegendEntry* le = legend->AddEntry(line_quantiles, "percentiles", "L");		
-		le->SetFillColor(GetColor(0));
-		le->SetFillStyle(1001);
+    le->SetFillColor(GetColor(0));
+    le->SetFillStyle(1001);
   }
 
   // add line_quantiles to list of ROOT objects
   fROOTObjects.push_back(line_quantiles);
 
   // mean, mode, median
-	TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
-	marker_mode->SetMarkerColor(GetColor(4));
-	marker_mode->SetMarkerSize(1.5);
+  TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
+  marker_mode->SetMarkerColor(GetColor(4));
+  marker_mode->SetMarkerSize(1.5);
 
-	TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
-	marker_mean->SetMarkerColor(GetColor(4));
-	marker_mean->SetMarkerSize(1.5);
+  TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
+  marker_mean->SetMarkerColor(GetColor(4));
+  marker_mean->SetMarkerSize(1.5);
 
-	TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
-	marker_median->SetMarkerColor(GetColor(4));
-	marker_median->SetMarkerSize(1.5);
+  TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
+  marker_median->SetMarkerColor(GetColor(4));
+  marker_median->SetMarkerSize(1.5);
 
-	// mode
-	TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
-																	fMode, ymin,
-																	0.02, "|>");
-	arrow_mode->SetLineColor(GetColor(4));
-	arrow_mode->SetFillColor(GetColor(4));
+  // mode
+  TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
+				  fMode, ymin,
+				  0.02, "|>");
+  arrow_mode->SetLineColor(GetColor(4));
+  arrow_mode->SetFillColor(GetColor(4));
 
-	// standard deviation
-	TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
-																 GetMean()+GetRMS(), 0.55*ymaxhist,
-																 0.02, "<|>");
-	arrow_std->SetLineColor(GetColor(4));
-	arrow_std->SetFillColor(GetColor(4));
+  // standard deviation
+  TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
+				 GetMean()+GetRMS(), 0.55*ymaxhist,
+				 0.02, "<|>");
+  arrow_std->SetLineColor(GetColor(4));
+  arrow_std->SetFillColor(GetColor(4));
 
-	// central interval
-	TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
-																GetQuantile(0.8413), 0.45*ymaxhist,
-																0.02, "<|>");
-	arrow_ci->SetLineColor(GetColor(4));
-	arrow_ci->SetFillColor(GetColor(4));
+  // central interval
+  TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
+				GetQuantile(0.8413), 0.45*ymaxhist,
+				0.02, "<|>");
+  arrow_ci->SetLineColor(GetColor(4));
+  arrow_ci->SetFillColor(GetColor(4));
 
-	// add marker_mean and arrow_std to list of ROOT objects
-	fROOTObjects.push_back(marker_mean);
-	fROOTObjects.push_back(marker_median);
-	fROOTObjects.push_back(arrow_std);
-	fROOTObjects.push_back(arrow_ci);
+  // add marker_mean and arrow_std to list of ROOT objects
+  fROOTObjects.push_back(marker_mean);
+  fROOTObjects.push_back(marker_median);
+  fROOTObjects.push_back(arrow_std);
+  fROOTObjects.push_back(arrow_ci);
 
-	if (flag_mode) {
-		arrow_mode->Draw();
-		marker_mode->Draw();
-		TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
-		le->SetMarkerStyle(24);
-		le->SetMarkerSize(1.5);
-		le->SetMarkerColor(GetColor(4));
-	}
+  if (flag_mode) {
+    arrow_mode->Draw();
+    marker_mode->Draw();
+    TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
+    le->SetMarkerStyle(24);
+    le->SetMarkerSize(1.5);
+    le->SetMarkerColor(GetColor(4));
+  }
 
-	if (flag_mean) {
-		arrow_std->Draw();
-		marker_mean->Draw();
-		TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
-		le->SetLineColor(GetColor(4));
-		le->SetMarkerStyle(20);
-		le->SetMarkerSize(1.5);
-		le->SetMarkerColor(GetColor(4));
-	}
+  if (flag_mean) {
+    arrow_std->Draw();
+    marker_mean->Draw();
+    TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
+    le->SetLineColor(GetColor(4));
+    le->SetMarkerStyle(20);
+    le->SetMarkerSize(1.5);
+    le->SetMarkerColor(GetColor(4));
+  }
 	
-	if (flag_median) {
-		arrow_ci->Draw();
-		marker_median->Draw();
-		TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
-		le->SetLineColor(GetColor(4));
-		le->SetMarkerStyle(21);
-		le->SetMarkerSize(1.5);
-		le->SetMarkerColor(GetColor(4));
-	}
+  if (flag_median) {
+    arrow_ci->Draw();
+    marker_median->Draw();
+    TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
+    le->SetLineColor(GetColor(4));
+    le->SetMarkerStyle(21);
+    le->SetMarkerSize(1.5);
+    le->SetMarkerColor(GetColor(4));
+  }
 	
   // calculate legend height in NDC coordinates
   double height = 0.03*legend->GetNRows();
@@ -892,20 +892,20 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   fHistogram->GetYaxis()->SetRangeUser(ymin, 1.05*ymaxhist);
 
   // calculate dimensions in NDC variables
-	/*
-  double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
-  double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
-  double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
-	double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
-	*/
+  /*
+    double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
+    double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
+    double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
+    double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
+  */
 
-	if (flag_legend)
-		gPad->SetTopMargin(0.02);
+  if (flag_legend)
+    gPad->SetTopMargin(0.02);
 
   double xlegend1 = gPad->GetLeftMargin();
   double xlegend2 = 1.0-gPad->GetRightMargin();
   double ylegend1 = 1.-gPad->GetTopMargin()-height;
-	double ylegend2 = 1.-gPad->GetTopMargin();
+  double ylegend2 = 1.-gPad->GetTopMargin();
 
   // place legend on top of histogram
   legend->SetX1NDC(xlegend1);
@@ -918,19 +918,19 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
     legend->Draw();
   }
 
-	// draw line to separate legend
-	/*
-	if (flag_legend) {
-		TLine* line_boundary = new TLine();
-		line_boundary->SetLineColor(kBlack);
-		line_boundary->DrawLine(xmin, 1.05*ymaxhist,
-														xmax, 1.05*ymaxhist);
-		fROOTObjects.push_back(line_boundary);
-	}
-	*/
+  // draw line to separate legend
+  /*
+    if (flag_legend) {
+    TLine* line_boundary = new TLine();
+    line_boundary->SetLineColor(kBlack);
+    line_boundary->DrawLine(xmin, 1.05*ymaxhist,
+    xmax, 1.05*ymaxhist);
+    fROOTObjects.push_back(line_boundary);
+    }
+  */
 
-	// rescale top margin
-	gPad->SetTopMargin(1.-ylegend1+0.01);
+  // rescale top margin
+  gPad->SetTopMargin(1.-ylegend1+0.01);
 
   gPad->RedrawAxis();
 

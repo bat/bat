@@ -117,7 +117,7 @@ class BCH2D
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-			void Print(const char * filename, std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+			void Print(const char * filename, std::string options="BTfB1CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
 			void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
       /**
        * Draw 2-d distribution into the active canvas
@@ -142,11 +142,12 @@ class BCH2D
        * smooth5 : use ROOT smoothing algorithm five times \n
        * smooth10 : use ROOT smoothing algorithm ten times \n
        * mean : draw mean value and standard deviation \n
-       * mode : draw global mode \n
+       * gmode : draw global mode [default] \n
+       * lmode : draw global mode \n
        * nL : remove legend \n
        * @param intervals the intervals
        */			
-      void Draw(std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0));
+      void Draw(std::string options="BTfB1CS1meangmode", std::vector<double> intervals=std::vector<double>(0));
       void Draw(std::string options, double interval);
 
       /**
