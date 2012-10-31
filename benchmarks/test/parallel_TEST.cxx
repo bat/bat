@@ -10,7 +10,6 @@
 
 #include <GaussModel.h>
 #include <test.h>
-#include <omp.h>
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
@@ -20,6 +19,9 @@
 #include <TRandom3.h>
 #include <TStopwatch.h>
 #include <TTree.h>
+
+#include <omp.h>
+#include <cstdio>
 
 using namespace test;
 
@@ -275,8 +277,8 @@ public:
         rfile2->Close();
         delete rfile1;
         delete rfile2;
-        std::remove(config.rootFileNameParallel.c_str());
-        std::remove(config.rootFileNameSerial.c_str());
+        remove(config.rootFileNameParallel.c_str());
+        remove(config.rootFileNameSerial.c_str());
     }
 };
 
@@ -295,7 +297,7 @@ public:
          * Run MCMC in serial and parallel and compare the output
          */
 
-        auto config = RunComparison::Config::Default();
+        RunComparison::Config config = RunComparison::Config::Default();
 
         config.num_chains = 4;
         config.num_parameters = 1;

@@ -1,3 +1,6 @@
+2012-10-31 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* benchmarks: remove C++0x dependence
+
 2012-10-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Clean up in plotting code
 	* Added plotting of individual distributions to CreateProject script.
