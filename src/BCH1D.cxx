@@ -450,10 +450,10 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   bool flag_quartiles = false;
   bool flag_deciles = false;
   bool flag_percentiles = false;
-	bool flag_smooth1 = false;
-	bool flag_smooth3 = false;
-	bool flag_smooth5 = false;
-	bool flag_smooth10 = false;
+  bool flag_smooth1 = false;
+  bool flag_smooth3 = false;
+  bool flag_smooth5 = false;
+  bool flag_smooth10 = false;
 
   // band type
   int bandtype = 0;

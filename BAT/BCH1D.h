@@ -206,7 +206,7 @@ class BCH1D
        * B2 : draw two bands between values specified in intervals \n
        * B3 : draw three bands between values specified in intervals \n
        * D0 : draw histogram [default] \n
-			 * D1 : draw smooth curve \n
+       * D1 : draw smooth curve \n
        * CS0 : choose color scheme 0 (B&W) \n
        * CS1 : choose color scheme 1 (green/yellow/red) [default] \n
        * CS2 : choose color scheme 2 (blueish colors) \n
@@ -214,15 +214,16 @@ class BCH1D
        * smooth1 : use ROOT smoothing algorithm once \n
        * smooth3 : use ROOT smoothing algorithm three times \n
        * smooth5 : use ROOT smoothing algorithm five times \n
+       * smooth10 : use ROOT smoothing algorithm ten times \n
        * pdf0 : draw pdf [default] \n
        * pdf1 : draw cumulative pdf \n
-			 * median : draw median and central interval \n
-			 * mode : draw global mode and standard deviation \n
-			 * mean : draw mean value and standard deviation \n
-			 * quartiles : indicate quartiles \n
-			 * deciles : indicate deciles \n
-			 * percentiles : indicate percentiles \n
-			 * L : add legend \n
+       * median : draw median and central interval \n
+       * mode : draw global mode and standard deviation \n
+       * mean : draw mean value and standard deviation \n
+       * quartiles : indicate quartiles \n
+       * deciles : indicate deciles \n
+       * percentiles : indicate percentiles \n
+       * L : add legend \n
        * @param intervals the intervals
        */
       void Draw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));

@@ -1,3 +1,6 @@
+2012-10-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* Clean up in plotting code
+
 2012-10-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* New plotting methods are now default. Problems with legends and 2D plot not yet fixed.
 	* Added smoothing as an option for plotting.

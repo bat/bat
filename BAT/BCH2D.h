@@ -140,9 +140,10 @@ class BCH2D
        * smooth1 : use ROOT smoothing algorithm once \n
        * smooth3 : use ROOT smoothing algorithm three times \n
        * smooth5 : use ROOT smoothing algorithm five times \n
-			 * mean : draw mean value and standard deviation \n
-			 * mode : draw global mode \n
-			 * nL : remove legend \n
+       * smooth10 : use ROOT smoothing algorithm ten times \n
+       * mean : draw mean value and standard deviation \n
+       * mode : draw global mode \n
+       * nL : remove legend \n
        * @param intervals the intervals
        */			
       void Draw(std::string options="BTfB1CS1meanmode", std::vector<double> intervals=std::vector<double>(0));

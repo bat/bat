@@ -211,21 +211,21 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   bool flag_legend = true;
   bool flag_mode = false;
   bool flag_mean = false;
-	bool flag_smooth1 = false;
-	bool flag_smooth3 = false;
-	bool flag_smooth5 = false;
-	bool flag_smooth10 = false;
+  bool flag_smooth1 = false;
+  bool flag_smooth3 = false;
+  bool flag_smooth5 = false;
+  bool flag_smooth10 = false;
 
-	// band type
-	int bandtype = 0;
-
+  // band type
+  int bandtype = 0;
+  
   // number of bands
   int nbands = 1; // number of shaded bands
-	intervals.push_back(0.6827);
-
-	// define draw options called in TH1D::Draw(...)
-	std::string draw_options = "COLZ"; 
-
+  intervals.push_back(0.6827);
+  
+  // define draw options called in TH1D::Draw(...)
+  std::string draw_options = "COLZ"; 
+  
   // check content of options string
   if (options.find("smooth1") < options.size()) {
     flag_smooth1 = true;
