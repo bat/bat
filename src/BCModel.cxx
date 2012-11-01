@@ -1320,80 +1320,245 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 }
 
 // ---------------------------------------------------------
+int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsigned int vdiv)
+{
+  if (!fMCMCFlagFillHistograms) {
+    BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not filled.");
+    return 0;
+  }
+
+  int npar = GetNParameters();
+
+  if (fMCMCH1Marginalized.size() == 0 || (fMCMCH2Marginalized.size() == 0
+					  && npar > 1)) {
+    BCLog::OutError(
+		    "BCModel::PrintAllMarginalized : Marginalized distributions not available.");
+    return 0;
+  }
+
+  // if there's only one parameter, we just want to call Print()
+  if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
+    BCParameter * a = GetParameter(0);
+    if (GetMarginalized(a))
+      GetMarginalized(a)->Print(file);
+    return 1;
+  }
+
+  int c_width  = gStyle->GetCanvasDefW(); // default canvas width
+  int c_height = gStyle->GetCanvasDefH(); // default canvas height
+   
+  if (hdiv > vdiv) {
+    if (hdiv > 3) {
+      c_width = 1000;
+      c_height = 700;
+    }
+    else {
+      c_width = 800;
+      c_height = 600;
+    }
+  }
+  else if (hdiv < vdiv) {
+    if (hdiv > 3) {
+      c_height = 1000;
+      c_width = 700;
+    }
+    else {
+      c_height = 800;
+      c_width = 600;
+    }
+  }
+
+  // calculate number of plots
+  int nplots2d = npar * (npar - 1) / 2;
+  int nplots = npar + nplots2d;
+
+  // give out warning if too many plots
+  BCLog::OutSummary(
+		    Form(
+			 "Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
+			 npar, nplots2d, nplots, file));
+  if (nplots > 100)
+    BCLog::OutDetail("This can take a while...");
+
+  // setup the canvas and postscript file
+  TCanvas * c = new TCanvas("c", "canvas", c_width, c_height);
+
+  int n = 0;
+  for (int i = 0; i < npar; i++) {
+    // get corresponding parameter
+    BCParameter * a = GetParameter(i);
+
+    // check if histogram exists
+    if (!GetMarginalized(a))
+      continue;
+
+    // check if histogram is filled
+    if (GetMarginalized(a)->GetHistogram()->Integral() <= 0)
+      continue;
+
+    // if current page is full, switch to new page
+    if (i != 0 && i % (hdiv * vdiv) == 0) {
+      if ( (unsigned int) i <= (hdiv * vdiv)) {
+	c->Print(std::string( std::string(file) + "(").c_str());
+	// debugKK
+	std::cout << " PRINT first page " << std::endl;
+      }
+      else {
+	// debugKK
+	std::cout << " PRINT any other page " << std::endl;
+	
+	c->Print(file);
+      }
+      c->Divide(hdiv, vdiv);
+    }
+      
+    // go to next pad
+    c->cd(i % (hdiv * vdiv) + 1);
+      
+    // just draw a line for a delta prior
+    if (a->GetRangeWidth() == 0)
+      // debugKK: don't draw delta prior distributions for now
+      //          GetMarginalized(a)->Draw(4, a->GetLowerLimit());
+      ;
+    else
+      GetMarginalized(a)->Draw();
+      
+    n++;
+      
+    if (n % 100 == 0)
+      BCLog::OutDetail(Form(" --> %d plots done", n));
+  }
+
+  // check how many 2D plots are actually drawn, despite no histogram filling or delta prior
+  int k = 0;
+  for (int i = 0; i < npar - 1; i++) {
+    for (int j = i + 1; j < npar; j++) {
+      // get corresponding parameters
+      BCParameter * a = GetParameter(i);
+      BCParameter * b = GetParameter(j);
+
+      // check if histogram exists, or skip if one par has a delta prior
+      if (!GetMarginalized(a, b))
+	continue;
+
+      // check if histogram is filled
+      if (GetMarginalized(a, b)->GetHistogram()->Integral() <= 0)
+	continue;
+
+      // if current page is full, switch to new page, but only if there is data to plot
+      if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
+	c->Print(file);
+	c->Clear();
+	c->Divide(hdiv, vdiv);
+      }
+
+      // go to next pad
+      c->cd(k % (hdiv * vdiv) + 1);
+
+      double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
+      double deltaa = (a->GetUpperLimit() - a->GetLowerLimit());
+      if (deltaa <= 1e-7 * meana)
+	continue;
+
+      double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
+      double deltab = (b->GetUpperLimit() - b->GetLowerLimit());
+      if (deltab <= 1e-7 * meanb)
+	continue;
+
+      GetMarginalized(a, b)->Draw();
+      k++;
+
+      if ((n + k) % 100 == 0)
+	BCLog::OutDetail(Form(" --> %d plots done", n + k));
+    }
+  }
+
+  if ((n + k) > 100 && (n + k) % 100 != 0)
+    BCLog::OutDetail(Form(" --> %d plots done", n + k));
+
+  c->Print(std::string( std::string(file) + ")").c_str());
+
+  delete c;
+
+  // return total number of drawn histograms
+  return n + k;
+}
+
+// ---------------------------------------------------------
 BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 {
-   int index1 = par1->GetIndex();
-   int index2 = par2->GetIndex();
+  int index1 = par1->GetIndex();
+  int index2 = par2->GetIndex();
 
-   if (fMCMCFlagsFillHistograms[index1] == false || fMCMCFlagsFillHistograms[index2] == false) {
-// don't print any error message, should be done upstream
-//      BCLog::OutError(
-//            Form("BCModel::GetMarginalized : Distribuion for '%s' and/or '%s' not filled.",
-//                  par1->GetName().data(), par2->GetName().data()));
-      return 0;
-   }
+  if (fMCMCFlagsFillHistograms[index1] == false || fMCMCFlagsFillHistograms[index2] == false) {
+    // don't print any error message, should be done upstream
+    //      BCLog::OutError(
+    //            Form("BCModel::GetMarginalized : Distribuion for '%s' and/or '%s' not filled.",
+    //                  par1->GetName().data(), par2->GetName().data()));
+    return 0;
+  }
 
-   if (index1 == index2) {
-// don't print any error message, should be done upstream
-//      BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
-      return 0;
-   }
+  if (index1 == index2) {
+    // don't print any error message, should be done upstream
+    //      BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
+    return 0;
+  }
 
-   if (par1->GetRangeWidth() == 0 || par2->GetRangeWidth() == 0){
-       return 0;
-   }
+  if (par1->GetRangeWidth() == 0 || par2->GetRangeWidth() == 0){
+    return 0;
+  }
 
-   BCParameter * npar1 = par1;
-   BCParameter * npar2 = par2;
+  BCParameter * npar1 = par1;
+  BCParameter * npar2 = par2;
 
-   if (index1 > index2) {
-      npar1 = par2;
-      npar2 = par1;
+  if (index1 > index2) {
+    npar1 = par2;
+    npar2 = par1;
 
-      int itmp = index1;
-      index1 = index2;
-      index2 = itmp;
-   }
+    int itmp = index1;
+    index1 = index2;
+    index2 = itmp;
+  }
 
-   // get histogram
-   TH2D * hist = MCMCGetH2Marginalized(index1, index2);
+  // get histogram
+  TH2D * hist = MCMCGetH2Marginalized(index1, index2);
 
-   if (hist == 0)
-      return 0;
+  if (hist == 0)
+    return 0;
 
-   BCH2D * hprob = new BCH2D();
+  BCH2D * hprob = new BCH2D();
 
 
-   // set axis labels
-   hist->SetName(Form("hist_%s_%s_%s", GetName().data(), npar1->GetName().data(), npar2->GetName().data()));
-   hist->SetXTitle(Form("%s", npar1->GetLatexName().data()));
-   hist->SetYTitle(Form("%s", npar2->GetLatexName().data()));
-   hist->SetStats(kFALSE);
+  // set axis labels
+  hist->SetName(Form("hist_%s_%s_%s", GetName().data(), npar1->GetName().data(), npar2->GetName().data()));
+  hist->SetXTitle(Form("%s", npar1->GetLatexName().data()));
+  hist->SetYTitle(Form("%s", npar2->GetLatexName().data()));
+  hist->SetStats(kFALSE);
 
-   double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
-   hprob->SetGlobalMode(gmode);
+  double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
+  hprob->SetGlobalMode(gmode);
 
-   // set histogram
-   hprob->SetHistogram(hist);
+  // set histogram
+  hprob->SetHistogram(hist);
 
-   return hprob;
+  return hprob;
 }
 
 // ---------------------------------------------------------
 double BCModel::GetPvalueFromChi2(const std::vector<double> &par, int sigma_index)
 {
-   double ll = LogLikelihood(par);
-   int n = GetNDataPoints();
+  double ll = LogLikelihood(par);
+  int n = GetNDataPoints();
 
-   double sum_sigma = 0;
-   for (int i = 0; i < n; i++)
-      sum_sigma += log(GetDataPoint(i)->GetValue(sigma_index));
+  double sum_sigma = 0;
+  for (int i = 0; i < n; i++)
+    sum_sigma += log(GetDataPoint(i)->GetValue(sigma_index));
 
-   double chi2 = -2. * (ll + (double) n / 2. * log(2. * M_PI) + sum_sigma);
+  double chi2 = -2. * (ll + (double) n / 2. * log(2. * M_PI) + sum_sigma);
 
-   fPValue = TMath::Prob(chi2, n);
+  fPValue = TMath::Prob(chi2, n);
 
-   return fPValue;
+  return fPValue;
 }
 
 // ---------------------------------------------------------
