@@ -1382,36 +1382,31 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
 
   // setup the canvas and postscript file
   TCanvas * c = new TCanvas("c", "canvas", c_width, c_height);
+	c->Divide(hdiv, vdiv);
 
   int n = 0;
   for (int i = 0; i < npar; i++) {
     // get corresponding parameter
     BCParameter * a = GetParameter(i);
-
+		
     // check if histogram exists
     if (!GetMarginalized(a))
       continue;
-
+		
     // check if histogram is filled
     if (GetMarginalized(a)->GetHistogram()->Integral() <= 0)
       continue;
-
+		
     // if current page is full, switch to new page
     if (i != 0 && i % (hdiv * vdiv) == 0) {
       if ( (unsigned int) i <= (hdiv * vdiv)) {
-	c->Print(std::string( std::string(file) + "(").c_str());
-	// debugKK
-	std::cout << " PRINT first page " << std::endl;
+				c->Print(std::string( std::string(file) + "(").c_str());
       }
       else {
-	// debugKK
-	std::cout << " PRINT any other page " << std::endl;
-	
-	c->Print(file);
+				c->Print(file);
       }
-      c->Divide(hdiv, vdiv);
     }
-      
+		
     // go to next pad
     c->cd(i % (hdiv * vdiv) + 1);
       
@@ -1447,9 +1442,8 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
 
       // if current page is full, switch to new page, but only if there is data to plot
       if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
-	c->Print(file);
-	c->Clear();
-	c->Divide(hdiv, vdiv);
+				c->Print(file);
+				//				c->Clear();
       }
 
       // go to next pad
