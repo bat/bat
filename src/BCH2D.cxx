@@ -320,8 +320,6 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   double ymin     = fHistogram->GetYaxis()->GetXmin();
   double ymaxhist = fHistogram->GetYaxis()->GetXmax();
   double ymax     = ymaxhist;
-  //  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-  //  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin();
 
   // prepare legend
   TLegend* legend = new TLegend();
@@ -355,7 +353,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   levels[0] = 0.;
 
   std::vector<int> colors(nbands+1);
-  colors[0] = kWhite;
+	colors[0] = kWhite;
 
   for (int i = 1; i <= nbands; ++i) {
     levels[i] = GetLevel((1.-intervals[nbands-i]));
@@ -459,7 +457,9 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   if (flag_legend)
     ymax+=(ymax-ymin)*(0.1+height);
 
-  TH2D* hist_axes = new TH2D("", "", 1, xmin, xmax, 1, ymin, ymaxhist);
+	double deltax = 0.0015*(xmax - xmin);
+	double deltay = 0.0015*(ymaxhist - ymin);
+  TH2D* hist_axes = new TH2D("", "", 1, xmin-deltax, xmax+deltax, 1, ymin-deltay, ymaxhist+deltay);
   hist_axes->SetXTitle(fHistogram->GetXaxis()->GetTitle());
   hist_axes->SetYTitle(fHistogram->GetYaxis()->GetTitle());
   hist_axes->SetLineWidth(fHistogram->GetLineWidth());
@@ -467,7 +467,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   fROOTObjects.push_back(hist_axes);
 
   // draw axes
-  hist_axes->Draw("COL");
+	hist_axes->Draw("COL");
 
   // smooth
   if (flag_smooth1) {
@@ -489,22 +489,9 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
   // draw histogram
   if (bandtype == 0)
-    hist_band->Draw("COL SAME");
+		hist_band->Draw("COL SAME");
   else if (bandtype == 1)
     hist_band->Draw("CONT1 SAME");
-
-  // draw line to separate legend
-  //	if (flag_legend) {
-  //		fHistogram->GetYaxis()->SetRangeUser(ymin, ymax);
-
-  /*
-    TLine* line_boundary = new TLine();
-    line_boundary->SetLineColor(kBlack);
-    line_boundary->DrawLine(xmin, fHistogram->GetYaxis()->GetXmax(),
-    xmax, fHistogram->GetYaxis()->GetXmax());
-    fROOTObjects.push_back(line_boundary);
-  */
-  //	}
 
   // mean, mode, median
   if (flag_mode_global) {
@@ -520,15 +507,6 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
     arrow_std2->Draw();
     marker_mean->Draw();
   }
-
-  // calculate dimensions in NDC variables
-
-  /*
-    double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
-    double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
-    double ylegend1 = gStyle->GetPadBottomMargin() + 1.05*(ymaxhist-ymin)/(ymax-ymin)*yfraction;
-    double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
-  */
 
   if (flag_legend)
     gPad->SetTopMargin(0.02);
