@@ -185,7 +185,7 @@ void BCH2D::Print(const char * filename, std::string options, std::vector<double
     double dy = 1.-top-bottom;
     double ratio = dy/dx;
     double ynew = c->GetWindowWidth()/ratio;
-    c->SetCanvasSize(c->GetWindowWidth(), ynew);
+    c->SetCanvasSize(c->GetWindowWidth(), (int) ynew);
     gPad->RedrawAxis();
 
     c->Modified();
@@ -395,7 +395,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   marker_mode_global->SetMarkerSize(1.5);
 
 
-  int binx, biny;
+  int binx, biny, binz;
   fHistogram->GetBinXYZ( fHistogram->GetMaximumBin(), binx, biny, binz);
   TMarker* marker_mode_local = new TMarker(fHistogram->GetXaxis()->GetBinCenter(binx), fHistogram->GetYaxis()->GetBinCenter(biny), 21);
   marker_mode_local->SetMarkerColor(GetColor(4));
@@ -438,7 +438,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
   }
 
   if (flag_mode_local) {
-    TLegendEntry* le = legend->AddEntry(marker_mode, "local mode", "P");
+    TLegendEntry* le = legend->AddEntry(marker_mode_local, "local mode", "P");
     le->SetMarkerStyle(24);
     le->SetMarkerSize(1.5);
     le->SetMarkerColor(GetColor(4));

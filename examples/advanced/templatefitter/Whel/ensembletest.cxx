@@ -177,7 +177,7 @@ int main()
 	// print results
 	model->PrintAllMarginalized("model_marginalized.ps");
 	model->PrintStack("model_stack.eps");
-	model->PrintRatios("model_fraction.ps", 0, -95.);
+	model->PrintRatios("model_fraction.ps");
 	model->PrintResults("model_results.txt");
 
 	// print templates

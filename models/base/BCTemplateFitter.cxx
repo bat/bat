@@ -1180,7 +1180,7 @@ void BCTemplateFitter::MCMCUserIterationInterface()
 }
 
 // ---------------------------------------------------------
-void BCTemplateFitter::PrintRatios(const char * filename, int options, double ovalue)
+void BCTemplateFitter::PrintRatios(const char * filename)
 {
    int nratios = int(fHistRatios1D.size());
 
@@ -1199,8 +1199,6 @@ void BCTemplateFitter::PrintRatios(const char * filename, int options, double ov
       ps->NewPage();
       c1->cd();
       BCH1D* h1temp = new BCH1D(&fHistRatios1D.at(i));
-			// debugKK: need to adjust to new plotting style
-			//      h1temp->Draw(options, ovalue);
 			h1temp->Draw();
    }
    c1->Update();
