@@ -21,6 +21,7 @@
 #include "BCModelOutput.h"
 
 #include <TROOT.h>
+#include <TStyle.h>
 #include <TNamed.h>
 #include <TCanvas.h>
 #include <TPostScript.h>
@@ -1155,10 +1156,10 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
       return 1;
    }
 
-   int c_width = 600; // default canvas width
-   int c_height = 600; // default canvas height
+   int c_width  = gStyle->GetCanvasDefW(); // default canvas width
+   int c_height = gStyle->GetCanvasDefH(); // default canvas height
 
-   int type = 112; // landscape
+   int type = 112; 
 
    if (hdiv > vdiv) {
       if (hdiv > 3) {
@@ -1199,10 +1200,14 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 
    TPostScript * ps = new TPostScript(file, type);
 
-   if (type == 112)
-      ps->Range(24, 16);
-   else
-      ps->Range(16, 24);
+   // debugKK
+   ps->Range(20, 20);
+
+   // debugKK
+   //   if (type == 112)
+   //      ps->Range(24, 16);
+   //   else
+   //      ps->Range(16, 24);
 
    // draw all 1D distributions
    ps->NewPage();

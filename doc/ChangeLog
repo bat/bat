@@ -1,5 +1,6 @@
 2012-11-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Clean up of printing methods, also in BCTemplateFitter
+	* Updated PostScipt to match current size of canvases
 
 2012-10-31 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* benchmarks: remove C++0x dependence

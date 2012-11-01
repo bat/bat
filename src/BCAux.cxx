@@ -26,7 +26,7 @@ void BCAux::SetStyle()
    gStyle->SetCanvasColor     (kWhite);
    gStyle->SetCanvasBorderMode(0);
    gStyle->SetCanvasDefH      (700.);
-	 gStyle->SetCanvasDefW      (700.*(1.-gStyle->GetPadTopMargin()-gStyle->GetPadBottomMargin())/(1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin()));
+   gStyle->SetCanvasDefW      (700.*(1.-gStyle->GetPadTopMargin()-gStyle->GetPadBottomMargin())/(1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin()));
 
    // Frames
    gStyle->SetFrameFillStyle (0);
