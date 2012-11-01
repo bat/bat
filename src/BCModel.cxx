@@ -1434,11 +1434,11 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
 
       // check if histogram exists, or skip if one par has a delta prior
       if (!GetMarginalized(a, b))
-	continue;
+				continue;
 
       // check if histogram is filled
       if (GetMarginalized(a, b)->GetHistogram()->Integral() <= 0)
-	continue;
+				continue;
 
       // if current page is full, switch to new page, but only if there is data to plot
       if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
@@ -1452,18 +1452,18 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
       double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
       double deltaa = (a->GetUpperLimit() - a->GetLowerLimit());
       if (deltaa <= 1e-7 * meana)
-	continue;
+				continue;
 
       double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
       double deltab = (b->GetUpperLimit() - b->GetLowerLimit());
       if (deltab <= 1e-7 * meanb)
-	continue;
+				continue;
 
       GetMarginalized(a, b)->Draw();
       k++;
 
       if ((n + k) % 100 == 0)
-	BCLog::OutDetail(Form(" --> %d plots done", n + k));
+				BCLog::OutDetail(Form(" --> %d plots done", n + k));
     }
   }
 
