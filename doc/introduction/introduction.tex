@@ -1280,6 +1280,47 @@ BCH2D & \\
 \label{table:printingoptions}}
 \end{table}
 
+\begin{table}[ht!]
+\begin{center}
+\begin{tabular}{lll}
+\hline
+Option & Style & Comment \\
+\hline 
+\hline
+\verb|B1| & Draw one band between values specified in \verb|intervals| & Default  \\
+\verb|B2| & Draw two bands between values specified in \verb|intervals| & \\
+\verb|B3| & Draw three bands between values specified in \verb|intervals| & \\
+\verb|BTci| & Band type is central interval & Default \\
+\verb|BTsi| & Band type is/are smallest interval(s) & \\
+\verb|BTul| & Band type is upper limit & \\
+\verb|BTll| & Band type is lower limit & \\
+\verb|D0| & Draw distribution as a histogram & Default \\
+\verb|D1| & Draw distribution as a smooth curve & \\
+\verb|CS0| & Color scheme 0 (b\&w) & \\
+\verb|CS1| & Color scheme 1 (green/yellow/red) & Default  \\
+\verb|CS2| & Color scheme 2 (blueish colors) &  \\
+\verb|CS3| & Color scheme 3 (redish colors) & \\
+\verb|pdf0| & Draw the p.d.f. & Default  \\
+\verb|pdf1| & Draw the cumulative p.d.f. & Not yet implemented \\
+\verb|mode| & Indicate global mode & Default \\
+\verb|mean| & Indicate mean value and standard deviation & Default \\
+\verb|median| & Indicate median and central interval &  \\
+\verb|quartiles| & Indicate quartiles & \\
+\verb|deciles| & Indicate deciles & \\
+\verb|percentiles| & Indicate percentiles & \\
+\verb|L| & Add a legend & Default \\
+\hline
+\verb|R| & Rescale canvas so that histogram is square & \\
+\verb|logx| & Draw x-axis in log-scale & \\
+\verb|logy| & Draw y-axis in log-scale & \\
+\hline
+\end{tabular}
+\caption{Drawing options for one-dimensional histograms. Set lower
+  part shows additional options when using BCH1D::Print()|.
+\label{table:drawopt1d}}
+\end{center}
+\end{table}
+
 % --------------------------------------------------------
 
 %\subsection{Single event analyses and sensitivity studies}
