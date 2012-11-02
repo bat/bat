@@ -1,6 +1,7 @@
 2012-11-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: new version of PrintAllMarginalized supports pdf now, old version kept as ...Old
 	* BCLog: updated header in log file
+	* introduction: updated introduction (plotting options and pdf support)
 	
 2012-11-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Clean up of printing methods, also in BCTemplateFitter

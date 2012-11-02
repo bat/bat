@@ -4,6 +4,7 @@
 %\usepackage{epsfig}
 %\usepackage{epstopdf}
 %\usepackage{graphics}
+\usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{url}
 \usepackage{parskip}
@@ -1254,39 +1255,18 @@ BCH1D::Draw(int options=0, double ovalue=0.),
 BCH2D::Draw(int options=0, bool drawmode=true),
 \end{verbatim}
 %
-where the options are summarized in Table~\ref{table:printingoptions}.
+where the options are summarized in Table~\ref{table:draw1d} and
+Table~\ref{table:draw2d}.
 
 \begin{table}[ht!]
-\begin{tabular}{ll}
-\hline
-Option & Style \\
-\hline
-BCH1D & \\
-\hline
-0 (default) & \begin{minipage}[l]{12 cm}Draws a colored band at the central 68\% probability region. If the mode is not inside this band, the 95\% probability limit is drawn. \end{minipage}\\
-1           & Draws a line at the value passed. \\
-2           & Draws a colored band at the smallest interval containing \verb|ovalue|\% probability. \\
-\hline
-BCH2D & \\
-\hline
-0 (default) & Draw with the \Root\ option \verb|CONT0|. \\
-1           & Draw the 68\%, 95\% and 99\% probability contours. \\
-2           & Draw the 68\% probability contour. \\
-3           & Draw the 90\% probability contour. \\
-4           & Draw the 95\% probability contour. \\
-\hline
-\end{tabular}
-\caption{Printing options for one- and two-dimensional histograms.
-\label{table:printingoptions}}
-\end{table}
-
-\begin{table}[ht!]
+\caption{Drawing options for one-dimensional histograms. Set lower
+  part shows additional options when using BCH1D::Print().
+\label{table:draw1d}}
 \begin{center}
 \begin{tabular}{lll}
-\hline
+\toprule
 Option & Style & Comment \\
-\hline 
-\hline
+\midrule
 \verb|B1| & Draw one band between values specified in \verb|intervals| & Default  \\
 \verb|B2| & Draw two bands between values specified in \verb|intervals| & \\
 \verb|B3| & Draw three bands between values specified in \verb|intervals| & \\
@@ -1300,6 +1280,10 @@ Option & Style & Comment \\
 \verb|CS1| & Color scheme 1 (green/yellow/red) & Default  \\
 \verb|CS2| & Color scheme 2 (blueish colors) &  \\
 \verb|CS3| & Color scheme 3 (redish colors) & \\
+\verb|smooth1| & Use ROOT smoothing algorithm once & \\
+\verb|smooth3| & Use ROOT smoothing algorithm three times & \\
+\verb|smooth5| & Use ROOT smoothing algorithm five times & \\
+\verb|smooth10| & Use ROOT smoothing algorithm ten times & \\
 \verb|pdf0| & Draw the p.d.f. & Default  \\
 \verb|pdf1| & Draw the cumulative p.d.f. & Not yet implemented \\
 \verb|mode| & Indicate global mode & Default \\
@@ -1309,15 +1293,48 @@ Option & Style & Comment \\
 \verb|deciles| & Indicate deciles & \\
 \verb|percentiles| & Indicate percentiles & \\
 \verb|L| & Add a legend & Default \\
-\hline
+\midrule
 \verb|R| & Rescale canvas so that histogram is square & \\
 \verb|logx| & Draw x-axis in log-scale & \\
 \verb|logy| & Draw y-axis in log-scale & \\
-\hline
+\bottomrule
 \end{tabular}
-\caption{Drawing options for one-dimensional histograms. Set lower
-  part shows additional options when using BCH1D::Print()|.
-\label{table:drawopt1d}}
+\end{center}
+\end{table}
+
+\begin{table}[ht!]
+\caption{Drawing options for two-dimensional histograms. Set lower
+  part shows additional options when using BCH2D::Print.
+\label{table:draw2d}}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Option & Style & Comment \\
+\midrule
+\verb|B1| & Draw one band between values specified in \verb|intervals| & Default  \\
+\verb|B2| & Draw two bands between values specified in \verb|intervals| & \\
+\verb|B3| & Draw three bands between values specified in \verb|intervals| & \\
+\verb|BTf| & Band type is a filled area & Default \\
+\verb|BTc| & Band type contour & \\
+\verb|CS0| & Color scheme 0 (b\&w) & \\
+\verb|CS1| & Color scheme 1 (green/yellow/red) & Default  \\
+\verb|CS2| & Color scheme 2 (blueish colors) &  \\
+\verb|CS3| & Color scheme 3 (redish colors) & \\
+\verb|smooth1| & Use ROOT smoothing algorithm once & \\
+\verb|smooth3| & Use ROOT smoothing algorithm three times & \\
+\verb|smooth5| & Use ROOT smoothing algorithm five times & \\
+\verb|smooth10| & Use ROOT smoothing algorithm ten times & \\
+\verb|pdf0| & Draw the p.d.f. & Default  \\
+\verb|pdf1| & Draw the cumulative p.d.f. & Not yet implemented \\
+\verb|gmode| & Indicate global mode & Default \\
+\verb|lmode| & Indicate local mode &  \\
+\verb|mean| & Indicate mean value and standard deviation & Default \\
+\verb|nL| & Remove the legend &  \\
+\midrule
+\verb|R| & Rescale canvas so that histogram is square & \\
+\verb|logz| & Draw z-axis in log-scale & \\
+\bottomrule
+\end{tabular}
 \end{center}
 \end{table}
 
@@ -2092,11 +2109,12 @@ int BCModel::PrintAllMarginalized2D(const char * filebase),
 int BCModel::PrintAllMarginalized(const char * file, int hdiv=1, int ndiv=1),
 \end{verbatim}
 %
-where \verb|file| (or \verb|filebase|) is the filename and \verb|hdiv|
-and \verb|ndiv| define the number of divisions in the
+where \verb|file| (or \verb|filebase|) are the filename and
+\verb|hdiv| and \verb|ndiv| define the number of divisions in the
 plots. Alternatively, the histograms can be obtained from the model
 (see section~\ref{subsubsection:marginalization}) and then plotted,
-printed or stored in a \Root\ file.
+printed or stored in a \Root\ file. Supported formats are \verb|.ps|
+and \verb|.pdf| (default).
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
