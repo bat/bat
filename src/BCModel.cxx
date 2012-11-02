@@ -1132,7 +1132,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 }
 
 // ---------------------------------------------------------
-int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
+int BCModel::PrintAllMarginalizedOld(const char * file, unsigned int hdiv, unsigned int vdiv)
 {
    if (!fMCMCFlagFillHistograms) {
       BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not filled.");
@@ -1320,7 +1320,7 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
 }
 
 // ---------------------------------------------------------
-int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsigned int vdiv)
+int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
 {
   if (!fMCMCFlagFillHistograms) {
     BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not filled.");
@@ -1336,11 +1336,28 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
     return 0;
   }
 
+  std::string filename(file);
+
+  // check if file extension is pdf
+  if ( (filename.find_last_of(".") != std::string::npos) &&
+       (filename.substr(filename.find_last_of(".")+1) == "pdf") ) {
+    ; // it's a PDF file
+    
+  }
+  else if ( (filename.find_last_of(".") != std::string::npos) &&
+	    (filename.substr(filename.find_last_of(".")+1) == "ps") ) {
+    ; // it's a PS file
+  }
+  else {
+    ; // make it a PDF file
+    filename += ".pdf";
+  }
+
   // if there's only one parameter, we just want to call Print()
   if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
     BCParameter * a = GetParameter(0);
     if (GetMarginalized(a))
-      GetMarginalized(a)->Print(file);
+      GetMarginalized(a)->Print(filename.c_str());
     return 1;
   }
 
@@ -1373,10 +1390,8 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
   int nplots = npar + nplots2d;
 
   // give out warning if too many plots
-  BCLog::OutSummary(
-		    Form(
-			 "Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-			 npar, nplots2d, nplots, file));
+  BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
+			 npar, nplots2d, nplots, filename.c_str()));
   if (nplots > 100)
     BCLog::OutDetail("This can take a while...");
 
@@ -1400,10 +1415,10 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
     // if current page is full, switch to new page
     if (i != 0 && i % (hdiv * vdiv) == 0) {
       if ( (unsigned int) i <= (hdiv * vdiv)) {
-				c->Print(std::string( std::string(file) + "(").c_str());
+				c->Print(std::string( filename + "(").c_str());
       }
       else {
-				c->Print(file);
+	c->Print(filename.c_str());
       }
     }
 		
@@ -1412,9 +1427,8 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
       
     // just draw a line for a delta prior
     if (a->GetRangeWidth() == 0)
-      // debugKK: don't draw delta prior distributions for now
       //          GetMarginalized(a)->Draw(4, a->GetLowerLimit());
-      ;
+      ; // don't draw if it's a delta function
     else
       GetMarginalized(a)->Draw();
       
@@ -1442,8 +1456,7 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
 
       // if current page is full, switch to new page, but only if there is data to plot
       if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
-				c->Print(file);
-				//				c->Clear();
+	c->Print(filename.c_str());
       }
 
       // go to next pad
@@ -1470,7 +1483,7 @@ int BCModel::PrintAllMarginalizedPDF(const char * file, unsigned int hdiv, unsig
   if ((n + k) > 100 && (n + k) % 100 != 0)
     BCLog::OutDetail(Form(" --> %d plots done", n + k));
 
-  c->Print(std::string( std::string(file) + ")").c_str());
+  c->Print(std::string( filename + ")").c_str());
 
   delete c;
 

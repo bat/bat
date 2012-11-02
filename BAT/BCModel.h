@@ -629,8 +629,8 @@ class BCModel : public BCIntegrate
        *   */
       int PrintAllMarginalized1D(const char * filebase);
       int PrintAllMarginalized2D(const char * filebase);
+      int PrintAllMarginalizedOld(const char * file, unsigned int hdiv=1, unsigned int ndiv=1);
       int PrintAllMarginalized(const char * file, unsigned int hdiv=1, unsigned int ndiv=1);
-      int PrintAllMarginalizedPDF(const char * file, unsigned int hdiv=1, unsigned int ndiv=1);
 
       /**
        * Constrains a data point
