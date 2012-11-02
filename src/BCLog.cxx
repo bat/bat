@@ -125,6 +125,7 @@ void BCLog::Out(const char * message)
 
 void BCLog::StartupInfo()
 {
+  /*
    char * message = Form(
          " +------------------------------\n"
          " |\n"
@@ -133,6 +134,18 @@ void BCLog::StartupInfo()
          " |\n"
          " | http://www.mppmu.mpg.de/bat\n"
          " +------------------------------\n",
+         BCLog::fVersion);
+  */
+   char * message = Form(
+		 " +--------------------------------------------------------------+\n"
+		 " |                                                              |\n"
+		 " | BAT version %7s                                          |\n"
+		 " | Copyright (C) 2007-2012, Daniel Kollar and Kevin Kroeninger, |\n"
+                 " | all rights reserved.                                         |\n"
+		 " | For the licensing terms see doc/COPYING                      |\n"
+		 " | For documentation  see http://www.mppmu.mpg.de/bat           |\n"
+		 " |                                                              |\n"
+                 " +--------------------------------------------------------------+\n",
          BCLog::fVersion);
 
    if (BCLog::IsOpen() && BCLog::fMinimumLogLevelFile<BCLog::nothing)
