@@ -1320,7 +1320,7 @@ int BCModel::PrintAllMarginalizedOld(const char * file, unsigned int hdiv, unsig
 }
 
 // ---------------------------------------------------------
-int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned int vdiv)
+int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv)
 {
   if (!fMCMCFlagFillHistograms) {
     BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not filled.");
@@ -1430,7 +1430,7 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
       //          GetMarginalized(a)->Draw(4, a->GetLowerLimit());
       ; // don't draw if it's a delta function
     else
-      GetMarginalized(a)->Draw();
+      GetMarginalized(a)->Draw(options1d);
       
     n++;
       
@@ -1472,7 +1472,7 @@ int BCModel::PrintAllMarginalized(const char * file, unsigned int hdiv, unsigned
       if (deltab <= 1e-7 * meanb)
 				continue;
 
-      GetMarginalized(a, b)->Draw();
+      GetMarginalized(a, b)->Draw(options2d);
       k++;
 
       if ((n + k) % 100 == 0)

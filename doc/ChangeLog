@@ -1,3 +1,6 @@
+2012-11-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel: PrintAllMarginalized now takes plotting options as input
+
 2012-11-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: new version of PrintAllMarginalized supports pdf now, old version kept as ...Old
 	* BCLog: updated header in log file

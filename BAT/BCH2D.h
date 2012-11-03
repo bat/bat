@@ -147,7 +147,7 @@ class BCH2D
        * nL : remove legend \n
        * @param intervals the intervals
        */			
-      void Draw(std::string options="BTfB1CS1meangmode", std::vector<double> intervals=std::vector<double>(0));
+      void Draw(std::string options="BTfB1CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0));
       void Draw(std::string options, double interval);
 
       /**

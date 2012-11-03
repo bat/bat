@@ -630,7 +630,7 @@ class BCModel : public BCIntegrate
       int PrintAllMarginalized1D(const char * filebase);
       int PrintAllMarginalized2D(const char * filebase);
       int PrintAllMarginalizedOld(const char * file, unsigned int hdiv=1, unsigned int ndiv=1);
-      int PrintAllMarginalized(const char * file, unsigned int hdiv=1, unsigned int ndiv=1);
+      int PrintAllMarginalized(const char * file, std::string options1d="BTciB1CS1D0pdf0Lmeanmode", std::string options2d="BTfB1CS1meangmodelmode", unsigned int hdiv=1, unsigned int ndiv=1);
 
       /**
        * Constrains a data point
