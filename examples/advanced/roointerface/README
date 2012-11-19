@@ -15,7 +15,7 @@
 BCRooInterface
 --------------
 
-The BCRooInterface is a model interface developped in order to allow
+The BCRooInterface is a model interface developed in order to allow
 running BAT (Bayesian Analysis Toolkit) from a data/pdf/prior model
 described using RooFit package that is available from ROOT.
 
@@ -68,15 +68,13 @@ The four examples are provided:
 
     root -q -x -l PrepareWorkspace_Poisson_withSystematics.C
 
-Then one can use the compiled interface macro. Calling
-runRooInterface without arguments will display some help
-information and proceed running with default file names. The user can
-specify 4 arguments being the name of the ROOT file that contains the
-RooWorkspace (holding the RooFit objects representing the
-data/pdf/prior/etc), the name of this workspace, the name of the PS
-file that will be used to store the resulting plots of the posterior
-probability and the number of MCMC iterations. In any case, the ROOT
-file should contain a workspace that itself contains:
+Then one can use the compiled interface macro. Calling runRooInterface without
+arguments will display some help information and proceed running with default
+file names. The user can specify 2 arguments being the name of the ROOT file
+that contains the RooWorkspace (holding the RooFit objects representing the
+data/pdf/prior/etc), and optionally the name of this workspace (default:
+myWS). In any case, the ROOT file should contain a workspace that itself
+contains:
 
  - data: a RooAbsData object holding the data measurements
  - model: a RooAbsPdf object holding the probability density function
@@ -101,7 +99,7 @@ The interface can be run with:
 
 Using the default arguments would be similar to:
 
-    ./runRooInterface bat_workspace.root batWS bat_plots.ps 1000000
+    ./runRooInterface bat_workspace.root myWS
 
 More documentation, examples and maybe an undated version of BCRooInterface
 might be available on the webpage:

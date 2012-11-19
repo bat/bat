@@ -1,4 +1,7 @@
 2012-11-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* roointerface example: fix up code and readme
+
+2012-11-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* roostats: Include missing std namespace to fix compilation
 	* gitignore: Refine to exclude more output files
 

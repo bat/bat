@@ -20,15 +20,13 @@ int main(int argc, char **argv)
 
   // retrieve the command line arguments
   const char* rootFile = "bat_workspace.root";
-  const char* wsName = "batWS";
+  const char* wsName = "myWS";
   const char* outputFile = "bat_plots.ps";
   int nMCMC = 1000000;
 
   // display a quick help if no arguments are specified
   if (argc<2) {
-//    std::cout << "Run with: ./runRooInterface bat_workspace.root batWS bat_plots.ps\n";
     std::cout << "Run with: ./runRooInterface bat_workspace.root batWS\n";
-//    std::cout << "the four arguments are:\n";
     std::cout << "the two arguments are:\n";
     std::cout << " - the name of the ROOT file that contains a workspace. This workspace\n";
     std::cout << "   should contain:\n";
@@ -41,10 +39,7 @@ int main(int argc, char **argv)
     std::cout << "     interest\n";
     std::cout << "   * parameters: a RooArgList holding all nuisance parameters\n";
     std::cout << " - the name workspace to retrieve from the ROOT file\n";
-//    std::cout << " - the name of the postscript file that will contain the resulting\n";
-//    std::cout << "   posterior probability plots\n";
-//    std::cout << " - the number of MCMC iterations (default = 1000000)\n";
-//    std::cout << "For more information see the README file of the BCRooInterface\n";
+    std::cout << "For more information see the README file of the BCRooInterface\n";
     std::cout << std::endl;
 
     // clean exit
@@ -53,8 +48,6 @@ int main(int argc, char **argv)
 
   if (argc>=2) rootFile = argv[1];
   if (argc>=3) wsName = argv[2];
-  //if (argc>=3) outputFile = argv[3];
-  //if (argc>=4) nMCMC = int(argv[4]);
 
   std::cout << "The inputs will be retrieved from " << rootFile << " (workspace " << wsName << ") and the posterior probability plot will be stored in " << outputFile << std::endl;
   std::cout << nMCMC << " MCMC iteration will be performed\n";
