@@ -231,7 +231,7 @@ void BCRooInterface::SetNumBins(const char * parname, int nbins)
          return;
       }
    }
-   _nbins_list.push_back( make_pair(parname,nbins) );
+   _nbins_list.push_back( std::make_pair(parname,nbins) );
 }
 
 void BCRooInterface::SetNumBins(int nbins)

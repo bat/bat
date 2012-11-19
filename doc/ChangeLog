@@ -1,3 +1,6 @@
+2012-11-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* roostats: Include missing std namespace to fix compilation
+
 2012-11-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: PrintAllMarginalized now takes plotting options as input
 
@@ -5,7 +8,7 @@
 	* BCModel: new version of PrintAllMarginalized supports pdf now, old version kept as ...Old
 	* BCLog: updated header in log file
 	* introduction: updated introduction (plotting options and pdf support)
-	
+
 2012-11-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Clean up of printing methods, also in BCTemplateFitter
 	* Updated PostScipt to match current size of canvases

@@ -31,7 +31,6 @@
 #include <cassert>
 
 
-
 ClassImp(RooStats::BATCalculator)
 
 namespace RooStats {
@@ -155,7 +154,7 @@ void BATCalculator::ClearAll() const
 }
 
 // ---------------------------------------------------------
-void BATCalculator::SetModel(const ModelConfig & model)
+void BATCalculator::SetModel(const ModelConfig & /* model */)
 {
    // set the model
    //fPdf = model.GetPdf();
@@ -336,7 +335,8 @@ SimpleInterval * BATCalculator::GetInterval1D(const char * POIname) const
    posteriorVector.resize(stepnumber);
 
    // see in BayesianCalculator for details about this "feature"
-   Double_t tmpVal = poi->getVal();
+   // FB: comment in because 'unused variable'
+   //   Double_t tmpVal = poi->getVal();
 
   // initialize elements of posteriorVector
    int i = 0;
@@ -344,7 +344,7 @@ SimpleInterval * BATCalculator::GetInterval1D(const char * POIname) const
    std::vector< std::pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
    for( ; vecit != vecit_end ; ++vecit) {
       poi->setVal(poi->getMin()+i*stepsize);
-      posteriorVector[i] = make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
+      posteriorVector[i] = std::make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
       histoIntegral+=_posteriorTH1D->GetBinContent(i); // better to get this directly from the histogram ?!
       //std::cout << "pair with binnumber: " << i << " and postriorprob: " << _posteriorTH1D->GetBinContent(i+1) << std::endl;
       i++;
@@ -527,7 +527,7 @@ SimpleInterval * BATCalculator::GetShortestInterval1D(const char * POIname, bool
    std::vector< std::pair< Int_t,Double_t > >::iterator vecit_end = posteriorVector.end();
    for( ; vecit != vecit_end ; ++vecit) {
       poi->setVal(poi->getMin()+i*stepsize);
-      posteriorVector[i] = make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
+      posteriorVector[i] = std::make_pair(i, _posteriorTH1D->GetBinContent(i+1) ); // hope this is working, +1 necessary, because GetBinContent(0) returns the underflow bin
       histoIntegral+=_posteriorTH1D->GetBinContent(i); // better to get this directly from the histogram ?!
       //std::cout << "pair with binnumber: " << i << " and postriorprob: " << _posteriorTH1D->GetBinContent(i+1) << std::endl;
       i++;
