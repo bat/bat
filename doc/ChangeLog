@@ -1,5 +1,6 @@
 2012-11-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* roostats: Include missing std namespace to fix compilation
+	* gitignore: Refine to exclude more output files
 
 2012-11-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: PrintAllMarginalized now takes plotting options as input

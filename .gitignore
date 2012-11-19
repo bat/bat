@@ -30,13 +30,6 @@ CreateProject.sh
 *.libs/
 *.so
 
-# Tests
-*_TEST
-
-# Example output
-log.txt
-*_results.txt
-
 # Documentation
 doc/introduction/*
 !doc/introduction/introduction.tex

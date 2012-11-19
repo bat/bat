@@ -1,0 +1,12 @@
+# Binaries
+runCombineGaussians
+runPoissonCounting
+
+# Example output
+log.txt
+*_results.txt
+*.pdf
+*.png
+
+
+
