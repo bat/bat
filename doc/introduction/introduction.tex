@@ -6,8 +6,9 @@
 %\usepackage{graphics}
 \usepackage{booktabs}
 \usepackage{graphicx}
-\usepackage{url}
+\usepackage{hyperref}
 \usepackage{parskip}
+\usepackage{url}
 
 \setlength{\oddsidemargin}{0cm}
 \setlength{\evensidemargin}{0cm}
@@ -42,7 +43,7 @@
 \thispagestyle{empty}
 
 \begin{figure}
-\includegraphics[scale=0.25]{bat.eps}
+\includegraphics[scale=0.25]{bat}
 \end{figure}
 
 \vspace*{1cm}
@@ -107,7 +108,7 @@ introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
 
 \subsection{Availability}
 
-\bat\ can be downloaded from \url{http://www.mppmu.mpg.de/bat}.
+\bat\ can be downloaded from \url{http://mpp.mpg.de/bat}.
 
 \bat\ is a free software: you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License (LGPL) as
@@ -217,13 +218,17 @@ or you can specify the location using
 \verb|--with-cuba-include-dir=/path/to/cuba/header|
 and \verb|--with-cuba-include-dir=/path/to/cuba/lib|.
 
+Thread parallelization can be turned on with \verb|--enable-parallelization|. A
+recent version of \verb|gcc| with built-in \verb|OpenMP| support is
+required. See further hints in subsection~\ref{subsection:thread-par}.
+
 You can list all available options using
 %
 \begin{verbatim}
    ./configure --help
 \end{verbatim}
 
-\enlargethispage{-\baselineskip}
+%\enlargethispage{-\baselineskip}
 
 After successful configuration, run
 %
@@ -263,7 +268,8 @@ An option for use in compiled programs would also be to add
 \verb|libBAT.rootmap|, \verb|libBATmodels.rootmap| and
 \verb|libBATmtf.rootmap| are not in the system library search path.
 
-See also \verb|INSTALL| file in the \bat\ distribution for installation instructions.
+See also the \verb|INSTALL| file in the \bat\ distribution and the installation
+instructions on the webpage.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -712,13 +718,11 @@ added to the model manager via
 void BCModelManager::AddModel(BCModel * model, double probability=0.),
 \end{verbatim}
 %
-where \verb|probability| is the prior probability for the
-model\footnote{Here the prior probability is for the model itself and
-  is not to be confused with the intra-model parameter-dependent prior
-  probabilities discussed in
-  section~\ref{subsubsection:implementation}.}. A common data set can
-be defined and will be used by all models added to the manager. This
-can be done either explicitly via
+where \verb|probability| is the prior probability for the model\footnote{Here
+  the prior probability is for the model itself and is not to be confused with
+  the priors on parameters \emph{within} a given model.}. A common data set can
+be defined and will be used by all models added to the manager. This can be done
+either explicitly via
 %
 \begin{verbatim}
 void BCModelManager::SetDataSet(BCDataSet * dataset),
@@ -1203,6 +1207,44 @@ An example for the propagation of uncertainties can be found in
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
+\subsection{Thread parallelization}\label{subsection:thread-par}
+
+At present, threads are used only to speed up the Markov chain sampling.
+Assuming BAT is configured with parallelization enabled, the number of threads
+can be selected at runtime with \verb|./program OMP_NUM_THREADS=N|.  Due to the
+overhead from thread creation, the sampling is faster only if the likelihood is
+sufficiently slow to compute. As a rule of thumb, if the unparallelized sampling
+takes minutes or even hours, the parallelized version should get close to the
+maximum speedup given by the number of cores. For very simple likelihoods, the
+overhead may actually slow down the entire process, hence by default, only one
+thread is used, \verb|N|=1.
+
+For guidance, tests showed that it is beneficial to have as many threads as your
+computer provides. Working on a quad core machine with hyper-threading, we
+observed a speedup factor of 3.5 -- 3.9 with 8 and 16 chains on 8 threads; the
+calculation took around 3 hours.
+
+\emph{Warning: The results of the sampling become nonsense if multiple threads
+are used but the likelihood itself is not thread safe.}
+
+A typical example of a non thread-safe likelihood is 
+\begin{verbatim}
+double MyModel::LogLikelihood(const std::vector <double> & parameters)
+{
+  // call other function
+  double x = someFunction(parameters);
+  ...
+}
+\end{verbatim}
+
+The function \texttt{someFunction} is usually called simultaneously from
+different threads with different values of \texttt{parameters}, hence its return
+value depends on the arbitrary call order of individual threads.
+
+% --------------------------------------------------------
+% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+% --------------------------------------------------------
+
 \subsection{One- and two-dimensional histograms}
 
 The classes \verb|BCH1D| and \verb|BCH2D| are one- and two-dimensional
@@ -1260,7 +1302,7 @@ Table~\ref{table:draw2d}.
 
 \begin{table}[ht!]
 \caption{Drawing options for one-dimensional histograms. Set lower
-  part shows additional options when using BCH1D::Print().
+  part shows additional options when using \texttt{BCH1D::Print()}.
 \label{table:draw1d}}
 \begin{center}
 \begin{tabular}{lll}
@@ -1304,7 +1346,7 @@ Option & Style & Comment \\
 
 \begin{table}[ht!]
 \caption{Drawing options for two-dimensional histograms. Set lower
-  part shows additional options when using BCH2D::Print.
+  part shows additional options when using \texttt{BCH2D::Print}.
 \label{table:draw2d}}
 \begin{center}
 \begin{tabular}{@{}lll@{}}
@@ -1338,8 +1380,9 @@ Option & Style & Comment \\
 \end{center}
 \end{table}
 
-% --------------------------------------------------------
 
+
+% --------------------------------------------------------
 %\subsection{Single event analyses and sensitivity studies}
 %\label{subsection:singleeventanalyses}
 
