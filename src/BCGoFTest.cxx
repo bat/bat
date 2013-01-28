@@ -227,16 +227,8 @@ double BCGoFTest::GetCalculatedPValue(bool flag_histogram)
 
    if (flag_histogram)
    {
-      // modify MCMC for first run
-//      MCMCSetNIterationsMax(100000);
-//      MCMCSetNIterationsRun(10000);
-
       // perform first run to obtain limits for the log(likelihood)
       MarginalizeAll();
-
-      // modify MCMC for second run
-//      MCMCSetNIterationsMax(100000);
-//      MCMCSetNIterationsRun(10000);
 
       // create histogram
       double D = fLogLikelihoodMax - fLogLikelihoodMin;
@@ -245,9 +237,6 @@ double BCGoFTest::GetCalculatedPValue(bool flag_histogram)
    }
    else
    {
-      // modify MCMC
-//      MCMCSetNIterationsMax(100000);
-//      MCMCSetNIterationsRun(10000);
    }
 
    // run MCMC
