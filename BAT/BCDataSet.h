@@ -65,10 +65,6 @@ class BCDataSet
       /** @{ */
 
       /**
-       * @param The vector of data points. */
-//      BCDataVector * GetDataVector();
-
-      /**
        * @return The number of data points. */
       unsigned int GetNDataPoints();
 
@@ -87,7 +83,6 @@ class BCDataSet
        * @param index The index of the component to be returned.
        * @return The (index)th component of all data points */
       std::vector<double> GetDataComponents(int index);
-
 
       /** @} */
 

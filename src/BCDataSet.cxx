@@ -391,19 +391,17 @@ void BCDataSet::Reset()
 void BCDataSet::Dump()
 {
    if (!fBCDataVector) {
-		 BCLog::OutError("BCDataSet::Dump : Data set is empty. Nothing to dump.");
-		 return;
+      BCLog::OutError("BCDataSet::Dump : Data set is empty. Nothing to dump.");
+      return;
    }
 
-	 BCLog::OutSummary("Data set summary:");
-	 BCLog::OutSummary(Form("Number of points           : %d", int(fBCDataVector->size())));
-	 BCLog::OutSummary(Form("Number of values per point : %d", GetDataPoint(0)->GetNValues()));
+   BCLog::OutSummary("Data set summary:");
+   BCLog::OutSummary(Form("Number of points           : %d", int(fBCDataVector->size())));
+   BCLog::OutSummary(Form("Number of values per point : %d", GetDataPoint(0)->GetNValues()));
    unsigned int n = GetDataPoint(0)->GetNValues();
    for (unsigned int i=0; i< fBCDataVector->size(); i++) {
-		 BCLog::OutSummary(Form("Data point %5d :  ", i));
-		 for (unsigned int j=0; j<n; j++)
-			 BCLog::OutSummary(Form("%d : %12.5g", j, GetDataPoint(i)->GetValue(j)));
-	 }
+      BCLog::OutSummary(Form("Data point %5d :  ", i));
+      for (unsigned int j=0; j<n; j++)
+         BCLog::OutSummary(Form("%d : %12.5g", j, GetDataPoint(i)->GetValue(j)));
+   }
 }
-
-// ---------------------------------------------------------
