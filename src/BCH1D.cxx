@@ -289,20 +289,20 @@ void BCH1D::DrawOld(int options, double ovalue)
 
    fHistogram->Scale(1./fHistogram->Integral("width"));
 
-	 // todoKK:
+   // todoKK:
    // - fix legend size, position and style
-   // - maybe write a painer class?
+   // - maybe write a painter class?
    // options should start with letter indicating type, e.g.
-	 // L: legend
-	 //    - add legend
+   // L: legend
+   //    - add legend
    //    - add written summary on plot (mean = xyz, ...)
    // B: band (or shaded area)
    //    - band type: smallest, central, ...
    //    - draw shaded band between two arbitrary values
    //    - add second (and third) band with arbitrary values, e.g. 90%, 95% prob. regions
    // D: drawing
-	 //    - draw histogram as normal histogram
-	 //    - draw histogram as smooth curve
+   //    - draw histogram as normal histogram
+   //    - draw histogram as smooth curve
    //    - black&white version with hatching
    //    - draw in log-scale
    //    - draw cumulative pdf
