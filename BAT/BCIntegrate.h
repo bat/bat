@@ -37,9 +37,6 @@ class TRandom3;
 class TMinuit;
 class TTree;
 
-
-#define BC_DEBUG 0
-
 // ---------------------------------------------------------
 
 class BCIntegrate : public BCEngineMCMC
