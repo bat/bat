@@ -81,6 +81,3 @@ double BCSummaryPriorModel::LogAPrioriProbability(const std::vector<double> & /*
 {
    return 0;
 }
-
-// ---------------------------------------------------------
-
