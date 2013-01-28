@@ -103,7 +103,3 @@ void BCDataPoint::SetValues(std::vector<double> values)
       exit(1);
    }
 }
-
-// ---------------------------------------------------------
-
-
