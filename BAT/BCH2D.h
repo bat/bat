@@ -60,19 +60,19 @@ class BCH2D
       TH2D * GetHistogram()
          { return fHistogram; };
 
-			/**
+      /**
        * Returns a color of the current color scheme.
-       * @param index the color index 
+       * @param index the color index
        * @return the color number. */
       int GetColor(int index) {
 				return fColors.at(index); };
-			
-     /** @} */
+
+      /** @} */
       /** \name Member functions (set)  */
       /** @{ */
 
       /**
-       * Sets the color scheme. 
+       * Sets the color scheme.
        * @param scheme the scheme index \n
        * 0 : black and white
        * 1 : yellow-green-red
@@ -80,7 +80,7 @@ class BCH2D
        * 2 : redish colors
        * 2 : blueish colors
        */
-			void SetColorScheme(int scheme);
+      void SetColorScheme(int scheme);
 
       /**
        * Set the 2D histogram. */
@@ -106,19 +106,20 @@ class BCH2D
       void PrintOld(const char * filename, int options=0, int ww=0, int wh=0);
 
 
-     /**
+      /**
        * Print distribution into a PostScript file.
        * @param filename Output filename
        * @param option the draw options (see myDraw()) plus \n
-			 * logz : draw z-axis in log-scale \n
-			 * R : rescale canvas to have a squared histogram
+       * logz : draw z-axis in log-scale \n
+       * R : rescale canvas to have a squared histogram
        * @param ww canvas size in pixels along X
        * @param ww canvas size in pixels along Y
        * If ww and wh are set to 0, default ROOT canvas size is used.
        * For explanation of parameters options and ovalue look at BCH1D::Draw()
        * method. */
-			void Print(const char * filename, std::string options="BTfB1CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
-			void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
+      void Print(const char * filename, std::string options="BTfB1CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+      void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
+
       /**
        * Draw 2-d distribution into the active canvas
        * @param options explanation to come
@@ -127,7 +128,7 @@ class BCH2D
 
       /**
        * Draw distribution into the active canvas.
-       * @param options Drawing options: \n 
+       * @param options Drawing options: \n
        * BTf : band type a filled area \n
        * BTc : band type is a contour \n
        * B1 : draw one band between values specified in intervals [default] \n
@@ -146,7 +147,7 @@ class BCH2D
        * lmode : draw global mode \n
        * nL : remove legend \n
        * @param intervals the intervals
-       */			
+       */
       void Draw(std::string options="BTfB1CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0));
       void Draw(std::string options, double interval);
 
@@ -155,11 +156,11 @@ class BCH2D
        * height. */
       void CalculateIntegratedHistogram();
 
-			/**
-			 * Print the integrated histogram.
-			 * @param filename the name of the file. */
-			void PrintIntegratedHistogram(const char* filename);
-	
+      /**
+       * Print the integrated histogram.
+       * @param filename the name of the file. */
+      void PrintIntegratedHistogram(const char* filename);
+
       /**
        * Calculates the height below which the integrated probability has
        * a certain value.
@@ -174,7 +175,9 @@ class BCH2D
       std::vector<int> GetNIntervalsY(TH2D * h, int &nfoundmax);
 
       /**
-       *   */
+       * @todo document remaining methods
+       */
+
       TGraph * GetLowestBandGraph(TH2D * h, std::vector<int> nint);
       TGraph * GetLowestBandGraph(TH2D * h);
 
@@ -184,7 +187,6 @@ class BCH2D
       TGraph * GetBandGraph(double level1, double level2);
       TGraph * GetBandGraph(TH2D * h , double level1, double level2);
 
-//      TGraph ** GetBandGraphs(TH2D * h);
       TGraph ** GetBandGraphs(TH2D * h, int &n);
 
       /** @} */
@@ -207,20 +209,20 @@ class BCH2D
        * "Is there a global mode?" flag */
       int fModeFlag;
 
-			/**
+      /**
        * The colors of the color scheme. */
       std::vector<int> fColors;
 
-			/**
+      /**
        * The colors of the color scheme. */
       std::vector<TObject*> fROOTObjects;
 
-			/** Helper method to get an unique number to be used in histogram naming */
-			static unsigned int getNextIndex()
+      /** Helper method to get an unique number to be used in histogram naming */
+      static unsigned int getNextIndex()
       { return ++fHCounter; }
 
-			/** helper variable to get an unique number to be used in histogram naming */
-			static unsigned int fHCounter;
+      /** helper variable to get an unique number to be used in histogram naming */
+      static unsigned int fHCounter;
 };
 
 // ---------------------------------------------------------
