@@ -136,7 +136,6 @@ int BCSummaryTool::CopySummaryData()
             for (int j = 0; j < nquantiles; ++j)
                fQuantiles.push_back( tmpval );
             fSmallInt.push_back( 0 );
-//            fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
          }
 
          // copy 2D margnialized information
@@ -153,7 +152,6 @@ int BCSummaryTool::CopySummaryData()
          }
       }
       else {
-         //         BCLog::OutWarning("BCSummaryTool::CopySummaryData : No information on marginalized distributions present.");
       }
 
       // copy optimization information
@@ -162,7 +160,6 @@ int BCSummaryTool::CopySummaryData()
          fGlobalMode.push_back ( (fModel->GetBestFitParameters()).at(i) );
       }
       else {
-         //         BCLog::OutWarning("BCSummaryTool::CopySummaryData : No information on optimization present.");
       }
    }
 
@@ -341,9 +338,7 @@ int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
          ";;",npar, -0.5, npar-0.5,npar, -0.5, npar-0.5);
    hist_corr->SetStats(kFALSE);
    hist_corr->GetXaxis()->SetTickLength(0.0);
-//   hist_corr->GetXaxis()->SetLabelOffset(0.03);
    hist_corr->GetYaxis()->SetTickLength(0.0);
-//   hist_corr->GetYaxis()->SetLabelOffset(0.03);
    hist_corr->GetZaxis()->SetRangeUser(-1.0, 1.0);
 
    for (int i = 0; i < npar; ++i) {
@@ -767,46 +762,6 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
    return 1;
 }
 
-// // ---------------------------------------------------------
-// int BCSummaryTool::Print2DOverviewPlots(const char* filename)
-// {
-//    // copy summary data
-//    if (!CopySummaryData())
-//       return 0;
-
-//    // get number of parameters
-//    int npar = fModel->GetNParameters();
-
-//    TCanvas * c_2doverview = new TCanvas("c_2doverview");
-//    c_2doverview->Divide(npar+1, npar+1, 0.005, 0.005);
-
-//       for (int i = 0; i < npar; ++i) {
-//       for (int j = 1; j < npar+1; ++j) {
-//          c_2doverview->cd(1+i*(npar+1)+j);
-//          gPad->SetBottomMargin(0);
-//          gPad->SetTopMargin(0);
-//          gPad->SetLeftMargin(0);
-//          gPad->SetRightMargin(0);
-//          ->DrawClone();
-//       }
-//    }
-//    for (int i = 1; i < npar+1; ++i) {
-//       int index = (npar+1) * npar + i + 1;
-//       c_2doverview->cd(index);
-//       TPaveText * pt = new TPaveText(0.0, 0.0, 1.0, 1.0, "NDC");
-//       pt->SetTextAlign(22);
-//       pt->SetTextSize(0.1);
-//       pt->SetBorderSize(0);
-//       pt->SetFillStyle(0);
-//       pt->AddText(fParName.at(i-1));
-//       pt->Draw();
-//    }
-
-
-//    // no error
-//    return 1;
-// }
-
 // ---------------------------------------------------------
 int BCSummaryTool::PrintParameterLatex(const char * filename)
 {
@@ -885,5 +840,3 @@ int BCSummaryTool::CalculatePriorModel()
    // no error
    return 1;
 }
-
-// ---------------------------------------------------------
