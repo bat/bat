@@ -360,8 +360,6 @@ TH1D * ECDF(const std::vector<double> & data)
    // construct the ecdf
    for (int nBin = 1; nBin <= ECDF->GetNbinsX(); nBin++) {
       double previousBin = ECDF -> GetBinContent(nBin - 1);
-      // BCLog::OutDebug(Form("n_%d = %.2f", nBin, ECDF -> GetBinContent(nBin) ));
-      // BCLog::OutDebug(Form("previous_%d = %.2f", nBin, previousBin));
       double thisBin = ECDF -> GetBinContent(nBin) / double(N);
       ECDF -> SetBinContent(nBin, thisBin + previousBin);
 
@@ -484,24 +482,13 @@ std::vector<double> longestRunsChi2(
          //restart at current residual
          currRun = residue * residue;
       }
-      //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
-      //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
-      //BCLog::OutDebug(Form("currRun = %g", currRun));
-
    }
-
-   //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
-   //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
-   //BCLog::OutDebug(Form("currRun = %g", currRun));
 
    //check last run
    if (aboveRun)
       maxRunAbove = Max(maxRunAbove, currRun);
    else
       maxRunBelow = Max(maxRunBelow, currRun);
-
-   //BCLog::OutDebug(Form("maxRunBelow = %g", maxRunBelow));
-   //BCLog::OutDebug(Form("maxRunAbove = %g", maxRunAbove));
 
    //save the longest runs
    runs.at(0) = maxRunBelow;
@@ -527,37 +514,10 @@ double longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
    // the result of the inner loop is the cond. P given r successes
    double conditionalProb;
 
-   // first method: use the gamma function for the factorials: bit slower and more inaccurate
-   // in fact may return NaN for n >= 1000
-
-   //   double Gup, Gdown1, Gdown2, Gdown3;
-   //
-   //   for (uint r = 0; r <= n; r++) {
-   //      conditionalProb = 0.0;
-   //      for (uint i = 1; ( i <= n-r+1) && (i <= uint(r / double(Lobs + 1)) ); i++) {
-   //
-   //         Gup =  TMath::Gamma(1 - i * (Lobs + 1) + n);
-   //         Gdown1 = TMath::Gamma(1 + i);
-   //         Gdown2 = TMath::Gamma(2 - i + n - r);
-   //         Gdown3 = TMath::Gamma(1 - i * (Lobs + 1) + r);
-   //
-   //         //consider the sign of contribution
-   //         Gup = i%2 ? Gup : - Gup;
-   //
-   //         conditionalProb += Gup/(Gdown1 * Gdown2 * Gdown3);
-   //
-   ////         printf("G(%d,%d)= %.2f %.2f %.2f %.2f",r,i,Gup, Gdown1, Gdown2, Gdown3);
-   //
-   ////         prob += TMath::Gamma(1 - i * (Lobs + 1) + n)
-   ////               / ( TMath::Gamma(1 + i) * TMath::Gamma(2 - i + n - r)
-   ////                     * TMath::Gamma(1 - i * (Lobs + 1) + r) );
-   ////         printf("prob inside (i=%d) = %.2f",i, prob);
-   //      }
-   //      prob += (1 + n - r)*conditionalProb;
-   ////      printf("prob outside (r=%d) = %.2f",r, prob);
-   //   }
-
-   // alternative using log factorial approximations, is faster and more accurate
+   /* first method: use the gamma function for the factorials: bit slower and more inaccurate
+    * in fact may return NaN for n >= 1000.
+    * alternative using log factorial approximations, is faster and more accurate
+    */
 
    double tempLog = 0;
    for (uint r = 0; r <= n; r++) {
@@ -571,9 +531,7 @@ double longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
             conditionalProb += exp(tempLog);
          else
             conditionalProb -= exp(tempLog);
-         //         printf("tempLog inside = %.2f",prob);
       }
-      //      printf("tempLog outside = %.2f",prob);
       prob += (1 + n - r) * conditionalProb;
    }
 
