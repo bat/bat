@@ -299,7 +299,4 @@ void BCModelOutput::Copy(BCModelOutput & modeloutput) const
    // don't copy the content
    modeloutput.fModel            = fModel;
    modeloutput.fAnalysisTree     = fAnalysisTree;
-//   modeloutput.fMarkovChainTrees = fMarkovChainTrees;
 }
-
-// ---------------------------------------------------------
