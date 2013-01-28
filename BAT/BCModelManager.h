@@ -121,13 +121,6 @@ class BCModelManager
        * @see SetDataSet(BCDataSet * dataset) */
       void SetSingleDataPoint(BCDataSet * dataset, unsigned int index);
 
-      // DEBUG DELETE?
-      /**
-       * Sets the maximum number of iterations for the Monte Carlo
-       * integration for all BCModels in this BCModelManager.
-       * @param niterations */
-      //   void SetNIterationsMax(int niterations);
-
       /**
        * @param method The marginalization method */
       void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method);

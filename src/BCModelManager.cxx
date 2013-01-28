@@ -112,18 +112,6 @@ void BCModelManager::AddModel(BCModel * model, double probability)
 }
 
 // ---------------------------------------------------------
-// DEBUG DELETE?
-/*
-void BCModelManager::SetNIterationsMax(int niterations)
-{
-   // set maximum number of iterations of all models in the manager
-
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetNIterationsMax(niterations);
-}
-
-// ---------------------------------------------------------
-*/
 
 void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
 {
@@ -613,5 +601,3 @@ void BCModelManager::Copy(BCModelManager & modelmanager) const
    modelmanager.fModelContainer = fModelContainer;
    modelmanager.fDataSet        = fDataSet;
 }
-
-// ---------------------------------------------------------
