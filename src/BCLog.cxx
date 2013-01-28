@@ -151,9 +151,6 @@ void BCLog::StartupInfo()
    if (BCLog::IsOpen() && BCLog::fMinimumLogLevelFile<BCLog::nothing)
       BCLog::fOutputStream << message;
 
-//   if (BCLog::fMinimumLogLevelScreen<BCLog::nothing)
-//      std::cout << message;
-
    fFirstOutputDone = true;
 }
 
@@ -207,6 +204,3 @@ int printBATUponLoading()
 }
 
 static int tmpvarPrint = printBATUponLoading();
-
-// ---------------------------------------------------------
-

@@ -43,7 +43,8 @@ class BCLog
        */
       enum LogLevel {debug, detail, summary, warning, error, nothing};
 
-      // constructor and destructor
+      /** \name Constructors and destructors */
+      /** @{ */
 
       /**
        * Constructor. */
@@ -53,7 +54,9 @@ class BCLog
        * Destructor. */
       ~BCLog();
 
-      // methods (get)
+      /** @} */
+      /** \name Getters */
+      /** @{ */
 
       /**
        * Returns the minimum log level for file output.
@@ -67,7 +70,9 @@ class BCLog
       static BCLog::LogLevel GetLogLevelScreen()
          { return fMinimumLogLevelScreen; };
 
-      // method (set)
+      /** @} */
+      /** \name Setters */
+      /** @{ */
 
       /**
        * Sets the minimum log level for file output.
@@ -94,7 +99,9 @@ class BCLog
       static void SetLogLevel(BCLog::LogLevel loglevel)
          { SetLogLevel(loglevel, loglevel); };
 
-      // methods
+      /** @} */
+      /** \name Miscellaneous */
+      /** @{ */
 
       /**
        * Opens log file and sets minimum log levels for file and screen output.
@@ -160,6 +167,7 @@ class BCLog
        * Converts a log level to a string */
       static const char * ToString(BCLog::LogLevel);
 
+      /** @} */
    private:
 
       /**
