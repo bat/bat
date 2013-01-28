@@ -128,44 +128,44 @@ void BCH1D::SetDefaultCLLimit(double limit)
 // ---------------------------------------------------------
 void BCH1D::SetColorScheme(int scheme)
 {
-  fColors.clear();
-	
-  // color numbering
-  // 0,1,2 : intervals
-  // 3 : quantile lines
-	// 4 : mean, mode, median
+   fColors.clear();
 
-  if (scheme == 0) {
-    fColors.push_back(18);
-    fColors.push_back(16);
-    fColors.push_back(14);
-    fColors.push_back(kBlack);
-    fColors.push_back(kBlack);
-  }
-  else if (scheme == 1) {
-    fColors.push_back(kGreen);
-    fColors.push_back(kYellow);
-    fColors.push_back(kRed);
-    fColors.push_back(kBlack);
-    fColors.push_back(kBlack);
-  }
-  else if (scheme == 2) {
-    fColors.push_back(kBlue+4);
-    fColors.push_back(kBlue+2);
-    fColors.push_back(kBlue);
-    fColors.push_back(kOrange);
-    fColors.push_back(kOrange);
-  }
-  else if (scheme == 3) {
-    fColors.push_back(kRed+4);
-    fColors.push_back(kRed+2);
-    fColors.push_back(kRed);
-    fColors.push_back(kGreen);
-    fColors.push_back(kGreen);
-  }
-  else {
-    SetColorScheme(1);
-  }
+   // color numbering
+   // 0,1,2 : intervals
+   // 3 : quantile lines
+   // 4 : mean, mode, median
+
+   if (scheme == 0) {
+      fColors.push_back(18);
+      fColors.push_back(16);
+      fColors.push_back(14);
+      fColors.push_back(kBlack);
+      fColors.push_back(kBlack);
+   }
+   else if (scheme == 1) {
+      fColors.push_back(kGreen);
+      fColors.push_back(kYellow);
+      fColors.push_back(kRed);
+      fColors.push_back(kBlack);
+      fColors.push_back(kBlack);
+   }
+   else if (scheme == 2) {
+      fColors.push_back(kBlue+4);
+      fColors.push_back(kBlue+2);
+      fColors.push_back(kBlue);
+      fColors.push_back(kOrange);
+      fColors.push_back(kOrange);
+   }
+   else if (scheme == 3) {
+      fColors.push_back(kRed+4);
+      fColors.push_back(kRed+2);
+      fColors.push_back(kRed);
+      fColors.push_back(kGreen);
+      fColors.push_back(kGreen);
+   }
+   else {
+      SetColorScheme(1);
+   }
 }
 
 // ---------------------------------------------------------
@@ -200,82 +200,82 @@ void BCH1D::PrintOld(const char * filename, int options, double ovalue, int ww, 
 
 void BCH1D::Print(const char* filename, std::string options, std::vector<double> intervals, int ww, int wh)
 {
-  char file[256];
-  int i=0;
-  while(i<255 && *filename!='\0')
-    file[i++]=*filename++;
-  file[i]='\0';
+   char file[256];
+   int i=0;
+   while(i<255 && *filename!='\0')
+      file[i++]=*filename++;
+   file[i]='\0';
 
-  // option flags
-  bool flag_logx = false;
-  bool flag_logy = false;
-  bool flag_rescale = false;
+   // option flags
+   bool flag_logx = false;
+   bool flag_logy = false;
+   bool flag_rescale = false;
 
-  // check content of options string
-  if (options.find("logx") < options.size()) {
-    flag_logx = true;
-  }
+   // check content of options string
+   if (options.find("logx") < options.size()) {
+      flag_logx = true;
+   }
 
-  if (options.find("logy") < options.size()) {
-    flag_logy = true;
-  }
+   if (options.find("logy") < options.size()) {
+      flag_logy = true;
+   }
 
-  if (options.find("R") < options.size()) {
-    flag_rescale = true;
-  }
+   if (options.find("R") < options.size()) {
+      flag_rescale = true;
+   }
 
-  // create temporary canvas
-  TCanvas * c;
-	unsigned int cindex = getNextIndex();
-	if(ww > 0 && wh > 0)
-		c = new TCanvas(TString::Format("c_bch1d_%d",cindex), TString::Format("c_bch1d_%d",cindex), ww, wh);
-	else
-		c = new TCanvas(TString::Format("c_bch1d_%d",cindex));
-	
-  // add c to list of objects
-  fROOTObjects.push_back(c);
+   // create temporary canvas
+   TCanvas * c;
+   unsigned int cindex = getNextIndex();
+   if(ww > 0 && wh > 0)
+      c = new TCanvas(TString::Format("c_bch1d_%d",cindex), TString::Format("c_bch1d_%d",cindex), ww, wh);
+   else
+      c = new TCanvas(TString::Format("c_bch1d_%d",cindex));
 
-  c->cd();
+   // add c to list of objects
+   fROOTObjects.push_back(c);
 
-  // set log axis 
-  if (flag_logx) {
-    c->SetLogx();
-  }
+   c->cd();
 
-  // set log axis
-  if (flag_logy) {
-    c->SetLogy();
-  }
+   // set log axis
+   if (flag_logx) {
+      c->SetLogx();
+   }
 
-  Draw(options, intervals);
+   // set log axis
+   if (flag_logy) {
+      c->SetLogy();
+   }
 
-	if (flag_rescale) {
-		double top = gPad->GetTopMargin();
-		double bottom = gPad->GetBottomMargin();
-		double left = gPad->GetLeftMargin();
-		double right = gPad->GetRightMargin();
-	
-		double dx = 1.-right - left;
-		double dy = 1.-top-bottom;
-		double ratio = dy/dx;
-		double ynew = c->GetWindowWidth()/ratio;
-		c->SetCanvasSize(c->GetWindowWidth(), ynew);
-		gPad->RedrawAxis();
-		
-		c->Modified();
-		c->Update();
-	}
+   Draw(options, intervals);
 
-  // print to file.
-  c->Print(file);
+   if (flag_rescale) {
+      double top = gPad->GetTopMargin();
+      double bottom = gPad->GetBottomMargin();
+      double left = gPad->GetLeftMargin();
+      double right = gPad->GetRightMargin();
+
+      double dx = 1.-right - left;
+      double dy = 1.-top-bottom;
+      double ratio = dy/dx;
+      double ynew = c->GetWindowWidth()/ratio;
+      c->SetCanvasSize(c->GetWindowWidth(), ynew);
+      gPad->RedrawAxis();
+
+      c->Modified();
+      c->Update();
+   }
+
+   // print to file.
+   c->Print(file);
 }
 
 // ---------------------------------------------------------
 void BCH1D::Print(const char* filename, std::string options, double interval, int ww, int wh)
 {
-  std::vector<double> tempvec;
-  tempvec.push_back(interval);
-  Print(filename, options, tempvec, ww, wh);
+   std::vector<double> tempvec;
+   tempvec.push_back(interval);
+   Print(filename, options, tempvec, ww, wh);
 }
 
 // ---------------------------------------------------------
@@ -434,534 +434,513 @@ void BCH1D::DrawOld(int options, double ovalue)
 // ---------------------------------------------------------
 void BCH1D::Draw(std::string options, std::vector<double> intervals)
 {
-  // todoKK:
-  // plot cumulative pdf
-  // plot probability density/probability
+   // todoKK:
+   // plot cumulative pdf
+   // plot probability density/probability
 
-  // option flags
-  bool flag_pdf0 = true;
-  bool flag_pdf1 = false;
-  bool flag_legend = false;
-  bool flag_logx;
-  bool flag_logy;
-  bool flag_mode = false;
-  bool flag_median = false;
-  bool flag_mean = false;
-  bool flag_quartiles = false;
-  bool flag_deciles = false;
-  bool flag_percentiles = false;
-  bool flag_smooth1 = false;
-  bool flag_smooth3 = false;
-  bool flag_smooth5 = false;
-  bool flag_smooth10 = false;
+   // option flags
+   bool flag_pdf0 = true;
+   bool flag_pdf1 = false;
+   bool flag_legend = false;
+   bool flag_logx;
+   bool flag_logy;
+   bool flag_mode = false;
+   bool flag_median = false;
+   bool flag_mean = false;
+   bool flag_quartiles = false;
+   bool flag_deciles = false;
+   bool flag_percentiles = false;
+   bool flag_smooth1 = false;
+   bool flag_smooth3 = false;
+   bool flag_smooth5 = false;
+   bool flag_smooth10 = false;
 
-  // band type
-  int bandtype = 0;
+   // band type
+   int bandtype = 0;
 
-  // number of bands
-  int nbands = 0; // number of shaded bands
+   // number of bands
+   int nbands = 0; // number of shaded bands
 
-  // define draw options called in TH1D::Draw(...)
-  std::string draw_options = ""; 
+   // define draw options called in TH1D::Draw(...)
+   std::string draw_options = "";
 
-  // check content of options string
-  if (options.find("smooth1") < options.size()) {
-    flag_smooth1 = true;
-  }
+   // check content of options string
+   if (options.find("smooth1") < options.size()) {
+      flag_smooth1 = true;
+   }
 
-  if (options.find("smooth3") < options.size()) {
-    flag_smooth3 = true;
-  }
+   if (options.find("smooth3") < options.size()) {
+      flag_smooth3 = true;
+   }
 
-  if (options.find("smooth5") < options.size()) {
-    flag_smooth5 = true;
-  }
+   if (options.find("smooth5") < options.size()) {
+      flag_smooth5 = true;
+   }
 
-  if (options.find("smooth10") < options.size()) {
-    flag_smooth10 = true;
-  }
+   if (options.find("smooth10") < options.size()) {
+      flag_smooth10 = true;
+   }
 
-  if (options.find("logx") < options.size()) {
-    flag_logx = true;
-  }
+   if (options.find("logx") < options.size()) {
+      flag_logx = true;
+   }
 
-  if (options.find("logy") < options.size()) {
-    flag_logy = true;
-  }
+   if (options.find("logy") < options.size()) {
+      flag_logy = true;
+   }
 
-  if (options.find("L") < options.size()) {
-    flag_legend = true;
-  }
+   if (options.find("L") < options.size()) {
+      flag_legend = true;
+   }
 
-  if (options.find("D1") < options.size()) {
-    draw_options.append("C");
-  }
+   if (options.find("D1") < options.size()) {
+      draw_options.append("C");
+   }
 
-  if (options.find("BTsi") < options.size()) {
-    bandtype = 1;
-  }
-  else if (options.find("BTul") < options.size()) {
-    bandtype = 2;
-  }
-  else if (options.find("BTll") < options.size()) {
-    bandtype = 3;
-  }
-  else {
-    bandtype = 0;
-  }
+   if (options.find("BTsi") < options.size()) {
+      bandtype = 1;
+   }
+   else if (options.find("BTul") < options.size()) {
+      bandtype = 2;
+   }
+   else if (options.find("BTll") < options.size()) {
+      bandtype = 3;
+   }
+   else {
+      bandtype = 0;
+   }
 
-  if (options.find("B1") < options.size()) {
-    nbands = 1;
-    if (bandtype == 0 && intervals.size() != 2) {
-      intervals.clear();
-      intervals.push_back(0.1587);
-      intervals.push_back(0.8413);
-    }
-    else if (bandtype == 1 && intervals.size() != 1) {
-      intervals.clear();
-      intervals.push_back(0.6827);
-    }
-    else if (bandtype == 2 && intervals.size() != 1) {
-      intervals.clear();
-      intervals.push_back(0.90);
-    }
-    else if (bandtype == 3 && intervals.size() != 1) {
-      intervals.clear();
-      intervals.push_back(0.10);
-    }
-  }
+   if (options.find("B1") < options.size()) {
+      nbands = 1;
+      if (bandtype == 0 && intervals.size() != 2) {
+         intervals.clear();
+         intervals.push_back(0.1587);
+         intervals.push_back(0.8413);
+      }
+      else if (bandtype == 1 && intervals.size() != 1) {
+         intervals.clear();
+         intervals.push_back(0.6827);
+      }
+      else if (bandtype == 2 && intervals.size() != 1) {
+         intervals.clear();
+         intervals.push_back(0.90);
+      }
+      else if (bandtype == 3 && intervals.size() != 1) {
+         intervals.clear();
+         intervals.push_back(0.10);
+      }
+   }
 
-  if (options.find("B2") < options.size()) {
-    nbands = 2;
-    if (bandtype == 0 && intervals.size() != 4) {
-      intervals.clear();
-      intervals.push_back(0.1587);
-      intervals.push_back(0.8413);
-      intervals.push_back(0.0228);
-      intervals.push_back(0.9772);
-    }
-    else if (bandtype == 1 && intervals.size() != 2) {
-      intervals.clear();
-      intervals.push_back(0.6827);
-      intervals.push_back(0.9545);
-    }
-    else if (bandtype == 2 && intervals.size() != 2) {
-      intervals.clear();
-      intervals.push_back(0.90);
-      intervals.push_back(0.95);
-    }
-    else if (bandtype == 3 && intervals.size() != 2) {
-      intervals.clear();
-      intervals.push_back(0.10);
-      intervals.push_back(0.05);
-    }
-  }
-	
-  if (options.find("B3") < options.size()) {
-    nbands = 3;
-    if (bandtype == 0 && intervals.size() != 6) {
-      intervals.clear();
-      intervals.push_back(0.1587);
-      intervals.push_back(0.8413);
-      intervals.push_back(0.0228);
-      intervals.push_back(0.9772);
-      intervals.push_back(0.0013);
-      intervals.push_back(0.9987);
-    }
-    else if (bandtype == 1 && intervals.size() != 3) {
-      intervals.clear();
-      intervals.push_back(0.6827);
-      intervals.push_back(0.9545);
-      intervals.push_back(0.9973);
-    }
-    else if (bandtype == 2 && intervals.size() != 3) {
-      intervals.clear();
-      intervals.push_back(0.90);
-      intervals.push_back(0.95);
-      intervals.push_back(0.99);
-    }
-    else if (bandtype == 3 && intervals.size() != 3) {
-      intervals.clear();
-      intervals.push_back(0.10);
-      intervals.push_back(0.05);
-      intervals.push_back(0.01);
-    }
-  }
+   if (options.find("B2") < options.size()) {
+      nbands = 2;
+      if (bandtype == 0 && intervals.size() != 4) {
+         intervals.clear();
+         intervals.push_back(0.1587);
+         intervals.push_back(0.8413);
+         intervals.push_back(0.0228);
+         intervals.push_back(0.9772);
+      }
+      else if (bandtype == 1 && intervals.size() != 2) {
+         intervals.clear();
+         intervals.push_back(0.6827);
+         intervals.push_back(0.9545);
+      }
+      else if (bandtype == 2 && intervals.size() != 2) {
+         intervals.clear();
+         intervals.push_back(0.90);
+         intervals.push_back(0.95);
+      }
+      else if (bandtype == 3 && intervals.size() != 2) {
+         intervals.clear();
+         intervals.push_back(0.10);
+         intervals.push_back(0.05);
+      }
+   }
 
-  if (options.find("CS0") < options.size()) {
-    SetColorScheme(0);
-  }
-  else if (options.find("CS1") < options.size()) {
-    SetColorScheme(1);
-  }
-  else if (options.find("CS2") < options.size()) {
-    SetColorScheme(2);
-  }
-  else if (options.find("CS3") < options.size()) {
-    SetColorScheme(3);
-  }
-  else  {
-    SetColorScheme(1);
-  }
-	
-  if (options.find("pdf0") < options.size()) {
-    flag_pdf0 = true;
-    flag_pdf1 = false;
-  }
+   if (options.find("B3") < options.size()) {
+      nbands = 3;
+      if (bandtype == 0 && intervals.size() != 6) {
+         intervals.clear();
+         intervals.push_back(0.1587);
+         intervals.push_back(0.8413);
+         intervals.push_back(0.0228);
+         intervals.push_back(0.9772);
+         intervals.push_back(0.0013);
+         intervals.push_back(0.9987);
+      }
+      else if (bandtype == 1 && intervals.size() != 3) {
+         intervals.clear();
+         intervals.push_back(0.6827);
+         intervals.push_back(0.9545);
+         intervals.push_back(0.9973);
+      }
+      else if (bandtype == 2 && intervals.size() != 3) {
+         intervals.clear();
+         intervals.push_back(0.90);
+         intervals.push_back(0.95);
+         intervals.push_back(0.99);
+      }
+      else if (bandtype == 3 && intervals.size() != 3) {
+         intervals.clear();
+         intervals.push_back(0.10);
+         intervals.push_back(0.05);
+         intervals.push_back(0.01);
+      }
+   }
 
-  if (options.find("pdf1") < options.size()) {
-    flag_pdf0 = false;
-    flag_pdf1 = true;
-  }
+   if (options.find("CS0") < options.size()) {
+      SetColorScheme(0);
+   }
+   else if (options.find("CS1") < options.size()) {
+      SetColorScheme(1);
+   }
+   else if (options.find("CS2") < options.size()) {
+      SetColorScheme(2);
+   }
+   else if (options.find("CS3") < options.size()) {
+      SetColorScheme(3);
+   }
+   else  {
+      SetColorScheme(1);
+   }
 
-  if (options.find("mode") < options.size()) {
-    if (fModeFlag)
-      flag_mode = true;
-  }
-  if (options.find("median") < options.size()) {
-    flag_median = true;
-  }
-  if (options.find("mean") < options.size()) {
-    flag_mean = true;
-  }
-  if (options.find("quartiles") < options.size()) {
-    flag_quartiles = true;
-  }
-  if (options.find("deciles") < options.size()) {
-    flag_deciles = true;
-  }
-  if (options.find("percentiles") < options.size()) {
-    flag_percentiles = true;
-  }
+   if (options.find("pdf0") < options.size()) {
+      flag_pdf0 = true;
+      flag_pdf1 = false;
+   }
 
-  // normalize histogram to unity
-  fHistogram->Scale(1./fHistogram->Integral("width"));
-	
-  // prepare legend
-  TLegend* legend = new TLegend();
-  legend->SetBorderSize(0);
-  legend->SetFillColor(kWhite);
-  legend->SetTextAlign(12);
-  legend->SetTextFont(62);
-  legend->SetTextSize(0.03);
+   if (options.find("pdf1") < options.size()) {
+      flag_pdf0 = false;
+      flag_pdf1 = true;
+   }
 
-  // add legend to list of objects
-  fROOTObjects.push_back(legend);
+   if (options.find("mode") < options.size()) {
+      if (fModeFlag)
+         flag_mode = true;
+   }
+   if (options.find("median") < options.size()) {
+      flag_median = true;
+   }
+   if (options.find("mean") < options.size()) {
+      flag_mean = true;
+   }
+   if (options.find("quartiles") < options.size()) {
+      flag_quartiles = true;
+   }
+   if (options.find("deciles") < options.size()) {
+      flag_deciles = true;
+   }
+   if (options.find("percentiles") < options.size()) {
+      flag_percentiles = true;
+   }
 
-  // smooth
-  if (flag_smooth1) {
-    fHistogram->Smooth(1);
-    fHistogram->Scale(1.0/fHistogram->Integral("width"));
-  }
-  if (flag_smooth3) {
-    fHistogram->Smooth(3);
-    fHistogram->Scale(1.0/fHistogram->Integral("width"));
-  }
+   // normalize histogram to unity
+   fHistogram->Scale(1./fHistogram->Integral("width"));
 
-  if (flag_smooth5) {
-    fHistogram->Smooth(5);
-    fHistogram->Scale(1.0/fHistogram->Integral("width"));
-  }
-  if (flag_smooth10) {
-    fHistogram->Smooth(10);
-    fHistogram->Scale(1.0/fHistogram->Integral("width"));
-  }
+   // prepare legend
+   TLegend* legend = new TLegend();
+   legend->SetBorderSize(0);
+   legend->SetFillColor(kWhite);
+   legend->SetTextAlign(12);
+   legend->SetTextFont(62);
+   legend->SetTextSize(0.03);
 
-  // draw histogram
-  if (flag_pdf0)
-    fHistogram->Draw(draw_options.c_str());
+   // add legend to list of objects
+   fROOTObjects.push_back(legend);
 
-  // draw bands
-  for (int i = 0; i < nbands; ++i) {
-    int col = GetColor(nbands-i-1);
+   // smooth
+   if (flag_smooth1) {
+      fHistogram->Smooth(1);
+      fHistogram->Scale(1.0/fHistogram->Integral("width"));
+   }
+   if (flag_smooth3) {
+      fHistogram->Smooth(3);
+      fHistogram->Scale(1.0/fHistogram->Integral("width"));
+   }
 
-    double prob_low  = 0;
-    double prob_high = 0;
-    double prob_interval = 0;
-    double xlow  = 0;
-    double xhigh = 0;
+   if (flag_smooth5) {
+      fHistogram->Smooth(5);
+      fHistogram->Scale(1.0/fHistogram->Integral("width"));
+   }
+   if (flag_smooth10) {
+      fHistogram->Smooth(10);
+      fHistogram->Scale(1.0/fHistogram->Integral("width"));
+   }
 
-    TH1D * hist_band = 0;
+   // draw histogram
+   if (flag_pdf0)
+      fHistogram->Draw(draw_options.c_str());
 
-    if (bandtype == 0) {
-      prob_low  = intervals[2*(nbands-i)-2];
-      prob_high = intervals[2*(nbands-i)-1];
-      xlow  = GetQuantile(prob_low);
-      xhigh = GetQuantile(prob_high);
-      prob_interval = prob_high - prob_low;
+   // draw bands
+   for (int i = 0; i < nbands; ++i) {
+      int col = GetColor(nbands-i-1);
 
-      hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
-    }
-    else if (bandtype == 1) {
-      prob_interval = GetSmallestInterval(xlow, xhigh, intervals[nbands-1-i]);
-      hist_band = GetSmallestIntervalHistogram(intervals[nbands-1-i]);
-      for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
-	hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
-    }
-    else if(bandtype == 2) {
-      xlow = 0.;
-      xhigh = GetQuantile(intervals[nbands-1-i]);
-      hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
-      prob_interval = intervals[nbands-1-i];
-    }
-    else if(bandtype == 3) {
-      xlow = GetQuantile(intervals[nbands-1-i]);
-      xhigh = GetQuantile(1.);
-      hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
-      prob_interval = 1.-intervals[nbands-1-i];
-    }
+      double prob_low  = 0;
+      double prob_high = 0;
+      double prob_interval = 0;
+      double xlow  = 0;
+      double xhigh = 0;
 
-    // set style of band histogram
-    hist_band->SetFillStyle(1001);
-    hist_band->SetFillColor(col);
-    hist_band->SetLineColor(col);
+      TH1D * hist_band = 0;
 
-    // draw shaded histogram
-    hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
+      if (bandtype == 0) {
+         prob_low  = intervals[2*(nbands-i)-2];
+         prob_high = intervals[2*(nbands-i)-1];
+         xlow  = GetQuantile(prob_low);
+         xhigh = GetQuantile(prob_high);
+         prob_interval = prob_high - prob_low;
 
-    // draw histogram again
-    if (flag_pdf0)
-      fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
+         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+      }
+      else if (bandtype == 1) {
+         prob_interval = GetSmallestInterval(xlow, xhigh, intervals[nbands-1-i]);
+         hist_band = GetSmallestIntervalHistogram(intervals[nbands-1-i]);
+         for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
+            hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
+      }
+      else if(bandtype == 2) {
+         xlow = 0.;
+         xhigh = GetQuantile(intervals[nbands-1-i]);
+         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+         prob_interval = intervals[nbands-1-i];
+      }
+      else if(bandtype == 3) {
+         xlow = GetQuantile(intervals[nbands-1-i]);
+         xhigh = GetQuantile(1.);
+         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+         prob_interval = 1.-intervals[nbands-1-i];
+      }
 
-    // add to legend
-    std::string legend_label;
-    if (bandtype == 0)
-      legend_label.append(Form("central %.1f%% interval ", prob_interval*100));
-    else if (bandtype == 1)
-      legend_label.append(Form("smallest %.1f%% interval(s)", prob_interval*100));
-    else if (bandtype == 2)
-      legend_label.append(Form("%.0f%% upper limit", prob_interval*100));
-    else if (bandtype == 3)
-      legend_label.append(Form("%.0f%% lower limit", prob_interval*100));
-    
-    legend->AddEntry(hist_band, legend_label.c_str(), "F");
+      // set style of band histogram
+      hist_band->SetFillStyle(1001);
+      hist_band->SetFillColor(col);
+      hist_band->SetLineColor(col);
 
-    // add hist_band to list of objects
-    fROOTObjects.push_back(hist_band);
-  }
+      // draw shaded histogram
+      hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
 
-  gPad->RedrawAxis();
+      // draw histogram again
+      if (flag_pdf0)
+         fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
 
-  // prepare size of histogram
-  //	double xmin     = fHistogram->GetXaxis()->GetXmin();
-  //	double xmax     = fHistogram->GetXaxis()->GetXmax();
-  double ymin     = 0;
-  double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
-  double ymax     = ymaxhist;
-  //  double xfraction = 1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin();
-  //  double yfraction = 1.-gStyle->GetPadBottomMargin()-gStyle->GetPadTopMargin(); 
+      // add to legend
+      std::string legend_label;
+      if (bandtype == 0)
+         legend_label.append(Form("central %.1f%% interval ", prob_interval*100));
+      else if (bandtype == 1)
+         legend_label.append(Form("smallest %.1f%% interval(s)", prob_interval*100));
+      else if (bandtype == 2)
+         legend_label.append(Form("%.0f%% upper limit", prob_interval*100));
+      else if (bandtype == 3)
+         legend_label.append(Form("%.0f%% lower limit", prob_interval*100));
 
-  // check if log axis
-  if (flag_logy)
-    ymin = 1e-4*ymaxhist;
+      legend->AddEntry(hist_band, legend_label.c_str(), "F");
 
-  // quantiles
-  TLine* line_quantiles = new TLine();
-  line_quantiles->SetLineStyle(2);
-  line_quantiles->SetLineColor(GetColor(3));
+      // add hist_band to list of objects
+      fROOTObjects.push_back(hist_band);
+   }
 
-  if (flag_quartiles) {
-    for (int i = 1; i < 4; ++i) {
-      double quantile_x = GetQuantile(0.25*i);
-      int quantile_xbin = fHistogram->FindBin(quantile_x);
-      double quantile_y = fHistogram->GetBinContent(quantile_xbin);
-      double quantile_ymin = 0;
-      if (flag_logy)
-	quantile_ymin = 1e-4*ymaxhist;
-      line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
-    }
-    TLegendEntry* le = legend->AddEntry(line_quantiles, "quartiles", "L");
-    if (nbands>0) 
+   gPad->RedrawAxis();
+
+   // prepare size of histogram
+   double ymin     = 0;
+   double ymaxhist = fHistogram->GetBinContent(fHistogram->GetMaximumBin());
+   double ymax     = ymaxhist;
+
+   // check if log axis
+   if (flag_logy)
+      ymin = 1e-4*ymaxhist;
+
+   // quantiles
+   TLine* line_quantiles = new TLine();
+   line_quantiles->SetLineStyle(2);
+   line_quantiles->SetLineColor(GetColor(3));
+
+   if (flag_quartiles) {
+      for (int i = 1; i < 4; ++i) {
+         double quantile_x = GetQuantile(0.25*i);
+         int quantile_xbin = fHistogram->FindBin(quantile_x);
+         double quantile_y = fHistogram->GetBinContent(quantile_xbin);
+         double quantile_ymin = 0;
+         if (flag_logy)
+            quantile_ymin = 1e-4*ymaxhist;
+         line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
+      }
+      TLegendEntry* le = legend->AddEntry(line_quantiles, "quartiles", "L");
+      if (nbands>0)
+         le->SetFillColor(GetColor(0));
+      else
+         le->SetFillColor(kWhite);
+      le->SetFillStyle(1001);
+   }
+
+   if (flag_deciles) {
+      for (int i = 1; i < 10; ++i) {
+         double quantile_x = GetQuantile(0.10*i);
+         int quantile_xbin = fHistogram->FindBin(quantile_x);
+         double quantile_y = fHistogram->GetBinContent(quantile_xbin);
+         double quantile_ymin = 0;
+         if (flag_logy)
+            quantile_ymin = 1e-4*ymaxhist;
+         line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
+      }
+      TLegendEntry* le = legend->AddEntry(line_quantiles, "deciles", "FL");
       le->SetFillColor(GetColor(0));
-    else
-      le->SetFillColor(kWhite);
-    le->SetFillStyle(1001);
-  }
+      le->SetFillStyle(1001);
+   }
 
-  if (flag_deciles) {
-    for (int i = 1; i < 10; ++i) {
-      double quantile_x = GetQuantile(0.10*i);
-      int quantile_xbin = fHistogram->FindBin(quantile_x);
-      double quantile_y = fHistogram->GetBinContent(quantile_xbin);
-      double quantile_ymin = 0;
-      if (flag_logy)
-	quantile_ymin = 1e-4*ymaxhist;
-      line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
-    }
-    TLegendEntry* le = legend->AddEntry(line_quantiles, "deciles", "FL");
-    le->SetFillColor(GetColor(0));
-    le->SetFillStyle(1001);
-  }
-  
-  if (flag_percentiles) {
-    for (int i = 1; i < 100; ++i) {
-      double quantile_x = GetQuantile(0.01*i);
-      int quantile_xbin = fHistogram->FindBin(quantile_x);
-      double quantile_y = fHistogram->GetBinContent(quantile_xbin);
-      double quantile_ymin = 0;
-      if (flag_logy)
-	quantile_ymin = 1e-4*ymaxhist;
-      line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
-    }
-    TLegendEntry* le = legend->AddEntry(line_quantiles, "percentiles", "L");		
-    le->SetFillColor(GetColor(0));
-    le->SetFillStyle(1001);
-  }
+   if (flag_percentiles) {
+      for (int i = 1; i < 100; ++i) {
+         double quantile_x = GetQuantile(0.01*i);
+         int quantile_xbin = fHistogram->FindBin(quantile_x);
+         double quantile_y = fHistogram->GetBinContent(quantile_xbin);
+         double quantile_ymin = 0;
+         if (flag_logy)
+            quantile_ymin = 1e-4*ymaxhist;
+         line_quantiles->DrawLine(quantile_x, quantile_ymin, quantile_x, quantile_y);
+      }
+      TLegendEntry* le = legend->AddEntry(line_quantiles, "percentiles", "L");
+      le->SetFillColor(GetColor(0));
+      le->SetFillStyle(1001);
+   }
 
-  // add line_quantiles to list of ROOT objects
-  fROOTObjects.push_back(line_quantiles);
+   // add line_quantiles to list of ROOT objects
+   fROOTObjects.push_back(line_quantiles);
 
-  // mean, mode, median
-  TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
-  marker_mode->SetMarkerColor(GetColor(4));
-  marker_mode->SetMarkerSize(1.5);
+   // mean, mode, median
+   TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
+   marker_mode->SetMarkerColor(GetColor(4));
+   marker_mode->SetMarkerSize(1.5);
 
-  TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
-  marker_mean->SetMarkerColor(GetColor(4));
-  marker_mean->SetMarkerSize(1.5);
+   TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
+   marker_mean->SetMarkerColor(GetColor(4));
+   marker_mean->SetMarkerSize(1.5);
 
-  TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
-  marker_median->SetMarkerColor(GetColor(4));
-  marker_median->SetMarkerSize(1.5);
+   TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
+   marker_median->SetMarkerColor(GetColor(4));
+   marker_median->SetMarkerSize(1.5);
 
-  // mode
-  TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
-				  fMode, ymin,
-				  0.02, "|>");
-  arrow_mode->SetLineColor(GetColor(4));
-  arrow_mode->SetFillColor(GetColor(4));
+   // mode
+   TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
+         fMode, ymin,
+         0.02, "|>");
+   arrow_mode->SetLineColor(GetColor(4));
+   arrow_mode->SetFillColor(GetColor(4));
 
-  // standard deviation
-  TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
-				 GetMean()+GetRMS(), 0.55*ymaxhist,
-				 0.02, "<|>");
-  arrow_std->SetLineColor(GetColor(4));
-  arrow_std->SetFillColor(GetColor(4));
+   // standard deviation
+   TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
+         GetMean()+GetRMS(), 0.55*ymaxhist,
+         0.02, "<|>");
+   arrow_std->SetLineColor(GetColor(4));
+   arrow_std->SetFillColor(GetColor(4));
 
-  // central interval
-  TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
-				GetQuantile(0.8413), 0.45*ymaxhist,
-				0.02, "<|>");
-  arrow_ci->SetLineColor(GetColor(4));
-  arrow_ci->SetFillColor(GetColor(4));
+   // central interval
+   TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
+         GetQuantile(0.8413), 0.45*ymaxhist,
+         0.02, "<|>");
+   arrow_ci->SetLineColor(GetColor(4));
+   arrow_ci->SetFillColor(GetColor(4));
 
-  // add marker_mean and arrow_std to list of ROOT objects
-  fROOTObjects.push_back(marker_mean);
-  fROOTObjects.push_back(marker_median);
-  fROOTObjects.push_back(arrow_std);
-  fROOTObjects.push_back(arrow_ci);
+   // add marker_mean and arrow_std to list of ROOT objects
+   fROOTObjects.push_back(marker_mean);
+   fROOTObjects.push_back(marker_median);
+   fROOTObjects.push_back(arrow_std);
+   fROOTObjects.push_back(arrow_ci);
 
-  if (flag_mode) {
-    arrow_mode->Draw();
-    marker_mode->Draw();
-    TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
-    le->SetMarkerStyle(24);
-    le->SetMarkerSize(1.5);
-    le->SetMarkerColor(GetColor(4));
-  }
+   if (flag_mode) {
+      arrow_mode->Draw();
+      marker_mode->Draw();
+      TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
+      le->SetMarkerStyle(24);
+      le->SetMarkerSize(1.5);
+      le->SetMarkerColor(GetColor(4));
+   }
 
-  if (flag_mean) {
-    arrow_std->Draw();
-    marker_mean->Draw();
-    TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
-    le->SetLineColor(GetColor(4));
-    le->SetMarkerStyle(20);
-    le->SetMarkerSize(1.5);
-    le->SetMarkerColor(GetColor(4));
-  }
-	
-  if (flag_median) {
-    arrow_ci->Draw();
-    marker_median->Draw();
-    TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
-    le->SetLineColor(GetColor(4));
-    le->SetMarkerStyle(21);
-    le->SetMarkerSize(1.5);
-    le->SetMarkerColor(GetColor(4));
-  }
-	
-  // calculate legend height in NDC coordinates
-  double height = 0.03*legend->GetNRows();
+   if (flag_mean) {
+      arrow_std->Draw();
+      marker_mean->Draw();
+      TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
+      le->SetLineColor(GetColor(4));
+      le->SetMarkerStyle(20);
+      le->SetMarkerSize(1.5);
+      le->SetMarkerColor(GetColor(4));
+   }
 
-  // make room for legend
-  if (flag_legend)
-    ymax*=(1.15+height);
-  else 
-    ymax*=1.1;
+   if (flag_median) {
+      arrow_ci->Draw();
+      marker_median->Draw();
+      TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
+      le->SetLineColor(GetColor(4));
+      le->SetMarkerStyle(21);
+      le->SetMarkerSize(1.5);
+      le->SetMarkerColor(GetColor(4));
+   }
 
-  fHistogram->GetYaxis()->SetRangeUser(ymin, 1.05*ymaxhist);
+   // calculate legend height in NDC coordinates
+   double height = 0.03*legend->GetNRows();
 
-  // calculate dimensions in NDC variables
-  /*
-    double xlegend1 = gStyle->GetPadLeftMargin()+0.05*xfraction;
-    double xlegend2 = gStyle->GetPadLeftMargin()+0.95*xfraction;
-    double ylegend1 = gStyle->GetPadBottomMargin() + 1.10*ymaxhist/ymax*yfraction;
-    double ylegend2 = gStyle->GetPadBottomMargin() + (ymax-0.05*ymaxhist)/ymax*yfraction;
-  */
+   // make room for legend
+   if (flag_legend)
+      ymax*=(1.15+height);
+   else
+      ymax*=1.1;
 
-  if (flag_legend)
-    gPad->SetTopMargin(0.02);
+   fHistogram->GetYaxis()->SetRangeUser(ymin, 1.05*ymaxhist);
 
-  double xlegend1 = gPad->GetLeftMargin();
-  double xlegend2 = 1.0-gPad->GetRightMargin();
-  double ylegend1 = 1.-gPad->GetTopMargin()-height;
-  double ylegend2 = 1.-gPad->GetTopMargin();
+   // calculate dimensions in NDC variables
 
-  // place legend on top of histogram
-  legend->SetX1NDC(xlegend1);
-  legend->SetX2NDC(xlegend2);
-  legend->SetY1NDC(ylegend1);
-  legend->SetY2NDC(ylegend2);
+   if (flag_legend)
+      gPad->SetTopMargin(0.02);
 
-  // draw legend
-  if (flag_legend) {
-    legend->Draw();
-  }
+   double xlegend1 = gPad->GetLeftMargin();
+   double xlegend2 = 1.0-gPad->GetRightMargin();
+   double ylegend1 = 1.-gPad->GetTopMargin()-height;
+   double ylegend2 = 1.-gPad->GetTopMargin();
 
-  // draw line to separate legend
-  /*
-    if (flag_legend) {
-    TLine* line_boundary = new TLine();
-    line_boundary->SetLineColor(kBlack);
-    line_boundary->DrawLine(xmin, 1.05*ymaxhist,
-    xmax, 1.05*ymaxhist);
-    fROOTObjects.push_back(line_boundary);
-    }
-  */
+   // place legend on top of histogram
+   legend->SetX1NDC(xlegend1);
+   legend->SetX2NDC(xlegend2);
+   legend->SetY1NDC(ylegend1);
+   legend->SetY2NDC(ylegend2);
 
-  // rescale top margin
-  gPad->SetTopMargin(1.-ylegend1+0.01);
+   // draw legend
+   if (flag_legend) {
+      legend->Draw();
+   }
 
-  gPad->RedrawAxis();
+   // rescale top margin
+   gPad->SetTopMargin(1.-ylegend1+0.01);
 
-  return;
+   gPad->RedrawAxis();
+
+   return;
 }
 
 // ---------------------------------------------------------
 void BCH1D::Draw(std::string options, double interval)
 {
-  std::vector<double> tempvec;
-  tempvec.push_back(interval);
-  Draw(options, tempvec);  
+   std::vector<double> tempvec;
+   tempvec.push_back(interval);
+   Draw(options, tempvec);
 }
 
 // ---------------------------------------------------------
 void BCH1D::DrawDelta(double value) const
 {
-    // draw histogram with axes first
-    double xmin = fHistogram->GetXaxis()->GetXmin();
-    double xmax = fHistogram->GetXaxis()->GetXmax();
-    double ysize = 1.3 * fHistogram->GetMaximum();
+   // draw histogram with axes first
+   double xmin = fHistogram->GetXaxis()->GetXmin();
+   double xmax = fHistogram->GetXaxis()->GetXmax();
+   double ysize = 1.3 * fHistogram->GetMaximum();
 
-    TH2D*  hsc = new TH2D(
-          TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
-          50, xmin, xmax, 10, 0., ysize);
-    hsc->SetStats(0);
-    hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
-    hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
-    hsc->Draw();
+   TH2D*  hsc = new TH2D(
+         TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
+         50, xmin, xmax, 10, 0., ysize);
+   hsc->SetStats(0);
+   hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
+   hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
+   hsc->Draw();
 
-    // write mode location
+   // write mode location
 
    TLatex * tmax_text = new TLatex();
    tmax_text->SetTextSize(0.035);
@@ -1081,37 +1060,13 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
    TPolyLine * tmean;
 
    y1+=dy/5.;
-//   double tmean_x[] = {x1, x1 + dx, x1 - dx, x1};
-//   double tmean_y[] = {y1, y1 + dy, y1 + dy, y1};
    double tmean_x[] = {x1, x1 + dx, x1 , x1 - dx, x1};
    double tmean_y[] = {y1, y1 + dy/2., y1 + dy, y1 + dy/2., y1};
    tmean = new TPolyLine(5,tmean_x,tmean_y);
    tmean->SetLineColor(kBlue);
-//   tmean->SetFillColor(kWhite);
    tmean->SetLineWidth(1);
-//   tmean->SetLineStyle(1);
    tmean->Draw();
 
-/*
-   // draw arrow for median
-   TPolyLine * tmed;
-   TPolyLine * tmed2;
-
-//   y2+=dy/5.;
-   y2=0.+dy/5.;
-   double tmed_x[] = {x2 + dx, x2, x2 - dx};
-   double tmed_y[] = {y2 + dy, y2, y2 + dy};
-   double tmed2_x[] = {x2, x2};
-   double tmed2_y[] = {y2, y2 + dy*2.};
-   tmed = new TPolyLine(3,tmed_x,tmed_y);
-   tmed2 = new TPolyLine(2,tmed2_x,tmed2_y);
-   tmed->SetLineColor(kGreen+2);
-   tmed->SetLineWidth(1);
-   tmed2->SetLineColor(kGreen+2);
-   tmed2->SetLineWidth(1);
-   tmed->Draw();
-   tmed2->Draw();
-*/
    // draw dashed line for median
    TLine * line;
    line = new TLine();
@@ -1134,47 +1089,26 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
    tmax_text->SetTextSize(0.035);
    tmax_text->SetTextFont(62);
    tmax_text->SetTextAlign(22); // center
-//   tmax_text->SetTextAlign(13); // top-left
+   //   tmax_text->SetTextAlign(13); // top-left
 
    double xprint=(xmax+xmin)/2.;
-//   double xprint=xmin+(xmax-xmin)/20.;
+   //   double xprint=xmin+(xmax-xmin)/20.;
    double yprint=ysize*(1-1.4*tmax_text->GetTextSize());
 
    if(fabs(limit)<50) // just to ensure there's some sense in the number
       tmax_text->DrawLatex(xprint,yprint,
-         TString::Format( TString::Format("%%s^{med} = %%.%dg ^{+%%.2g}_{ -%%.2g}",sd),
-            fHistogram->GetXaxis()->GetTitle(), x2, max-x2, x2-min));
+            TString::Format( TString::Format("%%s^{med} = %%.%dg ^{+%%.2g}_{ -%%.2g}",sd),
+                  fHistogram->GetXaxis()->GetTitle(), x2, max-x2, x2-min));
 
    else if (limit<0)
       tmax_text->DrawLatex(xprint,yprint,
-         TString::Format( TString::Format("%%s (%d%%%% prob.) < %%.4g",-(int)limit),
-            fHistogram->GetXaxis()->GetTitle(), max));
+            TString::Format( TString::Format("%%s (%d%%%% prob.) < %%.4g",-(int)limit),
+                  fHistogram->GetXaxis()->GetTitle(), max));
 
    else if (limit>0)
       tmax_text->DrawLatex(xprint,yprint,
-         TString::Format( TString::Format("%%s (%d%%%% prob.) > %%.4g",(int)limit),
-            fHistogram->GetXaxis()->GetTitle(), min));
-
-/*
-   TLegend * leg = new TLegend(.61,.7,.9,.88);
-   leg->SetFillColor(kWhite);
-   leg->SetFillStyle(0);
-   leg->SetBorderSize(0);
-   leg->AddEntry(line,"Median", "l");
-   TH1D * hh0 = new TH1D("hh0","",10,0,10);
-   hh0->SetMarkerStyle(23);
-   hh0->SetMarkerColor(kBlue);
-   hh0->SetMarkerSize(1);
-   leg->AddEntry(hh0,"Mean","p");
-   TH1D * hh1 = new TH1D("hh1","",10,0,10);
-   hh1->SetMarkerStyle(23);
-   hh1->SetMarkerColor(kRed);
-   hh1->SetMarkerSize(1);
-   leg->AddEntry(hh1,"Mode","p");
-   leg->AddEntry(hist_shaded, "Central 68%", "f");
-   leg ->Draw();
-*/
-
+            TString::Format( TString::Format("%%s (%d%%%% prob.) > %%.4g",(int)limit),
+                  fHistogram->GetXaxis()->GetTitle(), min));
 }
 
 // ---------------------------------------------------------
@@ -1272,15 +1206,11 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
       TPolyLine * tmean;
 
       y1+=dy/5.;
-//      double tmean_x[] = {x1, x1 + dx, x1 - dx, x1};
-//      double tmean_y[] = {y1, y1 + dy, y1 + dy, y1};
       double tmean_x[] = {x1, x1 + dx, x1 , x1 - dx, x1};
       double tmean_y[] = {y1, y1 + dy/2., y1 + dy, y1 + dy/2., y1};
       tmean = new TPolyLine(5,tmean_x,tmean_y);
       tmean->SetLineColor(kBlue);
-//      tmean->SetFillColor(kWhite);
       tmean->SetLineWidth(1);
-//      tmean->SetLineStyle(1);
       tmean->Draw();
 
       // draw dashed line for median
@@ -1319,10 +1249,6 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
    double xup=xmax;
 
    int ndiv = 10;
-//   if(nbins<100)
-//      ndiv = 1000;
-//   if(nbins>1000)
-//      ndiv = 10;
 
    int warn=0;
 
@@ -1649,5 +1575,3 @@ std::vector<double> BCH1D::GetSmallestIntervals(double content)
 
    return v;
 }
-
-// ---------------------------------------------------------
