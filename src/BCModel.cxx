@@ -958,10 +958,7 @@ BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
 
    int index = parameter->GetIndex();
    if (fMCMCFlagsFillHistograms[index] == false) {
-// don't print any error message, should be done upstream
-//      BCLog::OutError(Form(
-//            "BCModel::GetMarginalized : Distribuion for '%s' not filled.",
-//            parameter->GetName().data()));
+       // don't print any error message, should be done upstream
       return 0;
    }
 
@@ -1202,12 +1199,6 @@ int BCModel::PrintAllMarginalizedOld(const char * file, unsigned int hdiv, unsig
 
    // debugKK
    ps->Range(20, 20);
-
-   // debugKK
-   //   if (type == 112)
-   //      ps->Range(24, 16);
-   //   else
-   //      ps->Range(16, 24);
 
    // draw all 1D distributions
    ps->NewPage();
@@ -1499,15 +1490,11 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
 
   if (fMCMCFlagsFillHistograms[index1] == false || fMCMCFlagsFillHistograms[index2] == false) {
     // don't print any error message, should be done upstream
-    //      BCLog::OutError(
-    //            Form("BCModel::GetMarginalized : Distribuion for '%s' and/or '%s' not filled.",
-    //                  par1->GetName().data(), par2->GetName().data()));
     return 0;
   }
 
   if (index1 == index2) {
     // don't print any error message, should be done upstream
-    //      BCLog::OutError("BCModel::GetMarginalized : Provided parameters are identical. Distribution not available.");
     return 0;
   }
 
@@ -1810,10 +1797,6 @@ double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,int index
       // update maximum if necessary
       distMax = TMath::Max(dist, distMax);
 
-//      BCLog::OutDebug(Form("BCModel::GetPvalueFromKolmogorov : "
-//         "expected vs empirical (%f vs %f)", *iter, ECDF->GetBinContent(iBin
-//            + 1)));
-
       // advance to next entry in the set
       ++iter;
    }
@@ -1823,9 +1806,6 @@ double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,int index
    double z = distMax * sqrt(N);
 
    fPValue = TMath::KolmogorovProb(z);
-
-//   BCLog::OutDebug(Form("BCModel::GetPvalueFromKolmogorov : "
-//      "max distance vs corrected (%f vs %f)", distMax, z));
 
    // clean up
    delete ECDF;
@@ -2496,9 +2476,6 @@ void BCModel::PrintResults(const char * file)
           << " Quantiles   : most commonly used quantiles" <<std::endl
           << " -----------------------------------------------------" << std::endl
           << std::endl;
-
-   // close file
-   //   ofi.close;
 }
 
 // ---------------------------------------------------------
@@ -2549,7 +2526,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
                fParameterSet->at(i), fParameterSet->at(j), parameters);
 
          // print to screen
-				 BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
+         BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
       }
 }
 
@@ -2600,6 +2577,3 @@ void BCModel::StoreMode()
       SetOptimizationMethodMode(BCIntegrate::kOptMetropolis);
    }
 }
-
-// ---------------------------------------------------------
-

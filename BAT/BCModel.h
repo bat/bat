@@ -750,7 +750,6 @@ class BCModel : public BCIntegrate
 
       void FixDataAxis(unsigned int index, bool fixed);
 
-
       /**
        * 1dim cumulative distribution function of the probability
        * to get the data f(x_i|param) for a single measurement, assumed to
@@ -762,7 +761,6 @@ class BCModel : public BCIntegrate
        * in Poisson process, if 3 actually observed, then CDF(2) is returned */
       virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
       {return 0.0;}
-
 
       /**
        * Reset all results.
@@ -833,7 +831,6 @@ class BCModel : public BCIntegrate
 
       /**
        * A vector of prior functions/histograms/graphs. */
-//      std::vector<TF1*> fPriorContainer;
       std::vector<TNamed*> fPriorContainer;
 
       /**
