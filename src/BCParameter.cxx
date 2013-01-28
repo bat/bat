@@ -92,5 +92,3 @@ bool BCParameter::IsAtLimit(double value)
    else
       return false;
 }
-
-// ---------------------------------------------------------
