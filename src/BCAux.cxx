@@ -61,13 +61,8 @@ void BCAux::SetStyle()
    gStyle->SetFuncWidth(2);
 
    // labels
-//   gStyle->SetLabelSize(0.05,   "X");
    gStyle->SetLabelFont(62,     "X");
-//   gStyle->SetLabelOffset(0.02, "X");
-
-//   gStyle->SetLabelSize(0.05,   "Y");
    gStyle->SetLabelFont(62,     "Y");
-//   gStyle->SetLabelOffset(0.02, "Y");
 
    // titles
    gStyle->SetTitleFillColor(kWhite);
@@ -77,11 +72,9 @@ void BCAux::SetStyle()
    gStyle->SetTitleH         (0.07);
 
    gStyle->SetTitleFont      (62,   "X");
-//   gStyle->SetTitleSize      (0.06, "X");
    gStyle->SetTitleOffset    (1.1,  "X");
 
    gStyle->SetTitleFont      (62,   "Y");
-//   gStyle->SetTitleSize      (0.06, "Y");
    gStyle->SetTitleOffset    (1.8,  "Y");
 
    // ticks
@@ -99,6 +92,3 @@ void BCAux::SetStyle()
    gStyle->SetPalette(1,0);
 
 }
-
-// ---------------------------------------------------------
-
