@@ -106,19 +106,19 @@ int main()
 	TCanvas c1("c1");
 	c1.cd();
 	hist_data.Draw();
-	c1.Print("data.ps");
+	c1.Print("data.pdf");
 
 	// print results
-	model->PrintAllMarginalized("model_marginalized.ps");
-	model->PrintStack("model_stack.eps");
+	model->PrintAllMarginalized("model_marginalized.pdf");
+	model->PrintStack("model_stack.pdf");
 
-	//	model->PrintRatios("model_fraction.ps");
+	//	model->PrintRatios("model_fraction.pdf");
 	model->PrintResults("model_results.txt");
 
-	st->PrintParameterPlot("model_parameters.eps");
-	st->PrintCorrelationPlot("model_correlation.eps");
-	st->PrintKnowledgeUpdatePlots("model_update.ps");
-	st->PrintCorrelationMatrix("model_matrix.eps");
+	st->PrintParameterPlot("model_parameters.pdf");
+	st->PrintCorrelationPlot("model_correlation.pdf");
+	st->PrintKnowledgeUpdatePlots("model_update.pdf");
+	st->PrintCorrelationMatrix("model_matrix.pdf");
 
 	// ----------------------------------------------------
 	// clean-up and end

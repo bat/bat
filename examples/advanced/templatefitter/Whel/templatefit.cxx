@@ -171,25 +171,25 @@ int main()
 	TCanvas c1("c1");
 	c1.cd();
 	hist_data.Draw();
-	c1.Print("data.ps");
+	c1.Print("data.pdf");
 
 	// print results
-	model->PrintAllMarginalized("model_marginalized.ps");
-	model->PrintStack("model_stack.eps");
-	model->PrintRatios("model_fraction.ps");
+	model->PrintAllMarginalized("model_marginalized.pdf");
+	model->PrintStack("model_stack.pdf");
+	model->PrintRatios("model_fraction.pdf");
 	model->PrintResults("model_results.txt");
 
 	// print templates
-	model->PrintTemplate("background", "background.eps");
-	model->PrintTemplate("signal (h= 0)", "signal_h0.eps");
-	model->PrintTemplate("signal (h=-1)", "signal_hL.eps");
-	model->PrintTemplate("signal (h=+1)", "signal_hR.eps");
+	model->PrintTemplate("background", "background.pdf");
+	model->PrintTemplate("signal (h= 0)", "signal_h0.pdf");
+	model->PrintTemplate("signal (h=-1)", "signal_hL.pdf");
+	model->PrintTemplate("signal (h=+1)", "signal_hR.pdf");
 
 	// print summary plots
-	st->PrintParameterPlot("model_parameters.eps");
-	st->PrintCorrelationPlot("model_correlation.eps");
-	st->PrintKnowledgeUpdatePlots("model_update.ps");
-	st->PrintCorrelationMatrix("model_matrix.eps");
+	st->PrintParameterPlot("model_parameters.pdf");
+	st->PrintCorrelationPlot("model_correlation.pdf");
+	st->PrintKnowledgeUpdatePlots("model_update.pdf");
+	st->PrintCorrelationMatrix("model_matrix.pdf");
 
 	// ----------------------------------------------------
 	// clean-up and end

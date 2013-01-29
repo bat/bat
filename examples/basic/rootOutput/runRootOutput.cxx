@@ -36,7 +36,7 @@ int main()
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("GaussModel_plots.ps");
+  m->PrintAllMarginalized("GaussModel_plots.pdf");
 
   // print results of the analysis into a text file
   m->PrintResults("GaussModel_results.txt");

@@ -21,7 +21,7 @@ int main(int argc, char **argv)
   // retrieve the command line arguments
   const char* rootFile = "bat_workspace.root";
   const char* wsName = "myWS";
-  const char* outputFile = "bat_plots.ps";
+  const char* outputFile = "bat_plots.pdf";
   int nMCMC = 1000000;
 
   // display a quick help if no arguments are specified

@@ -125,10 +125,10 @@ void efficiencyFitterExample()
 	hef->DrawFit("", true); // draw with a legend
 
 	// print to file
-	c->Print("fit.ps");
+	c->Print("fit.pdf");
 
 	// print marginalized distributions
-	hef->PrintAllMarginalized("distributions.ps");
+	hef->PrintAllMarginalized("distributions.pdf");
 
 }
 

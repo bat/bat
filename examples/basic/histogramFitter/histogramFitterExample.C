@@ -87,10 +87,10 @@ void histogramFitterExample()
 	// print data and fit
 	TCanvas * c1 = new TCanvas("c1");
 	hf->DrawFit("", true); // draw with a legend
-	c1->Print("fit.ps");
+	c1->Print("fit.pdf");
 
 	// print marginalized distributions
-	hf->PrintAllMarginalized("distributions.ps");
+	hf->PrintAllMarginalized("distributions.pdf");
 }
 
 // ---------------------------------------------------------

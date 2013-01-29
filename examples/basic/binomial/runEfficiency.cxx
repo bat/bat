@@ -30,8 +30,8 @@ int main()
   // find mode starting from the best fit parameters
   m->FindMode( m->GetBestFitParameters() );
 
-  // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("BinomialModel_plots.ps");
+  // draw all marginalized distributions into a pdf file
+  m->PrintAllMarginalized("BinomialModel_plots.pdf");
 
   // print results of the analysis into a text file
   m->PrintResults("BinomialModel_results.txt");

@@ -103,8 +103,8 @@ int main()
 	mout2 -> Close();
 
 	// print all marginalized distributions to a postscript file
-	m1 -> PrintAllMarginalized("1Dasymm-marg.ps", 3, 2);
-	m2 -> PrintAllMarginalized("2Dasymm-marg.ps", 3, 2);
+	m1 -> PrintAllMarginalized("1Dasymm-marg.pdf", 3, 2);
+	m2 -> PrintAllMarginalized("2Dasymm-marg.pdf", 3, 2);
 
 	// calculate the p-value for the set of best fit parameters
 	mgr -> CalculatePValue();
@@ -159,8 +159,8 @@ int main()
 	leg -> AddEntry(gm2_best, "2nd order polynomial", "l");
 	leg -> Draw("same");
 
-	// print the canvas to a .ps file
-	c1 -> Print("data_allmodels.ps");
+	// print the canvas to a .pdf file
+	c1 -> Print("data_allmodels.pdf");
 
 	// defines a new canvas
 	TCanvas * c2 = new TCanvas("c2","",800,500);
@@ -186,8 +186,8 @@ int main()
 	gm2_best -> Draw("c same");
 	gPad -> RedrawAxis();
 
-	// print the canvas to a .ps file
-	c2 -> Print("data_errorbands.ps");
+	// print the canvas to a .pdf file
+	c2 -> Print("data_errorbands.pdf");
 
 	// close log file
 	BCLog::CloseLog();

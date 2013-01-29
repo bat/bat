@@ -151,14 +151,14 @@ void graphFitterAdvancedExample()
 		models[imodel]->Fit();
 
 		// print all marginalized distributions into a PostScript file
-		models[imodel]->PrintAllMarginalized(TString::Format("plots-%d.ps",imodel+1));
+		models[imodel]->PrintAllMarginalized(TString::Format("plots-%d.pdf",imodel+1));
 
 		// draw summary plots and tables
 		BCSummaryTool summary(models[imodel]);
-		summary.PrintParameterPlot(TString::Format("summary_pars-f%d.eps",imodel+1));
+		summary.PrintParameterPlot(TString::Format("summary_pars-f%d.pdf",imodel+1));
 		summary.PrintCorrelationPlot(TString::Format("summary_corr-f%d.png",imodel+1));
-		summary.PrintCorrelationPlot(TString::Format("summary_corr_matrix-f%d.eps",imodel+1));
-		//summary.PrintKnowledgeUpdatePlots(TString::Format("summary_update-f%d.ps",imodel+1));
+		summary.PrintCorrelationPlot(TString::Format("summary_corr_matrix-f%d.pdf",imodel+1));
+		//summary.PrintKnowledgeUpdatePlots(TString::Format("summary_update-f%d.pdf",imodel+1));
 		//summary.PrintParameterLatex(TString::Format("summary_pars-f%d.tex",imodel+1));
 	}
 
@@ -169,7 +169,7 @@ void graphFitterAdvancedExample()
 		c->cd(imodel+1);
 		models[imodel]->DrawFit();
 	}
-	c->Print("data-all-band.eps");
+	c->Print("data-all-band.pdf");
 	delete c;
 
 	// draw all fits in the same plot (w/o error bands)
@@ -187,7 +187,7 @@ void graphFitterAdvancedExample()
 	f4->SetLineColor(4);
 	f4->SetLineWidth(2);
 	f4->Draw("l same");
-	c->Print("data-all.eps");
+	c->Print("data-all.pdf");
 
 }
 

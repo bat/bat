@@ -82,7 +82,7 @@ void CreateHistograms()
    hist_data1->Write();
    hist_data2->Write();
 
-   // print .eps file
+   // print .pdf file
    TCanvas * c1 = new TCanvas("c1", "", 1000, 1000);
    c1->Divide(2, 2);
    c1->cd(1);
@@ -97,7 +97,7 @@ void CreateHistograms()
    c1->cd(4);
    hist_sgn2->Draw();
    hist_sgn2->GetYaxis()->SetRangeUser(0., 1.1*hist_sgn2->GetMaximum());
-   c1->Print("hist1.eps");
+   c1->Print("hist1.pdf");
 
    TCanvas * c2 = new TCanvas("c2", "", 500, 500);
    c2->Divide(2, 1);
@@ -105,7 +105,7 @@ void CreateHistograms()
    hist_data1->Draw();
    c2->cd(2);
    hist_data2->Draw();
-   c2->Print("hist2.eps");
+   c2->Print("hist2.pdf");
 
    std::cout << "Number of data events in channel 1: " << hist_data1->Integral() << std::endl;
    std::cout << "Number of data events in channel 2: " << hist_data2->Integral() << std::endl;

@@ -53,7 +53,7 @@ void RatioModel::DefineHistogram()
 void RatioModel::PrintHistogram()
 {
   // print the BAT histogram to an eps file
-  fHistRatio->Print("ratio.eps");
+  fHistRatio->Print("ratio.pdf");
 }
 
 // ---------------------------------------------------------

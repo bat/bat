@@ -102,7 +102,7 @@ void CreateHistograms()
    hist_syst2_bkg_2->Write();
    hist_syst2_sgn_2->Write();
 
-   // print .eps file
+   // print .pdf file
    TCanvas * c1 = new TCanvas("c1", "", 1000, 1000);
    c1->Divide(2, 2);
    c1->cd(1);
@@ -113,7 +113,7 @@ void CreateHistograms()
    hist_data1->Draw();
    c1->cd(4);
    hist_data2->Draw();
-   c1->Print("hist.eps");
+   c1->Print("hist.pdf");
 
    // close file
    file -> Close();

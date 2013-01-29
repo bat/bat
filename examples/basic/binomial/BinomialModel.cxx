@@ -28,7 +28,7 @@ void BinomialModel::DefineParameters()
 {
    // add a parameter which is the efficiency of observing a certain
    // amount of events starting from a larger set of events.
-   AddParameter("epsilon", 0., 1.); // index 0
+   AddParameter("epsilon", 0., 1., "#varepsilon"); // index 0
 }
 
 // ---------------------------------------------------------

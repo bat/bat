@@ -27,7 +27,7 @@ int main()
   m->FindMode( m->GetBestFitParameters() );
 
   // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("RatioModel_plots.ps");
+  m->PrintAllMarginalized("RatioModel_plots.pdf");
 
   // print results of the analysis into a text file
   m->PrintResults("RatioModel_results.txt");

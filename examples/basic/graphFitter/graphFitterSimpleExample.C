@@ -95,10 +95,10 @@ void graphFitterSimpleExample()
 	// print data and the fit
 	TCanvas * c1 = new TCanvas("c1");
 	gf->DrawFit("", true);
-	c1->Print("fit.ps");
+	c1->Print("fit.pdf");
 
 	// print marginalized distributions
-	gf->PrintAllMarginalized("distributions.ps");
+	gf->PrintAllMarginalized("distributions.pdf");
 
 	// print results
 	gf->PrintResults("results.txt");

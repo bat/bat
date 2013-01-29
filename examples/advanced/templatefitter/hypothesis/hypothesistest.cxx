@@ -164,27 +164,27 @@ int main()
 	TCanvas c1("c1");
 	c1.cd();
 	hist_data.Draw();
-	c1.Print("data.ps");
+	c1.Print("data.pdf");
 
 	// print marginalized distribution for signal
 	c1.cd();
 	m_1bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
-	c1.Print("1bkg1sgn_sgn.ps");
+	c1.Print("1bkg1sgn_sgn.pdf");
 
 	c1.cd();
 	m_2bkg1sgn->GetMarginalized("sgn")->Draw(0, -95);
-	c1.Print("2bkg1sgn_sgn.ps");
+	c1.Print("2bkg1sgn_sgn.pdf");
 
 	// print stack plots and results
-	m_1bkg0sgn->PrintStack("1bkg0sgn_stack.eps");
-	m_1bkg1sgn->PrintStack("1bkg1sgn_stack.eps");
-	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.eps");
-	m_2bkg1sgn->PrintStack("2bkg1sgn_stack.eps");
+	m_1bkg0sgn->PrintStack("1bkg0sgn_stack.pdf");
+	m_1bkg1sgn->PrintStack("1bkg1sgn_stack.pdf");
+	m_2bkg0sgn->PrintStack("2bkg0sgn_stack.pdf");
+	m_2bkg1sgn->PrintStack("2bkg1sgn_stack.pdf");
 
-	m_1bkg0sgn->PrintRatios("1bkg0sgn_fraction.ps");
-	m_1bkg1sgn->PrintRatios("1bkg1sgn_fraction.ps");
-	m_2bkg0sgn->PrintRatios("2bkg0sgn_fraction.ps");
-	m_2bkg1sgn->PrintRatios("2bkg1sgn_fraction.ps");
+	m_1bkg0sgn->PrintRatios("1bkg0sgn_fraction.pdf");
+	m_1bkg1sgn->PrintRatios("1bkg1sgn_fraction.pdf");
+	m_2bkg0sgn->PrintRatios("2bkg0sgn_fraction.pdf");
+	m_2bkg1sgn->PrintRatios("2bkg1sgn_fraction.pdf");
 
 	m_1bkg0sgn->PrintResults("1bkg0sgn_results.txt");
 	m_1bkg1sgn->PrintResults("1bkg1sgn_results.txt");

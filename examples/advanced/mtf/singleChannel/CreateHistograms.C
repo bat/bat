@@ -62,7 +62,7 @@ void CreateHistograms()
    hist_sgn->Write();
    hist_data->Write();
 
-   // print .eps file
+   // print .pdf file
    TCanvas * c1 = new TCanvas("c1", "", 1500, 500);
    c1->Divide(3, 1);
    c1->cd(1);
@@ -71,7 +71,7 @@ void CreateHistograms()
    hist_sgn->Draw();
    c1->cd(3);
    hist_data->Draw();
-   c1->Print("hist.eps");
+   c1->Print("hist.pdf");
 
    // close file
    file->Close();

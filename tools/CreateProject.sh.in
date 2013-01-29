@@ -399,7 +399,7 @@ int main()
 //   m->FindMode( m->GetBestFitParameters() );
 
    // draw all marginalized distributions into a PostScript file
-//   m->PrintAllMarginalized("|:Model:|_plots.ps");
+//   m->PrintAllMarginalized("|:Model:|_plots.pdf");
 
    // print individual histograms
 //   m->GetMarginalized("x")->Print("x.pdf");
@@ -407,9 +407,9 @@ int main()
 //   m->GetMarginalized("x", "y")->Print("xy.pdf");
 
    // print all summary plots
-//   summary->PrintParameterPlot("|:Model:|_parameters.eps");
-//   summary->PrintCorrelationPlot("|:Model:|_correlation.eps");
-//   summary->PrintKnowledgeUpdatePlots("|:Model:|_update.ps");
+//   summary->PrintParameterPlot("|:Model:|_parameters.pdf");
+//   summary->PrintCorrelationPlot("|:Model:|_correlation.pdf");
+//   summary->PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
 
    // calculate p-value
 //   m->CalculatePValue( m->GetBestFitParameters() );

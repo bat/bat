@@ -119,7 +119,7 @@ void twoChannels()
    m->FindMode( m->GetBestFitParameters() );
 
    // print all marginalized distributions
-   m->PrintAllMarginalized("marginalized.ps");
+   m->PrintAllMarginalized("marginalized.pdf");
 
    // print results of the analysis into a text file
    m->PrintResults("results.txt");
@@ -127,8 +127,8 @@ void twoChannels()
    // print templates and stacks
    for (int i = 0; i < m->GetNChannels(); ++i) {
       BCMTFChannel * channel = m->GetChannel(i);
-      channel->PrintTemplates(Form("%s_templates.ps", channel->GetName().c_str()));
-      m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.eps", channel->GetName().c_str()), "");
+      channel->PrintTemplates(Form("%s_templates.pdf", channel->GetName().c_str()));
+      m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()), "");
    }
 
    // ---- clean up ---- //

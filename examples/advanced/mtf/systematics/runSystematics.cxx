@@ -109,25 +109,25 @@ int main()
    m->FindMode( m->GetBestFitParameters() );
 
    // print all marginalized distributions
-   m->PrintAllMarginalized("marginalized.ps");
+   m->PrintAllMarginalized("marginalized.pdf");
 
    // print results of the analysis into a text file
    m->PrintResults("results.txt");
 
    // print summary results
-   summary->PrintParameterPlot("summary_parameters.ps");
-   summary->PrintCorrelationPlot("summary_correlationplot.ps");
-   summary->PrintCorrelationMatrix("summary_correlationmatrix.ps");
-   summary->PrintKnowledgeUpdatePlots("summary_update.ps");
+   summary->PrintParameterPlot("summary_parameters.pdf");
+   summary->PrintCorrelationPlot("summary_correlationplot.pdf");
+   summary->PrintCorrelationMatrix("summary_correlationmatrix.pdf");
+   summary->PrintKnowledgeUpdatePlots("summary_update.pdf");
 
    // print templates and stacks
    for (int i = 0; i < m->GetNChannels(); ++i) {
       BCMTFChannel * channel = m->GetChannel(i);
-      channel->PrintTemplates(Form("%s_templates.ps", channel->GetName().c_str()));
-      channel->PrintTemplate(0, Form("background_%i.ps", i));
-      channel->PrintTemplate(1, Form("signal_%i.ps", i));
+      channel->PrintTemplates(Form("%s_templates.pdf", channel->GetName().c_str()));
+      channel->PrintTemplate(0, Form("background_%i.pdf", i));
+      channel->PrintTemplate(1, Form("signal_%i.pdf", i));
 
-      m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.eps", channel->GetName().c_str()), "");
+      m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()), "");
    }
 
    // ---- perform single systematic analysis ---- //

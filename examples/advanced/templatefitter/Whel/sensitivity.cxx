@@ -188,7 +188,7 @@ int main()
 	tet->PerformEnsembleTest(tree);
 
 	// print pulls
-	tet->PrintPulls("pulls_prior.ps");
+	tet->PrintPulls("pulls_prior.pdf");
 
 	// write results to file
 	tet->Write("ensembles_prior.root");

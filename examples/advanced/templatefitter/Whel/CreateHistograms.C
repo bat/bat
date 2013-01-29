@@ -180,7 +180,7 @@ void CreateHistograms()
 	hist_systerror3_sgn_hL->Write();
 	hist_systerror3_sgn_hR->Write();
 
-	// print .eps file
+	// print .pdf file
 	TCanvas * c1 = new TCanvas("c1", "", 1000, 1000); 
 	c1->Divide(3, 2); 
 	c1->cd(1); 
@@ -195,7 +195,7 @@ void CreateHistograms()
 	hist_sum->Draw(); 
 	c1->cd(6); 
 	hist_data->Draw(); 
-	c1->Print("hist.eps"); 
+	c1->Print("hist.pdf"); 
 
 	// print integral
 	cout << "Number of events in data: " << hist_data->Integral() << endl;
