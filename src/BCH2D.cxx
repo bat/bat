@@ -394,7 +394,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
    int binx, biny, binz;
    fHistogram->GetBinXYZ( fHistogram->GetMaximumBin(), binx, biny, binz);
-   TMarker* marker_mode_local = new TMarker(fHistogram->GetXaxis()->GetBinCenter(binx), fHistogram->GetYaxis()->GetBinCenter(biny), 21);
+   TMarker* marker_mode_local = new TMarker(fHistogram->GetXaxis()->GetBinCenter(binx), fHistogram->GetYaxis()->GetBinCenter(biny), 25);
    marker_mode_local->SetMarkerColor(GetColor(4));
    marker_mode_local->SetMarkerSize(1.5);
 
@@ -403,7 +403,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    double xrms = fHistogram->GetRMS(1);
    double yrms = fHistogram->GetRMS(2);
 
-   TMarker* marker_mean = new TMarker(xmean, ymean, 20);
+   TMarker* marker_mean = new TMarker(xmean, ymean, 32);
    marker_mean->SetMarkerColor(GetColor(4));
    marker_mean->SetMarkerSize(1.5);
 
@@ -436,7 +436,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
    if (flag_mode_local) {
       TLegendEntry* le = legend->AddEntry(marker_mode_local, "local mode", "P");
-      le->SetMarkerStyle(24);
+      le->SetMarkerStyle(25);
       le->SetMarkerSize(1.5);
       le->SetMarkerColor(GetColor(4));
    }
@@ -444,7 +444,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    if (flag_mean) {
       TLegendEntry* le = legend->AddEntry(arrow_std1, "mean and standard deviation", "PL");
       le->SetLineColor(GetColor(4));
-      le->SetMarkerStyle(20);
+      le->SetMarkerStyle(32);
       le->SetMarkerSize(1.5);
       le->SetMarkerColor(GetColor(4));
    }

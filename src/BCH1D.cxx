@@ -892,7 +892,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
    if (flag_legend)
       gPad->SetTopMargin(0.02);
 
-   double xlegend1 = gPad->GetLeftMargin();
+   double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
    double xlegend2 = 1.0-gPad->GetRightMargin();
    double ylegend1 = 1.-gPad->GetTopMargin()-height;
    double ylegend2 = 1.-gPad->GetTopMargin();

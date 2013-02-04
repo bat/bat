@@ -10,6 +10,7 @@
 #include "BCAux.h"
 
 #include <TStyle.h>
+#include <TGaxis.h>
 
 // ---------------------------------------------------------
 
@@ -19,7 +20,7 @@ void BCAux::SetStyle()
    gStyle->SetPadTopMargin   (0.05);
    gStyle->SetPadBottomMargin(0.11);
    gStyle->SetPadLeftMargin  (0.15);
-   gStyle->SetPadRightMargin (0.05);
+   gStyle->SetPadRightMargin (0.10);
    gStyle->SetPadBorderMode  (0);
 
    // canvases
@@ -42,6 +43,10 @@ void BCAux::SetStyle()
    gStyle->SetHistLineColor(kBlack);
    gStyle->SetHistLineStyle(0);
    gStyle->SetHistLineWidth(1);
+   gStyle->SetStripDecimals(kFALSE);
+
+	 // set decimals
+	 TGaxis::SetMaxDigits(4);
 
    // options
    gStyle->SetOptTitle(0);
