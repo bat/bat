@@ -812,7 +812,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
    marker_mode->SetMarkerColor(GetColor(4));
    marker_mode->SetMarkerSize(1.5);
 
-   TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
+   TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 32);
    marker_mean->SetMarkerColor(GetColor(4));
    marker_mean->SetMarkerSize(1.5);
 
@@ -861,7 +861,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       marker_mean->Draw();
       TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
       le->SetLineColor(GetColor(4));
-      le->SetMarkerStyle(20);
+      le->SetMarkerStyle(32);
       le->SetMarkerSize(1.5);
       le->SetMarkerColor(GetColor(4));
    }
