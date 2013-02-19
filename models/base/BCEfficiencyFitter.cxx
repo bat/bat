@@ -331,8 +331,8 @@ int BCEfficiencyFitter::Fit()
    FindModeMinuit( GetBestFitParameters() , -1);
 
    // calculate the p-value using the fast MCMC algorithm
-   double pvalue;
-   if ( CalculatePValueFast(GetBestFitParameters(), pvalue) )
+   double pvalue, pvalueCorrected;
+   if ( CalculatePValueFast(GetBestFitParameters(), pvalue, pvalueCorrected) )
       fPValue = pvalue;
    else
       BCLog::OutError("BCEfficiencyFitter::Fit : Could not use the fast p-value evaluation.");
@@ -440,7 +440,17 @@ void BCEfficiencyFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue)
+int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue,
+                                           double & pvalueCorrected, unsigned nIterations)
+{
+   //use NULL pointer for no callback
+   return CalculatePValueFast(par, NULL, pvalue, pvalueCorrected, nIterations);
+}
+
+// ---------------------------------------------------------
+int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par,
+                                            BCEfficiencyFitter::ToyDataInterface * callback, double &pvalue,
+                                            double & pvalueCorrected, unsigned nIterations)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {
@@ -457,10 +467,8 @@ int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, dou
    // define temporary variables
    int nbins = fHistogram1->GetNbinsX();
 
-   std::vector<int> histogram;
-   std::vector<double> expectation;
-   histogram.assign(nbins, 0);
-   expectation.assign(nbins, 0);
+   std::vector<unsigned> histogram(nbins, 0);
+   std::vector<double> expectation(nbins, 0);
 
    double logp = 0;
    double logp_start = 0;
@@ -489,10 +497,8 @@ int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, dou
    }
    logp_start = logp;
 
-   int niter = 100000;
-
    // loop over iterations
-   for (int iiter = 0; iiter < niter; ++iiter)
+   for (unsigned iiter = 0; iiter < nIterations; ++iiter)
    {
       // loop over bins
       for (int ibin = 0; ibin < nbins; ++ibin)
@@ -545,6 +551,11 @@ int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, dou
 
       } // end of looping over bins
 
+      //one new toy data set is created
+      //call user interface to calculate arbitrary statistic's distribution
+      if (callback)
+         (*callback)(expectation, histogram);
+
       // increase counter
       if (logp < logp_start)
          counter_pvalue++;
@@ -552,7 +563,10 @@ int BCEfficiencyFitter::CalculatePValueFast(const std::vector<double> & par, dou
    } // end of looping over iterations
 
    // calculate p-value
-   pvalue = double(counter_pvalue) / double(niter);
+   pvalue = double(counter_pvalue) / double(nIterations);
+
+   // correct for fit bias
+   pvalueCorrected = BCMath::CorrectPValue(pvalue, GetNParameters(), nbins);
 
    // no error
    return 1;
