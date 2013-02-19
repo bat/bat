@@ -126,11 +126,6 @@ namespace BCMath
    int Nint(double x);
 
    /**
-    * Returns the rms of an array.
-    */
-   double rms(int n, const double * a);
-
-   /**
     * Calculates the logarithm of the non-relativistic Breit-Wigner
     * distribution.
     */
@@ -163,7 +158,6 @@ namespace BCMath
     * with K degrees of freedom
     */
    void RandomChi2(std::vector<double> &randoms, int K);
-
 
    /**
     * Calculate the empirical cumulative distribution function for
@@ -212,9 +206,15 @@ namespace BCMath
     */
    double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
 
-
+   /**
+    * Gaussian with different uncertainties to either side of the mode.
+    * Interface to use with TF1.
+    *
+    * @param x Random variable
+    * @param par Mean, sigmadown, sigmaup
+    * @return density f(x)
+    */
    double SplitGaussian(double* x, double* par);
-
 
    /** Cache factorials for first \arg \c n integers.
     * The cache is filled upon first call of LogFact(). */
@@ -235,6 +235,16 @@ namespace BCMath
 	 */
 	double Rvalue(const std::vector<double> & chain_means, const std::vector<double> & chain_variances,
                   const unsigned & chain_length, const bool & strict = true) throw (std::invalid_argument, std::domain_error);
+
+	/**
+	 * Correct a p value by transforming to a chi^2 with dof=nobservations,
+	 * then back to a pvalue with dof reduced by number of fit parameters.
+	 * @param pvalue The p value to correct.
+	 * @param npar The number of fit parameters.
+	 * @param nobservations The number of data points.
+	 * @return corrected p value
+	 */
+	double CorrectPValue(const double & pvalue, const unsigned & npar, const unsigned & nobservations) throw (std::domain_error);
 }
 
 // ---------------------------------------------------------
