@@ -1072,7 +1072,7 @@ $n_2=3$.  With the CDF defined, the $p$-value is returned from
 double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par)
 \end{verbatim}
 
-For \textit{Gaussian} problems (handled by the model
+\paragraph{Gauss} For \textit{Gaussian} problems (handled by the model
 \verb|BCGraphFitter|, sec. \ref{BCGraphFitter}) the standard $\chi^2$
 statistic can be used, including the correction for the number of
 fitted parameters, from
@@ -1084,7 +1084,7 @@ double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
 where \verb|sigma_index| is the index of the standard deviation in
 each data point.
 
-In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|)
+\paragraph{Poisson}In the \textit{Poisson} case (described by the model \verb|BCHistogramFitter|)
 there are the following three
 specific choices to obtain a $p$-value
 (for details see \cite{BAT_pValue}, Sec. III.D and IV.B):
@@ -1094,15 +1094,29 @@ specific choices to obtain a $p$-value
 \begin{verbatim}
 int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
                                            double & pvalue,
+                                           double & pvalueCorrected,
                                            int nIterations=100000)
 \end{verbatim}
 %
-which uses a discrete Markov chain to vary the bin counts.
-The conditional probability $k$ is then recomputed, and
-again the proportion of datasets with lower $k$ is
-reported as the $p$-value. A more thorough explanation
-of the algorithm is given
-in the appendix of \cite{BAT_pValue}.
+which uses a discrete Markov chain to vary the bin counts.  The conditional
+probability $k$ is then recomputed, and again the proportion of datasets with
+lower $k$ is reported as the $p$-value. In addition, the corrected $p$-value is
+calculated in an attempt to produce a more uniformly distributed $p$-value. The
+$p$-value if first transformed to a $\chi^2$ using the number of bins as degrees
+of freedom. Then this $\chi^2$ is transformed back into a $p$-value with the
+degrees of freedom reduced by the number of fit parameters. A more thorough
+explanation of the algorithm is given in the appendix of
+\cite{BAT_pValue}. Optionally, the user can define a custom test statistic and
+compute the corresponding $p$-value by passing an instance of
+\verb|BCHistogramFitter::ToyDataInterface| in
+\begin{verbatim}
+int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
+                                           ToyDataInterface * callback,
+                                           double & pvalue,
+                                           double & pvalueCorrected,
+                                           int nIterations=100000)
+\end{verbatim}
+The callback method is called for every created data set.
 \item
 %
 \begin{verbatim}
@@ -1142,6 +1156,10 @@ function is implemented so the $p$-value due to Johnson
 \begin{verbatim}
 double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par).
 \end{verbatim}
+
+\paragraph{Binomial} For binomial uncertainties handled by
+\verb|BCEfficiencyFitter|, the same fast $p$-value methods are available as for
+the Poisson case (see above).
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

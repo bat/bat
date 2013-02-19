@@ -1,4 +1,8 @@
 2013-01-29 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCMath, fast fitters: clean up interfaces and $p$-value correction
+	* introduction: describe new interfaces
+
+2013-01-29 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples: Store all plots in pdf format
 
 2013-02-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
