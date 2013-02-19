@@ -7,6 +7,12 @@
 
 // ---------------------------------------------------------
 
+#include "BCHistogramFitter.h"
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCDataSet.h"
+#include "../../BAT/BCDataPoint.h"
+#include "../../BAT/BCMath.h"
+
 #include <TH1D.h>
 #include <TF1.h>
 #include <TGraph.h>
@@ -17,13 +23,6 @@
 #include <TMath.h>
 #include <Math/ProbFuncMathCore.h> //for ROOT::Math namespace
 #include <TString.h>
-
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCDataSet.h"
-#include "../../BAT/BCDataPoint.h"
-#include "../../BAT/BCMath.h"
-
-#include "BCHistogramFitter.h"
 
 // ---------------------------------------------------------
 
@@ -251,20 +250,6 @@ BCHistogramFitter::~BCHistogramFitter()
 
 // ---------------------------------------------------------
 
-/*
- double BCHistogramFitter::LogAPrioriProbability(std::vector<double> parameters)
- {
- // using flat probability in all parameters
- double logprob = 0.;
- for (unsigned int i = 0; i < GetNParameters(); i++)
- logprob -= log(GetParameter(i)->GetRangeWidth());
-
- return logprob;
- }
- */
-
-// ---------------------------------------------------------
-
 double BCHistogramFitter::LogLikelihood(const std::vector<double> & params)
 {
    // initialize probability
@@ -310,19 +295,6 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double> & params)
       // get the value of the Poisson distribution
       loglikelihood += BCMath::LogPoisson(y, yexp);
    }
-
-   // // get bin boundaries
-   // double xmin = fHistogram->GetBinLowEdge(ibin);
-   // double xmax = fHistogram->GetBinLowEdge(ibin+1);
-
-   // // get the number of observed events
-   // double y = fHistogram->GetBinContent(ibin);
-
-   // // get the number of expected events
-   // double yexp = fFitFunction->Integral(xmin, xmax);
-
-   // // get the value of the Poisson distribution
-   // loglikelihood += BCMath::LogPoisson(y, yexp);
 
    return loglikelihood;
 }
@@ -384,8 +356,8 @@ int BCHistogramFitter::Fit()
    FindModeMinuit(GetBestFitParameters(), -1);
 
    // calculate the p-value using the fast MCMC algorithm
-   double pvalue;
-   if (CalculatePValueFast(GetBestFitParameters(), pvalue))
+   double pvalue, pvalueCorrected;
+   if (CalculatePValueFast(GetBestFitParameters(), pvalue, pvalueCorrected))
       fPValue = pvalue;
    else
       BCLog::OutWarning(
@@ -453,15 +425,17 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue, int nIterations)
+int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue,
+                                           double & pvalueCorrected, unsigned nIterations)
 {
    //use NULL pointer for no callback
-   return CalculatePValueFast(par, 0, pvalue,  nIterations);
+   return CalculatePValueFast(par, NULL, pvalue, pvalueCorrected, nIterations);
 }
 
 // ---------------------------------------------------------
 int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
-      BCHistogramFitterToyDataInterface* callback, double &pvalue,  int nIterations)
+      BCHistogramFitter::ToyDataInterface * callback, double & pvalue,
+      double & pvalueCorrected,  unsigned nIterations)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {
@@ -480,10 +454,8 @@ int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
    // define temporary variables
    int nbins = fHistogram->GetNbinsX();
 
-   std::vector<int> histogram;
-   std::vector<double> expectation;
-   histogram.assign(nbins, 0);
-   expectation.assign(nbins, 0);
+   std::vector<unsigned> histogram(nbins, 0);
+   std::vector<double> expectation(nbins, 0);
 
    double logp = 0;
    double logp_start = 0;
@@ -510,7 +482,7 @@ int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
    }
 
    // loop over iterations
-   for (int iiter = 0; iiter < nIterations; ++iiter) {
+   for (unsigned iiter = 0; iiter < nIterations; ++iiter) {
       // loop over bins
       for (int ibin = 0; ibin < nbins; ++ibin) {
          // random step up or down in statistics for this bin
@@ -554,6 +526,9 @@ int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
 
    // calculate p-value
    pvalue = double(counter_pvalue) / double(nIterations);
+
+   // correct for fit bias
+   pvalueCorrected = BCMath::CorrectPValue(pvalue, GetNParameters(), fHistogram->GetNbinsX());
 
    // no error
    return 1;
@@ -674,10 +649,6 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
    // get the number of observed events (should be integer)
    double yObs = fHistogram->GetBinContent(index);
 
-   //   if(double( (unsigned int)yObs)==yObs)
-   //      BCLog::OutWarning(Form(
-   //            "BCHistogramFitter::CDF: using bin count %f that  is not an integer!",yObs));
-
    // get function value of lower bin edge
    double edgeLow = fHistogram->GetBinLowEdge(index);
    double edgeHigh = edgeLow + fHistogram->GetBinWidth(index);
@@ -723,9 +694,6 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
       else
          yObs = yObsLower + 1;
    }
-
-   //   BCLog::OutDebug(Form("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
-   //   BCLog::Out(TString::Format("yExp= %f yObs= %f par2=%",yExp, yObs,parameters.at(2)));
 
    return ROOT::Math::poisson_cdf((unsigned int) yObs, yExp);
 }
