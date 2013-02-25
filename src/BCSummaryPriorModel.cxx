@@ -40,7 +40,7 @@ void BCSummaryPriorModel::SetModel(BCModel * model)
    // copy parameters
    int npar = fTestModel->GetNParameters();
    for (int i = 0; i < npar; ++i) {
-      BCParameter * par = fTestModel->GetParameter(i);
+      BCParameter * par = const_cast<BCParameter *>(fTestModel->GetParameter(i));
       AddParameter(par);
    }
 

@@ -237,7 +237,7 @@ BCDataPoint * BCModel::GetDataPoint(unsigned int index)
 }
 
 // ---------------------------------------------------------
-BCParameter * BCModel::GetParameter(int index)
+const BCParameter * BCModel::GetParameter(int index)
 {
    if (!fParameterSet)
       return 0;
@@ -252,7 +252,7 @@ BCParameter * BCModel::GetParameter(int index)
 }
 
 // ---------------------------------------------------------
-BCParameter * BCModel::GetParameter(const char * name)
+const BCParameter * BCModel::GetParameter(const char * name)
 {
    if (!fParameterSet)
       return 0;
@@ -326,7 +326,7 @@ double BCModel::GetBestFitParameterMarginalized(unsigned int index)
 // ---------------------------------------------------------
 void BCModel::SetNbins(const char * parname, int nbins)
 {
-   BCParameter * p = GetParameter(parname);
+   const BCParameter * p = GetParameter(parname);
    if (!p) {
       BCLog::OutWarning(
             Form("BCModel::SetNbins : Parameter '%s' not found so Nbins not set",parname));
@@ -750,7 +750,7 @@ int BCModel::CheckParameters(const std::vector<double> &parameters)
 
    // check if parameters are within limits
    for (unsigned int i = 0; i < fParameterSet->size(); i++) {
-      BCParameter * modelparameter = fParameterSet->at(i);
+      const BCParameter * modelparameter = fParameterSet->at(i);
 
       if (modelparameter->GetLowerLimit() > parameters.at(i)
             || modelparameter->GetUpperLimit() < parameters.at(i)) {
@@ -948,7 +948,7 @@ int BCModel::MarginalizeAll()
 }
 
 // ---------------------------------------------------------
-BCH1D * BCModel::GetMarginalized(BCParameter * parameter)
+BCH1D * BCModel::GetMarginalized(const BCParameter * parameter)
 {
    if (!parameter) {
       // don't print any error message, should be done upstream
@@ -1010,7 +1010,7 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
    int k = 0;
    int n = GetNParameters();
    for (int i = 0; i < n; i++) {
-      BCParameter * a = GetParameter(i);
+      const BCParameter * a = GetParameter(i);
       TKey * key = froot->GetKey(TString::Format("hist_%s_%s",GetName().data(), a->GetName().data()));
       if (key) {
          TH1D * h1 = (TH1D*) key->ReadObjectAny(TH1D::Class());
@@ -1026,8 +1026,8 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 
    for (int i = 0; i < n - 1; i++) {
       for (int j = i + 1; j < n; j++) {
-         BCParameter * a = GetParameter(i);
-         BCParameter * b = GetParameter(j);
+         const BCParameter * a = GetParameter(i);
+         const BCParameter * b = GetParameter(j);
          TKey * key = froot->GetKey(
                TString::Format("hist_%s_%s_%s",GetName().data(), a->GetName().data(),b->GetName().data()));
          if (key) {
@@ -1085,7 +1085,7 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
 
    int n = GetNParameters();
    for (int i = 0; i < n; i++) {
-      BCParameter * a = GetParameter(i);
+      const BCParameter * a = GetParameter(i);
       if (GetMarginalized(a))
          GetMarginalized(a)->Print(Form("%s_1D_%s.ps", filebase, a->GetName().data()));
    }
@@ -1105,8 +1105,8 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
    int n = GetNParameters();
    for (int i = 0; i < n - 1; i++) {
       for (int j = i + 1; j < n; j++) {
-         BCParameter * a = GetParameter(i);
-         BCParameter * b = GetParameter(j);
+         const BCParameter * a = GetParameter(i);
+         const BCParameter * b = GetParameter(j);
 
          double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
          double deltaa = (a->GetUpperLimit() - a->GetLowerLimit());
@@ -1147,7 +1147,7 @@ int BCModel::PrintAllMarginalizedOld(const char * file, unsigned int hdiv, unsig
 
    // if there's only one parameter, we just want to call Print()
    if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
-      BCParameter * a = GetParameter(0);
+      const BCParameter * a = GetParameter(0);
       if (GetMarginalized(a))
          GetMarginalized(a)->Print(file);
       return 1;
@@ -1209,7 +1209,7 @@ int BCModel::PrintAllMarginalizedOld(const char * file, unsigned int hdiv, unsig
    int n = 0;
    for (int i = 0; i < npar; i++) {
       // get corresponding parameter
-      BCParameter * a = GetParameter(i);
+      const BCParameter * a = GetParameter(i);
 
       // check if histogram exists
       if (!GetMarginalized(a))
@@ -1255,8 +1255,8 @@ int BCModel::PrintAllMarginalizedOld(const char * file, unsigned int hdiv, unsig
    for (int i = 0; i < npar - 1; i++) {
       for (int j = i + 1; j < npar; j++) {
          // get corresponding parameters
-         BCParameter * a = GetParameter(i);
-         BCParameter * b = GetParameter(j);
+         const BCParameter * a = GetParameter(i);
+         const BCParameter * b = GetParameter(j);
 
          // check if histogram exists, or skip if one par has a delta prior
          if (!GetMarginalized(a, b))
@@ -1347,7 +1347,7 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
 
    // if there's only one parameter, we just want to call Print()
    if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
-      BCParameter * a = GetParameter(0);
+      const BCParameter * a = GetParameter(0);
       if (GetMarginalized(a))
          GetMarginalized(a)->Print(filename.c_str());
       return 1;
@@ -1394,7 +1394,7 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
    int n = 0;
    for (int i = 0; i < npar; i++) {
       // get corresponding parameter
-      BCParameter * a = GetParameter(i);
+      const BCParameter * a = GetParameter(i);
 
       // check if histogram exists
       if (!GetMarginalized(a))
@@ -1437,8 +1437,8 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
    for (int i = 0; i < npar - 1; i++) {
       for (int j = i + 1; j < npar; j++) {
          // get corresponding parameters
-         BCParameter * a = GetParameter(i);
-         BCParameter * b = GetParameter(j);
+         const BCParameter * a = GetParameter(i);
+         const BCParameter * b = GetParameter(j);
 
          // check if histogram exists, or skip if one par has a delta prior
          if (!GetMarginalized(a, b))
@@ -1486,7 +1486,7 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
 }
 
 // ---------------------------------------------------------
-BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
+BCH2D * BCModel::GetMarginalized(const BCParameter * par1, const BCParameter * par2)
 {
    int index1 = par1->GetIndex();
    int index2 = par2->GetIndex();
@@ -1505,8 +1505,8 @@ BCH2D * BCModel::GetMarginalized(BCParameter * par1, BCParameter * par2)
       return 0;
    }
 
-   BCParameter * npar1 = par1;
-   BCParameter * npar2 = par2;
+   const BCParameter * npar1 = par1;
+   const BCParameter * npar2 = par2;
 
    if (index1 > index2) {
       npar1 = par2;
@@ -1867,7 +1867,7 @@ void BCModel::CorrelateDataPointValues(std::vector<double> & /*x*/)
 }
 
 // ---------------------------------------------------------
-double BCModel::HessianMatrixElement(BCParameter * par1, BCParameter * par2, std::vector<double> point)
+double BCModel::HessianMatrixElement(const BCParameter * par1, const BCParameter * par2, std::vector<double> point)
 {
    // check number of entries in vector
    if (point.size() != GetNParameters()) {
@@ -2237,8 +2237,8 @@ int BCModel::SetParameterRange(int index, double parmin, double parmax)
    }
 
    // set parameter ranges in BAT
-   GetParameter(index)->SetLowerLimit(parmin);
-   GetParameter(index)->SetUpperLimit(parmax);
+   fParameterSet->at(index)->SetLimits(parmin, parmax);
+
    fMCMCBoundaryMin[index] = parmin;
    fMCMCBoundaryMax[index] = parmax;
 

@@ -320,7 +320,7 @@ void BCRooInterface::MCMCIterationInterface()
          while(setiter->Next()){
 
             //check parameter names
-            BCParameter * tempBCparam = GetParameter(j);
+            const BCParameter * tempBCparam = GetParameter(j);
 
             //_parametersForMarkovChainCurrent->Print();
 

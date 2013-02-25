@@ -531,8 +531,8 @@ int BCTemplateFitter::Initialize()
       int effindex = fEffParIndexContainer.at(i);
 
       // get parameter
-      BCParameter * par = this->GetParameter(parindex);
-      BCParameter * eff = this->GetParameter(effindex);
+      const BCParameter * par = this->GetParameter(parindex);
+      const BCParameter * eff = this->GetParameter(effindex);
 
       // increate limits
       xmin += par->GetLowerLimit() * eff->GetLowerLimit();

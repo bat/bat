@@ -170,12 +170,12 @@ class BCModel : public BCIntegrate
       /**
        * @param index The index of the parameter in the parameter set.
        * @return The parameter. */
-      BCParameter * GetParameter(int index);
+      const BCParameter * GetParameter(int index);
 
       /**
        * @param name The name of the parameter in the parameter set.
        * @return The parameter. */
-      BCParameter * GetParameter(const char * name);
+      const BCParameter * GetParameter(const char * name);
 
       /**
        * @return parameter set */
@@ -609,7 +609,7 @@ class BCModel : public BCIntegrate
        * with respect to one parameter can be retrieved using this method.
        * @param parameter Model parameter
        * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(BCParameter * parameter);
+      BCH1D * GetMarginalized(const BCParameter * parameter);
 
       BCH1D * GetMarginalized(const char * name)
          { return this -> GetMarginalized(this -> GetParameter(name)); }
@@ -620,7 +620,7 @@ class BCModel : public BCIntegrate
        * @param parameter1 First parameter
        * @param parameter2 Second parameter
        * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(BCParameter * parameter1, BCParameter * parameter2);
+      BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
 
       BCH2D * GetMarginalized(const char * name1, const char * name2)
          { return this -> GetMarginalized(this -> GetParameter(name1), this -> GetParameter(name2)); }
@@ -729,7 +729,7 @@ class BCModel : public BCIntegrate
        * @param parameter1 The parameter for the first derivative
        * @param parameter2 The parameter for the first derivative
        * @return The matrix element of the Hessian matrix */
-      double HessianMatrixElement(BCParameter * parameter1, BCParameter * parameter2, std::vector<double> point);
+      double HessianMatrixElement(const BCParameter * parameter1, const BCParameter * parameter2, std::vector<double> point);
 
       /**
        * Prints a summary on the screen. */

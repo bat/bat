@@ -599,7 +599,7 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
    legend1d->SetFillColor(0);
 
    // get histograms;
-   BCParameter * par = fModel->GetParameter(index);
+   const BCParameter * par = fModel->GetParameter(index);
    TH1D * hist_prior = fPriorModel->GetMarginalized(par)->GetHistogram();
    hist_prior->SetLineColor(kRed);
    TH1D * hist_posterior = fModel->GetMarginalized(par)->GetHistogram();
@@ -701,8 +701,8 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
          c_update->cd();
 
          // get parameters
-         BCParameter * par1 = fModel->GetParameter(i);
-         BCParameter * par2 = fModel->GetParameter(j);
+         const BCParameter * par1 = fModel->GetParameter(i);
+         const BCParameter * par2 = fModel->GetParameter(j);
 
          // get 2-d histograms
          BCH2D * bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
@@ -792,7 +792,7 @@ int BCSummaryTool::PrintParameterLatex(const char * filename)
       << "\\hline" << std::endl;
 
    for (int i = 0; i < npar; ++i) {
-      BCParameter * par = fModel->GetParameter(i);
+      const BCParameter * par = fModel->GetParameter(i);
       BCH1D * bch1d = fModel->GetMarginalized(par);
       ofi
          << par->GetName() << " & "

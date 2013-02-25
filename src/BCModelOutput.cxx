@@ -135,7 +135,7 @@ void BCModelOutput::FillAnalysisTree()
    // loop over parameters
    int nparameters = fModel->GetNParameters();
    for (int i = 0; i < nparameters; ++i) {
-      BCParameter * parameter = fModel->GetParameter(i);
+      const BCParameter * parameter = fModel->GetParameter(i);
       if (fModel->GetBestFitParameters().size() > 0)
          fMode_global[i] = fModel->GetBestFitParameters().at(i);
       if (fModel->GetMarginalized(parameter->GetName().data())) {
