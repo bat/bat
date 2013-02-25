@@ -38,39 +38,7 @@ BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter(const BCParameter & parameter)
-{
-   fName       = parameter.fName;
-   fLatexName  = parameter.fLatexName;
-   fIndex      = parameter.fIndex;
-   fLowerLimit = parameter.fLowerLimit;
-   fUpperLimit = parameter.fUpperLimit;
-   fNuisance   = parameter.fNuisance;
-}
-
-// ---------------------------------------------------------
-
-BCParameter & BCParameter::operator = (const BCParameter & parameter)
-{
-   fName       = parameter.fName;
-   fLatexName  = parameter.fLatexName;
-   fIndex      = parameter.fIndex;
-   fLowerLimit = parameter.fLowerLimit;
-   fUpperLimit = parameter.fUpperLimit;
-   fNuisance   = parameter.fNuisance;
-
-   // return this
-   return *this;
-}
-
-// ---------------------------------------------------------
-
-BCParameter::~BCParameter()
-{}
-
-// ---------------------------------------------------------
-
-void BCParameter::PrintSummary()
+void BCParameter::PrintSummary() const
 {
 	BCLog::OutSummary("Parameter summary:");
 	BCLog::OutSummary(Form("Parameter   : %s", fName.c_str()));
@@ -81,7 +49,7 @@ void BCParameter::PrintSummary()
 
 // ---------------------------------------------------------
 
-bool BCParameter::IsAtLimit(double value)
+bool BCParameter::IsAtLimit(double value) const
 {
    if (fLowerLimit == fUpperLimit)
       return false;

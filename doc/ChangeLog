@@ -1,5 +1,8 @@
 2013-02-25 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* introduction: add warning for SetPrior*
+	* BCParameter:
+	  - use const qualifiers
+	  - remove unnecessary ctors, dtor
 
 2013-02-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath, fast fitters: clean up interfaces and $p$-value correction

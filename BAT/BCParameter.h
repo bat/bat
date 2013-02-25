@@ -47,67 +47,43 @@ class BCParameter
         */
       BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
 
-      /**
-       * The default copy constructor. */
-      BCParameter(const BCParameter & parameter);
-
-      /**
-       * The default destructor. */
-      ~BCParameter();
-
-      /** @} */
-
-      /** \name Assignment operators */
-      /** @{ */
-
-      /**
-       * The defaut assignment operator. */
-      BCParameter & operator = (const BCParameter & parameter);
-
-      /** @} */
-
       /** \name Member functions (get) */
       /** @{ */
 
       /**
        * @return The name of the parameter. */
-      const std::string & GetName()
+      const std::string & GetName() const
          { return fName; }
 
       /**
        * Returns latex name if set, else identical to GetName().
        */
-      const std::string & GetLatexName()
-      {
-         if (fLatexName.empty())
-            return fName;
-         else
-            return fLatexName;
-      }
+      const std::string & GetLatexName() const
+         { return (fLatexName.empty()) ? fName : fLatexName; }
 
       /**
        * Returns the index of the parameter within the parameter
        * container of a BCModel.
        * @return The index of the parameter in the model. */
-      int GetIndex()
+      int GetIndex() const
          { return fIndex; }
 
       /**
        * @return The lower limit of the parameter values. */
-      double GetLowerLimit()
+      double GetLowerLimit() const
          { return fLowerLimit; }
 
       /**
        * @return The upper limit of the parameter values. */
-      double GetUpperLimit()
+      double GetUpperLimit() const
          { return fUpperLimit; }
 
       /**
        * Returns the range width of the parameter values. It is
        * always a positive value.
        * @return The range width of the parameter values. */
-      double GetRangeWidth()
-         { return (fUpperLimit>fLowerLimit)?fUpperLimit-fLowerLimit:fLowerLimit-fUpperLimit; }
+      double GetRangeWidth() const
+         { return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
 
       /** @} */
 
@@ -130,6 +106,12 @@ class BCParameter
          { fIndex = index; }
 
       /**
+       * Set parameter to be nuisance.
+       * @param nuisance false - not nuisance */
+      void SetNuisance(bool nuisance = true)
+         { fNuisance = nuisance; }
+
+      /**
        * Set the lower limit of the parameter values.
        * @param limit The lower limit of the parameter values. */
       void SetLowerLimit(double limit = 0)
@@ -148,12 +130,6 @@ class BCParameter
       void SetLimits(double lowerlimit = 0, double upperlimit = 1)
          { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
 
-      /**
-       * Set parameter to be nuisance.
-       * @param nuisance 1 - nuisance, 0 - not nuisance */
-      void SetNuisance(int nuisance = 1)
-         { fNuisance = nuisance; }
-
       /** @} */
 
       /** \name Member functions (miscellaneous methods) */
@@ -162,25 +138,21 @@ class BCParameter
       /**
        * Returns 1 if parameter is a nuisance parameter or 0 if not.
        * @return 1 - is nuisance paramete, 0 - is not nuisance parameter */
-      double IsNuisance()
+      bool IsNuisance() const
          { return fNuisance; }
 
       /**
        * Returns true if the value is at a parameter limit.
        * @return flag States if value is at parameter limit. */
-      bool IsAtLimit(double value);
+      bool IsAtLimit(double value) const;
 
       /**
        * Prints a parameter summary on the screen. */
-      void PrintSummary();
+      void PrintSummary() const;
 
       /** @} */
 
    private:
-
-      /**
-       * Copies this BCParameter into another one */
-      void Copy(BCParameter & parameter) const;
 
       /**
        * The name of the parameter. */
@@ -204,7 +176,7 @@ class BCParameter
 
       /**
        * Flag to specify whether to integrate over this parameter or not. */
-      int fNuisance;
+      bool fNuisance;
 
 };
 
