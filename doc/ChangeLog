@@ -4,6 +4,7 @@
 	  - use const qualifiers
 	  - remove unnecessary ctors, dtor
 	* BCModel: access BCParameter through const, so user code like model->GetParameter(i)->SetLimits(...) is illegal as it would bypass BCModel::SetParameterRange and MCMC is inconsistent. Requires changes in six other classes
+	* BCEfficiencyFitter: fix warning and bug
 
 2013-02-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath, fast fitters: clean up interfaces and $p$-value correction

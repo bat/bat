@@ -201,7 +201,7 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
    // set flat prior for all parameters by default
    SetPriorConstantAll();
 
-   return GetNParameters();;
+   return GetNParameters();
 }
 
 // ---------------------------------------------------------
