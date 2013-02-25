@@ -1,4 +1,7 @@
-2013-01-29 Frederik Beaujean <beaujean@mpp.mpg.de>
+2013-02-25 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* introduction: add warning for SetPrior*
+
+2013-02-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCMath, fast fitters: clean up interfaces and $p$-value correction
 	* introduction: describe new interfaces
 

@@ -347,7 +347,7 @@ classes. All model classes inherit from the pure-virtual base class
 \verb|BCModel|, which has one member function that must be overloaded:
 %
 \begin{verbatim}
-double BCModel::LogLikelihood(const std::vector <double> & params)
+virtual double BCModel::LogLikelihood(const std::vector<double> & params) = 0
 \end{verbatim}
 %
 This function calculates the conditional probability of the data given
@@ -359,10 +359,10 @@ stability.
 The member function
 %
 \begin{verbatim}
-double BCModel::LogAPrioriProbability(const std::vector <double> & parameters)
+virtual double BCModel::LogAPrioriProbability(const std::vector<double> & params)
 \end{verbatim}
 %
-may also be overrided. It calculates the {\it a priori} probability
+may also be overloaded. It calculates the {\it a priori} probability
 for a set of parameter values. It returns the logarithm of the
 conditional probability for reasons of numerical stability. If the
 {\it a priori} probablity is separable in terms of the individual
@@ -411,8 +411,12 @@ caching can significantly speed up execution, while for complicated
 likelihoods, the time spent calculating the prior probability is
 usually negligible.
 
-Whenever a prior is undefined, \bat\ assumes a constant prior and
-issues a warning.
+If the prior for a parameter is undefined, \bat\ assumes a constant
+prior and issues a warning.
+
+\emph{Warning: calls to \emph{\texttt{SetPrior*}} have no effect if
+  the concrete model \emph{\texttt{MyModel : public BCModel}}
+  overloads \emph{\texttt{LogAPrioriProbability}}.}
 
 % --------------------------------------------------------
 
