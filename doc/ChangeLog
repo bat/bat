@@ -1,3 +1,6 @@
+2013-02-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCMath: added LogGammaPDF to BCMath.
+
 2013-02-25 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* introduction: add warning for SetPrior*
 	* BCParameter:

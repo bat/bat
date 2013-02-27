@@ -268,6 +268,12 @@ double LogVoigtian(double x, double sigma, double gamma)
 }
 
 // ---------------------------------------------------------
+double LogGammaPDF(double x, double alpha, double beta)
+{
+	return alpha * log(beta) - TMath::LnGamma(alpha) + (alpha - 1) * log(x) - beta * x;
+}
+
+// ---------------------------------------------------------
 double SplitGaussian(double* x, double* par)
 {
    double mean = par[0]; 

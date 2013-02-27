@@ -153,6 +153,11 @@ namespace BCMath
     */
    double LogVoigtian(double x, double sigma, double gamma);
 
+	 /**
+		* Returns the log of the Gamma PDF.
+		*/
+   double LogGammaPDF(double x, double alpha, double beta);
+
    /**
     * Get N random numbers distributed according to chi square function
     * with K degrees of freedom
