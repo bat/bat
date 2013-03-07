@@ -1,3 +1,6 @@
+2013-03-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCH1D: added getters for std, variance, skew and kurtosis
+
 2013-02-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCMath: added LogGammaPDF to BCMath.
 

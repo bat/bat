@@ -91,6 +91,26 @@ class BCH1D
          { return fHistogram -> GetRMS(); };
 
       /**
+       * @return The standard deviation of the distribution. */
+      double GetSTD()
+         { return fHistogram -> GetRMS(); };
+
+      /**
+       * @return The variance of the distribution. */
+      double GetVariance()
+			   { return (GetSTD()*GetSTD()); };
+
+      /**
+       * @return The skew of the distribution. */
+      double GetSkew()
+         { return fHistogram -> GetSkewness(); };
+
+      /**
+       * @return The STD of the distribution. */
+      double GetKurtosis()
+         { return fHistogram -> GetKurtosis(); };
+
+      /**
        * Returns the integral of distribution the between two values.
        * @param valuemin The value from which the intergration is done.
        * @param valuemax The value up to which the intergration is done.
