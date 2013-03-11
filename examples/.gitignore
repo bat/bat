@@ -10,3 +10,39 @@ log.txt
 
 
 
+!advanced/referencecounting/aclocal.m4
+!advanced/referencecounting/*.cache
+!advanced/referencecounting/config
+!advanced/referencecounting/config.*
+!advanced/referencecounting/configure
+!advanced/referencecounting/.deps
+!advanced/referencecounting/depcomp
+!advanced/referencecounting/*.in
+!advanced/referencecounting/install-sh
+!advanced/referencecounting/libtool
+!advanced/referencecounting/*LinkDef.h
+!advanced/referencecounting/link.d
+!advanced/referencecounting/*.log
+!advanced/referencecounting/ltmain.sh
+!advanced/referencecounting/Makefile
+!advanced/referencecounting/missing
+!advanced/referencecounting/stamp-h1
+!advanced/referencecounting/*.status
+!advanced/referencecounting/*Dict.h
+!advanced/referencecounting/*Dict.cxx
+!advanced/referencecounting/*.rootmap
+!advanced/referencecounting/*.[oa]
+!advanced/referencecounting/CreateProject.sh
+!advanced/referencecounting/*.l[oa]
+!advanced/referencecounting/*.libs
+!advanced/referencecounting/*.so
+!advanced/referencecounting/.autotools
+!advanced/referencecounting/*.*project
+!advanced/referencecounting/*~
+!advanced/referencecounting/.directory
+!advanced/referencecounting/runCombineGaussians
+!advanced/referencecounting/runPoissonCounting
+!advanced/referencecounting/log.txt
+!advanced/referencecounting/*_results.txt
+!advanced/referencecounting/*.pdf
+!advanced/referencecounting/*.png

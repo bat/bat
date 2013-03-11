@@ -1,3 +1,6 @@
+2013-03-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced: added an example for reference counting
+
 2013-03-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH1D: added getters for std, variance, skew and kurtosis
 
