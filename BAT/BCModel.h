@@ -614,6 +614,42 @@ class BCModel : public BCIntegrate
       BCH1D * GetMarginalized(const char * name)
          { return this -> GetMarginalized(this -> GetParameter(name)); }
 
+			/**
+			 * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+			 * @param parameter The model parameter along which the slice is calculated.
+			 * @param parameters The point at which the other parameters are fixed.
+			 * @param nbins The number of bins of the 1D-histogram.
+			 * @return The 1D slice. */
+			BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+
+			/**
+			 * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+			 * @param name The name of the model parameter along which the slice is calculated.
+			 * @param parameters The point at which the other parameters are fixed.
+			 * @param nbins The number of bins of the 1D-histogram.
+			 * @return The 1D slice. */
+			BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
+			{ return this -> GetSlice(this -> GetParameter(name), parameters, nbins); }
+
+			/**
+			 * Returns a two-dimensional slice of the pdf at the point and along two specificed directions.
+			 * @param parameter1 The first model parameter along which the slice is calculated.
+			 * @param parameter2 The second model parameter along which the slice is calculated.
+			 * @param parameters The point at which the other parameters are fixed.
+			 * @param nbins The number of bins of the 2D-histogram.
+			 * @return The 2D slice. */
+			BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+
+			/**
+			 * Returns a two-dimensional slice of the pdf at the point and along two specificed directions.
+			 * @param parameter1 The name of the first model parameter along which the slice is calculated.
+			 * @param parameter2 The name of the second model parameter along which the slice is calculated.
+			 * @param parameters The point at which the other parameters are fixed.
+			 * @param nbins The number of bins of the 2D-histogram.
+			 * @return The 2D slice. */
+			BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
+			{ return this -> GetSlice(this -> GetParameter(name1), GetParameter(name2), parameters, nbins); }
+
       /**
        * If MarginalizeAll method was used, the individual marginalized distributions
        * with respect to two parameters can be retrieved using this method.

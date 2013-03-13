@@ -991,6 +991,145 @@ BCH1D * BCModel::GetMarginalized(const BCParameter * parameter)
 }
 
 // ---------------------------------------------------------
+BCH1D * BCModel::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins)
+{
+	// check if parameter exists
+	if (!parameter) {
+		BCLog::OutError("BCModel::GetSlice : Parameter does not exist.");
+		return 0;
+	}
+
+	// get parameter index
+	int index = parameter->GetIndex();
+
+	// create local copy of parameter set
+	std::vector<double> parameters_temp;
+	parameters_temp = parameters;
+
+	// normalization flag: if true, normalize slice histogram to unity
+	bool flag_norm = false;
+
+	// check if parameter set if defined
+	if (parameters_temp.size()==0 && GetNParameters()==1) {
+		parameters_temp.push_back(0);
+		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
+	}
+	else if (parameters_temp.size()==0 && GetNParameters()!=1) {
+		BCLog::OutError("BCModel::GetSlice : No parameters defined.");
+		return 0;
+	}
+
+	// calculate number of bins
+	if (nbins <= 0)
+		nbins = GetNbins();
+
+	// create histogram
+	TH1D * hist = new TH1D("", "", nbins, fMCMCBoundaryMin[index], fMCMCBoundaryMax[index]);
+
+	// set axis labels
+	hist->SetName(Form("hist_%s_%s", GetName().data(), parameter->GetName().data()));
+	hist->SetXTitle(parameter->GetLatexName().data());
+	if (GetNParameters() == 1) 
+		hist->SetYTitle(Form("p(%s|data)", parameter->GetLatexName().data()));
+	else 
+		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", parameter->GetLatexName().data()));
+	hist->SetStats(kFALSE);
+	
+	// fill histogram
+	for (int i = 1; i <= nbins; ++i) {
+		double par_temp = hist->GetBinCenter(i);
+		parameters_temp[index] = par_temp;
+		double prob = Eval(parameters_temp);
+		hist->SetBinContent(i, prob);
+	}
+
+	// normalize
+	if (flag_norm)
+		hist->Scale(1.0/hist->Integral());
+
+	// set histogram
+	BCH1D * hprob = new BCH1D();
+	hprob->SetHistogram(hist);
+
+	return hprob;
+}
+
+// ---------------------------------------------------------
+BCH2D* BCModel::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins)
+{
+	// check if parameter exists
+	if (!parameter1 || !parameter2) {
+		BCLog::OutError("BCModel::GetSlice : Parameter does not exist.");
+		return 0;
+	}
+
+	// get parameter index
+	int index1 = parameter1->GetIndex();
+	int index2 = parameter2->GetIndex();
+
+	// create local copy of parameter set
+	std::vector<double> parameters_temp;
+	parameters_temp = parameters;
+
+	// normalization flag: if true, normalize slice histogram to unity
+	bool flag_norm = false;
+
+	// check number of dimensions
+	if (GetNParameters() < 2) {
+		BCLog::OutError("BCModel::GetSlice : Number of parameters need to be at least 2.");
+	}
+
+	// check if parameter set if defined
+	if (parameters_temp.size()==0 && GetNParameters()==2) {
+		parameters_temp.push_back(0);
+		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
+	}
+	else if (parameters_temp.size()==0 && GetNParameters()>2) {
+		BCLog::OutError("BCModel::GetSlice : No parameters defined.");
+		return 0;
+	}
+
+	// calculate number of bins
+	if (nbins <= 0)
+		nbins = GetNbins();
+
+	// create histogram
+	TH2D * hist = new TH2D("", "", nbins, fMCMCBoundaryMin[index1], fMCMCBoundaryMax[index1],
+												 nbins, fMCMCBoundaryMin[index2], fMCMCBoundaryMax[index2]);
+
+	// set axis labels
+	hist->SetName(Form("hist_%s_%s_%s", GetName().data(), parameter1->GetName().data(), parameter2->GetName().data()));
+	hist->SetXTitle(Form("%s", parameter1->GetLatexName().data()));
+	hist->SetYTitle(Form("%s", parameter2->GetLatexName().data()));
+	hist->SetStats(kFALSE);
+	
+	// fill histogram
+	for (int ix = 1; ix <= nbins; ++ix) {
+		for (int iy = 1; iy <= nbins; ++iy) {
+		// debugKK: I am here
+			double par_temp1 = hist->GetXaxis()->GetBinCenter(ix);
+			double par_temp2 = hist->GetYaxis()->GetBinCenter(iy);
+
+		parameters_temp[index1] = par_temp1;
+		parameters_temp[index2] = par_temp2;
+
+		double prob = Eval(parameters_temp);
+		hist->SetBinContent(ix, iy, prob);
+		}
+	}
+	
+	// normalize
+	if (flag_norm)
+		hist->Scale(1.0/hist->Integral());
+
+	// set histogram
+	BCH2D * hprob = new BCH2D();
+	hprob->SetHistogram(hist);
+
+	return hprob;
+}
+
+// ---------------------------------------------------------
 int BCModel::ReadMarginalizedFromFile(const char * file)
 {
    TFile * froot = new TFile(file);

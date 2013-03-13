@@ -593,10 +593,13 @@ int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, 
 // ---------------------------------------------------------
 int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
 {
-   // create legend
-   TLegend * legend1d = new TLegend(0.50, 0.88, 0.85, 0.99);
-   legend1d->SetBorderSize(0);
-   legend1d->SetFillColor(0);
+   // prepare legend
+   TLegend* legend = new TLegend();
+   legend->SetBorderSize(0);
+   legend->SetFillColor(kWhite);
+   legend->SetTextAlign(12);
+   legend->SetTextFont(62);
+   legend->SetTextSize(0.03);
 
    // get histograms;
    const BCParameter * par = fModel->GetParameter(index);
@@ -604,8 +607,8 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
    hist_prior->SetLineColor(kRed);
    TH1D * hist_posterior = fModel->GetMarginalized(par)->GetHistogram();
 
-   legend1d->AddEntry(hist_prior, "Prior probability", "L");
-   legend1d->AddEntry(hist_posterior, "Posterior probability", "L");
+   legend->AddEntry(hist_prior, "Prior probability", "L");
+   legend->AddEntry(hist_posterior, "Posterior probability", "L");
 
    // scale histogram
    hist_prior->Scale(hist_posterior->Integral()/hist_prior->Integral());
@@ -615,33 +618,38 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
    double max_posterior = hist_posterior->GetMaximum();
    double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
 
+	 double height = 0.03*legend->GetNRows();
+
    // plot
    hist_prior->GetXaxis()->SetNdivisions(508);
    hist_posterior->GetXaxis()->SetNdivisions(508);
-   // debugKK
-   if (min != max) {
-      double qmin = fModel->GetMarginalized(par)->GetQuantile(min);
-      double qmax = fModel->GetMarginalized(par)->GetQuantile(max);
-      hist_posterior->Draw();
-      TH1D * hist_shaded = fModel->GetMarginalized(par)->GetSubHisto(qmin,qmax,"");
-      hist_shaded->SetFillStyle(1001);
-      hist_shaded->SetFillColor(kYellow);
-      legend1d->AddEntry(hist_shaded, Form("%.0f%% - %.0f%% prob.", min*100., max*100.), "F");
-      hist_shaded->Draw("same");
-      hist_prior->Draw("SAME");
-      hist_posterior->Draw("SAME");
-      gPad->RedrawAxis();
-   }
-   else {
-      hist_prior->Draw();
-      hist_posterior->Draw("SAME");
-   }
 
-   legend1d->Draw("SAME");
+	 hist_prior->Draw();
+	 hist_posterior->Draw("SAME");
 
    // scale axes
    hist_prior->GetYaxis()->SetRangeUser(0.0, maxy);
    hist_posterior->GetYaxis()->SetRangeUser(0.0, maxy);
+
+	 gPad->SetTopMargin(0.02);
+	 double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
+   double xlegend2 = 1.0-gPad->GetRightMargin();
+   double ylegend1 = 1.-gPad->GetTopMargin()-height;
+   double ylegend2 = 1.-gPad->GetTopMargin();
+
+   // place legend on top of histogram
+   legend->SetX1NDC(xlegend1);
+   legend->SetX2NDC(xlegend2);
+   legend->SetY1NDC(ylegend1);
+   legend->SetY2NDC(ylegend2);
+
+   // draw legend
+	 legend->Draw();
+
+   // rescale top margin
+   gPad->SetTopMargin(1.-ylegend1+0.01);
+
+   gPad->RedrawAxis();
 
    return 1;
 }
