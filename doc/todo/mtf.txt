@@ -1,0 +1,12 @@
+Wish list for MTF:
+==================
+
+* Plotting option a la Mai
+
+* fast p-value evaluation
+
+* generate ensembles according to Poisson-fluctuated templates,
+  i.e. bin-wise fluctuations.
+
+* easy way to generate ensembles according to the priors of nuisance
+  parameters.
