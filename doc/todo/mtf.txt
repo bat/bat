@@ -1,12 +1,25 @@
 Wish list for MTF:
 ==================
 
-* Plotting option a la Mai
+* update plotting:
 
-* fast p-value evaluation
+  - general update, e.g., pdf output
 
-* generate ensembles according to Poisson-fluctuated templates,
-  i.e. bin-wise fluctuations.
+  - plotting option a la Mai
+
+* implement fast p-value evaluation
+
+* analyse a data set with Poisson-fluctuated templates, i.e. bin-wise
+  fluctuations:
+
+  - need the MC-stat. uncertainty in each bin, can we take them from
+    the histograms?
+
+  - need a method to return a fluctuated template. Options:
+    Poisson/Gauss.
+
+  - ensemble test: fix input data set and analyse it with a set of
+    fluctuated templates.
 
 * easy way to generate ensembles according to the priors of nuisance
   parameters.
