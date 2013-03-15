@@ -198,7 +198,7 @@ class BCMTFChannel
 			/** 
 			 * Print histogram for uncertainty band calculation.
 			 * @param filename The name of the file. */
-			void PrintHistUncertaintyBandPoisson(const char* filename); 
+			void PrintHistUncertaintyBandPoisson(const char* filename, const char* options="COLZ"); 
 
 			/**
 			 * Print cumulative histogram for uncertainty band calculation.

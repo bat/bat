@@ -753,6 +753,11 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
   // todo:
   // - remove x-error on data points
   // - use hatched fill for error band
+  // - add legend
+  // - adjust size
+  // - add difference/ratio/significance plot below
+	// - check for b0/1 if the mcmc was run
+	// - plot data again as the last step
 
   // check if parameters are filled
   if (!parameters.size())
@@ -941,6 +946,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
   // draw error band on number of observed events
   if (flag_b1) {
+		channel->CalculateHistUncertaintyBandPoisson();
     channel->CalculateUncertaintyBandPoisson(0.001, 0.999, kRed)->Draw("SAMEE2");
     channel->CalculateUncertaintyBandPoisson(0.023, 0.977, kOrange)->Draw("SAMEE2");
     channel->CalculateUncertaintyBandPoisson(0.159, 0.841, kGreen)->Draw("SAMEE2");

@@ -53,6 +53,10 @@ BCMTFChannel::~BCMTFChannel()
 // ---------------------------------------------------------
 void BCMTFChannel::PrintTemplates(std::string filename)
 {
+	// todo:
+	// - clean up
+	// - add titles to templates
+
    // check if file extension is pdf
    if ( (filename.find_last_of(".") != std::string::npos) &&
          (filename.substr(filename.find_last_of(".")+1) == "pdf") ) {
@@ -87,7 +91,7 @@ void BCMTFChannel::PrintTemplates(std::string filename)
 		 // print
 		 if (i == 0)
 			 c1->Print(std::string( filename + "(").c_str());
-		 else if (i = ntemplates -1)
+		 else if (i == ntemplates -1)
 			 c1->Print(std::string( filename + ")").c_str());
 		 else
 			 c1->Print(filename.c_str());
@@ -304,12 +308,16 @@ TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maxim
       double p = fHistUncertaintyBandPoisson->GetBinContent(ix, jbin);
       sum_p+=p;
       if (sum_p < minimum)
-	limit_min=jbin;
+				limit_min=jbin;
       if (sum_p > maximum && (sum_p - p) < maximum ) 
-	limit_max=jbin-1;
+				limit_max=jbin-1;
     }
-    hist->SetBinContent(ix, 0.5*double(limit_min+limit_max));
-    hist->SetBinError(ix, 0.5*double(limit_max-limit_min));
+		//    hist->SetBinContent(ix, 0.5*double(limit_min+limit_max));
+		//    hist->SetBinError(ix, 0.5*double(limit_max-limit_min));
+		double ylimit_min = fHistUncertaintyBandPoisson->GetYaxis()->GetBinCenter(limit_min);
+		double ylimit_max = fHistUncertaintyBandPoisson->GetYaxis()->GetBinCenter(limit_max);
+		hist->SetBinContent(ix, 0.5*double(ylimit_min+ylimit_max));
+		hist->SetBinError(ix, 0.5*double(ylimit_max-ylimit_min));
   }
 
   return hist;
@@ -354,7 +362,7 @@ void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(const char* filenam
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename)
+void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename, const char * options)
 {
   // create new canvas
   TCanvas * c1 = new TCanvas();
@@ -364,7 +372,7 @@ void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename)
   this->CalculateHistUncertaintyBandPoisson();
    
   // draw histogram
-  fHistUncertaintyBandPoisson->Draw("COLZ");
+  fHistUncertaintyBandPoisson->Draw(options);
   c1->Draw();
    
   // print
@@ -388,6 +396,10 @@ void BCMTFChannel::PrintUncertaintyBandPoisson(const char* filename, double mini
   hist->Draw("E2");
   c1->Draw();
    
+	// debugKK
+	for (int i = 0; i < 10; ++i)
+		std::cout << i << " " << hist->GetBinContent(i+1) << " +- " << hist->GetBinError(i+1) << std::endl;
+
   // print
   c1->Print(filename);
    
