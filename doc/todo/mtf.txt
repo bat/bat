@@ -23,3 +23,23 @@ Wish list for MTF:
 
 * easy way to generate ensembles according to the priors of nuisance
   parameters.
+
+- do the templates have to be pointers?
+
+- why does the ensemble test have a "start" value? Why not random ensembles?
+
+- fix plotting of stack
+
+- move stack plotting to channel?
+
+- fix plotting of templates in channel (add title)
+
+- plotting of all stacks into a single pdf file
+
+- plotting of stack plot with juxtaposed channels
+
+- add legend including channel title
+
+- add difference/ratio/significance plot below
+
+- check for b0/1 if the mcmc was run

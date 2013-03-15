@@ -751,10 +751,7 @@ int BCMTF::PrintStack(const char * channelname, const std::vector<double> & para
 int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename, const char * options)
 {
   // todo:
-  // - remove x-error on data points
-  // - use hatched fill for error band
-  // - add legend
-  // - adjust size
+  // - add legend including channel title
   // - add difference/ratio/significance plot below
 	// - check for b0/1 if the mcmc was run
 
@@ -937,7 +934,12 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
   hist_data->Draw("P0");
 
 	// define variable for maximum in y-direction
-	double ymax = hist_data->GetMaximum(); 
+	double ymax = 0;;
+	
+	if (flag_e1)
+		ymax = hist_data->GetMaximum() + sqrt(hist_data->GetMaximum()); 
+	else 
+		ymax = hist_data->GetMaximum();
 
   // set range user
   hist_data->GetYaxis()->SetRangeUser(channel->GetRangeYMin(), channel->GetRangeYMax());
