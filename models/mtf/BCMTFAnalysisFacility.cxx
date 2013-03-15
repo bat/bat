@@ -45,8 +45,16 @@ BCMTFAnalysisFacility::~BCMTFAnalysisFacility()
 }
 
 // ---------------------------------------------------------
-std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double> & parameters)
+std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double> & parameters, std::string options)
 {
+   // option flags
+   bool flag_data = false;
+
+   // check content of options string
+   if (options.find("data") < options.size()) {
+      flag_data = true;
+   }
+
    // get number of channels
    int nchannels = fMTF->GetNChannels();
 
@@ -67,11 +75,12 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
 
       // loop over all bins
       for (int ibin = 1; ibin <= nbins; ++ibin) {
-         double expectation = fMTF->Expectation(ichannel, ibin, parameters);
-
-         double observation = gRandom->Poisson(expectation);
-
-         hist.SetBinContent(ibin, observation);
+				if (!flag_data) {
+					double expectation = fMTF->Expectation(ichannel, ibin, parameters);
+					double observation = gRandom->Poisson(expectation);
+					
+					hist.SetBinContent(ibin, observation);
+				}
       }
 
       // add histogram
@@ -83,7 +92,7 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
 }
 
 // ---------------------------------------------------------
-TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
+TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles, std::string options)
 {
    // get number of channels
    int nchannels = fMTF->GetNChannels();
@@ -156,7 +165,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
       tree->GetEntry(index);
 
       // create ensembles
-      histograms = BuildEnsemble(parameters);
+      histograms = BuildEnsemble(parameters, options);
 
       // copy information from histograms into tree variables
       // loop over channels
@@ -188,7 +197,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles)
 }
 
 // ---------------------------------------------------------
-TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parameters, int nensembles)
+TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parameters, int nensembles, std::string options)
 {
    // get number of channels
    int nchannels = fMTF->GetNChannels();
@@ -249,7 +258,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
    // loop over ensembles
    for (int iensemble = 0; iensemble < nensembles; ++iensemble) {
       // create ensembles
-      histograms = BuildEnsemble(parameters);
+		 histograms = BuildEnsemble(parameters, options);
 
       // copy information from histograms into tree variables
       // loop over channels
@@ -269,7 +278,10 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
 
       // copy parameter information
       for (int i = 0; i < nparameters; ++i) {
-         in_parameters[i] = parameters.at(i);
+				if (parameters.size() > 0)
+					in_parameters[i] = parameters.at(i);
+				else 
+					in_parameters[i] = 0;
       }
 
       // fill tree
@@ -281,24 +293,32 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
 }
 
 // ---------------------------------------------------------
-TTree * BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double> & parameters, int nensembles)
+TTree * BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double> & parameters, int nensembles, std::string options)
 {
    // create new tree
    TTree * tree = 0;
 
    // create ensembles
-   tree = BuildEnsembles(parameters, nensembles);
+   tree = BuildEnsembles(parameters, nensembles, options);
 
    // perform ensemble test
-   return PerformEnsembleTest(tree, nensembles);
+   return PerformEnsembleTest(tree, nensembles, 0, options);
 }
 
 // ---------------------------------------------------------
-TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles, int start)
+TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles, int start, std::string options)
 {
    BCLog::OutSummary("Running ensemble test.");
    if (fFlagMCMC) {
       BCLog::OutSummary("Fit for each ensemble is going to be run using MCMC. It can take a while.");
+   }
+
+   // option flags
+   bool flag_mc = false;
+
+   // check content of options string
+   if (options.find("MC") < options.size()) {
+      flag_mc = true;
    }
 
    // set log level
@@ -351,8 +371,8 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       // loop over bins
       for (int ibin = 1; ibin <= nbins; ++ibin) {
          // create branches
-         tree->SetBranchAddress(Form("channel_%i_bin_%i", ichannel, ibin),
-                                           &(nbins_matrix[ichannel])[ibin-1]);
+				tree->SetBranchAddress(Form("channel_%i_bin_%i", ichannel, ibin),
+															 &(nbins_matrix[ichannel])[ibin-1]);
       }
    }
 
@@ -434,6 +454,9 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
    tree_out->Branch("cash_mode_total", &out_cash_mode_total, "cash statistic (mode of par.) in all channels/D");
    tree_out->Branch("nevents_total", &out_nevents_total, "total number of events/I");
 
+	 // define temporary vector of histogram for fluctated templates
+	 std::vector<TH1D*> histlist(0);
+
    // loop over ensembles
    for (int iensemble = 0; iensemble < nensembles; ++iensemble) {
       // print status
@@ -455,7 +478,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       // transform matrix into histograms
       histograms = MatrixToHistograms(nbins_matrix);
 
-      // loop over channels
+      // loop over channels and set data
       for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
          // get channel
          BCMTFChannel * channel = fMTF->GetChannel(ichannel);
@@ -468,6 +491,32 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
          fMTF->SetData(channel->GetName().c_str(), histograms.at(ichannel));
       }
 
+			// fluctuate templates if option "MC" is chosen
+			if (flag_mc) {			
+				// get number of templates
+				unsigned int ntemplates = fMTF->GetNProcesses();
+				
+				// loop over channels
+				for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
+					// get channel
+					BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
+					
+					// loop over all templates
+					for (unsigned int i = 0; i < ntemplates; ++i) {
+						
+						// get histogram
+						TH1D * temphist = channel->GetTemplate(i)->GetHistogram();
+						histlist.push_back(temphist);
+
+						// replace by fluctuated histogram
+						if (temphist) {
+							TH1D* temphistfluc = new TH1D(channel->GetTemplate(i)->FluctuateHistogram(options, channel->GetTemplate(i)->GetOriginalNorm()));
+							channel->GetTemplate(i)->SetHistogram(temphistfluc, channel->GetTemplate(i)->GetNorm());
+						}
+					}
+				}
+			}
+			
       // check if MCMC should be run and perform analysis
       if (fFlagMCMC) {
          BCLog::SetLogLevel(lls,llf);
@@ -542,6 +591,32 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
 
       // fill tree
       tree_out->Fill();
+
+ 			// but original template back if options "MC" is chosen
+ 			if (flag_mc) {			
+ 				// get number of templates
+ 				unsigned int ntemplates = fMTF->GetNProcesses();
+			
+ 				// loop over channels
+ 				for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
+ 					// get channel
+ 					BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
+				
+ 					// loop over all templates
+ 					for (unsigned int i = 0; i < ntemplates; ++i) {
+					
+ 						// get histogram
+ 						TH1D * temphist = histlist.at(ichannel * ntemplates + i);
+						temphist->Scale(channel->GetTemplate(i)->GetOriginalNorm()/ temphist->Integral());
+
+ 						// replace by fluctuated histogram
+ 						TH1D* temphistfluc = channel->GetTemplate(i)->GetHistogram();
+ 						delete temphistfluc;
+ 						channel->GetTemplate(i)->SetHistogram(temphist, channel->GetTemplate(i)->GetNorm());
+ 					}
+ 				}
+ 				histlist.clear();
+ 			}
    }
 
    // put the original data back in place

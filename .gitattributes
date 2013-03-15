@@ -118,6 +118,9 @@ examples/advanced/mtf/README -text
 examples/advanced/mtf/ensembleTest/CreateHistograms.C -text
 examples/advanced/mtf/ensembleTest/README -text
 examples/advanced/mtf/ensembleTest/ensembleTest.C -text
+examples/advanced/mtf/mcstat/CreateHistograms.C -text
+examples/advanced/mtf/mcstat/README -text
+examples/advanced/mtf/mcstat/mcstat.C -text
 examples/advanced/mtf/singleChannel/CreateHistograms.C -text
 examples/advanced/mtf/singleChannel/README -text
 examples/advanced/mtf/singleChannel/singleChannel.C -text

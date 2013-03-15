@@ -125,37 +125,49 @@ class BCMTFAnalysisFacility
 			/**
 			 * Build a single ensemble based on a single set of parameters.
 			 * @param parameters The set of parameters which are used to generate the ensembles.
+			 * @param options A set of options: \n
+			 * "data" : all pseudo data sets are equal to the actual data set
 			 * @return A vector of TH1D histograms with the pseudo-data. */
-      std::vector<TH1D> BuildEnsemble(const std::vector<double> & parameters);
+      std::vector<TH1D> BuildEnsemble(const std::vector<double> & parameters, std::string options="");
 
 			/**
 			 * Build ensembles based on a single set of parameters. 
 			 * @param parameters The set of parameters which are used to generate the ensembles.
 			 * @param ensembels The number of ensembles to be generated.
+			 * @param options A set of options: \n
+			 * "data" : all pseudo data sets are equal to the actual data set
 			 * @return A tree containing the ensembles. */
-      TTree * BuildEnsembles(const std::vector<double> & parameters, int nensembles);
+      TTree * BuildEnsembles(const std::vector<double> & parameters, int nensembles, std::string options="");
 
 			/**
 			 * Build ensembles based on a varying sets of parameters, e.g., using the prior or posterior.
 			 * @param tree A BAT output tree containing the parameters to be used for the generation of the ensembles.
 			 * @param ensembels The number of ensembles to be generated.
+			 * @param options A set of options: \n
+			 * "data" : all pseudo data sets are equal to the actual data set
 			 * @return A tree containing the ensembles. */
-      TTree * BuildEnsembles(TTree * tree, int nensembles);
+      TTree * BuildEnsembles(TTree * tree, int nensembles, std::string options="");
 
 			/**
 			 * Perform ensemble test based on one set of parameters.
 			 * @param parameters The set of parameters which are used to generate the ensembles.
 			 * @param ensembels The number of ensembles to be generated.
+			 * @param options A set of options: \n
+			 * "MC" : for each ensemble, the template are fluctuated statistically \n
+			 * "data" : all pseudo data sets are equal to the actual data set
 			 * @return A tree containing the ensembles and the output of the test. */
-      TTree * PerformEnsembleTest(const std::vector<double> & parameters, int nensembles);
+      TTree * PerformEnsembleTest(const std::vector<double> & parameters, int nensembles, std::string options="");
 
       /**
 			 * Perform ensemble test based on varying sets of parameters.
 			 * @param tree A BAT output tree containing the parameters to be used for the generation of the ensembles.
 			 * @param nensembles The number of ensembles to be generated.
 			 * @param nstart The first ensemble used in the tree. 
+			 * @param options A set of options: \n
+			 * "MC" : for each ensemble, the template are fluctuated statistically \n
+			 * "data" : all pseudo data sets are equal to the actual data set
 			 * @return A tree containing the ensembles and the output of the test. */
-      TTree * PerformEnsembleTest(TTree * tree, int nensembles, int start = 0);
+      TTree * PerformEnsembleTest(TTree * tree, int nensembles, int start = 0, std::string options="");
 
 			/**
 			 * Transform a matrix to a set of histograms.

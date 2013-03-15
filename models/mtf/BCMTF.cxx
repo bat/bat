@@ -134,10 +134,6 @@ int BCMTF::SetTemplate(const char * channelname, const char * processname, TH1D 
   // get template
   BCMTFTemplate * bctemplate = channel->GetTemplate(processindex);
 
-  // normalize histogram
-  if (hist.Integral())
-    hist.Scale(1.0 / hist.Integral());
-
   // remove statistics box
   hist.SetStats(kFALSE);
 
@@ -259,7 +255,7 @@ int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double m
   hist_uncbandpoisson->SetStats(kFALSE);
    
   // set histograms
-  data->SetHistogram(new TH1D(hist));
+  data->SetHistogram(new TH1D(hist), hist.Integral());
   channel->SetHistUncertaintyBandExpectation(hist_uncbandexp); 
   channel->SetHistUncertaintyBandPoisson(hist_uncbandpoisson); 
    

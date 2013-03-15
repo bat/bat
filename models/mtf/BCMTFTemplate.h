@@ -22,7 +22,9 @@
 
 #include <string>
 
-class TH1D;
+#include <TH1D.h>
+#include <TRandom3.h>
+
 class TF1;
 
 // ---------------------------------------------------------
@@ -69,6 +71,27 @@ class BCMTFTemplate
       { return fHistogram; };
 
 	 /**
+		* @return The normalization. */
+	 double GetNorm()
+	 { return fNormalization; };
+
+	 /**
+		* @return The original normalization. */
+	 double GetOriginalNorm()
+	 { return fOriginalNormalization; };
+
+   /**
+    * Fluctuate the original template histogram by the uncertainty on the bin content.
+    * @param options A set of options.
+    * "P" : use Poisson model, the expectation value parameter is the bin content and also defines the uncertainties.
+    * "G" [default] : use a Gaussian mode, the expectation value paramer mu is the bin content, the uncertainty sigma is defined by the uncertainty in the histogram.
+    * "Z" [default] : make sure that the bin content is positive.
+		* @param norm The target normalization.
+    * @return A histogram with each bin fluctuated by the uncertainty on the bin content. \n
+    */
+   TH1D FluctuateHistogram(std::string options = "GZ", double norm = 1); 
+
+	 /**
     * @return The function container. */
    std::vector<TF1 *> * GetFunctionContainer()
       { return fFunctionContainer; };
@@ -91,8 +114,16 @@ class BCMTFTemplate
 
    /**
     * Set the histogram.
-    * @param hist The TH1D histogram. */
-   void SetHistogram(TH1D * hist);
+    * @param hist The TH1D histogram. 
+		* @param norm The target normalization. */
+	 
+   void SetHistogram(TH1D * hist, double norm = 1);
+
+	 /**
+		* Set the original normalization.
+		* @param norm The normalization. */
+	 void SetOrignialNormalization(double norm) {
+		 fOriginalNormalization = norm; };
 
    /** Set a function container
     * funccont The function container
@@ -119,6 +150,14 @@ class BCMTFTemplate
     * The number of bins in the histogram. */
    int fNBins;
 
+	 /**
+		* The normalization. */
+	 double fNormalization;
+
+	 /**
+		* The original normalization. */
+	 double fOriginalNormalization;
+
    /**
     * The name of the channel. */
    std::string fChannelName;
@@ -126,6 +165,11 @@ class BCMTFTemplate
    /** 
     * The name of the process. */
    std::string fProcessName;
+
+   /**
+    * A random number generator. */
+   TRandom3* fRandom;
+
 
 };
 // ---------------------------------------------------------
