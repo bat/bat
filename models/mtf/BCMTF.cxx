@@ -757,7 +757,6 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
   // - adjust size
   // - add difference/ratio/significance plot below
 	// - check for b0/1 if the mcmc was run
-	// - plot data again as the last step
 
   // check if parameters are filled
   if (!parameters.size())
@@ -937,19 +936,32 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
   //draw data
   hist_data->Draw("P0");
 
+	// define variable for maximum in y-direction
+	double ymax = hist_data->GetMaximum(); 
+
   // set range user
   hist_data->GetYaxis()->SetRangeUser(channel->GetRangeYMin(), channel->GetRangeYMax());
 
   // draw stack
-  if (flag_stack)
+  if (flag_stack) {
     stack->Draw("SAMEHIST");
+		if (stack->GetMaximum() > ymax)
+			ymax = stack->GetMaximum();
+	}
 
   // draw error band on number of observed events
   if (flag_b1) {
 		channel->CalculateHistUncertaintyBandPoisson();
-    channel->CalculateUncertaintyBandPoisson(0.001, 0.999, kRed)->Draw("SAMEE2");
+    TH1D* hist_temp = channel->CalculateUncertaintyBandPoisson(0.001, 0.999, kRed);
+		hist_temp->Draw("SAMEE2");
     channel->CalculateUncertaintyBandPoisson(0.023, 0.977, kOrange)->Draw("SAMEE2");
-    channel->CalculateUncertaintyBandPoisson(0.159, 0.841, kGreen)->Draw("SAMEE2");
+		channel->CalculateUncertaintyBandPoisson(0.159, 0.841, kGreen)->Draw("SAMEE2");
+
+		// get bin with maximum
+		int ymaxbin = hist_temp->GetMaximumBin(); 
+
+		if (hist_temp->GetBinContent(ymaxbin)+hist_temp->GetBinError(ymaxbin)> ymax)
+			ymax = hist_temp->GetBinContent(ymaxbin)+hist_temp->GetBinError(ymaxbin);
   }
 
   // draw error band on expectation
@@ -966,6 +978,8 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
   if (flag_e1)
     hist_data->Draw("SAMEP0E");
+
+	hist_data->GetYaxis()->SetRangeUser(0., 1.1* ymax);
 
   // redraw the axes
   gPad->RedrawAxis();

@@ -5,7 +5,7 @@ Wish list for MTF:
 
   - general update, e.g., pdf output
 
-  - plotting option a la Mai
+  - plotting option a la Mai. done.
 
 * implement fast p-value evaluation
 
@@ -13,13 +13,13 @@ Wish list for MTF:
   fluctuations:
 
   - need the MC-stat. uncertainty in each bin, can we take them from
-    the histograms?
+    the histograms? yes. done.
 
   - need a method to return a fluctuated template. Options:
-    Poisson/Gauss.
+    Poisson/Gauss. done.
 
   - ensemble test: fix input data set and analyse it with a set of
-    fluctuated templates.
+    fluctuated templates. done.
 
 * easy way to generate ensembles according to the priors of nuisance
   parameters.
