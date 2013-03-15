@@ -91,36 +91,6 @@ namespace BCMath
    double LogFact(int n);
 
    /**
-    * Returns the "greater or equal" of two numbers
-    */
-   inline int Max(int x, int y)
-      { return x >= y ? x : y; }
-
-   inline int Max(unsigned int x, unsigned int y)
-      { return x >= y ? x : y; }
-
-   inline double Max(double x, double y)
-      { return x >= y ? x : y; }
-
-   inline double Max(float x, float y)
-      { return x >= y ? x : y; }
-
-   /**
-    * Returns the "less or equal" of two numbers
-    */
-   inline int Min(int x, int y)
-      { return x <= y ? x : y; }
-
-   inline int Min(unsigned int x, unsigned int y)
-      { return x <= y ? x : y; }
-
-   inline double Min(double x, double y)
-      { return x <= y ? x : y; }
-
-   inline double Min(float x, float y)
-      { return x <= y ? x : y; }
-
-   /**
     * Returns the nearest integer of a double number.
     */
    int Nint(double x);
@@ -241,6 +211,9 @@ namespace BCMath
 	double Rvalue(const std::vector<double> & chain_means, const std::vector<double> & chain_variances,
                   const unsigned & chain_length, const bool & strict = true) throw (std::invalid_argument, std::domain_error);
 
+   /** \name p value methods */
+   /** @{ */
+
 	/**
 	 * Correct a p value by transforming to a chi^2 with dof=nobservations,
 	 * then back to a pvalue with dof reduced by number of fit parameters.
@@ -250,6 +223,21 @@ namespace BCMath
 	 * @return corrected p value
 	 */
 	double CorrectPValue(const double & pvalue, const unsigned & npar, const unsigned & nobservations) throw (std::domain_error);
+
+	/**
+	 * Calculate the p value using fast MCMC for a histogram and the likelihood as test statistic.
+	 * The method is explained in the appendix of http://arxiv.org/abs/1011.1674
+	 *
+	 * @param observed The counts of observed events
+	 * @param expected The expected number of events (Poisson means)
+	 * @param nIterations Controls number of pseudo data sets
+	 * @param seed Set to nonzero value for reproducible results.
+	 * @return The p value
+	 */
+	double FastPValue(const std::vector<unsigned> & observed, const std::vector<double> & expected,
+	                  unsigned nIterations = 1e5, unsigned seed = 0) throw (std::invalid_argument);
+
+	/** @} */
 }
 
 // ---------------------------------------------------------

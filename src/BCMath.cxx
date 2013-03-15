@@ -17,6 +17,7 @@
 #include <TMath.h>
 #include <TF1.h>
 #include <TH1D.h>
+#include <TRandom3.h>
 
 #include <Math/PdfFuncMathCore.h>
 #include <Math/QuantFuncMathCore.h>
@@ -185,8 +186,8 @@ double LogNoverK(int n, int k)
    if (k == 1 || k == n - 1)
       return log((double) n);
 
-   int lmax = Max(k, n - k);
-   int lmin = Min(k, n - k);
+   int lmax = std::max(k, n - k);
+   int lmin = std::min(k, n - k);
 
    double ln = 0.;
 
@@ -393,9 +394,9 @@ std::vector<int> longestRuns(const std::vector<bool> &bitStream)
       else {
          // compare terminated run to maximum
          if (aboveRun)
-            maxRunAbove = Max(maxRunAbove, currRun);
+            maxRunAbove = std::max(maxRunAbove, currRun);
          else
-            maxRunBelow = Max(maxRunBelow, currRun);
+            maxRunBelow = std::max(maxRunBelow, currRun);
          // set flag to run of opposite kind
          aboveRun = !aboveRun;
          // restart at length one
@@ -407,9 +408,9 @@ std::vector<int> longestRuns(const std::vector<bool> &bitStream)
 
    // check last run
    if (aboveRun)
-      maxRunAbove = Max(maxRunAbove, currRun);
+      maxRunAbove = std::max(maxRunAbove, currRun);
    else
-      maxRunBelow = Max(maxRunBelow, currRun);
+      maxRunBelow = std::max(maxRunBelow, currRun);
 
    // save the longest runs
    runs.at(0) = maxRunBelow;
@@ -461,9 +462,9 @@ std::vector<double> longestRunsChi2(
       } else {
          //compare terminated run to maximum
          if (aboveRun)
-            maxRunAbove = Max(maxRunAbove, currRun);
+            maxRunAbove = std::max(maxRunAbove, currRun);
          else
-            maxRunBelow = Max(maxRunBelow, currRun);
+            maxRunBelow = std::max(maxRunBelow, currRun);
          //set flag to run of opposite kind
          aboveRun = !aboveRun;
          //restart at current residual
@@ -473,9 +474,9 @@ std::vector<double> longestRunsChi2(
 
    //check last run
    if (aboveRun)
-      maxRunAbove = Max(maxRunAbove, currRun);
+      maxRunAbove = std::max(maxRunAbove, currRun);
    else
-      maxRunBelow = Max(maxRunBelow, currRun);
+      maxRunBelow = std::max(maxRunBelow, currRun);
 
    //save the longest runs
    runs.at(0) = maxRunBelow;
@@ -528,6 +529,7 @@ double longestRunFrequency(unsigned longestObserved, unsigned int nTrials)
    return prob;
 }
 
+// ---------------------------------------------------------
 double Rvalue(const std::vector<double> & chain_means, const std::vector<double> & chain_variances,
               const unsigned & chain_length, const bool & strict)  throw (std::invalid_argument, std::domain_error)
 {
@@ -641,6 +643,7 @@ double Rvalue(const std::vector<double> & chain_means, const std::vector<double>
    return R;
 }
 
+// ---------------------------------------------------------
 double CorrectPValue(const double & pvalue, const unsigned & npar, const unsigned & nobservations) throw (std::domain_error)
 {
    // avoid pathologies
@@ -663,5 +666,88 @@ double CorrectPValue(const double & pvalue, const unsigned & npar, const unsigne
 
    // transform back to p value
    return TMath::Prob(chi2, dof);
+}
+
+// ---------------------------------------------------------
+double FastPValue(const std::vector<unsigned> & observed, const std::vector<double> & expected,
+                  unsigned nIterations, unsigned seed) throw (std::invalid_argument)
+{
+   size_t nbins = observed.size();
+   if (nbins != expected.size())
+   {
+      throw std::invalid_argument(Form("BCMath::FastPValue: "
+             "size of expected and observed do not match, %u vs %u", expected.size(), nbins));
+   }
+
+   // temporary histogram to be modified in each MCMC step
+   std::vector<unsigned> histogram(nbins, 0);
+
+   // fix seed to iterations for reproducible results
+   TRandom3 rng(seed);
+
+   // keep track of log of probability and count data sets with larger value
+   double logp = 0;
+   double logp_start = 0;
+   int counter_pvalue = 0;
+
+   // define starting distribution as histogram with most likely entries
+   for (size_t ibin = 0; ibin < nbins; ++ibin) {
+
+      // get the number of expected events
+      double yexp = expected[ibin];
+
+      //most likely observed value = int(expected value)
+      histogram[ibin] = size_t(yexp);
+
+      // calculate test statistic (= likelihood of entire histogram) for starting distr.
+      logp += LogPoisson(size_t(yexp), yexp);
+
+      //statistic of the observed data set
+      logp_start += LogPoisson(observed[ibin], yexp);
+   }
+
+   // loop over iterations
+    for (unsigned iiter = 0; iiter < nIterations; ++iiter) {
+       // loop over bins
+       for (size_t ibin = 0; ibin < nbins; ++ibin) {
+          // random step up or down in statistics for this bin
+          double ptest = rng.Rndm() - 0.5;
+
+          // increase statistics by 1
+          if (ptest > 0) {
+             // calculate factor of probability
+             double r = expected[ibin] / double(histogram[ibin] + 1);
+
+             // walk, or don't (this is the Metropolis part)
+             if (rng.Rndm() < r) {
+                ++histogram[ibin];
+                logp += log(r);
+             }
+          }
+
+          // decrease statistics by 1
+          else if (ptest <= 0 && histogram[ibin] > 0) {
+             // calculate factor of probability
+             double r = double(histogram[ibin]) / expected[ibin];
+
+             // walk, or don't (this is the Metropolis part)
+             if (rng.Rndm() < r) {
+                --histogram[ibin];
+                logp += log(r);
+             }
+          }
+       } // end of looping over bins
+
+       // increase counter
+       if (logp <= logp_start)
+          ++counter_pvalue;
+       // handle the case where a -b +b > a because of precision loss
+       else if (logp_start && logp != logp_start && fabs((logp - logp_start) / logp_start) < 1e-15)
+          ++counter_pvalue;
+
+    } // end of looping over iterations
+
+      // calculate p-value
+      return double(counter_pvalue) / nIterations;
 }
 } // end of namespace BCMath
