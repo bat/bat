@@ -49,18 +49,17 @@ void BCMTFTemplate::SetHistogram(TH1D * hist, double norm)
 	// get number of bins
 	fNBins = fHistogram->GetNbinsX();
 
-	// set normalization
-	fNormalization = norm;
-	
 	// set original normalization
 	double orignorm = fHistogram->Integral();
 	SetOrignialNormalization(orignorm);
 
   // normalize histogram
-  if (orignorm)
-    fHistogram->Scale(fNormalization / orignorm);
+  if (orignorm && norm)
+    fHistogram->Scale(norm / orignorm);
 
-
+	// set normalization
+	if (norm)
+		fNormalization = norm;
 }
 
 // ---------------------------------------------------------

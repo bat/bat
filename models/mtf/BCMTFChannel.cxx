@@ -51,8 +51,54 @@ BCMTFChannel::~BCMTFChannel()
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintTemplates(const char * filename)
+void BCMTFChannel::PrintTemplates(std::string filename)
 {
+   // check if file extension is pdf
+   if ( (filename.find_last_of(".") != std::string::npos) &&
+         (filename.substr(filename.find_last_of(".")+1) == "pdf") ) {
+      ; // it's a PDF file
+
+   }
+   else if ( (filename.find_last_of(".") != std::string::npos) &&
+         (filename.substr(filename.find_last_of(".")+1) == "ps") ) {
+      ; // it's a PS file
+   }
+   else {
+      ; // make it a PDF file
+      filename += ".pdf";
+   }
+
+	 // create new canvas
+	 TCanvas * c1 = new TCanvas();
+	 c1->cd();
+
+	 // get number of templates
+	 unsigned int ntemplates = fTemplateContainer.size();
+
+	 // loop over templates
+	 for (unsigned int i = 0; i < ntemplates; ++i) {
+
+		 // get histogram
+		 TH1D * temphist = GetTemplate(i)->GetHistogram();
+
+		 // draw
+		 temphist->Draw();
+		 
+		 // print
+		 if (i == 0)
+			 c1->Print(std::string( filename + "(").c_str());
+		 else if (i = ntemplates -1)
+			 c1->Print(std::string( filename + ")").c_str());
+		 else
+			 c1->Print(filename.c_str());
+	 }
+
+	 // debugKK: add process name
+
+	 // free memory
+	 delete c1;
+
+	 /*
   // create new canvas
   TCanvas * c1 = new TCanvas();
   c1->Divide(2, 2);
@@ -113,6 +159,8 @@ void BCMTFChannel::PrintTemplates(const char * filename)
 
   // free memory
   delete c1;
+
+	 */
 }
 
 // ---------------------------------------------------------

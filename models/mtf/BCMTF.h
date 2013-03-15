@@ -140,7 +140,7 @@ class BCMTF : public BCModel
        * @param hist The TH1D histogram.
        * @param efficiency The efficiency of this process in this channel.
        * @return An error code. */			
-      int SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1.);
+      int SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1., double norm = 1.);
 
 			/**
        * Set the template for a specific process in a particular

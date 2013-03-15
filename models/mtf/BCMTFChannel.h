@@ -182,7 +182,7 @@ class BCMTFChannel
 			/**
 			 * Print the templates in this channel.
 			 * @param filename The name of the file. */
-      void PrintTemplates(const char * filename);
+      void PrintTemplates(std::string filename);
 
 			/**
 			 * Print a particular template with systematics.

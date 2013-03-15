@@ -108,7 +108,7 @@ int BCMTF::GetSystematicIndex(const char * name)
 }
 
 // ---------------------------------------------------------
-int BCMTF::SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency)
+int BCMTF::SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency, double norm)
 {
   // get channel index
   int channelindex = GetChannelIndex(channelname);
@@ -145,7 +145,7 @@ int BCMTF::SetTemplate(const char * channelname, const char * processname, TH1D 
   TH1D * temphist = new TH1D(hist);
 
   // set histogram
-  bctemplate->SetHistogram(temphist);
+  bctemplate->SetHistogram(temphist, norm);
 
   // set efficiency
   bctemplate->SetEfficiency(efficiency);
