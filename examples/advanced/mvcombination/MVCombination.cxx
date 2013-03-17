@@ -256,7 +256,7 @@ void MVCombination::PrintSummary()
 	std::cout << "* Uncertainties:" << std::endl;
 	std::cout << "  Measurement (observable): Uncertainty (";
 	for (int j = 0; j < nunc-1; ++j )
-		std::cout << GetUncertainty(j)->GetName() << ",";
+		std::cout << GetUncertainty(j)->GetName() << ", ";
 	std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
 	for (int i = 0; i < nmeas; ++i) {
 		MVMeasurement* m = GetMeasurement(i);
@@ -276,12 +276,11 @@ void MVCombination::PrintSummary()
 		for (int j = 0; j < nmeas; ++j) {
 			std::cout << "  ";
 			for (int k = 0; k < nmeas; ++k) 
-				std::cout << std::setw(7) << mat[j][k] << " ";
-			std::cout << std::endl;
+				std::cout << std::setw(7) << std::showpos << mat[j][k] << " ";
+			std::cout << std::noshowpos << std::endl;
 		}
 		std::cout << std::endl;
 	}
-	std::cout << std::endl;
 
 	std::cout << "* BLUE results: " << std::endl;
 	std::cout << "  Observable: estimate +- uncertainty" << std::endl;
@@ -293,7 +292,7 @@ void MVCombination::PrintSummary()
 
 	std::cout << "  Observable: Uncertainty (";
 	for (int j = 0; j < nunc-1; ++j )
-		std::cout << GetUncertainty(j)->GetName() << ",";
+		std::cout << GetUncertainty(j)->GetName() << ", ";
 	std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
 	for (int i = 0; i < nobs; ++i) {
 		std::cout << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ": ";
@@ -308,8 +307,8 @@ void MVCombination::PrintSummary()
 	for (int j = 0; j < nobs; ++j) {
 		std::cout << "  ";
 		for (int k = 0; k < nobs; ++k) 
-			std::cout << std::setw(7) << mat[j][k] << " ";
-		std::cout << std::endl;
+			std::cout << std::setw(7) << std::showpos << mat[j][k] << " ";
+		std::cout << std::noshowpos << std::endl;
 	}
 	std::cout << std::endl;
 	
@@ -317,7 +316,7 @@ void MVCombination::PrintSummary()
 	for (int j = 0; j < nmeas; ++j) {
 		std::cout << "  " << GetMeasurement(j)->GetName() << " : ";
 		for (int k = 0; k < nobs; ++k) 
-			std::cout << std::setw(7) << fBLUEWeights[k][j]*100. << " ";
+			std::cout << std::setw(7) << std::showpos << fBLUEWeights[k][j]*100. << " ";
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
