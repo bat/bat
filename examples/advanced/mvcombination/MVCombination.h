@@ -66,6 +66,44 @@ class MVCombination : public BCModel
 			TMatrixD GetCovarianceMatrix()
 			{ return fCovarianceMatrix; };
 
+			// return the BLUE weights
+			TMatrixD GetBLUEWeights()
+			{ return fBLUEWeights; }; 
+
+			// return the BLUE central values
+			TVectorD GetBLUECentralValues()
+			{ return fBLUECentral; };
+
+			// return the BLUE uncertainties
+			TVectorD GetBLUEUncertainties()
+			{ return fBLUEUncertainties; };
+
+			// return the BLUE uncertainties for a certain source of
+			// uncertainty
+			// index: the index of the uncertainty source
+			TVectorD GetBLUEUncertainties(int index)
+			{ return fBLUEUncertaintiesPerSource.at(index); }; 
+
+			// return the BLUE covariance matrix
+			TMatrixD GetBLUECovarianceMatrix()
+			{ return fBLUECovarianceMatrix; };
+
+			// return the BLUE covariance matrix for a certain source of
+			// uncertainty
+			// index: the index of the uncertainty source
+			TMatrixD GetBLUECovarianceMatrix(int index) 
+			{ return fBLUECovarianceMatrices.at(index); }; 
+
+			// return the BLUE correlation matrix for a certain source of
+			// uncertainty
+			// index: the index of the uncertainty source
+			TMatrixD GetBLUECorrelationMatrix(int index) 
+			{ return fBLUECorrelationMatrices.at(index); }; 
+
+			// return the BLUE correlation matrix
+			TMatrixD GetBLUECorrelationMatrix() 
+			{ return fBLUECorrelationMatrix; }; 
+
 			// misc
 
 			// calculate the correlation matrix for a particular uncertainty
@@ -127,7 +165,7 @@ class MVCombination : public BCModel
 			// the BLUE uncertainties
 			TVectorD fBLUEUncertainties;
 
-			// the BLUE uncertainties
+			// the BLUE uncertainties per source
 			std::vector<TVectorD> fBLUEUncertaintiesPerSource;
 
 			// the BLUE covariance matrix
@@ -139,7 +177,7 @@ class MVCombination : public BCModel
 			// the BLUE covariance matrices for all uncertainties
 			std::vector<TMatrixD> fBLUECorrelationMatrices;
 
-			// the BLUE covariance matrix
+			// the BLUE correlation matrix
 			TMatrixD fBLUECorrelationMatrix;
 
 };

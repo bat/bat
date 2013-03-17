@@ -198,6 +198,7 @@ void MVCombination::CalculateBLUE()
 			double sigma_j = sqrt(mat[j][j]);
 			vec[j] = sigma_j;
 		}
+		fBLUEUncertaintiesPerSource.push_back(vec);
 
 		TMatrixD mat2(nobs, nobs);
 		for (int j = 0; j < nobs; ++j) 
@@ -253,6 +254,20 @@ void MVCombination::PrintSummary()
 	std::cout << std::endl;
 	
 	std::cout << "* Uncertainties:" << std::endl;
+	std::cout << "  Measurement (observable): Uncertainty (";
+	for (int j = 0; j < nunc-1; ++j )
+		std::cout << GetUncertainty(j)->GetName() << ",";
+	std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+	for (int i = 0; i < nmeas; ++i) {
+		MVMeasurement* m = GetMeasurement(i);
+		std::cout << "  " << std::setiosflags(std::ios::left) << m->GetName() 
+							<< std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << "): ";
+		for (int j = 0; j < nunc; ++j )
+			std::cout << std::setiosflags(std::ios::left) << std::setw(7) << m->GetUncertainty(j);
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+
 	for (int i = 0; i < nunc; ++i) {
 		MVUncertainty* u = GetUncertainty(i);
 		std::cout << "  " << u->GetName() << " " << "(correlation matrix)" << std::endl;
@@ -272,7 +287,19 @@ void MVCombination::PrintSummary()
 	std::cout << "  Observable: estimate +- uncertainty" << std::endl;
 	for (int i = 0; i < nobs; ++i) {
 		if (i < fBLUECentral.GetNoElements())
-			std::cout << "  " << GetParameter(i)->GetName() << " " << fBLUECentral[i] << " +- " << fBLUEUncertainties[i] << std::endl;
+			std::cout << "  " << GetParameter(i)->GetName() << ": " << fBLUECentral[i] << " +- " << fBLUEUncertainties[i] << std::endl;
+	}
+	std::cout << std::endl;
+
+	std::cout << "  Observable: Uncertainty (";
+	for (int j = 0; j < nunc-1; ++j )
+		std::cout << GetUncertainty(j)->GetName() << ",";
+	std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+	for (int i = 0; i < nobs; ++i) {
+		std::cout << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ": ";
+		for (int j = 0; j < nunc; ++j )
+			std::cout << std::setiosflags(std::ios::left) << std::setw(7) << GetBLUEUncertainties(j)[i];
+		std::cout << std::endl;
 	}
 	std::cout << std::endl;
 
