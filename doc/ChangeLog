@@ -1,3 +1,6 @@
+2013-03-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mvcombination: added an example for the multivariate Gaussian combination of measurements and several observables. Also includes BLUE estimates.
+	
 2013-03-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mtf: added MC fluctuation of templates including ensemble tests
 	* examples/advanced/mtf: added an example for the evaluation of MC stats

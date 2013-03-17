@@ -1,0 +1,39 @@
+This example is part of BAT. It will only run if BAT is correctly
+installed in the system.
+
+The example calculates the best linear unbiased estimator (BLUE) of
+several measurements and observables according to Nucl.  931
+Instrum. Meth. A500 (2003) 391 and numerically.
+
+
+The files:
+----------
+
+   Makefile               - makefile for the example program
+   MVCombination.h        - definition of the combination model
+   MyCombination.h        - definition of the concrete combination model
+   MVMeasurement.h        - definition of a measurement
+   MVUncertainty.h        - definition of an uncertainty
+   MVCombination.cxx      - soure code
+   MyCombination.cxx      - soure code
+   MVMeasurement.cxx      - soure code
+   MVUncertainty.cxx      - soure code 
+   input.txt              - input file
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system
+
+2. Compile the example by running 'make' in the example directory
+
+	For the compilation to work properly BAT needs to be installed
+	in the standard system accessible location or in the path defined
+	by the BATINSTALLDIR environmental variable.
+
+3. Make sure that the input file contains the corresponding
+   information about the input values.
+
+4. Run the executable 'runMyCombination.cxx'
+
