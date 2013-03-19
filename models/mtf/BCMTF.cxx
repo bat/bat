@@ -1128,6 +1128,88 @@ double BCMTF::CalculateCash(const std::vector<double> & parameters)
 }
 
 // ---------------------------------------------------------
+double BCMTF::CalculatePValue(int channelindex, const std::vector<double> & parameters)
+{
+   // get channel
+   BCMTFChannel * channel = GetChannel(channelindex);
+
+   // get data histogram
+   TH1D * hist = channel->GetData()->GetHistogram();
+
+   // check if histogram exists
+   if (!hist) {
+      return -1;
+   }
+
+   // get number of bins in data
+   int nbins = hist->GetNbinsX();
+
+   // copy observed and expected values
+   std::vector<unsigned> observation(nbins);
+   std::vector<double> expectation(nbins);
+
+   // loop over all bins
+   for (int ibin = 0; ibin < nbins; ++ibin) {
+      // get expectation value
+      expectation[ibin] = Expectation(channelindex, ibin + 1, parameters);
+
+      // get observation
+      observation[ibin]= hist->GetBinContent(ibin + 1);
+   }
+
+   // create pseudo experiments
+   static const unsigned nIterations = 1e5;
+   return BCMath::FastPValue(observation, expectation, nIterations, fRandom->GetSeed());
+}
+
+// ---------------------------------------------------------
+double BCMTF::CalculatePValue(const std::vector<double> & parameters)
+{
+
+   // copy observed and expected values
+   std::vector<unsigned> observation;
+   std::vector<double> expectation;
+
+   // loop over all channels
+   for (int ichannel = 0; ichannel < fNChannels; ++ichannel) {
+
+     // get channel
+     BCMTFChannel * channel = fChannelContainer[ichannel];
+
+     // check if channel is active
+     if (!(channel->GetFlagChannelActive()))
+          continue;
+
+      // get data histogram
+      TH1D * hist = channel->GetData()->GetHistogram();
+
+      // check if histogram exists
+      if (!hist) {
+         return -1;
+      }
+
+      // get number of bins in data
+      int nbins = hist->GetNbinsX();
+
+      // loop over all bins
+      for (int ibin = 0; ibin < nbins; ++ibin) {
+         // get expectation value
+         expectation.push_back(Expectation(ichannel, ibin + 1, parameters));
+
+         // get observation
+         observation.push_back(hist->GetBinContent(ibin + 1));
+      }
+   }
+
+   // create pseudo experiments
+   static const unsigned nIterations = 1e5;
+   fPValue = BCMath::FastPValue(observation, expectation, nIterations, fRandom->GetSeed());
+   fPValueNDoF = BCMath::CorrectPValue(fPValue, parameters.size(), observation.size());
+
+   return fPValue;
+}
+
+// ---------------------------------------------------------
 double BCMTF::LogLikelihood(const std::vector<double> & parameters)
 {
   double logprob = 0.;

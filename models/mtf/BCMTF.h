@@ -317,6 +317,25 @@ class BCMTF : public BCModel
        * @see CalculateCash(int channelindex, const std::vector<double> & parameters) */
       double CalculateCash(const std::vector<double> & parameters);
 
+      /**
+       * Calculates and returns the fast p-value for the total likelihood as test statistic.
+       * @see BCMath::CorrectPValue for correcting the fitting bias
+       * @param channelindex The channel index.
+       * @param parameters A reference to the parameters for which the model expectations are computed.
+       * @return the uncorrected p-value
+       */
+      double CalculatePValue(int channelindex, const std::vector<double> & parameters);
+
+      /**
+       * Calculates and returns the fast p-value for the total likelihood as test statistic.
+       *
+       * @note Obtain the results with @see BCModel::GetPValue and the value corrected for degrees
+       * of freedom with @see BCModel::GetPValueNDoF
+       *
+       * @param parameters A reference to the parameters for which the model expectations are computed.
+       */
+      double CalculatePValue(const std::vector<double> & parameters);
+
       /** @} */
 
       /** \name Member functions (output methods) */
