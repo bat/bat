@@ -177,16 +177,16 @@ int BCHistogramFitter::SetHistogramExpected(const std::vector<double> & paramete
 
       // use ROOT's TH1D::Integral method
       if (fFlagIntegration)
-         yexp = fFitFunction->Integral(xedgehi - dx, xedgehi);
+	 yexp = fFitFunction->Integral(xedgehi - dx, xedgehi);
 
       // use linear interpolation
       else {
-         // get function value at upper bin edge
-         double fedgehi = fFitFunction->Eval(xedgehi);
-         yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
+	 // get function value at upper bin edge
+	 double fedgehi = fFitFunction->Eval(xedgehi);
+	 yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
 
-         // make the upper edge the lower edge for the next iteration
-         fedgelow = fedgehi;
+	 // make the upper edge the lower edge for the next iteration
+	 fedgelow = fedgehi;
       }
 
       //write the expectation for the bin
@@ -282,14 +282,14 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double> & params)
 
       // use ROOT's TH1D::Integral method
       if (fFlagIntegration)
-         yexp = fFitFunction->Integral(xedgehi - dx, xedgehi);
+	 yexp = fFitFunction->Integral(xedgehi - dx, xedgehi);
 
       // use linear interpolation
       else {
-         yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
+	 yexp = fedgelow * dx + (fedgehi - fedgelow) * dx / 2.;
 
-         // make the upper edge the lower edge for the next iteration
-         fedgelow = fedgehi;
+	 // make the upper edge the lower edge for the next iteration
+	 fedgelow = fedgehi;
       }
 
       // get the value of the Poisson distribution
@@ -356,12 +356,9 @@ int BCHistogramFitter::Fit()
    FindModeMinuit(GetBestFitParameters(), -1);
 
    // calculate the p-value using the fast MCMC algorithm
-   double pvalue, pvalueCorrected;
-   if (CalculatePValueFast(GetBestFitParameters(), pvalue, pvalueCorrected))
-      fPValue = pvalue;
-   else
+   if( !CalculatePValueFast(GetBestFitParameters()))
       BCLog::OutWarning(
-            "BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
+	    "BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
 
    // print summary to screen
    PrintShortFitSummary();
@@ -425,118 +422,46 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
 }
 
 // ---------------------------------------------------------
-int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par, double &pvalue,
-                                           double & pvalueCorrected, unsigned nIterations)
-{
-   //use NULL pointer for no callback
-   return CalculatePValueFast(par, NULL, pvalue, pvalueCorrected, nIterations);
-}
-
-// ---------------------------------------------------------
-int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
-      BCHistogramFitter::ToyDataInterface * callback, double & pvalue,
-      double & pvalueCorrected,  unsigned nIterations)
+int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par, unsigned nIterations)
 {
    // check size of parameter vector
    if (par.size() != GetNParameters()) {
       BCLog::OutError(
-            "BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
+	    "BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
       return 0;
    }
 
    // check if histogram exists
    if (!fHistogram) {
       BCLog::OutError(
-            "BCHistogramFitter::CalculatePValueFast : Histogram not defined.");
+	    "BCHistogramFitter::CalculatePValueFast : Histogram not defined.");
       return 0;
    }
-
-   // define temporary variables
-   int nbins = fHistogram->GetNbinsX();
-
-   std::vector<unsigned> histogram(nbins, 0);
-   std::vector<double> expectation(nbins, 0);
-
-   double logp = 0;
-   double logp_start = 0;
-   int counter_pvalue = 0;
 
    //update the expected number of events for all bins
    SetHistogramExpected(par);
 
-   // define starting distribution as histogram with most likely entries
-   for (int ibin = 0; ibin < nbins; ++ibin) {
+   // copy observed and expected values
+   std::vector<unsigned> observed(fHistogram->GetNbinsX());
+   std::vector<double> expected(fHistogramExpected->GetNbinsX());
 
-      // get the number of expected events
-      double yexp = fHistogramExpected->GetBinContent(ibin + 1);
-
-      //most likely observed value = int(expected value)
-      histogram[ibin] = int(yexp);
-      expectation[ibin] = yexp;
-
-      // calculate test statistic (= likelihood of entire histogram) for starting distr.
-      logp += BCMath::LogPoisson(double(int(yexp)), yexp);
-      //statistic of the observed data set
-      logp_start += BCMath::LogPoisson(fHistogram->GetBinContent(ibin + 1),
-            yexp);
+   for (int ibin = 0 ; ibin < fHistogram->GetNbinsX(); ++ibin){
+      observed[ibin] = fHistogram->GetBinContent(ibin + 1);
+      expected[ibin] = fHistogramExpected->GetBinContent(ibin + 1);
    }
 
-   // loop over iterations
-   for (unsigned iiter = 0; iiter < nIterations; ++iiter) {
-      // loop over bins
-      for (int ibin = 0; ibin < nbins; ++ibin) {
-         // random step up or down in statistics for this bin
-         double ptest = fRandom->Rndm() - 0.5;
+   // create pseudo experiments
+   fPValue = BCMath::FastPValue(observed, expected, nIterations, fRandom->GetSeed());
 
-         // increase statistics by 1
-         if (ptest > 0) {
-            // calculate factor of probability
-            double r = expectation.at(ibin) / double(histogram.at(ibin) + 1);
-
-            // walk, or don't (this is the Metropolis part)
-            if (fRandom->Rndm() < r) {
-               histogram[ibin] = histogram.at(ibin) + 1;
-               logp += log(r);
-            }
-         }
-
-         // decrease statistics by 1
-         else if (ptest <= 0 && histogram[ibin] > 0) {
-            // calculate factor of probability
-            double r = double(histogram.at(ibin)) / expectation.at(ibin);
-
-            // walk, or don't (this is the Metropolis part)
-            if (fRandom->Rndm() < r) {
-               histogram[ibin] = histogram.at(ibin) - 1;
-               logp += log(r);
-            }
-         }
-      } // end of looping over bins
-
-      //one new toy data set is created
-      //call user interface to calculate arbitrary statistic's distribution
-      if (callback)
-         (*callback)(expectation, histogram);
-
-      // increase counter
-      if (logp < logp_start)
-         counter_pvalue++;
-
-   } // end of looping over iterations
-
-   // calculate p-value
-   pvalue = double(counter_pvalue) / double(nIterations);
-
-   // correct for fit bias
-   pvalueCorrected = BCMath::CorrectPValue(pvalue, GetNParameters(), fHistogram->GetNbinsX());
+   // correct for fitting bias
+   fPValueNDoF = BCMath::CorrectPValue(fPValue, GetNParameters(), fHistogram->GetNbinsX());
 
    // no error
    return 1;
 }
 
 // ---------------------------------------------------------
-
-int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par, double &pvalue)
+int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par)
 {
    // initialize test statistic -2*lambda
    double logLambda = 0.0;
@@ -562,12 +487,9 @@ int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par
    // rescale
    logLambda *= 2.0;
 
-   // compute degrees of freedom for Poisson case
-   int nDoF = GetNDataPoints() - GetNParameters();
-
    //p value from chi^2 distribution, returns zero if logLambda < 0
-   fPValueNDoF = TMath::Prob(logLambda, nDoF);
-   pvalue = fPValueNDoF;
+   fPValue = TMath::Prob(logLambda, GetNDataPoints());
+   fPValueNDoF = TMath::Prob(logLambda, GetNDataPoints() - GetNParameters());
 
    // no error
    return 1;
@@ -575,7 +497,7 @@ int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> & par, double &pvalue, bool weightExpect)
+int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> & par, bool weightExpect)
 {
    // initialize test statistic chi^2
    double chi2 = 0.0;
@@ -602,12 +524,9 @@ int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> & p
       chi2 += (y - yexp) * (y - yexp) / weight;
    }
 
-   // compute degrees of freedom for Poisson case
-   int nDoF = GetNDataPoints() - GetNParameters();
-
-   // p value from chi^2 distribution, returns zero if logLambda < 0
-   fPValueNDoF = TMath::Prob(chi2, nDoF);
-   pvalue = fPValueNDoF;
+   // p value from chi^2 distribution
+   fPValue = TMath::Prob(chi2, GetNDataPoints());
+   fPValueNDoF = TMath::Prob(chi2, GetNDataPoints() - GetNParameters());
 
    // no error
    return 1;
@@ -615,12 +534,12 @@ int BCHistogramFitter::CalculatePValueLeastSquares(const std::vector<double> & p
 
 // ---------------------------------------------------------
 
-int BCHistogramFitter::CalculatePValueKolmogorov(const std::vector<double> & par, double& pvalue)
+int BCHistogramFitter::CalculatePValueKolmogorov(const std::vector<double> & par)
 {
    if (!fHistogramExpected || !fHistogram) {
       BCLog::OutError("BCHistogramFitter::CalculatePValueKolmogorov: "
-         "Please define the reference distribution by calling \n"
-         "BCHistogramFitter::SetHistogramExpected() first!");
+            "Please define the reference distribution by calling \n"
+            "BCHistogramFitter::SetHistogramExpected() first!");
       return 0;
    }
 
@@ -628,9 +547,8 @@ int BCHistogramFitter::CalculatePValueKolmogorov(const std::vector<double> & par
    SetHistogramExpected(par);
 
    //perform the test
-   pvalue = fHistogramExpected->KolmogorovTest(fHistogram);
-
-   fPValue = pvalue;
+   fPValue = fHistogramExpected->KolmogorovTest(fHistogram);
+   fPValue = BCMath::CorrectPValue(fPValue, GetNParameters(), GetNDataPoints());
 
    // no error
    return 1;
@@ -673,15 +591,15 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
 
    if (lower) {
       if ((int) yObs >= 1)
-         return ROOT::Math::poisson_cdf((unsigned int) (yObs - 1), yExp);
+	 return ROOT::Math::poisson_cdf((unsigned int) (yObs - 1), yExp);
       else
-         return 0.0;
+	 return 0.0;
    }
-   // what if yObs as double doesn't reprepsent a whole number? exceptioN?
+   // what if yObs as double doesn't reprepsent a whole number? exception?
    if ((double) (unsigned int) yObs != yObs) {
       BCLog::OutWarning(Form(
-            "BCHistogramFitter::CDF: Histogram values should be integer!\n"
-               " Bin %d = %f", index, yObs));
+	    "BCHistogramFitter::CDF: Histogram values should be integer!\n"
+	       " Bin %d = %f", index, yObs));
 
       //convert randomly to integer
       // ex. yObs = 9.785 =>
@@ -690,9 +608,9 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
       double U = fRandom->Rndm();
       double yObsLower = (unsigned int) yObs;
       if (U > (yObs - yObsLower))
-         yObs = yObsLower;
+	 yObs = yObsLower;
       else
-         yObs = yObsLower + 1;
+	 yObs = yObsLower + 1;
    }
 
    return ROOT::Math::poisson_cdf((unsigned int) yObs, yExp);
