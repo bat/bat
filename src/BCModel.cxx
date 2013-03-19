@@ -2505,7 +2505,11 @@ void BCModel::PrintResults(const char * file)
    if (fPValue >= 0.) {
       ofi << " Results of the model test" << std::endl
             << " =========================" << std::endl
-            << " p-value at global mode: " << fPValue << std::endl << std::endl;
+            << " p-value: " << fPValue << std::endl;
+      if (fPValueNDoF >= 0)
+         ofi << " p-value corrected for degrees of freedom: " << fPValueNDoF << std::endl;
+
+      ofi << std::endl;
    }
 
    if (fNormalization >= 0.) {
