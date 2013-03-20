@@ -481,6 +481,10 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       flag_smooth10 = true;
    }
 
+   if (options.find("same") < options.size()) {
+      draw_options.append("SAME");
+   }
+
    if (options.find("logx") < options.size()) {
       flag_logx = true;
    }

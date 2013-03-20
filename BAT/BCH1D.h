@@ -244,6 +244,7 @@ class BCH1D
        * deciles : indicate deciles \n
        * percentiles : indicate percentiles \n
        * L : add legend \n
+			 * same: add histogram on top of another histogram
        * @param intervals the intervals
        */
       void Draw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));

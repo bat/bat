@@ -1082,6 +1082,7 @@ BCH2D* BCModel::GetSlice(const BCParameter* parameter1, const BCParameter* param
 	// check if parameter set if defined
 	if (parameters_temp.size()==0 && GetNParameters()==2) {
 		parameters_temp.push_back(0);
+		parameters_temp.push_back(0);
 		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
 	}
 	else if (parameters_temp.size()==0 && GetNParameters()>2) {

@@ -1,3 +1,8 @@
+2013-03-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel: fixed the default parameter values for 2D slices
+	* BCH1D: added "SAME" as a plotting option
+	* BCSummaryTool: updated plotting of 1D and 2D histograms.
+
 2013-03-19 Frederik Beaujean <beaujean@mpp.mpg.de>
         * BCMath: add stand-alone fast p value calculation with test cases
         * BCHistogramFitter: remove useless callback, use new fast p value,

@@ -21,6 +21,7 @@
 #include <TF1.h>
 #include <TLine.h>
 
+#include <string>
 #include <iostream>
 #include <fstream>
 
@@ -573,14 +574,17 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, double min, double max)
+int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post, std::string options_prior, double min, double max)
 {
+   // perform analysis
+   CalculatePriorModel();
+
    // create canvas
    TCanvas * c = new TCanvas();
    c->cd();
 
    // draw
-   DrawKnowledgeUpdatePlot1D(index, min, max);
+   DrawKnowledgeUpdatePlot1D(index, options_post, options_prior, min, max);
 
    // print
    c->Print(filename);
@@ -591,8 +595,20 @@ int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, 
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
+int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post, std::string options_prior, double min, double max)
 {
+   // option flags
+   bool flag_slice_post = false;
+   bool flag_slice_prior = false;
+
+   // check content of options string
+   if (options_post.find("slice") < options_post.size()) {
+      flag_slice_post = true;
+   }
+   if (options_prior.find("slice") < options_prior.size()) {
+      flag_slice_prior = true;
+   }
+
    // prepare legend
    TLegend* legend = new TLegend();
    legend->SetBorderSize(0);
@@ -603,33 +619,76 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
 
    // get histograms;
    const BCParameter * par = fModel->GetParameter(index);
-   TH1D * hist_prior = fPriorModel->GetMarginalized(par)->GetHistogram();
-   hist_prior->SetLineColor(kRed);
-   TH1D * hist_posterior = fModel->GetMarginalized(par)->GetHistogram();
+   BCH1D* hist_prior = 0;
+   BCH1D* hist_posterior = 0;
 
-   legend->AddEntry(hist_prior, "Prior probability", "L");
-   legend->AddEntry(hist_posterior, "Posterior probability", "L");
+	 hist_prior = fPriorModel->GetMarginalized(par);	 
+	 if (flag_slice_prior && fPriorModel->GetNParameters()==2) {
+		 if (index == 0) {
+			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX();
+			  hist->Scale(1.0/hist->Integral("width"));
+				for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
+				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+		 }
+		 else {
+			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY();
+			 hist->Scale(1.0/hist->Integral("width"));
+			 for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
+				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+		 }
+		 hist_prior->GetHistogram()->SetStats(kFALSE);
+	 }
+	 else if (flag_slice_prior && fPriorModel->GetNParameters()==1) {
+		 hist_prior = fPriorModel->GetSlice(par);
+		 hist_prior->GetHistogram()->SetStats(kFALSE);
+	 }	 
+	 hist_prior->GetHistogram()->SetLineColor(kRed);
 
-   // scale histogram
-   hist_prior->Scale(hist_posterior->Integral()/hist_prior->Integral());
+	 hist_posterior = fModel->GetMarginalized(par);	
+	 if (flag_slice_post && fModel->GetNParameters()==2) {
+		 if (index == 0) {
+			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX();
+			 hist->Scale(1.0/hist->Integral("width"));
+			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
+				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+		 }
+		 else {
+			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY();
+			 hist->Scale(1.0/hist->Integral("width"));
+			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i) 
+				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+		 }
+		 hist_posterior->GetHistogram()->SetStats(kFALSE);
+	 }
+	 else if (flag_slice_post && fModel->GetNParameters()==1) {
+		 hist_posterior = fModel->GetSlice(par);
+		 hist_posterior->GetHistogram()->SetStats(kFALSE);
+	 }
+
+	 legend->AddEntry(hist_prior->GetHistogram(), "Prior probability", "L");
+   legend->AddEntry(hist_posterior->GetHistogram(), "Posterior probability", "L");
+
+   // scale histograms
+	 hist_posterior->GetHistogram()->Scale(1./hist_posterior->GetHistogram()->Integral("width"));
+	 hist_prior->GetHistogram()->Scale(1.0/hist_prior->GetHistogram()->Integral("width"));
 
    // get maximum
-   double max_prior = hist_prior->GetMaximum();
-   double max_posterior = hist_posterior->GetMaximum();
-   double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
+	 double max_prior = hist_prior->GetHistogram()->GetMaximum();
+   double max_posterior = hist_posterior->GetHistogram()->GetMaximum();
+	 double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
 
 	 double height = 0.03*legend->GetNRows();
 
    // plot
-   hist_prior->GetXaxis()->SetNdivisions(508);
-   hist_posterior->GetXaxis()->SetNdivisions(508);
+	 hist_prior->GetHistogram()->GetXaxis()->SetNdivisions(508);
+   hist_posterior->GetHistogram()->GetXaxis()->SetNdivisions(508);
 
-	 hist_prior->Draw();
-	 hist_posterior->Draw("SAME");
+	 hist_prior->Draw(options_prior);
+	 hist_posterior->Draw(std::string(options_post+"same").c_str());
 
    // scale axes
-   hist_prior->GetYaxis()->SetRangeUser(0.0, maxy);
-   hist_posterior->GetYaxis()->SetRangeUser(0.0, maxy);
+	 hist_prior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
+   hist_posterior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
 
 	 gPad->SetTopMargin(0.02);
 	 double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
@@ -655,38 +714,59 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, double min, double max)
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
+int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string options)
 {
    // perform analysis
    CalculatePriorModel();
 
-   // create postscript
-   TPostScript * ps = new TPostScript(filename);
+   // option flags
+   bool flag_slice = false;
+
+   // check content of options string
+   if (options.find("slice") < options.size()) {
+      flag_slice = true;
+   }
+
+   std::string file(filename);
+
+   // check if file extension is pdf
+   if ( (file.find_last_of(".") != std::string::npos) &&
+         (file.substr(file.find_last_of(".")+1) == "pdf") ) {
+      ; // it's a PDF file
+
+   }
+   else if ( (file.find_last_of(".") != std::string::npos) &&
+         (file.substr(file.find_last_of(".")+1) == "ps") ) {
+      ; // it's a PS file
+   }
+   else {
+      ; // make it a PDF file
+      file += ".pdf";
+   }
 
    // create canvas and prepare postscript
-   TCanvas * c_update = new TCanvas(TString::Format("c_update_%d",getNextIndex()));
+   TCanvas * c = new TCanvas(TString::Format("c_%d",getNextIndex()));
+   c->cd();
 
-   c_update->Update();
-   ps->NewPage();
-   c_update->cd();
-
-   // loop over all parameters
+   // loop over all parameters and draw 1D plots
    int npar = fModel->GetNParameters();
    for (int i = 0; i < npar; ++i) {
-      // update post script
-      c_update->Update();
-      ps->NewPage();
-
-      c_update->cd();
-      DrawKnowledgeUpdatePlot1D(i, 0., 0.);
+		 DrawKnowledgeUpdatePlot1D(i, options, options);
+		 if (i == 0 && npar>1)
+			 c->Print(std::string( file + "(").c_str());
+		 else
+			 c->Print(file.c_str());
    }
 
    // create legend
-   TLegend * legend2d = new TLegend(0.50, 0.88, 0.85, 0.99);
+   TLegend * legend2d = new TLegend();
    legend2d->SetBorderSize(0);
    legend2d->SetFillColor(0);
+   legend2d->SetTextAlign(12);
+   legend2d->SetTextFont(62);
+   legend2d->SetTextSize(0.03);
 
-   // create markers and arrows
+  // create markers and arrows
    TMarker * marker_prior = new TMarker();
    marker_prior->SetMarkerStyle(24);
    marker_prior->SetMarkerColor(kRed);
@@ -698,28 +778,33 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
    TArrow * arrow = new TArrow();
    arrow->SetArrowSize(0.02);
    arrow->SetLineColor(kBlue);
-   arrow->SetLineStyle(2);
+	 //   arrow->SetLineStyle(2);
 
    // loop over all parameters
    for (int i = 0; i < npar; ++i) {
       for (int j = 0; j < i; ++j) {
-         // update post script
-         c_update->Update();
-         ps->NewPage();
-         c_update->cd();
+         c->cd();
 
          // get parameters
          const BCParameter * par1 = fModel->GetParameter(i);
          const BCParameter * par2 = fModel->GetParameter(j);
 
          // get 2-d histograms
-         BCH2D * bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
-         BCH2D * bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
+         BCH2D* bch2d_2dprior = 0;
+         BCH2D* bch2d_2dposterior = 0;
+				 if (flag_slice && npar == 2) {
+					 bch2d_2dprior = fPriorModel->GetSlice(par2, par1);
+					 bch2d_2dposterior = fModel->GetSlice(par2, par1);
+				 }
+				 else {
+					 bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
+					 bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
+				 }
 
          // get histograms
-         TH2D * hist_2dprior = bch2d_2dprior->GetHistogram();
+         TH2D* hist_2dprior = bch2d_2dprior->GetHistogram();
          hist_2dprior->SetLineColor(kRed);
-         TH2D * hist_2dposterior = bch2d_2dposterior->GetHistogram();
+         TH2D* hist_2dposterior = bch2d_2dposterior->GetHistogram();
 
          // scale histograms
          hist_2dprior->Scale(1.0/hist_2dprior->Integral("width"));
@@ -731,10 +816,10 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
 
          double level[1] = {bch2d_2dprior->GetLevel(0.32)};
          hist_2dprior->SetContour(1, level);
-         hist_2dprior->Draw("CONT3");
+				 hist_2dprior->Draw("CONT3");
          level[0] = bch2d_2dposterior->GetLevel(0.32);
          hist_2dposterior->SetContour(1, level);
-         hist_2dposterior->Draw("CONT3 SAME");
+				 hist_2dposterior->Draw("CONT3 SAME");
 
          std::vector<double> mode_prior = fPriorModel->GetBestFitParameters();
          std::vector<double> mode_posterior = fModel->GetBestFitParameters();
@@ -744,27 +829,49 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename)
          arrow->DrawArrow(mode_prior.at(j), mode_prior.at(i), mode_posterior.at(j), mode_posterior.at(i));
 
          if (i==1 && j == 0) {
-            legend2d->AddEntry(hist_2dprior, "68% prior contour", "L");
-            legend2d->AddEntry(hist_2dposterior, "68% posterior contour", "L");
-            legend2d->AddEntry(marker_prior, "Prior mode", "P");
-            legend2d->AddEntry(marker_posterior, "Posterior mode", "P");
-            legend2d->AddEntry(arrow, "Change in mode", "L");
-         }
+					 legend2d->AddEntry(hist_2dprior, "68% prior contour", "L");
+					 legend2d->AddEntry(hist_2dposterior, "68% posterior contour", "L");
+					 legend2d->AddEntry(marker_prior, "Prior mode", "P");
+					 legend2d->AddEntry(marker_posterior, "Posterior mode", "P");
+					 legend2d->AddEntry(arrow, "Change in mode", "L");
+				 }
+				 gPad->SetTopMargin(0.02);
+				 
+				 double height = 0.03*legend2d->GetNRows();
+				 
+				 double xlegend1 = gPad->GetLeftMargin();
+				 double xlegend2 = 1.0-gPad->GetRightMargin();
+				 double ylegend1 = 1.-gPad->GetTopMargin()-height;
+				 double ylegend2 = 1.-gPad->GetTopMargin();
+				 
+				 // place legend on top of histogram
+				 legend2d->SetX1NDC(xlegend1);
+				 legend2d->SetX2NDC(xlegend2);
+				 legend2d->SetY1NDC(ylegend1);
+				 legend2d->SetY2NDC(ylegend2);
+				 
          legend2d->Draw();
+				 
+				 gPad->SetTopMargin(1.-ylegend1+0.01);
+
+				 gPad->RedrawAxis();
+
+				 if ((i == npar-1) && (j == npar - 2))
+					 c->Print(std::string( file + ")").c_str());
+				 else
+					 c->Print(file.c_str());
       }
    }
-
+	 
    // close ps
-   c_update->Update();
-   ps->Close();
+   c->Update();
 
    // free memory
    delete legend2d;
    delete marker_prior;
    delete marker_posterior;
    delete arrow;
-   delete ps;
-   delete c_update;
+   delete c;
 
    // no error
    return 1;
