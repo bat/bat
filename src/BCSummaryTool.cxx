@@ -625,13 +625,13 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post
 	 hist_prior = fPriorModel->GetMarginalized(par);	 
 	 if (flag_slice_prior && fPriorModel->GetNParameters()==2) {
 		 if (index == 0) {
-			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX();
+			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
 			  hist->Scale(1.0/hist->Integral("width"));
 				for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
 				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
 		 }
 		 else {
-			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY();
+			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
 			 hist->Scale(1.0/hist->Integral("width"));
 			 for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
 				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
@@ -647,13 +647,13 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post
 	 hist_posterior = fModel->GetMarginalized(par);	
 	 if (flag_slice_post && fModel->GetNParameters()==2) {
 		 if (index == 0) {
-			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX();
+			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
 			 hist->Scale(1.0/hist->Integral("width"));
 			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
 				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
 		 }
 		 else {
-			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY();
+			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
 			 hist->Scale(1.0/hist->Integral("width"));
 			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i) 
 				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
@@ -665,8 +665,8 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post
 		 hist_posterior->GetHistogram()->SetStats(kFALSE);
 	 }
 
-	 legend->AddEntry(hist_prior->GetHistogram(), "Prior probability", "L");
-   legend->AddEntry(hist_posterior->GetHistogram(), "Posterior probability", "L");
+	 legend->AddEntry(hist_prior->GetHistogram(), "prior", "L");
+   legend->AddEntry(hist_posterior->GetHistogram(), "posterior", "L");
 
    // scale histograms
 	 hist_posterior->GetHistogram()->Scale(1./hist_posterior->GetHistogram()->Integral("width"));
@@ -829,11 +829,11 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
          arrow->DrawArrow(mode_prior.at(j), mode_prior.at(i), mode_posterior.at(j), mode_posterior.at(i));
 
          if (i==1 && j == 0) {
-					 legend2d->AddEntry(hist_2dprior, "68% prior contour", "L");
-					 legend2d->AddEntry(hist_2dposterior, "68% posterior contour", "L");
-					 legend2d->AddEntry(marker_prior, "Prior mode", "P");
-					 legend2d->AddEntry(marker_posterior, "Posterior mode", "P");
-					 legend2d->AddEntry(arrow, "Change in mode", "L");
+					 legend2d->AddEntry(hist_2dprior, "smallest 68% interval(s) of prior", "L");
+					 legend2d->AddEntry(hist_2dposterior, "smallest 68% interval(s) of posterior", "L");
+					 legend2d->AddEntry(marker_prior, "prior mode", "P");
+					 legend2d->AddEntry(marker_posterior, "posterior mode", "P");
+					 legend2d->AddEntry(arrow, "change in mode", "L");
 				 }
 				 gPad->SetTopMargin(0.02);
 				 
