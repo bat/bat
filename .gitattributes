@@ -107,6 +107,7 @@ doc/quickstart/Makefile -text
 doc/quickstart/bat.eps -text
 doc/quickstart/quickstart.tex -text
 doc/releasenotes.txt -text
+doc/todo/MVCombination.txt -text
 doc/todo/mtf.txt -text
 doc/todo/plans.txt -text
 doc/todo/todo.txt -text

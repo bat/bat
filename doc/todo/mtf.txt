@@ -1,34 +1,14 @@
-Wish list for MTF:
+ToDo list for MTF:
 ==================
 
-* update plotting:
+ToDo:
 
-  - general update, e.g., pdf output
-
-  - plotting option a la Mai. done.
-
-* implement fast p-value evaluation
-
-* analyse a data set with Poisson-fluctuated templates, i.e. bin-wise
-  fluctuations:
-
-  - need the MC-stat. uncertainty in each bin, can we take them from
-    the histograms? yes. done.
-
-  - need a method to return a fluctuated template. Options:
-    Poisson/Gauss. done.
-
-  - ensemble test: fix input data set and analyse it with a set of
-    fluctuated templates. done.
-
-* easy way to generate ensembles according to the priors of nuisance
+- easy way to generate ensembles according to the priors of nuisance
   parameters.
 
 - do the templates have to be pointers?
 
 - why does the ensemble test have a "start" value? Why not random ensembles?
-
-- fix plotting of stack
 
 - move stack plotting to channel?
 
@@ -43,3 +23,30 @@ Wish list for MTF:
 - add difference/ratio/significance plot below
 
 - check for b0/1 if the mcmc was run
+
+- update examples: include reasonable plotting options.
+
+Done:
+
+* update plotting:
+
+  - general update, e.g., pdf output. done
+
+  - plotting option a la Mai. done.
+
+- fix plotting of stack. done.
+
+* implement fast p-value evaluation. done.
+
+* analyse a data set with Poisson-fluctuated templates, i.e. bin-wise
+  fluctuations:
+
+  - need the MC-stat. uncertainty in each bin, can we take them from
+    the histograms? yes. done.
+
+  - need a method to return a fluctuated template. Options:
+    Poisson/Gauss. done.
+
+  - ensemble test: fix input data set and analyse it with a set of
+    fluctuated templates. done.
+
