@@ -106,6 +106,9 @@ class MVCombination : public BCModel
 
 			// misc
 
+			// read input file
+			int ReadInput(std::string filename);
+			
 			// calculate the correlation matrix for a particular uncertainty
 			void CalculateCorrelationMatrix(int index);
 

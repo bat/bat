@@ -1,3 +1,9 @@
+2013-03-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mvcombination: 
+	- moved reading of file into MVCombination class
+	- check if file is opened
+	- merge reading input and calculation of matrices
+
 2013-03-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: fixed the default parameter values for 2D slices
 	* BCH1D: added "SAME" as a plotting option
