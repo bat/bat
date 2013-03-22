@@ -54,7 +54,8 @@ CXXSRCS      = \
 	MVCombination.cxx \
 	MVMeasurement.cxx \
 	MVUncertainty.cxx \
-	MyCombination.cxx
+	MyCombination.cxx \
+	ToyModel.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

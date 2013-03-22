@@ -17,6 +17,7 @@
 #include <fstream>
 
 #include "MyCombination.h"
+#include "ToyModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -70,9 +71,30 @@ int main(int argc, char *argv[])
    // print summary to screen
    m->PrintSummary();
 
+    // test goodness-of-fit
+
+   ToyModel* toy = new ToyModel();
+   
+   TH1D* hist_chi2 = new TH1D("chi2", ";#chi^{2};p(#chi^{2})", 100, 0., 30.);
+   hist_chi2->SetStats(kFALSE);
+   
+   toy->SetHistChi2(hist_chi2);
+   toy->SetNMeasurements(m->GetNMeasurements(), 0., 1.3);
+   toy->SetVectorMeasurements(m->GetVectorMeasurements());
+   toy->SetVectorObservable(m->GetVectorObservable());
+   toy->SetCovarianceMatrix(m->GetCovarianceMatrix());
+   toy->SetParameters(m->GetBestFitParameters());
+   
+   toy->MarginalizeAll();
+   toy->GetBestFitParameters();
+   toy->PrintAllMarginalized("toys.pdf");
+   toy->PrintResults("toys.txt");
+   toy->PrintToys("chi2.pdf");
+
    // clean up
    delete m;
-   
+   delete toy; 
+
    // close log file
    BCLog::CloseLog();
 
