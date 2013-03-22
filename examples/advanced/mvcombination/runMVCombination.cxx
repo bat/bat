@@ -16,7 +16,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "MyCombination.h"
+#include "MVCombination.h"
 
 int main(int argc, char *argv[])
 {
@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
    BCLog::OpenLog("log.txt");
    BCLog::SetLogLevel(BCLog::detail);
 
-   // create new MyCombination object
-   MyCombination * m = new MyCombination();
+   // create new MVCombination object
+   MVCombination * m = new MVCombination();
 
    // set precision
    m->MCMCSetPrecision(BCIntegrate::kMedium);
@@ -46,26 +46,16 @@ int main(int argc, char *argv[])
      return 1;
    }
 
-   // define histogram for FR
-   TH1D* hist_fr = new TH1D("FR", ";FR;p", 100, 0., 0.4);
-   hist_fr->SetStats(kFALSE);
-   
-   m->SetHistFR(hist_fr);
-   
    // perform numerical analysis using MCMC
    m->MarginalizeAll();
    
    // find mode using Minuit
    m->FindMode( m->GetBestFitParameters() );
    
-   m->PrintAllMarginalized("MyCombination_plots.pdf");
-   
-   BCH1D* histFR = new BCH1D(hist_fr);
-   
-   histFR->Print("FR.pdf", "BTulB3L");
+   m->PrintAllMarginalized("MVCombination_plots.pdf");
    
    // print results of numerical analysis
-   m->PrintResults("MyCombination_results.txt");
+   m->PrintResults("MVCombination_results.txt");
    
    // print summary to screen
    m->PrintSummary();
@@ -75,9 +65,8 @@ int main(int argc, char *argv[])
    
    // close log file
    BCLog::CloseLog();
-
+   
    // no error
    return 0;
-
 }
 

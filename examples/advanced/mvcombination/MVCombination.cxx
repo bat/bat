@@ -380,9 +380,9 @@ void MVCombination::PrintSummary()
     std::cout << GetUncertainty(j)->GetName() << ", ";
   std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
   for (int i = 0; i < nobs; ++i) {
-    std::cout << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ": ";
+    std::cout << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ":";
     for (int j = 0; j < nunc; ++j )
-      std::cout << std::setiosflags(std::ios::left) << std::setw(7) << GetBLUEUncertainties(j)[i];
+      std::cout << " " << std::setiosflags(std::ios::left) << std::setw(7) << GetBLUEUncertainties(j)[i];
     std::cout << std::endl;
   }
   std::cout << std::endl;

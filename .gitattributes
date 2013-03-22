@@ -143,6 +143,8 @@ examples/advanced/mvcombination/MyCombination.cxx -text
 examples/advanced/mvcombination/MyCombination.h -text
 examples/advanced/mvcombination/README -text
 examples/advanced/mvcombination/input.txt -text
+examples/advanced/mvcombination/input2.txt -text
+examples/advanced/mvcombination/runMVCombination.cxx -text
 examples/advanced/mvcombination/runMyCombination.cxx -text
 examples/advanced/polynomialfit/CreateData.C -text
 examples/advanced/polynomialfit/Makefile.in -text

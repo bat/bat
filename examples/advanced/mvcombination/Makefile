@@ -63,13 +63,14 @@ CXXSRCS      = \
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      =
 MYPROGS     = \
-	runMyCombination
+	runMyCombination \
+	runMVCombination
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 
 # targets
-all : project
+all : mvcombination mycombination
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -82,9 +83,13 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	$(RM) $(GARBAGE)
 
-project : runMyCombination.cxx $(CXXOBJS)
+mycombination : runMyCombination.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) runMyCombination.o $(CXXOBJS) $(LIBS) -o runMyCombination
+
+mvcombination : runMVCombination.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) runMVCombination.o $(CXXOBJS) $(LIBS) -o runMVCombination
 
 print :
 	echo compiler  : $(CXX)
