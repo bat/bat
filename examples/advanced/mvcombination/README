@@ -25,6 +25,13 @@ The files:
    input.txt              - input file to 2D combination
    input2.txt             - input file to 1D combination
 
+Input file structure:
+---------------------
+number of observables, measurements and source of uncertainty
+list of observables and their (min/max) ranges
+names of the uncertainties
+list of measurements, observables, central values and uncertainties
+list of correlation matrices
 
 Running the example:
 --------------------
@@ -40,5 +47,5 @@ Running the example:
 3. Make sure that the input file contains the corresponding
    information about the input values.
 
-4. Run the executable 'runMyCombination.cxx'
+4. Run the executables 'runMyCombination.cxx' or 'runMVCombination.cxx'
 
