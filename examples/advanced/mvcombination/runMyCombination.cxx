@@ -79,11 +79,14 @@ int main(int argc, char *argv[])
    hist_chi2->SetStats(kFALSE);
    
    toy->SetHistChi2(hist_chi2);
-   toy->SetNMeasurements(m->GetNMeasurements(), 0., 1.3);
+   toy->SetNMeasurements(m->GetNMeasurements(), -1., 2.);
    toy->SetVectorMeasurements(m->GetVectorMeasurements());
    toy->SetVectorObservable(m->GetVectorObservable());
    toy->SetCovarianceMatrix(m->GetCovarianceMatrix());
-   toy->SetParameters(m->GetBestFitParameters());
+	 std::vector<double> SM(2);
+	 SM[0]=0.7;
+	 SM[1]=0.3;
+   toy->SetParameters(SM);
    
    toy->MarginalizeAll();
    toy->GetBestFitParameters();

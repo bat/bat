@@ -29,7 +29,9 @@ class ToyModel : public BCModel
 
   // set the vector of measurements
   void SetVectorMeasurements(TVectorD measurements)
-  { fVectorMeasurements = measurements; };
+  { fVectorMeasurements.Clear();
+		fVectorMeasurements.ResizeTo(measurements);
+		fVectorMeasurements=measurements; };
 
   // set parameters
   void SetParameters(std::vector<double> parameters);
@@ -50,6 +52,9 @@ class ToyModel : public BCModel
   // print scatter plots of toy models and the chi2 indicating the
   // position of the observed data
   void PrintToys(std::string filename);
+
+	// print a summary to the screen
+	void PrintSummary();
 
   // calculate the chi2
   double Chi2(TVectorD observables, TVectorD measurements);

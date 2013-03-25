@@ -1,3 +1,8 @@
+2013-03-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mvcombination: 
+	- added toy model
+	- worked on goodness-of-fit test
+
 2013-03-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mvcombination: 
 	- moved reading of file into MVCombination class
