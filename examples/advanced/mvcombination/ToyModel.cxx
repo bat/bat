@@ -49,8 +49,8 @@ void ToyModel::SetParameters(std::vector<double> parameters)
   fPars = parameters; 
   int nmeas = GetNParameters();
 
-	fVectorObservables.Clear();
-	fVectorObservables.ResizeTo(nmeas);
+  fVectorObservables.Clear();
+  fVectorObservables.ResizeTo(nmeas);
 
   for (int i = 0; i < nmeas; ++i) {
     fVectorObservables[i] = fPars[fVectorObservable[i]];
@@ -137,62 +137,75 @@ void ToyModel::PrintToys(std::string filename)
     filename += ".pdf";
   }
 
-	int npars = GetNParameters();
+  int npars = GetNParameters();
   
   TCanvas* c1 = new TCanvas("");
   c1->cd();
 
-	// calculate observed chi2
-	double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
+  // calculate observed chi2
+  double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
 
   // calculate expected chi2 distribution
   BCH1D* hist_chi2 = new BCH1D(fHistChi2);
-	hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
+  hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
 
-	// calculate p-value
-	double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
+  // calculate p-value
+  double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 
-	// draw expected chi2 distribution
+  // draw expected chi2 distribution
   hist_chi2->Draw("BTllB1CS1L", 1-pvalue);
 
   c1->Print(std::string(filename+"(").c_str());
 
-	// draw all 1D histograms indicating observed value
-	for (int i = 0; i < npars; ++i) {
-		double obs = fVectorMeasurements[i];
-		const BCParameter* par = GetParameter(i);
-		BCH1D* hist_par = GetMarginalized(par);
-		double p = hist_par->GetHistogram()->Integral(hist_par->GetHistogram()->FindBin(obs), hist_par->GetHistogram()->GetNbinsX(), "width");
-		hist_par->Draw("BTllB1CS1L", 1-p);
-		c1->Print(filename.c_str());
-	}
+  // draw all 1D histograms indicating observed value
+  for (int i = 0; i < npars; ++i) {
+    double obs = fVectorMeasurements[i];
+    const BCParameter* par = GetParameter(i);
+    BCH1D* hist_par = GetMarginalized(par);
+    double p = hist_par->GetHistogram()->Integral(hist_par->GetHistogram()->FindBin(obs), hist_par->GetHistogram()->GetNbinsX(), "width");
+    hist_par->Draw("BTllB1CS1L", 1-p);
+    c1->Print(filename.c_str());
+  }
 
-	// draw all 2D histograms indicating observed values
-	for (int i = 0; i < npars; ++i) {
-		for (int j = 0; j < i; ++j) {
-			double obs_i = fVectorMeasurements[i];
-			double obs_j = fVectorMeasurements[j];
-			const BCParameter* par_i = GetParameter(i);
-			const BCParameter* par_j = GetParameter(j);
-			BCH2D* hist_par = GetMarginalized(par_i, par_j);
-			hist_par->Draw("BTfB3CS1");
-			TMarker* m = new TMarker();
-			m->SetMarkerStyle(21);
-			m->DrawMarker(obs_i, obs_j);
-			if (i == npars - 1 && j == i-1)
-				c1->Print(std::string(filename+")").c_str());
-			else
-				c1->Print(filename.c_str());
-		}
-	}
+  // draw all 2D histograms indicating observed values
+  for (int i = 0; i < npars; ++i) {
+    for (int j = 0; j < i; ++j) {
+      double obs_i = fVectorMeasurements[i];
+      double obs_j = fVectorMeasurements[j];
+      const BCParameter* par_i = GetParameter(i);
+      const BCParameter* par_j = GetParameter(j);
+      BCH2D* hist_par = GetMarginalized(par_i, par_j);
+      hist_par->Draw("BTfB3CS1");
+      TMarker* m = new TMarker();
+      m->SetMarkerStyle(21);
+      m->DrawMarker(obs_j, obs_i);
+      if (i == npars - 1 && j == i-1)
+	c1->Print(std::string(filename+")").c_str());
+      else
+	c1->Print(filename.c_str());
+    }
+  }
 
-  // calculate observed chi2
-  // debugKK: I am here
-	std::cout << " chi2 : " << chi2 << " " << pvalue << std::endl;
 }
 
 // ---------------------------------------------------------
 void ToyModel::PrintSummary() {
+
+  std::cout << " Goodness-of-fit test:" << std::endl << std::endl;
+  
+  // calculate observed chi2
+  double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
+  
+  // calculate expected chi2 distribution
+  BCH1D* hist_chi2 = new BCH1D(fHistChi2);
+  hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
+  
+  // calculate p-value
+  double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
+
+  std::cout << " chi2    : " << chi2 << std::endl;
+  std::cout << " p-value : " << pvalue << std::endl;
+  std::cout << std::endl;
 
 }
 
