@@ -1,5 +1,5 @@
 1 2 4 
-mass 20 40
+mass 10 50
 
 Statistical JES Luminosity Modelling
 el+jets mass 31.5 5. 3. 1. 1.
