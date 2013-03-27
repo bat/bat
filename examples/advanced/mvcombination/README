@@ -22,8 +22,8 @@ The files:
                             (1D example)
    runMyCombination.cxx   - example code how to run a combination
                             with a derived combination code (2D example)
-   input.txt              - input file to 2D combination
-   input2.txt             - input file to 1D combination
+   input1D.txt            - input file to 1D example
+   input2D.txt            - input file to 2D example
 
 Input file structure:
 ---------------------
