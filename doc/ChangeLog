@@ -1,3 +1,10 @@
+2013-03-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mvcombination:
+	- improved ToyModel constructor
+	- rename PrintSummary to PrintBLUEResults
+	- include correlations due to individual uncertainties in output
+	- formatting of output
+
 2013-03-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mvcombination: 
 	- some renaming and cleaning up

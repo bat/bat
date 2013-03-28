@@ -86,23 +86,20 @@ int main(int argc, char *argv[])
    BCH1D* hist_FR = new BCH1D(hist_fr);   
    hist_FR->Print("FR.pdf", "BTulB3L");
 
-   // print results of numerical analysis
+   // print results of numerical analysis to file
    m->PrintResults("MyCombination_results.txt");
    
-   // print summary to screen
-   m->PrintSummary();
+   // print BLUE results to file
+   m->PrintBLUEResults("MyCombination_BLUE.txt");
 
    // test goodness-of-fit
-   ToyModel* toy = new ToyModel();
+   ToyModel* toy = new ToyModel(m);
    
    TH1D* hist_chi2 = new TH1D("chi2", ";#chi^{2};p(#chi^{2})", 100, 0., 30.);
    hist_chi2->SetStats(kFALSE);
    
    toy->SetHistChi2(hist_chi2);
-   toy->SetNMeasurements(m->GetNMeasurements(), -0.2, 1.5);
-   toy->SetVectorMeasurements(m->GetVectorMeasurements());
-   toy->SetVectorObservable(m->GetVectorObservable());
-   toy->SetCovarianceMatrix(m->GetCovarianceMatrix());
+   toy->SetMeasurementRanges(-0.5, 2.0); 
    std::vector<double> SM(2);
    SM[0]=0.687;
    SM[1]=0.311;

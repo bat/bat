@@ -3,6 +3,8 @@
 
 #include <BAT/BCModel.h>
 
+#include "MVCombination.h"
+
 #include <TH1D.h>
 #include <TMatrixT.h>
 #include <TMatrixD.h>
@@ -17,7 +19,7 @@ class ToyModel : public BCModel
  public:
 
   // Constructor
-  ToyModel();
+  ToyModel(MVCombination* mvc);
 
   // Destructor
   ~ToyModel();
@@ -35,6 +37,13 @@ class ToyModel : public BCModel
 
   // set parameters
   void SetParameters(std::vector<double> parameters);
+
+  // set the ranges of the measurements for each measurement
+  // individually
+  void SetMeasurementRanges(std::vector<double> min, std::vector<double> max);
+
+  // set the ranges of the measurements for all measurements
+  void SetMeasurementRanges(double min, double max);
 
   // set vector of observables
   void SetVectorObservable(std::vector<int> vec)

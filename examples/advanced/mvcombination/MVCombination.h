@@ -129,7 +129,7 @@ class MVCombination : public BCModel
   // output
 
   // print summary to screen
-  void PrintSummary();
+  void PrintBLUEResults(std::string filename);
 
   void PrintMatrix(TMatrixT<double> &matrix, std::string name="matrix");
 

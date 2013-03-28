@@ -12,8 +12,14 @@
 #include <BAT/BCH2D.h>
 
 // ---------------------------------------------------------
-ToyModel::ToyModel() : BCModel("ToyModel")
+ToyModel::ToyModel(MVCombination* mvc) : BCModel("ToyModel")
 {
+  SetNMeasurements(mvc->GetNMeasurements(), 
+		   mvc->GetParameter(0)->GetLowerLimit(),
+		   mvc->GetParameter(0)->GetUpperLimit());
+  SetVectorMeasurements(mvc->GetVectorMeasurements());
+  SetVectorObservable(mvc->GetVectorObservable());
+  SetCovarianceMatrix(mvc->GetCovarianceMatrix());
 }
 
 // ---------------------------------------------------------
@@ -56,6 +62,40 @@ void ToyModel::SetParameters(std::vector<double> parameters)
     fVectorObservables[i] = fPars[fVectorObservable[i]];
   }
 };
+
+// ---------------------------------------------------------
+void ToyModel::SetMeasurementRanges(std::vector<double> min, std::vector<double> max)
+{
+  int npar = GetNParameters();
+
+  if ( (int(min.size()) != npar) || (int(max.size()) != npar) ) {
+    BCLog::OutWarning("ToyModel::SetMeasurementRanges. Size of ranges does not fit the number of measurements.");
+    return; 
+  }
+
+  // set the parameter ranges 
+  for (int i = 0; i < npar; ++i) {
+    SetParameterRange(i, min.at(i), max.at(i));
+  }
+
+}
+
+// ---------------------------------------------------------
+void ToyModel::SetMeasurementRanges(double min, double max)
+{
+  int npar = GetNParameters();
+
+  std::vector<double> min_vec;
+  std::vector<double> max_vec;
+  
+  // fill vector with ranges
+  for (int i = 0; i < npar; ++i) {
+    min_vec.push_back(min);
+    max_vec.push_back(max);
+  }
+
+  SetMeasurementRanges(min_vec, max_vec);
+}
 
 // ---------------------------------------------------------
 double ToyModel::LogLikelihood(const std::vector<double> &parameters)
@@ -115,7 +155,8 @@ void ToyModel::MCMCIterationInterface()
     double chi2 = Chi2(observables, measurements);
 
     // fill the histogram
-    fHistChi2->Fill(chi2);
+    if (fHistChi2)
+      fHistChi2->Fill(chi2);
   }
 }
 

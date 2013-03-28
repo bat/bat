@@ -310,102 +310,131 @@ void MVCombination::CalculateBLUE()
 }
 
 // ---------------------------------------------------------
-void MVCombination::PrintSummary()
+void MVCombination::PrintBLUEResults(std::string filename)
 {
+  // open file
+  std::ofstream ofi(filename.c_str());
+  
+  // check if file is open
+  if (!ofi.is_open()) {
+    std::cerr << "Couldn't open file " << filename << std::endl;
+    return;
+  }
+  
   int nobs = GetNObservables();
   int nmeas = GetNMeasurements();
   int nunc = GetNUncertainties();
 
-  std::cout << std::endl;
-  std::cout << "Summary of combination" << std::endl;
-  std::cout << "======================" << std::endl << std::endl;
+  ofi << std::endl;
+  ofi << "Summary of the combination" << std::endl;
+  ofi << "==========================" << std::endl << std::endl;
 
-  std::cout << "* Observables:" << std::endl;
-  std::cout << "  Observable (range): " << std::endl;
+  ofi << "* Observables:" << std::endl;
+  ofi << "  Observable (range): " << std::endl;
   for (int i = 0; i < nobs; ++i) 
-    std::cout << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()
+    ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()
 	      << " (" << GetParameter(i)->GetLowerLimit() << " - " << GetParameter(i)->GetUpperLimit() << ")" << std::endl;
-  std::cout << std::endl;
+  ofi << std::endl;
 
-  std::cout << "* Measurements:" << std::endl;
-  std::cout << "  Measurement (observable): central value +- total uncertainty" << std::endl;
+  ofi << "* Measurements:" << std::endl;
+  ofi << "  Measurement (observable): central value +- total uncertainty" << std::endl;
   for (int i = 0; i < nmeas; ++i) {
     MVMeasurement* m = GetMeasurement(i);
-    std::cout << "  " << std::setiosflags(std::ios::left) << m->GetName() 
+    ofi << "  " << std::setiosflags(std::ios::left) << m->GetName() 
 	      << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << ")" 
-	      << ": " << std::setiosflags(std::ios::left) << std::setw(7) << m->GetCentralValue()
-	      << " +- " << std::setiosflags(std::ios::left) << std::setw(7) << m->GetTotalUncertainty() << std::endl;
+	      << ": " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetCentralValue()
+	      << " +- " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetTotalUncertainty() << std::endl;
   }
-  std::cout << std::endl;
+  ofi << std::endl;
 	
-  std::cout << "* Uncertainties:" << std::endl;
-  std::cout << "  Measurement (observable): Uncertainty (";
+  ofi << "* Uncertainties:" << std::endl;
+  ofi << "  Measurement (observable): Uncertainty (";
   for (int j = 0; j < nunc-1; ++j )
-    std::cout << GetUncertainty(j)->GetName() << ", ";
-  std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+    ofi << GetUncertainty(j)->GetName() << ", ";
+  ofi << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
   for (int i = 0; i < nmeas; ++i) {
     MVMeasurement* m = GetMeasurement(i);
-    std::cout << "  " << std::setiosflags(std::ios::left) << m->GetName() 
+    ofi << "  " << std::setiosflags(std::ios::left) << m->GetName() 
 	      << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << "): ";
     for (int j = 0; j < nunc; ++j )
-      std::cout << std::setiosflags(std::ios::left) << std::setw(7) << m->GetUncertainty(j);
-    std::cout << std::endl;
+      ofi << std::setiosflags(std::ios::left) << std::setw(7) << m->GetUncertainty(j);
+    ofi << std::endl;
   }
-  std::cout << std::endl;
+  ofi << std::endl;
 
   for (int i = 0; i < nunc; ++i) {
     MVUncertainty* u = GetUncertainty(i);
-    std::cout << "  " << u->GetName() << " " << "(correlation matrix)" << std::endl;
+    ofi << "  " << u->GetName() << " " << "(correlation matrix)" << std::endl;
     TMatrixD mat = u->GetCorrelationMatrix();
 
     for (int j = 0; j < nmeas; ++j) {
-      std::cout << "  ";
+      ofi << "  ";
       for (int k = 0; k < nmeas; ++k) 
-	std::cout << std::setw(7) << std::showpos << mat[j][k] << " ";
-      std::cout << std::noshowpos << std::endl;
+	ofi << std::setw(7) << std::showpos << mat[j][k] << " ";
+      ofi << std::noshowpos << std::endl;
     }
-    std::cout << std::endl;
+    ofi << std::endl;
   }
 
-  std::cout << "* BLUE results: " << std::endl;
-  std::cout << "  Observable: estimate +- uncertainty" << std::endl;
+  ofi << "* BLUE results: " << std::endl;
+  ofi << "  Observable: estimate +- total uncertainty" << std::endl;
   for (int i = 0; i < nobs; ++i) {
     if (i < fBLUECentral.GetNoElements())
-      std::cout << "  " << GetParameter(i)->GetName() << ": " << fBLUECentral[i] << " +- " << fBLUEUncertainties[i] << std::endl;
+      ofi << "  " << GetParameter(i)->GetName() << ": " << fBLUECentral[i] << " +- " << std::setprecision(4) << fBLUEUncertainties[i] << std::endl;
   }
-  std::cout << std::endl;
+  ofi << std::endl;
 
-  std::cout << "  Observable: Uncertainty (";
+  ofi << "  Observable: Uncertainty (";
   for (int j = 0; j < nunc-1; ++j )
-    std::cout << GetUncertainty(j)->GetName() << ", ";
-  std::cout << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+    ofi << GetUncertainty(j)->GetName() << ", ";
+  ofi << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
   for (int i = 0; i < nobs; ++i) {
-    std::cout << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ":";
+    ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ":";
     for (int j = 0; j < nunc; ++j )
-      std::cout << " " << std::setiosflags(std::ios::left) << std::setw(7) << GetBLUEUncertainties(j)[i];
-    std::cout << std::endl;
+      ofi << " " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << GetBLUEUncertainties(j)[i];
+    ofi << std::endl;
   }
-  std::cout << std::endl;
+  ofi << std::endl;
 
-  std::cout << "  Correlation matrix" << std::endl;
-  TMatrixD mat = fBLUECorrelationMatrix;
-  for (int j = 0; j < nobs; ++j) {
-    std::cout << "  ";
-    for (int k = 0; k < nobs; ++k) 
-      std::cout << std::setw(7) << std::showpos << mat[j][k] << " ";
-    std::cout << std::noshowpos << std::endl;
+  if (nobs > 1) {
+    ofi << "  Individual correlation matrices " << std::endl;
+    for (int i = 0; i < nunc; ++i) {
+      TMatrixD mat = GetBLUECorrelationMatrix(i);
+      ofi << "  " << GetUncertainty(i)->GetName() << std::endl;
+      for (int j = 0; j < nobs; ++j) {
+	ofi << "  ";
+	for (int k = 0; k < nobs; ++k) {
+	  ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+	}
+	ofi << std::noshowpos << std::endl;
+      }
+      ofi << std::endl;
+    }
   }
-  std::cout << std::endl;
-	
-  std::cout << "  Weights [%]:" <<std::endl;
+  
+  if (nobs > 1) { 
+    ofi << "  Overall correlation matrix" << std::endl;
+    TMatrixD mat = fBLUECorrelationMatrix;
+    for (int j = 0; j < nobs; ++j) {
+      ofi << "  ";
+      for (int k = 0; k < nobs; ++k) 
+	ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+      ofi << std::noshowpos << std::endl;
+    }
+    ofi << std::endl;
+  }      
+  
+  ofi << "  Weights [%]:" <<std::endl;
   for (int j = 0; j < nmeas; ++j) {
-    std::cout << "  " << GetMeasurement(j)->GetName() << " : ";
+    ofi << "  " << GetMeasurement(j)->GetName() << " : ";
     for (int k = 0; k < nobs; ++k) 
-      std::cout << std::setw(7) << std::showpos << fBLUEWeights[k][j]*100. << " ";
-    std::cout << std::endl;
+      ofi << std::setw(7) << std::setprecision(4) << std::showpos << fBLUEWeights[k][j]*100. << " ";
+    ofi << std::endl;
   }
-  std::cout << std::endl;
+  ofi << std::endl;
 
+  // close file
+  ofi.close();
 }
 
 // ---------------------------------------------------------
