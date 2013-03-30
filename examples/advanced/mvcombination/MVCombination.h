@@ -44,7 +44,7 @@ class MVCombination : public BCModel
 			
   // return the number of observables
   int GetNObservables() 
-  { return GetNParameters(); };
+  { return GetNParameters()-fNNuisanceCorrelation; };
 
   // return the number of uncertainties
   int GetNUncertainties() 
@@ -112,6 +112,15 @@ class MVCombination : public BCModel
   TVectorD GetVectorMeasurements()
     { return fVectorMeasurements; };
 
+	// return the index of the measurements
+	int GetIndexMeasurement(std::string measurement, std::string observable);
+
+	// return the index of the uncertainty
+	int GetIndexUncertainty(std::string name);
+
+	// return the index of the observable
+	int GetIndexObservable(std::string name); 
+
   // misc
 
   // read input file
@@ -121,10 +130,13 @@ class MVCombination : public BCModel
   void CalculateCorrelationMatrix(int index);
 
   // calculate the total covariance matrix
-  void CalculateCovarianceMatrix();
+  void CalculateCovarianceMatrix(std::vector<double> nuisance = std::vector<double>(0));
 			
   // calculate BLUE
   void CalculateBLUE();
+
+	// calculate all necessary matrices
+	void PrepareAnalysis();
 
   // output
 
@@ -138,13 +150,18 @@ class MVCombination : public BCModel
   // BAT methods
 
   // Methods to overload, see file MVCombination.cxx
-  double LogAPrioriProbability(const std::vector<double> &parameters);
+	//  double LogAPrioriProbability(const std::vector<double> &parameters);
 
   double LogLikelihood(const std::vector<double> &parameters);
 
  private:
 
-  int GetIndexObservable(std::string name); 
+	struct NuisanceParameter {
+		int index_uncertainty;
+		int index_measurement1;
+		int index_measurement2;
+		int index_rhoparameter;
+	};
 
   // the names of the uncertainties
   std::vector<MVUncertainty*> fUncertainties;
@@ -190,6 +207,11 @@ class MVCombination : public BCModel
 
   // the BLUE correlation matrix
   TMatrixD fBLUECorrelationMatrix;
+
+	// number of nuisance parameters for correlations
+	int fNNuisanceCorrelation;
+
+	std::vector<NuisanceParameter> fNuisanceCorrelation;
 
 };
 // ---------------------------------------------------------

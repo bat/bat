@@ -1,3 +1,8 @@
+2013-03-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mvcombination:
+	- added correlation coefficients as nuisance parameters
+	- added an example input file for this new feature
+
 2013-03-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mvcombination:
 	- improved ToyModel constructor

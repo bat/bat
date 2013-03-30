@@ -145,6 +145,7 @@ examples/advanced/mvcombination/README -text
 examples/advanced/mvcombination/ToyModel.cxx -text
 examples/advanced/mvcombination/ToyModel.h -text
 examples/advanced/mvcombination/input1D.txt -text
+examples/advanced/mvcombination/input1D_nuisance.txt -text
 examples/advanced/mvcombination/input2D.txt -text
 examples/advanced/mvcombination/runMVCombination.cxx -text
 examples/advanced/mvcombination/runMyCombination.cxx -text

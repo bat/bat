@@ -23,6 +23,8 @@ The files:
    runMyCombination.cxx   - example code how to run a combination
                             with a derived combination code (2D example)
    input1D.txt            - input file to 1D example
+   input1D_nuisance.txt   - input file to 1D example with nuisance parameters
+                            for the correlation coefficients
    input2D.txt            - input file to 2D example
 
 Input file structure:

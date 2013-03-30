@@ -5,10 +5,6 @@ ToDo:
 
 - allow comments in the input file
 
-- define correlation coefficients as nuisance parameters
-
-- calculate goodness-of-fit using a toy model 
-
 Done:
 
 - argument of runXXX.cxx should be the input file
@@ -18,4 +14,8 @@ Done:
 - merge reading input file with calculation of matrices
 
 - check if file is opened
+
+- define correlation coefficients as nuisance parameters
+
+- calculate goodness-of-fit using a toy model 
 

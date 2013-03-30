@@ -11,18 +11,35 @@
 
 // ---------------------------------------------------------
 MVCombination::MVCombination() : BCModel("MVCombination")
+															 , fNNuisanceCorrelation(0)
 {
 }
 
 // ---------------------------------------------------------
 MVCombination::~MVCombination()
 {
+	int nuncertainties = GetNUncertainties();
+	int nmeasurements = GetNMeasurements();
+
+	for (int i = 0; i < nuncertainties; ++i) {
+		MVUncertainty* u = GetUncertainty(i);
+		delete u; 
+	}
+	fUncertainties.clear();
+
+	for (int i = 0; i < nmeasurements; ++i) {
+		MVMeasurement* m = GetMeasurement(i);
+		delete m;
+	}
+	fMeasurements.clear();
 }
 
 // ---------------------------------------------------------
 void MVCombination::AddObservable(std::string name, double min, double max)
 {
   AddParameter(name.c_str(), min, max); 
+
+	SetPriorConstant(name.c_str());
 }
 
 // ---------------------------------------------------------
@@ -64,6 +81,9 @@ double MVCombination::LogLikelihood(const std::vector<double> &parameters)
 {
   double logprob = 0.;
 
+	if (fNNuisanceCorrelation > 0) 
+		CalculateCovarianceMatrix(parameters);
+
   int nmeas = GetNMeasurements();
 
   // copy parameters into a vector
@@ -83,12 +103,14 @@ double MVCombination::LogLikelihood(const std::vector<double> &parameters)
 }
 
 // ---------------------------------------------------------
+/*
 double MVCombination::LogAPrioriProbability(const std::vector<double> &parameters)
 {
   double logprob = 0.;
 
   return logprob;
 }
+*/
 
 // ---------------------------------------------------------
 int MVCombination::ReadInput(std::string filename)
@@ -106,8 +128,9 @@ int MVCombination::ReadInput(std::string filename)
   int nobservables;
   int nmeasurements;
   int nuncertainties;
-	 
-  infile >> nobservables >> nmeasurements >> nuncertainties;
+	int nnuisance;
+
+  infile >> nobservables >> nmeasurements >> nuncertainties >> nnuisance;
 
   std::vector<std::string> observable_names;
 	 
@@ -154,29 +177,82 @@ int MVCombination::ReadInput(std::string filename)
 
     for (int j = 0; j < nmeasurements; ++j) 
       for (int k = 0; k < nmeasurements; ++k) {
-	double corr;
-	infile >> corr;
-	mat[j][k] = corr;
+				double corr;
+				infile >> corr;
+				mat[j][k] = corr;
       }
 
     // set correlation matrix
     GetUncertainty(i)->SetCorrelationMatrix(mat);
   }
 
+	for (int i = 0; i < nnuisance; ++i) {
+		std::string uncertainty;
+		std::string measurement1;
+		std::string observable1;
+		std::string measurement2;
+		std::string observable2;
+		std::string parname;
+		double min;
+		double max; 
+		std::string priorshape;
+
+		infile >> uncertainty >> measurement1 >> observable1 >> measurement2 >> observable2 >> parname;
+		infile >> min >> max >> priorshape;
+
+		// add a parameter to the model
+		AddParameter(parname.c_str(), min, max);
+
+		// increase counter of nuisance parametera
+		fNNuisanceCorrelation++;
+
+		if (priorshape == "flat") {
+			SetPriorConstant(parname.c_str());
+		}
+		else if (priorshape == "gauss") {
+			double mean;
+			double std;
+
+			infile >> mean >> std;
+
+			SetPriorGauss(parname.c_str(), mean, std);
+		}
+		else {
+			BCLog::OutWarning(Form("MVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+		}
+
+		NuisanceParameter p; 
+		p.index_uncertainty  = GetIndexUncertainty(uncertainty);
+		p.index_measurement1 = GetIndexMeasurement(measurement1, observable1);
+		p.index_measurement2 = GetIndexMeasurement(measurement2, observable2);
+		p.index_rhoparameter = GetNParameters()-1;
+
+		fNuisanceCorrelation.push_back(p);
+	}
+	
+
   // close input file
   infile.close();
 
-  // prepare analysis
-  for (int i = 0; i < nuncertainties; ++i)
-    CalculateCorrelationMatrix(i);
-
-  CalculateCovarianceMatrix();
+	PrepareAnalysis();
 
   // calculate BLUE
   CalculateBLUE();
 
   // no error
   return 1;
+}
+
+// ---------------------------------------------------------
+void MVCombination::PrepareAnalysis()
+{
+	int nuncertainties = GetNUncertainties();
+
+  // prepare analysis
+  for (int i = 0; i < nuncertainties; ++i)
+    CalculateCorrelationMatrix(i);
+
+  CalculateCovarianceMatrix();
 }
 
 // ---------------------------------------------------------
@@ -202,16 +278,32 @@ void MVCombination::CalculateCorrelationMatrix(int index)
 }
 
 // ---------------------------------------------------------
-void MVCombination::CalculateCovarianceMatrix()
+void MVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
 {
   int n = GetNUncertainties();
+	int nnuisance = fNNuisanceCorrelation;
 
   fCovarianceMatrix.Clear();
   fCovarianceMatrix.ResizeTo(GetNMeasurements(), GetNMeasurements());
   for (int i = 0; i < n; ++i) {
     MVUncertainty* u = fUncertainties.at(i);
-    TMatrixD cov = u->GetCovarianceMatrix();
-    fCovarianceMatrix += cov;
+		TMatrixD mat = u->GetCovarianceMatrix();
+
+		// modidy matrix if nuisance parameter present
+		if (parameters.size() > 0) {
+			for (int  j = 0; j < nnuisance; ++j) {
+				NuisanceParameter p = fNuisanceCorrelation.at(j);
+				if (p.index_uncertainty == i) {
+					double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
+					double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
+					
+					mat[p.index_measurement1][p.index_measurement2] = parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
+					mat[p.index_measurement2][p.index_measurement1] = mat[p.index_measurement1][p.index_measurement2];
+				}
+			}
+		}
+		// add matrix
+    fCovarianceMatrix += mat;
   }
   fInvCovarianceMatrix.Clear();
   fInvCovarianceMatrix.ResizeTo(fCovarianceMatrix);
@@ -235,9 +327,9 @@ void MVCombination::CalculateBLUE()
     for (int j = 0; j < nobs; ++j) {
       MVMeasurement* m = GetMeasurement(i);
       if (m->GetObservable() == j)
-	u[i][j] = 1;
+				u[i][j] = 1;
       else 
-	u[i][j] = 0;
+				u[i][j] = 0;
     }
 
   // calculate weight matrix
@@ -288,7 +380,7 @@ void MVCombination::CalculateBLUE()
     TMatrixD mat2(nobs, nobs);
     for (int j = 0; j < nobs; ++j) 
       for (int k = 0; k < nobs; ++k) {
-	mat2[j][k] = mat[j][k]/vec[j]/vec[k];
+				mat2[j][k] = mat[j][k]/vec[j]/vec[k];
       }
     fBLUECorrelationMatrices.push_back(mat2);
   }
@@ -370,7 +462,7 @@ void MVCombination::PrintBLUEResults(std::string filename)
     for (int j = 0; j < nmeas; ++j) {
       ofi << "  ";
       for (int k = 0; k < nmeas; ++k) 
-	ofi << std::setw(7) << std::showpos << mat[j][k] << " ";
+				ofi << std::setw(7) << std::showpos << mat[j][k] << " ";
       ofi << std::noshowpos << std::endl;
     }
     ofi << std::endl;
@@ -402,11 +494,11 @@ void MVCombination::PrintBLUEResults(std::string filename)
       TMatrixD mat = GetBLUECorrelationMatrix(i);
       ofi << "  " << GetUncertainty(i)->GetName() << std::endl;
       for (int j = 0; j < nobs; ++j) {
-	ofi << "  ";
-	for (int k = 0; k < nobs; ++k) {
-	  ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
-	}
-	ofi << std::noshowpos << std::endl;
+				ofi << "  ";
+				for (int k = 0; k < nobs; ++k) {
+					ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+				}
+				ofi << std::noshowpos << std::endl;
       }
       ofi << std::endl;
     }
@@ -418,7 +510,7 @@ void MVCombination::PrintBLUEResults(std::string filename)
     for (int j = 0; j < nobs; ++j) {
       ofi << "  ";
       for (int k = 0; k < nobs; ++k) 
-	ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+				ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
       ofi << std::noshowpos << std::endl;
     }
     ofi << std::endl;
@@ -435,21 +527,6 @@ void MVCombination::PrintBLUEResults(std::string filename)
 
   // close file
   ofi.close();
-}
-
-// ---------------------------------------------------------
-int MVCombination::GetIndexObservable(std::string name)
-{
-  int n = GetNObservables();
-
-  // go through the list of parameters and compare strings
-  for (int i = 0; i < n; ++i) {
-    if (name == std::string(GetParameter(i)->GetName()))
-      return i;
-  }
-	
-  // return -1 if not in the list
-  return -1;
 }
 
 // ---------------------------------------------------------
@@ -480,6 +557,51 @@ void MVCombination::PrintVector(TVectorD &vector, std::string name)
     std::cout << std::setprecision(3) << std::setw(7) << vector[i] << " ";
     std::cout << std::endl;
   }
+}
+
+// ---------------------------------------------------------
+int MVCombination::GetIndexMeasurement(std::string measurement, std::string observable) 
+{
+	int index_observable = GetIndexObservable(observable);	
+
+	int nmeasurements = GetNMeasurements();
+
+	for (int i = 0; i < nmeasurements; ++i) {
+		if ((measurement == GetMeasurement(i)->GetName()) && (index_observable == GetMeasurement(i)->GetObservable()))
+			return i;
+	}
+
+	return -1;
+}
+
+// ---------------------------------------------------------
+int MVCombination::GetIndexUncertainty(std::string name) 
+{
+	int nuncertainties = GetNUncertainties();
+
+	int index = -1;
+	
+	for (int i = 0; i < nuncertainties; ++i) {
+		if (name == GetUncertainty(i)->GetName())
+			index = i;
+	}
+
+	return index;
+}
+
+// ---------------------------------------------------------
+int MVCombination::GetIndexObservable(std::string name)
+{
+  int n = GetNObservables();
+
+  // go through the list of parameters and compare strings
+  for (int i = 0; i < n; ++i) {
+    if (name == std::string(GetParameter(i)->GetName()))
+      return i;
+  }
+	
+  // return -1 if not in the list
+  return -1;
 }
 
 // ---------------------------------------------------------
