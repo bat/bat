@@ -11,6 +11,7 @@
 
 // ---------------------------------------------------------
 MVCombination::MVCombination() : BCModel("MVCombination")
+															 , fNObservables(0)
 															 , fNNuisanceCorrelation(0)
 {
 }
@@ -40,6 +41,8 @@ void MVCombination::AddObservable(std::string name, double min, double max)
   AddParameter(name.c_str(), min, max); 
 
 	SetPriorConstant(name.c_str());
+
+	fNObservables++;
 }
 
 // ---------------------------------------------------------
@@ -58,7 +61,7 @@ void MVCombination::AddMeasurement(std::string name, std::string observable, dou
 	
   // check if observable exists
   if (index < 0) {
-    BCLog::OutWarning("Observable does not exist. Measurement was not added.");
+    BCLog::OutWarning(Form("MVCombination::AddMeasurement. Observable \"%s\" does not exist. Measurement was not added.", observable.c_str()));
     return;
   }
 
@@ -97,7 +100,7 @@ double MVCombination::LogLikelihood(const std::vector<double> &parameters)
   TVectorD prod2 = fInvCovarianceMatrix * prod1;
   double prod = prod1 * prod2;
 
-  logprob = -0.5 * prod - log(TMath::Power(2*TMath::Pi(), nmeas/2.) * sqrt(fDetCovariance));
+  logprob = -0.5 * prod - log(TMath::Power(2*TMath::Pi(), nmeas/2.) * sqrt(fabs(fDetCovariance)));
 
   return logprob;
 }
@@ -198,39 +201,52 @@ int MVCombination::ReadInput(std::string filename)
 		std::string priorshape;
 
 		infile >> uncertainty >> measurement1 >> observable1 >> measurement2 >> observable2 >> parname;
-		infile >> min >> max >> priorshape;
 
-		// add a parameter to the model
-		AddParameter(parname.c_str(), min, max);
+		// check if parameter exists already
+		int index = -1;
 
-		// increase counter of nuisance parametera
-		fNNuisanceCorrelation++;
+		for (unsigned int i = 0; i < GetNParameters(); i++)
+      if (parname.c_str() == GetParameter(i)->GetName())
+				index = i;
+		
+		if (index < 0) {
+			// read properties of parameter
+			infile >> min >> max >> priorshape;
+			
+			// add nuisance parameter
+			AddParameter(parname.c_str(), min, max);
 
-		if (priorshape == "flat") {
-			SetPriorConstant(parname.c_str());
-		}
-		else if (priorshape == "gauss") {
-			double mean;
-			double std;
+			// set index
+			index = GetNParameters()-1;
 
-			infile >> mean >> std;
-
-			SetPriorGauss(parname.c_str(), mean, std);
-		}
-		else {
-			BCLog::OutWarning(Form("MVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+			// increase counter of nuisance parametera
+			fNNuisanceCorrelation++;
+			
+			if (priorshape == "flat") {
+				SetPriorConstant(parname.c_str());
+			}
+			else if (priorshape == "gauss") {
+				double mean;
+				double std;
+				
+				infile >> mean >> std;
+				
+				SetPriorGauss(parname.c_str(), mean, std);
+			}
+			else {
+				BCLog::OutWarning(Form("MVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+			}
 		}
 
 		NuisanceParameter p; 
 		p.index_uncertainty  = GetIndexUncertainty(uncertainty);
 		p.index_measurement1 = GetIndexMeasurement(measurement1, observable1);
 		p.index_measurement2 = GetIndexMeasurement(measurement2, observable2);
-		p.index_rhoparameter = GetNParameters()-1;
-
+		p.index_rhoparameter = index;
+		
 		fNuisanceCorrelation.push_back(p);
 	}
 	
-
   // close input file
   infile.close();
 

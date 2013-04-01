@@ -44,7 +44,7 @@ class MVCombination : public BCModel
 			
   // return the number of observables
   int GetNObservables() 
-  { return GetNParameters()-fNNuisanceCorrelation; };
+  { return fNObservables; }; 
 
   // return the number of uncertainties
   int GetNUncertainties() 
@@ -208,9 +208,13 @@ class MVCombination : public BCModel
   // the BLUE correlation matrix
   TMatrixD fBLUECorrelationMatrix;
 
+	// number of observables
+	int fNObservables;
+
 	// number of nuisance parameters for correlations
 	int fNNuisanceCorrelation;
 
+	// nuisance parameters
 	std::vector<NuisanceParameter> fNuisanceCorrelation;
 
 };
