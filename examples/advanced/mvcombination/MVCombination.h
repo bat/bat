@@ -133,7 +133,7 @@ class MVCombination : public BCModel
   void CalculateCovarianceMatrix(std::vector<double> nuisance = std::vector<double>(0));
 
   // check for positive definiteness
-  bool PositiveDefinite(TMatrixD m);
+  bool PositiveDefinite(TMatrixD mat);
 
   // calculate BLUE
   void CalculateBLUE();
