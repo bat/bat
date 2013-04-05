@@ -1,3 +1,7 @@
+2013-04-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/mvcombination:
+	- check that covariance matrix is positive defininite
+
 2013-04-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mvcombination:
 	- allow one nuisance parameter to control several correlation coefficients

@@ -110,16 +110,16 @@ class MVCombination : public BCModel
 
   // return the vector of measurements
   TVectorD GetVectorMeasurements()
-    { return fVectorMeasurements; };
+  { return fVectorMeasurements; };
 
-	// return the index of the measurements
-	int GetIndexMeasurement(std::string measurement, std::string observable);
+  // return the index of the measurements
+  int GetIndexMeasurement(std::string measurement, std::string observable);
 
-	// return the index of the uncertainty
-	int GetIndexUncertainty(std::string name);
+  // return the index of the uncertainty
+  int GetIndexUncertainty(std::string name);
 
-	// return the index of the observable
-	int GetIndexObservable(std::string name); 
+  // return the index of the observable
+  int GetIndexObservable(std::string name); 
 
   // misc
 
@@ -131,12 +131,15 @@ class MVCombination : public BCModel
 
   // calculate the total covariance matrix
   void CalculateCovarianceMatrix(std::vector<double> nuisance = std::vector<double>(0));
-			
+
+  // check for positive definiteness
+  bool PositiveDefinite(TMatrixD m);
+
   // calculate BLUE
   void CalculateBLUE();
 
-	// calculate all necessary matrices
-	void PrepareAnalysis();
+  // calculate all necessary matrices
+  void PrepareAnalysis();
 
   // output
 
@@ -150,18 +153,18 @@ class MVCombination : public BCModel
   // BAT methods
 
   // Methods to overload, see file MVCombination.cxx
-	//  double LogAPrioriProbability(const std::vector<double> &parameters);
+  //  double LogAPrioriProbability(const std::vector<double> &parameters);
 
   double LogLikelihood(const std::vector<double> &parameters);
 
  private:
 
-	struct NuisanceParameter {
-		int index_uncertainty;
-		int index_measurement1;
-		int index_measurement2;
-		int index_rhoparameter;
-	};
+  struct NuisanceParameter {
+    int index_uncertainty;
+    int index_measurement1;
+    int index_measurement2;
+    int index_rhoparameter;
+  };
 
   // the names of the uncertainties
   std::vector<MVUncertainty*> fUncertainties;
@@ -208,14 +211,14 @@ class MVCombination : public BCModel
   // the BLUE correlation matrix
   TMatrixD fBLUECorrelationMatrix;
 
-	// number of observables
-	int fNObservables;
+  // number of observables
+  int fNObservables;
 
-	// number of nuisance parameters for correlations
-	int fNNuisanceCorrelation;
+  // number of nuisance parameters for correlations
+  int fNNuisanceCorrelation;
 
-	// nuisance parameters
-	std::vector<NuisanceParameter> fNuisanceCorrelation;
+  // nuisance parameters
+  std::vector<NuisanceParameter> fNuisanceCorrelation;
 
 };
 // ---------------------------------------------------------
