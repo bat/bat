@@ -1,10 +1,11 @@
 This example is part of BAT. It will only run if BAT is correctly
 installed in the system.
 
-The example calculates the best linear unbiased estimator (BLUE) of
-several measurements and observables according to Nucl.  931
-Instrum. Meth. A500 (2003) 391 and numerically.
-
+The statistical model is a multivariate Gaussian which is used for
+combining several measurements of a set of observables taking into
+account correlations among the measurements. In additiona to the
+numerical solution, the best linear unbiased estimator (BLUE)
+according to Nucl.  931 Instrum. Meth. A500 (2003) 391 is calculated.
 
 The files:
 ----------
@@ -19,6 +20,7 @@ The files:
    MyCombination.cxx      - source code
    MVMeasurement.cxx      - source code
    MVUncertainty.cxx      - source code 
+   ToyModel.cxx           - source code 
    runMVCombination.cxx   - example code how to run the combination 
                             (1D example)
    runMyCombination.cxx   - example code how to run a combination
@@ -69,7 +71,8 @@ quantity of interest is calculated during the combination.
 Output:
 -------
 
-- the standard BAT output: results as .txt files, plots, summary plots, etc.
+- the standard BAT output: results as .txt files, plots, summary
+  plots, etc.
 
 - MVCombination::PrintBLUEResults(filename): prints a summary of the
   BLUE analysis to an output file. This includes the input values and
