@@ -14,6 +14,7 @@ The files:
    MyCombination.h        - definition of the concrete combination model
    MVMeasurement.h        - definition of a measurement
    MVUncertainty.h        - definition of an uncertainty
+   ToyModel.h             - definition of a toy model
    MVCombination.cxx      - source code
    MyCombination.cxx      - source code
    MVMeasurement.cxx      - source code
@@ -29,11 +30,17 @@ The files:
 
 Input file structure:
 ---------------------
-number of observables, measurements and source of uncertainty
+number of observables, measurements, source of uncertainty and nuisance parameters
 list of observables and their (min/max) ranges
 names of the uncertainties
 list of measurements, observables, central values and uncertainties
 list of correlation matrices
+list of nuisance parameters: measurement1, observable1, measurement2, observable2, correlation coefficient, min/max range, prior shape, arguments of prior
+
+- shape an arguments of the prior are:
+  "flat" (no arguments)
+  "gauss" mean std
+
 
 Running the example:
 --------------------
@@ -49,5 +56,29 @@ Running the example:
 3. Make sure that the input file contains the corresponding
    information about the input values.
 
-4. Run the executables 'runMyCombination.cxx' or 'runMVCombination.cxx'
+4. Run the executables 'runMyCombination.cxx' or
+'runMVCombination.cxx' with a proper input file as argument.
 
+Comments:
+---------
+
+An example for error propagation is shown in the 2D case: a new
+combination class inherits from MVCombination and a histogram with the
+quantity of interest is calculated during the combination.
+
+Output:
+-------
+
+- the standard BAT output: results as .txt files, plots, summary plots, etc.
+
+- MVCombination::PrintBLUEResults(filename): prints a summary of the
+  BLUE analysis to an output file. This includes the input values and
+  matrices, the estimated central values and uncertainties as well as
+  the weights and output correlation matrices.
+
+- ToyModel::PrintToys(filename): prints the chi2 distributions
+  indicating the observed chi2, indicates the distribution of 1D and
+  2D measurements of the pseudo-data and indicates the observed data.
+
+- ToyModel::PrintSummary(): prints the results of the goodness-of-fit
+  test on the screen
