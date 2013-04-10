@@ -19,17 +19,17 @@ MyCombination::~MyCombination()
 }
 
 // ---------------------------------------------------------
-double MyCombination::LogAPrioriProbability(const std::vector<double> &parameters)
+double MyCombination::LogLikelihood(const std::vector<double> &parameters)
 {
-   double logprob = 0.;
+  double logprob =   MVCombination::LogLikelihood(parameters);
 
-	 double F0 = parameters[0];
-	 double FL = parameters[1];
-
-	 if (F0+FL > 1)
-		 return -1e55;
-
-   return logprob;
+  double F0 = parameters[0];
+  double FL = parameters[1];
+  
+  if (F0+FL > 1)
+    return -1e55;
+  
+  return logprob;
 }
 
 // ---------------------------------------------------------

@@ -164,6 +164,7 @@ class MVCombination : public BCModel
     int index_measurement1;
     int index_measurement2;
     int index_rhoparameter;
+    double pre;
   };
 
   // the names of the uncertainties

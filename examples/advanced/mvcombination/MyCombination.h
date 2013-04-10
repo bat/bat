@@ -13,27 +13,27 @@
 // ---------------------------------------------------------
 class MyCombination : public MVCombination
 {
-   public:
+ public:
 
-      // Constructor
-      MyCombination();
+  // Constructor
+  MyCombination();
 
-			// Destructor
-      ~MyCombination();
+  // Destructor
+  ~MyCombination();
 
-			// setters
-			void SetHistFR(TH1D* hist)
-			{ fHistFR = hist; }; 
+  // setters
+  void SetHistFR(TH1D* hist)
+  { fHistFR = hist; }; 
 
-			// BAT methods
+  // BAT methods
 
-      double LogAPrioriProbability(const std::vector<double> &parameters);
+  double LogLikelihood(const std::vector<double> &parameters);
 
-			void MCMCIterationInterface();
+  void MCMCIterationInterface();
 
  private:
 
-			TH1D* fHistFR;
+  TH1D* fHistFR;
 
 
 };

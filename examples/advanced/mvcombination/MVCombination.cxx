@@ -202,6 +202,7 @@ int MVCombination::ReadInput(std::string filename)
     std::string parname;
     double min;
     double max; 
+    double pre;
     std::string priorshape;
 
     infile >> uncertainty >> measurement1 >> observable1 >> measurement2 >> observable2 >> parname;
@@ -212,20 +213,23 @@ int MVCombination::ReadInput(std::string filename)
     for (unsigned int i = 0; i < GetNParameters(); i++)
       if (parname.c_str() == GetParameter(i)->GetName())
 	index = i;
+
+    if (index >= 0)
+      infile >> pre; 
 		
-    if (index < 0) {
+    else if (index < 0) {
       // read properties of parameter
       infile >> min >> max >> priorshape;
 			
       // add nuisance parameter
       AddParameter(parname.c_str(), min, max);
 
+      // set pre-factor
+      pre = 1;
+
       // set index
       index = GetNParameters()-1;
 
-      // increase counter of nuisance parametera
-      fNNuisanceCorrelation++;
-			
       if (priorshape == "flat") {
 	SetPriorConstant(parname.c_str());
       }
@@ -242,11 +246,15 @@ int MVCombination::ReadInput(std::string filename)
       }
     }
 
+    // increase counter of nuisance parametera
+    fNNuisanceCorrelation++;
+			
     NuisanceParameter p; 
     p.index_uncertainty  = GetIndexUncertainty(uncertainty);
     p.index_measurement1 = GetIndexMeasurement(measurement1, observable1);
     p.index_measurement2 = GetIndexMeasurement(measurement2, observable2);
     p.index_rhoparameter = index;
+    p.pre = pre;
 		
     fNuisanceCorrelation.push_back(p);
   }
@@ -320,8 +328,9 @@ void MVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
 	if (p.index_uncertainty == i) {
 	  double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
 	  double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
+	  double pre = p.pre;
 					
-	  mat[p.index_measurement1][p.index_measurement2] = parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
+	  mat[p.index_measurement1][p.index_measurement2] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
 	  mat[p.index_measurement2][p.index_measurement1] = mat[p.index_measurement1][p.index_measurement2];
 	}
       }

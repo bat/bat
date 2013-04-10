@@ -17,6 +17,6 @@ mu+jets mass 29.0 4. 2. 1. 1.
  1.00  0.50
  0.50  1.00
 
-JES el+jets mass mu+jets mass rho_JES -1.0 1.0 flat
-Luminosity el+jets mass mu+jets mass rho_lumi -1.0 1.0 flat
-Modelling el+jets mass mu+jets mass rho_model -1.0 1.0 gauss 0.5 0.1
+JES el+jets mass mu+jets mass rho_1 -1.0 1.0 flat
+Luminosity el+jets mass mu+jets mass rho_1 +1
+Modelling el+jets mass mu+jets mass rho_2 -1.0 1.0 gauss 0.5 0.1
