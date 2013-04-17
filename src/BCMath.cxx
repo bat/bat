@@ -275,6 +275,23 @@ double LogGammaPDF(double x, double alpha, double beta)
 }
 
 // ---------------------------------------------------------
+double LogLogNormal(double x, double mean, double sigma)
+{
+   // if we have a delta function, return fixed value
+   if (sigma == 0.)
+      return 0;
+
+   // if sigma is negative use absolute value
+   if (sigma < 0.)
+      sigma *= -1.;
+
+   double arg = (log(x) - mean) / sigma;
+   double result = -.5 * arg * arg;
+
+   return result - log(x * sqrt(2. * M_PI) * sigma);
+}
+
+// ---------------------------------------------------------
 double SplitGaussian(double* x, double* par)
 {
    double mean = par[0]; 

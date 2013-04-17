@@ -128,6 +128,11 @@ namespace BCMath
 		*/
    double LogGammaPDF(double x, double alpha, double beta);
 
+	 /** 
+		* Return the log of the log normal distribution
+		*/
+	 double LogLogNormal(double x, double mean = 0, double sigma = 1);
+
    /**
     * Get N random numbers distributed according to chi square function
     * with K degrees of freedom

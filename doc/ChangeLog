@@ -1,3 +1,6 @@
+2013-04-17 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCMath: added log of log-normal distribution.
+
 2013-04-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mvcombination:
 	- can use one parameter (with prefactors) for several correations.
