@@ -26,6 +26,18 @@ ToDo:
 
 - update examples: include reasonable plotting options.
 
+- allow changing the color scheme for for stack plots
+
+- single chanel analysis: add automatic running for the following:
+  remove one systematic uncertainty at a time to check its severeness.
+
+- single chanel analysis: add automatic running for the following:
+  remove one channel at a time to check its impact.
+
+- check what happens with delta-priors. Histogram pointer is 0?
+
+- what happens if no template is set?
+
 Done:
 
 * update plotting:
