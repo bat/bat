@@ -88,6 +88,9 @@ int main(int argc, char *argv[])
 
    // print results of numerical analysis to file
    m->PrintResults("MyCombination_results.txt");
+
+	 // calculate BLUE
+	 m->CalculateBLUE();
    
    // print BLUE results to file
    m->PrintBLUEResults("MyCombination_BLUE.txt");

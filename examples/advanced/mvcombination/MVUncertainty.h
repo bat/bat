@@ -28,14 +28,21 @@ class MVUncertainty
 	std::string GetName()
 		{ return fName; };
 	
+	// return the correlation matrix
 	TMatrixD GetCorrelationMatrix()
 		{ return fCorrelationMatrix; }; 
 
+	// return the covariance matrix
 	TMatrixD GetCovarianceMatrix()
 		{ return fCovarianceMatrix; }; 
 
+	// return the inverse of the covariance matrix
 	TMatrixD GetInvCovarianceMatrix()
 		{ return fInvCovarianceMatrix; }; 
+
+	// return the flag if the uncertainty is active or not
+	bool GetFlagActive()
+	{ return fFlagActive; };
 
 	// setters
 	void SetCorrelationMatrix(const TMatrixD &matrix);
@@ -43,7 +50,11 @@ class MVUncertainty
 	// setters
 	void SetCovarianceMatrix(const TMatrixT<double> &matrix);
 
- private:
+ 	// set flag if uncertainty is active for the combination
+	void SetFlagActive(bool flag)
+	{ fFlagActive = flag; }; 
+
+private:
 
 	// the name of the uncertainty
 	std::string fName;
@@ -59,8 +70,11 @@ class MVUncertainty
 	// the inverse of the covariance matrix
 	TMatrixD fInvCovarianceMatrix;
 
-	double* f;
+	// debugKK: is that used?
+	//	double* f;
 
+	// flag: active in combination (true) or not (false)
+	bool fFlagActive; 
 };
 // ---------------------------------------------------------
 

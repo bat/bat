@@ -12,8 +12,8 @@
 
 // ---------------------------------------------------------
 MVCombination::MVCombination() : BCModel("MVCombination")
-			       , fNObservables(0)
-			       , fNNuisanceCorrelation(0)
+															 , fNObservables(0)
+															 , fNNuisanceCorrelation(0)
 {
 }
 
@@ -72,7 +72,7 @@ void MVCombination::AddMeasurement(std::string name, std::string observable, dou
   m->SetUncertainties(uncertainties);
 
   fMeasurements.push_back(m);
-
+	
   fVectorObservable.push_back(index);
 
   int n = GetNMeasurements();
@@ -91,16 +91,16 @@ double MVCombination::LogLikelihood(const std::vector<double> &parameters)
       return -1e90;
   }
 
-  int nmeas = GetNMeasurements();
+  int nmeas = GetNActiveMeasurements();
 
   // copy parameters into a vector
   TVectorD observables(nmeas);
 
   for (int i = 0; i < nmeas; ++i) {
-    observables[i] = parameters[fVectorObservable[i]];
+    observables[i] = parameters[fVectorActiveObservable[i]];
   }
 
-  TVectorD prod1 = observables - fVectorMeasurements;
+  TVectorD prod1 = observables - fVectorActiveMeasurements;
   TVectorD prod2 = fInvCovarianceMatrix * prod1;
   double prod = prod1 * prod2;
 
@@ -184,9 +184,9 @@ int MVCombination::ReadInput(std::string filename)
 
     for (int j = 0; j < nmeasurements; ++j) 
       for (int k = 0; k < nmeasurements; ++k) {
-	double corr;
-	infile >> corr;
-	mat[j][k] = corr;
+				double corr;
+				infile >> corr;
+				mat[j][k] = corr;
       }
 
     // set correlation matrix
@@ -212,7 +212,7 @@ int MVCombination::ReadInput(std::string filename)
 
     for (unsigned int i = 0; i < GetNParameters(); i++)
       if (parname.c_str() == GetParameter(i)->GetName())
-	index = i;
+				index = i;
 
     if (index >= 0)
       infile >> pre; 
@@ -231,18 +231,18 @@ int MVCombination::ReadInput(std::string filename)
       index = GetNParameters()-1;
 
       if (priorshape == "flat") {
-	SetPriorConstant(parname.c_str());
+				SetPriorConstant(parname.c_str());
       }
       else if (priorshape == "gauss") {
-	double mean;
-	double std;
+				double mean;
+				double std;
 				
-	infile >> mean >> std;
+				infile >> mean >> std;
 				
-	SetPriorGauss(parname.c_str(), mean, std);
+				SetPriorGauss(parname.c_str(), mean, std);
       }
       else {
-	BCLog::OutWarning(Form("MVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+				BCLog::OutWarning(Form("MVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
       }
     }
 
@@ -264,9 +264,6 @@ int MVCombination::ReadInput(std::string filename)
 
   PrepareAnalysis();
 
-  // calculate BLUE
-  CalculateBLUE();
-
   // no error
   return 1;
 }
@@ -285,6 +282,57 @@ void MVCombination::PrepareAnalysis()
   if (!PositiveDefinite(fCovarianceMatrix)) {
     BCLog::OutWarning("MVCombination::PrepareAnalysis. Covariance matrix is not positive definite.");
   }
+
+	CalculateHelperVectors();
+
+}
+
+// ---------------------------------------------------------
+int MVCombination::GetNActiveMeasurements()
+{
+	int n = GetNMeasurements();
+
+	int counter = 0; 
+
+	for (int i = 0; i < n; ++i) {
+		MVMeasurement* m = GetMeasurement(i);
+		if (m->GetFlagActive())
+			counter++;
+	}
+	return counter;
+}
+
+// ---------------------------------------------------------
+void MVCombination::CalculateHelperVectors()
+{
+	int nmeasurements  = GetNMeasurements();
+
+	fVectorMeasurements.Clear();
+	fVectorMeasurements.ResizeTo(nmeasurements);
+	fVectorObservable.clear();
+
+	for (int i = 0; i < nmeasurements; ++i) {
+		MVMeasurement* m = GetMeasurement(i);
+		fVectorMeasurements[i] =  m->GetCentralValue();
+		fVectorObservable.push_back(m->GetObservable());
+	}
+
+	int nactive = GetNActiveMeasurements();
+
+	fVectorActiveMeasurements.Clear();
+	fVectorActiveMeasurements.ResizeTo(nactive);
+	fVectorActiveObservable.clear();
+	
+	int counter = 0;
+	for (int i = 0; i < nmeasurements; ++i) {
+		MVMeasurement* m = GetMeasurement(i);
+		if (m->GetFlagActive()) {
+			fVectorActiveMeasurements[counter] =  m->GetCentralValue();
+			fVectorActiveObservable.push_back(m->GetObservable());
+			counter++;			
+		}
+	}
+
 }
 
 // ---------------------------------------------------------
@@ -293,19 +341,34 @@ void MVCombination::CalculateCorrelationMatrix(int index)
   MVUncertainty* u = fUncertainties.at(index);
 
   int n = GetNMeasurements();
+	int nactive = GetNActiveMeasurements();
 
-  TMatrixD cov(n, n);
+  TMatrixD cov(nactive, nactive);
 
   TMatrixD corr = u->GetCorrelationMatrix();
 
-  for (int i = 0; i < n; ++i) 
-    for (int j = 0; j < n; ++j) {
-      double sigma_i = GetMeasurement(i)->GetUncertainty(index);
-      double sigma_j = GetMeasurement(j)->GetUncertainty(index);
-			
-      double corr_ij = corr[i][j];
-      cov[i][j] = corr_ij*sigma_i*sigma_j;
-    }
+	int counteri = 0;
+  for (int i = 0; i < n; ++i) {
+		MVMeasurement* mi = GetMeasurement(i);
+		double sigma_i = mi->GetUncertainty(index);
+		
+		// skip line if not active
+		if (!mi->GetFlagActive())
+			continue;
+
+		int counterj = 0;
+		for (int j = 0; j < n; ++j) {
+			MVMeasurement* mj = GetMeasurement(j);
+			double sigma_j = mj->GetUncertainty(index);
+
+			if (mj->GetFlagActive()) {
+				cov[counteri][counterj] = corr[i][j]*sigma_i*sigma_j;
+				counterj++;
+			}
+    }		
+		counteri++;
+	}
+
   u->SetCovarianceMatrix(cov);
 }
 
@@ -313,30 +376,80 @@ void MVCombination::CalculateCorrelationMatrix(int index)
 void MVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
 {
   int n = GetNUncertainties();
+	int nmeasurements = GetNMeasurements();
   int nnuisance = fNNuisanceCorrelation;
 
   fCovarianceMatrix.Clear();
-  fCovarianceMatrix.ResizeTo(GetNMeasurements(), GetNMeasurements());
+  fCovarianceMatrix.ResizeTo(GetNActiveMeasurements(), GetNActiveMeasurements());
+
   for (int i = 0; i < n; ++i) {
     MVUncertainty* u = fUncertainties.at(i);
-    TMatrixD mat = u->GetCovarianceMatrix();
 
-    // modidy matrix if nuisance parameter present
+		/* 
+   TMatrixD mat = u->GetCovarianceMatrix();
+
+    // modify matrix if nuisance parameter present
     if (parameters.size() > 0) {
       for (int  j = 0; j < nnuisance; ++j) {
-	NuisanceParameter p = fNuisanceCorrelation.at(j);
-	if (p.index_uncertainty == i) {
-	  double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
-	  double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
-	  double pre = p.pre;
+				NuisanceParameter p = fNuisanceCorrelation.at(j);
+				if (p.index_uncertainty == i) {
+					double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
+					double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
+					double pre = p.pre;
 					
-	  mat[p.index_measurement1][p.index_measurement2] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
-	  mat[p.index_measurement2][p.index_measurement1] = mat[p.index_measurement1][p.index_measurement2];
-	}
+					mat[p.index_measurement1][p.index_measurement2] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
+					mat[p.index_measurement2][p.index_measurement1] = mat[p.index_measurement1][p.index_measurement2];
+				}
       }
     }
-    // add matrix
-    fCovarianceMatrix += mat;
+		*/
+
+		// shrink covariance matrix such that it fits only active measurements
+		TMatrixD mat_small = u->GetCovarianceMatrix(); 
+		//		mat_small.ResizeTo(fCovarianceMatrix);
+
+		int counteri = 0;
+		for (int i = 0; i < nmeasurements; ++i) {
+			MVMeasurement* mi = GetMeasurement(i);
+			
+			// skip line if not active
+			if (!mi->GetFlagActive())
+				continue;
+			
+			int counterj = 0;
+			for (int j = 0; j < nmeasurements; ++j) {
+				MVMeasurement* mj = GetMeasurement(j);
+				
+				if (mj->GetFlagActive()) {
+					//					mat_small[counteri][counterj] = mat[i][j];
+
+					// modify matrix if nuisance parameter present
+					if (parameters.size() > 0) {
+						for (int  j = 0; j < nnuisance; ++j) {
+							NuisanceParameter p = fNuisanceCorrelation.at(j);
+							if (p.index_uncertainty == i) {
+								double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
+								double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
+								double pre = p.pre;
+								
+								if (i == p.index_measurement1 && j == p.index_measurement2) {
+									mat_small[counteri][counterj] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
+									mat_small[counterj][counteri] = mat_small[counteri][counterj];
+								}
+							}
+						}
+					}
+
+					counterj++;			
+				}
+			}
+			
+			counteri++;
+		}
+		
+    // add matrix if active
+		if (u->GetFlagActive())
+			fCovarianceMatrix += mat_small;
   }
   fInvCovarianceMatrix.Clear();
   fInvCovarianceMatrix.ResizeTo(fCovarianceMatrix);
@@ -371,21 +484,30 @@ bool MVCombination::PositiveDefinite(TMatrixD mat)
 // ---------------------------------------------------------
 void MVCombination::CalculateBLUE()
 {
-  int nmeas = GetNMeasurements();
+	int nmeas = GetNMeasurements();
+	int nactivemeas = GetNActiveMeasurements();
   int nobs = GetNObservables();
   int nunc = GetNUncertainties();
 
   // calculate U matrix
-  TMatrixD u(nmeas, nobs);
+	//  TMatrixD u(nmeas, nobs);
+  TMatrixD u(nactivemeas, nobs);
 
-  for (int i = 0; i < nmeas; ++i)
-    for (int j = 0; j < nobs; ++j) {
-      MVMeasurement* m = GetMeasurement(i);
-      if (m->GetObservable() == j)
-	u[i][j] = 1;
-      else 
-	u[i][j] = 0;
+	int counter = 0;
+  for (int i = 0; i < nmeas; ++i) {
+		MVMeasurement* m = GetMeasurement(i);
+
+		// if measurement is active fill matrix u
+		if (m->GetFlagActive()) {
+			for (int j = 0; j < nobs; ++j) {
+				if (m->GetObservable() == j)
+					u[counter][j] = 1;
+				else 
+					u[counter][j] = 0;
+			}
+		counter++;
     }
+	}
 
   // calculate weight matrix
   TMatrixD ut = u;
@@ -396,7 +518,8 @@ void MVCombination::CalculateBLUE()
   m2.Invert();
 
   fBLUEWeights.Clear();
-  fBLUEWeights.ResizeTo(nobs, nmeas);
+	//  fBLUEWeights.ResizeTo(nobs, nmeas);
+  fBLUEWeights.ResizeTo(nobs, nactivemeas);
 	
   fBLUEWeights = m2*m1;
 
@@ -404,7 +527,8 @@ void MVCombination::CalculateBLUE()
   fBLUECentral.Clear();
   fBLUECentral.ResizeTo(nobs);
 
-  fBLUECentral = fBLUEWeights * fVectorMeasurements;
+	//  fBLUECentral = fBLUEWeights * fVectorMeasurements;
+  fBLUECentral = fBLUEWeights * fVectorActiveMeasurements;
 
   // calculate covariance matrix
   fBLUECovarianceMatrix.Clear();
@@ -420,7 +544,10 @@ void MVCombination::CalculateBLUE()
 
     // calculate covariance matrix
     MVUncertainty* u = GetUncertainty(i);
-    TMatrixD cov = u->GetCovarianceMatrix();
+		if (!u->GetFlagActive()) 
+			continue;
+
+		TMatrixD cov = u->GetCovarianceMatrix();
     TMatrixD mat = fBLUEWeights * cov * weightt;
     fBLUECovarianceMatrices.push_back(mat);
 
@@ -435,7 +562,7 @@ void MVCombination::CalculateBLUE()
     TMatrixD mat2(nobs, nobs);
     for (int j = 0; j < nobs; ++j) 
       for (int k = 0; k < nobs; ++k) {
-	mat2[j][k] = mat[j][k]/vec[j]/vec[k];
+				mat2[j][k] = mat[j][k]/vec[j]/vec[k];
       }
     fBLUECorrelationMatrices.push_back(mat2);
   }
@@ -480,48 +607,83 @@ void MVCombination::PrintBLUEResults(std::string filename)
   ofi << "  Observable (range): " << std::endl;
   for (int i = 0; i < nobs; ++i) 
     ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()
-	<< " (" << GetParameter(i)->GetLowerLimit() << " - " << GetParameter(i)->GetUpperLimit() << ")" << std::endl;
+				<< " (" << GetParameter(i)->GetLowerLimit() << " - " << GetParameter(i)->GetUpperLimit() << ")" << std::endl;
   ofi << std::endl;
 
   ofi << "* Measurements:" << std::endl;
   ofi << "  Measurement (observable): central value +- total uncertainty" << std::endl;
   for (int i = 0; i < nmeas; ++i) {
     MVMeasurement* m = GetMeasurement(i);
-    ofi << "  " << std::setiosflags(std::ios::left) << m->GetName() 
-	<< std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << ")" 
-	<< ": " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetCentralValue()
-	<< " +- " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetTotalUncertainty() << std::endl;
+		if (m->GetFlagActive()) {
+			double total2 = 0;
+			for (int j = 0; j < nunc; ++j) {
+				if (GetUncertainty(j)->GetFlagActive())
+					total2+=m->GetUncertainty(j)*m->GetUncertainty(j);
+			}
+			ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName() 
+					<< std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << ")" 
+					<< ": " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetCentralValue()
+					<< " +- " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << sqrt(total2) << std::endl;
+		}
   }
   ofi << std::endl;
 	
   ofi << "* Uncertainties:" << std::endl;
   ofi << "  Measurement (observable): Uncertainty (";
   for (int j = 0; j < nunc-1; ++j )
-    ofi << GetUncertainty(j)->GetName() << ", ";
-  ofi << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+		if (GetUncertainty(j)->GetFlagActive())
+			ofi << GetUncertainty(j)->GetName() << ", ";
+	if (GetUncertainty(nunc-1)->GetFlagActive())
+		ofi << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+	else
+		ofi << ")" << std::endl;
+
   for (int i = 0; i < nmeas; ++i) {
     MVMeasurement* m = GetMeasurement(i);
-    ofi << "  " << std::setiosflags(std::ios::left) << m->GetName() 
-	<< std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << "): ";
-    for (int j = 0; j < nunc; ++j )
-      ofi << std::setiosflags(std::ios::left) << std::setw(7) << m->GetUncertainty(j);
-    ofi << std::endl;
+		if (m->GetFlagActive()) {
+			ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName() 
+					<< std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << "): ";
+			for (int j = 0; j < nunc; ++j )
+				if (GetUncertainty(j)->GetFlagActive())
+					ofi << std::setiosflags(std::ios::left) << std::setw(7) << m->GetUncertainty(j);
+			ofi << std::endl;
+		}
   }
   ofi << std::endl;
 
   for (int i = 0; i < nunc; ++i) {
     MVUncertainty* u = GetUncertainty(i);
+
+		if (!u->GetFlagActive())
+			continue;
+
     ofi << "  " << u->GetName() << " " << "(correlation matrix)" << std::endl;
     TMatrixD mat = u->GetCorrelationMatrix();
 
-    for (int j = 0; j < nmeas; ++j) {
+		int counterk = 0;
+		for (int k = 0; k < nmeas; ++k) {
+			MVMeasurement* mk = GetMeasurement(k);
+			
+			// skip line if not active
+			if (!mk->GetFlagActive())
+				continue;
+			
       ofi << "  ";
-      for (int k = 0; k < nmeas; ++k) 
-	ofi << std::setw(7) << std::showpos << mat[j][k] << " ";
-      ofi << std::noshowpos << std::endl;
-    }
-    ofi << std::endl;
-  }
+
+			int counterj = 0;
+			for (int j = 0; j < nmeas; ++j) {
+				MVMeasurement* mj = GetMeasurement(j);
+				
+				if (mj->GetFlagActive()) {
+					ofi << std::setw(7) << std::showpos << mat[k][j] << " ";
+					counterj++;
+				}
+			}	
+			ofi << std::noshowpos << std::endl;
+			counterk++;
+		}
+		ofi << std::endl;
+	}
 
   ofi << "* BLUE results: " << std::endl;
   ofi << "  Observable: estimate +- total uncertainty" << std::endl;
@@ -533,12 +695,21 @@ void MVCombination::PrintBLUEResults(std::string filename)
 
   ofi << "  Observable: Uncertainty (";
   for (int j = 0; j < nunc-1; ++j )
-    ofi << GetUncertainty(j)->GetName() << ", ";
-  ofi << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+		if (GetUncertainty(j)->GetFlagActive())
+			ofi << GetUncertainty(j)->GetName() << ", ";
+	if (GetUncertainty(nunc-1)->GetFlagActive())
+		ofi << GetUncertainty(nunc-1)->GetName() << ")" << std::endl;
+	else
+		ofi << ")" << std::endl;
+
   for (int i = 0; i < nobs; ++i) {
     ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()<< ":";
+		int counterj = 0;
     for (int j = 0; j < nunc; ++j )
-      ofi << " " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << GetBLUEUncertainties(j)[i];
+			if (GetUncertainty(j)->GetFlagActive()) {
+				ofi << " " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << GetBLUEUncertainties(counterj)[i];
+				counterj++;
+			}
     ofi << std::endl;
   }
   ofi << std::endl;
@@ -546,18 +717,20 @@ void MVCombination::PrintBLUEResults(std::string filename)
   if (nobs > 1) {
     ofi << "  Individual correlation matrices " << std::endl;
     for (int i = 0; i < nunc; ++i) {
-      TMatrixD mat = GetBLUECorrelationMatrix(i);
-      ofi << "  " << GetUncertainty(i)->GetName() << std::endl;
-      for (int j = 0; j < nobs; ++j) {
-	ofi << "  ";
-	for (int k = 0; k < nobs; ++k) {
-	  ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+			if (GetUncertainty(i)->GetFlagActive()) {
+				TMatrixD mat = GetBLUECorrelationMatrix(i);
+				ofi << "  " << GetUncertainty(i)->GetName() << std::endl;
+				for (int j = 0; j < nobs; ++j) {
+					ofi << "  ";
+					for (int k = 0; k < nobs; ++k) {
+						ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+					}
+					ofi << std::noshowpos << std::endl;
+				}
+				ofi << std::endl;
+			}
+		}
 	}
-	ofi << std::noshowpos << std::endl;
-      }
-      ofi << std::endl;
-    }
-  }
   
   if (nobs > 1) { 
     ofi << "  Overall correlation matrix" << std::endl;
@@ -565,19 +738,23 @@ void MVCombination::PrintBLUEResults(std::string filename)
     for (int j = 0; j < nobs; ++j) {
       ofi << "  ";
       for (int k = 0; k < nobs; ++k) 
-	ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
+				ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
       ofi << std::noshowpos << std::endl;
     }
     ofi << std::endl;
   }      
   
   ofi << "  Weights [%]:" <<std::endl;
+	int counter = 0;
   for (int j = 0; j < nmeas; ++j) {
-    ofi << "  " << GetMeasurement(j)->GetName() << " : ";
-    for (int k = 0; k < nobs; ++k) 
-      ofi << std::setw(7) << std::setprecision(4) << std::showpos << fBLUEWeights[k][j]*100. << " ";
-    ofi << std::endl;
-  }
+		if (GetMeasurement(j)->GetFlagActive()) {
+			ofi << "  " << std::setw(20) << GetMeasurement(j)->GetName() << " : ";
+			for (int k = 0; k < nobs; ++k) 
+				ofi << std::setw(7) << std::setprecision(4) << std::showpos << fBLUEWeights[k][counter]*100. << " ";
+			ofi << std::endl;
+			counter++;
+		}
+	}
   ofi << std::endl;
 
   // close file

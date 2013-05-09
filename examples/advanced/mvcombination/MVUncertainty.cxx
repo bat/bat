@@ -5,6 +5,7 @@
 
 // ---------------------------------------------------------
 MVUncertainty::MVUncertainty(std::string name) : fName(name)
+																							 , fFlagActive(true)
 {
 }
 

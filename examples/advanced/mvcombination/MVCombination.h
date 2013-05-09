@@ -54,6 +54,9 @@ class MVCombination : public BCModel
   int GetNMeasurements() 
   { return int(fMeasurements.size()); };
 
+  // return the number of measurements
+  int GetNActiveMeasurements();
+
   // return a specific uncertainty
   MVUncertainty* GetUncertainty(int index) 
     { return fUncertainties.at(index); }
@@ -132,6 +135,9 @@ class MVCombination : public BCModel
   // calculate the total covariance matrix
   void CalculateCovarianceMatrix(std::vector<double> nuisance = std::vector<double>(0));
 
+	// calculate helper vectors
+	void CalculateHelperVectors();
+
   // check for positive definiteness
   bool PositiveDefinite(TMatrixD mat);
 
@@ -182,11 +188,17 @@ class MVCombination : public BCModel
   // the determinant of the covariance matrix
   double fDetCovariance;
 
-  // the vector of measurements
+  // helper: the vector of measurements
   TVectorD fVectorMeasurements;
+
+	// helper: the vector of active measurements
+	TVectorD fVectorActiveMeasurements;
 
   // the vector of the index of the observables being measured
   std::vector<int> fVectorObservable;
+
+  // the vector of the index of the observables being measured if active
+  std::vector<int> fVectorActiveObservable;
 
   // the BLUE matrix
   TMatrixD fBLUEWeights;

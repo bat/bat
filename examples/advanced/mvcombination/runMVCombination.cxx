@@ -56,6 +56,9 @@ int main(int argc, char *argv[])
    
    // print results of numerical analysis
    m->PrintResults("MVCombination_results.txt");
+
+	 // calculate BLUE
+	 m->CalculateBLUE();
    
    // print BLUE results to file
    m->PrintBLUEResults("MVCombination_BLUE.txt");

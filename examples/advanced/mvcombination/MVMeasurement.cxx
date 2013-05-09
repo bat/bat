@@ -7,6 +7,7 @@ MVMeasurement::MVMeasurement(std::string name) : fName(name)
 																							 , fObservable(-1)
 																							 , fCentralValue(0.)
 																							 , fUncertainties(0)
+																							 , fFlagActive(true)
 {
 }
 
