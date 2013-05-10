@@ -39,11 +39,22 @@ MVCombination::~MVCombination()
 // ---------------------------------------------------------
 void MVCombination::AddObservable(std::string name, double min, double max)
 {
+	// check if observable exists already
+  int index = GetIndexObservable(name);
+
+	if (index >= 0)
+		return;
+
+	Observable* obs = new Observable();
+	obs->SetName(name);
+	obs->SetMinMax(min, max);
+	fObservables.push_back(obs);
+
+  fNObservables++;
+
   AddParameter(name.c_str(), min, max); 
 
   SetPriorConstant(name.c_str());
-
-  fNObservables++;
 }
 
 // ---------------------------------------------------------
@@ -828,7 +839,8 @@ int MVCombination::GetIndexObservable(std::string name)
 
   // go through the list of parameters and compare strings
   for (int i = 0; i < n; ++i) {
-    if (name == std::string(GetParameter(i)->GetName()))
+		//    if (name == std::string(GetParameter(i)->GetName()))
+    if (name == std::string(fObservables.at(i)->GetName()))
       return i;
   }
 	

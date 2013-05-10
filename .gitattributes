@@ -134,6 +134,8 @@ examples/advanced/mtf/twoChannels/README -text
 examples/advanced/mtf/twoChannels/twoChannels.C -text
 examples/advanced/mvcombination/MVCombination.cxx -text
 examples/advanced/mvcombination/MVCombination.h -text
+examples/advanced/mvcombination/MVFit.cxx -text
+examples/advanced/mvcombination/MVFit.h -text
 examples/advanced/mvcombination/MVMeasurement.cxx -text
 examples/advanced/mvcombination/MVMeasurement.h -text
 examples/advanced/mvcombination/MVUncertainty.cxx -text
@@ -141,6 +143,10 @@ examples/advanced/mvcombination/MVUncertainty.h -text
 examples/advanced/mvcombination/Makefile -text
 examples/advanced/mvcombination/MyCombination.cxx -text
 examples/advanced/mvcombination/MyCombination.h -text
+examples/advanced/mvcombination/MyFit.cxx -text
+examples/advanced/mvcombination/MyFit.h -text
+examples/advanced/mvcombination/Observable.cxx -text
+examples/advanced/mvcombination/Observable.h -text
 examples/advanced/mvcombination/README -text
 examples/advanced/mvcombination/ToyModel.cxx -text
 examples/advanced/mvcombination/ToyModel.h -text

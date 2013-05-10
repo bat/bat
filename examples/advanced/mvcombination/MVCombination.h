@@ -5,6 +5,7 @@
 
 #include "MVMeasurement.h"
 #include "MVUncertainty.h"
+#include "Observable.h"
 
 #include <TMatrixT.h>
 #include <TVectorT.h>
@@ -163,7 +164,7 @@ class MVCombination : public BCModel
 
   double LogLikelihood(const std::vector<double> &parameters);
 
- private:
+ protected: 
 
   struct NuisanceParameter {
     int index_uncertainty;
@@ -232,6 +233,9 @@ class MVCombination : public BCModel
 
   // nuisance parameters
   std::vector<NuisanceParameter> fNuisanceCorrelation;
+
+	// the observables
+	std::vector<Observable*> fObservables;
 
 };
 // ---------------------------------------------------------
