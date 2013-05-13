@@ -55,7 +55,10 @@ CXXSRCS      = \
 	MVMeasurement.cxx \
 	MVUncertainty.cxx \
 	MyCombination.cxx \
-	ToyModel.cxx
+	ToyModel.cxx \
+	Observable.cxx \
+	MVFit.cxx \
+	MyFit.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
@@ -65,13 +68,14 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 EXEOBJS      =
 MYPROGS     = \
 	runMyCombination \
-	runMVCombination
+	runMVCombination \
+	runMyFit
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 
 # targets
-all : mvcombination mycombination
+all : mvcombination mycombination myfit
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -91,6 +95,10 @@ mycombination : runMyCombination.cxx $(CXXOBJS)
 mvcombination : runMVCombination.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) runMVCombination.o $(CXXOBJS) $(LIBS) -o runMVCombination
+
+myfit : runMyFit.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) runMyFit.o $(CXXOBJS) $(LIBS) -o runMyFit
 
 print :
 	echo compiler  : $(CXX)

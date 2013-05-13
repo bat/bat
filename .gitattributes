@@ -151,10 +151,13 @@ examples/advanced/mvcombination/README -text
 examples/advanced/mvcombination/ToyModel.cxx -text
 examples/advanced/mvcombination/ToyModel.h -text
 examples/advanced/mvcombination/input1D.txt -text
+examples/advanced/mvcombination/input1D_myFit.txt -text
+examples/advanced/mvcombination/input1D_myFit_corr.txt -text
 examples/advanced/mvcombination/input1D_nuisance.txt -text
 examples/advanced/mvcombination/input2D.txt -text
 examples/advanced/mvcombination/runMVCombination.cxx -text
 examples/advanced/mvcombination/runMyCombination.cxx -text
+examples/advanced/mvcombination/runMyFit.cxx -text
 examples/advanced/polynomialfit/CreateData.C -text
 examples/advanced/polynomialfit/Makefile.in -text
 examples/advanced/polynomialfit/Pol1Asymm.cxx -text
