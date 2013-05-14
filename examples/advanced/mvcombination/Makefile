@@ -58,7 +58,8 @@ CXXSRCS      = \
 	ToyModel.cxx \
 	Observable.cxx \
 	MVFit.cxx \
-	MyFit.cxx
+	MyFit.cxx \
+	AnomCouplings.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
@@ -69,13 +70,14 @@ EXEOBJS      =
 MYPROGS     = \
 	runMyCombination \
 	runMVCombination \
-	runMyFit
+	runMyFit \
+	runAnomCouplings
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
 
 
 # targets
-all : mvcombination mycombination myfit
+all : mvcombination mycombination myfit anomcouplings
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -99,6 +101,10 @@ mvcombination : runMVCombination.cxx $(CXXOBJS)
 myfit : runMyFit.cxx $(CXXOBJS)
 	$(CXX) $(CXXFLAGS) -c $<
 	$(CXX) $(LDFLAGS) runMyFit.o $(CXXOBJS) $(LIBS) -o runMyFit
+
+anomcouplings : runAnomCouplings.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) runAnomCouplings.o $(CXXOBJS) $(LIBS) -o runAnomCouplings
 
 print :
 	echo compiler  : $(CXX)

@@ -132,6 +132,8 @@ examples/advanced/mtf/systematics/runSystematics.cxx -text
 examples/advanced/mtf/twoChannels/CreateHistograms.C -text
 examples/advanced/mtf/twoChannels/README -text
 examples/advanced/mtf/twoChannels/twoChannels.C -text
+examples/advanced/mvcombination/AnomCouplings.cxx -text
+examples/advanced/mvcombination/AnomCouplings.h -text
 examples/advanced/mvcombination/MVCombination.cxx -text
 examples/advanced/mvcombination/MVCombination.h -text
 examples/advanced/mvcombination/MVFit.cxx -text
@@ -155,6 +157,8 @@ examples/advanced/mvcombination/input1D_myFit.txt -text
 examples/advanced/mvcombination/input1D_myFit_corr.txt -text
 examples/advanced/mvcombination/input1D_nuisance.txt -text
 examples/advanced/mvcombination/input2D.txt -text
+examples/advanced/mvcombination/input_whel.txt -text
+examples/advanced/mvcombination/runAnomCouplings.cxx -text
 examples/advanced/mvcombination/runMVCombination.cxx -text
 examples/advanced/mvcombination/runMyCombination.cxx -text
 examples/advanced/mvcombination/runMyFit.cxx -text
