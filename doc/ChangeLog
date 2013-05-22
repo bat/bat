@@ -1,4 +1,7 @@
 2013-05-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCH2D: added a method that returns the area of a region which covers a certain probability.
+
+2013-05-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/advanced/mvcombination:
 	- can do inverse problem now.
 	- added several classes: observable, mvfit, myfit

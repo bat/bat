@@ -167,6 +167,11 @@ class BCH2D
        * @param p The integrated probability in the region below the height to be estimated. */
       double GetLevel(double p);
 
+			/**
+			 * Calculate the area over which the integral of the function is p
+       * @param p The integrated probability in the region below the height to be estimated. */
+			double GetArea(double p);
+
       /**
        * Returns the number of intervals as a function of x
        * @param h The histogram.

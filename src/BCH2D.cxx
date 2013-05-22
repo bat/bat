@@ -796,7 +796,6 @@ void BCH2D::CalculateIntegratedHistogram()
 }
 
 // ---------------------------------------------------------
-
 double BCH2D::GetLevel(double p)
 {
    double quantiles[1];
@@ -806,6 +805,51 @@ double BCH2D::GetLevel(double p)
    fIntegratedHistogram->GetQuantiles( 1, quantiles, probsum);
 
    return quantiles[0];
+}
+
+// ---------------------------------------------------------
+double BCH2D::GetArea(double p)
+{
+	// copy histograms for bands
+	TH2D hist_temp(*fHistogram);
+	
+	// calculate total number of bins
+	int nbins = hist_temp.GetNbinsX() * hist_temp.GetNbinsY();
+
+	// area
+	double area = 0;
+
+	// integrated probability 
+	double intp = 0;
+
+	// a counter
+	int counter = 0;
+
+	// loop over bins
+	while ( (intp < p) && (counter < nbins) ) {
+
+		// find maximum bin
+		int binx;
+		int biny;
+		int binz;
+		hist_temp.GetBinXYZ(hist_temp.GetMaximumBin(), binx, biny, binz);
+
+		// increase probability
+		double dp = hist_temp.GetBinContent(binx, biny);
+		intp += dp * hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);
+
+		// reset maximum bin
+		hist_temp.SetBinContent(binx, biny, 0.);
+
+		// increase area
+		area += hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);			
+
+		// increase counter
+		counter++;
+	}
+
+	// return area
+	return area;
 }
 
 // ---------------------------------------------------------
