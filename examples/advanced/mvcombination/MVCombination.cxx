@@ -393,70 +393,62 @@ void MVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
   fCovarianceMatrix.Clear();
   fCovarianceMatrix.ResizeTo(GetNActiveMeasurements(), GetNActiveMeasurements());
 
-  for (int i = 0; i < n; ++i) {
-    MVUncertainty* u = fUncertainties.at(i);
-
-		/* 
-   TMatrixD mat = u->GetCovarianceMatrix();
-
-    // modify matrix if nuisance parameter present
-    if (parameters.size() > 0) {
-      for (int  j = 0; j < nnuisance; ++j) {
-				NuisanceParameter p = fNuisanceCorrelation.at(j);
-				if (p.index_uncertainty == i) {
-					double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
-					double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
-					double pre = p.pre;
-					
-					mat[p.index_measurement1][p.index_measurement2] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
-					mat[p.index_measurement2][p.index_measurement1] = mat[p.index_measurement1][p.index_measurement2];
-				}
-      }
-    }
-		*/
+	// loop over all uncertainties
+  for (int unc_i = 0; unc_i < n; ++unc_i) {
+    MVUncertainty* u = fUncertainties.at(unc_i);
 
 		// shrink covariance matrix such that it fits only active measurements
 		TMatrixD mat_small = u->GetCovarianceMatrix(); 
-		//		mat_small.ResizeTo(fCovarianceMatrix);
 
+		// loop over all measurements (i)
 		int counteri = 0;
-		for (int i = 0; i < nmeasurements; ++i) {
-			MVMeasurement* mi = GetMeasurement(i);
+		for (int meas_i = 0; meas_i < nmeasurements; ++meas_i) {
+			MVMeasurement* mi = GetMeasurement(meas_i);
 			
 			// skip line if not active
 			if (!mi->GetFlagActive())
 				continue;
 			
+			// loop over all measurements (j)
 			int counterj = 0;
-			for (int j = 0; j < nmeasurements; ++j) {
-				MVMeasurement* mj = GetMeasurement(j);
+			for (int meas_j = 0; meas_j < nmeasurements; ++meas_j) {
+				MVMeasurement* mj = GetMeasurement(meas_j);
 				
-				if (mj->GetFlagActive()) {
-					//					mat_small[counteri][counterj] = mat[i][j];
+				// skip line if not active
+				if (!mj->GetFlagActive()) 
+					continue;
+				
+				// modify matrix if nuisance parameter present
+				if (parameters.size() > 0) {
 
-					// modify matrix if nuisance parameter present
-					if (parameters.size() > 0) {
-						for (int  j = 0; j < nnuisance; ++j) {
-							NuisanceParameter p = fNuisanceCorrelation.at(j);
-							if (p.index_uncertainty == i) {
-								double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(i);
-								double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(i);
-								double pre = p.pre;
-								
-								if (i == p.index_measurement1 && j == p.index_measurement2) {
-									mat_small[counteri][counterj] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
-									mat_small[counterj][counteri] = mat_small[counteri][counterj];
-								}
+					// loop over all nuisance parameters
+					for (int  nuis_k = 0; nuis_k < nnuisance; ++nuis_k) {
+
+						// get nuisance parameter
+						NuisanceParameter p = fNuisanceCorrelation.at(nuis_k);
+
+						// compare 
+						if (p.index_uncertainty == unc_i) {
+							double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(unc_i);
+							double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(unc_i);
+							double pre = p.pre;
+							
+							// check if indices agree
+							if (meas_i == p.index_measurement1 && meas_j == p.index_measurement2) {
+								mat_small[counteri][counterj] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
+								mat_small[counterj][counteri] = mat_small[counteri][counterj];
 							}
 						}
-					}
-
-					counterj++;			
+					} // end loop: nuisance parameters
 				}
-			}
+				
+				// increase counter of active measurements
+				counterj++;							
+			} // end loop: measurements j
 			
+			// increase counter of active measurements
 			counteri++;
-		}
+		} // end loop: measurements i
 		
     // add matrix if active
 		if (u->GetFlagActive())
