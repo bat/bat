@@ -25,6 +25,9 @@ class MyCombination : public MVCombination
   void SetHistFR(TH1D* hist)
   { fHistFR = hist; }; 
 
+  void SetFlagPhysicalConstraints(bool flag)
+  { fFlagPhysicalConstraints = flag; }; 
+
   // BAT methods
 
   double LogLikelihood(const std::vector<double> &parameters);
@@ -33,6 +36,10 @@ class MyCombination : public MVCombination
 
  private:
 
+  // flag for imposing physical constraints or not
+  bool fFlagPhysicalConstraints; 
+
+  // histogram containing posterior for FR
   TH1D* fHistFR;
 
 

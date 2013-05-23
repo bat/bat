@@ -9,7 +9,8 @@
 
 // ---------------------------------------------------------
 MyCombination::MyCombination() : MVCombination()
-															 , fHistFR(0)
+			       , fFlagPhysicalConstraints(true)
+			       , fHistFR(0)
 {
 }
 
@@ -26,7 +27,8 @@ double MyCombination::LogLikelihood(const std::vector<double> &parameters)
   double F0 = parameters[0];
   double FL = parameters[1];
   
-  if (F0+FL > 1)
+  // check physical constraints
+  if (fFlagPhysicalConstraints && (F0+FL > 1))
     return -1e55;
   
   return logprob;
@@ -47,10 +49,11 @@ void MyCombination::MCMCIterationInterface()
     // stored in fMCMCx.
     double F0 = fMCMCx.at(i * npar + 0);
     double FL = fMCMCx.at(i * npar + 1);
-		double FR = 1. - F0 - FL;
+    double FR = 1. - F0 - FL;
 
     // fill the ratio histogram
-    fHistFR->Fill(FR);
+    if (fHistFR)
+      fHistFR->Fill(FR);
   }
 }
 
