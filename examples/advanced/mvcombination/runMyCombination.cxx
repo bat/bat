@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
   
   if (flag_unc) {
     std::cout << " Uncertainties : " << std::endl;
-    for (int i = 0; i < nmeas; ++i) {
+    for (int i = 0; i < nunc; ++i) {
       std::cout << " Area / rho  (" << i << ")   : " << (area_unc[i] - area_all) / area_all * 100 << "%";
       std::cout << " / " << rho_unc[i] << std::endl;
     }
