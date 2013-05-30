@@ -1,3 +1,6 @@
+2013-05-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCH2D: added profile lines to the histograms
+
 2013-05-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH2D: added a method that returns the area of a region which covers a certain probability.
 

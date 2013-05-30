@@ -8,6 +8,7 @@
 // ---------------------------------------------------------
 
 #include "BCH2D.h"
+#include "BCH1D.h"
 
 #include "BCMath.h"
 #include "BCLog.h"
@@ -207,14 +208,16 @@ void BCH2D::Print(const char* filename, std::string options, double interval, in
 void BCH2D::Draw(std::string options, std::vector<double> intervals)
 {
    // option flags
-   bool flag_legend = true;
+   bool flag_legend      = true;
    bool flag_mode_global = false;
-   bool flag_mode_local = false;
-   bool flag_mean = false;
-   bool flag_smooth1 = false;
-   bool flag_smooth3 = false;
-   bool flag_smooth5 = false;
-   bool flag_smooth10 = false;
+   bool flag_mode_local  = false;
+   bool flag_mean        = false;
+   bool flag_smooth1     = false;
+   bool flag_smooth3     = false;
+   bool flag_smooth5     = false;
+   bool flag_smooth10    = false;
+   bool flag_profilex    = false;
+   bool flag_profiley    = false;
 
    // band type
    int bandtype = 0;
@@ -255,6 +258,14 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    }
    else {
       bandtype = 0;
+   }
+
+   if (options.find("profilex") < options.size()) {
+      flag_profilex = true;
+   }
+
+   if (options.find("profiley") < options.size()) {
+      flag_profiley = true;
    }
 
    if (options.find("gmode") < options.size()) {
@@ -391,7 +402,6 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    marker_mode_global->SetMarkerColor(GetColor(4));
    marker_mode_global->SetMarkerSize(1.5);
 
-
    int binx, biny, binz;
    fHistogram->GetBinXYZ( fHistogram->GetMaximumBin(), binx, biny, binz);
    TMarker* marker_mode_local = new TMarker(fHistogram->GetXaxis()->GetBinCenter(binx), fHistogram->GetYaxis()->GetBinCenter(biny), 25);
@@ -449,6 +459,19 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
       le->SetMarkerColor(GetColor(4));
    }
 
+   TGraph* graph_profilex = 0;
+   TGraph* graph_profiley = 0;
+
+   if (flag_profilex) {
+     TLegendEntry* le = legend->AddEntry(graph_profilex, "profile x", "L");
+     le->SetLineStyle(2);
+   }
+
+   if (flag_profiley) {
+     TLegendEntry* le = legend->AddEntry(graph_profiley, "profile y", "L");
+     le->SetLineStyle(3);
+   }
+
    // calculate legend height in NDC coordinates
    double height = 0.03*legend->GetNRows();
 
@@ -492,6 +515,21 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    else if (bandtype == 1)
       hist_band->Draw("CONT1 SAME");
 
+   // draw profiles
+   if (flag_profilex) {
+     graph_profilex = DrawProfileX("mode", "dashed");
+
+     // add graph to list of objects
+     fROOTObjects.push_back(graph_profilex);
+   }
+   
+   if (flag_profiley) {
+     graph_profiley = DrawProfileY("mode", "dotted");
+   
+     // add graph to list of objects
+     fROOTObjects.push_back(graph_profiley);
+   }
+
    // mean, mode, median
    if (flag_mode_global) {
       marker_mode_global->Draw();
@@ -526,8 +564,10 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
       legend->Draw();
    }
 
+   // draw axes again
    hist_axes->Draw("SAME");
 
+   // rescale 
    gPad->SetTopMargin(1.-ylegend1+0.01);
 
    gPad->RedrawAxis();
@@ -927,6 +967,183 @@ std::vector<int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
    }
 
    return nint;
+}
+
+// ---------------------------------------------------------
+TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
+{
+  // option flags
+  bool flag_mode = true;
+  bool flag_mean = false;
+  bool flag_median = false;
+
+  // check content of options string
+  if (options.find("mode") < options.size()) {
+    flag_mode = true;
+  }
+  
+  if (options.find("mean") < options.size()) {
+    flag_mean = true;
+    flag_mode = false;
+    flag_median = false;
+  }
+  
+  if (options.find("median") < options.size()) {
+    flag_median = true;
+    flag_mode = false;
+    flag_mean = false;
+  }
+  
+  // define profile graph
+  TGraph* graph_profile = new TGraph();
+ 
+  // define limits of running
+  int nx = fHistogram->GetNbinsX();
+  int ny = fHistogram->GetNbinsY();
+
+  double xmin = fHistogram->GetXaxis()->GetBinLowEdge(1);
+  double xmax = fHistogram->GetXaxis()->GetBinLowEdge(nx+1);
+
+  double ymin = fHistogram->GetYaxis()->GetBinLowEdge(1);
+  double ymax = fHistogram->GetYaxis()->GetBinLowEdge(nx+1);
+    
+  int nbins_outer = 0;
+  int nbins_inner = 0;
+  double axis_min = 0;
+  double axis_max = 0;
+
+  if (axis==0) {
+    nbins_outer = nx;
+    nbins_inner = ny;
+    axis_min = ymin;
+    axis_max = ymax;
+  }      
+  else {
+    nbins_outer = ny;
+    nbins_inner = nx;
+    axis_min = xmin;
+    axis_max = xmax;
+  }      
+  
+  // loop over outer axis of choice
+  for (int ibin_outer = 1; ibin_outer <= nbins_outer ; ibin_outer++) {
+
+    // copy slice at a fixed value into a 1D histogram
+    TH1D* hist_temp = new TH1D("", "", nbins_inner, axis_min, axis_max);
+    
+    for (int ibin_inner = 1; ibin_inner <= nbins_inner; ibin_inner++) {
+      int ix = 0;
+      int iy = 0;
+      if (axis == 0) {
+	ix = ibin_outer;
+	iy = ibin_inner;
+      }
+      else {
+	ix = ibin_inner;
+	iy = ibin_outer;
+      }
+      double content = fHistogram->GetBinContent(ix, iy);
+      hist_temp->SetBinContent(ibin_inner, content);
+    }
+    // normalize to unity
+    hist_temp->Scale(1.0/hist_temp->Integral());
+
+    // create BAT histogram
+    BCH1D* bchist_temp = new BCH1D(hist_temp);
+    
+    // calculate (x,y) of new point
+    double x = fHistogram->GetXaxis()->GetBinCenter(ibin_outer); 
+    double y = fHistogram->GetYaxis()->GetBinCenter(ibin_outer); 
+
+    double temp = 0; 
+
+    if (flag_mode)
+      temp = bchist_temp->GetMode();
+    else if (flag_mean)
+      temp = bchist_temp->GetMean();
+    else if (flag_median)
+      temp = bchist_temp->GetMedian();
+
+    if (axis == 0) 
+      y = temp;
+    else
+      x = temp;
+
+    // add new point to graph    
+    graph_profile->SetPoint(ibin_outer-1, x, y);
+    
+    // clean up
+    delete bchist_temp;
+  }
+
+  // return the graph
+  return graph_profile;
+}
+
+// ---------------------------------------------------------
+TGraph* BCH2D::DrawProfile(int axis, std::string options, std::string drawoptions)
+{
+
+  // option flags
+  bool flag_black = false;
+  bool flag_red = false;
+  bool flag_solid = false;
+  bool flag_dashed = false;
+  bool flag_dotted = false;
+
+  // check content of options string
+  if (drawoptions.find("black") < options.size()) {
+    flag_black = true;
+  }
+  
+  else if (drawoptions.find("red") < options.size()) {
+    flag_red = true;
+  }
+  
+  else {
+    flag_black = true;
+  }
+  
+  if (drawoptions.find("solid") < options.size()) {
+    flag_solid = true;
+  }
+
+  else if (drawoptions.find("dashed") < options.size()) {
+    flag_dashed = true;
+  }
+
+  else if (drawoptions.find("dotted") < options.size()) {
+    flag_dotted = true;
+  }
+
+  else {
+    flag_solid = true;
+  }
+
+  // get the profile graph
+  TGraph* graph_profile = CalculateProfileGraph(axis, options);
+
+  // change drawing options
+  if (flag_black)
+    graph_profile->SetLineColor(kBlack);
+
+  if (flag_red)
+    graph_profile->SetLineColor(kRed);
+
+  if (flag_solid)
+    graph_profile->SetLineStyle(1);
+
+  if (flag_dashed)
+    graph_profile->SetLineStyle(2);
+
+  if (flag_dotted)
+    graph_profile->SetLineStyle(3);
+
+  // draw
+  graph_profile->Draw("C");
+
+  // return graph
+  return graph_profile;
 }
 
 // ---------------------------------------------------------
