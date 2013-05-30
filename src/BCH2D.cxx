@@ -1140,7 +1140,7 @@ TGraph* BCH2D::DrawProfile(int axis, std::string options, std::string drawoption
     graph_profile->SetLineStyle(3);
 
   // draw
-  graph_profile->Draw("C");
+  graph_profile->Draw("L");
 
   // return graph
   return graph_profile;
