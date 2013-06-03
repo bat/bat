@@ -3,6 +3,8 @@ ToDo list for MTF:
 
 ToDo:
 
+- Notation: Median -> wrong description
+
 - BCMTF.cxx: In member function 'double BCMTF::CalculatePValue(int, const std::vector<double, std::allocator<double> >&)':
 BCMTF.cxx:1157: warning: converting to 'unsigned int' from 'Double_t'
 BCMTF.cxx:1161: warning: converting to 'unsigned int' from 'double'

@@ -132,6 +132,10 @@ examples/advanced/mtf/systematics/runSystematics.cxx -text
 examples/advanced/mtf/twoChannels/CreateHistograms.C -text
 examples/advanced/mtf/twoChannels/README -text
 examples/advanced/mtf/twoChannels/twoChannels.C -text
+examples/advanced/mvc/README -text
+examples/advanced/mvc/oneObservable/Makefile -text
+examples/advanced/mvc/oneObservable/input.txt -text
+examples/advanced/mvc/oneObservable/runCombination.cxx -text
 examples/advanced/mvcombination/AnomCouplings.cxx -text
 examples/advanced/mvcombination/AnomCouplings.h -text
 examples/advanced/mvcombination/MVCombination.cxx -text
