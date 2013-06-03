@@ -1,7 +1,7 @@
 #ifndef __BCMVCOMBINATION__H
 #define __BCMVCOMBINATION__H
 
-#include <../../BAT/BCModel.h>
+#include <BAT/BCModel.h>
 
 #include <TMath.h>
 #include <TMatrixDEigen.h>

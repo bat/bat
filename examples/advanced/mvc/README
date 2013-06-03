@@ -1,22 +1,16 @@
 oneObservable:
 --------------
-Combination of three measurements of one observable. Four different
-uncertainties.
+Combination of three measurements of one observable. 
 
-twoObservables:
----------------
+constraints:
+------------
+Measurement of a two fractions (observables) constrained to be in the
+interval [0,1]. Includes goodness-of-fit test and rankiong of
+measurements and uncertainties.
 
 
 nuisance:
 ---------
-
-
-GoF:
-----
-
-
-constraints:
-------------
 
 
 inverseProblem:

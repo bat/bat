@@ -133,6 +133,11 @@ examples/advanced/mtf/twoChannels/CreateHistograms.C -text
 examples/advanced/mtf/twoChannels/README -text
 examples/advanced/mtf/twoChannels/twoChannels.C -text
 examples/advanced/mvc/README -text
+examples/advanced/mvc/constraints/Makefile -text
+examples/advanced/mvc/constraints/MyCombination.cxx -text
+examples/advanced/mvc/constraints/MyCombination.h -text
+examples/advanced/mvc/constraints/input.txt -text
+examples/advanced/mvc/constraints/runMyCombination.cxx -text
 examples/advanced/mvc/oneObservable/Makefile -text
 examples/advanced/mvc/oneObservable/input.txt -text
 examples/advanced/mvc/oneObservable/runCombination.cxx -text

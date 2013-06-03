@@ -1,7 +1,7 @@
 #ifndef __BCMVCDATAMODEL__H
 #define __BCMVCDATAMODEL__H
 
-#include <../../BAT/BCModel.h>
+#include <BAT/BCModel.h>
 
 #include "BCMVCombination.h"
 
