@@ -6,6 +6,9 @@ ToDo:
 - easy way to generate ensembles according to the priors of nuisance
   parameters.
 
+- do not use gRandom in generation of ensembles, but something with
+  controlled random seed. 
+
 - do the templates have to be pointers?
 
 - why does the ensemble test have a "start" value? Why not random ensembles?
