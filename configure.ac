@@ -163,6 +163,7 @@ AC_OUTPUT(
 	src/Makefile
 	models/base/Makefile
 	models/mtf/Makefile
+	models/mvc/Makefile
 	benchmarks/test/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile

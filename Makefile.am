@@ -9,6 +9,7 @@ SUBDIRS= \
 	src \
 	models/base \
 	models/mtf \
+	models/mvc \
 	benchmarks/test
 
 EXTRA_DIST= \
@@ -17,6 +18,7 @@ EXTRA_DIST= \
 	models/base/libBATmodels.rootmap.in \
 	models/base/BATCalculatorLinkDef.h \
 	models/mtf/libBATmtf.rootmap \
+	models/mvc/libBATmvc.rootmap \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/CreateProject.sh.in
