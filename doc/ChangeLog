@@ -1,3 +1,6 @@
+2013-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/mvc: added first instance of multivariate combination model (mvc)
+
 2013-05-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH2D: added profile lines to the histograms
 
