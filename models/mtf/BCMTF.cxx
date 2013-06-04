@@ -1154,11 +1154,11 @@ double BCMTF::CalculatePValue(int channelindex, const std::vector<double> & para
       expectation[ibin] = Expectation(channelindex, ibin + 1, parameters);
 
       // get observation
-      observation[ibin]= hist->GetBinContent(ibin + 1);
+      observation[ibin]= unsigned(hist->GetBinContent(ibin + 1));
    }
 
    // create pseudo experiments
-   static const unsigned nIterations = 1e5;
+   static const unsigned nIterations = unsigned (1e5);
    return BCMath::FastPValue(observation, expectation, nIterations, fRandom->GetSeed());
 }
 
@@ -1197,12 +1197,12 @@ double BCMTF::CalculatePValue(const std::vector<double> & parameters)
          expectation.push_back(Expectation(ichannel, ibin + 1, parameters));
 
          // get observation
-         observation.push_back(hist->GetBinContent(ibin + 1));
+         observation.push_back(unsigned(hist->GetBinContent(ibin + 1)));
       }
    }
 
    // create pseudo experiments
-   static const unsigned nIterations = 1e5;
+   static const unsigned nIterations = unsigned(1e5);
    fPValue = BCMath::FastPValue(observation, expectation, nIterations, fRandom->GetSeed());
    fPValueNDoF = BCMath::CorrectPValue(fPValue, parameters.size(), observation.size());
 

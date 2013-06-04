@@ -3,23 +3,8 @@ ToDo list for MTF:
 
 ToDo:
 
-- Notation: Median -> wrong description
-
-- BCMTF.cxx: In member function 'double BCMTF::CalculatePValue(int, const std::vector<double, std::allocator<double> >&)':
-BCMTF.cxx:1157: warning: converting to 'unsigned int' from 'Double_t'
-BCMTF.cxx:1161: warning: converting to 'unsigned int' from 'double'
-BCMTF.cxx: In member function 'double BCMTF::CalculatePValue(const std::vector<double, std::allocator<double> >&)':
-BCMTF.cxx:1200: warning: passing 'Double_t' for argument 1 to 'void std::vector<_Tp, _Alloc>::push_back(const _Tp&) [with _Tp = unsigned int, _Alloc = std::allocator<unsigned int>]'
-BCMTF.cxx:1205: warning: converting to 'unsigned int' from 'double'
-
-
-- BCMTFAnalysisFacility.cxx:465: warning: converting to 'int' from 'double' 
-
 - easy way to generate ensembles according to the priors of nuisance
   parameters.
-
-- do not use gRandom in generation of ensembles, but something with
-  controlled random seed. 
 
 - do the templates have to be pointers?
 

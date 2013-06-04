@@ -77,7 +77,7 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
       for (int ibin = 1; ibin <= nbins; ++ibin) {
 				if (!flag_data) {
 					double expectation = fMTF->Expectation(ichannel, ibin, parameters);
-					double observation = gRandom->Poisson(expectation);
+					double observation = fRandom->Poisson(expectation);
 					
 					hist.SetBinContent(ibin, observation);
 				}
@@ -462,7 +462,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       // print status
       if ((iensemble+1)%100 == 0 && iensemble > 0) {
          BCLog::SetLogLevel(lls,llf);
-         int frac = double(iensemble+1) / double(nensembles) * 100.;
+         int frac = int (double(iensemble+1) / double(nensembles) * 100.);
          BCLog::OutDetail(Form("Fraction of ensembles analyzed: %i%%",frac));
          BCLog::SetLogLevel(fLogLevel);
       }

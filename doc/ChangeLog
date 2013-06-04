@@ -1,7 +1,9 @@
-2013-06-034 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2013-06-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/mvc/nuisance: added the third example for the mvc model
 	* examples/mvc/inverseProblem: added a fourth example for the mvc model
 	* src/BCModel.cxx: fixed a typo in PrintResults
+	* models/mtf/BCMTF.cxx: fixed some int vs double problems
+	* models/mtf/BCMTFAnalysisFacility.cxx: replaced gRandom with fRandom
 
 2013-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mvc: added first instance of multivariate combination model (mvc)
