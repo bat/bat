@@ -1,10 +1,3 @@
-// ***************************************************************
-// This file was created using the CreateProject.sh script
-// for project MVCombination.
-// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
-// ***************************************************************
-
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>

@@ -1,5 +1,6 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
+#include <BAT/BCH2D.h>
 
 #include <BAT/BCMVCombination.h>
 
@@ -41,11 +42,8 @@ int main(int argc, char *argv[])
   // print results of numerical analysis
   m->PrintResults("BCMVCombination_results.txt");
 
-  // calculate BLUE
-  m->CalculateBLUE();
-   
-  // print BLUE results to file
-  m->PrintBLUEResults("BCMVCombination_BLUE.txt");
+	// print a single 2D plot
+	m->GetSlice("obs", "rho_1", m->GetBestFitParameters(), 200)->Print("rho1_vs_obs.pdf", "BTcB3CS1gmodeprofiley");
 
   // clean up
   delete m;

@@ -1,3 +1,6 @@
+2013-06-034 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/mvc/nuisance: added the third example for the mvc model
+
 2013-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mvc: added first instance of multivariate combination model (mvc)
 	* examples/mvc/oneObservable: added a first example for the mvc model
