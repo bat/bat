@@ -138,6 +138,11 @@ examples/advanced/mvc/constraints/MyCombination.cxx -text
 examples/advanced/mvc/constraints/MyCombination.h -text
 examples/advanced/mvc/constraints/input.txt -text
 examples/advanced/mvc/constraints/runMyCombination.cxx -text
+examples/advanced/mvc/inverseProblem/Makefile -text
+examples/advanced/mvc/inverseProblem/MyFit.cxx -text
+examples/advanced/mvc/inverseProblem/MyFit.h -text
+examples/advanced/mvc/inverseProblem/input.txt -text
+examples/advanced/mvc/inverseProblem/runMyFit.cxx -text
 examples/advanced/mvc/nuisance/Makefile -text
 examples/advanced/mvc/nuisance/input.txt -text
 examples/advanced/mvc/nuisance/runCombination.cxx -text
