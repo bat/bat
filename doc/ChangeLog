@@ -1,3 +1,6 @@
+2013-06-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/mvc/PPP: added a fifth example for the mvc model
+
 2013-06-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/mvc/nuisance: added the third example for the mvc model
 	* examples/mvc/inverseProblem: added a fourth example for the mvc model
