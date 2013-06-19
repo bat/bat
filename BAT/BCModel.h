@@ -16,7 +16,7 @@
  */
 
 /**
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2012, Daniel Kollar, Kevin Kroeninger, and Daniel Greenwald.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -24,10 +24,9 @@
 
 // ---------------------------------------------------------
 
-#include <vector>
-#include <string>
-
 #include "BCIntegrate.h"
+
+#include <string>
 
 // ROOT classes
 class TNamed;
@@ -88,161 +87,97 @@ class BCModel : public BCIntegrate
 
       /**
        * @return The name of the model. */
-      std::string GetName()
+      const std::string & GetName() const
          { return fName; }
 
       /**
-       * @return The index of the model. */
-      int GetIndex()
-         { return fIndex; }
-
-      /**
        * @return The a priori probability. */
-      double GetModelAPrioriProbability()
+      double GetModelAPrioriProbability() const
          { return fModelAPriori; }
 
       /**
        * @return The a posteriori probability. */
-      double GetModelAPosterioriProbability()
+      double GetModelAPosterioriProbability() const
          { return fModelAPosteriori; }
 
       /**
        * @return The normalization factor of the probability */
-      double GetNormalization()
+      double GetNormalization() const
          { return fNormalization; }
 
       /**
        * @return The data set. */
-      BCDataSet* GetDataSet()
+      BCDataSet* GetDataSet() const
          { return fDataSet; }
 
       /**
        * @return The lower boundaries of possible data values. */
-      BCDataPoint* GetDataPointLowerBoundaries()
+      BCDataPoint * GetDataPointLowerBoundaries() const
          { return fDataPointLowerBoundaries; }
 
       /**
        * @return The upper boundaries of possible data values. */
-      BCDataPoint* GetDataPointUpperBoundaries()
+      BCDataPoint* GetDataPointUpperBoundaries() const
          { return fDataPointUpperBoundaries; }
 
       /**
        * @param index The index of the variable.
        * @return The lower boundary of possible data values for a particular variable. */
-      double GetDataPointLowerBoundary(unsigned int index)
-         { return fDataPointLowerBoundaries -> GetValue(index); }
+      double GetDataPointLowerBoundary(unsigned int index) const;
 
       /**
        * @param index The index of the variable.
        * @return The upper boundary of possible data values for a particular variable. */
-      double GetDataPointUpperBoundary(unsigned int index)
-         { return fDataPointUpperBoundaries -> GetValue(index); }
+      double GetDataPointUpperBoundary(unsigned int index) const;
 
       /**
        * Checks if the boundaries have been defined
        * @return true, if the boundaries have been set, false otherwise */
-      bool GetFlagBoundaries();
+      bool GetFlagBoundaries() const;
 
       /**
        * @return The number of data points in the current data set. */
-      int GetNDataPoints();
+      unsigned GetNDataPoints() const;
 
       /**
        * @param index The index of the data point.
        * @return The data point in the current data set at index */
-      BCDataPoint * GetDataPoint(unsigned int index);
+      BCDataPoint * GetDataPoint(unsigned int index) const;
 
       /**
        * @return The minimum number of data points. */
-      unsigned int GetNDataPointsMinimum()
+      unsigned int GetNDataPointsMinimum() const
          { return fNDataPointsMinimum; }
 
       /**
        * @return The maximum number of data points. */
-      unsigned int GetNDataPointsMaximum()
+      unsigned int GetNDataPointsMaximum() const
          { return fNDataPointsMaximum; }
 
       /**
-       * @return The number of parameters of the model. */
-      unsigned int GetNParameters()
-         { return fParameterSet ? fParameterSet -> size() : 0; }
-
-      /**
-       * @param index The index of the parameter in the parameter set.
-       * @return The parameter. */
-      const BCParameter * GetParameter(int index);
-
-      /**
-       * @param name The name of the parameter in the parameter set.
-       * @return The parameter. */
       const BCParameter * GetParameter(const char * name);
-
-      /**
-       * @return parameter set */
-      BCParameterSet * GetParameterSet()
-         { return fParameterSet; }
-
-      /**
-       * Returns the value of a parameter (defined by index) at
-       * the global mode of the posterior pdf.
-       * @param index index of the parameter.
-       * @return best fit value of the parameter or -1e+111 on error or center of the range if mode finding not yer run */
-      double GetBestFitParameter(unsigned int index);
-
-      /**
-       * Returns the error on the value of a parameter (defined by index) at
-       * the global mode of the posterior pdf.
-       * @param index index of the parameter.
-       * @return error on the best fit value of the parameter or -1 if undefined */
-      double GetBestFitParameterError(unsigned int index);
-
-      /**
-       * Returns the set of values of the parameters at the global mode of
-       * the posterior pdf.
-       * @return The best fit parameters */
-      std::vector<double> GetBestFitParameters()
-         { return fBestFitParameters; }
-
-      std::vector<double> GetBestFitParameterErrors()
-         { return fBestFitParameterErrors; }
-
-      /**
-       * Returns the value of a particular parameter (defined by index) at
-       * the modes of the marginalized posterior pdfs.
-       * @param index index of the parameter.
-       * @return best fit parameter or -1e+111 on error or center of the range if marginalization not yet run */
-      double GetBestFitParameterMarginalized(unsigned int index);
-
-      /**
-       * Returns the set of values of the parameters at the modes of the
-       * marginalized posterior pdfs.
-       * @return best fit parameters */
-      std::vector<double> GetBestFitParametersMarginalized()
-         { return fBestFitParametersMarginalized; }
-
-      /**
        * @return The 2-d histogram of the error band. */
-      TH2D * GetErrorBandXY()
+      TH2D * GetErrorBandXY() const
          { return fErrorBandXY; }
 
-      TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0);
+      TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0) const;
 
       /**
        * Returns a vector of y-values at a certain probability level.
        * @param level The level of probability
        * @return vector of y-values */
-      std::vector<double> GetErrorBand(double level);
+      std::vector<double> GetErrorBand(double level) const;
 
-      TGraph * GetErrorBandGraph(double level1, double level2);
+      TGraph * GetErrorBandGraph(double level1, double level2) const;
 
       TGraph * GetFitFunctionGraph(const std::vector<double> &parameters);
 
       TGraph * GetFitFunctionGraph()
-         { return this -> GetFitFunctionGraph(this -> GetBestFitParameters()); }
+         { return GetFitFunctionGraph(GetBestFitParameters()); }
 
       TGraph * GetFitFunctionGraph(const std::vector<double> &parameters, double xmin, double xmax, int n=1000);
 
-      bool GetFixedDataAxis(unsigned int index);
+      bool GetFixedDataAxis(unsigned int index) const;
 
       /** @} */
 
@@ -254,26 +189,6 @@ class BCModel : public BCIntegrate
        * @param name Name of the model */
       void SetName(const char * name)
          { fName = name; }
-
-      /**
-       * Sets the index of the model within the BCModelManager.
-       * @param index The index of the model */
-      void SetIndex(int index)
-         { fIndex = index; }
-
-      /**
-       * Set all parameters of the model using a BCParameterSet container.
-       * @par pointer to parameter set */
-      void SetParameterSet( BCParameterSet * parset )
-         { fParameterSet = parset; }
-
-      /**
-       * Set the range of a parameter
-       * @param index The parameter index
-       * @param parmin The parameter minimum
-       * @param parmax The parameter maximum
-       * @return An error code. */
-      int SetParameterRange(int index, double parmin, double parmax);
 
       /**
        * Sets the a priori probability for a model.
@@ -295,6 +210,19 @@ class BCModel : public BCIntegrate
        * @param norm The normalization of the likelihood */
       void SetNormalization(double norm)
          { fNormalization = norm; }
+
+      /**
+       * Due to the combination of overloading and overriding, the method
+       * AddParameter(const char * name, double min, double max)
+       * from the base class is hidden to the user of BCModel, so explicitly tell the compiler that we want to use both
+       */
+      using BCEngineMCMC::AddParameter;
+
+      /**
+       * Adds a parameter to the model.
+       * @param parameter A model parameter
+       * @see AddParameter(const char * name, double lowerlimit, double upperlimit); */
+      virtual int AddParameter(BCParameter * parameter);
 
       /**
        * Sets the data set.
@@ -322,14 +250,30 @@ class BCModel : public BCIntegrate
       void SetDataBoundaries(unsigned int index, double lowerboundary, double upperboundary, bool fixed=false);
 
       /**
-       * Sets the error band flag to continuous function */
-      void SetErrorBandContinuous(bool flag);
+       * Sets the data point containing the lower boundaries of possible
+       * data values */
+      void SetDataPointLowerBoundaries(BCDataPoint * datasetlowerboundaries)
+      { fDataPointLowerBoundaries = datasetlowerboundaries; }
 
       /**
-       * Set the number of bins for the marginalized distribution of a parameter.
-       * @param parname The name of the parameter in the parameter set
-       * @param nbins   Number of bins (default = 100) */
-      void SetNbins(const char * parname, int nbins);
+       * Sets the data point containing the upper boundaries of possible
+       * data values */
+      void SetDataPointUpperBoundaries(BCDataPoint * datasetupperboundaries)
+      { fDataPointUpperBoundaries = datasetupperboundaries; }
+
+      /**
+       * Sets the lower boundary of possible data values for a particular
+       * variable */
+      void SetDataPointLowerBoundary(int index, double lowerboundary);
+
+      /**
+       * Sets the upper boundary of possible data values for a particular
+       * variable */
+      void SetDataPointUpperBoundary(int index, double upperboundary);
+
+      /**
+       * Sets the error band flag to continuous function */
+      void SetErrorBandContinuous(bool flag);
 
       /**
        * Set prior for a parameter.
@@ -346,7 +290,7 @@ class BCModel : public BCIntegrate
        * @return An error code.
        */
       int SetPrior(const char* name, TF1* f);
-
+      // todo replace by simply fixing
       /**
        * Set delta-function prior for a parameter. Note: this sets the
        * parameter range to the specified value. The old parameter range
@@ -453,27 +397,16 @@ class BCModel : public BCIntegrate
       /** @{ */
 
       /**
-       * Adds a parameter to the parameter set
-       * @param name The name of the parameter
-       * @param lowerlimit The lower limit of the parameter values
-       * @param upperlimit The upper limit of the parameter values
-       * @param latexname The latex name of the parameter.
-       * @see AddParameter(BCParameter* parameter); */
-      int AddParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname = "");
-
-      /**
-       * Adds a parameter to the model.
-       * @param parameter A model parameter
-       * @see AddParameter(const char * name, double lowerlimit, double upperlimit); */
-      int AddParameter(BCParameter* parameter);
+       * Copy from object
+       * @param bcmodel Object to copy from. */
+      void Copy(const BCModel & bcmodel);
 
       /**
        * Returns the prior probability.
        * @param parameters A set of parameter values
        * @return The prior probability p(parameters)
        * @see GetPrior(std::vector<double> parameters) */
-      double APrioriProbability(const std::vector<double> &parameters)
-         { return exp( this->LogAPrioriProbability(parameters) ); }
+      double APrioriProbability(const std::vector<double> &parameters);
 
       /**
        * Returns natural logarithm of the prior probability.
@@ -487,8 +420,7 @@ class BCModel : public BCIntegrate
        * Returns the likelihood
        * @param params A set of parameter values
        * @return The likelihood */
-      double Likelihood(const std::vector<double> &params)
-         { return exp( this->LogLikelihood(params) ); }
+      virtual double Likelihood(const std::vector<double> &params);
 
       /**
        * Calculates natural logarithm of the likelihood.
@@ -496,27 +428,26 @@ class BCModel : public BCIntegrate
        * @param params A set of parameter values
        * @return Natural logarithm of the likelihood */
       virtual double LogLikelihood(const std::vector<double> &params) = 0;
-
+      // todo why probability and *NN?
       /**
        * Returns the likelihood times prior probability given a set of parameter values
        * @param params A set of parameter values
        * @return The likelihood times prior probability */
-      double ProbabilityNN(const std::vector<double> &params)
-         { return exp( this->LogProbabilityNN(params) ); }
+      double ProbabilityNN(const std::vector<double> &params);
 
       /**
        * Returns the natural logarithm of likelihood times prior probability given
        * a set of parameter values
        * @param parameters A set of parameter values
        * @return The likelihood times prior probability */
-      double LogProbabilityNN(const std::vector<double> &parameter);
+      double LogProbabilityNN(const std::vector<double> &parameters)
+      { return LogLikelihood(parameters) + LogAPrioriProbability(parameters); }
 
       /**
        * Returns the a posteriori probability given a set of parameter values
        * @param parameters A set of parameter values
        * @return The a posteriori probability */
-      double Probability(const std::vector<double> &parameter)
-         { return exp( this->LogProbability(parameter) ); }
+      double Probability(const std::vector<double> &parameter);
 
       /**
        * Returns natural logarithm of the  a posteriori probability given a set of parameter values
@@ -533,61 +464,15 @@ class BCModel : public BCIntegrate
 
       /**
        * Overloaded function to evaluate integral. */
-      double Eval(const std::vector<double> &parameters)
-         { return exp( this->LogEval(parameters) ); }
+      double Eval(const std::vector<double> &parameters);
 
       /**
        * Overloaded function to evaluate integral. */
-      double LogEval(const std::vector<double> &parameters);
-
-      /**
-       * Overloaded function to evaluate integral. */
-      double EvalSampling(const std::vector<double> &parameters);
+      virtual double LogEval(const std::vector<double> &parameters);
 
       /**
        * Integrates over the un-normalized probability and updates fNormalization. */
       double Normalize();
-
-      /**
-       * Checks if a set of parameters values is within the given range.
-       * @param parameters A set of parameter values
-       * @return Error code (0: OK, -1 length of parameters not correct, -2 values not within range)
-       */
-      int CheckParameters(const std::vector<double> &parameters);
-
-      /**
-       * Do the mode finding using a method set via SetOptimizationMethod.
-       * Default is Minuit. The mode can be extracted using the GetBestFitParameters() method.
-       *
-       * A starting point for the mode finding can be specified for Minuit. If not
-       * specified, Minuit default will be used (center of the parameter space).
-       *
-       * If running mode finding after the MCMC it is a good idea to specify the
-       * mode obtained from MCMC as a starting point for the Minuit minimization.
-       * MCMC will find the location of the global mode and Minuit will
-       * converge to the mode precisely. The commands are:
-         <pre>
-         model -> MarginalizeAll();
-         model -> FindMode( model -> GetBestFitParameters() );
-         </pre>
-       * @start startinf point of Minuit minimization
-       * */
-      void FindMode(std::vector<double> start = std::vector<double>(0));
-
-      /**
-       * Does the mode finding using Minuit. If starting point is not specified,
-       * finding will start from the center of the parameter space.
-       * @param start point in parameter space from which the mode finding is started.
-       * @param printlevel The print level. */
-      void FindModeMinuit(std::vector<double> start = std::vector<double>(0), int printlevel = 1);
-
-      /**
-       * Write mode into file */
-      void WriteMode(const char * file);
-
-      /**
-       * Read mode from file created by WriteMode() call */
-      int ReadMode(const char * file);
 
       /**
        * Read */
@@ -605,67 +490,113 @@ class BCModel : public BCIntegrate
       int MarginalizeAll();
 
       /**
-       * If MarginalizeAll method was used, the individual marginalized distributions
-       * with respect to one parameter can be retrieved using this method.
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
        * @param parameter Model parameter
        * @return 1D marginalized probability */
       BCH1D * GetMarginalized(const BCParameter * parameter);
 
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param name The parameter's name
+       * @return 1D marginalized probability */
       BCH1D * GetMarginalized(const char * name)
-         { return this -> GetMarginalized(this -> GetParameter(name)); }
+         { return GetMarginalized(fParameters.Index(name)); }
 
 			/**
-			 * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
-			 * @param parameter The model parameter along which the slice is calculated.
-			 * @param parameters The point at which the other parameters are fixed.
-			 * @param nbins The number of bins of the 1D-histogram.
-			 * @return The 1D slice. */
-			BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
-
-			/**
-			 * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
-			 * @param name The name of the model parameter along which the slice is calculated.
-			 * @param parameters The point at which the other parameters are fixed.
-			 * @param nbins The number of bins of the 1D-histogram.
-			 * @return The 1D slice. */
-			BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
-			{ return this -> GetSlice(this -> GetParameter(name), parameters, nbins); }
-
-			/**
-			 * Returns a two-dimensional slice of the pdf at the point and along two specificed directions.
-			 * @param parameter1 The first model parameter along which the slice is calculated.
-			 * @param parameter2 The second model parameter along which the slice is calculated.
-			 * @param parameters The point at which the other parameters are fixed.
-			 * @param nbins The number of bins of the 2D-histogram.
-			 * @return The 2D slice. */
-			BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
-
-			/**
-			 * Returns a two-dimensional slice of the pdf at the point and along two specificed directions.
-			 * @param parameter1 The name of the first model parameter along which the slice is calculated.
-			 * @param parameter2 The name of the second model parameter along which the slice is calculated.
-			 * @param parameters The point at which the other parameters are fixed.
-			 * @param nbins The number of bins of the 2D-histogram.
-			 * @return The 2D slice. */
-			BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
-			{ return this -> GetSlice(this -> GetParameter(name1), GetParameter(name2), parameters, nbins); }
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param index The parameter index
+       * @return 1D marginalized probability */
+      BCH1D * GetMarginalized(unsigned index);
 
       /**
-       * If MarginalizeAll method was used, the individual marginalized distributions
-       * with respect to two parameters can be retrieved using this method.
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+
        * @param parameter1 First parameter
        * @param parameter2 Second parameter
        * @return 2D marginalized probability */
       BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
 
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param name1 Name of first parameter
+       * @param name2 Name of second parameter
+       * @return 2D marginalized probability */
       BCH2D * GetMarginalized(const char * name1, const char * name2)
-         { return this -> GetMarginalized(this -> GetParameter(name1), this -> GetParameter(name2)); }
+      { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
+
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param index1 Index of first parameter
+       * @param index2 Index of second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(unsigned index1, unsigned index2);
+
+      /**
+       * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+       * @param parameter The model parameter along which the slice is calculated.
+       * @param parameters The point at which the other parameters are fixed.
+       * @param nbins The number of bins of the 1D-histogram.
+       * @return The 1D slice. */
+      BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+
+      /**
+       * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+       * @param name The name of the model parameter along which the slice is calculated.
+       * @param parameters The point at which the other parameters are fixed.
+       * @param nbins The number of bins of the 1D-histogram.
+       * @return The 1D slice. */
+      BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
+      { return GetSlice(GetParameter(name), parameters, nbins); }
+
+      /**
+       * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
+       * @param parameter1 The first model parameter along which the slice is calculated.
+       * @param parameter2 The second model parameter along which the slice is calculated.
+       * @param parameters The point at which the other parameters are fixed.
+       * @param nbins The number of bins of the 2D-histogram.
+       * @return The 2D slice. */
+      BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+
+      /**
+       * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
+       * @param parameter1 The name of the first model parameter along which the slice is calculated.
+       * @param parameter2 The name of the second model parameter along which the slice is calculated.
+       * @param parameters The point at which the other parameters are fixed.
+       * @param nbins The number of bins of the 2D-histogram.
+       * @return The 2D slice. */
+      BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0);
+
+      /**
+       * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
+       * @param parameter1 The name of the first model parameter along which the slice is calculated.
+       * @param parameter2 The name of the second model parameter along which the slice is calculated.
+       * @param parameters The point at which the other parameters are fixed.
+       * @param nbins The number of bins of the 2D-histogram.
+       * @return The 2D slice. */
+      BCH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0);
 
       /**
        *   */
       int PrintAllMarginalized1D(const char * filebase);
       int PrintAllMarginalized2D(const char * filebase);
-      int PrintAllMarginalizedOld(const char * file, unsigned int hdiv=1, unsigned int ndiv=1);
       int PrintAllMarginalized(const char * file, std::string options1d="BTciB1CS1D0pdf0Lmeanmode", std::string options2d="BTfB1CS1meangmodelmode", unsigned int hdiv=1, unsigned int ndiv=1);
 
       /**
@@ -681,14 +612,6 @@ class BCModel : public BCIntegrate
       double GetPvalueFromChi2(const std::vector<double> &par, int sigma_index);
 
       /**
-       * Calculate p-value from asymptotic Chi2 distribution for arbitrary problems
-       * using the definition (3) from
-       * Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
-       *
-       * @param par Parameter set for the calculation of the likelihood */
-      double GetPvalueFromChi2Johnson(std::vector<double> par);
-
-      /**
        * Calculate p-value from Kolmogorov-Smirnov test statistic
        * for 1D - datasets.
        *
@@ -696,29 +619,6 @@ class BCModel : public BCIntegrate
        * @param index Index of the data point in the BCDataSet
        *        (for data in format "x y erry" the index would be 1) */
       double GetPvalueFromKolmogorov(const std::vector<double>& par, int index);
-
-
-      /**
-       * Calculate  Chi2  (also called R^{B}) for arbitrary problems with binned data
-       * using the definition (3) from
-       * Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
-       *
-       * @param par Parameter set for the calculation of the likelihood
-       * @param nBins how many bins to use for the data, for negative an adapted rule \
-       * of thumb by  Wald(1942) is used, with at least three bins*/
-      double GetChi2Johnson(std::vector<double> par, const int nBins=-1);
-
-      /**
-       * Calculate the A-value, a summary statistic. It computes the frequency
-       * that a Chi2 value determined from the data by Johnson's binning prescription is
-       * larger than a value sampled from the reference chi2 distribution. They out
-       * from one chain is used. A=1/2 provides
-       * no evidence against the null hypothesis. Compare
-       * Johnson, V.E. A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
-       *
-       * @param par tree contains the samples of posterior of the parameters
-       * @param par histogram filled by function with distribution of p values*/
-      double GetAvalueFromChi2Johnson(TTree* tree, TH1D* distribution=0);
 
       double GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index);
 
@@ -798,19 +698,9 @@ class BCModel : public BCIntegrate
       virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
       {return 0.0;}
 
-      /**
-       * Reset all results.
-       * @return An error code. */
-      int ResetResults();
-
    /** @} */
 
    protected:
-
-      /**
-       * Index of the model. */
-      int fIndex;
-
       /**
        * Name of the model. */
       std::string fName;
@@ -824,10 +714,6 @@ class BCModel : public BCIntegrate
       double fModelAPosteriori;
 
       /**
-       * A model parameter container. */
-      BCParameterSet * fParameterSet;
-
-      /**
        * A data set */
       BCDataSet * fDataSet;
 
@@ -838,6 +724,16 @@ class BCModel : public BCIntegrate
       /**
        * Maximum number of data points */
       unsigned int fNDataPointsMaximum;
+
+      /**
+       * data point containing the lower boundaries of possible data values */
+      BCDataPoint * fDataPointLowerBoundaries;
+
+      /**
+       * data point containing the upper boundaries of possible data values */
+      BCDataPoint * fDataPointUpperBoundaries;
+
+      std::vector<bool> fDataFixedValues;
 
       /**
        * The p-value */
@@ -897,20 +793,8 @@ class BCModel : public BCIntegrate
       int CompareStrings(const char * string1, const char * string2);
 
       /**
-       * rule of thumb for good number of bins (Wald1942, Johnson2004) to group observations
-       * updated so minimum is three bins (for 1-5 observations)!
-       * @param */
-      int NumberBins()
-         { return (int) exp( 0.4 * log( (float)GetNDataPoints() ) ) + 2; }
-
-      /**
        * Update the constant part of the prior. */
       void RecalculatePriorConstant();
-
-      /**
-       * save parameters at the mode after marginalization
-       */
-      void StoreMode();
 
       /**
        * Converts a vector of doubles into a BCDataPoint */

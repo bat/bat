@@ -14,7 +14,7 @@
  */
 
 /**
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2012, Daniel Kollar, Kevin Kroeninger, and Daniel Greenwald.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -22,7 +22,12 @@
 
 // ---------------------------------------------------------
 
+#include "BCParameterSet.h"
+
 #include <vector>
+
+class BCH1D;
+class BCH2D;
 
 // ROOT classes
 class TH1D;
@@ -41,7 +46,11 @@ class BCEngineMCMC
       /** @{ */
 
       /** An enumerator for the status of a test. */
-     enum Precision{ kLow, kMedium, kHigh, kVeryHigh };
+      enum Precision{ kLow, kMedium, kHigh, kVeryHigh };
+
+      /**
+       * An enumerator for the mode finding algorithm */
+      enum BCOptimizationMethod { kOptSA, kOptMetropolis, kOptMinuit, NOptMethods };
 
       /** @} */
       /** \name Constructors and destructors */
@@ -50,11 +59,6 @@ class BCEngineMCMC
       /**
        * Default constructor. */
       BCEngineMCMC();
-
-      /**
-       * Constructor.
-       * @param n number of chains */
-      BCEngineMCMC(int n);
 
       /**
        * Default copy constructor. */
@@ -77,214 +81,237 @@ class BCEngineMCMC
       /** @{ */
 
       /**
-       * @return number of parameters of the Markov chain */
-      int MCMCGetNParameters()
-         { return fMCMCNParameters; }
-
-      /**
        * @return number of Markov chains */
-      int MCMCGetNChains()
+      unsigned MCMCGetNChains() const
          { return fMCMCNChains; }
 
       /**
        * @return lag of the Markov chains */
-      int MCMCGetNLag()
+      unsigned MCMCGetNLag() const
          { return fMCMCNLag; }
 
       /**
        * @return number of iterations */
-      std::vector<int> MCMCGetNIterations()
+      const std::vector<unsigned> & MCMCGetNIterations() const
          { return fMCMCNIterations; }
 
       /**
        * @return current iterations */
-      int MCMCGetCurrentIteration()
+      unsigned MCMCGetCurrentIteration() const
          { return fMCMCCurrentIteration; }
 
       /**
        * @return current chain index */
-      int MCMCGetCurrentChain()
+      unsigned MCMCGetCurrentChain() const
          { return fMCMCCurrentChain; }
 
       /**
        * @return number of iterations needed for all chains to
        * converge simultaneously */
-      int MCMCGetNIterationsConvergenceGlobal()
+      unsigned MCMCGetNIterationsConvergenceGlobal() const
          { return fMCMCNIterationsConvergenceGlobal; }
 
       /**
        * @return flag if converged or not */
-      bool MCMCGetFlagConvergenceGlobal()
+      bool MCMCGetFlagConvergenceGlobal() const
          { return fMCMCFlagConvergenceGlobal; }
 
       /**
        * @return maximum number of iterations for a Markov chain */
-      int MCMCGetNIterationsMax()
+      unsigned MCMCGetNIterationsMax() const
          { return fMCMCNIterationsMax; }
 
       /**
        * @return number of iterations for a Markov chain */
-      int MCMCGetNIterationsRun()
+      unsigned MCMCGetNIterationsRun() const
          { return fMCMCNIterationsRun; }
 
       /**
        * @return minimum number of pre-run iterations for a Markov chain */
-      int MCMCGetNIterationsPreRunMin()
+      unsigned MCMCGetNIterationsPreRunMin() const
          { return fMCMCNIterationsPreRunMin; }
 
       /**
        * @return number of iterations after statistics update. */
-      int MCMCGetNIterationsUpdate()
+      unsigned MCMCGetNIterationsUpdate() const
          { return fMCMCNIterationsUpdate; }
 
       /**
        * @return maximum number of iterations after statistics update. */
-      int MCMCGetNIterationsUpdateMax()
+      unsigned MCMCGetNIterationsUpdateMax() const
          { return fMCMCNIterationsUpdateMax; }
 
       /**
        * @returns number of accepted trials for each chain */
-      std::vector<int> MCMCGetNTrialsTrue()
+      std::vector<int> MCMCGetNTrialsTrue() const
          { return fMCMCNTrialsTrue; }
 
       /**
        * @returns number of not-accepted trials for each chain */
-      std::vector<int> MCMCGetNTrialsFalse()
+      std::vector<int> MCMCGetNTrialsFalse() const
          { return fMCMCNTrialsFalse; }
 
       /**
        * @return mean value of the probability for each chain up to
        * the current iteration  */
-      std::vector<double> MCMCGetprobMean()
+      const std::vector<double> & MCMCGetprobMean() const
          { return fMCMCprobMean; }
 
       /**
        * @return mean value of the probability for each chain up to
        * the current iteration */
-      std::vector<double> MCMCGetVariance()
+      const std::vector<double> & MCMCGetVariance() const
          { return fMCMCprobVar; }
 
       /**
        * @return scale factor for all parameters and chains */
-      std::vector<double> MCMCGetTrialFunctionScaleFactor()
+      const std::vector<double> & MCMCGetTrialFunctionScaleFactor() const
          { return fMCMCTrialFunctionScaleFactor; }
 
       /**
        * @return scale factor for all parameters and achain.
        * @param ichain chain index */
-      std::vector<double> MCMCGetTrialFunctionScaleFactor(int ichain);
+      std::vector<double> MCMCGetTrialFunctionScaleFactor(unsigned ichain) const;
 
       /**
        * @return scale factor for a parameter and a chain.
        * @param ichain chain index
        * @param ipar parameter index */
-      double MCMCGetTrialFunctionScaleFactor(int ichain, int ipar);
+      double MCMCGetTrialFunctionScaleFactor(unsigned ichain, unsigned ipar);
 
       /**
        * @return current point of each Markov chain */
-      std::vector<double> MCMCGetx()
+      const std::vector<double> & MCMCGetx() const
          { return fMCMCx; }
 
       /**
        * @param ichain index of the Markov chain
        * @return current point of the Markov chain */
-      std::vector<double> MCMCGetx(int ichain);
+      std::vector<double> MCMCGetx(unsigned ichain);
 
       /**
        * @param ichain chain index
        * @param ipar parameter index
        * @return parameter of the Markov chain */
-      double MCMCGetx(int ichain, int ipar);
+      double MCMCGetx(unsigned ichain, unsigned ipar) const;
 
       /**
        * @return log of the probability of the current points of each Markov chain */
-      std::vector<double> MCMCGetLogProbx()
+      const std::vector<double> & MCMCGetLogProbx() const
          { return fMCMCprob; }
 
       /**
        * @return log of the probability of the current points of the Markov chain.
        * @param ichain chain index */
-      double MCMCGetLogProbx(int ichain);
+      double MCMCGetLogProbx(unsigned ichain);
 
       /**
        * @return pointer to the phase of a run. */
-      int MCMCGetPhase()
+      int MCMCGetPhase() const
          { return fMCMCPhase; }
 
       /**
-       * @return pointer to the cycle of a pre-run. */
-      int MCMCGetCycle()
-         { return fMCMCCycle; }
-
-      /**
        * @return maximum points of each Markov chain */
-      std::vector<double> MCMCGetMaximumPoints()
+      const std::vector<double> & MCMCGetMaximumPoints() const
          { return fMCMCxMax; }
 
       /**
        * @return maximum point of  Markov chain
        * @param i The index of the Markov chain */
-      std::vector<double> MCMCGetMaximumPoint(int i);
+      std::vector<double> MCMCGetMaximumPoint(unsigned i) const;
 
       /**
        * @return maximum (log) probability of each Markov chain */
-      std::vector<double> MCMCGetMaximumLogProb()
+      const std::vector<double> & MCMCGetMaximumLogProb() const
          { return fMCMCprobMax; }
 
       /**
        * @return flag which defined initial position */
-      int MCMCGetFlagInitialPosition()
+      int MCMCGetFlagInitialPosition() const
          { return fMCMCFlagInitialPosition; }
 
       /**
        * @return R-value criterion */
-      double MCMCGetRValueCriterion()
+      double MCMCGetRValueCriterion() const
          { return fMCMCRValueCriterion; }
 
       /**
        * @return R-value criterion for parameters */
-      double MCMCGetRValueParametersCriterion()
+      double MCMCGetRValueParametersCriterion() const
          { return fMCMCRValueParametersCriterion; }
 
       /**
        * @return R-value */
-      double MCMCGetRValue()
+      double MCMCGetRValue() const
          { return fMCMCRValue; }
 
       /**
        * @return R-value for a parameter
        * @param i parameter index */
-      double MCMCGetRValueParameters(int i)
+      double MCMCGetRValueParameters(unsigned i)
          { return fMCMCRValueParameters.at(i); }
 
       /** Use strict or relaxed rule for Gelman/Rubin R-value */
-      bool MCMCGetRValueStrict()
+      bool MCMCGetRValueStrict() const
          { return fMCMCRValueUseStrict; }
 
       /**
        * @return the flag if MCMC has been performed or not */
-      bool MCMCGetFlagRun()
-      { return fMCMCFlagRun; }
+      bool MCMCGetFlagRun() const
+         { return fMCMCFlagRun; }
 
       /**
        * Rtrieve the tree containing the Markov chain.
        * @param i index of the Markov chain
        * @return pointer to the tree */
-      TTree * MCMCGetMarkovChainTree(int i)
+      TTree * MCMCGetMarkovChainTree(unsigned i)
          { return fMCMCTrees.at(i); }
 
       /**
        * Retrieve a histogram of the 1D marginalized distribution of a single parameter.
        * @param i index of the parameter
        * @return pointer to the histogram */
-      TH1D * MCMCGetH1Marginalized(int i);
+      BCH1D * MCMCGetH1Marginalized(unsigned i);
 
       /**
        * Retrieve a histogram of the 2D marginalized distribution for two parameters.
        * @param i index of the first parameter
        * @param j index of the second parameter
        * @return pointer to the histogram */
-      TH2D * MCMCGetH2Marginalized(int i, int j);
+      BCH2D * MCMCGetH2Marginalized(unsigned i, unsigned j);
+
+      /**
+       * @param index The index of the parameter in the parameter set.
+       * @return The parameter. */
+      BCParameter * GetParameter(int index) const
+         { return fParameters.Get(index); }
+
+      /**
+       * @param name The name of the parameter in the parameter set.
+       * @return The parameter. */
+      BCParameter * GetParameter(const char * name) const
+         { return fParameters.Get(name); }
+
+      /**
+       * @return The number of parameters of the model. */
+      unsigned int GetNParameters() const
+         { return fParameters.Size(); }
+
+      /**
+       * Returns the set of values of the parameters at the modes of the
+       * marginalized posterior pdfs.
+       * @return best fit parameters */
+      const std::vector<double> & GetBestFitParametersMarginalized() const;
+
+      /**
+       * @return The current optimization method */
+      BCEngineMCMC::BCOptimizationMethod GetOptimizationMethod() const
+      { return fOptimizationMethod; }
+
+      /**
+       * @return The optimization method used to find the mode */
+      BCEngineMCMC::BCOptimizationMethod GetOptimizationMethodMode() const
+      { return fOptimizationMethodMode; }
 
       /** @} */
       /** \name Setters */
@@ -298,33 +325,33 @@ class BCEngineMCMC
 
       /**
        * Sets the number of Markov chains which are run in parallel. */
-      void MCMCSetNChains(int n);
+      void MCMCSetNChains(unsigned n);
 
       /**
        * Sets the lag of the Markov chains */
-      void MCMCSetNLag(int n)
+      void MCMCSetNLag(unsigned n)
          { fMCMCNLag = n; }
 
       /**
        * Sets the maximum number of iterations in the pre-run. */
-      void MCMCSetNIterationsMax(int n)
+      void MCMCSetNIterationsMax(unsigned n)
          { fMCMCNIterationsMax = n; }
 
       /**
        * Sets the number of iterations. */
-      void MCMCSetNIterationsRun(int n)
+      void MCMCSetNIterationsRun(unsigned n)
          { fMCMCNIterationsRun = n; }
 
       /**
        * Sets the minimum number of iterations in the pre-run */
-      void MCMCSetNIterationsPreRunMin(int n)
+      void MCMCSetNIterationsPreRunMin(unsigned n)
          { fMCMCNIterationsPreRunMin = n; }
 
       /**
        * Sets the number of iterations in the pre-run after which an
        * update on the statistics (convergence, efficiency, etc.) is done.
        * @param n The number of iterations.*/
-      void MCMCSetNIterationsUpdate(int n)
+      void MCMCSetNIterationsUpdate(unsigned n)
          { fMCMCNIterationsUpdate = n; }
 
       /**
@@ -332,7 +359,7 @@ class BCEngineMCMC
        * update on the statistics (convergence, efficiency, etc.) is done.
        * If set to 0 no maximum is set.
        * @param n maximum number of iterations. */
-      void MCMCSetNIterationsUpdateMax(int n)
+      void MCMCSetNIterationsUpdateMax(unsigned n)
          { fMCMCNIterationsUpdateMax = n; }
 
       /**
@@ -383,12 +410,9 @@ class BCEngineMCMC
       /** Sets the flag for all parameters to either fill histograms or not. */
       void MCMCSetFlagFillHistograms(bool flag);
 
-      /** Sets the flag for a single parameter to either fill histograms or not. */
-      void MCMCSetFlagFillHistograms(int index, bool flag);
-
       /** Sets the flag if a prerun should be performed or not. */
-      void MCMCSetFlagPreRun(bool flag) 
-      { fMCMCFlagPreRun = flag; }
+      void MCMCSetFlagPreRun(bool flag)
+         { fMCMCFlagPreRun = flag; }
 
       /**
        * Sets the R-value criterion for convergence of all chains. */
@@ -406,7 +430,7 @@ class BCEngineMCMC
 
       /**
        * Sets the tree containing the Markov chains. */
-      void MCMCSetMarkovChainTrees(std::vector<TTree *> trees);
+      void MCMCSetMarkovChainTrees(const std::vector<TTree *> & trees);
 
       /**
        * Initialize trees containing the Markov chains. */
@@ -416,14 +440,14 @@ class BCEngineMCMC
        * Sets the histogram with 1D marginalized distributions for parameter.
        * @param i index of the parameter
        * @param h pointer to an existing histogram */
-      int SetMarginalized(int index, TH1D * h);
+      int SetMarginalized(unsigned index, TH1D * h);
 
       /**
        * Sets the histogram with 2D marginalized distributions for two parameters.
        * @param index1 index of the first parameter
        * @param index2 index of the second parameter
        * @param h pointer to an existing histogram */
-      int SetMarginalized(int index1, int index2, TH2D * h);
+      int SetMarginalized(unsigned index1, unsigned index2, TH2D * h);
 
       /**
        * Set the default values for the MCMC chain. */
@@ -438,20 +462,131 @@ class BCEngineMCMC
       void MCMCSetValuesDetail();
 
       /**
-       * Set the precision for the MCMC run. */ 
+       * Set the precision for the MCMC run. */
       void MCMCSetPrecision(BCEngineMCMC::Precision precision);
+#if 0
+      /**
+       * Set the range of a parameter
+       * @param index The parameter index
+       * @param parmin The parameter minimum
+       * @param parmax The parameter maximum
+       * @return An error code. */
+      void SetParameterRange(unsigned int index, double parmin, double parmax);
+#endif
+      /**
+       * Set the number of bins for the marginalized distribution of all parameters
+       * @param nbins Number of bins */
+      void SetNbins(unsigned int nbins);
 
+      /** @} */
+      /** \name Error propagation*/
+      /** @{ */
+
+      /**
+       * Turn on or off the filling of the error band during the MCMC run.
+       * @param flag set to true for turning on the filling */
+      void SetFillErrorBand(bool flag = true)
+      { fFillErrorBand=flag; }
+
+      /**
+       * Turn off filling of the error band during the MCMC run.
+       * This method is equivalent to SetFillErrorBand(false) */
+      void UnsetFillErrorBand()
+      { fFillErrorBand=false; }
+
+      /**
+       * Sets index of the x values in function fits.
+       * @param index Index of the x values */
+      void SetFitFunctionIndexX(int index)
+      { fFitFunctionIndexX = index; }
+
+      /**
+       * Sets index of the y values in function fits.
+       * @param index Index of the y values */
+      void SetFitFunctionIndexY(int index)
+      { fFitFunctionIndexY = index; }
+
+      /**
+       * Sets indices of the x and y values in function fits.
+       * @param indexx Index of the x values
+       * @param indexy Index of the y values */
+      void SetFitFunctionIndices(int indexx, int indexy)
+      { SetFitFunctionIndexX(indexx);
+      SetFitFunctionIndexY(indexy); }
+
+      /**
+       * Set the current optimization method */
+      void SetOptimizationMethod(BCEngineMCMC::BCOptimizationMethod method)
+      { fOptimizationMethod = method; }
+
+
+      /** @} */
+
+      /**
+       * Flag for writing Markov chain to ROOT file (true) or not (false) */
+      void WriteMarkovChain(bool flag)
+      {
+         fMCMCFlagWriteChainToFile = flag;
+         fMCMCFlagWritePreRunToFile = flag;
+      }
+
+#if 0
+      /**
+       * Sets the initial position for the Markov chain */
+      void SetMarkovChainInitialPosition(const std::vector<double> & position)
+      { fXmetro0 = position; }
+
+      /**
+       * Sets the step size for Markov chains */
+      void SetMarkovChainStepSize(double stepsize)
+      { fMarkovChainStepSize = stepsize; }
+
+      /**
+       * Sets the number of iterations in the markov chain */
+      void SetMarkovChainNIterations(int niterations)
+      { fMarkovChainNIterations = niterations;
+      fMarkovChainAutoN = false; }
+
+      /**
+       * Sets a flag for automatically calculating the number of iterations */
+      void SetMarkovChainAutoN(bool flag)
+      { fMarkovChainAutoN = flag; }
+#endif
+
+      /**
+       * Defines a fit function.
+       * @param parameters A set of parameter values
+       * @param x A vector of x-values
+       * @return The value of the fit function at the x-values given a set of parameters */
+      virtual double FitFunction(const std::vector<double> &/*x*/, const std::vector<double> &/*parameters*/)
+         { return 0; }
+
+      /**
+       * Sets errorband histogram */
+      void SetErrorBandHisto(TH2D * h)
+      { fErrorBandXY = h; }
 
       /** @} */
       /** \name Miscellaneous methods */
       /** @{ */
 
       /**
+       * Copy object
+       * @param enginemcmc Object to copy from */
+      void Copy(const BCEngineMCMC & enginemcmc);
+
+      /**
        * Adds a parameter.
        * @param min minimum value of the parameter
        * @param max maximum value of the parameter
        * @return number of parameters after adding */
-      int MCMCAddParameter(double min, double max);
+      virtual int AddParameter(const char * name, double min, double max);
+
+      /**
+       * Adds a parameter to the model.
+       * @param parameter A model parameter
+       * @see AddParameter(const char * name, double lowerlimit, double upperlimit); */
+      virtual int AddParameter(BCParameter* parameter);
 
       /**
        * Random walk trial function. The default trial function is a
@@ -459,7 +594,7 @@ class BCEngineMCMC
        * function.
        * @param ichain the chain index
        * @param x point with the dimension fMCMCNParameters */
-      virtual void MCMCTrialFunction(int ichain, std::vector<double> &x);
+      virtual void MCMCTrialFunction(unsigned ichain, std::vector<double> &x);
 
       /**
        * Random walk trial function. The default trial function is a
@@ -468,27 +603,27 @@ class BCEngineMCMC
        * @param ichain the chain index
        * @param ipar the parameter index
        * @return the unscaled proposal point */
-      virtual double MCMCTrialFunctionSingle(int ichain, int ipar);
+      virtual double MCMCTrialFunctionSingle(unsigned ichain, unsigned ipar);
 
       /**
        * Returns a trial point for the Metropolis algorithm.
        * @param chain chain index
        * @param x proposal point
        * @return flag indicating whether the new point lies within the allowed range */
-      bool MCMCGetProposalPointMetropolis(int chain, std::vector<double> &x);
+      bool MCMCGetProposalPointMetropolis(unsigned chain, std::vector<double> &x);
 
       /**
        * Returns a trial point for the Metropolis algorithm.
        * @param chain chain index
        * @param x proposal point
        * @return flag indicating whether the new point lies within the allowed range */
-      bool MCMCGetProposalPointMetropolis(int chain, int parameter, std::vector<double> &x);
+      bool MCMCGetProposalPointMetropolis(unsigned chain, unsigned parameter, std::vector<double> &x);
 
       /**
        * Generates a new point using the Metropolis algorithm.
        * @param chain chain index */
-      bool MCMCGetNewPointMetropolis(int chain = 0);
-      bool MCMCGetNewPointMetropolis(int chain, int parameter);
+      bool MCMCGetNewPointMetropolis(unsigned chain = 0);
+      bool MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter);
 
       /**
        * Updates statistics: find new maximum */
@@ -538,16 +673,21 @@ class BCEngineMCMC
 
       /**
        * Reset the MCMC variables.
-       * @return An error code */
-      int MCMCResetResults();
+       */
+      virtual void ResetResults();
 
       /**
-       * Interface allowing to execute arbitrary code for each iteration
-       * of the MCMC. The frequency of calling this method is influenced
-       * by the setup of the Lag and whether or not the MCMC is run with
-       * ordered parameters. This method needs to be overloaded in the derived
-       * class. */
-      virtual void MCMCIterationInterface()
+       * Empty the sequence of parameters.
+       *
+       * @param hard Delete the parameters. @warning Could lead to problems if multiple modes use identical parameters.
+       */
+      void ClearParameters(bool hard=false)
+      { fParameters.Clear(hard); }
+
+      /**
+       * Method executed for every iteration of the MCMC. User's code should be
+       * provided via overloading in the derived class*/
+      virtual void MCMCUserIterationInterface()
          {}
 
       /**
@@ -558,18 +698,24 @@ class BCEngineMCMC
        * @param ichain index of the chain
        * @param accepted flag whether or not the point was accepted for the chain
        */
-      virtual void MCMCCurrentPointInterface(std::vector<double> & point, int ichain, bool accepted)
-         {
-            // suppress warnings for unused parameters
-            // with optimization, no code should be generated
-            (void)point;
-            (void)ichain;
-            (void)accepted;
-         }
+      virtual void MCMCCurrentPointInterface(std::vector<double> & /*point*/, int /*ichain*/, bool /*accepted*/)
+         {}
 
       /** @} */
 
    private:
+
+      /**
+       * Interface allowing to execute arbitrary code for each iteration
+       * of the MCMC. The frequency of calling this method is influenced
+       * by the setup of the Lag and whether or not the MCMC is run with
+       * ordered parameters. This method needs to be overloaded in the derived
+       * class. */
+      void MCMCIterationInterface();
+
+      /**
+       * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
+      void MCMCFillErrorBand();
 
       /**
        * Defines a type of a pointer to a member function. */
@@ -618,32 +764,22 @@ class BCEngineMCMC
       void SyncThreadStorage();
 
    protected:
-
       /**
-       * Number of parameters */
-      int fMCMCNParameters;
-
-      /**
-       * Parameter boundaries */
-      std::vector<double> fMCMCBoundaryMin;
-      std::vector<double> fMCMCBoundaryMax;
-
-      /**
-       * Parameter flags for marginalization */
-      std::vector<bool> fMCMCFlagsFillHistograms;
+       * Parameter settings */
+      BCParameterSet fParameters;
 
       /**
        * Number of Markov chains ran in parallel */
-      int fMCMCNChains;
+      unsigned fMCMCNChains;
 
       /**
        * The lag for the Markov Chain */
-      int fMCMCNLag;
+      unsigned fMCMCNLag;
 
       /**
        * Number of total iterations of the Markov chains. The length of
        * the vector is equal to fMCMCNChains. */
-      std::vector<int> fMCMCNIterations;
+      std::vector<unsigned> fMCMCNIterations;
 
       /**
        * The current iteration number. If not called within the running
@@ -657,15 +793,15 @@ class BCEngineMCMC
 
       /**
        * Number of iterations for updating scale factors */
-      int fMCMCNIterationsUpdate;
+      unsigned fMCMCNIterationsUpdate;
 
       /**
        * Maximum number of iterations for updating scale factors */
-      int fMCMCNIterationsUpdateMax;
+      unsigned fMCMCNIterationsUpdateMax;
 
       /**
        * Number of iterations needed for all chains to convergence
-       * simulaneously */
+       * simultaneously */
       int fMCMCNIterationsConvergenceGlobal;
 
       /**
@@ -674,15 +810,15 @@ class BCEngineMCMC
 
       /**
        * Maximum number of iterations for a Markov chain prerun */
-      int fMCMCNIterationsMax;
+      unsigned fMCMCNIterationsMax;
 
       /**
        * Number of iterations for a Markov chain run */
-      int fMCMCNIterationsRun;
+      unsigned fMCMCNIterationsRun;
 
       /**
        * Minimum number of iterations for the pre-run */
-      int fMCMCNIterationsPreRunMin;
+      unsigned fMCMCNIterationsPreRunMin;
 
       /**
        * Number of accepted trials for each chain. The length of the
@@ -706,7 +842,6 @@ class BCEngineMCMC
        * Scales the width of the trial functions by a scale factor for
        * each parameter and chain */
       std::vector<double> fMCMCTrialFunctionScaleFactor;
-
 
       /**
        * Start values of the scale factors for the trial functions. */
@@ -747,19 +882,10 @@ class BCEngineMCMC
       bool fMCMCFlagOrderParameters;
 
       /**
-       * Flag which controls fill histograms during main run. */
-      bool fMCMCFlagFillHistograms;
-
-      /**
        * The phase of the run.
        * 1: pre-run, 2: main run.
        */
       int fMCMCPhase;
-
-      /**
-       * The cycle of the pre-run
-       */
-      int fMCMCCycle;
 
       /**
        * The current points of each Markov chain. The length of the
@@ -832,10 +958,6 @@ class BCEngineMCMC
       TRandom3 * fRandom;
 
       /**
-       * Number of bins per dimension for the marginalized distributions. */
-      std::vector<int> fMCMCH1NBins;
-
-      /**
        * An array of marginalized distributions */
       std::vector<TH1D *> fMCMCH1Marginalized;
       std::vector<TH2D *> fMCMCH2Marginalized;
@@ -844,6 +966,53 @@ class BCEngineMCMC
        * The trees containing the Markov chains. The length of the vector
        * is fMCMCNChains. */
       std::vector<TTree *> fMCMCTrees;
+
+      /**
+       * Flag whether or not to fill the error band */
+      bool fFillErrorBand;
+
+      /**
+       * The indices for function fits */
+      int fFitFunctionIndexX;
+      int fFitFunctionIndexY;
+
+      /**
+       * A flag for single point evaluation of the error "band" */
+      bool fErrorBandContinuous;
+      std::vector<double> fErrorBandX;
+
+      /**
+       * The error band histogram */
+      TH2D * fErrorBandXY;
+
+      /**
+       * Number of X bins of the error band histogram */
+      unsigned fErrorBandNbinsX;
+
+      /**
+       * Number of Y bins of the error band histogram */
+      unsigned fErrorBandNbinsY;
+
+      /**
+       * Current mode finding method */
+      BCEngineMCMC::BCOptimizationMethod fOptimizationMethod;
+
+      /**
+       * Method with which the global mode was found (can differ from
+       * fOptimization method in case more than one algorithm is used). */
+      BCEngineMCMC::BCOptimizationMethod fOptimizationMethodMode;
+
+      /**
+       * A vector of best fit parameters */
+      std::vector<double> fBestFitParameters;
+
+      /**
+       * The function value at the mode on the @em log scale */
+      double fLogMaximum;
+
+      /**
+       * A vector of best fit parameters estimated from the marginalized probability */
+      std::vector<double> fMarginalModes;
 };
 
 // ---------------------------------------------------------

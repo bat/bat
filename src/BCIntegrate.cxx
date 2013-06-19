@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2013, Daniel Kollar, Kevin Kroeninger, Daniel Greenwald, and Frederik Beaujean.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -7,498 +7,187 @@
 
 // ---------------------------------------------------------
 
-#include "config.h"
-
 #include "BCIntegrate.h"
+#include "BCErrorCodes.h"
 #include "BCLog.h"
 #include "BCMath.h"
+#include "BCParameter.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TH3D.h>
 #include <TMinuit.h>
 #include <TRandom3.h>
+#include <TString.h>
 #include <TTree.h>
 
 #ifdef HAVE_CUBA_H
-#include "cuba.h"
+#include <cuba.h>
 #endif
 
+#include <math.h>
+#include <limits>
+
+namespace
+{
+    /**
+     * Hold an instance of BCIntegrate to emulate a global variable for use with Minuit
+     */
+    class BCIntegrateHolder
+    {
+    private:
+       BCIntegrate * global_this;
+
+    public:
+
+        BCIntegrateHolder() :
+           global_this(NULL)
+        {
+        }
+
+       /**
+        * Set and/or retrieve the static BCIntegrate object
+        */
+       static BCIntegrate * instance(BCIntegrate * obj = NULL)
+       {
+          static BCIntegrateHolder result;
+          if (obj)
+             result.global_this = obj;
+
+          return result.global_this;
+       }
+    };
+}
+
 // ---------------------------------------------------------
-
-class BCIntegrate * global_this;
-
-// ---------------------------------------------------------
-BCIntegrate::BCIntegrate()
-   : BCEngineMCMC()
-   , fNvar(0)
-   , fNbins(100)
-   , fNSamplesPer2DBin(100)
-   , fMarkovChainStepSize(0.1)
-   , fMarkovChainAutoN(true)
-   , fDataPointLowerBoundaries(0)
-   , fDataPointUpperBoundaries(0)
-   , fFillErrorBand(false)
-   , fFitFunctionIndexX(-1)
-   , fFitFunctionIndexY(-1)
-   , fErrorBandContinuous(true)
-   , fErrorBandNbinsX(100)
-   , fErrorBandNbinsY(500)
-   , fMinuit(0)
-   , fFlagIgnorePrevOptimization(false)
-   , fFlagWriteMarkovChain(false)
-   , fMarkovChainTree(0)
-   , fSAT0(100)
-   , fSATmin(0.1)
-   , fTreeSA(0)
-   , fFlagWriteSAToFile(false)
-
-   , fNiterPerDimension(100)
+BCIntegrate::BCIntegrate() : BCEngineMCMC(),
+    fMinuit(0),
+    fFlagIgnorePrevOptimization(false),
+    fSAT0(100),
+    fSATmin(0.1),
+    fTreeSA(0),
+    fFlagWriteSAToFile(false),
 #ifdef HAVE_CUBA_H
-   , fIntegrationMethod(BCIntegrate::kIntCuba)
+    fIntegrationMethod(BCIntegrate::kIntCuba),
 #else
-   , fIntegrationMethod(BCIntegrate::kIntMonteCarlo)
+    fIntegrationMethod(BCIntegrate::kIntMonteCarlo),
 #endif
-   , fMarginalizationMethod(BCIntegrate::kMargMetropolis)
-   , fOptimizationMethod(BCIntegrate::kOptMinuit)
-   , fOptimizationMethodMode(BCIntegrate::kOptMinuit)
-   , fSASchedule(BCIntegrate::kSACauchy)
-   , fNIterationsMax(1000000)
-   , fNIterations(0)
-   , fRelativePrecision(1e-3)
-   , fAbsolutePrecision(1e-12)
-   , fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
-   , fCubaMinEval(0)
-   , fCubaMaxEval(2000000)
-   , fCubaVerbosity(0)
-   , fCubaVegasNStart(25000)
-   , fCubaVegasNIncrease(25000)
-   , fCubaSuaveNNew(10000)
-   , fCubaSuaveFlatness(50)
-   , fError(-999.)
-{
-   fMinuitArglist[0] = 20000;
-   fMinuitArglist[1] = 0.01;
-}
-
-// ---------------------------------------------------------
-BCIntegrate::BCIntegrate(BCParameterSet * par)
-   : BCEngineMCMC()
-   , fNvar(0)
-   , fNbins(100)
-   , fNSamplesPer2DBin(100)
-   , fMarkovChainStepSize(0.1)
-   , fMarkovChainAutoN(true)
-   , fDataPointLowerBoundaries(0)
-   , fDataPointUpperBoundaries(0)
-   , fFillErrorBand(false)
-   , fFitFunctionIndexX(-1)
-   , fFitFunctionIndexY(-1)
-   , fErrorBandContinuous(true)
-   , fErrorBandNbinsX(100)
-   , fErrorBandNbinsY(500)
-   , fMinuit(0)
-   , fFlagIgnorePrevOptimization(false)
-   , fFlagWriteMarkovChain(false)
-   , fMarkovChainTree(0)
-   , fSAT0(100)
-   , fSATmin(0.1)
-   , fTreeSA(0)
-   , fFlagWriteSAToFile(false)
-
-   , fNiterPerDimension(100)
+    fMarginalizationMethod(fIntegrationMethod),
+    fSASchedule(BCIntegrate::kSACauchy),
+    fNIterationsMin(0),
+    fNIterationsMax(1000000),
+    fNIterationsPrecisionCheck(1000),
+    fNIterationsOutput(0),
+    fNIterations(0),
+    fRelativePrecision(1e-2),
+    fAbsolutePrecision(1e-5),
+    fError(-999.)
 #ifdef HAVE_CUBA_H
-   , fIntegrationMethod(BCIntegrate::kIntCuba)
-#else
-   , fIntegrationMethod(BCIntegrate::kIntMonteCarlo)
+    ,
+    fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
 #endif
-   , fMarginalizationMethod(BCIntegrate::kMargMetropolis)
-   , fOptimizationMethod(BCIntegrate::kOptMinuit)
-   , fOptimizationMethodMode(BCIntegrate::kOptMinuit)
-   , fSASchedule(BCIntegrate::kSACauchy)
-   , fNIterationsMax(1000000)
-   , fNIterations(0)
-   , fRelativePrecision(1e-3)
-   , fAbsolutePrecision(1e-12)
-   , fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
-   , fCubaMinEval(0)
-   , fCubaMaxEval(2000000)
-   , fCubaVerbosity(0)
-   , fCubaVegasNStart(25000)
-   , fCubaVegasNIncrease(25000)
-   , fCubaSuaveNNew(10000)
-   , fCubaSuaveFlatness(50)
-   , fError(-999.)
 {
-   SetParameters(par);
-
-   fMinuitArglist[0] = 20000;
-   fMinuitArglist[1] = 0.01;
+	fMinuitArglist[0] = 20000;
+	fMinuitArglist[1] = 0.01;
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(const BCIntegrate & bcintegrate) : BCEngineMCMC(bcintegrate)
- {
-    fNvar                     = bcintegrate.fNvar;
-    fNbins                    = bcintegrate.fNbins;
-    fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
-    fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
-    fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
-    fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
-    if (bcintegrate.fDataPointLowerBoundaries)
-       fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
-    else
-       fDataPointLowerBoundaries = 0;
-    if (bcintegrate.fDataPointUpperBoundaries)
-       fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
-    else
-       fDataPointUpperBoundaries = 0;
-    fDataFixedValues          = bcintegrate.fDataFixedValues;
-    fBestFitParameters        = bcintegrate.fBestFitParameters;
-    fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
-    fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
-    for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
-       if (bcintegrate.fHProb1D.at(i))
-          fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
-       else
-          fHProb1D.push_back(0);
-    }
-    for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
-       if (bcintegrate.fHProb2D.at(i))
-          fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
-       else
-          fHProb2D.push_back(0);
-    }
-    fFillErrorBand            = bcintegrate.fFillErrorBand;
-    fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
-    fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
-    fErrorBandX               = bcintegrate.fErrorBandX;
-    if (bcintegrate.fErrorBandXY)
-       fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
-    else
-       fErrorBandXY = 0;
-    fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
-    fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
-    fMinuit                   = new TMinuit();
-    // debugKK
-    //    *fMinuit = *(bcintegrate.fMinuit);
-    fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
-    fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
-    fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
-    fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
-    fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
-    fMarkovChainTree          = bcintegrate.fMarkovChainTree;
-    fMCMCIteration            = bcintegrate.fMCMCIteration;
-    fSAT0                     = bcintegrate.fSAT0;
-    fSATmin                   = bcintegrate.fSATmin;
-    // debugKK
-    fTreeSA = 0;
-    fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
-    fSANIterations            = bcintegrate.fSANIterations;
-    fSATemperature            = bcintegrate.fSATemperature;
-    fSALogProb                = bcintegrate.fSALogProb;
-    fSAx                      = bcintegrate.fSAx;
-    if (bcintegrate.fx)
-       fx = new BCParameterSet(*(bcintegrate.fx));
-    else
-       fx = 0;
-    fMin                      = new double[fNvar];
-    fMax                      = new double[fNvar];
-    fVarlist                  = new int[fNvar];
-    fMin                      = bcintegrate.fMin;
-    fMax                      = bcintegrate.fMax;
-    fVarlist                  = bcintegrate.fVarlist;
-    fNiterPerDimension        = bcintegrate.fNiterPerDimension;
-    fIntegrationMethod        = bcintegrate.fIntegrationMethod;
-    fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
-    fOptimizationMethod       = bcintegrate.fOptimizationMethod;
-    fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
-    fSASchedule               = bcintegrate.fSASchedule;
-    fNIterationsMax           = bcintegrate.fNIterationsMax;
-    fNIterations              = bcintegrate.fNIterations;
-    fRelativePrecision        = bcintegrate.fRelativePrecision;
-    fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
-    fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
-    fCubaMinEval              = bcintegrate.fCubaMinEval;
-    fCubaMaxEval              = bcintegrate.fCubaMaxEval;
-    fCubaVerbosity            = bcintegrate.fCubaVerbosity;
-    fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
-    fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
-    fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
-    fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
-    fError                    = bcintegrate.fError;
-    fNmetro                   = bcintegrate.fNmetro;
-    fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
-    fXmetro0                  = bcintegrate.fXmetro0;
-    fXmetro1                  = bcintegrate.fXmetro1;
-    fMarkovChainValue         = bcintegrate.fMarkovChainValue;
+BCIntegrate::BCIntegrate(const BCIntegrate & other) : BCEngineMCMC(other)
+{
+	Copy(other);
 }
 
 // ---------------------------------------------------------
-BCIntegrate & BCIntegrate::operator = (const BCIntegrate & bcintegrate)
+BCIntegrate & BCIntegrate::operator = (const BCIntegrate & other)
 {
-    BCEngineMCMC::operator=(bcintegrate);
+	Copy(other);
+	return *this;
+}
 
-    fNvar                     = bcintegrate.fNvar;
-    fNbins                    = bcintegrate.fNbins;
-    fNSamplesPer2DBin         = bcintegrate.fNSamplesPer2DBin;
-    fMarkovChainStepSize      = bcintegrate.fMarkovChainStepSize;
-    fMarkovChainNIterations   = bcintegrate.fMarkovChainNIterations;
-    fMarkovChainAutoN         = bcintegrate.fMarkovChainAutoN;
-    if (bcintegrate.fDataPointLowerBoundaries)
-       fDataPointLowerBoundaries = new BCDataPoint(*bcintegrate.fDataPointLowerBoundaries);
-    else
-       fDataPointLowerBoundaries = 0;
-    if (bcintegrate.fDataPointUpperBoundaries)
-       fDataPointUpperBoundaries = new BCDataPoint(*bcintegrate.fDataPointUpperBoundaries);
-    else
-       fDataPointUpperBoundaries = 0;
-    fDataFixedValues          = bcintegrate.fDataFixedValues;
-    fBestFitParameters        = bcintegrate.fBestFitParameters;
-    fBestFitParameterErrors   = bcintegrate.fBestFitParameterErrors;
-    fBestFitParametersMarginalized = bcintegrate.fBestFitParametersMarginalized;
-    for (int i = 0; i < int(bcintegrate.fHProb1D.size()); ++i) {
-       if (bcintegrate.fHProb1D.at(i))
-          fHProb1D.push_back(new TH1D(*(bcintegrate.fHProb1D.at(i))));
-       else
-          fHProb1D.push_back(0);
-    }
-    for (int i = 0; i < int(bcintegrate.fHProb2D.size()); ++i) {
-       if (bcintegrate.fHProb2D.at(i))
-          fHProb2D.push_back(new TH2D(*(fHProb2D.at(i))));
-       else
-          fHProb2D.push_back(0);
-    }
-    fFillErrorBand            = bcintegrate.fFillErrorBand;
-    fFitFunctionIndexX        = bcintegrate.fFitFunctionIndexX;
-    fFitFunctionIndexY        = bcintegrate.fFitFunctionIndexY;
-    fErrorBandX               = bcintegrate.fErrorBandX;
-    if (bcintegrate.fErrorBandXY)
-       fErrorBandXY = new TH2D(*(bcintegrate.fErrorBandXY));
-    else
-       fErrorBandXY = 0;
-    fErrorBandNbinsX          = bcintegrate.fErrorBandNbinsX;
-    fErrorBandNbinsY          = bcintegrate.fErrorBandNbinsY;
-    fMinuit                   = new TMinuit();
-    // debugKK
-    //    *fMinuit = *(bcintegrate.fMinuit);
-    fMinuitArglist[0]         = bcintegrate.fMinuitArglist[0];
-    fMinuitArglist[1]         = bcintegrate.fMinuitArglist[1];
-    fMinuitErrorFlag          = bcintegrate.fMinuitErrorFlag;
-    fFlagIgnorePrevOptimization = bcintegrate.fFlagIgnorePrevOptimization;
-    fFlagWriteMarkovChain     = bcintegrate.fFlagWriteMarkovChain;
-    fMarkovChainTree          = bcintegrate.fMarkovChainTree;
-    fMCMCIteration            = bcintegrate.fMCMCIteration;
-    fSAT0                     = bcintegrate.fSAT0;
-    fSATmin                   = bcintegrate.fSATmin;
-    // debugKK
-    fTreeSA = 0;
-    fFlagWriteSAToFile        = bcintegrate.fFlagWriteSAToFile;
-    fSANIterations            = bcintegrate.fSANIterations;
-    fSATemperature            = bcintegrate.fSATemperature;
-    fSALogProb                = bcintegrate.fSALogProb;
-    fSAx                      = bcintegrate.fSAx;
-    if (bcintegrate.fx)
-       fx = new BCParameterSet(*(bcintegrate.fx));
-    else
-       fx = 0;
-    fMin                      = new double[fNvar];
-    fMax                      = new double[fNvar];
-    fVarlist                  = new int[fNvar];
-    fNiterPerDimension        = bcintegrate.fNiterPerDimension;
-    fIntegrationMethod        = bcintegrate.fIntegrationMethod;
-    fMarginalizationMethod    = bcintegrate.fMarginalizationMethod;
-    fOptimizationMethod       = bcintegrate.fOptimizationMethod;
-    fOptimizationMethodMode   = bcintegrate.fOptimizationMethodMode;
-    fSASchedule               = bcintegrate.fSASchedule;
+// ---------------------------------------------------------
+void BCIntegrate::Copy(const BCIntegrate & other)
+{
+	BCEngineMCMC::Copy(other);
 
-    fNIterationsMax           = bcintegrate.fNIterationsMax;
-    fNIterations              = bcintegrate.fNIterations;
-    fRelativePrecision        = bcintegrate.fRelativePrecision;
-    fAbsolutePrecision        = bcintegrate.fAbsolutePrecision;
-    fCubaIntegrationMethod    = bcintegrate.fCubaIntegrationMethod;
-    fCubaMinEval              = bcintegrate.fCubaMinEval;
-    fCubaMaxEval              = bcintegrate.fCubaMaxEval;
-    fCubaVerbosity            = bcintegrate.fCubaVerbosity;
-    fCubaVegasNStart          = bcintegrate.fCubaVegasNStart;
-    fCubaVegasNIncrease       = bcintegrate.fCubaVegasNIncrease;
-    fCubaSuaveNNew            = bcintegrate.fCubaSuaveNNew;
-    fCubaSuaveFlatness        = bcintegrate.fCubaSuaveFlatness;
-    fError                    = bcintegrate.fError;
-    fNmetro                   = bcintegrate.fNmetro;
-    fNacceptedMCMC            = bcintegrate.fNacceptedMCMC;
-    fXmetro0                  = bcintegrate.fXmetro0;
-    fXmetro1                  = bcintegrate.fXmetro1;
-    fMarkovChainValue         = bcintegrate.fMarkovChainValue;
-
-   // return this
-   return *this;
+	fBestFitParameterErrors   = other.fBestFitParameterErrors;
+	fFillErrorBand            = other.fFillErrorBand;
+	fFitFunctionIndexX        = other.fFitFunctionIndexX;
+	fFitFunctionIndexY        = other.fFitFunctionIndexY;
+	fErrorBandX               = other.fErrorBandX;
+	if (other.fErrorBandXY)
+		fErrorBandXY = new TH2D(*(other.fErrorBandXY));
+	else
+		fErrorBandXY = 0;
+	fErrorBandNbinsX          = other.fErrorBandNbinsX;
+	fErrorBandNbinsY          = other.fErrorBandNbinsY;
+	fMinuit                   = new TMinuit();
+	fMinuitArglist[0]         = other.fMinuitArglist[0];
+	fMinuitArglist[1]         = other.fMinuitArglist[1];
+	fMinuitErrorFlag          = other.fMinuitErrorFlag;
+	fFlagIgnorePrevOptimization = other.fFlagIgnorePrevOptimization;
+	fSAT0                     = other.fSAT0;
+	fSATmin                   = other.fSATmin;
+	fTreeSA = 0;
+	fFlagWriteSAToFile        = other.fFlagWriteSAToFile;
+	fSANIterations            = other.fSANIterations;
+	fSATemperature            = other.fSATemperature;
+	fSALogProb                = other.fSALogProb;
+	fSAx                      = other.fSAx;
+	fIntegrationMethod        = other.fIntegrationMethod;
+	fMarginalizationMethod    = other.fMarginalizationMethod;
+	fSASchedule               = other.fSASchedule;
+	fNIterationsMin           = other.fNIterationsMin;
+	fNIterationsMax           = other.fNIterationsMax;
+	fNIterationsPrecisionCheck= other.fNIterationsPrecisionCheck;
+	fNIterationsOutput        = other.fNIterationsOutput;
+	fNIterations              = other.fNIterations;
+	fRelativePrecision        = other.fRelativePrecision;
+	fAbsolutePrecision        = other.fAbsolutePrecision;
+	fError                    = other.fError;
+	fCubaIntegrationMethod    = other.fCubaIntegrationMethod;
+	fCubaVegasOptions         = other.fCubaVegasOptions;
+	fCubaSuaveOptions         = other.fCubaSuaveOptions;
+	fCubaDivonneOptions       = other.fCubaDivonneOptions;
+	fCubaCuhreOptions         = other.fCubaCuhreOptions;
 }
 
 // ---------------------------------------------------------
 BCIntegrate::~BCIntegrate()
 {
-   DeleteVarList();
-
-   fx=0;
-
-   if (fMinuit)
-      delete fMinuit;
-
-   int n1 = fHProb1D.size();
-   if(n1>0) {
-      for (int i=0;i<n1;i++)
-         delete fHProb1D.at(i);
-   }
-
-   int n2 = fHProb2D.size();
-   if(n2>0) {
-      for (int i=0;i<n2;i++)
-         delete fHProb2D.at(i);
-   }
+   delete fMinuit;
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::SetParameters(BCParameterSet * par)
+double BCIntegrate::GetBestFitParameter(unsigned index) const
 {
-   DeleteVarList();
+   if( ! fParameters.ValidIndex(index))
+      return -1e+111;
 
-   fx = par;
-   fNvar = fx->size();
-   fMin = new double[fNvar];
-   fMax = new double[fNvar];
-   fVarlist = new int[fNvar];
-
-   ResetVarlist(1);
-
-   for(int i=0;i<fNvar;i++) {
-      fMin[i]=(fx->at(i))->GetLowerLimit();
-      fMax[i]=(fx->at(i))->GetUpperLimit();
+   if(fBestFitParameters.size()==0) {
+      BCLog::OutError("BCIntegrate::GetBestFitParameter : Mode finding not yet run, returning center of the range.");
+      return (fParameters[index]->GetUpperLimit() + fParameters[index]->GetLowerLimit() ) / 2.;
    }
 
-   fXmetro0.clear();
-   for(int i=0;i<fNvar;i++)
-      fXmetro0.push_back((fMin[i]+fMax[i])/2.0);
-
-   fXmetro1.clear();
-   fXmetro1.assign(fNvar,0.);
-
-   fMCMCBoundaryMin.clear();
-   fMCMCBoundaryMax.clear();
-
-   for(int i=0;i<fNvar;i++) {
-      fMCMCBoundaryMin.push_back(fMin[i]);
-      fMCMCBoundaryMax.push_back(fMax[i]);
-      fMCMCFlagsFillHistograms.push_back(true);
-   }
-
-   for (int i = int(fMCMCH1NBins.size()); i<fNvar; ++i)
-      fMCMCH1NBins.push_back(100);
-
-   fMCMCNParameters = fNvar;
+   return fBestFitParameters[index];
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::SetMarkovChainInitialPosition(std::vector<double> position)
+double BCIntegrate::GetBestFitParameterError(unsigned index) const
 {
-   int n = position.size();
-
-   fXmetro0.clear();
-
-   for (int i = 0; i < n; ++i)
-      fXmetro0.push_back(position.at(i));
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::DeleteVarList()
-{
-   if(fNvar) {
-      delete[] fVarlist;
-      fVarlist=0;
-
-      delete[] fMin;
-      fMin=0;
-
-      delete[] fMax;
-      fMax=0;
-
-      fx=0;
-      fNvar=0;
-   }
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::SetNbins(int nbins, int index)
-{
-   if (fNvar == 0)
-      return;
-
-   // check if index is in range
-   if (index >= fNvar) {
-      BCLog::OutWarning("BCIntegrate::SetNbins : Index out of range.");
-      return;
-   }
-   // set for all parameters at once
-   else if (index < 0) {
-      for (int i = 0; i < fNvar; ++i)
-         SetNbins(nbins, i);
-      return;
+   if( ! fParameters.ValidIndex(index)) {
+      BCLog::OutError("BCIntegrate::GetBestFitParameterError : Parameter index out of range, returning -1.");
+      return -1;
    }
 
-   // sanity check for nbins
-   if (nbins <= 0)
-      nbins = 10;
+   if(fBestFitParameterErrors.size()==0) {
+      BCLog::OutError("BCIntegrate::GetBestFitParameterError : Mode finding not yet run, returning -1.");
+      return -1.;
+   }
 
-   fMCMCH1NBins[index] = nbins;
+   if(fBestFitParameterErrors[index]<0.)
+      BCLog::OutWarning("BCIntegrate::GetBestFitParameterError : Parameter error not available, returning -1.");
 
-   return;
-
-//    if(n<2) {
-//       BCLog::OutWarning("BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
-//       n=2;
-//    }
-//    MCMCSetH1NBins(n, -1);
-
-   //   fNbins=n;
-
-   //   fMCMCH1NBins = n;
-   //   fMCMCH2NBinsX = n;
-   //   fMCMCH2NBinsY = n;
-}
-
-// ---------------------------------------------------------
-// void BCIntegrate::SetNbinsX(int n)
-// {
-//    if(n<2) {
-//       BCLog::OutWarning("BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
-//       n=2;
-//    }
-//    fMCMCH2NBinsX = n;
-// }
-
-// ---------------------------------------------------------
-// void BCIntegrate::SetNbinsY(int n)
-// {
-//    if(n<2) {
-//       BCLog::OutWarning("BCIntegrate::SetNbins. Number of bins less than 2 makes no sense. Setting to 2.");
-//       n=2;
-//    }
-//    fNbins=n;
-
-//    fMCMCH2NBinsY = n;
-// }
-
-// ---------------------------------------------------------
-void BCIntegrate::SetVarList(int * varlist)
-{
-   for(int i=0;i<fNvar;i++)
-      fVarlist[i]=varlist[i];
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::ResetVarlist(int v)
-{
-   for(int i=0;i<fNvar;i++)
-      fVarlist[i]=v;
+   return fBestFitParameterErrors[index];
 }
 
 // ---------------------------------------------------------
@@ -516,947 +205,542 @@ double BCIntegrate::LogEval(const std::vector<double> &x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalSampling(const std::vector<double> & /*x*/)
+double BCIntegrate::EvalSampling(const std::vector<double> &)
 {
-   BCLog::OutWarning( "BCIntegrate::EvalSampling. No function. Function needs to be overloaded.");
+   BCLog::OutError("BCIntegrate::EvalSampling. The importance sampling function needs to be implemented by the user.");
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::LogEvalSampling(const std::vector<double> &x)
+void BCIntegrate::ResetResults()
 {
-   return log(EvalSampling(x));
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
-{
-#ifdef HAVE_CUBA_H
-   fIntegrationMethod = method;
-#else
-   BCLog::OutWarning("!!! This version of BAT is compiled without Cuba.");
-   BCLog::OutWarning("    Monte Carlo Sampled Mean integration method will be used.");
-   BCLog::OutWarning("    To be able to use Cuba integration, install Cuba and recompile BAT.");
-#endif
-}
-
-// ---------------------------------------------------------
-int BCIntegrate::IntegrateResetResults()
-{
-   fBestFitParameters.clear();
+   BCEngineMCMC::ResetResults();
    fBestFitParameterErrors.clear();
-   fBestFitParametersMarginalized.clear();
-
-   // no errors
-   return 1;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::Integrate()
+unsigned BCIntegrate::GetNIntegrationVariables() {
+    unsigned n = 0;
+    for(unsigned i = 0; i < fParameters.Size(); i++)
+        if ( ! fParameters[i]->Fixed())
+            n++;
+    return n;
+}
+
+// ---------------------------------------------------------
+double BCIntegrate::CalculateIntegrationVolume() {
+   double integrationVolume = -1.;
+
+   for(unsigned i = 0; i < fParameters.Size(); i++)
+      if ( ! fParameters[i]->Fixed()) {
+         if (integrationVolume<0)
+            integrationVolume = 1;
+         integrationVolume *= fParameters[i]->GetRangeWidth();
+      }
+
+   if (integrationVolume<0)
+      integrationVolume = 0;
+
+   return integrationVolume;
+}
+
+// ---------------------------------------------------------
+double BCIntegrate::Integrate(BCIntegrationMethod type)
 {
-   std::vector<double> parameter;
-   parameter.assign(fNvar, 0.0);
-
-   BCLog::OutSummary(
-         Form("Running numerical integration using %s (%s)",
-         DumpIntegrationMethod().c_str(),
-         DumpCubaIntegrationMethod().c_str()));
-
-   switch(fIntegrationMethod)
+   switch(type)
    {
-      case BCIntegrate::kIntMonteCarlo:
-         return IntegralMC(parameter);
 
-      case BCIntegrate::kIntMetropolis:
-         return IntegralMetro(parameter);
+   // Monte Carlo Integration
+   case BCIntegrate::kIntMonteCarlo:
+   {
+      std::vector<double> sums (2,0.0);
+      sums.push_back(CalculateIntegrationVolume());
+      return Integrate(kIntMonteCarlo,
+            &BCIntegrate::GetRandomVectorInParameterSpace,
+            &BCIntegrate::EvaluatorMC,
+            &IntegralUpdaterMC,
+            sums);
+   }
 
-      case BCIntegrate::kIntImportance:
-         return IntegralImportance(parameter);
-
-      case BCIntegrate::kIntCuba:
+   // Importance Sampling Integration
+   case BCIntegrate::kIntImportance:
+   {
+      std::vector<double> sums (2,0.0);
+      return Integrate(kIntImportance,
+            &BCIntegrate::GetRandomVectorInParameterSpace,
+            &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
+            &IntegralUpdaterImportance,	 // use same updater as for metropolis
+            sums);
+   }
 #ifdef HAVE_CUBA_H
-         return CubaIntegrate();
-#else
-         BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
-         BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
-         break;
+   case BCIntegrate::kIntCuba:
+      return IntegrateCuba();
 #endif
-      default:
-         BCLog::OutError(
-            Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
-         break;
+   default:
+      BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
+      break;
    }
 
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMC(const std::vector<double> &x, int * varlist)
-{
-   SetVarList(varlist);
-   return IntegralMC(x);
+void BCIntegrate::SetBestFitParameters(const std::vector<double> &x, const double &new_value, double &old_value) {
+	if (new_value < old_value)
+		return;
+	old_value = new_value;
+	SetBestFitParameters(x);
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralMC(const std::vector<double> &x)
+unsigned BCIntegrate::IntegrationOutputFrequency() const
 {
-   // count the variables to integrate over
-   // and calculate D (integrated volume)
-   int NvarNow=0;
-   double D=1.;
-   for(int i = 0; i < fNvar; i++)
-      if(fVarlist[i]) {
-         NvarNow++;
-         D *= fMax[i] - fMin[i];
-      }
+	if (fNIterationsOutput > 0)
+		return fNIterationsOutput;
+	const unsigned nwrite = fNIterationsMax / 10;
+	if(nwrite < 10000)
+		return 1000;
+	if(nwrite < 100000)
+		return 10000;
+	if(nwrite < 1000000)
+		return 100000;
+	return 1000000;
+}
 
-   // print to log
-   BCLog::LogLevel level=BCLog::summary;
-   if(fNvar!=NvarNow) {
-      level=BCLog::detail;
-      BCLog::OutDetail(Form("Running MC integation over %i dimensions out of %i.", NvarNow, fNvar));
+// ---------------------------------------------------------
+void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCubaMethod cubatype)
+{
+   const unsigned NVarNow = GetNIntegrationVariables();
+
+   BCLog::LogLevel level = BCLog::summary;
+
+   if(fParameters.Size() != NVarNow) {
+
+      level = BCLog::detail;
+      bool printed = false;
+#ifdef HAVE_CUBA_H
+      if (type==kIntCuba)
+      {
+         BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions out of %i.",
+               DumpIntegrationMethod(type).c_str(),
+               DumpCubaIntegrationMethod(cubatype).c_str(),
+               NVarNow, fParameters.Size()));
+         printed = true;
+      }
+#endif
+      if (not printed)
+         BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions out of %i.",
+               DumpIntegrationMethod(type).c_str(),
+               NVarNow, fParameters.Size()));
+
       BCLog::OutDetail(" --> Fixed parameters:");
-      for(int i = 0; i < fNvar; i++)
-         if(!fVarlist[i])
-            BCLog::OutDetail(Form("      %3i :  %g", i, x[i]));
+      for(unsigned i = 0; i < fParameters.Size(); i++)
+         if(fParameters[i]->Fixed())
+            BCLog::OutDetail(TString::Format("      %3i :  %g", i, fParameters[i]->GetFixedValue()));
    }
-   else
-      BCLog::OutSummary(Form("Running MC integation over %i dimensions.", NvarNow));
-   BCLog::Out(level, Form(" --> Maximum number of iterations: %i", GetNIterationsMax()));
-   BCLog::Out(level, Form(" --> Aimed relative precision:     %e", GetRelativePrecision()));
-
-   // reset variables
-   double pmax = 0.;
-   double sumW  = 0.;
-   double sumW2 = 0.;
-   double integral = 0.;
-   double variance = 0.;
-   double relprecision = 1.;
-
-   std::vector<double> randx;
-   randx.assign(fNvar, 0.);
-
-   // how often to print out the info line to screen
-   int nwrite = fNIterationsMax/10;
-   if(nwrite < 10000)
-      nwrite=1000;
-   else if(nwrite < 100000)
-      nwrite=10000;
-   else if(nwrite < 1000000)
-      nwrite=100000;
-   else
-      nwrite=1000000;
-
-   // reset number of iterations
-   fNIterations = 0;
-
-   // iterate while precision is not reached and the number of iterations is lower than maximum number of iterations
-   while ((fRelativePrecision < relprecision && fNIterationsMax > fNIterations) || fNIterations < 10) {
-      // increase number of iterations
-      fNIterations++;
-
-      // get random numbers
-      GetRandomVector(randx);
-
-      // scale random numbers
-      for(int i = 0; i < fNvar; i++) {
-         if(fVarlist[i])
-            randx[i]=fMin[i]+randx[i]*(fMax[i]-fMin[i]);
-         else
-            randx[i]=x[i];
+   else {
+      bool printed = false;
+#ifdef HAVE_CUBA_H
+      if (type==kIntCuba) {
+         BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions.",
+               DumpIntegrationMethod(type).c_str(),
+               DumpCubaIntegrationMethod(cubatype).c_str(),
+               NVarNow));
+         printed = true;
       }
-
-      // evaluate function at sampled point
-      double value = Eval(randx);
-
-      // add value to sum and sum of squares
-      sumW  += value;
-      sumW2 += value * value;
-
-      // search for maximum probability
-      if (value > pmax) {
-         // set new maximum value
-         pmax = value;
-
-         // delete old best fit parameter values
-         fBestFitParameters.clear();
-
-         // write best fit parameters
-         for(int i = 0; i < fNvar; i++)
-            fBestFitParameters.push_back(randx.at(i));
-      }
-
-      if (fNIterations%1000 == 0 || fNIterations%nwrite == 0) {
-         // calculate integral and variance
-         integral = D * sumW / fNIterations;
-         variance = (1.0 / double(fNIterations)) * (D * D * sumW2 / double(fNIterations) - integral * integral);
-         double error = sqrt(variance);
-         relprecision = error / integral;
-
-         if (fNIterations%nwrite == 0)
-            BCLog::OutDetail(Form("BCIntegrate::IntegralMC. Iteration %i, integral: %e +- %e.", fNIterations, integral, error));
-      }
+#endif
+      if (not printed)
+         BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions.",
+               DumpIntegrationMethod(type).c_str(),
+               NVarNow));
    }
 
-   integral = D * sumW / fNIterations;
-   fError = variance / fNIterations;
-
-   // print to log
-   BCLog::OutSummary(Form(" --> Result of integration:        %e +- %e   in %i iterations.", integral, sqrt(variance), fNIterations));
-   BCLog::OutSummary(Form(" --> Obtained relative precision:  %e. ", sqrt(variance) / integral));
-
-   return integral;
-}
-
-
-// ---------------------------------------------------------
-double BCIntegrate::IntegralMetro(const std::vector<double> & /*x*/)
-{
-   // print debug information
-   BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Integate over %i dimensions.", fNvar));
-
-   // get total number of iterations
-   double Niter = pow(fNiterPerDimension, fNvar);
-
-   // print if more than 100,000 iterations
-   if(Niter>1e5)
-      BCLog::OutDebug(Form(" --> Total number of iterations in Metropolis: %d.", (int)Niter));
-
-   // reset sum
-   double sumI = 0;
-
-   // prepare Metropolis algorithm
-   std::vector<double> randx;
-   randx.assign(fNvar,0.);
-   InitMetro();
-
-   // prepare maximum value
-   double pmax = 0.0;
-
-   // loop over iterations
-   for(int i = 0; i <= Niter; i++) {
-      // get random point from sampling distribution
-      GetRandomPointSamplingMetro(randx);
-
-      // calculate probability at random point
-      double val_f = Eval(randx);
-
-      // calculate sampling distributions at that point
-      double val_g = EvalSampling(randx);
-
-      // add ratio to sum
-      if (val_g > 0)
-         sumI += val_f / val_g;
-
-      // search for maximum probability
-      if (val_f > pmax) {
-         // set new maximum value
-         pmax = val_f;
-
-         // delete old best fit parameter values
-         fBestFitParameters.clear();
-
-         // write best fit parameters
-         for(int i = 0; i < fNvar; i++)
-            fBestFitParameters.push_back(randx.at(i));
-      }
-
-      // write intermediate results
-      if((i+1)%100000 == 0)
-         BCLog::OutDebug(Form("BCIntegrate::IntegralMetro. Iteration %d, integral: %g.", i+1, sumI/double(i+1)));
-   }
-
-   // calculate integral
-   double result=sumI/Niter;
-
-   // print debug information
-   BCLog::OutDebug(Form(" --> Integral is %g in %g iterations.", result, Niter));
-
-   return result;
+   BCLog::Out(level, TString::Format(" --> Minimum number of iterations: %i", GetNIterationsMin()));
+   BCLog::Out(level, TString::Format(" --> Maximum number of iterations: %i", GetNIterationsMax()));
+   BCLog::Out(level, TString::Format(" --> Target relative precision:    %e", GetRelativePrecision()));
+   BCLog::Out(level, TString::Format(" --> Target absolute precision:    %e", GetAbsolutePrecision()));
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::IntegralImportance(const std::vector<double> & /*x*/)
+void BCIntegrate::LogOutputAtEndOfIntegration(double integral, double absprecision, double relprecision, int nIterations)
 {
-   // print debug information
-   BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Integate over %i dimensions.", fNvar));
-
-   // get total number of iterations
-   double Niter = pow(fNiterPerDimension, fNvar);
-
-   // print if more than 100,000 iterations
-   if(Niter>1e5)
-      BCLog::OutDebug(Form("BCIntegrate::IntegralImportance. Total number of iterations: %d.", (int)Niter));
-
-   // reset sum
-   double sumI = 0;
-
-   std::vector<double> randx;
-   randx.assign(fNvar,0.);
-
-   // prepare maximum value
-   double pmax = 0.0;
-
-   // loop over iterations
-   for(int i = 0; i <= Niter; i++) {
-      // get random point from sampling distribution
-      GetRandomPointImportance(randx);
-
-      // calculate probability at random point
-      double val_f = Eval(randx);
-
-      // calculate sampling distributions at that point
-      double val_g = EvalSampling(randx);
-
-      // add ratio to sum
-      if (val_g > 0)
-         sumI += val_f / val_g;
-
-      // search for maximum probability
-      if (val_f > pmax) {
-         // set new maximum value
-         pmax = val_f;
-
-         // delete old best fit parameter values
-         fBestFitParameters.clear();
-
-         // write best fit parameters
-         for(int i = 0; i < fNvar; i++)
-            fBestFitParameters.push_back(randx.at(i));
-      }
-
-      // write intermediate results
-      if((i+1)%100000 == 0)
-         BCLog::OutDebug(Form("BCIntegrate::IntegralImportance : Iteration %d, integral: %g.", i+1, sumI/double(i+1)));
-   }
-
-   // calculate integral
-   double result=sumI/Niter;
-
-   // print debug information
-   BCLog::OutDebug(Form("BCIntegrate::IntegralImportance : Integral %g in %i iterations.", result, (int)Niter));
-
-   return result;
+   BCLog::OutSummary(TString::Format(" --> Result of integration:        %e +- %e   in %i iterations.", integral, absprecision, nIterations));
+   BCLog::OutSummary(TString::Format(" --> Obtained relative precision:  %e. ", relprecision));
 }
 
 // ---------------------------------------------------------
-TH1D* BCIntegrate::Marginalize(BCParameter * parameter)
+void BCIntegrate::LogOutputAtIntegrationStatusUpdate(BCIntegrationMethod type, double integral, double absprecision, int nIterations)
 {
-   BCLog::OutDebug(Form(" --> Marginalizing model wrt. parameter %s using %s.", parameter->GetName().data(), DumpMarginalizationMethod().c_str()));
+	BCLog::OutDetail(TString::Format("%s. Iteration %i, integral: %e +- %e.", DumpIntegrationMethod(type).c_str(), nIterations, integral, absprecision));
+}
 
-   switch(fMarginalizationMethod)
+// ---------------------------------------------------------
+double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, tEvaluator evaluator, tIntegralUpdater updater,
+      std::vector<double> &sums)
+{
+	LogOutputAtStartOfIntegration(type, NCubaMethods);
+
+	// reset variables
+	double pmax = 0.;
+	double integral = 0.;
+	double absprecision = 2.*fAbsolutePrecision;
+	double relprecision = 2.*fRelativePrecision;
+
+	std::vector<double> randx (fParameters.Size(), 0.);
+
+	// how often to print out the info line to screen
+	int nwrite = IntegrationOutputFrequency();
+
+	// reset number of iterations
+	fNIterations = 0;
+	bool accepted;
+
+	// iterate while number of iterations is lower than minimum number of iterations
+	// or precision is not reached and the number of iterations is lower than maximum number of iterations
+	while ((GetRelativePrecision() < relprecision and GetAbsolutePrecision() < absprecision and GetNIterations() < GetNIterationsMax())
+	      or GetNIterations() < GetNIterationsMin())
+		{
+
+			// get random numbers
+			(this->*randomizer)(randx);
+
+			// evaluate function at sampled point
+			// updating sums & checking for maximum probablity
+
+			SetBestFitParameters(randx, (this->*evaluator)(sums,randx,accepted), pmax);
+
+			// increase number of iterations
+			if (accepted)
+			   fNIterations++;
+
+
+			// update precisions
+			if (fNIterations % fNIterationsPrecisionCheck == 0) {
+				(*updater)(sums, fNIterations, integral, absprecision);
+				relprecision = absprecision / integral;
+			}
+
+			// write status
+			if (fNIterations % nwrite == 0) {
+				double temp_integral;
+				double temp_absprecision;
+				(*updater)(sums, fNIterations, temp_integral, temp_absprecision);
+				LogOutputAtIntegrationStatusUpdate(type, temp_integral, temp_absprecision, fNIterations);
+			}
+		}
+
+	// calculate integral
+	(*updater)(sums, fNIterations, integral, absprecision);
+	relprecision = absprecision / integral;
+
+	if (unsigned(fNIterations) >= fMCMCNIterationsMax)
+	   BCLog::OutWarning("BCIntegrate::Integrate: Did not converge within maximum number of iterations");
+
+	// print to log
+	LogOutputAtEndOfIntegration(integral, absprecision, relprecision, fNIterations);
+
+	fError = absprecision;
+	return integral;
+}
+
+// ---------------------------------------------------------
+double BCIntegrate::EvaluatorMC(std::vector<double> &sums, const std::vector<double> &point, bool &accepted) {
+	double value = Eval(point);
+
+	// all samples accepted in sample-mean integration
+	accepted = true;
+
+	// add value to sum and sum of squares
+	sums[0] += value;
+	sums[1] += value * value;
+
+	return value;
+}
+
+// ---------------------------------------------------------
+void BCIntegrate::IntegralUpdaterMC(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision) {
+	integral = sums[2] * sums[0] / nIterations;
+	absprecision = sqrt((1.0 / double(nIterations)) * (sums[2] * sums[2] * sums[1] / double(nIterations) - integral * integral));
+}
+
+// ---------------------------------------------------------
+double BCIntegrate::EvaluatorImportance(std::vector<double> &sums, const std::vector<double> &point, bool &accepted)
+{
+	// calculate value at random point
+	double val_f = Eval(point);
+
+	// calculate sampling distributions at that point
+	double val_g = EvalSampling(point);
+
+	// add ratio to sum and sum of squares
+	if (val_g > 0 && val_f/val_g > fRandom->Rndm()) {
+	   accepted = true;
+		sums[0] += val_f / val_g;
+		sums[1] += val_f * val_f / val_g / val_g;
+	}
+	else
+	   accepted = false;
+
+	return val_f;
+}
+
+// ---------------------------------------------------------
+void BCIntegrate::IntegralUpdaterImportance(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision) {
+	integral = sums[0] / nIterations;
+	absprecision = sqrt((1.0 / double(nIterations)) * (sums[1] / double(nIterations) - integral * integral));
+}
+
+// ---------------------------------------------------------
+bool BCIntegrate::CheckMarginalizationAvailability(BCIntegrationMethod type) {
+   switch(type)
    {
-      case BCIntegrate::kMargMonteCarlo:
-         return MarginalizeByIntegrate(parameter);
-
-      case BCIntegrate::kMargMetropolis:
-         return MarginalizeByMetro(parameter);
-
-      default:
-         BCLog::OutError(
-            Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
-         break;
-
+   case BCIntegrate::kIntMonteCarlo:
+   case BCIntegrate::kIntImportance:
+      return true;
+#ifdef HAVE_CUBA_H
+   case BCIntegrate::kIntCuba:
+      return true;
+#endif
+   default:
+      BCLog::OutError(TString::Format("BCIntegrate::Marginalize. Invalid marginalization method: %d.", type));
+      break;
    }
-
-   return 0;
+   return false;
 }
 
 // ---------------------------------------------------------
-TH2D * BCIntegrate::Marginalize(BCParameter * parameter1, BCParameter * parameter2)
+TH1D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index)
 {
-   switch(fMarginalizationMethod)
+    BCParameter * par = fParameters.Get(index);
+    if ( ! par)
+        return NULL;
+
+    // create histogram
+    TH1D * hist = new TH1D(TString::Format("h1_%s", par->GetName().data()),
+                           TString::Format(";%s;(unit %s)^{-1};", par->GetName().data(), par->GetName().data()),
+                           par->GetNbins(), par->GetLowerLimit(), par->GetUpperLimit());
+
+    // fill histogram
+    std::vector<unsigned> indices(1, index);
+    Marginalize(hist, type, indices);
+
+    return hist;
+}
+
+// ---------------------------------------------------------
+TH2D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2)
+{
+   BCParameter * par1 = fParameters.Get(index1);
+   BCParameter * par2 = fParameters.Get(index2);
+   if ( ! par1 || par2)
+      return NULL;
+
+	// create histogram
+	TH2D * hist = new TH2D(TString::Format("h2_%s_%s", par1->GetName().data(), par2->GetName().data()),
+												 TString::Format(";%s;%s;(unit %s)^{-1}(unit %s)^{-1}",
+															par1->GetName().data(), par2->GetName().data(),
+															par1->GetName().data(), par2->GetName().data()),
+															par1->GetNbins(), par1->GetLowerLimit(), par1->GetUpperLimit(),
+															par2->GetNbins(), par2->GetLowerLimit(), par2->GetUpperLimit());
+
+	// fill histogram
+	std::vector<unsigned> indices;
+	indices.push_back(index1);
+	indices.push_back(index2);
+	Marginalize(hist,type,indices);
+
+	return hist;
+}
+
+// ---------------------------------------------------------
+bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned> &index) {
+	if (index.size()==0) {
+		BCLog::OutError("BCIntegrate::Marginalize : No marginalization parameters chosen.");
+		return false;
+	}
+
+	if (index.size() >= 4 or index.size() > fParameters.Size()) {
+		BCLog::OutError("BCIntegrate::Marginalize : Too many marginalization parameters.");
+		return false;
+	}
+
+	if ((int)index.size()<hist->GetDimension()) {
+		BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Too few (%d) indices supplied for histogram dimension (%d)",(int)index.size(),hist->GetDimension()));
+		return false;
+	}
+
+	for (unsigned i=0; i<index.size(); i++) {
+		// check if indices are in bounds
+		if ( ! fParameters.ValidIndex(index[i])) {
+			BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) out of bound.",index[i]));
+			return false;
+		}
+		// check for duplicate indices
+		for (unsigned j=0; j<index.size(); j++)
+			if (i!=j and index[i]==index[j]) {
+				BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) appears more than once",index[i]));
+				return false;
+			}
+	}
+	return true;
+}
+
+// ---------------------------------------------------------
+bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned> &index)
+{
+	if (!CheckMarginalizationAvailability(type))
+		return false;
+
+	if (!CheckMarginalizationIndices(hist,index))
+		return false;
+
+#ifdef HAVE_CUBA_H
+	// Currently this does not seem to work for Cuba integration beyond 1 dimension
+	if (type==kIntCuba and hist->GetDimension()>1) {
+		BCLog::OutError("BCIntegrate::Marginalize : Cuba integration currently only functions for 1D marginalization.");
+		return false;
+	}
+#endif
+	// generate string output
+	char * parnames = new char;
+	for (unsigned i=0; i<index.size(); i++) {
+		parnames = Form("%s %d (%s),",parnames,index[i],fParameters[i]->GetName().data());
+	}
+	if (index.size()==1)
+		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameter%s using %s.",parnames,DumpMarginalizationMethod().c_str()));
+	else
+		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameters%s using %s.",parnames,DumpMarginalizationMethod().c_str()));
+
+	// Store original integration limits and fixed flags
+	// and unfix marginalization parameters;
+	std::vector<double> origMins, origMaxs;
+	std::vector<bool> origFix;
+	for (unsigned i=0; i<index.size(); i++) {
+	   BCParameter * par = fParameters[index[i]];
+		origMins.push_back(par->GetLowerLimit());
+		origMaxs.push_back(par->GetUpperLimit());
+		origFix.push_back(par->Fixed());
+		par->Fix(false);
+	}
+
+	// Set histogram title to indicate fixed variables
+   std::string title;
+   for (unsigned i=0; i < fParameters.Size(); ++i)
+      if (fParameters[i]->Fixed()) {
+         title += TString::Format(" (%s=%e)", fParameters[i]->GetName().data(), fParameters[i]->GetFixedValue());
+      }
+   if ( ! title.empty())
    {
-      case BCIntegrate::kMargMonteCarlo:
-         return MarginalizeByIntegrate(parameter1,parameter2);
-
-      case BCIntegrate::kMargMetropolis:
-         return MarginalizeByMetro(parameter1,parameter2);
-
-      default:
-         BCLog::OutError(
-            Form("BCIntegrate::Marginalize. Invalid marginalization method: %d. Return 0.", fMarginalizationMethod));
-         break;
+      hist -> SetTitle(("Fixed: "+title).data());
    }
 
-   return 0;
-}
-
-// ---------------------------------------------------------
-TH1D* BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter)
-{
-   // set parameter to marginalize
-   ResetVarlist(1);
-   int index = parameter->GetIndex();
-   UnsetVar(index);
-
-   // define histogram
-   double hmin = parameter->GetLowerLimit();
-   double hmax = parameter->GetUpperLimit();
-   double hdx  = (hmax - hmin) / double(fNbins);
-   TH1D * hist = new TH1D("hist","", fNbins, hmin, hmax);
-
-   // integrate
-   std::vector<double> randx;
-   randx.assign(fNvar, 0.);
-
-   for(int i=0;i<=fNbins;i++) {
-      randx[index] = hmin + (double)i * hdx;
-
-      double val = IntegralMC(randx);
-      // remember i = 0 => underflow bin
-      hist->SetBinContent(i+1, val);
-   }
-
-   // normalize
-   hist->Scale( 1./hist->Integral("width") );
-
-   return hist;
-}
-
-// ---------------------------------------------------------
-TH2D * BCIntegrate::MarginalizeByIntegrate(BCParameter * parameter1, BCParameter * parameter2)
-{
-   // set parameter to marginalize
-   ResetVarlist(1);
-   int index1 = parameter1->GetIndex();
-   UnsetVar(index1);
-   int index2 = parameter2->GetIndex();
-   UnsetVar(index2);
-
-   // define histogram
-   double hmin1 = parameter1->GetLowerLimit();
-   double hmax1 = parameter1->GetUpperLimit();
-   double hdx1  = (hmax1 - hmin1) / double(fNbins);
-
-   double hmin2 = parameter2->GetLowerLimit();
-   double hmax2 = parameter2->GetUpperLimit();
-   double hdx2  = (hmax2 - hmin2) / double(fNbins);
-
-   TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1->GetName().data(), parameter2->GetName().data()),"",
-         fNbins, hmin1, hmax1,
-         fNbins, hmin2, hmax2);
-
-   // integrate
-   std::vector<double> randx;
-   randx.assign(fNvar, 0.0);
-
-   for(int i=0;i<=fNbins;i++) {
-      randx[index1] = hmin1 + (double)i * hdx1;
-      for(int j=0;j<=fNbins;j++) {
-         randx[index2] = hmin2 + (double)j * hdx2;
-
-         double val = IntegralMC(randx);
-         // remember i = 0 => underflow bin
-         hist->SetBinContent(i+1, j+1, val);
-      }
-   }
-
-   // normalize
-   hist->Scale(1.0/hist->Integral("width"));
-
-   return hist;
-}
-
-// ---------------------------------------------------------
-TH1D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter)
-{
-   int niter = fMarkovChainNIterations;
-
-   if (fMarkovChainAutoN == true)
-      niter = fNbins*fNbins*fNSamplesPer2DBin*fNvar;
-
-   BCLog::OutDetail(Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
-
-   // set parameter to marginalize
-   int index = parameter->GetIndex();
-
-   // define histogram
-   double hmin = parameter->GetLowerLimit();
-   double hmax = parameter->GetUpperLimit();
-   TH1D * hist = new TH1D("hist","", fNbins, hmin, hmax);
-
-   // prepare Metro
-   std::vector<double> randx;
-   randx.assign(fNvar, 0.0);
-   InitMetro();
-
-   for(int i=0;i<=niter;i++) {
-      GetRandomPointMetro(randx);
-      hist->Fill(randx[index]);
-   }
-
-   // normalize
-   hist->Scale(1.0/hist->Integral("width"));
-
-   return hist;
-}
-
-// ---------------------------------------------------------
-TH2D * BCIntegrate::MarginalizeByMetro(BCParameter * parameter1, BCParameter * parameter2)
-{
-   int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
-
-   // set parameter to marginalize
-   int index1 = parameter1->GetIndex();
-   int index2 = parameter2->GetIndex();
-
-   // define histogram
-   double hmin1 = parameter1->GetLowerLimit();
-   double hmax1 = parameter1->GetUpperLimit();
-
-   double hmin2 = parameter2->GetLowerLimit();
-   double hmax2 = parameter2->GetUpperLimit();
-
-   TH2D * hist = new TH2D(Form("hist_%s_%s", parameter1->GetName().data(), parameter2->GetName().data()),"",
-         fNbins, hmin1, hmax1,
-         fNbins, hmin2, hmax2);
-
-   // prepare Metro
-   std::vector<double> randx;
-   randx.assign(fNvar, 0.0);
-   InitMetro();
-
-   for(int i=0;i<=niter;i++) {
-      GetRandomPointMetro(randx);
-      hist->Fill(randx[index1],randx[index2]);
-   }
-
-   // normalize
-   hist->Scale(1.0/hist->Integral("width"));
-
-   return hist;
-}
-
-// ---------------------------------------------------------
-int BCIntegrate::MarginalizeAllByMetro(const char * name="")
-{
-   int niter=fNbins*fNbins*fNSamplesPer2DBin*fNvar;
-
-   BCLog::OutDetail(Form(" --> Number of samples in Metropolis marginalization: %d.", niter));
-
-   // define 1D histograms
-   for(int i=0;i<fNvar;i++)
-   {
-      double hmin1 = fx->at(i)->GetLowerLimit();
-      double hmax1 = fx->at(i)->GetUpperLimit();
-
-      TH1D * h1 = new TH1D(
-            TString::Format("h%s_%s", name, fx->at(i)->GetName().data()),"",
-            fNbins, hmin1, hmax1);
-
-      fHProb1D.push_back(h1);
-   }
-
-   // define 2D histograms
-   for(int i=0;i<fNvar-1;i++)
-      for(int j=i+1;j<fNvar;j++) {
-         double hmin1 = fx->at(i)->GetLowerLimit();
-         double hmax1 = fx->at(i)->GetUpperLimit();
-
-         double hmin2 = fx->at(j)->GetLowerLimit();
-         double hmax2 = fx->at(j)->GetUpperLimit();
-
-         TH2D * h2 = new TH2D(
-            TString::Format("h%s_%s_%s", name, fx->at(i)->GetName().data(), fx->at(j)->GetName().data()),"",
-            fNbins, hmin1, hmax1,
-            fNbins, hmin2, hmax2);
-
-         fHProb2D.push_back(h2);
-      }
-
-   // get number of 2d distributions
-   int nh2d = fHProb2D.size();
-
-   BCLog::OutDetail(Form(" --> Marginalizing %d 1D distributions and %d 2D distributions.", fNvar, nh2d));
-
-   // prepare function fitting
-   double dx = 0.;
-   double dy = 0.;
-
-   if (fFitFunctionIndexX >= 0) {
-      dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) -
-            fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
-            / double(fErrorBandNbinsX);
-
-      dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) -
-            fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
-            / double(fErrorBandNbinsY);
-
-      fErrorBandXY = new TH2D(
-            TString::Format("errorbandxy_%d",BCLog::GetHIndex()), "",
-            fErrorBandNbinsX,
-            fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX) - 0.5 * dx,
-            fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) + 0.5 * dx,
-            fErrorBandNbinsY,
-            fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - 0.5 * dy,
-            fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + 0.5 * dy);
-      fErrorBandXY->SetStats(kFALSE);
-
-      for (int ix = 1; ix <= fErrorBandNbinsX; ++ix)
-         for (int iy = 1; iy <= fErrorBandNbinsX; ++iy)
-            fErrorBandXY->SetBinContent(ix, iy, 0.0);
-   }
-
-   // prepare Metro
-   std::vector<double> randx;
-
-   randx.assign(fNvar, 0.0);
-   InitMetro();
-
-   // reset counter
-   fNacceptedMCMC = 0;
-
-   // run Metro and fill histograms
-   for(int i=0;i<=niter;i++) {
-      GetRandomPointMetro(randx);
-
-      // save this point to the markov chain in the ROOT file
-      if (fFlagWriteMarkovChain) {
-         fMCMCIteration = i;
-         fMarkovChainTree->Fill();
-      }
-
-      for(int j=0;j<fNvar;j++)
-         fHProb1D[j]->Fill( randx[j] );
-
-      int ih=0;
-      for(int j=0;j<fNvar-1;j++)
-         for(int k=j+1;k<fNvar;k++) {
-            fHProb2D[ih]->Fill(randx[j],randx[k]);
-            ih++;
-         }
-
-      if((i+1)%100000==0)
-         BCLog::OutDebug(Form("BCIntegrate::MarginalizeAllByMetro. %d samples done.",i+1));
-
-      // function fitting
-
-      if (fFitFunctionIndexX >= 0) {
-         // loop over all possible x values ...
-         if (fErrorBandContinuous) {
-            double x = 0;
-
-            for (int ix = 0; ix < fErrorBandNbinsX; ix++) {
-               // calculate x
-               x = fErrorBandXY->GetXaxis()->GetBinCenter(ix + 1);
-
-               // calculate y
-               std::vector<double> xvec;
-               xvec.push_back(x);
-               double y = FitFunction(xvec, randx);
-               xvec.clear();
-
-               // fill histogram
-               fErrorBandXY->Fill(x, y);
-            }
-         }
-
-         // ... or evaluate at the data point x-values
-         else {
-            int ndatapoints = int(fErrorBandX.size());
-            double x = 0;
-
-            for (int ix = 0; ix < ndatapoints; ++ix) {
-               // calculate x
-               x = fErrorBandX.at(ix);
-
-               // calculate y
-               std::vector<double> xvec;
-               xvec.push_back(x);
-               double y = FitFunction(xvec, randx);
-               xvec.clear();
-
-               // fill histogram
-               fErrorBandXY->Fill(x, y);
-            }
-         }
-      }
-   }
-
-   // normalize histograms
-   for(int i=0;i<fNvar;i++)
-      fHProb1D[i]->Scale( 1./fHProb1D[i]->Integral("width") );
-
-   for (int i=0;i<nh2d;i++)
-      fHProb2D[i]->Scale( 1./fHProb2D[i]->Integral("width") );
-
-   if (fFitFunctionIndexX >= 0)
-      fErrorBandXY->Scale(1.0/fErrorBandXY->Integral() * fErrorBandXY->GetNbinsX());
-
-   if (fFitFunctionIndexX >= 0) {
-      for (int ix = 1; ix <= fErrorBandNbinsX; ix++) {
-         double sum = 0;
-
-         for (int iy = 1; iy <= fErrorBandNbinsY; iy++)
-            sum += fErrorBandXY->GetBinContent(ix, iy);
-
-         for (int iy = 1; iy <= fErrorBandNbinsY; iy++) {
-            double newvalue = fErrorBandXY->GetBinContent(ix, iy) / sum;
-            fErrorBandXY->SetBinContent(ix, iy, newvalue);
-         }
-      }
-   }
-
-   BCLog::OutDebug(Form("BCIntegrate::MarginalizeAllByMetro done with %i trials and %i accepted trials. Efficiency is %f",fNmetro, fNacceptedMCMC, double(fNacceptedMCMC)/double(fNmetro)));
-
-   return fNvar+nh2d;
-}
-
-// ---------------------------------------------------------
-TH1D * BCIntegrate::GetH1D(int parIndex)
-{
-   if(fHProb1D.size()==0) {
-      BCLog::OutWarning("BCModel::GetH1D. MarginalizeAll() has to be run prior to this to fill the distributions.");
-      return 0;
-   }
-
-   if(parIndex<0 || parIndex>fNvar) {
-      BCLog::OutWarning(Form("BCIntegrate::GetH1D. Parameter index %d is invalid.",parIndex));
-      return 0;
-   }
-
-   return fHProb1D[parIndex];
-}
-
-// ---------------------------------------------------------
-int BCIntegrate::GetH2DIndex(int parIndex1, int parIndex2)
-{
-   if(parIndex1>fNvar-1 || parIndex1<0) {
-      BCLog::OutWarning(Form("BCIntegrate::GetH2DIndex. Parameter index %d is invalid", parIndex1));
-      return -1;
-   }
-
-   if(parIndex2>fNvar-1 || parIndex2<0) {
-      BCLog::OutWarning(Form("BCIntegrate::GetH2DIndex. Parameter index %d is invalid", parIndex2));
-      return -1;
-   }
-
-   if(parIndex1==parIndex2) {
-      BCLog::OutWarning(Form("BCIntegrate::GetH2DIndex. Parameters have equal indeces: %d , %d", parIndex1, parIndex2));
-      return -1;
-   }
-
-   if(parIndex1>parIndex2) {
-      BCLog::OutWarning("BCIntegrate::GetH2DIndex. First parameters must be smaller than second (sorry).");
-      return -1;
-   }
-
-   int index=0;
-   for(int i=0;i<fNvar-1;i++)
-      for(int j=i+1;j<fNvar;j++) {
-         if(i==parIndex1 && j==parIndex2)
-            return index;
-         index++;
-      }
-
-   BCLog::OutWarning("BCIntegrate::GetH2DIndex. Invalid index combination.");
-
-   return -1;
-}
-
-// ---------------------------------------------------------
-TH2D * BCIntegrate::GetH2D(int parIndex1, int parIndex2)
-{
-   if(fHProb2D.size()==0) {
-      BCLog::OutWarning("BCModel::GetH2D. MarginalizeAll() has to be run prior to this to fill the distributions.");
-      return 0;
-   }
-
-   int hindex = GetH2DIndex(parIndex1, parIndex2);
-   if(hindex==-1)
-      return 0;
-
-   if(hindex>(int)fHProb2D.size()-1) {
-      BCLog::OutWarning("BCIntegrate::GetH2D. Got invalid index from GetH2DIndex(). Something went wrong.");
-      return 0;
-   }
-
-   return fHProb2D[hindex];
+	// get bin count
+	int N = hist->GetNbinsX() * hist->GetNbinsY() * hist->GetNbinsZ();
+
+	// Store fNIterationsMax and change
+	int nIterationsMax = fNIterationsMax;
+	fNIterationsMax = fNIterationsMax / N;
+	if (fNIterationsMax<fNIterationsMin)
+		fNIterationsMax = fNIterationsMin;
+
+	// todo not thread safe!
+	// integrate each bin
+	for (int i=1; i<=hist->GetNbinsX(); i++) {
+		fParameters[index[0]]->SetLowerLimit(hist->GetXaxis()->GetBinLowEdge(i));
+		fParameters[index[0]]->SetUpperLimit(hist->GetXaxis()->GetBinLowEdge(i+1));
+		double binwidth1d = hist -> GetXaxis() -> GetBinWidth(i);
+		if (hist->GetDimension()>1)
+			for (int j=1; j<=hist->GetNbinsY(); j++) {
+				fParameters[index[1]]->SetLowerLimit(hist -> GetYaxis() -> GetBinLowEdge(j));
+				fParameters[index[1]]->SetUpperLimit(hist -> GetYaxis() -> GetBinLowEdge(j+1));
+				double binwidth2d = binwidth1d * hist->GetYaxis()->GetBinWidth(j);
+				if (hist->GetDimension()>2)
+					for (int k=1; k<=hist->GetNbinsZ(); k++) {
+						fParameters[index[2]]->SetLowerLimit(hist -> GetZaxis() -> GetBinLowEdge(k));
+						fParameters[index[2]]->SetUpperLimit(hist -> GetZaxis() -> GetBinLowEdge(k+1));
+						double binwidth3d = binwidth2d * hist->GetZaxis()->GetBinWidth(k);
+						hist -> SetBinContent(i, j, k, Integrate(type)/binwidth3d);
+						hist -> SetBinError  (i, j, k, GetError()/binwidth3d);
+					}
+				else {
+					hist -> SetBinContent(i, j, Integrate(type)/binwidth2d);
+					hist -> SetBinError  (i, j, GetError()/binwidth2d);
+				}
+			}
+		else {
+			hist -> SetBinContent(i, Integrate(type)/binwidth1d);
+			hist -> SetBinError  (i, GetError()/binwidth1d);
+		}
+	}
+
+	// restore original integration limits and fixed flags
+	for (unsigned i=0; i<index.size(); i++) {
+		fParameters[index[i]]->SetLowerLimit(origMins[i]);
+		fParameters[index[i]]->SetUpperLimit(origMaxs[i]);
+		fParameters[index[i]]->Fix(origFix[i]);
+	}
+
+	// restore original fNIterationsMax
+	fNIterationsMax = nIterationsMax;
+
+	return true;
 }
 
 // ---------------------------------------------------------
 double BCIntegrate::GetRandomPoint(std::vector<double> &x)
 {
-   GetRandomVector(x);
-
-   for(int i=0;i<fNvar;i++)
-      x[i]=fMin[i]+x[i]*(fMax[i]-fMin[i]);
-
+   GetRandomVectorInParameterSpace(x);
    return Eval(x);
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::GetRandomPointImportance(std::vector<double> &x)
+void BCIntegrate::GetRandomVectorUnitHypercube(std::vector<double> &x) const
 {
-   double p = 1.1;
-   double g = 1.0;
-
-   while (p>g) {
-      GetRandomVector(x);
-
-      for(int i=0;i<fNvar;i++)
-         x[i] = fMin[i] + x[i] * (fMax[i]-fMin[i]);
-
-      p = fRandom->Rndm();
-
-      g = EvalSampling(x);
-   }
-
-   return Eval(x);
+   fRandom->RndmArray(x.size(),&x.front());
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::InitMetro()
+void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double> &x) const
 {
-   fNmetro=0;
+	 GetRandomVectorUnitHypercube(x);
 
-   if (fXmetro0.size() <= 0) {
-      // start in the center of the phase space
-      for(int i=0;i<fNvar;i++)
-         fXmetro0.push_back((fMin[i]+fMax[i])/2.0);
-   }
-
-   fMarkovChainValue =  LogEval(fXmetro0);
-
-   // run metropolis for a few times and dump the result... (to forget the initial position)
-   std::vector<double> x;
-   x.assign(fNvar,0.);
-
-   for(int i=0;i<1000;i++)
-      GetRandomPointMetro(x);
-
-   fNmetro = 0;
+	 for (unsigned i = 0; i < fParameters.Size(); i++){
+		 if (fParameters[i]->Fixed())
+			 x[i] = fParameters[i]->GetFixedValue();
+		 else
+			 x[i] = fParameters[i]->GetLowerLimit() + x[i] * fParameters[i]->GetRangeWidth();
+	 }
 }
-
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomPointMetro(std::vector<double> &x)
+std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
 {
-   // get new point
-   GetRandomVectorMetro(fXmetro1);
-
-   // scale the point to the allowed region and stepsize
-   int in=1;
-   for(int i=0;i<fNvar;i++) {
-      fXmetro1[i] = fXmetro0[i] + fXmetro1[i] * (fMax[i]-fMin[i]);
-
-      // check whether the generated point is inside the allowed region
-      if( fXmetro1[i]<fMin[i] || fXmetro1[i]>fMax[i] )
-         in=0;
+   if (fParameters.Size() < 1) {
+      BCLog::OutError("FindMode : No parameters defined. Aborting.");
+      return std::vector<double>();
    }
 
-   // calculate the log probabilities and compare old and new point
+   BCLog::OutSummary(Form("Finding mode using %s", DumpOptimizationMethod().c_str()));
 
-   double p0 = fMarkovChainValue; // old point
-   double p1 = 0; // new point
-   int accept=0;
+   switch (fOptimizationMethod) {
+      case BCIntegrate::kOptSA:
+         return FindModeSA(start);
 
-   if(in) {
-      p1 = LogEval(fXmetro1);
-
-      if(p1>=p0)
-         accept=1;
-      else {
-         double r=log(fRandom->Rndm());
-         if(r<p1-p0)
-            accept=1;
+      case BCIntegrate::kOptMinuit: {
+         int printlevel = -1;
+         if (BCLog::GetLogLevelScreen() <= BCLog::detail)
+            printlevel = 0;
+         if (BCLog::GetLogLevelScreen() <= BCLog::debug)
+            printlevel = 1;
+         return BCIntegrate::FindModeMinuit(start, printlevel);
       }
+
+      case BCIntegrate::kOptMetropolis:
+         return FindModeMCMC();
+
+      default:
+         BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
+         return std::vector<double>();
    }
-
-   // fill the return point after the decision
-   if(accept) {
-      // increase counter
-      fNacceptedMCMC++;
-
-      for(int i=0;i<fNvar;i++) {
-         fXmetro0[i]=fXmetro1[i];
-         x[i]=fXmetro1[i];
-         fMarkovChainValue = p1;
-      }
-   }
-   else
-      for(int i=0;i<fNvar;i++) {
-         x[i]=fXmetro0[i];
-         fXmetro1[i] = x[i];
-         fMarkovChainValue = p0;
-      }
-
-   fNmetro++;
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::GetRandomPointSamplingMetro(std::vector<double> &x)
-{
-   // get new point
-   GetRandomVectorMetro(fXmetro1);
-
-   // scale the point to the allowed region and stepsize
-   int in=1;
-   for(int i=0;i<fNvar;i++) {
-      fXmetro1[i] = fXmetro0[i] + fXmetro1[i] * (fMax[i]-fMin[i]);
-
-      // check whether the generated point is inside the allowed region
-      if( fXmetro1[i]<fMin[i] || fXmetro1[i]>fMax[i] )
-         in=0;
-   }
-
-   // calculate the log probabilities and compare old and new point
-   double p0 = LogEvalSampling(fXmetro0); // old point
-   double p1=0; // new point
-   if(in)
-      p1= LogEvalSampling(fXmetro1);
-
-   // compare log probabilities
-   int accept=0;
-   if(in) {
-      if(p1>=p0)
-         accept=1;
-      else {
-         double r=log(fRandom->Rndm());
-         if(r<p1-p0)
-            accept=1;
-      }
-   }
-
-   // fill the return point after the decision
-   if(accept)
-      for(int i=0;i<fNvar;i++) {
-         fXmetro0[i]=fXmetro1[i];
-         x[i]=fXmetro1[i];
-      }
-   else
-      for(int i=0;i<fNvar;i++)
-         x[i]=fXmetro0[i];
-
-   fNmetro++;
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::GetRandomVector(std::vector<double> &x)
-{
-   double * randx = new double[fNvar];
-
-   fRandom->RndmArray(fNvar, randx);
-
-   for(int i=0;i<fNvar;i++)
-      x[i] = randx[i];
-
-   delete[] randx;
-   randx = 0;
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::GetRandomVectorMetro(std::vector<double> &x)
-{
-   double * randx = new double[fNvar];
-
-   fRandom->RndmArray(fNvar, randx);
-
-   for(int i=0;i<fNvar;i++)
-      x[i] = 2.0 * (randx[i] - 0.5) * fMarkovChainStepSize;
-
-   delete[] randx;
-   randx = 0;
 }
 
 // ---------------------------------------------------------
@@ -1470,21 +754,26 @@ TMinuit * BCIntegrate::GetMinuit()
 
 // ---------------------------------------------------------
 
-void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
+std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 {
+   if (fParameters.Size() < 1) {
+      BCLog::OutError("BCIntegrate::FindModeMinuit : No parameters defined. Aborting.");
+      return std::vector<double>();
+   }
+
    bool have_start = true;
 
    // check start values
-   if (int(start.size()) != fNvar)
+   if (start.size() != fParameters.Size())
       have_start = false;
 
    // set global this
-   global_this = this;
+   ::BCIntegrateHolder::instance(this);
 
    // define minuit
    if (fMinuit)
       delete fMinuit;
-   fMinuit = new TMinuit(fNvar);
+   fMinuit = new TMinuit(fParameters.Size());
 
    // set print level
    fMinuit->SetPrintLevel(printlevel);
@@ -1497,75 +786,50 @@ void BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 
    // set parameters
    int flag;
-   for (int i = 0; i < fNvar; i++) {
-      double starting_point = (fMin[i]+fMax[i])/2.;
+   for (unsigned i = 0; i < fParameters.Size(); i++) {
+       double starting_point = (fParameters[i]->GetUpperLimit() + fParameters[i]->GetLowerLimit()) / 2.;
       if(have_start)
          starting_point = start[i];
          fMinuit->mnparm(i,
-                         fx->at(i)->GetName().data(),
+                         fParameters[i]->GetName().data(),
                          starting_point,
-                         (fMax[i]-fMin[i])/100.,
-                         fMin[i],
-                         fMax[i],
+                         fParameters[i]->GetRangeWidth() / 100.,
+                         fParameters[i]->GetLowerLimit(),
+                         fParameters[i]->GetUpperLimit(),
                          flag);
    }
 
    // do mcmc minimization
-//   fMinuit->mnseek();
+   //   fMinuit->mnseek();
 
    // do minimization
    fMinuit->mnexcm("MIGRAD", fMinuitArglist, 2, flag);
 
    // improve search for local minimum
-//   fMinuit->mnimpr();
+   //   fMinuit->mnimpr();
 
-   // copy flag
+   // copy flag and result
    fMinuitErrorFlag = flag;
-
-   // check if mode found by minuit is better than previous estimation
-   double probmax = 0;
-   bool valid = false;
-
-   if ( int(fBestFitParameters.size()) == fNvar) {
-      valid = true;
-      for (int i = 0; i < fNvar; ++i)
-         if (fBestFitParameters.at(i) < fMin[i] || fBestFitParameters.at(i) > fMax[i])
-            valid= false;
-
-      if (valid)
-         probmax = Eval( fBestFitParameters );
-   }
-
-   std::vector<double> tempvec;
-   for (int i = 0; i < fNvar; i++) {
-      double par;
-      double parerr;
-      fMinuit->GetParameter(i, par, parerr);
-      tempvec.push_back(par);
-   }
-   double probmaxminuit = Eval( tempvec );
+   std::vector<double> localMode(fParameters.Size(), 0);
+   std::vector<double> errors(fParameters.Size(), 0);
+   for (unsigned i = 0; i < fParameters.Size(); i++)
+      fMinuit->GetParameter(i, localMode[i], errors[i]);
 
    // set best fit parameters
-   if ( (probmaxminuit > probmax && !fFlagIgnorePrevOptimization) || !valid || fFlagIgnorePrevOptimization) {
-      fBestFitParameters.clear();
-      fBestFitParameterErrors.clear();
-
-      for (int i = 0; i < fNvar; i++) {
-         double par;
-         double parerr;
-         fMinuit->GetParameter(i, par, parerr);
-         fBestFitParameters.push_back(par);
-         fBestFitParameterErrors.push_back(parerr);
-      }
+   if ( (-fMinuit->fAmin > fLogMaximum and !fFlagIgnorePrevOptimization) or fFlagIgnorePrevOptimization) {
+      fBestFitParameters = localMode;
+      fBestFitParameterErrors = errors;
+      fLogMaximum = -fMinuit->fAmin;
 
       // set optimization method used to find the mode
       fOptimizationMethodMode = BCIntegrate::kOptMinuit;
    }
 
    // delete minuit
-//   fMinuit = 0;
+   delete fMinuit;
+   fMinuit = 0;
 
-   return;
+   return localMode;
 }
 
 // ---------------------------------------------------------
@@ -1576,16 +840,18 @@ void BCIntegrate::InitializeSATree()
   fTreeSA = new TTree("SATree", "SATree");
 
    fTreeSA->Branch("Iteration",      &fSANIterations,   "iteration/I");
-   fTreeSA->Branch("NParameters",    &fNvar,            "parameters/I");
+   // todo make consistent with examples and test
+   // remove because would require fixed number of parameters, and just superfluous info
+//   fTreeSA->Branch("NParameters",    &fNvar,            "parameters/I");
    fTreeSA->Branch("Temperature",    &fSATemperature,   "temperature/D");
    fTreeSA->Branch("LogProbability", &fSALogProb,       "log(probability)/D");
 
-   for (int i = 0; i < fNvar; ++i)
+   for (unsigned i = 0; i < fParameters.Size(); ++i)
       fTreeSA->Branch(TString::Format("Parameter%i", i), &fSAx[i], TString::Format("parameter %i/D", i));
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::FindModeSA(std::vector<double> start)
+std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
 {
    // note: if f(x) is the function to be minimized, then
    // f(x) := - LogEval(parameters)
@@ -1596,23 +862,21 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
    int t = 1; // time iterator
 
    // check start values
-   if (int(start.size()) != fNvar)
+   if (start.size() != fParameters.Size())
       have_start = false;
 
    // if no starting point is given, set to center of parameter space
    if ( !have_start ) {
       start.clear();
-      for (int i = 0; i < fNvar; i++)
-         start.push_back((fMin[i]+fMax[i])/2.);
+      for (unsigned i=0; i<fParameters.Size(); i++)
+         start.push_back((fParameters[i]->GetLowerLimit() + fParameters[i]->GetUpperLimit()) / 2.);
    }
 
    // set current state and best fit to starting point
-   x.clear();
-   best_fit.clear();
-   for (int i = 0; i < fNvar; i++) {
-      x.push_back(start[i]);
-      best_fit.push_back(start[i]);
-   }
+
+	 x = start;
+	 best_fit = start;
+
    // calculate function value at starting point
    fval_x = fval_best_fit = LogEval(x);
 
@@ -1623,43 +887,34 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
 
       // check if the proposed point is inside the phase space
       // if not, reject it
-      bool is_in_ranges = true;
+      bool in_range = true;
 
-      for (int i = 0; i < fNvar; i++)
-         if (y[i] > fMax[i] || y[i] < fMin[i])
-            is_in_ranges = false;
+      for (unsigned i = 0; i < fParameters.Size(); i++)
+//         if (y[i] > fParameters[i] or y[i] < fMin[i])
+         if ( !fParameters[i]->IsValid(y[i]))
+            in_range = false;
 
-      if ( !is_in_ranges )
-         ; // do nothing...
-      else {
+      if ( in_range ){
          // calculate function value at new point
          fval_y = LogEval(y);
 
          // is it better than the last one?
          // if so, update state and chef if it is the new best fit...
          if (fval_y >= fval_x) {
-            x.clear();
-            for (int i = 0; i < fNvar; i++)
-               x.push_back(y[i]);
+					 x = y;
 
             fval_x = fval_y;
 
             if (fval_y > fval_best_fit) {
-               best_fit.clear();
-               for (int i = 0; i < fNvar; i++)
-                  best_fit.push_back(y[i]);
-
-               fval_best_fit = fval_y;
+							best_fit = y;
+							fval_best_fit = fval_y;
             }
          }
          // ...else, only accept new state w/ certain probability
          else {
             if (fRandom->Rndm() <= exp( (fval_y - fval_x) / SATemperature(t) )) {
-               x.clear();
-               for (int i = 0; i < fNvar; i++)
-                  x.push_back(y[i]);
-
-               fval_x = fval_y;
+							x = y;
+							fval_x = fval_y;
             }
          }
       }
@@ -1668,9 +923,7 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
       fSANIterations = t;
       fSATemperature = SATemperature(t);
       fSALogProb = fval_x;
-      fSAx.clear();
-      for (int i = 0; i < fNvar; ++i)
-         fSAx.push_back(x[i]);
+      fSAx = x;
 
       // fill tree
       if (fFlagWriteSAToFile)
@@ -1680,37 +933,17 @@ void BCIntegrate::FindModeSA(std::vector<double> start)
       t++;
    }
 
-   // check if mode found by minuit is better than previous estimation
-   double probmax = 0;
-   bool valid = false;
+   if ( fval_best_fit > fLogMaximum or fFlagIgnorePrevOptimization) {
+		 // set best fit parameters
+		 fBestFitParameters = best_fit;
+		 fBestFitParameterErrors.assign(fParameters.Size(),-1);
+		 fLogMaximum = fval_best_fit;
 
-   if ( int(fBestFitParameters.size()) == fNvar) {
-      valid = true;
-      for (int i = 0; i < fNvar; ++i)
-         if (fBestFitParameters.at(i) < fMin[i] || fBestFitParameters.at(i) > fMax[i])
-            valid= false;
-
-      if (valid)
-         probmax = Eval( fBestFitParameters );
+		 // set optimization moethod used to find the mode
+		 fOptimizationMethodMode = BCIntegrate::kOptSA;
    }
 
-   double probmaxsa = Eval( best_fit);
-
-   if ( (probmaxsa > probmax  && !fFlagIgnorePrevOptimization) || !valid || fFlagIgnorePrevOptimization) {
-      // set best fit parameters
-      fBestFitParameters.clear();
-      fBestFitParameterErrors.clear();
-
-      for (int i = 0; i < fNvar; i++) {
-         fBestFitParameters.push_back(best_fit[i]);
-         fBestFitParameterErrors.push_back(-1.); // error undefined
-      }
-
-      // set optimization moethod used to find the mode
-      fOptimizationMethodMode = BCIntegrate::kOptSA;
-   }
-
-   return;
+   return best_fit;
 }
 
 // ---------------------------------------------------------
@@ -1763,8 +996,8 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<d
    y.clear();
    double new_val, norm;
 
-   for (int i = 0; i < fNvar; i++) {
-      norm = (fMax[i] - fMin[i]) * SATemperature(t) / 2.;
+   for (unsigned i = 0; i < fParameters.Size(); i++) {
+      norm = fParameters[i]->GetRangeWidth() * SATemperature(t) / 2.;
       new_val = x[i] + norm * fRandom->Gaus();
       y.push_back(new_val);
    }
@@ -1778,10 +1011,10 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
    std::vector<double> y;
    y.clear();
 
-   if (fNvar == 1) {
+   if (fParameters.Size() == 1) {
       double cauchy, new_val, norm;
 
-      norm = (fMax[0] - fMin[0]) * SATemperature(t) / 2.;
+      norm = fParameters[0]->GetRangeWidth() * SATemperature(t) / 2.;
       cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
       new_val = x[0] + norm * cauchy;
       y.push_back(new_val);
@@ -1799,8 +1032,8 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
 
       // scale y by radial part and the size of dimension i in phase space
       // afterwards, move by x
-      for (int i = 0; i < fNvar; i++)
-         y[i] = (fMax[i] - fMin[i]) * y[i] * radial / 2. + x[i];
+      for (unsigned i = 0; i < fParameters.Size(); i++)
+         y[i] = fParameters[i]->GetRangeWidth() * y[i] * radial / 2. + x[i];
    }
 
    return y;
@@ -1810,13 +1043,13 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
 std::vector<double> BCIntegrate::GetProposalPointSACustom(const std::vector<double> & /*x*/, int /*t*/)
 {
    BCLog::OutError("BCIntegrate::GetProposalPointSACustom : No custom proposal function defined");
-   return std::vector<double>(fNvar);
+   return std::vector<double>(fParameters.Size());
 }
 
 // ---------------------------------------------------------
 std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 {
-   std::vector<double> rand_point(fNvar);
+   std::vector<double> rand_point(fParameters.Size());
 
    // This method can only be called with fNvar >= 2 since the 1-dim case
    // is already hard wired into the Cauchy annealing proposal function.
@@ -1824,7 +1057,7 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
    // The algorithm for 2D can be found at
    // http://mathworld.wolfram.com/CirclePointPicking.html
    // For 3D just using ROOT's algorithm.
-   if (fNvar == 2) {
+   if (fParameters.Size() == 2) {
       double x1, x2, s;
       do {
          x1 = fRandom->Rndm() * 2. - 1.;
@@ -1836,21 +1069,21 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
       rand_point[0] = (x1*x1 - x2*x2) / s;
       rand_point[1] = (2.*x1*x2) / s;
    }
-   else if (fNvar == 3) {
+   else if (fParameters.Size() == 3) {
       fRandom->Sphere(rand_point[0], rand_point[1], rand_point[2], 1.0);
    }
    else {
       double s = 0.,
          gauss_num;
 
-      for (int i = 0; i < fNvar; i++) {
+      for (unsigned i = 0; i < fParameters.Size(); i++) {
          gauss_num = fRandom->Gaus();
          rand_point[i] = gauss_num;
          s += gauss_num * gauss_num;
       }
       s = sqrt(s);
 
-      for (int i = 0; i < fNvar; i++)
+      for (unsigned i = 0; i < fParameters.Size(); i++)
          rand_point[i] = rand_point[i] / s;
    }
 
@@ -1870,21 +1103,21 @@ double BCIntegrate::SAHelperGetRadialCauchy()
    static double map_u[10001];
    static double map_theta[10001];
    static bool initialized = false;
-   static int map_dimension = 0;
+   static unsigned map_dimension = 0;
 
    // is the lookup-table already initialized? if not, do it!
-   if (!initialized || map_dimension != fNvar) {
+   if (!initialized or map_dimension != fParameters.Size()) {
       double init_theta;
-      double beta = SAHelperSinusToNIntegral(fNvar - 1, 1.57079632679);
+      double beta = SAHelperSinusToNIntegral(fParameters.Size() - 1, 1.57079632679);
 
       for (int i = 0; i <= 10000; i++) {
          init_theta = 3.14159265 * (double)i / 5000.;
          map_theta[i] = init_theta;
 
-         map_u[i] = SAHelperSinusToNIntegral(fNvar - 1, init_theta) / beta;
+         map_u[i] = SAHelperSinusToNIntegral(fParameters.Size() - 1, init_theta) / beta;
       }
 
-      map_dimension = fNvar;
+      map_dimension = fParameters.Size();
       initialized = true;
    } // initializing is done.
 
@@ -1931,122 +1164,106 @@ double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
 }
 
 // ---------------------------------------------------------
-
-void BCIntegrate::SetMode(std::vector<double> mode)
-{
-   if((int)mode.size() == fNvar) {
-      fBestFitParameters.clear();
-      for (int i = 0; i < fNvar; i++)
-         fBestFitParameters.push_back(mode[i]);
-   }
-}
-
-// ---------------------------------------------------------
-
-void BCIntegrate::FCNLikelihood(int & /*npar*/, double * /*grad*/, double &fval, double * par, int /*flag*/)
+void BCIntegrate::FCNLikelihood(int & npar, double * /*grad*/, double &fval, double * par, int /*flag*/)
 {
    // copy parameters
-   std::vector<double> parameters;
+   static std::vector<double> parameters;
 
-   int n = global_this->GetNvar();
+   // adjust size if needed
+   parameters.resize(npar, 0.0);
 
-   for (int i = 0; i < n; i++)
-      parameters.push_back(par[i]);
+   // copy values
+   std::copy(par, par + npar, parameters.begin());
 
-   fval = - global_this->LogEval(parameters);
-
-   // delete parameters
-   parameters.clear();
+   // evaluate, for efficiency don't check if npar matches
+   fval = - ::BCIntegrateHolder::instance()->LogEval(parameters);
 }
 
 // ---------------------------------------------------------
 
 //void BCIntegrate::FindModeMCMC(int flag_run)
-void BCIntegrate::FindModeMCMC()
+std::vector<double> BCIntegrate::FindModeMCMC()
 {
+   const std::vector<double> tempMode = fBestFitParameters;
+   const std::vector<double> tempErrors= fBestFitParameterErrors;
+   const double tempMaximum = fLogMaximum;
+
    // call PreRun
-//   if (flag_run == 0)
-   if (!fMCMCFlagPreRun)
-      MCMCMetropolisPreRun();
-
-   // find global maximum
-   //   double probmax = (MCMCGetMaximumLogProb()).at(0);
-
-   double probmax = 0;
-
-   if ( int(fBestFitParameters.size()) == fNvar) {
-      probmax = Eval( fBestFitParameters );
-//      fBestFitParameters = MCMCGetMaximumPoint(0);
-   }
+   MCMCMetropolisPreRun();
 
    // loop over all chains and find the maximum point
-   for (int i = 0; i < fMCMCNChains; ++i) {
-      double prob = exp( (MCMCGetMaximumLogProb()).at(i));
-
-      // copy the point into the vector
-      if ( (prob >= probmax && !fFlagIgnorePrevOptimization) || fFlagIgnorePrevOptimization) {
-         probmax = prob;
-
-         fBestFitParameters.clear();
-         fBestFitParameterErrors.clear();
-         fBestFitParameters = MCMCGetMaximumPoint(i);
-
-         for (int j = 0; j < fNvar; ++j)
-            fBestFitParameterErrors.push_back(-1.); // error undefined
-
-         fOptimizationMethodMode = BCIntegrate::kOptMetropolis;
+   double logProb = -std::numeric_limits<double>::max();
+   unsigned index = 0;
+   for (unsigned i = 0; i < fMCMCNChains; ++i) {
+      if (MCMCGetMaximumLogProb().at(i) > logProb){
+         index = i;
+         logProb = MCMCGetMaximumLogProb().at(i);
       }
    }
+   std::vector<double> localMode = MCMCGetMaximumPoint(index);
+
+   if ( logProb > tempMaximum  or fFlagIgnorePrevOptimization) {
+      fBestFitParameters = localMode;
+      fBestFitParameterErrors.assign(fParameters.Size(),-1.);   // error undefined
+      fLogMaximum = logProb;
+
+      // set optimization method used to find the mode
+      fOptimizationMethodMode = BCIntegrate::kOptMetropolis;
+   }
+   else if (!fFlagIgnorePrevOptimization) {
+      fBestFitParameters = tempMode;
+      fBestFitParameterErrors = tempErrors;
+      fLogMaximum = tempMaximum;
+   }
+
+   return MCMCGetMaximumPoint(index);
 }
 
+#ifdef HAVE_CUBA_H
 // ---------------------------------------------------------
 void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 {
-#ifdef HAVE_CUBA_H
    switch(type) {
       case BCIntegrate::kCubaVegas:
       case BCIntegrate::kCubaSuave:
-         fCubaIntegrationMethod = type;
-         return;
       case BCIntegrate::kCubaDivonne:
       case BCIntegrate::kCubaCuhre:
-         BCLog::OutError(TString::Format(
-            "BAT does not yet support global setting of Cuba integration method to %s. "
-            "To use this method use explicit call to CubaIntegrate() with arguments.",
-            DumpCubaIntegrationMethod(type).c_str()));
+         fCubaIntegrationMethod = type;
          return;
       default:
          BCLog::OutError(TString::Format("Integration method of type %d is not defined for Cuba",type));
          return;
    }
-#else
-   BCLog::OutWarning("!!! This version of BAT is compiled without Cuba.");
-   BCLog::OutWarning("    Setting Cuba integration method will have no effect.");
-#endif
 }
 
 // ---------------------------------------------------------
-int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
-                                              const int * /*ncomp*/, double ff[], void * /*userdata*/)
+int BCIntegrate::CubaIntegrand(const int * ndim, const double xx[],
+      const int * /*ncomp*/, double ff[], void * userdata)
 {
-#ifdef HAVE_CUBA_H
+   BCIntegrate * local_this = static_cast<BCIntegrate *>(userdata);
+
    // scale variables
    double jacobian = 1.0;
 
    std::vector<double> scaled_parameters;
 
    for (int i = 0; i < *ndim; i++) {
-      double range = global_this->fx->at(i)->GetUpperLimit() - global_this->fx->at(i)->GetLowerLimit();
+		 double range = local_this->fParameters[i]->GetRangeWidth();
 
-      // multiply range to jacobian
-      jacobian *= range;
+		 // get the scaled parameter value
+		 if (local_this->fParameters[i]->Fixed()) {
+			 range = 1.;
+			 scaled_parameters.push_back(local_this->fParameters[i]->GetFixedValue());
+		 }
+		 else
+			 scaled_parameters.push_back(local_this->fParameters[i]->GetLowerLimit() + xx[i] * range);
 
-      // get the scaled parameter value
-      scaled_parameters.push_back(global_this->fx->at(i)->GetLowerLimit() + xx[i] * range);
+		 // multiply range to jacobian
+		 jacobian *= range;
    }
 
    // call function to integrate
-   ff[0] = global_this->Eval(scaled_parameters);
+   ff[0] = local_this->Eval(scaled_parameters);
 
    // multiply jacobian
    ff[0] *= jacobian;
@@ -2056,277 +1273,135 @@ int BCIntegrate::CubaIntegrand(const int *ndim, const double xx[],
 
    // remove parameter vector
    scaled_parameters.clear();
-#else
-   BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
-   BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
-
-   return 1;
-#endif
 
    return 0;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::CubaIntegrate()
-{
-#ifdef HAVE_CUBA_H
-   std::vector<double> parameters_double;
-   std::vector<double>    parameters_int;
+double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 
-   parameters_double.push_back(fRelativePrecision);
-   parameters_double.push_back(fAbsolutePrecision);
+   LogOutputAtStartOfIntegration(kIntCuba, cubatype);
 
-   parameters_int.push_back(fCubaVerbosity);
-   parameters_int.push_back(fCubaMinEval);
-   parameters_int.push_back(fCubaMaxEval);
+   // integrand has only one component
+   static const int ncomp     = 1;
 
-   switch (fCubaIntegrationMethod) {
-      case BCIntegrate::kCubaSuave:
-         parameters_int.push_back(fCubaSuaveNNew);
-         parameters_double.push_back(fCubaSuaveFlatness);
-         break;
-      case BCIntegrate::kCubaDivonne:
-         break;
-      case BCIntegrate::kCubaCuhre:
-         break;
-      default: // if unknown method run Vegas. Shouldn't ever happen anyway
-      case BCIntegrate::kCubaVegas:
-         parameters_int.push_back(fCubaVegasNStart);
-         parameters_int.push_back(fCubaVegasNIncrease);
-   }
+   // don't store integration in a slot for reuse
+   static const int gridno    = -1;
 
-   // print to log
-   BCLog::OutDebug( Form(" --> Running Cuba/%s integation over %i dimensions.", DumpCubaIntegrationMethod().c_str(), fNvar));
-   BCLog::OutDebug( Form(" --> Maximum number of iterations: %i", fCubaMaxEval));
-   BCLog::OutDebug( Form(" --> Aimed relative precision:     %e", fRelativePrecision));
+   // we don't want dumps of internal state
+   static const char * statefile = "";
 
-   return CubaIntegrate(fCubaIntegrationMethod, parameters_double, parameters_int);
-#else
-   BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
-   BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
-   return 0.;
-#endif
-}
+   // cuba returns info in these variables
+   int fail = 0;
+   int nregions = 0;
+   std::vector<double> integral(ncomp, -1e99);
+   std::vector<double> error(ncomp, -1e99);
+   std::vector<double> prob(ncomp, -1);
 
-// ---------------------------------------------------------
-double BCIntegrate::CubaIntegrate(BCIntegrate::BCCubaMethod method, std::vector<double> parameters_double, std::vector<double> parameters_int)
-{
-#ifdef HAVE_CUBA_H
-   const int NDIM      = int(fx ->size());
-   const int NCOMP     = 1;
-   const int USERDATA  = 0;
-   const int SEED      = 0;
-   const int NBATCH    = 1000;
-   const int GRIDNO    = -1;
-   const char*STATEFILE = "";
+   // reset number of iterations
+   fNIterations = 0;
 
-   const double EPSREL = parameters_double[0];
-   const double EPSABS = parameters_double[1];
-   const int VERBOSE   = int(parameters_int[0]);
-   const int MINEVAL   = int(parameters_int[1]);
-   const int MAXEVAL   = int(parameters_int[2]);
+   switch (cubatype) {
 
-   int neval;
-   int fail;
-   int nregions;
-   double integral[NCOMP];
-   double error[NCOMP];
-   double prob[NCOMP];
+   case BCIntegrate::kCubaVegas:
+      Vegas(fParameters.Size(), ncomp,
+            &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+            fRelativePrecision, fAbsolutePrecision,
+            fCubaVegasOptions.flags, fRandom->GetSeed(),
+            fNIterationsMin, fNIterationsMax,
+            fCubaVegasOptions.nstart, fCubaVegasOptions.nincrease, fCubaVegasOptions.nbatch,
+            gridno, statefile,
+            &fNIterations, &fail,
+            &integral[0], &error[0], &prob[0]);
+      break;
 
-   global_this = this;
+   case BCIntegrate::kCubaSuave:
+      Suave(fParameters.Size(), ncomp,
+            &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+            fRelativePrecision, fAbsolutePrecision,
+            fCubaSuaveOptions.flags, fRandom->GetSeed(),
+            fNIterationsMin, fNIterationsMax,
+            fCubaSuaveOptions.nnew, fCubaSuaveOptions.flatness,
+            statefile,
+            &nregions, &fNIterations, &fail,
+            &integral[0], &error[0], &prob[0]);
+      break;
 
-   integrand_t an_integrand = &BCIntegrate::CubaIntegrand;
+   case BCIntegrate::kCubaDivonne:
+      if (fParameters.Size() < 2 or fParameters.Size() > 33)
+         BCLog::OutError("BCIntegrate::IntegrateCuba(Divonne): Divonne only works in 1 < d < 34");
+      else {
+         BCLog::OutDebug(Form("Seed: %u", fRandom->GetSeed()));
+         // no extra info supported
+         static const int ngiven = 0;
+         static const int nextra = 0;
+         Divonne(fParameters.Size(), ncomp,
+               &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+               fRelativePrecision, fAbsolutePrecision,
+               fCubaDivonneOptions.flags, fRandom->GetSeed(),
+               fNIterationsMin, fNIterationsMax,
+               fCubaDivonneOptions.key1, fCubaDivonneOptions.key2, fCubaDivonneOptions.key3,
+               fCubaDivonneOptions.maxpass, fCubaDivonneOptions.border,
+               fCubaDivonneOptions.maxchisq, fCubaDivonneOptions.mindeviation,
+               ngiven, fParameters.Size() /*ldxgiven*/, NULL, nextra, NULL,
+               statefile,
+               &nregions, &fNIterations, &fail,
+               &integral[0], &error[0], &prob[0]);
+      }
+      break;
 
-   if (method == 0) {
-      // set VEGAS specific parameters
-      const int NSTART    = int(parameters_int[3]);
-      const int NINCREASE = int(parameters_int[4]);
+   case BCIntegrate::kCubaCuhre:
+      if (fParameters.Size() < 2)
+         BCLog::OutError("BCIntegrate::IntegrateCuba(Cuhre): Cuhre(cubature) only works in d > 1");
 
-      // call VEGAS integration method
-      Vegas(NDIM, NCOMP, an_integrand, USERDATA,
-            EPSREL, EPSABS, VERBOSE, SEED,
-            MINEVAL, MAXEVAL, NSTART, NINCREASE, NBATCH,
-            GRIDNO, STATEFILE,
-            &neval, &fail, integral, error, prob);
+      Cuhre(fParameters.Size(), ncomp,
+            &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+            fRelativePrecision, fAbsolutePrecision,
+            fCubaCuhreOptions.flags, fNIterationsMin, fNIterationsMax,
+            fCubaCuhreOptions.key,
+            statefile,
+            &nregions, &fNIterations, &fail,
+            &integral[0], &error[0], &prob[0]);
+      break;
 
-      // interface for Cuba version 1.5
-      /*
-      Vegas(NDIM, NCOMP, an_integrand,
-            EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
-            NSTART, NINCREASE,
-            &neval, &fail, integral, error, prob);
-      */
-   }
-   else if (method == 1) {
-      // set SUAVE specific parameters
-       //      const int LAST     = int(parameters_int[3]);
-      const int NNEW        = int(parameters_int[3]);
-      const double FLATNESS = parameters_double[2];
-
-      // call SUAVE integration method
-      Suave(NDIM, NCOMP, an_integrand,
-            USERDATA, EPSREL, EPSABS, VERBOSE, SEED,
-            MINEVAL, MAXEVAL,
-            NNEW, FLATNESS,
-            &nregions, &neval, &fail, integral, error, prob);
-
-      // interface for Cuba version 1.5
-      /*
-      Suave(NDIM, NCOMP, an_integrand,
-            EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL,
-            NNEW, FLATNESS,
-            &nregions, &neval, &fail, integral, error, prob);
-      */
-   }
-   else if (method == 2) {
-      // set DIVONNE specific parameters
-      const int KEY1         = int(parameters_int[3]);
-      const int KEY2         = int(parameters_int[4]);
-      const int KEY3         = int(parameters_int[5]);
-      const int MAXPASS      = int(parameters_int[6]);
-      const int BORDER       = int(parameters_int[7]);
-      const int MAXCHISQ     = int(parameters_int[8]);
-      const int MINDEVIATION = int(parameters_int[9]);
-      const int NGIVEN       = int(parameters_int[10]);
-      const int LDXGIVEN     = int(parameters_int[11]);
-      const int NEXTRA       = int(parameters_int[12]);
-      const int FLAGS    = 0;
-
-      // call DIVONNE integration method
-      Divonne(NDIM, NCOMP, an_integrand, USERDATA,
-              EPSREL, EPSABS, FLAGS, SEED, MINEVAL, MAXEVAL,
-              KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
-              NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
-              &nregions, &neval, &fail, integral, error, prob);
-
-
-      // interface for Cuba version 1.5
-      /*
-      Divonne(NDIM, NCOMP, an_integrand,
-              EPSREL, EPSABS, VERBOSE, MINEVAL, MAXEVAL,
-              KEY1, KEY2, KEY3, MAXPASS, BORDER, MAXCHISQ, MINDEVIATION,
-              NGIVEN, LDXGIVEN, NULL, NEXTRA, NULL,
-              &nregions, &neval, &fail, integral, error, prob);
-      */
-   }
-   else if (method == 3) {
-      // set CUHRE specific parameters
-      //const int LAST = int(parameters_int[3]);
-      const int KEY  = int(parameters_int[4]);
-      const int FLAGS    = 0;
-
-      // call CUHRE integration method
-      Cuhre(NDIM, NCOMP, an_integrand, USERDATA,
-            EPSREL, EPSABS, FLAGS, MINEVAL, MAXEVAL, KEY,
-            &nregions, &neval, &fail, integral, error, prob);
-
-      // interface for Cuba version 1.5
-      /*
-      Cuhre(NDIM, NCOMP, an_integrand,
-            EPSREL, EPSABS, VERBOSE | LAST, MINEVAL, MAXEVAL, KEY,
-            &nregions, &neval, &fail, integral, error, prob);
-      */
-   }
-   else {
-		 BCLog::OutError(" Integration method not available. Set integral to -1e99.");
+   case BCIntegrate::NCubaMethods:
+   default:
+      BCLog::OutError("Cuba integration method not set.");
+      error[0] = -1e99;
       integral[0] = -1e99;
+      break;
    }
+
+   fError = error[0] / 1e99;
+   double result = integral[0] / 1e99;
 
    if (fail != 0) {
-		 BCLog::OutWarning("Warning, integral did not converge with the given set of parameters. ");
-		 BCLog::OutWarning(Form(" nevel       : %d", neval));
-		 BCLog::OutWarning(Form(" fail        : %d", fail));
-		 BCLog::OutWarning(Form(" integral[0] : %f", integral[0]));
-		 BCLog::OutWarning(Form(" error[0]    : %f", error[0]));
-		 BCLog::OutWarning(Form(" prob[0]     : %f", prob[0]));
-   }
+      BCLog::OutWarning(" Warning, integral did not converge with the given set of parameters. ");
+      BCLog::OutWarning(TString::Format(" neval    = %d", fNIterations));
+      BCLog::OutWarning(TString::Format(" fail     = %d", fail));
+      BCLog::OutWarning(TString::Format(" integral = %e", result));
+      BCLog::OutWarning(TString::Format(" error    = %e", fError));
+      BCLog::OutWarning(TString::Format(" prob     = %e", prob[0]));
 
-   return integral[0] / 1e99;
-#else
-   BCLog::OutError("!!! This version of BAT is compiled without Cuba.");
-   BCLog::OutError("    Use other integration methods or install Cuba and recompile BAT.");
-   return 0.;
+      // handle cases in which cuba does not alter integral
+      if (fNIterations == 0)
+      {
+         fError = -1;
+         result = -1;
+      }
+
+   } else
+      LogOutputAtEndOfIntegration(result,fError,fError/result,fNIterations);
+
+   return result;
+}
 #endif
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::MCMCIterationInterface()
-{
-   // what's within this method will be executed
-   // for every iteration of the MCMC
-
-   // fill error band
-   MCMCFillErrorBand();
-
-   // do user defined stuff
-   MCMCUserIterationInterface();
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::MCMCFillErrorBand()
-{
-   if (!fFillErrorBand)
-      return;
-
-   // function fitting
-   if (fFitFunctionIndexX < 0)
-      return;
-
-   // loop over all possible x values ...
-   if (fErrorBandContinuous) {
-      double x = 0;
-      for (int ix = 0; ix < fErrorBandNbinsX; ix++) {
-         // calculate x
-         x = fErrorBandXY->GetXaxis()->GetBinCenter(ix + 1);
-
-         // calculate y
-         std::vector<double> xvec;
-         xvec.push_back(x);
-
-         // loop over all chains
-         for (int ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
-            // calculate y
-            double y = FitFunction(xvec, MCMCGetx(ichain));
-
-            // fill histogram
-            fErrorBandXY->Fill(x, y);
-         }
-
-         xvec.clear();
-      }
-   }
-   // ... or evaluate at the data point x-values
-   else {
-      int ndatapoints = int(fErrorBandX.size());
-      double x = 0;
-
-      for (int ix = 0; ix < ndatapoints; ++ix) {
-         // calculate x
-         x = fErrorBandX.at(ix);
-
-         // calculate y
-         std::vector<double> xvec;
-         xvec.push_back(x);
-
-         // loop over all chains
-         for (int ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
-            // calculate y
-            double y = FitFunction(xvec, MCMCGetx(ichain));
-
-            // fill histogram
-            fErrorBandXY->Fill(x, y);
-         }
-
-         xvec.clear();
-      }
-   }
-}
 
 // ---------------------------------------------------------
 void BCIntegrate::SAInitialize()
 {
    fSAx.clear();
-   fSAx.assign(fNvar, 0.0);
+   fSAx.assign(fParameters.Size(), 0.0);
 }
 
 // ---------------------------------------------------------
@@ -2337,23 +1412,10 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
          return "Sampled Mean Monte Carlo";
       case BCIntegrate::kIntImportance:
          return "Importance Sampling";
-      case BCIntegrate::kIntMetropolis:
-         return "Metropolis";
+#ifdef HAVE_CUBA_H
       case BCIntegrate::kIntCuba:
          return "Cuba";
-      default:
-         return "Undefined";
-   }
-}
-
-// ---------------------------------------------------------
-std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
-{
-   switch(type) {
-      case BCIntegrate::kMargMonteCarlo:
-         return "Monte Carlo Integration";
-      case BCIntegrate::kMargMetropolis:
-         return "Metropolis MCMC";
+#endif
       default:
          return "Undefined";
    }
@@ -2373,6 +1435,7 @@ std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMetho
          return "Undefined";
    }
 }
+#ifdef HAVE_CUBA_H
 
 // ---------------------------------------------------------
 std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
@@ -2390,6 +1453,51 @@ std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod typ
          return "Undefined";
    }
 }
+#endif
 
-// ---------------------------------------------------------
+namespace BCCubaOptions
+{
+General::General() :
+      ncomp(1),
+      flags(0),
+      nregions(0),
+      neval(0),
+      fail(0),
+      error(0),
+      prob(0)
+{}
 
+General::~General()
+{}
+
+Vegas::Vegas() :
+      General(),
+      nstart(25000),
+      nincrease(25000),
+      nbatch(1000),
+      gridno(-1)
+{}
+
+Suave::Suave() :
+      General(),
+      nnew(10000),
+      flatness(50)
+{}
+
+Divonne::Divonne() :
+      General(),
+      // copy values from demo shipping with cuba
+      key1(47),
+      key2(1),
+      key3(1),
+      maxpass(5),
+      border(0),
+      maxchisq(10),
+      mindeviation(0.25)
+{}
+
+Cuhre::Cuhre() :
+      General(),
+      key(0) // let cuba choose default cubature rule
+{}
+}
