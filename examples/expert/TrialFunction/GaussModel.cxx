@@ -1,8 +1,11 @@
 #include "GaussModel.h"
 
 #include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
 
 #include <TRandom3.h>
+
+#include <cmath>
 
 // ---------------------------------------------------------
 GaussModel::GaussModel() : BCModel()
@@ -71,7 +74,7 @@ double GaussModel::MCMCTrialFunctionSingle(int ichain, int iparameter)
 
   // get scale factor from an array of scale factors. the size of the
   // array is number of chains times number of parameters.
-  double scale = fMCMCTrialFunctionScaleFactor[ichain * fMCMCNParameters + iparameter];
+  double scale = fMCMCTrialFunctionScaleFactor[ichain * GetNParameters() + iparameter];
 
   // choose trial function by uncommenting any of the lines below
 

@@ -1,13 +1,10 @@
-#include <BAT/BCLog.h>
-#include <BAT/BCAux.h>
-#include <BAT/BCH1D.h>
-#include <BAT/BCSummaryTool.h>
-
 #include "PoissonModel.h"
+
+#include <BAT/BCAux.h>
+#include <BAT/BCLog.h>
 
 int main()
 {
-
   // set nicer style for drawing than the ROOT default
   BCAux::SetStyle();
 
@@ -16,37 +13,33 @@ int main()
   BCLog::SetLogLevel(BCLog::detail);
 
   // create new PoissonModel object
-  PoissonModel* m = new PoissonModel();
+  PoissonModel m;
 
   // set precision
-  m->MCMCSetPrecision(BCEngineMCMC::kHigh);
+  m.MCMCSetPrecision(BCEngineMCMC::kMedium);
 
   // set number of observed events
-  m->SetNObs(7);
+  m.SetNObs(7);
 
   // run MCMC and marginalize posterior wrt. all parameters
   // and all combinations of two parameters
-  m->MarginalizeAll();
+  m.MarginalizeAll();
 
   // find mode starting from the best fit parameters
-  m->FindMode( m->GetBestFitParameters() );
+  m.FindMode( m.GetBestFitParameters() );
 
-  // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("PoissonModel_plots.pdf");
+  // draw all marginalized distributions into a PDF file
+  m.PrintAllMarginalized("PoissonModel_plots.pdf");
 
-	m->PrintSummary();
+  // print summary on standard output
+  m.PrintSummary();
 
   // print results of the analysis into a text file
-  m->PrintResults("PoissonModel_results.txt");
+  m.PrintResults("PoissonModel_results.txt");
 
   // close log file
   BCLog::CloseLog();
 
-  // free memory
-  delete m;
-
   // no error
   return 0;
-
 }
-

@@ -1,8 +1,8 @@
+#include <BAT/BCRooInterface.h>
+
 // RooFit headers needed before the other BAT headers (this is strange)
 #include <RooRandom.h>
 #include <RooWorkspace.h>
-
-#include <BAT/BCRooInterface.h>
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>

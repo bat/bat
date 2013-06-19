@@ -1,9 +1,19 @@
 # Binaries
+asymmErrorsFitterExample
+ensembletest
 runCombineGaussians
+runEfficiency
+runErrorPropagation
 runPoissonCounting
+runRooInterface
+runRootOutput
+runSystematics
+runTrialFunction
+sensitivity
+templatefit
 
 # Example output
-log.txt
+*log.txt
 *_results.txt
 *.pdf
 *.png

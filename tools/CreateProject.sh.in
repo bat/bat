@@ -37,7 +37,7 @@ cat << EOF
 // ***************************************************************
 // This file was created using the $PROGRAM script.
 // $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #ifndef __BAT__|:UP_MODEL:|__H
@@ -76,7 +76,7 @@ cat << EOF
 // ***************************************************************
 // This file was created using the $PROGRAM script.
 // $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #include "|:Model:|.h"
@@ -164,7 +164,7 @@ cat << EOF
 # This Makefile was created using the $PROGRAM script
 # for project $MYPROJECT.
 # $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://www.mppmu.mpg.de/bat
+# BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
@@ -183,17 +183,14 @@ ROOTLIBS     := -lMinuit \$(shell root-config --libs)
 
 # compiler and flags
 CXX          = @CXX@
-CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
+CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
-LDFLAGS      = @LDFLAGS@ -g -O2
-@THREAD_PARALLELIZATION_TRUE@LDFLAGS += -fopenmp
-SOFLAGS      = -shared
+LDFLAGS      = -g -O2 @LDFLAGS@
 
 # standard commands
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = @ROOTCINT@
 
 # add ROOT flags
 CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
@@ -264,7 +261,7 @@ cat << EOF
 # This Makefile was created using the $PROGRAM script
 # for project $MYPROJECT.
 # $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://www.mppmu.mpg.de/bat
+# BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
@@ -283,16 +280,14 @@ ROOTLIBS     := \$(shell root-config --libs) -lMinuit
 
 # compiler and flags
 CXX          = @CXX@
-CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
+CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
-LDFLAGS      = @LDFLAGS@ -g -O2
-SOFLAGS      = -shared
+LDFLAGS      = -g -O2 @LDFLAGS@
 
 # standard commands
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = @ROOTCINT@
 
 # add ROOT flags
 CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
@@ -351,7 +346,7 @@ cat << EOF
 // This file was created using the $PROGRAM script
 // for project $MYPROJECT.
 // $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #include <BAT/BCH1D.h>
@@ -439,7 +434,7 @@ cat << EOF
 // This file was created using the $PROGRAM script
 // for project $MYPROJECT.
 // $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #include <BAT/BCLog.h>
@@ -508,7 +503,7 @@ EOF
 cat << EOF
 Implement your analysis in file: run$MYPROJECT.cxx
 
-For details consult BAT webpage: http://www.mppmu.mpg.de/bat
+For details consult BAT webpage: http://mpp.mpg.de/bat
 --------------------------------------------------------------------------
 
 EOF
@@ -525,7 +520,7 @@ The new BAT model '$MYMODEL' was created in the current directory.
 
 Implement your model in files:   $MYMODEL.h  $MYMODEL.cxx
 
-For details consult BAT webpage: http://www.mppmu.mpg.de/bat
+For details consult BAT webpage: http://mpp.mpg.de/bat
 --------------------------------------------------------------------------
 
 EOF

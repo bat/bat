@@ -18,16 +18,13 @@ ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # Programs
 CXX          = @CXX@
-CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
+CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
-LDFLAGS      = @LDFLAGS@ -g -O2
-@THREAD_PARALLELIZATION_TRUE@LDFLAGS += -fopenmp
-SOFLAGS      = -shared
+LDFLAGS      = -g -O2 @LDFLAGS@
 
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = @ROOTCINT@
 
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
@@ -53,7 +50,7 @@ CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
 EXEOBJS      =
 GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runRooInterface
 
-all : runRooInterface
+all : @ROOSTATS_TRUE@ runRooInterface
 
 link.d : $(patsubst %.cxx,%.h,$(CXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -77,6 +74,5 @@ print :
 	echo c++ objs  : $(CXXOBJS)
 	echo c++ flags : $(CXXFLAGS)
 	echo libs      : $(LIBS)
-	echo so flags  : $(SOFLAGS)
 
 	echo rootlibs  : $(ROOTLIBS)

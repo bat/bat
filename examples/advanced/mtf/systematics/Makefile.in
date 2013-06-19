@@ -2,7 +2,7 @@
 # This Makefile was created using the CreateProject.sh script
 # for project Systematics.
 # CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://www.mppmu.mpg.de/bat
+# BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
@@ -21,17 +21,14 @@ ROOTLIBS     := $(shell root-config --libs) -lMinuit
 
 # compiler and flags
 CXX          = @CXX@
-CXXFLAGS     = @CXXFLAGS@ -g -Wall -fPIC -Wno-deprecated -O2
+CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
-LDFLAGS      = @LDFLAGS@ -g -O2
-@THREAD_PARALLELIZATION_TRUE@LDFLAGS += -fopenmp
-SOFLAGS      = -shared
+LDFLAGS      = -g -O2 @LDFLAGS@
 
 # standard commands
 RM           = rm -f
 MV           = mv
 ECHO         = echo
-CINT         = @ROOTCINT@
 
 # add ROOT flags
 CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
@@ -77,7 +74,6 @@ print :
 	echo c++ objs  : $(CXXOBJS)
 	echo c++ flags : $(CXXFLAGS)
 	echo libs      : $(LIBS)
-	echo so flags  : $(SOFLAGS)
 
 	echo rootlibs  : $(ROOTLIBS)
 

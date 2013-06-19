@@ -1,6 +1,9 @@
 #include "BinomialModel.h"
 
 #include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
+
+#include <cmath>
 
 // ---------------------------------------------------------
 BinomialModel::BinomialModel()
@@ -9,19 +12,19 @@ BinomialModel::BinomialModel()
    , fNSelected(5)
 {
   DefineParameters();
-};
+}
 
 // ---------------------------------------------------------
 BinomialModel::BinomialModel(const char * name)
    : BCModel(name)
 {
   DefineParameters();
-};
+}
 
 // ---------------------------------------------------------
 BinomialModel::~BinomialModel()
 {
-};
+}
 
 // ---------------------------------------------------------
 void BinomialModel::DefineParameters()

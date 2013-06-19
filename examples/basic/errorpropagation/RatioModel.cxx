@@ -1,6 +1,9 @@
 #include "RatioModel.h"
 
 #include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
+
+#include <cmath>
 
 // ---------------------------------------------------------
 RatioModel::RatioModel()

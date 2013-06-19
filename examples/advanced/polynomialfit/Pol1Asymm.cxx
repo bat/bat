@@ -1,12 +1,14 @@
+#include "Pol1Asymm.h"
+
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
 
 #include <TString.h>
 
-#include <BAT/BCLog.h>
-#include <BAT/BCDataSet.h>
-#include <BAT/BCDataPoint.h>
-#include <BAT/BCMath.h>
-
-#include "Pol1Asymm.h"
+#include <cmath>
 
 // ---------------------------------------------------------
 Pol1Asymm::Pol1Asymm() : BCModel()
@@ -33,18 +35,18 @@ void Pol1Asymm::DefineParameters()
 	// CPU time expensive and therefore not recommended in routines
 	// called for every iteration, like LogLikelihood() or
 	// LogAPrioriProbability()
-	this -> AddParameter("p0", -2.  ,  2.);    // index 0
-	this -> AddParameter("p1", -0.05,  0.05);  // index 1
+	AddParameter("p0", -2.  ,  2.);    // index 0
+	AddParameter("p1", -0.05,  0.05);  // index 1
 
 	// Print parameter summary
 	BCLog::OutSummary(
-			Form("Model \'%s\' has %d parameters:",this->GetName().data(),this -> GetNParameters()));
-	for(unsigned int i=0; i< this -> GetNParameters(); i++)
+			Form("Model \'%s\' has %d parameters:",this->GetName().data(),GetNParameters()));
+	for(unsigned int i=0; i< GetNParameters(); i++)
 		BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
 				i,
-				this -> GetParameter(i) -> GetName().data(),
-				this -> GetParameter(i) -> GetLowerLimit(),
-				this -> GetParameter(i) -> GetUpperLimit() ) );
+				GetParameter(i) -> GetName().data(),
+				GetParameter(i) -> GetLowerLimit(),
+				GetParameter(i) -> GetUpperLimit() ) );
 }
 
 // ---------------------------------------------------------
@@ -65,16 +67,16 @@ double Pol1Asymm::LogLikelihood(const std::vector<double> & par)
 	double logl = 0.;
 
 	// loop over the data points
-	for(int i=0 ; i < this -> GetNDataPoints(); i++)
+	for(unsigned i=0 ; i < GetNDataPoints(); i++)
 	{
 		// get data point
-		std::vector<double> x = this -> GetDataPoint(i) -> GetValues();
+		std::vector<double> x = GetDataPoint(i) -> GetValues();
 		double y    = x[1];
 		double eylo = x[2];
 		double eyhi = x[3];
 
 		// calculate the expectation value of the function at this point
-		double yexp = this -> FitFunction(x,par);
+		double yexp = FitFunction(x,par);
 
 		// We define asymmetric errors as two half gaussians with different
 		// widths around the expectation value. In this definition the central
@@ -98,8 +100,8 @@ double Pol1Asymm::LogAPrioriProbability(const std::vector<double> & parameters)
 	// Definition of the Prior of the model.
 	// For flat prior it's very easy.
 	double logprob = 0.;
-	for(unsigned int i=0; i < this -> GetNParameters(); i++)
-		logprob -= log(this -> GetParameter(i) -> GetRangeWidth());
+	for(unsigned int i=0; i < GetNParameters(); i++)
+		logprob -= log(GetParameter(i) -> GetRangeWidth());
 
 	return logprob;
 }
