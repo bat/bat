@@ -1,3 +1,63 @@
+2013-06-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* Conclude major refactoring: shift methods, clean up code including unsigned where int was misused, const getters, fixing memory leaks, removing useless, poor, and unused code. I strove to keep the interface as is to make the   users' transition as easy as possible. Hence a significant ugliness remains unfortunately.
+	* Bugfixes: bat now links flawlessly on ubuntu 12.04 with gcc 4.4, 4.6, and 4.8. The solution was to add root libraries to libbat library dependencies within autotools. This helps to unclutter all makefiles as well.
+	* Most notable changes for the user:
+		- parameter settings are now unified, and if changes are desired by hand, BCParameter.h needs to be included
+		- MCMCResetResults -> ResetResults
+		- the integration interface is much more solid now, and includes interfaces to all four cuba routines. Support for marginalization is included.
+	* tests: some basic test cases cover integration, optimization, and to a lesser extent marginalization and plotting
+
+	* build: linking and makefiles simplified. Muss less explicit adding of libraries for linking required
+
+originally 2013-04-17 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* examples: add top-level Makefile to easily compile all examples
+
+originally 2013-03-15 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* Massive refactoring of BCEngine, BCIntegrate, BCModel,
+	shifting methods to places where they are more naturally expected.
+	Still work in progress
+
+	* BCEngine:
+		- absorb uncertainty propagation, incl. fit function stuff
+		- remove unused constructor
+		- absorb best-fit parameters
+		- absorb settings directly related to MCMC
+	* BCIntegrate:
+		- conditionally define cuba stuff
+		- merge constructors
+		- remove MCMC methods
+		- remove best fit
+		- remove uncertainty propagation
+		- Evaluator functions get new name and interface
+	* BCModel:
+		- absorb BCDataPoint related methods
+		- remove mode storing
+	* BCGoFTest: add include
+	* BCModelManager: remove bin setting
+
+originally 2012-11-19 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCIntegrate: Massive refactoring
+		- add copy() function
+		- allow variable #bins per parameter
+		- replace all integration functions with a unified interface accepting function pointers
+		- added typedefs for function pointers for
+			o choosing of next random point in integration
+			o evaluating at that point
+			o updating integral calculation with evaluation
+		- added functions matching above typedefs for MC, Metropolis, & ImportanceSampling integration
+		- added integration log output functions
+		- removed MarginalizationType enum
+		- Marginalization routines now integration routines
+		- Restructured random point generators
+		- removed setting of number of iterations by iterations/dimension
+		- added min number of iterations, applied along with max number of iterations to all methods (including cuba)
+		- added relative and absolute precision checking to all methods
+		- added output and precision checking frequency to all methods
+	* BCModel: Massive refactoring
+		- add Copy() function
+		- moved ParameterSet accessors and GetBestFitParameters to BCIntegrate
+	* BCModelManager: added set routines for iteration controls in all models.
+
 2013-06-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/mvc/PPP: added a fifth example for the mvc model
 
@@ -11,7 +71,7 @@
 2013-06-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mvc: added first instance of multivariate combination model (mvc)
 	* examples/mvc/oneObservable: added a first example for the mvc model
-	* examples/mvc/constraints: added a second example for the mvc model		
+	* examples/mvc/constraints: added a second example for the mvc model
 
 2013-05-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCH2D: added profile lines to the histograms
@@ -57,16 +117,16 @@
 	- formatting of output
 
 2013-03-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* examples/advanced/mvcombination: 
+	* examples/advanced/mvcombination:
 	- some renaming and cleaning up
-	
+
 2013-03-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* examples/advanced/mvcombination: 
+	* examples/advanced/mvcombination:
 	- added toy model
 	- worked on goodness-of-fit test
 
 2013-03-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* examples/advanced/mvcombination: 
+	* examples/advanced/mvcombination:
 	- moved reading of file into MVCombination class
 	- check if file is opened
 	- merge reading input and calculation of matrices
