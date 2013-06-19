@@ -29,7 +29,7 @@ cat << EOF
 // ***************************************************************
 // This file was created using the $0 script
 // $0 is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #ifndef __|:UP_MODEL:|__H
@@ -79,7 +79,7 @@ cat << EOF
 // ***************************************************************
 // This file was created using the $0 script
 // $0 is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #include <|:Model:|.h>
@@ -125,7 +125,7 @@ cat << EOF
 ###################################################################
 # This Makefile was created using the $0 script
 # $0 is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://www.mppmu.mpg.de/bat
+# BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
@@ -247,7 +247,7 @@ cat << EOF
 // ***************************************************************
 // This file was created using the $0 script
 // $0 is part of Bayesian Analysis Toolkit (BAT).
-// BAT can be downloaded from http://www.mppmu.mpg.de/bat
+// BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #include <BAT/BCLog.h>
@@ -344,7 +344,7 @@ print some basic information on the screen.
 Implement your model in file:    $MYMODEL.cxx
 Implement your analysis in file: $MYPROJECT.cxx
 
-Consult BAT webpage for details: http://www.mppmu.mpg.de/bat
+Consult BAT webpage for details: http://mpp.mpg.de/bat
 --------------------------------------------------------------------------
 
 EOF

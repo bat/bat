@@ -1,7 +1,7 @@
 ###################################################################
 # This Makefile was created using the ./CreateFitModel.sh script
 # ./CreateFitModel.sh is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://www.mppmu.mpg.de/bat
+# BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
