@@ -39,7 +39,8 @@ AC_ARG_ENABLE(
 	[AS_HELP_STRING([--enable-parallelization],[compile with OpenMP thread parallelization (default no)])],
 	[
 		case "${enableval}" in
-			yes) parallelization=1 ; 
+			yes) parallelization=1 ;
+				 CXXFLAGS+=" -fopenmp" ;
 				 LDFLAGS+=" -fopenmp" ;;
 			no)  parallelization=0 ;;
 			*) AC_MSG_ERROR([bad value ${enableval} for --enable-parallelization]) ;;
@@ -59,7 +60,7 @@ AC_ARG_WITH(
 	[AS_HELP_STRING([--with-cuba],[compile with Cuba support (default no)])],
 	[
 		use_cuba=yes
-		echo "compiling with Cuba support: required Cuba version 2.0 or later"
+		echo "compiling with Cuba support: required Cuba version 3.1 or later"
 	],
 	[use_cuba=no]
 )
@@ -144,6 +145,9 @@ ROOT_PATH(
 		exit
 	]
 )
+dnl add some libraries to set of basic root libraries
+ROOTLIBS="$ROOTLIBS -lMathMore -lMinuit"
+
 dnl RooFit
 if test $use_roostats = yes; then
 	HAS_ROOSTATS(
@@ -157,6 +161,9 @@ if test $use_roostats = yes; then
 	)
 fi
 AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
+if test $use_roostats = yes; then
+   ROOTLIBS="$ROOTLIBS -lRooFitCore -lRooFit -lRooStats -lFoam"
+fi
 
 AC_OUTPUT(
 	Makefile

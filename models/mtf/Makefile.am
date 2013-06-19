@@ -7,18 +7,15 @@ AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
 if CUBA
-#AM_CXXFLAGS += $(CUBAINCLUDE)
-#AM_LDFLAGS += $(CUBALIB) -lcuba
-#libBATmtf_la_LDFLAGS += $(CUBALIB) -lcuba
 AM_LDFLAGS += -lcuba
 libBATmtf_la_LDFLAGS += -lcuba
 endif
 
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else !DEBUG
+else
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
-endif !DEBUG
+endif
 
 if IS_DARWIN
 CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmtf.so; ln -s libBATmtf.dylib libBATmtf.so
