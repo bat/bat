@@ -255,7 +255,7 @@ void BCModelOutput::Close()
       fAnalysisTree->Write();
 
    // write markov chain tree to file
-   for (int i = 0; i < fModel->MCMCGetNChains(); ++i)
+   for (unsigned i = 0; i < fModel->MCMCGetNChains(); ++i)
       if (fModel->MCMCGetMarkovChainTree(i)->GetEntries() > 0)
          fModel->MCMCGetMarkovChainTree(i)->Write();
 

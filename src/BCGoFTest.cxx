@@ -9,8 +9,10 @@
 
 #include "BCGoFTest.h"
 
+#include "BCDataPoint.h"
 #include "BCDataSet.h"
 #include "BCLog.h"
+#include "BCParameter.h"
 
 #include <TH1D.h>
 #include <TString.h>
@@ -159,10 +161,8 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
 
    int counter = 0;
 
-   // remove parameters
-   fParameterSet->clear();
-   delete fParameterSet;
-   fParameterSet = new BCParameterSet;
+   // remove parameters, but doesn't clear up memory
+   fParameters = BCParameterSet();
 
    // loop through data points and values
    for (int i = 0; i < ndatapoints; ++i)
@@ -172,8 +172,9 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
             continue;
 
          // add parameter to this model
+         std::string parName = Form("parameter_%i", counter);
          AddParameter(
-               Form("parameter_%i", counter),
+               parName.c_str(),
                fTestModel->GetDataPointLowerBoundary(j),
                fTestModel->GetDataPointUpperBoundary(j));
 

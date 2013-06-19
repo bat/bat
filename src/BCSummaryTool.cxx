@@ -7,32 +7,33 @@
 
 // ---------------------------------------------------------
 
-#include <TCanvas.h>
-#include <TPostScript.h>
-#include <TLegend.h>
-#include <TH2D.h>
-#include <TGraphErrors.h>
-#include <TGraphAsymmErrors.h>
-#include <TStyle.h>
-#include <TLatex.h>
-#include <TMarker.h>
-#include <TArrow.h>
-#include <TGaxis.h>
-#include <TF1.h>
-#include <TLine.h>
-
+#include "BCSummaryTool.h"
 #include <string>
-#include <iostream>
-#include <fstream>
 
-#include "BCModel.h"
-#include "BCSummaryPriorModel.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
 #include "BCLog.h"
 #include "BCMath.h"
+#include "BCModel.h"
+#include "BCParameter.h"
+#include "BCSummaryPriorModel.h"
 
-#include "BCSummaryTool.h"
+#include <TArrow.h>
+#include <TCanvas.h>
+#include <TF1.h>
+#include <TGaxis.h>
+#include <TGraphAsymmErrors.h>
+#include <TGraphErrors.h>
+#include <TH2D.h>
+#include <TLatex.h>
+#include <TLegend.h>
+#include <TLine.h>
+#include <TMarker.h>
+#include <TPostScript.h>
+#include <TStyle.h>
+
+#include <fstream>
+#include <iostream>
 
 unsigned int BCSummaryTool::fHCounter=0;
 
@@ -447,7 +448,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
    for (int i = 0; i < npar ; ++i) {
       maxlength = std::max(maxlength, fModel->GetParameter(i)->GetName().length());
    }
-         
+
    double rotation = 0;
    short xalignment = 22;
    short yalignment = 22;
@@ -545,7 +546,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 
             xtext = margin * (1. - 8. * labelsize);
             ytext = yup - padsize / 2.;
-            
+
             label->DrawLatex(xtext,ytext,fModel->GetParameter(j)->GetLatexName().c_str());
          }
 
@@ -561,7 +562,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 
             xtext = xlow + padsize / 2.;
             ytext = margin * (1. - 6. * labelsize);
-            
+
             label->DrawLatex(xtext,ytext, fModel->GetParameter(i)->GetLatexName().c_str());
          }
       }
@@ -591,7 +592,6 @@ int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, 
 
    // no error
    return 1;
-
 }
 
 // ---------------------------------------------------------
@@ -947,7 +947,7 @@ int BCSummaryTool::CalculatePriorModel()
    fPriorModel->SetModel(fModel);
 
    // perform marginalization
-   fPriorModel->MarginalizeAll(); 
+   fPriorModel->MarginalizeAll();
 
    // perform minimization
    fPriorModel->FindMode( fPriorModel->GetBestFitParameters() );

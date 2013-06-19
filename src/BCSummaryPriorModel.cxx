@@ -7,12 +7,13 @@
 
 // ---------------------------------------------------------
 
-#include <TH1D.h>
-
-#include "BCLog.h"
-#include "BCH1D.h"
-
 #include "BCSummaryPriorModel.h"
+
+#include "BCH1D.h"
+#include "BCLog.h"
+#include "BCParameter.h"
+
+#include <TH1D.h>
 
 // ---------------------------------------------------------
 BCSummaryPriorModel::BCSummaryPriorModel()
@@ -52,7 +53,7 @@ void BCSummaryPriorModel::SetModel(BCModel * model)
          BCH1D* hist = fTestModel->GetMarginalized( fTestModel->GetParameter(i) );
          if (hist) {
             int nbins = hist->GetHistogram()->GetNbinsX();
-            SetNbins( (fTestModel->GetParameter(i)->GetName()).c_str(), nbins);
+            fTestModel->GetParameter(i)->SetNbins(nbins);
          }
       }
    }
