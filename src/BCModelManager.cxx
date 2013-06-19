@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2012, Daniel Kollar, Kevin Kroeninger, and Daniel Greenwald.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -9,16 +9,14 @@
 
 #include "BCModelManager.h"
 
-#include "BCModel.h"
-#include "BCDataSet.h"
+#include "BCErrorCodes.h"
 #include "BCDataPoint.h"
 #include "BCLog.h"
-#include "BCErrorCodes.h"
+
+#include <TString.h>
 
 #include <fstream>
 #include <iostream>
-
-#include <TString.h>
 
 // ---------------------------------------------------------
 
@@ -33,9 +31,7 @@ BCModelManager::BCModelManager()
 BCModelManager::~BCModelManager()
 {
    delete fModelContainer;
-
-   if (fDataSet)
-      delete fDataSet;
+   delete fDataSet;
 }
 
 // ---------------------------------------------------------
@@ -95,12 +91,6 @@ void BCModelManager::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
 
 void BCModelManager::AddModel(BCModel * model, double probability)
 {
-   // create index
-   unsigned int index = fModelContainer->size();
-
-   // set index of new model
-   model->SetIndex(index);
-
    // set a priori probability of new model
    model->SetModelAPrioriProbability(probability);
 
@@ -109,6 +99,34 @@ void BCModelManager::AddModel(BCModel * model, double probability)
 
    // fill model into container
    fModelContainer->push_back(model);
+}
+
+// ---------------------------------------------------------
+void BCModelManager::SetNIterationsMax(int niterations)
+{
+	for (unsigned int i = 0; i < GetNModels(); i++)
+		GetModel(i)->SetNIterationsMax(niterations);
+}
+
+// ---------------------------------------------------------
+void BCModelManager::SetNIterationsMin(int niterations)
+{
+	for (unsigned int i = 0; i < GetNModels(); i++)
+		GetModel(i)->SetNIterationsMin(niterations);
+}
+
+// ---------------------------------------------------------
+void BCModelManager::SetNIterationsPrecisionCheck(int niterations)
+{
+	for (unsigned int i = 0; i < GetNModels(); i++)
+		GetModel(i)->SetNIterationsPrecisionCheck(niterations);
+}
+
+// ---------------------------------------------------------
+void BCModelManager::SetNIterationsOutput(int niterations)
+{
+	for (unsigned int i = 0; i < GetNModels(); i++)
+		GetModel(i)->SetNIterationsOutput(niterations);
 }
 
 // ---------------------------------------------------------
@@ -123,7 +141,7 @@ void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod metho
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
+void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCIntegrationMethod method)
 {
    // set marginalization method for all models registered
    for (unsigned int i = 0; i < GetNModels(); i++)
@@ -141,24 +159,6 @@ void BCModelManager::SetOptimizationMethod(BCIntegrate::BCOptimizationMethod met
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetNiterationsPerDimension(unsigned int niterations)
-{
-   // set number of iterations per dimension for all models registered
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetNiterationsPerDimension(niterations);
-}
-
-// ---------------------------------------------------------
-
-void BCModelManager::SetNSamplesPer2DBin(unsigned int n)
-{
-   // set samples per 2d bin for all models registered
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetNSamplesPer2DBin(n);
-}
-
-// ---------------------------------------------------------
-
 void BCModelManager::SetRelativePrecision(double relprecision)
 {
    // set relative precision for all models registered
@@ -168,11 +168,20 @@ void BCModelManager::SetRelativePrecision(double relprecision)
 
 // ---------------------------------------------------------
 
+void BCModelManager::SetAbsolutePrecision(double absprecision)
+{
+   // set absolute precision for all models registered
+   for (unsigned int i = 0; i < GetNModels(); i++)
+      GetModel(i)->SetAbsolutePrecision(absprecision);
+}
+
+// ---------------------------------------------------------
+
 void BCModelManager::SetNbins(unsigned int n)
 {
    // set number of bins for all models registered
    for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->BCIntegrate::SetNbins(n);
+      GetModel(i)->SetNbins(n);
 }
 
 // ---------------------------------------------------------
@@ -461,7 +470,7 @@ void BCModelManager::PrintSummary(const char * file)
    }
 
    // model summary
-   int nmodels = int(fModelContainer->size());
+   int nmodels = fModelContainer->size();
    std::cout<<std::endl
             <<"======================================"<<std::endl
             <<" Summary"<<std::endl
