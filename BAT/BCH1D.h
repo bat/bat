@@ -36,11 +36,7 @@ class BCH1D
 
       /**
        * The default constructor. */
-      BCH1D();
-
-      /**
-       * The default constructor. */
-      BCH1D(TH1D * hist);
+      BCH1D(TH1D * hist = 0);
 
       /**
        * The default destructor. */
@@ -126,18 +122,18 @@ class BCH1D
 
       /**
        * Returns a color of the current color scheme.
-       * @param index the color index 
+       * @param index the color index
        * @return the color number. */
-      int GetColor(int index) {
-				return fColors.at(index); };
+      int GetColor(int index)
+         { return fColors.at(index); };
 
       /** @} */
 
       /** \name Member functions (set)  */
       /** @{ */
-      
+
       /**
-       * Sets the color scheme. 
+       * Sets the color scheme.
        * @param scheme the scheme index \n
        * 0 : black and white
        * 1 : yellow-green-red
@@ -146,7 +142,7 @@ class BCH1D
        * 2 : blueish colors
        */
       void SetColorScheme(int scheme);
-      
+
      /**
        * Sets the histogram. */
       void SetHistogram(TH1D * hist)
@@ -167,23 +163,13 @@ class BCH1D
       /** \name Member functions (miscellaneous methods) */
       /** @{ */
 
-      /**
-       * Print distribution into a PostScript file.
-       * @param filename Output filename
-       * @param ww canvas size in pixels along X
-       * @param ww canvas size in pixels along Y
-       * If ww and wh are set to 0, default ROOT canvas size is used.
-       * For explanation of parameters options and ovalue look at BCH1D::Draw()
-       * method. */
-      void PrintOld(const char * filename, int options=0, double ovalue=0., int ww=0, int wh=0);
-
      /**
        * Print distribution into a PostScript file.
        * @param filename Output filename
        * @param option the draw options (see Draw()), plus \n
-			 * logx : draw x-axis in log-scale \n
-			 * logy : draw y-axis in log-scale \n
-			 * R : rescale canvas to have a squared histogram
+       * logx : draw x-axis in log-scale \n
+       * logy : draw y-axis in log-scale \n
+       * R : rescale canvas to have a squared histogram
        * @param ww canvas size in pixels along X
        * @param ww canvas size in pixels along Y
        * If ww and wh are set to 0, default ROOT canvas size is used.
@@ -194,30 +180,7 @@ class BCH1D
 
       /**
        * Draw distribution into the active canvas.
-       * @param options Drawing options: \n 0 = band mode [default], \n
-       *                1 = draw vertical line, \n
-       *                2 = band mode with minimal interval
-       *                3 = ??
-       *                4 = Delta prior, i.e. fixed parameter value
-       * @param ovalue Option specific value. For option 0, if ovalue is nonzero
-       *    a limit is to be drawn rather than central band with ovalue being the
-       *    per cent value of the limit. If negative, limit is drawn from minimum,
-       *    if positive limit is drawn from maximum. Allowed values are
-       *    68 < |limit| < 100. If mode is outside the band, the limit is
-       *    drawn automatically. The default limit can be changed by
-       *    BCH1D::SetDefaultCLLimit(int limit). \n
-       *    For option 1 the ovalue defines
-       *    where the line is drawn. \n
-       *    For option 2 the ovalue sets the content of
-       *    the minimal interval in per cent. If omitted a 68% minimal interval
-       *    will be drawn.
-       *    For option 3 ???
-       *    For option 4 draw one bin representing the delta prior around ovalue. */
-      void DrawOld(int options=0, double ovalue=0.);
-
-      /**
-       * Draw distribution into the active canvas.
-       * @param options Drawing options: \n 
+       * @param options Drawing options: \n
        * BTci : band type is central interval [default] \n
        * BTsi : band type is/are smallest interval(s) \n
        * BTul : band type is upper limit \n
@@ -327,10 +290,10 @@ class BCH1D
       /**
        * The colors of the color scheme. */
       std::vector<int> fColors;
-      
+
       /**
-       * The colors of the color scheme. */
-      std::vector<TObject*> fROOTObjects;
+       * Storage for plot objects. */
+      mutable std::vector<TObject*> fROOTObjects;
 
       /** Helper method to get an unique number to be used in histogram naming */
       static unsigned int getNextIndex()

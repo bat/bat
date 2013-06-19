@@ -33,36 +33,18 @@
 unsigned int BCH1D::fHCounter=0;
 
 // ---------------------------------------------------------
-BCH1D::BCH1D()
-  : fHistogram(0)
-  , fROOTObjects(std::vector<TObject*>(0))
-{
-   fDefaultCLLimit = 95.; // in percent
-
-   fModeFlag = 0;
-}
-
-// ---------------------------------------------------------
 BCH1D::BCH1D(TH1D * hist)
   : fHistogram(hist)
-  , fROOTObjects(std::vector<TObject*>(0))
-{
-   fDefaultCLLimit = 95.; // in percent
-
-   fModeFlag = 0;
-}
+  , fDefaultCLLimit(95.) // in percent
+  , fModeFlag(0)
+{}
 
 // ---------------------------------------------------------
 
 BCH1D::~BCH1D()
 {
-   if (fHistogram) delete fHistogram;
-
-   // clear memory
-   int nobjects = (int) fROOTObjects.size();
-   for (int i = 0; i < nobjects; ++i) 
-     if (fROOTObjects[i])
-       delete fROOTObjects[i];
+   for (unsigned i = 0; i < fROOTObjects.size(); ++i)
+      delete fROOTObjects[i];
 }
 
 // ---------------------------------------------------------
@@ -82,7 +64,7 @@ double BCH1D::GetQuantile(double probability)
 
    probsum[0] = probability;
 
-   // use ROOT function to calculat quantile.
+   // use ROOT function to calculate quantile.
    fHistogram->GetQuantiles(nquantiles, quantiles, probsum);
 
    return quantiles[0];
@@ -169,34 +151,6 @@ void BCH1D::SetColorScheme(int scheme)
 }
 
 // ---------------------------------------------------------
-void BCH1D::PrintOld(const char * filename, int options, double ovalue, int ww, int wh)
-{
-   char file[256];
-   int i=0;
-   while(i<255 && *filename!='\0')
-      file[i++]=*filename++;
-   file[i]='\0';
-
-// temporary
-   fHistogram->SetLineWidth(1);
-
-   // create temporary canvas
-   TCanvas * c;
-   if(ww > 0 && wh > 0)
-      c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()),TString::Format("c_bch1d_%d",getNextIndex()),ww,wh);
-   else
-      c = new TCanvas(TString::Format("c_bch1d_%d",getNextIndex()));
-
-   c->cd();
-   DrawOld(options, ovalue);
-
-   gPad->RedrawAxis();
-
-   // print to file.
-   c->Print(file);
-}
-
-// ---------------------------------------------------------
 
 void BCH1D::Print(const char* filename, std::string options, std::vector<double> intervals, int ww, int wh)
 {
@@ -279,159 +233,6 @@ void BCH1D::Print(const char* filename, std::string options, double interval, in
 }
 
 // ---------------------------------------------------------
-void BCH1D::DrawOld(int options, double ovalue)
-{
-   double min, max;
-   double mode;
-   double thismode = GetMode();
-
-   int nbins = fHistogram->GetNbinsX();
-
-   fHistogram->Scale(1./fHistogram->Integral("width"));
-
-   // todoKK:
-   // - fix legend size, position and style
-   // - maybe write a painter class?
-   // options should start with letter indicating type, e.g.
-   // L: legend
-   //    - add legend
-   //    - add written summary on plot (mean = xyz, ...)
-   // B: band (or shaded area)
-   //    - band type: smallest, central, ...
-   //    - draw shaded band between two arbitrary values
-   //    - add second (and third) band with arbitrary values, e.g. 90%, 95% prob. regions
-   // D: drawing
-   //    - draw histogram as normal histogram
-   //    - draw histogram as smooth curve
-   //    - black&white version with hatching
-   //    - draw in log-scale
-   //    - draw cumulative pdf
-   // S: summary values (mean, rms, ...)
-   //    - add indicator for mode, mean, median individually
-   //    - add indicator for rms, smallest interval, central interval individually 
-   //    - add indicator for quantiles (decentiles, quartiles) e.g. as red lines going through the whole histogram
-
-   if(fModeFlag)
-      mode=fMode;
-   else
-      mode=thismode;
-
-   // define temporary line.
-   TLine * line;
-
-   //control if legend is required
-   bool flagLegend=false;
-   char confidenceLabel[25];
-
-   // reset histogram
-   fHistogram->SetLineColor(kBlack);
-   fHistogram->SetLineWidth(1);
-   fHistogram->SetFillStyle(0);
-
-   // check drawing option.
-   switch(options)
-   {
-      // Draw a band between 16% and 84% probability.
-      // If the mode is outside the band only draw a limit.
-      case 0:
-         if (fabs(ovalue) >= 100 || ovalue==0.)
-         {//default case if no args to Draw() supplied
-
-            min = GetQuantile(.16);
-            max = GetQuantile(.84);
-
-            //draw a legend later
-            flagLegend = true;
-            sprintf(confidenceLabel, "Central 68%%");
-
-            if ( fHistogram->FindBin(thismode) == fHistogram->GetNbinsX() )
-            {
-               min = GetQuantile(1.-(double)fDefaultCLLimit/100.);
-               max = fHistogram->GetXaxis()->GetXmax();
-               ovalue = fDefaultCLLimit;
-               sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
-            }
-            else if ( fHistogram->FindBin(thismode)==1)
-            {
-               min = fHistogram->GetXaxis()->GetXmin();
-               max = GetQuantile((double)fDefaultCLLimit/100.);
-               ovalue = -fDefaultCLLimit;
-               sprintf(confidenceLabel, "%g%% region", fDefaultCLLimit);
-            }
-         }
-
-         else if(ovalue < 0)
-         {
-            min = fHistogram->GetXaxis()->GetXmin();
-            max = GetQuantile(-ovalue/100.);
-         }
-         else
-         {
-            min = GetQuantile(1. - ovalue/100.);
-            max = fHistogram->GetXaxis()->GetXmax();
-         }
-
-         // do the drawing
-         DrawShadedLimits(mode, min, max, ovalue);
-
-         // add legend for the symbols mean, mode, median, confidence band
-         if(flagLegend)
-            this ->DrawLegend(confidenceLabel);
-
-         break;
-
-      // Draw a line at "ovalue".
-      case 1:
-
-         fHistogram->Draw();
-         min = fHistogram->GetBinLowEdge(1);
-         max = fHistogram->GetBinLowEdge(nbins+1);
-         if(min<=ovalue && ovalue<=max)
-         {
-            line = new TLine();
-            line->SetLineColor(kRed);
-            line->DrawLine(ovalue, 0., ovalue, 1.05 * fHistogram->GetMaximum());
-         }
-
-         break;
-
-      // Draw a shaded band at the smallest interval.
-      case 2:
-
-         if(ovalue<50) // just to ensure there's some sense in the number
-            ovalue = 68.; // default is 68%
-
-         GetSmallestInterval(min, max, ovalue/100.);
-         DrawShadedLimits(mode, min, max, 0.);
-
-         break;
-
-      // Draw a shaded band at the smallest intervals
-      case 3:
-
-         if(ovalue<50) // just to ensure there's some sense in the number
-            ovalue = 68.; // default is 68%
-
-         DrawSmallest(mode,ovalue);
-
-         break;
-
-      // Draw just one bin for fixed delta prior
-      case 4:
-
-          DrawDelta(ovalue);
-
-          break;
-
-      // Sort out bad options and warn.
-      default:
-
-         BCLog::OutError(Form("BCH1D::Draw : Invalid option %d",options));
-         break;
-   }
-}
-
-// ---------------------------------------------------------
 void BCH1D::Draw(std::string options, std::vector<double> intervals)
 {
    // todoKK:
@@ -442,8 +243,8 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
    bool flag_pdf0 = true;
    bool flag_pdf1 = false;
    bool flag_legend = false;
-   bool flag_logx;
-   bool flag_logy;
+   bool flag_logx = false;
+   bool flag_logy = false;
    bool flag_mode = false;
    bool flag_median = false;
    bool flag_mean = false;
@@ -808,93 +609,94 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       le->SetFillStyle(1001);
    }
 
-   // add line_quantiles to list of ROOT objects
-   fROOTObjects.push_back(line_quantiles);
+  // add line_quantiles to list of ROOT objects
+  fROOTObjects.push_back(line_quantiles);
 
-   // mean, mode, median
-   TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
-   marker_mode->SetMarkerColor(GetColor(4));
-   marker_mode->SetMarkerSize(1.5);
+  // mean, mode, median
+  TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
+  marker_mode->SetMarkerColor(GetColor(4));
+  marker_mode->SetMarkerSize(1.5);
 
-   TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 32);
-   marker_mean->SetMarkerColor(GetColor(4));
-   marker_mean->SetMarkerSize(1.5);
+  TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
+  marker_mean->SetMarkerColor(GetColor(4));
+  marker_mean->SetMarkerSize(1.5);
 
-   TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
-   marker_median->SetMarkerColor(GetColor(4));
-   marker_median->SetMarkerSize(1.5);
+  TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
+  marker_median->SetMarkerColor(GetColor(4));
+  marker_median->SetMarkerSize(1.5);
 
-   // mode
-   TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
-         fMode, ymin,
-         0.02, "|>");
-   arrow_mode->SetLineColor(GetColor(4));
-   arrow_mode->SetFillColor(GetColor(4));
+  // mode
+  TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
+				  fMode, ymin,
+				  0.02, "|>");
+  arrow_mode->SetLineColor(GetColor(4));
+  arrow_mode->SetFillColor(GetColor(4));
 
-   // standard deviation
-   TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
-         GetMean()+GetRMS(), 0.55*ymaxhist,
-         0.02, "<|>");
-   arrow_std->SetLineColor(GetColor(4));
-   arrow_std->SetFillColor(GetColor(4));
+  // standard deviation
+  TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
+				 GetMean()+GetRMS(), 0.55*ymaxhist,
+				 0.02, "<|>");
+  arrow_std->SetLineColor(GetColor(4));
+  arrow_std->SetFillColor(GetColor(4));
 
-   // central interval
-   TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
-         GetQuantile(0.8413), 0.45*ymaxhist,
-         0.02, "<|>");
-   arrow_ci->SetLineColor(GetColor(4));
-   arrow_ci->SetFillColor(GetColor(4));
+  // central interval
+  TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
+				GetQuantile(0.8413), 0.45*ymaxhist,
+				0.02, "<|>");
+  arrow_ci->SetLineColor(GetColor(4));
+  arrow_ci->SetFillColor(GetColor(4));
 
-   // add marker_mean and arrow_std to list of ROOT objects
-   fROOTObjects.push_back(marker_mean);
-   fROOTObjects.push_back(marker_median);
-   fROOTObjects.push_back(arrow_std);
-   fROOTObjects.push_back(arrow_ci);
+  // add marker_mean and arrow_std to list of ROOT objects
+  fROOTObjects.push_back(marker_mode);
+  fROOTObjects.push_back(marker_mean);
+  fROOTObjects.push_back(marker_median);
+  fROOTObjects.push_back(arrow_std);
+  fROOTObjects.push_back(arrow_ci);
 
-   if (flag_mode) {
-      arrow_mode->Draw();
-      marker_mode->Draw();
-      TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
-      le->SetMarkerStyle(24);
-      le->SetMarkerSize(1.5);
-      le->SetMarkerColor(GetColor(4));
-   }
+  if (flag_mode) {
+    arrow_mode->Draw();
+    marker_mode->Draw();
+    TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
+    le->SetMarkerStyle(24);
+    le->SetMarkerSize(1.5);
+    le->SetMarkerColor(GetColor(4));
+  }
 
-   if (flag_mean) {
-      arrow_std->Draw();
-      marker_mean->Draw();
-      TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
-      le->SetLineColor(GetColor(4));
-      le->SetMarkerStyle(32);
-      le->SetMarkerSize(1.5);
-      le->SetMarkerColor(GetColor(4));
-   }
+  if (flag_mean) {
+    arrow_std->Draw();
+    marker_mean->Draw();
+    TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
+    le->SetLineColor(GetColor(4));
+    le->SetMarkerStyle(32);
+    le->SetMarkerSize(1.5);
+    le->SetMarkerColor(GetColor(4));
+  }
 
-   if (flag_median) {
-      arrow_ci->Draw();
-      marker_median->Draw();
-      TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
-      le->SetLineColor(GetColor(4));
-      le->SetMarkerStyle(21);
-      le->SetMarkerSize(1.5);
-      le->SetMarkerColor(GetColor(4));
-   }
+  if (flag_median) {
+    arrow_ci->Draw();
+    marker_median->Draw();
+    TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
+    le->SetLineColor(GetColor(4));
+    le->SetMarkerStyle(21);
+    le->SetMarkerSize(1.5);
+    le->SetMarkerColor(GetColor(4));
+  }
 
-   // calculate legend height in NDC coordinates
-   double height = 0.03*legend->GetNRows();
+  // calculate legend height in NDC coordinates
+  double height = 0.03*legend->GetNRows();
 
-   // make room for legend
-   if (flag_legend)
-      ymax*=(1.15+height);
-   else
-      ymax*=1.1;
+  // make room for legend
+  if (flag_legend)
+    ymax*=(1.15+height);
+  else
+    ymax*=1.1;
 
-   fHistogram->GetYaxis()->SetRangeUser(ymin, 1.05*ymaxhist);
+  fHistogram->GetYaxis()->SetRangeUser(ymin, 1.05*ymaxhist);
 
-   // calculate dimensions in NDC variables
+  // calculate dimensions in NDC variables
 
-   if (flag_legend)
-      gPad->SetTopMargin(0.02);
+  if (flag_legend)
+    gPad->SetTopMargin(0.02);
 
    double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
    double xlegend2 = 1.0-gPad->GetRightMargin();
@@ -961,6 +763,7 @@ void BCH1D::DrawDelta(double value) const
    TH1D * hist_temp = new TH1D(TString::Format("h1scale_%s_%d", fHistogram->GetName(), BCLog::GetHIndex()), "", 100, xmin, xmax);
    hist_temp->SetBinContent(hist_temp->FindBin(value), fHistogram->GetMaximum());
    hist_temp->Draw("same");
+   fROOTObjects.push_back(hist_temp);
 }
 
 // ---------------------------------------------------------
@@ -969,24 +772,28 @@ void BCH1D::DrawLegend(const char* text)
    //draw on top right corner
 
    TLegend* legend = new TLegend(0.73, 0.72, 0.86, 0.85);
+   fROOTObjects.push_back(legend);
    legend->SetFillColor(kWhite);
    legend->SetBorderSize(1);
 
    TMarker* triangle = new TMarker(0, 0, 23);
+   fROOTObjects.push_back(triangle);
    triangle->SetMarkerColor(kRed);
    legend->AddEntry(triangle, "Global mode", "P");
 
    TMarker* diamond = new TMarker(0, 0, 27);
+   fROOTObjects.push_back(diamond);
    diamond->SetMarkerColor(kBlue);
    legend->AddEntry(diamond, "Mean", "P");
 
-   TLine * line;
-   line = new TLine();
+   TLine * line = new TLine();
+   fROOTObjects.push_back(line);
    line->SetLineStyle(2);
    line->SetLineColor(kGreen + 2);
    legend->AddEntry(line, "Median", "l");
 
    TLegend* band = new TLegend(0, 0, 1, 1);
+   fROOTObjects.push_back(band);
    band->SetFillColor(kYellow);
    legend->AddEntry(band, text, "F");
 
@@ -999,10 +806,6 @@ void BCH1D::DrawLegend(const char* text)
 }
 
 // ---------------------------------------------------------
-
-// TODO Are graphics objects ever deleted from the heap? search for new TH*
-// In most cases, plotting won't work as expected if the histograms are deleted in here
-// as the TCanvas then remains empty.
 
 void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 {
@@ -1026,6 +829,7 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
    TH2D * hsc = new TH2D(
          TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
          10, xmin, xmax, 10, 0., ysize);
+   fROOTObjects.push_back(hsc);
    hsc->SetStats(0);
    hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
    hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
@@ -1046,14 +850,13 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
    gPad->RedrawAxis();
 
    // draw triangle for mode
-   TPolyLine * tmax;
-
    double dx = 0.01*(xmax-xmin);
    double dy = 0.04*(ysize);
    y0+=dy/5.;
    double tmax_x[] = {x0, x0 + dx, x0 - dx, x0};
    double tmax_y[] = {y0, y0 + dy, y0 + dy, y0};
-   tmax = new TPolyLine(4,tmax_x,tmax_y);
+   TPolyLine * tmax = new TPolyLine(4,tmax_x,tmax_y);
+   fROOTObjects.push_back(tmax);
    tmax->SetLineColor(kRed);
    tmax->SetLineWidth(1);
    tmax->SetFillColor(kRed);
@@ -1061,12 +864,11 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
    tmax->Draw("f");
 
    // draw diamond for mean
-   TPolyLine * tmean;
-
    y1+=dy/5.;
    double tmean_x[] = {x1, x1 + dx, x1 , x1 - dx, x1};
    double tmean_y[] = {y1, y1 + dy/2., y1 + dy, y1 + dy/2., y1};
-   tmean = new TPolyLine(5,tmean_x,tmean_y);
+   TPolyLine * tmean = new TPolyLine(5,tmean_x,tmean_y);
+   fROOTObjects.push_back(tmean);
    tmean->SetLineColor(kBlue);
    tmean->SetLineWidth(1);
    tmean->Draw();
@@ -1074,6 +876,7 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
    // draw dashed line for median
    TLine * line;
    line = new TLine();
+   fROOTObjects.push_back(line);
    line->SetLineStyle(2);
    line->SetLineColor(kGreen+2);
    line->DrawLine(x2, 0., x2, y2);
@@ -1090,6 +893,7 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
       sd++;
 
    TLatex * tmax_text = new TLatex();
+   fROOTObjects.push_back(tmax_text);
    tmax_text->SetTextSize(0.035);
    tmax_text->SetTextFont(62);
    tmax_text->SetTextAlign(22); // center
@@ -1120,8 +924,6 @@ void BCH1D::DrawShadedLimits(double mode, double min, double max, double limit)
 void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
 {
    // prepare triangle for mode
-   TPolyLine * tmax;
-
    double x0 = mode;
    double y0 = fHistogram->GetBinContent( fHistogram->FindBin(mode) );
    double xmin = fHistogram->GetXaxis()->GetXmin();
@@ -1138,27 +940,29 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
    double dy = 0.04*(ysize);
    double tmax_x[] = {x0, x0 + dx, x0 - dx, x0};
    double tmax_y[] = {y0, y0 + dy, y0 + dy, y0};
-   tmax = new TPolyLine(4,tmax_x,tmax_y);
-   tmax->SetLineColor(kRed);
+   TPolyLine * tmax = new TPolyLine(4,tmax_x,tmax_y);
+   fROOTObjects.push_back(tmax);
    tmax->SetFillColor(kRed);
 
    // draw histogram with axes first
    TH2D * hsc = new TH2D(
          TString::Format("h2scale_%s_%d",fHistogram->GetName(),BCLog::GetHIndex()),"",
          10, xmin, xmax, 10, 0., ysize);
+   fROOTObjects.push_back(hsc);
    hsc->SetStats(0);
    hsc->SetXTitle(fHistogram->GetXaxis()->GetTitle());
    hsc->SetYTitle(fHistogram->GetYaxis()->GetTitle());
    hsc->Draw();
 
    // histogram to be filled with band
-   TH1D * hist_temp1 = (TH1D*) fHistogram->Clone();
+   TH1D * hist_temp1 = static_cast<TH1D *>(fHistogram->Clone());
+   fROOTObjects.push_back(hist_temp1);
    hist_temp1->Scale(1.0/fHistogram->Integral("width"));
    hist_temp1->SetFillColor(kYellow);
    hist_temp1->SetFillStyle(1001);
 
    // temporary histogram
-   TH1D * hist_temp2 = (TH1D*) fHistogram->Clone();
+   TH1D * hist_temp2 = static_cast<TH1D *>(fHistogram->Clone());
    hist_temp2->Scale(1.0/fHistogram->Integral("width"));
 
    // clear content
@@ -1207,19 +1011,18 @@ void BCH1D::DrawSmallest(double mode, double prob, bool drawmean)
    {
       // draw triangle for mean
       // draw diamond for mean
-      TPolyLine * tmean;
-
       y1+=dy/5.;
       double tmean_x[] = {x1, x1 + dx, x1 , x1 - dx, x1};
       double tmean_y[] = {y1, y1 + dy/2., y1 + dy, y1 + dy/2., y1};
-      tmean = new TPolyLine(5,tmean_x,tmean_y);
+      TPolyLine * tmean = new TPolyLine(5,tmean_x,tmean_y);
+      fROOTObjects.push_back(tmean);
       tmean->SetLineColor(kBlue);
       tmean->SetLineWidth(1);
       tmean->Draw();
 
       // draw dashed line for median
-      TLine * line;
-      line = new TLine();
+      TLine * line = new TLine();
+      fROOTObjects.push_back(line);
       line->SetLineStyle(2);
       line->SetLineColor(kGreen+2);
       line->DrawLine(x2, 0., x2, y2);
@@ -1253,7 +1056,6 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
    double xup=xmax;
 
    int ndiv = 10;
-
    int warn=0;
 
    double integral_out=0.;
@@ -1407,7 +1209,7 @@ TH1D * BCH1D::GetSubHisto(double min, double max, const char * name)
       max=xmax;
    }
 
-   double * xb = new double[nbins+3]; // nbins+1 original bin edges + 2 new bins
+   std::vector<double> xb(nbins + 3); // nbins+1 original bin edges + 2 new bins
    int n=0; // counter
 
    int domin=1;
@@ -1437,7 +1239,7 @@ TH1D * BCH1D::GetSubHisto(double min, double max, const char * name)
    }
 
    // now define the new histogram
-   TH1D * h0 = new TH1D(name,"",n-1,xb);
+   TH1D * h0 = new TH1D(name,"",n-1, &xb[0]);
    for(int i=1;i<n;i++)
    {
       double x0 = h0->GetBinCenter(i);
@@ -1576,6 +1378,8 @@ std::vector<double> BCH1D::GetSmallestIntervals(double content)
    // rescale absolute heights to relative heights
    for (int i = 0; i < ninter; ++i)
       v[i*5+2] = v.at(i*5+2) / max;
+
+   delete hist;
 
    return v;
 }
