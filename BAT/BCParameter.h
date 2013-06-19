@@ -20,9 +20,7 @@
  */
 
 // ---------------------------------------------------------
-
 #include <string>
-#include <vector>
 
 // ---------------------------------------------------------
 
@@ -62,13 +60,6 @@ class BCParameter
          { return (fLatexName.empty()) ? fName : fLatexName; }
 
       /**
-       * Returns the index of the parameter within the parameter
-       * container of a BCModel.
-       * @return The index of the parameter in the model. */
-      int GetIndex() const
-         { return fIndex; }
-
-      /**
        * @return The lower limit of the parameter values. */
       double GetLowerLimit() const
          { return fLowerLimit; }
@@ -85,6 +76,18 @@ class BCParameter
       double GetRangeWidth() const
          { return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
 
+      bool FillHistograms() const
+         { return fFillHistograms; }
+
+      bool Fixed() const
+         { return fFixed; }
+
+      double GetFixedValue() const
+         { return fFixedValue; }
+
+      unsigned GetNbins() const
+         { return fNbins; }
+
       /** @} */
 
       /** \name Member functions (set) */
@@ -97,19 +100,6 @@ class BCParameter
 
       void SetLatexName(const char * latex_name)
          { fLatexName = latex_name; }
-
-      /**
-       * Set the index of the parameter within the parameter
-       * container of a BCModel.
-       * @param index The index of the parameter. */
-      void SetIndex(int index)
-         { fIndex = index; }
-
-      /**
-       * Set parameter to be nuisance.
-       * @param nuisance false - not nuisance */
-      void SetNuisance(bool nuisance = true)
-         { fNuisance = nuisance; }
 
       /**
        * Set the lower limit of the parameter values.
@@ -130,21 +120,32 @@ class BCParameter
       void SetLimits(double lowerlimit = 0, double upperlimit = 1)
          { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
 
+      void Fix(double value)
+      {
+         fFixed = true;
+         fFixedValue = value;
+      }
+
+      void Unfix()
+         { fFixed = false; }
+
+      void FillHistograms(bool flag)
+         { fFillHistograms = flag; }
+
+      void SetNbins(unsigned nbins)
+         { fNbins = nbins; }
       /** @} */
 
       /** \name Member functions (miscellaneous methods) */
       /** @{ */
 
       /**
-       * Returns 1 if parameter is a nuisance parameter or 0 if not.
-       * @return 1 - is nuisance paramete, 0 - is not nuisance parameter */
-      bool IsNuisance() const
-         { return fNuisance; }
-
-      /**
        * Returns true if the value is at a parameter limit.
        * @return flag States if value is at parameter limit. */
       bool IsAtLimit(double value) const;
+
+      bool IsValid(double value) const
+      { return (fLowerLimit <= value) && (value <= fUpperLimit) ? true : false; }
 
       /**
        * Prints a parameter summary on the screen. */
@@ -153,40 +154,28 @@ class BCParameter
       /** @} */
 
    private:
-
-      /**
-       * The name of the parameter. */
+      /// The name of the parameter.
       std::string fName;
 
-      /**
-       * The index of the parameter within the BCParameterSet of a BCModel. */
-      int fIndex;
-
-      /**
-       * The lower limit of the parameter value. */
+      ///  The lower limit of the parameter value.
       double fLowerLimit;
 
-      /**
-       * The upper limit of the parameter value. */
+      /// The upper limit of the parameter value.
       double fUpperLimit;
 
-      /**
-       * The latex name of the parameter. */
+      /// The latex name of the parameter.
       std::string fLatexName;
 
-      /**
-       * Flag to specify whether to integrate over this parameter or not. */
-      bool fNuisance;
+      /// Flag to fix parameter; useful for example, for integration.
+      bool fFixed;
 
+      /// The fixed value of the parameter.
+      double fFixedValue;
+
+      /// Flag to store MCMC samples in histograms.
+      bool fFillHistograms;
+
+      /// The number of equal-size bins used in histograms involving this parameter.
+      unsigned fNbins;
 };
-
-// ---------------------------------------------------------
-
-/**
- * \typedef
- * \brief A vector of pointer to BCParameter.*/
-typedef std::vector<BCParameter*> BCParameterSet;
-
-// ---------------------------------------------------------
-
 #endif

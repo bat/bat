@@ -1,27 +1,30 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2013, Daniel Kollar, Kevin Kroeninger, Daniel Greenwald, and Frederik Beaujean.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
  */
 
 // ---------------------------------------------------------
-
-#include <iostream>
-#include <fstream>
-
-#include <TROOT.h>
-
-#include "BCLog.h"
 #include "BCParameter.h"
+#include "BCLog.h"
+
+#include <TString.h>
+
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 
 // ---------------------------------------------------------
 
 BCParameter::BCParameter():
     fName("parameter"),
-    fLowerLimit(0.),
-    fUpperLimit(1.),
-    fNuisance(0)
+    fLowerLimit(0),
+    fUpperLimit(1),
+    fFixed(false),
+    fFixedValue(-1.e+111),
+    fFillHistograms(true),
+    fNbins(100)
 {
 }
 
@@ -32,7 +35,10 @@ BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit
     fLowerLimit(lowerlimit),
     fUpperLimit(upperlimit),
     fLatexName(latexname),
-    fNuisance(0)
+    fFixed(false),
+    fFixedValue(-1.e+111),
+    fFillHistograms(true),
+    fNbins(100)
 {
 }
 
@@ -42,7 +48,6 @@ void BCParameter::PrintSummary() const
 {
 	BCLog::OutSummary("Parameter summary:");
 	BCLog::OutSummary(Form("Parameter   : %s", fName.c_str()));
-	BCLog::OutSummary(Form("Index       : %d", fIndex));
 	BCLog::OutSummary(Form("Lower limit : %f", fLowerLimit));
 	BCLog::OutSummary(Form("Upper limit : %f", fUpperLimit));
 }
@@ -60,3 +65,4 @@ bool BCParameter::IsAtLimit(double value) const
    else
       return false;
 }
+
