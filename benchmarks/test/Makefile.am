@@ -1,6 +1,7 @@
 CLEANFILES = \
 	parallel_TEST_GaussModelSerial.root \
 	parallel_TEST_GaussModelParallel.root \
+	BCModel_TEST.pdf \
 	*~ \
 	log.txt
 
@@ -10,42 +11,41 @@ AM_CXXFLAGS = -I$(top_srcdir) $(ROOTCFLAGS)
 
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else !DEBUG
+else
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
-endif !DEBUG
-
-if THREAD_PARALLELIZATION
-AM_CXXFLAGS += -fopenmp
 endif
 
 noinst_LIBRARIES = libBATtest.a
 
 libBATtest_a_SOURCES = \
 	test.cxx test.h \
-	GaussModel.cxx GaussModel.h
+	GaussModel.cxx GaussModel.h \
+	IntegrationModel.cxx IntegrationModel.h
 
 TESTS = \
 	test_TEST \
 	BCMath_TEST \
+	BCModel_TEST \
+	BCIntegrate_TEST \
 	parallel_TEST
 
-TESTS_LD_ADD = libBATtest.a $(top_builddir)/src/libBAT.la $(ROOTLIBS) -lMinuit
-TESTS_LD_FLAGS = -L$(ROOTLIBDIR)
+LDADD = libBATtest.a $(top_builddir)/src/libBAT.la \
+		$(ROOTLIBS)
+LDFLAGS = -L$(ROOTLIBDIR)
 
 if CUBA
-TESTS_LD_ADD += -lcuba
+LDADD += -lcuba
+LDFLAGS += @CUBALIB@
 endif
 
 check_PROGRAMS = $(TESTS)
 
 test_TEST_SOURCES = test_TEST.cxx
-test_TEST_LDADD = $(TESTS_LD_ADD)
-test_TEST_LDFLAGS = $(TESTS_LD_FLAGS)
 
 BCMath_TEST_SOURCES = BCMath_TEST.cxx
-BCMath_TEST_LDADD = $(TESTS_LD_ADD)
-BCMath_TEST_LDFLAGS = $(TESTS_LD_FLAGS)
+
+BCModel_TEST_SOURCES = BCModel_TEST.cxx
+
+BCIntegrate_TEST_SOURCES = BCIntegrate_TEST.cxx
 
 parallel_TEST_SOURCES = parallel_TEST.cxx
-parallel_TEST_LDADD = $(TESTS_LD_ADD)
-parallel_TEST_LDFLAGS = $(TESTS_LD_FLAGS)

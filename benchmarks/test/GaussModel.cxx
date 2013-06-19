@@ -11,7 +11,8 @@ GaussModel::GaussModel(const char * name, const unsigned & nParameters, long loo
    // add identical, independent parameters
    for (unsigned i = 0; i < nParameters ; i++)
    {
-       AddParameter(test::stringify(i).c_str(), -15.0, 15.0);
+      std::string parName("par");
+       AddParameter((parName + test::stringify(i)).c_str(), -15.0, 15.0);
    }
 }
 

@@ -5,7 +5,9 @@
  * For the licensing terms see doc/COPYING.
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #ifdef THREAD_PARALLELIZATION
 
 #include <GaussModel.h>
@@ -65,16 +67,16 @@ public:
     struct Config{
         /**
          * The configure option to set #markov chains */
-        int num_chains;
+        unsigned num_chains;
         /**
          * The configure option to set the #entries to check in parallel test */
         long num_entries;
         /**
          * The configure option to set the #parameters for the model */
-        int num_parameters;
+        unsigned num_parameters;
         /**
          * The configure option to set the #iterations for each chain in the model */
-        int num_iterations;
+        unsigned num_iterations;
         /**
          * The configure option to set the plotting of results */
         bool plot;
@@ -116,26 +118,22 @@ public:
     unsigned seed;
     struct DataHolder
     {
-        int fMCMCNIterations;
-        int fMCMCNParameters;
-
+        unsigned fMCMCNIterations;
 
         double fMCMCprob;
         int fMCMCPhase;
-        int fMCMCCycle;
         std::vector<double> parameters;
 
         DataHolder(TTree *tree) {
             if (!tree) return;
             tree->SetBranchAddress("Iteration",       &fMCMCNIterations);
-            tree->SetBranchAddress("NParameters",     &fMCMCNParameters);
             tree->SetBranchAddress("LogProbability",  &fMCMCprob);
             tree->SetBranchAddress("Phase",           &fMCMCPhase);
-            tree->SetBranchAddress("Cycle",           &fMCMCCycle);
 
             // need #parameters to initialize the vector
+            // todo dirty hack to remove fixed number that might change if cycle is dropped
             tree->GetEntry(0);
-            parameters.resize(fMCMCNParameters);
+            parameters.resize(tree->GetNbranches() - 3);
 
             for (unsigned k = 0; k < parameters.size(); ++k)
             {
@@ -233,8 +231,7 @@ public:
             delete one;
         }
 
-        int nchains = config.num_chains;
-        for (int ichain = 0; ichain < nchains; ++ichain) {
+        for (unsigned ichain = 0; ichain < config.num_chains; ++ichain) {
             TTree * one = NULL;
             TTree * two = NULL;
 
@@ -247,7 +244,7 @@ public:
 
             TEST_CHECK_EQUAL(nEntries1, nEntries2);
 
-            // check prerun(phase 1) and mainrun(phase 2)
+            // check prerun(phase 1) and mainrun(phase 2) for identity
             for (unsigned phase = 1; phase < 3 ; ++phase)
             {
                 // loop over iterations
@@ -262,12 +259,48 @@ public:
                         TEST_CHECK_EQUAL(oneData.parameters[k], twoData.parameters[k]);
                     }
                     TEST_CHECK_EQUAL(oneData.fMCMCNIterations, twoData.fMCMCNIterations);
-                    TEST_CHECK_EQUAL(oneData.fMCMCNParameters, twoData.fMCMCNParameters);
                     TEST_CHECK_EQUAL(oneData.fMCMCprob, twoData.fMCMCprob);
                     TEST_CHECK_EQUAL(oneData.fMCMCPhase, twoData.fMCMCPhase);
-                    TEST_CHECK_EQUAL(oneData.fMCMCCycle, twoData.fMCMCCycle);
                 }
             }
+#if 0
+            // check that two consecutive values change only on at most one parameter
+            // take only first two parameters
+            if (oneData.parameters.size() > 1)
+            {
+               one->GetEntry(0);
+               two->GetEntry(0);
+
+               double previousX = oneData.parameters[0];
+               double previousY = oneData.parameters[1];
+
+               for (unsigned phase = 1; phase < 3 ; ++phase)
+               {
+                  // loop over iterations
+                  for(long long int entry = (phase - 1) * main_begin + 1;
+                        entry <  (phase - 1) * main_begin + config.num_entries ; ++entry) {
+                     one->GetEntry(entry);
+                     two->GetEntry(entry);
+
+                     std::cout << print_container(oneData.parameters) << std::endl;
+                     if (oneData.parameters[0] != previousX and oneData.parameters[1] != previousY)
+                     {
+                        std::string msg = "Two (or more) parameters changed at once in iteration " + stringify(entry) + ":\n";
+                        msg += stringify(previousX) + "->" + stringify(oneData.parameters[0]) + ", ";
+                        msg += stringify(previousY) + "->" + stringify(oneData.parameters[1]);
+                        TEST_CHECK_FAILED(msg);
+                     }
+
+                     previousX = oneData.parameters[0];
+                     previousY = oneData.parameters[1];
+                  }
+               }
+            }
+            else
+            {
+               TEST_CHECK_FAILED("Need at least two parameters to check one-parameter-at-a-time proposal");
+            }
+#endif
             delete one;
             delete two;
         }
@@ -301,7 +334,7 @@ public:
 
         config.num_chains = 4;
         config.num_parameters = 1;
-        config.lag = 1e4;
+        config.lag = 1e3;
         {
             RunComparison comparison(config);
         }
