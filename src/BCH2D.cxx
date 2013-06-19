@@ -10,61 +10,42 @@
 #include "BCH2D.h"
 #include "BCH1D.h"
 
-#include "BCMath.h"
 #include "BCLog.h"
+#include "BCMath.h"
 
-#include <TROOT.h>
-#include <TStyle.h>
+#include <TArrow.h>
+#include <TCanvas.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TGraph.h>
-#include <TCanvas.h>
-#include <TLine.h>
-#include <TMarker.h>
-#include <TObject.h>
-#include <TArrow.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
+#include <TMarker.h>
+#include <TObject.h>
+#include <TROOT.h>
 #include <TString.h>
+#include <TStyle.h>
+#include <TLine.h>
 
 #include <math.h>
 
 unsigned int BCH2D::fHCounter=0;
 
 // ---------------------------------------------------------
-
-BCH2D::BCH2D()
+BCH2D::BCH2D(TH2D * h)
 : fHistogram(0)
 , fIntegratedHistogram(0)
-, fROOTObjects(std::vector<TObject*>(0))
+, fModeFlag(0)
 {
-   fModeFlag = 0;
+   if (h)
+      SetHistogram(h);
 }
 
 // ---------------------------------------------------------
-
-BCH2D::BCH2D(TH2D * h)
-: fIntegratedHistogram(0)
-, fROOTObjects(std::vector<TObject*>(0))
-{
-   fModeFlag = 0;
-
-   SetHistogram(h);
-}
-
-// ---------------------------------------------------------
-
 BCH2D::~BCH2D()
 {
-   if (fHistogram)
-      delete fHistogram;
-   if (fIntegratedHistogram)
-      delete fIntegratedHistogram;
-
-   // clear memory
-   int nobjects = (int) fROOTObjects.size();
-   for (int i = 0; i < nobjects; ++i)
-      if (fROOTObjects[i])
+   delete fIntegratedHistogram;
+   for (unsigned i = 0; i < fROOTObjects.size(); ++i)
          delete fROOTObjects[i];
 }
 
@@ -115,29 +96,8 @@ void BCH2D::SetColorScheme(int scheme)
 void BCH2D::SetHistogram(TH2D * hist)
 {
    fHistogram = hist;
-   if (fHistogram)
-      if (fHistogram->Integral()>0)
+  if (fHistogram and fHistogram->Integral() > 0)
          fHistogram->Scale(1.0/fHistogram->Integral("width"));
-}
-
-// ---------------------------------------------------------
-void BCH2D::PrintOld(const char * filename, int options, int ww, int wh)
-{
-   // create temporary canvas
-   TCanvas * c;
-   if(ww >0 && wh > 0)
-      c = new TCanvas("c","c",ww,wh);
-   else
-      c = new TCanvas("c","c",700,700);
-   c->cd();
-
-   // draw histogram
-   DrawOld(options);
-
-   gPad->RedrawAxis();
-
-   // print to file
-   c->Print(filename);
 }
 
 // ---------------------------------------------------------
@@ -390,6 +350,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
       }
       else if (bandtype == 1) {
          TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
+         fROOTObjects.push_back(le);
          le->SetLineColor(GetColor(nbands-1-i));
          le->SetTextAlign(12);
          le->SetTextFont(62);
@@ -584,220 +545,16 @@ void BCH2D::Draw(std::string options, double interval)
 }
 
 // ---------------------------------------------------------
-
-void BCH2D::DrawOld(int options, bool drawmode)
-{
-   // draw histogram
-   fHistogram->SetLineColor(kBlack);
-   //   fHistogram->SetLineWidth(4);
-
-   fHistogram->Scale(1./fHistogram->Integral("width"));
-
-   double modex,modey;
-
-   // set mode to display
-   if(fModeFlag)
-   {
-      modex = fMode[0];
-      modey = fMode[1];
-   }
-   else
-   {
-      int maximumbin = fHistogram->GetMaximumBin();
-
-      int binx = maximumbin % (fHistogram->GetNbinsX() + 2);
-      int biny = maximumbin / (fHistogram->GetNbinsX() + 2);
-
-      modex = fHistogram->GetXaxis()->GetBinCenter(binx);
-      modey = fHistogram->GetYaxis()->GetBinCenter(biny);
-   }
-
-   // normalize histogram
-   fHistogram->Scale(1./fHistogram->Integral("width"));
-
-   // draw according to selected option
-   if (options == 0)
-      fHistogram->Draw("CONT0");
-   else if (options == 1)
-   {
-      fHistogram->Draw("CONT3");
-
-      // set contours
-      CalculateIntegratedHistogram();
-
-      double levels[4];
-      levels[0] = 0.;
-      levels[1] = GetLevel(1.0 - 0.6827);
-      levels[2] = GetLevel(1.0 - 0.9545);
-      levels[3] = GetLevel(1.0 - 0.9973);
-
-      fHistogram->SetContour(4, levels);
-
-      // best fit value
-      TMarker* marker = new TMarker(modex, modey, 24);
-      marker->Draw();
-
-      TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
-      legend->SetBorderSize(0);
-      legend->SetFillColor(kWhite);
-      legend->AddEntry(fHistogram, "68% prob. region", "L");
-      legend->AddEntry(marker, "Best fit", "P");
-      legend->Draw();
-   }
-   else if (options == 2)
-   {
-      fHistogram->Draw("CONT3");
-
-      // set contours
-      CalculateIntegratedHistogram();
-
-      double levels[2];
-      double level32 = GetLevel(0.32);
-      levels[0] = 0.;
-      levels[1] = level32;
-
-      fHistogram->SetContour(2, levels);
-
-      // best fit value
-      TMarker* marker = new TMarker(modex, modey, 24);
-      marker->Draw();
-
-      TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
-      legend->SetBorderSize(0);
-      legend->SetFillColor(kWhite);
-      legend->AddEntry(fHistogram, "68% prob. region", "L");
-      legend->AddEntry(marker, "Best fit", "P");
-      legend->Draw();
-
-   }
-   else if (options == 3)
-   {
-      fHistogram->Draw("CONT3");
-
-      // set contours
-      CalculateIntegratedHistogram();
-
-      double levels[2];
-      double level10 = GetLevel(0.10);
-      levels[0] = 0.;
-      levels[1] = level10;
-
-      fHistogram->SetContour(2, levels);
-
-      TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
-      legend->SetBorderSize(0);
-      legend->SetFillColor(kWhite);
-      legend->AddEntry(fHistogram, "90% prob. region", "L");
-      legend->Draw();
-   }
-   else if (options == 4)
-   {
-      fHistogram->Draw("CONT3");
-
-      // set contours
-      CalculateIntegratedHistogram();
-
-      double levels[2];
-      double level5 = GetLevel(0.05);
-      levels[0] = 0.;
-      levels[1] = level5;
-
-      fHistogram->SetContour(2, levels);
-
-      TLegend* legend = new TLegend(0.65, 0.80, 0.95, 0.95);
-      legend->SetBorderSize(0);
-      legend->SetFillColor(kWhite);
-      legend->AddEntry(fHistogram, "95% prob. region", "L");
-      legend->Draw();
-   }
-   else if (options == 5)
-      fHistogram->Draw("COL");
-   else if (options == 52 || options == 521)
-   {
-      // create new empty histogram
-      int nx = fHistogram->GetNbinsX();
-      int ny = fHistogram->GetNbinsY();
-      double xmin = fHistogram->GetXaxis()->GetXmin();
-      double xmax = fHistogram->GetXaxis()->GetXmax();
-      TH2D * h = new TH2D(
-            TString::Format("htemp52_%d",BCLog::GetHIndex()),fHistogram->GetTitle(),
-            nx,xmin,xmax,
-            ny,fHistogram->GetYaxis()->GetXmin(),fHistogram->GetYaxis()->GetXmax());
-      h->SetXTitle(fHistogram->GetXaxis()->GetTitle());
-      h->SetYTitle(fHistogram->GetYaxis()->GetTitle());
-
-      // copy contents of the main histogram
-      //      double min = fHistogram->GetMinimum(0.);
-      for(int i=1;i<=nx;i++)
-         for(int j=1;j<=ny;j++)
-         {
-            double val = fHistogram->GetBinContent(i,j);
-            // if requested, change contents of bins to log scale
-            if(options == 521)
-            {
-               val = log10(val);
-            }
-            h->SetBinContent(i,j,val);
-         }
-
-      // draw
-      h->SetStats(0);
-      h->Draw("col");
-
-      // draw contour
-      fHistogram->Draw("cont3 same");
-      fHistogram->SetLineWidth(2);
-
-      // set contours
-      CalculateIntegratedHistogram();
-
-      double levels[] = { GetLevel(0.32) };
-      fHistogram->SetContour(1, levels);
-
-      // best fit value
-      if(drawmode)
-      {
-         TMarker * marker0 = new TMarker(modex, modey, 8);
-         marker0->SetMarkerColor(0);
-         marker0->SetMarkerSize(.7);
-         marker0->Draw();
-         TMarker * marker1 = new TMarker(modex, modey, 4);
-         marker1->SetMarkerColor(1);
-         marker1->SetMarkerSize(.7);
-         marker1->Draw();
-      }
-   }
-   else if (options == 53 || options == 531)
-   {
-      gPad->SetLogz();
-      fHistogram->Draw("colz");
-
-      // best fit value
-      TMarker * marker0 = new TMarker(modex, modey, 8);
-      marker0->SetMarkerColor(0);
-      marker0->SetMarkerSize(.7);
-      marker0->Draw();
-      TMarker * marker1 = new TMarker(modex, modey, 4);
-      marker1->SetMarkerColor(1);
-      marker1->SetMarkerSize(.7);
-      marker1->Draw();
-      //      TMarker * marker = new TMarker(modex, modey, 5);
-      //      marker->SetMarkerColor(0);
-      //      marker->Draw();
-   }
-}
-
-// ---------------------------------------------------------
 void BCH2D::PrintIntegratedHistogram(const char* filename)
 {
-   TCanvas* c = new TCanvas();
-   c->cd();
-   c->SetLogy();
+  TCanvas c;
+  c.Flush();
+
+  c.cd();
+  c.SetLogy();
    CalculateIntegratedHistogram();
    fIntegratedHistogram->Draw();
-   c->Print(filename);
-
-   delete c;
+  c.Print(filename);
 }
 
 // ---------------------------------------------------------
@@ -917,7 +674,7 @@ TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
 
    TGraph ** gxx = new TGraph*[nbands];
 
-   TH2D * h0 = (TH2D*)h->Clone();
+  TH2D * h0 = static_cast<TH2D *>(h->Clone());
 
    if (nbands>0)
       gxx[0] = GetLowestBandGraph(h0,nint);
@@ -929,6 +686,8 @@ TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
    }
    else
       n=1;
+
+  fROOTObjects.push_back(h0);
 
    return gxx;
 }
@@ -1028,52 +787,52 @@ TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
   // loop over outer axis of choice
   for (int ibin_outer = 1; ibin_outer <= nbins_outer ; ibin_outer++) {
 
-    // copy slice at a fixed value into a 1D histogram
-    TH1D* hist_temp = new TH1D("", "", nbins_inner, axis_min, axis_max);
-    
-    for (int ibin_inner = 1; ibin_inner <= nbins_inner; ibin_inner++) {
-      int ix = 0;
-      int iy = 0;
-      if (axis == 0) {
-	ix = ibin_outer;
-	iy = ibin_inner;
-      }
-      else {
-	ix = ibin_inner;
-	iy = ibin_outer;
-      }
-      double content = fHistogram->GetBinContent(ix, iy);
-      hist_temp->SetBinContent(ibin_inner, content);
-    }
-    // normalize to unity
-    hist_temp->Scale(1.0/hist_temp->Integral());
+     // copy slice at a fixed value into a 1D histogram
+     TH1D* hist_temp = new TH1D("", "", nbins_inner, axis_min, axis_max);
 
-    // create BAT histogram
-    BCH1D* bchist_temp = new BCH1D(hist_temp);
-    
-    // calculate (x,y) of new point
-    double x = fHistogram->GetXaxis()->GetBinCenter(ibin_outer); 
-    double y = fHistogram->GetYaxis()->GetBinCenter(ibin_outer); 
+     for (int ibin_inner = 1; ibin_inner <= nbins_inner; ibin_inner++) {
+        int ix = 0;
+        int iy = 0;
+        if (axis == 0) {
+           ix = ibin_outer;
+           iy = ibin_inner;
+        }
+        else {
+           ix = ibin_inner;
+           iy = ibin_outer;
+        }
+        double content = fHistogram->GetBinContent(ix, iy);
+        hist_temp->SetBinContent(ibin_inner, content);
+     }
+     // normalize to unity
+     hist_temp->Scale(1.0/hist_temp->Integral());
 
-    double temp = 0; 
+     // create BAT histogram
+     BCH1D* bchist_temp = new BCH1D(hist_temp);
 
-    if (flag_mode)
-      temp = bchist_temp->GetMode();
-    else if (flag_mean)
-      temp = bchist_temp->GetMean();
-    else if (flag_median)
-      temp = bchist_temp->GetMedian();
+     // calculate (x,y) of new point
+     double x = fHistogram->GetXaxis()->GetBinCenter(ibin_outer);
+     double y = fHistogram->GetYaxis()->GetBinCenter(ibin_outer);
 
-    if (axis == 0) 
-      y = temp;
-    else
-      x = temp;
+     double temp = 0;
 
-    // add new point to graph    
-    graph_profile->SetPoint(ibin_outer-1, x, y);
-    
-    // clean up
-    delete bchist_temp;
+     if (flag_mode)
+        temp = bchist_temp->GetMode();
+     else if (flag_mean)
+        temp = bchist_temp->GetMean();
+     else if (flag_median)
+        temp = bchist_temp->GetMedian();
+
+     if (axis == 0)
+        y = temp;
+     else
+        x = temp;
+
+     // add new point to graph
+     graph_profile->SetPoint(ibin_outer-1, x, y);
+
+     // clean up
+     delete bchist_temp;
   }
 
   // return the graph
@@ -1247,8 +1006,6 @@ TGraph * BCH2D::GetBandGraph(TH2D * h , double l1, double l2)
    int nx = h->GetNbinsX() - 1;
 
    TGraph * g = new TGraph(2*nx);
-   //   g->SetFillStyle(1001);
-   //   g->SetFillColor(kYellow);
 
    // get error bands
    std::vector<double> ymin = GetLevelBoundary(h,l1);
