@@ -23,47 +23,26 @@ BCDataPoint::BCDataPoint(int nvariables)
 }
 
 // ---------------------------------------------------------
-BCDataPoint::BCDataPoint(std::vector<double> x)
+BCDataPoint::BCDataPoint(const std::vector<double> & x)
 {
    // copy all values of x to the data point
-   for (std::vector<double>::const_iterator it = x.begin(); it != x.end(); ++it)
-      fData.push_back(*it);
+   fData = x;
 }
 
 // ---------------------------------------------------------
-BCDataPoint::BCDataPoint(const BCDataPoint & datapoint)
-{
-   // debugKK
-   fData = datapoint.fData;
-}
-
-// ---------------------------------------------------------
-BCDataPoint::~BCDataPoint()
-{}
-
-// ---------------------------------------------------------
-BCDataPoint & BCDataPoint::operator = (const BCDataPoint & datapoint)
-{
-   fData = datapoint.fData;
-
-   // return this
-   return *this;
-}
-
-// ---------------------------------------------------------
-double BCDataPoint::GetValue(int index)
+double BCDataPoint::GetValue(unsigned index) const
 {
    double value;
 
    // check if index is in range. return value if true ...
-   if (index >= 0 && index < int(fData.size()))
+   if (index < fData.size())
       value = fData[index];
    // ... or give error if not.
    else {
       // exit on error
       BCLog::OutError(
-            Form("BCDataPoint::GetValue : Index %d out of range (%d to %d).",
-                 index,0, (int)fData.size()-1));
+            Form("BCDataPoint::GetValue : Index %u out of range (%u to %u).",
+                 index, 0, fData.size()-1));
       exit(1);
    }
 
@@ -71,31 +50,29 @@ double BCDataPoint::GetValue(int index)
 }
 
 // ---------------------------------------------------------
-void BCDataPoint::SetValue(int index, double value)
+void BCDataPoint::SetValue(unsigned index, double value)
 {
    // check if index is in range. set value if true ...
-   if (index >= 0 && index < int(fData.size()))
+   if (index < fData.size())
       fData[index] = value;
    // ... or give error if not.
    else {
       // exit on error
       BCLog::OutError(
-            Form("BCDataPoint::SetValue : Index %d out of range (%d to %d).",
-                 index, 0 ,(int)fData.size()-1));
+            Form("BCDataPoint::SetValue : Index %u out of range (%u to %u).",
+                 index, 0 , fData.size()-1));
       exit(1);
    }
 }
 
 // ---------------------------------------------------------
-void BCDataPoint::SetValues(std::vector<double> values)
+void BCDataPoint::SetValues(const std::vector<double> & values)
 {
    // check if sizes are the same. if true, clear the data point and copy from
    // the vector passed to the method ...
    if (values.size() == fData.size())
    {
-      fData.clear();
-      for (std::vector<double>::const_iterator it = values.begin(); it != values.end(); ++it)
-         fData.push_back(*it);
+      fData = values;
    }
    // ... or give error if the size if not the same.
    else {

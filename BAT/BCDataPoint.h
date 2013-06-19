@@ -43,42 +43,25 @@ class BCDataPoint
       /**
        * A constructor.
        * @param x The vector containing the data. */
-      BCDataPoint(std::vector<double> x);
-
-      /**
-       * The copy constructor. */
-      BCDataPoint(const BCDataPoint & datapoint);
-
-      /**
-       * A destructor. */
-      ~BCDataPoint();
+      BCDataPoint(const std::vector<double> & x);
 
       /** @} */
-      /** \name Assignment operators */
-      /** @{ */
-
-      /**
-       * Defaut assignment operator */
-      BCDataPoint & operator = (const BCDataPoint & datapoint);
-
-      /** @} */
-
       /** \name Member functions (get) */
       /** @{ */
 
       /**
        * @param index The index of the variable.
        * @return The value of the variable. */
-      double GetValue(int index);
+      double GetValue(unsigned index) const;
 
       /**
        * @return A vector of values. */
-      std::vector<double> GetValues()
+      const std::vector<double> & GetValues() const
          { return fData; };
 
       /**
        * Returns the number of values. */
-      unsigned int GetNValues()
+      unsigned int GetNValues() const
          { return fData.size(); };
 
       /** @} */
@@ -90,12 +73,12 @@ class BCDataPoint
        * Set the value of a variable.
        * @param index The index of the variable
        * @param value The value of the variable */
-      void SetValue(int index, double value);
+      void SetValue(unsigned index, double value);
 
       /**
        * Set the values of all variables.
        * @param values A vector of values */
-      void SetValues(std::vector<double> values);
+      void SetValues(const std::vector<double> & values);
 
       /** @} */
 
