@@ -220,7 +220,7 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
       SetName(TString::Format("HistogramFitter with %s", fFitFunction->GetName()));
 
    // reset parameters
-   fParameterSet->clear();
+   ClearParameters(true);
 
    // get the new number of parameters
    int n = func->GetNpar();
@@ -245,6 +245,7 @@ int BCHistogramFitter::SetFitFunction(TF1 * func)
 
 BCHistogramFitter::~BCHistogramFitter()
 {
+   // todo memory leak, many members not removed
    delete fHistogramExpected;
 }
 

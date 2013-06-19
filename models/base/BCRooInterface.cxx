@@ -1,23 +1,20 @@
+#include "BCRooInterface.h"
+#include "../../BAT/BCMath.h"
+#include "../../BAT/BCParameter.h"
+
 #include <RooGlobalFunc.h>
 #include <RooMsgService.h>
 #include <RooProdPdf.h>
+#include <RooUniform.h>
 #include <RooWorkspace.h>
 #include <TFile.h>
-
-#include "../../BAT/BCMath.h"
-#include <iostream>
-
-#include "BCRooInterface.h"
-
-#include <RooUniform.h>
 
 //for testing
 #include "RooRealVar.h"
 #include "RooAbsReal.h"
 #include "RooRandom.h"
 
-
-
+#include <iostream>
 
 // ---------------------------------------------------------
 void BCRooInterface::Initialize( RooAbsData& data,
@@ -177,16 +174,17 @@ void BCRooInterface::DefineParameters()
    int nParams = fParams->getSize();
    for (int iParam=0; iParam<nParams; iParam++) {
       RooRealVar* ipar = (RooRealVar*) fParams->at(iParam);
-      this->AddParameter(ipar->GetName(),ipar->getMin(),ipar->getMax());
-      this->SetNbins(ipar->GetName(),_default_nbins);
-      std::cout << "added parameter: " << ipar->GetName() << " defined in range [ " << ipar->getMin() << " - " << ipar->getMax() << " ] with number of bins: " << _default_nbins << " \n";
+      BCParameter * bcpar = new BCParameter(ipar->GetName(),ipar->getMin(),ipar->getMax());
+      bcpar->SetNbins(_default_nbins);
+      this->AddParameter(bcpar);
+      std::cout << "added parameter: " << bcpar->GetName() << " defined in range [ " << bcpar->GetLowerLimit() << " - "
+            << bcpar->GetUpperLimit() << " ] with number of bins: " << bcpar->GetNbins() << " \n";
    }
 
    for(std::list< std::pair<const char*,int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++) {
-      this->SetNbins((*listiter).first,(*listiter).second);
+      GetParameter((*listiter).first)->SetNbins((*listiter).second);
       std::cout << "adjusted parameter: " << (*listiter).first << " to number of bins: " << (*listiter).second << " \n";
    }
-
 }
 
 // ---------------------------------------------------------

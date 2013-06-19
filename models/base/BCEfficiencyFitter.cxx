@@ -182,7 +182,7 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
       SetName(TString::Format("BCEfficiencyFitter with %s",fFitFunction->GetName()));
 
    // reset parameters
-   fParameterSet->clear();
+   ClearParameters(true);
 
    // get the new number of parameters
    int n = func->GetNpar();
@@ -208,14 +208,9 @@ int BCEfficiencyFitter::SetFitFunction(TF1 * func)
 
 BCEfficiencyFitter::~BCEfficiencyFitter()
 {
-   if (fHistogram1)
-      delete fHistogram1;
-
-   if (fHistogram2)
-      delete fHistogram2;
-
-   if (fHistogramBinomial)
-      delete fHistogramBinomial;
+   delete fHistogram1;
+   delete fHistogram2;
+   delete fHistogramBinomial;
 }
 
 // ---------------------------------------------------------

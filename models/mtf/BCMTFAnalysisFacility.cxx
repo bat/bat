@@ -7,27 +7,28 @@
 
 // ---------------------------------------------------------
 
-#include <sys/stat.h>
-#include <unistd.h>
-#include <iostream>
-
-#include <TROOT.h>
-#include <TCanvas.h>
-#include <TTree.h>
-#include <TH1D.h>
-#include <TRandom3.h>
-#include <TFile.h>
-
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCH1D.h"
+#include "BCMTFAnalysisFacility.h"
 
 #include "BCMTF.h"
 #include "BCMTFChannel.h"
-#include "BCMTFTemplate.h"
-#include "BCMTFSystematic.h"
 #include "BCMTFComparisonTool.h"
+#include "BCMTFSystematic.h"
+#include "BCMTFTemplate.h"
 
-#include "BCMTFAnalysisFacility.h"
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCH1D.h"
+#include "../../BAT/BCParameter.h"
+
+#include <TCanvas.h>
+#include <TFile.h>
+#include <TH1D.h>
+#include <TRandom3.h>
+#include <TROOT.h>
+#include <TTree.h>
+
+#include <sys/stat.h>
+#include <unistd.h>
+#include <iostream>
 
 // ---------------------------------------------------------
 BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf)
@@ -97,7 +98,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(TTree * tree, int nensembles, std:
    // get number of channels
    int nchannels = fMTF->GetNChannels();
 
-   BCLog::OutDetail(Form("MTF Building %d ensambles for %d channels.",nensembles,nchannels));
+   BCLog::OutDetail(Form("MTF Building %d ensembles for %d channels.",nensembles,nchannels));
 
    // get number of parameters
    int nparameters = fMTF->GetNParameters();
@@ -524,7 +525,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
          BCLog::SetLogLevel(fLogLevel);
 
          // work-around: force initialization
-         fMTF->MCMCResetResults();
+         fMTF->ResetResults();
 
          // run mcmc
          fMTF->MarginalizeAll();
@@ -633,7 +634,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
    BCLog::SetLogLevel(lls,llf);
 
    // work-around: force initialization
-   fMTF->MCMCResetResults();
+   fMTF->ResetResults();
 
    BCLog::OutSummary("Ensemble test ran successfully.");
 
@@ -763,7 +764,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
    // ---- perform analysis for combination ---- //
    if (flag_mcmc) {
       // work-around: force initialization
-      fMTF->MCMCResetResults();
+      fMTF->ResetResults();
 
       // run mcmc
       fMTF->MarginalizeAll();
@@ -824,7 +825,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 
       if (flag_mcmc) {
          // work-around: force initialization
-         fMTF->MCMCResetResults();
+         fMTF->ResetResults();
 
          // run mcmc
          fMTF->MarginalizeAll();
@@ -889,7 +890,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
    }
 
    // ---- workaround: reset MCMC ---- //
-   fMTF->MCMCResetResults();
+   fMTF->ResetResults();
 
    // ---- print everything ---- //
    TCanvas * c1 = new TCanvas();
@@ -1025,7 +1026,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
    if (flag_mcmc) {
       // work-around: force initialization
-      fMTF->MCMCResetResults();
+      fMTF->ResetResults();
 
       // run mcmc
       fMTF->MarginalizeAll();
@@ -1077,7 +1078,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
       // perform analysis
       if (flag_mcmc) {
          // work-around: force initialization
-         fMTF->MCMCResetResults();
+         fMTF->ResetResults();
 
          // run mcmc
          fMTF->MarginalizeAll();
@@ -1115,7 +1116,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
    if (flag_mcmc) {
       // work-around: force initialization
-      fMTF->MCMCResetResults();
+      fMTF->ResetResults();
 
       // run mcmc
       fMTF->MarginalizeAll();
@@ -1158,7 +1159,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
    }
 
    // ---- workaround: reset MCMC ---- //
-   fMTF->MCMCResetResults();
+   fMTF->ResetResults();
 
    // ---- print everything ---- //
    TCanvas * c1 = new TCanvas();

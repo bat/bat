@@ -7,26 +7,28 @@
 
 // ---------------------------------------------------------
 
-#include <iostream>
+#include "BCTemplateFitter.h"
 
-#include <TROOT.h>
+
+#include "../../BAT/BCH1D.h"
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCMath.h"
+#include "../../BAT/BCParameter.h"
+
+#include <TCanvas.h>
+#include <TDirectory.h>
+#include <TGraphAsymmErrors.h>
 #include <TH2D.h>
 #include <THStack.h>
-#include <TCanvas.h>
 #include <TLegend.h>
+#include <TLine.h>
 #include <TMath.h>
 #include <TRandom3.h>
-#include <TGraphAsymmErrors.h>
-#include <TPostScript.h>
 #include <TPad.h>
-#include <TLine.h>
-#include <TDirectory.h>
+#include <TPostScript.h>
+#include <TROOT.h>
 
-#include "../../BAT/BCMath.h"
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCH1D.h"
-
-#include "BCTemplateFitter.h"
+#include <iostream>
 
 // ---------------------------------------------------------
 BCTemplateFitter::BCTemplateFitter()

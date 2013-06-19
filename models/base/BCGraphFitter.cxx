@@ -186,7 +186,7 @@ int BCGraphFitter::SetFitFunction(TF1 * func)
       SetName(TString::Format("GraphFitter with %s",fFitFunction->GetName()));
 
    // reset parameters
-   fParameterSet->clear();
+   ClearParameters(true);
 
    // add parameters
    for (int i = 0; i < npar; ++i)
@@ -207,21 +207,9 @@ int BCGraphFitter::SetFitFunction(TF1 * func)
 // ---------------------------------------------------------
 
 BCGraphFitter::~BCGraphFitter()
-{}
-
-// ---------------------------------------------------------
-
-/*
-double BCGraphFitter::LogAPrioriProbability(std::vector<double> parameters)
 {
-   // using flat probability in all parameters
-   double logprob = 0.;
-   for(unsigned int i=0; i < GetNParameters(); i++)
-      logprob -= log(GetParameter(i)->GetRangeWidth());
-
-   return logprob;
+   // todo memory leak
 }
-*/
 
 // ---------------------------------------------------------
 
@@ -239,7 +227,7 @@ double BCGraphFitter::LogLikelihood(const std::vector<double> & params)
    fFitFunction->SetParameters(&params[0]);
 
    // loop over all data points
-   for (int i = 0; i < GetNDataPoints(); i++)
+   for (unsigned i = 0; i < GetNDataPoints(); i++)
    {
       std::vector<double> x = GetDataPoint(i)->GetValues();
 
