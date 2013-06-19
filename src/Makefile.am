@@ -36,6 +36,7 @@ incs= \
 	BCH1D.h \
 	BCH2D.h \
 	BCParameter.h \
+	BCParameterSet.h \
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \
