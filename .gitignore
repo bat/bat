@@ -10,7 +10,7 @@ depcomp
 install-sh
 libtool
 *LinkDef.h
-link.d
+*.d
 *.log
 ltmain.sh
 Makefile
@@ -40,8 +40,11 @@ doc/introduction/*
 .settings/org.eclipse*
 *~
 
-# File managers
-.directory
+# Example outputs
+*.pdf
+*.root
+results.txt
+log.txt
 !models/mvc/aclocal.m4
 !models/mvc/*.cache
 !models/mvc/config
