@@ -78,13 +78,7 @@ BCDataSet & BCDataSet::operator = (const BCDataSet & bcdataset)
 
 unsigned int BCDataSet::GetNDataPoints()
 {
-   // check if vector exists. Return number of data points if true ...
-   if (fBCDataVector)
-      return fBCDataVector->size();
-
-   // ... or give out error and return 0 if not.
-   BCLog::OutError("BCDataSet::GetNDataPoints : DataSet not yet created.");
-   return 0;
+   return fBCDataVector ? fBCDataVector->size() : 0;
 }
 
 // ---------------------------------------------------------

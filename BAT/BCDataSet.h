@@ -138,7 +138,7 @@ class BCDataSet
       /** @} */
 
    private:
-
+      // todo why a pointer? creates a huge amount of unnecessary checks
       /**
        * A vector containing the data points */
       BCDataVector * fBCDataVector;
