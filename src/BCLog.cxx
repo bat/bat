@@ -132,7 +132,7 @@ void BCLog::StartupInfo()
          " |     Running with BAT\n"
          " |      Version %s\n"
          " |\n"
-         " | http://www.mppmu.mpg.de/bat\n"
+         " | http://mpp.mpg.de/bat\n"
          " +------------------------------\n",
          BCLog::fVersion);
   */
@@ -143,7 +143,7 @@ void BCLog::StartupInfo()
 		 " | Copyright (C) 2007-2012, Daniel Kollar and Kevin Kroeninger, |\n"
                  " | all rights reserved.                                         |\n"
 		 " | For the licensing terms see doc/COPYING                      |\n"
-		 " | For documentation  see http://www.mppmu.mpg.de/bat           |\n"
+		 " | For documentation  see http://mpp.mpg.de/bat           |\n"
 		 " |                                                              |\n"
                  " +--------------------------------------------------------------+\n",
          BCLog::fVersion);
@@ -186,7 +186,7 @@ int printBATUponLoading()
       " |     Running with BAT\n"
       " |      Version " << VERSION << "\n"
       " |\n"
-      " | http://www.mppmu.mpg.de/bat\n"
+      " | http://mpp.mpg.de/bat\n"
       " +------------------------------\n";
 
 	*/
@@ -197,7 +197,7 @@ int printBATUponLoading()
 		 " | Copyright (C) 2007-2012, Daniel Kollar and Kevin Kroeninger, |\n"
      " | all rights reserved.                                         |\n"
 		 " | For the licensing terms see doc/COPYING                      |\n"
-		 " | For documentation  see http://www.mppmu.mpg.de/bat           |\n"
+		 " | For documentation  see http://mpp.mpg.de/bat           |\n"
 		 " |                                                              |\n"
      " +--------------------------------------------------------------+\n";
    return 0;
