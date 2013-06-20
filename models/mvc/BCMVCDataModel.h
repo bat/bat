@@ -37,7 +37,7 @@ class BCMVCDataModel : public BCModel
 
   // set the ranges of the measurements for each measurement
   // individually
-  void SetMeasurementRanges(std::vector<double> min, std::vector<double> max);
+  void SetMeasurementRanges(const std::vector<double> & min, const std::vector<double> & max);
 
   // set the ranges of the measurements for all measurements
   void SetMeasurementRanges(double min, double max);

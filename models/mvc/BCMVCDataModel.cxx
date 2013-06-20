@@ -1,15 +1,16 @@
 #include "BCMVCDataModel.h"
 
-#include <iomanip>
-
-#include <TMath.h>
-#include <TCanvas.h>
-#include <TMarker.h>
-
-#include <../../BAT/BCMath.h>
-#include <../../BAT/BCLog.h>
 #include <../../BAT/BCH1D.h>
 #include <../../BAT/BCH2D.h>
+#include <../../BAT/BCLog.h>
+#include <../../BAT/BCMath.h>
+#include <../../BAT/BCParameter.h>
+
+#include <TCanvas.h>
+#include <TMarker.h>
+#include <TMath.h>
+
+#include <iomanip>
 
 // ---------------------------------------------------------
 BCMVCDataModel::BCMVCDataModel(BCMVCombination* mvc) : BCModel("BCMVCDataModel")
@@ -64,18 +65,18 @@ void BCMVCDataModel::SetParameters(std::vector<double> parameters)
 };
 
 // ---------------------------------------------------------
-void BCMVCDataModel::SetMeasurementRanges(std::vector<double> min, std::vector<double> max)
+void BCMVCDataModel::SetMeasurementRanges(const std::vector<double> & min, const std::vector<double> & max)
 {
-  int npar = GetNParameters();
+  unsigned npar = GetNParameters();
 
-  if ( (int(min.size()) != npar) || (int(max.size()) != npar) ) {
-    BCLog::OutWarning("BCMVCDataModel::SetMeasurementRanges. Size of ranges does not fit the number of measurements.");
+  if ( (min.size() != npar) || (max.size() != npar) ) {
+    BCLog::OutWarning("BCMVCDataModel::SetnMeasurementRanges. Size of ranges does not fit the number of measurements.");
     return; 
   }
 
   // set the parameter ranges 
-  for (int i = 0; i < npar; ++i) {
-    SetParameterRange(i, min.at(i), max.at(i));
+  for (unsigned i = 0; i < npar; ++i) {
+     GetParameter(i)->SetLimits(min.at(i), max.at(i));
   }
 
 }
@@ -83,17 +84,8 @@ void BCMVCDataModel::SetMeasurementRanges(std::vector<double> min, std::vector<d
 // ---------------------------------------------------------
 void BCMVCDataModel::SetMeasurementRanges(double min, double max)
 {
-  int npar = GetNParameters();
-
-  std::vector<double> min_vec;
-  std::vector<double> max_vec;
-  
-  // fill vector with ranges
-  for (int i = 0; i < npar; ++i) {
-    min_vec.push_back(min);
-    max_vec.push_back(max);
-  }
-
+  std::vector<double> min_vec(GetNParameters(), min);
+  std::vector<double> max_vec(GetNParameters(), max);
   SetMeasurementRanges(min_vec, max_vec);
 }
 

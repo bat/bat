@@ -1,15 +1,16 @@
 #include "BCMVCombination.h"
 
+#include "BCMVCMeasurement.h"
+#include "BCMVCObservable.h"
+#include "BCMVCUncertainty.h"
+
+#include <../../BAT/BCLog.h>
+#include <../../BAT/BCMath.h>
+#include <../../BAT/BCParameter.h>
+
+#include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
-
-#include <../../BAT/BCMath.h>
-#include <../../BAT/BCLog.h>
-
-#include "BCMVCMeasurement.h"
-#include "BCMVCUncertainty.h"
-#include "BCMVCObservable.h"
 
 // ---------------------------------------------------------
 BCMVCombination::BCMVCombination() 
