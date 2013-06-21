@@ -8,7 +8,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#ifdef THREAD_PARALLELIZATION
+#if THREAD_PARALLELIZATION
 
 #include <GaussModel.h>
 #include <test.h>

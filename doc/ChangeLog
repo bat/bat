@@ -1,6 +1,8 @@
 2013-06-21 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples: fix compilation
 	* configure: raise version to 0.9.3
+	* parallel_TEST: turn off compilation if threading not configured
+
 2013-06-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Conclude major refactoring: shift methods, clean up code including unsigned where int was misused, const getters, fixing memory leaks, removing useless, poor, and unused code. I strove to keep the interface as is to make the   users' transition as easy as possible. Hence a significant ugliness remains unfortunately.
 	* Bugfixes: bat now links flawlessly on ubuntu 12.04 with gcc 4.4, 4.6, and 4.8. The solution was to add root libraries to libbat library dependencies within autotools. This helps to unclutter all makefiles as well.
