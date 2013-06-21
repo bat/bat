@@ -579,8 +579,9 @@ class BCEngineMCMC
        * Adds a parameter.
        * @param min minimum value of the parameter
        * @param max maximum value of the parameter
+       * @param latexname Optional latexname used for plotting
        * @return number of parameters after adding */
-      virtual int AddParameter(const char * name, double min, double max);
+      virtual int AddParameter(const char * name, double min, double max, const char * latexname = "");
 
       /**
        * Adds a parameter to the model.

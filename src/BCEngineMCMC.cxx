@@ -1475,13 +1475,13 @@ void BCEngineMCMC::MCMCResetRunStatistics()
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::AddParameter(const char * name, double min, double max)
+int BCEngineMCMC::AddParameter(const char * name, double min, double max, const char * latexname)
 {
    // todo memory leak:
    //   ==8243== 64 (44 direct, 20 indirect) bytes in 1 blocks are definitely lost in loss record 20,913 of 29,122
    //   ==8243==    at 0x402C9B4: operator new(unsigned int) (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
    //   ==8243==    by 0x409DED1: BCEngineMCMC::AddParameter(char const*, double, double) (BCEngineMCMC.cxx:1480)
-   return AddParameter(new BCParameter(name, min, max));
+   return AddParameter(new BCParameter(name, min, max, latexname));
 }
 
 // --------------------------------------------------------
