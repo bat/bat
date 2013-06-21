@@ -46,7 +46,7 @@ public:
          std::vector<unsigned> observed(nbins, 5);
          std::vector<double> expected(nbins, 5);
 
-         TEST_CHECK_RELATIVE_ERROR(FastPValue(observed, expected), 1, eps);
+         TEST_CHECK_RELATIVE_ERROR(FastPValue(observed, expected, 123), 1, eps);
 
          /* bad fit */
          expected = std::vector<double>(nbins, 0.1);
