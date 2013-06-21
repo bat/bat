@@ -14,7 +14,7 @@
 // ---------------------------------------------------------
 ToyModel::ToyModel(MVCombination* mvc) : BCModel("ToyModel")
 {
-  SetNMeasurements(mvc->GetNMeasurements(), 
+  SetNMeasurements(mvc->GetNMeasurements(),
 		   mvc->GetParameter(0)->GetLowerLimit(),
 		   mvc->GetParameter(0)->GetUpperLimit());
   SetVectorMeasurements(mvc->GetVectorMeasurements());
@@ -29,17 +29,17 @@ ToyModel::~ToyModel()
 
 // ---------------------------------------------------------
 void ToyModel::SetNMeasurements(int n, double min, double max)
-{ 
+{
   for (int i = 0; i < n; ++i)
     AddParameter(Form("measurement_%i", i), min, max);
 }
 
 // ---------------------------------------------------------
-void ToyModel::SetCovarianceMatrix(TMatrixD matrix) 
-{ 
+void ToyModel::SetCovarianceMatrix(TMatrixD matrix)
+{
   fCovarianceMatrix.Clear();
   fCovarianceMatrix.ResizeTo(matrix);
-  fCovarianceMatrix = matrix; 
+  fCovarianceMatrix = matrix;
 
   fInvCovarianceMatrix.Clear();
   fInvCovarianceMatrix.ResizeTo(fCovarianceMatrix);
@@ -51,8 +51,8 @@ void ToyModel::SetCovarianceMatrix(TMatrixD matrix)
 
 // ---------------------------------------------------------
 void ToyModel::SetParameters(std::vector<double> parameters)
-{ 
-  fPars = parameters; 
+{
+  fPars = parameters;
   int nmeas = GetNParameters();
 
   fVectorObservables.Clear();
@@ -70,12 +70,12 @@ void ToyModel::SetMeasurementRanges(std::vector<double> min, std::vector<double>
 
   if ( (int(min.size()) != npar) || (int(max.size()) != npar) ) {
     BCLog::OutWarning("ToyModel::SetMeasurementRanges. Size of ranges does not fit the number of measurements.");
-    return; 
+    return;
   }
 
-  // set the parameter ranges 
+  // set the parameter ranges
   for (int i = 0; i < npar; ++i) {
-    SetParameterRange(i, min.at(i), max.at(i));
+      GetParameter(i)->SetLimits(min.at(i), max.at(i));
   }
 
 }
@@ -87,7 +87,7 @@ void ToyModel::SetMeasurementRanges(double min, double max)
 
   std::vector<double> min_vec;
   std::vector<double> max_vec;
-  
+
   // fill vector with ranges
   for (int i = 0; i < npar; ++i) {
     min_vec.push_back(min);
@@ -142,11 +142,11 @@ void ToyModel::MCMCIterationInterface()
   // loop over all chains and fill histogram
   for (int i = 0; i < nchains; ++i) {
     // get the current values of the parameters x and y. These are
-		
+
     // copy parameters into a vector
     TVectorD observables(npar);
     TVectorD measurements(npar);
-		
+
     for (int j = 0; j < npar; ++j) {
       observables[j] = fPars[fVectorObservable[j]];
       measurements[j] = fMCMCx.at(i * npar + j);
@@ -167,7 +167,7 @@ void ToyModel::PrintToys(std::string filename)
   if ( (filename.find_last_of(".") != std::string::npos) &&
        (filename.substr(filename.find_last_of(".")+1) == "pdf") ) {
     ; // it's a PDF file
-    
+
   }
   else if ( (filename.find_last_of(".") != std::string::npos) &&
 	    (filename.substr(filename.find_last_of(".")+1) == "ps") ) {
@@ -179,7 +179,7 @@ void ToyModel::PrintToys(std::string filename)
   }
 
   int npars = GetNParameters();
-  
+
   TCanvas* c1 = new TCanvas("");
   c1->cd();
 
@@ -233,14 +233,14 @@ void ToyModel::PrintToys(std::string filename)
 void ToyModel::PrintSummary() {
 
   std::cout << " Goodness-of-fit test:" << std::endl << std::endl;
-  
+
   // calculate observed chi2
   double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
-  
+
   // calculate expected chi2 distribution
   BCH1D* hist_chi2 = new BCH1D(fHistChi2);
   hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
-  
+
   // calculate p-value
   double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 

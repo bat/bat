@@ -1,13 +1,15 @@
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TCanvas.h>
+#include "ReferenceCounting.h"
+
+#include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
-#include <BAT/BCAux.h>
+#include <BAT/BCParameter.h>
 #include <BAT/BCSummaryTool.h>
 
-#include "ReferenceCounting.h"
+#include <TCanvas.h>
+#include <TH1D.h>
+#include <TH2D.h>
 
 int main()
 {
@@ -29,8 +31,8 @@ int main()
    ReferenceCounting * m = new ReferenceCounting();
 
 	 // BAT settings
-	 m->SetNbins("s", 100);
-	 m->SetNbins("b", 100);
+	 m->GetParameter("s")->SetNbins(100);
+	 m->GetParameter("b")->SetNbins(100);
 	 m->MCMCSetPrecision(BCIntegrate::kMedium);
 
 	 // set option of how to evaluate prior
@@ -49,8 +51,8 @@ int main()
 	 m->SetNObs(20);
 
 	 // set parameter range
-	 m->SetParameterRange(0, 0.0, 50); // signal 
-	 m->SetParameterRange(1, 0.0, 35); // background
+	 m->GetParameter("s")->SetLimits(0.0, 50); // signal
+	 m->GetParameter("b")->SetLimits(0.0, 35); // background
 
    // create a new summary tool object
    BCSummaryTool * summary = new BCSummaryTool(m);

@@ -7,6 +7,7 @@
 #include "ReferenceCounting.h"
 
 #include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
 
 #include <TMath.h>
 #include <TH1D.h>
@@ -194,6 +195,12 @@ double ReferenceCounting::f(double s, int k)
 }
 
 // ---------------------------------------------------------
+double ReferenceCounting::df(double s, int k, int n)
+{
+   return exp(logdf(s, k, n));
+}
+
+// ---------------------------------------------------------
 double ReferenceCounting::logdf(double s, int k, int n)
 {
 	double logdf = 0;
@@ -245,10 +252,11 @@ void ReferenceCounting::FillPriorS()
 		delete fHistPriorS;
 
 	// create new histogram
-	fHistPriorS = new TH1D("hist_prior_s", ";s;p(s)", fMCMCH1NBins[0], fMCMCBoundaryMin[0], fMCMCBoundaryMax[0]);
+	BCParameter * p = GetParameter(0);
+	fHistPriorS = new TH1D("hist_prior_s", ";s;p(s)", p->GetNbins(), p->GetLowerLimit(), p->GetUpperLimit());
 	
 	// fill histogram
-	for (int i = 1; i <= fMCMCH1NBins[0]; ++i){
+	for (unsigned i = 1; i <= p->GetNbins(); ++i){
 		double s = fHistPriorS->GetBinCenter(i);
 		double p = RefPriorS(s);
 		fHistPriorS->SetBinContent(i, p);
@@ -263,10 +271,11 @@ void ReferenceCounting::FillPriorB()
 		delete fHistPriorB;
 
 	// create new histogram
-	fHistPriorB = new TH1D("hist_prior_b", ";b;p(b)", fMCMCH1NBins[1], fMCMCBoundaryMin[1], fMCMCBoundaryMax[1]);
+	BCParameter * p = GetParameter(1);
+	fHistPriorB = new TH1D("hist_prior_b", ";b;p(b)", p->GetNbins(), p->GetLowerLimit(), p->GetUpperLimit());
 	
 	// fill histogram
-	for (int i = 1; i <= fMCMCH1NBins[1]; ++i){
+	for (unsigned i = 1; i <= p->GetNbins(); ++i){
 		double b = fHistPriorB->GetBinCenter(i);
 		double p = ConjPriorPoisson(b, fAlpha, fBeta);
 		fHistPriorB->SetBinContent(i, p);

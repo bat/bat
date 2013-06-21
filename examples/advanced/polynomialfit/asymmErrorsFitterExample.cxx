@@ -104,8 +104,8 @@ int main()
 	mout2 -> Close();
 
 	// print all marginalized distributions to a postscript file
-	m1 -> PrintAllMarginalized("1Dasymm-marg.pdf", 3, 2);
-	m2 -> PrintAllMarginalized("2Dasymm-marg.pdf", 3, 2);
+	m1 -> PrintAllMarginalized("1Dasymm-marg.pdf", BCModel::Get1DDefaultPlotOptions(), BCModel::Get2DDefaultPlotOptions(), 3, 2);
+	m2 -> PrintAllMarginalized("2Dasymm-marg.pdf", BCModel::Get1DDefaultPlotOptions(), BCModel::Get2DDefaultPlotOptions(), 3, 2);
 
 	// calculate the p-value for the set of best fit parameters
 	mgr -> CalculatePValue();
