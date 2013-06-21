@@ -158,9 +158,23 @@ BCModel::~BCModel()
 // ---------------------------------------------------------
 BCModel & BCModel::operator = (const BCModel & bcmodel)
 {
-	Copy(bcmodel);
+   Copy(bcmodel);
 
-	return *this;
+   return *this;
+}
+
+// ---------------------------------------------------------
+const std::string & BCModel::Get1DDefaultPlotOptions()
+{
+   static const std::string opt = "BTciB1CS1D0pdf0Lmeanmode";
+   return opt;
+}
+
+// ---------------------------------------------------------
+const std::string & BCModel::Get2DDefaultPlotOptions()
+{
+   static const std::string opt = "BTfB1CS1meangmodelmode";
+   return opt;
 }
 
 // ---------------------------------------------------------
@@ -667,12 +681,12 @@ BCH1D * BCModel::GetSlice(const BCParameter* parameter, const std::vector<double
 	// set axis labels
 	hist->SetName(Form("hist_%s_%s", GetName().data(), parameter->GetName().data()));
 	hist->SetXTitle(parameter->GetLatexName().data());
-	if (GetNParameters() == 1) 
+	if (GetNParameters() == 1)
 		hist->SetYTitle(Form("p(%s|data)", parameter->GetLatexName().data()));
-	else 
+	else
 		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", parameter->GetLatexName().data()));
 	hist->SetStats(kFALSE);
-	
+
 	// fill histogram
 	for (int i = 1; i <= nbins; ++i) {
 		double par_temp = hist->GetBinCenter(i);
@@ -755,7 +769,7 @@ BCH2D* BCModel::GetSlice(unsigned index1, unsigned index2, const std::vector<dou
 	hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
 	hist->SetYTitle(Form("%s", p2->GetLatexName().data()));
 	hist->SetStats(kFALSE);
-	
+
 	// fill histogram
 	for (int ix = 1; ix <= nbins; ++ix) {
 		for (int iy = 1; iy <= nbins; ++iy) {
@@ -770,7 +784,7 @@ BCH2D* BCModel::GetSlice(unsigned index1, unsigned index2, const std::vector<dou
 		hist->SetBinContent(ix, iy, prob);
 		}
 	}
-	
+
 	// normalize
 	if (flag_norm)
 		hist->Scale(1.0/hist->Integral());

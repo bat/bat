@@ -8,9 +8,7 @@
  * \author Kevin Kr&ouml;ninger
  * \version 1.0
  * \date 08.2008
- * \detail This class represents a model. It contains a container of
- * parameters, their prior distributions and the likelihood for the
- * parameters.  The methods which implement the prior and the likelihood
+ * \detail This class represents a model. It contains a container of prior distributions and the likelihood. The methods that implement the prior and the likelihood
  * have to be overloaded by the user in the user defined model class
  * derived from this class.
  */
@@ -84,6 +82,14 @@ class BCModel : public BCIntegrate
       /** @} */
       /** \name Member functions (get) */
       /** @{ */
+
+      /**
+       * Default options for 1D marginal plots */
+      static const std::string & Get1DDefaultPlotOptions();
+
+      /**
+       * Default options for 2D marginal plots */
+      static const std::string & Get2DDefaultPlotOptions();
 
       /**
        * @return The name of the model. */
@@ -597,7 +603,7 @@ class BCModel : public BCIntegrate
        *   */
       int PrintAllMarginalized1D(const char * filebase);
       int PrintAllMarginalized2D(const char * filebase);
-      int PrintAllMarginalized(const char * file, std::string options1d="BTciB1CS1D0pdf0Lmeanmode", std::string options2d="BTfB1CS1meangmodelmode", unsigned int hdiv=1, unsigned int ndiv=1);
+      int PrintAllMarginalized(const char * file, std::string options1d=Get1DDefaultPlotOptions(), std::string options2d=Get2DDefaultPlotOptions(), unsigned int hdiv=1, unsigned int ndiv=1);
 
       /**
        * Constrains a data point
