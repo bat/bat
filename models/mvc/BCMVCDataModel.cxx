@@ -48,7 +48,7 @@ void BCMVCDataModel::SetCovarianceMatrix(TMatrixD matrix)
   fInvCovarianceMatrix.Invert();
 
   fDetCovariance = fCovarianceMatrix.Determinant();
-};
+}
 
 // ---------------------------------------------------------
 void BCMVCDataModel::SetParameters(std::vector<double> parameters)
@@ -62,7 +62,7 @@ void BCMVCDataModel::SetParameters(std::vector<double> parameters)
   for (int i = 0; i < nmeas; ++i) {
     fVectorObservables[i] = fPars[fVectorObservable[i]];
   }
-};
+}
 
 // ---------------------------------------------------------
 void BCMVCDataModel::SetMeasurementRanges(const std::vector<double> & min, const std::vector<double> & max)

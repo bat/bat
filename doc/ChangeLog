@@ -1,3 +1,6 @@
+2013-06-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/mvc: removed some semicolons which the compiler didn't like.
+
 2013-06-21 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples: fix compilation
 	* configure: raise version to 0.9.3

@@ -19,7 +19,7 @@ void BCMVCUncertainty::SetCorrelationMatrix(const TMatrixT<double> &matrix)
 {
   fCorrelationMatrix.ResizeTo(matrix);
   fCorrelationMatrix=matrix; 
-};
+}
 
 // ---------------------------------------------------------
 void BCMVCUncertainty::SetCovarianceMatrix(const TMatrixT<double> &matrix)
@@ -29,6 +29,6 @@ void BCMVCUncertainty::SetCovarianceMatrix(const TMatrixT<double> &matrix)
   fInvCovarianceMatrix.ResizeTo(matrix);
   fInvCovarianceMatrix = fCovarianceMatrix;
   fInvCovarianceMatrix.Invert();
-};
+}
 
 // ---------------------------------------------------------
