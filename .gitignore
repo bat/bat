@@ -27,7 +27,8 @@ stamp-h1
 *.[oa]
 CreateProject.sh
 *.l[oa]
-*.libs/
+*.libs
+*.Plo
 *.so
 
 # Documentation
@@ -45,33 +46,3 @@ doc/introduction/*
 *.root
 results.txt
 log.txt
-!models/mvc/aclocal.m4
-!models/mvc/*.cache
-!models/mvc/config
-!models/mvc/config.*
-!models/mvc/configure
-!models/mvc/.deps
-!models/mvc/depcomp
-!models/mvc/*.in
-!models/mvc/install-sh
-!models/mvc/libtool
-!models/mvc/*LinkDef.h
-!models/mvc/link.d
-!models/mvc/*.log
-!models/mvc/ltmain.sh
-!models/mvc/Makefile
-!models/mvc/missing
-!models/mvc/stamp-h1
-!models/mvc/*.status
-!models/mvc/*Dict.h
-!models/mvc/*Dict.cxx
-!models/mvc/*.rootmap
-!models/mvc/*.[oa]
-!models/mvc/CreateProject.sh
-!models/mvc/*.l[oa]
-!models/mvc/*.libs
-!models/mvc/*.so
-!models/mvc/.autotools
-!models/mvc/*.*project
-!models/mvc/*~
-!models/mvc/.directory

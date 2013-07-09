@@ -22,12 +22,12 @@
 
 2013-08-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel and BCH1D: changed default printing option to include three bands
-	* BCModel: 
+	* BCModel:
 	  - removed an old debug statement
 	  - check that histogram exist in PrintResults(). BAT crashed if a parameter is fixed otherwise.
 	* BCH2D:
 	  - clean-up and indentation
-	  - uncommented several unused methods: 
+	  - uncommented several unused methods:
 	    - TGraph* GetLowestBandGraph(TH2D* h, std::vector<int> nint);
 	    - TGraph* GetLowestBandGraph(TH2D* h);
 	    - std::vector<double> GetLevelBoundary(double level);
@@ -37,7 +37,7 @@
 	    - TGraph** GetBandGraphs(TH2D* h, int &n);
 	* tools/CreateProject.sh.in: improved the default example in the script
 	* examples/advances/referencecounting: clean-up of example
-	
+
 2013-08-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: PrintAllMarginalized() now takes the correct default plotting options.
 	* BCH1D:
@@ -57,6 +57,7 @@
 	* configure: raise version to 0.9.3
 	* parallel_TEST: turn off compilation if threading not configured
 	* BCMath_TEST: fix seed
+	* gitignore: Revert exemptions, add missing example executables
 
 2013-06-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* Conclude major refactoring: shift methods, clean up code including unsigned where int was misused, const getters, fixing memory leaks, removing useless, poor, and unused code. I strove to keep the interface as is to make the   users' transition as easy as possible. Hence a significant ugliness remains unfortunately.
