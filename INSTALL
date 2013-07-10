@@ -78,11 +78,21 @@ You can compile BAT with the RooFit/RooStats support using
 ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
 support.
 
-You can compile BAT with Cuba support using option --with-cuba.
-The configure will then search for libcuba.a and cuba.h in the system.
-They either have to be available in the standard system path or you can
-specify the location using --with-cuba-include-dir=/path/to/cuba/header
-and --with-cuba-lib-dir=/path/to/cuba/lib.
+You can compile BAT with Cuba support using option --with-cuba[=DIR].
+The configure script will then search for libcuba.a and cuba.h in the
+system paths, or, if DIR is given, in DIR (correct if cuba just
+compiled in its source directorye), and in DIR/lib/ and DIR/include/
+subdirectories. For more fine-grained control, use
+--with-cuba-include-dir=/path/to/cuba/header and
+--with-cuba-lib-dir=/path/to/cuba/lib.
+
+Note that the cuba library still needs to be available to the loader
+at runtime. This is accomplished, for example, by adding
+/path/to/cuba/lib to LD_LIBRARY_PATH. Please compile the Cuba library
+with position-independent code
+./configure CFLAGS=-fPIC
+to avoid linker errors like
+/usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32 against `.rodata.str1.8' can not be used when making a shared object; recompile with -fPIC
 
 You can list all available options using
 

@@ -57,10 +57,11 @@ dnl Check for Cuba
 dnl
 AC_ARG_WITH(
 	[cuba],
-	[AS_HELP_STRING([--with-cuba],[compile with Cuba support (default no)])],
+	[AS_HELP_STRING([--with-cuba[[=DIR]]],[compile with Cuba support (default no). Optional DIR is top of Cuba installation])],
 	[
 		use_cuba=yes
 		echo "compiling with Cuba support: required Cuba version 3.1 or later"
+		echo "Checking $with_cuba"
 	],
 	[use_cuba=no]
 )
@@ -68,13 +69,30 @@ AC_ARG_WITH(
 AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    path to cuba.h file]))
 AC_ARG_WITH(cuba_lib_dir, AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 
-if test $use_cuba = yes; then
+if test "x$with_cuba" != xno; then
+dnl check to see if lib and include can be determined automatically from $with_cuba
+dnl if cuba just compiled, everything is in one directory
+	if test -z "$with_cuba_include_dir" ; then
+		if test -d "$with_cuba/include" ; then
+			with_cuba_include_dir="$with_cuba/include"
+		elif test -d $with_cuba ; then
+			with_cuba_include_dir="$with_cuba"
+		fi
+	fi
+
+	if test -z "$with_cuba_lib_dir" ; then
+		if test -d "$with_cuba/lib" ; then
+			with_cuba_lib_dir="$with_cuba/lib"
+		elif test -d $with_cuba ; then
+			with_cuba_lib_dir="$with_cuba"
+		fi
+	fi
+
 	cubaincflags=""
 	if test -n "$with_cuba_include_dir"; then
 		echo "checking for cuba.h in $with_cuba_include_dir"
 		cubaincflags=-I$with_cuba_include_dir
 		CFLAGS+=" $cubaincflags"
-		CPPFLAGS+=" $cubaincflags"
 	else
 		echo "checking for cuba.h in system default directories"
 	fi
