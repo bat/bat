@@ -72,7 +72,7 @@ class BCMVCDataModel : public BCModel
 
   double LogLikelihood(const std::vector<double> &parameters);
 
-  void MCMCIterationInterface();
+  void MCMCUserIterationInterface();
 
  private:
 

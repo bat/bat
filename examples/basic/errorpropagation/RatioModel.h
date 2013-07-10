@@ -20,7 +20,7 @@ class RatioModel : public BCModel
       void PrintHistogram();
       double LogAPrioriProbability(const std::vector<double> &parameters);
       double LogLikelihood(const std::vector<double> &parameters);
-      void MCMCIterationInterface();
+      void MCMCUserIterationInterface();
 
    private:
       BCH1D * fHistRatio;

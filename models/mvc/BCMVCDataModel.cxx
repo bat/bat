@@ -123,7 +123,7 @@ double BCMVCDataModel::LogAPrioriProbability(const std::vector<double> &paramete
 }
 
 // ---------------------------------------------------------
-void BCMVCDataModel::MCMCIterationInterface()
+void BCMVCDataModel::MCMCUserIterationInterface()
 {
   // get number of chains
   int nchains = MCMCGetNChains();
@@ -180,7 +180,12 @@ void BCMVCDataModel::PrintToys(std::string filename)
 
   // calculate expected chi2 distribution
   BCH1D* hist_chi2 = new BCH1D(fHistChi2);
-  hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
+  if (hist_chi2->GetHistogram()->Integral("width") > 0)
+     hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
+  else {
+     BCLog::OutWarning("BCMVCDataModel::PrintToys. Chi2 histogram not normalized. Abort printing.");
+     return;
+  }
 
   // calculate p-value
   double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
@@ -213,7 +218,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
       m->SetMarkerStyle(21);
       m->DrawMarker(obs_j, obs_i);
       if (i == npars - 1 && j == i-1)
-	c1->Print(std::string(filename+")").c_str());
+         c1->Print(std::string(filename+")").c_str());
       else
 	c1->Print(filename.c_str());
     }

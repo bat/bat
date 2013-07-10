@@ -99,7 +99,7 @@ double RatioModel::LogAPrioriProbability(const std::vector<double> &parameters)
 }
 
 // ---------------------------------------------------------
-void RatioModel::MCMCIterationInterface()
+void RatioModel::MCMCUserIterationInterface()
 {
   // get number of chains
   int nchains = MCMCGetNChains();

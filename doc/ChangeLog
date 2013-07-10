@@ -1,3 +1,7 @@
+2013-07-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCMVCDataModel: changed MCMCIterationInterface to MCMCUserIterationInterface
+	* examples/bases/errorpropagation/RatioModel: changed MCMCIterationInterface to MCMCUserIterationInterface
+
 2013-06-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mvc: removed some semicolons which the compiler didn't like.
 
