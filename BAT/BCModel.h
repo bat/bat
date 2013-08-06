@@ -84,14 +84,6 @@ class BCModel : public BCIntegrate
       /** @{ */
 
       /**
-       * Default options for 1D marginal plots */
-      static const std::string & Get1DDefaultPlotOptions();
-
-      /**
-       * Default options for 2D marginal plots */
-      static const std::string & Get2DDefaultPlotOptions();
-
-      /**
        * @return The name of the model. */
       const std::string & GetName() const
          { return fName; }
@@ -603,7 +595,7 @@ class BCModel : public BCIntegrate
        *   */
       int PrintAllMarginalized1D(const char * filebase);
       int PrintAllMarginalized2D(const char * filebase);
-      int PrintAllMarginalized(const char * file, std::string options1d=Get1DDefaultPlotOptions(), std::string options2d=Get2DDefaultPlotOptions(), unsigned int hdiv=1, unsigned int ndiv=1);
+      int PrintAllMarginalized(const char * file, std::string options1d="BTciB1CS1D0pdf0Lmeanmode", std::string options2d="BTfB1CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
 
       /**
        * Constrains a data point

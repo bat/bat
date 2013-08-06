@@ -235,10 +235,6 @@ void BCH1D::Print(const char* filename, std::string options, double interval, in
 // ---------------------------------------------------------
 void BCH1D::Draw(std::string options, std::vector<double> intervals)
 {
-   // todoKK:
-   // plot cumulative pdf
-   // plot probability density/probability
-
    // option flags
    bool flag_pdf0 = true;
    bool flag_pdf1 = false;

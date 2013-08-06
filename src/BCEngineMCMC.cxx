@@ -268,8 +268,8 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
 // ---------------------------------------------------------
 BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 {
-	Copy(enginemcmc);
-	return *this;
+   Copy(enginemcmc);
+   return *this;
 }
 
 // --------------------------------------------------------

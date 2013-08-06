@@ -164,20 +164,6 @@ BCModel & BCModel::operator = (const BCModel & bcmodel)
 }
 
 // ---------------------------------------------------------
-const std::string & BCModel::Get1DDefaultPlotOptions()
-{
-   static const std::string opt = "BTciB1CS1D0pdf0Lmeanmode";
-   return opt;
-}
-
-// ---------------------------------------------------------
-const std::string & BCModel::Get2DDefaultPlotOptions()
-{
-   static const std::string opt = "BTfB1CS1meangmodelmode";
-   return opt;
-}
-
-// ---------------------------------------------------------
 unsigned BCModel::GetNDataPoints() const
 {
    if (fDataSet)
@@ -969,16 +955,6 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
       filename += ".pdf";
    }
 
-   // todo do we really need this?
-   // if there's only one parameter, we just want to call Print()
-   if (fMCMCH1Marginalized.size() == 1 && fMCMCH2Marginalized.size() == 0) {
-      if (BCH1D * m = GetMarginalized(0u)) {
-         m->Print(filename.c_str());
-         delete m;
-      }
-      return 1;
-   }
-
    int c_width  = gStyle->GetCanvasDefW(); // default canvas width
    int c_height = gStyle->GetCanvasDefH(); // default canvas height
 
@@ -1007,18 +983,22 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
 
    // give out warning if too many plots
    BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-         validH1.size(), validH2.size(), nplots, filename.c_str()));
+                          int(validH1.size()), int(validH2.size()), nplots, filename.c_str()));
    if (nplots > 100)
       BCLog::OutDetail("This can take a while...");
-
+   
    // setup the canvas and file
    TCanvas c("c", "canvas", c_width, c_height);
    c.Divide(hdiv, vdiv);
+   
+   // for clean up later
+   std::vector<BCH1D *> h1;
 
    // count plots
    unsigned n = 0;
    for (unsigned i = 0; i < fParameters.Size(); ++i) {
       BCH1D * h = GetMarginalized(i);
+      h1.push_back(h);
 
       // check if histogram exists
       if ( !h)
@@ -1038,9 +1018,6 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
       c.cd(n % (hdiv * vdiv) + 1);
 
       h->Draw(options1d);
-      delete h;
-      {
-      }
 
       if (++n % 100 == 0)
          BCLog::OutDetail(Form(" --> %d plots done", n));
@@ -1092,6 +1069,9 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
    c.Print(std::string( filename + ")").c_str());
 
    // clean up
+   for (unsigned i = 0; i < h1.size() ; ++i)
+      delete h1[i];
+
    for (unsigned i = 0; i < h2.size() ; ++i)
       delete h2[i];
 
