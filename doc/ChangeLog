@@ -1,5 +1,9 @@
 2013-08-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: PrintAllMarginalized() now takes the correct default plotting options.
+	* BCH1D:
+	  - clean up of code, type setting
+	  - added missing documentation of methods
+	  - removed DrawShadedLimits(), DrawSmallest(), DrawLegend()
 
 2013-07-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCMVCDataModel: changed MCMCIterationInterface to MCMCUserIterationInterface
