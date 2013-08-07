@@ -11,6 +11,7 @@
 	    - TGraph* GetBandGraph(double level1, double level2);
 	    - TGraph* GetBandGraph(TH2D* h , double level1, double level2);
 	    - TGraph** GetBandGraphs(TH2D* h, int &n);
+	* tools/CreateProject.sh.in: improved the default example in the script
 	
 2013-08-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: PrintAllMarginalized() now takes the correct default plotting options.

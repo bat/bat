@@ -112,8 +112,8 @@ void |:Model:|::DefineParameters()
    // of the parameter. The indices increase from 0 according to the
    // order of adding the parameters.
 
-//   AddParameter("x", -10.0, 10.0); // index 0
-//   AddParameter("y",  -5.0,  5.0); // index 1
+//   AddParameter("x",  0.0, 10.0); // index 0
+//   AddParameter("y", -5.0,  5.0); // index 1
 }
 
 // ---------------------------------------------------------
@@ -126,11 +126,12 @@ double |:Model:|::LogLikelihood(const std::vector<double> &parameters)
 
 //   double x = parameters.at(0);
 //   double y = parameters.at(1);
-//   double eps = 0.5;
 
-   // Breit-Wigner distribution of x with nuisance parameter y
-//   logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
+   // Gaussian distribution for x
+//   logprob += BCMath::LogGaus(x, 6.0, 2.0);
 
+   // Breit-Wigner distribution for y
+//   logprob += BCMath::LogBreitWignerNonRel(y, 0.0, 1.0);
 
    return logprob;
 }
@@ -146,10 +147,11 @@ double |:Model:|::LogAPrioriProbability(const std::vector<double> &parameters)
 //   double x = parameters.at(0);
 //   double y = parameters.at(1);
 
-//   double dx = GetParameter(0)->GetRangeWidth();
+   // exponentially decreasing prior for x
+//   logprob += -0.5*x;
 
-//   logprob += log(1./dx);                    // flat prior for x
-//   logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
+   // Gaussian prior for y
+//   logprob += BCMath::LogGaus(y, 2., 1.0);
 
    return logprob;
 }
