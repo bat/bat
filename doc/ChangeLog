@@ -1,3 +1,6 @@
+2013-08-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModel and BCH1D: changed default printing option to include three bands
+	
 2013-08-06 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel: PrintAllMarginalized() now takes the correct default plotting options.
 	* BCH1D:

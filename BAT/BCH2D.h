@@ -103,7 +103,7 @@ public:
     * If ww and wh are set to 0, default ROOT canvas size is used.
     * For explanation of parameters options and ovalue look at BCH1D::Draw()
     * method. */
-   void Print(const char * filename, std::string options="BTfB1CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+   void Print(const char * filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
    void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
 

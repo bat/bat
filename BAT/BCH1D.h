@@ -176,7 +176,7 @@ class BCH1D
    * If ww and wh are set to 0, default ROOT canvas size is used.
    * For explanation of parameters options and ovalue look at BCH1D::Draw()
    * method. */
-  void Print(const char * filename, std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+  void Print(const char * filename, std::string options="BTciB3CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
   void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
   /**
@@ -231,7 +231,7 @@ class BCH1D
    * @param level the level or content of the histogram
    * @return the histogram.
    */ 
-  TH1D * GetSmallestIntervalHistogram(double level);
+  TH1D* GetSmallestIntervalHistogram(double level);
 
   /**
    * Return a vector containing information about the set of smallest
@@ -262,7 +262,7 @@ class BCH1D
    * @param min lower boundary of the non-zero interval
    * @param max upper boundary of the non-zero interval
    * @return new histogram which is nonzero only between min and max */
-  TH1D * GetSubHisto(double min, double max, const char * name);
+  TH1D* GetSubHisto(double min, double max, const char * name);
 
   /** @} */
 
@@ -270,7 +270,7 @@ class BCH1D
 
   /**
    * The 1D histogram */
-  TH1D * fHistogram;
+  TH1D* fHistogram;
 
   /**
    * Default confidence level limit */
