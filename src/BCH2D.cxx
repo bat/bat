@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2008-2013, Daniel Kollar and Kevin Kroeninger.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -33,9 +33,9 @@ unsigned int BCH2D::fHCounter=0;
 
 // ---------------------------------------------------------
 BCH2D::BCH2D(TH2D * h)
-: fHistogram(0)
-, fIntegratedHistogram(0)
-, fModeFlag(0)
+   : fHistogram(0)
+   , fIntegratedHistogram(0)
+   , fModeFlag(0)
 {
    if (h)
       SetHistogram(h);
@@ -44,9 +44,11 @@ BCH2D::BCH2D(TH2D * h)
 // ---------------------------------------------------------
 BCH2D::~BCH2D()
 {
-   delete fIntegratedHistogram;
+   if (fIntegratedHistogram)
+      delete fIntegratedHistogram;
+
    for (unsigned i = 0; i < fROOTObjects.size(); ++i)
-         delete fROOTObjects[i];
+      delete fROOTObjects[i];
 }
 
 // ---------------------------------------------------------
@@ -96,8 +98,8 @@ void BCH2D::SetColorScheme(int scheme)
 void BCH2D::SetHistogram(TH2D * hist)
 {
    fHistogram = hist;
-  if (fHistogram and fHistogram->Integral() > 0)
-         fHistogram->Scale(1.0/fHistogram->Integral("width"));
+   if (fHistogram and fHistogram->Integral() > 0)
+      fHistogram->Scale(1.0/fHistogram->Integral("width"));
 }
 
 // ---------------------------------------------------------
@@ -380,14 +382,14 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
    // standard deviation
    TArrow* arrow_std1 = new TArrow(xmean-xrms, ymean,
-         xmean+xrms, ymean,
-         0.02, "<|>");
+                                   xmean+xrms, ymean,
+                                   0.02, "<|>");
    arrow_std1->SetLineColor(GetColor(4));
    arrow_std1->SetFillColor(GetColor(4));
 
    TArrow* arrow_std2 = new TArrow(xmean, ymean-yrms,
-         xmean, ymean+yrms,
-         0.02, "<|>");
+                                   xmean, ymean+yrms,
+                                   0.02, "<|>");
    arrow_std2->SetLineColor(GetColor(4));
    arrow_std2->SetFillColor(GetColor(4));
 
@@ -424,13 +426,13 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    TGraph* graph_profiley = 0;
 
    if (flag_profilex) {
-     TLegendEntry* le = legend->AddEntry(graph_profilex, "profile x", "L");
-     le->SetLineStyle(2);
+      TLegendEntry* le = legend->AddEntry(graph_profilex, "profile x", "L");
+      le->SetLineStyle(2);
    }
 
    if (flag_profiley) {
-     TLegendEntry* le = legend->AddEntry(graph_profiley, "profile y", "L");
-     le->SetLineStyle(3);
+      TLegendEntry* le = legend->AddEntry(graph_profiley, "profile y", "L");
+      le->SetLineStyle(3);
    }
 
    // calculate legend height in NDC coordinates
@@ -478,17 +480,17 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
    // draw profiles
    if (flag_profilex) {
-     graph_profilex = DrawProfileX("mode", "dashed");
+      graph_profilex = DrawProfileX("mode", "dashed");
 
-     // add graph to list of objects
-     fROOTObjects.push_back(graph_profilex);
+      // add graph to list of objects
+      fROOTObjects.push_back(graph_profilex);
    }
    
    if (flag_profiley) {
-     graph_profiley = DrawProfileY("mode", "dotted");
+      graph_profiley = DrawProfileY("mode", "dotted");
    
-     // add graph to list of objects
-     fROOTObjects.push_back(graph_profiley);
+      // add graph to list of objects
+      fROOTObjects.push_back(graph_profiley);
    }
 
    // mean, mode, median
@@ -547,14 +549,14 @@ void BCH2D::Draw(std::string options, double interval)
 // ---------------------------------------------------------
 void BCH2D::PrintIntegratedHistogram(const char* filename)
 {
-  TCanvas c;
-  c.Flush();
+   TCanvas c;
+   c.Flush();
 
-  c.cd();
-  c.SetLogy();
+   c.cd();
+   c.SetLogy();
    CalculateIntegratedHistogram();
    fIntegratedHistogram->Draw();
-  c.Print(filename);
+   c.Print(filename);
 }
 
 // ---------------------------------------------------------
@@ -574,7 +576,7 @@ void BCH2D::CalculateIntegratedHistogram()
       delete fIntegratedHistogram;
 
    fIntegratedHistogram = new TH1D(
-         TString::Format("%s_int_prob_%d",fHistogram->GetName(),BCLog::GetHIndex()), "", nz, zmin, zmax+0.05*dz);
+      TString::Format("%s_int_prob_%d",fHistogram->GetName(),BCLog::GetHIndex()), "", nz, zmin, zmax+0.05*dz);
    fIntegratedHistogram->SetXTitle("z");
    fIntegratedHistogram->SetYTitle("Integrated probability");
    fIntegratedHistogram->SetStats(kFALSE);
@@ -607,93 +609,49 @@ double BCH2D::GetLevel(double p)
 // ---------------------------------------------------------
 double BCH2D::GetArea(double p)
 {
-	// copy histograms for bands
-	TH2D hist_temp(*fHistogram);
+   // copy histograms for bands
+   TH2D hist_temp(*fHistogram);
 	
-	// calculate total number of bins
-	int nbins = hist_temp.GetNbinsX() * hist_temp.GetNbinsY();
+   // calculate total number of bins
+   int nbins = hist_temp.GetNbinsX() * hist_temp.GetNbinsY();
 
-	// area
-	double area = 0;
+   // area
+   double area = 0;
 
-	// integrated probability 
-	double intp = 0;
+   // integrated probability 
+   double intp = 0;
 
-	// a counter
-	int counter = 0;
+   // a counter
+   int counter = 0;
 
-	// loop over bins
-	while ( (intp < p) && (counter < nbins) ) {
+   // loop over bins
+   while ( (intp < p) && (counter < nbins) ) {
 
-		// find maximum bin
-		int binx;
-		int biny;
-		int binz;
-		hist_temp.GetBinXYZ(hist_temp.GetMaximumBin(), binx, biny, binz);
+      // find maximum bin
+      int binx;
+      int biny;
+      int binz;
+      hist_temp.GetBinXYZ(hist_temp.GetMaximumBin(), binx, biny, binz);
 
-		// increase probability
-		double dp = hist_temp.GetBinContent(binx, biny);
-		intp += dp * hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);
+      // increase probability
+      double dp = hist_temp.GetBinContent(binx, biny);
+      intp += dp * hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);
 
-		// reset maximum bin
-		hist_temp.SetBinContent(binx, biny, 0.);
+      // reset maximum bin
+      hist_temp.SetBinContent(binx, biny, 0.);
 
-		// increase area
-		area += hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);			
+      // increase area
+      area += hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);			
 
-		// increase counter
-		counter++;
-	}
+      // increase counter
+      counter++;
+   }
 
-	// return area
-	return area;
+   // return area
+   return area;
 }
 
 // ---------------------------------------------------------
-
-TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
-{
-   n=0;
-
-   int nbands=0;
-   TH2D * hcopy = (TH2D*)h->Clone(TString::Format("%s_copy_%d",h->GetName(),BCLog::GetHIndex()));
-
-   std::vector<int> nint=GetNIntervalsY(hcopy,nbands);
-
-   if(nbands>2)
-   {
-      BCLog::OutError(
-            Form("BCH2D::GetBandGraphs : Detected %d bands. Maximum allowed is 2 (sorry).",nbands));
-      return 0;
-   }
-   else if(nbands==0)
-   {
-      BCLog::OutError("BCH2D::GetBandGraphs : No bands detected.");
-      return 0;
-   }
-
-   TGraph ** gxx = new TGraph*[nbands];
-
-  TH2D * h0 = static_cast<TH2D *>(h->Clone());
-
-   if (nbands>0)
-      gxx[0] = GetLowestBandGraph(h0,nint);
-
-   if (nbands==2)
-   {
-      gxx[1] = GetLowestBandGraph(h0);
-      n=2;
-   }
-   else
-      n=1;
-
-  fROOTObjects.push_back(h0);
-
-   return gxx;
-}
-
-// ---------------------------------------------------------
-
 std::vector<int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
 {
    std::vector<int> nint;
@@ -842,7 +800,6 @@ TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
 // ---------------------------------------------------------
 TGraph* BCH2D::DrawProfile(int axis, std::string options, std::string drawoptions)
 {
-
   // option flags
   bool flag_black = false;
   bool flag_red = false;
@@ -906,7 +863,52 @@ TGraph* BCH2D::DrawProfile(int axis, std::string options, std::string drawoption
 }
 
 // ---------------------------------------------------------
+/*
+TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
+{
+   n=0;
 
+   int nbands=0;
+   TH2D * hcopy = (TH2D*)h->Clone(TString::Format("%s_copy_%d",h->GetName(),BCLog::GetHIndex()));
+
+   std::vector<int> nint=GetNIntervalsY(hcopy,nbands);
+
+   if(nbands>2)
+   {
+      BCLog::OutError(
+            Form("BCH2D::GetBandGraphs : Detected %d bands. Maximum allowed is 2 (sorry).",nbands));
+      return 0;
+   }
+   else if(nbands==0)
+   {
+      BCLog::OutError("BCH2D::GetBandGraphs : No bands detected.");
+      return 0;
+   }
+
+   TGraph ** gxx = new TGraph*[nbands];
+
+  TH2D * h0 = static_cast<TH2D *>(h->Clone());
+
+   if (nbands>0)
+      gxx[0] = GetLowestBandGraph(h0,nint);
+
+   if (nbands==2)
+   {
+      gxx[1] = GetLowestBandGraph(h0);
+      n=2;
+   }
+   else
+      n=1;
+
+  fROOTObjects.push_back(h0);
+
+   return gxx;
+}
+*/
+
+// ---------------------------------------------------------
+
+/*
 TGraph * BCH2D::GetLowestBandGraph(TH2D * h)
 {
    int n;
@@ -1019,3 +1021,5 @@ TGraph * BCH2D::GetBandGraph(TH2D * h , double l1, double l2)
 
    return g;
 }
+
+*/

@@ -706,80 +706,79 @@ BCH2D* BCModel::GetSlice(const char* name1, const char* name2, const std::vector
 // ---------------------------------------------------------
 BCH2D* BCModel::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins)
 {
-	// check if parameter exists
-	if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
-		BCLog::OutError("BCModel::GetSlice : Parameter does not exist.");
-		return 0;
-	}
+   // check if parameter exists
+   if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
+      BCLog::OutError("BCModel::GetSlice : Parameter does not exist.");
+      return 0;
+   }
 
-	// create local copy of parameter set
-	std::vector<double> parameters_temp;
-	parameters_temp = parameters;
+   // create local copy of parameter set
+   std::vector<double> parameters_temp;
+   parameters_temp = parameters;
 
-	// normalization flag: if true, normalize slice histogram to unity
-	bool flag_norm = false;
+   // normalization flag: if true, normalize slice histogram to unity
+   bool flag_norm = false;
 
-	// check number of dimensions
-	if (GetNParameters() < 2) {
-		BCLog::OutError("BCModel::GetSlice : Number of parameters need to be at least 2.");
-	}
+   // check number of dimensions
+   if (GetNParameters() < 2) {
+      BCLog::OutError("BCModel::GetSlice : Number of parameters need to be at least 2.");
+   }
 
-	// check if parameter set if defined
-	if (parameters_temp.size()==0 && GetNParameters()==2) {
-		parameters_temp.push_back(0);
-		parameters_temp.push_back(0);
-		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
-	}
-	else if (parameters_temp.size()==0 && GetNParameters()>2) {
-		BCLog::OutError("BCModel::GetSlice : No parameters defined.");
-		return 0;
-	}
+   // check if parameter set if defined
+   if (parameters_temp.size()==0 && GetNParameters()==2) {
+      parameters_temp.push_back(0);
+      parameters_temp.push_back(0);
+      flag_norm = true; // slice is the 1D pdf, so normalize it to unity
+   }
+   else if (parameters_temp.size()==0 && GetNParameters()>2) {
+      BCLog::OutError("BCModel::GetSlice : No parameters defined.");
+      return 0;
+   }
 
-	// calculate number of bins
-	const BCParameter * p1 = fParameters.Get(index1);
-	const BCParameter * p2 = fParameters.Get(index2);
-	unsigned nbins1, nbins2;
-	if (nbins <= 0) {
-	   nbins1 = p1->GetNbins();
-	   nbins2 = p2->GetNbins();
-	} else {
-	   nbins1 = nbins2 = nbins;
-	}
+   // calculate number of bins
+   const BCParameter * p1 = fParameters.Get(index1);
+   const BCParameter * p2 = fParameters.Get(index2);
+   unsigned nbins1, nbins2;
+   if (nbins <= 0) {
+      nbins1 = p1->GetNbins();
+      nbins2 = p2->GetNbins();
+   } else {
+      nbins1 = nbins2 = nbins;
+   }
 
-	// create histogram
-	TH2D * hist = new TH2D("", "", nbins1, p1->GetLowerLimit(), p1->GetUpperLimit(),
-											 nbins2, p2->GetLowerLimit(), p2->GetUpperLimit());
+   // create histogram
+   TH2D * hist = new TH2D("", "", nbins1, p1->GetLowerLimit(), p1->GetUpperLimit(),
+                          nbins2, p2->GetLowerLimit(), p2->GetUpperLimit());
 
-	// set axis labels
-	hist->SetName(Form("hist_%s_%s_%s", GetName().c_str(), p1->GetName().c_str(), p2->GetName().c_str()));
-	hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
-	hist->SetYTitle(Form("%s", p2->GetLatexName().data()));
-	hist->SetStats(kFALSE);
+   // set axis labels
+   hist->SetName(Form("hist_%s_%s_%s", GetName().c_str(), p1->GetName().c_str(), p2->GetName().c_str()));
+   hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
+   hist->SetYTitle(Form("%s", p2->GetLatexName().data()));
+   hist->SetStats(kFALSE);
 
-	// fill histogram
-	for (int ix = 1; ix <= nbins; ++ix) {
-		for (int iy = 1; iy <= nbins; ++iy) {
-		// debugKK: I am here
-			double par_temp1 = hist->GetXaxis()->GetBinCenter(ix);
-			double par_temp2 = hist->GetYaxis()->GetBinCenter(iy);
+   // fill histogram
+   for (int ix = 1; ix <= nbins; ++ix) {
+      for (int iy = 1; iy <= nbins; ++iy) {
+         double par_temp1 = hist->GetXaxis()->GetBinCenter(ix);
+         double par_temp2 = hist->GetYaxis()->GetBinCenter(iy);
 
-		parameters_temp[index1] = par_temp1;
-		parameters_temp[index2] = par_temp2;
+         parameters_temp[index1] = par_temp1;
+         parameters_temp[index2] = par_temp2;
 
-		double prob = Eval(parameters_temp);
-		hist->SetBinContent(ix, iy, prob);
-		}
-	}
+         double prob = Eval(parameters_temp);
+         hist->SetBinContent(ix, iy, prob);
+      }
+   }
 
-	// normalize
-	if (flag_norm)
-		hist->Scale(1.0/hist->Integral());
+   // normalize
+   if (flag_norm)
+      hist->Scale(1.0/hist->Integral());
 
-	// set histogram
-	BCH2D * hprob = new BCH2D();
-	hprob->SetHistogram(hist);
+   // set histogram
+   BCH2D * hprob = new BCH2D();
+   hprob->SetHistogram(hist);
 
-	return hprob;
+   return hprob;
 }
 
 // ---------------------------------------------------------

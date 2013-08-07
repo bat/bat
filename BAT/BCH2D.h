@@ -23,7 +23,9 @@
 
 #include <vector>
 #include <string>
+
 // ROOT classes
+
 class TH1D;
 class TH2D;
 class TGraph;
@@ -41,7 +43,7 @@ public:
 
    /**
     * The complete constructor. */
-   BCH2D(TH2D * h = 0);
+   BCH2D(TH2D* h = 0);
 
    /**
     * The default destructor. */
@@ -53,7 +55,7 @@ public:
 
    /**
     * @return The 2D histogram. */
-   TH2D * GetHistogram()
+   TH2D* GetHistogram()
    { return fHistogram; };
 
    /**
@@ -80,13 +82,15 @@ public:
 
    /**
     * Set the 2D histogram. */
-   void SetHistogram(TH2D * hist);
+   void SetHistogram(TH2D* hist);
 
    /**
     * Set global mode.
     * @param The global mode. */
    void SetGlobalMode(double mode[2])
-   { fMode[0] = mode[0]; fMode[1] = mode[1]; fModeFlag =1; };
+   { fMode[0] = mode[0]; 
+     fMode[1] = mode[1]; 
+     fModeFlag =1; };
 
    /** @} */
    /** \name Member functions (miscellaneous methods) */
@@ -103,18 +107,18 @@ public:
     * If ww and wh are set to 0, default ROOT canvas size is used.
     * For explanation of parameters options and ovalue look at BCH1D::Draw()
     * method. */
-   void Print(const char * filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
-   void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
+   void Print(const char* filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+   void Print(const char* filename, std::string options, double interval, int ww=0, int wh=0);
 
 
    /**
     * Draw distribution into the active canvas.
     * @param options Drawing options: \n
-    * BTf      : band type a filled area [default] \n
+    * BTf : band type a filled area [default] \n
     * BTc : band type is a contour \n
-    * B1       : draw one band corresponding to an integrated probability specified in intervals \n
-    * B2       : draw two bands corresponding to an integrated probability  specified in intervals \n
-    * B3       : draw three bands corresponding to an integrated probability  specified in intervals [default] \n
+    * B1 : draw one band corresponding to an integrated probability specified in intervals \n
+    * B2 : draw two bands corresponding to an integrated probability  specified in intervals \n
+    * B3 : draw three bands corresponding to an integrated probability  specified in intervals [default] \n
     * CS0 : choose color scheme 0 (B&W) \n
     * CS1 : choose color scheme 1 (green/yellow/red) [default] \n
     * CS2 : choose color scheme 2 (blueish colors) \n
@@ -123,9 +127,9 @@ public:
     * smooth3 : use ROOT smoothing algorithm three times \n
     * smooth5 : use ROOT smoothing algorithm five times \n
     * smooth10 : use ROOT smoothing algorithm ten times \n
-    * mean     : draw mean value and standard deviation [default] \n
+    * mean : draw mean value and standard deviation [default] \n
     * gmode : draw global mode [default] \n
-    * lmode    : draw global mode [default] \n
+    * lmode : draw global mode [default] \n
     * profilex : draw the profile line vs. x using the mode \n
     * profiley : draw the profile line vs. y using the mode \n
     * nL : remove legend \n
@@ -160,7 +164,7 @@ public:
     * @param h The histogram.
     * @param nfoundmax The maximum number of intervals.
     * @return A vector containing the number of intervals for all bins in x. */
-   std::vector<int> GetNIntervalsY(TH2D * h, int &nfoundmax);
+   std::vector<int> GetNIntervalsY(TH2D* h, int &nfoundmax);
 
    /**
     * Return a graph of the profile along x or y. The profile is
@@ -208,15 +212,17 @@ public:
     * @todo document remaining methods
     */
 
-   TGraph * GetLowestBandGraph(TH2D * h, std::vector<int> nint);
-   TGraph * GetLowestBandGraph(TH2D * h);
+/*
+   TGraph* GetLowestBandGraph(TH2D* h, std::vector<int> nint);
+   TGraph* GetLowestBandGraph(TH2D* h);
 
    std::vector<double> GetLevelBoundary(double level);
-   std::vector<double> GetLevelBoundary(TH2D * h, double level);
-   TGraph * GetBandGraph(double level1, double level2);
-   TGraph * GetBandGraph(TH2D * h , double level1, double level2);
+   std::vector<double> GetLevelBoundary(TH2D* h, double level);
+   TGraph* GetBandGraph(double level1, double level2);
+   TGraph* GetBandGraph(TH2D* h , double level1, double level2);
 
-   TGraph ** GetBandGraphs(TH2D * h, int &n);
+   TGraph** GetBandGraphs(TH2D* h, int &n);
+*/
 
    /** @} */
 
@@ -224,11 +230,11 @@ private:
 
    /**
     * The 2D histogram */
-   TH2D * fHistogram;
+   TH2D* fHistogram;
 
    /**
     * The integrated 2D histogram */
-   TH1D * fIntegratedHistogram;
+   TH1D* fIntegratedHistogram;
 
    /**
     * Global mode */
