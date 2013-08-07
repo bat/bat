@@ -1,6 +1,8 @@
 2013-08-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel and BCH1D: changed default printing option to include three bands
-	* BCModel: removed an old debug statement
+	* BCModel: 
+	  - removed an old debug statement
+	  - check that histogram exist in PrintResults(). BAT crashed if a parameter is fixed otherwise.
 	* BCH2D:
 	  - clean-up and indentation
 	  - uncommented several unused methods: 

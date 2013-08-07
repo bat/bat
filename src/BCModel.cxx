@@ -1711,7 +1711,7 @@ void BCModel::PrintResults(const char * file)
          << DumpUsedOptimizationMethod()<< std::endl;
 
    if ( ! fBestFitParameters.empty()) {
-      ofi << "Log of the maximum posterior: " << fLogMaximum << std::endl;
+      ofi << " Log of the maximum posterior: " << fLogMaximum << std::endl;
       ofi << " List of parameters and global mode:" << std::endl;
       for (unsigned i = 0; i < npar; ++i) {
          ofi << "  (" << i << ") Parameter \""
@@ -1756,71 +1756,79 @@ void BCModel::PrintResults(const char * file)
    // print results of marginalization (if MCMC was run)
    if (fMCMCFlagRun) {
       ofi << " Results of the marginalization" << std::endl
-            << " ==============================" << std::endl
-            << " List of parameters and properties of the marginalized"
-            << std::endl << " distributions:" << std::endl;
+          << " ==============================" << std::endl
+          << " List of parameters and properties of the marginalized"
+          << std::endl << " distributions:" << std::endl;
       for (unsigned i = 0; i < npar; ++i) {
          if ( ! fParameters[i]->FillHistograms())
             continue;
 
+         // get marginalized histogram
          BCH1D * bch1d = GetMarginalized(fParameters[i]);
 
          ofi << "  (" << i << ") Parameter \""
-             << fParameters[i]->GetName() << "\":" << std::endl
+             << fParameters[i]->GetName() << "\":";
 
-               << "      Mean +- sqrt(V):                " << std::setprecision(4)
-         << bch1d->GetMean() << " +- " << std::setprecision(4)
-         << bch1d->GetRMS() << std::endl
+         if (!bch1d) {
+            ofi << " fixed (or histogram does not exist) " << std::endl;
+            continue;
+         }
+         else
+            ofi << std::endl;
 
-         << "      Median +- central 68% interval: "
-         << std::setprecision(4) << bch1d->GetMedian() << " +  "
-         << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
-         << " - " << std::setprecision(4)
-         << bch1d->GetMedian() - bch1d->GetQuantile(0.16) << std::endl
+         ofi << "      Mean +- sqrt(V):                " << std::setprecision(4)
+             << bch1d->GetMean() << " +- " << std::setprecision(4)
+             << bch1d->GetRMS() << std::endl
 
-         << "      (Marginalized) mode:            " << bch1d->GetMode() << std::endl;
+             << "      Median +- central 68% interval: "
+             << std::setprecision(4) << bch1d->GetMedian() << " +  "
+             << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
+             << " - " << std::setprecision(4)
+             << bch1d->GetMedian() - bch1d->GetQuantile(0.16) << std::endl
+
+             << "      (Marginalized) mode:            " << bch1d->GetMode() << std::endl;
 
          ofi << "       5% quantile:                   " << std::setprecision(4)
-         << bch1d->GetQuantile(0.05) << std::endl
-         << "      10% quantile:                   " << std::setprecision(4)
-         << bch1d->GetQuantile(0.10) << std::endl
-         << "      16% quantile:                   " << std::setprecision(4)
-         << bch1d->GetQuantile(0.16) << std::endl
-         << "      84% quantile:                   " << std::setprecision(4)
-         << bch1d->GetQuantile(0.85) << std::endl
-         << "      90% quantile:                   " << std::setprecision(4)
-         << bch1d->GetQuantile(0.90) << std::endl
-         << "      95% quantile:                   " << std::setprecision(4)
-         << bch1d->GetQuantile(0.95) << std::endl;
+             << bch1d->GetQuantile(0.05) << std::endl
+             << "      10% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.10) << std::endl
+             << "      16% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.16) << std::endl
+             << "      84% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.85) << std::endl
+             << "      90% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.90) << std::endl
+             << "      95% quantile:                   " << std::setprecision(4)
+             << bch1d->GetQuantile(0.95) << std::endl;
 
          std::vector<double> v;
          v = bch1d->GetSmallestIntervals(0.68);
          ofi << "      Smallest interval(s) containing at least 68% and local mode(s):"
-               << std::endl;
+             << std::endl;
          for (unsigned j = 0; j < v.size(); j += 5)
             ofi << "       (" << v[j] << ", " << v[j + 1]
-                                                   << ") (local mode at " << v[j + 3] << " with rel. height "
-                                                   << v[j + 2] << "; rel. area " << v[j + 4] << ")"
-                                                   << std::endl;
+                << ") (local mode at " << v[j + 3] << " with rel. height "
+                << v[j + 2] << "; rel. area " << v[j + 4] << ")"
+                << std::endl;
          ofi << std::endl;
          delete bch1d;
       }
    }
    if (fMCMCFlagRun) {
       ofi << " Status of the MCMC" << std::endl << " ==================" << std::endl
-            << " Convergence reached:                    " << (flag_conv ? "yes" : "no")
-            << std::endl;
+          << " Convergence reached:                    " << (flag_conv ? "yes" : "no")
+          << std::endl;
 
       if (flag_conv)
          ofi << " Number of iterations until convergence: "
-         << MCMCGetNIterationsConvergenceGlobal() << std::endl;
+             << MCMCGetNIterationsConvergenceGlobal() << std::endl;
       else
          ofi << " WARNING: the Markov Chain did not converge! Be\n"
-         << " cautious using the following results!" << std::endl
-         << std::endl;
+             << " cautious using the following results!" << std::endl
+             << std::endl;
       ofi << " Number of chains:                       " << MCMCGetNChains() << std::endl
-            << " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
-            << " Average efficiencies:" << std::endl;
+          << " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
+          << " Average efficiencies:" << std::endl;
 
       std::vector<double> efficiencies;
       efficiencies.assign(npar, 0.);
@@ -1829,26 +1837,26 @@ void BCModel::PrintResults(const char * file)
          for (unsigned ichain = 0; ichain < nchains; ++ichain) {
             unsigned index = ichain * npar + ipar;
             efficiencies[ipar] +=
-                  double(MCMCGetNTrialsTrue().at(index)) / double(MCMCGetNTrialsTrue().at(index)
-                        + MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.;
+               double(MCMCGetNTrialsTrue().at(index)) / double(MCMCGetNTrialsTrue().at(index)
+                                                               + MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.;
          }
 
       for (unsigned ipar = 0; ipar < npar; ++ipar)
          ofi << "  (" << ipar << ") Parameter \""
              << fParameters[ipar]->GetName().data() << "\": "
-         << efficiencies.at(ipar) << "%" << std::endl;
+             << efficiencies.at(ipar) << "%" << std::endl;
       ofi << std::endl;
    }
 
    ofi << " -----------------------------------------------------" << std::endl
-         << " Notation:" << std::endl
-         << " Mean        : mean value of the marg. pdf" << std::endl
-         << " Median      : median of the marg. pdf" << std::endl
-         << " Marg. mode  : most probable value of the marg. pdf" << std::endl
-         << " V           : Variance of the marg. pdf" << std::endl
-         << " Quantiles   : most commonly used quantiles" <<std::endl
-         << " -----------------------------------------------------" << std::endl
-         << std::endl;
+       << " Notation:" << std::endl
+       << " Mean        : mean value of the marg. pdf" << std::endl
+       << " Median      : median of the marg. pdf" << std::endl
+       << " Marg. mode  : most probable value of the marg. pdf" << std::endl
+       << " V           : Variance of the marg. pdf" << std::endl
+       << " Quantiles   : most commonly used quantiles" <<std::endl
+       << " -----------------------------------------------------" << std::endl
+       << std::endl;
 }
 
 // ---------------------------------------------------------
