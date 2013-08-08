@@ -128,7 +128,7 @@ void twoChannels()
    for (int i = 0; i < m->GetNChannels(); ++i) {
       BCMTFChannel * channel = m->GetChannel(i);
       channel->PrintTemplates(Form("%s_templates.pdf", channel->GetName().c_str()));
-      m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()), "");
+      m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()));
    }
 
    // ---- clean up ---- //

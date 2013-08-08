@@ -41,7 +41,6 @@
 
 #endif
 
-
 void singleChannel()
 {
    // ---- set style and open log files ---- //
@@ -113,7 +112,7 @@ void singleChannel()
    // print templates and stacks
    BCMTFChannel * channel = m->GetChannel(0);
    channel->PrintTemplates(Form("%s_templates.pdf", channel->GetName().c_str()));
-   m->PrintStack(0, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()), "");
+   m->PrintStack(0, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()));
 
    // ---- clean up ---- //
 

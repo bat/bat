@@ -1,6 +1,7 @@
 2013-08-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* tools/CreateProject.sh.in: improved the default example in the script
 	* examples/basic/efficiencyFitter: added SetPrecision.
+	* examples/advanced/mtf: cleaned up examples
 
 2013-08-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel and BCH1D: changed default printing option to include three bands
