@@ -25,47 +25,47 @@
 // ---------------------------------------------------------
 class BCMTFProcess
 {
-   public:
+public:
 
-      /** \name Constructors and destructors */
-      /** @{ */
+        /** \name Constructors and destructors */
+        /** @{ */
 
-      /**
-       * The default constructor. 
-       * name The name of the process. */
-      BCMTFProcess(const char * name);
+        /**
+         * The default constructor. 
+         * name The name of the process. */
+        BCMTFProcess(const char * name);
 
-      /**
-       * The default destructor. */
-      ~BCMTFProcess();
+        /**
+         * The default destructor. */
+        ~BCMTFProcess();
 
-      /** @} */
-      /** \name Member functions (get) */
-      /** @{ */
+        /** @} */
+        /** \name Member functions (get) */
+        /** @{ */
 
-			/**
-       * @return The name of the process. */
-      std::string GetName()
-         { return fName; };
+        /**
+         * @return The name of the process. */
+        std::string GetName()
+        { return fName; };
 
-      /** @} */
+        /** @} */
 
-      /** \name Member functions (set) */
-      /** @{ */
+        /** \name Member functions (set) */
+        /** @{ */
 
-			/** 
-       * Set the name of the process.
-			 * @param name The name of the process. */
-      void SetName(const char * name)
-         { fName = name; };
+        /** 
+         * Set the name of the process.
+         * @param name The name of the process. */
+        void SetName(const char * name)
+        { fName = name; };
 
-      /** @} */
+        /** @} */
 
- private:
+private:
 
-			/**
-			 * The name of the process. */
-      std::string fName;
+        /**
+         * The name of the process. */
+        std::string fName;
 
 };
 // ---------------------------------------------------------

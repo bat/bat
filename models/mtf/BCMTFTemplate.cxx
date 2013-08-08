@@ -16,16 +16,16 @@
 
 // ---------------------------------------------------------
 BCMTFTemplate::BCMTFTemplate(const char * channelname, const char * processname)
- : fEfficiency(0)
- , fHistogram(0)
- , fNBins(0)
- , fNormalization(0)
- , fOriginalNormalization(0)
+   : fEfficiency(0)
+   , fHistogram(0)
+   , fNBins(0)
+   , fNormalization(0)
+   , fOriginalNormalization(0)
 {
    fChannelName = channelname;
    fProcessName = processname;
    fFunctionContainer = new std::vector<TF1 *>(0);
-	 fRandom = new TRandom3(0);
+   fRandom = new TRandom3(0);
 }
 
 // ---------------------------------------------------------
@@ -39,27 +39,27 @@ BCMTFTemplate::~BCMTFTemplate()
 // ---------------------------------------------------------
 void BCMTFTemplate::SetHistogram(TH1D * hist, double norm)
 {
-	// set histogram
-	fHistogram = hist;
+   // set histogram
+   fHistogram = hist;
 
-	// check if histogram exists
-	if (!hist)
-		return;
+   // check if histogram exists
+   if (!hist)
+      return;
 
-	// get number of bins
-	fNBins = fHistogram->GetNbinsX();
+   // get number of bins
+   fNBins = fHistogram->GetNbinsX();
 
-	// set original normalization
-	double orignorm = fHistogram->Integral();
-	SetOrignialNormalization(orignorm);
+   // set original normalization
+   double orignorm = fHistogram->Integral();
+   SetOrignialNormalization(orignorm);
 
-  // normalize histogram
-  if (orignorm && norm)
-    fHistogram->Scale(norm / orignorm);
+   // normalize histogram
+   if (orignorm && norm)
+      fHistogram->Scale(norm / orignorm);
 
-	// set normalization
-	if (norm)
-		fNormalization = norm;
+   // set normalization
+   if (norm)
+      fNormalization = norm;
 }
 
 // ---------------------------------------------------------
@@ -91,42 +91,42 @@ TH1D BCMTFTemplate::FluctuateHistogram(std::string options, double norm)
    }
 
    if (flag_p && flag_g) {
-     flag_g = false;
+      flag_g = false;
    }
 
    TH1D hist_temp = TH1D(*fHistogram);
 
    for (int i = 1; i <= fNBins; ++i) {
-     double expectation = fOriginalNormalization * hist_temp.GetBinContent(i);
-		 double error = fOriginalNormalization * hist_temp.GetBinError(i);
-		 double n = 0;
+      double expectation = fOriginalNormalization * hist_temp.GetBinContent(i);
+      double error = fOriginalNormalization * hist_temp.GetBinError(i);
+      double n = 0;
 
-		 // throw random number according to Poisson distribution
-     if (flag_p) {
-			 n = (double) fRandom->Poisson(expectation);
-     }
+      // throw random number according to Poisson distribution
+      if (flag_p) {
+         n = (double) fRandom->Poisson(expectation);
+      }
 
-		 // throw random number according to Gauss distribution
-		 else if (flag_g) {
-			 double dn = fRandom->Gaus(expectation, error);
+      // throw random number according to Gauss distribution
+      else if (flag_g) {
+         double dn = fRandom->Gaus(expectation, error);
 			 
-			 // make it a truncated Gaussian
-			 if (flag_z) {
-				 while (n + dn < 0)
-					 dn = fRandom->Gaus(expectation, error);
-			 }
-			 n += dn;
-		 }
+         // make it a truncated Gaussian
+         if (flag_z) {
+            while (n + dn < 0)
+               dn = fRandom->Gaus(expectation, error);
+         }
+         n += dn;
+      }
 
-		 // set the number of events in the template
-		 hist_temp.SetBinContent(i, n);
+      // set the number of events in the template
+      hist_temp.SetBinContent(i, n);
    }
 
-  // normalize histogram
-	double orignorm = hist_temp.Integral();
+   // normalize histogram
+   double orignorm = hist_temp.Integral();
 
-  if (orignorm)
-    hist_temp.Scale(norm / orignorm);
+   if (orignorm)
+      hist_temp.Scale(norm / orignorm);
 
    return hist_temp;
 }

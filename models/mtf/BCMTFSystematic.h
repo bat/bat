@@ -25,55 +25,55 @@
 // ---------------------------------------------------------
 class BCMTFSystematic
 {
- public:
+public:
 
-   /** \name Constructors and destructors */
-   /** @{ */
+        /** \name Constructors and destructors */
+        /** @{ */
 
-	 /**
-	  * The default constructor. 
-		* @param name The name of the source of systematic uncertainty. */
-   BCMTFSystematic(const char * name);
+        /**
+         * The default constructor. 
+         * @param name The name of the source of systematic uncertainty. */
+        BCMTFSystematic(const char * name);
 
-	 /** 
-		* The default destructor. */
-   ~BCMTFSystematic();
+        /** 
+         * The default destructor. */
+        ~BCMTFSystematic();
 
-   /** @} */
-   /** \name Member functions (get) */
-   /** @{ */
+        /** @} */
+        /** \name Member functions (get) */
+        /** @{ */
 
-	 /**
-		* @return The name of the systematic uncertainty. */
-   std::string GetName()
-      { return fSystematicName; };
+        /**
+         * @return The name of the systematic uncertainty. */
+        std::string GetName()
+        { return fSystematicName; };
 
-	 /** 
-		* @return A flag defining if this uncertainty is active or not. */
-   bool GetFlagSystematicActive()
-      { return fFlagSystematicActive; };
+        /** 
+         * @return A flag defining if this uncertainty is active or not. */
+        bool GetFlagSystematicActive()
+        { return fFlagSystematicActive; };
 
-   /** @} */
-   /** \name Member functions (get) */
-   /** @{ */
+        /** @} */
+        /** \name Member functions (get) */
+        /** @{ */
 
-	 /**
-		* Set a flag defining if this uncertainty is active or not.
-		* @param flag The flag. */ 
-   void SetFlagSystematicActive(bool flag)
-      { fFlagSystematicActive = flag; };
+        /**
+         * Set a flag defining if this uncertainty is active or not.
+         * @param flag The flag. */ 
+        void SetFlagSystematicActive(bool flag)
+        { fFlagSystematicActive = flag; };
 
-   /** @} */
+        /** @} */
 
- private:
+private:
 
-	 /**
-		* The name of the source of the systematic uncertainty. */
-   std::string fSystematicName;
+        /**
+         * The name of the source of the systematic uncertainty. */
+        std::string fSystematicName;
 
-	 /**
-		* A flag defining if this uncertainty is active or not. */
-	 bool fFlagSystematicActive;
+        /**
+         * A flag defining if this uncertainty is active or not. */
+        bool fFlagSystematicActive;
 
 };
 // ---------------------------------------------------------

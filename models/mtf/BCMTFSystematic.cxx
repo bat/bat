@@ -11,7 +11,7 @@
 
 // ---------------------------------------------------------
 BCMTFSystematic::BCMTFSystematic(const char * name)
- : fFlagSystematicActive(true)
+   : fFlagSystematicActive(true)
 {
    fSystematicName = name;
 }

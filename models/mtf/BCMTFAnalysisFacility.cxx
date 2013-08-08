@@ -32,9 +32,9 @@
 
 // ---------------------------------------------------------
 BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf)
- : fRandom(new TRandom3(0))
- , fFlagMCMC(false)
- , fLogLevel(BCLog::nothing)
+   : fRandom(new TRandom3(0))
+   , fFlagMCMC(false)
+   , fLogLevel(BCLog::nothing)
 {
    fMTF = mtf;
    BCLog::OutDetail(Form("Prepared Analysis Facility for MTF model \'%s\'",mtf->GetName().c_str()));
@@ -76,12 +76,12 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
 
       // loop over all bins
       for (int ibin = 1; ibin <= nbins; ++ibin) {
-				if (!flag_data) {
-					double expectation = fMTF->Expectation(ichannel, ibin, parameters);
-					double observation = fRandom->Poisson(expectation);
+         if (!flag_data) {
+            double expectation = fMTF->Expectation(ichannel, ibin, parameters);
+            double observation = fRandom->Poisson(expectation);
 					
-					hist.SetBinContent(ibin, observation);
-				}
+            hist.SetBinContent(ibin, observation);
+         }
       }
 
       // add histogram
@@ -259,7 +259,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
    // loop over ensembles
    for (int iensemble = 0; iensemble < nensembles; ++iensemble) {
       // create ensembles
-		 histograms = BuildEnsemble(parameters, options);
+      histograms = BuildEnsemble(parameters, options);
 
       // copy information from histograms into tree variables
       // loop over channels
@@ -279,10 +279,10 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
 
       // copy parameter information
       for (int i = 0; i < nparameters; ++i) {
-				if (parameters.size() > 0)
-					in_parameters[i] = parameters.at(i);
-				else 
-					in_parameters[i] = 0;
+         if (parameters.size() > 0)
+            in_parameters[i] = parameters.at(i);
+         else 
+            in_parameters[i] = 0;
       }
 
       // fill tree
@@ -372,8 +372,8 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       // loop over bins
       for (int ibin = 1; ibin <= nbins; ++ibin) {
          // create branches
-				tree->SetBranchAddress(Form("channel_%i_bin_%i", ichannel, ibin),
-															 &(nbins_matrix[ichannel])[ibin-1]);
+         tree->SetBranchAddress(Form("channel_%i_bin_%i", ichannel, ibin),
+                                &(nbins_matrix[ichannel])[ibin-1]);
       }
    }
 
@@ -455,8 +455,8 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
    tree_out->Branch("cash_mode_total", &out_cash_mode_total, "cash statistic (mode of par.) in all channels/D");
    tree_out->Branch("nevents_total", &out_nevents_total, "total number of events/I");
 
-	 // define temporary vector of histogram for fluctated templates
-	 std::vector<TH1D*> histlist(0);
+   // define temporary vector of histogram for fluctated templates
+   std::vector<TH1D*> histlist(0);
 
    // loop over ensembles
    for (int iensemble = 0; iensemble < nensembles; ++iensemble) {
@@ -492,31 +492,31 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
          fMTF->SetData(channel->GetName().c_str(), histograms.at(ichannel));
       }
 
-			// fluctuate templates if option "MC" is chosen
-			if (flag_mc) {			
-				// get number of templates
-				unsigned int ntemplates = fMTF->GetNProcesses();
+      // fluctuate templates if option "MC" is chosen
+      if (flag_mc) {			
+         // get number of templates
+         unsigned int ntemplates = fMTF->GetNProcesses();
 				
-				// loop over channels
-				for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
-					// get channel
-					BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
+         // loop over channels
+         for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
+            // get channel
+            BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
 					
-					// loop over all templates
-					for (unsigned int i = 0; i < ntemplates; ++i) {
+            // loop over all templates
+            for (unsigned int i = 0; i < ntemplates; ++i) {
 						
-						// get histogram
-						TH1D * temphist = channel->GetTemplate(i)->GetHistogram();
-						histlist.push_back(temphist);
+               // get histogram
+               TH1D * temphist = channel->GetTemplate(i)->GetHistogram();
+               histlist.push_back(temphist);
 
-						// replace by fluctuated histogram
-						if (temphist) {
-							TH1D* temphistfluc = new TH1D(channel->GetTemplate(i)->FluctuateHistogram(options, channel->GetTemplate(i)->GetOriginalNorm()));
-							channel->GetTemplate(i)->SetHistogram(temphistfluc, channel->GetTemplate(i)->GetNorm());
-						}
-					}
-				}
-			}
+               // replace by fluctuated histogram
+               if (temphist) {
+                  TH1D* temphistfluc = new TH1D(channel->GetTemplate(i)->FluctuateHistogram(options, channel->GetTemplate(i)->GetOriginalNorm()));
+                  channel->GetTemplate(i)->SetHistogram(temphistfluc, channel->GetTemplate(i)->GetNorm());
+               }
+            }
+         }
+      }
 			
       // check if MCMC should be run and perform analysis
       if (fFlagMCMC) {
@@ -593,31 +593,31 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       // fill tree
       tree_out->Fill();
 
- 			// but original template back if options "MC" is chosen
- 			if (flag_mc) {			
- 				// get number of templates
- 				unsigned int ntemplates = fMTF->GetNProcesses();
+      // but original template back if options "MC" is chosen
+      if (flag_mc) {			
+         // get number of templates
+         unsigned int ntemplates = fMTF->GetNProcesses();
 			
- 				// loop over channels
- 				for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
- 					// get channel
- 					BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
+         // loop over channels
+         for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
+            // get channel
+            BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
 				
- 					// loop over all templates
- 					for (unsigned int i = 0; i < ntemplates; ++i) {
+            // loop over all templates
+            for (unsigned int i = 0; i < ntemplates; ++i) {
 					
- 						// get histogram
- 						TH1D * temphist = histlist.at(ichannel * ntemplates + i);
-						temphist->Scale(channel->GetTemplate(i)->GetOriginalNorm()/ temphist->Integral());
+               // get histogram
+               TH1D * temphist = histlist.at(ichannel * ntemplates + i);
+               temphist->Scale(channel->GetTemplate(i)->GetOriginalNorm()/ temphist->Integral());
 
- 						// replace by fluctuated histogram
- 						TH1D* temphistfluc = channel->GetTemplate(i)->GetHistogram();
- 						delete temphistfluc;
- 						channel->GetTemplate(i)->SetHistogram(temphist, channel->GetTemplate(i)->GetNorm());
- 					}
- 				}
- 				histlist.clear();
- 			}
+               // replace by fluctuated histogram
+               TH1D* temphistfluc = channel->GetTemplate(i)->GetHistogram();
+               delete temphistfluc;
+               channel->GetTemplate(i)->SetHistogram(temphist, channel->GetTemplate(i)->GetNorm());
+            }
+         }
+         histlist.clear();
+      }
    }
 
    // put the original data back in place
@@ -789,14 +789,14 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
       BCMTFComparisonTool * ct_mcmc = ctc_mcmc.at(i);
 
       ct->AddContribution("all channels",
-                                    fMTF->GetBestFitParameters().at(i),
-                                    fMTF->GetBestFitParameterErrors().at(i));
+                          fMTF->GetBestFitParameters().at(i),
+                          fMTF->GetBestFitParameterErrors().at(i));
       if (flag_mcmc) {
          BCH1D * hist = fMTF->GetMarginalized( fMTF->GetParameter(i) );
 
          ct_mcmc->AddContribution("all channels",
-                                              hist->GetMean(),
-                                              hist->GetRMS());
+                                  hist->GetMean(),
+                                  hist->GetRMS());
       }
    }
 
@@ -852,14 +852,14 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
          BCMTFComparisonTool * ct_mcmc = ctc_mcmc.at(i);
 
          ct->AddContribution(channel->GetName().c_str(),
-                                       fMTF->GetBestFitParameters().at(i),
-                                       fMTF->GetBestFitParameterErrors().at(i));
+                             fMTF->GetBestFitParameters().at(i),
+                             fMTF->GetBestFitParameterErrors().at(i));
          if (flag_mcmc) {
             BCH1D * hist = fMTF->GetMarginalized( fMTF->GetParameter(i) );
 
             ct_mcmc->AddContribution(channel->GetName().c_str(),
-                                                 hist->GetMean(),
-                                                 hist->GetRMS());
+                                     hist->GetMean(),
+                                     hist->GetRMS());
          }
 
          // switch off channel
@@ -1050,8 +1050,8 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
       BCMTFComparisonTool * ct = ctc.at(i);
 
       ct->AddContribution("all systematics",
-                                    fMTF->GetBestFitParameters().at(i),
-                                    fMTF->GetBestFitParameterErrors().at(i));
+                          fMTF->GetBestFitParameters().at(i),
+                          fMTF->GetBestFitParameterErrors().at(i));
    }
 
    // ---- switch off all systematics ---- //
@@ -1104,8 +1104,8 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
          BCMTFComparisonTool * ct = ctc.at(i);
 
          ct->AddContribution(systematic->GetName().c_str(),
-                                       fMTF->GetBestFitParameters().at(i),
-                                       fMTF->GetBestFitParameterErrors().at(i));
+                             fMTF->GetBestFitParameters().at(i),
+                             fMTF->GetBestFitParameterErrors().at(i));
       }
 
       // switch off systematic
@@ -1140,8 +1140,8 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
       BCMTFComparisonTool * ct = ctc.at(i);
 
       ct->AddContribution("no systematics",
-                                    fMTF->GetBestFitParameters().at(i),
-                                    fMTF->GetBestFitParameterErrors().at(i));
+                          fMTF->GetBestFitParameters().at(i),
+                          fMTF->GetBestFitParameterErrors().at(i));
    }
 
 

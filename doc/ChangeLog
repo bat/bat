@@ -3,6 +3,7 @@
 	* examples/basic/efficiencyFitter: added SetPrecision.
 	* examples/advanced/mtf: cleaned up examples
 	* models/mtf/BCMTFChannels.cxx: (bugfix) do not try to print a template if it does not exist.
+	* models/mtf/: clean up of code and indentation
 
 2013-08-07 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModel and BCH1D: changed default printing option to include three bands
