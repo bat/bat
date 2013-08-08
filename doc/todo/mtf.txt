@@ -12,13 +12,9 @@ ToDo:
 
 - move stack plotting to channel?
 
-- fix plotting of templates in channel (add title)
-
 - plotting of all stacks into a single pdf file
 
 - plotting of stack plot with juxtaposed channels
-
-- add legend including channel title
 
 - add difference/ratio/significance plot below
 
@@ -28,10 +24,10 @@ ToDo:
 
 - allow changing the color scheme for for stack plots
 
-- single chanel analysis: add automatic running for the following:
+- single channel analysis: add automatic running for the following:
   remove one systematic uncertainty at a time to check its severeness.
 
-- single chanel analysis: add automatic running for the following:
+- single channel analysis: add automatic running for the following:
   remove one channel at a time to check its impact.
 
 - check what happens with delta-priors. Histogram pointer is 0?
@@ -41,6 +37,8 @@ ToDo:
 Done:
 
 * update plotting:
+
+  - fix plotting of templates in channel (add title)
 
   - general update, e.g., pdf output. done
 
