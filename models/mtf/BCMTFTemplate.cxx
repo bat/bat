@@ -31,9 +31,6 @@ BCMTFTemplate::BCMTFTemplate(const char * channelname, const char * processname)
 // ---------------------------------------------------------
 BCMTFTemplate::~BCMTFTemplate()
 {
-   // debugKK
-   //   if (fHistogram)
-   //      delete fHistogram;
 }
 
 // ---------------------------------------------------------

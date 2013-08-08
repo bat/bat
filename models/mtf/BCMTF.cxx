@@ -751,7 +751,6 @@ int BCMTF::PrintStack(const char * channelname, const std::vector<double> & para
 int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename, const char * options)
 {
    // todo:
-   // - add legend including channel title
    // - add difference/ratio/significance plot below
    // - check for b0/1 if the mcmc was run
 

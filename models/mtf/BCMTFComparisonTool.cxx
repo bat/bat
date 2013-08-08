@@ -164,8 +164,7 @@ void BCMTFComparisonTool::DrawOverview()
    }
    hist_axes->Draw("SAMEAXIS");
 
-   // debugKK
-   // stuff doesn't get deleted
+   // todo: delete objects properly
 }
 
 // ---------------------------------------------------------
