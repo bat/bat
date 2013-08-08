@@ -369,7 +369,10 @@ int main()
    BCLog::SetLogLevel(BCLog::detail);
 
    // create new |:Model:| object
-   |:Model:| * m = new |:Model:|();
+   |:Model:|* m = new |:Model:|();
+
+   // set precision
+   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
    BCLog::OutSummary("Test model created");
 
