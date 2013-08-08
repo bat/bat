@@ -105,8 +105,7 @@ void efficiencyFitterExample()
 	hef->SetFlagIntegration(false);
 
 	// set options for MCMC
-//	hef->MCMCSetNIterationsMax(100);
-//	hef->MCMCSetNIterationsRun(100);
+        hef->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	// set priors
 	hef->SetPriorGauss(0, 50.0, 5.0);
@@ -129,7 +128,6 @@ void efficiencyFitterExample()
 
 	// print marginalized distributions
 	hef->PrintAllMarginalized("distributions.pdf");
-
 }
 
 // ---------------------------------------------------------
