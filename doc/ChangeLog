@@ -4,6 +4,7 @@
 	* examples/basic/efficiencyFitter: clean-up of example.
 	* examples/advanced/polynomialfit: clean-up of example.
 	* examples/advanced/advancedGraphFitter: clean-up of example.
+	* src/BCIntegrate.cxx: check if parameter is fixed in simulated annealing.
 
 2013-08-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* tools/CreateProject.sh.in: improved the default example in the script

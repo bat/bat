@@ -869,13 +869,15 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
    if ( !have_start ) {
       start.clear();
       for (unsigned i=0; i<fParameters.Size(); i++)
-         start.push_back((fParameters[i]->GetLowerLimit() + fParameters[i]->GetUpperLimit()) / 2.);
+         if (fParameters[i]->Fixed())
+            start.push_back(fParameters[i]->GetFixedValue());
+         else
+            start.push_back((fParameters[i]->GetLowerLimit() + fParameters[i]->GetUpperLimit()) / 2.);
    }
 
    // set current state and best fit to starting point
-
-	 x = start;
-	 best_fit = start;
+   x = start;
+   best_fit = start;
 
    // calculate function value at starting point
    fval_x = fval_best_fit = LogEval(x);
@@ -890,10 +892,9 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
       bool in_range = true;
 
       for (unsigned i = 0; i < fParameters.Size(); i++)
-//         if (y[i] > fParameters[i] or y[i] < fMin[i])
          if ( !fParameters[i]->IsValid(y[i]))
             in_range = false;
-
+      
       if ( in_range ){
          // calculate function value at new point
          fval_y = LogEval(y);
@@ -901,20 +902,20 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
          // is it better than the last one?
          // if so, update state and chef if it is the new best fit...
          if (fval_y >= fval_x) {
-					 x = y;
+            x = y;
 
             fval_x = fval_y;
 
             if (fval_y > fval_best_fit) {
-							best_fit = y;
-							fval_best_fit = fval_y;
+               best_fit = y;
+               fval_best_fit = fval_y;
             }
          }
          // ...else, only accept new state w/ certain probability
          else {
             if (fRandom->Rndm() <= exp( (fval_y - fval_x) / SATemperature(t) )) {
-							x = y;
-							fval_x = fval_y;
+               x = y;
+               fval_x = fval_y;
             }
          }
       }
@@ -934,13 +935,13 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
    }
 
    if ( fval_best_fit > fLogMaximum or fFlagIgnorePrevOptimization) {
-		 // set best fit parameters
-		 fBestFitParameters = best_fit;
-		 fBestFitParameterErrors.assign(fParameters.Size(),-1);
-		 fLogMaximum = fval_best_fit;
+      // set best fit parameters
+      fBestFitParameters = best_fit;
+      fBestFitParameterErrors.assign(fParameters.Size(),-1);
+      fLogMaximum = fval_best_fit;
 
-		 // set optimization moethod used to find the mode
-		 fOptimizationMethodMode = BCIntegrate::kOptSA;
+      // set optimization moethod used to find the mode
+      fOptimizationMethodMode = BCIntegrate::kOptSA;
    }
 
    return best_fit;
@@ -997,9 +998,14 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<d
    double new_val, norm;
 
    for (unsigned i = 0; i < fParameters.Size(); i++) {
-      norm = fParameters[i]->GetRangeWidth() * SATemperature(t) / 2.;
-      new_val = x[i] + norm * fRandom->Gaus();
-      y.push_back(new_val);
+      if (fParameters[i]->Fixed()) {
+         y.push_back(fParameters[i]->GetFixedValue());
+      }
+      else {
+         norm = fParameters[i]->GetRangeWidth() * SATemperature(t) / 2.;
+         new_val = x[i] + norm * fRandom->Gaus();
+         y.push_back(new_val);
+      }
    }
 
    return y;
@@ -1014,10 +1020,15 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
    if (fParameters.Size() == 1) {
       double cauchy, new_val, norm;
 
-      norm = fParameters[0]->GetRangeWidth() * SATemperature(t) / 2.;
-      cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
-      new_val = x[0] + norm * cauchy;
-      y.push_back(new_val);
+      if (fParameters[0]->Fixed()) {
+         y.push_back(fParameters[0]->GetFixedValue());
+      }
+      else {
+         norm = fParameters[0]->GetRangeWidth() * SATemperature(t) / 2.;
+         cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
+         new_val = x[0] + norm * cauchy;
+         y.push_back(new_val);
+      }
    }
    else {
       // use sampling to get radial n-dim Cauchy distribution
@@ -1032,8 +1043,13 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
 
       // scale y by radial part and the size of dimension i in phase space
       // afterwards, move by x
-      for (unsigned i = 0; i < fParameters.Size(); i++)
-         y[i] = fParameters[i]->GetRangeWidth() * y[i] * radial / 2. + x[i];
+      for (unsigned i = 0; i < fParameters.Size(); i++) {
+         if (fParameters[i]->Fixed()) {
+            y[i] = fParameters[i]->GetFixedValue(); }
+         else {
+            y[i] = fParameters[i]->GetRangeWidth() * y[i] * radial / 2. + x[i];
+         }
+      }
    }
 
    return y;
