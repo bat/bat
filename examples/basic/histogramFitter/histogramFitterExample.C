@@ -37,7 +37,7 @@
 #include <TRandom3.h>
 
 #include <BAT/BCAux.h>
-//#include <BAT/BCLog.h>
+#include <BAT/BCLog.h>
 #include <BAT/BCHistogramFitter.h>
 
 #endif
@@ -50,7 +50,7 @@
 // and the width of the signal peak can be set up using the variables
 // 'mean' and 'sigma' below.
 
-TH1D * CreateHistogram(int nbins, int ns, int nb, int seed = 0);
+TH1D* CreateHistogram(int nbins, int ns, int nb, int seed = 0);
 
 const double mean  = 65.0;
 const double sigma =  5.0;
@@ -63,56 +63,70 @@ const double sigma =  5.0;
 // ---------------------------------------------------------
 void histogramFitterExample()
 {
-	BCAux::SetStyle();
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
 
-	// create data
-	TH1D * hist = CreateHistogram(20, 100, 100);
+   // open log file
+   BCLog::OpenLog("log.txt");
+   BCLog::SetLogLevel(BCLog::detail);
+   
+   // create data
+   TH1D* hist = CreateHistogram(20, 100, 100);
 
-	// define a fit function
-	TF1 * f1 = new TF1("f1", "[0] / sqrt(2.0 * 3.1416) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3]", 0., 100.);
-	f1->SetParLimits(0,  0.0, 200.0);
-	f1->SetParLimits(1, 50.0,  90.0);
-	f1->SetParLimits(2,  0.1,  10.0);
-	f1->SetParLimits(3,  0.0,   2.0);
+   // define a fit function
+   TF1* f1 = new TF1("f1", "[0] / sqrt(2.0 * 3.1416) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3]", 0., 100.);
+   f1->SetParLimits(0,  0.0, 200.0);
+   f1->SetParLimits(1, 55.0,  75.0);
+   f1->SetParLimits(2,  0.1,  10.0);
+   f1->SetParLimits(3,  0.0,   2.0);
 
-	// create a new histogram fitter
-	BCHistogramFitter * hf = new BCHistogramFitter(hist, f1);
+   // create a new histogram fitter
+   BCHistogramFitter* hf = new BCHistogramFitter(hist, f1);
 
-	// set options for MCMC
-	hf->MCMCSetNIterationsRun(10000);
+   // set precision
+   hf->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
-	// perform fit
-	hf->Fit();
+   // integrate function over bin (true) or use linear interpolation
+   hf->SetFlagIntegration(false);
 
-	// print data and fit
-	TCanvas * c1 = new TCanvas("c1");
-	hf->DrawFit("", true); // draw with a legend
-	c1->Print("fit.pdf");
+   // set priors
+   hf->SetPriorConstant(0);
+   hf->SetPriorConstant(1);
+   hf->SetPriorConstant(2);
+   hf->SetPriorConstant(3);
 
-	// print marginalized distributions
-	hf->PrintAllMarginalized("distributions.pdf");
+   // perform fit
+   hf->Fit();
+
+   // print marginalized distributions
+   hf->PrintAllMarginalized("distributions.pdf");
+
+   // print data and fit
+   TCanvas* c1 = new TCanvas("c1");
+   hf->DrawFit("", true); // draw with a legend
+   c1->Print("fit.pdf");
 }
 
 // ---------------------------------------------------------
-TH1D * CreateHistogram(int nbins, int ns, int nb, int seed)
+TH1D* CreateHistogram(int nbins, int ns, int nb, int seed)
 {
-	// initialize random number generator
-	gRandom = new TRandom3(seed);
+   // initialize random number generator
+   gRandom = new TRandom3(seed);
 
-	// create new histogram
-	TH1D * hist = new TH1D("data", ";x;N", nbins, 0.0, 100.0);
-	hist->SetStats(kFALSE);
+   // create new histogram
+   TH1D* hist = new TH1D("data", ";x;N", nbins, 0.0, 100.0);
+   hist->SetStats(kFALSE);
 
-	// fill signal
-	for (int i = 0; i < ns; ++i)
-		hist->Fill(gRandom->Gaus(mean, sigma));
+   // fill signal
+   for (int i = 0; i < ns; ++i)
+      hist->Fill(gRandom->Gaus(mean, sigma));
 
-	// fill background
-	for (int i = 0; i < nb; ++i)
-		hist->Fill(100.0 * gRandom->Uniform());
+   // fill background
+   for (int i = 0; i < nb; ++i)
+      hist->Fill(100.0 * gRandom->Uniform());
 
-	// return the histogram
-	return hist;
+   // return the histogram
+   return hist;
 }
 
 // ---------------------------------------------------------

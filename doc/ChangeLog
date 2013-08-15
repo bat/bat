@@ -1,3 +1,6 @@
+2013-08-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/basic/histogramFitter: clean-up of example.
+
 2013-08-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* tools/CreateProject.sh.in: improved the default example in the script
 	* examples/basic/efficiencyFitter: added SetPrecision.
