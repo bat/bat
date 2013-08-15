@@ -273,6 +273,18 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 }
 
 // --------------------------------------------------------
+unsigned int BCEngineMCMC::GetNFixedParameters()
+{
+   int n = 0;
+   for (unsigned int i = 0; i < fParameters.Size(); ++i) {
+      if (!fParameters[0]->Fixed())
+         ++n;
+   }
+
+   return n;
+}
+
+// --------------------------------------------------------
 void BCEngineMCMC::SetNbins(unsigned int nbins)
 {
    for (unsigned i = 0 ; i < fParameters.Size() ; ++i)

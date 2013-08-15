@@ -298,6 +298,10 @@ class BCEngineMCMC
          { return fParameters.Size(); }
 
       /**
+       * @return The number of parameters of the model. */
+      unsigned int GetNFixedParameters();
+
+      /**
        * Returns the set of values of the parameters at the modes of the
        * marginalized posterior pdfs.
        * @return best fit parameters */

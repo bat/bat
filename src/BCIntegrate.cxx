@@ -753,7 +753,6 @@ TMinuit * BCIntegrate::GetMinuit()
 }
 
 // ---------------------------------------------------------
-
 std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
 {
    if (fParameters.Size() < 1) {
@@ -787,17 +786,23 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int p
    // set parameters
    int flag;
    for (unsigned i = 0; i < fParameters.Size(); i++) {
-       double starting_point = (fParameters[i]->GetUpperLimit() + fParameters[i]->GetLowerLimit()) / 2.;
+      double starting_point = (fParameters[i]->GetUpperLimit() + fParameters[i]->GetLowerLimit()) / 2.;
       if(have_start)
          starting_point = start[i];
-         fMinuit->mnparm(i,
-                         fParameters[i]->GetName().data(),
-                         starting_point,
-                         fParameters[i]->GetRangeWidth() / 100.,
-                         fParameters[i]->GetLowerLimit(),
-                         fParameters[i]->GetUpperLimit(),
-                         flag);
+      if (fParameters[i]->Fixed())
+         starting_point = fParameters[i]->GetFixedValue();
+      fMinuit->mnparm(i,
+                      fParameters[i]->GetName().data(),
+                      starting_point,
+                      fParameters[i]->GetRangeWidth() / 100.,
+                      fParameters[i]->GetLowerLimit(),
+                      fParameters[i]->GetUpperLimit(),
+                      flag);
    }
+
+   for (unsigned i = 0; i < fParameters.Size(); i++) 
+      if (fParameters[i]->Fixed())
+         fMinuit->FixParameter(i);
 
    // do mcmc minimization
    //   fMinuit->mnseek();
@@ -812,8 +817,9 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int p
    fMinuitErrorFlag = flag;
    std::vector<double> localMode(fParameters.Size(), 0);
    std::vector<double> errors(fParameters.Size(), 0);
-   for (unsigned i = 0; i < fParameters.Size(); i++)
+   for (unsigned i = 0; i < fParameters.Size(); i++) {
       fMinuit->GetParameter(i, localMode[i], errors[i]);
+   }
 
    // set best fit parameters
    if ( (-fMinuit->fAmin > fLogMaximum and !fFlagIgnorePrevOptimization) or fFlagIgnorePrevOptimization) {
@@ -1185,11 +1191,16 @@ void BCIntegrate::FCNLikelihood(int & npar, double * /*grad*/, double &fval, dou
    // copy parameters
    static std::vector<double> parameters;
 
+   // calculate number of active + fixed parameters
+   // remember: npar is just the number of _active_ parameters while 
+   // par is a vector of _all_ parameters
+   int nparameters = ::BCIntegrateHolder::instance()->GetNParameters();
+
    // adjust size if needed
-   parameters.resize(npar, 0.0);
+   parameters.resize(nparameters, 0.0);
 
    // copy values
-   std::copy(par, par + npar, parameters.begin());
+   std::copy(par, par + nparameters, parameters.begin());
 
    // evaluate, for efficiency don't check if npar matches
    fval = - ::BCIntegrateHolder::instance()->LogEval(parameters);
