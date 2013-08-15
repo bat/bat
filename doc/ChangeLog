@@ -2,6 +2,7 @@
 	* examples/basic/histogramFitter: clean-up of example.
 	* examples/basic/graphFitter: clean-up of example.
 	* examples/basic/efficiencyFitter: clean-up of example.
+	* examples/advanced/polynomialfit: clean-up of example.
 
 2013-08-08 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* tools/CreateProject.sh.in: improved the default example in the script
