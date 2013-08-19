@@ -2,9 +2,12 @@
 
 #include <BAT/BCMath.h>
 #include <BAT/BCParameter.h>
+#include <BAT/BCH1D.h>
 
 #include <TMath.h>
+#include <TCanvas.h>
 #include <TH1D.h>
+#include <TF1.h>
 
 #include <iostream>
 #include <iomanip>
@@ -110,6 +113,10 @@ double ReferenceCounting::LogAPrioriProbability(const std::vector<double> &param
       int binb = fHistPriorB->FindBin(b);
       logprob += log( fHistPriorS->GetBinContent(bins) );
       logprob += log( fHistPriorB->GetBinContent(binb) );
+   }
+   else if (fEvalOption == kApprox) {
+      logprob += log(fFuncPriorS->Eval(s));
+      logprob += log(ConjPriorPoisson(b, fAlpha, fBeta));
    }
 
    return logprob;
@@ -230,7 +237,7 @@ void ReferenceCounting::FillPriorS()
       delete fHistPriorS;
 
    // create new histogram
-   BCParameter * p = GetParameter(0);
+   BCParameter* p = GetParameter(0);
    fHistPriorS = new TH1D("hist_prior_s", ";s;p(s)", p->GetNbins(), p->GetLowerLimit(), p->GetUpperLimit());
 	
    // fill histogram
@@ -239,6 +246,17 @@ void ReferenceCounting::FillPriorS()
       double p = RefPriorS(s);
       fHistPriorS->SetBinContent(i, p);
    }
+   
+   // fit histogram
+
+   // remove old prior function
+   if (fFuncPriorS)
+      delete fFuncPriorS;
+
+   //   fFuncPriorS = new TF1("func_prior_s", "sqrt([0] / ([0] + x)) * exp([1]*TMath::Power(x, 0.25))", p->GetLowerLimit(), p->GetUpperLimit());
+   fFuncPriorS = new TF1("func_prior_s", "exp([0]*x^0.25+[1]*x^0.5+[2]*x)", p->GetLowerLimit(), p->GetUpperLimit());
+
+   fHistPriorS->Fit(fFuncPriorS);
 }
 
 // ---------------------------------------------------------
@@ -258,6 +276,23 @@ void ReferenceCounting::FillPriorB()
       double p = ConjPriorPoisson(b, fAlpha, fBeta);
       fHistPriorB->SetBinContent(i, p);
    }
+}
+
+// ---------------------------------------------------------
+void ReferenceCounting::PrintPriors(std::string filename)
+{
+   if (!fHistPriorS || !fHistPriorB) 
+      return;
+
+   TCanvas* c1 = new TCanvas("c1");
+   c1->cd();
+   fHistPriorS->Draw();
+   c1->Print(std::string( filename + "(").c_str());
+
+   fHistPriorB->Draw();
+   c1->Print(std::string( filename + ")").c_str());
+
+   return;   
 }
 
 // ---------------------------------------------------------

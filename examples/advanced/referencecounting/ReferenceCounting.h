@@ -14,8 +14,8 @@ public:
         // An enumerator for the prior evaluation options.
         // kAnalytic: use analytic approximation
         // kHistogram: fill a histogram with the prior before running
-        // kExpo: use an exponential approximation for the signal prior
-        enum EvalOption{ kAnalytic, kHistogram, kExpo };
+        // kApprox: use approximation
+        enum EvalOption{ kAnalytic, kHistogram, kApprox };
 
         // Constructors and destructor
         ReferenceCounting();
@@ -26,7 +26,6 @@ public:
         void DefineParameters();
         double LogAPrioriProbability(const std::vector<double> &parameters);
         double LogLikelihood(const std::vector<double> &parameters);
-        // void MCMCIterationInterface();
 
         // set option of how to evaluate the reference prior
         void SetPriorEvalOption(ReferenceCounting::EvalOption option)
@@ -57,6 +56,9 @@ public:
         void FillPriorS();
         void FillPriorB();
 
+        // print prior histograms
+        void PrintPriors(std::string filename);
+
         // number of observed events
         int fNObs;
 
@@ -77,6 +79,10 @@ public:
         // the histogrammed priors
         TH1D* fHistPriorS;
         TH1D* fHistPriorB;
+
+        // the approximate priors as functions
+        TF1* fFuncPriorS;
+        TF1* fFuncPriorB;
 
 
 };

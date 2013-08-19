@@ -1,3 +1,6 @@
+2013-08-19 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/advanced/referencecounting: clean up of example, added an approximation.
+
 2013-08-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/basic/histogramFitter: clean-up of example.
 	* examples/basic/graphFitter: clean-up of example.
