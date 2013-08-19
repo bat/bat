@@ -4,18 +4,16 @@
  *
  * For the licensing terms see doc/COPYING.
  */
+#include "config.h"
 
-// ---------------------------------------------------------
+#include "BCLog.h"
+
+#include <TError.h>
+#include <TROOT.h>
 
 #include <fstream>
 #include <iomanip>
 
-#include <TROOT.h>
-#include <TError.h>
-
-#include "config.h"
-
-#include "BCLog.h"
 
 std::ofstream BCLog::fOutputStream;
 

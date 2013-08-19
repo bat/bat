@@ -5,9 +5,8 @@
  * For the licensing terms see doc/COPYING.
  */
 
-#ifdef HAVE_CONFIG_H
 #include <config.h>
-#endif
+
 #if THREAD_PARALLELIZATION
 
 #include <GaussModel.h>

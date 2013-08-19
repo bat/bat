@@ -4,10 +4,10 @@
  *
  * For the licensing terms see doc/COPYING.
  */
+#include <config.h>
 
 #include "IntegrationModel.h"
 #include "test.h"
-#include <config.h>
 
 using namespace test;
 
