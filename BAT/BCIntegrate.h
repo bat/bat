@@ -226,10 +226,17 @@ public:
    /**
     * @return Options used for integration with CUBA
     */
-   const BCCubaOptions::Vegas &   GetCubaVegasOptions()   const;
-   const BCCubaOptions::Suave &   GetCubaSuaveOptions()   const;
-   const BCCubaOptions::Divonne & GetCubaDivonneOptions() const;
-   const BCCubaOptions::Cuhre &   GetCubaCuhreOptions()   const;
+   const BCCubaOptions::Vegas & GetCubaVegasOptions() const
+   { return fCubaVegasOptions; }
+
+   const BCCubaOptions::Suave & GetCubaSuaveOptions() const
+   { return fCubaSuaveOptions; }
+
+   const BCCubaOptions::Divonne & GetCubaDivonneOptions() const
+   { return fCubaDivonneOptions; }
+
+   const BCCubaOptions::Cuhre & GetCubaCuhreOptions() const
+   { return fCubaCuhreOptions; }
 
    /**
     * @return The uncertainty in the most recent Monte Carlo integration */
@@ -346,10 +353,20 @@ public:
     * Set Cuba integration method */
    void SetCubaIntegrationMethod(BCCubaMethod type);
 
-   void SetCubaOptions(const BCCubaOptions::Vegas &);
-   void SetCubaOptions(const BCCubaOptions::Suave &);
-   void SetCubaOptions(const BCCubaOptions::Divonne &);
-   void SetCubaOptions(const BCCubaOptions::Cuhre &);
+   /**
+    * Set options for individual cuba methods
+    */
+   void SetCubaOptions(const BCCubaOptions::Vegas & options)
+   {  fCubaVegasOptions = options; }
+
+   void SetCubaOptions(const BCCubaOptions::Suave & options)
+   {  fCubaSuaveOptions = options; }
+
+   void SetCubaOptions(const BCCubaOptions::Divonne & options)
+   {  fCubaDivonneOptions = options; }
+
+   void SetCubaOptions(const BCCubaOptions::Cuhre & options)
+   {  fCubaCuhreOptions = options; }
 
    /**
     * @param T0 new value for Simulated Annealing starting temperature. */
