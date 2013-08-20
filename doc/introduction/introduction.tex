@@ -28,7 +28,7 @@
 \newcommand{\Version}{Version~\versionno}
 \newcommand{\RootVersion}{5.22}
 \newcommand{\RooStatsVersion}{5.27/04}
-\newcommand{\CubaVersion}{2.0}
+\newcommand{\CubaVersion}{3.1}
 
 \newcommand{\code}[1]{\texttt{#1}}
 
@@ -164,14 +164,14 @@ with \verb|MathMore| support.
 % reverse this change.
 \addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
 \subsubsection{Cuba}
-\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
-Cuba~\cite{CUBA} is a library containing general purpose
-multidimensional integration algorithms. It can be obtained
-from~\cite{CUBAweb}. BAT will compile and run with Cuba version
-\CubaVersion\ or later. Cuba is not necessary to run BAT, however, its
-use is recommended as it provides integration routines tuned for
-performance, which are very usefull for integration in problems with
-large number of dimensions.
+\addtocontents{toc}{\protect\setcounter{tocdepth}{3}} Cuba~\cite{CUBA}
+is a library containing general purpose multidimensional integration
+algorithms. It can be obtained from~\cite{CUBAweb}. BAT will compile
+and run with Cuba version \CubaVersion\ or later. Cuba is not
+necessary to run BAT if one only cares about parameter
+inferences. However, its use is recommended when a fast determination
+of the posterior normalization for model comparison is desired in
+dimension up to say 20.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -339,10 +339,10 @@ of user.
 
 % --------------------------------------------------------
 
-\subsubsection{Implementation of a mathematical model as a C++ class}
+\subsubsection{Implementation of a statistical model as a C++ class}
 \label{subsubsection:implementation}
 
-The mathematical models used in \bat\ are implemented in terms of C++
+The statistical models used in \bat\ are implemented in terms of C++
 classes. All model classes inherit from the pure-virtual base class
 \verb|BCModel|, which has one member function that must be overloaded:
 %
@@ -434,10 +434,17 @@ BCParameter * parameter = new BCParameter(const char * name, double lowerlimit,
 int BCModel::AddParameter(BCParameter * parameter),
 \end{verbatim}
 %
-where the arguments in the \code{BCParameter} constructor are the name, lower
-limit, and upper limit of the parameter. The optional \verb|latexname| is used
-to label axes in output plots. When omitted, \verb|name| is used instead.
-Parameters can also be defined implicitly via
+where the arguments in the \code{BCParameter} constructor are the
+name, lower limit, and upper limit of the parameter. The optional
+\verb|latexname| is used to label axes in output plots. When omitted,
+\verb|name| is used instead. The user can take explicit control and
+have multiple models share one parameter:
+\begin{verbatim}
+model1.AddParameter(parameter);
+model2.AddParameter(parameter);
+\end{verbatim}
+
+Second, parameters can also be defined implicitly via
 %
 \begin{verbatim}
 int BCModel::AddParameter(const char* name, double lowerlimit,
@@ -446,8 +453,8 @@ int BCModel::AddParameter(const char* name, double lowerlimit,
 
 Each parameter must have a unique name and valid limits. Once added to
 a model, each parameter is given a unique index starting at zero. A
-parameter can be referenced by its index or by its name. It can be
-returned from a model using the methods
+parameter can be referenced by its index (fast) or by its name
+(slow). It can be returned from a model using the methods
 %
 \begin{verbatim}
 BCParameter * BCModel::GetParameter(int index),
@@ -458,12 +465,9 @@ It is possible to change the lower and upper limits of a parameter
 after it has been added to the model:
 %
 \begin{verbatim}
-int BCModel::SetParameterRange(int index, double parmin, double parmax) .
+model.GetParameter(0)->SetLimits(min, max);
 \end{verbatim}
-%
-A call to this method resets all results obtained so far since the
-model has changed.
-
+When MCMC marginalization is run, the parameter's current ranges are used.
 % --------------------------------------------------------
 
 \subsubsection{A skeleton created by the CreateProject.sh script}
@@ -547,14 +551,14 @@ like this
 
 // ---------------------------------------------------------
 MyModel::MyModel() : BCModel()
-{  
+{
 	// default constructor
 	DefineParameters();
 };
 
 // ---------------------------------------------------------
 MyModel::MyModel(const char * name) : BCModel(name)
-{ 
+{
 	// constructor
 	DefineParameters();
 };
@@ -762,13 +766,13 @@ void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method),
 where \verb|BCIntegrationMethod| can be one of the following
 %
 \begin{itemize}
-\item \verb|BCModel::kIntMonteCarlo|. A sampled mean integration.
-\item \verb|BCModel::kIntImportance|. A sampled mean integration
- with importance sampling.
-\item \verb|BCModel::kIntMetropolis|. A sampled mean integration
- with importance sampling using Markov chains.
+\item \verb|BCModel::kIntMonteCarlo|. Sample-mean integration (default if Cuba is not available).
+\item \verb|BCModel::kIntImportance|. Importance sampling. Note that
+  there is no good default choice for the proposal function, so the
+  user has to overload\\
+  \verb|BCIntegrate::EvalSampling(const std::vector<double> & x)|
 \item \verb|BCModel::kIntCuba|. An interface to the CUBA
-  library~\cite{CUBA,CUBAweb}.
+  library~\cite{CUBA,CUBAweb}; cf. Section~\ref{section:cubainterface}.
 \end{itemize}
 %
 
@@ -800,30 +804,32 @@ where the latter returns the logarithm of the posterior pdf.
 \subsubsection{Cuba interface}
 \label{section:cubainterface}
 
-Cuba library contains four different integration algorithms. In \BAT\
+The Cuba library contains four different integration algorithms. In \BAT\
 one can choose the method using
 %
 \begin{verbatim}
 void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod method)
 \end{verbatim}
 %
-where \verb|BCCubaMethod| can be either \verb|kCubaVegas| (default)
-or \verb|kCubaSuave|. The interface to the other two integration
-algorithms (Divonne and Cuhre) will be implemented in the future.
+where \verb|BCCubaMethod| is one of \verb|kCubaVegas| (default),
+\verb|kCubaSuave|, \verb|kCubaDivonne|, or \verb|kCubaCuhre|. Note
+that the evaluation of the posterior is run in parallel by default. If
+the posterior is not thread safe it is recommended to set the
+environment variable \verb|CUBACORES| to 1.
 
-One can tune the main parameters of Cuba using the following methods:
+One can tune the individual methods' parameters using the structs
+\verb|BCCubaOptions::Method| following methods as follows:
 %
 \begin{verbatim}
-void SetCubaMinEval(int n)
-void SetCubaMaxEval(int n)
-void SetCubaVerbosityLevel(int level)
-void SetCubaVegasNStart(int n)
-void SetCubaVegasNIncrease(int n)
-void SetCubaSuaveNNew(int n)
-void SetCubaSuaveFlatness(double p)
+BCCubaOptions::Vegas o = model.GetCubaVegasOptions();
+o.flags = 1;
+model.SetCubaOptions(o);
+model.IntegrateCuba(BCIntegrate::kCubaVegas);
 \end{verbatim}
 %
-See the Cuba manual for details.
+Note that the default options for each algorithm---taken from the
+example shipping with Cuba---may require some tuning to yield accurate
+results; see the Cuba manual for details.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -884,8 +890,10 @@ double BCModel::GetBestFitParameterError(unsigned int index).
 Settings and options of the Simulated Annealing algorithm are
 summarized in section~\ref{section:settings:SA}.
 
-If several algorithms are ran one after the other, a flag controls
-whether to ignore the results from a previous optimization:
+If several (optimization) algorithms are run one after the other, the
+best-fit parameters are updated only if an increase in the target
+function is detected. A flag controls whether to ignore the results
+from a previous optimization:
 %
 \begin{verbatim}
 void BCIntegrate::SetFlagIgnorePrevOptimization(bool flag).
@@ -1249,7 +1257,7 @@ calculation took around 3 hours.
 \emph{Warning: The results of the sampling become nonsense if multiple threads
 are used but the likelihood itself is not thread safe.}
 
-A typical example of a non thread-safe likelihood is 
+A typical example of a non thread-safe likelihood is
 \begin{verbatim}
 double MyModel::LogLikelihood(const std::vector <double> & parameters)
 {
@@ -2461,5 +2469,3 @@ A. Gelman and D. B. Rubin, ``Inference from Iterative Simulation Using Multiple 
 % --------------------------------------------------------
 
 \end{document}
-
-
