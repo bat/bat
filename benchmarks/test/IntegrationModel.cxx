@@ -10,8 +10,11 @@
 #include <TString.h>
 #include <TMath.h>
 #include <Math/SpecFuncMathMore.h>
+#include <TRandom3.h>
 
+#include <cmath>
 #include <iostream>
+
 using namespace std;
 
 IntegrationModel::IntegrationModel() : BCModel() {
@@ -50,6 +53,10 @@ double IntegrationModel::Likelihood(const std::vector<double> &parameters) {
    return output*output;
 }
 
+double IntegrationModel::LogLikelihood(const std::vector<double> &parameters) {
+   return log(Likelihood(parameters));
+}
+
 double IntegrationModel::Integral() {
    double sum = 0;
    for (unsigned int m = 0; m < GetComplexity(); m++)
@@ -75,19 +82,20 @@ void IntegrationModel::PopulatePolynomialDegrees() {
    fPolynomialModality.clear();
    unsigned int d = GetModality();
    for (unsigned int m = 0; m < GetComplexity(); m++) {
-      unsigned int dm = (m == GetComplexity()-1) ? d : fRandom.Integer(d-(GetComplexity()-1-m)-1)+1;
+      unsigned int dm = (m == GetComplexity()-1) ? d :
+            fRandom->Integer(d-(GetComplexity()-1-m)-1)+1;
       fPolynomialModality.push_back(dm);
       d -= dm;
       std::vector<unsigned int> temp1;
       for (unsigned int k = 0; k < GetDimensionality()-1; k++) {
          std::vector<unsigned int> ds = Divisors(dm);
-         temp1.push_back(ds[fRandom.Integer(ds.size())]);
+         temp1.push_back(ds[fRandom->Integer(ds.size())]);
          dm = dm/temp1.back();
       }
       temp1.push_back(dm);
       std::vector<unsigned int> temp2;
       for (unsigned int k = 0; k < GetDimensionality(); k++) {
-         int i = fRandom.Integer(temp1.size());
+         int i = fRandom->Integer(temp1.size());
          temp2.push_back(Degree(temp1[i]));
          temp1.erase(temp1.begin()+i);
       }

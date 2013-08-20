@@ -3,9 +3,6 @@
 
 #include <BAT/BCModel.h>
 
-#include <TRandom.h>
-
-#include <cmath>
 #include <vector>
 
 /// todo documentation, paper reference
@@ -38,7 +35,7 @@ public:
 	double Integral();
 
 	double Likelihood(const std::vector<double> &parameters);
-	double LogLikelihood(const std::vector<double> &parameters) {return log(Likelihood(parameters));}
+	double LogLikelihood(const std::vector<double> &parameters);
 
 protected:
 	unsigned int fDimensionality;
@@ -48,7 +45,6 @@ protected:
 	std::vector<std::vector<unsigned int> > fPolynomialDegrees;
 	std::vector<unsigned int> fPolynomialModality;
 
-	TRandom fRandom;
 	std::vector<unsigned int> Divisors(unsigned int d);
 	const unsigned & Degree(const unsigned & d) {return d;}
 	const unsigned & GetPolynomialDegree(const unsigned & m, const unsigned & k) const

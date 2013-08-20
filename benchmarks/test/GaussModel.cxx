@@ -9,11 +9,11 @@ GaussModel::GaussModel(const char * name, const unsigned & nParameters, long loo
     fLoopIterations(loopIterations)
 {
    // add identical, independent parameters
-   for (unsigned i = 0; i < nParameters ; i++)
-   {
+   for (unsigned i = 0; i < nParameters ; ++i) {
       std::string parName("par");
        AddParameter((parName + test::stringify(i)).c_str(), -15.0, 15.0);
    }
+   SetPriorConstantAll();
 }
 
 // ---------------------------------------------------------
@@ -50,11 +50,4 @@ double GaussModel::LogLikelihood(const std::vector<double> & parameters)
       logprob += BCMath::LogGaus(parameters.at(i), 0.0, 2.0);
     }
     return logprob;
-}
-
-// ---------------------------------------------------------
-double GaussModel::LogAPrioriProbability(const std::vector<double> &)
-{
-    // assume flat prior in all variables
-    return 0.0;
 }

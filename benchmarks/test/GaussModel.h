@@ -14,8 +14,6 @@ class GaussModel : public BCModel
       virtual ~GaussModel();
 
       // Methods to overload, see file GaussModel.cxx
-      void DefineParameters();
-      double LogAPrioriProbability(const std::vector<double> & parameters);
       double LogLikelihood(const std::vector<double> & parameters);
 private:
       /**
