@@ -14,15 +14,14 @@
  */
 
 /**
- * Copyright (C) 2008-2013, Daniel Kollar, Kevin Kroeninger, Daniel Greenwald, and Frederik Beaujean.
+ * Copyright (C) 2008-2013, Daniel Kollar, Kevin Kroeninger,
+ * Daniel Greenwald, and Frederik Beaujean.
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
  */
 
 // ---------------------------------------------------------
-
-#include "config.h"
 
 #include "BCEngineMCMC.h"
 
@@ -94,9 +93,7 @@ public:
    enum BCIntegrationMethod {
       kIntMonteCarlo,
       kIntImportance,
-#ifdef HAVE_CUBA_H
       kIntCuba,
-#endif
       NIntMethods };
 
    /**
@@ -221,7 +218,6 @@ public:
    double GetAbsolutePrecision() const
    { return fAbsolutePrecision; }
 
-#if HAVE_CUBA_H
    /**
     * @return Cuba Integration method */
    BCCubaMethod GetCubaIntegrationMethod() const
@@ -230,12 +226,10 @@ public:
    /**
     * @return Options used for integration with CUBA
     */
-   const BCCubaOptions::Vegas & GetCubaVegasOptions() const;
-   const BCCubaOptions::Suave & GetCubaSuaveOptions() const;
+   const BCCubaOptions::Vegas &   GetCubaVegasOptions()   const;
+   const BCCubaOptions::Suave &   GetCubaSuaveOptions()   const;
    const BCCubaOptions::Divonne & GetCubaDivonneOptions() const;
-   const BCCubaOptions::Cuhre & GetCubaCuhreOptions() const;
-
-#endif
+   const BCCubaOptions::Cuhre &   GetCubaCuhreOptions()   const;
 
    /**
     * @return The uncertainty in the most recent Monte Carlo integration */
@@ -305,8 +299,7 @@ public:
 
    /**
     * @param method The integration method */
-   void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
-   { fIntegrationMethod = method; }
+   void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method);
 
    /**
     * @param method The marginalization method */
@@ -349,7 +342,6 @@ public:
    void SetAbsolutePrecision(double absprecision)
    { fAbsolutePrecision = absprecision; }
 
-#if HAVE_CUBA_H
    /**
     * Set Cuba integration method */
    void SetCubaIntegrationMethod(BCCubaMethod type);
@@ -358,7 +350,6 @@ public:
    void SetCubaOptions(const BCCubaOptions::Suave &);
    void SetCubaOptions(const BCCubaOptions::Divonne &);
    void SetCubaOptions(const BCCubaOptions::Cuhre &);
-#endif
 
    /**
     * @param T0 new value for Simulated Annealing starting temperature. */
@@ -442,7 +433,6 @@ public:
    double EvaluatorImportance(std::vector<double> &sums, const std::vector<double> &point, bool &accepted);
    static void IntegralUpdaterImportance(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision);
 
-#ifdef HAVE_CUBA_H
    /**
     * Calculate integral using the Cuba library. For details see documentation.
     * @return The integral */
@@ -463,7 +453,7 @@ public:
     * @param ff The function value
     * @return An error code */
    static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
-#endif
+
    TH1D * Marginalize(BCIntegrationMethod type, unsigned index);
 
    TH2D * Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2);
@@ -647,7 +637,7 @@ public:
     * @return string containing the name of the optimization type */
    std::string DumpUsedOptimizationMethod()
    { return DumpOptimizationMethod(fOptimizationMethodMode); }
-#ifdef HAVE_CUBA_H
+
    /**
     * Return string with the name for a given Cuba integration type.
     * @param type code for the Cuba integration type
@@ -659,7 +649,7 @@ public:
     * @return string containing the name of the Cuba integration type */
    std::string DumpCubaIntegrationMethod()
    { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); }
-#endif
+
    /**
     * Set best fit parameters values*/
    void SetBestFitParameters(const std::vector<double> &x)

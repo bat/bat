@@ -6,6 +6,7 @@
  */
 
 // ---------------------------------------------------------
+#include <config.h>
 
 #include "BCIntegrate.h"
 #include "BCErrorCodes.h"
@@ -81,11 +82,8 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC(),
     fNIterations(0),
     fRelativePrecision(1e-2),
     fAbsolutePrecision(1e-5),
-    fError(-999.)
-#ifdef HAVE_CUBA_H
-    ,
+    fError(-999.),
     fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
-#endif
 {
 	fMinuitArglist[0] = 20000;
 	fMinuitArglist[1] = 0.01;
@@ -272,10 +270,8 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
             &IntegralUpdaterImportance,	 // use same updater as for metropolis
             sums);
    }
-#ifdef HAVE_CUBA_H
    case BCIntegrate::kIntCuba:
       return IntegrateCuba();
-#endif
    default:
       BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
       break;
@@ -318,7 +314,7 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
 
       level = BCLog::detail;
       bool printed = false;
-#ifdef HAVE_CUBA_H
+
       if (type==kIntCuba)
       {
          BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions out of %i.",
@@ -327,7 +323,7 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
                NVarNow, fParameters.Size()));
          printed = true;
       }
-#endif
+
       if (not printed)
          BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions out of %i.",
                DumpIntegrationMethod(type).c_str(),
@@ -340,7 +336,7 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
    }
    else {
       bool printed = false;
-#ifdef HAVE_CUBA_H
+
       if (type==kIntCuba) {
          BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions.",
                DumpIntegrationMethod(type).c_str(),
@@ -348,7 +344,7 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
                NVarNow));
          printed = true;
       }
-#endif
+
       if (not printed)
          BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions.",
                DumpIntegrationMethod(type).c_str(),
@@ -497,9 +493,11 @@ bool BCIntegrate::CheckMarginalizationAvailability(BCIntegrationMethod type) {
    case BCIntegrate::kIntMonteCarlo:
    case BCIntegrate::kIntImportance:
       return true;
-#ifdef HAVE_CUBA_H
    case BCIntegrate::kIntCuba:
+#ifdef HAVE_CUBA_H
       return true;
+#else
+      return false;
 #endif
    default:
       BCLog::OutError(TString::Format("BCIntegrate::Marginalize. Invalid marginalization method: %d.", type));
@@ -594,13 +592,13 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 	if (!CheckMarginalizationIndices(hist,index))
 		return false;
 
-#ifdef HAVE_CUBA_H
+	// todo is this true?
 	// Currently this does not seem to work for Cuba integration beyond 1 dimension
 	if (type==kIntCuba and hist->GetDimension()>1) {
 		BCLog::OutError("BCIntegrate::Marginalize : Cuba integration currently only functions for 1D marginalization.");
 		return false;
 	}
-#endif
+
 	// generate string output
 	char * parnames = new char;
 	for (unsigned i=0; i<index.size(); i++) {
@@ -1246,10 +1244,25 @@ std::vector<double> BCIntegrate::FindModeMCMC()
    return MCMCGetMaximumPoint(index);
 }
 
-#ifdef HAVE_CUBA_H
+// ---------------------------------------------------------
+void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
+{
+   if (method >= BCIntegrate::NIntMethods) {
+      BCLog::OutError(Form("BCIntegrate::SetIntegrationMethod: Invalid method '%d' ", method));
+      return;
+   }
+   if (method == BCIntegrate::kIntCuba) {
+#ifndef HAVE_CUBA_H
+      BCLog::OutError("BCIntegrate::SetIntegrationMethod: Cuba not enabled during configure");
+#endif
+   }
+   fIntegrationMethod = method;
+}
+
 // ---------------------------------------------------------
 void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
 {
+#ifdef HAVE_CUBA_H
    switch(type) {
       case BCIntegrate::kCubaVegas:
       case BCIntegrate::kCubaSuave:
@@ -1261,6 +1274,9 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
          BCLog::OutError(TString::Format("Integration method of type %d is not defined for Cuba",type));
          return;
    }
+#else
+   BCLog::OutError("SetCubaIntegrationMethod: Cuba not enabled during configure");
+#endif
 }
 
 // ---------------------------------------------------------
@@ -1306,7 +1322,7 @@ int BCIntegrate::CubaIntegrand(const int * ndim, const double xx[],
 
 // ---------------------------------------------------------
 double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
-
+#if HAVE_CUBA_H
    LogOutputAtStartOfIntegration(kIntCuba, cubatype);
 
    // integrand has only one component
@@ -1421,8 +1437,11 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
       LogOutputAtEndOfIntegration(result,fError,fError/result,fNIterations);
 
    return result;
-}
+#else
+   BCLog::OutError("IntegrateCuba: Cuba not enabled during configure");
+   return -1;
 #endif
+}
 
 // ---------------------------------------------------------
 void BCIntegrate::SAInitialize()
@@ -1439,10 +1458,8 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
          return "Sampled Mean Monte Carlo";
       case BCIntegrate::kIntImportance:
          return "Importance Sampling";
-#ifdef HAVE_CUBA_H
       case BCIntegrate::kIntCuba:
          return "Cuba";
-#endif
       default:
          return "Undefined";
    }
@@ -1462,7 +1479,6 @@ std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMetho
          return "Undefined";
    }
 }
-#ifdef HAVE_CUBA_H
 
 // ---------------------------------------------------------
 std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
@@ -1480,7 +1496,6 @@ std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod typ
          return "Undefined";
    }
 }
-#endif
 
 namespace BCCubaOptions
 {
