@@ -203,9 +203,9 @@ class BCModel : public BCIntegrate
          { fModelAPosteriori = probability; }
 
       /**
-       * Sets the normalization of the likelihood.
-       * The normalization is the integral of likelihood over all parameters.
-       * @param norm The normalization of the likelihood */
+       * Sets the normalization of the posterior. The normalization
+       * is the integral of likelihood x prior over all parameters.
+       * @param norm The normalization */
       void SetNormalization(double norm)
          { fNormalization = norm; }
 
