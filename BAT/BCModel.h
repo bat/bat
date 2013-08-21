@@ -55,13 +55,9 @@ class BCModel : public BCIntegrate
       /** @{ */
 
       /**
-       * The default constructor. */
-      BCModel();
-
-      /**
        * A constructor.
        * @param name The name of the model */
-      BCModel(const char * name);
+      BCModel(const char * name="model");
 
       /**
        * The copy constructor. */
@@ -377,7 +373,8 @@ class BCModel : public BCIntegrate
        * @param name the name of the parameter
        * @return An error code
        */
-      int SetPriorConstant(const char* name);
+      int SetPriorConstant(const char* name)
+      { return SetPriorConstant(fParameters.Index(name)); }
 
       /**
        * Enable caching the constant value of the prior, so LogAPrioriProbability
@@ -768,11 +765,6 @@ class BCModel : public BCIntegrate
       bool fPriorConstantAll;
 
       /**
-       * The value of the product of constant priors of
-       * individual parameters. */
-      double fPriorConstantValue;
-
-      /**
        * List the parameters whose prior is constant */
       std::vector<bool> fPriorContainerConstant;
 
@@ -789,10 +781,6 @@ class BCModel : public BCIntegrate
       /**
        * Compares to strings */
       int CompareStrings(const char * string1, const char * string2);
-
-      /**
-       * Update the constant part of the prior. */
-      void RecalculatePriorConstant();
 
       /**
        * Converts a vector of doubles into a BCDataPoint */

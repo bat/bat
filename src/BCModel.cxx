@@ -59,31 +59,6 @@ BCModel::BCModel(const char * name)
    flag_discrete = false;
 
    fPriorConstantAll = false;
-   fPriorConstantValue = 0;
-}
-
-// ---------------------------------------------------------
-BCModel::BCModel()
-   : BCIntegrate()
-{
-   fNormalization = -1.;
-   fDataSet = 0;
-   fPValue = -1;
-   fPValueNDoF = -1;
-   fChi2NDoF = -1;
-
-   fName = "model";
-   fDataPointUpperBoundaries = 0;
-   fDataPointLowerBoundaries = 0;
-
-   fGoFNChains = 5;
-   fGoFNIterationsMax = 100000;
-   fGoFNIterationsRun = 2000;
-
-   flag_discrete = false;
-
-   fPriorConstantAll = false;
-   fPriorConstantValue = 0;
 }
 
 // ---------------------------------------------------------
@@ -138,7 +113,6 @@ void BCModel::Copy(const BCModel & bcmodel)
          fPriorContainer.push_back(0);
    }
    fPriorConstantAll                = bcmodel.fPriorConstantAll;
-   fPriorConstantValue              = bcmodel.fPriorConstantValue;
    fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
    fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
    fNormalization                   = bcmodel.fNormalization;
@@ -475,45 +449,48 @@ double BCModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
    double logprob = 0;
 
-   if(!fPriorConstantAll) {
+   // loop over all parameters, assume prior factorizes
+   // into n independent parts
+   for (unsigned i = 0; i < fParameters.Size(); ++i) {
+      BCParameter * par = fParameters[i];
 
-      // get number of parameters
-      int npar = GetNParameters();
+      // avoid fixed and zero-width parameters
+      if (par->Fixed() or not par->GetRangeWidth())
+         continue;
 
-      // loop over all 1-d priors
-      for (int i = 0; i < npar; ++i) {
-         if (fPriorContainer[i]) {
-            // check what type of object is stored
-            TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
-            TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
+      if (fPriorContainerConstant[i]) {
+         logprob -= log(par->GetRangeWidth());
+         continue;
+      }
 
-            if (f) // TF1
-               logprob += log(f->Eval(parameters[i]));
-            else if (h) { // TH1
-               if(fPriorContainerInterpolate[i])
-                  logprob += log(h->Interpolate(parameters[i]));
-               else
-                  logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
-            }
+      if (fPriorContainer[i]) {
+         // check what type of object is stored
+         TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
+         TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
+
+         if (f) // TF1
+            logprob += log(f->Eval(parameters[i]));
+         else if (h) { // TH1
+            if(fPriorContainerInterpolate[i])
+               logprob += log(h->Interpolate(parameters[i]));
             else
-               BCLog::OutError(Form(
-                     "BCModel::LogAPrioriProbability : Prior for parameter %s "
+               logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
+         }
+         else
+            BCLog::OutError(Form(
+                  "BCModel::LogAPrioriProbability : Prior for parameter %s "
                   "is defined but not recognized.",
-                     GetParameter(i)->GetName().c_str())); // this should never happen
-         }
-         // use constant only if user has defined it
-         else if (!fPriorContainerConstant[i]) {
-            BCLog::OutWarning(Form(
-                  "BCModel::LogAPrioriProbability: Prior for parameter %s "
-                  "is undefined. Using constant prior to proceed.",
-                  GetParameter(i)->GetName().c_str()));
-            logprob -= log(GetParameter(i)->GetRangeWidth());
-         }
+                  par->GetName().c_str())); // this should never happen
+      }
+      // use constant only if user has defined it
+      else {
+         BCLog::OutError(Form(
+               "BCModel::LogAPrioriProbability: Prior for parameter %s "
+               "is undefined. Using constant prior to proceed.",
+               par->GetName().c_str()));
+         logprob -= log(par->GetRangeWidth());
       }
    }
-
-   // add the contribution from constant priors in one step
-   logprob += fPriorConstantValue;
 
    return logprob;
 }
@@ -985,11 +962,11 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
                           int(validH1.size()), int(validH2.size()), nplots, filename.c_str()));
    if (nplots > 100)
       BCLog::OutDetail("This can take a while...");
-   
+
    // setup the canvas and file
    TCanvas c("c", "canvas", c_width, c_height);
    c.Divide(hdiv, vdiv);
-   
+
    // for clean up later
    std::vector<BCH1D *> h1;
 
@@ -1355,8 +1332,6 @@ int BCModel::SetPrior(int index, TF1 * f)
 
    fPriorContainerConstant[index] = false;
 
-   RecalculatePriorConstant();
-
    // reset all results
    ResetResults();
 
@@ -1506,8 +1481,6 @@ int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
       fPriorContainerConstant[index] = false;
    }
 
-   RecalculatePriorConstant();
-
    // reset all results
    ResetResults();
 
@@ -1545,8 +1518,6 @@ int BCModel::SetPriorConstant(int index)
    // set prior to a constant
    fPriorContainerConstant[index] = true;
 
-   RecalculatePriorConstant();
-
    // reset all results
    ResetResults();
 
@@ -1555,37 +1526,13 @@ int BCModel::SetPriorConstant(int index)
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPriorConstant(const char* name)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++) {
-      if (name == GetParameter(i)->GetName()) {
-         index = i;
-         break;
-      }
-   }
-
-   if (index == -1) {
-      BCLog::OutError(Form(
-            "BCModel::SetPriorConstant : parameter '%s' doesn't exist.", name));
-      return 0;
-   }
-
-   return SetPriorConstant(index);
-}
-
-// ---------------------------------------------------------
 int BCModel::SetPriorConstantAll()
 {
-   // get number of parameters
-   int nPar = GetNParameters();
-
-   if (nPar == 0)
+   if ( !fParameters.Size())
       BCLog::OutWarning("BCModel::SetPriorConstantAll : No parameters defined.");
 
    // loop over all 1-d priors
-   for (int i = 0; i < nPar; ++i) {
+   for (unsigned i = 0; i < fParameters.Size(); ++i) {
       if (fPriorContainer[i]) {
          delete fPriorContainer[i];
          fPriorContainer[i]=0;
@@ -1593,38 +1540,11 @@ int BCModel::SetPriorConstantAll()
       fPriorContainerConstant[i] = true;
    }
 
-   RecalculatePriorConstant();
-
    // reset all results
    ResetResults();
 
    // no error
    return 1;
-}
-
-// ---------------------------------------------------------
-void BCModel::RecalculatePriorConstant()
-{
-   fPriorConstantValue = 0.;
-
-   // get number of parameters
-   int npar = GetNParameters();
-
-   int nconstant = 0;
-
-   for (int i=0; i<npar; ++i)
-      if (fPriorContainerConstant[i]) {
-         // default case
-         if (GetParameter(i)->GetRangeWidth() > 0)
-            fPriorConstantValue -= log(GetParameter(i)->GetRangeWidth());
-         // do not add infinity due to zero width for delta prior
-         ++nconstant;
-      }
-
-   if (nconstant == npar)
-      fPriorConstantAll = true;
-   else
-      fPriorConstantAll = false;
 }
 
 // ---------------------------------------------------------
