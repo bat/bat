@@ -10,11 +10,11 @@ class GaussModel : public BCModel
    public:
 
       // Constructors and destructor
-      GaussModel(const char * name, const unsigned & nParameters, long loopIterations = 0l);
+      GaussModel(const char * name, const unsigned & nParameters, long loopIterations = 0);
       virtual ~GaussModel();
 
       // Methods to overload, see file GaussModel.cxx
-      double LogLikelihood(const std::vector<double> & parameters);
+      virtual double LogLikelihood(const std::vector<double> & parameters);
 private:
       /**
        * Used in likelihood to prolong artificially.
