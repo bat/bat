@@ -81,7 +81,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC(),
     fNIterationsOutput(0),
     fNIterations(0),
     fRelativePrecision(1e-2),
-    fAbsolutePrecision(1e-5),
+    fAbsolutePrecision(1e-6),
     fError(-999.),
     fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
 {
@@ -401,7 +401,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
 			(this->*randomizer)(randx);
 
 			// evaluate function at sampled point
-			// updating sums & checking for maximum probablity
+			// updating sums & checking for maximum probability
 
 			SetBestFitParameters(randx, (this->*evaluator)(sums,randx,accepted), pmax);
 
@@ -1296,6 +1296,7 @@ int BCIntegrate::CubaIntegrand(const int * ndim, const double xx[],
 		 // get the scaled parameter value
 		 if (local_this->fParameters[i]->Fixed()) {
 			 range = 1.;
+			 // todo why is it pushed back? Test
 			 scaled_parameters.push_back(local_this->fParameters[i]->GetFixedValue());
 		 }
 		 else

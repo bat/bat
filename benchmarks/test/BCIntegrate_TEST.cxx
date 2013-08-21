@@ -7,12 +7,16 @@
 #include <config.h>
 
 #include "IntegrationModel.h"
+#include "GaussModel.h"
 #include "test.h"
+
+#include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
 
 using namespace test;
 
 class BCIntegrateTest :
-public TestCase
+      public TestCase
 {
 public:
 
@@ -21,14 +25,15 @@ public:
       double monteCarlo, importance, vegas, suave, divonne, cuhre;
 
       // Turn off checks by default
-      Precision(double value = -1)
+      Precision(double value = -1) :
+         importance(-1)
       {
          Set(value);
       }
 
       void Set(double value)
       {
-         monteCarlo = importance = vegas = suave = divonne = cuhre = value;
+         monteCarlo = vegas = suave = divonne = cuhre = value;
       }
 
    };
@@ -73,8 +78,64 @@ public:
 #endif
    }
 
-   virtual void run() const
+   void Optimization() const
    {
+      // two modes at 0 and 1
+      IntegrationModel m = Factory(1,1,1);
+      m.MCMCSetRandomSeed(1346);
+      TEST_CHECK_NEARLY_EQUAL(m.FindMode(std::vector<double>(1, 0.1)).front(), 0, 1e-3);
+      TEST_CHECK_NEARLY_EQUAL(m.FindModeSA(std::vector<double>(1, 0.1)).front(), 1, 1e-3);
+      TEST_CHECK_NEARLY_EQUAL(m.FindModeSA(std::vector<double>(1, 0.9)).front(), 1, 1e-3);
+      TEST_CHECK_NEARLY_EQUAL(m.FindModeMinuit(std::vector<double>(1, 0.1)).front(), 0, 1e-10);
+      TEST_CHECK_NEARLY_EQUAL(m.FindModeMinuit(std::vector<double>(1, 0.9)).front(), 1, 1e-10);
+      TEST_CHECK_NEARLY_EQUAL(m.FindModeMCMC().front(), 1, 1e-3);
+
+      m.PrintSummary();
+      m.PrintShortFitSummary();
+   }
+
+   void FixedParameters() const
+   {
+      static const unsigned ndim = 4;
+      GaussModel m("Fixed parameter example", ndim);
+      m.MCMCSetRandomSeed(613);
+      m.GetParameter(3)->Fix(0.5);
+
+      // integrate over normalized Gaussian likelihood
+      // evidence = 1 / parameter volume * N(mu | \theta_3)
+      double evidence = 1;
+      for (unsigned i = 0 ; i < m.GetNParameters() ; ++i) {
+      	const BCParameter * p = m.GetParameter(i);
+        if (p->Fixed())
+        	evidence *= exp(BCMath::LogGaus(p->GetFixedValue(), 0.0, 2.0, true));
+        else
+        	evidence /= p->GetRangeWidth();
+      }
+
+      static const double eps = 3e-2;
+      m.SetRelativePrecision(eps);
+      m.SetAbsolutePrecision(1e-8);
+
+      TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntMonteCarlo), evidence, eps);
+#if HAVE_CUBA_H
+      TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kIntCubaVegas),   evidence, eps);
+      TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kIntCubaSuave),   evidence, eps);
+      TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kIntCubaDivonne), evidence, eps);
+      TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kIntCubaCuhre),   evidence, eps);
+#endif
+
+   }
+
+   void Integration() const
+   {
+      // top down: normalization should work automatically
+      {
+         IntegrationModel m = Factory(2, 1, 1);
+         static const double eps = 1e-2;
+         m.SetRelativePrecision(eps);
+         m.Normalize();
+         TEST_CHECK_RELATIVE_ERROR(m.GetNormalization(), m.Integral(), eps);
+      }
 
       {
          Precision p;
@@ -87,10 +148,11 @@ public:
       }
 
       {
-         Precision p;
-         p.divonne = p.cuhre = 2e-3;
+         Precision p(1e-2);
+         p.divonne = p.cuhre = -2e-3;
          SingleCase(2, 1, 1, p);
       }
+
       // todo reactivate divonne when cuba 3.1 is fixed
       {
          Precision p(5e-3);
@@ -118,27 +180,19 @@ public:
       // divonne by 35, cuhre by 11
       {
          Precision p(5e-2);
+         p.monteCarlo = 0.2;
          p.importance = -1;
          p.suave = -3.5;
          p.divonne = -35;
          p.cuhre = -11;
          SingleCase(15, 5, 3, p);
       }
+   }
 
-      // test optimization
-      {
-         // two modes at 0 and 1
-         IntegrationModel m = Factory(1,1,1);
-         m.MCMCSetRandomSeed(1346);
-         TEST_CHECK_NEARLY_EQUAL(m.FindMode(std::vector<double>(1, 0.1)).front(), 0, 1e-3);
-         TEST_CHECK_NEARLY_EQUAL(m.FindModeSA(std::vector<double>(1, 0.1)).front(), 1, 1e-3);
-         TEST_CHECK_NEARLY_EQUAL(m.FindModeSA(std::vector<double>(1, 0.9)).front(), 1, 1e-3);
-         TEST_CHECK_NEARLY_EQUAL(m.FindModeMinuit(std::vector<double>(1, 0.1)).front(), 0, 1e-10);
-         TEST_CHECK_NEARLY_EQUAL(m.FindModeMinuit(std::vector<double>(1, 0.9)).front(), 1, 1e-10);
-         TEST_CHECK_NEARLY_EQUAL(m.FindModeMCMC().front(), 1, 1e-3);
-
-         m.PrintSummary();
-         m.PrintShortFitSummary();
-      }
+   virtual void run() const
+   {
+      //      Integration();
+      //      Optimization();
+      FixedParameters();
    }
 } bcIntegrateTest;
