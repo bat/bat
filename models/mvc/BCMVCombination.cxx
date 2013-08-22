@@ -15,6 +15,7 @@
 // ---------------------------------------------------------
 BCMVCombination::BCMVCombination() 
   : BCModel("BCMVCombination")
+  , fDetCovariance(0)
   , fNObservables(0)
   , fNNuisanceCorrelation(0)
 {
