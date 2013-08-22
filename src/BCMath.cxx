@@ -693,7 +693,7 @@ double FastPValue(const std::vector<unsigned> & observed, const std::vector<doub
    if (nbins != expected.size())
    {
       throw std::invalid_argument(Form("BCMath::FastPValue: "
-             "size of expected and observed do not match, %u vs %u", expected.size(), nbins));
+             "size of expected and observed do not match, %u vs %u", unsigned(expected.size()), unsigned(nbins)));
    }
 
    // temporary histogram to be modified in each MCMC step
