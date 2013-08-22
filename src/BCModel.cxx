@@ -36,29 +36,25 @@
 #include <set>
 
 // ---------------------------------------------------------
-BCModel::BCModel(const char * name)
-   : BCIntegrate()
+BCModel::BCModel(const char * name) :
+   BCIntegrate(),
+   fName((char *) name),
+   fModelAPriori(0),
+   fModelAPosteriori(0),
+   fDataSet(0),
+   fDataPointLowerBoundaries(0),
+   fDataPointUpperBoundaries(0),
+   fPValue(-1),
+   fChi2NDoF(-1),
+   fPValueNDoF(-1),
+   flag_discrete(false),
+   fGoFNIterationsMax(100000),
+   fGoFNIterationsRun(2000),
+   fGoFNChains(5),
+   fPriorConstantAll(false),
+   fNormalization(-1)
 {
-   fNormalization = -1.;
-   fDataSet = 0;
-   fPValue = -1;
-   fPValueNDoF = -1;
-   fChi2NDoF = -1;
-
-   fName = (char *) name;
-
-   fDataPointUpperBoundaries = 0;
-   fDataPointLowerBoundaries = 0;
-
    fErrorBandXY = 0;
-
-   fGoFNChains = 5;
-   fGoFNIterationsMax = 100000;
-   fGoFNIterationsRun = 2000;
-
-   flag_discrete = false;
-
-   fPriorConstantAll = false;
 }
 
 // ---------------------------------------------------------
@@ -79,14 +75,6 @@ void BCModel::Copy(const BCModel & bcmodel)
       fDataSet = bcmodel.fDataSet;
    else
       fDataSet = 0;
-   if (bcmodel.fNDataPointsMinimum)
-      fNDataPointsMinimum = bcmodel.fNDataPointsMinimum;
-   else
-      fNDataPointsMinimum = 0;
-   if (bcmodel.fNDataPointsMaximum)
-      fNDataPointsMaximum = bcmodel.fNDataPointsMaximum;
-   else
-      fNDataPointsMaximum = 0;
 
    if (bcmodel.fDataPointLowerBoundaries)
       fDataPointLowerBoundaries = new BCDataPoint(*bcmodel.fDataPointLowerBoundaries);

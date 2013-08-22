@@ -139,16 +139,6 @@ class BCModel : public BCIntegrate
       BCDataPoint * GetDataPoint(unsigned int index) const;
 
       /**
-       * @return The minimum number of data points. */
-      unsigned int GetNDataPointsMinimum() const
-         { return fNDataPointsMinimum; }
-
-      /**
-       * @return The maximum number of data points. */
-      unsigned int GetNDataPointsMaximum() const
-         { return fNDataPointsMaximum; }
-
-      /**
       const BCParameter * GetParameter(const char * name);
        * @return The 2-d histogram of the error band. */
       TH2D * GetErrorBandXY() const
@@ -230,16 +220,6 @@ class BCModel : public BCIntegrate
       void SetSingleDataPoint(BCDataPoint * datapoint);
 
       void SetSingleDataPoint(BCDataSet * dataset, unsigned int index);
-
-      /**
-       * Sets the minimum number of data points. */
-      void SetNDataPointsMinimum(unsigned int minimum)
-         { fNDataPointsMinimum = minimum; }
-
-      /**
-       * Sets the maximum number of data points. */
-      void SetNDataPointsMaximum(unsigned int maximum)
-         { fNDataPointsMaximum = maximum; }
 
       void SetDataBoundaries(unsigned int index, double lowerboundary, double upperboundary, bool fixed=false);
 
@@ -711,14 +691,6 @@ class BCModel : public BCIntegrate
       /**
        * A data set */
       BCDataSet * fDataSet;
-
-      /**
-       * Minimum number of data points */
-      unsigned int fNDataPointsMinimum;
-
-      /**
-       * Maximum number of data points */
-      unsigned int fNDataPointsMaximum;
 
       /**
        * data point containing the lower boundaries of possible data values */
