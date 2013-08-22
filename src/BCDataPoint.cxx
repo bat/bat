@@ -42,7 +42,7 @@ double BCDataPoint::GetValue(unsigned index) const
       // exit on error
       BCLog::OutError(
             Form("BCDataPoint::GetValue : Index %u out of range (%u to %u).",
-                 index, 0, fData.size()-1));
+                 index, 0, unsigned(fData.size()-1)));
       exit(1);
    }
 
@@ -60,7 +60,7 @@ void BCDataPoint::SetValue(unsigned index, double value)
       // exit on error
       BCLog::OutError(
             Form("BCDataPoint::SetValue : Index %u out of range (%u to %u).",
-                 index, 0 , fData.size()-1));
+                 index, 0 , unsigned(fData.size()-1)));
       exit(1);
    }
 }
