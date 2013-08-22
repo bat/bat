@@ -298,7 +298,7 @@ int BCGraphFitter::Fit()
    // check setup
    BCLog::Out(BCLog::detail,BCLog::detail,
          Form("Fitting %d data points with function of %d parameters",GetNDataPoints(),GetNParameters()));
-   if(GetNDataPoints() <= (int)GetNParameters())
+   if(GetNDataPoints() <= GetNParameters())
    {
       BCLog::Out(BCLog::warning,BCLog::warning,
             Form("Number of parameters (%d) lower than or equal to number of points (%d)."
