@@ -36,6 +36,7 @@ unsigned int BCH1D::fHCounter=0;
 BCH1D::BCH1D(TH1D * hist)
   : fHistogram(hist)
   , fDefaultCLLimit(95.) // in percent
+  , fMode(0)
   , fModeFlag(0)
 {}
 
