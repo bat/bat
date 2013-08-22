@@ -219,9 +219,9 @@ void BCIntegrate::ResetResults()
 // ---------------------------------------------------------
 unsigned BCIntegrate::GetNIntegrationVariables() {
     unsigned n = 0;
-    for(unsigned i = 0; i < fParameters.Size(); i++)
+    for(unsigned i = 0; i < fParameters.Size(); ++i)
         if ( ! fParameters[i]->Fixed())
-            n++;
+            ++n;
     return n;
 }
 
@@ -409,7 +409,6 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
 			if (accepted)
 			   fNIterations++;
 
-
 			// update precisions
 			if (fNIterations % fNIterationsPrecisionCheck == 0) {
 				(*updater)(sums, fNIterations, integral, absprecision);
@@ -441,7 +440,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
 
 // ---------------------------------------------------------
 double BCIntegrate::EvaluatorMC(std::vector<double> &sums, const std::vector<double> &point, bool &accepted) {
-	double value = Eval(point);
+	const double value = Eval(point);
 
 	// all samples accepted in sample-mean integration
 	accepted = true;
@@ -455,8 +454,11 @@ double BCIntegrate::EvaluatorMC(std::vector<double> &sums, const std::vector<dou
 
 // ---------------------------------------------------------
 void BCIntegrate::IntegralUpdaterMC(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision) {
+	// sample mean including the volume of the parameter space
 	integral = sums[2] * sums[0] / nIterations;
-	absprecision = sqrt((1.0 / double(nIterations)) * (sums[2] * sums[2] * sums[1] / double(nIterations) - integral * integral));
+
+	// unbiased estimate
+	absprecision = sqrt((1.0 / (nIterations - 1)) * (sums[2] * sums[2] * sums[1] / double(nIterations) - integral * integral));
 }
 
 // ---------------------------------------------------------
@@ -471,8 +473,8 @@ double BCIntegrate::EvaluatorImportance(std::vector<double> &sums, const std::ve
 	// add ratio to sum and sum of squares
 	if (val_g > 0 && val_f/val_g > fRandom->Rndm()) {
 	   accepted = true;
-		sums[0] += val_f / val_g;
-		sums[1] += val_f * val_f / val_g / val_g;
+	   sums[0] += val_f / val_g;
+	   sums[1] += val_f * val_f / val_g / val_g;
 	}
 	else
 	   accepted = false;
@@ -694,7 +696,7 @@ double BCIntegrate::GetRandomPoint(std::vector<double> &x)
 // ---------------------------------------------------------
 void BCIntegrate::GetRandomVectorUnitHypercube(std::vector<double> &x) const
 {
-   fRandom->RndmArray(x.size(),&x.front());
+   fRandom->RndmArray(x.size(), &x.front());
 }
 
 // ---------------------------------------------------------
@@ -798,7 +800,7 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int p
                       flag);
    }
 
-   for (unsigned i = 0; i < fParameters.Size(); i++) 
+   for (unsigned i = 0; i < fParameters.Size(); i++)
       if (fParameters[i]->Fixed())
          fMinuit->FixParameter(i);
 
@@ -898,7 +900,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
       for (unsigned i = 0; i < fParameters.Size(); i++)
          if ( !fParameters[i]->IsValid(y[i]))
             in_range = false;
-      
+
       if ( in_range ){
          // calculate function value at new point
          fval_y = LogEval(y);
@@ -1184,13 +1186,13 @@ double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::FCNLikelihood(int & npar, double * /*grad*/, double &fval, double * par, int /*flag*/)
+void BCIntegrate::FCNLikelihood(int & /*npar*/, double * /*grad*/, double &fval, double * par, int /*flag*/)
 {
    // copy parameters
    static std::vector<double> parameters;
 
    // calculate number of active + fixed parameters
-   // remember: npar is just the number of _active_ parameters while 
+   // remember: npar is just the number of _active_ parameters while
    // par is a vector of _all_ parameters
    int nparameters = ::BCIntegrateHolder::instance()->GetNParameters();
 
@@ -1288,35 +1290,41 @@ int BCIntegrate::CubaIntegrand(const int * ndim, const double xx[],
    // scale variables
    double jacobian = 1.0;
 
-   std::vector<double> scaled_parameters;
+   // create local parameter vector
+   // important for thread safety, though not super efficient
+   std::vector<double> scaled_parameters(local_this->fParameters.Size());
 
-   for (int i = 0; i < *ndim; i++) {
-		 double range = local_this->fParameters[i]->GetRangeWidth();
+   // stay in sync with the possible lower number of parameters
+   // that cuba sees due to fixing in BAT
+   unsigned cubaIndex = 0;
+   unsigned batIndex = 0;
+   for (batIndex = 0; batIndex < local_this->fParameters.Size(); ++batIndex) {
+  	 const BCParameter * p = local_this->fParameters[batIndex];
 
 		 // get the scaled parameter value
-		 if (local_this->fParameters[i]->Fixed()) {
-			 range = 1.;
-			 // todo why is it pushed back? Test
-			 scaled_parameters.push_back(local_this->fParameters[i]->GetFixedValue());
-		 }
-		 else
-			 scaled_parameters.push_back(local_this->fParameters[i]->GetLowerLimit() + xx[i] * range);
+		 if (p->Fixed())
+			 scaled_parameters[batIndex] = p->GetFixedValue();
+		 else {
+			 // convert from unit hypercube to actual parameter hyperrectangle
+			 scaled_parameters[batIndex] = p->GetLowerLimit() + xx[cubaIndex] * p->GetRangeWidth();
 
-		 // multiply range to jacobian
-		 jacobian *= range;
+			 // multiply range to jacobian
+			 jacobian *= p->GetRangeWidth();
+
+			 // one more parameter that cuba varies
+			 ++cubaIndex;
+		 }
    }
+
+   if (cubaIndex != unsigned(*ndim))
+  	 BCLog::OutError(Form("BCIntegrate::CubaIntegrand: mismatch between variable parameters"
+  			 	 	 	 	 	 	 	 	  "in BAT (%d) and Cuba(%d)", batIndex, cubaIndex));
 
    // call function to integrate
    ff[0] = local_this->Eval(scaled_parameters);
 
    // multiply jacobian
    ff[0] *= jacobian;
-
-   // multiply fudge factor
-   ff[0] *= 1e99;
-
-   // remove parameter vector
-   scaled_parameters.clear();
 
    return 0;
 }
@@ -1338,17 +1346,20 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    // cuba returns info in these variables
    int fail = 0;
    int nregions = 0;
-   std::vector<double> integral(ncomp, -1e99);
-   std::vector<double> error(ncomp, -1e99);
+   std::vector<double> integral(ncomp, -1);
+   std::vector<double> error(ncomp, -1);
    std::vector<double> prob(ncomp, -1);
 
    // reset number of iterations
    fNIterations = 0;
 
+   // Cuba needs int variable
+   int nIntegrationVariables = GetNIntegrationVariables();
+
    switch (cubatype) {
 
    case BCIntegrate::kCubaVegas:
-      Vegas(fParameters.Size(), ncomp,
+      Vegas(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
             fRelativePrecision, fAbsolutePrecision,
             fCubaVegasOptions.flags, fRandom->GetSeed(),
@@ -1360,7 +1371,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
       break;
 
    case BCIntegrate::kCubaSuave:
-      Suave(fParameters.Size(), ncomp,
+      Suave(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
             fRelativePrecision, fAbsolutePrecision,
             fCubaSuaveOptions.flags, fRandom->GetSeed(),
@@ -1372,14 +1383,13 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
       break;
 
    case BCIntegrate::kCubaDivonne:
-      if (fParameters.Size() < 2 or fParameters.Size() > 33)
+      if (nIntegrationVariables < 2 or nIntegrationVariables > 33)
          BCLog::OutError("BCIntegrate::IntegrateCuba(Divonne): Divonne only works in 1 < d < 34");
       else {
-         BCLog::OutDebug(Form("Seed: %u", fRandom->GetSeed()));
          // no extra info supported
          static const int ngiven = 0;
-         static const int nextra = 0;
-         Divonne(fParameters.Size(), ncomp,
+         static const int nextra = ngiven;
+         Divonne(nIntegrationVariables, ncomp,
                &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
                fRelativePrecision, fAbsolutePrecision,
                fCubaDivonneOptions.flags, fRandom->GetSeed(),
@@ -1387,7 +1397,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
                fCubaDivonneOptions.key1, fCubaDivonneOptions.key2, fCubaDivonneOptions.key3,
                fCubaDivonneOptions.maxpass, fCubaDivonneOptions.border,
                fCubaDivonneOptions.maxchisq, fCubaDivonneOptions.mindeviation,
-               ngiven, fParameters.Size() /*ldxgiven*/, NULL, nextra, NULL,
+               ngiven, nIntegrationVariables /*ldxgiven*/, NULL, nextra, NULL,
                statefile,
                &nregions, &fNIterations, &fail,
                &integral[0], &error[0], &prob[0]);
@@ -1395,10 +1405,10 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
       break;
 
    case BCIntegrate::kCubaCuhre:
-      if (fParameters.Size() < 2)
+      if (nIntegrationVariables < 2)
          BCLog::OutError("BCIntegrate::IntegrateCuba(Cuhre): Cuhre(cubature) only works in d > 1");
 
-      Cuhre(fParameters.Size(), ncomp,
+      Cuhre(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
             fRelativePrecision, fAbsolutePrecision,
             fCubaCuhreOptions.flags, fNIterationsMin, fNIterationsMax,
@@ -1411,13 +1421,13 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    case BCIntegrate::NCubaMethods:
    default:
       BCLog::OutError("Cuba integration method not set.");
-      error[0] = -1e99;
-      integral[0] = -1e99;
+      error[0] = -1;
+      integral[0] = -1;
       break;
    }
 
-   fError = error[0] / 1e99;
-   double result = integral[0] / 1e99;
+   fError = error[0];
+   double result = integral[0];
 
    if (fail != 0) {
       BCLog::OutWarning(" Warning, integral did not converge with the given set of parameters. ");
@@ -1513,23 +1523,27 @@ General::General() :
 General::~General()
 {}
 
+/*
+ * copy values from demo-c.c shipping with cuba 3.2
+ * for three-dimensionsal examples.
+ */
+
 Vegas::Vegas() :
       General(),
-      nstart(25000),
-      nincrease(25000),
+      nstart(1000),
+      nincrease(500),
       nbatch(1000),
-      gridno(-1)
+      gridno(0)
 {}
 
 Suave::Suave() :
       General(),
-      nnew(10000),
-      flatness(50)
+      nnew(1000),
+      flatness(25)
 {}
 
 Divonne::Divonne() :
       General(),
-      // copy values from demo shipping with cuba
       key1(47),
       key2(1),
       key3(1),
