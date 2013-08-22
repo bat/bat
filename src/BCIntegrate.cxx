@@ -63,11 +63,15 @@ namespace
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate() : BCEngineMCMC(),
     fMinuit(0),
+    fMinuitErrorFlag(0),
     fFlagIgnorePrevOptimization(false),
     fSAT0(100),
     fSATmin(0.1),
     fTreeSA(0),
     fFlagWriteSAToFile(false),
+    fSANIterations(0),
+    fSATemperature(0),
+    fSALogProb(0),
 #ifdef HAVE_CUBA_H
     fIntegrationMethod(BCIntegrate::kIntCuba),
 #else
