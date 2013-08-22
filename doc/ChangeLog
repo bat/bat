@@ -22,6 +22,7 @@
 	* BCDataPoint, BCMath: Fix printf warning on 64bit
 	* BCH1D, BCMVCombination: Initialize all members
 	* BCGraphFitter: fix unsigned vs signed comparison
+	* BCEnsembleTestFitter: don't use gRandom anymore
 	* configure: simplify Cuba configuration for the user, update install instructions
 	* introduction: First update on cuba and BAT basics
 	* gitignore: revert unwanted exemptions

@@ -35,7 +35,7 @@ BCTemplateEnsembleTest::BCTemplateEnsembleTest()
 {
    fRandom = new TRandom3(0);
 
-   BCLog::OutWarning("Class BCTemplateFitter is depreceted and it will be removed");
+   BCLog::OutWarning("Class BCTemplateFitter is deprecated and it will be removed");
    BCLog::OutWarning("in the future version of BAT. The same is true for the class");
    BCLog::OutWarning("BCTemplateEnsembleTest. Use the new class BCMTF and its ensemble");
    BCLog::OutWarning("testing capabilities instead.");
@@ -213,7 +213,7 @@ TH1D* BCTemplateEnsembleTest::BuildEnsemble()
    // loop over bins and fill them
   for(int ibin = 1; ibin <= nbins; ++ibin){
       double nexp = fTemplateFitter->Expectation(ibin, parameters);
-      double nobs = gRandom->Poisson(nexp);
+      double nobs = fRandom->Poisson(nexp);
 
       // set the bin content
     ensemble->SetBinContent(ibin, nobs);
