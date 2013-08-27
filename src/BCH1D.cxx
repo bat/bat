@@ -207,7 +207,7 @@ void BCH1D::Print(const char* filename, std::string options, std::vector<double>
       double dy = 1.-top-bottom;
       double ratio = dy/dx;
       double ynew = c->GetWindowWidth()/ratio;
-      c->SetCanvasSize(c->GetWindowWidth(), ynew);
+      c->SetCanvasSize(c->GetWindowWidth(), (int) (ynew + 0.5));
       gPad->RedrawAxis();
 
       c->Modified();

@@ -26,8 +26,8 @@ void BCAux::SetStyle()
    // canvases
    gStyle->SetCanvasColor     (kWhite);
    gStyle->SetCanvasBorderMode(0);
-   gStyle->SetCanvasDefH      (700.);
-   gStyle->SetCanvasDefW      (700.*(1.-gStyle->GetPadTopMargin()-gStyle->GetPadBottomMargin())/(1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin()));
+   gStyle->SetCanvasDefH      (700);
+   gStyle->SetCanvasDefW      ((int)(700.*(1.-gStyle->GetPadTopMargin()-gStyle->GetPadBottomMargin())/(1.-gStyle->GetPadLeftMargin()-gStyle->GetPadRightMargin())));
 
    // Frames
    gStyle->SetFrameFillStyle (0);
@@ -44,9 +44,9 @@ void BCAux::SetStyle()
    gStyle->SetHistLineStyle(0);
    gStyle->SetHistLineWidth(1);
    gStyle->SetStripDecimals(kFALSE);
-
-	 // set decimals
-	 TGaxis::SetMaxDigits(4);
+   
+   // set decimals
+   TGaxis::SetMaxDigits(4);
 
    // options
    gStyle->SetOptTitle(0);

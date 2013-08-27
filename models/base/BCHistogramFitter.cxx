@@ -447,7 +447,7 @@ int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par, unsi
    std::vector<double> expected(fHistogramExpected->GetNbinsX());
 
    for (int ibin = 0 ; ibin < fHistogram->GetNbinsX(); ++ibin){
-      observed[ibin] = fHistogram->GetBinContent(ibin + 1);
+      observed[ibin] = (unsigned int) fHistogram->GetBinContent(ibin + 1);
       expected[ibin] = fHistogramExpected->GetBinContent(ibin + 1);
    }
 
