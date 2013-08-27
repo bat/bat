@@ -231,7 +231,6 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
 {
    // option flags
    bool flag_legend = false;
-   bool flag_logx = false;
    bool flag_logy = false;
    bool flag_mode = false;
    bool flag_median = false;
@@ -272,10 +271,6 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
 
    if (options.find("same") < options.size()) {
       draw_options.append("SAME");
-   }
-
-   if (options.find("logx") < options.size()) {
-      flag_logx = true;
    }
 
    if (options.find("logy") < options.size()) {
@@ -1017,7 +1012,6 @@ std::vector<double> BCH1D::GetSmallestIntervals(double content)
 
    int nbins = hist->GetNbinsX();
    int ninter = 0;
-   int lastbin = -1;
 
    double max = -1;
    double localmax = -1;
@@ -1032,9 +1026,6 @@ std::vector<double> BCH1D::GetSmallestIntervals(double content)
       {
          flag = true;
          v.push_back(hist->GetBinLowEdge(i));
-
-         // remember start position of the interval
-         lastbin = i;
 
          // increase number of intervals
          ninter++;

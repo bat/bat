@@ -8,6 +8,8 @@
 	* models/base/BCHistogramFitter: fixed compiler warning
 	* src/BCAux.cxx: fixed compiler warning
 	* examples/advanced/referenceCounting: replaces fitting function for prior.
+	* src/BCH1D.cxx in method GetSmallestIntervals(): fixed compiler warning by removing unused variable (lastbin)
+	* src/BCH1D.cxx in method Draw(): fixed compiler warning by removing unused variable (flag_logx)
 
 2013-08-22 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: fix integration, in particular when some parameters are fixed
