@@ -71,7 +71,7 @@ void histogramFitterExample()
    BCLog::SetLogLevel(BCLog::detail);
    
    // create data
-   TH1D* hist = CreateHistogram(20, 100, 100);
+   TH1D* hist = CreateHistogram(20, 100, 100, 132);
 
    // define a fit function
    TF1* f1 = new TF1("f1", "[0] / sqrt(2.0 * 3.1416) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3]", 0., 100.);
@@ -96,7 +96,25 @@ void histogramFitterExample()
    hf->SetPriorConstant(3);
 
    // perform fit
-   hf->Fit();
+
+   //   hf->MarginalizeAll();
+
+   hf->MCMCSetRandomSeed(1235623);
+
+   //   hf->Fit();
+
+   double pvalue, pvalueCorrected;
+   std::vector<double> init (4);
+   init[0] = mean; init[1] = sigma; init[2] = 150; init[3] = 1;
+   //   hf->MarginalizeAll();
+   hf->FindModeMinuit(init);
+   hf->CalculatePValueFast(hf->GetBestFitParameters());
+   pvalue = hf->GetPValue();
+   pvalueCorrected = hf->GetPValueNDoF();
+
+   cout << "Pvalue " << pvalue
+        << ", corrected " << pvalueCorrected
+        << endl;
 
    // print marginalized distributions
    hf->PrintAllMarginalized("distributions.pdf");
@@ -105,6 +123,8 @@ void histogramFitterExample()
    TCanvas* c1 = new TCanvas("c1");
    hf->DrawFit("", true); // draw with a legend
    c1->Print("fit.pdf");
+
+   return;
 }
 
 // ---------------------------------------------------------
