@@ -254,7 +254,8 @@ void ReferenceCounting::FillPriorS()
       delete fFuncPriorS;
 
    //   fFuncPriorS = new TF1("func_prior_s", "sqrt([0] / ([0] + x)) * exp([1]*TMath::Power(x, 0.25))", p->GetLowerLimit(), p->GetUpperLimit());
-   fFuncPriorS = new TF1("func_prior_s", "exp([0]*x^0.25+[1]*x^0.5+[2]*x)", p->GetLowerLimit(), p->GetUpperLimit());
+   //   fFuncPriorS = new TF1("func_prior_s", "exp([0]*x^0.25+[1]*x^0.5+[2]*x)", p->GetLowerLimit(), p->GetUpperLimit());
+   fFuncPriorS = new TF1("func_prior_s", "sqrt(([0]*exp([1]*x^0.125))/(x+[0]*exp([1]*x^0.125)))", p->GetLowerLimit(), p->GetUpperLimit());
 
    fHistPriorS->Fit(fFuncPriorS);
 }
