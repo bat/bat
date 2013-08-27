@@ -836,11 +836,11 @@ void BCEngineMCMC::MCMCInChainFillHistograms()
       unsigned counter = 0;
 
       for (unsigned j = 0; j < fParameters.Size(); ++j)
-         for (unsigned k = 0; k < j; ++k)
+         for (unsigned k = j+1; k < fParameters.Size(); ++k)
          {
-            if (TH2D * h = fMCMCH2Marginalized[counter])
-               h->Fill(fMCMCx[i*fParameters.Size()+k],fMCMCx[i* fParameters.Size()+j]);
-            counter ++;
+           if (TH2D * h = fMCMCH2Marginalized[counter])
+             h->Fill(fMCMCx[i*fParameters.Size()+j],fMCMCx[i* fParameters.Size()+k]);
+           counter ++;
          }
    }
 }
