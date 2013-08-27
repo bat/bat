@@ -119,6 +119,8 @@ double BCMVCDataModel::LogAPrioriProbability(const std::vector<double> &paramete
 {
   double logprob = 0.;
 
+  (void) parameters; // suppress compiler warning about unused parameters
+
   return logprob;
 }
 

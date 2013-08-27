@@ -24,7 +24,9 @@ class BCMVCPhysicsModel : public BCMVCombination
   // index: the index of the variable
   // parameters: the physics parameters
   virtual double CalculateObservable(int index, const std::vector<double> &parameters)
-  { return 0; }; 
+  { (void) index; // suppress compiler warning about unused parameters
+    (void) parameters; // suppress compiler warning about unused parameters
+    return 0; }; 
 
   // BAT methods
 

@@ -139,8 +139,8 @@ class BCMVCombination : public BCModel
   // calculate helper vectors
   void CalculateHelperVectors();
 
-  // check for positive definiteness
-  bool PositiveDefinite(TMatrixD mat);
+  // check for positive definiteness of the covariance matrix
+  bool PositiveDefinite();
 
   // calculate BLUE
   void CalculateBLUE();

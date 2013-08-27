@@ -575,7 +575,7 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post, std::string options_prior, double min, double max)
+int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post, std::string options_prior)
 {
    // perform analysis
    CalculatePriorModel();
@@ -585,7 +585,7 @@ int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, 
    c->cd();
 
    // draw
-   DrawKnowledgeUpdatePlot1D(index, options_post, options_prior, min, max);
+   DrawKnowledgeUpdatePlot1D(index, options_post, options_prior);
 
    // print
    c->Print(filename);
@@ -595,7 +595,7 @@ int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, 
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post, std::string options_prior, double min, double max)
+int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post, std::string options_prior)
 {
    // option flags
    bool flag_slice_post = false;

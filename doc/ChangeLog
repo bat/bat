@@ -1,3 +1,10 @@
+2013-08-15 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate: added (void) xxx tp suppress compiler warnings about unused parameters in case of #ifdef #else (Cuba)
+	* BCSummaryTool: removed min, max from list of arguments for Print/Draw of summary plot. They were not used and gave a compiler warning.
+	* models/mvc/BCMVCombination: removed unnecessary argument from PositiveDefinite.
+	* models/mvc/BCMVCDataModel: fixed compiler warning in LogAPrioriProbability
+	* models/mvc/BCMVCPhysicsModel: fixed compiler warning in CalculateObservable
+
 2013-08-22 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: fix integration, in particular when some parameters are fixed
 	  - remove dependency on config.h in public interface

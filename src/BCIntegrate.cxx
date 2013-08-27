@@ -1281,6 +1281,7 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
          return;
    }
 #else
+   (void) type; // suppress compiler warning about unused parameters
    BCLog::OutError("SetCubaIntegrationMethod: Cuba not enabled during configure");
 #endif
 }
@@ -1453,6 +1454,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 
    return result;
 #else
+   (void) cubatype; // suppress compiler warning about unused parameters
    BCLog::OutError("IntegrateCuba: Cuba not enabled during configure");
    return -1;
 #endif

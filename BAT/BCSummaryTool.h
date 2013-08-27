@@ -103,13 +103,13 @@ class BCSummaryTool
     * Draw a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-   int DrawKnowledgeUpdatePlot1D(int index, std::string options_post="", std::string options_prior="", double min=0., double max=0.);
+   int DrawKnowledgeUpdatePlot1D(int index, std::string options_post="", std::string options_prior="");
 
    /**
     * Print a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-   int PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post="", std::string options_prior="", double min=0., double max=0.);
+   int PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post="", std::string options_prior="");
 
    /**
     * Print a comparison of the prior knowledge to the posterior

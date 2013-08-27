@@ -102,7 +102,7 @@ double BCMVCombination::LogLikelihood(const std::vector<double> &parameters)
 
   if (fNNuisanceCorrelation > 0) {
     CalculateCovarianceMatrix(parameters);
-    if (!PositiveDefinite(fCovarianceMatrix))
+    if (!PositiveDefinite())
       return -1e90;
   }
 
@@ -284,7 +284,7 @@ void BCMVCombination::PrepareAnalysis()
 
   CalculateCovarianceMatrix();
 
-  if (!PositiveDefinite(fCovarianceMatrix)) {
+  if (!PositiveDefinite()) {
     BCLog::OutWarning("BCMVCombination::PrepareAnalysis. Covariance matrix is not positive definite.");
   }
 
@@ -457,7 +457,7 @@ void BCMVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-bool BCMVCombination::PositiveDefinite(TMatrixD mat)
+bool BCMVCombination::PositiveDefinite()
 {
   TMatrixDEigen m(fCovarianceMatrix);
 
