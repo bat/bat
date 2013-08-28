@@ -95,10 +95,10 @@ int main()
    model->PerformFullAnalysis();
 
    // print results
-   model->PrintAllMarginalized("model_plots.ps");
+   model->PrintAllMarginalized("model_plots.pdf");
 
    model->PrintResults("model_results.txt");
-   model->PrintChannelOverview("channels.ps");
+   model->PrintChannelOverview("channels.pdf");
 
    model->PrintChannelSummary("summary.txt");
 

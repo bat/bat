@@ -5,6 +5,13 @@
  * For the licensing terms see doc/COPYING.
  */
 
+#include "include/PerfTestMCMC.h"
+
+#include <BAT/BCAux.h>
+#include <BAT/BCH1D.h>
+#include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
+
 #include <TCanvas.h>
 #include <TF1.h>
 #include <TH1D.h>
@@ -15,13 +22,7 @@
 #include <TRandom3.h>
 #include <TGraph.h>
 
-#include <BAT/BCH1D.h>
-#include <BAT/BCAux.h>
-#include <BAT/BCMath.h>
-
 #include <iostream>
-
-#include "include/PerfTestMCMC.h"
 
 //______________________________________________________________________________
 PerfTestMCMC::PerfTestMCMC(std::string name)

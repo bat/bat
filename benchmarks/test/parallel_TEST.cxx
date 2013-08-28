@@ -145,8 +145,8 @@ public:
 
     RunComparison(const RunComparison::Config & config) :
         config(config),
-        GaussModel_plots_Serial("parallel_TEST_GaussModel_plots_Serial.ps"),
-        GaussModel_plots_Parallel("parallel_TEST_GaussModel_plots_Parallel.ps"),
+        GaussModel_plots_Serial("parallel_TEST_GaussModel_plots_Serial.pdf"),
+        GaussModel_plots_Parallel("parallel_TEST_GaussModel_plots_Parallel.pdf"),
         seed(11)
     {
         CreateOutput(false);

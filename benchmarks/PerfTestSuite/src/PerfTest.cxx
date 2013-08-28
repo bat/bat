@@ -9,7 +9,7 @@
 
 #include <TCanvas.h>
 #include <TH1D.h>
-#include <TPostScript.h>
+#include <TPDF.h>
 
 #include <iostream>
 #include <fstream>
@@ -304,12 +304,12 @@ int PerfTest::WriteResults()
   file.close();
 
   // create postscript
-  TPostScript * ps = new TPostScript((fName.data()+std::string(".ps")).c_str());
+  TPDF * pdf = new TPDF((fName.data()+std::string(".pdf")).c_str());
 
   // get number of canvases
   int nhist = GetNCanvases();
 
-  ps->NewPage();
+  pdf->NewPage();
 
   // loop over histograms
   for (int i = 0; i < nhist; ++i) {
@@ -319,23 +319,23 @@ int PerfTest::WriteResults()
     // update post script
     c->Update();
     if (i != nhist-1)
-      ps->NewPage();
+      pdf->NewPage();
     c->cd();
   }
 
   // close ps
-  ps->Close();
+  pdf->Close();
 
   // print thumbnials
   for (int i = 0; i < nhist; ++i) {
     // get canvas
     TCanvas* c = GetCanvas(i);
     c->Print( Form("%s_%i.png", GetName().c_str(), i) );
-    c->Print( Form("%s_%i.eps", GetName().c_str(), i) );
+    c->Print( Form("%s_%i.pdf", GetName().c_str(), i) );
   }
 
   // delete postscript
-  delete ps;
+  delete pdf;
 
   // no error
   return 1;

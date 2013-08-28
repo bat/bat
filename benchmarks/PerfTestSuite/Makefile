@@ -49,9 +49,9 @@ EXEOBJS      =
 
 GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d runTestSuite.exe
 
-RESULTS      = *.png *.eps *.ps *.log *.tst *.html *.php *.htm
+RESULTS      = *.png *.pdf *.log *.tst *.html *.php *.htm
 
-all : $(LIBSO) runTestSuite
+all : directory $(LIBSO) runTestSuite
 
 libs : $(LIBA) $(LIBSO)
 
@@ -79,6 +79,9 @@ clean :
 
 resclean :
 	$(RM) $(RESULTS)
+	
+directory :
+	mkdir -p obj
 
 print :
 	echo compiler  : $(CXX)
@@ -95,7 +98,6 @@ web :
 	tar -cf web.tar \
 	*.php \
 	*.png \
-	*.eps \
-	*.ps \
+	*.pdf \
 	*.log
 	gzip web.tar

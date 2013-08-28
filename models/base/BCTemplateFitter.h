@@ -370,13 +370,13 @@ class BCTemplateFitter : public BCModel
        * @param filename The name of the file the output is printed to.
        * @param options Plotting options
        */
-      void PrintStack(const char * filename = "stack.ps", const char * options="LE2E0D");
+      void PrintStack(const char * filename = "stack.pdf", const char * options="LE2E0D");
 
       /**
        * Print the ratios and the norm.
        * @param filename The filename.
        */
-      void PrintRatios(const char * filename = "ratio.ps");
+      void PrintRatios(const char * filename = "ratio.pdf");
 
       /**
        * Print a template to a file.

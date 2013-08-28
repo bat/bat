@@ -103,19 +103,19 @@ public:
 
         /**
          * @param name The channel index.
-         * @return The channel object. */			
+         * @return The channel object. */
         BCMTFChannel * GetChannel(int index)
         { return fChannelContainer.at(index); };
 
         /**
          * @param name The process index.
-         * @return The process object. */			
+         * @return The process object. */
         BCMTFProcess * GetProcess(int index)
         { return fProcessContainer.at(index); };
 
         /**
          * @param name The systematic ucnertainty index.
-         * @return The systematic uncertainty object. */			
+         * @return The systematic uncertainty object. */
         BCMTFSystematic * GetSystematic(int index)
         { return fSystematicContainer.at(index); };
 
@@ -130,7 +130,7 @@ public:
          * @param hist The TH1D histogram.
          * @param minimum The minimum number of expected events (used for calculation of uncertainty bands).
          * @param maximum The maximum number of expected events (used for calculation of uncertainty bands).
-         * @return An error code. */			
+         * @return An error code. */
         int SetData(const char * channelname, TH1D hist, double minimum=-1, double maximum=-1);
 
         /**
@@ -139,7 +139,7 @@ public:
          * @param processname The name of the process.
          * @param hist The TH1D histogram.
          * @param efficiency The efficiency of this process in this channel.
-         * @return An error code. */			
+         * @return An error code. */
         int SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1., double norm = 1.);
 
         /**
@@ -151,18 +151,18 @@ public:
          * parametrized as a function for each bin.
          * @param channelname The name of the channel.
          * @param processname The name of the process.
-         * @param funccont A vector of pointers of TF1 functions. 
+         * @param funccont A vector of pointers of TF1 functions.
          * @param nbins The number of bins used for the histogram.
          * @param efficiency The efficiency of this process in this channel.
          * @return An error code.
-         * @see SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1.) */	
+         * @see SetTemplate(const char * channelname, const char * processname, TH1D hist, double efficiency = 1.) */
         int SetTemplate(const char * channelname, const char * processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.);
 
         /**
          * Set an expectation function.
          * @param parindex The index of the parameter
          * @param func The pointer to a TF1 function.
-         * @see SetTemplate(const char * channelname, const char * processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.) */			
+         * @see SetTemplate(const char * channelname, const char * processname, std::vector<TF1 *> * funccont, int nbins, double efficiency = 1.) */
         void SetExpectationFunction(int parindex, TF1 * func)
         { fExpectationFunctionContainer[parindex] = func; };
 
@@ -179,7 +179,7 @@ public:
          * @param systematicname The name of the source of systematic uncertainty.
          * @param variation_up The relative shift between the up-variation and the nominal template: (up-nom)/nom.
          * @param variation_down The relative shift between the down-variation and the nominal template: (nom-down)/nom.
-         * @return An error code. */			
+         * @return An error code. */
         int SetSystematicVariation(const char * channelname, const char * processname,  const char * systematicname, double variation_up, double variation_down);
 
         /**
@@ -217,7 +217,7 @@ public:
          * efficiency including all systematic uncertainties has to be
          * between 0 and 1 at all times. Larger (smaller) values are set
          * to 1 (0) during the calculation.
-         * @param flag The flag */			
+         * @param flag The flag */
         void SetFlagEfficiencyConstraint(bool flag)
         { fFlagEfficiencyConstraint = flag; };
 
@@ -229,7 +229,7 @@ public:
         /**
          * Add a channel
          * @param name The channel name.
-         * @return An error code. */			
+         * @return An error code. */
         int AddChannel(const char * name);
 
         /**
@@ -237,7 +237,7 @@ public:
          * @param name The process name
          * @param nmin The minimum number of expected events (lower limit on the BAT parameter values).
          * @param nmax The maximum number of expected events (upper limit on the BAT parameter values).
-         * @return An error code. */			
+         * @return An error code. */
         int AddProcess(const char * name, double nmin = 0., double nmax = 1.);
 
         /**
@@ -245,7 +245,7 @@ public:
          * @param name The systematic uncertainty name.
          * @param min The lower limit on the BAT parameter values, typically -5 sigma if Gaussian constraint is used.
          * @param max The upper limit on the BAT parameter values, typically +5 sigma if Gaussian constraint is used.
-         * @return  */			
+         * @return  */
         int AddSystematic(const char * name, double min = -5., double max = 5.);
 
         /**
@@ -253,7 +253,7 @@ public:
          * @param channelindex The channel index.
          * @param binindex The bin index.
          * @param parameters A reference to the parameters used to calculate the expectation.
-         * @return The expectation value */			
+         * @return The expectation value */
         double Expectation(int channelindex, int binindex, const std::vector<double> & parameters);
 
         /**
@@ -263,7 +263,7 @@ public:
          * @param channelindex The channel index.
          * @param processindex The process index.
          * @param A reference to the parameters used to calculate the expectation.
-         * @return The expectation function value. */			
+         * @return The expectation function value. */
         double ExpectationFunction(int parindex, int channelindex, int processindex, const std::vector<double> & parameters);
 
         /**
@@ -272,7 +272,7 @@ public:
          * @param processindex The process index.
          * @param binindex The bin index.
          * @param parameters A reference to the parameters used to calculate the efficiency.
-         * @return The efficiency. */			
+         * @return The efficiency. */
         // return efficiency for a channel, process and bin
         double Efficiency(int channelindex, int processindex, int binindex, const std::vector<double> & parameters);
 
@@ -284,7 +284,7 @@ public:
          * @param processindex The process index.
          * @param binindex The bin index.
          * @param parameters A reference to the parameters used to calculate the probability.
-         * @return The probability. */			
+         * @return The probability. */
         double Probability(int channelindex, int processindex, int binindex, const std::vector<double> & parameters);
 
         /**
@@ -298,7 +298,7 @@ public:
         /**
          * Calculate a chi2 for all channels together given a set of parameters.
          * @param parameters A reference to the parameters used to calculate the chi2.
-         * @return A chi2 value.			
+         * @return A chi2 value.
          * @see CalculateChi2(int channelindex, const std::vector<double> & parameters) */
         double CalculateChi2(const std::vector<double> & parameters);
 
@@ -344,7 +344,7 @@ public:
         /**
          * Print a summary of the fit into an ASCII file.
          * @param filename The name of the file.
-         * @return An error code */			
+         * @return An error code */
         int PrintSummary(const char * filename = "summary.txt");
 
         /**
@@ -362,8 +362,8 @@ public:
          * @param channelindex The channel index.
          * @param parameters A reference to the parameters used to scale the templates.
          * @param options The plotting options.
-         * @return An error code. */			
-        int PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "e1b0stack");
+         * @return An error code. */
+        int PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.pdf", const char * options = "e1b0stack");
 
         /**
          * Print the stack of templates together with the data in a
@@ -371,9 +371,9 @@ public:
          * @param channelname The name of the channel.
          * @param parameters A reference to the parameters used to scale the templates.
          * @param options The plotting options.
-         * @return An error code.			
-         * @see PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "e1b0stack") */			
-        int PrintStack(const char * channelname, const std::vector<double> & parameters, const char * filename = "stack.eps", const char * options = "e1b0stack");
+         * @return An error code.
+         * @see PrintStack(int channelindex, const std::vector<double> & parameters, const char * filename = "stack.pdf", const char * options = "e1b0stack") */
+        int PrintStack(const char * channelname, const std::vector<double> & parameters, const char * filename = "stack.pdf", const char * options = "e1b0stack");
 
         /** @} */
 
@@ -404,7 +404,7 @@ private:
          * A container of processes. */
         std::vector<BCMTFProcess *> fProcessContainer;
 
-        /** 
+        /**
          * A container of sources of systematic uncertainty. */
         std::vector<BCMTFSystematic *> fSystematicContainer;
 

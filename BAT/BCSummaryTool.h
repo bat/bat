@@ -87,17 +87,17 @@ class BCSummaryTool
    /**
     * Print a summary plot for the parameters.
     * @return An error flag. */
-   int PrintParameterPlot(const char * filename = "parameters.eps");
+   int PrintParameterPlot(const char * filename = "parameters.pdf");
 
    /**
     * Print a correlation matrix for the parameters.
     * @return An error flag. */
-   int PrintCorrelationMatrix(const char * filename = "matrix.eps");
+   int PrintCorrelationMatrix(const char * filename = "matrix.pdf");
 
    /**
     * Print a correlation plot for the parameters.
     * @return An error flag. */
-   int PrintCorrelationPlot(const char * filename = "correlation.eps");
+   int PrintCorrelationPlot(const char * filename = "correlation.pdf");
 
    /**
     * Draw a comparison of the prior knowledge to the posterior
@@ -115,7 +115,7 @@ class BCSummaryTool
     * Print a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-   int PrintKnowledgeUpdatePlots(const char * filename = "update.ps", std::string options="");
+   int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", std::string options="");
 
    /**
     * Print parameter summary as text. (not yet implemented)

@@ -12,7 +12,7 @@ cat << EOF
 Usage: $0 [class_name]
 
 Creates a new model class <class_name>, i.e. the header and source
-files for the class, and a run file. 
+files for the class, and a run file.
 
 EOF
 }
@@ -56,16 +56,16 @@ class |:Model:| : public BinLikeModel
   ~|:Model:|();
 
   /**
-   * Defines the parameters of the fit. */ 
-  void DefineParameters(); 
+   * Defines the parameters of the fit. */
+  void DefineParameters();
 
   /**
-   * Calculates the expectation value. 
+   * Calculates the expectation value.
    * @param parameters The current parameter values.
-   * @param parvalue the leading parameter value. 
+   * @param parvalue the leading parameter value.
    * @param x the x-value
-   * @return The expectation value. */ 
-  double Expectation(std::vector <double> parameters, double parvalue, double x); 
+   * @return The expectation value. */
+  double Expectation(std::vector <double> parameters, double parvalue, double x);
 };
 // ---------------------------------------------------------
 
@@ -86,18 +86,18 @@ cat << EOF
 #include <TMath.h>
 // ---------------------------------------------------------
 |:Model:|::|:Model:|() : BinLikeModel()
-{  
+{
   DefineParameters();
 };
 
 // ---------------------------------------------------------
 |:Model:|::~|:Model:|()
-{}; 
+{};
 
 // ---------------------------------------------------------
 void |:Model:|::DefineParameters()
 {
-  // add model parameters 
+  // add model parameters
   //  this -> AddParameter("par1", 0.0, 100.0);   // index 0
   //  this -> AddParameter("par2", 0.0, 100.0); // index 1
 }
@@ -106,13 +106,13 @@ void |:Model:|::DefineParameters()
 double |:Model:|::Expectation(std::vector <double> parameters, double parvalue, double x)
 {
   // initialize expectation
-  double expectation = 0; 
+  double expectation = 0;
 
   // calculate parameters of fit function from model parameters and
   // leading parameter
-  // ...  
+  // ...
 
-  // return expectation 
+  // return expectation
   return expectation;
 }
 // ---------------------------------------------------------
@@ -263,60 +263,60 @@ int main()
 	// ----------------------------------------------------
 	// configure BAT
 	// ----------------------------------------------------
-	
+
 	// set nice style for drawing than the ROOT default
 	BCAux::SetStyle();
 
 	// open log file
 	BCLog::OpenLog("log.txt");
 	BCLog::SetLogLevel(BCLog::detail);
-	
+
 	// ----------------------------------------------------
 	// read histograms from file
 	// ----------------------------------------------------
 
-  //	TFile * file = new TFile("input.root", "read"); 
-	
+  //	TFile * file = new TFile("input.root", "read");
+
   //	TH1D* hist_0 = (TH1D*) file -> Get("hist_0");
 
 	// ----------------------------------------------------
-	// create new fit model and perform the fit 
+	// create new fit model and perform the fit
 	// ----------------------------------------------------
 
-	// create new fit model 
+	// create new fit model
 	|:Model:| * m = new |:Model:|();
 
 	// add histograms
-  //	m -> AddHistogram(hist_0, 150.0); 
+  //	m -> AddHistogram(hist_0, 150.0);
 
-	// perform fit 
-	m -> MarginalizeAll(); 
-	m -> FindMode(); 
+	// perform fit
+	m -> MarginalizeAll();
+	m -> FindMode();
 
 	// print results
-	m -> PrintAllMarginalized("plots.ps"); 
-	m -> PrintResults("results.txt"); 
-	m -> PrintHistograms(); 
-	m -> PrintSummary(); 
+	m -> PrintAllMarginalized("plots.pdf");
+	m -> PrintResults("results.txt");
+	m -> PrintHistograms();
+	m -> PrintSummary();
 
 	// print goodness-of-fit
-	std::cout << " chi2 / dof (chi2-prob) : " 
-						<< m->CalculateChi2() << "/" 
+	std::cout << " chi2 / dof (chi2-prob) : "
+						<< m->CalculateChi2() << "/"
 						<< m->GetNDF() << " ("
-						<< m->CalculateChi2Prob() << ")" << std::endl; 
+						<< m->CalculateChi2Prob() << ")" << std::endl;
 
 	// ----------------------------------------------------
-	// clean up 
+	// clean up
 	// ----------------------------------------------------
 
 	// delete model
-	delete m; 
+	delete m;
 
-	// close file 
+	// close file
   //	file->Close();
-  //	delete file; 
+  //	delete file;
 
-	// no errors 
+	// no errors
 	return 0;
 
 }

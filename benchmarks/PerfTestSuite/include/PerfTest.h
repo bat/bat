@@ -44,7 +44,7 @@ class PerfTest
    PerfTest(std::string name = "unknown");
 
    /** The default destructor */
-   ~PerfTest();
+   virtual ~PerfTest();
 
    /* @} */
    /** \name Member functions (Set)  */

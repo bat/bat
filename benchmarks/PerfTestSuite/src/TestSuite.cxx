@@ -287,7 +287,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
       file << " <tr> <td>Status</td> <td>" << GetTest(i)->GetStatusStringHTML().data() << " </td> </tr>" << std::endl;
       file << " <tr> <td>CPU time</td> <td>" << std::setprecision(4) << GetTest(i)->GetCpuTime() << " s </td></tr>" << std::endl;
       file << " <tr> <td>Real time</td> <td>" << std::setprecision(4) << GetTest(i)->GetRealTime() << " s </td></tr>" << std::endl;
-      file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< fFileLinkPrefix << GetTest(i)->GetName().data() << ".ps" << "\">" << GetTest(i)->GetName().data() << ".ps</a>" << " </td> </tr>" << std::endl;
+      file << " <tr> <td>Plots</td> <td>" << "<a href=\""<< fFileLinkPrefix << GetTest(i)->GetName().data() << ".pdf" << "\">" << GetTest(i)->GetName().data() << ".pdf</a>" << " </td> </tr>" << std::endl;
       file << " <tr> <td>Log</td> <td>" << "<a href=\""<< fFileLinkPrefix << GetTest(i)->GetName().data() << ".log" << "\">" << GetTest(i)->GetName().data() << ".log</a>" << " </td> </tr>" << std::endl;
       file << "</table>" << std::endl;
       file << "</br>" << std::endl;
@@ -316,7 +316,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
          file << "<tr>";
          for (int k = 0; k < fNPlotColumns; ++k) {
             if (j*fNPlotColumns+k < nplots)
-               file << "<td width=\"20%\"><a href=\"" << fFileLinkPrefix << GetTest(i)->GetName().c_str() << "_" << j*fNPlotColumns+k << ".eps\"><img src=\"" << fFileLinkPrefix << GetTest(i)->GetName().c_str() << "_" << j*fNPlotColumns+k << ".png\" width=\""<< fThumbSize<<"\" height=\""<<fThumbSize<<"\"></a></td>";
+               file << "<td width=\"20%\"><a href=\"" << fFileLinkPrefix << GetTest(i)->GetName().c_str() << "_" << j*fNPlotColumns+k << ".pdf\"><img src=\"" << fFileLinkPrefix << GetTest(i)->GetName().c_str() << "_" << j*fNPlotColumns+k << ".png\" width=\""<< fThumbSize<<"\" height=\""<<fThumbSize<<"\"></a></td>";
          }
          file << "</tr>" << std::endl;
          file << "<tr>" << std::endl;

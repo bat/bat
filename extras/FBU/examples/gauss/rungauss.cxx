@@ -18,7 +18,7 @@ int main()
    BCLog::OpenLog("log.txt");
    BCLog::SetLogLevel(BCLog::detail);
 
-	// ---- read histograms from a file ---- // 
+	// ---- read histograms from a file ---- //
 
 	// open file
 	TFile * file = new TFile("histograms.root", "READ");
@@ -31,13 +31,13 @@ int main()
 	}
 
 	// read histograms
-	TH2D* hist_migration = (TH2D*) file->Get("hist_migrationmatrix"); 
-	TH1D* hist_truth     = (TH1D*) file->Get("hist_truthsignal"); 
+	TH2D* hist_migration = (TH2D*) file->Get("hist_migrationmatrix");
+	TH1D* hist_truth     = (TH1D*) file->Get("hist_truthsignal");
 	TH1D* hist_bkg       = (TH1D*) file->Get("hist_background");
 	TH1D* hist_data      = (TH1D*) file->Get("hist_data");
 	TH1D* hist_truthdata = (TH1D*) file->Get("hist_truthdata");
 
-	// check if histograms are really there 
+	// check if histograms are really there
 	if (!hist_migration) {
 		std::cout << "Could not find migration matrix. Run CreateHistograms before running the example. Exit." << std::endl;
 		return(1);
@@ -102,10 +102,10 @@ int main()
 
 	// prepare response matrix and calculate efficiency
   m->PrepareResponseMatrix(hist_migration, hist_truth, hist_bkg, paramin, paramax);
- 
+
 	// set data
 	m->SetDataHistogram(hist_data);
-	
+
 	// prepare summary tool
 	BCSummaryTool* st = new BCSummaryTool(m);
 
@@ -113,30 +113,30 @@ int main()
 	m->MarginalizeAll();
 
 	// print
-	m->PrintResponseMatrix("response_matrix.eps");
-	m->PrintMigrationMatrix("migration_matrix.eps");
-	m->PrintEfficiencyHistogram("efficiency.eps");
-	m->PrintTruthHistogram("truth.eps");
-	m->PrintDataHistogram("data.eps");
+	m->PrintResponseMatrix("response_matrix.pdf");
+	m->PrintMigrationMatrix("migration_matrix.pdf");
+	m->PrintEfficiencyHistogram("efficiency.pdf");
+	m->PrintTruthHistogram("truth.pdf");
+	m->PrintDataHistogram("data.pdf");
 
-	m->PrintAllMarginalized("plots.ps");
+	m->PrintAllMarginalized("plots.pdf");
 	m->PrintResults("results.txt");
 
-	st->PrintParameterPlot("summary_parameters.ps");
-	st->PrintCorrelationPlot("summary_correlation.ps");
-	st->PrintCorrelationMatrix("summary_matrix.ps");
+	st->PrintParameterPlot("summary_parameters.pdf");
+	st->PrintCorrelationPlot("summary_correlation.pdf");
+	st->PrintCorrelationMatrix("summary_matrix.pdf");
 
 
 	TH1D *unfolded = (TH1D*) m->GetUnfoldedResult();
 
-	TCanvas *c1 = new TCanvas("c1", "c1", 600, 600);	
+	TCanvas *c1 = new TCanvas("c1", "c1", 600, 600);
 	c1->cd();
 	unfolded->Draw();
 	hist_truthdata->Draw("SAME");
 	unfolded->SetMarkerColor(kBlue);
 	unfolded->SetLineColor(kBlue);
 	unfolded->Draw("E same");
-	c1->SaveAs("unfolded.eps"); 
+	c1->SaveAs("unfolded.pdf");
 
 	// close log file
 	BCLog::CloseLog();
@@ -149,9 +149,9 @@ int main()
 	delete m;
 	delete st;
   delete file;
-	delete c1; 
+	delete c1;
 
-	// no error 
+	// no error
 	return 0;
 
 }

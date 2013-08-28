@@ -1,4 +1,4 @@
-// BAT 
+// BAT
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCSummaryTool.h>
@@ -31,11 +31,11 @@ int main()
 	//	model->MCMCSetNChains(5);
 	//	model->MCMCSetNIterationsRun(10000000); // high precision
 	//	model->MCMCSetNIterationsRun(100000); // low precision
-	//	model->SetNbins("#sigma [pb]", 400); // high precision 
+	//	model->SetNbins("#sigma [pb]", 400); // high precision
 	//	model->SetNbins("#sigma [pb]", 100); // low precision
 
 	model->MCMCSetPrecision(BCEngineMCMC::kHigh);
-	model->SetNbins("#sigma [pb]", 400); // high precision 
+	model->SetNbins("#sigma [pb]", 400); // high precision
 
 
 	// ----------------------------------------------------------
@@ -53,7 +53,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -64,7 +64,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, sqrt(2.), sqrt(2.));
@@ -74,7 +74,7 @@ int main()
 	if (runtype == 2) {
 		// add channel
 		model->AddChannel("channel1");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -88,7 +88,7 @@ int main()
 	if (runtype == 3) {
 		// add channel
 		model->AddChannel("channel1");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -103,7 +103,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -119,7 +119,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -135,7 +135,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -152,7 +152,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -171,7 +171,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -188,7 +188,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -197,7 +197,7 @@ int main()
 		// add systematics
 		// parameters: uncertainty, channel, -sigma, +sigma, mean
 		model->AddSystError("syst1");
-		model->SetNbins("syst1", 400); // high precision 
+		model->SetNbins("syst1", 400); // high precision
 		model->SetSystErrorChannelSignal("syst1", "channel1", 0.7, 0.7,  0.00);
 		model->SetSystErrorChannelSignal("syst1", "channel2", 1.0, 1.0, -1.00);
 	}
@@ -206,7 +206,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -217,7 +217,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 5.0, 1.0, 1.0);
@@ -226,12 +226,12 @@ int main()
 		// add systematics
 		// parameters: uncertainty, channel, -sigma, +sigma, mean
 		model->AddSystError("syst1");
-		model->SetNbins("syst1", 400); // high precision 
+		model->SetNbins("syst1", 400); // high precision
 		model->SetSystErrorChannelSignal("syst1", "channel1", 1.0, 1.0, 0.00);
 		model->SetSystErrorChannelSignal("syst1", "channel2", 0.0, 0.0, 0.00);
 
 		model->AddSystError("syst2");
-		model->SetNbins("syst2", 400); // high precision 
+		model->SetNbins("syst2", 400); // high precision
 		model->SetSystErrorChannelSignal("syst2", "channel1", 1.0, 1.0, 0.00);
 		model->SetSystErrorChannelSignal("syst2", "channel2", 1.0, 1.0, 0.00);
 	}
@@ -240,7 +240,7 @@ int main()
 		// add channel
 		model->AddChannel("channel1");
 		model->AddChannel("channel2");
-		
+
 		// add channels
 		// parameters: channel name, mean value, -sigma, +sigma
 		model->SetChannelSignalPriorGauss("channel1", 6.0, 1.0, 1.0);
@@ -249,12 +249,12 @@ int main()
 		// add systematics
 		// parameters: uncertainty, channel, -sigma, +sigma, mean
 		model->AddSystError("syst1");
-		model->SetNbins("syst1", 400); // high precision 
+		model->SetNbins("syst1", 400); // high precision
 		model->SetSystErrorChannelSignal("syst1", "channel1", 2.0, 2.0, -2.00);
 		model->SetSystErrorChannelSignal("syst1", "channel2", 2.0, 2.0, -2.00);
 
 		model->AddSystError("syst2");
-		model->SetNbins("syst2", 400); // high precision 
+		model->SetNbins("syst2", 400); // high precision
 		model->SetSystErrorChannelSignal("syst2", "channel1", 1.0, 1.0,  1.00);
 		model->SetSystErrorChannelSignal("syst2", "channel2", 1.0, 1.0,  1.00);
 	}
@@ -267,7 +267,7 @@ int main()
 	model->PerformFullAnalysis();
 
 	// print results
-	//	model->PrintChannelOverview(Form("model_channels_%i.ps", runtype), Form("model_systematics_%i.ps", runtype));
+	//	model->PrintChannelOverview(Form("model_channels_%i.pdf", runtype), Form("model_systematics_%i.pdf", runtype));
 	model->PrintChannelSummary(Form("model_summary_%i.txt", runtype));
 
 	// ----------------------------------------------------------
@@ -275,20 +275,20 @@ int main()
 	// ----------------------------------------------------------
 
 	// create summary tool
-	BCSummaryTool* st = new BCSummaryTool(model); 
+	BCSummaryTool* st = new BCSummaryTool(model);
 
 	// perform analysis
-	model->MarginalizeAll(); 
+	model->MarginalizeAll();
 	model->FindMode(model->GetBestFitParameters());
 
 	// print default plots
-	model->PrintAllMarginalized(Form("model_plots_%i.ps", runtype));
+	model->PrintAllMarginalized(Form("model_plots_%i.pdf", runtype));
 	model->PrintResults(Form("model_results_%i.txt", runtype));
 
-	st->PrintParameterPlot(Form("model_parameters_%i.ps", runtype)); 
-	st->PrintCorrelationPlot(Form("model_correlation_%i.ps", runtype)); 
-	//	st->PrintKnowledgeUpdatePlots(Form("model_update_%i.ps", runtype)); 
-	st->PrintCorrelationMatrix(Form("model_matrix_%i.ps", runtype));
+	st->PrintParameterPlot(Form("model_parameters_%i.pdf", runtype));
+	st->PrintCorrelationPlot(Form("model_correlation_%i.pdf", runtype));
+	//	st->PrintKnowledgeUpdatePlots(Form("model_update_%i.pdf", runtype));
+	st->PrintCorrelationMatrix(Form("model_matrix_%i.pdf", runtype));
 
 	// ----------------------------------------------------------
 	// clean-up and return
@@ -301,7 +301,7 @@ int main()
 	delete model;
 
 	// delete summary tool
-	//	delete st; 
+	//	delete st;
 
 return 0;
 

@@ -5,13 +5,14 @@
  * For the licensing terms see doc/COPYING.
  */
 
-#include <iostream>
 
 #include "include/ReleaseTestSuite.h"
 #include <include/PerfTestVarPar.h>
 #include <include/PerfTest1DFunction.h>
 #include <include/PerfTest2DFunction.h>
 
+#include <BAT/BCParameter.h>
+#include <iostream>
 
 //______________________________________________________________________________
 ReleaseTestSuite::ReleaseTestSuite() : TestSuite()
@@ -99,7 +100,7 @@ int ReleaseTestSuite::PrepareTests()
    testfunc_1d_2gaus->FixParameter(4, 30.0);
    testfunc_1d_2gaus->FixParameter(5,  1.0);
    PerfTest1DFunction*   perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus);
-   perftest_1d_2gaus->SetNbins("x", 200);
+   perftest_1d_2gaus->GetParameter("x")->SetNbins(200);
    perftest_1d_2gaus->GetSubtest("mode")->SetStatusOff(true);
    AddTest(perftest_1d_2gaus);
 

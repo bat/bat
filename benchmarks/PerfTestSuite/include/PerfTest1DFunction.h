@@ -14,13 +14,15 @@
 #ifndef BAT_PERFTEST1DFUNCTION
 #define BAT_PERFTEST1DFUNCTION
 
-#include <string>
-#include <vector>
+#include <include/PerfTestMCMC.h>
+#include <include/PerfTest.h>
 
 #include <TF1.h>
 
-#include <include/PerfTestMCMC.h>
-#include <include/PerfTest.h>
+#include <math.h>
+#include <string>
+#include <vector>
+
 
 class PerfTest1DFunction : public PerfTestMCMC
 {
@@ -34,7 +36,7 @@ class PerfTest1DFunction : public PerfTestMCMC
    PerfTest1DFunction(std::string name = "unknown", TF1* func = 0);
 
    /** The default destructor */
-   ~PerfTest1DFunction();
+   virtual ~PerfTest1DFunction();
 
    /* @} */
 

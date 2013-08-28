@@ -1293,11 +1293,11 @@ void BCTemplateFitter::PrintTemp()
 
    c1->cd();
    fUncertaintyHistogramExp->Draw("COL");
-   c1->Print("uncertainty_exp.eps");
+   c1->Print("uncertainty_exp.pdf");
 
    c1->cd();
    fUncertaintyHistogramObsPosterior->Draw("COL");
-   c1->Print("uncertainty_obs.eps");
+   c1->Print("uncertainty_obs.pdf");
 
    delete c1;
 }

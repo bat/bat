@@ -1,6 +1,6 @@
 void CreateHistograms()
 {
-	// settings 
+	// settings
 
 	// resolution
 	double resolution = 10.;
@@ -20,7 +20,7 @@ void CreateHistograms()
 	int nevents_bkg = 1000;
 
 	// initialize TRandom3 object
-	gRandom = new TRandom3(1000); 
+	gRandom = new TRandom3(1000);
 
 	// histograms
 
@@ -70,27 +70,27 @@ void CreateHistograms()
 			hist_migration->Fill(truth, reco);
 	}
 
-	// fill truth and reco distribution 
+	// fill truth and reco distribution
 	for (int i = 0; i < nevents_sgn; ++i) {
 		double truth = gRandom->Landau(xmin_truth+0.2*(xmax_truth-xmin_truth), 0.1*(xmax_truth-xmin_truth));
 		double reco  = gRandom->Gaus(truth, resolution);
 
 		hist_data->Fill(reco);
 	}
-	
+
 	// fill background histograms
 	for (int i = 0; i < nevents_bkg; ++i) {
 		double reco = xmin_reco + (xmax_reco-xmin_reco)*gRandom->Uniform();
-		
+
 		hist_bkg->Fill(reco);
 		hist_data->Fill(reco);
-	}		
-	
-	// write histograms to file 
-	TFile * file = new TFile("histograms.root", "RECREATE");  
- 	file -> cd();  
+	}
 
- 	hist_migration->Write();  
+	// write histograms to file
+	TFile * file = new TFile("histograms.root", "RECREATE");
+ 	file -> cd();
+
+ 	hist_migration->Write();
 	hist_truth->Write();
 	hist_reco->Write();
 	hist_bkg->Write();
@@ -105,7 +105,7 @@ void CreateHistograms()
 	hist_reco->Draw();
 	c1->cd(3);
 	hist_migration->Draw("COLZ");
-	c1->Print("migration.eps");
+	c1->Print("migration.pdf");
 
 	// print truth, reco and background distributions
 	TCanvas* c2 = new TCanvas("c2", "c2", 900, 300);
@@ -116,7 +116,7 @@ void CreateHistograms()
 	hist_bkg->Draw();
 	c2->cd(3);
 	hist_data->Draw();
-	c2->Print("reco.eps");
+	c2->Print("reco.pdf");
 
 	// close file
 	file->Close();

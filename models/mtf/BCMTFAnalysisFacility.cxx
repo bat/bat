@@ -79,7 +79,7 @@ std::vector<TH1D> BCMTFAnalysisFacility::BuildEnsemble(const std::vector<double>
          if (!flag_data) {
             double expectation = fMTF->Expectation(ichannel, ibin, parameters);
             double observation = fRandom->Poisson(expectation);
-					
+
             hist.SetBinContent(ibin, observation);
          }
       }
@@ -281,7 +281,7 @@ TTree * BCMTFAnalysisFacility::BuildEnsembles(const std::vector<double> & parame
       for (int i = 0; i < nparameters; ++i) {
          if (parameters.size() > 0)
             in_parameters[i] = parameters.at(i);
-         else 
+         else
             in_parameters[i] = 0;
       }
 
@@ -493,18 +493,18 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       }
 
       // fluctuate templates if option "MC" is chosen
-      if (flag_mc) {			
+      if (flag_mc) {
          // get number of templates
          unsigned int ntemplates = fMTF->GetNProcesses();
-				
+
          // loop over channels
          for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
             // get channel
-            BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
-					
+            BCMTFChannel * channel = fMTF->GetChannel(ichannel);
+
             // loop over all templates
             for (unsigned int i = 0; i < ntemplates; ++i) {
-						
+
                // get histogram
                TH1D * temphist = channel->GetTemplate(i)->GetHistogram();
                histlist.push_back(temphist);
@@ -517,7 +517,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
             }
          }
       }
-			
+
       // check if MCMC should be run and perform analysis
       if (fFlagMCMC) {
          BCLog::SetLogLevel(lls,llf);
@@ -594,18 +594,18 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       tree_out->Fill();
 
       // but original template back if options "MC" is chosen
-      if (flag_mc) {			
+      if (flag_mc) {
          // get number of templates
          unsigned int ntemplates = fMTF->GetNProcesses();
-			
+
          // loop over channels
          for (int ichannel = 0; ichannel < nchannels; ++ichannel) {
             // get channel
-            BCMTFChannel * channel = fMTF->GetChannel(ichannel);					
-				
+            BCMTFChannel * channel = fMTF->GetChannel(ichannel);
+
             // loop over all templates
             for (unsigned int i = 0; i < ntemplates; ++i) {
-					
+
                // get histogram
                TH1D * temphist = histlist.at(ichannel * ntemplates + i);
                temphist->Scale(channel->GetTemplate(i)->GetOriginalNorm()/ temphist->Integral());
@@ -779,7 +779,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 
    // print results
    if (flag_mcmc)
-      fMTF->PrintAllMarginalized("marginalized_combined.ps");
+      fMTF->PrintAllMarginalized("marginalized_combined.pdf");
    fMTF->PrintResults("results_combined.txt");
 
    // loop over all parameters
@@ -840,7 +840,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 
       // print results
       if (flag_mcmc)
-         fMTF->PrintAllMarginalized(Form("marginalized_channel_%i.ps", ichannel));
+         fMTF->PrintAllMarginalized(Form("marginalized_channel_%i.pdf", ichannel));
       fMTF->PrintResults(Form("results_channel_%i.txt", ichannel));
 
       // ---- update comparison tools ---- //
@@ -900,7 +900,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
    BCMTFComparisonTool * ct =  ctc.at(0);
    ct->DrawOverview();
    //   c1->Print((std::string(filename)+std::string("(")).c_str());
-   c1->Print((std::string("overview.ps")+std::string("(")).c_str());
+   c1->Print((std::string("overview.pdf")+std::string("(")).c_str());
 
    // loop over all parameters
    for (int i = 1; i < nparameters-1; ++ i) {
@@ -908,13 +908,13 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
       BCMTFComparisonTool * ct = ctc.at(i);
 
       ct->DrawOverview();
-      c1->Print("overview.ps");
+      c1->Print("overview.pdf");
    }
 
    // draw last one
    ct =  ctc.at(nparameters-1);
    ct->DrawOverview();
-   c1->Print((std::string("overview.ps")+std::string(")")).c_str());
+   c1->Print((std::string("overview.pdf")+std::string(")")).c_str());
 
    // ---- print everything (mcmc) ---- //
    if (flag_mcmc) {
@@ -925,7 +925,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
       BCMTFComparisonTool * ct_mcmc =  ctc_mcmc.at(0);
       ct_mcmc->DrawOverview();
       //   c2->Print((std::string(filename)+std::string("(")).c_str());
-      c2->Print((std::string("overview_mcmc.ps")+std::string("(")).c_str());
+      c2->Print((std::string("overview_mcmc.pdf")+std::string("(")).c_str());
 
       // loop over all parameters
       for (int i = 1; i < nparameters-1; ++ i) {
@@ -933,13 +933,13 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
          BCMTFComparisonTool * ct_mcmc = ctc_mcmc.at(i);
 
          ct_mcmc->DrawOverview();
-         c2->Print("overview_mcmc.ps");
+         c2->Print("overview_mcmc.pdf");
       }
 
       // draw last one
       ct_mcmc =  ctc_mcmc.at(nparameters-1);
       ct_mcmc->DrawOverview();
-      c2->Print((std::string("overview_mcmc.ps")+std::string(")")).c_str());
+      c2->Print((std::string("overview_mcmc.pdf")+std::string(")")).c_str());
       delete c2;
    }
 
@@ -1041,7 +1041,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
    // print results
    if (flag_mcmc)
-      fMTF->PrintAllMarginalized("marginalized_all.ps");
+      fMTF->PrintAllMarginalized("marginalized_all.pdf");
    fMTF->PrintResults("results_all.txt");
 
    // loop over all parameters
@@ -1093,7 +1093,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
       // print results
       if (flag_mcmc)
-         fMTF->PrintAllMarginalized(Form("marginalized_systematic_%i.ps", isystematic));
+         fMTF->PrintAllMarginalized(Form("marginalized_systematic_%i.pdf", isystematic));
       fMTF->PrintResults(Form("results_systematic_%i.txt", isystematic));
 
       // ---- update comparison tools ---- //
@@ -1131,7 +1131,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
    // print results
    if (flag_mcmc)
-      fMTF->PrintAllMarginalized("marginalized_none.ps");
+      fMTF->PrintAllMarginalized("marginalized_none.pdf");
    fMTF->PrintResults("results_none.txt");
 
    // loop over all parameters
@@ -1169,7 +1169,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
    BCMTFComparisonTool * ct =  ctc.at(0);
    ct->DrawOverview();
    //   c1->Print((std::string(filename)+std::string("(")).c_str());
-   c1->Print((std::string("overview.ps")+std::string("(")).c_str());
+   c1->Print((std::string("overview.pdf")+std::string("(")).c_str());
 
    // loop over all parameters
    for (int i = 1; i < nparameters-1; ++i) {
@@ -1177,13 +1177,13 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
       BCMTFComparisonTool * ct = ctc.at(i);
 
       ct->DrawOverview();
-      c1->Print("overview.ps");
+      c1->Print("overview.pdf");
    }
 
    // draw last one
    ct =  ctc.at(nparameters-1);
    ct->DrawOverview();
-   c1->Print((std::string("overview.ps")+std::string(")")).c_str());
+   c1->Print((std::string("overview.pdf")+std::string(")")).c_str());
 
    // ---- free memory ---- //
    for (int i = 0; i < nparameters; ++i) {

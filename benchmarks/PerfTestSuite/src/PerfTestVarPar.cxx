@@ -13,6 +13,7 @@
 #include <TPostScript.h>
 #include <TGraphErrors.h>
 
+#include <cmath>
 #include <iostream>
 #include <fstream>
 

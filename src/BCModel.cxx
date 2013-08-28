@@ -840,7 +840,7 @@ int BCModel::PrintAllMarginalized1D(const char * filebase)
    for (int i = 0; i < n; i++) {
       const BCParameter * a = GetParameter(i);
       if (GetMarginalized(a))
-         GetMarginalized(a)->Print(Form("%s_1D_%s.ps", filebase, a->GetName().data()));
+         GetMarginalized(a)->Print(Form("%s_1D_%s.pdf", filebase, a->GetName().data()));
    }
 
    return n;
@@ -873,7 +873,7 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 
          if (GetMarginalized(a, b))
             GetMarginalized(a, b)->Print(
-                  Form("%s_2D_%s_%s.ps",filebase, a->GetName().data(), b->GetName().data()));
+                  Form("%s_2D_%s_%s.pdf",filebase, a->GetName().data(), b->GetName().data()));
          k++;
       }
    }
