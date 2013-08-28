@@ -40,8 +40,8 @@ RatioModel::~RatioModel()
 void RatioModel::DefineParameters()
 {
   // add two parameters, x and y.
-  AddParameter("x", 1., 17.); // index 0
-  AddParameter("y", 6., 14.); // index 1
+  AddParameter("x", 0., 8.); // index 0
+  AddParameter("y", 0., 16.); // index 1
 }
 
 // ---------------------------------------------------------
@@ -49,6 +49,7 @@ void RatioModel::DefineHistogram()
 {
   // create a new ROOT and BAT histogram
   TH1D* hist = new TH1D("", ";r;p(r|x,y)", 100, 0.0, 2.0);
+  hist->SetStats(kFALSE);
   fHistRatio->SetHistogram(hist);
 }
 
@@ -71,8 +72,8 @@ double RatioModel::LogLikelihood(const std::vector<double> &parameters)
   double y = parameters.at(1);
 
   // calculate the Gaussian probability densities
-  logprob += BCMath::LogGaus(x, 9., 2.);
-  logprob += BCMath::LogGaus(y, 10., 1.0);
+  logprob += BCMath::LogGaus(x, 4., 1.);
+  logprob += BCMath::LogGaus(y, 8., 2.0);
 
   // return the log likelihood
   return logprob;

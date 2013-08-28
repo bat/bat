@@ -8,6 +8,12 @@
 
 2013-08-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: fixed a serious bug: the filling of histograms inside the MCMC used a different for-loop-structure than the creation of the histograms. Thus, some histograms for not filled correctly.
+	* examples/basic/errorpropagation:
+	  - removed ROOT legend
+	  - number of entries fits now
+	  - set precision to medium
+	  - slightly changed the numbers to make the non-Gaussianity more visible
+	  - this fixes #11
 
 2013-08-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate: added (void) xxx tp suppress compiler warnings about unused parameters in case of #ifdef #else (Cuba)

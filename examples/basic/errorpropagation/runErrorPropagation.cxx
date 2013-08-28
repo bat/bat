@@ -18,7 +18,7 @@ int main()
   RatioModel * m = new RatioModel();
 
   // set precision
-  m->MCMCSetPrecision(BCEngineMCMC::kHigh);
+  m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
   // run the MCMC and marginalize w.r.t. to all parameters
   m->MarginalizeAll();
