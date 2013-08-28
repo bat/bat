@@ -264,7 +264,7 @@ class BCModel : public BCIntegrate
        * @return An error code.
        */
       int SetPrior(const char* name, TF1* f);
-      // todo replace by simply fixing
+
       /**
        * Set delta-function prior for a parameter. Note: this sets the
        * parameter range to the specified value. The old parameter range
@@ -403,7 +403,7 @@ class BCModel : public BCIntegrate
        * @param params A set of parameter values
        * @return Natural logarithm of the likelihood */
       virtual double LogLikelihood(const std::vector<double> &params) = 0;
-      // todo why probability and *NN?
+
       /**
        * Returns the likelihood times prior probability given a set of parameter values
        * @param params A set of parameter values

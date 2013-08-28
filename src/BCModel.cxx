@@ -395,9 +395,6 @@ int BCModel::AddParameter(BCParameter * parameter)
 
    // prior assumed to be non-constant in general case
    fPriorContainerConstant.push_back(false);
-   // todo still needed?
-   // reset results
-   ResetResults();
 
    return 0;
 }
@@ -1320,9 +1317,6 @@ int BCModel::SetPrior(int index, TF1 * f)
 
    fPriorContainerConstant[index] = false;
 
-   // reset all results
-   ResetResults();
-
    // no error
    return 1;
 }
@@ -1339,29 +1333,23 @@ int BCModel::SetPrior(const char * name, TF1 * f)
    // set prior
    return SetPrior(index, f);
 }
-// todo remove prior delta, or jus call Fix() for back ward compatability? How to deal with in MCMC?
+
 // ---------------------------------------------------------
 int BCModel::SetPriorDelta(int index, double value)
 {
    // set range to value
-//   SetParameterRange(index, value, value);
    GetParameter(index)->Fix(value);
 
    // set prior
-   return SetPriorConstant(index);
+   return 1;
 }
 
 // ---------------------------------------------------------
 int BCModel::SetPriorDelta(const char* name, double value)
 {
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
+   fParameters.Get(name)->Fix(value);
 
-   // set prior
-   return SetPriorDelta(index, value);
+   return 1;
 }
 
 // ---------------------------------------------------------
@@ -1469,9 +1457,6 @@ int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
       fPriorContainerConstant[index] = false;
    }
 
-   // reset all results
-   ResetResults();
-
    // no error
    return 1;
 }
@@ -1506,9 +1491,6 @@ int BCModel::SetPriorConstant(int index)
    // set prior to a constant
    fPriorContainerConstant[index] = true;
 
-   // reset all results
-   ResetResults();
-
    // no error
    return 1;
 }
@@ -1527,9 +1509,6 @@ int BCModel::SetPriorConstantAll()
       }
       fPriorContainerConstant[i] = true;
    }
-
-   // reset all results
-   ResetResults();
 
    // no error
    return 1;
