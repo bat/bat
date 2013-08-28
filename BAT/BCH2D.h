@@ -54,7 +54,8 @@ public:
    /** @{ */
 
    /**
-    * @return The 2D histogram. */
+    * Return the TH2D histogram
+    * @return The TH2D histogram. */
    TH2D* GetHistogram()
    { return fHistogram; };
 
@@ -100,14 +101,23 @@ public:
     * Print distribution into a PostScript file.
     * @param filename Output filename
     * @param option the draw options (see myDraw()) plus \n
+    * @param intervals the intervals for the bands
     * logz : draw z-axis in log-scale \n
     * R : rescale canvas to have a squared histogram
     * @param ww canvas size in pixels along X
     * @param ww canvas size in pixels along Y
-    * If ww and wh are set to 0, default ROOT canvas size is used.
-    * For explanation of parameters options and ovalue look at BCH1D::Draw()
-    * method. */
+    * If ww and wh are set to 0, default ROOT canvas size is used. */
    void Print(const char* filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+
+   /**
+    *Print distribution into a PostScript file.
+    * @param filename Output filename
+    * @param option the draw options, @see Print(const char* filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0)
+    * @param interval an upper or lower limit
+    * @param ww canvas size in pixels along X
+    * @param ww canvas size in pixels along Y
+    * @see Print(const char* filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0)
+    */ 
    void Print(const char* filename, std::string options, double interval, int ww=0, int wh=0);
 
 
@@ -136,6 +146,13 @@ public:
     * @param intervals the intervals for the bands
     */
    void Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0));
+
+   /**
+    * Draw distribution into the active canvas.
+    * @param options Drawing options, @see Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0))
+    * @param interval an upper or lower limit
+    * @see Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0))
+    */ 
    void Draw(std::string options, double interval);
 
    /**
@@ -207,22 +224,6 @@ public:
     */
    TGraph* DrawProfileY(std::string options, std::string drawoptions)
    { return DrawProfile(1, options, drawoptions); };
-
-   /**
-    * @todo document remaining methods
-    */
-
-/*
-   TGraph* GetLowestBandGraph(TH2D* h, std::vector<int> nint);
-   TGraph* GetLowestBandGraph(TH2D* h);
-
-   std::vector<double> GetLevelBoundary(double level);
-   std::vector<double> GetLevelBoundary(TH2D* h, double level);
-   TGraph* GetBandGraph(double level1, double level2);
-   TGraph* GetBandGraph(TH2D* h , double level1, double level2);
-
-   TGraph** GetBandGraphs(TH2D* h, int &n);
-*/
 
    /** @} */
 

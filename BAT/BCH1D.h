@@ -171,12 +171,23 @@ class BCH1D
    * logx : draw x-axis in log-scale \n
    * logy : draw y-axis in log-scale \n
    * R : rescale canvas to have a squared histogram
+   * @param intervals the intervals for the bands
    * @param ww canvas size in pixels along X
    * @param ww canvas size in pixels along Y
    * If ww and wh are set to 0, default ROOT canvas size is used.
    * For explanation of parameters options and ovalue look at BCH1D::Draw()
    * method. */
   void Print(const char * filename, std::string options="BTciB3CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0);
+
+  /**
+   *Print distribution into a PostScript file.
+   * @param filename Output filename
+   * @param option the draw options, @see Print(const char * filename, std::string options="BTciB3CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0)
+   * @param interval an upper or lower limit
+   * @param ww canvas size in pixels along X
+   * @param ww canvas size in pixels along Y
+   * @see Print(const char * filename, std::string options="BTciB3CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0)
+   */ 
   void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
   /**
@@ -210,6 +221,12 @@ class BCH1D
    * @param intervals the intervals
    */
   void Draw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));
+
+  /**
+   *Draw distribution into the active canvas.
+   * @param options Drawing options, @see Print(const char * filename, std::string options, double interval, int ww=0, int wh=0)
+   * @param interval an upper or lower limit
+   */ 
   void Draw(std::string options, double interval);
 
   /**
