@@ -71,7 +71,7 @@ int main(int argc, char **argv)
   _myRooInterface -> PrintAllMarginalized(outputFile);
   _myRooInterface -> PrintResults("bat_results.txt");
 
-  TFile* file = new TFile(rootFile);
+  TFile* file = TFile::Open(rootFile);
   RooWorkspace* bat_ws = (RooWorkspace*) file->Get(wsName);
   TString parameterName = bat_ws->set("POI")->first()->GetName();
 

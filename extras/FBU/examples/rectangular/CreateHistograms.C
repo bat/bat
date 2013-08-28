@@ -87,7 +87,7 @@ void CreateHistograms()
 	}
 
 	// write histograms to file
-	TFile * file = new TFile("histograms.root", "RECREATE");
+	TFile * file = TFile::Open("histograms.root", "RECREATE");
  	file -> cd();
 
  	hist_migration->Write();

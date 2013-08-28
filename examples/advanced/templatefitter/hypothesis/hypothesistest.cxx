@@ -13,7 +13,7 @@ int main()
 	// open file with data and templates
 	// ----------------------------------------------------
 
-	TFile * file = new TFile("histograms.root", "READ");
+	TFile * file = TFile::Open("histograms.root", "READ");
 
 	TH1D hist_bkg1 = *((TH1D*) file->Get("hist_bkg1"));
 	TH1D hist_bkg2 = *((TH1D*) file->Get("hist_bkg2"));

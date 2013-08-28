@@ -83,7 +83,7 @@ int main()
 	// ---------------------------------------------------------
 
 	
-	TFile * of = new TFile("output/output.root", "RECREATE"); 
+	TFile * of = TFile::Open("output/output.root", "RECREATE"); 
 	
 	TTree * tree = new TTree("fTree", "fTree"); 
 

@@ -275,7 +275,7 @@ int main()
 	// read histograms from file
 	// ----------------------------------------------------
 
-  //	TFile * file = new TFile("input.root", "read");
+  //	TFile * file = TFile::Open("input.root", "read");
 
   //	TH1D* hist_0 = (TH1D*) file -> Get("hist_0");
 

@@ -88,7 +88,7 @@ void BCRooInterface::Initialize( const char* rootFile,
    */
 
    std::cout << "Opening " << rootFile << std::endl;
-   TFile* file = new TFile(rootFile);
+   TFile* file = TFile::Open(rootFile);
    std::cout << "content :\n";
    file->ls();
 
@@ -240,8 +240,8 @@ void BCRooInterface::SetNumBins(int nbins)
 void BCRooInterface::SetupRooStatsMarkovChain()
 {
    //RooArgSet * tempRooArgSetPointer = new RooArgSet(* fParams, "paramsMarkovChainPointer");
-   //_parametersForMarkovChain = RooArgSet(* fParams, "paramsMarkovChainPointer"); 
-   //fParams->snapshot(_parametersForMarkovChain); 
+   //_parametersForMarkovChain = RooArgSet(* fParams, "paramsMarkovChainPointer");
+   //fParams->snapshot(_parametersForMarkovChain);
 
    //store only POI in RooStats MarkovChain object
    //_parametersForMarkovChainPrevious.add(*fParamsPOI);
@@ -305,7 +305,7 @@ void BCRooInterface::MCMCIterationInterface()
       // loop over all chains and fill histogram
       for (int i = 0; i < nchains; ++i) {
          // get the current values of the parameters. These are
-         // stored in fMCMCx. 
+         // stored in fMCMCx.
 
          // std::cout << "log(likelihood*prior)" << *GetMarkovChainValue() << std::endl; //does not work this way?!
          TIterator* setiter = fParams->createIterator();
@@ -323,7 +323,7 @@ void BCRooInterface::MCMCIterationInterface()
             //_parametersForMarkovChainCurrent->Print();
 
             const char * paramnamepointer = (tempBCparam->GetName()).c_str();
-            double xij = fMCMCx.at(i * npar + j); 
+            double xij = fMCMCx.at(i * npar + j);
             AddToCurrentChainElement(xij, i, j);
             RooRealVar* parampointer = (RooRealVar*) &(_parametersForMarkovChainCurrent[paramnamepointer]);
             parampointer->setVal(xij);
@@ -343,7 +343,7 @@ void BCRooInterface::MCMCIterationInterface()
 
          if( !(EqualsLastChainElement(i)) ) {
             double weight = GetWeightForChain(i);
-            _roostatsMarkovChain->Add(_parametersForMarkovChainPrevious, -1.* MCMCGetLogProbx(j), weight); 
+            _roostatsMarkovChain->Add(_parametersForMarkovChainPrevious, -1.* MCMCGetLogProbx(j), weight);
             _parametersForMarkovChainPrevious = _parametersForMarkovChainCurrent;
          }
       }

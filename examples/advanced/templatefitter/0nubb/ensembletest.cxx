@@ -21,7 +21,7 @@ int main()
 	// open file with data and templates
 	// ----------------------------------------------------
 
-	TFile * file = new TFile("templates.root", "READ");
+	TFile * file = TFile::Open("templates.root", "READ");
 
 	// check if file is open
 	if (!file->IsOpen()) {

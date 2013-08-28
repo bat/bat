@@ -135,7 +135,7 @@ std::vector<double> BCDataSet::GetDataComponents( int index)
 int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames)
 {
    // open root file
-   TFile * file = new TFile(filename, "READ");
+   TFile * file = TFile::Open(filename, "READ");
 
    // check if file is open and warn if not.
    if (!file->IsOpen())

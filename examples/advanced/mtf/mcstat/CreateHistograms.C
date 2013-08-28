@@ -63,7 +63,7 @@ void CreateHistograms()
    }
 
    // write histograms to file
-   TFile * file = new TFile("templates.root", "RECREATE");
+   TFile * file = TFile::Open("templates.root", "RECREATE");
    file->cd();
 
    hist_bkg->Write();

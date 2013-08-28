@@ -227,7 +227,7 @@ TH1D* BCTemplateEnsembleTest::BuildEnsemble()
 int BCTemplateEnsembleTest::Write(const char * filename)
 {
    // open file
-   fFile = new TFile(filename, "RECREATE");
+   fFile = TFile::Open(filename, "RECREATE");
 
    // write tree
    fTree->Write();

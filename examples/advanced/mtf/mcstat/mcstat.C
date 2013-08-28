@@ -57,7 +57,7 @@ void mcstat()
 
    // open file
    std::string fname = "templates.root";
-   TFile * file = new TFile(fname.c_str(), "READ");
+   TFile * file = TFile::Open(fname.c_str(), "READ");
 
    // check if file is open
    if (!file->IsOpen()) {
@@ -110,7 +110,7 @@ void mcstat()
    facility->SetFlagMCMC(false);
 
    // open new file
-   file = new TFile("ensembles.root", "RECREATE");
+   file = TFile::Open("ensembles.root", "RECREATE");
    file->cd();
 
    // create ensembles; option "data" means that all ensembles equal the data set

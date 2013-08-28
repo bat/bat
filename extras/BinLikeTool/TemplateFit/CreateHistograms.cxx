@@ -15,7 +15,7 @@ int CreateHistograms()
 
 	gRandom = new TRandom3(1000); 
 
-	TFile * file = new TFile("histograms.root", "recreate"); 
+	TFile * file = TFile::Open("histograms.root", "recreate"); 
 
 	int nm = 6;
 	double m[6] = {150, 160, 170, 180, 190, 200}; 

@@ -746,7 +746,7 @@ BCH2D* BCModel::GetSlice(unsigned index1, unsigned index2, const std::vector<dou
 // ---------------------------------------------------------
 int BCModel::ReadMarginalizedFromFile(const char * file)
 {
-   TFile * froot = new TFile(file);
+   TFile * froot = TFile::Open(file);
    if (!froot->IsOpen()) {
       BCLog::OutError(Form("BCModel::ReadMarginalizedFromFile : Couldn't open file %s.", file));
       return 0;
@@ -804,7 +804,7 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
 // ---------------------------------------------------------
 int BCModel::ReadErrorBandFromFile(const char * file)
 {
-   TFile * froot = new TFile(file);
+   TFile * froot = TFile::Open(file);
    if (!froot->IsOpen()) {
       BCLog::OutError(Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.", file));
       return 0;

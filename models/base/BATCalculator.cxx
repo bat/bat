@@ -229,7 +229,7 @@ RooAbsPdf * BATCalculator::GetPosteriorPdf1D(const char * POIname) const
 
    /*
    // plots for debugging
-   TFile * debugfile = new TFile( "debug_posterior.root" ,"RECREATE");
+   TFile * debugfile = TFile::Open( "debug_posterior.root" ,"RECREATE");
    if ( debugfile->IsOpen() )
       std::cout << "File debug_posterior opened successfully" << std::endl;
    debugfile->cd();

@@ -101,7 +101,7 @@ void BCModelOutput::SetFile(const char * filename)
 
    // create a new file
    fFileName = const_cast<char *>(filename);
-   fOutputFile = new TFile(fFileName, "RECREATE");
+   fOutputFile = TFile::Open(fFileName, "RECREATE");
 
    // initialize trees
    InitializeAnalysisTree();

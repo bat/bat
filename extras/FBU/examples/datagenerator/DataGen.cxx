@@ -175,7 +175,7 @@ int DataGen::FillHistograms(int nevents, int nsignal, int nbackground)
 int DataGen::Write(std::string filename)
 {
 	// create new file
-	TFile* f = new TFile(filename.c_str(), "RECREATE");
+	TFile* f = TFile::Open(filename.c_str(), "RECREATE");
 	f->cd();
 
 	if (fHistData)

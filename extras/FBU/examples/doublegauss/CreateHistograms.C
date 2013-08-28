@@ -171,7 +171,7 @@ void CreateHistograms()
     TH1F *hist_bkg = new TH1F("hist_bkg","hist_bkg",nbin,0,1);
 
     // write histograms to file
-    TFile * file = new TFile("histograms.root", "RECREATE");
+    TFile * file = TFile::Open("histograms.root", "RECREATE");
     file -> cd();
 
     hist_migration->Write();

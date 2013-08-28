@@ -25,7 +25,7 @@ int main()
 
    // open file
    std::string fname = "templates.root";
-   TFile * file = new TFile(fname.c_str(), "READ");
+   TFile * file = TFile::Open(fname.c_str(), "READ");
 
    // check if file is open
    if (!file->IsOpen()) {

@@ -20,7 +20,7 @@ int main()
 	TDirectory* f = gDirectory;
 
 	// open file
-	TFile * file = new TFile("templates.root", "READ");
+	TFile * file = TFile::Open("templates.root", "READ");
 
 	// check if file is open
 	if (!file->IsOpen()) {

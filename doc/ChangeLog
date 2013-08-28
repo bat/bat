@@ -4,6 +4,7 @@
 	  - prior setting does not reset results anymore
 	* src,models,benchmarks,extras: Save plots in pdf rather than (e)ps, white space clean up
 	* Performance test suite: fix compilation, linking, and serious warnings
+	* TFile: use TFile::Open instead TFile ctor following Peter Waller
 
 2013-08-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC: fixed a serious bug: the filling of histograms inside the MCMC used a different for-loop-structure than the creation of the histograms. Thus, some histograms for not filled correctly.

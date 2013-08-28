@@ -1220,7 +1220,7 @@ int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, cons
    for (int ivalue = 0; ivalue < nvalues; ++ivalue) {
 
       // open file
-      TFile * file = new TFile(Form("ensemble_%i.root", ivalue), "RECREATE");
+      TFile * file = TFile::Open(Form("ensemble_%i.root", ivalue), "RECREATE");
       file->cd();
 
       // set parameters

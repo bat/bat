@@ -19,7 +19,7 @@ int main()
 	// ---- read histograms from a file ---- //
 
 	// open file
-	TFile * file = new TFile("histograms.root", "READ");
+	TFile * file = TFile::Open("histograms.root", "READ");
 
 	// check if file is open
 	if (!file->IsOpen()) {

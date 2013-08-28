@@ -13,7 +13,7 @@ int main()
 
 	// open file containing the MCMC tree
 
-	TFile * file = new TFile("./MCMC.root", "READ");
+	TFile * file = TFile::Open("./MCMC.root", "READ");
 
 	// get the MCMC tree from the file
 
