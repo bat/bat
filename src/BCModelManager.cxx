@@ -141,7 +141,7 @@ void BCModelManager::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod metho
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCIntegrationMethod method)
+void BCModelManager::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
 {
    // set marginalization method for all models registered
    for (unsigned int i = 0; i < GetNModels(); i++)

@@ -527,50 +527,6 @@ double BCModel::Normalize()
 }
 
 // ---------------------------------------------------------
-int BCModel::MarginalizeAll()
-{
-   if (fParameters.Size() < 1) {
-      BCLog::OutError(Form("MarginalizeAll : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
-      return 0;
-   }
-
-   BCLog::OutSummary(Form("Running MCMC for model \'%s\'",GetName().data()));
-
-   // prepare function fitting
-   double dx = 0.;
-   double dy = 0.;
-
-   if (fFitFunctionIndexX >= 0) {
-      dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX)
-            - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
-            / (double) fErrorBandNbinsX;
-
-      dy = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY)
-            - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
-            / (double) fErrorBandNbinsY;
-
-      fErrorBandXY
-      = new TH2D(TString::Format("errorbandxy_%d", BCLog::GetHIndex()), "",
-            fErrorBandNbinsX,
-            fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX) - .5 * dx,
-            fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) + .5 * dx,
-            fErrorBandNbinsY,
-            fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - .5 * dy,
-            fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + .5 * dy);
-      fErrorBandXY->SetStats(kFALSE);
-
-      for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
-         for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
-            fErrorBandXY->SetBinContent(ix, iy, 0.);
-   }
-
-   // run the Markov chains
-   MCMCMetropolis();
-
-   return 1;
-}
-
-// ---------------------------------------------------------
 BCH1D * BCModel::GetMarginalized(const BCParameter * parameter)
 {
    if ( !parameter)
@@ -581,169 +537,26 @@ BCH1D * BCModel::GetMarginalized(const BCParameter * parameter)
 // ---------------------------------------------------------
 BCH1D * BCModel::GetMarginalized(unsigned index)
 {
-   // get histogram
-   BCH1D * hist = MCMCGetH1Marginalized(index);
-   if (!hist)
-      return 0;
+  // get histogram
+  BCH1D * htemp = fMarginalized1D.at(index);
 
-   // set axis labels
-   hist->GetHistogram()->SetName(Form("hist_%s_%s", GetName().data(), fParameters[index]->GetName().data()));
-   hist->GetHistogram()->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
+  // check if histogram exists
+  if (!htemp)
+    return 0;
+  
+  // set global mode
+  if (fBestFitParameters.size() == GetNParameters())
+    htemp->SetGlobalMode(fBestFitParameters.at(index));
+  
+  // set axis labels
+   htemp->GetHistogram()->SetName(Form("hist_%s_%s", GetName().data(), fParameters[index]->GetName().data()));
+   htemp->GetHistogram()->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
 
-   return hist;
+   // return histogram
+   return htemp;
 }
 
-// ---------------------------------------------------------
-BCH1D * BCModel::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins)
-{
-	// check if parameter exists
-	if (!parameter) {
-		BCLog::OutError("BCModel::GetSlice : Parameter does not exist.");
-		return 0;
-	}
-
-	// create local copy of parameter set
-	std::vector<double> parameters_temp;
-	parameters_temp = parameters;
-
-	// normalization flag: if true, normalize slice histogram to unity
-	bool flag_norm = false;
-
-	// check if parameter set if defined
-	if (parameters_temp.size()==0 && GetNParameters()==1) {
-		parameters_temp.push_back(0);
-		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
-	}
-	else if (parameters_temp.size()==0 && GetNParameters()!=1) {
-		BCLog::OutError("BCModel::GetSlice : No parameters defined.");
-		return 0;
-	}
-
-	// calculate number of bins
-	if (nbins <= 0)
-		nbins = parameter->GetNbins();
-
-	// create histogram
-	TH1D * hist = new TH1D("", "", nbins, parameter->GetLowerLimit(), parameter->GetUpperLimit());
-
-	// set axis labels
-	hist->SetName(Form("hist_%s_%s", GetName().data(), parameter->GetName().data()));
-	hist->SetXTitle(parameter->GetLatexName().data());
-	if (GetNParameters() == 1)
-		hist->SetYTitle(Form("p(%s|data)", parameter->GetLatexName().data()));
-	else
-		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", parameter->GetLatexName().data()));
-	hist->SetStats(kFALSE);
-
-	// fill histogram
-	for (int i = 1; i <= nbins; ++i) {
-		double par_temp = hist->GetBinCenter(i);
-		parameters_temp[fParameters.Index(parameter->GetName())] = par_temp;
-		double prob = Eval(parameters_temp);
-		hist->SetBinContent(i, prob);
-	}
-
-	// normalize
-	if (flag_norm)
-		hist->Scale(1.0/hist->Integral());
-
-	// set histogram
-	BCH1D * hprob = new BCH1D();
-	hprob->SetHistogram(hist);
-
-	return hprob;
-}
-// ---------------------------------------------------------
-BCH2D* BCModel::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins)
-{
-   return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins);
-}
-
-// ---------------------------------------------------------
-BCH2D* BCModel::GetSlice(const char* name1, const char* name2, const std::vector<double> parameters, int nbins)
-{
-   return GetSlice(fParameters.Index(name1), fParameters.Index(name2), parameters, nbins);
-}
-
-// ---------------------------------------------------------
-BCH2D* BCModel::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins)
-{
-   // check if parameter exists
-   if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
-      BCLog::OutError("BCModel::GetSlice : Parameter does not exist.");
-      return 0;
-   }
-
-   // create local copy of parameter set
-   std::vector<double> parameters_temp;
-   parameters_temp = parameters;
-
-   // normalization flag: if true, normalize slice histogram to unity
-   bool flag_norm = false;
-
-   // check number of dimensions
-   if (GetNParameters() < 2) {
-      BCLog::OutError("BCModel::GetSlice : Number of parameters need to be at least 2.");
-   }
-
-   // check if parameter set if defined
-   if (parameters_temp.size()==0 && GetNParameters()==2) {
-      parameters_temp.push_back(0);
-      parameters_temp.push_back(0);
-      flag_norm = true; // slice is the 1D pdf, so normalize it to unity
-   }
-   else if (parameters_temp.size()==0 && GetNParameters()>2) {
-      BCLog::OutError("BCModel::GetSlice : No parameters defined.");
-      return 0;
-   }
-
-   // calculate number of bins
-   const BCParameter * p1 = fParameters.Get(index1);
-   const BCParameter * p2 = fParameters.Get(index2);
-   unsigned nbins1, nbins2;
-   if (nbins <= 0) {
-      nbins1 = p1->GetNbins();
-      nbins2 = p2->GetNbins();
-   } else {
-      nbins1 = nbins2 = nbins;
-   }
-
-   // create histogram
-   TH2D * hist = new TH2D("", "", nbins1, p1->GetLowerLimit(), p1->GetUpperLimit(),
-                          nbins2, p2->GetLowerLimit(), p2->GetUpperLimit());
-
-   // set axis labels
-   hist->SetName(Form("hist_%s_%s_%s", GetName().c_str(), p1->GetName().c_str(), p2->GetName().c_str()));
-   hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
-   hist->SetYTitle(Form("%s", p2->GetLatexName().data()));
-   hist->SetStats(kFALSE);
-
-   // fill histogram
-   for (int ix = 1; ix <= nbins; ++ix) {
-      for (int iy = 1; iy <= nbins; ++iy) {
-         double par_temp1 = hist->GetXaxis()->GetBinCenter(ix);
-         double par_temp2 = hist->GetYaxis()->GetBinCenter(iy);
-
-         parameters_temp[index1] = par_temp1;
-         parameters_temp[index2] = par_temp2;
-
-         double prob = Eval(parameters_temp);
-         hist->SetBinContent(ix, iy, prob);
-      }
-   }
-
-   // normalize
-   if (flag_norm)
-      hist->Scale(1.0/hist->Integral());
-
-   // set histogram
-   BCH2D * hprob = new BCH2D();
-   hprob->SetHistogram(hist);
-
-   return hprob;
-}
-
-// ---------------------------------------------------------
+ // ---------------------------------------------------------
 int BCModel::ReadMarginalizedFromFile(const char * file)
 {
    TFile * froot = TFile::Open(file);
@@ -884,26 +697,23 @@ int BCModel::PrintAllMarginalized2D(const char * filebase)
 // ---------------------------------------------------------
 int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv)
 {
-
-   if (fMCMCH1Marginalized.size() == 0 and fMCMCH2Marginalized.size() == 0) {
+   if (fMarginalized1D.size() == 0 and fMarginalized2D.size() == 0) {
       BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
       return 0;
    }
 
    // find all valid (non NULL) histograms
    std::vector<TH1 *> validH1;
-
-   for (unsigned i = 0 ; i < fMCMCH1Marginalized.size() ; ++i)
-   {
-      if (TH1D * h = fMCMCH1Marginalized[i])
-         validH1.push_back(h);
+   
+   for (unsigned i = 0 ; i < fMarginalized1D.size() ; ++i) {
+     if (TH1D * h = fMarginalized1D[i]->GetHistogram())
+       validH1.push_back(h);
    }
-
+   
    std::vector<TH2D *> validH2;
-   for (unsigned i = 0 ; i < fMCMCH2Marginalized.size() ; ++i)
-   {
-      if (TH2D * h = fMCMCH2Marginalized[i])
-         validH2.push_back(h);
+   for (unsigned i = 0 ; i < fMarginalized2D.size() ; ++i) {
+     if (TH2D * h = fMarginalized2D[i]->GetHistogram())
+       validH2.push_back(h);
    }
 
    std::string filename(file);
@@ -1029,17 +839,8 @@ int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std:
 
    c.Print(std::string( filename + ")").c_str());
 
-   // clean up
-   for (unsigned i = 0; i < h1.size() ; ++i)
-      delete h1[i];
-
-   for (unsigned i = 0; i < h2.size() ; ++i)
-      delete h2[i];
-
    // return total number of drawn histograms
    return n + k;
-
-   return 0;
 }
 
 // ---------------------------------------------------------
@@ -1054,15 +855,33 @@ BCH2D * BCModel::GetMarginalized(const BCParameter * par1, const BCParameter * p
 // ---------------------------------------------------------
 BCH2D * BCModel::GetMarginalized(unsigned index1, unsigned index2)
 {
-   BCH2D * h = MCMCGetH2Marginalized(index1, index2);
-   if ( !h)
-      return 0;
+  // swap indices if necessary
+  if (index1 > index2) {
+    unsigned indexTemp = index1;
+    index1 = index2;
+    index2 = indexTemp;
+  }
 
-   h->GetHistogram()->SetName(Form("hist_%s_%s_%s", GetName().data(),
-                                    fParameters[index1]->GetName().data(),
-                                    fParameters[index2]->GetName().data()));
+  // get histogram
+  BCH2D * htemp =  fMarginalized2D.at(GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1);
+ 
+  // check if histogram exists
+  if ( !htemp)
+    return 0;
 
-   return h;
+  // set global mode
+  if (fBestFitParameters.size() == GetNParameters()) {
+    double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
+    htemp->SetGlobalMode(gmode);
+  }
+
+  // set name
+  htemp->GetHistogram()->SetName(Form("hist_%s_%s_%s", GetName().data(),
+                                      fParameters[index1]->GetName().data(),
+                                      fParameters[index2]->GetName().data()));
+
+  // return histogram
+  return htemp;
 }
 
 // ---------------------------------------------------------

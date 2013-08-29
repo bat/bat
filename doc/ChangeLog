@@ -1,4 +1,4 @@
-2013-08-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2013-08-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* private: added a directory for private material. This will be moved to a developer's branch or deleted in the near future.
 	* examples/advanced/mvcombination: moved to private
 	* examples/advanced/referencecounting: added proper Makefile.in
@@ -13,6 +13,17 @@
 	* examples/advanced/templatefitter: removed
 	* models/base/Makefile.am: removed old template fitter 
 	* models/base/libBATmodels.rootmap.in: removed old template fitter 
+	* BCModel: moved MarginalizeAll() to BCEngineMCMC
+	* BCIntegrate: 
+	  - added enumerator for different marginalization methods
+	  - added a set of histograms for the marginalized
+	    distributions. Each method will fill
+	    those (pointer). GetMarginalized(...) will then get these
+	    distributions.
+	  - all marg. methods work with MarginalizeAll() and PrintAllMarginalized()
+	  - default method is now "slice" for 1D and 2D, and MCMC otherwise
+	  - this fixes #44
+	  - added methods for pre- and postprocessing of marginalization
 
 2013-08-28 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCModel:

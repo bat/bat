@@ -13,6 +13,8 @@
 #include "BCLog.h"
 #include "BCMath.h"
 #include "BCParameter.h"
+#include "BCH2D.h"
+#include "BCH1D.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -31,63 +33,65 @@
 
 namespace
 {
-    /**
-     * Hold an instance of BCIntegrate to emulate a global variable for use with Minuit
-     */
-    class BCIntegrateHolder
+  /**
+   * Hold an instance of BCIntegrate to emulate a global variable for use with Minuit
+   */
+  class BCIntegrateHolder
+  {
+  private:
+    BCIntegrate * global_this;
+
+  public:
+
+    BCIntegrateHolder() :
+      global_this(NULL)
     {
-    private:
-       BCIntegrate * global_this;
+    }
 
-    public:
+    /**
+     * Set and/or retrieve the static BCIntegrate object
+     */
+    static BCIntegrate * instance(BCIntegrate * obj = NULL)
+    {
+      static BCIntegrateHolder result;
+      if (obj)
+        result.global_this = obj;
 
-        BCIntegrateHolder() :
-           global_this(NULL)
-        {
-        }
-
-       /**
-        * Set and/or retrieve the static BCIntegrate object
-        */
-       static BCIntegrate * instance(BCIntegrate * obj = NULL)
-       {
-          static BCIntegrateHolder result;
-          if (obj)
-             result.global_this = obj;
-
-          return result.global_this;
-       }
-    };
+      return result.global_this;
+    }
+  };
 }
 
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate() : BCEngineMCMC(),
-    fMinuit(0),
-    fMinuitErrorFlag(0),
-    fFlagIgnorePrevOptimization(false),
-    fSAT0(100),
-    fSATmin(0.1),
-    fTreeSA(0),
-    fFlagWriteSAToFile(false),
-    fSANIterations(0),
-    fSATemperature(0),
-    fSALogProb(0),
+                             fMinuit(0),
+                             fMinuitErrorFlag(0),
+                             fFlagIgnorePrevOptimization(false),
+                             fSAT0(100),
+                             fSATmin(0.1),
+                             fTreeSA(0),
+                             fFlagWriteSAToFile(false),
+                             fSANIterations(0),
+                             fSATemperature(0),
+                             fSALogProb(0),
+                             fMarginalized1D(0),
+                             fMarginalized2D(0),
 #ifdef HAVE_CUBA_H
-    fIntegrationMethod(BCIntegrate::kIntCuba),
+                             fIntegrationMethod(BCIntegrate::kIntCuba),
 #else
-    fIntegrationMethod(BCIntegrate::kIntMonteCarlo),
+                             fIntegrationMethod(BCIntegrate::kIntMonteCarlo),
 #endif
-    fMarginalizationMethod(fIntegrationMethod),
-    fSASchedule(BCIntegrate::kSACauchy),
-    fNIterationsMin(0),
-    fNIterationsMax(1000000),
-    fNIterationsPrecisionCheck(1000),
-    fNIterationsOutput(0),
-    fNIterations(0),
-    fRelativePrecision(1e-2),
-    fAbsolutePrecision(1e-6),
-    fError(-999.),
-    fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+                             fMarginalizationMethod(BCIntegrate::kMargDefault),
+                             fSASchedule(BCIntegrate::kSACauchy),
+                             fNIterationsMin(0),
+                             fNIterationsMax(1000000),
+                             fNIterationsPrecisionCheck(1000),
+                             fNIterationsOutput(0),
+                             fNIterations(0),
+                             fRelativePrecision(1e-2),
+                             fAbsolutePrecision(1e-6),
+                             fError(-999.),
+                             fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
 {
 	fMinuitArglist[0] = 20000;
 	fMinuitArglist[1] = 0.01;
@@ -135,6 +139,8 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 	fSATemperature            = other.fSATemperature;
 	fSALogProb                = other.fSALogProb;
 	fSAx                      = other.fSAx;
+  fMarginalized1D           = other.fMarginalized1D;
+  fMarginalized2D           = other.fMarginalized2D;
 	fIntegrationMethod        = other.fIntegrationMethod;
 	fMarginalizationMethod    = other.fMarginalizationMethod;
 	fSASchedule               = other.fSASchedule;
@@ -493,23 +499,22 @@ void BCIntegrate::IntegralUpdaterImportance(const std::vector<double> &sums, con
 }
 
 // ---------------------------------------------------------
-bool BCIntegrate::CheckMarginalizationAvailability(BCIntegrationMethod type) {
-   switch(type)
-   {
-   case BCIntegrate::kIntMonteCarlo:
-   case BCIntegrate::kIntImportance:
-      return true;
-   case BCIntegrate::kIntCuba:
-#ifdef HAVE_CUBA_H
-      return true;
-#else
+bool BCIntegrate::CheckMarginalizationAvailability(BCMarginalizationMethod type) {
+  switch(type)
+    {
+    case BCIntegrate::kMargMonteCarlo:
       return false;
-#endif
-   default:
-      BCLog::OutError(TString::Format("BCIntegrate::Marginalize. Invalid marginalization method: %d.", type));
+    case BCIntegrate::kMargMCMC:
+      return true;
+    case BCIntegrate::kMargSlice:
+      return true;
+    case BCIntegrate::kMargDefault:
+      return true;
+    default:
+      BCLog::OutError(TString::Format("BCIntegrate::CheckMarginalizationAvailability. Invalid marginalization method: %d.", type));
       break;
-   }
-   return false;
+    }
+  return false;
 }
 
 // ---------------------------------------------------------
@@ -592,8 +597,10 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
 // ---------------------------------------------------------
 bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned> &index)
 {
-	if (!CheckMarginalizationAvailability(type))
-		return false;
+  // debugKK: does this method really marginalize?
+
+  //	if (!CheckMarginalizationAvailability(type))
+  //		return false;
 
 	if (!CheckMarginalizationIndices(hist,index))
 		return false;
@@ -691,6 +698,304 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 }
 
 // ---------------------------------------------------------
+int BCIntegrate::MarginalizeAll()
+{
+  // check if parameters are defined
+  if (fParameters.Size() < 1) {
+    BCLog::OutError("BCIntegrate::MarginalizeAll : No parameters defined. Aborting.");
+    return 0;
+  }
+
+  // check if marginalization method is defined
+  if (!CheckMarginalizationAvailability(GetMarginalizationMethod())) {
+    BCLog::OutError(Form("BCIntegrate::MarginalizeAll : Marginalization method not implemented \'%s\'. Aborting.", DumpMarginalizationMethod().c_str()));
+    return 0;
+  }
+
+  switch (GetMarginalizationMethod()) 
+    {
+      
+      // Markov Chain Monte Carlo
+    case BCIntegrate::kMargMCMC: 
+      {
+        // output
+        BCLog::OutSummary("Run MCMC.");
+         
+        // debugKK: is this necessary?
+        /*
+        // prepare function fitting
+        double dx = 0.;
+        double dy = 0.;
+         
+        if (fFitFunctionIndexX >= 0) {
+          dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX)
+                - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
+            / (double) fErrorBandNbinsX;
+           
+          dy = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY)
+                - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
+            / (double) fErrorBandNbinsY;
+           
+          fErrorBandXY
+            = new TH2D(TString::Format("errorbandxy_%d", BCLog::GetHIndex()), "",
+                       fErrorBandNbinsX,
+                       fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX) - .5 * dx,
+                       fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) + .5 * dx,
+                       fErrorBandNbinsY,
+                       fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - .5 * dy,
+                       fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + .5 * dy);
+          fErrorBandXY->SetStats(kFALSE);
+           
+          for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
+            for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
+              fErrorBandXY->SetBinContent(ix, iy, 0.);
+        }
+        */
+
+        // start preprocess
+        MarginalizePreprocess();
+
+        // run the Markov chains
+        MCMCMetropolis();
+
+        // start postprocess
+        MarginalizePostprocess();
+
+        // set pointers to marginalized distributions
+        unsigned int npar = GetNParameters();
+
+        fMarginalized1D.clear();
+        for (unsigned int i = 0; i < npar; ++i) {
+          fMarginalized1D.push_back(MCMCGetH1Marginalized(i));
+        }
+
+        fMarginalized2D.clear();
+        if (npar > 1) {
+          for (unsigned int i = 0; i < npar; ++i) {
+            for (unsigned int j = 0; j < npar; ++j) {
+              if (i < j)
+                fMarginalized2D.push_back(MCMCGetH2Marginalized(i, j));
+            }
+          }
+        }
+
+        return 1;
+      }
+
+      // Sample Mean 
+    case BCIntegrate::kMargMonteCarlo:
+      {
+        return 0;
+      }
+
+      // Slice
+    case BCIntegrate::kMargSlice:
+      {
+        // output
+        BCLog::OutSummary("Run Slice.");
+
+        // start preprocess
+        MarginalizePreprocess();
+
+        if (GetNParameters() == 1) {
+          fMarginalized1D.clear();
+          fMarginalized1D.push_back( GetSlice(GetParameter(0), std::vector<double>(1), 0) );
+        }
+        else if (GetNParameters() == 2) {
+          // create a 2D histogram
+          fMarginalized2D.clear();
+          fMarginalized2D.push_back( GetSlice(GetParameter(0), GetParameter(1), std::vector<double>(0), 0));
+          
+          // marginalize by projecting
+          fMarginalized1D.clear();
+          BCH1D* hist_x = new BCH1D( fMarginalized2D.at(0)->GetHistogram()->ProjectionX() );
+          hist_x->GetHistogram()->SetStats(kFALSE);
+          BCH1D* hist_y = new BCH1D( fMarginalized2D.at(0)->GetHistogram()->ProjectionY() );
+          hist_y->GetHistogram()->SetStats(kFALSE);
+          fMarginalized1D.push_back( hist_x );
+          fMarginalized1D.push_back( hist_y );
+        }
+        else {
+          BCLog::OutWarning("BCIntegrate::MarginalizeAll : Option works for 1D and 2D problems.");
+          return 0;
+        }
+
+        // start postprocess
+        MarginalizePostprocess();
+
+       return 1;
+      }
+
+      // default
+    case BCIntegrate::kMargDefault:
+      {
+        if ( GetNParameters() == 1 || GetNParameters() == 2 ) {
+          SetMarginalizationMethod(BCIntegrate::kMargSlice);
+        }
+        else {
+          SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+        }
+
+        // call again
+        return MarginalizeAll();
+      }
+
+    default:
+      BCLog::OutError(TString::Format("BCIntegrate::MarginalizeAll : Invalid marginalization method: %d", GetMarginalizationMethod()));
+      break;
+    }
+   
+  return 1;
+}
+
+// ---------------------------------------------------------
+BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins)
+{
+	// check if parameter exists
+	if (!parameter) {
+		BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
+		return 0;
+	}
+
+	// create local copy of parameter set
+	std::vector<double> parameters_temp;
+	parameters_temp = parameters;
+
+	// normalization flag: if true, normalize slice histogram to unity
+	bool flag_norm = false;
+
+	// check if parameter set if defined
+	if (parameters_temp.size()==0 && GetNParameters()==1) {
+		parameters_temp.push_back(0);
+		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
+	}
+	else if (parameters_temp.size()==0 && GetNParameters()!=1) {
+		BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
+		return 0;
+	}
+
+	// calculate number of bins
+	if (nbins <= 0)
+		nbins = parameter->GetNbins();
+
+	// create histogram
+	TH1D * hist = new TH1D("", "", nbins, parameter->GetLowerLimit(), parameter->GetUpperLimit());
+
+	// set axis labels
+	hist->SetXTitle(parameter->GetLatexName().data());
+	if (GetNParameters() == 1)
+		hist->SetYTitle(Form("p(%s|data)", parameter->GetLatexName().data()));
+	else
+		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", parameter->GetLatexName().data()));
+	hist->SetStats(kFALSE);
+
+	// fill histogram
+	for (int i = 1; i <= nbins; ++i) {
+		double par_temp = hist->GetBinCenter(i);
+		parameters_temp[fParameters.Index(parameter->GetName())] = par_temp;
+		double prob = Eval(parameters_temp);
+		hist->SetBinContent(i, prob);
+	}
+
+	// normalize
+	if (flag_norm)
+		hist->Scale(1.0/hist->Integral());
+
+	// set histogram
+	BCH1D * hprob = new BCH1D();
+	hprob->SetHistogram(hist);
+
+	return hprob;
+}
+// ---------------------------------------------------------
+BCH2D* BCIntegrate::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins)
+{
+   return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins);
+}
+
+// ---------------------------------------------------------
+BCH2D* BCIntegrate::GetSlice(const char* name1, const char* name2, const std::vector<double> parameters, int nbins)
+{
+   return GetSlice(fParameters.Index(name1), fParameters.Index(name2), parameters, nbins);
+}
+
+// ---------------------------------------------------------
+BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins)
+{
+   // check if parameter exists
+   if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
+      BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
+      return 0;
+   }
+
+   // create local copy of parameter set
+   std::vector<double> parameters_temp;
+   parameters_temp = parameters;
+
+   // normalization flag: if true, normalize slice histogram to unity
+   bool flag_norm = false;
+
+   // check number of dimensions
+   if (GetNParameters() < 2) {
+      BCLog::OutError("BCIntegrate::GetSlice : Number of parameters need to be at least 2.");
+   }
+
+   // check if parameter set if defined
+   if (parameters_temp.size()==0 && GetNParameters()==2) {
+      parameters_temp.push_back(0);
+      parameters_temp.push_back(0);
+      flag_norm = true; // slice is the 1D pdf, so normalize it to unity
+   }
+   else if (parameters_temp.size()==0 && GetNParameters()>2) {
+      BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
+      return 0;
+   }
+
+   // calculate number of bins
+   const BCParameter * p1 = fParameters.Get(index1);
+   const BCParameter * p2 = fParameters.Get(index2);
+   unsigned nbins1, nbins2;
+   if (nbins <= 0) {
+      nbins1 = p1->GetNbins();
+      nbins2 = p2->GetNbins();
+   } else {
+      nbins1 = nbins2 = nbins;
+   }
+
+   // create histogram
+   TH2D * hist = new TH2D("", "", nbins1, p1->GetLowerLimit(), p1->GetUpperLimit(),
+                          nbins2, p2->GetLowerLimit(), p2->GetUpperLimit());
+
+   // set axis labels
+   hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
+   hist->SetYTitle(Form("%s", p2->GetLatexName().data()));
+   hist->SetStats(kFALSE);
+
+   // fill histogram
+   for (unsigned int ix = 1; ix <= nbins1; ++ix) {
+      for (unsigned int iy = 1; iy <= nbins2; ++iy) {
+         double par_temp1 = hist->GetXaxis()->GetBinCenter(ix);
+         double par_temp2 = hist->GetYaxis()->GetBinCenter(iy);
+
+         parameters_temp[index1] = par_temp1;
+         parameters_temp[index2] = par_temp2;
+
+         double prob = Eval(parameters_temp);
+         hist->SetBinContent(ix, iy, prob);
+      }
+   }
+
+   // normalize
+   if (flag_norm)
+      hist->Scale(1.0/hist->Integral());
+
+   // set histogram
+   BCH2D * hprob = new BCH2D();
+   hprob->SetHistogram(hist);
+
+   return hprob;
+}
+// ---------------------------------------------------------
 double BCIntegrate::GetRandomPoint(std::vector<double> &x)
 {
    GetRandomVectorInParameterSpace(x);
@@ -742,7 +1047,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
          return FindModeMCMC();
 
       default:
-         BCLog::OutError(Form("BCModel::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
+         BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
          return std::vector<double>();
    }
 }
@@ -1477,6 +1782,23 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
          return "Importance Sampling";
       case BCIntegrate::kIntCuba:
          return "Cuba";
+      default:
+         return "Undefined";
+   }
+}
+
+// ---------------------------------------------------------
+std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
+{
+   switch(type) {
+      case BCIntegrate::kMargMonteCarlo:
+         return "Sample Mean Monte Carlo";
+      case BCIntegrate::kMargMCMC:
+         return "Markov Chain Monte Carlo";
+      case BCIntegrate::kMargSlice:
+         return "Slice";
+      case BCIntegrate::kMargDefault:
+         return "Default";
       default:
          return "Undefined";
    }

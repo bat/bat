@@ -135,7 +135,7 @@ public:
    void SetNIterationsOutput(int niterations);
    /**
     * @param method The marginalization method */
-   void SetMarginalizationMethod(BCIntegrate::BCIntegrationMethod method);
+   void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method);
 
    /**
     * @param method The integration method */

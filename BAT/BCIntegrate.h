@@ -89,12 +89,21 @@ public:
    /** @{ */
 
    /**
-    * An enumerator for the integration algorithm */
+    * An enumerator for integration algorithms */
    enum BCIntegrationMethod {
       kIntMonteCarlo,
       kIntImportance,
       kIntCuba,
       NIntMethods };
+
+   /**
+    * An enumerator for marginalization algorithms */
+   enum BCMarginalizationMethod {
+      kMargMCMC,
+      kMargMonteCarlo,
+      kMargSlice,
+      kMargDefault,
+      NMargMethods };
 
    /**
     * An enumerator for the Simulated Annealing schedule */
@@ -158,7 +167,7 @@ public:
 
    /**
     * @return The marginalization method */
-   BCIntegrate::BCIntegrationMethod GetMarginalizationMethod() const
+   BCIntegrate::BCMarginalizationMethod GetMarginalizationMethod() const
    { return fMarginalizationMethod; }
 
    /**
@@ -239,6 +248,50 @@ public:
    { return fCubaCuhreOptions; }
 
    /**
+    * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+    * @param parameter The model parameter along which the slice is calculated.
+    * @param parameters The point at which the other parameters are fixed.
+    * @param nbins The number of bins of the 1D-histogram.
+    * @return The 1D slice. */
+   BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+
+   /**
+    * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+    * @param name The name of the model parameter along which the slice is calculated.
+    * @param parameters The point at which the other parameters are fixed.
+    * @param nbins The number of bins of the 1D-histogram.
+    * @return The 1D slice. */
+   BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
+   { return GetSlice(GetParameter(name), parameters, nbins); }
+
+   /**
+    * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
+    * @param parameter1 The first model parameter along which the slice is calculated.
+    * @param parameter2 The second model parameter along which the slice is calculated.
+    * @param parameters The point at which the other parameters are fixed.
+    * @param nbins The number of bins of the 2D-histogram.
+    * @return The 2D slice. */
+   BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+
+   /**
+    * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
+    * @param parameter1 The name of the first model parameter along which the slice is calculated.
+    * @param parameter2 The name of the second model parameter along which the slice is calculated.
+    * @param parameters The point at which the other parameters are fixed.
+    * @param nbins The number of bins of the 2D-histogram.
+    * @return The 2D slice. */
+   BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0);
+
+   /**
+    * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
+    * @param parameter1 The name of the first model parameter along which the slice is calculated.
+    * @param parameter2 The name of the second model parameter along which the slice is calculated.
+    * @param parameters The point at which the other parameters are fixed.
+    * @param nbins The number of bins of the 2D-histogram.
+    * @return The 2D slice. */
+   BCH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0);
+
+   /**
     * @return The uncertainty in the most recent Monte Carlo integration */
    double GetError() const
    { return fError; }
@@ -310,7 +363,7 @@ public:
 
    /**
     * @param method The marginalization method */
-   void SetMarginalizationMethod(BCIntegrate::BCIntegrationMethod method)
+   void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
    { fMarginalizationMethod = method; }
 
    /**
@@ -478,6 +531,25 @@ public:
    bool Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned> &index);
 
    /**
+    * Marginalize all probabilities wrt. single parameters and all combinations
+    * of two parameters. The individual distributions can be retrieved using
+    * the GetMarginalized method.
+    * @return Total number of marginalized distributions */
+   int MarginalizeAll();
+
+   /**
+    * Method executed for before marginalization. User's code should
+    * be provided via overloading in the derived class */
+   virtual void MarginalizePreprocess()
+   {}
+
+   /**
+    * Method executed after marginalization. User's code should be
+    * provided via overloading in the derived class*/
+   virtual void MarginalizePostprocess()
+   {}
+
+   /**
     * Initializes the Simulated Annealing algorithm (for details see manual) */
    void SAInitialize();
 
@@ -628,8 +700,7 @@ public:
     * Return string with the name for a given marginalization type.
     * @param type code for the marginalization type
     * @return string containing the name of the marginalization type */
-   std::string DumpMarginalizationMethod(BCIntegrationMethod type)
-   { return DumpIntegrationMethod(type); }
+   std::string DumpMarginalizationMethod(BCMarginalizationMethod type);
 
    /**
     * Return string with the name for the currently set marginalization type.
@@ -690,7 +761,7 @@ public:
 
    /**
     * Check availability of integration routine for marginalization */
-   bool CheckMarginalizationAvailability(BCIntegrationMethod type);
+   bool CheckMarginalizationAvailability(BCMarginalizationMethod type);
 
    /**
     * Check that indices of parameters to marginalize w/r/t are correct */
@@ -737,7 +808,15 @@ protected:
    double fSALogProb;
    std::vector<double> fSAx;
 
-protected:
+   /**
+    * Set of marginalized distributions. */
+   std::vector<BCH1D*> fMarginalized1D;
+   
+   /**
+    * Set of marginalized distributions. */
+   std::vector<BCH2D*> fMarginalized2D;
+
+ protected:
    /**
     * Determine frequency of output during integration */
    unsigned IntegrationOutputFrequency() const;
@@ -763,7 +842,7 @@ private:
 
    /**
     * Current marginalization method */
-   BCIntegrate::BCIntegrationMethod fMarginalizationMethod;
+   BCIntegrate::BCMarginalizationMethod fMarginalizationMethod;
 
    /**
     * Current Simulated Annealing schedule */
