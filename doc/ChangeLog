@@ -1,7 +1,8 @@
 2013-08-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* private: added a directory for private material. This will be moved to a developer's branch or deleted in the near future.
 	* examples/advanced/mvcombination: moved to private
-	* examples/advanced/referencecounting: added proper Makefile
+	* examples/advanced/referencecounting: added proper Makefile.in
+	* examples/advanced/mvc: added proper Makefile.in
 
 2013-08-28 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCModel:

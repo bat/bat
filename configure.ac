@@ -202,6 +202,11 @@ AC_OUTPUT(
 	examples/advanced/templatefitter/Whel/Makefile
 	examples/advanced/templatefitter/hypothesis/Makefile
 	examples/advanced/mtf/systematics/Makefile
+	examples/advanced/mvc/PPP/Makefile
+	examples/advanced/mvc/oneObservable/Makefile
+	examples/advanced/mvc/nuisance/Makefile
+	examples/advanced/mvc/inverseProblem/Makefile
+	examples/advanced/mvc/constraints/Makefile
 	examples/advanced/referencecounting/Makefile
 	examples/expert/TrialFunction/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
