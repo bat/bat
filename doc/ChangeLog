@@ -3,6 +3,11 @@
 	* examples/advanced/mvcombination: moved to private
 	* examples/advanced/referencecounting: added proper Makefile.in
 	* examples/advanced/mvc: added proper Makefile.in
+	* benchmark/mcmc: removed
+	* benchmark/marginalization: removed
+	* benchmark/integration: removed
+	* benchmark/example05: removed
+	* benchmark/example06: removed
 
 2013-08-28 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCModel:
