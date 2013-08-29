@@ -198,9 +198,6 @@ AC_OUTPUT(
 	examples/basic/rootOutput/Makefile
 	examples/advanced/polynomialfit/Makefile
 	examples/advanced/roointerface/Makefile
-	examples/advanced/templatefitter/0nubb/Makefile
-	examples/advanced/templatefitter/Whel/Makefile
-	examples/advanced/templatefitter/hypothesis/Makefile
 	examples/advanced/mtf/systematics/Makefile
 	examples/advanced/mvc/PPP/Makefile
 	examples/advanced/mvc/oneObservable/Makefile

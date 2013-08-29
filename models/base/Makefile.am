@@ -26,9 +26,7 @@ library_includedir= $(includedir)/BAT
 incs = \
 	BCEfficiencyFitter.h \
 	BCGraphFitter.h \
-	BCHistogramFitter.h \
-	BCTemplateFitter.h \
-	BCTemplateEnsembleTest.h
+	BCHistogramFitter.h 
 
 ## RooStats specific options
 if ROOSTATS

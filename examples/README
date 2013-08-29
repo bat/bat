@@ -78,13 +78,6 @@ Examples in this directory:
                 a program for running with BAT. It shows fits using
                 two functions when assuming asymmetric uncertainties.
 
-  Directory:    templatefitter
-  Type:         ROOT macros
-  Description:  Examples for how to fit several templates to a data set
-                using 1-dim. histograms. The examples feature the
-                BCTemplateFitter which is included in the models
-                directory.
-
   Directory:    mtf
   Type:         ROOT macros and compiled programs
   Description:  Examples for how to fit several templates to a data set
