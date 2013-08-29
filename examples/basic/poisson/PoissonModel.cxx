@@ -71,9 +71,7 @@ double PoissonModel::LogLikelihood(const std::vector<double> & parameters)
    double lambda = parameters.at(0);
 
    // log Poisson term
-   logprob += log(TMath::Gaus(lambda, 5, 0.5, kTRUE) + 
-                  TMath::Gaus(lambda, 10, 0.5, kTRUE) + 
-                  TMath::Gaus(lambda, 15, 0.5, kTRUE));
+   logprob += BCMath::LogPoisson(fNObs, lambda);
 
    // return log likelihood
    return logprob;
@@ -88,7 +86,7 @@ double PoissonModel::LogAPrioriProbability(const std::vector<double> & parameter
    double logprob = 0.;
 
    // add a flat prior probability
-   //   logprob += log(1. / GetParameter(0)->GetRangeWidth()); // flat prior
+   logprob += log(1. / GetParameter(0)->GetRangeWidth()); // flat prior
 
    // return log prior
    return logprob;
