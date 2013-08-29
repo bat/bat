@@ -202,6 +202,7 @@ AC_OUTPUT(
 	examples/advanced/templatefitter/Whel/Makefile
 	examples/advanced/templatefitter/hypothesis/Makefile
 	examples/advanced/mtf/systematics/Makefile
+	examples/advanced/referencecounting/Makefile
 	examples/expert/TrialFunction/Makefile
 	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
 )
