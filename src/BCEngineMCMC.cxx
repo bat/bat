@@ -48,14 +48,6 @@ void BCEngineMCMC::MCMCSetValuesDefault()
    fMCMCCurrentIteration     = -1;
    fMCMCCurrentChain         = -1;
 
-   fFillErrorBand = false;
-   fFitFunctionIndexX = -1;
-   fFitFunctionIndexY = -1;
-   fErrorBandContinuous = true;
-   fErrorBandXY = NULL;
-   fErrorBandNbinsX = 100;
-   fErrorBandNbinsY = 500;
-
    fOptimizationMethod = BCEngineMCMC::kOptMinuit;
    fOptimizationMethodMode = BCEngineMCMC::NOptMethods;
    fLogMaximum = -std::numeric_limits<double>::max();
@@ -1694,70 +1686,10 @@ void BCEngineMCMC::MCMCIterationInterface()
    // for every iteration of the MCMC
 
    // fill error band
-   MCMCFillErrorBand();
+  //   MCMCFillErrorBand();
 
    // do user defined stuff
    MCMCUserIterationInterface();
-}
-
-// ---------------------------------------------------------
-void BCEngineMCMC::MCMCFillErrorBand()
-{
-   if (!fFillErrorBand)
-      return;
-
-   // function fitting
-   if (fFitFunctionIndexX < 0)
-      return;
-
-   // loop over all possible x values ...
-   if (fErrorBandContinuous) {
-      double x = 0;
-      for (unsigned ix = 0; ix < fErrorBandNbinsX; ix++) {
-         // calculate x
-         x = fErrorBandXY->GetXaxis()->GetBinCenter(ix + 1);
-
-         // calculate y
-         std::vector<double> xvec;
-         xvec.push_back(x);
-
-         // loop over all chains
-         for (unsigned ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
-            // calculate y
-            double y = FitFunction(xvec, MCMCGetx(ichain));
-
-            // fill histogram
-            fErrorBandXY->Fill(x, y);
-         }
-
-         xvec.clear();
-      }
-   }
-   // ... or evaluate at the data point x-values
-   else {
-      unsigned ndatapoints = fErrorBandX.size();
-      double x = 0;
-
-      for (unsigned ix = 0; ix < ndatapoints; ++ix) {
-         // calculate x
-         x = fErrorBandX.at(ix);
-
-         // calculate y
-         std::vector<double> xvec;
-         xvec.push_back(x);
-
-         // loop over all chains
-         for (unsigned ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
-            // calculate y
-            double y = FitFunction(xvec, MCMCGetx(ichain));
-
-            // fill histogram
-            fErrorBandXY->Fill(x, y);
-         }
-
-         xvec.clear();
-      }
-   }
 }
 
 // ---------------------------------------------------------

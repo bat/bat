@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "../../BAT/BCModel.h"
+#include "BCFitter.h"
 
 // ROOT classes
 class TH1D;
@@ -31,7 +31,7 @@ class TF1;
 
 // ---------------------------------------------------------
 
-class BCHistogramFitter : public BCModel
+class BCHistogramFitter : public BCFitter
 {
    public:
 

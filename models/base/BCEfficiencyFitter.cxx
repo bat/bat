@@ -18,18 +18,18 @@
 #include <TLegend.h>
 #include <TMath.h>
 
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCDataSet.h"
-#include "../../BAT/BCDataPoint.h"
-#include "../../BAT/BCMath.h"
-#include "../../BAT/BCH1D.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCDataSet.h"
+#include "BAT/BCDataPoint.h"
+#include "BAT/BCMath.h"
+#include "BAT/BCH1D.h"
 
 #include "BCEfficiencyFitter.h"
 
 // ---------------------------------------------------------
 
 BCEfficiencyFitter::BCEfficiencyFitter()
- : BCModel()
+ : BCFitter()
  , fHistogram1(0)
  , fHistogram2(0)
  , fFitFunction(0)
@@ -37,16 +37,13 @@ BCEfficiencyFitter::BCEfficiencyFitter()
  , fDataPointType(1)
 {
    // set default options and values
-   MCMCSetNIterationsRun(2000);
-   MCMCSetRValueCriterion(0.01);
-   SetFillErrorBand();
    fFlagIntegration = false;
 }
 
 // ---------------------------------------------------------
 
 BCEfficiencyFitter::BCEfficiencyFitter(const char * name)
- : BCModel(name)
+ : BCFitter(name)
  , fHistogram1(0)
  , fHistogram2(0)
  , fFitFunction(0)
@@ -54,16 +51,13 @@ BCEfficiencyFitter::BCEfficiencyFitter(const char * name)
  , fDataPointType(1)
 {
    // set default options and values
-   MCMCSetNIterationsRun(2000);
-   MCMCSetRValueCriterion(0.01);
-   SetFillErrorBand();
    fFlagIntegration = false;
 }
 
 // ---------------------------------------------------------
 
 BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func)
- : BCModel()
+ : BCFitter()
  , fHistogram1(0)
  , fHistogram2(0)
  , fFitFunction(0)
@@ -73,16 +67,13 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func)
    SetHistograms(hist1, hist2);
    SetFitFunction(func);
 
-   MCMCSetNIterationsRun(2000);
-   MCMCSetRValueCriterion(0.01);
-   SetFillErrorBand();
    fFlagIntegration = false;
 }
 
 // ---------------------------------------------------------
 
 BCEfficiencyFitter::BCEfficiencyFitter(const char * name, TH1D * hist1, TH1D * hist2, TF1 * func)
- : BCModel(name)
+ : BCFitter(name)
  , fHistogram1(0)
  , fHistogram2(0)
  , fFitFunction(0)
@@ -92,9 +83,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(const char * name, TH1D * hist1, TH1D * h
    SetHistograms(hist1, hist2);
    SetFitFunction(func);
 
-   MCMCSetNIterationsRun(2000);
    MCMCSetRValueCriterion(0.01);
-   SetFillErrorBand();
    fFlagIntegration = false;
 }
 

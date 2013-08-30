@@ -486,39 +486,7 @@ class BCEngineMCMC
       /** \name Error propagation*/
       /** @{ */
 
-      /**
-       * Turn on or off the filling of the error band during the MCMC run.
-       * @param flag set to true for turning on the filling */
-      void SetFillErrorBand(bool flag = true)
-      { fFillErrorBand=flag; }
-
-      /**
-       * Turn off filling of the error band during the MCMC run.
-       * This method is equivalent to SetFillErrorBand(false) */
-      void UnsetFillErrorBand()
-      { fFillErrorBand=false; }
-
-      /**
-       * Sets index of the x values in function fits.
-       * @param index Index of the x values */
-      void SetFitFunctionIndexX(int index)
-      { fFitFunctionIndexX = index; }
-
-      /**
-       * Sets index of the y values in function fits.
-       * @param index Index of the y values */
-      void SetFitFunctionIndexY(int index)
-      { fFitFunctionIndexY = index; }
-
-      /**
-       * Sets indices of the x and y values in function fits.
-       * @param indexx Index of the x values
-       * @param indexy Index of the y values */
-      void SetFitFunctionIndices(int indexx, int indexy)
-      { SetFitFunctionIndexX(indexx);
-      SetFitFunctionIndexY(indexy); }
-
-      /**
+     /**
        * Set the current optimization method */
       void SetOptimizationMethod(BCEngineMCMC::BCOptimizationMethod method)
       { fOptimizationMethod = method; }
@@ -556,19 +524,6 @@ class BCEngineMCMC
       void SetMarkovChainAutoN(bool flag)
       { fMarkovChainAutoN = flag; }
 #endif
-
-      /**
-       * Defines a fit function.
-       * @param parameters A set of parameter values
-       * @param x A vector of x-values
-       * @return The value of the fit function at the x-values given a set of parameters */
-      virtual double FitFunction(const std::vector<double> &/*x*/, const std::vector<double> &/*parameters*/)
-         { return 0; }
-
-      /**
-       * Sets errorband histogram */
-      void SetErrorBandHisto(TH2D * h)
-      { fErrorBandXY = h; }
 
       /** @} */
       /** \name Miscellaneous methods */
@@ -690,6 +645,14 @@ class BCEngineMCMC
       { fParameters.Clear(hard); }
 
       /**
+       * Interface allowing to execute arbitrary code for each iteration
+       * of the MCMC. The frequency of calling this method is influenced
+       * by the setup of the Lag and whether or not the MCMC is run with
+       * ordered parameters. This method needs to be overloaded in the derived
+       * class. */
+      virtual void MCMCIterationInterface();
+
+      /**
        * Method executed for every iteration of the MCMC. User's code should be
        * provided via overloading in the derived class*/
       virtual void MCMCUserIterationInterface()
@@ -710,17 +673,6 @@ class BCEngineMCMC
 
    private:
 
-      /**
-       * Interface allowing to execute arbitrary code for each iteration
-       * of the MCMC. The frequency of calling this method is influenced
-       * by the setup of the Lag and whether or not the MCMC is run with
-       * ordered parameters. This method needs to be overloaded in the derived
-       * class. */
-      void MCMCIterationInterface();
-
-      /**
-       * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
-      void MCMCFillErrorBand();
 
       /**
        * Defines a type of a pointer to a member function. */
@@ -971,32 +923,6 @@ class BCEngineMCMC
        * The trees containing the Markov chains. The length of the vector
        * is fMCMCNChains. */
       std::vector<TTree *> fMCMCTrees;
-
-      /**
-       * Flag whether or not to fill the error band */
-      bool fFillErrorBand;
-
-      /**
-       * The indices for function fits */
-      int fFitFunctionIndexX;
-      int fFitFunctionIndexY;
-
-      /**
-       * A flag for single point evaluation of the error "band" */
-      bool fErrorBandContinuous;
-      std::vector<double> fErrorBandX;
-
-      /**
-       * The error band histogram */
-      TH2D * fErrorBandXY;
-
-      /**
-       * Number of X bins of the error band histogram */
-      unsigned fErrorBandNbinsX;
-
-      /**
-       * Number of Y bins of the error band histogram */
-      unsigned fErrorBandNbinsY;
 
       /**
        * Current mode finding method */

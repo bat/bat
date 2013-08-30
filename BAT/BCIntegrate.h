@@ -541,13 +541,13 @@ public:
     * Method executed for before marginalization. User's code should
     * be provided via overloading in the derived class */
    virtual void MarginalizePreprocess()
-   {}
+   {};
 
    /**
     * Method executed after marginalization. User's code should be
     * provided via overloading in the derived class*/
    virtual void MarginalizePostprocess()
-   {}
+   {};
 
    /**
     * Initializes the Simulated Annealing algorithm (for details see manual) */

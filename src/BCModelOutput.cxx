@@ -187,41 +187,6 @@ void BCModelOutput::WriteMarginalizedDistributions()
 }
 
 // ---------------------------------------------------------
-void BCModelOutput::WriteErrorBand()
-{
-   if(!fOutputFile) {
-      BCLog::OutError("BCModelOutput::WriteErrorBand : No file to write to.");
-      return;
-   }
-
-   // remember current directory
-   TDirectory * dir = gDirectory;
-
-   // change to file
-   fOutputFile->cd();
-
-   TH2D * h0 = fModel->GetErrorBandXY();
-   if (h0) {
-      TH2D * h1 = (TH2D*)h0->Clone("errorbandxy");
-      h1->Write();
-
-      double levels[] = { .68, .90, .95 };
-      int nlevels = sizeof(levels)/sizeof(double);
-      for (int i=0;i<nlevels;i++) {
-         TH2D * htmp = fModel->GetErrorBandXY_yellow(levels[i]);
-         htmp->SetName(TString::Format("%s_sub_%f.2",h1->GetName(),levels[i]));
-         htmp->Write();
-         delete htmp;
-      }
-
-      delete h1;
-   }
-
-   // return to old directory
-   gDirectory = dir;
-}
-
-// ---------------------------------------------------------
 void BCModelOutput::Write(TObject * o)
 {
    if(!fOutputFile) {

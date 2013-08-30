@@ -8,10 +8,10 @@
 // ---------------------------------------------------------
 
 #include "BCHistogramFitter.h"
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCDataSet.h"
-#include "../../BAT/BCDataPoint.h"
-#include "../../BAT/BCMath.h"
+#include "BAT/BCLog.h"
+#include "BAT/BCDataSet.h"
+#include "BAT/BCDataPoint.h"
+#include "BAT/BCMath.h"
 
 #include <TH1D.h>
 #include <TF1.h>
@@ -27,7 +27,7 @@
 // ---------------------------------------------------------
 
 BCHistogramFitter::BCHistogramFitter()
- : BCModel()
+ : BCFitter()
  , fHistogram(0)
  , fFitFunction(0)
  , fHistogramExpected(0)
@@ -42,7 +42,7 @@ BCHistogramFitter::BCHistogramFitter()
 // ---------------------------------------------------------
 
 BCHistogramFitter::BCHistogramFitter(const char * name)
- : BCModel(name)
+ : BCFitter(name)
  , fHistogram(0)
  , fFitFunction(0)
  , fHistogramExpected(0)
@@ -57,7 +57,7 @@ BCHistogramFitter::BCHistogramFitter(const char * name)
 // ---------------------------------------------------------
 
 BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
- : BCModel()
+ : BCFitter()
  , fHistogram(0)
  , fFitFunction(0)
  , fHistogramExpected(0)
@@ -74,7 +74,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
 // ---------------------------------------------------------
 
 BCHistogramFitter::BCHistogramFitter(const char * name, TH1D * hist, TF1 * func)
- : BCModel(name)
+ : BCFitter(name)
  , fHistogram(0)
  , fFitFunction(0)
  , fHistogramExpected(0)

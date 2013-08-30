@@ -54,7 +54,6 @@ BCModel::BCModel(const char * name) :
    fPriorConstantAll(false),
    fNormalization(-1)
 {
-   fErrorBandXY = 0;
 }
 
 // ---------------------------------------------------------
@@ -145,144 +144,6 @@ BCDataPoint * BCModel::GetDataPoint(unsigned int index) const
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCModel::GetErrorBand(double level) const
-{
-   std::vector<double> errorband;
-
-   if (!fErrorBandXY)
-      return errorband;
-
-   int nx = fErrorBandXY->GetNbinsX();
-   errorband.assign(nx, 0.);
-
-   // loop over x and y bins
-   for (int ix = 1; ix <= nx; ix++) {
-      TH1D * temphist = fErrorBandXY->ProjectionY("temphist", ix, ix);
-
-      int nprobSum = 1;
-      double q[1];
-      double probSum[1];
-      probSum[0] = level;
-
-      temphist->GetQuantiles(nprobSum, q, probSum);
-
-      errorband[ix - 1] = q[0];
-   }
-
-   return errorband;
-}
-
-// ---------------------------------------------------------
-TGraph * BCModel::GetErrorBandGraph(double level1, double level2) const
-{
-   if (!fErrorBandXY)
-      return 0;
-
-   // define new graph
-   int nx = fErrorBandXY->GetNbinsX();
-
-   TGraph * graph = new TGraph(2 * nx);
-   graph->SetFillStyle(1001);
-   graph->SetFillColor(kYellow);
-
-   // get error bands
-   std::vector<double> ymin = GetErrorBand(level1);
-   std::vector<double> ymax = GetErrorBand(level2);
-
-   for (int i = 0; i < nx; i++) {
-      graph->SetPoint(i, fErrorBandXY->GetXaxis()->GetBinCenter(i + 1), ymin[i]);
-      graph->SetPoint(nx + i, fErrorBandXY->GetXaxis()->GetBinCenter(nx - i), ymax[nx - i - 1]);
-   }
-
-   return graph;
-}
-
-// ---------------------------------------------------------
-TH2D * BCModel::GetErrorBandXY_yellow(double level, int nsmooth) const
-{
-   if (!fErrorBandXY)
-      return 0;
-
-   int nx = fErrorBandXY->GetNbinsX();
-   int ny = fErrorBandXY->GetNbinsY();
-
-   // copy existing histogram
-   TH2D * hist_tempxy = (TH2D*) fErrorBandXY->Clone(
-         TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
-   hist_tempxy->Reset();
-   hist_tempxy->SetFillColor(kYellow);
-
-   // loop over x bins
-   for (int ix = 1; ix < nx; ix++) {
-      BCH1D * hist_temp = new BCH1D();
-
-      TH1D * hproj = fErrorBandXY->ProjectionY("temphist", ix, ix);
-      if (nsmooth > 0)
-         hproj->Smooth(nsmooth);
-
-      hist_temp->SetHistogram(hproj);
-
-      TH1D * hist_temp_yellow = hist_temp->GetSmallestIntervalHistogram(level);
-
-      for (int iy = 1; iy <= ny; ++iy)
-         hist_tempxy->SetBinContent(ix, iy, hist_temp_yellow->GetBinContent(iy));
-
-      delete hist_temp_yellow;
-      delete hist_temp;
-   }
-
-   return hist_tempxy;
-}
-
-// ---------------------------------------------------------
-TGraph * BCModel::GetFitFunctionGraph(const std::vector<double> &parameters)
-{
-   if (!fErrorBandXY)
-      return 0;
-
-   // define new graph
-   int nx = fErrorBandXY->GetNbinsX();
-   TGraph * graph = new TGraph(nx);
-
-   // loop over x values
-   for (int i = 0; i < nx; i++) {
-      double x = fErrorBandXY->GetXaxis()->GetBinCenter(i + 1);
-
-      std::vector<double> xvec;
-      xvec.push_back(x);
-      double y = FitFunction(xvec, parameters);
-      xvec.clear();
-
-      graph->SetPoint(i, x, y);
-   }
-
-   return graph;
-}
-
-// ---------------------------------------------------------
-TGraph * BCModel::GetFitFunctionGraph(const std::vector<double> &parameters, double xmin, double xmax, int n)
-{
-   // define new graph
-   TGraph * graph = new TGraph(n + 1);
-
-   double dx = (xmax - xmin) / (double) n;
-
-   // loop over x values
-   for (int i = 0; i <= n; i++) {
-      double x = (double) i * dx + xmin;
-      std::vector<double> xvec;
-      xvec.push_back(x);
-      double y = FitFunction(xvec, parameters);
-
-      xvec.clear();
-
-      graph->SetPoint(i, x, y);
-   }
-
-   return graph;
-}
-
-// ---------------------------------------------------------
 double BCModel::GetDataPointLowerBoundary(unsigned int index) const
 {
     return fDataPointLowerBoundaries -> GetValue(index);
@@ -363,22 +224,6 @@ void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double
    fDataPointLowerBoundaries->SetValue(index, lowerboundary);
    fDataPointUpperBoundaries->SetValue(index, upperboundary);
    fDataFixedValues[index] = fixed;
-}
-
-// ---------------------------------------------------------
-void BCModel::SetErrorBandContinuous(bool flag)
-{
-   fErrorBandContinuous = flag;
-
-   if (flag)
-      return;
-
-   // clear x-values
-   fErrorBandX.clear();
-
-   // copy data x-values
-   for (unsigned int i = 0; i < fDataSet->GetNDataPoints(); ++i)
-      fErrorBandX.push_back(fDataSet->GetDataPoint(i)->GetValue(fFitFunctionIndexX));
 }
 
 // ---------------------------------------------------------
@@ -614,32 +459,6 @@ int BCModel::ReadMarginalizedFromFile(const char * file)
    return k;
 }
 
-// ---------------------------------------------------------
-int BCModel::ReadErrorBandFromFile(const char * file)
-{
-   TFile * froot = TFile::Open(file);
-   if (!froot->IsOpen()) {
-      BCLog::OutError(Form("BCModel::ReadErrorBandFromFile. Couldn't open file %s.", file));
-      return 0;
-   }
-
-   int r = 0;
-
-   TH2D * h2 = (TH2D*) froot->Get("errorbandxy");
-   if (h2) {
-      h2->SetDirectory(0);
-      h2->SetName(TString::Format("errorbandxy_%d", BCLog::GetHIndex()));
-      SetErrorBandHisto(h2);
-      r = 1;
-   }
-   else
-      BCLog::OutWarning(
-            Form("BCModel::ReadErrorBandFromFile : Couldn't read histogram \"errorbandxy\" from file %s.",file));
-
-   froot->Close();
-
-   return r;
-}
 
 // ---------------------------------------------------------
 int BCModel::PrintAllMarginalized1D(const char * filebase)
@@ -1077,34 +896,6 @@ double BCModel::HessianMatrixElement(const BCParameter * par1, const BCParameter
 
    // return derivative
    return (ppp + pmm - ppm - pmp) / (4. * dx1 * dx2);
-}
-
-// ---------------------------------------------------------
-void BCModel::FixDataAxis(unsigned int index, bool fixed)
-{
-   // check if index is within range
-   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutError("BCModel::FixDataAxis : Index out of range.");
-      return;
-   }
-
-   if (fDataFixedValues.size() == 0)
-      fDataFixedValues.assign(fDataSet->GetDataPoint(0)->GetNValues(),
-            false);
-
-   fDataFixedValues[index] = fixed;
-}
-
-// ---------------------------------------------------------
-bool BCModel::GetFixedDataAxis(unsigned int index) const
-{
-   // check if index is within range
-   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutError("BCModel::GetFixedDataAxis : Index out of range.");
-      return false;
-   }
-
-   return fDataFixedValues[index];
 }
 
 // ---------------------------------------------------------

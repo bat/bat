@@ -160,30 +160,6 @@ public:
    void SetNbins(unsigned int n);
 
    /**
-    * Turn on or off the filling of the error band during the MCMC run
-    * for all models added to the model manager before calling this method.
-    * @param flag set to true for turning on the filling */
-   void SetFillErrorBand(bool flag = true);
-
-   /**
-    * Turn off the filling of the error band during the MCMC run
-    * for all models added to the model manager before calling this method. */
-   void UnetFillErrorBand()
-   { SetFillErrorBand(false); };
-
-   /**
-    * Sets index of the x values in function fits.
-    * @param index Index of the x values */
-   void SetFitFunctionIndexX(int index);
-
-   /**
-    * Sets index of the y values in function fits.
-    * @param index Index of the y values */
-   void SetFitFunctionIndexY(int index);
-
-   void SetFitFunctionIndices(int indexx, int indexy);
-
-   /**
     * Sets the data point containing the lower boundaries of possible
     * data values */
    void SetDataPointLowerBoundaries(BCDataPoint * datasetlowerboundaries);
@@ -207,10 +183,6 @@ public:
     * Set the lower and upper boundaries for possible data values for a
     * particular variable */
    void SetDataBoundaries(int index, double lowerboundary, double upperboundary);
-
-   /**
-    * Fixes an axis */
-   void FixDataAxis(int index, bool fixed);
 
    /**
     * Sets the number of Markov chains */

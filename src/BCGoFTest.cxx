@@ -168,8 +168,10 @@ int BCGoFTest::SetTestPoint(std::vector<double> parameters)
    for (int i = 0; i < ndatapoints; ++i)
       for (int j = 0; j < ndatavalues; ++j)
       {
-         if (fTestModel->GetFixedDataAxis(j))
-            continue;
+        // debugKK
+        // needs to be fixed
+        //         if (fTestModel->GetFixedDataAxis(j))
+        //            continue;
 
          // add parameter to this model
          std::string parName = Form("parameter_%i", counter);

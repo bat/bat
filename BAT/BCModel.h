@@ -138,31 +138,6 @@ class BCModel : public BCIntegrate
        * @return The data point in the current data set at index */
       BCDataPoint * GetDataPoint(unsigned int index) const;
 
-      /**
-      const BCParameter * GetParameter(const char * name);
-       * @return The 2-d histogram of the error band. */
-      TH2D * GetErrorBandXY() const
-         { return fErrorBandXY; }
-
-      TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0) const;
-
-      /**
-       * Returns a vector of y-values at a certain probability level.
-       * @param level The level of probability
-       * @return vector of y-values */
-      std::vector<double> GetErrorBand(double level) const;
-
-      TGraph * GetErrorBandGraph(double level1, double level2) const;
-
-      TGraph * GetFitFunctionGraph(const std::vector<double> &parameters);
-
-      TGraph * GetFitFunctionGraph()
-         { return GetFitFunctionGraph(GetBestFitParameters()); }
-
-      TGraph * GetFitFunctionGraph(const std::vector<double> &parameters, double xmin, double xmax, int n=1000);
-
-      bool GetFixedDataAxis(unsigned int index) const;
-
       /** @} */
 
       /** \name Member functions (set) */
@@ -244,10 +219,6 @@ class BCModel : public BCIntegrate
        * Sets the upper boundary of possible data values for a particular
        * variable */
       void SetDataPointUpperBoundary(int index, double upperboundary);
-
-      /**
-       * Sets the error band flag to continuous function */
-      void SetErrorBandContinuous(bool flag);
 
       /**
        * Set prior for a parameter.
@@ -454,10 +425,6 @@ class BCModel : public BCIntegrate
       int ReadMarginalizedFromFile(const char * file);
 
       /**
-       * Read */
-      int ReadErrorBandFromFile(const char * file);
-
-      /**
        * Obtain the individual marginalized distributions
        * with respect to one parameter.
        * @note The most efficient method is to access by index.
@@ -607,8 +574,6 @@ class BCModel : public BCIntegrate
        * Prints matrix elements of the Hessian matrix
        * @param parameters The parameter values at which point to evaluate the matrix */
       void PrintHessianMatrix(std::vector<double> parameters);
-
-      void FixDataAxis(unsigned int index, bool fixed);
 
       /**
        * 1dim cumulative distribution function of the probability

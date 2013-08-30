@@ -253,6 +253,8 @@ models/base/BATCalculator.h -text
 models/base/BATCalculatorLinkDef.h -text
 models/base/BCEfficiencyFitter.cxx -text
 models/base/BCEfficiencyFitter.h -text
+models/base/BCFitter.cxx -text
+models/base/BCFitter.h -text
 models/base/BCGraphFitter.cxx -text
 models/base/BCGraphFitter.h -text
 models/base/BCHistogramFitter.cxx -text

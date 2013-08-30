@@ -24,9 +24,10 @@ endif
 library_includedir= $(includedir)/BAT
 
 incs = \
+	BCFitter.h \
 	BCEfficiencyFitter.h \
 	BCGraphFitter.h \
-	BCHistogramFitter.h 
+	BCHistogramFitter.h
 
 ## RooStats specific options
 if ROOSTATS

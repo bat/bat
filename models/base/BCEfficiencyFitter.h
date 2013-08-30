@@ -26,7 +26,7 @@
 
 #include <vector>
 
-#include "../../BAT/BCModel.h"
+#include "BCFitter.h"
 
 // ROOT classes
 class TH1D;
@@ -35,7 +35,7 @@ class TGraphAsymmErrors;
 
 // ---------------------------------------------------------
 
-class BCEfficiencyFitter : public BCModel
+class BCEfficiencyFitter : public BCFitter
 {
    public:
 

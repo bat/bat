@@ -24,63 +24,49 @@
 // ---------------------------------------------------------
 
 BCGraphFitter::BCGraphFitter()
- : BCModel()
+ : BCFitter()
  , fGraph(0)
  , fFitFunction(0)
  , fErrorBand(0)
  , fGraphFitFunction(0)
 {
-   MCMCSetNIterationsRun(2000);
-
-   SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
 
 BCGraphFitter::BCGraphFitter(const char * name)
- : BCModel(name)
+ : BCFitter(name)
  , fGraph(0)
  , fFitFunction(0)
  , fErrorBand(0)
  , fGraphFitFunction(0)
 {
-   MCMCSetNIterationsRun(2000);
-
-   SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
 
 BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func)
- : BCModel()
+ : BCFitter()
  , fGraph(0)
  , fFitFunction(0)
  , fErrorBand(0)
  , fGraphFitFunction(0)
 {
-   MCMCSetNIterationsRun(2000);
-
    SetGraph(graph);
    SetFitFunction(func);
-
-   SetFillErrorBand();
 }
 
 // ---------------------------------------------------------
 
 BCGraphFitter::BCGraphFitter(const char * name, TGraphErrors * graph, TF1 * func)
- : BCModel(name)
+ : BCFitter(name)
  , fGraph(0)
  , fFitFunction(0)
  , fErrorBand(0)
  , fGraphFitFunction(0)
 {
-   MCMCSetNIterationsRun(2000);
-
    SetGraph(graph);
    SetFitFunction(func);
-
-   SetFillErrorBand();
 }
 
 // ---------------------------------------------------------

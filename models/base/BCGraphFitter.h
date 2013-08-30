@@ -24,14 +24,14 @@
 
 #include <vector>
 
-#include "../../BAT/BCModel.h"
+#include "BCFitter.h"
 
 class TGraphErrors;
 class TF1;
 
 // ---------------------------------------------------------
 
-class BCGraphFitter : public BCModel
+class BCGraphFitter : public BCFitter
 {
    public:
 

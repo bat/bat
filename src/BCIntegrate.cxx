@@ -116,16 +116,6 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 	BCEngineMCMC::Copy(other);
 
 	fBestFitParameterErrors   = other.fBestFitParameterErrors;
-	fFillErrorBand            = other.fFillErrorBand;
-	fFitFunctionIndexX        = other.fFitFunctionIndexX;
-	fFitFunctionIndexY        = other.fFitFunctionIndexY;
-	fErrorBandX               = other.fErrorBandX;
-	if (other.fErrorBandXY)
-		fErrorBandXY = new TH2D(*(other.fErrorBandXY));
-	else
-		fErrorBandXY = 0;
-	fErrorBandNbinsX          = other.fErrorBandNbinsX;
-	fErrorBandNbinsY          = other.fErrorBandNbinsY;
 	fMinuit                   = new TMinuit();
 	fMinuitArglist[0]         = other.fMinuitArglist[0];
 	fMinuitArglist[1]         = other.fMinuitArglist[1];
@@ -721,37 +711,6 @@ int BCIntegrate::MarginalizeAll()
         // output
         BCLog::OutSummary("Run MCMC.");
          
-        // debugKK: is this necessary?
-        /*
-        // prepare function fitting
-        double dx = 0.;
-        double dy = 0.;
-         
-        if (fFitFunctionIndexX >= 0) {
-          dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX)
-                - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
-            / (double) fErrorBandNbinsX;
-           
-          dy = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY)
-                - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
-            / (double) fErrorBandNbinsY;
-           
-          fErrorBandXY
-            = new TH2D(TString::Format("errorbandxy_%d", BCLog::GetHIndex()), "",
-                       fErrorBandNbinsX,
-                       fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX) - .5 * dx,
-                       fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) + .5 * dx,
-                       fErrorBandNbinsY,
-                       fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - .5 * dy,
-                       fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + .5 * dy);
-          fErrorBandXY->SetStats(kFALSE);
-           
-          for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
-            for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
-              fErrorBandXY->SetBinContent(ix, iy, 0.);
-        }
-        */
-
         // start preprocess
         MarginalizePreprocess();
 

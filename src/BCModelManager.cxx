@@ -186,41 +186,6 @@ void BCModelManager::SetNbins(unsigned int n)
 
 // ---------------------------------------------------------
 
-void BCModelManager::SetFillErrorBand(bool flag)
-{
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetFillErrorBand(flag);
-}
-
-// ---------------------------------------------------------
-
-void BCModelManager::SetFitFunctionIndexX(int index)
-{
-   // set fit function x index for all models registered
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetFitFunctionIndexX(index);
-}
-
-// ---------------------------------------------------------
-
-void BCModelManager::SetFitFunctionIndexY(int index)
-{
-   // set  fit function y index for all models registered
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetFitFunctionIndexY(index);
-}
-
-// ---------------------------------------------------------
-
-void BCModelManager::SetFitFunctionIndices(int indexx, int indexy)
-{
-   // set fit function indices for all models registered
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->SetFitFunctionIndices(indexx, indexy);
-}
-
-// ---------------------------------------------------------
-
 void BCModelManager::SetDataPointLowerBoundaries(BCDataPoint * datasetlowerboundaries)
 {
    // set lower boundary point for all models registered
@@ -265,16 +230,6 @@ void BCModelManager::SetDataBoundaries(int index, double lowerboundary, double u
 }
 
 // ---------------------------------------------------------
-
-void BCModelManager::FixDataAxis(int index, bool fixed)
-{
-   // fix axis for all models
-   for (unsigned int i = 0; i < GetNModels(); i++)
-      GetModel(i)->FixDataAxis(index, fixed);
-}
-
-// ---------------------------------------------------------
-
 void BCModelManager::SetNChains(unsigned int n)
 {
    // set number of Markov chains for all models registered
