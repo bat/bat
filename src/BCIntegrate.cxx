@@ -267,25 +267,31 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
    {
       std::vector<double> sums (2,0.0);
       sums.push_back(CalculateIntegrationVolume());
-      return Integrate(kIntMonteCarlo,
-            &BCIntegrate::GetRandomVectorInParameterSpace,
-            &BCIntegrate::EvaluatorMC,
-            &IntegralUpdaterMC,
-            sums);
+      fIntegral = Integrate(kIntMonteCarlo,
+                            &BCIntegrate::GetRandomVectorInParameterSpace,
+                            &BCIntegrate::EvaluatorMC,
+                            &IntegralUpdaterMC,
+                            sums);
+      return fIntegral;
    }
 
    // Importance Sampling Integration
    case BCIntegrate::kIntImportance:
    {
       std::vector<double> sums (2,0.0);
-      return Integrate(kIntImportance,
-            &BCIntegrate::GetRandomVectorInParameterSpace,
-            &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
-            &IntegralUpdaterImportance,	 // use same updater as for metropolis
-            sums);
+      fIntegral = Integrate(kIntImportance,
+                            &BCIntegrate::GetRandomVectorInParameterSpace,
+                            &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
+                            &IntegralUpdaterImportance,	 // use same updater as for metropolis
+                            sums);
+      return fIntegral;
    }
-   case BCIntegrate::kIntCuba:
-      return IntegrateCuba();
+   case BCIntegrate::kIntCuba: 
+     {
+       fIntegral = IntegrateCuba();
+
+       return fIntegral;
+     }
    default:
       BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
       break;
@@ -751,7 +757,6 @@ int BCIntegrate::MarginalizeAll()
             }
           }
         }
-
         return 1;
       }
 
@@ -767,26 +772,84 @@ int BCIntegrate::MarginalizeAll()
         // output
         BCLog::OutSummary("Run Slice.");
 
+        std::vector<double> fixpoint(GetNParameters());
+        for (unsigned int i = 0; i < GetNParameters(); ++i) {
+          if (fParameters[i]->Fixed())
+            fixpoint[i] = fParameters[i]->GetFixedValue();
+          else 
+            fixpoint[i] = 0;
+        }
+
         // start preprocess
         MarginalizePreprocess();
 
-        if (GetNParameters() == 1) {
-          fMarginalized1D.clear();
-          fMarginalized1D.push_back( GetSlice(GetParameter(0), std::vector<double>(1), 0) );
-        }
-        else if (GetNParameters() == 2) {
-          // create a 2D histogram
+        fMarginalized1D.clear();
+        if (GetNFreeParameters() == 1) {
+          for (unsigned int i = 0; i < GetNParameters(); ++i) {
+            if (!fParameters[i]->Fixed()) {
+              // calculate slice
+              BCH1D* hist_temp = GetSlice(fParameters[i], fixpoint, 0);
+              fMarginalized1D.push_back(hist_temp);
+              
+              // normalize to unity
+              hist_temp->GetHistogram()->Scale(1./hist_temp->GetHistogram()->Integral());
+            }
+            else
+              fMarginalized1D.push_back(0);
+          }
+
           fMarginalized2D.clear();
-          fMarginalized2D.push_back( GetSlice(GetParameter(0), GetParameter(1), std::vector<double>(0), 0));
+          for (unsigned int i = 0; i < GetNParameters(); ++i) {
+            for (unsigned int j = 0; j < GetNParameters(); ++j) {
+              if (i >= j)
+                continue;
+              else
+                fMarginalized2D.push_back(0);
+            }
+          }
+
+        }
+        else if (GetNFreeParameters() == 2) {
+          // create a 2D histogram
+
+          BCH2D* hist2d_temp = 0;
+
+          fMarginalized2D.clear();
+          for (unsigned int i = 0; i < GetNParameters(); ++i) {
+            for (unsigned int j = 0; j < GetNParameters(); ++j) {
+              if (i >= j)
+                continue;
+              if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
+                // calculate slice
+                hist2d_temp = GetSlice(GetParameter(i), GetParameter(j), fixpoint, 0);
+                fMarginalized2D.push_back(hist2d_temp);
+
+                // normalize to unity
+                hist2d_temp->GetHistogram()->Scale(1./hist2d_temp->GetHistogram()->Integral());
+              }
+              else
+                fMarginalized2D.push_back(0);
+            }
+          }
           
           // marginalize by projecting
           fMarginalized1D.clear();
-          BCH1D* hist_x = new BCH1D( fMarginalized2D.at(0)->GetHistogram()->ProjectionX() );
-          hist_x->GetHistogram()->SetStats(kFALSE);
-          BCH1D* hist_y = new BCH1D( fMarginalized2D.at(0)->GetHistogram()->ProjectionY() );
-          hist_y->GetHistogram()->SetStats(kFALSE);
-          fMarginalized1D.push_back( hist_x );
-          fMarginalized1D.push_back( hist_y );
+          for (unsigned int i = 0; i < GetNParameters(); ++i) 
+            fMarginalized1D.push_back(0);
+          for (unsigned int i = 0; i < GetNParameters(); ++i) {
+            for (unsigned int j = 0; j < GetNParameters(); ++j) {
+              if (i >= j)
+                continue;
+              if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
+                BCH1D* hist_x = new BCH1D( hist2d_temp->GetHistogram()->ProjectionX() );
+                hist_x->GetHistogram()->SetStats(kFALSE);
+                fMarginalized1D[i] = hist_x;
+                BCH1D* hist_y = new BCH1D( hist2d_temp->GetHistogram()->ProjectionY() );
+                hist_y->GetHistogram()->SetStats(kFALSE);
+                fMarginalized1D[j] = hist_y;
+              }
+            }
+          }
         }
         else {
           BCLog::OutWarning("BCIntegrate::MarginalizeAll : Option works for 1D and 2D problems.");
@@ -798,11 +861,11 @@ int BCIntegrate::MarginalizeAll()
 
        return 1;
       }
-
+        
       // default
     case BCIntegrate::kMargDefault:
       {
-        if ( GetNParameters() == 1 || GetNParameters() == 2 ) {
+        if ( GetNFreeParameters() <= 2 ) {
           SetMarginalizationMethod(BCIntegrate::kMargSlice);
         }
         else {
@@ -830,6 +893,10 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
 		return 0;
 	}
 
+  // check if parameter is fixed
+  if (parameter->Fixed())
+    return 0;
+  
 	// create local copy of parameter set
 	std::vector<double> parameters_temp;
 	parameters_temp = parameters;
@@ -895,11 +962,15 @@ BCH2D* BCIntegrate::GetSlice(const char* name1, const char* name2, const std::ve
 // ---------------------------------------------------------
 BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins)
 {
-   // check if parameter exists
+   // check if parameters exists
    if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
       BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
       return 0;
    }
+
+   // check if parameters are fixed
+   if (fParameters[index1]->Fixed() || fParameters[index2]->Fixed())
+     return 0;
 
    // create local copy of parameter set
    std::vector<double> parameters_temp;
@@ -1144,18 +1215,20 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
       return 0;
    }
 
-   // find all valid (non NULL) histograms
-   std::vector<TH1 *> validH1;
+   // count all valid (non NULL) histograms
+   int nvalid1D = 0; 
+   int nvalid2D = 0; 
    
    for (unsigned i = 0 ; i < fMarginalized1D.size() ; ++i) {
-     if (TH1D * h = fMarginalized1D[i]->GetHistogram())
-       validH1.push_back(h);
+     if (BCH1D * h = fMarginalized1D[i])
+       if (h->GetHistogram())
+         nvalid1D++;
    }
    
-   std::vector<TH2D *> validH2;
    for (unsigned i = 0 ; i < fMarginalized2D.size() ; ++i) {
-     if (TH2D * h = fMarginalized2D[i]->GetHistogram())
-       validH2.push_back(h);
+     if (BCH2D * h = fMarginalized2D[i])
+       if (h->GetHistogram())
+         nvalid2D++;
    }
 
    std::string filename(file);
@@ -1192,11 +1265,11 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
       }
    }
 
-   const unsigned nplots = validH1.size() + validH2.size();
+   const unsigned nplots = nvalid1D + nvalid2D;
 
    // give out warning if too many plots
    BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-                          int(validH1.size()), int(validH2.size()), nplots, filename.c_str()));
+                          nvalid1D, nvalid2D, nplots, filename.c_str()));
    if (nplots > 100)
       BCLog::OutDetail("This can take a while...");
 

@@ -153,7 +153,7 @@ public:
       static const double eps = 1e-2;
       m.SetRelativePrecision(eps);
       m.Normalize();
-      TEST_CHECK_RELATIVE_ERROR(m.GetNormalization(), m.Integral(), eps * 1.3);
+      TEST_CHECK_RELATIVE_ERROR(m.GetIntegral(), m.Integral(), eps * 1.3);
     }
 
     {

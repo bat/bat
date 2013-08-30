@@ -265,11 +265,17 @@ BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
 }
 
 // --------------------------------------------------------
+unsigned int BCEngineMCMC::GetNFreeParameters()
+{
+  return (GetNParameters() - GetNFixedParameters());
+}
+
+// --------------------------------------------------------
 unsigned int BCEngineMCMC::GetNFixedParameters()
 {
    int n = 0;
    for (unsigned int i = 0; i < fParameters.Size(); ++i) {
-      if (!fParameters[0]->Fixed())
+      if (fParameters[i]->Fixed())
          ++n;
    }
 
@@ -620,7 +626,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
 // --------------------------------------------------------
 bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
 {
-   // calculate index
+    // calculate index
    unsigned index = chain * fParameters.Size();
 
    fMCMCCurrentChain = chain;

@@ -6,6 +6,11 @@
 	* BCEngineMCMC, BCIntegrate, BCModel: moved a lot of methods to BCFitter.
 	* this closes #49
 	* BCModel, BCIntegrate: moved GetMarginalized, PrintMarginalized and fNormalization to BCIntegrate.
+	* BCIntegrate: 
+	  - marginalization methods slice and MCMC work with fixed parameters now. Note: MCMC doesn't really fix the parameter!
+	  - kMargDefault now decides now based on the number of free parameters.
+	* benchmarks/test/BCIntegrate_TEST.cxx: had to rename a method
+	* BCEngineMCMC.cxx: added methods to calculate the number of fixed and free parameters
 	
 2013-08-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* private: added a directory for private material. This will be moved to a developer's branch or deleted in the near future.

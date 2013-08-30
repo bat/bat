@@ -298,8 +298,12 @@ class BCEngineMCMC
          { return fParameters.Size(); }
 
       /**
-       * @return The number of parameters of the model. */
+       * @return The number of fixed parameters. */
       unsigned int GetNFixedParameters();
+
+      /**
+       * @return The number of free parameters. */
+      unsigned int GetNFreeParameters();
 
       /**
        * Returns the set of values of the parameters at the modes of the
