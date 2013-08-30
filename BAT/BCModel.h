@@ -95,11 +95,6 @@ class BCModel : public BCIntegrate
          { return fModelAPosteriori; }
 
       /**
-       * @return The normalization factor of the probability */
-      double GetNormalization() const
-         { return fNormalization; }
-
-      /**
        * @return The data set. */
       BCDataSet* GetDataSet() const
          { return fDataSet; }
@@ -164,13 +159,6 @@ class BCModel : public BCIntegrate
          { fModelAPosteriori = probability; }
 
       /**
-       * Sets the normalization of the posterior. The normalization
-       * is the integral of likelihood x prior over all parameters.
-       * @param norm The normalization */
-      void SetNormalization(double norm)
-         { fNormalization = norm; }
-
-      /**
        * Due to the combination of overloading and overriding, the method
        * AddParameter(const char * name, double min, double max)
        * from the base class is hidden to the user of BCModel, so explicitly tell the compiler that we want to use both
@@ -187,7 +175,7 @@ class BCModel : public BCIntegrate
        * Sets the data set.
        * @param dataset A data set */
       void SetDataSet(BCDataSet* dataset)
-         { fDataSet = dataset; fNormalization = -1.0; }
+         { fDataSet = dataset; }
 
       /**
        * Sets a single data point as data set.
@@ -417,80 +405,6 @@ class BCModel : public BCIntegrate
       virtual double LogEval(const std::vector<double> &parameters);
 
       /**
-       * Integrates over the un-normalized probability and updates fNormalization. */
-      double Normalize();
-
-      /**
-       * Read */
-      int ReadMarginalizedFromFile(const char * file);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param parameter Model parameter
-       * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(const BCParameter * parameter);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param name The parameter's name
-       * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(const char * name)
-         { return GetMarginalized(fParameters.Index(name)); }
-
-			/**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param index The parameter index
-       * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(unsigned index);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-
-       * @param parameter1 First parameter
-       * @param parameter2 Second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param name1 Name of first parameter
-       * @param name2 Name of second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(const char * name1, const char * name2)
-      { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param index1 Index of first parameter
-       * @param index2 Index of second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(unsigned index1, unsigned index2);
-
-      /**
-       *   */
-      int PrintAllMarginalized1D(const char * filebase);
-      int PrintAllMarginalized2D(const char * filebase);
-      int PrintAllMarginalized(const char * file, std::string options1d="BTciB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
-
-      /**
        * Constrains a data point
        * @param x A vector of double */
       virtual void CorrelateDataPointValues(std::vector<double> &x);
@@ -659,10 +573,6 @@ class BCModel : public BCIntegrate
       std::vector<bool> fPriorContainerInterpolate;
 
    private:
-
-      /**
-       * The posterior normalization (evidence). */
-      double fNormalization;
 
       /**
        * Compares to strings */

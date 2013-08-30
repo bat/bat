@@ -22,13 +22,10 @@
 
 #include <TCanvas.h>
 #include <TF1.h>
-#include <TFile.h>
 #include <TGraph.h>
 #include <TH2D.h>
 #include <TMath.h>
-#include <TKey.h>
 #include <TRandom3.h>
-#include <TStyle.h>
 #include <TTree.h>
 
 #include <fstream>
@@ -51,8 +48,7 @@ BCModel::BCModel(const char * name) :
    fGoFNIterationsMax(100000),
    fGoFNIterationsRun(2000),
    fGoFNChains(5),
-   fPriorConstantAll(false),
-   fNormalization(-1)
+   fPriorConstantAll(false)
 {
 }
 
@@ -102,7 +98,6 @@ void BCModel::Copy(const BCModel & bcmodel)
    fPriorConstantAll                = bcmodel.fPriorConstantAll;
    fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
    fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
-   fNormalization                   = bcmodel.fNormalization;
 }
 
 // ---------------------------------------------------------
@@ -260,12 +255,12 @@ double BCModel::Probability(const std::vector<double> &parameter)
 double BCModel::LogProbability(const std::vector<double> &parameters)
 {
    // check if normalized
-   if (fNormalization <= 0.) {
+  if (GetIntegral() <= 0.) {
       BCLog::OutError("BCModel::LogProbability. Normalization not available or zero.");
       return 0.;
    }
 
-   return LogProbabilityNN(parameters) - log(fNormalization);
+  return LogProbabilityNN(parameters) - log(GetIntegral());
 }
 
 // ---------------------------------------------------------
@@ -350,357 +345,6 @@ double BCModel::SamplingFunction(const std::vector<double> & /*parameters*/)
    for (unsigned i = 0 ; i < GetNParameters() ; ++i)
       probability *= 1. / fParameters[i]->GetRangeWidth();
    return probability;
-}
-
-// ---------------------------------------------------------
-double BCModel::Normalize()
-{
-   if (fParameters.Size() < 1) {
-      BCLog::OutError(Form("Normalize : No parameters defined in model \'%s\'. Aborting.",GetName().data()));
-      return -1.;
-   }
-
-   BCLog::OutSummary(Form("Model \'%s\': Normalizing probability",GetName().data()));
-
-   // integrate and get best fit parameters
-   // maybe we have to remove the mode finding from here in the future
-   fNormalization = Integrate();
-
-   BCLog::OutDetail(Form(" --> Normalization factor : %.6g", fNormalization));
-
-   return fNormalization;
-}
-
-// ---------------------------------------------------------
-BCH1D * BCModel::GetMarginalized(const BCParameter * parameter)
-{
-   if ( !parameter)
-      return 0;
-   return GetMarginalized(fParameters.Index(parameter->GetName()));
-}
-
-// ---------------------------------------------------------
-BCH1D * BCModel::GetMarginalized(unsigned index)
-{
-  // get histogram
-  BCH1D * htemp = fMarginalized1D.at(index);
-
-  // check if histogram exists
-  if (!htemp)
-    return 0;
-  
-  // set global mode
-  if (fBestFitParameters.size() == GetNParameters())
-    htemp->SetGlobalMode(fBestFitParameters.at(index));
-  
-  // set axis labels
-   htemp->GetHistogram()->SetName(Form("hist_%s_%s", GetName().data(), fParameters[index]->GetName().data()));
-   htemp->GetHistogram()->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
-
-   // return histogram
-   return htemp;
-}
-
- // ---------------------------------------------------------
-int BCModel::ReadMarginalizedFromFile(const char * file)
-{
-   TFile * froot = TFile::Open(file);
-   if (!froot->IsOpen()) {
-      BCLog::OutError(Form("BCModel::ReadMarginalizedFromFile : Couldn't open file %s.", file));
-      return 0;
-   }
-
-   // We reset the MCMCEngine here for the moment.
-   // In the future maybe we only want to do this if the engine
-   // wans't initialized at all or when there were some changes
-   // in the model.
-   // But maybe we want reset everything since we're overwriting
-   // the marginalized distributions anyway.
-   MCMCInitialize();
-
-   int k = 0;
-   int n = GetNParameters();
-   for (int i = 0; i < n; i++) {
-      const BCParameter * a = GetParameter(i);
-      TKey * key = froot->GetKey(TString::Format("hist_%s_%s",GetName().data(), a->GetName().data()));
-      if (key) {
-         TH1D * h1 = (TH1D*) key->ReadObjectAny(TH1D::Class());
-         h1->SetDirectory(0);
-         if (SetMarginalized(i, h1))
-            k++;
-      }
-      else
-         BCLog::OutWarning(
-               Form("BCModel::ReadMarginalizedFromFile : Couldn't read histogram \"hist_%s_%s\" from file %s.",
-                     GetName().data(), a->GetName().data(), file));
-   }
-
-   for (int i = 0; i < n - 1; i++) {
-      for (int j = i + 1; j < n; j++) {
-         const BCParameter * a = GetParameter(i);
-         const BCParameter * b = GetParameter(j);
-         TKey * key = froot->GetKey(
-               TString::Format("hist_%s_%s_%s",GetName().data(), a->GetName().data(),b->GetName().data()));
-         if (key) {
-            TH2D * h2 = (TH2D*) key->ReadObjectAny(TH2D::Class());
-            h2->SetDirectory(0);
-            if (SetMarginalized(i, j, h2))
-               k++;
-         }
-         else
-            BCLog::OutWarning(
-                  Form("BCModel::ReadMarginalizedFromFile : Couldn't read histogram \"hist_%s_%s_%s\" from file %s.",
-                        GetName().data(), a->GetName().data(), b->GetName().data(), file));
-      }
-   }
-
-   froot->Close();
-
-   return k;
-}
-
-
-// ---------------------------------------------------------
-int BCModel::PrintAllMarginalized1D(const char * filebase)
-{
-   if (fMCMCH1Marginalized.size() == 0) {
-      BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
-      return 0;
-   }
-
-   int n = GetNParameters();
-   for (int i = 0; i < n; i++) {
-      const BCParameter * a = GetParameter(i);
-      if (GetMarginalized(a))
-         GetMarginalized(a)->Print(Form("%s_1D_%s.pdf", filebase, a->GetName().data()));
-   }
-
-   return n;
-}
-
-// ---------------------------------------------------------
-int BCModel::PrintAllMarginalized2D(const char * filebase)
-{
-   if (fMCMCH2Marginalized.size() == 0) {
-      BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
-      return 0;
-   }
-
-   int k = 0;
-   int n = GetNParameters();
-   for (int i = 0; i < n - 1; i++) {
-      for (int j = i + 1; j < n; j++) {
-         const BCParameter * a = GetParameter(i);
-         const BCParameter * b = GetParameter(j);
-
-         double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
-         double deltaa = (a->GetUpperLimit() - a->GetLowerLimit());
-         if (deltaa <= 1e-7 * meana)
-            continue;
-
-         double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
-         double deltab = (b->GetUpperLimit() - b->GetLowerLimit());
-         if (deltab <= 1e-7 * meanb)
-            continue;
-
-         if (GetMarginalized(a, b))
-            GetMarginalized(a, b)->Print(
-                  Form("%s_2D_%s_%s.pdf",filebase, a->GetName().data(), b->GetName().data()));
-         k++;
-      }
-   }
-
-   return k;
-}
-
-// ---------------------------------------------------------
-int BCModel::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv)
-{
-   if (fMarginalized1D.size() == 0 and fMarginalized2D.size() == 0) {
-      BCLog::OutError("BCModel::PrintAllMarginalized : Marginalized distributions not available.");
-      return 0;
-   }
-
-   // find all valid (non NULL) histograms
-   std::vector<TH1 *> validH1;
-   
-   for (unsigned i = 0 ; i < fMarginalized1D.size() ; ++i) {
-     if (TH1D * h = fMarginalized1D[i]->GetHistogram())
-       validH1.push_back(h);
-   }
-   
-   std::vector<TH2D *> validH2;
-   for (unsigned i = 0 ; i < fMarginalized2D.size() ; ++i) {
-     if (TH2D * h = fMarginalized2D[i]->GetHistogram())
-       validH2.push_back(h);
-   }
-
-   std::string filename(file);
-
-   // check if file extension does not exist or is not pdf or ps
-   if ( (filename.find_last_of(".") == std::string::npos) or
-         ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
-               (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
-      // make it a PDF file
-      filename += ".pdf";
-   }
-
-   int c_width  = gStyle->GetCanvasDefW(); // default canvas width
-   int c_height = gStyle->GetCanvasDefH(); // default canvas height
-
-   if (hdiv > vdiv) {
-      if (hdiv > 3) {
-         c_width = 1000;
-         c_height = 700;
-      }
-      else {
-         c_width = 800;
-         c_height = 600;
-      }
-   }
-   else if (hdiv < vdiv) {
-      if (hdiv > 3) {
-         c_height = 1000;
-         c_width = 700;
-      }
-      else {
-         c_height = 800;
-         c_width = 600;
-      }
-   }
-
-   const unsigned nplots = validH1.size() + validH2.size();
-
-   // give out warning if too many plots
-   BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-                          int(validH1.size()), int(validH2.size()), nplots, filename.c_str()));
-   if (nplots > 100)
-      BCLog::OutDetail("This can take a while...");
-
-   // setup the canvas and file
-   TCanvas c("c", "canvas", c_width, c_height);
-   c.Divide(hdiv, vdiv);
-
-   // for clean up later
-   std::vector<BCH1D *> h1;
-
-   // count plots
-   unsigned n = 0;
-   for (unsigned i = 0; i < fParameters.Size(); ++i) {
-      BCH1D * h = GetMarginalized(i);
-      h1.push_back(h);
-
-      // check if histogram exists
-      if ( !h)
-         continue;
-
-      // if current page is full, switch to new page
-      if (n != 0 && n % (hdiv * vdiv) == 0) {
-         if ( n <= (hdiv * vdiv)) {
-            c.Print(std::string( filename + "(").c_str());
-         }
-         else {
-            c.Print(filename.c_str());
-         }
-      }
-
-      // go to next pad
-      c.cd(n % (hdiv * vdiv) + 1);
-
-      h->Draw(options1d);
-
-      if (++n % 100 == 0)
-         BCLog::OutDetail(Form(" --> %d plots done", n));
-   }
-
-   // for clean up later
-   std::vector<BCH2D *> h2;
-
-   // check how many 2D plots are actually drawn, despite no histogram filling or delta prior
-   unsigned k = 0;
-   for (unsigned i = 0; i < fParameters.Size() - 1; ++i) {
-      for (unsigned j = i + 1; j < fParameters.Size(); ++j) {
-         // check if histogram exists, or skip if one par has a delta prior
-         h2.push_back(GetMarginalized(i, j));
-         if ( !h2.back())
-            continue;
-
-         // get corresponding parameters
-         BCParameter * a = GetParameter(i);
-         BCParameter * b = GetParameter(j);
-
-         // if current page is full, switch to new page, but only if there is data to plot
-         if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
-            c.Print(filename.c_str());
-         }
-
-         // go to next pad
-         c.cd(k % (hdiv * vdiv) + 1);
-
-         const double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
-         if (a->GetRangeWidth() <= 1e-7 * meana)
-            continue;
-
-         const double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
-         if (b->GetRangeWidth() <= 1e-7 * meanb)
-            continue;
-
-         h2.back()->Draw(options2d);
-         k++;
-
-         if ((n + k) % 100 == 0)
-            BCLog::OutDetail(Form(" --> %d plots done", n + k));
-      }
-   }
-
-   if ((n + k) > 100 && (n + k) % 100 != 0)
-      BCLog::OutDetail(Form(" --> %d plots done", n + k));
-
-   c.Print(std::string( filename + ")").c_str());
-
-   // return total number of drawn histograms
-   return n + k;
-}
-
-// ---------------------------------------------------------
-BCH2D * BCModel::GetMarginalized(const BCParameter * par1, const BCParameter * par2)
-{
-   if ( !par1 or !par2 or (par1 == par2) )
-      return 0;
-
-  return GetMarginalized(fParameters.Index(par1->GetName()), fParameters.Index(par2->GetName()));
-}
-
-// ---------------------------------------------------------
-BCH2D * BCModel::GetMarginalized(unsigned index1, unsigned index2)
-{
-  // swap indices if necessary
-  if (index1 > index2) {
-    unsigned indexTemp = index1;
-    index1 = index2;
-    index2 = indexTemp;
-  }
-
-  // get histogram
-  BCH2D * htemp =  fMarginalized2D.at(GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1);
- 
-  // check if histogram exists
-  if ( !htemp)
-    return 0;
-
-  // set global mode
-  if (fBestFitParameters.size() == GetNParameters()) {
-    double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
-    htemp->SetGlobalMode(gmode);
-  }
-
-  // set name
-  htemp->GetHistogram()->SetName(Form("hist_%s_%s_%s", GetName().data(),
-                                      fParameters[index1]->GetName().data(),
-                                      fParameters[index2]->GetName().data()));
-
-  // return histogram
-  return htemp;
 }
 
 // ---------------------------------------------------------
@@ -1158,9 +802,9 @@ void BCModel::PrintSummary()
    }
 
    // normalization
-   if (fNormalization > 0) {
-      BCLog::OutSummary(" Normalization:");
-      BCLog::OutSummary(Form(" - normalization : %f", fNormalization));
+   if (GetIntegral() > 0) {
+      BCLog::OutSummary(" Evidence:");
+      BCLog::OutSummary(Form(" - evidence : %f", GetIntegral()));
    }
 }
 
@@ -1236,12 +880,12 @@ void BCModel::PrintResults(const char * file)
       ofi << std::endl;
    }
 
-   if (fNormalization >= 0.) {
-      ofi << " Results of the normalization" << std::endl
+   if (GetIntegral() >= 0.) {
+      ofi << " Results of the integration" << std::endl
             << " ============================" << std::endl
             << " Integration method used:"
             << DumpIntegrationMethod() << std::endl;
-      ofi << " Normalization factor: " << fNormalization << std::endl << std::endl;
+      ofi << " Evidence: " << GetIntegral() << std::endl << std::endl;
    }
 
    // give warning if MCMC did not converge

@@ -37,6 +37,9 @@ BCHistogramFitter::BCHistogramFitter()
    SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -52,6 +55,9 @@ BCHistogramFitter::BCHistogramFitter(const char * name)
    SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -69,6 +75,9 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
    SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -86,6 +95,9 @@ BCHistogramFitter::BCHistogramFitter(const char * name, TH1D * hist, TF1 * func)
    SetFillErrorBand();
    fFlagIntegration = true;
    flag_discrete = true;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------

@@ -1,8 +1,11 @@
 2013-08-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/base: added a base model for fitter classes: BCFitter. 
-	* BCHistogramFitter, BCGraphFitter, BCEfficiencyFitter inherit from BCFitter.
+	* BCHistogramFitter, BCGraphFitter, BCEfficiencyFitter:
+	  - inherit from BCFitter.
+	  - have MCMC as default marginalization method.
 	* BCEngineMCMC, BCIntegrate, BCModel: moved a lot of methods to BCFitter.
 	* this closes #49
+	* BCModel, BCIntegrate: moved GetMarginalized, PrintMarginalized and fNormalization to BCIntegrate.
 	
 2013-08-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* private: added a directory for private material. This will be moved to a developer's branch or deleted in the near future.
@@ -19,7 +22,7 @@
 	* examples/advanced/templatefitter: removed
 	* models/base/Makefile.am: removed old template fitter 
 	* models/base/libBATmodels.rootmap.in: removed old template fitter 
-	* BCModel: moved MarginalizeAll() to BCEngineMCMC
+	* BCModel: moved MarginalizeAll() to BCIntegrate
 	* BCIntegrate: 
 	  - added enumerator for different marginalization methods
 	  - added a set of histograms for the marginalized

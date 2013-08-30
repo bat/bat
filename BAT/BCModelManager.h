@@ -240,7 +240,7 @@ public:
    /**
     * Calculates the normalization of the likelihood for each model in
     * the container. */
-   void Normalize();
+   void Integrate();
 
    /**
     * Calculate Bayes factor for two models.

@@ -38,6 +38,9 @@ BCEfficiencyFitter::BCEfficiencyFitter()
 {
    // set default options and values
    fFlagIntegration = false;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -52,6 +55,9 @@ BCEfficiencyFitter::BCEfficiencyFitter(const char * name)
 {
    // set default options and values
    fFlagIntegration = false;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -68,6 +74,9 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D * hist1, TH1D * hist2, TF1 * func)
    SetFitFunction(func);
 
    fFlagIntegration = false;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -85,6 +94,9 @@ BCEfficiencyFitter::BCEfficiencyFitter(const char * name, TH1D * hist1, TH1D * h
 
    MCMCSetRValueCriterion(0.01);
    fFlagIntegration = false;
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------

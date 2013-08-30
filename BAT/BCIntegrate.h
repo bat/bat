@@ -160,6 +160,82 @@ public:
    /** \name Member functions (get) */
    /** @{ */
 
+      /**
+       * Read */
+      int ReadMarginalizedFromFile(const char * file);
+
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param parameter Model parameter
+       * @return 1D marginalized probability */
+      BCH1D * GetMarginalized(const BCParameter * parameter);
+
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param name The parameter's name
+       * @return 1D marginalized probability */
+      BCH1D * GetMarginalized(const char * name)
+         { return GetMarginalized(fParameters.Index(name)); }
+
+			/**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param index The parameter index
+       * @return 1D marginalized probability */
+      BCH1D * GetMarginalized(unsigned index);
+
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+
+       * @param parameter1 First parameter
+       * @param parameter2 Second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
+
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param name1 Name of first parameter
+       * @param name2 Name of second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(const char * name1, const char * name2)
+      { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
+
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param index1 Index of first parameter
+       * @param index2 Index of second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(unsigned index1, unsigned index2);
+
+      /**
+       *   */
+      int PrintAllMarginalized1D(const char * filebase);
+      int PrintAllMarginalized2D(const char * filebase);
+      int PrintAllMarginalized(const char * file, std::string options1d="BTciB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
+
+
+      /**
+       * @return The integral. */
+      double GetIntegral() const
+         { return fIntegral; }
+
    /**
     * @return The integration method */
    BCIntegrate::BCIntegrationMethod GetIntegrationMethod() const
@@ -475,6 +551,11 @@ public:
    virtual double EvalSampling(const std::vector<double> &x);
 
    /**
+    * Performs integration. */
+   double Normalize()
+   { return Integrate(); };
+
+   /**
     * Does the integration over the un-normalized probability.
     * @return The normalization value */
    double Integrate()
@@ -772,6 +853,10 @@ public:
 protected:
 
    /**
+    * An identification number in case several models exist .*/
+   int fID;
+
+   /**
     * A vector of best fit parameters estimated from the global
     * probability and the estimate on their uncertainties */
    std::vector<double> fBestFitParameterErrors;
@@ -868,6 +953,10 @@ private:
     * Number of iterations in the most recent Monte Carlo integration */
    int fNIterations;
 
+   /**
+    * The integral. */
+   double fIntegral;
+   
    /** Requested relative precision of the integration */
    double fRelativePrecision;
 

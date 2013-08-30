@@ -30,6 +30,8 @@ BCGraphFitter::BCGraphFitter()
  , fErrorBand(0)
  , fGraphFitFunction(0)
 {
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -41,6 +43,8 @@ BCGraphFitter::BCGraphFitter(const char * name)
  , fErrorBand(0)
  , fGraphFitFunction(0)
 {
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -54,6 +58,9 @@ BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func)
 {
    SetGraph(graph);
    SetFitFunction(func);
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------
@@ -67,6 +74,9 @@ BCGraphFitter::BCGraphFitter(const char * name, TGraphErrors * graph, TF1 * func
 {
    SetGraph(graph);
    SetFitFunction(func);
+
+   // set MCMC for marginalization
+   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
 }
 
 // ---------------------------------------------------------

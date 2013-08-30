@@ -303,7 +303,7 @@ int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 
 // ---------------------------------------------------------
 
-void BCModelManager::Normalize()
+void BCModelManager::Integrate()
 {
    // initialize likelihood norm
    double normalization = 0.0;
@@ -311,16 +311,16 @@ void BCModelManager::Normalize()
    BCLog::OutSummary("Running normalization of all models.");
 
    for (unsigned int i = 0; i < GetNModels(); i++) {
-      fModelContainer->at(i)->Normalize();
+      fModelContainer->at(i)->Integrate();
 
       // add to total normalization
-      normalization += (fModelContainer->at(i)->GetNormalization() * fModelContainer->at(i)->GetModelAPrioriProbability());
+      normalization += (fModelContainer->at(i)->GetIntegral() * fModelContainer->at(i)->GetModelAPrioriProbability());
    }
 
    // set model a posteriori probabilities
    for (unsigned int i = 0; i < GetNModels(); i++)
       fModelContainer->at(i)->SetModelAPosterioriProbability(
-            (fModelContainer->at(i)->GetNormalization() * fModelContainer->at(i)->GetModelAPrioriProbability()) /
+            (fModelContainer->at(i)->GetIntegral() * fModelContainer->at(i)->GetModelAPrioriProbability()) /
             normalization);
 }
 
@@ -333,8 +333,8 @@ double BCModelManager::BayesFactor(const unsigned int imodel1, const unsigned in
    //    NOOOO
    // But it is equal to normalization factors.
 
-   const double norm1 = fModelContainer->at(imodel1)->GetNormalization();
-   const double norm2 = fModelContainer->at(imodel2)->GetNormalization();
+   const double norm1 = fModelContainer->at(imodel1)->GetIntegral();
+   const double norm2 = fModelContainer->at(imodel2)->GetIntegral();
 
    // check model 1
    if(norm1<0.) {
