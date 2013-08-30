@@ -96,12 +96,7 @@ void histogramFitterExample()
    hf->SetPriorConstant(3);
 
    // perform fit
-
-   //   hf->MarginalizeAll();
-
-   hf->MCMCSetRandomSeed(1235623);
-
-   //   hf->Fit();
+   hf->Fit();
 
    double pvalue, pvalueCorrected;
    std::vector<double> init (4);
