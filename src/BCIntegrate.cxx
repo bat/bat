@@ -81,11 +81,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC(),
                              fSALogProb(0),
                              fMarginalized1D(0),
                              fMarginalized2D(0),
-#ifdef HAVE_CUBA_H
-                             fIntegrationMethod(BCIntegrate::kIntCuba),
-#else
-                             fIntegrationMethod(BCIntegrate::kIntMonteCarlo),
-#endif
+                             fIntegrationMethod(BCIntegrate::kIntDefault),
                              fMarginalizationMethod(BCIntegrate::kMargDefault),
                              fSASchedule(BCIntegrate::kSACauchy),
                              fNIterationsMin(0),
@@ -259,7 +255,11 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
     return -1.;
    }
 
-   switch(type)
+  // output
+  if (!(fIntegrationMethod == BCIntegrate::kIntDefault))
+    BCLog::OutSummary(Form("Integrate using %s", DumpIntegrationMethod(fIntegrationMethod).c_str()));
+  
+  switch(type)
    {
 
    // Monte Carlo Integration
@@ -277,21 +277,46 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
 
    // Importance Sampling Integration
    case BCIntegrate::kIntImportance:
-   {
-      std::vector<double> sums (2,0.0);
-      fIntegral = Integrate(kIntImportance,
-                            &BCIntegrate::GetRandomVectorInParameterSpace,
-                            &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
+     {
+       std::vector<double> sums (2,0.0);
+       fIntegral = Integrate(kIntImportance,
+                             &BCIntegrate::GetRandomVectorInParameterSpace,
+                             &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
                             &IntegralUpdaterImportance,	 // use same updater as for metropolis
-                            sums);
-      return fIntegral;
+                             sums);
+       return fIntegral;
    }
+     
+     // CUBA library
    case BCIntegrate::kIntCuba: 
      {
        fIntegral = IntegrateCuba();
-
+       
        return fIntegral;
      }
+
+     // CUBA library
+   case BCIntegrate::kIntSlice: 
+     {
+       fIntegral = IntegrateSlice();
+       
+       return fIntegral;
+     }
+
+     // default
+   case BCIntegrate::kIntDefault:
+     {
+       if (GetNFreeParameters() <= 2)
+         SetIntegrationMethod(BCIntegrate::kIntSlice);
+       else
+#ifdef HAVE_CUBA_H
+         SetIntegrationMethod(BCIntegrate::kIntCuba);
+#else
+       SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
+#endif
+       return Integrate();
+     }
+
    default:
       BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
       break;
@@ -371,8 +396,10 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
                NVarNow));
    }
 
-   BCLog::Out(level, TString::Format(" --> Minimum number of iterations: %i", GetNIterationsMin()));
-   BCLog::Out(level, TString::Format(" --> Maximum number of iterations: %i", GetNIterationsMax()));
+   if (GetNIterationsMin() > 0 && GetNIterationsMax() > 0 ) {
+     BCLog::Out(level, TString::Format(" --> Minimum number of iterations: %i", GetNIterationsMin()));
+     BCLog::Out(level, TString::Format(" --> Maximum number of iterations: %i", GetNIterationsMax()));
+   }
    BCLog::Out(level, TString::Format(" --> Target relative precision:    %e", GetRelativePrecision()));
    BCLog::Out(level, TString::Format(" --> Target absolute precision:    %e", GetAbsolutePrecision()));
 }
@@ -380,8 +407,10 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
 // ---------------------------------------------------------
 void BCIntegrate::LogOutputAtEndOfIntegration(double integral, double absprecision, double relprecision, int nIterations)
 {
-   BCLog::OutSummary(TString::Format(" --> Result of integration:        %e +- %e   in %i iterations.", integral, absprecision, nIterations));
+   BCLog::OutSummary(TString::Format(" --> Result of integration:        %e +- %e", integral, absprecision));
    BCLog::OutSummary(TString::Format(" --> Obtained relative precision:  %e. ", relprecision));
+   if (nIterations >= 0)
+     BCLog::OutSummary(TString::Format(" --> Number of iterations:         %i", nIterations));
 }
 
 // ---------------------------------------------------------
@@ -722,15 +751,16 @@ int BCIntegrate::MarginalizeAll()
     return 0;
   }
 
+  // output
+  if (!(fMarginalizationMethod == BCIntegrate::kMargDefault))
+    BCLog::OutSummary(Form("Marginalize using %s", DumpMarginalizationMethod(fMarginalizationMethod).c_str()));
+
   switch (GetMarginalizationMethod()) 
     {
       
       // Markov Chain Monte Carlo
     case BCIntegrate::kMargMCMC: 
       {
-        // output
-        BCLog::OutSummary("Run MCMC.");
-         
         // start preprocess
         MarginalizePreprocess();
 
@@ -769,9 +799,6 @@ int BCIntegrate::MarginalizeAll()
       // Slice
     case BCIntegrate::kMargSlice:
       {
-        // output
-        BCLog::OutSummary("Run Slice.");
-
         std::vector<double> fixpoint(GetNParameters());
         for (unsigned int i = 0; i < GetNParameters(); ++i) {
           if (fParameters[i]->Fixed())
@@ -885,7 +912,7 @@ int BCIntegrate::MarginalizeAll()
 }
 
 // ---------------------------------------------------------
-BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins)
+BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
 	// check if parameter exists
 	if (!parameter) {
@@ -901,13 +928,9 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
 	std::vector<double> parameters_temp;
 	parameters_temp = parameters;
 
-	// normalization flag: if true, normalize slice histogram to unity
-	bool flag_norm = false;
-
 	// check if parameter set if defined
 	if (parameters_temp.size()==0 && GetNParameters()==1) {
 		parameters_temp.push_back(0);
-		flag_norm = true; // slice is the 1D pdf, so normalize it to unity
 	}
 	else if (parameters_temp.size()==0 && GetNParameters()!=1) {
 		BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
@@ -948,19 +971,19 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
 	return hprob;
 }
 // ---------------------------------------------------------
-BCH2D* BCIntegrate::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins)
+BCH2D* BCIntegrate::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
-   return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins);
+  return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins, flag_norm);
 }
 
 // ---------------------------------------------------------
-BCH2D* BCIntegrate::GetSlice(const char* name1, const char* name2, const std::vector<double> parameters, int nbins)
+BCH2D* BCIntegrate::GetSlice(const char* name1, const char* name2, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
-   return GetSlice(fParameters.Index(name1), fParameters.Index(name2), parameters, nbins);
+  return GetSlice(fParameters.Index(name1), fParameters.Index(name2), parameters, nbins, flag_norm);
 }
 
 // ---------------------------------------------------------
-BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins)
+BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
    // check if parameters exists
    if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
@@ -976,9 +999,6 @@ BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
    std::vector<double> parameters_temp;
    parameters_temp = parameters;
 
-   // normalization flag: if true, normalize slice histogram to unity
-   bool flag_norm = false;
-
    // check number of dimensions
    if (GetNParameters() < 2) {
       BCLog::OutError("BCIntegrate::GetSlice : Number of parameters need to be at least 2.");
@@ -988,7 +1008,6 @@ BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
    if (parameters_temp.size()==0 && GetNParameters()==2) {
       parameters_temp.push_back(0);
       parameters_temp.push_back(0);
-      flag_norm = true; // slice is the 1D pdf, so normalize it to unity
    }
    else if (parameters_temp.size()==0 && GetNParameters()>2) {
       BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
@@ -1029,13 +1048,19 @@ BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
       }
    }
 
+   // calculate normalization
+   double norm = hist->Integral("width");
+
    // normalize
    if (flag_norm)
-      hist->Scale(1.0/hist->Integral());
+      hist->Scale(1.0/norm);
 
    // set histogram
    BCH2D * hprob = new BCH2D();
    hprob->SetHistogram(hist);
+
+   // renormalize
+   hist->Scale(norm / hist->Integral("width"));
 
    return hprob;
 }
@@ -2145,6 +2170,70 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 }
 
 // ---------------------------------------------------------
+double BCIntegrate::IntegrateSlice()
+{
+  // print to log
+  LogOutputAtStartOfIntegration(fIntegrationMethod, NCubaMethods);
+
+  double integral = -1;
+  double absprecision  = 0;
+  double relprecision  = 0;
+  fError = 0;
+
+  // calculate values are which the function should be evaluated
+  std::vector<double> fixpoint(GetNParameters());
+  for (unsigned int i = 0; i < GetNParameters(); ++i) {
+    if (fParameters[i]->Fixed())
+      fixpoint[i] = fParameters[i]->GetFixedValue();
+    else 
+      fixpoint[i] = 0;
+  }
+  
+  if (GetNFreeParameters() == 1) {
+    for (unsigned int i = 0; i < GetNParameters(); ++i) {
+      if (!fParameters[i]->Fixed()) {
+        // calculate slice
+        BCH1D* hist_temp = GetSlice(fParameters[i], fixpoint, 0, false);
+
+        // calculate integral
+        integral = hist_temp->GetHistogram()->Integral("width");
+        
+        // free memory
+        delete hist_temp;
+      }
+    }
+  }
+  else if (GetNFreeParameters() == 2) {
+    for (unsigned int i = 0; i < GetNParameters(); ++i) {
+      for (unsigned int j = 0; j < GetNParameters(); ++j) {
+        if (i >= j)
+          continue;
+        if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
+          // calculate slice
+          BCH2D* hist_temp = GetSlice(GetParameter(i), GetParameter(j), fixpoint, 0, false);
+
+          // calculate integral
+          integral = hist_temp->GetHistogram()->Integral("width");
+        
+        // free memory
+        delete hist_temp;
+        }
+      }
+    }
+  }
+  else {
+    BCLog::OutWarning("BCIntegrate::IntegrateSlice: Method only implemented for 1D and 2D problems. Return -1.");
+
+    integral = -1;
+  }
+
+	// print to log
+	LogOutputAtEndOfIntegration(integral, absprecision, relprecision, -1);
+
+  return integral;
+}
+
+// ---------------------------------------------------------
 void BCIntegrate::SAInitialize()
 {
    fSAx.clear();
@@ -2161,6 +2250,8 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
          return "Importance Sampling";
       case BCIntegrate::kIntCuba:
          return "Cuba";
+      case BCIntegrate::kIntSlice:
+         return "Slice";
       default:
          return "Undefined";
    }

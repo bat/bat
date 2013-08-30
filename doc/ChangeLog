@@ -9,6 +9,7 @@
 	* BCIntegrate: 
 	  - marginalization methods slice and MCMC work with fixed parameters now. Note: MCMC doesn't really fix the parameter!
 	  - kMargDefault now decides now based on the number of free parameters.
+	  - added default and slice method for integration
 	* benchmarks/test/BCIntegrate_TEST.cxx: had to rename a method
 	* BCEngineMCMC.cxx: added methods to calculate the number of fixed and free parameters
 	

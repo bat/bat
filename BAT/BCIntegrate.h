@@ -94,6 +94,8 @@ public:
       kIntMonteCarlo,
       kIntImportance,
       kIntCuba,
+      kIntSlice,
+      kIntDefault,
       NIntMethods };
 
    /**
@@ -328,17 +330,19 @@ public:
     * @param parameter The model parameter along which the slice is calculated.
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 1D-histogram.
+    * @param flag_norm: normalize histogram to unity or not
     * @return The 1D slice. */
-   BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+   BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0, bool flag_norm=true);
 
    /**
     * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
     * @param name The name of the model parameter along which the slice is calculated.
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 1D-histogram.
+    * @param flag_norm: normalize histogram to unity or not
     * @return The 1D slice. */
-   BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0)
-   { return GetSlice(GetParameter(name), parameters, nbins); }
+   BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
+   { return GetSlice(GetParameter(name), parameters, nbins, flag_norm); }
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
@@ -346,8 +350,9 @@ public:
     * @param parameter2 The second model parameter along which the slice is calculated.
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 2D-histogram.
+    * @param flag_norm: normalize histogram to unity or not
     * @return The 2D slice. */
-   BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0);
+   BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0, bool flag_norm=true);
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
@@ -355,8 +360,9 @@ public:
     * @param parameter2 The name of the second model parameter along which the slice is calculated.
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 2D-histogram.
+    * @param flag_norm: normalize histogram to unity or not
     * @return The 2D slice. */
-   BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0);
+   BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
@@ -364,8 +370,9 @@ public:
     * @param parameter2 The name of the second model parameter along which the slice is calculated.
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 2D-histogram.
-    * @return The 2D slice. */
-   BCH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0);
+     * @param flag_norm: normalize histogram to unity or not
+   * @return The 2D slice. */
+   BCH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
 
    /**
     * @return The uncertainty in the most recent Monte Carlo integration */
@@ -604,6 +611,11 @@ public:
     * @param ff The function value
     * @return An error code */
    static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
+
+   /**
+    * Integrate using the slice method
+    * @return the integral; */
+   double IntegrateSlice();
 
    TH1D * Marginalize(BCIntegrationMethod type, unsigned index);
 
