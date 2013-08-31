@@ -48,10 +48,6 @@ class BCEngineMCMC
       /** An enumerator for the status of a test. */
       enum Precision{ kLow, kMedium, kHigh, kVeryHigh };
 
-      /**
-       * An enumerator for the mode finding algorithm */
-      enum BCOptimizationMethod { kOptSA, kOptMetropolis, kOptMinuit, NOptMethods };
-
       /** @} */
       /** \name Constructors and destructors */
       /** @{ */
@@ -311,16 +307,6 @@ class BCEngineMCMC
        * @return best fit parameters */
       const std::vector<double> & GetBestFitParametersMarginalized() const;
 
-      /**
-       * @return The current optimization method */
-      BCEngineMCMC::BCOptimizationMethod GetOptimizationMethod() const
-      { return fOptimizationMethod; }
-
-      /**
-       * @return The optimization method used to find the mode */
-      BCEngineMCMC::BCOptimizationMethod GetOptimizationMethodMode() const
-      { return fOptimizationMethodMode; }
-
       /** @} */
       /** \name Setters */
       /** @{ */
@@ -489,12 +475,6 @@ class BCEngineMCMC
       /** @} */
       /** \name Error propagation*/
       /** @{ */
-
-     /**
-       * Set the current optimization method */
-      void SetOptimizationMethod(BCEngineMCMC::BCOptimizationMethod method)
-      { fOptimizationMethod = method; }
-
 
       /** @} */
 
@@ -724,6 +704,8 @@ class BCEngineMCMC
        */
       void SyncThreadStorage();
 
+      bool fFlagMarginalized;
+
    protected:
       /**
        * Parameter settings */
@@ -927,15 +909,6 @@ class BCEngineMCMC
        * The trees containing the Markov chains. The length of the vector
        * is fMCMCNChains. */
       std::vector<TTree *> fMCMCTrees;
-
-      /**
-       * Current mode finding method */
-      BCEngineMCMC::BCOptimizationMethod fOptimizationMethod;
-
-      /**
-       * Method with which the global mode was found (can differ from
-       * fOptimization method in case more than one algorithm is used). */
-      BCEngineMCMC::BCOptimizationMethod fOptimizationMethodMode;
 
       /**
        * A vector of best fit parameters */

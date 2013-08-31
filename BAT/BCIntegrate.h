@@ -87,10 +87,21 @@ public:
 
    /** \name Enumerators */
    /** @{ */
+  
+  /**
+   * An enumerator for the mode finding algorithm */
+  enum BCOptimizationMethod { 
+    kOptEmpty,
+    kOptSA, 
+    kOptMetropolis, 
+    kOptMinuit, 
+    kOptDefault,
+    NOptMethods };
 
    /**
     * An enumerator for integration algorithms */
    enum BCIntegrationMethod {
+      kIntEmpty,
       kIntMonteCarlo,
       kIntImportance,
       kIntCuba,
@@ -101,12 +112,13 @@ public:
    /**
     * An enumerator for marginalization algorithms */
    enum BCMarginalizationMethod {
-      kMargMCMC,
-      kMargMonteCarlo,
-      kMargSlice,
-      kMargDefault,
-      NMargMethods };
-
+     kMargEmpty,
+     kMargMCMC,
+     kMargMonteCarlo,
+     kMargSlice,
+     kMargDefault,
+     NMargMethods };
+   
    /**
     * An enumerator for the Simulated Annealing schedule */
    enum BCSASchedule { kSACauchy, kSABoltzmann, kSACustom, NSAMethods };
@@ -162,91 +174,96 @@ public:
    /** \name Member functions (get) */
    /** @{ */
 
-      /**
-       * Read */
-      int ReadMarginalizedFromFile(const char * file);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param parameter Model parameter
-       * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(const BCParameter * parameter);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param name The parameter's name
-       * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(const char * name)
-         { return GetMarginalized(fParameters.Index(name)); }
-
-			/**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param index The parameter index
-       * @return 1D marginalized probability */
-      BCH1D * GetMarginalized(unsigned index);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-
-       * @param parameter1 First parameter
-       * @param parameter2 Second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param name1 Name of first parameter
-       * @param name2 Name of second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(const char * name1, const char * name2)
-      { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
-
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param index1 Index of first parameter
-       * @param index2 Index of second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(unsigned index1, unsigned index2);
-
-      /**
-       *   */
-      int PrintAllMarginalized1D(const char * filebase);
-      int PrintAllMarginalized2D(const char * filebase);
-      int PrintAllMarginalized(const char * file, std::string options1d="BTciB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
-
-
-      /**
-       * @return The integral. */
-      double GetIntegral() const
-         { return fIntegral; }
+   /**
+    * Read */
+   int ReadMarginalizedFromFile(const char * file);
 
    /**
-    * @return The integration method */
+    * Obtain the individual marginalized distributions
+    * with respect to one parameter.
+    * @note The most efficient method is to access by index.
+    * @note Ownership of the returned heap object is conferred to the caller.
+    * @param parameter Model parameter
+    * @return 1D marginalized probability */
+   BCH1D * GetMarginalized(const BCParameter * parameter);
+
+   /**
+    * Obtain the individual marginalized distributions
+    * with respect to one parameter.
+    * @note The most efficient method is to access by index.
+    * @note Ownership of the returned heap object is conferred to the caller.
+    * @param name The parameter's name
+    * @return 1D marginalized probability */
+   BCH1D * GetMarginalized(const char * name)
+   { return GetMarginalized(fParameters.Index(name)); }
+
+   /**
+    * Obtain the individual marginalized distributions
+    * with respect to one parameter.
+    * @note The most efficient method is to access by index.
+    * @note Ownership of the returned heap object is conferred to the caller.
+    * @param index The parameter index
+    * @return 1D marginalized probability */
+   BCH1D * GetMarginalized(unsigned index);
+
+   /**
+    * Obtain the individual marginalized distributions
+    * with respect to two parameters.
+    * @note The most efficient method is to access by indices.
+    * @note Ownership of the returned heap object is conferred to the caller.
+
+    * @param parameter1 First parameter
+    * @param parameter2 Second parameter
+    * @return 2D marginalized probability */
+   BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
+
+   /**
+    * Obtain the individual marginalized distributions
+    * with respect to two parameters.
+    * @note The most efficient method is to access by indices.
+    * @note Ownership of the returned heap object is conferred to the caller.
+    * @param name1 Name of first parameter
+    * @param name2 Name of second parameter
+    * @return 2D marginalized probability */
+   BCH2D * GetMarginalized(const char * name1, const char * name2)
+   { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
+
+   /**
+    * Obtain the individual marginalized distributions
+    * with respect to two parameters.
+    * @note The most efficient method is to access by indices.
+    * @note Ownership of the returned heap object is conferred to the caller.
+    * @param index1 Index of first parameter
+    * @param index2 Index of second parameter
+    * @return 2D marginalized probability */
+   BCH2D * GetMarginalized(unsigned index1, unsigned index2);
+
+   /**
+    *   */
+   int PrintAllMarginalized1D(const char * filebase);
+   int PrintAllMarginalized2D(const char * filebase);
+   int PrintAllMarginalized(const char * file, std::string options1d="BTciB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
+
+
+   /**
+    * @return The integral. */
+   double GetIntegral() const
+   { return fIntegral; }
+
+   /**
+    * @return The current optimization method */
+   BCIntegrate::BCOptimizationMethod GetOptimizationMethod() const
+     { return fOptimizationMethodCurrent; }
+
+   /**
+    * @return The current integration method */
    BCIntegrate::BCIntegrationMethod GetIntegrationMethod() const
-   { return fIntegrationMethod; }
+   { return fIntegrationMethodCurrent; }
 
    /**
-    * @return The marginalization method */
+    * @return The current marginalization method */
    BCIntegrate::BCMarginalizationMethod GetMarginalizationMethod() const
-   { return fMarginalizationMethod; }
+   { return fMarginalizationMethodCurrent; }
 
    /**
     * @return The Simulated Annealing schedule */
@@ -441,13 +458,18 @@ public:
    { fFlagIgnorePrevOptimization = flag; }
 
    /**
-    * @param method The integration method */
+    * @param method The current optimization method */
+   void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method)
+   { fOptimizationMethodCurrent = method; }
+
+   /**
+    * @param method The current integration method */
    void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method);
 
    /**
-    * @param method The marginalization method */
+    * @param method The current marginalization method */
    void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method)
-   { fMarginalizationMethod = method; }
+   { fMarginalizationMethodCurrent = method; }
 
    /**
     * @param method The Simulated Annealing schedule */
@@ -566,7 +588,7 @@ public:
     * Does the integration over the un-normalized probability.
     * @return The normalization value */
    double Integrate()
-   { return Integrate(fIntegrationMethod);}
+   { return Integrate(fIntegrationMethodCurrent);}
 
    /**
     * Does the integration over the un-normalized probability.
@@ -786,8 +808,14 @@ public:
    /**
     * Return string with the name for the currently set integration type.
     * @return string containing the name of the integration type */
-   std::string DumpIntegrationMethod()
-   { return DumpIntegrationMethod(fIntegrationMethod); }
+   std::string DumpCurrentIntegrationMethod()
+   { return DumpIntegrationMethod(fIntegrationMethodCurrent); }
+
+   /**
+    * Return string with the name for the currently set integration type.
+    * @return string containing the name of the integration type */
+   std::string DumpUsedIntegrationMethod()
+   { return DumpIntegrationMethod(fIntegrationMethodUsed); }
 
    /**
     * Return string with the name for a given marginalization type.
@@ -798,8 +826,14 @@ public:
    /**
     * Return string with the name for the currently set marginalization type.
     * @return string containing the name of the marginalization type */
-   std::string DumpMarginalizationMethod()
-   { return DumpMarginalizationMethod(fMarginalizationMethod); }
+   std::string DumpCurrentMarginalizationMethod()
+   { return DumpMarginalizationMethod(fMarginalizationMethodCurrent); }
+
+   /**
+    * Return string with the name for the marginalization type used.
+    * @return string containing the name of the marginalization type */
+   std::string DumpUsedMarginalizationMethod()
+   { return DumpMarginalizationMethod(fMarginalizationMethodUsed); }
 
    /**
     * Return string with the name for a given optimization type.
@@ -810,14 +844,14 @@ public:
    /**
     * Return string with the name for the currently set optimization type.
     * @return string containing the name of the optimization type */
-   std::string DumpOptimizationMethod()
-   { return DumpOptimizationMethod(fOptimizationMethod); }
+   std::string DumpCurrentOptimizationMethod()
+   { return DumpOptimizationMethod(fOptimizationMethodCurrent); }
 
    /**
     * Return string with the name for the optimization type used to find the current mode.
     * @return string containing the name of the optimization type */
    std::string DumpUsedOptimizationMethod()
-   { return DumpOptimizationMethod(fOptimizationMethodMode); }
+   { return DumpOptimizationMethod(fOptimizationMethodUsed); }
 
    /**
     * Return string with the name for a given Cuba integration type.
@@ -932,14 +966,36 @@ protected:
     * @param bcintegrate BCIntegrate object to copy values from */
    void Copy(const BCIntegrate & bcintegrate);
 
+   /**
+    * flag indicating if the model was marginalized */
+   bool fFlagMarginalized;
+   
 private:
+
+   /**
+    * Current mode finding method */
+   BCIntegrate::BCOptimizationMethod fOptimizationMethodCurrent;
+   
+   /**
+    * Method with which the global mode was found (can differ from
+    * fOptimization method in case more than one algorithm is used). */
+   BCIntegrate::BCOptimizationMethod fOptimizationMethodUsed;
+
    /**
     * Current integration method */
-   BCIntegrate::BCIntegrationMethod fIntegrationMethod;
+   BCIntegrate::BCIntegrationMethod fIntegrationMethodCurrent;
+
+   /**
+    * Integration method used for the current results */
+   BCIntegrate::BCIntegrationMethod fIntegrationMethodUsed;
 
    /**
     * Current marginalization method */
-   BCIntegrate::BCMarginalizationMethod fMarginalizationMethod;
+   BCIntegrate::BCMarginalizationMethod fMarginalizationMethodCurrent;
+
+   /**
+    * Marginalization method used for the current results */
+   BCIntegrate::BCMarginalizationMethod fMarginalizationMethodUsed;
 
    /**
     * Current Simulated Annealing schedule */
@@ -985,6 +1041,7 @@ private:
    BCCubaOptions::Suave fCubaSuaveOptions;
    BCCubaOptions::Divonne fCubaDivonneOptions;
    BCCubaOptions::Cuhre fCubaCuhreOptions;
+
 };
 
 // ---------------------------------------------------------

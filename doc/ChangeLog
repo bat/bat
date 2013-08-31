@@ -1,5 +1,10 @@
 2013-08-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCIntegrate: fixed a style issue for histograms created by "slice" method
+	* BCIntegrate: 
+	  - fixed a style issue for histograms created by "slice" method (fixes #51)
+	  - introduce current and used methods for integration and marginalization
+	  - moved variables for current and used optimization method to BCIntegrate.
+	* BCModel:
+	  - PrintResults: improved output (fixes #52)
 
 2013-08-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/base: added a base model for fitter classes: BCFitter. 

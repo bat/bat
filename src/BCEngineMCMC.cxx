@@ -47,9 +47,6 @@ void BCEngineMCMC::MCMCSetValuesDefault()
    fMCMCNLag                 = 1;
    fMCMCCurrentIteration     = -1;
    fMCMCCurrentChain         = -1;
-
-   fOptimizationMethod = BCEngineMCMC::kOptMinuit;
-   fOptimizationMethodMode = BCEngineMCMC::NOptMethods;
    fLogMaximum = -std::numeric_limits<double>::max();
 
    MCMCSetValuesDetail();
@@ -251,8 +248,6 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    }
 
    fMarginalModes = other.fMarginalModes;
-   fOptimizationMethod = other.fOptimizationMethod;
-   fOptimizationMethodMode = other.fOptimizationMethodMode;
    fBestFitParameters = other.fBestFitParameters;
    fLogMaximum = other.fLogMaximum;
 }
@@ -1432,7 +1427,9 @@ int BCEngineMCMC::MCMCMetropolis()
       for (unsigned i = 0; i < fParameters.Size(); ++i)
          fBestFitParameters[i] = fMCMCxMax[probmaxindex * fParameters.Size() + i];
 
-      fOptimizationMethodMode = BCEngineMCMC::kOptMetropolis;
+
+      // debugKK: disentangle MCMC global mode and model global mode
+      //      fOptimizationMethodMode = BCEngineMCMC::kOptMetropolis;
    }
 
    BCLog::OutDetail(" --> Global mode from MCMC:");

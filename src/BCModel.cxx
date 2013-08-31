@@ -855,13 +855,15 @@ void BCModel::PrintResults(const char * file)
       ofi << " Log of the maximum posterior: " << fLogMaximum << std::endl;
       ofi << " List of parameters and global mode:" << std::endl;
       for (unsigned i = 0; i < npar; ++i) {
-         ofi << "  (" << i << ") Parameter \""
-             << fParameters[i]->GetName() << "\": "
-               << fBestFitParameters[i];
-             if (fBestFitParameterErrors.size() == npar)
-                if(fBestFitParameterErrors[i] >= 0.)
-               ofi << " +- " << fBestFitParameterErrors[i];
-         ofi << std::endl;
+        ofi << "  (" << i << ") Parameter \""
+            << fParameters[i]->GetName() << "\": "
+            << fBestFitParameters[i];
+        if (fParameters[i]->Fixed())
+          ofi << " (fixed)";
+        else if (fBestFitParameterErrors.size() == npar)
+          if(fBestFitParameterErrors[i] >= 0.)
+            ofi << " +- " << fBestFitParameterErrors[i];
+        ofi << std::endl;
       }
       ofi << std::endl;
    }
@@ -883,9 +885,9 @@ void BCModel::PrintResults(const char * file)
    if (GetIntegral() >= 0.) {
       ofi << " Results of the integration" << std::endl
             << " ============================" << std::endl
-            << " Integration method used:"
-            << DumpIntegrationMethod() << std::endl;
-      ofi << " Evidence: " << GetIntegral() << std::endl << std::endl;
+            << " Integration method used: "
+            << DumpUsedIntegrationMethod() << std::endl;
+      ofi << " Evidence: " << GetIntegral() << " +- " << GetError() << std::endl << std::endl;
    }
 
    // give warning if MCMC did not converge
@@ -895,9 +897,11 @@ void BCModel::PrintResults(const char * file)
       << std::endl;
 
    // print results of marginalization (if MCMC was run)
-   if (fMCMCFlagRun) {
+   if (fFlagMarginalized) {
       ofi << " Results of the marginalization" << std::endl
           << " ==============================" << std::endl
+          << " Marginalization algorithm used: "
+          << DumpUsedMarginalizationMethod() << std::endl
           << " List of parameters and properties of the marginalized"
           << std::endl << " distributions:" << std::endl;
       for (unsigned i = 0; i < npar; ++i) {

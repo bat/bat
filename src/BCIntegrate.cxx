@@ -81,8 +81,13 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC(),
                              fSALogProb(0),
                              fMarginalized1D(0),
                              fMarginalized2D(0),
-                             fIntegrationMethod(BCIntegrate::kIntDefault),
-                             fMarginalizationMethod(BCIntegrate::kMargDefault),
+                             fFlagMarginalized(false),
+                             fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
+                             fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
+                             fIntegrationMethodCurrent(BCIntegrate::kIntDefault),
+                             fIntegrationMethodUsed(BCIntegrate::kIntEmpty),
+                             fMarginalizationMethodCurrent(BCIntegrate::kMargDefault),
+                             fMarginalizationMethodUsed(BCIntegrate::kMargEmpty),
                              fSASchedule(BCIntegrate::kSACauchy),
                              fNIterationsMin(0),
                              fNIterationsMax(1000000),
@@ -134,8 +139,12 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 	fSAx                      = other.fSAx;
   fMarginalized1D           = other.fMarginalized1D;
   fMarginalized2D           = other.fMarginalized2D;
-	fIntegrationMethod        = other.fIntegrationMethod;
-	fMarginalizationMethod    = other.fMarginalizationMethod;
+	fOptimizationMethodCurrent= other.fOptimizationMethodCurrent;
+	fOptimizationMethodUsed   = other.fOptimizationMethodUsed;
+	fIntegrationMethodCurrent = other.fIntegrationMethodCurrent;
+	fIntegrationMethodUsed    = other.fIntegrationMethodUsed;
+	fMarginalizationMethodCurrent = other.fMarginalizationMethodCurrent;
+	fMarginalizationMethodUsed= other.fMarginalizationMethodUsed;
 	fSASchedule               = other.fSASchedule;
 	fNIterationsMin           = other.fNIterationsMin;
 	fNIterationsMax           = other.fNIterationsMax;
@@ -151,6 +160,7 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 	fCubaSuaveOptions         = other.fCubaSuaveOptions;
 	fCubaDivonneOptions       = other.fCubaDivonneOptions;
 	fCubaCuhreOptions         = other.fCubaCuhreOptions;
+  fFlagMarginalized         = other.fFlagMarginalized;
 }
 
 // ---------------------------------------------------------
@@ -218,6 +228,9 @@ void BCIntegrate::ResetResults()
 {
    BCEngineMCMC::ResetResults();
    fBestFitParameterErrors.clear();
+   // remove marginalized histograms
+   // set marginalization flag 
+   fFlagMarginalized = false;
 }
 
 // ---------------------------------------------------------
@@ -253,76 +266,101 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
   if (fParameters.Size() < 1) {
     BCLog::OutError("BCIntegrate::Integrate : No parameters defined. Aborting.");
     return -1.;
-   }
+  }
 
   // output
-  if (!(fIntegrationMethod == BCIntegrate::kIntDefault))
-    BCLog::OutSummary(Form("Integrate using %s", DumpIntegrationMethod(fIntegrationMethod).c_str()));
+  if (!(fIntegrationMethodCurrent == BCIntegrate::kIntDefault) && !(fIntegrationMethodCurrent == BCIntegrate::kIntEmpty))
+    BCLog::OutSummary(Form("Integrate using %s", DumpCurrentIntegrationMethod().c_str()));
   
   switch(type)
-   {
+    {
 
-   // Monte Carlo Integration
-   case BCIntegrate::kIntMonteCarlo:
-   {
-      std::vector<double> sums (2,0.0);
-      sums.push_back(CalculateIntegrationVolume());
-      fIntegral = Integrate(kIntMonteCarlo,
-                            &BCIntegrate::GetRandomVectorInParameterSpace,
-                            &BCIntegrate::EvaluatorMC,
-                            &IntegralUpdaterMC,
-                            sums);
-      return fIntegral;
-   }
+      // Empty
+    case BCIntegrate::kIntEmpty:
+      {
+        BCLog::OutWarning("BCIntegrate::Integrate : No integration method chosen.");
+        return 0;
+      }
 
-   // Importance Sampling Integration
-   case BCIntegrate::kIntImportance:
-     {
-       std::vector<double> sums (2,0.0);
-       fIntegral = Integrate(kIntImportance,
-                             &BCIntegrate::GetRandomVectorInParameterSpace,
-                             &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
-                            &IntegralUpdaterImportance,	 // use same updater as for metropolis
-                             sums);
-       return fIntegral;
-   }
+
+      // Monte Carlo Integration
+    case BCIntegrate::kIntMonteCarlo:
+      {
+        std::vector<double> sums (2,0.0);
+        sums.push_back(CalculateIntegrationVolume());
+        fIntegral = Integrate(kIntMonteCarlo,
+                              &BCIntegrate::GetRandomVectorInParameterSpace,
+                              &BCIntegrate::EvaluatorMC,
+                              &IntegralUpdaterMC,
+                              sums);
+
+        // set used integration method
+        fIntegrationMethodUsed = BCIntegrate::kIntMonteCarlo;
+
+        // return integral
+        return fIntegral;
+      }
+
+      // Importance Sampling Integration
+    case BCIntegrate::kIntImportance:
+      {
+        std::vector<double> sums (2,0.0);
+        fIntegral = Integrate(kIntImportance,
+                              &BCIntegrate::GetRandomVectorInParameterSpace,
+                              &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
+                              &IntegralUpdaterImportance,	 // use same updater as for metropolis
+                              sums);
+        // set used integration method
+        fIntegrationMethodUsed = BCIntegrate::kIntImportance;
+
+        // return integral
+        return fIntegral;
+      }
      
-     // CUBA library
-   case BCIntegrate::kIntCuba: 
-     {
-       fIntegral = IntegrateCuba();
+      // CUBA library
+    case BCIntegrate::kIntCuba: 
+      {
+        fIntegral = IntegrateCuba();
        
-       return fIntegral;
-     }
+        // set used integration method
+        fIntegrationMethodUsed = BCIntegrate::kIntCuba;
 
-     // CUBA library
-   case BCIntegrate::kIntSlice: 
-     {
-       fIntegral = IntegrateSlice();
+        // return integral
+        return fIntegral;
+      }
+
+      // CUBA library
+    case BCIntegrate::kIntSlice: 
+      {
+        fIntegral = IntegrateSlice();
        
-       return fIntegral;
-     }
+        // set used integration method
+        fIntegrationMethodUsed = BCIntegrate::kIntSlice;
 
-     // default
-   case BCIntegrate::kIntDefault:
-     {
-       if (GetNFreeParameters() <= 2)
-         SetIntegrationMethod(BCIntegrate::kIntSlice);
-       else
+        // return integral
+        return fIntegral;
+      }
+
+      // default
+    case BCIntegrate::kIntDefault:
+      {
+        if (GetNFreeParameters() <= 2)
+          SetIntegrationMethod(BCIntegrate::kIntSlice);
+        else
 #ifdef HAVE_CUBA_H
-         SetIntegrationMethod(BCIntegrate::kIntCuba);
+          SetIntegrationMethod(BCIntegrate::kIntCuba);
 #else
-       SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
+        SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 #endif
-       return Integrate();
-     }
+        return Integrate();
+      }
 
-   default:
-      BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethod));
+    default:
+      BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethodCurrent));
       break;
-   }
+    }
 
-   return 0;
+  return 0;
 }
 
 // ---------------------------------------------------------
@@ -657,9 +695,9 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 		parnames = Form("%s %d (%s),",parnames,index[i],fParameters[i]->GetName().data());
 	}
 	if (index.size()==1)
-		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameter%s using %s.",parnames,DumpMarginalizationMethod().c_str()));
+		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameter%s using %s.",parnames, DumpCurrentMarginalizationMethod().c_str()));
 	else
-		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameters%s using %s.",parnames,DumpMarginalizationMethod().c_str()));
+		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameters%s using %s.",parnames, DumpCurrentMarginalizationMethod().c_str()));
 
 	// Store original integration limits and fixed flags
 	// and unfix marginalization parameters;
@@ -747,17 +785,24 @@ int BCIntegrate::MarginalizeAll()
 
   // check if marginalization method is defined
   if (!CheckMarginalizationAvailability(GetMarginalizationMethod())) {
-    BCLog::OutError(Form("BCIntegrate::MarginalizeAll : Marginalization method not implemented \'%s\'. Aborting.", DumpMarginalizationMethod().c_str()));
+    BCLog::OutError(Form("BCIntegrate::MarginalizeAll : Marginalization method not implemented \'%s\'. Aborting.", DumpCurrentMarginalizationMethod().c_str()));
     return 0;
   }
 
   // output
-  if (!(fMarginalizationMethod == BCIntegrate::kMargDefault))
-    BCLog::OutSummary(Form("Marginalize using %s", DumpMarginalizationMethod(fMarginalizationMethod).c_str()));
+  if (!(fMarginalizationMethodCurrent == BCIntegrate::kMargDefault) && !(fMarginalizationMethodCurrent == BCIntegrate::kMargEmpty))
+    BCLog::OutSummary(Form("Marginalize using %s", DumpCurrentMarginalizationMethod().c_str()));
 
   switch (GetMarginalizationMethod()) 
     {
       
+      // Empty
+    case BCIntegrate::kMargEmpty: 
+      {
+        BCLog::OutWarning("BCIntegrate::MarginalizeAll : No marginalization method chosen.");
+        return 0;
+      }
+
       // Markov Chain Monte Carlo
     case BCIntegrate::kMargMCMC: 
       {
@@ -787,7 +832,11 @@ int BCIntegrate::MarginalizeAll()
             }
           }
         }
-        return 1;
+
+        // set used marginalization method
+        fMarginalizationMethodUsed = BCIntegrate::kMargMCMC;
+
+      break;
       }
 
       // Sample Mean 
@@ -888,7 +937,10 @@ int BCIntegrate::MarginalizeAll()
         // start postprocess
         MarginalizePostprocess();
 
-       return 1;
+        // set used marginalization method
+        fMarginalizationMethodUsed = BCIntegrate::kMargSlice;
+
+      break;
       }
         
       // default
@@ -903,13 +955,19 @@ int BCIntegrate::MarginalizeAll()
 
         // call again
         return MarginalizeAll();
+
+      break;
       }
 
     default:
       BCLog::OutError(TString::Format("BCIntegrate::MarginalizeAll : Invalid marginalization method: %d", GetMarginalizationMethod()));
+      return 0;
       break;
     }
    
+  // set flag 
+  fFlagMarginalized = true;
+
   return 1;
 }
 
@@ -1431,33 +1489,66 @@ BCH2D * BCIntegrate::GetMarginalized(unsigned index1, unsigned index2)
 // ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
 {
-   if (fParameters.Size() < 1) {
-      BCLog::OutError("FindMode : No parameters defined. Aborting.");
-      return std::vector<double>();
-   }
+  if (fParameters.Size() < 1) {
+    BCLog::OutError("FindMode : No parameters defined. Aborting.");
+    return std::vector<double>();
+  }
 
-   BCLog::OutSummary(Form("Finding mode using %s", DumpOptimizationMethod().c_str()));
+  // output
+  if (!(fOptimizationMethodCurrent == BCIntegrate::kOptDefault) && !(fOptimizationMethodCurrent == BCIntegrate::kOptEmpty))
+    BCLog::OutSummary(Form("Finding mode using %s", DumpCurrentOptimizationMethod().c_str()));
 
-   switch (fOptimizationMethod) {
-      case BCIntegrate::kOptSA:
-         return FindModeSA(start);
-
-      case BCIntegrate::kOptMinuit: {
-         int printlevel = -1;
-         if (BCLog::GetLogLevelScreen() <= BCLog::detail)
-            printlevel = 0;
-         if (BCLog::GetLogLevelScreen() <= BCLog::debug)
-            printlevel = 1;
-         return BCIntegrate::FindModeMinuit(start, printlevel);
+  switch (fOptimizationMethodCurrent) 
+    {
+    case BCIntegrate::kOptEmpty: 
+      {
+        BCLog::OutWarning("BCIntegrate::FindMode : No optimization method chosen.");
+        return std::vector<double>();
       }
+    case BCIntegrate::kOptSA: 
+      {
+        // set used optimization method
+        fOptimizationMethodUsed = BCIntegrate::kOptSA;
 
-      case BCIntegrate::kOptMetropolis:
-         return FindModeMCMC();
+        // return best-fit parameters
+        return FindModeSA(start);
+      }
+     
+    case BCIntegrate::kOptMinuit: 
+      {
+        int printlevel = -1;
+        if (BCLog::GetLogLevelScreen() <= BCLog::detail)
+          printlevel = 0;
+        if (BCLog::GetLogLevelScreen() <= BCLog::debug)
+          printlevel = 1;
+       
+        // set used optimization method
+        fOptimizationMethodUsed = BCIntegrate::kOptMinuit;
+       
+        // return best-fit parameters
+        return BCIntegrate::FindModeMinuit(start, printlevel);
+      }
+     
+    case BCIntegrate::kOptMetropolis:
+      {
+        // set used optimization method
+        fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
+       
+        // return best-fit parameters
+        return FindModeMCMC();
+      }     
+    case BCIntegrate::kOptDefault:
+      {
+        // set optimization method
+        SetOptimizationMethod(BCIntegrate::kOptMinuit);
 
-      default:
-         BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
-         return std::vector<double>();
-   }
+        return FindMode(start);
+      }
+       
+    default:
+      BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
+      return std::vector<double>();
+    }
 }
 
 // ---------------------------------------------------------
@@ -1544,8 +1635,9 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int p
       fBestFitParameterErrors = errors;
       fLogMaximum = -fMinuit->fAmin;
 
+      // debugKK: this needs to be dealt with
       // set optimization method used to find the mode
-      fOptimizationMethodMode = BCIntegrate::kOptMinuit;
+      //      fOptimizationMethodMode = BCIntegrate::kOptMinuit;
    }
 
    // delete minuit
@@ -1663,8 +1755,9 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
       fBestFitParameterErrors.assign(fParameters.Size(),-1);
       fLogMaximum = fval_best_fit;
 
+      // debugKK: this needs to be dealt with
       // set optimization moethod used to find the mode
-      fOptimizationMethodMode = BCIntegrate::kOptSA;
+      //      fOptimizationMethodMode = BCIntegrate::kOptSA;
    }
 
    return best_fit;
@@ -1951,8 +2044,9 @@ std::vector<double> BCIntegrate::FindModeMCMC()
       fBestFitParameterErrors.assign(fParameters.Size(),-1.);   // error undefined
       fLogMaximum = logProb;
 
+      // debugKK: this needs to be dealt with
       // set optimization method used to find the mode
-      fOptimizationMethodMode = BCIntegrate::kOptMetropolis;
+      //      fOptimizationMethodMode = BCIntegrate::kOptMetropolis;
    }
    else if (!fFlagIgnorePrevOptimization) {
       fBestFitParameters = tempMode;
@@ -1975,7 +2069,7 @@ void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method)
       BCLog::OutError("BCIntegrate::SetIntegrationMethod: Cuba not enabled during configure");
 #endif
    }
-   fIntegrationMethod = method;
+   fIntegrationMethodCurrent = method;
 }
 
 // ---------------------------------------------------------
@@ -2177,7 +2271,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 double BCIntegrate::IntegrateSlice()
 {
   // print to log
-  LogOutputAtStartOfIntegration(fIntegrationMethod, NCubaMethods);
+  LogOutputAtStartOfIntegration(fIntegrationMethodCurrent, NCubaMethods);
 
   double integral = -1;
   double absprecision  = 0;
@@ -2248,8 +2342,10 @@ void BCIntegrate::SAInitialize()
 std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type)
 {
    switch(type) {
+      case BCIntegrate::kIntEmpty:
+         return "Empty";
       case BCIntegrate::kIntMonteCarlo:
-         return "Sampled Mean Monte Carlo";
+         return "Sample Mean Monte Carlo";
       case BCIntegrate::kIntImportance:
          return "Importance Sampling";
       case BCIntegrate::kIntCuba:
@@ -2265,6 +2361,8 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
 std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
 {
    switch(type) {
+      case BCIntegrate::kMargEmpty:
+         return "Empty";
       case BCIntegrate::kMargMonteCarlo:
          return "Sample Mean Monte Carlo";
       case BCIntegrate::kMargMCMC:
@@ -2282,12 +2380,16 @@ std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizatio
 std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMethod type)
 {
    switch(type) {
+      case BCIntegrate::kOptEmpty:
+         return "Empty";
       case BCIntegrate::kOptSA:
          return "Simulated Annealing";
       case BCIntegrate::kOptMetropolis:
          return "Metropolis MCMC";
       case BCIntegrate::kOptMinuit:
          return "Minuit";
+      case BCIntegrate::kOptDefault:
+         return "Default";
       default:
          return "Undefined";
    }
