@@ -869,9 +869,11 @@ int BCIntegrate::MarginalizeAll()
                 continue;
               if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
                 BCH1D* hist_x = new BCH1D( hist2d_temp->GetHistogram()->ProjectionX() );
+                hist_x->GetHistogram()->UseCurrentStyle(); // reset style because histogram is created by a projection
                 hist_x->GetHistogram()->SetStats(kFALSE);
                 fMarginalized1D[i] = hist_x;
                 BCH1D* hist_y = new BCH1D( hist2d_temp->GetHistogram()->ProjectionY() );
+                hist_y->GetHistogram()->UseCurrentStyle(); // reset style because histogram is created by a projection
                 hist_y->GetHistogram()->SetStats(kFALSE);
                 fMarginalized1D[j] = hist_y;
               }
@@ -943,6 +945,7 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
 
 	// create histogram
 	TH1D * hist = new TH1D("", "", nbins, parameter->GetLowerLimit(), parameter->GetUpperLimit());
+  hist->UseCurrentStyle();
 
 	// set axis labels
 	hist->SetXTitle(parameter->GetLatexName().data());
@@ -1028,6 +1031,7 @@ BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
    // create histogram
    TH2D * hist = new TH2D("", "", nbins1, p1->GetLowerLimit(), p1->GetUpperLimit(),
                           nbins2, p2->GetLowerLimit(), p2->GetUpperLimit());
+   hist->UseCurrentStyle();
 
    // set axis labels
    hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
