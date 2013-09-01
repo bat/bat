@@ -782,7 +782,7 @@ void BCModel::PrintSummary()
 
    // best fit parameters
    if ( !GetBestFitParameters().empty()) {
-      BCLog::OutSummary(Form("Log of the maximum posterior: %f", fLogMaximum));
+     BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
       BCLog::OutSummary("Best fit parameters:");
 
       for (unsigned i = 0; i < GetNParameters(); i++) {
@@ -839,30 +839,42 @@ void BCModel::PrintResults(const char * file)
          << " Model: " << fName.data() << std::endl
          << " Number of parameters: " << npar << std::endl
          << " List of Parameters and ranges:" << std::endl;
-   for (unsigned i = 0; i < npar; ++i)
-      ofi << "  (" << i << ") Parameter \""
-          << fParameters[i]->GetName() << "\"" << ": "
-          << "(" << fParameters[i]->GetLowerLimit() << ", "
-          << fParameters[i]->GetUpperLimit() << ")" << std::endl;
+   for (unsigned i = 0; i < npar; ++i) {
+     ofi << "  (" << i << ") Parameter \""
+         << fParameters[i]->GetName() << "\"" << ": "
+         << "[" << fParameters[i]->GetLowerLimit() << ", "
+         << fParameters[i]->GetUpperLimit() << "]";
+     if (fParameters[i]->Fixed()) {
+       ofi << " (fixed)";
+     }
+     ofi << std::endl;
+   }
    ofi << std::endl;
-
+   
    ofi << " Results of the optimization" << std::endl
          << " ===========================" << std::endl
          << " Optimization algorithm used: "
          << DumpUsedOptimizationMethod()<< std::endl;
 
-   if ( ! fBestFitParameters.empty()) {
-      ofi << " Log of the maximum posterior: " << fLogMaximum << std::endl;
+   if ( ! GetBestFitParameters().empty()) {
+     ofi << " Log of the maximum posterior: " << GetLogMaximum() << std::endl;
       ofi << " List of parameters and global mode:" << std::endl;
       for (unsigned i = 0; i < npar; ++i) {
         ofi << "  (" << i << ") Parameter \""
             << fParameters[i]->GetName() << "\": "
-            << fBestFitParameters[i];
-        if (fParameters[i]->Fixed())
+            << GetBestFitParameter(i);
+        if (fParameters[i]->Fixed()) {
           ofi << " (fixed)";
-        else if (fBestFitParameterErrors.size() == npar)
-          if(fBestFitParameterErrors[i] >= 0.)
-            ofi << " +- " << fBestFitParameterErrors[i];
+        }
+        else if (GetBestFitParameterErrors().size() == npar) {
+          if(GetBestFitParameterError(i) >= 0.)
+            ofi << " +- " << GetBestFitParameterError(i);
+          else 
+            ofi << " (no error estimate available) ";
+        }
+        else {
+          ofi << " (no error estimate available) ";
+        }
         ofi << std::endl;
       }
       ofi << std::endl;

@@ -1,8 +1,19 @@
 2013-09-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegate:
 	  - if error estimate of integration is not available, set it to -1, same with precision variables. This closes #50 for now.
+          - all optimization methods now take references to the mode and the errors
+	  - made FindModeMinuit, FindModeMCMC, FindModeSA, IntegrateCuba, IntegrateSlice private methods
+	  - do not use new optimiation results if worse than previous results (fixes #54)
+	  - added FindMode and MarginalizeAll which take a temporary method as argument
 	* BCModel:
 	  - fix PrintResults according to error estimate for integral.
+	  - moved fBestFitParameters, errors and logmaximum to BCIntegrate (fixed #53)
+	* test/BCIntegrate_TEST.cxx:
+	  - fixed integration tests (due to making methods private and/or renaming methods)
+	* models/base/BCHistogramFitter : adjusted to private methods
+	* models/base/BCGraphFitter : adjusted to private methods
+	* models/base/BCEfficiencyFitter : adjusted to private methods
+
 
 2013-08-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate: 

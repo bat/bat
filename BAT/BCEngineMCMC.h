@@ -911,12 +911,12 @@ class BCEngineMCMC
       std::vector<TTree *> fMCMCTrees;
 
       /**
-       * A vector of best fit parameters */
-      std::vector<double> fBestFitParameters;
+       * A vector of best fit parameters found by MCMC */
+      std::vector<double> fMCMCBestFitParameters;
 
       /**
        * The function value at the mode on the @em log scale */
-      double fLogMaximum;
+      double fMCMCLogMaximum;
 
       /**
        * A vector of best fit parameters estimated from the marginalized probability */

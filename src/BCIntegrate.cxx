@@ -123,7 +123,9 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 	BCEngineMCMC::Copy(other);
 
   fID                       = other.fID;
+	fBestFitParameters        = other.fBestFitParameters;
 	fBestFitParameterErrors   = other.fBestFitParameterErrors;
+  fLogMaximum               = other.fLogMaximum;
 	fMinuit                   = new TMinuit();
 	fMinuitArglist[0]         = other.fMinuitArglist[0];
 	fMinuitArglist[1]         = other.fMinuitArglist[1];
@@ -191,6 +193,7 @@ double BCIntegrate::GetBestFitParameterError(unsigned index) const
       return -1;
    }
 
+   /*
    if(fBestFitParameterErrors.size()==0) {
       BCLog::OutError("BCIntegrate::GetBestFitParameterError : Mode finding not yet run, returning -1.");
       return -1.;
@@ -198,6 +201,7 @@ double BCIntegrate::GetBestFitParameterError(unsigned index) const
 
    if(fBestFitParameterErrors[index]<0.)
       BCLog::OutWarning("BCIntegrate::GetBestFitParameterError : Parameter error not available, returning -1.");
+   */
 
    return fBestFitParameterErrors[index];
 }
@@ -260,7 +264,7 @@ double BCIntegrate::CalculateIntegrationVolume() {
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::Integrate(BCIntegrationMethod type)
+double BCIntegrate::Integrate()
 {
   // check if parameters are defined
   if (fParameters.Size() < 1) {
@@ -272,7 +276,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
   if (!(fIntegrationMethodCurrent == BCIntegrate::kIntDefault) && !(fIntegrationMethodCurrent == BCIntegrate::kIntEmpty))
     BCLog::OutSummary(Form("Integrate using %s", DumpCurrentIntegrationMethod().c_str()));
   
-  switch(type)
+  switch(fIntegrationMethodCurrent)
     {
 
       // Empty
@@ -361,6 +365,26 @@ double BCIntegrate::Integrate(BCIntegrationMethod type)
     }
 
   return 0;
+}
+
+// ---------------------------------------------------------
+double BCIntegrate::Integrate(BCIntegrationMethod intmethod)
+{
+    // remember original method
+  BCIntegrationMethod method_temp = fIntegrationMethodCurrent;
+
+  // set method
+  SetIntegrationMethod(intmethod);
+
+  // run algorithm
+  double integral = Integrate();
+
+  // re-set original method
+  SetIntegrationMethod(method_temp);
+
+  // return integral
+  return integral;
+
 }
 
 // ---------------------------------------------------------
@@ -972,6 +996,26 @@ int BCIntegrate::MarginalizeAll()
 }
 
 // ---------------------------------------------------------
+int BCIntegrate::MarginalizeAll(BCIntegrate::BCMarginalizationMethod margmethod)
+{
+  // remember original method
+  BCMarginalizationMethod method_temp = fMarginalizationMethodCurrent;
+
+  // set method
+  SetMarginalizationMethod(margmethod);
+
+  // run algorithm
+  int result = MarginalizeAll();
+
+  // re-set original method
+  SetMarginalizationMethod(method_temp);
+
+  // return result
+  return result;
+}
+
+
+// ---------------------------------------------------------
 BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
 	// check if parameter exists
@@ -1494,6 +1538,10 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
     return std::vector<double>();
   }
 
+  std::vector<double> mode_temp(GetNParameters());
+  std::vector<double> errors_temp(GetNParameters());
+  BCIntegrate::BCOptimizationMethod method_temp = fOptimizationMethodCurrent;
+
   // output
   if (!(fOptimizationMethodCurrent == BCIntegrate::kOptDefault) && !(fOptimizationMethodCurrent == BCIntegrate::kOptEmpty))
     BCLog::OutSummary(Form("Finding mode using %s", DumpCurrentOptimizationMethod().c_str()));
@@ -1507,11 +1555,9 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
       }
     case BCIntegrate::kOptSA: 
       {
-        // set used optimization method
-        fOptimizationMethodUsed = BCIntegrate::kOptSA;
+        FindModeSA(mode_temp, errors_temp, start);
 
-        // return best-fit parameters
-        return FindModeSA(start);
+        break;
       }
      
     case BCIntegrate::kOptMinuit: 
@@ -1522,24 +1568,19 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
         if (BCLog::GetLogLevelScreen() <= BCLog::debug)
           printlevel = 1;
        
-        // set used optimization method
-        fOptimizationMethodUsed = BCIntegrate::kOptMinuit;
-       
-        // return best-fit parameters
-        return BCIntegrate::FindModeMinuit(start, printlevel);
+        BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, printlevel);
+
+        break;
       }
      
     case BCIntegrate::kOptMetropolis:
       {
-        // set used optimization method
-        fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
-       
-        // return best-fit parameters
-        return FindModeMCMC();
+        FindModeMCMC(mode_temp, errors_temp);
+
+        break;
       }     
     case BCIntegrate::kOptDefault:
       {
-        // set optimization method
         SetOptimizationMethod(BCIntegrate::kOptMinuit);
 
         return FindMode(start);
@@ -1549,6 +1590,49 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
       BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
       return std::vector<double>();
     }
+
+  // calculate function at new mode
+  double fcnatmode_temp = Eval(mode_temp);
+  
+  // check if the mode found mode is better than the previous estimate
+  if ( (!fFlagIgnorePrevOptimization) && (fcnatmode_temp < fLogMaximum) ) {
+    // set best fit parameters
+    mode_temp      = fBestFitParameters;
+    errors_temp    = fBestFitParameterErrors;
+    fcnatmode_temp = fLogMaximum;
+    method_temp    = fOptimizationMethodUsed;
+  }
+  
+  // set the best-fit parameters
+  fBestFitParameters      = mode_temp;
+  fBestFitParameterErrors = errors_temp;
+  fLogMaximum             = fcnatmode_temp;
+
+  // set used optimization method
+  fOptimizationMethodUsed = method_temp;
+
+  // return the new mode
+  return mode_temp;
+
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCIntegrate::FindMode(BCIntegrate::BCOptimizationMethod optmethod, std::vector<double> start)
+{
+  // remember original method
+  BCOptimizationMethod method_temp = fOptimizationMethodCurrent;
+
+  // set method
+  SetOptimizationMethod(optmethod);
+
+  // run algorithm
+  std::vector<double> mode = FindMode(start);
+
+  // re-set original method
+  SetOptimizationMethod(method_temp);
+
+  // return mode
+  return mode;
 }
 
 // ---------------------------------------------------------
@@ -1561,7 +1645,7 @@ TMinuit * BCIntegrate::GetMinuit()
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int printlevel)
+std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start, int printlevel)
 {
    if (fParameters.Size() < 1) {
       BCLog::OutError("BCIntegrate::FindModeMinuit : No parameters defined. Aborting.");
@@ -1623,28 +1707,17 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> start, int p
 
    // copy flag and result
    fMinuitErrorFlag = flag;
-   std::vector<double> localMode(fParameters.Size(), 0);
-   std::vector<double> errors(fParameters.Size(), 0);
+   //   std::vector<double> localMode(fParameters.Size(), 0);
+   //   std::vector<double> errors(fParameters.Size(), 0);
    for (unsigned i = 0; i < fParameters.Size(); i++) {
-      fMinuit->GetParameter(i, localMode[i], errors[i]);
-   }
-
-   // set best fit parameters
-   if ( (-fMinuit->fAmin > fLogMaximum and !fFlagIgnorePrevOptimization) or fFlagIgnorePrevOptimization) {
-      fBestFitParameters = localMode;
-      fBestFitParameterErrors = errors;
-      fLogMaximum = -fMinuit->fAmin;
-
-      // debugKK: this needs to be dealt with
-      // set optimization method used to find the mode
-      //      fOptimizationMethodMode = BCIntegrate::kOptMinuit;
+      fMinuit->GetParameter(i, mode[i], errors[i]);
    }
 
    // delete minuit
    delete fMinuit;
    fMinuit = 0;
 
-   return localMode;
+   return mode;
 }
 
 // ---------------------------------------------------------
@@ -1666,14 +1739,14 @@ void BCIntegrate::InitializeSATree()
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
+std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start)
 {
    // note: if f(x) is the function to be minimized, then
    // f(x) := - LogEval(parameters)
 
    bool have_start = true;
-   std::vector<double> x, y, best_fit; // vectors for current state, new proposed state and best fit up to now
-   double fval_x, fval_y, fval_best_fit; // function values at points x, y and best_fit (we save them rather than to re-calculate them every time)
+   std::vector<double> x, y; // vectors for current state, new proposed state and best fit up to now
+   double fval_x, fval_y, fval_mode; // function values at points x, y and mode (we save them rather than to re-calculate them every time)
    int t = 1; // time iterator
 
    // check start values
@@ -1692,10 +1765,10 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
 
    // set current state and best fit to starting point
    x = start;
-   best_fit = start;
+   mode = start;
 
    // calculate function value at starting point
-   fval_x = fval_best_fit = LogEval(x);
+   fval_x = fval_mode = LogEval(x);
 
    // run while still "hot enough"
    while ( SATemperature(t) > fSATmin ) {
@@ -1721,9 +1794,9 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
 
             fval_x = fval_y;
 
-            if (fval_y > fval_best_fit) {
-               best_fit = y;
-               fval_best_fit = fval_y;
+            if (fval_y > fval_mode) {
+               mode = y;
+               fval_mode = fval_y;
             }
          }
          // ...else, only accept new state w/ certain probability
@@ -1749,18 +1822,10 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> start)
       t++;
    }
 
-   if ( fval_best_fit > fLogMaximum or fFlagIgnorePrevOptimization) {
-      // set best fit parameters
-      fBestFitParameters = best_fit;
-      fBestFitParameterErrors.assign(fParameters.Size(),-1);
-      fLogMaximum = fval_best_fit;
-
-      // debugKK: this needs to be dealt with
-      // set optimization moethod used to find the mode
-      //      fOptimizationMethodMode = BCIntegrate::kOptSA;
-   }
-
-   return best_fit;
+   // calculate uncertainty
+   errors.assign(fParameters.Size(),-1);
+   
+   return mode;
 }
 
 // ---------------------------------------------------------
@@ -2017,14 +2082,8 @@ void BCIntegrate::FCNLikelihood(int & /*npar*/, double * /*grad*/, double &fval,
 }
 
 // ---------------------------------------------------------
-
-//void BCIntegrate::FindModeMCMC(int flag_run)
-std::vector<double> BCIntegrate::FindModeMCMC()
+std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double> &mode, std::vector<double> &errors)
 {
-   const std::vector<double> tempMode = fBestFitParameters;
-   const std::vector<double> tempErrors= fBestFitParameterErrors;
-   const double tempMaximum = fLogMaximum;
-
    // call PreRun
    MCMCMetropolisPreRun();
 
@@ -2037,24 +2096,11 @@ std::vector<double> BCIntegrate::FindModeMCMC()
          logProb = MCMCGetMaximumLogProb().at(i);
       }
    }
-   std::vector<double> localMode = MCMCGetMaximumPoint(index);
 
-   if ( logProb > tempMaximum  or fFlagIgnorePrevOptimization) {
-      fBestFitParameters = localMode;
-      fBestFitParameterErrors.assign(fParameters.Size(),-1.);   // error undefined
-      fLogMaximum = logProb;
+   mode = MCMCGetMaximumPoint(index);
+   errors.assign(fParameters.Size(),-1.);
 
-      // debugKK: this needs to be dealt with
-      // set optimization method used to find the mode
-      //      fOptimizationMethodMode = BCIntegrate::kOptMetropolis;
-   }
-   else if (!fFlagIgnorePrevOptimization) {
-      fBestFitParameters = tempMode;
-      fBestFitParameterErrors = tempErrors;
-      fLogMaximum = tempMaximum;
-   }
-
-   return MCMCGetMaximumPoint(index);
+   return mode;
 }
 
 // ---------------------------------------------------------

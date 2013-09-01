@@ -324,7 +324,10 @@ int BCEfficiencyFitter::Fit()
 
    // maximize posterior probability, using the best-fit values close
    // to the global maximum from the MCMC
-   FindModeMinuit( GetBestFitParameters() , -1);
+   BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
+   SetOptimizationMethod(BCIntegrate::kOptMinuit);
+   FindMode( GetBestFitParameters());
+   SetOptimizationMethod(method_temp);
 
    // calculate the p-value using the fast MCMC algorithm
    double pvalue, pvalueCorrected;

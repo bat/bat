@@ -430,6 +430,12 @@ public:
    double GetBestFitParameterError(unsigned index) const;
 
    /**
+    * Returns the posterior at the mode.
+    * @return the posterior. */
+   double GetLogMaximum() 
+   { return fLogMaximum; };
+
+   /**
     * Returns the set of values of the parameters at the global mode of
     * the posterior pdf.
     * @return The best fit parameters */
@@ -586,15 +592,15 @@ public:
 
    /**
     * Does the integration over the un-normalized probability.
+    * @param intmethod The integration method to used
     * @return The normalization value */
-   double Integrate()
-   { return Integrate(fIntegrationMethodCurrent);}
+   double Integrate(BCIntegrationMethod intmethod);
 
    /**
-    * Does the integration over the un-normalized probability.
-    * @param type The integration method to used
-    * @return The normalization value */
-   double Integrate(BCIntegrationMethod type);
+    * Perform the integration
+    * @return the integral
+    */ 
+   double Integrate();
 
    /**
     * Does the integration over the un-normalized probability.
@@ -614,18 +620,6 @@ public:
    static void IntegralUpdaterImportance(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision);
 
    /**
-    * Calculate integral using the Cuba library. For details see documentation.
-    * @return The integral */
-   double IntegrateCuba()
-   { return IntegrateCuba(fCubaIntegrationMethod); }
-
-   /**
-    * Calculate integral using the Cuba library. For details see documentation.
-    * @param Cuba integration method to use
-    * @return The integral */
-   double IntegrateCuba(BCCubaMethod cubatype);
-
-   /**
     * Integrand for the Cuba library.
     * @param ndim The number of dimensions to integrate over
     * @param xx The point in parameter space to integrate over (scaled to 0 - 1 per dimension)
@@ -633,11 +627,6 @@ public:
     * @param ff The function value
     * @return An error code */
    static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
-
-   /**
-    * Integrate using the slice method
-    * @return the integral; */
-   double IntegrateSlice();
 
    TH1D * Marginalize(BCIntegrationMethod type, unsigned index);
 
@@ -651,6 +640,14 @@ public:
     * the GetMarginalized method.
     * @return Total number of marginalized distributions */
    int MarginalizeAll();
+
+   /**
+    * Marginalize all probabilities wrt. single parameters and all combinations
+    * of two parameters. The individual distributions can be retrieved using
+    * the GetMarginalized method.
+    * @param margmethod the marginalization method.
+    * @return Total number of marginalized distributions */
+   int MarginalizeAll(BCMarginalizationMethod margmethod);
 
    /**
     * Method executed for before marginalization. User's code should
@@ -689,32 +686,13 @@ public:
     * if a previous optimization found a better value. */
     std::vector<double> FindMode(std::vector<double> start = std::vector<double>(0));
 
-   /**
-    * Does the mode finding using Minuit. If starting point is not specified,
-    * finding will start from the center of the parameter space.
-    * @param start point in parameter space from which the mode finding is started.
-    * @param printlevel The print level.
-    * @return The mode found.
-    * @note The result may not coincide with the result of @code GetBestFitParameters()
-    * if a previous optimization found a better value. */
-   std::vector<double> FindModeMinuit(std::vector<double> start = std::vector<double>(0), int printlevel = 1);
-
-   /**
-    * Does the mode finding using Markov Chain Monte Carlo (prerun only!)
-    * @return The mode.
-    * @note The result may not coincide with the result of @code GetBestFitParameters()
-    * if a previous optimization found a better value. */
-   std::vector<double> FindModeMCMC();
-
-   /**
-    * Does the mode finding using Simulated Annealing. If starting point
-    * is not specified, finding will start from the center of the
-    * parameter space.
-    * @param start point in parameter space from thich the mode finding is started.
-    * @return The mode.
-    * @note The result may not coincide with the result of @code GetBestFitParameters()
-    * if a previous optimization found a better value.*/
-   std::vector<double> FindModeSA(std::vector<double> start = std::vector<double>(0));
+    /**
+     * Find mode using a specific method. The original method will be reset. 
+     * @param optmethod the optimization method
+     * @param start the starting point for the optimization algorithm
+     * @return the mode
+     * @seestd::vector<double> FindMode(std::vector<double> start = std::vector<double>(0)); */
+    std::vector<double> FindMode(BCIntegrate::BCOptimizationMethod optmethod, std::vector<double> start = std::vector<double>(0));
 
    /**
     * Temperature annealing schedule for use with Simulated Annealing.
@@ -903,11 +881,6 @@ protected:
    int fID;
 
    /**
-    * A vector of best fit parameters estimated from the global
-    * probability and the estimate on their uncertainties */
-   std::vector<double> fBestFitParameterErrors;
-
-   /**
     * Minuit */
    TMinuit * fMinuit;
 
@@ -973,6 +946,56 @@ protected:
 private:
 
    /**
+    * Does the mode finding using Minuit. If starting point is not specified,
+    * finding will start from the center of the parameter space.
+    * @param start point in parameter space from which the mode finding is started.
+    * @param printlevel The print level.
+    * @param mode a reference to a vector holding the mode
+    * @param errors a reference to a vector holding the errors
+    * @return The mode found.
+    * @note The result may not coincide with the result of @code GetBestFitParameters()
+    * if a previous optimization found a better value. */
+    std::vector<double> FindModeMinuit(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start = std::vector<double>(0), int printlevel = 1);
+
+   /**
+    * Does the mode finding using Markov Chain Monte Carlo (prerun only!)
+    * @param mode a reference to a vector holding the mode
+    * @param errors a reference to a vector holding the errors
+    * @return The mode.
+    * @note The result may not coincide with the result of @code GetBestFitParameters()
+    * if a previous optimization found a better value. */
+   std::vector<double> FindModeMCMC(std::vector<double> &mode, std::vector<double> &errors);
+
+   /**
+    * Does the mode finding using Simulated Annealing. If starting point
+    * is not specified, finding will start from the center of the
+    * parameter space.
+    * @param mode a reference to a vector holding the mode
+    * @param errors a reference to a vector holding the errors
+    * @param start point in parameter space from thich the mode finding is started.
+    * @return The mode.
+    * @note The result may not coincide with the result of @code GetBestFitParameters()
+    * if a previous optimization found a better value.*/
+   std::vector<double> FindModeSA(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start = std::vector<double>(0));   
+
+      /**
+    * Calculate integral using the Cuba library. For details see documentation.
+    * @return The integral */
+   double IntegrateCuba()
+   { return IntegrateCuba(fCubaIntegrationMethod); }
+
+   /**
+    * Calculate integral using the Cuba library. For details see documentation.
+    * @param Cuba integration method to use
+    * @return The integral */
+   double IntegrateCuba(BCCubaMethod cubatype);
+
+   /**
+    * Integrate using the slice method
+    * @return the integral; */
+   double IntegrateSlice();
+
+   /**
     * Current mode finding method */
    BCIntegrate::BCOptimizationMethod fOptimizationMethodCurrent;
    
@@ -1020,6 +1043,18 @@ private:
    /**
     * Number of iterations in the most recent Monte Carlo integration */
    int fNIterations;
+
+   /**
+    * A vector of best fit parameters found by MCMC */
+   std::vector<double> fBestFitParameters;
+   
+   /**
+    * A vector of estimates on the uncertainties */
+   std::vector<double> fBestFitParameterErrors;
+
+   /**
+    * The function value at the mode on the @em log scale */
+   double fLogMaximum;
 
    /**
     * The integral. */

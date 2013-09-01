@@ -366,7 +366,10 @@ int BCHistogramFitter::Fit()
 
    // maximize posterior probability, using the best-fit values close
    // to the global maximum from the MCMC
-   FindModeMinuit(GetBestFitParameters(), -1);
+   BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
+   SetOptimizationMethod(BCIntegrate::kOptMinuit);
+   FindMode( GetBestFitParameters());
+   SetOptimizationMethod(method_temp);
 
    // calculate the p-value using the fast MCMC algorithm
    if( !CalculatePValueFast(GetBestFitParameters()))
@@ -394,7 +397,7 @@ void BCHistogramFitter::DrawFit(const char * options, bool flaglegend)
       return;
    }
 
-   if (!fErrorBandXY || fBestFitParameters.empty()) {
+   if (!fErrorBandXY || GetBestFitParameters().empty()) {
       BCLog::OutError("BCHistogramFitter::DrawFit : Fit not performed yet.");
       return;
    }

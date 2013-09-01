@@ -307,7 +307,10 @@ int BCGraphFitter::Fit()
 
    // maximize posterior probability, using the best-fit values close
    // to the global maximum from the MCMC
-   FindModeMinuit( GetBestFitParameters(), -1);
+   BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
+   SetOptimizationMethod(BCIntegrate::kOptMinuit);
+   FindMode( GetBestFitParameters());
+   SetOptimizationMethod(method_temp);
 
    // calculate p-value from the chi2 probability
    // this is only valid for a product of gaussiang which is the case for

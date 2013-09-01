@@ -47,7 +47,7 @@ void BCEngineMCMC::MCMCSetValuesDefault()
    fMCMCNLag                 = 1;
    fMCMCCurrentIteration     = -1;
    fMCMCCurrentChain         = -1;
-   fLogMaximum = -std::numeric_limits<double>::max();
+   fMCMCLogMaximum = -std::numeric_limits<double>::max();
 
    MCMCSetValuesDetail();
 }
@@ -248,8 +248,8 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    }
 
    fMarginalModes = other.fMarginalModes;
-   fBestFitParameters = other.fBestFitParameters;
-   fLogMaximum = other.fLogMaximum;
+   fMCMCBestFitParameters = other.fMCMCBestFitParameters;
+   fMCMCLogMaximum = other.fMCMCLogMaximum;
 }
 
 // ---------------------------------------------------------
@@ -306,8 +306,6 @@ BCH1D * BCEngineMCMC::MCMCGetH1Marginalized(unsigned index)
       fMarginalModes.assign(fParameters.Size(), 0.0);
    fMarginalModes[index] = hprob->GetMode();
 
-   hprob->SetGlobalMode(fBestFitParameters.at(index));
-
    return hprob;
 }
 
@@ -345,9 +343,6 @@ BCH2D * BCEngineMCMC::MCMCGetH2Marginalized(unsigned i, unsigned j)
 
    BCH2D * hprob = new BCH2D();
    hprob->SetHistogram(h);
-
-   double gmode[] = { fBestFitParameters.at(i), fBestFitParameters.at(j) };
-   hprob->SetGlobalMode(gmode);
 
    return hprob;
 }
@@ -1421,11 +1416,11 @@ int BCEngineMCMC::MCMCMetropolis()
    }
 
    // save if improved the log posterior
-   if (fBestFitParameters.empty() || probmax > fLogMaximum) {
-      fLogMaximum = probmax;
-      fBestFitParameters.assign(fParameters.Size(), 0.0);
+   if (fMCMCBestFitParameters.empty() || probmax > fMCMCLogMaximum) {
+      fMCMCLogMaximum = probmax;
+      fMCMCBestFitParameters.assign(fParameters.Size(), 0.0);
       for (unsigned i = 0; i < fParameters.Size(); ++i)
-         fBestFitParameters[i] = fMCMCxMax[probmaxindex * fParameters.Size() + i];
+         fMCMCBestFitParameters[i] = fMCMCxMax[probmaxindex * fParameters.Size() + i];
 
 
       // debugKK: disentangle MCMC global mode and model global mode
@@ -1437,7 +1432,7 @@ int BCEngineMCMC::MCMCMetropolis()
    int ndigits = (int) log10(fParameters.Size());
    for (unsigned i = 0; i < fParameters.Size(); ++i)
       BCLog::OutDetail(Form( TString::Format(" -->      parameter %%%di:   %%.4g", ndigits+1),
-            i, fBestFitParameters[i]));
+            i, fMCMCBestFitParameters[i]));
 
    // reset counter
    fMCMCCurrentIteration = -1;
@@ -1550,8 +1545,8 @@ void BCEngineMCMC::ResetResults()
    fMCMCFlagRun = false;
    fMCMCFlagConvergenceGlobal = false;
 
-   fBestFitParameters.clear();
-   fLogMaximum = -std::numeric_limits<double>::max();
+   fMCMCBestFitParameters.clear();
+   fMCMCLogMaximum = -std::numeric_limits<double>::max();
    fMarginalModes.clear();
 }
 

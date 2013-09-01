@@ -102,11 +102,11 @@ public:
     IntegrationModel m = Factory(1,1,1);
     m.MCMCSetRandomSeed(1346);
     TEST_CHECK_NEARLY_EQUAL(m.FindMode(std::vector<double>(1, 0.1)).front(), 0, 1e-3);
-    TEST_CHECK_NEARLY_EQUAL(m.FindModeSA(std::vector<double>(1, 0.1)).front(), 1, 1e-3);
-    TEST_CHECK_NEARLY_EQUAL(m.FindModeSA(std::vector<double>(1, 0.9)).front(), 1, 1e-3);
-    TEST_CHECK_NEARLY_EQUAL(m.FindModeMinuit(std::vector<double>(1, 0.1)).front(), 0, 1e-10);
-    TEST_CHECK_NEARLY_EQUAL(m.FindModeMinuit(std::vector<double>(1, 0.9)).front(), 1, 1e-10);
-    TEST_CHECK_NEARLY_EQUAL(m.FindModeMCMC().front(), 1, 1e-3);
+    TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.1)).front(), 0, 1e-10);
+    TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.9)).front(), 1, 1e-10);
+    TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSA, std::vector<double>(1, 0.1)).front(), 1, 1e-3);
+    TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSA, std::vector<double>(1, 0.9)).front(), 1, 1e-3);
+    TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMetropolis).front(), 1, 1e-3);
 
     m.PrintSummary();
     m.PrintShortFitSummary();
