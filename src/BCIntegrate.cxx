@@ -2274,9 +2274,9 @@ double BCIntegrate::IntegrateSlice()
   LogOutputAtStartOfIntegration(fIntegrationMethodCurrent, NCubaMethods);
 
   double integral = -1;
-  double absprecision  = 0;
-  double relprecision  = 0;
-  fError = 0;
+  double absprecision  = -1;
+  double relprecision  = -1;
+  fError = -1;
 
   // calculate values are which the function should be evaluated
   std::vector<double> fixpoint(GetNParameters());

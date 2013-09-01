@@ -887,7 +887,12 @@ void BCModel::PrintResults(const char * file)
             << " ============================" << std::endl
             << " Integration method used: "
             << DumpUsedIntegrationMethod() << std::endl;
-      ofi << " Evidence: " << GetIntegral() << " +- " << GetError() << std::endl << std::endl;
+      ofi << " Evidence: " << GetIntegral();
+      if (GetError() >= 0) 
+        ofi << " +- " << GetError() << std::endl;
+      else
+        ofi << " (no error estimate available) " << std::endl;
+      ofi << std::endl;
    }
 
    // give warning if MCMC did not converge
