@@ -973,7 +973,6 @@ void BCModel::PrintResults(const char * file)
                 << v[j + 2] << "; rel. area " << v[j + 4] << ")"
                 << std::endl;
          ofi << std::endl;
-         delete bch1d;
       }
    }
    if (fMCMCFlagRun) {
@@ -1019,6 +1018,9 @@ void BCModel::PrintResults(const char * file)
        << " Quantiles   : most commonly used quantiles" <<std::endl
        << " -----------------------------------------------------" << std::endl
        << std::endl;
+
+   // close file
+   ofi.close();
 }
 
 // ---------------------------------------------------------

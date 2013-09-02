@@ -1,6 +1,7 @@
-2013-09-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2013-09-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegate:
 	  - check if MCMC has a better estimate of the global mode
+	  - histograms will not be deleted in PrintResults() (caused a crash)
 
 2013-09-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegate:
