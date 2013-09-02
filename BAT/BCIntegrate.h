@@ -888,7 +888,7 @@ protected:
    int fMinuitErrorFlag;
 
    /**
-    * Flag for ignoring older results of minimization */
+    * Flag for ignoring older results of optimization */
    bool fFlagIgnorePrevOptimization;
 
    /**

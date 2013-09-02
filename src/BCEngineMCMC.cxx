@@ -1421,10 +1421,6 @@ int BCEngineMCMC::MCMCMetropolis()
       fMCMCBestFitParameters.assign(fParameters.Size(), 0.0);
       for (unsigned i = 0; i < fParameters.Size(); ++i)
          fMCMCBestFitParameters[i] = fMCMCxMax[probmaxindex * fParameters.Size() + i];
-
-
-      // debugKK: disentangle MCMC global mode and model global mode
-      //      fOptimizationMethodMode = BCEngineMCMC::kOptMetropolis;
    }
 
    BCLog::OutDetail(" --> Global mode from MCMC:");

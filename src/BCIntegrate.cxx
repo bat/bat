@@ -94,6 +94,7 @@ BCIntegrate::BCIntegrate() : BCEngineMCMC(),
                              fNIterationsPrecisionCheck(1000),
                              fNIterationsOutput(0),
                              fNIterations(0),
+                             fLogMaximum(-std::numeric_limits<double>::max()),
                              fIntegral(-1),
                              fRelativePrecision(1e-2),
                              fAbsolutePrecision(1e-6),
@@ -859,6 +860,14 @@ int BCIntegrate::MarginalizeAll()
 
         // set used marginalization method
         fMarginalizationMethodUsed = BCIntegrate::kMargMCMC;
+
+        // check if mode is better than previous one
+        if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < fMCMCLogMaximum) ) {
+          fBestFitParameters      = fMCMCBestFitParameters;
+          fBestFitParameterErrors.assign(fParameters.Size(),-1.);
+          fLogMaximum             = fMCMCLogMaximum;
+          fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
+        }
 
       break;
       }

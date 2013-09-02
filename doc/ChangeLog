@@ -1,5 +1,9 @@
 2013-09-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegate:
+	  - check if MCMC has a better estimate of the global mode
+
+2013-09-01 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegate:
 	  - if error estimate of integration is not available, set it to -1, same with precision variables. This closes #50 for now.
           - all optimization methods now take references to the mode and the errors
 	  - made FindModeMinuit, FindModeMCMC, FindModeSA, IntegrateCuba, IntegrateSlice private methods
