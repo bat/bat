@@ -60,7 +60,8 @@ public:
     // aim for higher precision, as naively 1/3 of tests would lie outside interval
     // if eps were used
     m.SetRelativePrecision(eps / 2.);
-    TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(method), m.Integral(), eps);
+    m.SetCubaIntegrationMethod(method);
+    TEST_CHECK_RELATIVE_ERROR(m.Integrate(), m.Integral(), eps);
   }
 #endif
   static void IntegrateBat(IntegrationModel & m, BCIntegrate::BCIntegrationMethod method, const double & eps)
@@ -135,10 +136,19 @@ public:
 
     TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntMonteCarlo), evidence, eps);
 #if HAVE_CUBA_H
-    TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kCubaVegas),   evidence, eps);
-    TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kCubaSuave),   evidence, eps);
-    TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kCubaDivonne), evidence, eps);
-    TEST_CHECK_RELATIVE_ERROR(m.IntegrateCuba(BCIntegrate::kCubaCuhre),   evidence, eps);
+    m.SetIntegrationMethod(BCIntegrate::kIntCuba);
+
+    m.SetCubaIntegrationMethod(BCIntegrate::kCubaVegas);
+    TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
+
+    m.SetCubaIntegrationMethod(BCIntegrate::kCubaSuave);
+    TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
+
+    m.SetCubaIntegrationMethod(BCIntegrate::kCubaDivonne);
+    TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
+
+    m.SetCubaIntegrationMethod(BCIntegrate::kCubaCuhre);
+    TEST_CHECK_RELATIVE_ERROR(m.Integrate(), evidence, eps);
 #endif
   }
 
