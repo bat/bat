@@ -17,6 +17,9 @@ int main()
   // create new RatioModel object
   RatioModel * m = new RatioModel();
 
+  // set Metropolis as marginalization method
+  m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
   // set precision
   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 

@@ -8,6 +8,7 @@
 	  - renamed k(Int/Marg)Slice -> k(Int/Marg)Grid, kMargMCMC -> kMargMetropolis
 	* examples/advanced/polynomialfit: adjusted code to latest changes
 	* BCLog.cxx: updated start-up information
+	* examples/basis/errorpropagation: set MCMC as default method
 
 2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration
