@@ -617,13 +617,13 @@ public:
     * @param ff The function value
     * @return An error code */
    static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
-
+#if 0
    TH1D * Marginalize(BCIntegrationMethod type, unsigned index);
 
    TH2D * Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2);
 
    bool Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned> &index);
-
+#endif
    /**
     * Marginalize all probabilities wrt. single parameters and all combinations
     * of two parameters. The individual distributions can be retrieved using

@@ -1,6 +1,7 @@
 2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration
 	  - fix compilation of test cases
+	  - deactivate Marginalize(...)
 
 2013-09-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegate:

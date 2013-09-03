@@ -570,6 +570,39 @@ bool BCIntegrate::CheckMarginalizationAvailability(BCMarginalizationMethod type)
 }
 
 // ---------------------------------------------------------
+bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned> &index) {
+	if (index.size()==0) {
+		BCLog::OutError("BCIntegrate::Marginalize : No marginalization parameters chosen.");
+		return false;
+	}
+
+	if (index.size() >= 4 or index.size() > fParameters.Size()) {
+		BCLog::OutError("BCIntegrate::Marginalize : Too many marginalization parameters.");
+		return false;
+	}
+
+	if ((int)index.size()<hist->GetDimension()) {
+		BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Too few (%d) indices supplied for histogram dimension (%d)",(int)index.size(),hist->GetDimension()));
+		return false;
+	}
+
+	for (unsigned i=0; i<index.size(); i++) {
+		// check if indices are in bounds
+		if ( ! fParameters.ValidIndex(index[i])) {
+			BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) out of bound.",index[i]));
+			return false;
+		}
+		// check for duplicate indices
+		for (unsigned j=0; j<index.size(); j++)
+			if (i!=j and index[i]==index[j]) {
+				BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) appears more than once",index[i]));
+				return false;
+			}
+	}
+	return true;
+}
+#if 0
+// ---------------------------------------------------------
 TH1D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index)
 {
     BCParameter * par = fParameters.Get(index);
@@ -611,39 +644,6 @@ TH2D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index1, unsign
 	Marginalize(hist,type,indices);
 
 	return hist;
-}
-
-// ---------------------------------------------------------
-bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned> &index) {
-	if (index.size()==0) {
-		BCLog::OutError("BCIntegrate::Marginalize : No marginalization parameters chosen.");
-		return false;
-	}
-
-	if (index.size() >= 4 or index.size() > fParameters.Size()) {
-		BCLog::OutError("BCIntegrate::Marginalize : Too many marginalization parameters.");
-		return false;
-	}
-
-	if ((int)index.size()<hist->GetDimension()) {
-		BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Too few (%d) indices supplied for histogram dimension (%d)",(int)index.size(),hist->GetDimension()));
-		return false;
-	}
-
-	for (unsigned i=0; i<index.size(); i++) {
-		// check if indices are in bounds
-		if ( ! fParameters.ValidIndex(index[i])) {
-			BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) out of bound.",index[i]));
-			return false;
-		}
-		// check for duplicate indices
-		for (unsigned j=0; j<index.size(); j++)
-			if (i!=j and index[i]==index[j]) {
-				BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) appears more than once",index[i]));
-				return false;
-			}
-	}
-	return true;
 }
 
 // ---------------------------------------------------------
@@ -748,6 +748,7 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 
 	return true;
 }
+#endif
 
 // ---------------------------------------------------------
 int BCIntegrate::MarginalizeAll()
