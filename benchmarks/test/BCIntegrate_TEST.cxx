@@ -22,11 +22,10 @@ public:
 
   struct Precision
   {
-    double monteCarlo, importance, vegas, suave, divonne, cuhre;
+    double monteCarlo, vegas, suave, divonne, cuhre;
 
     // Turn off checks by default
-    Precision(double value = -1) :
-      importance(-1)
+    Precision(double value = -1)
     {
       Set(value);
     }
@@ -82,8 +81,6 @@ public:
 
     if (p.monteCarlo > 0)
       IntegrateBat(m, BCIntegrate::kIntMonteCarlo, p.monteCarlo);
-    if (p.importance > 0)
-      IntegrateBat(m, BCIntegrate::kIntImportance, p.importance);
 #if HAVE_CUBA_H
     if (p.vegas > 0)
       IntegrateCuba(m, BCIntegrate::kCubaVegas, p.vegas);

@@ -1,3 +1,6 @@
+2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration
+
 2013-09-02 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegate:
 	  - check if MCMC has a better estimate of the global mode
@@ -19,9 +22,8 @@
 	* models/base/BCGraphFitter : adjusted to private methods
 	* models/base/BCEfficiencyFitter : adjusted to private methods
 
-
 2013-08-31 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCIntegrate: 
+	* BCIntegrate:
 	  - fixed a style issue for histograms created by "slice" method (fixes #51)
 	  - introduce current and used methods for integration and marginalization
 	  - moved variables for current and used optimization method to BCIntegrate.
@@ -29,20 +31,20 @@
 	  - PrintResults: improved output (fixes #52)
 
 2013-08-30 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* models/base: added a base model for fitter classes: BCFitter. 
+	* models/base: added a base model for fitter classes: BCFitter.
 	* BCHistogramFitter, BCGraphFitter, BCEfficiencyFitter:
 	  - inherit from BCFitter.
 	  - have MCMC as default marginalization method.
 	* BCEngineMCMC, BCIntegrate, BCModel: moved a lot of methods to BCFitter.
 	* this closes #49
 	* BCModel, BCIntegrate: moved GetMarginalized, PrintMarginalized and fNormalization to BCIntegrate.
-	* BCIntegrate: 
+	* BCIntegrate:
 	  - marginalization methods slice and MCMC work with fixed parameters now. Note: MCMC doesn't really fix the parameter!
 	  - kMargDefault now decides now based on the number of free parameters.
 	  - added default and slice method for integration
 	* benchmarks/test/BCIntegrate_TEST.cxx: had to rename a method
 	* BCEngineMCMC.cxx: added methods to calculate the number of fixed and free parameters
-	
+
 2013-08-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* private: added a directory for private material. This will be moved to a developer's branch or deleted in the near future.
 	* examples/advanced/mvcombination: moved to private
@@ -56,10 +58,10 @@
 	* models/base/BCTemplateFitter: removed
 	* models/base/BCTemplateEnsembleTest: removed
 	* examples/advanced/templatefitter: removed
-	* models/base/Makefile.am: removed old template fitter 
-	* models/base/libBATmodels.rootmap.in: removed old template fitter 
+	* models/base/Makefile.am: removed old template fitter
+	* models/base/libBATmodels.rootmap.in: removed old template fitter
 	* BCModel: moved MarginalizeAll() to BCIntegrate
-	* BCIntegrate: 
+	* BCIntegrate:
 	  - added enumerator for different marginalization methods
 	  - added a set of histograms for the marginalized
 	    distributions. Each method will fill

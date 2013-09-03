@@ -222,19 +222,12 @@ double BCIntegrate::LogEval(const std::vector<double> &x)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvalSampling(const std::vector<double> &)
-{
-   BCLog::OutError("BCIntegrate::EvalSampling. The importance sampling function needs to be implemented by the user.");
-   return 0;
-}
-
-// ---------------------------------------------------------
 void BCIntegrate::ResetResults()
 {
    BCEngineMCMC::ResetResults();
    fBestFitParameterErrors.clear();
    // remove marginalized histograms
-   // set marginalization flag 
+   // set marginalization flag
    fFlagMarginalized = false;
 }
 
@@ -276,7 +269,7 @@ double BCIntegrate::Integrate()
   // output
   if (!(fIntegrationMethodCurrent == BCIntegrate::kIntDefault) && !(fIntegrationMethodCurrent == BCIntegrate::kIntEmpty))
     BCLog::OutSummary(Form("Integrate using %s", DumpCurrentIntegrationMethod().c_str()));
-  
+
   switch(fIntegrationMethodCurrent)
     {
 
@@ -306,27 +299,11 @@ double BCIntegrate::Integrate()
         return fIntegral;
       }
 
-      // Importance Sampling Integration
-    case BCIntegrate::kIntImportance:
-      {
-        std::vector<double> sums (2,0.0);
-        fIntegral = Integrate(kIntImportance,
-                              &BCIntegrate::GetRandomVectorInParameterSpace,
-                              &BCIntegrate::EvaluatorImportance,	 // use same evaluator as for metropolis
-                              &IntegralUpdaterImportance,	 // use same updater as for metropolis
-                              sums);
-        // set used integration method
-        fIntegrationMethodUsed = BCIntegrate::kIntImportance;
-
-        // return integral
-        return fIntegral;
-      }
-     
       // CUBA library
-    case BCIntegrate::kIntCuba: 
+    case BCIntegrate::kIntCuba:
       {
         fIntegral = IntegrateCuba();
-       
+
         // set used integration method
         fIntegrationMethodUsed = BCIntegrate::kIntCuba;
 
@@ -335,10 +312,10 @@ double BCIntegrate::Integrate()
       }
 
       // CUBA library
-    case BCIntegrate::kIntSlice: 
+    case BCIntegrate::kIntSlice:
       {
         fIntegral = IntegrateSlice();
-       
+
         // set used integration method
         fIntegrationMethodUsed = BCIntegrate::kIntSlice;
 
@@ -574,33 +551,6 @@ void BCIntegrate::IntegralUpdaterMC(const std::vector<double> &sums, const int &
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::EvaluatorImportance(std::vector<double> &sums, const std::vector<double> &point, bool &accepted)
-{
-	// calculate value at random point
-	double val_f = Eval(point);
-
-	// calculate sampling distributions at that point
-	double val_g = EvalSampling(point);
-
-	// add ratio to sum and sum of squares
-	if (val_g > 0 && val_f/val_g > fRandom->Rndm()) {
-	   accepted = true;
-	   sums[0] += val_f / val_g;
-	   sums[1] += val_f * val_f / val_g / val_g;
-	}
-	else
-	   accepted = false;
-
-	return val_f;
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::IntegralUpdaterImportance(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision) {
-	integral = sums[0] / nIterations;
-	absprecision = sqrt((1.0 / double(nIterations)) * (sums[1] / double(nIterations) - integral * integral));
-}
-
-// ---------------------------------------------------------
 bool BCIntegrate::CheckMarginalizationAvailability(BCMarginalizationMethod type) {
   switch(type)
     {
@@ -818,18 +768,18 @@ int BCIntegrate::MarginalizeAll()
   if (!(fMarginalizationMethodCurrent == BCIntegrate::kMargDefault) && !(fMarginalizationMethodCurrent == BCIntegrate::kMargEmpty))
     BCLog::OutSummary(Form("Marginalize using %s", DumpCurrentMarginalizationMethod().c_str()));
 
-  switch (GetMarginalizationMethod()) 
+  switch (GetMarginalizationMethod())
     {
-      
+
       // Empty
-    case BCIntegrate::kMargEmpty: 
+    case BCIntegrate::kMargEmpty:
       {
         BCLog::OutWarning("BCIntegrate::MarginalizeAll : No marginalization method chosen.");
         return 0;
       }
 
       // Markov Chain Monte Carlo
-    case BCIntegrate::kMargMCMC: 
+    case BCIntegrate::kMargMCMC:
       {
         // start preprocess
         MarginalizePreprocess();
@@ -872,7 +822,7 @@ int BCIntegrate::MarginalizeAll()
       break;
       }
 
-      // Sample Mean 
+      // Sample Mean
     case BCIntegrate::kMargMonteCarlo:
       {
         return 0;
@@ -885,7 +835,7 @@ int BCIntegrate::MarginalizeAll()
         for (unsigned int i = 0; i < GetNParameters(); ++i) {
           if (fParameters[i]->Fixed())
             fixpoint[i] = fParameters[i]->GetFixedValue();
-          else 
+          else
             fixpoint[i] = 0;
         }
 
@@ -899,7 +849,7 @@ int BCIntegrate::MarginalizeAll()
               // calculate slice
               BCH1D* hist_temp = GetSlice(fParameters[i], fixpoint, 0);
               fMarginalized1D.push_back(hist_temp);
-              
+
               // normalize to unity
               hist_temp->GetHistogram()->Scale(1./hist_temp->GetHistogram()->Integral());
             }
@@ -940,10 +890,10 @@ int BCIntegrate::MarginalizeAll()
                 fMarginalized2D.push_back(0);
             }
           }
-          
+
           // marginalize by projecting
           fMarginalized1D.clear();
-          for (unsigned int i = 0; i < GetNParameters(); ++i) 
+          for (unsigned int i = 0; i < GetNParameters(); ++i)
             fMarginalized1D.push_back(0);
           for (unsigned int i = 0; i < GetNParameters(); ++i) {
             for (unsigned int j = 0; j < GetNParameters(); ++j) {
@@ -975,7 +925,7 @@ int BCIntegrate::MarginalizeAll()
 
       break;
       }
-        
+
       // default
     case BCIntegrate::kMargDefault:
       {
@@ -997,8 +947,8 @@ int BCIntegrate::MarginalizeAll()
       return 0;
       break;
     }
-   
-  // set flag 
+
+  // set flag
   fFlagMarginalized = true;
 
   return 1;
@@ -1036,7 +986,7 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
   // check if parameter is fixed
   if (parameter->Fixed())
     return 0;
-  
+
 	// create local copy of parameter set
 	std::vector<double> parameters_temp;
 	parameters_temp = parameters;
@@ -1222,11 +1172,11 @@ BCH1D * BCIntegrate::GetMarginalized(unsigned index)
   // check if histogram exists
   if (!htemp)
     return 0;
-  
+
   // set global mode
   if (fBestFitParameters.size() == GetNParameters())
     htemp->SetGlobalMode(fBestFitParameters.at(index));
-  
+
   // set axis labels
    htemp->GetHistogram()->SetName(Form("hist_%i_%s", fID, fParameters[index]->GetName().data()));
    htemp->GetHistogram()->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
@@ -1356,15 +1306,15 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
    }
 
    // count all valid (non NULL) histograms
-   int nvalid1D = 0; 
-   int nvalid2D = 0; 
-   
+   int nvalid1D = 0;
+   int nvalid2D = 0;
+
    for (unsigned i = 0 ; i < fMarginalized1D.size() ; ++i) {
      if (BCH1D * h = fMarginalized1D[i])
        if (h->GetHistogram())
          nvalid1D++;
    }
-   
+
    for (unsigned i = 0 ; i < fMarginalized2D.size() ; ++i) {
      if (BCH2D * h = fMarginalized2D[i])
        if (h->GetHistogram())
@@ -1519,7 +1469,7 @@ BCH2D * BCIntegrate::GetMarginalized(unsigned index1, unsigned index2)
 
   // get histogram
   BCH2D * htemp =  fMarginalized2D.at(GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1);
- 
+
   // check if histogram exists
   if ( !htemp)
     return 0;
@@ -1555,46 +1505,46 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
   if (!(fOptimizationMethodCurrent == BCIntegrate::kOptDefault) && !(fOptimizationMethodCurrent == BCIntegrate::kOptEmpty))
     BCLog::OutSummary(Form("Finding mode using %s", DumpCurrentOptimizationMethod().c_str()));
 
-  switch (fOptimizationMethodCurrent) 
+  switch (fOptimizationMethodCurrent)
     {
-    case BCIntegrate::kOptEmpty: 
+    case BCIntegrate::kOptEmpty:
       {
         BCLog::OutWarning("BCIntegrate::FindMode : No optimization method chosen.");
         return std::vector<double>();
       }
-    case BCIntegrate::kOptSA: 
+    case BCIntegrate::kOptSA:
       {
         FindModeSA(mode_temp, errors_temp, start);
 
         break;
       }
-     
-    case BCIntegrate::kOptMinuit: 
+
+    case BCIntegrate::kOptMinuit:
       {
         int printlevel = -1;
         if (BCLog::GetLogLevelScreen() <= BCLog::detail)
           printlevel = 0;
         if (BCLog::GetLogLevelScreen() <= BCLog::debug)
           printlevel = 1;
-       
+
         BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, printlevel);
 
         break;
       }
-     
+
     case BCIntegrate::kOptMetropolis:
       {
         FindModeMCMC(mode_temp, errors_temp);
 
         break;
-      }     
+      }
     case BCIntegrate::kOptDefault:
       {
         SetOptimizationMethod(BCIntegrate::kOptMinuit);
 
         return FindMode(start);
       }
-       
+
     default:
       BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
       return std::vector<double>();
@@ -1602,7 +1552,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
 
   // calculate function at new mode
   double fcnatmode_temp = Eval(mode_temp);
-  
+
   // check if the mode found mode is better than the previous estimate
   if ( (!fFlagIgnorePrevOptimization) && (fcnatmode_temp < fLogMaximum) ) {
     // set best fit parameters
@@ -1611,7 +1561,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
     fcnatmode_temp = fLogMaximum;
     method_temp    = fOptimizationMethodUsed;
   }
-  
+
   // set the best-fit parameters
   fBestFitParameters      = mode_temp;
   fBestFitParameterErrors = errors_temp;
@@ -1833,7 +1783,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
 
    // calculate uncertainty
    errors.assign(fParameters.Size(),-1);
-   
+
    return mode;
 }
 
@@ -2338,10 +2288,10 @@ double BCIntegrate::IntegrateSlice()
   for (unsigned int i = 0; i < GetNParameters(); ++i) {
     if (fParameters[i]->Fixed())
       fixpoint[i] = fParameters[i]->GetFixedValue();
-    else 
+    else
       fixpoint[i] = 0;
   }
-  
+
   if (GetNFreeParameters() == 1) {
     for (unsigned int i = 0; i < GetNParameters(); ++i) {
       if (!fParameters[i]->Fixed()) {
@@ -2350,7 +2300,7 @@ double BCIntegrate::IntegrateSlice()
 
         // calculate integral
         integral = hist_temp->GetHistogram()->Integral("width");
-        
+
         // free memory
         delete hist_temp;
       }
@@ -2367,7 +2317,7 @@ double BCIntegrate::IntegrateSlice()
 
           // calculate integral
           integral = hist_temp->GetHistogram()->Integral("width");
-        
+
         // free memory
         delete hist_temp;
         }
@@ -2401,8 +2351,6 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
          return "Empty";
       case BCIntegrate::kIntMonteCarlo:
          return "Sample Mean Monte Carlo";
-      case BCIntegrate::kIntImportance:
-         return "Importance Sampling";
       case BCIntegrate::kIntCuba:
          return "Cuba";
       case BCIntegrate::kIntSlice:

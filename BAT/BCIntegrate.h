@@ -87,14 +87,14 @@ public:
 
    /** \name Enumerators */
    /** @{ */
-  
+
   /**
    * An enumerator for the mode finding algorithm */
-  enum BCOptimizationMethod { 
+  enum BCOptimizationMethod {
     kOptEmpty,
-    kOptSA, 
-    kOptMetropolis, 
-    kOptMinuit, 
+    kOptSA,
+    kOptMetropolis,
+    kOptMinuit,
     kOptDefault,
     NOptMethods };
 
@@ -103,7 +103,6 @@ public:
    enum BCIntegrationMethod {
       kIntEmpty,
       kIntMonteCarlo,
-      kIntImportance,
       kIntCuba,
       kIntSlice,
       kIntDefault,
@@ -118,7 +117,7 @@ public:
      kMargSlice,
      kMargDefault,
      NMargMethods };
-   
+
    /**
     * An enumerator for the Simulated Annealing schedule */
    enum BCSASchedule { kSACauchy, kSABoltzmann, kSACustom, NSAMethods };
@@ -432,7 +431,7 @@ public:
    /**
     * Returns the posterior at the mode.
     * @return the posterior. */
-   double GetLogMaximum() 
+   double GetLogMaximum()
    { return fLogMaximum; };
 
    /**
@@ -579,13 +578,6 @@ public:
    virtual double LogEval(const std::vector<double> &x);
 
    /**
-    * Evaluate the sampling function at a point in parameter space.
-    * Method needs to be overloaded by the user.
-    * @param x The point in parameter space
-    * @return The value of the sampling function */
-   virtual double EvalSampling(const std::vector<double> &x);
-
-   /**
     * Performs integration. */
    double Normalize()
    { return Integrate(); };
@@ -599,7 +591,7 @@ public:
    /**
     * Perform the integration
     * @return the integral
-    */ 
+    */
    double Integrate();
 
    /**
@@ -616,8 +608,6 @@ public:
    // todo document
    double EvaluatorMC(std::vector<double> &sums, const std::vector<double> &point, bool &accepted);
    static void IntegralUpdaterMC(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision);
-   double EvaluatorImportance(std::vector<double> &sums, const std::vector<double> &point, bool &accepted);
-   static void IntegralUpdaterImportance(const std::vector<double> &sums, const int &nIterations, double &integral, double &absprecision);
 
    /**
     * Integrand for the Cuba library.
@@ -687,7 +677,7 @@ public:
     std::vector<double> FindMode(std::vector<double> start = std::vector<double>(0));
 
     /**
-     * Find mode using a specific method. The original method will be reset. 
+     * Find mode using a specific method. The original method will be reset.
      * @param optmethod the optimization method
      * @param start the starting point for the optimization algorithm
      * @return the mode
@@ -915,7 +905,7 @@ protected:
    /**
     * Set of marginalized distributions. */
    std::vector<BCH1D*> fMarginalized1D;
-   
+
    /**
     * Set of marginalized distributions. */
    std::vector<BCH2D*> fMarginalized2D;
@@ -942,7 +932,7 @@ protected:
    /**
     * flag indicating if the model was marginalized */
    bool fFlagMarginalized;
-   
+
 private:
 
    /**
@@ -976,7 +966,7 @@ private:
     * @return The mode.
     * @note The result may not coincide with the result of @code GetBestFitParameters()
     * if a previous optimization found a better value.*/
-   std::vector<double> FindModeSA(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start = std::vector<double>(0));   
+   std::vector<double> FindModeSA(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start = std::vector<double>(0));
 
       /**
     * Calculate integral using the Cuba library. For details see documentation.
@@ -998,7 +988,7 @@ private:
    /**
     * Current mode finding method */
    BCIntegrate::BCOptimizationMethod fOptimizationMethodCurrent;
-   
+
    /**
     * Method with which the global mode was found (can differ from
     * fOptimization method in case more than one algorithm is used). */
@@ -1047,7 +1037,7 @@ private:
    /**
     * A vector of best fit parameters found by MCMC */
    std::vector<double> fBestFitParameters;
-   
+
    /**
     * A vector of estimates on the uncertainties */
    std::vector<double> fBestFitParameterErrors;
@@ -1059,7 +1049,7 @@ private:
    /**
     * The integral. */
    double fIntegral;
-   
+
    /** Requested relative precision of the integration */
    double fRelativePrecision;
 
