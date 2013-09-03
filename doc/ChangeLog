@@ -1,3 +1,8 @@
+2013-09-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC:
+	  -MCMCGetProposalPointMetropolis(unsigned chain, std::vector<double> &x): bugfix: method would return false if at least one point is inside allowed region.
+	  -MCMCGetProposalPointMetropolis(...): fixed parameters are kept fixed.
+
 2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration
 	  - fix compilation of test cases

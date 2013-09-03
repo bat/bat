@@ -581,12 +581,17 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
    MCMCTrialFunction(chain, x);
 
    // get a proposal point from the trial function and scale it
-   for (unsigned i = 0; i < fParameters.Size(); ++i)
-       x[i] = fMCMCx[chain * fParameters.Size() + i] + x[i] * fParameters[i]->GetRangeWidth();
+   for (unsigned i = 0; i < fParameters.Size(); ++i) {
+     // check if parameter is fixed
+     if (fParameters[i]->Fixed()) {
+       x[i] = 0;
+     }
+     x[i] = fMCMCx[chain * fParameters.Size() + i] + x[i] * fParameters[i]->GetRangeWidth();
+   }
 
    // check if the point is in the correct volume.
    for (unsigned i = 0; i < fParameters.Size(); ++i)
-       if (fParameters[i]->IsValid(x[i]))
+       if (!fParameters[i]->IsValid(x[i]))
          return false;
 
    return true;
@@ -595,22 +600,28 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
 // --------------------------------------------------------
 bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar, std::vector<double> &x)
 {
-   // get unscaled random point in the dimension of the chosen
-   // parameter. this point might not be in the correct volume.
-   double proposal = MCMCTrialFunctionSingle(ichain, ipar);
+  // copy the old point into the new
+  for (unsigned i = 0; i < fParameters.Size(); ++i)
+    x[i] = fMCMCx[ichain * fParameters.Size() + i];
 
-   // copy the old point into the new
-   for (unsigned i = 0; i < fParameters.Size(); ++i)
-      x[i] = fMCMCx[ichain * fParameters.Size() + i];
+  // check if parameter is fixed
+  if (fParameters[ipar]->Fixed()) {
+    x[ipar] = fParameters[ipar]->GetFixedValue();
+    return true; // assume that value is inside allowed region
+  }
 
-   // modify the parameter under study
-   x[ipar] += proposal * fParameters[ipar]->GetRangeWidth();
+  // get unscaled random point in the dimension of the chosen
+  // parameter. this point might not be in the correct volume.
+  double proposal = MCMCTrialFunctionSingle(ichain, ipar);
 
-   // check if the point is in the correct volume.
-   if (fParameters[ipar]->IsValid(x[ipar]))
-      return true;
+  // modify the parameter under study
+  x[ipar] += proposal * fParameters[ipar]->GetRangeWidth();
 
-   return false;
+  // check if the point is in the correct volume.
+  if (fParameters[ipar]->IsValid(x[ipar]))
+    return true;
+
+  return false;
 }
 
 // --------------------------------------------------------
@@ -1286,6 +1297,12 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
 // --------------------------------------------------------
 int BCEngineMCMC::MCMCMetropolis()
 {
+  // check the number of free parameters
+  if (GetNFreeParameters() <= 0) {
+    BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Number of free parameters <= 0. Do not run Metropolis.");
+    return 0;
+  }
+
    // check if prerun should be performed
    if (fMCMCFlagPreRun)
       MCMCMetropolisPreRun();
@@ -1676,12 +1693,6 @@ int BCEngineMCMC::MCMCInitialize()
 // ---------------------------------------------------------
 void BCEngineMCMC::MCMCIterationInterface()
 {
-   // what's within this method will be executed
-   // for every iteration of the MCMC
-
-   // fill error band
-  //   MCMCFillErrorBand();
-
    // do user defined stuff
    MCMCUserIterationInterface();
 }
