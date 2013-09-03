@@ -123,27 +123,16 @@ void BCLog::Out(const char * message)
 
 void BCLog::StartupInfo()
 {
-  /*
    char * message = Form(
-         " +------------------------------\n"
-         " |\n"
-         " |     Running with BAT\n"
-         " |      Version %s\n"
-         " |\n"
-         " | http://mpp.mpg.de/bat\n"
-         " +------------------------------\n",
-         BCLog::fVersion);
-  */
-   char * message = Form(
-		 " +--------------------------------------------------------------+\n"
-		 " |                                                              |\n"
-		 " | BAT version %7s                                          |\n"
-		 " | Copyright (C) 2007-2012, Daniel Kollar and Kevin Kroeninger, |\n"
-                 " | all rights reserved.                                         |\n"
-		 " | For the licensing terms see doc/COPYING                      |\n"
-		 " | For documentation  see http://mpp.mpg.de/bat           |\n"
-		 " |                                                              |\n"
-                 " +--------------------------------------------------------------+\n",
+		 " +------------------------------------------------------+\n"
+		 " |                                                      |\n"
+		 " | BAT version %7s                                  |\n"
+		 " | Copyright (C) 2007-2013, the BAT core developer team |\n"
+     " | all rights reserved.                                 |\n"
+		 " | For the licensing terms see doc/COPYING              |\n"
+		 " | For documentation see http://mpp.mpg.de/bat          |\n"
+		 " |                                                      |\n"
+     " +------------------------------------------------------+\n",
          BCLog::fVersion);
 
    if (BCLog::IsOpen() && BCLog::fMinimumLogLevelFile<BCLog::nothing)
@@ -177,27 +166,16 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 
 int printBATUponLoading()
 {
-	/*
    std::cout <<
-      " +------------------------------\n"
-      " |\n"
-      " |     Running with BAT\n"
-      " |      Version " << VERSION << "\n"
-      " |\n"
-      " | http://mpp.mpg.de/bat\n"
-      " +------------------------------\n";
-
-	*/
-   std::cout <<
-		 " +--------------------------------------------------------------+\n"
-		 " |                                                              |\n"
-		 " | BAT version " << std::setw(7) << VERSION << "                                          |\n"
-		 " | Copyright (C) 2007-2012, Daniel Kollar and Kevin Kroeninger, |\n"
-     " | all rights reserved.                                         |\n"
-		 " | For the licensing terms see doc/COPYING                      |\n"
-		 " | For documentation  see http://mpp.mpg.de/bat           |\n"
-		 " |                                                              |\n"
-     " +--------------------------------------------------------------+\n";
+		 " +-------------------------------------------------------+\n"
+		 " |                                                       |\n"
+		 " | BAT version " << std::setw(7) << VERSION << "                                   |\n"
+		 " | Copyright (C) 2007-2013, the BAT core developer team, |\n"
+     " | all rights reserved.                                  |\n"
+		 " | For the licensing terms see doc/COPYING               |\n"
+		 " | For documentation see http://mpp.mpg.de/bat           |\n"
+		 " |                                                       |\n"
+     " +-------------------------------------------------------+\n";
    return 0;
 }
 
