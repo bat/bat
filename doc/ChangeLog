@@ -10,6 +10,7 @@
 	* BCLog.cxx: updated start-up information
 	* examples/basic/errorpropagation: set MCMC as default method
 	* examples/advanced/referencecounting: removed projection since it's now part of BAT.
+	* models/mtf/BCMTF.cxx: do not plot error bands if MCMC wasn't used for marginalization.
 
 2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration

@@ -214,7 +214,7 @@ int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double m
    // set marker
    hist.SetMarkerStyle(20);
    hist.SetMarkerSize(1.1);
-  
+
    // set divisions
    hist.SetNdivisions(509);
 
@@ -223,7 +223,7 @@ int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double m
       delete data->GetHistogram();
       data->SetHistogram(0);
    }
-   
+
    // remove old uncertainty histograms if they exist
    if (channel->GetHistUncertaintyBandExpectation()) {
       delete channel->GetHistUncertaintyBandExpectation();
@@ -245,23 +245,23 @@ int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double m
    for (int i = 0; i < hist.GetNbinsX()+1; ++i) {
       a[i] = hist.GetXaxis()->GetBinLowEdge(i+1);
    }
-   
+
    TH2D* hist_uncbandexp = new TH2D(TString::Format("UncertaintyBandExpectation_%i", BCLog::GetHIndex()), "",
                                     hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
    hist_uncbandexp->SetStats(kFALSE);
-   
+
    TH2D* hist_uncbandpoisson = new TH2D(TString::Format("UncertaintyBandPoisson_%i", BCLog::GetHIndex()), "",
                                         hist.GetNbinsX(), &a[0], int(maximum-minimum), minimum, maximum);
    hist_uncbandpoisson->SetStats(kFALSE);
-   
+
    // set histograms
    data->SetHistogram(new TH1D(hist), hist.Integral());
-   channel->SetHistUncertaintyBandExpectation(hist_uncbandexp); 
-   channel->SetHistUncertaintyBandPoisson(hist_uncbandpoisson); 
-   
+   channel->SetHistUncertaintyBandExpectation(hist_uncbandexp);
+   channel->SetHistUncertaintyBandPoisson(hist_uncbandpoisson);
+
    // set y-range for printing
    channel->SetRangeY(minimum, maximum);
-   
+
    // no error
    return 1;
 }
@@ -627,24 +627,24 @@ int BCMTF::PrintSummary(const char * filename)
 double BCMTF::Expectation(int channelindex, int binindex, const std::vector<double> & parameters)
 {
    double expectation = 0.;
-	 
+
    // loop over all processes
    for (int i = 0; i < fNProcesses; ++i) {
       // get efficiency
       double efficiency = Efficiency(channelindex, i, binindex, parameters);
-		 
+
       // get probability
       double probability = Probability(channelindex, i, binindex, parameters);
-		 
+
       // get parameter index
       int parindex = fProcessParIndexContainer[i];
-		 
+
       // add to expectation
       expectation += ExpectationFunction(parindex, channelindex, i, parameters)
          * efficiency
          * probability;
    }
-	 
+
    // check if expectation is positive
    if (expectation < 0)
       expectation = 0.;
@@ -802,6 +802,13 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    if (!flag_e0)
       flag_e1=true;
 
+   // check if MCMC ran
+   if (!(GetMarginalizationMethod() == BCIntegrate::kMargMetropolis)) {
+     flag_b0 = false;
+     flag_b1 = false;
+     BCLog::OutWarning("BCMTF::PrintStack : Did not run MCMC. Error bands are not available.");
+   }
+
    // get channel
    BCMTFChannel * channel = GetChannel(channelindex);
 
@@ -815,7 +822,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
    if (flag_logy)
       c1->SetLogy();
-	 
+
    // get data histogram
    TH1D* hist_data = channel->GetData()->GetHistogram();
 
@@ -843,7 +850,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
    graph_error_exp->SetFillStyle(3005);
 
    // get histogram for uncertainty band
-   TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation(); 
+   TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation();
 
    // fill error band
    if (flag_b0) {
@@ -861,7 +868,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
          delete proj;
       }
    }
-	 
+
    // create stack
    THStack * stack = new THStack("", "");
 
@@ -934,10 +941,10 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
 
    // define variable for maximum in y-direction
    double ymax = 0;;
-	
+
    if (flag_e1)
-      ymax = hist_data->GetMaximum() + sqrt(hist_data->GetMaximum()); 
-   else 
+      ymax = hist_data->GetMaximum() + sqrt(hist_data->GetMaximum());
+   else
       ymax = hist_data->GetMaximum();
 
    // set range user
@@ -959,7 +966,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
       channel->CalculateUncertaintyBandPoisson(0.159, 0.841, kGreen)->Draw("SAMEE2");
 
       // get bin with maximum
-      int ymaxbin = hist_temp->GetMaximumBin(); 
+      int ymaxbin = hist_temp->GetMaximumBin();
 
       if (hist_temp->GetBinContent(ymaxbin)+hist_temp->GetBinError(ymaxbin)> ymax)
          ymax = hist_temp->GetBinContent(ymaxbin)+hist_temp->GetBinError(ymaxbin);
@@ -1277,7 +1284,7 @@ void BCMTF::MCMCUserIterationInterface()
          continue;
 
       // get histogram for uncertainty band
-      TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation(); 
+      TH2D* hist_uncbandexp = channel->GetHistUncertaintyBandExpectation();
 
       // check if histogram exists
       if (!hist_uncbandexp)
