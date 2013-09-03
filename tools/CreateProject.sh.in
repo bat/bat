@@ -383,13 +383,25 @@ int main()
 
    // normalize the posterior, i.e. integrate posterior
    // over the full parameter space
+//   m->SetIntegrationMethod(BCIntegrate::kDefault);
+//   m->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
+//   m->SetIntegrationMethod(BCIntegrate::kIntCuba);
+//   m->SetIntegrationMethod(BCIntegrate::kIntSlice);
 //   m->Normalize();
 
    // run MCMC and marginalize posterior wrt. all parameters
    // and all combinations of two parameters
+//   m->SetMarginalizationMethod(BCIntegrate::kMargDefault);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargMonteCarlo);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargSlice);
 //   m->MarginalizeAll();
 
    // run mode finding; by default using Minuit
+//   m->SetOptimizationMethod(BCIntegrate::kOptDefault);
+//   m->SetOptimizationMethod(BCIntegrate::kOptMinuit);
+//   m->SetOptimizationMethod(BCIntegrate::kOptSA);
+//   m->SetOptimizationMethod(BCIntegrate::kOptMetropolis);
 //   m->FindMode();
 
    // if MCMC was run before (MarginalizeAll()) it is
