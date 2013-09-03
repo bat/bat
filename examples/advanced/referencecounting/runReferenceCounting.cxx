@@ -24,21 +24,19 @@ int main()
    ReferenceCounting* m = new ReferenceCounting();
 
    // BAT settings
-   m->GetParameter("s")->SetNbins(100);
-   m->GetParameter("b")->SetNbins(100);
-   m->MCMCSetPrecision(BCIntegrate::kHigh);
+   m->MCMCSetPrecision(BCIntegrate::kMedium);
 
    // set option of how to evaluate prior
    // kHistogram : calculate prior first and fill into histogram
    // kAnalytic  : calculate analytic expression
    // kApprox    : calculate prior from a TF1 approximation fitted to a histgram
    m->SetPriorEvalOption(ReferenceCounting::kApprox);
-	 
+
    // set background expectation
    double bkg_exp = 10; // expectation value
    double bkg_std = 5;  // uncertainty on background
 
-   double alpha   = bkg_exp*bkg_exp/bkg_std/bkg_std; 
+   double alpha   = bkg_exp*bkg_exp/bkg_std/bkg_std;
    double beta    = bkg_exp/bkg_std/bkg_std;
 
    m->SetAlphaBeta(alpha, beta);
@@ -47,10 +45,9 @@ int main()
    m->SetNObs(20);
 
    // set parameter range
-   m->GetParameter("s")->SetLimits(0.0, 200); // signal
+   m->GetParameter("s")->SetLimits(0.0, 50); // signal
    m->GetParameter("b")->SetLimits(0.0, 35); // background
 
-   
    // create a new summary tool object
    BCSummaryTool * summary = new BCSummaryTool(m);
 
@@ -64,23 +61,18 @@ int main()
    m->PrintAllMarginalized("ReferenceCounting_plots.pdf");
 
    // print individual histograms
-   m->GetMarginalized("s")->Print("ReferenceCounting_s.pdf", "BTulB3CS1D0pdf0L");
-   m->GetMarginalized("s")->Print("ReferenceCounting_s_logy.pdf", "BTulB3CS1D0pdf0Llogy");
-   m->GetMarginalized("b")->Print("ReferenceCounting_b.pdf");
-   m->GetMarginalized("b")->Print("ReferenceCounting_b_logy.pdf", "BTulB3CS1D0pdf0Llogy");
-   m->GetMarginalized("s", "b")->Print("ReferenceCounting_sb.pdf", "BTfB3CS1meangmodelmode");
+   BCH1D* hist_s = m->GetMarginalized("s");
+   hist_s->Print("ReferenceCounting_s.pdf", "BTulB3CS1D0pdf0L");
+   hist_s->Print("ReferenceCounting_s_logy.pdf", "BTulB3CS1D0pdf0Llogy");
 
-   // calculate histograms using slices, not MCMC
-   
-   BCH2D* hist_sb =  m->GetSlice("s", "b", m->GetBestFitParameters(), 500);
-   hist_sb->Print("ReferenceCounting_proj_sb.pdf", "BTfB3CS1meangmodelmode");   
-   BCH1D* hist_s = new BCH1D( hist_sb->GetHistogram()->ProjectionX() );
-   hist_s->Print("ReferenceCounting_s_proj.pdf", "BTulB3CS1D0pdf0L");
-   hist_s->Print("ReferenceCounting_s_proj_logy.pdf", "BTulB3CS1D0pdf0Llogy");
-   BCH1D* hist_b = new BCH1D( hist_sb->GetHistogram()->ProjectionY() );
-   hist_b->Print("ReferenceCounting_b_proj.pdf", "BTulB3CS1D0pdf0L");
-   hist_b->Print("ReferenceCounting_b_proj_loy.pdf", "BTulB3CS1D0pdf0Llogy");
+   BCH1D* hist_b = m->GetMarginalized("b");
+   hist_b->Print("ReferenceCounting_b.pdf");
+   hist_b->Print("ReferenceCounting_b_logy.pdf", "BTulB3CS1D0pdf0Llogy");
 
+   BCH2D* hist_sb = m->GetMarginalized("s", "b");
+   hist_sb->Print("ReferenceCounting_sb.pdf", "BTfB3CS1meangmodelmode");
+
+   // print priors
    m->PrintPriors("priors.pdf");
 
    // print summary plots
