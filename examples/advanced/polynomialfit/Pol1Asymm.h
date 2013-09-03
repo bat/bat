@@ -14,11 +14,11 @@
 
 #include <vector>
 
-#include <BAT/BCModel.h>
+#include "BAT/BCFitter.h"
 
 // ---------------------------------------------------------
 
-class Pol1Asymm : public BCModel
+class Pol1Asymm : public BCFitter
 {
 public:
         // default constructor
@@ -30,6 +30,12 @@ public:
 
         // define parameters of the model
         virtual void DefineParameters();
+
+        int Fit()
+        { return 0; };
+
+        void DrawFit(const char * options, bool flaglegend = false)
+        { ; };
 
         // fit function returning expectation value for each data point
         virtual double FitFunction(const std::vector<double> & x, const std::vector<double> & par);

@@ -6,6 +6,7 @@
 	  -included SetXXXMethod(), this fixes #57
 	* BCIntegrate:
 	  - renamed k(Int/Marg)Slice -> k(Int/Marg)Grid, kMargMCMC -> kMargMetropolis
+	* examples/advanced/polynomialfit: adjusted code to latest changes
 
 2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration

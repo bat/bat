@@ -11,12 +11,12 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-Pol1Asymm::Pol1Asymm() : BCModel()
+Pol1Asymm::Pol1Asymm() : BCFitter()
 { // default constructor
 }
 
 // ---------------------------------------------------------
-Pol1Asymm::Pol1Asymm(const char * name) : BCModel(name)
+Pol1Asymm::Pol1Asymm(const char * name) : BCFitter(name)
 { // constructor
 }
 

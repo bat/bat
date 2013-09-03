@@ -56,9 +56,9 @@ int main()
    // assigns the data set to the model manager.
    mgr->SetDataSet(data);
 
-   // normalize all models and calculate the Basyes factors
+   // normalize all models and calculate the Bayes factors
    //	mgr->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
-   mgr->Normalize();
+   mgr->Integrate();
 
    // the allowed range of data values has to be defined for error
    // propagation and fitting.
@@ -70,15 +70,22 @@ int main()
    // they have fixed values on the x-axis, i.e, 5, 15, ... . also, the
    // resolution is fixed. in general this can be solved by fixing the
    // "axes".
-   mgr->FixDataAxis(0, true); // fixes x-values
-   mgr->FixDataAxis(2, true); // fixes resolution
-   mgr->FixDataAxis(3, true); // fixes resolution
+   m1->FixDataAxis(0, true); // fixes x-values
+   m1->FixDataAxis(2, true); // fixes resolution
+   m1->FixDataAxis(3, true); // fixes resolution
+
+   m2->FixDataAxis(0, true); // fixes x-values
+   m2->FixDataAxis(2, true); // fixes resolution
+   m2->FixDataAxis(3, true); // fixes resolution
 
    // during the marginalization, the error propagation can be done
    // thus, the x- and y-indices of the data values have to be set.
-   mgr->SetFitFunctionIndices(0, 1);
+   m1->SetFitFunctionIndices(0, 1);
+   m2->SetFitFunctionIndices(0, 1);
+
    // turns on the calculation of the error band
-   mgr->SetFillErrorBand();
+   m1->SetFillErrorBand();
+   m2->SetFillErrorBand();
 
    // set precision
    m1->MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -92,15 +99,13 @@ int main()
    // but we run minuit on top of that starting in the mode
    // found by MCMC to get more precise result
    for (unsigned int i=0; i < mgr->GetNModels(); i++)
-      mgr->GetModel(i)->FindModeMinuit( mgr->GetModel(i)->GetBestFitParameters() );
+      mgr->GetModel(i)->FindMode( mgr->GetModel(i)->GetBestFitParameters() );
 
    // write marginalized distributions to a root file
    mout1->WriteMarginalizedDistributions();
-   mout1->WriteErrorBand();
    mout1->Close();
 
    mout2->WriteMarginalizedDistributions();
-   mout2->WriteErrorBand();
    mout2->Close();
 
    // print all marginalized distributions to a postscript file
@@ -108,7 +113,7 @@ int main()
    m2->PrintAllMarginalized("2Dasymm-marg.pdf");
 
    // calculate the p-value for the set of best fit parameters
-   mgr->CalculatePValue();
+   //   mgr->CalculatePValue();
 
    // write the summary
    mgr->PrintResults();
