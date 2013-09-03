@@ -92,7 +92,7 @@ public:
    * An enumerator for the mode finding algorithm */
   enum BCOptimizationMethod {
     kOptEmpty,
-    kOptSA,
+    kOptSimAnn,
     kOptMetropolis,
     kOptMinuit,
     kOptDefault,
@@ -104,7 +104,7 @@ public:
       kIntEmpty,
       kIntMonteCarlo,
       kIntCuba,
-      kIntSlice,
+      kIntGrid,
       kIntDefault,
       NIntMethods };
 
@@ -112,9 +112,9 @@ public:
     * An enumerator for marginalization algorithms */
    enum BCMarginalizationMethod {
      kMargEmpty,
-     kMargMCMC,
+     kMargMetropolis,
      kMargMonteCarlo,
-     kMargSlice,
+     kMargGrid,
      kMargDefault,
      NMargMethods };
 

@@ -4,6 +4,8 @@
 	  -MCMCGetProposalPointMetropolis(...): fixed parameters are kept fixed.
 	* tools/CreateProject.sh.in:
 	  -included SetXXXMethod(), this fixes #57
+	* BCIntegrate:
+	  - renamed k(Int/Marg)Slice -> k(Int/Marg)Grid, kMargMCMC -> kMargMetropolis
 
 2013-09-03 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCIntegrate: remove "importance sampling"; i.e., hit-or-miss integration

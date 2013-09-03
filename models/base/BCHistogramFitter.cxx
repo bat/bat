@@ -39,7 +39,7 @@ BCHistogramFitter::BCHistogramFitter()
    flag_discrete = true;
 
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -57,7 +57,7 @@ BCHistogramFitter::BCHistogramFitter(const char * name)
    flag_discrete = true;
 
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -77,7 +77,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
    flag_discrete = true;
 
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -97,7 +97,7 @@ BCHistogramFitter::BCHistogramFitter(const char * name, TH1D * hist, TF1 * func)
    flag_discrete = true;
 
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------

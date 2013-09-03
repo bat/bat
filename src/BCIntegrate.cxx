@@ -312,12 +312,12 @@ double BCIntegrate::Integrate()
       }
 
       // CUBA library
-    case BCIntegrate::kIntSlice:
+    case BCIntegrate::kIntGrid:
       {
         fIntegral = IntegrateSlice();
 
         // set used integration method
-        fIntegrationMethodUsed = BCIntegrate::kIntSlice;
+        fIntegrationMethodUsed = BCIntegrate::kIntGrid;
 
         // return integral
         return fIntegral;
@@ -327,7 +327,7 @@ double BCIntegrate::Integrate()
     case BCIntegrate::kIntDefault:
       {
         if (GetNFreeParameters() <= 2)
-          SetIntegrationMethod(BCIntegrate::kIntSlice);
+          SetIntegrationMethod(BCIntegrate::kIntGrid);
         else
 #ifdef HAVE_CUBA_H
           SetIntegrationMethod(BCIntegrate::kIntCuba);
@@ -556,9 +556,9 @@ bool BCIntegrate::CheckMarginalizationAvailability(BCMarginalizationMethod type)
     {
     case BCIntegrate::kMargMonteCarlo:
       return false;
-    case BCIntegrate::kMargMCMC:
+    case BCIntegrate::kMargMetropolis:
       return true;
-    case BCIntegrate::kMargSlice:
+    case BCIntegrate::kMargGrid:
       return true;
     case BCIntegrate::kMargDefault:
       return true;
@@ -780,7 +780,7 @@ int BCIntegrate::MarginalizeAll()
       }
 
       // Markov Chain Monte Carlo
-    case BCIntegrate::kMargMCMC:
+    case BCIntegrate::kMargMetropolis:
       {
         // start preprocess
         MarginalizePreprocess();
@@ -810,7 +810,7 @@ int BCIntegrate::MarginalizeAll()
         }
 
         // set used marginalization method
-        fMarginalizationMethodUsed = BCIntegrate::kMargMCMC;
+        fMarginalizationMethodUsed = BCIntegrate::kMargMetropolis;
 
         // check if mode is better than previous one
         if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < fMCMCLogMaximum) ) {
@@ -830,7 +830,7 @@ int BCIntegrate::MarginalizeAll()
       }
 
       // Slice
-    case BCIntegrate::kMargSlice:
+    case BCIntegrate::kMargGrid:
       {
         std::vector<double> fixpoint(GetNParameters());
         for (unsigned int i = 0; i < GetNParameters(); ++i) {
@@ -922,7 +922,7 @@ int BCIntegrate::MarginalizeAll()
         MarginalizePostprocess();
 
         // set used marginalization method
-        fMarginalizationMethodUsed = BCIntegrate::kMargSlice;
+        fMarginalizationMethodUsed = BCIntegrate::kMargGrid;
 
       break;
       }
@@ -931,10 +931,10 @@ int BCIntegrate::MarginalizeAll()
     case BCIntegrate::kMargDefault:
       {
         if ( GetNFreeParameters() <= 2 ) {
-          SetMarginalizationMethod(BCIntegrate::kMargSlice);
+          SetMarginalizationMethod(BCIntegrate::kMargGrid);
         }
         else {
-          SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+          SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
         }
 
         // call again
@@ -1513,7 +1513,7 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
         BCLog::OutWarning("BCIntegrate::FindMode : No optimization method chosen.");
         return std::vector<double>();
       }
-    case BCIntegrate::kOptSA:
+    case BCIntegrate::kOptSimAnn:
       {
         FindModeSA(mode_temp, errors_temp, start);
 
@@ -2354,7 +2354,7 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
          return "Sample Mean Monte Carlo";
       case BCIntegrate::kIntCuba:
          return "Cuba";
-      case BCIntegrate::kIntSlice:
+      case BCIntegrate::kIntGrid:
          return "Slice";
       default:
          return "Undefined";
@@ -2369,9 +2369,9 @@ std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizatio
          return "Empty";
       case BCIntegrate::kMargMonteCarlo:
          return "Sample Mean Monte Carlo";
-      case BCIntegrate::kMargMCMC:
-         return "Markov Chain Monte Carlo";
-      case BCIntegrate::kMargSlice:
+      case BCIntegrate::kMargMetropolis:
+         return "Metropolis";
+      case BCIntegrate::kMargGrid:
          return "Slice";
       case BCIntegrate::kMargDefault:
          return "Default";
@@ -2386,7 +2386,7 @@ std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMetho
    switch(type) {
       case BCIntegrate::kOptEmpty:
          return "Empty";
-      case BCIntegrate::kOptSA:
+      case BCIntegrate::kOptSimAnn:
          return "Simulated Annealing";
       case BCIntegrate::kOptMetropolis:
          return "Metropolis MCMC";

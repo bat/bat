@@ -31,7 +31,7 @@ BCGraphFitter::BCGraphFitter()
  , fGraphFitFunction(0)
 {
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -44,7 +44,7 @@ BCGraphFitter::BCGraphFitter(const char * name)
  , fGraphFitFunction(0)
 {
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -60,7 +60,7 @@ BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func)
    SetFitFunction(func);
 
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -76,7 +76,7 @@ BCGraphFitter::BCGraphFitter(const char * name, TGraphErrors * graph, TF1 * func
    SetFitFunction(func);
 
    // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------

@@ -386,21 +386,21 @@ int main()
 //   m->SetIntegrationMethod(BCIntegrate::kDefault);
 //   m->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
 //   m->SetIntegrationMethod(BCIntegrate::kIntCuba);
-//   m->SetIntegrationMethod(BCIntegrate::kIntSlice);
+//   m->SetIntegrationMethod(BCIntegrate::kIntGrid);
 //   m->Normalize();
 
    // run MCMC and marginalize posterior wrt. all parameters
    // and all combinations of two parameters
 //   m->SetMarginalizationMethod(BCIntegrate::kMargDefault);
-//   m->SetMarginalizationMethod(BCIntegrate::kMargMCMC);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 //   m->SetMarginalizationMethod(BCIntegrate::kMargMonteCarlo);
-//   m->SetMarginalizationMethod(BCIntegrate::kMargSlice);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargGrid);
 //   m->MarginalizeAll();
 
    // run mode finding; by default using Minuit
 //   m->SetOptimizationMethod(BCIntegrate::kOptDefault);
 //   m->SetOptimizationMethod(BCIntegrate::kOptMinuit);
-//   m->SetOptimizationMethod(BCIntegrate::kOptSA);
+//   m->SetOptimizationMethod(BCIntegrate::kOptSimAnn);
 //   m->SetOptimizationMethod(BCIntegrate::kOptMetropolis);
 //   m->FindMode();
 
