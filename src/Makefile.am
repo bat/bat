@@ -45,8 +45,7 @@ incs= \
 	BCSummaryPriorModel.h
 
 library_include_HEADERS= \
-	$(patsubst %.h, ../BAT/%.h, $(incs)) \
-	../BAT/BCErrorCodes.h
+	$(patsubst %.h, ../BAT/%.h, $(incs))
 libBAT_la_SOURCES= \
 	$(incs:.h=.cxx)
 
