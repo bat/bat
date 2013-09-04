@@ -127,7 +127,7 @@ double ApproxLogFact(double x)
       return x * log(x) - x + log(x * (1. + 4. * x * (1. + 2. * x))) / 6. + log(M_PI) / 2.;
 
    else
-      return LogFact((int) x);
+      return LogFact(static_cast<int>(floor(x + 0.5f)));
 }
 
 // ---------------------------------------------------------

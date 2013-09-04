@@ -1,3 +1,6 @@
+2013-09-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCMath.cxx: use proper rounding of integers for calculation of factorial (instead of (int)).
+
 2013-09-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
 	  -MCMCGetProposalPointMetropolis(unsigned chain, std::vector<double> &x): bugfix: method would return false if at least one point is inside allowed region.
