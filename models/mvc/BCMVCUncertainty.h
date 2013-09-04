@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
+ */
+
+// ---------------------------------------------------------
+
 #ifndef __BCMVCUNCERTAINTY__H
 #define __BCMVCUNCERTAINTY__H
 
@@ -12,7 +22,7 @@
 class BCMVCUncertainty
 {
  public:
-	
+
   // constructor
   // name: the name of the uncertainty
   BCMVCUncertainty(std::string name);
@@ -25,18 +35,18 @@ class BCMVCUncertainty
   // return the name of the uncertainty
   std::string GetName()
     { return fName; };
-	
+
   // return the correlation matrix
   TMatrixD GetCorrelationMatrix()
-  { return fCorrelationMatrix; }; 
+  { return fCorrelationMatrix; };
 
   // return the covariance matrix
   TMatrixD GetCovarianceMatrix()
-  { return fCovarianceMatrix; }; 
+  { return fCovarianceMatrix; };
 
   // return the inverse of the covariance matrix
   TMatrixD GetInvCovarianceMatrix()
-  { return fInvCovarianceMatrix; }; 
+  { return fInvCovarianceMatrix; };
 
   // return the flag if the uncertainty is active or not
   bool GetFlagActive()
@@ -50,7 +60,7 @@ class BCMVCUncertainty
 
   // set flag if uncertainty is active for the combination
   void SetFlagActive(bool flag)
-  { fFlagActive = flag; }; 
+  { fFlagActive = flag; };
 
  private:
 
@@ -59,17 +69,17 @@ class BCMVCUncertainty
 
   // the symmetric correlation matrix; the number of columns and rows
   // is equal to the number of measurements
-  TMatrixD fCorrelationMatrix; 
+  TMatrixD fCorrelationMatrix;
 
   // the symmetric covariance matrix; the number of columns and rows
   // is equal to the number of measurements
-  TMatrixD fCovarianceMatrix; 
+  TMatrixD fCovarianceMatrix;
 
   // the inverse of the covariance matrix
   TMatrixD fInvCovarianceMatrix;
 
   // flag: active in combination (true) or not (false)
-  bool fFlagActive; 
+  bool fFlagActive;
 };
 // ---------------------------------------------------------
 

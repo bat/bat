@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar, Kevin Kroeninger, and Daniel Greenwald.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -850,7 +851,7 @@ void BCModel::PrintResults(const char * file)
      ofi << std::endl;
    }
    ofi << std::endl;
-   
+
    ofi << " Results of the optimization" << std::endl
          << " ===========================" << std::endl
          << " Optimization algorithm used: "
@@ -869,7 +870,7 @@ void BCModel::PrintResults(const char * file)
         else if (GetBestFitParameterErrors().size() == npar) {
           if(GetBestFitParameterError(i) >= 0.)
             ofi << " +- " << GetBestFitParameterError(i);
-          else 
+          else
             ofi << " (no error estimate available) ";
         }
         else {
@@ -900,7 +901,7 @@ void BCModel::PrintResults(const char * file)
             << " Integration method used: "
             << DumpUsedIntegrationMethod() << std::endl;
       ofi << " Evidence: " << GetIntegral();
-      if (GetError() >= 0) 
+      if (GetError() >= 0)
         ofi << " +- " << GetError() << std::endl;
       else
         ofi << " (no error estimate available) " << std::endl;

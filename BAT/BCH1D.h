@@ -12,11 +12,12 @@
  * functions. It is used for marginalized distributions.
  */
 
-/**
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -156,7 +157,7 @@ class BCH1D
   /**
    * Set global mode */
   void SetGlobalMode(double mode)
-  { fMode=mode; 
+  { fMode=mode;
     fModeFlag=1; };
 
   /** @} */
@@ -187,7 +188,7 @@ class BCH1D
    * @param ww canvas size in pixels along X
    * @param ww canvas size in pixels along Y
    * @see Print(const char * filename, std::string options="BTciB3CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0)
-   */ 
+   */
   void Print(const char * filename, std::string options, double interval, int ww=0, int wh=0);
 
   /**
@@ -226,7 +227,7 @@ class BCH1D
    *Draw distribution into the active canvas.
    * @param options Drawing options, @see Print(const char * filename, std::string options, double interval, int ww=0, int wh=0)
    * @param interval an upper or lower limit
-   */ 
+   */
   void Draw(std::string options, double interval);
 
   /**
@@ -247,7 +248,7 @@ class BCH1D
    * histogram containing a certain level. The histogram is yellow.
    * @param level the level or content of the histogram
    * @return the histogram.
-   */ 
+   */
   TH1D* GetSmallestIntervalHistogram(double level);
 
   /**
@@ -309,7 +310,7 @@ class BCH1D
    * Storage for plot objects. */
   mutable std::vector<TObject*> fROOTObjects;
 
-  /** 
+  /**
    * Helper method to get an unique number to be used in histogram naming */
   static unsigned int getNextIndex()
     { return ++fHCounter; }

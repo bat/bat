@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar, Kevin Kroeninger and Jing Liu
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -294,15 +295,15 @@ double LogLogNormal(double x, double mean, double sigma)
 // ---------------------------------------------------------
 double SplitGaussian(double* x, double* par)
 {
-   double mean = par[0]; 
-   double sigmadown = par[1]; 
+   double mean = par[0];
+   double sigmadown = par[1];
    double sigmaup = par[2];
 
    double sigma = sigmadown;
 
    if (x[0] > mean)
-      sigma = sigmaup; 
-   
+      sigma = sigmaup;
+
    return 1.0/sqrt(2.0*M_PI)/sigma * exp(- (x[0]-mean)*(x[0]-mean)/2./sigma/sigma);
 }
 

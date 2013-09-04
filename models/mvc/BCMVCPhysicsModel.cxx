@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
+ */
+
+// ---------------------------------------------------------
+
 #include "BCMVCPhysicsModel.h"
 #include "BCMVCObservable.h"
 
@@ -19,10 +29,10 @@ BCMVCPhysicsModel::~BCMVCPhysicsModel()
 double BCMVCPhysicsModel::LogLikelihood(const std::vector<double> &parameters)
 {
   std::vector<double> observables;
-	
-  for (int i = 0; i < fNObservables; ++i) 
+
+  for (int i = 0; i < fNObservables; ++i)
     observables.push_back(CalculateObservable(i, parameters));
-	
+
   return BCMVCombination::LogLikelihood(observables);
 }
 
@@ -39,7 +49,7 @@ void BCMVCPhysicsModel::AddObservable(std::string name, double min, double max)
   observable->SetName(name);
   observable->SetMinMax(min, max);
   fObservables.push_back(observable);
-	
+
   fNObservables++;
 }
 

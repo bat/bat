@@ -1,9 +1,13 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
+
+// ---------------------------------------------------------
+
 #include "config.h"
 
 #include "BCLog.h"
@@ -128,7 +132,8 @@ void BCLog::StartupInfo()
 		 " |                                                      |\n"
 		 " | BAT version %7s                                  |\n"
 		 " | Copyright (C) 2007-2013, the BAT core developer team |\n"
-     " | all rights reserved.                                 |\n"
+     " | All rights reserved.                                 |\n"
+     " |                                                      |\n"
 		 " | For the licensing terms see doc/COPYING              |\n"
 		 " | For documentation see http://mpp.mpg.de/bat          |\n"
 		 " |                                                      |\n"
@@ -167,15 +172,16 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 int printBATUponLoading()
 {
    std::cout <<
-		 " +-------------------------------------------------------+\n"
-		 " |                                                       |\n"
-		 " | BAT version " << std::setw(7) << VERSION << "                                   |\n"
-		 " | Copyright (C) 2007-2013, the BAT core developer team, |\n"
-     " | all rights reserved.                                  |\n"
-		 " | For the licensing terms see doc/COPYING               |\n"
-		 " | For documentation see http://mpp.mpg.de/bat           |\n"
-		 " |                                                       |\n"
-     " +-------------------------------------------------------+\n";
+		 " +------------------------------------------------------+\n"
+		 " |                                                      |\n"
+		 " | BAT version " << std::setw(7) << VERSION << "                                  |\n"
+		 " | Copyright (C) 2007-2013, the BAT core developer team |\n"
+     " | All rights reserved.                                 |\n"
+     " |                                                      |\n"
+		 " | For the licensing terms see doc/COPYING              |\n"
+		 " | For documentation see http://mpp.mpg.de/bat          |\n"
+		 " |                                                      |\n"
+     " +------------------------------------------------------+\n";
    return 0;
 }
 

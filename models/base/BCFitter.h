@@ -11,10 +11,11 @@
  */
 
 /*
- * Copyright (C) 2008-2013, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -90,7 +91,7 @@ class BCFitter : public BCModel
    * @param flag set to true for turning on the filling */
   void SetFillErrorBand(bool flag = true)
   { fFlagFillErrorBand=flag; }
-  
+
   /**
    * Sets errorband histogram */
   void SetErrorBandHisto(TH2D * h)
@@ -101,7 +102,7 @@ class BCFitter : public BCModel
    * This method is equivalent to SetFillErrorBand(false) */
   void UnsetFillErrorBand()
   { fFlagFillErrorBand=false; }
-  
+
   /**
    * Sets index of the x values in function fits.
    * @param index Index of the x values */
@@ -125,7 +126,7 @@ class BCFitter : public BCModel
   /**
    * Sets the error band flag to continuous function */
   void SetErrorBandContinuous(bool flag);
-  
+
   /**
    * Defines a fit function.
    * @param parameters A set of parameter values
@@ -133,7 +134,7 @@ class BCFitter : public BCModel
    * @return The value of the fit function at the x-values given a set of parameters */
   virtual double FitFunction(const std::vector<double> &/*x*/, const std::vector<double> &/*parameters*/)
   { return 0; }
-  
+
   /* @} */
   /** \name Member functions (miscellaneous methods) */
   /* @{ */
@@ -199,7 +200,7 @@ class BCFitter : public BCModel
   unsigned fErrorBandNbinsY;
 
  protected:
-  
+
   /**
    * The error band histogram */
   TH2D * fErrorBandXY;

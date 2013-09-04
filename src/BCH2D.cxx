@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2008-2013, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -485,10 +486,10 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
       // add graph to list of objects
       fROOTObjects.push_back(graph_profilex);
    }
-   
+
    if (flag_profiley) {
       graph_profiley = DrawProfileY("mode", "dotted");
-   
+
       // add graph to list of objects
       fROOTObjects.push_back(graph_profiley);
    }
@@ -530,7 +531,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    // draw axes again
    hist_axes->Draw("SAME");
 
-   // rescale 
+   // rescale
    gPad->SetTopMargin(1.-ylegend1+0.01);
 
    gPad->RedrawAxis();
@@ -611,14 +612,14 @@ double BCH2D::GetArea(double p)
 {
    // copy histograms for bands
    TH2D hist_temp(*fHistogram);
-	
+
    // calculate total number of bins
    int nbins = hist_temp.GetNbinsX() * hist_temp.GetNbinsY();
 
    // area
    double area = 0;
 
-   // integrated probability 
+   // integrated probability
    double intp = 0;
 
    // a counter
@@ -641,7 +642,7 @@ double BCH2D::GetArea(double p)
       hist_temp.SetBinContent(binx, biny, 0.);
 
       // increase area
-      area += hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);			
+      area += hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);
 
       // increase counter
       counter++;
@@ -698,22 +699,22 @@ TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
   if (options.find("mode") < options.size()) {
     flag_mode = true;
   }
-  
+
   if (options.find("mean") < options.size()) {
     flag_mean = true;
     flag_mode = false;
     flag_median = false;
   }
-  
+
   if (options.find("median") < options.size()) {
     flag_median = true;
     flag_mode = false;
     flag_mean = false;
   }
-  
+
   // define profile graph
   TGraph* graph_profile = new TGraph();
- 
+
   // define limits of running
   int nx = fHistogram->GetNbinsX();
   int ny = fHistogram->GetNbinsY();
@@ -723,7 +724,7 @@ TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
 
   double ymin = fHistogram->GetYaxis()->GetBinLowEdge(1);
   double ymax = fHistogram->GetYaxis()->GetBinLowEdge(nx+1);
-    
+
   int nbins_outer = 0;
   int nbins_inner = 0;
   double axis_min = 0;
@@ -734,14 +735,14 @@ TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
     nbins_inner = ny;
     axis_min = ymin;
     axis_max = ymax;
-  }      
+  }
   else {
     nbins_outer = ny;
     nbins_inner = nx;
     axis_min = xmin;
     axis_max = xmax;
-  }      
-  
+  }
+
   // loop over outer axis of choice
   for (int ibin_outer = 1; ibin_outer <= nbins_outer ; ibin_outer++) {
 
@@ -811,15 +812,15 @@ TGraph* BCH2D::DrawProfile(int axis, std::string options, std::string drawoption
   if (drawoptions.find("black") < options.size()) {
     flag_black = true;
   }
-  
+
   else if (drawoptions.find("red") < options.size()) {
     flag_red = true;
   }
-  
+
   else {
     flag_black = true;
   }
-  
+
   if (drawoptions.find("solid") < options.size()) {
     flag_solid = true;
   }

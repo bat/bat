@@ -12,10 +12,11 @@
  */
 
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -26,7 +27,7 @@
 
 class BCMTFTemplate;
 class BCMTFSystematicVariation;
-class TH2D; 
+class TH2D;
 
 // ---------------------------------------------------------
 class BCMTFChannel
@@ -38,8 +39,8 @@ public:
         /** @{ */
 
         /**
-         * The default constructor. 
-         * @param name The name of the channel. */ 
+         * The default constructor.
+         * @param name The name of the channel. */
         BCMTFChannel(const char * name);
 
         /**
@@ -50,7 +51,7 @@ public:
         /** \name Member functions (get) */
         /** @{ */
 
-        /** 
+        /**
          * @return The name of the channel. */
         std::string GetName()
         { return fName; };
@@ -60,21 +61,21 @@ public:
         BCMTFTemplate * GetData()
         { return fData; };
 
-        /** 
+        /**
          * Return a template
-         * @param index The template index. 
+         * @param index The template index.
          * @return The template. */
         BCMTFTemplate * GetTemplate(int index)
         { return fTemplateContainer.at(index); };
 
-        /** 
+        /**
          * Return a systematic variation
-         * @param index The systematic index. 
+         * @param index The systematic index.
          * @return The systematic variation. */
         BCMTFSystematicVariation * GetSystematicVariation(int index)
         { return fSystematicVariationContainer.at(index); };
 
-        /** 
+        /**
          * @return Flag defining if the channel is active or not. */
         bool GetFlagChannelActive()
         { return fFlagChannelActive; };
@@ -84,30 +85,30 @@ public:
          * of the expectation.
          * @return The histogram. */
         TH2D* GetHistUncertaintyBandExpectation()
-        { return fHistUncertaintyBandExpectation; }; 
+        { return fHistUncertaintyBandExpectation; };
 
         /**
-         * Return a histogram used for the calculation of the Poisson fluctuations. 
+         * Return a histogram used for the calculation of the Poisson fluctuations.
          * @return The histogram. */
         TH2D* GetHistUncertaintyBandPoisson()
-        { return fHistUncertaintyBandPoisson; }; 
+        { return fHistUncertaintyBandPoisson; };
 
         /**
          * @return The minimal y-range for printing. */
         double GetRangeYMin()
-        { return fRangeYMin; }; 
+        { return fRangeYMin; };
 
         /**
          * @return The maximal y-range for printing. */
         double GetRangeYMax()
-        { return fRangeYMax; }; 
+        { return fRangeYMax; };
 
         /** @} */
         /** \name Member functions (set) */
         /** @{ */
 
         /**
-         * Set the name of the channel. 
+         * Set the name of the channel.
          * @param name The name of the channel. */
         void SetName(const char * name)
         { fName = name; };
@@ -120,26 +121,26 @@ public:
 
         /**
          * Set a histogram ued for the calculation of the error band of
-         * the expectation. 
+         * the expectation.
          * @param hist The histogram. */
         void SetHistUncertaintyBandExpectation(TH2D* hist) {
                 fHistUncertaintyBandExpectation = hist; }
-			
+
         /**
-         * Set a histogram used for the calculation of the Poisson fluctuations. 
+         * Set a histogram used for the calculation of the Poisson fluctuations.
          * @param The histogram. */
         void SetHistUncertaintyBandPoisson(TH2D* hist) {
                 fHistUncertaintyBandPoisson = hist; }
-			
+
         /**
-         * Set flag to define if the channel is active or not. 
+         * Set flag to define if the channel is active or not.
          * @param flag The flag. */
         void SetFlagChannelActive(bool flag)
         { fFlagChannelActive = flag; };
 
         /**
-         * Set the y-ranges for printing. 
-         * @param min The minimum range. 
+         * Set the y-ranges for printing.
+         * @param min The minimum range.
          * @param max The maximum range. */
         void SetRangeY(double min, double max) {
                 fRangeYMin = min; fRangeYMax = max; };
@@ -149,19 +150,19 @@ public:
         /** \name Member functions (miscellaneous methods) */
         /** @{ */
 
-        /** 
-         * Add a template. 
+        /**
+         * Add a template.
          * @param bctemplate The template. */
         void AddTemplate(BCMTFTemplate * bctemplate)
         { fTemplateContainer.push_back(bctemplate); };
 
-        /** 
-         * Add a systematic variation. 
+        /**
+         * Add a systematic variation.
          * @param variation The variation. */
         void AddSystematicVariation(BCMTFSystematicVariation * variation)
         { fSystematicVariationContainer.push_back(variation); };
 
-        /** 
+        /**
          * Calculate histogram for uncertainty band calculation. */
         void CalculateHistUncertaintyBandPoisson();
 
@@ -186,26 +187,26 @@ public:
 
         /**
          * Print a particular template with systematics.
-         * @param index The template index. 
+         * @param index The template index.
          * @param filename The name of the file. */
         void PrintTemplate(int index, const char * filename);
 
-        /** 
+        /**
          * Print histogram for uncertainty band calculation.
          * @param filename The name of the file. */
-        void PrintHistUncertaintyBandExpectation(const char* filename); 
+        void PrintHistUncertaintyBandExpectation(const char* filename);
 
-        /** 
+        /**
          * Print histogram for uncertainty band calculation.
          * @param filename The name of the file. */
-        void PrintHistUncertaintyBandPoisson(const char* filename, const char* options="COLZ"); 
+        void PrintHistUncertaintyBandPoisson(const char* filename, const char* options="COLZ");
 
         /**
          * Print cumulative histogram for uncertainty band calculation.
          * @param filename The name of the file. */
-        void PrintHistCumulativeUncertaintyBandPoisson(const char* filename); 
+        void PrintHistCumulativeUncertaintyBandPoisson(const char* filename);
 
-        /** 
+        /**
          * Print uncertainty band.
          * @param filename The name of the file. */
         void PrintUncertaintyBandPoisson(const char* filename, double minimum, double maximum, int color);
@@ -218,11 +219,11 @@ private:
          * The name of the channel. */
         std::string fName;
 
-        /** 
+        /**
          * The data set. */
         BCMTFTemplate * fData;
 
-        /** 
+        /**
          * The minimal y-range for printing. */
         double fRangeYMin;
 
@@ -234,7 +235,7 @@ private:
          * A container of templates. */
         std::vector<BCMTFTemplate *> fTemplateContainer;
 
-        /** 
+        /**
          * A container of systematics. */
         std::vector<BCMTFSystematicVariation *> fSystematicVariationContainer;
 
@@ -244,9 +245,9 @@ private:
 
         /**
          * A histogram for the calculation of uncertainty bands. */
-        TH2D* fHistUncertaintyBandExpectation; 
+        TH2D* fHistUncertaintyBandExpectation;
 
-        /** 
+        /**
          * A histogram for the calculation of uncertainty bands. */
         TH2D* fHistUncertaintyBandPoisson;
 

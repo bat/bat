@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -622,41 +623,41 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post
    BCH1D* hist_prior = 0;
    BCH1D* hist_posterior = 0;
 
-	 hist_prior = fPriorModel->GetMarginalized(par);	 
+	 hist_prior = fPriorModel->GetMarginalized(par);
 	 if (flag_slice_prior && fPriorModel->GetNParameters()==2) {
 		 if (index == 0) {
 			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
 			  hist->Scale(1.0/hist->Integral("width"));
 				for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
 		 }
 		 else {
 			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
 			 hist->Scale(1.0/hist->Integral("width"));
 			 for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
 		 }
 		 hist_prior->GetHistogram()->SetStats(kFALSE);
 	 }
 	 else if (flag_slice_prior && fPriorModel->GetNParameters()==1) {
 		 hist_prior = fPriorModel->GetSlice(par);
 		 hist_prior->GetHistogram()->SetStats(kFALSE);
-	 }	 
+	 }
 	 hist_prior->GetHistogram()->SetLineColor(kRed);
 
-	 hist_posterior = fModel->GetMarginalized(par);	
+	 hist_posterior = fModel->GetMarginalized(par);
 	 if (flag_slice_post && fModel->GetNParameters()==2) {
 		 if (index == 0) {
 			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
 			 hist->Scale(1.0/hist->Integral("width"));
 			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
 		 }
 		 else {
 			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
 			 hist->Scale(1.0/hist->Integral("width"));
-			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i) 
-				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i)); 
+			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
+				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
 		 }
 		 hist_posterior->GetHistogram()->SetStats(kFALSE);
 	 }
@@ -836,22 +837,22 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
 					 legend2d->AddEntry(arrow, "change in mode", "L");
 				 }
 				 gPad->SetTopMargin(0.02);
-				 
+
 				 double height = 0.03*legend2d->GetNRows();
-				 
+
 				 double xlegend1 = gPad->GetLeftMargin();
 				 double xlegend2 = 1.0-gPad->GetRightMargin();
 				 double ylegend1 = 1.-gPad->GetTopMargin()-height;
 				 double ylegend2 = 1.-gPad->GetTopMargin();
-				 
+
 				 // place legend on top of histogram
 				 legend2d->SetX1NDC(xlegend1);
 				 legend2d->SetX2NDC(xlegend2);
 				 legend2d->SetY1NDC(ylegend1);
 				 legend2d->SetY2NDC(ylegend2);
-				 
+
          legend2d->Draw();
-				 
+
 				 gPad->SetTopMargin(1.-ylegend1+0.01);
 
 				 gPad->RedrawAxis();
@@ -862,7 +863,7 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
 					 c->Print(file.c_str());
       }
    }
-	 
+
    // close ps
    c->Update();
 

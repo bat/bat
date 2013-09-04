@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
+ */
+
+// ---------------------------------------------------------
+
 #include "BCMVCDataModel.h"
 
 #include <../../BAT/BCH1D.h>
@@ -15,7 +25,7 @@
 // ---------------------------------------------------------
 BCMVCDataModel::BCMVCDataModel(BCMVCombination* mvc) : BCModel("BCMVCDataModel")
 {
-  SetNMeasurements(mvc->GetNMeasurements(), 
+  SetNMeasurements(mvc->GetNMeasurements(),
 		   mvc->GetParameter(0)->GetLowerLimit(),
 		   mvc->GetParameter(0)->GetUpperLimit());
   SetVectorMeasurements(mvc->GetVectorMeasurements());
@@ -30,17 +40,17 @@ BCMVCDataModel::~BCMVCDataModel()
 
 // ---------------------------------------------------------
 void BCMVCDataModel::SetNMeasurements(int n, double min, double max)
-{ 
+{
   for (int i = 0; i < n; ++i)
     AddParameter(Form("measurement_%i", i), min, max);
 }
 
 // ---------------------------------------------------------
-void BCMVCDataModel::SetCovarianceMatrix(TMatrixD matrix) 
-{ 
+void BCMVCDataModel::SetCovarianceMatrix(TMatrixD matrix)
+{
   fCovarianceMatrix.Clear();
   fCovarianceMatrix.ResizeTo(matrix);
-  fCovarianceMatrix = matrix; 
+  fCovarianceMatrix = matrix;
 
   fInvCovarianceMatrix.Clear();
   fInvCovarianceMatrix.ResizeTo(fCovarianceMatrix);
@@ -52,8 +62,8 @@ void BCMVCDataModel::SetCovarianceMatrix(TMatrixD matrix)
 
 // ---------------------------------------------------------
 void BCMVCDataModel::SetParameters(std::vector<double> parameters)
-{ 
-  fPars = parameters; 
+{
+  fPars = parameters;
   int nmeas = GetNParameters();
 
   fVectorObservables.Clear();
@@ -71,10 +81,10 @@ void BCMVCDataModel::SetMeasurementRanges(const std::vector<double> & min, const
 
   if ( (min.size() != npar) || (max.size() != npar) ) {
     BCLog::OutWarning("BCMVCDataModel::SetnMeasurementRanges. Size of ranges does not fit the number of measurements.");
-    return; 
+    return;
   }
 
-  // set the parameter ranges 
+  // set the parameter ranges
   for (unsigned i = 0; i < npar; ++i) {
      GetParameter(i)->SetLimits(min.at(i), max.at(i));
   }
@@ -136,11 +146,11 @@ void BCMVCDataModel::MCMCUserIterationInterface()
   // loop over all chains and fill histogram
   for (int i = 0; i < nchains; ++i) {
     // get the current values of the parameters x and y. These are
-		
+
     // copy parameters into a vector
     TVectorD observables(npar);
     TVectorD measurements(npar);
-		
+
     for (int j = 0; j < npar; ++j) {
       observables[j] = fPars[fVectorObservable[j]];
       measurements[j] = fMCMCx.at(i * npar + j);
@@ -161,7 +171,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
   if ( (filename.find_last_of(".") != std::string::npos) &&
        (filename.substr(filename.find_last_of(".")+1) == "pdf") ) {
     ; // it's a PDF file
-    
+
   }
   else if ( (filename.find_last_of(".") != std::string::npos) &&
 	    (filename.substr(filename.find_last_of(".")+1) == "ps") ) {
@@ -173,7 +183,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
   }
 
   int npars = GetNParameters();
-  
+
   TCanvas* c1 = new TCanvas("");
   c1->cd();
 
@@ -232,14 +242,14 @@ void BCMVCDataModel::PrintToys(std::string filename)
 void BCMVCDataModel::PrintSummary() {
 
   std::cout << " Goodness-of-fit test:" << std::endl << std::endl;
-  
+
   // calculate observed chi2
   double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
-  
+
   // calculate expected chi2 distribution
   BCH1D* hist_chi2 = new BCH1D(fHistChi2);
   hist_chi2->GetHistogram()->Scale(1.0/hist_chi2->GetHistogram()->Integral("width"));
-  
+
   // calculate p-value
   double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 

@@ -12,10 +12,11 @@
  */
 
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -34,11 +35,11 @@ public:
         /** @{ */
 
         /**
-         * The default constructor. 
+         * The default constructor.
          * @param name The name of the class. */
         BCMTFComparisonTool(const char * name);
 
-        /** 
+        /**
          * The defaul destructor. */
         ~BCMTFComparisonTool();
 
@@ -61,20 +62,20 @@ public:
         /** @{ */
 
         /**
-         * Add a constribution. 
+         * Add a constribution.
          * @param name The name of the contribution.
          * @param hist The histogram. */
         void AddContribution(const char * name, TH1D hist);
 
         /**
-         * Add a constribution. 
+         * Add a constribution.
          * @param name The name of the contribution.
          * @param centralvalue The central value.
          * @param uncertainty The uncertainty. */
         void AddContribution(const char * name, double centralvalue, double uncertainty);
 
-        /** 
-         * Draw an overview. */ 
+        /**
+         * Draw an overview. */
         void DrawOverview();
 
         /** @} */
@@ -82,7 +83,7 @@ public:
         /** @{ */
 
         /**
-         * Print all histograms to a file. 
+         * Print all histograms to a file.
          * @param filename The name of the file. */
         void PrintHistograms(const char * filename);
 
@@ -103,7 +104,7 @@ private:
          * The names of the contributions. */
         std::vector<std::string> fNameContainer;
 
-        /** 
+        /**
          * A container of TH1D histograms. */
         std::vector<TH1D *> fHistogramContainer;
 

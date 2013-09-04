@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -83,10 +84,10 @@ void BCMTFChannel::PrintTemplates(std::string filename)
    for (int i = 0; i < ntemplates; ++i) {
       // get histogram
       TH1D * temphist = GetTemplate(i)->GetHistogram();
-      
+
       if (first_hist < 0 && temphist)
          first_hist = i;
-      
+
       if (temphist)
          last_hist = i;
    }
@@ -95,7 +96,7 @@ void BCMTFChannel::PrintTemplates(std::string filename)
    if ( first_hist < 0 ) {
       // free memory
       delete c1;
-      
+
       return;
    }
 
@@ -110,9 +111,9 @@ void BCMTFChannel::PrintTemplates(std::string filename)
       // draw
       if (temphist) {
          temphist->Draw();
-         l->DrawTextNDC(0.2, 0.9, Form("%s - %s", fName.c_str(), GetTemplate(i)->GetProcessName().c_str()));          
+         l->DrawTextNDC(0.2, 0.9, Form("%s - %s", fName.c_str(), GetTemplate(i)->GetProcessName().c_str()));
       }
-		 
+
       // print
       if (i == first_hist && (first_hist != last_hist))
          c1->Print(std::string( filename + "(").c_str());
@@ -205,7 +206,7 @@ void BCMTFChannel::PrintHistUncertaintyBandExpectation(const char* filename)
    // create new canvas
    TCanvas * c1 = new TCanvas();
    c1->cd();
-	 
+
    // draw histogram
    fHistUncertaintyBandExpectation->Draw("COLZ");
    c1->Draw();
@@ -224,7 +225,7 @@ void BCMTFChannel::CalculateHistUncertaintyBandPoisson()
    int nbinsy_exp = fHistUncertaintyBandExpectation->GetNbinsY();
    int nbinsx_poisson = fHistUncertaintyBandPoisson->GetNbinsX();
    int nbinsy_poisson = fHistUncertaintyBandPoisson->GetNbinsY();
-	
+
    // loop over x-axis of observation
    for (int ix = 1; ix <= nbinsx_poisson; ++ix) {
       double sum_w = 0;
@@ -247,7 +248,7 @@ void BCMTFChannel::CalculateHistUncertaintyBandPoisson()
          }
       }
    }
-	
+
 }
 
 // ---------------------------------------------------------
@@ -266,14 +267,14 @@ TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maxim
       double sum_p = 0;  // sum of all probabilities inside the interval
       int limit_min = 0;
       int limit_max = nbinsx_poisson-1;
-		
+
       // loop over y-axis of observation
       for (int jbin = 1; jbin <= nbinsy_poisson; ++jbin) {
          double p = fHistUncertaintyBandPoisson->GetBinContent(ix, jbin);
          sum_p+=p;
          if (sum_p < minimum)
             limit_min=jbin;
-         if (sum_p > maximum && (sum_p - p) < maximum ) 
+         if (sum_p > maximum && (sum_p - p) < maximum )
             limit_max=jbin-1;
       }
       //    hist->SetBinContent(ix, 0.5*double(limit_min+limit_max));
@@ -305,7 +306,7 @@ void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(const char* filenam
    // loop over x-axis of observation
    for (int ix = 1; ix <= nbinsx_poisson; ++ix) {
       double sum_p = 0;  // sum of all probabilities inside the interval
-		
+
       // loop over y-axis of observation
       for (int jbin = 1; jbin <= nbinsy_poisson; ++jbin) {
          double p = hist.GetBinContent(ix, jbin);
@@ -334,14 +335,14 @@ void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename, const c
 
    // calculate error band
    this->CalculateHistUncertaintyBandPoisson();
-   
+
    // draw histogram
    fHistUncertaintyBandPoisson->Draw(options);
    c1->Draw();
-   
+
    // print
    c1->Print(filename);
-   
+
    // free memory
    delete c1;
 }
@@ -355,14 +356,14 @@ void BCMTFChannel::PrintUncertaintyBandPoisson(const char* filename, double mini
 
    // calculate error band
    TH1D* hist=CalculateUncertaintyBandPoisson(minimum, maximum, color);
-   
+
    // draw histogram
    hist->Draw("E2");
    c1->Draw();
-   
+
    // print
    c1->Print(filename);
-   
+
    // free memory
    delete c1;
 }

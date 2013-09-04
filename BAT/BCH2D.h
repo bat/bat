@@ -12,11 +12,12 @@
  * functions. It is used for marginalized distributions.
  */
 
-/**
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -89,8 +90,8 @@ public:
     * Set global mode.
     * @param The global mode. */
    void SetGlobalMode(double mode[2])
-   { fMode[0] = mode[0]; 
-     fMode[1] = mode[1]; 
+   { fMode[0] = mode[0];
+     fMode[1] = mode[1];
      fModeFlag =1; };
 
    /** @} */
@@ -117,7 +118,7 @@ public:
     * @param ww canvas size in pixels along X
     * @param ww canvas size in pixels along Y
     * @see Print(const char* filename, std::string options="BTfB3CS1meangmode", std::vector<double> intervals=std::vector<double>(0), int ww=0, int wh=0)
-    */ 
+    */
    void Print(const char* filename, std::string options, double interval, int ww=0, int wh=0);
 
 
@@ -152,7 +153,7 @@ public:
     * @param options Drawing options, @see Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0))
     * @param interval an upper or lower limit
     * @see Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0))
-    */ 
+    */
    void Draw(std::string options, double interval);
 
    /**

@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
+ */
+
+// ---------------------------------------------------------
+
 #ifndef __BCMVCMEASUREMENT__H
 #define __BCMVCMEASUREMENT__H
 
@@ -8,7 +18,7 @@
 class BCMVCMeasurement
 {
  public:
-	
+
   // constructor
   // name: the name of the measurement
   BCMVCMeasurement(std::string name);
@@ -32,15 +42,15 @@ class BCMVCMeasurement
 
   // return the set of uncertainties
   std::vector<double> GetUncertainties()
-    { return fUncertainties; }; 
+    { return fUncertainties; };
 
   // return a single uncertainty
-  double GetUncertainty(int index) 
+  double GetUncertainty(int index)
   { return fUncertainties.at(index); };
 
   // return the total uncertainty
-  double GetTotalUncertainty(); 
-	
+  double GetTotalUncertainty();
+
   // return the flag if the measurement is active or not
   bool GetFlagActive()
   { return fFlagActive; };
@@ -53,7 +63,7 @@ class BCMVCMeasurement
 
   // set the central value of the measurement
   void SetCentralValue(double value)
-  { fCentralValue = value; }; 
+  { fCentralValue = value; };
 
   // set the uncertainties on the measurement
   void SetUncertainties(std::vector<double> uncertainties)
@@ -61,7 +71,7 @@ class BCMVCMeasurement
 
   // set flag if measurement is active for the combination
   void SetFlagActive(bool flag)
-  { fFlagActive = flag; }; 
+  { fFlagActive = flag; };
 
  private:
 
@@ -78,7 +88,7 @@ class BCMVCMeasurement
   std::vector<double> fUncertainties;
 
   // flag: active in combination (true) or not (false)
-  bool fFlagActive; 
+  bool fFlagActive;
 
 };
 // ---------------------------------------------------------

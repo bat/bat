@@ -1,3 +1,13 @@
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
+ * All rights reserved.
+ *
+ * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
+ */
+
+// ---------------------------------------------------------
+
 #include "BCMVCombination.h"
 
 #include "BCMVCMeasurement.h"
@@ -13,7 +23,7 @@
 #include <iostream>
 
 // ---------------------------------------------------------
-BCMVCombination::BCMVCombination() 
+BCMVCombination::BCMVCombination()
   : BCModel("BCMVCombination")
   , fDetCovariance(0)
   , fNObservables(0)
@@ -26,13 +36,13 @@ BCMVCombination::~BCMVCombination()
 {
   int nuncertainties = GetNUncertainties();
   int nmeasurements = GetNMeasurements();
-  
+
   for (int i = 0; i < nuncertainties; ++i) {
     BCMVCUncertainty* u = GetUncertainty(i);
-    delete u; 
+    delete u;
   }
   fUncertainties.clear();
-  
+
   for (int i = 0; i < nmeasurements; ++i) {
     BCMVCMeasurement* m = GetMeasurement(i);
     delete m;
@@ -45,18 +55,18 @@ void BCMVCombination::AddObservable(std::string name, double min, double max)
 {
   // check if observable exists already
   int index = GetIndexObservable(name);
-  
+
   if (index >= 0)
     return;
-  
+
   BCMVCObservable* obs = new BCMVCObservable();
   obs->SetName(name);
   obs->SetMinMax(min, max);
   fObservables.push_back(obs);
-  
+
   fNObservables++;
 
-  AddParameter(name.c_str(), min, max); 
+  AddParameter(name.c_str(), min, max);
 
   SetPriorConstant(name.c_str());
 }
@@ -74,7 +84,7 @@ void BCMVCombination::AddMeasurement(std::string name, std::string observable, d
 {
   // get index of the corresponding observable
   int index = GetIndexObservable(observable);
-	
+
   // check if observable exists
   if (index < 0) {
     BCLog::OutWarning(Form("BCMVCombination::AddMeasurement. Observable \"%s\" does not exist. Measurement was not added.", observable.c_str()));
@@ -87,7 +97,7 @@ void BCMVCombination::AddMeasurement(std::string name, std::string observable, d
   m->SetUncertainties(uncertainties);
 
   fMeasurements.push_back(m);
-	
+
   fVectorObservable.push_back(index);
 
   int n = GetNMeasurements();
@@ -130,7 +140,7 @@ int BCMVCombination::ReadInput(std::string filename)
   // open input file
   ifstream infile;
   infile.open(filename.c_str(), std::ifstream::in);
-  
+
   // check if file is open
   if (!infile.is_open()) {
     BCLog::OutWarning(Form("BCMVCombination::ReadInput. Could not open input file %s.", filename.c_str()));
@@ -145,13 +155,13 @@ int BCMVCombination::ReadInput(std::string filename)
   infile >> nobservables >> nmeasurements >> nuncertainties >> nnuisance;
 
   std::vector<std::string> observable_names;
-	 
+
   for (int i = 0; i < nobservables; ++i) {
     std::string name;
     double min;
     double max;
     infile >> name >> min >> max;
-		 
+
     // add observable
     AddObservable(name.c_str(), min, max);
   }
@@ -159,7 +169,7 @@ int BCMVCombination::ReadInput(std::string filename)
   for (int i = 0; i < nuncertainties; ++i) {
     std::string name;
     infile >> name;
-		 
+
     // add uncertainty
     AddUncertainty(name);
   }
@@ -169,7 +179,7 @@ int BCMVCombination::ReadInput(std::string filename)
     std::string observable;
     double central;
     std::vector<double> uncertainties(0);
-		 
+
     infile >> name;
     infile >> observable;
     infile >> central;
@@ -187,17 +197,17 @@ int BCMVCombination::ReadInput(std::string filename)
   for (int i = 0; i < nuncertainties; ++i) {
     TMatrixD mat(nmeasurements, nmeasurements);
 
-    for (int j = 0; j < nmeasurements; ++j) 
+    for (int j = 0; j < nmeasurements; ++j)
       for (int k = 0; k < nmeasurements; ++k) {
 	double corr;
 	infile >> corr;
 	mat[j][k] = corr;
       }
-    
+
     // set correlation matrix
     GetUncertainty(i)->SetCorrelationMatrix(mat);
   }
-  
+
   for (int i = 0; i < nnuisance; ++i) {
     std::string uncertainty;
     std::string measurement1;
@@ -206,7 +216,7 @@ int BCMVCombination::ReadInput(std::string filename)
     std::string observable2;
     std::string parname;
     double min;
-    double max; 
+    double max;
     double pre;
     std::string priorshape;
 
@@ -220,12 +230,12 @@ int BCMVCombination::ReadInput(std::string filename)
 	index = i;
 
     if (index >= 0)
-      infile >> pre; 
-		
+      infile >> pre;
+
     else if (index < 0) {
       // read properties of parameter
       infile >> min >> max >> priorshape;
-			
+
       // add nuisance parameter
       AddParameter(parname.c_str(), min, max);
 
@@ -241,29 +251,29 @@ int BCMVCombination::ReadInput(std::string filename)
       else if (priorshape == "gauss") {
 	double mean;
 	double std;
-	
+
 	infile >> mean >> std;
-	
+
 	SetPriorGauss(parname.c_str(), mean, std);
       }
       else {
 	BCLog::OutWarning(Form("BCMVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
       }
     }
-    
+
     // increase counter of nuisance parametera
     fNNuisanceCorrelation++;
-			
-    NuisanceParameter p; 
+
+    NuisanceParameter p;
     p.index_uncertainty  = GetIndexUncertainty(uncertainty);
     p.index_measurement1 = GetIndexMeasurement(measurement1, observable1);
     p.index_measurement2 = GetIndexMeasurement(measurement2, observable2);
     p.index_rhoparameter = index;
     p.pre = pre;
-		
+
     fNuisanceCorrelation.push_back(p);
   }
-	
+
   // close input file
   infile.close();
 
@@ -296,9 +306,9 @@ void BCMVCombination::PrepareAnalysis()
 int BCMVCombination::GetNActiveMeasurements()
 {
   int n = GetNMeasurements();
-  
-  int counter = 0; 
-  
+
+  int counter = 0;
+
   for (int i = 0; i < n; ++i) {
     BCMVCMeasurement* m = GetMeasurement(i);
     if (m->GetFlagActive())
@@ -311,40 +321,40 @@ int BCMVCombination::GetNActiveMeasurements()
 void BCMVCombination::CalculateHelperVectors()
 {
   int nmeasurements  = GetNMeasurements();
-  
+
   fVectorMeasurements.Clear();
   fVectorMeasurements.ResizeTo(nmeasurements);
   fVectorObservable.clear();
-  
+
   for (int i = 0; i < nmeasurements; ++i) {
     BCMVCMeasurement* m = GetMeasurement(i);
     fVectorMeasurements[i] =  m->GetCentralValue();
     fVectorObservable.push_back(m->GetObservable());
   }
-  
+
   int nactive = GetNActiveMeasurements();
-  
+
   fVectorActiveMeasurements.Clear();
   fVectorActiveMeasurements.ResizeTo(nactive);
   fVectorActiveObservable.clear();
-  
+
   int counter = 0;
   for (int i = 0; i < nmeasurements; ++i) {
     BCMVCMeasurement* m = GetMeasurement(i);
     if (m->GetFlagActive()) {
       fVectorActiveMeasurements[counter] =  m->GetCentralValue();
       fVectorActiveObservable.push_back(m->GetObservable());
-      counter++;			
+      counter++;
     }
   }
-  
+
 }
 
 // ---------------------------------------------------------
 void BCMVCombination::CalculateCorrelationMatrix(int index)
 {
   BCMVCUncertainty* u = fUncertainties.at(index);
-  
+
   int n = GetNMeasurements();
   int nactive = GetNActiveMeasurements();
 
@@ -356,7 +366,7 @@ void BCMVCombination::CalculateCorrelationMatrix(int index)
   for (int i = 0; i < n; ++i) {
     BCMVCMeasurement* mi = GetMeasurement(i);
     double sigma_i = mi->GetUncertainty(index);
-		
+
     // skip line if not active
     if (!mi->GetFlagActive())
       continue;
@@ -370,7 +380,7 @@ void BCMVCombination::CalculateCorrelationMatrix(int index)
 	cov[counteri][counterj] = corr[i][j]*sigma_i*sigma_j;
 	counterj++;
       }
-    }		
+    }
     counteri++;
   }
 
@@ -392,26 +402,26 @@ void BCMVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
     BCMVCUncertainty* u = fUncertainties.at(unc_i);
 
     // shrink covariance matrix such that it fits only active measurements
-    TMatrixD mat_small = u->GetCovarianceMatrix(); 
+    TMatrixD mat_small = u->GetCovarianceMatrix();
 
     // loop over all measurements (i)
     int counteri = 0;
     for (int meas_i = 0; meas_i < nmeasurements; ++meas_i) {
       BCMVCMeasurement* mi = GetMeasurement(meas_i);
-			
+
       // skip line if not active
       if (!mi->GetFlagActive())
 	continue;
-			
+
       // loop over all measurements (j)
       int counterj = 0;
       for (int meas_j = 0; meas_j < nmeasurements; ++meas_j) {
 	BCMVCMeasurement* mj = GetMeasurement(meas_j);
-				
+
 	// skip line if not active
-	if (!mj->GetFlagActive()) 
+	if (!mj->GetFlagActive())
 	  continue;
-				
+
 	// modify matrix if nuisance parameter present
 	if (parameters.size() > 0) {
 
@@ -421,12 +431,12 @@ void BCMVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
 	    // get nuisance parameter
 	    NuisanceParameter p = fNuisanceCorrelation.at(nuis_k);
 
-	    // compare 
+	    // compare
 	    if (p.index_uncertainty == unc_i) {
 	      double sigma_i = GetMeasurement(p.index_measurement1)->GetUncertainty(unc_i);
 	      double sigma_j = GetMeasurement(p.index_measurement2)->GetUncertainty(unc_i);
 	      double pre = p.pre;
-							
+
 	      // check if indices agree
 	      if (meas_i == p.index_measurement1 && meas_j == p.index_measurement2) {
 		mat_small[counteri][counterj] = pre * parameters.at(p.index_rhoparameter) * sigma_i*sigma_j;
@@ -435,15 +445,15 @@ void BCMVCombination::CalculateCovarianceMatrix(std::vector<double> parameters)
 	    }
 	  } // end loop: nuisance parameters
 	}
-				
+
 	// increase counter of active measurements
-	counterj++;							
+	counterj++;
       } // end loop: measurements j
-			
+
       // increase counter of active measurements
       counteri++;
     } // end loop: measurements i
-		
+
     // add matrix if active
     if (u->GetFlagActive())
       fCovarianceMatrix += mat_small;
@@ -473,7 +483,7 @@ bool BCMVCombination::PositiveDefinite()
     if (eigen_re[i] < 0)
       flag_ispositive = false;
   }
-  
+
   // true if all eigenvalues are positive
   return flag_ispositive;
 }
@@ -499,7 +509,7 @@ void BCMVCombination::CalculateBLUE()
       for (int j = 0; j < nobs; ++j) {
 	if (m->GetObservable() == j)
 	  u[counter][j] = 1;
-	else 
+	else
 	  u[counter][j] = 0;
       }
       counter++;
@@ -508,7 +518,7 @@ void BCMVCombination::CalculateBLUE()
 
   // calculate weight matrix
   TMatrixD ut = u;
-  ut.Transpose(ut); 
+  ut.Transpose(ut);
 
   TMatrixD m1 = ut * fInvCovarianceMatrix;
   TMatrixD m2 = m1 * u;
@@ -517,7 +527,7 @@ void BCMVCombination::CalculateBLUE()
   fBLUEWeights.Clear();
   //  fBLUEWeights.ResizeTo(nobs, nmeas);
   fBLUEWeights.ResizeTo(nobs, nactivemeas);
-	
+
   fBLUEWeights = m2*m1;
 
   // calculate central values
@@ -532,7 +542,7 @@ void BCMVCombination::CalculateBLUE()
   fBLUECovarianceMatrix.ResizeTo(nobs, nobs);
 
   TMatrixD weightt = fBLUEWeights;
-  weightt.Transpose(weightt); 
+  weightt.Transpose(weightt);
 
   fBLUECovarianceMatrix = fBLUEWeights * fCovarianceMatrix * weightt;
 
@@ -541,7 +551,7 @@ void BCMVCombination::CalculateBLUE()
 
     // calculate covariance matrix
     BCMVCUncertainty* u = GetUncertainty(i);
-    if (!u->GetFlagActive()) 
+    if (!u->GetFlagActive())
       continue;
 
     TMatrixD cov = u->GetCovarianceMatrix();
@@ -557,7 +567,7 @@ void BCMVCombination::CalculateBLUE()
     fBLUEUncertaintiesPerSource.push_back(vec);
 
     TMatrixD mat2(nobs, nobs);
-    for (int j = 0; j < nobs; ++j) 
+    for (int j = 0; j < nobs; ++j)
       for (int k = 0; k < nobs; ++k) {
 	mat2[j][k] = mat[j][k]/vec[j]/vec[k];
       }
@@ -570,13 +580,13 @@ void BCMVCombination::CalculateBLUE()
 
   for (int i = 0; i < nobs; ++i)
     fBLUEUncertainties[i] = sqrt(fBLUECovarianceMatrix[i][i]);
-	
+
   // calculate correlation matrix
   fBLUECorrelationMatrix.Clear();
   fBLUECorrelationMatrix.ResizeTo(nobs, nobs);
 
   for (int i = 0; i < nobs; ++i)
-    for (int j = 0; j < nobs; ++j) 
+    for (int j = 0; j < nobs; ++j)
       fBLUECorrelationMatrix[i][j] = fBLUECovarianceMatrix[i][j] / fBLUEUncertainties[i] / fBLUEUncertainties[j];
 }
 
@@ -585,13 +595,13 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
 {
   // open file
   std::ofstream ofi(filename.c_str());
-  
+
   // check if file is open
   if (!ofi.is_open()) {
     std::cerr << "Couldn't open file " << filename << std::endl;
     return;
   }
-  
+
   int nobs = GetNObservables();
   int nmeas = GetNMeasurements();
   int nunc = GetNUncertainties();
@@ -602,7 +612,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
 
   ofi << "* Observables:" << std::endl;
   ofi << "  Observable (range): " << std::endl;
-  for (int i = 0; i < nobs; ++i) 
+  for (int i = 0; i < nobs; ++i)
     ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()
 	<< " (" << GetParameter(i)->GetLowerLimit() << " - " << GetParameter(i)->GetUpperLimit() << ")" << std::endl;
   ofi << std::endl;
@@ -617,14 +627,14 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
 	if (GetUncertainty(j)->GetFlagActive())
 	  total2+=m->GetUncertainty(j)*m->GetUncertainty(j);
       }
-      ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName() 
-	  << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << ")" 
+      ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName()
+	  << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << ")"
 	  << ": " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetCentralValue()
 	  << " +- " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << sqrt(total2) << std::endl;
     }
   }
   ofi << std::endl;
-	
+
   ofi << "* Uncertainties:" << std::endl;
   ofi << "  Measurement (observable): Uncertainty (";
   for (int j = 0; j < nunc-1; ++j )
@@ -638,7 +648,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
   for (int i = 0; i < nmeas; ++i) {
     BCMVCMeasurement* m = GetMeasurement(i);
     if (m->GetFlagActive()) {
-      ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName() 
+      ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName()
 	  << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << "): ";
       for (int j = 0; j < nunc; ++j )
 	if (GetUncertainty(j)->GetFlagActive())
@@ -660,22 +670,22 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
     int counterk = 0;
     for (int k = 0; k < nmeas; ++k) {
       BCMVCMeasurement* mk = GetMeasurement(k);
-			
+
       // skip line if not active
       if (!mk->GetFlagActive())
 	continue;
-			
+
       ofi << "  ";
 
       int counterj = 0;
       for (int j = 0; j < nmeas; ++j) {
 	BCMVCMeasurement* mj = GetMeasurement(j);
-				
+
 	if (mj->GetFlagActive()) {
 	  ofi << std::setw(7) << std::showpos << mat[k][j] << " ";
 	  counterj++;
 	}
-      }	
+      }
       ofi << std::noshowpos << std::endl;
       counterk++;
     }
@@ -728,25 +738,25 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
       }
     }
   }
-  
-  if (nobs > 1) { 
+
+  if (nobs > 1) {
     ofi << "  Overall correlation matrix" << std::endl;
     TMatrixD mat = fBLUECorrelationMatrix;
     for (int j = 0; j < nobs; ++j) {
       ofi << "  ";
-      for (int k = 0; k < nobs; ++k) 
+      for (int k = 0; k < nobs; ++k)
 	ofi << std::setw(7) << std::setprecision(4) << std::showpos << mat[j][k] << " ";
       ofi << std::noshowpos << std::endl;
     }
     ofi << std::endl;
-  }      
-  
+  }
+
   ofi << "  Weights [%]:" <<std::endl;
   int counter = 0;
   for (int j = 0; j < nmeas; ++j) {
     if (GetMeasurement(j)->GetFlagActive()) {
       ofi << "  " << std::setw(20) << GetMeasurement(j)->GetName() << " : ";
-      for (int k = 0; k < nobs; ++k) 
+      for (int k = 0; k < nobs; ++k)
 	ofi << std::setw(7) << std::setprecision(4) << std::showpos << fBLUEWeights[k][counter]*100. << " ";
       ofi << std::endl;
       counter++;
@@ -768,7 +778,7 @@ void BCMVCombination::PrintMatrix(TMatrixD &matrix, std::string name)
   std::cout << name.c_str() << " (" << nrows << "x" << ncols << "):" << std::endl;
 
   for (int i = 0; i < nrows; ++i) {
-    for (int j = 0; j < ncols; ++j) 
+    for (int j = 0; j < ncols; ++j)
       std::cout << std::setprecision(3) << std::setw(7) << matrix[i][j] << " ";
     std::cout << std::endl;
   }
@@ -789,9 +799,9 @@ void BCMVCombination::PrintVector(TVectorD &vector, std::string name)
 }
 
 // ---------------------------------------------------------
-int BCMVCombination::GetIndexMeasurement(std::string measurement, std::string observable) 
+int BCMVCombination::GetIndexMeasurement(std::string measurement, std::string observable)
 {
-  int index_observable = GetIndexObservable(observable);	
+  int index_observable = GetIndexObservable(observable);
 
   int nmeasurements = GetNMeasurements();
 
@@ -804,12 +814,12 @@ int BCMVCombination::GetIndexMeasurement(std::string measurement, std::string ob
 }
 
 // ---------------------------------------------------------
-int BCMVCombination::GetIndexUncertainty(std::string name) 
+int BCMVCombination::GetIndexUncertainty(std::string name)
 {
   int nuncertainties = GetNUncertainties();
 
   int index = -1;
-	
+
   for (int i = 0; i < nuncertainties; ++i) {
     if (name == GetUncertainty(i)->GetName())
       index = i;
@@ -829,7 +839,7 @@ int BCMVCombination::GetIndexObservable(std::string name)
     if (name == std::string(fObservables.at(i)->GetName()))
       return i;
   }
-	
+
   // return -1 if not in the list
   return -1;
 }

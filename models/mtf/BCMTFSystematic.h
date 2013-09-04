@@ -12,10 +12,11 @@
  */
 
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -31,11 +32,11 @@ public:
         /** @{ */
 
         /**
-         * The default constructor. 
+         * The default constructor.
          * @param name The name of the source of systematic uncertainty. */
         BCMTFSystematic(const char * name);
 
-        /** 
+        /**
          * The default destructor. */
         ~BCMTFSystematic();
 
@@ -48,7 +49,7 @@ public:
         std::string GetName()
         { return fSystematicName; };
 
-        /** 
+        /**
          * @return A flag defining if this uncertainty is active or not. */
         bool GetFlagSystematicActive()
         { return fFlagSystematicActive; };
@@ -59,7 +60,7 @@ public:
 
         /**
          * Set a flag defining if this uncertainty is active or not.
-         * @param flag The flag. */ 
+         * @param flag The flag. */
         void SetFlagSystematicActive(bool flag)
         { fFlagSystematicActive = flag; };
 

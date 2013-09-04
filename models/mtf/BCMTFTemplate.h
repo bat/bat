@@ -8,14 +8,15 @@
  * \author Kevin Kr&ouml;ninger
  * \version 1.1
  * \date 06.2012
- * \detail This class describes a template. 
+ * \detail This class describes a template.
  */
 
 /*
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -36,8 +37,8 @@ public:
         /** @{ */
 
         /**
-         * The default constructor. 
-         * @param channelname The name of the channel. 
+         * The default constructor.
+         * @param channelname The name of the channel.
          * @param process name The name of the process. */
         BCMTFTemplate(const char * channelname, const char * processname);
 
@@ -56,11 +57,11 @@ public:
         { return fChannelName; };
 
         /**
-         * @return The name of the process. */ 
+         * @return The name of the process. */
         std::string GetProcessName()
         { return fProcessName; };
 
-        /** 
+        /**
          * @return The efficiency. */
         double GetEfficiency()
         { return fEfficiency; };
@@ -89,14 +90,14 @@ public:
          * @param norm The target normalization.
          * @return A histogram with each bin fluctuated by the uncertainty on the bin content. \n
          */
-        TH1D FluctuateHistogram(std::string options = "GZ", double norm = 1); 
+        TH1D FluctuateHistogram(std::string options = "GZ", double norm = 1);
 
         /**
          * @return The function container. */
         std::vector<TF1 *> * GetFunctionContainer()
         { return fFunctionContainer; };
 
-        /** 
+        /**
          * @return The number of bins. */
         int GetNBins()
         { return fNBins; };
@@ -114,9 +115,9 @@ public:
 
         /**
          * Set the histogram.
-         * @param hist The TH1D histogram. 
+         * @param hist The TH1D histogram.
          * @param norm The target normalization. */
-	 
+
         void SetHistogram(TH1D * hist, double norm = 1);
 
         /**
@@ -138,7 +139,7 @@ private:
          * The efficiency of the contribution. */
         double fEfficiency;
 
-        /** 
+        /**
          * The TH1D histogram. */
         TH1D * fHistogram;
 
@@ -162,7 +163,7 @@ private:
          * The name of the channel. */
         std::string fChannelName;
 
-        /** 
+        /**
          * The name of the process. */
         std::string fProcessName;
 

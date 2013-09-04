@@ -1,8 +1,9 @@
 /*
- * Copyright (C) 2008-2013, Daniel Kollar and Kevin Kroeninger.
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -58,7 +59,7 @@ void BCFitter::MCMCIterationInterface()
 {
   // call base interface
   BCEngineMCMC::MCMCIterationInterface();
-  
+
   // fill error band
   if (fFlagFillErrorBand)
     FillErrorBand();
@@ -70,16 +71,16 @@ void BCFitter::MarginalizePreprocess()
   // prepare function fitting
   double dx = 0.;
   double dy = 0.;
-         
+
   if (fFitFunctionIndexX >= 0) {
     dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX)
           - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
       / (double) fErrorBandNbinsX;
-           
+
     dy = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY)
           - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
       / (double) fErrorBandNbinsY;
-           
+
     fErrorBandXY
       = new TH2D(TString::Format("errorbandxy_%d", BCLog::GetHIndex()), "",
                  fErrorBandNbinsX,
@@ -89,12 +90,12 @@ void BCFitter::MarginalizePreprocess()
                  fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - .5 * dy,
                  fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + .5 * dy);
     fErrorBandXY->SetStats(kFALSE);
-           
+
     for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
       for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
         fErrorBandXY->SetBinContent(ix, iy, 0.);
   }
- 
+
 }
 
 // ---------------------------------------------------------

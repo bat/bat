@@ -14,11 +14,12 @@
  * necessary for BAT.
  */
 
-/**
- * Copyright (C) 2008-2012, Daniel Kollar and Kevin Kroeninger.
+/*
+ * Copyright (C) 2007-2013, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
+ * For documentation see http://mpp.mpg.de/bat
  */
 
 // ---------------------------------------------------------
@@ -128,7 +129,7 @@ namespace BCMath
 		*/
    double LogGammaPDF(double x, double alpha, double beta);
 
-	 /** 
+	 /**
 		* Return the log of the log normal distribution
 		*/
 	 double LogLogNormal(double x, double mean = 0, double sigma = 1);

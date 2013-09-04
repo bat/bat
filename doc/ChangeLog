@@ -1,5 +1,7 @@
 2013-09-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCMath.cxx: use proper rounding of integers for calculation of factorial (instead of (int)).
+	* src/*.cxx, BAT/*.h, models/.../*.h/cxx: updated to new copyright header
+	* moved extras to private directory
 
 2013-09-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
