@@ -10,7 +10,6 @@
 
 #include "BCModelManager.h"
 
-#include "BCErrorCodes.h"
 #include "BCDataPoint.h"
 #include "BCLog.h"
 
@@ -244,7 +243,7 @@ int BCModelManager::ReadDataFromFileTree(const char * filename, const char * tre
 {
    if (fModelContainer->size() == 0) {
       BCLog::OutError("BCModelManager::ReadDataFromFileTree : No model defined.");
-      return ERROR_NOMODELS;
+      return -1;
    }
 
    // create data set
@@ -262,9 +261,9 @@ int BCModelManager::ReadDataFromFileTree(const char * filename, const char * tre
       for (unsigned int i = 0; i < GetNModels(); i++)
          fModelContainer->at(i)->SetDataSet(fDataSet);
    }
-   else if (read_file == ERROR_FILENOTFOUND) {
+   else if (read_file == -1) {
       delete fDataSet;
-      return ERROR_FILENOTFOUND;
+      return -1;
    }
 
    return 0;
@@ -276,7 +275,7 @@ int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
 {
    if (fModelContainer->size() == 0) {
       BCLog::OutError("BCModelManager::ReadDataFromFileTree. No model defined.");
-      return ERROR_NOMODELS;
+      return -1;
    }
 
    // create data set
@@ -296,7 +295,7 @@ int BCModelManager::ReadDataFromFileTxt(const char * filename, int nbranches)
    }
    else {
       delete fDataSet;
-      return ERROR_FILENOTFOUND;
+      return -1;
    }
 
    return 0;

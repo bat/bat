@@ -3,7 +3,6 @@ BAT/BCAux.h -text
 BAT/BCDataPoint.h -text
 BAT/BCDataSet.h -text
 BAT/BCEngineMCMC.h -text
-BAT/BCErrorCodes.h -text
 BAT/BCGoFTest.h -text
 BAT/BCH1D.h -text
 BAT/BCH2D.h -text

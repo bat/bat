@@ -2,6 +2,7 @@
 	* BCMath.cxx: use proper rounding of integers for calculation of factorial (instead of (int)).
 	* src/*.cxx, BAT/*.h, models/.../*.h/cxx: updated to new copyright header
 	* moved extras to private directory
+	* removed BCErrorCodes.h for now since it's not used (apart from BCDataSet and BCModelManager).
 
 2013-09-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:

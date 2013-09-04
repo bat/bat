@@ -12,7 +12,6 @@
 
 #include "BCDataPoint.h"
 #include "BCLog.h"
-#include "BCErrorCodes.h"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -142,7 +141,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
    if (!file->IsOpen())
    {
       BCLog::OutError(Form("BCDataSet::ReadDataFromFileTree : Could not open file %s.", filename));
-      return ERROR_FILENOTFOUND;
+      return -1;
    }
 
    // get tree
@@ -156,7 +155,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
       // close file
       file->Close();
 
-      return ERROR_TREENOTFOUND;
+      return -1;
    }
 
    // if data set contains data, clear data object container ...
@@ -241,7 +240,7 @@ int BCDataSet::ReadDataFromFileTree(const char * filename, const char * treename
       // close file
       file->Close();
 
-      return ERROR_NOEVENTS;
+      return -1;
    }
 
    // loop over entries
@@ -285,7 +284,7 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
    if (!file.is_open())
    {
       BCLog::OutError(Form("BCDataSet::ReadDataFromFileText : Could not open file %s.", filename));
-      return ERROR_FILENOTFOUND;
+      return -1;
    }
 
    // if data set contains data, clear data object container ...
@@ -344,7 +343,7 @@ int BCDataSet::ReadDataFromFileTxt(const char * filename, int nbranches)
       // close file
       file.close();
 
-      return ERROR_NOEVENTS;
+      return -1;
    }
 
    // close file

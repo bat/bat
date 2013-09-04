@@ -10,7 +10,6 @@
 #include <config.h>
 
 #include "BCIntegrate.h"
-#include "BCErrorCodes.h"
 #include "BCLog.h"
 #include "BCMath.h"
 #include "BCParameter.h"

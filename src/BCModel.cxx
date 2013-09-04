@@ -12,7 +12,6 @@
 
 #include "BCDataPoint.h"
 #include "BCDataSet.h"
-#include "BCErrorCodes.h" // todo remove
 #include "BCGoFTest.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
