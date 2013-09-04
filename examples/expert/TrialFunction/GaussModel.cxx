@@ -6,6 +6,7 @@
 #include <TRandom3.h>
 
 #include <cmath>
+#include <iostream>
 
 // ---------------------------------------------------------
 GaussModel::GaussModel() : BCModel()
@@ -68,13 +69,13 @@ double GaussModel::LogAPrioriProbability(const std::vector<double> &parameters)
 }
 
 // --------------------------------------------------------
-double GaussModel::MCMCTrialFunctionSingle(int ichain, int iparameter)
+double GaussModel::MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipar)
 {
   // no check of range for performance reasons
 
   // get scale factor from an array of scale factors. the size of the
   // array is number of chains times number of parameters.
-  double scale = fMCMCTrialFunctionScaleFactor[ichain * GetNParameters() + iparameter];
+  double scale = fMCMCTrialFunctionScaleFactor[ichain * GetNParameters() + ipar];
 
   // choose trial function by uncommenting any of the lines below
 

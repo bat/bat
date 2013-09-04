@@ -19,7 +19,7 @@ class GaussModel : public BCModel
       double LogLikelihood(const std::vector<double> &parameters);
 
       // overloaded trial function
-      virtual double MCMCTrialFunctionSingle(int ichain, int ipar);
+      virtual double MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipar);
 };
 // ---------------------------------------------------------
 
