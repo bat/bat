@@ -17,6 +17,9 @@ int main()
   // create new GaussModel object
   GaussModel * m = new GaussModel();
 
+  // set MCMC method
+  m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
   // set MCMC precision
   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
@@ -39,7 +42,7 @@ int main()
   BCLog::CloseLog();
 
   delete m;
- 
+
   return 0;
 
 }
