@@ -3,6 +3,7 @@
 	* src/*.cxx, BAT/*.h, models/.../*.h/cxx: updated to new copyright header
 	* moved extras to private directory
 	* removed BCErrorCodes.h for now since it's not used (apart from BCDataSet and BCModelManager).
+	* examples/expert/TrialFunction: MCMCTrialFunctionSingle wasn't overloaded (fixed)
 
 2013-09-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC:
