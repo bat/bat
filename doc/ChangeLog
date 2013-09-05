@@ -2,6 +2,7 @@
 	* BCIntegrate.cxx: reset more variables in ResetResults().
 	* models/mtf/BCMTFAnalysisFacility: reset results in ensemble tests.
 	* examples/advanced/polynomialfit: set Metropolis as method for marginalization
+	* set version to 0.9.3.rc1
 
 2013-09-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCMath.cxx: use proper rounding of integers for calculation of factorial (instead of (int)).
