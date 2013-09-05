@@ -519,14 +519,14 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
          }
       }
 
+      // work-around: force initialization
+      fMTF->ResetResults();
+
       // check if MCMC should be run and perform analysis
       if (fFlagMCMC) {
          BCLog::SetLogLevel(lls,llf);
          BCLog::OutDetail(Form("Running MCMC for ensemble %i",iensemble));
          BCLog::SetLogLevel(fLogLevel);
-
-         // work-around: force initialization
-         fMTF->ResetResults();
 
          // run mcmc
          fMTF->MarginalizeAll();

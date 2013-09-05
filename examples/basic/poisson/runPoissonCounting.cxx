@@ -28,6 +28,8 @@ int main()
   // find mode starting from the best fit parameters
   m.FindMode( m.GetBestFitParameters() );
 
+  std::cout << " N "  << m.GetBestFitParameterErrors().size() << std::endl;
+
   // draw all marginalized distributions into a PDF file
   m.PrintAllMarginalized("PoissonModel_plots.pdf");
 
