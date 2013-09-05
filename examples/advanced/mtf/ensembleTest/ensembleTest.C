@@ -82,9 +82,7 @@ void ensembleTest()
 
    // set the required precision of the MCMC (kLow, kMedium, kHigh)
    // the higher the precision the longer the MCMC run
-   // debugKK
-   //   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
-   m->MCMCSetPrecision(BCEngineMCMC::kLow);
+   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
    // add channels
    m->AddChannel("channel1");
