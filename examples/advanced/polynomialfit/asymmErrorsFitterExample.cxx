@@ -87,6 +87,10 @@ int main()
    m1->SetFillErrorBand();
    m2->SetFillErrorBand();
 
+   // set Metropolis algorithm
+   m1->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+   m2->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
    // set precision
    m1->MCMCSetPrecision(BCEngineMCMC::kMedium);
    m2->MCMCSetPrecision(BCEngineMCMC::kMedium);
