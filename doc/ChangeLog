@@ -1,3 +1,6 @@
+2013-09-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate.cxx: reset more variables in ResetResults().
+
 2013-09-04 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCMath.cxx: use proper rounding of integers for calculation of factorial (instead of (int)).
 	* src/*.cxx, BAT/*.h, models/.../*.h/cxx: updated to new copyright header

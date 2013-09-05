@@ -225,7 +225,11 @@ double BCIntegrate::LogEval(const std::vector<double> &x)
 void BCIntegrate::ResetResults()
 {
    BCEngineMCMC::ResetResults();
+
    fBestFitParameterErrors.clear();
+   fBestFitParameters.clear();
+   fLogMaximum = -std::numeric_limits<double>::max();
+
    // remove marginalized histograms
    // set marginalization flag
    fFlagMarginalized = false;
@@ -1557,8 +1561,16 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
   // check if the mode found mode is better than the previous estimate
   if ( (!fFlagIgnorePrevOptimization) && (fcnatmode_temp < fLogMaximum) ) {
     // set best fit parameters
-    mode_temp      = fBestFitParameters;
-    errors_temp    = fBestFitParameterErrors;
+    if (mode_temp.size() == fBestFitParameters.size())
+      mode_temp      = fBestFitParameters;
+    else
+      BCLog::OutError("BCIntegrate::FindMode : previous mode has a different number of parameters than current.");
+
+    if (errors_temp.size() == fBestFitParameterErrors.size())
+      errors_temp    = fBestFitParameterErrors;
+    else
+      BCLog::OutError("BCIntegrate::FindMode : previous error estimate has a different number of parameters than current.");
+
     fcnatmode_temp = fLogMaximum;
     method_temp    = fOptimizationMethodUsed;
   }
