@@ -81,10 +81,6 @@ doc/quickstart/Makefile -text
 doc/quickstart/bat.eps -text
 doc/quickstart/quickstart.tex -text
 doc/releasenotes.txt -text
-doc/todo/MVCombination.txt -text
-doc/todo/mtf.txt -text
-doc/todo/plans.txt -text
-doc/todo/todo.txt -text
 examples/README -text
 examples/advanced/advancedGraphFitter/README -text
 examples/advanced/advancedGraphFitter/data/datax.txt -text
@@ -240,6 +236,10 @@ models/mvc/BCMVCombination.h -text
 models/mvc/Makefile.am -text
 models/mvc/libBATmvc.rootmap -text
 private/README -text
+private/doc/todo/MVCombination.txt -text
+private/doc/todo/mtf.txt -text
+private/doc/todo/plans.txt -text
+private/doc/todo/todo.txt -text
 private/examples/advanced/mvcombination/AnomCouplings.cxx -text
 private/examples/advanced/mvcombination/AnomCouplings.h -text
 private/examples/advanced/mvcombination/MVCombination.cxx -text
