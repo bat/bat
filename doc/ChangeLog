@@ -3,6 +3,7 @@
 	* BCEngineMCMC.cxx: check initial values of MCMC for fixed parameters. This fixes #56.
 	* Filled in missing ChangeLog entries for v0.9.2
 	* Moved doc/todo to private/doc/todo
+	* Moved tools/analyzeMCMC to private/tools/analyzeMCMC
 
 2013-09-09 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples: fix warnings by make and compiler

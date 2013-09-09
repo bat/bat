@@ -326,6 +326,8 @@ private/extras/FBU/src/BCFBUSystematic.cxx -text
 private/extras/FBU/src/BCFBU_backup.cxx -text
 private/extras/FBU/src/BCMTFSystematic.cxx -text
 private/extras/README -text
+private/tools/analyzeMCMC/Makefile -text
+private/tools/analyzeMCMC/analyzeMCMC.c -text
 /readme.devel -text
 src/BCAux.cxx -text
 src/BCDataPoint.cxx -text
