@@ -1,3 +1,6 @@
+2013-09-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModelOutput.cxx: do not try to write histograms if they do not exist.
+
 2013-09-09 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples: fix warnings by make and compiler
 	* benchmarks/test/BCModel_TEST: check that fixed parameters are not varied -- they vary

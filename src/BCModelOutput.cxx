@@ -174,14 +174,27 @@ void BCModelOutput::WriteMarginalizedDistributions()
    fOutputFile->cd();
 
    int nparameters = fModel->GetNParameters();
-   for (int i = 0; i < nparameters; ++i)
-      fModel->GetMarginalized(fModel->GetParameter(i))->GetHistogram()->Write();
-
+   for (int i = 0; i < nparameters; ++i) {
+      BCH1D* bchist = fModel->GetMarginalized(fModel->GetParameter(i));
+      if (bchist) {
+         TH1D* hist = bchist->GetHistogram();
+         if (hist)
+            hist->Write();
+      }
+   }
+   
    if (nparameters > 1)
-      for (int i = 0; i < nparameters - 1; ++i)
-         for (int j = i + 1; j < nparameters; ++j)
-            fModel->GetMarginalized(fModel->GetParameter(i),
-                  fModel->GetParameter(j))->GetHistogram()->Write();
+      for (int i = 0; i < nparameters - 1; ++i) {
+         for (int j = i + 1; j < nparameters; ++j) {
+            BCH2D* bchist = fModel->GetMarginalized(fModel->GetParameter(i),
+                                                    fModel->GetParameter(j));
+            if (bchist) {
+               TH2D* hist = bchist->GetHistogram();
+               if (hist) 
+                  hist->Write();
+            }
+         }
+      }
 
    // return to old directory
    gDirectory = dir;
