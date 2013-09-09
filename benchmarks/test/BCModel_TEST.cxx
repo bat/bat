@@ -40,7 +40,7 @@ public:
     {
        // turn on/off parameter storing
        {
-          GaussModel m("model", 4);
+          GaussModel m("Turn off filling for par 1", 4);
           m.MCMCSetPrecision(BCEngineMCMC::kLow);
           m.GetParameter(1)->FillHistograms(false);
           count_marginals(m);
@@ -48,7 +48,7 @@ public:
 
        // check parameter fixing with mcmc
        {
-          GaussModel m("model", 4);
+          GaussModel m("Fix par 1", 4);
           m.MCMCSetPrecision(BCEngineMCMC::kLow);
           m.GetParameter(1)->Fix(0.32);
           count_marginals(m);
@@ -56,7 +56,7 @@ public:
 
        // delta prior
        {
-          GaussModel m("model", 4);
+          GaussModel m("set delta prior for par 1", 4);
           m.MCMCSetPrecision(BCEngineMCMC::kLow);
           m.SetPriorDelta(1, 0.32);
           count_marginals(m);

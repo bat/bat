@@ -2,6 +2,9 @@
 
 #include <test.h>
 #include <BAT/BCMath.h>
+#include <BAT/BCParameter.h>
+
+using namespace test;
 
 // ---------------------------------------------------------
 GaussModel::GaussModel(const char * name, const unsigned & nParameters, long loopIterations) :
@@ -43,10 +46,17 @@ double GaussModel::LogLikelihood(const std::vector<double> & parameters)
 			BCMath::Rvalue(chain_means, chain_variances, points, relaxed);
 	}
 
+	// check that fixed parameters are indeed fixed to the right value
+	for (unsigned i=0; i < parameters.size(); i++) {
+	   BCParameter * p = GetParameter(i);
+	   if (p->Fixed())
+	      TEST_CHECK_EQUAL(p->GetFixedValue(), parameters[i]);
+	}
 	// assume a normalized Gaussian Likelihood with N independent variables
 	static const double normalized = true;
-	double logprob = 0.;
+	double logprob = 0;
 	for (unsigned i=0; i < parameters.size(); i++)
 		logprob += BCMath::LogGaus(parameters.at(i), 0.0, 2.0, normalized);
+
 	return logprob;
 }
