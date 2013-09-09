@@ -1627,21 +1627,35 @@ int BCEngineMCMC::MCMCInitialize()
 
    if (fMCMCFlagInitialPosition == 0) // center of the interval
       for (unsigned j = 0; j < fMCMCNChains; ++j)
-         for (unsigned i = 0; i < fParameters.Size(); ++i)
-            fMCMCx.push_back(fParameters[i]->GetLowerLimit() + .5 * fParameters[i]->GetRangeWidth());
+         for (unsigned i = 0; i < fParameters.Size(); ++i) {
+            if (fParameters[i]->Fixed())
+               fMCMCx.push_back(fParameters[i]->GetFixedValue());
+            else
+               fMCMCx.push_back(fParameters[i]->GetLowerLimit() + .5 * fParameters[i]->GetRangeWidth());
+         }
 
    else if (fMCMCFlagInitialPosition == 2) // user defined
    {
       for (unsigned j = 0; j < fMCMCNChains; ++j)
-         for (unsigned i = 0; i < fParameters.Size(); ++i)
-            fMCMCx.push_back(fMCMCInitialPosition.at(j * fParameters.Size() + i));
+         for (unsigned i = 0; i < fParameters.Size(); ++i) {
+            if (fParameters[i]->Fixed()) {
+               fMCMCx.push_back(fParameters[i]->GetFixedValue());
+               BCLog::OutWarning("BCEngineMCMC::MCMCInitialize. Inconsisten start value. Changed parameter value to fixed value.");
+            }
+            else
+               fMCMCx.push_back(fMCMCInitialPosition.at(j * fParameters.Size() + i));            
+         }
    }
-
+   
    else
    {
       for (unsigned j = 0; j < fMCMCNChains; ++j) // random number (default)
-         for (unsigned i = 0; i < fParameters.Size(); ++i)
-            fMCMCx.push_back(fParameters[i]->GetLowerLimit() + fMCMCThreadLocalStorage[j].rng->Rndm() * fParameters[i]->GetRangeWidth());
+         for (unsigned i = 0; i < fParameters.Size(); ++i) {
+            if (fParameters[i]->Fixed())
+               fMCMCx.push_back(fParameters[i]->GetFixedValue());
+            else
+               fMCMCx.push_back(fParameters[i]->GetLowerLimit() + fMCMCThreadLocalStorage[j].rng->Rndm() * fParameters[i]->GetRangeWidth());
+         }
    }
 
    // copy the point of the first chain

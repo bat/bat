@@ -1,5 +1,6 @@
 2013-09-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModelOutput.cxx: do not try to write histograms if they do not exist.
+	* BCEngineMCMC.cxx: check initial values of MCMC for fixed parameters. This fixes #56.
 
 2013-09-09 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples: fix warnings by make and compiler
