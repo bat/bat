@@ -75,7 +75,7 @@ double GaussModel::MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipa
 
   // get scale factor from an array of scale factors. the size of the
   // array is number of chains times number of parameters.
-  double scale = fMCMCTrialFunctionScaleFactor[ichain * GetNParameters() + ipar];
+  // double scale = fMCMCTrialFunctionScaleFactor[ichain * GetNParameters() + ipar];
 
   // choose trial function by uncommenting any of the lines below
 

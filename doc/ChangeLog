@@ -1,3 +1,6 @@
+2013-09-09 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* examples: fix warnings by make and compiler
+
 2013-09-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx: reset more variables in ResetResults().
 	* models/mtf/BCMTFAnalysisFacility: reset results in ensemble tests.

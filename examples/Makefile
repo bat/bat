@@ -6,10 +6,10 @@ exampledirs = $(dir $(wildcard */*/Makefile))
 
 all:
 ##      Stops on first error
-	@$(foreach dir,$(exampledirs),make -C $(dir) all &&) echo ""
+	@$(foreach dir,$(exampledirs),$(MAKE) -C $(dir) all &&) echo ""
 
 clean:
-	@$(foreach dir,$(exampledirs),make -C $(dir) clean;)
+	@$(foreach dir,$(exampledirs),$(MAKE) -C $(dir) clean;)
 
 print:
 	@echo $(exampledirs) | tr " " "\n"
