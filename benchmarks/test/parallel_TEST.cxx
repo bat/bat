@@ -124,7 +124,8 @@ public:
         std::vector<double> parameters;
 
         DataHolder(TTree *tree) {
-            if (!tree) return;
+            TEST_CHECK(tree);
+
             tree->SetBranchAddress("Iteration",       &fMCMCNIterations);
             tree->SetBranchAddress("LogProbability",  &fMCMCprob);
             tree->SetBranchAddress("Phase",           &fMCMCPhase);
@@ -185,6 +186,7 @@ public:
 
         // run MCMC and marginalize posterior wrt. all parameters
         // and all combinations of two parameters
+        m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
         m.MarginalizeAll();
         sw.Stop();
         double real_time=sw.RealTime();
@@ -192,10 +194,10 @@ public:
 
         if (config.plot)
         {
-            if(parallelization)
-                m.PrintAllMarginalized( GaussModel_plots_Parallel.c_str());
+            if (parallelization)
+                m.PrintAllMarginalized(GaussModel_plots_Parallel.c_str());
             else
-                m.PrintAllMarginalized( GaussModel_plots_Serial.c_str());
+                m.PrintAllMarginalized(GaussModel_plots_Serial.c_str());
         }
 
         // close log file
@@ -209,6 +211,12 @@ public:
     {
         TFile * rfile1 = TFile::Open(config.rootFileNameParallel.c_str());
         TFile * rfile2 = TFile::Open(config.rootFileNameSerial.c_str());
+
+        if (!rfile1)
+          TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameParallel);
+
+        if (!rfile2)
+          TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameSerial);
 
         // find the beginning of the main run
         // assume there is at least one chain and all chains start main run at the same time
@@ -234,8 +242,14 @@ public:
             TTree * one = NULL;
             TTree * two = NULL;
 
-            rfile1->GetObject(TString::Format("MarkovChainTree_%d", ichain),one);
-            rfile2->GetObject(TString::Format("MarkovChainTree_%d", ichain),two);
+            rfile1->GetObject(TString::Format("MarkovChainTree_%d", ichain), one);
+            rfile2->GetObject(TString::Format("MarkovChainTree_%d", ichain), two);
+
+            if (!one)
+              TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameParallel);
+            if (!two)
+              TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameSerial);
+
             DataHolder oneData(one);
             DataHolder twoData(two);
             long nEntries1 = one->GetEntries();
@@ -257,8 +271,8 @@ public:
                     {
                         TEST_CHECK_EQUAL(oneData.parameters[k], twoData.parameters[k]);
                     }
-                    TEST_CHECK_EQUAL(oneData.fMCMCNIterations, twoData.fMCMCNIterations);
                     TEST_CHECK_EQUAL(oneData.fMCMCprob, twoData.fMCMCprob);
+                    TEST_CHECK_EQUAL(oneData.fMCMCNIterations, twoData.fMCMCNIterations);
                     TEST_CHECK_EQUAL(oneData.fMCMCPhase, twoData.fMCMCPhase);
                 }
             }
@@ -333,7 +347,7 @@ public:
 
         config.num_chains = 4;
         config.num_parameters = 1;
-        config.lag = 1e3;
+        config.lag = 5e4;
         {
             RunComparison comparison(config);
         }

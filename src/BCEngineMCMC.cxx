@@ -1643,10 +1643,10 @@ int BCEngineMCMC::MCMCInitialize()
                BCLog::OutWarning("BCEngineMCMC::MCMCInitialize. Inconsisten start value. Changed parameter value to fixed value.");
             }
             else
-               fMCMCx.push_back(fMCMCInitialPosition.at(j * fParameters.Size() + i));            
+               fMCMCx.push_back(fMCMCInitialPosition.at(j * fParameters.Size() + i));
          }
    }
-   
+
    else
    {
       for (unsigned j = 0; j < fMCMCNChains; ++j) // random number (default)
