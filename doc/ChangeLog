@@ -1,5 +1,7 @@
 2013-09-10 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/COPYING: added information about the BAT team
+	* doc/note_template: moved to private/
+	* doc/manual: moved to private/
 
 2013-09-09 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCModelOutput.cxx: do not try to write histograms if they do not exist.
