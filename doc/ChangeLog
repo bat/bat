@@ -1,3 +1,7 @@
+2013-09-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* first version of release notes for 0.9.3
+	* doc/introduction: brought section about marginalization, integration, optimization and CreateProject script up to date.
+
 2013-09-10 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* parallel_TEST: update to pass
 	* BCEngine: whitespace

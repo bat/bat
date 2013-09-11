@@ -467,14 +467,36 @@ after it has been added to the model:
 \begin{verbatim}
 model.GetParameter(0)->SetLimits(min, max);
 \end{verbatim}
-When MCMC marginalization is run, the parameter's current ranges are used.
+%
+The parameter's current ranges are used in all algorithms. Parameters
+can also be fixed (unfixed) to particular values using
+%
+\begin{verbatim}
+void BCParameter::Fix(double value).
+void BCParameter::Unfix().
+\end{verbatim}
+
 % --------------------------------------------------------
 
 \subsubsection{A skeleton created by the CreateProject.sh script}
 \label{subsubsection:createproject}
 
-If the \verb|CreateProject.sh| script is called with two parameters,
-C++ include and source files are created. One example is
+The \verb|CreateProject.sh| script in the \verb|tools| directory is a
+good starting point to implement a model and set up an analysis. Its
+usage is
+%
+\begin{verbatim}
+CreateProject.sh <project> [<model>]
+\end{verbatim}
+
+The script creates a new directory named \verb|<project>| and a new
+model class named \verb|<model>|, i.e., the header and source files
+for the class, together with a Makefile for the project.
+
+If \verb|<model>| is omitted, the name of the model class will be set
+to \verb|<project>|.  To only create the project files, use \verb|-|
+for \verb|<model>|.  To only create the model class, use \verb|-| for
+\verb|<project>|.
 
 \begin{verbatim}
 ./CreateProject.sh MyProject MyModel
@@ -487,10 +509,10 @@ to adjust the parameters inside the 'Makefile'.
 Once the program is compiled successfully, you can run it and it should
 print some basic information on the screen.
 
-Implement your model in file:    MyModel.cxx
+Implement your model in files:   MyModel.h  MyModel.cxx
 Implement your analysis in file: runMyProject.cxx
 
-Consult BAT webpage for details: http://mpp.mpg.de/bat
+For details consult BAT webpage: http://mpp.mpg.de/bat
 --------------------------------------------------------------------------
 \end{verbatim}
 
@@ -498,14 +520,13 @@ The include file will look like this
 %
 \begin{verbatim}
 // ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project MyProject
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the CreateProject.sh script.
+// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
-#ifndef __MYMODEL__H
-#define __MYMODEL__H
+#ifndef __BAT__MYMODEL__H
+#define __BAT__MYMODEL__H
 
 #include <BAT/BCModel.h>
 
@@ -515,18 +536,17 @@ The include file will look like this
 // ---------------------------------------------------------
 class MyModel : public BCModel
 {
-	public:
+   public:
 
-		// Constructors and destructor
-		MyModel();
-		MyModel(const char * name);
-		~MyModel();
+      // Constructors and destructor
+      MyModel();
+      MyModel(const char * name);
+      ~MyModel();
 
-		// Methods to overload, see file MyModel.cxx
-		void DefineParameters();
-		double LogAPrioriProbability(const std::vector <double> &parameters);
-		double LogLikelihood(const std::vector <double> &parameters);
-    // void MCMCIterationInterface();
+      // Methods to overload, see file MyModel.cxx
+      void DefineParameters();
+      double LogAPrioriProbability(const std::vector<double> &parameters);
+      double LogLikelihood(const std::vector<double> &parameters);
 };
 // ---------------------------------------------------------
 
@@ -534,14 +554,13 @@ class MyModel : public BCModel
 \end{verbatim}
 
 The constructors and the destructor are defined as well as the key
-methods that define the likelihood and prior. The source file looks
+methods that define the likelihood and prior. The source files look
 like this
 %
 \begin{verbatim}
 // ***************************************************************
-// This file was created using the ./CreateProject.sh script
-// for project MyProject
-// ./CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the CreateProject.sh script.
+// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
@@ -552,74 +571,178 @@ like this
 // ---------------------------------------------------------
 MyModel::MyModel() : BCModel()
 {
-	// default constructor
-	DefineParameters();
-};
+   // default constructor
+   DefineParameters();
+}
 
 // ---------------------------------------------------------
 MyModel::MyModel(const char * name) : BCModel(name)
 {
-	// constructor
-	DefineParameters();
-};
+   // constructor
+   DefineParameters();
+}
 
 // ---------------------------------------------------------
 MyModel::~MyModel()
+   // default destructor
 {
-	// default destructor
-};
+}
 
 // ---------------------------------------------------------
 void MyModel::DefineParameters()
 {
-	// Add parameters to your model here.
-	// You can then use them in the methods below by calling the
-	// parameters.at(i) or parameters[i], where i is the index
-	// of the parameter. The indices increase from 0 according to the
-	// order of adding the parameters.
+   // Add parameters to your model here.
+   // You can then use them in the methods below by calling the
+   // parameters.at(i) or parameters[i], where i is the index
+   // of the parameter. The indices increase from 0 according to the
+   // order of adding the parameters.
 
-//	AddParameter("x", -10.0, 10.0); // index 0
-//	AddParameter("y",  -5.0,  5.0); // index 1
+//   AddParameter("x",  0.0, 10.0); // index 0
+//   AddParameter("y", -5.0,  5.0); // index 1
 }
 
 // ---------------------------------------------------------
-double MyModel::LogLikelihood(const std::vector <double> & parameters)
+double MyModel::LogLikelihood(const std::vector<double> &parameters)
 {
-	// This methods returns the logarithm of the conditional probability
-	// p(data|parameters). This is where you have to define your model.
+   // This methods returns the logarithm of the conditional probability
+   // p(data|parameters). This is where you have to define your model.
 
-	double logprob = 0.;
+   double logprob = 0.;
 
-//	double x = parameters.at(0);
-//	double y = parameters.at(1);
-//	double eps = 0.5;
+//   double x = parameters.at(0);
+//   double y = parameters.at(1);
 
-	// Breit-Wigner distribution of x with nuisance parameter y
-//	logprob += BCMath::LogBreitWignerNonRel(x + eps*y, 0.0, 1.0);
+   // Gaussian distribution for x
+//   logprob += BCMath::LogGaus(x, 6.0, 2.0);
 
+   // Breit-Wigner distribution for y
+//   logprob += BCMath::LogBreitWignerNonRel(y, 0.0, 1.0);
 
-	return logprob;
+   return logprob;
 }
 
 // ---------------------------------------------------------
-double MyModel::LogAPrioriProbability(const std::vector <double> & parameters)
+double MyModel::LogAPrioriProbability(const std::vector<double> &parameters)
 {
-	// This method returns the logarithm of the prior probability for the
-	// parameters p(parameters).
+   // This method returns the logarithm of the prior probability for the
+   // parameters p(parameters).
 
-	double logprob = 0.;
+   double logprob = 0.;
 
-//	double x = parameters.at(0);
-//	double y = parameters.at(1);
+//   double x = parameters.at(0);
+//   double y = parameters.at(1);
 
-//	double dx = GetParameter(0)->GetRangeWidth();
+   // exponentially decreasing prior for x
+//   logprob += -0.5*x;
 
-//	logprob += log(1./dx);                    // flat prior for x
-//	logprob += BCMath::LogGaus(y, 0., 1.0);   // Gaussian prior for y
+   // Gaussian prior for y
+//   logprob += BCMath::LogGaus(y, 2., 1.0);
 
-	return logprob;
+   return logprob;
 }
 // ---------------------------------------------------------
+\end{verbatim}
+
+and
+
+\begin{verbatim}
+// ***************************************************************
+// This file was created using the CreateProject.sh script
+// for project MyProject.
+// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// BAT can be downloaded from http://mpp.mpg.de/bat
+// ***************************************************************
+
+#include <BAT/BCH1D.h>
+#include <BAT/BCH2D.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCAux.h>
+#include <BAT/BCSummaryTool.h>
+
+#include "MyModel.h"
+
+int main()
+{
+
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
+
+   // open log file
+   BCLog::OpenLog("log.txt");
+   BCLog::SetLogLevel(BCLog::detail);
+
+   // create new MyModel object
+   MyModel* m = new MyModel();
+
+   // set precision
+   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+
+   BCLog::OutSummary("Test model created");
+
+   // create a new summary tool object
+   BCSummaryTool * summary = new BCSummaryTool(m);
+
+   // perform your analysis here
+
+   // normalize the posterior, i.e. integrate posterior
+   // over the full parameter space
+//   m->SetIntegrationMethod(BCIntegrate::kDefault);
+//   m->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
+//   m->SetIntegrationMethod(BCIntegrate::kIntCuba);
+//   m->SetIntegrationMethod(BCIntegrate::kIntGrid);
+//   m->Normalize();
+
+   // run MCMC and marginalize posterior wrt. all parameters
+   // and all combinations of two parameters
+//   m->SetMarginalizationMethod(BCIntegrate::kMargDefault);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargMonteCarlo);
+//   m->SetMarginalizationMethod(BCIntegrate::kMargGrid);
+//   m->MarginalizeAll();
+
+   // run mode finding; by default using Minuit
+//   m->SetOptimizationMethod(BCIntegrate::kOptDefault);
+//   m->SetOptimizationMethod(BCIntegrate::kOptMinuit);
+//   m->SetOptimizationMethod(BCIntegrate::kOptSimAnn);
+//   m->SetOptimizationMethod(BCIntegrate::kOptMetropolis);
+//   m->FindMode();
+
+   // if MCMC was run before (MarginalizeAll()) it is
+   // possible to use the mode found by MCMC as
+   // starting point of Minuit minimization
+//   m->FindMode( m->GetBestFitParameters() );
+
+   // draw all marginalized distributions into a PostScript file
+//   m->PrintAllMarginalized("MyModel_plots.pdf");
+
+   // print individual histograms
+//   m->GetMarginalized("x")->Print("x.pdf");
+//   m->GetMarginalized("y")->Print("y.pdf");
+//   m->GetMarginalized("x", "y")->Print("xy.pdf");
+
+   // print all summary plots
+//   summary->PrintParameterPlot("MyModel_parameters.pdf");
+//   summary->PrintCorrelationPlot("MyModel_correlation.pdf");
+//   summary->PrintKnowledgeUpdatePlots("MyModel_update.pdf");
+
+   // calculate p-value
+//   m->CalculatePValue( m->GetBestFitParameters() );
+
+   // print results of the analysis into a text file
+//   m->PrintResults("MyModel_results.txt");
+
+   delete m;
+   delete summary;
+
+   BCLog::OutSummary("Test program ran successfully");
+   BCLog::OutSummary("Exiting");
+
+   // close log file
+   BCLog::CloseLog();
+
+   return 0;
+
+}
 \end{verbatim}
 
 % --------------------------------------------------------
@@ -766,13 +889,16 @@ void BCIntegrate::SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method),
 where \verb|BCIntegrationMethod| can be one of the following
 %
 \begin{itemize}
-\item \verb|BCModel::kIntMonteCarlo|. Sample-mean integration (default if Cuba is not available).
-\item \verb|BCModel::kIntImportance|. Importance sampling. Note that
-  there is no good default choice for the proposal function, so the
-  user has to overload\\
-  \verb|BCIntegrate::EvalSampling(const std::vector<double> & x)|
+\item \verb|BCModel::kIntMonteCarlo|. Sample-mean integration.
 \item \verb|BCModel::kIntCuba|. An interface to the CUBA
   library~\cite{CUBA,CUBAweb}; cf. Section~\ref{section:cubainterface}.
+\item \verb|BCModel::kIntGrid|. Evaluation on a grid (histogram). Only
+  available for 1- and 2-dimensional problems.
+\item \verb|BCIntegrate::kIntDefault|. Default method. Use
+  \verb|BCIntegrate::kIntGrid| for 1- and 2-dimensional problems and
+  \verb|BCIntegrate::kIntMonteCarlo| for more than 2 dimensions. If
+  CUBA is available, \verb|BCModel::kIntCuba| is used for more than 2
+  dimensions.
 \end{itemize}
 %
 
@@ -876,7 +1002,9 @@ Three methods are available in the current version (\Version):
   Metropolis algorithm.
 \item \verb|BCIntegrate::kOptMinuit|. An interface to the \Root\ version
   of Minuit.
-\item \verb|BCIntegrate::kOptSA|. A Simulated Annealing algorithm.
+\item \verb|BCIntegrate::kOptSimAnn|. A Simulated Annealing algorithm.
+\item \verb|BCIntegrate::kOptDefault|. Default method. Set to
+  \verb|BCIntegrate::kOptMinuit|.
 \end{itemize}
 %
 If the interface to Minuit is used, the estimated uncertainties on the
@@ -923,13 +1051,13 @@ BCH2D * BCModel::GetMarginalized(BCParameter * parameter1,
                                  BCParameter * parameter2),
 \end{verbatim}
 
-Alternatively, the marginalization can be done for one or two
-parameters individually:
+%Alternatively, the marginalization can be done for one or two
+%parameters individually:
 %
-\begin{verbatim}
-TH1D * BCModel::Marginalize(BCParameter * parameter),
-TH2D * BCModel::Marginalize(BCParameter * parameter1, BCParameter * parameter2),
-\end{verbatim}
+%\begin{verbatim}
+%TH1D * BCModel::Marginalize(BCParameter * parameter),
+%TH2D * BCModel::Marginalize(BCParameter * parameter1, BCParameter * parameter2),
+%\end{verbatim}
 
 Different methods of marginalization are implemented and can be chosen
 via
@@ -944,12 +1072,17 @@ where \verb|BCMarginalizationMethod| can be one of the following
 \item \verb|BCIntegrate::kMargMonteCarlo|. Uncorrelated Monte Carlo sampling.
 \item \verb|BCIntegrate::kMargMetropolis|. Correlated sampling using
   Markov Chain Monte Carlo (Metropolis algorithm).
+\item \verb|BCIntegrate::kMargGrid|. Evaluation on a grid
+  (histogram). Only available for 1- and 2-dimensional problems.
+\item \verb|BCIntegrate::kMargDefault|. Default method. Use
+  \verb|BCIntegrate::kMargGrid| for 1- and 2-dimensional problems and
+  \verb|BCIntegrate::kMargMetropolis| for more than 2 dimensions.
 \end{itemize}
 
-Note that only Markov chains can be used if the marginalization is
-done for all parameters simultaneously. Settings and options of the
-Markov Chain Monte Carlo algorithm are summarized in
-section~\ref{section:settings:MCMC}.
+%Note that only Markov chains can be used if the marginalization is
+%done for all parameters simultaneously.
+Settings and options of the Markov Chain Monte Carlo algorithm are
+summarized in section~\ref{section:settings:MCMC}.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

@@ -1,6 +1,40 @@
 ------------------------------------------
 BAT - Bayesian Analysis Toolkit
 ------------------------------------------
+Release notes for version:    0.9.3
+Release date:                 2013-09-11
+Urgency:                      high
+------------------------------------------
+
+New features:
+-------------
+* Parallel running of Metropolis algorithm
+* Parameters can be fixed for any of the algorithms
+* Better handling of algorithms via setters
+* Added method to evaluate posterior probability on a grid (histogram)
+* Added method to get a slice in 1D and 2D of the posterior
+  probability at a fixed point
+
+Improvements and new models:
+----------------------------
+* More plotting options and color schemes
+* Default plotting now into pdf files
+* Full access to all Cuba methods
+* Added a model for multivariate Gaussian combinations (models/mvc)
+  including examples
+* Added a fitter model from which all fitters inherit.
+* MTF models include now estimation of MC stat. uncertainty
+
+Fixes:
+------
+* Proper rounding of integers in calculation of Poisson likelihood
+* Removed hit-or-miss integration algorithm
+
+=========================================================================
+
+------------------------------------------
+BAT - Bayesian Analysis Toolkit
+------------------------------------------
 Release notes for version:    0.9.1
 Release date:                 2012-06-19
 Urgency:                      high
