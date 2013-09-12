@@ -2397,11 +2397,17 @@ further reference see the reference guide:
 %
 \begin{itemize}
 
-\item \verb|BCEngineMCMC::SetNChains(int n)| Sets the number of chains
+\item \verb|BCEngineMCMC::MCMCSetNChains(int n)| Sets the number of chains
   which are run in parallel (default: 5).
+
+\item \verb|BCEngineMCMC::MCMCSetNLag(int n)| Sets the lag of the
+  algorithm, i.e., only every n-th point is stored (default: 1).
 
 \item \verb|BCEngineMCMC::MCMCSetNIterationsMax(int n)| Sets the maximum
   number of iterations of the pre-run (default: 1,000,000).
+
+\item \verb|BCEngineMCMC::MCMCSetNIterationsPreRunMin(int n)| Sets the
+  minimum number of iterations of the pre-run (default: 1,000,000).
 
 \item \verb|BCEngineMCMC::MCMCSetNIterationsRun(int n)| Sets the number of
   iterations of the analysis run (default: 100,000).
@@ -2418,6 +2424,12 @@ further reference see the reference guide:
   if all parameters should be varied one after each other (true) or
   all at the same time (default: true).
 
+\item \verb|BCEngine::MCMCSetFlagFillHistograms(bool flag)|. Sets the
+  flag for all parameters to either fill histograms or not.
+
+\item \verb|BCEngine::MCMCSetFlagPreRun(bool flag)|. Sets the flag if
+  a prerun should be performed or not.
+
 \item \verb|BCEngineMCMC::MCMCSetFlagInitialPosition(int flag)| Decides how
   to chose the initial positions (0: center of the parameter
   boundaries, 1: random positions (default), 2: user defined
@@ -2425,6 +2437,12 @@ further reference see the reference guide:
 
 \item \verb|BCEngineMCMC::MCMCSetFlagFillHistograms(int index, bool flag)| and \\
   \verb|BCEngineMCMC::MCMCSetFlagFillHistograms(bool flag)|. Set flag to fill the marginalized distribution for a single or all parameters. Not filling the distributions might increase the speed of MCMC run.
+
+\item \verb|BCEngineMCMC::MCMCSetWriteChainToFile(bool flag)| Sets
+  flag to write MCMC to file.
+
+\item \verb|BCEngineMCMC::MCMCSetWritePreRunToFile(bool flag)| Sets
+  flag to write pre run to file.
 
 \item \verb|BCEngineMCMC::MCMCSetInitialPositions(std::vector<double> x0s)|
   and \\
@@ -2440,6 +2458,10 @@ further reference see the reference guide:
 \item \verb|BCEngineMCMC::MCMCSetRValueCriterion(double r)| Set the
   $R$-value criterion for convergence of a set of chains (default:
   0.1).
+
+\item
+  \verb|BCEngineMCMC::MCMCSetRValueParametersCriterion(double r)|. Sets
+  the parameter R-value criterion for convergence of all chains.
 
 \item \verb|BCEngineMCMC::MCMCSetRValueStrict(bool flag)| Calculate the
   $R$-value criterion for convergence with the strict definition (true)

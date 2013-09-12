@@ -3,6 +3,7 @@
 	* examples/advanced: clean-up of examples
 	* examples/expert: clean-up of examples
 	* src/BCIntegrate.cxx: fixed dumping of grid method
+	* doc/introduction: updated list of MCMC settings.
 
 2013-09-12 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC: skip fixed parameters where it helps to
