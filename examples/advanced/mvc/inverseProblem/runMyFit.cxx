@@ -27,6 +27,9 @@ int main(int argc, char *argv[])
   // create new MyFit object
   MyFit * m = new MyFit();
 
+  // set Metropolis as marginalization method
+  m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
   // set precision
   m->MCMCSetPrecision(BCIntegrate::kMedium);
    

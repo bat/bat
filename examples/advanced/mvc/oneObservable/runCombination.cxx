@@ -19,6 +19,9 @@ int main(int argc, char *argv[])
   // create new BCMVCombination object
   BCMVCombination * m = new BCMVCombination();
 
+  // set Metropolis as marginalization method
+  m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
   // set precision
   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
    

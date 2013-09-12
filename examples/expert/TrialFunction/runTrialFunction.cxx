@@ -17,7 +17,7 @@ int main()
   // create new GaussModel object
   GaussModel * m = new GaussModel();
 
-  // set MCMC method
+  // set marginalization method
   m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
   // set MCMC precision

@@ -23,14 +23,11 @@ int main()
    // create new ReferenceCounting object
    ReferenceCounting* m = new ReferenceCounting();
 
-   // BAT settings
-   m->MCMCSetPrecision(BCIntegrate::kMedium);
-
    // set option of how to evaluate prior
    // kHistogram : calculate prior first and fill into histogram
    // kAnalytic  : calculate analytic expression
    // kApprox    : calculate prior from a TF1 approximation fitted to a histgram
-   m->SetPriorEvalOption(ReferenceCounting::kApprox);
+   m->SetPriorEvalOption(ReferenceCounting::kAnalytic);
 
    // set background expectation
    double bkg_exp = 10; // expectation value

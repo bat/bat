@@ -2367,7 +2367,7 @@ std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod 
       case BCIntegrate::kIntCuba:
          return "Cuba";
       case BCIntegrate::kIntGrid:
-         return "Slice";
+         return "Grid";
       default:
          return "Undefined";
    }
@@ -2384,7 +2384,7 @@ std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizatio
       case BCIntegrate::kMargMetropolis:
          return "Metropolis";
       case BCIntegrate::kMargGrid:
-         return "Slice";
+         return "Grid";
       case BCIntegrate::kMargDefault:
          return "Default";
       default:

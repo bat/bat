@@ -45,6 +45,9 @@ int main(int argc, char *argv[])
   // create new MyCombination object
   MyCombination * m = new MyCombination();
 
+  // set Metropolis as marginalization method
+  m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
   // set flag for physical constraints
   m->SetFlagPhysicalConstraints(flag_phys);
 

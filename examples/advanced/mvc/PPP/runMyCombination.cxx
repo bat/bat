@@ -55,8 +55,11 @@ int main(int argc, char *argv[])
   // set flag for physical constraints
   m->SetFlagPhysicalConstraints(flag_phys);
 
+  // set Metropolis as marginalization method
+  m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);  
+
   // set precision
-  m->MCMCSetPrecision(BCIntegrate::kHigh);
+  m->MCMCSetPrecision(BCIntegrate::kMedium);
    
   if (argc==2) {
     int isopen = m->ReadInput(argv[1]);

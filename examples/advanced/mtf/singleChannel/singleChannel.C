@@ -75,10 +75,6 @@ void singleChannel()
    // create new fitter object
    BCMTF * m = new BCMTF("SingleChannelMTF");
 
-   // set the required precision of the MCMC (kLow, kMedium, kHigh)
-   // the higher the precision the longer the MCMC run
-   m->MCMCSetPrecision(BCEngineMCMC::kLow);
-
    // add channels
    m->AddChannel("channel1");
 
@@ -97,7 +93,7 @@ void singleChannel()
    m->SetPriorGauss("background", 300., 10.);
    m->SetPriorConstant("signal");
 
-   // run MCMC
+   // marginalize 
    m->MarginalizeAll();
 
    // find global mode
