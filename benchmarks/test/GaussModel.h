@@ -15,11 +15,22 @@ class GaussModel : public BCModel
 
       // Methods to overload, see file GaussModel.cxx
       virtual double LogLikelihood(const std::vector<double> & parameters);
+
+      unsigned long Calls() const
+      {
+         return fCalls;
+      }
+
 private:
       /**
        * Used in likelihood to prolong artificially.
        */
       unsigned long fLoopIterations;
+
+      /**
+       * Count how often likelihood is called
+       */
+      unsigned long fCalls;
 };
 // ---------------------------------------------------------
 

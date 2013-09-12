@@ -856,11 +856,14 @@ void BCEngineMCMC::MCMCInChainTestConvergenceAllChains()
       // define flag for convergence
       bool flag_convergence = true;
 
+      // extract means and variances
+      std::vector<double> means(fMCMCNChains);
+      std::vector<double> variances(fMCMCNChains);
+
       // loop over parameters
       for (unsigned iparameters = 0; iparameters < fParameters.Size(); ++iparameters){
-         // extract means and variances
-         std::vector<double> means(fMCMCNChains);
-         std::vector<double> variances(fMCMCNChains);
+         if (fParameters[iparameters]->Fixed())
+         continue;
 
          // loop over chains
          for (unsigned ichains = 0; ichains < fMCMCNChains; ++ichains) {
@@ -997,6 +1000,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
          {
             for (unsigned iparameters = 0; iparameters < fParameters.Size(); ++iparameters)
             {
+               if (fParameters[iparameters]->Fixed())
+                  continue;
                // loop over chains
 
                unsigned chunk = 1; (void) chunk;
@@ -1260,6 +1265,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
    BCLog::OutDetail(" --> Average efficiencies:");
    for (unsigned i = 0; i < fParameters.Size(); ++i)
    {
+      if (fParameters[i]->Fixed())
+         continue;
+
       for (unsigned j = 0; j < fMCMCNChains; ++j)
          efficiencies[i] += efficiency[j * fParameters.Size() + i] / double(fMCMCNChains);
 
@@ -1276,6 +1284,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
    BCLog::OutDetail(" --> Average scale factors:");
    for (unsigned i = 0; i < fParameters.Size(); ++i)
    {
+      if (fParameters[i]->Fixed())
+         continue;
       for (unsigned j = 0; j < fMCMCNChains; ++j)
          scalefactors[i] += fMCMCTrialFunctionScaleFactor[j * fParameters.Size() + i] / double(fMCMCNChains);
 
@@ -1344,6 +1354,9 @@ int BCEngineMCMC::MCMCMetropolis()
          // loop over parameters
          for (unsigned iparameters = 0; iparameters < fParameters.Size(); ++iparameters)
          {
+            if (fParameters[iparameters]->Fixed())
+               continue;
+
             // loop over chains
             {
                unsigned chunk = 1; (void) chunk;

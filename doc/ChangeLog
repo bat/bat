@@ -1,3 +1,10 @@
+2013-09-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCEngineMCMC: skip fixed parameters where it helps to
+	  - avoid useless proposal trials and likelihood calls
+	  - not emit bogus sampling performance
+	  - avoid R value warnings
+	* benchmarks/test/BCModel_TEST: split individual test aspects into separate methods, test changes to engine
+
 2013-09-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* first version of release notes for 0.9.3
 	* doc/introduction: brought section about marginalization, integration, optimization and CreateProject script up to date.

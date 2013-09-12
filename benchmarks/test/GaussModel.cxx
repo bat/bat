@@ -9,7 +9,8 @@ using namespace test;
 // ---------------------------------------------------------
 GaussModel::GaussModel(const char * name, const unsigned & nParameters, long loopIterations) :
     BCModel(name),
-    fLoopIterations(loopIterations)
+    fLoopIterations(loopIterations),
+    fCalls(0)
 {
    // add identical, independent parameters
    for (unsigned i = 0; i < nParameters ; ++i) {
@@ -27,6 +28,7 @@ GaussModel::~GaussModel()
 // ---------------------------------------------------------
 double GaussModel::LogLikelihood(const std::vector<double> & parameters)
 {
+    ++fCalls;
 	// run extra loop to make likelihood evaluation slower(!)
 	if (fLoopIterations)
 	{
