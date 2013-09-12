@@ -95,14 +95,17 @@ void efficiencyFitterExample()
 
    // define a fit function
    TF1 * f1 = new TF1("f1", fitfunction, 0.0, 100.0, 2);
-   f1->SetParLimits(0, 30.0, 50.0);
-   f1->SetParLimits(1,  6.0, 18.0);
+   f1->SetParLimits(0, 36.0, 44.0);
+   f1->SetParLimits(1, 10.0, 20.0);
 
    // create a new efficiency fitter
    BCEfficiencyFitter * hef = new BCEfficiencyFitter(hist1, hist2, f1);
 
    // set options for evaluating the fit function
    hef->SetFlagIntegration(false);
+
+   // set Metropolis as marginalization method
+   hef->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
    // set options for MCMC
    hef->MCMCSetPrecision(BCEngineMCMC::kMedium);

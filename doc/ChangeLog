@@ -1,3 +1,6 @@
+2013-09-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* examples/basic: clean-up of examples
+
 2013-09-12 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC: skip fixed parameters where it helps to
 	  - avoid useless proposal trials and likelihood calls

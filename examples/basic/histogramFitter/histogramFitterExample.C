@@ -83,6 +83,9 @@ void histogramFitterExample()
    // create a new histogram fitter
    BCHistogramFitter* hf = new BCHistogramFitter(hist, f1);
 
+   // set Metropolis as marginalization method
+   hf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
    // set precision
    hf->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
@@ -101,8 +104,7 @@ void histogramFitterExample()
    double pvalue, pvalueCorrected;
    std::vector<double> init (4);
    init[0] = mean; init[1] = sigma; init[2] = 150; init[3] = 1;
-   //   hf->MarginalizeAll();
-   hf->FindModeMinuit(init);
+   hf->FindMode(init);
    hf->CalculatePValueFast(hf->GetBestFitParameters());
    pvalue = hf->GetPValue();
    pvalueCorrected = hf->GetPValueNDoF();

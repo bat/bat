@@ -15,9 +15,6 @@ int main()
   // create new PoissonModel object
   PoissonModel m;
 
-  // set precision
-  m.MCMCSetPrecision(BCEngineMCMC::kMedium);
-
   // set number of observed events
   m.SetNObs(7);
 

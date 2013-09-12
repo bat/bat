@@ -20,9 +20,6 @@ int main()
   // create a new summary tool object
   BCSummaryTool * summary = new BCSummaryTool(m);
 
-  // set precision
-  m->MCMCSetPrecision(BCEngineMCMC::kHigh);
-
   // marginalize
   m->MarginalizeAll();
 

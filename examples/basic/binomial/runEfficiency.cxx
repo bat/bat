@@ -17,9 +17,6 @@ int main()
   // create new BinomialModel object
   BinomialModel * m = new BinomialModel();
 
-  // set precision
-  m->MCMCSetPrecision(BCEngineMCMC::kHigh);
-
   // set number of events
   m->SetNTotal(20);
   m->SetNSelected(3);

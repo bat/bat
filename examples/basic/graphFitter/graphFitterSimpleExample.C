@@ -84,6 +84,9 @@ void graphFitterSimpleExample()
    // create a new graph fitter
    BCGraphFitter * gf = new BCGraphFitter(graph, f1);
 
+   // set Metropolis as marginalization method
+   gf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+
    // set precision
    gf->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
