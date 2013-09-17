@@ -1,3 +1,6 @@
+2013-09-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* doc/INSTALL: explain threading, cuba
+
 2013-09-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* examples/basic: clean-up of examples
 	* examples/advanced: clean-up of examples

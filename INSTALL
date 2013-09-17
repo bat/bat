@@ -1,6 +1,6 @@
 
 BAT - Bayesian Analysis Toolkit
-version 0.9.1
+version 0.9.3
 -------------------------------
 
 This is the INSTALL file of BAT package
@@ -44,7 +44,8 @@ CUBA:
    CUBA is a library containing general purpose multidimensional
    integration algorithms. It can be obtained from
    http://www.feynarts.de/cuba/. BAT will compile and run with Cuba
-   version 2.0 or later. Cuba is not necessary to run BAT, however, its
+   version 3.0 or later. Due to issues in Cuba, version 3.2 or higher
+   is recommended. Cuba is not necessary to run BAT, however, its
    use is recommended as it provides integration routines tuned for
    performance, which are very usefull for integration in problems with
    large number of dimensions.
@@ -73,10 +74,17 @@ The configure script checks for ROOT availability in the system and
 fails if ROOT is not installed. You can specify the ROOTSYS directory
 using --with-rootsys=/path/to/rootsys.
 
-You can compile BAT with the RooFit/RooStats support using
+You can configure BAT with the RooFit/RooStats support using
 --with-roostats. The configure script will check whether the version of
 ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
 support.
+
+Support for openMP threading is available through the configure option
+--enable-parallelization. This requires a version of gcc accepting the
+-fopenmp flag, anything >= 4.2 should suffice.
+Note that by default only one thread is used.  Control over the number
+of threads is achieved entirely by openMP means such as setting the
+enviroment variable OMP_NUM_THREADS before running an executable.
 
 You can compile BAT with Cuba support using option --with-cuba[=DIR].
 The configure script will then search for libcuba.a and cuba.h in the
@@ -89,10 +97,12 @@ subdirectories. For more fine-grained control, use
 Note that the cuba library still needs to be available to the loader
 at runtime. This is accomplished, for example, by adding
 /path/to/cuba/lib to LD_LIBRARY_PATH. Please compile the Cuba library
-with position-independent code
-./configure CFLAGS=-fPIC
+with position-independent code. For example
+./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
 to avoid linker errors like
-/usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32 against `.rodata.str1.8' can not be used when making a shared object; recompile with -fPIC
+/usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32
+against `.rodata.str1.8' can not be used when making a shared object;
+recompile with -fPIC
 
 You can list all available options using
 
@@ -132,6 +142,6 @@ search path.
 
 
 ----------------------------------------------------------------------------
-Please, consult the BAT webpage http://www.mppmu.mpg.de/bat/ for further
+Please, consult the BAT webpage http://mpp.mpg.de/bat/ for further
 information. You can also contact the authors directly via
-email: bat@mppmu.mpg.de
+email: bat@mpp.mpg.de
