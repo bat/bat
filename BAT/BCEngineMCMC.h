@@ -144,9 +144,9 @@ class BCEngineMCMC
          { return fMCMCNTrialsTrue; }
 
       /**
-       * @returns number of not-accepted trials for each chain */
-      std::vector<int> MCMCGetNTrialsFalse() const
-         { return fMCMCNTrialsFalse; }
+       * @returns number of trials */
+      int MCMCGetNTrials() const
+         { return fMCMCNTrials; }
 
       /**
        * @return mean value of the probability for each chain up to
@@ -770,9 +770,8 @@ class BCEngineMCMC
       std::vector<int> fMCMCNTrialsTrue;
 
       /**
-       * Number of not accepted trials for each chain. The length of the
-       * vector is equal to fMCMCNChains * fMCMCNParameters.  */
-      std::vector<int> fMCMCNTrialsFalse;
+       * Number of trials */
+      unsigned fMCMCNTrials;
 
       /**
        * Flag to write Markov chains to file */

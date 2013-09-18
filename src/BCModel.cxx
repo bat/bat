@@ -998,8 +998,7 @@ void BCModel::PrintResults(const char * file)
          for (unsigned ichain = 0; ichain < nchains; ++ichain) {
             unsigned index = ichain * npar + ipar;
             efficiencies[ipar] +=
-               double(MCMCGetNTrialsTrue().at(index)) / double(MCMCGetNTrialsTrue().at(index)
-                                                               + MCMCGetNTrialsFalse().at(index)) / double(nchains) * 100.;
+               double(MCMCGetNTrialsTrue().at(index)) / double(MCMCGetNTrials()) / double(nchains) * 100.;
          }
 
       for (unsigned ipar = 0; ipar < npar; ++ipar)

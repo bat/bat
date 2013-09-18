@@ -1,4 +1,5 @@
-2013-09-12 Frederik Beaujean <beaujean@mpp.mpg.de>
+2013-09-18 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCEngineMCMC, BCModel: bug fix handling of fixed parameters and number of trials
 	* doc/INSTALL: explain threading, cuba
 
 2013-09-12 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
