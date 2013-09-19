@@ -660,21 +660,13 @@ public:
     * Default is Minuit. The mode can be extracted using the GetBestFitParameters() method.
     *
     * A starting point for the mode finding can be specified for Minuit. If not
-    * specified, Minuit default will be used (center of the parameter space).
-    *
-    * If running mode finding after the MCMC it is a good idea to specify the
-    * mode obtained from MCMC as a starting point for the Minuit minimization.
-    * MCMC will find the location of the global mode and Minuit will
-    * converge to the mode precisely. The commands are:
-      <pre>
-      model -> MarginalizeAll();
-      model -> FindMode( model -> GetBestFitParameters() );
-      </pre>
-    * @start startinf point of Minuit minimization
-   * @return The mode found.
+    * specified, the previously found maximum (typically from marginalization)
+    * is used as an initial point. If that is not available,
+    * then the Minuit default will be used (center of the parameter space).
+    * @return The mode found.
     * @note The result may not coincide with the result of @code GetBestFitParameters()
     * if a previous optimization found a better value. */
-    std::vector<double> FindMode(std::vector<double> start = std::vector<double>(0));
+    std::vector<double> FindMode(std::vector<double> start = std::vector<double>());
 
     /**
      * Find mode using a specific method. The original method will be reset.
@@ -682,7 +674,7 @@ public:
      * @param start the starting point for the optimization algorithm
      * @return the mode
      * @seestd::vector<double> FindMode(std::vector<double> start = std::vector<double>(0)); */
-    std::vector<double> FindMode(BCIntegrate::BCOptimizationMethod optmethod, std::vector<double> start = std::vector<double>(0));
+    std::vector<double> FindMode(BCIntegrate::BCOptimizationMethod optmethod, std::vector<double> start = std::vector<double>());
 
    /**
     * Temperature annealing schedule for use with Simulated Annealing.

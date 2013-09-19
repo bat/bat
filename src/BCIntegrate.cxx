@@ -121,49 +121,49 @@ BCIntegrate & BCIntegrate::operator = (const BCIntegrate & other)
 // ---------------------------------------------------------
 void BCIntegrate::Copy(const BCIntegrate & other)
 {
-	BCEngineMCMC::Copy(other);
+   BCEngineMCMC::Copy(other);
 
-  fID                       = other.fID;
-	fBestFitParameters        = other.fBestFitParameters;
-	fBestFitParameterErrors   = other.fBestFitParameterErrors;
-  fLogMaximum               = other.fLogMaximum;
-	fMinuit                   = new TMinuit();
-	fMinuitArglist[0]         = other.fMinuitArglist[0];
-	fMinuitArglist[1]         = other.fMinuitArglist[1];
-	fMinuitErrorFlag          = other.fMinuitErrorFlag;
-	fFlagIgnorePrevOptimization = other.fFlagIgnorePrevOptimization;
-	fSAT0                     = other.fSAT0;
-	fSATmin                   = other.fSATmin;
-	fTreeSA = 0;
-	fFlagWriteSAToFile        = other.fFlagWriteSAToFile;
-	fSANIterations            = other.fSANIterations;
-	fSATemperature            = other.fSATemperature;
-	fSALogProb                = other.fSALogProb;
-	fSAx                      = other.fSAx;
-  fMarginalized1D           = other.fMarginalized1D;
-  fMarginalized2D           = other.fMarginalized2D;
-	fOptimizationMethodCurrent= other.fOptimizationMethodCurrent;
-	fOptimizationMethodUsed   = other.fOptimizationMethodUsed;
-	fIntegrationMethodCurrent = other.fIntegrationMethodCurrent;
-	fIntegrationMethodUsed    = other.fIntegrationMethodUsed;
-	fMarginalizationMethodCurrent = other.fMarginalizationMethodCurrent;
-	fMarginalizationMethodUsed= other.fMarginalizationMethodUsed;
-	fSASchedule               = other.fSASchedule;
-	fNIterationsMin           = other.fNIterationsMin;
-	fNIterationsMax           = other.fNIterationsMax;
-	fNIterationsPrecisionCheck= other.fNIterationsPrecisionCheck;
-	fNIterationsOutput        = other.fNIterationsOutput;
-	fNIterations              = other.fNIterations;
-  fIntegral                 = other.fIntegral;
-	fRelativePrecision        = other.fRelativePrecision;
-	fAbsolutePrecision        = other.fAbsolutePrecision;
-	fError                    = other.fError;
-	fCubaIntegrationMethod    = other.fCubaIntegrationMethod;
-	fCubaVegasOptions         = other.fCubaVegasOptions;
-	fCubaSuaveOptions         = other.fCubaSuaveOptions;
-	fCubaDivonneOptions       = other.fCubaDivonneOptions;
-	fCubaCuhreOptions         = other.fCubaCuhreOptions;
-  fFlagMarginalized         = other.fFlagMarginalized;
+   fID                       = other.fID;
+   fBestFitParameters        = other.fBestFitParameters;
+   fBestFitParameterErrors   = other.fBestFitParameterErrors;
+   fLogMaximum               = other.fLogMaximum;
+   fMinuit                   = new TMinuit();
+   fMinuitArglist[0]         = other.fMinuitArglist[0];
+   fMinuitArglist[1]         = other.fMinuitArglist[1];
+   fMinuitErrorFlag          = other.fMinuitErrorFlag;
+   fFlagIgnorePrevOptimization = other.fFlagIgnorePrevOptimization;
+   fSAT0                     = other.fSAT0;
+   fSATmin                   = other.fSATmin;
+   fTreeSA = 0;
+   fFlagWriteSAToFile        = other.fFlagWriteSAToFile;
+   fSANIterations            = other.fSANIterations;
+   fSATemperature            = other.fSATemperature;
+   fSALogProb                = other.fSALogProb;
+   fSAx                      = other.fSAx;
+   fMarginalized1D           = other.fMarginalized1D;
+   fMarginalized2D           = other.fMarginalized2D;
+   fOptimizationMethodCurrent= other.fOptimizationMethodCurrent;
+   fOptimizationMethodUsed   = other.fOptimizationMethodUsed;
+   fIntegrationMethodCurrent = other.fIntegrationMethodCurrent;
+   fIntegrationMethodUsed    = other.fIntegrationMethodUsed;
+   fMarginalizationMethodCurrent = other.fMarginalizationMethodCurrent;
+   fMarginalizationMethodUsed= other.fMarginalizationMethodUsed;
+   fSASchedule               = other.fSASchedule;
+   fNIterationsMin           = other.fNIterationsMin;
+   fNIterationsMax           = other.fNIterationsMax;
+   fNIterationsPrecisionCheck= other.fNIterationsPrecisionCheck;
+   fNIterationsOutput        = other.fNIterationsOutput;
+   fNIterations              = other.fNIterations;
+   fIntegral                 = other.fIntegral;
+   fRelativePrecision        = other.fRelativePrecision;
+   fAbsolutePrecision        = other.fAbsolutePrecision;
+   fError                    = other.fError;
+   fCubaIntegrationMethod    = other.fCubaIntegrationMethod;
+   fCubaVegasOptions         = other.fCubaVegasOptions;
+   fCubaSuaveOptions         = other.fCubaSuaveOptions;
+   fCubaDivonneOptions       = other.fCubaDivonneOptions;
+   fCubaCuhreOptions         = other.fCubaCuhreOptions;
+   fFlagMarginalized         = other.fFlagMarginalized;
 }
 
 // ---------------------------------------------------------
@@ -178,7 +178,7 @@ double BCIntegrate::GetBestFitParameter(unsigned index) const
    if( ! fParameters.ValidIndex(index))
       return -1e+111;
 
-   if(fBestFitParameters.size()==0) {
+   if(fBestFitParameters.empty()) {
       BCLog::OutError("BCIntegrate::GetBestFitParameter : Mode finding not yet run, returning center of the range.");
       return (fParameters[index]->GetUpperLimit() + fParameters[index]->GetLowerLimit() ) / 2.;
    }
@@ -847,6 +847,15 @@ int BCIntegrate::MarginalizeAll()
         // start preprocess
         MarginalizePreprocess();
 
+        // store highest probability
+        double probmax = -std::numeric_limits<double>::infinity();
+        std::vector<double> bestfit_parameters(fParameters.Size(), -std::numeric_limits<double>::infinity());
+        // correct fixed parameter values
+        // the other should have been determined above
+        for (unsigned i = 0; i < fParameters.Size(); ++i)
+           if (fParameters[i]->Fixed())
+              bestfit_parameters[i] = fParameters[i]->GetFixedValue();
+
         fMarginalized1D.clear();
         if (GetNFreeParameters() == 1) {
           for (unsigned int i = 0; i < GetNParameters(); ++i) {
@@ -854,6 +863,11 @@ int BCIntegrate::MarginalizeAll()
               // calculate slice
               BCH1D* hist_temp = GetSlice(fParameters[i], fixpoint, 0);
               fMarginalized1D.push_back(hist_temp);
+
+              // remember best fit before it is normalized and the value is wrong
+              const int index = hist_temp->GetHistogram()->GetMaximumBin();
+              probmax = hist_temp->GetHistogram()->GetBinContent(index);
+              bestfit_parameters.at(i) = hist_temp->GetHistogram()->GetBinCenter(index);
 
               // normalize to unity
               hist_temp->GetHistogram()->Scale(1./hist_temp->GetHistogram()->Integral());
@@ -871,7 +885,6 @@ int BCIntegrate::MarginalizeAll()
                 fMarginalized2D.push_back(0);
             }
           }
-
         }
         else if (GetNFreeParameters() == 2) {
           // create a 2D histogram
@@ -887,6 +900,13 @@ int BCIntegrate::MarginalizeAll()
                 // calculate slice
                 hist2d_temp = GetSlice(GetParameter(i), GetParameter(j), fixpoint, 0);
                 fMarginalized2D.push_back(hist2d_temp);
+
+                // remember best fit before it is normalized and the value is wrong
+                int index1, index2, useless_index;
+                hist2d_temp->GetHistogram()->GetMaximumBin(index1, index2, useless_index);
+                probmax = hist2d_temp->GetHistogram()->GetBinContent(index1, index2, useless_index);
+                bestfit_parameters.at(i) = hist2d_temp->GetHistogram()->GetXaxis()->GetBinCenter(index1);
+                bestfit_parameters.at(j) = hist2d_temp->GetHistogram()->GetYaxis()->GetBinCenter(index2);
 
                 // normalize to unity
                 hist2d_temp->GetHistogram()->Scale(1./hist2d_temp->GetHistogram()->Integral());
@@ -921,6 +941,22 @@ int BCIntegrate::MarginalizeAll()
           BCLog::OutWarning("BCIntegrate::MarginalizeAll : Option works for 1D and 2D problems.");
           return 0;
         }
+
+        // save if improved the log posterior
+
+        if (fBestFitParameters.empty() || probmax > fMCMCLogMaximum) {
+           fLogMaximum = probmax;
+           fBestFitParameters = bestfit_parameters;
+           fBestFitParameterErrors.assign(fBestFitParameters.size(), std::numeric_limits<double>::infinity());
+           // todo can't set this one yet
+           //           fOptimizationMethodUsed =
+        }
+
+        BCLog::OutDetail(" --> Global mode from Grid:");
+        BCLog::OutDebug(Form(" --> Posterior value: %g", probmax));
+        int ndigits = (int) log10(fParameters.Size());
+        for (unsigned i = 0; i < fParameters.Size(); ++i)
+            BCLog::OutDetail(TString::Format(" -->      parameter %*i:   %.4g", ndigits+1, i, bestfit_parameters[i]));
 
         // start postprocess
         MarginalizePostprocess();
@@ -978,7 +1014,6 @@ int BCIntegrate::MarginalizeAll(BCIntegrate::BCMarginalizationMethod margmethod)
   return result;
 }
 
-
 // ---------------------------------------------------------
 BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
@@ -997,10 +1032,10 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
 	parameters_temp = parameters;
 
 	// check if parameter set if defined
-	if (parameters_temp.size()==0 && GetNParameters()==1) {
+	if (parameters_temp.empty() && GetNParameters() == 1) {
 		parameters_temp.push_back(0);
 	}
-	else if (parameters_temp.size()==0 && GetNParameters()!=1) {
+	else if (parameters_temp.empty() && GetNParameters() != 1) {
 		BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
 		return 0;
 	}
@@ -1039,6 +1074,7 @@ BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<do
 
 	return hprob;
 }
+
 // ---------------------------------------------------------
 BCH2D* BCIntegrate::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins, bool flag_norm)
 {
@@ -1501,6 +1537,9 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
     BCLog::OutError("FindMode : No parameters defined. Aborting.");
     return std::vector<double>();
   }
+
+  if (start.empty() && fBestFitParameters.size() == fParameters.Size())
+     start = fBestFitParameters;
 
   std::vector<double> mode_temp(GetNParameters());
   std::vector<double> errors_temp(GetNParameters());

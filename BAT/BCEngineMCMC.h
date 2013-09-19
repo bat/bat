@@ -258,7 +258,7 @@ class BCEngineMCMC
          { return fMCMCFlagRun; }
 
       /**
-       * Rtrieve the tree containing the Markov chain.
+       * Retrieve the tree containing the Markov chain.
        * @param i index of the Markov chain
        * @return pointer to the tree */
       TTree * MCMCGetMarkovChainTree(unsigned i)

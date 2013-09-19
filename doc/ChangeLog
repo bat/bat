@@ -1,3 +1,11 @@
+2013-09-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* BCEngineMCMC: minor fix comment
+	* BCIntegrate: improve mode finding
+	  - slice marginalization checks best-fit
+	  - FindMode() uses previous best-fit as starting point by default
+	    to improve user friendliness
+	  - indentation aligned
+
 2013-09-18 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC, BCModel: bug fix handling of fixed parameters and number of trials
 	* doc/INSTALL: explain threading, cuba

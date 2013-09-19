@@ -195,10 +195,28 @@ public:
     }
   }
 
+  void Slice() const
+  {
+     GaussModel m("slice", 1);
+     BCParameter * p = m.GetParameter(0);
+
+     // set bins of width 0.1
+     // maximum should be at the center of one of the bins that have an edge at zero
+     p->SetLimits(-3, 3);
+     p->SetNbins(60);
+     m.MarginalizeAll(BCIntegrate::kMargGrid);
+     TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetBestFitParameter(0)), 1e-14);
+
+     // mode finding should start from previous solution and converge to (0, 0)
+     m.FindMode();
+     TEST_CHECK_NEARLY_EQUAL(0, m.GetBestFitParameter(0), 5e-5);
+  }
+
   virtual void run() const
   {
     Integration();
     Optimization();
     FixedParameters();
+    Slice();
   }
 } bcIntegrateTest;
