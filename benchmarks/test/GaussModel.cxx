@@ -28,7 +28,11 @@ GaussModel::~GaussModel()
 // ---------------------------------------------------------
 double GaussModel::LogLikelihood(const std::vector<double> & parameters)
 {
-    ++fCalls;
+#pragma omp critical(GaussModel__LogLikelihood)
+   {
+      ++fCalls;
+   }
+
 	// run extra loop to make likelihood evaluation slower(!)
 	if (fLoopIterations)
 	{

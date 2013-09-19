@@ -10,19 +10,18 @@
 
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
-
 #include <BAT/BCParameter.h>
 
 using namespace test;
 
 class BCModelTest :
-   public TestCase
+      public TestCase
 {
 public:
    BCModelTest():
       TestCase("BCModel")
-   {
-   }
+{
+}
 
    /*!
     * check that the right marginal distributions are defined
@@ -60,9 +59,9 @@ public:
    void fixing() const
    {
       GaussModel m("Fix", 4);
-      m.MCMCSetRandomSeed(235);
       m.MCMCSetPrecision(BCEngineMCMC::kMedium);
       m.MCMCSetNIterationsRun(30000);
+      m.MCMCSetRandomSeed(235);
 
       static const double eps = 5e-2;
 

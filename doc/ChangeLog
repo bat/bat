@@ -5,6 +5,8 @@
 	  - FindMode() uses previous best-fit as starting point by default
 	    to improve user friendliness
 	  - indentation aligned
+	* benchmarks/test/GaussModel: thread-safe counter
+	* benchmarks/test/BCModel_TEST: indentation
 
 2013-09-18 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC, BCModel: bug fix handling of fixed parameters and number of trials
