@@ -119,24 +119,9 @@ class BCSummaryTool
    int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", std::string options="");
 
    /**
-    * Print parameter summary as text. (not yet implemented)
-    * @return An error flag.*/
-   int PrintParameterSummary() { return 1; };
-
-   /**
-    * Print correlation summary as text. (not yet implemented)
-    * @return An error flag. */
-   int PrintCorrelationSummary() { return 1; };
-
-   /**
     * Print a Latex table of the parameters.
     * @return An error flag. */
    int PrintParameterLatex(const char * filename);
-
-   /**
-    * Print a Latex table of the correlations. (not yet implemented)
-    * @return An error flag. */
-   int PrintCorrelationLatex() { return 1; };
 
    /** @} */
 
@@ -150,7 +135,7 @@ class BCSummaryTool
    static unsigned int fHCounter;
 
    /**
-    * The model which results are summarized */
+    * The model whose results are summarized */
    BCModel * fModel;
 
    /**

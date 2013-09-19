@@ -5,6 +5,9 @@
 	  - FindMode() uses previous best-fit as starting point by default
 	    to improve user friendliness
 	  - indentation aligned
+	* BCSummaryTool: deal with fixed parameters properly
+	  - remove unimplemented methods
+	  - add test case benchmarks/test/BCSummaryTool_TEST
 	* benchmarks/test/GaussModel: thread-safe counter
 	* benchmarks/test/BCModel_TEST: indentation
 

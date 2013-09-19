@@ -103,12 +103,8 @@ int BCSummaryTool::CopySummaryData()
    fRMS.clear();
    fCorrCoeff.clear();
 
-   // get number of parameters and quantiles
-   int npar = fModel->GetNParameters();
-   int nquantiles = int( fSumProb.size() );
-
    // copy information from marginalized distributions
-   for (int i = 0; i < npar; ++i) {
+   for (unsigned i = 0; i < fModel->GetNParameters(); ++i) {
 
       // copy parameter information
       fParName.push_back( (fModel->GetParameter(i)->GetLatexName()) );
@@ -116,53 +112,49 @@ int BCSummaryTool::CopySummaryData()
       fParMax.push_back( fModel->GetParameter(i)->GetUpperLimit() );
 
       // copy 1D marginalized information
-      if (fModel->MCMCGetFlagRun()) {
+      BCH1D * bch1d_temp = fModel->GetMarginalized(i);
+      if (bch1d_temp) {
          fFlagInfoMarg = true;
-         BCH1D * bch1d_temp = fModel->GetMarginalized( fModel->GetParameter(i) );
-         if (bch1d_temp) {
-            fMean.push_back( bch1d_temp->GetMean() );
-            fRMS.push_back( bch1d_temp->GetRMS() );
-            fMargMode.push_back( bch1d_temp->GetMode() );
-            for (int j = 0; j < nquantiles; ++j)
-               fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) );
-            std::vector<double> intervals = bch1d_temp->GetSmallestIntervals();
-            int nintervals = int(intervals.size() / 5);
-            fSmallInt.push_back(nintervals);
-            fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
-         }
-         else {
-            double tmpval = fModel->GetParameter(i)->GetUpperLimit() - fModel->GetParameter(i)->GetLowerLimit();
-            tmpval = fModel->GetParameter(i)->GetLowerLimit() - 2. * tmpval;
-            fMean.push_back( tmpval );
-            fRMS.push_back( tmpval );
-            fMargMode.push_back( tmpval );
-            for (int j = 0; j < nquantiles; ++j)
-               fQuantiles.push_back( tmpval );
-            fSmallInt.push_back( 0 );
-         }
-
-         // copy 2D margnialized information
-         for (int j = 0; j < npar; ++j) {
-            if (i!=j) {
-               BCH2D * bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
-               if ( bch2d_temp )
-                  fCorrCoeff.push_back( bch2d_temp->GetHistogram()->GetCorrelationFactor() );
-               else
-                  fCorrCoeff.push_back( 0. );
-            }
-            else
-               fCorrCoeff.push_back(1.);
-         }
+         fMean.push_back( bch1d_temp->GetMean() );
+         fRMS.push_back( bch1d_temp->GetRMS() );
+         fMargMode.push_back( bch1d_temp->GetMode() );
+         for (unsigned j = 0; j < fSumProb.size(); ++j)
+            fQuantiles.push_back( bch1d_temp->GetQuantile( fSumProb.at(j) ) );
+         std::vector<double> intervals = bch1d_temp->GetSmallestIntervals();
+         int nintervals = int(intervals.size() / 5);
+         fSmallInt.push_back(nintervals);
+         fSmallInt.insert( fSmallInt.end(), intervals.begin(), intervals.end() );
       }
       else {
+         double tmpval = fModel->GetParameter(i)->GetUpperLimit() - fModel->GetParameter(i)->GetLowerLimit();
+         tmpval = fModel->GetParameter(i)->GetLowerLimit() - 2. * tmpval;
+         fMean.push_back( tmpval );
+         fRMS.push_back( tmpval );
+         fMargMode.push_back( tmpval );
+         for (unsigned j = 0; j < fSumProb.size(); ++j)
+            fQuantiles.push_back( tmpval );
+         fSmallInt.push_back( 0 );
+      }
+
+      // copy 2D marginal information
+      for (unsigned j = 0; j < fModel->GetNParameters(); ++j) {
+         if (i == j)
+            fCorrCoeff.push_back(1.);
+         else {
+            BCH2D * bch2d_temp = fModel->GetMarginalized(i, j);
+            if ( bch2d_temp ) {
+               fFlagInfoMarg = true;
+               fCorrCoeff.push_back( bch2d_temp->GetHistogram()->GetCorrelationFactor() );
+            }
+            else
+               fCorrCoeff.push_back( 0. );
+         }
       }
 
       // copy optimization information
       if ((fModel->GetBestFitParameters()).size() > 0) {
          fFlagInfoOpt = true;
          fGlobalMode.push_back ( (fModel->GetBestFitParameters()).at(i) );
-      }
-      else {
       }
    }
 
@@ -421,12 +413,6 @@ int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
 // ---------------------------------------------------------
 int BCSummaryTool::PrintCorrelationPlot(const char * filename)
 {
-   // check if marginalized information is there
-   if (!fModel->MCMCGetFlagRun()) {
-      BCLog::OutError("BCSummaryTool::PrintCorrelationPlot : MCMC was not run. Marginalized distributions not available.");
-      return 0;
-   }
-
    // get number of parameters
    int npar = fModel->GetNParameters();
 
@@ -620,79 +606,86 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post
 
    // get histograms;
    const BCParameter * par = fModel->GetParameter(index);
-   BCH1D* hist_prior = 0;
+   BCH1D* hist_prior = fPriorModel->GetMarginalized(par);
    BCH1D* hist_posterior = 0;
 
-	 hist_prior = fPriorModel->GetMarginalized(par);
-	 if (flag_slice_prior && fPriorModel->GetNParameters()==2) {
-		 if (index == 0) {
-			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
-			  hist->Scale(1.0/hist->Integral("width"));
-				for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-		 }
-		 else {
-			 TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
-			 hist->Scale(1.0/hist->Integral("width"));
-			 for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-		 }
-		 hist_prior->GetHistogram()->SetStats(kFALSE);
-	 }
-	 else if (flag_slice_prior && fPriorModel->GetNParameters()==1) {
-		 hist_prior = fPriorModel->GetSlice(par);
-		 hist_prior->GetHistogram()->SetStats(kFALSE);
-	 }
-	 hist_prior->GetHistogram()->SetLineColor(kRed);
+   if (flag_slice_prior && fPriorModel->GetNParameters()==2) {
+      if (index == 0) {
+         TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
+         hist->Scale(1.0/hist->Integral("width"));
+         for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
+            hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
+      }
+      else {
+         TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
+         hist->Scale(1.0/hist->Integral("width"));
+         for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
+            hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
+      }
+      hist_prior->GetHistogram()->SetStats(kFALSE);
+   }
+   else if (flag_slice_prior && fPriorModel->GetNParameters()==1) {
+      hist_prior = fPriorModel->GetSlice(par);
+      hist_prior->GetHistogram()->SetStats(kFALSE);
+   }
+   // if marginal doesn't exist, skip ahead
+   if ( !hist_prior)
+     return 0;
 
-	 hist_posterior = fModel->GetMarginalized(par);
-	 if (flag_slice_post && fModel->GetNParameters()==2) {
-		 if (index == 0) {
-			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
-			 hist->Scale(1.0/hist->Integral("width"));
-			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-		 }
-		 else {
-			 TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
-			 hist->Scale(1.0/hist->Integral("width"));
-			 for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
-				 hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-		 }
-		 hist_posterior->GetHistogram()->SetStats(kFALSE);
-	 }
-	 else if (flag_slice_post && fModel->GetNParameters()==1) {
-		 hist_posterior = fModel->GetSlice(par);
-		 hist_posterior->GetHistogram()->SetStats(kFALSE);
-	 }
+   hist_prior->GetHistogram()->SetLineColor(kRed);
 
-	 legend->AddEntry(hist_prior->GetHistogram(), "prior", "L");
+   hist_posterior = fModel->GetMarginalized(par);
+   if (flag_slice_post && fModel->GetNParameters()==2) {
+      if (index == 0) {
+         TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
+         hist->Scale(1.0/hist->Integral("width"));
+         for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
+            hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
+      }
+      else {
+         TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
+         hist->Scale(1.0/hist->Integral("width"));
+         for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
+            hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
+      }
+      hist_posterior->GetHistogram()->SetStats(kFALSE);
+   }
+   else if (flag_slice_post && fModel->GetNParameters()==1) {
+      hist_posterior = fModel->GetSlice(par);
+      hist_posterior->GetHistogram()->SetStats(kFALSE);
+   }
+
+   // if marginal doesn't exist, skip ahead
+   if ( !hist_posterior)
+     return 0;
+
+   legend->AddEntry(hist_prior->GetHistogram(), "prior", "L");
    legend->AddEntry(hist_posterior->GetHistogram(), "posterior", "L");
 
    // scale histograms
-	 hist_posterior->GetHistogram()->Scale(1./hist_posterior->GetHistogram()->Integral("width"));
-	 hist_prior->GetHistogram()->Scale(1.0/hist_prior->GetHistogram()->Integral("width"));
+   hist_posterior->GetHistogram()->Scale(1./hist_posterior->GetHistogram()->Integral("width"));
+   hist_prior->GetHistogram()->Scale(1.0/hist_prior->GetHistogram()->Integral("width"));
 
    // get maximum
-	 double max_prior = hist_prior->GetHistogram()->GetMaximum();
+   double max_prior = hist_prior->GetHistogram()->GetMaximum();
    double max_posterior = hist_posterior->GetHistogram()->GetMaximum();
-	 double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
+   double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
 
-	 double height = 0.03*legend->GetNRows();
+   double height = 0.03*legend->GetNRows();
 
    // plot
-	 hist_prior->GetHistogram()->GetXaxis()->SetNdivisions(508);
+   hist_prior->GetHistogram()->GetXaxis()->SetNdivisions(508);
    hist_posterior->GetHistogram()->GetXaxis()->SetNdivisions(508);
 
-	 hist_prior->Draw(options_prior);
-	 hist_posterior->Draw(std::string(options_post+"same").c_str());
+   hist_prior->Draw(options_prior);
+   hist_posterior->Draw(std::string(options_post+"same").c_str());
 
    // scale axes
-	 hist_prior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
+   hist_prior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
    hist_posterior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
 
-	 gPad->SetTopMargin(0.02);
-	 double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
+   gPad->SetTopMargin(0.02);
+   double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
    double xlegend2 = 1.0-gPad->GetRightMargin();
    double ylegend1 = 1.-gPad->GetTopMargin()-height;
    double ylegend2 = 1.-gPad->GetTopMargin();
@@ -704,7 +697,7 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post
    legend->SetY2NDC(ylegend2);
 
    // draw legend
-	 legend->Draw();
+   legend->Draw();
 
    // rescale top margin
    gPad->SetTopMargin(1.-ylegend1+0.01);
@@ -751,12 +744,11 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
 
    // loop over all parameters and draw 1D plots
    int npar = fModel->GetNParameters();
+   c->Print(std::string(file + "[").c_str());
    for (int i = 0; i < npar; ++i) {
-		 DrawKnowledgeUpdatePlot1D(i, options, options);
-		 if (i == 0 && npar>1)
-			 c->Print(std::string( file + "(").c_str());
-		 else
-			 c->Print(file.c_str());
+      if ( !DrawKnowledgeUpdatePlot1D(i, options, options))
+         continue;
+      c->Print(file.c_str());
    }
 
    // create legend
@@ -793,14 +785,18 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
          // get 2-d histograms
          BCH2D* bch2d_2dprior = 0;
          BCH2D* bch2d_2dposterior = 0;
-				 if (flag_slice && npar == 2) {
-					 bch2d_2dprior = fPriorModel->GetSlice(par2, par1);
-					 bch2d_2dposterior = fModel->GetSlice(par2, par1);
-				 }
-				 else {
-					 bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
-					 bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
-				 }
+         if (flag_slice && npar == 2) {
+            bch2d_2dprior = fPriorModel->GetSlice(par2, par1);
+            bch2d_2dposterior = fModel->GetSlice(par2, par1);
+         }
+         else {
+            bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
+            bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
+         }
+
+         // can't draw anything
+         if ( !bch2d_2dprior || !bch2d_2dposterior)
+            continue;
 
          // get histograms
          TH2D* hist_2dprior = bch2d_2dprior->GetHistogram();
@@ -830,41 +826,38 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
          arrow->DrawArrow(mode_prior.at(j), mode_prior.at(i), mode_posterior.at(j), mode_posterior.at(i));
 
          if (i==1 && j == 0) {
-					 legend2d->AddEntry(hist_2dprior, "smallest 68% interval(s) of prior", "L");
-					 legend2d->AddEntry(hist_2dposterior, "smallest 68% interval(s) of posterior", "L");
-					 legend2d->AddEntry(marker_prior, "prior mode", "P");
-					 legend2d->AddEntry(marker_posterior, "posterior mode", "P");
-					 legend2d->AddEntry(arrow, "change in mode", "L");
-				 }
-				 gPad->SetTopMargin(0.02);
+            legend2d->AddEntry(hist_2dprior, "smallest 68% interval(s) of prior", "L");
+            legend2d->AddEntry(hist_2dposterior, "smallest 68% interval(s) of posterior", "L");
+            legend2d->AddEntry(marker_prior, "prior mode", "P");
+            legend2d->AddEntry(marker_posterior, "posterior mode", "P");
+            legend2d->AddEntry(arrow, "change in mode", "L");
+         }
+         gPad->SetTopMargin(0.02);
 
-				 double height = 0.03*legend2d->GetNRows();
+         double height = 0.03*legend2d->GetNRows();
 
-				 double xlegend1 = gPad->GetLeftMargin();
-				 double xlegend2 = 1.0-gPad->GetRightMargin();
-				 double ylegend1 = 1.-gPad->GetTopMargin()-height;
-				 double ylegend2 = 1.-gPad->GetTopMargin();
+         double xlegend1 = gPad->GetLeftMargin();
+         double xlegend2 = 1.0-gPad->GetRightMargin();
+         double ylegend1 = 1.-gPad->GetTopMargin()-height;
+         double ylegend2 = 1.-gPad->GetTopMargin();
 
-				 // place legend on top of histogram
-				 legend2d->SetX1NDC(xlegend1);
-				 legend2d->SetX2NDC(xlegend2);
-				 legend2d->SetY1NDC(ylegend1);
-				 legend2d->SetY2NDC(ylegend2);
+         // place legend on top of histogram
+         legend2d->SetX1NDC(xlegend1);
+         legend2d->SetX2NDC(xlegend2);
+         legend2d->SetY1NDC(ylegend1);
+         legend2d->SetY2NDC(ylegend2);
 
          legend2d->Draw();
 
-				 gPad->SetTopMargin(1.-ylegend1+0.01);
+         gPad->SetTopMargin(1.-ylegend1+0.01);
 
-				 gPad->RedrawAxis();
-
-				 if ((i == npar-1) && (j == npar - 2))
-					 c->Print(std::string( file + ")").c_str());
-				 else
-					 c->Print(file.c_str());
+         gPad->RedrawAxis();
+         c->Print(file.c_str());
       }
    }
 
-   // close ps
+   // close output
+   c->Print(std::string(file + "]").c_str());
    c->Update();
 
    // free memory

@@ -2,6 +2,9 @@ CLEANFILES = \
 	parallel_TEST_GaussModelSerial.root \
 	parallel_TEST_GaussModelParallel.root \
 	BCModel_TEST.pdf \
+	BCSummaryTool_TEST_summary_par.pdf \
+	BCSummaryTool_TEST_summary_corr.pdf \
+	BCSummaryTool_TEST_summary_upd.pdf \
 	*~ \
 	log.txt
 
@@ -26,6 +29,7 @@ TESTS = \
 	test_TEST \
 	BCMath_TEST \
 	BCModel_TEST \
+	BCSummaryTool_TEST \
 	BCIntegrate_TEST \
 	parallel_TEST
 
@@ -45,6 +49,8 @@ test_TEST_SOURCES = test_TEST.cxx
 BCMath_TEST_SOURCES = BCMath_TEST.cxx
 
 BCModel_TEST_SOURCES = BCModel_TEST.cxx
+
+BCSummaryTool_TEST_SOURCES = BCSummaryTool_TEST.cxx
 
 BCIntegrate_TEST_SOURCES = BCIntegrate_TEST.cxx
 
