@@ -786,10 +786,14 @@ void BCModel::PrintSummary()
       BCLog::OutSummary("Best fit parameters:");
 
       for (unsigned i = 0; i < GetNParameters(); i++) {
-         BCLog::OutSummary(Form(" %s = %f (global)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
+        if ( fParameters[i]->Fixed() )
+          BCLog::OutSummary(Form(" %s = %f (fixed)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
+        else
+          BCLog::OutSummary(Form(" %s = %f (global)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
 
-         if ( fMarginalModes.size() == GetNParameters())
-            BCLog::OutSummary(Form(" %s = %f (marginalized)", fParameters[i]->GetName().data(), GetBestFitParametersMarginalized()[i]));
+        if ( fMarginalModes.size() == GetNParameters())
+          BCLog::OutSummary(Form(" %s = %f (marginalized)", fParameters[i]->GetName().data(), GetBestFitParametersMarginalized()[i]));
+
       }
    }
 

@@ -1666,8 +1666,24 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::
    bool have_start = true;
 
    // check start values
-   if (start.size() != fParameters.Size())
-      have_start = false;
+   if (start.size() == 0)
+     have_start = false;
+   else if (start.size() != fParameters.Size()) {
+     have_start = false;
+     BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (mismatch of dimensions), set to center.");
+   }
+
+   // check if point is allowed
+   if (have_start) {
+     for (unsigned int i = 0; i <fParameters.Size(); ++i) {
+       if (!fParameters[i]->IsValid(start[i]))
+         have_start = false;
+       if (fParameters[i]->Fixed() && start[i] != fParameters[i]->GetFixedValue())
+         have_start = false;
+     }
+     if (!have_start)
+       BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (parameter not inside valid range), set to center.");
+   }
 
    // set global this
    ::BCIntegrateHolder::instance(this);
@@ -1761,8 +1777,24 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
    int t = 1; // time iterator
 
    // check start values
-   if (start.size() != fParameters.Size())
-      have_start = false;
+   if (start.size() == 0)
+     have_start = false;
+   else if (start.size() != fParameters.Size()) {
+     have_start = false;
+     BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (mismatch of dimensions), set to center.");
+   }
+
+   // check if point is allowed
+   if (have_start) {
+     for (unsigned int i = 0; i <fParameters.Size(); ++i) {
+       if (!fParameters[i]->IsValid(start[i]))
+         have_start = false;
+       if (fParameters[i]->Fixed() && start[i] != fParameters[i]->GetFixedValue())
+         have_start = false;
+     }
+     if (!have_start)
+       BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (parameter not inside valid range), set to center.");
+   }
 
    // if no starting point is given, set to center of parameter space
    if ( !have_start ) {

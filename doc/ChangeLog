@@ -1,3 +1,7 @@
+2013-09-120 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCIntegrate.cxx: improved checking of start values for Sim. Ann. and Minuit. Fixes #74.
+	* BCModel.cxx: PrintSummary: added "fixed" in the optimization output if parameter is fixed.
+
 2013-09-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* BCEngineMCMC: minor fix comment
 	* BCIntegrate: improve mode finding
