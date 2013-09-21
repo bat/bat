@@ -1207,6 +1207,10 @@ BCH1D * BCIntegrate::GetMarginalized(const BCParameter * parameter)
 // ---------------------------------------------------------
 BCH1D * BCIntegrate::GetMarginalized(unsigned index)
 {
+  // check if marginalized histogram exists
+  if (fMarginalized1D.size() <= index)
+    return 0;
+
   // get histogram
   BCH1D * htemp = fMarginalized1D.at(index);
 
@@ -1507,6 +1511,10 @@ BCH2D * BCIntegrate::GetMarginalized(unsigned index1, unsigned index2)
     index1 = index2;
     index2 = indexTemp;
   }
+
+  // check if marginalized histogram exists
+  if (fMarginalized2D.size() <= GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1)
+    return 0;
 
   // get histogram
   BCH2D * htemp =  fMarginalized2D.at(GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1);
@@ -1858,7 +1866,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
       fSAx = x;
 
       // fill tree
-      if (fFlagWriteSAToFile)
+      if (fFlagWriteSAToFile && fTreeSA)
          fTreeSA->Fill();
 
       // increate t

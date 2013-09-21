@@ -262,7 +262,10 @@ class BCEngineMCMC
        * @param i index of the Markov chain
        * @return pointer to the tree */
       TTree * MCMCGetMarkovChainTree(unsigned i)
-         { return fMCMCTrees.at(i); }
+      { if (i < fMCMCTrees.size())
+          return fMCMCTrees.at(i);
+        else
+          return 0; }
 
       /**
        * Retrieve a histogram of the 1D marginalized distribution of a single parameter.

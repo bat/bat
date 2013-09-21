@@ -43,10 +43,10 @@ BCModelOutput::BCModelOutput(BCModel * model, const char * filename)
 // ---------------------------------------------------------
 BCModelOutput::~BCModelOutput()
 {
-   if (fOutputFile) {
-      fOutputFile->Close();
-      delete fOutputFile;
-   }
+  if (fOutputFile) {
+    Close();
+    delete fOutputFile;
+  }
 }
 
 // ---------------------------------------------------------
@@ -167,6 +167,9 @@ void BCModelOutput::WriteMarginalizedDistributions()
       return;
    }
 
+   if (!fOutputFile->IsOpen())
+     return;
+
    // remember current directory
    TDirectory * dir = gDirectory;
 
@@ -182,7 +185,7 @@ void BCModelOutput::WriteMarginalizedDistributions()
             hist->Write();
       }
    }
-   
+
    if (nparameters > 1)
       for (int i = 0; i < nparameters - 1; ++i) {
          for (int j = i + 1; j < nparameters; ++j) {
@@ -190,7 +193,7 @@ void BCModelOutput::WriteMarginalizedDistributions()
                                                     fModel->GetParameter(j));
             if (bchist) {
                TH2D* hist = bchist->GetHistogram();
-               if (hist) 
+               if (hist)
                   hist->Write();
             }
          }
@@ -223,6 +226,12 @@ void BCModelOutput::Write(TObject * o)
 // ---------------------------------------------------------
 void BCModelOutput::Close()
 {
+  if (!fOutputFile)
+    return;
+
+  if (!fOutputFile->IsOpen())
+    return;
+
    // remember current directory
    TDirectory * dir = gDirectory;
 
@@ -230,17 +239,25 @@ void BCModelOutput::Close()
    fOutputFile->cd();
 
    // write analysis tree to file
-   if (fAnalysisTree->GetEntries() > 0)
-      fAnalysisTree->Write();
+   if (fAnalysisTree)
+     if (fAnalysisTree->GetEntries() > 0)
+       fAnalysisTree->Write();
 
    // write markov chain tree to file
-   for (unsigned i = 0; i < fModel->MCMCGetNChains(); ++i)
-      if (fModel->MCMCGetMarkovChainTree(i)->GetEntries() > 0)
-         fModel->MCMCGetMarkovChainTree(i)->Write();
+   if (fModel) {
+     for (unsigned i = 0; i < fModel->MCMCGetNChains(); ++i) {
+       if (fModel->MCMCGetMarkovChainTree(i)){
+         if (fModel->MCMCGetMarkovChainTree(i)->GetEntries() > 0) {
+           fModel->MCMCGetMarkovChainTree(i)->Write();
+         }
+       }
+     }
+   }
 
    // write SA tree to file
-   if (fModel->GetSATree()->GetEntries() > 0)
-      fModel->GetSATree()->Write();
+   if (fModel)
+     if (fModel->GetSATree()->GetEntries() > 0)
+       fModel->GetSATree()->Write();
 
    // close file
    fOutputFile->Close();
