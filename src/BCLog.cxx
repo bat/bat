@@ -171,6 +171,7 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 
 int printBATUponLoading()
 {
+  /*
    std::cout <<
 		 " +------------------------------------------------------+\n"
 		 " |                                                      |\n"
@@ -182,6 +183,7 @@ int printBATUponLoading()
 		 " | For documentation see http://mpp.mpg.de/bat          |\n"
 		 " |                                                      |\n"
      " +------------------------------------------------------+\n";
+  */
    return 0;
 }
 

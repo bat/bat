@@ -2522,17 +2522,23 @@ function can be found in \verb|examples/expert/TrialFunction|.
 \label{section:settings:SA}
 
 The most important options for the implemented Simulated Annealing
-algorithm are listed here. For further reference see the reference
-guide:
+algorithm are listed here. For further reference and the information
+about the implementation see the reference guide and Ref.~\cite{Brachem2009}:
 %
 \begin{itemize}
-\item \verb|BCIntegrate::SetSASchedule(BCIntegrate::BCSASchedule)|. Set the
-  annealing schedule. This could be \verb|BCIntegrate::kSACauchy|,
-  \verb|BCIntegrate::kSABoltzmann|, \verb|BCIntegrate::kSACustom|.
+\item
+  \verb|BCIntegrate::SetSASchedule(BCIntegrate::BCSASchedule)|. Set
+  the annealing schedule and thus the shape of the proposal
+  function. Possible values are
+\begin{itemize}
+\item \verb|BCIntegrate::kSACauchy|,
+\item \verb|BCIntegrate::kSABoltzmann|,
+\item \verb|BCIntegrate::kSACustom|.
+\end{itemize}
 \item \verb|BCIntegrate::SetSAT0(double T0)|. Set the starting
-  temperature.
+  temperature. The temperature defines the step size.
 \item \verb|BCIntegrate::SetSATmin(double Tmin)|. Set the threshold
-  temperature.
+  temperature. The temperature defines the step size.
 \item \verb|BCIntegrate::SetFlagWriteSAToFile(bool flag)|. Set a flag to
  write the individual steps of the simulated annealing into a ROOT
  file. See section~\ref{section:outputclass} on how to handle output in
@@ -2587,17 +2593,17 @@ guide:
 
 \begin{thebibliography}{99}
 \bibitem{Caldwell:2008fw}
-  A.~Caldwell, D.~Kollar and K.~Kroeninger, ``BAT - The Bayesian
-  Analysis Toolkit,'' \textit{Comp.\ Phys.\ Comm.}\ {\bf 180} (2009) 2197-2209
-  [arXiv:0808.2552]
+  A.~Caldwell, D.~Kollar and K.~Kroeninger, {\it BAT - The Bayesian
+  Analysis Toolkit}, \textit{Comp.\ Phys.\ Comm.}\ {\bf 180} (2009) 2197-2209
+  [arXiv:0808.2552].
   \url{http://www.mpp.mpg.de/bat/}
 %
 \bibitem{ROOTweb}
   \url{http://root.cern.ch/}
 %
 \bibitem{CUBA}
-  T.~Hahn, ``CUBA: A library for multidimensional numerical
-  integration,'' \textit{Comp.\ Phys.\ Comm.}\ {\bf 168} (2005) 78
+  T.~Hahn, {\it CUBA: A library for multidimensional numerical
+  integration}, \textit{Comp.\ Phys.\ Comm.}\ {\bf 168} (2005) 78
   [arXiv:hep-ph/0404043].
 %
 \bibitem{CUBAweb}
@@ -2605,19 +2611,21 @@ guide:
 
 \bibitem{PDGstatistics}
 Particle Data Group, Mathematical Tools or Statistics, Monte Carlo, Group Theory, Physics Letters B, Volume 667, Issues 1-5, Review of Particle Physics, 11 September 2008, Pages 316-339, ISSN 0370-2693, DOI: 10.1016/j.physletb.2008.07.030.
-(http://www.sciencedirect.com/science/article/B6TVN-4T4VKPY-G/2/32a7641753a1a6d41124d1992263243a)
+(http://www.sciencedirect.com/science/article/B6TVN-4T4VKPY-G/2/32a7641753a1a6d41124d1992263243a).
 
 \bibitem{BAT_pValue}
 F.~Beaujean and A.~Caldwell and D.~Koll{\'a}r and K.~Kr{\"o}ninger,
-``$p$-values for model evaluation'', \textit{Phys.\ Rev.\ D} {\bf 83} (2011)
-[arxiv:1011.1674]
+{\it $p$-values for model evaluation}, \textit{Phys.\ Rev.\ D} {\bf 83} (2011)
+[arxiv:1011.1674].
 
 \bibitem{Johnson_pValue}
-V.E. Johnson,  A Bayesian chi2 Test for Goodness-of-Fit. The Annals of Statistics 32, 2361-2384(2004).
+V.E.~Johnson,  {\it A Bayesian chi2 Test for Goodness-of-Fit}, The Annals of Statistics 32 (2004) 2361.
 
 \bibitem{R_value}
-A. Gelman and D. B. Rubin, ``Inference from Iterative Simulation Using Multiple Sequences,`` \emph{Statistical Science}   {\bf 7} (1992) 4,  457-472.
+A.~Gelman and D. B. Rubin, {\it Inference from Iterative Simulation Using Multiple Sequences}, \emph{Statistical Science}  {\bf 7} (1992) 4,  457.
 
+\bibitem{Brachem2009}
+C~Brachem, {\it Implementation and test of a simulated annealing algorithm in the Bayesian Analysis Toolkit (BAT)}, Bachelor thesis, II.Physik-UniGö-Bach2009/03 (July 2009).
 
 \end{thebibliography}
 

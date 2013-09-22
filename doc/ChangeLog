@@ -1,4 +1,13 @@
-2013-09-120 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+2013-09-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* doc/introduction: improved the description for the simulated annealing algorithm somewhat.
+	* src/BCLog.cxx: removed start-up info (not for log file).
+
+2013-09-21 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCModelOutput.cxx: properly close output file including a checks if file is open.
+	* BCEngineMCMC.cxx: GetMarginalized() : check if vector of histograms is filled.
+	* BCEngineMCMC.h: MCMCGetMarkovChainTree : check if vector of chains is filled.
+
+2013-09-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCIntegrate.cxx: improved checking of start values for Sim. Ann. and Minuit. Fixes #74.
 	* BCModel.cxx: PrintSummary: added "fixed" in the optimization output if parameter is fixed.
 
