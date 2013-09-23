@@ -3,7 +3,7 @@
  |     Running with BAT
  |      Version 0.3.2
  |
- | http://www.mppmu.mpg.de/bat
+ | http://mpp.mpg.de/bat
  +------------------------------
 Summary : Opening logfile log.txt
 Summary : Model 'model': Normalizing probability

@@ -1,3 +1,5 @@
+2013-09-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* examples/*, README, private/*: www.mppmu -> mpp in documentation and comments
 2013-09-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/introduction: improved the description for the simulated annealing algorithm somewhat.
 	* src/BCLog.cxx: removed start-up info (not for log file).

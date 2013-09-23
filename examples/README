@@ -5,7 +5,7 @@ All examples require that BAT was successfully installed in the system.
 Instructions on how to run the examples are either inside the source
 code (for ROOT macros) or in the README file (for compiled examples)
 
-You can also find tutorials on BAT webpage: www.mppmu.mpg.de/bat
+You can also find tutorials on BAT webpage: mpp.mpg.de/bat
 
 Examples in this directory:
 ---------------------------
