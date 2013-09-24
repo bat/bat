@@ -1,3 +1,6 @@
+2013-09-24 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* src/BCLog.cxx: put start-up info in, but only using BCLog.
+
 2013-09-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples/*, README, private/*: www.mppmu -> mpp in documentation and comments
 2013-09-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>

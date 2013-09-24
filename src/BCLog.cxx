@@ -128,17 +128,21 @@ void BCLog::Out(const char * message)
 void BCLog::StartupInfo()
 {
    char * message = Form(
-		 " +------------------------------------------------------+\n"
-		 " |                                                      |\n"
-		 " | BAT version %7s                                  |\n"
-		 " | Copyright (C) 2007-2013, the BAT core developer team |\n"
-     " | All rights reserved.                                 |\n"
-     " |                                                      |\n"
-		 " | For the licensing terms see doc/COPYING              |\n"
-		 " | For documentation see http://mpp.mpg.de/bat          |\n"
-		 " |                                                      |\n"
-     " +------------------------------------------------------+\n",
-         BCLog::fVersion);
+                         " +------------------------------------------------------+\n"
+                         " |                                                      |\n"
+                         " | BAT version %7s                                  |\n"
+                         " | Copyright (C) 2007-2013, the BAT core developer team |\n"
+                         " | All rights reserved.                                 |\n"
+                         " |                                                      |\n"
+                         " | For the licensing terms see doc/COPYING              |\n"
+                         " | For documentation see http://mpp.mpg.de/bat          |\n"
+                         " |                                                      |\n"
+                         " +------------------------------------------------------+\n",
+                         BCLog::fVersion);
+   
+   // write message to screen
+   if (BCLog::fMinimumLogLevelScreen < BCLog::nothing)
+      std::cout << message << std::endl;
 
    if (BCLog::IsOpen() && BCLog::fMinimumLogLevelFile<BCLog::nothing)
       BCLog::fOutputStream << message;
@@ -172,17 +176,17 @@ const char * BCLog::ToString(BCLog::LogLevel loglevel)
 int printBATUponLoading()
 {
   /*
-   std::cout <<
-		 " +------------------------------------------------------+\n"
-		 " |                                                      |\n"
-		 " | BAT version " << std::setw(7) << VERSION << "                                  |\n"
-		 " | Copyright (C) 2007-2013, the BAT core developer team |\n"
-     " | All rights reserved.                                 |\n"
-     " |                                                      |\n"
-		 " | For the licensing terms see doc/COPYING              |\n"
-		 " | For documentation see http://mpp.mpg.de/bat          |\n"
-		 " |                                                      |\n"
-     " +------------------------------------------------------+\n";
+    std::cout <<
+    " +------------------------------------------------------+\n"
+    " |                                                      |\n"
+    " | BAT version " << std::setw(7) << VERSION << "                                  |\n"
+    " | Copyright (C) 2007-2013, the BAT core developer team |\n"
+    " | All rights reserved.                                 |\n"
+    " |                                                      |\n"
+    " | For the licensing terms see doc/COPYING              |\n"
+    " | For documentation see http://mpp.mpg.de/bat          |\n"
+    " |                                                      |\n"
+    " +------------------------------------------------------+\n";
   */
    return 0;
 }
