@@ -1,5 +1,6 @@
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading
+	* BCH1D: Fix legend marker style for mean
 
 2013-09-24 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* src/BCLog.cxx: put start-up info in, but only using BCLog.
