@@ -6,6 +6,8 @@
 	* src/BCLog.cxx: put start-up info in, but only using BCLog.
 	* BAT/BCModel.h, BAT/BCH1D.h: changed default drawing options to "smallest intervals"
 	* doc/introduction/introduction.tex: updated info on drawing options
+	* BAT/BCIntegrate.h: removed method SetSATree() since it is not really useful
+	* doc/introduction/introduction.tex: added description of sim. ann. output in Section 5.4.
 
 2013-09-19 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples/*, README, private/*: www.mppmu -> mpp in documentation and comments

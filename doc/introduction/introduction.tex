@@ -2400,6 +2400,17 @@ offline diagnostics of the chains. The variables stored are:
 \item Parameter{\it i}: the parameter value of the \textit{i}th parameter.
 \end{itemize}
 
+If the flag \verb|BCIntegrate::SetFlagWriteSAToFile()| is set to true,
+the output file will also contain a tree with the points evaluated for
+the simulated annealing method. The variables stored are:
+%
+\begin{itemize}
+\item Iteration: the iteration
+\item Temperature: the temperature (defines the step length)
+\item LogProbability:  the log of the posterior probability,
+\item Parameter{\it i}: the parameter value of the \textit{i}th parameter.
+\end{itemize}
+
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % settings

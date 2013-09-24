@@ -545,11 +545,6 @@ public:
    { fFlagWriteSAToFile = flag; }
 
    /**
-    * Sets the tree containing the Simulated Annealing  chain. */
-   void SetSATree(TTree * tree)
-   { fTreeSA = tree; }
-
-   /**
     * Getter for the tree containing the  Simulated Annealing  chain. */
    TTree * GetSATree()
    { return fTreeSA; }
