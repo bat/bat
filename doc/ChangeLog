@@ -1,3 +1,6 @@
+2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* doc/introduction: update section on multithreading
+
 2013-09-24 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* src/BCLog.cxx: put start-up info in, but only using BCLog.
 	* BAT/BCModel.h, BAT/BCH1D.h: changed default drawing options to "smallest intervals"

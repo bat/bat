@@ -1372,37 +1372,62 @@ An example for the propagation of uncertainties can be found in
 
 \subsection{Thread parallelization}\label{subsection:thread-par}
 
-At present, threads are used only to speed up the Markov chain sampling.
-Assuming BAT is configured with parallelization enabled, the number of threads
-can be selected at runtime with \verb|./program OMP_NUM_THREADS=N|.  Due to the
-overhead from thread creation, the sampling is faster only if the likelihood is
-sufficiently slow to compute. As a rule of thumb, if the unparallelized sampling
-takes minutes or even hours, the parallelized version should get close to the
-maximum speedup given by the number of cores. For very simple likelihoods, the
-overhead may actually slow down the entire process, hence by default, only one
-thread is used, \verb|N|=1.
+At present, threads are used only to speed up the Markov chain
+sampling.  Assuming BAT is configured with parallelization enabled,
+the number of threads can be selected at runtime without recompilation
+with \verb|./program OMP_NUM_THREADS=N|.  Due to the overhead from
+thread creation, the sampling is faster only if the likelihood is
+sufficiently slow to compute. As a rule of thumb, if the
+unparallelized sampling takes minutes or even hours, the parallelized
+version should get close to the maximum speedup given by the number of
+cores. For very simple likelihoods, the overhead may actually slow
+down the entire process.
+
+If BAT is compiled with support for threads and the number of threads
+is not set explicitly, it is implementation dependent whether only one
+thread is created or as many as there are available cores. To enforce serial execution, simply set \verb|OMP_NUM_THREADS=1|.
 
 For guidance, tests showed that it is beneficial to have as many threads as your
 computer provides. Working on a quad core machine with hyper-threading, we
-observed a speedup factor of 3.5 -- 3.9 with 8 and 16 chains on 8 threads; the
+observed a speedup factor of 3.5 -- 3.9 with 8 and 16 chains on 8 cores; the
 calculation took around 3 hours.
 
 \emph{Warning: The results of the sampling become nonsense if multiple threads
 are used but the likelihood itself is not thread safe.}
 
-A typical example of a non thread-safe likelihood is
+A simple example of a non-thread-safe likelihood is
 \begin{verbatim}
 double MyModel::LogLikelihood(const std::vector <double> & parameters)
 {
-  // call other function
-  double x = someFunction(parameters);
-  ...
+  // assign member variable
+  this->member = parameters[0];
+
+  // value of member used in MyModel::Method
+  return this->Method();
 }
 \end{verbatim}
 
-The function \texttt{someFunction} is usually called simultaneously from
-different threads with different values of \texttt{parameters}, hence its return
-value depends on the arbitrary call order of individual threads.
+If the method \texttt{MyModel::Method} is called simultaneously from
+different threads with different \texttt{parameters}, its return value
+depends on the arbitrary call order of individual threads.  A simple
+solution is to move \texttt{Method} into \texttt{OtherClass}, and to
+keep an independent copy of \texttt{OtherClass} for each thread.
+\begin{verbatim}
+#include <omp.h>
+
+class MyModel
+{
+public:
+  ...
+  double LogLikelihood(const std::vector <double> & parameters)
+  {
+    return other.at(omp_get_thread_num()).Method(parameters);
+  }
+private:
+  std::vector<OtherClass> other;
+};
+
+\end{verbatim}
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
