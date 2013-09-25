@@ -238,8 +238,11 @@ public:
          * @param name The process name
          * @param nmin The minimum number of expected events (lower limit on the BAT parameter values).
          * @param nmax The maximum number of expected events (upper limit on the BAT parameter values).
+         * @param color The histogram color
+         * @param fillstyle The histogram fill style
+         * @param linestyle The histogram line style
          * @return An error code. */
-        int AddProcess(const char * name, double nmin = 0., double nmax = 1.);
+        int AddProcess(const char * name, double nmin = 0., double nmax = 1., int color = -1, int fillstyle = -1, int linestyle = -1);
 
         /**
          * Add a source of systematic uncertainty and the associated BAT (nuisance) parameter.

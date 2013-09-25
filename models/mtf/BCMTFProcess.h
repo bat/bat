@@ -49,6 +49,21 @@ public:
         std::string GetName()
         { return fName; };
 
+        /**
+         * @return The histogram color. */
+        int GetHistogramColor()
+        { return fHistogramColor; };
+
+        /**
+         * @return The histogram fill style. */
+        int GetHistogramFillStyle()
+        { return fHistogramFillStyle; };
+
+        /**
+         * @return the Histogram line style. */
+        int GetHistogramLineStyle()
+        { return fHistogramLineStyle; };
+
         /** @} */
 
         /** \name Member functions (set) */
@@ -60,6 +75,24 @@ public:
         void SetName(const char * name)
         { fName = name; };
 
+        /**
+         * Set the histogram color.
+         * @param color The color. */
+        void SetHistogramColor(int color)
+        { fHistogramColor = color; };
+
+        /**
+         * Set the histogram fill style.
+         * @param color The fill style. */
+        void SetHistogramFillStyle(int style)
+        { fHistogramFillStyle = style; };
+
+        /**
+         * Set the histogram line style.
+         * @param color The line style. */
+        void SetHistogramLineStyle(int style)
+        { fHistogramLineStyle = style; };
+
         /** @} */
 
 private:
@@ -67,6 +100,18 @@ private:
         /**
          * The name of the process. */
         std::string fName;
+
+        /**
+         * The histogram color */
+        int fHistogramColor;
+
+        /**
+         * The fill style. */
+        int fHistogramFillStyle;
+
+        /**
+         * The line style. */
+        int fHistogramLineStyle;
 
 };
 // ---------------------------------------------------------

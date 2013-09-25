@@ -138,9 +138,20 @@ int BCMTF::SetTemplate(const char * channelname, const char * processname, TH1D 
    // remove statistics box
    hist.SetStats(kFALSE);
 
+   int color = GetProcess(processindex)->GetHistogramColor();
+   if (color < 0)
+     color = 2 + processindex;
+   int fillstyle = GetProcess(processindex)->GetHistogramFillStyle();
+   if (fillstyle < 0)
+     fillstyle = 1001;
+   int linestyle = GetProcess(processindex)->GetHistogramLineStyle();
+   if (linestyle < 0)
+     linestyle = 1;
+
    // set color and fill style
-   hist.SetFillColor(2 + processindex);
-   hist.SetFillStyle(1001);
+   hist.SetFillColor(color);
+   hist.SetFillStyle(fillstyle);
+   hist.SetLineStyle(linestyle);
 
    // create new histogram
    TH1D * temphist = new TH1D(hist);
@@ -323,7 +334,7 @@ int BCMTF::AddChannel(const char * name)
 }
 
 // ---------------------------------------------------------
-int BCMTF::AddProcess(const char * name, double nmin, double nmax)
+int BCMTF::AddProcess(const char * name, double nmin, double nmax, int color, int fillstyle, int linestyle)
 {
    // check if process exists
    for (int i = 0; i < fNProcesses; ++i) {
@@ -336,6 +347,9 @@ int BCMTF::AddProcess(const char * name, double nmin, double nmax)
 
    // create new process
    BCMTFProcess * process = new BCMTFProcess(name);
+   process->SetHistogramColor(color);
+   process->SetHistogramFillStyle(fillstyle);
+   process->SetHistogramLineStyle(linestyle);
 
    // add process
    fProcessContainer.push_back(process);
@@ -898,14 +912,24 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double> & parameters, 
       else
          continue;
 
+      // set histogram style
+      int color = GetProcess(i)->GetHistogramColor();
+      if (color < 0)
+        color = 2 + i;
+      int fillstyle = GetProcess(i)->GetHistogramFillStyle();
+      if (fillstyle < 0)
+        fillstyle = 1001;
+      int linestyle = GetProcess(i)->GetHistogramLineStyle();
+      if (linestyle < 0)
+        linestyle = 1;
+
+      // set color and fill style
+      hist->SetFillColor(color);
+      hist->SetFillStyle(fillstyle);
+      hist->SetLineStyle(linestyle);
+
       if (flag_bw) {
-         hist->SetFillColor(0);
-         hist->SetLineWidth(1);
-         hist->SetLineStyle(int(1+i));
-      }
-      else {
-         hist->SetFillColor(2 + i);
-         hist->SetFillStyle(1001);
+        hist->SetFillColor(0);
       }
 
       // scale histogram
