@@ -1,5 +1,9 @@
 2013-09-25 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* INSTALL: more details on threads
+	* BCRooInterface: fix
+	  - enforce MCMC as marginalization, grid doesn't work
+	  - remove comments
+	  - unify ctor
 
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading

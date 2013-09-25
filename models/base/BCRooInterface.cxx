@@ -140,20 +140,25 @@ void BCRooInterface::Initialize( const char* rootFile,
    DefineParameters();
 }
 
-
 // ---------------------------------------------------------
-BCRooInterface::BCRooInterface() : BCModel()
-{  // default constructor
-   _default_nbins = 500;
-   _fillChain = false;
-   _addeddummyprior = false;
-}
-
-// ---------------------------------------------------------
-BCRooInterface::BCRooInterface(const char* name, bool fillChain) : BCModel(name)
-{  // another constructor
-   _default_nbins = 500;
-   _fillChain = fillChain;
+BCRooInterface::BCRooInterface(const char* name, bool fillChain) :
+      BCModel(name),
+      fData(NULL),
+      fModel(NULL),
+      fNll(NULL),
+      fObservables(NULL),
+      fParams(NULL),
+      fParamsPOI(NULL),
+      fPrior(NULL),
+      _default_nbins(150),
+      priorhelpvar(NULL),
+      _addeddummyprior(false),
+      _fillChain(fillChain),
+      fFirstComparison(false),
+      _roostatsMarkovChain(NULL)
+{
+   // todo this interface not ready for grid marginalization yet
+   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 }
 
 // ---------------------------------------------------------
@@ -162,9 +167,6 @@ BCRooInterface::~BCRooInterface()
    if(_fillChain) {
       delete _roostatsMarkovChain;
    }
-   //test begin
-   //std::cout << "fIterationInterfacecount: " << fIterationInterfacecount << std::endl;
-   //test end
 }
 
 // ---------------------------------------------------------

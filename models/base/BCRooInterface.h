@@ -5,9 +5,9 @@
 
 #include <RooStats/MarkovChain.h>
 #include <RooRealVar.h>
+
 #include <list>
 #include <utility>
-
 
 class RooAbsReal;
 class RooAbsData;
@@ -25,10 +25,7 @@ class BCRooInterface : public BCModel
 
    public:
 
-      // Constructors and destructor
-      BCRooInterface( );
-
-      BCRooInterface( const char* name, bool fillChain = false );
+      BCRooInterface( const char* name = "", bool fillChain = false );
 
       ~BCRooInterface();
 
@@ -91,18 +88,11 @@ class BCRooInterface : public BCModel
       RooArgSet _parametersForMarkovChainPrevious; // parameters of interest in previous step (bookkeeping required for construction of the RooStats MarkovChain object)
       RooArgSet _parametersForMarkovChainCurrent; // parameters of interest in previous step (bookkeeping required for construction of the RooStats MarkovChain object)
 
-			std::vector< std::vector<double> > fPreviousStep; // bookkeeping required for construction of the RooStats MarkovChain object
-			std::vector< std::vector<double> > fCurrentStep; // bookkeeping required for construction of the RooStats MarkovChain object
-			std::vector< double > fVecWeights; // keep track of weights if proposal step not accepted (bookkeeping required for construction of the RooStats MarkovChain object)
+      std::vector< std::vector<double> > fPreviousStep; // bookkeeping required for construction of the RooStats MarkovChain object
+      std::vector< std::vector<double> > fCurrentStep; // bookkeeping required for construction of the RooStats MarkovChain object
+      std::vector< double > fVecWeights; // keep track of weights if proposal step not accepted (bookkeeping required for construction of the RooStats MarkovChain object)
 
-      //test stuff begin
-      //RooRealVar* var1;
-      //RooArgSet _parametersForMarkovChain_test;
-      //RooArgList* fParamsTest;
-      //long fIterationInterfacecount;
-      //test stuff end
-
-			std::list< std::pair<const char*,int> > _nbins_list;
+      std::list< std::pair<const char*,int> > _nbins_list;
 };
 
 #endif
