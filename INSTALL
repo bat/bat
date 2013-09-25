@@ -79,12 +79,15 @@ You can configure BAT with the RooFit/RooStats support using
 ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
 support.
 
-Support for openMP threading is available through the configure option
---enable-parallelization. This requires a version of gcc accepting the
--fopenmp flag, anything >= 4.2 should suffice.
-Note that by default only one thread is used.  Control over the number
-of threads is achieved entirely by openMP means such as setting the
-enviroment variable OMP_NUM_THREADS before running an executable.
+Support for openMP threading to run multiple Markov chains in parallel
+is available through the configure option --enable-parallelization; it
+is disabled by default. This requires a version of gcc accepting the
+-fopenmp flag, anything >= 4.2 should suffice.  Note that if threads
+are enabled, the default number of threads actually used is
+implementation dependent and may also depend on the current load of
+the CPU. Manual control over the number of threads is achieved
+entirely by openMP means such as setting the enviroment variable
+OMP_NUM_THREADS before running an executable.
 
 You can compile BAT with Cuba support using option --with-cuba[=DIR].
 The configure script will then search for libcuba.a and cuba.h in the

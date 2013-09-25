@@ -1,3 +1,6 @@
+2013-09-25 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* INSTALL: more details on threads
+
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading
 	* BCH1D: Fix legend marker style for mean
@@ -9,8 +12,9 @@
 	* BAT/BCIntegrate.h: removed method SetSATree() since it is not really useful
 	* doc/introduction/introduction.tex: added description of sim. ann. output in Section 5.4.
 
-2013-09-19 Frederik Beaujean <beaujean@mpp.mpg.de>
+2013-09-23 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* examples/*, README, private/*: www.mppmu -> mpp in documentation and comments
+
 2013-09-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/introduction: improved the description for the simulated annealing algorithm somewhat.
 	* src/BCLog.cxx: removed start-up info (not for log file).
