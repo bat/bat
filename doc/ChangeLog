@@ -21,6 +21,8 @@
 	  - add outputs to gitignore
 	* models/mtf/BCMTFProcess: fix initialization warning
 	* models/base/BATCalculator: fix warning and trailing whitespace
+	* configure.ac: bump to 0.9.3.rc2
+	* doc/releasenotes: add more (interface) changes
 
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading
