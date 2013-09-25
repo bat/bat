@@ -20,6 +20,7 @@
 	  - add html to tar ball
 	  - add outputs to gitignore
 	* models/mtf/BCMTFProcess: fix initialization warning
+	* models/base/BATCalculator: fix warning and trailing whitespace
 
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading
