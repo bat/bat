@@ -92,7 +92,7 @@ OMP_NUM_THREADS before running an executable.
 You can compile BAT with Cuba support using option --with-cuba[=DIR].
 The configure script will then search for libcuba.a and cuba.h in the
 system paths, or, if DIR is given, in DIR (correct if cuba just
-compiled in its source directorye), and in DIR/lib/ and DIR/include/
+compiled in its source directory), and in DIR/lib/ and DIR/include/
 subdirectories. For more fine-grained control, use
 --with-cuba-include-dir=/path/to/cuba/header and
 --with-cuba-lib-dir=/path/to/cuba/lib.

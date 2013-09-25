@@ -8,6 +8,9 @@
 	  - README: to warn about missing thread safety
 	  - GaussOverFlat_withSystematics: smaller par ranges in
 	  - runRooInterface: fix header include order and reduce nsamples
+	* doc/introduction:
+	  - sync with INSTALL
+	  - add section on roostats interface
 
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading

@@ -211,16 +211,41 @@ You can compile \BAT\ with the RooFit/RooStats support using
 \Root\ is sufficient and whether it was compiled with RooFit/RooStats
 support.
 
-You can compile \BAT\ with Cuba support using option \verb|--with-cuba|.
-The configure will then search for \verb|libcuba.a| and \verb|cuba.h| in
-the system. They either have to be available in the standard system path
-or you can specify the location using
-\verb|--with-cuba-include-dir=/path/to/cuba/header|
-and \verb|--with-cuba-include-dir=/path/to/cuba/lib|.
+Support for OpenMP threading to run multiple Markov chains in
+parallel is available through the configure option
+\verb|--enable-parallelization|; it is disabled by default to avoid
+problems with user code that is not thread safe. A version of gcc
+accepting the \verb|-fopenmp| flag is required, anything $\geq$ 4.2
+should suffice.  Note that if OpenMP is used, the default
+number of threads is implementation dependent and may also depend on
+the current load of the CPU. Manual control over the number of threads
+is achieved entirely by OpenMP means such as setting the
+enviroment variable \verb|OMP_NUM_THREADS| before running an
+executable. See further hints in
+subsection~\ref{subsection:thread-par}.
 
-Thread parallelization can be turned on with \verb|--enable-parallelization|. A
-recent version of \verb|gcc| with built-in \verb|OpenMP| support is
-required. See further hints in subsection~\ref{subsection:thread-par}.
+You can compile \BAT\ with Cuba support using option
+\verb|--with-cuba[=DIR]|.  The configure script will then search for
+\verb|libcuba.a| and \verb|cuba.h| in the system paths, or, if
+\verb|DIR| is given, in \verb|DIR| (correct if Cuba just compiled in
+its source directory), and in \verb|DIR/lib| and \verb|DIR/include|
+subdirectories. For more fine-grained control, use
+\verb|--with-cuba-include-dir=/path/to/cuba/header| and
+\verb|--with-cuba-lib-dir=/path/to/cuba/lib|.
+
+Note that the cuba library still needs to be available to the loader
+at runtime. This is accomplished, for example, by adding
+\verb|/path/to/cuba/lib| to \verb|LD_LIBRARY_PATH|. Please compile the Cuba library
+with position-independent code; e.g.,
+\begin{verbatim}
+./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
+\end{verbatim}
+to avoid linker errors like
+\begin{verbatim}
+/usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32
+against `.rodata.str1.8' can not be used when making a shared object;
+recompile with -fPIC
+\end{verbatim}
 
 You can list all available options using
 %
@@ -744,6 +769,42 @@ int main()
 
 }
 \end{verbatim}
+
+\subsubsection{Roostats interface}
+
+An alternative method to create a model is to create a Roostats
+workspace and to use the interface class \verb|BCRooInterface|
+inheriting from \verb|BCModel|. The model requires the measured
+\verb|RooAbsData data| and the model to describe these data
+\verb|RooAbsPdf model| to specify the likelihood. In addition, it
+needs the \verb|RooAbsPdf prior|, and the specification of the
+parameters as a \verb|RooArgSet| and more specifically the subset of
+parameters constituting the parameters of interest (POI) as a
+\verb|RooArgSet|. The model can be initialized directly using
+\begin{verbatim}
+void BCRooInterface::Initialize(RooAbsData& data, RooAbsPdf& model,
+                                RooAbsPdf& prior, const RooArgSet* params,
+                                const RooArgSet& listPOI );
+\end{verbatim}
+
+Assuming the workspace is stored in a ROOT file \texttt{rootFile}, set
+up the model with
+\begin{verbatim}
+BCRooInterface m;
+m.Initialize(rootFile, wsName, "data", "model", "priorPOI",
+             "priorNuisance", "parameters", "POI");
+\end{verbatim}
+where the string arguments point to the corresponding elements in the
+workspace \texttt{wsName}. Note that priors are defined separately for
+parameters of interest and the nuisance parameters. An example on the
+usage of \verb|BCRooInterface|, including a README, is shipped with
+BAT in the subdirectory \texttt{examples/advanced/roointerface}.
+
+\emph{Warning: The posterior computed with \texttt{BCRooInterface} is
+  not thread safe at present! If BAT is compiled with OpenMP support,
+  set the number of threads to one when using
+  \texttt{BCRooInterface}.}
+
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
