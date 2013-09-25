@@ -26,8 +26,8 @@ void PrepareWorkspace_GaussOverFlat_withSystematics( TString fileName = "WS_Gaus
   RooAbsPdf* bkgPdf = new RooPolynomial("bkgPdf","background PDF",*mass,RooFit::RooConst(0));
   
   // S+B model: the sum of both shapes weighted with the yields
-  RooRealVar* S = new RooRealVar("S","signal yield",1000,0,100000);
-  RooRealVar* B = new RooRealVar("B","background yield",1000,0,100000);
+  RooRealVar* S = new RooRealVar("S","signal yield",10,0,50);
+  RooRealVar* B = new RooRealVar("B","background yield",10,0,50);
   RooAbsPdf* model = new RooAddPdf("model","S+B PDF",RooArgList(*sigPdf,*bkgPdf),RooArgList(*S,*B));
   
   // B-only model: the same as with a signal yield fixed to 0

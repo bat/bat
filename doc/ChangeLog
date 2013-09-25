@@ -4,6 +4,10 @@
 	  - enforce MCMC as marginalization, grid doesn't work
 	  - remove comments
 	  - unify ctor
+	* examples/advanced/roointerface: fix
+	  - README: to warn about missing thread safety
+	  - GaussOverFlat_withSystematics: smaller par ranges in
+	  - runRooInterface: fix header include order and reduce nsamples
 
 2013-09-24 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: update section on multithreading

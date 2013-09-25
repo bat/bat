@@ -6,9 +6,14 @@
 !!!!!!!!!!!!!!!!!
 !!! IMPORTANT !!!
 !!!!!!!!!!!!!!!!!
-!!! To be able to run the examples described here BAT has to be compiled
-!!! with the Roofit/RooStats support. See BAT installation instructions
-!!! for details.
+!!! To be able to run the examples described here, BAT has to be compiled
+!!! with the Roofit/RooStats support.
+!!!
+!!! The examples are not thread safe. If BAT is compiled with support for
+!!! threading, one has to set the number of threads to 1; e.g.,
+!!! OMP_NUM_THREADS=1 ./runRooInterface ...
+!!!
+!!! See BAT installation instructions for details.
 !!!!!!!!!!!!!!!!!
 
 
@@ -22,7 +27,7 @@ described using RooFit package that is available from ROOT.
 BATCalculator
 -------------
 
-BATCalulator builds upon the BCRooInterface class and provides an interface 
+BATCalulator builds upon the BCRooInterface class and provides an interface
 that can be used just like any other Interval Calulator in RooStats.
 
 INSTALLATION
@@ -66,7 +71,7 @@ The four examples are provided:
  - The same but taking the background yield and the sigma of the
    signal PDF as nuisance parameters with Gaussian priors.
 
-    root -q -x -l PrepareWorkspace_Poisson_withSystematics.C
+    root -q -x -l PrepareWorkspace_GaussOverFlat_withSystematics.C
 
 Then one can use the compiled interface macro. Calling runRooInterface without
 arguments will display some help information and proceed running with default
@@ -122,6 +127,6 @@ making use of the BAT libraries .
 
 ----------------------------------------------------------------------------
 BCRooInterface and BATCalculator are provided by:
-- Gregory Schott <gregory.schott@cern.ch> 
+- Gregory Schott <gregory.schott@cern.ch>
 - Stefan A. Schmitz <staschmitz@physik.rwth-aachen.de>
 

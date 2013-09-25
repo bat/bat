@@ -1,13 +1,12 @@
 #include <BAT/BCRooInterface.h>
 
-// RooFit headers needed before the other BAT headers (this is strange)
-#include <RooRandom.h>
-#include <RooWorkspace.h>
-
-#include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
+#include <BAT/BCLog.h>
+
+#include <RooRandom.h>
+#include <RooWorkspace.h>
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -22,7 +21,7 @@ int main(int argc, char **argv)
   const char* rootFile = "bat_workspace.root";
   const char* wsName = "myWS";
   const char* outputFile = "bat_plots.pdf";
-  int nMCMC = 1000000;
+  int nMCMC = 100000;
 
   // display a quick help if no arguments are specified
   if (argc<2) {
