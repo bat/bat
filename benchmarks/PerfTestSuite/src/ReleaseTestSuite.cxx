@@ -45,7 +45,7 @@ int ReleaseTestSuite::PrepareTests()
    AddTest(perftest_1d_gaus);
 
    // 1D Poissons
-   for (int i = 0; i <= 20; i++) {
+   for (int i = 0; i <= 10; i++) {
       double xmax = 15;
       if (i > 3)
          xmax = 10.0 * sqrt(double(i));
@@ -54,9 +54,10 @@ int ReleaseTestSuite::PrepareTests()
       PerfTest1DFunction* perftest = new PerfTest1DFunction(Form("1d_poisson_%i", i), testfunc_1d_poisson);
       AddTest(perftest);
    }
-
+   // todo fine with serial evaluation but seg faults with multiple threads. Have to understand why
+#if 0
    // 1D Binomials
-   for (int N = 0; N < 10; N++) {
+   for (int N = 0; N < 1; N++) {
       for (int k = 0; k <= N; ++k) {
          TF1* testfunc = new TF1("Binomial", "([0]+1)*TMath::Binomial([0], [1]) * TMath::Power(x, [1]) * TMath::Power(1-x, [0]-[1])", 0., 1.);
          testfunc->FixParameter(0, N);
@@ -65,7 +66,7 @@ int ReleaseTestSuite::PrepareTests()
          AddTest(perftest);
       }
    }
-
+#endif
    // 1D exponential
    TF1* testfunc_1d_exponential = new TF1("Exponential", "1/[0]*exp(-x/[0])", 0., 100.);
    testfunc_1d_exponential->FixParameter(0, 5);

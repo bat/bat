@@ -18,11 +18,11 @@ int main()
    rts->PrepareTests();
 
    // setup html output as needed for BAT webpage
-   //rts->WebpageSetup();
+//   rts->WebpageSetup();
 
    // set precision
    //   rts->SetPrecision(PerfTest::kDetail);
-   rts->SetPrecision(PerfTest::kCoarse);
+   rts->SetPrecision(PerfTest::kDetail);
 
    // run all tests
    rts->RunTests();

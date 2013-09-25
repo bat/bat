@@ -21,7 +21,7 @@ CINT         = rootcint
 # Assign or Add variables
 CXXFLAGS    += $(ROOTCFLAGS)
 CXXFLAGS    += -I./ -I./include -I/src -I$(BATINSTALLDIR)/include
-LIBS        += -L$(BATINSTALLDIR)/lib -lBAT $(ROOTLIBS) -L. 
+LIBS        += -L$(BATINSTALLDIR)/lib -lBAT $(ROOTLIBS) -L.
 
 CXSRCS      = TestSuite.cxx \
               ReleaseTestSuite.cxx \
@@ -79,7 +79,7 @@ clean :
 
 resclean :
 	$(RM) $(RESULTS)
-	
+
 directory :
 	mkdir -p obj
 
@@ -96,6 +96,7 @@ print :
 
 web :
 	tar -cf web.tar \
+	*.html \
 	*.php \
 	*.png \
 	*.pdf \

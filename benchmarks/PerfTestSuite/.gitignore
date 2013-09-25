@@ -1,0 +1,7 @@
+# ignore outputs
+*.html
+*.php
+*.png
+*.tst
+
+runTestSuite.exe

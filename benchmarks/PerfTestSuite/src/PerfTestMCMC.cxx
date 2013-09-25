@@ -138,7 +138,7 @@ int PerfTestMCMC::RunTest()
   int err = 1;
 
   // perform mcmc
-  err *= MarginalizeAll();
+  err *= MarginalizeAll(BCIntegrate::kMargMetropolis);
 
   // return error code
   return err;
