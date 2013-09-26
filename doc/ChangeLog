@@ -1,4 +1,7 @@
 2013-09-26 Daniel kollar <kollar.dan@gmail.com>
+	* INSTALL: updated
+
+2013-09-26 Daniel kollar <kollar.dan@gmail.com>
 	* src/Makefile.am, models/*/Makefile.am: updated versions of libraries
 
 2013-09-26 Frederik Beaujean <beaujean@mpp.mpg.de>

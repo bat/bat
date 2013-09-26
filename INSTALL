@@ -139,9 +139,9 @@ also need to setup DYLD_LIBRARY_PATH.
 An option for use in compiled programs would also be to add
 -I/bat/install/include/path to CXXFLAGS and -L/bat/install/lib/path to
 LDFLAGS in your Makefile. However, the interactive ROOT macros will not
-work if libBAT.so, libBATmodels.so, libBATmtf.so, libBAT.rootmap,
-libBATmodels.rootmap and libBATmtf.rootmap are not in the system library
-search path.
+work if libBAT.so, libBATmodels.so, libBATmtf.so, libBATmvc.so,
+libBAT.rootmap, libBATmodels.rootmap, libBATmtf.rootmap and libBATmvc.rootmap
+are not in the system library search path.
 
 
 ----------------------------------------------------------------------------
