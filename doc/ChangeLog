@@ -2,6 +2,8 @@
 	* models/mtf/BCMTFAnalysisFacility: renamed flagmcmc to flagmargnialize
 	* examples/advanced/mtf/mcstat: changed flag accordingly
 	* examples/advanced/mtf/README: added description of mcstat example.
+	* src/BCSummaryTool: use BCHnD drawing method for PrintCorrelationPlot. This fixed #79.
+	* BAT/BCH1D: removed mentioning of pdf0 drawing option
 
 2013-09-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mtf/BCMTFProcess: added histogram settings for each process

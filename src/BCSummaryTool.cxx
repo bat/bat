@@ -467,18 +467,19 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
          pad[ipad]->Draw();
          pad[ipad]->cd();
 
-
-         TH1 * hh = 0;
          // get the histogram
+         TH1 * hh = 0;
+         BCH1D * bh1 = 0;
+         BCH2D * bh2 = 0;
          if(i==j) {
-            BCH1D * bh1 = fModel->GetMarginalized(fModel->GetParameter(i));
-            if (bh1)
-               hh = (TH1D*)bh1->GetHistogram()->Clone();
+           bh1 = fModel->GetMarginalized(fModel->GetParameter(i));
+           if (bh1)
+             hh = (TH1D*)bh1->GetHistogram()->Clone();
          }
          else {
-            BCH2D * bh2 = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
-            if (bh2)
-               hh = (TH2D*)bh2->GetHistogram()->Clone();
+           bh2 = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
+           if (bh2)
+             hh = (TH2D*)bh2->GetHistogram()->Clone();
          }
 
          // if the histogram is not available, draw N/A
@@ -500,13 +501,10 @@ int BCSummaryTool::PrintCorrelationPlot(const char * filename)
          // otherwise draw the histogram
          else {
             if(i==j) {
-               hh->SetFillStyle(1001);
-               hh->SetFillColor(kYellow);
-               hh->Draw("hist");
+              bh1->Draw("BTsiB3CS1D0");
             }
             else {
-               hh->SetContour(20);
-               hh->Draw("col");
+              bh2->Draw("BTfB3CS1nL");
             }
 
             hh->GetXaxis()->SetLabelOffset(5500);
