@@ -1,5 +1,5 @@
 lib_LTLIBRARIES= libBATmvc.la
-libBATmvc_la_LDFLAGS= -version-info 1:0:0
+libBATmvc_la_LDFLAGS= -version-info 0:0:0
 
 AM_CXXFLAGS= -Wall -fPIC  -I../.. -I. -I../../BAT $(ROOTCFLAGS)
 

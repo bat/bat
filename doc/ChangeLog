@@ -1,3 +1,6 @@
+2013-09-26 Daniel kollar <kollar.dan@gmail.com>
+	* src/Makefile.am, models/*/Makefile.am: updated versions of libraries
+
 2013-09-26 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: clean up
 	  - remove Johnson p value
