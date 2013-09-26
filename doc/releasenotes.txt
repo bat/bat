@@ -16,23 +16,23 @@ New features:
   and Metropolis in higher dimensions
 * Added method to get a slice in 1D and 2D of the posterior
   probability at a fixed point
+* Added a model for multivariate Gaussian combinations (models/mvc)
+  including examples
 
-Improvements and new models:
+Improvements:
 ----------------------------
 * More plotting options and color schemes, default scheme updated
 * Default plotting now into pdf files
 * Full access to all Cuba methods
-* Added a model for multivariate Gaussian combinations (models/mvc)
-  including examples
-* Added a fitter model from which all fitters inherit
+* All fitters now inherit from a base fitter model
 * More p values use correction for degrees of freedom
-* MTF models include now estimation of MC stat. uncertainty
+* MTF models now include an estimation of MC stat. uncertainty
 * Massive refactoring to simplify core of BAT
 
 Fixes:
 ------
 * Proper rounding of integers in calculation of Poisson likelihood
-* Removed hit-or-miss integration algorithm
+* Removed buggy hit-or-miss integration algorithm
 * Linking errors on ubuntu >= 12.04
 * Constant priors respect fixed parameters
 
