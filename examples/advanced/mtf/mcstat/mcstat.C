@@ -76,10 +76,6 @@ void mcstat()
    // create new fitter object
    BCMTF * m = new BCMTF("SingleChannelMTF");
 
-   // set the required precision of the MCMC (kLow, kMedium, kHigh)
-   // the higher the precision the longer the MCMC run
-   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
-
    // add channels
    m->AddChannel("channel1");
 
@@ -107,17 +103,17 @@ void mcstat()
    BCMTFAnalysisFacility * facility = new BCMTFAnalysisFacility(m);
 
    // settings
-   facility->SetFlagMCMC(false);
+   facility->SetFlagMarginalize(true);
 
    // open new file
    file = TFile::Open("ensembles.root", "RECREATE");
    file->cd();
 
    // create ensembles; option "data" means that all ensembles equal the data set
-   TTree * tree = facility->BuildEnsembles( std::vector<double>(0), 10000, "data");
+   TTree * tree = facility->BuildEnsembles( std::vector<double>(0), 1000, "data");
 
    // run ensemble test; option "MCP" means that the templates are flucutated via a Poisson model
-   TTree * tree_out = facility->PerformEnsembleTest(tree, 10000, 0, "MCP");
+   TTree * tree_out = facility->PerformEnsembleTest(tree, 1000, 0, "MCP");
 
    // write trees into file
    tree->Write();

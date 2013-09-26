@@ -18,3 +18,9 @@ systematics:
 ------------
 A similar example, but now including two sources of systematic
 uncertainty which alter the templates.
+
+mcstat:
+-------
+The example shows how to estimate the impact of finite MC statistics
+of the templates in a simple fit of a Gaussian peak on top of a flat
+background.

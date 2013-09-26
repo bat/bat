@@ -1,3 +1,12 @@
+2013-09-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/mtf/BCMTFAnalysisFacility: renamed flagmcmc to flagmargnialize
+	* examples/advanced/mtf/mcstat: changed flag accordingly
+	* examples/advanced/mtf/README: added description of mcstat example.
+
+2013-09-25 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* models/mtf/BCMTFProcess: added histogram settings for each process
+	* models/mtf/BCMTF: make use of histogram settings for each process
+
 2013-09-25 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* INSTALL: more details on threads
 	* BCRooInterface: fix

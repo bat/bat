@@ -34,7 +34,7 @@
 // ---------------------------------------------------------
 BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf)
    : fRandom(new TRandom3(0))
-   , fFlagMCMC(false)
+   , fFlagMarginalize(false)
    , fLogLevel(BCLog::nothing)
 {
    fMTF = mtf;
@@ -311,7 +311,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(const std::vector<double> & p
 TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles, int start, std::string options)
 {
    BCLog::OutSummary("Running ensemble test.");
-   if (fFlagMCMC) {
+   if (fFlagMarginalize) {
       BCLog::OutSummary("Fit for each ensemble is going to be run using MCMC. It can take a while.");
    }
 
@@ -430,7 +430,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       tree_out->Branch(Form("parameter_%i", i), &out_parameters[i], Form("parameter %i/D", i));
       tree_out->Branch(Form("mode_global_%i", i), &out_mode_global[i], Form("global mode of par. %i/D", i));
       tree_out->Branch(Form("std_global_%i", i), &out_std_global[i], Form("global std of par. %i/D", i));
-      if (fFlagMCMC) {
+      if (fFlagMarginalize) {
          tree_out->Branch(Form("mode_marginalized_%i", i), &out_mode_marginalized[i], Form("marginalized mode of par. %i/D", i));
          tree_out->Branch(Form("mean_marginalized_%i", i), &out_mean_marginalized[i], Form("marginalized mean of par. %i/D", i));
          tree_out->Branch(Form("median_marginalized_%i", i), &out_median_marginalized[i], Form("median of par. %i/D", i));
@@ -522,8 +522,8 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       // work-around: force initialization
       fMTF->ResetResults();
 
-      // check if MCMC should be run and perform analysis
-      if (fFlagMCMC) {
+      // check if marginalization should be run and perform analysis
+      if (fFlagMarginalize) {
          BCLog::SetLogLevel(lls,llf);
          BCLog::OutDetail(Form("Running MCMC for ensemble %i",iensemble));
          BCLog::SetLogLevel(fLogLevel);
@@ -549,7 +549,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       out_nevents_total = 0;
 
       for (int i = 0; i < nparameters; ++i) {
-         if (fFlagMCMC) {
+         if (fFlagMarginalize) {
             BCH1D * hist = fMTF->GetMarginalized( fMTF->GetParameter(i) );
             out_mode_marginalized[i] = hist->GetMode();
             out_mean_marginalized[i] = hist->GetMean();

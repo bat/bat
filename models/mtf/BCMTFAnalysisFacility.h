@@ -71,8 +71,8 @@ public:
         /**
          * Set a flag for using MCMC (true) or not (false).
          * @param flag The flag. */
-        void SetFlagMCMC(bool flag)
-        { fFlagMCMC = flag; };
+        void SetFlagMarginalize(bool flag)
+        { fFlagMarginalize = flag; };
 
         /** @} */
         /** \name Member functions (miscellaneous methods) */
@@ -187,8 +187,8 @@ private:
         TRandom3 * fRandom;
 
         /**
-         * A flag defining the use of MCMC for the analyses. */
-        bool fFlagMCMC;
+         * A flag defining the use of marginalization for the analyses. */
+        bool fFlagMarginalize;
 
         /**
          * The log level for the ensemble tests. */
