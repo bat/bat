@@ -1,3 +1,9 @@
+2013-09-26 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* doc/introduction: clean up
+	  - remove Johnson p value
+	  - describe BCH*D default draw options
+	  - how set nbins
+
 2013-09-26 Daniel kollar <kollar.dan@gmail.com>
 	* doc/releasenotes.txt: updated
 	* readme.devel: fixed description

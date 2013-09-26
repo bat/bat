@@ -51,7 +51,7 @@
 \begin{center}
 
 
-{\Large A short introduction to \bat}
+{\Large An introduction to \bat}
 \\
 
 \vspace{1cm}
@@ -500,6 +500,19 @@ can also be fixed (unfixed) to particular values using
 void BCParameter::Fix(double value).
 void BCParameter::Unfix().
 \end{verbatim}
+%
+If \texttt{BCParameter::Fixed()} is true, marginalization algorithms
+will not store this parameter's 1D marginal distribution as well as
+any 2D combination with other potentially variable parameters. The same
+effect can be achieved with \texttt{BCParameter::FillHistograms(false)}.
+
+For those parameters for which the marginal distribution is stored,
+the number of bins of the histogram is set via
+\begin{verbatim}
+BCParameter::SetNbins(unsigned nbins)
+\end{verbatim}
+
+% Other useful setting
 
 % --------------------------------------------------------
 
@@ -1244,40 +1257,6 @@ For a number of models the distribution of test certain statistics is
 approximately known. Hence the CPU intensive generation of data sets
 can be avoided, and the $p$-value is computed much faster.
 
-If the total probability of the data $p\left(D|\vec{\lambda}^{*}\right)$
- factorizes into $N$ independent observations
-$$p\left(D|\vec{\lambda}^{*}\right) = \prod_{i=1}^N
-p_i\left(y_i|\vec{\lambda}^{*}\right)$$ and the cumulative
-distribution functions (CDF) $F_i(y)= \int_{-\infty}^{y}
-p_i(y'|\vec{\lambda}^{*}) \mathrm{d }y'$ are known, the $\chi^2$ test
-statistic described by Johnson \cite{Johnson_pValue} can be computed.
-Asymptotically (i.e. for many observations) it has $N-1$ degrees of
-freedom for any parameter $\lambda$ drawn from the posterior. Note
-that this implies that for bad models and small $N$, one occasionally
-obtains a moderate $p$-value although $p\approx 0 $ is expected. This
-is especially so for discrete probability models. For those to work
-correctly, the \texttt{BCModel} property \verb|flag_discrete| has to
-be set to to \texttt{true} (default is \texttt{false}).  To enable the
-calculation, the virtual method
-%
-\begin{verbatim}
-double BCModel::CDF(const std::vector<double> & par, int index, bool lower=false)
-\end{verbatim}
-%
-must be overridden in the user model.  \verb|int index| defines the
-single data point in the data set. The flag \verb|bool lower| is only
-needed for models with discrete probabilities (e.g. Poisson) as
-opposed to continuous probability densities (e.g. Gaussian). It
-controls whether the CDF is computed not for the actual observation,
-but for the hypothetical one with a value just one quantum lower. An
-example to clarify this: if in a Poisson process, for bin $2$ a count
-of $4$ has been observed, $n_2=4$, then the next lower value is
-$n_2=3$.  With the CDF defined, the $p$-value is returned from
-%
-\begin{verbatim}
-double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par)
-\end{verbatim}
-
 \paragraph{Gauss} For \textit{Gaussian} problems (handled by the model
 \verb|BCGraphFitter|, sec. \ref{BCGraphFitter}) the standard $\chi^2$
 statistic can be used, including the correction for the number of
@@ -1356,12 +1335,7 @@ of freedom for $n_i>5$.
 \end{enumerate}
 In all three methods the return value is an integer error code, and
 the resulting $p$-value is stored in the reference
-\verb|double &pvalue|.  Additionally the cumulative distribution
-function is implemented so the $p$-value due to Johnson
-\cite{Johnson_pValue} can be obtained directly by calling
-\begin{verbatim}
-double BCModel::GetPvalueFromChi2Johnson(std::vector<double> par).
-\end{verbatim}
+\verb|double &pvalue|.
 
 \paragraph{Binomial} For binomial uncertainties handled by
 \verb|BCEfficiencyFitter|, the same fast $p$-value methods are available as for
@@ -1497,12 +1471,12 @@ private:
 \subsection{One- and two-dimensional histograms}
 
 The classes \verb|BCH1D| and \verb|BCH2D| are one- and two-dimensional
-histogram classes which inherit from the \Root\ classes \verb|TH1D|
-and \verb|TH2D|. They are filled, e.g., during marginalization. To
-change the number of bins used for a particular parameter use
+histogram classes wrapping \Root\ classes \verb|TH1D| and
+\verb|TH2D|. They are filled, e.g., during marginalization. To change
+the number of bins used for a particular parameter use
 %
 \begin{verbatim}
-void BCModel::SetNbins(const char * parname, int nbins).
+void BCParameter::SetNbins(unsigned nbins)
 \end{verbatim}
 %
 Pointers to the \Root\ histograms can be returned
@@ -1542,12 +1516,24 @@ Both types of histograms can be drawn to a \Root\ \verb|TCanvas| using
 the methods
 %
 \begin{verbatim}
-BCH1D::Draw(int options=0, double ovalue=0.),
-BCH2D::Draw(int options=0, bool drawmode=true),
+BCH1D::Draw(std::string options, std::vector<double> intervals),
+BCH2D::Draw(std::string options, std::vector<double> intervals),
 \end{verbatim}
 %
 where the options are summarized in Table~\ref{table:draw1d} and
 Table~\ref{table:draw2d}.
+
+The default 1D options are \texttt{"BTsiB3CS1D0Lmeanmode"} to show a
+histogram with the three smallest regions containing 68\%, 95\%, and
+99.7\% of the probability displayed as filled bands in green, yellow,
+and red. In addition, the marginal mean and standard deviation, as
+well as the projection of the global mode onto the one-dimensional
+subspace are drawn. The symbols are explained in a legend drawn above
+the histogram. Additional contour levels can be specified via
+\texttt{intervals}; e.g., \verb|intervals = std::vector<double>(0.5)|
+requests a 50\% probability contour. Similarly in 2D, the default
+options \verb|"BTfB3CS1meangmodelmode"| further include a marker for
+the local marginal mode.
 
 \begin{table}[ht!]
 \caption{Drawing options for one-dimensional histograms. Set lower
