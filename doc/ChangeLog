@@ -1,3 +1,9 @@
+2013-09-26 Daniel kollar <kollar.dan@gmail.com>
+	* doc/releasenotes.txt: updated
+	* readme.devel: fixed description
+	* README, doc/introduction.tex: raised version to 0.9.3
+	* models/mvc/Makefile.am: updated library version
+
 2013-09-26 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* models/mtf/BCMTFAnalysisFacility: renamed flagmcmc to flagmargnialize
 	* examples/advanced/mtf/mcstat: changed flag accordingly

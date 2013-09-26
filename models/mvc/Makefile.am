@@ -1,5 +1,5 @@
 lib_LTLIBRARIES= libBATmvc.la
-libBATmvc_la_LDFLAGS= -version-info 1:0:1
+libBATmvc_la_LDFLAGS= -version-info 1:0:0
 
 AM_CXXFLAGS= -Wall -fPIC  -I../.. -I. -I../../BAT $(ROOTCFLAGS)
 
@@ -32,7 +32,7 @@ incs = \
 	BCMVCMeasurement.h \
 	BCMVCObservable.h \
 	BCMVCDataModel.h \
-	BCMVCPhysicsModel.h 
+	BCMVCPhysicsModel.h
 
 ## RooStats specific options
 if ROOSTATS
