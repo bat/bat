@@ -81,23 +81,14 @@ our parameter set.
 
 \subsection{Model Parameters}
 
-\Icode{BCModel} contains a \Icode{BCParameterSet} member, which can be
-accessed directly through
+We can add parameters to a model through
 \begin{verbatim}
-BCParameterSet * BCModel::GetParameterSet()
-void * BCModel::SetParameterSet(BCParameterSet * parset),
+int BCEngineMCMC::AddParameter(const char * name,
+                          double min, double max,
+                          const char * latexname = "")
+int BCEngineMCMC::AddParameter(BCParameter * parameter).
 \end{verbatim}
-where \Icode{BCParameterSet} is a \Icode{typedef} of a vector of
-pointers to \Icode{BCParameter} objects.
-
-One can also access the parameter set indirectly to add parameters
-through
-\begin{verbatim}
-int BCModel::AddParameter(const char * name,
-                          double lowerlimit, double upperlimit)
-int BCModel::AddParameter(BCParameter * parameter).
-\end{verbatim}
-We must add parameters, with unique names, to our model before running
+We must add parameters (with unique names) to our model before running
 our analysis. Preferably this is done in the constructor to
 \Icode{MyModel} or through an additional method, say,
 \begin{verbatim}
@@ -117,7 +108,6 @@ double BCModel::LogAPrioriProbability(const std:vector<double> & parameters),
 \end{verbatim}
 which need not be overloaded if our parameters are independent in our
 \emph{a priori} probability.
-
 
 \subsubsection{Independent Priors}
 
@@ -244,26 +234,33 @@ where \Icode{BCH1D} and \Icode{BCH2D} are wrapper classes for \ROOT's
 \begin{verbatim}
 BCModel::SetMarginalizationMethod(BCMarginalizationMethod method)
 \end{verbatim}
-where \Icode{BCMarginizationMethod} is \Icode{enum} defined in
-\Icode{BCIntegrate} with the values \Icode{kMargMonteCarlo} for
-uncorrelated Monte Carlo sampling, and \Icode{kMargMetropolis}
-(default) for correlated sampling using a Markov Chain Monte Carlo.
+where \Icode{BCMarginizationMethod} is an \Icode{enum} defined in
+\Icode{BCIntegrate}. We can also set the level of precision and the
+number of iterations for the marginalization through
+\begin{verbatim}
+BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision),
+BCEngineMCMC::MCMCSetNIterationsRun(unsigned int n),
+\end{verbatim}
+where \Icode{Precision} is an \Icode{enum} defined in
+\Icode{BCEngineMCMC}. Of particular use for initial testing is the
+prevision level \Icode{BCEngineMCMC::kLow}, which sets the number of
+Markov chains to one.
 
 The best-fit parameter set is accessed through
 \begin{verbatim}
-std::vector<double> GetBestFitParameters()
-double GetBestFitParameter(unsigned int index),
+std::vector<double> BCIntegrate::GetBestFitParameters()
+double BCIntegrate::GetBestFitParameter(unsigned int index),
 \end{verbatim}
 and the associated errors through
 \begin{verbatim}
-std::vector<double> GetBestFitParameterErrors()
-double GetBestFitParameterError(unsigned int index).
+std::vector<double> BCIntegrate::GetBestFitParameterErrors()
+double BCIntegrate::GetBestFitParameterError(unsigned int index).
 \end{verbatim}
 The best-fit value for each parameter according to its \xD{1}
 marginalized distribution is accessed through,
 \begin{verbatim}
-std::vector<double> GetBestFitParametersMarginalized()
-double GetBestFitParameterMarginalized(unsigned int index).
+std::vector<double> BCEngineMCMC::GetBestFitParametersMarginalized()
+double BCEngineMCMC::GetBestFitParameterMarginalized(unsigned int index).
 \end{verbatim}
 
 Marginalized distributions can also be printed directly to file using
