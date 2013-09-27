@@ -29,6 +29,6 @@ Running the example:
 1. Make sure that BAT is correctly installed in the system.
 
 2. Create the templates and data histograms by calling the ROOT
-   macro 'root CreateHistogram.C' 
+   macro 'root CreateHistograms.C'
 
 3. Run the macro in a ROOT session, e.g., with 'root singleChannel.C'

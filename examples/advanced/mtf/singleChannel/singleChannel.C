@@ -93,8 +93,8 @@ void singleChannel()
    m->SetPriorGauss("background", 300., 10.);
    m->SetPriorConstant("signal");
 
-   // marginalize 
-   m->MarginalizeAll();
+   // marginalize
+   m->MarginalizeAll(BCIntegrate::kMargMetropolis);
 
    // find global mode
    m->FindMode( m->GetBestFitParameters() );

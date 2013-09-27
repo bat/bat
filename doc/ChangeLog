@@ -1,5 +1,7 @@
 2013-09-27 Frederik Beaujean <beaujean@mpp.mpg.de>
 	* doc/introduction: some final polish
+	* examples/advanced/mtf/singleChannel/README: fix example command
+	* examples/advanced/mtf/singleChannel/singleChannel: enforce MCMC run
 
 2013-09-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* doc/CREDITS: Updated author list with Dan and Fred
