@@ -430,11 +430,6 @@ int SetPriorConstant(int index)
 int SetPriorConstantAll();
 \end{verbatim}
 %
-The constant is calculated from the parameter ranges only once and
-cached for reuse during the Markov chain run. For simple problems,
-caching can significantly speed up execution, while for complicated
-likelihoods, the time spent calculating the prior probability is
-usually negligible.
 
 If the prior for a parameter is undefined, \bat\ assumes a constant
 prior and issues a warning.
@@ -448,8 +443,8 @@ prior and issues a warning.
 \subsubsection{Definition of parameters of a model}
 \label{subsubsection:parameters}
 
-The parameters of a model are implemented as a C++ class named
-\verb|BCModelParameter|. They can be added to a model in two ways:
+The parameters of a model are implemented as a C++ class
+\verb|BCParameter|. They can be added to a model in two ways:
 Parameters can be defined explicitly and then added to a model via
 %
 \begin{verbatim}
@@ -1055,8 +1050,14 @@ method
 \begin{verbatim}
 void BCModel::FindMode(std::vector<double> start = std::vector<double>(0)).
 \end{verbatim}
+If no starting point is passed by the user, there are two cases. If
+any algorithm (e.g., MCMC or grid marginalization) has been previously
+run on the model that yields an estimate of the mode, that estimate is
+used as the starting point. Else the starting point is at the center
+along each parameter dimension.
 
-The vector of parameter values which maximizes the posterior pdf can be obtained using
+The vector of parameter values which maximizes the posterior pdf can
+be obtained using
 %
 \begin{verbatim}
 std::vector <double> BCModel::GetBestFitParameters(),
@@ -1106,7 +1107,7 @@ void BCIntegrate::SetFlagIgnorePrevOptimization(bool flag).
 \subsubsection{Marginalization}
 \label{subsubsection:marginalization}
 
-The single parameter estimation is done via marginalization. If more
+The single-parameter estimation is done via marginalization. If more
 than one parameter is studied it is most efficient to marginalize with
 respect to all parameters simultaneously. This can be done using
 %
@@ -1117,7 +1118,7 @@ int BCModel::MarginalizeAll() .
 One- and two-dimensional histograms are filled during the
 marginalization. They can be accessed by\footnote{In the following,
   functions with \code{BCParameter} arguments exist also as versions
-  taking a parameter name as an argument instead.}
+  taking a parameter name or a parameter index as an argument instead.}
 %
 \begin{verbatim}
 BCH1D * BCModel::GetMarginalized(BCParameter * parameter),
@@ -1143,7 +1144,8 @@ void BCIntegrate::SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod 
 where \verb|BCMarginalizationMethod| can be one of the following
 %
 \begin{itemize}
-\item \verb|BCIntegrate::kMargMonteCarlo|. Uncorrelated Monte Carlo sampling.
+\item \verb|BCIntegrate::kMargMonteCarlo|. Uncorrelated Monte Carlo sampling;
+  i.e., samples are independently drawn from a uniform distribution on the parameter space.
 \item \verb|BCIntegrate::kMargMetropolis|. Correlated sampling using
   Markov Chain Monte Carlo (Metropolis algorithm).
 \item \verb|BCIntegrate::kMargGrid|. Evaluation on a grid
@@ -1207,7 +1209,7 @@ manager.
 
 
 % --------------------------------------------------------
-
+% todo there are more methods in BCModel than explained here
 \subsubsection{Goodness-of-fit test}
 
 Once the most suitable set of parameters, $\vec{\lambda}^{*}$, for a
@@ -1291,17 +1293,7 @@ $p$-value if first transformed to a $\chi^2$ using the number of bins as degrees
 of freedom. Then this $\chi^2$ is transformed back into a $p$-value with the
 degrees of freedom reduced by the number of fit parameters. A more thorough
 explanation of the algorithm is given in the appendix of
-\cite{BAT_pValue}. Optionally, the user can define a custom test statistic and
-compute the corresponding $p$-value by passing an instance of
-\verb|BCHistogramFitter::ToyDataInterface| in
-\begin{verbatim}
-int BCHistogramFitter::CalculatePValueFast(const std::vector<double> & par,
-                                           ToyDataInterface * callback,
-                                           double & pvalue,
-                                           double & pvalueCorrected,
-                                           int nIterations=100000)
-\end{verbatim}
-The callback method is called for every created data set.
+\cite{BAT_pValue}.
 \item
 %
 \begin{verbatim}
@@ -1311,7 +1303,7 @@ int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par
 %
 ues the fact that the rescaled likelihood ratio defined in
 Eq. (32.12) of \cite{PDGstatistics} has an approximate
-$\chi^2$-distribution if all the bin counts aren't too small,
+$\chi^2$-distribution if all the bin counts aren't too small;
 i.e. $n_i \ge 5$.
 
 \item
@@ -1469,6 +1461,7 @@ private:
 % --------------------------------------------------------
 
 \subsection{One- and two-dimensional histograms}
+\label{sec:one-two-dim-hist}
 
 The classes \verb|BCH1D| and \verb|BCH2D| are one- and two-dimensional
 histogram classes wrapping \Root\ classes \verb|TH1D| and
@@ -1679,15 +1672,15 @@ After the marginalization of the posterior has been performed, a
 set of plots can be produced with the following methods:
 %
 \begin{itemize}
-\item \verb|int BCSummaryTool::PrintParameterPlot(const char* filename="parameters.eps")|\\
+\item \verb|int BCSummaryTool::PrintParameterPlot(const char* filename="parameters.pdf")|\\
   Creates an overview plots of the marginalized mode, standard
   deviation, the most important quantiles and the global mode for all
   parameters.
 
-\item \verb|int BCSummaryTool::PrintCorrelationPlot(const char* filename="correlation.eps")|\\
+\item \verb|int BCSummaryTool::PrintCorrelationPlot(const char* filename="correlation.pdf")|\\
   Prints a two-dimensional correlation matrix of the parameters.
 
-\item \verb|int BCSummaryTool::PrintKnowlegdeUpdatePlots(const char* filename="update.eps")|\\
+\item \verb|int BCSummaryTool::PrintKnowlegdeUpdatePlots(const char* filename="update.pdf")|\\
   Prints the marginalized distributions for the prior and posterior
   probablity. This illustrates the update in knowledge due to the
   data. Calling this function will re-run the analysis without the use
@@ -1774,19 +1767,6 @@ Binomial, and thus non-symmetric around the ratio of entries in this
 bin. The ratio is assumed to be between 0 and 1, i.e., one histogram
 contains a subset of the other.  An example for this fitter can be
 found in \verb|examples/basic/efficiencyFitter|.
-
-\subsection{A model for template fitting}
-
-A model for template fitting, \verb|BCTemplateFitter|, is provided
-with BAT. Three working examples are provided with the current release in
-\verb|examples/advanced/templatefitter|.
-
-\smallskip
-
-THIS CLASS IS NOW DEPRECETED. \newline
-It will be removed from BAT in the future.
-Please use the Multi-template Fitter instead.
-
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -2076,11 +2056,11 @@ The MTF produces several outputs:
 \begin{verbatim}
 PrintStack(int channelindex,
            const std::vector<double> & parameters,
-           const char * filename = "stack.eps",
+           const char * filename = "stack.pdf",
            const char * options = "")
 PrintStack(const char * channelname,
            const std::vector<double> & parameters,
-           const char * filename = "stack.eps",
+           const char * filename = "stack.pdf",
            const char * options = "")
 \end{verbatim}
   prints a stacked histogram of the templates and the data histogram
@@ -2377,21 +2357,26 @@ also summarized.
 
 \subsection{Histograms}
 
-Histograms of the marginalized distributions can be written to an
-eps file with the functions
+Histograms of the marginalized distributions can be stored to disk
+with the functions
 %
 \begin{verbatim}
-int BCModel::PrintAllMarginalized1D(const char * filebase),
-int BCModel::PrintAllMarginalized2D(const char * filebase),
-int BCModel::PrintAllMarginalized(const char * file, int hdiv=1, int ndiv=1),
+int BCIntegrate::PrintAllMarginalized1D(const char * filebase),
+int BCIntegrate::PrintAllMarginalized2D(const char * filebase),
+int BCIntegrate::PrintAllMarginalized(const char * file,
+    std::string options1d="BTsiB3CS1D0pdf0Lmeanmode",
+    std::string options2d="BTfB3CS1meangmode",
+    unsigned int hdiv=1, unsigned int ndiv=1),
 \end{verbatim}
 %
-where \verb|file| (or \verb|filebase|) are the filename and
-\verb|hdiv| and \verb|ndiv| define the number of divisions in the
-plots. Alternatively, the histograms can be obtained from the model
-(see section~\ref{subsubsection:marginalization}) and then plotted,
-printed or stored in a \Root\ file. Supported formats are \verb|.ps|
-and \verb|.pdf| (default).
+where \verb|file| (or \verb|filebase|) is the filename, the options
+for individual plots are explained in
+section~\ref{sec:one-two-dim-hist}, and \verb|hdiv| and \verb|ndiv|
+define the number of divisions in the plots. Alternatively, the
+histograms can be obtained from the model (see
+section~\ref{subsubsection:marginalization}) and then plotted, printed
+or stored in a \Root\ file. Supported formats are \verb|.ps| and
+\verb|.pdf| (default).
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
