@@ -1,3 +1,7 @@
+2013-09-27 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* doc/CREDITS: Updated author list with Dan and Fred
+	* doc/COPYING: Removed author information since it can be found in doc/CREDITS
+
 2013-09-26 Daniel kollar <kollar.dan@gmail.com>
 	* raised version to 0.9.3.rc3
 	* updated release notes
