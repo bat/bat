@@ -1,4 +1,5 @@
 2013-09-27 Frederik Beaujean <beaujean@mpp.mpg.de>
+	* configure.ac: create examples/Makefile
 	* doc/introduction: some final polish
 	* examples/advanced/mtf/singleChannel/README: fix example command
 	* examples/advanced/mtf/singleChannel/singleChannel: enforce MCMC run
