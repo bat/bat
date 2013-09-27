@@ -12,7 +12,7 @@ Examples in this directory:
 
 * Directory: basic
 
-  Directory:	  poisson
+  Directory:    poisson
   Type:         Compiled program
   Description:  A simple example for a Poisson counting experiment. The
                 expectation value for a Poisson distribution is
