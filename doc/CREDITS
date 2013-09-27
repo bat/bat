@@ -1,23 +1,18 @@
 
-This file lists the people who contributed to the BAT project as of 16.05.2012
+This file lists the people who contributed to the BAT project as of 27.09.2013
 
 
 Authors:
 --------
 
-Allen Caldwell   -  MPI for Physics, Munich, Germany
-Daniel Kollar    -  Nürnberg, Germany
-Kevin Kröninger  -  University of Göttingen, Germany
-
+Allen Caldwell    -  MPI for Physics, Munich, Germany
+Daniel Kollar     -  Nürnberg, Germany
+Kevin Kröninger   -  University of Göttingen, Germany
+Frederik Beaujean -  Technical University Munich, Germany
+Daniel Greenwald  -  Technical University Munich, Germany
 
 Contributors in alphabetical order:
 -----------------------------------
-
-Frederik Beaujean
-  - MPI for Physics, Munich, Germany
-  - model testing and p-values
-  - MCMC convergence
-  - performance testing
 
 Carsten Brachem
   - University of Göttingen, Germany
@@ -26,10 +21,6 @@ Carsten Brachem
 James Ferrando
   - University of Oxford, UK
   - autoconf/automake installation procedure
-
-Daniel Greenwald
-  - Technical University Munich, Germany
-  - Quick Start Guide
 
 Jing Liu
   - MPI for Physics, Munich, Germany
