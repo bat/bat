@@ -1400,10 +1400,11 @@ An example for the propagation of uncertainties can be found in
 \subsection{Thread parallelization}\label{subsection:thread-par}
 
 At present, threads are used only to speed up the Markov chain
-sampling.  Assuming BAT is configured with parallelization enabled,
-the number of threads can be selected at runtime without recompilation
-with \verb|./program OMP_NUM_THREADS=N|.  Due to the overhead from
-thread creation, the sampling is faster only if the likelihood is
+sampling by running each chain in parallel.  Assuming BAT is
+configured with parallelization enabled, the number of threads can be
+selected at runtime without recompilation with
+\verb|./program OMP_NUM_THREADS=N|.  Due to the overhead from thread
+creation, the sampling is faster only if the likelihood is
 sufficiently slow to compute. As a rule of thumb, if the
 unparallelized sampling takes minutes or even hours, the parallelized
 version should get close to the maximum speedup given by the number of
