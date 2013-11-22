@@ -1,0 +1,14 @@
+Class description:
+==================
+
+BCPostProcessor : a base class for post-processing the samples of the MCMC
+
+BCPPMarginalize : a class for producing marginalized distributions
+
+examples:
+=========
+
+runMarginalize.cxx : an example for producing marginalized distributions
+
+runPlotter.cxx     : a toy example for development.
+

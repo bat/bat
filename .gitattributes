@@ -331,6 +331,7 @@ private/tools/PostProcessing/BCPPMarginalize.h -text
 private/tools/PostProcessing/BCPostProcessor.cxx -text
 private/tools/PostProcessing/BCPostProcessor.h -text
 private/tools/PostProcessing/Makefile -text
+private/tools/PostProcessing/README -text
 private/tools/PostProcessing/runMarginalize.cxx -text
 private/tools/PostProcessing/runPlotter.cxx -text
 private/tools/analyzeMCMC/Makefile -text
