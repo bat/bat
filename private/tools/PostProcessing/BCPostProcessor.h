@@ -65,6 +65,32 @@ class BCPostProcessor
   int GetNSamplesMainRun()
   { return fNSamplesMainRun; };
 
+  /**
+   * Return a value from the tree
+   * @param branchname The name of the branch
+   * @param chainindex The chain index
+   * @param entry The sample number
+   * @param prerun take values from prerun if true
+   * @return The parameter value */
+  double GetValue(std::string branchname, int chainindex, int entry, bool prerun = false);
+
+  /**
+   * Return a parameter value
+   * @param parindex The parameter index
+   * @param chainindex The chain index
+   * @param entry The sample number
+   * @param prerun take values from prerun if true
+   * @return The parameter value */
+  double GetParameterValue(int parindex, int chainindex, int entry, bool prerun = false);
+
+  /**
+   * Return a log posterior value
+   * @param chainindex The chain index
+   * @param entry The sample number
+   * @param prerun take values from prerun if true
+   * @return The log probability value */
+  double GetLogProbabilityValue(int chainindex, int entry, bool prerun = false);
+
   /** @} */
 
   /** \name Member functions (set) */
@@ -118,6 +144,10 @@ class BCPostProcessor
   /**
    * Number of samples in the main run. */
   int fNSamplesMainRun;
+
+  /**
+   * Vector of parameters for all chains. */
+  std::vector<double> fParameters;
 
 };
 // ---------------------------------------------------------

@@ -34,7 +34,8 @@ LIBS        += -L$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBAT $(ROOTLIBS)
 # on the next line
 CXXSRCS      = \
 	BCPostProcessor.cxx \
-	BCPPMarginalize.cxx
+	BCPPMarginalize.cxx \
+	BCPPDiagnostics.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

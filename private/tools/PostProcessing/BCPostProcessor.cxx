@@ -23,6 +23,7 @@ BCPostProcessor::BCPostProcessor() : fFile(0)
                                    , fNParameters(0)
                                    , fNSamplesPreRun(0)
                                    , fNSamplesMainRun(0)
+                                   , fParameters(std::vector<double>(0))
 {
 }
 
@@ -96,6 +97,54 @@ void BCPostProcessor::PrintInfo()
   std::cout << "Number of trees                   : " << fNTrees << std::endl;
   std::cout << "Number of samples in the pre-run  : " << fNSamplesPreRun << std::endl;
   std::cout << "Number of samples in the main run : " << fNSamplesMainRun << std::endl;
+}
+
+// ---------------------------------------------------------
+double BCPostProcessor::GetValue(std::string branchname, int chainindex, int entry, bool prerun)
+{
+  // check chain index
+  if (chainindex < 0 || chainindex >= fNTrees) {
+    BCLog::OutWarning("BCPostProcessor::GetValue. Chain index not within range.");
+    return -1;
+  }
+
+  // check entry
+  if (entry < 0 || (entry >= fNSamplesPreRun && prerun) || (entry >= fNSamplesMainRun && !prerun)) {
+    BCLog::OutWarning("BCPostProcessor::GetValue. Entry not within range.");
+    return -1;
+  }
+
+  // move to main run if not pre run
+  if (!prerun)
+    entry += fNSamplesPreRun;
+
+  TTree* tree = fTrees.at(chainindex);
+
+  double value = 0;
+
+  tree->SetBranchAddress(branchname.c_str(), &value);
+
+  tree->GetEntry(entry);
+
+  return value;
+}
+
+// ---------------------------------------------------------
+double BCPostProcessor::GetParameterValue(int parindex, int chainindex, int entry, bool prerun)
+{
+  // check parameter index
+  if (parindex < 0 || parindex >= fNParameters) {
+    BCLog::OutWarning("BCPostProcessor::GetValue. Parameter index not within range.");
+    return -1;
+  }
+
+  return GetValue(Form("Parameter%i", parindex), chainindex, entry, prerun);
+}
+
+// ---------------------------------------------------------
+double BCPostProcessor::GetLogProbabilityValue(int chainindex, int entry, bool prerun)
+{
+  return GetValue("LogProbability", chainindex, entry, prerun);
 }
 
 // ---------------------------------------------------------

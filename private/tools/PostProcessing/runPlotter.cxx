@@ -2,6 +2,8 @@
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 
+#include <iostream>
+
 #include "BCPPMarginalize.h"
 
 int main()
@@ -21,6 +23,13 @@ int main()
 
    bhist1d->Print("test1d.pdf");
    bhist2d->Print("test2d.pdf");
+
+   std::cout <<p->GetParameterValue(0, 0, 0) << std::endl;
+   std::cout <<p->GetParameterValue(0, 0, 10) << std::endl;
+   std::cout <<p->GetParameterValue(0, 0, 20) << std::endl;
+   std::cout <<p->GetParameterValue(0, 0, 30) << std::endl;
+   std::cout <<p->GetLogProbabilityValue(0, 120000-1) << std::endl;
+   std::cout <<p->GetLogProbabilityValue(0, 100000-1) << std::endl;
 
    return 0;
 

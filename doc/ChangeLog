@@ -1,3 +1,7 @@
+2013-11-23 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCPostProcessor can now access log prob and the parameter values
+	* Added a diagnostics class: BCPPDiagnostics
+
 2013-11-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* Added post-processing code to private/tools/PostProcessing.
 

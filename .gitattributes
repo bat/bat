@@ -326,6 +326,8 @@ private/extras/FBU/src/BCFBUSystematic.cxx -text
 private/extras/FBU/src/BCFBU_backup.cxx -text
 private/extras/FBU/src/BCMTFSystematic.cxx -text
 private/extras/README -text
+private/tools/PostProcessing/BCPPDiagnostics.cxx -text
+private/tools/PostProcessing/BCPPDiagnostics.h -text
 private/tools/PostProcessing/BCPPMarginalize.cxx -text
 private/tools/PostProcessing/BCPPMarginalize.h -text
 private/tools/PostProcessing/BCPostProcessor.cxx -text
