@@ -993,16 +993,15 @@ void BCModel::PrintResults(const char * file)
              << std::endl;
       ofi << " Number of chains:                       " << MCMCGetNChains() << std::endl
           << " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
-          << " Average efficiencies:" << std::endl;
+          << " Average pre-run efficiencies:" << std::endl;
 
       std::vector<double> efficiencies;
       efficiencies.assign(npar, 0.);
 
       for (unsigned ipar = 0; ipar < npar; ++ipar)
-         for (unsigned ichain = 0; ichain < nchains; ++ichain) {
-            unsigned index = ichain * npar + ipar;
-            efficiencies[ipar] +=
-               double(MCMCGetNTrialsTrue().at(index)) / double(MCMCGetNTrials()) / double(nchains) * 100.;
+        for (unsigned ichain = 0; ichain < nchains; ++ichain) {
+          efficiencies[ipar] +=
+            fMCMCEfficiencies[ichain*npar+ipar] / double(nchains) * 100.;
          }
 
       for (unsigned ipar = 0; ipar < npar; ++ipar)
