@@ -1,5 +1,6 @@
 2013-11-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx, BCModel.cxx: added a variable for storing and outputting the efficiencies for each parameter. Fixes the bug that all efficiencies were inf.
+	* BCModelOutput: changes analysis tree variables from array to vector. Removed MAXNPARAMETERS. This should fix the bug reported by A. Paul et al.
 
 2013-09-27 Daniel kollar <kollar.dan@gmail.com>
 	* updated INSTALL

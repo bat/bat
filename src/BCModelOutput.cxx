@@ -133,23 +133,34 @@ void BCModelOutput::FillAnalysisTree()
    fProbability_apriori   = fModel->GetModelAPrioriProbability();
    fProbability_aposteriori = fModel->GetModelAPosterioriProbability();
 
+   fMode_global.clear();
+   fMode_marginalized.clear();
+   fMean_marginalized.clear();
+   fMedian_marginalized.clear();
+   fQuantile_05.clear();
+   fQuantile_10.clear();
+   fQuantile_16.clear();
+   fQuantile_84.clear();
+   fQuantile_90.clear();
+   fQuantile_95.clear();
+
    // loop over parameters
    int nparameters = fModel->GetNParameters();
    for (int i = 0; i < nparameters; ++i) {
-      const BCParameter * parameter = fModel->GetParameter(i);
-      if (fModel->GetBestFitParameters().size() > 0)
-         fMode_global[i] = fModel->GetBestFitParameters().at(i);
-      if (fModel->GetMarginalized(parameter->GetName().data())) {
-         fMode_marginalized[i] = fModel->GetMarginalized(parameter->GetName().data())->GetMode();
-         fMean_marginalized[i] = fModel->GetMarginalized(parameter->GetName().data())->GetMean();
-         fMedian_marginalized[i] = fModel->GetMarginalized(parameter->GetName().data())->GetMedian();
-         fQuantile_05[i] = fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.05);
-         fQuantile_10[i] = fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.10);
-         fQuantile_16[i] = fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.16);
-         fQuantile_84[i] = fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.84);
-         fQuantile_90[i] = fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.90);
-         fQuantile_95[i] = fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.95);
-      }
+     const BCParameter * parameter = fModel->GetParameter(i);
+     if (fModel->GetBestFitParameters().size() > 0)
+       fMode_global.push_back(fModel->GetBestFitParameters().at(i));
+     if (fModel->GetMarginalized(parameter->GetName().data())) {
+       fMode_marginalized.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetMode());
+       fMean_marginalized.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetMean());
+       fMedian_marginalized.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetMedian());
+       fQuantile_05.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.05));
+       fQuantile_10.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.10));
+       fQuantile_16.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.16));
+       fQuantile_84.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.84));
+       fQuantile_90.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.90));
+       fQuantile_95.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.95));
+     }
    }
 
    // fill tree
@@ -277,16 +288,16 @@ void BCModelOutput::InitializeAnalysisTree()
    fAnalysisTree->Branch("fNParameters",             &fNParameters,             "parameters/I");
    fAnalysisTree->Branch("fProbability_apriori" ,    &fProbability_apriori,     "apriori probability/D");
    fAnalysisTree->Branch("fProbability_aposteriori", &fProbability_aposteriori, "aposteriori probability/D");
-   fAnalysisTree->Branch("fMode_global",              fMode_global,             "mode (global) [parameters]/D");
-   fAnalysisTree->Branch("fMode_marginalized",        fMode_marginalized,       "mode (marginalized) [parameters]/D");
-   fAnalysisTree->Branch("fMean_marginalized",        fMean_marginalized,       "mean (marginalized)[parameters]/D");
-   fAnalysisTree->Branch("fMedian_marginalized",      fMedian_marginalized,     "median (marginalized)[parameters]/D");
-   fAnalysisTree->Branch("fQuantile_05" ,             fQuantile_05,             "quantile 5% [parameters]/D");
-   fAnalysisTree->Branch("fQuantile_10" ,             fQuantile_10,             "quantile 10% [parameters]/D");
-   fAnalysisTree->Branch("fQuantile_16" ,             fQuantile_16,             "quantile 16% [parameters]/D");
-   fAnalysisTree->Branch("fQuantile_84" ,             fQuantile_84,             "quantile 84% [parameters]/D");
-   fAnalysisTree->Branch("fQuantile_90" ,             fQuantile_90,             "quantile 90% [parameters]/D");
-   fAnalysisTree->Branch("fQuantile_95" ,             fQuantile_95,             "quantile 95% [parameters]/D");
+   fAnalysisTree->Branch("fMode_global",             &fMode_global);
+   fAnalysisTree->Branch("fMode_marginalized",       &fMode_marginalized);
+   fAnalysisTree->Branch("fMean_marginalized",       &fMean_marginalized);
+   fAnalysisTree->Branch("fMedian_marginalized",     &fMedian_marginalized);
+   fAnalysisTree->Branch("fQuantile_5" ,             &fQuantile_05);
+   fAnalysisTree->Branch("fQuantile_10" ,            &fQuantile_10);
+   fAnalysisTree->Branch("fQuantile_16" ,            &fQuantile_16);
+   fAnalysisTree->Branch("fQuantile_84" ,            &fQuantile_84);
+   fAnalysisTree->Branch("fQuantile_90" ,            &fQuantile_90);
+   fAnalysisTree->Branch("fQuantile_95" ,            &fQuantile_95);
 }
 
 // ---------------------------------------------------------
