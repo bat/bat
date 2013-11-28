@@ -33,8 +33,6 @@ class TTree;
 class TFile;
 class TObject;
 
-const int MAXNPARAMETERS = 20;
-
 // ---------------------------------------------------------
 
 class BCModelOutput
@@ -181,16 +179,16 @@ class BCModelOutput
       unsigned int fNParameters;
       double fProbability_apriori;
       double fProbability_aposteriori;
-      double fMode_global[MAXNPARAMETERS];
-      double fMode_marginalized[MAXNPARAMETERS];
-      double fMean_marginalized[MAXNPARAMETERS];
-      double fMedian_marginalized[MAXNPARAMETERS];
-      double fQuantile_05[MAXNPARAMETERS];
-      double fQuantile_10[MAXNPARAMETERS];
-      double fQuantile_16[MAXNPARAMETERS];
-      double fQuantile_84[MAXNPARAMETERS];
-      double fQuantile_90[MAXNPARAMETERS];
-      double fQuantile_95[MAXNPARAMETERS];
+      std::vector<double> fMode_global;
+      std::vector<double> fMode_marginalized;
+      std::vector<double> fMean_marginalized;
+      std::vector<double> fMedian_marginalized;
+      std::vector<double> fQuantile_05;
+      std::vector<double> fQuantile_10;
+      std::vector<double> fQuantile_16;
+      std::vector<double> fQuantile_84;
+      std::vector<double> fQuantile_90;
+      std::vector<double> fQuantile_95;
 
 };
 
