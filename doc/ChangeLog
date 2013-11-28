@@ -1,3 +1,6 @@
+2013-11-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxx, BCModel.cxx: added a variable for storing and outputting the efficiencies for each parameter. Fixes the bug that all efficiencies were inf.
+
 2013-09-27 Daniel kollar <kollar.dan@gmail.com>
 	* updated INSTALL
 	* quickstart: raised version

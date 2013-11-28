@@ -809,6 +809,10 @@ class BCEngineMCMC
       std::vector<double> fMCMCInitialPosition;
 
       /**
+       * The efficiencies for all parameters and chains. */
+      std::vector<double> fMCMCEfficiencies;
+
+      /**
        * The minimum required efficiency for MCMC */
       double fMCMCEfficiencyMin;
 

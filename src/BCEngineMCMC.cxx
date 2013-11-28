@@ -201,6 +201,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    fMCMCFlagPreRun            = other.fMCMCFlagPreRun;
    fMCMCFlagRun               = other.fMCMCFlagRun;
    fMCMCInitialPosition       = other.fMCMCInitialPosition;
+   fMCMCEfficiencies          = other.fMCMCEfficiencies;
    fMCMCEfficiencyMin         = other.fMCMCEfficiencyMin;
    fMCMCEfficiencyMax         = other.fMCMCEfficiencyMax;
    fMCMCFlagInitialPosition   = other.fMCMCFlagInitialPosition;
@@ -917,8 +918,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
    bool flagefficiency = false;  // efficiency reached?
 
    // array of efficiencies
-   std::vector<double> efficiency;
-   efficiency.assign(fParameters.Size() * fMCMCNChains, 0.0);
+   //   std::vector<double> efficiency;
+   fMCMCEfficiencies.clear();
+   fMCMCEfficiencies.assign(fParameters.Size() * fMCMCNChains, 0.0);
 
    // how often to check convergence and efficiencies?
    // it's either every fMCMCNParameters*nMCMCNIterationsUpdate (for 5 parameters the default would be 5000)
@@ -1113,10 +1115,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
                unsigned index = ichains * fParameters.Size() + iparameter;
 
                // calculate efficiency
-               efficiency[index] = double(fMCMCNTrialsTrue[index]) / double(fMCMCNTrials);
+               fMCMCEfficiencies[index] = double(fMCMCNTrialsTrue[index]) / double(fMCMCNTrials);
 
                // adjust scale factors if efficiency is too low
-               if (efficiency[index] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[index] > .01)
+               if (fMCMCEfficiencies[index] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[index] > .01)
                {
                   if (flagprintefficiency)
                   {
@@ -1126,16 +1128,16 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
                   }
 
                   double fscale=2.;
-                  if(has_converged && fMCMCEfficiencyMin/efficiency[index] > 2.)
+                  if(has_converged && fMCMCEfficiencyMin/fMCMCEfficiencies[index] > 2.)
                      fscale = 4.;
                   fMCMCTrialFunctionScaleFactor[index] /= fscale;
 
                   BCLog::OutDetail(Form("         Efficiency of parameter %i dropped below %.2f%% (eps = %.2f%%) in chain %i. Set scale to %.4g",
-                                        iparameter, 100. * fMCMCEfficiencyMin, 100. * efficiency[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
+                                        iparameter, 100. * fMCMCEfficiencyMin, 100. * fMCMCEfficiencies[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
                }
 
                // adjust scale factors if efficiency is too high
-               else if (efficiency[index] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[index] < 1.0)
+               else if (fMCMCEfficiencies[index] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[index] < 1.0)
                {
                   if (flagprintefficiency)
                   {
@@ -1147,12 +1149,12 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
                   fMCMCTrialFunctionScaleFactor[index] *= 2.;
 
                   BCLog::OutDetail(Form("         Efficiency of parameter %i above %.2f%% (eps = %.2f%%) in chain %i. Set scale to %.4g",
-                                        iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * efficiency[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
+                                        iparameter, 100.0 * fMCMCEfficiencyMax, 100.0 * fMCMCEfficiencies[index], ichains, fMCMCTrialFunctionScaleFactor[index]));
                }
 
                // check flag
-               if ((efficiency[index] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[index] > .01)
-                   || (efficiency[index] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[index] < 1.))
+               if ((fMCMCEfficiencies[index] < fMCMCEfficiencyMin && fMCMCTrialFunctionScaleFactor[index] > .01)
+                   || (fMCMCEfficiencies[index] > fMCMCEfficiencyMax && fMCMCTrialFunctionScaleFactor[index] < 1.))
                   flagefficiency = false;
             } // end of running over all parameters
          } // end of running over all chains
@@ -1253,7 +1255,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
          continue;
 
       for (unsigned j = 0; j < fMCMCNChains; ++j)
-         efficiencies[i] += efficiency[j * fParameters.Size() + i] / double(fMCMCNChains);
+         efficiencies[i] += fMCMCEfficiencies[j * fParameters.Size() + i] / double(fMCMCNChains);
 
       BCLog::OutDetail(TString::Format(" -->      parameter %*d :  %.02f%%",ndigits, i, 100. * efficiencies[i]));
    }
