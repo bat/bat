@@ -117,6 +117,10 @@ class BCPostProcessor
    * Print info about file on screen. */
   void PrintInfo();
 
+  /**
+   * Calculate the minimum and maximum of each variable in the trees. */
+  void CalculateMinMax();
+
   /** @} */
 
  protected:
@@ -148,6 +152,24 @@ class BCPostProcessor
   /**
    * Vector of parameters for all chains. */
   std::vector<double> fParameters;
+
+  /**
+   * Vector of minimum parameter values. */
+  std::vector<double> fParametersMin;
+
+  /**
+   * Vector of minimum parameter values. */
+  std::vector<double> fParametersMax;
+
+  /**
+   * Vector of minimum log probability values. */
+  double fLogProbabilityMin;
+
+  /**
+   * Vector of minimum parameter values. */
+  double fLogProbabilityMax;
+
+
 
 };
 // ---------------------------------------------------------

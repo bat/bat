@@ -43,20 +43,62 @@ class BCPPDiagnostics : public BCPostProcessor
 
   /** @} */
 
+  /** \name Member functions (get) */
+  /** @{ */
+
+  /**
+   * Calculates the number of batches which have the full batch
+   * length. */
+  int GetNBatches();
+
+  /** @} */
+
+  /** \name Member functions (set) */
+  /** @{ */
+
+  /**
+   * Set the batch length.
+   * @param length The batch length. */
+  void SetBatchLength(int length)
+  { fBatchLength = length; };
+
+  /** @} */
+
   /** \name Member functions (misc) */
   /** @{ */
 
   /**
-   * Create a BCH1D of the log probability
+   * Draw the log probability
+   * @param filename The filename (a pdf file)
    * @param options: \n
    * all : draw it for all chains \n
-   * sum : draw it for the sum of all chains
-   * @return The BAT histogram */
-  BCH1D* PlotLogProbability(std::string options);
+   * sum : draw it for the sum of all chains */
+  void PrintLogProbability(std::string filename, std::string options);
+
+  /**
+   * Print parameter-quantities for batches
+   * @param filename The filename (a pdf file) */
+  void PrintBatchQuantities(std::string filename);
+
+  /**
+   * Calculate parameter-quantities for batches. */
+  void CalculateBatchQuantities();
 
   /** @} */
 
  private:
+
+  /**
+   * Length of a batch for calculating mean and variance. */
+  int fBatchLength;
+
+  std::vector< std::vector<double> > fParameterMean;
+  std::vector< std::vector<double> > fParameterVariance;
+  std::vector< std::vector<double> > fParameterStd;
+
+  std::vector< double > fParameterBatchMean;
+  std::vector< double > fParameterBatchVariance;
+  std::vector< double > fParameterBatchStdDev;
 
 
 };
