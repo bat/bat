@@ -18,6 +18,7 @@
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TGraph.h>
+#include <TLegend.h>
 
 #include <BAT/BCMath.h>
 #include <BAT/BCH1D.h>
@@ -228,15 +229,25 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     }
 
     // draw axes
-    TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Batch number; Mean value of parameter %i", ipar), nbatches, -5.5, nbatches+4.5, 1, ymin - 0.1*(ymax-ymin), ymax + 0.1*(ymax-ymin));
+    TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Batch number; Mean value of parameter %i", ipar), nbatches, -5.5, nbatches+4.5, 1, ymin - 0.1*(ymax-ymin), ymax + 0.5*(ymax-ymin));
     hist_axes->SetTitleOffset(0.7, "Y");
     hist_axes->SetStats(kFALSE);
     hist_axes->Draw();
 
+    TLegend* legend_chains = new TLegend(0.10, 0.70, 0.90, 0.90);
+    legend_chains->SetFillColor(kWhite);
+    legend_chains->SetBorderSize(0);
+    legend_chains->SetNColumns(3);
+
     // draw graphs
     for (int ichain = 0; ichain < nchains; ++ichain) {
+      legend_chains->AddEntry(graphs[ichain], Form("Chain %i", ichain), "L");
       graphs[ichain]->Draw("L");
     }
+
+    // draw legend
+    legend_chains->Draw();
+
     // print
     if (ipar == 0)
       c1->Print(Form("%s(", filename.c_str()));
@@ -248,6 +259,7 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     for (int ichain = 0; ichain < nchains; ++ichain)
       delete graphs[ichain];
     graphs.clear();
+    delete legend_chains;
   }
 
   // --------------------------------------
@@ -286,16 +298,26 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
       }
     }
 
+    TLegend* legend_chains = new TLegend(0.10, 0.70, 0.90, 0.90);
+    legend_chains->SetFillColor(kWhite);
+    legend_chains->SetBorderSize(0);
+    legend_chains->SetNColumns(3);
+
     // draw axes
-    TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Batch number; Standard deviation of parameter %i", ipar), nbatches, -5.5, nbatches+4.5, 1, ymin - 0.1*(ymax-ymin), ymax + 0.1*(ymax-ymin));
+    TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Batch number; Standard deviation of parameter %i", ipar), nbatches, -5.5, nbatches+4.5, 1, ymin - 0.1*(ymax-ymin), ymax + 0.5*(ymax-ymin));
     hist_axes->SetTitleOffset(0.7, "Y");
     hist_axes->SetStats(kFALSE);
     hist_axes->Draw();
 
     // draw graphs
     for (int ichain = 0; ichain < nchains; ++ichain) {
+      legend_chains->AddEntry(graphs[ichain], Form("Chain %i", ichain), "L");
       graphs[ichain]->Draw("L");
     }
+
+    // draw legend
+    legend_chains->Draw();
+
     // print
     c1->Print(filename.c_str());
 
@@ -304,6 +326,7 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     for (int ichain = 0; ichain < nchains; ++ichain)
       delete graphs[ichain];
     graphs.clear();
+    delete legend_chains;
   }
 
   // --------------------------------------
@@ -354,8 +377,13 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     }
   }
 
+  TLegend* legend_pars = new TLegend(0.10, 0.70, 0.90, 0.90);
+  legend_pars->SetFillColor(kWhite);
+  legend_pars->SetBorderSize(0);
+  legend_pars->SetNColumns(3);
+
   // draw axes
-  TH2D* hist_axes_r = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), ";Batch number; R values", nbatches, -5.5, nbatches+4.5, 1, ymin - 0.1*(ymax-ymin), ymax + 0.1*(ymax-ymin));
+  TH2D* hist_axes_r = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), ";Batch number; R values", nbatches, -5.5, nbatches+4.5, 1, ymin - 0.1*(ymax-ymin), ymax + 0.5*(ymax-ymin));
   hist_axes_r->SetTitleOffset(0.7, "Y");
   hist_axes_r->SetStats(kFALSE);
   hist_axes_r->Draw();
@@ -363,7 +391,11 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
   // draw graphs
   for (int ipar = 0; ipar < npar; ++ipar) {
     graphs_r[ipar]->Draw("L");
+    legend_pars->AddEntry(graphs_r[ipar], Form("Parameter %i", ipar), "L");
   }
+
+  // draw legend
+  legend_pars->Draw();
 
   // print
   c1->Print(Form("%s)", filename.c_str()));
@@ -374,7 +406,7 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     delete graphs_r[ipar];
   }
   graphs_r.clear();
-
+  delete legend_pars;
 
   // free memory
   delete c1;
