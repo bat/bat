@@ -26,7 +26,9 @@ int main()
 
    p->PrintLogProbability("logprob.pdf", "all");
 
-   return 1;
+   p->PrintTrajectory(0, "trajectory0.pdf", 1, 0, 1000);
+   p->PrintTrajectory(1, "trajectory1.pdf", 1, 0, 1000);
+   p->PrintTrajectory(0, 1, "trajectory01.pdf", 1, 0, 1000);
 
    return 0;
 

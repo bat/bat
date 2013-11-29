@@ -113,9 +113,6 @@ void BCPostProcessor::PrintInfo()
 // ---------------------------------------------------------
 double BCPostProcessor::GetValue(std::string branchname, int chainindex, int entry, bool prerun)
 {
-  //debugKK
-  //  std::cout << "GetValue. " << branchname.c_str() << "  " << chainindex << " " << entry << " " << prerun << std::endl;
-
   // check chain index
   if (chainindex < 0 || chainindex >= fNTrees) {
     BCLog::OutWarning("BCPostProcessor::GetValue. Chain index not within range.");
@@ -140,18 +137,17 @@ double BCPostProcessor::GetValue(std::string branchname, int chainindex, int ent
 
   tree->GetEntry(entry);
 
+  tree->ResetBranchAddresses();
+
   return value;
 }
 
 // ---------------------------------------------------------
 double BCPostProcessor::GetParameterValue(int parindex, int chainindex, int entry, bool prerun)
 {
-  // debugKK
-  //  std::cout << "GetParameterValue. " << parindex << " " << fNParameters << std::endl;
-
   // check parameter index
   if (parindex < 0 || parindex >= fNParameters) {
-    BCLog::OutWarning("BCPostProcessor::GetValue. Parameter index not within range.");
+    BCLog::OutWarning("BCPostProcessor::GetParameterValue. Parameter index not within range.");
     return -1;
   }
 

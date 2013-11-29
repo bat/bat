@@ -68,6 +68,10 @@ class BCPPDiagnostics : public BCPostProcessor
   /** @{ */
 
   /**
+   * Calculate parameter-quantities for batches. */
+  void CalculateBatchQuantities();
+
+  /**
    * Draw the log probability
    * @param filename The filename (a pdf file)
    * @param options: \n
@@ -81,8 +85,23 @@ class BCPPDiagnostics : public BCPostProcessor
   void PrintBatchQuantities(std::string filename);
 
   /**
-   * Calculate parameter-quantities for batches. */
-  void CalculateBatchQuantities();
+   * Print the trajectory of one parameter
+   * @param parindex The parameter index
+   * @param filename The filename (a pdf file)
+   * @param chainindex The index of the chain, if -1 all chains are plotted
+   * @param start The start value of the iterations
+   * @param stop The stop value of the iterations */
+  void PrintTrajectory(int parindex, std::string filename, int chainindex = -1, int start=-1, int stop=-1);
+
+  /**
+   * Print the trajectory of two parameters
+   * @param parindex1 The parameter index 1
+   * @param parindex2 The parameter index 2
+   * @param filename The filename (a pdf file)
+   * @param chainindex The index of the chain, if -1 all chains are plotted
+   * @param start The start value of the iterations
+   * @param stop The stop value of the iterations */
+  void PrintTrajectory(int parindex1, int parindex2, std::string filename, int chainindex = -1, int start=-1, int stop=-1);
 
   /** @} */
 

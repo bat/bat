@@ -413,3 +413,157 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
 }
 
 // ---------------------------------------------------------
+void BCPPDiagnostics::PrintTrajectory(int parindex, std::string filename, int chainindex, int start, int stop)
+{
+  // helper
+  int npar = GetNParameters();
+  int nchains = GetNChains();
+  int nsamples = GetNSamplesMainRun();
+
+  // check parameter index
+  if (parindex < 0 || parindex >= npar) {
+    BCLog::OutWarning("BCPPDiagnostics::PrintTrajectory. Parameter index not within range.");
+    return;
+  }
+
+  // check start and stop values
+  if (start < 0 || start > nsamples || stop < start) {
+    start = GetNSamplesPreRun();
+  }
+
+  // check start and stop values
+  if (stop < 0 || stop > nsamples || stop < start) {
+    stop = nsamples;
+  }
+
+  // check if file extension does not exist or is not pdf or ps
+  if ( (filename.find_last_of(".") == std::string::npos) or
+       ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
+        (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
+    // make it a PDF file
+    filename += ".pdf";
+  }
+
+  // create canvas
+  TCanvas* c1 = new TCanvas("c1", "", 900, 300);
+  c1->SetLeftMargin(0.06);
+  c1->SetRightMargin(0.02);
+  c1->cd();
+
+  TLegend* legend_chains = new TLegend(0.10, 0.70, 0.90, 0.90);
+  legend_chains->SetFillColor(kWhite);
+  legend_chains->SetBorderSize(0);
+  legend_chains->SetNColumns(3);
+
+  // draw axes
+  TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Sample number; Parameter %i", parindex), stop-start+1, start-0.5, stop+0.5, 1, fParametersMin[parindex], 1.4*fParametersMax[parindex]);
+  hist_axes->SetTitleOffset(0.7, "Y");
+  hist_axes->SetStats(kFALSE);
+  hist_axes->Draw();
+
+  // loop over chains
+  for (int ichain = 0; ichain < nchains; ++ichain) {
+    TGraph* graph = new TGraph(stop-start+1);
+    graph->SetLineColor(1+ichain);
+    if (chainindex < 0 || chainindex == ichain)
+      legend_chains->AddEntry(graph, Form("Chain %i", ichain), "L");
+
+    // loop over samples
+    for (int i = start; i <= stop; ++i) {
+      double value = GetParameterValue(parindex, ichain, i, 0);
+      graph->SetPoint(i, i, value);
+    }
+
+    // draw graph
+    if (chainindex < 0 || chainindex == ichain)
+      graph->Draw("L");
+  }
+  // draw legend
+  legend_chains->Draw();
+
+  // print
+  c1->Print(filename.c_str());
+
+  // free memory
+  delete c1;
+}
+
+// ---------------------------------------------------------
+void BCPPDiagnostics::PrintTrajectory(int parindex1, int parindex2, std::string filename, int chainindex, int start, int stop)
+{
+  // helper
+  int npar = GetNParameters();
+  int nchains = GetNChains();
+  int nsamples = GetNSamplesMainRun();
+
+  // check parameter index
+  if ((parindex1 < 0) || (parindex1 >= npar) || (parindex2 < 0) || (parindex2 >= npar)) {
+    BCLog::OutWarning("BCPPDiagnostics::PrintTrajectory. Parameter index not within range.");
+    return;
+  }
+
+  // check start and stop values
+  if (start < 0 || start > nsamples || stop < start) {
+    start = GetNSamplesPreRun();
+  }
+
+  // check start and stop values
+  if (stop < 0 || stop > nsamples || stop < start) {
+    stop = nsamples;
+  }
+
+  // check if file extension does not exist or is not pdf or ps
+  if ( (filename.find_last_of(".") == std::string::npos) or
+       ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
+        (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
+    // make it a PDF file
+    filename += ".pdf";
+  }
+
+  // create canvas
+  TCanvas* c1 = new TCanvas("c1", "", 900, 300);
+  c1->SetLeftMargin(0.06);
+  c1->SetRightMargin(0.02);
+  c1->cd();
+
+  TLegend* legend_chains = new TLegend(0.10, 0.70, 0.90, 0.90);
+  legend_chains->SetFillColor(kWhite);
+  legend_chains->SetBorderSize(0);
+  legend_chains->SetNColumns(3);
+
+  // draw axes
+  TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Parameter %i; Parameter %i", parindex1, parindex2), 1, fParametersMin[parindex1], 1.4*fParametersMax[parindex1], 1, fParametersMin[parindex2], 1.4*fParametersMax[parindex2]);
+  hist_axes->SetTitleOffset(0.7, "Y");
+  hist_axes->SetStats(kFALSE);
+  hist_axes->Draw();
+
+    // loop over chains
+  for (int ichain = 0; ichain < nchains; ++ichain) {
+    if (chainindex < 0 || chainindex == ichain) {
+      TGraph* graph = new TGraph(stop-start+1);
+      graph->SetLineColor(1+ichain);
+      if (chainindex < 0 || chainindex == ichain)
+        legend_chains->AddEntry(graph, Form("Chain %i", ichain), "L");
+
+      // loop over samples
+      for (int i = start; i <= stop; ++i) {
+        double value1 = GetParameterValue(parindex1, ichain, i, 0);
+        double value2 = GetParameterValue(parindex2, ichain, i, 0);
+        graph->SetPoint(i, value1, value2);
+    }
+
+      // draw graph
+      graph->Draw("L");
+    }
+  }
+  // draw legend
+  legend_chains->Draw();
+
+  // print
+  c1->Print(filename.c_str());
+
+  // free memory
+  delete c1;
+}
+
+// ---------------------------------------------------------
