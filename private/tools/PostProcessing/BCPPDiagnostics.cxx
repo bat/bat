@@ -60,6 +60,7 @@ void BCPPDiagnostics::PrintLogProbability(std::string filename, std::string opti
   // option flags
   bool flag_all = false;
   bool flag_sum = false;
+  bool flag_log = false;
 
   // check if options is all
   if (options.find("all") < options.size()) {
@@ -69,6 +70,11 @@ void BCPPDiagnostics::PrintLogProbability(std::string filename, std::string opti
   // check if options is all
   if (options.find("sum") < options.size()) {
     flag_sum = true;
+  }
+
+  // check if options is all
+  if (options.find("log") < options.size()) {
+    flag_log = true;
   }
 
   // define histograms
@@ -111,6 +117,10 @@ void BCPPDiagnostics::PrintLogProbability(std::string filename, std::string opti
   else if (flag_sum) {
     hist_sum->Draw();
   }
+
+  // log axis
+  if (flag_log)
+    c1->SetLogy();
 
   // print
   c1->Print(filename.c_str());
@@ -244,7 +254,6 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
       legend_chains->AddEntry(graphs[ichain], Form("Chain %i", ichain), "L");
       graphs[ichain]->Draw("L");
     }
-
     // draw legend
     legend_chains->Draw();
 
@@ -561,6 +570,122 @@ void BCPPDiagnostics::PrintTrajectory(int parindex1, int parindex2, std::string 
 
   // print
   c1->Print(filename.c_str());
+
+  // free memory
+  delete c1;
+}
+
+// ---------------------------------------------------------
+void BCPPDiagnostics::PrintAutocorrelation(int parindex, std::string filename, int lag_min, int lag_max, int chainindex)
+{
+  // helper
+  int npar = GetNParameters();
+  int nchains = GetNChains();
+  int nsamples = GetNSamplesMainRun();
+  int nlag = lag_max - lag_min + 1;
+
+  // check parameter index
+  if ((parindex < 0) || (parindex >= npar)) {
+    BCLog::OutWarning("BCPPDiagnostics::PrintTrajectory. Parameter index not within range.");
+    return;
+  }
+
+  // check if file extension does not exist or is not pdf or ps
+  if ( (filename.find_last_of(".") == std::string::npos) or
+       ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
+        (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
+    // make it a PDF file
+    filename += ".pdf";
+  }
+
+  // create canvas
+  TCanvas* c1 = new TCanvas("c1");
+  c1->cd();
+
+  // create histograms
+  std::vector<TH2D*> hist_corrs;
+
+  // create histograms
+  // loop over chains
+  for (int i = 0; i < nlag * nchains*npar; ++i) {
+    TH2D* hist_corr = new TH2D(Form("hist_corr_%i", BCLog::GetHIndex()), "",
+                               100, fParametersMin[parindex], fParametersMax[parindex],
+                               100, fParametersMin[parindex], fParametersMax[parindex]);
+    hist_corrs.push_back(hist_corr);
+  }
+
+  // fill histograms
+  for (int isample = 0; isample < nsamples-lag_max; ++isample) {
+
+    // loop over parameters
+    for (int ipar = 0; ipar < GetNParameters(); ++ipar) {
+
+      // loop over chains
+      for (int ichain = 0; ichain < GetNChains(); ++ichain) {
+
+        // get parameter value
+        double value1 = GetParameterValue(ipar, ichain, isample, 0);
+
+        // loop over different lags
+        for (int ilag = lag_min; ilag <= lag_max; ++ilag) {
+          if (isample % ilag != 0)
+            continue;
+
+          double value2 = GetParameterValue(ipar, ichain, isample+ilag, 0);
+          TH2D* hist_corr = hist_corrs.at(ilag-lag_min + nlag * ichain + nlag*nchains*ipar);
+          hist_corr->Fill(value1, value2);
+        }
+      }
+    }
+  }
+
+  // define the graphs
+  std::vector<TGraph*> graphs(nchains*npar);
+
+  // loop over parameters
+  for (int ipar = 0; ipar < GetNParameters(); ++ipar) {
+
+    // draw axes
+    TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Lag;Auto correlation of parameter %i", ipar), 1, -0.5, nlag+0.5, 1, -0.1, 1.6);
+    hist_axes->SetStats(kFALSE);
+    hist_axes->Draw();
+
+    TLegend* legend_chains = new TLegend(0.20, 0.70, 0.80, 0.90);
+    legend_chains->SetFillColor(kWhite);
+    legend_chains->SetBorderSize(0);
+    legend_chains->SetNColumns(3);
+
+    // loop over chains
+    for (int ichain = 0; ichain < nchains; ++ichain) {
+      TGraph* graph = graphs[ichain];
+
+      graph = new TGraph(nlag);
+      graph->SetLineColor(1+ichain);
+
+      legend_chains->AddEntry(graph, Form("Chain %i", ichain), "L");
+
+      // loop over different lags
+      for (int ilag = lag_min; ilag <= lag_max; ++ilag) {
+        graph->SetPoint(ilag - lag_min, ilag, hist_corrs[ilag - lag_min + nlag * ichain + nlag*nchains*ipar]->GetCorrelationFactor());
+      }
+
+      // select chain
+      if (chainindex < 0 && ichain == chainindex)
+        continue;
+
+      // draw graphs
+      graph->Draw("L");
+    }
+    // draw legend
+    legend_chains->Draw();
+
+    if (ipar == 0)
+      c1->Print(Form("%s(", filename.c_str()));
+    else if (ipar == npar - 1)
+      c1->Print(Form("%s)", filename.c_str()));
+    else
+      c1->Print(filename.c_str());
+  }
 
   // free memory
   delete c1;

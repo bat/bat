@@ -103,6 +103,16 @@ class BCPPDiagnostics : public BCPostProcessor
    * @param stop The stop value of the iterations */
   void PrintTrajectory(int parindex1, int parindex2, std::string filename, int chainindex = -1, int start=-1, int stop=-1);
 
+  /**
+   * Print the autocorrelation coefficient of two parameters as a
+   * function of the lag.
+   * @param parindex The parameter index
+   * @param filename The filename (a pdf file)
+   * @param lag_min The minimum lag
+   * @param lag_max The maximum lag
+   * @param chainindex The index of the chain, if -1 akk chains are plotted */
+  void PrintAutocorrelation(int parindex, std::string filename, int lag_min = 1, int lag_max = 10, int chainindex = -1);
+
   /** @} */
 
  private:
