@@ -708,8 +708,6 @@ class BCEngineMCMC
        */
       void SyncThreadStorage();
 
-      bool fFlagMarginalized;
-
    protected:
       /**
        * Parameter settings */
