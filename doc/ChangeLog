@@ -1,5 +1,6 @@
 2013-12-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.h: removed unused fFlagMarginalized (there is one in BCintegrate.h)
+	* BCModel.cxx: use Clone instead of copy constructor for copying prior histogram.
 
 2013-11-29 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PostProcessor added plotting for mean, std dev and R value.

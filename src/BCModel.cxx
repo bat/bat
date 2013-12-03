@@ -703,7 +703,7 @@ int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
          delete fPriorContainer[index];
 
       // set function
-      fPriorContainer[index] = new TH1(*h);
+      fPriorContainer[index] = (TNamed*) h->Clone();
 
       if (interpolate)
          fPriorContainerInterpolate[index] = true;
