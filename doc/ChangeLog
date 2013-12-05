@@ -1,5 +1,6 @@
 2013-12-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* PostProcessor added plotting of step size
+	* PostProcessor added plotting of number of steps with step size 0
 
 2013-12-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.h: removed unused fFlagMarginalized (there is one in BCintegrate.h)
