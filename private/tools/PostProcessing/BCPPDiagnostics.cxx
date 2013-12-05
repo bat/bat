@@ -465,7 +465,7 @@ void BCPPDiagnostics::PrintTrajectory(int parindex, std::string filename, int ch
   legend_chains->SetNColumns(3);
 
   // draw axes
-  TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Sample number; Parameter %i", parindex), stop-start+1, start-0.5, stop+0.5, 1, fParametersMin[parindex], 1.4*fParametersMax[parindex]);
+  TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Sample number; Parameter %i", parindex), stop-start+1, start-0.5, stop+0.5, 1, fParametersMin[parindex], 1.5*fParametersMax[parindex]);
   hist_axes->SetTitleOffset(0.7, "Y");
   hist_axes->SetStats(kFALSE);
   hist_axes->Draw();
@@ -535,13 +535,13 @@ void BCPPDiagnostics::PrintTrajectory(int parindex1, int parindex2, std::string 
   c1->SetRightMargin(0.02);
   c1->cd();
 
-  TLegend* legend_chains = new TLegend(0.10, 0.70, 0.90, 0.90);
+  TLegend* legend_chains = new TLegend(0.10, 0.75, 0.90, 0.90);
   legend_chains->SetFillColor(kWhite);
   legend_chains->SetBorderSize(0);
   legend_chains->SetNColumns(3);
 
   // draw axes
-  TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Parameter %i; Parameter %i", parindex1, parindex2), 1, fParametersMin[parindex1], 1.4*fParametersMax[parindex1], 1, fParametersMin[parindex2], 1.4*fParametersMax[parindex2]);
+  TH2D* hist_axes = new TH2D(Form("hist_axes_%i", BCLog::GetHIndex()), Form(";Parameter %i; Parameter %i", parindex1, parindex2), 1, fParametersMin[parindex1], 1.*fParametersMax[parindex1], 1, fParametersMin[parindex2], 1.6*fParametersMax[parindex2]);
   hist_axes->SetTitleOffset(0.7, "Y");
   hist_axes->SetStats(kFALSE);
   hist_axes->Draw();
@@ -576,19 +576,13 @@ void BCPPDiagnostics::PrintTrajectory(int parindex1, int parindex2, std::string 
 }
 
 // ---------------------------------------------------------
-void BCPPDiagnostics::PrintAutocorrelation(int parindex, std::string filename, int lag_min, int lag_max, int chainindex)
+void BCPPDiagnostics::PrintAutocorrelation(std::string filename, int lag_min, int lag_max, int chainindex)
 {
   // helper
   int npar = GetNParameters();
   int nchains = GetNChains();
   int nsamples = GetNSamplesMainRun();
   int nlag = lag_max - lag_min + 1;
-
-  // check parameter index
-  if ((parindex < 0) || (parindex >= npar)) {
-    BCLog::OutWarning("BCPPDiagnostics::PrintTrajectory. Parameter index not within range.");
-    return;
-  }
 
   // check if file extension does not exist or is not pdf or ps
   if ( (filename.find_last_of(".") == std::string::npos) or
@@ -607,11 +601,15 @@ void BCPPDiagnostics::PrintAutocorrelation(int parindex, std::string filename, i
 
   // create histograms
   // loop over chains
-  for (int i = 0; i < nlag * nchains*npar; ++i) {
-    TH2D* hist_corr = new TH2D(Form("hist_corr_%i", BCLog::GetHIndex()), "",
-                               100, fParametersMin[parindex], fParametersMax[parindex],
-                               100, fParametersMin[parindex], fParametersMax[parindex]);
-    hist_corrs.push_back(hist_corr);
+  for (int ipar = 0; ipar < GetNParameters(); ++ipar) {
+    for (int ichain = 0; ichain < GetNChains(); ++ichain) {
+      for (int ilag = lag_min; ilag <= lag_max; ++ilag) {
+        TH2D* hist_corr = new TH2D(Form("hist_corr_%i", BCLog::GetHIndex()), "",
+                                   100, fParametersMin[ipar], fParametersMax[ipar],
+                                   100, fParametersMin[ipar], fParametersMax[ipar]);
+        hist_corrs.push_back(hist_corr);
+      }
+    }
   }
 
   // fill histograms
@@ -689,6 +687,119 @@ void BCPPDiagnostics::PrintAutocorrelation(int parindex, std::string filename, i
 
   // free memory
   delete c1;
+}
+
+// ---------------------------------------------------------
+void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int chainindex)
+{
+  // helper
+  int npar = GetNParameters();
+  int nchains = GetNChains();
+  int nsamples = GetNSamplesMainRun();
+
+  // check if file extension does not exist or is not pdf or ps
+  if ( (filename.find_last_of(".") == std::string::npos) or
+       ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
+        (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
+    // make it a PDF file
+    filename += ".pdf";
+  }
+
+  // define minimum and maximum
+  double xmin = -1;
+  double xmax = -1;
+
+  // loop over chains
+  for (int ichain = 0; ichain < nchains; ++ichain) {
+
+    // loop over samples
+    for (int i = 1; i < nsamples; ++i) {
+
+      double dR2 = 0;
+
+      // loop over parameters
+      for (int ipar = 0; ipar < npar; ++ipar) {
+        double x1 = GetParameterValue(ipar, ichain, i-1, 0);
+        double x2 = GetParameterValue(ipar, ichain, i, 0);
+        dR2 += (x2-x1)*(x2-x1);
+      }
+
+      double dR = sqrt(dR2);
+
+      // calculate minimum and maximum
+      if (dR < xmin)
+        xmin = dR;
+      if (dR > xmax)
+        xmax = dR;
+    }
+  }
+
+  TLegend* legend_chains = new TLegend(0.20, 0.70, 0.80, 0.90);
+  legend_chains->SetFillColor(kWhite);
+  legend_chains->SetBorderSize(0);
+  legend_chains->SetNColumns(3);
+
+  // define histograms
+  std::vector<TH1D*> hist_all;
+
+  // loop over chains
+  for (int ichain = 0; ichain < nchains; ++ichain) {
+    TH1D* hist_r = new TH1D(Form("hist_r_%i", ichain), "", 100, 0., xmax + 0.1*(xmax-xmin));
+    hist_r->SetStats(kFALSE);
+    hist_r->GetXaxis()->SetTitle("Step size #Delta R");
+    hist_r->GetYaxis()->SetTitle("p(#Delta R)");
+    hist_r->SetLineColor(1+ichain);
+    hist_all.push_back(hist_r);
+    legend_chains->AddEntry(hist_r, Form("Chain %i", ichain), "L");
+
+    // loop over samples
+    for (int i = 1; i < nsamples; ++i) {
+
+      double dR2 = 0;
+
+      // loop over parameters
+      for (int ipar = 0; ipar < npar; ++ipar) {
+        double x1 = GetParameterValue(ipar, ichain, i-1, 0);
+        double x2 = GetParameterValue(ipar, ichain, i, 0);
+        dR2 += (x2-x1)*(x2-x1);
+      }
+      double dR = sqrt(dR2);
+
+      // fill histograms
+      if ((!flag_zero && dR > 0) || flag_zero)
+        hist_r->Fill(dR);
+    }
+  }
+
+  // create canvas
+  TCanvas* c1 = new TCanvas("c1");
+  c1->cd();
+
+  // draw histograms
+  for (int ichain = 0; ichain < nchains; ++ichain) {
+    if (chainindex > 0 || chainindex == ichain) {
+      hist_all.at(ichain)->Draw();
+      hist_all.at(ichain)->GetYaxis()->SetRangeUser(0.,1.6*hist_all.at(ichain)->GetMaximum());
+    }
+    else if (chainindex < 0 && ichain == 0) {
+      hist_all.at(ichain)->Draw();
+      hist_all.at(ichain)->GetYaxis()->SetRangeUser(0.,1.6*hist_all.at(ichain)->GetMaximum());
+    }
+    else if (chainindex < 0)
+      hist_all.at(ichain)->Draw("SAME");
+  }
+  // draw legend
+  legend_chains->Draw();
+
+  // print
+  c1->Print(filename.c_str());
+
+  // free memory
+  delete c1;
+  for (int i = 0; i < fNTrees; ++i)
+    delete hist_all[i];
+  hist_all.clear();
+
 }
 
 // ---------------------------------------------------------

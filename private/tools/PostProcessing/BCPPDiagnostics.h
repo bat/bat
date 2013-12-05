@@ -104,14 +104,20 @@ class BCPPDiagnostics : public BCPostProcessor
   void PrintTrajectory(int parindex1, int parindex2, std::string filename, int chainindex = -1, int start=-1, int stop=-1);
 
   /**
-   * Print the autocorrelation coefficient of two parameters as a
+   * Print the autocorrelation coefficient of all parameters as a
    * function of the lag.
-   * @param parindex The parameter index
    * @param filename The filename (a pdf file)
    * @param lag_min The minimum lag
    * @param lag_max The maximum lag
    * @param chainindex The index of the chain, if -1 akk chains are plotted */
-  void PrintAutocorrelation(int parindex, std::string filename, int lag_min = 1, int lag_max = 10, int chainindex = -1);
+  void PrintAutocorrelation(std::string filename, int lag_min = 1, int lag_max = 10, int chainindex = -1);
+
+  /**
+   * Print a histogram of the step size
+   * @param filename The filename (a pdf file)
+   * @param chainindex  The index of the chain, if -1 akk chains are plotted
+   * @param flag_zero Will not plot 0 step size if false */
+  void PrintStepSize(std::string filename, bool flag_Zero = false, int chainindex = -1);
 
   /** @} */
 

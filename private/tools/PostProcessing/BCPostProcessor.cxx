@@ -172,7 +172,7 @@ void BCPostProcessor::CalculateMinMax()
   // find minimum and maximum values for parameters
   for (int i = 0; i < fNParameters; ++i) {
     for (int j = 0; j < fNTrees; ++j) {
-      fTrees.at(0)->Draw(Form("Parameter%i>>temphist", i), "Phase==2");
+      fTrees.at(j)->Draw(Form("Parameter%i>>temphist", i), "Phase==2");
       TH1D* temphist = (TH1D*) gDirectory->Get("temphist");
       double xmin = temphist->GetXaxis()->GetXmin();
       double xmax = temphist->GetXaxis()->GetXmax();
@@ -193,7 +193,7 @@ void BCPostProcessor::CalculateMinMax()
 
   // find minimum and maximum values for log probability
   for (int j = 0; j < fNTrees; ++j) {
-    fTrees.at(0)->Draw("LogProbability>>temphist", "Phase==2");
+    fTrees.at(j)->Draw("LogProbability>>temphist", "Phase==2");
     TH1D* temphist = (TH1D*) gDirectory->Get("temphist");
     double xmin = temphist->GetXaxis()->GetXmin();
     double xmax = temphist->GetXaxis()->GetXmax();
