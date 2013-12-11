@@ -26,11 +26,11 @@ int main()
 
    p->PrintLogProbability("logprob.pdf", "alllog");
 
-   p->PrintTrajectory(0, "trajectory0.pdf", -1, 0, 1000);
-   p->PrintTrajectory(1, "trajectory1.pdf", -1, 0, 1000);
-   p->PrintTrajectory(0, 1, "trajectory01.pdf", -1, 0, 1000);
+   //   p->PrintTrajectory(0, "trajectory0.pdf", -1, 0, 1000);
+   //   p->PrintTrajectory(1, "trajectory1.pdf", -1, 0, 1000);
+   //   p->PrintTrajectory(0, 1, "trajectory01.pdf", -1, 0, 1000);
 
-   p->PrintAutocorrelation("autocorr.pdf", 1, 20, -1);
+   p->PrintAutocorrelation("autocorr.pdf", 1, 100, -1);
 
    p->PrintStepSize("stepsize.pdf", false, -1);
 

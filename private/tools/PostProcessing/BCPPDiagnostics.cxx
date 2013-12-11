@@ -89,7 +89,7 @@ void BCPPDiagnostics::PrintLogProbability(std::string filename, std::string opti
     temphist->GetXaxis()->SetTitle("log(probability)");
     temphist->GetYaxis()->SetTitle("dN/dlog(probability)");
     temphist->SetStats(kFALSE);
-    temphist->SetLineColor(1+i);
+    temphist->SetLineColor(GetColorChain(i));
 
     tree->Draw(Form("LogProbability>>hist_logprob%i", i), "Phase==2");
 
@@ -219,7 +219,7 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     // loop over chains
     for (int ichain = 0; ichain < nchains; ++ichain) {
       graphs[ichain] = new TGraph(nbatches);
-      graphs[ichain]->SetLineColor(1+ichain);
+      graphs[ichain]->SetLineColor(GetColorChain(ichain));
 
       // loop over batches
       for (int ibatch = 0; ibatch < nbatches; ++ibatch) {
@@ -288,7 +288,7 @@ void BCPPDiagnostics::PrintBatchQuantities(std::string filename)
     // loop over chains
     for (int ichain = 0; ichain < nchains; ++ichain) {
       graphs[ichain] = new TGraph(nbatches);
-      graphs[ichain]->SetLineColor(1+ichain);
+      graphs[ichain]->SetLineColor(GetColorChain(ichain));
 
       // loop over batches
       for (int ibatch = 0; ibatch < nbatches; ++ibatch) {
@@ -473,7 +473,7 @@ void BCPPDiagnostics::PrintTrajectory(int parindex, std::string filename, int ch
   // loop over chains
   for (int ichain = 0; ichain < nchains; ++ichain) {
     TGraph* graph = new TGraph(stop-start+1);
-    graph->SetLineColor(1+ichain);
+    graph->SetLineColor(GetColorChain(ichain));
     if (chainindex < 0 || chainindex == ichain)
       legend_chains->AddEntry(graph, Form("Chain %i", ichain), "L");
 
@@ -530,12 +530,12 @@ void BCPPDiagnostics::PrintTrajectory(int parindex1, int parindex2, std::string 
   }
 
   // create canvas
-  TCanvas* c1 = new TCanvas("c1", "", 900, 300);
-  c1->SetLeftMargin(0.06);
-  c1->SetRightMargin(0.02);
+  TCanvas* c1 = new TCanvas("c1", "", 600, 600);
+  //  c1->SetLeftMargin(0.06);
+  //  c1->SetRightMargin(0.02);
   c1->cd();
 
-  TLegend* legend_chains = new TLegend(0.10, 0.75, 0.90, 0.90);
+  TLegend* legend_chains = new TLegend(0.20, 0.76, 0.89, 0.93);
   legend_chains->SetFillColor(kWhite);
   legend_chains->SetBorderSize(0);
   legend_chains->SetNColumns(3);
@@ -550,7 +550,7 @@ void BCPPDiagnostics::PrintTrajectory(int parindex1, int parindex2, std::string 
   for (int ichain = 0; ichain < nchains; ++ichain) {
     if (chainindex < 0 || chainindex == ichain) {
       TGraph* graph = new TGraph(stop-start+1);
-      graph->SetLineColor(1+ichain);
+      graph->SetLineColor(GetColorChain(ichain));
       if (chainindex < 0 || chainindex == ichain)
         legend_chains->AddEntry(graph, Form("Chain %i", ichain), "L");
 
@@ -658,7 +658,7 @@ void BCPPDiagnostics::PrintAutocorrelation(std::string filename, int lag_min, in
       TGraph* graph = graphs[ichain];
 
       graph = new TGraph(nlag);
-      graph->SetLineColor(1+ichain);
+      graph->SetLineColor(GetColorChain(ichain));
 
       legend_chains->AddEntry(graph, Form("Chain %i", ichain), "L");
 
@@ -697,6 +697,9 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
   int nchains = GetNChains();
   int nsamples = GetNSamplesMainRun();
 
+  double scale_min = 1./double(nsamples);
+  double scale_max = 1.;
+
   // check if file extension does not exist or is not pdf or ps
   if ( (filename.find_last_of(".") == std::string::npos) or
        ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
@@ -709,13 +712,13 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
   double xmin = -1;
   double xmax = -1;
   std::vector<int> nmax;
-  nmax.assign(npar, -1);
+  nmax.assign(npar+1, -1);
 
   // loop over chains
   for (int ichain = 0; ichain < nchains; ++ichain) {
 
     std::vector<int> n;
-    n.assign(npar, 0);
+    n.assign(npar+1, 0);
 
    // loop over samples
     for (int i = 1; i < nsamples; ++i) {
@@ -726,7 +729,8 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
       for (int ipar = 0; ipar < npar; ++ipar) {
         double x1 = GetParameterValue(ipar, ichain, i-1, 0);
         double x2 = GetParameterValue(ipar, ichain, i, 0);
-        double d2 = (x2-x1)*(x2-x1);
+        double norm = fParametersMax[ipar] - fParametersMin[ipar];
+        double d2 = (x2-x1)*(x2-x1)/norm/norm;
         dR2 += d2;
 
         // check if step or not
@@ -739,6 +743,15 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
         if (n[ipar]>nmax[ipar])
           nmax[ipar]=n[ipar];
       }
+      // check if step or not
+      if (dR2 == 0)
+        n[npar] += 1;
+      else
+        n[npar] = 0;
+
+      // check for maximum
+      if (n[npar]>nmax[npar])
+        nmax[npar]=n[npar];
 
       double dR = sqrt(dR2);
 
@@ -750,14 +763,16 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
    }
   }
 
-  TLegend* legend_chains = new TLegend(0.20, 0.70, 0.80, 0.90);
+  //  TLegend* legend_chains = new TLegend(0.20, 0.76, 0.89, 0.93);
+  TLegend* legend_chains = new TLegend(0.50, 0.60, 0.89, 0.93);
   legend_chains->SetFillColor(kWhite);
   legend_chains->SetBorderSize(0);
   legend_chains->SetNColumns(3);
 
   // define histograms
-  std::vector<TH1D*> hist_dr_all;
+  std::vector<TH1D*> hist_dr_sum;
   std::vector<TH1D*> hist_n_all;
+  std::vector<TH1D*> hist_n_sum;
 
   // loop over chains
   for (int ichain = 0; ichain < nchains; ++ichain) {
@@ -765,22 +780,28 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
     hist_r->SetStats(kFALSE);
     hist_r->GetXaxis()->SetTitle("Step size #Delta R");
     hist_r->GetYaxis()->SetTitle("p(#Delta R)");
-    hist_r->SetLineColor(1+ichain);
-    hist_dr_all.push_back(hist_r);
+    hist_r->SetLineColor(GetColorChain(ichain));
+    hist_dr_sum.push_back(hist_r);
     legend_chains->AddEntry(hist_r, Form("Chain %i", ichain), "L");
 
     // loop over parameters
     for (int ipar = 0; ipar < npar; ++ipar) {
       TH1D* hist_n = new TH1D(Form("hist_n_%i_%i", ipar, ichain), "", nmax[ipar]+1, -0.5, nmax[ipar]+0.5);
       hist_n->SetStats(kFALSE);
-      hist_n->GetXaxis()->SetTitle("Number of steps with #Delta R = 0, N");
+      hist_n->GetXaxis()->SetTitle(Form("N : Number of steps with #Delta R = 0 in parameter space %i", ipar));
       hist_n->GetYaxis()->SetTitle("p(N)");
-      hist_n->SetLineColor(1+ichain);
+      hist_n->SetLineColor(GetColorChain(ichain));
       hist_n_all.push_back(hist_n);
     }
+    TH1D* hist_n = new TH1D(Form("hist_n_sum_%i", ichain), "", nmax[npar]+1, -0.5, nmax[npar]+0.5);
+    hist_n->SetStats(kFALSE);
+    hist_n->GetXaxis()->SetTitle("N : Number of steps with #Delta R = 0");
+    hist_n->GetYaxis()->SetTitle("p(N)");
+    hist_n->SetLineColor(GetColorChain(ichain));
+    hist_n_sum.push_back(hist_n);
 
     std::vector<int> n;
-    n.assign(npar*nchains, 0);
+    n.assign((npar+1)*nchains, 0);
 
     // loop over samples
     for (int i = 1; i < nsamples; ++i) {
@@ -791,7 +812,8 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
       for (int ipar = 0; ipar < npar; ++ipar) {
         double x1 = GetParameterValue(ipar, ichain, i-1, 0);
         double x2 = GetParameterValue(ipar, ichain, i, 0);
-        double d2 = (x2-x1)*(x2-x1);
+        double norm = fParametersMax[ipar] - fParametersMin[ipar];
+        double d2 = (x2-x1)*(x2-x1)/norm/norm;
         dR2 += d2;
 
         // check if step or not
@@ -802,12 +824,19 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
           n[ipar+npar*ichain] = 0;
         }
       }
+      // check if step or not
+      if (dR2 == 0)
+        n[npar+npar*ichain] += 1;
+        else {
+          hist_n_sum[ichain]->Fill(n[npar+npar*ichain]);
+          n[npar+npar*ichain] = 0;
+        }
+
       double dR = sqrt(dR2);
 
       // fill histograms
       if ((!flag_zero && dR > 0) || flag_zero)
         hist_r->Fill(dR);
-
     }
   }
 
@@ -815,18 +844,23 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
   TCanvas* c1 = new TCanvas("c1");
   c1->cd();
 
+  c1->SetLogy();
+
   // draw dr histograms
   for (int ichain = 0; ichain < nchains; ++ichain) {
+    hist_dr_sum.at(ichain)->Scale(1./hist_dr_sum.at(ichain)->Integral());
     if (chainindex > 0 || chainindex == ichain) {
-      hist_dr_all.at(ichain)->Draw();
-      hist_dr_all.at(ichain)->GetYaxis()->SetRangeUser(0.,1.6*hist_dr_all.at(ichain)->GetMaximum());
+      hist_dr_sum.at(ichain)->Draw();
+      //      hist_dr_sum.at(ichain)->GetYaxis()->SetRangeUser(0.,1.6*hist_dr_sum.at(ichain)->GetMaximum());
+      hist_dr_sum.at(ichain)->GetYaxis()->SetRangeUser(scale_min, scale_max);
     }
     else if (chainindex < 0 && ichain == 0) {
-      hist_dr_all.at(ichain)->Draw();
-      hist_dr_all.at(ichain)->GetYaxis()->SetRangeUser(0.,1.6*hist_dr_all.at(ichain)->GetMaximum());
+      hist_dr_sum.at(ichain)->Draw();
+      //      hist_dr_sum.at(ichain)->GetYaxis()->SetRangeUser(0.,1.6*hist_dr_sum.at(ichain)->GetMaximum());
+      hist_dr_sum.at(ichain)->GetYaxis()->SetRangeUser(scale_min, scale_max);
     }
     else if (chainindex < 0)
-      hist_dr_all.at(ichain)->Draw("SAME");
+      hist_dr_sum.at(ichain)->Draw("SAME");
   }
   // draw legend
   legend_chains->Draw();
@@ -836,23 +870,40 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
 
   c1->SetLogy();
 
+  for (int ichain = 0; ichain < nchains; ++ichain) {
+    hist_n_sum.at(ichain)->Scale(1./hist_n_sum.at(ichain)->Integral());
+    if (chainindex > 0 || chainindex == ichain) {
+      hist_n_sum.at(ichain)->Draw();
+      hist_n_sum.at(ichain)->GetYaxis()->SetRangeUser(scale_min, scale_max);
+    }
+    else if (chainindex < 0 && ichain == 0) {
+      hist_n_sum.at(ichain)->Draw();
+      hist_n_sum.at(ichain)->GetYaxis()->SetRangeUser(scale_min, scale_max);
+    }
+    else if (chainindex < 0)
+      hist_n_sum.at(ichain)->Draw("SAME");
+  }
+  // draw legend
+  legend_chains->Draw();
+  c1->Print(filename.c_str());
+
   // draw n histograms
   for (int ipar = 0; ipar < npar; ++ipar) {
     for (int ichain = 0; ichain < nchains; ++ichain) {
       hist_n_all.at(ipar+npar*ichain)->Scale(1./hist_n_all.at(ipar+npar*ichain)->Integral());
       if (chainindex > 0 || chainindex == ichain) {
         hist_n_all.at(ipar+npar*ichain)->Draw();
-        hist_n_all.at(ipar+npar*ichain)->GetYaxis()->SetRangeUser(1e-5,10.);
+        hist_n_all.at(ipar+npar*ichain)->GetYaxis()->SetRangeUser(scale_min, scale_max);
       }
       else if (chainindex < 0 && ichain == 0) {
         hist_n_all.at(ipar+npar*ichain)->Draw();
-        hist_n_all.at(ipar+npar*ichain)->GetYaxis()->SetRangeUser(1e-5,10.);
+        hist_n_all.at(ipar+npar*ichain)->GetYaxis()->SetRangeUser(scale_min, scale_max);
       }
       else if (chainindex < 0)
         hist_n_all.at(ipar+npar*ichain)->Draw("SAME");
-      // draw legend
-      legend_chains->Draw();
     }
+    // draw legend
+    legend_chains->Draw();
 
     if (ipar == npar-1)
       c1->Print(Form("%s)", filename.c_str()));
@@ -863,12 +914,14 @@ void BCPPDiagnostics::PrintStepSize(std::string filename, bool flag_zero, int ch
   // free memory
   delete c1;
   for (int i = 0; i < nchains; ++i) {
-    delete hist_dr_all[i];
+    delete hist_dr_sum[i];
+    delete hist_n_sum[i];
     for (int ipar = 0;ipar < npar; ++ipar)
       delete hist_n_all[ipar + npar*i];
   }
-  hist_dr_all.clear();
+  hist_dr_sum.clear();
   hist_n_all.clear();
+  hist_n_sum.clear();
 
 }
 

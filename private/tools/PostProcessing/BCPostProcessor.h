@@ -121,6 +121,11 @@ class BCPostProcessor
    * Calculate the minimum and maximum of each variable in the trees. */
   void CalculateMinMax();
 
+  /**
+   * Get a color code for each chain
+   * @param chainindex The index of the chain */
+  int GetColorChain(int chainindex);
+
   /** @} */
 
  protected:

@@ -216,3 +216,12 @@ void BCPostProcessor::CalculateMinMax()
 
 
 // ---------------------------------------------------------
+int BCPostProcessor::GetColorChain(int chainindex)
+{
+  if (chainindex < 9)
+    return chainindex+1;
+  else
+    return chainindex+2;
+}
+
+// ---------------------------------------------------------
