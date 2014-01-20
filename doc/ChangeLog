@@ -1,3 +1,6 @@
+2014-01-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxX: bug fix: check if initial parameters are valid was missing a !
+
 2013-12-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.h: removed unused fFlagMarginalized (there is one in BCintegrate.h)
 	* BCModel.cxx: use Clone instead of copy constructor for copying prior histogram.

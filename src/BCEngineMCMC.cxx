@@ -1610,7 +1610,7 @@ int BCEngineMCMC::MCMCInitialize()
       {
          for (unsigned j = 0; j < fMCMCNChains; ++j)
             for (unsigned i = 0; i < fParameters.Size(); ++i)
-               if (fParameters[i]->IsValid(fMCMCInitialPosition[j * fParameters.Size() + i]))
+               if (!fParameters[i]->IsValid(fMCMCInitialPosition[j * fParameters.Size() + i]))
                {
                   BCLog::OutError("BCEngine::MCMCInitialize : Initial position out of boundaries.");
                   flag = false;
