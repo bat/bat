@@ -1,0 +1,2 @@
+Library.BCRooInterface:          libBATmodels.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libPostscript.so libRIO.so libTree.so libRooFit.so libRooFitCore.so libRooStats.so
+Library.RooStats@@BATCalculator: libBATmodels.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libPostscript.so libRIO.so libTree.so libRooFit.so libRooFitCore.so libRooStats.so

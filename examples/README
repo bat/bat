@@ -1,0 +1,103 @@
+BAT examples
+------------
+
+All examples require that BAT was successfully installed in the system.
+Instructions on how to run the examples are either inside the source
+code (for ROOT macros) or in the README file (for compiled examples)
+
+You can also find tutorials on BAT webpage: mpp.mpg.de/bat
+
+Examples in this directory:
+---------------------------
+
+* Directory: basic
+
+  Directory:    poisson
+  Type:         Compiled program
+  Description:  A simple example for a Poisson counting experiment. The
+                expectation value for a Poisson distribution is
+                estimated given a certain number of observations.
+
+  Directoy:     binomial
+  Type:         Compiled program
+  Description:  A simple example for a binomial experiment. The
+                efficiency for a certain process is estimated given a
+                total and selected number of "events" or observations.
+
+  Directory:    errorpropagation
+  Type:         Compiled program
+  Description:  A simple example for error propagation. The probability
+                distribution for the ratio of two random variables is
+                calculated.
+
+  Directory:    combination1d
+  Type:         Compiled program
+  Description:  A simple example for the combination of two
+                measurements where one is the result from an earlier
+                measurement.
+
+  Directory:    combination2d
+  Type:         Compiled program
+  Description:  A simple example for the combination of two
+                measurements with two variables where one is the
+                result from an earlier measurement.
+
+  Directory:    graphFitter
+  Type:         ROOT macro
+  Description:  Straight line fit using GraphFitter assuming gaussian
+                uncertainties.
+
+  Directory:    histogramFitter
+  Type:         ROOT macro
+  Description:  Histogram fit using poissonian uncertainties.
+
+  Directory:    efficiencyFitter
+  Type:         ROOT macro
+  Description:  Efficiency fit. Shows how to fit a histogram ratio where
+                the numerator histogram is a subset of the denominator
+                histogram. Binomial uncertainties are used.
+
+  Directory:    RootOutput
+  Type:         Compiled program
+  Description:  A simple 2D-Gaussian posterior. The example shows how to
+                write the MCMC to a ROOT file.
+
+* Directory: advanced
+
+  Directory:    advancedGraphFitter
+  Type:         ROOT macro
+  Description:  Graph fits using 4 different functions assuming
+                gaussian uncertainties. This example represents the
+                example from the BAT paper showing a comparison
+                between different fits. It also demonstrates the usage
+                of the BCSummaryTool.
+
+  Directory:    polynomialfit
+  Type:         Compiled program
+  Description:  Example showing how to define own complicated models and build
+                a program for running with BAT. It shows fits using
+                two functions when assuming asymmetric uncertainties.
+
+  Directory:    mtf
+  Type:         ROOT macros and compiled programs
+  Description:  Examples for how to fit several templates to a data set
+                using 1-dim. histograms. The examples feature the
+                BCMTF which is included in the models directory. This
+                code will replace the BCTemplateFitter in future
+                versions.
+
+  Directory:    roointerface
+  Type:         Compiled program and ROOT macros
+  Description:  Examples of usage of the RooInterface and BATCalculator.
+                The former shows how BAT analysis can be performed on a
+                RooFit workspace. The later shows how BAT can be run from
+                within RooStats.
+
+* Directory: expert
+
+  Directory:    TrialFunction
+  Type:         Compiled program
+  Description:  A simple 2D-Gaussian posterior. The example shows how to
+                change the trial function for the MCMC.
+
+

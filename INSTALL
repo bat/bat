@@ -1,0 +1,149 @@
+
+BAT - Bayesian Analysis Toolkit
+version 0.9.3
+-------------------------------
+
+This is the INSTALL file of BAT package
+---------------------------------------
+You can find here a short description of what to do to be able to
+compile and use BAT on your computer.
+
+
+Platforms
+----------
+BAT has been developed on Linux machines running different distributions
+and different versions of the kernel and gcc. As far as we know there
+is nothing distribution dependent inside of BAT. However, we have not yet
+started to systematically check for compatibility and portability. This is
+planned for future releases of BAT. For the moment the only statement
+we can make is that if you don't have a too old or too specific
+installation of Linux you should be able to compile and use BAT without
+problems.
+
+The installation and functionality of BAT has also been tested on MAC OS X.
+
+Windows is not supported for the moment.
+
+Dependencies
+-------------
+ROOT:
+   ROOT is an object oriented data analysis framework. You can obtain
+   it from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version
+   5.22 or later is needed to compile and run BAT. Please, check your
+   linux distribution for the availability of precompiled packages on
+   your system. Mostly used distributions nowdays have the ROOT packages
+   available.
+
+Note: To be able to use the interface to RooFit/RooStats the ROOT version
+      5.27/04 or later is necessary and ROOT has to be compiled with
+      MathMore enabled.
+
+Recommended
+-----------
+CUBA:
+   CUBA is a library containing general purpose multidimensional
+   integration algorithms. It can be obtained from
+   http://www.feynarts.de/cuba/. BAT will compile and run with Cuba
+   version 3.2 or later. Cuba is not necessary to run BAT, however, its
+   use is recommended as it provides integration routines tuned for
+   performance, which are very usefull for integration in problems with
+   large number of dimensions.
+
+Installation Procedure
+----------------------
+Unpack the tarball containing the BAT source usually named like
+BAT-x.x.tar.gz (here x.x is the version number) using command
+
+    tar -xzf BAT-x.x.tar.gz
+
+A directory called BAT-x.x will be created containing the source code.
+Enter the directory and run the configuration using commands
+
+    cd BAT-x.x
+    ./configure
+
+This will check your system for all components needed to compile BAT
+and set up the paths for installation. You can add option
+--prefix=/path/to/install/bat to ./configure to specify the the prefix
+to the BAT installation path. The BAT library files will be installed
+to $prefix/lib and the include files to $prefix/include. Default
+installation prefix is /usr/local.
+
+The configure script checks for ROOT availability in the system and
+fails if ROOT is not installed. You can specify the ROOTSYS directory
+using --with-rootsys=/path/to/rootsys.
+
+You can configure BAT with the RooFit/RooStats support using
+--with-roostats. The configure script will check whether the version of
+ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
+support.
+
+Support for openMP threading to run multiple Markov chains in parallel
+is available through the configure option --enable-parallelization; it
+is disabled by default. This requires a version of gcc accepting the
+-fopenmp flag, anything >= 4.2 should suffice.  Note that if threads
+are enabled, the default number of threads actually used is
+implementation dependent and may also depend on the current load of
+the CPU. Manual control over the number of threads is achieved
+entirely by openMP means such as setting the enviroment variable
+OMP_NUM_THREADS before running an executable.
+
+You can compile BAT with Cuba support using option --with-cuba[=DIR].
+The configure script will then search for libcuba.a and cuba.h in the
+system paths, or, if DIR is given, in DIR (correct if cuba just
+compiled in its source directory), and in DIR/lib/ and DIR/include/
+subdirectories. For more fine-grained control, use
+--with-cuba-include-dir=/path/to/cuba/header and
+--with-cuba-lib-dir=/path/to/cuba/lib.
+
+Note that the cuba library still needs to be available to the loader
+at runtime. This is accomplished, for example, by adding
+/path/to/cuba/lib to LD_LIBRARY_PATH. Please compile the Cuba library
+with position-independent code. For example
+./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
+to avoid linker errors like
+/usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32
+against `.rodata.str1.8' can not be used when making a shared object;
+recompile with -fPIC
+
+You can list all available options using
+
+    ./configure --help
+
+After successful configuration run
+
+    make
+    make install
+
+to compile and install BAT. Note that depending on the setting of
+installation prefix you might need root priviledges to be able to install
+BAT and run 'sudo make install' instead of plain 'make install'. If you
+are installing BAT e.g. in your $HOMEDIR, you need to add the path to the
+library and to the include files to the search path in your system.
+Depending on your shell you can do that e.g. via commands
+
+    export BATINSTALLDIR=/bat/install/prefix
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+    export CPATH=$CPATH:$BATINSTALLDIR/include
+
+or
+
+    setenv BATINSTALLDIR     /bat/install/prefix
+    setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
+    setenv CPATH             $CPATH:$BATINSTALLDIR/include
+
+for bash and csh compatible shells, respectively. On Mac OS X you might
+also need to setup DYLD_LIBRARY_PATH.
+
+An option for use in compiled programs would also be to add
+-I/bat/install/include/path to CXXFLAGS and -L/bat/install/lib/path to
+LDFLAGS in your Makefile. However, the interactive ROOT macros will not
+work if libBAT.so, libBATmodels.so, libBATmtf.so, libBATmvc.so,
+libBAT.rootmap, libBATmodels.rootmap, libBATmtf.rootmap and libBATmvc.rootmap
+are not in the system library search path.
+
+
+----------------------------------------------------------------------------
+Please, consult the BAT webpage http://mpp.mpg.de/bat/ for further
+information. You can also contact the authors directly via
+email: bat@mpp.mpg.de

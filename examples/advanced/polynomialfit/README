@@ -1,0 +1,44 @@
+
+This example is part of BAT. It will only run if BAT is correctly
+installed in the system.
+
+The eample shows how to preperly define a new model class
+based on the BCModel class or on any previously defined class
+which inherits from BCModel. It demonstrates how to create
+a simple compiled program using BAT.
+
+In the example there are many of BAT features shown. The source
+files contain plenty of comments and explanations.
+
+
+The files:
+----------
+
+   Makefile       - makefile for the example program
+   Pol1Asymm.h    - definition of a model class for straight line
+                    fit with asymmetric errors
+   Pol1Asymm.cxx  - soure code of the Pol1Asymm class
+   Pol2Asymm.h    - definition of a model class for quadratic
+                    fit with asymmetric errors
+   Pol2Asymm.cxx  - soure code of the Pol2Asymm class
+   asymmErrorsFitterExample.cxx
+                  - source code of the main program
+   CreateData.C   - a ROOT macro for creating the data to fit
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system
+
+2. Compile the example by running 'make' in the example directory
+
+	For the compilation to work properly BAT needs to be installed
+	in the standard system accessible location or in the path defined
+	by the BATINSTALLDIR environmental variable.
+
+3. Prepare the dataset to fit using the ROOT macro CreateData.C
+   (e.g. by running root CreateData.C from the command line)
+
+4. Run the executable 'asymmErrorsFitterExample'
+

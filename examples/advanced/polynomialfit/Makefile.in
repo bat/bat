@@ -1,0 +1,82 @@
+###################################################################
+# This Makefile was created using the ./CreateProject.sh script.
+# CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+# BAT can be downloaded from http://mpp.mpg.de/bat
+###################################################################
+#
+# Run 'make' to compile the program and 'make clean' to remove
+# all compiled parts and 'clean' the directory.
+#
+# You might need to adjust the CFLAGS and LIBS based on
+# the BAT installation on your system. Consult the gmake manual
+# for details.
+#
+###################################################################
+
+# Root variables
+ROOTCFLAGS   := $(shell root-config --cflags)
+ROOTLIBS     := -lMinuit $(shell root-config --libs)
+
+@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
+
+# Programs
+CXX          = @CXX@
+CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
+LD           = @LD@
+LDFLAGS      = -g -O2 @LDFLAGS@
+
+RM           = rm -f
+MV           = mv
+ECHO         = echo
+
+# add ROOT flags
+CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
+
+# ----------------------------------------------------------------------
+# The following definitions depend on the setup of the system where
+# the project is being compiled. If BAT is installed in the standard
+# system search path or the installation directory is defined in the
+# BATINSTALLDIR environmental variable then the lines below are correct
+# and the compilation will work
+CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/include
+LIBS        += -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT $(ROOTLIBS)
+
+@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
+
+# List of all classes (models) used in the program
+# Add classes to the end. Baskslash indicates continuation
+# on the next line
+CXXSRCS      = \
+	Pol1Asymm.cxx \
+	Pol2Asymm.cxx
+
+CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
+EXEOBJS      =
+GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d asymmErrorsFitterExample
+
+all : asymmErrorsFitterExample
+
+link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
+
+-include link.d
+
+%.o : %.cxx
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean :
+	$(RM) $(GARBAGE)
+
+asymmErrorsFitterExample : asymmErrorsFitterExample.cxx $(CXXOBJS)
+	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(LDFLAGS) $@.o $(CXXOBJS) $(LIBS) -o $@
+
+print :
+	echo compiler  : $(CXX)
+	echo compiler  : $(CXSRCS)
+	echo c++ srcs  : $(CXXSRCS)
+	echo c++ objs  : $(CXXOBJS)
+	echo c++ flags : $(CXXFLAGS)
+	echo libs      : $(LIBS)
+
+	echo rootlibs  : $(ROOTLIBS)

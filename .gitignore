@@ -1,0 +1,88 @@
+# Autotools
+aclocal.m4
+*.cache
+config/
+config.*
+configure
+.deps/
+depcomp
+install-sh
+libtool
+*.d
+*.log
+ltmain.sh
+Makefile
+/Makefile.in
+/benchmarks/test/Makefile.in
+/models/base/Makefile.in
+/models/mtf/Makefile.in
+/models/mvc/Makefile.in
+/src/Makefile.in
+missing
+stamp-h1
+*.status
+/test-driver
+
+# ROOT
+*Dict.h
+*Dict.cxx
+#*.rootmap
+
+# Results
+*.[oa]
+CreateProject.sh
+*.l[oa]
+*.libs
+*.Plo
+*.so
+
+# Documentation
+doc/introduction/*
+!doc/introduction/introduction.tex
+
+# Editors
+.autotools
+*.*project
+.settings/org.eclipse*
+*~
+
+###
+# Examples
+###
+
+# outputs
+*log.txt
+*results.txt
+*.pdf
+*.png
+*.root
+
+# Binaries
+asymmErrorsFitterExample
+ensembletest
+runAnomCouplings
+runCombineGaussians
+runEfficiency
+runErrorPropagation
+runMVCombination
+runMyCombination
+runMyFit
+runPoissonCounting
+runReferenceCounting
+runRooInterface
+runRootOutput
+runSystematics
+runTrialFunction
+sensitivity
+templatefit
+
+# Performance tests
+*.html
+*.php
+*.png
+*.tst
+
+runTestSuite.exe
+
+# unit tests
+*_TEST

@@ -1,0 +1,23 @@
+oneObservable:
+--------------
+Combination of three measurements of one observable.
+
+constraints:
+------------
+Measurement of two fractions (observables) constrained to be in the
+interval [0,1]. Includes goodness-of-fit test and ranking of
+measurements and uncertainties.
+
+nuisance:
+---------
+Combination of three correlated measurements of one observable with
+one source of uncertainty.
+
+inverseProblem:
+---------------
+An example with a physics model with two parameters.
+
+PPP:
+----
+An example following Peelle's Pertinent Puzzle in Nucl. Sc. and
+Eng. 170 (2012) 54.

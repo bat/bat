@@ -1,0 +1,35 @@
+Description:
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+The example shows the same example a the `twoChannels' example, but
+now ensemble tests are performed. The ensembles are generated assuming
+the same statistical model using the best-fit parameters.
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://mpp.mpg.de/bat/
+
+
+Files:
+------
+
+  README             - this file
+  ensembleTest.C     - the source code of the main program
+  CreateHistograms.C - a macro which create the templates and the pseudodata histograms
+
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Create the templates and data histograms by calling the ROOT
+   macro 'root CreateHistogram.C' 
+
+3. Run the macro in a ROOT session, e.g., with 'root ensembleTest.C'

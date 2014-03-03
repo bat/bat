@@ -1,0 +1,36 @@
+Description:
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+The example shows how to perform a fit with two channels. The signal
+is a Gaussian in both channels, but wider in the second one. Also, the
+efficiency in both channels is different. Each channel has one
+channel-specific background.
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://mpp.mpg.de/bat/
+
+
+Files:
+------
+
+  README             - this file
+  twoChannels.C      - the source code of the main program
+  CreateHistograms.C - a macro which create the templates and the pseudodata histograms
+
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Create the templates and data histograms by calling the ROOT
+   macro 'root CreateHistogram.C' 
+
+3. Run the macro in a ROOT session, e.g., with 'root twoChannels.C'

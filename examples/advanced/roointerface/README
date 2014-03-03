@@ -1,0 +1,132 @@
+
+-------------------------------------------------------------
+ README file for the BCRooInterface and BATCalculator classes
+-------------------------------------------------------------
+
+!!!!!!!!!!!!!!!!!
+!!! IMPORTANT !!!
+!!!!!!!!!!!!!!!!!
+!!! To be able to run the examples described here, BAT has to be compiled
+!!! with the Roofit/RooStats support.
+!!!
+!!! The examples are not thread safe. If BAT is compiled with support for
+!!! threading, one has to set the number of threads to 1; e.g.,
+!!! OMP_NUM_THREADS=1 ./runRooInterface ...
+!!!
+!!! See BAT installation instructions for details.
+!!!!!!!!!!!!!!!!!
+
+
+BCRooInterface
+--------------
+
+The BCRooInterface is a model interface developed in order to allow
+running BAT (Bayesian Analysis Toolkit) from a data/pdf/prior model
+described using RooFit package that is available from ROOT.
+
+BATCalculator
+-------------
+
+BATCalulator builds upon the BCRooInterface class and provides an interface
+that can be used just like any other Interval Calulator in RooStats.
+
+INSTALLATION
+------------
+
+As of BAT version 0.4 BCRooInterface as well as BATCalculator can be
+optionally compiled during BAT compilation. See BAT installation
+instructions for details.
+
+
+RUNNING THE BCRooInterface EXAMPLES
+-----------------------------------
+
+Compile the program by running
+
+   make
+
+This will create an executable called runRooInterface.
+
+To run the interface, you need first to prepare a ROOT file that
+contains the PDF and prior probability models.
+
+The four examples are provided:
+
+ - Number counting experiment in the presence of signal and
+   background. The likelihood being the Poisson formula and the signal
+   prior flat.
+
+    root -q -x -l PrepareWorkspace_Poisson.C
+
+ - The same but taking the background yield as a nuisance parameter
+   with a Gaussian prior.
+
+    root -q -x -l PrepareWorkspace_Poisson_withSystematics.C
+
+ - Unbinned likelihood model: The signal is assumed to have a gaussian
+   PDF and the background a flat shape. The signal prior is flat.
+
+    root -q -x -l PrepareWorkspace_GaussOverFlat.C
+
+ - The same but taking the background yield and the sigma of the
+   signal PDF as nuisance parameters with Gaussian priors.
+
+    root -q -x -l PrepareWorkspace_GaussOverFlat_withSystematics.C
+
+Then one can use the compiled interface macro. Calling runRooInterface without
+arguments will display some help information and proceed running with default
+file names. The user can specify 2 arguments being the name of the ROOT file
+that contains the RooWorkspace (holding the RooFit objects representing the
+data/pdf/prior/etc), and optionally the name of this workspace (default:
+myWS). In any case, the ROOT file should contain a workspace that itself
+contains:
+
+ - data: a RooAbsData object holding the data measurements
+ - model: a RooAbsPdf object holding the probability density function
+ - priorPOI and priorNuisance: two RooAbsPdf objects representing
+   respectively the prior probability on the parameter of interest and
+   the nuisance parameters. The final prior PDF will be a product of
+   those two distributions. This separation is done in order to be
+   able to re-use these object differently in other statistical
+   methods. In case priorPOI or priorNuisance is a null pointer only
+   the other one will be used (this way correlation between the POI
+   and other nuisance parameters can be accomodated)
+ - POI: a RooArgList holding one single object being the parameter of
+   interest (used to identify it from other nuisance parameters)
+ - parameters: a RooArgList holding all nuisance parameters
+   (used to know on which parameters, in addition to the POI, to
+   perform the MCMC; the range of those variables define the range to
+   use for the MC sampling)
+
+The interface can be run with:
+
+    ./runRooInterface WS_GaussOverFlat_withSystematics.root myWS
+
+Using the default arguments would be similar to:
+
+    ./runRooInterface bat_workspace.root myWS
+
+More documentation, examples and maybe an undated version of BCRooInterface
+might be available on the webpage:
+
+    http://www-ekp.physik.uni-karlsruhe.de/~schott/BCRooInterface/
+
+
+RUNNING THE BATCalculator EXAMPLE
+---------------------------------
+
+The tutorial macro runBATCalulator.C can be be run via
+
+    root -l
+    .x runBATCalculator.C
+
+Further explanations about the example can be found within the code.
+
+It is possible to use the BATCalculator class within C++ programs by
+making use of the BAT libraries .
+
+----------------------------------------------------------------------------
+BCRooInterface and BATCalculator are provided by:
+- Gregory Schott <gregory.schott@cern.ch>
+- Stefan A. Schmitz <staschmitz@physik.rwth-aachen.de>
+

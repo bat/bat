@@ -1,0 +1,68 @@
+n------------------------------------------
+BAT - Bayesian Analysis Toolkit
+------------------------------------------
+Release notes for version:    0.9.3
+Release date:                 2013-09-27
+Urgency:                      high
+------------------------------------------
+
+New features:
+-------------
+* Parallel Metropolis algorithm using threads (default: off)
+* Parameters can be fixed for any of the algorithms using BCParameter::Fix
+* Better handling of algorithms via setters
+* Added method to evaluate posterior probability on a grid (histogram)
+* Marginalization defaults to grid in 1D and 2D,
+  and Metropolis in higher dimensions
+* Added method to get a slice in 1D and 2D of the posterior
+  probability at a fixed point
+* Added a model for multivariate Gaussian combinations (models/mvc)
+  including examples
+
+Improvements:
+----------------------------
+* More plotting options and color schemes, default scheme updated
+* Default plotting now into pdf files
+* Full access to all Cuba methods
+* All fitters now inherit from a base fitter model
+* More p values use correction for degrees of freedom
+* MTF models now include an estimation of MC stat. uncertainty
+* Massive refactoring to simplify core of BAT
+
+Fixes:
+------
+* Proper rounding of integers in calculation of Poisson likelihood
+* Removed buggy hit-or-miss integration algorithm
+* Linking errors on ubuntu >= 12.04
+* Constant priors respect fixed parameters
+
+Interface changes (for users of previous BAT versions):
+-------------------------------------------------------
+* Properties of individual parameters are now part of the Parameter object
+  BCEngineMCMC::MCMCSetFlagFillHistograms => BCParameter::FillHistograms
+  BCEngineMCMC::SetParameterRange => BCParameter::SetLimits
+  BCModel::SetPriorDelta is now equivalent to BCParameter::Fix
+  BCModel::SetNbins => BCParameter::SetNbins
+  etc.
+
+  In user code, this becomes
+  #include <BAT/BCParameter.h>
+  ...
+  mymodel.GetParameter(i)->SetLimits(1, 10);
+
+* the plotting scheme has been changed and provides many more options
+  BCH1D::Draw(int options, ovalue) => BCH1D::Draw(std::string options="BTciB1CS1D0pdf0Lmeanmode", std::vector<double> intervals=std::vector<double>(0))
+  BCH2D:Draw(int options=0, bool drawmode=true) => BCH2D::Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0))
+
+* Accessors to low-level details in BCEngineMCMC are removed or renamed
+  MCMCGetNTrialsFalse => MCMCGetNTrials
+
+* Several unused methods in BCH2D were removed:
+  std::vector<double> GetLevelBoundary(double level)
+  std::vector<double> GetLevelBoundary(TH2D * h, double level)
+  TGraph * GetBandGraph(double level1, double level2)
+  TGraph * GetBandGraph(TH2D * h , double level1, double level2)
+  TGraph ** GetBandGraphs(TH2D * h, int &n)
+
+* Use standard min and max functions in BCMath
+

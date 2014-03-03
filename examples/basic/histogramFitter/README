@@ -1,0 +1,30 @@
+Description:
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+The example shows how to use the histogram fitter which comes with
+BAT. It fits a const + Gaussian function to a histogram assuming
+Poissonian uncertainties in each bin.
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://mpp.mpg.de/bat/
+
+
+Files:
+------
+
+  README                    - this file
+  histogramFitterExample.C  - the source code of the main program
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Run the macro in a ROOT session, e.g., with 'root histogramFitterExample.C'

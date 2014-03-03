@@ -1,0 +1,32 @@
+Description:
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+The example shows how to use the graph fitter which comes with BAT. It
+fits four different functions assuming gaussian uncertainties. This
+example represents the example from the BAT paper showing a comparison
+between different fits. It also demonstrates the usage of the
+BCSummaryTool.
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://mpp.mpg.de/bat/
+
+
+Files:
+------
+
+  README                        - this file
+  graphFitterAdvancedExample.C  - the source code of the main program
+  data/                         - a directory containing the data
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Run the macro in a ROOT session, e.g., with 'root graphFitterAdvancedExample.C'

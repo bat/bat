@@ -1,0 +1,43 @@
+Description:
+------------
+
+This example is part of BAT. It will only run if BAT is correctly
+installed on the system.
+
+This example is similar to the `twoChannels' example, but now
+including two sources of systematic uncertainty which alter the
+templates.
+
+The source file(s) contain(s) plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and/or the
+reference guide, both available on the BAT web page:
+
+http://mpp.mpg.de/bat/
+
+
+Files:
+------
+
+  README             - this file
+  Makefile           - makefile for the example program
+  runSystematics.cxx - the source code of the main program
+  CreateHistograms.C - a macro which create the templates and the pseudodata histograms
+
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system.
+
+2. Create the templates and data histograms by calling the ROOT
+   macro 'root CreateHistogram.C'
+
+3. Compile the example by running 'make' in the example directory
+
+   For the compilation to work properly BAT needs to be installed
+   in the standard system accessible location or in the path defined
+   by the BATINSTALLDIR environmental variable.
+
+4. Run the executable 'runSystematics'.
+

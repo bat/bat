@@ -1,0 +1,36 @@
+
+This file lists the people who contributed to the BAT project as of 27.09.2013
+
+
+Authors:
+--------
+
+Allen Caldwell    -  MPI for Physics, Munich, Germany
+Daniel Kollar     -  Nürnberg, Germany
+Kevin Kröninger   -  University of Göttingen, Germany
+Frederik Beaujean -  Technical University Munich, Germany
+Daniel Greenwald  -  Technical University Munich, Germany
+
+Contributors in alphabetical order:
+-----------------------------------
+
+Carsten Brachem
+  - University of Göttingen, Germany
+  - Simulated Annealing
+
+James Ferrando
+  - University of Oxford, UK
+  - autoconf/automake installation procedure
+
+Jing Liu
+  - MPI for Physics, Munich, Germany
+  - test suite for MCMC performance
+
+Stefan Schmitz
+  - RWTH Aachen University, Germany
+  - RooFit/RooStats interface
+
+Gregory Schott
+  - University of Karlsruhe, Germany
+  - RooFit/RooStats interface
+

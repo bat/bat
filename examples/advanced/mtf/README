@@ -1,0 +1,26 @@
+singleChannel:
+--------------
+A simple fit of a Gaussian peak on top of a flat background
+
+twoChannels:
+------------
+A fit with two channels. The signal is a Gaussian in both channels,
+but wider in the second one. Also, the efficiency in both channels is
+different. Each channel has one channel-specific background.
+
+ensembletest:
+-------------
+Same setting as in twoChannels example, but now ensemble tests are
+performed. The ensembles are generated assuming the same statistical
+model using the best-fit parameters.
+
+systematics:
+------------
+A similar example, but now including two sources of systematic
+uncertainty which alter the templates.
+
+mcstat:
+-------
+The example shows how to estimate the impact of finite MC statistics
+of the templates in a simple fit of a Gaussian peak on top of a flat
+background.

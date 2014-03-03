@@ -1,0 +1,66 @@
+
+BAT - Bayesian Analysis Toolkit
+version 0.9.3
+-------------------------------
+
+The Bayesian Analysis Toolkit is a software analysis package which allows
+to address the main goals of a typical data anaysis:
+
+ - compare model predictions with data,
+ - draw conclusions on the validity of the model as a representation
+   of the data and
+ - extract the possible values of parameters within the context of
+   a model.
+
+The BAT is based on Bayes' Theorem and is realized with the use of Markov
+Chain Monte Carlo. This gives access to the full posterior probability
+distribution and enables straightforward parameter estimation, limit
+setting and uncertainty propagation.
+
+The BAT is implemented in C++ with emphasis put to flexibility and
+modularity in defining models while keeping in mind the reliability
+and speed requirements of the numerical operations.
+
+The information about the main features introduced in this version
+can be found in doc/releasnotes.txt. The detailed list of changes
+can be found in doc/ChangeLog.
+
+
+Authors:
+--------
+See doc/CREDITS file for list of contributors to BAT.
+
+
+Availability:
+-------------
+The BAT is available from http://mpp.mpg.de/bat/.
+See doc/COPYING and doc/LICENSE for licensing terms.
+
+
+Contents:
+---------
+Directory bat/:
+
+   doc       - directory containing information about BAT
+   examples  - directory containing well commented example programs
+   BAT       - directory containing BAT header files
+   src       - directory containing BAT source files
+   models    - directory containing models and interfaces for BAT
+   tools     - directory containing tools useful for BAT
+   INSTALL   - information about how to install BAT on your system
+   README    - basic information about BAT (this file)
+
+Other files distributed with BAT are part of installation and configuration
+system.
+
+
+Installation:
+-------------
+See the INSTALL file for installation instructions.
+
+
+
+-------------
+For additional information and contacting the authors, please, consult
+the BAT webpage at http://mpp.mpg.de/bat/.
+

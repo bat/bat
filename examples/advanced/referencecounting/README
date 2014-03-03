@@ -1,0 +1,28 @@
+This example is part of BAT. It will only run if BAT is correctly
+installed in the system.
+
+The example calculates the signal reference prior and posterior for a
+counting experiment following JINST 7 (2012) P01012 [arXiv:1108.4270].
+
+
+The files:
+----------
+
+   Makefile               - makefile for the example program
+   ReferenceCounting.h    - definition of the counting model
+   ReferenceCounting.cxx  - soure code of the counting class
+
+
+Running the example:
+--------------------
+
+1. Make sure that BAT is correctly installed in the system
+
+2. Compile the example by running 'make' in the example directory
+
+	For the compilation to work properly BAT needs to be installed
+	in the standard system accessible location or in the path defined
+	by the BATINSTALLDIR environmental variable.
+
+4. Run the executable 'runReferenceCounting.cxx'
+

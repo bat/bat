@@ -1,0 +1,16 @@
+Library.BCAux:               libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCDataPoint:         libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCDataSet:           libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCEngineMCMC:        libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCGoFTest:           libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCH1D:               libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCH2D:               libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCIntegrate:         libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCLog:               libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCMath:              libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCModel:             libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCModelManager:      libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCModelOutput:       libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCParameter:         libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCSummaryPriorModel: libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
+Library.BCSummaryTool:       libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libMinuit.so libPostscript.so libRIO.so libTree.so
