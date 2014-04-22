@@ -9,8 +9,7 @@ SUBDIRS= \
 	src \
 	models/base \
 	models/mtf \
-	models/mvc \
-	benchmarks/test
+	models/mvc
 
 EXTRA_DIST= \
 	src/libBAT.rootmap \
@@ -27,8 +26,6 @@ dist-hook: prep-docs
 #	rm -f $(distdir)/src/*Dict.*
 #	rm -f $(distdir)/models/*Dict.*
 	rm -f $(distdir)/models/libBATmodels.rootmap
-	rm -rf `find $(distdir)/examples -name .svn`
-	rm -rf `find $(distdir)/models -name .svn`
 	rm -rf `find $(distdir)/examples -name Makefile`
 
 prep-docs: BAT-intro.pdf BAT-quickstart.pdf
