@@ -140,6 +140,7 @@ AC_DEFUN(
 	[require_ROOT_version=$1]
 )
 REQUIRE_ROOT_VERSION([5.22])
+
 dnl RooStats
 AC_ARG_WITH(
 	[roostats],
@@ -164,7 +165,13 @@ ROOT_PATH(
 	]
 )
 dnl add some libraries to set of basic root libraries
-ROOTLIBS="$ROOTLIBS -lMathMore -lMinuit"
+ROOTLIBS="$ROOTLIBS -lMinuit"
+
+dnl mathmore is a requirement of roostats
+AC_MSG_CHECKING(whether ROOT is compiled with MathMore support)
+hasmathmore=`$ROOTCONF --has-mathmore`
+AC_MSG_RESULT($hasmathmore)
+AM_CONDITIONAL([ROOTMATHMORE], [test x$hasmathmore = xyes])
 
 dnl RooFit
 if test $use_roostats = yes; then

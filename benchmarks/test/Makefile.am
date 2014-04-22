@@ -22,15 +22,13 @@ noinst_LIBRARIES = libBATtest.a
 
 libBATtest_a_SOURCES = \
 	test.cxx test.h \
-	GaussModel.cxx GaussModel.h \
-	IntegrationModel.cxx IntegrationModel.h
+	GaussModel.cxx GaussModel.h
 
 TESTS = \
 	test_TEST \
 	BCMath_TEST \
 	BCModel_TEST \
 	BCSummaryTool_TEST \
-	BCIntegrate_TEST \
 	parallel_TEST
 
 LDADD = libBATtest.a $(top_builddir)/src/libBAT.la \
@@ -52,6 +50,14 @@ BCModel_TEST_SOURCES = BCModel_TEST.cxx
 
 BCSummaryTool_TEST_SOURCES = BCSummaryTool_TEST.cxx
 
-BCIntegrate_TEST_SOURCES = BCIntegrate_TEST.cxx
-
 parallel_TEST_SOURCES = parallel_TEST.cxx
+
+# need special Legendre function from the gsl via mathmore
+# for the integration test functions
+if ROOTMATHMORE
+libBATtest_a_SOURCES +=	IntegrationModel.cxx IntegrationModel.h
+TESTS += BCIntegrate_TEST
+BCIntegrate_TEST_SOURCES = BCIntegrate_TEST.cxx
+LDADD += -lMathMore
+endif
+

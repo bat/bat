@@ -34,12 +34,6 @@ incs = \
 	BCMVCDataModel.h \
 	BCMVCPhysicsModel.h
 
-## RooStats specific options
-if ROOSTATS
-AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
-endif
-## End of RooStats specific options
-
 library_include_HEADERS= $(incs)
 libBATmvc_la_SOURCES= \
 	$(incs:.h=.cxx)
