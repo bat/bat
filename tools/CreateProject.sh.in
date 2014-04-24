@@ -159,7 +159,7 @@ double |:Model:|::LogAPrioriProbability(const std::vector<double> &parameters)
 EOF
 }
 
-function m_makefile1() {
+function m_makefile() {
 cat << EOF
 ###################################################################
 # This Makefile was created using the $PROGRAM script
@@ -171,16 +171,11 @@ cat << EOF
 # Run 'make' to compile the program and 'make clean' to remove
 # all compiled parts and 'clean' the directory.
 #
-# You might need to adjust the CFLAGS and LIBS based on the BAT
-# installation on your system. Consult the gmake manual for details.
+# You might need to adjust the CXXFLAGS and LIBS based on
+# the BAT installation on your system. Consult the gmake manual
+# for details.
 #
 ###################################################################
-
-# Root variables
-ROOTCFLAGS   := \$(shell root-config --cflags)
-ROOTLIBS     := -lMinuit \$(shell root-config --libs)
-
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
 CXX          = @CXX@
@@ -188,45 +183,37 @@ CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
 LDFLAGS      = -g -O2 @LDFLAGS@
 
-# standard commands
-RM           = rm -f
-MV           = mv
-ECHO         = echo
-
-# add ROOT flags
-CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
-
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
 # the project is being compiled. If BAT is installed in the standard
 # system search path or the installation directory is defined in the
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
-CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
-LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBAT \$(ROOTLIBS)
+CXXFLAGS    += -I./include -I\$(BATINSTALLDIR)/include @ROOTCFLAGS@
+LIBS         = -L\$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBATmvc -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
 
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
+@CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
+@CUBA_TRUE@LIBS     += -lcuba
 
 # List of all classes (models) used in the program
 # Add classes to the end. Backslash indicates continuation
 # on the next line
 CXXSRCS      = \\
-	|:Model:|.cxx
+	run|:Model:|.cxx |:Model:|.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
 #
 
 CXXOBJS      = \$(patsubst %.cxx,%.o,\$(CXXSRCS))
-EXEOBJS      =
 MYPROGS     = \\
 	run|:Project:|
 
-GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$(MYPROGS)
+GARBAGE      = \$(CXXOBJS) *.o *~ link.d \$(MYPROGS)
 
 
 # targets
-all : project
+all : run|:Model:|
 
 link.d : \$(patsubst %.cxx,%.h,\$(CXXSRCS))
 	\$(CXX) -MM \$(CXXFLAGS) \$(CXXSRCS) > link.d;
@@ -237,106 +224,18 @@ link.d : \$(patsubst %.cxx,%.h,\$(CXXSRCS))
 	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
 
 clean :
-	\$(RM) \$(GARBAGE)
+	rm -f \$(GARBAGE)
 
-project : run|:Project:|.cxx \$(CXXOBJS)
-	\$(CXX) \$(CXXFLAGS) -c \$<
-	\$(CXX) \$(LDFLAGS) run|:Project:|.o \$(CXXOBJS) \$(LIBS) -o run|:Project:|
-
-print :
-	echo compiler  : \$(CXX)
-	echo c++ srcs  : \$(CXXSRCS)
-	echo c++ objs  : \$(CXXOBJS)
-	echo c++ flags : \$(CXXFLAGS)
-	echo libs      : \$(LIBS)
-	echo so flags  : \$(SOFLAGS)
-
-	echo rootlibs  : \$(ROOTLIBS)
-
-EOF
-}
-
-function m_makefile2() {
-cat << EOF
-###################################################################
-# This Makefile was created using the $PROGRAM script
-# for project $MYPROJECT.
-# $PROGRAM is part of Bayesian Analysis Toolkit (BAT).
-# BAT can be downloaded from http://mpp.mpg.de/bat
-###################################################################
-#
-# Run 'make' to compile the program and 'make clean' to remove
-# all compiled parts and 'clean' the directory.
-#
-# You might need to adjust the CFLAGS and LIBS based on the BAT
-# installation on your system. Consult the gmake manual for details.
-#
-###################################################################
-
-# Root variables
-ROOTCFLAGS   := \$(shell root-config --cflags)
-ROOTLIBS     := \$(shell root-config --libs) -lMinuit
-
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
-
-# compiler and flags
-CXX          = @CXX@
-CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
-LD           = @LD@
-LDFLAGS      = -g -O2 @LDFLAGS@
-
-# standard commands
-RM           = rm -f
-MV           = mv
-ECHO         = echo
-
-# add ROOT flags
-CXXFLAGS    += \$(ROOTCFLAGS) @CUBAINCLUDE@
-
-# ----------------------------------------------------------------------
-# The following definitions depend on the setup of the system where
-# the project is being compiled. If BAT is installed in the standard
-# system search path or the installation directory is defined in the
-# BATINSTALLDIR environmental variable then the lines below are correct
-# and the compilation will work
-CXXFLAGS    += -I. -I./include -I\$(BATINSTALLDIR)/include
-LIBS        += -L\$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBAT \$(ROOTLIBS)
-
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
-
-# ----------------------------------------------------------------------
-# don't change lines below unless you know what you're doing
-#
-
-CXXOBJS      =
-EXEOBJS      =
-MYPROGS     = \\
-	run|:Project:|
-
-GARBAGE      = \$(CXXOBJS) \$(EXEOBJS) *.o *~ link.d \$(MYPROGS)
-
-
-# targets
-all : project
-
-%.o : %.cxx
-	\$(CXX) \$(CXXFLAGS) -c \$< -o \$@
-
-clean :
-	\$(RM) \$(GARBAGE)
-
-project : run|:Project:|.cxx
-	\$(CXX) \$(CXXFLAGS) -c \$<
-	\$(CXX) \$(LDFLAGS) run|:Project:|.o \$(LIBS) -o run|:Project:|
+run|:Model:| : \$(CXXOBJS)
+	\$(CXX) \$(LDFLAGS) \$(CXXOBJS) \$(LIBS) -o run|:Project:|
 
 print :
-	echo compiler  : \$(CXX)
-	echo c++ objs  : \$(CXXOBJS)
-	echo c++ flags : \$(CXXFLAGS)
-	echo libs      : \$(LIBS)
-	echo so flags  : \$(SOFLAGS)
-
-	echo rootlibs  : \$(ROOTLIBS)
+	@echo compiler  : \$(CXX)
+	@echo c++ srcs  : \$(CXXSRCS)
+	@echo c++ objs  : \$(CXXOBJS)
+	@echo c++ flags : \$(CXXFLAGS)
+	@echo ld flags  : \$(LDFLAGS)
+	@echo libs      : \$(LIBS)
 
 EOF
 }
@@ -506,12 +405,13 @@ print some basic information on the screen.
 EOF
 
    if [[ "$MYMODEL" == "-" ]]; then
-      m_makefile2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
+      # reuse generated makefile but without a model, exchange one line
+      m_makefile | sed -e " s/run|\:Model\:|\.cxx |\:Model\:|\.cxx/run|\:Project\:|\.cxx/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g;" > $MYPROJECT/Makefile
       m_main2 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
    else
       m_header | sed -e "s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/$MYMODEL.h
       m_sourcecode | sed -e "s/|\:Model\:|/$MYMODEL/g" > $MYPROJECT/$MYMODEL.cxx
-      m_makefile1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
+      m_makefile | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/Makefile
       m_main1 | sed -e "s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" > $MYPROJECT/run$MYPROJECT.cxx
       echo "Implement your model in files:   $MYMODEL.h  $MYMODEL.cxx"
    fi

@@ -1,33 +1,23 @@
 ###################################################################
+# This Makefile was created using the CreateProject.sh script.
+# CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+# BAT can be downloaded from http://mpp.mpg.de/bat
+###################################################################
 #
 # Run 'make' to compile the program and 'make clean' to remove
 # all compiled parts and 'clean' the directory.
 #
-# You might need to adjust the CFLAGS and LIBS based on
+# You might need to adjust the CXXFLAGS and LIBS based on
 # the BAT installation on your system. Consult the gmake manual
 # for details.
 #
 ###################################################################
 
-# Root variables
-ROOTCFLAGS   := $(shell root-config --cflags)
-ROOTLIBS     := -lMinuit $(shell root-config --libs)
-
-# This program needs RooFit and RooStats, otherwise it won't compile
-ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
-
-# Programs
+# compiler and flags
 CXX          = @CXX@
 CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
 LDFLAGS      = -g -O2 @LDFLAGS@
-
-RM           = rm -f
-MV           = mv
-ECHO         = echo
-
-# Assign or Add variables
-CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
 
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
@@ -35,24 +25,23 @@ CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
 # system search path or the installation directory is defined in the
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
-CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/include
-LIBS        += -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT $(ROOTLIBS)
+CXXFLAGS += -I$(BATINSTALLDIR)/include @ROOTCFLAGS@
+LIBS      = -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
 
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
+@CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
+@CUBA_TRUE@LIBS     += -lcuba
 
-#CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/BAT -I$(ROOTSYS)/roofit/roofitcore/inc -I$(ROOTSYS)/roofit/roofit/inc
+# ----------------------------------------------------------------------
+# don't change lines below unless you know what you're doing
+#
 
-#LIBS        += $(ROOTLIBS)  -L$(BATINSTALLDIR)/lib -lRooFit -lRooFitCore -lFoam -lRooStats -lBAT -lBATmodels
-
-CXSRCS      = 
-CXXSRCS      = $(patsubst %.cxx,%.cxx,$(CXSRCS))
-CXXOBJS      = $(patsubst %.cxx,%.o,$(CXSRCS))
-EXEOBJS      =
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d runRooInterface
+CXXSRCS      = runRooInterface.cxx
+CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
+GARBAGE      = $(CXXOBJS) *~ link.d $(MYPROGS)
 
 all : @ROOSTATS_TRUE@ runRooInterface
 
-link.d : $(patsubst %.cxx,%.h,$(CXSRCS))
+link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
 
 -include link.d
@@ -61,18 +50,14 @@ link.d : $(patsubst %.cxx,%.h,$(CXSRCS))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean :
-	$(RM) $(GARBAGE)
+	rm -f $(GARBAGE)
 
-runRooInterface : runRooInterface.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) $@.o $(CXXOBJS) $(LIBS) -o $@
+runRooInterface : $(CXXOBJS)
+	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o $@
 
 print :
-	echo compiler  : $(CXX)
-	echo compiler  : $(CXSRCS)
-	echo c++ srcs  : $(CXXSRCS)
-	echo c++ objs  : $(CXXOBJS)
-	echo c++ flags : $(CXXFLAGS)
-	echo libs      : $(LIBS)
-
-	echo rootlibs  : $(ROOTLIBS)
+	@echo compiler  : $(CXX)
+	@echo c++ srcs  : $(CXXSRCS)
+	@echo c++ objs  : $(CXXOBJS)
+	@echo c++ flags : $(CXXFLAGS)
+	@echo libs      : $(LIBS)
