@@ -239,8 +239,8 @@ public:
 
    /**
     *   */
-   int PrintAllMarginalized1D(const char * filebase);
-   int PrintAllMarginalized2D(const char * filebase);
+   int PrintAllMarginalized1D(const char * filebase, std::string filetype="pdf");
+   int PrintAllMarginalized2D(const char * filebase, std::string filetype="pdf");
    int PrintAllMarginalized(const char * file, std::string options1d="BTsiB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
 
 
