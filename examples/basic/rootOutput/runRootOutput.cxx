@@ -40,6 +40,18 @@ int main()
 
   // draw all marginalized distributions into a PostScript file
   m->PrintAllMarginalized("GaussModel_plots.pdf");
+  m->PrintAllMarginalized("GaussModel_plots.root");
+  m->PrintAllMarginalized1D("GaussModel_plots","pdf");
+  m->PrintAllMarginalized2D("GaussModel_plots","pdf");
+  m->PrintAllMarginalized1D("GaussModel_plots","root");
+  m->PrintAllMarginalized2D("GaussModel_plots","root");
+  m->PrintAllMarginalized1D("GaussModel_plots","C");
+  m->PrintAllMarginalized2D("GaussModel_plots","C");
+  // m->PrintAllMarginalized1D("GaussModel_plots","C");
+  // m->PrintAllMarginalized1D("GaussModel_plots","pdf");
+  // m->PrintAllMarginalized2D("GaussModel_plots","root");
+  // m->PrintAllMarginalized2D("GaussModel_plots","C");
+  // m->PrintAllMarginalized2D("GaussModel_plots","pdf");
 
   // print results of the analysis into a text file
   m->PrintResults("GaussModel_results.txt");
