@@ -7,17 +7,11 @@
 # Run 'make' to compile the program and 'make clean' to remove
 # all compiled parts and 'clean' the directory.
 #
-# You might need to adjust the CFLAGS and LIBS based on
+# You might need to adjust the CXXFLAGS and LIBS based on
 # the BAT installation on your system. Consult the gmake manual
 # for details.
 #
 ###################################################################
-
-# Root variables
-ROOTCFLAGS   := $(shell root-config --cflags)
-ROOTLIBS     := -lMinuit $(shell root-config --libs)
-
-@ROOSTATS_TRUE@ROOTLIBS     += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 
 # compiler and flags
 CXX          = @CXX@
@@ -25,44 +19,36 @@ CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
 LD           = @LD@
 LDFLAGS      = -g -O2 @LDFLAGS@
 
-# standard commands
-RM           = rm -f
-MV           = mv
-ECHO         = echo
-
-# add ROOT flags
-CXXFLAGS    += $(ROOTCFLAGS) @CUBAINCLUDE@
-
 # ----------------------------------------------------------------------
 # The following definitions depend on the setup of the system where
 # the project is being compiled. If BAT is installed in the standard
 # system search path or the installation directory is defined in the
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
-CXXFLAGS    += -I. -I./include -I$(BATINSTALLDIR)/include
-LIBS        += -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT $(ROOTLIBS)
+CXXFLAGS += -I$(BATINSTALLDIR)/include @ROOTCFLAGS@
+LIBS      = -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
 
-@CUBA_TRUE@LIBS        += @CUBALIB@ -lcuba
+@CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
+@CUBA_TRUE@LIBS     += -lcuba
 
 # List of all classes (models) used in the program
-# Add classes to the end. Baskslash indicates continuation
+# Add classes to the end. Backslash indicates continuation
 # on the next line
 CXXSRCS      = \
-        GaussModel.cxx
+        runTrialFunction.cxx GaussModel.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
 #
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
-EXEOBJS      =
-MYPROGS     = \
+MYPROGS      = \
         runTrialFunction
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS) *.o *~ link.d $(MYPROGS)
+GARBAGE = $(CXXOBJS) *~ link.d $(MYPROGS)
 
 # targets
-all : project
+all : runTrialFunction
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -73,17 +59,14 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean :
-	$(RM) $(GARBAGE)
+	rm -f $(GARBAGE)
 
-project : runTrialFunction.cxx $(CXXOBJS)
-	$(CXX) $(CXXFLAGS) -c $<
-	$(CXX) $(LDFLAGS) runTrialFunction.o $(CXXOBJS) $(LIBS) -o runTrialFunction
+runTrialFunction : $(CXXOBJS)
+	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o $@
 
 print :
-	echo compiler  : $(CXX)
-	echo c++ srcs  : $(CXXSRCS)
-	echo c++ objs  : $(CXXOBJS)
-	echo c++ flags : $(CXXFLAGS)
-	echo libs      : $(LIBS)
-
-	echo rootlibs  : $(ROOTLIBS)
+	@echo compiler  : $(CXX)
+	@echo c++ srcs  : $(CXXSRCS)
+	@echo c++ objs  : $(CXXOBJS)
+	@echo c++ flags : $(CXXFLAGS)
+	@echo libs      : $(LIBS)

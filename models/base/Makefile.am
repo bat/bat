@@ -31,7 +31,6 @@ incs = \
 
 ## RooStats specific options
 if ROOSTATS
-AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
 incs += \
 	BCRooInterface.h \
 	BATCalculator.h

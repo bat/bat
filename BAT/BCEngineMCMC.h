@@ -392,7 +392,7 @@ class BCEngineMCMC
       /**
        * Sets the number of iterations in the pre-run after which the
        * convergence data is cleared.
-			 * @param n The number of iterations.*/
+	   * @param n The number of iterations.*/
       void MCMCSetNIterationsUpdateClear(unsigned n)
          { fMCMCNIterationsUpdateClear = n; }
 

@@ -1,3 +1,8 @@
+For each of the problems, call the executable with an input file as an
+argument. For example,
+
+./runMyCombination input.txt
+
 oneObservable:
 --------------
 Combination of three measurements of one observable.

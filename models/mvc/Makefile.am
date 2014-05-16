@@ -7,9 +7,6 @@ AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
 if CUBA
-#AM_CXXFLAGS += $(CUBAINCLUDE)
-#AM_LDFLAGS += $(CUBALIB) -lcuba
-#libBATmvc_la_LDFLAGS += $(CUBALIB) -lcuba
 AM_LDFLAGS += -lcuba
 libBATmvc_la_LDFLAGS += -lcuba
 endif
@@ -34,17 +31,9 @@ incs = \
 	BCMVCDataModel.h \
 	BCMVCPhysicsModel.h
 
-## RooStats specific options
-if ROOSTATS
-AM_LDFLAGS += -lRooFitCore -lRooFit -lRooStats -lFoam -lMathMore
-endif
-## End of RooStats specific options
-
 library_include_HEADERS= $(incs)
 libBATmvc_la_SOURCES= \
 	$(incs:.h=.cxx)
-
-#	$(incs:.h=Dict.cxx)
 
 nodist_libBATmvc_la_SOURCES= \
 	$(incs:.h=Dict.cxx)

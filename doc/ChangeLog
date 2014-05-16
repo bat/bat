@@ -1,9 +1,5 @@
-2013-12-11 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* PostProcessor some minor fixes
-
-2013-12-05 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* PostProcessor added plotting of step size
-	* PostProcessor added plotting of number of steps with step size 0
+2014-01-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
+	* BCEngineMCMC.cxX: bug fix: check if initial parameters are valid was missing a !
 
 2013-12-03 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.h: removed unused fFlagMarginalized (there is one in BCintegrate.h)
@@ -15,13 +11,6 @@
 2013-11-28 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxx, BCModel.cxx: added a variable for storing and outputting the efficiencies for each parameter. Fixes the bug that all efficiencies were inf.
 	* BCModelOutput: changes analysis tree variables from array to vector. Removed MAXNPARAMETERS. This should fix the bug reported by A. Paul et al.
-
-2013-11-23 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* BCPostProcessor can now access log prob and the parameter values
-	* Added a diagnostics class: BCPPDiagnostics
-
-2013-11-22 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
-	* Added post-processing code to private/tools/PostProcessing.
 
 2013-09-27 Daniel kollar <kollar.dan@gmail.com>
 	* updated INSTALL
