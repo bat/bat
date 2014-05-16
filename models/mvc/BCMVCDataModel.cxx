@@ -153,7 +153,7 @@ void BCMVCDataModel::MCMCUserIterationInterface()
 
     for (int j = 0; j < npar; ++j) {
       observables[j] = fPars[fVectorObservable[j]];
-      measurements[j] = fMCMCx.at(i * npar + j);
+      measurements[j] = fMCMCx[i][j];
     }
 
     double chi2 = Chi2(observables, measurements);

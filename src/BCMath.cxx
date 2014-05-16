@@ -65,6 +65,9 @@ double LogPoisson(double x, double par)
    if (x == 0.)
       return -par;
 
+	 if (par<=0)
+		 return -std::numeric_limits<double>::max();
+
    return x * log(par) - par - ApproxLogFact(x);
 }
 

@@ -24,6 +24,7 @@
 // ---------------------------------------------------------
 
 #include "BCParameterSet.h"
+#include "BCLog.h"
 
 #include <vector>
 
@@ -129,9 +130,19 @@ class BCEngineMCMC
          { return fMCMCNIterationsPreRunMin; }
 
       /**
+       * @return number of iterations for an efficiency check. */
+      unsigned MCMCGetNIterationsEfficiencyCheck() const
+         { return fMCMCNIterationsEfficiencyCheck; }
+
+      /**
        * @return number of iterations after statistics update. */
       unsigned MCMCGetNIterationsUpdate() const
          { return fMCMCNIterationsUpdate; }
+
+      /**
+       * @return number of iterations after statistics clear. */
+      unsigned MCMCGetNIterationsUpdateClear() const
+         { return fMCMCNIterationsUpdateClear; }
 
       /**
        * @return maximum number of iterations after statistics update. */
@@ -139,9 +150,9 @@ class BCEngineMCMC
          { return fMCMCNIterationsUpdateMax; }
 
       /**
-       * @returns number of accepted trials for each chain */
-      std::vector<int> MCMCGetNTrialsTrue() const
-         { return fMCMCNTrialsTrue; }
+       * @returns number of accepted trials for each parameter of each chain */
+	    std::vector<std::vector<int> > MCMCGetNTrialsTrue() const
+	       { return fMCMCNTrialsTrue; }
 
       /**
        * @returns number of trials */
@@ -160,9 +171,19 @@ class BCEngineMCMC
       const std::vector<double> & MCMCGetVariance() const
          { return fMCMCprobVar; }
 
+    	/**
+    	 * @return trial function scale factor lower limit */
+    	double MCMCGetTrialFunctionScaleFactorLowerLimit() const
+	       { return fMCMCScaleFactorLowerLimit; }
+
+    	/**
+    	 * @return trial function scale factor upper limit */
+    	double MCMCGetTrialFunctionScaleFactorUpperLimit() const
+    	   { return fMCMCScaleFactorUpperLimit; }
+    
       /**
        * @return scale factor for all parameters and chains */
-      const std::vector<double> & MCMCGetTrialFunctionScaleFactor() const
+    	const std::vector<std::vector<double> > & MCMCGetTrialFunctionScaleFactor() const
          { return fMCMCTrialFunctionScaleFactor; }
 
       /**
@@ -178,7 +199,7 @@ class BCEngineMCMC
 
       /**
        * @return current point of each Markov chain */
-      const std::vector<double> & MCMCGetx() const
+	    const std::vector<std::vector<double> > & MCMCGetx() const
          { return fMCMCx; }
 
       /**
@@ -209,7 +230,7 @@ class BCEngineMCMC
 
       /**
        * @return maximum points of each Markov chain */
-      const std::vector<double> & MCMCGetMaximumPoints() const
+    	const std::vector<std::vector<double> > & MCMCGetMaximumPoints() const
          { return fMCMCxMax; }
 
       /**
@@ -315,6 +336,16 @@ class BCEngineMCMC
       /** \name Setters */
       /** @{ */
 
+    	/**
+    	 * Set scale factor lower limit */
+    	void MCMCSetScaleFactorLowerLimit(double l)
+    	{ fMCMCScaleFactorLowerLimit = l; }
+
+    	/**
+    	 * Set scale factor upper limit */
+    	void MCMCSetScaleFactorUpperLimit(double l)
+    	{ fMCMCScaleFactorUpperLimit = l; }
+
       /**
        * Set the scale factors for the trial functions
        * @param scale a vector of doubles containing the scale factors */
@@ -345,12 +376,25 @@ class BCEngineMCMC
       void MCMCSetNIterationsPreRunMin(unsigned n)
          { fMCMCNIterationsPreRunMin = n; }
 
+    	/**
+    	 * Sets the number of iterations in the pre-run after which the
+    	 * efficiency is checked and proposal scales are updated. */
+    	void MCMCSetNIterationsEfficiencyCheck(unsigned n)
+    	{ fMCMCNIterationsEfficiencyCheck = n; }
+
       /**
        * Sets the number of iterations in the pre-run after which an
-       * update on the statistics (convergence, efficiency, etc.) is done.
+       * check on the convergence is done.
        * @param n The number of iterations.*/
       void MCMCSetNIterationsUpdate(unsigned n)
          { fMCMCNIterationsUpdate = n; }
+
+      /**
+       * Sets the number of iterations in the pre-run after which the
+       * convergence data is cleared.
+			 * @param n The number of iterations.*/
+      void MCMCSetNIterationsUpdateClear(unsigned n)
+         { fMCMCNIterationsUpdateClear = n; }
 
       /**
        * Sets the maximum number of iterations in the pre-run after which an
@@ -392,7 +436,7 @@ class BCEngineMCMC
       /**
        * Sets the initial positions for all chains.
        * @param x0s initial positions for all chains. */
-      void MCMCSetInitialPositions(std::vector< std::vector<double> > x0s);
+      void MCMCSetInitialPositions(const std::vector< std::vector<double> > & x0s);
 
       /**
        * Sets flag which defines initial position.  */
@@ -517,6 +561,13 @@ class BCEngineMCMC
       /** \name Miscellaneous methods */
       /** @{ */
 
+	    /**
+			 * Print parameters
+			 * @P is a vector of the parameter values to be printed
+			 * @output is a pointer to the output function to be used,
+			 * which defaults to BCLog::OutSummary */
+	    void PrintParameters(std::vector<double> const & P, void (*output)(const char *) = BCLog::OutSummary);
+
       /**
        * Copy object
        * @param enginemcmc Object to copy from */
@@ -570,7 +621,8 @@ class BCEngineMCMC
       /**
        * Generates a new point using the Metropolis algorithm.
        * @param chain chain index */
-      bool MCMCGetNewPointMetropolis(unsigned chain = 0);
+   	  bool MCMCGetNewPointMetropolis();
+      bool MCMCGetNewPointMetropolis(unsigned chain);
       bool MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter);
 
       /**
@@ -709,6 +761,11 @@ class BCEngineMCMC
       void SyncThreadStorage();
 
    protected:
+
+    	/**
+    	 * return appropriate update interval */
+    	unsigned  UpdateFrequency(unsigned N);
+    
       /**
        * Parameter settings */
       BCParameterSet fParameters;
@@ -736,9 +793,18 @@ class BCEngineMCMC
        * algorithm, return -1. */
       int fMCMCCurrentChain;
 
+   	  /**
+	     * Number of iterations for checking efficiencies and updating scale
+	     * factors */
+	    unsigned fMCMCNIterationsEfficiencyCheck;
+
       /**
        * Number of iterations for updating scale factors */
       unsigned fMCMCNIterationsUpdate;
+
+      /**
+       * Number of iterations for clearing data for updating scale factors */
+      unsigned fMCMCNIterationsUpdateClear;
 
       /**
        * Maximum number of iterations for updating scale factors */
@@ -766,9 +832,8 @@ class BCEngineMCMC
       unsigned fMCMCNIterationsPreRunMin;
 
       /**
-       * Number of accepted trials for each chain. The length of the
-       * vector is equal to fMCMCNChains * fMCMCNParameters.  */
-      std::vector<int> fMCMCNTrialsTrue;
+       * Number of accepted trials for each parameter of each chain. */
+	    std::vector<std::vector<int> >fMCMCNTrialsTrue;
 
       /**
        * Number of trials */
@@ -782,10 +847,18 @@ class BCEngineMCMC
        * Flag to write pre run to file */
       bool fMCMCFlagWritePreRunToFile;
 
+    	/**
+    	 * Lower limit for scale factors */
+    	double fMCMCScaleFactorLowerLimit;
+    
+    	/**
+    	 * Upper limit for scale factors */
+    	double fMCMCScaleFactorUpperLimit;
+
       /**
        * Scales the width of the trial functions by a scale factor for
        * each parameter and chain */
-      std::vector<double> fMCMCTrialFunctionScaleFactor;
+	    std::vector<std::vector<double> > fMCMCTrialFunctionScaleFactor;
 
       /**
        * Start values of the scale factors for the trial functions. */
@@ -804,11 +877,11 @@ class BCEngineMCMC
        * vectors is equal to fMCMCNChains * fMCMCNParameters. First, the
        * values of the first Markov chain are saved, then those of the
        * second and so on */
-      std::vector<double> fMCMCInitialPosition;
+	    std::vector<std::vector<double> > fMCMCInitialPosition;
 
       /**
        * The efficiencies for all parameters and chains. */
-      std::vector<double> fMCMCEfficiencies;
+	    std::vector<std::vector<double> > fMCMCEfficiencies;
 
       /**
        * The minimum required efficiency for MCMC */
@@ -840,23 +913,19 @@ class BCEngineMCMC
        * vectors is equal to fMCMCNChains * fMCMCNParameters. First, the
        * values of the first Markov chain are saved, then those of the
        * second and so on. */
-      std::vector<double> fMCMCx;
+	    std::vector<std::vector<double> > fMCMCx;
 
       /**
-       * The maximum points of each Markov chain. The length of the vector
-       * is fMCMCNChains * fMCMCNParameters. First, the values of the
-       * first Markov chain are saved, then those of the second and so on. */
-      std::vector<double> fMCMCxMax;
+       * The maximum points of each Markov chain. */
+	    std::vector<std::vector<double> > fMCMCxMax;
 
       /**
-       * The mean of all parameters of each Markov chain. The length of
-       * the vector is equal to fMCMCNChains * fMCMCNParameters. */
-      std::vector<double> fMCMCxMean;
+       * The mean of all parameters of each Markov chain. */
+	    std::vector<std::vector<double> > fMCMCxMean;
 
       /**
-       * The variance of all parameters of each Markov chain. The length
-       * of the vector is equal to fMCMCNChains * fMCMCNParameters. */
-      std::vector<double> fMCMCxVar;
+       * The variance of all parameters of each Markov chain. */
+	    std::vector<std::vector<double> > fMCMCxVar;
 
       /**
        * The log of the probability of the current points of each Markov

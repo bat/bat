@@ -583,7 +583,11 @@ int BCModel::SetPrior(const char * name, TF1 * f)
    for (unsigned int i = 0; i < GetNParameters(); i++)
       if (name == GetParameter(i)->GetName())
          index = i;
-
+	 if (index < 0) {
+		 BCLog::OutError(TString::Format("BCModel::SetPrior : No parameter named %s.",name));
+		 return 0;
+	 }
+		 
    // set prior
    return SetPrior(index, f);
 }
@@ -635,6 +639,10 @@ int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
    for (unsigned int i = 0; i < GetNParameters(); i++)
       if (name == GetParameter(i)->GetName())
          index = i;
+	 if (index < 0) {
+		 BCLog::OutError(TString::Format("BCModel::SetPriorGauss : No parameter named %s.",name));
+		 return 0;
+	 }
 
    // set prior
    return SetPriorGauss(index, mean, sigma);
@@ -661,8 +669,6 @@ int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigm
 
    // set prior
    return SetPrior(index, f);
-
-   return 0;
 }
 
 // ---------------------------------------------------------
@@ -673,6 +679,10 @@ int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, dou
    for (unsigned int i = 0; i < GetNParameters(); i++)
       if (name == GetParameter(i)->GetName())
          index = i;
+	 if (index < 0) {
+		 BCLog::OutError(TString::Format("BCModel::SetPriorGauss : No parameter named %s.",name));
+		 return 0;
+	 }
 
    // set prior
    return SetPriorGauss(index, mean, sigmadown, sigmaup);
@@ -723,6 +733,10 @@ int BCModel::SetPrior(const char * name, TH1 * h, bool interpolate)
    for (unsigned int i = 0; i < GetNParameters(); i++)
       if (name == GetParameter(i)->GetName())
          index = i;
+	 if (index < 0) {
+		 BCLog::OutError(TString::Format("BCModel::SetPrior : No parameter named %s.",name));
+		 return 0;
+	 }
 
    // set prior
    return SetPrior(index, h, interpolate);
@@ -999,11 +1013,9 @@ void BCModel::PrintResults(const char * file)
       efficiencies.assign(npar, 0.);
 
       for (unsigned ipar = 0; ipar < npar; ++ipar)
-        for (unsigned ichain = 0; ichain < nchains; ++ichain) {
-          efficiencies[ipar] +=
-            fMCMCEfficiencies[ichain*npar+ipar] / double(nchains) * 100.;
-         }
-
+        for (unsigned ichain = 0; ichain < nchains; ++ichain)
+          efficiencies[ipar] += fMCMCEfficiencies[ichain][ipar] / nchains * 100.;
+			
       for (unsigned ipar = 0; ipar < npar; ++ipar)
          ofi << "  (" << ipar << ") Parameter \""
              << fParameters[ipar]->GetName().data() << "\": "
