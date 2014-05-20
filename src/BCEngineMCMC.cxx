@@ -140,6 +140,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
       fMCMCNIterationsMax         = 1000000;
       fMCMCNIterationsRun         = 1000000;
       fMCMCNIterationsPreRunMin   = 100;
+			fMCMCNIterationsEfficiencyCheck = 1000;
       fMCMCNIterationsUpdate      = 1000;
       fMCMCNIterationsUpdateClear = 5000;
       fMCMCNIterationsUpdateMax   = 10000;
@@ -907,11 +908,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		fMCMCNTrialsTrue.assign(fMCMCNChains,std::vector<int>(fParameters.Size(),0));
 	}
 	if (allEfficient)
-		BCLog::OutDetail("     * Efficiency status: Efficiencies within predefined range.");
+		BCLog::OutDetail(Form("     * Efficiency status: Efficiencies within predefined range after %i iterations.",fMCMCCurrentIteration));
 	else if (!inefficientScalesAdjustable)
-		BCLog::OutWarning("     * Efficiency status: Some efficiencies outside predefined range, but scales are at limits.");
+		BCLog::OutWarning(Form("     * Efficiency status: Some efficiencies outside predefined range, but scales are at limits after %i iterations.",fMCMCCurrentIteration));
 	else
-		BCLog::OutDetail("     * Efficiency status: Some efficiencies outside predefined range, but maximum number of iterations reached.");
+		BCLog::OutDetail(Form("     * Efficiency status: Some efficiencies outside predefined range, but maximum number of iterations (%i) reached.",fMCMCNIterationsMax));
 
 
 	// continue measuring efficiency
@@ -1001,11 +1002,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			else
 				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales.", fMCMCNChains, fMCMCNIterationsMax));
 	}
-	else													// only one chain
-		if (allEfficient)
-			BCLog::OutSummary(" --> All scales adjusted.");
-		else
-			BCLog::OutSummary(" --> Could not adjust all scales.");
 
 		
 	//////////////////////////////////////////////////

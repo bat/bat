@@ -2145,16 +2145,12 @@ std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double> &mode, std::ve
    MCMCMetropolisPreRun();
 
    // loop over all chains and find the maximum point
-   double logProb = -std::numeric_limits<double>::max();
    unsigned index = 0;
-   for (unsigned i = 0; i < fMCMCNChains; ++i) {
-      if (MCMCGetMaximumLogProb().at(i) > logProb){
-         index = i;
-         logProb = MCMCGetMaximumLogProb().at(i);
-      }
-   }
-
-   mode = MCMCGetMaximumPoint(index);
+   for (unsigned i = 1; i < fMCMCNChains; ++i)
+		 if ( MCMCGetMaximumLogProb().at(i) > MCMCGetMaximumLogProb().at(index) )
+			 index = i;
+	 
+	 mode = MCMCGetMaximumPoint(index);
    errors.assign(fParameters.Size(),-1.);
 
    return mode;

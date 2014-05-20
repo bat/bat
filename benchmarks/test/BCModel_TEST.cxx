@@ -61,6 +61,7 @@ public:
       GaussModel m("Fix", 4);
       m.MCMCSetPrecision(BCEngineMCMC::kMedium);
       m.MCMCSetNIterationsRun(30000);
+			m.MCMCSetNIterationsPreRunMin(6000);
       m.MCMCSetRandomSeed(235);
 
       static const double eps = 5e-2;

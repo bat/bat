@@ -98,6 +98,7 @@ public:
   {
     // two modes at 0 and 1
     IntegrationModel m = Factory(1,1,1);
+		m.MCMCSetNIterationsPreRunMin(5000);
     m.MCMCSetRandomSeed(1346);
     TEST_CHECK_NEARLY_EQUAL(m.FindMode(std::vector<double>(1, 0.1)).front(), 0, 1e-3);
     TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.1)).front(), 0, 1e-10);
