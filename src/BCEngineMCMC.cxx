@@ -62,7 +62,7 @@ void BCEngineMCMC::MCMCSetValuesQuick()
    fMCMCNChains              = 2;
    fMCMCNIterationsMax       = 10000;
    fMCMCNIterationsRun       = 10000;
-   fMCMCNIterationsPreRunMin = 500;
+   fMCMCNIterationsPreRunMin = 1500;
    fMCMCFlagInitialPosition  = 1;
    fMCMCRValueUseStrict      = false;
    fMCMCRValueCriterion      = 0.1;
@@ -85,7 +85,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
    fMCMCNChains              = 5;
    fMCMCNIterationsMax       = 1000000;
    fMCMCNIterationsRun       = 100000;
-   fMCMCNIterationsPreRunMin = 500;
+   fMCMCNIterationsPreRunMin = 2000;
    fMCMCFlagInitialPosition  = 1;
    fMCMCRValueUseStrict = false;
    fMCMCRValueCriterion      = 0.1;
@@ -93,7 +93,7 @@ void BCEngineMCMC::MCMCSetValuesDetail()
    fMCMCNIterationsConvergenceGlobal = -1;
    fMCMCFlagConvergenceGlobal = false;
    fMCMCRValue               = 100;
-	 fMCMCNIterationsEfficiencyCheck = 500;
+	 fMCMCNIterationsEfficiencyCheck = 1000;
    fMCMCNIterationsUpdate    = 1000;
    fMCMCNIterationsUpdateClear = 5000;
    fMCMCNIterationsUpdateMax = 10000;
@@ -111,7 +111,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
       fMCMCNLag                 = 1;
       fMCMCNIterationsMax       = 10000;
       fMCMCNIterationsRun       = 10000;
-      fMCMCNIterationsPreRunMin = 100;
+      fMCMCNIterationsPreRunMin = 1500;
 			fMCMCNIterationsEfficiencyCheck = 500;
       fMCMCNIterationsUpdate    = 1000;
       fMCMCNIterationsUpdateClear= 5000;
@@ -125,8 +125,8 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
       fMCMCNLag                 = 1;
       fMCMCNIterationsMax       = 100000;
       fMCMCNIterationsRun       = 100000;
-      fMCMCNIterationsPreRunMin = 100;
-			fMCMCNIterationsEfficiencyCheck = 1000;
+      fMCMCNIterationsPreRunMin = 1500;
+			fMCMCNIterationsEfficiencyCheck = 500;
       fMCMCNIterationsUpdate    = 1000;
       fMCMCNIterationsUpdateClear = 5000;
       fMCMCNIterationsUpdateMax = 10000;
@@ -139,7 +139,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
       fMCMCNLag                   = 10;
       fMCMCNIterationsMax         = 1000000;
       fMCMCNIterationsRun         = 1000000;
-      fMCMCNIterationsPreRunMin   = 100;
+      fMCMCNIterationsPreRunMin   = 2000;
 			fMCMCNIterationsEfficiencyCheck = 1000;
       fMCMCNIterationsUpdate      = 1000;
       fMCMCNIterationsUpdateClear = 5000;
@@ -153,7 +153,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
       fMCMCNLag                 = 10;
       fMCMCNIterationsMax       = 10000000;
       fMCMCNIterationsRun       = 10000000;
-      fMCMCNIterationsPreRunMin = 100;
+      fMCMCNIterationsPreRunMin = 2000;
 			fMCMCNIterationsEfficiencyCheck = 1000;
       fMCMCNIterationsUpdate    = 1000;
       fMCMCNIterationsUpdateClear = 5000;
