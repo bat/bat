@@ -1,0 +1,74 @@
+###################################################################
+# This Makefile was created using the |:PROGRAM:| script
+# for project |:Project:|
+# |:PROGRAM:| is part of Bayesian Analysis Toolkit (BAT).
+# BAT can be downloaded from http://mpp.mpg.de/bat
+###################################################################
+#
+# Run 'make' to compile the program and 'make clean' to remove
+# all compiled parts and 'clean' the directory.
+#
+# You might need to adjust the CXXFLAGS and LIBS based on
+# the BAT installation on your system. Consult the gmake manual
+# for details.
+#
+###################################################################
+
+# compiler and flags
+CXX          = @CXX@
+CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
+LD           = @LD@
+LDFLAGS      = -g -O2 @LDFLAGS@
+
+# ----------------------------------------------------------------------
+# The following definitions depend on the setup of the system where
+# the project is being compiled. If BAT is installed in the standard
+# system search path or the installation directory is defined in the
+# BATINSTALLDIR environmental variable then the lines below are correct
+# and the compilation will work
+CXXFLAGS    += -I./include -I$(BATINSTALLDIR)/include @ROOTCFLAGS@
+LIBS         = -L$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBATmvc -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
+
+@CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
+@CUBA_TRUE@LIBS     += -lcuba
+
+# List of all classes (models) used in the program
+# Add classes to the end. Backslash indicates continuation
+# on the next line
+CXXSRCS      = run|:Model:|.cxx |:Model:|.cxx
+
+# ----------------------------------------------------------------------
+# don't change lines below unless you know what you're doing
+#
+
+CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
+MYPROGS     = run|:Project:|
+
+GARBAGE      = $(CXXOBJS) *.o *~ link.d $(MYPROGS)
+
+
+# targets
+all : run|:Model:|
+
+link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
+
+-include link.d
+
+%.o : %.cxx
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean :
+	rm -f $(GARBAGE)
+
+run|:Model:| : $(CXXOBJS)
+	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o run|:Project:|
+
+print :
+	@echo compiler  : $(CXX)
+	@echo c++ srcs  : $(CXXSRCS)
+	@echo c++ objs  : $(CXXOBJS)
+	@echo c++ flags : $(CXXFLAGS)
+	@echo ld flags  : $(LDFLAGS)
+	@echo libs      : $(LIBS)
+
