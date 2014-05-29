@@ -1,11 +1,11 @@
-#ifndef __BCPARAMETERSET__H
-#define __BCPARAMETERSET__H
+#ifndef __BCOBSERVABLESET__H
+#define __BCOBSERVABLESET__H
 
 /**
- * @class BCParameterSet Wrapper to allow access by name into list of BCParameter.
+ * @class BCObservableSet Wrapper to allow access by name into list of BCObservable.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
- * @note Parameters are not owned, and will not be deleted by BCParameterSet.
+ * @note Observables are not owned, and will not be deleted by BCObservableSet.
  */
 
 /*
@@ -21,19 +21,19 @@
 #include <vector>
 #include <string>
 
-class BCParameter;
+class BCObservable;
 
 // ---------------------------------------------------------
 
-class BCParameterSet {
+class BCObservableSet {
 public:
    /**
-    * Add a parameter if no parameter of same name exists yet.
+    * Add a observable if no observable of same name exists yet.
     *
-    * @param par Parameter
+    * @param par Observable
     * @return True if successful.
     */
-	bool Add(BCParameter * par);
+	bool Add(BCObservable * par);
 
 	void Clear(bool);
 
@@ -41,42 +41,42 @@ public:
 	 * Raw and fast access.
 	 *
 	 * @param index Index
-	 * @return Parameter
+	 * @return Observable
 	 */
-	BCParameter * operator[](unsigned index) const
+	BCObservable * operator[](unsigned index) const
 	{
 		return fPars[index];
 	}
 
 	/**
-	 * Safe access, but slightly less efficient access to parameter.
+	 * Safe access, but slightly less efficient access to observable.
 	 *
 	 * @param index Index gets checked.
 	 * @return The pointer at index position or NULL if invalid index.
 	 */
-	BCParameter * Get(unsigned index) const
+	BCObservable * Get(unsigned index) const
 	{
 		return ValidIndex(index, "Get") ? fPars[index] : NULL;
 	}
 	
 	/**
-	 * Safe access, but slightly less efficient access to parameter.
+	 * Safe access, but slightly less efficient access to observable.
 	 *
 	 * @param name Look up name in list
 	 * @return The pointer at index position or NULL if invalid index.
 	 */
-	BCParameter * Get(const std::string & name) const
+	BCObservable * Get(const std::string & name) const
 	{
 		return Get(Index(name));
 	}
 	
 	/**
-	 * Find index of parameter identified by name
+	 * Find index of observable identified by name
 	 */
 	unsigned Index(const std::string & name) const;
 	
 	/**
-	 * Number of parameters contained
+	 * Number of observables contained
 	 */
 	unsigned Size() const
 	{ return fPars.size(); }
@@ -90,7 +90,7 @@ public:
 	bool ValidIndex(unsigned index, const std::string caller="CheckIndex") const;
 	
 private:
-	/// Don't own parameters
-	std::vector<BCParameter*> fPars;
+	/// Don't own observables
+	std::vector<BCObservable*> fPars;
 };
 #endif

@@ -7,34 +7,34 @@
  */
 
 // ---------------------------------------------------------
-#include "BCParameter.h"
+#include "BCUserObservable.h"
 
 #include <string>
 
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter() :
+BCUserObservable::BCUserObservable() :
 	BCObservable(),
 	fFixed(false),
 	fFixedValue(-1.e+111)
 {
-	fPrefix = "Parameter";
+	fPrefix = "UserObservable";
 }
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
+BCUserObservable::BCUserObservable(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
 	BCObservable(name,lowerlimit,upperlimit,latexname),
 	fFixed(false),
 	fFixedValue(-1.e+111)
 {
-	fPrefix = "Parameter";
+	fPrefix = "UserObservable";
 }
 
 // ---------------------------------------------------------
 
-bool BCParameter::IsAtLimit(double value) const
+bool BCUserObservable::IsAtLimit(double value) const
 {
    if (fLowerLimit == fUpperLimit)
       return false;
