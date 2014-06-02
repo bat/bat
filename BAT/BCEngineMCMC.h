@@ -587,8 +587,6 @@ class BCEngineMCMC
        * @see AddParameter(const char * name, double lowerlimit, double upperlimit); */
       virtual int AddParameter(BCParameter* parameter);
 
-	virtual int AddObservable(const char * name, double min, double max, const char * latexname = "");
-
       /**
        * Random walk trial function. The default trial function is a
        * Breit-Wigner. It can be overloaded by the user to set the trial

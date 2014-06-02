@@ -26,8 +26,8 @@ LDFLAGS      = -g -O2 @LDFLAGS@
 # system search path or the installation directory is defined in the
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
-CXXFLAGS    += -I./include -I$(BATINSTALLDIR)/include @ROOTCFLAGS@
-LIBS         = -L$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBATmvc -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
+CXXFLAGS    += -I./include -I$(BATINSTALLDIR)/include -I$(shell root-config --incdir)
+LIBS         = -L$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBATmvc -lBAT $(shell root-config --libs)
 
 @CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
 @CUBA_TRUE@LIBS     += -lcuba

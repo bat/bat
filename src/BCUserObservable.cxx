@@ -15,34 +15,17 @@
 // ---------------------------------------------------------
 
 BCUserObservable::BCUserObservable() :
-	BCObservable(),
-	fFixed(false),
-	fFixedValue(-1.e+111)
+	BCObservable()
 {
 	fPrefix = "UserObservable";
 }
 
 // ---------------------------------------------------------
 
-BCUserObservable::BCUserObservable(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
-	BCObservable(name,lowerlimit,upperlimit,latexname),
-	fFixed(false),
-	fFixedValue(-1.e+111)
+BCUserObservable::BCUserObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname) :
+	BCObservable(name,lowerlimit,upperlimit,latexname)
 {
 	fPrefix = "UserObservable";
 }
 
-// ---------------------------------------------------------
-
-bool BCUserObservable::IsAtLimit(double value) const
-{
-   if (fLowerLimit == fUpperLimit)
-      return false;
-
-   if ( ( (value-fLowerLimit)*(value-fLowerLimit)/fLowerLimit/fLowerLimit <= 1e-10) ||
-         ( (value-fUpperLimit)*(value-fUpperLimit)/fUpperLimit/fUpperLimit <= 1e-10))
-      return true;
-   else
-      return false;
-}
 
