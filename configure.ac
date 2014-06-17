@@ -93,6 +93,7 @@ dnl if cuba just compiled, everything is in one directory
 		echo "checking for cuba.h in $with_cuba_include_dir"
 		cubaincflags=-I$with_cuba_include_dir
 		CFLAGS+=" $cubaincflags"
+		CXXFLAGS+=" $cubaincflags"
 	else
 		echo "checking for cuba.h in system default directories"
 	fi
