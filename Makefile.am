@@ -22,6 +22,8 @@ EXTRA_DIST= \
 	examples \
 	tools/CreateProject.sh.in
 
+dist_bin_SCRIPTS = bat-config
+
 dist-hook: prep-docs
 #	rm -f $(distdir)/src/*Dict.*
 #	rm -f $(distdir)/models/*Dict.*
@@ -44,3 +46,7 @@ BAT-quickstart.pdf:
 	mv quickstart-tmp/quickstart/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
 	rm -rf quickstart-tmp
 
+if COND_PKGCONFIG
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = bat.pc
+endif
