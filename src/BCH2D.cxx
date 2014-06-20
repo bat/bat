@@ -98,9 +98,9 @@ void BCH2D::SetColorScheme(int scheme)
 // ---------------------------------------------------------
 void BCH2D::SetHistogram(TH2D * hist)
 {
-   fHistogram = hist;
-   if (fHistogram and fHistogram->Integral() > 0)
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
+	fHistogram = hist;
+	if (fHistogram and fHistogram->GetEffectiveEntries()>0 and fHistogram->Integral()>0)
+		fHistogram->Scale(1.0/fHistogram->Integral("width"));
 }
 
 // ---------------------------------------------------------
@@ -456,22 +456,24 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    hist_axes->Draw("COL");
 
    // smooth
-   if (flag_smooth1) {
-      fHistogram->Smooth(1);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
-   if (flag_smooth3) {
-      fHistogram->Smooth(3);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
-   if (flag_smooth5) {
-      fHistogram->Smooth(5);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
-   if (flag_smooth10) {
-      fHistogram->Smooth(10);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
+	 if (fHistogram->GetEffectiveEntries()>0) {
+		 if (flag_smooth1) {
+			 fHistogram->Smooth(1);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+		 if (flag_smooth3) {
+			 fHistogram->Smooth(3);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+		 if (flag_smooth5) {
+			 fHistogram->Smooth(5);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+		 if (flag_smooth10) {
+			 fHistogram->Smooth(10);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+	 }
 
    // draw histogram
    if (bandtype == 0)
@@ -764,7 +766,8 @@ TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
         hist_temp->SetBinContent(ibin_inner, content);
      }
      // normalize to unity
-     hist_temp->Scale(1.0/hist_temp->Integral());
+		 if (hist_temp->Integral()!=0)
+			 hist_temp->Scale(1.0/hist_temp->Integral());
 
      // create BAT histogram
      BCH1D* bchist_temp = new BCH1D(hist_temp);

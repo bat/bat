@@ -174,74 +174,8 @@ public:
    /** @{ */
 
    /**
-    * Read */
-   int ReadMarginalizedFromFile(const char * file);
-
-   /**
-    * Obtain the individual marginalized distributions
-    * with respect to one parameter.
-    * @note The most efficient method is to access by index.
-    * @note Ownership of the returned heap object is conferred to the caller.
-    * @param parameter Model parameter
-    * @return 1D marginalized probability */
-   BCH1D * GetMarginalized(const BCParameter * parameter);
-
-   /**
-    * Obtain the individual marginalized distributions
-    * with respect to one parameter.
-    * @note The most efficient method is to access by index.
-    * @note Ownership of the returned heap object is conferred to the caller.
-    * @param name The parameter's name
-    * @return 1D marginalized probability */
-   BCH1D * GetMarginalized(const char * name)
-   { return GetMarginalized(fParameters.Index(name)); }
-
-   /**
-    * Obtain the individual marginalized distributions
-    * with respect to one parameter.
-    * @note The most efficient method is to access by index.
-    * @note Ownership of the returned heap object is conferred to the caller.
-    * @param index The parameter index
-    * @return 1D marginalized probability */
-   BCH1D * GetMarginalized(unsigned index);
-
-   /**
-    * Obtain the individual marginalized distributions
-    * with respect to two parameters.
-    * @note The most efficient method is to access by indices.
-    * @note Ownership of the returned heap object is conferred to the caller.
-
-    * @param parameter1 First parameter
-    * @param parameter2 Second parameter
-    * @return 2D marginalized probability */
-   BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2);
-
-   /**
-    * Obtain the individual marginalized distributions
-    * with respect to two parameters.
-    * @note The most efficient method is to access by indices.
-    * @note Ownership of the returned heap object is conferred to the caller.
-    * @param name1 Name of first parameter
-    * @param name2 Name of second parameter
-    * @return 2D marginalized probability */
-   BCH2D * GetMarginalized(const char * name1, const char * name2)
-   { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
-
-   /**
-    * Obtain the individual marginalized distributions
-    * with respect to two parameters.
-    * @note The most efficient method is to access by indices.
-    * @note Ownership of the returned heap object is conferred to the caller.
-    * @param index1 Index of first parameter
-    * @param index2 Index of second parameter
-    * @return 2D marginalized probability */
-   BCH2D * GetMarginalized(unsigned index1, unsigned index2);
-
-   /**
     *   */
-   int PrintAllMarginalized1D(const char * filebase);
-   int PrintAllMarginalized2D(const char * filebase);
-   int PrintAllMarginalized(const char * file, std::string options1d="BTsiB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
+   // int PrintAllMarginalized(const char * file, std::string options1d="BTsiB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
 
 
    /**
@@ -348,7 +282,8 @@ public:
     * @param nbins The number of bins of the 1D-histogram.
     * @param flag_norm: normalize histogram to unity or not
     * @return The 1D slice. */
-   BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins=0, bool flag_norm=true);
+   TH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
+ 	    { return GetSlice(parameter->GetName().c_str(), parameters, nbins, flag_norm); }
 
    /**
     * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
@@ -357,8 +292,17 @@ public:
     * @param nbins The number of bins of the 1D-histogram.
     * @param flag_norm: normalize histogram to unity or not
     * @return The 1D slice. */
-   BCH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
-   { return GetSlice(GetParameter(name), parameters, nbins, flag_norm); }
+   TH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
+	    { return GetSlice(fParameters.Index(name), parameters, nbins, flag_norm); }
+
+   /**
+    * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+    * @param name The name of the model parameter along which the slice is calculated.
+    * @param parameters The point at which the other parameters are fixed.
+    * @param nbins The number of bins of the 1D-histogram.
+    * @param flag_norm: normalize histogram to unity or not
+    * @return The 1D slice. */
+	TH1D* GetSlice(unsigned index, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
@@ -368,8 +312,8 @@ public:
     * @param nbins The number of bins of the 2D-histogram.
     * @param flag_norm: normalize histogram to unity or not
     * @return The 2D slice. */
-   BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins=0, bool flag_norm=true);
-
+   TH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
+	    { return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins, flag_norm); }
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
     * @param parameter1 The name of the first model parameter along which the slice is calculated.
@@ -378,7 +322,8 @@ public:
     * @param nbins The number of bins of the 2D-histogram.
     * @param flag_norm: normalize histogram to unity or not
     * @return The 2D slice. */
-   BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
+	 TH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
+	    { return GetSlice(fParameters.Index(name1),fParameters.Index(name2),parameters,nbins,flag_norm); } 
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
@@ -388,7 +333,7 @@ public:
     * @param nbins The number of bins of the 2D-histogram.
      * @param flag_norm: normalize histogram to unity or not
    * @return The 2D slice. */
-   BCH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
+   TH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
 
    /**
     * @return The uncertainty in the most recent Monte Carlo integration */
@@ -415,13 +360,6 @@ public:
    { return fSATmin; }
 
    /**
-    * Returns the value of a parameter (defined by index) at
-    * the global mode of the posterior pdf.
-    * @param index index of the parameter.
-    * @return best fit value of the parameter or -1e+111 on error or center of the range if mode finding not yer run */
-   double GetBestFitParameter(unsigned index) const;
-
-   /**
     * Returns the error on the value of a parameter (defined by index) at
     * the global mode of the posterior pdf.
     * @param index index of the parameter.
@@ -438,8 +376,8 @@ public:
     * Returns the set of values of the parameters at the global mode of
     * the posterior pdf.
     * @return The best fit parameters */
-   const std::vector<double> & GetBestFitParameters() const
-   { return fBestFitParameters; }
+	  const std::vector<double> & GetBestFitParameters() const;
+
 
    /**
     * Returns the set of errors on the values of the parameters at the global mode */

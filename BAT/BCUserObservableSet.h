@@ -1,11 +1,11 @@
-#ifndef __BCPARAMETERSET__H
-#define __BCPARAMETERSET__H
+#ifndef __BCUSEROBSERVABLESET__H
+#define __BCUSEROBSERVABLESET__H
 
 /**
- * @class BCParameterSet Wrapper to allow access by name into list of BCParameter.
+ * @class BCUserObservableSet Wrapper to allow access by name into list of BCUserObservable.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
- * @note Parameters are not owned, and will not be deleted by BCParameterSet.
+ * @note UserObservables are not owned, and will not be deleted by BCUserObservableSet.
  */
 
 /*
@@ -21,29 +21,29 @@
 #include <vector>
 #include <string>
 
-class BCParameter;
+class BCUserObservable;
 
 // ---------------------------------------------------------
 
-class BCParameterSet {
+class BCUserObservableSet {
 public:
 
 	/**
 	 * Constructor */
-	BCParameterSet();
+	BCUserObservableSet();
 
 	/*
 	 * Destructor */
-	~BCParameterSet()
+	~BCUserObservableSet()
 	{}
 
    /**
-    * Add a parameter if no parameter of same name exists yet.
+    * Add a user-defined observable if no user-defined observable of same name exists yet.
     *
-    * @param par Parameter
+    * @param par UserObservable
     * @return True if successful.
     */
-	bool Add(BCParameter * par);
+	bool Add(BCUserObservable * par);
 
 	void Clear(bool);
 
@@ -51,42 +51,42 @@ public:
 	 * Raw and fast access.
 	 *
 	 * @param index Index
-	 * @return Parameter
+	 * @return UserObservable
 	 */
-	BCParameter * operator[](unsigned index) const
+	BCUserObservable * operator[](unsigned index) const
 	{
 		return fPars[index];
 	}
 
 	/**
-	 * Safe access, but slightly less efficient access to parameter.
+	 * Safe access, but slightly less efficient access to user-defined observable.
 	 *
 	 * @param index Index gets checked.
 	 * @return The pointer at index position or NULL if invalid index.
 	 */
-	BCParameter * Get(unsigned index) const
+	BCUserObservable * Get(unsigned index) const
 	{
 		return ValidIndex(index, "Get") ? fPars[index] : NULL;
 	}
 	
 	/**
-	 * Safe access, but slightly less efficient access to parameter.
+	 * Safe access, but slightly less efficient access to user-defined observable.
 	 *
 	 * @param name Look up name in list
 	 * @return The pointer at index position or NULL if invalid index.
 	 */
-	BCParameter * Get(const std::string & name) const
+	BCUserObservable * Get(const std::string & name) const
 	{
 		return Get(Index(name));
 	}
 	
 	/**
-	 * Find index of parameter identified by name
+	 * Find index of user-defined observable identified by name
 	 */
 	unsigned Index(const std::string & name) const;
 	
 	/**
-	 * Number of parameters contained
+	 * Number of user-defined observables contained
 	 */
 	unsigned Size() const
 	{ return fPars.size(); }
@@ -98,19 +98,19 @@ public:
 	 * @return
 	 */
 	bool ValidIndex(unsigned index, const std::string caller="CheckIndex") const;
-	
+
 	/**
-	 * Set number of bins for all parameters
+	 * Set number of bins for all observables.
 	 * @param nbins Number of bins. */
 	void SetNBins(unsigned nbins);
 
 	/**
-	 * Set precision for output of all parameters
+	 * Set precision for output of all observables.
 	 * @param n Number of significant digits for printing.*/
 	void SetPrecision(unsigned n);
 
 	/**
-	 * Set fill-histograms flag for all parameters.
+	 * Set fill-histograms flag for all observables.
 	 * @parag flag Filling flag. */
 	void FillHistograms(bool flag);
 
@@ -118,10 +118,10 @@ public:
 	 * @return Length of longest parameter name. */
 	unsigned MaxNameLength()
 	   { return fMaxNameLength; }
-
+	
 private:
-	/// Don't own parameters
-	std::vector<BCParameter*> fPars;
+	/// Don't own user-defined observables
+	std::vector<BCUserObservable*> fPars;
 
 	unsigned fMaxNameLength;
 };

@@ -26,9 +26,9 @@
 #include <string>
 
 // ROOT classes
+#include <TH2D.h>
 
 class TH1D;
-class TH2D;
 class TGraph;
 class TObject;
 
@@ -87,12 +87,22 @@ public:
    void SetHistogram(TH2D* hist);
 
    /**
+	  * Set printing of histogram stats to false */
+	 void SetStats(bool flag)
+	    { if(fHistogram) fHistogram->SetStats(flag);}
+
+   /**
+    * Set global mode.
+    * @param x Global mode in x.
+		* @param y Global mode in y. */
+	 void SetGlobalMode(double x, double y)
+	   { fMode[0] = x; fMode[1] = y; fModeFlag = 1; }
+
+   /**
     * Set global mode.
     * @param The global mode. */
    void SetGlobalMode(double mode[2])
-   { fMode[0] = mode[0];
-     fMode[1] = mode[1];
-     fModeFlag =1; };
+	   { SetGlobalMode(mode[0],mode[1]); }
 
    /** @} */
    /** \name Member functions (miscellaneous methods) */

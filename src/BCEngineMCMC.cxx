@@ -14,158 +14,119 @@
 #include "BCH2D.h"
 #include "BCLog.h"
 #include "BCMath.h"
-#include "BCParameter.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TRandom3.h>
 #include <TTree.h>
+#include <TStyle.h>
+#include <TCanvas.h>
 
 #include <math.h>
 #include <limits>
 #include <cmath>
 
 // ---------------------------------------------------------
-BCEngineMCMC::BCEngineMCMC()
+BCEngineMCMC::BCEngineMCMC() :
+	fMCMCFlagWriteChainToFile(false),
+	fMCMCFlagWritePreRunToFile(false),
+	fMCMCFlagWritePreRunUserObservablesToFile(true),
+	fMCMCScaleFactorLowerLimit(0),
+	fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
+	fMCMCEfficiencyMin(0.15),
+	fMCMCEfficiencyMax(0.50),
+	fMCMCFlagInitialPosition(1),
+	fMCMCFlagOrderParameters(true),
+	fMCMCRValueUseStrict(false),
+	fMCMCRValueCriterion(0.1),
+	fMCMCRValueParametersCriterion(0.1),
+	fRandom(new TRandom3())
 {
-   // set default parameters for the mcmc
-   MCMCSetValuesDefault();
-
-   // initialize random number generator
-   fRandom = new TRandom3();
-   MCMCSetRandomSeed(0);
+	MCMCSetPrecision(BCEngineMCMC::kMedium);
+	MCMCSetRandomSeed(0);
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetValuesDefault()
-{
-   fMCMCFlagWriteChainToFile  = false;
-   fMCMCFlagWritePreRunToFile = false;
-   fMCMCFlagPreRun            = true;
-   fMCMCFlagRun               = false;
-   fMCMCEfficiencyMin         = 0.15;
-   fMCMCEfficiencyMax         = 0.50;
-	 fMCMCScaleFactorLowerLimit = 0;
-	 fMCMCScaleFactorUpperLimit = std::numeric_limits<double>::max();
-   fMCMCFlagInitialPosition   = 1;
-   fMCMCNLag                  = 1;
-   fMCMCCurrentIteration      = -1;
-   fMCMCCurrentChain          = -1;
-   fMCMCLogMaximum            = -std::numeric_limits<double>::max();
+void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision) {
+	switch(precision) {
 
-   MCMCSetValuesDetail();
+	case BCEngineMCMC::kLow:
+		fMCMCNChains                    = 1;
+		fMCMCNLag                       = 1;
+		fMCMCNIterationsMax             = 10000;
+		fMCMCNIterationsRun             = 10000;
+		fMCMCNIterationsPreRunMin       = 1500;
+		fMCMCNIterationsEfficiencyCheck = 500;
+		fMCMCNIterationsUpdate          = 1000;
+		fMCMCNIterationsUpdateClear     = 5000;
+		break;
+		
+	case BCEngineMCMC::kQuick:
+		fMCMCNChains                    = 2;
+		fMCMCNLag                       = 1;
+		fMCMCNIterationsMax             = 10000;
+		fMCMCNIterationsRun             = 10000;
+		fMCMCNIterationsPreRunMin       = 1500;
+		fMCMCNIterationsEfficiencyCheck = 500;
+		fMCMCNIterationsUpdate          = 1000;
+		fMCMCNIterationsUpdateClear     = 5000;
+		break;
+
+	case  BCEngineMCMC::kMedium:
+		fMCMCNChains                    = 5;
+		fMCMCNLag                       = 1;
+		fMCMCNIterationsMax             = 100000;
+		fMCMCNIterationsRun             = 100000;
+		fMCMCNIterationsPreRunMin       = 1500;
+		fMCMCNIterationsEfficiencyCheck = 500;
+		fMCMCNIterationsUpdate          = 1000;
+		fMCMCNIterationsUpdateClear     = 5000;
+		break;
+
+	case  BCEngineMCMC::kHigh:
+		fMCMCNChains                    = 10;
+		fMCMCNLag                       = 10;
+		fMCMCNIterationsMax             = 1000000;
+		fMCMCNIterationsRun             = 1000000;
+		fMCMCNIterationsPreRunMin       = 5000;
+		fMCMCNIterationsEfficiencyCheck = 1000;
+		fMCMCNIterationsUpdate          = 1000;
+		fMCMCNIterationsUpdateClear     = 5000;
+		break;
+
+	case  BCEngineMCMC::kVeryHigh:
+		fMCMCNChains                    = 10;
+		fMCMCNLag                       = 10;
+		fMCMCNIterationsMax             = 10000000;
+		fMCMCNIterationsRun             = 10000000;
+		fMCMCNIterationsPreRunMin       = 10000;
+		fMCMCNIterationsEfficiencyCheck = 1000;
+		fMCMCNIterationsUpdate          = 1000;
+		fMCMCNIterationsUpdateClear     = 5000;
+		break;
+	}
+
+	// re-initialize
+	MCMCInitialize();
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetValuesQuick()
-{
-   fMCMCNChains              = 2;
-   fMCMCNIterationsMax       = 10000;
-   fMCMCNIterationsRun       = 10000;
-   fMCMCNIterationsPreRunMin = 1500;
-   fMCMCFlagInitialPosition  = 1;
-   fMCMCRValueUseStrict      = false;
-   fMCMCRValueCriterion      = 0.1;
-   fMCMCRValueParametersCriterion = 0.1;
-   fMCMCNIterationsConvergenceGlobal = -1;
-   fMCMCFlagConvergenceGlobal = false;
-   fMCMCRValue               = 100;
-	 fMCMCNIterationsEfficiencyCheck = 500;
-   fMCMCNIterationsUpdate    = 1000;
-   fMCMCNIterationsUpdateClear = 5000;
-   fMCMCNIterationsUpdateMax = 10000;
-   fMCMCFlagOrderParameters  = true;
-   fMCMCCurrentIteration     = -1;
-   fMCMCCurrentChain         = -1;
-}
+void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC * other) {
+	fMCMCNChains                    = other -> MCMCGetNChains();
+	fMCMCNLag                       = other -> MCMCGetNLag();
+	fMCMCNIterationsMax             = other -> MCMCGetNIterationsMax();
+	fMCMCNIterationsRun             = other -> MCMCGetNIterationsRun();
+	fMCMCNIterationsPreRunMin       = other -> MCMCGetNIterationsPreRunMin();
+	fMCMCNIterationsEfficiencyCheck = other -> MCMCGetNIterationsEfficiencyCheck();
+	fMCMCNIterationsUpdate          = other -> MCMCGetNIterationsUpdate();
+	fMCMCNIterationsUpdateClear     = other -> MCMCGetNIterationsUpdateClear();
+	fMCMCRValueCriterion            = other -> MCMCGetRValueCriterion();
+	fMCMCRValueParametersCriterion  = other -> MCMCGetRValueParametersCriterion();
+	fMCMCEfficiencyMin              = other -> MCMCGetMinimumEfficiency();
+	fMCMCEfficiencyMax              = other -> MCMCGetMaximumEfficiency();
 
-// ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetValuesDetail()
-{
-   fMCMCNChains              = 5;
-   fMCMCNIterationsMax       = 1000000;
-   fMCMCNIterationsRun       = 100000;
-   fMCMCNIterationsPreRunMin = 2000;
-   fMCMCFlagInitialPosition  = 1;
-   fMCMCRValueUseStrict = false;
-   fMCMCRValueCriterion      = 0.1;
-   fMCMCRValueParametersCriterion = 0.1;
-   fMCMCNIterationsConvergenceGlobal = -1;
-   fMCMCFlagConvergenceGlobal = false;
-   fMCMCRValue               = 100;
-	 fMCMCNIterationsEfficiencyCheck = 1000;
-   fMCMCNIterationsUpdate    = 1000;
-   fMCMCNIterationsUpdateClear = 5000;
-   fMCMCNIterationsUpdateMax = 10000;
-   fMCMCFlagOrderParameters  = true;
-   fMCMCCurrentIteration     = -1;
-   fMCMCCurrentChain         = -1;
-}
-
-// ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
-{
-   switch(precision) {
-   case BCEngineMCMC::kLow:
-      fMCMCNChains              = 1;
-      fMCMCNLag                 = 1;
-      fMCMCNIterationsMax       = 10000;
-      fMCMCNIterationsRun       = 10000;
-      fMCMCNIterationsPreRunMin = 1500;
-			fMCMCNIterationsEfficiencyCheck = 500;
-      fMCMCNIterationsUpdate    = 1000;
-      fMCMCNIterationsUpdateClear= 5000;
-      fMCMCNIterationsUpdateMax = 10000;
-      fMCMCRValueCriterion      = 0.1;
-      fMCMCRValueParametersCriterion = 0.1;
-      fMCMCRValue               = 100;
-      break;
-   case  BCEngineMCMC::kMedium:
-      fMCMCNChains              = 5;
-      fMCMCNLag                 = 1;
-      fMCMCNIterationsMax       = 100000;
-      fMCMCNIterationsRun       = 100000;
-      fMCMCNIterationsPreRunMin = 1500;
-			fMCMCNIterationsEfficiencyCheck = 500;
-      fMCMCNIterationsUpdate    = 1000;
-      fMCMCNIterationsUpdateClear = 5000;
-      fMCMCNIterationsUpdateMax = 10000;
-      fMCMCRValueCriterion      = 0.1;
-      fMCMCRValueParametersCriterion = 0.1;
-      fMCMCRValue               = 100;
-      break;
-   case  BCEngineMCMC::kHigh:
-      fMCMCNChains                = 10;
-      fMCMCNLag                   = 10;
-      fMCMCNIterationsMax         = 1000000;
-      fMCMCNIterationsRun         = 1000000;
-      fMCMCNIterationsPreRunMin   = 2000;
-			fMCMCNIterationsEfficiencyCheck = 1000;
-      fMCMCNIterationsUpdate      = 1000;
-      fMCMCNIterationsUpdateClear = 5000;
-      fMCMCNIterationsUpdateMax   = 10000;
-      fMCMCRValueCriterion        = 0.1;
-      fMCMCRValueParametersCriterion = 0.1;
-      fMCMCRValue                 = 100;
-      break;
-   case  BCEngineMCMC::kVeryHigh:
-      fMCMCNChains              = 10;
-      fMCMCNLag                 = 10;
-      fMCMCNIterationsMax       = 10000000;
-      fMCMCNIterationsRun       = 10000000;
-      fMCMCNIterationsPreRunMin = 2000;
-			fMCMCNIterationsEfficiencyCheck = 1000;
-      fMCMCNIterationsUpdate    = 1000;
-      fMCMCNIterationsUpdateClear = 5000;
-      fMCMCNIterationsUpdateMax = 10000;
-      fMCMCRValueCriterion      = 0.1;
-      fMCMCRValueParametersCriterion = 0.1;
-      fMCMCRValue               = 100;
-      break;
-   }
-
-   // re-initialize
-   MCMCInitialize();
+	// re-initialize
+	MCMCInitialize();
 }
 
 // ---------------------------------------------------------
@@ -175,14 +136,17 @@ BCEngineMCMC::~BCEngineMCMC()
    delete fRandom;
 
    // delete 1-d marginalized distributions
-   for (unsigned i = 0; i < fMCMCH1Marginalized.size(); ++i)
-      delete fMCMCH1Marginalized[i];
-   fMCMCH1Marginalized.clear();
+   for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
+      delete fH1Marginalized[i];
+   fH1Marginalized.clear();
 
    // delete 2-d marginalized distributions
-   for (unsigned i = 0; i < fMCMCH2Marginalized.size(); ++i)
-      delete fMCMCH2Marginalized[i];
-   fMCMCH2Marginalized.clear();
+   for (unsigned i = 0; i < fH2Marginalized.size(); ++i) {
+		 for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
+			 delete fH2Marginalized[i][j];
+		 fH2Marginalized[i].clear();
+	 }
+   fH2Marginalized.clear();
 }
 
 // ---------------------------------------------------------
@@ -194,83 +158,70 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC & other)
 // ---------------------------------------------------------
 void BCEngineMCMC::Copy(const BCEngineMCMC & other)
 {
-   fMCMCPointerToGetProposalPoint = other.fMCMCPointerToGetProposalPoint;
-   fMCMCNChains               = other.fMCMCNChains;
-   fMCMCNLag                  = other.fMCMCNLag;
-   fMCMCNIterations           = other.fMCMCNIterations;
-   fMCMCCurrentIteration      = other.fMCMCCurrentIteration;
-   fMCMCCurrentChain          = other.fMCMCCurrentChain;
-	 fMCMCNIterationsEfficiencyCheck = other.fMCMCNIterationsEfficiencyCheck;
-   fMCMCNIterationsUpdate     = other.fMCMCNIterationsUpdate;
-   fMCMCNIterationsUpdateClear= other.fMCMCNIterationsUpdateClear;
-   fMCMCNIterationsUpdateMax  = other.fMCMCNIterationsUpdateMax;
-   fMCMCNIterationsConvergenceGlobal = other.fMCMCNIterationsConvergenceGlobal;
-   fMCMCFlagConvergenceGlobal = other.fMCMCFlagConvergenceGlobal;
-   fMCMCNIterationsMax        = other.fMCMCNIterationsMax;
-   fMCMCNIterationsRun        = other.fMCMCNIterationsRun;
-   fMCMCNIterationsPreRunMin  = other.fMCMCNIterationsPreRunMin;
-   fMCMCNTrialsTrue           = other.fMCMCNTrialsTrue;
-   fMCMCNTrials               = other.fMCMCNTrials;
-   fMCMCFlagWriteChainToFile  = other.fMCMCFlagWriteChainToFile;
-   fMCMCFlagWritePreRunToFile = other.fMCMCFlagWritePreRunToFile;
-   fMCMCTrialFunctionScaleFactor = other.fMCMCTrialFunctionScaleFactor;
-   fMCMCTrialFunctionScaleFactorStart = other.fMCMCTrialFunctionScaleFactorStart;
-   fMCMCFlagPreRun            = other.fMCMCFlagPreRun;
-   fMCMCFlagRun               = other.fMCMCFlagRun;
-   fMCMCInitialPosition       = other.fMCMCInitialPosition;
-   fMCMCEfficiencies          = other.fMCMCEfficiencies;
-   fMCMCEfficiencyMin         = other.fMCMCEfficiencyMin;
-   fMCMCEfficiencyMax         = other.fMCMCEfficiencyMax;
-	 fMCMCScaleFactorLowerLimit = other.fMCMCScaleFactorLowerLimit;
-	 fMCMCScaleFactorUpperLimit = other.fMCMCScaleFactorUpperLimit;
-   fMCMCFlagInitialPosition   = other.fMCMCFlagInitialPosition;
-   fMCMCFlagOrderParameters   = other.fMCMCFlagOrderParameters;
-   fMCMCPhase                 = other.fMCMCPhase;
-   fMCMCx                     = other.fMCMCx;
-   fMCMCxMax                  = other.fMCMCxMax;
-   fMCMCxMean                 = other.fMCMCxMean;
-   fMCMCxVar                  = other.fMCMCxVar;
-   fMCMCprob                  = other.fMCMCprob;
-   fMCMCprobMax               = other.fMCMCprobMax;
-   fMCMCprobMean              = other.fMCMCprobMean;
-   fMCMCprobVar               = other.fMCMCprobVar;
-   fMCMCRValueUseStrict       = other.fMCMCRValueUseStrict;
-   fMCMCRValueCriterion       = other.fMCMCRValueCriterion ;
-   fMCMCRValueParametersCriterion = other.fMCMCRValueParametersCriterion;
-   fMCMCRValue                = other.fMCMCRValue;
-   fMCMCRValueParameters      = other.fMCMCRValueParameters;
-   if (other.fRandom)
-   {
-      fRandom = new TRandom3(*other.fRandom);
-   }
-   else
-   {
-      fRandom = NULL;
-   }
+   fMCMCPointerToGetProposalPoint            = other.fMCMCPointerToGetProposalPoint;
+   fMCMCNChains                              = other.fMCMCNChains;
+   fMCMCNLag                                 = other.fMCMCNLag;
+   fMCMCNIterations                          = other.fMCMCNIterations;
+   fMCMCCurrentIteration                     = other.fMCMCCurrentIteration;
+   fMCMCCurrentChain                         = other.fMCMCCurrentChain;
+	 fMCMCNIterationsEfficiencyCheck           = other.fMCMCNIterationsEfficiencyCheck;
+   fMCMCNIterationsUpdate                    = other.fMCMCNIterationsUpdate;
+   fMCMCNIterationsUpdateClear               = other.fMCMCNIterationsUpdateClear;
+   fMCMCNIterationsConvergenceGlobal         = other.fMCMCNIterationsConvergenceGlobal;
+   fMCMCNIterationsMax                       = other.fMCMCNIterationsMax;
+   fMCMCNIterationsRun                       = other.fMCMCNIterationsRun;
+   fMCMCNIterationsPreRunMin                 = other.fMCMCNIterationsPreRunMin;
+   fMCMCNTrialsTrue                          = other.fMCMCNTrialsTrue;
+   fMCMCNTrials                              = other.fMCMCNTrials;
+   fMCMCFlagWriteChainToFile                 = other.fMCMCFlagWriteChainToFile;
+   fMCMCFlagWritePreRunToFile                = other.fMCMCFlagWritePreRunToFile;
+	 fMCMCFlagWritePreRunUserObservablesToFile = other.fMCMCFlagWritePreRunUserObservablesToFile;
+   fMCMCTrialFunctionScaleFactor             = other.fMCMCTrialFunctionScaleFactor;
+   fMCMCTrialFunctionScaleFactorStart        = other.fMCMCTrialFunctionScaleFactorStart;
+   fMCMCFlagPreRun                           = other.fMCMCFlagPreRun;
+   fMCMCFlagRun                              = other.fMCMCFlagRun;
+   fMCMCInitialPosition                      = other.fMCMCInitialPosition;
+   fMCMCEfficiencies                         = other.fMCMCEfficiencies;
+   fMCMCEfficiencyMin                        = other.fMCMCEfficiencyMin;
+   fMCMCEfficiencyMax                        = other.fMCMCEfficiencyMax;
+	 fMCMCScaleFactorLowerLimit                = other.fMCMCScaleFactorLowerLimit;
+	 fMCMCScaleFactorUpperLimit                = other.fMCMCScaleFactorUpperLimit;
+   fMCMCFlagInitialPosition                  = other.fMCMCFlagInitialPosition;
+   fMCMCFlagOrderParameters                  = other.fMCMCFlagOrderParameters;
+   fMCMCPhase                                = other.fMCMCPhase;
+   fMCMCx                                    = other.fMCMCx;
+   fMCMCUserObservables                      = other.fMCMCUserObservables;
+   fMCMCxMax                                 = other.fMCMCxMax;
+   fMCMCxMean                                = other.fMCMCxMean;
+   fMCMCxVar                                 = other.fMCMCxVar;
+   fMCMCprob                                 = other.fMCMCprob;
+   fMCMCprobMax                              = other.fMCMCprobMax;
+   fMCMCprobMean                             = other.fMCMCprobMean;
+   fMCMCprobVar                              = other.fMCMCprobVar;
+   fMCMCRValueUseStrict                      = other.fMCMCRValueUseStrict;
+   fMCMCRValueCriterion                      = other.fMCMCRValueCriterion ;
+   fMCMCRValueParametersCriterion            = other.fMCMCRValueParametersCriterion;
+   fMCMCRValue                               = other.fMCMCRValue;
+   fMCMCRValueParameters                     = other.fMCMCRValueParameters;
+	 fRandom                                   = (other.fRandom) ? new TRandom3(*other.fRandom) : NULL;
+   fMCMCThreadLocalStorage                   = other.fMCMCThreadLocalStorage;
 
-   fMCMCThreadLocalStorage    = other.fMCMCThreadLocalStorage;
+	 fH1Marginalized = std::vector<TH1D*>(other.fH1Marginalized.size(),0);
+   for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
+		 if (other.fH1Marginalized.at(i))
+			 fH1Marginalized[i] = new TH1D(*(other.fH1Marginalized[i]));
 
-   for (unsigned i = 0; i < other.fMCMCH1Marginalized.size(); ++i) {
-      if (other.fMCMCH1Marginalized.at(i))
-         fMCMCH1Marginalized.push_back(new TH1D(*(other.fMCMCH1Marginalized.at(i))));
-      else
-         fMCMCH1Marginalized.push_back(0);
-   }
+	 fH2Marginalized = std::vector<std::vector<TH2D*> > (other.fH2Marginalized.size(), std::vector<TH2D*>(other.fH2Marginalized[0].size(),0));
+   for (unsigned i = 0; i < other.fH2Marginalized.size(); ++i)
+		 for (unsigned j = 0; j < other.fH2Marginalized[i].size(); ++j)
+			 if (other.fH2Marginalized[i][j])
+				 fH2Marginalized[i][j] = new TH2D(*(other.fH2Marginalized[i][j]));
 
-   for (unsigned i = 0; i < other.fMCMCH2Marginalized.size(); ++i) {
-      if (other.fMCMCH2Marginalized.at(i))
-         fMCMCH2Marginalized.push_back(new TH2D(*(other.fMCMCH2Marginalized.at(i))));
-      else
-         fMCMCH2Marginalized.push_back(0);
-   }
+	 fMCMCTrees.assign( other.fMCMCTrees.size() , 0 );
 
-   for (unsigned i = 0; i < other.fMCMCTrees.size(); ++i) {
-      fMCMCTrees.push_back(0);
-   }
-
-   fMarginalModes = other.fMarginalModes;
+   fMarginalModes         = other.fMarginalModes;
    fMCMCBestFitParameters = other.fMCMCBestFitParameters;
-   fMCMCLogMaximum = other.fMCMCLogMaximum;
+   fMCMCLogMaximum        = other.fMCMCLogMaximum;
 }
 
 // ---------------------------------------------------------
@@ -301,71 +252,116 @@ unsigned int BCEngineMCMC::GetNFixedParameters()
 // --------------------------------------------------------
 void BCEngineMCMC::SetNbins(unsigned int nbins)
 {
-   for (unsigned i = 0 ; i < fParameters.Size() ; ++i)
-      fParameters[i]->SetNbins(nbins);
+	fParameters.SetNBins(nbins);
+	fUserObservables.SetNBins(nbins);
 }
 
 // --------------------------------------------------------
-BCH1D * BCEngineMCMC::MCMCGetH1Marginalized(unsigned index)
-{
-   if ( !fParameters.ValidIndex(index)) {
-      BCLog::OutError(Form("BCEngineMCMC::MCMCGetH1Marginalized. Index %u out of range.", index));
-      return 0;
-   }
+TH1D * BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
+	if ( index >= fH1Marginalized.size() ) {
+		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.",index));
+		return 0;
+	}
 
-   // use when BCIntegrate acts MCMC marginalization and only some marginals have been computed
-   if (!fMCMCH1Marginalized[index]) {
-      BCLog::OutWarning(Form("BCEngineMCMC::MCMCGetH1Marginalized: marginal distribution not computed/stored for par. %d", index));
-      return 0;
-   }
-
-   // set histogram
-   BCH1D * hprob = new BCH1D();
-   hprob->SetHistogram(fMCMCH1Marginalized[index]);
-
-   if (fMarginalModes.empty())
-      fMarginalModes.assign(fParameters.Size(), 0.0);
-   fMarginalModes[index] = hprob->GetMode();
-
-   return hprob;
+	if (fH1Marginalized[index])
+		return fH1Marginalized[index];
+	
+	// else output warning
+	if ( index<fParameters.Size() ) // Marginalization of model parameter
+		BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for parameter %s", fParameters[index]->GetName().data()));
+	else if ( index-fParameters.Size()<fUserObservables.Size() ) // Marginalization of user-defined observable
+		BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for user-observable %s", fUserObservables[index-fParameters.Size()]->GetName().data()));
+	return 0;
 }
 
 // --------------------------------------------------------
-BCH2D * BCEngineMCMC::MCMCGetH2Marginalized(unsigned i, unsigned j)
-{
-   if ( !fParameters.ValidIndex(i)) {
-      BCLog::OutError(Form("BCEngineMCMC::MCMCGetH2Marginalized. Index %u out of range.", i));
-      return 0;
-   }
-   if ( !fParameters.ValidIndex(j)) {
-      BCLog::OutError(Form("BCEngineMCMC::MCMCGetH2Marginalized. Index %u out of range.", j));
-      return 0;
-   }
-   if (i == j) {
-      BCLog::OutError(Form("BCEngineMCMC::MCMCGetH2Marginalized. Called with identical indices %u.", i));
-      return 0;
-   }
+TH2D * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
+	if (i == j) {
+		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Called with identical indices %u.", i));
+		return 0;
+	}
+	
+	// redundancy reduced by only storing H2's for i<j
+	if (i > j)
+		return GetMarginalizedHistogram(j,i);
+	// TODO: transpose histogram;
 
-   // swap indices
-   if (i > j) {
-      unsigned indexTemp = i;
-      i = j;
-      j = indexTemp;
-   }
+	if ( i >= fH2Marginalized.size() ) {
+		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", i));
+		return 0;
+	}
+	if ( j >= fH2Marginalized[i].size() ) {
+		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", j));
+		return 0;
+	}
 
-   // memory layout for n parameters and indices i, j:
-   // first (n-1) elements for first parameter vs. all other parameters
-   // then (n-2) elements for second parameter and all others etc
-   // so the first combination for which i is the lower index is at n*i - i(i+1)/2
-   // and the offset is given  by (j-i-1)
-   TH2D * h =  fMCMCH2Marginalized.at(GetNParameters() * i - (i * i + 3 * i) / 2 + j - 1);
-   if ( !h)
-      return 0;
+	if (fH2Marginalized[i][j])
+		return fH2Marginalized[i][j];
 
-   BCH2D * hprob = new BCH2D();
-   hprob->SetHistogram(h);
+	// else output warning
+	if (!fH1Marginalized[i]) {
+		if ( i<fParameters.Size() ) // Marginalization of model parameter
+			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for parameter %s", fParameters[i]->GetName().data()));
+		else if ( i-fParameters.Size()<fUserObservables.Size() ) // Marginalization of user-defined observable
+			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", fUserObservables[i-fParameters.Size()]->GetName().data()));
+	}
+	if (!fH1Marginalized[j]) {
+		if ( j<fParameters.Size() ) // Marginalization of model parameter
+			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for parameter %s", fParameters[j]->GetName().data()));
+		else if ( j-fParameters.Size()<fUserObservables.Size() ) // Marginalization of user-defined observable
+			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", fUserObservables[j-fParameters.Size()]->GetName().data()));
+	}
+	return 0;
+}
 
-   return hprob;
+// --------------------------------------------------------
+BCH1D * BCEngineMCMC::GetMarginalized(unsigned index) {
+	TH1D * h = GetMarginalizedHistogram(index);
+
+	if ( !h )
+		return 0;
+	
+	BCH1D * hprob = new BCH1D(h);
+	
+	// if best fit parameters exists, set global mode
+	if (GetBestFitParameters().size() == fParameters.Size()) {
+		double mode = (index<fParameters.Size()) ? GetBestFitParameter(index) : fUserObservables[index-fParameters.Size()]->Evaluate(GetBestFitParameters());
+		hprob -> SetGlobalMode(mode);
+	}
+	
+	if ( fMarginalModes.size() != fH1Marginalized.size() )
+		fMarginalModes.resize(fH1Marginalized.size(), 0);
+	fMarginalModes[index] = hprob->GetMode();
+	
+	return hprob;
+}
+	
+// --------------------------------------------------------
+BCH2D * BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) {
+	TH2D * h = GetMarginalizedHistogram(i,j);
+
+	if (!h)
+		return 0;
+
+	BCH2D * hprob = new BCH2D(h);
+
+	// if best fit parameters exists, set global mode
+	if (GetBestFitParameters().size() == fParameters.Size()) {
+		double imode = (i<fParameters.Size()) ? GetBestFitParameter(i) : fUserObservables[i-fParameters.Size()]->Evaluate(GetBestFitParameters());
+		double jmode = (j<fParameters.Size()) ? GetBestFitParameter(j) : fUserObservables[j-fParameters.Size()]->Evaluate(GetBestFitParameters());
+		hprob -> SetGlobalMode(imode,jmode);
+	}
+		
+	return hprob;
+}
+
+// ---------------------------------------------------------
+BCObservable * BCEngineMCMC::GetObservable(unsigned index) const {
+	if (index<fParameters.Size())
+		return fParameters[index];
+	if (index-fParameters.Size()<fUserObservables.Size())
+		return fUserObservables[index-fParameters.Size()];
+	return 0;
 }
 
 // ---------------------------------------------------------
@@ -375,6 +371,29 @@ const std::vector<double> & BCEngineMCMC::GetBestFitParametersMarginalized() con
       BCLog::OutError("BCIntegrate::GetBestFitParameterMarginalized : MCMC not yet run, returning center of the range.");
 
    return fMarginalModes;
+}
+
+
+// ---------------------------------------------------------
+double BCEngineMCMC::GetBestFitParameter(unsigned index) const
+{
+
+	if (index > fParameters.Size() + fUserObservables.Size())
+		return -std::numeric_limits<double>::infinity();
+
+	std::vector<double> pars = GetBestFitParameters();
+
+	if (pars.size() != fParameters.Size()) {
+		BCLog::OutError("BCEngineMCMC::GetBestFitParameter : MCMC not yet run, returning center of the range.");
+		return fParameters[index]->GetRangeCenter();
+	}
+
+	// parameter
+	if ( index < fParameters.Size() )
+		return pars[index];
+	
+	// user-define observable
+	return fUserObservables[index-fParameters.Size()]->Evaluate(pars);
 }
 
 // --------------------------------------------------------
@@ -391,8 +410,7 @@ void BCEngineMCMC::MCMCSetNChains(unsigned n)
 {
    fMCMCNChains = n;
 
-   // re-initialize
-   MCMCInitialize();
+   MCMCInitialize();						// gre-initialize
 }
 
 // --------------------------------------------------------
@@ -417,8 +435,8 @@ void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double> & x0s) {
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCSetFlagFillHistograms(bool flag)
 {
-	for (unsigned i = 0; i < fParameters.Size(); ++i)
-		fParameters[i]->FillHistograms(flag);
+	fParameters.FillHistograms(flag);
+	fUserObservables.FillHistograms(flag);	
 }
 
 // --------------------------------------------------------
@@ -434,9 +452,6 @@ void BCEngineMCMC::MCMCSetMarkovChainTrees(const std::vector<TTree *> & trees)
 
 void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
 {
-	if (!fRandom)
-		fRandom = new TRandom3();
-
 	// set main generator
 	fRandom->SetSeed(seed);
 
@@ -473,8 +488,14 @@ void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
 		fMCMCTrees[i]->Branch("LogProbability",  &fMCMCprob[i],         "log(probability)/D");
 		fMCMCTrees[i]->Branch("Phase",           &fMCMCPhase,           "phase/I");
 
-		for (unsigned j = 0; j < fParameters.Size(); ++j)
+		for (unsigned j = 0; j < fParameters.Size(); ++j) {
 			fMCMCTrees[i]->Branch(TString::Format("Parameter%i", j), &fMCMCx[i][j], TString::Format("parameter %i/D", j));
+			fMCMCTrees[i]->SetAlias(fParameters[j]->GetName().data(),TString::Format("Parameter%i", j));
+		}
+		for (unsigned j = 0; j < fUserObservables.Size(); ++j) {
+			fMCMCTrees[i]->Branch(TString::Format("Observable%i", j), &fMCMCUserObservables[i][j], TString::Format("observable %i/D", j));
+			fMCMCTrees[i]->SetAlias(fUserObservables[j]->GetName().data(),TString::Format("Observable%i", j));
+		}		
 	}
 }
 
@@ -742,21 +763,37 @@ void BCEngineMCMC::MCMCInChainFillHistograms() {
 	// loop over chains
 	for (unsigned i = 0; i < fMCMCNChains; ++i) {
 
+		////////////////////////////////////////
 		// fill each 1-dimensional histogram (if supposed to be filled)
+
+		// Parameters
 		for (unsigned j = 0; j < fParameters.Size(); ++j)
-			if (TH1 * h = fMCMCH1Marginalized[j])
+			if (TH1 * h = fH1Marginalized[j])
 				h -> Fill(fMCMCx[i][j]);
-		
+		// User-defined Observables
+		for (unsigned j = 0; j < fUserObservables.Size(); ++j)
+			if (TH1 * h = fH1Marginalized[j+fParameters.Size()])
+				h -> Fill(fMCMCUserObservables[i][j]);
+
+
+		////////////////////////////////////////
 		// fill each 2-dimensional histogram (if supposed to be filled)
-		unsigned counter = 0;
 
-		for (unsigned j = 0; j < fParameters.Size(); ++j)
-			for (unsigned k = j+1; k < fParameters.Size(); ++k) {
-				if (TH2D * h = fMCMCH2Marginalized[counter])
+		for (unsigned j = 0; j < fParameters.Size(); ++j) {
+			// Parameter vs Parameter
+			for (unsigned k = j+1; k < fParameters.Size(); ++k)
+				if (TH2D * h = fH2Marginalized[j][k])
 					h -> Fill(fMCMCx[i][j],fMCMCx[i][k]);
-				counter ++;
-			}
-
+			// User-defined Observable vs Parameter
+			for (unsigned k = 0; k < fUserObservables.Size(); ++k)
+				if (TH2D * h = fH2Marginalized[j][k+fParameters.Size()])
+					h -> Fill(fMCMCx[i][j],fMCMCUserObservables[i][k]);
+		}
+		// User-defined Observable vs User-defined Observable
+		for (unsigned j = 0; j < fUserObservables.Size(); ++j)
+			for (unsigned k = j+1; k < fUserObservables.Size(); ++k)
+				if (TH2D * h = fH2Marginalized[j+fParameters.Size()][k+fParameters.Size()])
+					h -> Fill(fMCMCUserObservables[i][j],fMCMCUserObservables[i][k]);
 	}
 }
 
@@ -825,8 +862,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	MCMCInitialize();
 	MCMCInitializeMarkovChains();
 	
-	int nletters = 20;
-	
 	// reset run statistics
 	MCMCResetRunStatistics();
 
@@ -850,8 +885,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		MCMCGetNewPointMetropolis();
 		++fMCMCNTrials;
 
-		if (fMCMCFlagWritePreRunToFile)
+		if (fMCMCFlagWritePreRunToFile) {
+			if (fMCMCFlagWritePreRunUserObservablesToFile)
+				CalculateUserObservables();
 			MCMCInChainWriteChains();
+		}
 
 		if ( fMCMCNTrials != fMCMCNIterationsEfficiencyCheck)
 			continue;
@@ -877,11 +915,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 					fMCMCTrialFunctionScaleFactor[ichain][ipar] /= (fMCMCEfficiencies[ichain][ipar] < 0.5*fMCMCEfficiencyMin) ? 4 : 2;
 					
 					if ( fMCMCTrialFunctionScaleFactor[ichain][ipar] > fMCMCScaleFactorLowerLimit ) {
-						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %6.2f %%", nletters, fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
+						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %6.2f %%", fParameters.MaxNameLength(), fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
 						inefficientScalesAdjustable = true;
 					}	else {
 						fMCMCTrialFunctionScaleFactor[ichain][ipar] = fMCMCScaleFactorLowerLimit;
-						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%6.2f %%)",	nletters, fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCScaleFactorLowerLimit));
+						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%6.2f %%)",	fParameters.MaxNameLength(), fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCScaleFactorLowerLimit));
 					}
 					
 				} else if (fMCMCEfficiencies[ichain][ipar] > fMCMCEfficiencyMax ) {
@@ -895,11 +933,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 					fMCMCTrialFunctionScaleFactor[ichain][ipar] *= 2;
 
 					if ( fMCMCTrialFunctionScaleFactor[ichain][ipar] < fMCMCScaleFactorUpperLimit ) {
-						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %6.2f %%", nletters, fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
+						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %6.2f %%", fParameters.MaxNameLength(), fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
 						inefficientScalesAdjustable = true;
 					} else {
 						fMCMCTrialFunctionScaleFactor[ichain][ipar] = fMCMCScaleFactorUpperLimit;
-						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%6.2f %%)", nletters, fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, fMCMCScaleFactorUpperLimit));														 
+						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%6.2f %%)", fParameters.MaxNameLength(), fParameters[ipar]->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, fMCMCScaleFactorUpperLimit));														 
 					}
 				}
 			}
@@ -923,8 +961,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		// Run until all chains have converged
 
 		unsigned nIterationsCheckConvergence = fMCMCNIterationsUpdate;
-		if ( nIterationsCheckConvergence > fMCMCNIterationsUpdateMax )
-			nIterationsCheckConvergence = fMCMCNIterationsUpdateMax;
 		if ( nIterationsCheckConvergence > fMCMCNIterationsUpdateClear )
 			nIterationsCheckConvergence = fMCMCNIterationsUpdateClear;
 
@@ -935,7 +971,6 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		if (fMCMCCurrentIteration >= (int)fMCMCNIterationsMax) {
       BCLog::OutWarning(" Convergence never checked !");
       BCLog::OutWarning("   Increase maximum number of iterations in the pre-run /MCMCSetNIterationsMax()/");
-      BCLog::OutWarning("   or decrease maximum number of iterations for update  /MCMCSetNIterationsUpdateMax()/");
 		}
 
 		while ( fMCMCCurrentIteration < (int)fMCMCNIterationsMax and fMCMCNIterationsConvergenceGlobal < 0 ) {
@@ -952,8 +987,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			++fMCMCNTrials;
 			++NTrialsForEff;
 
-			if (fMCMCFlagWritePreRunToFile)
+			if (fMCMCFlagWritePreRunToFile) {
+				if (fMCMCFlagWritePreRunUserObservablesToFile)
+					CalculateUserObservables();
 				MCMCInChainWriteChains();
+			}
 
 			MCMCInChainUpdateStatistics();
 
@@ -966,7 +1004,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 				continue;
 
 			BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
-			BCLog::OutDetail(Form("       - %-*s : R-Value",nletters,"Parameter"));
+			BCLog::OutDetail(Form("       - %-*s : R-Value",fParameters.MaxNameLength(),"Parameter"));
 				
 			for (unsigned ipar = 0; ipar < fParameters.Size(); ++ipar) {
 
@@ -974,11 +1012,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 					continue;
 
 				if( fMCMCRValueParameters[ipar]-1 < fMCMCRValueParametersCriterion )
-					BCLog::OutDetail(TString::Format("         %-*s :  %.06f",nletters,fParameters[ipar]->GetName().data(), fMCMCRValueParameters.at(ipar)));
+					BCLog::OutDetail(TString::Format("         %-*s :  %.06f",fParameters.MaxNameLength(),fParameters[ipar]->GetName().data(), fMCMCRValueParameters.at(ipar)));
 				else if ( fMCMCRValueParameters.at(ipar) != std::numeric_limits<double>::max() )
-					BCLog::OutDetail(TString::Format("         %-*s :  %.06f <--",nletters,fParameters[ipar]->GetName().data(), fMCMCRValueParameters.at(ipar)));
+					BCLog::OutDetail(TString::Format("         %-*s :  %.06f <--",fParameters.MaxNameLength(),fParameters[ipar]->GetName().data(), fMCMCRValueParameters.at(ipar)));
 				else
-					BCLog::OutDetail(TString::Format("         %-*s :  MAX_DOUBLE <--",nletters,fParameters[ipar]->GetName().data()));
+					BCLog::OutDetail(TString::Format("         %-*s :  MAX_DOUBLE <--",fParameters.MaxNameLength(),fParameters[ipar]->GetName().data()));
 			}
 
 			if( fMCMCRValue-1 < fMCMCRValueCriterion )
@@ -989,9 +1027,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 				BCLog::OutDetail("       - Log-Likelihood :  MAX_DOUBLE <--");
 		}
 
-		fMCMCFlagConvergenceGlobal = (fMCMCNIterationsConvergenceGlobal > 0);
-
-		if ( fMCMCFlagConvergenceGlobal )
+		if ( fMCMCNIterationsConvergenceGlobal > 0 )
 			if (allEfficient)
 				BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, and all scales are adjusted.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 			else
@@ -1019,8 +1055,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			++NTrialsForEff;
 			++n;
 
-			if (fMCMCFlagWritePreRunToFile)
+			if (fMCMCFlagWritePreRunToFile) {
+				if (fMCMCFlagWritePreRunUserObservablesToFile)
+					CalculateUserObservables();
 				MCMCInChainWriteChains();
+			}
 
 			if ( n % nwrite == 0)
 				BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, 100.*n/N));
@@ -1033,7 +1072,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	std::vector<double> efficiencies (fParameters.Size(),0);
 
 	BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in %d iterations):",(NTrialsForEff==0) ? fMCMCNIterationsEfficiencyCheck : NTrialsForEff));
-	BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency",nletters,"Parameter"));
+	BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency",fParameters.MaxNameLength(),"Parameter"));
 	for (unsigned i = 0; i < fParameters.Size(); ++i) {
 		if (fParameters[i]->Fixed())
 			continue;
@@ -1041,7 +1080,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			efficiencies[i] += ( NTrialsForEff==0 ) ? fMCMCEfficiencies[j][i] / fMCMCNChains : 1.*fMCMCNTrialsTrue[j][i]/NTrialsForEff/fMCMCNChains;
 			scalefactors[i] += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
 		}
-		BCLog::OutDetail(Form("         %-*s :     %6.02f %%        %4.1f %%",nletters,fParameters[i]->GetName().data(), 100.*scalefactors[i], 100.*efficiencies[i]));
+		BCLog::OutDetail(Form("         %-*s :     %6.02f %%        %4.1f %%",fParameters.MaxNameLength(),fParameters[i]->GetName().data(), 100.*scalefactors[i], 100.*efficiencies[i]));
 	}
 
 	// reset current iteration
@@ -1096,8 +1135,10 @@ int BCEngineMCMC::MCMCMetropolis()
 			
 		MCMCIterationInterface();		// user action (overloadable)
 		
+		CalculateUserObservables();
+
 		// fill histograms
-		if ( !fMCMCH1Marginalized.empty() or !fMCMCH2Marginalized.empty() )
+		if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
 			MCMCInChainFillHistograms();
 		
 		// write chain to file
@@ -1149,13 +1190,14 @@ void BCEngineMCMC::MCMCResetRunStatistics()
 	fMCMCNTrialsTrue.assign(fMCMCNChains,std::vector<int>(fParameters.Size(),0));
 
 	// reset marginalized distributions
-	for (unsigned i = 0; i < fMCMCH1Marginalized.size(); ++i)
-		if (fMCMCH1Marginalized[i])
-			fMCMCH1Marginalized[i]->Reset();
+	for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
+		if (fH1Marginalized[i])
+			fH1Marginalized[i]->Reset();
 
-	for (unsigned i = 0; i < fMCMCH2Marginalized.size(); ++i)
-		if (fMCMCH2Marginalized[i])
-			fMCMCH2Marginalized[i]->Reset();
+	for (unsigned i = 0; i < fH2Marginalized.size(); ++i)
+		for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
+			if (fH2Marginalized[i][j])
+				fH2Marginalized[i][j]->Reset();
 
 	fMCMCRValue = 100;
 }
@@ -1177,6 +1219,26 @@ int BCEngineMCMC::AddParameter(BCParameter * par)
 }
 
 // --------------------------------------------------------
+int BCEngineMCMC::AddUserObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname)
+{
+	return AddUserObservable(new BCUserObservable(name, min, max, fn, latexname));
+}
+
+// --------------------------------------------------------
+int BCEngineMCMC::AddUserObservable(BCUserObservable * par)
+{
+	return fUserObservables.Add(par);
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::CalculateUserObservables() {
+	for (unsigned i = 0; i < fMCMCNChains; ++i )
+		for (unsigned j = 0; j < fUserObservables.Size(); ++j)
+			fMCMCUserObservables[i][j] = fUserObservables[j] -> Evaluate(fMCMCx[i]);
+}
+
+
+// --------------------------------------------------------
 void BCEngineMCMC::MCMCInitializeMarkovChains()
 {
 	// evaluate function at the starting point
@@ -1190,6 +1252,8 @@ void BCEngineMCMC::MCMCInitializeMarkovChains()
 void BCEngineMCMC::ResetResults()
 {
 	// reset variables
+	fMCMCCurrentIteration = -1;
+	fMCMCCurrentChain = -1;
 	fMCMCNIterations.clear();
 	fMCMCNTrialsTrue.clear();
 	fMCMCNTrials = 0;
@@ -1199,28 +1263,30 @@ void BCEngineMCMC::ResetResults()
 	fMCMCxMean.clear();
 	fMCMCxVar.clear();
 	fMCMCx.clear();
+	fMCMCUserObservables.clear();
 	fMCMCprob.clear();
 	fMCMCxMax.clear();
 	fMCMCprobMax.clear();
 	fMCMCNIterationsConvergenceGlobal = -1;
 	fMCMCRValueParameters.clear();
+	fMCMCRValue = std::numeric_limits<double>::max();
 
-	for (unsigned i = 0; i < fMCMCH1Marginalized.size(); ++i)
-		if (fMCMCH1Marginalized[i])
-			delete fMCMCH1Marginalized[i];
+	for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
+		if (fH1Marginalized[i])
+			delete fH1Marginalized[i];
 
-	for (unsigned i = 0; i < fMCMCH2Marginalized.size(); ++i)
-		if (fMCMCH2Marginalized[i])
-			delete fMCMCH2Marginalized[i];
+	for (unsigned i = 0; i < fH2Marginalized.size(); ++i)
+		for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
+			if (fH2Marginalized[i][j])
+				delete fH2Marginalized[i][j];
 
 	// clear plots
-	fMCMCH1Marginalized.clear();
-	fMCMCH2Marginalized.clear();
+	fH1Marginalized.clear();
+	fH2Marginalized.clear();
 
 	// reset flags
 	fMCMCFlagPreRun = true;
 	fMCMCFlagRun = false;
-	fMCMCFlagConvergenceGlobal = false;
 
 	fMCMCBestFitParameters.clear();
 	fMCMCLogMaximum = -std::numeric_limits<double>::max();
@@ -1302,45 +1368,56 @@ int BCEngineMCMC::MCMCInitialize()
 				 fMCMCx[j][i] = (fParameters[i]->Fixed()) ? fParameters[i]->GetFixedValue() : fParameters[i]->GetLowerLimit() + fMCMCThreadLocalStorage[j].rng->Rndm() * (fParameters[i]->GetUpperLimit()-fParameters[i]->GetLowerLimit());
 	 }
 	 
+	 // initialize user-defined observables
+	 fMCMCUserObservables.assign(fMCMCNChains,std::vector<double>(fUserObservables.Size(),0));
+
    // define 1-dimensional histograms for marginalization
    bool fillAny = false;
-   for(unsigned i = 0; i < fParameters.Size(); ++i) {
-		 const BCParameter * p = fParameters[i];
-		 TH1D * h1 = NULL;
-		 if (p->FillHistograms() && ! p->Fixed()) {
-			 h1 = new TH1D(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,i),
-										 TString::Format(";%s;", p->GetLatexName().c_str()),
-										 p->GetNbins(), p->GetLowerLimit(), p->GetUpperLimit());
-			 h1->SetStats(kFALSE);
-			 
+	 fH1Marginalized.assign(fParameters.Size()+fUserObservables.Size(),NULL);
+
+   for(unsigned i = 0; i < fParameters.Size(); ++i)
+		 if (fParameters[i]->FillHistograms() && !fParameters[i]->Fixed()) {
+			 fH1Marginalized[i] = fParameters[i] -> CreateH1(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,i));
+			 fH1Marginalized[i] -> SetStats(kFALSE);
 			 fillAny = true;
 		 }
-		 fMCMCH1Marginalized.push_back(h1);
-   }
-
+   for(unsigned i = 0; i < fUserObservables.Size(); ++i)
+		 if (fUserObservables[i]->FillHistograms()) {
+			 fH1Marginalized[i+fParameters.Size()] = fUserObservables[i] -> CreateH1(TString::Format("h1_%d_observable_%i", BCLog::GetHIndex() ,i));
+			 fH1Marginalized[i+fParameters.Size()] -> SetStats(kFALSE);
+			 fillAny = true;
+		 }
+	 
    // if filling no histograms, set H1 vector to zero size, implies no 2D histograms either
    if (!fillAny)
-		 fMCMCH1Marginalized.clear();
+		 fH1Marginalized.clear();
    else {
+		 fH2Marginalized.assign(fParameters.Size()+fUserObservables.Size(),std::vector<TH2D*>(fParameters.Size()+fUserObservables.Size(),0));
 		 // define 2-dimensional histograms for marginalization
-		 for(unsigned i = 0; i < fParameters.Size(); ++i) {
-			 BCParameter * p1 =  fParameters[i];
-			 for (unsigned j = i + 1; j < fParameters.Size(); ++j) {
-				 TH2D * h2 = 0;
-				 BCParameter * p2 =  fParameters[j];
-				 if (p2->FillHistograms() && p1->FillHistograms() && ! p2->Fixed() && ! p1->Fixed()) {
-					 h2 = new TH2D(Form("h2_%d_parameters_%i_vs_%i", BCLog::GetHIndex(), i, j), "",
-												 p1->GetNbins(), p1->GetLowerLimit(), p1->GetUpperLimit(),
-												 p2->GetNbins(), p2->GetLowerLimit(), p2->GetUpperLimit());
-					 
-					 // decorate histogram
-					 h2->SetXTitle(Form("%s", p1->GetLatexName().data()));
-					 h2->SetYTitle(Form("%s", p2->GetLatexName().data()));
-					 h2->SetStats(kFALSE);
-				 }
-				 fMCMCH2Marginalized.push_back(h2);
+		 for(unsigned i = 0; i < fParameters.Size(); ++i)
+			 if (fParameters[i]->FillHistograms() and !fParameters[i]->Fixed()) {
+				 // paramater vs parameter
+				 for (unsigned j = i + 1; j < fParameters.Size(); ++j)
+					 if (fParameters[j]->FillHistograms() and !fParameters[j]->Fixed()) {
+						 fH2Marginalized[i][j] = fParameters[i] -> CreateH2(Form("h2_%d_parameters_%i_vs_%i", BCLog::GetHIndex(), i, j), fParameters[j]);
+						 fH2Marginalized[i][j] -> SetStats(kFALSE);
+					 }
+				 // user-defined observable vs parameter
+				 for (unsigned j = 0; j < fUserObservables.Size(); ++j)
+					 if (fUserObservables[j]->FillHistograms()) {
+						 fH2Marginalized[i][j+fParameters.Size()] = fParameters[i] -> CreateH2(Form("h2_%d_par_%i_vs_obs_%i", BCLog::GetHIndex(), i, j), fUserObservables[j]);
+						 fH2Marginalized[i][j+fParameters.Size()] -> SetStats(kFALSE);
+					 }
 			 }
-		 }
+		 // user-defined observable vs user-defined observable
+		 for(unsigned i = 0; i < fUserObservables.Size(); ++i)
+			 if (fUserObservables[i]->FillHistograms())
+				 for (unsigned j = i + 1; j < fUserObservables.Size(); ++j)
+					 if (fUserObservables[j]->FillHistograms()) {
+						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] = fUserObservables[i] -> CreateH2(Form("h2_%d_observables_%i_vs_%i", BCLog::GetHIndex(), i, j), fUserObservables[j]);
+						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] -> SetStats(kFALSE);
+					 }
+
    }
    return 1;
 }
@@ -1353,49 +1430,221 @@ void BCEngineMCMC::MCMCIterationInterface()
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::SetMarginalized(unsigned index, TH1D * h)
-{
-   if(fMCMCH1Marginalized.size() <= index)
-      return 0;
+void BCEngineMCMC::PrintParameters(std::vector<double> const & P, void (*output)(const char *) ) {
+	if ( P.size() != fParameters.Size() )
+		return;
 
-   if(h==0)
-      return 0;
-
-   if(fMCMCH1Marginalized.size() == index)
-      fMCMCH1Marginalized.push_back(h);
-   else
-      fMCMCH1Marginalized[index]=h;
-
-   return index;
+	for (unsigned i = 0; i < fParameters.Size(); ++i)
+		output(TString::Format("          %-*s :   % .*g", fParameters.MaxNameLength(), fParameters[i]->GetName().data(),fParameters[i]->GetPrecision(),P[i]));
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::SetMarginalized(unsigned index1, unsigned index2, TH2D * h)
-{
-   unsigned counter = 0;
-   unsigned index = 0;
+int BCEngineMCMC::PrintAllMarginalized1D(const char * filebase) {
+	if (fH1Marginalized.size() == 0) {
+		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : No marginalized distributions stored.");
+		return 0;
+	}
 
-   // search for correct combination
-   for(unsigned i = 0; i < fParameters.Size(); i++)
-      for (unsigned j = 0; j < i; ++j)
-      {
-         if(j == index1 && i == index2)
-            index = counter;
-         counter++;
+	int nh = 0;
+	for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
+		std::string name = (i<fParameters.Size()) ? fParameters[i]->GetName() : fUserObservables[i-fParameters.Size()]->GetName();
+		if (BCH1D * h = GetMarginalized(i)) {
+			h->Print(Form("%s_1D_%s.pdf", filebase, name.data()));
+			nh++;
+		}
+	}
+
+	return nh;
+}
+
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintAllMarginalized2D(const char * filebase) {
+	if (fH2Marginalized.size() == 0) {
+		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
+		return 0;
+	}
+	
+	int nh = 0;
+	for (unsigned i = 0; i<fH2Marginalized.size(); ++i) {
+		std::string iname = (i<fParameters.Size()) ? fParameters[i]->GetName() : fUserObservables[i-fParameters.Size()]->GetName();
+		for (unsigned j = 1; j<fH2Marginalized[i].size(); ++i) {
+			std::string jname = (j<fParameters.Size()) ? fParameters[j]->GetName() : fUserObservables[j-fParameters.Size()]->GetName();
+			
+			if (BCH2D * h = GetMarginalized(i,j)) {
+				h -> Print(Form("%s_2D_%s_%s",filebase,iname.data(),jname.data()));
+				nh++;
+			}
+		}
+	}
+
+	return nh;
+}
+
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv) {
+	if (fH1Marginalized.empty() and fH2Marginalized.empty()) {
+		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
+		return 0;
+	}
+
+	 // Find nonempty H1's
+   std::vector<BCH1D *> h1;
+   for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
+		 if (fH1Marginalized[i]) {
+			 h1.push_back(GetMarginalized(i));
+      // check if histogram exists
+			 if (!h1.back())
+				 h1.pop_back();
+		 }
+
+	 // Find nonempty H2's
+   std::vector<BCH2D *> h2;
+	 // fill h2 vector in order (par vs par; obs vs par; obs vs obs)
+	 for (unsigned i = 0; i<fParameters.Size() && i<fH2Marginalized.size(); ++i) {
+		 // parameter vs parameter
+		 for (unsigned j = i+1; j<fParameters.Size() && j<fH2Marginalized[i].size(); ++j)
+			 if (fH2Marginalized[i][j]) {
+				 h2.push_back(GetMarginalized(i,j));
+				 // check if histogram exists
+				 if (!h2.back())
+					 h2.pop_back();
+			 }
+		 // user-defined observable vs parameter
+		 for (unsigned j = 0; j<fUserObservables.Size() && j+fParameters.Size()<fH2Marginalized[i].size(); ++j)
+			 if (fH2Marginalized[i][j+fParameters.Size()]) {
+				 h2.push_back(GetMarginalized(i,j+fParameters.Size()));
+				 // check if histogram exists
+				 if (!h2.back())
+					 h2.pop_back();
+			 }
+	 }
+	 // user-defined observable vs user-define observable
+	 for (unsigned i = 0; i<fUserObservables.Size() && i+fParameters.Size()<fH2Marginalized.size(); ++i)
+		 for (unsigned j = i+1; j<fUserObservables.Size() && j+fParameters.Size()<fH2Marginalized[i].size(); ++j)
+			 if (fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()]) {
+				 h2.push_back(GetMarginalized(i+fParameters.Size(),j+fParameters.Size()));
+				 // check if histogram exists
+				 if (!h2.back())
+					 h2.pop_back();
+			 }
+
+	 if (h1.empty() and h2.empty()) {
+		 BCLog::OutWarning("BCEngineMCMC::PrintAllMarginalized : No marginalizations to print");
+		 return 0;
+	 }
+
+	 if (options1d.empty())
+		 options1d = "BTsiB3CS1D0pdf0Lmeanmode";
+	 if (options2d.empty())
+		 options2d = "BTfB3CS1meangmode";
+
+   std::string filename(file);
+
+   // check if file extension does not exist or is not pdf or ps
+   if ( (filename.find_last_of(".") == std::string::npos) or
+         ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
+               (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
+      // make it a PDF file
+      filename += ".pdf";
+   }
+
+   int c_width  = gStyle->GetCanvasDefW(); // default canvas width
+   int c_height = gStyle->GetCanvasDefH(); // default canvas height
+
+   if (hdiv > vdiv) {
+      if (hdiv > 3) {
+         c_width = 1000;
+         c_height = 700;
       }
+      else {
+         c_width = 800;
+         c_height = 600;
+      }
+   }
+   else if (hdiv < vdiv) {
+      if (hdiv > 3) {
+         c_height = 1000;
+         c_width = 700;
+      }
+      else {
+         c_height = 800;
+         c_width = 600;
+      }
+   }
 
-   if(fMCMCH2Marginalized.size()<=index)
-      return 0;
+   const unsigned nplots = h1.size() + h2.size();
 
-   if(h==0)
-      return 0;
+   // give out warning if too many plots
+   BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
+                          (int)h1.size(), (int)h2.size(), nplots, filename.c_str()));
+   if (nplots > 100)
+      BCLog::OutDetail("This can take a while...");
 
-   if(fMCMCH2Marginalized.size()==index)
-      fMCMCH2Marginalized.push_back(h);
-   else
-      fMCMCH2Marginalized[index]=h;
+   // setup the canvas and file
+   TCanvas c("c", "canvas", c_width, c_height);
+   c.Divide(hdiv, vdiv);
+	 c.Print(std::string( filename + "[").c_str());
 
-   return index;
+	 // Draw BCH1D's
+   for (unsigned i = 0; i < h1.size(); ++i) {
+		 // if current page is full, switch to new page
+		 if (i != 0 && i % (hdiv * vdiv) == 0) {
+			 c.Print(filename.c_str());
+			 c.Clear("D");
+		 }
+
+		 // go to next pad
+		 c.cd(i % (hdiv * vdiv) + 1);
+
+		 h1[i] -> Draw(options1d);
+
+		 if (i+1 % 100 == 0)
+			 BCLog::OutDetail(Form(" --> %d plots done", i+1));
+	 }
+	 if (h1.size()>0) {
+		 c.Print(filename.c_str());
+		 c.Clear("D");
+	 }
+
+	 // Draw BCH2D's
+	 for (unsigned i=0; i<h2.size(); ++i) {
+		 // if current page is full, switch to new page
+		 if (i != 0 && i % (hdiv * vdiv) == 0) {
+			 c.Print(filename.c_str());
+			 c.Clear("D");
+		 }
+				 
+		 // go to next pad
+		 c.cd(i % (hdiv * vdiv) + 1);
+				 
+		 h2[i] -> Draw(options2d);
+				 
+		 if ((i + h1.size() + 1) % 100 == 0)
+			 BCLog::OutDetail(Form(" --> %d plots done", i + (int)h1.size() + 1));
+	 }
+	 if (h2.size()>0) {
+		 c.Print(filename.c_str());
+		 c.Clear("D");
+	 }
+
+   c.Print(std::string( filename + "]").c_str());
+
+   if (nplots > 100 && nplots % 100 != 0)
+		 BCLog::OutDetail(Form(" --> %d plots done", nplots));
+
+   // return total number of drawn histograms
+   return nplots;
+}
+
+
+// ---------------------------------------------------------
+unsigned BCEngineMCMC::UpdateFrequency(unsigned N) {
+	int n = N/10;
+	if (n < 100)
+		return 100;
+	if (n < 10000)
+		return 1000;
+	return 10000;
 }
 
 // ---------------------------------------------------------
@@ -1434,55 +1683,22 @@ BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::SyncThreadStorage()
-{
-   // always need as many local storage as #chains
-   const int n = fMCMCThreadLocalStorage.size() - fMCMCNChains;
-   if (n < 0)
-   {
-      // fix return value of GetSeed()
-      fRandom->Rndm();
+void BCEngineMCMC::SyncThreadStorage() {
+	if ( fMCMCNChains > fMCMCThreadLocalStorage.size() )
+		fRandom -> Rndm();					// fix return value of GetSeed()
 
-      for (int i = 0; i < -n; ++i){
-         // append one new storage
-         fMCMCThreadLocalStorage.push_back(MCMCThreadLocalStorage(fParameters.Size()));
-         // each chains gets a different seed
-         // We assume that fRandom always returns same seed, presumably as it has generated at least one random number
-         fMCMCThreadLocalStorage.back().rng->SetSeed(fRandom->GetSeed() + fMCMCThreadLocalStorage.size());
-      }
-   }
-   else if (n > 0)
-   {
-      for (int i = 0; i < n; ++i){
-         fMCMCThreadLocalStorage.pop_back();
-      }
-   }
+	// add storage until equal to number of chains
+	while (fMCMCThreadLocalStorage.size() < fMCMCNChains) {
+		fMCMCThreadLocalStorage.push_back(MCMCThreadLocalStorage(fParameters.Size()));
+		// each chains gets a different seed. fRandom always returns same seed after the fixing done above
+		fMCMCThreadLocalStorage.back().rng->SetSeed(fRandom->GetSeed() + fMCMCThreadLocalStorage.size());
+	}
 
-   // update parameter size for each chain
-   for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i)
-      fMCMCThreadLocalStorage[i].xLocal.assign(fParameters.Size(), 0.0);
-}
+	// remove storage until equal to number of chain
+	while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
+		fMCMCThreadLocalStorage.pop_back();
 
-// ---------------------------------------------------------
-void BCEngineMCMC::PrintParameters(std::vector<double> const & P, void (*output)(const char *) ) {
-	if ( P.size() != fParameters.Size() )
-		return;
-
-	unsigned int nletters = 0;
-	for (unsigned i = 0; i < fParameters.Size(); ++i)
-		if (fParameters[i]->GetName().size() > nletters)
-			nletters = fParameters[i]->GetName().size();
-
-	for (unsigned i = 0; i < fParameters.Size(); ++i)
-		output(TString::Format("          %-*s :   %.6g", nletters, fParameters[i]->GetName().data(),P[i]));
-}
-
-// ---------------------------------------------------------
-unsigned BCEngineMCMC::UpdateFrequency(unsigned N) {
-	int n = N/10;
-	if (n < 100)
-		return 100;
-	if (n < 10000)
-		return 1000;
-	return 10000;
+	// update parameter size for each chain
+	for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i)
+		fMCMCThreadLocalStorage[i].xLocal.assign(fParameters.Size(), 0.0);
 }

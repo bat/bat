@@ -86,9 +86,17 @@ class BCSummaryTool
    int CopySummaryData();
 
    /**
-    * Print a summary plot for the parameters.
+    * Print a summary plot for the parameters and user-defined observables.
+		* @par npar Number of parameters per page, print all on one page if set to zero or negative
     * @return An error flag. */
-   int PrintParameterPlot(const char * filename = "parameters.pdf");
+	 int PrintParameterPlot(const char * filename = "parameters.pdf", int npar=10);
+
+   /**
+    * Print a summary plot for the parameters in the range provided
+		* @par i0 Index of first parameter to print.
+		* @par i1 Index of last parameter to print; if negative, set to total number of parameters
+    * @return An error flag. */
+	 int PrintParameterPlot(unsigned i0, int i1=-1, const char * filename = "parameters.pdf");
 
    /**
     * Print a correlation matrix for the parameters.
@@ -104,19 +112,24 @@ class BCSummaryTool
     * Draw a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-   int DrawKnowledgeUpdatePlot1D(int index, std::string options_post="", std::string options_prior="");
+   int DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post="", std::string options_prior="");
 
    /**
     * Print a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-   int PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post="", std::string options_prior="");
+   int PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post="-", std::string options_prior="-");
+
+   /**
+    * Draw a comparison of the prior knowledge to the posterior.
+    * @return An error flag. */
+	int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false);
 
    /**
     * Print a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-   int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", std::string options="");
+	int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, std::string options="-");
 
    /**
     * Print a Latex table of the parameters.

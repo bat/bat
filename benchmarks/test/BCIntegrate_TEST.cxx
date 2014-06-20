@@ -206,6 +206,7 @@ public:
      p->SetLimits(-3, 3);
      p->SetNbins(60);
      m.MarginalizeAll(BCIntegrate::kMargGrid);
+		 std::cout << m.GetBestFitParameter(0) << std::endl;
      TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetBestFitParameter(0)), 1e-14);
 
      // mode finding should start from previous solution and converge to (0, 0)

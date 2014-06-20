@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include <TH1.h>
+#include <TH1D.h>
 
 // ---------------------------------------------------------
 
@@ -146,13 +146,17 @@ class BCH1D
 
   /**
    * Sets the histogram. */
-  void SetHistogram(TH1D * hist)
-  { fHistogram = hist; };
+  void SetHistogram(TH1D * hist);
 
   /**
    * Set default probability limits. Allowed values are between 68%
    * and 100%. The default value is 95%. */
   void SetDefaultCLLimit(double limit);
+
+	/**
+	 * Set printing of histogram stats to false */
+	void SetStats(bool flag)
+	   { if(fHistogram) fHistogram->SetStats(flag);}
 
   /**
    * Set global mode */
@@ -218,10 +222,12 @@ class BCH1D
    * deciles : indicate deciles \n
    * percentiles : indicate percentiles \n
    * L : add a legend \n
-   * same: add histogram on top of another histogram
+   * same: add histogram on top of another histogram\n
+	 * defaults on empty string to "BTsiB3CS1D0Lmeanmode"\n
+	 * to set no options use "-"
    * @param intervals the intervals
    */
-  void Draw(std::string options="BTsiB3CS1D0Lmeanmode", std::vector<double> intervals=std::vector<double>(0));
+  void Draw(std::string options="", std::vector<double> intervals=std::vector<double>(0));
 
   /**
    *Draw distribution into the active canvas.

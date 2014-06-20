@@ -1,3 +1,12 @@
+2014-06-05 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCIntegrate : changed GetSlice functions to return root histograms
+	  - Updated examples to comply
+	
+2014-06-03 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCEngineMCMC.cxx: removing unnecessary counters and flags, and consolidating parameter settings
+	  - fMCMCNIterationsUpdateMax
+	  - fMCMCFlagConvergenceGlobal
+
 2014-01-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxX: bug fix: check if initial parameters are valid was missing a !
 

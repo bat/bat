@@ -30,6 +30,7 @@
 #include <TLegend.h>
 #include <TLine.h>
 #include <TMarker.h>
+#include <TColor.h>
 #include <TPostScript.h>
 #include <TStyle.h>
 
@@ -163,154 +164,192 @@ int BCSummaryTool::CopySummaryData()
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintParameterPlot(const char * filename)
-{
-   // copy summary data
-   if (!CopySummaryData())
-      return 0;
+int BCSummaryTool::PrintParameterPlot(const char * filename, int npar) {
+	TCanvas * c_par = new TCanvas(TString::Format("c_par_%d",getNextIndex()));
+	c_par -> Print(Form("%s[",filename));
+	int return_val = 1;
+	if (npar<=0) {
+		return_val *= PrintParameterPlot(0,fModel->GetNParameters()-1, filename);
+		return_val *= PrintParameterPlot(fModel->GetNParameters()-1,fModel->GetNObservables(), filename);
+	} else {
+		for (unsigned i = 0; i<fModel->GetNParameters(); i += npar)
+			return_val *= PrintParameterPlot(i,std::min(i+npar-1,fModel->GetNParameters()-1), filename);
+		for (unsigned i = fModel->GetNParameters(); i<fModel->GetNObservables(); i += npar)
+			return_val *= PrintParameterPlot(i,std::min(i+npar-1,fModel->GetNObservables()-1), filename);
+	}
+	c_par -> Print(Form("%s]",filename));
+	return return_val;
+}
 
-   // get number of parameters and quantiles
-   int npar = fModel->GetNParameters();
-   int nquantiles = int( fSumProb.size() );
+// ---------------------------------------------------------
+int BCSummaryTool::PrintParameterPlot(unsigned i0, int i1, const char * filename) {
 
-   // create histogram
-   TH1D * hist_axes = new TH1D(
-         TString::Format("hist_axes_par_%d",getNextIndex()),
-         ";;Scaled parameter range [a.u.]",npar, -0.5, npar-0.5);
-   hist_axes->SetStats(kFALSE);
-   for (int i = 0; i < npar; ++i)
-      hist_axes->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
-   hist_axes->GetXaxis()->SetLabelOffset(0.015);
-   hist_axes->GetXaxis()->SetLabelSize(0.06);
-   hist_axes->GetXaxis()->SetTickLength(0.0);
-   hist_axes->GetYaxis()->SetRangeUser(-0.1, 1.1);
-   hist_axes->GetYaxis()->SetTickLength(0.0);
+	unsigned i_1 = (i1>=0 && i1<(int)fModel->GetNObservables()) ? i1 : fModel->GetNObservables()-1;
 
-   // create graphs
-   TGraphErrors * graph_quantiles = new TGraphErrors(npar*nquantiles);
-   graph_quantiles->SetMarkerSize(0);
-   graph_quantiles->SetLineColor(38);
-   graph_quantiles->SetLineStyle(2);
+	if (i_1 < i0) {
+		BCLog::OutError(Form("BCSummaryTool::PrintParameterPlot : invalid parameter range [%d, %d]",i0,i_1));
+		return 0;
+	}
 
-   TGraphErrors * graph_mean = new TGraphErrors(npar);
-   graph_mean->SetMarkerColor(kBlack);
-   graph_mean->SetMarkerStyle(20);
+	/////////////////////////
+	// Gather information
 
-   TGraphErrors * graph_mode = new TGraphErrors(npar);
-   graph_mode->SetMarkerColor(kRed);
-   graph_mode->SetMarkerStyle(20);
+	double interval_content = 68e-2; // 68% credibility interval
+	
+	std::vector<double> x_quantiles;
+	std::vector<double> quantiles;
+	std::vector<double> x_i;
+	std::vector<double> x_i_bf;
+	std::vector<double> mean;
+	std::vector<double> rms;
+	std::vector<double> global_mode;
+	std::vector<double> local_mode;
+	std::vector<double> interval_lo;
+	std::vector<double> interval_hi;
+	
+	for (unsigned i = i0; i <= i_1; ++i) {
+		
+		// Global Mode
+		x_i_bf.push_back(i);
+		global_mode.push_back(fModel->GetObservable(i)->PositionInRange(fModel->GetBestFitParameter(i)));
 
-   TGraphAsymmErrors * graph_intervals = new TGraphAsymmErrors(0);
-   graph_intervals->SetFillColor(kYellow);
-   graph_intervals->SetLineStyle(2);
-   graph_intervals->SetLineColor(kRed);
-   graph_intervals->SetMarkerSize(0);
+		if (!fModel->MarginalizedHistogramExists(i))
+			continue;
 
-   // fill graphs
-   int indexintervals = 0;
+		BCH1D * bch1d_temp = fModel -> GetMarginalized(i);
+		if (!bch1d_temp)
+			continue;
 
-   // fill graph quantiles
-   if (fFlagInfoMarg) {
-      for (int i = 0; i < npar; ++i) {
-         for (int j = 0; j < nquantiles; ++j) {
-            graph_quantiles->SetPoint(i*nquantiles+j,double(i),
-                  (fQuantiles.at(i*nquantiles+j) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
-            graph_quantiles->SetPointError(i*nquantiles+j, 0.5, 0.0);
-         }
-      }
-   }
+		x_i.push_back(i);
 
-   // fill graph mean and rms
-   if (fFlagInfoMarg) {
-      for (int i = 0; i < npar; ++i) {
-         // fill graph mean
-         graph_mean->SetPoint(i, double(i), (fMean.at(i) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
-         graph_mean->SetPointError(i, 0.0, fRMS.at(i)/(fParMax.at(i)-fParMin.at(i)));
-      }
-   }
+		// quantiles
+		x_quantiles.insert(x_quantiles.end(),fSumProb.size(),i);
+		for (unsigned j = 0; j < fSumProb.size(); ++j)
+			quantiles.push_back(fModel->GetObservable(i)->PositionInRange(bch1d_temp->GetQuantile(fSumProb[j])));
 
-   // fill graph mode
-   if (fFlagInfoOpt) {
-      for (int i = 0; i < npar; ++i)
-         graph_mode->SetPoint(i, double(i), (fGlobalMode.at(i) - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
-   }
+		// mean
+		mean.push_back(fModel->GetObservable(i)->PositionInRange(bch1d_temp->GetMean()));
+		rms.push_back(bch1d_temp->GetRMS()/fModel->GetObservable(i)->GetRangeWidth());
+		 
+		// Local Mode
+		local_mode.push_back(fModel->GetObservable(i)->PositionInRange(bch1d_temp->GetMode()));
 
-   // fill graph smallest intervals
-   if (fFlagInfoMarg) {
-      for (int i = 0; i < npar; ++i) {
-         int nintervals = int(fSmallInt.at(indexintervals++));
-         for (int j = 0; j < nintervals; ++j) {
-            double xmin = fSmallInt.at(indexintervals++);
-            double xmax = fSmallInt.at(indexintervals++);
-            indexintervals++;
-            double xlocalmaxpos = fSmallInt.at(indexintervals++);
-            indexintervals++;
-            int npoints = graph_intervals->GetN();
-            graph_intervals->SetPoint(npoints,double(i),
-                  (xlocalmaxpos - fParMin.at(i))/(fParMax.at(i)-fParMin.at(i)));
-            graph_intervals->SetPointError(npoints,0.5, 0.5,
-                  (xlocalmaxpos - xmin)/(fParMax.at(i)-fParMin.at(i)),
-                  (xmax - xlocalmaxpos)/(fParMax.at(i)-fParMin.at(i)));
-         }
-      }
-   }
+		// smallest interval
+		std::vector<double> intervals = bch1d_temp->GetSmallestIntervals(interval_content);
+		if (intervals.size()>3) {
+			interval_lo.push_back(fabs(intervals[3]-intervals[0])/fModel->GetObservable(i)->GetRangeWidth());
+			interval_hi.push_back(fabs(intervals[3]-intervals[1])/fModel->GetObservable(i)->GetRangeWidth());
+		} else {
+			interval_lo.push_back(0);
+			interval_hi.push_back(0);
+		}
+	}
 
-   // create legend
-   TLegend * legend = new TLegend(0.15, 0.88, 0.85, 0.99);
-   legend->SetBorderSize(0);
-   legend->SetFillColor(0);
+	if (x_i.empty() and x_i_bf.empty())
+		return 0;
 
-   // create latex
-   TLatex * latex = new TLatex();
-   latex->SetTextSize(0.02);
+	/////////////////////////
+	// Draw it all
 
-   // create lines
-   TLine * line_top = new TLine(-0.5, 1.0, npar-0.5, 1.0);
-   line_top->SetLineColor(kBlack);
-   line_top->SetLineStyle(1);
-   line_top->SetLineWidth(2);
+	TCanvas * c_par = new TCanvas(TString::Format("c_par_%d",getNextIndex()));
+	c_par -> cd();
 
-   TLine * line_bot = new TLine(-0.5, 0.0, npar-0.5, 0.0);
-   line_bot->SetLineColor(kBlack);
-   line_bot->SetLineStyle(1);
-   line_bot->SetLineWidth(2);
+	// Create, label, and draw axes
+	TH2D * hist_axes = new TH2D(TString::Format("hist_axes_par_%d",getNextIndex()), ";;Scaled parameter range [a.u.]",
+															i_1-i0+1, i0-0.5, i_1+0.5, 10, -0.1, 1.1);
+	hist_axes -> SetStats(kFALSE);
+	hist_axes -> GetXaxis() -> SetLabelOffset(0.015);
+	hist_axes -> GetXaxis() -> SetLabelSize(0.06);
+	hist_axes -> GetXaxis() -> SetTickLength(0.0);
+	// set bin labels
+	for (int i=0; i<hist_axes->GetNbinsX(); ++i)
+		hist_axes -> GetXaxis() -> SetBinLabel(i+1, fModel->GetObservable(i0+i)->GetLatexName().c_str());
+	hist_axes->Draw();
 
-   // print to file
-   TCanvas * c_par = new TCanvas(TString::Format("c_par_%d",getNextIndex()));
-   c_par->cd();
-   hist_axes->Draw();
-   line_top->Draw();
-   line_bot->Draw();
-   if (fFlagInfoMarg) {
-      graph_intervals->DrawClone("SAME2");
-      for (int i = 0; i < graph_intervals->GetN(); ++i)
-         graph_intervals->SetPointError(i, 0.5, 0.5, 0.0, 0.0);
-      graph_intervals->Draw("SAMEPZ");
-      graph_quantiles->Draw("SAMEPZ");
-      graph_mean->Draw("SAMEP");
-      legend->AddEntry(graph_quantiles, "Quantiles (5%, 10%, 16%, 50%, 84%, 90%, 95%)", "L");
-      legend->AddEntry(graph_mean,      "Mean and RMS", "LEP");
-      legend->AddEntry(graph_intervals, "Smallest 68% intervals and local modes", "FL");
-   }
-   if (fFlagInfoOpt) {
-      graph_mode->Draw("SAMEP");
-      legend->AddEntry(graph_mode,      "Global mode", "P");
-   }
-   for (int i = 0; i < npar;++i) {
-      //      latex->DrawLatex(double(i)-0.1, 0.010, Form("%+3.3f", fParMin.at(i)));
-      //      latex->DrawLatex(double(i)-0.1, 0.965, Form("%+3.3f", fParMax.at(i)));
-      latex->DrawLatex(double(i)-0.1, 0.010-0.07, Form("%+3.3g", fParMin.at(i)));
-      latex->DrawLatex(double(i)-0.1, 0.965+0.07, Form("%+3.3g", fParMax.at(i)));
-   }
-   latex->SetNDC();
-   latex->DrawLatex(0.9, 0.175, "Par. min.");
-   latex->DrawLatex(0.9, 0.83, "Par. max.");
-   legend->Draw("SAME");
-   gPad->RedrawAxis();
-   c_par->Print(filename);
+	// Draw lines
+	TLine * line = new TLine();
+	line -> SetLineColor(kBlack);
+	line -> SetLineStyle(1);
+	line -> SetLineWidth(2);
+	line -> DrawLine(hist_axes->GetXaxis()->GetXmin(), 0.0, hist_axes->GetXaxis()->GetXmax(), 0.0);
+	line -> DrawLine(hist_axes->GetXaxis()->GetXmin(), 1.0, hist_axes->GetXaxis()->GetXmax(), 1.0);
+	// Mark parameter ranges
+	TLatex * latex = new TLatex();
+	latex -> SetTextSize(0.02);
+	latex -> SetTextAlign(11);
+	latex -> DrawLatex(hist_axes->GetXaxis()->GetXmax(),  1.03, "  Par. max.");
+	latex -> SetTextAlign(13);
+	latex -> DrawLatex(hist_axes->GetXaxis()->GetXmax(), -0.03, "  Par. min.");
+	latex -> SetTextAlign(21);
+	for (unsigned i = 0; i < fModel->GetNObservables(); ++i) {
+		latex -> SetTextAlign(21);
+		latex->DrawLatex((double)i,  1.03, Form("%+.*g", fModel->GetObservable(i)->GetPrecision(),fModel->GetObservable(i)->GetUpperLimit()));
+		latex -> SetTextAlign(23);
+		latex->DrawLatex((double)i, -0.03, Form("%+.*g", fModel->GetObservable(i)->GetPrecision(),fModel->GetObservable(i)->GetLowerLimit()));
+	}
 
-   // no error
-   return 1;
+	// create legend
+	TLegend * legend = new TLegend(0.1, 0.91, 0.9, 0.99);
+	legend -> SetBorderSize(0);
+	legend -> SetFillColor(0);
+	legend -> SetNColumns(2);
+
+	if (!x_i.empty()) {
+
+		// Smallest Interval
+		std::vector<double> x_i_err(x_i.size(),0.5);
+		TGraphAsymmErrors * graph_intervals = new TGraphAsymmErrors(x_i.size(), x_i.data(), local_mode.data(), x_i_err.data(), x_i_err.data(), interval_lo.data(), interval_hi.data());
+		graph_intervals->SetFillColor(kYellow);
+		graph_intervals->SetLineStyle(2);
+		graph_intervals->SetLineColor(kRed);
+		graph_intervals->SetMarkerSize(0);
+		graph_intervals->DrawClone("SAME2"); // draw area
+		//set y-error zero, to draw line at local mode
+		for (int i = 0; i < graph_intervals->GetN(); ++i)
+			graph_intervals->SetPointError(i, 0.5, 0.5, 0.0, 0.0);
+		graph_intervals->Draw("SAMEZ"); // draw local mode
+
+		// Quantiles graph
+		if (!fSumProb.empty()) {
+			std::vector<double> quantiles_err(x_quantiles.size(),0.5);
+			TGraphErrors * graph_quantiles = new TGraphErrors(x_quantiles.size(), x_quantiles.data(), quantiles.data(), quantiles_err.data(), 0);
+			graph_quantiles->SetMarkerSize(0);
+			graph_quantiles->SetLineColor(38);
+			graph_quantiles->SetLineStyle(2);
+			graph_quantiles->Draw("SAMEZ");
+			std::string quantiles_text = "Quantiles (";
+			for (unsigned i=0; i<fSumProb.size()-1; ++i)
+				quantiles_text += Form("%.0f%%, ",fSumProb[i]*100);
+			quantiles_text += (fSumProb.size()>0) ? Form("%.0f%%)",fSumProb.back()) : "none)";
+			legend -> AddEntry(graph_quantiles, quantiles_text.c_str(), "L");
+		}
+
+		// Means & RMSs
+		TGraphErrors * graph_mean = new TGraphErrors(x_i.size(), x_i.data(), mean.data(), 0, rms.data());
+		graph_mean->SetMarkerColor(kBlack);
+		graph_mean->SetMarkerStyle(20);
+		graph_mean->Draw("SAMEP");
+
+		legend -> AddEntry(graph_mean, "Mean and RMS", "LEP");
+		legend -> AddEntry(graph_intervals, "Smallest 68% interval and local mode", "FL");
+
+	}
+
+	// Global Modes
+	if (!x_i_bf.empty()) {
+		TGraph * graph_mode = new TGraph(x_i_bf.size(), x_i_bf.data(), global_mode.data());
+		graph_mode->SetMarkerColor(kRed);
+		graph_mode->SetMarkerStyle(20);
+		graph_mode->Draw("SAMEP");
+		legend->AddEntry(graph_mode, "Global mode", "P");
+	}
+
+	legend->Draw("SAME");
+	gPad->RedrawAxis();
+	c_par->Print(filename);
+
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------
@@ -411,152 +450,135 @@ int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintCorrelationPlot(const char * filename)
-{
-   // get number of parameters
-   int npar = fModel->GetNParameters();
+int BCSummaryTool::PrintCorrelationPlot(const char * filename) {
 
-   TCanvas * c = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
-   c->cd();
+	// Array of indices for which any maginalizations were stored
+	std::vector<unsigned> I;
+	for (unsigned i = 0; i < fModel->GetN1DMarginalizations(); ++i)
+		if (fModel->MarginalizedHistogramExists(i))
+			I.push_back(i);
+		else 
+			for (unsigned j = i+1; j < fModel->GetN2DMarginalizations(); ++j)
+				if (fModel->MarginalizedHistogramExists(i,j))
+					I.push_back(i);
+	
+	if (I.size() == 0)
+		return 0;
 
-   double margin = .1;
-   double padsize = (1. - 2.*margin) / (double)npar;
+	TCanvas * c = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
+	c->cd();
+	
+	double margin = 0.1;
+	double padsize = (1 - 2*margin) / I.size();
 
-   // array with pads holding the histograms
-   TPad ** pad = new TPad*[npar*npar];
+	// array with pads holding the histograms
+	std::vector<std::vector<TPad*> > pad (I.size(), std::vector<TPad*>(I.size(),0));
+	
+	// position of pads
+	double xlow, xup, ylow, yup;
+	double marginleft   = 0.01;
+	double marginright  = 0.01;
+	double margintop    = 0.01;
+	double marginbottom = 0.01;
+	
+	TLatex * ylabel = new TLatex();
+	ylabel->SetTextFont(62);
+	ylabel->SetTextSize(8e-2/I.size());
+	ylabel->SetTextAlign(22);			// TODO: set to 32, if latex names too long
+	ylabel->SetNDC();
+	ylabel->SetTextAngle(90);			// TODO: set to 80, if latex names too long
+	
+	TLatex * xlabel = new TLatex();
+	xlabel->SetTextFont(62);
+	xlabel->SetTextSize(8e-2/I.size());
+	xlabel->SetTextAlign(22);			// TODO: set to 12, if latex names too long
+	xlabel->SetNDC();
+	xlabel->SetTextAngle(0);			// TODO: set to 350, if latex names too long
 
-   // position of pads
-   double xlow, xup, ylow, yup;
-   double marginleft, marginright, margintop, marginbottom;
-   marginleft=marginright=margintop=marginbottom=0.01;
+	// Box + Text for empty squares:
+	TBox * box_na = new TBox();
+	box_na -> SetLineWidth(1);
+	box_na -> SetLineColor(kGray+1);
+	box_na -> SetFillColor(kWhite);
+	TText * text_na = new TText();
+	text_na -> SetTextFont(42);
+	text_na -> SetTextAlign(22);
+	text_na -> SetTextSize(8e-1/I.size());
+	text_na -> SetTextColor(kGray+1);
 
-   // rotate label to avoid overlap with long parameter names
-   size_t maxlength = 0;
-   for (int i = 0; i < npar ; ++i) {
-      maxlength = std::max(maxlength, fModel->GetParameter(i)->GetName().length());
-   }
+	// drawing all histograms
+	for (unsigned i = 0; i < I.size(); ++i) {
+		xlow = i*padsize + margin;
+		xup = xlow + padsize;
 
-   double rotation = 0;
-   short xalignment = 22;
-   short yalignment = 22;
+		for (unsigned j = i; j < I.size(); ++j) {
+			yup = 1. - j*padsize - margin;
+			ylow = yup - padsize;
 
-   if (maxlength > 20) {
-      rotation = 10;
-      xalignment = 12;
-      yalignment = 32;
-   }
+			// preparing the pad
+			pad[i][j] =  new TPad(TString::Format("pad_%d_%d_%d",i,j,getNextIndex()), "", xlow, ylow, xup, yup);
+			pad[i][j] -> SetMargin(marginleft,marginright,marginbottom,margintop);
+			pad[i][j] -> SetFillColor(kWhite);
+			pad[i][j] -> Draw();
+			pad[i][j] -> cd();
 
-   // drawing all histograms
-   for (int i=npar-1;i>=0;--i) {
-      xlow = (double)i*padsize + margin;
-      xup = xlow+padsize;
+			// get the histogram
+			TH1 * hh = 0;
+			BCH1D * bh1 = 0;
+			BCH2D * bh2 = 0;
+			
+			if (i==j) {
+				bh1 = fModel->GetMarginalized(I[i]);
+				hh = bh1 -> GetHistogram();
+			}
+			else {
+				bh2 = fModel->GetMarginalized(I[i],I[j]);
+				hh = bh2 -> GetHistogram();
+			}
+			
+			if (!bh1 and !bh2) { // if the histogram is not available, draw N/A
 
-      for (int j=i;j<=npar-1;j++) {
-         yup = 1. - (double)j*padsize - margin;
-         ylow = yup-padsize;
+				pad[i][j] -> SetFillColor(kGray);
+				box_na -> DrawBox(marginleft,marginbottom,1.-marginright,1.-margintop);
+				text_na -> DrawText(.5,.5,"N/A");
 
-         // preparing the pad
-         int ipad=i*npar+j;
-         pad[ipad]=new TPad(TString::Format("pad_%d_%d",ipad,getNextIndex()), "", xlow, ylow, xup, yup);
-         pad[ipad]->SetTopMargin(margintop);
-         pad[ipad]->SetBottomMargin(marginbottom);
-         pad[ipad]->SetLeftMargin(marginleft);
-         pad[ipad]->SetRightMargin(marginright);
-         pad[ipad]->SetFillColor(kWhite);
+			}	else {									// otherwise draw the histogram
 
-         pad[ipad]->Draw();
-         pad[ipad]->cd();
+				if (bh1)
+					bh1->Draw("BTsiB3CS1D0");
+				else
+					bh2->Draw("BTfB3CS1nL");
 
-         // get the histogram
-         TH1 * hh = 0;
-         BCH1D * bh1 = 0;
-         BCH2D * bh2 = 0;
-         if(i==j) {
-           bh1 = fModel->GetMarginalized(fModel->GetParameter(i));
-           if (bh1)
-             hh = (TH1D*)bh1->GetHistogram()->Clone();
-         }
-         else {
-           bh2 = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
-           if (bh2)
-             hh = (TH2D*)bh2->GetHistogram()->Clone();
-         }
+				hh->GetXaxis()->SetLabelOffset(5500);
+				hh->GetYaxis()->SetLabelOffset(5500);
+				hh->GetXaxis()->SetTitleSize(10.00);
+				hh->GetYaxis()->SetTitleSize(10.00);
+				
+				c->cd();
 
-         // if the histogram is not available, draw N/A
-         if (!hh) {
-            pad[ipad]->SetFillColor(kGray);
-            TBox * box = new TBox(marginleft,marginbottom,1.-marginright,1.-margintop);
-            box->SetLineWidth(1);
-            box->SetLineColor(kGray+1);
-            box->SetFillColor(kWhite);
-            box->Draw();
-
-            TText * text_na = new TText(.5,.5,"N/A");
-            text_na->SetTextFont(42);
-            text_na->SetTextAlign(22);
-            text_na->SetTextSize(.8/(double)npar);
-            text_na->SetTextColor(kGray+1);
-            text_na->Draw();
-         }
-         // otherwise draw the histogram
-         else {
-            if(i==j) {
-              bh1->Draw("BTsiB3CS1D0");
-            }
-            else {
-              bh2->Draw("BTfB3CS1nL");
-            }
-
-            hh->GetXaxis()->SetLabelOffset(5500);
-            hh->GetYaxis()->SetLabelOffset(5500);
-            hh->GetXaxis()->SetTitleSize(10.00);
-            hh->GetYaxis()->SetTitleSize(10.00);
-         }
-
-         c->cd();
-
-         // draw axis label
-         double labelsize = .8/(double)npar/10.;
-         double xtext, ytext;
-
-         // y axis
-         if(i==0) {
-            TLatex * label = new TLatex();
-            label->SetTextFont(62);
-            label->SetTextSize(labelsize);
-            label->SetTextAlign(yalignment);
-            label->SetNDC();
-
-            label->SetTextAngle(90 - rotation);
-
-            xtext = margin * (1. - 8. * labelsize);
-            ytext = yup - padsize / 2.;
-
-            label->DrawLatex(xtext,ytext,fModel->GetParameter(j)->GetLatexName().c_str());
-         }
-
-         // x axis
-         if(j==npar-1) {
-            TLatex * label = new TLatex();
-            label->SetTextFont(62);
-            label->SetTextSize(labelsize);
-            label->SetTextAlign(xalignment);
-            label->SetNDC();
-
-            label->SetTextAngle(360 - rotation);
-
-            xtext = xlow + padsize / 2.;
-            ytext = margin * (1. - 6. * labelsize);
-
-            label->DrawLatex(xtext,ytext, fModel->GetParameter(i)->GetLatexName().c_str());
-         }
+				// y axis
+				if(i==0) {
+					if (I[j] < fModel->GetNParameters())
+						ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., fModel->GetParameter(I[j])->GetLatexName().c_str());
+					else
+						ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., fModel->GetUserObservable(I[j]-fModel->GetNParameters())->GetLatexName().c_str());
+				}
+				
+				// x axis
+				if(j==I.size()-1) {
+					if (I[i] < fModel->GetNParameters())
+						xlabel -> DrawLatex(xlow+padsize/2., margin*(1-6*xlabel->GetTextSize()), fModel->GetParameter(I[i])->GetLatexName().c_str());
+					else 
+						xlabel -> DrawLatex(xlow+padsize/2., margin*(1-6*xlabel->GetTextSize()), fModel->GetUserObservable(I[i]-fModel->GetNParameters())->GetLatexName().c_str());
+				}
       }
-   }
-
-   gPad->RedrawAxis();
-   c->Print(filename);
-
-   return 1;
+		}
+	}
+	
+	gPad->RedrawAxis();
+	c->Print(filename);
+	
+	return 1;
 }
 
 // ---------------------------------------------------------
@@ -580,133 +602,258 @@ int BCSummaryTool::PrintKnowledgeUpdatePlot1D(int index, const char * filename, 
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::DrawKnowledgeUpdatePlot1D(int index, std::string options_post, std::string options_prior)
-{
-   // option flags
-   bool flag_slice_post = false;
-   bool flag_slice_prior = false;
+int BCSummaryTool::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post, std::string options_prior) {
+	// option flags
+	bool flag_slice_post  = (options_post.find("slice") < options_post.size());
+	bool flag_slice_prior = (options_prior.find("slice") < options_prior.size());
 
-   // check content of options string
-   if (options_post.find("slice") < options_post.size()) {
-      flag_slice_post = true;
-   }
-   if (options_prior.find("slice") < options_prior.size()) {
-      flag_slice_prior = true;
-   }
+	// Get Prior
+	BCH1D * bch1d_prior = 0;
+	TLine * const_prior = (fModel->IsPriorConstant(index)) ? new TLine() : 0;
+	TF1   * f1_prior    = (const_prior) ? 0 : dynamic_cast<TF1*> (fModel->PriorContainer(index));
+	TH1   * h1_prior    = (const_prior) ? 0 : dynamic_cast<TH1*> (fModel->PriorContainer(index));
+	
+	double max_prior = 0;
 
-   // prepare legend
-   TLegend* legend = new TLegend();
-   legend->SetBorderSize(0);
-   legend->SetFillColor(kWhite);
-   legend->SetTextAlign(12);
-   legend->SetTextFont(62);
-   legend->SetTextSize(0.03);
+	if (const_prior) {
+		max_prior = 1./fModel->GetParameter(index)->GetRangeWidth();
+		const_prior -> SetLineColor(kRed);
+	}
+	else if (f1_prior) {
+		max_prior = f1_prior -> GetMaximum(fModel->GetParameter(index)->GetLowerLimit(),fModel->GetParameter(index)->GetUpperLimit());
+		f1_prior -> SetLineColor(kRed);
+		f1_prior -> SetLineWidth(1);
+	}
+	else if (h1_prior) {
+		max_prior = h1_prior -> GetMaximum();
+		h1_prior -> SetLineColor(kRed);
+		h1_prior -> SetStats(false);
+		h1_prior -> GetXaxis() -> SetNdivisions(508);
+	}
+	else {
+		if (flag_slice_prior and index<fPriorModel->GetNParameters()) {
+			if (fPriorModel->GetNParameters()==2) {
+				TH1D * hist = (index==0) ? fPriorModel->GetSlice(0,1)->ProjectionX(Form("projx_%i",BCLog::GetHIndex()))
+					: fPriorModel->GetSlice(0,1)->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
+				bch1d_prior = new BCH1D(hist);
+			} else if (fPriorModel->GetNParameters()==1)
+				bch1d_prior = new BCH1D(fPriorModel->GetSlice(index));
+		}
+		if (!bch1d_prior and fPriorModel->MarginalizedHistogramExists(index))
+			bch1d_prior = fPriorModel -> GetMarginalized(index);
+		if (!bch1d_prior)
+			return 0;
+		max_prior = bch1d_prior->GetHistogram()->GetMaximum();
+		bch1d_prior -> GetHistogram() -> SetStats(false);
+		bch1d_prior -> GetHistogram() -> SetLineColor(kRed);
+		bch1d_prior -> GetHistogram() -> GetXaxis() -> SetNdivisions(508);
+	}
+	
+	// if prior doesn't exist, exit
+	if (!const_prior and !f1_prior and !h1_prior and !bch1d_prior)
+		return 0;
 
-   // get histograms;
-   const BCParameter * par = fModel->GetParameter(index);
-   BCH1D* hist_prior = fPriorModel->GetMarginalized(par);
-   BCH1D* hist_posterior = 0;
+	// Get Posterior
+	BCH1D* bch1d_posterior = 0;
+	if (flag_slice_post and index<fModel->GetNParameters()) {
+		if (fModel->GetNParameters()==2) {
+			TH1D * hist = (index==0) ? fModel->GetSlice(0,1)->ProjectionX(Form("projx_%i",BCLog::GetHIndex()))
+				: fModel->GetSlice(0,1)->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
+			hist -> Scale(1./hist->Integral("width"));
+			bch1d_posterior = new BCH1D(hist);
+		} else if (fModel->GetNParameters()==1)
+			bch1d_posterior = new BCH1D(fModel->GetSlice(index));
+	} else if (fModel->MarginalizedHistogramExists(index))
+		bch1d_posterior = fModel->GetMarginalized(index);
+	
+	// if marginal doesn't exist, exit
+	if (!bch1d_posterior)
+		return 0;
+	
+	bch1d_posterior -> GetHistogram() -> Scale(1./bch1d_posterior->GetHistogram()->Integral("width"));
+	bch1d_posterior -> GetHistogram() -> SetStats(kFALSE);
+	
+	// get maximum
+	double maxy = 1.1 * TMath::Max(max_prior, bch1d_posterior->GetHistogram()->GetMaximum());
 
-   if (flag_slice_prior && fPriorModel->GetNParameters()==2) {
-      if (index == 0) {
-         TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
-         hist->Scale(1.0/hist->Integral("width"));
-         for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
-            hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-      }
-      else {
-         TH1D* hist = fPriorModel->GetSlice(fPriorModel->GetParameter(0),fPriorModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
-         hist->Scale(1.0/hist->Integral("width"));
-         for (int i = 1; i <= hist_prior->GetHistogram()->GetNbinsX(); ++i)
-            hist_prior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-      }
-      hist_prior->GetHistogram()->SetStats(kFALSE);
-   }
-   else if (flag_slice_prior && fPriorModel->GetNParameters()==1) {
-      hist_prior = fPriorModel->GetSlice(par);
-      hist_prior->GetHistogram()->SetStats(kFALSE);
-   }
-   // if marginal doesn't exist, skip ahead
-   if ( !hist_prior)
-     return 0;
+	// prepare legend
+	TLegend* legend = new TLegend();
+	legend->SetBorderSize(0);
+	legend->SetFillColor(kWhite);
+	legend->SetTextAlign(12);
+	legend->SetTextFont(62);
+	legend->SetTextSize(0.03);
 
-   hist_prior->GetHistogram()->SetLineColor(kRed);
+	// draw axes
+	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%d",getNextIndex()), TString::Format(";%s;P(%s|Data)",fModel->GetObservable(index)->GetLatexName().data(),fModel->GetObservable(index)->GetLatexName().data()),
+														10, fModel->GetObservable(index)->GetLowerLimit(), fModel->GetObservable(index)->GetUpperLimit(),
+														10, 0, maxy);
+	h2_axes -> SetStats(false);
+	h2_axes -> GetXaxis() -> SetNdivisions(508);
+	h2_axes -> Draw();
+	
+	// draw prior
+	if (const_prior) {
+		legend -> AddEntry(const_prior,"prior","L");
+		const_prior -> DrawLine(fModel->GetParameter(index)->GetLowerLimit(),max_prior,fModel->GetParameter(index)->GetUpperLimit(),max_prior);
+	} else if (f1_prior) {
+		legend -> AddEntry(f1_prior,"prior","L");
+		f1_prior -> Draw("same");
+	} else if (h1_prior) {
+		legend -> AddEntry(h1_prior,"prior","L");
+		h1_prior -> Draw("same");
+	} else if (bch1d_prior) {
+		legend -> AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
+		bch1d_prior -> Draw(std::string(options_prior+"same"));
+	}
+	
+	// draw posterior
+	legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
+	bch1d_posterior -> Draw(std::string(options_post+"same"));
 
-   hist_posterior = fModel->GetMarginalized(par);
-   if (flag_slice_post && fModel->GetNParameters()==2) {
-      if (index == 0) {
-         TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionX(Form("projx_%i",BCLog::GetHIndex()));
-         hist->Scale(1.0/hist->Integral("width"));
-         for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
-            hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-      }
-      else {
-         TH1D* hist = fModel->GetSlice(fModel->GetParameter(0),fModel->GetParameter(1))->GetHistogram()->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
-         hist->Scale(1.0/hist->Integral("width"));
-         for (int i = 1; i <= hist_posterior->GetHistogram()->GetNbinsX(); ++i)
-            hist_posterior->GetHistogram()->SetBinContent(i, hist->GetBinContent(i));
-      }
-      hist_posterior->GetHistogram()->SetStats(kFALSE);
-   }
-   else if (flag_slice_post && fModel->GetNParameters()==1) {
-      hist_posterior = fModel->GetSlice(par);
-      hist_posterior->GetHistogram()->SetStats(kFALSE);
-   }
+	gPad->SetTopMargin(0.02);
+   
+	// Draw legend on top of histogram
+	legend -> SetX1NDC(gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+	legend -> SetX2NDC(1. - gPad->GetRightMargin());
+	double y1 = gPad->GetTopMargin() + legend->GetTextSize()*legend->GetNRows();
+	legend -> SetY1NDC(1-y1);
+	legend -> SetY2NDC(1. - gPad->GetTopMargin());
+	legend -> Draw();
 
-   // if marginal doesn't exist, skip ahead
-   if ( !hist_posterior)
-     return 0;
+	// rescale top margin
+	gPad -> SetTopMargin(y1+0.01);
 
-   legend->AddEntry(hist_prior->GetHistogram(), "prior", "L");
-   legend->AddEntry(hist_posterior->GetHistogram(), "posterior", "L");
+	gPad -> RedrawAxis();
 
-   // scale histograms
-   hist_posterior->GetHistogram()->Scale(1./hist_posterior->GetHistogram()->Integral("width"));
-   hist_prior->GetHistogram()->Scale(1.0/hist_prior->GetHistogram()->Integral("width"));
-
-   // get maximum
-   double max_prior = hist_prior->GetHistogram()->GetMaximum();
-   double max_posterior = hist_posterior->GetHistogram()->GetMaximum();
-   double maxy = 1.1 * TMath::Max(max_prior, max_posterior);
-
-   double height = 0.03*legend->GetNRows();
-
-   // plot
-   hist_prior->GetHistogram()->GetXaxis()->SetNdivisions(508);
-   hist_posterior->GetHistogram()->GetXaxis()->SetNdivisions(508);
-
-   hist_prior->Draw(options_prior);
-   hist_posterior->Draw(std::string(options_post+"same").c_str());
-
-   // scale axes
-   hist_prior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
-   hist_posterior->GetHistogram()->GetYaxis()->SetRangeUser(0.0, maxy);
-
-   gPad->SetTopMargin(0.02);
-   double xlegend1 = gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin());
-   double xlegend2 = 1.0-gPad->GetRightMargin();
-   double ylegend1 = 1.-gPad->GetTopMargin()-height;
-   double ylegend2 = 1.-gPad->GetTopMargin();
-
-   // place legend on top of histogram
-   legend->SetX1NDC(xlegend1);
-   legend->SetX2NDC(xlegend2);
-   legend->SetY1NDC(ylegend1);
-   legend->SetY2NDC(ylegend2);
-
-   // draw legend
-   legend->Draw();
-
-   // rescale top margin
-   gPad->SetTopMargin(1.-ylegend1+0.01);
-
-   gPad->RedrawAxis();
-
-   return 1;
+	return 1;
 }
 
 // ---------------------------------------------------------
-int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string options)
+int BCSummaryTool::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice) {
+	
+	// Get Prior
+	bool const_prior1 = fModel->IsPriorConstant(index1);
+	TF1 * f1_prior1   = (const_prior1) ? 0 : dynamic_cast<TF1*> (fModel->PriorContainer(index1));
+	TH1 * h1_prior1   = (const_prior1) ? 0 : dynamic_cast<TH1*> (fModel->PriorContainer(index1));
+	bool auto_prior1 = const_prior1 or f1_prior1 or h1_prior1;
+
+	bool const_prior2 = fModel->IsPriorConstant(index2);
+	TF1 * f1_prior2   = (const_prior2) ? 0 : dynamic_cast<TF1*> (fModel->PriorContainer(index2));
+	TH1 * h1_prior2   = (const_prior2) ? 0 : dynamic_cast<TH1*> (fModel->PriorContainer(index2));
+	bool auto_prior2 = const_prior2 or f1_prior2 or h1_prior2;
+
+
+	TH2D * h2d_2dprior = 0;
+	TH2D * h2d_2dposterior = 0;
+
+	double prior_mode_1 = fPriorModel->GetBestFitParameter(index1);
+	double prior_mode_2 = fPriorModel->GetBestFitParameter(index2);
+
+	if (!auto_prior1 and !auto_prior2) { // neither prior pre-defined
+		if (flag_slice and fModel->GetNParameters()==2 and index1<fModel->GetNParameters() and index2<fModel->GetNParameters()) {
+			h2d_2dprior = fPriorModel -> GetSlice(index1,index2);
+			h2d_2dposterior = fModel  -> GetSlice(index1,index2);
+		} else {
+			h2d_2dprior = fPriorModel -> GetMarginalizedHistogram(index1,index2);
+			h2d_2dposterior = fModel  -> GetMarginalizedHistogram(index1,index2);
+		}
+	}	else {
+		
+	}		
+
+		if (!h2d_2dprior or !h2d_2dposterior) // no marginalizations to draw
+		return 0;
+
+	// TH1D drawing options
+	h2d_2dprior -> SetLineColor(kRed);
+	h2d_2dprior -> SetStats(false);
+	h2d_2dposterior -> SetStats(false);
+
+	// Create BCH2D's (these normalize the TH1D's)
+	BCH2D * bch2d_2dprior     = new BCH2D(h2d_2dprior);
+	BCH2D * bch2d_2dposterior = new BCH2D(h2d_2dposterior);
+
+	// Calculate integrated histograms for getting contour line values
+	bch2d_2dprior     -> CalculateIntegratedHistogram();
+	bch2d_2dposterior -> CalculateIntegratedHistogram();
+
+	// Set contour levels (0.32 = 1 - 68%)
+	double level[1] = {bch2d_2dprior -> GetLevel(0.32)};
+	h2d_2dprior -> SetContour(1, level);
+	h2d_2dprior -> Draw("CONT3");
+	level[0] = bch2d_2dposterior -> GetLevel(0.32);
+	h2d_2dposterior -> SetContour(1, level);
+	h2d_2dposterior -> Draw("CONT3 SAME");
+
+	// create legend
+	TLegend * legend2d = new TLegend();
+	legend2d->SetBorderSize(0);
+	legend2d->SetFillColor(0);
+	legend2d->SetTextAlign(12);
+	legend2d->SetTextFont(62);
+	legend2d->SetTextSize(0.03);
+	
+  // create markers and arrows
+	TMarker * marker_prior = new TMarker();
+	marker_prior->SetMarkerStyle(20);
+	marker_prior->SetMarkerColor(kRed);
+	
+	TMarker * marker_posterior = new TMarker();
+	marker_posterior->SetMarkerStyle(20);
+	marker_posterior->SetMarkerColor(kBlue);
+	
+	TArrow * arrow = new TArrow();
+	arrow->SetArrowSize(0.02);
+	arrow->SetLineColor(kBlack);
+	//   arrow->SetLineStyle(2);
+
+	double prior_mode_X = fPriorModel->GetBestFitParameter(index1);
+	double prior_mode_Y = fPriorModel->GetBestFitParameter(index2);
+	std::string marker_prior_text = "";
+	if (fModel->IsPriorConstant(index1)) {
+		prior_mode_X = fPriorModel -> GetParameter(index1) -> GetRangeCenter();
+		marker_prior_text += Form("prior(%s) constant",fPriorModel->GetParameter(index1)->GetLatexName().data());
+	}
+	if (fModel->IsPriorConstant(index2)) {
+		prior_mode_Y = fPriorModel -> GetParameter(index2) -> GetRangeCenter();
+		if (!marker_prior_text.empty())
+			marker_prior_text += ", ";
+		marker_prior_text += Form("prior(%s) constant",fPriorModel->GetParameter(index2)->GetLatexName().data());
+	}
+	marker_prior_text = (marker_prior_text.empty()) ? "prior mode" : "prior mode* [" + marker_prior_text + "]";
+
+	marker_prior     -> DrawMarker(prior_mode_X,prior_mode_Y);
+	marker_posterior -> DrawMarker(fModel->GetBestFitParameter(index1),fModel->GetBestFitParameter(index2));
+	arrow            -> DrawArrow(prior_mode_X,prior_mode_Y, fModel->GetBestFitParameter(index1), fModel->GetBestFitParameter(index2));
+	
+	if (index1==0 and index2==1) {
+		legend2d->AddEntry(h2d_2dprior,      "smallest 68% interval(s) of prior", "L");
+		legend2d->AddEntry(h2d_2dposterior,  "smallest 68% interval(s) of posterior", "L");
+		legend2d->AddEntry(marker_prior,     marker_prior_text.data(), "P");
+		legend2d->AddEntry(marker_posterior, "posterior mode", "P");
+		legend2d->AddEntry(arrow,            "change in mode", "L");
+	}
+
+	gPad->SetTopMargin(0.02);
+
+	// place legend on top of histogram
+	legend2d->SetX1NDC(gPad->GetLeftMargin());
+	legend2d->SetX2NDC(1.-gPad->GetRightMargin());
+	double y1 = gPad->GetTopMargin()-legend2d->GetTextSize()*legend2d->GetNRows();
+	legend2d->SetY1NDC(1.-y1);
+	legend2d->SetY2NDC(1.-gPad->GetTopMargin());
+
+	legend2d->Draw();
+
+	gPad->SetTopMargin(y1+0.01);
+
+	gPad->RedrawAxis();
+	return 1;
+}
+
+// ---------------------------------------------------------
+int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, unsigned vdiv, std::string options)
 {
    // perform analysis
    CalculatePriorModel();
@@ -715,155 +862,66 @@ int BCSummaryTool::PrintKnowledgeUpdatePlots(const char * filename, std::string 
    bool flag_slice = false;
 
    // check content of options string
-   if (options.find("slice") < options.size()) {
+   if (options.find("slice") < options.size())
       flag_slice = true;
-   }
 
    std::string file(filename);
 
-   // check if file extension is pdf
-   if ( (file.find_last_of(".") != std::string::npos) &&
-         (file.substr(file.find_last_of(".")+1) == "pdf") ) {
-      ; // it's a PDF file
-
-   }
-   else if ( (file.find_last_of(".") != std::string::npos) &&
-         (file.substr(file.find_last_of(".")+1) == "ps") ) {
-      ; // it's a PS file
-   }
-   else {
-      ; // make it a PDF file
-      file += ".pdf";
-   }
+   // if file extension is neither .pdf nor .ps, force to .pdf
+	 if ( file.rfind(".pdf") != file.size()-4 and file.rfind(".ps") != file.size()-3 )
+		 file += ".pdf";
 
    // create canvas and prepare postscript
    TCanvas * c = new TCanvas(TString::Format("c_%d",getNextIndex()));
    c->cd();
+   c->Print(std::string(file + "[").c_str());
+
+	 if (hdiv<1) hdiv = 1;
+	 if (vdiv<1) vdiv = 1;
+	 int npads = hdiv * vdiv;
+
+	 c -> Divide(hdiv,vdiv);
 
    // loop over all parameters and draw 1D plots
-   int npar = fModel->GetNParameters();
-   c->Print(std::string(file + "[").c_str());
-   for (int i = 0; i < npar; ++i) {
-      if ( !DrawKnowledgeUpdatePlot1D(i, options, options))
-         continue;
-      c->Print(file.c_str());
-   }
+	 int ndrawn = 0;
+	 int nprinted = -1;
+	 c -> cd(1);
+   for (unsigned i = 0; i < fModel->GetNObservables(); ++i)
+		 if(DrawKnowledgeUpdatePlot1D(i, options, options)) {
+			 ++ndrawn;
+			 if (ndrawn!=0 and ndrawn%npads==0) {
+				 c -> Print(file.c_str());
+				 nprinted = ndrawn;
+				 c -> Clear("D");
+			 }
+			 c -> cd(ndrawn%npads+1);
+		 }
+	 if (nprinted<ndrawn)
+		 c -> Print(file.c_str());
 
-   // create legend
-   TLegend * legend2d = new TLegend();
-   legend2d->SetBorderSize(0);
-   legend2d->SetFillColor(0);
-   legend2d->SetTextAlign(12);
-   legend2d->SetTextFont(62);
-   legend2d->SetTextSize(0.03);
+	 c -> Clear("D");
 
-  // create markers and arrows
-   TMarker * marker_prior = new TMarker();
-   marker_prior->SetMarkerStyle(24);
-   marker_prior->SetMarkerColor(kRed);
-
-   TMarker * marker_posterior = new TMarker();
-   marker_posterior->SetMarkerStyle(24);
-   marker_posterior->SetMarkerColor(kBlack);
-
-   TArrow * arrow = new TArrow();
-   arrow->SetArrowSize(0.02);
-   arrow->SetLineColor(kBlue);
-	 //   arrow->SetLineStyle(2);
-
-   // loop over all parameters
-   for (int i = 0; i < npar; ++i) {
-      for (int j = 0; j < i; ++j) {
-         c->cd();
-
-         // get parameters
-         const BCParameter * par1 = fModel->GetParameter(i);
-         const BCParameter * par2 = fModel->GetParameter(j);
-
-         // get 2-d histograms
-         BCH2D* bch2d_2dprior = 0;
-         BCH2D* bch2d_2dposterior = 0;
-         if (flag_slice && npar == 2) {
-            bch2d_2dprior = fPriorModel->GetSlice(par2, par1);
-            bch2d_2dposterior = fModel->GetSlice(par2, par1);
-         }
-         else {
-            bch2d_2dprior = fPriorModel->GetMarginalized(par1, par2);
-            bch2d_2dposterior = fModel->GetMarginalized(par1, par2);
-         }
-
-         // can't draw anything
-         if ( !bch2d_2dprior || !bch2d_2dposterior)
-            continue;
-
-         // get histograms
-         TH2D* hist_2dprior = bch2d_2dprior->GetHistogram();
-         hist_2dprior->SetLineColor(kRed);
-         TH2D* hist_2dposterior = bch2d_2dposterior->GetHistogram();
-
-         // scale histograms
-         hist_2dprior->Scale(1.0/hist_2dprior->Integral("width"));
-         hist_2dposterior->Scale(1.0/hist_2dposterior->Integral("width"));
-
-         // calculate contours
-         bch2d_2dprior->CalculateIntegratedHistogram();
-         bch2d_2dposterior->CalculateIntegratedHistogram();
-
-         double level[1] = {bch2d_2dprior->GetLevel(0.32)};
-         hist_2dprior->SetContour(1, level);
-				 hist_2dprior->Draw("CONT3");
-         level[0] = bch2d_2dposterior->GetLevel(0.32);
-         hist_2dposterior->SetContour(1, level);
-				 hist_2dposterior->Draw("CONT3 SAME");
-
-         std::vector<double> mode_prior = fPriorModel->GetBestFitParameters();
-         std::vector<double> mode_posterior = fModel->GetBestFitParameters();
-
-         marker_prior->DrawMarker(mode_prior.at(j), mode_prior.at(i));
-         marker_posterior->DrawMarker(mode_posterior.at(j), mode_posterior.at(i));
-         arrow->DrawArrow(mode_prior.at(j), mode_prior.at(i), mode_posterior.at(j), mode_posterior.at(i));
-
-         if (i==1 && j == 0) {
-            legend2d->AddEntry(hist_2dprior, "smallest 68% interval(s) of prior", "L");
-            legend2d->AddEntry(hist_2dposterior, "smallest 68% interval(s) of posterior", "L");
-            legend2d->AddEntry(marker_prior, "prior mode", "P");
-            legend2d->AddEntry(marker_posterior, "posterior mode", "P");
-            legend2d->AddEntry(arrow, "change in mode", "L");
-         }
-         gPad->SetTopMargin(0.02);
-
-         double height = 0.03*legend2d->GetNRows();
-
-         double xlegend1 = gPad->GetLeftMargin();
-         double xlegend2 = 1.0-gPad->GetRightMargin();
-         double ylegend1 = 1.-gPad->GetTopMargin()-height;
-         double ylegend2 = 1.-gPad->GetTopMargin();
-
-         // place legend on top of histogram
-         legend2d->SetX1NDC(xlegend1);
-         legend2d->SetX2NDC(xlegend2);
-         legend2d->SetY1NDC(ylegend1);
-         legend2d->SetY2NDC(ylegend2);
-
-         legend2d->Draw();
-
-         gPad->SetTopMargin(1.-ylegend1+0.01);
-
-         gPad->RedrawAxis();
-         c->Print(file.c_str());
-      }
-   }
+   // loop over all parameter pairs
+	 ndrawn = 0;
+	 nprinted = -1;
+	 c -> cd(1);
+   for (unsigned i = 0; i < fModel->GetNObservables(); ++i)
+		 for (unsigned j = i+1; j < fModel->GetNObservables(); ++j)
+			 if (DrawKnowledgeUpdatePlot2D(i,j,flag_slice)) {
+				 ++ndrawn;
+				 if (ndrawn!=0 and ndrawn%npads==0) {
+					 c -> Print(file.c_str());
+					 nprinted = ndrawn;
+					 c -> Clear("D");
+				 }
+				 c -> cd(ndrawn%npads+1);
+			 }
+	 if (nprinted<ndrawn)
+		 c -> Print(file.c_str());
 
    // close output
    c->Print(std::string(file + "]").c_str());
    c->Update();
-
-   // free memory
-   delete legend2d;
-   delete marker_prior;
-   delete marker_posterior;
-   delete arrow;
-   delete c;
 
    // no error
    return 1;
@@ -933,10 +991,7 @@ int BCSummaryTool::CalculatePriorModel()
    // create new prior model
    delete fPriorModel;
 
-   fPriorModel = new BCSummaryPriorModel();
-
-   // set model
-   fPriorModel->SetModel(fModel);
+   fPriorModel = new BCSummaryPriorModel(fModel);
 
    // perform marginalization
    fPriorModel->MarginalizeAll();

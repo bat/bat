@@ -47,21 +47,31 @@ public:
 	 * @param upperlimit The upper limit of the observable values.
 	 * @param latexname The latex name of the observable used in axis labeling.
 	 */
-	BCUserObservable(const char* name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char* latexname = "");
+	BCUserObservable(const char* name, double lowerlimit, double upperlimit, ObservableFunction fn, const char* latexname = "");
+
+	/**
+	 * Destructor */
+	virtual ~BCUserObservable();
+
 
 	/** \name Member functions (get) */
 	/** @{ */
 
-	
+	/**
+	 * Evaluate function over parameter set. Can be overloaded by user
+	 * to make more complicated calculations.
+	 */
+	virtual double Evaluate(std::vector<double> const & parameters);
 
 	/** @} */
 	
+
 	/** \name Member functions (set) */
 	/** @{ */
-	
 
 	/** @} */
 	
+
 	/** \name Member functions (miscellaneous methods) */
 	/** @{ */
 

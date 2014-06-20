@@ -30,11 +30,11 @@ incs= \
 	BCDataSet.h \
 	BCH1D.h \
 	BCH2D.h \
-	BCObservable.h \
-	BCObservableSet.h \
+	BCUserObservableSet.h \
 	BCUserObservable.h \
-	BCParameter.h \
 	BCParameterSet.h \
+	BCParameter.h \
+	BCObservable.h \
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \

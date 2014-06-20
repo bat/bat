@@ -173,20 +173,6 @@ BCIntegrate::~BCIntegrate()
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::GetBestFitParameter(unsigned index) const
-{
-   if( ! fParameters.ValidIndex(index))
-      return -1e+111;
-
-   if(fBestFitParameters.empty()) {
-      BCLog::OutError("BCIntegrate::GetBestFitParameter : Mode finding not yet run, returning center of the range.");
-      return (fParameters[index]->GetUpperLimit() + fParameters[index]->GetLowerLimit() ) / 2.;
-   }
-
-   return fBestFitParameters[index];
-}
-
-// ---------------------------------------------------------
 double BCIntegrate::GetBestFitParameterError(unsigned index) const
 {
    if( ! fParameters.ValidIndex(index)) {
@@ -205,6 +191,13 @@ double BCIntegrate::GetBestFitParameterError(unsigned index) const
    */
 
    return fBestFitParameterErrors[index];
+}
+
+// ---------------------------------------------------------
+const std::vector<double> & BCIntegrate::GetBestFitParameters() const {
+	if (fBestFitParameters.empty() and !fMCMCBestFitParameters.empty())
+		return fMCMCBestFitParameters;
+	return fBestFitParameters;
 }
 
 // ---------------------------------------------------------
@@ -755,14 +748,14 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 #endif
 
 // ---------------------------------------------------------
-int BCIntegrate::MarginalizeAll()
-{
+int BCIntegrate::MarginalizeAll() {
+
   // check if parameters are defined
   if (fParameters.Size() < 1) {
     BCLog::OutError("BCIntegrate::MarginalizeAll : No parameters defined. Aborting.");
     return 0;
   }
-
+	
   // check if marginalization method is defined
   if (!CheckMarginalizationAvailability(GetMarginalizationMethod())) {
     BCLog::OutError(Form("BCIntegrate::MarginalizeAll : Marginalization method not implemented \'%s\'. Aborting.", DumpCurrentMarginalizationMethod().c_str()));
@@ -773,225 +766,173 @@ int BCIntegrate::MarginalizeAll()
   if (!(fMarginalizationMethodCurrent == BCIntegrate::kMargDefault) && !(fMarginalizationMethodCurrent == BCIntegrate::kMargEmpty))
     BCLog::OutSummary(Form("Marginalize using %s", DumpCurrentMarginalizationMethod().c_str()));
 
-  switch (GetMarginalizationMethod())
-    {
 
-      // Empty
-    case BCIntegrate::kMargEmpty:
-      {
-        BCLog::OutWarning("BCIntegrate::MarginalizeAll : No marginalization method chosen.");
-        return 0;
-      }
+  switch (GetMarginalizationMethod()) {
 
-      // Markov Chain Monte Carlo
-    case BCIntegrate::kMargMetropolis:
-      {
-        // start preprocess
-        MarginalizePreprocess();
+		// Empty
+	case BCIntegrate::kMargEmpty:
+		{
+			BCLog::OutWarning("BCIntegrate::MarginalizeAll : No marginalization method chosen.");
+			return 0;
+		}
+		
+		// Markov Chain Monte Carlo
+	case BCIntegrate::kMargMetropolis:
+		{
+			// start preprocess
+			MarginalizePreprocess();
+			
+			// run the Markov chains
+			MCMCMetropolis();
 
-        // run the Markov chains
-        MCMCMetropolis();
+			// start postprocess
+			MarginalizePostprocess();
 
-        // start postprocess
-        MarginalizePostprocess();
+			// set used marginalization method
+			fMarginalizationMethodUsed = BCIntegrate::kMargMetropolis;
 
-        // set pointers to marginalized distributions
-        unsigned int npar = GetNParameters();
+			// check if mode is better than previous one
+			if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < fMCMCLogMaximum) ) {
+				fBestFitParameters      = fMCMCBestFitParameters;
+				fBestFitParameterErrors.assign(fParameters.Size(),-1.);
+				fLogMaximum             = fMCMCLogMaximum;
+				fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
+			}
+		
+			break;
+		}
+		
+		// Sample Mean
+	case BCIntegrate::kMargMonteCarlo:
+		{
+			return 0;
+		}
 
-        fMarginalized1D.clear();
-        for (unsigned int i = 0; i < npar; ++i) {
-          fMarginalized1D.push_back(MCMCGetH1Marginalized(i));
-        }
+		// Slice
+	case BCIntegrate::kMargGrid:
+		{
+			std::vector<double> fixpoint(GetNParameters(), 0);
+			for (unsigned int i = 0; i < GetNParameters(); ++i)
+				if (fParameters[i]->Fixed())
+					fixpoint[i] = fParameters[i]->GetFixedValue();
 
-        fMarginalized2D.clear();
-        if (npar > 1) {
-          for (unsigned int i = 0; i < npar; ++i) {
-            for (unsigned int j = 0; j < npar; ++j) {
-              if (i < j)
-                fMarginalized2D.push_back(MCMCGetH2Marginalized(i, j));
-            }
-          }
-        }
+			// start preprocess
+			MarginalizePreprocess();
 
-        // set used marginalization method
-        fMarginalizationMethodUsed = BCIntegrate::kMargMetropolis;
+			// store highest probability
+			double probmax = -std::numeric_limits<double>::infinity();
+			std::vector<double> bestfit_parameters(fParameters.Size(), -std::numeric_limits<double>::infinity());
+			// correct fixed parameter values
+			// the other should have been determined above
+			for (unsigned i = 0; i < fParameters.Size(); ++i)
+				if (fParameters[i]->Fixed())
+					bestfit_parameters[i] = fParameters[i]->GetFixedValue();
 
-        // check if mode is better than previous one
-        if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < fMCMCLogMaximum) ) {
-          fBestFitParameters      = fMCMCBestFitParameters;
-          fBestFitParameterErrors.assign(fParameters.Size(),-1.);
-          fLogMaximum             = fMCMCLogMaximum;
-          fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
-        }
+			fH1Marginalized.assign(fParameters.Size(),0);
+			fH2Marginalized.assign(fParameters.Size(),std::vector<TH2D*>(fParameters.Size(),0));
 
-      break;
-      }
+			if (GetNFreeParameters() == 1) { // Marginalize the free parameter to a 1D histogram
+				for (unsigned i = 0; i < fParameters.Size(); ++i) {
+					if (fParameters[i]->Fixed())
+						continue;
+				
+					// calculate slice
+					fH1Marginalized[i] = GetSlice(i, fixpoint);
 
-      // Sample Mean
-    case BCIntegrate::kMargMonteCarlo:
-      {
-        return 0;
-      }
+					// remember best fit before it is normalized and the value is wrong
+					const int index = fH1Marginalized[i]->GetMaximumBin();
+					probmax = fH1Marginalized[i] -> GetBinContent(index);
+					bestfit_parameters[i] = fH1Marginalized[i] -> GetBinCenter(index);
+					
+					// normalize
+					fH1Marginalized[i] -> Scale(1./fH1Marginalized[i]->Integral());
+				}
+			
+			}
+		
+			else if (GetNFreeParameters() == 2) { // marginalize the two free parameters to a 2D histogram
+				for (unsigned i = 0; i < fParameters.Size(); ++i) {
+					for (unsigned j = i+1; j < fParameters.Size(); ++j) {
+						if (fParameters[i]->Fixed() or fParameters[j]->Fixed())
+							continue;
 
-      // Slice
-    case BCIntegrate::kMargGrid:
-      {
-        std::vector<double> fixpoint(GetNParameters());
-        for (unsigned int i = 0; i < GetNParameters(); ++i) {
-          if (fParameters[i]->Fixed())
-            fixpoint[i] = fParameters[i]->GetFixedValue();
-          else
-            fixpoint[i] = 0;
-        }
+						// calculate slice
+						fH2Marginalized[i][j] = GetSlice(i, j, fixpoint);
+						
+						// remember best fit before it is normalized and the value is wrong
+						int index1, index2, useless_index;
+						fH2Marginalized[i][j] -> GetMaximumBin(index1, index2, useless_index);
+						probmax = fH2Marginalized[i][j] -> GetBinContent(index1, index2);
+						bestfit_parameters[i] = fH2Marginalized[i][j] -> GetXaxis() -> GetBinCenter(index1);
+						bestfit_parameters[j] = fH2Marginalized[i][j] -> GetYaxis() -> GetBinCenter(index2);
+					
+						// normalize
+						fH2Marginalized[i][j] -> Scale(1./fH2Marginalized[i][j]->Integral());
 
-        // start preprocess
-        MarginalizePreprocess();
+						// 1D marginalize by projecting
+						fH1Marginalized[i] = fH2Marginalized[i][j] -> ProjectionX();
+						fH1Marginalized[i] -> UseCurrentStyle();
+						fH1Marginalized[i] -> SetStats(false);
+						fH1Marginalized[j] = fH2Marginalized[i][j] -> ProjectionY();
+						fH1Marginalized[j] -> UseCurrentStyle();
+						fH1Marginalized[j] -> SetStats(false);
+					}
+				}
+			}
 
-        // store highest probability
-        double probmax = -std::numeric_limits<double>::infinity();
-        std::vector<double> bestfit_parameters(fParameters.Size(), -std::numeric_limits<double>::infinity());
-        // correct fixed parameter values
-        // the other should have been determined above
-        for (unsigned i = 0; i < fParameters.Size(); ++i)
-           if (fParameters[i]->Fixed())
-              bestfit_parameters[i] = fParameters[i]->GetFixedValue();
+			else {
+				BCLog::OutWarning("BCIntegrate::MarginalizeAll : Option works for 1D and 2D problems.");
+				return 0;
+			}
+		
+			// save if improved the log posterior
+		
+			if (fBestFitParameters.empty() || probmax > fMCMCLogMaximum) {
+				fLogMaximum = probmax;
+				fBestFitParameters = bestfit_parameters;
+				fBestFitParameterErrors.assign(fBestFitParameters.size(), std::numeric_limits<double>::infinity());
+				// todo can't set this one yet
+				//           fOptimizationMethodUsed =
+			}
+		
+			BCLog::OutDetail(" --> Global mode from Grid:");
+			BCLog::OutDebug(Form(" --> Posterior value: %g", probmax));
+			PrintParameters(bestfit_parameters,BCLog::OutDetail);
+		
+			// start postprocess
+			MarginalizePostprocess();
+		
+			// set used marginalization method
+			fMarginalizationMethodUsed = BCIntegrate::kMargGrid;
+		
+			break;
+		}
+		
+		// default
+	case BCIntegrate::kMargDefault: {
+		if ( GetNFreeParameters() <= 2 and GetNUserObservables()==0)
+			SetMarginalizationMethod(BCIntegrate::kMargGrid);
+		else
+			SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+		
+		// call again
+		return MarginalizeAll();
+			
+		break;
+	}
+		
+	default:
+		{
+			BCLog::OutError(TString::Format("BCIntegrate::MarginalizeAll : Invalid marginalization method: %d", GetMarginalizationMethod()));
+			return 0;
+			break;
+		}
 
-        fMarginalized1D.clear();
-        if (GetNFreeParameters() == 1) {
-          for (unsigned int i = 0; i < GetNParameters(); ++i) {
-            if (!fParameters[i]->Fixed()) {
-              // calculate slice
-              BCH1D* hist_temp = GetSlice(fParameters[i], fixpoint, 0);
-              fMarginalized1D.push_back(hist_temp);
-
-              // remember best fit before it is normalized and the value is wrong
-              const int index = hist_temp->GetHistogram()->GetMaximumBin();
-              probmax = hist_temp->GetHistogram()->GetBinContent(index);
-              bestfit_parameters.at(i) = hist_temp->GetHistogram()->GetBinCenter(index);
-
-              // normalize to unity
-              hist_temp->GetHistogram()->Scale(1./hist_temp->GetHistogram()->Integral());
-            }
-            else
-              fMarginalized1D.push_back(0);
-          }
-
-          fMarginalized2D.clear();
-          for (unsigned int i = 0; i < GetNParameters(); ++i) {
-            for (unsigned int j = 0; j < GetNParameters(); ++j) {
-              if (i >= j)
-                continue;
-              else
-                fMarginalized2D.push_back(0);
-            }
-          }
-        }
-        else if (GetNFreeParameters() == 2) {
-          // create a 2D histogram
-
-          BCH2D* hist2d_temp = 0;
-
-          fMarginalized2D.clear();
-          for (unsigned int i = 0; i < GetNParameters(); ++i) {
-            for (unsigned int j = 0; j < GetNParameters(); ++j) {
-              if (i >= j)
-                continue;
-              if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
-                // calculate slice
-                hist2d_temp = GetSlice(GetParameter(i), GetParameter(j), fixpoint, 0);
-                fMarginalized2D.push_back(hist2d_temp);
-
-                // remember best fit before it is normalized and the value is wrong
-                int index1, index2, useless_index;
-                hist2d_temp->GetHistogram()->GetMaximumBin(index1, index2, useless_index);
-                probmax = hist2d_temp->GetHistogram()->GetBinContent(index1, index2, useless_index);
-                bestfit_parameters.at(i) = hist2d_temp->GetHistogram()->GetXaxis()->GetBinCenter(index1);
-                bestfit_parameters.at(j) = hist2d_temp->GetHistogram()->GetYaxis()->GetBinCenter(index2);
-
-                // normalize to unity
-                hist2d_temp->GetHistogram()->Scale(1./hist2d_temp->GetHistogram()->Integral());
-              }
-              else
-                fMarginalized2D.push_back(0);
-            }
-          }
-
-          // marginalize by projecting
-          fMarginalized1D.clear();
-          for (unsigned int i = 0; i < GetNParameters(); ++i)
-            fMarginalized1D.push_back(0);
-          for (unsigned int i = 0; i < GetNParameters(); ++i) {
-            for (unsigned int j = 0; j < GetNParameters(); ++j) {
-              if (i >= j)
-                continue;
-              if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
-                BCH1D* hist_x = new BCH1D( hist2d_temp->GetHistogram()->ProjectionX() );
-                hist_x->GetHistogram()->UseCurrentStyle(); // reset style because histogram is created by a projection
-                hist_x->GetHistogram()->SetStats(kFALSE);
-                fMarginalized1D[i] = hist_x;
-                BCH1D* hist_y = new BCH1D( hist2d_temp->GetHistogram()->ProjectionY() );
-                hist_y->GetHistogram()->UseCurrentStyle(); // reset style because histogram is created by a projection
-                hist_y->GetHistogram()->SetStats(kFALSE);
-                fMarginalized1D[j] = hist_y;
-              }
-            }
-          }
-        }
-        else {
-          BCLog::OutWarning("BCIntegrate::MarginalizeAll : Option works for 1D and 2D problems.");
-          return 0;
-        }
-
-        // save if improved the log posterior
-
-        if (fBestFitParameters.empty() || probmax > fMCMCLogMaximum) {
-           fLogMaximum = probmax;
-           fBestFitParameters = bestfit_parameters;
-           fBestFitParameterErrors.assign(fBestFitParameters.size(), std::numeric_limits<double>::infinity());
-           // todo can't set this one yet
-           //           fOptimizationMethodUsed =
-        }
-
-        BCLog::OutDetail(" --> Global mode from Grid:");
-        BCLog::OutDebug(Form(" --> Posterior value: %g", probmax));
-        int ndigits = (int) log10(fParameters.Size());
-        for (unsigned i = 0; i < fParameters.Size(); ++i)
-            BCLog::OutDetail(TString::Format(" -->      parameter %*i:   %.4g", ndigits+1, i, bestfit_parameters[i]));
-
-        // start postprocess
-        MarginalizePostprocess();
-
-        // set used marginalization method
-        fMarginalizationMethodUsed = BCIntegrate::kMargGrid;
-
-      break;
-      }
-
-      // default
-    case BCIntegrate::kMargDefault:
-      {
-        if ( GetNFreeParameters() <= 2 ) {
-          SetMarginalizationMethod(BCIntegrate::kMargGrid);
-        }
-        else {
-          SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-        }
-
-        // call again
-        return MarginalizeAll();
-
-      break;
-      }
-
-    default:
-      BCLog::OutError(TString::Format("BCIntegrate::MarginalizeAll : Invalid marginalization method: %d", GetMarginalizationMethod()));
-      return 0;
-      break;
-    }
-
-  // set flag
+	}	// end switch
+		
+	// set flag
   fFlagMarginalized = true;
-
+	
   return 1;
 }
 
@@ -1015,161 +956,129 @@ int BCIntegrate::MarginalizeAll(BCIntegrate::BCMarginalizationMethod margmethod)
 }
 
 // ---------------------------------------------------------
-BCH1D * BCIntegrate::GetSlice(const BCParameter* parameter, const std::vector<double> parameters, int nbins, bool flag_norm)
-{
-	// check if parameter exists
-	if (!parameter) {
+TH1D * BCIntegrate::GetSlice(unsigned index, const std::vector<double> parameters, int nbins, bool flag_norm) {
+	// check if parameters exists
+	if (!fParameters.ValidIndex(index)) {
 		BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
 		return 0;
 	}
 
-  // check if parameter is fixed
-  if (parameter->Fixed())
-    return 0;
+	// check if parameter is fixed
+	if (fParameters[index]->Fixed())
+		return 0;
 
 	// create local copy of parameter set
-	std::vector<double> parameters_temp;
-	parameters_temp = parameters;
+	std::vector<double> parameters_temp = parameters;
 
 	// check if parameter set if defined
-	if (parameters_temp.empty() && GetNParameters() == 1) {
-		parameters_temp.push_back(0);
-	}
-	else if (parameters_temp.empty() && GetNParameters() != 1) {
-		BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
-		return 0;
+	if (parameters_temp.empty()) {
+		if (GetNParameters()>1) {
+			BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
+			return 0;
+		}
+		parameters_temp.assign(1,0);
 	}
 
-	// calculate number of bins
-	if (nbins <= 0)
-		nbins = parameter->GetNbins();
+	// set binning
+	unsigned nbins_temp = fParameters[index]->GetNbins();
+	if (nbins > 0)
+		fParameters[index] -> SetNbins(nbins);
 
 	// create histogram
-	TH1D * hist = new TH1D("", "", nbins, parameter->GetLowerLimit(), parameter->GetUpperLimit());
-  hist->UseCurrentStyle();
+	TH1D * hist = fParameters[index] -> CreateH1("");
+	hist -> UseCurrentStyle();
+	hist -> SetStats(kFALSE);
 
-	// set axis labels
-	hist->SetXTitle(parameter->GetLatexName().data());
+	// set y-axis label
 	if (GetNParameters() == 1)
-		hist->SetYTitle(Form("p(%s|data)", parameter->GetLatexName().data()));
+		hist->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
 	else
-		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", parameter->GetLatexName().data()));
-	hist->SetStats(kFALSE);
+		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", fParameters[index]->GetLatexName().data()));
 
 	// fill histogram
-	for (int i = 1; i <= nbins; ++i) {
-		double par_temp = hist->GetBinCenter(i);
-		parameters_temp[fParameters.Index(parameter->GetName())] = par_temp;
-		double prob = Eval(parameters_temp);
-		hist->SetBinContent(i, prob);
+	for (int i = 1; i <= hist->GetNbinsX(); ++i) {
+		parameters_temp[index] = hist -> GetBinCenter(i);
+		hist->SetBinContent(i, Eval(parameters_temp) );
 	}
 
 	// normalize
 	if (flag_norm)
-		hist->Scale(1.0/hist->Integral());
+		hist-> Scale( 1. / hist->Integral("width") );
+	
+	// reset binning
+	fParameters[index] -> SetNbins(nbins_temp);
 
-	// set histogram
-	BCH1D * hprob = new BCH1D();
-	hprob->SetHistogram(hist);
-
-	return hprob;
+	return hist;
 }
 
 // ---------------------------------------------------------
-BCH2D* BCIntegrate::GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters, int nbins, bool flag_norm)
-{
-  return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins, flag_norm);
+TH2D * BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins, bool flag_norm) {
+	// check number of dimensions
+	if (GetNParameters() < 2) {
+		BCLog::OutError("BCIntegrate::GetSlice : Number of parameters need to be at least 2.");
+	}
+
+	// check if parameters exists
+	if (!fParameters.ValidIndex(index1) or !fParameters.ValidIndex(index2)) {
+		BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
+		return 0;
+	}
+
+	// check if parameters are fixed
+	if (fParameters[index1]->Fixed() or fParameters[index2]->Fixed())
+		return 0;
+	
+	// create local copy of parameter set
+	std::vector<double> parameters_temp = parameters;
+
+	// check if parameter set if defined
+	if (parameters_temp.empty()) {
+		if (GetNParameters()>2) {
+			BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
+			return 0;
+		}
+		parameters_temp.assign(2,0);
+	}
+
+	// set binning
+	unsigned nbins1_temp = fParameters[index1] -> GetNbins();
+	unsigned nbins2_temp = fParameters[index2] -> GetNbins();
+	if (nbins > 0) {
+		fParameters[index1] -> SetNbins(nbins);
+		fParameters[index2] -> SetNbins(nbins);
+	}
+
+	// create histogram
+	TH2D * hist = fParameters[index1] -> CreateH2("",fParameters[index2]);
+	hist->SetStats(kFALSE);
+	hist->UseCurrentStyle();
+
+	// set z-axis label
+	if (GetNParameters() == 2)
+		hist->SetZTitle(Form("p(%s, %s | data)", fParameters[index1]->GetLatexName().data(),fParameters[index2]->GetLatexName().data()));
+	else
+		hist->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", fParameters[index1]->GetLatexName().data(),fParameters[index2]->GetLatexName().data()));
+	
+	// fill histogram
+	for (int ix = 1; ix <= hist->GetNbinsX(); ++ix) {
+		parameters_temp[index1] = hist -> GetXaxis() -> GetBinCenter(ix);
+		for (int iy = 1; iy <= hist->GetNbinsY(); ++iy) {
+			parameters_temp[index2] = hist -> GetYaxis() -> GetBinCenter(iy);
+			hist->SetBinContent(ix, iy, Eval(parameters_temp));
+		}
+	}
+
+	// normalize
+	if (flag_norm)
+		hist->Scale(1./hist->Integral("width"));
+	
+	// reset binning
+	fParameters[index1] -> SetNbins(nbins1_temp);
+	fParameters[index2] -> SetNbins(nbins2_temp);
+	
+	return hist;
 }
 
-// ---------------------------------------------------------
-BCH2D* BCIntegrate::GetSlice(const char* name1, const char* name2, const std::vector<double> parameters, int nbins, bool flag_norm)
-{
-  return GetSlice(fParameters.Index(name1), fParameters.Index(name2), parameters, nbins, flag_norm);
-}
-
-// ---------------------------------------------------------
-BCH2D* BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins, bool flag_norm)
-{
-   // check if parameters exists
-   if (!fParameters.ValidIndex(index1) || !fParameters.ValidIndex(index2)) {
-      BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
-      return 0;
-   }
-
-   // check if parameters are fixed
-   if (fParameters[index1]->Fixed() || fParameters[index2]->Fixed())
-     return 0;
-
-   // create local copy of parameter set
-   std::vector<double> parameters_temp;
-   parameters_temp = parameters;
-
-   // check number of dimensions
-   if (GetNParameters() < 2) {
-      BCLog::OutError("BCIntegrate::GetSlice : Number of parameters need to be at least 2.");
-   }
-
-   // check if parameter set if defined
-   if (parameters_temp.size()==0 && GetNParameters()==2) {
-      parameters_temp.push_back(0);
-      parameters_temp.push_back(0);
-   }
-   else if (parameters_temp.size()==0 && GetNParameters()>2) {
-      BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
-      return 0;
-   }
-
-   // calculate number of bins
-   const BCParameter * p1 = fParameters.Get(index1);
-   const BCParameter * p2 = fParameters.Get(index2);
-   unsigned nbins1, nbins2;
-   if (nbins <= 0) {
-      nbins1 = p1->GetNbins();
-      nbins2 = p2->GetNbins();
-   } else {
-      nbins1 = nbins2 = nbins;
-   }
-
-   // create histogram
-   TH2D * hist = new TH2D("", "", nbins1, p1->GetLowerLimit(), p1->GetUpperLimit(),
-                          nbins2, p2->GetLowerLimit(), p2->GetUpperLimit());
-   hist->UseCurrentStyle();
-
-   // set axis labels
-   hist->SetXTitle(Form("%s", p1->GetLatexName().data()));
-   hist->SetYTitle(Form("%s", p2->GetLatexName().data()));
-   hist->SetStats(kFALSE);
-
-   // fill histogram
-   for (unsigned int ix = 1; ix <= nbins1; ++ix) {
-      for (unsigned int iy = 1; iy <= nbins2; ++iy) {
-         double par_temp1 = hist->GetXaxis()->GetBinCenter(ix);
-         double par_temp2 = hist->GetYaxis()->GetBinCenter(iy);
-
-         parameters_temp[index1] = par_temp1;
-         parameters_temp[index2] = par_temp2;
-
-         double prob = Eval(parameters_temp);
-         hist->SetBinContent(ix, iy, prob);
-      }
-   }
-
-   // calculate normalization
-   double norm = hist->Integral("width");
-
-   // normalize
-   if (flag_norm)
-      hist->Scale(1.0/norm);
-
-   // set histogram
-   BCH2D * hprob = new BCH2D();
-   hprob->SetHistogram(hist);
-
-   // renormalize
-   hist->Scale(norm / hist->Integral("width"));
-
-   return hprob;
-}
 // ---------------------------------------------------------
 double BCIntegrate::GetRandomPoint(std::vector<double> &x)
 {
@@ -1196,353 +1105,162 @@ void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double> &x) const
 	 }
 }
 
-// ---------------------------------------------------------
-BCH1D * BCIntegrate::GetMarginalized(const BCParameter * parameter)
-{
-   if ( !parameter)
-      return 0;
-   return GetMarginalized(fParameters.Index(parameter->GetName()));
-}
+// // ---------------------------------------------------------
+// int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv)
+// {
+//    if (fMarginalized1D.size() == 0 and fMarginalized2D.size() == 0) {
+//       BCLog::OutError("BCIntegrate::PrintAllMarginalized : Marginalized distributions not available.");
+//       return 0;
+//    }
 
-// ---------------------------------------------------------
-BCH1D * BCIntegrate::GetMarginalized(unsigned index)
-{
-  // check if marginalized histogram exists
-  if (fMarginalized1D.size() <= index)
-    return 0;
+//    // count all valid (non NULL) histograms
+//    int nvalid1D = 0;
+//    int nvalid2D = 0;
 
-  // get histogram
-  BCH1D * htemp = fMarginalized1D.at(index);
+//    for (unsigned i = 0 ; i < fMarginalized1D.size() ; ++i) {
+//      if (BCH1D * h = fMarginalized1D[i])
+//        if (h->GetHistogram())
+//          nvalid1D++;
+//    }
 
-  // check if histogram exists
-  if (!htemp)
-    return 0;
+//    for (unsigned i = 0 ; i < fMarginalized2D.size() ; ++i) {
+//      if (BCH2D * h = fMarginalized2D[i])
+//        if (h->GetHistogram())
+//          nvalid2D++;
+//    }
 
-  // set global mode
-  if (fBestFitParameters.size() == GetNParameters())
-    htemp->SetGlobalMode(fBestFitParameters.at(index));
+// 	 if (nvalid1D == 0 and nvalid2D == 0)
+// 		 return 0;
 
-  // set axis labels
-   htemp->GetHistogram()->SetName(Form("hist_%i_%s", fID, fParameters[index]->GetName().data()));
-   htemp->GetHistogram()->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
+//    std::string filename(file);
 
-   // return histogram
-   return htemp;
-}
+//    // check if file extension does not exist or is not pdf or ps
+//    if ( (filename.find_last_of(".") == std::string::npos) or
+//          ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
+//                (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
+//       // make it a PDF file
+//       filename += ".pdf";
+//    }
 
- // ---------------------------------------------------------
-int BCIntegrate::ReadMarginalizedFromFile(const char * file)
-{
-   TFile * froot = TFile::Open(file);
-   if (!froot->IsOpen()) {
-      BCLog::OutError(Form("BCIntegrate::ReadMarginalizedFromFile : Couldn't open file %s.", file));
-      return 0;
-   }
+//    int c_width  = gStyle->GetCanvasDefW(); // default canvas width
+//    int c_height = gStyle->GetCanvasDefH(); // default canvas height
 
-   // We reset the MCMCEngine here for the moment.
-   // In the future maybe we only want to do this if the engine
-   // wans't initialized at all or when there were some changes
-   // in the model.
-   // But maybe we want reset everything since we're overwriting
-   // the marginalized distributions anyway.
-   MCMCInitialize();
+//    if (hdiv > vdiv) {
+//       if (hdiv > 3) {
+//          c_width = 1000;
+//          c_height = 700;
+//       }
+//       else {
+//          c_width = 800;
+//          c_height = 600;
+//       }
+//    }
+//    else if (hdiv < vdiv) {
+//       if (hdiv > 3) {
+//          c_height = 1000;
+//          c_width = 700;
+//       }
+//       else {
+//          c_height = 800;
+//          c_width = 600;
+//       }
+//    }
 
-   int k = 0;
-   int n = GetNParameters();
-   for (int i = 0; i < n; i++) {
-      const BCParameter * a = GetParameter(i);
-      TKey * key = froot->GetKey(TString::Format("hist_%i_%s", fID, a->GetName().data()));
-      if (key) {
-         TH1D * h1 = (TH1D*) key->ReadObjectAny(TH1D::Class());
-         h1->SetDirectory(0);
-         if (SetMarginalized(i, h1))
-            k++;
-      }
-      else
-         BCLog::OutWarning(
-               Form("BCIntegrate::ReadMarginalizedFromFile : Couldn't read histogram \"hist_%i_%s\" from file %s.",
-                     fID, a->GetName().data(), file));
-   }
+//    const unsigned nplots = nvalid1D + nvalid2D;
 
-   for (int i = 0; i < n - 1; i++) {
-      for (int j = i + 1; j < n; j++) {
-         const BCParameter * a = GetParameter(i);
-         const BCParameter * b = GetParameter(j);
-         TKey * key = froot->GetKey(
-               TString::Format("hist_%i_%s_%s",fID, a->GetName().data(),b->GetName().data()));
-         if (key) {
-            TH2D * h2 = (TH2D*) key->ReadObjectAny(TH2D::Class());
-            h2->SetDirectory(0);
-            if (SetMarginalized(i, j, h2))
-               k++;
-         }
-         else
-            BCLog::OutWarning(
-                  Form("BCIntegrate::ReadMarginalizedFromFile : Couldn't read histogram \"hist_%i_%s_%s\" from file %s.",
-                        fID, a->GetName().data(), b->GetName().data(), file));
-      }
-   }
+//    // give out warning if too many plots
+//    BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
+//                           nvalid1D, nvalid2D, nplots, filename.c_str()));
+//    if (nplots > 100)
+//       BCLog::OutDetail("This can take a while...");
 
-   froot->Close();
+//    // setup the canvas and file
+//    TCanvas c("c", "canvas", c_width, c_height);
+//    c.Divide(hdiv, vdiv);
+// 	 c.Print(std::string( filename + "[").c_str());
 
-   return k;
-}
+//    // for clean up later
+//    std::vector<BCH1D *> h1;
 
+//    // count plots
+//    unsigned n = 0;
+//    for (unsigned i = 0; i < fParameters.Size(); ++i) {
+//       BCH1D * h = GetMarginalized(i);
+//       h1.push_back(h);
 
-// ---------------------------------------------------------
-int BCIntegrate::PrintAllMarginalized1D(const char * filebase)
-{
-   if (fMCMCH1Marginalized.size() == 0) {
-      BCLog::OutError("BCIntegrate::PrintAllMarginalized : Marginalized distributions not available.");
-      return 0;
-   }
+//       // check if histogram exists
+//       if ( !h)
+//          continue;
 
-   int n = GetNParameters();
-   for (int i = 0; i < n; i++) {
-      const BCParameter * a = GetParameter(i);
-      if (GetMarginalized(a))
-         GetMarginalized(a)->Print(Form("%s_1D_%s.pdf", filebase, a->GetName().data()));
-   }
+//       // if current page is full, switch to new page
+//       if (n != 0 && n % (hdiv * vdiv) == 0) {
+// 				c.Print(filename.c_str());
+// 				c.Clear("D");
+//       }
 
-   return n;
-}
+//       // go to next pad
+//       c.cd(n % (hdiv * vdiv) + 1);
 
-// ---------------------------------------------------------
-int BCIntegrate::PrintAllMarginalized2D(const char * filebase)
-{
-   if (fMCMCH2Marginalized.size() == 0) {
-      BCLog::OutError("BCIntegrate::PrintAllMarginalized : Marginalized distributions not available.");
-      return 0;
-   }
+//       h->Draw(options1d);
 
-   int k = 0;
-   int n = GetNParameters();
-   for (int i = 0; i < n - 1; i++) {
-      for (int j = i + 1; j < n; j++) {
-         const BCParameter * a = GetParameter(i);
-         const BCParameter * b = GetParameter(j);
+//       if (++n % 100 == 0)
+//          BCLog::OutDetail(Form(" --> %d plots done", n));
+//    }
+// 	 c.Print(filename.c_str());
+// 	 c.Clear("D");
 
-         double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
-         double deltaa = (a->GetUpperLimit() - a->GetLowerLimit());
-         if (deltaa <= 1e-7 * meana)
-            continue;
+//    // for clean up later
+//    std::vector<BCH2D *> h2;
 
-         double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
-         double deltab = (b->GetUpperLimit() - b->GetLowerLimit());
-         if (deltab <= 1e-7 * meanb)
-            continue;
+//    // check how many 2D plots are actually drawn, despite no histogram filling or delta prior
+//    unsigned k = 0;
+//    for (unsigned i = 0; i < fParameters.Size() - 1; ++i) {
+//       for (unsigned j = i + 1; j < fParameters.Size(); ++j) {
+//          // check if histogram exists, or skip if one par has a delta prior
+//          h2.push_back(GetMarginalized(i, j));
+//          if ( !h2.back())
+//             continue;
 
-         if (GetMarginalized(a, b))
-            GetMarginalized(a, b)->Print(
-                  Form("%s_2D_%s_%s.pdf",filebase, a->GetName().data(), b->GetName().data()));
-         k++;
-      }
-   }
+//          // get corresponding parameters
+//          BCParameter * a = GetParameter(i);
+//          BCParameter * b = GetParameter(j);
 
-   return k;
-}
+//          // if current page is full, switch to new page, but only if there is data to plot
+//          if (k != 0 && k % (hdiv * vdiv) == 0) {
+// 					 c.Print(filename.c_str());
+// 					 c.Clear("D");
+//          }
 
-// ---------------------------------------------------------
-int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv)
-{
-   if (fMarginalized1D.size() == 0 and fMarginalized2D.size() == 0) {
-      BCLog::OutError("BCIntegrate::PrintAllMarginalized : Marginalized distributions not available.");
-      return 0;
-   }
+//          // go to next pad
+//          c.cd(k % (hdiv * vdiv) + 1);
 
-   // count all valid (non NULL) histograms
-   int nvalid1D = 0;
-   int nvalid2D = 0;
+//          const double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
+//          if (a->GetRangeWidth() <= 1e-7 * meana)
+//             continue;
 
-   for (unsigned i = 0 ; i < fMarginalized1D.size() ; ++i) {
-     if (BCH1D * h = fMarginalized1D[i])
-       if (h->GetHistogram())
-         nvalid1D++;
-   }
+//          const double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
+//          if (b->GetRangeWidth() <= 1e-7 * meanb)
+//             continue;
 
-   for (unsigned i = 0 ; i < fMarginalized2D.size() ; ++i) {
-     if (BCH2D * h = fMarginalized2D[i])
-       if (h->GetHistogram())
-         nvalid2D++;
-   }
+//          h2.back()->Draw(options2d);
+//          k++;
 
-	 if (nvalid1D == 0 and nvalid2D == 0)
-		 return 0;
+//          if ((n + k) % 100 == 0)
+//             BCLog::OutDetail(Form(" --> %d plots done", n + k));
+//       }
+//    }
+// 	 c.Print(filename.c_str());
+// 	 c.Clear("D");
 
-   std::string filename(file);
+//    c.Print(std::string( filename + "]").c_str());
 
-   // check if file extension does not exist or is not pdf or ps
-   if ( (filename.find_last_of(".") == std::string::npos) or
-         ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
-               (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
-      // make it a PDF file
-      filename += ".pdf";
-   }
-
-   int c_width  = gStyle->GetCanvasDefW(); // default canvas width
-   int c_height = gStyle->GetCanvasDefH(); // default canvas height
-
-   if (hdiv > vdiv) {
-      if (hdiv > 3) {
-         c_width = 1000;
-         c_height = 700;
-      }
-      else {
-         c_width = 800;
-         c_height = 600;
-      }
-   }
-   else if (hdiv < vdiv) {
-      if (hdiv > 3) {
-         c_height = 1000;
-         c_width = 700;
-      }
-      else {
-         c_height = 800;
-         c_width = 600;
-      }
-   }
-
-   const unsigned nplots = nvalid1D + nvalid2D;
-
-   // give out warning if too many plots
-   BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-                          nvalid1D, nvalid2D, nplots, filename.c_str()));
-   if (nplots > 100)
-      BCLog::OutDetail("This can take a while...");
-
-   // setup the canvas and file
-   TCanvas c("c", "canvas", c_width, c_height);
-   c.Divide(hdiv, vdiv);
-	 c.Print(std::string( filename + "[").c_str());
-
-   // for clean up later
-   std::vector<BCH1D *> h1;
-
-   // count plots
-   unsigned n = 0;
-   for (unsigned i = 0; i < fParameters.Size(); ++i) {
-      BCH1D * h = GetMarginalized(i);
-      h1.push_back(h);
-
-      // check if histogram exists
-      if ( !h)
-         continue;
-
-      // if current page is full, switch to new page
-      if (n != 0 && n % (hdiv * vdiv) == 0) {
-				c.Print(filename.c_str());
-				c.Clear("D");
-      }
-
-      // go to next pad
-      c.cd(n % (hdiv * vdiv) + 1);
-
-      h->Draw(options1d);
-
-      if (++n % 100 == 0)
-         BCLog::OutDetail(Form(" --> %d plots done", n));
-   }
-	 c.Print(filename.c_str());
-	 c.Clear("D");
-
-   // for clean up later
-   std::vector<BCH2D *> h2;
-
-   // check how many 2D plots are actually drawn, despite no histogram filling or delta prior
-   unsigned k = 0;
-   for (unsigned i = 0; i < fParameters.Size() - 1; ++i) {
-      for (unsigned j = i + 1; j < fParameters.Size(); ++j) {
-         // check if histogram exists, or skip if one par has a delta prior
-         h2.push_back(GetMarginalized(i, j));
-         if ( !h2.back())
-            continue;
-
-         // get corresponding parameters
-         BCParameter * a = GetParameter(i);
-         BCParameter * b = GetParameter(j);
-
-         // if current page is full, switch to new page, but only if there is data to plot
-         if (k != 0 && k % (hdiv * vdiv) == 0) {
-					 c.Print(filename.c_str());
-					 c.Clear("D");
-         }
-
-         // go to next pad
-         c.cd(k % (hdiv * vdiv) + 1);
-
-         const double meana = (a->GetLowerLimit() + a->GetUpperLimit()) / 2.;
-         if (a->GetRangeWidth() <= 1e-7 * meana)
-            continue;
-
-         const double meanb = (b->GetLowerLimit() + b->GetUpperLimit()) / 2.;
-         if (b->GetRangeWidth() <= 1e-7 * meanb)
-            continue;
-
-         h2.back()->Draw(options2d);
-         k++;
-
-         if ((n + k) % 100 == 0)
-            BCLog::OutDetail(Form(" --> %d plots done", n + k));
-      }
-   }
-	 c.Print(filename.c_str());
-	 c.Clear("D");
-
-   c.Print(std::string( filename + "]").c_str());
-
-   if ((n + k) > 100 && (n + k) % 100 != 0)
-      BCLog::OutDetail(Form(" --> %d plots done", n + k));
+//    if ((n + k) > 100 && (n + k) % 100 != 0)
+//       BCLog::OutDetail(Form(" --> %d plots done", n + k));
 
 
-   // return total number of drawn histograms
-   return n + k;
-}
-
-// ---------------------------------------------------------
-BCH2D * BCIntegrate::GetMarginalized(const BCParameter * par1, const BCParameter * par2)
-{
-   if ( !par1 or !par2 or (par1 == par2) )
-      return 0;
-
-  return GetMarginalized(fParameters.Index(par1->GetName()), fParameters.Index(par2->GetName()));
-}
-
-// ---------------------------------------------------------
-BCH2D * BCIntegrate::GetMarginalized(unsigned index1, unsigned index2)
-{
-  // swap indices if necessary
-  if (index1 > index2) {
-    unsigned indexTemp = index1;
-    index1 = index2;
-    index2 = indexTemp;
-  }
-
-  // check if marginalized histogram exists
-  if (fMarginalized2D.size() <= GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1)
-    return 0;
-
-  // get histogram
-  BCH2D * htemp =  fMarginalized2D.at(GetNParameters() * index1 - (index1 * index1 + 3 * index1) / 2 + index2 - 1);
-
-  // check if histogram exists
-  if ( !htemp)
-    return 0;
-
-  // set global mode
-  if (fBestFitParameters.size() == GetNParameters()) {
-    double gmode[] = { fBestFitParameters.at(index1), fBestFitParameters.at(index2) };
-    htemp->SetGlobalMode(gmode);
-  }
-
-  // set name
-  htemp->GetHistogram()->SetName(Form("hist_%i_%s_%s", fID,
-                                      fParameters[index1]->GetName().data(),
-                                      fParameters[index2]->GetName().data()));
-
-  // return histogram
-  return htemp;
-}
+//    // return total number of drawn histograms
+//    return n + k;
+// }
 
 // ---------------------------------------------------------
 std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
@@ -2378,49 +2096,25 @@ double BCIntegrate::IntegrateSlice()
   fError = -1;
 
   // calculate values are which the function should be evaluated
-  std::vector<double> fixpoint(GetNParameters());
-  for (unsigned int i = 0; i < GetNParameters(); ++i) {
+  std::vector<double> fixpoint(fParameters.Size(), 0);
+  for (unsigned int i = 0; i < fParameters.Size(); ++i)
     if (fParameters[i]->Fixed())
       fixpoint[i] = fParameters[i]->GetFixedValue();
-    else
-      fixpoint[i] = 0;
-  }
-
+	
   if (GetNFreeParameters() == 1) {
-    for (unsigned int i = 0; i < GetNParameters(); ++i) {
-      if (!fParameters[i]->Fixed()) {
-        // calculate slice
-        BCH1D* hist_temp = GetSlice(fParameters[i], fixpoint, 0, false);
-
-        // calculate integral
-        integral = hist_temp->GetHistogram()->Integral("width");
-
-        // free memory
-        delete hist_temp;
-      }
-    }
+    for (unsigned i = 0; i < fParameters.Size(); ++i)
+      if (!fParameters[i]->Fixed())
+				integral = GetSlice(i, fixpoint, 0, false) -> Integral("width");
   }
   else if (GetNFreeParameters() == 2) {
-    for (unsigned int i = 0; i < GetNParameters(); ++i) {
-      for (unsigned int j = 0; j < GetNParameters(); ++j) {
-        if (i >= j)
-          continue;
-        if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed()) {
+    for (unsigned int i = 0; i < fParameters.Size(); ++i)
+      for (unsigned int j = i+1; j < fParameters.Size(); ++j)
+        if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed())
           // calculate slice
-          BCH2D* hist_temp = GetSlice(GetParameter(i), GetParameter(j), fixpoint, 0, false);
-
-          // calculate integral
-          integral = hist_temp->GetHistogram()->Integral("width");
-
-        // free memory
-        delete hist_temp;
-        }
-      }
-    }
+          integral = GetSlice(i,j, fixpoint, 0, false) -> Integral("width");
   }
   else {
     BCLog::OutWarning("BCIntegrate::IntegrateSlice: Method only implemented for 1D and 2D problems. Return -1.");
-
     integral = -1;
   }
 

@@ -23,7 +23,10 @@
 
 // ---------------------------------------------------------
 
+#include "BCParameter.h"
 #include "BCParameterSet.h"
+#include "BCUserObservable.h"
+#include "BCUserObservableSet.h"
 #include "BCLog.h"
 
 #include <vector>
@@ -48,7 +51,7 @@ class BCEngineMCMC
       /** @{ */
 
       /** An enumerator for the status of a test. */
-      enum Precision{ kLow, kMedium, kHigh, kVeryHigh };
+	    enum Precision{ kLow, kQuick, kMedium, kHigh, kVeryHigh };
 
       /** @} */
       /** \name Constructors and destructors */
@@ -63,7 +66,7 @@ class BCEngineMCMC
       BCEngineMCMC(const BCEngineMCMC & enginemcmc);
 
       /**
-       * Default destructor. */
+       * Destructor. */
       virtual ~BCEngineMCMC();
 
       /** @} */
@@ -110,11 +113,6 @@ class BCEngineMCMC
          { return fMCMCNIterationsConvergenceGlobal; }
 
       /**
-       * @return flag if converged or not */
-      bool MCMCGetFlagConvergenceGlobal() const
-         { return fMCMCFlagConvergenceGlobal; }
-
-      /**
        * @return maximum number of iterations for a Markov chain */
       unsigned MCMCGetNIterationsMax() const
          { return fMCMCNIterationsMax; }
@@ -145,9 +143,14 @@ class BCEngineMCMC
          { return fMCMCNIterationsUpdateClear; }
 
       /**
-       * @return maximum number of iterations after statistics update. */
-      unsigned MCMCGetNIterationsUpdateMax() const
-         { return fMCMCNIterationsUpdateMax; }
+       * @return minimum efficiency required for a chain. */
+      double MCMCGetMinimumEfficiency() const
+	       { return fMCMCEfficiencyMin; }
+
+      /**
+       * @return maximum efficiency required for a chain. */
+      double MCMCGetMaximumEfficiency() const
+         { return fMCMCEfficiencyMax; }
 
       /**
        * @returns number of accepted trials for each parameter of each chain */
@@ -288,18 +291,164 @@ class BCEngineMCMC
         else
           return 0; }
 
+	    /**
+			 * @return The size of vector of marginalized 1D histograms */
+	    unsigned GetN1DMarginalizations()
+	       { return fH1Marginalized.size(); }
+		 
+	    /**
+			 * @return The size of vector of vector of marginalized 2D histograms */
+	    unsigned GetN2DMarginalizations()
+	       { return fH2Marginalized.size(); }
+
+	    /**
+			 * @param i index of vector of which the size should be returned
+			 * @return The size of the i'th vector of marginalized 2D histograms */
+	    unsigned GetN2DMarginalizations(unsigned i)
+	       { return (i<GetN2DMarginalizations()) ? fH2Marginalized[i].size() : 0; }
+
+	    /**
+	     * @param index Index of marginalized histogram to check for.
+	     * @return Whether marginalized histogram exists for index. */
+	    bool MarginalizedHistogramExists(unsigned index)
+	       { return index<fH1Marginalized.size() and fH1Marginalized[index]!=0; }
+
+	    /**
+	     * @param index1 First index of marginalized histogram to check for.
+	     * @param index2 Second index of marginalized histogram to check for.
+	     * @return Whether marginalized histogram exists for index. */
+	    bool MarginalizedHistogramExists(unsigned index1, unsigned index2)
+	       { return index1<fH2Marginalized.size() and index2<fH2Marginalized[index1].size() and fH2Marginalized[index1][index2]!=0; }
+	
       /**
-       * Retrieve a histogram of the 1D marginalized distribution of a single parameter.
-       * @param i index of the parameter
-       * @return pointer to the histogram */
-      BCH1D * MCMCGetH1Marginalized(unsigned i);
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter as a ROOT TH1D
+       * @note The most efficient method is to access by index.
+       * @param parameter Model parameter
+       * @return 1D marginalized probability */
+	    TH1D * GetMarginalizedHistogram(const BCParameter * parameter) const
+	       { return GetMarginalizedHistogram(fParameters.Index(parameter->GetName())); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter as a ROOT TH1D
+       * @note The most efficient method is to access by index.
+       * @param name The parameter's name
+       * @return 1D marginalized probability */
+      TH1D * GetMarginalizedHistogram(const char * name) const
+         { return GetMarginalizedHistogram(fParameters.Index(name)); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter as a ROOT TH1D
+       * @param index The parameter index
+       * @return 1D marginalized probability */
+      TH1D * GetMarginalizedHistogram(unsigned index) const;
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters as a ROOT TH2D.
+       * @note The most efficient method is to access by indices.
+       * @param parameter1 First parameter
+       * @param parameter2 Second parameter
+       * @return 2D marginalized probability */
+      TH2D * GetMarginalizedHistogram(const BCParameter * parameter1, const BCParameter * parameter2) const
+	       { return GetMarginalizedHistogram(fParameters.Index(parameter1->GetName()),fParameters.Index(parameter2->GetName())); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters as a ROOT TH2D.
+       * @note The most efficient method is to access by indices.
+       * @param name1 Name of first parameter
+       * @param name2 Name of second parameter
+       * @return 2D marginalized probability */
+      TH2D * GetMarginalizedHistogram(const char * name1, const char * name2) const
+         { return GetMarginalizedHistogram(fParameters.Index(name1), fParameters.Index(name2)); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters as a ROOT TH2D.
+       * @param index1 Index of first parameter
+       * @param index2 Index of second parameter
+       * @return 2D marginalized probability */
+      TH2D * GetMarginalizedHistogram(unsigned index1, unsigned index2) const;
 
       /**
-       * Retrieve a histogram of the 2D marginalized distribution for two parameters.
-       * @param i index of the first parameter
-       * @param j index of the second parameter
-       * @return pointer to the histogram */
-      BCH2D * MCMCGetH2Marginalized(unsigned i, unsigned j);
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param parameter Model parameter
+       * @return 1D marginalized probability */
+	    BCH1D * GetMarginalized(const BCParameter * parameter)
+	       { return GetMarginalized(fParameters.Index(parameter->GetName())); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note The most efficient method is to access by index.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param name The parameter's name
+       * @return 1D marginalized probability */
+      BCH1D * GetMarginalized(const char * name)
+         { return GetMarginalized(fParameters.Index(name)); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to one parameter.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param index The parameter index
+       * @return 1D marginalized probability */
+      BCH1D * GetMarginalized(unsigned index);
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param parameter1 First parameter
+       * @param parameter2 Second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2)
+	       { return GetMarginalized(fParameters.Index(parameter1->GetName()),fParameters.Index(parameter2->GetName())); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note The most efficient method is to access by indices.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param name1 Name of first parameter
+       * @param name2 Name of second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(const char * name1, const char * name2)
+         { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
+   
+      /**
+       * Obtain the individual marginalized distributions
+       * with respect to two parameters.
+       * @note Ownership of the returned heap object is conferred to the caller.
+       * @param index1 Index of first parameter
+       * @param index2 Index of second parameter
+       * @return 2D marginalized probability */
+      BCH2D * GetMarginalized(unsigned index1, unsigned index2);
+   
+	    /**
+			 * @param userObservables Whether to check max length of user-defined observable names.
+			 * @return length of longest parameter name. */
+ 	    unsigned GetMaximumParameterNameLength(bool userObservables=true)
+	       { return (userObservables) ? std::max(fParameters.MaxNameLength(),fUserObservables.MaxNameLength()) : fParameters.MaxNameLength(); }
+
+      /**
+       * @param index The index of the observable running first over 
+			 * 0,...,N_parameters in the ParameterSet, and then over
+			 * N_parameters,...,N_parameters+N_userObservables in the UserObservableSet
+       * @return The observable. */
+	    BCObservable * GetObservable(unsigned int index) const;
+
+      /**
+       * @return The number of parameters of the model. */
+      unsigned int GetNObservables() const
+	       { return fParameters.Size() + fUserObservables.Size(); }
 
       /**
        * @param index The index of the parameter in the parameter set.
@@ -327,10 +476,49 @@ class BCEngineMCMC
       unsigned int GetNFreeParameters();
 
       /**
+       * @param index The index of the observable in the observable set.
+       * @return The user-defined observable. */
+      BCUserObservable * GetUserObservable(int index) const
+         { return fUserObservables.Get(index); }
+
+      /**
+       * @param name The name of the observable in the observable set.
+       * @return The user-defined observable. */
+      BCUserObservable * GetUserObservable(const char * name) const
+         { return fUserObservables.Get(name); }
+
+    	/**
+    	 * @return The number of user-defined observables. */
+    	unsigned GetNUserObservables() const
+    	   { return fUserObservables.Size(); }
+
+      /**
        * Returns the set of values of the parameters at the modes of the
        * marginalized posterior pdfs.
        * @return best fit parameters */
       const std::vector<double> & GetBestFitParametersMarginalized() const;
+
+	    /**
+			 * Returns the value of a parameter (defined by index) at
+			 * the maximum found by the Markov chain
+			 * @param index index of the parameter.
+			 * @return value of the parameter or -1e+111 on error or center of the range if mode finding not yer run */
+	    virtual double GetBestFitParameter(unsigned index) const;
+
+	    /**
+	     * Returns the value of the user-defined observable at the 
+	     * the maximum found by the Markov chain
+	     * @param index of the user-defined observable
+	     * @return best fit value of user-defined observable. */
+	    double GetBestFitUserObservable(unsigned index) const
+	       { return GetBestFitParameter(index+fParameters.Size()); }
+
+      /**
+			 * Returns the set of values of the parameters at the maximum
+			 * found by the Markov chain
+			 * @return best fit parameters */
+	    virtual const std::vector<double> & GetBestFitParameters() const
+	       { return fMCMCBestFitParameters; }
 
       /** @} */
       /** \name Setters */
@@ -397,14 +585,6 @@ class BCEngineMCMC
          { fMCMCNIterationsUpdateClear = n; }
 
       /**
-       * Sets the maximum number of iterations in the pre-run after which an
-       * update on the statistics (convergence, efficiency, etc.) is done.
-       * If set to 0 no maximum is set.
-       * @param n maximum number of iterations. */
-      void MCMCSetNIterationsUpdateMax(unsigned n)
-         { fMCMCNIterationsUpdateMax = n; }
-
-      /**
        * Sets the minimum efficiency required for a chain. */
       void MCMCSetMinimumEfficiency(double efficiency)
          { fMCMCEfficiencyMin = efficiency; }
@@ -427,6 +607,11 @@ class BCEngineMCMC
        * Sets flag to write pre run to file. */
       void MCMCSetWritePreRunToFile(bool flag)
          { fMCMCFlagWritePreRunToFile = flag; }
+
+      /**
+       * Sets flag to write user-defined observables to file during pre run. */
+      void MCMCSetWritePreRunUserObservablesToFile(bool flag)
+         { fMCMCFlagWritePreRunUserObservablesToFile = flag; }
 
       /**
        * Sets the initial positions for all chains.
@@ -479,33 +664,13 @@ class BCEngineMCMC
       void MCMCInitializeMarkovChainTrees();
 
       /**
-       * Sets the histogram with 1D marginalized distributions for parameter.
-       * @param i index of the parameter
-       * @param h pointer to an existing histogram */
-      int SetMarginalized(unsigned index, TH1D * h);
-
-      /**
-       * Sets the histogram with 2D marginalized distributions for two parameters.
-       * @param index1 index of the first parameter
-       * @param index2 index of the second parameter
-       * @param h pointer to an existing histogram */
-      int SetMarginalized(unsigned index1, unsigned index2, TH2D * h);
-
-      /**
-       * Set the default values for the MCMC chain. */
-      void MCMCSetValuesDefault();
-
-      /**
-       * Set the values for a quick MCMC run. */
-      void MCMCSetValuesQuick();
-
-      /**
-       * Set the values for a detailed MCMC run. */
-      void MCMCSetValuesDetail();
-
-      /**
        * Set the precision for the MCMC run. */
       void MCMCSetPrecision(BCEngineMCMC::Precision precision);
+
+      /**
+       * Copy precision for the MCMC run from other model. */
+      void MCMCSetPrecision(const BCEngineMCMC * other);
+	
 #if 0
       /**
        * Set the range of a parameter
@@ -568,6 +733,19 @@ class BCEngineMCMC
 			 * which defaults to BCLog::OutSummary */
 	    void PrintParameters(std::vector<double> const & P, void (*output)(const char *) = BCLog::OutSummary);
 
+	    /**
+			 *  Print all 1D marginalizations, each to its own file */
+	    int PrintAllMarginalized1D(const char * filebase);
+
+	    /**
+			 *  Print all 2D marginalizations, each to its own file */
+	    int PrintAllMarginalized2D(const char * filebase);
+
+	    /**
+			 *  Print all 1D marginalizations, each to its own file */
+	    int PrintAllMarginalized(const char * file, std::string options1d="", std::string options2d="", unsigned int hdiv=1, unsigned int ndiv=1);
+	
+
       /**
        * Copy object
        * @param enginemcmc Object to copy from */
@@ -584,8 +762,26 @@ class BCEngineMCMC
       /**
        * Adds a parameter to the model.
        * @param parameter A model parameter
-       * @see AddParameter(const char * name, double lowerlimit, double upperlimit); */
+       * @see AddParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname); */
       virtual int AddParameter(BCParameter* parameter);
+
+      /**
+       * Adds a user-calculated observable.
+       * @param min minimum value of the observable
+       * @param max maximum value of the observable
+       * @param latexname Optional latexname used for plotting
+       * @return number of observables after adding */
+	    virtual int AddUserObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname = "");
+
+      /**
+       * Adds a user-calculated observable to the model.
+       * @param observable A user-calculated observable
+       * @see AddUserObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname); */
+      virtual int AddUserObservable(BCUserObservable* observable);
+
+      /**
+       * Calculates user-defined observables */
+  	  virtual void CalculateUserObservables();
 
       /**
        * Random walk trial function. The default trial function is a
@@ -770,6 +966,10 @@ class BCEngineMCMC
        * Parameter settings */
       BCParameterSet fParameters;
 
+	    /**
+			 * User-calculated Observables Set */
+	    BCUserObservableSet fUserObservables;
+
       /**
        * Number of Markov chains ran in parallel */
       unsigned fMCMCNChains;
@@ -807,17 +1007,9 @@ class BCEngineMCMC
       unsigned fMCMCNIterationsUpdateClear;
 
       /**
-       * Maximum number of iterations for updating scale factors */
-      unsigned fMCMCNIterationsUpdateMax;
-
-      /**
        * Number of iterations needed for all chains to convergence
        * simultaneously */
       int fMCMCNIterationsConvergenceGlobal;
-
-      /**
-       * Flag for convergence */
-      bool fMCMCFlagConvergenceGlobal;
 
       /**
        * Maximum number of iterations for a Markov chain prerun */
@@ -846,6 +1038,10 @@ class BCEngineMCMC
       /**
        * Flag to write pre run to file */
       bool fMCMCFlagWritePreRunToFile;
+
+      /**
+       * Flag to write user-defined observable to file during pre run. */
+      bool fMCMCFlagWritePreRunUserObservablesToFile;
 
     	/**
     	 * Lower limit for scale factors */
@@ -909,11 +1105,13 @@ class BCEngineMCMC
       int fMCMCPhase;
 
       /**
-       * The current points of each Markov chain. The length of the
-       * vectors is equal to fMCMCNChains * fMCMCNParameters. First, the
-       * values of the first Markov chain are saved, then those of the
-       * second and so on. */
+       * The current points of each Markov chain. */
 	    std::vector<std::vector<double> > fMCMCx;
+
+      /**
+       * The current values of the user-defined observables for each
+       * Markov chain. */
+	    std::vector<std::vector<double> > fMCMCUserObservables;
 
       /**
        * The maximum points of each Markov chain. */
@@ -976,8 +1174,8 @@ class BCEngineMCMC
 
       /**
        * An array of marginalized distributions */
-      std::vector<TH1D *> fMCMCH1Marginalized;
-      std::vector<TH2D *> fMCMCH2Marginalized;
+      std::vector<TH1D *>               fH1Marginalized;
+	    std::vector<std::vector<TH2D *> > fH2Marginalized;
 
       /**
        * The trees containing the Markov chains. The length of the vector

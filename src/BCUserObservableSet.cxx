@@ -8,54 +8,56 @@
 
 // ---------------------------------------------------------
 
-#include "BCParameterSet.h"
+#include "BCUserObservableSet.h"
 
 #include "BCLog.h"
-#include "BCParameter.h"
+#include "BCUserObservable.h"
 
 #include <TString.h>
 
 #include <algorithm>
 
 // ---------------------------------------------------------
-BCParameterSet::BCParameterSet() 
+BCUserObservableSet::BCUserObservableSet() 
 	: fMaxNameLength(0)
 {
 }
 
 // ---------------------------------------------------------
-bool BCParameterSet::Add(BCParameter * parameter)
+bool BCUserObservableSet::Add(BCUserObservable * observable)
 {
-   if ( !parameter)
+   if ( !observable)
       return false;
-   // check if parameter with same name exists
+   // check if observable with same name exists
    for (unsigned int i = 0; i < fPars.size() ; ++i)
-		 if ( parameter->GetName() == fPars[i]->GetName() ) {
-			 BCLog::OutError(TString::Format("BCParameterSet::Add : Parameter with name %s exists already.", parameter->GetName().data()));
-			 return false;
-		 }
+      if ( observable->GetName() == fPars[i]->GetName() ) {
+         BCLog::OutError(TString::Format("BCUserObservableSet::Add : Observable with name %s exists already. ",
+               observable->GetName().data()));
+         return false;
+      }
 
-   // add parameter to parameter container
-   fPars.push_back(parameter);
-	 fMaxNameLength = std::max(fMaxNameLength, (unsigned)parameter->GetName().length());
+   // add observable to observable container
+   fPars.push_back(observable);
+	 fMaxNameLength = std::max(fMaxNameLength, (unsigned)observable->GetName().length());
    return true;
 }
 
 // ---------------------------------------------------------
-void BCParameterSet::Clear(bool hard)
+void BCUserObservableSet::Clear(bool hard)
 {
-	if (hard)
-		for (unsigned int i = 0; i < fPars.size() ; ++i)
-			delete fPars[i];
+   if (hard) {
+      for (unsigned int i = 0; i < fPars.size() ; ++i)
+         delete fPars[i];
+   }
 
-	fPars.clear();
+   fPars.clear();
 }
 
 // ---------------------------------------------------------
-bool BCParameterSet::ValidIndex(unsigned index, const std::string caller) const
+bool BCUserObservableSet::ValidIndex(unsigned index, const std::string caller) const
 {
    if (index >= fPars.size()) {
-      BCLog::OutError(TString::Format("BCParameterSet::%s : Parameter index %u out of range", caller.c_str(), index));
+      BCLog::OutError(TString::Format("BCUserObservableSet::%s : Observable index %u out of range", caller.c_str(), index));
       return false;
    }
    else
@@ -63,31 +65,31 @@ bool BCParameterSet::ValidIndex(unsigned index, const std::string caller) const
 }
 
 // ---------------------------------------------------------
-unsigned BCParameterSet::Index(const std::string & name) const
+unsigned BCUserObservableSet::Index(const std::string & name) const
 {
    for (unsigned int i=0; i < fPars.size() ; ++i)
       if (name == fPars[i]->GetName())
          return i;
 
-   BCLog::OutWarning(TString::Format("BCParameterSet::Index: no parameter named '%s'", name.c_str()));
+   BCLog::OutWarning(TString::Format("BCUserObservableSet::Index: no observable named '%s'", name.c_str()));
    return fPars.size();
 }
 
 
 // ---------------------------------------------------------
-void BCParameterSet::SetNBins(unsigned nbins) {
+void BCUserObservableSet::SetNBins(unsigned nbins) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
 		fPars[i] -> SetNbins(nbins);
 }
 
 // ---------------------------------------------------------
-void BCParameterSet::SetPrecision(unsigned n) {
+void BCUserObservableSet::SetPrecision(unsigned n) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
 		fPars[i] -> SetPrecision(n);
 }
 
 // ---------------------------------------------------------
-void BCParameterSet::FillHistograms(bool flag) {
+void BCUserObservableSet::FillHistograms(bool flag) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
 		fPars[i] -> FillHistograms(flag);
 }

@@ -14,6 +14,7 @@
 #include "BCMath.h"
 
 #include <TH1D.h>
+#include <TAxis.h>
 #include <TROOT.h>
 #include <TStyle.h>
 #include <TH2.h>
@@ -35,17 +36,27 @@ unsigned int BCH1D::fHCounter=0;
 
 // ---------------------------------------------------------
 BCH1D::BCH1D(TH1D * hist)
-  : fHistogram(hist)
-  , fDefaultCLLimit(95.) // in percent
+  : fDefaultCLLimit(95.) // in percent
   , fMode(0)
   , fModeFlag(0)
-{}
+{
+	SetHistogram(hist);
+}
 
 // ---------------------------------------------------------
 BCH1D::~BCH1D()
 {
    for (unsigned i = 0; i < fROOTObjects.size(); ++i)
       delete fROOTObjects[i];
+}
+
+// ---------------------------------------------------------
+void BCH1D::SetHistogram(TH1D * hist) {
+	fHistogram = hist;
+	if (fHistogram->GetEffectiveEntries()>0)
+		fHistogram -> Scale(1./fHistogram->Integral("width"));
+	if (strlen(fHistogram->GetYaxis()->GetTitle())==0)
+		fHistogram -> SetYTitle(TString::Format("P(%s|Data)",fHistogram->GetXaxis()->GetTitle()));
 }
 
 // ---------------------------------------------------------
@@ -72,22 +83,23 @@ double BCH1D::GetQuantile(double probability)
 // ---------------------------------------------------------
 double BCH1D::GetIntegral(double valuemin, double valuemax)
 {
-   double integral = 0;
+	if (fHistogram->GetEffectiveEntries()<=0)
+		return 0;
 
    int binmin = fHistogram->FindBin(valuemin);
    int binmax = fHistogram->FindBin(valuemax);
 
    // use ROOT function to calculate integral.
-   integral = fHistogram->Integral(binmin, binmax);
-
-   return integral;
+   return fHistogram->Integral(binmin, binmax);
 }
 
 // ---------------------------------------------------------
 double BCH1D::GetPValue(double probability)
 {
-   // use ROOT function to calculate the integral from 0 to "probability".
-   return fHistogram->Integral(1, fHistogram->FindBin(probability));
+	if (fHistogram->GetEffectiveEntries()<=0)
+		return 0;
+	// use ROOT function to calculate the integral from 0 to "probability".
+	return fHistogram->Integral(1, fHistogram->FindBin(probability));
 }
 
 // ---------------------------------------------------------
@@ -230,6 +242,9 @@ void BCH1D::Print(const char* filename, std::string options, double interval, in
 // ---------------------------------------------------------
 void BCH1D::Draw(std::string options, std::vector<double> intervals)
 {
+	if (options.empty())
+		options = "BTsiB3CS1D0Lmeanmode";
+
    // option flags
    bool flag_legend = false;
    bool flag_logy = false;
@@ -413,9 +428,6 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       flag_percentiles = true;
    }
 
-   // normalize histogram to unity
-   fHistogram->Scale(1./fHistogram->Integral("width"));
-
    // prepare legend
    TLegend* legend = new TLegend();
    legend->SetBorderSize(0);
@@ -428,40 +440,42 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
    fROOTObjects.push_back(legend);
 
    // smooth
-   if (flag_smooth1) {
-      fHistogram->Smooth(1);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
-   if (flag_smooth3) {
-      fHistogram->Smooth(3);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
-
-   if (flag_smooth5) {
-      fHistogram->Smooth(5);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
-   if (flag_smooth10) {
-      fHistogram->Smooth(10);
-      fHistogram->Scale(1.0/fHistogram->Integral("width"));
-   }
+	 if (fHistogram->GetEffectiveEntries()>0) {
+		 if (flag_smooth1) {
+			 fHistogram->Smooth(1);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+		 if (flag_smooth3) {
+			 fHistogram->Smooth(3);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+		 if (flag_smooth5) {
+			 fHistogram->Smooth(5);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+		 if (flag_smooth10) {
+			 fHistogram->Smooth(10);
+			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
+		 }
+	 }
 
    // draw histogram
    fHistogram->Draw(draw_options.c_str());
 
-   // draw bands
-   for (int i = 0; i < nbands; ++i) {
-      int col = GetColor(nbands-i-1);
+	 if (fHistogram->GetEffectiveEntries()>0) {
+		 // draw bands
+		 for (int i = 0; i < nbands; ++i) {
+			 int col = GetColor(nbands-i-1);
 
-      double prob_low  = 0;
-      double prob_high = 0;
-      double prob_interval = 0;
-      double xlow  = 0;
-      double xhigh = 0;
+			 double prob_low  = 0;
+			 double prob_high = 0;
+			 double prob_interval = 0;
+			 double xlow  = 0;
+			 double xhigh = 0;
 
-      TH1D * hist_band = 0;
+			 TH1D * hist_band = 0;
 
-      if (bandtype == 0) {
+			 if (bandtype == 0) {
          prob_low  = intervals[2*(nbands-i)-2];
          prob_high = intervals[2*(nbands-i)-1];
          xlow  = GetQuantile(prob_low);
@@ -469,54 +483,55 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
          prob_interval = prob_high - prob_low;
 
          hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
-      }
-      else if (bandtype == 1) {
+			 }
+			 else if (bandtype == 1) {
          prob_interval = GetSmallestInterval(xlow, xhigh, intervals[nbands-1-i]);
          hist_band = GetSmallestIntervalHistogram(intervals[nbands-1-i]);
          for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
-            hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
-      }
-      else if(bandtype == 2) {
+					 hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
+			 }
+			 else if(bandtype == 2) {
          xlow = 0.;
          xhigh = GetQuantile(intervals[nbands-1-i]);
          hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
          prob_interval = intervals[nbands-1-i];
-      }
-      else if(bandtype == 3) {
+			 }
+			 else if(bandtype == 3) {
          xlow = GetQuantile(intervals[nbands-1-i]);
          xhigh = GetQuantile(1.);
          hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
          prob_interval = 1.-intervals[nbands-1-i];
-      }
+			 }
 
-      // set style of band histogram
-      hist_band->SetFillStyle(1001);
-      hist_band->SetFillColor(col);
-      hist_band->SetLineColor(col);
+			 // set style of band histogram
+			 hist_band->SetFillStyle(1001);
+			 hist_band->SetFillColor(col);
+			 hist_band->SetLineColor(col);
 
-      // draw shaded histogram
-      hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
+			 // draw shaded histogram
+			 hist_band->Draw(std::string(draw_options+std::string("same")).c_str());
 
-      // draw histogram again
-      fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
+			 // draw histogram again
+			 fHistogram->Draw(std::string(std::string("SAME")+draw_options).c_str());
 
-      // add to legend
-      std::string legend_label;
-      if (bandtype == 0)
+			 // add to legend
+			 std::string legend_label;
+			 if (bandtype == 0)
          legend_label.append(Form("central %.1f%% interval ", prob_interval*100));
-      else if (bandtype == 1)
+			 else if (bandtype == 1)
          legend_label.append(Form("smallest %.1f%% interval(s)", prob_interval*100));
-      else if (bandtype == 2)
+			 else if (bandtype == 2)
          legend_label.append(Form("%.0f%% upper limit", prob_interval*100));
-      else if (bandtype == 3)
+			 else if (bandtype == 3)
          legend_label.append(Form("%.0f%% lower limit", prob_interval*100));
 
-      legend->AddEntry(hist_band, legend_label.c_str(), "F");
+			 legend->AddEntry(hist_band, legend_label.c_str(), "F");
 
-      // add hist_band to list of objects
-      fROOTObjects.push_back(hist_band);
-   }
-
+			 // add hist_band to list of objects
+			 fROOTObjects.push_back(hist_band);
+		 }
+	 }
+	 
    gPad->RedrawAxis();
 
    // prepare size of histogram
@@ -746,6 +761,9 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 
    int nbins = fHistogram->GetNbinsX();
 
+	 if (fHistogram->GetEffectiveEntries()<=0)
+		 return 0;
+
    double factor = fHistogram->Integral("width");
    if(factor==0)
       return 0.;
@@ -843,6 +861,9 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 // ---------------------------------------------------------
 double BCH1D::IntegralWidth(double min, double max)
 {
+	 if (fHistogram->GetEffectiveEntries()<=0)
+		 return 0;
+
    int imin = fHistogram->FindBin(min);
    int imax = fHistogram->FindBin(max);
 
@@ -967,6 +988,8 @@ TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 
    // copy a temporary histogram
    TH1D * hist_temp = (TH1D*) fHistogram->Clone(TString::Format("%s_%i",fHistogram->GetName(),BCLog::GetHIndex()));
+	 if (fHistogram->GetEffectiveEntries()<=0)
+		 return 0;
    double factor = hist_temp->Integral("");
 
    if(factor == 0)
@@ -1010,6 +1033,8 @@ std::vector<double> BCH1D::GetSmallestIntervals(double content)
    std::vector<double> v;
 
    TH1D * hist = GetSmallestIntervalHistogram(content);
+	 if (!hist)
+		 return v;
 
    int nbins = hist->GetNbinsX();
    int ninter = 0;

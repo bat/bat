@@ -14,18 +14,26 @@
 
 // ---------------------------------------------------------
 
-BCUserObservable::BCUserObservable() :
-	BCObservable()
+BCUserObservable::BCUserObservable() : BCObservable(), fFunction(0)
 {
 	fPrefix = "UserObservable";
 }
 
 // ---------------------------------------------------------
 
-BCUserObservable::BCUserObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname) :
-	BCObservable(name,lowerlimit,upperlimit,latexname)
+BCUserObservable::BCUserObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction fn, const char * latexname) :
+	BCObservable(name,lowerlimit,upperlimit,latexname), fFunction(fn)
 {
 	fPrefix = "UserObservable";
 }
 
+// ---------------------------------------------------------
 
+BCUserObservable::~BCUserObservable() {
+}
+
+// ---------------------------------------------------------
+
+double BCUserObservable::Evaluate(std::vector<double> const & parameters) {
+	return (fFunction) ? (*fFunction)(parameters) : 0;
+}

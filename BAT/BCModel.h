@@ -336,6 +336,18 @@ class BCModel : public BCIntegrate
        * @param bcmodel Object to copy from. */
       void Copy(const BCModel & bcmodel);
 
+	    /**
+	     * Returns whether the prior has been set constant for parameter.
+	     * @param index Parameter index. */
+	    bool IsPriorConstant(unsigned index)
+	       { return (index<fPriorContainerConstant.size()) ? fPriorContainerConstant[index] : false; }
+
+	    /**
+	     * Returns predefined prior for parameter.
+	     * @param index Parameter index. */
+	    TNamed * PriorContainer(unsigned index) const
+	       { return (index<fPriorContainer.size()) ? fPriorContainer[index] : 0; }
+
       /**
        * Returns the prior probability.
        * @param parameters A set of parameter values

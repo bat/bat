@@ -41,6 +41,12 @@ class BCSummaryPriorModel : public BCModel
     * @param name The name of the model. */
    BCSummaryPriorModel(const char * name);
 
+ 	 /**
+ 	  * A constructor.
+ 	  * @param model is the model under study.
+ 	  * @param name is the name for the priormodel. */
+ 	 BCSummaryPriorModel(BCModel * model, const char * name="");
+
    /**
     * The default destructor. */
    ~BCSummaryPriorModel();

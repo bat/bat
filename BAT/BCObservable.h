@@ -23,6 +23,10 @@
 
 // ---------------------------------------------------------
 #include <string>
+#include <cmath>
+
+class TH1D;
+class TH2D;
 
 // ---------------------------------------------------------
 
@@ -45,6 +49,10 @@ public:
 	 * @param latexname The latex name of the observable used in axis labeling.
 	 */
 	BCObservable(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
+
+	/**
+	 * Destructor */
+	~BCObservable();
 
 	/** \name Member functions (get) */
 	/** @{ */
@@ -76,6 +84,16 @@ public:
 	 * @return The range width of the observable values. */
 	double GetRangeWidth() const
 	{ return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
+
+	/**
+	 * Returns center of observable range.*/
+	double GetRangeCenter() const
+	{ return (fUpperLimit+fLowerLimit)/2.; }
+
+	/**
+	 * @return precision of output */
+	unsigned GetPrecision()
+	{ return fPrecision;}
 	
 	bool FillHistograms() const
 	{ return fFillHistograms; }
@@ -100,20 +118,26 @@ public:
 	 * Set the lower limit of the observable values.
 	 * @param limit The lower limit of the observable values. */
 	void SetLowerLimit(double limit = 0)
-	{ fLowerLimit = limit; }
+	{ fLowerLimit = limit; CalculatePrecision();}
 
 	/**
 	 * Set the upper limit of the observable values.
 	 * @param limit The upper limit of the observable values. */
 	void SetUpperLimit(double limit = 1)
-	{ fUpperLimit = limit; }
+	{ fUpperLimit = limit; CalculatePrecision();}
 
 	/**
 	 * Set the limits of the observable values.
 	 * @param lowerlimit The lower limit of the observable values.
 	 * @param upperlimit The upper limit of the observable values. */
 	void SetLimits(double lowerlimit = 0, double upperlimit = 1)
-	{ fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
+	{ fLowerLimit = lowerlimit; fUpperLimit = upperlimit; CalculatePrecision();}
+
+	/**
+	 * Set the precision of the output of observable
+	 * @param precision The precision of the observable for output. */
+	void SetPrecision(unsigned precision)
+	{ fPrecision = precision; }
 
 	void FillHistograms(bool flag)
 	{ fFillHistograms = flag; }
@@ -124,11 +148,38 @@ public:
 
 	/** \name Member functions (miscellaneous methods) */
 	/** @{ */
-	
+
+	/**
+	 * return position in range of given value
+	 * from 0 (at lower limit) to 1 (at upper limit)
+	 * @param x Value to report position of.
+	 * @return Position of value in range. */
+	double PositionInRange(double x)
+	{ return (x - fLowerLimit)/(fUpperLimit-fLowerLimit); }
+
+	/**
+	 * Calculate the necessary precision for outputting this
+	 * parameter */
+	void CalculatePrecision()
+	{ SetPrecision(ceil(-log10(2.*fabs(fUpperLimit-fLowerLimit)/(fabs(fUpperLimit)+fabs(fLowerLimit))))); }
+
 	/**
 	 * Prints a observable summary on the screen. */
 	void PrintSummary() const;
+
+	/**
+	 * Creates a 1D Histogram for this observable.
+	 * @param name Name of the histogram.
+	 * @return pointer to histogram object. */
+	virtual TH1D * CreateH1(const char * name);
 	
+	/**
+	 * Creates a 2D Histogram for this observable as the abcissa
+	 * and a second as the ordinate.
+	 * @name name The name of the histogram.
+	 * @param ordinate The observable to be used for the ordinate. */
+	virtual TH2D * CreateH2(const char * name, BCObservable * ordinate);
+
 	/** @} */
 	
 protected:
@@ -144,6 +195,9 @@ protected:
 	/// The upper limit of the observable value.
 	double fUpperLimit;
 	
+	/// Necessary precision for output
+	unsigned fPrecision;
+
 	/// The latex name of the observable.
 	std::string fLatexName;
 	

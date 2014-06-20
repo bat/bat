@@ -96,8 +96,7 @@ int main(int argc, char *argv[])
     gmode[0] = m->GetBestFitParameters().at(0);
     gmode[1] = m->GetBestFitParameters().at(1);
     
-    BCH2D* hist_slice = m->GetSlice("F0", "FL", m->GetBestFitParameters(), 300);
-    hist_slice->GetHistogram()->SetStats(kFALSE);
+    BCH2D* hist_slice = new BCH2D(m->GetSlice("F0", "FL", m->GetBestFitParameters(), 300));
     hist_slice->SetGlobalMode(gmode);
     hist_slice->Print("F0_vs_FL.pdf", "BTfB3CS1gmode");
 

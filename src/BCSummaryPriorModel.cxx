@@ -13,6 +13,7 @@
 #include "BCH1D.h"
 #include "BCLog.h"
 #include "BCParameter.h"
+#include "BCUserObservable.h"
 
 #include <TH1D.h>
 
@@ -31,6 +32,14 @@ BCSummaryPriorModel::BCSummaryPriorModel(const char * name)
 }
 
 // ---------------------------------------------------------
+BCSummaryPriorModel::BCSummaryPriorModel(BCModel * model, const char * name)
+	: BCModel(name),
+		fTestModel(0)
+{
+	SetModel(model);
+}
+
+// ---------------------------------------------------------
 BCSummaryPriorModel::~BCSummaryPriorModel()
 {}
 
@@ -40,36 +49,24 @@ void BCSummaryPriorModel::SetModel(BCModel * model)
    fTestModel = model;
 
    // copy parameters
-   int npar = fTestModel->GetNParameters();
-   for (int i = 0; i < npar; ++i) {
-      BCParameter * par = const_cast<BCParameter *>(fTestModel->GetParameter(i));
-      AddParameter(par);
-   }
-
-   // set default histogram binning to the one of the original model
-   for (int i = 0; i < npar; ++i) {
-      // this construct has to go here, because otherwise there is a
-      // warning from BCEngineMCMC:: MCMCGetH1Marginalized
-      if (fTestModel->GetBestFitParameters().size() > 0){
-         BCH1D* hist = fTestModel->GetMarginalized( fTestModel->GetParameter(i) );
-         if (hist) {
-            int nbins = hist->GetHistogram()->GetNbinsX();
-            fTestModel->GetParameter(i)->SetNbins(nbins);
-         }
-      }
-   }
-
+   for (unsigned i = 0; i < fTestModel->GetNParameters(); ++i) {
+		 BCParameter * par = const_cast<BCParameter *>(fTestModel->GetParameter(i));
+		 if (fTestModel->MarginalizedHistogramExists(i))
+			 // Set binning from marginalization rather than parameter copy
+			 par -> SetNbins(fTestModel->GetMarginalizedHistogram(i)->GetNbinsX());
+		 AddParameter(par);
+   }	
+	 // copy user-observables
+	 for (unsigned i = 0; i < fTestModel->GetNUserObservables(); ++i) {
+	 	 BCUserObservable * obs = const_cast<BCUserObservable *>(fTestModel->GetUserObservable(i));
+		 if (fTestModel->MarginalizedHistogramExists(i+fTestModel->GetNParameters()))
+			 // Set binning from marginalization rather than observable copy
+			 obs -> SetNbins(fTestModel->GetMarginalizedHistogram(i+fTestModel->GetNParameters())->GetNbinsX());
+	 	 AddUserObservable(obs);
+	 }
+	 
    // set default MCMC setup to the one of the original model
-   MCMCSetNChains( fTestModel->MCMCGetNChains() );
-   MCMCSetNLag( fTestModel->MCMCGetNLag() );
-   MCMCSetNIterationsMax( fTestModel->MCMCGetNIterationsMax() );
-   MCMCSetNIterationsRun( fTestModel->MCMCGetNIterationsRun() );
-   MCMCSetNIterationsPreRunMin( fTestModel->MCMCGetNIterationsPreRunMin() );
-   MCMCSetNIterationsUpdate( fTestModel->MCMCGetNIterationsUpdate() );
-   MCMCSetNIterationsUpdateMax( fTestModel->MCMCGetNIterationsUpdateMax() );
-   MCMCSetRValueCriterion( fTestModel->MCMCGetRValueCriterion() );
-   MCMCSetRValueParametersCriterion( fTestModel->MCMCGetRValueParametersCriterion() );
-
+	 MCMCSetPrecision(fTestModel);
 }
 
 // ---------------------------------------------------------
