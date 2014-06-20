@@ -8,7 +8,7 @@
 # ---------------------------------------------------------------------
 
 
-package="@PACKAGE_TARNAME@"
+package="bat"
 version="@PACKAGE_VERSION@"
 
 
@@ -50,7 +50,7 @@ includedir="@includedir@"
 usage()
 {
   cat <<EOF
-Usage: @PACKAGE_TARNAME@-config [OPTIONS]
+Usage: bat-config [OPTIONS]
 General options:
     --prefix
     --version

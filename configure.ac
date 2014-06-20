@@ -1,8 +1,8 @@
-AC_INIT(src/BCModel.cxx)
+AC_INIT([BAT], 0.9.3, [], [BAT])
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE([BAT], 0.9.3, [], [BAT])
+AM_INIT_AUTOMAKE()
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CXX
 AM_PROG_LIBTOOL
