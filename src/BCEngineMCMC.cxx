@@ -21,10 +21,17 @@
 #include <TTree.h>
 #include <TStyle.h>
 #include <TCanvas.h>
+#include <TLegend.h>
+#include <TLine.h>
+#include <TLatex.h>
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
 
 #include <math.h>
 #include <limits>
 #include <cmath>
+#include <algorithm>
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC() :
@@ -1635,6 +1642,504 @@ int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d,
    // return total number of drawn histograms
    return nplots;
 }
+
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double interval_content, std::vector<double> quantiles) {
+
+	TCanvas * c_par = new TCanvas("c_parplot_init");
+	c_par -> Print(Form("%s[",filename));
+
+	int return_val = 1;
+	if (npar<=0) { // all parameters on one page, all user-defined observables on the next
+		return_val *= PrintParameterPlot(0,GetNParameters(), filename, interval_content, quantiles);
+		return_val *= PrintParameterPlot(GetNParameters(),GetNUserObservables(), filename, interval_content, quantiles);
+	}
+
+	else { // npar per page
+
+		// parameters first
+		for (unsigned i = 0; i<GetNParameters(); i += npar)
+			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNParameters()-i), filename, interval_content, quantiles);
+
+		// then user-defined observables
+		for (unsigned i = GetNParameters(); i<GetNObservables(); i += npar)
+			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNObservables()-i), filename, interval_content, quantiles);
+	}
+
+	c_par -> Print(Form("%s]",filename));
+	return return_val;
+}
+
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * filename, double interval_content, std::vector<double> quantiles) {
+
+	// if npar==0, print all remaining observables
+	unsigned i1 = (npar>0 && npar<=(int)GetNObservables()) ? i0+npar : GetNObservables();
+
+	if (i1 <= i0) {
+		BCLog::OutError(Form("BCSummaryTool::PrintParameterPlot : invalid parameter range [%d, %d)",i0,i1));
+		return 0;
+	}
+
+	// default quantiles
+	// TO DO: allow for option to use defualt
+	// quantiles, and option for no quantiles
+	if (quantiles.empty()) {
+		quantiles.push_back(05.00e-2);
+		quantiles.push_back(10.00e-2);
+		quantiles.push_back(15.87e-2);
+		quantiles.push_back(50.00e-2);
+		quantiles.push_back(84.13e-2);
+		quantiles.push_back(90.00e-2);
+		quantiles.push_back(95.00e-2);
+	}
+
+	/////////////////////////
+	// Gather information
+
+	std::vector<double> x_quantiles;
+	std::vector<double> quantile_vals;
+	std::vector<double> x_i;
+	std::vector<double> x_i_bf;
+	std::vector<double> mean;
+	std::vector<double> rms;
+	std::vector<double> global_mode;
+	std::vector<double> local_mode;
+	std::vector<double> interval_lo;
+	std::vector<double> interval_hi;
+	
+	for (unsigned i = i0; i < i1; ++i) {
+		
+		// Global Mode
+		x_i_bf.push_back(i);
+		global_mode.push_back(GetObservable(i)->PositionInRange(GetBestFitParameter(i)));
+
+		if (!MarginalizedHistogramExists(i))
+			continue;
+
+		BCH1D * bch1d_temp = GetMarginalized(i);
+		if (!bch1d_temp)
+			continue;
+
+		x_i.push_back(i);
+
+		// quantiles
+		x_quantiles.insert(x_quantiles.end(),quantiles.size(),i);
+		for (unsigned j = 0; j < quantiles.size(); ++j)
+			quantile_vals.push_back(GetObservable(i)->PositionInRange(bch1d_temp->GetQuantile(quantiles[j])));
+
+		// mean
+		mean.push_back(GetObservable(i)->PositionInRange(bch1d_temp->GetMean()));
+		rms.push_back(bch1d_temp->GetRMS()/GetObservable(i)->GetRangeWidth());
+		 
+		// Local Mode
+		local_mode.push_back(GetObservable(i)->PositionInRange(bch1d_temp->GetMode()));
+
+		// smallest interval
+		std::vector<double> intervals = bch1d_temp->GetSmallestIntervals(interval_content);
+		if (intervals.size()>3) {
+			interval_lo.push_back(fabs(intervals[3]-intervals[0])/GetObservable(i)->GetRangeWidth());
+			interval_hi.push_back(fabs(intervals[3]-intervals[1])/GetObservable(i)->GetRangeWidth());
+		} else {
+			interval_lo.push_back(0);
+			interval_hi.push_back(0);
+		}
+	}
+	
+	if (x_i.empty() and x_i_bf.empty())
+		return 0;
+
+	/////////////////////////
+	// Draw it all
+
+	TCanvas * c_par = new TCanvas(TString::Format("c_parplot_%d_%d",i0,i1));
+	c_par -> cd();
+
+	// Create, label, and draw axes
+	TH2D * hist_axes = new TH2D(TString::Format("h2_axes_parplot_%d_%d",i0,i1), ";;Scaled parameter range [a.u.]",
+															i1-i0, i0-0.5, i1-0.5, 10, -0.1, 1.1);
+	hist_axes -> SetStats(kFALSE);
+	hist_axes -> GetXaxis() -> SetLabelOffset(0.015);
+	hist_axes -> GetXaxis() -> SetLabelSize(0.06);
+	hist_axes -> GetXaxis() -> SetTickLength(0.0);
+	// set bin labels
+	for (int i=0; i<hist_axes->GetNbinsX(); ++i)
+		hist_axes -> GetXaxis() -> SetBinLabel(i+1, GetObservable(i0+i)->GetLatexName().c_str());
+	hist_axes -> Draw();
+
+	// Draw lines
+	TLine * line = new TLine();
+	line -> SetLineColor(kBlack);
+	line -> SetLineStyle(1);
+	line -> SetLineWidth(2);
+	line -> DrawLine(hist_axes->GetXaxis()->GetXmin(), 0.0, hist_axes->GetXaxis()->GetXmax(), 0.0);
+	line -> DrawLine(hist_axes->GetXaxis()->GetXmin(), 1.0, hist_axes->GetXaxis()->GetXmax(), 1.0);
+
+	// Mark parameter ranges
+	TLatex * latex = new TLatex();
+	latex -> SetTextSize(0.02);
+	latex -> SetTextAlign(11);
+	latex -> DrawLatex(hist_axes->GetXaxis()->GetXmax(),  1.03, "  Par. max.");
+	latex -> SetTextAlign(13);
+	latex -> DrawLatex(hist_axes->GetXaxis()->GetXmax(), -0.03, "  Par. min.");
+	latex -> SetTextAlign(21);
+	for (unsigned i = i0; i < i1; ++i) {
+		latex -> SetTextAlign(21);
+		latex->DrawLatex((double)i,  1.03, Form("%+.*g", GetObservable(i)->GetPrecision(),GetObservable(i)->GetUpperLimit()));
+		latex -> SetTextAlign(23);
+		latex->DrawLatex((double)i, -0.03, Form("%+.*g", GetObservable(i)->GetPrecision(),GetObservable(i)->GetLowerLimit()));
+	}
+
+	// create legend
+	TLegend * legend = new TLegend(0.1, 0.91, 0.9, 0.99);
+	legend -> SetBorderSize(0);
+	legend -> SetFillColor(0);
+	legend -> SetNColumns(2);
+
+	if (!x_i.empty()) {
+
+		// Smallest Interval
+		std::vector<double> x_i_err(x_i.size(),0.5);
+		TGraphAsymmErrors * graph_intervals = new TGraphAsymmErrors(x_i.size(), x_i.data(), local_mode.data(), x_i_err.data(), x_i_err.data(), interval_lo.data(), interval_hi.data());
+		graph_intervals->SetFillColor(kYellow);
+		graph_intervals->SetLineStyle(2);
+		graph_intervals->SetLineColor(kRed);
+		graph_intervals->SetMarkerSize(0);
+		graph_intervals->DrawClone("SAME2"); // draw area
+		//set y-error zero, to draw line at local mode
+		for (int i = 0; i < graph_intervals->GetN(); ++i)
+			graph_intervals->SetPointError(i, 0.5, 0.5, 0.0, 0.0);
+		graph_intervals->Draw("SAMEZ"); // draw local mode
+
+		// Quantiles graph
+		if (!quantiles.empty()) {
+			std::vector<double> quantiles_err(x_quantiles.size(),0.5);
+			TGraphErrors * graph_quantiles = new TGraphErrors(x_quantiles.size(), x_quantiles.data(), quantile_vals.data(), quantiles_err.data(), 0);
+			graph_quantiles->SetMarkerSize(0);
+			graph_quantiles->SetLineColor(38);
+			graph_quantiles->SetLineStyle(2);
+			graph_quantiles->Draw("SAMEZ");
+			std::string quantiles_text = "Quantiles (";
+			for (unsigned i=0; i<quantiles.size()-1; ++i)
+				quantiles_text += Form("%.0f%%, ",quantiles[i]*100);
+			quantiles_text += (quantiles.size()>0) ? Form("%.0f%%)",quantiles.back()) : "none)";
+			legend -> AddEntry(graph_quantiles, quantiles_text.c_str(), "L");
+		}
+
+		// Means & RMSs
+		TGraphErrors * graph_mean = new TGraphErrors(x_i.size(), x_i.data(), mean.data(), 0, rms.data());
+		graph_mean->SetMarkerColor(kBlack);
+		graph_mean->SetMarkerStyle(20);
+		graph_mean->Draw("SAMEP");
+
+		legend -> AddEntry(graph_mean, "Mean and RMS", "LEP");
+		legend -> AddEntry(graph_intervals, TString::Format("Smallest %.0f%% interval and local mode",100.*interval_content), "FL");
+	}
+
+	// Global Modes
+	if (!x_i_bf.empty()) {
+		TGraph * graph_mode = new TGraph(x_i_bf.size(), x_i_bf.data(), global_mode.data());
+		graph_mode->SetMarkerColor(kRed);
+		graph_mode->SetMarkerStyle(20);
+		graph_mode->Draw("SAMEP");
+		legend->AddEntry(graph_mode, "Global mode", "P");
+	}
+
+	legend->Draw("SAME");
+	gPad->RedrawAxis();
+	c_par->Print(filename);
+
+	// no error
+	return 1;
+}
+
+// // ---------------------------------------------------------
+// int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
+// {
+//    // copy summary data
+//    if (!CopySummaryData())
+//       return 0;
+
+//    // check if marginalized information is there
+//    if (!fFlagInfoMarg)
+//       return 0;
+
+//    // get number of parameters
+//    int npar = fModel->GetNParameters();
+
+//    // create histogram
+//    TH2D * hist_corr = new TH2D(
+//          TString::Format("hist_corr_%d",getNextIndex()),
+//          ";;",npar, -0.5, npar-0.5,npar, -0.5, npar-0.5);
+//    hist_corr->SetStats(kFALSE);
+//    hist_corr->GetXaxis()->SetTickLength(0.0);
+//    hist_corr->GetYaxis()->SetTickLength(0.0);
+//    hist_corr->GetZaxis()->SetRangeUser(-1.0, 1.0);
+
+//    for (int i = 0; i < npar; ++i) {
+//       hist_corr->GetXaxis()->SetLabelSize(0.06);
+//       hist_corr->GetYaxis()->SetLabelSize(0.06);
+//       if (npar < 5) {
+//     	 hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
+//          hist_corr->GetYaxis()->SetBinLabel( npar-i, fParName.at(i).c_str() );
+//       }
+//       else {
+//     	 hist_corr->GetXaxis()->SetBinLabel( i+1, TString::Format("%d",i) );
+//          hist_corr->GetYaxis()->SetBinLabel( npar-i, TString::Format("%d",i) );
+//       }
+//    }
+
+//    // fill plot
+//    for (int i = 0; i < npar; ++i)
+//       for (int j = 0; j < npar; ++j) {
+//          int index = i * npar + j;
+//          double corr = fCorrCoeff.at(index);
+//          hist_corr->SetBinContent(i+1, npar-j, corr);
+//       }
+
+//    // print to file
+//    TCanvas * c_corr = new TCanvas(TString::Format("c_corr_matrix_%d",getNextIndex()));
+//    c_corr->cd();
+//    hist_corr->Draw("colz text");
+
+//    TF1 * f = new TF1("fUp","x",-0.5,npar-0.5);
+//    TGaxis * A1 = new TGaxis(-0.5,npar-0.5,npar-0.5,npar-0.5,"fUp",100,"-");
+//    A1->ImportAxisAttributes(hist_corr->GetXaxis());
+//    A1->Draw();
+
+//    // redraw the histogram to overlay thetop axis tick marks since
+//    // we don't know how to make them disappear
+//    hist_corr->GetXaxis()->SetLabelSize(0.);
+//    hist_corr->Draw("colz text same");
+
+//    for (int i = 0; i < npar; ++i)
+//       for (int j = 0; j < npar; ++j) {
+//          BCH2D * bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
+//          if ( bch2d_temp || i==j )
+//             continue;
+
+//          TBox * bempty = new TBox(
+//             hist_corr->GetXaxis()->GetBinLowEdge(i+1),
+//             hist_corr->GetYaxis()->GetBinLowEdge(npar-j),
+//             hist_corr->GetXaxis()->GetBinLowEdge(i+2),
+//             hist_corr->GetYaxis()->GetBinLowEdge(npar-j+1)
+//          );
+//          bempty->SetLineStyle(0);
+//          bempty->SetLineWidth(0);
+//          bempty->SetFillColor(kWhite);
+//          bempty->Draw();
+//       }
+
+//    // redraw top and right axes
+//    TLine * lA1 = new TLine(-0.5,npar-0.5,npar-0.5,npar-0.5);
+//    lA1->Draw("same");
+//    TLine * lA2 = new TLine(npar-0.5,npar-0.5,npar-0.5,-0.5);
+//    lA2->Draw("same");
+
+//    gPad->RedrawAxis();
+//    c_corr->Print(filename);
+
+//    delete f;
+//    delete A1;
+//    delete lA1;
+//    delete lA2;
+//    delete hist_corr;
+//    delete c_corr;
+
+//    // no error
+//    return 1;
+// }
+
+// // ---------------------------------------------------------
+// int BCSummaryTool::PrintCorrelationPlot(const char * filename) {
+
+// 	// Array of indices for which any maginalizations were stored
+// 	std::vector<unsigned> I;
+// 	for (unsigned i = 0; i < fModel->GetN1DMarginalizations(); ++i)
+// 		if (fModel->MarginalizedHistogramExists(i))
+// 			I.push_back(i);
+// 		else 
+// 			for (unsigned j = i+1; j < fModel->GetN2DMarginalizations(); ++j)
+// 				if (fModel->MarginalizedHistogramExists(i,j))
+// 					I.push_back(i);
+	
+// 	if (I.size() == 0)
+// 		return 0;
+
+// 	TCanvas * c = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
+// 	c->cd();
+	
+// 	double margin = 0.1;
+// 	double padsize = (1 - 2*margin) / I.size();
+
+// 	// array with pads holding the histograms
+// 	std::vector<std::vector<TPad*> > pad (I.size(), std::vector<TPad*>(I.size(),0));
+	
+// 	// position of pads
+// 	double xlow, xup, ylow, yup;
+// 	double marginleft   = 0.01;
+// 	double marginright  = 0.01;
+// 	double margintop    = 0.01;
+// 	double marginbottom = 0.01;
+	
+// 	TLatex * ylabel = new TLatex();
+// 	ylabel->SetTextFont(62);
+// 	ylabel->SetTextSize(8e-2/I.size());
+// 	ylabel->SetTextAlign(22);			// TODO: set to 32, if latex names too long
+// 	ylabel->SetNDC();
+// 	ylabel->SetTextAngle(90);			// TODO: set to 80, if latex names too long
+	
+// 	TLatex * xlabel = new TLatex();
+// 	xlabel->SetTextFont(62);
+// 	xlabel->SetTextSize(8e-2/I.size());
+// 	xlabel->SetTextAlign(22);			// TODO: set to 12, if latex names too long
+// 	xlabel->SetNDC();
+// 	xlabel->SetTextAngle(0);			// TODO: set to 350, if latex names too long
+
+// 	// Box + Text for empty squares:
+// 	TBox * box_na = new TBox();
+// 	box_na -> SetLineWidth(1);
+// 	box_na -> SetLineColor(kGray+1);
+// 	box_na -> SetFillColor(kWhite);
+// 	TText * text_na = new TText();
+// 	text_na -> SetTextFont(42);
+// 	text_na -> SetTextAlign(22);
+// 	text_na -> SetTextSize(8e-1/I.size());
+// 	text_na -> SetTextColor(kGray+1);
+
+// 	// drawing all histograms
+// 	for (unsigned i = 0; i < I.size(); ++i) {
+// 		xlow = i*padsize + margin;
+// 		xup = xlow + padsize;
+
+// 		for (unsigned j = i; j < I.size(); ++j) {
+// 			yup = 1. - j*padsize - margin;
+// 			ylow = yup - padsize;
+
+// 			// preparing the pad
+// 			pad[i][j] =  new TPad(TString::Format("pad_%d_%d_%d",i,j,getNextIndex()), "", xlow, ylow, xup, yup);
+// 			pad[i][j] -> SetMargin(marginleft,marginright,marginbottom,margintop);
+// 			pad[i][j] -> SetFillColor(kWhite);
+// 			pad[i][j] -> Draw();
+// 			pad[i][j] -> cd();
+
+// 			// get the histogram
+// 			TH1 * hh = 0;
+// 			BCH1D * bh1 = 0;
+// 			BCH2D * bh2 = 0;
+			
+// 			if (i==j) {
+// 				bh1 = fModel->GetMarginalized(I[i]);
+// 				hh = bh1 -> GetHistogram();
+// 			}
+// 			else {
+// 				bh2 = fModel->GetMarginalized(I[i],I[j]);
+// 				hh = bh2 -> GetHistogram();
+// 			}
+			
+// 			if (!bh1 and !bh2) { // if the histogram is not available, draw N/A
+
+// 				pad[i][j] -> SetFillColor(kGray);
+// 				box_na -> DrawBox(marginleft,marginbottom,1.-marginright,1.-margintop);
+// 				text_na -> DrawText(.5,.5,"N/A");
+
+// 			}	else {									// otherwise draw the histogram
+
+// 				if (bh1)
+// 					bh1->Draw("BTsiB3CS1D0");
+// 				else
+// 					bh2->Draw("BTfB3CS1nL");
+
+// 				hh->GetXaxis()->SetLabelOffset(5500);
+// 				hh->GetYaxis()->SetLabelOffset(5500);
+// 				hh->GetXaxis()->SetTitleSize(10.00);
+// 				hh->GetYaxis()->SetTitleSize(10.00);
+				
+// 				c->cd();
+
+// 				// y axis
+// 				if(i==0) {
+// 					if (I[j] < fModel->GetNParameters())
+// 						ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., fModel->GetParameter(I[j])->GetLatexName().c_str());
+// 					else
+// 						ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., fModel->GetUserObservable(I[j]-fModel->GetNParameters())->GetLatexName().c_str());
+// 				}
+				
+// 				// x axis
+// 				if(j==I.size()-1) {
+// 					if (I[i] < fModel->GetNParameters())
+// 						xlabel -> DrawLatex(xlow+padsize/2., margin*(1-6*xlabel->GetTextSize()), fModel->GetParameter(I[i])->GetLatexName().c_str());
+// 					else 
+// 						xlabel -> DrawLatex(xlow+padsize/2., margin*(1-6*xlabel->GetTextSize()), fModel->GetUserObservable(I[i]-fModel->GetNParameters())->GetLatexName().c_str());
+// 				}
+//       }
+// 		}
+// 	}
+	
+// 	gPad->RedrawAxis();
+// 	c->Print(filename);
+	
+// 	return 1;
+// }
+
+// // ---------------------------------------------------------
+// int BCSummaryTool::PrintParameterLatex(const char * filename)
+// {
+//    // open file
+//    std::ofstream ofi(filename);
+//    ofi.precision(3);
+
+//    // check if file is open
+//    if(!ofi.is_open()) {
+//       std::cerr << "Couldn't open file " << filename <<std::endl;
+//       return 0;
+//    }
+
+//    // get number of parameters and quantiles
+//    int npar = fModel->GetNParameters();
+
+//    // print table
+//    ofi
+//       << "\\documentclass[11pt, a4paper]{article}" << std::endl
+//       << std::endl
+//       << "\\begin{document}" << std::endl
+//       << std::endl
+//       << "\\begin{table}[ht!]" << std::endl
+//       << "\\begin{center}" << std::endl
+//       <<"\\begin{tabular}{llllllll}" << std::endl
+//       << "\\hline" << std::endl
+//       << "Parameter & Mean & RMS & Gl. mode & Mode & Median & 16\\% quant. & 84\\% quant. \\\\" << std::endl
+//       << "\\hline" << std::endl;
+
+//    for (int i = 0; i < npar; ++i) {
+//       const BCParameter * par = fModel->GetParameter(i);
+//       BCH1D * bch1d = fModel->GetMarginalized(par);
+//       ofi
+//          << par->GetName() << " & "
+//          << bch1d->GetMean() << " & "
+//          << bch1d->GetRMS() << " & "
+//          << fModel->GetBestFitParameters().at(i) << " & "
+//          << bch1d->GetMode() << " & "
+//          << bch1d->GetMedian() << " & "
+//          << bch1d->GetQuantile(0.16) << " & "
+//          << bch1d->GetQuantile(0.84) << " \\\\" << std::endl;
+//    }
+//    ofi
+//       << "\\hline" << std::endl
+//       << "\\end{tabular}" << std::endl
+//       << "\\caption{Summary of the parameter estimates.}" << std::endl
+//       << "\\end{center}" << std::endl
+//       << "\\end{table}" << std::endl
+//       << std::endl
+//       << "\\end{document}" << std::endl;
+
+//    // close file
+//    ofi.close();
+
+//    // no error
+//    return 1;
+// }
+
 
 
 // ---------------------------------------------------------

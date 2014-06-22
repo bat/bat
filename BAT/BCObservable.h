@@ -52,7 +52,7 @@ public:
 
 	/**
 	 * Destructor */
-	~BCObservable();
+	virtual ~BCObservable();
 
 	/** \name Member functions (get) */
 	/** @{ */

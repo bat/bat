@@ -745,7 +745,34 @@ class BCEngineMCMC
 			 *  Print all 1D marginalizations, each to its own file */
 	    int PrintAllMarginalized(const char * file, std::string options1d="", std::string options2d="", unsigned int hdiv=1, unsigned int ndiv=1);
 	
-
+			/**
+			 * Print a summary plot for the parameters and user-defined observables.
+			 * @par npar Number of parameters per page, print all on one page if set to zero or negative
+			 * @return An error flag. */
+			int PrintParameterPlot(const char * filename = "parameters.pdf", int npar=10, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0));
+			
+			/**
+			 * Print a summary plot for the parameters in the range provided
+			 * @par i0 Index of first parameter to print.
+			 * @par npar Number of parameters to print, set to 0 to print all.
+			 * @return An error flag. */
+			int PrintParameterPlot(unsigned i0, unsigned npar=0, const char * filename = "parameters.pdf", double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0));
+			
+			/* /\** */
+			/*  * Print a correlation matrix for the parameters. */
+			/*  * @return An error flag. *\/ */
+			/* int PrintCorrelationMatrix(const char * filename = "matrix.pdf"); */
+			
+			/* /\** */
+			/*  * Print a correlation plot for the parameters. */
+			/*  * @return An error flag. *\/ */
+			/* int PrintCorrelationPlot(const char * filename = "correlation.pdf"); */
+			
+			/* /\** */
+			/*  * Print a Latex table of the parameters. */
+			/*  * @return An error flag. *\/ */
+			/* int PrintParameterLatex(const char * filename); */
+			
       /**
        * Copy object
        * @param enginemcmc Object to copy from */
