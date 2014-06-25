@@ -45,7 +45,7 @@ public:
     */
 	bool Add(BCParameter * par);
 
-	void Clear(bool);
+	void Clear(bool hard);
 
 	/**
 	 * Raw and fast access.

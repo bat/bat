@@ -23,10 +23,11 @@
 
 // ---------------------------------------------------------
 
+#include "BCVariable.h"
 #include "BCParameter.h"
 #include "BCParameterSet.h"
-#include "BCUserObservable.h"
-#include "BCUserObservableSet.h"
+#include "BCObservable.h"
+#include "BCObservableSet.h"
 #include "BCLog.h"
 
 #include <vector>
@@ -308,18 +309,18 @@ class BCEngineMCMC
 	       { return (i<GetN2DMarginalizations()) ? fH2Marginalized[i].size() : 0; }
 
 	    /**
-	     * @param index Index of marginalized histogram to check for.
-	     * @return Whether marginalized histogram exists for index. */
+			 * @param index Index of histogram of which to check existence
+			 * @return Whether the marginalized histogram exists. */
 	    bool MarginalizedHistogramExists(unsigned index)
-	       { return index<fH1Marginalized.size() and fH1Marginalized[index]!=0; }
+	       { return index<fH1Marginalized.size() and fH1Marginalized[index]; }
 
 	    /**
-	     * @param index1 First index of marginalized histogram to check for.
-	     * @param index2 Second index of marginalized histogram to check for.
-	     * @return Whether marginalized histogram exists for index. */
+			 * @param index1 X Index of histogram of which to check existence.
+			 * @param index2 Y Index of histogram of which to check existence.
+			 * @return Whether the marginalized histogram exists. */
 	    bool MarginalizedHistogramExists(unsigned index1, unsigned index2)
-	       { return index1<fH2Marginalized.size() and index2<fH2Marginalized[index1].size() and fH2Marginalized[index1][index2]!=0; }
-	
+	       { return index1<fH2Marginalized.size() and index2<fH2Marginalized[index1].size() and fH2Marginalized[index1][index2]; }
+
       /**
        * Obtain the individual marginalized distributions
        * with respect to one parameter as a ROOT TH1D
@@ -433,22 +434,22 @@ class BCEngineMCMC
       BCH2D * GetMarginalized(unsigned index1, unsigned index2);
    
 	    /**
-			 * @param userObservables Whether to check max length of user-defined observable names.
+			 * @param observables Whether to check max length of user-defined observable names.
 			 * @return length of longest parameter name. */
- 	    unsigned GetMaximumParameterNameLength(bool userObservables=true)
-	       { return (userObservables) ? std::max(fParameters.MaxNameLength(),fUserObservables.MaxNameLength()) : fParameters.MaxNameLength(); }
+ 	    unsigned GetMaximumParameterNameLength(bool observables=true)
+	       { return (observables) ? std::max(fParameters.MaxNameLength(),fObservables.MaxNameLength()) : fParameters.MaxNameLength(); }
 
       /**
        * @param index The index of the observable running first over 
 			 * 0,...,N_parameters in the ParameterSet, and then over
-			 * N_parameters,...,N_parameters+N_userObservables in the UserObservableSet
+			 * N_parameters,...,N_parameters+N_observables in the ObservableSet
        * @return The observable. */
-	    BCObservable * GetObservable(unsigned int index) const;
+	    BCVariable * GetVariable(unsigned int index) const;
 
       /**
        * @return The number of parameters of the model. */
-      unsigned int GetNObservables() const
-	       { return fParameters.Size() + fUserObservables.Size(); }
+      unsigned int GetNVariables() const
+	       { return fParameters.Size() + fObservables.Size(); }
 
       /**
        * @param index The index of the parameter in the parameter set.
@@ -478,19 +479,19 @@ class BCEngineMCMC
       /**
        * @param index The index of the observable in the observable set.
        * @return The user-defined observable. */
-      BCUserObservable * GetUserObservable(int index) const
-         { return fUserObservables.Get(index); }
+      BCObservable * GetObservable(int index) const
+         { return fObservables.Get(index); }
 
       /**
        * @param name The name of the observable in the observable set.
        * @return The user-defined observable. */
-      BCUserObservable * GetUserObservable(const char * name) const
-         { return fUserObservables.Get(name); }
+      BCObservable * GetObservable(const char * name) const
+         { return fObservables.Get(name); }
 
     	/**
     	 * @return The number of user-defined observables. */
-    	unsigned GetNUserObservables() const
-    	   { return fUserObservables.Size(); }
+    	unsigned GetNObservables() const
+    	   { return fObservables.Size(); }
 
       /**
        * Returns the set of values of the parameters at the modes of the
@@ -510,7 +511,7 @@ class BCEngineMCMC
 	     * the maximum found by the Markov chain
 	     * @param index of the user-defined observable
 	     * @return best fit value of user-defined observable. */
-	    double GetBestFitUserObservable(unsigned index) const
+	    double GetBestFitObservable(unsigned index) const
 	       { return GetBestFitParameter(index+fParameters.Size()); }
 
       /**
@@ -610,8 +611,8 @@ class BCEngineMCMC
 
       /**
        * Sets flag to write user-defined observables to file during pre run. */
-      void MCMCSetWritePreRunUserObservablesToFile(bool flag)
-         { fMCMCFlagWritePreRunUserObservablesToFile = flag; }
+      void MCMCSetWritePreRunObservablesToFile(bool flag)
+         { fMCMCFlagWritePreRunObservablesToFile = flag; }
 
       /**
        * Sets the initial positions for all chains.
@@ -758,20 +759,20 @@ class BCEngineMCMC
 			 * @return An error flag. */
 			int PrintParameterPlot(unsigned i0, unsigned npar=0, const char * filename = "parameters.pdf", double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0));
 			
-			/* /\** */
-			/*  * Print a correlation matrix for the parameters. */
-			/*  * @return An error flag. *\/ */
-			/* int PrintCorrelationMatrix(const char * filename = "matrix.pdf"); */
+			/**
+			 * Print a correlation matrix for the parameters.
+			 * @return An error flag. */
+			int PrintCorrelationMatrix(const char * filename = "matrix.pdf");
 			
-			/* /\** */
-			/*  * Print a correlation plot for the parameters. */
-			/*  * @return An error flag. *\/ */
-			/* int PrintCorrelationPlot(const char * filename = "correlation.pdf"); */
+	    /**
+			 * Print a correlation plot for the parameters.
+			 * @return An error flag. */
+	    int PrintCorrelationPlot(const char * filename = "correlation.pdf");
 			
-			/* /\** */
-			/*  * Print a Latex table of the parameters. */
-			/*  * @return An error flag. *\/ */
-			/* int PrintParameterLatex(const char * filename); */
+			/**
+			 * Print a Latex table of the parameters.
+			 * @return An error flag. */
+			int PrintParameterLatex(const char * filename);
 			
       /**
        * Copy object
@@ -798,17 +799,17 @@ class BCEngineMCMC
        * @param max maximum value of the observable
        * @param latexname Optional latexname used for plotting
        * @return number of observables after adding */
-	    virtual int AddUserObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname = "");
+	    virtual int AddObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname = "");
 
       /**
        * Adds a user-calculated observable to the model.
        * @param observable A user-calculated observable
-       * @see AddUserObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname); */
-      virtual int AddUserObservable(BCUserObservable* observable);
+       * @see AddObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname); */
+      virtual int AddObservable(BCObservable* observable);
 
       /**
        * Calculates user-defined observables */
-  	  virtual void CalculateUserObservables();
+  	  virtual void CalculateObservables();
 
       /**
        * Random walk trial function. The default trial function is a
@@ -995,7 +996,7 @@ class BCEngineMCMC
 
 	    /**
 			 * User-calculated Observables Set */
-	    BCUserObservableSet fUserObservables;
+	    BCObservableSet fObservables;
 
       /**
        * Number of Markov chains ran in parallel */
@@ -1068,7 +1069,7 @@ class BCEngineMCMC
 
       /**
        * Flag to write user-defined observable to file during pre run. */
-      bool fMCMCFlagWritePreRunUserObservablesToFile;
+      bool fMCMCFlagWritePreRunObservablesToFile;
 
     	/**
     	 * Lower limit for scale factors */
@@ -1138,7 +1139,7 @@ class BCEngineMCMC
       /**
        * The current values of the user-defined observables for each
        * Markov chain. */
-	    std::vector<std::vector<double> > fMCMCUserObservables;
+	    std::vector<std::vector<double> > fMCMCObservables;
 
       /**
        * The maximum points of each Markov chain. */

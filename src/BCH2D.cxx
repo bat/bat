@@ -288,19 +288,18 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    }
 
    // prepare size of histogram
-   double xmin     = fHistogram->GetXaxis()->GetXmin();
-   double xmax     = fHistogram->GetXaxis()->GetXmax();
-   double ymin     = fHistogram->GetYaxis()->GetXmin();
-   double ymaxhist = fHistogram->GetYaxis()->GetXmax();
-   double ymax     = ymaxhist;
+   // double xmin     = fHistogram->GetXaxis()->GetXmin();
+   // double xmax     = fHistogram->GetXaxis()->GetXmax();
+   double ymin = fHistogram->GetYaxis()->GetXmin();
+   double ymax = fHistogram->GetYaxis()->GetXmax();
 
    // prepare legend
    TLegend* legend = new TLegend();
-   legend->SetBorderSize(0);
-   legend->SetFillColor(kWhite);
-   legend->SetTextAlign(12);
-   legend->SetTextFont(62);
-   legend->SetTextSize(0.03);
+   legend -> SetBorderSize(0);
+   legend -> SetFillColor(kWhite);
+   legend -> SetTextAlign(12);
+   legend -> SetTextFont(62);
+   legend -> SetTextSize(0.03);
 
    // add legend to list of objects
    fROOTObjects.push_back(legend);
@@ -314,12 +313,9 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    // calculate integrated histogram
    CalculateIntegratedHistogram();
 
-   for (int ix = 1; ix <= fHistogram->GetNbinsX(); ++ix) {
-      for (int iy = 1; iy <= fHistogram->GetNbinsY(); ++iy) {
-         double p = fHistogram->GetBinContent(ix, iy);
-         hist_band->SetBinContent(ix, iy, p);
-      }
-   }
+   for (int ix = 1; ix <= fHistogram->GetNbinsX(); ++ix)
+      for (int iy = 1; iy <= fHistogram->GetNbinsY(); ++iy)
+         hist_band -> SetBinContent(ix, iy, fHistogram->GetBinContent(ix,iy));
 
    // define levels and colors
    std::vector<double> levels(nbands+2);
@@ -364,13 +360,13 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    // mean, mode, median
    TMarker* marker_mode_global = new TMarker(fMode[0], fMode[1], 24);
    marker_mode_global->SetMarkerColor(GetColor(4));
-   marker_mode_global->SetMarkerSize(1.5);
+   marker_mode_global->SetMarkerSize(1.5*gPad->GetWNDC());
 
    int binx, biny, binz;
    fHistogram->GetBinXYZ( fHistogram->GetMaximumBin(), binx, biny, binz);
    TMarker* marker_mode_local = new TMarker(fHistogram->GetXaxis()->GetBinCenter(binx), fHistogram->GetYaxis()->GetBinCenter(biny), 25);
    marker_mode_local->SetMarkerColor(GetColor(4));
-   marker_mode_local->SetMarkerSize(1.5);
+   marker_mode_local->SetMarkerSize(1.5*gPad->GetWNDC());
 
    double xmean = fHistogram->GetMean(1);
    double ymean = fHistogram->GetMean(2);
@@ -379,18 +375,18 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
 
    TMarker* marker_mean = new TMarker(xmean, ymean, 32);
    marker_mean->SetMarkerColor(GetColor(4));
-   marker_mean->SetMarkerSize(1.5);
+   marker_mean->SetMarkerSize(1.5*gPad->GetWNDC());
 
    // standard deviation
    TArrow* arrow_std1 = new TArrow(xmean-xrms, ymean,
                                    xmean+xrms, ymean,
-                                   0.02, "<|>");
+                                   0.02*gPad->GetWNDC(), "<|>");
    arrow_std1->SetLineColor(GetColor(4));
    arrow_std1->SetFillColor(GetColor(4));
 
    TArrow* arrow_std2 = new TArrow(xmean, ymean-yrms,
                                    xmean, ymean+yrms,
-                                   0.02, "<|>");
+                                   0.02*gPad->GetWNDC(), "<|>");
    arrow_std2->SetLineColor(GetColor(4));
    arrow_std2->SetFillColor(GetColor(4));
 
@@ -404,14 +400,14 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    if (flag_mode_global) {
       TLegendEntry* le = legend->AddEntry(marker_mode_global, "global mode", "P");
       le->SetMarkerStyle(24);
-      le->SetMarkerSize(1.5);
+      le->SetMarkerSize(1.5*gPad->GetWNDC());
       le->SetMarkerColor(GetColor(4));
    }
 
    if (flag_mode_local) {
       TLegendEntry* le = legend->AddEntry(marker_mode_local, "local mode", "P");
       le->SetMarkerStyle(25);
-      le->SetMarkerSize(1.5);
+      le->SetMarkerSize(1.5*gPad->GetWNDC());
       le->SetMarkerColor(GetColor(4));
    }
 
@@ -419,7 +415,7 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
       TLegendEntry* le = legend->AddEntry(arrow_std1, "mean and standard deviation", "PL");
       le->SetLineColor(GetColor(4));
       le->SetMarkerStyle(32);
-      le->SetMarkerSize(1.5);
+      le->SetMarkerSize(1.5*gPad->GetWNDC());
       le->SetMarkerColor(GetColor(4));
    }
 
@@ -437,23 +433,14 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    }
 
    // calculate legend height in NDC coordinates
-   double height = 0.03*legend->GetNRows();
+   double height = legend->GetTextSize()*legend->GetNRows();
 
    // make room for legend
    if (flag_legend)
       ymax+=(ymax-ymin)*(0.1+height);
 
-   double deltax = 0.0015*(xmax - xmin);
-   double deltay = 0.0015*(ymaxhist - ymin);
-   TH2D* hist_axes = new TH2D("", "", 1, xmin-deltax, xmax+deltax, 1, ymin-deltay, ymaxhist+deltay);
-   hist_axes->SetXTitle(fHistogram->GetXaxis()->GetTitle());
-   hist_axes->SetYTitle(fHistogram->GetYaxis()->GetTitle());
-   hist_axes->SetLineWidth(fHistogram->GetLineWidth());
-   hist_axes->SetStats(kFALSE);
-   fROOTObjects.push_back(hist_axes);
-
    // draw axes
-   hist_axes->Draw("COL");
+	 fHistogram -> Draw("AXIS");
 
    // smooth
 	 if (fHistogram->GetEffectiveEntries()>0) {
@@ -526,12 +513,11 @@ void BCH2D::Draw(std::string options, std::vector<double> intervals)
    legend->SetY2NDC(ylegend2);
 
    // draw legend
-   if (flag_legend) {
+   if (flag_legend)
       legend->Draw();
-   }
 
    // draw axes again
-   hist_axes->Draw("SAME");
+	 fHistogram->Draw("AXISSAME");
 
    // rescale
    gPad->SetTopMargin(1.-ylegend1+0.01);

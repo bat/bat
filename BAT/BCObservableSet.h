@@ -1,11 +1,11 @@
-#ifndef __BCUSEROBSERVABLESET__H
-#define __BCUSEROBSERVABLESET__H
+#ifndef __BCOBSERVABLESET__H
+#define __BCOBSERVABLESET__H
 
 /**
- * @class BCUserObservableSet Wrapper to allow access by name into list of BCUserObservable.
+ * @class BCObservableSet Wrapper to allow access by name into list of BCObservable.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
- * @note UserObservables are not owned, and will not be deleted by BCUserObservableSet.
+ * @note Observables are not owned, and will not be deleted by BCObservableSet.
  */
 
 /*
@@ -21,29 +21,29 @@
 #include <vector>
 #include <string>
 
-class BCUserObservable;
+class BCObservable;
 
 // ---------------------------------------------------------
 
-class BCUserObservableSet {
+class BCObservableSet {
 public:
 
 	/**
 	 * Constructor */
-	BCUserObservableSet();
+	BCObservableSet();
 
 	/*
 	 * Destructor */
-	~BCUserObservableSet()
+	~BCObservableSet()
 	{}
 
    /**
     * Add a user-defined observable if no user-defined observable of same name exists yet.
     *
-    * @param par UserObservable
+    * @param par Observable
     * @return True if successful.
     */
-	bool Add(BCUserObservable * par);
+	bool Add(BCObservable * par);
 
 	void Clear(bool);
 
@@ -51,9 +51,9 @@ public:
 	 * Raw and fast access.
 	 *
 	 * @param index Index
-	 * @return UserObservable
+	 * @return Observable
 	 */
-	BCUserObservable * operator[](unsigned index) const
+	BCObservable * operator[](unsigned index) const
 	{
 		return fPars[index];
 	}
@@ -64,7 +64,7 @@ public:
 	 * @param index Index gets checked.
 	 * @return The pointer at index position or NULL if invalid index.
 	 */
-	BCUserObservable * Get(unsigned index) const
+	BCObservable * Get(unsigned index) const
 	{
 		return ValidIndex(index, "Get") ? fPars[index] : NULL;
 	}
@@ -75,7 +75,7 @@ public:
 	 * @param name Look up name in list
 	 * @return The pointer at index position or NULL if invalid index.
 	 */
-	BCUserObservable * Get(const std::string & name) const
+	BCObservable * Get(const std::string & name) const
 	{
 		return Get(Index(name));
 	}
@@ -121,7 +121,7 @@ public:
 	
 private:
 	/// Don't own user-defined observables
-	std::vector<BCUserObservable*> fPars;
+	std::vector<BCObservable*> fPars;
 
 	unsigned fMaxNameLength;
 };

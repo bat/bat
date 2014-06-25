@@ -27,17 +27,20 @@
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
+#include <TGaxis.h>
+#include <TF1.h>
 
 #include <math.h>
 #include <limits>
 #include <cmath>
 #include <algorithm>
+#include <fstream>
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC() :
 	fMCMCFlagWriteChainToFile(false),
 	fMCMCFlagWritePreRunToFile(false),
-	fMCMCFlagWritePreRunUserObservablesToFile(true),
+	fMCMCFlagWritePreRunObservablesToFile(true),
 	fMCMCScaleFactorLowerLimit(0),
 	fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
 	fMCMCEfficiencyMin(0.15),
@@ -143,8 +146,9 @@ BCEngineMCMC::~BCEngineMCMC()
    delete fRandom;
 
    // delete 1-d marginalized distributions
-   for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
-      delete fH1Marginalized[i];
+   for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
+		 delete fH1Marginalized[i];
+	 }
    fH1Marginalized.clear();
 
    // delete 2-d marginalized distributions
@@ -182,7 +186,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    fMCMCNTrials                              = other.fMCMCNTrials;
    fMCMCFlagWriteChainToFile                 = other.fMCMCFlagWriteChainToFile;
    fMCMCFlagWritePreRunToFile                = other.fMCMCFlagWritePreRunToFile;
-	 fMCMCFlagWritePreRunUserObservablesToFile = other.fMCMCFlagWritePreRunUserObservablesToFile;
+	 fMCMCFlagWritePreRunObservablesToFile = other.fMCMCFlagWritePreRunObservablesToFile;
    fMCMCTrialFunctionScaleFactor             = other.fMCMCTrialFunctionScaleFactor;
    fMCMCTrialFunctionScaleFactorStart        = other.fMCMCTrialFunctionScaleFactorStart;
    fMCMCFlagPreRun                           = other.fMCMCFlagPreRun;
@@ -197,7 +201,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    fMCMCFlagOrderParameters                  = other.fMCMCFlagOrderParameters;
    fMCMCPhase                                = other.fMCMCPhase;
    fMCMCx                                    = other.fMCMCx;
-   fMCMCUserObservables                      = other.fMCMCUserObservables;
+   fMCMCObservables                      = other.fMCMCObservables;
    fMCMCxMax                                 = other.fMCMCxMax;
    fMCMCxMean                                = other.fMCMCxMean;
    fMCMCxVar                                 = other.fMCMCxVar;
@@ -260,7 +264,7 @@ unsigned int BCEngineMCMC::GetNFixedParameters()
 void BCEngineMCMC::SetNbins(unsigned int nbins)
 {
 	fParameters.SetNBins(nbins);
-	fUserObservables.SetNBins(nbins);
+	fObservables.SetNBins(nbins);
 }
 
 // --------------------------------------------------------
@@ -276,8 +280,8 @@ TH1D * BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
 	// else output warning
 	if ( index<fParameters.Size() ) // Marginalization of model parameter
 		BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for parameter %s", fParameters[index]->GetName().data()));
-	else if ( index-fParameters.Size()<fUserObservables.Size() ) // Marginalization of user-defined observable
-		BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for user-observable %s", fUserObservables[index-fParameters.Size()]->GetName().data()));
+	else if ( index-fParameters.Size()<fObservables.Size() ) // Marginalization of user-defined observable
+		BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for user-observable %s", fObservables[index-fParameters.Size()]->GetName().data()));
 	return 0;
 }
 
@@ -309,14 +313,14 @@ TH2D * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
 	if (!fH1Marginalized[i]) {
 		if ( i<fParameters.Size() ) // Marginalization of model parameter
 			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for parameter %s", fParameters[i]->GetName().data()));
-		else if ( i-fParameters.Size()<fUserObservables.Size() ) // Marginalization of user-defined observable
-			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", fUserObservables[i-fParameters.Size()]->GetName().data()));
+		else if ( i-fParameters.Size()<fObservables.Size() ) // Marginalization of user-defined observable
+			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", fObservables[i-fParameters.Size()]->GetName().data()));
 	}
 	if (!fH1Marginalized[j]) {
 		if ( j<fParameters.Size() ) // Marginalization of model parameter
 			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for parameter %s", fParameters[j]->GetName().data()));
-		else if ( j-fParameters.Size()<fUserObservables.Size() ) // Marginalization of user-defined observable
-			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", fUserObservables[j-fParameters.Size()]->GetName().data()));
+		else if ( j-fParameters.Size()<fObservables.Size() ) // Marginalization of user-defined observable
+			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", fObservables[j-fParameters.Size()]->GetName().data()));
 	}
 	return 0;
 }
@@ -332,7 +336,7 @@ BCH1D * BCEngineMCMC::GetMarginalized(unsigned index) {
 	
 	// if best fit parameters exists, set global mode
 	if (GetBestFitParameters().size() == fParameters.Size()) {
-		double mode = (index<fParameters.Size()) ? GetBestFitParameter(index) : fUserObservables[index-fParameters.Size()]->Evaluate(GetBestFitParameters());
+		double mode = (index<fParameters.Size()) ? GetBestFitParameter(index) : fObservables[index-fParameters.Size()]->Evaluate(GetBestFitParameters());
 		hprob -> SetGlobalMode(mode);
 	}
 	
@@ -354,8 +358,8 @@ BCH2D * BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) {
 
 	// if best fit parameters exists, set global mode
 	if (GetBestFitParameters().size() == fParameters.Size()) {
-		double imode = (i<fParameters.Size()) ? GetBestFitParameter(i) : fUserObservables[i-fParameters.Size()]->Evaluate(GetBestFitParameters());
-		double jmode = (j<fParameters.Size()) ? GetBestFitParameter(j) : fUserObservables[j-fParameters.Size()]->Evaluate(GetBestFitParameters());
+		double imode = (i<fParameters.Size()) ? GetBestFitParameter(i) : fObservables[i-fParameters.Size()]->Evaluate(GetBestFitParameters());
+		double jmode = (j<fParameters.Size()) ? GetBestFitParameter(j) : fObservables[j-fParameters.Size()]->Evaluate(GetBestFitParameters());
 		hprob -> SetGlobalMode(imode,jmode);
 	}
 		
@@ -363,11 +367,11 @@ BCH2D * BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) {
 }
 
 // ---------------------------------------------------------
-BCObservable * BCEngineMCMC::GetObservable(unsigned index) const {
+BCVariable * BCEngineMCMC::GetVariable(unsigned index) const {
 	if (index<fParameters.Size())
 		return fParameters[index];
-	if (index-fParameters.Size()<fUserObservables.Size())
-		return fUserObservables[index-fParameters.Size()];
+	if (index-fParameters.Size()<fObservables.Size())
+		return fObservables[index-fParameters.Size()];
 	return 0;
 }
 
@@ -385,7 +389,7 @@ const std::vector<double> & BCEngineMCMC::GetBestFitParametersMarginalized() con
 double BCEngineMCMC::GetBestFitParameter(unsigned index) const
 {
 
-	if (index > fParameters.Size() + fUserObservables.Size())
+	if (index > fParameters.Size() + fObservables.Size())
 		return -std::numeric_limits<double>::infinity();
 
 	std::vector<double> pars = GetBestFitParameters();
@@ -400,7 +404,7 @@ double BCEngineMCMC::GetBestFitParameter(unsigned index) const
 		return pars[index];
 	
 	// user-define observable
-	return fUserObservables[index-fParameters.Size()]->Evaluate(pars);
+	return fObservables[index-fParameters.Size()]->Evaluate(pars);
 }
 
 // --------------------------------------------------------
@@ -443,7 +447,7 @@ void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double> & x0s) {
 void BCEngineMCMC::MCMCSetFlagFillHistograms(bool flag)
 {
 	fParameters.FillHistograms(flag);
-	fUserObservables.FillHistograms(flag);	
+	fObservables.FillHistograms(flag);	
 }
 
 // --------------------------------------------------------
@@ -499,9 +503,9 @@ void BCEngineMCMC::MCMCInitializeMarkovChainTrees()
 			fMCMCTrees[i]->Branch(TString::Format("Parameter%i", j), &fMCMCx[i][j], TString::Format("parameter %i/D", j));
 			fMCMCTrees[i]->SetAlias(fParameters[j]->GetName().data(),TString::Format("Parameter%i", j));
 		}
-		for (unsigned j = 0; j < fUserObservables.Size(); ++j) {
-			fMCMCTrees[i]->Branch(TString::Format("Observable%i", j), &fMCMCUserObservables[i][j], TString::Format("observable %i/D", j));
-			fMCMCTrees[i]->SetAlias(fUserObservables[j]->GetName().data(),TString::Format("Observable%i", j));
+		for (unsigned j = 0; j < fObservables.Size(); ++j) {
+			fMCMCTrees[i]->Branch(TString::Format("Observable%i", j), &fMCMCObservables[i][j], TString::Format("observable %i/D", j));
+			fMCMCTrees[i]->SetAlias(fObservables[j]->GetName().data(),TString::Format("Observable%i", j));
 		}		
 	}
 }
@@ -778,9 +782,9 @@ void BCEngineMCMC::MCMCInChainFillHistograms() {
 			if (TH1 * h = fH1Marginalized[j])
 				h -> Fill(fMCMCx[i][j]);
 		// User-defined Observables
-		for (unsigned j = 0; j < fUserObservables.Size(); ++j)
+		for (unsigned j = 0; j < fObservables.Size(); ++j)
 			if (TH1 * h = fH1Marginalized[j+fParameters.Size()])
-				h -> Fill(fMCMCUserObservables[i][j]);
+				h -> Fill(fMCMCObservables[i][j]);
 
 
 		////////////////////////////////////////
@@ -792,15 +796,15 @@ void BCEngineMCMC::MCMCInChainFillHistograms() {
 				if (TH2D * h = fH2Marginalized[j][k])
 					h -> Fill(fMCMCx[i][j],fMCMCx[i][k]);
 			// User-defined Observable vs Parameter
-			for (unsigned k = 0; k < fUserObservables.Size(); ++k)
+			for (unsigned k = 0; k < fObservables.Size(); ++k)
 				if (TH2D * h = fH2Marginalized[j][k+fParameters.Size()])
-					h -> Fill(fMCMCx[i][j],fMCMCUserObservables[i][k]);
+					h -> Fill(fMCMCx[i][j],fMCMCObservables[i][k]);
 		}
 		// User-defined Observable vs User-defined Observable
-		for (unsigned j = 0; j < fUserObservables.Size(); ++j)
-			for (unsigned k = j+1; k < fUserObservables.Size(); ++k)
+		for (unsigned j = 0; j < fObservables.Size(); ++j)
+			for (unsigned k = j+1; k < fObservables.Size(); ++k)
 				if (TH2D * h = fH2Marginalized[j+fParameters.Size()][k+fParameters.Size()])
-					h -> Fill(fMCMCUserObservables[i][j],fMCMCUserObservables[i][k]);
+					h -> Fill(fMCMCObservables[i][j],fMCMCObservables[i][k]);
 	}
 }
 
@@ -893,8 +897,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		++fMCMCNTrials;
 
 		if (fMCMCFlagWritePreRunToFile) {
-			if (fMCMCFlagWritePreRunUserObservablesToFile)
-				CalculateUserObservables();
+			if (fMCMCFlagWritePreRunObservablesToFile)
+				CalculateObservables();
 			MCMCInChainWriteChains();
 		}
 
@@ -995,8 +999,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			++NTrialsForEff;
 
 			if (fMCMCFlagWritePreRunToFile) {
-				if (fMCMCFlagWritePreRunUserObservablesToFile)
-					CalculateUserObservables();
+				if (fMCMCFlagWritePreRunObservablesToFile)
+					CalculateObservables();
 				MCMCInChainWriteChains();
 			}
 
@@ -1063,8 +1067,8 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			++n;
 
 			if (fMCMCFlagWritePreRunToFile) {
-				if (fMCMCFlagWritePreRunUserObservablesToFile)
-					CalculateUserObservables();
+				if (fMCMCFlagWritePreRunObservablesToFile)
+					CalculateObservables();
 				MCMCInChainWriteChains();
 			}
 
@@ -1142,7 +1146,7 @@ int BCEngineMCMC::MCMCMetropolis()
 			
 		MCMCIterationInterface();		// user action (overloadable)
 		
-		CalculateUserObservables();
+		CalculateObservables();
 
 		// fill histograms
 		if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
@@ -1226,22 +1230,22 @@ int BCEngineMCMC::AddParameter(BCParameter * par)
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::AddUserObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname)
+int BCEngineMCMC::AddObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname)
 {
-	return AddUserObservable(new BCUserObservable(name, min, max, fn, latexname));
+	return AddObservable(new BCObservable(name, min, max, fn, latexname));
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::AddUserObservable(BCUserObservable * par)
+int BCEngineMCMC::AddObservable(BCObservable * par)
 {
-	return fUserObservables.Add(par);
+	return fObservables.Add(par);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::CalculateUserObservables() {
+void BCEngineMCMC::CalculateObservables() {
 	for (unsigned i = 0; i < fMCMCNChains; ++i )
-		for (unsigned j = 0; j < fUserObservables.Size(); ++j)
-			fMCMCUserObservables[i][j] = fUserObservables[j] -> Evaluate(fMCMCx[i]);
+		for (unsigned j = 0; j < fObservables.Size(); ++j)
+			fMCMCObservables[i][j] = fObservables[j] -> Evaluate(fMCMCx[i]);
 }
 
 
@@ -1270,7 +1274,7 @@ void BCEngineMCMC::ResetResults()
 	fMCMCxMean.clear();
 	fMCMCxVar.clear();
 	fMCMCx.clear();
-	fMCMCUserObservables.clear();
+	fMCMCObservables.clear();
 	fMCMCprob.clear();
 	fMCMCxMax.clear();
 	fMCMCprobMax.clear();
@@ -1376,11 +1380,11 @@ int BCEngineMCMC::MCMCInitialize()
 	 }
 	 
 	 // initialize user-defined observables
-	 fMCMCUserObservables.assign(fMCMCNChains,std::vector<double>(fUserObservables.Size(),0));
+	 fMCMCObservables.assign(fMCMCNChains,std::vector<double>(fObservables.Size(),0));
 
    // define 1-dimensional histograms for marginalization
    bool fillAny = false;
-	 fH1Marginalized.assign(fParameters.Size()+fUserObservables.Size(),NULL);
+	 fH1Marginalized.assign(fParameters.Size()+fObservables.Size(),NULL);
 
    for(unsigned i = 0; i < fParameters.Size(); ++i)
 		 if (fParameters[i]->FillHistograms() && !fParameters[i]->Fixed()) {
@@ -1388,9 +1392,9 @@ int BCEngineMCMC::MCMCInitialize()
 			 fH1Marginalized[i] -> SetStats(kFALSE);
 			 fillAny = true;
 		 }
-   for(unsigned i = 0; i < fUserObservables.Size(); ++i)
-		 if (fUserObservables[i]->FillHistograms()) {
-			 fH1Marginalized[i+fParameters.Size()] = fUserObservables[i] -> CreateH1(TString::Format("h1_%d_observable_%i", BCLog::GetHIndex() ,i));
+   for(unsigned i = 0; i < fObservables.Size(); ++i)
+		 if (fObservables[i]->FillHistograms()) {
+			 fH1Marginalized[i+fParameters.Size()] = fObservables[i] -> CreateH1(TString::Format("h1_%d_observable_%i", BCLog::GetHIndex() ,i));
 			 fH1Marginalized[i+fParameters.Size()] -> SetStats(kFALSE);
 			 fillAny = true;
 		 }
@@ -1399,7 +1403,7 @@ int BCEngineMCMC::MCMCInitialize()
    if (!fillAny)
 		 fH1Marginalized.clear();
    else {
-		 fH2Marginalized.assign(fParameters.Size()+fUserObservables.Size(),std::vector<TH2D*>(fParameters.Size()+fUserObservables.Size(),0));
+		 fH2Marginalized.assign(fParameters.Size()+fObservables.Size(),std::vector<TH2D*>(fParameters.Size()+fObservables.Size(),0));
 		 // define 2-dimensional histograms for marginalization
 		 for(unsigned i = 0; i < fParameters.Size(); ++i)
 			 if (fParameters[i]->FillHistograms() and !fParameters[i]->Fixed()) {
@@ -1410,18 +1414,18 @@ int BCEngineMCMC::MCMCInitialize()
 						 fH2Marginalized[i][j] -> SetStats(kFALSE);
 					 }
 				 // user-defined observable vs parameter
-				 for (unsigned j = 0; j < fUserObservables.Size(); ++j)
-					 if (fUserObservables[j]->FillHistograms()) {
-						 fH2Marginalized[i][j+fParameters.Size()] = fParameters[i] -> CreateH2(Form("h2_%d_par_%i_vs_obs_%i", BCLog::GetHIndex(), i, j), fUserObservables[j]);
+				 for (unsigned j = 0; j < fObservables.Size(); ++j)
+					 if (fObservables[j]->FillHistograms()) {
+						 fH2Marginalized[i][j+fParameters.Size()] = fParameters[i] -> CreateH2(Form("h2_%d_par_%i_vs_obs_%i", BCLog::GetHIndex(), i, j), fObservables[j]);
 						 fH2Marginalized[i][j+fParameters.Size()] -> SetStats(kFALSE);
 					 }
 			 }
 		 // user-defined observable vs user-defined observable
-		 for(unsigned i = 0; i < fUserObservables.Size(); ++i)
-			 if (fUserObservables[i]->FillHistograms())
-				 for (unsigned j = i + 1; j < fUserObservables.Size(); ++j)
-					 if (fUserObservables[j]->FillHistograms()) {
-						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] = fUserObservables[i] -> CreateH2(Form("h2_%d_observables_%i_vs_%i", BCLog::GetHIndex(), i, j), fUserObservables[j]);
+		 for(unsigned i = 0; i < fObservables.Size(); ++i)
+			 if (fObservables[i]->FillHistograms())
+				 for (unsigned j = i + 1; j < fObservables.Size(); ++j)
+					 if (fObservables[j]->FillHistograms()) {
+						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] = fObservables[i] -> CreateH2(Form("h2_%d_observables_%i_vs_%i", BCLog::GetHIndex(), i, j), fObservables[j]);
 						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] -> SetStats(kFALSE);
 					 }
 
@@ -1454,7 +1458,7 @@ int BCEngineMCMC::PrintAllMarginalized1D(const char * filebase) {
 
 	int nh = 0;
 	for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
-		std::string name = (i<fParameters.Size()) ? fParameters[i]->GetName() : fUserObservables[i-fParameters.Size()]->GetName();
+		std::string name = (i<fParameters.Size()) ? fParameters[i]->GetName() : fObservables[i-fParameters.Size()]->GetName();
 		if (BCH1D * h = GetMarginalized(i)) {
 			h->Print(Form("%s_1D_%s.pdf", filebase, name.data()));
 			nh++;
@@ -1473,9 +1477,9 @@ int BCEngineMCMC::PrintAllMarginalized2D(const char * filebase) {
 	
 	int nh = 0;
 	for (unsigned i = 0; i<fH2Marginalized.size(); ++i) {
-		std::string iname = (i<fParameters.Size()) ? fParameters[i]->GetName() : fUserObservables[i-fParameters.Size()]->GetName();
+		std::string iname = (i<fParameters.Size()) ? fParameters[i]->GetName() : fObservables[i-fParameters.Size()]->GetName();
 		for (unsigned j = 1; j<fH2Marginalized[i].size(); ++i) {
-			std::string jname = (j<fParameters.Size()) ? fParameters[j]->GetName() : fUserObservables[j-fParameters.Size()]->GetName();
+			std::string jname = (j<fParameters.Size()) ? fParameters[j]->GetName() : fObservables[j-fParameters.Size()]->GetName();
 			
 			if (BCH2D * h = GetMarginalized(i,j)) {
 				h -> Print(Form("%s_2D_%s_%s",filebase,iname.data(),jname.data()));
@@ -1517,7 +1521,7 @@ int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d,
 					 h2.pop_back();
 			 }
 		 // user-defined observable vs parameter
-		 for (unsigned j = 0; j<fUserObservables.Size() && j+fParameters.Size()<fH2Marginalized[i].size(); ++j)
+		 for (unsigned j = 0; j<fObservables.Size() && j+fParameters.Size()<fH2Marginalized[i].size(); ++j)
 			 if (fH2Marginalized[i][j+fParameters.Size()]) {
 				 h2.push_back(GetMarginalized(i,j+fParameters.Size()));
 				 // check if histogram exists
@@ -1526,8 +1530,8 @@ int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d,
 			 }
 	 }
 	 // user-defined observable vs user-define observable
-	 for (unsigned i = 0; i<fUserObservables.Size() && i+fParameters.Size()<fH2Marginalized.size(); ++i)
-		 for (unsigned j = i+1; j<fUserObservables.Size() && j+fParameters.Size()<fH2Marginalized[i].size(); ++j)
+	 for (unsigned i = 0; i<fObservables.Size() && i+fParameters.Size()<fH2Marginalized.size(); ++i)
+		 for (unsigned j = i+1; j<fObservables.Size() && j+fParameters.Size()<fH2Marginalized[i].size(); ++j)
 			 if (fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()]) {
 				 h2.push_back(GetMarginalized(i+fParameters.Size(),j+fParameters.Size()));
 				 // check if histogram exists
@@ -1652,7 +1656,7 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 	int return_val = 1;
 	if (npar<=0) { // all parameters on one page, all user-defined observables on the next
 		return_val *= PrintParameterPlot(0,GetNParameters(), filename, interval_content, quantiles);
-		return_val *= PrintParameterPlot(GetNParameters(),GetNUserObservables(), filename, interval_content, quantiles);
+		return_val *= PrintParameterPlot(GetNParameters(),GetNObservables(), filename, interval_content, quantiles);
 	}
 
 	else { // npar per page
@@ -1662,8 +1666,8 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNParameters()-i), filename, interval_content, quantiles);
 
 		// then user-defined observables
-		for (unsigned i = GetNParameters(); i<GetNObservables(); i += npar)
-			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNObservables()-i), filename, interval_content, quantiles);
+		for (unsigned i = GetNParameters(); i<GetNVariables(); i += npar)
+			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNVariables()-i), filename, interval_content, quantiles);
 	}
 
 	c_par -> Print(Form("%s]",filename));
@@ -1674,7 +1678,7 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * filename, double interval_content, std::vector<double> quantiles) {
 
 	// if npar==0, print all remaining observables
-	unsigned i1 = (npar>0 && npar<=(int)GetNObservables()) ? i0+npar : GetNObservables();
+	unsigned i1 = (npar>0 && npar<=GetNVariables()) ? i0+npar : GetNVariables();
 
 	if (i1 <= i0) {
 		BCLog::OutError(Form("BCSummaryTool::PrintParameterPlot : invalid parameter range [%d, %d)",i0,i1));
@@ -1712,9 +1716,9 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 		
 		// Global Mode
 		x_i_bf.push_back(i);
-		global_mode.push_back(GetObservable(i)->PositionInRange(GetBestFitParameter(i)));
+		global_mode.push_back(GetVariable(i)->PositionInRange(GetBestFitParameter(i)));
 
-		if (!MarginalizedHistogramExists(i))
+		if (!fH1Marginalized[i])
 			continue;
 
 		BCH1D * bch1d_temp = GetMarginalized(i);
@@ -1726,20 +1730,20 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 		// quantiles
 		x_quantiles.insert(x_quantiles.end(),quantiles.size(),i);
 		for (unsigned j = 0; j < quantiles.size(); ++j)
-			quantile_vals.push_back(GetObservable(i)->PositionInRange(bch1d_temp->GetQuantile(quantiles[j])));
+			quantile_vals.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetQuantile(quantiles[j])));
 
 		// mean
-		mean.push_back(GetObservable(i)->PositionInRange(bch1d_temp->GetMean()));
-		rms.push_back(bch1d_temp->GetRMS()/GetObservable(i)->GetRangeWidth());
+		mean.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetMean()));
+		rms.push_back(bch1d_temp->GetRMS()/GetVariable(i)->GetRangeWidth());
 		 
 		// Local Mode
-		local_mode.push_back(GetObservable(i)->PositionInRange(bch1d_temp->GetMode()));
+		local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetMode()));
 
 		// smallest interval
 		std::vector<double> intervals = bch1d_temp->GetSmallestIntervals(interval_content);
 		if (intervals.size()>3) {
-			interval_lo.push_back(fabs(intervals[3]-intervals[0])/GetObservable(i)->GetRangeWidth());
-			interval_hi.push_back(fabs(intervals[3]-intervals[1])/GetObservable(i)->GetRangeWidth());
+			interval_lo.push_back(fabs(intervals[3]-intervals[0])/GetVariable(i)->GetRangeWidth());
+			interval_hi.push_back(fabs(intervals[3]-intervals[1])/GetVariable(i)->GetRangeWidth());
 		} else {
 			interval_lo.push_back(0);
 			interval_hi.push_back(0);
@@ -1756,16 +1760,16 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 	c_par -> cd();
 
 	// Create, label, and draw axes
-	TH2D * hist_axes = new TH2D(TString::Format("h2_axes_parplot_%d_%d",i0,i1), ";;Scaled parameter range [a.u.]",
+	TH2D * hist_axes = new TH2D(TString::Format("h2_axes_parplot_%d_%d",i0,i1), ";;Scaled range [a.u.]",
 															i1-i0, i0-0.5, i1-0.5, 10, -0.1, 1.1);
 	hist_axes -> SetStats(kFALSE);
 	hist_axes -> GetXaxis() -> SetLabelOffset(0.015);
-	hist_axes -> GetXaxis() -> SetLabelSize(0.06);
+	hist_axes -> GetXaxis() -> SetLabelSize(std::max<double>(0.01,0.05*std::min<double>(1,4./hist_axes->GetNbinsX())));
 	hist_axes -> GetXaxis() -> SetTickLength(0.0);
 	// set bin labels
 	for (int i=0; i<hist_axes->GetNbinsX(); ++i)
-		hist_axes -> GetXaxis() -> SetBinLabel(i+1, GetObservable(i0+i)->GetLatexName().c_str());
-	hist_axes -> Draw();
+		hist_axes -> GetXaxis() -> SetBinLabel(i+1, GetVariable(i0+i)->GetLatexName().c_str());
+	hist_axes -> Draw("");
 
 	// Draw lines
 	TLine * line = new TLine();
@@ -1785,9 +1789,9 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 	latex -> SetTextAlign(21);
 	for (unsigned i = i0; i < i1; ++i) {
 		latex -> SetTextAlign(21);
-		latex->DrawLatex((double)i,  1.03, Form("%+.*g", GetObservable(i)->GetPrecision(),GetObservable(i)->GetUpperLimit()));
+		latex->DrawLatex((double)i,  1.03, Form("%+.*g", GetVariable(i)->GetPrecision(),GetVariable(i)->GetUpperLimit()));
 		latex -> SetTextAlign(23);
-		latex->DrawLatex((double)i, -0.03, Form("%+.*g", GetObservable(i)->GetPrecision(),GetObservable(i)->GetLowerLimit()));
+		latex->DrawLatex((double)i, -0.03, Form("%+.*g", GetVariable(i)->GetPrecision(),GetVariable(i)->GetLowerLimit()));
 	}
 
 	// create legend
@@ -1822,7 +1826,7 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 			std::string quantiles_text = "Quantiles (";
 			for (unsigned i=0; i<quantiles.size()-1; ++i)
 				quantiles_text += Form("%.0f%%, ",quantiles[i]*100);
-			quantiles_text += (quantiles.size()>0) ? Form("%.0f%%)",quantiles.back()) : "none)";
+			quantiles_text += (quantiles.size()>0) ? Form("%.0f%%)",quantiles.back()*100) : "none)";
 			legend -> AddEntry(graph_quantiles, quantiles_text.c_str(), "L");
 		}
 
@@ -1853,292 +1857,336 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 	return 1;
 }
 
-// // ---------------------------------------------------------
-// int BCSummaryTool::PrintCorrelationMatrix(const char * filename)
-// {
-//    // copy summary data
-//    if (!CopySummaryData())
-//       return 0;
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
+   // create histogram
+   TH2D * hist_corr = new TH2D("hist_correlation_matrix",";;",GetNVariables(), -0.5, GetNVariables()-0.5, GetNVariables(), -0.5, GetNVariables()-0.5);
+   hist_corr -> SetStats(false);
+   hist_corr -> GetXaxis() -> SetTickLength(0.0);
+   hist_corr -> GetYaxis() -> SetTickLength(0.0);
+	 hist_corr -> GetXaxis() -> SetLabelSize(0);
+	 hist_corr -> GetYaxis() -> SetLabelSize(0);
 
-//    // check if marginalized information is there
-//    if (!fFlagInfoMarg)
-//       return 0;
+   for (unsigned i = 0; i < GetNVariables(); ++i) {
+	 	 hist_corr->SetBinContent(i+1, GetNVariables()-i, 1);
+	 	 // Fill Plot
+	 	 if (i>=fH2Marginalized.size())
+	 		 continue;
+	 	 for (unsigned j = i+1; j < GetNVariables(); ++j)
+	 		 if (j<fH2Marginalized[i].size() and fH2Marginalized[i][j]) {
+	 			 hist_corr -> SetBinContent(i+1, GetNVariables()-j, fH2Marginalized[i][j]->GetCorrelationFactor());
+	 			 hist_corr -> SetBinContent(j+1, GetNVariables()-i, fH2Marginalized[i][j]->GetCorrelationFactor());
+	 		 }
+	 }
 
-//    // get number of parameters
-//    int npar = fModel->GetNParameters();
+   // print to file
+   TCanvas * c_corr = new TCanvas("c_corr_matrix");
+   c_corr -> cd();
 
-//    // create histogram
-//    TH2D * hist_corr = new TH2D(
-//          TString::Format("hist_corr_%d",getNextIndex()),
-//          ";;",npar, -0.5, npar-0.5,npar, -0.5, npar-0.5);
-//    hist_corr->SetStats(kFALSE);
-//    hist_corr->GetXaxis()->SetTickLength(0.0);
-//    hist_corr->GetYaxis()->SetTickLength(0.0);
-//    hist_corr->GetZaxis()->SetRangeUser(-1.0, 1.0);
+	 double text_size = std::max<double>(0.005,0.02*std::min<double>(1.,5./GetNVariables()));
 
-//    for (int i = 0; i < npar; ++i) {
-//       hist_corr->GetXaxis()->SetLabelSize(0.06);
-//       hist_corr->GetYaxis()->SetLabelSize(0.06);
-//       if (npar < 5) {
-//     	 hist_corr->GetXaxis()->SetBinLabel( i+1, fParName.at(i).c_str() );
-//          hist_corr->GetYaxis()->SetBinLabel( npar-i, fParName.at(i).c_str() );
-//       }
-//       else {
-//     	 hist_corr->GetXaxis()->SetBinLabel( i+1, TString::Format("%d",i) );
-//          hist_corr->GetYaxis()->SetBinLabel( npar-i, TString::Format("%d",i) );
-//       }
-//    }
+	 TLatex * xlabel = new TLatex();
+	 xlabel -> SetTextFont(62);
+	 xlabel -> SetTextSize(text_size);
+	 xlabel -> SetTextAlign(22);
 
-//    // fill plot
-//    for (int i = 0; i < npar; ++i)
-//       for (int j = 0; j < npar; ++j) {
-//          int index = i * npar + j;
-//          double corr = fCorrCoeff.at(index);
-//          hist_corr->SetBinContent(i+1, npar-j, corr);
-//       }
+	 TLatex * ylabel = new TLatex();
+	 ylabel -> SetTextFont(62);
+	 ylabel -> SetTextSize(text_size);
+	 ylabel -> SetTextAlign(22);
+	 ylabel -> SetTextAngle(90);
 
-//    // print to file
-//    TCanvas * c_corr = new TCanvas(TString::Format("c_corr_matrix_%d",getNextIndex()));
-//    c_corr->cd();
-//    hist_corr->Draw("colz text");
+   hist_corr -> Draw("AXIS");
 
-//    TF1 * f = new TF1("fUp","x",-0.5,npar-0.5);
-//    TGaxis * A1 = new TGaxis(-0.5,npar-0.5,npar-0.5,npar-0.5,"fUp",100,"-");
-//    A1->ImportAxisAttributes(hist_corr->GetXaxis());
-//    A1->Draw();
+	 // Draw labels and square colors for correlations
+	 TBox * bcorr = new TBox();
+	 for (int i = 1; i <= hist_corr->GetNbinsX(); ++i) {
+		 // labels
+		 xlabel -> DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
+												 hist_corr->GetYaxis()->GetXmax()+20e-2,
+												 GetVariable(i-1)->GetLatexName().c_str());
 
-//    // redraw the histogram to overlay thetop axis tick marks since
-//    // we don't know how to make them disappear
-//    hist_corr->GetXaxis()->SetLabelSize(0.);
-//    hist_corr->Draw("colz text same");
+		 ylabel -> DrawLatex(hist_corr->GetXaxis()->GetXmin()-20e-2,
+												 hist_corr->GetYaxis()->GetBinCenter(GetNVariables()-i+1),
+												 GetVariable(i-1)->GetLatexName().c_str());
+		 
+		 //squares
+	 	 for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
+	 		 if (i==hist_corr->GetNbinsY()-j+1)
+	 			 bcorr ->SetFillColor(kWhite);
+	 		 else if (hist_corr->GetBinContent(i,j) > 0.5)
+	 			 bcorr -> SetFillColor(kGreen);
+	 		 else if (hist_corr->GetBinContent(i,j) >= -0.5)
+	 			 bcorr -> SetFillColor(kYellow);
+	 		 else 
+	 			 bcorr -> SetFillColor(kRed);
+	 		 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i), hist_corr->GetYaxis()->GetBinLowEdge(j),
+	 											hist_corr->GetXaxis()->GetBinUpEdge(i),  hist_corr->GetYaxis()->GetBinUpEdge(j));
+	 	 }
+	 }
 
-//    for (int i = 0; i < npar; ++i)
-//       for (int j = 0; j < npar; ++j) {
-//          BCH2D * bch2d_temp = fModel->GetMarginalized(fModel->GetParameter(i),fModel->GetParameter(j));
-//          if ( bch2d_temp || i==j )
-//             continue;
+	 // write numbers in
+   hist_corr -> Draw("text same");
 
-//          TBox * bempty = new TBox(
-//             hist_corr->GetXaxis()->GetBinLowEdge(i+1),
-//             hist_corr->GetYaxis()->GetBinLowEdge(npar-j),
-//             hist_corr->GetXaxis()->GetBinLowEdge(i+2),
-//             hist_corr->GetYaxis()->GetBinLowEdge(npar-j+1)
-//          );
-//          bempty->SetLineStyle(0);
-//          bempty->SetLineWidth(0);
-//          bempty->SetFillColor(kWhite);
-//          bempty->Draw();
-//       }
+	 // Blank out empty squares
+	 bcorr -> SetFillColor(kWhite);
+   for (unsigned i = 0; i < GetNVariables(); ++i)
+	 	 for (unsigned j = i+1; j < GetNVariables(); ++j)
+	 		 if (i>=fH2Marginalized.size() or j>=fH2Marginalized[i].size() or !fH2Marginalized[i][j]) {
+	 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-j),
+	 												hist_corr->GetXaxis()->GetBinUpEdge (i+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-j));
+	 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(j+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-i),
+	 												hist_corr->GetXaxis()->GetBinUpEdge (j+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-i));
+	 		 }
+	 
+   // redraw top and right lines
+	 TLine * lA = new TLine();
+   lA -> DrawLine(hist_corr->GetXaxis()->GetXmin(),hist_corr->GetYaxis()->GetXmax(),hist_corr->GetXaxis()->GetXmax(),hist_corr->GetYaxis()->GetXmax());
+   lA -> DrawLine(hist_corr->GetXaxis()->GetXmax(),hist_corr->GetYaxis()->GetXmin(),hist_corr->GetXaxis()->GetXmax(),hist_corr->GetYaxis()->GetXmax());
+	 // draw line between parameters and user-defined observables
+	 if (GetNObservables()>0) {
+	 	 lA -> DrawLine(hist_corr->GetXaxis()->GetXmin()-0.40,hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY()-GetNParameters()+1),
+	 									hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()),hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY()-GetNParameters()+1));
+	 	 lA -> DrawLine(hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()),hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY()-GetNParameters()+1),
+	 									hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()),hist_corr->GetYaxis()->GetXmax()+0.45);
+	 }
 
-//    // redraw top and right axes
-//    TLine * lA1 = new TLine(-0.5,npar-0.5,npar-0.5,npar-0.5);
-//    lA1->Draw("same");
-//    TLine * lA2 = new TLine(npar-0.5,npar-0.5,npar-0.5,-0.5);
-//    lA2->Draw("same");
+   gPad->RedrawAxis();
+   c_corr->Print(filename);
 
-//    gPad->RedrawAxis();
-//    c_corr->Print(filename);
+	 delete lA;
+   delete hist_corr;
+   delete c_corr;
 
-//    delete f;
-//    delete A1;
-//    delete lA1;
-//    delete lA2;
-//    delete hist_corr;
-//    delete c_corr;
+   // no error
+   return 1;
+}
 
-//    // no error
-//    return 1;
-// }
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintCorrelationPlot(const char * filename) {
 
-// // ---------------------------------------------------------
-// int BCSummaryTool::PrintCorrelationPlot(const char * filename) {
-
-// 	// Array of indices for which any maginalizations were stored
-// 	std::vector<unsigned> I;
-// 	for (unsigned i = 0; i < fModel->GetN1DMarginalizations(); ++i)
-// 		if (fModel->MarginalizedHistogramExists(i))
-// 			I.push_back(i);
-// 		else 
-// 			for (unsigned j = i+1; j < fModel->GetN2DMarginalizations(); ++j)
-// 				if (fModel->MarginalizedHistogramExists(i,j))
-// 					I.push_back(i);
+	// Array of indices for which any maginalizations were stored
+	std::vector<unsigned> I;
+	for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
+		if (fH1Marginalized[i])
+			I.push_back(i);
+		else 
+			for (unsigned j = i+1; j < fH2Marginalized[i].size(); ++j)
+				if (fH2Marginalized[i][j]) {
+					I.push_back(i);
+					break;
+				}
+	}
 	
-// 	if (I.size() == 0)
-// 		return 0;
-
-// 	TCanvas * c = new TCanvas(TString::Format("c_corr_%d",getNextIndex()));
-// 	c->cd();
+	if (I.size() == 0)
+		return 0;
 	
-// 	double margin = 0.1;
-// 	double padsize = (1 - 2*margin) / I.size();
-
-// 	// array with pads holding the histograms
-// 	std::vector<std::vector<TPad*> > pad (I.size(), std::vector<TPad*>(I.size(),0));
+	TCanvas * c = new TCanvas("c_correlation_plot");
+	c->cd();
 	
-// 	// position of pads
-// 	double xlow, xup, ylow, yup;
-// 	double marginleft   = 0.01;
-// 	double marginright  = 0.01;
-// 	double margintop    = 0.01;
-// 	double marginbottom = 0.01;
+	double margin = 0.1;
+	double padsize = (1 - 2*margin) / I.size();
+
+	// array with pads holding the histograms
+	std::vector<std::vector<TPad*> > pad (I.size(), std::vector<TPad*>(I.size(),0));
 	
-// 	TLatex * ylabel = new TLatex();
-// 	ylabel->SetTextFont(62);
-// 	ylabel->SetTextSize(8e-2/I.size());
-// 	ylabel->SetTextAlign(22);			// TODO: set to 32, if latex names too long
-// 	ylabel->SetNDC();
-// 	ylabel->SetTextAngle(90);			// TODO: set to 80, if latex names too long
+	// position of pads
+	double xlow, xup, ylow, yup;
+	double margintop    = 0.01;
+	double marginbottom = margintop;
+	double marginleft   = 4*margintop;
+	double marginright  = marginleft;
 	
-// 	TLatex * xlabel = new TLatex();
-// 	xlabel->SetTextFont(62);
-// 	xlabel->SetTextSize(8e-2/I.size());
-// 	xlabel->SetTextAlign(22);			// TODO: set to 12, if latex names too long
-// 	xlabel->SetNDC();
-// 	xlabel->SetTextAngle(0);			// TODO: set to 350, if latex names too long
+	TLatex * ylabel = new TLatex();
+	ylabel -> SetTextFont(62);
+	ylabel -> SetTextSize(1e-1/I.size());
+	ylabel -> SetTextAlign(22);			// TODO: set to 32, if latex names too long
+	ylabel -> SetNDC();
+	ylabel -> SetTextAngle(90);			// TODO: set to 80, if latex names too long
+	
+	TLatex * xlabel = new TLatex();
+	xlabel -> SetTextFont(62);
+	xlabel -> SetTextSize(1e-1/I.size());
+	xlabel -> SetTextAlign(22);			// TODO: set to 12, if latex names too long
+	xlabel -> SetNDC();
+	xlabel -> SetTextAngle(0);			// TODO: set to 350, if latex names too long
 
-// 	// Box + Text for empty squares:
-// 	TBox * box_na = new TBox();
-// 	box_na -> SetLineWidth(1);
-// 	box_na -> SetLineColor(kGray+1);
-// 	box_na -> SetFillColor(kWhite);
-// 	TText * text_na = new TText();
-// 	text_na -> SetTextFont(42);
-// 	text_na -> SetTextAlign(22);
-// 	text_na -> SetTextSize(8e-1/I.size());
-// 	text_na -> SetTextColor(kGray+1);
+	// Box + Text for empty squares:
+	TBox * box_na = new TBox();
+	box_na -> SetLineWidth(1);
+	box_na -> SetLineColor(kGray+1);
+	box_na -> SetFillColor(kWhite);
+	TText * text_na = new TText();
+	text_na -> SetTextFont(42);
+	text_na -> SetTextAlign(22);
+	text_na -> SetTextSize(8e-1/I.size());
+	text_na -> SetTextColor(kGray+1);
 
-// 	// drawing all histograms
-// 	for (unsigned i = 0; i < I.size(); ++i) {
-// 		xlow = i*padsize + margin;
-// 		xup = xlow + padsize;
+	// drawing all histograms
+	for (unsigned i = 0; i < I.size(); ++i) {
+		xlow = i*padsize + margin;
+		xup = xlow + padsize;
 
-// 		for (unsigned j = i; j < I.size(); ++j) {
-// 			yup = 1. - j*padsize - margin;
-// 			ylow = yup - padsize;
+		for (unsigned j = i; j < I.size(); ++j) {
+			yup = 1. - j*padsize - margin;
+			ylow = yup - padsize;
 
-// 			// preparing the pad
-// 			pad[i][j] =  new TPad(TString::Format("pad_%d_%d_%d",i,j,getNextIndex()), "", xlow, ylow, xup, yup);
-// 			pad[i][j] -> SetMargin(marginleft,marginright,marginbottom,margintop);
-// 			pad[i][j] -> SetFillColor(kWhite);
-// 			pad[i][j] -> Draw();
-// 			pad[i][j] -> cd();
+			// preparing the pad
+			pad[i][j] =  new TPad(TString::Format("pad_correlation_plots_%d_%d",i,j), "", xlow, ylow, xup, yup);
+			pad[i][j] -> SetMargin(marginleft,marginright,marginbottom,margintop);
+			pad[i][j] -> SetFillColor(kWhite);
+			pad[i][j] -> Draw();
+			pad[i][j] -> cd();
 
-// 			// get the histogram
-// 			TH1 * hh = 0;
-// 			BCH1D * bh1 = 0;
-// 			BCH2D * bh2 = 0;
+			// get the histogram
+			BCH1D * bh1 = 0;
+			BCH2D * bh2 = 0;
+			TH1   * hh  = 0;
+
+			if (i==j) {
+				bh1 = GetMarginalized(I[i]);
+				hh = (bh1) ? bh1->GetHistogram() : 0;
+			} else {
+				bh2 = GetMarginalized(I[i],I[j]);
+				hh = (bh2) ? bh2->GetHistogram() : 0;
+			}
 			
-// 			if (i==j) {
-// 				bh1 = fModel->GetMarginalized(I[i]);
-// 				hh = bh1 -> GetHistogram();
-// 			}
-// 			else {
-// 				bh2 = fModel->GetMarginalized(I[i],I[j]);
-// 				hh = bh2 -> GetHistogram();
-// 			}
+			if (!bh1 and !bh2) { // if the histogram is not available, draw "N/A"
+				pad[i][j] -> SetFillColor(kGray);
+				box_na -> DrawBox(marginleft,marginbottom,1.-marginright,1.-margintop);
+				text_na -> DrawText(.5,.5,"N/A");
+
+			}	else {									// draw histogram
+				if (bh1)
+					bh1 -> Draw("BTsiB3CS1D0");
+				else
+					bh2 -> Draw("BTfB3CS1nL");
+
+				hh -> GetXaxis() -> SetLabelSize(0);
+				hh -> GetYaxis() -> SetLabelSize(0);
+				hh -> GetXaxis() -> SetTitleSize(0);
+				hh -> GetYaxis() -> SetTitleSize(0);
+			}
+
+			c->cd();
+				
+			if(i==0)								// y-axis labels
+				ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., GetVariable(I[j])->GetLatexName().c_str());
+			if(j==I.size()-1)				// x-axis labels
+				xlabel -> DrawLatex(xlow+padsize/2., margin*(1-8*xlabel->GetTextSize()), GetVariable(I[i])->GetLatexName().c_str());
+		}
+	}
+	
+	// gPad->RedrawAxis();
+	c->Print(filename);
+	
+	return 1;
+}
+
+// ---------------------------------------------------------
+int BCEngineMCMC::PrintParameterLatex(const char * filename) {
+	// open file
+	std::ofstream ofi(filename);
+	ofi.precision(3);
+
+	// check if file is open
+	if(!ofi.is_open()) {
+		std::cerr << "Couldn't open file " << filename <<std::endl;
+		return 0;
+	}
+
+	const char * blank = "---";
+	unsigned texwidth = 15;
+
+	// print table
+	ofi	<< "\\documentclass[11pt, a4paper]{article}\n\n"
+			<< "\\usepackage[landscape]{geometry}\n\n"
+			<< "\\begin{document}\n\n"
+			<< "  \\begin{table}[ht!]\n\n"
+			<< "    \\begin{center}\n\n"
+			<< "      \\begin{tabular}{llllllll}\n\n"
+			<< "        Parameter &\n"
+			<< TString::Format("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
+												 texwidth, "Mean",
+												 texwidth, "RMS",
+												 texwidth, "Gl. Mode",
+												 texwidth, "Mode",
+												 texwidth, "Median",
+												 texwidth, "16\\% quant.",
+												 texwidth, "84\\% quant.")
+			<< "        \\hline\n" << std::endl;
+	
+	for (unsigned i = 0; i < GetNVariables(); ++i) {
+
+		if (i==GetNParameters())		// first user-defined observable
+			ofi << "        &\\\\\n"
+					<< "        User-defined Observable &\n"
+					<< TString::Format("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
+														 texwidth, "Mean",
+														 texwidth, "RMS",
+														 texwidth, "Gl. Mode",
+														 texwidth, "Mode",
+														 texwidth, "Median",
+														 texwidth, "16\\% quant.",
+														 texwidth, "84\\% quant.")
+					<< "        \\hline\n" << std::endl;
+		
+		// formate LaTeX name for LaTeX ('#' -> '\')
+		std::string latexName(GetVariable(i)->GetLatexName());
+		std::replace(latexName.begin(),latexName.end(),'#','\\');
+
+		ofi << "        \\ensuremath{" << latexName << "} &" << std::endl;
+
+		unsigned prec = GetVariable(i) -> GetPrecision();
+
+		// fixed parameter
+		if (i<GetNParameters() and GetParameter(i)->Fixed())
+			ofi << TString::Format("        \\multicolumn{7}{c}{--- fixed to %*.*g ---}\\\\\n",texwidth,prec,GetParameter(i)->GetFixedValue()) << std::endl;
+		
+		// not fixed
+		else {
+			BCH1D * bch1d = (i<fH1Marginalized.size() and fH1Marginalized[i]) ? GetMarginalized(i) : 0;
+
+			// marginalization exists
+			if (bch1d)
+				ofi << TString::Format("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
+															 texwidth, prec, bch1d->GetMean(),
+															 texwidth, prec, bch1d->GetRMS(),
+															 texwidth, prec, GetBestFitParameter(i),
+															 texwidth, prec, bch1d -> GetMode(),
+															 texwidth, prec, bch1d -> GetMedian(),
+															 texwidth, prec, bch1d -> GetQuantile(0.16),
+															 texwidth, prec, bch1d -> GetQuantile(0.84))
+						<< std::endl;
 			
-// 			if (!bh1 and !bh2) { // if the histogram is not available, draw N/A
+			// marginalization does not exist
+			else
+				ofi << TString::Format("        %*s & %*s & %*.*g & %*s & %*s & %*s & %*s\\\\\n",
+															 texwidth, blank,
+															 texwidth, blank,
+															 texwidth, prec, GetBestFitParameter(i),
+															 texwidth, blank,
+															 texwidth, blank,
+															 texwidth, blank,
+															 texwidth, blank)
+						<< std::endl;
+		}
+	}
 
-// 				pad[i][j] -> SetFillColor(kGray);
-// 				box_na -> DrawBox(marginleft,marginbottom,1.-marginright,1.-margintop);
-// 				text_na -> DrawText(.5,.5,"N/A");
-
-// 			}	else {									// otherwise draw the histogram
-
-// 				if (bh1)
-// 					bh1->Draw("BTsiB3CS1D0");
-// 				else
-// 					bh2->Draw("BTfB3CS1nL");
-
-// 				hh->GetXaxis()->SetLabelOffset(5500);
-// 				hh->GetYaxis()->SetLabelOffset(5500);
-// 				hh->GetXaxis()->SetTitleSize(10.00);
-// 				hh->GetYaxis()->SetTitleSize(10.00);
-				
-// 				c->cd();
-
-// 				// y axis
-// 				if(i==0) {
-// 					if (I[j] < fModel->GetNParameters())
-// 						ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., fModel->GetParameter(I[j])->GetLatexName().c_str());
-// 					else
-// 						ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., fModel->GetUserObservable(I[j]-fModel->GetNParameters())->GetLatexName().c_str());
-// 				}
-				
-// 				// x axis
-// 				if(j==I.size()-1) {
-// 					if (I[i] < fModel->GetNParameters())
-// 						xlabel -> DrawLatex(xlow+padsize/2., margin*(1-6*xlabel->GetTextSize()), fModel->GetParameter(I[i])->GetLatexName().c_str());
-// 					else 
-// 						xlabel -> DrawLatex(xlow+padsize/2., margin*(1-6*xlabel->GetTextSize()), fModel->GetUserObservable(I[i]-fModel->GetNParameters())->GetLatexName().c_str());
-// 				}
-//       }
-// 		}
-// 	}
+	ofi	<< "        \\hline\n" << std::endl
+			<< "      \\end{tabular}\n" << std::endl
+			<< "      \\caption{Summary of the parameter estimates.}\n" << std::endl
+			<< "    \\end{center}\n" << std::endl
+			<< "  \\end{table}" << std::endl
+			<< std::endl
+			<< "\\end{document}" << std::endl;
 	
-// 	gPad->RedrawAxis();
-// 	c->Print(filename);
+	// close file
+	ofi.close();
 	
-// 	return 1;
-// }
-
-// // ---------------------------------------------------------
-// int BCSummaryTool::PrintParameterLatex(const char * filename)
-// {
-//    // open file
-//    std::ofstream ofi(filename);
-//    ofi.precision(3);
-
-//    // check if file is open
-//    if(!ofi.is_open()) {
-//       std::cerr << "Couldn't open file " << filename <<std::endl;
-//       return 0;
-//    }
-
-//    // get number of parameters and quantiles
-//    int npar = fModel->GetNParameters();
-
-//    // print table
-//    ofi
-//       << "\\documentclass[11pt, a4paper]{article}" << std::endl
-//       << std::endl
-//       << "\\begin{document}" << std::endl
-//       << std::endl
-//       << "\\begin{table}[ht!]" << std::endl
-//       << "\\begin{center}" << std::endl
-//       <<"\\begin{tabular}{llllllll}" << std::endl
-//       << "\\hline" << std::endl
-//       << "Parameter & Mean & RMS & Gl. mode & Mode & Median & 16\\% quant. & 84\\% quant. \\\\" << std::endl
-//       << "\\hline" << std::endl;
-
-//    for (int i = 0; i < npar; ++i) {
-//       const BCParameter * par = fModel->GetParameter(i);
-//       BCH1D * bch1d = fModel->GetMarginalized(par);
-//       ofi
-//          << par->GetName() << " & "
-//          << bch1d->GetMean() << " & "
-//          << bch1d->GetRMS() << " & "
-//          << fModel->GetBestFitParameters().at(i) << " & "
-//          << bch1d->GetMode() << " & "
-//          << bch1d->GetMedian() << " & "
-//          << bch1d->GetQuantile(0.16) << " & "
-//          << bch1d->GetQuantile(0.84) << " \\\\" << std::endl;
-//    }
-//    ofi
-//       << "\\hline" << std::endl
-//       << "\\end{tabular}" << std::endl
-//       << "\\caption{Summary of the parameter estimates.}" << std::endl
-//       << "\\end{center}" << std::endl
-//       << "\\end{table}" << std::endl
-//       << std::endl
-//       << "\\end{document}" << std::endl;
-
-//    // close file
-//    ofi.close();
-
-//    // no error
-//    return 1;
-// }
+	// no error
+	return 1;
+}
 
 
 

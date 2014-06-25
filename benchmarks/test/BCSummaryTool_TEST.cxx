@@ -29,15 +29,10 @@ public:
    {
       m.MarginalizeAll();
       m.FindMode();
-			std::cout << "SUMMARY" << std::endl;
       BCSummaryTool s(&m);
-			std::cout << "MODEL INSTANTIATED" << std::endl;
-      s.PrintCorrelationPlot(file_corr.c_str());
-			std::cout << "CORRELATIONS PRINTED" << std::endl;
-      s.PrintParameterPlot(file_par.c_str());
-			std::cout << "PARAMETERPLOT PRINTED" << std::endl;
+      m.PrintCorrelationPlot(file_corr.c_str());
+      m.PrintParameterPlot(file_par.c_str());
       s.PrintKnowledgeUpdatePlots(file_upd.c_str());
-			std::cout << "KNOWLEDGEUPDATE PRINTED" << std::endl;
    }
 
    void mcmc() const
@@ -65,11 +60,8 @@ public:
    virtual void run() const
    {
       mcmc();
-			std::cout << "MCMC DONE" << std::endl;
       fixed();
-			std::cout << "FIXED DONE" << std::endl;
       slice();
-			std::cout << "SLICE DONE" << std::endl;
    }
 
 private:

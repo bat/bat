@@ -8,30 +8,30 @@
 
 // ---------------------------------------------------------
 
-#include "BCUserObservableSet.h"
+#include "BCObservableSet.h"
 
 #include "BCLog.h"
-#include "BCUserObservable.h"
+#include "BCObservable.h"
 
 #include <TString.h>
 
 #include <algorithm>
 
 // ---------------------------------------------------------
-BCUserObservableSet::BCUserObservableSet() 
+BCObservableSet::BCObservableSet() 
 	: fMaxNameLength(0)
 {
 }
 
 // ---------------------------------------------------------
-bool BCUserObservableSet::Add(BCUserObservable * observable)
+bool BCObservableSet::Add(BCObservable * observable)
 {
    if ( !observable)
       return false;
    // check if observable with same name exists
    for (unsigned int i = 0; i < fPars.size() ; ++i)
       if ( observable->GetName() == fPars[i]->GetName() ) {
-         BCLog::OutError(TString::Format("BCUserObservableSet::Add : Observable with name %s exists already. ",
+         BCLog::OutError(TString::Format("BCObservableSet::Add : Observable with name %s exists already. ",
                observable->GetName().data()));
          return false;
       }
@@ -43,7 +43,7 @@ bool BCUserObservableSet::Add(BCUserObservable * observable)
 }
 
 // ---------------------------------------------------------
-void BCUserObservableSet::Clear(bool hard)
+void BCObservableSet::Clear(bool hard)
 {
    if (hard) {
       for (unsigned int i = 0; i < fPars.size() ; ++i)
@@ -54,10 +54,10 @@ void BCUserObservableSet::Clear(bool hard)
 }
 
 // ---------------------------------------------------------
-bool BCUserObservableSet::ValidIndex(unsigned index, const std::string caller) const
+bool BCObservableSet::ValidIndex(unsigned index, const std::string caller) const
 {
    if (index >= fPars.size()) {
-      BCLog::OutError(TString::Format("BCUserObservableSet::%s : Observable index %u out of range", caller.c_str(), index));
+      BCLog::OutError(TString::Format("BCObservableSet::%s : Observable index %u out of range", caller.c_str(), index));
       return false;
    }
    else
@@ -65,31 +65,31 @@ bool BCUserObservableSet::ValidIndex(unsigned index, const std::string caller) c
 }
 
 // ---------------------------------------------------------
-unsigned BCUserObservableSet::Index(const std::string & name) const
+unsigned BCObservableSet::Index(const std::string & name) const
 {
    for (unsigned int i=0; i < fPars.size() ; ++i)
       if (name == fPars[i]->GetName())
          return i;
 
-   BCLog::OutWarning(TString::Format("BCUserObservableSet::Index: no observable named '%s'", name.c_str()));
+   BCLog::OutWarning(TString::Format("BCObservableSet::Index: no observable named '%s'", name.c_str()));
    return fPars.size();
 }
 
 
 // ---------------------------------------------------------
-void BCUserObservableSet::SetNBins(unsigned nbins) {
+void BCObservableSet::SetNBins(unsigned nbins) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
 		fPars[i] -> SetNbins(nbins);
 }
 
 // ---------------------------------------------------------
-void BCUserObservableSet::SetPrecision(unsigned n) {
+void BCObservableSet::SetPrecision(unsigned n) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
 		fPars[i] -> SetPrecision(n);
 }
 
 // ---------------------------------------------------------
-void BCUserObservableSet::FillHistograms(bool flag) {
+void BCObservableSet::FillHistograms(bool flag) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
 		fPars[i] -> FillHistograms(flag);
 }

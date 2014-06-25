@@ -25,13 +25,13 @@
 
 #include <string>
 #include <vector>
+#include <limits>
 
-class BCModel;
-class BCSummaryPriorModel;
+#include "BCModel.h"
 
 // ---------------------------------------------------------
 
-class BCSummaryTool
+class BCSummaryTool : private BCModel
 {
  public:
 
@@ -39,25 +39,12 @@ class BCSummaryTool
    /** @{ */
 
    /**
-    * The default constructor. */
-   BCSummaryTool();
+    * constructor. */
+   BCSummaryTool(BCModel * model = 0);
 
    /**
-    * A constructor. */
-   BCSummaryTool(BCModel * model);
-
-   /**
-    * The default destructor. */
+    * destructor. */
    ~BCSummaryTool();
-
-   /** @} */
-   /** \name Member functions (get) */
-   /** @{ */
-
-   /**
-    * Retrieve pointer to the Prior model to allow for its detailed setup */
-   BCSummaryPriorModel * GetPriorModel()
-      { return fPriorModel; }
 
    /** @} */
    /** \name Member functions (set) */
@@ -66,12 +53,27 @@ class BCSummaryTool
    /**
     * Set the model to be summarized.
     * @param model The BCModel to be summarized.*/
-   void SetModel(BCModel * model)
-      { fModel = model; };
+	 void SetModel(BCModel * model);
 
    /** @} */
    /** \name Member functions (misc) */
    /** @{ */
+
+   /**
+    * Calculates and returns the log of the prior probability at a
+    * given point in parameter space.
+    * @param parameters A vector of coordinates in the parameter space.
+    * @return The prior probability. */
+	double LogAPrioriProbability(const std::vector<double> &parameters)
+	   { return 0; }
+
+   /**
+    * Calculates and returns the log of the Likelihood at a given point
+    * in parameter space.
+    * @param parameters A vector of coordinates in the parameter space.
+    * @return The log likelihood. */
+   double LogLikelihood(const std::vector<double> &parameters)
+	    { return (fModel) ? fModel->LogAPrioriProbability(parameters) : -std::numeric_limits<double>::infinity(); }
 
    /**
     * Calculate the marginalized distributions using the prior
@@ -79,34 +81,6 @@ class BCSummaryTool
     * @return An error flag.
     */
    int CalculatePriorModel();
-
-   /**
-    * Copy the summary information from the model.
-    * @return An error flag. */
-   int CopySummaryData();
-
-   /**
-    * Print a summary plot for the parameters and user-defined observables.
-		* @par npar Number of parameters per page, print all on one page if set to zero or negative
-    * @return An error flag. */
-	 int PrintParameterPlot(const char * filename = "parameters.pdf", int npar=10);
-
-   /**
-    * Print a summary plot for the parameters in the range provided
-		* @par i0 Index of first parameter to print.
-		* @par i1 Index of last parameter to print; if negative, set to total number of parameters
-    * @return An error flag. */
-	 int PrintParameterPlot(unsigned i0, int i1=-1, const char * filename = "parameters.pdf");
-
-   /**
-    * Print a correlation matrix for the parameters.
-    * @return An error flag. */
-   int PrintCorrelationMatrix(const char * filename = "matrix.pdf");
-
-   /**
-    * Print a correlation plot for the parameters.
-    * @return An error flag. */
-   int PrintCorrelationPlot(const char * filename = "correlation.pdf");
 
    /**
     * Draw a comparison of the prior knowledge to the posterior
@@ -123,100 +97,21 @@ class BCSummaryTool
    /**
     * Draw a comparison of the prior knowledge to the posterior.
     * @return An error flag. */
-	int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false);
+	int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false, double interval_content=68e-2);
 
    /**
     * Print a comparison of the prior knowledge to the posterior
     * knowledge for each parameter.
     * @return An error flag. */
-	int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, std::string options="-");
-
-   /**
-    * Print a Latex table of the parameters.
-    * @return An error flag. */
-   int PrintParameterLatex(const char * filename);
+	int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, std::string options="-", double interval_content=68e-2);
 
    /** @} */
 
  private:
 
-   /** Helper method to get an unique number to be used in histogram naming */
-   static unsigned int getNextIndex()
-      { return ++fHCounter; }
-
-   /** helper variable to get an unique number to be used in histogram naming */
-   static unsigned int fHCounter;
-
    /**
     * The model whose results are summarized */
    BCModel * fModel;
-
-   /**
-    * parameter names */
-   std::vector<std::string> fParName;
-
-   /**
-    * parameter minima */
-   std::vector<double> fParMin;
-
-   /**
-    * Parameter maxima */
-   std::vector<double> fParMax;
-
-   /**
-    * Correlation coefficients.
-    * Length of vector equals number of parameters * number of parameters. */
-   std::vector<double> fCorrCoeff;
-
-   /**
-    * Marginalized modes.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fMargMode;
-
-   /**
-    * Mean values.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fMean;
-
-   /**
-    * Global modes.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fGlobalMode;
-
-   /**
-    * Quantiles.\n
-    * The following quantiles are stored: 0.05, 0.10, 0.16, 0.5, 0.84, 0.90, 0.95.\n
-    * Length of vector equals number of parameters * number of quantiles. */
-   std::vector<double> fQuantiles;
-
-   /**
-    * Smallest intervals.\n
-    * For each parameter a set of the smallest intervals is recorded.\n
-    * Structure: number of intervals n + n * (start, stop, local max, local max pos, integral)
-    * Length of vector equals number of parameters * number of quantiles. */
-   std::vector<double> fSmallInt;
-
-   /**
-    * RMS values.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fRMS;
-
-   /**
-    * Sum of probabilities for quantiles */
-   std::vector<double> fSumProb;
-
-   /**
-    * A model for calculating the marginalized distributions for the
-    * prior probabilities. */
-   BCSummaryPriorModel * fPriorModel;
-
-   /**
-    * A flag: check if marginalized information is present */
-   bool fFlagInfoMarg;
-
-   /**
-    * A flag: check if optimization information is present */
-   bool fFlagInfoOpt;
 
 };
 // ---------------------------------------------------------

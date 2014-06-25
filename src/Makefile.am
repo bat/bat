@@ -30,11 +30,11 @@ incs= \
 	BCDataSet.h \
 	BCH1D.h \
 	BCH2D.h \
-	BCUserObservableSet.h \
-	BCUserObservable.h \
+	BCObservableSet.h \
+	BCObservable.h \
 	BCParameterSet.h \
 	BCParameter.h \
-	BCObservable.h \
+	BCVariable.h \
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \
@@ -44,8 +44,7 @@ incs= \
 	BCLog.h \
 	BCMath.h \
 	BCAux.h \
-	BCSummaryTool.h \
-	BCSummaryPriorModel.h
+	BCSummaryTool.h
 
 library_include_HEADERS= \
 	$(patsubst %.h, ../BAT/%.h, $(incs))

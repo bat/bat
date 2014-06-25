@@ -15,7 +15,7 @@
 // ---------------------------------------------------------
 
 BCParameter::BCParameter() :
-	BCObservable(),
+	BCVariable(),
 	fFixed(false),
 	fFixedValue(-1.e+111)
 {
@@ -25,7 +25,7 @@ BCParameter::BCParameter() :
 // ---------------------------------------------------------
 
 BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
-	BCObservable(name,lowerlimit,upperlimit,latexname),
+	BCVariable(name,lowerlimit,upperlimit,latexname),
 	fFixed(false),
 	fFixedValue(-1.e+111)
 {

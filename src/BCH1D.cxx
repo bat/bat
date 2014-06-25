@@ -602,34 +602,34 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
   // mean, mode, median
   TMarker* marker_mode = new TMarker(fMode, 0.50*ymaxhist, 24);
   marker_mode->SetMarkerColor(GetColor(4));
-  marker_mode->SetMarkerSize(1.5);
+  marker_mode->SetMarkerSize(1.5*gPad->GetWNDC());
 
   TMarker* marker_mean = new TMarker(GetMean(), 0.55*ymaxhist, 20);
   marker_mean->SetMarkerColor(GetColor(4));
-  marker_mean->SetMarkerSize(1.5);
+  marker_mean->SetMarkerSize(1.5*gPad->GetWNDC());
 
   TMarker* marker_median = new TMarker(GetMedian(), 0.45*ymaxhist, 21);
   marker_median->SetMarkerColor(GetColor(4));
-  marker_median->SetMarkerSize(1.5);
+  marker_median->SetMarkerSize(1.5*gPad->GetWNDC());
 
   // mode
   TArrow* arrow_mode = new TArrow(fMode, 0.485*ymaxhist,
-				  fMode, ymin,
-				  0.02, "|>");
+																	fMode, ymin,
+																	0.02*gPad->GetWNDC(), "|>");
   arrow_mode->SetLineColor(GetColor(4));
   arrow_mode->SetFillColor(GetColor(4));
 
   // standard deviation
   TArrow* arrow_std = new TArrow(GetMean()-GetRMS(), 0.55*ymaxhist,
-				 GetMean()+GetRMS(), 0.55*ymaxhist,
-				 0.02, "<|>");
+																 GetMean()+GetRMS(), 0.55*ymaxhist,
+																 0.02*gPad->GetWNDC(), "<|>");
   arrow_std->SetLineColor(GetColor(4));
   arrow_std->SetFillColor(GetColor(4));
 
   // central interval
   TArrow* arrow_ci = new TArrow(GetQuantile(0.1587), 0.45*ymaxhist,
-				GetQuantile(0.8413), 0.45*ymaxhist,
-				0.02, "<|>");
+																GetQuantile(0.8413), 0.45*ymaxhist,
+																0.02*gPad->GetWNDC(), "<|>");
   arrow_ci->SetLineColor(GetColor(4));
   arrow_ci->SetFillColor(GetColor(4));
 
@@ -645,7 +645,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
     marker_mode->Draw();
     TLegendEntry* le = legend->AddEntry(marker_mode, "global mode", "P");
     le->SetMarkerStyle(24);
-    le->SetMarkerSize(1.5);
+    le->SetMarkerSize(1.5*gPad->GetWNDC());
     le->SetMarkerColor(GetColor(4));
   }
 
@@ -655,7 +655,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
     TLegendEntry* le = legend->AddEntry(arrow_std, "mean and standard deviation", "PL");
     le->SetLineColor(GetColor(4));
     le->SetMarkerStyle(20);
-    le->SetMarkerSize(1.5);
+    le->SetMarkerSize(1.5*gPad->GetWNDC());
     le->SetMarkerColor(GetColor(4));
   }
 
@@ -665,7 +665,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
     TLegendEntry* le = legend->AddEntry(arrow_ci, "median and central 68.3% interval", "PL");
     le->SetLineColor(GetColor(4));
     le->SetMarkerStyle(21);
-    le->SetMarkerSize(1.5);
+    le->SetMarkerSize(1.5*gPad->GetWNDC());
     le->SetMarkerColor(GetColor(4));
   }
 

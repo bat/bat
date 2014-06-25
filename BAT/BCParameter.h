@@ -22,11 +22,11 @@
  */
 
 // ---------------------------------------------------------
-#include "BCObservable.h"
+#include "BCVariable.h"
 
 // ---------------------------------------------------------
 
-class BCParameter : public BCObservable {
+class BCParameter : public BCVariable {
 
 public:
 
