@@ -34,8 +34,7 @@
 
 // ---------------------------------------------------------
 BCModel::BCModel(const char * name) :
-   BCIntegrate(),
-   fName((char *) name),
+   BCIntegrate(name),
    fModelAPriori(0),
    fModelAPosteriori(0),
    fDataSet(0),
@@ -785,31 +784,7 @@ int BCModel::SetPriorConstantAll()
 // ---------------------------------------------------------
 void BCModel::PrintSummary()
 {
-   // model summary
-   BCLog::OutSummary(Form("Model : %s", fName.data()));
-   BCLog::OutSummary(Form("Number of parameters : %u", GetNParameters()));
-   BCLog::OutSummary("Parameters:");
-
-   // parameter summary
-   for (unsigned i = 0; i < GetNParameters(); i++)
-      fParameters[i]->PrintSummary();
-
-   // best fit parameters
-   if ( !GetBestFitParameters().empty()) {
-     BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
-      BCLog::OutSummary("Best fit parameters:");
-
-      for (unsigned i = 0; i < GetNParameters(); i++) {
-        if ( fParameters[i]->Fixed() )
-          BCLog::OutSummary(Form(" %s = %f (fixed)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
-        else
-          BCLog::OutSummary(Form(" %s = %f (global)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
-
-        if ( fMarginalModes.size() == GetNParameters())
-          BCLog::OutSummary(Form(" %s = %f (marginalized)", fParameters[i]->GetName().data(), GetBestFitParametersMarginalized()[i]));
-
-      }
-   }
+	BCIntegrate::PrintSummary();
 
    // model testing
    if (fPValue >= 0) {
@@ -818,223 +793,19 @@ void BCModel::PrintSummary()
       BCLog::OutSummary(Form("  p(data|lambda*) = %f", likelihood));
       BCLog::OutSummary(Form("  p-value         = %f", fPValue));
    }
-
-   // normalization
-   if (GetIntegral() > 0) {
-      BCLog::OutSummary(" Evidence:");
-      BCLog::OutSummary(Form(" - evidence : %f", GetIntegral()));
-   }
 }
 
 // ---------------------------------------------------------
-void BCModel::PrintResults(const char * file)
-{
-   // print summary of Markov Chain Monte Carlo
-
-   // open file
-   std::ofstream ofi(file);
-
-   // check if file is open
-   if (!ofi.is_open()) {
-      std::cerr << "Couldn't open file " << file << std::endl;
-      return;
-   }
-
-   // number of parameters and chains
-   unsigned npar = GetNParameters();
-   unsigned nchains = MCMCGetNChains();
-
-   // check convergence
-   bool flag_conv = MCMCGetNIterationsConvergenceGlobal() > 0;
-
-   ofi << std::endl
-         << " -----------------------------------------------------" << std::endl
-         << " Summary" << std::endl
-         << " -----------------------------------------------------" << std::endl
-         << std::endl;
-
-   ofi << " Model summary" << std::endl << " =============" << std::endl
-         << " Model: " << fName.data() << std::endl
-         << " Number of parameters: " << npar << std::endl
-         << " List of Parameters and ranges:" << std::endl;
-   for (unsigned i = 0; i < npar; ++i) {
-     ofi << "  (" << i << ") Parameter \""
-         << fParameters[i]->GetName() << "\"" << ": "
-         << "[" << fParameters[i]->GetLowerLimit() << ", "
-         << fParameters[i]->GetUpperLimit() << "]";
-     if (fParameters[i]->Fixed()) {
-       ofi << " (fixed)";
-     }
-     ofi << std::endl;
-   }
-   ofi << std::endl;
-
-   ofi << " Results of the optimization" << std::endl
-         << " ===========================" << std::endl
-         << " Optimization algorithm used: "
-         << DumpUsedOptimizationMethod()<< std::endl;
-
-   if ( ! GetBestFitParameters().empty()) {
-     ofi << " Log of the maximum posterior: " << GetLogMaximum() << std::endl;
-      ofi << " List of parameters and global mode:" << std::endl;
-      for (unsigned i = 0; i < npar; ++i) {
-        ofi << "  (" << i << ") Parameter \""
-            << fParameters[i]->GetName() << "\": "
-            << GetBestFitParameter(i);
-        if (fParameters[i]->Fixed()) {
-          ofi << " (fixed)";
-        }
-        else if (GetBestFitParameterErrors().size() == npar) {
-          if(GetBestFitParameterError(i) >= 0.)
-            ofi << " +- " << GetBestFitParameterError(i);
-          else
-            ofi << " (no error estimate available) ";
-        }
-        else {
-          ofi << " (no error estimate available) ";
-        }
-        ofi << std::endl;
-      }
-      ofi << std::endl;
-   }
-   else {
-      ofi << " No best fit information available." << std::endl;
-      ofi << std::endl;
-   }
-
-   if (fPValue >= 0.) {
-      ofi << " Results of the model test" << std::endl
-            << " =========================" << std::endl
-            << " p-value: " << fPValue << std::endl;
-      if (fPValueNDoF >= 0)
-         ofi << " p-value corrected for degrees of freedom: " << fPValueNDoF << std::endl;
-
-      ofi << std::endl;
-   }
-
-   if (GetIntegral() >= 0.) {
-      ofi << " Results of the integration" << std::endl
-            << " ============================" << std::endl
-            << " Integration method used: "
-            << DumpUsedIntegrationMethod() << std::endl;
-      ofi << " Evidence: " << GetIntegral();
-      if (GetError() >= 0)
-        ofi << " +- " << GetError() << std::endl;
-      else
-        ofi << " (no error estimate available) " << std::endl;
-      ofi << std::endl;
-   }
-
-   // give warning if MCMC did not converge
-   if (!flag_conv && fMCMCFlagRun)
-      ofi << " WARNING: the Markov Chain did not converge!" << std::endl
-      << " Be cautious using the following results!" << std::endl
-      << std::endl;
-
-   // print results of marginalization (if MCMC was run)
-   if (fFlagMarginalized) {
-      ofi << " Results of the marginalization" << std::endl
-          << " ==============================" << std::endl
-          << " Marginalization algorithm used: "
-          << DumpUsedMarginalizationMethod() << std::endl
-          << " List of parameters and properties of the marginalized"
-          << std::endl << " distributions:" << std::endl;
-      for (unsigned i = 0; i < npar; ++i) {
-         if ( ! fParameters[i]->FillHistograms())
-            continue;
-
-         // get marginalized histogram
-         BCH1D * bch1d = GetMarginalized(fParameters[i]);
-
-         ofi << "  (" << i << ") Parameter \""
-             << fParameters[i]->GetName() << "\":";
-
-         if (!bch1d) {
-            ofi << " fixed (or histogram does not exist) " << std::endl;
-            continue;
-         }
-         else
-            ofi << std::endl;
-
-         ofi << "      Mean +- sqrt(V):                " << std::setprecision(4)
-             << bch1d->GetMean() << " +- " << std::setprecision(4)
-             << bch1d->GetRMS() << std::endl
-
-             << "      Median +- central 68% interval: "
-             << std::setprecision(4) << bch1d->GetMedian() << " +  "
-             << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
-             << " - " << std::setprecision(4)
-             << bch1d->GetMedian() - bch1d->GetQuantile(0.16) << std::endl
-
-             << "      (Marginalized) mode:            " << bch1d->GetMode() << std::endl;
-
-         ofi << "       5% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.05) << std::endl
-             << "      10% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.10) << std::endl
-             << "      16% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.16) << std::endl
-             << "      84% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.85) << std::endl
-             << "      90% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.90) << std::endl
-             << "      95% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.95) << std::endl;
-
-         std::vector<double> v;
-         v = bch1d->GetSmallestIntervals(0.68);
-         ofi << "      Smallest interval(s) containing at least 68% and local mode(s):"
-             << std::endl;
-         for (unsigned j = 0; j < v.size(); j += 5)
-            ofi << "       (" << v[j] << ", " << v[j + 1]
-                << ") (local mode at " << v[j + 3] << " with rel. height "
-                << v[j + 2] << "; rel. area " << v[j + 4] << ")"
-                << std::endl;
-         ofi << std::endl;
-      }
-   }
-   if (fMCMCFlagRun) {
-      ofi << " Status of the MCMC" << std::endl << " ==================" << std::endl
-          << " Convergence reached:                    " << (flag_conv ? "yes" : "no")
-          << std::endl;
-
-      if (flag_conv)
-         ofi << " Number of iterations until convergence: "
-             << MCMCGetNIterationsConvergenceGlobal() << std::endl;
-      else
-         ofi << " WARNING: the Markov Chain did not converge! Be\n"
-             << " cautious using the following results!" << std::endl
-             << std::endl;
-      ofi << " Number of chains:                       " << MCMCGetNChains() << std::endl
-          << " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
-          << " Average pre-run efficiencies:" << std::endl;
-
-      std::vector<double> efficiencies;
-      efficiencies.assign(npar, 0.);
-
-      for (unsigned ipar = 0; ipar < npar; ++ipar)
-        for (unsigned ichain = 0; ichain < nchains; ++ichain)
-          efficiencies[ipar] += fMCMCEfficiencies[ichain][ipar] / nchains * 100.;
-			
-      for (unsigned ipar = 0; ipar < npar; ++ipar)
-         ofi << "  (" << ipar << ") Parameter \""
-             << fParameters[ipar]->GetName().data() << "\": "
-             << efficiencies.at(ipar) << "%" << std::endl;
-      ofi << std::endl;
-   }
-
-   ofi << " -----------------------------------------------------" << std::endl
-       << " Notation:" << std::endl
-       << " Mean        : mean value of the marg. pdf" << std::endl
-       << " Median      : median of the marg. pdf" << std::endl
-       << " Marg. mode  : most probable value of the marg. pdf" << std::endl
-       << " V           : Variance of the marg. pdf" << std::endl
-       << " Quantiles   : most commonly used quantiles" <<std::endl
-       << " -----------------------------------------------------" << std::endl
-       << std::endl;
-
-   // close file
-   ofi.close();
+void BCModel::PrintMarginalizationToStream(std::ofstream & ofi) {
+	if (fPValue >= 0) {
+		ofi << " Results of the model test" << std::endl
+				<< " =========================" << std::endl
+				<< " p-value: " << fPValue << std::endl;
+		if (fPValueNDoF >= 0)
+			ofi << " p-value corrected for degrees of freedom: " << fPValueNDoF << std::endl;
+		ofi << std::endl;
+	}
+	BCIntegrate::PrintMarginalizationToStream(ofi);
 }
 
 // ---------------------------------------------------------

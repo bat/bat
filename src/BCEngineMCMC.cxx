@@ -37,23 +37,32 @@
 #include <fstream>
 
 // ---------------------------------------------------------
-BCEngineMCMC::BCEngineMCMC() :
-	fMCMCFlagWriteChainToFile(false),
-	fMCMCFlagWritePreRunToFile(false),
-	fMCMCFlagWritePreRunObservablesToFile(true),
-	fMCMCScaleFactorLowerLimit(0),
-	fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
-	fMCMCEfficiencyMin(0.15),
-	fMCMCEfficiencyMax(0.50),
-	fMCMCFlagInitialPosition(1),
-	fMCMCFlagOrderParameters(true),
-	fMCMCRValueUseStrict(false),
-	fMCMCRValueCriterion(0.1),
-	fMCMCRValueParametersCriterion(0.1),
-	fRandom(new TRandom3())
+BCEngineMCMC::BCEngineMCMC(const char * name)
+	: fMCMCFlagWriteChainToFile(false)
+	, fMCMCFlagWritePreRunToFile(false)
+	, fMCMCFlagWritePreRunObservablesToFile(true)
+	, fMCMCScaleFactorLowerLimit(0)
+	, fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
+	, fMCMCEfficiencyMin(0.15)
+	, fMCMCEfficiencyMax(0.50)
+	, fMCMCFlagInitialPosition(1)
+	, fMCMCFlagOrderParameters(true)
+	, fMCMCRValueUseStrict(false)
+	, fMCMCRValueCriterion(0.1)
+	, fMCMCRValueParametersCriterion(0.1)
+	, fRandom(new TRandom3())
 {
+	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
 	MCMCSetRandomSeed(0);
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::SetName(const char * name)
+{
+	fName = name;
+	fSafeName = name;
+	fSafeName.erase(std::remove_if(fSafeName.begin(),fSafeName.end(),::isspace),fSafeName.end());
 }
 
 // ---------------------------------------------------------
@@ -1160,13 +1169,34 @@ int BCEngineMCMC::MCMCMetropolis()
 
 	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", fMCMCNIterationsRun));
 
-	// find global maximum
+
+	// find global maximum and calculate efficiencies
 	unsigned probmaxindex = 0;
 
-	// loop over all chains and find the maximum point
-	for (unsigned i = 1; i < fMCMCNChains; ++i)
-		if (fMCMCprobMax[i] > fMCMCprobMax[probmaxindex])
-			probmaxindex = i;
+	fMCMCEfficiencies.assign(fMCMCNTrialsTrue.size(), std::vector<double>(GetNParameters(),0));
+	std::vector<double> efficiencies (GetNParameters(),0);
+
+	// loop over all chains
+	for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
+		// find maximum point
+		if (fMCMCprobMax[ichain] > fMCMCprobMax[probmaxindex])
+			probmaxindex = ichain;
+		// calculate efficiencies
+		for (unsigned ipar = 0; ipar<GetNParameters(); ++ipar) {
+			fMCMCEfficiencies[ichain][ipar] = 1.*fMCMCNTrialsTrue[ichain][ipar]/fMCMCNIterationsRun;
+			efficiencies[ipar] += fMCMCEfficiencies[ichain][ipar]/fMCMCNChains;
+		}
+	}
+
+	// print efficiencies
+	BCLog::OutDetail(Form(" --> Average efficiencies (measured in %d iterations):",fMCMCNIterationsRun));
+	BCLog::OutDetail(Form("       - %-*s : Efficiency",fParameters.MaxNameLength(),"Parameter"));
+	for (unsigned i = 0; i < fParameters.Size(); ++i) {
+		if (fParameters[i]->Fixed())
+			continue;
+		BCLog::OutDetail(Form("         %-*s :     %4.1f %%",fParameters.MaxNameLength(),fParameters[i]->GetName().data(), 100.*efficiencies[i]));
+	}
+
 	
 	// save if improved the log posterior
 	if (fMCMCBestFitParameters.empty() || fMCMCprobMax[probmaxindex] > fMCMCLogMaximum) {
@@ -1388,13 +1418,13 @@ int BCEngineMCMC::MCMCInitialize()
 
    for(unsigned i = 0; i < fParameters.Size(); ++i)
 		 if (fParameters[i]->FillHistograms() && !fParameters[i]->Fixed()) {
-			 fH1Marginalized[i] = fParameters[i] -> CreateH1(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,i));
+			 fH1Marginalized[i] = fParameters[i] -> CreateH1(TString::Format("h1_%s_parameter_%i", GetSafeName().data() ,i));
 			 fH1Marginalized[i] -> SetStats(kFALSE);
 			 fillAny = true;
 		 }
    for(unsigned i = 0; i < fObservables.Size(); ++i)
 		 if (fObservables[i]->FillHistograms()) {
-			 fH1Marginalized[i+fParameters.Size()] = fObservables[i] -> CreateH1(TString::Format("h1_%d_observable_%i", BCLog::GetHIndex() ,i));
+			 fH1Marginalized[i+fParameters.Size()] = fObservables[i] -> CreateH1(TString::Format("h1_%s_observable_%i", GetSafeName().data() ,i));
 			 fH1Marginalized[i+fParameters.Size()] -> SetStats(kFALSE);
 			 fillAny = true;
 		 }
@@ -1410,13 +1440,13 @@ int BCEngineMCMC::MCMCInitialize()
 				 // paramater vs parameter
 				 for (unsigned j = i + 1; j < fParameters.Size(); ++j)
 					 if (fParameters[j]->FillHistograms() and !fParameters[j]->Fixed()) {
-						 fH2Marginalized[i][j] = fParameters[i] -> CreateH2(Form("h2_%d_parameters_%i_vs_%i", BCLog::GetHIndex(), i, j), fParameters[j]);
+						 fH2Marginalized[i][j] = fParameters[i] -> CreateH2(Form("h2_%s_parameters_%i_vs_%i", GetSafeName().data(), i, j), fParameters[j]);
 						 fH2Marginalized[i][j] -> SetStats(kFALSE);
 					 }
 				 // user-defined observable vs parameter
 				 for (unsigned j = 0; j < fObservables.Size(); ++j)
 					 if (fObservables[j]->FillHistograms()) {
-						 fH2Marginalized[i][j+fParameters.Size()] = fParameters[i] -> CreateH2(Form("h2_%d_par_%i_vs_obs_%i", BCLog::GetHIndex(), i, j), fObservables[j]);
+						 fH2Marginalized[i][j+fParameters.Size()] = fParameters[i] -> CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), i, j), fObservables[j]);
 						 fH2Marginalized[i][j+fParameters.Size()] -> SetStats(kFALSE);
 					 }
 			 }
@@ -1425,7 +1455,7 @@ int BCEngineMCMC::MCMCInitialize()
 			 if (fObservables[i]->FillHistograms())
 				 for (unsigned j = i + 1; j < fObservables.Size(); ++j)
 					 if (fObservables[j]->FillHistograms()) {
-						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] = fObservables[i] -> CreateH2(Form("h2_%d_observables_%i_vs_%i", BCLog::GetHIndex(), i, j), fObservables[j]);
+						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] = fObservables[i] -> CreateH2(Form("h2_%s_observables_%i_vs_%i", GetSafeName().data(), i, j), fObservables[j]);
 						 fH2Marginalized[i+fParameters.Size()][j+fParameters.Size()] -> SetStats(kFALSE);
 					 }
 
@@ -1439,6 +1469,209 @@ void BCEngineMCMC::MCMCIterationInterface()
    // do user defined stuff
    MCMCUserIterationInterface();
 }
+
+// ---------------------------------------------------------
+void BCEngineMCMC::PrintSummary()
+{
+   // model summary
+   BCLog::OutSummary(Form("Model : %s", fName.data()));
+   BCLog::OutSummary(Form("Number of parameters : %u", GetNParameters()));
+   BCLog::OutSummary("Parameters:");
+
+   // parameter summary
+   for (unsigned i = 0; i < GetNParameters(); i++)
+      fParameters[i]->PrintSummary();
+
+	 if (GetNObservables()>0) {
+		 BCLog::OutSummary(Form("Number of observables : %u", GetNObservables()));
+		 BCLog::OutSummary("Observables:");
+
+		 // observable summary
+		 for (unsigned i = 0; i < GetNObservables(); i++)
+			 fObservables[i]->PrintSummary();
+	 }
+
+   // best fit parameters
+   if ( !GetBestFitParameters().empty()) {
+     BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
+		 BCLog::OutSummary("Best fit results:");
+
+		 for (unsigned i = 0; i < GetNVariables(); i++) {
+			 if (i < GetNParameters() and GetParameter(i)->Fixed() )
+				 BCLog::OutSummary(Form(" %s = %.*f (fixed)",  GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(),GetBestFitParameter(i)));
+			 else
+				 BCLog::OutSummary(Form(" %s = %.*f (global)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(),GetBestFitParameter(i)));
+			 
+			 if ( fMarginalModes.size() == GetNVariables())
+				 BCLog::OutSummary(Form(" %s = %.*f (marginalized)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), GetBestFitParametersMarginalized()[i]));
+		 }
+   }
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::PrintResults(const char * file) {
+	// open file
+	std::ofstream ofi(file);
+
+	// check if file is open
+	if (!ofi.is_open()) {
+		BCLog::OutError(Form("Couldn't open file %s.", file));
+		return;
+	}
+
+	PrintSummaryToStream(ofi);
+	PrintBestFitToStream(ofi);
+	PrintMarginalizationToStream(ofi);
+	
+	// close file
+	ofi.close();
+
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::PrintSummaryToStream(std::ofstream & ofi) {
+	ofi << std::endl
+			<< " -----------------------------------------------------" << std::endl
+			<< " Summary" << std::endl
+			<< " -----------------------------------------------------" << std::endl
+			<< std::endl;
+	
+	ofi << " Model summary" << std::endl
+			<< " =============" << std::endl
+			<< " Model: " << GetName() << std::endl
+			<< " Number of parameters: " << GetNParameters() << std::endl
+			<< " List of Parameters and ranges:" << std::endl;
+
+	// Parameters & Observables
+	for (unsigned i = 0; i < GetNVariables(); ++i) {
+		if (i==GetNParameters())
+			ofi << " List of Observables and ranges:" << std::endl;
+		ofi << " (" << i << ") " << GetVariable(i)->OneLineSummary() << std::endl;
+	}
+	ofi << std::endl;
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::PrintBestFitToStream(std::ofstream & ofi) {
+	if (GetBestFitParameters().empty()) {
+		ofi << "No best fit information available." << std::endl << std::endl;
+		return;
+	}
+		
+	unsigned nletters = GetMaximumParameterNameLength();
+
+	ofi << " Best Fit Results" << std::endl
+			<< " ===========================" << std::endl
+			<< " Log of the maximum posterior: " << GetLogMaximum() << std::endl
+			<< " List of parameters and global mode:" << std::endl;
+
+	for (unsigned i = 0; i < GetNVariables(); ++i) {
+		ofi << TString::Format(" (%d) %10s \"%*s\" : %.*f", i, (i<GetNParameters()) ? "Parameter" : "Observable",
+													 nletters, GetVariable(i)->GetName().data(),
+													 GetVariable(i)->GetPrecision(),GetBestFitParameter(i));
+		if (i<GetNParameters() and GetParameter(i)->Fixed())
+			ofi << " (fixed)";
+		ofi << std::endl;
+	}
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream & ofi) {
+	if (fMCMCFlagRun)
+		ofi << " Results of the marginalization" << std::endl
+				<< " ==============================" << std::endl;
+
+	// give warning if MCMC did not converge
+	if (!MCMCGetNIterationsConvergenceGlobal()<=0 && fMCMCFlagRun)
+		ofi << " WARNING: the Markov Chain did not converge!" << std::endl
+				<< " Be cautious using the following results!" << std::endl
+				<< std::endl;
+	
+	ofi << " List of parameters and properties of the marginalized" << std::endl
+			<< " distributions:" << std::endl;
+
+	for (unsigned i = 0; i < GetNVariables(); ++i) {
+		if ( ! GetVariable(i)->FillHistograms())
+			continue;
+		
+		unsigned prec = GetVariable(i) -> GetPrecision();
+
+		ofi << "  (" << i << ") " << ((i<GetNParameters()) ? "Parameter" : "Observable")
+				<< " \"" << GetVariable(i)->GetName() << "\":";
+		
+		if (!MarginalizedHistogramExists(i)) {
+			if (i<GetNParameters() and GetParameter(i)->Fixed())
+				ofi << TString::Format(" fixed at %.*g.",prec,GetParameter(i)->GetFixedValue()) << std::endl;
+			else
+				ofi << " histogram does not exist." << std::endl;
+			continue;
+		}
+		ofi << std::endl;
+		
+		// get marginalized histogram
+		BCH1D * bch1d = GetMarginalized(i);
+		
+		ofi << TString::Format("      Mean +- sqrt(V):                %.*g +- %.*g\n", prec,bch1d->GetMean(), prec,bch1d->GetRMS())
+				<< TString::Format("      Median +- central 68%% interval: %.*g +  %.*g - %.*g\n",
+													 prec,bch1d->GetMedian(), prec,bch1d->GetQuantile(0.84)-bch1d->GetMedian(), prec,bch1d->GetMedian()-bch1d->GetQuantile(0.16))
+				<< TString::Format("      (Marginalized) mode:            %.*g\n",  prec, bch1d->GetMode())
+				<< TString::Format("       5%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.05))
+				<< TString::Format("      10%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.10))
+				<< TString::Format("      16%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.16))
+				<< TString::Format("      84%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.85))
+				<< TString::Format("      90%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.90))
+				<< TString::Format("      95%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.95));
+		
+		std::vector<std::vector<double> > v = bch1d -> GetSmallestIntervals(0.68);
+		ofi << TString::Format("      Smallest interval%s containing at least 68%% and local mode%s:",(v.size()>1 ? "s":""),(v.size()>1 ? "s":"")) << std::endl;
+		for (unsigned j = 0; j < v.size(); ++j)
+			ofi << TString::Format("       (%.*g, %.*g) (local mode at %.*g with rel. height %.*g; rel. area %.*g)\n",
+														 prec,v[j][0], prec,v[j][1], prec,v[j][3], prec,v[j][2], prec,v[j][4]);
+		ofi << std::endl;
+	}
+	
+	if (fMCMCFlagRun) {
+
+		ofi << " Status of the MCMC" << std::endl
+				<< " ==================" << std::endl
+				<< " Convergence reached:                    ";
+		
+		if (MCMCGetNIterationsConvergenceGlobal()>0)
+			ofi << "yes" << std::endl
+					<< " Number of iterations until convergence: "
+					<< MCMCGetNIterationsConvergenceGlobal() << std::endl;
+		else
+			ofi << "no" << std::endl;
+		
+		ofi << " Number of chains:                       " << MCMCGetNChains() << std::endl
+				<< " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
+				<< " Average run efficiencies:" << std::endl;
+		
+		unsigned nletters = GetMaximumParameterNameLength(false);
+
+		for (unsigned i = 0; i < GetNParameters(); ++i)
+			if (GetParameter(i)->Fixed())
+				ofi << TString::Format("  (%d) Parameter \"%*s\" : (fixed)", i, nletters, GetParameter(i)->GetName().data()) << std::endl;
+			else {
+				double eff = 0;
+				for (unsigned j = 0; j < fMCMCEfficiencies.size(); ++j)
+					eff += fMCMCEfficiencies[j][i] / fMCMCEfficiencies.size();
+				ofi << TString::Format("  (%d) Parameter \"%*s\" : %5.2f %%", i, nletters, GetParameter(i)->GetName().data(),eff*100) << std::endl;
+			}
+	}
+
+	ofi << " -----------------------------------------------------" << std::endl
+			<< " Notation:" << std::endl
+			<< " Mean        : mean value of the marg. pdf" << std::endl
+			<< " Median      : median of the marg. pdf" << std::endl
+			<< " Marg. mode  : most probable value of the marg. pdf" << std::endl
+			<< " V           : Variance of the marg. pdf" << std::endl
+			<< " Quantiles   : most commonly used quantiles" <<std::endl
+			<< " -----------------------------------------------------" << std::endl
+			<< std::endl;
+}
+
+
 
 // ---------------------------------------------------------
 void BCEngineMCMC::PrintParameters(std::vector<double> const & P, void (*output)(const char *) ) {
@@ -1740,7 +1973,7 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 		local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetMode()));
 
 		// smallest interval
-		std::vector<double> intervals = bch1d_temp->GetSmallestIntervals(interval_content);
+		std::vector<double> intervals = bch1d_temp->GetSmallestIntervals(interval_content).front();
 		if (intervals.size()>3) {
 			interval_lo.push_back(fabs(intervals[3]-intervals[0])/GetVariable(i)->GetRangeWidth());
 			interval_hi.push_back(fabs(intervals[3]-intervals[1])/GetVariable(i)->GetRangeWidth());
@@ -1760,7 +1993,7 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 	c_par -> cd();
 
 	// Create, label, and draw axes
-	TH2D * hist_axes = new TH2D(TString::Format("h2_axes_parplot_%d_%d",i0,i1), ";;Scaled range [a.u.]",
+	TH2D * hist_axes = new TH2D(TString::Format("h2_axes_parplot_%s_%d_%d",GetSafeName().data(),i0,i1), ";;Scaled range [a.u.]",
 															i1-i0, i0-0.5, i1-0.5, 10, -0.1, 1.1);
 	hist_axes -> SetStats(kFALSE);
 	hist_axes -> GetXaxis() -> SetLabelOffset(0.015);
@@ -1860,7 +2093,7 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 // ---------------------------------------------------------
 int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
    // create histogram
-   TH2D * hist_corr = new TH2D("hist_correlation_matrix",";;",GetNVariables(), -0.5, GetNVariables()-0.5, GetNVariables(), -0.5, GetNVariables()-0.5);
+	TH2D * hist_corr = new TH2D(TString::Format("hist_correlation_matrix_%s",GetSafeName().data()),";;",GetNVariables(), -0.5, GetNVariables()-0.5, GetNVariables(), -0.5, GetNVariables()-0.5);
    hist_corr -> SetStats(false);
    hist_corr -> GetXaxis() -> SetTickLength(0.0);
    hist_corr -> GetYaxis() -> SetTickLength(0.0);

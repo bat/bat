@@ -80,6 +80,8 @@ public:
 	
 	bool IsValid(double value) const
 	{ return (fLowerLimit <= value) && (value <= fUpperLimit) ? true : false; }
+
+	std::string OneLineSummary();
 	
 	/** @} */
 

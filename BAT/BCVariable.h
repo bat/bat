@@ -168,6 +168,10 @@ public:
 	void PrintSummary() const;
 
 	/**
+	 * @return A one line summary of the variable. */
+	virtual std::string OneLineSummary();
+
+	/**
 	 * Creates a 1D Histogram for this variable.
 	 * @param name Name of the histogram.
 	 * @return pointer to histogram object. */

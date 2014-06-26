@@ -81,11 +81,6 @@ class BCModel : public BCIntegrate
       /** @{ */
 
       /**
-       * @return The name of the model. */
-      const std::string & GetName() const
-         { return fName; }
-
-      /**
        * @return The a priori probability. */
       double GetModelAPrioriProbability() const
          { return fModelAPriori; }
@@ -138,12 +133,6 @@ class BCModel : public BCIntegrate
 
       /** \name Member functions (set) */
       /** @{ */
-
-      /**
-       * Sets the name of the model.
-       * @param name Name of the model */
-      void SetName(const char * name)
-         { fName = name; }
 
       /**
        * Sets the a priori probability for a model.
@@ -489,9 +478,6 @@ class BCModel : public BCIntegrate
        * Prints a summary on the screen. */
       void PrintSummary();
 
-      /**
-       * Prints a summary of the Markov Chain Monte Carlo to a file. */
-      void PrintResults(const char * file);
 
       /**
        * Prints a short summary of the fit results on the screen. */
@@ -517,9 +503,9 @@ class BCModel : public BCIntegrate
    /** @} */
 
    protected:
-      /**
-       * Name of the model. */
-      std::string fName;
+	    /**
+			 * Print marginalization to stream. */
+	    virtual void PrintMarginalizationToStream(std::ofstream & ofi);
 
       /**
        * The model prior probability. */

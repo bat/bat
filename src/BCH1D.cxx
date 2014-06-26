@@ -1028,80 +1028,62 @@ TH1D * BCH1D::GetSmallestIntervalHistogram(double level)
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCH1D::GetSmallestIntervals(double content)
+std::vector<std::vector<double> > BCH1D::GetSmallestIntervals(double content)
 {
-   std::vector<double> v;
+	std::vector<std::vector<double> > V;
+	
+	TH1D * hist = GetSmallestIntervalHistogram(content);
+	if (!hist)
+		return V;
+	
+	double max = -1;
 
-   TH1D * hist = GetSmallestIntervalHistogram(content);
-	 if (!hist)
-		 return v;
+	std::vector<double> v;
+	
+	for (int i = 1; i <= hist->GetNbinsX(); ++i) {
 
-   int nbins = hist->GetNbinsX();
-   int ninter = 0;
+		// interval starts here
+		if (v.empty() and hist->GetBinContent(i) > 0.) {
+			// set xmin
+			v.push_back(hist->GetXaxis()->GetBinLowEdge(i));
+			// init xmax
+			v.push_back(hist->GetXaxis()->GetBinUpEdge(i));
+			// init local maximum
+			v.push_back(fHistogram->GetBinContent(i));
+			v.push_back(hist->GetBinLowEdge(i));
+			// init local integral
+			v.push_back(0);
+		}
 
-   double max = -1;
-   double localmax = -1;
-   double localmaxpos = -1;
-   double localint = 0;
-   bool flag = false;
+		// interval stops here
+		if (!v.empty()) {
 
-   for (int i = 1; i <= nbins; ++i)
-   {
-      // interval starts here
-      if (!flag && hist->GetBinContent(i) > 0.)
-      {
-         flag = true;
-         v.push_back(hist->GetBinLowEdge(i));
+			// find local maximum
+			if (v[2] < fHistogram->GetBinContent(i)) {
+				v[2] = fHistogram->GetBinContent(i);
+				v[3] = hist->GetBinCenter(i);
+			}
+			
+			// increase area
+			v[4] += fHistogram->GetBinContent(i) / fHistogram->Integral();
 
-         // increase number of intervals
-         ninter++;
+			if (i==hist->GetNbinsX() or hist->GetBinContent(i+1) <=0) {
+				v[1] = hist->GetXaxis()->GetBinUpEdge(i);
+				
+				// find the absolute maximum
+				if (v[2] > max)
+					max = v[2];
+				V.push_back(v);
+				v.clear();
+			}
+		}
+	}
+	
+	// rescale absolute heights to relative heights
+	for (unsigned i = 0; i < V.size(); ++i)
+		V[i][2] *= 1. / max;
 
-         // reset local maximum
-         localmax = fHistogram->GetBinContent(i);
-         localmaxpos = hist->GetBinLowEdge(i);
+	delete hist;
 
-         // reset local integral
-         localint = 0;
-      }
-
-      // interval stops here
-      if ((flag && !(hist->GetBinContent(i) > 0.)) || (flag && i == nbins))
-      {
-         flag = false;
-         v.push_back(hist->GetBinLowEdge(i) + hist->GetBinWidth(i));
-
-         // set right bin to maximum if on edge
-         if (i == nbins && localmax < fHistogram->GetBinContent(i))
-            localmaxpos = hist->GetBinCenter(i) + 0.5 * hist->GetBinWidth(i);
-
-         // find the absolute maximum
-         if (localmax > max)
-            max = localmax;
-
-         // save local maximum
-         v.push_back(localmax);
-         v.push_back(localmaxpos);
-
-         // save local integral
-         v.push_back(localint);
-      }
-
-      // find local maximum
-      if (i < nbins && localmax < fHistogram->GetBinContent(i))
-      {
-         localmax = fHistogram->GetBinContent(i);
-         localmaxpos = hist->GetBinCenter(i);
-      }
-
-      // increase area
-      localint += fHistogram->GetBinContent(i) / fHistogram->Integral();
-   }
-
-   // rescale absolute heights to relative heights
-   for (int i = 0; i < ninter; ++i)
-      v[i*5+2] = v.at(i*5+2) / max;
-
-   delete hist;
-
-   return v;
+	return V;
 }

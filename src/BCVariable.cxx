@@ -56,6 +56,11 @@ void BCVariable::PrintSummary() const {
 }
 
 // ---------------------------------------------------------
+std::string BCVariable::OneLineSummary() {
+	return std::string(Form("%s \"%s\" : [%.*f, %.*f]",fPrefix.data(),fName.data(),fPrecision,fLowerLimit,fPrecision,fUpperLimit));
+}
+
+// ---------------------------------------------------------
 
 TH1D * BCVariable::CreateH1(const char * name) {
 	return new TH1D(name, TString::Format(";%s",fLatexName.c_str()), fNbins, fLowerLimit, fUpperLimit);

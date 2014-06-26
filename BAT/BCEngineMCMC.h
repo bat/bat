@@ -60,7 +60,7 @@ class BCEngineMCMC
 
       /**
        * Default constructor. */
-      BCEngineMCMC();
+      BCEngineMCMC(const char * name = "model");
 
       /**
        * Default copy constructor. */
@@ -81,6 +81,11 @@ class BCEngineMCMC
       /** @} */
       /** \name Getters */
       /** @{ */
+
+      /**
+       * @return The name of the engine. */
+      const std::string & GetName() const
+         { return fName; }
 
       /**
        * @return number of Markov chains */
@@ -507,6 +512,11 @@ class BCEngineMCMC
 	    virtual double GetBestFitParameter(unsigned index) const;
 
 	    /**
+			 * @return The log of the value at the mode. */
+	    virtual double GetLogMaximum()
+	       { return fMCMCLogMaximum; };
+
+	    /**
 	     * Returns the value of the user-defined observable at the 
 	     * the maximum found by the Markov chain
 	     * @param index of the user-defined observable
@@ -524,6 +534,11 @@ class BCEngineMCMC
       /** @} */
       /** \name Setters */
       /** @{ */
+
+      /**
+       * Sets the name of the engine.
+       * @param name Name of the engine */
+	    void SetName(const char * name);
 
     	/**
     	 * Set scale factor lower limit */
@@ -726,6 +741,14 @@ class BCEngineMCMC
       /** @} */
       /** \name Miscellaneous methods */
       /** @{ */
+
+      /**
+       * Prints a summary on the screen. */
+	    virtual void PrintSummary();
+
+      /**
+       * Prints a summary to a file. */
+      virtual void PrintResults(const char * file);
 
 	    /**
 			 * Print parameters
@@ -985,6 +1008,31 @@ class BCEngineMCMC
       void SyncThreadStorage();
 
    protected:
+
+	    /**
+			 * Print model summary to stream. */
+	    virtual void PrintSummaryToStream(std::ofstream & ofi);
+
+	    /**
+			 * Print best fit to stream. */
+	    virtual void PrintBestFitToStream(std::ofstream & ofi);
+
+	    /**
+			 * Print marginalization to stream. */
+	    virtual void PrintMarginalizationToStream(std::ofstream & ofi);
+
+      /**
+       * Name of the engine. */
+      std::string fName;
+
+      /**
+       * Safe name of the engine for use in naming ROOT objects. */
+      std::string fSafeName;
+
+      /**
+       * @return The name of the engine with spaces removed. */
+      const std::string & GetSafeName() const
+         { return fSafeName; }
 
     	/**
     	 * return appropriate update interval */

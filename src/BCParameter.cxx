@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include <TString.h>
+
 
 // ---------------------------------------------------------
 
@@ -46,3 +48,10 @@ bool BCParameter::IsAtLimit(double value) const
       return false;
 }
 
+// ---------------------------------------------------------
+
+std::string BCParameter::OneLineSummary() {
+	if (!Fixed())
+		return BCVariable::OneLineSummary();
+	return std::string(Form("%s (fixed at %.*f)",BCVariable::OneLineSummary().data(),GetPrecision(),GetFixedValue()));
+}

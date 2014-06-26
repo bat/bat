@@ -34,6 +34,7 @@
 
 #include <math.h>
 #include <limits>
+#include <fstream>
 
 namespace
 {
@@ -67,39 +68,40 @@ namespace
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate() : BCEngineMCMC(),
-                             fID(BCLog::GetHIndex()),
-                             fMinuit(0),
-                             fMinuitErrorFlag(0),
-                             fFlagIgnorePrevOptimization(false),
-                             fSAT0(100),
-                             fSATmin(0.1),
-                             fTreeSA(0),
-                             fFlagWriteSAToFile(false),
-                             fSANIterations(0),
-                             fSATemperature(0),
-                             fSALogProb(0),
-                             fMarginalized1D(0),
-                             fMarginalized2D(0),
-                             fFlagMarginalized(false),
-                             fOptimizationMethodCurrent(BCIntegrate::kOptDefault),
-                             fOptimizationMethodUsed(BCIntegrate::kOptEmpty),
-                             fIntegrationMethodCurrent(BCIntegrate::kIntDefault),
-                             fIntegrationMethodUsed(BCIntegrate::kIntEmpty),
-                             fMarginalizationMethodCurrent(BCIntegrate::kMargDefault),
-                             fMarginalizationMethodUsed(BCIntegrate::kMargEmpty),
-                             fSASchedule(BCIntegrate::kSACauchy),
-                             fNIterationsMin(0),
-                             fNIterationsMax(1000000),
-                             fNIterationsPrecisionCheck(1000),
-                             fNIterationsOutput(0),
-                             fNIterations(0),
-                             fLogMaximum(-std::numeric_limits<double>::max()),
-                             fIntegral(-1),
-                             fRelativePrecision(1e-2),
-                             fAbsolutePrecision(1e-6),
-                             fError(-999.),
-                             fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+BCIntegrate::BCIntegrate(const char * name)
+	: BCEngineMCMC(name)
+	,	fID(BCLog::GetHIndex())
+	,	fMinuit(0)
+	,	fMinuitErrorFlag(0)
+	,	fFlagIgnorePrevOptimization(false)
+	,	fSAT0(100)
+	,	fSATmin(0.1)
+	,	fTreeSA(0)
+	,	fFlagWriteSAToFile(false)
+	,	fSANIterations(0)
+	,	fSATemperature(0)
+	,	fSALogProb(0)
+	,	fMarginalized1D(0)
+	,	fMarginalized2D(0)
+	,	fFlagMarginalized(false)
+	,	fOptimizationMethodCurrent(BCIntegrate::kOptDefault)
+	,	fOptimizationMethodUsed(BCIntegrate::kOptEmpty)
+	,	fIntegrationMethodCurrent(BCIntegrate::kIntDefault)
+	,	fIntegrationMethodUsed(BCIntegrate::kIntEmpty)
+	,	fMarginalizationMethodCurrent(BCIntegrate::kMargDefault)
+	,	fMarginalizationMethodUsed(BCIntegrate::kMargEmpty)
+	,	fSASchedule(BCIntegrate::kSACauchy)
+	,	fNIterationsMin(0)
+	,	fNIterationsMax(1000000)
+	,	fNIterationsPrecisionCheck(1000)
+	,	fNIterationsOutput(0)
+	,	fNIterations(0)
+	,	fLogMaximum(-std::numeric_limits<double>::max())
+	,	fIntegral(-1)
+	,	fRelativePrecision(1e-2)
+	,	fAbsolutePrecision(1e-6)
+	,	fError(-999.)
+	,	fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
 {
 	fMinuitArglist[0] = 20000;
 	fMinuitArglist[1] = 0.01;
@@ -607,9 +609,8 @@ TH1D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index)
         return NULL;
 
     // create histogram
-    TH1D * hist = new TH1D(TString::Format("h1_%s", par->GetName().data()),
-                           TString::Format(";%s;(unit %s)^{-1};", par->GetName().data(), par->GetName().data()),
-                           par->GetNbins(), par->GetLowerLimit(), par->GetUpperLimit());
+    TH1D * hist = par->CreateH1(TString::Format("h1_%s_%d",GetSafeName().data(),index));
+		hist -> SetYTitle(TString::Format("(unit %s)^{-1};", par->GetName().data());
 
     // fill histogram
     std::vector<unsigned> indices(1, index);
@@ -621,18 +622,14 @@ TH1D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index)
 // ---------------------------------------------------------
 TH2D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2)
 {
-   BCParameter * par1 = fParameters.Get(index1);
-   BCParameter * par2 = fParameters.Get(index2);
-   if ( ! par1 || par2)
-      return NULL;
-
+	BCParameter * par1 = fParameters.Get(index1);
+	BCParameter * par2 = fParameters.Get(index2);
+	if ( ! par1 || par2)
+		return NULL;
+	
 	// create histogram
-	TH2D * hist = new TH2D(TString::Format("h2_%s_%s", par1->GetName().data(), par2->GetName().data()),
-												 TString::Format(";%s;%s;(unit %s)^{-1}(unit %s)^{-1}",
-															par1->GetName().data(), par2->GetName().data(),
-															par1->GetName().data(), par2->GetName().data()),
-															par1->GetNbins(), par1->GetLowerLimit(), par1->GetUpperLimit(),
-															par2->GetNbins(), par2->GetLowerLimit(), par2->GetUpperLimit());
+	TH2D * hist = par1->CreateH2(TString::Format("h2_%s_%d_%d", GetSafeName().data(), index1,index2),par2);
+	hist -> SetZTitle(TString::Format("(unit %s)^{-1}(unit %s)^{-1}",par1->GetName().data(), par2->GetName().data()));
 
 	// fill histogram
 	std::vector<unsigned> indices;
@@ -1049,7 +1046,7 @@ TH2D * BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
 	}
 
 	// create histogram
-	TH2D * hist = fParameters[index1] -> CreateH2("",fParameters[index2]);
+	TH2D * hist = fParameters[index1] -> CreateH2(TString::Format("h2_slice_%s_%d_%d",GetSafeName().data(),index1,index2),fParameters[index2]);
 	hist->SetStats(kFALSE);
 	hist->UseCurrentStyle();
 
@@ -2095,4 +2092,69 @@ Cuhre::Cuhre() :
       General(),
       key(0) // let cuba choose default cubature rule
 {}
+}
+
+
+// ---------------------------------------------------------
+void BCIntegrate::PrintSummary()
+{
+	BCEngineMCMC::PrintSummary();
+	// normalization
+	if (GetIntegral() > 0) {
+		BCLog::OutSummary(" Evidence:");
+		BCLog::OutSummary(Form(" - evidence : %f", GetIntegral()));
+	}
+}
+
+// ---------------------------------------------------------
+void BCIntegrate::PrintMarginalizationToStream(std::ofstream & ofi) {
+	if (GetIntegral() >= 0) {
+		ofi << " Results of the integration" << std::endl
+				<< " ============================" << std::endl
+				<< " Integration method used: "
+				<< DumpUsedIntegrationMethod() << std::endl
+				<< " Evidence: " << GetIntegral();
+		if (GetError() >= 0)
+			ofi << " +- " << GetError() << std::endl;
+		else
+			ofi << " (no error estimate available) " << std::endl;
+		ofi << std::endl;
+	}
+	if (fFlagMarginalized) {
+		ofi << std::endl << " Marginalization algorithm used: "
+				<< DumpUsedMarginalizationMethod() << std::endl << std::endl;
+		if (!fMCMCFlagRun)
+			ofi << " Results of the marginalization" << std::endl
+					<< " ==============================" << std::endl;
+		BCEngineMCMC::PrintMarginalizationToStream(ofi);
+	}
+}
+
+// ---------------------------------------------------------
+void BCIntegrate::PrintBestFitToStream(std::ofstream & ofi) {
+	if (GetBestFitParameters().empty()) {
+		ofi << "No best fit information available." << std::endl << std::endl;
+		return;
+	}
+
+	unsigned nletters = GetMaximumParameterNameLength();
+
+	ofi << " Results of the optimization" << std::endl
+			<< " ===========================" << std::endl
+			<< " Optimization algorithm used: "
+			<< DumpUsedOptimizationMethod()<< std::endl
+			<< " Log of the maximum posterior: " << GetLogMaximum() << std::endl
+			<< " List of parameters and global mode:" << std::endl;
+
+	for (unsigned i = 0; i < GetNVariables(); ++i) {
+		ofi << TString::Format(" (%d) %10s \"%*s\" : %.*g", i, (i<GetNParameters()) ? "Parameter" : "Observable",
+													 nletters, GetVariable(i)->GetName().data(),
+													 GetVariable(i)->GetPrecision(),GetBestFitParameter(i));
+		if (i<GetNParameters() and GetParameter(i)->Fixed())
+			ofi << " (fixed)" << std::endl;
+		else if (i<GetBestFitParameters().size() and GetBestFitParameterError(i) >= 0)
+			ofi << TString::Format(" +- %.*g",GetVariable(i)->GetPrecision(),GetBestFitParameterError(i)) << std::endl;
+		else
+			ofi << " (no error estimate available)" << std::endl;
+	}
 }

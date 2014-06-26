@@ -151,7 +151,7 @@ public:
 
    /**
     * A constructor */
-   BCIntegrate();
+   BCIntegrate(const char * name = "model");
 
    /**
     * The copy constructor */
@@ -172,11 +172,6 @@ public:
    /** @} */
    /** \name Member functions (get) */
    /** @{ */
-
-   /**
-    *   */
-   // int PrintAllMarginalized(const char * file, std::string options1d="BTsiB3CS1D0pdf0Lmeanmode", std::string options2d="BTfB3CS1meangmode", unsigned int hdiv=1, unsigned int ndiv=1);
-
 
    /**
     * @return The integral. */
@@ -787,9 +782,21 @@ public:
     * Check that indices of parameters to marginalize w/r/t are correct */
    bool CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned> &index);
 
+	 /**
+		* Prints a summary on the screen. */
+	 virtual void PrintSummary();
+
    /** @} */
 
 protected:
+
+	 /**
+	  * Print best fit to stream. */
+	 virtual void PrintBestFitToStream(std::ofstream & ofi);
+
+	 /**
+	  * Print marginalization to stream. */
+	 virtual void PrintMarginalizationToStream(std::ofstream & ofi);
 
    /**
     * An identification number in case several models exist .*/

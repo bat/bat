@@ -258,7 +258,7 @@ class BCH1D
   TH1D* GetSmallestIntervalHistogram(double level);
 
   /**
-   * Return a vector containing information about the set of smallest
+   * Return a vector of vectors containing information about the set of smallest
    * intervals. \n
    * 0 : x_min \n
    * 1 : x_max \n
@@ -268,7 +268,7 @@ class BCH1D
    * @param content The content of the smallest interval
    * @return the vector.
    */
-  std::vector<double> GetSmallestIntervals(double content = 0.68);
+	std::vector<std::vector<double> > GetSmallestIntervals(double content = 0.68);
 
   /**
    * Calculate integral of the distribution between min and max.
