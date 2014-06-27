@@ -63,13 +63,13 @@ std::string BCVariable::OneLineSummary() {
 // ---------------------------------------------------------
 
 TH1D * BCVariable::CreateH1(const char * name) {
-	return new TH1D(name, TString::Format(";%s",fLatexName.c_str()), fNbins, fLowerLimit, fUpperLimit);
+	return new TH1D(name, TString::Format(";%s",GetLatexName().c_str()), fNbins, fLowerLimit, fUpperLimit);
 }
 
 // ---------------------------------------------------------
 
 TH2D * BCVariable::CreateH2(const char * name, BCVariable * ordinate) {
-	return new TH2D(name, TString::Format(";%s;%s",fLatexName.c_str(),ordinate->GetLatexName().c_str()),
+	return new TH2D(name, TString::Format(";%s;%s",GetLatexName().c_str(),ordinate->GetLatexName().c_str()),
 									fNbins, fLowerLimit, fUpperLimit,
 									ordinate->GetNbins(),ordinate->GetLowerLimit(),ordinate->GetUpperLimit());
 }

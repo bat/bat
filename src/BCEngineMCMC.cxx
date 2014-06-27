@@ -1885,30 +1885,37 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 
 	TCanvas * c_par = new TCanvas("c_parplot_init");
 	c_par -> Print(Form("%s[",filename));
+	c_par -> cd();
+
+	if (npar<=0) // all parameters on one page, all user-defined observables on the next
+		npar = std::max<int> (GetNParameters(),GetNObservables());
 
 	int return_val = 1;
-	if (npar<=0) { // all parameters on one page, all user-defined observables on the next
-		return_val *= PrintParameterPlot(0,GetNParameters(), filename, interval_content, quantiles);
-		return_val *= PrintParameterPlot(GetNParameters(),GetNObservables(), filename, interval_content, quantiles);
-	}
 
-	else { // npar per page
-
-		// parameters first
-		for (unsigned i = 0; i<GetNParameters(); i += npar)
-			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNParameters()-i), filename, interval_content, quantiles);
-
-		// then user-defined observables
-		for (unsigned i = GetNParameters(); i<GetNVariables(); i += npar)
-			return_val *= PrintParameterPlot(i,std::min<int>(npar,GetNVariables()-i), filename, interval_content, quantiles);
-	}
+	// parameters first
+	for (unsigned i = 0; i<GetNParameters(); i += npar)
+		if (DrawParameterPlot(i,std::min<int>(npar,GetNParameters()-i), interval_content, quantiles)) {
+			c_par->Print(filename);
+			c_par->Clear();
+		}
+		else
+			return_val = 0;
+	
+	// then user-defined observables
+	for (unsigned i = GetNParameters(); i<GetNVariables(); i += npar)
+		if(DrawParameterPlot(i,std::min<int>(npar,GetNVariables()-i), interval_content, quantiles)) {
+			c_par -> Print(filename);
+			c_par -> Clear();
+		}
+		else
+			return_val = 0;
 
 	c_par -> Print(Form("%s]",filename));
 	return return_val;
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * filename, double interval_content, std::vector<double> quantiles) {
+int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles) {
 
 	// if npar==0, print all remaining observables
 	unsigned i1 = (npar>0 && npar<=GetNVariables()) ? i0+npar : GetNVariables();
@@ -1989,9 +1996,6 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 	/////////////////////////
 	// Draw it all
 
-	TCanvas * c_par = new TCanvas(TString::Format("c_parplot_%d_%d",i0,i1));
-	c_par -> cd();
-
 	// Create, label, and draw axes
 	TH2D * hist_axes = new TH2D(TString::Format("h2_axes_parplot_%s_%d_%d",GetSafeName().data(),i0,i1), ";;Scaled range [a.u.]",
 															i1-i0, i0-0.5, i1-0.5, 10, -0.1, 1.1);
@@ -2028,10 +2032,13 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 	}
 
 	// create legend
-	TLegend * legend = new TLegend(0.1, 0.91, 0.9, 0.99);
+	TLegend * legend = new TLegend();
 	legend -> SetBorderSize(0);
-	legend -> SetFillColor(0);
+	legend -> SetFillColor(kWhite);
 	legend -> SetNColumns(2);
+	legend -> SetTextAlign(12);
+	legend -> SetTextFont(62);
+	legend -> SetTextSize(0.02*gPad->GetWNDC());
 
 	if (!x_i.empty()) {
 
@@ -2067,6 +2074,7 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 		TGraphErrors * graph_mean = new TGraphErrors(x_i.size(), x_i.data(), mean.data(), 0, rms.data());
 		graph_mean->SetMarkerColor(kBlack);
 		graph_mean->SetMarkerStyle(20);
+		graph_mean->SetMarkerSize(1*gPad->GetWNDC());
 		graph_mean->Draw("SAMEP");
 
 		legend -> AddEntry(graph_mean, "Mean and RMS", "LEP");
@@ -2078,13 +2086,24 @@ int BCEngineMCMC::PrintParameterPlot(unsigned i0, unsigned npar, const char * fi
 		TGraph * graph_mode = new TGraph(x_i_bf.size(), x_i_bf.data(), global_mode.data());
 		graph_mode->SetMarkerColor(kRed);
 		graph_mode->SetMarkerStyle(20);
+		graph_mode->SetMarkerSize(1*gPad->GetWNDC());
 		graph_mode->Draw("SAMEP");
 		legend->AddEntry(graph_mode, "Global mode", "P");
 	}
 
+	gPad->SetTopMargin(0.02);
+
+	// place legend on top of histogram
+	legend->SetX1NDC(gPad->GetLeftMargin());
+	legend->SetX2NDC(1. - gPad->GetRightMargin());
+	double y1 = gPad->GetTopMargin() + legend->GetTextSize()*legend->GetNRows();
+	legend->SetY1NDC(1.-y1);
+	legend->SetY2NDC(1. - gPad->GetTopMargin());
 	legend->Draw("SAME");
+
+	gPad -> SetTopMargin(y1+0.01);
+
 	gPad->RedrawAxis();
-	c_par->Print(filename);
 
 	// no error
 	return 1;
@@ -2290,15 +2309,18 @@ int BCEngineMCMC::PrintCorrelationPlot(const char * filename) {
 				text_na -> DrawText(.5,.5,"N/A");
 
 			}	else {									// draw histogram
+
+				hh -> SetStats(false);
+				hh -> GetXaxis() -> SetLabelSize(0);
+				hh -> GetYaxis() -> SetLabelSize(0);
+				hh -> GetXaxis() -> SetTitleSize(0);
+				hh -> GetYaxis() -> SetTitleSize(0);
+
 				if (bh1)
 					bh1 -> Draw("BTsiB3CS1D0");
 				else
 					bh2 -> Draw("BTfB3CS1nL");
 
-				hh -> GetXaxis() -> SetLabelSize(0);
-				hh -> GetYaxis() -> SetLabelSize(0);
-				hh -> GetXaxis() -> SetTitleSize(0);
-				hh -> GetYaxis() -> SetTitleSize(0);
 			}
 
 			c->cd();

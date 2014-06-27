@@ -17,8 +17,7 @@ public:
         // kApprox: use approximation
         enum EvalOption{ kAnalytic, kHistogram, kApprox };
 
-        // Constructors and destructor
-        ReferenceCounting();
+        // Constructor and destructor
         ReferenceCounting(const char * name);
         ~ReferenceCounting();
 

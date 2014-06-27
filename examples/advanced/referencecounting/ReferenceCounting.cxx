@@ -13,23 +13,6 @@
 #include <iomanip>
 
 // ---------------------------------------------------------
-ReferenceCounting::ReferenceCounting() : BCModel()
-                                       , fEvalOption(kHistogram)
-                                       , fNObs(0)
-                                       , fEps(1e-6)
-                                       , fAlpha(10)
-                                       , fBeta(5)
-                                       , logs(0)
-                                       , maxn(0)
-                                       , maxk(10000)
-                                       , fHistPriorS(0)
-                                       , fHistPriorB(0)
-{
-   // default constructor
-   DefineParameters();
-}
-
-// ---------------------------------------------------------
 ReferenceCounting::ReferenceCounting(const char * name) : BCModel(name)
                                                         , fEvalOption(kHistogram)
                                                         , fNObs(0)

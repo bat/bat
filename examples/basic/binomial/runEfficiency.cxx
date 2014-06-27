@@ -11,11 +11,10 @@ int main()
   BCAux::SetStyle();
 
   // open log file
-  BCLog::OpenLog("log.txt");
-  BCLog::SetLogLevel(BCLog::detail);
+  BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
   // create new BinomialModel object
-  BinomialModel * m = new BinomialModel();
+  BinomialModel * m = new BinomialModel("binMod");
 
   // set number of events
   m->SetNTotal(20);

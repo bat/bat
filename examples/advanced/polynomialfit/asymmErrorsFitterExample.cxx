@@ -21,8 +21,7 @@ int main()
    BCAux::SetStyle();
 
    // open log file with default level of logging
-   BCLog::OpenLog("log.txt");
-   BCLog::SetLogLevel(BCLog::detail);
+   BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
    // 1st order polynomial
    Pol1Asymm* m1 = new Pol1Asymm("1dPol asymm");

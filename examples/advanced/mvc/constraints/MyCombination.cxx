@@ -11,7 +11,6 @@
 MyCombination::MyCombination() 
   : BCMVCombination()
   , fFlagPhysicalConstraints(true)
-  , fHistFR(0)
 {
 }
 
@@ -36,24 +35,9 @@ double MyCombination::LogLikelihood(const std::vector<double> &parameters)
 }
 
 // ---------------------------------------------------------
-void MyCombination::MCMCIterationInterface()
+double MyCombination::FR(const std::vector<double> & pars)
 {
-  // get number of chains
-  int nchains = MCMCGetNChains();
-
-  // get number of parameters
-  int npar = GetNParameters();
-
-  // loop over all chains and fill histogram
-  for (int i = 0; i < nchains; ++i) {
-    double F0 = fMCMCx.at(i * npar + 0);
-    double FL = fMCMCx.at(i * npar + 1);
-    double FR = 1. - F0 - FL;
-
-    // fill the ratio histogram
-    if (fHistFR)
-      fHistFR->Fill(FR);
-  }
+	return 1. - pars[0] - pars[1];
 }
 
 // ---------------------------------------------------------

@@ -11,11 +11,10 @@ int main()
   BCAux::SetStyle();
 
   // open log file
-  BCLog::OpenLog("log.txt");
-  BCLog::SetLogLevel(BCLog::detail);
+  BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
   // create new RatioModel object
-  RatioModel * m = new RatioModel();
+  RatioModel * m = new RatioModel("ratMod");
 
   // set Metropolis as marginalization method
   m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -34,9 +33,6 @@ int main()
 
   // print results of the analysis into a text file
   m->PrintResults("RatioModel_results.txt");
-
-  // print ratio
-  m->PrintHistogram();
 
   // close log file
   BCLog::CloseLog();

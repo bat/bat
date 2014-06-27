@@ -776,11 +776,11 @@ class BCEngineMCMC
 			int PrintParameterPlot(const char * filename = "parameters.pdf", int npar=10, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0));
 			
 			/**
-			 * Print a summary plot for the parameters in the range provided
+			 * Draw a summary plot for the parameters in the range provided to current pad
 			 * @par i0 Index of first parameter to print.
 			 * @par npar Number of parameters to print, set to 0 to print all.
 			 * @return An error flag. */
-			int PrintParameterPlot(unsigned i0, unsigned npar=0, const char * filename = "parameters.pdf", double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0));
+			int DrawParameterPlot(unsigned i0, unsigned npar=0, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0));
 			
 			/**
 			 * Print a correlation matrix for the parameters.

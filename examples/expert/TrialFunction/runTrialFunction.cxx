@@ -11,17 +11,19 @@ int main()
   BCAux::SetStyle();
 
   // open log file
-  BCLog::OpenLog("log.txt");
-  BCLog::SetLogLevel(BCLog::detail);
+  BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
   // create new GaussModel object
-  GaussModel * m = new GaussModel();
+  GaussModel * m = new GaussModel("gausMod");
 
   // set marginalization method
   m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
   // set MCMC precision
   m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+
+	// set scale factor upper limit
+	m->MCMCSetScaleFactorUpperLimit(10);
 
   // run MCMC and marginalize posterior wrt. all parameters
   // and all combinations of two parameters

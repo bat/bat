@@ -6,13 +6,9 @@
 #include <TString.h>
 
 // ---------------------------------------------------------
-Pol2Asymm::Pol2Asymm() : Pol1Asymm()
-{ // default constructor
-}
-
-// ---------------------------------------------------------
 Pol2Asymm::Pol2Asymm(const char * name) : Pol1Asymm(name)
 { // constructor
+
 }
 
 // ---------------------------------------------------------
@@ -34,15 +30,9 @@ void Pol2Asymm::DefineParameters()
    this -> AddParameter("p1", -0.1 ,  0.05);  // index 1
    this -> AddParameter("p2",  0.0 ,  0.001); // index 2
 
-   // Print parameter summary
-   BCLog::OutSummary(
-      Form("Model \'%s\' has %d parameters:",this->GetName().data(),this -> GetNParameters()));
-   for(unsigned int i=0; i< this -> GetNParameters(); i++)
-      BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
-                             i,
-                             this -> GetParameter(i) -> GetName().data(),
-                             this -> GetParameter(i) -> GetLowerLimit(),
-                             this -> GetParameter(i) -> GetUpperLimit() ) );
+	 SetPriorConstantAll();
+
+	 PrintSummary();
 }
 
 // ---------------------------------------------------------

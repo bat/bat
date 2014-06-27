@@ -68,8 +68,7 @@ void graphFitterSimpleExample()
    BCAux::SetStyle();
 
    // open log file
-   BCLog::OpenLog("log.txt");
-   BCLog::SetLogLevel(BCLog::detail);
+   BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
    // create data
    TGraphErrors * graph = CreateGraph(10, 1000);

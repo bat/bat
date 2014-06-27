@@ -17,11 +17,10 @@ int main()
    BCAux::SetStyle();
 
    // open log file
-   BCLog::OpenLog("log.txt");
-   BCLog::SetLogLevel(BCLog::detail);
+   BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
    // create new ReferenceCounting object
-   ReferenceCounting* m = new ReferenceCounting();
+   ReferenceCounting* m = new ReferenceCounting("refcountMod");
 
    // set option of how to evaluate prior
    // kHistogram : calculate prior first and fill into histogram

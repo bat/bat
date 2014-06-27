@@ -177,6 +177,7 @@ class BCModelOutput
        * The analysis tree variables */
       int fIndex;
       unsigned int fNParameters;
+      unsigned int fNObservables;
       double fProbability_apriori;
       double fProbability_aposteriori;
       std::vector<double> fMode_global;

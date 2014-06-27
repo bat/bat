@@ -66,11 +66,8 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  // define histogram for FR
-  TH1D* hist_fr = new TH1D("FR", ";FR;p", 100, 0., 0.4);
-  hist_fr->SetStats(kFALSE);
-   
-  m->SetHistFR(hist_fr);
+  // define FR
+	m -> AddObservable("FR",0.,0.4,&MyCombination::FR);
    
   // get number of measurements
   int nmeas = m->GetNMeasurements();
@@ -84,9 +81,6 @@ int main(int argc, char *argv[])
     // perform numerical analysis using MCMC
     m->MarginalizeAll();
 
-    // reset histogram pointer
-    m->SetHistFR(0);
-   
     // find mode using Minuit
     m->FindMode( m->GetBestFitParameters() );
    
@@ -110,7 +104,7 @@ int main(int argc, char *argv[])
     hist_FL->SetGlobalMode(gmode[1]);
     hist_FL->Print("FL.pdf", "BTciB3CS1D0pdf0Lmode");
     
-    BCH1D* hist_FR = new BCH1D(hist_fr);   
+    BCH1D* hist_FR = m->GetMarginalized(2);
     hist_FR->Print("FR.pdf", "BTulB3L");
 
     // calculate correlation between F0 and FL

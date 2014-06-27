@@ -982,7 +982,7 @@ TH1D * BCIntegrate::GetSlice(unsigned index, const std::vector<double> parameter
 		fParameters[index] -> SetNbins(nbins);
 
 	// create histogram
-	TH1D * hist = fParameters[index] -> CreateH1(TString::Format("h1_slice_%d",index).Data());
+	TH1D * hist = fParameters[index] -> CreateH1(TString::Format("h1_slice_%s_%d",GetName().data(),index).Data());
 	hist -> UseCurrentStyle();
 	hist -> SetStats(kFALSE);
 

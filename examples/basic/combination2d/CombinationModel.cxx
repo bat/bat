@@ -4,28 +4,19 @@
 #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
-CombinationModel::CombinationModel() : BCModel()
-{
-  DefineParameters();
-};
-
-// ---------------------------------------------------------
 CombinationModel::CombinationModel(const char * name) : BCModel(name)
 {
-  DefineParameters();
+  AddParameter("mass", 15., 65., "M"); // mass of a particle
+	SetPriorGauss("mass",39.4, 5.4); // Gaussian prior for the mass
+
+  AddParameter("cross section", 120., 180., "#sigma"); // cross section for a certain reaction
+  SetPriorGauss("cross section", 150.3, 5.5); // Gaussian prior for the cross section
 };
 
 // ---------------------------------------------------------
 CombinationModel::~CombinationModel()
 {
 };
-
-// ---------------------------------------------------------
-void CombinationModel::DefineParameters()
-{
-  AddParameter("mass", 15., 65.); // mass of a particle
-  AddParameter("cross section", 120., 180.); // cross section for a certain reaction
-}
 
 // ---------------------------------------------------------
 double CombinationModel::LogLikelihood(const std::vector<double> &parameters)
@@ -55,19 +46,3 @@ double CombinationModel::LogLikelihood(const std::vector<double> &parameters)
 
   return logprob;
 }
-
-// ---------------------------------------------------------
-double CombinationModel::LogAPrioriProbability(const std::vector<double> &parameters)
-{
-  double logprob = 0.;
-
-  double mass = parameters.at(0);
-  double crosssection = parameters.at(1);
-
-  logprob += BCMath::LogGaus(mass, 39.4, 5.4); // Gaussian prior for the mass
-  logprob += BCMath::LogGaus(crosssection, 150.3, 5.5); // Gaussian prior for the mass
-
-  return logprob;
-}
-// ---------------------------------------------------------
-

@@ -11,9 +11,8 @@
 #include "BCModelOutput.h"
 
 #include "BCModel.h"
-#include "BCParameter.h"
+#include "BCVariable.h"
 #include "BCH1D.h"
-#include "BCH2D.h"
 #include "BCLog.h"
 
 #include <TDirectory.h>
@@ -130,6 +129,7 @@ void BCModelOutput::FillAnalysisTree()
 
    // get output values from model
    fNParameters = fModel->GetNParameters();
+	 fNObservables = fModel->GetNObservables();
    fProbability_apriori   = fModel->GetModelAPrioriProbability();
    fProbability_aposteriori = fModel->GetModelAPosterioriProbability();
 
@@ -144,25 +144,24 @@ void BCModelOutput::FillAnalysisTree()
    fQuantile_90.clear();
    fQuantile_95.clear();
 
-   // loop over parameters
-   int nparameters = fModel->GetNParameters();
-   for (int i = 0; i < nparameters; ++i) {
-     const BCParameter * parameter = fModel->GetParameter(i);
+   // loop over variables
+   for (unsigned i = 0; i < fModel->GetNVariables(); ++i) {
      if (fModel->GetBestFitParameters().size() > 0)
-       fMode_global.push_back(fModel->GetBestFitParameters().at(i));
-     if (fModel->GetMarginalized(parameter->GetName().data())) {
-       fMode_marginalized.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetMode());
-       fMean_marginalized.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetMean());
-       fMedian_marginalized.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetMedian());
-       fQuantile_05.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.05));
-       fQuantile_10.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.10));
-       fQuantile_16.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.16));
-       fQuantile_84.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.84));
-       fQuantile_90.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.90));
-       fQuantile_95.push_back(fModel->GetMarginalized(parameter->GetName().data())->GetQuantile(0.95));
+       fMode_global.push_back(fModel->GetBestFitParameter(i));
+		 BCH1D * bch1d = fModel->GetMarginalized(i);
+     if (bch1d) {
+       fMode_marginalized.push_back(bch1d->GetMode());
+       fMean_marginalized.push_back(bch1d->GetMean());
+       fMedian_marginalized.push_back(bch1d->GetMedian());
+       fQuantile_05.push_back(bch1d->GetQuantile(0.05));
+       fQuantile_10.push_back(bch1d->GetQuantile(0.10));
+       fQuantile_16.push_back(bch1d->GetQuantile(0.16));
+       fQuantile_84.push_back(bch1d->GetQuantile(0.84));
+       fQuantile_90.push_back(bch1d->GetQuantile(0.90));
+       fQuantile_95.push_back(bch1d->GetQuantile(0.95));
      }
    }
-
+	 
    // fill tree
    fAnalysisTree->Fill();
 
@@ -187,28 +186,13 @@ void BCModelOutput::WriteMarginalizedDistributions()
    // change to file
    fOutputFile->cd();
 
-   int nparameters = fModel->GetNParameters();
-   for (int i = 0; i < nparameters; ++i) {
-      BCH1D* bchist = fModel->GetMarginalized(fModel->GetParameter(i));
-      if (bchist) {
-         TH1D* hist = bchist->GetHistogram();
-         if (hist)
-            hist->Write();
-      }
-   }
-
-   if (nparameters > 1)
-      for (int i = 0; i < nparameters - 1; ++i) {
-         for (int j = i + 1; j < nparameters; ++j) {
-            BCH2D* bchist = fModel->GetMarginalized(fModel->GetParameter(i),
-                                                    fModel->GetParameter(j));
-            if (bchist) {
-               TH2D* hist = bchist->GetHistogram();
-               if (hist)
-                  hist->Write();
-            }
-         }
-      }
+   for (unsigned i = 0; i < fModel->GetNVariables(); ++i) {
+		 if (fModel->MarginalizedHistogramExists(i))
+			 fModel->GetMarginalizedHistogram(i)->Write();
+		 for (unsigned j = i+1; j < fModel->GetNVariables(); ++j)
+			 if (fModel->MarginalizedHistogramExists(i,j))
+				 fModel->GetMarginalizedHistogram(i,j)->Write();
+	 }
 
    // return to old directory
    gDirectory = dir;
@@ -286,6 +270,7 @@ void BCModelOutput::InitializeAnalysisTree()
    // set branch addresses
    fAnalysisTree->Branch("fIndex",                   &fIndex,                   "index/I");
    fAnalysisTree->Branch("fNParameters",             &fNParameters,             "parameters/I");
+   fAnalysisTree->Branch("fNObservables",            &fNObservables,            "observables/I");
    fAnalysisTree->Branch("fProbability_apriori" ,    &fProbability_apriori,     "apriori probability/D");
    fAnalysisTree->Branch("fProbability_aposteriori", &fProbability_aposteriori, "aposteriori probability/D");
    fAnalysisTree->Branch("fMode_global",             &fMode_global);

@@ -11,11 +11,6 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-Pol1Asymm::Pol1Asymm() : BCFitter()
-{ // default constructor
-}
-
-// ---------------------------------------------------------
 Pol1Asymm::Pol1Asymm(const char * name) : BCFitter(name)
 { // constructor
 }
@@ -38,15 +33,10 @@ void Pol1Asymm::DefineParameters()
    AddParameter("p0", -0.2   ,  1.2);    // index 0
    AddParameter("p1",  0.015 ,  0.045);   // index 1
 
-   // Print parameter summary
-   BCLog::OutSummary(
-      Form("Model \'%s\' has %d parameters:",this->GetName().data(),GetNParameters()));
-   for(unsigned int i=0; i< GetNParameters(); i++)
-      BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
-                             i,
-                             GetParameter(i) -> GetName().data(),
-                             GetParameter(i) -> GetLowerLimit(),
-                             GetParameter(i) -> GetUpperLimit() ) );
+	 SetPriorConstantAll();
+
+	 PrintSummary();
+
 }
 
 // ---------------------------------------------------------
@@ -93,17 +83,3 @@ double Pol1Asymm::LogLikelihood(const std::vector<double> & par)
 
    return logl;
 }
-
-// ---------------------------------------------------------
-double Pol1Asymm::LogAPrioriProbability(const std::vector<double> & parameters)
-{
-   // Definition of the Prior of the model.
-   // For flat prior it's very easy.
-   double logprob = 0.;
-   for(unsigned int i=0; i < GetNParameters(); i++)
-      logprob -= log(GetParameter(i) -> GetRangeWidth());
-
-   return logprob;
-}
-
-// ---------------------------------------------------------

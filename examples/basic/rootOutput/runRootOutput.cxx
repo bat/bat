@@ -11,11 +11,10 @@ int main()
   BCAux::SetStyle();
 
   // open log file
-  BCLog::OpenLog("log.txt");
-  BCLog::SetLogLevel(BCLog::detail);
+  BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
   // create new GaussModel object
-  GaussModel * m = new GaussModel();
+  GaussModel * m = new GaussModel("gausMod");
 
   // set marginalization method
   m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);

@@ -9,7 +9,7 @@ class PoissonModel : public BCModel
    public:
 
       // Constructors and destructor
-      PoissonModel(const char * name = "");
+      PoissonModel(const char * name);
       ~PoissonModel();
 
       // set number of observed events
@@ -19,9 +19,7 @@ class PoissonModel : public BCModel
       unsigned GetNObs() const
          { return fNObs; };
 
-      // Methods to overload, see file PoissonModel.cxx
-      void DefineParameters();
-      double LogAPrioriProbability(const std::vector<double> & parameters);
+      // Method to overload, see file PoissonModel.cxx
       double LogLikelihood(const std::vector<double> & parameters);
 
    private:

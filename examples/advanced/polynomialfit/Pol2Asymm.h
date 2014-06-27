@@ -21,9 +21,7 @@
 class Pol2Asymm : public Pol1Asymm
 {
 public:
-        // default constructor
-        Pol2Asymm();
-        // constructor setting the name of the model
+        // constructor
         Pol2Asymm(const char * name);
         // destructor
         ~Pol2Asymm();

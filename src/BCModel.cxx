@@ -821,8 +821,7 @@ void BCModel::PrintShortFitSummary(int chi2flag)
    }
    if (!GetBestFitParameters().empty())
       BCLog::OutSummary("   Best fit parameters (global):");
-   for (unsigned int i = 0; i < GetNParameters(); ++i)
-      BCLog::OutSummary(Form("      %s = %.3g", GetParameter(i)->GetName().data(), GetBestFitParameter(i)));
+	 PrintParameters(GetBestFitParameters(),BCLog::OutSummary);
 
    if (GetPValue() >= 0) {
       BCLog::OutSummary("   Goodness-of-fit test:");

@@ -51,7 +51,7 @@ BCMVCombination::~BCMVCombination()
 }
 
 // ---------------------------------------------------------
-void BCMVCombination::AddObservable(std::string name, double min, double max)
+void BCMVCombination::AddMVCObservable(std::string name, double min, double max)
 {
   // check if observable exists already
   int index = GetIndexObservable(name);
@@ -163,7 +163,7 @@ int BCMVCombination::ReadInput(std::string filename)
     infile >> name >> min >> max;
 
     // add observable
-    AddObservable(name.c_str(), min, max);
+    AddMVCObservable(name.c_str(), min, max);
   }
 
   for (int i = 0; i < nuncertainties; ++i) {
