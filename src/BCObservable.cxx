@@ -14,16 +14,30 @@
 
 // ---------------------------------------------------------
 
-BCObservable::BCObservable() : BCVariable(), fFunction(0)
+BCObservable::BCObservable()
+	: BCVariable()
+	, fFunctionPointer(0)
+	, fObservablePointer(0)
 {
 	fPrefix = "Observable";
 }
 
 // ---------------------------------------------------------
 
-BCObservable::BCObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction fn, const char * latexname) :
-	BCVariable(name,lowerlimit,upperlimit,latexname)
-	, fFunction(fn)
+BCObservable::BCObservable(const char * name, double lowerlimit, double upperlimit, double * obs, const char * latexname)
+	:	BCVariable(name,lowerlimit,upperlimit,latexname)
+	, fFunctionPointer(0)
+	, fObservablePointer(obs)
+{
+	fPrefix = "Observable";
+}
+
+// ---------------------------------------------------------
+
+BCObservable::BCObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction fn, const char * latexname)
+	:	BCVariable(name,lowerlimit,upperlimit,latexname)
+	, fFunctionPointer(fn)
+	, fObservablePointer(0)
 {
 	fPrefix = "Observable";
 }
@@ -36,5 +50,9 @@ BCObservable::~BCObservable() {
 // ---------------------------------------------------------
 
 double BCObservable::Evaluate(std::vector<double> const & parameters) {
-	return (fFunction) ? (*fFunction)(parameters) : 0;
+	if (fObservablePointer)
+		return *fObservablePointer;
+	if (fFunctionPointer)
+		return (*fFunctionPointer)(parameters);
+	return 0;
 }

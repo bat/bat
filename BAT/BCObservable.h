@@ -41,10 +41,21 @@ public:
 	BCObservable();
 
 	/**
-	 * A constructor.
+	 * Function-pointer constructor.
 	 * @param name The name of the variable.
 	 * @param lowerlimit The lower limit of the variable values.
 	 * @param upperlimit The upper limit of the variable values.
+	 * @param obs Pointer to double which stores value to be plotted (the value must be set by model during calculation of likelihood).
+	 * @param latexname The latex name of the variable used in axis labeling.
+	 */
+	BCObservable(const char* name, double lowerlimit, double upperlimit, double * obs, const char* latexname = "");
+
+	/**
+	 * Function-pointer constructor.
+	 * @param name The name of the variable.
+	 * @param lowerlimit The lower limit of the variable values.
+	 * @param upperlimit The upper limit of the variable values.
+	 * @param fn Pointer to function returning double evaluating on parameter set std::vector<double>.
 	 * @param latexname The latex name of the variable used in axis labeling.
 	 */
 	BCObservable(const char* name, double lowerlimit, double upperlimit, ObservableFunction fn, const char* latexname = "");
@@ -79,7 +90,9 @@ public:
 
 private:
 
-	ObservableFunction fFunction;
+	ObservableFunction fFunctionPointer;
+
+	double * fObservablePointer;
 
 };
 #endif

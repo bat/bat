@@ -1260,6 +1260,12 @@ int BCEngineMCMC::AddParameter(BCParameter * par)
 }
 
 // --------------------------------------------------------
+int BCEngineMCMC::AddObservable(const char * name, double min, double max, double * obs, const char * latexname)
+{
+	return AddObservable(new BCObservable(name, min, max, obs, latexname));
+}
+
+// --------------------------------------------------------
 int BCEngineMCMC::AddObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname)
 {
 	return AddObservable(new BCObservable(name, min, max, fn, latexname));

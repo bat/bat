@@ -820,6 +820,16 @@ class BCEngineMCMC
        * Adds a user-calculated observable.
        * @param min minimum value of the observable
        * @param max maximum value of the observable
+			 * @param obs Pointer to double which stores value to be plotted (the value must be set by model during calculation of likelihood).
+			 * @param latexname Optional latexname used for plotting
+       * @return number of observables after adding */
+	    virtual int AddObservable(const char * name, double min, double max, double * obs, const char * latexname = "");
+
+      /**
+       * Adds a user-calculated observable.
+       * @param min minimum value of the observable
+       * @param max maximum value of the observable
+			 * @param fn Pointer to function returning double evaluating on parameter set std::vector<double>.
        * @param latexname Optional latexname used for plotting
        * @return number of observables after adding */
 	    virtual int AddObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname = "");
