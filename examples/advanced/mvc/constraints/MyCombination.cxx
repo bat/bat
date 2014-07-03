@@ -26,7 +26,7 @@ double MyCombination::LogLikelihood(const std::vector<double> &parameters)
 
   double F0 = parameters[0];
   double FL = parameters[1];
-  
+
   // check physical constraints
   if (fFlagPhysicalConstraints && (F0+FL > 1))
     return -1e55;

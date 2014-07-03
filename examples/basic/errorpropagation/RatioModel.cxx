@@ -15,7 +15,7 @@ RatioModel::RatioModel(const char * name)
 
 	SetPriorConstantAll();
 
-	AddObservable("r", 0, 2, &ParRatio, "#frac{x}{y}");
+	AddObservable("r", 0, 2, &fRatio, "#frac{x}{y}");
 };
 
 // ---------------------------------------------------------
@@ -34,6 +34,9 @@ double RatioModel::LogLikelihood(const std::vector<double> &parameters)
   double x = parameters.at(0);
   double y = parameters.at(1);
 
+	// store ratio
+	fRatio = (y!=0) ? x/y : 0;
+
   // calculate the Gaussian probability densities
   logprob += BCMath::LogGaus(x, 4., 1.);
   logprob += BCMath::LogGaus(y, 8., 2.0);
@@ -41,13 +44,3 @@ double RatioModel::LogLikelihood(const std::vector<double> &parameters)
   // return the log likelihood
   return logprob;
 }
-
-// ---------------------------------------------------------
-double RatioModel::ParRatio(const std::vector<double> &parameters)
-{
-	if (parameters[1] != 0)
-		return parameters[0] / parameters[1];
-	return 0;
-}
-
-// ---------------------------------------------------------

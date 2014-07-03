@@ -14,8 +14,9 @@ class RatioModel : public BCModel
 
       double LogLikelihood(const std::vector<double> &parameters);
 
-	    static double ParRatio(const std::vector<double> &parameters);
+   private:
 
+	    double fRatio;						// holds ratio of the two model parameters.
 };
 // ---------------------------------------------------------
 

@@ -482,24 +482,24 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
          xhigh = GetQuantile(prob_high);
          prob_interval = prob_high - prob_low;
 
-         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_band_%d", fHistogram->GetName(), i));
 			 }
 			 else if (bandtype == 1) {
          prob_interval = GetSmallestInterval(xlow, xhigh, intervals[nbands-1-i]);
          hist_band = GetSmallestIntervalHistogram(intervals[nbands-1-i]);
-         for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
+         for (int ibin = 1; ibin <= hist_band->GetNbinsX(); ++ibin)
 					 hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
 			 }
 			 else if(bandtype == 2) {
          xlow = 0.;
          xhigh = GetQuantile(intervals[nbands-1-i]);
-         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_band_%d", fHistogram->GetName(), i));
          prob_interval = intervals[nbands-1-i];
 			 }
 			 else if(bandtype == 3) {
          xlow = GetQuantile(intervals[nbands-1-i]);
          xhigh = GetQuantile(1.);
-         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_sub_%d", fHistogram->GetName(), BCLog::GetHIndex()));
+         hist_band = GetSubHisto(xlow, xhigh, TString::Format("%s_band_%d", fHistogram->GetName(), i));
          prob_interval = 1.-intervals[nbands-1-i];
 			 }
 
@@ -784,7 +784,7 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
    double integral_out=0.;
 
    // loop through the bins
-   for(int i=1;i<nbins+1;i++)
+   for(int i=1;i<=nbins;i++)
    {
       if(fHistogram->Integral(i,nbins,"width") < content)
          break;
@@ -807,7 +807,7 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
             warn = 1;
          }
          else
-            for(int k=i+1;k<nbins+1;k++)
+            for(int k=i+1;k<=nbins;k++)
             {
 
                double thisbin = fHistogram->GetBinContent(k) * fHistogram->GetBinWidth(k);
@@ -861,12 +861,14 @@ double BCH1D::GetSmallestInterval(double & min, double & max, double content)
 // ---------------------------------------------------------
 double BCH1D::IntegralWidth(double min, double max)
 {
+	if (min>max)
+		return IntegralWidth(max,min);
+
 	 if (fHistogram->GetEffectiveEntries()<=0)
 		 return 0;
 
    int imin = fHistogram->FindBin(min);
    int imax = fHistogram->FindBin(max);
-
    int nbins = fHistogram->GetNbinsX();
 
    // if outside of histogram range, return -1.
@@ -875,15 +877,6 @@ double BCH1D::IntegralWidth(double min, double max)
 
    if ( imin==imax )
       return -1.;
-
-   // swap values if necessary
-   if (imin>imax)
-   {
-      int i=imin;
-      double x=min;
-      imin=imax, min=max;
-      imax=i, max=x;
-   }
 
    // calculate first bin
    double first = ( fHistogram->GetBinLowEdge(imin+1) - min ) * fHistogram->GetBinContent(imin);
@@ -903,11 +896,7 @@ double BCH1D::IntegralWidth(double min, double max)
 TH1D * BCH1D::GetSubHisto(double min, double max, const char * name)
 {
    if(min>max)
-   {
-      double t=min;
-      min=max;
-      max=t;
-   }
+		 return GetSubHisto(max,min,name);
 
    int imin = fHistogram->FindBin(min);
    int imax = fHistogram->FindBin(max);
