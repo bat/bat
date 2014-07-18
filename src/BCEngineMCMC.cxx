@@ -907,7 +907,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 
 		if (fMCMCFlagWritePreRunToFile) {
 			if (fMCMCFlagWritePreRunObservablesToFile)
-				CalculateObservables();
+				EvaluateObservables();
 			MCMCInChainWriteChains();
 		}
 
@@ -1009,7 +1009,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 
 			if (fMCMCFlagWritePreRunToFile) {
 				if (fMCMCFlagWritePreRunObservablesToFile)
-					CalculateObservables();
+					EvaluateObservables();
 				MCMCInChainWriteChains();
 			}
 
@@ -1077,7 +1077,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 
 			if (fMCMCFlagWritePreRunToFile) {
 				if (fMCMCFlagWritePreRunObservablesToFile)
-					CalculateObservables();
+					EvaluateObservables();
 				MCMCInChainWriteChains();
 			}
 
@@ -1155,7 +1155,7 @@ int BCEngineMCMC::MCMCMetropolis()
 			
 		MCMCIterationInterface();		// user action (overloadable)
 		
-		CalculateObservables();
+		EvaluateObservables();
 
 		// fill histograms
 		if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
@@ -1278,10 +1278,12 @@ int BCEngineMCMC::AddObservable(BCObservable * par)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::CalculateObservables() {
-	for (unsigned i = 0; i < fMCMCNChains; ++i )
+void BCEngineMCMC::EvaluateObservables() {
+	for (unsigned i = 0; i < fMCMCNChains; ++i ) {
+		CalculateObservables(fMCMCx[i]);
 		for (unsigned j = 0; j < fObservables.Size(); ++j)
 			fMCMCObservables[i][j] = fObservables[j] -> Evaluate(fMCMCx[i]);
+	}
 }
 
 
@@ -1698,10 +1700,10 @@ int BCEngineMCMC::PrintAllMarginalized1D(const char * filebase) {
 	int nh = 0;
 	for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
 		std::string name = (i<fParameters.Size()) ? fParameters[i]->GetName() : fObservables[i-fParameters.Size()]->GetName();
-		if (BCH1D * h = GetMarginalized(i)) {
-			h->Print(Form("%s_1D_%s.pdf", filebase, name.data()));
-			nh++;
-		}
+		if (!MarginalizedHistogramExists(i))
+			continue;
+		GetMarginalized(i) -> Print(Form("%s_1D_%s.pdf", filebase, name.data()));
+		nh++;
 	}
 
 	return nh;
@@ -1719,11 +1721,10 @@ int BCEngineMCMC::PrintAllMarginalized2D(const char * filebase) {
 		std::string iname = (i<fParameters.Size()) ? fParameters[i]->GetName() : fObservables[i-fParameters.Size()]->GetName();
 		for (unsigned j = 1; j<fH2Marginalized[i].size(); ++i) {
 			std::string jname = (j<fParameters.Size()) ? fParameters[j]->GetName() : fObservables[j-fParameters.Size()]->GetName();
-			
-			if (BCH2D * h = GetMarginalized(i,j)) {
-				h -> Print(Form("%s_2D_%s_%s",filebase,iname.data(),jname.data()));
-				nh++;
-			}
+			if (MarginalizedHistogramExists(i,j))
+				continue;
+			GetMarginalized(i,j) -> Print(Form("%s_2D_%s_%s",filebase,iname.data(),jname.data()));
+			nh++;
 		}
 	}
 

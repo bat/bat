@@ -253,7 +253,7 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, b
 	TH2D * h2d_2dposterior = 0;
 	if (flag_slice and fModel->GetNParameters()==2 and index1<fModel->GetNParameters() and index2<fModel->GetNParameters())
 		h2d_2dposterior = fModel  -> GetSlice(index1,index2);
-	else
+	else if (fModel->MarginalizedHistogramExists(index1,index2))
 		h2d_2dposterior = fModel  -> GetMarginalizedHistogram(index1,index2);
 
 	if (!h2d_2dposterior)
@@ -275,7 +275,7 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, b
 	if (!auto_prior1 or !auto_prior2) { // one or both prior pre-defined
 		if (flag_slice and fModel->GetNParameters()==2 and index1<fModel->GetNParameters() and index2<fModel->GetNParameters())
 			h2d_2dprior = GetSlice(index1,index2);
-		else
+		else if (MarginalizedHistogramExists(index1, index2))
 			h2d_2dprior = GetMarginalizedHistogram(index1,index2);
 	}
 

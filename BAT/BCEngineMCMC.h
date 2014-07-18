@@ -841,8 +841,15 @@ class BCEngineMCMC
       virtual int AddObservable(BCObservable* observable);
 
       /**
-       * Calculates user-defined observables */
-  	  virtual void CalculateObservables();
+       * Evaluates user-defined observables */
+  	  virtual void EvaluateObservables();
+
+      /**
+       * Evaluates user-defined observables 
+			 * To be overloaded by user to calculate user-observables
+			 that are stored as double pointers. */
+	    virtual void CalculateObservables(const std::vector<double> &pars)
+	    {}
 
       /**
        * Random walk trial function. The default trial function is a
