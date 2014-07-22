@@ -344,10 +344,8 @@ BCH1D * BCEngineMCMC::GetMarginalized(unsigned index) {
 	BCH1D * hprob = new BCH1D(h);
 	
 	// if best fit parameters exists, set global mode
-	if (GetBestFitParameters().size() == fParameters.Size()) {
-		double mode = (index<fParameters.Size()) ? GetBestFitParameter(index) : fObservables[index-fParameters.Size()]->Evaluate(GetBestFitParameters());
-		hprob -> SetGlobalMode(mode);
-	}
+	if (GetBestFitParameters().size() == fParameters.Size())
+		hprob -> SetGlobalMode(GetBestFitParameter(index));
 	
 	if ( fMarginalModes.size() != fH1Marginalized.size() )
 		fMarginalModes.resize(fH1Marginalized.size(), 0);
@@ -366,11 +364,8 @@ BCH2D * BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) {
 	BCH2D * hprob = new BCH2D(h);
 
 	// if best fit parameters exists, set global mode
-	if (GetBestFitParameters().size() == fParameters.Size()) {
-		double imode = (i<fParameters.Size()) ? GetBestFitParameter(i) : fObservables[i-fParameters.Size()]->Evaluate(GetBestFitParameters());
-		double jmode = (j<fParameters.Size()) ? GetBestFitParameter(j) : fObservables[j-fParameters.Size()]->Evaluate(GetBestFitParameters());
-		hprob -> SetGlobalMode(imode,jmode);
-	}
+	if (GetBestFitParameters().size() == fParameters.Size())
+		hprob -> SetGlobalMode(GetBestFitParameter(i),GetBestFitParameter(j));
 		
 	return hprob;
 }
@@ -395,7 +390,7 @@ const std::vector<double> & BCEngineMCMC::GetBestFitParametersMarginalized() con
 
 
 // ---------------------------------------------------------
-double BCEngineMCMC::GetBestFitParameter(unsigned index) const
+double BCEngineMCMC::GetBestFitParameter(unsigned index)
 {
 
 	if (index > fParameters.Size() + fObservables.Size())
@@ -413,7 +408,8 @@ double BCEngineMCMC::GetBestFitParameter(unsigned index) const
 		return pars[index];
 	
 	// user-define observable
-	return fObservables[index-fParameters.Size()]->Evaluate(pars);
+	CalculateObservables(pars);
+	return fObservables[index-fParameters.Size()] -> Value();
 }
 
 // --------------------------------------------------------
@@ -1260,21 +1256,15 @@ int BCEngineMCMC::AddParameter(BCParameter * par)
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::AddObservable(const char * name, double min, double max, double * obs, const char * latexname)
+int BCEngineMCMC::AddObservable(const char * name, double min, double max, const char * latexname)
 {
-	return AddObservable(new BCObservable(name, min, max, obs, latexname));
+	return AddObservable(new BCObservable(name, min, max, latexname));
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::AddObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname)
+int BCEngineMCMC::AddObservable(BCObservable * obs)
 {
-	return AddObservable(new BCObservable(name, min, max, fn, latexname));
-}
-
-// --------------------------------------------------------
-int BCEngineMCMC::AddObservable(BCObservable * par)
-{
-	return fObservables.Add(par);
+	return fObservables.Add(obs);
 }
 
 // --------------------------------------------------------
@@ -1282,7 +1272,7 @@ void BCEngineMCMC::EvaluateObservables() {
 	for (unsigned i = 0; i < fMCMCNChains; ++i ) {
 		CalculateObservables(fMCMCx[i]);
 		for (unsigned j = 0; j < fObservables.Size(); ++j)
-			fMCMCObservables[i][j] = fObservables[j] -> Evaluate(fMCMCx[i]);
+			fMCMCObservables[i][j] = fObservables[j] -> Value();
 	}
 }
 

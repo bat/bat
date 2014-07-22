@@ -66,9 +66,6 @@ int main(int argc, char *argv[])
     return 1;
   }
 
-  // define FR
-	m -> AddObservable("FR",0.,0.4,&MyCombination::FR);
-   
   // get number of measurements
   int nmeas = m->GetNMeasurements();
 

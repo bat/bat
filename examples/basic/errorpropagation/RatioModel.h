@@ -13,10 +13,8 @@ class RatioModel : public BCModel
       ~RatioModel();
 
       double LogLikelihood(const std::vector<double> &parameters);
+	    void CalculateObservables(const std::vector<double> &parameters);
 
-   private:
-
-	    double fRatio;						// holds ratio of the two model parameters.
 };
 // ---------------------------------------------------------
 

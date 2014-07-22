@@ -21,12 +21,9 @@ class MyCombination : public BCMVCombination
   void SetFlagPhysicalConstraints(bool flag)
   { fFlagPhysicalConstraints = flag; }; 
 
-	// FR function for BCObservable calculation
-	static double FR(const std::vector<double> &parameters);
-
   // BAT methods
-
   double LogLikelihood(const std::vector<double> &parameters);
+	void CalculateObservables(const std::vector<double> &parameters);
 
  private:
 

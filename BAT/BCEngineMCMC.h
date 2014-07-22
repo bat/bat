@@ -509,7 +509,7 @@ class BCEngineMCMC
 			 * the maximum found by the Markov chain
 			 * @param index index of the parameter.
 			 * @return value of the parameter or -1e+111 on error or center of the range if mode finding not yer run */
-	    virtual double GetBestFitParameter(unsigned index) const;
+	    virtual double GetBestFitParameter(unsigned index);
 
 	    /**
 			 * @return The log of the value at the mode. */
@@ -521,7 +521,7 @@ class BCEngineMCMC
 	     * the maximum found by the Markov chain
 	     * @param index of the user-defined observable
 	     * @return best fit value of user-defined observable. */
-	    double GetBestFitObservable(unsigned index) const
+	    double GetBestFitObservable(unsigned index) 
 	       { return GetBestFitParameter(index+fParameters.Size()); }
 
       /**
@@ -820,34 +820,24 @@ class BCEngineMCMC
        * Adds a user-calculated observable.
        * @param min minimum value of the observable
        * @param max maximum value of the observable
-			 * @param obs Pointer to double which stores value to be plotted (the value must be set by model during calculation of likelihood).
-			 * @param latexname Optional latexname used for plotting
-       * @return number of observables after adding */
-	    virtual int AddObservable(const char * name, double min, double max, double * obs, const char * latexname = "");
-
-      /**
-       * Adds a user-calculated observable.
-       * @param min minimum value of the observable
-       * @param max maximum value of the observable
-			 * @param fn Pointer to function returning double evaluating on parameter set std::vector<double>.
        * @param latexname Optional latexname used for plotting
        * @return number of observables after adding */
-	    virtual int AddObservable(const char * name, double min, double max, ObservableFunction fn, const char * latexname = "");
+	    virtual int AddObservable(const char * name, double min, double max, const char * latexname = "");
 
       /**
        * Adds a user-calculated observable to the model.
        * @param observable A user-calculated observable
        * @see AddObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname); */
-      virtual int AddObservable(BCObservable* observable);
+      virtual int AddObservable(BCObservable* obs);
 
       /**
-       * Evaluates user-defined observables */
+       * Evaluates user-defined observables at current state of all
+       * chains and stores results in fMCMCObservables*/
   	  virtual void EvaluateObservables();
 
       /**
-       * Evaluates user-defined observables 
-			 * To be overloaded by user to calculate user-observables
-			 that are stored as double pointers. */
+       * Evaluates user-defined observables To be overloaded by user
+			 * to calculate user-observables. */
 	    virtual void CalculateObservables(const std::vector<double> &pars)
 	    {}
 

@@ -27,6 +27,7 @@
 #include <TLine.h>
 #include <TMarker.h>
 #include <TStyle.h>
+#include <TAxis.h>
 
 #include <iostream>
 
@@ -287,6 +288,24 @@ int BCSummaryTool::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, b
 
 	if (!h2d_2dprior)
 		h2d_2dprior = GetVariable(index1) -> CreateH2(TString::Format("h2d_2dprior_%s_%d_%d",GetName().data(),index1,index2).Data(),GetVariable(index2));
+
+	// Set 2D-prior histogram binning to match 1D binning, for if prior was defined by histogram
+	if (h2d_2dprior) {
+		TAxis * xaxis = (h1_prior1) ? h1_prior1->GetXaxis() : h2d_2dprior->GetXaxis();
+		TAxis * yaxis = (h1_prior2) ? h1_prior2->GetXaxis() : h2d_2dprior->GetYaxis();
+
+		int n_xbins = xaxis->GetNbins();
+		double xbins[n_xbins+1];
+		xaxis -> GetLowEdge(xbins);
+		xbins[n_xbins] = xaxis->GetXmax();
+
+		int n_ybins = yaxis->GetNbins();
+		double ybins[n_ybins+1];
+		yaxis -> GetLowEdge(ybins);
+		ybins[n_ybins] = yaxis->GetXmax();
+
+		h2d_2dprior -> SetBins(n_xbins,xbins,n_ybins,ybins);
+	}
 	
 	for (int i = 1; i <= h2d_2dprior->GetNbinsX(); ++i) {
 		// x prior

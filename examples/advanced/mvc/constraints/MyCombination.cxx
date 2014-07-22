@@ -12,6 +12,10 @@ MyCombination::MyCombination()
   : BCMVCombination()
   , fFlagPhysicalConstraints(true)
 {
+
+	// Add observable "FR"
+	AddObservable("FR",0.,0.4);
+
 }
 
 // ---------------------------------------------------------
@@ -35,9 +39,10 @@ double MyCombination::LogLikelihood(const std::vector<double> &parameters)
 }
 
 // ---------------------------------------------------------
-double MyCombination::FR(const std::vector<double> & pars)
+void MyCombination::CalculateObservables(const std::vector<double> & pars)
 {
-	return 1. - pars[0] - pars[1];
+	// calculate FR
+	GetObservable(0) -> Value( 1. - pars[0] - pars[1] );
 }
 
 // ---------------------------------------------------------

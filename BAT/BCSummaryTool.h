@@ -75,6 +75,11 @@ class BCSummaryTool : private BCModel
    double LogLikelihood(const std::vector<double> &parameters)
 	    { return (fModel) ? fModel->LogAPrioriProbability(parameters) : -std::numeric_limits<double>::infinity(); }
 
+	 /**
+		* Calculates user observables according to the model. */
+	 void CalculateObservables(const std::vector<double> &parameters)
+	    { if (fModel) fModel->CalculateObservables(parameters); }
+
    /**
     * Calculate the marginalized distributions using the prior
     * knowledge alone.
