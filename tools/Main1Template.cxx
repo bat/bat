@@ -20,15 +20,12 @@ int main() {
 	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
 	// create new |:Model:| object
-	|:Model:|* m = new |:Model:|();
+	|:Model:|* m = new |:Model:|("|:Model:|");
 
 	// set precision
 	m -> MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	BCLog::OutSummary("Test model created");
-
-	// create a new summary tool object
-	BCSummaryTool * summary = new BCSummaryTool(m);
 
 	//////////////////////////////
 	// perform your analysis here
@@ -49,8 +46,12 @@ int main() {
 	// m -> PrintAllMarginalized("|:Model:|_plots.pdf");
 
 	// print all summary plots
-	// summary -> PrintParameterPlot("|:Model:|_parameters.pdf");
-	// summary -> PrintCorrelationPlot("|:Model:|_correlation.pdf");
+	// m -> PrintParameterPlot("|:Model:|_parameters.pdf");
+	// m -> PrintCorrelationPlot("|:Model:|_correlation.pdf");
+	// m -> PrintCorrelationMaxtrix("|:Model:|_correlationMatrix.pdf");
+
+	// create a new summary tool object, to print change from prior -> posterior
+	// BCSummaryTool * summary = new BCSummaryTool(m);
 	// summary -> PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
 
 	// calculate p-value

@@ -17,7 +17,7 @@ class |:Model:| : public BCModel {
  public:
 	
 	// Constructor and destructor
-	|:Model:|(const char * name = "");
+	|:Model:|(const char * name = "|:Model:|");
 	~|:Model:|();
 	
 	// Methods to overload, see file |:Model:|.cxx
