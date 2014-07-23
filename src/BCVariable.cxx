@@ -34,11 +34,11 @@ BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, 
 	fName(name),
 	fLowerLimit(lowerlimit),
 	fUpperLimit(upperlimit),
-	fPrecision(3),
 	fLatexName(latexname),
 	fFillHistograms(true),
 	fNbins(100)
 {
+	CalculatePrecision();
 }
 
 // ---------------------------------------------------------
