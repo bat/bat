@@ -1,6 +1,7 @@
 # Autotools
 aclocal.m4
 *.cache
+compile
 config/
 config.*
 configure
@@ -26,6 +27,7 @@ stamp-h1
 # ROOT
 *Dict.h
 *Dict.cxx
+*Dict*dict*
 #*.rootmap
 
 # Results
@@ -81,7 +83,6 @@ templatefit
 *.php
 *.png
 *.tst
-
 runTestSuite.exe
 
 # unit tests
