@@ -60,7 +60,7 @@ AC_ARG_WITH(
 	[AS_HELP_STRING([--with-cuba[[=DIR]]],[compile with Cuba support (default no). Optional DIR is top of Cuba installation])],
 	[
 		use_cuba=yes
-		echo "compiling with Cuba support: required Cuba version 3.1 or later"
+		echo "compiling with Cuba support: requires version 3.2 or later"
 		echo "Checking $with_cuba"
 	],
 	[use_cuba=no]
@@ -97,39 +97,96 @@ dnl if cuba just compiled, everything is in one directory
 		echo "checking for cuba.h in system default directories"
 	fi
 
-	AC_CHECK_HEADERS(cuba.h, [with_cuba_inc=yes], [with_cuba_inc=no])
+	AC_CHECK_HEADERS(cuba.h, [], [AC_MSG_ERROR([Could not find cuba.h; use --with-cuba-include-dir=DIR or compile without cuba])])
 
-	if test x$with_cuba_inc = xno; then
-		echo could not find cuba.h
-		echo Try compiling without cuba
-		echo
-		exit 1
+	cubaldflags=""
+	if test -n "$with_cuba_lib_dir"; then
+	echo "checking for cuba library in path $with_cuba_lib_dir"
+	cubaldflags="-L$with_cuba_lib_dir"
+	LDFLAGS+=" $cubaldflags"
 	else
-		cubaldflags=""
-		if test -n "$with_cuba_lib_dir"; then
-			echo "checking for cuba library in path $with_cuba_lib_dir"
-			cubaldflags="-L$with_cuba_lib_dir"
-			LDFLAGS+=" $cubaldflags"
-		else
-			echo "checking for cuba library in system default directories"
-		fi
-
-		AC_CHECK_LIB(cuba,main,[with_cuba_lib=yes],[with_cuba_lib=no])
-
-		if test x$with_cuba_lib = xno; then
-			echo could not find libcuba.a
-			echo Try compiling without cuba
-			echo
-			exit 1
-		else
-			AC_SUBST(CUBAINCLUDE,[$cubaincflags])
-			AC_SUBST(CUBALIB,[$cubaldflags])
-		fi
+	echo "checking for cuba library in system default directories"
 	fi
-	AM_CONDITIONAL([CUBA], [test x$with_cuba_lib = xyes && test x$with_cuba_inc = xyes])
+
+	dnl Check for the right CUBA interface
+	AC_COMPILE_IFELSE([
+	AC_LANG_SOURCE(
+	[[
+	#include <cuba.h>
+	int integrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void * userdata){return 0;}
+
+	int main()
+	{
+		int * nregions, *fail, *niterations;
+		double * integral, *error, *prob;
+		Suave(
+		1, 1,
+		&integrand, 0, 1/*nvec*/,
+		0.1, 0.1,
+		0, 12345,
+		100, 200,
+		1, 2,
+		"",
+		nregions, niterations, fail,
+		integral, error, prob
+		);
+
+		return 0;
+	}
+	]]
+	)],
+	[cuba_version=3.3
+	AC_DEFINE([CUBAVERSION_33], [1], [cuba interface version 3.3 detected])],
+	[])
+
+	if test x$cuba_version = x; then
+	AC_COMPILE_IFELSE([
+	AC_LANG_SOURCE(
+	[[
+	#include <cuba.h>
+	int integrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void * userdata){return 0;}
+
+	int main()
+	{
+		int * nregions, *fail, *niterations;
+		double * integral, *error, *prob;
+		Suave(
+		1, 1,
+		&integrand, 0, /* no nvec*/
+		0.1, 0.1,
+		0, 12345,
+		100, 200,
+		1, 2,
+		"",
+		nregions, niterations, fail,
+		integral, error, prob
+		);
+
+		return 0;
+	}
+	]]
+	)],
+	[cuba_version=3.2
+	AC_DEFINE([CUBAVERSION_32], [1], [cuba interface version 3.2 detected])],
+	[])
+	fi
+
+	if test x$cuba_version = x; then
+		AC_MSG_ERROR([This version of cuba does not match
+		the interface of the supported versions 3.2 and 3.3])
+	else
+		echo detected cuba matching the interface of version $cuba_version
+	fi
+
+	AC_CHECK_LIB(cuba,main,[],[AC_MSG_ERROR([Could not find libcuba.a; use --with-cuba-lib-dir=DIR or compile without cuba])])
+	AC_SUBST(CUBAINCLUDE,[$cubaincflags])
+	AC_SUBST(CUBALIB,[$cubaldflags])
+
+	dnl passed all tests, so build with cuba
+	AM_CONDITIONAL([CUBA], [test 1 -eq 1])
 else
 	echo compiling without cuba
-	AM_CONDITIONAL([CUBA], [test x$use_cuba = xyes])
+	AM_CONDITIONAL([CUBA], [test 1 -eq 0])
 fi
 
 dnl

@@ -2244,14 +2244,18 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    LogOutputAtStartOfIntegration(kIntCuba, cubatype);
 
    // integrand has only one component
-   static const int ncomp     = 1;
+   static const int ncomp = 1;
 
    // don't store integration in a slot for reuse
-   static const int gridno    = -1;
+   static const int gridno = -1;
 
    // we don't want dumps of internal state
    static const char * statefile = "";
 
+#if CUBAVERSION_33
+   // only evaluate at one position in parameter space at a time
+   static const int nvec = 1;
+#endif
    // cuba returns info in these variables
    int fail = 0;
    int nregions = 0;
@@ -2270,6 +2274,9 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    case BCIntegrate::kCubaVegas:
       Vegas(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+#if CUBAVERSION_33
+            nvec,
+#endif
             fRelativePrecision, fAbsolutePrecision,
             fCubaVegasOptions.flags, fRandom->GetSeed(),
             fNIterationsMin, fNIterationsMax,
@@ -2282,6 +2289,9 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    case BCIntegrate::kCubaSuave:
       Suave(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+#if CUBAVERSION_33
+            nvec,
+#endif
             fRelativePrecision, fAbsolutePrecision,
             fCubaSuaveOptions.flags, fRandom->GetSeed(),
             fNIterationsMin, fNIterationsMax,
@@ -2300,6 +2310,9 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
          static const int nextra = ngiven;
          Divonne(nIntegrationVariables, ncomp,
                &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+#if CUBAVERSION_33
+               nvec,
+#endif
                fRelativePrecision, fAbsolutePrecision,
                fCubaDivonneOptions.flags, fRandom->GetSeed(),
                fNIterationsMin, fNIterationsMax,
@@ -2319,6 +2332,9 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 
       Cuhre(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
+#if CUBAVERSION_33
+            nvec,
+#endif
             fRelativePrecision, fAbsolutePrecision,
             fCubaCuhreOptions.flags, fNIterationsMin, fNIterationsMax,
             fCubaCuhreOptions.key,
