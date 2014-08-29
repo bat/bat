@@ -38,6 +38,10 @@ CreateProject.sh
 *.Plo
 *.so
 
+# build support
+bat.pc
+bat-config
+
 # Documentation
 doc/introduction/*
 !doc/introduction/introduction.tex
