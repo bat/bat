@@ -25,11 +25,9 @@ LDFLAGS      = -g -O2 @LDFLAGS@
 # system search path or the installation directory is defined in the
 # BATINSTALLDIR environmental variable then the lines below are correct
 # and the compilation will work
-CXXFLAGS += -I$(BATINSTALLDIR)/include @ROOTCFLAGS@
-LIBS      = -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
 
-@CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
-@CUBA_TRUE@LIBS     += -lcuba
+CXXFLAGS += `bat-config --cflags`
+LIBS := `bat-config --libs`
 
 # List of all classes (models) used in the program
 # Add classes to the end. Backslash indicates continuation

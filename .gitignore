@@ -64,6 +64,7 @@ asymmErrorsFitterExample
 ensembletest
 runAnomCouplings
 runCombineGaussians
+runCombination
 runEfficiency
 runErrorPropagation
 runMVCombination
