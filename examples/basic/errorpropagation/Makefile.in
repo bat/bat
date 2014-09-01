@@ -20,11 +20,9 @@ LD           = @LD@
 LDFLAGS      = -g -O2 @LDFLAGS@
 
 # ----------------------------------------------------------------------
-# The following definitions depend on the setup of the system where
-# the project is being compiled. If BAT is installed in the standard
-# system search path or the installation directory is defined in the
-# BATINSTALLDIR environmental variable then the lines below are correct
-# and the compilation will work
+# The following definitions rely on the script bat-config being
+# available in $PATH. If BAT is not installed in the standard system
+# directories, update $PATH accordingly.
 
 CXXFLAGS += `bat-config --cflags`
 LIBS := `bat-config --libs`
