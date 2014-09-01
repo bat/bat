@@ -27,7 +27,7 @@
 #include "BCParameter.h"
 #include "BCParameterSet.h"
 #include "BCObservable.h"
-#include "BCObservableSet.h"
+#include "BCVariableSet.h"
 #include "BCLog.h"
 
 #include <vector>
@@ -39,6 +39,7 @@ class BCH2D;
 class TH1D;
 class TH2D;
 class TTree;
+class TFile;
 class TRandom3;
 
 // ---------------------------------------------------------
@@ -53,6 +54,15 @@ class BCEngineMCMC
 
       /** An enumerator for the status of a test. */
 	    enum Precision{ kLow, kQuick, kMedium, kHigh, kVeryHigh };
+
+	    /** An enumerator for the phase of the Markov chain. */
+	    enum MCMCPhase{
+	    	MCMCPreRunEfficiencyCheck       = -1,
+	    	MCMCPreRunConvergenceCheck      = -2,
+	    	MCMCPreRunFulfillMinimum        = -3,
+				MCMCUnsetPhase                  =  0,
+	    	MCMCMainRun                     = +1,
+	    };
 
       /** @} */
       /** \name Constructors and destructors */
@@ -234,7 +244,7 @@ class BCEngineMCMC
 
       /**
        * @return pointer to the phase of a run. */
-      int MCMCGetPhase() const
+	    BCEngineMCMC::MCMCPhase MCMCGetPhase() const
          { return fMCMCPhase; }
 
       /**
@@ -288,14 +298,18 @@ class BCEngineMCMC
          { return fMCMCFlagRun; }
 
       /**
-       * Retrieve the tree containing the Markov chain.
-       * @param i index of the Markov chain
-       * @return pointer to the tree */
-      TTree * MCMCGetMarkovChainTree(unsigned i)
-      { if (i < fMCMCTrees.size())
-          return fMCMCTrees.at(i);
-        else
-          return 0; }
+       * Retrieve the tree containing the Markov chain. */
+	    TTree * MCMCGetMarkovChainTree()
+	       { return fMCMCTree;}
+
+	    /**
+	     * Retrieve output file for MCMC. */
+	    TFile * MCMCGetOutputFile()
+	       { return fMCMCOutputFile; }
+
+	    /**
+	     * Close MCMC output file. */
+	    void MCMCCloseOutputFile();
 
 	    /**
 			 * @return The size of vector of marginalized 1D histograms */
@@ -460,13 +474,13 @@ class BCEngineMCMC
        * @param index The index of the parameter in the parameter set.
        * @return The parameter. */
       BCParameter * GetParameter(int index) const
-         { return fParameters.Get(index); }
+	       { return (BCParameter*)fParameters.Get(index); }
 
       /**
        * @param name The name of the parameter in the parameter set.
        * @return The parameter. */
       BCParameter * GetParameter(const char * name) const
-         { return fParameters.Get(name); }
+	       { return (BCParameter*)fParameters.Get(name); }
 
       /**
        * @return The number of parameters of the model. */
@@ -475,23 +489,25 @@ class BCEngineMCMC
 
       /**
        * @return The number of fixed parameters. */
-      unsigned int GetNFixedParameters();
+      unsigned int GetNFixedParameters()
+	       { return fParameters.GetNFixedParameters(); }
 
       /**
        * @return The number of free parameters. */
-      unsigned int GetNFreeParameters();
+      unsigned int GetNFreeParameters()
+	       { return fParameters.GetNFreeParameters(); }
 
       /**
        * @param index The index of the observable in the observable set.
        * @return The user-defined observable. */
       BCObservable * GetObservable(int index) const
-         { return fObservables.Get(index); }
+	       { return (BCObservable*)fObservables.Get(index); }
 
       /**
        * @param name The name of the observable in the observable set.
        * @return The user-defined observable. */
       BCObservable * GetObservable(const char * name) const
-         { return fObservables.Get(name); }
+	       { return (BCObservable*)fObservables.Get(name); }
 
     	/**
     	 * @return The number of user-defined observables. */
@@ -625,11 +641,6 @@ class BCEngineMCMC
          { fMCMCFlagWritePreRunToFile = flag; }
 
       /**
-       * Sets flag to write user-defined observables to file during pre run. */
-      void MCMCSetWritePreRunObservablesToFile(bool flag)
-         { fMCMCFlagWritePreRunObservablesToFile = flag; }
-
-      /**
        * Sets the initial positions for all chains.
        * @param x0s initial positions for all chains. */
       void MCMCSetInitialPositions(const std::vector<double> &x0s);
@@ -672,12 +683,8 @@ class BCEngineMCMC
       { fMCMCRValueUseStrict = strict; }
 
       /**
-       * Sets the tree containing the Markov chains. */
-      void MCMCSetMarkovChainTrees(const std::vector<TTree *> & trees);
-
-      /**
        * Initialize trees containing the Markov chains. */
-      void MCMCInitializeMarkovChainTrees();
+      void MCMCInitializeMarkovChainTree(bool replace=false);
 
       /**
        * Set the precision for the MCMC run. */
@@ -708,12 +715,16 @@ class BCEngineMCMC
       /** @} */
 
       /**
-       * Flag for writing Markov chain to ROOT file (true) or not (false) */
-      void WriteMarkovChain(bool flag)
-      {
-         fMCMCFlagWriteChainToFile = flag;
-         fMCMCFlagWritePreRunToFile = flag;
-      }
+       * Turn on/off writing of Markov chain to root file.
+			 * If setting true, use function with filename arguments.
+			 * @param flag Flag for writing Markov chain to ROOT file (true) or not (false). */
+	    void WriteMarkovChain(bool flag);
+
+	    /** Turn on writing of Markov chain to root file.
+			 * @param filename Name of file to write chain to.
+			 * @param file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
+			 * @param autoclose Toggle autoclosing of file after main run. */
+	    void WriteMarkovChain(std::string filename, std::string option, bool autoclose=true);
 
 #if 0
       /**
@@ -796,7 +807,7 @@ class BCEngineMCMC
 			 * Print a Latex table of the parameters.
 			 * @return An error flag. */
 			int PrintParameterLatex(const char * filename);
-			
+
       /**
        * Copy object
        * @param enginemcmc Object to copy from */
@@ -1028,6 +1039,10 @@ class BCEngineMCMC
 			 * Print marginalization to stream. */
 	    virtual void PrintMarginalizationToStream(std::ofstream & ofi);
 
+	    /**
+	     * Initialize tree for output of analysis. */
+	    void InitializeAnalysisTree();
+
       /**
        * Name of the engine. */
       std::string fName;
@@ -1051,7 +1066,7 @@ class BCEngineMCMC
 
 	    /**
 			 * User-calculated Observables Set */
-	    BCObservableSet fObservables;
+	    BCVariableSet fObservables;
 
       /**
        * Number of Markov chains ran in parallel */
@@ -1122,9 +1137,21 @@ class BCEngineMCMC
        * Flag to write pre run to file */
       bool fMCMCFlagWritePreRunToFile;
 
-      /**
-       * Flag to write user-defined observable to file during pre run. */
-      bool fMCMCFlagWritePreRunObservablesToFile;
+	    /*
+	     * Output file for for writing MCMC Tree. */
+	    TFile * fMCMCOutputFile;
+
+	    /*
+	     * Output filename for for writing MCMC Tree. */
+	    std::string fMCMCOutputFilename;
+
+	    /*
+	     * Output file open option for for writing MCMC Tree. */
+	    std::string fMCMCOutputFileOption;
+
+	    /*
+	     * Output filename for for writing MCMC Tree. */
+	    bool fMCMCOutputFileAutoclose;
 
     	/**
     	 * Lower limit for scale factors */
@@ -1183,9 +1210,8 @@ class BCEngineMCMC
 
       /**
        * The phase of the run.
-       * 1: pre-run, 2: main run.
        */
-      int fMCMCPhase;
+	    BCEngineMCMC::MCMCPhase fMCMCPhase;
 
       /**
        * The current points of each Markov chain. */
@@ -1261,10 +1287,17 @@ class BCEngineMCMC
 	    std::vector<std::vector<TH2D *> > fH2Marginalized;
 
       /**
-       * The trees containing the Markov chains. The length of the vector
-       * is fMCMCNChains. */
-      std::vector<TTree *> fMCMCTrees;
-
+       * The tree containing the Markov chains.*/
+	    TTree * fMCMCTree;
+	
+	    /**
+	     * fMCMCTree's variables. */
+	    unsigned int fMCMCTree_Chain;
+	    unsigned int fMCMCTree_Iteration;
+	    double fMCMCTree_Prob;
+	    std::vector<double> fMCMCTree_Parameters;
+	    std::vector<double> fMCMCTree_Observables;
+	
       /**
        * A vector of best fit parameters found by MCMC */
       std::vector<double> fMCMCBestFitParameters;
@@ -1276,6 +1309,7 @@ class BCEngineMCMC
       /**
        * A vector of best fit parameters estimated from the marginalized probability */
       std::vector<double> fMarginalModes;
+
 };
 
 // ---------------------------------------------------------

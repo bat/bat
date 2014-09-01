@@ -16,14 +16,24 @@
 
 BCObservable::BCObservable()
 	: BCVariable()
+	, fObservableValue(new double)
 {
 	fPrefix = "Observable";
 }
 
 // ---------------------------------------------------------
 
+BCObservable::BCObservable(const BCObservable & other)
+	: BCVariable(other)
+	, fObservableValue(other.fObservableValue)
+{
+}
+
+// ---------------------------------------------------------
+
 BCObservable::BCObservable(const char * name, double lowerlimit, double upperlimit, const char * latexname)
 	:	BCVariable(name,lowerlimit,upperlimit,latexname)
+	, fObservableValue(new double)
 {
 	fPrefix = "Observable";
 }

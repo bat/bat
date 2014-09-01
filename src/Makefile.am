@@ -30,14 +30,15 @@ incs= \
 	BCDataSet.h \
 	BCH1D.h \
 	BCH2D.h \
-	BCObservableSet.h \
-	BCObservable.h \
 	BCParameterSet.h \
+	BCVariableSet.h \
+	BCObservable.h \
 	BCParameter.h \
 	BCVariable.h \
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \
+	BCPriorModel.h \
 	BCModelManager.h \
 	BCModelOutput.h \
 	BCGoFTest.h \

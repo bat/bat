@@ -78,7 +78,6 @@ void BCModelOutput::Init()
 void BCModelOutput::SetModel(BCModel * model)
 {
    fModel = model;
-   fModel->MCMCInitialize();
    fModel->SAInitialize();
 }
 
@@ -105,18 +104,10 @@ void BCModelOutput::SetFile(const char * filename)
 
    // initialize trees
    InitializeAnalysisTree();
-   fModel->MCMCInitializeMarkovChainTrees();
    fModel->InitializeSATree();
 
    // change back to the old directory
    gDirectory = dir;
-}
-
-// ---------------------------------------------------------
-void BCModelOutput::WriteMarkovChain(bool flag)
-{
-   if (fModel)
-      fModel->WriteMarkovChain(flag);
 }
 
 // ---------------------------------------------------------
@@ -237,17 +228,6 @@ void BCModelOutput::Close()
    if (fAnalysisTree)
      if (fAnalysisTree->GetEntries() > 0)
        fAnalysisTree->Write();
-
-   // write markov chain tree to file
-   if (fModel) {
-     for (unsigned i = 0; i < fModel->MCMCGetNChains(); ++i) {
-       if (fModel->MCMCGetMarkovChainTree(i)){
-         if (fModel->MCMCGetMarkovChainTree(i)->GetEntries() > 0) {
-           fModel->MCMCGetMarkovChainTree(i)->Write();
-         }
-       }
-     }
-   }
 
    // write SA tree to file
    if (fModel)

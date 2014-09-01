@@ -6,6 +6,7 @@
  * \brief The base class for all user-defined models.
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
+ * \author Daniel Greenwald
  * \version 1.0
  * \date 08.2008
  * \detail This class represents a model. It contains a container of prior distributions and the likelihood. The methods that implement the prior and the likelihood
@@ -14,7 +15,7 @@
  */
 
 /*
- * Copyright (C) 2007-2013, the BAT core developer team
+ * Copyright (C) 2007-2014, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -42,6 +43,8 @@ class BCDataSet;
 class BCParameter;
 class BCH1D;
 class BCH2D;
+class BCPriorModel;
+
 
 const int MAXNDATAPOINTVALUES = 20;
 
@@ -52,6 +55,10 @@ class BCModel : public BCIntegrate
 
    public:
 
+	/** \name Enumerators  */
+	/** @{ */
+
+	/** @} */
       /** \name Constructors and destructors */
       /** @{ */
 
@@ -128,6 +135,10 @@ class BCModel : public BCIntegrate
        * @param index The index of the data point.
        * @return The data point in the current data set at index */
       BCDataPoint * GetDataPoint(unsigned int index) const;
+
+	    /**
+	     * @return BCPriorModel. */
+	    virtual BCPriorModel * GetPriorModel(bool prepare=true);
 
       /** @} */
 
@@ -500,6 +511,24 @@ class BCModel : public BCIntegrate
       virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
       {return 0.0;}
 
+      /**
+       * Draw a comparison of the prior knowledge to the posterior
+       * knowledge for each parameter.
+       * @return An error flag. */
+      virtual int DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post="", std::string options_prior="");
+	
+      /**
+       * Draw a comparison of the prior knowledge to the posterior.
+       * @return An error flag. */
+	    virtual int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false, double interval_content=68e-2);
+	    
+      /**
+       * Print a comparison of the prior knowledge to the posterior
+       * knowledge for each parameter.
+       * @return An error flag. */
+	    virtual int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, std::string options="-", double interval_content=68e-2);
+
+
    /** @} */
 
    protected:
@@ -571,15 +600,10 @@ class BCModel : public BCIntegrate
        * List the parameters for which the histogram prior should be interpolated */
       std::vector<bool> fPriorContainerInterpolate;
 
-   private:
+	    /**
+	     * BCPriorModel object for drawing of knowledge update, and saving of samples according to prior.*/
+	    BCPriorModel * fPriorModel;
 
-      /**
-       * Compares to strings */
-      int CompareStrings(const char * string1, const char * string2);
-
-      /**
-       * Converts a vector of doubles into a BCDataPoint */
-      BCDataPoint * VectorToDataPoint(const std::vector<double> &data);
 };
 
 // ---------------------------------------------------------

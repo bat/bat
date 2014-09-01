@@ -29,6 +29,19 @@ BCVariable::BCVariable():
 
 // ---------------------------------------------------------
 
+BCVariable::BCVariable(const BCVariable & other) 
+	: fPrefix(other.fPrefix)
+	, fName(other.fName)
+	, fLowerLimit(other.fLowerLimit)
+	, fUpperLimit(other.fUpperLimit)
+	, fPrecision(other.fPrecision)
+	, fFillHistograms(other.fFillHistograms)
+	, fNbins(other.fNbins)
+{
+}
+
+// ---------------------------------------------------------
+
 BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
 	fPrefix("Variable"),
 	fName(name),

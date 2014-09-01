@@ -38,6 +38,10 @@ public:
 	BCParameter();
 
 	/**
+	 * Copy constructor. */
+	BCParameter(const BCParameter & other);
+
+	/**
 	 * A constructor.
 	 * @param name The name of the parameter.
 	 * @param lowerlimit The lower limit of the parameter values.

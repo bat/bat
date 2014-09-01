@@ -108,11 +108,6 @@ class BCModelOutput
       /** @{ */
 
       /**
-       * Flag for writing Markov chain to file
-       * @param flag Writes (true) or does not write (false) the Markov chain */
-      void WriteMarkovChain(bool flag = true);
-
-      /**
        * Fill the output TTree with the current information. */
       void FillAnalysisTree();
 

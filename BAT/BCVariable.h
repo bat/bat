@@ -42,6 +42,10 @@ public:
 	BCVariable();
 
 	/**
+	 * Copy constructor. */
+	BCVariable(const BCVariable & other);
+
+	/**
 	 * A constructor.
 	 * @param name The name of the variable.
 	 * @param lowerlimit The lower limit of the variable values.

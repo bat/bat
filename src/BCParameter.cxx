@@ -16,12 +16,21 @@
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter() :
-	BCVariable(),
-	fFixed(false),
-	fFixedValue(-1.e+111)
+BCParameter::BCParameter()
+	:	BCVariable()
+	, fFixed(false)
+	, fFixedValue(-1.e+111)
 {
 	fPrefix = "Parameter";
+}
+
+// ---------------------------------------------------------
+
+BCParameter::BCParameter(const BCParameter & other)
+	: BCVariable(other)
+	, fFixed(other.fFixed)
+	, fFixedValue(other.fFixedValue)
+{
 }
 
 // ---------------------------------------------------------

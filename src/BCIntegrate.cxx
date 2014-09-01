@@ -234,7 +234,7 @@ void BCIntegrate::ResetResults()
 unsigned BCIntegrate::GetNIntegrationVariables() {
     unsigned n = 0;
     for(unsigned i = 0; i < fParameters.Size(); ++i)
-        if ( ! fParameters[i]->Fixed())
+        if ( ! GetParameter(i)->Fixed())
             ++n;
     return n;
 }
@@ -244,10 +244,10 @@ double BCIntegrate::CalculateIntegrationVolume() {
    double integrationVolume = -1.;
 
    for(unsigned i = 0; i < fParameters.Size(); i++)
-      if ( ! fParameters[i]->Fixed()) {
+      if ( ! GetParameter(i)->Fixed()) {
          if (integrationVolume<0)
             integrationVolume = 1;
-         integrationVolume *= fParameters[i]->GetRangeWidth();
+         integrationVolume *= GetParameter(i)->GetRangeWidth();
       }
 
    if (integrationVolume<0)
@@ -415,8 +415,8 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
 
       BCLog::OutDetail(" --> Fixed parameters:");
       for(unsigned i = 0; i < fParameters.Size(); i++)
-         if(fParameters[i]->Fixed())
-            BCLog::OutDetail(TString::Format("      %3i :  %g", i, fParameters[i]->GetFixedValue()));
+         if(GetParameter(i)->Fixed())
+            BCLog::OutDetail(TString::Format("      %3i :  %g", i, GetParameter(i)->GetFixedValue()));
    }
    else {
       bool printed = false;
@@ -661,7 +661,7 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 	// generate string output
 	char * parnames = new char;
 	for (unsigned i=0; i<index.size(); i++) {
-		parnames = Form("%s %d (%s),",parnames,index[i],fParameters[i]->GetName().data());
+		parnames = Form("%s %d (%s),",parnames,index[i],GetParameter(i)->GetName().data());
 	}
 	if (index.size()==1)
 		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameter%s using %s.",parnames, DumpCurrentMarginalizationMethod().c_str()));
@@ -673,7 +673,7 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 	std::vector<double> origMins, origMaxs;
 	std::vector<bool> origFix;
 	for (unsigned i=0; i<index.size(); i++) {
-	   BCParameter * par = fParameters[index[i]];
+	   BCParameter * par = GetParameter(index[i]);
 		origMins.push_back(par->GetLowerLimit());
 		origMaxs.push_back(par->GetUpperLimit());
 		origFix.push_back(par->Fixed());
@@ -683,8 +683,8 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 	// Set histogram title to indicate fixed variables
    std::string title;
    for (unsigned i=0; i < fParameters.Size(); ++i)
-      if (fParameters[i]->Fixed()) {
-         title += TString::Format(" (%s=%e)", fParameters[i]->GetName().data(), fParameters[i]->GetFixedValue());
+      if (GetParameter(i)->Fixed()) {
+         title += TString::Format(" (%s=%e)", GetParameter(i)->GetName().data(), GetParameter(i)->GetFixedValue());
       }
    if ( ! title.empty())
    {
@@ -703,18 +703,18 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 	// todo not thread safe!
 	// integrate each bin
 	for (int i=1; i<=hist->GetNbinsX(); i++) {
-		fParameters[index[0]]->SetLowerLimit(hist->GetXaxis()->GetBinLowEdge(i));
-		fParameters[index[0]]->SetUpperLimit(hist->GetXaxis()->GetBinLowEdge(i+1));
+		GetParameter(index[0])->SetLowerLimit(hist->GetXaxis()->GetBinLowEdge(i));
+		GetParameter(index[0])->SetUpperLimit(hist->GetXaxis()->GetBinLowEdge(i+1));
 		double binwidth1d = hist -> GetXaxis() -> GetBinWidth(i);
 		if (hist->GetDimension()>1)
 			for (int j=1; j<=hist->GetNbinsY(); j++) {
-				fParameters[index[1]]->SetLowerLimit(hist -> GetYaxis() -> GetBinLowEdge(j));
-				fParameters[index[1]]->SetUpperLimit(hist -> GetYaxis() -> GetBinLowEdge(j+1));
+				GetParameter(index[1])->SetLowerLimit(hist -> GetYaxis() -> GetBinLowEdge(j));
+				GetParameter(index[1])->SetUpperLimit(hist -> GetYaxis() -> GetBinLowEdge(j+1));
 				double binwidth2d = binwidth1d * hist->GetYaxis()->GetBinWidth(j);
 				if (hist->GetDimension()>2)
 					for (int k=1; k<=hist->GetNbinsZ(); k++) {
-						fParameters[index[2]]->SetLowerLimit(hist -> GetZaxis() -> GetBinLowEdge(k));
-						fParameters[index[2]]->SetUpperLimit(hist -> GetZaxis() -> GetBinLowEdge(k+1));
+						GetParameter(index[2])->SetLowerLimit(hist -> GetZaxis() -> GetBinLowEdge(k));
+						GetParameter(index[2])->SetUpperLimit(hist -> GetZaxis() -> GetBinLowEdge(k+1));
 						double binwidth3d = binwidth2d * hist->GetZaxis()->GetBinWidth(k);
 						hist -> SetBinContent(i, j, k, Integrate(type)/binwidth3d);
 						hist -> SetBinError  (i, j, k, GetError()/binwidth3d);
@@ -732,9 +732,9 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
 
 	// restore original integration limits and fixed flags
 	for (unsigned i=0; i<index.size(); i++) {
-		fParameters[index[i]]->SetLowerLimit(origMins[i]);
-		fParameters[index[i]]->SetUpperLimit(origMaxs[i]);
-		fParameters[index[i]]->Fix(origFix[i]);
+		GetParameter(index[i])->SetLowerLimit(origMins[i]);
+		GetParameter(index[i])->SetUpperLimit(origMaxs[i]);
+		GetParameter(index[i])->Fix(origFix[i]);
 	}
 
 	// restore original fNIterationsMax
@@ -810,8 +810,8 @@ int BCIntegrate::MarginalizeAll() {
 		{
 			std::vector<double> fixpoint(GetNParameters(), 0);
 			for (unsigned int i = 0; i < GetNParameters(); ++i)
-				if (fParameters[i]->Fixed())
-					fixpoint[i] = fParameters[i]->GetFixedValue();
+				if (GetParameter(i)->Fixed())
+					fixpoint[i] = GetParameter(i)->GetFixedValue();
 
 			// start preprocess
 			MarginalizePreprocess();
@@ -822,15 +822,15 @@ int BCIntegrate::MarginalizeAll() {
 			// correct fixed parameter values
 			// the other should have been determined above
 			for (unsigned i = 0; i < fParameters.Size(); ++i)
-				if (fParameters[i]->Fixed())
-					bestfit_parameters[i] = fParameters[i]->GetFixedValue();
+				if (GetParameter(i)->Fixed())
+					bestfit_parameters[i] = GetParameter(i)->GetFixedValue();
 
 			fH1Marginalized.assign(fParameters.Size(),0);
 			fH2Marginalized.assign(fParameters.Size(),std::vector<TH2D*>(fParameters.Size(),0));
 
 			if (GetNFreeParameters() == 1) { // Marginalize the free parameter to a 1D histogram
 				for (unsigned i = 0; i < fParameters.Size(); ++i) {
-					if (fParameters[i]->Fixed())
+					if (GetParameter(i)->Fixed())
 						continue;
 				
 					// calculate slice
@@ -850,7 +850,7 @@ int BCIntegrate::MarginalizeAll() {
 			else if (GetNFreeParameters() == 2) { // marginalize the two free parameters to a 2D histogram
 				for (unsigned i = 0; i < fParameters.Size(); ++i) {
 					for (unsigned j = i+1; j < fParameters.Size(); ++j) {
-						if (fParameters[i]->Fixed() or fParameters[j]->Fixed())
+						if (GetParameter(i)->Fixed() or GetParameter(j)->Fixed())
 							continue;
 
 						// calculate slice
@@ -961,7 +961,7 @@ TH1D * BCIntegrate::GetSlice(unsigned index, const std::vector<double> parameter
 	}
 
 	// check if parameter is fixed
-	if (fParameters[index]->Fixed())
+	if (GetParameter(index)->Fixed())
 		return 0;
 
 	// create local copy of parameter set
@@ -977,20 +977,20 @@ TH1D * BCIntegrate::GetSlice(unsigned index, const std::vector<double> parameter
 	}
 
 	// set binning
-	unsigned nbins_temp = fParameters[index]->GetNbins();
+	unsigned nbins_temp = GetParameter(index)->GetNbins();
 	if (nbins > 0)
-		fParameters[index] -> SetNbins(nbins);
+		GetParameter(index) -> SetNbins(nbins);
 
 	// create histogram
-	TH1D * hist = fParameters[index] -> CreateH1(TString::Format("h1_slice_%s_%d",GetName().data(),index).Data());
+	TH1D * hist = GetParameter(index) -> CreateH1(TString::Format("h1_slice_%s_%d",GetName().data(),index).Data());
 	hist -> UseCurrentStyle();
 	hist -> SetStats(kFALSE);
 
 	// set y-axis label
 	if (GetNParameters() == 1)
-		hist->SetYTitle(Form("p(%s|data)", fParameters[index]->GetLatexName().data()));
+		hist->SetYTitle(Form("p(%s|data)", GetParameter(index)->GetLatexName().data()));
 	else
-		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", fParameters[index]->GetLatexName().data()));
+		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", GetParameter(index)->GetLatexName().data()));
 
 	// fill histogram
 	for (int i = 1; i <= hist->GetNbinsX(); ++i) {
@@ -1003,7 +1003,7 @@ TH1D * BCIntegrate::GetSlice(unsigned index, const std::vector<double> parameter
 		hist-> Scale( 1. / hist->Integral("width") );
 	
 	// reset binning
-	fParameters[index] -> SetNbins(nbins_temp);
+	GetParameter(index) -> SetNbins(nbins_temp);
 
 	return hist;
 }
@@ -1022,7 +1022,7 @@ TH2D * BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
 	}
 
 	// check if parameters are fixed
-	if (fParameters[index1]->Fixed() or fParameters[index2]->Fixed())
+	if (GetParameter(index1)->Fixed() or GetParameter(index2)->Fixed())
 		return 0;
 	
 	// create local copy of parameter set
@@ -1038,23 +1038,23 @@ TH2D * BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
 	}
 
 	// set binning
-	unsigned nbins1_temp = fParameters[index1] -> GetNbins();
-	unsigned nbins2_temp = fParameters[index2] -> GetNbins();
+	unsigned nbins1_temp = GetParameter(index1) -> GetNbins();
+	unsigned nbins2_temp = GetParameter(index2) -> GetNbins();
 	if (nbins > 0) {
-		fParameters[index1] -> SetNbins(nbins);
-		fParameters[index2] -> SetNbins(nbins);
+		GetParameter(index1) -> SetNbins(nbins);
+		GetParameter(index2) -> SetNbins(nbins);
 	}
 
 	// create histogram
-	TH2D * hist = fParameters[index1] -> CreateH2(TString::Format("h2_slice_%s_%d_%d",GetSafeName().data(),index1,index2),fParameters[index2]);
+	TH2D * hist = GetParameter(index1) -> CreateH2(TString::Format("h2_slice_%s_%d_%d",GetSafeName().data(),index1,index2),GetParameter(index2));
 	hist->SetStats(kFALSE);
 	hist->UseCurrentStyle();
 
 	// set z-axis label
 	if (GetNParameters() == 2)
-		hist->SetZTitle(Form("p(%s, %s | data)", fParameters[index1]->GetLatexName().data(),fParameters[index2]->GetLatexName().data()));
+		hist->SetZTitle(Form("p(%s, %s | data)", GetParameter(index1)->GetLatexName().data(),GetParameter(index2)->GetLatexName().data()));
 	else
-		hist->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", fParameters[index1]->GetLatexName().data(),fParameters[index2]->GetLatexName().data()));
+		hist->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(index1)->GetLatexName().data(),GetParameter(index2)->GetLatexName().data()));
 	
 	// fill histogram
 	for (int ix = 1; ix <= hist->GetNbinsX(); ++ix) {
@@ -1070,8 +1070,8 @@ TH2D * BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector
 		hist->Scale(1./hist->Integral("width"));
 	
 	// reset binning
-	fParameters[index1] -> SetNbins(nbins1_temp);
-	fParameters[index2] -> SetNbins(nbins2_temp);
+	GetParameter(index1) -> SetNbins(nbins1_temp);
+	GetParameter(index2) -> SetNbins(nbins2_temp);
 	
 	return hist;
 }
@@ -1095,10 +1095,10 @@ void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double> &x) const
 	 GetRandomVectorUnitHypercube(x);
 
 	 for (unsigned i = 0; i < fParameters.Size(); i++){
-		 if (fParameters[i]->Fixed())
-			 x[i] = fParameters[i]->GetFixedValue();
+		 if (GetParameter(i)->Fixed())
+			 x[i] = GetParameter(i)->GetFixedValue();
 		 else
-			 x[i] = fParameters[i]->GetLowerLimit() + x[i] * fParameters[i]->GetRangeWidth();
+			 x[i] = GetParameter(i)->GetLowerLimit() + x[i] * GetParameter(i)->GetRangeWidth();
 	 }
 }
 
@@ -1248,9 +1248,9 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::
    // check if point is allowed
    if (have_start) {
      for (unsigned int i = 0; i <fParameters.Size(); ++i) {
-       if (!fParameters[i]->IsValid(start[i]))
+       if (!GetParameter(i)->IsValid(start[i]))
          have_start = false;
-       if (fParameters[i]->Fixed() && start[i] != fParameters[i]->GetFixedValue())
+       if (GetParameter(i)->Fixed() && start[i] != GetParameter(i)->GetFixedValue())
          have_start = false;
      }
      if (!have_start)
@@ -1277,22 +1277,22 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::
    // set parameters
    int flag;
    for (unsigned i = 0; i < fParameters.Size(); i++) {
-      double starting_point = (fParameters[i]->GetUpperLimit() + fParameters[i]->GetLowerLimit()) / 2.;
+      double starting_point = (GetParameter(i)->GetUpperLimit() + GetParameter(i)->GetLowerLimit()) / 2.;
       if(have_start)
          starting_point = start[i];
-      if (fParameters[i]->Fixed())
-         starting_point = fParameters[i]->GetFixedValue();
+      if (GetParameter(i)->Fixed())
+         starting_point = GetParameter(i)->GetFixedValue();
       fMinuit->mnparm(i,
-                      fParameters[i]->GetName().data(),
+                      GetParameter(i)->GetName().data(),
                       starting_point,
-                      fParameters[i]->GetRangeWidth() / 100.,
-                      fParameters[i]->GetLowerLimit(),
-                      fParameters[i]->GetUpperLimit(),
+                      GetParameter(i)->GetRangeWidth() / 100.,
+                      GetParameter(i)->GetLowerLimit(),
+                      GetParameter(i)->GetUpperLimit(),
                       flag);
    }
 
    for (unsigned i = 0; i < fParameters.Size(); i++)
-      if (fParameters[i]->Fixed())
+      if (GetParameter(i)->Fixed())
          fMinuit->FixParameter(i);
 
    // do mcmc minimization
@@ -1359,9 +1359,9 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
    // check if point is allowed
    if (have_start) {
      for (unsigned int i = 0; i <fParameters.Size(); ++i) {
-       if (!fParameters[i]->IsValid(start[i]))
+       if (!GetParameter(i)->IsValid(start[i]))
          have_start = false;
-       if (fParameters[i]->Fixed() && start[i] != fParameters[i]->GetFixedValue())
+       if (GetParameter(i)->Fixed() && start[i] != GetParameter(i)->GetFixedValue())
          have_start = false;
      }
      if (!have_start)
@@ -1372,10 +1372,10 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
    if ( !have_start ) {
       start.clear();
       for (unsigned i=0; i<fParameters.Size(); i++)
-         if (fParameters[i]->Fixed())
-            start.push_back(fParameters[i]->GetFixedValue());
+         if (GetParameter(i)->Fixed())
+            start.push_back(GetParameter(i)->GetFixedValue());
          else
-            start.push_back((fParameters[i]->GetLowerLimit() + fParameters[i]->GetUpperLimit()) / 2.);
+            start.push_back((GetParameter(i)->GetLowerLimit() + GetParameter(i)->GetUpperLimit()) / 2.);
    }
 
    // set current state and best fit to starting point
@@ -1395,7 +1395,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
       bool in_range = true;
 
       for (unsigned i = 0; i < fParameters.Size(); i++)
-         if ( !fParameters[i]->IsValid(y[i]))
+         if ( !GetParameter(i)->IsValid(y[i]))
             in_range = false;
 
       if ( in_range ){
@@ -1494,11 +1494,11 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<d
    double new_val, norm;
 
    for (unsigned i = 0; i < fParameters.Size(); i++) {
-      if (fParameters[i]->Fixed()) {
-         y.push_back(fParameters[i]->GetFixedValue());
+      if (GetParameter(i)->Fixed()) {
+         y.push_back(GetParameter(i)->GetFixedValue());
       }
       else {
-         norm = fParameters[i]->GetRangeWidth() * SATemperature(t) / 2.;
+         norm = GetParameter(i)->GetRangeWidth() * SATemperature(t) / 2.;
          new_val = x[i] + norm * fRandom->Gaus();
          y.push_back(new_val);
       }
@@ -1516,11 +1516,11 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
    if (fParameters.Size() == 1) {
       double cauchy, new_val, norm;
 
-      if (fParameters[0]->Fixed()) {
-         y.push_back(fParameters[0]->GetFixedValue());
+      if (GetParameter(0)->Fixed()) {
+         y.push_back(GetParameter(0)->GetFixedValue());
       }
       else {
-         norm = fParameters[0]->GetRangeWidth() * SATemperature(t) / 2.;
+         norm = GetParameter(0)->GetRangeWidth() * SATemperature(t) / 2.;
          cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
          new_val = x[0] + norm * cauchy;
          y.push_back(new_val);
@@ -1540,10 +1540,10 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
       // scale y by radial part and the size of dimension i in phase space
       // afterwards, move by x
       for (unsigned i = 0; i < fParameters.Size(); i++) {
-         if (fParameters[i]->Fixed()) {
-            y[i] = fParameters[i]->GetFixedValue(); }
+         if (GetParameter(i)->Fixed()) {
+            y[i] = GetParameter(i)->GetFixedValue(); }
          else {
-            y[i] = fParameters[i]->GetRangeWidth() * y[i] * radial / 2. + x[i];
+            y[i] = GetParameter(i)->GetRangeWidth() * y[i] * radial / 2. + x[i];
          }
       }
    }
@@ -1768,7 +1768,7 @@ int BCIntegrate::CubaIntegrand(const int * ndim, const double xx[],
    unsigned cubaIndex = 0;
    unsigned batIndex = 0;
    for (batIndex = 0; batIndex < local_this->fParameters.Size(); ++batIndex) {
-  	 const BCParameter * p = local_this->fParameters[batIndex];
+  	 const BCParameter * p = local_this->GetParameter(batIndex);
 
 		 // get the scaled parameter value
 		 if (p->Fixed())
@@ -1938,18 +1938,18 @@ double BCIntegrate::IntegrateSlice()
   // calculate values are which the function should be evaluated
   std::vector<double> fixpoint(fParameters.Size(), 0);
   for (unsigned int i = 0; i < fParameters.Size(); ++i)
-    if (fParameters[i]->Fixed())
-      fixpoint[i] = fParameters[i]->GetFixedValue();
+    if (GetParameter(i)->Fixed())
+      fixpoint[i] = GetParameter(i)->GetFixedValue();
 	
   if (GetNFreeParameters() == 1) {
     for (unsigned i = 0; i < fParameters.Size(); ++i)
-      if (!fParameters[i]->Fixed())
+      if (!GetParameter(i)->Fixed())
 				integral = GetSlice(i, fixpoint, 0, false) -> Integral("width");
   }
   else if (GetNFreeParameters() == 2) {
     for (unsigned int i = 0; i < fParameters.Size(); ++i)
       for (unsigned int j = i+1; j < fParameters.Size(); ++j)
-        if (!fParameters[i]->Fixed() && !fParameters[j]->Fixed())
+        if (!GetParameter(i)->Fixed() && !GetParameter(j)->Fixed())
           // calculate slice
           integral = GetSlice(i,j, fixpoint, 0, false) -> Integral("width");
   }

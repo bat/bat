@@ -19,6 +19,7 @@
 #include "BCMath.h"
 #include "BCModelOutput.h"
 #include "BCParameter.h"
+#include "BCPriorModel.h"
 
 #include <TCanvas.h>
 #include <TF1.h>
@@ -27,32 +28,38 @@
 #include <TMath.h>
 #include <TRandom3.h>
 #include <TTree.h>
+#include <TLegend.h>
+#include <TMarker.h>
+#include <TArrow.h>
 
 #include <fstream>
 #include <iomanip>
 #include <set>
 
 // ---------------------------------------------------------
-BCModel::BCModel(const char * name) :
-   BCIntegrate(name),
-   fModelAPriori(0),
-   fModelAPosteriori(0),
-   fDataSet(0),
-   fDataPointLowerBoundaries(0),
-   fDataPointUpperBoundaries(0),
-   fPValue(-1),
-   fChi2NDoF(-1),
-   fPValueNDoF(-1),
-   flag_discrete(false),
-   fGoFNIterationsMax(100000),
-   fGoFNIterationsRun(2000),
-   fGoFNChains(5),
-   fPriorConstantAll(false)
+BCModel::BCModel(const char * name)
+	: BCIntegrate(name)
+  , fModelAPriori(0)
+  , fModelAPosteriori(0)
+  , fDataSet(0)
+  , fDataPointLowerBoundaries(0)
+  , fDataPointUpperBoundaries(0)
+  , fPValue(-1)
+  , fChi2NDoF(-1)
+  , fPValueNDoF(-1)
+  , flag_discrete(false)
+  , fGoFNIterationsMax(100000)
+  , fGoFNIterationsRun(2000)
+  , fGoFNChains(5)
+  , fPriorConstantAll(false)
+	, fPriorModel(0)
 {
 }
 
 // ---------------------------------------------------------
-BCModel::BCModel(const BCModel & bcmodel) : BCIntegrate(bcmodel)
+BCModel::BCModel(const BCModel & bcmodel)
+	: BCIntegrate(bcmodel)
+	, fPriorModel(0)
 {
 	Copy(bcmodel);
 }
@@ -105,6 +112,9 @@ BCModel::~BCModel()
    for (unsigned int i = 0; i < GetNParameters(); ++i)
       delete fPriorContainer[i];
    fPriorContainer.clear();
+
+	 if (fPriorModel)
+		 delete fPriorModel;
 
    delete fDataPointLowerBoundaries;
    delete fDataPointUpperBoundaries;
@@ -275,8 +285,8 @@ double BCModel::LogAPrioriProbability(const std::vector<double> &parameters)
 
    // loop over all parameters, assume prior factorizes
    // into n independent parts
-   for (unsigned i = 0; i < fParameters.Size(); ++i) {
-      BCParameter * par = fParameters[i];
+   for (unsigned i = 0; i < GetNParameters(); ++i) {
+		 BCParameter * par = GetParameter(i);
 
       // avoid fixed and zero-width parameters
       if (par->Fixed() or not par->GetRangeWidth())
@@ -342,7 +352,7 @@ double BCModel::SamplingFunction(const std::vector<double> & /*parameters*/)
 {
    double probability = 1;
    for (unsigned i = 0 ; i < GetNParameters() ; ++i)
-      probability *= 1. / fParameters[i]->GetRangeWidth();
+		 probability *= 1. / GetParameter(i)->GetRangeWidth();
    return probability;
 }
 
@@ -604,7 +614,7 @@ int BCModel::SetPriorDelta(int index, double value)
 // ---------------------------------------------------------
 int BCModel::SetPriorDelta(const char* name, double value)
 {
-   fParameters.Get(name)->Fix(value);
+   GetParameter(name)->Fix(value);
 
    return 1;
 }
@@ -765,7 +775,7 @@ int BCModel::SetPriorConstant(int index)
 // ---------------------------------------------------------
 int BCModel::SetPriorConstantAll()
 {
-   if ( !fParameters.Size())
+	if ( fParameters.Empty() )
       BCLog::OutWarning("BCModel::SetPriorConstantAll : No parameters defined.");
 
    // loop over all 1-d priors
@@ -854,34 +864,404 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
    // loop over all parameter pairs
    for (unsigned int i = 0; i < GetNParameters(); i++)
       for (unsigned int j = 0; j < i; j++) {
-         // calculate Hessian matrix element
-         double hessianmatrixelement = HessianMatrixElement(
-               fParameters[i], fParameters[j], parameters);
+				// calculate Hessian matrix element
+				double hessianmatrixelement = HessianMatrixElement(GetParameter(i),GetParameter(j),parameters);
 
-         // print to screen
-         BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
+				// print to screen
+				BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
       }
 }
 
 // ---------------------------------------------------------
-BCDataPoint * BCModel::VectorToDataPoint(const std::vector<double> &data)
-{
-   BCDataPoint * datapoint = new BCDataPoint(data.size());
-   datapoint->SetValues(data);
-   return datapoint;
+BCPriorModel * BCModel::GetPriorModel(bool prepare) {
+	if (!fPriorModel)
+		fPriorModel = new BCPriorModel(this);
+	else if (prepare)
+		fPriorModel -> PreparePriorModel();
+	return fPriorModel;
 }
 
 // ---------------------------------------------------------
-int BCModel::CompareStrings(const char * string1, const char * string2)
+int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post, std::string options_prior) {
+	// option flags
+	bool flag_slice_post  = (options_post.find("slice") < options_post.size());
+	bool flag_slice_prior = (options_prior.find("slice") < options_prior.size());
+
+	// Get Prior
+	BCH1D * bch1d_prior = 0;
+	TLine * const_prior = (IsPriorConstant(index)) ? new TLine() : 0;
+	TF1   * f1_prior    = (const_prior) ? 0 : dynamic_cast<TF1*> (PriorContainer(index));
+	TH1   * h1_prior    = (const_prior) ? 0 : dynamic_cast<TH1*> (PriorContainer(index));
+	
+	double max_prior = 0;
+
+	if (const_prior) {
+		max_prior = 1./GetVariable(index)->GetRangeWidth();
+		const_prior -> SetLineColor(kRed);
+	}
+	else if (f1_prior) {
+		max_prior = f1_prior -> GetMaximum(GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
+		f1_prior -> SetLineColor(kRed);
+		f1_prior -> SetLineWidth(1);
+	}
+	else if (h1_prior) {
+		max_prior = h1_prior -> GetMaximum();
+		h1_prior -> SetLineColor(kRed);
+		h1_prior -> SetStats(false);
+		h1_prior -> GetXaxis() -> SetNdivisions(508);
+	}
+	else {
+		if (flag_slice_prior and index<fPriorModel->GetNParameters()) {
+			if (fPriorModel->GetNParameters()==2) {
+				TH1D * hist = (index==0) ? fPriorModel->GetSlice(0,1)->ProjectionX(Form("projx_%i",BCLog::GetHIndex())) : fPriorModel->GetSlice(0,1)->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
+				bch1d_prior = new BCH1D(hist);
+			} else if (fPriorModel->GetNParameters()==1)
+				bch1d_prior = new BCH1D(fPriorModel->GetSlice(index));
+		}
+		if (!bch1d_prior and fPriorModel->MarginalizedHistogramExists(index))
+			bch1d_prior = fPriorModel->GetMarginalized(index);
+		if (!bch1d_prior)
+			return 0;
+		max_prior = bch1d_prior->GetHistogram()->GetMaximum();
+		bch1d_prior -> GetHistogram() -> SetStats(false);
+		bch1d_prior -> GetHistogram() -> SetLineColor(kRed);
+		bch1d_prior -> GetHistogram() -> GetXaxis() -> SetNdivisions(508);
+	}
+	
+	// if prior doesn't exist, exit
+	if (!const_prior and !f1_prior and !h1_prior and !bch1d_prior)
+		return 0;
+
+	// Get Posterior
+	BCH1D* bch1d_posterior = 0;
+	if (flag_slice_post and index<GetNParameters()) {
+		if (GetNParameters()==2) {
+			TH1D * hist = (index==0) ? GetSlice(0,1)->ProjectionX(Form("projx_%i",BCLog::GetHIndex()))
+				: GetSlice(0,1)->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
+			hist -> Scale(1./hist->Integral("width"));
+			bch1d_posterior = new BCH1D(hist);
+		} else if (GetNParameters()==1)
+			bch1d_posterior = new BCH1D(GetSlice(index));
+	} else if (MarginalizedHistogramExists(index))
+		bch1d_posterior = GetMarginalized(index);
+	
+	// if marginal doesn't exist, exit
+	if (!bch1d_posterior)
+		return 0;
+	
+	bch1d_posterior -> GetHistogram() -> Scale(1./bch1d_posterior->GetHistogram()->Integral("width"));
+	bch1d_posterior -> GetHistogram() -> SetStats(kFALSE);
+	
+	// get maximum
+	double maxy = 1.1 * TMath::Max(max_prior, bch1d_posterior->GetHistogram()->GetMaximum());
+
+	// prepare legend
+	TLegend* legend = new TLegend();
+	legend->SetBorderSize(0);
+	legend->SetFillColor(kWhite);
+	legend->SetTextAlign(12);
+	legend->SetTextFont(62);
+	legend->SetTextSize(0.03);
+
+	// draw axes
+	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d",GetName().data(),index), TString::Format(";%s;P(%s|Data)",GetVariable(index)->GetLatexName().data(),GetVariable(index)->GetLatexName().data()),
+														10, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit(),
+														10, 0, maxy);
+	h2_axes -> SetStats(false);
+	h2_axes -> GetXaxis() -> SetNdivisions(508);
+	h2_axes -> Draw();
+	
+	// draw prior
+	if (const_prior) {
+		legend -> AddEntry(const_prior,"prior","L");
+		const_prior -> DrawLine(GetVariable(index)->GetLowerLimit(),max_prior,GetVariable(index)->GetUpperLimit(),max_prior);
+	} else if (f1_prior) {
+		legend -> AddEntry(f1_prior,"prior","L");
+		f1_prior -> Draw("same");
+	} else if (h1_prior) {
+		legend -> AddEntry(h1_prior,"prior","L");
+		h1_prior -> Draw("same");
+	} else if (bch1d_prior) {
+		legend -> AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
+		bch1d_prior -> Draw(std::string(options_prior+"same"));
+	}
+	
+	// draw posterior
+	legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
+	bch1d_posterior -> Draw(std::string(options_post+"same"));
+
+	gPad->SetTopMargin(0.02);
+   
+	// Draw legend on top of histogram
+	legend -> SetX1NDC(gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+	legend -> SetX2NDC(1. - gPad->GetRightMargin());
+	double y1 = gPad->GetTopMargin() + legend->GetTextSize()*legend->GetNRows();
+	legend -> SetY1NDC(1-y1);
+	legend -> SetY2NDC(1. - gPad->GetTopMargin());
+	legend -> Draw();
+
+	// rescale top margin
+	gPad -> SetTopMargin(y1+0.01);
+
+	gPad -> RedrawAxis();
+
+	return 1;
+}
+
+// ---------------------------------------------------------
+int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice, double interval_content) {
+	
+	if (index1 == index2)
+		return 0;
+	if (index1 > index2)
+		return DrawKnowledgeUpdatePlot2D(index2,index1,flag_slice);
+
+	// Get Posterior
+	TH2D * h2d_2dposterior = 0;
+	if (flag_slice and GetNParameters()==2 and index1<GetNParameters() and index2<GetNParameters())
+		h2d_2dposterior = GetSlice(index1,index2);
+	else if (MarginalizedHistogramExists(index1,index2))
+		h2d_2dposterior = GetMarginalizedHistogram(index1,index2);
+
+	if (!h2d_2dposterior)
+		return 0;
+
+	// Get Prior
+	bool const_prior1 = IsPriorConstant(index1);
+	TF1 * f1_prior1   = (const_prior1) ? 0 : dynamic_cast<TF1*> (PriorContainer(index1));
+	TH1 * h1_prior1   = (const_prior1) ? 0 : dynamic_cast<TH1*> (PriorContainer(index1));
+	bool auto_prior1 = const_prior1 or f1_prior1 or h1_prior1;
+
+	bool const_prior2 = IsPriorConstant(index2);
+	TF1 * f1_prior2   = (const_prior2) ? 0 : dynamic_cast<TF1*> (PriorContainer(index2));
+	TH1 * h1_prior2   = (const_prior2) ? 0 : dynamic_cast<TH1*> (PriorContainer(index2));
+	bool auto_prior2 = const_prior2 or f1_prior2 or h1_prior2;
+
+	TH2D * h2d_2dprior = 0;
+
+	if (!auto_prior1 or !auto_prior2) { // one or both prior pre-defined
+		if (flag_slice and GetNParameters()==2 and index1<GetNParameters() and index2<GetNParameters())
+			h2d_2dprior = fPriorModel -> GetSlice(index1,index2);
+		else if (fPriorModel->MarginalizedHistogramExists(index1, index2))
+			h2d_2dprior = fPriorModel -> GetMarginalizedHistogram(index1,index2);
+	}
+
+	// if not predefined, use the projection of the marginalization
+	if (!auto_prior1 and h2d_2dprior)
+		h1_prior1 = h2d_2dprior -> ProjectionX(TString::Format("h1_prior1_%s_%d",GetName().data(),index1));
+	if (!auto_prior2 and h2d_2dprior)
+		h1_prior2 = h2d_2dprior -> ProjectionY(TString::Format("h1_prior2_%s_%d",GetName().data(),index2));
+
+	if (!h2d_2dprior)
+		h2d_2dprior = fPriorModel->GetVariable(index1) -> CreateH2(TString::Format("h2d_2dprior_%s_%d_%d",GetName().data(),index1,index2).Data(),fPriorModel->GetVariable(index2));
+
+	// Set 2D-prior histogram binning to match 1D binning, for if prior was defined by histogram
+	if (h2d_2dprior) {
+		TAxis * xaxis = (h1_prior1) ? h1_prior1->GetXaxis() : h2d_2dprior->GetXaxis();
+		TAxis * yaxis = (h1_prior2) ? h1_prior2->GetXaxis() : h2d_2dprior->GetYaxis();
+
+		int n_xbins = xaxis->GetNbins();
+		double xbins[n_xbins+1];
+		xaxis -> GetLowEdge(xbins);
+		xbins[n_xbins] = xaxis->GetXmax();
+
+		int n_ybins = yaxis->GetNbins();
+		double ybins[n_ybins+1];
+		yaxis -> GetLowEdge(ybins);
+		ybins[n_ybins] = yaxis->GetXmax();
+
+		h2d_2dprior -> SetBins(n_xbins,xbins,n_ybins,ybins);
+	}
+	
+	for (int i = 1; i <= h2d_2dprior->GetNbinsX(); ++i) {
+		// x prior
+		double x = 1;
+		if (f1_prior1)
+			x = f1_prior1 -> Eval(h2d_2dprior->GetXaxis()->GetBinCenter(i));
+		else if (h1_prior1)
+			x = h1_prior1 -> GetBinContent(h1_prior1->FindFixBin(h2d_2dprior->GetXaxis()->GetBinCenter(i)));
+		
+		for (int j = 1; j <= h2d_2dprior->GetNbinsY(); ++j) {
+			// y prior
+			double y = 1;
+			if (f1_prior2)
+				y = f1_prior2 -> Eval(h2d_2dprior->GetYaxis()->GetBinCenter(j));
+			else if (h1_prior2)
+				y = h1_prior2 -> GetBinContent(h1_prior2->FindFixBin(h2d_2dprior->GetYaxis()->GetBinCenter(j)));
+			
+			h2d_2dprior -> SetBinContent(i,j,x*y);
+		}
+	}
+
+	if (!h2d_2dprior)
+		return 0;
+
+
+	// TH2D drawing options
+	h2d_2dprior -> SetLineColor(kRed);
+	h2d_2dprior -> SetStats(false);
+	h2d_2dposterior -> SetStats(false);
+
+	// Create BCH2D's (these normalize the TH2D's)
+	BCH2D * bch2d_2dprior     = new BCH2D(h2d_2dprior);
+	BCH2D * bch2d_2dposterior = new BCH2D(h2d_2dposterior);
+
+	// Calculate integrated histograms for getting contour line values
+	bch2d_2dprior     -> CalculateIntegratedHistogram();
+	bch2d_2dposterior -> CalculateIntegratedHistogram();
+
+	// Set contour levels 
+	if (interval_content <= 0 or interval_content >= 1)
+		interval_content = 68e-2;
+	double level[1] = {bch2d_2dprior -> GetLevel(1-interval_content)};
+	h2d_2dprior -> SetContour(1, level);
+	h2d_2dprior -> Draw("CONT3");
+	level[0] = bch2d_2dposterior -> GetLevel(1-interval_content);
+	h2d_2dposterior -> SetContour(1, level);
+	h2d_2dposterior -> Draw("CONT3 SAME");
+
+	// create legend
+	TLegend * legend2d = new TLegend();
+	legend2d -> SetBorderSize(0);
+	legend2d -> SetFillColor(kWhite);
+	legend2d -> SetTextAlign(12);
+	legend2d -> SetTextFont(62);
+	legend2d -> SetTextSize(0.03);
+	
+  // create markers and arrows
+	TMarker * marker_prior = new TMarker();
+	marker_prior -> SetMarkerStyle(20);
+	marker_prior -> SetMarkerColor(kRed);
+	marker_prior -> SetMarkerSize(1.5*gPad->GetWNDC());
+	
+	TMarker * marker_posterior = new TMarker();
+	marker_posterior -> SetMarkerStyle(20);
+	marker_posterior -> SetMarkerColor(kBlue);
+	marker_posterior -> SetMarkerSize(1.5*gPad->GetWNDC());
+	
+	TArrow * arrow = new TArrow();
+	arrow -> SetArrowSize(0.02*gPad->GetWNDC());
+	arrow -> SetLineColor(kBlack);
+
+	double prior_mode_X = fPriorModel -> GetBestFitParameter(index1);
+	double prior_mode_Y = fPriorModel -> GetBestFitParameter(index2);
+
+	std::string marker_prior_text = "";
+	if (const_prior1) {
+		prior_mode_X = fPriorModel -> GetParameter(index1) -> GetRangeCenter();
+		marker_prior_text += Form("prior(%s) constant",fPriorModel->GetParameter(index1)->GetLatexName().data());
+	}
+	if (const_prior2) {
+		prior_mode_Y = fPriorModel -> GetParameter(index2) -> GetRangeCenter();
+		if (!marker_prior_text.empty())
+			marker_prior_text += ", ";
+		marker_prior_text += Form("prior(%s) constant",fPriorModel->GetParameter(index2)->GetLatexName().data());
+	}
+	marker_prior_text = (marker_prior_text.empty()) ? "prior mode" : "prior mode* [" + marker_prior_text + "]";
+
+	marker_prior     -> DrawMarker(prior_mode_X,prior_mode_Y);
+	marker_posterior -> DrawMarker(GetBestFitParameter(index1),GetBestFitParameter(index2));
+	arrow            -> DrawArrow(prior_mode_X,prior_mode_Y, GetBestFitParameter(index1), GetBestFitParameter(index2));
+	
+	legend2d->AddEntry(h2d_2dprior,      TString::Format("smallest %.0f%% interval(s) of prior",     100*interval_content), "L");
+	legend2d->AddEntry(h2d_2dposterior,  TString::Format("smallest %.0f%% interval(s) of posterior", 100*interval_content), "L");
+	legend2d->AddEntry(marker_prior,     marker_prior_text.data(), "P");
+	legend2d->AddEntry(marker_posterior, "posterior mode", "P");
+	legend2d->AddEntry(arrow,            "change in mode", "L");
+	
+	gPad->SetTopMargin(0.02);
+
+	// place legend on top of histogram
+	legend2d->SetX1NDC(gPad->GetLeftMargin());
+	legend2d->SetX2NDC(1. - gPad->GetRightMargin());
+	double y1 = gPad->GetTopMargin() + legend2d->GetTextSize()*legend2d->GetNRows();
+	legend2d->SetY1NDC(1.-y1);
+	legend2d->SetY2NDC(1. - gPad->GetTopMargin());
+
+	legend2d->Draw();
+	
+	gPad->SetTopMargin(y1+0.01);
+	
+	gPad->RedrawAxis();
+	return 1;
+}
+
+// ---------------------------------------------------------
+int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, unsigned vdiv, std::string options, double interval_content)
 {
-   int flag_same = 0;
+	// prepare prior
+	GetPriorModel(true);
+	// return 0 if failed
+	if ( fPriorModel->GetNParameters() == 0 )
+		return 0;
+	fPriorModel -> MarginalizeAll();
+	fPriorModel -> FindMode();
 
-   if (strlen(string1) != strlen(string2))
-      return -1;
+   // option flags
+   bool flag_slice = false;
 
-   for (int i = 0; i < int(strlen(string1)); i++)
-      if (string1[i] != string2[i])
-         flag_same = -1;
+   // check content of options string
+   if (options.find("slice") < options.size())
+      flag_slice = true;
 
-   return flag_same;
+   std::string file(filename);
+
+   // if file extension is neither .pdf nor .ps, force to .pdf
+	 if ( file.rfind(".pdf") != file.size()-4 and file.rfind(".ps") != file.size()-3 )
+		 file += ".pdf";
+
+   // create canvas and prepare postscript
+   TCanvas * c = new TCanvas(TString::Format("c_%s_update",fPriorModel->GetName().data()));
+   c->cd();
+   c->Print(std::string(file + "[").c_str());
+
+	 if (hdiv<1) hdiv = 1;
+	 if (vdiv<1) vdiv = 1;
+	 int npads = hdiv * vdiv;
+
+	 c -> Divide(hdiv,vdiv);
+
+   // loop over all parameters and draw 1D plots
+	 int ndrawn = 0;
+	 int nprinted = -1;
+	 c -> cd(1);
+   for (unsigned i = 0; i < GetNVariables(); ++i)
+		 if(DrawKnowledgeUpdatePlot1D(i, options, options)) {
+			 ++ndrawn;
+			 if (ndrawn!=0 and ndrawn%npads==0) {
+				 c -> Print(file.c_str());
+				 nprinted = ndrawn;
+				 c -> Clear("D");
+			 }
+			 c -> cd(ndrawn%npads+1);
+		 }
+	 if (nprinted<ndrawn)
+		 c -> Print(file.c_str());
+
+	 c -> Clear("D");
+
+   // loop over all parameter pairs
+	 ndrawn = 0;
+	 nprinted = -1;
+	 c -> cd(1);
+   for (unsigned i = 0; i < GetNVariables(); ++i)
+		 for (unsigned j = i+1; j < GetNVariables(); ++j)
+			 if (DrawKnowledgeUpdatePlot2D(i,j,flag_slice,interval_content)) {
+				 ++ndrawn;
+				 if (ndrawn!=0 and ndrawn%npads==0) {
+					 c -> Print(file.c_str());
+					 nprinted = ndrawn;
+					 c -> Clear("D");
+				 }
+				 c -> cd(ndrawn%npads+1);
+			 }
+	 if (nprinted<ndrawn)
+		 c -> Print(file.c_str());
+
+   // close output
+   c->Print(std::string(file + "]").c_str());
+   c->Update();
+
+   // no error
+   return 1;
 }

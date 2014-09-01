@@ -39,6 +39,12 @@ public:
 	BCObservable();
 
 	/**
+	 * Copy constructor.
+	 * PLEASE NOTE: the pointer for the internal value of the observable
+	 * will be shared by the copy. A change of value to any copy propegates to all others!*/
+	BCObservable(const BCObservable & other);
+
+	/**
 	 * Function-pointer constructor.
 	 * @param name The name of the variable.
 	 * @param lowerlimit The lower limit of the variable values.
@@ -59,7 +65,7 @@ public:
 	/**
 	 * @return Value of the observable. */
 	virtual double Value()
-	{ return fObservableValue; }
+	{ return *fObservableValue; }
 
 	/** @} */
 	
@@ -70,7 +76,7 @@ public:
 	/**
 	 * Set value of observable. */
 	virtual void Value(double val)
-	{ fObservableValue = val; }
+	{ *fObservableValue = val; }
 
 	/** @} */
 	
@@ -82,7 +88,7 @@ public:
 
 private:
 
-	double fObservableValue;
+	double * fObservableValue;
 	
 };
 #endif
