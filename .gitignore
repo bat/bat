@@ -102,3 +102,4 @@ runTestSuite.exe
 
 # unit tests
 *_TEST
+*.trs
