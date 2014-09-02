@@ -1,7 +1,7 @@
 lib_LTLIBRARIES= libBATmtf.la
 libBATmtf_la_LDFLAGS= -version-info 2:0:0
 
-AM_CXXFLAGS= -Wall -fPIC  -I../.. -I. -I../../BAT $(ROOTCFLAGS)
+AM_CXXFLAGS= -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
@@ -51,7 +51,7 @@ clean-local:
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 
 %Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c  -I../.. -I. -I../../BAT $<
+	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $<
 
 install-exec-hook:
 	cp libBATmtf.rootmap $(DESTDIR)$(libdir)
@@ -70,4 +70,3 @@ install-data-hook:
 
 uninstall-hook:
 	rm -f $(DESTDIR)$(libdir)/libBATmtf.rootmap
-

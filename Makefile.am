@@ -12,6 +12,8 @@ SUBDIRS= \
 	models/mvc
 
 EXTRA_DIST= \
+	INSTALL.md \
+	README.md \
 	src/libBAT.rootmap \
 	models/base/BCRooInterface.rootmap \
 	models/base/libBATmodels.rootmap.in \

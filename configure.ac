@@ -270,6 +270,10 @@ if test -f "doc/introduction/versions.tex.in" ; then
    AC_OUTPUT(doc/introduction/versions.tex)
 fi
 
+if test -f "benchmarks/test/Makefile.in" ; then
+   AC_OUTPUT(benchmarks/test/Makefile)
+fi
+
 AC_OUTPUT(
 	Makefile
 	bat.pc
@@ -278,7 +282,6 @@ AC_OUTPUT(
 	models/base/Makefile
 	models/mtf/Makefile
 	models/mvc/Makefile
-	benchmarks/test/Makefile
 	examples/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile

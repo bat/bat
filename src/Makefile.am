@@ -5,7 +5,7 @@ libBAT_la_LDFLAGS= -version-info 6:0:0
 libBAT_la_LDFLAGS += -L$(ROOTLIBDIR)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
-AM_CXXFLAGS= -Wall -fPIC  -I.. -I. -I../BAT $(ROOTCFLAGS)
+AM_CXXFLAGS= -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS)
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
@@ -45,7 +45,7 @@ incs= \
 	BCSummaryPriorModel.h
 
 library_include_HEADERS= \
-	$(patsubst %.h, ../BAT/%.h, $(incs))
+	$(patsubst %.h, $(top_srcdir)/BAT/%.h, $(incs))
 libBAT_la_SOURCES= \
 	$(incs:.h=.cxx)
 
@@ -60,13 +60,14 @@ clean-local:
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 
-%Dict.cxx : ../BAT/%.h
-	$(ROOTCINT) -f $@ -c  -I.. $<
+%Dict.cxx : $(top_srcdir)/BAT/%.h
+	$(ROOTCINT) -f $@ -c $<
 
 install-exec-hook:
 	cp libBAT.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
 
+# turn #include "file.h" into #include <file.h>
 install-data-hook:
 	for i in $(library_include_HEADERS); do \
 		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/' $$i > $$i.h; \
