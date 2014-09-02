@@ -17,7 +17,6 @@
 #include "BCH2D.h"
 #include "BCLog.h"
 #include "BCMath.h"
-#include "BCModelOutput.h"
 #include "BCParameter.h"
 #include "BCPriorModel.h"
 

@@ -1,7 +1,14 @@
+2014-09-02 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCModelOuput : Merged into BCEngineMCMC, BCIntegrate; REMOVED
+
+2014-09-01 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCSummaryTool : Merged into BCEngineMCMC; REMOVED
+	* BCPriorModel  : Added
+
 2014-06-05 Daniel Greenwald <daniel.greenwald@tum.de>
 	* BCIntegrate : changed GetSlice functions to return root histograms
 	  - Updated examples to comply
-	
+
 2014-06-03 Daniel Greenwald <daniel.greenwald@tum.de>
 	* BCEngineMCMC.cxx: removing unnecessary counters and flags, and consolidating parameter settings
 	  - fMCMCNIterationsUpdateMax

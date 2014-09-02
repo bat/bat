@@ -5,7 +5,6 @@
 #include <BAT/BCDataPoint.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCModelManager.h>
-#include <BAT/BCModelOutput.h>
 
 
 #include <TCanvas.h>
@@ -37,9 +36,6 @@ int main()
    BCModelManager* mgr = new BCModelManager();
    mgr->AddModel(m1, 1./2.);
    mgr->AddModel(m2, 1./2.);
-
-   BCModelOutput* mout1 = new BCModelOutput(m1, "1Dasymm.root");
-   BCModelOutput* mout2 = new BCModelOutput(m2, "2Dasymm.root");
 
    // create a new data set and fill it with data from a textfile
    // with four columns: x, y, y_error_low, y_error_high
@@ -105,11 +101,8 @@ int main()
       mgr->GetModel(i)->FindMode( mgr->GetModel(i)->GetBestFitParameters() );
 
    // write marginalized distributions to a root file
-   mout1->WriteMarginalizedDistributions();
-   mout1->Close();
-
-   mout2->WriteMarginalizedDistributions();
-   mout2->Close();
+   m1->WriteMarginalizedDistributions("1Dasymm.root","RECREATE");
+   m2->WriteMarginalizedDistributions("2Dasymm.root","RECREATE");
 
    // print all marginalized distributions to a postscript file
    m1->PrintAllMarginalized("1Dasymm-marg.pdf");

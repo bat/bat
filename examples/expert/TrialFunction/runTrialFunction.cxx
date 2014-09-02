@@ -1,6 +1,5 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include "GaussModel.h"
 

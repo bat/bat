@@ -5,7 +5,6 @@
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCParameter.h>
-#include <BAT/BCSummaryTool.h>
 
 #include <TCanvas.h>
 #include <TH1D.h>
@@ -44,9 +43,6 @@ int main()
    m->GetParameter("s")->SetLimits(0.0, 50); // signal
    m->GetParameter("b")->SetLimits(0.0, 35); // background
 
-   // create a new summary tool object
-   BCSummaryTool * summary = new BCSummaryTool(m);
-
    // perform sampling with MCMC
    m->MarginalizeAll();
 
@@ -72,10 +68,7 @@ int main()
    m->PrintPriors("priors.pdf");
 
    // print summary plots
-   summary->PrintKnowledgeUpdatePlots("ReferenceCounting_update.pdf");
-
-   // free memory
-   delete summary;
+   m->PrintKnowledgeUpdatePlots("ReferenceCounting_update.pdf");
 
    // print results of the analysis into a text file
    m->PrintResults("ReferenceCounting_results.txt");

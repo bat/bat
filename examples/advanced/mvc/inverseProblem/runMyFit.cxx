@@ -2,7 +2,6 @@
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include <TMatrixT.h>
 #include <TH2D.h>

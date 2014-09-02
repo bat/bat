@@ -14,7 +14,6 @@
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCModelOutput.h>
 
 #include <TFile.h>
 #include <TRandom3.h>
@@ -173,11 +172,8 @@ public:
         m.MCMCSetNIterationsRun(config.num_iterations);
         m.MCMCSetNChains(config.num_chains);
 
-        // create new output object
-        BCModelOutput mout(&m, parallelization ? config.rootFileNameParallel.c_str() : config.rootFileNameSerial.c_str());
-
         // switch writing of Markov Chains on
-        mout.WriteMarkovChain(true);
+        m.WriteMarkovChain(parallelization ? config.rootFileNameParallel.c_str() : config.rootFileNameSerial.c_str(), "RECREATE", true);
 
         m.MCMCSetRandomSeed(seed);
 
@@ -203,8 +199,6 @@ public:
         // close log file
         BCLog::CloseLog();
 
-        // close output file
-        mout.Close();
     }
 
     void Check() throw(TestCaseFailedException)

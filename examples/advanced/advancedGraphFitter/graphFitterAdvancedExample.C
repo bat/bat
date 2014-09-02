@@ -35,7 +35,6 @@
 #include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCGraphFitter.h>
-#include <BAT/BCSummaryTool.h>
 
 #endif
 
@@ -152,12 +151,11 @@ void graphFitterAdvancedExample()
       models[imodel]->PrintAllMarginalized(TString::Format("plots-%d.pdf",imodel+1));
 
       // draw summary plots and tables
-      BCSummaryTool summary(models[imodel]);
-      summary.PrintParameterPlot(TString::Format("summary_pars-f%d.pdf",imodel+1));
-      summary.PrintCorrelationPlot(TString::Format("summary_corr-f%d.png",imodel+1));
-      summary.PrintCorrelationMatrix(TString::Format("summary_corr_matrix-f%d.pdf",imodel+1));
-      //summary.PrintKnowledgeUpdatePlots(TString::Format("summary_update-f%d.pdf",imodel+1));
-      //summary.PrintParameterLatex(TString::Format("summary_pars-f%d.tex",imodel+1));
+      models[imodel] -> PrintParameterPlot(TString::Format("summary_pars-f%d.pdf",imodel+1));
+      models[imodel] -> PrintCorrelationPlot(TString::Format("summary_corr-f%d.png",imodel+1));
+      models[imodel] -> PrintCorrelationMatrix(TString::Format("summary_corr_matrix-f%d.pdf",imodel+1));
+      //models[imodel] -> PrintKnowledgeUpdatePlots(TString::Format("summary_update-f%d.pdf",imodel+1));
+      //models[imodel] -> PrintParameterLatex(TString::Format("summary_pars-f%d.tex",imodel+1));
    }
 
    // draw fit including the error band
