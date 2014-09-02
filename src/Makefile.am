@@ -40,12 +40,10 @@ incs= \
 	BCModel.h \
 	BCPriorModel.h \
 	BCModelManager.h \
-	BCModelOutput.h \
 	BCGoFTest.h \
 	BCLog.h \
 	BCMath.h \
-	BCAux.h \
-	BCSummaryTool.h
+	BCAux.h
 
 library_include_HEADERS= \
 	$(patsubst %.h, ../BAT/%.h, $(incs))

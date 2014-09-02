@@ -67,6 +67,11 @@ public:
 	{ return fName; }
 
 	/**
+	 * @return Safe name of the variable. */
+	const std::string & GetSafeName() const
+	{ return fSafeName; }
+
+	/**
 	 * Returns latex name if set, else identical to GetName().
 	 */
 	const std::string & GetLatexName() const
@@ -112,8 +117,7 @@ public:
 
 	/**
 	 * @param name The name of the variable. */
-	void SetName(const char * name)
-	{ fName = name; }
+	void SetName(const char * name);
 
 	void SetLatexName(const char * latex_name)
 	{ fLatexName = latex_name; }
@@ -197,6 +201,9 @@ protected:
 	/// The name of the variable.
 	std::string fName;
 	
+	/// Safe name of the variable for use in ROOT object naming
+	std::string fSafeName;
+
 	///  The lower limit of the variable value.
 	double fLowerLimit;
 	

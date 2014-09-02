@@ -43,7 +43,7 @@ BCGoFTest::BCGoFTest(const char* name) : BCModel(name)
 
    // set defaults for the MCMC
    MCMCSetNChains(5);
-   MCMCSetNIterationsMax(100000);
+   MCMCSetNIterationsPreRunMax(100000);
    MCMCSetNIterationsRun(2000);
 }
 

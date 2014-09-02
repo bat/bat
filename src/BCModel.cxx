@@ -481,7 +481,7 @@ BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
 
    // set parameters of the MCMC for the GoFTest
    goftest->MCMCSetNChains(fGoFNChains);
-   goftest->MCMCSetNIterationsMax(fGoFNIterationsMax);
+   goftest->MCMCSetNIterationsPreRunMax(fGoFNIterationsMax);
    goftest->MCMCSetNIterationsRun(fGoFNIterationsRun);
 
    // get p-value

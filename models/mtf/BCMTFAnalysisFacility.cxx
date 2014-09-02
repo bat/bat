@@ -550,7 +550,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
 
       for (int i = 0; i < nparameters; ++i) {
          if (fFlagMarginalize) {
-            BCH1D * hist = fMTF->GetMarginalized( fMTF->GetParameter(i) );
+            BCH1D * hist = fMTF->GetMarginalized(i);
             out_mode_marginalized[i] = hist->GetMode();
             out_mean_marginalized[i] = hist->GetMean();
             out_median_marginalized[i] = hist->GetMedian();
@@ -793,7 +793,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
                           fMTF->GetBestFitParameters().at(i),
                           fMTF->GetBestFitParameterErrors().at(i));
       if (flag_mcmc) {
-         BCH1D * hist = fMTF->GetMarginalized( fMTF->GetParameter(i) );
+         BCH1D * hist = fMTF->GetMarginalized(i);
 
          ct_mcmc->AddContribution("all channels",
                                   hist->GetMean(),
@@ -856,7 +856,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
                              fMTF->GetBestFitParameters().at(i),
                              fMTF->GetBestFitParameterErrors().at(i));
          if (flag_mcmc) {
-            BCH1D * hist = fMTF->GetMarginalized( fMTF->GetParameter(i) );
+            BCH1D * hist = fMTF->GetMarginalized(i);
 
             ct_mcmc->AddContribution(channel->GetName().c_str(),
                                      hist->GetMean(),

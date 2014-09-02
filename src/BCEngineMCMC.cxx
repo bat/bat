@@ -76,58 +76,58 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision) {
 	switch(precision) {
 
 	case BCEngineMCMC::kLow:
-		fMCMCNChains                    = 1;
-		fMCMCNLag                       = 1;
-		fMCMCNIterationsMax             = 10000;
-		fMCMCNIterationsRun             = 10000;
-		fMCMCNIterationsPreRunMin       = 1500;
-		fMCMCNIterationsEfficiencyCheck = 500;
-		fMCMCNIterationsUpdate          = 1000;
-		fMCMCNIterationsUpdateClear     = 5000;
+		fMCMCNChains                          = 1;
+		fMCMCNLag                             = 1;
+		fMCMCNIterationsPreRunMin             = 1500;
+		fMCMCNIterationsPreRunMax             = 10000;
+		fMCMCNIterationsRun                   = 10000;
+		fMCMCNIterationsEfficiencyCheck       = 500;
+		fMCMCNIterationsConvergenceCheck      = 1000;
+		fMCMCNIterationsClearConvergenceStats = 5000;
 		break;
 		
 	case BCEngineMCMC::kQuick:
-		fMCMCNChains                    = 2;
-		fMCMCNLag                       = 1;
-		fMCMCNIterationsMax             = 10000;
-		fMCMCNIterationsRun             = 10000;
-		fMCMCNIterationsPreRunMin       = 1500;
-		fMCMCNIterationsEfficiencyCheck = 500;
-		fMCMCNIterationsUpdate          = 1000;
-		fMCMCNIterationsUpdateClear     = 5000;
+		fMCMCNChains                          = 2;
+		fMCMCNLag                             = 1;
+		fMCMCNIterationsPreRunMin             = 1500;
+		fMCMCNIterationsPreRunMax             = 10000;
+		fMCMCNIterationsRun                   = 10000;
+		fMCMCNIterationsEfficiencyCheck       = 500;
+		fMCMCNIterationsConvergenceCheck      = 1000;
+		fMCMCNIterationsClearConvergenceStats = 5000;
 		break;
 
 	case  BCEngineMCMC::kMedium:
-		fMCMCNChains                    = 5;
-		fMCMCNLag                       = 1;
-		fMCMCNIterationsMax             = 100000;
-		fMCMCNIterationsRun             = 100000;
-		fMCMCNIterationsPreRunMin       = 1500;
-		fMCMCNIterationsEfficiencyCheck = 500;
-		fMCMCNIterationsUpdate          = 1000;
-		fMCMCNIterationsUpdateClear     = 5000;
+		fMCMCNChains                          = 5;
+		fMCMCNLag                             = 1;
+		fMCMCNIterationsPreRunMin             = 1500;
+		fMCMCNIterationsPreRunMax             = 100000;
+		fMCMCNIterationsRun                   = 100000;
+		fMCMCNIterationsEfficiencyCheck       = 500;
+		fMCMCNIterationsConvergenceCheck      = 1000;
+		fMCMCNIterationsClearConvergenceStats = 5000;
 		break;
 
 	case  BCEngineMCMC::kHigh:
-		fMCMCNChains                    = 10;
-		fMCMCNLag                       = 10;
-		fMCMCNIterationsMax             = 1000000;
-		fMCMCNIterationsRun             = 1000000;
-		fMCMCNIterationsPreRunMin       = 5000;
-		fMCMCNIterationsEfficiencyCheck = 1000;
-		fMCMCNIterationsUpdate          = 1000;
-		fMCMCNIterationsUpdateClear     = 5000;
+		fMCMCNChains                          = 10;
+		fMCMCNLag                             = 10;
+		fMCMCNIterationsPreRunMin             = 5000;
+		fMCMCNIterationsPreRunMax             = 1000000;
+		fMCMCNIterationsRun                   = 1000000;
+		fMCMCNIterationsEfficiencyCheck       = 1000;
+		fMCMCNIterationsConvergenceCheck      = 1000;
+		fMCMCNIterationsClearConvergenceStats = 5000;
 		break;
 
 	case  BCEngineMCMC::kVeryHigh:
-		fMCMCNChains                    = 10;
-		fMCMCNLag                       = 10;
-		fMCMCNIterationsMax             = 10000000;
-		fMCMCNIterationsRun             = 10000000;
-		fMCMCNIterationsPreRunMin       = 10000;
-		fMCMCNIterationsEfficiencyCheck = 1000;
-		fMCMCNIterationsUpdate          = 1000;
-		fMCMCNIterationsUpdateClear     = 5000;
+		fMCMCNChains                          = 10;
+		fMCMCNLag                             = 10;
+		fMCMCNIterationsPreRunMin             = 10000;
+		fMCMCNIterationsPreRunMax             = 10000000;
+		fMCMCNIterationsRun                   = 10000000;
+		fMCMCNIterationsEfficiencyCheck       = 1000;
+		fMCMCNIterationsConvergenceCheck      = 1000;
+		fMCMCNIterationsClearConvergenceStats = 5000;
 		break;
 	}
 
@@ -137,18 +137,18 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision) {
 
 // ---------------------------------------------------------
 void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC * other) {
-	fMCMCNChains                    = other -> MCMCGetNChains();
-	fMCMCNLag                       = other -> MCMCGetNLag();
-	fMCMCNIterationsMax             = other -> MCMCGetNIterationsMax();
-	fMCMCNIterationsRun             = other -> MCMCGetNIterationsRun();
-	fMCMCNIterationsPreRunMin       = other -> MCMCGetNIterationsPreRunMin();
-	fMCMCNIterationsEfficiencyCheck = other -> MCMCGetNIterationsEfficiencyCheck();
-	fMCMCNIterationsUpdate          = other -> MCMCGetNIterationsUpdate();
-	fMCMCNIterationsUpdateClear     = other -> MCMCGetNIterationsUpdateClear();
-	fMCMCRValueCriterion            = other -> MCMCGetRValueCriterion();
-	fMCMCRValueParametersCriterion  = other -> MCMCGetRValueParametersCriterion();
-	fMCMCEfficiencyMin              = other -> MCMCGetMinimumEfficiency();
-	fMCMCEfficiencyMax              = other -> MCMCGetMaximumEfficiency();
+	fMCMCNChains                          = other -> MCMCGetNChains();
+	fMCMCNLag                             = other -> MCMCGetNLag();
+	fMCMCNIterationsPreRunMin             = other -> MCMCGetNIterationsPreRunMin();
+	fMCMCNIterationsPreRunMax             = other -> MCMCGetNIterationsPreRunMax();
+	fMCMCNIterationsRun                   = other -> MCMCGetNIterationsRun();
+	fMCMCNIterationsEfficiencyCheck       = other -> MCMCGetNIterationsEfficiencyCheck();
+	fMCMCNIterationsConvergenceCheck      = other -> MCMCGetNIterationsConvergenceCheck();
+	fMCMCNIterationsClearConvergenceStats = other -> MCMCGetNIterationsClearConvergenceStats();
+	fMCMCRValueCriterion                  = other -> MCMCGetRValueCriterion();
+	fMCMCRValueParametersCriterion        = other -> MCMCGetRValueParametersCriterion();
+	fMCMCEfficiencyMin                    = other -> MCMCGetMinimumEfficiency();
+	fMCMCEfficiencyMax                    = other -> MCMCGetMaximumEfficiency();
 
 	// re-initialize
 	MCMCInitialize();
@@ -191,10 +191,10 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    fMCMCCurrentIteration                     = other.fMCMCCurrentIteration;
    fMCMCCurrentChain                         = other.fMCMCCurrentChain;
 	 fMCMCNIterationsEfficiencyCheck           = other.fMCMCNIterationsEfficiencyCheck;
-   fMCMCNIterationsUpdate                    = other.fMCMCNIterationsUpdate;
-   fMCMCNIterationsUpdateClear               = other.fMCMCNIterationsUpdateClear;
+   fMCMCNIterationsConvergenceCheck          = other.fMCMCNIterationsConvergenceCheck;
+   fMCMCNIterationsClearConvergenceStats     = other.fMCMCNIterationsClearConvergenceStats;
    fMCMCNIterationsConvergenceGlobal         = other.fMCMCNIterationsConvergenceGlobal;
-   fMCMCNIterationsMax                       = other.fMCMCNIterationsMax;
+   fMCMCNIterationsPreRunMax                 = other.fMCMCNIterationsPreRunMax;
    fMCMCNIterationsRun                       = other.fMCMCNIterationsRun;
    fMCMCNIterationsPreRunMin                 = other.fMCMCNIterationsPreRunMin;
    fMCMCNTrialsTrue                          = other.fMCMCNTrialsTrue;
@@ -286,6 +286,32 @@ void BCEngineMCMC::WriteMarkovChain(std::string filename, std::string option, bo
 	fMCMCOutputFileAutoclose = autoclose;
 	fMCMCFlagWriteChainToFile = true;
 	fMCMCFlagWritePreRunToFile = true;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::string option) {
+	// remember current directory
+	TDirectory * dir = gDirectory;
+
+	TFile * fOut = TFile::Open(filename.c_str(),option.c_str());
+	if (!fOut) {
+		BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: Could not open output file.");
+		return;
+	}
+	if (!fOut->IsWritable()) {
+		BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: File must be opened in writeable mode.");
+		return;
+	}
+	for (unsigned i=0; i<GetNVariables(); ++i) {
+		if (MarginalizedHistogramExists(i))
+			fOut -> WriteTObject(GetMarginalizedHistogram(i));
+		for (unsigned j=0; j<GetNVariables(); ++j)
+			if (MarginalizedHistogramExists(i,j))
+				fOut -> WriteTObject(GetMarginalizedHistogram(i,j));
+	}
+	fOut -> Write();
+	fOut -> Close();
+	gDirectory = dir;
 }
 
 // --------------------------------------------------------
@@ -491,13 +517,17 @@ void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCInitializeMarkovChainTree(bool replace)
+void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 {
-	if (fMCMCTree and replace) {
+	if (fMCMCTree and replacetree) {
 		delete fMCMCTree;
 		fMCMCTree = 0;
 	}
-	if (fMCMCOutputFile and replace) {
+	if (fParameterTree and replacetree) {
+		delete fParameterTree;
+		fParameterTree = 0;
+	}
+	if (fMCMCOutputFile and replacefile) {
 		fMCMCOutputFile -> Close();
 		delete fMCMCOutputFile;
 		fMCMCOutputFile = 0;
@@ -510,42 +540,82 @@ void BCEngineMCMC::MCMCInitializeMarkovChainTree(bool replace)
 		fMCMCOutputFile = TFile::Open(fMCMCOutputFilename.c_str(),fMCMCOutputFileOption.c_str());
 	// if failed
 	if (!fMCMCOutputFile) {
-		BCLog::OutError("BCEngineMCMC::MCMCInitializeMarkovChainTree: Could not create new file.");
+		BCLog::OutError("BCEngineMCMC::InitializeMarkovChainTree: Could not create new file.");
 		WriteMarkovChain(false);
 		return;
 	}
 	// if file mode not writeable
 	if (fMCMCOutputFile and !fMCMCOutputFile->IsWritable()) {
-		BCLog::OutError("BCEngineMCMC::MCMCInitializeMarkovChainTree: File must be opened in a writeable mode.");
+		BCLog::OutError("BCEngineMCMC::InitializeMarkovChainTree: File must be opened in a writeable mode.");
 		delete fMCMCOutputFile;
 		fMCMCOutputFile = 0;
 		WriteMarkovChain(false);
 		return;
 	}
 
+	// change to output file (directory)
+	fMCMCOutputFile -> cd();
+
 	if (fMCMCTree)
+		// Add existing MCMC tree to output file
 		fMCMCOutputFile -> Add(fMCMCTree);
-	else {
-
-		// change to output file (directory)
-		fMCMCOutputFile -> cd();
-
-		// make tree & branches
-		fMCMCTree = new TTree(TString::Format("%s_mcmc",GetName().data()),TString::Format("%s_mcmc",GetName().data()));
+	else {												
+		// or create new MCMC tree (under umbrella of output file)
+		fMCMCTree = new TTree(TString::Format("%s_mcmc",GetSafeName().data()),TString::Format("%s_mcmc",GetSafeName().data()));
 		fMCMCTree -> Branch("Chain",          &fMCMCTree_Chain,     "chain/i");
 		fMCMCTree -> Branch("Iteration",      &fMCMCTree_Iteration, "iteration/i");
 		fMCMCTree -> Branch("Phase",          &fMCMCPhase,          "phase/I");
 		fMCMCTree -> Branch("LogProbability", &fMCMCTree_Prob,      "log(probability)/D");
 		fMCMCTree_Parameters.assign(GetNParameters(),0);
 		for (unsigned j=0; j<GetNParameters(); ++j) {
-			fMCMCTree -> Branch(GetParameter(j)->GetName().data(),&fMCMCTree_Parameters[j],TString::Format("parameter %i/D",j));
-			fMCMCTree -> SetAlias(TString::Format("Parameter%i",j),GetParameter(j)->GetName().data());
+			fMCMCTree -> Branch(GetParameter(j)->GetSafeName().data(),&fMCMCTree_Parameters[j],(GetParameter(j)->GetSafeName()+"/D").data());
+			fMCMCTree -> SetAlias(TString::Format("Parameter%i",j),GetParameter(j)->GetSafeName().data());
 		}
 		fMCMCTree_Observables.assign(GetNObservables(),0);
 		for (unsigned j=0; j<GetNObservables(); ++j) {
-			fMCMCTree -> Branch(GetObservable(j)->GetName().data(),&fMCMCTree_Observables[j],TString::Format("observable %i/D",j));
-			fMCMCTree -> SetAlias(TString::Format("Observable%i",j),GetObservable(j)->GetName().data());
+			fMCMCTree -> Branch(GetObservable(j)->GetSafeName().data(),&fMCMCTree_Observables[j],(GetObservable(j)->GetSafeName()+"/D").data());
+			fMCMCTree -> SetAlias(TString::Format("Observable%i",j),GetObservable(j)->GetSafeName().data());
 		}
+	}
+
+	if (fParameterTree)
+		// add existing parameter tree to output file
+		fMCMCOutputFile -> Add(fParameterTree);
+	else {
+		// or create new parameter tree (under umbrella of output file)
+		fParameterTree = new TTree(TString::Format("%s_parameters",GetSafeName().data()),TString::Format("%s_parameters",GetSafeName().data()));
+		bool p_parameter, p_fill, p_fixed;
+		unsigned p_index, p_precision, p_nbins;
+		char p_name[200], p_safename[200], p_latexname[200];
+		double p_lowerlimit, p_upperlimit, p_fixedvalue;
+		fParameterTree -> Branch("parameter",&p_parameter,"parameter/O");
+		fParameterTree -> Branch("index",&p_index,"index/i");
+		fParameterTree -> Branch("name",p_name,"name/C");
+		fParameterTree -> Branch("safe_name",p_safename,"safe_name/C");
+		fParameterTree -> Branch("latex_name",p_latexname,"latex_name/C");
+		fParameterTree -> Branch("lower_limit",&p_lowerlimit,"lower_limit/D");
+		fParameterTree -> Branch("upper_limit",&p_upperlimit,"upper_limit/D");
+		fParameterTree -> Branch("precision",&p_precision,"precision/i");
+		fParameterTree -> Branch("nbins",&p_nbins,"nbins/i");
+		fParameterTree -> Branch("fill",&p_fill,"fill/O");
+		fParameterTree -> Branch("fixed",&p_fixed,"fixed/O");
+		fParameterTree -> Branch("fixed_value",&p_fixedvalue,"fixed_value/D");
+		for (unsigned i=0; i<GetNVariables(); ++i) {
+			p_parameter  = (i<GetNParameters());
+			p_index      = (p_parameter) ? i : i - GetNParameters();
+			strcpy(p_name,      GetVariable(i)->GetName().data());
+			strcpy(p_safename,  GetVariable(i)->GetSafeName().data());
+			strcpy(p_latexname, GetVariable(i)->GetLatexName().data());
+			p_lowerlimit = GetVariable(i) -> GetLowerLimit();
+			p_upperlimit = GetVariable(i) -> GetUpperLimit();
+			p_precision  = GetVariable(i) -> GetPrecision();
+			p_nbins      = GetVariable(i) -> GetNbins();
+			p_fill       = GetVariable(i) -> FillHistograms();
+			p_fixed      = p_parameter and GetParameter(i)->Fixed();
+			p_fixedvalue = (p_parameter) ? GetParameter(i)->GetFixedValue() : 0;
+			fParameterTree -> Fill();
+		}
+		fParameterTree -> AutoSave("SaveSelf");
 	}
 
 	// return to old directory
@@ -930,13 +1000,13 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	MCMCInitialize();
 	MCMCInitializeMarkovChains();
 	if (fMCMCFlagWritePreRunToFile)
-		MCMCInitializeMarkovChainTree();
+		InitializeMarkovChainTree();
 	
 	// reset run statistics
 	MCMCResetRunStatistics();
 
 	// perform run
-	BCLog::OutSummary(Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsMax));
+	BCLog::OutSummary(Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsPreRunMax));
 
 
 	//////////////////////////////////////////////////
@@ -949,7 +1019,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	fMCMCEfficiencies.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
 	bool allEfficient = false;
 	bool inefficientScalesAdjustable = true;
-	while (fMCMCCurrentIteration < (int)fMCMCNIterationsMax and !allEfficient and inefficientScalesAdjustable) {
+	while (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and !allEfficient and inefficientScalesAdjustable) {
 
 		MCMCGetNewPointMetropolis();
 		++fMCMCNTrials;
@@ -1018,7 +1088,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	else if (!inefficientScalesAdjustable)
 		BCLog::OutWarning(Form("     * Efficiency status: Some efficiencies outside predefined range, but scales are at limits after %i iterations.",fMCMCCurrentIteration));
 	else
-		BCLog::OutDetail(Form("     * Efficiency status: Some efficiencies outside predefined range, but maximum number of iterations (%i) reached.",fMCMCNIterationsMax));
+		BCLog::OutDetail(Form("     * Efficiency status: Some efficiencies outside predefined range, but maximum number of iterations (%i) reached.",fMCMCNIterationsPreRunMax));
 
 
 	// continue measuring efficiency
@@ -1028,24 +1098,24 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		//////////////////////////////////////////////////
 		// Run until all chains have converged
 
-		unsigned nIterationsCheckConvergence = fMCMCNIterationsUpdate;
-		if ( fMCMCNIterationsUpdateClear > 0 and nIterationsCheckConvergence > fMCMCNIterationsUpdateClear )
-			nIterationsCheckConvergence = fMCMCNIterationsUpdateClear;
+		unsigned nIterationsCheckConvergence = fMCMCNIterationsConvergenceCheck;
+		if ( fMCMCNIterationsClearConvergenceStats > 0 and nIterationsCheckConvergence > fMCMCNIterationsClearConvergenceStats )
+			nIterationsCheckConvergence = fMCMCNIterationsClearConvergenceStats;
 
-		fMCMCNTrials = fMCMCNIterationsUpdateClear;
+		fMCMCNTrials = fMCMCNIterationsClearConvergenceStats;
 	
 		fMCMCNIterationsConvergenceGlobal = -1;
 		
-		if (fMCMCCurrentIteration >= (int)fMCMCNIterationsMax) {
+		if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax) {
       BCLog::OutWarning(" Convergence never checked !");
       BCLog::OutWarning("   Increase maximum number of iterations in the pre-run /MCMCSetNIterationsMax()/");
 		}
 
 		fMCMCPhase = BCEngineMCMC::MCMCPreRunConvergenceCheck;
-		while ( fMCMCCurrentIteration < (int)fMCMCNIterationsMax and fMCMCNIterationsConvergenceGlobal < 0 ) {
+		while ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and fMCMCNIterationsConvergenceGlobal < 0 ) {
 		
 			// Clear information (also on first iteration)
-			if ( fMCMCNTrials == fMCMCNIterationsUpdateClear ) {
+			if ( fMCMCNTrials == fMCMCNIterationsClearConvergenceStats ) {
 				fMCMCxMean = fMCMCx;
 				fMCMCxVar.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
 				fMCMCprobMean = fMCMCprob;
@@ -1064,7 +1134,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 
 			MCMCInChainUpdateStatistics();
 
-			if ( fMCMCNTrials % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsMax )
+			if ( fMCMCNTrials % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax )
 				continue;
 
 			MCMCInChainTestConvergenceAllChains();
@@ -1103,9 +1173,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 				BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
 		else
 			if (allEfficient)
-				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsMax));
+				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsPreRunMax));
 			else
-				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales.", fMCMCNChains, fMCMCNIterationsMax));
+				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales.", fMCMCNChains, fMCMCNIterationsPreRunMax));
 	}
 
 		
@@ -1130,8 +1200,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 				MCMCInChainWriteChains();
 			}
 
-			if ( n % nwrite == 0)
+			if ( n % nwrite == 0) {
 				BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, 100.*n/N));
+				if (fMCMCFlagWritePreRunToFile and fMCMCTree)
+					fMCMCTree -> AutoSave("SaveSelf");
+			}
 		}
 		BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations in pre-run.", fMCMCCurrentIteration));
 	}
@@ -1175,12 +1248,12 @@ int BCEngineMCMC::MCMCMetropolis()
 	if (fMCMCFlagPreRun) {
 		MCMCMetropolisPreRun();
 		if (!fMCMCFlagWritePreRunToFile and fMCMCFlagWriteChainToFile)
-			MCMCInitializeMarkovChainTree();
+			InitializeMarkovChainTree();
 	}
 	else {
 		BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Not running prerun. This can cause trouble if the data have changed.");
 		if (fMCMCFlagWriteChainToFile)
-			MCMCInitializeMarkovChainTree();
+			InitializeMarkovChainTree();
 	}
 
 	// print to screen
@@ -1202,8 +1275,11 @@ int BCEngineMCMC::MCMCMetropolis()
 
 		MCMCGetNewPointMetropolis();
 
-		if ( fMCMCCurrentIteration % nwrite == 0 )
+		if ( fMCMCCurrentIteration % nwrite == 0 ) {
 			BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, (double)(fMCMCCurrentIteration)/(double)fMCMCNIterationsRun*100.));
+			if (fMCMCFlagWriteChainToFile and fMCMCTree)
+				fMCMCTree -> AutoSave("SaveSelf");
+		}
 		
 		if (fMCMCCurrentIteration % fMCMCNLag != 0) // apply lag
 			continue;
@@ -1219,7 +1295,7 @@ int BCEngineMCMC::MCMCMetropolis()
 		// write chain to file
 		if ( fMCMCFlagWriteChainToFile )
 			MCMCInChainWriteChains();
-		
+
 	} // end run
 
 	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", fMCMCNIterationsRun));
@@ -1397,12 +1473,9 @@ void BCEngineMCMC::ResetResults()
 // --------------------------------------------------------
 int BCEngineMCMC::MCMCInitialize()
 {
-	std::cout << "bcemcmc::mcmcinit - in" << std::endl;
 	// resource allocation must be done only by one thread
 	// reset values
 	ResetResults();
-
-	std::cout << "bcemcmc::mcmcinit - 1" << std::endl;
 
 	// free memory for vectors
 	fMCMCNIterations.assign(fMCMCNChains, 0);
@@ -1419,18 +1492,12 @@ int BCEngineMCMC::MCMCInitialize()
 
 	fMCMCRValueParameters.assign(GetNParameters(), 0);
 
-	std::cout << "bcemcmc::mcmcinit - 2" << std::endl;
-
 	SyncThreadStorage();
-
-	std::cout << "bcemcmc::mcmcinit - 3" << std::endl;
 
    if (fMCMCTrialFunctionScaleFactorStart.size() == 0 or fMCMCTrialFunctionScaleFactorStart.size()!=GetNParameters())
 		 fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains,std::vector<double>(GetNParameters(), 1.0));
    else
 		 fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains,fMCMCTrialFunctionScaleFactorStart);
-
-	std::cout << "bcemcmc::mcmcinit - 4" << std::endl;
 
    // set initial position
    if (fMCMCFlagInitialPosition == 2) { // user defined points
@@ -1454,8 +1521,6 @@ int BCEngineMCMC::MCMCInitialize()
 			 }
 		 }
 
-	std::cout << "bcemcmc::mcmcinit - 5" << std::endl;
-
 		 if (fMCMCFlagInitialPosition == 1)
 			 BCLog::OutError("BCEngine::MCMCInitialize : Using random initial positions instead of user-provided ones.");
 		 else {
@@ -1467,8 +1532,6 @@ int BCEngineMCMC::MCMCInitialize()
 		 }
 	 }
 	 
-	std::cout << "bcemcmc::mcmcinit - 6" << std::endl;
-
 	 if (fMCMCFlagInitialPosition == 0) { // center of the interval
 		 fMCMCx.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
 		 for (unsigned j = 0; j < fMCMCNChains; ++j)
@@ -1482,18 +1545,12 @@ int BCEngineMCMC::MCMCInitialize()
 				 fMCMCx[j][i] = (GetParameter(i)->Fixed()) ? GetParameter(i)->GetFixedValue() : GetParameter(i)->GetLowerLimit() + fMCMCThreadLocalStorage[j].rng->Rndm() * (GetParameter(i)->GetUpperLimit()-GetParameter(i)->GetLowerLimit());
 	 }
 	 
-	std::cout << "bcemcmc::mcmcinit - 7" << std::endl;
-
 	 // initialize user-defined observables
 	 fMCMCObservables.assign(fMCMCNChains,std::vector<double>(GetNObservables(),0));
-
-	std::cout << "bcemcmc::mcmcinit - 8" << std::endl;
 
    // define 1-dimensional histograms for marginalization
    bool fillAny = false;
 	 fH1Marginalized.assign(GetNParameters()+GetNObservables(),NULL);
-
-	std::cout << "bcemcmc::mcmcinit - 9" << std::endl;
 
    for(unsigned i = 0; i < GetNParameters(); ++i)
 		 if (GetParameter(i)->FillHistograms() && !GetParameter(i)->Fixed()) {
@@ -1508,8 +1565,6 @@ int BCEngineMCMC::MCMCInitialize()
 			 fillAny = true;
 		 }
 	 
-	std::cout << "bcemcmc::mcmcinit - 10" << std::endl;
-
    // if filling no histograms, set H1 vector to zero size, implies no 2D histograms either
    if (!fillAny)
 		 fH1Marginalized.clear();
@@ -1541,7 +1596,6 @@ int BCEngineMCMC::MCMCInitialize()
 					 }
 
    }
-	 std::cout << "bcemcmc::mcmcinit - 11" << std::endl;
    return 1;
 }
 
@@ -1772,10 +1826,9 @@ int BCEngineMCMC::PrintAllMarginalized1D(const char * filebase) {
 
 	int nh = 0;
 	for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
-		std::string name = (i<GetNParameters()) ? GetParameter(i)->GetName() : GetObservable(i-GetNParameters())->GetName();
 		if (!MarginalizedHistogramExists(i))
 			continue;
-		GetMarginalized(i) -> Print(Form("%s_1D_%s.pdf", filebase, name.data()));
+		GetMarginalized(i) -> Print(Form("%s_1D_%s.pdf", filebase, GetVariable(i)->GetSafeName().data()));
 		nh++;
 	}
 
@@ -1790,16 +1843,13 @@ int BCEngineMCMC::PrintAllMarginalized2D(const char * filebase) {
 	}
 	
 	int nh = 0;
-	for (unsigned i = 0; i<fH2Marginalized.size(); ++i) {
-		std::string iname = (i<GetNParameters()) ? GetParameter(i)->GetName() : GetObservable(i-GetNParameters())->GetName();
+	for (unsigned i = 0; i<fH2Marginalized.size(); ++i)
 		for (unsigned j = 1; j<fH2Marginalized[i].size(); ++i) {
-			std::string jname = (j<GetNParameters()) ? GetParameter(j)->GetName() : GetObservable(j-GetNParameters())->GetName();
 			if (MarginalizedHistogramExists(i,j))
 				continue;
-			GetMarginalized(i,j) -> Print(Form("%s_2D_%s_%s",filebase,iname.data(),jname.data()));
+			GetMarginalized(i,j) -> Print(Form("%s_2D_%s_%s",filebase,GetVariable(i)->GetSafeName().data(),GetVariable(j)->GetSafeName().data()));
 			nh++;
 		}
-	}
 
 	return nh;
 }

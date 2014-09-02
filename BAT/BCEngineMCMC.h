@@ -129,19 +129,19 @@ class BCEngineMCMC
          { return fMCMCNIterationsConvergenceGlobal; }
 
       /**
-       * @return maximum number of iterations for a Markov chain */
-      unsigned MCMCGetNIterationsMax() const
-         { return fMCMCNIterationsMax; }
+       * @return minimum number of pre-run iterations for a Markov chain */
+      unsigned MCMCGetNIterationsPreRunMin() const
+         { return fMCMCNIterationsPreRunMin; }
+
+      /**
+       * @return maximum number of pre-run iterations for a Markov chain */
+      unsigned MCMCGetNIterationsPreRunMax() const
+         { return fMCMCNIterationsPreRunMax; }
 
       /**
        * @return number of iterations for a Markov chain */
       unsigned MCMCGetNIterationsRun() const
          { return fMCMCNIterationsRun; }
-
-      /**
-       * @return minimum number of pre-run iterations for a Markov chain */
-      unsigned MCMCGetNIterationsPreRunMin() const
-         { return fMCMCNIterationsPreRunMin; }
 
       /**
        * @return number of iterations for an efficiency check. */
@@ -150,13 +150,13 @@ class BCEngineMCMC
 
       /**
        * @return number of iterations after statistics update. */
-      unsigned MCMCGetNIterationsUpdate() const
-         { return fMCMCNIterationsUpdate; }
+      unsigned MCMCGetNIterationsConvergenceCheck() const
+         { return fMCMCNIterationsConvergenceCheck; }
 
       /**
        * @return number of iterations after statistics clear. */
-      unsigned MCMCGetNIterationsUpdateClear() const
-         { return fMCMCNIterationsUpdateClear; }
+      unsigned MCMCGetNIterationsClearConvergenceStats() const
+         { return fMCMCNIterationsClearConvergenceStats; }
 
       /**
        * @return minimum efficiency required for a chain. */
@@ -302,6 +302,11 @@ class BCEngineMCMC
 	    TTree * MCMCGetMarkovChainTree()
 	       { return fMCMCTree;}
 
+      /**
+       * Retrieve the tree containing the parameter information. */
+	    TTree * MCMCGetParameterTree()
+	       { return fParameterTree;}
+
 	    /**
 	     * Retrieve output file for MCMC. */
 	    TFile * MCMCGetOutputFile()
@@ -310,22 +315,6 @@ class BCEngineMCMC
 	    /**
 	     * Close MCMC output file. */
 	    void MCMCCloseOutputFile();
-
-	    /**
-			 * @return The size of vector of marginalized 1D histograms */
-	    unsigned GetN1DMarginalizations()
-	       { return fH1Marginalized.size(); }
-		 
-	    /**
-			 * @return The size of vector of vector of marginalized 2D histograms */
-	    unsigned GetN2DMarginalizations()
-	       { return fH2Marginalized.size(); }
-
-	    /**
-			 * @param i index of vector of which the size should be returned
-			 * @return The size of the i'th vector of marginalized 2D histograms */
-	    unsigned GetN2DMarginalizations(unsigned i)
-	       { return (i<GetN2DMarginalizations()) ? fH2Marginalized[i].size() : 0; }
 
 	    /**
 			 * @param index Index of histogram of which to check existence
@@ -344,15 +333,6 @@ class BCEngineMCMC
        * Obtain the individual marginalized distributions
        * with respect to one parameter as a ROOT TH1D
        * @note The most efficient method is to access by index.
-       * @param parameter Model parameter
-       * @return 1D marginalized probability */
-	    TH1D * GetMarginalizedHistogram(const BCParameter * parameter) const
-	       { return GetMarginalizedHistogram(fParameters.Index(parameter->GetName())); }
-   
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter as a ROOT TH1D
-       * @note The most efficient method is to access by index.
        * @param name The parameter's name
        * @return 1D marginalized probability */
       TH1D * GetMarginalizedHistogram(const char * name) const
@@ -364,16 +344,6 @@ class BCEngineMCMC
        * @param index The parameter index
        * @return 1D marginalized probability */
       TH1D * GetMarginalizedHistogram(unsigned index) const;
-   
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters as a ROOT TH2D.
-       * @note The most efficient method is to access by indices.
-       * @param parameter1 First parameter
-       * @param parameter2 Second parameter
-       * @return 2D marginalized probability */
-      TH2D * GetMarginalizedHistogram(const BCParameter * parameter1, const BCParameter * parameter2) const
-	       { return GetMarginalizedHistogram(fParameters.Index(parameter1->GetName()),fParameters.Index(parameter2->GetName())); }
    
       /**
        * Obtain the individual marginalized distributions
@@ -398,16 +368,6 @@ class BCEngineMCMC
        * with respect to one parameter.
        * @note The most efficient method is to access by index.
        * @note Ownership of the returned heap object is conferred to the caller.
-       * @param parameter Model parameter
-       * @return 1D marginalized probability */
-	    BCH1D * GetMarginalized(const BCParameter * parameter)
-	       { return GetMarginalized(fParameters.Index(parameter->GetName())); }
-   
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to one parameter.
-       * @note The most efficient method is to access by index.
-       * @note Ownership of the returned heap object is conferred to the caller.
        * @param name The parameter's name
        * @return 1D marginalized probability */
       BCH1D * GetMarginalized(const char * name)
@@ -420,17 +380,6 @@ class BCEngineMCMC
        * @param index The parameter index
        * @return 1D marginalized probability */
       BCH1D * GetMarginalized(unsigned index);
-   
-      /**
-       * Obtain the individual marginalized distributions
-       * with respect to two parameters.
-       * @note The most efficient method is to access by indices.
-       * @note Ownership of the returned heap object is conferred to the caller.
-       * @param parameter1 First parameter
-       * @param parameter2 Second parameter
-       * @return 2D marginalized probability */
-      BCH2D * GetMarginalized(const BCParameter * parameter1, const BCParameter * parameter2)
-	       { return GetMarginalized(fParameters.Index(parameter1->GetName()),fParameters.Index(parameter2->GetName())); }
    
       /**
        * Obtain the individual marginalized distributions
@@ -470,6 +419,11 @@ class BCEngineMCMC
       unsigned int GetNVariables() const
 	       { return fParameters.Size() + fObservables.Size(); }
 
+	    /**
+	     * @return Parameter set. */
+	    BCParameterSet & GetParameters()
+	       { return fParameters; }
+
       /**
        * @param index The index of the parameter in the parameter set.
        * @return The parameter. */
@@ -496,6 +450,11 @@ class BCEngineMCMC
        * @return The number of free parameters. */
       unsigned int GetNFreeParameters()
 	       { return fParameters.GetNFreeParameters(); }
+
+	    /**
+	     * @return Observable set. */
+	    BCVariableSet & GetObservables()
+	       { return fObservables; }
 
       /**
        * @param index The index of the observable in the observable set.
@@ -583,8 +542,8 @@ class BCEngineMCMC
 
       /**
        * Sets the maximum number of iterations in the pre-run. */
-      void MCMCSetNIterationsMax(unsigned n)
-         { fMCMCNIterationsMax = n; }
+      void MCMCSetNIterationsPreRunMax(unsigned n)
+         { fMCMCNIterationsPreRunMax = n; }
 
       /**
        * Sets the number of iterations. */
@@ -606,15 +565,15 @@ class BCEngineMCMC
        * Sets the number of iterations in the pre-run after which an
        * check on the convergence is done.
        * @param n The number of iterations.*/
-      void MCMCSetNIterationsUpdate(unsigned n)
-         { fMCMCNIterationsUpdate = n; }
+      void MCMCSetNIterationsConvergenceCheck(unsigned n)
+         { fMCMCNIterationsConvergenceCheck = n; }
 
       /**
        * Sets the number of iterations in the pre-run after which the
        * convergence data is cleared.
 	   * @param n The number of iterations.*/
-      void MCMCSetNIterationsUpdateClear(unsigned n)
-         { fMCMCNIterationsUpdateClear = n; }
+      void MCMCSetNIterationsClearConvergenceStats(unsigned n)
+         { fMCMCNIterationsClearConvergenceStats = n; }
 
       /**
        * Sets the minimum efficiency required for a chain. */
@@ -683,8 +642,8 @@ class BCEngineMCMC
       { fMCMCRValueUseStrict = strict; }
 
       /**
-       * Initialize trees containing the Markov chains. */
-      void MCMCInitializeMarkovChainTree(bool replace=false);
+       * Initialize the trees containing the Markov chains and parameter info. */
+	    void InitializeMarkovChainTree(bool replacetree=false, bool replacefile=false);
 
       /**
        * Set the precision for the MCMC run. */
@@ -694,25 +653,10 @@ class BCEngineMCMC
        * Copy precision for the MCMC run from other model. */
       void MCMCSetPrecision(const BCEngineMCMC * other);
 	
-#if 0
-      /**
-       * Set the range of a parameter
-       * @param index The parameter index
-       * @param parmin The parameter minimum
-       * @param parmax The parameter maximum
-       * @return An error code. */
-      void SetParameterRange(unsigned int index, double parmin, double parmax);
-#endif
       /**
        * Set the number of bins for the marginalized distribution of all parameters
        * @param nbins Number of bins */
       void SetNbins(unsigned int nbins);
-
-      /** @} */
-      /** \name Error propagation*/
-      /** @{ */
-
-      /** @} */
 
       /**
        * Turn on/off writing of Markov chain to root file.
@@ -726,28 +670,9 @@ class BCEngineMCMC
 			 * @param autoclose Toggle autoclosing of file after main run. */
 	    void WriteMarkovChain(std::string filename, std::string option, bool autoclose=true);
 
-#if 0
-      /**
-       * Sets the initial position for the Markov chain */
-      void SetMarkovChainInitialPosition(const std::vector<double> & position)
-      { fXmetro0 = position; }
-
-      /**
-       * Sets the step size for Markov chains */
-      void SetMarkovChainStepSize(double stepsize)
-      { fMarkovChainStepSize = stepsize; }
-
-      /**
-       * Sets the number of iterations in the markov chain */
-      void SetMarkovChainNIterations(int niterations)
-      { fMarkovChainNIterations = niterations;
-      fMarkovChainAutoN = false; }
-
-      /**
-       * Sets a flag for automatically calculating the number of iterations */
-      void SetMarkovChainAutoN(bool flag)
-      { fMarkovChainAutoN = flag; }
-#endif
+	    /**
+	     * Write marginalization histograms to file. */
+	    void WriteMarginalizedDistributions(std::string filename, std::string option);
 
       /** @} */
       /** \name Miscellaneous methods */
@@ -1039,10 +964,6 @@ class BCEngineMCMC
 			 * Print marginalization to stream. */
 	    virtual void PrintMarginalizationToStream(std::ofstream & ofi);
 
-	    /**
-	     * Initialize tree for output of analysis. */
-	    void InitializeAnalysisTree();
-
       /**
        * Name of the engine. */
       std::string fName;
@@ -1098,11 +1019,11 @@ class BCEngineMCMC
 
       /**
        * Number of iterations for updating scale factors */
-      unsigned fMCMCNIterationsUpdate;
+      unsigned fMCMCNIterationsConvergenceCheck;
 
       /**
        * Number of iterations for clearing data for updating scale factors */
-      unsigned fMCMCNIterationsUpdateClear;
+      unsigned fMCMCNIterationsClearConvergenceStats;
 
       /**
        * Number of iterations needed for all chains to convergence
@@ -1111,7 +1032,7 @@ class BCEngineMCMC
 
       /**
        * Maximum number of iterations for a Markov chain prerun */
-      unsigned fMCMCNIterationsMax;
+      unsigned fMCMCNIterationsPreRunMax;
 
       /**
        * Number of iterations for a Markov chain run */
@@ -1150,7 +1071,7 @@ class BCEngineMCMC
 	    std::string fMCMCOutputFileOption;
 
 	    /*
-	     * Output filename for for writing MCMC Tree. */
+	     * flag for autoclosing MCMC output file. */
 	    bool fMCMCOutputFileAutoclose;
 
     	/**
@@ -1297,6 +1218,10 @@ class BCEngineMCMC
 	    double fMCMCTree_Prob;
 	    std::vector<double> fMCMCTree_Parameters;
 	    std::vector<double> fMCMCTree_Observables;
+
+      /**
+       * The tree containing the parameter information.*/
+	    TTree * fParameterTree;
 	
       /**
        * A vector of best fit parameters found by MCMC */

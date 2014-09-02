@@ -14,17 +14,19 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
+#include <algorithm>
+
 // ---------------------------------------------------------
 
 BCVariable::BCVariable():
 	fPrefix("Variable"),
-	fName("parameter"),
 	fLowerLimit(0),
 	fUpperLimit(1),
 	fPrecision(3),
 	fFillHistograms(true),
 	fNbins(100)
 {
+	SetName("parameter");
 }
 
 // ---------------------------------------------------------
@@ -32,6 +34,7 @@ BCVariable::BCVariable():
 BCVariable::BCVariable(const BCVariable & other) 
 	: fPrefix(other.fPrefix)
 	, fName(other.fName)
+	, fSafeName(other.fSafeName)
 	, fLowerLimit(other.fLowerLimit)
 	, fUpperLimit(other.fUpperLimit)
 	, fPrecision(other.fPrecision)
@@ -44,19 +47,27 @@ BCVariable::BCVariable(const BCVariable & other)
 
 BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
 	fPrefix("Variable"),
-	fName(name),
 	fLowerLimit(lowerlimit),
 	fUpperLimit(upperlimit),
 	fLatexName(latexname),
 	fFillHistograms(true),
 	fNbins(100)
 {
+	SetName(name);
 	CalculatePrecision();
 }
 
 // ---------------------------------------------------------
 
 BCVariable::~BCVariable() {
+}
+
+// ---------------------------------------------------------
+
+void BCVariable::SetName(const char * name) {
+	fName = name;
+	fSafeName = name;
+	fSafeName.erase(std::remove_if(fSafeName.begin(),fSafeName.end(),::isspace),fSafeName.end());
 }
 
 // ---------------------------------------------------------

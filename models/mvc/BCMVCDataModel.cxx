@@ -210,8 +210,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
   // draw all 1D histograms indicating observed value
   for (int i = 0; i < npars; ++i) {
     double obs = fVectorMeasurements[i];
-    const BCParameter* par = GetParameter(i);
-    BCH1D* hist_par = GetMarginalized(par);
+    BCH1D* hist_par = GetMarginalized(i);
     double p = hist_par->GetHistogram()->Integral(hist_par->GetHistogram()->FindBin(obs), hist_par->GetHistogram()->GetNbinsX(), "width");
     hist_par->Draw("BTllB1CS1L", 1-p);
     c1->Print(filename.c_str());
@@ -222,9 +221,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
     for (int j = 0; j < i; ++j) {
       double obs_i = fVectorMeasurements[i];
       double obs_j = fVectorMeasurements[j];
-      const BCParameter* par_i = GetParameter(i);
-      const BCParameter* par_j = GetParameter(j);
-      BCH2D* hist_par = GetMarginalized(par_i, par_j);
+      BCH2D* hist_par = GetMarginalized(i,j);
       hist_par->Draw("BTfB3CS1");
       TMarker* m = new TMarker();
       m->SetMarkerStyle(21);
