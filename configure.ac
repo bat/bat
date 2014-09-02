@@ -265,6 +265,11 @@ AC_SUBST(PKG_LIBS)
 AC_CHECK_PROGS(PKGCONFIG, pkg-config, false)
 AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
 
+# files that may not be part of the release but exist only in a checkout of the source repository
+if test -f "doc/introduction/versions.tex.in" ; then
+   AC_OUTPUT(doc/introduction/versions.tex)
+fi
+
 AC_OUTPUT(
 	Makefile
 	bat.pc
