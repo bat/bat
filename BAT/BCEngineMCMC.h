@@ -98,6 +98,11 @@ class BCEngineMCMC
          { return fName; }
 
       /**
+       * @return The name of the engine with spaces removed. */
+      const std::string & GetSafeName() const
+         { return fSafeName; }
+
+      /**
        * @return number of Markov chains */
       unsigned MCMCGetNChains() const
          { return fMCMCNChains; }
@@ -899,6 +904,23 @@ class BCEngineMCMC
       virtual void MCMCCurrentPointInterface(std::vector<double> & /*point*/, int /*ichain*/, bool /*accepted*/)
          {}
 
+	
+	/**
+	 * Load previous MCMC run. */
+	virtual void Load(std::string filename);
+
+	/**
+	 * Check tree structure for MCMC tree. */
+	virtual bool ValidMCMCTree(TTree * tree);
+
+	/**
+	 * Check tree structure for parameter tree. */
+	virtual bool ValidParameterTree(TTree * tree);
+
+	/**
+	 * Marginalize from TTree. */
+	virtual void MarginalizeFromTree(TTree * tree = 0, bool autorange=true);
+
       /** @} */
 
    private:
@@ -964,6 +986,10 @@ class BCEngineMCMC
 			 * Print marginalization to stream. */
 	    virtual void PrintMarginalizationToStream(std::ofstream & ofi);
 
+	    /**
+	     * Update Paramater TTree with scales and efficiencies. */
+	    void UpdateParameterTree();
+
       /**
        * Name of the engine. */
       std::string fName;
@@ -971,11 +997,6 @@ class BCEngineMCMC
       /**
        * Safe name of the engine for use in naming ROOT objects. */
       std::string fSafeName;
-
-      /**
-       * @return The name of the engine with spaces removed. */
-      const std::string & GetSafeName() const
-         { return fSafeName; }
 
     	/**
     	 * return appropriate update interval */
@@ -1210,7 +1231,11 @@ class BCEngineMCMC
       /**
        * The tree containing the Markov chains.*/
 	    TTree * fMCMCTree;
-	
+
+	    /**
+	     * flag for whether MCMC Tree successfully loaded.*/
+	    bool fMCMCTreeLoaded;
+
 	    /**
 	     * fMCMCTree's variables. */
 	    unsigned int fMCMCTree_Chain;

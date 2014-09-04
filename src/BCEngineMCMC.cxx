@@ -30,6 +30,9 @@
 #include <TGraphAsymmErrors.h>
 #include <TGaxis.h>
 #include <TF1.h>
+#include <TObject.h>
+#include <TKey.h>
+#include <TList.h>
 
 #include <math.h>
 #include <limits>
@@ -56,6 +59,9 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fMCMCRValueCriterion(0.1)
 	, fMCMCRValueParametersCriterion(0.1)
 	, fRandom(new TRandom3())
+	, fMCMCTree(0)
+	, fMCMCTreeLoaded(false)
+	, fParameterTree(0)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -243,6 +249,8 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
 				 fH2Marginalized[i][j] = new TH2D(*(other.fH2Marginalized[i][j]));
 
 	 fMCMCTree       = 0;
+	 fMCMCTreeLoaded = false;
+	 fParameterTree  = 0;
 	 fMCMCOutputFile = 0;
 	 fMCMCOutputFilename      = other.fMCMCOutputFilename;
 	 fMCMCOutputFileOption    = other.fMCMCOutputFileOption;
@@ -559,7 +567,7 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 	if (fMCMCTree)
 		// Add existing MCMC tree to output file
 		fMCMCOutputFile -> Add(fMCMCTree);
-	else {												
+	else {			 
 		// or create new MCMC tree (under umbrella of output file)
 		fMCMCTree = new TTree(TString::Format("%s_mcmc",GetSafeName().data()),TString::Format("%s_mcmc",GetSafeName().data()));
 		fMCMCTree -> Branch("Chain",          &fMCMCTree_Chain,     "chain/i");
@@ -620,6 +628,262 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 
 	// return to old directory
 	gDirectory = dir;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::UpdateParameterTree() {
+	if (!fParameterTree)
+		return;
+
+	unsigned nchains = MCMCGetNChains();
+	std::vector<double> scale(MCMCGetNChains(),0);
+	std::vector<double> eff(MCMCGetNChains(),0);
+
+	// check for branch existences
+	TBranch * b_nchains = fParameterTree -> GetBranch("nchains");
+	TBranch * b_scale   = fParameterTree -> GetBranch("scale");
+
+	// if nchains branch doesn't exist, create it
+	if (b_nchains == 0)
+		b_nchains = fParameterTree -> Branch("nchains",&nchains,"nchains/i");
+	// else set 0, so as not to fill
+	else
+		b_nchains = 0;
+
+	// if scale branch doesn't exist, create it
+	if (b_scale == 0)
+		b_scale = fParameterTree -> Branch("scale",&(scale.front()),TString::Format("scale[%d]/D",MCMCGetNChains()));
+	// else set 0, so as not to fill
+	else
+		b_scale = 0;
+
+	// create next effiency branch
+	unsigned i = 0;
+	while (fParameterTree->GetBranch(TString::Format("efficiency_%d",i)))
+		++i;
+	TBranch * b_eff = fParameterTree -> Branch(TString::Format("efficiency_%d",i),&(eff.front()),TString::Format("efficiency_%d[%d]/D",i,MCMCGetNChains()));
+
+	for (unsigned n=0; n<fParameterTree->GetEntries(); ++n) {
+		if (b_nchains)
+			b_nchains -> Fill();
+
+		for (unsigned j=0; j<nchains; ++j) {
+			scale[j] = (n<GetNParameters()) ? fMCMCTrialFunctionScaleFactor[j][n] : -1;
+			eff[j]   = (n<GetNParameters()) ? fMCMCEfficiencies[j][n] : -1;
+		}
+
+		if (b_scale)
+			b_scale -> Fill();
+
+		b_eff -> Fill();
+	}
+	fParameterTree -> AutoSave("SaveSelf");
+}
+
+// --------------------------------------------------------
+bool BCEngineMCMC::ValidMCMCTree(TTree * tree) {
+	if (!tree)
+		return false;
+	if (!tree->GetBranch("Chain"))
+		return false;
+	// if (!tree->GetBranch("Iteration"))
+	// 	return false;
+	if (!tree->GetBranch("Phase"))
+		return false;
+	if (!tree->GetBranch("LogProbability"))
+		return false;
+	for (unsigned i=0; i<GetNParameters(); ++i)
+		if (!tree->GetBranch(GetParameter(i)->GetSafeName().data()))
+			return false;
+	return true;
+}
+
+// --------------------------------------------------------
+bool BCEngineMCMC::ValidParameterTree(TTree * tree) {
+	if (!tree)
+		return false;
+	if (!tree->GetBranch("parameter"))
+		return false;
+	if (!tree->GetBranch("index"))
+		return false;
+	if (!tree->GetBranch("name"))
+		return false;
+	// if (!tree->GetBranch("safe_name"))
+	// 	return false;
+	// if (!tree->GetBranch("latex_name"))
+	// 	return false;
+	if (!tree->GetBranch("lower_limit"))
+		return false;
+	if (!tree->GetBranch("upper_limit"))
+		return false;
+	// if (!tree->GetBranch("precision"))
+	// 	return false;
+	// if (!tree->GetBranch("nbins"))
+	// 	return false;
+	// if (!tree->GetBranch("fill"))
+	// 	return false;
+	if (!tree->GetBranch("fixed"))
+		return false;
+	if (!tree->GetBranch("fixed_value"))
+		return false;
+	if (!tree->GetBranch("nchains"))
+		return false;
+	if (!tree->GetBranch("scale"))
+		return false;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::Load(std::string filename) {
+	fMCMCTreeLoaded = false;
+
+	// save current directory
+	TDirectory * dir = gDirectory;
+
+	TFile * inputfile = TFile::Open(filename.c_str(),"UPDATE");
+	if (!inputfile or inputfile->IsZombie()) {
+		BCLog::OutError("BCEngineMCMC::Load: Could not open file.");
+		gDirectory = dir;
+		return;
+	}
+	
+	fMCMCTree = 0;
+	// find mcmc tree;
+	// preference given first to modelname_mcmc
+	inputfile -> GetObject(TString::Format("%s_mcmc",GetSafeName().data()),fMCMCTree);
+	if (!fMCMCTree or !ValidMCMCTree(fMCMCTree)) {							// if not found, look for any tree with right structure
+		fMCMCTree = 0;
+		// get list of exclusive keys to TTree's
+		std::vector<TKey*> keys;
+		TList * listofkeys = inputfile->GetListOfKeys();
+		TKey * key;
+		for (int k=0; k<listofkeys->GetEntries(); ++k) {
+			key = (TKey*)(listofkeys->At(k));
+			if (strcmp(key->GetClassName(),"TTree")!=0 and strcmp(key->GetClassName(),"TChain")!=0)
+				continue;
+			bool found = false;
+			for (unsigned i=0; i<keys.size() and !found; ++i)
+				if (strcmp(key->GetName(),keys[i]->GetName())==0) {
+					found = true;
+					if (key->GetCycle() > keys[i]->GetCycle())
+						keys[i] = key;
+				}
+			if (!found)
+				keys.push_back(key);
+		}
+		for (unsigned i=0; i<keys.size() and !fMCMCTree; ++i) {
+			fMCMCTree = (TTree*)(keys[i]->ReadObj());
+			if (!ValidMCMCTree(fMCMCTree))
+				fMCMCTree = 0;
+		}
+	}
+	if (!fMCMCTree) {
+		BCLog::OutError("BCEngineMCMC::Load: No valid MCMC TTree found in file.");
+		gDirectory = dir;
+		return;
+	}
+	fMCMCTreeLoaded = true;
+	gDirectory = dir;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
+	if (!tree)
+		tree = fMCMCTree;
+	if (!ValidMCMCTree(tree))
+		return;
+
+	tree -> SetBranchAddress("Chain",          &fMCMCTree_Chain);
+	tree -> SetBranchAddress("Iteration",      &fMCMCTree_Iteration);
+	tree -> SetBranchAddress("Phase",          &fMCMCPhase);
+	tree -> SetBranchAddress("LogProbability", &fMCMCTree_Prob);
+
+	fMCMCTree_Parameters.assign(GetNParameters(),0);
+	for (unsigned i=0; i<GetNParameters(); ++i)
+		tree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
+
+	// find out how many chains used to generate tree
+	fMCMCNChains = 0;
+	for (int n=0; n<tree->GetEntries(); ++n) {
+		tree -> GetEntry(n);
+		if (fMCMCNChains>0 and fMCMCTree_Chain==0)
+			break;
+		if (fMCMCTree_Chain+1>fMCMCNChains)
+			fMCMCNChains = fMCMCTree_Chain+1;
+	}
+
+	MCMCInitialize();
+	MCMCInitializeMarkovChains();
+	
+	if (autorange) {
+		// find min and max
+		std::vector<double> XMin(GetNVariables(),+std::numeric_limits<double>::infinity());
+		std::vector<double> XMax(GetNVariables(),-std::numeric_limits<double>::infinity());
+		for (int n=0; n<tree->GetEntries(); ++n) {
+			tree -> GetEntry(n);
+
+			if (fMCMCPhase<=0)
+				continue;
+
+			for (unsigned i=0; i<fMCMCTree_Parameters.size(); ++i) {
+				if (fMCMCTree_Parameters[i]<XMin[i])
+					XMin[i] = fMCMCTree_Parameters[i];
+				if (fMCMCTree_Parameters[i]>XMax[i])
+					XMax[i] = fMCMCTree_Parameters[i];
+			}
+			CalculateObservables(fMCMCTree_Parameters);
+			for (unsigned i=fMCMCTree_Parameters.size(); i<XMin.size(); ++i) {
+				if (((BCObservable*)GetVariable(i))->Value() < XMin[i])
+					XMin[i] = ((BCObservable*)GetVariable(i))->Value();
+				if (((BCObservable*)GetVariable(i))->Value() > XMax[i])
+					XMax[i] = ((BCObservable*)GetVariable(i))->Value();
+			}
+		}
+		// recreate histgrams
+		for (unsigned i=0; i<GetNVariables(); ++i) {			
+			if (MarginalizedHistogramExists(i)) {
+				TString name  = fH1Marginalized[i] -> GetName();
+				TString title = fH1Marginalized[i] -> GetTitle();
+				int nbins     = fH1Marginalized[i] -> GetNbinsX();
+				delete fH1Marginalized[i];
+				fH1Marginalized[i] = new TH1D(name,title,nbins,XMin[i],XMax[i]);
+			}
+			for (unsigned j=0; j<GetNVariables(); ++j)
+				if (MarginalizedHistogramExists(i,j)) {
+					TString name  = fH2Marginalized[i][j] -> GetName();
+					TString title = fH2Marginalized[i][j] -> GetTitle();
+					int nbinsx    = fH2Marginalized[i][j] -> GetNbinsX();
+					int nbinsy    = fH2Marginalized[i][j] -> GetNbinsY();
+					delete fH2Marginalized[i][j];
+					fH2Marginalized[i][j] = new TH2D(name,title,nbinsx,XMin[i],XMax[i],nbinsy,XMin[j],XMax[j]);
+				}
+		}
+	}
+	
+	for (unsigned n=0; n<tree->GetEntries(); ++n) {
+		tree -> GetEntry(n);
+
+		if (fMCMCTree_Prob > fMCMCLogMaximum) {
+			fMCMCBestFitParameters = fMCMCTree_Parameters;
+			fMCMCLogMaximum = fMCMCTree_Prob;
+		}
+
+		if (fMCMCPhase <= 0)
+			continue;
+
+		fMCMCx[fMCMCTree_Chain] = fMCMCTree_Parameters;
+		fMCMCprob = fMCMCTree_Prob;
+		MCMCCurrentPointInterface(fMCMC[fMCMCTree_Chain], fMCMCTree_Chain, true);
+
+		if (fMCMCTree_Chain==fMCMCNChains-1) {
+			MCMCIterationInterface();
+			EvaluateObservables();
+			if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
+				MCMCInChainFillHistograms();
+		}
+
+	}
+	
+
 }
 
 // --------------------------------------------------------
@@ -979,7 +1243,7 @@ void BCEngineMCMC::MCMCInChainWriteChains()
 void BCEngineMCMC::MCMCCloseOutputFile() {
 	if (!fMCMCOutputFile or !fMCMCOutputFile->IsOpen())
 		return;
-	fMCMCOutputFile -> Write();
+	fMCMCOutputFile -> Write(0,TObject::kWriteDelete);
 	fMCMCOutputFile -> Close();
 }
 
@@ -1231,6 +1495,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	// reset current chain
 	fMCMCCurrentChain = -1;
 
+	if (fMCMCFlagWritePreRunToFile)
+		UpdateParameterTree();
+
 	// no error
 	return 1;
 }
@@ -1328,7 +1595,9 @@ int BCEngineMCMC::MCMCMetropolis()
 		BCLog::OutDetail(Form("         %-*s :     %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*efficiencies[i]));
 	}
 
-	
+	if (fMCMCFlagWriteChainToFile)
+		UpdateParameterTree();
+
 	// save if improved the log posterior
 	if (fMCMCBestFitParameters.empty() || fMCMCprobMax[probmaxindex] > fMCMCLogMaximum) {
 		fMCMCLogMaximum = fMCMCprobMax[probmaxindex];

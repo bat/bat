@@ -185,6 +185,9 @@ BCIntegrate::~BCIntegrate()
 // ---------------------------------------------------------
 double BCIntegrate::GetBestFitParameterError(unsigned index) const
 {
+	if (fBestFitParameterErrors.empty())
+		return -1;
+
    if( ! fParameters.ValidIndex(index)) {
       BCLog::OutError("BCIntegrate::GetBestFitParameterError : Parameter index out of range, returning -1.");
       return -1;
