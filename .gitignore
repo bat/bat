@@ -43,8 +43,8 @@ bat.pc
 bat-config
 
 # Documentation
-doc/introduction/*
-!doc/introduction/introduction.tex
+doc/introduction/introduction.*
+doc/introduction/versions.tex
 
 # Editors
 .autotools
