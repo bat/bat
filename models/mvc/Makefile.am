@@ -50,7 +50,6 @@ clean-local:
 	$(ROOTCINT) -f $@ -c -I$(top_srcdir) $<
 
 install-exec-hook:
-	cp libBATmvc.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
 
 install-data-hook:
@@ -64,5 +63,5 @@ install-data-hook:
 		rm -f $$i.h; \
 	done
 
-uninstall-hook:
-	rm -f $(DESTDIR)$(libdir)/libBATmvc.rootmap
+rootmapdir = $(libdir)
+rootmap_DATA = libBATmvc.rootmap

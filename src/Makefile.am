@@ -64,7 +64,6 @@ clean-local:
 	$(ROOTCINT) -f $@ -c $<
 
 install-exec-hook:
-	cp libBAT.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
 
 # turn #include "file.h" into #include <file.h>
@@ -79,5 +78,5 @@ install-data-hook:
 		rm -f $$i.h; \
 	done
 
-uninstall-hook:
-	rm -f $(DESTDIR)$(libdir)/libBAT.rootmap
+rootmapdir = $(libdir)
+rootmap_DATA = libBAT.rootmap
