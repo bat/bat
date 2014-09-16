@@ -12,6 +12,8 @@ SUBDIRS= \
 	models/mvc
 
 EXTRA_DIST= \
+	INSTALL.md \
+	README.md \
 	src/libBAT.rootmap \
 	models/base/BCRooInterface.rootmap \
 	models/base/libBATmodels.rootmap.in \
@@ -21,6 +23,8 @@ EXTRA_DIST= \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/CreateProject.sh.in
+
+dist_bin_SCRIPTS = bat-config
 
 dist-hook: prep-docs
 #	rm -f $(distdir)/src/*Dict.*
@@ -44,3 +48,7 @@ BAT-quickstart.pdf:
 	mv quickstart-tmp/quickstart/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
 	rm -rf quickstart-tmp
 
+if COND_PKGCONFIG
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = bat.pc
+endif

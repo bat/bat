@@ -23,7 +23,8 @@
 \newcommand{\bat}{{\sc BAT}}
 \newcommand{\BAT}{\bat}
 \newcommand{\Root}{{\sc Root}}
-\newcommand{\versionno}{0.9.3}
+
+\input{versions}
 \newcommand{\version}{version~\versionno}
 \newcommand{\Version}{Version~\versionno}
 \newcommand{\RootVersion}{5.22}
@@ -99,14 +100,9 @@ introduction to \bat\ can be found in~\cite{Caldwell:2008fw}.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% installation
-% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\section{Installation}
-\label{section:installation}
-
-\subsection{Availability}
+\subsection{License}
 
 \bat\ can be downloaded from \url{http://mpp.mpg.de/bat}.
 
@@ -119,182 +115,12 @@ the License, or any later version.
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 % --------------------------------------------------------
 
-\subsection{Platforms}
+\subsection{Installation instructions}
 
-\bat\ has been developed on Linux machines running different distributions
-and different versions of the kernel and gcc. As far as we know there
-is nothing distribution dependent inside of \bat. However, we have not
-systematically checked for compatibility and portability so the only
-statement we can do is that if you do not have a too old or too
-specific installation of Linux you should be able to compile and use
-\bat\ without problems.
-
-The installation and functionality of BAT has also been tested on MACs.
-
-Windows is not supported for the moment.
-
-% --------------------------------------------------------
-% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% --------------------------------------------------------
-
-\subsection{Dependencies}
-% To save space in the contents, this particular subsubsection is not
-% listed in the ToC. Comment out the \addtocontents commands to
-% reverse this change.
-\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
-\subsubsection{\Root}
-\addtocontents{toc}{\protect\setcounter{tocdepth}{3}}
-\Root\ is an object oriented data analysis framework. You can obtain it
-from~\cite{ROOTweb}. To compile and run \bat\ you will need a \Root\
-version \RootVersion\ or later. Please, check your Linux distribution for the
-availability of precompiled packages on your system. Mostly used
-distributions nowadays have the \Root\ packages available.
-
-Note: To be able to use the interface to RooFit/RooStats the \Root\
-version \RooStatsVersion\ or later is necessary and \Root\ has to be compiled
-with \verb|MathMore| support.
-
-% --------------------------------------------------------
-% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% --------------------------------------------------------
-
-\subsection{Recommendations}
-% To save space in the contents, this particular subsubsection is not
-% listed in the ToC. Comment out the \addtocontents commands to
-% reverse this change.
-\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
-\subsubsection{Cuba}
-\addtocontents{toc}{\protect\setcounter{tocdepth}{3}} Cuba~\cite{CUBA}
-is a library containing general purpose multidimensional integration
-algorithms. It can be obtained from~\cite{CUBAweb}. BAT will compile
-and run with Cuba version \CubaVersion\ or later. Cuba is not
-necessary to run BAT if one only cares about parameter
-inferences. However, its use is recommended when a fast determination
-of the posterior normalization for model comparison is desired in
-dimension up to say 20.
-
-% --------------------------------------------------------
-% >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-% --------------------------------------------------------
-
-\subsection{Installation procedure}
-
-Unpack the tarball containing the \bat\ source usually named like
-\verb|BAT-x.x.tar.gz| (here x.x is the version number) using command
-%
-\begin{verbatim}
-   tar -xzf BAT-x.x.tar.gz
-\end{verbatim}
-%
-A directory called \verb|BAT-x.x| will be created containing the source code.
-Enter the directory and run the configuration using commands
-%
-\begin{verbatim}
-   cd BAT-x.x
-   ./configure
-\end{verbatim}
-
-This will check your system for all components needed to compile \bat\
-and set up the paths for installation. You can add option
-\verb|--prefix=/path/to/install/bat| to \verb|./configure| to specify
-the the prefix to the \bat\ installation path. The \bat\ library files
-will be installed to \verb|$prefix/lib| and the include files to
-\verb|$prefix/include|. Default installation prefix is
-\verb|/usr/local|.
-
-The configure script checks for \Root\ availability in the system and
-fails if \Root\ is not installed. You can specify the ROOTSYS directory
-using \verb|--rootsys=/path/to/rootsys|.
-
-You can compile \BAT\ with the RooFit/RooStats support using
-\verb|--with-roostats|. The configure script will check whether the version of
-\Root\ is sufficient and whether it was compiled with RooFit/RooStats
-support.
-
-Support for OpenMP threading to run multiple Markov chains in
-parallel is available through the configure option
-\verb|--enable-parallelization|; it is disabled by default to avoid
-problems with user code that is not thread safe. A version of gcc
-accepting the \verb|-fopenmp| flag is required, anything $\geq$ 4.2
-should suffice.  Note that if OpenMP is used, the default
-number of threads is implementation dependent and may also depend on
-the current load of the CPU. Manual control over the number of threads
-is achieved entirely by OpenMP means such as setting the
-enviroment variable \verb|OMP_NUM_THREADS| before running an
-executable. See further hints in
-subsection~\ref{subsection:thread-par}.
-
-You can compile \BAT\ with Cuba support using option
-\verb|--with-cuba[=DIR]|.  The configure script will then search for
-\verb|libcuba.a| and \verb|cuba.h| in the system paths, or, if
-\verb|DIR| is given, in \verb|DIR| (correct if Cuba just compiled in
-its source directory), and in \verb|DIR/lib| and \verb|DIR/include|
-subdirectories. For more fine-grained control, use
-\verb|--with-cuba-include-dir=/path/to/cuba/header| and
-\verb|--with-cuba-lib-dir=/path/to/cuba/lib|.
-
-Note that the cuba library still needs to be available to the loader
-at runtime. This is accomplished, for example, by adding
-\verb|/path/to/cuba/lib| to \verb|LD_LIBRARY_PATH|. Please compile the Cuba library
-with position-independent code; e.g.,
-\begin{verbatim}
-./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
-\end{verbatim}
-to avoid linker errors like
-\begin{verbatim}
-/usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32
-against `.rodata.str1.8' can not be used when making a shared object;
-recompile with -fPIC
-\end{verbatim}
-
-You can list all available options using
-%
-\begin{verbatim}
-   ./configure --help
-\end{verbatim}
-
-%\enlargethispage{-\baselineskip}
-
-After successful configuration, run
-%
-\begin{verbatim}
-   make
-   make install
-\end{verbatim}
-%
-to compile and install \bat. Note that depending on the setting of
-installation prefix you might need root privileges to be able to
-install \bat. If you are installing \bat\ e.g. in your
-\verb|$HOMEDIR|, %$ workaround for bad highlighting you need to add
-the path to the library and to the include files to the search path in
-your system. Depending on your shell you can do that via commands
-%
-\begin{verbatim}
-   export BATINSTALLDIR=/bat/install/prefix
-   export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-   export CPATH=$CPATH:$BATINSTALLDIR/include
-\end{verbatim}
-%
-or
-%
-\begin{verbatim}
-   setenv BATINSTALLDIR    /bat/install/prefix
-   setenv LD_LIBRARY_PATH  $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-   setenv CPATH            $PATH:$BATINSTALLDIR/include
-\end{verbatim}
-%
-for \verb|bash| and \verb|csh| compatible shells, respectively.
-
-An option for use in compiled programs would also be to add
-\verb|-I/bat/install/include/path| to \verb|CFLAGS| and
-\verb|-L/bat/install/lib/path| to \verb|LDFLAGS| in your
-\verb|Makefile|. However, the interactive \Root\ macros will not work if
-\verb|libBAT.so|, \verb|libBATmodels.so|, \verb|libBATmtf.so|,
-\verb|libBAT.rootmap|, \verb|libBATmodels.rootmap| and
-\verb|libBATmtf.rootmap| are not in the system library search path.
-
-See also the \verb|INSTALL| file in the \bat\ distribution and the installation
-instructions on the webpage.
+The set of detailed instructions to install your version of BAT are in
+the \verb|INSTALL| file that comes with the \bat\ source
+distribution. The latest version is available online at
+\url{https://github.com/bat/bat/blob/master/INSTALL.md}.
 
 % --------------------------------------------------------
 % >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>

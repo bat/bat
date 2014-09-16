@@ -1,7 +1,7 @@
 lib_LTLIBRARIES= libBATmodels.la
 libBATmodels_la_LDFLAGS= -version-info 4:0:0
 
-AM_CXXFLAGS= -Wall -fPIC  -I../.. -I. -I../../BAT $(ROOTCFLAGS)
+AM_CXXFLAGS= -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
@@ -61,18 +61,14 @@ clean-local:
 ## RooStats specific targers
 #if ROOSTATS
 BATCalculatorDict.cxx : BATCalculator.h
-	$(ROOTCINT) -f $@ -c  -I../.. -I. -I../../BAT $< BATCalculatorLinkDef.h
+	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $< BATCalculatorLinkDef.h
 #endif
 ## End of RooStats specific targets
 
 %Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c  -I../.. -I. -I../../BAT $<
+	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $<
 
 install-exec-hook:
-	rm -rf libBATmodels.rootmap
-	cp libBATmodels.rootmap.in libBATmodels.rootmap
-	$(ADD_ROOINTERFACE_ROOTMAP)
-	cp libBATmodels.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
 
 install-data-hook:
@@ -86,6 +82,9 @@ install-data-hook:
 		rm -f $$i.h; \
 	done
 
-uninstall-hook:
-	rm -f $(DESTDIR)$(libdir)/libBATmodels.rootmap
+libBATmodels.rootmap: libBATmodels.rootmap.in
+	cp $< $@
+	$(ADD_ROOINTERFACE_ROOTMAP)
 
+rootmapdir = $(libdir)
+rootmap_DATA = libBATmodels.rootmap

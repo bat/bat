@@ -1,13 +1,16 @@
-AC_INIT(src/BCModel.cxx)
+AC_INIT([BAT], 0.9.3, [], [BAT])
 : ${CXXFLAGS=""}
 : ${CFLAGS=""}
 : ${FFLAGS=""}
-AM_INIT_AUTOMAKE(BAT, 0.9.3)
+AM_INIT_AUTOMAKE()
 AM_CONFIG_HEADER(config.h)
 AC_PROG_CXX
 AM_PROG_LIBTOOL
 AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
+
+DEP_CFLAGS=""
+DEP_LIBS=""
 
 dnl
 dnl Check for Darwin
@@ -40,8 +43,10 @@ AC_ARG_ENABLE(
 	[
 		case "${enableval}" in
 			yes) parallelization=1 ;
-				 CXXFLAGS+=" -fopenmp" ;
-				 LDFLAGS+=" -fopenmp" ;;
+				CXXFLAGS+=" -fopenmp" ;
+				LDFLAGS+=" -fopenmp" ;
+				DEP_CFLAGS="$DEP_CFLAGS -fopenmp" ;
+				DEP_LIBS="$DEP_LIBS -fopenmp" ;;
 			no)  parallelization=0 ;;
 			*) AC_MSG_ERROR([bad value ${enableval} for --enable-parallelization]) ;;
 		esac
@@ -93,6 +98,7 @@ dnl if cuba just compiled, everything is in one directory
 		echo "checking for cuba.h in $with_cuba_include_dir"
 		cubaincflags=-I$with_cuba_include_dir
 		CPPFLAGS+=" $cubaincflags"
+		CXXFLAGS+=" $cubaincflags"
 	else
 		echo "checking for cuba.h in system default directories"
 	fi
@@ -247,13 +253,35 @@ if test $use_roostats = yes; then
    ROOTLIBS="$ROOTLIBS -lRooFitCore -lRooFit -lRooStats -lFoam"
 fi
 
+DEP_CFLAGS="$DEP_CFLAGS $ROOTCFLAGS"
+DEP_LIBS="$DEP_LIBS -L$ROOTLIBDIR $ROOTLIBS"
+
+AC_SUBST(DEP_CFLAGS)
+AC_SUBST(DEP_LIBS)
+
+PKG_LIBS="-lBAT -lBATmodels -lBATmtf -lBATmvc"
+AC_SUBST(PKG_LIBS)
+
+AC_CHECK_PROGS(PKGCONFIG, pkg-config, false)
+AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
+
+# files that may not be part of the release but exist only in a checkout of the source repository
+if test -f "doc/introduction/versions.tex.in" ; then
+   AC_OUTPUT(doc/introduction/versions.tex)
+fi
+
+if test -f "benchmarks/test/Makefile.in" ; then
+   AC_OUTPUT(benchmarks/test/Makefile)
+fi
+
 AC_OUTPUT(
 	Makefile
+	bat.pc
+	bat-config
 	src/Makefile
 	models/base/Makefile
 	models/mtf/Makefile
 	models/mvc/Makefile
-	benchmarks/test/Makefile
 	examples/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile

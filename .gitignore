@@ -38,15 +38,25 @@ CreateProject.sh
 *.Plo
 *.so
 
+# build support
+bat.pc
+bat-config
+
 # Documentation
-doc/introduction/*
-!doc/introduction/introduction.tex
+doc/introduction/introduction.*
+doc/introduction/versions.tex
 
 # Editors
 .autotools
 *.*project
 .settings/org.eclipse*
 *~
+
+###
+# doc
+###
+*.el
+*.aux
 
 ###
 # Examples
@@ -64,6 +74,7 @@ asymmErrorsFitterExample
 ensembletest
 runAnomCouplings
 runCombineGaussians
+runCombination
 runEfficiency
 runErrorPropagation
 runMVCombination
@@ -78,6 +89,10 @@ runTrialFunction
 sensitivity
 templatefit
 
+###
+# Tests
+###
+
 # Performance tests
 *.html
 *.php
@@ -87,3 +102,4 @@ runTestSuite.exe
 
 # unit tests
 *_TEST
+*.trs

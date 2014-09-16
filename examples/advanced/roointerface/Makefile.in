@@ -20,16 +20,12 @@ LD           = @LD@
 LDFLAGS      = -g -O2 @LDFLAGS@
 
 # ----------------------------------------------------------------------
-# The following definitions depend on the setup of the system where
-# the project is being compiled. If BAT is installed in the standard
-# system search path or the installation directory is defined in the
-# BATINSTALLDIR environmental variable then the lines below are correct
-# and the compilation will work
-CXXFLAGS += -I$(BATINSTALLDIR)/include @ROOTCFLAGS@
-LIBS      = -L$(BATINSTALLDIR)/lib -lBATmodels -lBAT -L@ROOTLIBDIR@ @ROOTLIBS@
+# The following definitions rely on the script bat-config being
+# available in $PATH. If BAT is not installed in the standard system
+# directories, update $PATH accordingly.
 
-@CUBA_TRUE@CXXFLAGS += @CUBAINCLUDE@
-@CUBA_TRUE@LIBS     += -lcuba
+CXXFLAGS += `bat-config --cflags`
+LIBS := `bat-config --libs`
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

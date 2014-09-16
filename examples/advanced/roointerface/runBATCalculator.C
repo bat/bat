@@ -14,7 +14,7 @@
 // Here the bayesian 90% interval (upper limit corresponds to one-sided 95% upper limit) is
 // evaluated as a function of the observed number of events in a hypothetical experiment.
 
-// The macro will need some time to run. You can adjust the number of Markov chain elements and 
+// The macro will need some time to run. You can adjust the number of Markov chain elements and
 // the range of tested numbers of observed events to make the macro terminate faster. The result
 // is a plot showing the 90% (central) interval // as a function of the observed number of events
 
@@ -31,15 +31,7 @@ using namespace std;
 
 void runBATCalculator()
 {
-
-//   cout << "***" << endl;
-//   cout << "The macro assumes that libBATmodels.so is found in $BATINSTALLDIR/lib. Please change the respective line in the macro to the correct path for your system! " << endl;
-//   cout << "***" << endl;
-
-//   gSystem->Load("$BATINSTALLDIR/lib/libBATmodels.so");
-//   gSystem->Load("libBATmodels.so");
-
-   // Definiton of a RooWorkspace containing the statistics model. Later the 
+   // Definiton of a RooWorkspace containing the statistics model. Later the
    // information for BATCalculator is retrieved from the workspace. This is
    // certainly a bit of overhead but better from an educative point of view.
    cout << "preparing the RooWorkspace object" << endl;
@@ -61,8 +53,8 @@ void runBATCalculator()
 
    // Poisson distribution with mean signal+bkg
    myWS->factory("Poisson::model(n[0,300],sum(signal,N_bkg))");
- 
-   // define the global prior function 
+
+   // define the global prior function
    myWS->factory("PROD::prior(prior_sigma_s,prior_epsilon,prior_L,prior_N_bkg)");
 
    // Definition of observables and parameters of interest
@@ -70,11 +62,11 @@ void runBATCalculator()
    myWS->defineSet("poiSet","sigma_s");
    myWS->defineSet("nuisanceSet","N_bkg,L,epsilon");
 
-   // ->model complete (Additional information can be found in the 
+   // ->model complete (Additional information can be found in the
    // RooStats manual)
 
-   //  feel free to vary the parameters, but don't forget to choose reasonable ranges for the 
-   // variables. Currently the Bayesian methods will often not work well if the variable ranges 
+   //  feel free to vary the parameters, but don't forget to choose reasonable ranges for the
+   // variables. Currently the Bayesian methods will often not work well if the variable ranges
    // are either too short (for obvious reasons) or too large (for technical reasons).
 
    // A ModelConfig object is used to associate parts of your workspace with their statistical
@@ -95,15 +87,15 @@ void runBATCalculator()
    modelconfig.SetObservables(*(myWS->set("obsSet")));
 
 
-   // use BATCalculator to the derive confidence intervals as a function of the observed number of 
+   // use BATCalculator to the derive confidence intervals as a function of the observed number of
    // events in the hypothetical experiment
 
    // define vector with tested numbers of events
    TVectorD obsEvents;
    // define vectors which will be filled with the lower and upper limits for each tested number
    // of observed events
-   TVectorD BATul; 
-   TVectorD BATll;   
+   TVectorD BATul;
+   TVectorD BATll;
 
    // fix upper limit of tested observed number of events
    int obslimit = 10;
@@ -115,7 +107,7 @@ void runBATCalculator()
 
    cout << "starting the calculation of Bayesian confidence intervals with BATCalculator" << endl;
    // loop over observed number of events in the hypothetical experiment
-   for (int obs = 1; obs<=obslimit; obs++){ 
+   for (int obs = 1; obs<=obslimit; obs++){
 
       obsEvents[obs-1] = (static_cast<double>(obs));
 
@@ -136,27 +128,27 @@ void runBATCalculator()
 
       // fix amount of posterior probability in the calculated interval.
       batcalc.SetConfidenceLevel(0.90);
-      // fix number of Markov chain elements. (in general: the longer the Markov chain the more 
+      // fix number of Markov chain elements. (in general: the longer the Markov chain the more
       // precise will be the results)
       batcalc.SetnMCMC(300000);
 
-      // retrieve SimpleInterval object containing the information about the interval (this 
+      // retrieve SimpleInterval object containing the information about the interval (this
       // triggers the actual calculations)
       SimpleInterval * interval = batcalc.GetInterval1D("sigma_s");
 
       std::cout << "BATCalculator: 90% CL interval: [ " << interval->LowerLimit() << " - " << interval->UpperLimit() << " ] or 95% CL upper limit\n";
 
-      // add the interval borders for the current number of observed events to the vectors 
+      // add the interval borders for the current number of observed events to the vectors
       // containing the lower and upper limits
       BATll[obs-1]= interval->LowerLimit();
       BATul[obs-1]= interval->UpperLimit();
 
       // clean up for next loop element
       batcalc.CleanCalculatorForNewData();
-      delete interval; 
+      delete interval;
    }
    cout << "all limits calculated" << endl;
-   
+
    // summarize the results in a plot
 
    TGraph *grBATll = new TGraph(obsEvents,BATll);
@@ -174,7 +166,7 @@ void runBATCalculator()
    // create and draw multigraph
    TMultiGraph *mg = new TMultiGraph("BayesianLimitsBATCalculator","BayesianLimitsBATCalculator");
    mg->SetTitle("example of Bayesian confidence intervals derived with BATCAlculator ");
-   
+
    mg->Add(grBATll);
    mg->Add(grBATul);
 
@@ -182,7 +174,7 @@ void runBATCalculator()
 
    mg->GetXaxis()->SetTitle ("# observed events");
    mg->GetYaxis()->SetTitle("limits on signal S (size of test: 0.1)");
-   
+
    mg->Draw("AC");
 
 }

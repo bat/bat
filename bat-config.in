@@ -1,0 +1,122 @@
+#! /bin/sh
+
+
+# ---------------------------------------------------------------------
+# This file contains some code from clhep-config and xft-config,
+# copyright under GPL, resp. quasi-BSD, license by the authors of the
+# clhep and xft projects.
+# ---------------------------------------------------------------------
+
+
+package="bat"
+version="@PACKAGE_VERSION@"
+
+
+# ---------------------------------------------------------------------
+# From clhep-config:
+
+# use the full name of this script to get the current path
+configpath=`dirname ${0}`
+# check for a leading slash to determine if this is a relative path
+firstc=`expr ${configpath} : /`
+calldir=`pwd`
+if [ ${firstc} -eq 0 ]
+then
+   cd ${calldir}/${configpath}; newpath=`pwd`
+   binpath=${newpath}
+else
+   binpath=${configpath}
+fi
+
+# ---------------------------------------------------------------------
+
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+bindir="@bindir@"
+
+if [ "${bindir}" != "${binpath}" ] ; then
+	# package has been relocated from original install path
+	prefix=`dirname ${binpath}`
+	exec_prefix="${prefix}"
+	bindir="${binpath}"
+fi
+
+libdir="@libdir@"
+includedir="@includedir@"
+
+# ---------------------------------------------------------------------
+
+
+usage()
+{
+  cat <<EOF
+Usage: bat-config [OPTIONS]
+General options:
+    --prefix
+    --version
+    --libs
+    --cflags
+EOF
+    exit $1
+}
+
+if test $# -eq 0 ; then
+  usage 1 1>&2
+fi
+
+
+while test $# -gt 0 ; do
+  case "$1" in
+  -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+  *) optarg= ;;
+  esac
+
+  case $1 in
+  --help)
+	usage 0
+	;;
+  --prefix)
+    echo_prefix=yes
+    ;;
+  --version)
+    echo $version
+    exit 0
+    ;;
+  --cflags)
+    echo_cflags=yes
+    ;;
+  --libs)
+    echo_libs=yes
+    ;;
+  *)
+    usage 1 1>&2
+    ;;
+  esac
+  shift
+done
+
+
+# ---------------------------------------------------------------------
+# From xft-config:
+
+if test "$echo_prefix" = "yes" ; then
+    echo $prefix
+fi
+
+if test "$echo_cflags" = "yes" ; then
+    cflags="-I${includedir} @DEP_CFLAGS@"
+    echo $cflags
+fi
+
+if test "$echo_libs" = "yes" ; then
+    if test "${libdir}" != "/usr/lib" ; then
+        echo -L${libdir} @PKG_LIBS@ @DEP_LIBS@
+    else
+        echo @PKG_LIBS@ @DEP_LIBS@
+    fi
+fi
+
+# ---------------------------------------------------------------------
+
+
+# EOF

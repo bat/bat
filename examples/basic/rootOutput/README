@@ -40,9 +40,9 @@ Running the example:
 
 2. Compile the example by running 'make' in the example directory
 
-   For the compilation to work properly BAT needs to be installed
-   in the standard system accessible location or in the path defined
-   by the BATINSTALLDIR environmental variable.
+   For the compilation to work properly, the script bat-config needs
+   to be accessible, for example by adding its directory to the PATH
+   environment variable.
 
 3. Run the executable 'runRootOutput'.
 
