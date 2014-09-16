@@ -54,7 +54,6 @@ clean-local:
 	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $<
 
 install-exec-hook:
-	cp libBATmtf.rootmap $(DESTDIR)$(libdir)
 	$(CREATE_SO_LINK)
 
 install-data-hook:
@@ -68,5 +67,5 @@ install-data-hook:
 		rm -f $$i.h; \
 	done
 
-uninstall-hook:
-	rm -f $(DESTDIR)$(libdir)/libBATmtf.rootmap
+rootmapdir = $(libdir)
+rootmap_DATA = libBATmtf.rootmap
