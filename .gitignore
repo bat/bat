@@ -45,6 +45,8 @@ bat-config
 # Documentation
 doc/introduction/introduction.*
 doc/introduction/versions.tex
+!doc/introduction/Makefile
+!doc/quickstart/Makefile
 
 # Editors
 .autotools

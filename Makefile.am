@@ -35,18 +35,14 @@ dist-hook: prep-docs
 prep-docs: BAT-intro.pdf BAT-quickstart.pdf
 
 BAT-intro.pdf:
-	mkdir intro-tmp
-	cp -r doc/introduction intro-tmp
-	cd intro-tmp/introduction; latex introduction; latex introduction; dvips -o introduction.ps introduction; ps2pdf introduction.ps
-	mv intro-tmp/introduction/introduction.pdf $(distdir)/doc/BAT-intro.pdf
-	rm -rf intro-tmp
+	cd $(top_srcdir)/doc/introduction \
+	make \
+	mv introduction.pdf $(distdir)/doc/BAT-intro.pdf
 
 BAT-quickstart.pdf:
-	mkdir quickstart-tmp
-	cp -r doc/quickstart quickstart-tmp
-	cd quickstart-tmp/quickstart; latex quickstart; latex quickstart; dvips -o quickstart.ps quickstart; ps2pdf quickstart.ps
-	mv quickstart-tmp/quickstart/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
-	rm -rf quickstart-tmp
+	cd $(top_srcdir)/doc/quickstart \
+	make \
+	mv quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
 
 if COND_PKGCONFIG
 pkgconfigdir = $(libdir)/pkgconfig
