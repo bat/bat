@@ -67,16 +67,18 @@ install-exec-hook:
 	$(CREATE_SO_LINK)
 
 # turn #include "file.h" into #include <file.h>
+# work in tmp directory to allow VPATH build with read-only src directory
 install-data-hook:
-	for i in $(library_include_HEADERS); do \
-		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/' $$i > $$i.h; \
-		if ! diff -q "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i" > /dev/null; then \
+	mkdir -p src-tmp; \
+	for i in $(DESTDIR)$(includedir)/BAT/*.h; do \
+		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/' $$i > src-tmp/`basename $$i`.h; \
+		if ! diff -q src-tmp/`basename $$i`.h "$$i" > /dev/null; then \
 			echo "updating $$i"; \
-			cp -f "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i"; \
-			chmod 664 "$(DESTDIR)$(includedir)/BAT/$$i"; \
+			cp -f src-tmp/`basename $$i`.h "$$i"; \
+			chmod 664 "$$i"; \
 		fi; \
-		rm -f $$i.h; \
-	done
+	done; \
+	rm -rf src-tmp;
 
 rootmapdir = $(libdir)
 rootmap_DATA = libBAT.rootmap

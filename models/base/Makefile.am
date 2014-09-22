@@ -72,15 +72,16 @@ install-exec-hook:
 	$(CREATE_SO_LINK)
 
 install-data-hook:
-	for i in $(incs); do \
-		sed -e 's/include \"\(BC.*.h\)\"/include <BAT\/\1>/ ; s/include \"\.\.\/\.\.\/\(BAT\/BC.*.h\)\"/include <\1>/' $$i > $$i.h; \
-		if ! diff -q "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i" > /dev/null; then \
+	mkdir -p base-tmp; \
+	for i in $(DESTDIR)$(includedir)/BAT/*.h; do \
+		sed -e 's|include \"\(BC.*.h\)\"|include <BAT\/\1>| ; s/include \"\.\.\/\.\.\/\(BAT\/BC.*.h\)\"/include <\1>/' $$i > base-tmp/`basename $$i`.h; \
+		if ! diff -q base-tmp/`basename $$i`.h "$$i" > /dev/null; then \
 			echo "updating $$i"; \
-			cp -f "$$i.h" "$(DESTDIR)$(includedir)/BAT/$$i"; \
-			chmod 664 "$(DESTDIR)$(includedir)/BAT/$$i"; \
+			cp -f base-tmp/`basename $$i`.h "$$i"; \
+			chmod 664 "$$i"; \
 		fi; \
-		rm -f $$i.h; \
-	done
+	done; \
+	rm -rf base-tmp;
 
 libBATmodels.rootmap: libBATmodels.rootmap.in
 	cp $< $@
