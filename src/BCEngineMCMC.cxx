@@ -870,9 +870,9 @@ void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
 		if (fMCMCPhase <= 0)
 			continue;
 
-		fMCMCx[fMCMCTree_Chain] = fMCMCTree_Parameters;
-		fMCMCprob = fMCMCTree_Prob;
-		MCMCCurrentPointInterface(fMCMC[fMCMCTree_Chain], fMCMCTree_Chain, true);
+		fMCMCx[fMCMCTree_Chain]    = fMCMCTree_Parameters;
+		fMCMCprob[fMCMCTree_Chain] = fMCMCTree_Prob;
+		MCMCCurrentPointInterface(fMCMCx[fMCMCTree_Chain], fMCMCTree_Chain, true);
 
 		if (fMCMCTree_Chain==fMCMCNChains-1) {
 			MCMCIterationInterface();
