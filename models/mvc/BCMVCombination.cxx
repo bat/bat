@@ -14,9 +14,9 @@
 #include "BCMVCObservable.h"
 #include "BCMVCUncertainty.h"
 
-#include <../../BAT/BCLog.h>
-#include <../../BAT/BCMath.h>
-#include <../../BAT/BCParameter.h>
+#include "../../BAT/BCLog.h"
+#include "../../BAT/BCMath.h"
+#include "../../BAT/BCParameter.h"
 
 #include <fstream>
 #include <iomanip>
