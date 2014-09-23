@@ -592,9 +592,11 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
    double yExp = 0.0;
 
    // use ROOT's TH1D::Integral method
-   if (fFlagIntegration)
-      yExp = fFitFunction->Integral(edgeLow, edgeHigh, &parameters[0]);
-
+   if (fFlagIntegration) {
+      TF1 tmpF(*fFitFunction);
+      tmpF.SetParameters(&parameters[0]);
+      yExp = tmpF.Integral(edgeLow, edgeHigh);
+   }
    // use linear interpolation
    else {
       double dx = fHistogram->GetBinWidth(index);
