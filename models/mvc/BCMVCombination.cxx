@@ -138,7 +138,7 @@ double BCMVCombination::LogLikelihood(const std::vector<double> &parameters)
 int BCMVCombination::ReadInput(std::string filename)
 {
   // open input file
-  ifstream infile;
+  std::ifstream infile;
   infile.open(filename.c_str(), std::ifstream::in);
 
   // check if file is open
