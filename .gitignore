@@ -25,10 +25,8 @@ stamp-h1
 /test-driver
 
 # ROOT
-*Dict.h
-*Dict.cxx
-*Dict*dict*
-#*.rootmap
+*_rdict.*
+*.rootmap
 
 # Results
 *.[oa]

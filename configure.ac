@@ -9,6 +9,10 @@ AM_PROG_LIBTOOL
 AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
 
+dnl Get filename extension for dynamic libraries:
+SHLIBEXT="${shrext_cmds}"
+AC_SUBST(SHLIBEXT)
+
 DEP_CFLAGS=""
 DEP_LIBS=""
 

@@ -1,3 +1,5 @@
+CLEANFILES = *_rdict.* *_rdict_* *.rootmap
+
 lib_LTLIBRARIES= libBATmtf.la
 libBATmtf_la_LDFLAGS= -version-info 2:0:0
 
@@ -37,21 +39,16 @@ library_include_HEADERS= $(incs)
 libBATmtf_la_SOURCES= \
 	$(incs:.h=.cxx)
 
-#	$(incs:.h=Dict.cxx)
-
 nodist_libBATmtf_la_SOURCES= \
-	$(incs:.h=Dict.cxx)
+	libBATmtf_rdict.cxx
 
-BUILT_SOURCES = $(incs:.h=Dict.cxx)
+BUILT_SOURCES = libBATmtf_rdict.cxx
 
 clean-local:
 	rm -f *.o *.lo *Dict.*
 
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
-
-%Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $<
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
@@ -69,5 +66,34 @@ install-data-hook:
 	done; \
 	rm -rf mtf-tmp;
 
+
 rootmapdir = $(libdir)
-rootmap_DATA = libBATmtf.rootmap
+rootmap_DATA = .libs/libBATmtf.rootmap
+
+
+if WITH_CLING
+### ROOT-6: ###
+
+rootmap_DATA += .libs/libBATmtf_rdict.pcm
+
+libBATmtf_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCLING) -f $@.tmp -s libBATmtf@SHLIBEXT@ -rml libBATmtf@SHLIBEXT@ -rmf libBATmtf.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
+	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
+	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^"]*/\)\?\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^"]*/\)\?\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@ && $(RM) $@.tmp
+	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' -i libBATmtf.rootmap
+
+.libs/libBATmtf.rootmap: libBATmtf.la
+	cp libBATmtf.rootmap libBATmtf_rdict.pcm .libs/
+
+.libs/libBATmtf_rdict.pcm: .libs/libBATmtf.rootmap
+
+else # not WITH_CLING
+### ROOT-5: ###
+
+libBATmtf_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
+
+.libs/libBATmtf.rootmap: libBATmtf.la | $(library_include_HEADERS) LinkDef.h
+	$(RLIBMAP) -o $@ -l .libs/libBATmtf@SHLIBEXT@ -c $|
+
+endif # WITH_CLING

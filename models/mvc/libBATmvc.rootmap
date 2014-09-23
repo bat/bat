@@ -1,6 +1,0 @@
-Library.BCMVCombination:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
-Library.BCMVCObservable:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
-Library.BCMVCMeasurement:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
-Library.BCMVCUncertainty:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
-Library.BCMVCDataModel:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so
-Library.BCMVCPhysicsModel:     libBATmtf.so libBAT.so libCore.so libGpad.so libGraf.so libHist.so libMathCore.so libRIO.so libTree.so

@@ -1,3 +1,5 @@
+CLEANFILES = *_rdict.* *_rdict_* *.rootmap
+
 lib_LTLIBRARIES= libBATmodels.la
 libBATmodels_la_LDFLAGS= -version-info 4:0:0
 
@@ -41,16 +43,33 @@ ADD_ROOINTERFACE_ROOTMAP = \
 endif
 ## End of RooStats specific options
 
+
+linkdefs = LDef.h
+
+## RooStats specific options
+if ROOSTATS
+incs += \
+	BCRooInterface.h \
+	BATCalculator.h
+
+linkdefs += LDef_roostats.h
+endif
+## End of RooStats specific options
+
+
+LinkDef.h: $(linkdefs)
+	cat $+ > $@
+
+
+
 library_include_HEADERS= $(incs)
 libBATmodels_la_SOURCES= \
 	$(incs:.h=.cxx)
 
-#	$(incs:.h=Dict.cxx)
-
 nodist_libBATmodels_la_SOURCES= \
-	$(incs:.h=Dict.cxx)
+	libBATmodels_rdict.cxx
 
-BUILT_SOURCES = $(incs:.h=Dict.cxx)
+BUILT_SOURCES = libBATmodels_rdict.cxx LinkDef.h
 
 clean-local:
 	rm -f *.o *.lo *Dict.* libBATmodels.rootmap
@@ -64,9 +83,6 @@ BATCalculatorDict.cxx : BATCalculator.h
 	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $< BATCalculatorLinkDef.h
 #endif
 ## End of RooStats specific targets
-
-%Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $<
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
@@ -83,9 +99,34 @@ install-data-hook:
 	done; \
 	rm -rf base-tmp;
 
-libBATmodels.rootmap: libBATmodels.rootmap.in
-	cp $< $@
-	$(ADD_ROOINTERFACE_ROOTMAP)
 
 rootmapdir = $(libdir)
-rootmap_DATA = libBATmodels.rootmap
+rootmap_DATA = .libs/libBATmodels.rootmap
+
+
+if WITH_CLING
+### ROOT-6: ###
+
+rootmap_DATA += .libs/libBATmodels_rdict.pcm
+
+libBATmodels_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCLING) -f $@.tmp -s libBATmodels@SHLIBEXT@ -rml libBATmodels@SHLIBEXT@ -rmf libBATmodels.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
+	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
+	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^"]*/\)\?\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^"]*/\)\?\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@ && $(RM) $@.tmp
+	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' -i libBATmodels.rootmap
+
+.libs/libBATmodels.rootmap: libBATmodels.la
+	cp libBATmodels.rootmap libBATmodels_rdict.pcm .libs/
+
+.libs/libBATmodels_rdict.pcm: .libs/libBATmodels.rootmap
+
+else # not WITH_CLING
+### ROOT-5: ###
+
+libBATmodels_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
+
+.libs/libBATmodels.rootmap: libBATmodels.la | $(library_include_HEADERS) LinkDef.h
+	$(RLIBMAP) -o $@ -l .libs/libBATmodels@SHLIBEXT@ -c $|
+
+endif # WITH_CLING
