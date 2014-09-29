@@ -35,14 +35,18 @@ dist-hook: prep-docs
 prep-docs: BAT-intro.pdf BAT-quickstart.pdf
 
 BAT-intro.pdf:
-	cd $(top_srcdir)/doc/introduction \
-	make \
-	mv introduction.pdf $(distdir)/doc/BAT-intro.pdf
+	mkdir -p $(top_builddir)/doc/intro-tmp
+	cp -r $(top_srcdir)/doc/introduction/* $(top_builddir)/doc/intro-tmp
+	cd $(top_builddir)/doc/intro-tmp && $(MAKE) clean && $(MAKE)
+	mv $(top_builddir)/doc/intro-tmp/introduction.pdf $(distdir)/doc/BAT-intro.pdf
+	rm -rf $(top_builddir)/doc/intro-tmp
 
 BAT-quickstart.pdf:
-	cd $(top_srcdir)/doc/quickstart \
-	make \
-	mv quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
+	mkdir -p $(top_builddir)/doc/quick-tmp
+	cp -r $(top_srcdir)/doc/quickstart/* $(top_builddir)/doc/quick-tmp
+	cd $(top_builddir)/doc/quick-tmp && $(MAKE) clean && $(MAKE)
+	mv $(top_builddir)/doc/quick-tmp/quickstart.pdf $(distdir)/doc/BAT-quickstart.pdf
+	rm -rf $(top_builddir)/doc/quick-tmp
 
 if COND_PKGCONFIG
 pkgconfigdir = $(libdir)/pkgconfig
