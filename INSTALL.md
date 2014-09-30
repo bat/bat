@@ -144,24 +144,24 @@ manually add the path to `bat-config`, `bat.pc`, the libraries, and to
 the include files to the search paths. Depending on your shell you can
 do that via the commands
 
-    BATPREFIX=/bat/install/prefix
-    export PATH=$BATPREFIX/bin:$PATH
-    export LD_LIBRARY_PATH=$BATPREFIX/lib:$LD_LIBRARY_PATH
-    export CPATH=$BATPREFIX:$CPATH
-    export PKG_CONFIG_PATH=$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH
+    BATPREFIX="/bat/install/prefix"
+    export PATH="$BATPREFIX/bin:$PATH"
+    export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
+    export CPATH="$BATPREFIX:$CPATH"
+    export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 or
 
-    setenv BATINSTALLDIR     /bat/install/prefix
-    setenv LD_LIBRARY_PATH   $LD_LIBRARY_PATH:$BATINSTALLDIR/lib
-    setenv CPATH             $CPATH:$BATINSTALLDIR/include
+    set BATPREFIX = /bat/install/prefix
+    setenv PATH              "${BATPREFIX}/bin:${PATH}"
+    setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
+    setenv CPATH             "${BATPREFIX}/include:${CPATH}"
+    setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 for bash and csh compatible shells, respectively. On Mac OS X you
 might also need to setup `DYLD_LIBRARY_PATH`. If you want to make BAT
-permanently available, add the above commands to your `.profile`,
-`.bashrc`, or `.cshrc`.
-
-TODO Does `.cshrc` exist? How to set but not export variable in csh?
+permanently available, add the above commands to your `.bashrc` or
+`.tcshrc`.
 
 Note that `bat-config` needs to be on the `PATH` to compile the programs that ship with BAT in the `examples/` subdirectory.
 
