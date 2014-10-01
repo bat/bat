@@ -1,9 +1,3 @@
-/**
- * @file IntegrationModel.cxx
- *
- * @author Frederik Beaujean, <beaujean@mpp.mpg.de>
- * Created on: Feb 5, 2013
- */
 
 #include <IntegrationModel.h>
 
