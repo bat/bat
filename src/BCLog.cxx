@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2013, the BAT core developer team
+ * Copyright (C) 2007-2014, the BAT core developer team
  * All rights reserved.
  *
  * For the licensing terms see doc/COPYING.
@@ -131,7 +131,7 @@ void BCLog::StartupInfo()
                          " +------------------------------------------------------+\n"
                          " |                                                      |\n"
                          " | BAT version %7s                                  |\n"
-                         " | Copyright (C) 2007-2013, the BAT core developer team |\n"
+                         " | Copyright (C) 2007-2014, the BAT core developer team |\n"
                          " | All rights reserved.                                 |\n"
                          " |                                                      |\n"
                          " | For the licensing terms see doc/COPYING              |\n"
@@ -180,7 +180,7 @@ int printBATUponLoading()
     " +------------------------------------------------------+\n"
     " |                                                      |\n"
     " | BAT version " << std::setw(7) << VERSION << "                                  |\n"
-    " | Copyright (C) 2007-2013, the BAT core developer team |\n"
+    " | Copyright (C) 2007-2014, the BAT core developer team |\n"
     " | All rights reserved.                                 |\n"
     " |                                                      |\n"
     " | For the licensing terms see doc/COPYING              |\n"
