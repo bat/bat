@@ -281,6 +281,11 @@ class BCEngineMCMC
       BCH2D * MCMCGetH2Marginalized(unsigned i, unsigned j);
 
       /**
+       * @return Parameter set. */
+      const BCParameterSet & GetParameters() const
+         { return fParameters; }
+
+      /**
        * @param index The index of the parameter in the parameter set.
        * @return The parameter. */
       BCParameter * GetParameter(int index) const
