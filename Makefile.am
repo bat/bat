@@ -28,6 +28,27 @@ dist_bin_SCRIPTS = \
 	bat-config \
 	tools/bat-project
 
+# must not fix the installation dir at configure time,
+# so we have create the file. For the reasoning, see
+# https://www.gnu.org/software/autoconf/manual/autoconf-2.63/html_node/Installation-Directory-Variables.html#Installation-Directory-Variables
+
+edit = sed \
+	   -e 's|@datadir[@]|$(pkgdatadir)|g' \
+       -e 's|@prefix[@]|$(prefix)|g'
+
+tools/bat-project: Makefile $(srcdir)/tools/bat-project.in
+	rm -f $@ $@.tmp
+	$(edit) '$(srcdir)/$@.in' >$@.tmp
+	chmod +x $@.tmp
+	chmod a-w $@.tmp
+	mv $@.tmp $@
+
+dist_pkgdata_DATA = \
+	tools/Main1Template.cxx \
+	tools/Main2Template.cxx \
+	tools/ModelTemplate.h tools/ModelTemplate.cxx \
+	tools/MakefileTemplate
+
 dist-hook: prep-docs
 #	rm -f $(distdir)/src/*Dict.*
 #	rm -f $(distdir)/models/*Dict.*

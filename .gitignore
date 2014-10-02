@@ -41,6 +41,7 @@ bat-project
 # build support
 bat.pc
 bat-config
+tools/MakefileTemplate
 
 # Documentation
 doc/introduction/introduction.*
