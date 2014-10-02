@@ -3,7 +3,7 @@ CLEANFILES = *_rdict.* *_rdict_* *.rootmap
 lib_LTLIBRARIES= libBATmtf.la
 libBATmtf_la_LDFLAGS= -version-info 2:0:0
 
-AM_CXXFLAGS= -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
+AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared

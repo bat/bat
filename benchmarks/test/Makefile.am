@@ -10,7 +10,7 @@ CLEANFILES = \
 
 MAINTAINERCLEANFILES = Makefile.in
 
-AM_CXXFLAGS = -I$(top_srcdir) $(ROOTCFLAGS)
+AM_CXXFLAGS = $(ROOTAUXCFLAGS) -I$(top_srcdir) $(ROOTCFLAGS)
 
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
