@@ -32,7 +32,7 @@ stamp-h1
 
 # Results
 *.[oa]
-CreateProject.sh
+bat-project
 *.l[oa]
 *.libs
 *.Plo

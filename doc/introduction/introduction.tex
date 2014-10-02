@@ -168,7 +168,7 @@ used in the analysis (see next section).
 \item A main file in which the actual analysis is performed.
 \end{itemize}
 %
-The script \verb|BAT/tools/CreateProject.sh| can be used to create an
+The executable script \verb|BAT/tools/bat-project| can be used to create an
 empty analysis skeleton including the above listed files. This is a
 good starting point.
 
@@ -337,15 +337,14 @@ BCParameter::SetNbins(unsigned nbins)
 
 % --------------------------------------------------------
 
-\subsubsection{A skeleton created by the CreateProject.sh script}
+\subsubsection{A skeleton created by the bat-project script}
 \label{subsubsection:createproject}
 
-The \verb|CreateProject.sh| script in the \verb|tools| directory is a
-good starting point to implement a model and set up an analysis. Its
-usage is
+The \verb|bat-project| script is a good starting point to implement a
+model and set up an analysis. After installation, it is in the \verb|bin| subdirectory. Its usage is
 %
 \begin{verbatim}
-CreateProject.sh <project> [<model>]
+bat-project <project> [<model>]
 \end{verbatim}
 
 The script creates a new directory named \verb|<project>| and a new
@@ -358,7 +357,7 @@ for \verb|<model>|.  To only create the model class, use \verb|-| for
 \verb|<project>|.
 
 \begin{verbatim}
-./CreateProject.sh MyProject MyModel
+bat-project MyProject MyModel
 --------------------------------------------------------------------------
 The new BAT project was created in the directory 'MyProject'.
 To test the configuration try to compile the project by running 'make'
@@ -379,8 +378,8 @@ The include file will look like this
 %
 \begin{verbatim}
 // ***************************************************************
-// This file was created using the CreateProject.sh script.
-// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the bat-project script.
+// bat-project is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
@@ -418,8 +417,8 @@ like this
 %
 \begin{verbatim}
 // ***************************************************************
-// This file was created using the CreateProject.sh script.
-// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the bat-project script.
+// bat-project is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
@@ -506,9 +505,9 @@ and
 
 \begin{verbatim}
 // ***************************************************************
-// This file was created using the CreateProject.sh script
+// This file was created using the bat-project script
 // for project MyProject.
-// CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+// bat-project is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 

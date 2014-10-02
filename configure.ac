@@ -299,5 +299,5 @@ AC_OUTPUT(
 	examples/advanced/mvc/constraints/Makefile
 	examples/advanced/referencecounting/Makefile
 	examples/expert/TrialFunction/Makefile
-	tools/CreateProject.sh,[chmod a+x tools/CreateProject.sh]
+	tools/bat-project,[chmod a+x tools/bat-project]
 )

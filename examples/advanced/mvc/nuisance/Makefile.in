@@ -1,6 +1,6 @@
 ###################################################################
-# This Makefile was created using the CreateProject.sh script.
-# CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
+# This Makefile was created using the bat-project script.
+# bat-project is part of Bayesian Analysis Toolkit (BAT).
 # BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #

@@ -22,9 +22,11 @@ EXTRA_DIST= \
 	models/mvc/libBATmvc.rootmap \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
-	tools/CreateProject.sh.in
+	tools/bat-project.in
 
-dist_bin_SCRIPTS = bat-config
+dist_bin_SCRIPTS = \
+	bat-config \
+	tools/bat-project
 
 dist-hook: prep-docs
 #	rm -f $(distdir)/src/*Dict.*
