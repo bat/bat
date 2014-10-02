@@ -75,3 +75,18 @@ if COND_PKGCONFIG
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = bat.pc
 endif
+
+install-data-hook:
+	@echo
+	@echo "   ============================================================"
+	@echo "                   BAT INSTALLATION SUCCESSFUL!          "
+	@echo
+	@echo "In the bash, you can set up your enviroment with"
+	@echo
+	@echo 'export PATH="$(bindir):$$PATH"'
+	@echo 'export LD_LIBRARY_PATH="$(libdir):$$LD_LIBRARY_PATH"'
+	@echo 'export CPATH="$(includedir):$$CPATH"'
+	@echo 'export PKG_CONFIG_PATH="$(pkgconfigdir):$$PKG_CONFIG_PATH"'
+	@echo
+	@echo "   ============================================================"
+	@echo

@@ -147,7 +147,7 @@ do that via the commands
     BATPREFIX="/bat/install/prefix"
     export PATH="$BATPREFIX/bin:$PATH"
     export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
-    export CPATH="$BATPREFIX:$CPATH"
+    export CPATH="$BATPREFIX/include:$CPATH"
     export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
 
 or
