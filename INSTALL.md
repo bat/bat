@@ -47,7 +47,13 @@ http://www.feynarts.de/cuba/. BAT will compile and run with Cuba
 version 3.2 or later. Cuba is not necessary to run BAT, however, its
 use is recommended as it provides integration routines tuned for
 performance, which are useful for integration in problems with not too
-many dimensions (~15).
+many dimensions (~15). You need to compile the CUBA library as
+position-independent code to use it from BAT. For the `gcc`, install
+CUBA as
+
+    ./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
+    make
+    make install
 
 Building
 ----------------------
