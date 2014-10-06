@@ -16,7 +16,7 @@ The installation and functionality of BAT has also been tested on MAC OS X.
 
 Windows is not supported.
 
-Dependences
+Dependencies
 -------------
 
 ### Required: ROOT
@@ -26,7 +26,7 @@ from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version 5.22
 or later is needed to compile and run BAT. ROOT 6 is supported as
 well.
 
-Please check your linux distribution for the availability of
+Please check your Linux distribution for the availability of
 precompiled packages on your system. Many distributions offer the ROOT
 packages, albeit older versions. For example in Ubuntu 14.04, you can
 conveniently install the entire ROOT system through the package
@@ -86,7 +86,7 @@ the `-fopenmp` flag, anything >= 4.2 should suffice.  Note that if
 threads are enabled, the default number of threads actually used is
 implementation dependent and may also depend on the current load of
 the CPU. Manual control over the number of threads is achieved
-entirely by openMP means such as setting the enviroment variable
+entirely by openMP means such as setting the environment variable
 `OMP_NUM_THREADS` before running an executable.
 
 You can compile BAT with Cuba support using option
@@ -120,7 +120,7 @@ After a successful configuration, run
     make install
 
 to compile and install BAT. Note that depending on the setting of
-installation prefix you might need root priviledges to be able to
+installation prefix you might need root privileges to be able to
 install BAT and run `sudo make install` instead of plain 'make
 install'. In the former case, you might need to run `sudo ldconfig`
 just once to help the linker pick up the new libraries immediately.
@@ -196,6 +196,6 @@ to setup the `LD_LIBRARY_PATH` and the `CPATH`.
 Contact
 -------
 
-Please, consult the BAT webpage http://mpp.mpg.de/bat/ for further
+Please, consult the BAT web page http://mpp.mpg.de/bat/ for further
 information. You can also contact the authors directly via email:
 bat@mpp.mpg.de

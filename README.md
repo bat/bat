@@ -2,7 +2,7 @@ BAT - Bayesian Analysis Toolkit
 ===============================
 
 The Bayesian Analysis Toolkit is a software analysis package which allows
-to address the main goals of a typical data anaysis:
+to address the main goals of a typical data analysis:
 
  - compare model predictions with data,
  - draw conclusions on the validity of the model as a representation
@@ -65,6 +65,6 @@ Contact
 -------------
 
 For additional information and contacting the authors, please consult
-the BAT webpage at http://mpp.mpg.de/bat/. If you want to report an
+the BAT web page at http://mpp.mpg.de/bat/. If you want to report an
 error or file a request, please file an issue at
 https://github.com/bat/bat/issues.
