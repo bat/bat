@@ -31,6 +31,8 @@ incs = \
 	BCGraphFitter.h \
 	BCHistogramFitter.h
 
+linkdefs = LDef.h
+
 ## RooStats specific options
 if ROOSTATS
 incs += \
@@ -40,27 +42,12 @@ ADD_ROOINTERFACE_ROOTMAP = \
 	rm -f libBATmodels.rootmap; \
 	sed -e 's/$$/ libRooFit.so libRooFitCore.so libRooStats.so/' libBATmodels.rootmap.in > libBATmodels.rootmap; \
 	cat BCRooInterface.rootmap >> libBATmodels.rootmap
-endif
-## End of RooStats specific options
-
-
-linkdefs = LDef.h
-
-## RooStats specific options
-if ROOSTATS
-incs += \
-	BCRooInterface.h \
-	BATCalculator.h
-
 linkdefs += LDef_roostats.h
 endif
 ## End of RooStats specific options
 
-
 LinkDef.h: $(linkdefs)
 	cat $+ > $@
-
-
 
 library_include_HEADERS= $(incs)
 libBATmodels_la_SOURCES= \
@@ -77,13 +64,6 @@ clean-local:
 %.o : %.cxx
 	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 
-## RooStats specific targers
-#if ROOSTATS
-BATCalculatorDict.cxx : BATCalculator.h
-	$(ROOTCINT) -f $@ -c -I$(top_srcdir)/BAT $< BATCalculatorLinkDef.h
-#endif
-## End of RooStats specific targets
-
 install-exec-hook:
 	$(CREATE_SO_LINK)
 
@@ -99,10 +79,8 @@ install-data-hook:
 	done; \
 	rm -rf base-tmp;
 
-
 rootmapdir = $(libdir)
 rootmap_DATA = .libs/libBATmodels.rootmap
-
 
 if WITH_CLING
 ### ROOT-6: ###
