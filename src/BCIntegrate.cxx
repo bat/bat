@@ -2252,10 +2252,14 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    // we don't want dumps of internal state
    static const char * statefile = "";
 
-#if CUBAVERSION_33
    // only evaluate at one position in parameter space at a time
    static const int nvec = 1;
+
+#ifdef CUBAVERSION_40
+   // we have no spinning cores
+   static const int spin = 0;
 #endif
+
    // cuba returns info in these variables
    int fail = 0;
    int nregions = 0;
@@ -2274,14 +2278,15 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    case BCIntegrate::kCubaVegas:
       Vegas(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
-#if CUBAVERSION_33
             nvec,
-#endif
             fRelativePrecision, fAbsolutePrecision,
             fCubaVegasOptions.flags, fRandom->GetSeed(),
             fNIterationsMin, fNIterationsMax,
             fCubaVegasOptions.nstart, fCubaVegasOptions.nincrease, fCubaVegasOptions.nbatch,
             gridno, statefile,
+#ifdef CUBAVERSION_40
+            spin,
+#endif
             &fNIterations, &fail,
             &integral[0], &error[0], &prob[0]);
       break;
@@ -2289,14 +2294,15 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    case BCIntegrate::kCubaSuave:
       Suave(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
-#if CUBAVERSION_33
             nvec,
-#endif
             fRelativePrecision, fAbsolutePrecision,
             fCubaSuaveOptions.flags, fRandom->GetSeed(),
             fNIterationsMin, fNIterationsMax,
             fCubaSuaveOptions.nnew, fCubaSuaveOptions.flatness,
             statefile,
+#ifdef CUBAVERSION_40
+            spin,
+#endif
             &nregions, &fNIterations, &fail,
             &integral[0], &error[0], &prob[0]);
       break;
@@ -2310,9 +2316,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
          static const int nextra = ngiven;
          Divonne(nIntegrationVariables, ncomp,
                &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
-#if CUBAVERSION_33
                nvec,
-#endif
                fRelativePrecision, fAbsolutePrecision,
                fCubaDivonneOptions.flags, fRandom->GetSeed(),
                fNIterationsMin, fNIterationsMax,
@@ -2321,6 +2325,9 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
                fCubaDivonneOptions.maxchisq, fCubaDivonneOptions.mindeviation,
                ngiven, nIntegrationVariables /*ldxgiven*/, NULL, nextra, NULL,
                statefile,
+#ifdef CUBAVERSION_40
+            spin,
+#endif
                &nregions, &fNIterations, &fail,
                &integral[0], &error[0], &prob[0]);
       }
@@ -2332,13 +2339,14 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 
       Cuhre(nIntegrationVariables, ncomp,
             &BCIntegrate::CubaIntegrand, static_cast<void *>(this),
-#if CUBAVERSION_33
             nvec,
-#endif
             fRelativePrecision, fAbsolutePrecision,
             fCubaCuhreOptions.flags, fNIterationsMin, fNIterationsMax,
             fCubaCuhreOptions.key,
             statefile,
+#ifdef CUBAVERSION_40
+            spin,
+#endif
             &nregions, &fNIterations, &fail,
             &integral[0], &error[0], &prob[0]);
       break;
@@ -2540,7 +2548,7 @@ General::~General()
 
 /*
  * copy values from demo-c.c shipping with cuba 3.2
- * for three-dimensionsal examples.
+ * for three-dimensional examples.
  */
 
 Vegas::Vegas() :

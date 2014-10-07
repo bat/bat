@@ -64,19 +64,21 @@ AM_CONDITIONAL([THREAD_PARALLELIZATION], [test $parallelization = 1])
 dnl
 dnl Check for Cuba
 dnl
+cuba_min_version=3.3
+AC_DEFINE_UNQUOTED([CUBA_MIN_VERSION], [$cuba_min_version], [Minimum cuba version])
 AC_ARG_WITH(
 	[cuba],
 	[AS_HELP_STRING([--with-cuba[[=DIR]]],[compile with Cuba support (default no). Optional DIR is top of Cuba installation])],
 	[
 		use_cuba=yes
-		echo "compiling with Cuba support: requires version 3.2 or later"
+		echo "compiling with Cuba support: requires version $cuba_min_version or later"
 		echo "Checking $with_cuba"
 	],
 	[use_cuba=no]
 )
 
 AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    path to cuba.h file]))
-AC_ARG_WITH(cuba_lib_dir, AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
+AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 
 if test "x$use_cuba" != xno; then
 dnl check to see if lib and include can be determined automatically from $with_cuba
@@ -162,12 +164,12 @@ dnl if cuba just compiled, everything is in one directory
 		double * integral, *error, *prob;
 		Suave(
 		1, 1,
-		&integrand, 0, /* no nvec*/
+		&integrand, 0, 1,
 		0.1, 0.1,
 		0, 12345,
 		100, 200,
 		1, 2,
-		"",
+		"", 0, /* spinning cores */
 		nregions, niterations, fail,
 		integral, error, prob
 		);
@@ -176,14 +178,14 @@ dnl if cuba just compiled, everything is in one directory
 	}
 	]]
 	)],
-	[cuba_version=3.2
-	AC_DEFINE([CUBAVERSION_32], [1], [cuba interface version 3.2 detected])],
+	[cuba_version=4.0
+	AC_DEFINE([CUBAVERSION_40], [1], [cuba interface version 4.0 detected])],
 	[])
 	fi
 
 	if test x$cuba_version = x; then
 		AC_MSG_ERROR([This version of cuba does not match
-		the interface of the supported versions 3.2 and 3.3])
+		the interface of the supported version $cuba_min_version or later])
 	else
 		echo detected cuba matching the interface of version $cuba_version
 	fi
