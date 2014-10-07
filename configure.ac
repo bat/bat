@@ -271,11 +271,11 @@ AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
 
 # files that may not be part of the release but exist only in a checkout of the source repository
 if test -f "$srcdir/doc/introduction/versions.tex.in" ; then
-    AC_OUTPUT($srcdir/doc/introduction/versions.tex)
+    AC_OUTPUT(doc/introduction/versions.tex)
 fi
 
-if test -f "$srcdir/benchmarks/test/Makefile.in" ; then
-    AC_OUTPUT($srcdir/benchmarks/test/Makefile)
+if test -f "$srcdir/benchmarks/test/Makefile.am" ; then
+    AC_OUTPUT(benchmarks/test/Makefile)
 fi
 
 AC_OUTPUT(
