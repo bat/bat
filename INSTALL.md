@@ -28,7 +28,10 @@ well.
 
 Please check your linux distribution for the availability of
 precompiled packages on your system. Many distributions offer the ROOT
-packages, albeit older versions.
+packages, albeit older versions. For example in Ubuntu 14.04, you can
+conveniently install the entire ROOT system through the package
+`root-system`. However, if you rely on the optional `roostats`
+interface, you may still have to compile ROOT yourself.
 
 #### Note
 
