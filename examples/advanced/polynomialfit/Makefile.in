@@ -36,7 +36,7 @@ CXXSRCS      = \
 	Pol2Asymm.cxx
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
-GARBAGE      = $(CXXOBJS) *~ link.d
+GARBAGE      = $(CXXOBJS) asymmErrorsFitterExample *~ link.d
 
 all : asymmErrorsFitterExample
 
