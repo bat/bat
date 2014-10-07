@@ -22,11 +22,13 @@ Dependences
 ### Required: ROOT
 
 ROOT is an object-oriented data-analysis framework. You can obtain it
-from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version
-5.22 or later is needed to compile and run BAT. Please, check your
-linux distribution for the availability of precompiled packages on
-your system. Many distributions offer the ROOT packages, albeit older
-versions.
+from http://root.cern.ch/. Since BAT version 0.4.2 a ROOT version 5.22
+or later is needed to compile and run BAT. ROOT 6 is supported as
+well.
+
+Please check your linux distribution for the availability of
+precompiled packages on your system. Many distributions offer the ROOT
+packages, albeit older versions.
 
 #### Note
 
@@ -163,7 +165,11 @@ might also need to setup `DYLD_LIBRARY_PATH`. If you want to make BAT
 permanently available, add the above commands to your `.bashrc` or
 `.tcshrc`.
 
-Note that `bat-config` needs to be on the `PATH` to compile the programs that ship with BAT in the `examples/` subdirectory.
+Note that `bat-config` needs to be on the `PATH` to compile the
+programs that ship with BAT in the `examples/` subdirectory.
+
+The variable `CPATH` is required if you work with ROOT macros
+that use BAT (both for ROOT 5 and 6)
 
 Including BAT in your project
 -----------------------------
@@ -181,7 +187,8 @@ at runtime, for example in interactive ROOT macros, if
     libBATmtf.so, libBATmvc.so, libBAT.rootmap, libBATmodels.rootmap,
     libBATmtf.rootmap, libBATmvc.rootmap
 
-are not in the directories found be the library loader; see above how to setup the `LD_LIBRARY_PATH`.
+are not in the directories found be the library loader; see above how
+to setup the `LD_LIBRARY_PATH` and the `CPATH`.
 
 Contact
 -------
