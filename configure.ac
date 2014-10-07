@@ -82,10 +82,12 @@ AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        pat
 if test "x$use_cuba" != xno; then
 	if test "x$with_cuba" == xyes ; then
 		AC_PATH_PROG(cuba_bin_dir, [partview])
-		# up two levels: /usr/local/bin/partview -> /usr/local
-		with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
-		AC_MSG_CHECKING([for cuba in $with_cuba])
-		AC_MSG_RESULT(yes)
+		if test -f "x$cuba_bin_dir" ; then
+			# up two levels: /usr/local/bin/partview -> /usr/local
+			with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
+			AC_MSG_CHECKING([for cuba in $with_cuba])
+			AC_MSG_RESULT(yes)
+		fi
 	fi
 
 	dnl check to see if lib and include can be determined automatically from $with_cuba
@@ -117,7 +119,7 @@ if test "x$use_cuba" != xno; then
 		echo "checking for cuba.h in system default directories"
 	fi
 
-	AC_CHECK_HEADERS(cuba.h, [], [AC_MSG_ERROR([Could not find cuba.h; use --with-cuba-include-dir=DIR or compile without cuba])])
+	AC_CHECK_HEADERS(cuba.h, [], [AC_MSG_ERROR([Could not find cuba.h; use --with-cuba[[-include-dir]]=DIR or compile without cuba])])
 
 	cubaldflags=""
 	if test -n "$with_cuba_lib_dir"; then
