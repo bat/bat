@@ -14,12 +14,7 @@ SUBDIRS= \
 EXTRA_DIST= \
 	INSTALL.md \
 	README.md \
-	src/libBAT.rootmap \
-	models/base/BCRooInterface.rootmap \
-	models/base/libBATmodels.rootmap.in \
 	models/base/BATCalculatorLinkDef.h \
-	models/mtf/libBATmtf.rootmap \
-	models/mvc/libBATmvc.rootmap \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/bat-project.in
