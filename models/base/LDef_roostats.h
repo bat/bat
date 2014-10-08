@@ -1,5 +1,5 @@
-#ifndef LinkDef_h
-#define LinkDef_h
+#ifndef LDef_roostats_h
+#define LDef_roostats_h
 
 #ifdef __CINT__
 
@@ -10,9 +10,11 @@
 
 
 #pragma link C++ class BCRooInterface-;
-#pragma link C++ class RooStats::BATCalculator-;
+#pragma link C++ class RooStats::BATCalculator+;
+
+#pragma link C++ namespace RooStats;
 
 
 #endif
 
-#endif // LinkDef_h
+#endif // LDef_roostats_h

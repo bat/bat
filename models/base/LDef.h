@@ -1,5 +1,5 @@
-#ifndef LinkDef_h
-#define LinkDef_h
+#ifndef LDef_h
+#define LDef_h
 
 #ifdef __CINT__
 
@@ -17,4 +17,4 @@
 
 #endif
 
-#endif // LinkDef_h
+#endif // LDef_h

@@ -14,7 +14,8 @@ SUBDIRS= \
 EXTRA_DIST= \
 	INSTALL.md \
 	README.md \
-	models/base/BATCalculatorLinkDef.h \
+	models/base/LDef.h  \
+	models/base/LDef_roostats.h \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/bat-project.in
