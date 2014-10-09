@@ -82,7 +82,7 @@ AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        pat
 if test "x$use_cuba" != xno; then
 	if test "x$with_cuba" == xyes ; then
 		AC_PATH_PROG(cuba_bin_dir, [partview])
-		if test -f "x$cuba_bin_dir" ; then
+		if test -f "$cuba_bin_dir" ; then
 			# up two levels: /usr/local/bin/partview -> /usr/local
 			with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
 			AC_MSG_CHECKING([for cuba in $with_cuba])

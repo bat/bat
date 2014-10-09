@@ -2257,7 +2257,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
 
 #ifdef CUBAVERSION_40
    // we have no spinning cores
-   static const int spin = 0;
+   int * spin = 0;
 #endif
 
    // cuba returns info in these variables
