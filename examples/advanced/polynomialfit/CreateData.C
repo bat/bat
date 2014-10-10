@@ -31,7 +31,7 @@
  *    root[2] CreateData("data01.txt"")
  */
 
-#include <fstream.h>
+#include <fstream>
 
 void CreateData(const char * fname = "data.txt")
 {
