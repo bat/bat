@@ -1,17 +1,12 @@
 CLEANFILES = *_rdict.* *_rdict_* *.rootmap
 
-lib_LTLIBRARIES= libBATmodels.la
-libBATmodels_la_LDFLAGS= -version-info 4:0:0
-
 AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
-
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
-if CUBA
-AM_LDFLAGS += -lcuba
-libBATmodels_la_LDFLAGS += -lcuba
-endif
+lib_LTLIBRARIES= libBATmodels.la
+libBATmodels_la_LDFLAGS= -version-info 4:0:0 
+libBATmodels_la_LIBADD = 
 
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
@@ -35,13 +30,12 @@ linkdefs = LDef.h
 
 ## RooStats specific options
 if ROOSTATS
+libBATmodels_la_LDFLAGS += -L$(ROOTLIBDIR)
+libBATmodels_la_LIBADD += -lRooFitCore -lRooFit -lRooStats -lFoam
+
 incs += \
 	BCRooInterface.h \
 	BATCalculator.h
-ADD_ROOINTERFACE_ROOTMAP = \
-	rm -f libBATmodels.rootmap; \
-	sed -e 's/$$/ libRooFit.so libRooFitCore.so libRooStats.so/' libBATmodels.rootmap.in > libBATmodels.rootmap; \
-	cat BCRooInterface.rootmap >> libBATmodels.rootmap
 linkdefs += LDef_roostats.h
 endif
 ## End of RooStats specific options

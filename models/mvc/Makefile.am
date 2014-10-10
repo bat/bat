@@ -8,16 +8,11 @@ AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
-if CUBA
-AM_LDFLAGS += -lcuba
-libBATmvc_la_LDFLAGS += -lcuba
-endif
-
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else !DEBUG
+else 
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
-endif !DEBUG
+endif
 
 if IS_DARWIN
 CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmvc.so; ln -s libBATmvc.dylib libBATmvc.so
