@@ -5,8 +5,8 @@ AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
 lib_LTLIBRARIES= libBATmodels.la
-libBATmodels_la_LDFLAGS= -version-info 4:0:0 
-libBATmodels_la_LIBADD = 
+libBATmodels_la_LDFLAGS= -version-info 4:0:0 -L$(ROOTLIBDIR)
+libBATmodels_la_LIBADD = $(top_builddir)/src/libBAT.la $(ROOTLIBS)
 
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
@@ -30,9 +30,6 @@ linkdefs = LDef.h
 
 ## RooStats specific options
 if ROOSTATS
-libBATmodels_la_LDFLAGS += -L$(ROOTLIBDIR)
-libBATmodels_la_LIBADD += -lRooFitCore -lRooFit -lRooStats -lFoam
-
 incs += \
 	BCRooInterface.h \
 	BATCalculator.h

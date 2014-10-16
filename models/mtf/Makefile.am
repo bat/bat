@@ -1,8 +1,5 @@
 CLEANFILES = *_rdict.* *_rdict_* *.rootmap
 
-lib_LTLIBRARIES= libBATmtf.la
-libBATmtf_la_LDFLAGS= -version-info 2:0:0
-
 AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
@@ -17,6 +14,10 @@ endif
 if IS_DARWIN
 CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmtf.so; ln -s libBATmtf.dylib libBATmtf.so
 endif
+
+lib_LTLIBRARIES= libBATmtf.la
+libBATmtf_la_LDFLAGS= -version-info 2:0:0 -L$(ROOTLIBDIR)
+libBATmtf_la_LIBADD = $(top_builddir)/src/libBAT.la $(ROOTLIBS)
 
 library_includedir= $(includedir)/BAT
 
