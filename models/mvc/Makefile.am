@@ -38,12 +38,6 @@ nodist_libBATmvc_la_SOURCES= \
 
 BUILT_SOURCES = libBATmvc_rdict.cxx
 
-clean-local:
-	rm -f *.o *.lo *Dict.*
-
-%.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
-
 install-exec-hook:
 	$(CREATE_SO_LINK)
 

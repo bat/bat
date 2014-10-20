@@ -57,12 +57,6 @@ nodist_libBAT_la_SOURCES= \
 
 BUILT_SOURCES = libBAT_rdict.cxx
 
-clean-local:
-	rm -f *.o *.lo *Dict.*
-
-%.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
-
 install-exec-hook:
 	$(CREATE_SO_LINK)
 

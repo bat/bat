@@ -40,15 +40,8 @@ nodist_libBATmtf_la_SOURCES= \
 
 BUILT_SOURCES = libBATmtf_rdict.cxx
 
-clean-local:
-	rm -f *.o *.lo *Dict.*
-
-%.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
-
 install-exec-hook:
 	$(CREATE_SO_LINK)
-
 
 install-data-hook:
 	mkdir -p mtf-tmp; \

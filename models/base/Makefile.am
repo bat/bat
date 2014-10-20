@@ -1,4 +1,4 @@
-CLEANFILES = *_rdict.* *_rdict_* *.rootmap
+CLEANFILES = *_rdict.* *_rdict_* *.rootmap LinkDef.h
 
 AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 AM_LDFLAGS= -O
@@ -48,12 +48,6 @@ nodist_libBATmodels_la_SOURCES= \
 	libBATmodels_rdict.cxx
 
 BUILT_SOURCES = libBATmodels_rdict.cxx LinkDef.h
-
-clean-local:
-	rm -f *.o *.lo *Dict.* libBATmodels.rootmap
-
-%.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
