@@ -6,6 +6,7 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
+#include <config.h>
 #include "GaussModel.h"
 #include "test.h"
 
@@ -20,9 +21,9 @@ class BCSummaryToolTest :
 public:
    BCSummaryToolTest():
       TestCase("BCSummaryTool"),
-      file_corr("BCSummaryTool_TEST_summary_corr.pdf"),
-      file_par("BCSummaryTool_TEST_summary_par.pdf"),
-      file_upd("BCSummaryTool_TEST_summary_upd.pdf")
+      file_corr(BAT_TESTDIR "BCSummaryTool_TEST_summary_corr.pdf"),
+      file_par(BAT_TESTDIR "BCSummaryTool_TEST_summary_par.pdf"),
+      file_upd(BAT_TESTDIR "BCSummaryTool_TEST_summary_upd.pdf")
    {
    }
 

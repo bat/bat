@@ -5,6 +5,7 @@
  * For the licensing terms see doc/COPYING.
  */
 
+#include <config.h>
 #include "GaussModel.h"
 #include "test.h"
 
@@ -20,8 +21,8 @@ class BCModelTest :
 public:
    BCModelTest():
       TestCase("BCModel")
-{
-}
+   {
+   }
 
    /*!
     * check that the right marginal distributions are defined
@@ -30,7 +31,7 @@ public:
    static void count_marginals(BCModel & m, unsigned fixed)
    {
       m.MarginalizeAll();
-      const unsigned nplots = m.PrintAllMarginalized("BCModel_TEST.pdf");
+      const unsigned nplots = m.PrintAllMarginalized(BAT_TESTDIR "BCModel_TEST.pdf");
       // 1D + 2D
       TEST_CHECK_EQUAL(nplots, (m.GetNParameters() - 1) +
                        (m.GetNParameters() - 2) * (m.GetNParameters() - 1) / 2);

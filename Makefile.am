@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
-ACLOCAL = aclocal
-AUTOMAKE= automake
+ACLOCAL  = aclocal
+AUTOMAKE = automake
 
 clean-local:
 	rm -rf autom4te.cache
@@ -9,7 +9,8 @@ SUBDIRS= \
 	src \
 	models/base \
 	models/mtf \
-	models/mvc
+	models/mvc \
+	test
 
 EXTRA_DIST= \
 	INSTALL.md \
@@ -24,8 +25,8 @@ dist_bin_SCRIPTS = \
 	bat-config \
 	tools/bat-project
 
-# must not fix the installation dir at configure time,
-# so we have create the file. For the reasoning, see
+# Must not fix the installation dir at configure time,
+# so we have to create the file. For the reasoning, see
 # https://www.gnu.org/software/autoconf/manual/autoconf-2.63/html_node/Installation-Directory-Variables.html#Installation-Directory-Variables
 edit = sed \
 	-e 's|@datadir[@]|$(pkgdatadir)|g' \
@@ -45,8 +46,6 @@ dist_pkgdata_DATA = \
 	tools/MakefileTemplate
 
 dist-hook: prep-docs
-#	rm -f $(distdir)/src/*Dict.*
-#	rm -f $(distdir)/models/*Dict.*
 	rm -f $(distdir)/models/libBATmodels.rootmap
 	rm -rf `find $(distdir)/examples -name Makefile`
 

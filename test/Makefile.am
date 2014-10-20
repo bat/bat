@@ -1,10 +1,6 @@
 CLEANFILES = \
-	parallel_TEST_GaussModelSerial.root \
-	parallel_TEST_GaussModelParallel.root \
-	BCModel_TEST.pdf \
-	BCSummaryTool_TEST_summary_par.pdf \
-	BCSummaryTool_TEST_summary_corr.pdf \
-	BCSummaryTool_TEST_summary_upd.pdf \
+	*.pdf \
+	*.root \
 	*~ \
 	log.txt
 
@@ -31,8 +27,14 @@ TESTS = \
 	BCSummaryTool_TEST \
 	parallel_TEST
 
-LDADD = libBATtest.a $(top_builddir)/src/libBAT.la \
-		$(ROOTLIBS)
+LDADD = \
+	libBATtest.a \
+	$(top_builddir)/src/libBAT.la \
+	$(top_builddir)/models/base/libBATmodels.la \
+	$(top_builddir)/models/mvc/libBATmvc.la \
+	$(top_builddir)/models/mtf/libBATmtf.la \
+	$(ROOTLIBS)
+	
 LDFLAGS = -L$(ROOTLIBDIR)
 
 if CUBA
@@ -60,4 +62,3 @@ TESTS += BCIntegrate_TEST
 BCIntegrate_TEST_SOURCES = BCIntegrate_TEST.cxx
 LDADD += -lMathMore
 endif
-

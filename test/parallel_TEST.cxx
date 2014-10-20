@@ -97,8 +97,8 @@ public:
             num_iterations(100),
             plot(false),
             lag(1e5),
-            rootFileNameSerial("parallel_TEST_GaussModelSerial.root"),
-            rootFileNameParallel("parallel_TEST_GaussModelParallel.root")
+            rootFileNameSerial(BAT_TESTDIR "parallel_TEST_GaussModelSerial.root"),
+            rootFileNameParallel(BAT_TESTDIR "parallel_TEST_GaussModelParallel.root")
         {
 
         }
@@ -146,8 +146,8 @@ public:
 
     RunComparison(const RunComparison::Config & config) :
         config(config),
-        GaussModel_plots_Serial("parallel_TEST_GaussModel_plots_Serial.pdf"),
-        GaussModel_plots_Parallel("parallel_TEST_GaussModel_plots_Parallel.pdf"),
+        GaussModel_plots_Serial(BAT_TESTDIR "parallel_TEST_GaussModel_plots_Serial.pdf"),
+        GaussModel_plots_Parallel(BAT_TESTDIR "parallel_TEST_GaussModel_plots_Parallel.pdf"),
         seed(11)
     {
         CreateOutput(false);

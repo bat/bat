@@ -14,7 +14,7 @@ libtool
 ltmain.sh
 Makefile
 /Makefile.in
-/benchmarks/test/Makefile.in
+/test/Makefile.in
 /models/base/Makefile.in
 /models/mtf/Makefile.in
 /models/mvc/Makefile.in
