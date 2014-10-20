@@ -207,6 +207,25 @@ at runtime, for example in interactive ROOT macros, if
 are not in the directories found be the library loader; see above how
 to setup the `LD_LIBRARY_PATH` and the `CPATH`.
 
+Interactive ROOT macros
+-----------------------
+
+Due to problems in ROOT 6.02.00, it is important to create an instance
+of a BAT class before calling any free function defined in the BAT
+libraries. Else `cling` will emit confusing
+[error messages](https://github.com/bat/bat/issues/5). For example,
+the right order would be
+
+```cpp
+int main() {
+    BCLog::OpenLog("log.txt");
+    BCAux::SetStyle();
+    ...
+}
+```
+
+instead of the other way around around because `OpenLog` creates a singleton object.
+
 Contact
 -------
 
