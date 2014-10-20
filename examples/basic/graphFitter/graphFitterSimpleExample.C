@@ -30,7 +30,9 @@
 // Below are the includes needed for compilation of the macro
 // the #if ... #endif directives around the includes allow to
 // run the macro in both normal and compiled mode.
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#define COMPILER (!defined(__CINT__) && !defined(__CLING__))
+
+#if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
 
 #include <TGraphErrors.h>
 #include <TF1.h>
@@ -64,12 +66,12 @@ const double sigma  =  5.0;
 // ---------------------------------------------------------
 void graphFitterSimpleExample()
 {
-   // set nicer style for drawing than the ROOT default
-   BCAux::SetStyle();
-
    // open log file
    BCLog::OpenLog("log.txt");
    BCLog::SetLogLevel(BCLog::detail);
+
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
 
    // create data
    TGraphErrors * graph = CreateGraph(10, 1000);

@@ -30,24 +30,27 @@
 // Below are the includes needed for compilation of the macro.
 // The #if ... #endif directives around the includes allow to
 // run the macro in both normal and compiled mode.
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#define COMPILER (!defined(__CINT__) && !defined(__CLING__))
+
+#if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
 
 #include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCGraphFitter.h>
 #include <BAT/BCSummaryTool.h>
 
-#endif
-
-// The includes below need to be always present
-#include <fstream>
-#include <vector>
-
 #include <TGraphErrors.h>
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TRandom3.h>
 #include <TString.h>
+
+#include <fstream>
+#include <vector>
+
+#endif
+
+// The includes below need to be always present
 
 // By default the data in the file data/datax.txt are fitted. These
 // are the same data that are used for the example in the BAT paper
@@ -80,12 +83,12 @@ const double sigmay = 4.;
 // ----------------------------------------------------------------------
 void graphFitterAdvancedExample()
 {
-   // set nicer style for drawing than the ROOT default
-   BCAux::SetStyle();
-
    // open log file
    BCLog::OpenLog("log.txt");
    BCLog::SetLogLevel(BCLog::detail);
+
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
 
    // uncomment the next command if you want the data
    // to be generated randomly

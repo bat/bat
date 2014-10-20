@@ -27,31 +27,32 @@
 // Below are the includes needed for compilation of the macro
 // the #if ... #endif directives around the includes allow to
 // run the macro in both normal and compiled mode.
-#if !defined(__CINT__) || defined(__MAKECINT__)
+#define COMPILER (!defined(__CINT__) && !defined(__CLING__))
 
-#include <string>
-
-#include <TFile.h>
-#include <TH1D.h>
+#if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
 
 #include <BAT/BCAux.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCMTF.h>
 #include <BAT/BCMTFChannel.h>
 
-#endif
+#include <TFile.h>
+#include <TH1D.h>
 
+#include <string>
+
+#endif
 
 void twoChannels()
 {
    // ---- set style and open log files ---- //
 
-   // set nicer style for drawing than the ROOT default
-   BCAux::SetStyle();
-
    // open log file
    BCLog::OpenLog("log.txt");
    BCLog::SetLogLevel(BCLog::detail);
+
+   // set nicer style for drawing than the ROOT default
+   BCAux::SetStyle();
 
    // ---- read histograms from a file ---- //
 
