@@ -15,6 +15,7 @@ SUBDIRS= \
 EXTRA_DIST= \
 	INSTALL.md \
 	README.md \
+	readme.devel \
 	models/base/LDef.h  \
 	models/base/LDef_roostats.h \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
