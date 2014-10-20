@@ -3,11 +3,7 @@
 
 #ifdef __CINT__
 
-
-#pragma link off all globals;
-#pragma link off all classes;
-#pragma link off all functions;
-
+// No "pragma link off" statements here as this file comes after LDef.h .
 
 #pragma link C++ class BCRooInterface-;
 #pragma link C++ class RooStats::BATCalculator+;
