@@ -108,7 +108,9 @@ at runtime. This is accomplished, for example, by adding
 `/path/to/cuba/lib` to `LD_LIBRARY_PATH`. Please compile the Cuba library
 with position-independent code. For example,
 
-    ./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
+```bash
+./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
+```
 
 to avoid linker errors like
 
@@ -155,19 +157,23 @@ manually add the path to `bat-config`, `bat.pc`, the libraries, and to
 the include files to the search paths. Depending on your shell you can
 do that via the commands
 
-    BATPREFIX="/bat/install/prefix"
-    export PATH="$BATPREFIX/bin:$PATH"
-    export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
-    export CPATH="$BATPREFIX/include:$CPATH"
-    export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+```bash
+BATPREFIX="/bat/install/prefix"
+export PATH="$BATPREFIX/bin:$PATH"
+export LD_LIBRARY_PATH="$BATPREFIX/lib:$LD_LIBRARY_PATH"
+export CPATH="$BATPREFIX/include:$CPATH"
+export PKG_CONFIG_PATH="$BATPREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+```
 
 or
 
-    set BATPREFIX = /bat/install/prefix
-    setenv PATH              "${BATPREFIX}/bin:${PATH}"
-    setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
-    setenv CPATH             "${BATPREFIX}/include:${CPATH}"
-    setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+```bash
+set BATPREFIX = /bat/install/prefix
+setenv PATH              "${BATPREFIX}/bin:${PATH}"
+setenv LD_LIBRARY_PATH   "${BATPREFIX}/lib:${LD_LIBRARY_PATH}"
+setenv CPATH             "${BATPREFIX}/include:${CPATH}"
+setenv PKG_CONFIG_PATH   "${BATPREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+```
 
 for bash and csh compatible shells, respectively. On Mac OS X you
 might also need to setup `DYLD_LIBRARY_PATH`. If you want to make BAT
@@ -185,7 +191,9 @@ Including BAT in your project
 
 The most basic way to compile and link a file `example.cxx` with BAT is
 
-    gcc `bat-config --cflags` `bat-config --libs` example.cxx -o
+```bash
+gcc `bat-config --cflags` `bat-config --libs` example.cxx -o
+```
 
 In makefile projects, simply add option for use in compiled programs
 would also be to add `bat-config --cflags` to CXXFLAGS and `bat-config
