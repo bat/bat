@@ -11,9 +11,9 @@
 #include "BCMVCPhysicsModel.h"
 #include "BCMVCObservable.h"
 
-#include <../../BAT/BCModel.h>
-#include <../../BAT/BCMath.h>
-#include <../../BAT/BCLog.h>
+#include "../../BAT/BCModel.h"
+#include "../../BAT/BCMath.h"
+#include "../../BAT/BCLog.h"
 
 // ---------------------------------------------------------
 BCMVCPhysicsModel::BCMVCPhysicsModel() : BCMVCombination()

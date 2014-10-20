@@ -25,10 +25,9 @@ stamp-h1
 /test-driver
 
 # ROOT
-*Dict.h
-*Dict.cxx
-*Dict*dict*
-#*.rootmap
+*_rdict.*
+*.rootmap
+models/base/LinkDef.h
 
 # Results
 *.[oa]
@@ -48,6 +47,8 @@ doc/introduction/introduction.*
 doc/introduction/versions.tex
 !doc/introduction/Makefile
 !doc/quickstart/Makefile
+*.el
+*.aux
 
 # Editors
 .autotools
@@ -55,42 +56,11 @@ doc/introduction/versions.tex
 .settings/org.eclipse*
 *~
 
-###
-# doc
-###
-*.el
-*.aux
-
-###
-# Examples
-###
-
-# outputs
-*log.txt
-*results.txt
+# plots
 *.pdf
-*.png
-*.root
-
-# Binaries
-asymmErrorsFitterExample
-ensembletest
-runAnomCouplings
-runCombineGaussians
-runCombination
-runEfficiency
-runErrorPropagation
-runMVCombination
-runMyCombination
-runMyFit
-runPoissonCounting
-runReferenceCounting
-runRooInterface
-runRootOutput
-runSystematics
-runTrialFunction
-sensitivity
-templatefit
+###
+# Examples, see examples/.gitignore
+###
 
 ###
 # Tests

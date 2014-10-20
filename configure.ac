@@ -9,6 +9,10 @@ AM_PROG_LIBTOOL
 AC_HEADER_STDC
 AC_FUNC_UTIME_NULL
 
+dnl Get filename extension for dynamic libraries:
+SHLIBEXT="${shrext_cmds}"
+AC_SUBST(SHLIBEXT)
+
 DEP_CFLAGS=""
 DEP_LIBS=""
 
@@ -60,23 +64,35 @@ AM_CONDITIONAL([THREAD_PARALLELIZATION], [test $parallelization = 1])
 dnl
 dnl Check for Cuba
 dnl
+cuba_min_version=3.3
+AC_DEFINE_UNQUOTED([CUBA_MIN_VERSION], [$cuba_min_version], [Minimum cuba version])
 AC_ARG_WITH(
 	[cuba],
-	[AS_HELP_STRING([--with-cuba[[=DIR]]],[compile with Cuba support (default no). Optional DIR is top of Cuba installation])],
+	[AS_HELP_STRING([--with-cuba[[=DIR]]],[compile with Cuba support (default no). Optional DIR is top of Cuba installation. If DIR is not given, the location is inferred from the partview executable.])],
 	[
 		use_cuba=yes
-		echo "compiling with Cuba support: requires version 3.2 or later"
-		echo "Checking $with_cuba"
+		echo "compiling with Cuba support: requires version $cuba_min_version or later"
 	],
 	[use_cuba=no]
 )
 
 AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    path to cuba.h file]))
-AC_ARG_WITH(cuba_lib_dir, AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
+AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 
 if test "x$use_cuba" != xno; then
-dnl check to see if lib and include can be determined automatically from $with_cuba
-dnl if cuba just compiled, everything is in one directory
+	if test "x$with_cuba" == xyes ; then
+		AC_PATH_PROG(cuba_bin_dir, [partview])
+		if test -f "$cuba_bin_dir" ; then
+			# up two levels: /usr/local/bin/partview -> /usr/local
+			with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
+			AC_MSG_CHECKING([for cuba in $with_cuba])
+			AC_MSG_RESULT(yes)
+		fi
+	fi
+
+	dnl check to see if lib and include can be determined automatically from $with_cuba
+	dnl if cuba just compiled, everything is in one directory
+
 	if test -z "$with_cuba_include_dir" ; then
 		if test -d "$with_cuba/include" ; then
 			with_cuba_include_dir="$with_cuba/include"
@@ -103,7 +119,7 @@ dnl if cuba just compiled, everything is in one directory
 		echo "checking for cuba.h in system default directories"
 	fi
 
-	AC_CHECK_HEADERS(cuba.h, [], [AC_MSG_ERROR([Could not find cuba.h; use --with-cuba-include-dir=DIR or compile without cuba])])
+	AC_CHECK_HEADERS(cuba.h, [], [AC_MSG_ERROR([Could not find cuba.h; use --with-cuba[[-include-dir]]=DIR or compile without cuba])])
 
 	cubaldflags=""
 	if test -n "$with_cuba_lib_dir"; then
@@ -158,12 +174,12 @@ dnl if cuba just compiled, everything is in one directory
 		double * integral, *error, *prob;
 		Suave(
 		1, 1,
-		&integrand, 0, /* no nvec*/
+		&integrand, 0, 1,
 		0.1, 0.1,
 		0, 12345,
 		100, 200,
 		1, 2,
-		"",
+		"", 0, /* spinning cores */
 		nregions, niterations, fail,
 		integral, error, prob
 		);
@@ -172,14 +188,14 @@ dnl if cuba just compiled, everything is in one directory
 	}
 	]]
 	)],
-	[cuba_version=3.2
-	AC_DEFINE([CUBAVERSION_32], [1], [cuba interface version 3.2 detected])],
+	[cuba_version=4.0
+	AC_DEFINE([CUBAVERSION_40], [1], [cuba interface version 4.0 detected])],
 	[])
 	fi
 
 	if test x$cuba_version = x; then
 		AC_MSG_ERROR([This version of cuba does not match
-		the interface of the supported versions 3.2 and 3.3])
+		the interface of the supported version $cuba_min_version or later])
 	else
 		echo detected cuba matching the interface of version $cuba_version
 	fi
@@ -250,10 +266,10 @@ if test $use_roostats = yes; then
 fi
 AM_CONDITIONAL([ROOSTATS], [test x$use_roostats = xyes])
 if test $use_roostats = yes; then
-   ROOTLIBS="$ROOTLIBS -lRooFitCore -lRooFit -lRooStats -lFoam"
+	ROOTLIBS="$ROOTLIBS -lRooFitCore -lRooFit -lRooStats -lFoam"
 fi
 
-DEP_CFLAGS="$DEP_CFLAGS $ROOTCFLAGS"
+DEP_CFLAGS="$DEP_CFLAGS $ROOTAUXCFLAGS $ROOTCFLAGS"
 DEP_LIBS="$DEP_LIBS -L$ROOTLIBDIR $ROOTLIBS"
 
 AC_SUBST(DEP_CFLAGS)
@@ -267,11 +283,11 @@ AM_CONDITIONAL([COND_PKGCONFIG], [test "$PKGCONFIG" != "false"])
 
 # files that may not be part of the release but exist only in a checkout of the source repository
 if test -f "$srcdir/doc/introduction/versions.tex.in" ; then
-    AC_OUTPUT($srcdir/doc/introduction/versions.tex)
+    AC_OUTPUT(doc/introduction/versions.tex)
 fi
 
-if test -f "$srcdir/benchmarks/test/Makefile.in" ; then
-    AC_OUTPUT($srcdir/benchmarks/test/Makefile)
+if test -f "$srcdir/benchmarks/test/Makefile.am" ; then
+    AC_OUTPUT(benchmarks/test/Makefile)
 fi
 
 AC_OUTPUT(

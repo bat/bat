@@ -14,12 +14,8 @@ SUBDIRS= \
 EXTRA_DIST= \
 	INSTALL.md \
 	README.md \
-	src/libBAT.rootmap \
-	models/base/BCRooInterface.rootmap \
-	models/base/libBATmodels.rootmap.in \
-	models/base/BATCalculatorLinkDef.h \
-	models/mtf/libBATmtf.rootmap \
-	models/mvc/libBATmvc.rootmap \
+	models/base/LDef.h  \
+	models/base/LDef_roostats.h \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
 	examples \
 	tools/bat-project.in
@@ -31,10 +27,9 @@ dist_bin_SCRIPTS = \
 # must not fix the installation dir at configure time,
 # so we have create the file. For the reasoning, see
 # https://www.gnu.org/software/autoconf/manual/autoconf-2.63/html_node/Installation-Directory-Variables.html#Installation-Directory-Variables
-
 edit = sed \
-	   -e 's|@datadir[@]|$(pkgdatadir)|g' \
-       -e 's|@prefix[@]|$(prefix)|g'
+	-e 's|@datadir[@]|$(pkgdatadir)|g' \
+	-e 's|@prefix[@]|$(prefix)|g'
 
 tools/bat-project: Makefile $(srcdir)/tools/bat-project.in
 	rm -f $@ $@.tmp

@@ -18,6 +18,7 @@ dnl The macro defines the following substitution variables
 dnl
 dnl    ROOTCONF           full path to root-config
 dnl    ROOTEXEC           full path to root
+dnl    ROOTCLING          full path to rootcling
 dnl    ROOTCINT           full path to rootcint
 dnl    ROOTLIBDIR         Where the ROOT libraries are
 dnl    ROOTINCDIR         Where the ROOT headers are
@@ -49,9 +50,19 @@ AC_DEFUN([ROOT_PATH],
   AC_PATH_PROG(ROOTCONF, root-config , no, $rootbin)
   AC_PATH_PROG(ROOTEXEC, root , no, $rootbin)
   AC_PATH_PROG(ROOTCINT, rootcint , no, $rootbin)
+  AC_PATH_PROG(ROOTCLING, rootcling, false, $rootbin)
+  AC_PATH_PROG(RLIBMAP, rlibmap, false, $rootbin)
+
+  if test "${ROOTCLING}" = false -a "${RLIBMAP}" = false; then
+    AC_MSG_ERROR([Need rootcling (ROOT-6) or rlibmap (ROOT-5).]);
+  fi
+
+  AM_CONDITIONAL([WITH_CLING], [test "${ROOTCLING}" != false])
 
   if test ! x"$ROOTCONF" = "xno" && \
-     test ! x"$ROOTCINT" = "xno" ; then
+     test ! x"$ROOTCINT" = "xno" && \
+     test ! x"$ROOTCLING" = "xno" && \
+     test ! x"$RLIBMAP" = "xno" ; then 
 
     # define some variables
     ROOTLIBDIR=`$ROOTCONF --libdir`

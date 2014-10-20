@@ -1,3 +1,5 @@
+CLEANFILES = *_rdict.* *_rdict_* *.rootmap
+
 lib_LTLIBRARIES= libBAT.la
 libBAT_la_LDFLAGS= -version-info 6:0:0
 
@@ -5,7 +7,7 @@ libBAT_la_LDFLAGS= -version-info 6:0:0
 libBAT_la_LDFLAGS += -L$(ROOTLIBDIR)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
-AM_CXXFLAGS= -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS)
+AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS)
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
@@ -50,18 +52,10 @@ libBAT_la_SOURCES= \
 	$(incs:.h=.cxx)
 
 nodist_libBAT_la_SOURCES= \
-	$(incs:.h=Dict.cxx)
+	libBAT_rdict.cxx
 
-BUILT_SOURCES = $(incs:.h=Dict.cxx)
 
-clean-local:
-	rm -f *.o *.lo *Dict.*
-
-%.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
-
-%Dict.cxx : $(top_srcdir)/BAT/%.h
-	$(ROOTCINT) -f $@ -c $<
+BUILT_SOURCES = libBAT_rdict.cxx
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
@@ -80,5 +74,35 @@ install-data-hook:
 	done; \
 	rm -rf src-tmp;
 
+
 rootmapdir = $(libdir)
-rootmap_DATA = libBAT.rootmap
+rootmap_DATA = .libs/libBAT.rootmap
+
+
+if WITH_CLING
+### ROOT-6: ###
+
+rootmap_DATA += .libs/libBAT_rdict.pcm
+
+libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCLING) -f $@.tmp -s libBAT@SHLIBEXT@ -rml libBAT@SHLIBEXT@ -rmf libBAT.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
+	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
+	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^"]*/\)\?\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^"]*/\)\?\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@ && $(RM) $@.tmp
+	$(SED) 's|\$$clingAutoload\$$\([^/""]\+/\)*|$$clingAutoload$$'$(PACKAGE)'/|; /.*DICTPAYLOAD(.*/,/.*)DICTPAYLOAD.*/ s|#include "\([^/"]\+/\)*\(.*\)"|#include <'$(PACKAGE)'/\2>|' -i $@
+	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' -i libBAT.rootmap
+
+.libs/libBAT.rootmap: libBAT.la
+	cp libBAT.rootmap libBAT_rdict.pcm .libs/
+
+.libs/libBAT_rdict.pcm: .libs/libBAT.rootmap
+
+else # not WITH_CLING
+### ROOT-5: ###
+
+libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
+
+.libs/libBAT.rootmap: libBAT.la | $(library_include_HEADERS) LinkDef.h
+	$(RLIBMAP) -o $@ -l .libs/libBAT@SHLIBEXT@ -c $|
+
+endif # WITH_CLING

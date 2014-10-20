@@ -1,25 +1,23 @@
-lib_LTLIBRARIES= libBATmvc.la
-libBATmvc_la_LDFLAGS= -version-info 0:0:0
+CLEANFILES = *_rdict.* *_rdict_* *.rootmap
 
-AM_CXXFLAGS= -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
+AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir) $(ROOTCFLAGS)
 
 AM_LDFLAGS= -O
 AM_SOFLAGS= -shared
 
-if CUBA
-AM_LDFLAGS += -lcuba
-libBATmvc_la_LDFLAGS += -lcuba
-endif
-
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else !DEBUG
+else 
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
-endif !DEBUG
+endif
 
 if IS_DARWIN
 CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBATmvc.so; ln -s libBATmvc.dylib libBATmvc.so
 endif
+
+lib_LTLIBRARIES= libBATmvc.la
+libBATmvc_la_LDFLAGS= -version-info 0:0:0 -L$(ROOTLIBDIR)
+libBATmvc_la_LIBADD = $(top_builddir)/src/libBAT.la $(ROOTLIBS)
 
 library_includedir= $(includedir)/BAT
 
@@ -36,18 +34,9 @@ libBATmvc_la_SOURCES= \
 	$(incs:.h=.cxx)
 
 nodist_libBATmvc_la_SOURCES= \
-	$(incs:.h=Dict.cxx)
+	libBATmvc_rdict.cxx
 
-BUILT_SOURCES = $(incs:.h=Dict.cxx)
-
-clean-local:
-	rm -f *.o *.lo *Dict.*
-
-%.o : %.cxx
-	$(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) -c $<
-
-%Dict.cxx : %.h
-	$(ROOTCINT) -f $@ -c -I$(top_srcdir) $<
+BUILT_SOURCES = libBATmvc_rdict.cxx
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
@@ -64,5 +53,35 @@ install-data-hook:
 	done; \
 	rm -rf mvc-tmp;
 
+
 rootmapdir = $(libdir)
-rootmap_DATA = libBATmvc.rootmap
+rootmap_DATA = .libs/libBATmvc.rootmap
+
+
+if WITH_CLING
+### ROOT-6: ###
+
+rootmap_DATA += .libs/libBATmvc_rdict.pcm
+
+libBATmvc_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCLING) -f $@.tmp -s libBATmvc@SHLIBEXT@ -rml libBATmvc@SHLIBEXT@ -rmf libBATmvc.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
+	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
+	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^"]*/\)\?\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^"]*/\)\?\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@ && $(RM) $@.tmp
+	$(SED) 's|\$$clingAutoload\$$\([^/""]\+/\)*|$$clingAutoload$$'$(PACKAGE)'/|; /.*DICTPAYLOAD(.*/,/.*)DICTPAYLOAD.*/ s|#include "\([^/"]\+/\)*\(.*\)"|#include <'$(PACKAGE)'/\2>|' -i $@
+	$(SED) 's|\(header \+\)\([^ ].*/\)\?\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' -i libBATmvc.rootmap
+
+.libs/libBATmvc.rootmap: libBATmvc.la
+	cp libBATmvc.rootmap libBATmvc_rdict.pcm .libs/
+
+.libs/libBATmvc_rdict.pcm: .libs/libBATmvc.rootmap
+
+else # not WITH_CLING
+### ROOT-5: ###
+
+libBATmvc_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
+
+.libs/libBATmvc.rootmap: libBATmvc.la | $(library_include_HEADERS) LinkDef.h
+	$(RLIBMAP) -o $@ -l .libs/libBATmvc@SHLIBEXT@ -c $|
+
+endif # WITH_CLING
