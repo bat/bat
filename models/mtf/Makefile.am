@@ -40,6 +40,8 @@ nodist_libBATmtf_la_SOURCES= \
 
 BUILT_SOURCES = libBATmtf_rdict.cxx
 
+EXTRA_DIST = LinkDef.h
+
 install-exec-hook:
 	$(CREATE_SO_LINK)
 

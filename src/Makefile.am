@@ -1,15 +1,15 @@
 CLEANFILES = *_rdict.* *_rdict_* *.rootmap
 
-lib_LTLIBRARIES= libBAT.la
-libBAT_la_LDFLAGS= -version-info 6:0:0
+lib_LTLIBRARIES = libBAT.la
+libBAT_la_LDFLAGS = -version-info 6:0:0
 
 # this fixes the linker error on ubuntu with gcc > 4.4 with missing reference to TCanvas(bool) etc.
 libBAT_la_LDFLAGS += -L$(ROOTLIBDIR)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
-AM_CXXFLAGS= $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS)
-AM_LDFLAGS= -O
-AM_SOFLAGS= -shared
+AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS)
+AM_LDFLAGS  = -O
+AM_SOFLAGS  = -shared
 
 if CUBA
 libBAT_la_LIBADD += -lcuba
@@ -22,8 +22,10 @@ AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
 endif
 
 if IS_DARWIN
-CREATE_SO_LINK= cd $(DESTDIR)$(libdir); rm -f libBAT.so; ln -s libBAT.dylib libBAT.so
+CREATE_SO_LINK = cd $(DESTDIR)$(libdir); rm -f libBAT.so; ln -s libBAT.dylib libBAT.so
 endif
+
+EXTRA_DIST = LinkDef.h
 
 library_includedir= $(includedir)/BAT
 
@@ -53,7 +55,6 @@ libBAT_la_SOURCES= \
 
 nodist_libBAT_la_SOURCES= \
 	libBAT_rdict.cxx
-
 
 BUILT_SOURCES = libBAT_rdict.cxx
 

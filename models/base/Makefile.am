@@ -49,6 +49,8 @@ nodist_libBATmodels_la_SOURCES= \
 
 BUILT_SOURCES = libBATmodels_rdict.cxx LinkDef.h
 
+EXTRA_DIST = LDef.h LDef_roostats.h
+
 install-exec-hook:
 	$(CREATE_SO_LINK)
 

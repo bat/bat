@@ -7,7 +7,7 @@ AM_SOFLAGS= -shared
 
 if DEBUG
 AM_CXXFLAGS += -g -O0 -Wall -Wextra -pedantic -Wno-long-long -Wno-unknown-pragmas
-else 
+else
 AM_CXXFLAGS += -O2 -Wno-unknown-pragmas
 endif
 
@@ -37,6 +37,8 @@ nodist_libBATmvc_la_SOURCES= \
 	libBATmvc_rdict.cxx
 
 BUILT_SOURCES = libBATmvc_rdict.cxx
+
+EXTRA_DIST = LinkDef.h
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
