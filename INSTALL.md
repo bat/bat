@@ -81,7 +81,7 @@ fails if ROOT is not installed. You can specify the `ROOTSYS` directory
 using `--with-rootsys=/path/to/rootsys`
 
 You can configure BAT with the RooFit/RooStats support using
-`--with-roostats`. The configure script will check whether the version of
+`--enable-roostats`. The configure script will check whether the version of
 ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
 support.
 

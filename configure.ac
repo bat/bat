@@ -221,9 +221,9 @@ AC_DEFUN(
 REQUIRE_ROOT_VERSION([5.22])
 
 dnl RooStats
-AC_ARG_WITH(
+AC_ARG_ENABLE(
 	[roostats],
-	[AS_HELP_STRING([--with-roostats],[compile with RooStats support (default no)])],
+	[AS_HELP_STRING([--enable-roostats],[compile with RooStats support (default no)])],
 	[
 		use_roostats=yes
 		REQUIRE_ROOT_VERSION([5.27.04])
