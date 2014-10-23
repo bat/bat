@@ -5,6 +5,12 @@ AUTOMAKE = automake
 clean-local:
 	rm -rf autom4te.cache
 
+# files build by configure on the user side
+DISTCLEANFILES = \
+	bat.pc \
+	tools/bat-project \
+	doc/introduction/versions.tex
+
 SUBDIRS= \
 	src \
 	models/base \
@@ -19,6 +25,8 @@ EXTRA_DIST= \
 	models/base/LDef.h  \
 	models/base/LDef_roostats.h \
 	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
+	doc/introduction/bat.pdf  doc/introduction/introduction.tex  doc/introduction/Makefile \
+	doc/quickstart/bat.pdf  doc/quickstart/Makefile  doc/quickstart/quickstart.tex \
 	examples \
 	tools/bat-project.in
 
@@ -54,7 +62,7 @@ prep-docs: BAT-intro.pdf BAT-quickstart.pdf
 
 BAT-intro.pdf:
 	mkdir -p $(top_builddir)/doc/intro-tmp
-	cp -r $(top_srcdir)/doc/introduction/* $(top_builddir)/doc/intro-tmp
+	cp -r $(top_srcdir)/doc/introduction/* $(top_builddir)/doc/introduction/versions.tex $(top_builddir)/doc/intro-tmp
 	cd $(top_builddir)/doc/intro-tmp && $(MAKE) clean && $(MAKE)
 	mv $(top_builddir)/doc/intro-tmp/introduction.pdf $(distdir)/doc/BAT-intro.pdf
 	rm -rf $(top_builddir)/doc/intro-tmp
