@@ -1,5 +1,4 @@
 TEXFILE = introduction
-EPSFILES = bat.eps
 
 .PHONY : latex clean
 
@@ -8,6 +7,7 @@ all: latex
 latex: $(TEXFILE).pdf
 
 %.pdf: %.tex
+	pdflatex $<
 	pdflatex $<
 	pdflatex $<
 

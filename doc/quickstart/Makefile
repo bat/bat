@@ -1,5 +1,4 @@
 TEXFILE = quickstart
-EPSFILES = bat.eps
 
 .PHONY : latex clean
 
