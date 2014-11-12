@@ -232,7 +232,7 @@ int BCMVCombination::ReadInput(std::string filename)
       if (index >= 0)
          infile >> pre;
 
-      else if (index < 0) {
+      else {
          // read properties of parameter
          infile >> min >> max >> priorshape;
 
