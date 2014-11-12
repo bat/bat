@@ -473,7 +473,7 @@ void BCH1D::Draw(std::string options, std::vector<double> intervals)
       else if (bandtype == 1) {
          prob_interval = GetSmallestInterval(xlow, xhigh, intervals[nbands-1-i]);
          hist_band = GetSmallestIntervalHistogram(intervals[nbands-1-i]);
-         for (int ibin = 1; ibin < hist_band->GetNbinsX(); ++ibin)
+         for (int ibin = 1; ibin <= hist_band->GetNbinsX(); ++ibin)
             hist_band->SetBinContent(ibin, hist_band->GetBinContent(ibin)*fHistogram->GetBinContent(ibin));
       }
       else if(bandtype == 2) {
