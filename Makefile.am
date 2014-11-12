@@ -24,7 +24,7 @@ EXTRA_DIST= \
 	readme.devel \
 	models/base/LDef.h  \
 	models/base/LDef_roostats.h \
-	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.txt \
+	doc/COPYING doc/CREDITS doc/LICENSE doc/ChangeLog doc/releasenotes.md \
 	doc/introduction/bat.pdf  doc/introduction/introduction.tex  doc/introduction/Makefile \
 	doc/quickstart/bat.pdf  doc/quickstart/Makefile  doc/quickstart/quickstart.tex \
 	examples \

@@ -34,7 +34,7 @@ README.md
 INSTALL.md
 
 When making the version for the public release also provide new release notes
-(file doc/releasenotes.txt).
+(file doc/releasenotes.md).
 
 The changes in the configure.ac only take effect after running autogen.sh script
 described above. To make the release tarball, run
