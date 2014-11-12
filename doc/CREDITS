@@ -1,5 +1,5 @@
 
-This file lists the people who contributed to the BAT project as of 27.09.2013
+This file lists the people who contributed to the BAT project as of 12.11.2014
 
 
 Authors:
@@ -8,8 +8,9 @@ Authors:
 Allen Caldwell    -  MPI for Physics, Munich, Germany
 Daniel Kollar     -  Nürnberg, Germany
 Kevin Kröninger   -  TU Dortmund University, Germany
-Frederik Beaujean -  Technical University Munich, Germany
+Frederik Beaujean -  Ludwig Maximilians University, Munich, Germany
 Daniel Greenwald  -  Technical University Munich, Germany
+Oliver Schulz     -  MPI for Physics, Munich, Germany
 
 Contributors in alphabetical order:
 -----------------------------------
@@ -26,6 +27,10 @@ Jing Liu
   - MPI for Physics, Munich, Germany
   - test suite for MCMC performance
 
+Sankalp Sardana
+  - Punjab University, India
+  - thread parallelization of MCMC
+
 Stefan Schmitz
   - RWTH Aachen University, Germany
   - RooFit/RooStats interface
@@ -33,4 +38,3 @@ Stefan Schmitz
 Gregory Schott
   - University of Karlsruhe, Germany
   - RooFit/RooStats interface
-
