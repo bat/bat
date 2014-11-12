@@ -84,7 +84,7 @@ install-data-hook:
 	@echo "   ============================================================"
 	@echo "                   BAT INSTALLATION SUCCESSFUL!          "
 	@echo
-	@echo "In the bash, you can set up your enviroment with"
+	@echo "In the bash, you can set up your environment with"
 	@echo
 	@echo 'export PATH="$(bindir):$$PATH"'
 	@echo 'export LD_LIBRARY_PATH="$(libdir):$$LD_LIBRARY_PATH"'
