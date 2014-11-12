@@ -18,7 +18,7 @@ version="@PACKAGE_VERSION@"
 # use the full name of this script to get the current path
 configpath=`dirname ${0}`
 # check for a leading slash to determine if this is a relative path
-firstc=`expr ${configpath} : /`
+firstc=`expr "${configpath}" : "^\/"`
 calldir=`pwd`
 if [ ${firstc} -eq 0 ]
 then
