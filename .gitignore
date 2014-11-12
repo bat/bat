@@ -24,6 +24,9 @@ stamp-h1
 *.status
 /test-driver
 
+# separate build subdirectory
+build*/
+
 # ROOT
 *_rdict.*
 *.rootmap
