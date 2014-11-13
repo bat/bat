@@ -1417,6 +1417,10 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
 
    // count plots
    unsigned n = 0;
+
+   // open file for printing
+   c.Print(std::string( filename + "[").c_str());
+
    for (unsigned i = 0; i < fParameters.Size(); ++i) {
       BCH1D * h = GetMarginalized(i);
       h1.push_back(h);
@@ -1427,12 +1431,8 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
 
       // if current page is full, switch to new page
       if (n != 0 && n % (hdiv * vdiv) == 0) {
-         if ( n <= (hdiv * vdiv)) {
-            c.Print(std::string( filename + "(").c_str());
-         }
-         else {
-            c.Print(filename.c_str());
-         }
+         c.Print(filename.c_str());
+         c.Clear("D");
       }
 
       // go to next pad
@@ -1442,6 +1442,12 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
 
       if (++n % 100 == 0)
          BCLog::OutDetail(Form(" --> %d plots done", n));
+   }
+
+   // print page if any were plots were drawn
+   if (n>0) {
+      c.Print(filename.c_str());
+      c.Clear("D");
    }
 
    // for clean up later
@@ -1461,8 +1467,9 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
          BCParameter * b = GetParameter(j);
 
          // if current page is full, switch to new page, but only if there is data to plot
-         if ((k != 0 && k % (hdiv * vdiv) == 0) || k == 0) {
+         if ((k != 0 && k % (hdiv * vdiv) == 0)) {
             c.Print(filename.c_str());
+            c.Clear("D");
          }
 
          // go to next pad
@@ -1477,17 +1484,21 @@ int BCIntegrate::PrintAllMarginalized(const char * file, std::string options1d, 
             continue;
 
          h2.back()->Draw(options2d);
-         k++;
+         ++k;
 
          if ((n + k) % 100 == 0)
             BCLog::OutDetail(Form(" --> %d plots done", n + k));
       }
    }
 
+   if (k>0) {
+      c.Print(filename.c_str());
+   }
+
    if ((n + k) > 100 && (n + k) % 100 != 0)
       BCLog::OutDetail(Form(" --> %d plots done", n + k));
 
-   c.Print(std::string( filename + ")").c_str());
+   c.Print(std::string( filename + "]").c_str());
 
    // return total number of drawn histograms
    return n + k;
