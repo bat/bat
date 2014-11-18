@@ -31,6 +31,18 @@
 #include <unistd.h>
 #include <iostream>
 
+namespace {
+// todo this should really throw an exception
+int HandleChdirError(int error_code, const std::string & caller, const std::string & dir)
+{
+   // horrible convention in BAT: 1 => no error
+   if (error_code == 0)
+      return 1;
+   BCLog::OutError((caller + ": could not change to " + dir).c_str());
+   return 0;
+}
+}
+
 // ---------------------------------------------------------
 BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF * mtf)
    : fRandom(new TRandom3(0))
@@ -685,10 +697,14 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 {
    BCLog::OutSummary(Form("Running single channel analysis in directory \'%s\'.",dirname));
 
+   // todo check error return values from filesystem operations
    // ---- create new directory ---- //
 
    mkdir(dirname, 0777);
-   chdir(dirname);
+   int ret = chdir(dirname);
+   if (ret) {
+      return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
+   }
 
    // ---- check options ---- //
 
@@ -958,7 +974,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
 
    // ---- change directory ---- //
 
-   chdir("../");
+   ret = chdir("../");
 
    BCLog::OutSummary("Single channel analysis ran successfully");
 
@@ -974,7 +990,11 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
    // ---- create new directory ---- //
 
    mkdir(dirname, 0777);
-   chdir(dirname);
+   int ret = chdir(dirname);
+   if (ret) {
+      return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
+   }
+
 
    // ---- check options ---- //
 
@@ -1197,7 +1217,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char * dirname,
 
    // ---- change directory ---- //
 
-   chdir("../");
+   ret = chdir("../");
 
    BCLog::OutSummary("Single channel analysis ran successfully");
 
@@ -1213,7 +1233,10 @@ int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, cons
    // ---- create new directory ---- //
 
    mkdir(dirname, 0777);
-   chdir(dirname);
+   int ret = chdir(dirname);
+   if (ret) {
+      return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
+   }
 
    // ---- loop over parameter values and perform analysis  ---- //
 
@@ -1243,7 +1266,7 @@ int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char * dirname, cons
 
    // ---- change directory ---- //
 
-   chdir("../");
+   ret = chdir("../");
 
    BCLog::OutSummary("Calibration analysis ran successfully");
 
