@@ -1,5 +1,5 @@
-BAT - Bayesian Analysis Toolkit 0.9.3
-=====================================
+BAT - Bayesian Analysis Toolkit
+===============================
 
 This document provides a short description of how to compile and use
 BAT on your computer.
