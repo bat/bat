@@ -74,7 +74,7 @@ doc/introduction/versions.tex
 *.php
 *.png
 *.tst
-runTestSuite.exe
+runTestSuite
 
 # unit tests
 *_TEST
