@@ -90,7 +90,7 @@ print :
 
 web :
 	tar -zcf web.tar.gz \
-	*.html \
+	*.php \
 	*.png \
 	*.pdf \
 	*.log
