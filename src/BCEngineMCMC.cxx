@@ -61,12 +61,43 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fRandom(new TRandom3())
 	, fMCMCTree(0)
 	, fMCMCTreeLoaded(false)
+	, fMCMCTreeReuseObservables(true)
 	, fParameterTree(0)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
 	MCMCSetRandomSeed(0);
 	
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObservables)
+	: fMCMCFlagWriteChainToFile(false)
+	, fMCMCFlagWritePreRunToFile(false)
+	, fMCMCOutputFile(0)
+	, fMCMCOutputFilename("")
+	, fMCMCOutputFileOption("")
+	, fMCMCOutputFileAutoclose(false)
+	, fMCMCScaleFactorLowerLimit(0)
+	, fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
+	, fMCMCEfficiencyMin(0.15)
+	, fMCMCEfficiencyMax(0.50)
+	, fMCMCFlagInitialPosition(1)
+	, fMCMCFlagOrderParameters(true)
+	, fMCMCPhase(BCEngineMCMC::MCMCUnsetPhase)
+	, fMCMCRValueUseStrict(false)
+	, fMCMCRValueCriterion(0.1)
+	, fMCMCRValueParametersCriterion(0.1)
+	, fRandom(new TRandom3())
+	, fMCMCTree(0)
+	, fMCMCTreeLoaded(false)
+	, fMCMCTreeReuseObservables(true)
+	, fParameterTree(0)
+{
+	SetName(name);
+	MCMCSetPrecision(BCEngineMCMC::kMedium);
+	MCMCSetRandomSeed(0);
+	LoadMCMC(filename,"","",reuseObservables);
 }
 
 // ---------------------------------------------------------
@@ -250,6 +281,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
 
 	 fMCMCTree       = 0;
 	 fMCMCTreeLoaded = false;
+	 fMCMCTreeReuseObservables = true;
 	 fParameterTree  = 0;
 	 fMCMCOutputFile = 0;
 	 fMCMCOutputFilename      = other.fMCMCOutputFilename;
@@ -681,7 +713,7 @@ void BCEngineMCMC::UpdateParameterTree() {
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::ValidMCMCTree(TTree * tree) {
+bool BCEngineMCMC::ValidMCMCTree(TTree * tree, bool checkObservables) {
 	if (!tree)
 		return false;
 	if (!tree->GetBranch("Chain"))
@@ -695,6 +727,10 @@ bool BCEngineMCMC::ValidMCMCTree(TTree * tree) {
 	for (unsigned i=0; i<GetNParameters(); ++i)
 		if (!tree->GetBranch(GetParameter(i)->GetSafeName().data()))
 			return false;
+	if (checkObservables)
+		for (unsigned i=0; i<GetNObservables(); ++i)
+			if (!tree->GetBranch(GetObservable(i)->GetSafeName().data()))
+				return false;
 	return true;
 }
 
@@ -710,101 +746,225 @@ bool BCEngineMCMC::ValidParameterTree(TTree * tree) {
 		return false;
 	// if (!tree->GetBranch("safe_name"))
 	// 	return false;
-	// if (!tree->GetBranch("latex_name"))
-	// 	return false;
+	if (!tree->GetBranch("latex_name"))
+	 	return false;
 	if (!tree->GetBranch("lower_limit"))
 		return false;
 	if (!tree->GetBranch("upper_limit"))
 		return false;
-	// if (!tree->GetBranch("precision"))
-	// 	return false;
-	// if (!tree->GetBranch("nbins"))
-	// 	return false;
-	// if (!tree->GetBranch("fill"))
-	// 	return false;
+	if (!tree->GetBranch("precision"))
+	 	return false;
+	if (!tree->GetBranch("nbins"))
+	 	return false;
+	if (!tree->GetBranch("fill"))
+	 	return false;
 	if (!tree->GetBranch("fixed"))
 		return false;
 	if (!tree->GetBranch("fixed_value"))
 		return false;
-	if (!tree->GetBranch("nchains"))
-		return false;
-	if (!tree->GetBranch("scale"))
-		return false;
+	// if (!tree->GetBranch("nchains"))
+	// 	return false;
+	// if (!tree->GetBranch("scale"))
+	// 	return false;
+	return true;
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::Load(std::string filename) {
-	fMCMCTreeLoaded = false;
+bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables) {
+	bool p_fill, p_fixed;
+	unsigned p_precision, p_nbins;
+	char p_name[200], p_latexname[200];
+	double p_lowerlimit, p_upperlimit, p_fixedvalue;
+	partree -> SetBranchAddress("name",p_name);
+	partree -> SetBranchAddress("latex_name",p_latexname);
+	partree -> SetBranchAddress("lower_limit",&p_lowerlimit);
+	partree -> SetBranchAddress("upper_limit",&p_upperlimit);
+	partree -> SetBranchAddress("precision",&p_precision);
+	partree -> SetBranchAddress("nbins",&p_nbins);
+	partree -> SetBranchAddress("fill",&p_fill);
+	partree -> SetBranchAddress("fixed",&p_fixed);
+	partree -> SetBranchAddress("fixed_value",&p_fixedvalue);
+	partree -> BuildIndex("parameter","index");
 
+	// load parameters
+	unsigned i = 0;
+	while ( partree->GetEntryNumberWithIndex(1,i) >= 0 ) {
+		partree -> GetEntryWithIndex(1,i);
+		BCParameter * Par = new BCParameter(p_name,p_lowerlimit,p_upperlimit,p_latexname);
+		if (p_fixed)
+			Par -> Fix(p_fixedvalue);
+		Par -> SetPrecision(p_precision);
+		Par -> FillHistograms(p_fill);
+		Par -> SetNbins(p_nbins);
+		AddParameter(Par);
+		++i;
+	}
+
+	// load user-defined observables
+	if (!reuseObservables)
+		return true;
+	fObservables.Clear(true);
+	i = 0;
+	while ( partree->GetEntryNumberWithIndex(0,i) >= 0 ) {
+		partree -> GetEntryWithIndex(0,i);
+		BCObservable * Obs = new BCObservable(p_name,p_lowerlimit,p_upperlimit,p_latexname);
+		Obs -> SetPrecision(p_precision);
+		Obs -> FillHistograms(p_fill);
+		Obs -> SetNbins(p_nbins);
+		AddObservable(Obs);
+		++i;
+	}
+	return true;
+}
+
+// --------------------------------------------------------
+bool BCEngineMCMC::ParameterTreeMatchesModel(TTree * partree, bool checkObservables) {
+	bool p_fixed;
+	char p_name[200];
+	double p_lowerlimit, p_upperlimit, p_fixedvalue;
+	partree -> SetBranchAddress("name",p_name);
+	partree -> SetBranchAddress("lower_limit",&p_lowerlimit);
+	partree -> SetBranchAddress("upper_limit",&p_upperlimit);
+	partree -> SetBranchAddress("fixed",&p_fixed);
+	partree -> SetBranchAddress("fixed_value",&p_fixedvalue);
+	partree -> BuildIndex("parameter","index");
+
+	// check parameters
+	for (unsigned i=0; i<GetNParameters(); ++i) {
+		if ( partree->GetEntryNumberWithIndex(1,i) < 0 ) {
+			BCLog::OutError("BCEngineMCMC::ParameterTreeMatchesModel : Parameter tree contains too few entries.");
+			return false;
+		}
+		partree -> GetEntryWithIndex(1,i);
+		if ( !GetParameter(i)->IsNamed(p_name) ) {
+			BCLog::OutError(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Parameter[%d]'s names do not match.",i));
+			return false;
+		}
+		if ( GetParameter(i)->GetLowerLimit() != p_lowerlimit )
+			BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of parameter \"%s\" does not match.",p_name));
+		if ( GetParameter(i)->GetUpperLimit() != p_upperlimit )
+			BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of parameter \"%s\" does not match.",p_name));
+		if ( GetParameter(i)->Fixed() != p_fixed )
+			BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match.",p_name));
+		if ( GetParameter(i)->Fixed() and GetParameter(i)->GetFixedValue() != p_fixedvalue )
+			BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Fixed value of parameter \"%s\" does not match.",p_name));
+	}
+	if (!checkObservables)
+		return true;
+	// check observables
+	for (unsigned i=0; i<GetNObservables(); ++i) {
+		if ( partree->GetEntryNumberWithIndex(0,i) < 0 ) {
+			BCLog::OutError("BCEngineMCMC::ParameterTreeMatchesModel : Parameters tree contains too few entries.");
+			return false;
+		}
+		partree -> GetEntryWithIndex(0,i);
+		if ( !GetObservable(i)->IsNamed(p_name) ) {
+			BCLog::OutError(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Observable[%d]'s names do not match.",i));
+			return false;
+		}
+		if ( GetObservable(i)->GetLowerLimit() != p_lowerlimit )
+			BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of observable \"%s\" does not match.",p_name));
+		if ( GetObservable(i)->GetUpperLimit() != p_upperlimit )
+			BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of observable \"%s\" does not match.",p_name));
+	}
+	return true;
+}
+
+// --------------------------------------------------------
+bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std::string parameterTreeName, bool reuseObservables) {
 	// save current directory
 	TDirectory * dir = gDirectory;
 
-	TFile * inputfile = TFile::Open(filename.c_str(),"UPDATE");
+	TFile * inputfile = TFile::Open(filename.c_str(),"READ");
 	if (!inputfile or inputfile->IsZombie()) {
-		BCLog::OutError("BCEngineMCMC::Load: Could not open file.");
+		BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC: Could not open file %s.",filename.data()));
 		gDirectory = dir;
-		return;
+		return false;
 	}
+
+	// set tree names if empty
+	if ( mcmcTreeName.empty() )		// default mcmc tree name
+		mcmcTreeName = TString::Format("%s_mcmc",GetSafeName().data());
+	if ( parameterTreeName.empty() ) // default parameter tree name
+		parameterTreeName = TString::Format("%s_parameters",GetSafeName().data());
+
+	TTree * mcmcTree = NULL;
+	inputfile -> GetObject(mcmcTreeName.data(),mcmcTree);
+	if ( !mcmcTree )
+		BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s",filename.data(),mcmcTreeName.data()));
+
+
+	TTree * parTree = NULL;
+	inputfile -> GetObject(parameterTreeName.data(),parTree);
+	if ( !parTree )
+		BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s",filename.data(),mcmcTreeName.data()));
 	
-	fMCMCTree = 0;
-	// find mcmc tree;
-	// preference given first to modelname_mcmc
-	inputfile -> GetObject(TString::Format("%s_mcmc",GetSafeName().data()),fMCMCTree);
-	if (!fMCMCTree or !ValidMCMCTree(fMCMCTree)) {							// if not found, look for any tree with right structure
-		fMCMCTree = 0;
-		// get list of exclusive keys to TTree's
-		std::vector<TKey*> keys;
-		TList * listofkeys = inputfile->GetListOfKeys();
-		TKey * key;
-		for (int k=0; k<listofkeys->GetEntries(); ++k) {
-			key = (TKey*)(listofkeys->At(k));
-			if (strcmp(key->GetClassName(),"TTree")!=0 and strcmp(key->GetClassName(),"TChain")!=0)
-				continue;
-			bool found = false;
-			for (unsigned i=0; i<keys.size() and !found; ++i)
-				if (strcmp(key->GetName(),keys[i]->GetName())==0) {
-					found = true;
-					if (key->GetCycle() > keys[i]->GetCycle())
-						keys[i] = key;
-				}
-			if (!found)
-				keys.push_back(key);
-		}
-		for (unsigned i=0; i<keys.size() and !fMCMCTree; ++i) {
-			fMCMCTree = (TTree*)(keys[i]->ReadObj());
-			if (!ValidMCMCTree(fMCMCTree))
-				fMCMCTree = 0;
-		}
-	}
-	if (!fMCMCTree) {
-		BCLog::OutError("BCEngineMCMC::Load: No valid MCMC TTree found in file.");
-		gDirectory = dir;
-		return;
-	}
-	fMCMCTreeLoaded = true;
 	gDirectory = dir;
+	return LoadMCMC(mcmcTree,parTree,reuseObservables);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
-	if (!tree)
-		tree = fMCMCTree;
-	if (!ValidMCMCTree(tree))
+bool BCEngineMCMC::LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObservables) {
+	fMCMCTreeLoaded = false;
+	fMCMCTreeReuseObservables = reuseObservables;
+
+	if (!mcmcTree or !parTree)
+		return false;
+
+	// load parameter tree
+	if ( !ValidParameterTree(parTree) ) {
+		BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid parameter tree");
+		return false;
+	}
+	if (fParameterTree)
+		delete fParameterTree;
+	fParameterTree = parTree;
+
+	// if parameters is empty
+	if ( GetNParameters() == 0 )
+		LoadParametersFromTree(fParameterTree,fMCMCTreeReuseObservables);
+	// else check parameter tree
+	else if ( !ParameterTreeMatchesModel(fParameterTree,fMCMCTreeReuseObservables) ) {
+		BCLog::OutError("BCEngineMCMC::LoadMCMC : Parameter tree does not match model.");
+		return false;
+	}
+
+	// check mcmc tree
+	if ( !ValidMCMCTree(mcmcTree,fMCMCTreeReuseObservables) ) {
+		BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid MCMC tree");
+		return false;
+	}
+	if (fMCMCTree)
+		delete fMCMCTree;
+	fMCMCTree = mcmcTree;
+
+	fMCMCTreeLoaded = true;
+	return true;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::Remarginalize(bool autorange) {
+	if (!ValidMCMCTree(fMCMCTree))
 		return;
 
-	tree -> SetBranchAddress("Chain",          &fMCMCTree_Chain);
-	tree -> SetBranchAddress("Iteration",      &fMCMCTree_Iteration);
-	tree -> SetBranchAddress("Phase",          &fMCMCPhase);
-	tree -> SetBranchAddress("LogProbability", &fMCMCTree_Prob);
+	fMCMCTree -> SetBranchAddress("Chain",          &fMCMCTree_Chain);
+	fMCMCTree -> SetBranchAddress("Iteration",      &fMCMCTree_Iteration);
+	fMCMCTree -> SetBranchAddress("Phase",          &fMCMCPhase);
+	fMCMCTree -> SetBranchAddress("LogProbability", &fMCMCTree_Prob);
 
 	fMCMCTree_Parameters.assign(GetNParameters(),0);
 	for (unsigned i=0; i<GetNParameters(); ++i)
-		tree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
+		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
+	if (fMCMCTreeReuseObservables) {
+		fMCMCTree_Observables.assign(GetNObservables(),0);
+		for (unsigned i=0; i<GetNObservables(); ++i)
+			fMCMCTree -> SetBranchAddress(GetObservable(i)->GetSafeName().data(),&fMCMCTree_Observables[i]);
+	}
 
 	// find out how many chains used to generate tree
 	fMCMCNChains = 0;
-	for (int n=0; n<tree->GetEntries(); ++n) {
-		tree -> GetEntry(n);
+	for (int n=0; n<fMCMCTree->GetEntries(); ++n) {
+		fMCMCTree -> GetEntry(n);
 		if (fMCMCNChains>0 and fMCMCTree_Chain==0)
 			break;
 		if (fMCMCTree_Chain+1>fMCMCNChains)
@@ -818,8 +978,8 @@ void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
 		// find min and max
 		std::vector<double> XMin(GetNVariables(),+std::numeric_limits<double>::infinity());
 		std::vector<double> XMax(GetNVariables(),-std::numeric_limits<double>::infinity());
-		for (int n=0; n<tree->GetEntries(); ++n) {
-			tree -> GetEntry(n);
+		for (int n=0; n<fMCMCTree->GetEntries(); ++n) {
+			fMCMCTree -> GetEntry(n);
 
 			if (fMCMCPhase<=0)
 				continue;
@@ -830,12 +990,21 @@ void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
 				if (fMCMCTree_Parameters[i]>XMax[i])
 					XMax[i] = fMCMCTree_Parameters[i];
 			}
-			CalculateObservables(fMCMCTree_Parameters);
-			for (unsigned i=fMCMCTree_Parameters.size(); i<XMin.size(); ++i) {
-				if (((BCObservable*)GetVariable(i))->Value() < XMin[i])
-					XMin[i] = ((BCObservable*)GetVariable(i))->Value();
-				if (((BCObservable*)GetVariable(i))->Value() > XMax[i])
-					XMax[i] = ((BCObservable*)GetVariable(i))->Value();
+			if (fMCMCTreeReuseObservables) {
+				for (unsigned i=0; i<fMCMCTree_Observables.size(); ++i) {
+					if (fMCMCTree_Observables[i]<XMin[i])
+						XMin[i] = fMCMCTree_Observables[i];
+					if (fMCMCTree_Observables[i]>XMax[i])
+						XMax[i] = fMCMCTree_Observables[i];
+				}
+			} else {
+				CalculateObservables(fMCMCTree_Parameters);
+				for (unsigned i=fMCMCTree_Parameters.size(); i<XMin.size(); ++i) {
+					if (((BCObservable*)GetVariable(i))->Value() < XMin[i])
+						XMin[i] = ((BCObservable*)GetVariable(i))->Value();
+					if (((BCObservable*)GetVariable(i))->Value() > XMax[i])
+						XMax[i] = ((BCObservable*)GetVariable(i))->Value();
+				}
 			}
 		}
 		// recreate histgrams
@@ -846,6 +1015,7 @@ void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
 				int nbins     = fH1Marginalized[i] -> GetNbinsX();
 				delete fH1Marginalized[i];
 				fH1Marginalized[i] = new TH1D(name,title,nbins,XMin[i],XMax[i]);
+				fH1Marginalized[i] -> SetStats(false);
 			}
 			for (unsigned j=0; j<GetNVariables(); ++j)
 				if (MarginalizedHistogramExists(i,j)) {
@@ -855,12 +1025,13 @@ void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
 					int nbinsy    = fH2Marginalized[i][j] -> GetNbinsY();
 					delete fH2Marginalized[i][j];
 					fH2Marginalized[i][j] = new TH2D(name,title,nbinsx,XMin[i],XMax[i],nbinsy,XMin[j],XMax[j]);
+					fH2Marginalized[i][j] -> SetStats(false);
 				}
 		}
 	}
 	
-	for (unsigned n=0; n<tree->GetEntries(); ++n) {
-		tree -> GetEntry(n);
+	for (unsigned n=0; n<fMCMCTree->GetEntries(); ++n) {
+		fMCMCTree -> GetEntry(n);
 
 		if (fMCMCTree_Prob > fMCMCLogMaximum) {
 			fMCMCBestFitParameters = fMCMCTree_Parameters;
@@ -873,17 +1044,19 @@ void BCEngineMCMC::MarginalizeFromTree(TTree * tree, bool autorange) {
 		fMCMCx[fMCMCTree_Chain]    = fMCMCTree_Parameters;
 		fMCMCprob[fMCMCTree_Chain] = fMCMCTree_Prob;
 		MCMCCurrentPointInterface(fMCMCx[fMCMCTree_Chain], fMCMCTree_Chain, true);
+		if (fMCMCTreeReuseObservables)
+			fMCMCObservables[fMCMCTree_Chain] = fMCMCTree_Observables;
 
 		if (fMCMCTree_Chain==fMCMCNChains-1) {
 			MCMCIterationInterface();
-			EvaluateObservables();
+			if ( !fMCMCTreeReuseObservables)
+				EvaluateObservables();
 			if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
 				MCMCInChainFillHistograms();
 		}
 
 	}
 	
-
 }
 
 // --------------------------------------------------------
@@ -2124,7 +2297,7 @@ int BCEngineMCMC::PrintAllMarginalized2D(const char * filebase) {
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv) {
+int BCEngineMCMC::PrintAllMarginalized(std::string filename, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv) {
 	if (fH1Marginalized.empty() and fH2Marginalized.empty()) {
 		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
 		return 0;
@@ -2132,40 +2305,57 @@ int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d,
 
 	 // Find nonempty H1's
    std::vector<BCH1D *> h1;
-   for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
-		 if (fH1Marginalized[i]) {
+   for (unsigned i = 0; i < GetNVariables(); ++i)
+		 if ( MarginalizedHistogramExists(i) ) {
+			 if (GetMarginalizedHistogram(i)->Integral()==0) { // histogram was never filled in range
+				 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data()));
+				 continue;
+			 }
 			 h1.push_back(GetMarginalized(i));
-      // check if histogram exists
-			 if (!h1.back())
+			 if (!h1.back()) // BCH1D doesn't exist
 				 h1.pop_back();
 		 }
 
 	 // Find nonempty H2's
    std::vector<BCH2D *> h2;
 	 // fill h2 vector in order (par vs par; obs vs par; obs vs obs)
-	 for (unsigned i = 0; i<GetNParameters() && i<fH2Marginalized.size(); ++i) {
-		 // parameter vs parameter
-		 for (unsigned j = i+1; j<GetNParameters() && j<fH2Marginalized[i].size(); ++j)
-			 if (fH2Marginalized[i][j]) {
+
+	 // parameter vs parameter
+	 for (unsigned i = 0; i<GetNParameters(); ++i)
+		 for (unsigned j = i+1; j<GetNParameters(); ++j)
+			 if ( MarginalizedHistogramExists(i,j) ) {
+				 if (fH2Marginalized[i][j]->Integral()==0) { // histogram was never filled in range
+					 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
+					 continue;
+				 }
+				 h2.push_back(GetMarginalized(i,j));
+				 if (!h2.back()) // BCH2D doesn't exist
+					 h2.pop_back();
+			 }
+	 
+		 // user-defined observable vs parameter
+	 for (unsigned i = 0; i<GetNParameters(); ++i)
+		 for (unsigned j = GetNParameters(); j<GetNVariables(); ++j)
+			 if ( MarginalizedHistogramExists(i,j) ) {
+				 if (GetMarginalizedHistogram(i,j)->Integral()==0) { // histogram was never filled in range
+					 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
+					 continue;
+				 }
 				 h2.push_back(GetMarginalized(i,j));
 				 // check if histogram exists
 				 if (!h2.back())
 					 h2.pop_back();
 			 }
-		 // user-defined observable vs parameter
-		 for (unsigned j = 0; j<GetNObservables() && j+GetNParameters()<fH2Marginalized[i].size(); ++j)
-			 if (fH2Marginalized[i][j+GetNParameters()]) {
-				 h2.push_back(GetMarginalized(i,j+GetNParameters()));
-				 // check if histogram exists
-				 if (!h2.back())
-					 h2.pop_back();
-			 }
-	 }
-	 // user-defined observable vs user-define observable
-	 for (unsigned i = 0; i<GetNObservables() && i+GetNParameters()<fH2Marginalized.size(); ++i)
-		 for (unsigned j = i+1; j<GetNObservables() && j+GetNParameters()<fH2Marginalized[i].size(); ++j)
-			 if (fH2Marginalized[i+GetNParameters()][j+GetNParameters()]) {
-				 h2.push_back(GetMarginalized(i+GetNParameters(),j+GetNParameters()));
+
+	 // user-defined observable vs user-defined observable
+	 for (unsigned i = GetNParameters(); i<GetNVariables(); ++i)
+		 for (unsigned j = i+1; j<GetNVariables(); ++j)
+			 if ( MarginalizedHistogramExists(i,j) ) {
+				 if (GetMarginalizedHistogram(i,j)->Integral()==0) { // histogram was never filled in range
+					 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
+					 continue;
+				 }
+				 h2.push_back(GetMarginalized(i,j));
 				 // check if histogram exists
 				 if (!h2.back())
 					 h2.pop_back();
@@ -2176,57 +2366,33 @@ int BCEngineMCMC::PrintAllMarginalized(const char * file, std::string options1d,
 		 return 0;
 	 }
 
+	 // set default drawing options
 	 if (options1d.empty())
 		 options1d = "BTsiB3CS1D0pdf0Lmeanmode";
 	 if (options2d.empty())
 		 options2d = "BTfB3CS1meangmode";
 
-   std::string filename(file);
-
-   // check if file extension does not exist or is not pdf or ps
+   // if file has no extension or if it's not ".pdf" or ".ps", make it ".pdf"
    if ( (filename.find_last_of(".") == std::string::npos) or
-         ((filename.substr(filename.find_last_of(".")+1) != "pdf") and
-               (filename.substr(filename.find_last_of(".")+1) != "ps"))) {
-      // make it a PDF file
-      filename += ".pdf";
-   }
+				((filename.substr(filename.find_last_of(".")) != ".pdf") and	(filename.substr(filename.find_last_of(".")) != ".ps")))
+		 filename += ".pdf";
 
-   int c_width  = gStyle->GetCanvasDefW(); // default canvas width
-   int c_height = gStyle->GetCanvasDefH(); // default canvas height
-
-   if (hdiv > vdiv) {
-      if (hdiv > 3) {
-         c_width = 1000;
-         c_height = 700;
-      }
-      else {
-         c_width = 800;
-         c_height = 600;
-      }
-   }
-   else if (hdiv < vdiv) {
-      if (hdiv > 3) {
-         c_height = 1000;
-         c_width = 700;
-      }
-      else {
-         c_height = 800;
-         c_width = 600;
-      }
-   }
+	 int c_width  = 297*4;
+	 int c_height = 210*4;
+	 if (hdiv < vdiv)
+		 std::swap(c_width,c_height);
 
    const unsigned nplots = h1.size() + h2.size();
 
    // give out warning if too many plots
-   BCLog::OutSummary(Form("Printing all marginalized distributions (%d x 1D + %d x 2D = %d) into file %s",
-                          (int)h1.size(), (int)h2.size(), nplots, filename.c_str()));
+   BCLog::OutSummary(Form("Printing all marginalized distributions (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.c_str()));
    if (nplots > 100)
-      BCLog::OutDetail("This can take a while...");
-
+		 BCLog::OutDetail("This can take a while...");
+	 
    // setup the canvas and file
    TCanvas c("c", "canvas", c_width, c_height);
    c.Divide(hdiv, vdiv);
-	 c.Print(std::string( filename + "[").c_str());
+	 c.Print((filename+"[").data());
 
 	 // Draw BCH1D's
    for (unsigned i = 0; i < h1.size(); ++i) {

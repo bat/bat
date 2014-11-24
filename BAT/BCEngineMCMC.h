@@ -76,6 +76,10 @@ class BCEngineMCMC
        * Default copy constructor. */
       BCEngineMCMC(const BCEngineMCMC & enginemcmc);
 
+	    /**
+			 * Read in MCMC constructor. */
+	    BCEngineMCMC(std::string filename, std::string name, bool reuseObservables=true);
+
       /**
        * Destructor. */
       virtual ~BCEngineMCMC();
@@ -520,6 +524,12 @@ class BCEngineMCMC
        * @param name Name of the engine */
 	    void SetName(const char * name);
 
+      /**
+       * Sets the name of the engine.
+       * @param name Name of the engine */
+	    void SetName(const std::string name)
+	       { SetName(name.data()); }
+
     	/**
     	 * Set scale factor lower limit */
     	void MCMCSetScaleFactorLowerLimit(double l)
@@ -708,7 +718,7 @@ class BCEngineMCMC
 
 	    /**
 			 *  Print all 1D marginalizations, each to its own file */
-	    int PrintAllMarginalized(const char * file, std::string options1d="", std::string options2d="", unsigned int hdiv=1, unsigned int ndiv=1);
+	    int PrintAllMarginalized(std::string filename, std::string options1d="", std::string options2d="", unsigned int hdiv=1, unsigned int ndiv=1);
 	
 			/**
 			 * Print a summary plot for the parameters and user-defined observables.
@@ -904,14 +914,29 @@ class BCEngineMCMC
       virtual void MCMCCurrentPointInterface(std::vector<double> & /*point*/, int /*ichain*/, bool /*accepted*/)
          {}
 
-	
+	/**
+	 * Load parameters and observables from tree. */
+	virtual bool LoadParametersFromTree(TTree * partree, bool reuseObservables=true);
+
+	/**
+	 * Check parameter tree against model. */
+	virtual bool ParameterTreeMatchesModel(TTree * partree, bool checkObservables=true);
+
+	/**
+	 * Load previous MCMC run.
+	 * @param filename Pathname of file containing model trees.
+	 * @param mcmcTreeName Name of tree inside file containing MCMC, empty string (default) loads [modelname]_mcmc.
+	 * @param parameterTreeName Name of tree inside file containing parameter list, empty string (default) loads [modelname]_parameters.
+	 * @param reuseObservables Flag for whether to load observables from parameter list and MCMC trees. */
+	virtual bool LoadMCMC(std::string filename, std::string mcmcTreeName="", std::string parameterTreeName="", bool reuseObservables=true);
+
 	/**
 	 * Load previous MCMC run. */
-	virtual void Load(std::string filename);
+	virtual bool LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObservables=true);
 
 	/**
 	 * Check tree structure for MCMC tree. */
-	virtual bool ValidMCMCTree(TTree * tree);
+	virtual bool ValidMCMCTree(TTree * tree, bool checkObservables=true);
 
 	/**
 	 * Check tree structure for parameter tree. */
@@ -919,7 +944,7 @@ class BCEngineMCMC
 
 	/**
 	 * Marginalize from TTree. */
-	virtual void MarginalizeFromTree(TTree * tree = 0, bool autorange=true);
+	virtual void Remarginalize(bool autorange=true);
 
       /** @} */
 
@@ -1235,6 +1260,10 @@ class BCEngineMCMC
 	    /**
 	     * flag for whether MCMC Tree successfully loaded.*/
 	    bool fMCMCTreeLoaded;
+	
+	/**
+	 * flag for whether to reuse MCMC Tree's observables. */
+	bool fMCMCTreeReuseObservables;
 
 	    /**
 	     * fMCMCTree's variables. */

@@ -158,6 +158,12 @@ public:
 	/** @{ */
 
 	/**
+	 * Check if name is that provided by parameter.
+	 * @param name Name to check against parameter name. */
+	bool IsNamed(std::string name)
+	{ return fName.compare(name) == 0; }
+
+	/**
 	 * return position in range of given value
 	 * from 0 (at lower limit) to 1 (at upper limit)
 	 * @param x Value to report position of.

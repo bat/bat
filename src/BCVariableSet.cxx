@@ -63,14 +63,13 @@ bool BCVariableSet::ValidIndex(unsigned index, const std::string caller) const
 }
 
 // ---------------------------------------------------------
-unsigned BCVariableSet::Index(const std::string & name) const
-{
-   for (unsigned int i=0; i < fPars.size() ; ++i)
-      if (name == fPars[i]->GetName())
-         return i;
-
-   BCLog::OutWarning(TString::Format("BCVariableSet::Index: no parameter named '%s'", name.c_str()));
-   return fPars.size();
+unsigned BCVariableSet::Index(const std::string & name) const {
+	for (unsigned int i=0; i < fPars.size() ; ++i)
+		if ( fPars[i]->IsNamed(name) )
+			return i;
+	
+	BCLog::OutWarning(TString::Format("BCVariableSet::Index: no parameter named '%s'", name.c_str()));
+	return fPars.size();
 }
 
 

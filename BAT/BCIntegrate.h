@@ -157,6 +157,10 @@ public:
     * The copy constructor */
    BCIntegrate(const BCIntegrate & bcintegrate);
 
+	 /**
+		* Read in MCMC constructor. */
+	BCIntegrate(std::string filename, std::string name, bool reuseObservables=true);
+
    /**
     * The default destructor */
    virtual ~BCIntegrate();

@@ -71,6 +71,10 @@ class BCModel : public BCIntegrate
        * The copy constructor. */
       BCModel(const BCModel & bcmodel);
 
+	    /**
+			 * Read in MCMC constructor. */
+	    BCModel(std::string filename, std::string name, bool reuseObservables=true);
+
       /**
        * The default destructor. */
       virtual ~BCModel();
@@ -215,7 +219,7 @@ class BCModel : public BCIntegrate
        * @param f A pointer to a function describing the prior
        * @return An error code.
        */
-      int SetPrior(int index, TF1* f);
+      int SetPrior(unsigned index, TF1* f);
 
       /**
        * Set prior for a parameter.
@@ -223,7 +227,8 @@ class BCModel : public BCIntegrate
        * @param f A pointer to a function describing the prior
        * @return An error code.
        */
-      int SetPrior(const char* name, TF1* f);
+      int SetPrior(const char* name, TF1* f)
+	       { return SetPrior(fParameters.Index(name), f); }
 
       /**
        * Set delta-function prior for a parameter. Note: this sets the
@@ -233,7 +238,7 @@ class BCModel : public BCIntegrate
        * @param value The position of the delta function.
        * @return An error code.
        */
-      int SetPriorDelta(int index, double value);
+      int SetPriorDelta(unsigned index, double value);
 
       /**
        * Set delta-function prior for a parameter. Note: this sets the
@@ -243,7 +248,8 @@ class BCModel : public BCIntegrate
        * @param value The position of the delta function.
        * @return An error code.
        */
-      int SetPriorDelta(const char* name, double value);
+      int SetPriorDelta(const char* name, double value)
+	       { return SetPriorDelta(fParameters.Index(name),value); }
 
       /**
        * Set Gaussian prior for a parameter.
@@ -252,7 +258,7 @@ class BCModel : public BCIntegrate
        * @param sigma The sigma of the Gaussian
        * @return An error code.
        */
-      int SetPriorGauss(int index, double mean, double sigma);
+      int SetPriorGauss(unsigned index, double mean, double sigma);
 
       /**
        * Set Gaussian prior for a parameter.
@@ -261,7 +267,8 @@ class BCModel : public BCIntegrate
        * @param sigma The sigma of the Gaussian
        * @return An error code.
        */
-      int SetPriorGauss(const char* name, double mean, double sigma);
+      int SetPriorGauss(const char* name, double mean, double sigma)
+	       { return SetPriorGauss(fParameters.Index(name), mean, sigma); }
 
       /**
        * Set Gaussian prior for a parameter with two different widths.
@@ -271,7 +278,7 @@ class BCModel : public BCIntegrate
        * @param sigmaup The sigma (up)of the Gaussian
        * @return An error code.
        */
-      int SetPriorGauss(int index, double mean, double sigmadown, double sigmaup);
+      int SetPriorGauss(unsigned index, double mean, double sigmadown, double sigmaup);
 
       /**
        * Set Gaussian prior for a parameter with two different widths.
@@ -281,7 +288,8 @@ class BCModel : public BCIntegrate
        * @param sigmaup The sigma (up)of the Gaussian
        * @return An error code.
        */
-      int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup);
+      int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup)
+	       {	return SetPriorGauss(fParameters.Index(name), mean, sigmadown, sigmaup); }
 
       /**
        * Set prior for a parameter.
@@ -290,7 +298,7 @@ class BCModel : public BCIntegrate
        * @param flag whether or not to use linear interpolation
        * @return An error code.
        */
-      int SetPrior(int index, TH1 * h, bool flag=false);
+      int SetPrior(unsigned index, TH1 * h, bool flag=false);
 
       /**
        * Set prior for a parameter.
@@ -299,14 +307,15 @@ class BCModel : public BCIntegrate
        * @param flag whether or not to use linear interpolation
        * @return An error code.
        */
-      int SetPrior(const char* name, TH1 * h, bool flag=false);
+	    int SetPrior(const char* name, TH1 * h, bool flag=false)
+	       { return SetPrior(fParameters.Index(name),h,flag); }
 
       /**
        * Set constant prior for this parameter
        * @param index the index of the parameter
        * @return An error code
        */
-      int SetPriorConstant(int index);
+      int SetPriorConstant(unsigned index);
 
       /**
        * Set constant prior for this parameter
@@ -314,7 +323,7 @@ class BCModel : public BCIntegrate
        * @return An error code
        */
       int SetPriorConstant(const char* name)
-      { return SetPriorConstant(fParameters.Index(name)); }
+        { return SetPriorConstant(fParameters.Index(name)); }
 
       /**
        * Enable caching the constant value of the prior, so LogAPrioriProbability
@@ -374,7 +383,8 @@ class BCModel : public BCIntegrate
        * Method needs to be overloaded by the user.
        * @param params A set of parameter values
        * @return Natural logarithm of the likelihood */
-      virtual double LogLikelihood(const std::vector<double> &params) = 0;
+      virtual double LogLikelihood(const std::vector<double> &params)
+	      { return 0; }
 
       /**
        * Returns the likelihood times prior probability given a set of parameter values

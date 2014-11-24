@@ -112,6 +112,50 @@ BCIntegrate::BCIntegrate(const char * name)
 }
 
 // ---------------------------------------------------------
+BCIntegrate::BCIntegrate(std::string filename, std::string name, bool reuseObservables)
+	: BCEngineMCMC(filename,name,reuseObservables)
+	,	fID(BCLog::GetHIndex())
+	,	fMinuit(0)
+	,	fMinuitErrorFlag(0)
+	,	fFlagIgnorePrevOptimization(false)
+	,	fSAT0(100)
+	,	fSATmin(0.1)
+	,	fSATree(0)
+	,	fFlagWriteSAToFile(false)
+	,	fSANIterations(0)
+	,	fSATemperature(0)
+	,	fSALogProb(0)
+	,	fMarginalized1D(0)
+	,	fMarginalized2D(0)
+	,	fFlagMarginalized(false)
+	, fSAOutputFile(0)
+	, fSAOutputFilename("")
+	, fSAOutputFileOption("")
+	, fSAOutputFileAutoclose(false)
+	,	fOptimizationMethodCurrent(BCIntegrate::kOptDefault)
+	,	fOptimizationMethodUsed(BCIntegrate::kOptEmpty)
+	,	fIntegrationMethodCurrent(BCIntegrate::kIntDefault)
+	,	fIntegrationMethodUsed(BCIntegrate::kIntEmpty)
+	,	fMarginalizationMethodCurrent(BCIntegrate::kMargDefault)
+	,	fMarginalizationMethodUsed(BCIntegrate::kMargEmpty)
+	,	fSASchedule(BCIntegrate::kSACauchy)
+	,	fNIterationsMin(0)
+	,	fNIterationsMax(1000000)
+	,	fNIterationsPrecisionCheck(1000)
+	,	fNIterationsOutput(0)
+	,	fNIterations(0)
+	,	fLogMaximum(-std::numeric_limits<double>::max())
+	,	fIntegral(-1)
+	,	fRelativePrecision(1e-2)
+	,	fAbsolutePrecision(1e-6)
+	,	fError(-999.)
+	,	fCubaIntegrationMethod(BCIntegrate::kCubaVegas)
+{
+	fMinuitArglist[0] = 20000;
+	fMinuitArglist[1] = 0.01;
+}
+
+// ---------------------------------------------------------
 BCIntegrate::BCIntegrate(const BCIntegrate & other) : BCEngineMCMC(other)
 {
 	Copy(other);

@@ -56,6 +56,28 @@ BCModel::BCModel(const char * name)
 }
 
 // ---------------------------------------------------------
+BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
+	: BCIntegrate(name.data())
+  , fModelAPriori(0)
+  , fModelAPosteriori(0)
+  , fDataSet(0)
+  , fDataPointLowerBoundaries(0)
+  , fDataPointUpperBoundaries(0)
+  , fPValue(-1)
+  , fChi2NDoF(-1)
+  , fPValueNDoF(-1)
+  , flag_discrete(false)
+  , fGoFNIterationsMax(100000)
+  , fGoFNIterationsRun(2000)
+  , fGoFNChains(5)
+  , fPriorConstantAll(false)
+	, fPriorModel(0)
+{
+	LoadMCMC(filename,"","",reuseObservables);
+	SetPriorConstantAll();
+}
+
+// ---------------------------------------------------------
 BCModel::BCModel(const BCModel & bcmodel)
 	: BCIntegrate(bcmodel)
 	, fPriorModel(0)
@@ -563,16 +585,15 @@ void BCModel::SetDataPointUpperBoundary(int index, double upperboundary)
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPrior(int index, TF1 * f)
-{
+int BCModel::SetPrior(unsigned index, TF1 * f) {
    // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior : Index out of range.");
-      return 0;
+   if ( index >= GetNParameters() ) {
+		 BCLog::OutError("BCModel::SetPrior : Index out of range.");
+		 return 0;
    }
 
    if (fPriorContainer[index])
-      delete fPriorContainer[index];
+		 delete fPriorContainer[index];
 
    // copy function
    fPriorContainer[index] = new TF1(*f);
@@ -584,191 +605,115 @@ int BCModel::SetPrior(int index, TF1 * f)
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPrior(const char * name, TF1 * f)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-	 if (index < 0) {
-		 BCLog::OutError(TString::Format("BCModel::SetPrior : No parameter named %s.",name));
-		 return 0;
-	 }
-		 
-   // set prior
-   return SetPrior(index, f);
+int BCModel::SetPriorDelta(unsigned index, double value) {
+	// check index range
+	if ( index >= GetNParameters() ) {
+		BCLog::OutError("BCModel::SetPriorDelta : Index out of range.");
+		return 0;
+	}
+	// set range to value
+	GetParameter(index)->Fix(value);
+
+	// set prior
+	return 1;
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPriorDelta(int index, double value)
-{
-   // set range to value
-   GetParameter(index)->Fix(value);
-
-   // set prior
-   return 1;
+int BCModel::SetPriorGauss(unsigned index, double mean, double sigma) {
+	// check index range
+	if ( index >= GetNParameters() ) {
+		BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
+		return 0;
+	}
+	
+	// create new function
+	TF1 * f = new TF1(Form("prior_%s_%s", GetSafeName().c_str(), GetParameter(index)->GetSafeName().c_str()),
+										"1./sqrt(2.*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2./[1]/[1])",
+										GetParameter(index)->GetLowerLimit(),
+										GetParameter(index)->GetUpperLimit());
+	f->SetParameter(0, mean);
+	f->SetParameter(1, sigma);
+	
+	// set prior
+	return SetPrior(index, f);
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPriorDelta(const char* name, double value)
-{
-   GetParameter(name)->Fix(value);
+int BCModel::SetPriorGauss(unsigned index, double mean, double sigmadown, double sigmaup) {
+	// check index range
+	if (index >= GetNParameters() ) {
+		BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
+		return 0;
+	}
 
-   return 1;
+	// create new function
+	TF1 * f = new TF1(Form("prior_%s_%s", GetSafeName().c_str(), GetParameter(index)->GetSafeName().c_str()),
+										BCMath::SplitGaussian,
+										GetParameter(index)->GetLowerLimit(),
+										GetParameter(index)->GetUpperLimit(),
+										3);
+	f->SetParameter(0, mean);
+	f->SetParameter(1, sigmadown);
+	f->SetParameter(2, sigmaup);
+
+	// set prior
+	return SetPrior(index, f);
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPriorGauss(int index, double mean, double sigma)
-{
-   // check index range
-   if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
-      return 0;
-   }
+int BCModel::SetPrior(unsigned index, TH1 * h, bool interpolate) {
+	// check index range
+	if (index >= GetNParameters() ) {
+		BCLog::OutError("BCModel::SetPrior : Index out of range.");
+		return 0;
+	}
 
-   // create new function
-   TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
-         "1./sqrt(2.*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2./[1]/[1])",
-         GetParameter(index)->GetLowerLimit(),
-         GetParameter(index)->GetUpperLimit());
-   f->SetParameter(0, mean);
-   f->SetParameter(1, sigma);
+	// if the histogram exists
+	if(h) {
 
-   // set prior
-   return SetPrior(index, f);
+		// check if histogram is 1d
+		if (h->GetDimension() != 1) {
+			BCLog::OutError(Form("BCModel::SetPrior : Histogram given for parameter %d is not 1D.",index));
+			return 0;
+		}
+
+		// normalize the histogram
+		h->Scale(1./h->Integral("width"));
+
+		if(fPriorContainer[index])
+			delete fPriorContainer[index];
+		
+		// set function
+		fPriorContainer[index] = (TNamed*) h->Clone();
+		
+		if (interpolate)
+			fPriorContainerInterpolate[index] = true;
+		
+		fPriorContainerConstant[index] = false;
+	}
+
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------
-int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-	 if (index < 0) {
-		 BCLog::OutError(TString::Format("BCModel::SetPriorGauss : No parameter named %s.",name));
-		 return 0;
-	 }
+int BCModel::SetPriorConstant(unsigned index) {
+	// check index range
+	if ( index >= GetNParameters() ) {
+		BCLog::OutError("BCModel::SetPriorConstant : Index out of range.");
+		return 0;
+	}
 
-   // set prior
-   return SetPriorGauss(index, mean, sigma);
-}
+	if(fPriorContainer[index]) {
+		delete fPriorContainer[index];
+		fPriorContainer[index] = 0;
+	}
 
-// ---------------------------------------------------------
-int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigmaup)
-{
-   // check index range
-   if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
-      return 0;
-   }
+	// set prior to a constant
+	fPriorContainerConstant[index] = true;
 
-   // create new function
-   TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
-         BCMath::SplitGaussian,
-         GetParameter(index)->GetLowerLimit(),
-         GetParameter(index)->GetUpperLimit(),
-         3);
-   f->SetParameter(0, mean);
-   f->SetParameter(1, sigmadown);
-   f->SetParameter(2, sigmaup);
-
-   // set prior
-   return SetPrior(index, f);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, double sigmaup)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-	 if (index < 0) {
-		 BCLog::OutError(TString::Format("BCModel::SetPriorGauss : No parameter named %s.",name));
-		 return 0;
-	 }
-
-   // set prior
-   return SetPriorGauss(index, mean, sigmadown, sigmaup);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
-{
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior : Index out of range.");
-      return 0;
-   }
-
-   // if the histogram exists
-   if(h) {
-
-      // check if histogram is 1d
-      if (h->GetDimension() != 1) {
-         BCLog::OutError(Form("BCModel::SetPrior : Histogram given for parameter %d is not 1D.",index));
-         return 0;
-      }
-
-      // normalize the histogram
-      h->Scale(1./h->Integral("width"));
-
-      if(fPriorContainer[index])
-         delete fPriorContainer[index];
-
-      // set function
-      fPriorContainer[index] = (TNamed*) h->Clone();
-
-      if (interpolate)
-         fPriorContainerInterpolate[index] = true;
-
-      fPriorContainerConstant[index] = false;
-   }
-
-   // no error
-   return 1;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPrior(const char * name, TH1 * h, bool interpolate)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-	 if (index < 0) {
-		 BCLog::OutError(TString::Format("BCModel::SetPrior : No parameter named %s.",name));
-		 return 0;
-	 }
-
-   // set prior
-   return SetPrior(index, h, interpolate);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorConstant(int index)
-{
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorConstant : Index out of range.");
-      return 0;
-   }
-
-   if(fPriorContainer[index]) {
-      delete fPriorContainer[index];
-      fPriorContainer[index] = 0;
-   }
-
-   // set prior to a constant
-   fPriorContainerConstant[index] = true;
-
-   // no error
-   return 1;
+	// no error
+	return 1;
 }
 
 // ---------------------------------------------------------
