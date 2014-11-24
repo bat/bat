@@ -944,7 +944,7 @@ bool BCEngineMCMC::LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObserva
 
 // --------------------------------------------------------
 void BCEngineMCMC::Remarginalize(bool autorange) {
-	if (!ValidMCMCTree(fMCMCTree))
+	if (!ValidMCMCTree(fMCMCTree,fMCMCTreeReuseObservables))
 		return;
 
 	fMCMCTree -> SetBranchAddress("Chain",          &fMCMCTree_Chain);
@@ -1012,19 +1012,24 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 			if (MarginalizedHistogramExists(i)) {
 				TString name  = fH1Marginalized[i] -> GetName();
 				TString title = fH1Marginalized[i] -> GetTitle();
+				TString xtitle = fH1Marginalized[i] -> GetXaxis() -> GetTitle();
+				TString ytitle = fH1Marginalized[i] -> GetYaxis() -> GetTitle();
 				int nbins     = fH1Marginalized[i] -> GetNbinsX();
 				delete fH1Marginalized[i];
-				fH1Marginalized[i] = new TH1D(name,title,nbins,XMin[i],XMax[i]);
+				fH1Marginalized[i] = new TH1D(name,(title+";"+xtitle+";"+ytitle),nbins,XMin[i],XMax[i]);
 				fH1Marginalized[i] -> SetStats(false);
 			}
 			for (unsigned j=0; j<GetNVariables(); ++j)
 				if (MarginalizedHistogramExists(i,j)) {
 					TString name  = fH2Marginalized[i][j] -> GetName();
 					TString title = fH2Marginalized[i][j] -> GetTitle();
+					TString xtitle = fH2Marginalized[i][j] -> GetXaxis() -> GetTitle();
+					TString ytitle = fH2Marginalized[i][j] -> GetYaxis() -> GetTitle();
+					TString ztitle = fH2Marginalized[i][j] -> GetZaxis() -> GetTitle();
 					int nbinsx    = fH2Marginalized[i][j] -> GetNbinsX();
 					int nbinsy    = fH2Marginalized[i][j] -> GetNbinsY();
 					delete fH2Marginalized[i][j];
-					fH2Marginalized[i][j] = new TH2D(name,title,nbinsx,XMin[i],XMax[i],nbinsy,XMin[j],XMax[j]);
+					fH2Marginalized[i][j] = new TH2D(name,(title+";"+xtitle+";"+ytitle+";"+ztitle),nbinsx,XMin[i],XMax[i],nbinsy,XMin[j],XMax[j]);
 					fH2Marginalized[i][j] -> SetStats(false);
 				}
 		}
@@ -2373,8 +2378,8 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, std::string options
 		 options2d = "BTfB3CS1meangmode";
 
    // if file has no extension or if it's not ".pdf" or ".ps", make it ".pdf"
-   if ( (filename.find_last_of(".") == std::string::npos) or
-				((filename.substr(filename.find_last_of(".")) != ".pdf") and	(filename.substr(filename.find_last_of(".")) != ".ps")))
+   if ( filename.find_last_of(".") == std::string::npos or
+				( filename.substr(filename.find_last_of(".")) != ".pdf" and	filename.substr(filename.find_last_of(".")) != ".ps" ) )
 		 filename += ".pdf";
 
 	 int c_width  = 297*4;

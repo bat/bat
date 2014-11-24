@@ -77,7 +77,11 @@ class BCEngineMCMC
       BCEngineMCMC(const BCEngineMCMC & enginemcmc);
 
 	    /**
-			 * Read in MCMC constructor. */
+			 * Read in MCMC constructor.
+			 * @param filename Path of file holding model.
+			 * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
+			 * if empty string is given, properly matching TTrees are searched for in the file.
+			 * @param reuseObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
 	    BCEngineMCMC(std::string filename, std::string name, bool reuseObservables=true);
 
       /**
@@ -515,6 +519,11 @@ class BCEngineMCMC
 	    virtual const std::vector<double> & GetBestFitParameters() const
 	       { return fMCMCBestFitParameters; }
 
+	    /** 
+	     * @return Flag whether to reuse user-defined observables from MCMC tree when looping through it. */ 
+	    bool MCMCGetReuseObservables()
+	       { return fMCMCTreeReuseObservables; }
+
       /** @} */
       /** \name Setters */
       /** @{ */
@@ -672,6 +681,11 @@ class BCEngineMCMC
        * Set the number of bins for the marginalized distribution of all parameters
        * @param nbins Number of bins */
       void SetNbins(unsigned int nbins);
+
+	    /** 
+	     * @param flag Flag whether to reuse user-defined observables from MCMC tree when looping through it. */ 
+	    void MCMCSetReuseObservables(bool flag)
+	       { fMCMCTreeReuseObservables = flag; }
 
       /**
        * Turn on/off writing of Markov chain to root file.

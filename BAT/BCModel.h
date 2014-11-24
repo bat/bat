@@ -72,7 +72,11 @@ class BCModel : public BCIntegrate
       BCModel(const BCModel & bcmodel);
 
 	    /**
-			 * Read in MCMC constructor. */
+			 * Read in MCMC constructor.
+			 * @param filename Path of file holding model.
+			 * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
+			 * if empty string is given, properly matching TTrees are searched for in the file.
+			 * @param reuseObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
 	    BCModel(std::string filename, std::string name, bool reuseObservables=true);
 
       /**
