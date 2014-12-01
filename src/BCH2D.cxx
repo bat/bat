@@ -17,7 +17,7 @@
 #include <TArrow.h>
 #include <TCanvas.h>
 #include <TH1D.h>
-#include <TH2D.h>
+#include <TH2.h>
 #include <TGraph.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
@@ -29,523 +29,205 @@
 #include <TLine.h>
 
 #include <math.h>
-
-unsigned int BCH2D::fHCounter=0;
+#include <algorithm>
 
 // ---------------------------------------------------------
-BCH2D::BCH2D(TH2D * h)
-   : fHistogram(0)
-   , fIntegratedHistogram(0)
-   , fModeFlag(0)
+BCH2D::BCH2D(TH2 * h)
+	: BCHistogramBase(h,2)
+	, fIntegratedHistogram(0)
+	, fBandType(kSmallestInterval)
+	, fLogz(false)
+	, fDrawProfileX(false)
+	, fProfileXType(kProfileMean)
+	, fProfileXLineColor(kBlack)
+	, fProfileXLineStyle(2)
+	, fDrawProfileY(false)
+	, fProfileYType(kProfileMean)
+	, fProfileYLineColor(kBlack)
+	, fProfileYLineStyle(2)
 {
-   if (h)
-      SetHistogram(h);
+	SetDrawLocalMode(true);
 }
 
 // ---------------------------------------------------------
-BCH2D::~BCH2D()
+BCH2D::BCH2D(const BCH2D & other)
+	: BCHistogramBase(other)
+	, fIntegratedHistogram(0)
 {
-   if (fIntegratedHistogram)
-      delete fIntegratedHistogram;
-
-   for (unsigned i = 0; i < fROOTObjects.size(); ++i)
-      delete fROOTObjects[i];
+	CopyOptions(other);
 }
 
 // ---------------------------------------------------------
-void BCH2D::SetColorScheme(int scheme)
-{
-   fColors.clear();
-
-   // color numbering
-   // 0,1,2 : intervals
-   // 3 : quantile lines
-   // 4 : mean, mode, median
-
-   if (scheme == 0) {
-      fColors.push_back(18);
-      fColors.push_back(16);
-      fColors.push_back(14);
-      fColors.push_back(kBlack);
-      fColors.push_back(kBlack);
-   }
-   else if (scheme == 1) {
-      fColors.push_back(kGreen);
-      fColors.push_back(kYellow);
-      fColors.push_back(kRed);
-      fColors.push_back(kBlack);
-      fColors.push_back(kBlack);
-   }
-   else if (scheme == 2) {
-      fColors.push_back(kBlue+4);
-      fColors.push_back(kBlue+2);
-      fColors.push_back(kBlue);
-      fColors.push_back(kOrange);
-      fColors.push_back(kOrange);
-   }
-   else if (scheme == 3) {
-      fColors.push_back(kRed+4);
-      fColors.push_back(kRed+2);
-      fColors.push_back(kRed);
-      fColors.push_back(kGreen);
-      fColors.push_back(kGreen);
-   }
-   else {
-      SetColorScheme(1);
-   }
+BCH2D::~BCH2D() {
+	if (fIntegratedHistogram)
+		delete fIntegratedHistogram;
 }
 
 // ---------------------------------------------------------
-void BCH2D::SetHistogram(TH2D * hist)
-{
-	fHistogram = hist;
-	if (fHistogram and fHistogram->GetEffectiveEntries()>0 and fHistogram->Integral()>0)
-		fHistogram->Scale(1.0/fHistogram->Integral("width"));
+void BCH2D::CopyOptions(const BCH2D & other) {
+	BCHistogramBase::CopyOptions(other);
+	fBandType = other.fBandType;
+	fLogz = other.fLogz;
+	fDrawProfileX = other.fDrawProfileX;
+	fProfileXType = other.fProfileXType;
+	fProfileXLineColor = other.fProfileXLineColor;
+	fProfileXLineStyle = other.fProfileXLineStyle;
+	fDrawProfileY = other.fDrawProfileY;
+	fProfileYType = other.fProfileYType;
+	fProfileYLineColor = other.fProfileYLineColor;
+	fProfileYLineStyle = other.fProfileYLineStyle;
 }
 
 // ---------------------------------------------------------
-void BCH2D::Print(const char * filename, std::string options, std::vector<double> intervals, int ww, int wh)
-{
-   // option flags
-   bool flag_logz = false;
-   bool flag_rescale = false;
-
-   // check content of options string
-   if (options.find("logz") < options.size()) {
-      flag_logz = true;
-   }
-
-   if (options.find("R") < options.size()) {
-      flag_rescale = true;
-   }
-
-   // create temporary canvas
-   TCanvas * c;
-   unsigned int cindex = getNextIndex();
-   if(ww > 0 && wh > 0)
-      c = new TCanvas(TString::Format("c_bch2d_%d",cindex), TString::Format("c_bch2d_%d",cindex), ww, wh);
-   else
-      c = new TCanvas(TString::Format("c_bch2d_%d",cindex));
-
-   // add c to list of objects
-   fROOTObjects.push_back(c);
-
-   // set log axis
-   if (flag_logz) {
-      c->SetLogz();
-   }
-
-   // draw histogram
-   Draw(options, intervals);
-
-   if (flag_rescale) {
-      double top = gPad->GetTopMargin();
-      double bottom = gPad->GetBottomMargin();
-      double left = gPad->GetLeftMargin();
-      double right = gPad->GetRightMargin();
-
-      double dx = 1.-right - left;
-      double dy = 1.-top-bottom;
-      double ratio = dy/dx;
-      double ynew = c->GetWindowWidth()/ratio;
-      c->SetCanvasSize(c->GetWindowWidth(), (int) ynew);
-      gPad->RedrawAxis();
-
-      c->Modified();
-      c->Update();
-   }
-
-   // print to file
-   c->Print(filename);
-}
-
-// ---------------------------------------------------------
-void BCH2D::Print(const char* filename, std::string options, double interval, int ww, int wh)
-{
-   std::vector<double> tempvec;
-   tempvec.push_back(interval);
-   Print(filename, options, tempvec, ww, wh);
-}
-
-// ---------------------------------------------------------
-void BCH2D::Draw(std::string options, std::vector<double> intervals)
-{
-   // option flags
-   bool flag_legend      = true;
-   bool flag_mode_global = false;
-   bool flag_mode_local  = false;
-   bool flag_mean        = false;
-   bool flag_smooth1     = false;
-   bool flag_smooth3     = false;
-   bool flag_smooth5     = false;
-   bool flag_smooth10    = false;
-   bool flag_profilex    = false;
-   bool flag_profiley    = false;
-
-   // band type
-   int bandtype = 0;
-
-   // number of bands
-   int nbands = 1; // number of shaded bands
-   intervals.push_back(0.6827);
-
-   // define draw options called in TH1D::Draw(...)
-   std::string draw_options = "COLZ";
-
-   // check content of options string
-   if (options.find("smooth1") < options.size()) {
-      flag_smooth1 = true;
-   }
-
-   if (options.find("smooth3") < options.size()) {
-      flag_smooth3 = true;
-   }
-
-   if (options.find("smooth5") < options.size()) {
-      flag_smooth5 = true;
-   }
-
-   if (options.find("smooth10") < options.size()) {
-      flag_smooth10 = true;
-   }
-
-   if (options.find("nL") < options.size()) {
-      flag_legend = false;
-   }
-
-   if (options.find("BTf") < options.size()) {
-      bandtype = 0;
-   }
-   else if (options.find("BTc") < options.size()) {
-      bandtype = 1;
-   }
-   else {
-      bandtype = 0;
-   }
-
-   if (options.find("profilex") < options.size()) {
-      flag_profilex = true;
-   }
-
-   if (options.find("profiley") < options.size()) {
-      flag_profiley = true;
-   }
-
-   if (options.find("gmode") < options.size()) {
-      if (fModeFlag)
-         flag_mode_global = true;
-   }
-
-   if (options.find("lmode") < options.size()) {
-      flag_mode_local = true;
-   }
-
-   if (options.find("mean") < options.size()) {
-      flag_mean = true;
-   }
-
-   if (options.find("B1") < options.size()) {
-      nbands = 1;
-      if (intervals.size() != 1) {
-         intervals.clear();
-         intervals.push_back(0.6827);
-      }
-   }
-
-   if (options.find("B2") < options.size()) {
-      nbands = 2;
-      if (intervals.size() != 2) {
-         intervals.clear();
-         intervals.push_back(0.6827);
-         intervals.push_back(0.9545);
-      }
-   }
-
-   if (options.find("B3") < options.size()) {
-      nbands = 3;
-      if (intervals.size() != 3) {
-         intervals.clear();
-         intervals.push_back(0.6827);
-         intervals.push_back(0.9545);
-         intervals.push_back(0.9973);
-      }
-   }
-
-   if (options.find("CS0") < options.size()) {
-      SetColorScheme(0);
-   }
-   else if (options.find("CS1") < options.size()) {
-      SetColorScheme(1);
-   }
-   else if (options.find("CS2") < options.size()) {
-      SetColorScheme(2);
-   }
-   else if (options.find("CS3") < options.size()) {
-      SetColorScheme(3);
-   }
-   else  {
-      SetColorScheme(1);
-   }
-
-   // prepare size of histogram
-   // double xmin     = fHistogram->GetXaxis()->GetXmin();
-   // double xmax     = fHistogram->GetXaxis()->GetXmax();
-   double ymin = fHistogram->GetYaxis()->GetXmin();
-   double ymax = fHistogram->GetYaxis()->GetXmax();
-
-   // prepare legend
-   TLegend* legend = new TLegend();
-   legend -> SetBorderSize(0);
-   legend -> SetFillColor(kWhite);
-   legend -> SetTextAlign(12);
-   legend -> SetTextFont(62);
-   legend -> SetTextSize(0.03);
-
-   // add legend to list of objects
-   fROOTObjects.push_back(legend);
-
-   // copy histograms for bands
-   TH2D* hist_band = new TH2D(*fHistogram);
-
-   // add hist_band to list of ROOT objects
-   fROOTObjects.push_back(hist_band);
-
-   // calculate integrated histogram
-   CalculateIntegratedHistogram();
-
-   for (int ix = 1; ix <= fHistogram->GetNbinsX(); ++ix)
-      for (int iy = 1; iy <= fHistogram->GetNbinsY(); ++iy)
-         hist_band -> SetBinContent(ix, iy, fHistogram->GetBinContent(ix,iy));
-
-   // define levels and colors
-   std::vector<double> levels(nbands+2);
-   levels[0] = 0.;
-
-   std::vector<int> colors(nbands+1);
-   colors[0] = kWhite;
-
-   for (int i = 1; i <= nbands; ++i) {
-      levels[i] = GetLevel((1.-intervals[nbands-i]));
-      colors[i] = GetColor(nbands-i);
-   }
-   levels[nbands+1] = fIntegratedHistogram->GetXaxis()->GetXmax();
-
-   // set contour
-   hist_band->SetContour(nbands+2, &levels[0]);
-
-   // set colors
-   gStyle->SetPalette(nbands+1, &colors[0]);
-
-   // add hist_band to legend
-   for (int i = 0; i < nbands; ++i) {
-      if (bandtype == 0) {
-         TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
-         le->SetFillColor(GetColor(nbands-1-i));
-         le->SetFillStyle(1001);
-         le->SetLineColor(GetColor(nbands-1-i));
-         le->SetTextAlign(12);
-         le->SetTextFont(62);
-         le->SetTextSize(0.03);
-      }
-      else if (bandtype == 1) {
-         TLegendEntry* le = legend->AddEntry((TObject*)0, Form("smallest %.1f%% interval(s)", intervals[nbands-1-i]*100), "F");
-         fROOTObjects.push_back(le);
-         le->SetLineColor(GetColor(nbands-1-i));
-         le->SetTextAlign(12);
-         le->SetTextFont(62);
-         le->SetTextSize(0.03);
-      }
-   }
-
-   // mean, mode, median
-   TMarker* marker_mode_global = new TMarker(fMode[0], fMode[1], 24);
-   marker_mode_global->SetMarkerColor(GetColor(4));
-   marker_mode_global->SetMarkerSize(1.5*gPad->GetWNDC());
-
-   int binx, biny, binz;
-   fHistogram->GetBinXYZ( fHistogram->GetMaximumBin(), binx, biny, binz);
-   TMarker* marker_mode_local = new TMarker(fHistogram->GetXaxis()->GetBinCenter(binx), fHistogram->GetYaxis()->GetBinCenter(biny), 25);
-   marker_mode_local->SetMarkerColor(GetColor(4));
-   marker_mode_local->SetMarkerSize(1.5*gPad->GetWNDC());
-
-   double xmean = fHistogram->GetMean(1);
-   double ymean = fHistogram->GetMean(2);
-   double xrms = fHistogram->GetRMS(1);
-   double yrms = fHistogram->GetRMS(2);
-
-   TMarker* marker_mean = new TMarker(xmean, ymean, 32);
-   marker_mean->SetMarkerColor(GetColor(4));
-   marker_mean->SetMarkerSize(1.5*gPad->GetWNDC());
-
-   // standard deviation
-   TArrow* arrow_std1 = new TArrow(xmean-xrms, ymean,
-                                   xmean+xrms, ymean,
-                                   0.02*gPad->GetWNDC(), "<|>");
-   arrow_std1->SetLineColor(GetColor(4));
-   arrow_std1->SetFillColor(GetColor(4));
-
-   TArrow* arrow_std2 = new TArrow(xmean, ymean-yrms,
-                                   xmean, ymean+yrms,
-                                   0.02*gPad->GetWNDC(), "<|>");
-   arrow_std2->SetLineColor(GetColor(4));
-   arrow_std2->SetFillColor(GetColor(4));
-
-   // add marker_mean and arrow_std to list of ROOT objects
-   fROOTObjects.push_back(marker_mean);
-   fROOTObjects.push_back(marker_mode_global);
-   fROOTObjects.push_back(marker_mode_local);
-   fROOTObjects.push_back(arrow_std1);
-   fROOTObjects.push_back(arrow_std2);
-
-   if (flag_mode_global) {
-      TLegendEntry* le = legend->AddEntry(marker_mode_global, "global mode", "P");
-      le->SetMarkerStyle(24);
-      le->SetMarkerSize(1.5*gPad->GetWNDC());
-      le->SetMarkerColor(GetColor(4));
-   }
-
-   if (flag_mode_local) {
-      TLegendEntry* le = legend->AddEntry(marker_mode_local, "local mode", "P");
-      le->SetMarkerStyle(25);
-      le->SetMarkerSize(1.5*gPad->GetWNDC());
-      le->SetMarkerColor(GetColor(4));
-   }
-
-   if (flag_mean) {
-      TLegendEntry* le = legend->AddEntry(arrow_std1, "mean and standard deviation", "PL");
-      le->SetLineColor(GetColor(4));
-      le->SetMarkerStyle(32);
-      le->SetMarkerSize(1.5*gPad->GetWNDC());
-      le->SetMarkerColor(GetColor(4));
-   }
-
-   TGraph* graph_profilex = 0;
-   TGraph* graph_profiley = 0;
-
-   if (flag_profilex) {
-      TLegendEntry* le = legend->AddEntry(graph_profilex, "profile x", "L");
-      le->SetLineStyle(2);
-   }
-
-   if (flag_profiley) {
-      TLegendEntry* le = legend->AddEntry(graph_profiley, "profile y", "L");
-      le->SetLineStyle(3);
-   }
-
-   // calculate legend height in NDC coordinates
-   double height = legend->GetTextSize()*legend->GetNRows();
-
-   // make room for legend
-   if (flag_legend)
-      ymax+=(ymax-ymin)*(0.1+height);
-
-   // draw axes
-	 fHistogram -> Draw("AXIS");
-
-   // smooth
-	 if (fHistogram->GetEffectiveEntries()>0) {
-		 if (flag_smooth1) {
-			 fHistogram->Smooth(1);
-			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
-		 }
-		 if (flag_smooth3) {
-			 fHistogram->Smooth(3);
-			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
-		 }
-		 if (flag_smooth5) {
-			 fHistogram->Smooth(5);
-			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
-		 }
-		 if (flag_smooth10) {
-			 fHistogram->Smooth(10);
-			 fHistogram->Scale(1.0/fHistogram->Integral("width"));
-		 }
-	 }
-
-   // draw histogram
-   if (bandtype == 0)
-      hist_band->Draw("COL SAME");
-   else if (bandtype == 1)
-      hist_band->Draw("CONT1 SAME");
-
-   // draw profiles
-   if (flag_profilex) {
-      graph_profilex = DrawProfileX("mode", "dashed");
-
-      // add graph to list of objects
-      fROOTObjects.push_back(graph_profilex);
-   }
-
-   if (flag_profiley) {
-      graph_profiley = DrawProfileY("mode", "dotted");
-
-      // add graph to list of objects
-      fROOTObjects.push_back(graph_profiley);
-   }
-
-   // mean, mode, median
-   if (flag_mode_global) {
-      marker_mode_global->Draw();
-   }
-
-   if (flag_mode_local) {
-      marker_mode_local->Draw();
-   }
-
-   if (flag_mean) {
-      arrow_std1->Draw();
-      arrow_std2->Draw();
-      marker_mean->Draw();
-   }
-
-   if (flag_legend)
-      gPad->SetTopMargin(0.02);
-
-   double xlegend1 = gPad->GetLeftMargin();
-   double xlegend2 = 1.0-gPad->GetRightMargin();
-   double ylegend1 = 1.-gPad->GetTopMargin()-height;
-   double ylegend2 = 1.-gPad->GetTopMargin();
-
-   // place legend on top of histogram
-   legend->SetX1NDC(xlegend1);
-   legend->SetX2NDC(xlegend2);
-   legend->SetY1NDC(ylegend1);
-   legend->SetY2NDC(ylegend2);
-
-   // draw legend
-   if (flag_legend)
-      legend->Draw();
-
-   // draw axes again
-	 fHistogram->Draw("AXISSAME");
-
-   // rescale
-   gPad->SetTopMargin(1.-ylegend1+0.01);
-
-   gPad->RedrawAxis();
-
-   return;
-}
-
-// ---------------------------------------------------------
-void BCH2D::Draw(std::string options, double interval)
-{
-   std::vector<double> tempvec;
-   tempvec.push_back(interval);
-   Draw(options, tempvec);
-}
-
-// ---------------------------------------------------------
-void BCH2D::PrintIntegratedHistogram(const char* filename)
-{
-   TCanvas c;
-   c.Flush();
-
-   c.cd();
-   c.SetLogy();
-   CalculateIntegratedHistogram();
-   fIntegratedHistogram->Draw();
-   c.Print(filename);
+void BCH2D::Draw(std::string options, std::vector<double> intervals) {
+	if (!((TH2D*)GetHistogram()))
+		return;
+
+	// convert options to lowercase
+	std::transform(options.begin(),options.end(),options.begin(),::tolower);
+
+	if (intervals.empty())
+		intervals = fIntervals;
+
+	// check intervals values
+	for (unsigned i=0; i<intervals.size(); ++i) {
+		if (intervals[i] < 0 or intervals[i] > 1) {
+			BCLog::OutWarning("BCH2D::Draw : intervals values must be in [0,1]. Using defaults.");
+			intervals.clear();
+			break;
+		}
+		if (i>1 and fBandType==kSmallestInterval) {
+			BCLog::OutWarning("BCH2D::Draw : intervals must be in increasing order for specified band type. Using defaults.");
+			intervals.clear();
+			break;
+		}
+	}
+
+	// set defaults if empty
+	if (intervals.empty())
+		switch (fBandType) {
+
+		case kNoBands:
+			break;
+
+		case kSmallestInterval:
+		default:
+			if (fNBands>0) intervals.push_back(0.682689492137);
+			if (fNBands>1) intervals.push_back(0.954499736104);
+			if (fNBands>2) intervals.push_back(0.997300203937);
+			if (fNBands>3) intervals.push_back(0.999936657516);
+			if (fNBands>4) intervals.push_back(0.999999426697);
+			if (fNBands>5) intervals.push_back(0.999999998027);
+			if (fNBands>6) intervals.push_back(0.999999999997);
+			if (fNBands>7) intervals.push_back(1);
+			break;
+
+		}
+
+	Smooth(fNSmooth);
+
+	// if option "same" is not specified, draw axes and add "same" to options
+	if (options.find("same") == std::string::npos) {
+		gPad -> SetLogx(fLogx);
+		gPad -> SetLogy(fLogy);
+		gPad -> SetLogz(fLogz);
+		GetHistogram()->Draw("axis");
+		gPad -> Update();
+		options += "same";
+	}
+
+	if (fBandType == kNoBands or intervals.empty()) {
+		GetHistogram() -> Draw("colzsame");
+		gPad -> Update();
+	} else {
+
+		unsigned nbands = intervals.size();
+
+		// make sure enough colors have been designated
+		while (nbands>fBandColors.size())
+			fBandColors.push_back(fBandColors.back()-1);
+
+		// set contour levels
+		std::vector<double> levels;
+		std::vector<std::string> legend_text;
+		switch (fBandType) {
+
+		case kSmallestInterval:
+		default:
+			// fill vector with pairs of bin densities and masses
+			std::vector<std::pair<double,double> > bin_dens_vol;
+			bin_dens_vol.reserve(fHistogram->GetNbinsX()*fHistogram->GetNbinsY());
+			for (int i=1; i<=fHistogram->GetNbinsX(); ++i)
+				for (int j=1; j<=fHistogram->GetNbinsY(); ++j)
+					if (fHistogram->GetBinContent(i,j)>0)
+						bin_dens_vol.push_back(std::make_pair(fHistogram->GetBinContent(i,j),GetHistogram()->Integral(i,i,j,j,"width")));
+			if (bin_dens_vol.empty())
+				break;
+			// sort bins by densities from lowest to highest
+			std::stable_sort(bin_dens_vol.begin(),bin_dens_vol.end(),Compare);
+			
+			// set contour levels by amount of probability mass = 1-interval (in reverse order of intervals)
+			// so that contours are of increasing level as needed by ROOT
+			double prob_sum = 1;
+			for (unsigned i=0; i<bin_dens_vol.size() and levels.size()<intervals.size() and prob_sum>=0; ++i) {
+				prob_sum -= bin_dens_vol[i].second;
+				while (levels.size()<intervals.size() and prob_sum <= intervals[intervals.size()-levels.size()-1]) {
+					levels.push_back(bin_dens_vol[i].first);
+					legend_text.push_back(TString::Format("smallest %.1f%% interval(s)",100*(prob_sum+bin_dens_vol[i].second)).Data());
+				}
+			}
+			levels.push_back(bin_dens_vol.back().first);
+			break;
+		}
+
+		if (levels.size()>1) {
+
+			// set contour levels
+			GetHistogram() -> SetContour(levels.size()-1,&levels[0]);
+
+			// set contour colors
+			std::vector<int> colors;
+			for (int i=levels.size()-2; i>=0; --i)
+				colors.push_back(fBandColors[i]);
+
+			gStyle -> SetPalette(colors.size(),&colors[0]);
+			
+			if (fBandFillStyle<=0)
+				fHistogram -> Draw("cont same");
+			else {
+				fHistogram -> SetFillStyle(fBandFillStyle);
+				fHistogram -> Draw("col same");
+			}
+			gPad -> Update();
+			
+			// Set legend entries
+			switch (fBandType) {
+			case kSmallestInterval:
+			default:
+				for (int i=legend_text.size()-1; i>=0; --i) {
+					TLegendEntry* le = fLegend->AddEntry((TObject*)0, legend_text[i].data(), "F");
+					if (fBandFillStyle>0) {
+						le -> SetFillColor(colors[i]);
+						le -> SetFillStyle(fBandFillStyle);
+					}
+					le -> SetLineColor(colors[i]);
+					le -> SetTextAlign(12);
+					le -> SetTextFont(62);
+					le -> SetTextSize(0.03);
+				}
+			}
+
+		}
+	}
+	
+	DrawGlobalMode();
+	DrawLocalMode();
+	DrawMean();
+	DrawProfileGraphs();
+	
+	DrawLegend();
+	gPad -> RedrawAxis();
+
 }
 
 // ---------------------------------------------------------
@@ -599,7 +281,7 @@ double BCH2D::GetLevel(double p)
 double BCH2D::GetArea(double p)
 {
    // copy histograms for bands
-   TH2D hist_temp(*fHistogram);
+	TH2D hist_temp(*((TH2D*)fHistogram));
 
    // calculate total number of bins
    int nbins = hist_temp.GetNbinsX() * hist_temp.GetNbinsY();
@@ -641,7 +323,7 @@ double BCH2D::GetArea(double p)
 }
 
 // ---------------------------------------------------------
-std::vector<int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
+std::vector<int> BCH2D::GetNIntervalsY(TH2 * h, int &nfoundmax)
 {
    std::vector<int> nint;
 
@@ -676,340 +358,128 @@ std::vector<int> BCH2D::GetNIntervalsY(TH2D * h, int &nfoundmax)
 }
 
 // ---------------------------------------------------------
-TGraph* BCH2D::CalculateProfileGraph(int axis, std::string options)
-{
-  // option flags
-  bool flag_mode = true;
-  bool flag_mean = false;
-  bool flag_median = false;
+TGraph* BCH2D::CalculateProfileGraph(BCH2DProfileAxis axis, BCH2DProfileType bt) {
 
-  // check content of options string
-  if (options.find("mode") < options.size()) {
-    flag_mode = true;
-  }
+	unsigned n_i = (axis==kProfileY) ? GetHistogram()->GetNbinsY() : GetHistogram()->GetNbinsX();
+	unsigned n_j = (axis==kProfileY) ? GetHistogram()->GetNbinsX() : GetHistogram()->GetNbinsY();
 
-  if (options.find("mean") < options.size()) {
-    flag_mean = true;
-    flag_mode = false;
-    flag_median = false;
-  }
+	TGraph * g = new TGraph();
 
-  if (options.find("median") < options.size()) {
-    flag_median = true;
-    flag_mode = false;
-    flag_mean = false;
-  }
+	// loop over bins of axis to be profiled
+	for (unsigned i=1; i<=n_i; ++i) {
 
-  // define profile graph
-  TGraph* graph_profile = new TGraph();
+		switch (bt) {
 
-  // define limits of running
-  int nx = fHistogram->GetNbinsX();
-  int ny = fHistogram->GetNbinsY();
+		case kProfileMedian: {
 
-  double xmin = fHistogram->GetXaxis()->GetBinLowEdge(1);
-  double xmax = fHistogram->GetXaxis()->GetBinLowEdge(nx+1);
+			// calculate 50% of total probability mass in slice
+			double median_prob = 0.5 * ((axis==kProfileY) ? GetHistogram()->Integral(1,n_j,i,i,"width") : GetHistogram()->Integral(i,i,1,n_j,"width"));
+			if (median_prob <= 0)
+				break;
 
-  double ymin = fHistogram->GetYaxis()->GetBinLowEdge(1);
-  double ymax = fHistogram->GetYaxis()->GetBinLowEdge(nx+1);
+			double prob_sum = 0;
+			// loop until 50% of probability mass is found
+			for (unsigned j=1; j<=n_j; ++j) {
+				prob_sum += (axis==kProfileY) ? GetHistogram()->Integral(j,j,i,i,"width") : GetHistogram()->Integral(i,i,j,j,"width");
+				if (prob_sum > median_prob) {
+					if (axis==kProfileY)
+						g -> SetPoint(g->GetN(), GetHistogram()->GetXaxis()->GetBinLowEdge(j),GetHistogram()->GetYaxis()->GetBinCenter(i));
+					else 
+						g -> SetPoint(g->GetN(), GetHistogram()->GetXaxis()->GetBinCenter(i),GetHistogram()->GetYaxis()->GetBinLowEdge(j));
+					break;
+				}
+			}
+			break;
+		}
 
-  int nbins_outer = 0;
-  int nbins_inner = 0;
-  double axis_min = 0;
-  double axis_max = 0;
+		case kProfileMode: {
+			double max_val = 0;
+			unsigned j_max_val = 0;
+			for (unsigned j=1; j<=n_j; ++j) {
+				double val = (axis==kProfileY) ? GetHistogram()->GetBinContent(j,i) : GetHistogram()->GetBinContent(i,j);
+				if (val>max_val) {
+					j_max_val = j;
+					max_val = val;
+				}
+			}
+			if (j_max_val > 0) {
+				if (axis==kProfileY)
+					g -> SetPoint(g->GetN(), GetHistogram()->GetXaxis()->GetBinCenter(j_max_val),GetHistogram()->GetYaxis()->GetBinCenter(i));
+				else 
+					g -> SetPoint(g->GetN(), GetHistogram()->GetXaxis()->GetBinCenter(i),GetHistogram()->GetYaxis()->GetBinCenter(j_max_val));
+			}
+			break;
+		}
 
-  if (axis==0) {
-    nbins_outer = nx;
-    nbins_inner = ny;
-    axis_min = ymin;
-    axis_max = ymax;
-  }
-  else {
-    nbins_outer = ny;
-    nbins_inner = nx;
-    axis_min = xmin;
-    axis_max = xmax;
-  }
-
-  // loop over outer axis of choice
-  for (int ibin_outer = 1; ibin_outer <= nbins_outer ; ibin_outer++) {
-
-     // copy slice at a fixed value into a 1D histogram
-     TH1D* hist_temp = new TH1D("", "", nbins_inner, axis_min, axis_max);
-
-     for (int ibin_inner = 1; ibin_inner <= nbins_inner; ibin_inner++) {
-        int ix = 0;
-        int iy = 0;
-        if (axis == 0) {
-           ix = ibin_outer;
-           iy = ibin_inner;
-        }
-        else {
-           ix = ibin_inner;
-           iy = ibin_outer;
-        }
-        double content = fHistogram->GetBinContent(ix, iy);
-        hist_temp->SetBinContent(ibin_inner, content);
-     }
-     // normalize to unity
-		 if (hist_temp->Integral()!=0)
-			 hist_temp->Scale(1.0/hist_temp->Integral());
-
-     // create BAT histogram
-     BCH1D* bchist_temp = new BCH1D(hist_temp);
-
-     // calculate (x,y) of new point
-     double x = fHistogram->GetXaxis()->GetBinCenter(ibin_outer);
-     double y = fHistogram->GetYaxis()->GetBinCenter(ibin_outer);
-
-     double temp = 0;
-
-     if (flag_mode)
-        temp = bchist_temp->GetMode();
-     else if (flag_mean)
-        temp = bchist_temp->GetMean();
-     else if (flag_median)
-        temp = bchist_temp->GetMedian();
-
-     if (axis == 0)
-        y = temp;
-     else
-        x = temp;
-
-     // add new point to graph
-     graph_profile->SetPoint(ibin_outer-1, x, y);
-
-     // clean up
-     delete bchist_temp;
-  }
-
+		case kProfileMean:
+		default: {
+			// calculate total probability mass in slice
+			double mass_sum = 0;
+			double sum = 0 ;
+			for (unsigned j=0; j<=n_j; ++j) {
+				double mass = (axis==kProfileY) ? GetHistogram()->Integral(j,j,i,i,"width") : GetHistogram()->Integral(i,i,j,j,"width");
+				mass_sum += mass;
+				sum += mass * ((axis==kProfileY) ? GetHistogram()->GetXaxis()->GetBinCenter(j) : GetHistogram()->GetYaxis()->GetBinCenter(j));
+			}
+			if (mass_sum >= 0) {
+				if (axis==kProfileY)
+					g -> SetPoint(g->GetN(), sum/mass_sum, GetHistogram()->GetYaxis()->GetBinCenter(i));
+				else
+					g -> SetPoint(g->GetN(), GetHistogram()->GetXaxis()->GetBinCenter(i), sum/mass_sum);
+			}
+			break;
+		}
+		}
+		
+	}
+	
   // return the graph
-  return graph_profile;
+  return g;
 }
 
 // ---------------------------------------------------------
-TGraph* BCH2D::DrawProfile(int axis, std::string options, std::string drawoptions)
-{
-  // option flags
-  bool flag_black = false;
-  bool flag_red = false;
-  bool flag_solid = false;
-  bool flag_dashed = false;
-  bool flag_dotted = false;
-
-  // check content of options string
-  if (drawoptions.find("black") < options.size()) {
-    flag_black = true;
-  }
-
-  else if (drawoptions.find("red") < options.size()) {
-    flag_red = true;
-  }
-
-  else {
-    flag_black = true;
-  }
-
-  if (drawoptions.find("solid") < options.size()) {
-    flag_solid = true;
-  }
-
-  else if (drawoptions.find("dashed") < options.size()) {
-    flag_dashed = true;
-  }
-
-  else if (drawoptions.find("dotted") < options.size()) {
-    flag_dotted = true;
-  }
-
-  else {
-    flag_solid = true;
-  }
-
-  // get the profile graph
-  TGraph* graph_profile = CalculateProfileGraph(axis, options);
-
-  // change drawing options
-  if (flag_black)
-    graph_profile->SetLineColor(kBlack);
-
-  if (flag_red)
-    graph_profile->SetLineColor(kRed);
-
-  if (flag_solid)
-    graph_profile->SetLineStyle(1);
-
-  if (flag_dashed)
-    graph_profile->SetLineStyle(2);
-
-  if (flag_dotted)
-    graph_profile->SetLineStyle(3);
-
-  // draw
-  graph_profile->Draw("L");
-
-  // return graph
-  return graph_profile;
+void BCH2D::DrawProfileGraphs() {
+	if (fDrawProfileX) {
+		TGraph * graph_profile = CalculateProfileGraph(kProfileX,fProfileXType);
+		graph_profile -> SetLineColor(fProfileXLineColor);
+		graph_profile -> SetLineStyle(fProfileXLineStyle);
+		graph_profile -> Draw("sameL");
+		fROOTObjects.push_back(graph_profile);
+		std::string xtext = "profile x";
+		switch (fProfileXType) {
+		case kProfileMode:
+			xtext += " (mode)";
+			break;
+		case kProfileMedian:
+			xtext += " (median)";
+			break;
+		case kProfileMean:
+		default:
+			xtext += " (mean)";
+			break;
+		}
+		fLegend -> AddEntry(graph_profile, xtext.data(), "L");
+	}
+	if (fDrawProfileY) {
+		TGraph * graph_profile = CalculateProfileGraph(kProfileY,fProfileYType);
+		graph_profile -> SetLineColor(fProfileYLineColor);
+		graph_profile -> SetLineStyle(fProfileYLineStyle);
+		graph_profile -> Draw("sameL");
+		fROOTObjects.push_back(graph_profile);
+		std::string ytext = "profile y";
+		switch (fProfileYType) {
+		case kProfileMode:
+			ytext += " (mode)";
+			break;
+		case kProfileMedian:
+			ytext += " (median)";
+			break;
+		case kProfileMean:
+		default:
+			ytext += " (mean)";
+			break;
+		}
+		fLegend -> AddEntry(graph_profile, ytext.data(), "L");
+	}
 }
 
-// ---------------------------------------------------------
-/*
-TGraph ** BCH2D::GetBandGraphs(TH2D * h, int &n)
-{
-   n=0;
-
-   int nbands=0;
-   TH2D * hcopy = (TH2D*)h->Clone(TString::Format("%s_copy_%d",h->GetName(),BCLog::GetHIndex()));
-
-   std::vector<int> nint=GetNIntervalsY(hcopy,nbands);
-
-   if(nbands>2)
-   {
-      BCLog::OutError(
-            Form("BCH2D::GetBandGraphs : Detected %d bands. Maximum allowed is 2 (sorry).",nbands));
-      return 0;
-   }
-   else if(nbands==0)
-   {
-      BCLog::OutError("BCH2D::GetBandGraphs : No bands detected.");
-      return 0;
-   }
-
-   TGraph ** gxx = new TGraph*[nbands];
-
-  TH2D * h0 = static_cast<TH2D *>(h->Clone());
-
-   if (nbands>0)
-      gxx[0] = GetLowestBandGraph(h0,nint);
-
-   if (nbands==2)
-   {
-      gxx[1] = GetLowestBandGraph(h0);
-      n=2;
-   }
-   else
-      n=1;
-
-  fROOTObjects.push_back(h0);
-
-   return gxx;
-}
-*/
-
-// ---------------------------------------------------------
-
-/*
-TGraph * BCH2D::GetLowestBandGraph(TH2D * h)
-{
-   int n;
-   return GetLowestBandGraph(h,GetNIntervalsY(h,n));
-}
-
-// ---------------------------------------------------------
-
-TGraph * BCH2D::GetLowestBandGraph(TH2D * h, std::vector<int> nint)
-{
-   int nx = h->GetNbinsX() - 1;
-   int ny = h->GetNbinsY();
-
-   TGraph * g = new TGraph(2*nx);
-
-   for (int ix=1; ix<=nx; ix++)
-   {
-      // get x for the bin
-      double x;
-      if(ix==1)
-         x = h->GetXaxis()->GetBinLowEdge(1);
-      else if(ix==nx)
-         x = h->GetXaxis()->GetBinLowEdge(nx+1);
-      else
-         x = h->GetXaxis()->GetBinCenter(ix);
-
-      for(int iy=1; iy<=ny; iy++)
-         if(h->GetBinContent(ix,iy)>0.)
-         {
-            // get low edge of the first not empty bin in y
-            g->SetPoint(ix-1, x, h->GetYaxis()->GetBinLowEdge(iy));
-
-            // delete content of all subsequent not empty bins
-            if(nint[ix-1]==2)
-               h->SetBinContent(ix,iy,0.);
-
-            while(h->GetBinContent(ix,++iy)>0.)
-               if(nint[ix-1]==2)
-                  h->SetBinContent(ix,iy,0.);
-
-            // get low edge of the first empty bin in y
-            g->SetPoint(2*nx-ix, x, h->GetYaxis()->GetBinLowEdge(iy));
-
-            break;
-         }
-   }
-
-   return g;
-}
-
-// ---------------------------------------------------------
-
-std::vector<double> BCH2D::GetLevelBoundary(double level)
-{
-   return GetLevelBoundary(fHistogram, level);
-}
-
-// ---------------------------------------------------------
-
-std::vector<double> BCH2D::GetLevelBoundary(TH2D * h, double level)
-{
-   std::vector<double> b;
-
-   int nx = h->GetNbinsX();
-
-   b.assign(nx - 1, 0.0);
-
-   // loop over x and y bins.
-   for (int ix = 1; ix < nx; ix++)
-   {
-      TH1D * h1 = h->ProjectionY(TString::Format("temphist_%d",BCLog::GetHIndex()), ix, ix);
-
-      int nprobSum = 1;
-      double q[1];
-      double probSum[] = { level };
-
-      h1->GetQuantiles(nprobSum, q, probSum);
-
-      b[ix-1] = q[0];
-   }
-
-   return b;
-}
-
-// ---------------------------------------------------------
-
-TGraph * BCH2D::GetBandGraph(double l1, double l2)
-{
-   return GetBandGraph(fHistogram , l1, l2);
-}
-
-// ---------------------------------------------------------
-
-TGraph * BCH2D::GetBandGraph(TH2D * h , double l1, double l2)
-{
-   // define new graph
-   int nx = h->GetNbinsX() - 1;
-
-   TGraph * g = new TGraph(2*nx);
-
-   // get error bands
-   std::vector<double> ymin = GetLevelBoundary(h,l1);
-   std::vector<double> ymax = GetLevelBoundary(h,l2);
-
-   for (int i = 0; i < nx; i++)
-   {
-      g->SetPoint(i, h->GetXaxis()->GetBinCenter(i+1), ymin[i]);
-      g->SetPoint(nx+i, h->GetXaxis()->GetBinCenter(nx-i), ymax[nx-i-1]);
-   }
-
-   return g;
-}
-
-*/

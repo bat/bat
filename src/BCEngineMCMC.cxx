@@ -63,6 +63,8 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fMCMCTreeLoaded(false)
 	, fMCMCTreeReuseObservables(true)
 	, fParameterTree(0)
+	, fBCH1DdrawingOptions(new BCH1D)
+	, fBCH2DdrawingOptions(new BCH2D)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -93,6 +95,8 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fMCMCTreeLoaded(false)
 	, fMCMCTreeReuseObservables(true)
 	, fParameterTree(0)
+	, fBCH1DdrawingOptions(new BCH1D)
+	, fBCH2DdrawingOptions(new BCH2D)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -210,6 +214,10 @@ BCEngineMCMC::~BCEngineMCMC()
 		 fH2Marginalized[i].clear();
 	 }
    fH2Marginalized.clear();
+	 if (fBCH1DdrawingOptions)
+		 delete fBCH1DdrawingOptions;
+	 if (fBCH2DdrawingOptions)
+		 delete fBCH2DdrawingOptions;
 }
 
 // ---------------------------------------------------------
@@ -291,6 +299,8 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other)
    fMarginalModes         = other.fMarginalModes;
    fMCMCBestFitParameters = other.fMCMCBestFitParameters;
    fMCMCLogMaximum        = other.fMCMCLogMaximum;
+	 fBCH1DdrawingOptions = new BCH1D(*(other.fBCH1DdrawingOptions));
+	 fBCH2DdrawingOptions = new BCH2D(*(other.fBCH2DdrawingOptions));
 }
 
 // ---------------------------------------------------------
@@ -427,7 +437,7 @@ BCH1D * BCEngineMCMC::GetMarginalized(unsigned index) {
 	
 	if ( fMarginalModes.size() != fH1Marginalized.size() )
 		fMarginalModes.resize(fH1Marginalized.size(), 0);
-	fMarginalModes[index] = hprob->GetMode();
+	fMarginalModes[index] = hprob->GetLocalMode(0);
 	
 	return hprob;
 }
@@ -882,6 +892,53 @@ bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std:
 		return false;
 	}
 
+	// set model name if empty
+	if (fName.empty()) {
+		// check mcmcTreeName and parameterTreeName for default BAT name scheme [modelname]_mcmc/parameters:
+		if ( mcmcTreeName.find_last_of("_") != std::string::npos and mcmcTreeName.substr(mcmcTreeName.find_last_of("_"))=="_mcmc"
+				 and parameterTreeName.find_last_of("_") != std::string::npos and parameterTreeName.substr(parameterTreeName.find_last_of("_"))=="_parameters") {
+			fName = mcmcTreeName.substr(0,mcmcTreeName.find_last_of("_"));
+		}
+		// else look through file for trees named according to BAT scheme
+		else {
+			TList * LoK = inputfile -> GetListOfKeys();
+			std::vector<std::string> mcmc_names;
+			std::vector<std::string> parameter_names;
+			for (int i=0; i<LoK->GetEntries(); ++i) {
+				TKey * k = (TKey*)(LoK->At(i));
+				if (strcmp(k->GetClassName(),"TTree")!=0)
+					continue;
+				std::string treeName(k->GetName());
+				if (treeName.find_last_of("_") == std::string::npos) 
+					continue;
+				if (treeName.substr(treeName.find_last_of("_"))=="_mcmc")
+					mcmc_names.push_back(treeName.substr(0,treeName.find_last_of("_")));
+				else if (treeName.substr(treeName.find_last_of("_"))=="_parameters")
+					parameter_names.push_back(treeName.substr(0,treeName.find_last_of("_")));
+			}
+
+			std::vector<std::string> model_names;
+			for (unsigned i=0; i<mcmc_names.size(); ++i)
+				for (unsigned j=0; j<parameter_names.size(); ++j)
+					if (mcmc_names[i] == parameter_names[j])
+						model_names.push_back(mcmc_names[i]);
+
+			if (model_names.empty()) {
+				BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.",filename.data()));
+				return false;
+			}
+
+			if (model_names.size()>1) {
+				std::cout << TString::Format("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name:",filename.data()) << std::endl;
+				for (unsigned i=0; i<model_names.size(); ++i)
+					BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : \"%s\"",model_names[i].data()));
+				return false;
+			}
+			
+			SetName(model_names[0]);
+		}
+	}
+
 	// set tree names if empty
 	if ( mcmcTreeName.empty() )		// default mcmc tree name
 		mcmcTreeName = TString::Format("%s_mcmc",GetSafeName().data());
@@ -992,10 +1049,10 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 			}
 			if (fMCMCTreeReuseObservables) {
 				for (unsigned i=0; i<fMCMCTree_Observables.size(); ++i) {
-					if (fMCMCTree_Observables[i]<XMin[i])
-						XMin[i] = fMCMCTree_Observables[i];
-					if (fMCMCTree_Observables[i]>XMax[i])
-						XMax[i] = fMCMCTree_Observables[i];
+					if (fMCMCTree_Observables[i]<XMin[fMCMCTree_Parameters.size()+i])
+						XMin[fMCMCTree_Parameters.size()+i] = fMCMCTree_Observables[i];
+					if (fMCMCTree_Observables[i]>XMax[fMCMCTree_Parameters.size()+i])
+						XMax[fMCMCTree_Parameters.size()+i] = fMCMCTree_Observables[i];
 				}
 			} else {
 				CalculateObservables(fMCMCTree_Parameters);
@@ -2194,10 +2251,10 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream & ofi) {
 		// get marginalized histogram
 		BCH1D * bch1d = GetMarginalized(i);
 		
-		ofi << TString::Format("      Mean +- sqrt(V):                %.*g +- %.*g\n", prec,bch1d->GetMean(), prec,bch1d->GetRMS())
+		ofi << TString::Format("      Mean +- sqrt(V):                %.*g +- %.*g\n", prec,bch1d->GetHistogram()->GetMean(), prec,bch1d->GetHistogram()->GetRMS())
 				<< TString::Format("      Median +- central 68%% interval: %.*g +  %.*g - %.*g\n",
 													 prec,bch1d->GetMedian(), prec,bch1d->GetQuantile(0.84)-bch1d->GetMedian(), prec,bch1d->GetMedian()-bch1d->GetQuantile(0.16))
-				<< TString::Format("      (Marginalized) mode:            %.*g\n",  prec, bch1d->GetMode())
+				<< TString::Format("      (Marginalized) mode:            %.*g\n",  prec, bch1d->GetLocalMode(0))
 				<< TString::Format("       5%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.05))
 				<< TString::Format("      10%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.10))
 				<< TString::Format("      16%% quantile:                   %.*g\n", prec, bch1d->GetQuantile(0.16))
@@ -2265,43 +2322,6 @@ void BCEngineMCMC::PrintParameters(std::vector<double> const & P, void (*output)
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintAllMarginalized1D(const char * filebase) {
-	if (fH1Marginalized.size() == 0) {
-		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : No marginalized distributions stored.");
-		return 0;
-	}
-
-	int nh = 0;
-	for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
-		if (!MarginalizedHistogramExists(i))
-			continue;
-		GetMarginalized(i) -> Print(Form("%s_1D_%s.pdf", filebase, GetVariable(i)->GetSafeName().data()));
-		nh++;
-	}
-
-	return nh;
-}
-
-// ---------------------------------------------------------
-int BCEngineMCMC::PrintAllMarginalized2D(const char * filebase) {
-	if (fH2Marginalized.size() == 0) {
-		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
-		return 0;
-	}
-	
-	int nh = 0;
-	for (unsigned i = 0; i<fH2Marginalized.size(); ++i)
-		for (unsigned j = 1; j<fH2Marginalized[i].size(); ++i) {
-			if (MarginalizedHistogramExists(i,j))
-				continue;
-			GetMarginalized(i,j) -> Print(Form("%s_2D_%s_%s",filebase,GetVariable(i)->GetSafeName().data(),GetVariable(j)->GetSafeName().data()));
-			nh++;
-		}
-
-	return nh;
-}
-
-// ---------------------------------------------------------
 int BCEngineMCMC::PrintAllMarginalized(std::string filename, std::string options1d, std::string options2d, unsigned int hdiv, unsigned int vdiv) {
 	if (fH1Marginalized.empty() and fH2Marginalized.empty()) {
 		BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
@@ -2320,6 +2340,9 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, std::string options
 			 if (!h1.back()) // BCH1D doesn't exist
 				 h1.pop_back();
 		 }
+	 for (unsigned i=0; i<h1.size(); ++i)
+		 h1[i] -> CopyOptions(*fBCH1DdrawingOptions);
+
 
 	 // Find nonempty H2's
    std::vector<BCH2D *> h2;
@@ -2365,17 +2388,13 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, std::string options
 				 if (!h2.back())
 					 h2.pop_back();
 			 }
+	 for (unsigned i=0; i<h2.size(); ++i)
+		 h2[i] -> CopyOptions(*fBCH2DdrawingOptions);
 
 	 if (h1.empty() and h2.empty()) {
 		 BCLog::OutWarning("BCEngineMCMC::PrintAllMarginalized : No marginalizations to print");
 		 return 0;
 	 }
-
-	 // set default drawing options
-	 if (options1d.empty())
-		 options1d = "BTsiB3CS1D0pdf0Lmeanmode";
-	 if (options2d.empty())
-		 options2d = "BTfB3CS1meangmode";
 
    // if file has no extension or if it's not ".pdf" or ".ps", make it ".pdf"
    if ( filename.find_last_of(".") == std::string::npos or
@@ -2430,7 +2449,7 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, std::string options
 				 
 		 // go to next pad
 		 c.cd(i % (hdiv * vdiv) + 1);
-				 
+
 		 h2[i] -> Draw(options2d);
 				 
 		 if ((i + h1.size() + 1) % 100 == 0)
@@ -2543,11 +2562,11 @@ int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_
 			quantile_vals.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetQuantile(quantiles[j])));
 
 		// mean
-		mean.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetMean()));
-		rms.push_back(bch1d_temp->GetRMS()/GetVariable(i)->GetRangeWidth());
+		mean.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetHistogram()->GetMean()));
+		rms.push_back(bch1d_temp->GetHistogram()->GetRMS()/GetVariable(i)->GetRangeWidth());
 		 
 		// Local Mode
-		local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetMode()));
+		local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetLocalMode(0)));
 
 		// smallest interval
 		std::vector<double> intervals = bch1d_temp->GetSmallestIntervals(interval_content).front();
@@ -2975,10 +2994,10 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 			// marginalization exists
 			if (bch1d)
 				ofi << TString::Format("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
-															 texwidth, prec, bch1d->GetMean(),
-															 texwidth, prec, bch1d->GetRMS(),
+															 texwidth, prec, bch1d->GetHistogram()->GetMean(),
+															 texwidth, prec, bch1d->GetHistogram()->GetRMS(),
 															 texwidth, prec, GetBestFitParameter(i),
-															 texwidth, prec, bch1d -> GetMode(),
+															 texwidth, prec, bch1d -> GetLocalMode(0),
 															 texwidth, prec, bch1d -> GetMedian(),
 															 texwidth, prec, bch1d -> GetQuantile(0.16),
 															 texwidth, prec, bch1d -> GetQuantile(0.84))

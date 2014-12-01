@@ -937,15 +937,14 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post,
 	gPad->SetTopMargin(0.02);
    
 	// Draw legend on top of histogram
-	legend -> SetX1NDC(gPad->GetLeftMargin() + 0.10 * (1.0 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
-	legend -> SetX2NDC(1. - gPad->GetRightMargin());
-	double y1 = gPad->GetTopMargin() + legend->GetTextSize()*legend->GetNRows();
-	legend -> SetY1NDC(1-y1);
-	legend -> SetY2NDC(1. - gPad->GetTopMargin());
+	legend -> SetX1NDC(gPad->GetLeftMargin() + 0.10 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+	legend -> SetX2NDC(1 - gPad->GetRightMargin());
+	legend -> SetY1NDC(1 - gPad->GetTopMargin() + legend->GetTextSize()*legend->GetNRows());
+	legend -> SetY2NDC(1 - gPad->GetTopMargin());
 	legend -> Draw();
 
 	// rescale top margin
-	gPad -> SetTopMargin(y1+0.01);
+	gPad -> SetTopMargin(1-legend->GetY1NDC()+0.01);
 
 	gPad -> RedrawAxis();
 

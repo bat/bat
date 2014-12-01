@@ -28,6 +28,7 @@ library_includedir= $(includedir)/BAT
 incs= \
 	BCDataPoint.h \
 	BCDataSet.h \
+	BCHistogramBase.h \
 	BCH1D.h \
 	BCH2D.h \
 	BCParameterSet.h \
@@ -38,6 +39,7 @@ incs= \
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \
+	BCEmptyModel.h \
 	BCPriorModel.h \
 	BCModelManager.h \
 	BCGoFTest.h \

@@ -387,8 +387,7 @@ class BCModel : public BCIntegrate
        * Method needs to be overloaded by the user.
        * @param params A set of parameter values
        * @return Natural logarithm of the likelihood */
-      virtual double LogLikelihood(const std::vector<double> &params)
-	      { return 0; }
+	    virtual double LogLikelihood(const std::vector<double> &params) = 0;
 
       /**
        * Returns the likelihood times prior probability given a set of parameter values

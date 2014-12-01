@@ -524,6 +524,16 @@ class BCEngineMCMC
 	    bool MCMCGetReuseObservables()
 	       { return fMCMCTreeReuseObservables; }
 
+	    /**
+	     * @return BCH1D object that stores drawing options for all BCH1D's. */
+	    BCH1D * GetBCH1DdrawingOptions()
+	    { return fBCH1DdrawingOptions; }
+
+	    /**
+	     * @return BCH2D object that stores drawing options for all BCH2D's. */
+	    BCH2D * GetBCH2DdrawingOptions()
+	    { return fBCH2DdrawingOptions; }
+
       /** @} */
       /** \name Setters */
       /** @{ */
@@ -721,14 +731,6 @@ class BCEngineMCMC
 			 * @output is a pointer to the output function to be used,
 			 * which defaults to BCLog::OutSummary */
 	    void PrintParameters(std::vector<double> const & P, void (*output)(const char *) = BCLog::OutSummary);
-
-	    /**
-			 *  Print all 1D marginalizations, each to its own file */
-	    int PrintAllMarginalized1D(const char * filebase);
-
-	    /**
-			 *  Print all 2D marginalizations, each to its own file */
-	    int PrintAllMarginalized2D(const char * filebase);
 
 	    /**
 			 *  Print all 1D marginalizations, each to its own file */
@@ -1302,6 +1304,14 @@ class BCEngineMCMC
       /**
        * A vector of best fit parameters estimated from the marginalized probability */
       std::vector<double> fMarginalModes;
+
+	    /**
+	     * A BCH1D (with no histogram) for storing BCH1D drawing options. */
+	    BCH1D * fBCH1DdrawingOptions;
+	    
+	    /**
+	     * A BCH2D (with no histogram) for storing BCH2D drawing options. */
+	    BCH2D * fBCH2DdrawingOptions;
 
 };
 

@@ -551,8 +551,8 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
       for (int i = 0; i < nparameters; ++i) {
          if (fFlagMarginalize) {
             BCH1D * hist = fMTF->GetMarginalized(i);
-            out_mode_marginalized[i] = hist->GetMode();
-            out_mean_marginalized[i] = hist->GetMean();
+            out_mode_marginalized[i] = hist->GetLocalMode(0);
+            out_mean_marginalized[i] = hist->GetHistogram()->GetMean();
             out_median_marginalized[i] = hist->GetMedian();
             out_5quantile_marginalized[i] = hist->GetQuantile(0.05);
             out_10quantile_marginalized[i] = hist->GetQuantile(0.10);
@@ -560,7 +560,7 @@ TTree * BCMTFAnalysisFacility::PerformEnsembleTest(TTree * tree, int nensembles,
             out_84quantile_marginalized[i] = hist->GetQuantile(0.84);
             out_90quantile_marginalized[i] = hist->GetQuantile(0.90);
             out_95quantile_marginalized[i] = hist->GetQuantile(0.95);
-            out_std_marginalized[i]=hist->GetRMS();
+            out_std_marginalized[i]=hist->GetHistogram()->GetRMS();
          }
       }
 
@@ -796,8 +796,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
          BCH1D * hist = fMTF->GetMarginalized(i);
 
          ct_mcmc->AddContribution("all channels",
-                                  hist->GetMean(),
-                                  hist->GetRMS());
+                                  hist->GetHistogram()->GetMean(),
+                                  hist->GetHistogram()->GetRMS());
       }
    }
 
@@ -859,8 +859,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char * dirname, co
             BCH1D * hist = fMTF->GetMarginalized(i);
 
             ct_mcmc->AddContribution(channel->GetName().c_str(),
-                                     hist->GetMean(),
-                                     hist->GetRMS());
+                                     hist->GetHistogram()->GetMean(),
+                                     hist->GetHistogram()->GetRMS());
          }
 
          // switch off channel
