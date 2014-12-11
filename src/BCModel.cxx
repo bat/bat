@@ -60,7 +60,7 @@ BCModel::BCModel(const char * name)
 	, fBCH2DPosteriorDrawingOptions(new BCH2D)
 	, fPriorPosteriorNormalOrder(true)
 {
-	SetDefaultKnowledgeUpdateDrawingOptions();
+	SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
 }
 
 // ---------------------------------------------------------
@@ -88,7 +88,7 @@ BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
 {
 	LoadMCMC(filename,"","",reuseObservables);
 	SetPriorConstantAll();
-	SetDefaultKnowledgeUpdateDrawingOptions();
+	SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
 }
 
 // ---------------------------------------------------------
@@ -1001,28 +1001,30 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post, boo
 		} else if ( bch1d_prior->GetLegend()->GetNRows() > 0 ) {
 			// prior legend alone has entries
 
-			TLegend * legend = bch1d_prior->GetLegend();
-			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i)
-				((TLegendEntry*)(legend->GetListOfPrimitives()->At(i))) -> SetLabel(TString::Format("%s of prior",((TLegendEntry*)(legend->GetListOfPrimitives()->At(i)))->GetLabel()).Data());
+			legend = bch1d_prior->GetLegend();
+			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+				TLegendEntry * le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+				if (!le) break;
+				if (strlen(le->GetLabel())==0) continue;
+				le-> SetLabel(TString::Format("%s of prior",le->GetLabel()).Data());
+			}
 			legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
-
 			bch1d_prior -> ResizeLegend();
 
 		}	else {
 			// neither legend has entries
 
-			legend = bch1d_posterior->GetLegend();
+			legend = bch1d_prior->GetLegend();
 			legend -> SetNColumns(2);
 			legend -> AddEntry(bch1d_prior->GetHistogram(),     "prior", "L");
 			legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
 
-			bch1d_posterior -> ResizeLegend();
+			bch1d_prior -> ResizeLegend();
 		}
 
 		// Draw legend on top of histogram
-		
 		legend -> Draw();
-		
+
 		// rescale top margin
 		gPad -> SetTopMargin(1-legend->GetY1NDC()+0.01);		
 	}
@@ -1200,9 +1202,13 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 		} else if ( bch2d_prior->GetLegend()->GetNRows() > 0 ) {
 			// prior legend alone has entries
 
-			TLegend * legend = bch2d_prior->GetLegend();
-			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i)
-				((TLegendEntry*)(legend->GetListOfPrimitives()->At(i))) -> SetLabel(TString::Format("%s of prior",((TLegendEntry*)(legend->GetListOfPrimitives()->At(i)))->GetLabel()).Data());
+			legend = bch2d_prior->GetLegend();
+			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+				TLegendEntry * le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+				if (!le) break;
+				if (strlen(le->GetLabel())==0) continue;
+				le-> SetLabel(TString::Format("%s of prior",le->GetLabel()).Data());
+			}
 			if (!prior_text.empty())
 				legend -> AddEntry((TObject*)0,(std::string("prior: ")+prior_text).data(),"");
 			legend -> AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
@@ -1306,39 +1312,132 @@ int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, uns
 }
 
 // ---------------------------------------------------------
-void BCModel::SetDefaultKnowledgeUpdateDrawingOptions() {
-	// 1D
-	fBCH1DPriorDrawingOptions -> SetDrawGlobalMode(false);
-	fBCH1DPriorDrawingOptions -> SetDrawLocalMode(false);
-	fBCH1DPriorDrawingOptions -> SetDrawMean(false);
-	fBCH1DPriorDrawingOptions -> SetDrawMedian(false);
-	fBCH1DPriorDrawingOptions -> SetDrawLegend(false);
-	fBCH1DPriorDrawingOptions -> SetNBands(0);
-	fBCH1DPriorDrawingOptions -> SetBandType(BCH1D::kNoBands);
-	fBCH1DPriorDrawingOptions -> SetROOToptions("same");
-	fBCH1DPriorDrawingOptions -> SetLineColor(kRed);
-	fBCH1DPriorDrawingOptions -> SetMarkerColor(kRed);
-	fBCH1DPriorDrawingOptions -> SetNLegendColumns(1);
-	fBCH1DPosteriorDrawingOptions -> CopyOptions(*fBCH1DPriorDrawingOptions);
-	fBCH1DPosteriorDrawingOptions -> SetNLegendColumns(1);
-	fBCH1DPosteriorDrawingOptions -> SetLineColor(kBlue);
-	fBCH1DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
-
-	// 2D
-	fBCH2DPriorDrawingOptions -> SetDrawGlobalMode(false);
-	fBCH2DPriorDrawingOptions -> SetDrawLocalMode(true,false);
-	fBCH2DPriorDrawingOptions -> SetDrawMean(false);
-	fBCH2DPriorDrawingOptions -> SetDrawLegend(false);
-	fBCH2DPriorDrawingOptions -> SetBandType(BCH2D::kSmallestInterval);
-	fBCH2DPriorDrawingOptions -> SetBandFillStyle(-1);
-	fBCH2DPriorDrawingOptions -> SetNBands(1);
-	fBCH2DPriorDrawingOptions -> SetNSmooth(0);
-	fBCH2DPriorDrawingOptions -> SetROOToptions("same");
-	fBCH2DPriorDrawingOptions -> SetLineColor(kRed);
-	fBCH2DPriorDrawingOptions -> SetMarkerColor(kRed);
-	fBCH2DPriorDrawingOptions -> SetNLegendColumns(1);
-	fBCH2DPosteriorDrawingOptions -> CopyOptions(*fBCH2DPriorDrawingOptions);
-	fBCH2DPosteriorDrawingOptions -> SetLineColor(kBlue);
-	fBCH2DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingStyle style) {
+	switch (style) {
 	
+	case kKnowledgeUpdateDetailedPosterior:
+		// 1D
+		SetDrawPriorPosteriorNormalOrder(false);
+		fBCH1DPriorDrawingOptions -> SetDrawGlobalMode(false);
+		fBCH1DPriorDrawingOptions -> SetDrawLocalMode(false);
+		fBCH1DPriorDrawingOptions -> SetDrawMean(false);
+		fBCH1DPriorDrawingOptions -> SetDrawMedian(false);
+		fBCH1DPriorDrawingOptions -> SetDrawLegend(false);
+		fBCH1DPriorDrawingOptions -> SetNBands(0);
+		fBCH1DPriorDrawingOptions -> SetBandType(BCH1D::kNoBands);
+		fBCH1DPriorDrawingOptions -> SetROOToptions("same");
+		fBCH1DPriorDrawingOptions -> SetLineColor(kMagenta);
+		fBCH1DPriorDrawingOptions -> SetMarkerColor(kMagenta);
+		fBCH1DPriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH1DPosteriorDrawingOptions -> CopyOptions(*fBCH1DPriorDrawingOptions);
+		fBCH1DPosteriorDrawingOptions -> SetDrawGlobalMode(true);
+		fBCH1DPosteriorDrawingOptions -> SetBandType(BCH1D::kSmallestInterval);
+		fBCH1DPosteriorDrawingOptions -> SetNBands(3);
+		fBCH1DPosteriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH1DPosteriorDrawingOptions -> SetColorScheme(BCHistogramBase::kGreenYellowRed);
+		fBCH1DPosteriorDrawingOptions -> SetLineColor(kBlue);
+		fBCH1DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+
+		// 2D
+		fBCH2DPriorDrawingOptions -> SetDrawGlobalMode(false);
+		fBCH2DPriorDrawingOptions -> SetDrawLocalMode(true,false);
+		fBCH2DPriorDrawingOptions -> SetDrawMean(false);
+		fBCH2DPriorDrawingOptions -> SetDrawLegend(false);
+		fBCH2DPriorDrawingOptions -> SetBandType(BCH2D::kSmallestInterval);
+		fBCH2DPriorDrawingOptions -> SetBandFillStyle(-1);
+		fBCH2DPriorDrawingOptions -> SetNBands(1);
+		fBCH2DPriorDrawingOptions -> SetNSmooth(0);
+		fBCH2DPriorDrawingOptions -> SetROOToptions("same");
+		fBCH2DPriorDrawingOptions -> SetLineColor(kMagenta);
+		fBCH2DPriorDrawingOptions -> SetMarkerColor(kMagenta);
+		fBCH2DPriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH2DPosteriorDrawingOptions -> CopyOptions(*fBCH2DPriorDrawingOptions);
+		fBCH2DPosteriorDrawingOptions -> SetNBands(3);
+		fBCH2DPosteriorDrawingOptions -> SetBandFillStyle(1001);
+		fBCH2DPosteriorDrawingOptions -> SetColorScheme(BCHistogramBase::kGreenYellowRed);
+		fBCH2DPosteriorDrawingOptions -> SetLineColor(kBlue);
+		fBCH2DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+		break;
+		
+	case kKnowledgeUpdateDetailedPrior:
+		// 1D
+		SetDrawPriorPosteriorNormalOrder(true);
+		fBCH1DPosteriorDrawingOptions -> SetDrawGlobalMode(false);
+		fBCH1DPosteriorDrawingOptions -> SetDrawLocalMode(false);
+		fBCH1DPosteriorDrawingOptions -> SetDrawMean(false);
+		fBCH1DPosteriorDrawingOptions -> SetDrawMedian(false);
+		fBCH1DPosteriorDrawingOptions -> SetDrawLegend(false);
+		fBCH1DPosteriorDrawingOptions -> SetNBands(0);
+		fBCH1DPosteriorDrawingOptions -> SetBandType(BCH1D::kNoBands);
+		fBCH1DPosteriorDrawingOptions -> SetROOToptions("same");
+		fBCH1DPosteriorDrawingOptions -> SetLineColor(kMagenta);
+		fBCH1DPosteriorDrawingOptions -> SetMarkerColor(kMagenta);
+		fBCH1DPosteriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH1DPriorDrawingOptions -> CopyOptions(*fBCH1DPosteriorDrawingOptions);
+		fBCH1DPriorDrawingOptions -> SetDrawGlobalMode(true);
+		fBCH1DPriorDrawingOptions -> SetBandType(BCH1D::kSmallestInterval);
+		fBCH1DPriorDrawingOptions -> SetNBands(3);
+		fBCH1DPriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH1DPriorDrawingOptions -> SetColorScheme(BCHistogramBase::kGreenYellowRed);
+		fBCH1DPriorDrawingOptions -> SetLineColor(kBlue);
+		fBCH1DPriorDrawingOptions -> SetMarkerColor(kBlue);
+
+		// 2D
+		fBCH2DPosteriorDrawingOptions -> SetDrawGlobalMode(false);
+		fBCH2DPosteriorDrawingOptions -> SetDrawLocalMode(true,false);
+		fBCH2DPosteriorDrawingOptions -> SetDrawMean(false);
+		fBCH2DPosteriorDrawingOptions -> SetDrawLegend(false);
+		fBCH2DPosteriorDrawingOptions -> SetBandType(BCH2D::kSmallestInterval);
+		fBCH2DPosteriorDrawingOptions -> SetBandFillStyle(-1);
+		fBCH2DPosteriorDrawingOptions -> SetNBands(1);
+		fBCH2DPosteriorDrawingOptions -> SetNSmooth(0);
+		fBCH2DPosteriorDrawingOptions -> SetROOToptions("same");
+		fBCH2DPosteriorDrawingOptions -> SetLineColor(kMagenta);
+		fBCH2DPosteriorDrawingOptions -> SetMarkerColor(kMagenta);
+		fBCH2DPosteriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH2DPriorDrawingOptions -> CopyOptions(*fBCH2DPosteriorDrawingOptions);
+		fBCH2DPriorDrawingOptions -> SetNBands(3);
+		fBCH2DPriorDrawingOptions -> SetColorScheme(BCHistogramBase::kGreenYellowRed);
+		fBCH2DPriorDrawingOptions -> SetBandFillStyle(1001);
+		fBCH2DPriorDrawingOptions -> SetLineColor(kBlue);
+		fBCH2DPriorDrawingOptions -> SetMarkerColor(kBlue);
+		break;
+
+	case kKnowledgeUpdateDefaultStyle:
+	default:
+		// 1D
+		fBCH1DPriorDrawingOptions -> SetDrawGlobalMode(false);
+		fBCH1DPriorDrawingOptions -> SetDrawLocalMode(false);
+		fBCH1DPriorDrawingOptions -> SetDrawMean(false);
+		fBCH1DPriorDrawingOptions -> SetDrawMedian(false);
+		fBCH1DPriorDrawingOptions -> SetDrawLegend(false);
+		fBCH1DPriorDrawingOptions -> SetNBands(0);
+		fBCH1DPriorDrawingOptions -> SetBandType(BCH1D::kNoBands);
+		fBCH1DPriorDrawingOptions -> SetROOToptions("same");
+		fBCH1DPriorDrawingOptions -> SetLineColor(kRed);
+		fBCH1DPriorDrawingOptions -> SetMarkerColor(kRed);
+		fBCH1DPriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH1DPosteriorDrawingOptions -> CopyOptions(*fBCH1DPriorDrawingOptions);
+		fBCH1DPosteriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH1DPosteriorDrawingOptions -> SetLineColor(kBlue);
+		fBCH1DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+
+		// 2D
+		fBCH2DPriorDrawingOptions -> SetDrawGlobalMode(false);
+		fBCH2DPriorDrawingOptions -> SetDrawLocalMode(true,false);
+		fBCH2DPriorDrawingOptions -> SetDrawMean(false);
+		fBCH2DPriorDrawingOptions -> SetDrawLegend(false);
+		fBCH2DPriorDrawingOptions -> SetBandType(BCH2D::kSmallestInterval);
+		fBCH2DPriorDrawingOptions -> SetBandFillStyle(-1);
+		fBCH2DPriorDrawingOptions -> SetNBands(1);
+		fBCH2DPriorDrawingOptions -> SetNSmooth(0);
+		fBCH2DPriorDrawingOptions -> SetROOToptions("same");
+		fBCH2DPriorDrawingOptions -> SetLineColor(kRed);
+		fBCH2DPriorDrawingOptions -> SetMarkerColor(kRed);
+		fBCH2DPriorDrawingOptions -> SetNLegendColumns(1);
+		fBCH2DPosteriorDrawingOptions -> CopyOptions(*fBCH2DPriorDrawingOptions);
+		fBCH2DPosteriorDrawingOptions -> SetLineColor(kBlue);
+		fBCH2DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+		break;
+	}
 }

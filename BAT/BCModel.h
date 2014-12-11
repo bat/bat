@@ -58,6 +58,13 @@ class BCModel : public BCIntegrate
 	/** \name Enumerators  */
 	/** @{ */
 
+	/** An enumerator for the knowledge update drawing style presets. */
+	enum BCKnowledgeUpdateDrawingStyle {
+		kKnowledgeUpdateDefaultStyle      = 0,
+		kKnowledgeUpdateDetailedPosterior = 1,
+		kKnowledgeUpdateDetailedPrior     = 2
+	};
+
 	/** @} */
       /** \name Constructors and destructors */
       /** @{ */
@@ -366,12 +373,12 @@ class BCModel : public BCIntegrate
 
 	    /**
 	     * Set default drawing options for knowledge update plots. */
-	    void SetDefaultKnowledgeUpdateDrawingOptions();
+	    void SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingStyle style=BCModel::kKnowledgeUpdateDefaultStyle);
 
-	/**
-	 * Set drawing of prior first, posterior second (true), or reverse (false) for knowledge update plots. */
-	void SetDrawPriorPosteriorNormalOrder(bool b=true)
-	{ fPriorPosteriorNormalOrder = b; }
+	    /**
+	     * Set drawing of prior first, posterior second (true), or reverse (false) for knowledge update plots. */
+	    void SetDrawPriorPosteriorNormalOrder(bool b=true)
+	      { fPriorPosteriorNormalOrder = b; }
 
       /** @} */
 
