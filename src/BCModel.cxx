@@ -1031,7 +1031,7 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post, boo
 	}
 
 	gPad -> RedrawAxis();
-
+	gPad -> Update();
 	return 1;
 }
 
@@ -1239,7 +1239,8 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 		gPad -> SetTopMargin(1-legend->GetY1NDC()+0.01);		
 	}
 
-	gPad->RedrawAxis();
+	gPad -> RedrawAxis();
+	gPad -> Update();
 	return 1;
 }
 
