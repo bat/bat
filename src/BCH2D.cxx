@@ -34,9 +34,7 @@
 // ---------------------------------------------------------
 BCH2D::BCH2D(TH2 * h)
 	: BCHistogramBase(h,2)
-	, fIntegratedHistogram(0)
 	, fBandType(kSmallestInterval)
-	, fLogz(false)
 	, fDrawProfileX(false)
 	, fProfileXType(kProfileMean)
 	, fProfileXLineColor(kBlack)
@@ -46,28 +44,25 @@ BCH2D::BCH2D(TH2 * h)
 	, fProfileYLineColor(kBlack)
 	, fProfileYLineStyle(2)
 {
-	SetDrawLocalMode(true);
+	SetDrawLocalMode(true,false);
+	SetDrawGlobalMode(true,false);
 }
 
 // ---------------------------------------------------------
 BCH2D::BCH2D(const BCH2D & other)
 	: BCHistogramBase(other)
-	, fIntegratedHistogram(0)
 {
 	CopyOptions(other);
 }
 
 // ---------------------------------------------------------
 BCH2D::~BCH2D() {
-	if (fIntegratedHistogram)
-		delete fIntegratedHistogram;
 }
 
 // ---------------------------------------------------------
 void BCH2D::CopyOptions(const BCH2D & other) {
 	BCHistogramBase::CopyOptions(other);
 	fBandType = other.fBandType;
-	fLogz = other.fLogz;
 	fDrawProfileX = other.fDrawProfileX;
 	fProfileXType = other.fProfileXType;
 	fProfileXLineColor = other.fProfileXLineColor;
@@ -79,283 +74,101 @@ void BCH2D::CopyOptions(const BCH2D & other) {
 }
 
 // ---------------------------------------------------------
-void BCH2D::Draw(std::string options, std::vector<double> intervals) {
-	if (!((TH2D*)GetHistogram()))
+void BCH2D::CheckIntervals(std::vector<double> & intervals) {
+	if (fBandType != kNoBands)
+		BCHistogramBase::CheckIntervals(intervals,+1);
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCH2D::DefaultIntervals(int nbands) {
+	std::vector<double> intervals;
+
+	switch (fBandType) {
+		
+	case kNoBands:
+		return intervals;
+		
+	case kSmallestInterval:
+	default:
+		return BCHistogramBase::DefaultIntervals(nbands);
+
+	}
+}
+
+// ---------------------------------------------------------
+void BCH2D::DrawBands(std::string options) {
+	if (fBandType == kNoBands) {
+		GetHistogram() -> Draw((options+"colz").data());
+		gPad -> Update();
+		return;
+	}
+
+	std::vector<double> intervals = fIntervals;
+	CheckIntervals(intervals);
+
+	if (intervals.empty())
 		return;
 
-	// convert options to lowercase
-	std::transform(options.begin(),options.end(),options.begin(),::tolower);
-
-	if (intervals.empty())
-		intervals = fIntervals;
-
-	// check intervals values
-	for (unsigned i=0; i<intervals.size(); ++i) {
-		if (intervals[i] < 0 or intervals[i] > 1) {
-			BCLog::OutWarning("BCH2D::Draw : intervals values must be in [0,1]. Using defaults.");
-			intervals.clear();
-			break;
+	// set contour levels
+	std::vector<double> levels;
+	std::vector<std::string> legend_text;
+	switch (fBandType) {
+		
+	case kSmallestInterval:
+	default:
+		std::vector<std::pair<double, double> > dens_mass = GetSmallestIntervalBounds(intervals,fBandOvercoverage);
+		for (unsigned i=0; i<dens_mass.size(); ++i) {
+			levels.push_back(dens_mass[dens_mass.size()-i-1].first);
+			legend_text.push_back(TString::Format("smallest %.1f %% interval(s)",100*dens_mass[i].second).Data());
 		}
-		if (i>1 and fBandType==kSmallestInterval) {
-			BCLog::OutWarning("BCH2D::Draw : intervals must be in increasing order for specified band type. Using defaults.");
-			intervals.clear();
-			break;
-		}
+		// levels.push_back(GetHistogram()->GetMaximum());
+		break;
 	}
 
-	// set defaults if empty
-	if (intervals.empty())
-		switch (fBandType) {
-
-		case kNoBands:
-			break;
-
-		case kSmallestInterval:
-		default:
-			if (fNBands>0) intervals.push_back(0.682689492137);
-			if (fNBands>1) intervals.push_back(0.954499736104);
-			if (fNBands>2) intervals.push_back(0.997300203937);
-			if (fNBands>3) intervals.push_back(0.999936657516);
-			if (fNBands>4) intervals.push_back(0.999999426697);
-			if (fNBands>5) intervals.push_back(0.999999998027);
-			if (fNBands>6) intervals.push_back(0.999999999997);
-			if (fNBands>7) intervals.push_back(1);
-			break;
-
-		}
-
-	Smooth(fNSmooth);
-
-	// if option "same" is not specified, draw axes and add "same" to options
-	if (options.find("same") == std::string::npos) {
-		gPad -> SetLogx(fLogx);
-		gPad -> SetLogy(fLogy);
-		gPad -> SetLogz(fLogz);
-		GetHistogram()->Draw("axis");
-		gPad -> Update();
-		options += "same";
-	}
-
-	if (fBandType == kNoBands or intervals.empty()) {
-		GetHistogram() -> Draw("colzsame");
-		gPad -> Update();
+	// make sure enough colors have been designated
+	while (levels.size()>fBandColors.size())
+		fBandColors.push_back(fBandColors.back()-1);
+	
+	// set contour colors
+	std::vector<int> colors;
+	for (int i=levels.size()-1; i>=0; --i)
+		colors.push_back(fBandColors[i]);
+	
+	// set contour levels
+	GetHistogram() -> SetContour(levels.size(),&levels[0]);
+	
+	if (fBandFillStyle<=0) {
+		GetHistogram() -> SetLineColor(GetLineColor());
+		GetHistogram() -> Draw((options+"cont2").data());
 	} else {
-
-		unsigned nbands = intervals.size();
-
-		// make sure enough colors have been designated
-		while (nbands>fBandColors.size())
-			fBandColors.push_back(fBandColors.back()-1);
-
-		// set contour levels
-		std::vector<double> levels;
-		std::vector<std::string> legend_text;
-		switch (fBandType) {
-
-		case kSmallestInterval:
-		default:
-			// fill vector with pairs of bin densities and masses
-			std::vector<std::pair<double,double> > bin_dens_vol;
-			bin_dens_vol.reserve(fHistogram->GetNbinsX()*fHistogram->GetNbinsY());
-			for (int i=1; i<=fHistogram->GetNbinsX(); ++i)
-				for (int j=1; j<=fHistogram->GetNbinsY(); ++j)
-					if (fHistogram->GetBinContent(i,j)>0)
-						bin_dens_vol.push_back(std::make_pair(fHistogram->GetBinContent(i,j),GetHistogram()->Integral(i,i,j,j,"width")));
-			if (bin_dens_vol.empty())
-				break;
-			// sort bins by densities from lowest to highest
-			std::stable_sort(bin_dens_vol.begin(),bin_dens_vol.end(),Compare);
-			
-			// set contour levels by amount of probability mass = 1-interval (in reverse order of intervals)
-			// so that contours are of increasing level as needed by ROOT
-			double prob_sum = 1;
-			for (unsigned i=0; i<bin_dens_vol.size() and levels.size()<intervals.size() and prob_sum>=0; ++i) {
-				prob_sum -= bin_dens_vol[i].second;
-				while (levels.size()<intervals.size() and prob_sum <= intervals[intervals.size()-levels.size()-1]) {
-					levels.push_back(bin_dens_vol[i].first);
-					legend_text.push_back(TString::Format("smallest %.1f%% interval(s)",100*(prob_sum+bin_dens_vol[i].second)).Data());
-				}
-			}
-			levels.push_back(bin_dens_vol.back().first);
-			break;
-		}
-
-		if (levels.size()>1) {
-
-			// set contour levels
-			GetHistogram() -> SetContour(levels.size()-1,&levels[0]);
-
-			// set contour colors
-			std::vector<int> colors;
-			for (int i=levels.size()-2; i>=0; --i)
-				colors.push_back(fBandColors[i]);
-
-			gStyle -> SetPalette(colors.size(),&colors[0]);
-			
-			if (fBandFillStyle<=0)
-				fHistogram -> Draw("cont same");
-			else {
-				fHistogram -> SetFillStyle(fBandFillStyle);
-				fHistogram -> Draw("col same");
-			}
-			gPad -> Update();
-			
-			// Set legend entries
-			switch (fBandType) {
-			case kSmallestInterval:
-			default:
-				for (int i=legend_text.size()-1; i>=0; --i) {
-					TLegendEntry* le = fLegend->AddEntry((TObject*)0, legend_text[i].data(), "F");
-					if (fBandFillStyle>0) {
-						le -> SetFillColor(colors[i]);
-						le -> SetFillStyle(fBandFillStyle);
-					}
-					le -> SetLineColor(colors[i]);
-					le -> SetTextAlign(12);
-					le -> SetTextFont(62);
-					le -> SetTextSize(0.03);
-				}
-			}
-
+		gStyle -> SetPalette(colors.size(),&colors[0]);
+		GetHistogram() -> SetFillStyle(fBandFillStyle);
+		GetHistogram() -> Draw((options+"cont").data());
+	}
+	gPad -> Update();
+	
+	// Set legend entries
+	for (unsigned i=0; i<levels.size(); ++i) {
+		if (fBandFillStyle>0) {
+			TLegendEntry* le = AddBandLegendEntry((TObject*)0, legend_text[i].data(), "F");
+			le -> SetFillColor(colors[levels.size()-i-1]);
+			le -> SetFillStyle(1001/*fBandFillStyle*/);
+			le -> SetLineColor(0);
+			le -> SetLineWidth(0);
+			le -> SetLineStyle(0);
+		} else {
+			TLegendEntry* le = AddBandLegendEntry((TObject*)0, legend_text[i].data(), "L");
+			le -> SetLineColor(GetLineColor());
+			le -> SetLineStyle(levels.size()-i);
 		}
 	}
-	
-	DrawGlobalMode();
-	DrawLocalMode();
-	DrawMean();
+}
+
+// ---------------------------------------------------------
+void BCH2D::DrawMarkers() {
+	BCHistogramBase::DrawMarkers();
 	DrawProfileGraphs();
-	
-	DrawLegend();
-	gPad -> RedrawAxis();
-
-}
-
-// ---------------------------------------------------------
-void BCH2D::CalculateIntegratedHistogram()
-{
-   int nz = 100;
-
-   double zmin = fHistogram->GetMinimum();
-   double zmax = fHistogram->GetMaximum();
-   double dz   = (zmax-zmin);
-
-   double nx = fHistogram->GetNbinsX();
-   double ny = fHistogram->GetNbinsY();
-
-   // create histogram
-   if (fIntegratedHistogram)
-      delete fIntegratedHistogram;
-
-   fIntegratedHistogram = new TH1D(
-      TString::Format("%s_int_prob_%d",fHistogram->GetName(),BCLog::GetHIndex()), "", nz, zmin, zmax+0.05*dz);
-   fIntegratedHistogram->SetXTitle("z");
-   fIntegratedHistogram->SetYTitle("Integrated probability");
-   fIntegratedHistogram->SetStats(kFALSE);
-
-   // loop over histogram
-   for (int ix = 1; ix <= nx; ix++) {
-      for (int iy = 1; iy <= ny; iy++) {
-         double p = fHistogram->GetBinContent(ix, iy);
-         fIntegratedHistogram->Fill(p, p);
-      }
-   }
-
-   // normalize histogram
-   fIntegratedHistogram->Scale(1.0/fIntegratedHistogram->GetEntries());
-
-}
-
-// ---------------------------------------------------------
-double BCH2D::GetLevel(double p)
-{
-   double quantiles[1];
-   double probsum[1];
-   probsum[0] = p;
-
-   fIntegratedHistogram->GetQuantiles( 1, quantiles, probsum);
-
-   return quantiles[0];
-}
-
-// ---------------------------------------------------------
-double BCH2D::GetArea(double p)
-{
-   // copy histograms for bands
-	TH2D hist_temp(*((TH2D*)fHistogram));
-
-   // calculate total number of bins
-   int nbins = hist_temp.GetNbinsX() * hist_temp.GetNbinsY();
-
-   // area
-   double area = 0;
-
-   // integrated probability
-   double intp = 0;
-
-   // a counter
-   int counter = 0;
-
-   // loop over bins
-   while ( (intp < p) && (counter < nbins) ) {
-
-      // find maximum bin
-      int binx;
-      int biny;
-      int binz;
-      hist_temp.GetBinXYZ(hist_temp.GetMaximumBin(), binx, biny, binz);
-
-      // increase probability
-      double dp = hist_temp.GetBinContent(binx, biny);
-      intp += dp * hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);
-
-      // reset maximum bin
-      hist_temp.SetBinContent(binx, biny, 0.);
-
-      // increase area
-      area += hist_temp.GetXaxis()->GetBinWidth(binx) * hist_temp.GetYaxis()->GetBinWidth(biny);
-
-      // increase counter
-      counter++;
-   }
-
-   // return area
-   return area;
-}
-
-// ---------------------------------------------------------
-std::vector<int> BCH2D::GetNIntervalsY(TH2 * h, int &nfoundmax)
-{
-   std::vector<int> nint;
-
-   int nx = h->GetNbinsX();
-   int ny = h->GetNbinsY();
-
-   nfoundmax=0;
-
-   // loop over histogram bins in x
-   for (int ix=1; ix<=nx; ix++)
-   {
-      int nfound=0;
-
-      // loop over histogram bins in y
-      // count nonzero intervals in y
-      for (int iy=1; iy<=ny; iy++)
-         if(h->GetBinContent(ix,iy)>0.)
-         {
-            while(h->GetBinContent(ix,++iy)>0.)
-               ;
-            nfound++;
-         }
-
-      // store maximum number of nonzero intervals for the histogram
-      if(nfound>nfoundmax)
-         nfoundmax=nfound;
-
-      nint.push_back(nfound);
-   }
-
-   return nint;
-}
+}	
 
 // ---------------------------------------------------------
 TGraph* BCH2D::CalculateProfileGraph(BCH2DProfileAxis axis, BCH2DProfileType bt) {
@@ -458,7 +271,7 @@ void BCH2D::DrawProfileGraphs() {
 			xtext += " (mean)";
 			break;
 		}
-		fLegend -> AddEntry(graph_profile, xtext.data(), "L");
+		AddLegendEntry(graph_profile, xtext.data(), "L");
 	}
 	if (fDrawProfileY) {
 		TGraph * graph_profile = CalculateProfileGraph(kProfileY,fProfileYType);
@@ -479,7 +292,7 @@ void BCH2D::DrawProfileGraphs() {
 			ytext += " (mean)";
 			break;
 		}
-		fLegend -> AddEntry(graph_profile, ytext.data(), "L");
+		AddLegendEntry(graph_profile, ytext.data(), "L");
 	}
 }
 

@@ -146,7 +146,32 @@ class BCModel : public BCIntegrate
 
 	    /**
 	     * @return BCPriorModel. */
-	    virtual BCPriorModel * GetPriorModel(bool prepare=true);
+	    virtual BCPriorModel * GetPriorModel(bool prepare=true, bool call_likelihood=false);
+
+	    /**
+	     * @return BCH1D object for controlling drawing options of priors in knowledge update plots. */
+	    BCH1D * GetBCH1DPriorDrawingOptions()
+	    { return fBCH1DPriorDrawingOptions; }
+
+	    /**
+	     * @return BCH2D object for controlling drawing options of priors in knowledge update plots. */
+	    BCH2D * GetBCH2DPriorDrawingOptions()
+	    { return fBCH2DPriorDrawingOptions; }
+
+	    /**
+	     * @return BCH1D object for controlling drawing options of posteriors in knowledge update plots. */
+	    BCH1D * GetBCH1DPosteriorDrawingOptions()
+	    { return fBCH1DPosteriorDrawingOptions; }
+
+	    /**
+	     * @return BCH2D object for controlling drawing options of posteriors in knowledge update plots. */
+	    BCH2D * GetBCH2DPosteriorDrawingOptions()
+	    { return fBCH2DPosteriorDrawingOptions; }
+
+	/**
+	 * @return flag for order of drawing prior first, posterior second (true); or the other way around (false). */
+	bool GetDrawPriorPosteriorNormalOrder()
+	{ return fPriorPosteriorNormalOrder; }
 
       /** @} */
 
@@ -339,6 +364,15 @@ class BCModel : public BCIntegrate
        */
       int SetPriorConstantAll();
 
+	    /**
+	     * Set default drawing options for knowledge update plots. */
+	    void SetDefaultKnowledgeUpdateDrawingOptions();
+
+	/**
+	 * Set drawing of prior first, posterior second (true), or reverse (false) for knowledge update plots. */
+	void SetDrawPriorPosteriorNormalOrder(bool b=true)
+	{ fPriorPosteriorNormalOrder = b; }
+
       /** @} */
 
       /** \name Member functions (miscellaneous methods) */
@@ -370,7 +404,7 @@ class BCModel : public BCIntegrate
 
       /**
        * Returns natural logarithm of the prior probability.
-       * Method needs to be overloaded by the user.
+       * Method can be overloaded by the user.
        * @param parameters A set of parameter values
        * @return The prior probability p(parameters)
        * @see GetPrior(std::vector<double> parameters) */
@@ -400,8 +434,8 @@ class BCModel : public BCIntegrate
        * a set of parameter values
        * @param parameters A set of parameter values
        * @return The likelihood times prior probability */
-      double LogProbabilityNN(const std::vector<double> &parameters)
-      { return LogLikelihood(parameters) + LogAPrioriProbability(parameters); }
+	    double LogProbabilityNN(const std::vector<double> &parameters);
+
 
       /**
        * Returns the a posteriori probability given a set of parameter values
@@ -429,6 +463,11 @@ class BCModel : public BCIntegrate
       /**
        * Overloaded function to evaluate integral. */
       virtual double LogEval(const std::vector<double> &parameters);
+
+	
+	    /**
+       * Initialize the trees containing the Markov chains and parameter info. */
+	    virtual void InitializeMarkovChainTree(bool replacetree=false, bool replacefile=false);
 
       /**
        * Constrains a data point
@@ -528,18 +567,18 @@ class BCModel : public BCIntegrate
        * Draw a comparison of the prior knowledge to the posterior
        * knowledge for each parameter.
        * @return An error flag. */
-      virtual int DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post="", std::string options_prior="");
+	    virtual int DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post=false, bool flag_slice_prior=false);
 	
       /**
        * Draw a comparison of the prior knowledge to the posterior.
        * @return An error flag. */
-	    virtual int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false, double interval_content=68e-2);
-	    
+	    virtual int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false);
+
       /**
        * Print a comparison of the prior knowledge to the posterior
        * knowledge for each parameter.
        * @return An error flag. */
-	    virtual int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, std::string options="-", double interval_content=68e-2);
+    	virtual int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, bool flag_slice=false, bool call_likelihood=false);
 
 
    /** @} */
@@ -616,6 +655,26 @@ class BCModel : public BCIntegrate
 	    /**
 	     * BCPriorModel object for drawing of knowledge update, and saving of samples according to prior.*/
 	    BCPriorModel * fPriorModel;
+
+	/**
+	 * knowledge update plot 1D prior options. */
+	BCH1D * fBCH1DPriorDrawingOptions;
+
+	/**
+	 * knowledge update plot 2D prior options. */
+	BCH2D * fBCH2DPriorDrawingOptions;
+
+	/**
+	 * knowledge update plot 1D posterior options. */
+	BCH1D * fBCH1DPosteriorDrawingOptions;
+
+	/**
+	 * knowledge update plot 2D posterior options. */
+	BCH2D * fBCH2DPosteriorDrawingOptions;
+
+	/**
+	 * flag for ordering of drawing of prior and posterior in knowledge update plots. */
+	bool fPriorPosteriorNormalOrder;
 
 };
 

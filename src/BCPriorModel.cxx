@@ -13,9 +13,10 @@
 #include <TH1D.h>
 
 // ---------------------------------------------------------
-BCPriorModel::BCPriorModel(BCModel * model)
+BCPriorModel::BCPriorModel(BCModel * model, bool call_likelihood)
 	: BCModel("prior_model")
 	, fModel(model)
+	, fCallLikelihood(call_likelihood)
 {
 	if (fModel) {
 		SetName((fModel->GetName()+"_prior").data());
@@ -56,4 +57,16 @@ bool BCPriorModel::PreparePriorModel() {
 	MCMCSetPrecision(fModel);
 
 	return true;
+}
+
+// ---------------------------------------------------------
+void BCPriorModel::CalculateObservables(const std::vector<double> &parameters) {
+	if (!fModel)
+		return;
+	fModel -> MCMCSetCurrentChain(fMCMCCurrentChain);
+	if (fCallLikelihood)
+		fModel -> LogLikelihood(parameters);
+	fModel -> CalculateObservables(parameters);
+	for (unsigned i=0; i<GetNObservables(); ++i)
+		GetObservable(i) -> Value(fModel->GetObservable(i)->Value());
 }

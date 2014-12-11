@@ -221,40 +221,23 @@ public:
 	/** @{ */
 
 	/**
-	 * Draw distribution into the active canvas.
-	 * @param options Drawing options: \n
-	 * BTf : band type a filled area [default] \n
-	 * BTc : band type is a contour \n
-	 * mean : draw mean value and standard deviation [default] \n
-	 * lmode : draw global mode [default] \n
-	 * profilex : draw the profile line vs. x using the mode \n
-	 * profiley : draw the profile line vs. y using the mode \n
-	 * @param intervals the intervals for the bands
-	 */
-	void Draw(std::string options="BTfB3CS1meangmodelmode", std::vector<double> intervals=std::vector<double>(0));
+	 * Check intervals: remove values below 0 or above 1,
+	 * and sort to proper order band type. */
+	virtual void CheckIntervals(std::vector<double> & intervals);
+	
+	/**
+	 * Return default intervals.
+	 * @param nbands nbands to give defaults for; if negative, use fNBands.
+	 * @return vector of default values for band intervals. */
+	virtual std::vector<double> DefaultIntervals(int nbands=-1);
 
 	/**
-	 * Calculates the integral of the distribution as a function of the
-	 * height. */
-	void CalculateIntegratedHistogram();
+	 * Draw band, or if band type set to no bands, histogram. */
+	virtual void DrawBands(std::string options="same");
 
 	/**
-	 * Calculates the height below which the integrated probability has
-	 * a certain value.
-	 * @param p The integrated probability in the region below the height to be estimated. */
-	double GetLevel(double p);
-
-	/**
-	 * Calculate the smallest area over which the integral of the function is p
-	 * @param p The integrated probability in the region below the height to be estimated. */
-	double GetArea(double p);
-
-	/**
-	 * Returns the number of intervals as a function of x
-	 * @param h The histogram.
-	 * @param nfoundmax The maximum number of intervals.
-	 * @return A vector containing the number of intervals for all bins in x. */
-	std::vector<int> GetNIntervalsY(TH2* h, int &nfoundmax);
+	 * Draw Markers: global mode, local mode, etc. */
+	virtual void DrawMarkers();
 
 	/**
 	 * Return a graph of the profile along x or y. The profile is
@@ -272,13 +255,6 @@ public:
 	/** @} */
 	
 protected:
-
-	static bool Compare(std::pair<double,double> x, std::pair<double,double> y)
-	{ return x.first < y.first; }
-
-	/**
-	 * The integrated 2D histogram */
-	TH1D* fIntegratedHistogram;
 
 	/**
 	 * band type. */

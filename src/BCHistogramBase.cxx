@@ -9,21 +9,13 @@
 // ---------------------------------------------------------
 
 #include "BCHistogramBase.h"
-
 #include "BCLog.h"
-#include "BCMath.h"
 
-#include <TH1D.h>
+#include <TObject.h>
+#include <TH1.h>
 #include <TAxis.h>
 #include <TROOT.h>
-#include <TStyle.h>
-#include <TH2.h>
-#include <TLine.h>
-#include <TPolyLine.h>
-#include <TPaveLabel.h>
-#include <TLatex.h>
-#include <TError.h>
-#include <TCanvas.h>
+#include <TPad.h>
 #include <TMarker.h>
 #include <TArrow.h>
 #include <TLegend.h>
@@ -31,16 +23,23 @@
 #include <TString.h>
 
 #include <math.h>
+#include <algorithm>
 
 // ---------------------------------------------------------
 BCHistogramBase::BCHistogramBase(TH1 * hist, int dimension)
   : fHistogram(0)
 	, fLegend(new TLegend)
+	, fNLegendColumns(2)
+	, fBandOvercoverage(true)
 	, fBandFillStyle(1001)
+	, fLineColor(kBlack)
 	, fMarkerColor(kBlack)
-	, fMarkerScale(2)
+	, fMarkerScale(1.6)
 	, fLogx(false)
 	, fLogy(false)
+	, fLogz(false)
+	, fGridx(false)
+	, fGridy(false)
 	, fNBands(3)
 	, fNSmooth(0)
 	, fDrawGlobalMode(true)
@@ -56,28 +55,26 @@ BCHistogramBase::BCHistogramBase(TH1 * hist, int dimension)
 	SetHistogram(hist);
 	SetColorScheme(kGreenYellowRed);
 
+	fLegend -> SetNColumns(fNLegendColumns);
 	fLegend -> SetBorderSize(0);
 	fLegend -> SetFillColor(kWhite);
 	fLegend -> SetTextAlign(12);
 	fLegend -> SetTextFont(62);
 	fLegend -> SetTextSize(0.03);
 	fROOTObjects.push_back(fLegend);
+
+	fIntervals = DefaultIntervals();
 }
 
 // ---------------------------------------------------------
 BCHistogramBase::BCHistogramBase(const BCHistogramBase & other)
   : fHistogram(0)
-	, fLegend(new TLegend)
+	, fLegend(new TLegend(*(other.fLegend)))
 	, fGlobalMode(other.fGlobalMode)
 	, fDimension(other.fDimension)
 {
 	SetHistogram(other.fHistogram);
-	
-	fLegend -> SetBorderSize(0);
-	fLegend -> SetFillColor(kWhite);
-	fLegend -> SetTextAlign(12);
-	fLegend -> SetTextFont(62);
-	fLegend -> SetTextSize(0.03);
+	fLegend -> Clear();
 	fROOTObjects.push_back(fLegend);
 
 	CopyOptions(other);
@@ -85,11 +82,16 @@ BCHistogramBase::BCHistogramBase(const BCHistogramBase & other)
 
 // ---------------------------------------------------------
 void BCHistogramBase::CopyOptions(const BCHistogramBase & other) {
+	fNLegendColumns = other.fNLegendColumns;
 	fBandFillStyle = other.fBandFillStyle;
+	fLineColor = other.fLineColor;
 	fMarkerColor = other.fMarkerColor;
 	fMarkerScale = other.fMarkerScale;
 	fLogx = other.fLogx;
 	fLogy = other.fLogy;
+	fLogz = other.fLogz;
+	fGridx = other.fGridx;
+	fGridy = other.fGridy;
 	fNBands = other.fNBands;
 	fNSmooth = other.fNSmooth;
 	fDrawGlobalMode = other.fDrawGlobalMode;
@@ -101,7 +103,9 @@ void BCHistogramBase::CopyOptions(const BCHistogramBase & other) {
 	fDrawLegend = other.fDrawLegend;
 	fDrawStats = other.fDrawStats;
 	fBandColors = other.fBandColors;
+	fBandOvercoverage = other.fBandOvercoverage;
 	fIntervals = other.fIntervals;
+	fROOToptions = other.fROOToptions;
 }
 
 // ---------------------------------------------------------
@@ -125,6 +129,7 @@ void BCHistogramBase::SetHistogram(TH1 * hist) {
 	}
 
 	fHistogram = (TH1*) hist -> Clone(TString::Format("%s_bch",hist->GetName()));
+	fHistogram -> SetStats(false);
 	fDimension = fHistogram->GetDimension();
 
 	// normalize
@@ -137,14 +142,17 @@ void BCHistogramBase::SetHistogram(TH1 * hist) {
 	int bx, by, bz;
 	GetHistogram() -> GetBinXYZ(b,bx,by,bz);
 	fLocalMode.assign(1,GetHistogram()->GetXaxis()->GetBinCenter(bx));
-	if (GetHistogram()->GetDimension()>1)
+	if (by>0)
 		fLocalMode.push_back(GetHistogram()->GetYaxis()->GetBinCenter(by));
-	if (GetHistogram()->GetDimension()>2)
+	if (bz>0)
 		fLocalMode.push_back(GetHistogram()->GetZaxis()->GetBinCenter(bz));
 
+	GetHistogram() -> GetXaxis() -> SetNdivisions(508);
 	// Set Y title, if 1D
 	if (GetHistogram()->GetDimension()==1 and strlen(GetHistogram()->GetYaxis()->GetTitle())==0)
 		GetHistogram() -> SetYTitle(TString::Format("P(%s|Data)",GetHistogram()->GetXaxis()->GetTitle()));
+	else
+		GetHistogram() -> GetYaxis() -> SetNdivisions(508);
 }
 
 // ---------------------------------------------------------
@@ -162,6 +170,7 @@ void BCHistogramBase::SetColorScheme(BCHColorScheme scheme) {
 		AddBandColor(19);						// light
 		AddBandColor(10);						// white
 		SetMarkerColor(kBlack);
+		SetLineColor(kBlack);
 		break;
 		
 	case kBlueOrange:
@@ -173,6 +182,7 @@ void BCHistogramBase::SetColorScheme(BCHColorScheme scheme) {
 		AddBandColor(kBlue-9);
 		AddBandColor(kBlue-10);
 		SetMarkerColor(kOrange);
+		SetLineColor(kBlack);
 		break;
 
 	case kRedGreen:
@@ -184,6 +194,7 @@ void BCHistogramBase::SetColorScheme(BCHColorScheme scheme) {
 		AddBandColor(kRed-9);
 		AddBandColor(kRed-10);
 		SetMarkerColor(kGreen);
+		SetLineColor(kBlack);
 		break;
 
 	case kGreenYellowRed:
@@ -195,6 +206,7 @@ void BCHistogramBase::SetColorScheme(BCHColorScheme scheme) {
 		AddBandColor(kRed-1);
 		AddBandColor(kRed-6);
 		SetMarkerColor(kBlack);
+		SetLineColor(kBlack);
 		break;
 
 	}
@@ -202,13 +214,224 @@ void BCHistogramBase::SetColorScheme(BCHColorScheme scheme) {
 }
 
 // ---------------------------------------------------------
-void BCHistogramBase::Smooth(unsigned n) {
-	if (n==0)
+void BCHistogramBase::Smooth(int n) {
+	if (n<0)
+		n = fNSmooth;
+	if (n<=0)
 		return;
-	GetHistogram() -> Smooth(fNSmooth);
+	GetHistogram() -> Scale(GetHistogram()->Integral("width"));
+	if (GetHistogram()->GetDimension()==1)
+		GetHistogram() -> Smooth(n);
+	else // ROOT currently only allows single instances of smoothing for TH2
+		for (int i=0; i<n; ++i)
+			GetHistogram() -> Smooth(1);
 	double integral = GetHistogram() -> Integral("width");
 	if ( integral != 0 )
 		GetHistogram() -> Scale(1./integral);
+}
+
+// ---------------------------------------------------------
+void BCHistogramBase::CheckIntervals(std::vector<double> & intervals, int sort) {
+	// remove out-of-bounds entries
+	for (int i=intervals.size()-1; i>=0; --i)
+		if (intervals[i] < 0 or intervals[i] > 1) {
+			BCLog::OutWarning(TString::Format("BCHistogramBase::CheckIntervals : interval out of bounds, removing %f",intervals[i]));
+			intervals.erase(intervals.begin()+i);
+		}
+
+	// sort
+	if (sort > 0)
+		std::stable_sort(intervals.begin(),intervals.end(),std::less<double>());
+	if (sort < 0)
+		std::stable_sort(intervals.begin(),intervals.end(),std::greater<double>());
+
+	// warning: unique will not reliably remove all duplicates unless the vector has first been sorted.
+	unsigned old_size = intervals.size();
+	std::unique(intervals.begin(),intervals.end());
+	if (intervals.size() < old_size)
+		BCLog::OutWarning(TString::Format("BCHistogramBase::CheckIntervals : %lu duplicate interval values were removed.",old_size-intervals.size()));
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCHistogramBase::DefaultIntervals(int nbands) {
+	if (nbands<0)
+		nbands = fNBands;
+	std::vector<double> intervals;
+	if (nbands>0) intervals.push_back(0.682689492137);
+	if (nbands>1) intervals.push_back(0.954499736104);
+	if (nbands>2) intervals.push_back(0.997300203937);
+	if (nbands>3) intervals.push_back(0.999936657516);
+	if (nbands>4) intervals.push_back(0.999999426697);
+	if (nbands>5) intervals.push_back(0.999999998027);
+	if (nbands>6) intervals.push_back(0.999999999997);
+	if (nbands>7) intervals.push_back(1);
+	return intervals;
+}
+
+// ---------------------------------------------------------
+void BCHistogramBase::GetNonzeroBinDensityMassVector(std::vector<std::pair<double,double> > & bin_dens_mass, int sort) {
+	if (!GetHistogram())
+		return;
+
+	// calculate number of bins
+	unsigned nbins = GetHistogram()->GetBin(GetHistogram()->GetNbinsX(),GetHistogram()->GetNbinsY(),GetHistogram()->GetNbinsZ());
+	
+	// reserve space
+	bin_dens_mass.reserve(nbins);
+	
+	// fill bin_dens_mass with pairs of (prob. density, prob. mass) for all non-empty bins
+	for (unsigned i=1; i<=nbins; ++i)
+		if (!GetHistogram()->IsBinUnderflow(i) and !GetHistogram()->IsBinOverflow(i) and GetHistogram()->GetBinContent(i)>0) {
+			// if 1D, by = bz = -1; if 2D, bz = -1
+			int bx, by, bz;
+			GetHistogram() -> GetBinXYZ(i,bx,by,bz);
+			// bin val
+			double v = GetHistogram()->GetBinContent(i);
+			// bin width / area / volume
+			double w = (bx>0 ? GetHistogram()->GetXaxis()->GetBinWidth(bx) : 1) * (by>0 ? GetHistogram()->GetYaxis()->GetBinWidth(by) : 1) * (bz>0 ? GetHistogram()->GetZaxis()->GetBinWidth(bz) : 1);
+			bin_dens_mass.push_back(std::make_pair(v,v*w));
+		}
+	// sort 
+	if (sort < 0)
+		std::stable_sort(bin_dens_mass.begin(), bin_dens_mass.end(), std::greater<std::pair<double,double> >());
+	if (sort > 0)
+		std::stable_sort(bin_dens_mass.begin(), bin_dens_mass.end(), std::less<std::pair<double,double> >());
+}
+
+// ---------------------------------------------------------
+std::vector<std::pair<double,double> > BCHistogramBase::GetSmallestIntervalBounds(std::vector<double> masses, bool overcoverage) {
+	std::vector<std::pair<double,double> > levels;
+
+	// if no masses asked for or no histogram set, return empty vector
+	if (masses.empty() or !GetHistogram())
+		return levels;
+
+	// check and sort masses to decreasing order
+	CheckIntervals(masses,-1);
+
+	// reserce space in the levels vector
+	levels.reserve(masses.size());
+
+	std::vector<std::pair<double,double> > bin_dens_mass;
+	GetNonzeroBinDensityMassVector(bin_dens_mass,-1); // sorted in decreasing order
+
+	// consolidate bins by density
+	std::vector<std::pair<double,double> > dens_mass;
+	dens_mass.reserve(bin_dens_mass.size());
+	for (unsigned i=0; i<bin_dens_mass.size(); ++i) {
+		dens_mass.push_back(bin_dens_mass[i]);
+		while (i<bin_dens_mass.size()-1 and bin_dens_mass[i+1].first==dens_mass.back().first)
+			dens_mass.back().second += bin_dens_mass[++i].second;
+	}
+	
+	if (overcoverage) {
+		double prob_sum = 0;
+		for (unsigned i=0; i<dens_mass.size() and !masses.empty() and prob_sum<=1; ++i) {
+			prob_sum += dens_mass[i].second;
+			while (!masses.empty() and prob_sum >= masses.back()) {
+				levels.push_back(std::make_pair(dens_mass[i].first,prob_sum));
+				masses.pop_back();
+			}
+		}
+	}	else { // undercoverage
+		// remove mass levels that cannot be undercovered
+		double prob_sum = dens_mass.front().second;
+		while (!masses.empty() and masses.back()<prob_sum)
+			masses.pop_back();
+		for (unsigned i=1; i<dens_mass.size() and !masses.empty() and prob_sum<=1; ++i) {
+			prob_sum += dens_mass[i].second;
+			while (!masses.empty() and prob_sum >= masses.back()) {
+				levels.push_back(std::make_pair(dens_mass[i-1].first,prob_sum-dens_mass[i].second));
+				masses.pop_back();
+			}
+		}
+	}
+
+	std::unique(levels.begin(),levels.end());
+	return levels;
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double> masses, bool overcoverage) {
+	// vector of sizes
+	std::vector<double> S;
+	
+	// remove out-of-bounds entries
+	for (int i=masses.size()-1; i>=0; --i)
+		if (masses[i] < 0 or masses[i] > 1) {
+			BCLog::OutWarning(TString::Format("BCHistogramBase::GetSmallestIntervalSize : mass out of bounds, removing %f",masses[i]));
+			masses.erase(masses.begin()+i);
+		}
+	if (masses.empty())
+		return S;
+
+	std::vector<std::pair<double,double> > bin_dens_mass;
+	GetNonzeroBinDensityMassVector(bin_dens_mass,-1); // sorted in decreasing order
+
+	if (bin_dens_mass.empty())
+		return S;
+
+	S.assign(masses.size(),0);
+	double mass = 0;
+	double area = 0;
+	unsigned n = 0;
+	for (std::vector<std::pair<double,double> >::const_iterator bin=bin_dens_mass.begin(); bin!=bin_dens_mass.end() and n<S.size(); ++bin) {
+		for (unsigned i=0; i<masses.size(); ++i)
+			if (mass+bin->second >= masses[i] and mass<=masses[i]) {
+				S[i] = area + (masses[i]-mass)/bin->first;
+				++n;
+			}
+		area += bin->second/bin->first;
+	}
+	return S;
+}
+
+// ---------------------------------------------------------
+double BCHistogramBase::GetSmallestIntervalSize(double mass, bool overcoverage) {
+	std::vector<double> s = GetSmallestIntervalSize(std::vector<double>(1,mass));
+	if (s.empty())
+		return 0;
+	return s[0];
+}
+
+// ---------------------------------------------------------
+void BCHistogramBase::Draw() {
+	if (!GetHistogram())
+		return;
+
+	GetHistogram() -> SetStats(fDrawStats);
+	fLegend -> SetNColumns(fNLegendColumns);
+
+	Smooth(fNSmooth);
+
+	std::string options = fROOToptions;
+	// if option "same" is not specified, draw axes and add "same" to options
+	if (fROOToptions.find("same") == std::string::npos) {
+		gPad -> SetLogx(fLogx);
+		gPad -> SetLogy(fLogy);
+		gPad -> SetLogz(fLogz);
+		gPad -> SetGridx(fGridx);
+		gPad -> SetGridy(fGridy);
+		GetHistogram()->Draw("axis");
+		gPad -> Update();
+		options += "same";
+	}
+
+	DrawBands(options);
+	gPad -> Update();
+
+	DrawMarkers();
+	DrawLegend();
+	
+	gPad -> RedrawAxis();
+	gPad -> Update();
+}
+
+// ---------------------------------------------------------
+void BCHistogramBase::DrawMarkers() {
+	DrawGlobalMode();
+	DrawLocalMode();
+	DrawMean();
 }
 
 // ---------------------------------------------------------
@@ -231,7 +454,7 @@ void BCHistogramBase::DrawGlobalMode() {
 		marker_mode -> Draw();
 		fROOTObjects.push_back(marker_mode);
 
-		TLegendEntry * le = fLegend -> AddEntry(marker_mode, "global mode", "P");
+		TLegendEntry * le = AddLegendEntry(marker_mode, "global mode", "P");
 		le -> SetMarkerStyle(marker_mode->GetMarkerStyle());
 		le -> SetMarkerSize(marker_mode->GetMarkerSize());
 		le -> SetMarkerColor(marker_mode->GetMarkerColor());
@@ -275,7 +498,7 @@ void BCHistogramBase::DrawLocalMode() {
 		ymax = pow(10,ymax);
 		y = ymin * pow(ymax/ymin,0.25);
 	}
-	if (GetHistogram()->GetDimension()>1 and fGlobalMode.size()>1)
+	if (GetHistogram()->GetDimension()>1 and fLocalMode.size()>1)
 		y = fLocalMode[1];
 
 	if (fDrawLocalMode and !fLocalMode.empty()) {
@@ -285,7 +508,7 @@ void BCHistogramBase::DrawLocalMode() {
 		marker_mode -> Draw();
 		fROOTObjects.push_back(marker_mode);
 
-		TLegendEntry * le = fLegend -> AddEntry(marker_mode, "local mode", "P");
+		TLegendEntry * le = AddLegendEntry(marker_mode, "local mode", "P");
 		le -> SetMarkerStyle(marker_mode->GetMarkerStyle());
 		le -> SetMarkerSize(marker_mode->GetMarkerSize());
 		le -> SetMarkerColor(marker_mode->GetMarkerColor());
@@ -299,7 +522,7 @@ void BCHistogramBase::DrawLocalMode() {
 			arrow_mode -> Draw();
 			fROOTObjects.push_back(arrow_mode);
 			
-			if (GetHistogram()->GetDimension()>1 and fGlobalMode.size()>1) {
+			if (GetHistogram()->GetDimension()>1 and fLocalMode.size()>1) {
 				double xmin = gPad -> GetUxmin();
 				double xmax = gPad -> GetUxmax();
 				if (gPad->GetLogx()) {
@@ -317,7 +540,7 @@ void BCHistogramBase::DrawLocalMode() {
 		}
 
 	}
-	
+	gPad -> Update();
 }
 
 // ---------------------------------------------------------
@@ -348,7 +571,7 @@ void BCHistogramBase::DrawMean() {
 			arrow_std -> SetLineColor(marker_mean->GetMarkerColor());
 			arrow_std -> SetFillColor(marker_mean->GetMarkerColor());
 			arrow_std -> Draw();
-			le = fLegend -> AddEntry(arrow_std, "mean and standard deviation", "PL");
+			le = AddLegendEntry(arrow_std, "mean and standard deviation", "PL");
 			le -> SetLineColor(arrow_std->GetLineColor());
 			
 			if (GetHistogram()->GetDimension()>1) {
@@ -360,11 +583,40 @@ void BCHistogramBase::DrawMean() {
 				arrow_std2 -> Draw();
 			}
 		} else
-			le = fLegend -> AddEntry(marker_mean, "mean", "P");
+			le = AddLegendEntry(marker_mean, "mean", "P");
 		le -> SetMarkerStyle(marker_mean->GetMarkerStyle());
 		le -> SetMarkerSize(marker_mean->GetMarkerSize());
 		le -> SetMarkerColor(marker_mean->GetMarkerColor());
 	}
+}
+
+// ---------------------------------------------------------
+double BCHistogramBase::ResizeLegend() {
+	fLegend -> SetX1NDC(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+	fLegend -> SetX2NDC(1 - gPad->GetRightMargin());
+	fLegend -> SetY1NDC(1 - gPad->GetTopMargin() - fLegend->GetTextSize()*fLegend->GetNRows());
+	fLegend -> SetY2NDC(1 - gPad->GetTopMargin());
+	return fLegend->GetY1NDC();
+}
+
+// ---------------------------------------------------------
+TLegendEntry * BCHistogramBase::AddLegendEntry(TObject * obj, const char * label, const char * options) {
+	if (fExtraLegendEntries.empty())
+		return fLegend -> AddEntry(obj,label,options);
+	TLegendEntry * le = fExtraLegendEntries.front();
+	le -> SetObject(obj);
+	le -> SetLabel(label);
+	le -> SetOption(options);
+	fExtraLegendEntries.erase(fExtraLegendEntries.begin());
+	return le;
+}
+
+// ---------------------------------------------------------
+TLegendEntry * BCHistogramBase::AddBandLegendEntry(TObject * obj, const char * label, const char * options) {
+	TLegendEntry * le = fLegend->AddEntry(obj,label,options);
+	for (int i=1; i<fLegend->GetNColumns(); ++i)
+		fExtraLegendEntries.push_back(fLegend->AddEntry((TObject*)0,"",""));
+	return le;
 }
 
 // ---------------------------------------------------------
@@ -380,15 +632,13 @@ void BCHistogramBase::DrawLegend() {
 		fHistogram->GetYaxis()->SetRangeUser(ymin, ymax*(1.15+fLegend->GetTextSize()*fLegend->GetNRows())*1.05);
 		
 		gPad->SetTopMargin(0.02);
-		
-		fLegend -> SetX1NDC(gPad->GetLeftMargin() + 0.10 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
-		fLegend -> SetX2NDC(1 - gPad->GetRightMargin());
-		fLegend -> SetY1NDC(1 - gPad->GetTopMargin() - fLegend->GetTextSize()*fLegend->GetNRows());
-		fLegend -> SetY2NDC(1 - gPad->GetTopMargin());
+	
+		double y1ndc = ResizeLegend();
 		fLegend -> Draw();
 		
 		// rescale top margin
-		gPad->SetTopMargin(1-fLegend->GetY1NDC()+0.01);
+		gPad->SetTopMargin(1-y1ndc+0.01);
+
 	} else
 	 	fHistogram->GetYaxis()->SetRangeUser(ymin, ymax*1.155);
 }

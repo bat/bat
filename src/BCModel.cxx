@@ -27,7 +27,9 @@
 #include <TMath.h>
 #include <TRandom3.h>
 #include <TTree.h>
+#include <TList.h>
 #include <TLegend.h>
+#include <TLegendEntry.h>
 #include <TMarker.h>
 #include <TArrow.h>
 
@@ -52,7 +54,13 @@ BCModel::BCModel(const char * name)
   , fGoFNChains(5)
   , fPriorConstantAll(false)
 	, fPriorModel(0)
+	, fBCH1DPriorDrawingOptions(new BCH1D)
+	, fBCH2DPriorDrawingOptions(new BCH2D)
+	, fBCH1DPosteriorDrawingOptions(new BCH1D)
+	, fBCH2DPosteriorDrawingOptions(new BCH2D)
+	, fPriorPosteriorNormalOrder(true)
 {
+	SetDefaultKnowledgeUpdateDrawingOptions();
 }
 
 // ---------------------------------------------------------
@@ -72,15 +80,25 @@ BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
   , fGoFNChains(5)
   , fPriorConstantAll(false)
 	, fPriorModel(0)
+	, fBCH1DPriorDrawingOptions(new BCH1D)
+	, fBCH2DPriorDrawingOptions(new BCH2D)
+	, fBCH1DPosteriorDrawingOptions(new BCH1D)
+	, fBCH2DPosteriorDrawingOptions(new BCH2D)
+	, fPriorPosteriorNormalOrder(true)
 {
 	LoadMCMC(filename,"","",reuseObservables);
 	SetPriorConstantAll();
+	SetDefaultKnowledgeUpdateDrawingOptions();
 }
 
 // ---------------------------------------------------------
 BCModel::BCModel(const BCModel & bcmodel)
 	: BCIntegrate(bcmodel)
 	, fPriorModel(0)
+	, fBCH1DPriorDrawingOptions(new BCH1D)
+	, fBCH2DPriorDrawingOptions(new BCH2D)
+	, fBCH1DPosteriorDrawingOptions(new BCH1D)
+	, fBCH2DPosteriorDrawingOptions(new BCH2D)
 {
 	Copy(bcmodel);
 }
@@ -125,6 +143,11 @@ void BCModel::Copy(const BCModel & bcmodel)
    fPriorConstantAll                = bcmodel.fPriorConstantAll;
    fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
    fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
+	 fBCH1DPriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH1DPriorDrawingOptions));
+	 fBCH2DPriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH2DPriorDrawingOptions));
+	 fBCH1DPosteriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH1DPosteriorDrawingOptions));
+	 fBCH2DPosteriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH2DPosteriorDrawingOptions));
+	 fPriorPosteriorNormalOrder = bcmodel.fPriorPosteriorNormalOrder;
 }
 
 // ---------------------------------------------------------
@@ -139,6 +162,14 @@ BCModel::~BCModel()
 
    delete fDataPointLowerBoundaries;
    delete fDataPointUpperBoundaries;
+	 if (fBCH1DPriorDrawingOptions)
+		 delete fBCH1DPriorDrawingOptions;
+	 if (fBCH2DPriorDrawingOptions)
+		 delete fBCH2DPriorDrawingOptions;
+	 if (fBCH1DPosteriorDrawingOptions)
+		 delete fBCH1DPosteriorDrawingOptions;
+	 if (fBCH2DPosteriorDrawingOptions)
+		 delete fBCH2DPosteriorDrawingOptions;
 }
 
 // ---------------------------------------------------------
@@ -276,6 +307,17 @@ double BCModel::ProbabilityNN(const std::vector<double> &params)
 }
 
 // ---------------------------------------------------------
+double BCModel::LogProbabilityNN(const std::vector<double> &parameters) {
+	double ll = LogLikelihood(parameters);
+	double lp = LogAPrioriProbability(parameters);
+	if (MCMCGetCurrentChain()>=0 and MCMCGetCurrentChain()<(int)fMCMCLogLikelihood_Provisional.size() and MCMCGetCurrentChain()<(int)fMCMCLogPrior_Provisional.size()) {
+		fMCMCLogLikelihood_Provisional[MCMCGetCurrentChain()] = ll;
+		fMCMCLogPrior_Provisional[MCMCGetCurrentChain()] = lp;
+	}
+	return ll + lp;
+}
+
+// ---------------------------------------------------------
 double BCModel::Probability(const std::vector<double> &parameter)
 {
    return exp(LogProbability(parameter));
@@ -366,6 +408,15 @@ double BCModel::Eval(const std::vector<double> &parameters)
 double BCModel::LogEval(const std::vector<double> &parameters)
 {
    return LogProbabilityNN(parameters);
+}
+
+// ---------------------------------------------------------
+void BCModel::InitializeMarkovChainTree(bool replacetree, bool replacefile) {
+	BCEngineMCMC::InitializeMarkovChainTree(replacetree,replacefile);
+	if (!fMCMCTree)
+		return;
+	fMCMCTree -> Branch("LogLikelihood", &fMCMCTree_LogLikelihood, "log(likelihood)/D");
+	fMCMCTree -> Branch("LogPrior",      &fMCMCTree_LogPrior,      "log(prior)/D");
 }
 
 // ---------------------------------------------------------
@@ -817,43 +868,35 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 }
 
 // ---------------------------------------------------------
-BCPriorModel * BCModel::GetPriorModel(bool prepare) {
+BCPriorModel * BCModel::GetPriorModel(bool prepare, bool call_likelihood) {
 	if (!fPriorModel)
-		fPriorModel = new BCPriorModel(this);
+		fPriorModel = new BCPriorModel(this, call_likelihood);
 	else if (prepare)
 		fPriorModel -> PreparePriorModel();
+	fPriorModel -> SetCallLikelihood(call_likelihood);
 	return fPriorModel;
 }
 
 // ---------------------------------------------------------
-int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post, std::string options_prior) {
-	// option flags
-	bool flag_slice_post  = (options_post.find("slice") < options_post.size());
-	bool flag_slice_prior = (options_prior.find("slice") < options_prior.size());
-
+int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post, bool flag_slice_prior) {
 	// Get Prior
 	BCH1D * bch1d_prior = 0;
 	TLine * const_prior = (IsPriorConstant(index)) ? new TLine() : 0;
 	TF1   * f1_prior    = (const_prior) ? 0 : dynamic_cast<TF1*> (PriorContainer(index));
 	TH1   * h1_prior    = (const_prior) ? 0 : dynamic_cast<TH1*> (PriorContainer(index));
 	
-	double max_prior = 0;
-
 	if (const_prior) {
-		max_prior = 1./GetVariable(index)->GetRangeWidth();
-		const_prior -> SetLineColor(kRed);
+		TH1D * h = new TH1D(TString::Format("%s_prior_%d_const",GetSafeName().data(),index),"",1,GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
+		h -> SetBinContent(1,1);
+		bch1d_prior = new BCH1D(h);
 	}
 	else if (f1_prior) {
-		max_prior = f1_prior -> GetMaximum(GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
-		f1_prior -> SetLineColor(kRed);
-		f1_prior -> SetLineWidth(1);
+		TH1D * h = new TH1D(TString::Format("%s_prior_%d_f1",GetSafeName().data(),index),"",f1_prior->GetNpx(),GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
+		h -> Add(f1_prior,1,"I");
+		bch1d_prior = new BCH1D(h);
 	}
-	else if (h1_prior) {
-		max_prior = h1_prior -> GetMaximum();
-		h1_prior -> SetLineColor(kRed);
-		h1_prior -> SetStats(false);
-		h1_prior -> GetXaxis() -> SetNdivisions(508);
-	}
+	else if (h1_prior)
+		bch1d_prior = new BCH1D(h1_prior);
 	else {
 		if (flag_slice_prior and index<fPriorModel->GetNParameters()) {
 			if (fPriorModel->GetNParameters()==2) {
@@ -864,16 +907,10 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post,
 		}
 		if (!bch1d_prior and fPriorModel->MarginalizedHistogramExists(index))
 			bch1d_prior = fPriorModel->GetMarginalized(index);
-		if (!bch1d_prior)
-			return 0;
-		max_prior = bch1d_prior->GetHistogram()->GetMaximum();
-		bch1d_prior -> GetHistogram() -> SetStats(false);
-		bch1d_prior -> GetHistogram() -> SetLineColor(kRed);
-		bch1d_prior -> GetHistogram() -> GetXaxis() -> SetNdivisions(508);
 	}
 	
 	// if prior doesn't exist, exit
-	if (!const_prior and !f1_prior and !h1_prior and !bch1d_prior)
+	if (!bch1d_prior)
 		return 0;
 
 	// Get Posterior
@@ -882,7 +919,6 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post,
 		if (GetNParameters()==2) {
 			TH1D * hist = (index==0) ? GetSlice(0,1)->ProjectionX(Form("projx_%i",BCLog::GetHIndex()))
 				: GetSlice(0,1)->ProjectionY(Form("projy_%i",BCLog::GetHIndex()));
-			hist -> Scale(1./hist->Integral("width"));
 			bch1d_posterior = new BCH1D(hist);
 		} else if (GetNParameters()==1)
 			bch1d_posterior = new BCH1D(GetSlice(index));
@@ -892,59 +928,104 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post,
 	// if marginal doesn't exist, exit
 	if (!bch1d_posterior)
 		return 0;
-	
-	bch1d_posterior -> GetHistogram() -> Scale(1./bch1d_posterior->GetHistogram()->Integral("width"));
-	bch1d_posterior -> GetHistogram() -> SetStats(kFALSE);
-	
-	// get maximum
-	double maxy = 1.1 * TMath::Max(max_prior, bch1d_posterior->GetHistogram()->GetMaximum());
 
-	// prepare legend
-	TLegend* legend = new TLegend();
-	legend->SetBorderSize(0);
-	legend->SetFillColor(kWhite);
-	legend->SetTextAlign(12);
-	legend->SetTextFont(62);
-	legend->SetTextSize(0.03);
+	bch1d_prior -> CopyOptions(*fBCH1DPriorDrawingOptions);
+	bch1d_prior -> SetDrawLegend(false);
+	bch1d_posterior -> CopyOptions(*fBCH1DPosteriorDrawingOptions);
+	bch1d_posterior -> SetDrawLegend(false);
+
+	gPad -> SetLogy(fBCH1DPriorDrawingOptions->GetLogy() or fBCH1DPosteriorDrawingOptions->GetLogy());
+
+	// get maximum
+	double maxy = 1.1 * std::max<double>(bch1d_prior->GetHistogram()->GetMaximum(), bch1d_posterior->GetHistogram()->GetMaximum());
+	double miny = 0.0;
+	if (gPad->GetLogy()) {
+		maxy *= 2;
+		miny = 0.5 * std::min<double>(bch1d_prior->GetHistogram()->GetMinimum(0),bch1d_posterior->GetHistogram()->GetMinimum(0));
+	}
 
 	// draw axes
-	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d",GetName().data(),index), TString::Format(";%s;P(%s|Data)",GetVariable(index)->GetLatexName().data(),GetVariable(index)->GetLatexName().data()),
+	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d",GetSafeName().data(),index), TString::Format(";%s;P(%s|Data)",GetVariable(index)->GetLatexName().data(),GetVariable(index)->GetLatexName().data()),
 														10, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit(),
-														10, 0, maxy);
+														10, miny, maxy);
 	h2_axes -> SetStats(false);
 	h2_axes -> GetXaxis() -> SetNdivisions(508);
 	h2_axes -> Draw();
-	
-	// draw prior
-	if (const_prior) {
-		legend -> AddEntry(const_prior,"prior","L");
-		const_prior -> DrawLine(GetVariable(index)->GetLowerLimit(),max_prior,GetVariable(index)->GetUpperLimit(),max_prior);
-	} else if (f1_prior) {
-		legend -> AddEntry(f1_prior,"prior","L");
-		f1_prior -> Draw("same");
-	} else if (h1_prior) {
-		legend -> AddEntry(h1_prior,"prior","L");
-		h1_prior -> Draw("same");
-	} else if (bch1d_prior) {
-		legend -> AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
-		bch1d_prior -> Draw(std::string(options_prior+"same"));
-	}
-	
-	// draw posterior
-	legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
-	bch1d_posterior -> Draw(std::string(options_post+"same"));
 
+	// Draw histograms
+	if (!fPriorPosteriorNormalOrder) // posterior first
+		bch1d_posterior -> Draw();
+	bch1d_prior -> Draw();
+	if (fPriorPosteriorNormalOrder) // prior first
+		bch1d_posterior -> Draw();
+
+	// create / draw legend(s)
 	gPad->SetTopMargin(0.02);
-   
-	// Draw legend on top of histogram
-	legend -> SetX1NDC(gPad->GetLeftMargin() + 0.10 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
-	legend -> SetX2NDC(1 - gPad->GetRightMargin());
-	legend -> SetY1NDC(1 - gPad->GetTopMargin() + legend->GetTextSize()*legend->GetNRows());
-	legend -> SetY2NDC(1 - gPad->GetTopMargin());
-	legend -> Draw();
 
-	// rescale top margin
-	gPad -> SetTopMargin(1-legend->GetY1NDC()+0.01);
+	if ( bch1d_prior->GetLegend()->GetNRows() > 0  and  bch1d_posterior->GetLegend()->GetNRows() > 0 ) {
+		// both legends have entries, draw both
+		bch1d_prior->GetLegend()->SetHeader("prior");
+		bch1d_posterior->GetLegend()->SetHeader("posterior");
+
+		// Draw prior legend on top left
+		double y1ndc_prior = bch1d_prior -> ResizeLegend();
+		bch1d_prior->GetLegend() -> SetX2NDC(bch1d_prior->GetLegend()->GetX1NDC() + 45e-2*(bch1d_prior->GetLegend()->GetX2NDC()-bch1d_prior->GetLegend()->GetX1NDC()));
+		bch1d_prior->GetLegend() -> Draw();
+
+		// Draw posterior legend on top right
+		double y1ndc_posterior = bch1d_posterior -> ResizeLegend();
+		bch1d_posterior->GetLegend() -> SetX1NDC(bch1d_posterior->GetLegend()->GetX1NDC() + 55e-2*(bch1d_posterior->GetLegend()->GetX2NDC()-bch1d_posterior->GetLegend()->GetX1NDC()));
+		bch1d_posterior->GetLegend() -> Draw();
+
+		gPad -> SetTopMargin(1-std::min<double>(y1ndc_prior,y1ndc_posterior)+0.01);
+
+	} else {
+		// only one legend to draw
+
+		TLegend * legend = 0;
+
+		if ( bch1d_posterior->GetLegend()->GetNRows() > 0 ) {
+			// posterior legend alone has entries
+
+			legend = bch1d_posterior->GetLegend();
+			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+				TLegendEntry * le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+				if (!le) break;
+				if (strlen(le->GetLabel())==0) continue;
+				le-> SetLabel(TString::Format("%s of posterior",le->GetLabel()).Data());
+			}
+			legend -> AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
+
+			bch1d_posterior -> ResizeLegend();
+
+		} else if ( bch1d_prior->GetLegend()->GetNRows() > 0 ) {
+			// prior legend alone has entries
+
+			TLegend * legend = bch1d_prior->GetLegend();
+			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i)
+				((TLegendEntry*)(legend->GetListOfPrimitives()->At(i))) -> SetLabel(TString::Format("%s of prior",((TLegendEntry*)(legend->GetListOfPrimitives()->At(i)))->GetLabel()).Data());
+			legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
+
+			bch1d_prior -> ResizeLegend();
+
+		}	else {
+			// neither legend has entries
+
+			legend = bch1d_posterior->GetLegend();
+			legend -> SetNColumns(2);
+			legend -> AddEntry(bch1d_prior->GetHistogram(),     "prior", "L");
+			legend -> AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
+
+			bch1d_posterior -> ResizeLegend();
+		}
+
+		// Draw legend on top of histogram
+		
+		legend -> Draw();
+		
+		// rescale top margin
+		gPad -> SetTopMargin(1-legend->GetY1NDC()+0.01);		
+	}
 
 	gPad -> RedrawAxis();
 
@@ -952,7 +1033,7 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post,
 }
 
 // ---------------------------------------------------------
-int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice, double interval_content) {
+int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice) {
 	
 	if (index1 == index2)
 		return 0;
@@ -960,13 +1041,13 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 		return DrawKnowledgeUpdatePlot2D(index2,index1,flag_slice);
 
 	// Get Posterior
-	TH2D * h2d_2dposterior = 0;
+	TH2D * h2d_posterior = 0;
 	if (flag_slice and GetNParameters()==2 and index1<GetNParameters() and index2<GetNParameters())
-		h2d_2dposterior = GetSlice(index1,index2);
+		h2d_posterior = GetSlice(index1,index2);
 	else if (MarginalizedHistogramExists(index1,index2))
-		h2d_2dposterior = GetMarginalizedHistogram(index1,index2);
+		h2d_posterior = GetMarginalizedHistogram(index1,index2);
 
-	if (!h2d_2dposterior)
+	if (!h2d_posterior)
 		return 0;
 
 	// Get Prior
@@ -980,28 +1061,28 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 	TH1 * h1_prior2   = (const_prior2) ? 0 : dynamic_cast<TH1*> (PriorContainer(index2));
 	bool auto_prior2 = const_prior2 or f1_prior2 or h1_prior2;
 
-	TH2D * h2d_2dprior = 0;
+	TH2D * h2d_prior = 0;
 
 	if (!auto_prior1 or !auto_prior2) { // one or both prior pre-defined
 		if (flag_slice and GetNParameters()==2 and index1<GetNParameters() and index2<GetNParameters())
-			h2d_2dprior = fPriorModel -> GetSlice(index1,index2);
+			h2d_prior = fPriorModel -> GetSlice(index1,index2);
 		else if (fPriorModel->MarginalizedHistogramExists(index1, index2))
-			h2d_2dprior = fPriorModel -> GetMarginalizedHistogram(index1,index2);
+			h2d_prior = fPriorModel -> GetMarginalizedHistogram(index1,index2);
 	}
 
 	// if not predefined, use the projection of the marginalization
-	if (!auto_prior1 and h2d_2dprior)
-		h1_prior1 = h2d_2dprior -> ProjectionX(TString::Format("h1_prior1_%s_%d",GetName().data(),index1));
-	if (!auto_prior2 and h2d_2dprior)
-		h1_prior2 = h2d_2dprior -> ProjectionY(TString::Format("h1_prior2_%s_%d",GetName().data(),index2));
+	if (!auto_prior1 and h2d_prior)
+		h1_prior1 = h2d_prior -> ProjectionX(TString::Format("h1_prior1_%s_%d",GetName().data(),index1));
+	if (!auto_prior2 and h2d_prior)
+		h1_prior2 = h2d_prior -> ProjectionY(TString::Format("h1_prior2_%s_%d",GetName().data(),index2));
 
-	if (!h2d_2dprior)
-		h2d_2dprior = fPriorModel->GetVariable(index1) -> CreateH2(TString::Format("h2d_2dprior_%s_%d_%d",GetName().data(),index1,index2).Data(),fPriorModel->GetVariable(index2));
+	if (!h2d_prior)
+		h2d_prior = fPriorModel->GetVariable(index1) -> CreateH2(TString::Format("h2d_prior_%s_%d_%d",GetName().data(),index1,index2).Data(),fPriorModel->GetVariable(index2));
 
 	// Set 2D-prior histogram binning to match 1D binning, for if prior was defined by histogram
-	if (h2d_2dprior) {
-		TAxis * xaxis = (h1_prior1) ? h1_prior1->GetXaxis() : h2d_2dprior->GetXaxis();
-		TAxis * yaxis = (h1_prior2) ? h1_prior2->GetXaxis() : h2d_2dprior->GetYaxis();
+	if (h2d_prior) {
+		TAxis * xaxis = (h1_prior1) ? h1_prior1->GetXaxis() : h2d_prior->GetXaxis();
+		TAxis * yaxis = (h1_prior2) ? h1_prior2->GetXaxis() : h2d_prior->GetYaxis();
 
 		int n_xbins = xaxis->GetNbins();
 		double xbins[n_xbins+1];
@@ -1013,139 +1094,153 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 		yaxis -> GetLowEdge(ybins);
 		ybins[n_ybins] = yaxis->GetXmax();
 
-		h2d_2dprior -> SetBins(n_xbins,xbins,n_ybins,ybins);
+		h2d_prior -> SetBins(n_xbins,xbins,n_ybins,ybins);
 	}
 	
-	for (int i = 1; i <= h2d_2dprior->GetNbinsX(); ++i) {
+	for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i) {
 		// x prior
 		double x = 1;
 		if (f1_prior1)
-			x = f1_prior1 -> Eval(h2d_2dprior->GetXaxis()->GetBinCenter(i));
+			x = f1_prior1 -> Eval(h2d_prior->GetXaxis()->GetBinCenter(i));
 		else if (h1_prior1)
-			x = h1_prior1 -> GetBinContent(h1_prior1->FindFixBin(h2d_2dprior->GetXaxis()->GetBinCenter(i)));
+			x = h1_prior1 -> GetBinContent(h1_prior1->FindFixBin(h2d_prior->GetXaxis()->GetBinCenter(i)));
 		
-		for (int j = 1; j <= h2d_2dprior->GetNbinsY(); ++j) {
+		for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j) {
 			// y prior
 			double y = 1;
 			if (f1_prior2)
-				y = f1_prior2 -> Eval(h2d_2dprior->GetYaxis()->GetBinCenter(j));
+				y = f1_prior2 -> Eval(h2d_prior->GetYaxis()->GetBinCenter(j));
 			else if (h1_prior2)
-				y = h1_prior2 -> GetBinContent(h1_prior2->FindFixBin(h2d_2dprior->GetYaxis()->GetBinCenter(j)));
+				y = h1_prior2 -> GetBinContent(h1_prior2->FindFixBin(h2d_prior->GetYaxis()->GetBinCenter(j)));
 			
-			h2d_2dprior -> SetBinContent(i,j,x*y);
+			h2d_prior -> SetBinContent(i,j,x*y);
 		}
 	}
 
-	if (!h2d_2dprior)
+	if (!h2d_prior)
 		return 0;
 
 
-	// TH2D drawing options
-	h2d_2dprior -> SetLineColor(kRed);
-	h2d_2dprior -> SetStats(false);
-	h2d_2dposterior -> SetStats(false);
-
 	// Create BCH2D's (these normalize the TH2D's)
-	BCH2D * bch2d_2dprior     = new BCH2D(h2d_2dprior);
-	BCH2D * bch2d_2dposterior = new BCH2D(h2d_2dposterior);
+	BCH2D * bch2d_prior     = new BCH2D(h2d_prior);
+	BCH2D * bch2d_posterior = new BCH2D(h2d_posterior);
 
-	// Calculate integrated histograms for getting contour line values
-	bch2d_2dprior     -> CalculateIntegratedHistogram();
-	bch2d_2dposterior -> CalculateIntegratedHistogram();
+	bch2d_prior     -> CopyOptions(*fBCH2DPriorDrawingOptions);
+	bch2d_prior -> SetDrawLegend(false);
+	bch2d_posterior -> CopyOptions(*fBCH2DPosteriorDrawingOptions);
+	bch2d_posterior -> SetDrawLegend(false);
 
-	// Set contour levels 
-	if (interval_content <= 0 or interval_content >= 1)
-		interval_content = 68e-2;
-	double level[1] = {bch2d_2dprior -> GetLevel(1-interval_content)};
-	h2d_2dprior -> SetContour(1, level);
-	h2d_2dprior -> Draw("CONT3");
-	level[0] = bch2d_2dposterior -> GetLevel(1-interval_content);
-	h2d_2dposterior -> SetContour(1, level);
-	h2d_2dposterior -> Draw("CONT3 SAME");
-
-	// create legend
-	TLegend * legend2d = new TLegend();
-	legend2d -> SetBorderSize(0);
-	legend2d -> SetFillColor(kWhite);
-	legend2d -> SetTextAlign(12);
-	legend2d -> SetTextFont(62);
-	legend2d -> SetTextSize(0.03);
-	
-  // create markers and arrows
-	TMarker * marker_prior = new TMarker();
-	marker_prior -> SetMarkerStyle(20);
-	marker_prior -> SetMarkerColor(kRed);
-	marker_prior -> SetMarkerSize(1.5*gPad->GetWNDC());
-	
-	TMarker * marker_posterior = new TMarker();
-	marker_posterior -> SetMarkerStyle(20);
-	marker_posterior -> SetMarkerColor(kBlue);
-	marker_posterior -> SetMarkerSize(1.5*gPad->GetWNDC());
-	
-	TArrow * arrow = new TArrow();
-	arrow -> SetArrowSize(0.02*gPad->GetWNDC());
-	arrow -> SetLineColor(kBlack);
-
-	double prior_mode_X = fPriorModel -> GetBestFitParameter(index1);
-	double prior_mode_Y = fPriorModel -> GetBestFitParameter(index2);
-
-	std::string marker_prior_text = "";
-	if (const_prior1) {
-		prior_mode_X = fPriorModel -> GetParameter(index1) -> GetRangeCenter();
-		marker_prior_text += Form("prior(%s) constant",fPriorModel->GetParameter(index1)->GetLatexName().data());
+	if (const_prior1)
+		bch2d_prior -> SetLocalMode(0,fPriorModel->GetVariable(index1)->GetRangeCenter());
+	if (const_prior2)
+		bch2d_prior -> SetLocalMode(1,fPriorModel->GetVariable(index2)->GetRangeCenter());
+	std::string prior_text = "";
+	if (const_prior1 and !const_prior2)
+		prior_text = Form(" (flat in %s)",fPriorModel->GetVariable(index1)->GetLatexName().data());
+	else if (!const_prior1 and const_prior2)
+		prior_text = Form(" (flat in %s)",fPriorModel->GetVariable(index2)->GetLatexName().data());
+	else if (const_prior1 and const_prior2) {
+		prior_text = " (both flat)";
+		bch2d_prior -> SetNBands(0);
 	}
-	if (const_prior2) {
-		prior_mode_Y = fPriorModel -> GetParameter(index2) -> GetRangeCenter();
-		if (!marker_prior_text.empty())
-			marker_prior_text += ", ";
-		marker_prior_text += Form("prior(%s) constant",fPriorModel->GetParameter(index2)->GetLatexName().data());
+
+	// draw axes
+	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d_%d",GetSafeName().data(),index1,index2), TString::Format(";%s;%s;P(%s %s|Data)",GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data(),GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data()),
+														10, GetVariable(index1)->GetLowerLimit(), GetVariable(index1)->GetUpperLimit(),
+														10, GetVariable(index2)->GetLowerLimit(), GetVariable(index2)->GetUpperLimit());
+	h2_axes -> SetStats(false);
+	h2_axes -> GetXaxis() -> SetNdivisions(508);
+	h2_axes -> Draw();
+
+	// ROOT options for both prior and posterior should contain "same" (as they do by default)
+
+	if (!fPriorPosteriorNormalOrder) // posterior first
+		bch2d_posterior -> Draw();
+	bch2d_prior -> Draw();
+	if (fPriorPosteriorNormalOrder) // posterior second
+		bch2d_posterior -> Draw();
+
+	// create / draw legend(s)
+	if ( bch2d_prior->GetLegend()->GetNRows() > 0  and  bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
+		// both legends have entries, draw both
+
+		bch2d_prior->GetLegend()->SetHeader((std::string("prior")+prior_text).data());
+		bch2d_posterior->GetLegend()->SetHeader("posterior");
+
+		// Draw prior legend on top left
+		double y1ndc_prior = bch2d_prior -> ResizeLegend();
+		bch2d_prior->GetLegend() -> SetX2NDC(bch2d_prior->GetLegend()->GetX1NDC() + 45e-2*(bch2d_prior->GetLegend()->GetX2NDC()-bch2d_prior->GetLegend()->GetX1NDC()));
+		bch2d_prior->GetLegend() -> Draw();
+
+		// Draw posterior legend on top right
+		double y1ndc_posterior = bch2d_posterior -> ResizeLegend();
+		bch2d_posterior->GetLegend() -> SetX1NDC(bch2d_posterior->GetLegend()->GetX1NDC() + 55e-2*(bch2d_posterior->GetLegend()->GetX2NDC()-bch2d_posterior->GetLegend()->GetX1NDC()));
+		bch2d_posterior->GetLegend() -> Draw();
+
+		gPad -> SetTopMargin(1-std::min<double>(y1ndc_prior,y1ndc_posterior)+0.01);
+
+	} else {
+		// only one legend to draw
+
+		TLegend * legend = 0;
+		if ( bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
+			// posterior legend alone has entries
+
+			legend = bch2d_posterior->GetLegend();
+			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+				TLegendEntry * le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+				if (!le) break;
+				if (strlen(le->GetLabel())==0) continue;
+				le-> SetLabel(TString::Format("%s of posterior",le->GetLabel()).Data());
+			}
+			legend -> AddEntry(bch2d_prior->GetHistogram(), (std::string("prior")+prior_text).data(), "L");
+
+			bch2d_posterior -> ResizeLegend();
+
+		} else if ( bch2d_prior->GetLegend()->GetNRows() > 0 ) {
+			// prior legend alone has entries
+
+			TLegend * legend = bch2d_prior->GetLegend();
+			for (int i=0; legend->GetListOfPrimitives()->GetEntries(); ++i)
+				((TLegendEntry*)(legend->GetListOfPrimitives()->At(i))) -> SetLabel(TString::Format("%s of prior",((TLegendEntry*)(legend->GetListOfPrimitives()->At(i)))->GetLabel()).Data());
+			if (!prior_text.empty())
+				legend -> AddEntry((TObject*)0,(std::string("prior: ")+prior_text).data(),"");
+			legend -> AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
+
+			bch2d_prior -> ResizeLegend();
+
+		}	else {
+			// neither legend has entries
+
+			legend = bch2d_posterior->GetLegend();
+			legend -> SetNColumns(2);
+			legend -> AddEntry(bch2d_prior->GetHistogram(), (std::string("prior")+prior_text).data(), "L");
+			legend -> AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
+
+			bch2d_posterior -> ResizeLegend();
+		}
+
+		// Draw legend on top of histogram
+		
+		legend -> Draw();
+		
+		// rescale top margin
+		gPad -> SetTopMargin(1-legend->GetY1NDC()+0.01);		
 	}
-	marker_prior_text = (marker_prior_text.empty()) ? "prior mode" : "prior mode* [" + marker_prior_text + "]";
 
-	marker_prior     -> DrawMarker(prior_mode_X,prior_mode_Y);
-	marker_posterior -> DrawMarker(GetBestFitParameter(index1),GetBestFitParameter(index2));
-	arrow            -> DrawArrow(prior_mode_X,prior_mode_Y, GetBestFitParameter(index1), GetBestFitParameter(index2));
-	
-	legend2d->AddEntry(h2d_2dprior,      TString::Format("smallest %.0f%% interval(s) of prior",     100*interval_content), "L");
-	legend2d->AddEntry(h2d_2dposterior,  TString::Format("smallest %.0f%% interval(s) of posterior", 100*interval_content), "L");
-	legend2d->AddEntry(marker_prior,     marker_prior_text.data(), "P");
-	legend2d->AddEntry(marker_posterior, "posterior mode", "P");
-	legend2d->AddEntry(arrow,            "change in mode", "L");
-	
-	gPad->SetTopMargin(0.02);
-
-	// place legend on top of histogram
-	legend2d->SetX1NDC(gPad->GetLeftMargin());
-	legend2d->SetX2NDC(1. - gPad->GetRightMargin());
-	double y1 = gPad->GetTopMargin() + legend2d->GetTextSize()*legend2d->GetNRows();
-	legend2d->SetY1NDC(1.-y1);
-	legend2d->SetY2NDC(1. - gPad->GetTopMargin());
-
-	legend2d->Draw();
-	
-	gPad->SetTopMargin(y1+0.01);
-	
 	gPad->RedrawAxis();
 	return 1;
 }
 
 // ---------------------------------------------------------
-int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, unsigned vdiv, std::string options, double interval_content)
-{
+int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, unsigned vdiv, bool flag_slice, bool call_likelihood) {
 	// prepare prior
-	GetPriorModel(true);
+	GetPriorModel(true,call_likelihood);
 	// return 0 if failed
 	if ( fPriorModel->GetNParameters() == 0 )
 		return 0;
 	fPriorModel -> MarginalizeAll();
 	fPriorModel -> FindMode();
-
-   // option flags
-   bool flag_slice = false;
-
-   // check content of options string
-   if (options.find("slice") < options.size())
-      flag_slice = true;
 
    std::string file(filename);
 
@@ -1169,7 +1264,7 @@ int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, uns
 	 int nprinted = -1;
 	 c -> cd(1);
    for (unsigned i = 0; i < GetNVariables(); ++i)
-		 if(DrawKnowledgeUpdatePlot1D(i, options, options)) {
+		 if(DrawKnowledgeUpdatePlot1D(i, flag_slice, flag_slice)) {
 			 ++ndrawn;
 			 if (ndrawn!=0 and ndrawn%npads==0) {
 				 c -> Print(file.c_str());
@@ -1186,17 +1281,18 @@ int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, uns
    // loop over all parameter pairs
 	 ndrawn = 0;
 	 nprinted = -1;
-	 c -> cd(1);
+	 c -> cd(1) -> Clear();
    for (unsigned i = 0; i < GetNVariables(); ++i)
 		 for (unsigned j = i+1; j < GetNVariables(); ++j)
-			 if (DrawKnowledgeUpdatePlot2D(i,j,flag_slice,interval_content)) {
+			 if (DrawKnowledgeUpdatePlot2D(i,j,flag_slice)) {
 				 ++ndrawn;
 				 if (ndrawn!=0 and ndrawn%npads==0) {
 					 c -> Print(file.c_str());
 					 nprinted = ndrawn;
-					 c -> Clear("D");
+					 c -> Clear();
+					 c -> Divide(hdiv,vdiv);
 				 }
-				 c -> cd(ndrawn%npads+1);
+				 c -> cd(ndrawn%npads+1) -> Clear();
 			 }
 	 if (nprinted<ndrawn)
 		 c -> Print(file.c_str());
@@ -1207,4 +1303,42 @@ int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, uns
 
    // no error
    return 1;
+}
+
+// ---------------------------------------------------------
+void BCModel::SetDefaultKnowledgeUpdateDrawingOptions() {
+	// 1D
+	fBCH1DPriorDrawingOptions -> SetDrawGlobalMode(false);
+	fBCH1DPriorDrawingOptions -> SetDrawLocalMode(false);
+	fBCH1DPriorDrawingOptions -> SetDrawMean(false);
+	fBCH1DPriorDrawingOptions -> SetDrawMedian(false);
+	fBCH1DPriorDrawingOptions -> SetDrawLegend(false);
+	fBCH1DPriorDrawingOptions -> SetNBands(0);
+	fBCH1DPriorDrawingOptions -> SetBandType(BCH1D::kNoBands);
+	fBCH1DPriorDrawingOptions -> SetROOToptions("same");
+	fBCH1DPriorDrawingOptions -> SetLineColor(kRed);
+	fBCH1DPriorDrawingOptions -> SetMarkerColor(kRed);
+	fBCH1DPriorDrawingOptions -> SetNLegendColumns(1);
+	fBCH1DPosteriorDrawingOptions -> CopyOptions(*fBCH1DPriorDrawingOptions);
+	fBCH1DPosteriorDrawingOptions -> SetNLegendColumns(1);
+	fBCH1DPosteriorDrawingOptions -> SetLineColor(kBlue);
+	fBCH1DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+
+	// 2D
+	fBCH2DPriorDrawingOptions -> SetDrawGlobalMode(false);
+	fBCH2DPriorDrawingOptions -> SetDrawLocalMode(true,false);
+	fBCH2DPriorDrawingOptions -> SetDrawMean(false);
+	fBCH2DPriorDrawingOptions -> SetDrawLegend(false);
+	fBCH2DPriorDrawingOptions -> SetBandType(BCH2D::kSmallestInterval);
+	fBCH2DPriorDrawingOptions -> SetBandFillStyle(-1);
+	fBCH2DPriorDrawingOptions -> SetNBands(1);
+	fBCH2DPriorDrawingOptions -> SetNSmooth(0);
+	fBCH2DPriorDrawingOptions -> SetROOToptions("same");
+	fBCH2DPriorDrawingOptions -> SetLineColor(kRed);
+	fBCH2DPriorDrawingOptions -> SetMarkerColor(kRed);
+	fBCH2DPriorDrawingOptions -> SetNLegendColumns(1);
+	fBCH2DPosteriorDrawingOptions -> CopyOptions(*fBCH2DPriorDrawingOptions);
+	fBCH2DPosteriorDrawingOptions -> SetLineColor(kBlue);
+	fBCH2DPosteriorDrawingOptions -> SetMarkerColor(kBlue);
+	
 }

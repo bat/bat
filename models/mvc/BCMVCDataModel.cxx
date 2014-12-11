@@ -203,7 +203,10 @@ void BCMVCDataModel::PrintToys(std::string filename)
   double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 
   // draw expected chi2 distribution
-  hist_chi2->Draw("BTllB1CS1L", 1-pvalue);
+	hist_chi2->SetBandType(BCH1D::kLowerLimit);
+	hist_chi2->SetNBands(1);
+	hist_chi2->SetInterval(1-pvalue);
+  hist_chi2->Draw();
 
   c1->Print(std::string(filename+"(").c_str());
 
@@ -212,7 +215,8 @@ void BCMVCDataModel::PrintToys(std::string filename)
     double obs = fVectorMeasurements[i];
     BCH1D* hist_par = GetMarginalized(i);
     double p = hist_par->GetHistogram()->Integral(hist_par->GetHistogram()->FindBin(obs), hist_par->GetHistogram()->GetNbinsX(), "width");
-    hist_par->Draw("BTllB1CS1L", 1-p);
+		hist_par -> CopyOptions(*hist_chi2);
+		hist_par -> SetInterval(1-p);
     c1->Print(filename.c_str());
   }
 
@@ -222,7 +226,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
       double obs_i = fVectorMeasurements[i];
       double obs_j = fVectorMeasurements[j];
       BCH2D* hist_par = GetMarginalized(i,j);
-      hist_par->Draw("BTfB3CS1");
+      hist_par->Draw();
       TMarker* m = new TMarker();
       m->SetMarkerStyle(21);
       m->DrawMarker(obs_j, obs_i);

@@ -233,13 +233,11 @@ TH2D * BCFitter::GetErrorBandXY_yellow(double level, int nsmooth) const
 
       hist_temp->SetHistogram(hproj);
 
-      TH1D * hist_temp_y = hist_temp->GetSmallestIntervalHistogram(level);
-
+			std::vector<std::pair<double,double> > bound = hist_temp -> GetSmallestIntervalBounds(std::vector<double>(1,level));
       for (int iy = 1; iy <= ny; ++iy)
-				if (hist_temp_y->GetBinContent(iy)>0)
+				if (hist_temp->GetHistogram()->GetBinContent(iy)>=bound.front().first)
 					hist_tempxy->SetBinContent(ix, iy, 1);
 
-      delete hist_temp_y;
       delete hist_temp;
    }
 

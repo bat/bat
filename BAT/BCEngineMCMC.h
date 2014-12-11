@@ -29,11 +29,10 @@
 #include "BCObservable.h"
 #include "BCVariableSet.h"
 #include "BCLog.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
 
 #include <vector>
-
-class BCH1D;
-class BCH2D;
 
 // ROOT classes
 class TH1D;
@@ -127,12 +126,12 @@ class BCEngineMCMC
 
       /**
        * @return current iterations */
-      unsigned MCMCGetCurrentIteration() const
+      int MCMCGetCurrentIteration() const
          { return fMCMCCurrentIteration; }
 
       /**
        * @return current chain index */
-      unsigned MCMCGetCurrentChain() const
+      int MCMCGetCurrentChain() const
          { return fMCMCCurrentChain; }
 
       /**
@@ -574,6 +573,11 @@ class BCEngineMCMC
       void MCMCSetNLag(unsigned n)
          { fMCMCNLag = n; }
 
+	    /**
+	     * Sets current chain number. */
+	    void MCMCSetCurrentChain(int n)
+	    { fMCMCCurrentChain = n; }
+
       /**
        * Sets the maximum number of iterations in the pre-run. */
       void MCMCSetNIterationsPreRunMax(unsigned n)
@@ -677,7 +681,7 @@ class BCEngineMCMC
 
       /**
        * Initialize the trees containing the Markov chains and parameter info. */
-	    void InitializeMarkovChainTree(bool replacetree=false, bool replacefile=false);
+	    virtual void InitializeMarkovChainTree(bool replacetree=false, bool replacefile=false);
 
       /**
        * Set the precision for the MCMC run. */
@@ -705,9 +709,8 @@ class BCEngineMCMC
 
 	    /** Turn on writing of Markov chain to root file.
 			 * @param filename Name of file to write chain to.
-			 * @param file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
-			 * @param autoclose Toggle autoclosing of file after main run. */
-	    void WriteMarkovChain(std::string filename, std::string option, bool autoclose=true);
+			 * @param file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable). */
+	    void WriteMarkovChain(std::string filename, std::string option);
 
 	    /**
 	     * Write marginalization histograms to file. */
@@ -734,7 +737,7 @@ class BCEngineMCMC
 
 	    /**
 			 *  Print all 1D marginalizations, each to its own file */
-	    int PrintAllMarginalized(std::string filename, std::string options1d="", std::string options2d="", unsigned int hdiv=1, unsigned int ndiv=1);
+	    int PrintAllMarginalized(std::string filename, unsigned int hdiv=1, unsigned int ndiv=1);
 	
 			/**
 			 * Print a summary plot for the parameters and user-defined observables.
@@ -952,11 +955,11 @@ class BCEngineMCMC
 
 	/**
 	 * Check tree structure for MCMC tree. */
-	virtual bool ValidMCMCTree(TTree * tree, bool checkObservables=true);
+	virtual bool ValidMCMCTree(TTree * tree, bool checkObservables=true) const;
 
 	/**
 	 * Check tree structure for parameter tree. */
-	virtual bool ValidParameterTree(TTree * tree);
+	virtual bool ValidParameterTree(TTree * tree) const;
 
 	/**
 	 * Marginalize from TTree. */
@@ -984,7 +987,7 @@ class BCEngineMCMC
            * Store local proposal point
            */
           std::vector<double> xLocal;
-
+				
           /**
            * Random number generator
            */
@@ -1132,10 +1135,6 @@ class BCEngineMCMC
 	     * Output file open option for for writing MCMC Tree. */
 	    std::string fMCMCOutputFileOption;
 
-	    /*
-	     * flag for autoclosing MCMC output file. */
-	    bool fMCMCOutputFileAutoclose;
-
     	/**
     	 * Lower limit for scale factors */
     	double fMCMCScaleFactorLowerLimit;
@@ -1223,6 +1222,26 @@ class BCEngineMCMC
       std::vector<double> fMCMCprob;
 
       /**
+       * The log of the likelihood of the current points of each Markov
+       * chain. The length of the vectors is fMCMCNChains. */
+      std::vector<double> fMCMCLogLikelihood;
+
+      /**
+       * The log of the likelihood of the proposed points of each Markov
+       * chain. The length of the vectors is fMCMCNChains. */
+      std::vector<double> fMCMCLogLikelihood_Provisional;
+
+      /**
+       * The log of the prior of the current points of each Markov
+       * chain. The length of the vectors is fMCMCNChains. */
+      std::vector<double> fMCMCLogPrior;
+
+      /**
+       * The log of the prior of the proposed points of each Markov
+       * chain. The length of the vectors is fMCMCNChains. */
+      std::vector<double> fMCMCLogPrior_Provisional;
+
+      /**
        * The maximum (log) probability of each Markov chain. The length of
        * the vector is fMCMCNChains. */
       std::vector<double> fMCMCprobMax;
@@ -1286,6 +1305,8 @@ class BCEngineMCMC
 	    unsigned int fMCMCTree_Chain;
 	    unsigned int fMCMCTree_Iteration;
 	    double fMCMCTree_Prob;
+	    double fMCMCTree_LogLikelihood;
+	    double fMCMCTree_LogPrior;
 	    std::vector<double> fMCMCTree_Parameters;
 	    std::vector<double> fMCMCTree_Observables;
 

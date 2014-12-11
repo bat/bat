@@ -38,6 +38,7 @@ BCVariable::BCVariable(const BCVariable & other)
 	, fLowerLimit(other.fLowerLimit)
 	, fUpperLimit(other.fUpperLimit)
 	, fPrecision(other.fPrecision)
+	, fLatexName(other.fLatexName)
 	, fFillHistograms(other.fFillHistograms)
 	, fNbins(other.fNbins)
 {
@@ -80,19 +81,19 @@ void BCVariable::PrintSummary() const {
 }
 
 // ---------------------------------------------------------
-std::string BCVariable::OneLineSummary() {
+std::string BCVariable::OneLineSummary() const {
 	return std::string(Form("%s \"%s\" : [%.*f, %.*f]",fPrefix.data(),fName.data(),fPrecision,fLowerLimit,fPrecision,fUpperLimit));
 }
 
 // ---------------------------------------------------------
 
-TH1D * BCVariable::CreateH1(const char * name) {
+TH1D * BCVariable::CreateH1(const char * name) const {
 	return new TH1D(name, TString::Format(";%s",GetLatexName().c_str()), fNbins, fLowerLimit, fUpperLimit);
 }
 
 // ---------------------------------------------------------
 
-TH2D * BCVariable::CreateH2(const char * name, BCVariable * ordinate) {
+TH2D * BCVariable::CreateH2(const char * name, BCVariable * ordinate) const {
 	return new TH2D(name, TString::Format(";%s;%s",GetLatexName().c_str(),ordinate->GetLatexName().c_str()),
 									fNbins, fLowerLimit, fUpperLimit,
 									ordinate->GetNbins(),ordinate->GetLowerLimit(),ordinate->GetUpperLimit());

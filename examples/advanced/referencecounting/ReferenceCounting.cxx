@@ -25,8 +25,9 @@ ReferenceCounting::ReferenceCounting(const char * name) : BCModel(name)
                                                         , fHistPriorS(0)
                                                         , fHistPriorB(0)
 {
-   // constructor
-   DefineParameters();
+   // define parameters
+   AddParameter("s", 0, 50.); // index 0
+   AddParameter("b", 0, 50.); // index 1
 }
 
 // ---------------------------------------------------------
@@ -50,13 +51,6 @@ void ReferenceCounting::SetAlphaBeta(double alpha, double beta)
    helper_a.clear();
    helper_b.clear();
    helper_c.clear();
-}
-
-// ---------------------------------------------------------
-void ReferenceCounting::DefineParameters()
-{
-   AddParameter("s", 0, 50.); // index 0
-   AddParameter("b", 0, 50.); // index 1
 }
 
 // ---------------------------------------------------------

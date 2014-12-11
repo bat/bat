@@ -19,10 +19,13 @@
 // ---------------------------------------------------------
 
 #include <vector>
+#include <string>
+#include <utility>
 
-#include <TH1.h>
-
+class TH1;
 class TLegend;
+class TLegendEntry;
+class TObject;
 
 // ---------------------------------------------------------
 
@@ -76,6 +79,11 @@ public:
 	{ return fLegend; }
 
 	/**
+	 * @return the number of columns to be set into the legend. */
+	unsigned GetNLegendColumns() 
+	{ return fNLegendColumns; }
+
+	/**
 	 * @return The global mode. */
 	std::vector<double> GetGlobalMode()
 	{ return fGlobalMode; }
@@ -103,6 +111,16 @@ public:
    * @return the color number. */
   int GetBandColor(int index) const
   { return fBandColors.at(index); };
+
+	/**
+	 * @return flag for whether bands should be drawn to overcover (true) or undercover (false). */
+	bool GetBandOvercoverage()
+	{ return fBandOvercoverage; }
+
+	/**
+	 * @return histogram line color. */
+	int GetLineColor() const 
+	{ return fLineColor; }
 
 	/**
 	 * Returns the marker colors (used for mean, median, and mode. */
@@ -165,9 +183,29 @@ public:
 	{ return fLogy; }
 
 	/**
+	 * @return flag for plotting log on z axis. */
+	bool GetLogz()
+	{ return fLogz; }
+
+	/**
+	 * @return flag for drawing grid on x axis. */
+	bool GetGridx()
+	{ return fGridx; }
+
+	/**
+	 * @return flag for drawing grid on y axis. */
+	bool GetGridy()
+	{ return fGridy; }
+	
+	/**
 	 * @return vector of intervals to draw. */
 	std::vector<double> GetIntervals()
 	{ return fIntervals; }
+
+	/**
+	 * @return ROOT drawing options. */
+	std::string GetROOToptions() 
+	{ return fROOToptions; }
 
   /** @} */
 
@@ -187,6 +225,26 @@ public:
 	 * Unset global mode. */
 	void UnsetGlobalMode()
 	{ fGlobalMode.clear(); }
+
+	/**
+	 * Set global mode element. */
+	void SetGlobalMode(unsigned i, double lm)
+	{ if (i<fGlobalMode.size()) fGlobalMode[i] = lm; }
+
+	/**
+	 * Set local mode. */
+	void SetLocalMode(std::vector<double> lm)
+	{ fLocalMode = lm; }
+
+	/**
+	 * Unset local mode. */
+	void UnsetLocalMode()
+	{ fLocalMode.clear(); }
+
+	/**
+	 * Set local mode element. */
+	void SetLocalMode(unsigned i, double lm)
+	{ if (i<fLocalMode.size()) fLocalMode[i] = lm; }
 
   /**
    * Sets the color scheme.
@@ -211,6 +269,17 @@ public:
 	 * @param c Color to set it to. */
 	void SetBandColor(unsigned i, int c)
 	{ if (i<fBandColors.size()) fBandColors[i] = c; }
+
+	/**
+	 * Set band coverage to be overcoverage (true) or undercoverage (false). */
+	void SetBandOvercoverage(bool flag=true)
+	{ fBandOvercoverage = flag; }
+
+	/**
+	 * Set histogram line color.
+	 * @param c Color for histogram line. */
+	void SetLineColor(int c)
+	{ fLineColor = c; }
 
 	/**
 	 * Set marker color (used for mean, median, and mode).
@@ -239,14 +308,29 @@ public:
 	{ fLogx = flag; }
 
 	/**
-	 * Sets drawing of x axis in log. */
+	 * Sets drawing of y axis in log. */
 	void SetLogy(bool flag=true)
 	{ fLogy = flag; }
+
+	/**
+	 * Sets drawing of z axis in log. */
+	void SetLogz(bool flag=true)
+	{ fLogz = flag; }
+
+	/**
+	 * Sets drawing of grid on x axis. */
+	void SetGridx(bool flag=true)
+	{ fGridx = flag; }
+
+	/**
+	 * Sets drawing of grid on y axis. */
+	void SetGridy(bool flag=true)
+	{ fGridy = flag; }
 	
 	/**
 	 * Sets number of credibility interval bands to draw. */
 	void SetNBands(unsigned n)
-	{ fNBands = n; }
+	{ fNBands = n; fIntervals = DefaultIntervals(); }
 
 	/**
 	 * Sets number of times to smooth the histogram using ROOT's smoothing function. */
@@ -276,6 +360,11 @@ public:
 	{ fDrawLegend = flag; }
 
 	/**
+	 * Set number of columns in legend. */
+	void SetNLegendColumns(unsigned n) 
+	{ fNLegendColumns = n; }
+
+	/**
 	 * Set drawing of ROOT histogram stats box. */
 	void SetStats(bool flag=true)
 	{ fDrawStats = flag; }
@@ -285,9 +374,18 @@ public:
 	void SetIntervals(std::vector<double> intervals) 
 	{ fIntervals = intervals; }
 
+	/**
+	 * Set intervals to one single value. */
+	void SetInterval(double interval)
+	{ fIntervals.clear(); fIntervals.push_back(interval); }
+
 	/** Add interval value. */
 	void AddInterval(double interval) 
 	{ fIntervals.push_back(interval); }
+
+	/** Set ROOT drawing options. */
+	void SetROOToptions(std::string options)
+	{ fROOToptions = options; }
 
   /** @} */
 
@@ -297,26 +395,27 @@ public:
 	void ClearBandColors()
 	{ fBandColors.clear(); }
 
+	void ClearIntervals()
+	{ fIntervals.clear(); }
+
 	/**
 	 * Applying ROOT smoothing to histogram, and renormalize.
-	 * @param n Number of times to smooth. */
-	void Smooth(unsigned n);
+	 * @param n Number of times to smooth; fNSmooth, if n is negative. */
+	void Smooth(int n=-1);
 
   /**
    * Draw distribution into the active pad.
-   * @param options ROOT drawing options
-   * @param intervals the intervals
    */
-  virtual void Draw(std::string options="", std::vector<double> intervals=std::vector<double>(0))
+  virtual void Draw();
+
+	/**
+	 * Draw bands. */
+	virtual void DrawBands(std::string options="same")
 	{ }
 
-  /**
-   * Draw distribution into the active pad.
-   * @param options ROOT drawing options
-   * @param interval a single interval.
-   */
-  virtual void Draw(std::string options, double interval)
-	{ Draw(options,std::vector<double>(1,interval)); }
+	/**
+	 * Draw markers (global mode, local mode, etc.). */
+	virtual void DrawMarkers();
 
 	/**
 	 * Draw global mode. */
@@ -331,8 +430,66 @@ public:
 	virtual void DrawMean();
 
 	/**
+	 * Resize legend and set it for placement at the top of the pad.
+	 * @return new lower y coordinate of legend*/
+	virtual double ResizeLegend();
+
+	/**
 	 * Resize histogram and draw legend. */
 	virtual void DrawLegend();
+
+	/**
+	 * Fill vector with values and integrals of nonzero bins sorted by value.
+	 * @param bin_dens_mass vector of bin densities (values) and masses (integrals).
+	 * @param sort order to sort in: -1 (default) decreasing; +1 increasing; 0 unsorted. */
+	void GetNonzeroBinDensityMassVector(std::vector<std::pair<double,double> > & bin_dens_mass, int sort=-1);
+
+	/**
+	 * Get probability density levels bounding from below the
+	 * smallest-interval levels with probability mass near that provided
+	 * in the argument. CAUTION: This function will sort all bins of the
+	 * histogram; if the histogram has many bins, this can be an
+	 * expensive calculation.
+	 * @param probabilities Vector of probability masses to bound.
+	 * @param overcoverage Flag for providing values that overcover (if true), or undercover (if false).
+	 * @return Vector of pairs (probability density, probability mass lower-bounded by it). */
+	std::vector<std::pair<double, double> > GetSmallestIntervalBounds(std::vector<double> masses, bool overcoverage=true);
+
+	/**
+	 * Get smallest interval sizes in dimensions of histogram: length (1D),
+	 * area (2D), volume (3D).
+	 * @param masses vector of probability masses defining smallest intervals.
+	 * @param overcoverage Flag for providing values that overcover (if true), or undercover (if false).
+	 * @return vector of smallest interval sizes. */
+	virtual std::vector<double> GetSmallestIntervalSize(std::vector<double> masses, bool overcoverage=true);
+	
+	/**
+	 * Get smallest interval size in dimensions of histogram: length (1D),
+	 * area (2D), volume (3D).
+	 * @param masses probability mass defining smallest interval.
+	 * @param overcoverage Flag for providing values that overcover (if true), or undercover (if false).
+	 * @return smallest interval size. */
+	virtual double GetSmallestIntervalSize(double mass, bool overcoverage=true);
+	
+	/**
+	 * Check intervals: remove values below 0 or above 1.
+	 * @param sort if positive, sort by increasing order (default);
+	 * if negative, sort by decreasing order; if zero, don't sort.*/
+	virtual void CheckIntervals(std::vector<double> & intervals, int sort=1);
+
+	/**
+	 * Return default intervals.
+	 * @param nbands nbands to give defaults for; if negative, use fNBands.
+	 * @return vector of default values for band intervals. */
+	virtual std::vector<double> DefaultIntervals(int nbands=-1);
+
+	/**
+	 * Add legend entry, checking first for unused extra entries. */
+	TLegendEntry * AddLegendEntry(TObject * obj, const char * label, const char * options);
+
+	/**
+	 * Add band legend entry, creating unused extra entries if necessary. */
+	TLegendEntry * AddBandLegendEntry(TObject * obj, const char * label, const char * options);
 
   /** @} */
 
@@ -345,6 +502,10 @@ protected:
 	/**
 	 * Legend. */
 	TLegend * fLegend;
+
+	/**
+	 * number of columns to be set for legend. */
+	unsigned fNLegendColumns;
 
   /**
    * Global mode */
@@ -359,8 +520,16 @@ protected:
   std::vector<int> fBandColors;
 
 	/**
+	 * flag for whether bands should overcover. */
+	bool fBandOvercoverage; 
+
+	/**
 	 * The fill style for the bands. */
 	short fBandFillStyle;
+
+	/**
+	 * histogram line color. */
+	int fLineColor;
 
 	/**
 	 * Marker color. */
@@ -377,7 +546,19 @@ protected:
 	/**
 	 * Flag for controlling log plotting of y axis. */
 	bool fLogy;
-	
+
+	/**
+	 * Flag for controlling log plotting of z axis. */
+	bool fLogz;
+
+	/**
+	 * Flag for drawing of grid on x axis. */
+	bool fGridx;
+
+	/**
+	 * Flag for drawing of grid on y axis. */
+	bool fGridy;
+
 	/**
 	 * Number of credibility interval bands to draw. */
 	unsigned fNBands;
@@ -426,9 +607,17 @@ protected:
 	 * intervals to draw. */
 	std::vector<double> fIntervals;
 
+	/**
+	 * ROOT drawing options. */
+	std::string fROOToptions;
+
   /**
    * Storage for plot objects. */
   mutable std::vector<TObject*> fROOTObjects;
+
+	/**
+	 * Storage for unused legend entries (for use with multicolumn legends). */
+	std::vector<TLegendEntry*> fExtraLegendEntries;
 
 };
 

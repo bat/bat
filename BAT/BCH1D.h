@@ -24,6 +24,7 @@
 // ---------------------------------------------------------
 
 #include <vector>
+#include <ostream>
 
 #include "BCHistogramBase.h"
 
@@ -70,6 +71,18 @@ public:
 
   /** \name Member functions (get)  */
   /** @{ */
+
+	using BCHistogramBase::GetLocalMode;
+	/**
+	 * @return local mode. */
+	double GetLocalMode()
+	{ return GetLocalMode(0); }
+
+	using BCHistogramBase::GetGlobalMode;
+	/**
+	 * @return global mode. */
+	double GetGlobalMode()
+	{ return GetGlobalMode(0); }
 
   /**
    * @return The median of the distribution. */
@@ -172,49 +185,73 @@ public:
   /** \name Member functions (miscellaneous methods) */
   /** @{ */
 
-	using BCHistogramBase::Draw;
+	/**
+	 * Check intervals: remove values below 0 or above 1,
+	 * and sort to proper order for band type. */
+	virtual void CheckIntervals(std::vector<double> & intervals);
 
-  /**
-   * Draw distribution into the active canvas.
-   * @param options ROOT drawing options
-   * @param intervals the intervals */
-  void Draw(std::string options="", std::vector<double> intervals=std::vector<double>(0));
+	/**
+	 * Return default intervals.
+	 * @param nbands nbands to give defaults for; if negative, use fNBands.
+	 * @return vector of default values for band intervals. */
+	virtual std::vector<double> DefaultIntervals(int nbands=-1);
 
-  /**
-   * Calculate the minimal interval of the distribution containing a given content.
-   * @param min calculated minimum of the interval
-   * @param max calculated maximum of the interval
-   * @param content content of the interval [default is .68]
-   * @return the content of the histogram between min and max */
-  double GetSmallestInterval(double & min, double & max, double content=.68);
+	/**
+	 * Draw bands. */
+	virtual void DrawBands(std::string options="same");
 
-  /**
-   * Create a histogram with the smallest intervals of the original
-   * histogram containing a certain level. The histogram is yellow.
-   * @param level the level or content of the histogram
-   * @return the histogram.
-   */
-  TH1D* GetSmallestIntervalHistogram(double level);
+	/**
+	 * Draw markers: global mode, local mode, mean, quantiles, median. */
+	virtual void DrawMarkers();
 
-  /**
-   * Return a vector of vectors containing information about the set of smallest
-   * intervals. \n
-   * 0 : x_min \n
-   * 1 : x_max \n
-   * 2 : relative height
-   * 3 : local mode \n
-   * 4 : relative area.
-   * @param content The content of the smallest interval
-   * @return the vector.
-   */
-	std::vector<std::vector<double> > GetSmallestIntervals(double content = 0.68);
+	/**
+	 * Draw quantiles. */
+	virtual void DrawQuantiles(unsigned n);
 
-  /**
-   * Calculate integral of the distribution between min and max.
-   * @param min lower boundary of the integrated interval
-   * @param max upper boundary of the integrated interval
-   * @return integral calculated as sum of BinContent*BinWidth */
-  double IntegralWidth(double min, double max);
+	/**
+	 * Draw median & central 68% interval. */
+	virtual void DrawMedian();
+
+	/**
+	 * Print information to stream.
+	 * @param ofi ofstream.
+	 * @param prefix String to be prepended to every line.
+	 * @param intervals Vector of intervals to print.
+	 * @param prec Precision of doubles to output. */
+	void PrintToStream(std::ostream & ofi, std::string prefix="", unsigned prec=6, std::vector<double> intervals=std::vector<double>(0));
+	
+	/**
+	 * \struct BCH1DInterval
+	 * Contains information about an interval. */
+	struct BCH1DInterval {
+		double xmin;
+		double xmax;
+		double mode;
+		double relative_height;
+		double relative_mass;
+	};
+
+	/**
+	 * \struct BCH1DIntervals
+	 * Vector of intervals with information about total mass. */
+	struct BCH1DSmallestInterval {
+		std::vector<BCH1D::BCH1DInterval> intervals;
+		double total_mass;
+		double mode;
+		double max_val;
+	};
+		
+	/**
+	 * @param masses Masses to return smallest intervals of.
+	 * @return vector of BCH1DSmallestInterval's. */
+	std::vector<BCH1D::BCH1DSmallestInterval> GetSmallestIntervals(std::vector<double> masses);
+
+	/**
+	 * @param mass Probability mass to return smallest intervals of.
+	 * @return BCH1DSmallestInterval for probability mass. */
+	BCH1D::BCH1DSmallestInterval GetSmallestIntervals(double mass)
+	{ return GetSmallestIntervals(std::vector<double>(1,mass)).at(0); }
+
 
   /**
    * Get histogram with bins outside min, max band being zero. The
@@ -227,7 +264,7 @@ public:
 	 * @param name Name for new histogram; empty string (default) appends "subhist" to histogram name.
 	 * @param preserve_range If true, preserves original histograms range, setting bins outside subhistogram range to zero.
    * @return new histogram which is nonzero only between min and max */
-  TH1D* GetSubHisto(double min, double max, std::string name="", bool preserve_range=false);
+  TH1* GetSubHistogram(double min, double max, std::string name="", bool preserve_range=false);
 
   /** @} */
 

@@ -28,13 +28,17 @@ bool BCVariableSet::Add(BCVariable * parameter)
 {
    if ( !parameter)
       return false;
-   // check if parameter with same name exists
-   for (unsigned int i = 0; i < fPars.size() ; ++i)
+   // check if parameter with same name or same safe name exists
+   for (unsigned int i = 0; i < fPars.size() ; ++i) {
 		 if ( parameter->GetName() == fPars[i]->GetName() ) {
 			 BCLog::OutError(TString::Format("BCVariableSet::Add : Variable with name %s exists already.", parameter->GetName().data()));
 			 return false;
 		 }
-
+		 if ( parameter->GetSafeName() == fPars[i]->GetSafeName() ) {
+			 BCLog::OutError(TString::Format("BCVariableSet::Add : Variable with safe name %s exists already.", parameter->GetSafeName().data()));
+			 return false;
+		 }
+	 }
    // add parameter to parameter container
    fPars.push_back(parameter);
 	 fMaxNameLength = std::max(fMaxNameLength, (unsigned)parameter->GetName().length());

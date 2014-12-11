@@ -101,7 +101,7 @@ public:
 
 	/**
 	 * @return precision of output */
-	unsigned GetPrecision()
+	unsigned GetPrecision() const
 	{ return fPrecision;}
 	
 	bool FillHistograms() const
@@ -158,17 +158,23 @@ public:
 	/** @{ */
 
 	/**
-	 * Check if name is that provided by parameter.
-	 * @param name Name to check against parameter name. */
-	bool IsNamed(std::string name)
+	 * Check if name is that of variable.
+	 * @param name Name to check against variable name. */
+	bool IsNamed(std::string name) const
 	{ return fName.compare(name) == 0; }
+
+	/**
+	 * Check if safe name is that of variable.
+	 * @param safename Safe name to check against variable name. */
+	bool IsSafeNamed(std::string safename) const
+	{ return fSafeName.compare(safename) == 0; }
 
 	/**
 	 * return position in range of given value
 	 * from 0 (at lower limit) to 1 (at upper limit)
 	 * @param x Value to report position of.
 	 * @return Position of value in range. */
-	double PositionInRange(double x)
+	double PositionInRange(double x) const
 	{ return (x - fLowerLimit)/(fUpperLimit-fLowerLimit); }
 
 	/**
@@ -183,20 +189,20 @@ public:
 
 	/**
 	 * @return A one line summary of the variable. */
-	virtual std::string OneLineSummary();
+	virtual std::string OneLineSummary() const;
 
 	/**
 	 * Creates a 1D Histogram for this variable.
 	 * @param name Name of the histogram.
 	 * @return pointer to histogram object. */
-	virtual TH1D * CreateH1(const char * name);
+	virtual TH1D * CreateH1(const char * name) const;
 	
 	/**
 	 * Creates a 2D Histogram for this variable as the abcissa
 	 * and a second as the ordinate.
 	 * @name name The name of the histogram.
 	 * @param ordinate The variable to be used for the ordinate. */
-	virtual TH2D * CreateH2(const char * name, BCVariable * ordinate);
+	virtual TH2D * CreateH2(const char * name, BCVariable * ordinate) const;
 
 	/** @} */
 	

@@ -52,17 +52,10 @@ int main()
    // draw all marginalized distributions into a pdf file
    m->PrintAllMarginalized("ReferenceCounting_plots.pdf");
 
-   // print individual histograms
-   BCH1D* hist_s = m->GetMarginalized("s");
-   hist_s->Print("ReferenceCounting_s.pdf", "BTulB3CS1D0pdf0L");
-   hist_s->Print("ReferenceCounting_s_logy.pdf", "BTulB3CS1D0pdf0Llogy");
-
-   BCH1D* hist_b = m->GetMarginalized("b");
-   hist_b->Print("ReferenceCounting_b.pdf");
-   hist_b->Print("ReferenceCounting_b_logy.pdf", "BTulB3CS1D0pdf0Llogy");
-
-   BCH2D* hist_sb = m->GetMarginalized("s", "b");
-   hist_sb->Print("ReferenceCounting_sb.pdf", "BTfB3CS1meangmodelmode");
+   // print histograms
+	 m -> PrintAllMarginalized("ReferenceCounting.pdf");
+	 m -> GetBCH1DdrawingOptions() -> SetLogy();
+	 m -> PrintAllMarginalized("ReferenceCounting_logy.pdf");
 
    // print priors
    m->PrintPriors("priors.pdf");
@@ -74,19 +67,7 @@ int main()
    m->PrintResults("ReferenceCounting_results.txt");
 
    // print slice results to screen
-
-   std::cout << " Mean   : " << hist_s->GetMean() << std::endl;
-   std::cout << " Median : " << hist_s->GetMedian() << std::endl;
-   std::cout << " Mode   : " << hist_s->GetMode() << std::endl;
-   std::cout << " Std    : " << hist_s->GetSTD() << std::endl;
-   std::cout << " Var    : " << hist_s->GetVariance() << std::endl;
-   std::cout << " Q  5%  : " << hist_s->GetQuantile(0.05) << std::endl;
-   std::cout << " Q 10%  : " << hist_s->GetQuantile(0.10) << std::endl;
-   std::cout << " Q 16%  : " << hist_s->GetQuantile(0.16) << std::endl;
-   std::cout << " Q 50%  : " << hist_s->GetQuantile(0.50) << std::endl;
-   std::cout << " Q 84%  : " << hist_s->GetQuantile(0.84) << std::endl;
-   std::cout << " Q 90%  : " << hist_s->GetQuantile(0.90) << std::endl;
-   std::cout << " Q 95%  : " << hist_s->GetQuantile(0.95) << std::endl;
+	 m -> GetMarginalized("s") -> PrintToStream(std::cout," ");
 
    // close log file
    BCLog::CloseLog();

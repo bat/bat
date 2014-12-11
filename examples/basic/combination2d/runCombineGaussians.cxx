@@ -36,7 +36,6 @@ int main()
   BCLog::CloseLog();
 
   delete m;
-  delete summary;
 
   return 0;
 

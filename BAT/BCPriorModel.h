@@ -33,8 +33,10 @@ class BCPriorModel : public BCModel
 public:
 
 	/**
-	 * constructor. */
-	BCPriorModel(BCModel * model);
+	 * constructor.
+	 * @param model Model to be prior model of.
+	 * @param call_likelihood Flag to control calling of Model's likelihood. */
+	BCPriorModel(BCModel * model, bool call_likelihood=false);
 
 	/**
 	 * destructor. */
@@ -52,15 +54,26 @@ public:
 
 	/**
 	 * Calculates user observables according to the model. */
-	void CalculateObservables(const std::vector<double> &parameters)
-	{ if (fModel) fModel->CalculateObservables(parameters); }
+	void CalculateObservables(const std::vector<double> &parameters);
 
 	/**
 	 * Prepare PriorModel from Model. */
 	bool PreparePriorModel();
 
+	/**
+	 * Set calling of likelihood in model. */
+	void SetCallLikelihood(bool cl)
+	{ fCallLikelihood = cl; }
+	
+	/**
+	 * @return whether to call model's likelihood. */
+	bool GetCallLikelihood()
+	{ return fCallLikelihood; }
+
 protected:
 	BCModel * fModel;
+	
+	bool fCallLikelihood;
 
 	/* Hide BCModel functions related to BCPriorModel. */
 	BCPriorModel * GetPriorModel(bool prepare=true) {return 0;}

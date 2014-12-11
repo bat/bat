@@ -612,13 +612,13 @@ int BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double &xexp, d
    else if (fDataPointType == 1) {
       xexp = (double)k/(double)n;
       BCH1D * fbh = new BCH1D((TH1D*)fHistogramBinomial->Clone("hcp"));
-      std::vector<double> intervals = fbh->GetSmallestIntervals(p).front();
-      if ( intervals.size()<2 ) {
-         xmin = xmax = xexp = 0.;
+			BCH1D::BCH1DSmallestInterval SI = fbh->GetSmallestIntervals(p);
+			if (SI.intervals.empty()) {
+				xmin = xmax = xexp = 0.;
       }
       else {
-         xmin = intervals[0];
-         xmax = intervals[1];
+				xmin = SI.intervals.front().xmin;
+				xmax = SI.intervals.front().xmax;
       }
       delete fbh;
    }

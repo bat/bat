@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     rho_all = hist_slice->GetHistogram()->GetCorrelationFactor();
 
     // calculate size of uncertainty
-    area_all = hist_slice->GetArea(0.39);
+    area_all = hist_slice->GetSmallestIntervalSize(0.39);
 
     // print results of numerical analysis to file
     m->PrintResults("MyCombination_full_results.txt");
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
       m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
       m->PrintResults(Form("MyCombination_measurement_%i_results.txt", i));
       rho_single.push_back( m->GetMarginalized("F0", "FL")->GetHistogram()->GetCorrelationFactor());
-      area_single.push_back(m->GetMarginalized("F0", "FL")->GetArea(0.39));
+      area_single.push_back(m->GetMarginalized("F0", "FL")->GetSmallestIntervalSize(0.39));
     }
     
     // switch all measurements on
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
       m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
       m->PrintResults(Form("MyCombination_uncertainty_%i_results.txt", i));
       rho_unc.push_back( m->GetMarginalized("F0", "FL")->GetHistogram()->GetCorrelationFactor());
-      area_unc.push_back(m->GetMarginalized("F0", "FL")->GetArea(0.39));
+      area_unc.push_back(m->GetMarginalized("F0", "FL")->GetSmallestIntervalSize(0.39));
     }
 
     // switch all uncertainties on
