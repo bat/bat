@@ -934,6 +934,7 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post, boo
 	bch1d_posterior -> CopyOptions(*fBCH1DPosteriorDrawingOptions);
 	bch1d_posterior -> SetDrawLegend(false);
 
+	gPad -> SetLogx(fBCH1DPriorDrawingOptions->GetLogx() or fBCH1DPosteriorDrawingOptions->GetLogx());
 	gPad -> SetLogy(fBCH1DPriorDrawingOptions->GetLogy() or fBCH1DPosteriorDrawingOptions->GetLogy());
 
 	// get maximum
@@ -1145,6 +1146,10 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 		prior_text = " (both flat)";
 		bch2d_prior -> SetNBands(0);
 	}
+
+	gPad -> SetLogx(fBCH2DPriorDrawingOptions->GetLogx() or fBCH2DPosteriorDrawingOptions->GetLogx());
+	gPad -> SetLogy(fBCH2DPriorDrawingOptions->GetLogy() or fBCH2DPosteriorDrawingOptions->GetLogy());
+	gPad -> SetLogz(fBCH2DPriorDrawingOptions->GetLogz() or fBCH2DPosteriorDrawingOptions->GetLogz());
 
 	// draw axes
 	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d_%d",GetSafeName().data(),index1,index2), TString::Format(";%s;%s;P(%s %s|Data)",GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data(),GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data()),
