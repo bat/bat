@@ -1626,11 +1626,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 					fMCMCTrialFunctionScaleFactor[ichain][ipar] /= (fMCMCEfficiencies[ichain][ipar] < 0.5*fMCMCEfficiencyMin) ? 4 : 2;
 					
 					if ( fMCMCTrialFunctionScaleFactor[ichain][ipar] > fMCMCScaleFactorLowerLimit ) {
-						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %6.2f %%", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
+						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %6.2g %%", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
 						inefficientScalesAdjustable = true;
 					}	else {
 						fMCMCTrialFunctionScaleFactor[ichain][ipar] = fMCMCScaleFactorLowerLimit;
-						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%6.2f %%)",	fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCScaleFactorLowerLimit));
+						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%6.2g %%)",	fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCScaleFactorLowerLimit));
 					}
 					
 				} else if (fMCMCEfficiencies[ichain][ipar] > fMCMCEfficiencyMax ) {
@@ -1644,11 +1644,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 					fMCMCTrialFunctionScaleFactor[ichain][ipar] *= 2;
 
 					if ( fMCMCTrialFunctionScaleFactor[ichain][ipar] < fMCMCScaleFactorUpperLimit ) {
-						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %6.2f %%", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
+						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %6.2g %%", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
 						inefficientScalesAdjustable = true;
 					} else {
 						fMCMCTrialFunctionScaleFactor[ichain][ipar] = fMCMCScaleFactorUpperLimit;
-						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%6.2f %%)", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, fMCMCScaleFactorUpperLimit));														 
+						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%6.2g %%)", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, fMCMCScaleFactorUpperLimit));														 
 					}
 				}
 			}
@@ -1795,7 +1795,7 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			efficiencies[i] += ( NTrialsForEff==0 ) ? fMCMCEfficiencies[j][i] / fMCMCNChains : 1.*fMCMCNTrialsTrue[j][i]/NTrialsForEff/fMCMCNChains;
 			scalefactors[i] += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
 		}
-		BCLog::OutDetail(Form("         %-*s :     %6.02f %%        %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*scalefactors[i], 100.*efficiencies[i]));
+		BCLog::OutDetail(Form("         %-*s :     %6.02g %%        %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*scalefactors[i], 100.*efficiencies[i]));
 	}
 
 	// reset current iteration
