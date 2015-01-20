@@ -29,7 +29,7 @@
 #include <algorithm>
 
 // ---------------------------------------------------------
-BCH1D::BCH1D(TH1 * hist)
+BCH1D::BCH1D(const TH1 * const hist)
 	: BCHistogramBase(hist,1)
 	, fBandType(kSmallestInterval)
 	, fNQuantiles(0)

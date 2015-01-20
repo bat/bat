@@ -116,12 +116,22 @@ int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
       return 0;
    }
 
-   // check compatibility of both histograms : bin content
-   for (int i = 1; i <= hist1->GetNbinsX(); ++i)
-      if (hist1->GetBinContent(i) < hist2->GetBinContent(i)) {
-         BCLog::OutError("BCEfficiencyFitter::SetHistograms : Histogram 1 has fewer entries than histogram 2.");
-         return 0;
-      }
+   // check compatibility of both histograms : bin edges and content
+   for (int i = 1; i <= hist1->GetNbinsX(); ++i) {
+		 if (fabs(hist1->GetBinLowEdge(i)-hist2->GetBinLowEdge(i)) > std::numeric_limits<double>::epsilon()) {
+			 BCLog::OutError("BCEfficiencyFitter::SetHistograms : Histogram 1 and 2 don't have same bins.");
+			 return 0;
+		 }
+		 if (hist1->GetBinContent(i) < hist2->GetBinContent(i)) {
+			 BCLog::OutError("BCEfficiencyFitter::SetHistograms : Histogram 1 has fewer entries than histogram 2.");
+			 return 0;
+		 }
+	 }
+	 // Check upper edge of last bin:
+	 if (fabs(hist1->GetXaxis()->GetXmax()-hist2->GetXaxis()->GetXmax())>std::numeric_limits<double>::epsilon()) {
+		 BCLog::OutError("BCEfficiencyFitter::SetHistograms : Histogram 1 and 2 don't have same bins.");
+		 return 0;
+	 }
 
    // set pointer to histograms
    fHistogram1 = hist1;
@@ -130,34 +140,15 @@ int BCEfficiencyFitter::SetHistograms(TH1D * hist1, TH1D * hist2)
    // create a data set. this is necessary in order to calculate the
    // error band. the data set contains as many data points as there
    // are bins. for now, the data points are empty.
-   BCDataSet * ds = new BCDataSet();
+   SetDataSet(new BCDataSet());
 
    // create data points and add them to the data set.
-   int nbins = fHistogram1->GetNbinsX();
-   for (int i = 0; i < nbins; ++i) {
-      BCDataPoint* dp = new BCDataPoint(2);
-      ds->AddDataPoint(dp);
-   }
-
-   // set the new data set.
-   SetDataSet(ds);
-
-   // calculate the lower and upper edge in x.
-   double xmin = hist1->GetBinLowEdge(1);
-   double xmax = hist1->GetBinLowEdge(nbins+1);
-
-//   // calculate the minimum and maximum range in y.
-//   double histymin = hist2->GetMinimum();
-//   double histymax = hist1->GetMaximum();
-
-//   // calculate the minimum and maximum of the function value based on
-//   // the minimum and maximum value in y.
-//   double ymin = TMath::Max(0., histymin - 5.*sqrt(histymin));
-//   double ymax = histymax + 5.*sqrt(histymax);
+   for (int i = 0; i < fHistogram1->GetNbinsX(); ++i)
+      GetDataSet()->AddDataPoint(new BCDataPoint(2));
 
    // set the data boundaries for x and y values.
-   SetDataBoundaries(0, xmin, xmax);
-   SetDataBoundaries(1, 0.0, 1.0);
+   GetDataSet() -> SetBounds(0, fHistogram1->GetXaxis()->GetXmin(), fHistogram1->GetXaxis()->GetXmax());
+   GetDataSet() -> SetBounds(1, 0.0, 1.0);
 
    // set the indeces for fitting.
    SetFitFunctionIndices(0, 1);

@@ -21,12 +21,15 @@
 #include <TLegend.h>
 #include <TLegendEntry.h>
 #include <TString.h>
+#include <TH1D.h>
+#include <TH2D.h>
 
 #include <math.h>
 #include <algorithm>
+#include <iostream>
 
 // ---------------------------------------------------------
-BCHistogramBase::BCHistogramBase(TH1 * hist, int dimension)
+BCHistogramBase::BCHistogramBase(const TH1 * const hist, int dimension)
   : fHistogram(0)
 	, fLegend(new TLegend)
 	, fNLegendColumns(2)
@@ -118,7 +121,7 @@ BCHistogramBase::~BCHistogramBase()
 }
 
 // ---------------------------------------------------------
-void BCHistogramBase::SetHistogram(TH1 * hist) {
+void BCHistogramBase::SetHistogram(const TH1 * const hist) {
 	if (fHistogram)
 		delete fHistogram;
 
@@ -128,7 +131,7 @@ void BCHistogramBase::SetHistogram(TH1 * hist) {
 		return;
 	}
 
-	fHistogram = (TH1*) hist -> Clone(TString::Format("%s_bch",hist->GetName()));
+	fHistogram = (TH1*) (hist -> Clone(TString::Format("%s_bch",hist->GetName())));
 	fHistogram -> SetStats(false);
 	fDimension = fHistogram->GetDimension();
 
@@ -220,9 +223,10 @@ void BCHistogramBase::Smooth(int n) {
 	if (n<=0)
 		return;
 	GetHistogram() -> Scale(GetHistogram()->Integral("width"));
-	if (GetHistogram()->GetDimension()==1)
-		GetHistogram() -> Smooth(n);
-	else // ROOT currently only allows single instances of smoothing for TH2
+	if (GetHistogram()->GetDimension()==1) {
+		if (GetHistogram()->GetNbinsX()>=3)
+			GetHistogram() -> Smooth(n);
+	} else // ROOT currently only allows single instances of smoothing for TH2
 		for (int i=0; i<n; ++i)
 			GetHistogram() -> Smooth(1);
 	double integral = GetHistogram() -> Integral("width");
@@ -247,7 +251,8 @@ void BCHistogramBase::CheckIntervals(std::vector<double> & intervals, int sort) 
 
 	// warning: unique will not reliably remove all duplicates unless the vector has first been sorted.
 	unsigned old_size = intervals.size();
-	std::unique(intervals.begin(),intervals.end());
+	std::vector<double>::iterator last = std::unique(intervals.begin(),intervals.end());
+	intervals.erase(last,intervals.end());
 	if (intervals.size() < old_size)
 		BCLog::OutWarning(TString::Format("BCHistogramBase::CheckIntervals : %lu duplicate interval values were removed.",old_size-intervals.size()));
 }
@@ -347,7 +352,8 @@ std::vector<std::pair<double,double> > BCHistogramBase::GetSmallestIntervalBound
 		}
 	}
 
-	std::unique(levels.begin(),levels.end());
+	std::vector<std::pair<double,double> >::iterator last = std::unique(levels.begin(),levels.end());
+	levels.erase(last,levels.end());
 	return levels;
 }
 
@@ -418,7 +424,7 @@ void BCHistogramBase::Draw() {
 	}
 
 	DrawBands(options);
-	gPad -> Update();
+	// gPad -> Update();
 
 	DrawMarkers();
 	DrawLegend();
@@ -438,7 +444,7 @@ void BCHistogramBase::DrawMarkers() {
 void BCHistogramBase::DrawGlobalMode() {
 	double ymin = gPad -> GetUymin();
 	double ymax = gPad -> GetUymax();
-	double y = ymin + 0.5*(ymax+ymin);
+	double y = ymin + 0.5*(ymax-ymin);
 	if (gPad->GetLogy()) {
 		ymin = pow(10,ymin);
 		ymax = pow(10,ymax);
@@ -492,7 +498,7 @@ void BCHistogramBase::DrawGlobalMode() {
 void BCHistogramBase::DrawLocalMode() {
 	double ymin = gPad -> GetUymin();
 	double ymax = gPad -> GetUymax();
-	double y = ymin + 0.25*(ymax+ymin);
+	double y = ymin + 0.25*(ymax-ymin);
 	if (gPad->GetLogy()) {
 		ymin = pow(10,ymin);
 		ymax = pow(10,ymax);

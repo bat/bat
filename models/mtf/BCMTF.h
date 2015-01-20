@@ -44,13 +44,9 @@ public:
         /** @{ */
 
         /**
-         * The default constructor. */
-        BCMTF();
-
-        /**
          * A constructor.
          * @param name The name of the model */
-        BCMTF(const char * name);
+        BCMTF(const char * name="multi_template_fitter");
 
         /**
          * The default destructor. */
@@ -348,8 +344,8 @@ public:
         /**
          * Print a summary of the fit into an ASCII file.
          * @param filename The name of the file.
-         * @return An error code */
-        int PrintSummary(const char * filename = "summary.txt");
+         * @return Success of action. */
+        bool PrintResults(const char * filename = "summary.txt");
 
         /**
          * Print the stack of templates together with the data in a
@@ -441,6 +437,14 @@ private:
         /**
          * A container of functions for the expectation. */
         std::vector<TF1 *> fExpectationFunctionContainer;
+
+				/**
+				 * P value. */
+				double fPValue;
+
+				/**
+				 * P value accounting for degrees of freedom. */
+				double fPValueNDoF;
 
 };
 // ---------------------------------------------------------

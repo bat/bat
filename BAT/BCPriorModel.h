@@ -67,7 +67,7 @@ public:
 	
 	/**
 	 * @return whether to call model's likelihood. */
-	bool GetCallLikelihood()
+	bool GetCallLikelihood() const
 	{ return fCallLikelihood; }
 
 protected:
@@ -75,12 +75,16 @@ protected:
 	
 	bool fCallLikelihood;
 
-	/* Hide BCModel functions related to BCPriorModel. */
-	BCPriorModel * GetPriorModel(bool prepare=true) {return 0;}
-	int DrawKnowledgeUpdatePlot1D(unsigned index, std::string options_post="", std::string options_prior="") {return 0;}
-	int DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice=false, double interval_content=68e-2) {return 0;}
-	int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, std::string options="-", double interval_content=68e-2) {return 0;}
+	/** \name Hide BCModel functions related to BCPriorModel. */
+	/** @{ */
+ private:
 
+	using BCModel::GetPriorModel;
+	using BCModel::DrawKnowledgeUpdatePlot1D;
+	using BCModel::DrawKnowledgeUpdatePlot2D;
+	using BCModel::PrintKnowledgeUpdatePlots;
+
+	/** @} */
 
 
 };

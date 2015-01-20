@@ -15,7 +15,7 @@
 #include <TError.h>
 #include <TROOT.h>
 
-#include <fstream>
+#include <iostream>
 #include <iomanip>
 
 
@@ -28,8 +28,6 @@ BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 bool BCLog::fFirstOutputDone = false;
 
 const char * BCLog::fVersion = VERSION;
-
-int BCLog::fHindex = 0;
 
 // ---------------------------------------------------------
 
@@ -69,34 +67,6 @@ void BCLog::OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::
 
 // ---------------------------------------------------------
 
-void BCLog::OpenLog(const char * filename)
-{
-   BCLog::OpenLog(filename, BCLog::debug, BCLog::summary);
-}
-
-// ---------------------------------------------------------
-
-void BCLog::OpenLog()
-{
-   BCLog::OpenLog("log.txt", BCLog::debug, BCLog::summary);
-}
-
-// ---------------------------------------------------------
-
-bool BCLog::IsOpen()
-{
-   return BCLog::fOutputStream.is_open();
-}
-
-// ---------------------------------------------------------
-
-void BCLog::CloseLog()
-{
-   BCLog::fOutputStream.close();
-}
-
-// ---------------------------------------------------------
-
 void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message)
 {
    // if this is the first call to Out(), call StartupInfo() first
@@ -114,13 +84,6 @@ void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, co
    // write message to screen
    if (loglevelscreen >= BCLog::fMinimumLogLevelScreen)
       std::cout << BCLog::ToString(loglevelscreen) << " : " << message << std::endl;
-}
-
-// ---------------------------------------------------------
-
-void BCLog::Out(const char * message)
-{
-   BCLog::Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message);
 }
 
 // ---------------------------------------------------------

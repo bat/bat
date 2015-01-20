@@ -12,7 +12,8 @@
 
 #include "BCMath.h"
 
-#include <TH1D.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <TH2D.h>
 #include <TRandom3.h>
 #include <TTree.h>
@@ -25,17 +26,20 @@
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
-#include <TGaxis.h>
 #include <TF1.h>
 #include <TObject.h>
 #include <TKey.h>
 #include <TList.h>
+#include <TDecompChol.h>
+#include <TVectorD.h>
+#include <TError.h>
 
-#include <math.h>
 #include <limits>
 #include <cmath>
 #include <algorithm>
 #include <fstream>
+
+#include <typeinfo>
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const char * name)
@@ -46,12 +50,18 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fMCMCOutputFileOption("")
 	, fMCMCScaleFactorLowerLimit(0)
 	, fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
+	, fMCMCAutoSetTrialFunctionScaleFactors(true)
+	// , fMultivariateProposalFunctionTuningScheduleParameter(0.5)
+	, fMultivariateProposalFunctionEpsilon(1e-3)
+	, fMultivariateProposalFunctionScaleMultiplier(1.5)
+	, fMCMCFlagPreRun(true)
+	, fMCMCInitialPositionExpansionFactor(1.1)
 	, fMCMCEfficiencyMin(0.15)
 	, fMCMCEfficiencyMax(0.50)
-	, fMCMCFlagInitialPosition(1)
-	, fMCMCFlagOrderParameters(true)
+	, fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
+	, fMCMCMultivariateProposalFunction(false)
 	, fMCMCPhase(BCEngineMCMC::MCMCUnsetPhase)
-	, fMCMCRValueUseStrict(false)
+	, fCorrectRValueForSamplingVariability(false)
 	, fMCMCRValueCriterion(0.1)
 	, fMCMCRValueParametersCriterion(0.1)
 	, fRandom(new TRandom3())
@@ -61,6 +71,8 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fParameterTree(0)
 	, fBCH1DdrawingOptions(new BCH1D)
 	, fBCH2DdrawingOptions(new BCH2D)
+	, fRescaleHistogramRangesAfterPreRun(false)
+	, fHistogramRescalePadding(0.1)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -77,12 +89,18 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fMCMCOutputFileOption("")
 	, fMCMCScaleFactorLowerLimit(0)
 	, fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
+	, fMCMCAutoSetTrialFunctionScaleFactors(true)
+	// , fMultivariateProposalFunctionTuningScheduleParameter(0.5)
+	, fMultivariateProposalFunctionEpsilon(1e-3)
+	, fMultivariateProposalFunctionScaleMultiplier(1.5)
+	, fMCMCFlagPreRun(true)
+	, fMCMCInitialPositionExpansionFactor(1.1)
 	, fMCMCEfficiencyMin(0.15)
 	, fMCMCEfficiencyMax(0.50)
-	, fMCMCFlagInitialPosition(1)
-	, fMCMCFlagOrderParameters(true)
+	, fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
+	, fMCMCMultivariateProposalFunction(false)
 	, fMCMCPhase(BCEngineMCMC::MCMCUnsetPhase)
-	, fMCMCRValueUseStrict(false)
+	, fCorrectRValueForSamplingVariability(false)
 	, fMCMCRValueCriterion(0.1)
 	, fMCMCRValueParametersCriterion(0.1)
 	, fRandom(new TRandom3())
@@ -92,6 +110,8 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fParameterTree(0)
 	, fBCH1DdrawingOptions(new BCH1D)
 	, fBCH2DdrawingOptions(new BCH2D)
+	, fRescaleHistogramRangesAfterPreRun(false)
+	, fHistogramRescalePadding(0.1)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -100,8 +120,36 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::SetName(const char * name)
+BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC & other)
+	: fBCH1DdrawingOptions(new BCH1D)
+	, fBCH2DdrawingOptions(new BCH2D)
 {
+	Copy(other);
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::~BCEngineMCMC() {
+	MCMCCloseOutputFile();
+
+	// delete random number generator
+	delete fRandom;
+	
+	// delete 1-d marginalized distributions
+	for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
+		delete fH1Marginalized[i];
+	
+	// delete 2-d marginalized distributions
+	for (unsigned i = 0; i < fH2Marginalized.size(); ++i)
+		for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
+			delete fH2Marginalized[i][j];
+
+	delete fBCH1DdrawingOptions;
+	delete fBCH2DdrawingOptions;
+}
+
+
+// ---------------------------------------------------------
+void BCEngineMCMC::SetName(const char * name) {
 	fName = name;
 	fSafeName = name;
 	fSafeName.erase(std::remove_if(fSafeName.begin(),fSafeName.end(),::isspace),fSafeName.end());
@@ -109,6 +157,10 @@ void BCEngineMCMC::SetName(const char * name)
 
 // ---------------------------------------------------------
 void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision) {
+
+	// all precision levels want a pre-run:
+	fMCMCFlagPreRun = true;
+
 	switch(precision) {
 
 	case BCEngineMCMC::kLow:
@@ -166,9 +218,6 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision) {
 		fMCMCNIterationsClearConvergenceStats = 5000;
 		break;
 	}
-
-	// re-initialize
-	MCMCInitialize();
 }
 
 // ---------------------------------------------------------
@@ -185,138 +234,109 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC * other) {
 	fMCMCRValueParametersCriterion        = other -> MCMCGetRValueParametersCriterion();
 	fMCMCEfficiencyMin                    = other -> MCMCGetMinimumEfficiency();
 	fMCMCEfficiencyMax                    = other -> MCMCGetMaximumEfficiency();
-
-	// re-initialize
-	MCMCInitialize();
+	fMCMCFlagPreRun                       = other -> MCMCGetFlagPreRun();
+	fMCMCMultivariateProposalFunction     = other -> MCMCGetMultivariateProposalFunction();
+	// fMultivariateProposalFunctionTuningScheduleParameter = other -> MCMCGetMultivariateProposalFunctionTuningScheduleParameter();
+	fMultivariateProposalFunctionEpsilon  = other -> MCMCGetMultivariateProposalFunctionEpsilon();
+	fMultivariateProposalFunctionScaleMultiplier = other -> MCMCGetMultivariateProposalFunctionScaleMultiplier();
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::~BCEngineMCMC() {
+void BCEngineMCMC::Copy(const BCEngineMCMC & other) {
+	fMCMCPointerToGetProposalPoint            = other.fMCMCPointerToGetProposalPoint;
+	fMCMCNChains                              = other.fMCMCNChains;
+	fMCMCNLag                                 = other.fMCMCNLag;
+	fMCMCNIterations                          = other.fMCMCNIterations;
+	fMCMCCurrentIteration                     = other.fMCMCCurrentIteration;
+	fMCMCCurrentChain                         = other.fMCMCCurrentChain;
+	fMCMCNIterationsEfficiencyCheck           = other.fMCMCNIterationsEfficiencyCheck;
+	fMCMCNIterationsConvergenceCheck          = other.fMCMCNIterationsConvergenceCheck;
+	fMCMCNIterationsClearConvergenceStats     = other.fMCMCNIterationsClearConvergenceStats;
+	fMCMCNIterationsConvergenceGlobal         = other.fMCMCNIterationsConvergenceGlobal;
+	fMCMCNIterationsPreRunMax                 = other.fMCMCNIterationsPreRunMax;
+	fMCMCNIterationsRun                       = other.fMCMCNIterationsRun;
+	fMCMCNIterationsPreRunMin                 = other.fMCMCNIterationsPreRunMin;
+	fMCMCFlagWriteChainToFile                 = other.fMCMCFlagWriteChainToFile;
+	fMCMCFlagWritePreRunToFile                = other.fMCMCFlagWritePreRunToFile;
+	fMCMCTrialFunctionScaleFactor             = other.fMCMCTrialFunctionScaleFactor;
+	fMCMCTrialFunctionScaleFactorStart        = other.fMCMCTrialFunctionScaleFactorStart;
+	fMCMCAutoSetTrialFunctionScaleFactors     = other.fMCMCAutoSetTrialFunctionScaleFactors;
+	fMCMCFlagPreRun                           = other.fMCMCFlagPreRun;
+	fMCMCFlagRun                              = other.fMCMCFlagRun;
+	fMCMCInitialPosition                      = other.fMCMCInitialPosition;
+	fMCMCInitialPositionExpansionFactor       = other.fMCMCInitialPositionExpansionFactor;
+	fMCMCEfficiencyMin                        = other.fMCMCEfficiencyMin;
+	fMCMCEfficiencyMax                        = other.fMCMCEfficiencyMax;
+	fMCMCScaleFactorLowerLimit                = other.fMCMCScaleFactorLowerLimit;
+	fMCMCScaleFactorUpperLimit                = other.fMCMCScaleFactorUpperLimit;
+	fMCMCFlagInitialPosition                  = other.fMCMCFlagInitialPosition;
+	fMCMCMultivariateProposalFunction         = other.fMCMCMultivariateProposalFunction;
+	fMCMCPhase                                = other.fMCMCPhase;
+	fMCMCx                                    = other.fMCMCx;
+	fMCMCObservables                          = other.fMCMCObservables;
+	fMCMCStatistics                           = other.fMCMCStatistics;
+	fMCMCStatistics_AllChains                 = other.fMCMCStatistics_AllChains;
+	fMCMCprob                                 = other.fMCMCprob;
+	fMCMCLogLikelihood                        = other.fMCMCLogLikelihood;
+	fMCMCLogLikelihood_Provisional            = other.fMCMCLogLikelihood_Provisional;
+	fMCMCLogPrior                             = other.fMCMCLogPrior;
+	fMCMCLogPrior_Provisional                 = other.fMCMCLogPrior_Provisional;
+	fCorrectRValueForSamplingVariability      = other.fCorrectRValueForSamplingVariability;
+	fMCMCRValueCriterion                      = other.fMCMCRValueCriterion ;
+	fMCMCRValueParametersCriterion            = other.fMCMCRValueParametersCriterion;
+	fMCMCRValue                               = other.fMCMCRValue;
+	fMCMCRValueParameters                     = other.fMCMCRValueParameters;
+	fRandom                                   = (other.fRandom) ? new TRandom3(*other.fRandom) : NULL;
+	fMCMCThreadLocalStorage                   = other.fMCMCThreadLocalStorage;
+	fRescaleHistogramRangesAfterPreRun        = other.fRescaleHistogramRangesAfterPreRun;
+	fHistogramRescalePadding                  = other.fHistogramRescalePadding;
 
-		MCMCCloseOutputFile();
+	// multivariate proposal function shtuff
+	// fMultivariateProposalFunctionTuningScheduleParameter = other.fMultivariateProposalFunctionTuningScheduleParameter;
+	fMultivariateProposalFunctionEpsilon = other.fMultivariateProposalFunctionEpsilon;
+	fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
+	fMultivariateProposalFunctionCovariance = other.fMultivariateProposalFunctionCovariance;
+	fMultivariateProposalFunctionCholeskyDecomposition = other.fMultivariateProposalFunctionCholeskyDecomposition;
+	fMultivariateProposalFunctionTuningSteps = other.fMultivariateProposalFunctionTuningSteps;
 
-   // delete random number generator
-   delete fRandom;
+	fParameters = other.fParameters;
 
-   // delete 1-d marginalized distributions
-   for (unsigned i = 0; i < fH1Marginalized.size(); ++i) {
-		 delete fH1Marginalized[i];
-	 }
-   fH1Marginalized.clear();
+	// clear existing histograms
+	for (unsigned i=0; i<fH1Marginalized.size(); ++i)
+		delete fH1Marginalized[i];
+	for (unsigned i=0; i<fH2Marginalized.size(); ++i)
+		for (unsigned j=0; j<fH2Marginalized[i].size(); ++j)
+			delete fH2Marginalized[i][j];
 
-   // delete 2-d marginalized distributions
-   for (unsigned i = 0; i < fH2Marginalized.size(); ++i) {
-		 for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
-			 delete fH2Marginalized[i][j];
-		 fH2Marginalized[i].clear();
-	 }
-   fH2Marginalized.clear();
-	 if (fBCH1DdrawingOptions)
-		 delete fBCH1DdrawingOptions;
-	 if (fBCH2DdrawingOptions)
-		 delete fBCH2DdrawingOptions;
-}
+	fH1Marginalized = std::vector<TH1*>(other.fH1Marginalized.size(),NULL);
+	for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
+		if (other.fH1Marginalized[i])
+			fH1Marginalized[i] = dynamic_cast<TH1*>(other.fH1Marginalized[i]->Clone());
+	// fH1Marginalized[i] = new TH1D(*(other.fH1Marginalized[i]));
+	 
+	if (!other.fH2Marginalized.empty() and !other.fH2Marginalized.front().empty()) {
+		fH2Marginalized = std::vector<std::vector<TH2*> > (other.fH2Marginalized.size(), std::vector<TH2*>(other.fH2Marginalized.front().size(),NULL));
+		for (unsigned i = 0; i < other.fH2Marginalized.size(); ++i) {
+			fH2Marginalized[i].assign(other.fH2Marginalized[i].size(),NULL);
+			for (unsigned j = 0; j < other.fH2Marginalized[i].size(); ++j)
+				if (other.fH2Marginalized[i][j])
+					fH2Marginalized[i][j] = dynamic_cast<TH2*>(other.fH2Marginalized[i][j]->Clone());
+			// fH2Marginalized[i][j] = new TH2D(*(other.fH2Marginalized[i][j]));
+		}
+	} else
+		fH2Marginalized = std::vector<std::vector<TH2*> >();
+	 
+	fMCMCTree       = 0;
+	fMCMCTreeLoaded = false;
+	fMCMCTreeReuseObservables = true;
+	fParameterTree  = 0;
+	fMCMCOutputFile = 0;
+	fMCMCOutputFilename      = other.fMCMCOutputFilename;
+	fMCMCOutputFileOption    = other.fMCMCOutputFileOption;
 
-// ---------------------------------------------------------
-BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC & other)
-	: fBCH1DdrawingOptions(new BCH1D)
-	, fBCH2DdrawingOptions(new BCH2D)
-{
-	Copy(other);
-}
-
-// ---------------------------------------------------------
-void BCEngineMCMC::Copy(const BCEngineMCMC & other)
-{
-   fMCMCPointerToGetProposalPoint            = other.fMCMCPointerToGetProposalPoint;
-   fMCMCNChains                              = other.fMCMCNChains;
-   fMCMCNLag                                 = other.fMCMCNLag;
-   fMCMCNIterations                          = other.fMCMCNIterations;
-   fMCMCCurrentIteration                     = other.fMCMCCurrentIteration;
-   fMCMCCurrentChain                         = other.fMCMCCurrentChain;
-	 fMCMCNIterationsEfficiencyCheck           = other.fMCMCNIterationsEfficiencyCheck;
-   fMCMCNIterationsConvergenceCheck          = other.fMCMCNIterationsConvergenceCheck;
-   fMCMCNIterationsClearConvergenceStats     = other.fMCMCNIterationsClearConvergenceStats;
-   fMCMCNIterationsConvergenceGlobal         = other.fMCMCNIterationsConvergenceGlobal;
-   fMCMCNIterationsPreRunMax                 = other.fMCMCNIterationsPreRunMax;
-   fMCMCNIterationsRun                       = other.fMCMCNIterationsRun;
-   fMCMCNIterationsPreRunMin                 = other.fMCMCNIterationsPreRunMin;
-   fMCMCNTrialsTrue                          = other.fMCMCNTrialsTrue;
-   fMCMCNTrials                              = other.fMCMCNTrials;
-   fMCMCFlagWriteChainToFile                 = other.fMCMCFlagWriteChainToFile;
-   fMCMCFlagWritePreRunToFile                = other.fMCMCFlagWritePreRunToFile;
-   fMCMCTrialFunctionScaleFactor             = other.fMCMCTrialFunctionScaleFactor;
-   fMCMCTrialFunctionScaleFactorStart        = other.fMCMCTrialFunctionScaleFactorStart;
-   fMCMCFlagPreRun                           = other.fMCMCFlagPreRun;
-   fMCMCFlagRun                              = other.fMCMCFlagRun;
-   fMCMCInitialPosition                      = other.fMCMCInitialPosition;
-   fMCMCEfficiencies                         = other.fMCMCEfficiencies;
-   fMCMCEfficiencyMin                        = other.fMCMCEfficiencyMin;
-   fMCMCEfficiencyMax                        = other.fMCMCEfficiencyMax;
-	 fMCMCScaleFactorLowerLimit                = other.fMCMCScaleFactorLowerLimit;
-	 fMCMCScaleFactorUpperLimit                = other.fMCMCScaleFactorUpperLimit;
-   fMCMCFlagInitialPosition                  = other.fMCMCFlagInitialPosition;
-   fMCMCFlagOrderParameters                  = other.fMCMCFlagOrderParameters;
-   fMCMCPhase                                = other.fMCMCPhase;
-   fMCMCx                                    = other.fMCMCx;
-   fMCMCObservables                          = other.fMCMCObservables;
-   fMCMCxMax                                 = other.fMCMCxMax;
-   fMCMCxMean                                = other.fMCMCxMean;
-   fMCMCxVar                                 = other.fMCMCxVar;
-   fMCMCprob                                 = other.fMCMCprob;
-   fMCMCprobMax                              = other.fMCMCprobMax;
-   fMCMCprobMean                             = other.fMCMCprobMean;
-   fMCMCprobVar                              = other.fMCMCprobVar;
-	 fMCMCLogLikelihood                        = other.fMCMCLogLikelihood;
-	 fMCMCLogLikelihood_Provisional            = other.fMCMCLogLikelihood_Provisional;
-	 fMCMCLogPrior                             = other.fMCMCLogPrior;
-	 fMCMCLogPrior_Provisional                 = other.fMCMCLogPrior_Provisional;
-   fMCMCRValueUseStrict                      = other.fMCMCRValueUseStrict;
-   fMCMCRValueCriterion                      = other.fMCMCRValueCriterion ;
-   fMCMCRValueParametersCriterion            = other.fMCMCRValueParametersCriterion;
-   fMCMCRValue                               = other.fMCMCRValue;
-   fMCMCRValueParameters                     = other.fMCMCRValueParameters;
-	 fRandom                                   = (other.fRandom) ? new TRandom3(*other.fRandom) : NULL;
-   fMCMCThreadLocalStorage                   = other.fMCMCThreadLocalStorage;
-
-	 fH1Marginalized = std::vector<TH1D*>(other.fH1Marginalized.size(),0);
-   for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
-		 if (other.fH1Marginalized.at(i))
-			 fH1Marginalized[i] = new TH1D(*(other.fH1Marginalized[i]));
-
-	 fH2Marginalized = std::vector<std::vector<TH2D*> > (other.fH2Marginalized.size(), std::vector<TH2D*>(other.fH2Marginalized[0].size(),0));
-   for (unsigned i = 0; i < other.fH2Marginalized.size(); ++i)
-		 for (unsigned j = 0; j < other.fH2Marginalized[i].size(); ++j)
-			 if (other.fH2Marginalized[i][j])
-				 fH2Marginalized[i][j] = new TH2D(*(other.fH2Marginalized[i][j]));
-
-	 fMCMCTree       = 0;
-	 fMCMCTreeLoaded = false;
-	 fMCMCTreeReuseObservables = true;
-	 fParameterTree  = 0;
-	 fMCMCOutputFile = 0;
-	 fMCMCOutputFilename      = other.fMCMCOutputFilename;
-	 fMCMCOutputFileOption    = other.fMCMCOutputFileOption;
-
-   fMarginalModes         = other.fMarginalModes;
-   fMCMCBestFitParameters = other.fMCMCBestFitParameters;
-   fMCMCLogMaximum        = other.fMCMCLogMaximum;
-	 fBCH1DdrawingOptions -> CopyOptions(*(other.fBCH1DdrawingOptions));
-	 fBCH2DdrawingOptions -> CopyOptions(*(other.fBCH2DdrawingOptions));
-}
-
-// ---------------------------------------------------------
-BCEngineMCMC & BCEngineMCMC::operator = (const BCEngineMCMC & enginemcmc)
-{
-   Copy(enginemcmc);
-   return *this;
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::SetNbins(unsigned int nbins)
-{
-	fParameters.SetNBins(nbins);
-	fObservables.SetNBins(nbins);
+	fLocalModes            = other.fLocalModes;
+	fBCH1DdrawingOptions -> CopyOptions(*(other.fBCH1DdrawingOptions));
+	fBCH2DdrawingOptions -> CopyOptions(*(other.fBCH2DdrawingOptions));
 }
 
 // --------------------------------------------------------
@@ -366,7 +386,7 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
 }
 
 // --------------------------------------------------------
-TH1D * BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
+TH1 * BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
 	if ( index >= fH1Marginalized.size() ) {
 		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.",index));
 		return 0;
@@ -384,10 +404,10 @@ TH1D * BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
 }
 
 // --------------------------------------------------------
-TH2D * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
+TH2 * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
 	if (i == j) {
 		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Called with identical indices %u.", i));
-		return 0;
+		return NULL;
 	}
 	
 	// redundancy reduced by only storing H2's for i<j
@@ -397,11 +417,11 @@ TH2D * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
 
 	if ( i >= fH2Marginalized.size() ) {
 		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", i));
-		return 0;
+		return NULL;
 	}
 	if ( j >= fH2Marginalized[i].size() ) {
 		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.", j));
-		return 0;
+		return NULL;
 	}
 
 	if (fH2Marginalized[i][j])
@@ -420,41 +440,37 @@ TH2D * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
 		else if ( j-GetNParameters()<GetNObservables() ) // Marginalization of user-defined observable
 			BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distributions not stored for user-observable %s", GetObservable(j-GetNParameters())->GetName().data()));
 	}
-	return 0;
+	return NULL;
 }
 
 // --------------------------------------------------------
 BCH1D * BCEngineMCMC::GetMarginalized(unsigned index) {
-	TH1D * h = GetMarginalizedHistogram(index);
+	TH1 * h = GetMarginalizedHistogram(index);
 
 	if ( !h )
-		return 0;
+		return NULL;
 	
-	BCH1D * hprob = new BCH1D(h);
+	BCH1D * hprob = new BCH1D((TH1*)h);
 	
-	// if best fit parameters exists, set global mode
-	if (GetBestFitParameters().size() == GetNParameters())
-		hprob -> SetGlobalMode(GetBestFitParameter(index));
-	
-	if ( fMarginalModes.size() != fH1Marginalized.size() )
-		fMarginalModes.resize(fH1Marginalized.size(), 0);
-	fMarginalModes[index] = hprob->GetLocalMode(0);
+	// set global mode if available
+	if (index<GetGlobalMode().size())
+		hprob -> SetGlobalMode(GetGlobalMode()[index]);
 	
 	return hprob;
 }
 	
 // --------------------------------------------------------
 BCH2D * BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) {
-	TH2D * h = GetMarginalizedHistogram(i,j);
+	TH2 * h = GetMarginalizedHistogram(i,j);
 
 	if (!h)
-		return 0;
+		return NULL;
 
 	BCH2D * hprob = new BCH2D(h);
 
-	// if best fit parameters exists, set global mode
-	if (GetBestFitParameters().size() == GetNParameters())
-		hprob -> SetGlobalMode(GetBestFitParameter(i),GetBestFitParameter(j));
+	// set global mode if available
+	if (i<GetGlobalMode().size() and j<GetGlobalMode().size())
+		hprob -> SetGlobalMode(GetGlobalMode()[i],GetGlobalMode()[j]);
 		
 	return hprob;
 }
@@ -469,58 +485,41 @@ BCVariable * BCEngineMCMC::GetVariable(unsigned index) const {
 }
 
 // ---------------------------------------------------------
-const std::vector<double> & BCEngineMCMC::GetBestFitParametersMarginalized() const
-{
-   if(fMarginalModes.empty())
-      BCLog::OutError("BCIntegrate::GetBestFitParameterMarginalized : MCMC not yet run, returning center of the range.");
-
-   return fMarginalModes;
+const std::vector<double> & BCEngineMCMC::GetLocalModes(bool force_recalculation) {
+	if (fLocalModes.empty() or force_recalculation) {
+		fLocalModes.clear();
+		for (unsigned i=0; i<GetNVariables(); ++i)
+			if (i<GetNParameters() and GetParameter(i)->Fixed())
+				fLocalModes.push_back(GetParameter(i)->GetFixedValue());
+			else if (fH1Marginalized[i]) {
+				fLocalModes.push_back(fH1Marginalized[i]->GetBinCenter(fH1Marginalized[i]->GetMaximumBin()));
+			} else {
+				if (i<GetNParameters()) {
+					BCLog::OutError("BCEngineMCMC::GetLocalModes : unfixed parameter is missing marginalized information. returning empty vector.");
+					fLocalModes.clear();
+					break;
+				} else {
+					BCLog::OutWarning("BCEngineMCMC::GetLocalModes : user-defined observable is missing marginalized information. returning only local modes of parameters.");
+					fLocalModes.resize(GetNParameters());
+					break;
+				}
+			}
+	}
+	return fLocalModes;
 }
-
 
 // ---------------------------------------------------------
-double BCEngineMCMC::GetBestFitParameter(unsigned index)
-{
-
-	if (index > GetNParameters() + GetNObservables())
-		return -std::numeric_limits<double>::infinity();
-
-	std::vector<double> pars = GetBestFitParameters();
-
-	if (pars.size() != GetNParameters()) {
-		BCLog::OutError("BCEngineMCMC::GetBestFitParameter : MCMC not yet run, returning center of the range.");
-		return GetParameter(index)->GetRangeCenter();
-	}
-
-	// parameter
-	if ( index < GetNParameters() )
-		return pars[index];
-	
-	// user-define observable
-	CalculateObservables(pars);
-	return GetObservable(index-GetNParameters()) -> Value();
+std::vector<double> BCEngineMCMC::GetBestFitParameters() const {
+	if (GetGlobalMode().empty() or GetGlobalMode().size()<GetNParameters())
+		return std::vector<double>();
+	return std::vector<double>(GetGlobalMode().begin(),GetGlobalMode().begin()+GetNParameters());
 }
 
-// --------------------------------------------------------
-std::vector<double> BCEngineMCMC::MCMCGetMaximumPoint(unsigned i) const {
-	if (i < fMCMCxMax.size() )
-		return fMCMCxMax[i];
-	
-	std::vector<double> x;
-	return x;
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCSetNChains(unsigned n)
-{
-   fMCMCNChains = n;
-   // MCMCInitialize();						// re-initialize
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<std::vector<double> > & x0s) {
-	fMCMCInitialPosition = x0s;
-	MCMCSetFlagInitialPosition(2);
+// ---------------------------------------------------------
+std::vector<double> BCEngineMCMC::GetBestFitObservables() const {
+	if (GetGlobalMode().empty() or GetGlobalMode().size()<GetNVariables())
+		return std::vector<double>();
+	return std::vector<double>(GetGlobalMode().begin()+GetNParameters(),GetGlobalMode().begin()+GetNVariables());
 }
 
 // --------------------------------------------------------
@@ -533,18 +532,11 @@ void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double> & x0s) {
 		 fMCMCInitialPosition.push_back(std::vector<double>(it,it+GetNParameters()));
 		 it += GetNParameters();
 	 }																		
-	 MCMCSetFlagInitialPosition(2);
+	 MCMCSetFlagInitialPosition(BCEngineMCMC::kMCMCInitUserDefined);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCSetFlagFillHistograms(bool flag)
-{
-	fParameters.FillHistograms(flag);
-	fObservables.FillHistograms(flag);	
-}
-
-void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
-{
+void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed) {
 	// set main generator
 	fRandom->SetSeed(seed);
 
@@ -567,18 +559,18 @@ void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
-{
-	if (fMCMCTree and replacetree) {
+void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile) {
+	if (replacetree) {
 		delete fMCMCTree;
 		fMCMCTree = 0;
 	}
-	if (fParameterTree and replacetree) {
+	if (replacetree) {
 		delete fParameterTree;
 		fParameterTree = 0;
 	}
-	if (fMCMCOutputFile and replacefile) {
-		fMCMCOutputFile -> Close();
+	if (replacefile) {
+		if (fMCMCOutputFile)
+			fMCMCOutputFile -> Close();
 		delete fMCMCOutputFile;
 		fMCMCOutputFile = 0;
 	}
@@ -612,10 +604,10 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 	else {			 
 		// or create new MCMC tree (under umbrella of output file)
 		fMCMCTree = new TTree(TString::Format("%s_mcmc",GetSafeName().data()),TString::Format("%s_mcmc",GetSafeName().data()));
-		fMCMCTree -> Branch("Chain",          &fMCMCTree_Chain,     "chain/i");
-		fMCMCTree -> Branch("Iteration",      &fMCMCTree_Iteration, "iteration/i");
-		fMCMCTree -> Branch("Phase",          &fMCMCPhase,          "phase/I");
-		fMCMCTree -> Branch("LogProbability", &fMCMCTree_Prob,      "log(probability)/D");
+		fMCMCTree -> Branch("Chain",          &fMCMCTree_Chain,       "chain/i");
+		fMCMCTree -> Branch("Iteration",      &fMCMCCurrentIteration, "iteration/i");
+		fMCMCTree -> Branch("Phase",          &fMCMCPhase,            "phase/I");
+		fMCMCTree -> Branch("LogProbability", &fMCMCTree_Prob,        "log(probability)/D");
 		fMCMCTree_Parameters.assign(GetNParameters(),0);
 		for (unsigned j=0; j<GetNParameters(); ++j) {
 			fMCMCTree -> Branch(GetParameter(j)->GetSafeName().data(),&fMCMCTree_Parameters[j],(GetParameter(j)->GetSafeName()+"/D").data());
@@ -634,7 +626,7 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 	else {
 		// or create new parameter tree (under umbrella of output file)
 		fParameterTree = new TTree(TString::Format("%s_parameters",GetSafeName().data()),TString::Format("%s_parameters",GetSafeName().data()));
-		bool p_parameter, p_fill, p_fixed;
+		bool p_parameter, p_fill_1d, p_fill_2d, p_fixed;
 		unsigned p_index, p_precision, p_nbins;
 		char p_name[200], p_safename[200], p_latexname[200];
 		double p_lowerlimit, p_upperlimit, p_fixedvalue;
@@ -647,7 +639,8 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 		fParameterTree -> Branch("upper_limit",&p_upperlimit,"upper_limit/D");
 		fParameterTree -> Branch("precision",&p_precision,"precision/i");
 		fParameterTree -> Branch("nbins",&p_nbins,"nbins/i");
-		fParameterTree -> Branch("fill",&p_fill,"fill/O");
+		fParameterTree -> Branch("fill_1d",&p_fill_1d,"fill_1d/O");
+		fParameterTree -> Branch("fill_2d",&p_fill_2d,"fill_2d/O");
 		fParameterTree -> Branch("fixed",&p_fixed,"fixed/O");
 		fParameterTree -> Branch("fixed_value",&p_fixedvalue,"fixed_value/D");
 		for (unsigned i=0; i<GetNVariables(); ++i) {
@@ -660,12 +653,14 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 			p_upperlimit = GetVariable(i) -> GetUpperLimit();
 			p_precision  = GetVariable(i) -> GetPrecision();
 			p_nbins      = GetVariable(i) -> GetNbins();
-			p_fill       = GetVariable(i) -> FillHistograms();
+			p_fill_1d    = GetVariable(i) -> FillH1();
+			p_fill_2d    = GetVariable(i) -> FillH2();
 			p_fixed      = p_parameter and GetParameter(i)->Fixed();
 			p_fixedvalue = (p_parameter) ? GetParameter(i)->GetFixedValue() : 0;
 			fParameterTree -> Fill();
 		}
 		fParameterTree -> AutoSave("SaveSelf");
+		// fParameterTree -> ResetBranchAddresses();
 	}
 
 	// return to old directory
@@ -711,7 +706,12 @@ void BCEngineMCMC::UpdateParameterTree() {
 
 		for (unsigned j=0; j<nchains; ++j) {
 			scale[j] = (n<GetNParameters()) ? fMCMCTrialFunctionScaleFactor[j][n] : -1;
-			eff[j]   = (n<GetNParameters()) ? fMCMCEfficiencies[j][n] : -1;
+			if (!fMCMCMultivariateProposalFunction)
+				eff[j]   = (n<GetNParameters()) ? fMCMCStatistics[j].efficiency[n] : -1;
+			else if (!fMCMCStatistics[j].efficiency.empty())
+				eff[j] = fMCMCStatistics[j].efficiency.front();
+			else 
+				eff[j] = -1;
 		}
 
 		if (b_scale)
@@ -720,6 +720,7 @@ void BCEngineMCMC::UpdateParameterTree() {
 		b_eff -> Fill();
 	}
 	fParameterTree -> AutoSave("SaveSelf");
+	// fParameterTree -> ResetBranchAddresses();
 }
 
 // --------------------------------------------------------
@@ -778,7 +779,9 @@ bool BCEngineMCMC::ValidParameterTree(TTree * tree) const {
 	// 	return false;
 	// if (!(tree->GetBranch("nbins")))
 	// 	return false;
-	// if (!(tree->GetBranch("fill")))
+	// if (!(tree->GetBranch("fill_1d")))
+	// 	return false;
+	// if (!(tree->GetBranch("fill_2d")))
 	// 	return false;
 	// if (!(tree->GetBranch("fixed")))
 	// 	return false;
@@ -794,7 +797,8 @@ bool BCEngineMCMC::ValidParameterTree(TTree * tree) const {
 
 // --------------------------------------------------------
 bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables) {
-	bool p_fill = true;
+	bool p_fill_1d = true;
+	bool p_fill_2d = true;
 	bool p_fixed = false;
 	unsigned p_precision = 6;
 	unsigned p_nbins = 100;
@@ -816,8 +820,10 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables
 		partree -> SetBranchAddress("precision",&p_precision);
 	if (partree -> GetBranch("nbins"))
 		partree -> SetBranchAddress("nbins",&p_nbins);
-	if (partree -> GetBranch("fill"))
-		partree -> SetBranchAddress("fill",&p_fill);
+	if (partree -> GetBranch("fill_1d"))
+		partree -> SetBranchAddress("fill_1d",&p_fill_1d);
+	if (partree -> GetBranch("fill_2d"))
+		partree -> SetBranchAddress("fill_2d",&p_fill_2d);
 	if (partree -> GetBranch("fixed"))
 		partree -> SetBranchAddress("fixed",&p_fixed);
 	if (partree -> GetBranch("fixed_value"))
@@ -833,7 +839,7 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables
 		if (p_fixed)
 			Par -> Fix(p_fixedvalue);
 		Par -> SetPrecision(p_precision);
-		Par -> FillHistograms(p_fill);
+		Par -> FillHistograms(p_fill_1d,p_fill_2d);
 		Par -> SetNbins(p_nbins);
 		AddParameter(Par);
 		++i;
@@ -848,7 +854,7 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables
 		partree -> GetEntryWithIndex(0,i);
 		BCObservable * Obs = new BCObservable(p_name,p_lowerlimit,p_upperlimit,p_latexname);
 		Obs -> SetPrecision(p_precision);
-		Obs -> FillHistograms(p_fill);
+		Obs -> FillHistograms(p_fill_1d,p_fill_2d);
 		Obs -> SetNbins(p_nbins);
 		AddObservable(Obs);
 		++i;
@@ -1016,8 +1022,7 @@ bool BCEngineMCMC::LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObserva
 		BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid parameter tree");
 		return false;
 	}
-	if (fParameterTree)
-		delete fParameterTree;
+	delete fParameterTree;
 	fParameterTree = parTree;
 
 	// if parameters is empty
@@ -1034,8 +1039,7 @@ bool BCEngineMCMC::LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObserva
 		BCLog::OutError("BCEngineMCMC::LoadMCMC : invalid MCMC tree");
 		return false;
 	}
-	if (fMCMCTree)
-		delete fMCMCTree;
+	delete fMCMCTree;
 	fMCMCTree = mcmcTree;
 
 	fMCMCTreeLoaded = true;
@@ -1050,11 +1054,8 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 	fMCMCTree -> SetBranchAddress("Chain",          &fMCMCTree_Chain);
 	fMCMCTree -> SetBranchAddress("Phase",          &fMCMCPhase);
 
-	bool has_prob = true;
 	if (fMCMCTree -> GetBranch("LogProbability"))
 		fMCMCTree -> SetBranchAddress("LogProbability", &fMCMCTree_Prob);
-	else
-		has_prob = false;
 
 	bool has_iteration = true;
 	if (fMCMCTree -> GetBranch("Iteration"))
@@ -1091,101 +1092,176 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 			fMCMCNChains = fMCMCTree_Chain+1;
 	}
 
-	MCMCInitialize();
-	MCMCInitializeMarkovChains();
-	
 	if (autorange) {
-		// find min and max
-		std::vector<double> XMin(GetNVariables(),+std::numeric_limits<double>::infinity());
-		std::vector<double> XMax(GetNVariables(),-std::numeric_limits<double>::infinity());
-		for (int n=0; n<fMCMCTree->GetEntries(); ++n) {
-			fMCMCTree -> GetEntry(n);
+		std::vector<double> XMin;
+		std::vector<double> XMax;
+		if (fMCMCStatistics_AllChains.n_samples > 0) {
+			XMin = fMCMCStatistics_AllChains.minimum;
+			XMax = fMCMCStatistics_AllChains.maximum;
+		} else {
+			MCMCInitialize();
+			
+			// find min and max
+			XMin.assign(GetNVariables(),+std::numeric_limits<double>::infinity());
+			XMax.assign(GetNVariables(),-std::numeric_limits<double>::infinity());
+			for (int n=0; n<fMCMCTree->GetEntries(); ++n) {
+				fMCMCTree -> GetEntry(n);
 
-			if (fMCMCPhase<=0)
-				continue;
+				if (fMCMCPhase<=0)
+					continue;
 
-			for (unsigned i=0; i<fMCMCTree_Parameters.size(); ++i) {
-				if (fMCMCTree_Parameters[i]<XMin[i])
-					XMin[i] = fMCMCTree_Parameters[i];
-				if (fMCMCTree_Parameters[i]>XMax[i])
-					XMax[i] = fMCMCTree_Parameters[i];
-			}
-			if (fMCMCTreeReuseObservables) {
-				for (unsigned i=0; i<fMCMCTree_Observables.size(); ++i) {
-					if (fMCMCTree_Observables[i]<XMin[fMCMCTree_Parameters.size()+i])
-						XMin[fMCMCTree_Parameters.size()+i] = fMCMCTree_Observables[i];
-					if (fMCMCTree_Observables[i]>XMax[fMCMCTree_Parameters.size()+i])
-						XMax[fMCMCTree_Parameters.size()+i] = fMCMCTree_Observables[i];
+				for (unsigned i=0; i<fMCMCTree_Parameters.size(); ++i) {
+					if (fMCMCTree_Parameters[i]<XMin[i])
+						XMin[i] = fMCMCTree_Parameters[i];
+					if (fMCMCTree_Parameters[i]>XMax[i])
+						XMax[i] = fMCMCTree_Parameters[i];
 				}
-			} else {
-				CalculateObservables(fMCMCTree_Parameters);
-				for (unsigned i=fMCMCTree_Parameters.size(); i<XMin.size(); ++i) {
-					if (((BCObservable*)GetVariable(i))->Value() < XMin[i])
-						XMin[i] = ((BCObservable*)GetVariable(i))->Value();
-					if (((BCObservable*)GetVariable(i))->Value() > XMax[i])
-						XMax[i] = ((BCObservable*)GetVariable(i))->Value();
+				if (fMCMCTreeReuseObservables) {
+					for (unsigned i=0; i<fMCMCTree_Observables.size(); ++i) {
+						if (fMCMCTree_Observables[i]<XMin[fMCMCTree_Parameters.size()+i])
+							XMin[fMCMCTree_Parameters.size()+i] = fMCMCTree_Observables[i];
+						if (fMCMCTree_Observables[i]>XMax[fMCMCTree_Parameters.size()+i])
+							XMax[fMCMCTree_Parameters.size()+i] = fMCMCTree_Observables[i];
+					}
+				} else {
+					CalculateObservables(fMCMCTree_Parameters);
+					for (unsigned i=fMCMCTree_Parameters.size(); i<XMin.size(); ++i) {
+						if (((BCObservable*)GetVariable(i))->Value() < XMin[i])
+							XMin[i] = ((BCObservable*)GetVariable(i))->Value();
+						if (((BCObservable*)GetVariable(i))->Value() > XMax[i])
+							XMax[i] = ((BCObservable*)GetVariable(i))->Value();
+					}
 				}
 			}
 		}
-		// recreate histgrams
-		for (unsigned i=0; i<GetNVariables(); ++i) {			
-			if (MarginalizedHistogramExists(i)) {
-				TString name  = fH1Marginalized[i] -> GetName();
-				TString title = fH1Marginalized[i] -> GetTitle();
-				TString xtitle = fH1Marginalized[i] -> GetXaxis() -> GetTitle();
-				TString ytitle = fH1Marginalized[i] -> GetYaxis() -> GetTitle();
-				int nbins     = fH1Marginalized[i] -> GetNbinsX();
-				delete fH1Marginalized[i];
-				fH1Marginalized[i] = new TH1D(name,(title+";"+xtitle+";"+ytitle),nbins,XMin[i],XMax[i]);
-				fH1Marginalized[i] -> SetStats(false);
+		if (!XMin.empty() and !XMax.empty()) {
+			// store mins and maxes, and change
+			std::vector<double> xmin;
+			std::vector<double> xmax;
+			for (unsigned i=0; i<GetNVariables(); ++i) {
+				xmin.push_back(GetVariable(i)->GetLowerLimit());
+				xmax.push_back(GetVariable(i)->GetUpperLimit());
+				GetVariable(i) -> SetLimits(XMin[i],XMax[i]);
 			}
-			for (unsigned j=0; j<GetNVariables(); ++j)
-				if (MarginalizedHistogramExists(i,j)) {
-					TString name  = fH2Marginalized[i][j] -> GetName();
-					TString title = fH2Marginalized[i][j] -> GetTitle();
-					TString xtitle = fH2Marginalized[i][j] -> GetXaxis() -> GetTitle();
-					TString ytitle = fH2Marginalized[i][j] -> GetYaxis() -> GetTitle();
-					TString ztitle = fH2Marginalized[i][j] -> GetZaxis() -> GetTitle();
-					int nbinsx    = fH2Marginalized[i][j] -> GetNbinsX();
-					int nbinsy    = fH2Marginalized[i][j] -> GetNbinsY();
-					delete fH2Marginalized[i][j];
-					fH2Marginalized[i][j] = new TH2D(name,(title+";"+xtitle+";"+ytitle+";"+ztitle),nbinsx,XMin[i],XMax[i],nbinsy,XMin[j],XMax[j]);
-					fH2Marginalized[i][j] -> SetStats(false);
-				}
+			CreateHistograms();
+			// restore mins and maxes
+			for (unsigned i=0; i<GetNVariables(); ++i)
+				GetVariable(i) -> SetLimits(xmin[i],xmax[i]);
+			
 		}
 	}
+	
+
+	fMCMCStatistics.assign(fMCMCNChains,BCEngineMCMC::MCMCStatistics(GetNParameters(),GetNObservables()));
+	fMCMCStatistics_AllChains.Init(GetNParameters(),GetNObservables());
+	fMCMCTree_Prob = -std::numeric_limits<double>::infinity();
+
+	bool in_main_run = false;
 	
 	for (unsigned n=0; n<fMCMCTree->GetEntries(); ++n) {
 		fMCMCTree -> GetEntry(n);
 		if (!has_iteration)
 			fMCMCTree_Iteration = n;
 
-		if (has_prob and fMCMCTree_Prob > fMCMCLogMaximum) {
-			fMCMCBestFitParameters = fMCMCTree_Parameters;
-			fMCMCLogMaximum = fMCMCTree_Prob;
-		}
-
-		if (fMCMCPhase <= 0)
-			continue;
-
 		fMCMCx[fMCMCTree_Chain]    = fMCMCTree_Parameters;
 		fMCMCprob[fMCMCTree_Chain] = fMCMCTree_Prob;
 		fMCMCLogLikelihood[fMCMCTree_Chain] = fMCMCTree_LogLikelihood;
 		fMCMCLogPrior[fMCMCTree_Chain] = fMCMCTree_LogPrior;
-		MCMCCurrentPointInterface(fMCMCx[fMCMCTree_Chain], fMCMCTree_Chain, true);
+
 		if (fMCMCTreeReuseObservables)
 			fMCMCObservables[fMCMCTree_Chain] = fMCMCTree_Observables;
+		else
+			EvaluateObservables(fMCMCTree_Chain);
+
+		if (!in_main_run and fMCMCPhase > 0) {
+			for (unsigned c=0; c<fMCMCNChains; ++c)
+				fMCMCStatistics[c].Reset(false,true);
+			in_main_run = true;
+		}
+
+		fMCMCStatistics[fMCMCTree_Chain].Update(fMCMCTree_Prob,fMCMCTree_Parameters,fMCMCTree_Observables);
+		
+		if (fMCMCPhase <= 0)
+			continue;
+
+		MCMCCurrentPointInterface(fMCMCx[fMCMCTree_Chain], fMCMCTree_Chain, true);
 
 		if (fMCMCTree_Chain==fMCMCNChains-1) {
 			MCMCIterationInterface();
-			if ( !fMCMCTreeReuseObservables)
-				EvaluateObservables();
 			if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
 				MCMCInChainFillHistograms();
 		}
 
 	}
-	
+
+	// combine statistics
+	for (unsigned c=0; c<fMCMCNChains; ++c)
+		fMCMCStatistics_AllChains += fMCMCStatistics[c];
+}
+
+// --------------------------------------------------------
+double BCEngineMCMC::CalculateEvidence(double epsilon) {
+	return 0;
+}
+
+// --------------------------------------------------------
+bool BCEngineMCMC::UpdateCholeskyDecompositions() {
+	if (fMultivariateProposalFunctionCovariance.size() != fMCMCNChains)
+		return false;
+
+	// double a = pow((double)fMultivariateProposalFunctionTuningSteps,-fMultivariateProposalFunctionTuningScheduleParameter);
+	// Set covariance matricies
+	unsigned I = 0;
+	for (unsigned i=0; i<GetNParameters(); ++i) {
+		if (GetParameter(i)->Fixed())
+			continue;
+		unsigned J = I;
+		for (unsigned j=i; j<GetNParameters(); ++j) {
+			if (GetParameter(j)->Fixed())
+				continue;
+			for (unsigned c=0; c<fMCMCNChains; ++c) {
+				fMultivariateProposalFunctionCovariance[c][I][J] = /*(1-a) * fMultivariateProposalFunctionCovariance[c][I][J]	+ a **/ fMCMCStatistics[c].covariance[i][j];
+				fMultivariateProposalFunctionCovariance[c][J][I] = fMultivariateProposalFunctionCovariance[c][I][J];
+			}
+			++J;
+		}
+		++I;
+	}
+
+	// create decomposer
+	TDecompChol CholeskyDecomposer;
+	// Update cholesky decompositions
+	for (unsigned c=0; c<fMCMCNChains; ++c) {
+		
+		// try cholesky decomposition
+		CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
+		if (CholeskyDecomposer.Decompose())
+			fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
+		
+		else {
+			// try with covariance + epsilon*1
+			BCLog::OutError("BCEngineMCMC:UpdateCholeskyDecompositions : Cholesky decomposition failed! Adding epsilon*I and trying again.");
+			TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
+			for (int i=0; i<U.GetNrows(); ++i)
+				U[i][i] *= (1+fMultivariateProposalFunctionEpsilon);
+			CholeskyDecomposer.SetMatrix(U);
+			if (CholeskyDecomposer.Decompose())
+				fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
+			
+			else {
+				// diagonalize
+				BCLog::OutError("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero");
+				for (int i=0; i<fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i) {
+					fMultivariateProposalFunctionCholeskyDecomposition[c][i][i] = sqrt(fMultivariateProposalFunctionCovariance[c][i][i]*fMCMCTrialFunctionScaleFactor[c][0]);
+					for (int j=i+1; j<fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j) {
+						fMultivariateProposalFunctionCholeskyDecomposition[c][i][j] = 0;
+						fMultivariateProposalFunctionCholeskyDecomposition[c][j][i] = 0;
+					}
+				}
+			}
+		}
+	}
+	return true;
 }
 
 // --------------------------------------------------------
@@ -1219,63 +1295,58 @@ std::vector<double> BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(unsigned ichai
 // --------------------------------------------------------
 double BCEngineMCMC::MCMCGetTrialFunctionScaleFactor(unsigned ichain, unsigned ipar) {
 	// check if ichain is in range
-	if (ichain >= fMCMCTrialFunctionScaleFactor.size() or ipar >= fMCMCTrialFunctionScaleFactor[ichain].size() )
-		return 0;
-	return fMCMCTrialFunctionScaleFactor[ichain][ipar];
+	if (ichain < fMCMCTrialFunctionScaleFactor.size() and ipar < fMCMCTrialFunctionScaleFactor[ichain].size())
+		return fMCMCTrialFunctionScaleFactor[ichain][ipar];
+	return 0;
 }
 
 // --------------------------------------------------------
 std::vector<double> BCEngineMCMC::MCMCGetx(unsigned ichain) {
 	if ( ichain < fMCMCx.size() )
 		return fMCMCx[ichain];
-
-	std::vector<double> x;
-	return x;
+	return std::vector<double>();
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::MCMCGetx(unsigned ichain, unsigned ipar) const
-{
-	if ( ichain >= fMCMCx.size() or ipar >= fMCMCx[ipar].size() )
-		return 0;
-	return fMCMCx[ichain][ipar];
+double BCEngineMCMC::MCMCGetx(unsigned ichain, unsigned ipar) const {
+	if (ichain < fMCMCx.size() and ipar < fMCMCx[ichain].size())
+		return fMCMCx[ichain][ipar];
+	return 0;
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::MCMCGetLogProbx(unsigned ichain)
-{
-	// check if ichain is in range
-	if (ichain >= fMCMCNChains)
-		return -std::numeric_limits<double>::max();
-
-	// return log of the probability at the current point in the ith chain
-	return fMCMCprob.at(ichain);
+double BCEngineMCMC::MCMCGetLogProbx(unsigned ichain) {
+	if (ichain < fMCMCNChains)
+		return fMCMCprob[ichain];
+	return -std::numeric_limits<double>::infinity();
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<double> &x)
-{
-	// get unscaled random point. this point might not be in the correct volume.
-	MCMCTrialFunction(chain, x);
+bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<double> &x) {
+	x = fMCMCx[chain];
 
-	// get a proposal point from the trial function and scale it
-	for (unsigned i = 0; i < GetNParameters(); ++i)
-		if (GetParameter(i)->Fixed())
-			x[i] = GetParameter(i) -> GetFixedValue();
-		else
-			x[i] = fMCMCx[chain][i] + x[i]*(GetParameter(i)->GetUpperLimit()-GetParameter(i)->GetLowerLimit());
+	// generate N-Free N(0,1) random values
+	TVectorD y(GetNFreeParameters());
+	for (int i=0; i<y.GetNrows(); ++i)
+		y[i] = fMCMCThreadLocalStorage[chain].rng -> Gaus(0,1);
 
-	// check if the point is in the correct volume.
-	for (unsigned i = 0; i < GetNParameters(); ++i)
-		if (!GetParameter(i)->IsValid(x[i]))
-			return false;
+	// multiply by cholesky decomposition
+	y *= fMultivariateProposalFunctionCholeskyDecomposition[chain];
+	
+	// add values into x
+	int I = 0;
+	for (unsigned i=0; i<GetNParameters() and I<y.GetNrows(); ++i)
+		if (!GetParameter(i)->Fixed()) {
+			x[i] += y[I];
+			++I;
+		}
 
-	return true;
+	// return whether point is within limits, ignoring fixed parameters
+	return GetParameters().IsWithinLimits(x,true);
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar, std::vector<double> &x)
-{
+bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar, std::vector<double> &x) {
   // copy the old point into the new
 	x = fMCMCx[ichain];
 	
@@ -1290,10 +1361,10 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
   double proposal = MCMCTrialFunctionSingle(ichain, ipar);
 
   // modify the parameter under study
-  x[ipar] += proposal * (GetParameter(ipar)->GetUpperLimit() - GetParameter(ipar)->GetLowerLimit());
+  x[ipar] += proposal * GetParameter(ipar)->GetRangeWidth();
 
   // check if the point is in the correct volume.
-	return GetParameter(ipar) -> IsValid(x[ipar]);
+	return GetParameter(ipar) -> IsWithinLimits(x[ipar]);
 }
 
 // --------------------------------------------------------
@@ -1312,8 +1383,8 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
 		if (std::isfinite(p1)) {
 			// if the new point is more probable, keep it; or else throw dice
 			if ( p1 >= p0 or log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0) ) {
-					// increase counter
-				fMCMCNTrialsTrue[chain][parameter]++;
+				// increase efficiency
+				fMCMCStatistics[chain].efficiency[parameter] += (1.-fMCMCStatistics[chain].efficiency[parameter])/(fMCMCStatistics[chain].n_samples_efficiency+1.);
 				// copy the point
 				fMCMCx[chain][parameter] = fMCMCThreadLocalStorage[chain].xLocal[parameter];
 				// save the probability of the point
@@ -1324,9 +1395,14 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
 				// execute user code
 				MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, true);
 				return true;
+			} else {
+				// decrease efficiency
+				fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency/(fMCMCStatistics[chain].n_samples_efficiency+1.);
 			}
 		} else {						// new log(likelihood) was not a finite number
 			BCLog::OutDebug(Form("Log(likelihood) evaluated to nan or inf in chain %i while varying parameter %s to %.3e",chain,GetParameter(parameter)->GetName().data(),fMCMCThreadLocalStorage[chain].xLocal[parameter]));
+			// decrease efficiency
+			fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency/(fMCMCStatistics[chain].n_samples_efficiency+1.);
 			// print parameter point
 		}
 	}
@@ -1352,9 +1428,9 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain) {
 		if (std::isfinite(p1)) {
 			// if the new point is more probable, keep it; or else throw dice
 			if ( p1 >= p0 or log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1-p0) ) {
-				// increase counters
-				for (unsigned i = 0; i < GetNParameters(); ++i)
-					fMCMCNTrialsTrue[chain][i]++;
+				// increase efficiency
+				fMCMCStatistics[chain].efficiency[0] += (1-fMCMCStatistics[chain].efficiency[0])/(fMCMCStatistics[chain].n_samples_efficiency+1);
+				
 				// copy the point
 				fMCMCx[chain] = fMCMCThreadLocalStorage[chain].xLocal;
 				// save the probability of the point
@@ -1365,9 +1441,14 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain) {
 				// execute user code
 				MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, true);
 				return true;
+			} else {
+				// decrease efficiency
+				fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency/(fMCMCStatistics[chain].n_samples_efficiency+1);
 			}
 		} else { // new log(likelihood) was not a finite number
 			BCLog::OutDebug("Log(likelihood) evaluated to nan or inf at");
+			// decrease efficiency
+			fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency/(fMCMCStatistics[chain].n_samples_efficiency+1);
 			// TODO print parameter point
 		}
 	}
@@ -1381,26 +1462,23 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain) {
 bool BCEngineMCMC::MCMCGetNewPointMetropolis() {
 	bool return_value = true;
 
-	if ( fMCMCFlagOrderParameters ) { // run over pars one at a time
+	if ( !fMCMCMultivariateProposalFunction ) { // run over pars one at a time
 
-		for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar)
+		for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar) {
+			if ( GetParameter(ipar)->Fixed() )
+				continue;
 
-			if ( !GetParameter(ipar)->Fixed() ) {
-
-				//loop over chains
-				unsigned chunk = 1; (void) chunk;
-				unsigned ichain;    (void) ichain;
+			//loop over chains
+			unsigned chunk = 1; (void) chunk;
+			unsigned ichain;    (void) ichain;
 #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
-				for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain)
-					return_value *= MCMCGetNewPointMetropolis(ichain,ipar);
+			for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain)
+				return_value *= MCMCGetNewPointMetropolis(ichain,ipar);
 				
-				fMCMCCurrentChain = -1;
-				MCMCInChainCheckMaximum();
+			fMCMCCurrentChain = -1;
+		}
 
-			}
-	}
-
-	else {											// run over all pars at once
+	} else {											// run over all pars at once
 
 		//loop over chains
 		unsigned chunk = 1; (void) chunk;
@@ -1408,47 +1486,16 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis() {
 #pragma omp parallel for shared(chunk) private(ichain) schedule(static, chunk)
 		for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain)
 			return_value *= MCMCGetNewPointMetropolis(ichain);
-		
-		fMCMCCurrentChain = -1;
-		MCMCInChainCheckMaximum();
 
+		fMCMCCurrentChain = -1;
 	}
+
+	// increase number of iterations used in each chain for calculating efficiencies
+	for (unsigned c=0; c<fMCMCNChains; ++c)
+		fMCMCStatistics[c].n_samples_efficiency += 1;
 
 	++fMCMCCurrentIteration;
 	return return_value;
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCInChainCheckMaximum() {
-	// loop over all chains
-	for (unsigned i = 0; i < fMCMCNChains; ++i)
-		// check if new maximum is found or chain is at the beginning
-		if (fMCMCprob[i] > fMCMCprobMax[i] || fMCMCNIterations[i] == 1) {
-			// copy maximum value
-			fMCMCprobMax[i] = fMCMCprob[i];
-			// copy mode of chain
-			fMCMCxMax[i] = fMCMCx[i];
-		}
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCInChainUpdateStatistics() {
-	for (unsigned int c = 0; c<fMCMCx.size(); ++c)
-		for (unsigned int p = 0; p<fMCMCx[c].size(); ++p) {
-			fMCMCxMean[c][p] += (fMCMCx[c][p] - fMCMCxMean[c][p]) / fMCMCNTrials;
-			
-			if ( fMCMCNTrials > 1 ) // calculate variance of each chain for this part
-				fMCMCxVar[c][p] = (1 - 1./fMCMCNTrials)*fMCMCxVar[c][p] + (fMCMCx[c][p]-fMCMCxMean[c][p])*(fMCMCx[c][p]-fMCMCxMean[c][p]) / (fMCMCNTrials - 1);
-		}
-
-	// loop over chains
-	for (unsigned i = 0; i < fMCMCNChains; ++i) {
-		// calculate mean value of each chain for this part
-		fMCMCprobMean[i] += (fMCMCprob[i] - fMCMCprobMean[i]) / fMCMCNTrials;
-		
-		if (fMCMCNTrials > 1) // calculate variance of each chain for this part
-			fMCMCprobVar[i] = (1 - 1./fMCMCNTrials)*fMCMCprobVar[i]	+ (fMCMCprob[i]-fMCMCprobMean[i])*(fMCMCprob[i]-fMCMCprobMean[i]) / (fMCMCNTrials - 1);
-	}
 }
 
 // --------------------------------------------------------
@@ -1457,93 +1504,32 @@ void BCEngineMCMC::MCMCInChainFillHistograms() {
 	for (unsigned i = 0; i < fMCMCNChains; ++i) {
 
 		////////////////////////////////////////
-		// fill each 1-dimensional histogram (if supposed to be filled)
-
-		// Parameters
-		for (unsigned j = 0; j < GetNParameters(); ++j)
-			if (TH1 * h = fH1Marginalized[j])
-				h -> Fill(fMCMCx[i][j]);
-		// User-defined Observables
-		for (unsigned j = 0; j < GetNObservables(); ++j)
-			if (TH1 * h = fH1Marginalized[j+GetNParameters()])
-				h -> Fill(fMCMCObservables[i][j]);
-
-
+		// fill each 1-dimensional histogram that exists
+		for (unsigned j=0; j<GetNVariables() and j<fH1Marginalized.size(); ++j)
+			if (dynamic_cast<TH1*>(fH1Marginalized[j])!=NULL)
+				fH1Marginalized[j] -> Fill((j<GetNParameters()) ? fMCMCx[i][j] : fMCMCObservables[i][j-GetNParameters()]);
+		
 		////////////////////////////////////////
-		// fill each 2-dimensional histogram (if supposed to be filled)
-
-		for (unsigned j = 0; j < GetNParameters(); ++j) {
-			// Parameter vs Parameter
-			for (unsigned k = j+1; k < GetNParameters(); ++k)
-				if (TH2D * h = fH2Marginalized[j][k])
-					h -> Fill(fMCMCx[i][j],fMCMCx[i][k]);
-			// User-defined Observable vs Parameter
-			for (unsigned k = 0; k < GetNObservables(); ++k)
-				if (TH2D * h = fH2Marginalized[j][k+GetNParameters()])
-					h -> Fill(fMCMCx[i][j],fMCMCObservables[i][k]);
-		}
-		// User-defined Observable vs User-defined Observable
-		for (unsigned j = 0; j < GetNObservables(); ++j)
-			for (unsigned k = j+1; k < GetNObservables(); ++k)
-				if (TH2D * h = fH2Marginalized[j+GetNParameters()][k+GetNParameters()])
-					h -> Fill(fMCMCObservables[i][j],fMCMCObservables[i][k]);
+		// fill each 2-dimensional histogram that exists
+		for (unsigned j=0; j<GetNVariables() and j<fH2Marginalized.size(); ++j)
+			for (unsigned k=j+1; k<GetNVariables() and k<fH2Marginalized[j].size(); ++k)
+				if (dynamic_cast<TH2*>(fH2Marginalized[j][k])!=NULL)
+					fH2Marginalized[j][k] -> Fill((j<GetNParameters()) ? fMCMCx[i][j] : fMCMCObservables[i][j-GetNParameters()],
+																				(k<GetNParameters()) ? fMCMCx[i][k] : fMCMCObservables[i][k-GetNParameters()]);
 	}
 }
-
 // --------------------------------------------------------
-void BCEngineMCMC::MCMCInChainTestConvergenceAllChains() {
-	if (fMCMCNChains <= 1 or fMCMCNTrials <= 1)
-		return;
-
-	// define flag for convergence
-	bool flag_convergence = true;
-	
-	// extract means and variances
-	std::vector<double> means(fMCMCNChains);
-	std::vector<double> variances(fMCMCNChains);
-
-	// loop over parameters
-	for (unsigned iparameter = 0; iparameter < GetNParameters(); ++iparameter) {
-		if ( GetParameter(iparameter) -> Fixed() )
-			continue;
-
-		// loop over chains
-		for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-			means[ichain] = fMCMCxMean[ichain][iparameter];
-			variances[ichain] = fMCMCxVar[ichain][iparameter];
-		}
-
-		fMCMCRValueParameters[iparameter] = BCMath::Rvalue(means, variances, fMCMCNTrials, fMCMCRValueUseStrict);
-
-		// set flag to false if convergence criterion is not fulfilled for the parameter
-		flag_convergence *= ((fMCMCRValueParameters[iparameter]-1) < fMCMCRValueParametersCriterion);
-
-	}
-
-	fMCMCRValue = BCMath::Rvalue(fMCMCprobMean, fMCMCprobVar, fMCMCNTrials, fMCMCRValueUseStrict);
-
-	// set flag to false if convergence criterion is not fulfilled for the log-likelihood
-	flag_convergence *= ((fMCMCRValue - 1) < fMCMCRValueCriterion);
-			
-	// remember number of iterations needed to converge
-	if (fMCMCNIterationsConvergenceGlobal == -1 && flag_convergence == true)
-		fMCMCNIterationsConvergenceGlobal = fMCMCNIterations[0] / GetNFreeParameters();
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCInChainWriteChains()
-{
+void BCEngineMCMC::MCMCInChainWriteChains() {
 	if (!fMCMCTree)
 		return;
 	// loop over all chains
-	for (fMCMCTree_Chain = 0; fMCMCTree_Chain < fMCMCNChains; ++fMCMCTree_Chain) {
-		fMCMCTree_Iteration = fMCMCNIterations[fMCMCTree_Chain];
-		fMCMCTree_Prob = fMCMCprob[fMCMCTree_Chain];
+	for (fMCMCTree_Chain=0; fMCMCTree_Chain < fMCMCNChains; ++fMCMCTree_Chain) {
+		fMCMCTree_Prob          = fMCMCprob[fMCMCTree_Chain];
 		fMCMCTree_LogLikelihood = fMCMCLogLikelihood[fMCMCTree_Chain];
-		fMCMCTree_LogPrior = fMCMCLogPrior[fMCMCTree_Chain];
-		fMCMCTree_Parameters = fMCMCx[fMCMCTree_Chain];
-		fMCMCTree_Observables = fMCMCObservables[fMCMCTree_Chain];
-		fMCMCTree->Fill();
+		fMCMCTree_LogPrior      = fMCMCLogPrior[fMCMCTree_Chain];
+		fMCMCTree_Parameters    = fMCMCx[fMCMCTree_Chain];
+		fMCMCTree_Observables   = fMCMCObservables[fMCMCTree_Chain];
+		fMCMCTree -> Fill();
 	}
 }
 
@@ -1557,105 +1543,220 @@ void BCEngineMCMC::MCMCCloseOutputFile() {
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::LogEval(const std::vector<double> & /*parameters*/)
-{
-	// test function for now
-	// this will be overloaded by the user
-	return 0.0;
-}
-
-// --------------------------------------------------------
-int BCEngineMCMC::MCMCMetropolisPreRun() {
+bool BCEngineMCMC::MCMCMetropolisPreRun() {
 	// print on screen
 	BCLog::OutSummary("Pre-run Metropolis MCMC...");
 	
 	// initialize Markov chain
 	MCMCInitialize();
-	MCMCInitializeMarkovChains();
+
 	if (fMCMCFlagWritePreRunToFile)
 		InitializeMarkovChainTree();
 	
-	// reset run statistics
-	MCMCResetRunStatistics();
-
 	// perform run
 	BCLog::OutSummary(Form(" --> Perform MCMC pre-run with %i chains, each with maximum %i iterations", fMCMCNChains, fMCMCNIterationsPreRunMax));
 
+	const int old_error_ignore_level = gErrorIgnoreLevel;
+
+	if (fMCMCMultivariateProposalFunction) {
+		// multivariate proposal function
+
+		// suppress ROOT errors about Cholesky decomposition
+		gErrorIgnoreLevel = kBreak;
+
+		// initialize proposal function scale factors to 2.38^2 / number of dimensions
+		fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains,std::vector<double>(1,2.38*2.38/GetNFreeParameters()));
+
+		// initialize covariance matrices as diag(var_0, var_1, var_2, ...)
+		// initialize cholesky decomposition as diag(std_0, std_1, std_2, ...)
+		// for free parameters only
+		TMatrixDSym S0(GetNFreeParameters());
+		TMatrixD    CD0(GetNFreeParameters(),GetNFreeParameters());
+		unsigned I = 0;
+		for (unsigned i=0; i<GetNParameters(); ++i)
+			if (!(GetParameter(i)->Fixed())) {
+				S0[I][I] = GetParameter(i) -> GetPriorVariance();
+				CD0[I][I] = sqrt(fMCMCTrialFunctionScaleFactor[0][0]*S0[I][I]);
+				++I;
+			}
+		fMultivariateProposalFunctionCovariance.assign(fMCMCNChains,S0);
+		fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains,CD0);
+		fMultivariateProposalFunctionTuningSteps = 0;
+	} else if (fMCMCAutoSetTrialFunctionScaleFactors and GetParameters().ArePriorsSet(true)) {
+		std::vector<double> temp;
+		for (unsigned i=0; i<GetNParameters(); ++i)
+			temp.push_back((GetParameter(i)->Fixed() or GetParameter(i)->GetRangeWidth()==0) ? 1 : GetParameter(i)->GetPriorStandardDeviation()/GetParameter(i)->GetRangeWidth());
+		fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains,temp);
+	}
 
 	//////////////////////////////////////////////////
 	// Adjust scales until all parameters are in correct efficiency range in all chains
-
-	fMCMCPhase = BCEngineMCMC::MCMCPreRunEfficiencyCheck;
-	fMCMCCurrentIteration = 0;
-	fMCMCNTrials = 0;
-	fMCMCNTrialsTrue.assign(fMCMCNChains,std::vector<int>(GetNParameters(),0));
-	fMCMCEfficiencies.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
 	bool allEfficient = false;
 	bool inefficientScalesAdjustable = true;
-	while (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and !allEfficient and inefficientScalesAdjustable) {
+	fMCMCCurrentIteration = 0;
+	fMCMCPhase = BCEngineMCMC::MCMCPreRunEfficiencyCheck;
+
+	// Cholesky Decomposer for multivariate proposal function
+	TDecompChol CholeskyDecomposer;
+
+	// do while not yet at max number of pre-run iterations
+	// and not all efficiencies are within range
+	// but all are scales are still tuneable
+	// and make at least two iterations of the multivariate update
+	while (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and ((!allEfficient and inefficientScalesAdjustable) or (fMCMCMultivariateProposalFunction and fMultivariateProposalFunctionTuningSteps<=1))) {
+		
+		// if (fMCMCMultivariateProposalFunction and fMCMCStatistics.front().n_samples_efficiency==0) {
+		// 	BCLog::OutSummary(TString::Format("     * fMultivariateProposalFunctionTuningSteps = %d",fMultivariateProposalFunctionTuningSteps));
+		// 	BCLog::OutSummary("     * Multivariate-proposal-function covariance matrices :");
+		// 	for (unsigned c=0; c<fMCMCNChains; ++c) {
+		// 		BCLog::OutSummary(TString::Format("     * Chain %d :",c));
+		// 		for (int i=0; i<fMultivariateProposalFunctionCovariance[c].GetNrows(); ++i) {
+		// 			std::string line = "     *     ";
+		// 			for (int j=0; j<fMultivariateProposalFunctionCovariance[c].GetNcols(); ++j)
+		// 				line += TString::Format("%+05.3e  ",fMultivariateProposalFunctionCovariance[c][i][j]);
+		// 			BCLog::OutSummary(line.data());
+		// 		}
+		// 	}
+		// 	BCLog::OutSummary("     * Multivariate-proposal-function cholesky matrices :");
+		// 	for (unsigned c=0; c<fMCMCNChains; ++c) {
+		// 		BCLog::OutSummary(TString::Format("     * Chain %d :",c));
+		// 		for (int i=0; i<fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i) {
+		// 			std::string line = "     *     ";
+		// 			for (int j=0; j<fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j)
+		// 				line += TString::Format("%+05.3e  ",fMultivariateProposalFunctionCholeskyDecomposition[c][i][j]);
+		// 			BCLog::OutSummary(line.data());
+		// 		}
+		// 	}
+		// }
 
 		MCMCGetNewPointMetropolis();
-		++fMCMCNTrials;
 
-		if (fMCMCFlagWritePreRunToFile) {
-			EvaluateObservables();
+		EvaluateObservables();
+
+		for (unsigned c=0; c<fMCMCNChains; ++c)
+			fMCMCStatistics[c].Update(fMCMCprob[c],fMCMCx[c],fMCMCObservables[c]);
+
+		if (fMCMCFlagWritePreRunToFile)
 			MCMCInChainWriteChains();
-		}
 
-		if ( fMCMCNTrials != fMCMCNIterationsEfficiencyCheck)
+		if ( fMCMCStatistics.front().n_samples_efficiency != fMCMCNIterationsEfficiencyCheck)
 			continue;
 
+		// check efficiencies and update scale parameters
 		allEfficient = true;
 		inefficientScalesAdjustable = false;
-		for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-			for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar) {
 
-				if (GetParameter(ipar)->Fixed())
+		for (unsigned c=0; c<fMCMCNChains; ++c) {
+
+			if (fMCMCMultivariateProposalFunction) {
+				// multivariate proposal function
+
+				if (fMCMCStatistics[c].efficiency[0] >= fMCMCEfficiencyMin and fMCMCStatistics[c].efficiency[0] <= fMCMCEfficiencyMax)
+					// if chain efficiency is in range,
 					continue;
-
-				fMCMCEfficiencies[ichain][ipar] = 1. * fMCMCNTrialsTrue[ichain][ipar] / fMCMCNIterationsEfficiencyCheck;
-
-				if ( fMCMCEfficiencies[ichain][ipar] < fMCMCEfficiencyMin ) {
-					// if efficiency too low ...
 					
-					if (allEfficient)			// print header if first bad efficiency
-						BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ",fMCMCCurrentIteration));
+				if (allEfficient) 		// print header if encountering first bad efficiency
+					BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ",fMCMCCurrentIteration));
+				allEfficient = false;
+				
+				if (fMCMCStatistics[c].efficiency[0] < fMCMCEfficiencyMin) {
+					// efficiency too low... decrease scale factor
+					fMCMCTrialFunctionScaleFactor[c][0] /= fMultivariateProposalFunctionScaleMultiplier;
 					
-					allEfficient = false;
-
-					fMCMCTrialFunctionScaleFactor[ichain][ipar] /= (fMCMCEfficiencies[ichain][ipar] < 0.5*fMCMCEfficiencyMin) ? 4 : 2;
-					
-					if ( fMCMCTrialFunctionScaleFactor[ichain][ipar] > fMCMCScaleFactorLowerLimit ) {
-						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %6.2g %%", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
-						inefficientScalesAdjustable = true;
-					}	else {
-						fMCMCTrialFunctionScaleFactor[ichain][ipar] = fMCMCScaleFactorLowerLimit;
-						BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%6.2g %%)",	fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCScaleFactorLowerLimit));
-					}
-					
-				} else if (fMCMCEfficiencies[ichain][ipar] > fMCMCEfficiencyMax ) {
-					// if efficiency too high ...
-
-					if (allEfficient)		 // print header if first bad efficiency
-						BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ",fMCMCCurrentIteration));
-					
-					allEfficient = false;
-
-					fMCMCTrialFunctionScaleFactor[ichain][ipar] *= 2;
-
-					if ( fMCMCTrialFunctionScaleFactor[ichain][ipar] < fMCMCScaleFactorUpperLimit ) {
-						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %6.2g %%", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, 100*fMCMCTrialFunctionScaleFactor[ichain][ipar]));
+					if (fMCMCTrialFunctionScaleFactor[c][0] > fMCMCScaleFactorLowerLimit) {
+						BCLog::OutDetail(Form("         chain %d is below %.0f %% (%4.1f %%). Scale decreased to %.4g", c, 100*fMCMCEfficiencyMin, 100*fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+						// still room to tune
 						inefficientScalesAdjustable = true;
 					} else {
-						fMCMCTrialFunctionScaleFactor[ichain][ipar] = fMCMCScaleFactorUpperLimit;
-						BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%6.2g %%)", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCEfficiencies[ichain][ipar], ichain, fMCMCScaleFactorUpperLimit));														 
+						// no more room to tune
+						fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorLowerLimit;
+						BCLog::OutDetail(Form("         chain %d is below %.0f %% (%4.1f %%). Scale now at lower limit (%.4g)", c, 100*fMCMCEfficiencyMin, 100*fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorLowerLimit));
+					}
+
+				} else {
+					// efficiency too high... increase scale factor
+					fMCMCTrialFunctionScaleFactor[c][0] *= fMultivariateProposalFunctionScaleMultiplier;
+					
+					if (fMCMCTrialFunctionScaleFactor[c][0] < fMCMCScaleFactorUpperLimit) {
+						// still room to tune
+						BCLog::OutDetail(Form("         chain %d is above %.0f %% (%4.1f %%). Scale increased to %.4g", c, 100*fMCMCEfficiencyMax, 100*fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+						inefficientScalesAdjustable = true;
+					} else {
+						// no more room to tune
+						fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorUpperLimit;
+						BCLog::OutDetail(Form("         chain %d is above %.0f %% (%4.1f %%). Scale now at upper limit (%.4g)", c, 100*fMCMCEfficiencyMax, 100*fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorUpperLimit));
+					}
+				}
+
+			} else {
+				// factorized proposal function. loop over parameters
+				for (unsigned p=0; p<GetNParameters(); ++p) {
+
+					if (GetParameter(p)->Fixed())
+						continue;
+
+					if ( fMCMCStatistics[c].efficiency[p] >= fMCMCEfficiencyMin and fMCMCStatistics[c].efficiency[p] <= fMCMCEfficiencyMax)
+						// if parameter efficiency is in range,
+						continue;
+
+					if (allEfficient)			// print header if first bad efficiency
+						BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ",fMCMCCurrentIteration));
+					allEfficient = false;
+						
+					if (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin) {
+						// efficiency too low... decrease scale factor
+						fMCMCTrialFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin/2) ? 4 : 2;
+						
+						if (fMCMCTrialFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) {
+							// still room to tune
+							BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+							inefficientScalesAdjustable = true;
+						}	else {
+							// no more room to tune
+							fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorLowerLimit;
+							BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%.4g %%)",	fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100*fMCMCEfficiencyMin, 100*fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorLowerLimit));
+						}
+						
+					} else {
+						// if efficiency too high ... increase scale factor
+						fMCMCTrialFunctionScaleFactor[c][p] *= 2;
+						
+						if ( fMCMCTrialFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) {
+							// still room to tune
+							BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+							inefficientScalesAdjustable = true;
+						} else {
+							// no more room to tune
+							fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorUpperLimit;
+							BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100*fMCMCEfficiencyMax, 100*fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));														 
+						}
 					}
 				}
 			}
 		}
-		fMCMCNTrials = 0;
-		fMCMCNTrialsTrue.assign(fMCMCNChains,std::vector<int>(GetNParameters(),0));
+
+		if (fMCMCFlagWritePreRunToFile and fMCMCTree)
+			fMCMCTree -> AutoSave("SaveSelf");
+		
+		if (fMCMCMultivariateProposalFunction)
+			++fMultivariateProposalFunctionTuningSteps;
+
+		if ((allEfficient or !inefficientScalesAdjustable) and (!fMCMCMultivariateProposalFunction or fMultivariateProposalFunctionTuningSteps>1))
+			// now efficient, or no longer tuneable
+			// BUT, not if this is the first iteration of the multivariate scheme
+			continue;
+		
+		if (fMCMCMultivariateProposalFunction)
+			UpdateCholeskyDecompositions();
+		
+		// reset statistics
+		for (unsigned c=0; c<fMCMCStatistics.size(); ++c)
+			fMCMCStatistics[c].Reset(false,true); // preserve mode information
 	}
+
+	// restore ROOT error ignore level
+	gErrorIgnoreLevel = old_error_ignore_level;
+
 	if (allEfficient)
 		BCLog::OutDetail(Form("     * Efficiency status: Efficiencies within predefined range after %i iterations.",fMCMCCurrentIteration));
 	else if (!inefficientScalesAdjustable)
@@ -1663,54 +1764,169 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 	else
 		BCLog::OutDetail(Form("     * Efficiency status: Some efficiencies outside predefined range, but maximum number of iterations (%i) reached.",fMCMCNIterationsPreRunMax));
 
-
-	// continue measuring efficiency
-	unsigned NTrialsForEff = fMCMCNTrials;
+	// if (fMCMCMultivariateProposalFunction) {
+	// 	BCLog::OutSummary("     * Multivariate-proposal-function covariance matrices :");
+	// 	for (unsigned c=0; c<fMCMCNChains; ++c) {
+	// 		BCLog::OutSummary(TString::Format("     * Chain %d :",c));
+	// 		for (int i=0; i<fMultivariateProposalFunctionCovariance[c].GetNrows(); ++i) {
+	// 			std::string line = "     *     ";
+	// 			for (int j=0; j<fMultivariateProposalFunctionCovariance[c].GetNcols(); ++j)
+	// 				line += TString::Format("%+05.3e  ",fMultivariateProposalFunctionCovariance[c][i][j]);
+	// 			BCLog::OutSummary(line.data());
+	// 		}
+	// 	}
+	// }
 
 	if (fMCMCNChains > 1) {
 		//////////////////////////////////////////////////
 		// Run until all chains have converged
 
 		unsigned nIterationsCheckConvergence = fMCMCNIterationsConvergenceCheck;
+
 		if ( fMCMCNIterationsClearConvergenceStats > 0 and nIterationsCheckConvergence > fMCMCNIterationsClearConvergenceStats )
 			nIterationsCheckConvergence = fMCMCNIterationsClearConvergenceStats;
 
-		fMCMCNTrials = fMCMCNIterationsClearConvergenceStats;
-	
 		fMCMCNIterationsConvergenceGlobal = -1;
+
+		// statistics about inter_chain parameters
+		BCEngineMCMC::MCMCStatistics inter_chain(fMCMCStatistics.front().variance.size(),fMCMCStatistics.front().mean.size());
 		
+		// flag for whether to make one R value check, if already above max number of pre-run iterations
+		bool make_one_check = false; 
+
 		if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax) {
-      BCLog::OutWarning(" Convergence never checked !");
-      BCLog::OutWarning("   Increase maximum number of iterations in the pre-run /MCMCSetNIterationsMax()/");
+			make_one_check = (fMCMCStatistics.front().n_samples > 0);
+			if (!make_one_check) {
+				BCLog::OutWarning(" Convergence never checked !");
+				BCLog::OutWarning("   Increase maximum number of iterations in the pre-run via MCMCSetNIterationsPreRunMax()");
+			} else if (fMCMCStatistics.front().n_samples < nIterationsCheckConvergence) {
+				BCLog::OutWarning(TString::Format(" Convergence will be checked only once and with only %d iterations!",fMCMCStatistics.front().n_samples));
+				BCLog::OutWarning("   Increase maximum number of iterations in the pre-run via MCMCSetNIterationsPreRunMax()");
+			}
 		}
 
 		fMCMCPhase = BCEngineMCMC::MCMCPreRunConvergenceCheck;
-		while ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and fMCMCNIterationsConvergenceGlobal < 0 ) {
-		
-			// Clear information (also on first iteration)
-			if ( fMCMCNTrials == fMCMCNIterationsClearConvergenceStats ) {
-				fMCMCxMean = fMCMCx;
-				fMCMCxVar.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-				fMCMCprobMean = fMCMCprob;
-				fMCMCprobVar.assign(fMCMCNChains,0);
-				fMCMCNTrials = 0;
-			}
+		while ( make_one_check or (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and fMCMCNIterationsConvergenceGlobal < 0) ) {
+
+			// clear statistics
+			if ( !make_one_check and fMCMCNIterationsClearConvergenceStats > 0 and fMCMCStatistics.front().n_samples >= fMCMCNIterationsClearConvergenceStats )
+				for (unsigned c=0; c<fMCMCNChains; ++c)
+					fMCMCStatistics[c].Reset(false,false); // keep mode and efficiency stats
 
 			MCMCGetNewPointMetropolis();
-			++fMCMCNTrials;
-			++NTrialsForEff;
+			EvaluateObservables();
 
-			if (fMCMCFlagWritePreRunToFile) {
-				EvaluateObservables();
+			// update means, variances, etc.
+			for (unsigned c=0; c<fMCMCNChains; ++c)
+				fMCMCStatistics[c].Update(fMCMCprob[c],fMCMCx[c],fMCMCObservables[c]);
+
+			if (fMCMCFlagWritePreRunToFile)
 				MCMCInChainWriteChains();
-			}
 
-			MCMCInChainUpdateStatistics();
-
-			if ( fMCMCNTrials % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax )
+			if ( !make_one_check and fMCMCStatistics.front().n_samples % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax )
 				continue;
 
-			MCMCInChainTestConvergenceAllChains();
+			make_one_check = false;
+
+			// calculate R values according to Brooks & Gelman,
+			// "General Methods for Monitoring Convergence of Iterative Simulations, 1998
+
+			fMCMCStatistics_AllChains.Reset();
+			inter_chain.Reset();
+			for (unsigned c=0; c<fMCMCNChains; ++c) {
+				fMCMCStatistics_AllChains += fMCMCStatistics[c];
+				inter_chain.Update(fMCMCStatistics[c].probability_variance,fMCMCStatistics[c].variance,fMCMCStatistics[c].mean);
+			}
+
+			// parameter R values
+			for (unsigned i=0; i<GetNParameters(); ++i) {
+				if (GetParameter(i)->Fixed())
+					continue;
+				if (inter_chain.mean[i] == 0) { // mean of variance = 0
+					if (fMCMCStatistics_AllChains.variance[i] == 0) { // variance of all samples = 0
+						BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : all samples in all chains identical!");
+						fMCMCRValueParameters[i] = 1;
+					} else {
+						BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : all chain variances zero!");
+						fMCMCRValueParameters[i] = std::numeric_limits<double>::infinity();
+						}
+				} else {
+					fMCMCRValueParameters[i] = sqrt( fMCMCStatistics_AllChains.variance[i] / inter_chain.mean[i] ); // variance(all samples) / mean(chain variances)
+				}
+			}
+
+			if (inter_chain.probability_mean == 0) { // mean of probability variances = 0
+				if (fMCMCStatistics_AllChains.probability_variance == 0) { // variance of all probabilities = 0
+					BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : all likelihoods in all samples identical!");
+					fMCMCRValue = 1;
+				} else {
+					BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : variance of all likelihoods in all chains zero!");
+					fMCMCRValue = std::numeric_limits<double>::infinity();
+				}
+			} else {
+				fMCMCRValue = sqrt( fMCMCStatistics_AllChains.probability_variance / inter_chain.probability_mean ); // variance(all samples) / mean(chain variances)
+			}
+
+			if (fCorrectRValueForSamplingVariability) {
+				double m = static_cast<double>(fMCMCNChains);
+				double n = static_cast<double>(fMCMCStatistics.front().n_samples);
+				double N = (n-1)/n;
+				double M = (m+1)/m;
+				double K1 = N*N/m;
+				double K2 = M * 2/(m-1);
+				double K3 = 2*N*M/m;
+
+				// correct parameters (i>=0) and posterior (i==-1) for initial sampling variability
+				for (int i=-1; i<(int)GetNParameters(); ++i) {
+					if (i>=0 and GetParameter(i)->Fixed())
+						continue;
+					double W = (i>=0) ? fMCMCStatistics_AllChains.variance[i]                 : fMCMCStatistics_AllChains.probability_variance; // variance of all samples
+					double S = (i>=0) ? inter_chain.mean[i]                                   : inter_chain.probability_mean; // mean of chain variances
+					double Z = (i>=0) ? inter_chain.variance[i]                               : inter_chain.probability_variance;	// variance of chain variances
+					double X = (i>=0) ? inter_chain.mean[inter_chain.efficiency.size()+i]     : 0; // mean of chain means
+					double B = (i>=0) ? inter_chain.variance[inter_chain.efficiency.size()+i] : 0; // variance of chain means
+					// calculate X and B for the probability
+					if (i<0) {
+						for (unsigned c=0; c<fMCMCNChains; ++c)
+							X += fMCMCStatistics[c].probability_mean;
+						X /= fMCMCNChains;
+						for (unsigned c=0; c<fMCMCNChains; ++c)
+							B+= (fMCMCStatistics[c].probability_mean-X)*(fMCMCStatistics[c].probability_mean-X);
+						B /= fMCMCNChains - 1.;
+					}
+
+					double V = N*W + M*B;
+
+					double X2 = 0;
+					for (unsigned c=0; c<fMCMCNChains; ++c)
+						X2 += (i>=0) ? fMCMCStatistics[c].mean[i] * fMCMCStatistics[c].mean[i] : fMCMCStatistics[c].probability_mean * fMCMCStatistics[c].probability_mean;
+					X2 /= fMCMCNChains;
+					double cov_s_x = 0;
+					double cov_s_x2 = 0;
+					for (unsigned c=0; c<fMCMCNChains; ++c) {
+						double delta_s = (i>=0) ? fMCMCStatistics[c].variance[i]-S : fMCMCStatistics[c].probability_variance-S;
+						cov_s_x  += (i>=0) ? delta_s*(fMCMCStatistics[c].mean[i]-X)                             : delta_s*(fMCMCStatistics[c].probability_mean-X);
+						cov_s_x2 += (i>=0) ? delta_s*(fMCMCStatistics[c].mean[i]*fMCMCStatistics[c].mean[i]-X2) : delta_s*(fMCMCStatistics[c].probability_mean*fMCMCStatistics[c].probability_mean-X2);
+					}
+					cov_s_x  /= fMCMCNChains - 1.;
+					cov_s_x2 /= fMCMCNChains - 1.;
+					double varV = K1*Z + K2*B*B + K3*(cov_s_x2 - 2.*X*cov_s_x);
+
+					double df = 2*V*V/varV;
+					if (i>=0)
+						fMCMCRValueParameters[i] *= sqrt((df+3.)/(df+1.));
+					else
+						fMCMCRValue *= sqrt((df+3.)/(df+1.));
+				}
+			}
+		
+			// check R values
+			fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
+			for (unsigned i=0; i<GetNParameters() and fMCMCNIterationsConvergenceGlobal>0; ++i)
+				if ( ! GetParameter(i)->Fixed() and (fMCMCRValueParameters[i]-1) > fMCMCRValueParametersCriterion )
+					fMCMCNIterationsConvergenceGlobal = -1;
+			if (fMCMCNIterationsConvergenceGlobal > 0 and (fMCMCRValue-1) > fMCMCRValueCriterion)
+				fMCMCNIterationsConvergenceGlobal = -1;
 
 			if ( fMCMCNIterationsConvergenceGlobal > 0 )
 				continue;
@@ -1725,10 +1941,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 
 				if( fMCMCRValueParameters[ipar]-1 < fMCMCRValueParametersCriterion )
 					BCLog::OutDetail(TString::Format("         %-*s :  %.06f",fParameters.MaxNameLength(),GetParameter(ipar)->GetName().data(), fMCMCRValueParameters.at(ipar)));
-				else if ( fMCMCRValueParameters.at(ipar) != std::numeric_limits<double>::max() )
+				else if ( fMCMCRValueParameters.at(ipar) != std::numeric_limits<double>::infinity() )
 					BCLog::OutDetail(TString::Format("         %-*s :  %.06f <--",fParameters.MaxNameLength(),GetParameter(ipar)->GetName().data(), fMCMCRValueParameters.at(ipar)));
 				else
-					BCLog::OutDetail(TString::Format("         %-*s :  MAX_DOUBLE <--",fParameters.MaxNameLength(),GetParameter(ipar)->GetName().data()));
+					BCLog::OutDetail(TString::Format("         %-*s :  INFINITY <--",fParameters.MaxNameLength(),GetParameter(ipar)->GetName().data()));
 			}
 
 			if( fMCMCRValue-1 < fMCMCRValueCriterion )
@@ -1736,7 +1952,13 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 			else if ( fMCMCRValue != std::numeric_limits<double>::max() )
 				BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f <--", fMCMCRValue));
 			else
-				BCLog::OutDetail("       - Log-Likelihood :  MAX_DOUBLE <--");
+				BCLog::OutDetail("       - Log-Likelihood :  INFINITY <--");
+
+			if (fMCMCFlagWritePreRunToFile and fMCMCTree)
+				fMCMCTree -> AutoSave("SaveSelf");
+			
+			if (fMCMCMultivariateProposalFunction)
+				UpdateCholeskyDecompositions();
 		}
 
 		if ( fMCMCNIterationsConvergenceGlobal > 0 )
@@ -1749,6 +1971,9 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsPreRunMax));
 			else
 				BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales.", fMCMCNChains, fMCMCNIterationsPreRunMax));
+
+		if (fMCMCFlagWritePreRunToFile and fMCMCTree)
+			fMCMCTree -> AutoSave("SaveSelf");
 	}
 
 		
@@ -1765,13 +1990,14 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		unsigned n = 0;
 		while ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin ) {
 			MCMCGetNewPointMetropolis();
-			++NTrialsForEff;
+			EvaluateObservables();
 			++n;
+			
+			for (unsigned c=0; c<fMCMCNChains; ++c)
+				fMCMCStatistics[c].Update(fMCMCprob[c],fMCMCx[c],fMCMCObservables[c]);
 
-			if (fMCMCFlagWritePreRunToFile) {
-				EvaluateObservables();
+			if (fMCMCFlagWritePreRunToFile)
 				MCMCInChainWriteChains();
-			}
 
 			if ( n % nwrite == 0) {
 				BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, 100.*n/N));
@@ -1782,20 +2008,28 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 		BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations in pre-run.", fMCMCCurrentIteration));
 	}
 
-	// print scale factors and efficiencies
-	std::vector<double> scalefactors (GetNParameters(),0);
-	std::vector<double> efficiencies (GetNParameters(),0);
+	// combine statistics:
+	fMCMCStatistics_AllChains.Reset();
+	for (unsigned c=0; c<fMCMCNChains; ++c)
+		fMCMCStatistics_AllChains += fMCMCStatistics[c];
 
-	BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in %d iterations):",(NTrialsForEff==0) ? fMCMCNIterationsEfficiencyCheck : NTrialsForEff));
-	BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency",fParameters.MaxNameLength(),"Parameter"));
-	for (unsigned i = 0; i < GetNParameters(); ++i) {
-		if (GetParameter(i)->Fixed())
-			continue;
-		for (unsigned j = 0; j < fMCMCNChains; ++j) {
-			efficiencies[i] += ( NTrialsForEff==0 ) ? fMCMCEfficiencies[j][i] / fMCMCNChains : 1.*fMCMCNTrialsTrue[j][i]/NTrialsForEff/fMCMCNChains;
-			scalefactors[i] += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
+	if (fMCMCMultivariateProposalFunction) {
+		BCLog::OutDetail(Form(" --> Scale factors and efficiencies (measured in %d iterations):",fMCMCStatistics.front().n_samples_efficiency));
+		BCLog::OutDetail("       - Chain : Scale factor    Efficiency");
+		for (unsigned c=0; c<fMCMCNChains; ++c)
+			BCLog::OutDetail(Form("         %-3d :         % 6.4g         %4.1f %%",c, fMCMCTrialFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
+	} else {
+		BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in %d iterations):",fMCMCStatistics.front().n_samples_efficiency));
+		BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency",fParameters.MaxNameLength(),"Parameter"));
+		// print scale factors and efficiencies
+		std::vector<double> scalefactors (GetNParameters(),0);
+		for (unsigned i = 0; i < GetNParameters(); ++i) {
+			if (GetParameter(i)->Fixed())
+				continue;
+			for (unsigned j = 0; j < fMCMCNChains; ++j)
+				scalefactors[i] += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
+			BCLog::OutDetail(Form("         %-*s :          % 6.4g %%        %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*scalefactors[i], 100.*fMCMCStatistics_AllChains.efficiency[i]));
 		}
-		BCLog::OutDetail(Form("         %-*s :     %6.02g %%        %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*scalefactors[i], 100.*efficiencies[i]));
 	}
 
 	// reset current iteration
@@ -1803,26 +2037,33 @@ int BCEngineMCMC::MCMCMetropolisPreRun() {
 
 	// reset current chain
 	fMCMCCurrentChain = -1;
+	
+	if (fMCMCFlagWritePreRunToFile) {
+		// UpdateParameterTree();
+		if (fMCMCTree)
+			fMCMCTree -> AutoSave("SaveSelf");
+	}
 
-	if (fMCMCFlagWritePreRunToFile)
-		UpdateParameterTree();
+	// rescale histograms
+	if (fRescaleHistogramRangesAfterPreRun)
+		CreateHistograms(true);
 
 	// no error
-	return 1;
+	return true;
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::MCMCMetropolis()
-{
+bool BCEngineMCMC::MCMCMetropolis() {
   // check the number of free parameters
   if (GetNFreeParameters() <= 0) {
     BCLog::OutWarning("BCEngineMCMC::MCMCMetropolis. Number of free parameters <= 0. Do not run Metropolis.");
-    return 0;
+    return false;
   }
 
 	// check if prerun should be performed
 	if (fMCMCFlagPreRun) {
-		MCMCMetropolisPreRun();
+		if (!MCMCMetropolisPreRun())
+			return false;
 		if (!fMCMCFlagWritePreRunToFile and fMCMCFlagWriteChainToFile)
 			InitializeMarkovChainTree();
 	}
@@ -1832,11 +2073,15 @@ int BCEngineMCMC::MCMCMetropolis()
 			InitializeMarkovChainTree();
 	}
 
+	// make sure enough statistics containers exist
+	fMCMCStatistics.resize(fMCMCNChains,BCEngineMCMC::MCMCStatistics(GetNParameters(),GetNObservables()));
+
+	// reset statistics
+	for (unsigned c=0; c<fMCMCNChains; ++c)
+		fMCMCStatistics[c].Reset(false,false); // keep mode and efficiency information
+
 	// print to screen
 	BCLog::OutSummary( "Run Metropolis MCMC ...");
-
-	// reset run statistics
-	MCMCResetRunStatistics();
 
 	// set phase and cycle number
 	fMCMCPhase = BCEngineMCMC::MCMCMainRun;
@@ -1850,6 +2095,7 @@ int BCEngineMCMC::MCMCMetropolis()
 	while ( fMCMCCurrentIteration < (int)fMCMCNIterationsRun ) {
 
 		MCMCGetNewPointMetropolis();
+		EvaluateObservables();
 
 		if ( fMCMCCurrentIteration % nwrite == 0 ) {
 			BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, (double)(fMCMCCurrentIteration)/(double)fMCMCNIterationsRun*100.));
@@ -1859,15 +2105,16 @@ int BCEngineMCMC::MCMCMetropolis()
 		
 		if (fMCMCCurrentIteration % fMCMCNLag != 0) // apply lag
 			continue;
-			
+
 		MCMCIterationInterface();		// user action (overloadable)
-		
-		EvaluateObservables();
+
+		for (unsigned c=0; c<fMCMCNChains; ++c)
+			fMCMCStatistics[c].Update(fMCMCprob[c],fMCMCx[c],fMCMCObservables[c]);
 
 		// fill histograms
 		if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
 			MCMCInChainFillHistograms();
-		
+
 		// write chain to file
 		if ( fMCMCFlagWriteChainToFile )
 			MCMCInChainWriteChains();
@@ -1876,46 +2123,34 @@ int BCEngineMCMC::MCMCMetropolis()
 
 	BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", fMCMCNIterationsRun));
 
-
-	// find global maximum and calculate efficiencies
-	unsigned probmaxindex = 0;
-
-	fMCMCEfficiencies.assign(fMCMCNTrialsTrue.size(), std::vector<double>(GetNParameters(),0));
-	std::vector<double> efficiencies (GetNParameters(),0);
-
-	// loop over all chains
-	for (unsigned ichain = 0; ichain < fMCMCNChains; ++ichain) {
-		// find maximum point
-		if (fMCMCprobMax[ichain] > fMCMCprobMax[probmaxindex])
-			probmaxindex = ichain;
-		// calculate efficiencies
-		for (unsigned ipar = 0; ipar<GetNParameters(); ++ipar) {
-			fMCMCEfficiencies[ichain][ipar] = 1.*fMCMCNTrialsTrue[ichain][ipar]/fMCMCNIterationsRun;
-			efficiencies[ipar] += fMCMCEfficiencies[ichain][ipar]/fMCMCNChains;
-		}
-	}
+	// set all-chain stats to first-chain stats
+	fMCMCStatistics_AllChains.Reset();
+	// loop over remaining chains
+	for (unsigned c=0; c<fMCMCStatistics.size(); ++c)
+		fMCMCStatistics_AllChains += fMCMCStatistics[c];
 
 	// print efficiencies
-	BCLog::OutDetail(Form(" --> Average efficiencies (measured in %d iterations):",fMCMCNIterationsRun));
-	BCLog::OutDetail(Form("       - %-*s : Efficiency",fParameters.MaxNameLength(),"Parameter"));
-	for (unsigned i = 0; i < GetNParameters(); ++i) {
-		if (GetParameter(i)->Fixed())
-			continue;
-		BCLog::OutDetail(Form("         %-*s :     %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*efficiencies[i]));
+	if (fMCMCMultivariateProposalFunction) {
+		BCLog::OutDetail(Form(" --> Efficiencies (measured in %d iterations):",fMCMCStatistics.front().n_samples_efficiency));
+		BCLog::OutDetail("       - Chain : Efficiency");
+		for (unsigned c=0; c<fMCMCNChains; ++c)
+			BCLog::OutDetail(Form("         %-3d :       %4.1f %%",c, 100.*fMCMCStatistics[c].efficiency[0]));
+	} else {
+		BCLog::OutDetail(Form(" --> Average efficiencies (measured in %d iterations):",fMCMCStatistics_AllChains.n_samples_efficiency/fMCMCNChains));
+		BCLog::OutDetail(Form("       - %-*s : Efficiency",fParameters.MaxNameLength(),"Parameter"));
+		for (unsigned i = 0; i < GetNParameters(); ++i) {
+			if (GetParameter(i)->Fixed())
+				continue;
+			BCLog::OutDetail(Form("         %-*s :     %4.1f %%",fParameters.MaxNameLength(),GetParameter(i)->GetName().data(), 100.*fMCMCStatistics_AllChains.efficiency[i]));
+		}
 	}
 
 	if (fMCMCFlagWriteChainToFile)
 		UpdateParameterTree();
 
-	// save if improved the log posterior
-	if (fMCMCBestFitParameters.empty() || fMCMCprobMax[probmaxindex] > fMCMCLogMaximum) {
-		fMCMCLogMaximum = fMCMCprobMax[probmaxindex];
-		fMCMCBestFitParameters = fMCMCxMean[probmaxindex];
-	}
-
 	BCLog::OutDetail(" --> Global mode from MCMC:");
-	BCLog::OutDebug(Form(" --> Posterior value: %g", fMCMCprobMax[probmaxindex]));
-	PrintParameters(fMCMCBestFitParameters,BCLog::OutDetail);
+	BCLog::OutDebug(Form(" --> Posterior value: %g", fMCMCStatistics_AllChains.probability_mode));
+	PrintParameters(fMCMCStatistics_AllChains.mode,BCLog::OutDetail);
 
 	// reset counter
 	fMCMCCurrentIteration = -1;
@@ -1926,96 +2161,33 @@ int BCEngineMCMC::MCMCMetropolis()
 	// set flags
 	fMCMCFlagRun = true;
 
-	return 1;
-}
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCResetRunStatistics()
-{
-	fMCMCNTrials     = 0;
-
-	fMCMCNIterations.assign(fMCMCNChains,0);
-	fMCMCprobMean.assign(fMCMCNChains,0);
-	fMCMCprobVar.assign(fMCMCNChains,0);
-	fMCMCNTrialsTrue.assign(fMCMCNChains,std::vector<int>(GetNParameters(),0));
-
-	// reset marginalized distributions
-	for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
-		if (fH1Marginalized[i])
-			fH1Marginalized[i]->Reset();
-
-	for (unsigned i = 0; i < fH2Marginalized.size(); ++i)
-		for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
-			if (fH2Marginalized[i][j])
-				fH2Marginalized[i][j]->Reset();
-
-	fMCMCRValue = 100;
-}
-
-// --------------------------------------------------------
-int BCEngineMCMC::AddParameter(const char * name, double min, double max, const char * latexname)
-{
-	// todo memory leak:
-	//   ==8243== 64 (44 direct, 20 indirect) bytes in 1 blocks are definitely lost in loss record 20,913 of 29,122
-	//   ==8243==    at 0x402C9B4: operator new(unsigned int) (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
-	//   ==8243==    by 0x409DED1: BCEngineMCMC::AddParameter(char const*, double, double) (BCEngineMCMC.cxx:1480)
-	return AddParameter(new BCParameter(name, min, max, latexname));
-}
-
-// --------------------------------------------------------
-int BCEngineMCMC::AddParameter(BCParameter * par)
-{
-	return fParameters.Add(par);
-}
-
-// --------------------------------------------------------
-int BCEngineMCMC::AddObservable(const char * name, double min, double max, const char * latexname)
-{
-	return AddObservable(new BCObservable(name, min, max, latexname));
-}
-
-// --------------------------------------------------------
-int BCEngineMCMC::AddObservable(BCObservable * obs)
-{
-	return fObservables.Add(obs);
+	return true;
 }
 
 // --------------------------------------------------------
 void BCEngineMCMC::EvaluateObservables() {
-	for (fMCMCCurrentChain = 0; fMCMCCurrentChain < (int)fMCMCNChains; ++fMCMCCurrentChain ) {
-		CalculateObservables(fMCMCx[fMCMCCurrentChain]);
-		for (unsigned j = 0; j < GetNObservables(); ++j)
-			fMCMCObservables[fMCMCCurrentChain][j] = GetObservable(j) -> Value();
-	}
-}
-
-
-// --------------------------------------------------------
-void BCEngineMCMC::MCMCInitializeMarkovChains()
-{
-	// evaluate function at the starting point
-	for (unsigned fMCMCCurrentChain = 0; fMCMCCurrentChain < fMCMCNChains; ++fMCMCCurrentChain) {
-		double l = LogEval(fMCMCx[fMCMCCurrentChain]);
-		fMCMCprob[fMCMCCurrentChain] = (std::isfinite(l)) ? l : -std::numeric_limits<double>::max();
-		fMCMCLogLikelihood[fMCMCCurrentChain] = fMCMCLogLikelihood_Provisional[fMCMCCurrentChain];
-		fMCMCLogPrior[fMCMCCurrentChain] = fMCMCLogPrior_Provisional[fMCMCCurrentChain];
-	}
+	for (unsigned c=0; c<fMCMCNChains; ++c)
+		EvaluateObservables(c);
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::ResetResults()
-{
+void BCEngineMCMC::EvaluateObservables(unsigned chain) {
+	if (chain>fMCMCNChains)
+		return;
+	fMCMCCurrentChain = chain;
+	CalculateObservables(fMCMCx[fMCMCCurrentChain]);
+	for (unsigned j = 0; j < GetNObservables(); ++j)
+		fMCMCObservables[fMCMCCurrentChain][j] = GetObservable(j) -> Value();
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::ResetResults() {
 	// reset variables
 	fMCMCCurrentIteration = -1;
 	fMCMCCurrentChain = -1;
-	fMCMCNIterations.clear();
-	fMCMCNTrialsTrue.clear();
-	fMCMCNTrials = 0;
+	fMCMCStatistics.clear();
+	fMCMCStatistics_AllChains.Clear();
 	fMCMCTrialFunctionScaleFactor.clear();
-	fMCMCprobMean.clear();
-	fMCMCprobVar.clear();
-	fMCMCxMean.clear();
-	fMCMCxVar.clear();
 	fMCMCx.clear();
 	fMCMCObservables.clear();
 	fMCMCprob.clear();
@@ -2023,59 +2195,48 @@ void BCEngineMCMC::ResetResults()
 	fMCMCLogLikelihood_Provisional.clear();
 	fMCMCLogPrior.clear();
 	fMCMCLogPrior_Provisional.clear();
-	fMCMCxMax.clear();
-	fMCMCprobMax.clear();
 	fMCMCNIterationsConvergenceGlobal = -1;
 	fMCMCRValueParameters.clear();
 	fMCMCRValue = std::numeric_limits<double>::max();
 
 	for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
-		if (fH1Marginalized[i])
-			delete fH1Marginalized[i];
-
+		delete fH1Marginalized[i];
+	
 	for (unsigned i = 0; i < fH2Marginalized.size(); ++i)
 		for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
-			if (fH2Marginalized[i][j])
-				delete fH2Marginalized[i][j];
-
+			delete fH2Marginalized[i][j];
+	
 	// clear plots
 	fH1Marginalized.clear();
 	fH2Marginalized.clear();
 
 	// reset flags
-	fMCMCFlagPreRun = true;
 	fMCMCFlagRun = false;
 
-	fMCMCBestFitParameters.clear();
-	fMCMCLogMaximum = -std::numeric_limits<double>::max();
-	fMarginalModes.clear();
+	fLocalModes.clear();
 }
 
 // --------------------------------------------------------
-int BCEngineMCMC::MCMCInitialize()
-{
+bool BCEngineMCMC::MCMCInitialize() {
 	// resource allocation must be done only by one thread
-	// reset values
-	ResetResults();
+
+	fMCMCNIterationsConvergenceGlobal = -1;
 
 	// free memory for vectors
 	fMCMCNIterations.assign(fMCMCNChains, 0);
-	fMCMCprobMean.assign(fMCMCNChains, 0);
-	fMCMCprobVar.assign(fMCMCNChains, 0);
-	fMCMCprob.assign(fMCMCNChains, -1.0);
-	fMCMCLogLikelihood.assign(fMCMCNChains,-1.0);
-	fMCMCLogLikelihood_Provisional.assign(fMCMCNChains,-1.0);
-	fMCMCLogPrior.assign(fMCMCNChains,-1.0);
-	fMCMCLogPrior_Provisional.assign(fMCMCNChains,-1.0);
-	fMCMCprobMax.assign(fMCMCNChains, -1.0);
+	fMCMCStatistics.assign(fMCMCNChains,BCEngineMCMC::MCMCStatistics(GetNParameters(),GetNObservables()));
+	fMCMCStatistics_AllChains.Init(GetNParameters(),GetNObservables());
+	fMCMCprob.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
+	fMCMCLogLikelihood.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
+	fMCMCLogLikelihood_Provisional.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
+	fMCMCLogPrior.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
+	fMCMCLogPrior_Provisional.assign(fMCMCNChains, -std::numeric_limits<double>::infinity());
 
-	fMCMCNTrialsTrue.assign(fMCMCNChains,std::vector<int>(GetNParameters(), 0));
-	fMCMCNTrials = 0;
-	fMCMCxMax.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-	fMCMCxMean.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-	fMCMCxVar.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-
-	fMCMCRValueParameters.assign(GetNParameters(), 0);
+	fMCMCRValueParameters.assign(GetNParameters(), std::numeric_limits<double>::infinity());
+	fMCMCRValue = std::numeric_limits<double>::max();
+	
+	// clear info about local modes
+	fLocalModes.clear();
 
 	SyncThreadStorage();
 
@@ -2084,111 +2245,210 @@ int BCEngineMCMC::MCMCInitialize()
    else
 		 fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains,fMCMCTrialFunctionScaleFactorStart);
 
-   // set initial position
-   if (fMCMCFlagInitialPosition == 2) { // user defined points
-		 // check the length of the array of initial positions
+	 // initialize markov chain positions
+	 switch (fMCMCFlagInitialPosition) {
+
+		 // keep previous values
+	 case kMCMCInitContinue : {
+		 // check position vector size
+		 if (fMCMCx.size() != fMCMCNChains) {
+			 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Number of chains has been changed; cannot continue previous chains.");
+			 return false;
+		 }
+		 // else do nothing --- continue chains
+		 break;
+	 }
+
+		 // use range centers
+	 case kMCMCInitCenter : {
+		 fMCMCx.assign(fMCMCNChains,GetParameters().GetRangeCenters(true));
+		 break;
+	 }
+
+		 // uniformly distribute all coordinates in provided ranges
+	 case kMCMCInitRandomUniform : {
+		 fMCMCx.clear();
+		 for (unsigned c=0; c<fMCMCNChains; ++c)
+			 fMCMCx.push_back(GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng,true));
+		 break;
+	 }
+
+		 // use user-defined starting points
+	 case kMCMCInitUserDefined : {
+		 // check initial position vector size
 		 if (fMCMCInitialPosition.size() < fMCMCNChains) {
-			 BCLog::OutError("BCEngine::MCMCInitialize : Too few initial positions provided.");
-			 fMCMCFlagInitialPosition = 1;
-		 } else {
-			 // check the boundaries
-			 for (unsigned j = 0; j < fMCMCNChains; ++j) {
-				 if (fMCMCInitialPosition[j].size() == GetNParameters()) {
-					 for (unsigned i = 0; i < GetNParameters(); ++i)
-						 if (!GetParameter(i)->IsValid(fMCMCInitialPosition[j][i])) {
-							 BCLog::OutError(TString::Format("BCEngine::MCMCInitialize : Initial position of parameter %u (\"%s\") is out of boundaries in chain %u.",i,GetParameter(i)->GetName().data(),j).Data());
-							 fMCMCFlagInitialPosition = 1;
-						 }
-				 } else {
-					 BCLog::OutError(Form("BCEngine::MCMCInitialize : Too few coordinates provdided in initial position for chain %i",j));
-					 fMCMCFlagInitialPosition = 1;
-				 }
+			 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Too few initial positions provided.");
+			 return false;
+		 }
+		 // copy positions
+		 fMCMCx.assign(fMCMCInitialPosition.begin(),fMCMCInitialPosition.begin()+fMCMCNChains);
+		 // set fixed values then check whether initial positions are within bounds
+		 // check whether initial positions are within bounds
+		 // also checks that initial position vectors are correct size
+		 for (unsigned c=0; c<fMCMCNChains; ++c) {
+			 GetParameters().ApplyFixedValues(fMCMCx[c]);
+			 if (!GetParameters().IsWithinLimits(fMCMCx[c],true)) {
+				 BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
+				 fMCMCx.clear();
+				 return false;
 			 }
 		 }
+		 break;
+	 }
 
-		 if (fMCMCFlagInitialPosition == 1)
-			 BCLog::OutError("BCEngine::MCMCInitialize : Using random initial positions instead of user-provided ones.");
-		 else {
-			 fMCMCx = fMCMCInitialPosition;
-			 for (unsigned i = 0; i < GetNParameters(); ++i)
-				 if (GetParameter(i)->Fixed())
-					 for (unsigned j = 0; j < fMCMCNChains; ++j)
-						 fMCMCx[j][i] = GetParameter(i)->GetFixedValue();
+		 // randomly distribute according to factorized priors
+	 case kMCMCInitRandomPrior : {
+		 if (!GetParameters().ArePriorsSet(true)) {
+			 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
+			 return false; 
 		 }
+		 fMCMCx.clear();
+		 for (unsigned c=0; c<fMCMCNChains; ++c) {
+			 fMCMCx.push_back(GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng,true));
+			 // check new point
+			 if (!GetParameters().IsWithinLimits(fMCMCx[c],true)) {
+				 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+				 fMCMCx.clear();
+				 return false;
+			 }
+		 }
+		 break;
 	 }
-	 
-	 if (fMCMCFlagInitialPosition == 0) { // center of the interval
-		 fMCMCx.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-		 for (unsigned j = 0; j < fMCMCNChains; ++j)
-			 for (unsigned i = 0; i < GetNParameters(); ++i)
-				 fMCMCx[j][i] = (GetParameter(i)->Fixed()) ? GetParameter(i)->GetFixedValue() : 0.5 * (GetParameter(i)->GetLowerLimit() + GetParameter(i)->GetUpperLimit());
 
-	 } else { // random number (default)
-		 fMCMCx.assign(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-		 for (unsigned j = 0; j < fMCMCNChains; ++j)
-			 for (unsigned i = 0; i < GetNParameters(); ++i)
-				 fMCMCx[j][i] = (GetParameter(i)->Fixed()) ? GetParameter(i)->GetFixedValue() : GetParameter(i)->GetLowerLimit() + fMCMCThreadLocalStorage[j].rng->Rndm() * (GetParameter(i)->GetUpperLimit()-GetParameter(i)->GetLowerLimit());
+		 // use mean and variance of factorized priors
+		 // to distribute values according to normal distribution,
+		 // allowing for over-distribution of parameters.
+	 case kMCMCInitRandomGaussPrior : {
+		 if (!GetParameters().ArePriorsSet(true)) {
+			 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
+			 return false; 
+		 }
+		 fMCMCx.clear();
+		 for (unsigned c=0; c<fMCMCNChains; ++c) {
+			 // add new point
+			 fMCMCx.push_back(GetParameters().GetRandomValuesAccordingToGaussiansOfPriors(fMCMCThreadLocalStorage[c].rng,true,fMCMCInitialPositionExpansionFactor));
+			 // check new point
+			 if (!GetParameters().IsWithinLimits(fMCMCx[c],true)) {
+				 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+				 fMCMCx.clear();
+				 return false;
+			 }
+		 }
+		 break;
+	 }
+
+	 default:
+		 fMCMCx.clear();
+		 BCLog::OutError("BCEngineMCMC::MCMCInitialize : No MCMC position initialization scheme specified.");
+		 return false;
 	 }
 	 
+	 if (fMCMCx.empty())
+		 return false;
+
 	 // initialize user-defined observables
 	 fMCMCObservables.assign(fMCMCNChains,std::vector<double>(GetNObservables(),0));
 
-   // define 1-dimensional histograms for marginalization
-   bool fillAny = false;
-	 fH1Marginalized.assign(GetNParameters()+GetNObservables(),NULL);
-
-   for(unsigned i = 0; i < GetNParameters(); ++i)
-		 if (GetParameter(i)->FillHistograms() && !GetParameter(i)->Fixed()) {
-			 fH1Marginalized[i] = GetParameter(i) -> CreateH1(TString::Format("h1_%s_parameter_%i", GetSafeName().data() ,i));
-			 fH1Marginalized[i] -> SetStats(kFALSE);
-			 fillAny = true;
-		 }
-   for(unsigned i = 0; i < GetNObservables(); ++i)
-		 if (GetObservable(i)->FillHistograms()) {
-			 fH1Marginalized[i+GetNParameters()] = GetObservable(i) -> CreateH1(TString::Format("h1_%s_observable_%i", GetSafeName().data() ,i));
-			 fH1Marginalized[i+GetNParameters()] -> SetStats(kFALSE);
-			 fillAny = true;
-		 }
+	 CreateHistograms();
 	 
-   // if filling no histograms, set H1 vector to zero size, implies no 2D histograms either
-   if (!fillAny)
-		 fH1Marginalized.clear();
-   else {
-		 fH2Marginalized.assign(GetNParameters()+GetNObservables(),std::vector<TH2D*>(GetNParameters()+GetNObservables(),0));
-		 // define 2-dimensional histograms for marginalization
-		 for(unsigned i = 0; i < GetNParameters(); ++i)
-			 if (GetParameter(i)->FillHistograms() and !GetParameter(i)->Fixed()) {
-				 // paramater vs parameter
-				 for (unsigned j = i + 1; j < GetNParameters(); ++j)
-					 if (GetParameter(j)->FillHistograms() and !GetParameter(j)->Fixed()) {
-						 fH2Marginalized[i][j] = GetParameter(i) -> CreateH2(Form("h2_%s_parameters_%i_vs_%i", GetSafeName().data(), i, j), GetParameter(j));
-						 fH2Marginalized[i][j] -> SetStats(kFALSE);
-					 }
-				 // user-defined observable vs parameter
-				 for (unsigned j = 0; j < GetNObservables(); ++j)
-					 if (GetObservable(j)->FillHistograms()) {
-						 fH2Marginalized[i][j+GetNParameters()] = GetParameter(i) -> CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), i, j), GetObservable(j));
-						 fH2Marginalized[i][j+GetNParameters()] -> SetStats(kFALSE);
-					 }
-			 }
-		 // user-defined observable vs user-defined observable
-		 for(unsigned i = 0; i < GetNObservables(); ++i)
-			 if (GetObservable(i)->FillHistograms())
-				 for (unsigned j = i + 1; j < GetNObservables(); ++j)
-					 if (GetObservable(j)->FillHistograms()) {
-						 fH2Marginalized[i+GetNParameters()][j+GetNParameters()] = GetObservable(i) -> CreateH2(Form("h2_%s_observables_%i_vs_%i", GetSafeName().data(), i, j), GetObservable(j));
-						 fH2Marginalized[i+GetNParameters()][j+GetNParameters()] -> SetStats(kFALSE);
-					 }
+	 // set that a main run has not been made
+	 fMCMCFlagRun = false;
 
-   }
-   return 1;
+	 return true;
 }
 
-// ---------------------------------------------------------
-void BCEngineMCMC::MCMCIterationInterface()
-{
-   // do user defined stuff
-   MCMCUserIterationInterface();
+// ------------------------------------------------------------
+void BCEngineMCMC::CreateHistograms(bool rescale_ranges) {
+	// clear existing histograms
+	for (unsigned i=0; i<fH1Marginalized.size(); ++i)
+		delete fH1Marginalized[i];
+	fH1Marginalized.assign(GetNVariables(),NULL);
+
+	for (unsigned i=0; i<fH2Marginalized.size(); ++i)
+		for (unsigned j=0; j<fH2Marginalized[i].size(); ++j)
+			delete fH2Marginalized[i][j];
+	fH2Marginalized.assign(GetNVariables(),std::vector<TH2*>(GetNVariables(),NULL));
+	
+	// store old bounds, rescale if rescaling:
+	std::vector<std::pair<double,double> > original_bounds;
+	original_bounds.reserve(GetNVariables());
+	for (unsigned i=0; i<GetNVariables(); ++i) {
+		original_bounds.push_back(std::make_pair(GetVariable(i)->GetLowerLimit(),GetVariable(i)->GetUpperLimit()));
+		if (rescale_ranges) {
+			if (i < fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i]))
+				GetVariable(i) -> SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
+			if (i < fMCMCStatistics_AllChains.maximum.size() and std::isfinite(fMCMCStatistics_AllChains.maximum[i]))
+				GetVariable(i) -> SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
+			if (fHistogramRescalePadding>0) {
+				// calculate enlargement factor
+				double range_width_rescale = GetVariable(i) -> GetRangeWidth() * fHistogramRescalePadding;
+				// push bounds out, but not beyond original parameter bounds
+				GetVariable(i) -> SetLowerLimit(std::max<double>(GetVariable(i)->GetLowerLimit()-range_width_rescale,original_bounds.back().first));
+				GetVariable(i) -> SetUpperLimit(std::min<double>(GetVariable(i)->GetUpperLimit()+range_width_rescale,original_bounds.back().second));
+			}
+		}
+	}
+
+	// define 1-dimensional histograms for marginalization
+	int filling = 0;
+
+	for (unsigned i=0; i<GetNVariables(); ++i)
+		if (GetVariable(i)->FillH1()) {
+			if (i<GetNParameters()) {	// parameter
+				if (!GetParameter(i)->Fixed()) {
+					fH1Marginalized[i] = GetVariable(i) -> CreateH1(TString::Format("h1_%s_parameter_%i", GetSafeName().data() ,i));
+					++filling;
+				}
+			} else {									// user-defined observable
+				fH1Marginalized[i] = GetVariable(i) -> CreateH1(TString::Format("h1_%s_observable_%i", GetSafeName().data() ,i-GetNParameters()));
+				++filling;
+			}
+		}
+	
+	if (filling==0)	// if filling no 1D histograms, clear vector
+		fH1Marginalized.clear();
+
+	// define 2D histograms for marginalization
+	filling = 0;
+
+	for(unsigned i = 0; i < GetNParameters(); ++i) {
+		if (GetParameter(i)->Fixed())
+			continue;
+		
+		// parameter vs parameter
+		for (unsigned j = i+1; j < GetNParameters(); ++j)
+			if (!(GetParameter(j)->Fixed()) and ((GetParameter(i)->FillH2() and GetParameter(j)->FillH2()))) {
+				fH2Marginalized[i][j] = GetParameter(i) -> CreateH2(Form("h2_%s_parameters_%i_vs_%i", GetSafeName().data(), i, j), GetParameter(j));
+				++filling;
+			}
+		// user-defined observable vs parameter
+		for (unsigned j = 0; j < GetNObservables(); ++j)
+			if (GetObservable(j)->FillH2()) {
+				fH2Marginalized[i][j+GetNParameters()] = GetParameter(i) -> CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), i, j), GetObservable(j));
+				++filling;
+			}
+	}
+
+	// user-defined observable vs user-defined observable
+	for(unsigned i = 0; i < GetNObservables(); ++i)
+		if (GetObservable(i)->FillH2())
+			for (unsigned j = i+1; j < GetNObservables(); ++j)
+				if (GetObservable(j)->FillH2()) {
+					fH2Marginalized[i+GetNParameters()][j+GetNParameters()] = GetObservable(i) -> CreateH2(Form("h2_%s_observables_%i_vs_%i", GetSafeName().data(), i, j), GetObservable(j));
+					++filling;
+				}
+
+	// for (unsigned i=0; i<fH2Marginalized.size(); ++i)
+	// 	for (unsigned j=0; j<fH2Marginalized[i].size(); ++j)
+	// 		if (dynamic_cast<TH2*>(fH2Marginalized[i][j])!=NULL)
+	// 			fH2Marginalized[i][j] -> SetDirectory(0);
+
+	if (filling==0)	// if filling no 2D histograms, clear vector
+		fH2Marginalized.clear();
+		
+	// restore bounds
+	for (unsigned i=0; i<GetNVariables(); ++i)
+		GetVariable(i) -> SetLimits(original_bounds[i].first,original_bounds[i].second);
 }
 
 // ---------------------------------------------------------
@@ -2213,31 +2473,32 @@ void BCEngineMCMC::PrintSummary()
 	 }
 
    // best fit parameters
-   if ( !GetBestFitParameters().empty()) {
-     BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
-		 BCLog::OutSummary("Best fit results:");
+   if ( GetGlobalMode().empty() )
+		 return;
+	 
+	 BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
+	 BCLog::OutSummary("Best fit results:");
 
-		 for (unsigned i = 0; i < GetNVariables(); i++) {
-			 if (i < GetNParameters() and GetParameter(i)->Fixed() )
-				 BCLog::OutSummary(Form(" %s = %.*f (fixed)",  GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(),GetBestFitParameter(i)));
-			 else
-				 BCLog::OutSummary(Form(" %s = %.*f (global)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(),GetBestFitParameter(i)));
-			 
-			 if ( fMarginalModes.size() == GetNVariables())
-				 BCLog::OutSummary(Form(" %s = %.*f (marginalized)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), GetBestFitParametersMarginalized()[i]));
-		 }
-   }
+	 for (unsigned i = 0; i < GetNVariables(); i++) {
+		 if (i < GetNParameters() and GetParameter(i)->Fixed() )
+			 BCLog::OutSummary(Form(" %s = %.*f (fixed)",  GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(),GetParameter(i)->GetFixedValue()));
+		 else
+			 BCLog::OutSummary(Form(" %s = %.*f (global)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(),GetGlobalMode()[i]));
+		 
+		 if ( (GetLocalModes().size()==GetNParameters() or GetLocalModes().size()==GetNVariables()) and i<GetLocalModes().size() )
+			 BCLog::OutSummary(Form(" %s = %.*f (marginalized)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), GetLocalModes()[i]));
+	 }
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintResults(const char * file) {
+bool BCEngineMCMC::PrintResults(const char * file) {
 	// open file
 	std::ofstream ofi(file);
 
 	// check if file is open
 	if (!ofi.is_open()) {
 		BCLog::OutError(Form("Couldn't open file %s.", file));
-		return;
+		return false;
 	}
 
 	PrintSummaryToStream(ofi);
@@ -2246,7 +2507,7 @@ void BCEngineMCMC::PrintResults(const char * file) {
 	
 	// close file
 	ofi.close();
-
+	return true;
 }
 
 // ---------------------------------------------------------
@@ -2279,17 +2540,15 @@ void BCEngineMCMC::PrintBestFitToStream(std::ofstream & ofi) {
 		return;
 	}
 		
-	unsigned nletters = GetMaximumParameterNameLength();
-
 	ofi << " Best Fit Results" << std::endl
 			<< " ===========================" << std::endl
 			<< " Log of the maximum posterior: " << GetLogMaximum() << std::endl
 			<< " List of parameters and global mode:" << std::endl;
 
 	for (unsigned i = 0; i < GetNVariables(); ++i) {
-		ofi << TString::Format(" (%d) %10s \"%*s\" : %.*f", i, (i<GetNParameters()) ? "Parameter" : "Observable",
-													 nletters, GetVariable(i)->GetName().data(),
-													 GetVariable(i)->GetPrecision(),GetBestFitParameter(i));
+		ofi << TString::Format(" (%d) %10s \"%*s\" : %.*f", i, GetVariable(i)->GetPrefix().data(),
+													 GetMaximumParameterNameLength(), GetVariable(i)->GetName().data(),
+													 GetVariable(i)->GetPrecision(),GetGlobalMode()[i]);
 		if (i<GetNParameters() and GetParameter(i)->Fixed())
 			ofi << " (fixed)";
 		ofi << std::endl;
@@ -2303,7 +2562,7 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream & ofi) {
 				<< " ==============================" << std::endl;
 
 	// give warning if MCMC did not converge
-	if (!MCMCGetNIterationsConvergenceGlobal()<=0 && fMCMCFlagRun)
+	if (MCMCGetNIterationsConvergenceGlobal()<=0 && fMCMCFlagRun)
 		ofi << " WARNING: the Markov Chain did not converge!" << std::endl
 				<< " Be cautious using the following results!" << std::endl
 				<< std::endl;
@@ -2312,7 +2571,7 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream & ofi) {
 			<< " distributions:" << std::endl;
 
 	for (unsigned i = 0; i < GetNVariables(); ++i) {
-		if ( ! GetVariable(i)->FillHistograms())
+		if ( ! GetVariable(i)->FillH1())
 			continue;
 		
 		unsigned prec = GetVariable(i) -> GetPrecision();
@@ -2351,16 +2610,14 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream & ofi) {
 				<< " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
 				<< " Average run efficiencies:" << std::endl;
 		
-		unsigned nletters = GetMaximumParameterNameLength(false);
-
 		for (unsigned i = 0; i < GetNParameters(); ++i)
 			if (GetParameter(i)->Fixed())
-				ofi << TString::Format("  (%d) Parameter \"%*s\" : (fixed)", i, nletters, GetParameter(i)->GetName().data()) << std::endl;
+				ofi << TString::Format("  (%d) Parameter \"%*s\" : (fixed)", i, GetMaximumParameterNameLength(false), GetParameter(i)->GetName().data()) << std::endl;
 			else {
 				double eff = 0;
 				for (unsigned j = 0; j < fMCMCEfficiencies.size(); ++j)
 					eff += fMCMCEfficiencies[j][i] / fMCMCEfficiencies.size();
-				ofi << TString::Format("  (%d) Parameter \"%*s\" : %5.2f %%", i, nletters, GetParameter(i)->GetName().data(),eff*100) << std::endl;
+				ofi << TString::Format("  (%d) Parameter \"%*s\" : %5.2f %%", i, GetMaximumParameterNameLength(false), GetParameter(i)->GetName().data(),eff*100) << std::endl;
 			}
 	}
 
@@ -2378,11 +2635,11 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream & ofi) {
 
 // ---------------------------------------------------------
 void BCEngineMCMC::PrintParameters(std::vector<double> const & P, void (*output)(const char *) ) {
-	if ( P.size() != GetNParameters() )
+	if ( P.size() != GetNParameters() and P.size() != GetNVariables() )
 		return;
 
-	for (unsigned i = 0; i < GetNParameters(); ++i)
-		output(TString::Format("          %-*s :   % .*g", fParameters.MaxNameLength(), GetParameter(i)->GetName().data(),GetParameter(i)->GetPrecision(),P[i]));
+	for (unsigned i = 0; i < P.size(); ++i)
+		output(TString::Format("          %-*s :   % .*g", GetMaximumParameterNameLength(P.size()>GetNParameters()), GetVariable(i)->GetName().data(),GetVariable(i)->GetPrecision(),P[i]));
 }
 
 // ---------------------------------------------------------
@@ -2392,53 +2649,54 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned int hdiv, 
 		return 0;
 	}
 
-	 // Find nonempty H1's
-   std::vector<BCH1D *> h1;
-   for (unsigned i = 0; i < GetNVariables(); ++i)
-		 if ( MarginalizedHistogramExists(i) ) {
-			 if (GetMarginalizedHistogram(i)->Integral()==0) { // histogram was never filled in range
-				 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data()));
-				 continue;
-			 }
-			 h1.push_back(GetMarginalized(i));
-			 if (!h1.back()) // BCH1D doesn't exist
-				 h1.pop_back();
-		 }
-	 for (unsigned i=0; i<h1.size(); ++i)
-		 h1[i] -> CopyOptions(*fBCH1DdrawingOptions);
+	// Find nonempty H1's
+	std::vector<BCH1D *> h1;
+	h1.reserve(GetNVariables());
+	for (unsigned i = 0; i < GetNVariables(); ++i)
+		if ( MarginalizedHistogramExists(i) ) {
+			if (GetMarginalizedHistogram(i)->Integral()==0) { // histogram was never filled in range
+				BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data()));
+				continue;
+			}
+			h1.push_back(GetMarginalized(i));
+			if (!h1.back()) // BCH1D doesn't exist
+				h1.pop_back();
+		}
+	for (unsigned i=0; i<h1.size(); ++i)
+		h1[i] -> CopyOptions(*fBCH1DdrawingOptions);
 
+	// Find nonempty H2's
+	std::vector<BCH2D *> h2;
+	h2.reserve(GetNVariables()*(GetNVariables()-1));
+	// fill h2 vector in order (par vs par; obs vs par; obs vs obs)
 
-	 // Find nonempty H2's
-   std::vector<BCH2D *> h2;
-	 // fill h2 vector in order (par vs par; obs vs par; obs vs obs)
-
-	 // parameter vs parameter
-	 for (unsigned i = 0; i<GetNParameters(); ++i)
-		 for (unsigned j = i+1; j<GetNParameters(); ++j)
-			 if ( MarginalizedHistogramExists(i,j) ) {
-				 if (fH2Marginalized[i][j]->Integral()==0) { // histogram was never filled in range
-					 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
-					 continue;
-				 }
-				 h2.push_back(GetMarginalized(i,j));
-				 if (!h2.back()) // BCH2D doesn't exist
-					 h2.pop_back();
-			 }
-	 
-		 // user-defined observable vs parameter
-	 for (unsigned i = 0; i<GetNParameters(); ++i)
-		 for (unsigned j = GetNParameters(); j<GetNVariables(); ++j)
-			 if ( MarginalizedHistogramExists(i,j) ) {
-				 if (GetMarginalizedHistogram(i,j)->Integral()==0) { // histogram was never filled in range
-					 BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
-					 continue;
-				 }
-				 h2.push_back(GetMarginalized(i,j));
-				 // check if histogram exists
-				 if (!h2.back())
-					 h2.pop_back();
-			 }
-
+	// parameter vs parameter
+	for (unsigned i = 0; i<GetNParameters(); ++i)
+		for (unsigned j = i+1; j<GetNParameters(); ++j)
+			if ( MarginalizedHistogramExists(i,j) ) {
+				if (fH2Marginalized[i][j]->Integral()==0) { // histogram was never filled in range
+					BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
+					continue;
+				}
+				h2.push_back(GetMarginalized(i,j));
+				if (!h2.back()) // BCH2D doesn't exist
+					h2.pop_back();
+			}
+	
+	// user-defined observable vs parameter
+	for (unsigned i = 0; i<GetNParameters(); ++i)
+		for (unsigned j = GetNParameters(); j<GetNVariables(); ++j)
+			if ( MarginalizedHistogramExists(i,j) ) {
+				if (GetMarginalizedHistogram(i,j)->Integral()==0) { // histogram was never filled in range
+					BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.",GetVariable(i)->GetName().data(),GetVariable(i)->GetName().data()));
+					continue;
+				}
+				h2.push_back(GetMarginalized(i,j));
+				// check if histogram exists
+				if (!h2.back())
+					h2.pop_back();
+			}
+	
 	 // user-defined observable vs user-defined observable
 	 for (unsigned i = GetNParameters(); i<GetNVariables(); ++i)
 		 for (unsigned j = i+1; j<GetNVariables(); ++j)
@@ -2469,9 +2727,9 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned int hdiv, 
 	 int c_height = 210*4;
 	 if (hdiv < vdiv)
 		 std::swap(c_width,c_height);
-
+	 
    const unsigned nplots = h1.size() + h2.size();
-
+	 
    // give out warning if too many plots
    BCLog::OutSummary(Form("Printing all marginalized distributions (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.c_str()));
    if (nplots > 100)
@@ -2481,7 +2739,7 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned int hdiv, 
    TCanvas c("c", "canvas", c_width, c_height);
    c.Divide(hdiv, vdiv);
 	 c.Print((filename+"[").data());
-
+	 
 	 // Draw BCH1D's
    for (unsigned i = 0; i < h1.size(); ++i) {
 		 // if current page is full, switch to new page
@@ -2489,12 +2747,12 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned int hdiv, 
 			 c.Print(filename.c_str());
 			 c.Clear("D");
 		 }
-
+		 
 		 // go to next pad
 		 c.cd(i % (hdiv * vdiv) + 1);
-
+		 
 		 h1[i] -> Draw();
-
+		 
 		 if (i+1 % 100 == 0)
 			 BCLog::OutDetail(Form(" --> %d plots done", i+1));
 	 }
@@ -2502,7 +2760,7 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned int hdiv, 
 		 c.Print(filename.c_str());
 		 c.Clear("D");
 	 }
-
+	 
 	 // Draw BCH2D's
 	 for (unsigned i=0; i<h2.size(); ++i) {
 		 // if current page is full, switch to new page
@@ -2534,7 +2792,7 @@ int BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned int hdiv, 
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double interval_content, std::vector<double> quantiles) {
+int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) {
 
 	TCanvas * c_par = new TCanvas("c_parplot_init");
 	c_par -> Print(Form("%s[",filename));
@@ -2547,7 +2805,7 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 
 	// parameters first
 	for (unsigned i = 0; i<GetNParameters(); i += npar)
-		if (DrawParameterPlot(i,std::min<int>(npar,GetNParameters()-i), interval_content, quantiles)) {
+		if (DrawParameterPlot(i,std::min<int>(npar,GetNParameters()-i), interval_content, quantiles,rescale_ranges)) {
 			c_par->Print(filename);
 			c_par->Clear();
 		}
@@ -2556,7 +2814,7 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 	
 	// then user-defined observables
 	for (unsigned i = GetNParameters(); i<GetNVariables(); i += npar)
-		if(DrawParameterPlot(i,std::min<int>(npar,GetNVariables()-i), interval_content, quantiles)) {
+		if(DrawParameterPlot(i,std::min<int>(npar,GetNVariables()-i), interval_content, quantiles, rescale_ranges)) {
 			c_par -> Print(filename);
 			c_par -> Clear();
 		}
@@ -2568,10 +2826,10 @@ int BCEngineMCMC::PrintParameterPlot(const char * filename, int npar, double int
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles) {
+int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) {
 
 	// if npar==0, print all remaining observables
-	unsigned i1 = (npar>0 && npar<=GetNVariables()) ? i0+npar : GetNVariables();
+	unsigned i1 = (npar>0 && i0+npar<=GetNVariables()) ? i0+npar : GetNVariables();
 
 	if (i1 <= i0) {
 		BCLog::OutError(Form("BCSummaryTool::PrintParameterPlot : invalid parameter range [%d, %d)",i0,i1));
@@ -2589,6 +2847,24 @@ int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_
 		quantiles.push_back(84.13e-2);
 		quantiles.push_back(90.00e-2);
 		quantiles.push_back(95.00e-2);
+	}
+
+	// store old ranges, and rescale, if rescaling
+	std::vector<double> original_min;
+	std::vector<double> original_max;
+	original_min.reserve(i1-i0);
+	original_max.reserve(i1-i0);
+	if (rescale_ranges) {
+		for (unsigned i=i0; i<i1; ++i) {
+			if (i<fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i])) {
+				original_min.push_back(GetVariable(i)->GetLowerLimit());
+				GetVariable(i) -> SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
+			}
+			if (i<fMCMCStatistics_AllChains.maximum.size() and std::isfinite(fMCMCStatistics_AllChains.maximum[i])) {
+				original_max.push_back(GetVariable(i)->GetUpperLimit());
+				GetVariable(i) -> SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
+			}
+		}
 	}
 
 	/////////////////////////
@@ -2609,40 +2885,43 @@ int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_
 		
 		// Global Mode
 		x_i_bf.push_back(i);
-		global_mode.push_back(GetVariable(i)->PositionInRange(GetBestFitParameter(i)));
+		global_mode.push_back(GetVariable(i)->PositionInRange(GetGlobalMode()[i]));
+		mean.push_back(std::numeric_limits<double>::infinity());
+		rms.push_back(0);
 
-		if (!fH1Marginalized[i])
-			continue;
+		if (i < fH1Marginalized.size() and fH1Marginalized[i]) {
+			BCH1D * bch1d_temp = GetMarginalized(i);
+			if (bch1d_temp) {
+				x_i.push_back(i);
 
-		BCH1D * bch1d_temp = GetMarginalized(i);
-		if (!bch1d_temp)
-			continue;
-
-		x_i.push_back(i);
-
-		// quantiles
-		x_quantiles.insert(x_quantiles.end(),quantiles.size(),i);
-		double q[quantiles.size()];
-		bch1d_temp -> GetHistogram() -> GetQuantiles(quantiles.size(),q,&quantiles[0]);
-		for (unsigned j = 0; j < quantiles.size(); ++j)
-			quantile_vals.push_back(GetVariable(i)->PositionInRange(q[j]));
-
-		// mean
-		mean.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetHistogram()->GetMean()));
-		rms.push_back(bch1d_temp->GetHistogram()->GetRMS()/GetVariable(i)->GetRangeWidth());
-		 
-		// Local Mode
-		local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetLocalMode(0)));
-
-		// smallest interval
-		BCH1D::BCH1DSmallestInterval SI = bch1d_temp->GetSmallestIntervals(interval_content);
-		if (SI.intervals.empty()) {
-			interval_lo.push_back(0);
-			interval_hi.push_back(0);
-		} else {
-			interval_lo.push_back(fabs(SI.intervals.front().mode-SI.intervals.front().xmin)/GetVariable(i)->GetRangeWidth());
-			interval_hi.push_back(fabs(SI.intervals.front().mode-SI.intervals.front().xmax)/GetVariable(i)->GetRangeWidth());
+				// quantiles
+				x_quantiles.insert(x_quantiles.end(),quantiles.size(),i);
+				double q[quantiles.size()];
+				bch1d_temp -> GetHistogram() -> GetQuantiles(quantiles.size(),q,&quantiles[0]);
+				for (unsigned j = 0; j < quantiles.size(); ++j)
+					quantile_vals.push_back(GetVariable(i)->PositionInRange(q[j]));
+			
+				local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetLocalMode(0)));
+				mean.back() = GetVariable(i)->PositionInRange(bch1d_temp->GetHistogram()->GetMean());
+				rms.back() = bch1d_temp->GetHistogram()->GetRMS()/GetVariable(i)->GetRangeWidth();
+			
+				// smallest interval
+				BCH1D::BCH1DSmallestInterval SI = bch1d_temp->GetSmallestIntervals(interval_content);
+				if (SI.intervals.empty()) {
+					interval_lo.push_back(0);
+					interval_hi.push_back(0);
+				} else {
+					interval_lo.push_back(fabs(SI.intervals.front().mode-SI.intervals.front().xmin)/GetVariable(i)->GetRangeWidth());
+					interval_hi.push_back(fabs(SI.intervals.front().mode-SI.intervals.front().xmax)/GetVariable(i)->GetRangeWidth());
+				}
+			}
 		}
+
+		// use chain statistics if they exist:
+		if (i<fMCMCStatistics_AllChains.mean.size() and std::isfinite(fMCMCStatistics_AllChains.mean[i]))
+			mean.back() = GetVariable(i) -> PositionInRange(fMCMCStatistics_AllChains.mean[i]);
+		if (i<fMCMCStatistics_AllChains.variance.size() and std::isfinite(fMCMCStatistics_AllChains.variance[i]))
+			rms.back() = sqrt(fMCMCStatistics_AllChains.variance[i])/GetVariable(i)->GetRangeWidth();
 	}
 	
 	if (x_i.empty() and x_i_bf.empty())
@@ -2728,7 +3007,7 @@ int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_
 		// Means & RMSs
 		TGraphErrors * graph_mean = new TGraphErrors(x_i.size(), x_i.data(), mean.data(), 0, rms.data());
 		graph_mean->SetMarkerColor(kBlack);
-		graph_mean->SetMarkerStyle(20);
+		graph_mean->SetMarkerStyle(21);
 		graph_mean->SetMarkerSize(1*gPad->GetWNDC());
 		graph_mean->Draw("SAMEP");
 
@@ -2760,6 +3039,12 @@ int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_
 
 	gPad->RedrawAxis();
 
+	// restore ranges
+	for (unsigned i=0; i<original_min.size(); ++i)
+		GetVariable(i0+i) -> SetLowerLimit(original_min[i]);
+	for (unsigned i=0; i<original_max.size(); ++i)
+		GetVariable(i0+i) -> SetUpperLimit(original_max[i]);
+
 	// no error
 	return 1;
 }
@@ -2768,23 +3053,36 @@ int BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_
 int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
    // create histogram
 	TH2D * hist_corr = new TH2D(TString::Format("hist_correlation_matrix_%s",GetSafeName().data()),";;",GetNVariables(), -0.5, GetNVariables()-0.5, GetNVariables(), -0.5, GetNVariables()-0.5);
-   hist_corr -> SetStats(false);
-   hist_corr -> GetXaxis() -> SetTickLength(0.0);
-   hist_corr -> GetYaxis() -> SetTickLength(0.0);
-	 hist_corr -> GetXaxis() -> SetLabelSize(0);
-	 hist_corr -> GetYaxis() -> SetLabelSize(0);
+	hist_corr -> SetStats(false);
+	hist_corr -> GetXaxis() -> SetTickLength(0.0);
+	hist_corr -> GetYaxis() -> SetTickLength(0.0);
+	hist_corr -> GetXaxis() -> SetLabelSize(0);
+	hist_corr -> GetYaxis() -> SetLabelSize(0);
 
-   for (unsigned i = 0; i < GetNVariables(); ++i) {
-	 	 hist_corr->SetBinContent(i+1, GetNVariables()-i, 1);
-	 	 // Fill Plot
-	 	 if (i>=fH2Marginalized.size())
-	 		 continue;
-	 	 for (unsigned j = i+1; j < GetNVariables(); ++j)
-	 		 if (j<fH2Marginalized[i].size() and fH2Marginalized[i][j]) {
-	 			 hist_corr -> SetBinContent(i+1, GetNVariables()-j, fH2Marginalized[i][j]->GetCorrelationFactor());
-	 			 hist_corr -> SetBinContent(j+1, GetNVariables()-i, fH2Marginalized[i][j]->GetCorrelationFactor());
-	 		 }
-	 }
+	// vector of unfilled values:
+	std::vector<std::pair<unsigned,unsigned> > unfilled;
+
+	// fill histogram
+	for (unsigned i = 0; i < GetNVariables(); ++i) {
+		hist_corr->SetBinContent(i+1, GetNVariables()-i, 1);
+		
+		double var_i = (i<fMCMCStatistics_AllChains.variance.size()) ? fMCMCStatistics_AllChains.variance[i] : std::numeric_limits<double>::infinity();
+		for (unsigned j = i+1; j < GetNVariables(); ++j) {
+			double var_j = (j<fMCMCStatistics_AllChains.variance.size()) ? fMCMCStatistics_AllChains.variance[j] : std::numeric_limits<double>::infinity();
+			double covar_ij = (i<fMCMCStatistics_AllChains.covariance.size() and j<fMCMCStatistics_AllChains.covariance[i].size()) ? fMCMCStatistics_AllChains.covariance[i][j] : std::numeric_limits<double>::infinity();
+			double corr_ij = std::numeric_limits<double>::infinity();
+			if (std::isfinite(covar_ij) and std::isfinite(var_i) and std::isfinite(var_j))
+				corr_ij = covar_ij / sqrt(var_i*var_j);
+			else if (i < fH2Marginalized.size() and j<fH2Marginalized[i].size() and fH2Marginalized[i][j])
+				corr_ij = fH2Marginalized[i][j] -> GetCorrelationFactor();
+			if (std::isfinite(corr_ij)) {
+				hist_corr -> SetBinContent(i+1, GetNVariables()-j, corr_ij);
+				hist_corr -> SetBinContent(j+1, GetNVariables()-i, corr_ij);
+			} else {
+				unfilled.push_back(std::make_pair(i,j));
+			}
+		}
+	}
 
    // print to file
    TCanvas * c_corr = new TCanvas("c_corr_matrix");
@@ -2803,8 +3101,11 @@ int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
 	 ylabel -> SetTextAlign(22);
 	 ylabel -> SetTextAngle(90);
 
-   hist_corr -> Draw("AXIS");
-
+	 gStyle -> SetPalette(54);
+	 gStyle -> SetPaintTextFormat("+.2g");
+	 hist_corr -> GetZaxis() -> SetRangeUser(-1,1);
+   hist_corr -> Draw("colz");
+	 
 	 // Draw labels and square colors for correlations
 	 TBox * bcorr = new TBox();
 	 for (int i = 1; i <= hist_corr->GetNbinsX(); ++i) {
@@ -2818,33 +3119,40 @@ int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
 												 GetVariable(i-1)->GetLatexName().c_str());
 		 
 		 //squares
-	 	 for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
-	 		 if (i==hist_corr->GetNbinsY()-j+1)
-	 			 bcorr ->SetFillColor(kWhite);
-	 		 else if (hist_corr->GetBinContent(i,j) > 0.5)
-	 			 bcorr -> SetFillColor(kGreen);
-	 		 else if (hist_corr->GetBinContent(i,j) >= -0.5)
-	 			 bcorr -> SetFillColor(kYellow);
-	 		 else 
-	 			 bcorr -> SetFillColor(kRed);
-	 		 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i), hist_corr->GetYaxis()->GetBinLowEdge(j),
-	 											hist_corr->GetXaxis()->GetBinUpEdge(i),  hist_corr->GetYaxis()->GetBinUpEdge(j));
-	 	 }
+	 	 // for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
+	 	 // 	 if (i==hist_corr->GetNbinsY()-j+1)
+	 	 // 		 bcorr ->SetFillColor(kWhite);
+	 	 // 	 else if (hist_corr->GetBinContent(i,j) > 0.5)
+	 	 // 		 bcorr -> SetFillColor(kGreen);
+	 	 // 	 else if (hist_corr->GetBinContent(i,j) >= -0.5)
+	 	 // 		 bcorr -> SetFillColor(kYellow);
+	 	 // 	 else 
+	 	 // 		 bcorr -> SetFillColor(kRed);
+	 	 // 	 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i), hist_corr->GetYaxis()->GetBinLowEdge(j),
+	 	 // 										hist_corr->GetXaxis()->GetBinUpEdge(i),  hist_corr->GetYaxis()->GetBinUpEdge(j));
+	 	 // }
 	 }
 
 	 // write numbers in
+	 hist_corr -> SetMarkerColor(kRed);
    hist_corr -> Draw("text same");
 
 	 // Blank out empty squares
 	 bcorr -> SetFillColor(kWhite);
-   for (unsigned i = 0; i < GetNVariables(); ++i)
-	 	 for (unsigned j = i+1; j < GetNVariables(); ++j)
-	 		 if (i>=fH2Marginalized.size() or j>=fH2Marginalized[i].size() or !fH2Marginalized[i][j]) {
-	 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-j),
-	 												hist_corr->GetXaxis()->GetBinUpEdge (i+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-j));
-	 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(j+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-i),
-	 												hist_corr->GetXaxis()->GetBinUpEdge (j+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-i));
-	 		 }
+	 for (unsigned i=0; i<unfilled.size(); ++i) {
+		 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].first+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-unfilled[i].second),
+											hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].first+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-unfilled[i].second));
+		 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].second+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-unfilled[i].first),
+											hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].second+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-unfilled[i].first));
+	 }
+   // for (unsigned i = 0; i < GetNVariables(); ++i)
+	 // 	 for (unsigned j = i+1; j < GetNVariables(); ++j)
+	 // 		 if (i>=fH2Marginalized.size() or j>=fH2Marginalized[i].size() or !fH2Marginalized[i][j]) {
+	 // 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-j),
+	 // 												hist_corr->GetXaxis()->GetBinUpEdge (i+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-j));
+	 // 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(j+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-i),
+	 // 												hist_corr->GetXaxis()->GetBinUpEdge (j+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-i));
+	 // 		 }
 	 
    // redraw top and right lines
 	 TLine * lA = new TLine();
@@ -2999,7 +3307,7 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 
 	// check if file is open
 	if(!ofi.is_open()) {
-		std::cerr << "Couldn't open file " << filename <<std::endl;
+		BCLog::OutError(TString::Format("BCEngineMCMC::PrintParameterLatex : Couldn't open file %s",filename));
 		return 0;
 	}
 
@@ -3060,7 +3368,7 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 				ofi << TString::Format("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
 															 texwidth, prec, bch1d->GetHistogram()->GetMean(),
 															 texwidth, prec, bch1d->GetHistogram()->GetRMS(),
-															 texwidth, prec, GetBestFitParameter(i),
+															 texwidth, prec, GetGlobalMode()[i],
 															 texwidth, prec, bch1d -> GetLocalMode(0),
 															 texwidth, prec, bch1d -> GetMedian(),
 															 texwidth, prec, bch1d -> GetQuantile(0.16),
@@ -3072,7 +3380,7 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 				ofi << TString::Format("        %*s & %*s & %*.*g & %*s & %*s & %*s & %*s\\\\\n",
 															 texwidth, blank,
 															 texwidth, blank,
-															 texwidth, prec, GetBestFitParameter(i),
+															 texwidth, prec, GetGlobalMode()[i],
 															 texwidth, blank,
 															 texwidth, blank,
 															 texwidth, blank,
@@ -3103,7 +3411,9 @@ unsigned BCEngineMCMC::UpdateFrequency(unsigned N) {
 		return 100;
 	if (n < 10000)
 		return 1000;
-	return 10000;
+	if (n < 100000)
+		return 10000;
+	return 100000;
 }
 
 // ---------------------------------------------------------
@@ -3138,7 +3448,7 @@ BCEngineMCMC::MCMCThreadLocalStorage & BCEngineMCMC::MCMCThreadLocalStorage::ope
 // ---------------------------------------------------------
 BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
 {
-   delete rng;
+	delete rng;
 }
 
 // ---------------------------------------------------------
@@ -3160,4 +3470,225 @@ void BCEngineMCMC::SyncThreadStorage() {
 	// update parameter size for each chain
 	for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i)
 		fMCMCThreadLocalStorage[i].xLocal.assign(GetNParameters(), 0.0);
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCStatistics::MCMCStatistics(const BCEngineMCMC::MCMCStatistics & other)
+	: n_samples(other.n_samples)
+	, mean(other.mean)
+	, variance(other.variance)
+	, covariance(other.covariance)
+	, minimum(other.minimum)
+	, maximum(other.maximum)
+	, probability_mean(other.probability_mean)
+	, probability_variance(other.probability_variance)
+	, probability_mode(other.probability_mode)
+	, mode(other.mode)
+	, n_samples_efficiency(other.n_samples_efficiency)
+	, efficiency(other.efficiency)
+{
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCStatistics::MCMCStatistics(unsigned n_par, unsigned n_obs)
+	:	n_samples(0)
+	, mean(n_par+n_obs,0)
+	, variance(mean.size(),0)
+	, covariance(mean.size(),std::vector<double>(mean.size(),0))
+	, minimum(mean.size(),+std::numeric_limits<double>::infinity())
+	, maximum(mean.size(),-std::numeric_limits<double>::infinity())
+	, probability_mean(0)
+	, probability_variance(0)
+	, probability_mode(-std::numeric_limits<double>::infinity())
+	, mode(mean.size(),0)
+	, n_samples_efficiency(0)
+	, efficiency(n_par,0.)
+{
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::MCMCStatistics::Clear(bool clear_mode, bool clear_efficiency) {
+	n_samples = 0;
+	mean.clear();
+	variance.clear();
+	covariance.clear();
+	minimum.clear();
+	maximum.clear();
+	probability_mean = 0;
+	probability_variance = 0;
+	if (clear_mode) {
+		probability_mode = -std::numeric_limits<double>::infinity();
+		mode.clear();
+	}
+	if (clear_efficiency) {
+		n_samples_efficiency = 0;
+		efficiency.clear();
+	}
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::MCMCStatistics::Init(unsigned n_par, unsigned n_obs) {
+	n_samples = 0;
+	mean.assign(n_par+n_obs,0);
+	variance.assign(mean.size(),0);
+	covariance.assign(mean.size(),std::vector<double>(mean.size(),0));
+	minimum.assign(mean.size(),+std::numeric_limits<double>::infinity());
+	maximum.assign(mean.size(),-std::numeric_limits<double>::infinity());
+	probability_mean = 0;
+	probability_variance = 0;
+	probability_mode = -std::numeric_limits<double>::infinity();
+	mode.assign(mean.size(),0);
+	n_samples_efficiency = 0;
+	efficiency.assign(n_par,0.);
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::MCMCStatistics::Reset(bool reset_mode, bool reset_efficiency) {
+	n_samples = 0;
+	mean.assign(mean.size(),0);
+	variance.assign(variance.size(),0);
+	covariance.assign(covariance.size(),std::vector<double>(covariance.front().size(),0));
+	minimum.assign(minimum.size(),+std::numeric_limits<double>::infinity());
+	maximum.assign(maximum.size(),-std::numeric_limits<double>::infinity());
+	probability_mean = 0;
+	probability_variance = 0;
+	if (reset_mode) {
+		probability_mode = -std::numeric_limits<double>::infinity();
+		mode.assign(mode.size(),0);
+	}
+	if (reset_efficiency) {
+		efficiency.assign(efficiency.size(),0);
+		n_samples_efficiency = 0;
+	}
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::MCMCStatistics::ResetEfficiencies() {
+	efficiency.assign(efficiency.size(),0);
+	n_samples_efficiency = 0;
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCStatistics & BCEngineMCMC::MCMCStatistics::operator=(const BCEngineMCMC::MCMCStatistics & rhs) {
+	n_samples = rhs.n_samples;
+	mean = rhs.mean;
+	variance = rhs.variance;
+	covariance = rhs.covariance;
+	minimum = rhs.minimum;
+	maximum = rhs.maximum;
+	probability_mean = rhs.probability_mean;
+	probability_variance = rhs.probability_variance;
+	probability_mode = rhs.probability_mode;
+	mode = rhs.mode;
+	n_samples_efficiency = rhs.n_samples_efficiency;
+	efficiency = rhs.efficiency;
+	return *this;
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::MCMCStatistics::Update(double prob, const std::vector<double> & par, const std::vector<double> & obs) {
+	if (mean.size() != par.size() + obs.size())
+		return;
+
+	// increment number of samples
+	++n_samples;
+
+	// check mode
+	if (prob>probability_mode) {
+		for (unsigned i=0; i<par.size(); ++i)
+			mode[i] = par[i];
+		for (unsigned i=0; i<obs.size(); ++i)
+			mode[i+par.size()] = obs[i];
+		probability_mode = prob;
+	}
+
+	// update probability mean and variance
+	double prob_delta = prob - probability_mean;
+	probability_mean += prob_delta/n_samples;
+	probability_variance += (n_samples > 1) ? prob_delta*prob_delta/n_samples - probability_variance/(n_samples-1) : 0;
+
+	// update parameter means and (co)variances, and maximums and minimums:
+
+	// vector to store difference from current mean
+	std::vector<double> delta(mean.size(),0);
+
+	// loop over values
+	for (unsigned i=0; i<mean.size(); ++i) {
+		// get value
+		double x = (i<par.size()) ? par[i] : obs[i-par.size()];
+		// store difference to current mean
+		delta[i] = x - mean[i];
+		// update mean
+		mean[i] += delta[i]/n_samples;
+		// update variance
+		variance[i] += (n_samples > 1) ? delta[i]*delta[i]/n_samples - variance[i]/(n_samples-1.) : 0;
+		// update minimum
+		if (x<minimum[i])
+			minimum[i] = x;
+		// update maximum
+		if (x>maximum[i])
+			maximum[i] = x;
+	}
+	// update covariances
+	if (n_samples>1) {
+		for (unsigned i=0; i<mean.size(); ++i)
+			for (unsigned j=i; j<mean.size(); ++j)
+				covariance[i][j] += delta[i]*delta[j]/n_samples - covariance[i][j]/(n_samples-1);
+	}
+}
+
+// ---------------------------------------------------------
+BCEngineMCMC::MCMCStatistics & BCEngineMCMC::MCMCStatistics::operator+=(const BCEngineMCMC::MCMCStatistics & rhs) {
+	// if rhs is empty
+	if (rhs.n_samples==0)
+		return *this;
+
+	// if this is empty
+	if (n_samples==0)
+		return operator=(rhs);
+
+	if (mean.size() != rhs.mean.size())
+		return *this;
+
+	// check mode:
+	if (rhs.probability_mode > probability_mode) {
+		probability_mode = rhs.probability_mode;
+		mode = rhs.mode;
+	}
+
+	double n = n_samples+rhs.n_samples;
+	double N = (n>0) ? n_samples*rhs.n_samples/n : 0;
+
+	probability_variance = (probability_variance*(n_samples-1) + rhs.probability_variance*(rhs.n_samples-1) + (rhs.probability_mean-probability_mean)*(rhs.probability_mean-probability_mean)*N)/(n-1);
+	probability_mean = (n_samples*probability_mean + rhs.n_samples*rhs.probability_mean) / n;
+
+	// parameter variables:
+	for (unsigned i=0; i<mean.size(); ++i) {
+		// check minimum
+		if (rhs.minimum[i] < minimum[i])
+			minimum[i] = rhs.minimum[i];
+		// check maximum
+		if (rhs.maximum[i] > maximum[i])
+			maximum[i] = rhs.maximum[i];
+		// combine variances
+		variance[i] = (variance[i]*(n_samples-1)+rhs.variance[i]*(rhs.n_samples-1) + (rhs.mean[i]-mean[i])*(rhs.mean[i]-mean[i])*N)/(n-1);
+		// combine covariances
+		for (unsigned j=0; j<covariance[i].size(); ++j)
+			covariance[i][j] = (covariance[i][j]*(n_samples-1)+rhs.covariance[i][j]*(rhs.n_samples-1) + (rhs.mean[i]-mean[i])*(rhs.mean[j]-mean[j])*N)/(n-1);
+		// combine means
+		mean[i] = (n_samples*mean[i] + rhs.n_samples*rhs.mean[i]) / n;
+	}
+	// combine n_samples
+	n_samples = n;
+	
+	// combine efficiencies
+	double n_eff = n_samples_efficiency + rhs.n_samples_efficiency;
+	if (n_eff>0)
+		for (unsigned i=0; i<efficiency[i]; ++i)
+			efficiency[i] = (n_samples_efficiency*efficiency[i] + rhs.n_samples_efficiency*rhs.efficiency[i]) / (n_eff);
+
+	// combine efficiency samples
+	n_samples_efficiency = n_eff;
+
+	return *this;
 }

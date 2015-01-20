@@ -11,26 +11,29 @@
 #include "BCLog.h"
 
 #include <TString.h>
+#include <TH1.h>
 #include <TH1D.h>
+#include <TH2.h>
 #include <TH2D.h>
+#include <TRandom.h>
 
 #include <algorithm>
+#include <limits>
 
 // ---------------------------------------------------------
-
-BCVariable::BCVariable():
-	fPrefix("Variable"),
-	fLowerLimit(0),
-	fUpperLimit(1),
-	fPrecision(3),
-	fFillHistograms(true),
-	fNbins(100)
+BCVariable::BCVariable()
+	:	fPrefix("Variable")
+	, fLowerLimit(0)
+	, fUpperLimit(1)
+	, fPrecision(3)
+	, fFillH1(true)
+	, fFillH2(true)
+	, fNbins(100)
 {
 	SetName("parameter");
 }
 
 // ---------------------------------------------------------
-
 BCVariable::BCVariable(const BCVariable & other) 
 	: fPrefix(other.fPrefix)
 	, fName(other.fName)
@@ -39,32 +42,31 @@ BCVariable::BCVariable(const BCVariable & other)
 	, fUpperLimit(other.fUpperLimit)
 	, fPrecision(other.fPrecision)
 	, fLatexName(other.fLatexName)
-	, fFillHistograms(other.fFillHistograms)
+	, fFillH1(other.fFillH1)
+	, fFillH2(other.fFillH2)
 	, fNbins(other.fNbins)
 {
 }
 
 // ---------------------------------------------------------
-
-BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
-	fPrefix("Variable"),
-	fLowerLimit(lowerlimit),
-	fUpperLimit(upperlimit),
-	fLatexName(latexname),
-	fFillHistograms(true),
-	fNbins(100)
+BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, const char * latexname)
+	:	fPrefix("Variable")
+	, fLowerLimit(lowerlimit)
+	, fUpperLimit(upperlimit)
+	, fLatexName(latexname)
+	, fFillH1(true)
+	, fFillH2(true)
+	, fNbins(100)
 {
 	SetName(name);
 	CalculatePrecision();
 }
 
 // ---------------------------------------------------------
-
 BCVariable::~BCVariable() {
 }
 
 // ---------------------------------------------------------
-
 void BCVariable::SetName(const char * name) {
 	fName = name;
 	fSafeName = name;
@@ -72,7 +74,16 @@ void BCVariable::SetName(const char * name) {
 }
 
 // ---------------------------------------------------------
+bool BCVariable::IsAtLimit(double value) const {
+	if ( (value-fLowerLimit)*(value-fLowerLimit)/fLowerLimit/fLowerLimit <= 1e-10
+			 or
+			 (value-fUpperLimit)*(value-fUpperLimit)/fUpperLimit/fUpperLimit <= 1e-10 )
+		return true;
+	
+	return false;
+}
 
+// ---------------------------------------------------------
 void BCVariable::PrintSummary() const {
 	BCLog::OutSummary(Form("%s summary:",fPrefix.c_str()));
 	BCLog::OutSummary(Form("%11s : %s", fPrefix.c_str(),fName.c_str()));
@@ -86,15 +97,20 @@ std::string BCVariable::OneLineSummary() const {
 }
 
 // ---------------------------------------------------------
-
-TH1D * BCVariable::CreateH1(const char * name) const {
+TH1 * BCVariable::CreateH1(const char * name) const {
 	return new TH1D(name, TString::Format(";%s",GetLatexName().c_str()), fNbins, fLowerLimit, fUpperLimit);
 }
 
 // ---------------------------------------------------------
-
-TH2D * BCVariable::CreateH2(const char * name, BCVariable * ordinate) const {
+TH2 * BCVariable::CreateH2(const char * name, BCVariable * ordinate) const {
 	return new TH2D(name, TString::Format(";%s;%s",GetLatexName().c_str(),ordinate->GetLatexName().c_str()),
 									fNbins, fLowerLimit, fUpperLimit,
 									ordinate->GetNbins(),ordinate->GetLowerLimit(),ordinate->GetUpperLimit());
+}
+
+// ---------------------------------------------------------
+double BCVariable::GetUniformRandomValue(TRandom * const R) const {
+	if (!R)
+		return std::numeric_limits<double>::quiet_NaN();
+	return ValueFromPositionInRange(R->Rndm());
 }

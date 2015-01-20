@@ -16,9 +16,8 @@
 #include "BCH2D.h"
 #include "BCH1D.h"
 
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TH3D.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <TCanvas.h>
 #include <TFile.h>
 #include <TMinuit.h>
@@ -35,6 +34,7 @@
 #include <math.h>
 #include <limits>
 #include <fstream>
+#include <algorithm>
 
 namespace
 {
@@ -70,7 +70,6 @@ namespace
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate(const char * name)
 	: BCEngineMCMC(name)
-	,	fID(BCLog::GetHIndex())
 	,	fMinuit(0)
 	,	fMinuitErrorFlag(0)
 	,	fFlagIgnorePrevOptimization(false)
@@ -81,8 +80,6 @@ BCIntegrate::BCIntegrate(const char * name)
 	,	fSANIterations(0)
 	,	fSATemperature(0)
 	,	fSALogProb(0)
-	,	fMarginalized1D(0)
-	,	fMarginalized2D(0)
 	,	fFlagMarginalized(false)
 	, fSAOutputFile(0)
 	, fSAOutputFilename("")
@@ -98,7 +95,6 @@ BCIntegrate::BCIntegrate(const char * name)
 	,	fNIterationsMin(0)
 	,	fNIterationsMax(1000000)
 	,	fNIterationsPrecisionCheck(1000)
-	,	fNIterationsOutput(0)
 	,	fNIterations(0)
 	,	fLogMaximum(-std::numeric_limits<double>::max())
 	,	fIntegral(-1)
@@ -114,7 +110,6 @@ BCIntegrate::BCIntegrate(const char * name)
 // ---------------------------------------------------------
 BCIntegrate::BCIntegrate(std::string filename, std::string name, bool reuseObservables)
 	: BCEngineMCMC(filename,name,reuseObservables)
-	,	fID(BCLog::GetHIndex())
 	,	fMinuit(0)
 	,	fMinuitErrorFlag(0)
 	,	fFlagIgnorePrevOptimization(false)
@@ -125,8 +120,6 @@ BCIntegrate::BCIntegrate(std::string filename, std::string name, bool reuseObser
 	,	fSANIterations(0)
 	,	fSATemperature(0)
 	,	fSALogProb(0)
-	,	fMarginalized1D(0)
-	,	fMarginalized2D(0)
 	,	fFlagMarginalized(false)
 	, fSAOutputFile(0)
 	, fSAOutputFilename("")
@@ -142,7 +135,6 @@ BCIntegrate::BCIntegrate(std::string filename, std::string name, bool reuseObser
 	,	fNIterationsMin(0)
 	,	fNIterationsMax(1000000)
 	,	fNIterationsPrecisionCheck(1000)
-	,	fNIterationsOutput(0)
 	,	fNIterations(0)
 	,	fLogMaximum(-std::numeric_limits<double>::max())
 	,	fIntegral(-1)
@@ -173,7 +165,6 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 {
    BCEngineMCMC::Copy(other);
 
-   fID                       = other.fID;
    fBestFitParameters        = other.fBestFitParameters;
    fBestFitParameterErrors   = other.fBestFitParameterErrors;
    fLogMaximum               = other.fLogMaximum;
@@ -190,8 +181,6 @@ void BCIntegrate::Copy(const BCIntegrate & other)
    fSATemperature            = other.fSATemperature;
    fSALogProb                = other.fSALogProb;
    fSAx                      = other.fSAx;
-   fMarginalized1D           = other.fMarginalized1D;
-   fMarginalized2D           = other.fMarginalized2D;
 	 fSAOutputFile             = 0;
 	 fSAOutputFilename         = other.fSAOutputFilename;
 	 fSAOutputFileOption       = other.fSAOutputFileOption;
@@ -206,7 +195,6 @@ void BCIntegrate::Copy(const BCIntegrate & other)
    fNIterationsMin           = other.fNIterationsMin;
    fNIterationsMax           = other.fNIterationsMax;
    fNIterationsPrecisionCheck= other.fNIterationsPrecisionCheck;
-   fNIterationsOutput        = other.fNIterationsOutput;
    fNIterations              = other.fNIterations;
    fIntegral                 = other.fIntegral;
    fRelativePrecision        = other.fRelativePrecision;
@@ -221,54 +209,15 @@ void BCIntegrate::Copy(const BCIntegrate & other)
 }
 
 // ---------------------------------------------------------
-BCIntegrate::~BCIntegrate()
-{
-   delete fMinuit;
+BCIntegrate::~BCIntegrate() {
+	delete fMinuit;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::GetBestFitParameterError(unsigned index) const
-{
-	if (fBestFitParameterErrors.empty())
-		return -1;
-
-   if( ! fParameters.ValidIndex(index)) {
-      BCLog::OutError("BCIntegrate::GetBestFitParameterError : Parameter index out of range, returning -1.");
-      return -1;
-   }
-
-   /*
-   if(fBestFitParameterErrors.size()==0) {
-      BCLog::OutError("BCIntegrate::GetBestFitParameterError : Mode finding not yet run, returning -1.");
-      return -1.;
-   }
-
-   if(fBestFitParameterErrors[index]<0.)
-      BCLog::OutWarning("BCIntegrate::GetBestFitParameterError : Parameter error not available, returning -1.");
-   */
-
-   return fBestFitParameterErrors[index];
-}
-
-// ---------------------------------------------------------
-const std::vector<double> & BCIntegrate::GetBestFitParameters() const {
-	if (fBestFitParameters.empty() and !fMCMCBestFitParameters.empty())
-		return fMCMCBestFitParameters;
+const std::vector<double> & BCIntegrate::GetGlobalMode() const {
+	if (fBestFitParameters.empty() and !BCEngineMCMC::GetGlobalMode().empty())
+		return BCEngineMCMC::GetGlobalMode();
 	return fBestFitParameters;
-}
-
-// ---------------------------------------------------------
-double BCIntegrate::Eval(const std::vector<double> & /*x*/)
-{
-   BCLog::OutWarning( "BCIntegrate::Eval. No function. Function needs to be overloaded.");
-   return 0;
-}
-
-// ---------------------------------------------------------
-double BCIntegrate::LogEval(const std::vector<double> &x)
-{
-   // this method should better also be overloaded
-   return log(Eval(x));
 }
 
 // ---------------------------------------------------------
@@ -283,32 +232,6 @@ void BCIntegrate::ResetResults()
    // remove marginalized histograms
    // set marginalization flag
    fFlagMarginalized = false;
-}
-
-// ---------------------------------------------------------
-unsigned BCIntegrate::GetNIntegrationVariables() {
-    unsigned n = 0;
-    for(unsigned i = 0; i < fParameters.Size(); ++i)
-        if ( ! GetParameter(i)->Fixed())
-            ++n;
-    return n;
-}
-
-// ---------------------------------------------------------
-double BCIntegrate::CalculateIntegrationVolume() {
-   double integrationVolume = -1.;
-
-   for(unsigned i = 0; i < fParameters.Size(); i++)
-      if ( ! GetParameter(i)->Fixed()) {
-         if (integrationVolume<0)
-            integrationVolume = 1;
-         integrationVolume *= GetParameter(i)->GetRangeWidth();
-      }
-
-   if (integrationVolume<0)
-      integrationVolume = 0;
-
-   return integrationVolume;
 }
 
 // ---------------------------------------------------------
@@ -339,7 +262,7 @@ double BCIntegrate::Integrate()
     case BCIntegrate::kIntMonteCarlo:
       {
         std::vector<double> sums (2,0.0);
-        sums.push_back(CalculateIntegrationVolume());
+        sums.push_back(GetParameters().Volume());
         fIntegral = Integrate(kIntMonteCarlo,
                               &BCIntegrate::GetRandomVectorInParameterSpace,
                               &BCIntegrate::EvaluatorMC,
@@ -428,74 +351,70 @@ void BCIntegrate::SetBestFitParameters(const std::vector<double> &x, const doubl
 }
 
 // ---------------------------------------------------------
-unsigned BCIntegrate::IntegrationOutputFrequency() const
-{
-	if (fNIterationsOutput > 0)
-		return fNIterationsOutput;
-	const unsigned nwrite = fNIterationsMax / 10;
-	if(nwrite < 10000)
-		return 1000;
-	if(nwrite < 100000)
-		return 10000;
-	if(nwrite < 1000000)
-		return 100000;
-	return 1000000;
+void BCIntegrate::SetBestFitParameters(const std::vector<double> &x) {
+	fBestFitParameters = x;
+	if (fBestFitParameters.size() == GetNParameters() and GetNObservables()>0) {
+		Eval(fBestFitParameters); // in case user uses likelihood to set values needed for observable calculation
+		CalculateObservables(fBestFitParameters);
+		for (unsigned i=0; i<GetNObservables(); ++i)
+			fBestFitParameters.push_back(GetObservable(i)->Value());
+	}
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCubaMethod cubatype)
-{
-   const unsigned NVarNow = GetNIntegrationVariables();
+void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCubaMethod cubatype) {
 
-   BCLog::LogLevel level = BCLog::summary;
+	const unsigned NVarNow = GetParameters().GetNFreeParameters();
 
-   if(fParameters.Size() != NVarNow) {
+	BCLog::LogLevel level = BCLog::summary;
 
-      level = BCLog::detail;
-      bool printed = false;
+	if(GetNParameters() != NVarNow) {
 
-      if (type==kIntCuba)
+		level = BCLog::detail;
+		bool printed = false;
+
+		if (type==kIntCuba)
       {
-         BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions out of %i.",
-               DumpIntegrationMethod(type).c_str(),
-               DumpCubaIntegrationMethod(cubatype).c_str(),
-               NVarNow, fParameters.Size()));
-         printed = true;
+				BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions out of %i.",
+																				 DumpIntegrationMethod(type).c_str(),
+																				 DumpCubaIntegrationMethod(cubatype).c_str(),
+																				 NVarNow, GetNParameters()));
+				printed = true;
       }
 
-      if (not printed)
-         BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions out of %i.",
-               DumpIntegrationMethod(type).c_str(),
-               NVarNow, fParameters.Size()));
+		if (not printed)
+			BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions out of %i.",
+																			 DumpIntegrationMethod(type).c_str(),
+																			 NVarNow, GetNParameters()));
 
-      BCLog::OutDetail(" --> Fixed parameters:");
-      for(unsigned i = 0; i < fParameters.Size(); i++)
-         if(GetParameter(i)->Fixed())
-            BCLog::OutDetail(TString::Format("      %3i :  %g", i, GetParameter(i)->GetFixedValue()));
-   }
-   else {
-      bool printed = false;
+		BCLog::OutDetail(" --> Fixed parameters:");
+		for(unsigned i = 0; i < GetNParameters(); i++)
+			if(GetParameter(i)->Fixed())
+				BCLog::OutDetail(TString::Format("      %3i :  %g", i, GetParameter(i)->GetFixedValue()));
+	}
+	else {
+		bool printed = false;
 
-      if (type==kIntCuba) {
-         BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions.",
-               DumpIntegrationMethod(type).c_str(),
-               DumpCubaIntegrationMethod(cubatype).c_str(),
-               NVarNow));
-         printed = true;
-      }
+		if (type==kIntCuba) {
+			BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions.",
+																			 DumpIntegrationMethod(type).c_str(),
+																			 DumpCubaIntegrationMethod(cubatype).c_str(),
+																			 NVarNow));
+			printed = true;
+		}
 
-      if (not printed)
-         BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions.",
-               DumpIntegrationMethod(type).c_str(),
-               NVarNow));
-   }
+		if (not printed)
+			BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions.",
+																			 DumpIntegrationMethod(type).c_str(),
+																			 NVarNow));
+	}
 
-   if (GetNIterationsMin() > 0 && GetNIterationsMax() > 0 ) {
-     BCLog::Out(level, TString::Format(" --> Minimum number of iterations: %i", GetNIterationsMin()));
-     BCLog::Out(level, TString::Format(" --> Maximum number of iterations: %i", GetNIterationsMax()));
-   }
-   BCLog::Out(level, TString::Format(" --> Target relative precision:    %e", GetRelativePrecision()));
-   BCLog::Out(level, TString::Format(" --> Target absolute precision:    %e", GetAbsolutePrecision()));
+	if (GetNIterationsMin() > 0 && GetNIterationsMax() > 0 ) {
+		BCLog::Out(level, TString::Format(" --> Minimum number of iterations: %i", GetNIterationsMin()));
+		BCLog::Out(level, TString::Format(" --> Maximum number of iterations: %i", GetNIterationsMax()));
+	}
+	BCLog::Out(level, TString::Format(" --> Target relative precision:    %e", GetRelativePrecision()));
+	BCLog::Out(level, TString::Format(" --> Target absolute precision:    %e", GetAbsolutePrecision()));
 }
 
 // ---------------------------------------------------------
@@ -525,10 +444,10 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
 	double absprecision = 2.*fAbsolutePrecision;
 	double relprecision = 2.*fRelativePrecision;
 
-	std::vector<double> randx (fParameters.Size(), 0.);
+	std::vector<double> randx (GetNParameters(), 0.);
 
 	// how often to print out the info line to screen
-	int nwrite = IntegrationOutputFrequency();
+	int nwrite = UpdateFrequency(fNIterationsMax);
 
 	// reset number of iterations
 	fNIterations = 0;
@@ -550,7 +469,7 @@ double BCIntegrate::Integrate(BCIntegrationMethod type, tRandomizer randomizer, 
 
 			// increase number of iterations
 			if (accepted)
-			   fNIterations++;
+				++fNIterations;
 
 			// update precisions
 			if (fNIterations % fNIterationsPrecisionCheck == 0) {
@@ -630,7 +549,7 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
 		return false;
 	}
 
-	if (index.size() >= 4 or index.size() > fParameters.Size()) {
+	if (index.size() >= 4 or index.size() > GetNParameters()) {
 		BCLog::OutError("BCIntegrate::Marginalize : Too many marginalization parameters.");
 		return false;
 	}
@@ -655,155 +574,12 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
 	}
 	return true;
 }
-#if 0
-// ---------------------------------------------------------
-TH1D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index)
-{
-    BCParameter * par = fParameters.Get(index);
-    if ( ! par)
-        return NULL;
-
-    // create histogram
-    TH1D * hist = par->CreateH1(TString::Format("h1_%s_%d",GetSafeName().data(),index));
-		hist -> SetYTitle(TString::Format("(unit %s)^{-1};", par->GetName().data());
-
-    // fill histogram
-    std::vector<unsigned> indices(1, index);
-    Marginalize(hist, type, indices);
-
-    return hist;
-}
-
-// ---------------------------------------------------------
-TH2D* BCIntegrate::Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2)
-{
-	BCParameter * par1 = fParameters.Get(index1);
-	BCParameter * par2 = fParameters.Get(index2);
-	if ( ! par1 || par2)
-		return NULL;
-	
-	// create histogram
-	TH2D * hist = par1->CreateH2(TString::Format("h2_%s_%d_%d", GetSafeName().data(), index1,index2),par2);
-	hist -> SetZTitle(TString::Format("(unit %s)^{-1}(unit %s)^{-1}",par1->GetName().data(), par2->GetName().data()));
-
-	// fill histogram
-	std::vector<unsigned> indices;
-	indices.push_back(index1);
-	indices.push_back(index2);
-	Marginalize(hist,type,indices);
-
-	return hist;
-}
-
-// ---------------------------------------------------------
-bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned> &index)
-{
-  // debugKK: does this method really marginalize?
-
-  //	if (!CheckMarginalizationAvailability(type))
-  //		return false;
-
-	if (!CheckMarginalizationIndices(hist,index))
-		return false;
-
-	// todo is this true?
-	// Currently this does not seem to work for Cuba integration beyond 1 dimension
-	if (type==kIntCuba and hist->GetDimension()>1) {
-		BCLog::OutError("BCIntegrate::Marginalize : Cuba integration currently only functions for 1D marginalization.");
-		return false;
-	}
-
-	// generate string output
-	char * parnames = new char;
-	for (unsigned i=0; i<index.size(); i++) {
-		parnames = Form("%s %d (%s),",parnames,index[i],GetParameter(i)->GetName().data());
-	}
-	if (index.size()==1)
-		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameter%s using %s.",parnames, DumpCurrentMarginalizationMethod().c_str()));
-	else
-		BCLog::OutDebug(TString::Format(" --> Marginalizing model w/r/t parameters%s using %s.",parnames, DumpCurrentMarginalizationMethod().c_str()));
-
-	// Store original integration limits and fixed flags
-	// and unfix marginalization parameters;
-	std::vector<double> origMins, origMaxs;
-	std::vector<bool> origFix;
-	for (unsigned i=0; i<index.size(); i++) {
-	   BCParameter * par = GetParameter(index[i]);
-		origMins.push_back(par->GetLowerLimit());
-		origMaxs.push_back(par->GetUpperLimit());
-		origFix.push_back(par->Fixed());
-		par->Fix(false);
-	}
-
-	// Set histogram title to indicate fixed variables
-   std::string title;
-   for (unsigned i=0; i < fParameters.Size(); ++i)
-      if (GetParameter(i)->Fixed()) {
-         title += TString::Format(" (%s=%e)", GetParameter(i)->GetName().data(), GetParameter(i)->GetFixedValue());
-      }
-   if ( ! title.empty())
-   {
-      hist -> SetTitle(("Fixed: "+title).data());
-   }
-
-	// get bin count
-	int N = hist->GetNbinsX() * hist->GetNbinsY() * hist->GetNbinsZ();
-
-	// Store fNIterationsMax and change
-	int nIterationsMax = fNIterationsMax;
-	fNIterationsMax = fNIterationsMax / N;
-	if (fNIterationsMax<fNIterationsMin)
-		fNIterationsMax = fNIterationsMin;
-
-	// todo not thread safe!
-	// integrate each bin
-	for (int i=1; i<=hist->GetNbinsX(); i++) {
-		GetParameter(index[0])->SetLowerLimit(hist->GetXaxis()->GetBinLowEdge(i));
-		GetParameter(index[0])->SetUpperLimit(hist->GetXaxis()->GetBinLowEdge(i+1));
-		double binwidth1d = hist -> GetXaxis() -> GetBinWidth(i);
-		if (hist->GetDimension()>1)
-			for (int j=1; j<=hist->GetNbinsY(); j++) {
-				GetParameter(index[1])->SetLowerLimit(hist -> GetYaxis() -> GetBinLowEdge(j));
-				GetParameter(index[1])->SetUpperLimit(hist -> GetYaxis() -> GetBinLowEdge(j+1));
-				double binwidth2d = binwidth1d * hist->GetYaxis()->GetBinWidth(j);
-				if (hist->GetDimension()>2)
-					for (int k=1; k<=hist->GetNbinsZ(); k++) {
-						GetParameter(index[2])->SetLowerLimit(hist -> GetZaxis() -> GetBinLowEdge(k));
-						GetParameter(index[2])->SetUpperLimit(hist -> GetZaxis() -> GetBinLowEdge(k+1));
-						double binwidth3d = binwidth2d * hist->GetZaxis()->GetBinWidth(k);
-						hist -> SetBinContent(i, j, k, Integrate(type)/binwidth3d);
-						hist -> SetBinError  (i, j, k, GetError()/binwidth3d);
-					}
-				else {
-					hist -> SetBinContent(i, j, Integrate(type)/binwidth2d);
-					hist -> SetBinError  (i, j, GetError()/binwidth2d);
-				}
-			}
-		else {
-			hist -> SetBinContent(i, Integrate(type)/binwidth1d);
-			hist -> SetBinError  (i, GetError()/binwidth1d);
-		}
-	}
-
-	// restore original integration limits and fixed flags
-	for (unsigned i=0; i<index.size(); i++) {
-		GetParameter(index[i])->SetLowerLimit(origMins[i]);
-		GetParameter(index[i])->SetUpperLimit(origMaxs[i]);
-		GetParameter(index[i])->Fix(origFix[i]);
-	}
-
-	// restore original fNIterationsMax
-	fNIterationsMax = nIterationsMax;
-
-	return true;
-}
-#endif
 
 // ---------------------------------------------------------
 int BCIntegrate::MarginalizeAll() {
 
   // check if parameters are defined
-  if (fParameters.Size() < 1) {
+  if (GetNParameters() < 1) {
     BCLog::OutError("BCIntegrate::MarginalizeAll : No parameters defined. Aborting.");
     return 0;
   }
@@ -833,7 +609,7 @@ int BCIntegrate::MarginalizeAll() {
 		{
 			// start preprocess
 			MarginalizePreprocess();
-			
+
 			// run the Markov chains
 			MCMCMetropolis();
 
@@ -844,10 +620,10 @@ int BCIntegrate::MarginalizeAll() {
 			fMarginalizationMethodUsed = BCIntegrate::kMargMetropolis;
 
 			// check if mode is better than previous one
-			if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < fMCMCLogMaximum) ) {
-				fBestFitParameters      = fMCMCBestFitParameters;
-				fBestFitParameterErrors.assign(fParameters.Size(),-1.);
-				fLogMaximum             = fMCMCLogMaximum;
+			if ( (!fFlagIgnorePrevOptimization) && (fLogMaximum < BCEngineMCMC::GetLogMaximum()) ) {
+				fBestFitParameters      = BCEngineMCMC::GetGlobalMode();
+				fBestFitParameterErrors.assign(fBestFitParameters.size(),std::numeric_limits<double>::infinity());
+				fLogMaximum             = BCEngineMCMC::GetLogMaximum();
 				fOptimizationMethodUsed = BCIntegrate::kOptMetropolis;
 			}
 		
@@ -863,93 +639,88 @@ int BCIntegrate::MarginalizeAll() {
 		// Slice
 	case BCIntegrate::kMargGrid:
 		{
-			std::vector<double> fixpoint(GetNParameters(), 0);
-			for (unsigned int i = 0; i < GetNParameters(); ++i)
-				if (GetParameter(i)->Fixed())
-					fixpoint[i] = GetParameter(i)->GetFixedValue();
+			if (GetParameters().GetNFreeParameters() > 2) {
+				BCLog::OutWarning("BCIntegrate::MarginalizeAll : Grid marginalization only works for 1D and 2D problems.");
+				return 0;
+			}
+			if (GetNObservables() > 0)
+				BCLog::OutWarning("BCIntegrate::MarginalizeAll : Grid marginalization will not store resutls for user-defined observables.");
 
 			// start preprocess
 			MarginalizePreprocess();
 
+			std::vector<double> fixpoint = GetParameters().GetFixedValues();
+
+			// delete pre-existing marginalizations
+			for (unsigned i=0; i<fH1Marginalized.size(); ++i)
+				if (fH1Marginalized[i])
+					delete fH1Marginalized[i];
+			for (unsigned i=0; i<fH2Marginalized.size(); ++i)
+				for (unsigned j=0; j<fH2Marginalized[i].size(); ++j)
+					if (fH2Marginalized[i][j])
+						delete fH2Marginalized[i][j];
+			// set all pointers to zero
+			fH1Marginalized.assign(GetNParameters(),NULL);
+			fH2Marginalized.assign(GetNParameters(),std::vector<TH2*>(GetNParameters(),NULL));
+
 			// store highest probability
-			double probmax = -std::numeric_limits<double>::infinity();
-			std::vector<double> bestfit_parameters(fParameters.Size(), -std::numeric_limits<double>::infinity());
-			// correct fixed parameter values
-			// the other should have been determined above
-			for (unsigned i = 0; i < fParameters.Size(); ++i)
-				if (GetParameter(i)->Fixed())
-					bestfit_parameters[i] = GetParameter(i)->GetFixedValue();
+			double log_max_val = -std::numeric_limits<double>::infinity();
+			std::vector<double> bestfit_parameters = fixpoint;
+			std::vector<double> bestfit_errors(GetNVariables(),std::numeric_limits<double>::infinity());
 
-			fH1Marginalized.assign(fParameters.Size(),0);
-			fH2Marginalized.assign(fParameters.Size(),std::vector<TH2D*>(fParameters.Size(),0));
-
-			if (GetNFreeParameters() == 1) { // Marginalize the free parameter to a 1D histogram
-				for (unsigned i = 0; i < fParameters.Size(); ++i) {
+			if (GetParameters().GetNFreeParameters() == 1) { // Marginalize the free parameter to a 1D histogram
+				for (unsigned i = 0; i < GetNParameters(); ++i) {
 					if (GetParameter(i)->Fixed())
 						continue;
 				
 					// calculate slice
-					fH1Marginalized[i] = GetSlice(i, fixpoint, 0, false);
+					fH1Marginalized[i] = GetSlice(i, log_max_val, fixpoint, 0, false);
 
-					// remember best fit before it is normalized and the value is wrong
-					const int index = fH1Marginalized[i]->GetMaximumBin();
-					probmax = fH1Marginalized[i] -> GetBinContent(index);
-					bestfit_parameters[i] = fH1Marginalized[i] -> GetBinCenter(index);
-					
-					// normalize
-					fH1Marginalized[i] -> Scale(1./fH1Marginalized[i]->Integral());
-				}
-			
-			}
-		
-			else if (GetNFreeParameters() == 2) { // marginalize the two free parameters to a 2D histogram
-				for (unsigned i = 0; i < fParameters.Size(); ++i) {
-					for (unsigned j = i+1; j < fParameters.Size(); ++j) {
-						if (GetParameter(i)->Fixed() or GetParameter(j)->Fixed())
-							continue;
-
-						// calculate slice
-						fH2Marginalized[i][j] = GetSlice(i, j, fixpoint, 0, false);
-						
-						// remember best fit before it is normalized and the value is wrong
-						int index1, index2, useless_index;
-						fH2Marginalized[i][j] -> GetMaximumBin(index1, index2, useless_index);
-						probmax = fH2Marginalized[i][j] -> GetBinContent(index1, index2);
-						bestfit_parameters[i] = fH2Marginalized[i][j] -> GetXaxis() -> GetBinCenter(index1);
-						bestfit_parameters[j] = fH2Marginalized[i][j] -> GetYaxis() -> GetBinCenter(index2);
-					
-						// normalize
-						fH2Marginalized[i][j] -> Scale(1./fH2Marginalized[i][j]->Integral());
-
-						// 1D marginalize by projecting
-						fH1Marginalized[i] = fH2Marginalized[i][j] -> ProjectionX(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,i));
-						fH1Marginalized[i] -> UseCurrentStyle();
-						fH1Marginalized[i] -> SetStats(false);
-						fH1Marginalized[j] = fH2Marginalized[i][j] -> ProjectionY(TString::Format("h1_%d_parameter_%i", BCLog::GetHIndex() ,j));
-						fH1Marginalized[j] -> UseCurrentStyle();
-						fH1Marginalized[j] -> SetStats(false);
+					if ( fH1Marginalized[i] -> Integral() > 0 ) { // histogram is nonempty
+						const int index = fH1Marginalized[i]->GetMaximumBin();
+						bestfit_parameters[i] = fH1Marginalized[i] -> GetBinCenter(index);
+						// approximate error by flat distribution in bin
+						bestfit_errors[i] = fH1Marginalized[i]->GetBinWidth(index)/sqrt(12);
 					}
 				}
 			}
+		
+			else if (GetNFreeParameters() == 2) { // marginalize the two free parameters to a 2D histogram
+				for (unsigned i = 0; i < GetNParameters(); ++i)
+					for (unsigned j = i+1; j < GetNParameters(); ++j) {
+						if (GetParameter(i)->Fixed() or GetParameter(j)->Fixed())
+							continue;
+						
+						// calculate slice
+						fH2Marginalized[i][j] = GetSlice(i, j, log_max_val, fixpoint, 0, false);
 
-			else {
-				BCLog::OutWarning("BCIntegrate::MarginalizeAll : Option works for 1D and 2D problems.");
-				return 0;
+ 						if ( fH2Marginalized[i][j]->Integral() > 0 ) { // histogram is nonempty
+							int index1, index2, useless_index;
+							fH2Marginalized[i][j] -> GetMaximumBin(index1, index2, useless_index);
+							bestfit_parameters[i] = fH2Marginalized[i][j] -> GetXaxis() -> GetBinCenter(index1);
+							bestfit_parameters[j] = fH2Marginalized[i][j] -> GetYaxis() -> GetBinCenter(index2);
+							// approximate errors by flat distribution in bin
+							bestfit_errors[i] = fH2Marginalized[i][j]->GetXaxis()->GetBinWidth(index1) / sqrt(12);
+							bestfit_errors[j] = fH2Marginalized[i][j]->GetYaxis()->GetBinWidth(index2) / sqrt(12);
+					
+							// 1D marginalize by projecting
+							fH1Marginalized[i] = fH2Marginalized[i][j] -> ProjectionX(TString::Format("h1_%s_parameter_%i", GetSafeName().data() ,i));
+							fH1Marginalized[j] = fH2Marginalized[i][j] -> ProjectionY(TString::Format("h1_%s_parameter_%i", GetSafeName().data() ,j));
+						}
+					}
 			}
 		
 			// save if improved the log posterior
 		
-			if (fBestFitParameters.empty() || probmax > fMCMCLogMaximum) {
-				fLogMaximum = probmax;
-				fBestFitParameters = bestfit_parameters;
-				fBestFitParameterErrors.assign(fBestFitParameters.size(), std::numeric_limits<double>::infinity());
-				// todo can't set this one yet
-				//           fOptimizationMethodUsed =
+			if (fBestFitParameters.empty() or log_max_val > GetLogMaximum()) {
+				fLogMaximum = log_max_val;
+				SetBestFitParameters(bestfit_parameters);
+				fBestFitParameterErrors = bestfit_errors;
 			}
 		
 			BCLog::OutDetail(" --> Global mode from Grid:");
-			BCLog::OutDebug(Form(" --> Posterior value: %g", probmax));
-			PrintParameters(bestfit_parameters,BCLog::OutDetail);
+			BCLog::OutDebug(Form(" --> Posterior value: %g", log_max_val));
+			PrintParameters(GetGlobalMode(),BCLog::OutDetail);
 		
 			// start postprocess
 			MarginalizePostprocess();
@@ -1008,127 +779,123 @@ int BCIntegrate::MarginalizeAll(BCIntegrate::BCMarginalizationMethod margmethod)
 }
 
 // ---------------------------------------------------------
-TH1D * BCIntegrate::GetSlice(unsigned index, const std::vector<double> parameters, int nbins, bool flag_norm) {
-	// check if parameters exists
-	if (!fParameters.ValidIndex(index)) {
-		BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
-		return 0;
+TH1 * BCIntegrate::GetSlice(std::vector<unsigned> indices, double & log_max_val, const std::vector<double> parameters, int nbins, bool normalize) {
+	if (indices.empty()) {
+		BCLog::OutError("BCIntegrate::GetSlice : No parameter indices provided.");
+		return NULL;
 	}
 
-	// check if parameter is fixed
-	if (GetParameter(index)->Fixed())
-		return 0;
-
-	// create local copy of parameter set
-	std::vector<double> parameters_temp = parameters;
-
-	// check if parameter set if defined
-	if (parameters_temp.empty()) {
-		if (GetNParameters()>1) {
-			BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
-			return 0;
+	if (indices.size() > 2) {
+		BCLog::OutError("BCIntegrate::GetSlice : Too many parameter indices provided. Max is two.");
+		return NULL;
+	}
+	
+	for (unsigned i=0; i<indices.size(); ++i)
+		if (indices[i] >= GetNParameters()) {
+			BCLog::OutError("BCIntegrate::GetSlice : Parameter index out of range.");
+			return NULL;
 		}
-		parameters_temp.assign(1,0);
-	}
 
-	// set binning
-	unsigned nbins_temp = GetParameter(index)->GetNbins();
-	if (nbins > 0)
-		GetParameter(index) -> SetNbins(nbins);
+	// create local copy of parameters
+	std::vector<double> parameters_temp = parameters;
+	if (parameters_temp.empty()) {
+		// check that remaining parameters are fixed
+		for (unsigned i=0; i<GetNParameters(); ++i)
+			if (std::find(indices.begin(),indices.end(),i)!=indices.end() and !GetParameter(i)->Fixed()) {
+				BCLog::OutError("BCIntegrate::GetSlice : All non-sliced parameters must be fixed or provided values in function call.");
+				return NULL;
+			}
+		// set to fixed values
+		parameters_temp = GetParameters().GetFixedValues();
+	}
+	
+	// store previous binning preferences
+	std::vector<unsigned> nbins_temp;
+	for (unsigned i=0; i<indices.size(); ++i) {
+		nbins_temp.push_back(GetParameter(indices[i])->GetNbins());
+		if (nbins>0)								// set new binning
+			GetParameter(indices[i]) -> SetNbins(nbins);
+	}
 
 	// create histogram
-	TH1D * hist = GetParameter(index) -> CreateH1(TString::Format("h1_slice_%s_%d",GetName().data(),index).Data());
-	hist -> UseCurrentStyle();
-	hist -> SetStats(kFALSE);
-
-	// set y-axis label
-	if (GetNParameters() == 1)
-		hist->SetYTitle(Form("p(%s|data)", GetParameter(index)->GetLatexName().data()));
-	else
-		hist->SetYTitle(Form("p(%s|data, all other parameters fixed)", GetParameter(index)->GetLatexName().data()));
-
-	// fill histogram
-	for (int i = 1; i <= hist->GetNbinsX(); ++i) {
-		parameters_temp[index] = hist -> GetBinCenter(i);
-		hist->SetBinContent(i, Eval(parameters_temp) );
+	TH1 * h = NULL;
+	if (indices.size() == 1) {
+		h = GetParameter(indices[0]) -> CreateH1(TString::Format("h1_slice_%s_%d",GetSafeName().data(),indices[0]));
+		// set y-axis label
+		if (GetNParameters() == 1)
+			h -> SetYTitle(Form("p(%s|data)", GetParameter(indices[0])->GetLatexName().data()));
+		else
+			h -> SetYTitle(Form("p(%s|data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data()));
+	}
+	else if (indices.size() == 2) {
+		h = GetParameter(indices[0]) -> CreateH2(TString::Format("h2_slice_%s_%d_%d",GetSafeName().data(),indices[0],indices[1]),GetParameter(indices[1]));
+		// set z-axis label
+		if (GetNParameters() == 2)
+			h -> SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0])->GetLatexName().data(),GetParameter(indices[1])->GetLatexName().data()));
+		else
+			h -> SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data(),GetParameter(indices[1])->GetLatexName().data()));
 	}
 
-	// normalize
-	if (flag_norm)
-		hist-> Scale( 1. / hist->Integral("width") );
+	// reset log_max_val
+	log_max_val = -std::numeric_limits<double>::infinity();
 	
-	// reset binning
-	GetParameter(index) -> SetNbins(nbins_temp);
+	double log_min_val = std::numeric_limits<double>::infinity();
+	
+	// fill histogram
+	// calculate number of bins
+	int N = h->GetBin(h->GetNbinsX(),h->GetNbinsY(),h->GetNbinsZ());
+	int bx, by, bz;
+	// loop over all bins
+	for  (int b=1; b<=N; ++b) {
+		// skip if bin is underflow or overflow
+		if (h->IsBinUnderflow(b) or h->IsBinOverflow(b))
+			continue;
+		// get local bin numbers for each axis
+		h -> GetBinXYZ(b,bx,by,bz);
+		// update x axis value
+		parameters_temp[indices[0]] = h -> GetXaxis() -> GetBinCenter(bx);
+		// update y axis value if 2D
+		if (by > 0 and indices.size()>1)
+			parameters_temp[indices[1]] = h -> GetYaxis() -> GetBinCenter(by);
+		// update z axis value if 3D
+		// if (bz > 0 and indices.size()>2)
+		// 	parameters_temp[indices[2]] = h -> GetZaxis() -> GetBinCenter(bz);
+		// calculate log of function value at parameters
+		double log_eval = LogEval(parameters_temp);
+		// check max val
+		log_max_val = std::max<double>(log_max_val,log_eval);
+		// check min val
+		log_min_val = std::min<double>(log_min_val,log_eval);
+		// set bin content by global bin number
+		h -> SetBinContent(b,log_eval);
+	}
 
-	return hist;
+	// remove log pedestal and exponentiate resulting value
+	for (int b=1; b<=N; ++b) {
+		if (h->IsBinUnderflow(b) or h->IsBinOverflow(b))
+			continue;
+		h -> SetBinContent(b,exp(h->GetBinContent(b)-log_max_val));
+	}
+	
+	// normalize
+	if (normalize) {
+		double integral = h -> Integral("width");
+		if (integral != 0)
+			h -> Scale(1./integral);
+	}
+
+	// reset binning
+	for (unsigned i=0; i<indices.size(); ++i)
+		GetParameter(indices[i]) -> SetNbins(nbins_temp[i]);
+	
+	return h;
 }
 
 // ---------------------------------------------------------
-TH2D * BCIntegrate::GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters, int nbins, bool flag_norm) {
-	// check number of dimensions
-	if (GetNParameters() < 2) {
-		BCLog::OutError("BCIntegrate::GetSlice : Number of parameters need to be at least 2.");
-	}
-
-	// check if parameters exists
-	if (!fParameters.ValidIndex(index1) or !fParameters.ValidIndex(index2)) {
-		BCLog::OutError("BCIntegrate::GetSlice : Parameter does not exist.");
-		return 0;
-	}
-
-	// check if parameters are fixed
-	if (GetParameter(index1)->Fixed() or GetParameter(index2)->Fixed())
-		return 0;
-	
-	// create local copy of parameter set
-	std::vector<double> parameters_temp = parameters;
-
-	// check if parameter set if defined
-	if (parameters_temp.empty()) {
-		if (GetNParameters()>2) {
-			BCLog::OutError("BCIntegrate::GetSlice : No parameters defined.");
-			return 0;
-		}
-		parameters_temp.assign(2,0);
-	}
-
-	// set binning
-	unsigned nbins1_temp = GetParameter(index1) -> GetNbins();
-	unsigned nbins2_temp = GetParameter(index2) -> GetNbins();
-	if (nbins > 0) {
-		GetParameter(index1) -> SetNbins(nbins);
-		GetParameter(index2) -> SetNbins(nbins);
-	}
-
-	// create histogram
-	TH2D * hist = GetParameter(index1) -> CreateH2(TString::Format("h2_slice_%s_%d_%d",GetSafeName().data(),index1,index2),GetParameter(index2));
-	hist->SetStats(kFALSE);
-	hist->UseCurrentStyle();
-
-	// set z-axis label
-	if (GetNParameters() == 2)
-		hist->SetZTitle(Form("p(%s, %s | data)", GetParameter(index1)->GetLatexName().data(),GetParameter(index2)->GetLatexName().data()));
-	else
-		hist->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(index1)->GetLatexName().data(),GetParameter(index2)->GetLatexName().data()));
-	
-	// fill histogram
-	for (int ix = 1; ix <= hist->GetNbinsX(); ++ix) {
-		parameters_temp[index1] = hist -> GetXaxis() -> GetBinCenter(ix);
-		for (int iy = 1; iy <= hist->GetNbinsY(); ++iy) {
-			parameters_temp[index2] = hist -> GetYaxis() -> GetBinCenter(iy);
-			hist->SetBinContent(ix, iy, Eval(parameters_temp));
-		}
-	}
-
-	// normalize
-	if (flag_norm)
-		hist->Scale(1./hist->Integral("width"));
-	
-	// reset binning
-	GetParameter(index1) -> SetNbins(nbins1_temp);
-	GetParameter(index2) -> SetNbins(nbins2_temp);
-	
-	return hist;
+TH2 * BCIntegrate::GetSlice(unsigned index1, unsigned index2, double & log_max_val, const std::vector<double> parameters, int nbins, bool normalize) {
+	std::vector<unsigned> indices(1,index1);
+	indices.push_back(index2);
+	return (TH2*) GetSlice(indices,log_max_val,parameters,nbins,normalize);
 }
 
 // ---------------------------------------------------------
@@ -1139,34 +906,22 @@ double BCIntegrate::GetRandomPoint(std::vector<double> &x)
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomVectorUnitHypercube(std::vector<double> &x) const
-{
-   fRandom->RndmArray(x.size(), &x.front());
+void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double> &x) const {
+	// get random vector in unit hypercube
+	fRandom -> RndmArray(x.size(), &x.front());
+	// translate it into values in ranges of the parameters
+	fParameters.ValueFromPositionInRange(x);
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double> &x) const
-{
-	 GetRandomVectorUnitHypercube(x);
-
-	 for (unsigned i = 0; i < fParameters.Size(); i++){
-		 if (GetParameter(i)->Fixed())
-			 x[i] = GetParameter(i)->GetFixedValue();
-		 else
-			 x[i] = GetParameter(i)->GetLowerLimit() + x[i] * GetParameter(i)->GetRangeWidth();
-	 }
-}
-
-// ---------------------------------------------------------
-std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
-{
-  if (fParameters.Size() < 1) {
+std::vector<double> BCIntegrate::FindMode(std::vector<double> start) {
+  if (GetNParameters() < 1) {
     BCLog::OutError("FindMode : No parameters defined. Aborting.");
     return std::vector<double>();
   }
 
-  if (start.empty() && fBestFitParameters.size() == fParameters.Size())
-     start = fBestFitParameters;
+  if (start.empty() and GetGlobalMode().size() >= GetNParameters())
+		start = GetBestFitParameters();
 
   std::vector<double> mode_temp(GetNParameters());
   std::vector<double> errors_temp(GetNParameters());
@@ -1176,82 +931,59 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
   if (!(fOptimizationMethodCurrent == BCIntegrate::kOptDefault) && !(fOptimizationMethodCurrent == BCIntegrate::kOptEmpty))
     BCLog::OutSummary(Form("Finding mode using %s", DumpCurrentOptimizationMethod().c_str()));
 
-  switch (fOptimizationMethodCurrent)
-    {
-    case BCIntegrate::kOptEmpty:
+  switch (fOptimizationMethodCurrent) {
+
+	case BCIntegrate::kOptEmpty:
       {
         BCLog::OutWarning("BCIntegrate::FindMode : No optimization method chosen.");
         return std::vector<double>();
       }
-    case BCIntegrate::kOptSimAnn:
-      {
-        FindModeSA(mode_temp, errors_temp, start);
+	
+	case BCIntegrate::kOptSimAnn:
+		{
+			FindModeSA(mode_temp, errors_temp, start);
+			break;
+		}
 
-        break;
-      }
+	case BCIntegrate::kOptMetropolis:
+		{
+			FindModeMCMC(mode_temp, errors_temp);
+			break;
+		}
 
-    case BCIntegrate::kOptMinuit:
-      {
-        int printlevel = -1;
-        if (BCLog::GetLogLevelScreen() <= BCLog::detail)
-          printlevel = 0;
-        if (BCLog::GetLogLevelScreen() <= BCLog::debug)
-          printlevel = 1;
+	case BCIntegrate::kOptDefault:
+		SetOptimizationMethod(BCIntegrate::kOptMinuit);
+	case BCIntegrate::kOptMinuit:
+		{
+			int printlevel = -1;
+			if (BCLog::GetLogLevelScreen() <= BCLog::detail)
+				printlevel = 0;
+			if (BCLog::GetLogLevelScreen() <= BCLog::debug)
+				printlevel = 1;
+			
+			BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, printlevel);
+			break;
+		}
 
-        BCIntegrate::FindModeMinuit(mode_temp, errors_temp, start, printlevel);
-
-        break;
-      }
-
-    case BCIntegrate::kOptMetropolis:
-      {
-        FindModeMCMC(mode_temp, errors_temp);
-
-        break;
-      }
-    case BCIntegrate::kOptDefault:
-      {
-        SetOptimizationMethod(BCIntegrate::kOptMinuit);
-
-        return FindMode(start);
-      }
-
-    default:
-      BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
-      return std::vector<double>();
-    }
+	default:
+		BCLog::OutError(Form("BCIntegrate::FindMode : Invalid mode finding method: %d", GetOptimizationMethod()));
+		return std::vector<double>();
+	}
 
   // calculate function at new mode
   double fcnatmode_temp = Eval(mode_temp);
 
-  // check if the mode found mode is better than the previous estimate
-  if ( (!fFlagIgnorePrevOptimization) && (fcnatmode_temp < fLogMaximum) ) {
-    // set best fit parameters
-    if (mode_temp.size() == fBestFitParameters.size())
-      mode_temp      = fBestFitParameters;
-    else
-      BCLog::OutError("BCIntegrate::FindMode : previous mode has a different number of parameters than current.");
-
-    if (errors_temp.size() == fBestFitParameterErrors.size())
-      errors_temp    = fBestFitParameterErrors;
-    else
-      BCLog::OutError("BCIntegrate::FindMode : previous error estimate has a different number of parameters than current.");
-
-    fcnatmode_temp = fLogMaximum;
-    method_temp    = fOptimizationMethodUsed;
-  }
-
-  // set the best-fit parameters
-  fBestFitParameters      = mode_temp;
-  fBestFitParameterErrors = errors_temp;
-  fLogMaximum             = fcnatmode_temp;
-
-  // set used optimization method
-  fOptimizationMethodUsed = method_temp;
+	// replace previous mode
+	if (fFlagIgnorePrevOptimization or fcnatmode_temp > fLogMaximum) {
+		SetBestFitParameters(mode_temp);
+		fBestFitParameterErrors = errors_temp;
+		fBestFitParameterErrors.resize(GetGlobalMode().size(),std::numeric_limits<double>::infinity());
+		fOptimizationMethodUsed = method_temp;
+		fLogMaximum = fcnatmode_temp;
+	}
 
   // return the new mode
-  return mode_temp;
-
+  return fBestFitParameters;
 }
 
 // ---------------------------------------------------------
@@ -1283,41 +1015,40 @@ TMinuit * BCIntegrate::GetMinuit()
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start, int printlevel)
-{
-   if (fParameters.Size() < 1) {
-      BCLog::OutError("BCIntegrate::FindModeMinuit : No parameters defined. Aborting.");
-      return std::vector<double>();
-   }
+std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::vector<double> &errors, std::vector<double> start, int printlevel) {
+	if (fParameters.Size() < 1) {
+		BCLog::OutError("BCIntegrate::FindModeMinuit : No parameters defined. Aborting.");
+		return std::vector<double>();
+	}
 
-   bool have_start = true;
+	// check start values
+	if (!start.empty() and start.size()!=fParameters.Size()) {
+		BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (mismatch of dimensions), set to center.");
+		start.clear();
+	}
+	
 
-   // check start values
-   if (start.size() == 0)
-     have_start = false;
-   else if (start.size() != fParameters.Size()) {
-     have_start = false;
-     BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (mismatch of dimensions), set to center.");
-   }
+	// check if point is allowed
+	if (!start.empty() and !GetParameters().IsWithinLimits(start,true)) {
+		BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (parameter not inside valid range), set to center.");
+		start.clear();
+	}
 
-   // check if point is allowed
-   if (have_start) {
-     for (unsigned int i = 0; i <fParameters.Size(); ++i) {
-       if (!GetParameter(i)->IsValid(start[i]))
-         have_start = false;
-       if (GetParameter(i)->Fixed() && start[i] != GetParameter(i)->GetFixedValue())
-         have_start = false;
-     }
-     if (!have_start)
-       BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (parameter not inside valid range), set to center.");
-   }
+	// check fixed values and issue warning before forcing to fixed
+	if (!start.empty() and !GetParameters().IsAtFixedValues(start,true)) {
+		BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point fixed values not properly sit. Forcing to fixed values.");
+		GetParameters().ApplyFixedValues(start);
+	}
+
+	if (start.empty())
+		// if empty, set to center, with fixed values fixed
+		start = GetParameters().GetRangeCenters(true);
 
    // set global this
    ::BCIntegrateHolder::instance(this);
 
    // define minuit
-   if (fMinuit)
-      delete fMinuit;
+	 delete fMinuit;
    fMinuit = new TMinuit(fParameters.Size());
 
    // set print level
@@ -1331,24 +1062,16 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double> &mode, std::
 
    // set parameters
    int flag;
-   for (unsigned i = 0; i < fParameters.Size(); i++) {
-      double starting_point = (GetParameter(i)->GetUpperLimit() + GetParameter(i)->GetLowerLimit()) / 2.;
-      if(have_start)
-         starting_point = start[i];
-      if (GetParameter(i)->Fixed())
-         starting_point = GetParameter(i)->GetFixedValue();
-      fMinuit->mnparm(i,
-                      GetParameter(i)->GetName().data(),
-                      starting_point,
-                      GetParameter(i)->GetRangeWidth() / 100.,
-                      GetParameter(i)->GetLowerLimit(),
-                      GetParameter(i)->GetUpperLimit(),
-                      flag);
-   }
+   for (unsigned i = 0; i < fParameters.Size(); i++)
+		 fMinuit -> mnparm(i, GetParameter(i)->GetName().data(), start[i],
+											 GetParameter(i)->GetRangeWidth() / 100.,
+											 GetParameter(i)->GetLowerLimit(),
+											 GetParameter(i)->GetUpperLimit(),
+											 flag);
 
    for (unsigned i = 0; i < fParameters.Size(); i++)
       if (GetParameter(i)->Fixed())
-         fMinuit->FixParameter(i);
+				fMinuit -> FixParameter(i);
 
    // do mcmc minimization
    //   fMinuit->mnseek();
@@ -1459,110 +1182,91 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double> &mode, std::vect
 	if (fFlagWriteSAToFile)
 		InitializeSATree();
 
-   bool have_start = true;
    std::vector<double> x, y; // vectors for current state, new proposed state and best fit up to now
    double fval_x, fval_y, fval_mode; // function values at points x, y and mode (we save them rather than to re-calculate them every time)
    int t = 1; // time iterator
 
-   // check start values
-   if (start.size() == 0)
-     have_start = false;
-   else if (start.size() != fParameters.Size()) {
-     have_start = false;
-     BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (mismatch of dimensions), set to center.");
-   }
+	// check start values
+	if (!start.empty() and start.size()!=fParameters.Size()) {
+		BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (mismatch of dimensions), set to center.");
+		start.clear();
+	}
 
-   // check if point is allowed
-   if (have_start) {
-     for (unsigned int i = 0; i <fParameters.Size(); ++i) {
-       if (!GetParameter(i)->IsValid(start[i]))
-         have_start = false;
-       if (GetParameter(i)->Fixed() && start[i] != GetParameter(i)->GetFixedValue())
-         have_start = false;
-     }
-     if (!have_start)
-       BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (parameter not inside valid range), set to center.");
-   }
+	// check if point is allowed
+	if (!start.empty() and !GetParameters().IsWithinLimits(start,true)) {
+		BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (parameter not inside valid range), set to center.");
+		start.clear();
+	}
 
-   // if no starting point is given, set to center of parameter space
-   if ( !have_start ) {
-      start.clear();
-      for (unsigned i=0; i<fParameters.Size(); i++)
-         if (GetParameter(i)->Fixed())
-            start.push_back(GetParameter(i)->GetFixedValue());
-         else
-            start.push_back((GetParameter(i)->GetLowerLimit() + GetParameter(i)->GetUpperLimit()) / 2.);
-   }
+	// check fixed values and issue warning before forcing to fixed
+	if (!start.empty() and !GetParameters().IsAtFixedValues(start,true)) {
+		BCLog::OutWarning("BCIntegrate::FindModeSA : Start point fixed values not properly sit. Forcing to fixed values.");
+		GetParameters().ApplyFixedValues(start);
+	}
 
-   // set current state and best fit to starting point
-   x = start;
-   mode = start;
+	if (start.empty())
+		// if empty, set to center, with fixed values fixed
+		start = GetParameters().GetRangeCenters(true);
 
-   // calculate function value at starting point
-   fval_x = fval_mode = LogEval(x);
+	// set current state and best fit to starting point
+	x = start;
+	mode = start;
 
-   // run while still "hot enough"
-   while ( SATemperature(t) > fSATmin ) {
-      // generate new state
-      y = GetProposalPointSA(x, t);
+	// calculate function value at starting point
+	fval_x = fval_mode = LogEval(x);
+	
+	// run while still "hot enough"
+	while ( SATemperature(t) > fSATmin ) {
+		// generate new state
+		y = GetProposalPointSA(x, t);
+		
+		// check if the proposed point is inside the phase space (ignoring fixed parameters)
+		if (GetParameters().IsWithinLimits(y,true)) {
+			// calculate function value at new point
+			fval_y = LogEval(y);
 
-      // check if the proposed point is inside the phase space
-      // if not, reject it
-      bool in_range = true;
+			// is it better than the last one?
+			// if so, update state and chef if it is the new best fit...
+			if (fval_y >= fval_x) {
+				x = y;
 
-      for (unsigned i = 0; i < fParameters.Size(); i++)
-         if ( !GetParameter(i)->IsValid(y[i]))
-            in_range = false;
+				fval_x = fval_y;
 
-      if ( in_range ){
-         // calculate function value at new point
-         fval_y = LogEval(y);
-
-         // is it better than the last one?
-         // if so, update state and chef if it is the new best fit...
-         if (fval_y >= fval_x) {
-            x = y;
-
-            fval_x = fval_y;
-
-            if (fval_y > fval_mode) {
-               mode = y;
-               fval_mode = fval_y;
-            }
-         }
-         // ...else, only accept new state w/ certain probability
-         else {
-            if (fRandom->Rndm() <= exp( (fval_y - fval_x) / SATemperature(t) )) {
-               x = y;
-               fval_x = fval_y;
-            }
-         }
-      }
-
-      // update tree variables
-      fSANIterations = t;
-      fSATemperature = SATemperature(t);
-      fSALogProb = fval_x;
-      fSAx = x;
-
-      // fill tree
-      if (fFlagWriteSAToFile && fSATree) {
-				std::cout << "filling " << fSATree << std::endl;
-         fSATree->Fill();
-				 std::cout << "filled" << std::endl;
+				if (fval_y > fval_mode) {
+					mode = y;
+					fval_mode = fval_y;
+				}
 			}
+			// ...else, only accept new state w/ certain probability
+			else {
+				if (fRandom->Rndm() <= exp( (fval_y - fval_x) / SATemperature(t) )) {
+					x = y;
+					fval_x = fval_y;
+				}
+			}
+		}
 
-      // increate t
-      t++;
-   }
+		// update tree variables
+		fSANIterations = t;
+		fSATemperature = SATemperature(t);
+		fSALogProb = fval_x;
+		fSAx = x;
 
-   // calculate uncertainty
-   errors.assign(fParameters.Size(),-1);
+		// fill tree
+		if (fFlagWriteSAToFile && fSATree)
+			fSATree->Fill();
 
-	 if (fFlagWriteSAToFile and fSAOutputFileAutoclose)
-		 CloseSAOutputFile();
-
-   return mode;
+		// increate t
+		t++;
+	}
+	
+	// calculate uncertainty
+	errors.assign(fParameters.Size(),-1);
+	
+	if (fFlagWriteSAToFile and fSAOutputFileAutoclose)
+		CloseSAOutputFile();
+	
+	return mode;
 }
 
 // ---------------------------------------------------------
@@ -1824,13 +1528,7 @@ std::vector<double> BCIntegrate::FindModeMCMC(std::vector<double> &mode, std::ve
    // call PreRun
    MCMCMetropolisPreRun();
 
-   // loop over all chains and find the maximum point
-   unsigned index = 0;
-   for (unsigned i = 1; i < fMCMCNChains; ++i)
-		 if ( MCMCGetMaximumLogProb().at(i) > MCMCGetMaximumLogProb().at(index) )
-			 index = i;
-	 
-	 mode = MCMCGetMaximumPoint(index);
+	 mode = fMCMCStatistics_AllChains.mode;
    errors.assign(fParameters.Size(),-1.);
 
    return mode;
@@ -1945,7 +1643,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype) {
    fNIterations = 0;
 
    // Cuba needs int variable
-   int nIntegrationVariables = GetNIntegrationVariables();
+   int nIntegrationVariables = GetParameters().GetNFreeParameters();
 
    switch (cubatype) {
 
@@ -2057,29 +1755,33 @@ double BCIntegrate::IntegrateSlice()
   double relprecision  = -1;
   fError = -1;
 
-  // calculate values are which the function should be evaluated
-  std::vector<double> fixpoint(fParameters.Size(), 0);
-  for (unsigned int i = 0; i < fParameters.Size(); ++i)
-    if (GetParameter(i)->Fixed())
-      fixpoint[i] = GetParameter(i)->GetFixedValue();
-	
-  if (GetNFreeParameters() == 1) {
-    for (unsigned i = 0; i < fParameters.Size(); ++i)
-      if (!GetParameter(i)->Fixed())
-				integral = GetSlice(i, fixpoint, 0, false) -> Integral("width");
-  }
-  else if (GetNFreeParameters() == 2) {
-    for (unsigned int i = 0; i < fParameters.Size(); ++i)
-      for (unsigned int j = i+1; j < fParameters.Size(); ++j)
-        if (!GetParameter(i)->Fixed() && !GetParameter(j)->Fixed())
-          // calculate slice
-          integral = GetSlice(i,j, fixpoint, 0, false) -> Integral("width");
-  }
-  else {
-    BCLog::OutWarning("BCIntegrate::IntegrateSlice: Method only implemented for 1D and 2D problems. Return -1.");
-    integral = -1;
-  }
+	// get vector of fixed values
+  std::vector<double> fixpoint = GetParameters().GetFixedValues();
 
+	// get vector of indices of unfixed parameters
+	std::vector<unsigned> indices;
+	for (unsigned i=0; i<GetNParameters(); ++i)
+		if (!GetParameter(i)->Fixed())
+			indices.push_back(i);
+
+	// check size of vector of indices
+	if (indices.size() > 2) {
+		BCLog::OutWarning("BCIntegrate::IntegrateSlice: Method only implemented for 1D and 2D problems. Return -1.");
+		integral = -1;
+	}
+
+	double log_max_val = -std::numeric_limits<double>::infinity();
+	// get slice, without normalizing
+	TH1 * h = GetSlice(indices, log_max_val, fixpoint, 0, false);
+	// calculate integral including pedestal subtracted off of slice histogram
+	double log_volume = 0;
+	for (unsigned i=0; i<indices.size(); ++i)
+		log_volume += log(GetParameter(indices[i])->GetRangeWidth()); 
+	integral  = h -> Integral("width");
+	double max_val = h -> GetMaximum();
+	if (max_val != 0)
+		integral += exp(log_volume+log_max_val)/max_val;
+	
 	// print to log
 	LogOutputAtEndOfIntegration(integral, absprecision, relprecision, -1);
 
@@ -2248,28 +1950,26 @@ void BCIntegrate::PrintMarginalizationToStream(std::ofstream & ofi) {
 
 // ---------------------------------------------------------
 void BCIntegrate::PrintBestFitToStream(std::ofstream & ofi) {
-	if (GetBestFitParameters().empty()) {
+	if (GetGlobalMode().empty()) {
 		ofi << "No best fit information available." << std::endl << std::endl;
 		return;
 	}
-
-	unsigned nletters = GetMaximumParameterNameLength();
-
+	
 	ofi << " Results of the optimization" << std::endl
 			<< " ===========================" << std::endl
 			<< " Optimization algorithm used: "
-			<< DumpUsedOptimizationMethod()<< std::endl
+			<< DumpUsedOptimizationMethod() << std::endl
 			<< " Log of the maximum posterior: " << GetLogMaximum() << std::endl
 			<< " List of parameters and global mode:" << std::endl;
 
-	for (unsigned i = 0; i < GetNVariables(); ++i) {
-		ofi << TString::Format(" (%d) %10s \"%*s\" : %.*g", i, (i<GetNParameters()) ? "Parameter" : "Observable",
-													 nletters, GetVariable(i)->GetName().data(),
-													 GetVariable(i)->GetPrecision(),GetBestFitParameter(i));
+	for (unsigned i = 0; i < GetNVariables() and i < GetGlobalMode().size(); ++i) {
+		ofi << TString::Format(" (%d) %10s \"%*s\" : %.*g", i, GetVariable(i)->GetPrefix().data(),
+													 GetMaximumParameterNameLength(), GetVariable(i)->GetName().data(),
+													 GetVariable(i)->GetPrecision(),GetGlobalMode()[i]);
 		if (i<GetNParameters() and GetParameter(i)->Fixed())
 			ofi << " (fixed)" << std::endl;
-		else if (i<GetBestFitParameters().size() and GetBestFitParameterError(i) >= 0)
-			ofi << TString::Format(" +- %.*g",GetVariable(i)->GetPrecision(),GetBestFitParameterError(i)) << std::endl;
+		else if (i < GetBestFitParameterErrors().size() and GetBestFitParameterErrors()[i] != std::numeric_limits<double>::infinity())
+			ofi << TString::Format(" +- %.*g",GetVariable(i)->GetPrecision(),GetBestFitParameterErrors()[i]) << std::endl;
 		else
 			ofi << " (no error estimate available)" << std::endl;
 	}

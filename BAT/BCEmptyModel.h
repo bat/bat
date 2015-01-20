@@ -1,5 +1,5 @@
 #ifndef __BCEMPTYMODEL__H
-#define __BCMEMPTYODEL__H
+#define __BCEMPTYMODEL__H
 
 /*!
  * \class BCEmptyModel

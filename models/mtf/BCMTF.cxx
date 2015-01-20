@@ -32,15 +32,6 @@
 #include "BCMTF.h"
 
 // ---------------------------------------------------------
-BCMTF::BCMTF()
-   : BCModel("Multi-template Fitter")
-   , fNChannels(0)
-   , fNProcesses(0)
-   , fNSystematics(0)
-   , fFlagEfficiencyConstraint(false)
-{}
-
-// ---------------------------------------------------------
 BCMTF::BCMTF(const char * name)
    : BCModel(name)
    , fNChannels(0)
@@ -258,11 +249,11 @@ int BCMTF::SetData(const char * channelname, TH1D hist, double minimum, double m
       a[i] = hist.GetXaxis()->GetBinLowEdge(i+1);
    }
 
-   TH2D* hist_uncbandexp = new TH2D(TString::Format("UncertaintyBandExpectation_%i", BCLog::GetHIndex()), "",
+   TH2D* hist_uncbandexp = new TH2D(TString::Format("UncertaintyBandExpectation_%s", GetSafeName().data()), "",
                                     hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
    hist_uncbandexp->SetStats(kFALSE);
 
-   TH2D* hist_uncbandpoisson = new TH2D(TString::Format("UncertaintyBandPoisson_%i", BCLog::GetHIndex()), "",
+   TH2D* hist_uncbandpoisson = new TH2D(TString::Format("UncertaintyBandPoisson_%s", GetSafeName().data()), "",
                                         hist.GetNbinsX(), &a[0], int(maximum-minimum), minimum, maximum);
    hist_uncbandpoisson->SetStats(kFALSE);
 
@@ -560,82 +551,81 @@ int BCMTF::SetSystematicVariation(const char * channelname, const char * process
 }
 
 // ---------------------------------------------------------
-int BCMTF::PrintSummary(const char * filename)
-{
-   // open file
-   std::ofstream ofi(filename);
-   ofi.precision(3);
+bool BCMTF::PrintResults(const char * filename) {
+	// open file
+	std::ofstream ofi(filename);
+	ofi.precision(3);
 
-   // check if file is open
-   if(!ofi.is_open()) {
-      BCLog::OutWarning(Form("BCMultitemplateFitter::PrintSummary() : Could not open file %s", filename));
-      return 0;
-   }
+	// check if file is open
+	if(!ofi.is_open()) {
+		BCLog::OutWarning(Form("BCMultitemplateFitter::PrintSummary() : Could not open file %s", filename));
+		return false;
+	}
 
-   ofi
-      << " Multi template fitter summary " << std::endl
-      << " ----------------------------- " << std::endl
-      << std::endl
-      << " Number of channels      : " << fNChannels << std::endl
-      << " Number of processes     : " << fNProcesses << std::endl
-      << " Number of systematics   : " << fNSystematics << std::endl
-      << std::endl;
+	ofi
+		<< " Multi template fitter summary " << std::endl
+		<< " ----------------------------- " << std::endl
+		<< std::endl
+		<< " Number of channels      : " << fNChannels << std::endl
+		<< " Number of processes     : " << fNProcesses << std::endl
+		<< " Number of systematics   : " << fNSystematics << std::endl
+		<< std::endl;
 
-   ofi
-      << " Channels :" << std::endl;
-   for (int i = 0; i < GetNChannels(); ++i) {
-      ofi
-         << " " << i
-         << " : \"" << GetChannel(i)->GetName().c_str() << "\""
-         << std::endl;
-   }
-   ofi
-      << std::endl;
+	ofi
+		<< " Channels :" << std::endl;
+	for (int i = 0; i < GetNChannels(); ++i) {
+		ofi
+			<< " " << i
+			<< " : \"" << GetChannel(i)->GetName().c_str() << "\""
+			<< std::endl;
+	}
+	ofi
+		<< std::endl;
 
-   ofi
-      << " Processes :" << std::endl;
-   for (int i = 0; i < GetNProcesses(); ++i) {
-      ofi
-         << " " << i
-         << " : \"" << GetProcess(i)->GetName().c_str()  << "\""
-         << " (par index " << GetParIndexProcess(i) << ")"
-         << std::endl;
-   }
-   ofi
-      << std::endl;
+	ofi
+		<< " Processes :" << std::endl;
+	for (int i = 0; i < GetNProcesses(); ++i) {
+		ofi
+			<< " " << i
+			<< " : \"" << GetProcess(i)->GetName().c_str()  << "\""
+			<< " (par index " << GetParIndexProcess(i) << ")"
+			<< std::endl;
+	}
+	ofi
+		<< std::endl;
 
-   ofi
-      << " Systematics :" << std::endl;
-   for (int i = 0; i < GetNSystematics(); ++i) {
-      ofi
-         << " " << i
-         << " : \"" << GetSystematic(i)->GetName().c_str()  << "\""
-         << " (par index " << GetParIndexSystematic(i) << ")"
-         << std::endl;
-   }
-   ofi
-      << std::endl;
-   if (GetNSystematics() == 0)
-      ofi
-         << " - none - " << std::endl;
+	ofi
+		<< " Systematics :" << std::endl;
+	for (int i = 0; i < GetNSystematics(); ++i) {
+		ofi
+			<< " " << i
+			<< " : \"" << GetSystematic(i)->GetName().c_str()  << "\""
+			<< " (par index " << GetParIndexSystematic(i) << ")"
+			<< std::endl;
+	}
+	ofi
+		<< std::endl;
+	if (GetNSystematics() == 0)
+		ofi
+			<< " - none - " << std::endl;
 
-   ofi
-      << " Goodness-of-fit: " << std::endl;
-   for (int i = 0; i < GetNChannels(); ++i) {
-      ofi
-         << " i : \"" << GetChannel(i)->GetName().c_str() << "\" : chi2 = "
-         << CalculateChi2( i, GetBestFitParameters() )
-         << std::endl;
-   }
-   ofi
-      << std::endl;
+	ofi
+		<< " Goodness-of-fit: " << std::endl;
+	for (int i = 0; i < GetNChannels(); ++i) {
+		ofi
+			<< " i : \"" << GetChannel(i)->GetName().c_str() << "\" : chi2 = "
+			<< CalculateChi2( i, GetBestFitParameters() )
+			<< std::endl;
+	}
+	ofi
+		<< std::endl;
 
 
-   // close file
-   ofi.close();
+	// close file
+	ofi.close();
 
-   // no error
-   return 1;
+	// no error
+	return true;
 }
 
 // ---------------------------------------------------------

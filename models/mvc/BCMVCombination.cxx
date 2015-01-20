@@ -199,9 +199,9 @@ int BCMVCombination::ReadInput(std::string filename)
 
     for (int j = 0; j < nmeasurements; ++j)
       for (int k = 0; k < nmeasurements; ++k) {
-	double corr;
-	infile >> corr;
-	mat[j][k] = corr;
+				double corr;
+				infile >> corr;
+				mat[j][k] = corr;
       }
 
     // set correlation matrix
@@ -215,52 +215,45 @@ int BCMVCombination::ReadInput(std::string filename)
     std::string measurement2;
     std::string observable2;
     std::string parname;
-    double min;
-    double max;
-    double pre;
-    std::string priorshape;
 
     infile >> uncertainty >> measurement1 >> observable1 >> measurement2 >> observable2 >> parname;
 
     // check if parameter exists already
-    int index = -1;
-
-    for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (parname.c_str() == GetParameter(i)->GetName())
-	index = i;
-
-    if (index >= 0)
-      infile >> pre;
-
-    else if (index < 0) {
+    double pre = 1;
+    unsigned index;
+    for (index = 0; index < GetNParameters(); ++index)
+      if (parname.c_str() == GetParameter(index)->GetName()) {
+				infile >> pre;
+				break;
+			}
+		
+		if (index == GetNParameters()) {
       // read properties of parameter
+			double min;
+			double max;
+			std::string priorshape;
       infile >> min >> max >> priorshape;
 
       // add nuisance parameter
       AddParameter(parname.c_str(), min, max);
 
-      // set pre-factor
-      pre = 1;
-
-      // set index
-      index = GetNParameters()-1;
-
       if (priorshape == "flat") {
-	SetPriorConstant(parname.c_str());
-      }
-      else if (priorshape == "gauss") {
-	double mean;
-	double std;
+				SetPriorConstant(parname.c_str());
 
-	infile >> mean >> std;
+      } else if (priorshape == "gauss") {
+				double mean;
+				double std;
+				
+				infile >> mean >> std;
+				
+				SetPriorGauss(parname.c_str(), mean, std);
 
-	SetPriorGauss(parname.c_str(), mean, std);
-      }
-      else {
-	BCLog::OutWarning(Form("BCMVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+      } else {
+				BCLog::OutWarning(Form("BCMVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+
       }
     }
-
+		
     // increase counter of nuisance parametera
     fNNuisanceCorrelation++;
 

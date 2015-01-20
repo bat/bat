@@ -57,7 +57,7 @@ public:
 
   /**
    * The default constructor. */
-  BCH1D(TH1 * hist = 0);
+  BCH1D(const TH1 * const hist = 0);
 
 	/**
 	 * Copy constructor. */
@@ -134,8 +134,10 @@ public:
   /** \name Member functions (set)  */
   /** @{ */
 
+	using BCHistogramBase::CopyOptions;
+
 	/**
-	 * Copy options from. */
+	 * Copy options from other. */
 	void CopyOptions(const BCH1D & other);
 
   /**
@@ -184,6 +186,8 @@ public:
 
   /** \name Member functions (miscellaneous methods) */
   /** @{ */
+
+	using BCHistogramBase::CheckIntervals;
 
 	/**
 	 * Check intervals: remove values below 0 or above 1,

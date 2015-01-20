@@ -25,8 +25,9 @@
 #include <string>
 #include <cmath>
 
-class TH1D;
-class TH2D;
+class TH1;
+class TH2;
+class TRandom;
 
 // ---------------------------------------------------------
 
@@ -60,6 +61,11 @@ public:
 
 	/** \name Member functions (get) */
 	/** @{ */
+
+	/**
+	 * @return Prefix for name of type of variable ("Parameter", "Observable") */
+	const std::string & GetPrefix() const
+	{ return fPrefix; }
 	
 	/**
 	 * @return The name of the variable. */
@@ -103,10 +109,19 @@ public:
 	 * @return precision of output */
 	unsigned GetPrecision() const
 	{ return fPrecision;}
-	
-	bool FillHistograms() const
-	{ return fFillHistograms; }
-	
+
+	/**
+	 * @return whether to fill 1D histogram. */
+	bool FillH1()
+	{ return fFillH1; }
+
+	/**
+	 * @return whether to fill 2D histograms. */
+	bool FillH2()
+	{ return fFillH2; }
+
+	/**
+	 * @return Number of bins on axis in 1D and 2D histograms. */
 	unsigned GetNbins() const
 	{ return fNbins; }
 
@@ -147,8 +162,29 @@ public:
 	void SetPrecision(unsigned precision)
 	{ fPrecision = precision; }
 
+	/**
+	 * Set the filling of 1D and 2D histograms.
+	 * @param flag Toggles filling of 1D and 2D histograms. */
 	void FillHistograms(bool flag)
-	{ fFillHistograms = flag; }
+	{ FillHistograms(flag,flag); }
+
+	/**
+	 * Set the filling of 1D and 2D histograms.
+	 * @param fill_1d Toggles filling of 1D histogram.
+	 * @param fill_2d Toggles filling of 2D histograms. */
+	void FillHistograms(bool fill_1d, bool fill_2d)
+	{ FillH1(fill_1d); FillH2(fill_2d); }
+
+	/**
+	 * Set the filling of 1D histogram. */
+	void FillH1(bool flag)
+	{ fFillH1 = flag; }
+
+	/**
+	 * Set the filling of 2D histograms. */
+	void FillH2(bool flag)
+	{ fFillH2 = flag; }
+
 
 	void SetNbins(unsigned nbins)
 	{ fNbins = nbins; }
@@ -178,10 +214,26 @@ public:
 	{ return (x - fLowerLimit)/(fUpperLimit-fLowerLimit); }
 
 	/**
+	 * Translate from unit interval to value in variable range.
+	 * @param p Position in unit interval (0 = lower limit, 1 = upper limit).
+	 * @return Value of variable at position in range. */
+	double ValueFromPositionInRange(double p) const
+	{ return fLowerLimit + p*(fUpperLimit-fLowerLimit); }
+
+	/**
 	 * Calculate the necessary precision for outputting this
 	 * parameter */
 	void CalculatePrecision()
 	{ SetPrecision(ceil(-log10(2.*fabs(fUpperLimit-fLowerLimit)/(fabs(fUpperLimit)+fabs(fLowerLimit))))); }
+
+	/**
+	 * @return Whether value is at upper or lower limit. */
+	bool IsAtLimit(double value) const;
+	
+	/** 
+	 * @return Whether value is within limits. */
+	bool IsWithinLimits(double value) const
+	{ return (value >= fLowerLimit and value <= fUpperLimit); }
 
 	/**
 	 * Prints a variable summary on the screen. */
@@ -195,14 +247,19 @@ public:
 	 * Creates a 1D Histogram for this variable.
 	 * @param name Name of the histogram.
 	 * @return pointer to histogram object. */
-	virtual TH1D * CreateH1(const char * name) const;
+	virtual TH1 * CreateH1(const char * name) const;
 	
 	/**
 	 * Creates a 2D Histogram for this variable as the abcissa
 	 * and a second as the ordinate.
 	 * @name name The name of the histogram.
 	 * @param ordinate The variable to be used for the ordinate. */
-	virtual TH2D * CreateH2(const char * name, BCVariable * ordinate) const;
+	virtual TH2 * CreateH2(const char * name, BCVariable * ordinate) const;
+
+	/**
+	 * Get random value uniformly distributed in range.
+	 * @param R random number generator to use*/
+	virtual double GetUniformRandomValue(TRandom * const R) const;
 
 	/** @} */
 	
@@ -228,8 +285,11 @@ protected:
 	/// The latex name of the variable.
 	std::string fLatexName;
 	
-	/// Flag to store MCMC samples in histograms.
-	bool fFillHistograms;
+	/// Flag to store MCMC samples in 1D histogram.
+	bool fFillH1;
+
+	/// Flag to store MCMC samples in 2D histograms
+	bool fFillH2;
 	
 	/// The number of equal-size bins used in histograms involving this variable.
 	unsigned fNbins;

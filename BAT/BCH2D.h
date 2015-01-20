@@ -76,7 +76,7 @@ public:
 	
 	/**
 	 * The complete constructor. */
-	BCH2D(TH2 * h = 0);
+	BCH2D(const TH2 * const h = 0);
 
 	/**
 	 * Copy constuctor. */
@@ -152,6 +152,8 @@ public:
 	/** \name Member functions (set)  */
 	/** @{ */
 
+	using BCHistogramBase::CopyOptions;
+
 	/**
 	 * copy options from */
 	void CopyOptions(const BCH2D & other);
@@ -219,6 +221,8 @@ public:
 
 	/** \name Member functions (miscellaneous methods) */
 	/** @{ */
+
+	using BCHistogramBase::CheckIntervals;
 
 	/**
 	 * Check intervals: remove values below 0 or above 1,

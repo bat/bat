@@ -53,7 +53,7 @@ public:
    * The default constructor.
 	 * @param hist Histogram to build BCHistogram around.
 	 * @param dimension Dimension of the histogram (for checking purposes), if negative, no check is made. */
-  BCHistogramBase(TH1 * hist = 0, int dimension=0);
+  BCHistogramBase(const TH1 * const hist = 0, int dimension=0);
 
 	/**
 	 * Copy constructor. */
@@ -300,7 +300,7 @@ public:
 
   /**
    * Sets the histogram. */
-  virtual void SetHistogram(TH1 * hist);
+  virtual void SetHistogram(const TH1 * const hist);
 
 	/**
 	 * Sets drawing of x axis in log. */
@@ -475,7 +475,7 @@ public:
 	 * Check intervals: remove values below 0 or above 1.
 	 * @param sort if positive, sort by increasing order (default);
 	 * if negative, sort by decreasing order; if zero, don't sort.*/
-	virtual void CheckIntervals(std::vector<double> & intervals, int sort=1);
+	virtual void CheckIntervals(std::vector<double> & intervals, int sort);
 
 	/**
 	 * Return default intervals.

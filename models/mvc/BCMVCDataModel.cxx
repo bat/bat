@@ -20,14 +20,12 @@
 #include <TMarker.h>
 #include <TMath.h>
 
-#include <iomanip>
-
 // ---------------------------------------------------------
 BCMVCDataModel::BCMVCDataModel(BCMVCombination* mvc) : BCModel("BCMVCDataModel")
 {
   SetNMeasurements(mvc->GetNMeasurements(),
-		   mvc->GetParameter(0)->GetLowerLimit(),
-		   mvc->GetParameter(0)->GetUpperLimit());
+									 mvc->GetParameter(0)->GetLowerLimit(),
+									 mvc->GetParameter(0)->GetUpperLimit());
   SetVectorMeasurements(mvc->GetVectorMeasurements());
   SetVectorObservable(mvc->GetVectorObservable());
   SetCovarianceMatrix(mvc->GetCovarianceMatrix());
@@ -242,7 +240,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
 // ---------------------------------------------------------
 void BCMVCDataModel::PrintSummary() {
 
-  std::cout << " Goodness-of-fit test:" << std::endl << std::endl;
+	BCLog::OutSummary("Goodness-of-fit test:\n");
 
   // calculate observed chi2
   double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
@@ -254,10 +252,8 @@ void BCMVCDataModel::PrintSummary() {
   // calculate p-value
   double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 
-  std::cout << " chi2    : " << chi2 << std::endl;
-  std::cout << " p-value : " << pvalue << std::endl;
-  std::cout << std::endl;
-
+	BCLog::OutSummary(TString::Format(" chi2    : %f", chi2));
+	BCLog::OutSummary(TString::Format(" p-value : %f\n", pvalue));
 }
 
 // ---------------------------------------------------------

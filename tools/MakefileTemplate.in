@@ -35,7 +35,7 @@ LIBS         = -L$(BATINSTALLDIR)/lib -lBATmodels -lBATmtf -lBATmvc -lBAT $(shel
 # List of all classes (models) used in the program
 # Add classes to the end. Backslash indicates continuation
 # on the next line
-CXXSRCS      = run|:Model:|.cxx |:Model:|.cxx
+CXXSRCS      = run|:Project:|.cxx |:Model:|.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing

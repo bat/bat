@@ -27,8 +27,7 @@
 
 // ROOT classes
 class TH1;
-class TH1D;
-class TH2D;
+class TH2;
 class TMinuit;
 class TTree;
 
@@ -207,11 +206,6 @@ public:
    { return fSASchedule; }
 
    /**
-    * Fills a vector of random numbers between 0 and 1 into a vector
-    * @param A vector of doubles */
-   void GetRandomVectorUnitHypercube(std::vector<double> &x) const;
-
-   /**
     * Fills a vector of random numbers x[i] between fMin[i] and fMax[i] into a vector
     * @param A vector of doubles */
    void GetRandomVectorInParameterSpace(std::vector<double> &x) const;
@@ -221,7 +215,7 @@ public:
     * the probability at that point
     * @param x A vector of doubles
     * @return The (unnormalized) probability at the random point */
-   double GetRandomPoint(std::vector<double> &x);
+	 double GetRandomPoint(std::vector<double> &x);
 
    /**
     * @return The number of minimum iterations for integration */
@@ -237,11 +231,6 @@ public:
     * @return The interval for checking precision in integration */
    int GetNIterationsPrecisionCheck() const
    { return fNIterationsPrecisionCheck; }
-
-   /**
-    * @return The interval for outputting during integration */
-   int GetNIterationsOutput() const
-   { return fNIterationsOutput; }
 
    /**
     * @return The number of iterations for the most recent Monte Carlo integration */
@@ -280,63 +269,58 @@ public:
 
    /**
     * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
-    * @param parameter The model parameter along which the slice is calculated.
+    * @param name The name of the model parameter along which the slice is calculated.
+		* @param log_max_val Stores the log of the maximum value before normalizing
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 1D-histogram.
-    * @param flag_norm: normalize histogram to unity or not
-    * @return The 1D slice. */
-   TH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
- 	    { return GetSlice(parameter->GetName().c_str(), parameters, nbins, flag_norm); }
+		* @param normalize Flag for turning on normalization of histogram.
+    * @return The slice histogram. */
+	 TH1* GetSlice(std::vector<unsigned> indices, double & log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool normalize=true);
 
    /**
     * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
     * @param name The name of the model parameter along which the slice is calculated.
+		* @param log_max_val Stores the log of the maximum value before normalizing
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 1D-histogram.
-    * @param flag_norm: normalize histogram to unity or not
+		* @param normalize Flag for turning on normalization of histogram.
     * @return The 1D slice. */
-   TH1D* GetSlice(const char * name, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
-	    { return GetSlice(fParameters.Index(name), parameters, nbins, flag_norm); }
+	 TH1* GetSlice(const char * name, double & log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool normalize=true)
+	   { return GetSlice(fParameters.Index(name), log_max_val, parameters, nbins, normalize); }
 
    /**
     * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
     * @param name The name of the model parameter along which the slice is calculated.
+		* @param log_max_val Stores the log of the maximum value before normalizing
     * @param parameters The point at which the other parameters are fixed.
     * @param nbins The number of bins of the 1D-histogram.
-    * @param flag_norm: normalize histogram to unity or not
+		* @param normalize Flag for turning on normalization of histogram.
     * @return The 1D slice. */
-	TH1D* GetSlice(unsigned index, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
+	 TH1* GetSlice(unsigned index, double & log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool normalize=true)
+	   { return GetSlice(std::vector<unsigned>(1,index),log_max_val,parameters,nbins,normalize); }
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-    * @param parameter1 The first model parameter along which the slice is calculated.
-    * @param parameter2 The second model parameter along which the slice is calculated.
+    * @param name1 The name of the first model parameter along which the slice is calculated.
+    * @param name2 The name of the second model parameter along which the slice is calculated.
+		* @param log_max_val Stores the log of the maximum value before normalizing
     * @param parameters The point at which the other parameters are fixed.
-    * @param nbins The number of bins of the 2D-histogram.
-    * @param flag_norm: normalize histogram to unity or not
+    * @param nbins The number of bins on each axis of the 2D-histogram.
+		* @param normalize Flag for turning on normalization of histogram.
     * @return The 2D slice. */
-   TH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
-	    { return GetSlice(parameter1->GetName().c_str(), parameter2->GetName().c_str(), parameters, nbins, flag_norm); }
-   /**
-    * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-    * @param parameter1 The name of the first model parameter along which the slice is calculated.
-    * @param parameter2 The name of the second model parameter along which the slice is calculated.
-    * @param parameters The point at which the other parameters are fixed.
-    * @param nbins The number of bins of the 2D-histogram.
-    * @param flag_norm: normalize histogram to unity or not
-    * @return The 2D slice. */
-	 TH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true)
-	    { return GetSlice(fParameters.Index(name1),fParameters.Index(name2),parameters,nbins,flag_norm); } 
+	 TH2* GetSlice(const char* name1, const char* name2, double & log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool normalize=true)
+	   { return GetSlice(fParameters.Index(name1),fParameters.Index(name2),log_max_val,parameters,nbins,normalize); } 
 
    /**
     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-    * @param parameter1 The name of the first model parameter along which the slice is calculated.
-    * @param parameter2 The name of the second model parameter along which the slice is calculated.
+    * @param name1 The name of the first model parameter along which the slice is calculated.
+    * @param name2 The name of the second model parameter along which the slice is calculated.
+		* @param log_max_val Stores the log of the maximum value before normalizing
     * @param parameters The point at which the other parameters are fixed.
-    * @param nbins The number of bins of the 2D-histogram.
-     * @param flag_norm: normalize histogram to unity or not
-   * @return The 2D slice. */
-   TH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool flag_norm=true);
+    * @param nbins The number of bins on each axis of the 2D-histogram.
+		* @param normalize Flag for turning on normalization of histogram.
+		* @return The 2D slice. */
+	TH2* GetSlice(unsigned index1, unsigned index2, double & log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins=0, bool normalize=true);
 
    /**
     * @return The uncertainty in the most recent Monte Carlo integration */
@@ -362,30 +346,20 @@ public:
    double GetSATmin() const
    { return fSATmin; }
 
+	/**
+	 * @return vector of parameter and observable values at global mode. */
+	virtual const std::vector<double> & GetGlobalMode() const;
+
    /**
-    * Returns the error on the value of a parameter (defined by index) at
-    * the global mode of the posterior pdf.
-    * @param index index of the parameter.
-    * @return error on the best fit value of the parameter or -1 if undefined */
-   double GetBestFitParameterError(unsigned index) const;
+    * Returns the set of errors on the values of the parameters at the global mode */
+   const std::vector<double> & GetBestFitParameterErrors() const
+	{ return fBestFitParameterErrors; }
 
    /**
     * Returns the posterior at the mode.
     * @return the posterior. */
    double GetLogMaximum()
    { return fLogMaximum; };
-
-   /**
-    * Returns the set of values of the parameters at the global mode of
-    * the posterior pdf.
-    * @return The best fit parameters */
-	  const std::vector<double> & GetBestFitParameters() const;
-
-
-   /**
-    * Returns the set of errors on the values of the parameters at the global mode */
-   const std::vector<double> & GetBestFitParameterErrors() const
-	{ return fBestFitParameterErrors; }
 
    /** @} */
 
@@ -436,11 +410,6 @@ public:
     * @param niterations interval for checking precision in integration routines */
    void SetNIterationsPrecisionCheck(int niterations)
    { fNIterationsPrecisionCheck = niterations; }
-
-   /**
-    * @param niterations interval for outputting during integration. If negative, frequency is autogenerated. */
-   void SetNIterationsOutput(int niterations)
-   { fNIterationsOutput = niterations; }
 
    /**
     * @param relprecision The relative precision envisioned for Monte
@@ -517,14 +486,15 @@ public:
     * Method needs to be overloaded by the user.
     * @param x The point in parameter space
     * @return The unnormalized probability */
-   virtual double Eval(const std::vector<double> &x);
+	 virtual double Eval(const std::vector<double> &x) = 0;
 
    /**
     * Evaluate the natural logarithm of the Eval function. For better numerical
     * stability, this method should also be overloaded by the user.
     * @param x The point in parameter space
     * @return log(Eval(x)) */
-   virtual double LogEval(const std::vector<double> &x);
+   virtual double LogEval(const std::vector<double> &x)
+	   { return log(Eval(x)); }
 
    /**
     * Performs integration. */
@@ -566,13 +536,7 @@ public:
     * @param ff The function value
     * @return An error code */
    static int CubaIntegrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void *userdata);
-#if 0
-   TH1D * Marginalize(BCIntegrationMethod type, unsigned index);
 
-   TH2D * Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2);
-
-   bool Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned> &index);
-#endif
    /**
     * Marginalize all probabilities wrt. single parameters and all combinations
     * of two parameters. The individual distributions can be retrieved using
@@ -772,24 +736,13 @@ public:
 
    /**
     * Set best fit parameters values*/
-   void SetBestFitParameters(const std::vector<double> &x)
-   { fBestFitParameters = x; }
+	 void SetBestFitParameters(const std::vector<double> &x);
 
    /**
     * Set best fit parameters if best fit
     * @param new_value is the value of the function at x
     * @param old_value is the old best fit value, updated to new_value, if it is larger */
    void SetBestFitParameters(const std::vector<double> &x, const double &new_value, double &old_value);
-
-   /**
-    * Get number of variables that are varied in the integration
-    * @return fNvar minus the number of fixed variables */
-   unsigned GetNIntegrationVariables();
-
-   /**
-    * Calculate the integration volume
-    * @return integration volume */
-   double CalculateIntegrationVolume();
 
    /**
     * Check availability of integration routine for marginalization */
@@ -851,19 +804,7 @@ protected:
    double fSALogProb;
    std::vector<double> fSAx;
 
-   /**
-    * Set of marginalized distributions. */
-   std::vector<BCH1D*> fMarginalized1D;
-
-   /**
-    * Set of marginalized distributions. */
-   std::vector<BCH2D*> fMarginalized2D;
-
  protected:
-   /**
-    * Determine frequency of output during integration */
-   unsigned IntegrationOutputFrequency() const;
-
    /**
     * Helper methods to unify output for integration methods
     * @param type
@@ -991,10 +932,6 @@ private:
    /**
     * Maximum number of iterations */
    unsigned fNIterationsPrecisionCheck;
-
-   /**
-    * Output frequency during integration */
-   unsigned fNIterationsOutput;
 
    /**
     * Number of iterations in the most recent Monte Carlo integration */

@@ -20,6 +20,8 @@
 
 // ---------------------------------------------------------
 
+class TH2D;
+
 #include "../../BAT/BCModel.h"
 
 // ---------------------------------------------------------
@@ -32,13 +34,9 @@ class BCFitter : public BCModel
   /* @{ */
 
   /**
-   * The default constructor. */
-  BCFitter();
-
-  /**
    * Constructor
    * @param name name of the model */
-  BCFitter(const char * name);
+  BCFitter(const char * name="fitter_model");
 
   /**
    * The default destructor. */
@@ -80,6 +78,9 @@ class BCFitter : public BCModel
   void FixDataAxis(unsigned int index, bool fixed);
 
   bool GetFixedDataAxis(unsigned int index) const;
+
+	double GetPValue()
+	{	return fPValue; }
 
   /* @} */
 
@@ -134,6 +135,19 @@ class BCFitter : public BCModel
    * @return The value of the fit function at the x-values given a set of parameters */
   virtual double FitFunction(const std::vector<double> &/*x*/, const std::vector<double> &/*parameters*/)
   { return 0; }
+
+
+	/**
+	 * 1dim cumulative distribution function of the probability
+	 * to get the data f(x_i|param) for a single measurement, assumed to
+	 * be of identical functional form for all measurements
+	 * @param parameters The parameter values at which point to compute the cdf
+	 * @param index The data point index starting at 0,1...N-1
+	 * @param lower only needed for discrete distributions!
+	 * Return the CDF for the count one less than actually observed, e.g.
+	 * in Poisson process, if 3 actually observed, then CDF(2) is returned */
+	virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
+	{return 0.0;}
 
   /* @} */
   /** \name Member functions (miscellaneous methods) */
@@ -204,6 +218,8 @@ class BCFitter : public BCModel
   /**
    * The error band histogram */
   TH2D * fErrorBandXY;
+
+	double fPValue;
 
 };
 

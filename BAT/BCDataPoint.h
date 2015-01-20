@@ -25,70 +25,100 @@
 // ---------------------------------------------------------
 
 #include <vector>
+#include "BCLog.h"
 
 // ---------------------------------------------------------
 
-class BCDataPoint
-{
-   public:
+class BCDataPoint {
+public:
+	
+	/** \name Constructors and destructors */
+	/** @{ */
+	
+	/**
+	 * A constructor.
+	 * @param nvariables The number of variables stored in a data object. */
+	BCDataPoint(int nvariables=0);
+	
+	/**
+	 * A constructor.
+	 * @param x The vector containing the data. */
+	BCDataPoint(const std::vector<double> & x);
+	
+	/**
+	 * Copy constructor. */
+	BCDataPoint(const BCDataPoint & other); 
+	
+	/** @} */
+	/** \name Member functions (get) */
+	/** @{ */
+	
+	/**
+	 * @param index The index of the variable.
+	 * @return The value of the variable. */
+	double GetValue(unsigned index) const;
+	
+	/**
+	 * @return A vector of values. */
+	const std::vector<double> & GetValues() const
+	{ return fData; };
+	
+	/**
+	 * Returns the number of values. */
+	unsigned int GetNValues() const
+	{ return fData.size(); };
+	
+	/** @} */
+	
+	/** \name Member functions (set) */
+	/** @{ */
+	
+	/**
+	 * Set the value of a variable.
+	 * @param index The index of the variable
+	 * @param value The value of the variable */
+	void SetValue(unsigned index, double value);
+	
+	/**
+	 * Set the values of all variables.
+	 * @param values A vector of values */
+	void SetValues(const std::vector<double> & values);
+	
+	/**
+	 * Set the number of variables.
+	 * Use with caution!
+	 * @param n New dimensionality to set for data point.
+	 * @param val Value to fill into new data values if enlarging data point size. */
+	void SetNValues(unsigned n, double val=0.)
+	{ fData.resize(n,val); }
 
-      /** \name Constructors and destructors */
-      /** @{ */
+	/** @} */
+	
+	/** \name Member functions (miscellaneous methods) */
+	/** @{ */
+	
+	/**
+	 * Copy a data point. */
+	void Copy(const BCDataPoint & other)
+	{ fData = other.fData; }
+	
+	/**
+	 * Assignment operator. */
+	BCDataPoint & operator=(const BCDataPoint & rhs)
+	{ Copy(rhs); return *this; }
+	
+	/**
+	 * Dump the data to the standard output */
+	void Dump(void (*output)(const char *) = BCLog::OutSummary) const;
+	
+	/** @} */
 
-      /**
-       * A constructor.
-       * @param nvariables The number of variables stored in a data.
-       * object */
-      BCDataPoint(int nvariables);
-
-      /**
-       * A constructor.
-       * @param x The vector containing the data. */
-      BCDataPoint(const std::vector<double> & x);
-
-      /** @} */
-      /** \name Member functions (get) */
-      /** @{ */
-
-      /**
-       * @param index The index of the variable.
-       * @return The value of the variable. */
-      double GetValue(unsigned index) const;
-
-      /**
-       * @return A vector of values. */
-      const std::vector<double> & GetValues() const
-         { return fData; };
-
-      /**
-       * Returns the number of values. */
-      unsigned int GetNValues() const
-         { return fData.size(); };
-
-      /** @} */
-
-      /** \name Member functions (set) */
-      /** @{ */
-
-      /**
-       * Set the value of a variable.
-       * @param index The index of the variable
-       * @param value The value of the variable */
-      void SetValue(unsigned index, double value);
-
-      /**
-       * Set the values of all variables.
-       * @param values A vector of values */
-      void SetValues(const std::vector<double> & values);
-
-      /** @} */
-
-   private:
-
-      /**
-       * The vector containing the values of the variables. */
-      std::vector<double> fData;
-
+private:
+	
+	/**
+	 * The vector containing the values of the variables. */
+	std::vector<double> fData;
+	
 };
 
 // ---------------------------------------------------------

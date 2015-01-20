@@ -24,6 +24,13 @@ BCVariableSet::BCVariableSet()
 }
 
 // ---------------------------------------------------------
+BCVariableSet & BCVariableSet::operator=(const BCVariableSet & rhs) {
+	for (unsigned i=0; i<rhs.fPars.size(); ++i)
+		Add(new BCVariable(*fPars[i]));
+	return *this;
+}
+
+// ---------------------------------------------------------
 bool BCVariableSet::Add(BCVariable * parameter)
 {
    if ( !parameter)
@@ -42,6 +49,11 @@ bool BCVariableSet::Add(BCVariable * parameter)
    // add parameter to parameter container
    fPars.push_back(parameter);
 	 fMaxNameLength = std::max(fMaxNameLength, (unsigned)parameter->GetName().length());
+	 // extend existing entries of fFillH2
+	 for (unsigned i=0; i<fFillH2.size(); ++i)
+		 fFillH2[i].resize(fPars.size(),false);
+	 // extend fFillH2
+	 fFillH2.resize(fPars.size(),std::vector<bool>(fPars.size(),false));
    return true;
 }
 
@@ -90,7 +102,72 @@ void BCVariableSet::SetPrecision(unsigned n) {
 }
 
 // ---------------------------------------------------------
-void BCVariableSet::FillHistograms(bool flag) {
+void BCVariableSet::FillH1(bool flag) {
 	for (unsigned i = 0 ; i < fPars.size() ; ++i )
-		fPars[i] -> FillHistograms(flag);
+		fPars[i] -> FillH1(flag);
+}
+
+// ---------------------------------------------------------
+void BCVariableSet::FillH2(bool flag) {
+	for (unsigned i = 0 ; i < fPars.size() ; ++i )
+		fPars[i] -> FillH2(flag);
+}
+
+// ---------------------------------------------------------
+bool BCVariableSet::FillH2(unsigned x, unsigned y) const {
+	return x<fFillH2.size() and y<fFillH2[x].size() // x and y within range
+		and (fFillH2[x][y]														// explicitely designated to be filled
+				 or (fPars[x]->FillH2() and fPars[y]->FillH2())); // or implicitely
+}
+
+// ---------------------------------------------------------
+double BCVariableSet::Volume() const {
+	double volume = 1;
+	for (unsigned i=0; i<fPars.size(); ++i)
+		volume *= fPars[i] -> GetRangeWidth();
+	if (volume<0)
+		return 0;
+	return volume;
+}
+
+// ---------------------------------------------------------
+bool BCVariableSet::IsWithinLimits(const std::vector<double> & x) const {
+	if (x.size() != fPars.size())
+		return false;
+	for (unsigned i=0; i<fPars.size(); ++i)
+		if (!fPars[i]->IsWithinLimits(x[i]))
+			return false;
+	return true;
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCVariableSet::PositionInRange(const std::vector<double> & x) const {
+	std::vector<double> p;
+	for (unsigned i=0; i<fPars.size(); ++i)
+		p.push_back(fPars[i]->PositionInRange(x[i]));
+	return p;
+}
+
+// ---------------------------------------------------------
+void BCVariableSet::ValueFromPositionInRange(std::vector<double> & p) const {
+	if ( p.size() != fPars.size() )
+		return;
+	for (unsigned i=0; i<fPars.size(); ++i)
+		p[i] = fPars[i]->ValueFromPositionInRange(p[i]);
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCVariableSet::GetRangeCenters() const {
+	std::vector<double> p;
+	for (unsigned i=0; i<fPars.size(); ++i)
+		p.push_back(fPars[i]->GetRangeCenter());
+	return p;
+}
+
+// ---------------------------------------------------------
+std::vector<double> BCVariableSet::GetUniformRandomValues(TRandom * const R) const {
+	std::vector<double> p;
+	for (unsigned i=0; i<fPars.size(); ++i)
+		p.push_back(fPars[i]->GetUniformRandomValue(R));
+	return p;
 }

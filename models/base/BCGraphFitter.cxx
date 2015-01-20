@@ -13,6 +13,7 @@
 #include <TString.h>
 #include <TPad.h>
 #include <TLegend.h>
+#include <TMath.h>
 #include <Math/ProbFuncMathCore.h>
 
 #include "../../BAT/BCLog.h"
@@ -21,19 +22,6 @@
 #include "../../BAT/BCMath.h"
 
 #include "BCGraphFitter.h"
-
-// ---------------------------------------------------------
-
-BCGraphFitter::BCGraphFitter()
- : BCFitter()
- , fGraph(0)
- , fFitFunction(0)
- , fErrorBand(0)
- , fGraphFitFunction(0)
-{
-   // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-}
 
 // ---------------------------------------------------------
 
@@ -50,23 +38,7 @@ BCGraphFitter::BCGraphFitter(const char * name)
 
 // ---------------------------------------------------------
 
-BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func)
- : BCFitter()
- , fGraph(0)
- , fFitFunction(0)
- , fErrorBand(0)
- , fGraphFitFunction(0)
-{
-   SetGraph(graph);
-   SetFitFunction(func);
-
-   // set MCMC for marginalization
-   SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-}
-
-// ---------------------------------------------------------
-
-BCGraphFitter::BCGraphFitter(const char * name, TGraphErrors * graph, TF1 * func)
+BCGraphFitter::BCGraphFitter(TGraphErrors * graph, TF1 * func, const char * name)
  : BCFitter(name)
  , fGraph(0)
  , fFitFunction(0)
@@ -114,7 +86,7 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
       return 0;
    }
 
-   BCDataSet * ds = new BCDataSet();
+	 SetDataSet(new BCDataSet());
 
    // fill the dataset
    // find x and y boundaries for the error band calculation
@@ -133,24 +105,19 @@ int BCGraphFitter::SetGraph(TGraphErrors * graph)
       dp->SetValue(1, y[i]);
       dp->SetValue(2, errx);
       dp->SetValue(3, ey[i]);
-      ds->AddDataPoint(dp);
 
-      if(x[i]-errx < xmin)
-         xmin = x[i]-errx;
-      else if(x[i]+errx > xmax)
-         xmax = x[i]+errx;
+      GetDataSet() -> AddDataPoint(dp);
 
-      if(y[i] - 5.*ey[i] < ymin)
-         ymin = y[i] - 5.*ey[i];
-      else if(y[i] + 5.*ey[i] > ymax)
-         ymax = y[i] + 5.*ey[i];
+			// include uncertainties in setting data bounds
+			xmin = std::min<double> (xmin, x[i]-errx);
+			xmax = std::max<double> (xmax, x[i]+errx);
+			ymin = std::min<double> (ymin, y[i]-errx/2);
+			ymax = std::max<double> (ymax, y[i]+errx/2);
    }
 
-   SetDataSet(ds);
-
    // set boundaries for the error band calculation
-   SetDataBoundaries(0, xmin, xmax);
-   SetDataBoundaries(1, ymin, ymax);
+   GetDataSet() -> SetBounds(0, xmin, xmax);
+   GetDataSet() -> SetBounds(1, ymin, ymax);
 
    SetFitFunctionIndices(0, 1);
 
@@ -210,36 +177,31 @@ BCGraphFitter::~BCGraphFitter()
 
 // ---------------------------------------------------------
 
-double BCGraphFitter::LogLikelihood(const std::vector<double> & params)
-{
-   // initialize probability
-   double logl = 0.;
+double BCGraphFitter::LogLikelihood(const std::vector<double> & params) {
+	if (fFitFunction or !GetDataSet() or GetDataSet()->GetNDataPoints()==0)
+		return -std::numeric_limits<double>::infinity();
 
-   // set the parameters of the function
-   // passing the pointer to first element of the vector is
-   // not completely safe as there might be an implementation where
-   // the vector elements are not stored consecutively in memory.
-   // however it is much faster than copying the contents, especially
-   // for large number of parameters
-   fFitFunction->SetParameters(&params[0]);
+	// set the parameters of the function
+	// passing the pointer to first element of the vector is
+	// not completely safe as there might be an implementation where
+	// the vector elements are not stored consecutively in memory.
+	// however it is much faster than copying the contents, especially
+	// for large number of parameters
+	fFitFunction->SetParameters(&params[0]);
 
-   // loop over all data points
-   for (unsigned i = 0; i < GetNDataPoints(); i++)
-   {
-      std::vector<double> x = GetDataPoint(i)->GetValues();
+	// initialize probability
+	double logl = 0.;
 
-      // her we ignore the errors on x even when they're available
-      // i.e. we treat them just as the region specifiers
-      double y = x[1];
-      double yerr = x[3];
-      double yexp = fFitFunction->Eval(x[0]);
-
-      // calculate log of probability assuming
-      // a Gaussian distribution for each point
-      logl += BCMath::LogGaus(y, yexp, yerr, true);
-   }
-
-   return logl;
+	// loop over all data points
+	for (unsigned i = 0; i < GetNDataPoints(); i++)
+		// calculate log of probability assuming
+		// a Gaussian distribution for each point
+		logl += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)->GetValue(1), // y value of point
+														fFitFunction->Eval(GetDataSet()->GetDataPoint(i)->GetValue(0)), // f(x value of point)
+														GetDataSet()->GetDataPoint(i)->GetValue(3), // uncertainty on y value of point
+														true); // include normalization factor
+	
+	return logl;
 }
 
 // ---------------------------------------------------------
@@ -312,12 +274,6 @@ int BCGraphFitter::Fit()
    SetOptimizationMethod(BCIntegrate::kOptMinuit);
    FindMode( GetBestFitParameters());
    SetOptimizationMethod(method_temp);
-
-   // calculate p-value from the chi2 probability
-   // this is only valid for a product of gaussiang which is the case for
-   // the BCGraphFitter
-   GetPvalueFromChi2(GetBestFitParameters(), 3);
-   GetPvalueFromChi2NDoF(GetBestFitParameters(), 3);
 
    // print summary to screen
    PrintShortFitSummary(1);
@@ -398,3 +354,45 @@ double BCGraphFitter::CDF(const std::vector<double> & parameters,  int index, bo
 }
 
 // ---------------------------------------------------------
+double BCGraphFitter::GetChi2(const std::vector<double> & pars) {
+	if (!fFitFunction)
+		return -std::numeric_limits<double>::infinity();
+	if (!GetDataSet())
+		return 0;
+
+	// set pars into fit function
+	fFitFunction -> SetParameters(&pars[0]);
+	
+	double chi2 = 0;
+	for (unsigned i=0; i<GetDataSet()->GetNDataPoints(); ++i)
+		chi2 += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)->GetValue(1), // y value of point
+														fFitFunction->Eval(GetDataSet()->GetDataPoint(i)->GetValue(0)), // f(x value of point)
+														GetDataSet()->GetDataPoint(i)->GetValue(3), // uncertainty on y value of point
+														false); // forego normalization factor
+	return chi2;
+}
+
+
+// ---------------------------------------------------------
+double BCGraphFitter::GetPValue(const std::vector<double> & pars, bool ndf) {
+	double chi2 = GetChi2(pars);
+
+	if (chi2<0)
+		fPValue = -1;
+	
+	else if (ndf) {
+		if (GetNDoF() <= 0) {
+			BCLog::OutError("BCGoFTest::GetPValue : number of degrees of freedom is less than or equal to zero.");
+			fPValue = -1;
+		}
+		fPValue = TMath::Prob(chi2,GetNDoF());
+
+	} else if (GetNDataPoints() == 0) {
+		BCLog::OutError("BCGraphFitter::GetPValue : number of data points is zero.");
+		fPValue = -1;
+
+	} else
+		fPValue = TMath::Prob(chi2,GetNDataPoints());
+
+	return fPValue;
+}

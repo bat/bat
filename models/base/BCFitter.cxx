@@ -22,30 +22,16 @@
 #include "TGraph.h"
 
 // ---------------------------------------------------------
-BCFitter::BCFitter() : BCModel()
-                     , fErrorBand(0)
-                     , fFlagFillErrorBand(true)
-                     , fFitFunctionIndexX(-1)
-                     , fFitFunctionIndexY(-1)
-                     , fErrorBandContinuous(true)
-                     , fErrorBandX(std::vector<double>(0))
-                     , fErrorBandNbinsX(100)
-                     , fErrorBandNbinsY(500)
-                     , fErrorBandXY(0)
-{
-}
-
-// ---------------------------------------------------------
-BCFitter::BCFitter(const char * name) : BCModel(name)
-                                      , fErrorBand(0)
-                                      , fFlagFillErrorBand(true)
-                                      , fFitFunctionIndexX(-1)
-                                      , fFitFunctionIndexY(-1)
-                                      , fErrorBandContinuous(true)
-                                      , fErrorBandX(std::vector<double>(0))
-                                      , fErrorBandNbinsX(100)
-                                      , fErrorBandNbinsY(500)
-                                      , fErrorBandXY(0)
+BCFitter::BCFitter(const char * name)
+	: BCModel(name)
+	, fErrorBand(0)
+	, fFlagFillErrorBand(true)
+	, fFitFunctionIndexX(-1)
+	, fFitFunctionIndexY(-1)
+	, fErrorBandContinuous(true)
+	, fErrorBandNbinsX(100)
+	, fErrorBandNbinsY(500)
+	, fErrorBandXY(0)
 {
 }
 
@@ -72,28 +58,23 @@ void BCFitter::MarginalizePreprocess()
   double dx = 0.;
   double dy = 0.;
 
-  if (fFitFunctionIndexX >= 0) {
-    dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX)
-          - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
-      / (double) fErrorBandNbinsX;
+  if (GetDataSet() and fFitFunctionIndexX >= 0 and fFitFunctionIndexY >=0) {
+		dx = GetDataSet() -> GetRangeWidth(fFitFunctionIndexX) / fErrorBandNbinsX;
+    dy = GetDataSet() -> GetRangeWidth(fFitFunctionIndexY) / fErrorBandNbinsY;
 
-    dy = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY)
-          - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
-      / (double) fErrorBandNbinsY;
+    fErrorBandXY = new TH2D(TString::Format("errorbandxy_%s", GetSafeName().data()), "",
+														fErrorBandNbinsX,
+														GetDataSet()->GetLowerBound(fFitFunctionIndexX) - dx/2,
+														GetDataSet()->GetUpperBound(fFitFunctionIndexX) + dx/2,
+														fErrorBandNbinsY,
+														GetDataSet()->GetLowerBound(fFitFunctionIndexY) - dy/2,
+														GetDataSet()->GetUpperBound(fFitFunctionIndexY) + dy/2);
+		fErrorBandXY -> SetStats(kFALSE);
 
-    fErrorBandXY
-      = new TH2D(TString::Format("errorbandxy_%d", BCLog::GetHIndex()), "",
-                 fErrorBandNbinsX,
-                 fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX) - .5 * dx,
-                 fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) + .5 * dx,
-                 fErrorBandNbinsY,
-                 fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - .5 * dy,
-                 fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + .5 * dy);
-    fErrorBandXY->SetStats(kFALSE);
-
+		// why are we doing this?
     for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
       for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
-        fErrorBandXY->SetBinContent(ix, iy, 0.);
+        fErrorBandXY -> SetBinContent(ix, iy, 0.);
   }
 
 }
@@ -306,7 +287,7 @@ int BCFitter::ReadErrorBandFromFile(const char * file)
    TH2D * h2 = (TH2D*) froot->Get("errorbandxy");
    if (h2) {
       h2->SetDirectory(0);
-      h2->SetName(TString::Format("errorbandxy_%d", BCLog::GetHIndex()));
+      h2->SetName(TString::Format("errorbandxy_%s", GetSafeName().data()));
       SetErrorBandHisto(h2);
       r = 1;
    }
@@ -362,5 +343,3 @@ void BCFitter::SetErrorBandContinuous(bool flag)
    for (unsigned int i = 0; i < fDataSet->GetNDataPoints(); ++i)
       fErrorBandX.push_back(fDataSet->GetDataPoint(i)->GetValue(fFitFunctionIndexX));
 }
-
-// ---------------------------------------------------------

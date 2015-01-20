@@ -37,7 +37,7 @@ double BCMVCPhysicsModel::LogLikelihood(const std::vector<double> &parameters)
 }
 
 // ---------------------------------------------------------
-void BCMVCPhysicsModel::AddObservable(std::string name, double min, double max)
+void BCMVCPhysicsModel::AddMVCObservable(std::string name, double min, double max)
 {
   // check if observable exists already
   int index = GetIndexObservable(name);

@@ -32,7 +32,7 @@
 #include <algorithm>
 
 // ---------------------------------------------------------
-BCH2D::BCH2D(TH2 * h)
+BCH2D::BCH2D(const TH2 * const h)
 	: BCHistogramBase(h,2)
 	, fBandType(kSmallestInterval)
 	, fDrawProfileX(false)

@@ -37,7 +37,6 @@ BCHistogramFitter::BCHistogramFitter()
    MCMCSetNIterationsRun(2000);
    SetFillErrorBand();
    fFlagIntegration = true;
-   flag_discrete = true;
 
    // set MCMC for marginalization
    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -55,7 +54,6 @@ BCHistogramFitter::BCHistogramFitter(const char * name)
    MCMCSetNIterationsRun(2000);
    SetFillErrorBand();
    fFlagIntegration = true;
-   flag_discrete = true;
 
    // set MCMC for marginalization
    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -75,7 +73,6 @@ BCHistogramFitter::BCHistogramFitter(TH1D * hist, TF1 * func)
    MCMCSetNIterationsRun(2000);
    SetFillErrorBand();
    fFlagIntegration = true;
-   flag_discrete = true;
 
    // set MCMC for marginalization
    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -95,7 +92,6 @@ BCHistogramFitter::BCHistogramFitter(const char * name, TH1D * hist, TF1 * func)
    MCMCSetNIterationsRun(2000);
    SetFillErrorBand();
    fFlagIntegration = true;
-   flag_discrete = true;
 
    // set MCMC for marginalization
    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -117,7 +113,7 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
    // create a data set. this is necessary in order to calculate the
    // error band. the data set contains as many data points as there
    // are bins.
-   BCDataSet * ds = new BCDataSet();
+   SetDataSet(new BCDataSet());
 
    // create data points and add them to the data set.
    // the x value is the lower edge of the bin, and
@@ -125,30 +121,15 @@ int BCHistogramFitter::SetHistogram(TH1D * hist)
    int nbins = fHistogram->GetNbinsX();
    for (int i = 0; i < nbins; ++i) {
       BCDataPoint* dp = new BCDataPoint(2);
-      dp ->SetValue(0, fHistogram->GetBinLowEdge(i + 1));
-      dp ->SetValue(1, fHistogram->GetBinContent(i + 1));
-      ds->AddDataPoint(dp);
+      dp -> SetValue(0, fHistogram->GetBinLowEdge(i + 1));
+      dp -> SetValue(1, fHistogram->GetBinContent(i + 1));
+      GetDataSet() -> AddDataPoint(dp);
    }
 
-   // set the new data set.
-   SetDataSet(ds);
-
-   // calculate the lower and upper edge in x.
-   double xmin = hist->GetBinLowEdge(1);
-   double xmax = hist->GetBinLowEdge(nbins + 1);
-
-   // calculate the minimum and maximum range in y.
-   double histymin = hist->GetMinimum();
-   double histymax = hist->GetMaximum();
-
-   // calculate the minimum and maximum of the function value based on
-   // the minimum and maximum value in y.
-   double ymin = TMath::Max(0., histymin - 5. * sqrt(histymin));
-   double ymax = histymax + 5. * sqrt(histymax);
-
    // set the data boundaries for x and y values.
-   SetDataBoundaries(0, xmin, xmax);
-   SetDataBoundaries(1, ymin, ymax);
+   GetDataSet() -> SetBounds(0, hist->GetXaxis()->GetXmin(),hist->GetXaxis()->GetXmax());
+   GetDataSet() -> SetBounds(1, std::max<double>(hist->GetMinimum()-sqrt(hist->GetMinimum())/2,0),
+														 hist->GetMaximum() + sqrt(hist->GetMaximum())/2);
 
    // set the indeces for fitting.
    SetFitFunctionIndices(0, 1);
@@ -506,7 +487,7 @@ int BCHistogramFitter::CalculatePValueLikelihood(const std::vector<double> & par
 
    //p value from chi^2 distribution, returns zero if logLambda < 0
    fPValue = TMath::Prob(logLambda, GetNDataPoints());
-   fPValueNDoF = TMath::Prob(logLambda, GetNDataPoints() - GetNParameters());
+   fPValueNDoF = TMath::Prob(logLambda, GetNDoF());
 
    // no error
    return 1;
