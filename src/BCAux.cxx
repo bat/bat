@@ -98,3 +98,14 @@ void BCAux::SetStyle()
    gStyle->SetPalette(1,0);
 
 }
+
+// ---------------------------------------------------------
+void BCAux::ForceToBePDF(std::string & filename) {
+	if (filename.empty())
+		return;
+
+	// if file has no extension or if it's not ".pdf" or ".ps", make it ".pdf"
+	if ( filename.find_last_of(".") == std::string::npos or
+			 ( filename.substr(filename.find_last_of(".")) != ".pdf" and	filename.substr(filename.find_last_of(".")) != ".ps" ) )
+		filename += ".pdf";
+}

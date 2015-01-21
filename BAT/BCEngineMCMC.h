@@ -23,16 +23,15 @@
 
 // ---------------------------------------------------------
 
-#include "BCVariable.h"
+// #include "BCVariable.h"
 #include "BCParameter.h"
 #include "BCParameterSet.h"
 #include "BCObservable.h"
 #include "BCVariableSet.h"
 #include "BCLog.h"
-#include "BCH1D.h"
-#include "BCH2D.h"
 
 #include <vector>
+#include <limits>
 
 #include <TMatrixDSym.h>
 #include <TMatrixD.h>
@@ -43,6 +42,10 @@ class TH2;
 class TTree;
 class TFile;
 class TRandom3;
+
+class BCH1D;
+class BCH2D;
+class BCVariable;
 
 // ---------------------------------------------------------
 
@@ -162,7 +165,7 @@ public:
 	 * Defaut assignment operator */
 	BCEngineMCMC & operator = (const BCEngineMCMC & engineMCMC)
 	{ Copy(engineMCMC); return *this; }
-
+	
 	/** @} */
 	/** \name Getters */
 	/** @{ */
@@ -207,7 +210,7 @@ public:
 	 * converge simultaneously */
 	unsigned MCMCGetNIterationsConvergenceGlobal() const
 	{ return fMCMCNIterationsConvergenceGlobal; }
-
+	
 	/**
 	 * @return minimum number of pre-run iterations for a Markov chain */
 	unsigned MCMCGetNIterationsPreRunMin() const
@@ -265,40 +268,45 @@ public:
 
 	/**
 	 * @return scale factor for all parameters and achain.
-	 * @param ichain chain index */
-	std::vector<double> MCMCGetTrialFunctionScaleFactor(unsigned ichain) const;
-
+	 * @param c chain index */
+	std::vector<double> MCMCGetTrialFunctionScaleFactor(unsigned c) const
+	{ return (c<fMCMCTrialFunctionScaleFactor.size()) ? fMCMCTrialFunctionScaleFactor[c] : std::vector<double>(); }
+	
 	/**
 	 * @return scale factor for a parameter and a chain.
-	 * @param ichain chain index
-	 * @param ipar parameter index */
-	double MCMCGetTrialFunctionScaleFactor(unsigned ichain, unsigned ipar);
-
+	 * @param c chain index
+	 * @param p parameter index */
+	double MCMCGetTrialFunctionScaleFactor(unsigned c, unsigned p) const
+	{ return (c<fMCMCTrialFunctionScaleFactor.size() and p<fMCMCTrialFunctionScaleFactor[c].size()) ? fMCMCTrialFunctionScaleFactor[c][p] : std::numeric_limits<double>::quiet_NaN(); }
+	
 	/**
 	 * @return current point of each Markov chain */
 	const std::vector<std::vector<double> > & MCMCGetx() const
 	{ return fMCMCx; }
 
 	/**
-	 * @param ichain index of the Markov chain
+	 * @param c index of the Markov chain
 	 * @return current point of the Markov chain */
-	std::vector<double> MCMCGetx(unsigned ichain);
-
+	std::vector<double> MCMCGetx(unsigned c) const
+	{ return (c<fMCMCx.size()) ? fMCMCx[c] : std::vector<double>(); }
+	
 	/**
-	 * @param ichain chain index
-	 * @param ipar parameter index
+	 * @param c chain index
+	 * @param p parameter index
 	 * @return parameter of the Markov chain */
-	double MCMCGetx(unsigned ichain, unsigned ipar) const;
+	double MCMCGetx(unsigned c, unsigned p) const
+	{ return (c<fMCMCx.size() and p<fMCMCx[c].size()) ? fMCMCx[c][p] : std::numeric_limits<double>::quiet_NaN(); }
 
 	/**
 	 * @return log of the probability of the current points of each Markov chain */
 	const std::vector<double> & MCMCGetLogProbx() const
 	{ return fMCMCprob; }
-
+	
 	/**
 	 * @return log of the probability of the current points of the Markov chain.
-	 * @param ichain chain index */
-	double MCMCGetLogProbx(unsigned ichain);
+	 * @param c chain index */
+	double MCMCGetLogProbx(unsigned c) const
+	{ return (c<fMCMCprob.size()) ? fMCMCprob[c] : -std::numeric_limits<double>::infinity(); }
 
 	/**
 	 * @return pointer to the phase of a run. */
@@ -353,8 +361,8 @@ public:
 	/**
 	 * @return R-value for a parameter
 	 * @param i parameter index */
-	double MCMCGetRValueParameters(unsigned i)
-	{ return fMCMCRValueParameters.at(i); }
+	double MCMCGetRValueParameters(unsigned i) const
+	{ return (i<fMCMCRValueParameters.size()) ? fMCMCRValueParameters[i] : std::numeric_limits<double>::infinity(); }
 
 	/** Flag for correcting convergence checking for initial sampling variability. */
 	bool MCMCGetCorrectRValueForSamplingVariability() const
@@ -372,29 +380,29 @@ public:
 
 	/**
 	 * Retrieve the tree containing the Markov chain. */
-	TTree * MCMCGetMarkovChainTree()
+	TTree * const MCMCGetMarkovChainTree()
 	{ return fMCMCTree;}
 
 	/**
 	 * Retrieve the tree containing the parameter information. */
-	TTree * MCMCGetParameterTree()
+	TTree * const MCMCGetParameterTree()
 	{ return fParameterTree;}
 
 	/**
 	 * Retrieve output file for MCMC. */
-	TFile * MCMCGetOutputFile()
+	TFile * const MCMCGetOutputFile()
 	{ return fMCMCOutputFile; }
 
 	/**
 	 * Get combined statistics for all chains. */
-	BCEngineMCMC::MCMCStatistics MCMCGetStatistics() 
+	BCEngineMCMC::MCMCStatistics MCMCGetStatistics() const
 	{ return fMCMCStatistics_AllChains; }
 	    
 	/**
 	 * Get MCMC statistics for one chain.
 	 * @param c Chain to get statisics of. */
-	BCEngineMCMC::MCMCStatistics MCMCGetStatistics(unsigned c) 
-	{ if (c<fMCMCStatistics.size()) return fMCMCStatistics[c]; return BCEngineMCMC::MCMCStatistics(); }
+	BCEngineMCMC::MCMCStatistics MCMCGetStatistics(unsigned c) const
+	{ return (c<fMCMCStatistics.size()) ? fMCMCStatistics[c] : BCEngineMCMC::MCMCStatistics(); }
 	
 	/**
 	 * Close MCMC output file. */
@@ -402,25 +410,25 @@ public:
 
 	/**
 	 * @return Flag for whether to rescale histogram ranges to fit MCMC reach after pre-run. */
-	bool GetRescaleHistogramRangesAfterPreRun()
+	bool GetRescaleHistogramRangesAfterPreRun() const
 	{ return fRescaleHistogramRangesAfterPreRun; }
 
 	/**
 	 * @return Factor by which to enlarge histogram ranges when rescaling to add padding beyond range. */
-	double GetHistogramRescalePadding()
+	double GetHistogramRescalePadding() const
 	{ return fHistogramRescalePadding; }
 
 	/**
 	 * @param index Index of histogram of which to check existence
 	 * @return Whether the marginalized histogram exists. */
-	bool MarginalizedHistogramExists(unsigned index)
+	bool MarginalizedHistogramExists(unsigned index) const
 	{ return index<fH1Marginalized.size() and fH1Marginalized[index]; }
 
 	/**
 	 * @param index1 X Index of histogram of which to check existence.
 	 * @param index2 Y Index of histogram of which to check existence.
 	 * @return Whether the marginalized histogram exists. */
-	bool MarginalizedHistogramExists(unsigned index1, unsigned index2)
+	bool MarginalizedHistogramExists(unsigned index1, unsigned index2) const
 	{ return index1<fH2Marginalized.size() and index2<fH2Marginalized[index1].size() and fH2Marginalized[index1][index2]; }
 
 	/**
@@ -429,7 +437,7 @@ public:
 	 * @note The most efficient method is to access by index.
 	 * @param name The parameter's name
 	 * @return 1D marginalized probability */
-	TH1 * GetMarginalizedHistogram(const char * name) const
+	TH1 * const GetMarginalizedHistogram(const char * name) const
 	{ return GetMarginalizedHistogram(fParameters.Index(name)); }
    
 	/**
@@ -437,7 +445,7 @@ public:
 	 * with respect to one parameter as a ROOT TH1
 	 * @param index The parameter index
 	 * @return 1D marginalized probability */
-	TH1 * GetMarginalizedHistogram(unsigned index) const;
+	TH1 * const GetMarginalizedHistogram(unsigned index) const;
    
 	/**
 	 * Obtain the individual marginalized distributions
@@ -446,7 +454,7 @@ public:
 	 * @param name1 Name of first parameter
 	 * @param name2 Name of second parameter
 	 * @return 2D marginalized probability */
-	TH2 * GetMarginalizedHistogram(const char * name1, const char * name2) const
+	TH2 * const GetMarginalizedHistogram(const char * name1, const char * name2) const
 	{ return GetMarginalizedHistogram(fParameters.Index(name1), fParameters.Index(name2)); }
    
 	/**
@@ -455,7 +463,7 @@ public:
 	 * @param index1 Index of first parameter
 	 * @param index2 Index of second parameter
 	 * @return 2D marginalized probability */
-	TH2 * GetMarginalizedHistogram(unsigned index1, unsigned index2) const;
+	TH2 * const GetMarginalizedHistogram(unsigned index1, unsigned index2) const;
 
 	/**
 	 * Obtain the individual marginalized distributions
@@ -464,7 +472,7 @@ public:
 	 * @note Ownership of the returned heap object is conferred to the caller.
 	 * @param name The parameter's name
 	 * @return 1D marginalized probability */
-	BCH1D * GetMarginalized(const char * name)
+	BCH1D * GetMarginalized(const char * name) const
 	{ return GetMarginalized(fParameters.Index(name)); }
    
 	/**
@@ -473,7 +481,7 @@ public:
 	 * @note Ownership of the returned heap object is conferred to the caller.
 	 * @param index The parameter index
 	 * @return 1D marginalized probability */
-	BCH1D * GetMarginalized(unsigned index);
+	BCH1D * GetMarginalized(unsigned index) const;
    
 	/**
 	 * Obtain the individual marginalized distributions
@@ -483,7 +491,7 @@ public:
 	 * @param name1 Name of first parameter
 	 * @param name2 Name of second parameter
 	 * @return 2D marginalized probability */
-	BCH2D * GetMarginalized(const char * name1, const char * name2)
+	BCH2D * GetMarginalized(const char * name1, const char * name2) const
 	{ return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
    
 	/**
@@ -493,12 +501,12 @@ public:
 	 * @param index1 Index of first parameter
 	 * @param index2 Index of second parameter
 	 * @return 2D marginalized probability */
-	BCH2D * GetMarginalized(unsigned index1, unsigned index2);
-   
+	BCH2D * GetMarginalized(unsigned index1, unsigned index2) const;
+	
 	/**
 	 * @param observables Whether to check max length of user-defined observable names.
 	 * @return length of longest parameter name. */
-	unsigned GetMaximumParameterNameLength(bool observables=true)
+	unsigned GetMaximumParameterNameLength(bool observables=true) const
 	{ return (observables) ? std::max(fParameters.MaxNameLength(),fObservables.MaxNameLength()) : fParameters.MaxNameLength(); }
 
 	/**
@@ -506,11 +514,12 @@ public:
 	 * 0,...,N_parameters in the ParameterSet, and then over
 	 * N_parameters,...,N_parameters+N_observables in the ObservableSet
 	 * @return The observable. */
-	BCVariable * GetVariable(unsigned int index) const;
+	BCVariable * const GetVariable(unsigned index) const
+	{ return ((index<GetNParameters()) ? fParameters.Get(index) : ((index<GetNVariables()) ? fObservables.Get(index-GetNParameters()) : NULL)); }
 
 	/**
 	 * @return The number of parameters of the model. */
-	unsigned int GetNVariables() const
+	unsigned GetNVariables() const
 	{ return fParameters.Size() + fObservables.Size(); }
 
 	/**
@@ -521,28 +530,28 @@ public:
 	/**
 	 * @param index The index of the parameter in the parameter set.
 	 * @return The parameter. */
-	BCParameter * GetParameter(int index) const
-	{ return (BCParameter*)fParameters.Get(index); }
+	BCParameter * const GetParameter(int index) const
+	{ return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
 
 	/**
 	 * @param name The name of the parameter in the parameter set.
 	 * @return The parameter. */
-	BCParameter * GetParameter(const char * name) const
-	{ return (BCParameter*)fParameters.Get(name); }
+	BCParameter * const GetParameter(const char * name) const
+	{ return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
 
 	/**
 	 * @return The number of parameters of the model. */
-	unsigned int GetNParameters() const
+	unsigned GetNParameters() const
 	{ return fParameters.Size(); }
 
 	/**
 	 * @return The number of fixed parameters. */
-	unsigned int GetNFixedParameters()
+	unsigned GetNFixedParameters() const
 	{ return fParameters.GetNFixedParameters(); }
 
 	/**
 	 * @return The number of free parameters. */
-	unsigned int GetNFreeParameters()
+	unsigned GetNFreeParameters() const
 	{ return fParameters.GetNFreeParameters(); }
 
 	/**
@@ -553,51 +562,19 @@ public:
 	/**
 	 * @param index The index of the observable in the observable set.
 	 * @return The user-defined observable. */
-	BCObservable * GetObservable(int index) const
-	{ return (BCObservable*)fObservables.Get(index); }
+	BCObservable * const GetObservable(int index) const
+	{ return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
 
 	/**
 	 * @param name The name of the observable in the observable set.
 	 * @return The user-defined observable. */
 	BCObservable * GetObservable(const char * name) const
-	{ return (BCObservable*)fObservables.Get(name); }
+	{ return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
 
 	/**
 	 * @return The number of user-defined observables. */
 	unsigned GetNObservables() const
 	{ return fObservables.Size(); }
-
-	/**
-	 * Return whether to fill H2
-	 * @param obs index of observable to be horizontal axis
-	 * @param par index of parameter to be vertical axis
-	 * @return whether to fill H2. */
-	virtual bool FillParVsObsH2(unsigned obs, unsigned par) const
-	{ return false; }
-
-	/**
-	 * Return whether to fill H2
-	 * @param obs name of observable to be horizontal axis
-	 * @param par name of parameter to be vertical axis
-	 * @return whether to fill H2. */
-	virtual bool FillParVsObsH2(std::string obs, std::string par) const
-	{ return FillParVsObsH2(fObservables.Index(obs),fParameters.Index(par)); }
-
-	/**
-	 * Return whether to fill H2
-	 * @param par index of parameter to be horizontal axis
-	 * @param obs index of observable to be vertical axis
-	 * @return whether to fill H2. */
-	virtual bool FillObsVsParH2(unsigned par, unsigned obs) const
-	{ return false; }
-
-	/**
-	 * Return whether to fill H2
-	 * @param par index of parameter to be horizontal axis
-	 * @param obs index of observable to be vertical axis
-	 * @return whether to fill H2. */
-	virtual bool FillObsVsParH2(std::string par, std::string obs) const
-	{ return FillObsVsParH2(fParameters.Index(par),fObservables.Index(obs)); }
 
 	/**
 	 * @return vector of parameter and observable values at global mode. */
@@ -612,7 +589,6 @@ public:
 	 * @return vector of observable values at global mode. */
 	virtual std::vector<double> GetBestFitObservables() const;
 
-
 	/**
 	 * @return vector of the local modes of parameters and observables
 	 * @param force_recalculation flag for forcing recalculation of local modes from histograms. */
@@ -620,22 +596,22 @@ public:
 
 	/**
 	 * @return The log of the value at the mode. */
-	virtual double GetLogMaximum()
+	virtual double GetLogMaximum() const
 	{ return fMCMCStatistics_AllChains.probability_mode; };
 
 	/** 
 	 * @return Flag whether to reuse user-defined observables from MCMC tree when looping through it. */ 
-	bool MCMCGetReuseObservables()
+	bool MCMCGetReuseObservables() const
 	{ return fMCMCTreeReuseObservables; }
 
 	/**
 	 * @return BCH1D object that stores drawing options for all BCH1D's. */
-	BCH1D * GetBCH1DdrawingOptions()
+	BCH1D * const GetBCH1DdrawingOptions()
 	{ return fBCH1DdrawingOptions; }
 
 	/**
 	 * @return BCH2D object that stores drawing options for all BCH2D's. */
-	BCH2D * GetBCH2DdrawingOptions()
+	BCH2D * const GetBCH2DdrawingOptions()
 	{ return fBCH2DdrawingOptions; }
 
 	/** @} */
@@ -790,9 +766,15 @@ public:
 	void MCMCSetMultivariateProposalFunctionScaleMultiplier(double s)
 	{ fMultivariateProposalFunctionScaleMultiplier = s; }
 
-	/** Sets the flag for all parameters to either fill histograms or not. */
+	/** Sets whether to fill histograms.
+	 * Applies to 1D and 2D histogams of all parameters and observables so far added. */
 	void MCMCSetFlagFillHistograms(bool flag)
 	{ fParameters.FillHistograms(flag); fObservables.FillHistograms(flag); }
+
+	/** Sets the whether to fill histograms.
+	 * Applies to all parameters and observables so far added. */
+	void MCMCSetFlagFillHistograms(bool flag_1d, bool flag_2d)
+	{ fParameters.FillHistograms(flag_1d,flag_2d); fObservables.FillHistograms(flag_1d,flag_2d); }
 
 	/** Sets the flag if a prerun should be performed or not. */
 	void MCMCSetFlagPreRun(bool flag)
@@ -876,18 +858,22 @@ public:
 	/**
 	 * Prints a summary to a file.
 	 * @return Success of action.*/
-	virtual bool PrintResults(const char * file);
+	virtual bool PrintResults(const char * file) const;
 
 	/**
 	 * Print parameters
 	 * @P is a vector of the parameter values to be printed
 	 * @output is a pointer to the output function to be used,
 	 * which defaults to BCLog::OutSummary */
-	void PrintParameters(std::vector<double> const & P, void (*output)(const char *) = BCLog::OutSummary);
+	void PrintParameters(std::vector<double> const & P, void (*output)(const char *) = BCLog::OutSummary) const;
 
 	/**
-	 *  Print all marginalizations. */
-	int PrintAllMarginalized(std::string filename, unsigned int hdiv=1, unsigned int ndiv=1);
+	 * Print all marginalizations.
+	 * @param filename Path to file to print to
+	 * @param hdiv Number of columns of plots per page
+	 * @param vdiv Number of rows of plots per page
+	 * @return Number of plots printed */
+	unsigned PrintAllMarginalized(std::string filename, unsigned hdiv=1, unsigned vdiv=1) const;
 	
 	/**
 	 * Print a summary plot for the parameters and user-defined observables.
@@ -896,8 +882,8 @@ public:
 	 * @param interval_content Probability mass to display in smallest X interval band
 	 * @param quantile_values Vector of quantile values to draw
 	 * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
-	 * @return An error flag. */
-	int PrintParameterPlot(const char * filename = "parameters.pdf", int npar=10, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0), bool rescale_ranges=true);
+	 * @return Number of pages printed. */
+	unsigned PrintParameterPlot(std::string filename, int npar=10, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0), bool rescale_ranges=true) const;
 			
 	/**
 	 * Draw a summary plot for the parameters in the range provided to current pad
@@ -906,8 +892,8 @@ public:
 	 * @param interval_content Probability mass to display in smallest X interval band
 	 * @param quantile_values Vector of quantile values to draw
 	 * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
-	 * @return An error flag. */
-	int DrawParameterPlot(unsigned i0, unsigned npar=0, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0), bool rescale_ranges=true);
+	 * @return Success of action. */
+	bool DrawParameterPlot(unsigned i0, unsigned npar=0, double interval_content=68e-2, std::vector<double> quantile_vals=std::vector<double>(0), bool rescale_ranges=true) const;
 			
 	/**
 	 * Print a correlation matrix for the parameters.
@@ -917,7 +903,7 @@ public:
 	/**
 	 * Print a correlation plot for the parameters.
 	 * @return An error flag. */
-	int PrintCorrelationPlot(const char * filename = "correlation.pdf");
+	int PrintCorrelationPlot(const char * filename = "correlation.pdf", bool include_observables=true);
 			
 	/**
 	 * Print a Latex table of the parameters.
@@ -976,36 +962,6 @@ public:
 	 * to calculate user-observables. */
 	virtual void CalculateObservables(const std::vector<double> &pars)
 	{}
-
-	/**
-	 * Set filling of histogram of parameter (y-axis) vs observable (x-axis)
-	 * @param obs index of observable to be horizontal axis
-	 * @param par index of parameter to be vertical axis
-	 * @param flag whether to fill H2. */
-	virtual void FillParVsObsH2(unsigned obs, unsigned par, bool flag) const {}
-
-	/**
-	 * Set filling of histogram of parameter (y-axis) vs observable (x-axis)
-	 * @param obs name of observable to be horizontal axis
-	 * @param par name of parameter to be vertical axis
-	 * @param flag whether to fill H2. */
-	virtual void FillParVsObsH2(std::string obs, std::string par, bool flag) const
-	{ FillParVsObsH2(fObservables.Index(obs),fParameters.Index(par),flag); }
-
-	/**
-	 * Set filling of histogram of observable (y-axis) vs parameter (x-axis)
-	 * @param par index of parameter to be horizontal axis
-	 * @param obs index of observable to be vertical axis
-	 * @param flag whether to fill H2. */
-	virtual void FillObsVsParH2(unsigned par, unsigned obs, bool flag) const {}
-
-	/**
-	 * Set filling of histogram of observable (y-axis) vs parameter (x-axis)
-	 * @param par index of parameter to be horizontal axis
-	 * @param obs index of observable to be vertical axis
-	 * @param flag whether to fill H2. */
-	virtual void FillObsVsParH2(std::string par, std::string obs, bool flag) const
-	{ FillObsVsParH2(fParameters.Index(par),fObservables.Index(obs),flag); }
 
 	/**
 	 * Random walk trial function. The default trial function is a
@@ -1211,15 +1167,15 @@ protected:
 
 	/**
 	 * Print model summary to stream. */
-	virtual void PrintSummaryToStream(std::ofstream & ofi);
+	virtual void PrintSummaryToStream(std::ofstream & ofi) const;
 
 	/**
 	 * Print best fit to stream. */
-	virtual void PrintBestFitToStream(std::ofstream & ofi);
+	virtual void PrintBestFitToStream(std::ofstream & ofi) const;
 
 	/**
 	 * Print marginalization to stream. */
-	virtual void PrintMarginalizationToStream(std::ofstream & ofi);
+	virtual void PrintMarginalizationToStream(std::ofstream & ofi) const;
 
 	/**
 	 * Update Paramater TTree with scales and efficiencies. */
