@@ -47,7 +47,8 @@ public:
 		kPriorTF1           =  1,
 		kPriorTH1           =  2,
 		kPriorGaussian      =  3,
-		kPriorSplitGaussian =  4
+		kPriorSplitGaussian =  4,
+		kPriorCauchy        =  5
 	};
 
 	/** @} */
@@ -133,18 +134,21 @@ public:
 
 	/**
 	 * Get exact or estimated mean of prior.
+	 * @return confined_to_range Whether to give mean of prior distribution in infinite range (false) or in parameter's range (true).
 	 * @return mean of prior. */
-	virtual double GetPriorMean() const;
+	virtual double GetPriorMean(bool confined_to_range=false) const;
 
 	/**
 	 * Get exact or estimated variance of prior.
+	 * @return confined_to_range Whether to give mean of prior distribution in infinite range (false) or in parameter's range (true).
 	 * @return variance of prior. */
-	virtual double GetPriorVariance() const;
+	virtual double GetPriorVariance(bool confined_to_range=false) const;
 
 	/**
 	 * Get exact or estimated standard deviation of prior.
+	 * @return confined_to_range Whether to give mean of prior distribution in infinite range (false) or in parameter's range (true).
 	 * @return standard deviation of prior. */
-	virtual double GetPriorStandardDeviation() const;
+	virtual double GetPriorStandardDeviation(bool confined_to_range=false) const;
 
 	/**
 	 * Get random value distributed according to normal distribution
@@ -153,8 +157,9 @@ public:
 	 * @param R Random number generator to use.
 	 * @param expansion_factor Constant to multiple standard deviation by.
 	 * @param N Maximum number of tries to make to generate value within parameter range.
+	 * @param confine_to_range Calculate prior mean and standard deviation only in range of parameter.
 	 * @return random value of normal distribution approximation to prior. */
-	virtual double GetRandomValueAccordingToGaussianOfPrior(TRandom * const R, double expansion_factor=1., unsigned N=1000000) const;
+	virtual double GetRandomValueAccordingToGaussianOfPrior(TRandom * const R, double expansion_factor=1., unsigned N=1000000, bool confined_to_range=false) const;
 
 	/** @} */
 	
@@ -171,6 +176,7 @@ public:
 	 * Unfix parameter. */
 	bool Unfix()
 	{ fFixed = false; return true;}
+
 
 	/**
 	 * Set prior to constant;
@@ -197,20 +203,26 @@ public:
 	bool CopyPrior(const BCParameter & other);
 
 	/**
-	 * Set prior to ROOT TF1 holding a normal distribution.
+	 * Set prior to normal distribution.
 	 * @param mean mean of normal distribution.
 	 * @param sigma standard deviation of normal distribution.
 	 * @return success of action. */
 	bool SetPriorGauss(double mean, double sigma);
 
 	/**
-	 * Set prior to ROOT TF1 holding a normal distribution with different width
-	 * for above and below the mean.
+	 * Set prior to normal distribution with different width for above and below the mean.
 	 * @param mean mean of normal distribution.
 	 * @param sigma_below standard deviation of normal distribution above mean.
 	 * @param sigma_above standard deviation of normal distribution below mean.
 	 * @return success of action. */
 	bool SetPriorGauss(double mean, double sigma_below, double sigma_above);
+
+	/**
+	 * Set prior to Cauchy distribution.
+	 * @param mean mean of Cauchy distribution
+	 * @param scale scale of Cauchy distribution
+	 * @return Success of action. */
+	bool SetPriorCauchy(double mean, double scale);
 
 	/** @} */
 	

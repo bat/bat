@@ -2588,14 +2588,14 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
 	for (unsigned i=0; i<GetNParameters(); ++i)
 		for (unsigned j=GetNParameters(); j<GetNVariables(); ++j)
 			H2Coords.push_back(std::make_pair(i,j));
-	// obs vs obs
-	for (unsigned i=GetNParameters(); i<GetNVariables(); ++i)
-		for (unsigned j=GetNParameters(); j<GetNVariables(); ++j)
-			if (i!=j) H2Coords.push_back(std::make_pair(i,j));
 	// par vs obs
 	for (unsigned i=GetNParameters(); i<GetNVariables(); ++i)
 		for (unsigned j=0; j<GetNParameters(); ++j)
 			H2Coords.push_back(std::make_pair(i,j));
+	// obs vs obs
+	for (unsigned i=GetNParameters(); i<GetNVariables(); ++i)
+		for (unsigned j=GetNParameters(); j<GetNVariables(); ++j)
+			if (i!=j) H2Coords.push_back(std::make_pair(i,j));
 
 	// Find nonempty H2's
 	std::vector<BCH2D *> h2;

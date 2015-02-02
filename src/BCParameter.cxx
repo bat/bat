@@ -151,6 +151,9 @@ bool BCParameter::CopyPrior(const BCParameter & other) {
 	case kPriorSplitGaussian:
 		return (other.fPriorParameters.size()>=3) ? SetPriorGauss(other.fPriorParameters[0],other.fPriorParameters[1],other.fPriorParameters[2]) : false;
 
+	case kPriorCauchy:
+		return (other.fPriorParameters.size()>=2) ? SetPriorCauchy(other.fPriorParameters[0],other.fPriorParameters[1]) : false;
+		
 	case kPriorUnset:
 	default:
 		fPriorType = kPriorUnset;
@@ -207,8 +210,30 @@ bool BCParameter::SetPriorGauss(double mean, double sigma_below, double sigma_ab
 	fPriorParameters[1] = sigma_below;
 	fPriorParameters[2] = sigma_above;
 	return true;
-	if (fPriorContainer)
-		delete fPriorContainer;
+}
+
+// ---------------------------------------------------------
+bool BCParameter::SetPriorCauchy(double mean, double scale) {
+	if (scale < 0)
+		return SetPriorCauchy(mean,-scale);
+
+	if (scale == 0) {
+		BCLog::OutWarning(TString::Format("BCParameter::SetPriorCauchy : attempting to set zero-scale Cauchy prior; leaving prior unset, but fixing parameter (%s) to mean.",GetName().data()));
+		fPriorType = kPriorUnset;
+		Fix(mean);
+		return false;
+	}
+
+	if (!std::isfinite(scale)) {
+		BCLog::OutWarning(TString::Format("BCParameter::SetPriorCauchy : attempting to set infinite-width Cauchy prior; setting prior to constant (%s)",GetName().data()));
+		SetPriorConstant();
+		return false;
+	}
+
+	fPriorType = kPriorCauchy;
+	fPriorParameters.assign(2,mean);
+	fPriorParameters[1] = scale;
+	return true;
 }
 
 // ---------------------------------------------------------
@@ -249,6 +274,9 @@ bool BCParameter::SetPriorGauss(double mean, double sigma_below, double sigma_ab
 			return -log(fUpperLimit-fPriorParameters[0]);
 		return -0.5*(x-fPriorParameters[0])*(x-fPriorParameters[0])/fPriorParameters[2]/fPriorParameters[2] - log(fPriorParameters[2]) - 0.5*log(2*M_PI);
 		
+	case kPriorCauchy:
+		return -log(1+(x-fPriorParameters[0])*(x-fPriorParameters[0])/fPriorParameters[1]/fPriorParameters[1]) - log(M_PI*fPriorParameters[1]);
+
 	case kPriorUnset:
 	default:
 		break;
@@ -330,7 +358,7 @@ double BCParameter::GetRandomValueAccordingToPrior(TRandom * const R, unsigned N
 }
 
 // ---------------------------------------------------------
-double BCParameter::GetPriorMean() const {
+double BCParameter::GetPriorMean(bool confined_to_range) const {
 	switch (fPriorType) {
 
 	case kPriorConstant: {
@@ -351,11 +379,32 @@ double BCParameter::GetPriorMean() const {
 		return GetPriorTH1() -> GetMean();
 	}
 
-	case kPriorGaussian:
-	case kPriorSplitGaussian: {
+	case kPriorGaussian: {
+		if (confined_to_range)
+			return fPriorParameters[0]
+				- fPriorParameters[1]*fPriorParameters[1]*(TMath::Gaus(fUpperLimit,fPriorParameters[0],fPriorParameters[1],true)-TMath::Gaus(fLowerLimit,fPriorParameters[0],fPriorParameters[1],true))
+				/ (TMath::Erf((fUpperLimit-fPriorParameters[0])/fPriorParameters[1]/sqrt(2))-TMath::Erf((fUpperLimit-fPriorParameters[0])/fPriorParameters[1]/sqrt(2)));
 		return fPriorParameters[0];
 	}
 
+	case kPriorSplitGaussian: {
+		if (confined_to_range) // presumes mean is in range, otherwise why even use this prior?
+			return fPriorParameters[0]
+				- (fPriorParameters[2]*fPriorParameters[2]*TMath::Gaus(fUpperLimit,fPriorParameters[0],fPriorParameters[2],true) - fPriorParameters[1]*fPriorParameters[1]*TMath::Gaus(fLowerLimit,fPriorParameters[0],fPriorParameters[1],true) - (fPriorParameters[2]-fPriorParameters[1])/sqrt(2*M_PI))
+				/ (TMath::Erf((fUpperLimit-fPriorParameters[0])/fPriorParameters[2]/sqrt(2))-TMath::Erf((fUpperLimit-fPriorParameters[0])/fPriorParameters[1]/sqrt(2)));
+		return fPriorParameters[0];
+	}
+
+	case kPriorCauchy: {
+		if (confined_to_range) {
+			double H = (fUpperLimit-fPriorParameters[0])/fPriorParameters[1];
+			double L = (fLowerLimit-fPriorParameters[0])/fPriorParameters[1];
+			double I = (atan(H)-atan(L))/M_PI;
+			return fPriorParameters[0] + fPriorParameters[1]/(2*M_PI)*log((1+H*H)/(1+L*L))/I;
+		}
+		return fPriorParameters[0];
+	}
+		
 	case kPriorUnset:
 	default:
 		break;
@@ -364,7 +413,7 @@ double BCParameter::GetPriorMean() const {
 }
 
 // ---------------------------------------------------------
-double BCParameter::GetPriorVariance() const {
+double BCParameter::GetPriorVariance(bool confined_to_range) const {
 	switch (fPriorType) {
 
 	case kPriorConstant: {
@@ -387,10 +436,26 @@ double BCParameter::GetPriorVariance() const {
 	}
 
 	case kPriorGaussian: {
+		if (confined_to_range) {
+			double I = (TMath::Erf((fUpperLimit-fPriorParameters[0])/fPriorParameters[1]/sqrt(2))-TMath::Erf((fLowerLimit-fPriorParameters[0])/fPriorParameters[1]/sqrt(2)))/2;
+			double LGL = fLowerLimit*TMath::Gaus(fLowerLimit,fPriorParameters[0],fPriorParameters[1],true);
+			double HGH = fUpperLimit*TMath::Gaus(fUpperLimit,fPriorParameters[0],fPriorParameters[1],true);
+			double m1 = GetPriorMean(true);
+			double m2 = fPriorParameters[0]*m1 + fPriorParameters[1]*fPriorParameters[1]*(1-(HGH-LGL)/I);
+			return m2 - m1*m1;
+		}
 		return fPriorParameters[1]*fPriorParameters[1];
 	}
 
 	case kPriorSplitGaussian: {
+		if (confined_to_range) {
+			double m1 = GetPriorMean(true);
+			double erfL = TMath::Erf((fLowerLimit-fPriorParameters[0])/fPriorParameters[1]/sqrt(2))/2;
+			double erfH = TMath::Erf((fUpperLimit-fPriorParameters[0])/fPriorParameters[2]/sqrt(2))/2;
+			double LGL  = (fLowerLimit * TMath::Gaus(fLowerLimit,fPriorParameters[0],fPriorParameters[1],false) - fPriorParameters[0])/sqrt(2*M_PI);
+			double HGH  = (fUpperLimit * TMath::Gaus(fUpperLimit,fPriorParameters[0],fPriorParameters[1],false) - fPriorParameters[0])/sqrt(2*M_PI);
+			return fPriorParameters[0]*m1 + (fPriorParameters[2]*(fPriorParameters[2]*erfH-HGH) - fPriorParameters[1]*(fPriorParameters[1]*erfL-LGL))/(erfH-erfL);
+		}
 		double s0 = (std::isfinite(fPriorParameters[1])) ? fPriorParameters[1] : (fPriorParameters[0]-fLowerLimit)/sqrt(12);
 		double s1 = (std::isfinite(fPriorParameters[2])) ? fPriorParameters[2] : (fUpperLimit-fPriorParameters[0])/sqrt(12);
 		// use maximum variance
@@ -398,6 +463,16 @@ double BCParameter::GetPriorVariance() const {
 		return s*s;
 	}		
 		
+	case kPriorCauchy: {
+		// always return confined variation, since unconfined is infinite
+		double m1 = GetPriorMean(true);
+		double H = (fUpperLimit-fPriorParameters[0])/fPriorParameters[1];
+		double L = (fLowerLimit-fPriorParameters[0])/fPriorParameters[1];
+		double I = (atan(H)-atan(L))/M_PI;
+		double m2 = 2*fPriorParameters[0]*m1 - (fPriorParameters[0]*fPriorParameters[0]+fPriorParameters[1]*fPriorParameters[1]) + fPriorParameters[1]/M_PI*GetRangeWidth()/I;
+		return m2 - m1*m1;
+	}
+
 	case kPriorUnset:
 	default:
 		break;
@@ -406,7 +481,7 @@ double BCParameter::GetPriorVariance() const {
 }
 
 // ---------------------------------------------------------
-double BCParameter::GetPriorStandardDeviation() const {
+double BCParameter::GetPriorStandardDeviation(bool confined_to_range) const {
 	switch (fPriorType) {
 
 	case kPriorConstant: {
@@ -428,16 +503,24 @@ double BCParameter::GetPriorStandardDeviation() const {
 	}
 
 	case kPriorGaussian: {
+		if (confined_to_range)
+			return sqrt(GetPriorVariance(true));
 		return fPriorParameters[1];
 	}
 
 	case kPriorSplitGaussian: {
+		if (confined_to_range)
+			return sqrt(GetPriorVariance(true));
 		double s0 = (std::isfinite(fPriorParameters[1])) ? fPriorParameters[1] : (fPriorParameters[0]-fLowerLimit)/sqrt(12);
 		double s1 = (std::isfinite(fPriorParameters[2])) ? fPriorParameters[2] : (fUpperLimit-fPriorParameters[0])/sqrt(12);
 		// use maximum standard deviation
 		return std::max<double>(s0,s1);
 	}		
 		
+	case kPriorCauchy: {
+		return sqrt(GetPriorVariance(confined_to_range));
+	}
+
 	case kPriorUnset:
 	default:
 		break;
@@ -446,7 +529,7 @@ double BCParameter::GetPriorStandardDeviation() const {
 }
 
 // ---------------------------------------------------------
-double BCParameter::GetRandomValueAccordingToGaussianOfPrior(TRandom * const R, double expansion_factor, unsigned N) const {
+double BCParameter::GetRandomValueAccordingToGaussianOfPrior(TRandom * const R, double expansion_factor, unsigned N, bool confined_to_range) const {
 	double m = GetPriorMean();
 
 	// if mean is not finite, return it
