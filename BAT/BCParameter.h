@@ -24,34 +24,16 @@
 // ---------------------------------------------------------
 #include "BCVariable.h"
 
-#include <TNamed.h>
-#include <TH1.h>
-#include <TF1.h>
-
 #include <limits>
 
 class TRandom;
+class BCPrior;
 
 // ---------------------------------------------------------
 
 class BCParameter : public BCVariable {
 
 public:
-
-	/** \name Enumerators */
-	/** @{ */
-
-	enum BCPriorType {
-		kPriorUnset         = -1,
-		kPriorConstant      =  0,
-		kPriorTF1           =  1,
-		kPriorTH1           =  2,
-		kPriorGaussian      =  3,
-		kPriorSplitGaussian =  4,
-		kPriorCauchy        =  5
-	};
-
-	/** @} */
 
 	/** \name Constructors and destructors */
 	/** @{ */
@@ -82,43 +64,23 @@ public:
 
 	/**
 	 * @return Whether parameter is fixed to a value. */
-	bool Fixed() const
+	virtual bool Fixed() const
 	{ return fFixed; }
 
 	/**
-	 * @return vector of parameters used for priors. */
-	std::vector<double> & GetPriorParameters()
-	{ return fPriorParameters; }
-
-	/**
 	 * @return Value parameter may be fixed to. */
-	double GetFixedValue() const
+	virtual double GetFixedValue() const
 	{ return fFixedValue; }
 
 	/**
-	 * @return type of prior for parameter. */
-	BCParameter::BCPriorType GetPriorType()
-	{ return fPriorType; }
+	 * @return prior object*/
+	virtual BCPrior * GetPrior()
+	{ return fPrior;}
 
 	/**
-	 * @return prior container object. */
-	TNamed * GetPriorContainer() const
-	{ return fPriorContainer; }
-
-	/**
-	 * @return prior container object as TF1. */
-	TF1 * GetPriorTF1() const
-	{ return (fPriorContainer) ? dynamic_cast<TF1*>(fPriorContainer) : 0 ; }
-
-	/**
-	 * @return prior container object as TH1. */
-	TH1 * GetPriorTH1() const
-	{ return (fPriorContainer) ? dynamic_cast<TH1*>(fPriorContainer) : 0 ; }
- 
-	/**
-	 * @return whether to interpolate prior (if TH1). */
-	bool GetInterpolatePrior()
-	{ return fInterpolatePrior; }
+	 * @return prior evaluated from prior object */
+	virtual double GetPrior(double x) const
+	{ double lp = GetLogPrior(x); return (std::isfinite(lp)) ? exp(lp) : ((lp<0) ? 0 : std::numeric_limits<double>::infinity()); }
 
 	/**
 	 * Get log of value of prior at parameter value.
@@ -127,28 +89,21 @@ public:
 	virtual double GetLogPrior(double x) const;
 
 	/**
+	 * @return prior's mode in parameter range. (For absolute mode, get prior object.) */
+	virtual double GetPriorMode() const;
+
+	/**
+	 * @return prior's mean in parameter range. (For absolute mean, get prior object.) */
+	virtual double GetPriorMean() const;
+
+	/**
+	 * @return prior's variance in parameter range. (For absolute variance, get prior object.) */
+	virtual double GetPriorVariance() const;
+
+	/**
 	 * @return a random value distributed according to the prior.
-	 * @param rnd Pointer to the random generator to be used, if needed.
-	 * @param N Maximum number of tries to make to generate value within parameter range. */
-	 virtual double GetRandomValueAccordingToPrior(TRandom * const R, unsigned N=1000000) const;
-
-	/**
-	 * Get exact or estimated mean of prior.
-	 * @return confined_to_range Whether to give mean of prior distribution in infinite range (false) or in parameter's range (true).
-	 * @return mean of prior. */
-	virtual double GetPriorMean(bool confined_to_range=false) const;
-
-	/**
-	 * Get exact or estimated variance of prior.
-	 * @return confined_to_range Whether to give mean of prior distribution in infinite range (false) or in parameter's range (true).
-	 * @return variance of prior. */
-	virtual double GetPriorVariance(bool confined_to_range=false) const;
-
-	/**
-	 * Get exact or estimated standard deviation of prior.
-	 * @return confined_to_range Whether to give mean of prior distribution in infinite range (false) or in parameter's range (true).
-	 * @return standard deviation of prior. */
-	virtual double GetPriorStandardDeviation(bool confined_to_range=false) const;
+	 * @param rnd Pointer to the random generator to be used, if needed. */
+	 virtual double GetRandomValueAccordingToPrior(TRandom * const R) const;
 
 	/**
 	 * Get random value distributed according to normal distribution
@@ -167,62 +122,30 @@ public:
 	/** @{ */
 	
 	/**
+	 * Set the limits of the parameter values.
+	 * @param lowerlimit The lower limit of the variable values.
+	 * @param upperlimit The upper limit of the variable values. */
+	virtual void SetLimits(double lowerlimit = 0, double upperlimit = 1);
+
+
+	/**
 	 * Fix parameter to value (set prior to delta).
 	 * @param value value to fix parameter to. */
-	bool Fix(double value)
+	virtual bool Fix(double value)
 	{	fFixed = true; fFixedValue = value; return true;}
 
 	/**
 	 * Unfix parameter. */
-	bool Unfix()
+	virtual bool Unfix()
 	{ fFixed = false; return true;}
 
+	/**
+	 * Set prior. Parameter will own prior! */
+	virtual void SetPrior(BCPrior * const prior);
 
 	/**
-	 * Set prior to constant;
-	 * @return success of action. */
-	bool SetPriorConstant();
-	
-	/**
-	 * Set prior to a ROOT TF1.
-	 * @param f pointer to ROOT TF1.
-	 * @return success of action. */
-	bool SetPrior(const TF1 * const f);
-
-	/**
-	 * Set prior to a ROOT TH1.
-	 * @param h pointer to ROOT TH1.
-	 * @param interpolate flag for controlling whether to interpolate histogram for prior.
-	 * @return success of action. */
-	bool SetPrior(const TH1 * const h, bool interpolate=false);
-
-	/**
-	 * Copy prior from other parameter.
-	 * @param other Other parameter.
-	 * @return success of action. */
-	bool CopyPrior(const BCParameter & other);
-
-	/**
-	 * Set prior to normal distribution.
-	 * @param mean mean of normal distribution.
-	 * @param sigma standard deviation of normal distribution.
-	 * @return success of action. */
-	bool SetPriorGauss(double mean, double sigma);
-
-	/**
-	 * Set prior to normal distribution with different width for above and below the mean.
-	 * @param mean mean of normal distribution.
-	 * @param sigma_below standard deviation of normal distribution above mean.
-	 * @param sigma_above standard deviation of normal distribution below mean.
-	 * @return success of action. */
-	bool SetPriorGauss(double mean, double sigma_below, double sigma_above);
-
-	/**
-	 * Set prior to Cauchy distribution.
-	 * @param mean mean of Cauchy distribution
-	 * @param scale scale of Cauchy distribution
-	 * @return Success of action. */
-	bool SetPriorCauchy(double mean, double scale);
+	 * Set constant prior. */
+	virtual void SetPriorConstant();
 
 	/** @} */
 	
@@ -240,17 +163,8 @@ private:
 	/// The fixed value of the parameter.
 	double fFixedValue;
 
-	/// type of prior
-	BCParameter::BCPriorType fPriorType;
-	
-	/// parameters needed for built in prior types (Flat, Gaus, etc)
-	std::vector<double> fPriorParameters;
-
-	/// ROOT prior object (function, histogram, graph, etc.)
-	TNamed * fPriorContainer;
-
-	/// Flag for controlling interpolation of prior
-	bool fInterpolatePrior;
+	/// prior
+	BCPrior * fPrior;
 
 };
 #endif

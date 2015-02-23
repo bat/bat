@@ -49,54 +49,40 @@ BCMTF::~BCMTF()
 }
 
 // ---------------------------------------------------------
-int BCMTF::GetChannelIndex(const char * name)
-{
-   // loop over all channels and compare names
-   for (int i = 0; i < fNChannels; ++i) {
-      // get channel
-      BCMTFChannel * channel = GetChannel(i);
+int BCMTF::GetChannelIndex(const char * name) const {
+	// loop over all channels and compare names
+	for (int i = 0; i < fNChannels; ++i)
+		// compare names;
+		if (fChannelContainer[i]->GetName().compare(name)==0)
+			return i;
 
-      // compare names
-      if (!channel->GetName().compare(name))
-         return i;
-   }
-
-   // if channel does not exist, return -1
-   return -1;
+	// if channel does not exist, return -1
+	return -1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::GetProcessIndex(const char * name)
-{
-   // loop over all processs and compare names
-   for (int i = 0; i < fNProcesses; ++i) {
-      // get process
-      BCMTFProcess * process = GetProcess(i);
+int BCMTF::GetProcessIndex(const char * name) const {
+	// loop over all processs and compare names
+	for (int i = 0; i < fNProcesses; ++i)
+		// compare names
+		if (fProcessContainer[i]->GetName().compare(name)==0)
+			return i;
 
-      // compare names
-      if (!process->GetName().compare(name))
-         return i;
-   }
-
-   // if process does not exist, return -1
-   return -1;
+	// if process does not exist, return -1
+	return -1;
 }
 
 // ---------------------------------------------------------
-int BCMTF::GetSystematicIndex(const char * name)
-{
-   // loop over all systematics and compare names
-   for (int i = 0; i < fNSystematics; ++i) {
-      // get systematic
-      BCMTFSystematic * systematic = GetSystematic(i);
+int BCMTF::GetSystematicIndex(const char * name) const {
+	// loop over all systematics and compare names
+	for (int i = 0; i < fNSystematics; ++i) {
+		// compare names
+		if (fSystematicContainer[i]->GetName().compare(name)==0)
+			return i;
+	}
 
-      // compare names
-      if (!systematic->GetName().compare(name))
-         return i;
-   }
-
-   // if process does not exist, return -1
-   return -1;
+	// if process does not exist, return -1
+	return -1;
 }
 
 // ---------------------------------------------------------
@@ -555,75 +541,45 @@ bool BCMTF::PrintResults(const char * filename) {
 	// open file
 	std::ofstream ofi(filename);
 	ofi.precision(3);
-
+	
 	// check if file is open
 	if(!ofi.is_open()) {
 		BCLog::OutWarning(Form("BCMultitemplateFitter::PrintSummary() : Could not open file %s", filename));
 		return false;
 	}
+	
+	ofi	<< " Multi template fitter summary " << std::endl
+			<< " ----------------------------- " << std::endl << std::endl
+			<< " Number of channels      : " << fNChannels    << std::endl
+			<< " Number of processes     : " << fNProcesses   << std::endl
+			<< " Number of systematics   : " << fNSystematics << std::endl << std::endl;
 
-	ofi
-		<< " Multi template fitter summary " << std::endl
-		<< " ----------------------------- " << std::endl
-		<< std::endl
-		<< " Number of channels      : " << fNChannels << std::endl
-		<< " Number of processes     : " << fNProcesses << std::endl
-		<< " Number of systematics   : " << fNSystematics << std::endl
-		<< std::endl;
+	ofi	<< " Channels :" << std::endl;
+	for (int i = 0; i < GetNChannels(); ++i)
+		ofi << TString::Format(" %d : \"%s\"",i,fChannelContainer[i]->GetName().data()) << std::endl;
+	ofi	<< std::endl;
 
-	ofi
-		<< " Channels :" << std::endl;
-	for (int i = 0; i < GetNChannels(); ++i) {
-		ofi
-			<< " " << i
-			<< " : \"" << GetChannel(i)->GetName().c_str() << "\""
-			<< std::endl;
-	}
-	ofi
-		<< std::endl;
+	ofi	<< " Processes :" << std::endl;
+	for (int i = 0; i < GetNProcesses(); ++i)
+		ofi << TString::Format(" %d : \"%s\" (par index %d)",i,fProcessContainer[i]->GetName().data(),GetParIndexProcess(i)) << std::endl;
+	ofi	<< std::endl;
 
-	ofi
-		<< " Processes :" << std::endl;
-	for (int i = 0; i < GetNProcesses(); ++i) {
-		ofi
-			<< " " << i
-			<< " : \"" << GetProcess(i)->GetName().c_str()  << "\""
-			<< " (par index " << GetParIndexProcess(i) << ")"
-			<< std::endl;
-	}
-	ofi
-		<< std::endl;
+	ofi	<< " Systematics :" << std::endl;
+	for (int i = 0; i < GetNSystematics(); ++i)
+		ofi << TString::Format(" %d : \"%s\" (par index %d)",i,fSystematicContainer[i]->GetName().data(),GetParIndexSystematic(i)) << std::endl;
+	if (GetNSystematics()==0)
+		ofi	<< " - none - " << std::endl;
+	ofi	<< std::endl;
 
-	ofi
-		<< " Systematics :" << std::endl;
-	for (int i = 0; i < GetNSystematics(); ++i) {
-		ofi
-			<< " " << i
-			<< " : \"" << GetSystematic(i)->GetName().c_str()  << "\""
-			<< " (par index " << GetParIndexSystematic(i) << ")"
-			<< std::endl;
-	}
-	ofi
-		<< std::endl;
-	if (GetNSystematics() == 0)
-		ofi
-			<< " - none - " << std::endl;
-
-	ofi
-		<< " Goodness-of-fit: " << std::endl;
-	for (int i = 0; i < GetNChannels(); ++i) {
-		ofi
-			<< " i : \"" << GetChannel(i)->GetName().c_str() << "\" : chi2 = "
-			<< CalculateChi2( i, GetBestFitParameters() )
-			<< std::endl;
-	}
-	ofi
-		<< std::endl;
+	ofi	<< " Goodness-of-fit: " << std::endl;
+	for (int i = 0; i < GetNChannels(); ++i)
+		ofi << TString::Format(" %d : \"%s\" : chi2 = %f",i,fChannelContainer[i]->GetName().data(),CalculateChi2(i,GetBestFitParameters())) << std::endl;
+	ofi << std::endl;
 
 
 	// close file
 	ofi.close();
-
+	
 	// no error
 	return true;
 }

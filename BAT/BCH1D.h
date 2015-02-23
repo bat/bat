@@ -43,11 +43,11 @@ public:
 	 * Enum for type of bands to be drawn on plot. */
 	enum BCH1DBandType {
 		kNoBands          = -1,
-		kCentralInterval  = 0,
-		kSmallestInterval = 1,
-		kUpperLimit       = 2,
-		kLowerLimit       = 3,
-		kUserSpecified    = 4,
+		kCentralInterval  =  0,
+		kSmallestInterval =  1,
+		kUpperLimit       =  2,
+		kLowerLimit       =  3,
+		kUserSpecified    =  4
 	};
 
 	/** @} */
@@ -141,14 +141,7 @@ public:
 	void CopyOptions(const BCH1D & other);
 
   /**
-   * Sets the color scheme.
-   * @param scheme the scheme index \n
-   * 0 : black and white
-   * 1 : yellow-green-red
-   * 2 : blueish colors
-   * 2 : redish colors
-   * 2 : blueish colors
-   */
+   * Sets the color scheme. */
   void SetColorScheme(BCHColorScheme scheme);
 
 	using BCHistogramBase::SetGlobalMode;
@@ -157,6 +150,13 @@ public:
    * Set global mode */
   void SetGlobalMode(double mode)
 	{ SetGlobalMode(std::vector<double>(1,mode)); }
+
+	using BCHistogramBase::SetLocalMode;
+
+  /**
+   * Set local mode */
+  void SetLocalMode(double mode)
+	{ SetLocalMode(std::vector<double>(1,mode)); }
 	
 	/**
 	 * Set band type. */

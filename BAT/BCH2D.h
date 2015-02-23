@@ -46,12 +46,16 @@ public:
 	/**
 	 * Enum for type of bands to draw on plot. */
 	enum BCH2DBandType {
-		kNoBands          = -1,
-		kSmallestInterval = 0
-		// kUpperLimitOfXGivenY = 1,
-		// kUpperLimitOfYGivenX = 2,
-		// kLowerLimitOfXGivenY = 3,
-		// kLowerLimitOfYGivenX = 4
+		kNoBands                  = -1, //!< no bands
+		kSmallestInterval          = 0  //!< smallest intervals containing probability mass
+		// kCentralIntervalOfYGivenX  = 1, //!< 1D central intervals in Y for each bin in X
+		// kCentralIntervalOfXGivenY  = 2, //!< 1D central intervals in X for each bin in Y
+		// kSmallestIntervalOfYGivenX = 3, //!< 1D smallest intervals in Y for each bin in X
+		// kSmallestIntervalOfXGivenY = 4, //!< 1D smallest intervals in X for each bin in Y
+		// kUpperLimitOfYGivenX       = 5, //!< 1D upper limits of Y for each bin in X
+		// kUpperLimitOfXGivenY       = 6, //!< 1D upper limits of X for each bin in Y
+		// kLowerLimitOfYGivenX       = 7, //!< 1D lower limits of Y for each bin in X
+		// kLowerLimitOfXGivenY       = 8  //!< 1D lower limits of X for each bin in Y
 	};
 
 	/**
@@ -167,6 +171,15 @@ public:
 	void SetGlobalMode(double x, double y)
 	{ std::vector<double> m(1,x); m.push_back(y); SetGlobalMode(m); }
 
+	using BCHistogramBase::SetLocalMode;
+
+	/**
+	 * Set local mode.
+	 * @param x Global mode in x.
+	 * @param y Global mode in y. */
+	void SetLocalMode(double x, double y)
+	{ std::vector<double> m(1,x); m.push_back(y); SetLocalMode(m); }
+
 	/** Set band type. */
 	void SetBandType(BCH2DBandType bt)
 	{ fBandType = bt; }
@@ -174,7 +187,7 @@ public:
 	/**
 	 * Sets drawing of z axis in log. */
 	void SetLogz(bool flag=true)
-	{ fLogz = true; }
+	{ fLogz = flag; }
 
 	/**
 	 * Set drawing of x profile. */

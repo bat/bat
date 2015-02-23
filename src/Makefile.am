@@ -31,6 +31,14 @@ incs= \
 	BCHistogramBase.h \
 	BCH1D.h \
 	BCH2D.h \
+	BCPrior.h \
+	BCConstantPrior.h \
+	BCGaussianPrior.h \
+	BCSplitGaussianPrior.h \
+	BCCauchyPrior.h \
+	BCTF1Prior.h \
+	BCTF1LogPrior.h \
+	BCTH1Prior.h \
 	BCParameterSet.h \
 	BCVariableSet.h \
 	BCObservable.h \

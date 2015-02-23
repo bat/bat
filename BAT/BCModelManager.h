@@ -92,6 +92,10 @@ public:
 	 * @param dataset A data set */
 	void SetDataSet(BCDataSet * dataset);
 
+	/**
+	 * Set the precision for the MCMC run. */
+	void MCMCSetPrecision(BCEngineMCMC::Precision precision);
+
 	void SetNIterationsMax(int niterations);
 
 	/**
@@ -145,7 +149,7 @@ public:
 	 * @param probability The a priori probability
 	 * @see AddModel(BCModel * model)
 	 * @see SetModelPrior(BCModel * model, double probability) */
-	void AddModel(BCModel * model, double probability=0.);
+	void AddModel(BCModel * model, double prior_probability=0.);
 
 	/**
 	 * Calculates the normalization of the likelihood for each model in
@@ -206,6 +210,14 @@ private:
 	/**
 	 * Vector of pointers to all models. */
 	std::vector<BCModel*> fModels;
+
+	/**
+	 * Vector of a priori probabilities. */
+	std::vector<double> fAPrioriProbability;
+
+	/**
+	 * Vector of a posteriori probabilities. */
+	std::vector<double> fAPosterioriProbability;
 
 	/**
 	 * The data set common to all models. */

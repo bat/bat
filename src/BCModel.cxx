@@ -18,6 +18,9 @@
 #include "BCMath.h"
 #include "BCParameter.h"
 #include "BCPriorModel.h"
+#include "BCPrior.h"
+#include "BCConstantPrior.h"
+#include "BCTH1Prior.h"
 
 #include <TCanvas.h>
 #include <TF1.h>
@@ -51,6 +54,7 @@ BCModel::BCModel(const char * name)
 	, fBCH1DPosteriorDrawingOptions(new BCH1D)
 	, fBCH2DPosteriorDrawingOptions(new BCH2D)
 	, fPriorPosteriorNormalOrder(true)
+	, fFactorizedPrior(false)
 {
 	SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
 }
@@ -67,6 +71,7 @@ BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
 	, fBCH1DPosteriorDrawingOptions(new BCH1D)
 	, fBCH2DPosteriorDrawingOptions(new BCH2D)
 	, fPriorPosteriorNormalOrder(true)
+	, fFactorizedPrior(false)
 {
 	LoadMCMC(filename,"","",reuseObservables);
 	SetPriorConstantAll();
@@ -109,6 +114,8 @@ void BCModel::Copy(const BCModel & bcmodel)
 	 fBCH1DPosteriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH1DPosteriorDrawingOptions));
 	 fBCH2DPosteriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH2DPosteriorDrawingOptions));
 	 fPriorPosteriorNormalOrder = bcmodel.fPriorPosteriorNormalOrder;
+
+	 fFactorizedPrior = bcmodel.fFactorizedPrior;
 }
 
 // ---------------------------------------------------------
@@ -198,7 +205,7 @@ double BCModel::HessianMatrixElement(const BCParameter * par1, const BCParameter
 }
 
 // ---------------------------------------------------------
-void BCModel::PrintShortFitSummary(int chi2flag) {
+void BCModel::PrintShortFitSummary() {
 	BCLog::OutSummary("---------------------------------------------------");
 	BCLog::OutSummary(Form("Fit summary for model \'%s\':", GetName().data()));
 	BCLog::OutSummary(Form("   Number of parameters:  Npar  = %i", GetNParameters()));
@@ -252,61 +259,75 @@ BCPriorModel * BCModel::GetPriorModel(bool prepare, bool call_likelihood) {
 }
 
 // ---------------------------------------------------------
-int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post, bool flag_slice_prior) {
+bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice) {
+	if(index>GetNVariables())
+		return false;
+
+	if (index<GetNParameters() and GetParameter(index)->Fixed())
+		return false;
+
 	// Get Prior
-	BCH1D * bch1d_prior = 0;
-	TLine * const_prior = (index<GetNParameters() and GetParameter(index)->GetPriorType()==BCParameter::kPriorConstant) ? new TLine() : 0;
-	TF1   * f1_prior    = (const_prior or index>=GetNParameters()) ? 0 : GetParameter(index)->GetPriorTF1();
-	TH1   * h1_prior    = (const_prior or index>=GetNParameters()) ? 0 : GetParameter(index)->GetPriorTH1();
-	
-	if (const_prior) {
-		TH1D * h = new TH1D(TString::Format("%s_prior_%d_const",GetSafeName().data(),index),"",1,GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
-		h -> SetBinContent(1,1);
-		bch1d_prior = new BCH1D(h);
+	BCH1D * bch1d_prior = NULL;
 
-	} else if (f1_prior) {
-		TH1D * h = new TH1D(TString::Format("%s_prior_%d_f1",GetSafeName().data(),index),"",f1_prior->GetNpx(),GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
-		h -> Add(f1_prior,1,"I");
-		bch1d_prior = new BCH1D(h);
+	// check for factorized prior
+	if (fFactorizedPrior and index<GetNParameters() and GetParameter(index)->GetPrior()!=NULL) {
 
-	} else if (h1_prior)
-		bch1d_prior = new BCH1D(h1_prior);
+		// constant prior
+		if (dynamic_cast<BCConstantPrior*>(GetParameter(index)->GetPrior())!=NULL) {
+			TH1D * h = new TH1D(TString::Format("%s_prior_%d_const",GetSafeName().data(),index),"",1,GetVariable(index)->GetLowerLimit(),GetVariable(index)->GetUpperLimit());
+			h -> SetBinContent(1,1);
+			bch1d_prior = new BCH1D(h);
+		}
+		// histogrammed prior (not interpolated)
+		else if (dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())!=NULL and
+						 dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())->GetHistogram()!=NULL and
+						 dynamic_cast<BCTH1Prior*>(GetParameter(index))->GetInterpolate()) {
+			bch1d_prior = new BCH1D(dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())->GetHistogram());
+		}
+		// use prior's TF1
+		else if (GetParameter(index)->GetPrior()->GetFunction()!=NULL) {
+			TH1 * h = GetVariable(index) -> CreateH1(TString::Format("%s_prior_%d_f1",GetSafeName().data(),index));
+			h -> Add(GetParameter(index)->GetPrior()->GetFunction(),1,"I");
+			bch1d_prior = new BCH1D(h);
+		}
+		if (bch1d_prior)
+			bch1d_prior -> SetLocalMode(GetParameter(index)->GetPriorMode());
+	}
 
-	else if (flag_slice_prior and index<fPriorModel->GetNParameters() and fPriorModel->GetNParameters()<=2) {
+	// else use marginalized prior, if it exists
+	if (bch1d_prior == NULL and fPriorModel->MarginalizedHistogramExists(index))
+		bch1d_prior = fPriorModel -> GetMarginalized(index);
+
+	// else use slicing, if requested
+	if (bch1d_prior == NULL and flag_slice and index<fPriorModel->GetNParameters() and fPriorModel->GetNFreeParameters()<=3) {
 		double log_max_val;
-		if (fPriorModel->GetNParameters()==2) {
-			if (index==0)
-				bch1d_prior = new BCH1D(fPriorModel->GetSlice(0,1,log_max_val)->ProjectionX(Form("prior_projx_%s_%i",fPriorModel->GetSafeName().data(),index)));
-			else
-				bch1d_prior = new BCH1D(fPriorModel->GetSlice(0,1,log_max_val)->ProjectionY(Form("prior_projy_%s_%i",fPriorModel->GetSafeName().data(),index)));
-		} else
-			bch1d_prior = new BCH1D(fPriorModel->GetSlice(index,log_max_val));
-
-	} else if (fPriorModel->MarginalizedHistogramExists(index))
-		bch1d_prior = fPriorModel->GetMarginalized(index);
+		TH1 * h = fPriorModel -> GetSlice(index,log_max_val);
+		if (h!=NULL)
+			bch1d_prior = new BCH1D(h);
+	}
 	
 	// if prior doesn't exist, exit
 	if (!bch1d_prior)
-		return 0;
+		return false;
 
 	// Get Posterior
-	BCH1D* bch1d_posterior = 0;
-	if (flag_slice_post and index<GetNParameters() and GetNParameters()<=2) {
-		double log_max_val;
-		if (GetNParameters()==2) {
-			if (index==0)
-				bch1d_posterior = new BCH1D(GetSlice(0,1,log_max_val)->ProjectionX(Form("posterior_projx_%s_%i",GetSafeName().data(),index)));
-			else
-				bch1d_posterior = new BCH1D(GetSlice(0,1,log_max_val)->ProjectionY(Form("posterior_projy_%s_%i",GetSafeName().data(),index)));
-		} else
-			bch1d_posterior = new BCH1D(GetSlice(index,log_max_val));
+	BCH1D* bch1d_posterior = NULL;
 
-	} else if (MarginalizedHistogramExists(index))
+	// use marginalization, if it exists
+	if (MarginalizedHistogramExists(index))
 		bch1d_posterior = GetMarginalized(index);
+
+	// else using slicing, if requested
+	if (bch1d_posterior==NULL and flag_slice and index<GetNParameters() and GetNFreeParameters()<=3) {
+		double log_max_val;
+		TH1 * h = GetSlice(index,log_max_val);
+		if (h)
+			bch1d_posterior = new BCH1D(h);
+	}
 	
-	// if marginal doesn't exist, exit
+	// if posterior doesn't exist, exit
 	if (!bch1d_posterior)
-		return 0;
+		return false;
 
 	bch1d_prior -> CopyOptions(*fBCH1DPriorDrawingOptions);
 	bch1d_prior -> SetDrawLegend(false);
@@ -415,109 +436,145 @@ int BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice_post, boo
 }
 
 // ---------------------------------------------------------
-int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice) {
+bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice) {
 	
 	if (index1 == index2)
-		return 0;
-	if (index1 > index2)
-		return DrawKnowledgeUpdatePlot2D(index2,index1,flag_slice);
+		return false;
+
+	if (index1 > GetNVariables() or index2 > GetNVariables())
+		return false;
+
+	if (index1 < GetNParameters() and GetParameter(index1)->Fixed())
+		return false;
+
+	if (index2 < GetNParameters() and GetParameter(index2)->Fixed())
+		return false;
+
+	// Get prior
+	BCH2D * bch2d_prior = NULL;
+
+	// check for factorized priors
+	if (fFactorizedPrior and
+			index1 < GetNParameters() and GetParameter(index1)->GetPrior()!=NULL and
+			index2 < GetNParameters() and GetParameter(index2)->GetPrior()!=NULL) {
+	
+		// set x binning
+		unsigned nbins_x = GetVariable(index1) -> GetNbins();
+		std::vector<double> bins_x;
+		// histogrammed prior
+		if (dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())!=NULL and
+				dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()!=NULL and
+				dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetInterpolate()) {
+			nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior()) -> GetHistogram() -> GetNbinsX();
+			bins_x.assign(nbins_x+1,0);
+			dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior()) -> GetHistogram() -> GetXaxis() -> GetLowEdge(&bins_x[0]);
+			bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior()) -> GetHistogram() -> GetXaxis() -> GetXmax();
+		}
+		// // constant prior
+		// else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior())!=NULL) {
+		// 	nbins_x = 1;
+		// 	bins_x = new double[2];
+		// 	bins_x[0] = GetParameter(index1) -> GetLowerLimit();
+		// 	bins_x[1] = GetParameter(index1) -> GetUpperLimit();
+		// }
+		// else function-based prior
+		else {
+			bins_x.assign(nbins_x+1,0);
+			for (unsigned i=0; i<=nbins_x; ++i)
+				bins_x[i] = GetVariable(index1) -> ValueFromPositionInRange(1.*i/nbins_x);
+		}
+
+		// set y binning
+		unsigned nbins_y = GetVariable(index2) -> GetNbins();
+		std::vector<double> bins_y;
+		// histogrammed prior
+		if (dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())!=NULL and
+				dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()!=NULL and
+				dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetInterpolate()) {
+			nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior()) -> GetHistogram() -> GetNbinsX();
+			bins_y.assign(nbins_y+1,0);
+			dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior()) -> GetHistogram() -> GetXaxis() -> GetLowEdge(&bins_y[0]);
+			bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior()) -> GetHistogram() -> GetXaxis() -> GetXmax();
+		}
+		// // constant prior
+		// else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior())!=NULL) {
+		// 	nbins_y = 1;
+		// 	bins_y = new double[2];
+		// 	bins_y[0] = GetParameter(index2) -> GetLowerLimit();
+		// 	bins_y[1] = GetParameter(index2) -> GetUpperLimit();
+		// }
+		// else function-based prior
+		else {
+			bins_y.assign(nbins_y+1,0);
+			for (unsigned i=0; i<=nbins_y; ++i)
+				bins_y[i] = GetVariable(index2) -> ValueFromPositionInRange(1.*i/nbins_y);
+		}
+		
+		// create histogram
+		TH2 * h2d_prior = fPriorModel->GetVariable(index1) -> CreateH2(TString::Format("h2d_prior_%s_%d_%d",GetName().data(),index1,index2).Data(),fPriorModel->GetVariable(index2));
+		// set binning
+		h2d_prior -> SetBins(nbins_x,&bins_x[0],nbins_y,&bins_y[0]);
+
+		// fill histogram
+		for (int i=1; i<=h2d_prior->GetNbinsX(); ++i)
+			for (int j=1; j<=h2d_prior->GetNbinsY(); ++j)
+				h2d_prior -> SetBinContent(i,j,
+																	 GetParameter(index1)->GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) * 
+																	 GetParameter(index2)->GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
+		// create BCH2D
+		bch2d_prior = new BCH2D(h2d_prior);
+	}
+
+	// else use marginalized prior, if it exists
+	if (bch2d_prior == NULL and (fPriorModel->MarginalizedHistogramExists(index1,index2) or fPriorModel->MarginalizedHistogramExists(index2,index1)))
+		bch2d_prior = fPriorModel -> GetMarginalized(index1,index2);
+
+	// else use slicing, if requested
+	if (bch2d_prior == NULL and flag_slice and index1<fPriorModel->GetNParameters() and index2<fPriorModel->GetNParameters() and fPriorModel->GetNFreeParameters()<=3) {
+		double log_max_val;
+		TH2 * h = fPriorModel -> GetSlice(index1,index2,log_max_val);
+		if (h)
+			bch2d_prior = new BCH2D(h);
+	}
+
+	// if prior doesn't exist, exit
+	if (!bch2d_prior)
+		return false;
+
+	bch2d_prior -> CopyOptions(*fBCH2DPriorDrawingOptions);
+	bch2d_prior -> SetDrawLegend(false);
+
 
 	// Get Posterior
-	TH2 * h2d_posterior = 0;
-	if (flag_slice and GetNParameters()==2 and index1<GetNParameters() and index2<GetNParameters()) {
+	BCH2D * bch2d_posterior = NULL;
+
+	// use marginalization, if it exists
+	if (MarginalizedHistogramExists(index1,index2) or MarginalizedHistogramExists(index2,index1))
+		bch2d_posterior = GetMarginalized(index1,index2);
+
+	// else use slicing, if requested
+	if (bch2d_posterior == NULL and flag_slice and index1<GetNParameters() and index2<GetNParameters() and GetNFreeParameters()<=3) {
 		double log_max_val;
-		h2d_posterior = GetSlice(index1,index2,log_max_val);
-	}	else if (MarginalizedHistogramExists(index1,index2))
-		h2d_posterior = GetMarginalizedHistogram(index1,index2);
-
-	if (!h2d_posterior)
-		return 0;
-
-	// Get Prior
-	bool const_prior1 = index1<GetNParameters() and GetParameter(index1)->GetPriorType()==BCParameter::kPriorConstant;
-	TF1 * f1_prior1   = (const_prior1 or index1>=GetNParameters()) ? 0 : GetParameter(index1)->GetPriorTF1();
-	TH1 * h1_prior1   = (const_prior1 or index1>=GetNParameters()) ? 0 : GetParameter(index1)->GetPriorTH1();
-	bool auto_prior1 = const_prior1 or f1_prior1 or h1_prior1;
-
-	bool const_prior2 = index2<GetNParameters() and GetParameter(index2)->GetPriorType()==BCParameter::kPriorConstant;
-	TF1 * f1_prior2   = (const_prior2 or index2>=GetNParameters()) ? 0 : GetParameter(index2)->GetPriorTF1();
-	TH1 * h1_prior2   = (const_prior2 or index2>=GetNParameters()) ? 0 : GetParameter(index2)->GetPriorTH1();
-	bool auto_prior2 = const_prior2 or f1_prior2 or h1_prior2;
-
-	TH2 * h2d_prior = 0;
-
-	if (!auto_prior1 or !auto_prior2) { // one or both prior pre-defined
-		if (flag_slice and GetNParameters()==2 and index1<GetNParameters() and index2<GetNParameters()) {
-			double log_max_val;
-			h2d_prior = fPriorModel -> GetSlice(index1,index2,log_max_val);
-		}	else if (fPriorModel->MarginalizedHistogramExists(index1, index2))
-			h2d_prior = fPriorModel -> GetMarginalizedHistogram(index1,index2);
+		TH2 * h = GetSlice(index1,index2,log_max_val);
+		if (h)
+			bch2d_prior = new BCH2D(h);
 	}
 
-	// if not predefined, use the projection of the marginalization
-	if (!auto_prior1 and h2d_prior)
-		h1_prior1 = h2d_prior -> ProjectionX(TString::Format("h1_prior1_%s_%d",GetName().data(),index1));
-	if (!auto_prior2 and h2d_prior)
-		h1_prior2 = h2d_prior -> ProjectionY(TString::Format("h1_prior2_%s_%d",GetName().data(),index2));
+	// if posterior doesn't exist, exit
+	if (!bch2d_posterior)
+		return false;
 
-	if (!h2d_prior)
-		h2d_prior = fPriorModel->GetVariable(index1) -> CreateH2(TString::Format("h2d_prior_%s_%d_%d",GetName().data(),index1,index2).Data(),fPriorModel->GetVariable(index2));
-
-	// Set 2D-prior histogram binning to match 1D binning, for if prior was defined by histogram
-	if (h2d_prior) {
-		TAxis * xaxis = (h1_prior1) ? h1_prior1->GetXaxis() : h2d_prior->GetXaxis();
-		TAxis * yaxis = (h1_prior2) ? h1_prior2->GetXaxis() : h2d_prior->GetYaxis();
-
-		int n_xbins = xaxis->GetNbins();
-		double xbins[n_xbins+1];
-		xaxis -> GetLowEdge(xbins);
-		xbins[n_xbins] = xaxis->GetXmax();
-
-		int n_ybins = yaxis->GetNbins();
-		double ybins[n_ybins+1];
-		yaxis -> GetLowEdge(ybins);
-		ybins[n_ybins] = yaxis->GetXmax();
-
-		h2d_prior -> SetBins(n_xbins,xbins,n_ybins,ybins);
-	}
-	
-	for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i) {
-		// x prior
-		double x = 1;
-		if (f1_prior1)
-			x = f1_prior1 -> Eval(h2d_prior->GetXaxis()->GetBinCenter(i));
-		else if (h1_prior1)
-			x = h1_prior1 -> GetBinContent(h1_prior1->FindFixBin(h2d_prior->GetXaxis()->GetBinCenter(i)));
-		
-		for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j) {
-			// y prior
-			double y = 1;
-			if (f1_prior2)
-				y = f1_prior2 -> Eval(h2d_prior->GetYaxis()->GetBinCenter(j));
-			else if (h1_prior2)
-				y = h1_prior2 -> GetBinContent(h1_prior2->FindFixBin(h2d_prior->GetYaxis()->GetBinCenter(j)));
-			
-			h2d_prior -> SetBinContent(i,j,x*y);
-		}
-	}
-
-	if (!h2d_prior)
-		return 0;
-
-
-	// Create BCH2D's (these normalize the TH2's)
-	BCH2D * bch2d_prior     = new BCH2D(h2d_prior);
-	BCH2D * bch2d_posterior = new BCH2D(h2d_posterior);
-
-	bch2d_prior     -> CopyOptions(*fBCH2DPriorDrawingOptions);
-	bch2d_prior -> SetDrawLegend(false);
 	bch2d_posterior -> CopyOptions(*fBCH2DPosteriorDrawingOptions);
 	bch2d_posterior -> SetDrawLegend(false);
 
+	// correct for constant priors:
+	bool const_prior1 = fFactorizedPrior and index1 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior())!=NULL;
+	bool const_prior2 = fFactorizedPrior and index2 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior())!=NULL;
+	
 	if (const_prior1)
-		bch2d_prior -> SetLocalMode(0,fPriorModel->GetVariable(index1)->GetRangeCenter());
+		bch2d_prior -> SetLocalMode((unsigned)0,fPriorModel->GetVariable(index1)->GetRangeCenter());
 	if (const_prior2)
-		bch2d_prior -> SetLocalMode(1,fPriorModel->GetVariable(index2)->GetRangeCenter());
+		bch2d_prior -> SetLocalMode((unsigned)1,fPriorModel->GetVariable(index2)->GetRangeCenter());
 	std::string prior_text = "";
 	if (const_prior1 and !const_prior2)
 		prior_text = Form(" (flat in %s)",fPriorModel->GetVariable(index1)->GetLatexName().data());
@@ -552,18 +609,18 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 	if ( bch2d_prior->GetLegend()->GetNRows() > 0  and  bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
 		// both legends have entries, draw both
 
-		bch2d_prior->GetLegend()->SetHeader((std::string("prior")+prior_text).data());
-		bch2d_posterior->GetLegend()->SetHeader("posterior");
+		bch2d_prior     -> GetLegend() -> SetHeader((std::string("prior")+prior_text).data());
+		bch2d_posterior -> GetLegend() -> SetHeader("posterior");
 
 		// Draw prior legend on top left
 		double y1ndc_prior = bch2d_prior -> ResizeLegend();
-		bch2d_prior->GetLegend() -> SetX2NDC(bch2d_prior->GetLegend()->GetX1NDC() + 45e-2*(bch2d_prior->GetLegend()->GetX2NDC()-bch2d_prior->GetLegend()->GetX1NDC()));
-		bch2d_prior->GetLegend() -> Draw();
+		bch2d_prior -> GetLegend() -> SetX2NDC(bch2d_prior->GetLegend()->GetX1NDC() + 45e-2*(bch2d_prior->GetLegend()->GetX2NDC()-bch2d_prior->GetLegend()->GetX1NDC()));
+		bch2d_prior -> GetLegend() -> Draw();
 
 		// Draw posterior legend on top right
 		double y1ndc_posterior = bch2d_posterior -> ResizeLegend();
-		bch2d_posterior->GetLegend() -> SetX1NDC(bch2d_posterior->GetLegend()->GetX1NDC() + 55e-2*(bch2d_posterior->GetLegend()->GetX2NDC()-bch2d_posterior->GetLegend()->GetX1NDC()));
-		bch2d_posterior->GetLegend() -> Draw();
+		bch2d_posterior -> GetLegend() -> SetX1NDC(bch2d_posterior->GetLegend()->GetX1NDC() + 55e-2*(bch2d_posterior->GetLegend()->GetX2NDC()-bch2d_posterior->GetLegend()->GetX1NDC()));
+		bch2d_posterior -> GetLegend() -> Draw();
 
 		gPad -> SetTopMargin(1-std::min<double>(y1ndc_prior,y1ndc_posterior)+0.01);
 
@@ -579,7 +636,7 @@ int BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool fl
 				TLegendEntry * le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
 				if (!le) break;
 				if (strlen(le->GetLabel())==0) continue;
-				le-> SetLabel(TString::Format("%s of posterior",le->GetLabel()).Data());
+				le -> SetLabel(TString::Format("%s of posterior",le->GetLabel()).Data());
 			}
 			legend -> AddEntry(bch2d_prior->GetHistogram(), (std::string("prior")+prior_text).data(), "L");
 
@@ -631,8 +688,9 @@ int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, uns
 	if ( !GetPriorModel(true,call_likelihood) or fPriorModel->GetNParameters() == 0 )
 		// return 0 if failed
 		return 0;
-	
-	fPriorModel -> MarginalizeAll();
+
+	if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables()>0)
+		fPriorModel -> MarginalizeAll();
 	fPriorModel -> FindMode();
 	
 	std::string file(filename);
@@ -657,7 +715,7 @@ int BCModel::PrintKnowledgeUpdatePlots(const char * filename, unsigned hdiv, uns
 	int nprinted = -1;
 	c -> cd(1);
 	for (unsigned i = 0; i < GetNVariables(); ++i)
-		 if(DrawKnowledgeUpdatePlot1D(i, flag_slice, flag_slice)) {
+		 if(DrawKnowledgeUpdatePlot1D(i,flag_slice)) {
 			 ++ndrawn;
 			 if (ndrawn!=0 and ndrawn%npads==0) {
 				 c -> Print(file.c_str());

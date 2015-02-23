@@ -107,9 +107,8 @@ public:
 	 * One should first call BCParameterSet::ArePriorsSet to be safe.
 	 * @param R Random number generator to use.
 	 * @param fix Whether to fix fixed parameters to their fixed values.
-	 * @param N Maximum number of tries to make to generate value within parameter range.
 	 * @return vector of random values distributed according to priors. */
-	virtual std::vector<double> GetRandomValuesAccordingToPriors(TRandom * const R, bool fix, unsigned N=1000000) const;
+	virtual std::vector<double> GetRandomValuesAccordingToPriors(TRandom * const R, bool fix) const;
 
 	/**
 	 * Get random values distributed according to normal distributions
@@ -119,12 +118,13 @@ public:
 	 * @param fix Whether to fix fixed parameters to their fixed values.
 	 * @param expansion_factor Constant to multiple standard deviations by.
 	 * @param N Maximum number of tries to make to generate value within each parameter range.
+	 * @param over_range Flag for whether to calculate means and std dev's only in parameter ranges
 	 * @return vector of random values of normal distribution approximations to priors. */
-	virtual std::vector<double> GetRandomValuesAccordingToGaussiansOfPriors(TRandom * const R, bool fix, double expansion_factor=1., unsigned N=1000000) const;
+	virtual std::vector<double> GetRandomValuesAccordingToGaussiansOfPriors(TRandom * const R, bool fix, double expansion_factor=1., unsigned N=1000000, bool over_range=true) const;
 
 	/**
 	 * Set all priors to constant. */
-	virtual bool SetPriorConstantAll();
+	virtual void SetPriorConstantAll();
 
 	/**
 	 * Get log of prior;

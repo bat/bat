@@ -30,6 +30,6 @@ BCEmptyModel::~BCEmptyModel()
 {}
 
 // ---------------------------------------------------------
-double BCEmptyModel::LogLikelihood(const std::vector<double> &params) {
+double BCEmptyModel::LogLikelihood(const std::vector<double> &/*params*/) {
 	return 0;
 }

@@ -58,44 +58,44 @@ public:
 
         /**
          * @return The number of channels. */
-        int GetNChannels()
+        int GetNChannels() const
         { return fNChannels; };
 
         /**
          * @return The number of processes. */
-        int GetNProcesses()
+        int GetNProcesses() const
         { return fNProcesses; };
 
         /**
          * @return The number of systematics. */
-        int GetNSystematics()
+        int GetNSystematics() const
         { return fNSystematics; };
 
         /**
          * @param name The name of the channel.
          * @return The channel index. */
-        int GetChannelIndex(const char * name);
+        int GetChannelIndex(const char * name) const;
 
         /**
          * @param name The name of the process.
          * @return The process index. */
-        int GetProcessIndex(const char * name);
+        int GetProcessIndex(const char * name) const;
 
         /**
          * @param name The name of the systematic.
          * @return The systematic uncertainty index. */
-        int GetSystematicIndex(const char * name);
+        int GetSystematicIndex(const char * name) const;
 
         /**
          * @param index The parameter index (mtf counting) .
          * @return The parameter number corresponding to the parameter index (BAT counting). */
-        int GetParIndexProcess(int index)
+        int GetParIndexProcess(int index) const
         { return fProcessParIndexContainer.at(index); };
 
         /**
          * @param name The systematic uncertainty index (mtf counting).
          * @return The parameter number corresponding to the systematic uncertainty (BAT counting). */
-        int GetParIndexSystematic(int index)
+        int GetParIndexSystematic(int index) const
         { return fSystematicParIndexContainer.at(index); };
 
         /**
@@ -340,6 +340,8 @@ public:
 
         /** \name Member functions (output methods) */
         /** @{ */
+
+				using BCEngineMCMC::PrintResults;
 
         /**
          * Print a summary of the fit into an ASCII file.

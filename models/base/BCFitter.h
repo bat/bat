@@ -27,9 +27,8 @@ class TGraph;
 
 // ---------------------------------------------------------
 
-class BCFitter : public BCModel
-{
- public:
+class BCFitter : public BCModel {
+public:
 
   /** \name Constructors and destructors */
   /* @{ */
@@ -41,7 +40,7 @@ class BCFitter : public BCModel
 
   /**
    * The default destructor. */
-  ~BCFitter();
+  virtual ~BCFitter();
 
   /* @} */
 
@@ -49,17 +48,17 @@ class BCFitter : public BCModel
   /* @{ */
 
   /**
-   * @return pointer to the error band */
-  TGraph * GetErrorBand()
-  { return fErrorBand; };
-
-  /**
-     const BCParameter * GetParameter(const char * name);
-     * @return The 2-d histogram of the error band. */
+	 * const BCParameter * GetParameter(const char * name);
+	 * @return The 2D histogram of the error band. */
   TH2D * GetErrorBandXY() const
   { return fErrorBandXY; }
 
-  TH2D * GetErrorBandXY_yellow(double level=.68, int nsmooth=0) const;
+	/**
+	 * @param level Desired probability mass
+	 * @param nsmooth Number of times to smooth the histogram
+	 * @param overcoverage Flag for whether to overcover desired probability mass.
+	 * @return A 2D histogram of the smallest interval in Y for each bin in X containing the desired probability mass. */
+  TH2D * GetGraphicalErrorBandXY(double level=.68, int nsmooth=0, bool overcoverage=true) const;
 
   /**
    * Returns a vector of y-values at a certain probability level.
@@ -80,7 +79,7 @@ class BCFitter : public BCModel
 
   bool GetFixedDataAxis(unsigned int index) const;
 
-	double GetPValue()
+	double GetPValue() const
 	{	return fPValue; }
 
   /* @} */
@@ -122,8 +121,7 @@ class BCFitter : public BCModel
    * @param indexx Index of the x values
    * @param indexy Index of the y values */
   void SetFitFunctionIndices(int indexx, int indexy)
-  { SetFitFunctionIndexX(indexx);
-    SetFitFunctionIndexY(indexy); }
+  { SetFitFunctionIndexX(indexx); SetFitFunctionIndexY(indexy); }
 
   /**
    * Sets the error band flag to continuous function */
@@ -136,7 +134,6 @@ class BCFitter : public BCModel
    * @return The value of the fit function at the x-values given a set of parameters */
   virtual double FitFunction(const std::vector<double> &/*x*/, const std::vector<double> &/*parameters*/)
   { return 0; }
-
 
 	/**
 	 * 1dim cumulative distribution function of the probability
@@ -160,8 +157,8 @@ class BCFitter : public BCModel
 
   /**
    * Performs the fit.
-   * @return An error code. */
-  virtual int Fit() = 0;
+   * @return Success of action. */
+  virtual bool Fit() = 0;
 
   /**
    * Draw the fit in the current pad. */
@@ -178,19 +175,19 @@ class BCFitter : public BCModel
   /**
    * Overloaded from BCIntegrate. */
   void MarginalizePostprocess()
-  {;};
+  {}
 
   /**
    * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
   void FillErrorBand();
 
+	/**
+	 * Prints a short summary of the fit results on the screen. */
+	void PrintShortFitSummary();
+
   /* @} */
 
- private:
-
-  /**
-   * Pointer to the error band (for legend) */
-  TGraph * fErrorBand;
+ protected:
 
   /**
    * Flag whether or not to fill the error band */
@@ -213,8 +210,6 @@ class BCFitter : public BCModel
   /**
    * Number of Y bins of the error band histogram */
   unsigned fErrorBandNbinsY;
-
- protected:
 
   /**
    * The error band histogram */

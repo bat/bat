@@ -236,16 +236,16 @@ void BCH1D::DrawMarkers() {
 
 
 // ---------------------------------------------------------
-void BCH1D::DrawQuantiles(unsigned n) {
+void BCH1D::DrawQuantiles(const unsigned n) {
 	if (n <= 1)
 		return;
 
 	// calculate quantile values (q)
-	double q[n-1];
-	double p[n-1];
+	std::vector<double> q(n-1,0);
+	std::vector<double> p(n-1,0);
 	for (unsigned i=1; i<n; ++i)
 		p[i-1] = i*1./n;
-	if (GetHistogram()->GetQuantiles(n-1,q,p)!=(int)n-1)
+	if (GetHistogram()->GetQuantiles(n-1,&q[0],&p[0])!=(int)n-1)
 		return;
 
 	TLine * quantile_line = new TLine();
@@ -347,7 +347,7 @@ TH1 * BCH1D::GetSubHistogram(double min, double max, std::string name, bool pres
 	int imax = (max<xmax) ? GetHistogram()->FindFixBin(max) : GetHistogram()->GetNbinsX();
 
 	// create binning for new histogram
-	double bins[GetHistogram()->GetNbinsX()+2];
+	std::vector<double> bins(GetHistogram()->GetNbinsX()+2,0);
 	bins[0] = (preserve_range) ? xmin : min;
 	int i0 = (preserve_range) ? 2 : imin+1;
 	int i1 = (preserve_range) ? GetHistogram()->GetNbinsX() : imax;
@@ -363,7 +363,7 @@ TH1 * BCH1D::GetSubHistogram(double min, double max, std::string name, bool pres
 		bins[n++] = GetHistogram()->GetXaxis()->GetBinUpEdge(i1);
 
 	// now define the new histogram
-	TH1D * h0 = new TH1D(name.data(),TString::Format("%s;%s;%s",GetHistogram()->GetTitle(),GetHistogram()->GetXaxis()->GetTitle(),GetHistogram()->GetYaxis()->GetTitle()),n-1, bins);
+	TH1D * h0 = new TH1D(name.data(),TString::Format("%s;%s;%s",GetHistogram()->GetTitle(),GetHistogram()->GetXaxis()->GetTitle(),GetHistogram()->GetYaxis()->GetTitle()),n-1, &bins[0]);
 	imin = h0 -> FindFixBin(min);
 	imax = h0 -> FindFixBin(max);
 	for(int i=imin; i<=imax; ++i)

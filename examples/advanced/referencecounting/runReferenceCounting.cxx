@@ -10,6 +10,8 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
+#include <iostream>
+
 int main()
 {
    // set nicer style for drawing than the ROOT default

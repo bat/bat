@@ -359,6 +359,9 @@ std::vector<std::pair<double,double> > BCHistogramBase::GetSmallestIntervalBound
 
 // ---------------------------------------------------------
 std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double> masses, bool overcoverage) {
+	// TO DO : allow for over- vs undercoverage choice
+	(void) overcoverage;
+
 	// vector of sizes
 	std::vector<double> S;
 	
@@ -394,7 +397,7 @@ std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double>
 
 // ---------------------------------------------------------
 double BCHistogramBase::GetSmallestIntervalSize(double mass, bool overcoverage) {
-	std::vector<double> s = GetSmallestIntervalSize(std::vector<double>(1,mass));
+	std::vector<double> s = GetSmallestIntervalSize(std::vector<double>(1,mass),overcoverage);
 	if (s.empty())
 		return 0;
 	return s[0];

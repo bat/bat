@@ -37,6 +37,7 @@
 #include <TMatrixD.h>
 
 // ROOT classes
+class TF1;
 class TH1;
 class TH2;
 class TTree;
@@ -67,11 +68,11 @@ public:
 
 	/** An enumerator for the phase of the Markov chain. */
 	enum MCMCPhase {
-		MCMCPreRunEfficiencyCheck       = -1,
-		MCMCPreRunConvergenceCheck      = -2,
-		MCMCPreRunFulfillMinimum        = -3,
-		MCMCUnsetPhase                  =  0,
-		MCMCMainRun                     = +1,
+		kMCMCPreRunEfficiencyCheck       = -1,
+		kMCMCPreRunConvergenceCheck      = -2,
+		kMCMCPreRunFulfillMinimum        = -3,
+		kMCMCUnsetPhase                  =  0,
+		kMCMCMainRun                     = +1
 	};
 
 	/** An enumerator for markov-chain position initialization. */
@@ -380,17 +381,17 @@ public:
 
 	/**
 	 * Retrieve the tree containing the Markov chain. */
-	TTree * const MCMCGetMarkovChainTree()
+	TTree * MCMCGetMarkovChainTree()
 	{ return fMCMCTree;}
 
 	/**
 	 * Retrieve the tree containing the parameter information. */
-	TTree * const MCMCGetParameterTree()
+	TTree * MCMCGetParameterTree()
 	{ return fParameterTree;}
 
 	/**
 	 * Retrieve output file for MCMC. */
-	TFile * const MCMCGetOutputFile()
+	TFile * MCMCGetOutputFile()
 	{ return fMCMCOutputFile; }
 
 	/**
@@ -437,7 +438,7 @@ public:
 	 * @note The most efficient method is to access by index.
 	 * @param name The parameter's name
 	 * @return 1D marginalized probability */
-	TH1 * const GetMarginalizedHistogram(const char * name) const
+	TH1 * GetMarginalizedHistogram(const char * name) const
 	{ return GetMarginalizedHistogram(fParameters.Index(name)); }
    
 	/**
@@ -445,7 +446,7 @@ public:
 	 * with respect to one parameter as a ROOT TH1
 	 * @param index The parameter index
 	 * @return 1D marginalized probability */
-	TH1 * const GetMarginalizedHistogram(unsigned index) const;
+	TH1 * GetMarginalizedHistogram(unsigned index) const;
    
 	/**
 	 * Obtain the individual marginalized distributions
@@ -454,7 +455,7 @@ public:
 	 * @param name1 Name of first parameter
 	 * @param name2 Name of second parameter
 	 * @return 2D marginalized probability */
-	TH2 * const GetMarginalizedHistogram(const char * name1, const char * name2) const
+	TH2 * GetMarginalizedHistogram(const char * name1, const char * name2) const
 	{ return GetMarginalizedHistogram(fParameters.Index(name1), fParameters.Index(name2)); }
    
 	/**
@@ -463,7 +464,7 @@ public:
 	 * @param index1 Index of first parameter
 	 * @param index2 Index of second parameter
 	 * @return 2D marginalized probability */
-	TH2 * const GetMarginalizedHistogram(unsigned index1, unsigned index2) const;
+	TH2 * GetMarginalizedHistogram(unsigned index1, unsigned index2) const;
 
 	/**
 	 * Obtain the individual marginalized distributions
@@ -514,7 +515,7 @@ public:
 	 * 0,...,N_parameters in the ParameterSet, and then over
 	 * N_parameters,...,N_parameters+N_observables in the ObservableSet
 	 * @return The observable. */
-	BCVariable * const GetVariable(unsigned index) const
+	BCVariable * GetVariable(unsigned index) const
 	{ return ((index<GetNParameters()) ? fParameters.Get(index) : ((index<GetNVariables()) ? fObservables.Get(index-GetNParameters()) : NULL)); }
 
 	/**
@@ -530,13 +531,13 @@ public:
 	/**
 	 * @param index The index of the parameter in the parameter set.
 	 * @return The parameter. */
-	BCParameter * const GetParameter(int index) const
+	BCParameter * GetParameter(int index) const
 	{ return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
 
 	/**
 	 * @param name The name of the parameter in the parameter set.
 	 * @return The parameter. */
-	BCParameter * const GetParameter(const char * name) const
+	BCParameter * GetParameter(const char * name) const
 	{ return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
 
 	/**
@@ -562,7 +563,7 @@ public:
 	/**
 	 * @param index The index of the observable in the observable set.
 	 * @return The user-defined observable. */
-	BCObservable * const GetObservable(int index) const
+	BCObservable * GetObservable(int index) const
 	{ return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
 
 	/**
@@ -606,12 +607,12 @@ public:
 
 	/**
 	 * @return BCH1D object that stores drawing options for all BCH1D's. */
-	BCH1D * const GetBCH1DdrawingOptions()
+	BCH1D * GetBCH1DdrawingOptions()
 	{ return fBCH1DdrawingOptions; }
 
 	/**
 	 * @return BCH2D object that stores drawing options for all BCH2D's. */
-	BCH2D * const GetBCH2DdrawingOptions()
+	BCH2D * GetBCH2DdrawingOptions()
 	{ return fBCH2DdrawingOptions; }
 
 	/** @} */
@@ -843,6 +844,131 @@ public:
 	void WriteMarginalizedDistributions(std::string filename, std::string option);
 
 	/** @} */
+	/** \name Prior setting functions (all deprecated).
+	 * \brief The priors are not used for the likelihood calculation by
+	 * BCEngineMCMC, but are used for initializing the positions of the
+	 * chains. */
+	/** @{ */
+
+	/**
+	 * @deprecated Instead call: GetParameter(index)->SetPriorConstant()
+	 * Set constant prior for this parameter
+	 * @param index the index of the parameter
+	 * @return success of action. */
+	bool SetPriorConstant(unsigned index);
+
+	/**
+	 * @deprecated Instead call: GetParameter(name)->SetPriorConstant()
+	 * Set constant prior for this parameter
+	 * @param name the name of the parameter
+	 * @return Success of action */
+	bool SetPriorConstant(const char* name)
+	{ return SetPriorConstant(fParameters.Index(name)); }
+
+	/**
+	 * @deprecated Instead call: GetPrarameter(index)->SetPrior(new BCTF1Prior(f))
+	 * Set prior for a parameter.
+	 * @param index The parameter index
+	 * @param f A pointer to a function describing the prior
+	 * @return success of action. */
+	bool SetPrior(unsigned index, TF1* const f);
+
+	/**
+	 * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTF1Prior(f))
+	 * Set prior for a parameter.
+	 * @param name The parameter name
+	 * @param f A pointer to a function describing the prior
+	 * @return success of action. */
+	bool SetPrior(const char* name, TF1* const f)
+	{ return SetPrior(fParameters.Index(name), f); }
+
+	/**
+	 * @deprecated Instead call: GetParameter(index)->Fix(value)
+	 * Fixes parameter to value.
+	 * @param index The parameter index
+	 * @param value The position of the delta function.
+	 * @return success of action. */
+	bool SetPriorDelta(unsigned index, double value);
+
+	/**
+	 * @deprecated Instead call: GetParameter(name)->Fix(value)
+	 * Fixes parameter to value.
+	 * @param name The parameter name
+	 * @param value The position of the delta function.
+	 * @return success of action. */
+	bool SetPriorDelta(const char* name, double value)
+	{ return SetPriorDelta(fParameters.Index(name),value); }
+
+	/**
+	 * @deprecated Instead call: GetParameter(index)->SetPrior(new BCGaussianPrior(mean,sigma))
+	 * Set Gaussian prior for a parameter.
+	 * @param index The parameter index
+	 * @param mean The mean of the Gaussian
+	 * @param sigma The sigma of the Gaussian
+	 * @return success of action. */
+	bool SetPriorGauss(unsigned index, double mean, double sigma);
+
+	/**
+	 * @deprecated Instead call: GetParameter(name)->SetPrior(new BCGaussianPrior(mean,sigma))
+	 * Set Gaussian prior for a parameter.
+	 * @param name The parameter name
+	 * @param mean The mean of the Gaussian
+	 * @param sigma The sigma of the Gaussian
+	 * @return success of action. */
+	bool SetPriorGauss(const char* name, double mean, double sigma)
+	{ return SetPriorGauss(fParameters.Index(name), mean, sigma); }
+
+	/**
+	 * @deprecated Instead call: GetParameter(index)->SetPrior(new BCSplitGaussianPrior(mean,sigma_below,sigma_above))
+	 * Set Gaussian prior for a parameter with two different widths.
+	 * @param index The parameter index
+	 * @param mean The mean of the Gaussian
+	 * @param sigma_below Standard deviation below mean.
+	 * @param sigma_above Standard deviation above mean.
+	 * @return success of action. */
+	bool SetPriorGauss(unsigned index, double mean, double sigma_below, double sigma_above);
+
+	/**
+	 * @deprecated Instead call: GetParameter(name)->SetPrior(new BCSplitGaussianPrior(mean,sigma_below,sigma_above))
+	 * Set Gaussian prior for a parameter with two different widths.
+	 * @param name The parameter name
+	 * @param mean The mean of the Gaussian
+	 * @param sigmadown The sigma (down) of the Gaussian
+	 * @param sigmaup The sigma (up)of the Gaussian
+	 * @return success of action. */
+	int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup)
+	{	return SetPriorGauss(fParameters.Index(name), mean, sigmadown, sigmaup); }
+
+	/**
+	 * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))
+	 * Set prior for a parameter.
+	 * @param index parameter index
+	 * @param h pointer to a histogram describing the prior
+	 * @param interpolate whether or not to use linear interpolation
+	 * @return success of action. */
+	bool SetPrior(unsigned index, TH1 * const h, bool interpolate=false);
+
+	/**
+	 * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTH1Prior(h,interpolate))
+	 * Set prior for a parameter.
+	 * @param name parameter name
+	 * @param h pointer to a histogram describing the prior
+	 * @param interpolate whether or not to use linear interpolation
+	 * @return success of action. */
+	bool SetPrior(const char* name, TH1 * const h, bool interpolate=false)
+	{ return SetPrior(fParameters.Index(name),h,interpolate); }
+
+	/**
+	 * @deprecated Instead call: GetParameters().SetPriorConstantAll()
+	 * Enable caching the constant value of the prior, so LogAPrioriProbability
+	 * is called only once. Note that the prior for ALL parameters is
+	 * assumed to be constant. The value is computed from
+	 * the parameter ranges, so make sure these are defined before this method is
+	 * called. */
+	void SetPriorConstantAll()
+	{ fParameters.SetPriorConstantAll(); }
+
+	/** @} **/
 	/** \name Miscellaneous methods */
 	/** @{ */
 
@@ -960,7 +1086,7 @@ public:
 	/**
 	 * Evaluates user-defined observables To be overloaded by user
 	 * to calculate user-observables. */
-	virtual void CalculateObservables(const std::vector<double> &pars)
+	virtual void CalculateObservables(const std::vector<double> &/*pars*/)
 	{}
 
 	/**

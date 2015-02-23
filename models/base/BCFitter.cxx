@@ -24,7 +24,6 @@
 // ---------------------------------------------------------
 BCFitter::BCFitter(const char * name)
 	: BCModel(name)
-	, fErrorBand(0)
 	, fFlagFillErrorBand(true)
 	, fFitFunctionIndexX(-1)
 	, fFitFunctionIndexY(-1)
@@ -36,13 +35,11 @@ BCFitter::BCFitter(const char * name)
 }
 
 // ---------------------------------------------------------
-BCFitter::~BCFitter()
-{
+BCFitter::~BCFitter() {
 }
 
 // ---------------------------------------------------------
-void BCFitter::MCMCIterationInterface()
-{
+void BCFitter::MCMCIterationInterface() {
   // call base interface
   BCEngineMCMC::MCMCIterationInterface();
 
@@ -52,16 +49,16 @@ void BCFitter::MCMCIterationInterface()
 }
 
 // ---------------------------------------------------------
-void BCFitter::MarginalizePreprocess()
-{
+void BCFitter::MarginalizePreprocess() {
   // prepare function fitting
   double dx = 0.;
   double dy = 0.;
 
   if (GetDataSet() and fFitFunctionIndexX >= 0 and fFitFunctionIndexY >=0) {
+
 		dx = GetDataSet() -> GetRangeWidth(fFitFunctionIndexX) / fErrorBandNbinsX;
     dy = GetDataSet() -> GetRangeWidth(fFitFunctionIndexY) / fErrorBandNbinsY;
-
+		
     fErrorBandXY = new TH2D(TString::Format("errorbandxy_%s", GetSafeName().data()), "",
 														fErrorBandNbinsX,
 														GetDataSet()->GetLowerBound(fFitFunctionIndexX) - dx/2,
@@ -80,8 +77,7 @@ void BCFitter::MarginalizePreprocess()
 }
 
 // ---------------------------------------------------------
-void BCFitter::FillErrorBand()
-{
+void BCFitter::FillErrorBand() {
   // function fitting
   if (fFitFunctionIndexX < 0)
     return;
@@ -101,7 +97,7 @@ void BCFitter::FillErrorBand()
       for (unsigned ichain = 0; ichain < MCMCGetNChains(); ++ichain) {
         // calculate y
         double y = FitFunction(xvec, MCMCGetx(ichain));
-
+				
         // fill histogram
         fErrorBandXY->Fill(x, y);
       }
@@ -137,117 +133,117 @@ void BCFitter::FillErrorBand()
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCFitter::GetErrorBand(double level) const
-{
-   std::vector<double> errorband;
-
-   if (!fErrorBandXY)
-      return errorband;
-
-   int nx = fErrorBandXY->GetNbinsX();
-   errorband.assign(nx, 0.);
-
-   // loop over x and y bins
-   for (int ix = 1; ix <= nx; ix++) {
-      TH1D * temphist = fErrorBandXY->ProjectionY("temphist", ix, ix);
-
-      int nprobSum = 1;
-      double q[1];
-      double probSum[1];
-      probSum[0] = level;
-
-      temphist->GetQuantiles(nprobSum, q, probSum);
-
-      errorband[ix - 1] = q[0];
-   }
-
-   return errorband;
+void BCFitter::PrintShortFitSummary() {
+	BCModel::PrintShortFitSummary();
+	if (GetPValue() >= 0) {
+		BCLog::OutSummary("   Goodness-of-fit test:");
+		BCLog::OutSummary(Form("      p-value = %.3g", GetPValue()));
+		BCLog::OutSummary("---------------------------------------------------");
+	}
 }
 
 // ---------------------------------------------------------
-TGraph * BCFitter::GetErrorBandGraph(double level1, double level2) const
-{
-   if (!fErrorBandXY)
-      return 0;
+std::vector<double> BCFitter::GetErrorBand(double level) const {
+	std::vector<double> errorband;
 
-   // define new graph
-   int nx = fErrorBandXY->GetNbinsX();
+	if (!fErrorBandXY)
+		return errorband;
 
-   TGraph * graph = new TGraph(2 * nx);
-   graph->SetFillStyle(1001);
-   graph->SetFillColor(kYellow);
+	int nx = fErrorBandXY->GetNbinsX();
+	errorband.assign(nx, 0.);
 
-   // get error bands
-   std::vector<double> ymin = GetErrorBand(level1);
-   std::vector<double> ymax = GetErrorBand(level2);
+	// loop over x and y bins
+	for (int ix = 1; ix <= nx; ix++) {
+		TH1D * temphist = fErrorBandXY->ProjectionY("temphist", ix, ix);
 
-   for (int i = 0; i < nx; i++) {
-      graph->SetPoint(i, fErrorBandXY->GetXaxis()->GetBinCenter(i + 1), ymin[i]);
-      graph->SetPoint(nx + i, fErrorBandXY->GetXaxis()->GetBinCenter(nx - i), ymax[nx - i - 1]);
-   }
+		int nprobSum = 1;
+		double q[1];
+		double probSum[1];
+		probSum[0] = level;
 
-   return graph;
+		temphist->GetQuantiles(nprobSum, q, probSum);
+		
+		errorband[ix-1] = q[0];
+	}
+	
+	return errorband;
 }
 
 // ---------------------------------------------------------
-TH2D * BCFitter::GetErrorBandXY_yellow(double level, int nsmooth) const
-{
-   if (!fErrorBandXY)
-      return 0;
-
-   int nx = fErrorBandXY->GetNbinsX();
-   int ny = fErrorBandXY->GetNbinsY();
-
-   // copy existing histogram
-   TH2D * hist_tempxy = (TH2D*) fErrorBandXY->Clone(
-         TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
-   hist_tempxy->Reset();
-   hist_tempxy->SetFillColor(kYellow);
-
-   // loop over x bins
-   for (int ix = 1; ix < nx; ix++) {
-      BCH1D * hist_temp = new BCH1D();
-
-      TH1D * hproj = fErrorBandXY->ProjectionY("temphist", ix, ix);
-      if (nsmooth > 0)
-         hproj->Smooth(nsmooth);
-
-      hist_temp->SetHistogram(hproj);
-
-			std::vector<std::pair<double,double> > bound = hist_temp -> GetSmallestIntervalBounds(std::vector<double>(1,level));
-      for (int iy = 1; iy <= ny; ++iy)
-				if (hist_temp->GetHistogram()->GetBinContent(iy)>=bound.front().first)
-					hist_tempxy->SetBinContent(ix, iy, 1);
-
-      delete hist_temp;
-   }
-
-   return hist_tempxy;
+TGraph * BCFitter::GetErrorBandGraph(double level1, double level2) const {
+	if (!fErrorBandXY)
+		return 0;
+	
+	// define new graph
+	int nx = fErrorBandXY->GetNbinsX();
+	
+	TGraph * graph = new TGraph(2 * nx);
+	graph->SetFillStyle(1001);
+	graph->SetFillColor(kYellow);
+	
+	// get error bands
+	std::vector<double> ymin = GetErrorBand(level1);
+	std::vector<double> ymax = GetErrorBand(level2);
+	
+	for (int i = 0; i < nx; i++) {
+		graph->SetPoint(i, fErrorBandXY->GetXaxis()->GetBinCenter(i + 1), ymin[i]);
+		graph->SetPoint(nx + i, fErrorBandXY->GetXaxis()->GetBinCenter(nx - i), ymax[nx - i - 1]);
+	}
+	
+	return graph;
 }
 
 // ---------------------------------------------------------
-TGraph * BCFitter::GetFitFunctionGraph(const std::vector<double> &parameters)
-{
-   if (!fErrorBandXY)
-      return 0;
+TH2D * BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcoverage) const {
+	if (!fErrorBandXY)
+		return 0;
 
-   // define new graph
-   int nx = fErrorBandXY->GetNbinsX();
-   TGraph * graph = new TGraph(nx);
+	int nx = fErrorBandXY -> GetNbinsX();
+	int ny = fErrorBandXY -> GetNbinsY();
 
-   // loop over x values
-   for (int i = 0; i < nx; i++) {
-      double x = fErrorBandXY->GetXaxis()->GetBinCenter(i + 1);
+	// copy existing histogram
+	TH2D * hist_tempxy = (TH2D*) fErrorBandXY->Clone(TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
+	hist_tempxy -> Reset();
+	hist_tempxy -> SetFillColor(kYellow);
 
-      std::vector<double> xvec;
-      xvec.push_back(x);
-      double y = FitFunction(xvec, parameters);
-      xvec.clear();
+	// loop over x bins
+	for (int ix = 1; ix < nx; ix++) {
+		BCH1D * hist_temp = new BCH1D(fErrorBandXY->ProjectionY("temphist", ix, ix));
+		if (nsmooth > 0)
+			hist_temp -> Smooth(nsmooth);
+		std::vector<std::pair<double,double> > bound = hist_temp -> GetSmallestIntervalBounds(std::vector<double>(1,level),overcoverage);
+		for (int iy = 1; iy <= ny; ++iy)
+			if (hist_temp->GetHistogram()->GetBinContent(iy)>=bound.front().first)
+				hist_tempxy -> SetBinContent(ix, iy, 1);
+		
+		delete hist_temp;
+	}
 
-      graph->SetPoint(i, x, y);
-   }
+	return hist_tempxy;
+}
 
-   return graph;
+// ---------------------------------------------------------
+TGraph * BCFitter::GetFitFunctionGraph(const std::vector<double> &parameters) {
+	if (!fErrorBandXY)
+		return 0;
+	
+	// define new graph
+	int nx = fErrorBandXY->GetNbinsX();
+	TGraph * graph = new TGraph(nx);
+	
+	// loop over x values
+	for (int i = 0; i < nx; i++) {
+		double x = fErrorBandXY->GetXaxis()->GetBinCenter(i + 1);
+		
+		std::vector<double> xvec;
+		xvec.push_back(x);
+		double y = FitFunction(xvec, parameters);
+		xvec.clear();
+		
+		graph->SetPoint(i, x, y);
+	}
+	
+	return graph;
 }
 
 // ---------------------------------------------------------

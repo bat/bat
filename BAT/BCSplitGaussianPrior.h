@@ -20,6 +20,8 @@
 
 // ---------------------------------------------------------
 
+#include "BCPrior.h"
+
 #include <limits>
 
 class TF1;
@@ -32,32 +34,43 @@ public:
 	/** @{ **/
 
 	/** Constructor */
-	BCSplitGaussianPrior(double mean, double sigma_low, double sigma_high);
+	BCSplitGaussianPrior(double mean, double sigma_below, double sigma_above);
 
 	/** Copy constructor */
 	BCSplitGaussianPrior(const BCSplitGaussianPrior & other);
 
 	/** Destrcutor */
-	virtual ~BCSplitGaussianPrior() {}
+	virtual ~BCSplitGaussianPrior();
 
 	/** @} **/
 
 	/** \name Functions overloaded from BCPrior **/
 	/** @{ **/
 
-	/** Get as TF1 for drawing purposes.
-	 * Parameter zero is mean, parameter one is sigma_low, parameter two is sigma_high,
-	 * last parameter is integral over range
-	 * @param xmin lower limit of range for TF1
-	 * @param xmax upper limit of range for TF1
-	 * @param normalize whether to normalize TF1 over range*/
-	virtual TF1 * GetAsTF1(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity(), bool normalize=true) const;
+	/** Clone function */
+	virtual BCPrior * Clone() const 
+	{ return new BCSplitGaussianPrior(*this); }
+
+	/**
+	 * @return Whether everything needed for prior is set and prior can be used. */
+	virtual bool IsValid() const
+	{ return std::isfinite(fMean)
+			and std::isfinite(fSigmaBelow) and fSigmaBelow>0
+			and std::isfinite(fSigmaAbove) and fSigmaAbove>0;}
 
 	/**
 	 * Get log of prior
 	 * @param x value to evaluate log of prior at
 	 * @return log of prior */
 	virtual double GetLogPrior(double x) const;
+
+	/**
+	 * Return mode of prior (in range).
+	 * @param xmin lower limit of range to evaluate over
+	 * @param xmax upper limit of range to evaluate over
+	 * @return mode of prior in range. */
+	virtual double GetMode(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const
+	{ if (fMean<xmin) return xmin; if (fMean>xmax) return xmax; return fMean; }
 
 	/**
 	 * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -82,18 +95,21 @@ public:
 	void SetMean(double mean)
 	{ fMean = mean; }
 
-	void SetSigmaLow(double sigma)
-	{ fSigmaLow = sigma; }
+	void SetSigmaBelow(double sigma)
+	{ fSigmaBelow = sigma; }
 
-	void SetSigmaHigh(double sigma)
-	{ fSigmaHigh = sigma; }
+	void SetSigmaAbove(double sigma)
+	{ fSigmaAbove = sigma; }
 
-	void SetParameters(double mean, double sigma_low, double sigma_high)
-	{ SetMean(mean); SetSigma(sigma); }
+	void SetParameters(double mean, double sigma_below, double sigma_above)
+	{ SetMean(mean); SetSigmaBelow(sigma_below); SetSigmaAbove(sigma_above);}
 
 	/** @} **/
 
 protected:
-	double fMean;									///< mean of split gaussian
-	double fSigma;								///< std dev of split aussian
+	double fMean;							 ///< mean of split gaussian
+	double fSigmaBelow;				 ///< std dev of split gaussian below mean
+	double fSigmaAbove;				 ///< std dev of split gaussian above mean
 };
+
+#endif

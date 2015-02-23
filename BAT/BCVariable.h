@@ -27,6 +27,7 @@
 
 class TH1;
 class TH2;
+class TH3;
 class TRandom;
 
 // ---------------------------------------------------------
@@ -64,65 +65,65 @@ public:
 
 	/**
 	 * @return Prefix for name of type of variable ("Parameter", "Observable") */
-	const std::string & GetPrefix() const
+	virtual const std::string & GetPrefix() const
 	{ return fPrefix; }
 	
 	/**
 	 * @return The name of the variable. */
-	const std::string & GetName() const
+	virtual const std::string & GetName() const
 	{ return fName; }
 
 	/**
 	 * @return Safe name of the variable. */
-	const std::string & GetSafeName() const
+	virtual const std::string & GetSafeName() const
 	{ return fSafeName; }
 
 	/**
 	 * Returns latex name if set, else identical to GetName().
 	 */
-	const std::string & GetLatexName() const
+	virtual const std::string & GetLatexName() const
 	{ return (fLatexName.empty()) ? fName : fLatexName; }
 	
 	/**
 	 * @return The lower limit of the variable values. */
-	double GetLowerLimit() const
+	virtual double GetLowerLimit() const
 	{ return fLowerLimit; }
 
 	/**
 	 * @return The upper limit of the variable values. */
-	double GetUpperLimit() const
+	virtual double GetUpperLimit() const
 	{ return fUpperLimit; }
 
 	/**
 	 * Returns the range width of the variable values. It is
 	 * always a positive value.
 	 * @return The range width of the variable values. */
-	double GetRangeWidth() const
-	{ return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
+	virtual double GetRangeWidth() const
+	{ return fUpperLimit-fLowerLimit; }
 
 	/**
 	 * Returns center of variable range.*/
-	double GetRangeCenter() const
+	virtual double GetRangeCenter() const
 	{ return (fUpperLimit+fLowerLimit)/2.; }
 
 	/**
 	 * @return precision of output */
-	unsigned GetPrecision() const
+	virtual unsigned GetPrecision() const
 	{ return fPrecision;}
 
 	/**
 	 * @return whether to fill 1D histogram. */
-	bool FillH1()
+	virtual bool FillH1()
 	{ return fFillH1; }
 
 	/**
 	 * @return whether to fill 2D histograms. */
-	bool FillH2()
+	virtual bool FillH2()
 	{ return fFillH2; }
 
 	/**
 	 * @return Number of bins on axis in 1D and 2D histograms. */
-	unsigned GetNbins() const
+	virtual unsigned GetNbins() const
 	{ return fNbins; }
 
 	/** @} */
@@ -132,61 +133,60 @@ public:
 
 	/**
 	 * @param name The name of the variable. */
-	void SetName(const char * name);
+	virtual void SetName(const char * name);
 
-	void SetLatexName(const char * latex_name)
+	virtual void SetLatexName(const char * latex_name)
 	{ fLatexName = latex_name; }
 
 	/**
 	 * Set the lower limit of the variable values.
 	 * @param limit The lower limit of the variable values. */
-	void SetLowerLimit(double limit = 0)
-	{ fLowerLimit = limit; CalculatePrecision();}
+	virtual void SetLowerLimit(double limit)
+	{ SetLimits(limit,fUpperLimit); }
 
 	/**
 	 * Set the upper limit of the variable values.
 	 * @param limit The upper limit of the variable values. */
-	void SetUpperLimit(double limit = 1)
-	{ fUpperLimit = limit; CalculatePrecision();}
+	virtual void SetUpperLimit(double limit)
+	{ SetLimits(fLowerLimit,limit); }
 
 	/**
 	 * Set the limits of the variable values.
 	 * @param lowerlimit The lower limit of the variable values.
 	 * @param upperlimit The upper limit of the variable values. */
-	void SetLimits(double lowerlimit = 0, double upperlimit = 1)
-	{ fLowerLimit = lowerlimit; fUpperLimit = upperlimit; CalculatePrecision();}
+	virtual void SetLimits(double lowerlimit = 0, double upperlimit = 1);
 
 	/**
 	 * Set the precision of the output of variable
 	 * @param precision The precision of the variable for output. */
-	void SetPrecision(unsigned precision)
+	virtual void SetPrecision(unsigned precision)
 	{ fPrecision = precision; }
 
 	/**
 	 * Set the filling of 1D and 2D histograms.
 	 * @param flag Toggles filling of 1D and 2D histograms. */
-	void FillHistograms(bool flag)
+	virtual void FillHistograms(bool flag)
 	{ FillHistograms(flag,flag); }
 
 	/**
 	 * Set the filling of 1D and 2D histograms.
 	 * @param fill_1d Toggles filling of 1D histogram.
 	 * @param fill_2d Toggles filling of 2D histograms. */
-	void FillHistograms(bool fill_1d, bool fill_2d)
+	virtual void FillHistograms(bool fill_1d, bool fill_2d)
 	{ FillH1(fill_1d); FillH2(fill_2d); }
 
 	/**
 	 * Set the filling of 1D histogram. */
-	void FillH1(bool flag)
+	virtual void FillH1(bool flag)
 	{ fFillH1 = flag; }
 
 	/**
 	 * Set the filling of 2D histograms. */
-	void FillH2(bool flag)
+	virtual void FillH2(bool flag)
 	{ fFillH2 = flag; }
 
 
-	void SetNbins(unsigned nbins)
+	virtual void SetNbins(unsigned nbins)
 	{ fNbins = nbins; }
 	/** @} */
 
@@ -196,13 +196,13 @@ public:
 	/**
 	 * Check if name is that of variable.
 	 * @param name Name to check against variable name. */
-	bool IsNamed(std::string name) const
+	virtual bool IsNamed(std::string name) const
 	{ return fName.compare(name) == 0; }
 
 	/**
 	 * Check if safe name is that of variable.
 	 * @param safename Safe name to check against variable name. */
-	bool IsSafeNamed(std::string safename) const
+	virtual	bool IsSafeNamed(std::string safename) const
 	{ return fSafeName.compare(safename) == 0; }
 
 	/**
@@ -210,34 +210,34 @@ public:
 	 * from 0 (at lower limit) to 1 (at upper limit)
 	 * @param x Value to report position of.
 	 * @return Position of value in range. */
-	double PositionInRange(double x) const
+	virtual double PositionInRange(double x) const
 	{ return (x - fLowerLimit)/(fUpperLimit-fLowerLimit); }
 
 	/**
 	 * Translate from unit interval to value in variable range.
 	 * @param p Position in unit interval (0 = lower limit, 1 = upper limit).
 	 * @return Value of variable at position in range. */
-	double ValueFromPositionInRange(double p) const
+	virtual double ValueFromPositionInRange(double p) const
 	{ return fLowerLimit + p*(fUpperLimit-fLowerLimit); }
 
 	/**
 	 * Calculate the necessary precision for outputting this
 	 * parameter */
-	void CalculatePrecision()
+	virtual void CalculatePrecision()
 	{ SetPrecision(ceil(-log10(2.*fabs(fUpperLimit-fLowerLimit)/(fabs(fUpperLimit)+fabs(fLowerLimit))))); }
 
 	/**
 	 * @return Whether value is at upper or lower limit. */
-	bool IsAtLimit(double value) const;
+	virtual bool IsAtLimit(double value) const;
 	
 	/** 
 	 * @return Whether value is within limits. */
-	bool IsWithinLimits(double value) const
+	virtual bool IsWithinLimits(double value) const
 	{ return (value >= fLowerLimit and value <= fUpperLimit); }
 
 	/**
 	 * Prints a variable summary on the screen. */
-	void PrintSummary() const;
+	virtual void PrintSummary() const;
 
 	/**
 	 * @return A one line summary of the variable. */
@@ -254,7 +254,15 @@ public:
 	 * and a second as the ordinate.
 	 * @name name The name of the histogram.
 	 * @param ordinate The variable to be used for the ordinate. */
-	virtual TH2 * CreateH2(const char * name, BCVariable * ordinate) const;
+	virtual TH2 * CreateH2(const char * name, BCVariable const * const ordinate) const;
+
+	/**
+	 * Creates a 3D Histogram for this variable as the abcissa
+	 * and a second as the ordinate.
+	 * @name name The name of the histogram.
+	 * @param ordinate_y The variable to be used for the y ordinate.
+	 * @param ordinate_z The variable to be used for the z ordinate. */
+	virtual TH3 * CreateH3(const char * name, BCVariable const * const ordinate_y, BCVariable const * const ordinate_z) const;
 
 	/**
 	 * Get random value uniformly distributed in range.

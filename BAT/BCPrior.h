@@ -22,8 +22,10 @@
 
 #include <limits>
 #include <cmath>
+#include <cstddef>
 
 class TF1;
+class TRandom;
 
 // ---------------------------------------------------------
 
@@ -31,62 +33,69 @@ class BCPrior {
 
 public:
 
-	/** \name Enumerators */
-	/** @{ */
-
-	/** Range types. */
-	enum BCPriorRange {
-		kFiniteRange           = 0,	//!< lower and upper limits finite
-		kNegativeInfiniteRange = 1,	//!< lower limit infinite, upper limit finite
-		kPositiveInfiniteRange = 2,	//!< lower limit finite, upper limit infinite
-		kInfiniteRange         = 3,	//!< lower and upper limits infinite
-		kEmptyRange            = 4	//!< lower limit == upper limit
-	};
-
-	/** @} */
-	
 	/** \name Constructors and destructors */
 	/** @{ */
 	
 	/**
-	 * Constructor */
-	BCPrior()
-	{ }
+	 * Empty constructor */
+	BCPrior();
+
+	/**
+	 * Constructor explicitely setting fPriorFunction.
+	 * @param f TF1 to be copied into prior. */
+	BCPrior(TF1 const * const f);
 
 	/**
 	 * Copy constructor */
-	BCPrior(const BCPrior & other)
-	{ }
+	BCPrior(const BCPrior & other);
 
 	/**
 	 * Destructor */
-	virtual ~BCPrior()
-	{ }
+	virtual ~BCPrior();
 
 	/** @} */
 
-	/** \name Getters */
-	/** @{ **/
+	/** \name methods that must be overloaded in derived classes */
+	/** @{ */
 
-	/** Get as TF1 for drawing purposes.
-	 * @param xmin lower limit of range for TF1
-	 * @param xmax upper limit of range for TF1
-	 * @param normalize whether to normalize TF1 over range*/
-	virtual TF1 * GetAsTF1(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity(), bool normalize=true) const
-	{ return NULL; }
-
-	/**
-	 * Get prior
-	 * @param x value to evaluate prior at
-	 * @return prior */
-	virtual double GetPrior(double x) const
-	{ return exp(GetLogPrior(x)); }
-	
 	/**
 	 * Get log of prior
 	 * @param x value to evaluate log of prior at
 	 * @return log of prior */
 	virtual double GetLogPrior(double x) const = 0;
+
+	/** 
+	 * Clone function */
+	virtual BCPrior * Clone() const = 0;
+	// { return new [Dervied Class](*this); }
+
+	/**
+	 * @return Whether everything needed for prior is set and prior can be used. */
+	virtual bool IsValid() const = 0;
+
+	/** @} */
+
+
+	/** \name Getters */
+	/** @{ **/
+
+	/**
+	 * Get prior
+	 * @param x value to evaluate prior at
+	 * @return prior */
+	virtual double GetPrior(double x) const;
+	
+	/**
+	 * Return back ROOT TF1 evaluating BCPrior::GetPrior */
+	virtual TF1 * GetFunction()
+	{ return fPriorFunction; }
+
+	/**
+	 * Return mode of prior (in range).
+	 * @param xmin lower limit of range to evaluate over
+	 * @param xmax upper limit of range to evaluate over
+	 * @return mode of prior in range. */
+	virtual double GetMode(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
 	
 	/**
 	 * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -94,14 +103,14 @@ public:
 	 * @param xmin lower limit of range to evaluate over
 	 * @param xmax upper limit of range to evaluate over
 	 * @return raw moment of prior distribution */
-	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const = 0;
+	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
 
 	/**
 	 * Get integral of prior.
 	 * @param xmin lower limit of range to evaluate over
 	 * @param xmax upper limit of range to evaluate over
 	 * @return integral of prior */
-	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const = 0;
+	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
 
 	/**
 	 * Get central moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -141,7 +150,7 @@ public:
 	 * @param xmax upper limit of range to evaluate over
 	 * @return standard deviation of prior distribution */
 	virtual double GetStandardDeviation(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const
-	{ return sqrt(fabs(GetVariance())); }
+	{ return sqrt(fabs(GetVariance(xmin,xmax))); }
 
 	/**
 	 * Get skewness of prior. If limits are infinite, use exact value from prior type
@@ -159,109 +168,73 @@ public:
 	virtual double GetKurtosis(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const
 	{ return GetStandardisedMoment(4,xmin,xmax); }
 
-	/** @} **/
+	/**
+	 * @return a random value distributed according to the prior.
+	 * @param xmin lower limit of range to generate value in
+	 * @param xmax upper limit of range to generate value in
+	 * @param R Pointer to the random generator to be used, if needed.
+	 * @return random value. */
+	virtual double GetRandomValue(double xmin, double xmax, TRandom * const R=NULL) const;
 
-	/** \name Miscellaneous functions. */
+	/**
+	 * @return a random value distributed according to normal distribution
+	 * using the prior's mean and standard deviation
+	 * @param xmin lower limit of range to generate value in
+	 * @param xmax upper limit of range to generate value in
+	 * @param R Pointer to the random generator to be used, if needed.
+	 * @param expansion_factor Constant to multiple standard deviation by.
+	 * @param N number of attempts to make to get point in range
+	 * @param over_range Flag for whether to calculate mean and sigma over range.
+	 * @return random value. */
+	virtual double GetRandomValueGaussian(double xmin, double xmax, TRandom * const R, double expansion_factor=1., unsigned N=1000000, bool over_range=true) const;
+	
+
+	/** @} **/
+	/** \name Functions for building ROOT TF1s */
 	/** @{ **/
 
-	/** Check type of limits
-	 * @param xmin lower limit of range
-	 * @param xmax upper limit of range
-	 * @return type of range limits */
-	BCPrior::BCPriorRange CheckLimits(double xmin, double xmax) const;
+	/**
+	 * For accessing prior as ROOT TF1 */
+	double GetPriorForROOT(double * x, double * /*p*/)
+	{ return GetPrior(x[0]); }
+
+	/**
+	 * For accessing normalized prior as ROOT TF1 */
+	double GetNormalizedPriorForROOT(double * x, double * /*p*/)
+	{ return GetPrior(x[0]); }
+
+	/**
+	 * For accessing log(prior) as ROOT TF1 */
+	double GetLogPriorForROOT(double * x, double * /*p*/)
+	{ return GetLogPrior(x[0])/fIntegral; }
+
+	/**
+	 * For accessing normalized log(prior) as ROOT TF1 */
+	double GetNormalizedLogPriorForROOT(double * x, double * /*p*/)
+	{ return GetLogPrior(x[0]) - log(fIntegral); }
+
+	/**
+	 * Calculate and store integral for use in normalized TF1s */
+	double CalculateAndStoreIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity())
+	{ fIntegral = GetIntegral(xmin,xmax); return fIntegral;}
+
+	/**
+	 * Store integral; */
+	void StoreIntegral(double I)
+	{ fIntegral = I; }
+
+	/**
+	 * Get stored integral. */
+	double GetStoredIntegral() const 
+	{ return fIntegral; }
 
 	/** @} **/
+
+ protected:
+	TF1 * fPriorFunction;					//< TF1 for use in default raw moment calculation
+
+	double fIntegral;
+
 };
-
-/** \class BCSplitGaussianPrior **/
-class BCSplitGaussianPrior : public BCPrior {
-public:
-	BCSplitGaussianPrior(double mean, double sigma_low, double sigma_high) : BCPrior(BCPrior::kPriorSplitGaussian), fMean(mean), fSigmaLow(sigma_low), fSigmaHigh(sigma_high) {}
-	virtual ~BCSplitGaussianPrior() {}
-	virtual double GetLogPrior(double x) const;
-	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-
-	double GetSigmaLow() { return fSigmaLow; }
-	double GetSigmaHigh() { return fSigmaHigh; }
-
-	void SetMean(double mean) { fMean = mean; }
-	void SetSigmaLow(double sigma_low)	{ fSigmaLow = sigma_low; }
-	void SetSigmaHigh(double sigma_high)	{ fSigmaLow = sigma_high; }
-	void SetParameters(double mean, double sigma_low, double sigma_high)
-	{ SetMean(mean); SetSigmaLow(sigma_low); SetSigmaHigh(sigma_high); }
-
-protected:
-	double fMean;
-	double fSigmaLow;
-	double fSigmaHigh;
-};
-
-/** \class BCCauchyPrior **/
-class BCCauchyPrior : public BCPrior {
-public:
-	BCCauchyPrior(double mean, double scale) : BCPrior(BCPrior::kPriorCauchy), fMean(mean), fScale(scale) {}
-	virtual ~BCCauchyPrior() {}
-	virtual double GetLogPrior(double x) const { return -log(1+(x-fMean)*(x-fMean)/fScale/fScale) - log(M_PI*fScale); }
-	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-
-	void SetMean(double mean) { fMean = mean; }
-	void SetScale(double scale)	{ fScale = scale; }
-	void SetParameters(double mean, double scale)	{ SetMean(mean); SetScale(scale); }
-
-protected:
-	double fMean;
-	double fScale;
-};
-
-/** \class BCTF1Prior **/
-class BCTF1Prior : public BCPrior {
-public:
-	BCTF1Prior(TF1 * const f) : BCPrior(BCPrior::kPriorTF1), fPriorFunction(new TF1(*f)) {}
-	virtual ~BCTF1Prior() {delete fPriorFunction;}
-
-	virtual double GetLogPrior(double x) const
-	{return (fPriorFunction) ? log(fPriorFunction->Eval(x)) : -std::numeric_limits<double>::infinity(); }
-
-	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-
-	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const
-	{ return (fPriorFunction) ? fPriorFunction->Integral(xmin,xmax) : 0; }
-
-	TF1 * const GetPriorFunction() { return fPriorFunction; }
-
-protected:
-	TF1 * fPriorFunction;
-};
-
-/** \class BCTH1Prior **/
-class BCTH1Prior : public BCPrior {
-public:
-	BCTH1Prior(TH1 * const h, bool interpolate);
-	virtual ~BCTH1Prior() {delete fPriorHistogram;}
-
-	virtual double GetLogPrior(double x) const
-	{return (fPriorHistogram) ? log(((fInterpolate) ? fPriorHistogram->Interpolate(x) : fPriorHistogram->GetBinContent(fPriorHistogram->FindFixBin(x)))) : -std::numeric_limits<double>::infinity(); }
-	
-	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const {return 1;}
-	virtual double GetCentralMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetStandardisedMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetMean(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetVariance(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetStandardDeviation(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetSkewness(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-	virtual double GetKurtosis(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
-
-	TH1 * const GetPriorHistogram() { return fPriorHistogram; }
-	void SetInterpolate(bool interpolate) {fInterpolate=interpolate;}
-	bool GetInterpolate() {return fInterpolate;}
-
-protected:
-	TH1 * fPriorHistogram;
-	bool fInterpolate;
-};
-
 
 #endif

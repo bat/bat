@@ -20,6 +20,8 @@
 
 // ---------------------------------------------------------
 
+#include "BCPrior.h"
+
 #include <limits>
 #include <cmath>
 
@@ -39,26 +41,36 @@ public:
 	BCGaussianPrior(const BCGaussianPrior & other);
 
 	/** Destrcutor */
-	virtual ~BCGaussianPrior() {}
+	virtual ~BCGaussianPrior();
 
 	/** @} **/
 
 	/** \name Functions overloaded from BCPrior **/
 	/** @{ **/
 
-	/** Get as TF1 for drawing purposes.
-	 * Parameter zero is mean, parameter one is sigma,
-	 * last parameter is integral over range
-	 * @param xmin lower limit of range for TF1
-	 * @param xmax upper limit of range for TF1
-	 * @param normalize whether to normalize TF1 over range*/
-	virtual TF1 * GetAsTF1(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity(), bool normalize=true) const;
+	/** Clone function */
+	virtual BCPrior * Clone() const 
+	{ return new BCGaussianPrior(*this); }
+
+	/**
+	 * @return Whether everything needed for prior is set and prior can be used. */
+	virtual bool IsValid() const
+	{ return std::isfinite(fMean) and std::isfinite(fSigma) and fSigma>0;}
 
 	/**
 	 * Get log of prior
 	 * @param x value to evaluate log of prior at
 	 * @return log of prior */
-	virtual double GetLogPrior(double x) const { return -(x-fMean)*(x-fMean)/fSigma/fSigma/2. - log(fSigma) - log(2*M_PI); }
+	virtual double GetLogPrior(double x) const
+	{ return -(x-fMean)*(x-fMean)/fSigma/fSigma/2. - log(fSigma) - log(2*M_PI); }
+
+	/**
+	 * Return mode of prior (in range).
+	 * @param xmin lower limit of range to evaluate over
+	 * @param xmax upper limit of range to evaluate over
+	 * @return mode of prior in range. */
+	virtual double GetMode(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const
+	{ if (fMean<xmin) return xmin; if (fMean>xmax) return xmax; return fMean; }
 
 	/**
 	 * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -95,3 +107,5 @@ protected:
 	double fMean;									///< mean of Gaussian
 	double fSigma;								///< std dev of Gaussian
 };
+
+#endif

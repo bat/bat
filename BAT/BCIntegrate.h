@@ -36,46 +36,41 @@ class TTree;
  * Option names match those used in the CUBA manual, where a detailed
  * description is given.
  */
-namespace BCCubaOptions
-{
-struct General
-{
-   int ncomp, flags, nregions, neval, fail;
-   double error, prob;
-   General();
-protected:
-   ~General();
-};
+namespace BCCubaOptions {
 
-struct Vegas : public General
-{
-   int nstart, nincrease, nbatch, gridno;
+	struct General {
+		int ncomp, flags, nregions, neval, fail;
+		double error, prob;
+		General();
+	protected:
+		~General();
+	};
 
-   Vegas();
-};
+	struct Vegas : public General {
+		int nstart, nincrease, nbatch, gridno;
 
-struct Suave : public General
-{
-   int nnew;
-   double flatness;
+		Vegas();
+	};
 
-   Suave();
-};
+	struct Suave : public General {
+		int nnew;
+		double flatness;
+		
+		Suave();
+	};
 
-struct Divonne : public General
-{
-   int key1, key2, key3, maxpass;
-   double border, maxchisq, mindeviation;
-
-   Divonne();
-};
-
-struct Cuhre : public General
-{
-   int key;
-
-   Cuhre();
-};
+	struct Divonne : public General {
+		int key1, key2, key3, maxpass;
+		double border, maxchisq, mindeviation;
+		
+		Divonne();
+	};
+	
+	struct Cuhre : public General {
+		int key;
+		
+		Cuhre();
+	};
 }
 // ---------------------------------------------------------
 
@@ -358,7 +353,7 @@ public:
    /**
     * Returns the posterior at the mode.
     * @return the posterior. */
-   double GetLogMaximum()
+   double GetLogMaximum() const
    { return fLogMaximum; };
 
    /** @} */
@@ -672,66 +667,66 @@ public:
     * Return string with the name for a given integration type.
     * @param type code for the integration type
     * @return string containing the name of the integration type */
-   std::string DumpIntegrationMethod(BCIntegrationMethod type);
+   std::string DumpIntegrationMethod(BCIntegrationMethod type) const;
 
    /**
     * Return string with the name for the currently set integration type.
     * @return string containing the name of the integration type */
-   std::string DumpCurrentIntegrationMethod()
+   std::string DumpCurrentIntegrationMethod() const
    { return DumpIntegrationMethod(fIntegrationMethodCurrent); }
 
    /**
     * Return string with the name for the currently set integration type.
     * @return string containing the name of the integration type */
-   std::string DumpUsedIntegrationMethod()
+   std::string DumpUsedIntegrationMethod() const
    { return DumpIntegrationMethod(fIntegrationMethodUsed); }
 
    /**
     * Return string with the name for a given marginalization type.
     * @param type code for the marginalization type
     * @return string containing the name of the marginalization type */
-   std::string DumpMarginalizationMethod(BCMarginalizationMethod type);
+   std::string DumpMarginalizationMethod(BCMarginalizationMethod type) const;
 
    /**
     * Return string with the name for the currently set marginalization type.
     * @return string containing the name of the marginalization type */
-   std::string DumpCurrentMarginalizationMethod()
+   std::string DumpCurrentMarginalizationMethod() const
    { return DumpMarginalizationMethod(fMarginalizationMethodCurrent); }
 
    /**
     * Return string with the name for the marginalization type used.
     * @return string containing the name of the marginalization type */
-   std::string DumpUsedMarginalizationMethod()
+   std::string DumpUsedMarginalizationMethod() const
    { return DumpMarginalizationMethod(fMarginalizationMethodUsed); }
 
    /**
     * Return string with the name for a given optimization type.
     * @param type code for the optimization type
     * @return string containing the name of the optimization type */
-   std::string DumpOptimizationMethod(BCOptimizationMethod type);
+   std::string DumpOptimizationMethod(BCOptimizationMethod type) const;
 
    /**
     * Return string with the name for the currently set optimization type.
     * @return string containing the name of the optimization type */
-   std::string DumpCurrentOptimizationMethod()
+   std::string DumpCurrentOptimizationMethod() const
    { return DumpOptimizationMethod(fOptimizationMethodCurrent); }
 
    /**
     * Return string with the name for the optimization type used to find the current mode.
     * @return string containing the name of the optimization type */
-   std::string DumpUsedOptimizationMethod()
+   std::string DumpUsedOptimizationMethod() const
    { return DumpOptimizationMethod(fOptimizationMethodUsed); }
 
    /**
     * Return string with the name for a given Cuba integration type.
     * @param type code for the Cuba integration type
     * @return string containing the name of the Cuba integration type */
-   std::string DumpCubaIntegrationMethod(BCCubaMethod type);
+   std::string DumpCubaIntegrationMethod(BCCubaMethod type) const;
 
    /**
     * Return string with the name for the currently set Cuba integration type.
     * @return string containing the name of the Cuba integration type */
-   std::string DumpCubaIntegrationMethod()
+   std::string DumpCubaIntegrationMethod() const
    { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); }
 
    /**
@@ -762,11 +757,11 @@ protected:
 
 	 /**
 	  * Print best fit to stream. */
-	 virtual void PrintBestFitToStream(std::ofstream & ofi);
+	 virtual void PrintBestFitToStream(std::ofstream & ofi) const;
 
 	 /**
 	  * Print marginalization to stream. */
-	 virtual void PrintMarginalizationToStream(std::ofstream & ofi);
+	 virtual void PrintMarginalizationToStream(std::ofstream & ofi) const;
 
    /**
     * An identification number in case several models exist .*/

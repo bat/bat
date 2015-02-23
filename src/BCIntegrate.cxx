@@ -18,6 +18,7 @@
 
 #include <TH1.h>
 #include <TH2.h>
+#include <TH3.h>
 #include <TCanvas.h>
 #include <TFile.h>
 #include <TMinuit.h>
@@ -785,8 +786,8 @@ TH1 * BCIntegrate::GetSlice(std::vector<unsigned> indices, double & log_max_val,
 		return NULL;
 	}
 
-	if (indices.size() > 2) {
-		BCLog::OutError("BCIntegrate::GetSlice : Too many parameter indices provided. Max is two.");
+	if (indices.size() > 3) {
+		BCLog::OutError("BCIntegrate::GetSlice : Too many parameter indices provided. Max is three.");
 		return NULL;
 	}
 	
@@ -794,14 +795,56 @@ TH1 * BCIntegrate::GetSlice(std::vector<unsigned> indices, double & log_max_val,
 		if (indices[i] >= GetNParameters()) {
 			BCLog::OutError("BCIntegrate::GetSlice : Parameter index out of range.");
 			return NULL;
+		} else // check for duplicates
+			for (unsigned j=i+1; j<indices.size(); ++j)
+				if (indices[i] == indices[j]) {
+					BCLog::OutError("BCIntegrate::GetSlice : duplicate parameter indices provided.");
+					return NULL;
+				}
+	
+	// project (N+n)D slice for (N)D slice
+	if (parameters.empty()  and indices.size()<GetNFreeParameters() and GetNFreeParameters()<=3) {
+		unsigned N = indices.size();
+
+		// find unfixed parameters and add them to indices
+		for (unsigned i=0; i<GetNParameters(); ++i)
+			if (std::find(indices.begin(),indices.end(),i)==indices.end() and !GetParameter(i)->Fixed())
+				indices.push_back(i);
+
+		// slice in full free dimensions
+		TH1 * slice_NnD = GetSlice(indices,log_max_val,parameters,nbins,normalize);
+		if (slice_NnD==NULL)
+			return NULL;
+
+		if (N==1) {
+			TH1 * h = NULL;
+			// 2 -> 1
+			if (dynamic_cast<TH2*>(slice_NnD)!=NULL)
+				h = dynamic_cast<TH2*>(slice_NnD)->ProjectionX(Form("h1_slice_%s_%d",GetSafeName().data(),indices[0]));
+			// 3 -> 1
+			if (dynamic_cast<TH3*>(slice_NnD)!=NULL)
+				h = dynamic_cast<TH3*>(slice_NnD)->ProjectionX(Form("h1_slice_%s_%d",GetSafeName().data(),indices[0]));
+			if (h)
+				h -> SetYTitle(Form("p(%s | data)",GetParameter(indices[0])->GetLatexName().data()));
+			return h;
 		}
+		// 3 -> 2
+		if (N==2 and dynamic_cast<TH3*>(slice_NnD)!=NULL) {
+			TH1 * h = dynamic_cast<TH3*>(slice_NnD)->Project3D("xy_temp_slice_projection");
+			if (h) {
+				h -> SetName(Form("h1_slice_%s_%d_%d",GetSafeName().data(),indices[0],indices[1]));
+				h -> SetZTitle(Form("p(%s, %s | data)",GetParameter(indices[0])->GetLatexName().data(),GetParameter(indices[1])->GetLatexName().data()));
+			}
+				return h;
+		}
+	}
 
 	// create local copy of parameters
 	std::vector<double> parameters_temp = parameters;
 	if (parameters_temp.empty()) {
 		// check that remaining parameters are fixed
 		for (unsigned i=0; i<GetNParameters(); ++i)
-			if (std::find(indices.begin(),indices.end(),i)!=indices.end() and !GetParameter(i)->Fixed()) {
+			if (std::find(indices.begin(),indices.end(),i)==indices.end() and !GetParameter(i)->Fixed()) {
 				BCLog::OutError("BCIntegrate::GetSlice : All non-sliced parameters must be fixed or provided values in function call.");
 				return NULL;
 			}
@@ -835,6 +878,14 @@ TH1 * BCIntegrate::GetSlice(std::vector<unsigned> indices, double & log_max_val,
 		else
 			h -> SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data(),GetParameter(indices[1])->GetLatexName().data()));
 	}
+	else if (indices.size() == 3) {
+		h = GetParameter(indices[0]) -> CreateH3(TString::Format("h3_slice_%s_%d_%d_%d",GetSafeName().data(),indices[0],indices[1],indices[2]),GetParameter(indices[1]),GetParameter(indices[2]));
+		// set z-axis label
+		if (GetNParameters() == 3)
+			h -> SetZTitle(Form("p(%s, %s, %s | data)", GetParameter(indices[0])->GetLatexName().data(),GetParameter(indices[1])->GetLatexName().data(),GetParameter(indices[2])->GetLatexName().data()));
+		else
+			h -> SetZTitle(Form("p(%s, %s, %s | data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data(),GetParameter(indices[1])->GetLatexName().data(),GetParameter(indices[2])->GetLatexName().data()));
+	}
 
 	// reset log_max_val
 	log_max_val = -std::numeric_limits<double>::infinity();
@@ -858,8 +909,8 @@ TH1 * BCIntegrate::GetSlice(std::vector<unsigned> indices, double & log_max_val,
 		if (by > 0 and indices.size()>1)
 			parameters_temp[indices[1]] = h -> GetYaxis() -> GetBinCenter(by);
 		// update z axis value if 3D
-		// if (bz > 0 and indices.size()>2)
-		// 	parameters_temp[indices[2]] = h -> GetZaxis() -> GetBinCenter(bz);
+		if (bz > 0 and indices.size()>2)
+		 	parameters_temp[indices[2]] = h -> GetZaxis() -> GetBinCenter(bz);
 		// calculate log of function value at parameters
 		double log_eval = LogEval(parameters_temp);
 		// check max val
@@ -1790,90 +1841,86 @@ double BCIntegrate::IntegrateSlice()
 
 
 // ---------------------------------------------------------
-std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type)
-{
-   switch(type) {
-      case BCIntegrate::kIntEmpty:
-         return "Empty";
-      case BCIntegrate::kIntMonteCarlo:
-         return "Sample Mean Monte Carlo";
-      case BCIntegrate::kIntCuba:
-         return "Cuba";
-      case BCIntegrate::kIntGrid:
-         return "Grid";
-      default:
-         return "Undefined";
-   }
+std::string BCIntegrate::DumpIntegrationMethod(BCIntegrate::BCIntegrationMethod type) const {
+	switch(type) {
+	case BCIntegrate::kIntEmpty:
+		return "Empty";
+	case BCIntegrate::kIntMonteCarlo:
+		return "Sample Mean Monte Carlo";
+	case BCIntegrate::kIntCuba:
+		return "Cuba";
+	case BCIntegrate::kIntGrid:
+		return "Grid";
+	default:
+		return "Undefined";
+	}
 }
 
 // ---------------------------------------------------------
-std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type)
-{
-   switch(type) {
-      case BCIntegrate::kMargEmpty:
-         return "Empty";
-      case BCIntegrate::kMargMonteCarlo:
-         return "Sample Mean Monte Carlo";
-      case BCIntegrate::kMargMetropolis:
-         return "Metropolis";
-      case BCIntegrate::kMargGrid:
-         return "Grid";
-      case BCIntegrate::kMargDefault:
-         return "Default";
-      default:
-         return "Undefined";
-   }
+std::string BCIntegrate::DumpMarginalizationMethod(BCIntegrate::BCMarginalizationMethod type) const {
+	switch(type) {
+	case BCIntegrate::kMargEmpty:
+		return "Empty";
+	case BCIntegrate::kMargMonteCarlo:
+		return "Sample Mean Monte Carlo";
+	case BCIntegrate::kMargMetropolis:
+		return "Metropolis";
+	case BCIntegrate::kMargGrid:
+		return "Grid";
+	case BCIntegrate::kMargDefault:
+		return "Default";
+	default:
+		return "Undefined";
+	}
 }
 
 // ---------------------------------------------------------
-std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMethod type)
-{
-   switch(type) {
-      case BCIntegrate::kOptEmpty:
-         return "Empty";
-      case BCIntegrate::kOptSimAnn:
-         return "Simulated Annealing";
-      case BCIntegrate::kOptMetropolis:
-         return "Metropolis MCMC";
-      case BCIntegrate::kOptMinuit:
-         return "Minuit";
-      case BCIntegrate::kOptDefault:
-         return "Default";
-      default:
-         return "Undefined";
-   }
+std::string BCIntegrate::DumpOptimizationMethod(BCIntegrate::BCOptimizationMethod type) const {
+	switch(type) {
+	case BCIntegrate::kOptEmpty:
+		return "Empty";
+	case BCIntegrate::kOptSimAnn:
+		return "Simulated Annealing";
+	case BCIntegrate::kOptMetropolis:
+		return "Metropolis MCMC";
+	case BCIntegrate::kOptMinuit:
+		return "Minuit";
+	case BCIntegrate::kOptDefault:
+		return "Default";
+	default:
+		return "Undefined";
+	}
 }
 
 // ---------------------------------------------------------
-std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
-{
-   switch(type) {
-      case BCIntegrate::kCubaVegas:
-         return "Vegas";
-      case BCIntegrate::kCubaSuave:
-         return "Suave";
-      case BCIntegrate::kCubaDivonne:
-         return "Divonne";
-      case BCIntegrate::kCubaCuhre:
-         return "Cuhre";
-      default:
-         return "Undefined";
-   }
+std::string BCIntegrate::DumpCubaIntegrationMethod(BCIntegrate::BCCubaMethod type) const {
+	switch(type) {
+	case BCIntegrate::kCubaVegas:
+		return "Vegas";
+	case BCIntegrate::kCubaSuave:
+		return "Suave";
+	case BCIntegrate::kCubaDivonne:
+		return "Divonne";
+	case BCIntegrate::kCubaCuhre:
+		return "Cuhre";
+	default:
+		return "Undefined";
+	}
 }
 
-namespace BCCubaOptions
-{
-General::General() :
-      ncomp(1),
-      flags(0),
-      nregions(0),
-      neval(0),
-      fail(0),
-      error(0),
-      prob(0)
+// ---------------------------------------------------------
+BCCubaOptions::General::General()
+	:	ncomp(1)
+	, flags(0)
+	, nregions(0)
+	, neval(0)
+	, fail(0)
+	, error(0)
+	, prob(0)
 {}
-
-General::~General()
+	
+// ---------------------------------------------------------
+BCCubaOptions::General::~General()
 {}
 
 /*
@@ -1881,36 +1928,39 @@ General::~General()
  * for three-dimensionsal examples.
  */
 
-Vegas::Vegas() :
-      General(),
-      nstart(1000),
-      nincrease(500),
-      nbatch(1000),
-      gridno(0)
+// ---------------------------------------------------------
+BCCubaOptions::Vegas::Vegas()
+	: General()
+	, nstart(1000)
+	, nincrease(500)
+	, nbatch(1000)
+	, gridno(0)
 {}
 
-Suave::Suave() :
-      General(),
-      nnew(1000),
-      flatness(25)
+// ---------------------------------------------------------
+BCCubaOptions::Suave::Suave()
+	: General()
+	, nnew(1000)
+	, flatness(25)
 {}
 
-Divonne::Divonne() :
-      General(),
-      key1(47),
-      key2(1),
-      key3(1),
-      maxpass(5),
-      border(0),
-      maxchisq(10),
-      mindeviation(0.25)
+// ---------------------------------------------------------
+BCCubaOptions::Divonne::Divonne()
+	: General()
+	, key1(47)
+	, key2(1)
+	, key3(1)
+	, maxpass(5)
+	, border(0)
+	, maxchisq(10)
+	, mindeviation(0.25)
 {}
 
-Cuhre::Cuhre() :
-      General(),
-      key(0) // let cuba choose default cubature rule
+// ---------------------------------------------------------
+BCCubaOptions::Cuhre::Cuhre()
+	: General()
+	, key(0) // let cuba choose default cubature rule
 {}
-}
 
 
 // ---------------------------------------------------------
@@ -1925,7 +1975,7 @@ void BCIntegrate::PrintSummary()
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::PrintMarginalizationToStream(std::ofstream & ofi) {
+void BCIntegrate::PrintMarginalizationToStream(std::ofstream & ofi) const {
 	if (GetIntegral() >= 0) {
 		ofi << " Results of the integration" << std::endl
 				<< " ============================" << std::endl
@@ -1949,7 +1999,7 @@ void BCIntegrate::PrintMarginalizationToStream(std::ofstream & ofi) {
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::PrintBestFitToStream(std::ofstream & ofi) {
+void BCIntegrate::PrintBestFitToStream(std::ofstream & ofi) const {
 	if (GetGlobalMode().empty()) {
 		ofi << "No best fit information available." << std::endl << std::endl;
 		return;

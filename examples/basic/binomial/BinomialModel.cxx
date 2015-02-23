@@ -24,19 +24,11 @@ BinomialModel::~BinomialModel()
 }
 
 // ---------------------------------------------------------
-double BinomialModel::LogLikelihood(const std::vector<double> &parameters)
-{
+double BinomialModel::LogLikelihood(const std::vector<double> &parameters) {
    // This methods returns the logarithm of the conditional probability
    // p(data|parameters). This is where you have to define your model.
 
-   double logprob = 0.;
-
-   double eps = parameters.at(0);
-
    // calculate the binomial probability for observing a certain amount
    // of events given a larger number of events and an efficiency
-   logprob += BCMath::LogApproxBinomial(fNTotal, fNSelected, eps);
-
-   // return log likelihood
-   return logprob;
+	return BCMath::LogApproxBinomial(fNTotal, fNSelected, parameters[0]);
 }

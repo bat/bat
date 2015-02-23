@@ -12,30 +12,21 @@ GaussModel::GaussModel(const char * name) : BCModel(name)
   AddParameter("y",  -5.0,  5.0); // index 1
   AddParameter("z",  -5.0,  5.0); // index 2
 
-	SetPriorConstantAll();
+	GetParameters().SetPriorConstantAll();
 };
 
 // ---------------------------------------------------------
-GaussModel::~GaussModel()
-// default destructor
-{
+GaussModel::~GaussModel() {
 };
 
 // ---------------------------------------------------------
-double GaussModel::LogLikelihood(const std::vector<double> &parameters)
-{
-  // assume a simple Gaussian Likelihood with two independent
-  // variables
+double GaussModel::LogLikelihood(const std::vector<double> &parameters) {
   double logprob = 0.;
 
-  double x = parameters.at(0);
-  double y = parameters.at(1);
-  double z = parameters.at(2);
-
-  // Gaussian Likelihood
-  logprob += BCMath::LogGaus(x, 0.0, 2.0);
-  logprob += BCMath::LogGaus(y, 0.0, 1.0);
-  logprob += BCMath::LogGaus(z, 0.0, 1.0);
+  // Gaussian Likelihoods
+  logprob += BCMath::LogGaus(parameters[0], 0.0, 2.0); // x
+  logprob += BCMath::LogGaus(parameters[1], 0.0, 1.0); // y
+  logprob += BCMath::LogGaus(parameters[2], 0.0, 1.0); // z
 
   return logprob;
 }

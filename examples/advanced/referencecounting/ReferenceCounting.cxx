@@ -25,52 +25,45 @@ ReferenceCounting::ReferenceCounting(const char * name) : BCModel(name)
                                                         , fHistPriorS(0)
                                                         , fHistPriorB(0)
 {
-   // define parameters
-   AddParameter("s", 0, 50.); // index 0
-   AddParameter("b", 0, 50.); // index 1
+	// define parameters
+	AddParameter("s", 0, 50.); // index 0
+	AddParameter("b", 0, 50.); // index 1
 }
 
 // ---------------------------------------------------------
-ReferenceCounting::~ReferenceCounting()
-// default destructor
-{
-   if (fHistPriorS)
-      delete fHistPriorS;
-
-   if (fHistPriorB)
-      delete fHistPriorB; 
+ReferenceCounting::~ReferenceCounting() {
+	delete fHistPriorS;
+	delete fHistPriorB; 
 }
 
 // ---------------------------------------------------------
-void ReferenceCounting::SetAlphaBeta(double alpha, double beta)
-{
-   fAlpha = alpha; 
-   fBeta  = beta;
-
-   // clear vectors
-   helper_a.clear();
-   helper_b.clear();
-   helper_c.clear();
+void ReferenceCounting::SetAlphaBeta(double alpha, double beta) {
+	fAlpha = alpha; 
+	fBeta  = beta;
+	
+	// clear vectors
+	helper_a.clear();
+	helper_b.clear();
+	helper_c.clear();
 }
 
 // ---------------------------------------------------------
-double ReferenceCounting::LogLikelihood(const std::vector<double> &parameters)
-{
-   if (!fHistPriorS)
-      FillPriorS();
-
-   if (!fHistPriorB)
-      FillPriorB();
-
-   double logprob = 0.;
-
-   double s = parameters.at(0);
-   double b = parameters.at(1);
-   double nu = s+b;
-
-   logprob += BCMath::LogPoisson( double(fNObs), nu);
-
-   return logprob;
+double ReferenceCounting::LogLikelihood(const std::vector<double> &parameters) {
+	if (!fHistPriorS)
+		FillPriorS();
+	
+	if (!fHistPriorB)
+		FillPriorB();
+	
+	double logprob = 0.;
+	
+	double s = parameters.at(0);
+	double b = parameters.at(1);
+	double nu = s+b;
+	
+	logprob += BCMath::LogPoisson( double(fNObs), nu);
+	
+	return logprob;
 }
 
 // ---------------------------------------------------------

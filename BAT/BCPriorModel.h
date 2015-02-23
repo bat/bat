@@ -44,7 +44,7 @@ public:
 
 	/**
 	 * Returns a constant prior. */
-	double LogAPrioriProbability(const std::vector<double> &parameters)
+	double LogAPrioriProbability(const std::vector<double> &/*parameters*/)
 	{ return 0; }
 
    /**

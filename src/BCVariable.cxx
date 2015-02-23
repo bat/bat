@@ -9,12 +9,12 @@
 // ---------------------------------------------------------
 #include "BCVariable.h"
 #include "BCLog.h"
+#include "BCAux.h"
 
 #include <TString.h>
-#include <TH1.h>
 #include <TH1D.h>
-#include <TH2.h>
 #include <TH2D.h>
+#include <TH3D.h>
 #include <TRandom.h>
 
 #include <algorithm>
@@ -23,8 +23,8 @@
 // ---------------------------------------------------------
 BCVariable::BCVariable()
 	:	fPrefix("Variable")
-	, fLowerLimit(0)
-	, fUpperLimit(1)
+	, fLowerLimit(-std::numeric_limits<double>::infinity())
+	, fUpperLimit(+std::numeric_limits<double>::infinity())
 	, fPrecision(3)
 	, fFillH1(true)
 	, fFillH2(true)
@@ -74,6 +74,15 @@ void BCVariable::SetName(const char * name) {
 }
 
 // ---------------------------------------------------------
+void BCVariable::SetLimits(double lowerlimit, double upperlimit) {
+	fLowerLimit = lowerlimit;
+	fUpperLimit = upperlimit;
+	if (BCAux::RangeType(fLowerLimit,fUpperLimit)==BCAux::kFiniteRange)
+		CalculatePrecision();
+}
+
+
+// ---------------------------------------------------------
 bool BCVariable::IsAtLimit(double value) const {
 	if ( (value-fLowerLimit)*(value-fLowerLimit)/fLowerLimit/fLowerLimit <= 1e-10
 			 or
@@ -102,10 +111,18 @@ TH1 * BCVariable::CreateH1(const char * name) const {
 }
 
 // ---------------------------------------------------------
-TH2 * BCVariable::CreateH2(const char * name, BCVariable * ordinate) const {
+TH2 * BCVariable::CreateH2(const char * name, BCVariable const * const ordinate) const {
 	return new TH2D(name, TString::Format(";%s;%s",GetLatexName().c_str(),ordinate->GetLatexName().c_str()),
 									fNbins, fLowerLimit, fUpperLimit,
 									ordinate->GetNbins(),ordinate->GetLowerLimit(),ordinate->GetUpperLimit());
+}
+
+// ---------------------------------------------------------
+TH3 * BCVariable::CreateH3(const char * name, BCVariable const * const ordinate_y, BCVariable const * const ordinate_z) const {
+	return new TH3D(name, TString::Format(";%s;%s;%s",GetLatexName().data(),ordinate_y->GetLatexName().data(),ordinate_z->GetLatexName().data()),
+									fNbins, fLowerLimit, fUpperLimit,
+									ordinate_y->GetNbins(),ordinate_y->GetLowerLimit(),ordinate_y->GetUpperLimit(),
+									ordinate_z->GetNbins(),ordinate_z->GetLowerLimit(),ordinate_z->GetUpperLimit());
 }
 
 // ---------------------------------------------------------

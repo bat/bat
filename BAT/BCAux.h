@@ -24,6 +24,8 @@
 
 #include <string>
 
+class TH2;
+
 // ---------------------------------------------------------
 
 namespace BCAux {
@@ -36,6 +38,36 @@ namespace BCAux {
 	 * Force file extension to be .pdf if not already .pdf or .ps
 	 * @param filename Filename to be altered */
 	void ForceToBePDF(std::string & filename);
+
+	/**
+	 * Transpose a TH2
+	 * @param h 2D histogram to tranposed
+	 * @param name Name to give to transposed histogram, if empty, \"_tr" is added to original hist's name.
+	 * @return Transposed histogram. */
+	TH2 * Transpose(TH2 const * const h, std::string name="");
+
+	/** Range types. */
+	enum BCRange {
+		kFiniteRange           = 0,	//!< lower and upper limits finite
+		kNegativeInfiniteRange = 1,	//!< lower limit infinite, upper limit finite
+		kPositiveInfiniteRange = 2,	//!< lower limit finite, upper limit infinite
+		kInfiniteRange         = 3,	//!< lower and upper limits infinite
+		kEmptyRange            = 4	//!< lower limit == upper limit
+	};
+
+	/**
+	 * Return type of range as a BCAux::BCRange enum.
+	 * @param xmin lower limit of range
+	 * @param xmax upper limit of range
+	 * @return range type. */
+	BCAux::BCRange RangeType(double xmin, double xmax);
+
+	/**
+	 * Make an infinite range finite by setting to inf values to max
+	 * @param xmin lower limit to coerce
+	 * @param xmax upper limit to coerce */
+	void MakeFinite(double &xmin, double &xmax);
+	
 }
 
 // ---------------------------------------------------------

@@ -88,7 +88,7 @@ double BCGoFTest::LogLikelihood(const std::vector<double> & parameters) {
 }
 
 // ---------------------------------------------------------
-void BCGoFTest::CalculateObservables(const std::vector<double> & pars) {
+void BCGoFTest::CalculateObservables(const std::vector<double> & /*pars*/) {
 	// Set log(prob) observable to log(prob)
 	GetObservable(0) -> Value(MCMCGetLogProbx(fMCMCCurrentChain));
 }

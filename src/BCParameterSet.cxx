@@ -23,7 +23,7 @@ BCParameterSet & BCParameterSet::operator=(const BCParameterSet & rhs) {
 unsigned int BCParameterSet::GetNFixedParameters() const {
 	unsigned int n = 0;
 	for (unsigned int i = 0; i < Size(); ++i)
-		if (((BCParameter*)fPars[i])->Fixed())
+		if (dynamic_cast<BCParameter*>(fPars[i])->Fixed())
 			++n;
 	return n;
 }
@@ -43,11 +43,9 @@ double BCParameterSet::Volume() const {
 }
 
 // ---------------------------------------------------------
-bool BCParameterSet::SetPriorConstantAll() {
-	bool r = true;
+void BCParameterSet::SetPriorConstantAll() {
 	for (unsigned i=0; i<fPars.size(); ++i)
-		r *= ((BCParameter*)fPars[i])->SetPriorConstant();
-	return r;
+		dynamic_cast<BCParameter*>(fPars[i])->SetPriorConstant();
 }
 
 // ---------------------------------------------------------
@@ -76,7 +74,7 @@ bool BCParameterSet::ArePriorsSet(bool ignore_fixed) const {
 	for (unsigned i=0; i<fPars.size(); ++i)
 		if (ignore_fixed and dynamic_cast<BCParameter*>(fPars[i])->Fixed())
 			continue;
-		else if (dynamic_cast<BCParameter*>(fPars[i])->GetPriorType()==BCParameter::kPriorUnset)
+		else if (dynamic_cast<BCParameter*>(fPars[i])->GetPrior()==NULL)
 			return false;
 	return true;
 }
@@ -130,18 +128,18 @@ std::vector<double> BCParameterSet::GetUniformRandomValues(TRandom * const R, bo
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCParameterSet::GetRandomValuesAccordingToPriors(TRandom * const R, bool fix, unsigned N) const {
+std::vector<double> BCParameterSet::GetRandomValuesAccordingToPriors(TRandom * const R, bool fix) const {
 	std::vector<double> p;
 	for (unsigned i=0; i<fPars.size(); ++i)
-		p.push_back((fix and dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : dynamic_cast<BCParameter*>(fPars[i])->GetRandomValueAccordingToPrior(R,N));
+		p.push_back((fix and dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : dynamic_cast<BCParameter*>(fPars[i])->GetRandomValueAccordingToPrior(R));
 	return p;
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCParameterSet::GetRandomValuesAccordingToGaussiansOfPriors(TRandom * const R, bool fix, double expansion_factor, unsigned N) const {
+std::vector<double> BCParameterSet::GetRandomValuesAccordingToGaussiansOfPriors(TRandom * const R, bool fix, double expansion_factor, unsigned N, bool over_range) const {
 	std::vector<double> p;
 	for (unsigned i=0; i<fPars.size(); ++i)
-		p.push_back((fix and dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : dynamic_cast<BCParameter*>(fPars[i])->GetRandomValueAccordingToGaussianOfPrior(R,expansion_factor,N));
+		p.push_back((fix and dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : dynamic_cast<BCParameter*>(fPars[i])->GetRandomValueAccordingToGaussianOfPrior(R,expansion_factor,N,over_range));
 	return p;
 }
 

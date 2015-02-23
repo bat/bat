@@ -171,12 +171,13 @@ void BCVariableSet::FillAllH2(unsigned index, int axis, bool flag, bool include_
 			FillH2(i,index,flag);
 
 	// set for partner-involved H2's as well
-	if (include_partner_set and fPartnerSet)
+	if (include_partner_set and fPartnerSet) {
 		for (unsigned i=0; i<fPartnerSet->Size(); ++i)
 			if (axis==0)							// index as abscissa
 				FillH2Partner(index,i,flag);
 			else
 				fPartnerSet->FillH2Partner(i,index,flag);
+	}
 }
 
 // ---------------------------------------------------------

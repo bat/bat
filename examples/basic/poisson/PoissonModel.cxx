@@ -9,23 +9,21 @@
 
 // ---------------------------------------------------------
 PoissonModel::PoissonModel(const char * name)
-	:	BCModel(name),
-		fNObs(0)
+	:	BCModel(name)
+	, fNObs(0)
 {
 	// add a parameter for the number of expected events. The range will
 	// be adjusted later according to the number of observed events.
 	AddParameter("lambda", 0., 7., "#lambda"); // index 0
-	SetPriorConstant("lambda");
-};
+	GetParameter("lambda") -> SetPriorConstant();
+}
 
 // ---------------------------------------------------------
-PoissonModel::~PoissonModel()
-{
-};
+PoissonModel::~PoissonModel() {
+}
 
 // ---------------------------------------------------------
-void PoissonModel::SetNObs(unsigned nobs)
-{
+void PoissonModel::SetNObs(unsigned nobs) {
    // set number of observed events
    fNObs = nobs;
 
@@ -52,22 +50,14 @@ void PoissonModel::SetNObs(unsigned nobs)
    }
 
    // re-set the parameter range
-   GetParameter(0)->SetLimits(lambdamin, lambdamax);
+   GetParameter(0) -> SetLimits(lambdamin, lambdamax);
 }
 
 // ---------------------------------------------------------
-double PoissonModel::LogLikelihood(const std::vector<double> & parameters)
-{
+double PoissonModel::LogLikelihood(const std::vector<double> & parameters) {
    // This methods returns the logarithm of the conditional probability
    // p(data|parameters). This is where you have to define your model.
 
-   double logprob = 0.;
-
-   double lambda = parameters.at(0);
-
    // log Poisson term
-   logprob += BCMath::LogPoisson(fNObs, lambda);
-
-   // return log likelihood
-   return logprob;
+	 return BCMath::LogPoisson(fNObs, parameters[0]);
 }

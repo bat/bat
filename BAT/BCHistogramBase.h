@@ -410,7 +410,7 @@ public:
 
 	/**
 	 * Draw bands. */
-	virtual void DrawBands(std::string options="same")
+	virtual void DrawBands(std::string /*options*/)
 	{ }
 
 	/**

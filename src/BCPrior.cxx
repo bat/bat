@@ -9,21 +9,77 @@
 // ---------------------------------------------------------
 
 #include "BCPrior.h"
+#include "BCLog.h"
+#include "BCAux.h"
 
 #include <TMath.h>
-#include <TH1.h>
+#include <TF1.h>
+#include <TRandom.h>
+
+#include <iostream>
 
 // ---------------------------------------------------------
-BCPrior::BCPriorRange BCPrior::CheckLimits(double xmin, double xmax) const {
-	if (xmin == xmax)
-		return BCPrior::kEmptyRange;
-	if (std::isfinite(xmin) and std::isfinite(xmax))
-		return BCPrior::kFiniteRange;
-	if (std::isfinite(xmax))
-		return BCPrior::kNegativeInfiniteRange;
-	if (std::isfinite(xmin))
-		return BCPrior::kPositiveInfiniteRange;
-	return BCPrior::kInfiniteRange;
+BCPrior::BCPrior()
+	: fPriorFunction(new TF1("prior_interal_f1",this,&BCPrior::GetPriorForROOT,0,0,1))//-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
+	, fIntegral(1)
+{
+}
+
+// ---------------------------------------------------------
+BCPrior::BCPrior(TF1 const * const f)
+	: fPriorFunction(NULL)
+	, fIntegral(1)
+{
+	if (f)
+		fPriorFunction = new TF1(*f);
+ }
+
+// ---------------------------------------------------------
+BCPrior::BCPrior(const BCPrior & other)
+	: fPriorFunction(new TF1("prior_interal_f1",this,&BCPrior::GetPriorForROOT,0,0,1))//-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
+	, fIntegral(other.fIntegral)
+{
+}
+
+// ---------------------------------------------------------
+BCPrior::~BCPrior() {
+	delete fPriorFunction;
+}
+
+// ---------------------------------------------------------
+double BCPrior::GetPrior(double x) const {
+	double lp = GetLogPrior(x);
+	if (std::isfinite(lp))
+		return exp(lp);
+	if (lp<0)
+		return 0;										// exp(-inf)
+	return std::numeric_limits<double>::infinity(); // exp(inf)
+}
+
+// ---------------------------------------------------------
+double BCPrior::GetMode(double xmin, double xmax) const {
+	if (!fPriorFunction)
+		return std::numeric_limits<double>::quiet_NaN();
+	BCAux::MakeFinite(xmin,xmax);
+	return fPriorFunction -> GetMaximumX(xmin,xmax);
+}
+
+// ---------------------------------------------------------
+double BCPrior::GetRawMoment(unsigned n, double xmin, double xmax) const {
+	if (n==0)
+		return 1;
+	if (!fPriorFunction)
+		return std::numeric_limits<double>::infinity();
+	BCAux::MakeFinite(xmin,xmax);
+	return fPriorFunction -> Moment(static_cast<double>(n),xmin,xmax);
+}
+
+// ---------------------------------------------------------
+double BCPrior::GetIntegral(double xmin, double xmax) const {
+	if (!fPriorFunction)
+		return 0;
+	BCAux::MakeFinite(xmin,xmax);
+	return fPriorFunction->Integral(xmin,xmax);
 }
 
 // ---------------------------------------------------------
@@ -34,7 +90,7 @@ double BCPrior::GetCentralMoment(unsigned n, double xmin, double xmax) const {
 	if (n == 1)
 		return 0;
 
-	double mean = GetMean(xmin,xmax);
+	double mean = GetRawMoment(1,xmin,xmax);
 	if (!std::isfinite(mean))
 		return std::numeric_limits<double>::infinity();
 
@@ -63,203 +119,75 @@ double BCPrior::GetStandardisedMoment(unsigned n, double xmin, double xmax) cons
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) const {
-	if (n==0)
-		return std::numeric_limits<double>::infinity();
-
-	BCPrior::BCPriorRange r = CheckLimits(xmin,xmax);
-
-	if (r==BCPrior::kEmptyRange)
-		return (n==1) ? xmin : 0;
-
-	switch (n) {
-		
-	case 1: {											// mean
-		if (r==kInfiniteRange)
-			return fMean;
-		double gmin = (r==BCPrior::kNegativeInfiniteRange) ? 0 : fSigmaLow*fSigmaLow*TMath::Gaus(xmin,fMean,fSigmaLow,true);
-		double gmax = (r==BCPrior::kPositiveInfiniteRange) ? 0 : fSigmaHigh*fSigmaHigh*TMath::Gaus(xmax,fMean,fSigmaHigh,true);
-		return fMean - (gmax-gmin-(fSigmaHigh-fSigmaLow)/sqrt(2*M_PI))/GetIntegral(xmin,xmax)/2;
-	}
-
-	case 2: {											// second moment
-		if (r==kInfiniteRange)
-			return fMean*fMean + (fSigmaHigh*fSigmaHigh + fSigmaLow*fSigmaLow + (fSigmaHigh-fSigmaLow)*fMean)/2;
-		double erf_min = (r==BCPrior::kNegativeInfiniteRange) ? -1 : TMath::Erf((xmin-fMean)/fSigmaLow/sqrt(2))/2;
-		double erf_max = (r==BCPrior::kPositiveInfiniteRange) ? +1 : TMath::Erf((xmax-fMean)/fSigmaHigh/sqrt(2))/2;
-		double gmin = fSigmaLow*(fSigmaLow*erf_min - (((r==BCPrior::kNegativeInfiniteRange) ? 0 : xmin*TMath::Gaus(xmin,fMean,fSigmaLow,false)) - fMean/sqrt(2*M_PI)));
-		double gmax = fSigmaHigh*(fSigmaHigh*erf_max - (((r==BCPrior::kPositiveInfiniteRange) ? 0 : xmax*TMath::Gaus(xmax,fMean,fSigmaHigh,false)) - fMean/sqrt(2*M_PI)));
-		return fMean*GetMean(xmin,xmax) + (gmax-gmin)/(erf_max-erf_min);
-	}
-
-	default:
-		return std::numeric_limits<double>::infinity();
-
-	}
+double BCPrior::GetRandomValue(double xmin, double xmax, TRandom * const R) const {
+	(void)R;
+	if (!fPriorFunction)
+		return std::numeric_limits<double>::quiet_NaN();
+	return fPriorFunction->GetRandom(xmin,xmax);
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetIntegral(double xmin, double xmax) const {
-	switch (CheckLimits(xmin,xmax)) {
-
-	case kFiniteRange:
-		return (TMath::Erf((xmax-fMean)/fSigmaHigh/sqrt(2)) - TMath::Erf((xmin-fMean)/fSigmaLow/sqrt(2))) / 2;
-
-	case kNegativeInfiniteRange:
-		return (1 + TMath::Erf((xmax-fMean)/fSigmaHigh/sqrt(2))) / 2;
-
-	case kPositiveInfiniteRange:
-		return (1 - TMath::Erf((xmin-fMean)/fSigmaLow/sqrt(2))) / 2;
-
-	case kInfiniteRange:
-		return 1;
-
-	case kEmptyRange:
-		return 0;
-
-	default:
-		return std::numeric_limits<double>::infinity();
-	}
-}
-
-
-// ---------------------------------------------------------
-double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax) const {
-	if (n==0)
-		return std::numeric_limits<double>::infinity();
-
-	BCPrior::BCPriorRange r = CheckLimits(xmin,xmax);
-
-	if (r==BCPrior::kEmptyRange)
-		return (n==1) ? xmin : 0;
-
-	switch (n) {
-		
-	case 1: {											// mean
-		if (r==kInfiniteRange)
-			return fMean;
-		if (r==kNegativeInfiniteRange)
-			return -std::numeric_limits<double>::infinity();
-		if (r==kPositiveInfiniteRange)
-			return +std::numeric_limits<double>::infinity();
-		double L = (xmin-fMean)/fScale;
-		double H = (xmax-fMean)/fScale;
-		return fMean + fScale/(2*M_PI)*log((1+H*H)/(1+L*L))/GetIntegral(xmin,xmax);
+double BCPrior::GetRandomValueGaussian(double xmin, double xmax, TRandom * const R, double expansion_factor, unsigned N, bool over_range) const {
+	if (!R) {
+		BCLog::OutError("BCPrior::GetRandomValueGaussian : no random number generator provided.");
+		return std::numeric_limits<double>::quiet_NaN();
 	}
 
-	case 2: {											// second moment
-		if (r==kInfiniteRange or r==kNegativeInfiniteRange or r==kPositiveInfiniteRange)
-			return std::numeric_limits<double>::infinity();
-		return 2*fMean*GetMean(xmin,xmax) - (fMean*fMean+fScale*fScale) + fScale/M_PI*(xmax-xmin)/GetIntegral(xmin,xmax);
+	double m = std::numeric_limits<double>::quiet_NaN();
+	double s = std::numeric_limits<double>::quiet_NaN();
+
+	BCAux::BCRange r = BCAux::RangeType(xmin,xmax);
+
+	if (!over_range) {
+		m = GetMean();
+		s = GetStandardDeviation();
+		// if could not calculate mean in infinite range
+		if (!std::isfinite(m) and r!=BCAux::kInfiniteRange) {
+			BCLog::OutWarning("BCPrior::GetRandomValueGaussian : Infinite range failed, using confined range!");
+			over_range = true;
+		}
 	}
-
-	default:
-		return std::numeric_limits<double>::infinity();
-
+	
+	if (over_range) {
+		m = GetMean(xmin,xmax);
+		s = GetStandardDeviation(xmin,xmax);
 	}
-}
-
-// ---------------------------------------------------------
-double BCCauchyPrior::GetIntegral(double xmin, double xmax) const {
-	switch (CheckLimits(xmin,xmax)) {
-
-	case kFiniteRange:
-		return (atan((xmax-fMean)/fScale)-atan((xmin-fMean)/fScale))/M_PI;
-
-	case kNegativeInfiniteRange:
-		return 0.5 + atan((xmax-fMean)/fScale)/M_PI;
-
-	case kPositiveInfiniteRange:
-		return 0.5 - atan((xmin-fMean)/fScale)/M_PI;
-
-	case kInfiniteRange:
-		return 1;
-
-	case kEmptyRange:
-		return 0;
-
-	default:
-		return std::numeric_limits<double>::infinity();
+	
+	// if could not calculate mean and sigma 
+	if (!std::isfinite(m)) {
+		BCLog::OutError("BCPrior::GetRandomValueGaussian : could not calculate prior's mean!");
+		return std::numeric_limits<double>::quiet_NaN();
 	}
-}
+	
+	// increase standard deviation by expansion_factor
+	s *= expansion_factor;
 
-
-// ---------------------------------------------------------
-double BCTF1Prior::GetRawMoment(unsigned n, double xmin, double xmax) const {
-	if (n==0 or !fPriorFunction)
-		return std::numeric_limits<double>::infinity();
-
-	return fPriorFunction -> Moment(static_cast<double>(n),xmin,xmax);
-}
-
-
-// ---------------------------------------------------------
-BCTH1Prior::BCTH1Prior(TH1 * const h, bool interpolate)
-	: BCPrior(BCPrior::kPriorTH1)
-	, fPriorHistogram(0)
-	, fInterpolate(interpolate)
-{
-	if (h and h->GetDimension()==1)
-		fPriorHistogram = (TH1*) h->Clone();
-	double integral = fPriorHistogram -> Integral("width");
-	if (integral!=0)
-		fPriorHistogram -> Scale(1./integral);
-}
-
-// ---------------------------------------------------------
-double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax) const {
-	if (n==0)
-		return 0;
-	if (n==1)
-		return GetMean(xmin,xmax);
-	if (n==2)
-		return GetMean(xmin,xmax)*GetMean(xmin,xmax) + GetVariance(xmin,xmax);
-	return std::numeric_limits<double>::infinity();
-}
-
-// ---------------------------------------------------------
-double BCTH1Prior::GetCentralMoment(unsigned n, double xmin, double xmax) const {
-	double s = GetStandardDeviation(xmin,xmax);
+	// if standard deviation is infinite, use uniform distribution
 	if (!std::isfinite(s))
-		return std::numeric_limits<double>::infinity();
-	return pow(s,n) * GetStandardisedMoment(n,xmin,xmax);
-}
+		return (r==BCAux::kFiniteRange) ? xmin + R->Rndm()*(xmax-xmin) : std::numeric_limits<double>::quiet_NaN();
 
-// ---------------------------------------------------------
-double BCTH1Prior::GetStandardisedMoment(unsigned n, double xmin, double xmax) const {
-	if (n==0)
-		return 0;
-	if (n==1)
-		return 1;
-	if (n==2)
-		return GetSkewness(xmin,xmax);
-	if (n==3)
-		return GetKurtosis(xmin,xmax);
-	return std::numeric_limits<double>::infinity();
-}
+	// if standard deviation is zero, use delta(x-mean)
+	if (s==0)
+		return (m>=xmin and m<=xmax) ? m : std::numeric_limits<double>::quiet_NaN();
+	
+	// check overlap of range with gaussian and issue warning if necessary
+	if (m<xmin or m>xmax) {
+		double d = ((m<xmin) ? xmin-m : m-xmax) / s;
+		if (d>4)
+			BCLog::OutWarning("BCrior::GetRandomValueGaussian : requested range beyond 3 sigma of prior mean, this may take a while...");
+		else if ((xmax-xmin)/s < 1e-4)
+			BCLog::OutWarning("BCPrior::GetRandomValueGaussian : requested range very small compared to prior width, this may take a while...");
+	}
 
-// ---------------------------------------------------------
-double BCTH1Prior::GetMean(double xmin, double xmax) const {
-	return (fPriorHistogram) ? GetMean() : std::numeric_limits<double>::infinity();
-}
-
-// ---------------------------------------------------------
-double BCTH1Prior::GetVariance(double xmin, double xmax) const {
-	double s = GetStandardDeviation(xmin,xmax);
-	return s*s;
-}
-
-// ---------------------------------------------------------
-double BCTH1Prior::GetStandardDeviation(double xmin, double xmax) const {
-	return (fPriorHistogram) ? fPriorHistogram->GetRMS() : std::numeric_limits<double>::infinity();
-}
-
-// ---------------------------------------------------------
-double BCTH1Prior::GetSkewness(double xmin, double xmax) const {
-	return (fPriorHistogram) ? fPriorHistogram->GetSkewness() : std::numeric_limits<double>::infinity();
-}
-
-// ---------------------------------------------------------
-double BCTH1Prior::GetKurtosis(double xmin, double xmax) const {
-	return (fPriorHistogram) ? fPriorHistogram->GetKurtosis() : std::numeric_limits<double>::infinity();
+	// repeat until value inside range is selected
+	// or maximum number of tries is exhausted
+	for (unsigned n=0; n<N; ++n) {
+		double x = R->Gaus(m,s);
+		if (x>=xmin and x<=xmax)
+			return x;
+		x = 2*m - s;
+		if (x>=xmin and x<=xmax)
+			return x;
+	}
+	return std::numeric_limits<double>::quiet_NaN();
 }

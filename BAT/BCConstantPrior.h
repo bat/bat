@@ -20,45 +20,72 @@
 
 // ---------------------------------------------------------
 
+#include "BCPrior.h"
+
 #include <limits>
 
 class TF1;
+class TRandom;
 
 // ---------------------------------------------------------
 
-/** \class BCConstantPrior **/
 class BCConstantPrior : public BCPrior {
 public:
 
-	/** Constructor */
-	BCConstantPrior()
-	{ }
+	/** Constructor for constant unit prior*/
+	BCConstantPrior();
+
+	/** Constructor for constant 1/range prior */
+	BCConstantPrior(double range_width);
+
+	/** Constructor for constant 1/range prior */
+	BCConstantPrior(double xmin, double xmax);
 
 	/** Copy constructor */
-	BCConstantPrior(const BCConstantPrior & other)
-	{ }
+	BCConstantPrior(const BCConstantPrior & other);
 
 	/** Destructor */
-	virtual ~BCConstantPrior()
-	{ }
+	virtual ~BCConstantPrior();
 
-	/** Get as TF1 for drawing purposes.
-	 * Parameter zero is 1/(range width).
-	 * Parameter one is integral ( = 1)
-	 * @param xmin lower limit of range for TF1
-	 * @param xmax upper limit of range for TF1
-	 * @param normalize whether to normalize TF1 over range*/
-	virtual TF1 * GetAsTF1(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity(), bool normalize=true) const;
+	/** Clone function */
+	virtual BCPrior * Clone() const 
+	{ return new BCConstantPrior(*this); }
 
-	/** @return constant log(prior) = 0 */
-	virtual double GetLogPrior(double x) const
-	{ return 0; }
+	/** @return constant log(prior) */
+	virtual double GetLogPrior(double /*x*/) const
+	{ return -fLogRangeWidth; }
+
+	/**
+	 * @return Whether everything needed for prior is set and prior can be used. */
+	virtual bool IsValid() const
+	{ return std::isfinite(fLogRangeWidth); }
+
+	/**
+	 * Return mode of prior (in range) --- center of interval for constant prior.
+	 * @param xmin lower limit of range to evaluate over
+	 * @param xmax upper limit of range to evaluate over
+	 * @return mode of prior in range. */
+	virtual double GetMode(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
 
 	/** @return raw moments of uniform continuous distribtion. */
 	virtual double GetRawMoment(unsigned n, double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const;
 
 	/** @return integral = 1 */
 	virtual double GetIntegral(double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity()) const
-	{ return 1; }
+	{ (void)xmin; (void)xmax; return 1; }
+
+	/**
+	 * @return a random value distributed according to the prior.
+	 * @param xmin lower limit of range to generate value in
+	 * @param xmax upper limit of range to generate value in
+	 * @param R Pointer to the random generator to be used, if needed.
+	 * @return random value. */
+	virtual double GetRandomValue(double xmin, double xmax, TRandom * const R=NULL) const;
+
+ protected:
+
+	double fLogRangeWidth;
 
 };
+
+#endif

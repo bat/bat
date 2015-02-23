@@ -75,7 +75,7 @@ std::vector<double> BCDataSet::GetDataComponents(unsigned index) const {
 // ---------------------------------------------------------
 bool BCDataSet::BoundsExist() const {
 	for (unsigned i=0; i<GetNValuesPerPoint(); ++i)
-		if (!isfinite(GetLowerBound(i)) or !isfinite(GetUpperBound(i)))
+		if (!std::isfinite(GetLowerBound(i)) or !std::isfinite(GetUpperBound(i)))
 			return false;
 	return true;
 }
@@ -86,7 +86,7 @@ double BCDataSet::GetLowerBound(unsigned index) const {
 		BCLog::OutError("BCDataSet::GetLowerBound : index out of range.");
 		return std::numeric_limits<double>::infinity();
 	}
-	if (isfinite(fUserLowerBounds.GetValue(index)))
+	if (std::isfinite(fUserLowerBounds.GetValue(index)))
 		return fUserLowerBounds.GetValue(index);
 	return fLowerBounds.GetValue(index);
 }
@@ -97,7 +97,7 @@ double BCDataSet::GetUpperBound(unsigned index) const {
 		BCLog::OutError("BCDataSet::GetUpperBound : index out of range.");
 		return -std::numeric_limits<double>::infinity();
 	}
-	if (isfinite(fUserUpperBounds.GetValue(index)))
+	if (std::isfinite(fUserUpperBounds.GetValue(index)))
 		return fUserUpperBounds.GetValue(index);
 	return fUpperBounds.GetValue(index);
 }

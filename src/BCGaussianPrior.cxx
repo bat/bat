@@ -7,15 +7,19 @@
  */
 
 #include "BCGaussianPrior.h"
+#include "BCAux.h"
 
-#include <TF1.h>
+#include <TMath.h>
+
+#include <iostream>
 
 // ---------------------------------------------------------
 BCGaussianPrior::BCGaussianPrior(double mean, double sigma)
 	: BCPrior()
 	, fMean(mean)
 	, fSigma(sigma)
-{}
+{
+}
 
 // ---------------------------------------------------------
 BCGaussianPrior::BCGaussianPrior(const BCGaussianPrior & other)
@@ -24,80 +28,64 @@ BCGaussianPrior::BCGaussianPrior(const BCGaussianPrior & other)
 	, fSigma(other.fSigma)
 {}
 
-// ---------------------------------------------------------
-TF1 * BCGaussianPrior::GetAsTF1(double xmin, double xmax, bool normalize) const {
-	if (xmax<xmin)
-		return GetAsTF1(xmax,xmin,normalize);
-
-	if (xmax==xmin)
-		return NULL;
-
-	double Xmin = (std::isfinite(xmin)) ? xmin : std::numeric_limits<double>::min();
-	double Xmax = (std::isfinite(xmax)) ? xmax : std::numeric_limits<double>::max();
-
-	TF1 * f = new TF1("f1_gaussian_prior","(1/(2*pi)^0.5/[1] * exp(((x-[0])/[1])^2)) / [3]",xmin,xmax);
-	double integral = 1;
-	if (normalize) {
-		double erf_min = (std::isfinite(xmin)) ? TMath::Erf((Xmin-fMean)/fSigma/sqrt(2)) : -1;
-		double erf_max = (std::isfinite(xmax)) ? TMath::Erf((Xmax-fMean)/fSigma/sqrt(2)) : +1;
-		double integral = 0.5*(xmax-xmin);
-	}
-	
-	f -> SetParameters(fMean,fSigma,integral);
-	return f;
+// // ---------------------------------------------------------
+BCGaussianPrior::~BCGaussianPrior() {
 }
 
 // ---------------------------------------------------------
 double BCGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) const {
 	if (n==0)
-		return std::numeric_limits<double>::infinity();
+		return BCPrior::GetRawMoment(n,xmin,xmax);
 
-	BCPrior::BCPriorRange r = CheckLimits(xmin,xmax);
+	BCAux::BCRange r = BCAux::RangeType(xmin,xmax);
 
-	if (r==BCPrior::kEmptyRange)
+	if (r==BCAux::kInfiniteRange) {
+		if (n==1)
+			return fMean;
+		if (n==2)
+			return fMean*fMean+fSigma*fSigma;
+		if (n==3)
+			return fMean*(fMean*fMean+3*fSigma*fSigma);
+		if (n==4)
+			return pow(fMean,4) + 6*fMean*fMean*fSigma*fSigma + 3*pow(fSigma,4);
+		return BCPrior::GetRawMoment(n,xmin,xmax);
+	}
+	
+	if (r==BCAux::kEmptyRange)
 		return (n==1) ? xmin : 0;
 
-	switch (n) {
-		
-	case 1: {											// mean
-		if (r==kInfiniteRange)
-			return fMean;
-		double gmin = (r==BCPrior::kNegativeInfiniteRange) ? 0 : TMath::Gaus(xmin,fMean,fSigma,true);
-		double gmax = (r==BCPrior::kPositiveInfiniteRange) ? 0 : TMath::Gaus(xmax,fMean,fSigma,true);
+	if (n>2)
+		return BCPrior::GetRawMoment(n,xmin,xmax);
+
+	double gmin = (r==BCAux::kNegativeInfiniteRange) ? 0 : exp(-0.5*(xmin-fMean)*(xmin-fMean)/fSigma/fSigma)/fSigma/sqrt(2*M_PI);
+	double gmax = (r==BCAux::kPositiveInfiniteRange) ? 0 : exp(-0.5*(xmax-fMean)*(xmax-fMean)/fSigma/fSigma)/fSigma/sqrt(2*M_PI);
+
+	if (n==1)
 		return fMean - fSigma*fSigma*(gmax-gmin)/GetIntegral(xmin,xmax)/2;
-	}
-
-	case 2: {											// second moment
-		if (r==kInfiniteRange)
-			return fMean*fMean + fSigma*fSigma;
-		double gmin = (r==BCPrior::kNegativeInfiniteRange) ? 0 : xmin*TMath::Gaus(xmin,fMean,fSigma,true);
-		double gmax = (r==BCPrior::kPositiveInfiniteRange) ? 0 : xmax*TMath::Gaus(xmax,fMean,fSigma,true);
-		return fMean*GetMean(xmin,xmax) + fSigma*fSigma*(1-(gmax-gmin)/GetIntegral(xmin,xmax));
-	}
-
-	default:
-		return std::numeric_limits<double>::infinity();
-
-	}
+	
+	// else n==2
+	gmin *= (r==BCAux::kNegativeInfiniteRange) ? 0 : xmin;
+	gmax *= (r==BCAux::kPositiveInfiniteRange) ? 0 : xmax;
+	return fMean*GetMean(xmin,xmax) + fSigma*fSigma*(1-(gmax-gmin)/GetIntegral(xmin,xmax));
 }
 
 // ---------------------------------------------------------
 double BCGaussianPrior::GetIntegral(double xmin, double xmax) const {
-	switch (CheckLimits(xmin,xmax)) {
+	switch (BCAux::RangeType(xmin,xmax)) {
 
-	case kFiniteRange:
+	case BCAux::kFiniteRange:
 		return (TMath::Erf((xmax-fMean)/fSigma/sqrt(2)) - TMath::Erf((xmin-fMean)/fSigma/sqrt(2))) / 2;
 
-	case kNegativeInfiniteRange:
+	case BCAux::kNegativeInfiniteRange:
 		return (1 + TMath::Erf((xmax-fMean)/fSigma/sqrt(2))) / 2;
 
-	case kPositiveInfiniteRange:
+	case BCAux::kPositiveInfiniteRange:
 		return (1 - TMath::Erf((xmin-fMean)/fSigma/sqrt(2))) / 2;
 
-	case kInfiniteRange:
+	case BCAux::kInfiniteRange:
 		return 1;
 
-	case kEmptyRange:
+	case BCAux::kEmptyRange:
 		return 0;
 
 	default:

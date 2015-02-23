@@ -152,6 +152,13 @@ public:
 	 * @param index Index of data axis to provide bounds for. */
 	void SetBounds(unsigned index, double lower_bound, double upper_bound, bool fixed=false);
 
+	/**
+	 * Set fixed flag of a data axis
+	 * @param i index of axis to fix
+	 * @param b whether to fix (true) or unfix (false) */
+	void Fix(unsigned i, bool b=true)
+	{ if (i<fFixed.size()) fFixed[i] = b; }
+
 	/** @} */
 	
 	/** \name Member functions (miscellaneous methods) */
@@ -169,7 +176,7 @@ public:
 	 * @param delim Character deliminating branch names (default: comma).
 	 * @return Success of action. */
 	bool ReadDataFromFile(const char * filename, const char * treename, const char * branchnames, char delim=',')
-	{ return ReadDataFromFileTree(filename, treename, branchnames); };
+	{ return ReadDataFromFileTree(filename, treename, branchnames,delim); };
 	
 	/**
 	 * Reads data from a file

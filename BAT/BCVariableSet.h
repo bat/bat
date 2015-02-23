@@ -57,21 +57,21 @@ public:
 	 * Raw and fast access.
 	 * @param index Index
 	 * @return Variable */
-	virtual BCVariable * const operator[](unsigned index) const
+	virtual BCVariable * operator[](unsigned index) const
 	{	return fPars[index]; }
 
 	/**
 	 * Safe access, but slightly less efficient access to parameter.
 	 * @param index Index gets checked.
 	 * @return The pointer at index position or NULL if invalid index. */
-	virtual BCVariable * const Get(unsigned index) const
+	virtual BCVariable * Get(unsigned index) const
 	{	return index<fPars.size() ? fPars[index] : NULL; }
 	
 	/**
 	 * Safe access, but slightly less efficient access to parameter.
 	 * @param name Look up name in list
 	 * @return The pointer at index position or NULL if invalid index. */
-	virtual BCVariable * const Get(const std::string & name) const
+	virtual BCVariable * Get(const std::string & name) const
 	{	return Get(Index(name)); }
 	
 	/**

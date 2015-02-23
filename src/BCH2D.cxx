@@ -114,6 +114,17 @@ void BCH2D::DrawBands(std::string options) {
 	std::vector<std::string> legend_text;
 	switch (fBandType) {
 		
+	// 	// using 1D slicings
+	// case kCentralIntervalOfYGivenX:
+	// case kCentralIntervalOfXGivenY:
+	// case kSmallestIntervalOfYGivenX:
+	// case kSmallestIntervalOfXGivenY:
+	// case kUpperLimitOfYGivenX:
+	// case kUpperLimitOfXGivenY:
+	// case kLowerLimitOfYGivenX:
+	// case kLowerLimitOfXGivenY:
+	// 	break;
+
 	case kSmallestInterval:
 	default:
 		std::vector<std::pair<double, double> > dens_mass = GetSmallestIntervalBounds(intervals,fBandOvercoverage);

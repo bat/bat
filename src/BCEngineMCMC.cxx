@@ -15,6 +15,11 @@
 #include "BCH1D.h"
 #include "BCH2D.h"
 #include "BCVariable.h"
+#include "BCPrior.h"
+#include "BCGaussianPrior.h"
+#include "BCSplitGaussianPrior.h"
+#include "BCTF1Prior.h"
+#include "BCTH1Prior.h"
 
 #include <TH1.h>
 #include <TH2.h>
@@ -64,7 +69,7 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fMCMCEfficiencyMax(0.50)
 	, fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
 	, fMCMCMultivariateProposalFunction(false)
-	, fMCMCPhase(BCEngineMCMC::MCMCUnsetPhase)
+	, fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase)
 	, fCorrectRValueForSamplingVariability(false)
 	, fMCMCRValueCriterion(0.1)
 	, fMCMCRValueParametersCriterion(0.1)
@@ -103,7 +108,7 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fMCMCEfficiencyMax(0.50)
 	, fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
 	, fMCMCMultivariateProposalFunction(false)
-	, fMCMCPhase(BCEngineMCMC::MCMCUnsetPhase)
+	, fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase)
 	, fCorrectRValueForSamplingVariability(false)
 	, fMCMCRValueCriterion(0.1)
 	, fMCMCRValueParametersCriterion(0.1)
@@ -158,6 +163,54 @@ void BCEngineMCMC::SetName(const char * name) {
 	fName = name;
 	fSafeName = name;
 	fSafeName.erase(std::remove_if(fSafeName.begin(),fSafeName.end(),::isspace),fSafeName.end());
+}
+
+// ---------------------------------------------------------
+bool BCEngineMCMC::SetPriorConstant(unsigned index) {
+	if (GetParameter(index)==NULL)
+		return false;
+	GetParameter(index) -> SetPriorConstant();
+	return true;
+}
+
+// ---------------------------------------------------------
+bool BCEngineMCMC::SetPriorDelta(unsigned index, double val) {
+	if (GetParameter(index)==NULL)
+		return false;
+	GetParameter(index) -> Fix(val);
+	return true;
+}
+
+// ---------------------------------------------------------
+bool BCEngineMCMC::SetPrior(unsigned index, TF1 * const f) {
+	if (GetParameter(index)==NULL)
+		return false;
+	GetParameter(index) -> SetPrior(new BCTF1Prior(f));
+	return true;
+}
+
+// ---------------------------------------------------------
+bool BCEngineMCMC::SetPrior(unsigned index, TH1 * const h, bool interpolate) {
+	if (GetParameter(index)==NULL)
+		return false;
+	GetParameter(index) -> SetPrior(new BCTH1Prior(h,interpolate));
+	return true;
+}
+
+// ---------------------------------------------------------
+bool BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma) {
+	if (GetParameter(index)==NULL)
+		return false;
+	GetParameter(index) -> SetPrior(new BCGaussianPrior(mean,sigma));
+	return true;
+}
+
+// ---------------------------------------------------------
+bool BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma_below, double sigma_above) {
+	if (GetParameter(index)==NULL)
+		return false;
+	GetParameter(index) -> SetPrior(new BCSplitGaussianPrior(mean,sigma_below,sigma_above));
+	return true;
 }
 
 // ---------------------------------------------------------
@@ -393,7 +446,7 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
 }
 
 // --------------------------------------------------------
-TH1 * const BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
+TH1 * BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
 	if ( index >= fH1Marginalized.size() ) {
 		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Index %u out of range.",index));
 		return 0;
@@ -409,7 +462,7 @@ TH1 * const BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const {
 }
 
 // --------------------------------------------------------
-TH2 * const BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
+TH2 * BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const {
 	if (i == j) {
 		BCLog::OutError(Form("BCEngineMCMC::GetMarginalizedHistogram. Called with identical indices %u.", i));
 		return NULL;
@@ -452,17 +505,29 @@ BCH1D * BCEngineMCMC::GetMarginalized(unsigned index) const {
 	
 // --------------------------------------------------------
 BCH2D * BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const {
-	TH2 * h = GetMarginalizedHistogram(i,j);
+
+	bool transposed = false;
+
+	TH2 * h = NULL;
+
+	if (!MarginalizedHistogramExists(i,j) and MarginalizedHistogramExists(j,i)) {
+		h = BCAux::Transpose(GetMarginalizedHistogram(j,i));
+		transposed = true;
+	}	else
+		h = GetMarginalizedHistogram(i,j);
 
 	if (!h)
 		return NULL;
-
+	
 	BCH2D * hprob = new BCH2D(h);
-
+	
 	// set global mode if available
-	if (i<GetGlobalMode().size() and j<GetGlobalMode().size())
-		hprob -> SetGlobalMode(GetGlobalMode()[i],GetGlobalMode()[j]);
-		
+	if (i<GetGlobalMode().size() and j<GetGlobalMode().size()) {
+		if (transposed)
+			hprob -> SetGlobalMode(GetGlobalMode()[j],GetGlobalMode()[i]);
+		else
+			hprob -> SetGlobalMode(GetGlobalMode()[i],GetGlobalMode()[j]);
+	}
 	return hprob;
 }
 
@@ -1177,7 +1242,7 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::CalculateEvidence(double epsilon) {
+double BCEngineMCMC::CalculateEvidence(double /*epsilon*/) {
 	return 0;
 }
 
@@ -1512,17 +1577,29 @@ bool BCEngineMCMC::MCMCMetropolisPreRun() {
 		unsigned I = 0;
 		for (unsigned i=0; i<GetNParameters(); ++i)
 			if (!(GetParameter(i)->Fixed())) {
-				S0[I][I] = GetParameter(i) -> GetPriorVariance();
+				if (GetParameter(i)->GetPrior()!=NULL) {
+					S0[I][I] = GetParameter(i) -> GetPriorVariance();
+					if (!std::isfinite(S0[I][I]))
+						S0[I][I] = GetParameter(i)->GetRangeWidth()*GetParameter(i)->GetRangeWidth()/12;
+				}
 				CD0[I][I] = sqrt(fMCMCTrialFunctionScaleFactor[0][0]*S0[I][I]);
 				++I;
 			}
 		fMultivariateProposalFunctionCovariance.assign(fMCMCNChains,S0);
 		fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains,CD0);
 		fMultivariateProposalFunctionTuningSteps = 0;
-	} else if (fMCMCAutoSetTrialFunctionScaleFactors and GetParameters().ArePriorsSet(true)) {
+	} else if (fMCMCAutoSetTrialFunctionScaleFactors) {
 		std::vector<double> temp;
-		for (unsigned i=0; i<GetNParameters(); ++i)
-			temp.push_back((GetParameter(i)->Fixed() or GetParameter(i)->GetRangeWidth()==0) ? 1 : GetParameter(i)->GetPriorStandardDeviation()/GetParameter(i)->GetRangeWidth());
+		for (unsigned i=0; i<GetNParameters(); ++i) {
+			if (GetParameter(i)->Fixed() or GetParameter(i)->GetRangeWidth()==0)
+				temp.push_back(1);
+			else if (GetParameter(i)->GetPrior()!=NULL) {
+				temp.push_back(GetParameter(i)->GetPrior()->GetStandardDeviation()/GetParameter(i)->GetRangeWidth());
+				if (!std::isfinite(temp.back()))
+					temp.back() = GetParameter(i)->GetRangeWidth()/sqrt(12);
+			} else
+				temp.push_back(GetParameter(i)->GetRangeWidth()/sqrt(12));
+		}
 		fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains,temp);
 	}
 
@@ -1531,7 +1608,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun() {
 	bool allEfficient = false;
 	bool inefficientScalesAdjustable = true;
 	fMCMCCurrentIteration = 0;
-	fMCMCPhase = BCEngineMCMC::MCMCPreRunEfficiencyCheck;
+	fMCMCPhase = BCEngineMCMC::kMCMCPreRunEfficiencyCheck;
 
 	// Cholesky Decomposer for multivariate proposal function
 	TDecompChol CholeskyDecomposer;
@@ -1705,7 +1782,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun() {
 			}
 		}
 
-		fMCMCPhase = BCEngineMCMC::MCMCPreRunConvergenceCheck;
+		fMCMCPhase = BCEngineMCMC::kMCMCPreRunConvergenceCheck;
 		while ( make_one_check or (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and fMCMCNIterationsConvergenceGlobal < 0) ) {
 
 			// clear statistics
@@ -1885,7 +1962,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun() {
 
 		BCLog::OutDetail(Form(" Current iteration (%d) is below minimum for pre-run. Running %d more iterations.",fMCMCCurrentIteration,N));
 
-		fMCMCPhase = BCEngineMCMC::MCMCPreRunFulfillMinimum;
+		fMCMCPhase = BCEngineMCMC::kMCMCPreRunFulfillMinimum;
 		unsigned n = 0;
 		while ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin ) {
 			MCMCGetNewPointMetropolis();
@@ -1983,7 +2060,7 @@ bool BCEngineMCMC::MCMCMetropolis() {
 	BCLog::OutSummary( "Run Metropolis MCMC ...");
 
 	// set phase and cycle number
-	fMCMCPhase = BCEngineMCMC::MCMCMainRun;
+	fMCMCPhase = BCEngineMCMC::kMCMCMainRun;
 
 	BCLog::OutSummary(Form(" --> Perform MCMC run with %i chains, each with %i iterations.", fMCMCNChains, fMCMCNIterationsRun));
 
@@ -2065,8 +2142,9 @@ bool BCEngineMCMC::MCMCMetropolis() {
 
 // --------------------------------------------------------
 void BCEngineMCMC::EvaluateObservables() {
-	for (unsigned c=0; c<fMCMCNChains; ++c)
-		EvaluateObservables(c);
+	if (GetNObservables()>0)
+		for (unsigned c=0; c<fMCMCNChains; ++c)
+			EvaluateObservables(c);
 }
 
 // --------------------------------------------------------
@@ -2803,8 +2881,8 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
 				// quantiles
 				x_quantiles.insert(x_quantiles.end(),quantiles.size(),i);
-				double q[quantiles.size()];
-				bch1d_temp -> GetHistogram() -> GetQuantiles(quantiles.size(),q,&quantiles[0]);
+				std::vector<double> q(quantiles.size(),0);
+				bch1d_temp -> GetHistogram() -> GetQuantiles(quantiles.size(),&q[0],&quantiles[0]);
 				for (unsigned j = 0; j < quantiles.size(); ++j)
 					quantile_vals.push_back(GetVariable(i)->PositionInRange(q[j]));
 			
