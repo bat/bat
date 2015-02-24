@@ -346,7 +346,7 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice) {
 	}
 
 	// draw axes
-	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d",GetSafeName().data(),index), TString::Format(";%s;P(%s|Data)",GetVariable(index)->GetLatexName().data(),GetVariable(index)->GetLatexName().data()),
+	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d",GetSafeName().data(),index), TString::Format(";%s;P(%s|Data)",GetVariable(index)->GetLatexNameWithUnits().data(),GetVariable(index)->GetLatexName().data()),
 														10, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit(),
 														10, miny, maxy);
 	h2_axes -> SetStats(false);
@@ -590,7 +590,7 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
 	gPad -> SetLogz(fBCH2DPriorDrawingOptions->GetLogz() or fBCH2DPosteriorDrawingOptions->GetLogz());
 
 	// draw axes
-	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d_%d",GetSafeName().data(),index1,index2), TString::Format(";%s;%s;P(%s %s|Data)",GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data(),GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data()),
+	TH2D * h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d_%d",GetSafeName().data(),index1,index2), TString::Format(";%s;%s;P(%s %s|Data)",GetVariable(index1)->GetLatexNameWithUnits().data(),GetVariable(index2)->GetLatexNameWithUnits().data(),GetVariable(index1)->GetLatexName().data(),GetVariable(index2)->GetLatexName().data()),
 														10, GetVariable(index1)->GetLowerLimit(), GetVariable(index1)->GetUpperLimit(),
 														10, GetVariable(index2)->GetLowerLimit(), GetVariable(index2)->GetUpperLimit());
 	h2_axes -> SetStats(false);

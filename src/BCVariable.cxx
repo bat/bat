@@ -42,6 +42,7 @@ BCVariable::BCVariable(const BCVariable & other)
 	, fUpperLimit(other.fUpperLimit)
 	, fPrecision(other.fPrecision)
 	, fLatexName(other.fLatexName)
+	, fUnitString(other.fUnitString)
 	, fFillH1(other.fFillH1)
 	, fFillH2(other.fFillH2)
 	, fNbins(other.fNbins)
@@ -49,11 +50,12 @@ BCVariable::BCVariable(const BCVariable & other)
 }
 
 // ---------------------------------------------------------
-BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, const char * latexname)
+BCVariable::BCVariable(const char * name, double lowerlimit, double upperlimit, const char * latexname, const char * unitstring)
 	:	fPrefix("Variable")
 	, fLowerLimit(lowerlimit)
 	, fUpperLimit(upperlimit)
 	, fLatexName(latexname)
+	, fUnitString(unitstring)
 	, fFillH1(true)
 	, fFillH2(true)
 	, fNbins(100)
@@ -107,19 +109,19 @@ std::string BCVariable::OneLineSummary() const {
 
 // ---------------------------------------------------------
 TH1 * BCVariable::CreateH1(const char * name) const {
-	return new TH1D(name, TString::Format(";%s",GetLatexName().c_str()), fNbins, fLowerLimit, fUpperLimit);
+	return new TH1D(name, TString::Format(";%s;P(%s | Data)",GetLatexNameWithUnits().data(),GetLatexName().data()), fNbins, fLowerLimit, fUpperLimit);
 }
 
 // ---------------------------------------------------------
 TH2 * BCVariable::CreateH2(const char * name, BCVariable const * const ordinate) const {
-	return new TH2D(name, TString::Format(";%s;%s",GetLatexName().c_str(),ordinate->GetLatexName().c_str()),
+	return new TH2D(name, TString::Format(";%s;%s;P(%s, %s | Data)",GetLatexNameWithUnits().data(),ordinate->GetLatexNameWithUnits().data(),GetLatexName().data(),ordinate->GetLatexName().data()),
 									fNbins, fLowerLimit, fUpperLimit,
 									ordinate->GetNbins(),ordinate->GetLowerLimit(),ordinate->GetUpperLimit());
 }
 
 // ---------------------------------------------------------
 TH3 * BCVariable::CreateH3(const char * name, BCVariable const * const ordinate_y, BCVariable const * const ordinate_z) const {
-	return new TH3D(name, TString::Format(";%s;%s;%s",GetLatexName().data(),ordinate_y->GetLatexName().data(),ordinate_z->GetLatexName().data()),
+	return new TH3D(name, TString::Format(";%s;%s;%s;P(%s, %s, %s | Data)",GetLatexNameWithUnits().data(),ordinate_y->GetLatexNameWithUnits().data(),ordinate_z->GetLatexNameWithUnits().data(),GetLatexName().data(),ordinate_y->GetLatexName().data(),ordinate_z->GetLatexName().data()),
 									fNbins, fLowerLimit, fUpperLimit,
 									ordinate_y->GetNbins(),ordinate_y->GetLowerLimit(),ordinate_y->GetUpperLimit(),
 									ordinate_z->GetNbins(),ordinate_z->GetLowerLimit(),ordinate_z->GetUpperLimit());

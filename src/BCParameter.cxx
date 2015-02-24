@@ -44,8 +44,8 @@ BCParameter::BCParameter(const BCParameter & other)
 }
 
 // ---------------------------------------------------------
-BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname)
-	: BCVariable(name,lowerlimit,upperlimit,latexname)
+BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname, const char * unitstring)
+	: BCVariable(name,lowerlimit,upperlimit,latexname,unitstring)
 	, fFixed(false)
 	, fFixedValue(std::numeric_limits<double>::infinity())
 	, fPrior(NULL)

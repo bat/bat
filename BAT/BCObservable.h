@@ -51,8 +51,8 @@ public:
 	 * @param upperlimit The upper limit of the variable values.
 	 * @param obs Pointer to double which stores value to be plotted (the value must be set by model during calculation of likelihood).
 	 * @param latexname The latex name of the variable used in axis labeling.
-	 */
-	BCObservable(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
+	 * @param unitstring Unit string to be printed for variable. */
+	BCObservable(const char* name, double lowerlimit, double upperlimit, const char* latexname = "", const char * unitstring="");
 
 	/**
 	 * Destructor */

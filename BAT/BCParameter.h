@@ -52,8 +52,8 @@ public:
 	 * @param lowerlimit The lower limit of the parameter values.
 	 * @param upperlimit The upper limit of the parameter values.
 	 * @param latexname The latex name of the parameter used in axis labeling.
-	 */
-	BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
+	 * @param unitstring Unit string to be printed for parameter. */
+	BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "", const char * unitstring="");
 
 	/**
 	 * Destructor. */

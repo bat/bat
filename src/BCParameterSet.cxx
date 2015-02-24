@@ -80,12 +80,16 @@ bool BCParameterSet::ArePriorsSet(bool ignore_fixed) const {
 }
 
 // ---------------------------------------------------------
-bool BCParameterSet::IsWithinLimits(const std::vector<double> & x, bool ignore_fixed) const {
+bool BCParameterSet::IsWithinLimits(const std::vector<double> & x, bool ignore_fixed, bool check_fixed) const {
 	if (x.size() != fPars.size())
 		return false;
 	for (unsigned i=0; i<fPars.size(); ++i)
 		if (ignore_fixed and dynamic_cast<BCParameter*>(fPars[i])->Fixed())
 			continue;
+		else if (check_fixed and dynamic_cast<BCParameter*>(fPars[i])->Fixed()) {
+			if (fabs(x[i]-dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue())>std::numeric_limits<double>::epsilon())
+				return false;
+		}
 		else if (!fPars[i]->IsWithinLimits(x[i]))
 			return false;
 	return true;

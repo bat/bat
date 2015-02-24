@@ -329,11 +329,6 @@ public:
 	bool MCMCGetMultivariateProposalFunction() const
 	{ return fMCMCMultivariateProposalFunction; }
 
-	// /**
-	//  * @return multivariate-proposal-function tuning schedule parameter. */
-	// double MCMCGetMultivariateProposalFunctionTuningScheduleParameter() const
-	// { return fMultivariateProposalFunctionTuningScheduleParameter; }
-
 	/**
 	 * @return multivariate-proposal-function Cholesky decomposition nudge size. */
 	double MCMCGetMultivariateProposalFunctionEpsilon() const
@@ -405,10 +400,6 @@ public:
 	BCEngineMCMC::MCMCStatistics MCMCGetStatistics(unsigned c) const
 	{ return (c<fMCMCStatistics.size()) ? fMCMCStatistics[c] : BCEngineMCMC::MCMCStatistics(); }
 	
-	/**
-	 * Close MCMC output file. */
-	void MCMCCloseOutputFile();
-
 	/**
 	 * @return Flag for whether to rescale histogram ranges to fit MCMC reach after pre-run. */
 	bool GetRescaleHistogramRangesAfterPreRun() const
@@ -752,11 +743,6 @@ public:
 	void MCMCSetMultivariateProposalFunction(bool flag)
 	{ fMCMCMultivariateProposalFunction = flag; }
 
-	// /**
-	//  * Sets multivariate-proposal-function covariance update tuning parameter. */
-	// void MCMCSetMultivariateProposalFunctionTuningScheduleParameter(double lambda)
-	// { fMultivariateProposalFunctionTuningScheduleParameter = lambda; }
-
 	/**
 	 * Sets multivariate-proposal-function cholesky-decomposition nudge. */
 	void MCMCSetMultivariateProposalFunctionEpsilon(double epsilon)
@@ -959,12 +945,7 @@ public:
 	{ return SetPrior(fParameters.Index(name),h,interpolate); }
 
 	/**
-	 * @deprecated Instead call: GetParameters().SetPriorConstantAll()
-	 * Enable caching the constant value of the prior, so LogAPrioriProbability
-	 * is called only once. Note that the prior for ALL parameters is
-	 * assumed to be constant. The value is computed from
-	 * the parameter ranges, so make sure these are defined before this method is
-	 * called. */
+	 * @deprecated Instead call: GetParameters().SetPriorConstantAll() */
 	void SetPriorConstantAll()
 	{ fParameters.SetPriorConstantAll(); }
 
@@ -1023,18 +1004,18 @@ public:
 			
 	/**
 	 * Print a correlation matrix for the parameters.
-	 * @return An error flag. */
-	int PrintCorrelationMatrix(const char * filename = "matrix.pdf");
+	 * @return Success of action. */
+	bool PrintCorrelationMatrix(const char * filename = "matrix.pdf") const;
 			
 	/**
 	 * Print a correlation plot for the parameters.
-	 * @return An error flag. */
-	int PrintCorrelationPlot(const char * filename = "correlation.pdf", bool include_observables=true);
+	 * @return Success of action. */
+	bool PrintCorrelationPlot(const char * filename = "correlation.pdf", bool include_observables=true) const;
 			
 	/**
 	 * Print a Latex table of the parameters.
-	 * @return An error flag. */
-	int PrintParameterLatex(const char * filename);
+	 * @return Success of action. */
+	bool PrintParameterLatex(const char * filename) const;
 
 	/**
 	 * Copy object
@@ -1046,9 +1027,10 @@ public:
 	 * @param min minimum value of the parameter
 	 * @param max maximum value of the parameter
 	 * @param latexname Optional latexname used for plotting
+	 * @param unitstring Unit string to be printed for parameter. 
 	 * @return number of parameters after adding */
-	virtual int AddParameter(const char * name, double min, double max, const char * latexname = "")
-	{ return AddParameter(new BCParameter(name, min, max, latexname)); }
+	virtual int AddParameter(const char * name, double min, double max, const char * latexname = "", const char * unitstring="")
+	{ return AddParameter(new BCParameter(name, min, max, latexname, unitstring)); }
 
 	/**
 	 * Adds a parameter to the model.
@@ -1062,9 +1044,10 @@ public:
 	 * @param min minimum value of the observable
 	 * @param max maximum value of the observable
 	 * @param latexname Optional latexname used for plotting
+	 * @param unitstring Unit string to be printed for observable.
 	 * @return number of observables after adding */
-	virtual int AddObservable(const char * name, double min, double max, const char * latexname = "")
-	{ return AddObservable(new BCObservable(name,min,max,latexname)); }
+	virtual int AddObservable(const char * name, double min, double max, const char * latexname = "", const char * unitstring="")
+	{ return AddObservable(new BCObservable(name,min,max,latexname,unitstring)); }
 
 	/**
 	 * Adds a user-calculated observable to the model.
@@ -1227,12 +1210,16 @@ public:
 	virtual bool ValidParameterTree(TTree * tree) const;
 
 	/**
+	 * Close MCMC output file. */
+	void MCMCCloseOutputFile();
+
+	/**
 	 * Marginalize from TTree. */
 	virtual void Remarginalize(bool autorange=true);
 
 	/**
 	 * Calculcate evidnce. */
-	virtual double CalculateEvidence(double epsilon=1e-2);
+	// virtual double CalculateEvidence(double epsilon=1e-2, unsigned NIterations=100000);
 
 	/**
 	 * Update cholesky-decompositions for multivariate proposal functio. */
@@ -1317,7 +1304,7 @@ protected:
 
 	/**
 	 * return appropriate update interval */
-	unsigned  UpdateFrequency(unsigned N);
+	unsigned  UpdateFrequency(unsigned N) const;
     
 	/**
 	 * Parameter settings */
@@ -1434,10 +1421,6 @@ protected:
 	/**
 	 * number of multivariate-proposal-function tuning steps performed. */
 	unsigned fMultivariateProposalFunctionTuningSteps;
-
-	// /**
-	//  * multivariate-proposal-function tuning-schedule parameter. */
-	// double fMultivariateProposalFunctionTuningScheduleParameter;
 
 	/**
 	 * multivariate-proposal-function cholesky-decomposition nudge. */
@@ -1609,6 +1592,14 @@ protected:
 	/**
 	 * factor for enlarging range of histograms when rescaling. */
 	double fHistogramRescalePadding;
+
+	// /**
+	//  * Evidence */
+	// double fEvidence;
+
+	// /** 
+	//  * Uncertainty on evidence */
+	// double fEvidenceUncertainty;
 
 };
 

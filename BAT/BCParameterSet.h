@@ -67,8 +67,9 @@ public:
 	 * Check if vector of values is within limits.
 	 * @param x Values to check
 	 * @param ignore_fixed Flag for ignoring fixed values.
+	 * @param check_fixed Flag for if not ignoring fixed values, check if they equal their fixed value (rather than checking if they are within range)
 	 * @return Whether values are within limits of variables. */
-	virtual bool IsWithinLimits(const std::vector<double> & x, bool ignore_fixed) const;
+	virtual bool IsWithinLimits(const std::vector<double> & x, bool ignore_fixed, bool check_fixed=true) const;
 
 	/**
 	 * Check if vector of values is at fixed values

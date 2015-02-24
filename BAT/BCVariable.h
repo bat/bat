@@ -53,8 +53,8 @@ public:
 	 * @param lowerlimit The lower limit of the variable values.
 	 * @param upperlimit The upper limit of the variable values.
 	 * @param latexname The latex name of the variable used in axis labeling.
-	 */
-	BCVariable(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
+	 * @param unitstring Unit string to be printed for variable. */
+	BCVariable(const char* name, double lowerlimit, double upperlimit, const char* latexname = "", const char * unitstring = "");
 
 	/**
 	 * Destructor */
@@ -79,10 +79,19 @@ public:
 	{ return fSafeName; }
 
 	/**
-	 * Returns latex name if set, else identical to GetName().
-	 */
+	 * @return latex name if set, else identical to GetName(). */
 	virtual const std::string & GetLatexName() const
 	{ return (fLatexName.empty()) ? fName : fLatexName; }
+
+	/**
+	 * @return unit string */
+	virtual const std::string & GetUnitString() const
+	{ return fUnitString; }
+
+	/**
+	 * @return latex name with unit string */
+	virtual std::string GetLatexNameWithUnits() const
+	{ if (GetUnitString().empty()) return GetLatexName(); return GetLatexName() + " " + GetUnitString(); }
 	
 	/**
 	 * @return The lower limit of the variable values. */
@@ -135,8 +144,15 @@ public:
 	 * @param name The name of the variable. */
 	virtual void SetName(const char * name);
 
+	/**
+	 * @param latex_name Latex-formatted name of Variable. */
 	virtual void SetLatexName(const char * latex_name)
 	{ fLatexName = latex_name; }
+
+	/**
+	 * @param unit_string String to printed to mark units of variable when needed. */
+	virtual void SetUnitString(const char * unit_string)
+	{ fUnitString = unit_string; }
 
 	/**
 	 * Set the lower limit of the variable values.
@@ -292,6 +308,9 @@ protected:
 
 	/// The latex name of the variable.
 	std::string fLatexName;
+
+	/// Unit string for variable
+	std::string fUnitString;
 	
 	/// Flag to store MCMC samples in 1D histogram.
 	bool fFillH1;

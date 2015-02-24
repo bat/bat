@@ -60,7 +60,6 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fMCMCScaleFactorLowerLimit(0)
 	, fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
 	, fMCMCAutoSetTrialFunctionScaleFactors(true)
-	// , fMultivariateProposalFunctionTuningScheduleParameter(0.5)
 	, fMultivariateProposalFunctionEpsilon(1e-3)
 	, fMultivariateProposalFunctionScaleMultiplier(1.5)
 	, fMCMCFlagPreRun(true)
@@ -82,6 +81,8 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fBCH2DdrawingOptions(new BCH2D)
 	, fRescaleHistogramRangesAfterPreRun(false)
 	, fHistogramRescalePadding(0.1)
+	// , fEvidence(-1)
+	// , fEvidenceUncertainty(-1)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -99,7 +100,6 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fMCMCScaleFactorLowerLimit(0)
 	, fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
 	, fMCMCAutoSetTrialFunctionScaleFactors(true)
-	// , fMultivariateProposalFunctionTuningScheduleParameter(0.5)
 	, fMultivariateProposalFunctionEpsilon(1e-3)
 	, fMultivariateProposalFunctionScaleMultiplier(1.5)
 	, fMCMCFlagPreRun(true)
@@ -121,6 +121,8 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fBCH2DdrawingOptions(new BCH2D)
 	, fRescaleHistogramRangesAfterPreRun(false)
 	, fHistogramRescalePadding(0.1)
+	// , fEvidence(-1)
+	// , fEvidenceUncertainty(-1)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -294,7 +296,6 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC * other) {
 	fMCMCEfficiencyMax                    = other -> MCMCGetMaximumEfficiency();
 	fMCMCFlagPreRun                       = other -> MCMCGetFlagPreRun();
 	fMCMCMultivariateProposalFunction     = other -> MCMCGetMultivariateProposalFunction();
-	// fMultivariateProposalFunctionTuningScheduleParameter = other -> MCMCGetMultivariateProposalFunctionTuningScheduleParameter();
 	fMultivariateProposalFunctionEpsilon  = other -> MCMCGetMultivariateProposalFunctionEpsilon();
 	fMultivariateProposalFunctionScaleMultiplier = other -> MCMCGetMultivariateProposalFunctionScaleMultiplier();
 }
@@ -350,7 +351,6 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other) {
 	fHistogramRescalePadding                  = other.fHistogramRescalePadding;
 
 	// multivariate proposal function shtuff
-	// fMultivariateProposalFunctionTuningScheduleParameter = other.fMultivariateProposalFunctionTuningScheduleParameter;
 	fMultivariateProposalFunctionEpsilon = other.fMultivariateProposalFunctionEpsilon;
 	fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
 	fMultivariateProposalFunctionCovariance = other.fMultivariateProposalFunctionCovariance;
@@ -397,6 +397,9 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other) {
 	fLocalModes            = other.fLocalModes;
 	fBCH1DdrawingOptions -> CopyOptions(*(other.fBCH1DdrawingOptions));
 	fBCH2DdrawingOptions -> CopyOptions(*(other.fBCH2DdrawingOptions));
+
+	// fEvidence            = other.fEvidence;
+	// fEvidenceUncertainty = other.fEvidenceUncertainty;
 }
 
 // --------------------------------------------------------
@@ -670,13 +673,14 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 		fParameterTree = new TTree(TString::Format("%s_parameters",GetSafeName().data()),TString::Format("%s_parameters",GetSafeName().data()));
 		bool p_parameter, p_fill_1d, p_fill_2d, p_fixed;
 		unsigned p_index, p_precision, p_nbins;
-		char p_name[200], p_safename[200], p_latexname[200];
+		char p_name[200], p_safename[200], p_latexname[200], p_unitstring[200];
 		double p_lowerlimit, p_upperlimit, p_fixedvalue;
 		fParameterTree -> Branch("parameter",&p_parameter,"parameter/O");
 		fParameterTree -> Branch("index",&p_index,"index/i");
 		fParameterTree -> Branch("name",p_name,"name/C");
 		fParameterTree -> Branch("safe_name",p_safename,"safe_name/C");
 		fParameterTree -> Branch("latex_name",p_latexname,"latex_name/C");
+		fParameterTree -> Branch("unit_string",p_unitstring,"unit_string/C");
 		fParameterTree -> Branch("lower_limit",&p_lowerlimit,"lower_limit/D");
 		fParameterTree -> Branch("upper_limit",&p_upperlimit,"upper_limit/D");
 		fParameterTree -> Branch("precision",&p_precision,"precision/i");
@@ -691,6 +695,7 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 			strcpy(p_name,      GetVariable(i)->GetName().data());
 			strcpy(p_safename,  GetVariable(i)->GetSafeName().data());
 			strcpy(p_latexname, GetVariable(i)->GetLatexName().data());
+			strcpy(p_unitstring,GetVariable(i)->GetUnitString().data());
 			p_lowerlimit = GetVariable(i) -> GetLowerLimit();
 			p_upperlimit = GetVariable(i) -> GetUpperLimit();
 			p_precision  = GetVariable(i) -> GetPrecision();
@@ -1242,16 +1247,124 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 }
 
 // --------------------------------------------------------
-double BCEngineMCMC::CalculateEvidence(double /*epsilon*/) {
-	return 0;
-}
+// double BCEngineMCMC::CalculateEvidence(double epsilon, unsigned NIterations) {
+// 	// needs:
+// 	// free parameters
+// 	// tree
+// 	// fMCMCStatitics_AllChains
+// 	// to do: check that no parameter was fixed since running chain
+	
+// 	double delta = 3;
+// 	unsigned K = 100;
+
+// 	(void)NIterations;
+
+// 	// calculate effective sample size:
+// 	double ESS;
+
+// 	double estimator = 1. / (1 + ESS*epsilon*epsilon/2.);
+// 	double est = 0;
+// 	double delta = 0;
+// 	double l = 1;
+// 	while (est < estimator) {
+// 		delta *= 1.e-2;
+		
+// 	}
+
+// 	// store ranges and define new ranges
+// 	std::vector<std::pair<double,double> > bounds;
+// 	for (unsigned i=0; i<GetNParameters(); ++i) {
+// 		bounds.push_back(std::make_pair(GetParameter(i)->GetLowerLimit(),GetParameter(i)->GetUpperLimit()));
+// 		if (GetParameter(i)->Fixed())
+// 			continue;
+// 		double delta_s = delta * sqrt(fMCMCStatistics_AllChains.variance[i]);
+// 		GetParameter(i) -> SetLimits(std::max<double>(GetParameter(i)->GetLowerLimit(),fMCMCStatistics_AllChains.mean[i]-delta_s)
+// 																 std::min<double>(GetParameter(i)->GetUpperLimit(),fMCMCStatistics_AllChains.mean[i]+delta_s));							 
+// 	}
+// 	double subvolume = GetParameters().Volume();
+	
+// 	// calculate effective sample size 
+// 	// and count samples inside new range
+// 	fMCMCTree -> SetBranchAddress("Phase", &fMCMCPhase);
+// 	fMCMCTree -> SetBranchAddress("LogProbability",&fMCMCTree_Prob);
+// 	fMCMCTree_Parameters.assign(GetNParameters(),0);
+// 	for (unsigned i=0; i<GetNParameters(); ++i)
+// 		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
+
+// 	unsigned N = 0;
+// 	unsigned N_in = 0;
+
+// 	double rho = 0;
+// 	std::vector<double> prev_pars;
+// 	prev_pars.reserve(GetNParameters());
+
+// 	// Harmonic Mean Estimate integral
+// 	double I_HME = 0;
+// 	std::vector<double> I_HME_batches (K,0);
+
+// 	unsigned k=0;
+// 	for (int i=0; i<fMCMCTree->GetEntries(); ++i) {
+// 		fMCMCTree -> GetEntry(i);
+
+// 		if (fMCMCPhase != BCEngineMCMC::kMCMCMainRun)
+// 			continue;
+
+// 		// if parameter point is withing subrange
+// 		if (GetParameters().IsWithinLimits(fMCMCTree_Parameters,true,false)) {
+// 			N_in += 1;
+			
+// 			// contribute to calculation of Harmonic Mean Estimate integral
+// 			I_HME += exp(-fMCMCTree_Prob);
+// 			I_HME_batches[k] += exp(-fMCMCTree_Prob);
+// 			k = k+1 % K;
+// 		}
+// 		N += 1;
+
+// 		if (!prev_pars.empty())
+// 			for (unsigned j=0; j<GetNParameters(); ++j) {
+// 				if (GetParameter(j)->Fixed())
+// 					continue;
+// 				rho += fMCMCTree_Parameters
+
+// 		prev_pars = fMCMCTree_Parameters;
+// 	}
+// 	double samples_ratio = N_in * 1./N;
+
+// 	// HME integral:
+// 	I_HME = N * subvolume / I_HME;
+// 	// HME integral uncertainty:
+// 	double avg = 0;
+// 	for (unsigned i=0; i<I_HME_batches.size(); ++i)
+// 		avg += 1./I_HME_batches[i];
+// 	avg *= 1./I_HME_batches.size();
+// 	double I_HME_uncertainty = 0;
+// 	for (unsigned i=0; i<I_HME_batches.size(); ++i)
+// 		I_HME_uncertainty += (1./I_HME_batches[i] - avg) * (1./I_HME_batches[i] - avg);
+// 	I_HME_uncertainty = sqrt(I_HME_uncertainty / (I_HME_batches.size()-1)) * N * subvolume;
+
+// 	// importance sampling intergration
+// 	double mean = 0;
+// 	for (unsigned n=1; n<=NIterations; ++n) {
+// 		double val = exp(LogEval(GetParameters().GetUniformRandomValues(fRandom,true)));
+// 		mean += (val-mean)/n;
+// 	}
+// 	double subvolume_integral = mean*subvolume;
+
+// 	// store evidence
+// 	fEvidence = subvolume_integral / samples_ratio;
+
+// 	// restore ranges:
+// 	for (unsigned i=0; i<GetNParameters(); ++i)
+// 		GetParameter(i) -> SetRange(bounds[i].first,bounds[i].second);
+		
+// 	return 0;
+// }
 
 // --------------------------------------------------------
 bool BCEngineMCMC::UpdateCholeskyDecompositions() {
 	if (fMultivariateProposalFunctionCovariance.size() != fMCMCNChains)
 		return false;
 
-	// double a = pow((double)fMultivariateProposalFunctionTuningSteps,-fMultivariateProposalFunctionTuningScheduleParameter);
 	// Set covariance matricies
 	unsigned I = 0;
 	for (unsigned i=0; i<GetNParameters(); ++i) {
@@ -1262,7 +1375,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions() {
 			if (GetParameter(j)->Fixed())
 				continue;
 			for (unsigned c=0; c<fMCMCNChains; ++c) {
-				fMultivariateProposalFunctionCovariance[c][I][J] = /*(1-a) * fMultivariateProposalFunctionCovariance[c][I][J]	+ a **/ fMCMCStatistics[c].covariance[i][j];
+				fMultivariateProposalFunctionCovariance[c][I][J] = fMCMCStatistics[c].covariance[i][j];
 				fMultivariateProposalFunctionCovariance[c][J][I] = fMultivariateProposalFunctionCovariance[c][I][J];
 			}
 			++J;
@@ -2927,7 +3040,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
 	// set bin labels
 	for (int i=0; i<hist_axes->GetNbinsX(); ++i)
-		hist_axes -> GetXaxis() -> SetBinLabel(i+1, GetVariable(i0+i)->GetLatexName().c_str());
+		hist_axes -> GetXaxis() -> SetBinLabel(i+1, GetVariable(i0+i)->GetLatexNameWithUnits().data());
 	hist_axes -> Draw("");
 
 	// Draw lines
@@ -3039,7 +3152,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
+bool BCEngineMCMC::PrintCorrelationMatrix(const char * filename) const {
    // create histogram
 	TH2D * hist_corr = new TH2D(TString::Format("hist_correlation_matrix_%s",GetSafeName().data()),";;",GetNVariables(), -0.5, GetNVariables()-0.5, GetNVariables(), -0.5, GetNVariables()-0.5);
 	hist_corr -> SetStats(false);
@@ -3053,7 +3166,7 @@ int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
 
 	// fill histogram
 	for (unsigned i = 0; i < GetNVariables(); ++i) {
-		hist_corr->SetBinContent(i+1, GetNVariables()-i, 1);
+		hist_corr -> SetBinContent(i+1, GetNVariables()-i, 1);
 		
 		double var_i = (i<fMCMCStatistics_AllChains.variance.size()) ? fMCMCStatistics_AllChains.variance[i] : std::numeric_limits<double>::infinity();
 		for (unsigned j = i+1; j < GetNVariables(); ++j) {
@@ -3103,25 +3216,11 @@ int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
 		 // labels
 		 xlabel -> DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
 												 hist_corr->GetYaxis()->GetXmax()+20e-2,
-												 GetVariable(i-1)->GetLatexName().c_str());
+												 GetVariable(i-1)->GetLatexNameWithUnits().data());
 
 		 ylabel -> DrawLatex(hist_corr->GetXaxis()->GetXmin()-20e-2,
 												 hist_corr->GetYaxis()->GetBinCenter(GetNVariables()-i+1),
-												 GetVariable(i-1)->GetLatexName().c_str());
-		 
-		 //squares
-	 	 // for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
-	 	 // 	 if (i==hist_corr->GetNbinsY()-j+1)
-	 	 // 		 bcorr ->SetFillColor(kWhite);
-	 	 // 	 else if (hist_corr->GetBinContent(i,j) > 0.5)
-	 	 // 		 bcorr -> SetFillColor(kGreen);
-	 	 // 	 else if (hist_corr->GetBinContent(i,j) >= -0.5)
-	 	 // 		 bcorr -> SetFillColor(kYellow);
-	 	 // 	 else 
-	 	 // 		 bcorr -> SetFillColor(kRed);
-	 	 // 	 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i), hist_corr->GetYaxis()->GetBinLowEdge(j),
-	 	 // 										hist_corr->GetXaxis()->GetBinUpEdge(i),  hist_corr->GetYaxis()->GetBinUpEdge(j));
-	 	 // }
+												 GetVariable(i-1)->GetLatexNameWithUnits().data());
 	 }
 
 	 // write numbers in
@@ -3136,15 +3235,7 @@ int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
 		 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].second+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-unfilled[i].first),
 											hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].second+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-unfilled[i].first));
 	 }
-   // for (unsigned i = 0; i < GetNVariables(); ++i)
-	 // 	 for (unsigned j = i+1; j < GetNVariables(); ++j)
-	 // 		 if (i>=fH2Marginalized.size() or j>=fH2Marginalized[i].size() or !fH2Marginalized[i][j]) {
-	 // 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(i+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-j),
-	 // 												hist_corr->GetXaxis()->GetBinUpEdge (i+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-j));
-	 // 			 bcorr -> DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(j+1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables()-i),
-	 // 												hist_corr->GetXaxis()->GetBinUpEdge (j+1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables()-i));
-	 // 		 }
-	 
+
    // redraw top and right lines
 	 TLine * lA = new TLine();
    lA -> DrawLine(hist_corr->GetXaxis()->GetXmin(),hist_corr->GetYaxis()->GetXmax(),hist_corr->GetXaxis()->GetXmax(),hist_corr->GetYaxis()->GetXmax());
@@ -3165,11 +3256,11 @@ int BCEngineMCMC::PrintCorrelationMatrix(const char * filename) {
    delete c_corr;
 
    // no error
-   return 1;
+   return true;
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintCorrelationPlot(const char * filename, bool include_observables) {
+bool BCEngineMCMC::PrintCorrelationPlot(const char * filename, bool include_observables) const {
 	// Array of indices for which any maginalizations were stored
 	std::vector<unsigned> I;
 	unsigned n = (include_observables) ? GetNVariables() : GetNParameters();
@@ -3186,7 +3277,7 @@ int BCEngineMCMC::PrintCorrelationPlot(const char * filename, bool include_obser
 	}
 	
 	if (I.empty())
-		return 0;
+		return false;
 	
 	TCanvas * c = new TCanvas("c_correlation_plot");
 	c->cd();
@@ -3272,20 +3363,20 @@ int BCEngineMCMC::PrintCorrelationPlot(const char * filename, bool include_obser
 			c->cd();
 				
 			if(i==0)								// y-axis labels
-				ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., GetVariable(I[j])->GetLatexName().c_str());
+				ylabel -> DrawLatex(margin*(1-8*ylabel->GetTextSize()), yup-padsize/2., GetVariable(I[j])->GetLatexNameWithUnits().data());
 			if(j==I.size()-1)				// x-axis labels
-				xlabel -> DrawLatex(xlow+padsize/2., margin*(1-8*xlabel->GetTextSize()), GetVariable(I[i])->GetLatexName().c_str());
+				xlabel -> DrawLatex(xlow+padsize/2., margin*(1-8*xlabel->GetTextSize()), GetVariable(I[i])->GetLatexNameWithUnits().data());
 		}
 	}
 	
 	// gPad->RedrawAxis();
 	c->Print(filename);
 	
-	return 1;
+	return true;
 }
 
 // ---------------------------------------------------------
-int BCEngineMCMC::PrintParameterLatex(const char * filename) {
+bool BCEngineMCMC::PrintParameterLatex(const char * filename) const {
 	// open file
 	std::ofstream ofi(filename);
 	ofi.precision(3);
@@ -3293,7 +3384,7 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 	// check if file is open
 	if(!ofi.is_open()) {
 		BCLog::OutError(TString::Format("BCEngineMCMC::PrintParameterLatex : Couldn't open file %s",filename));
-		return 0;
+		return false;
 	}
 
 	const char * blank = "---";
@@ -3333,7 +3424,7 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 					<< "        \\hline\n" << std::endl;
 		
 		// formate LaTeX name for LaTeX ('#' -> '\')
-		std::string latexName(GetVariable(i)->GetLatexName());
+		std::string latexName(GetVariable(i)->GetLatexNameWithUnits());
 		std::replace(latexName.begin(),latexName.end(),'#','\\');
 
 		ofi << "        \\ensuremath{" << latexName << "} &" << std::endl;
@@ -3386,11 +3477,11 @@ int BCEngineMCMC::PrintParameterLatex(const char * filename) {
 	ofi.close();
 	
 	// no error
-	return 1;
+	return true;
 }
 
 // ---------------------------------------------------------
-unsigned BCEngineMCMC::UpdateFrequency(unsigned N) {
+unsigned BCEngineMCMC::UpdateFrequency(unsigned N) const {
 	int n = N/10;
 	if (n < 100)
 		return 100;
