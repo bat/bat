@@ -1218,6 +1218,10 @@ public:
 	virtual void Remarginalize(bool autorange=true);
 
 	/**
+	 * Estimate effective sample size. */
+	std::vector<std::vector<double> > EstimateEffectiveSampleSize(unsigned tMax=10);
+
+	/**
 	 * Calculcate evidnce. */
 	// virtual double CalculateEvidence(double epsilon=1e-2, unsigned NIterations=100000);
 

@@ -47,6 +47,7 @@
 #include <cmath>
 #include <algorithm>
 #include <fstream>
+#include <deque>
 
 #include <typeinfo>
 
@@ -1247,6 +1248,102 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 }
 
 // --------------------------------------------------------
+std::vector<std::vector<double> > BCEngineMCMC::EstimateEffectiveSampleSize(unsigned tMax) {
+	// needs
+	// tree
+
+	// calculate variance estimators:
+	std::vector<double> variance_estimators(GetNParameters(),0);
+	// if (fMCMCStatistics.empty())
+	// 	return NEFF;
+	if (fMCMCStatistics.size()==1) {
+		variance_estimators.assign(fMCMCStatistics[0].variance.begin(),fMCMCStatistics[0].variance.begin()+GetNParameters());
+	} else {
+		std::vector<double> means_of_variances(GetNParameters(),0);
+		std::vector<double> means_of_means(GetNParameters(),0);
+		for (unsigned c=0; c<fMCMCStatistics.size(); ++c)
+			for (unsigned p=0; p<GetNParameters(); ++p) {
+				means_of_variances[p] += fMCMCStatistics[c].variance[p] / fMCMCStatistics.size();
+				means_of_means[p] = fMCMCStatistics[c].mean[p] / fMCMCStatistics.size();
+			}
+		std::vector<double> variances_of_means(GetNParameters(),0);
+		for (unsigned p=0; p<GetNParameters(); ++p) {
+			if (GetParameter(p)->Fixed())
+				continue;
+			for (unsigned c=0; c<fMCMCStatistics.size(); ++c)
+				variances_of_means[p] += (fMCMCStatistics[c].mean[p]-means_of_means[p])*(fMCMCStatistics[c].mean[p]-means_of_means[p]) / (fMCMCStatistics.size()-1);
+			variance_estimators[p] = means_of_variances[p] + variances_of_means[p];
+		}
+	}
+	
+	// connect to tree
+	fMCMCTree -> SetBranchAddress("Phase", &fMCMCPhase);
+	fMCMCTree -> SetBranchAddress("LogProbability",&fMCMCTree_Prob);
+	fMCMCTree -> SetBranchAddress("Chain", &fMCMCTree_Chain);
+	fMCMCTree -> SetBranchAddress("Iteration",&fMCMCTree_Iteration);
+	fMCMCTree_Parameters.assign(GetNParameters(),0.);
+	for (unsigned i=0; i<GetNParameters(); ++i)
+		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
+
+	// find first main run entry
+	int n = 0;
+	for (; n<fMCMCTree->GetEntries(); ++n) {
+		fMCMCTree -> GetEntry(n);
+		if (fMCMCPhase == BCEngineMCMC::kMCMCMainRun)
+			break;
+	}
+	
+	// create buffers of last tMax entries:
+	std::vector<std::deque<std::vector<double> > > buffer (fMCMCNChains,std::deque<std::vector<double> >());
+	// fill buffers:
+	for (; n<fMCMCTree->GetEntries() and buffer.back().size()<tMax; ++n) {
+		fMCMCTree -> GetEntry(n);
+		buffer[fMCMCTree_Chain].push_front(fMCMCTree_Parameters);
+	}
+	
+	std::vector<std::vector<std::vector<double> > > C (fMCMCNChains,std::vector<std::vector<double> >(tMax,std::vector<double>(GetNParameters(),0)));
+	std::vector<std::vector<std::vector<double> > > V (fMCMCNChains,std::vector<std::vector<double> >(tMax,std::vector<double>(GetNParameters(),0)));
+	std::vector<unsigned> nIterations (fMCMCNChains,0);
+	for (; n<fMCMCTree->GetEntries(); ++n) {
+		fMCMCTree->GetEntry(n);
+		for (unsigned t=0; t<tMax; ++t)
+			for (unsigned p=0; p<GetNParameters(); ++p) {
+				C[fMCMCTree_Chain][t][p] += fMCMCTree_Parameters[p] * buffer[fMCMCTree_Chain][t][p];
+				V[fMCMCTree_Chain][t][p] += (fMCMCTree_Parameters[p] - buffer[fMCMCTree_Chain][t][p])*(fMCMCTree_Parameters[p] - buffer[fMCMCTree_Chain][t][p]);
+			}
+		buffer[fMCMCTree_Chain].push_front(fMCMCTree_Parameters);
+		buffer[fMCMCTree_Chain].pop_back();
+		nIterations[fMCMCTree_Chain] += 1;
+	}
+
+	std::vector<std::vector<double> > NEFF(fMCMCNChains+1, std::vector<double>(GetNParameters(),0));
+	for (unsigned c=0; c<fMCMCNChains; ++c) {
+		for (unsigned p=0; p<GetNParameters(); ++p)
+			if (!GetParameter(p)->Fixed()) {
+				for (unsigned t=0; t<tMax; ++t)
+					NEFF[c][p] += (C[c][t][p]/nIterations[c] - fMCMCStatistics[c].mean[p]) / fMCMCStatistics[c].variance[p];
+				NEFF[c][p] = nIterations[c] / (1+2*NEFF[c][p]);
+			}
+	}
+
+	for (unsigned p=0; p<GetNParameters(); ++p)
+		if (!GetParameter(p)->Fixed()) {
+			for (unsigned t=0; t<tMax; ++t) {
+				double rho_t = 0;
+				for (unsigned c=0; c<fMCMCNChains; ++c)
+					rho_t += V[c][t][p] / nIterations[c] / fMCMCNChains;
+				rho_t = 1 - rho_t / 2 / variance_estimators[p];
+				if (rho_t<0)
+					break;
+				NEFF[fMCMCNChains][p] += rho_t;
+			}
+			NEFF[fMCMCNChains][p] = fMCMCNChains*nIterations[0] / (1 + NEFF[fMCMCNChains][p]);
+		}
+	return NEFF;
+}
+
+
+// // --------------------------------------------------------
 // double BCEngineMCMC::CalculateEvidence(double epsilon, unsigned NIterations) {
 // 	// needs:
 // 	// free parameters
@@ -1259,15 +1356,54 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 
 // 	(void)NIterations;
 
-// 	// calculate effective sample size:
-// 	double ESS;
+// 	// connect to tree
+// 	fMCMCTree -> SetBranchAddress("Phase", &fMCMCPhase);
+// 	fMCMCTree -> SetBranchAddress("LogProbability",&fMCMCTree_Prob);
+// 	fMCMCTree -> SetBranchAddress("Chain", &fMCMCTree_Chain); 
+// 	fMCMCTree_Parameters.assign(GetNParameters(),0);
+// 	for (unsigned i=0; i<GetNParameters(); ++i)
+// 		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
 
+// 	// find first main run entry
+// 	int entry0 = 0;
+// 	for (int n=0; n<fMCMCTree->GetEntries(); ++n) {
+// 		fMCMCTree -> GetEntry(n);
+// 		if (fMCMCPhase == BCEngineMCMC::kMCMCMainRun) {
+// 			entry0 = n;
+// 			break;
+// 		}
+// 	}
+
+// 	// calculate effective sample size:
+// 	std::vector<double> rho1(fMCMCNChains,std::vector<double>(GetNParameters(),0));
+// 	std::vector<double> previous_point(fMCMCNChains,std::vector<double>(GetNParameters(),0));
+// 	std::vector<unsigned> niterations(fMCMCNChains,0);
+// 	for (int n=entry0; n<fMCMCTree->GetEntries(); ++n) {
+// 		fMCMCTree->GetEntry(n);
+// 		for (unsigned p=0; p<GetNParameters(); ++p)													
+// 			rho1[fMCMCTree_Chain][p] += fMCMCTree_Parameters[p]*previous_point[fMCMCTree_Chain][p];
+// 		niterations[fMCMCTree_Chain] += 1;
+// 	}
+// 	std::vector<double> ess(fMCMCNChains,0);
+// 	std::vector<double> var(fMCMCNChains,0);
+// 	double ESS = 0;
+// 	for (unsigned c=0; c<fMCMCNChains; ++c) {
+// 		for (unsigned p=0; p<GetNParameters(); ++p) {
+// 			rho1[c][p] = rho1[c][p]/(niterations[c]-1) - fMCMCStatistics[c].mean[p]*fMCMCStatistics[c].mean[p];
+// 			var[c] += fMCMCStatistics[c].variance[p];
+// 			ess[c] += rho1[c][p];
+// 		}
+// 		ess[c] = niterations[c]*1./(1+2*ess[c]/var[c]);
+// 		ESS += ess[c];
+// 	}
+// 	ESS *= 1./fMCMCNChains;
+		
 // 	double estimator = 1. / (1 + ESS*epsilon*epsilon/2.);
 // 	double est = 0;
 // 	double delta = 0;
 // 	double l = 1;
 // 	while (est < estimator) {
-// 		delta *= 1.e-2;
+// 		delta *= l/100;
 		
 // 	}
 
