@@ -57,7 +57,8 @@ public:
 	/** \name Enumerators  */
 	/** @{ */
 
-	/** An enumerator for the status of a test. */
+	/** An enumerator for the status of a test.
+	 * See BCEngineMCMC::SetPrecision for full details*/
 	enum Precision {
 		kLow,
 		kQuick,
@@ -66,18 +67,19 @@ public:
 		kVeryHigh
 	};
 
-	/** An enumerator for the phase of the Markov chain. */
+	/** An enumerator for the phase of the Markov chain.
+	 * Negative values are in pre-run, 0 is unset, positive is main run. */
 	enum MCMCPhase {
-		kMCMCPreRunEfficiencyCheck       = -1,
-		kMCMCPreRunConvergenceCheck      = -2,
-		kMCMCPreRunFulfillMinimum        = -3,
-		kMCMCUnsetPhase                  =  0,
-		kMCMCMainRun                     = +1
+		kMCMCPreRunEfficiencyCheck       = -1, ///< In pre-run, tuning scales for optimal efficiencies
+		kMCMCPreRunConvergenceCheck      = -2, ///< In pre-run, checking chain convergences
+		kMCMCPreRunFulfillMinimum        = -3, ///< In pre-run, running until minimum number of pre-run samples are drawn
+		kMCMCUnsetPhase                  =  0, ///< Unest
+		kMCMCMainRun                     = +1	 ///< In main run
 	};
 
 	/** An enumerator for markov-chain position initialization. */
 	enum MCMCInitialPosition {
-		kMCMCInitContinue         = -1, ///< continue markov chain from last value
+		kMCMCInitContinue         = -1, ///< continue markov chain from last value (not yet available)
 		kMCMCInitCenter           =  0, ///< select centers of parameter ranges
 		kMCMCInitRandomUniform    =  1, ///< randomly distribute uniformly over parameter ranges
 		kMCMCInitUserDefined      =  2, ///< initialize to user-provided points
@@ -91,20 +93,27 @@ public:
 	
 	/** A struct for holding statistical information about samples. */
 	struct MCMCStatistics {
-		MCMCStatistics(const BCEngineMCMC::MCMCStatistics &other);
+
+		/** Constructor.
+		 * @param n_par number of parameters to calculate statistics for.
+		 * @param n_obs number of observables to calculate statistics for (sans efficiencies). */
 		MCMCStatistics(unsigned n_par=0, unsigned n_obs=0);
-		unsigned n_samples;
-		std::vector<double> mean;
-		std::vector<double> variance;
-		std::vector<std::vector<double> > covariance;
-		std::vector<double> minimum;
-		std::vector<double> maximum;
-		double probability_mean;
-		double probability_variance;
-		double probability_mode;
-		std::vector<double> mode;
-		unsigned n_samples_efficiency;
-		std::vector<double> efficiency;
+
+		/** Copy constructor. */
+		MCMCStatistics(const BCEngineMCMC::MCMCStatistics &other);
+
+		unsigned n_samples;					///< number of samples used to calculate statistics
+		std::vector<double> mean;		///< means of all variables
+		std::vector<double> variance; ///< variances of all variables
+		std::vector<std::vector<double> > covariance; ///< covariances of all pairs of variables
+		std::vector<double> minimum;									///< minimum value of variables
+		std::vector<double> maximum;									///< maximum value of variables
+		double probability_mean;											///< mean of probability
+		double probability_variance;									///< variance of probability
+		double probability_mode;											///< mode of probability
+		std::vector<double> mode;											///< mode of variables
+		unsigned n_samples_efficiency;								///< number of samples used to calculate efficiencies
+		std::vector<double> efficiency;								///< efficiencies for each parameter (NB: not stored for observables)
 
 		/** clear all members.
 		 * @param clear_mode Flag for clearing information about mode*/
@@ -143,7 +152,7 @@ public:
 	BCEngineMCMC(const char * name = "model");
 
 	/**
-	 * Default copy constructor. */
+	 * Copy constructor. */
 	BCEngineMCMC(const BCEngineMCMC & enginemcmc);
 
 	/**
@@ -151,8 +160,8 @@ public:
 	 * @param filename Path of file holding model.
 	 * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
 	 * if empty string is given, properly matching TTrees are searched for in the file.
-	 * @param reuseObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
-	BCEngineMCMC(std::string filename, std::string name, bool reuseObservables=true);
+	 * @param loadObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
+	BCEngineMCMC(std::string filename, std::string name, bool loadObservables=true);
 
 	/**
 	 * Destructor. */
@@ -520,15 +529,32 @@ public:
 	{ return fParameters; }
 
 	/**
+	 * @return Parameter set. */
+	BCParameterSet const & GetParameters() const
+	{ return fParameters; }
+
+	/**
 	 * @param index The index of the parameter in the parameter set.
 	 * @return The parameter. */
-	BCParameter * GetParameter(int index) const
+	BCParameter * GetParameter(int index)
+	{ return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
+
+	/**
+	 * @param index The index of the parameter in the parameter set.
+	 * @return The parameter. */
+	BCParameter const * GetParameter(int index) const
 	{ return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
 
 	/**
 	 * @param name The name of the parameter in the parameter set.
 	 * @return The parameter. */
-	BCParameter * GetParameter(const char * name) const
+	BCParameter * GetParameter(const char * name)
+	{ return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
+
+	/**
+	 * @param name The name of the parameter in the parameter set.
+	 * @return The parameter. */
+	BCParameter const * GetParameter(const char * name) const
 	{ return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
 
 	/**
@@ -552,15 +578,32 @@ public:
 	{ return fObservables; }
 
 	/**
+	 * @return Observable set. */
+	BCVariableSet const & GetObservables() const
+	{ return fObservables; }
+
+	/**
 	 * @param index The index of the observable in the observable set.
 	 * @return The user-defined observable. */
-	BCObservable * GetObservable(int index) const
+	BCObservable * GetObservable(int index)
+	{ return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
+
+	/**
+	 * @param index The index of the observable in the observable set.
+	 * @return The user-defined observable. */
+	BCObservable const * GetObservable(int index) const
 	{ return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
 
 	/**
 	 * @param name The name of the observable in the observable set.
 	 * @return The user-defined observable. */
-	BCObservable * GetObservable(const char * name) const
+	BCObservable * GetObservable(const char * name)
+	{ return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
+
+	/**
+	 * @param name The name of the observable in the observable set.
+	 * @return The user-defined observable. */
+	BCObservable const * GetObservable(const char * name) const
 	{ return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
 
 	/**
@@ -782,10 +825,6 @@ public:
 	{ fCorrectRValueForSamplingVariability = flag; }
 
 	/**
-	 * Initialize the trees containing the Markov chains and parameter info. */
-	virtual void InitializeMarkovChainTree(bool replacetree=false, bool replacefile=false);
-
-	/**
 	 * Set the precision for the MCMC run. */
 	void MCMCSetPrecision(BCEngineMCMC::Precision precision);
 
@@ -825,11 +864,8 @@ public:
 	 * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable). */
 	void WriteMarkovChain(std::string filename, std::string option);
 
-	/**
-	 * Write marginalization histograms to file. */
-	void WriteMarginalizedDistributions(std::string filename, std::string option);
-
 	/** @} */
+
 	/** \name Prior setting functions (all deprecated).
 	 * \brief The priors are not used for the likelihood calculation by
 	 * BCEngineMCMC, but are used for initializing the positions of the
@@ -949,14 +985,16 @@ public:
 	void SetPriorConstantAll()
 	{ fParameters.SetPriorConstantAll(); }
 
-	/** @} **/
-	/** \name Miscellaneous methods */
+	/** @} */
+	
+	/** \name Output functions */
 	/** @{ */
 
 	/**
-	 * Create histograms from parameter and observable sets.
-	 * @param rescale_ranges Rescale axis ranges to range reached by MCMC tree if true */
-	virtual void CreateHistograms(bool rescale_ranges=false);
+	 * Write marginalization histograms to file.
+	 * @param filename Path to write file to.
+	 * @param option Options passed to ROOT's TFile::Open. */
+	void WriteMarginalizedDistributions(std::string filename, std::string option);
 
 	/**
 	 * Prints a summary on the screen. */
@@ -964,14 +1002,14 @@ public:
 
 	/**
 	 * Prints a summary to a file.
+	 * @param file Path to file to print results to.
 	 * @return Success of action.*/
 	virtual bool PrintResults(const char * file) const;
 
 	/**
 	 * Print parameters
-	 * @P is a vector of the parameter values to be printed
-	 * @output is a pointer to the output function to be used,
-	 * which defaults to BCLog::OutSummary */
+	 * @param P vector of the parameter values to be printed
+	 * @param output pointer to the output function to be used, which defaults to BCLog::OutSummary */
 	void PrintParameters(std::vector<double> const & P, void (*output)(const char *) = BCLog::OutSummary) const;
 
 	/**
@@ -1004,18 +1042,37 @@ public:
 			
 	/**
 	 * Print a correlation matrix for the parameters.
+	 * @param filename Path to file to print correlation matrix to.
 	 * @return Success of action. */
 	bool PrintCorrelationMatrix(const char * filename = "matrix.pdf") const;
 			
 	/**
 	 * Print a correlation plot for the parameters.
+	 * @param filename Path to file to print correlation plot to.
+	 * @param include_observables Flag for including observables (default: true)
 	 * @return Success of action. */
 	bool PrintCorrelationPlot(const char * filename = "correlation.pdf", bool include_observables=true) const;
 			
 	/**
-	 * Print a Latex table of the parameters.
+	 * Print a LaTeX table of the parameters.
+	 * @param filename Path to file tp print LaTeX table of parameters to.
 	 * @return Success of action. */
 	bool PrintParameterLatex(const char * filename) const;
+
+	/** @} **/
+	/** \name Miscellaneous methods */
+	/** @{ */
+
+	/**
+	 * Create histograms from parameter and observable sets.
+	 * @param rescale_ranges Rescale axis ranges to range reached by MCMC tree if true */
+	virtual void CreateHistograms(bool rescale_ranges=false);
+
+	/**
+	 * Initialize the trees containing the Markov chains and parameter info.
+	 * @param replacetree Flag to delete and recreate tree object if already existing.
+	 * @param replacefile Flag to delete and recreate file object if already existing.*/
+	virtual void InitializeMarkovChainTree(bool replacetree=false, bool replacefile=false);
 
 	/**
 	 * Copy object
@@ -1063,19 +1120,20 @@ public:
 
 	/**
 	 * Evaluates user-defined observables at current state of chain
-	 * and stores results in fMCMCObservables*/
+	 * and stores results in fMCMCObservables
+	 * @param chain Chain to evaluate observables for. */
 	virtual void EvaluateObservables(unsigned chain);
 
 	/**
 	 * Evaluates user-defined observables To be overloaded by user
-	 * to calculate user-observables. */
+	 * to calculate user-observables.
+	 * @param pars Parameter set to evaluate observables for. */
 	virtual void CalculateObservables(const std::vector<double> &/*pars*/)
 	{}
 
 	/**
-	 * Random walk trial function. The default trial function is a
-	 * Breit-Wigner. It can be overloaded by the user to set the trial
-	 * function.
+	 * Random walk trial function. The default trial function is a Breit-Wigner.
+	 * It can be overloaded by the user to set the trial function.
 	 * @param ichain the chain index
 	 * @param x point with the dimension fMCMCNParameters */
 	virtual void MCMCTrialFunction(unsigned ichain, std::vector<double> &x);
@@ -1104,19 +1162,24 @@ public:
 	bool MCMCGetProposalPointMetropolis(unsigned chain, unsigned parameter, std::vector<double> &x);
 
 	/**
-	 * Generates a new point using the Metropolis algorithm.
-	 * @param chain chain index */
+	 * Generates a new point using the Metropolis algorithm for all chains.
+	 * @return Whether proposed point was accepted (true) or previous point was kept (false). */
 	bool MCMCGetNewPointMetropolis();
+
+	/** Generates a new point using the Metropolis algorithm for one chain.
+	 * @param chain chain index
+	 * @return Whether proposed point was accepted (true) or previous point was kept (false). */
 	bool MCMCGetNewPointMetropolis(unsigned chain);
+
+	/** Generates a new point using the Metropolis algorithm for one chain, varying only one parameter's value
+	 * @param chain chain index
+	 * @param parameter index of parameter to vary
+	 * @return Whether proposed point was accepted (true) or previous point was kept (false). */
 	bool MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter);
 
 	/**
 	 * Updates statistics: fill marginalized distributions */
 	void MCMCInChainFillHistograms();
-
-	// /**
-	//  * Updates statistics: check convergence */
-	// void MCMCInChainTestConvergenceAllChains();
 
 	/**
 	 * Updates statistics: write chains to file */
@@ -1124,6 +1187,7 @@ public:
 
 	/**
 	 * Needs to be overloaded in the derived class.
+	 * @param parameters Parameter set to evaluate at.
 	 * @return natural logarithm of the function to map with MCMC */
 	virtual double LogEval(const std::vector<double> & parameters) = 0;
 
@@ -1143,15 +1207,13 @@ public:
 	bool MCMCInitialize();
 
 	/**
-	 * Reset the MCMC variables.
-	 */
+	 * Reset the MCMC variables. */
 	virtual void ResetResults();
 
 	/**
-	 * Empty the sequence of parameters.
-	 *
-	 * @param hard Delete the parameters. @warning Could lead to problems if multiple modes use identical parameters.
-	 */
+	 * @deprecated Instead use GetParameters().Clear(hard)
+	 * Empty the parameter set.
+	 * @param hard Delete the parameters objects. */
 	void ClearParameters(bool hard=false)
 	{ fParameters.Clear(hard); }
 
@@ -1176,17 +1238,22 @@ public:
 	 * class
 	 * @param point point that was generated and checked
 	 * @param ichain index of the chain
-	 * @param accepted flag whether or not the point was accepted for the chain
-	 */
+	 * @param accepted flag whether or not the point was accepted for the chain */
 	virtual void MCMCCurrentPointInterface(std::vector<double> & /*point*/, int /*ichain*/, bool /*accepted*/)
 	{}
 
 	/**
-	 * Load parameters and observables from tree. */
-	virtual bool LoadParametersFromTree(TTree * partree, bool reuseObservables=true);
+	 * Load parameters and observables from tree.
+	 * @param partree Tree holding parameter information.
+	 * @param loadObservables Flag for whether to also load observables.
+	 * @return Success of action. */
+	virtual bool LoadParametersFromTree(TTree * partree, bool loadObservables=true);
 
 	/**
-	 * Check parameter tree against model. */
+	 * Check parameter tree against model.
+	 * @param partree Tree of parameters to check against model.
+	 * @param checkObservables Flag for whether to check observables.
+	 * @param Whether tree's parameters match those of model. */
 	virtual bool ParameterTreeMatchesModel(TTree * partree, bool checkObservables=true);
 
 	/**
@@ -1194,19 +1261,28 @@ public:
 	 * @param filename Pathname of file containing model trees.
 	 * @param mcmcTreeName Name of tree inside file containing MCMC, empty string (default) loads [modelname]_mcmc.
 	 * @param parameterTreeName Name of tree inside file containing parameter list, empty string (default) loads [modelname]_parameters.
-	 * @param reuseObservables Flag for whether to load observables from parameter list and MCMC trees. */
-	virtual bool LoadMCMC(std::string filename, std::string mcmcTreeName="", std::string parameterTreeName="", bool reuseObservables=true);
+	 * @param loadObservables Flag for whether to load observables from parameter list and MCMC trees. */
+	virtual bool LoadMCMC(std::string filename, std::string mcmcTreeName="", std::string parameterTreeName="", bool loadObservables=true);
 
 	/**
-	 * Load previous MCMC run. */
-	virtual bool LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObservables=true);
+	 * Load previous MCMC run.
+	 * @param mcmcTree Tree containing MCMC samples.
+	 * @param parTree Tree containing definition of parameters.
+	 * @param loadObservables Flag for whether to load observables.
+	 * @return Success of action. */
+	virtual bool LoadMCMC(TTree * mcmcTree, TTree * parTree, bool loadObservables=true);
 
 	/**
-	 * Check tree structure for MCMC tree. */
+	 * Check tree structure for MCMC tree.
+	 * @param tree MCMC Tree to check validity of.
+	 * @param checkObservables Flag for whether to check observables.
+	 * @return Validity of tree. */
 	virtual bool ValidMCMCTree(TTree * tree, bool checkObservables=true) const;
 
 	/**
-	 * Check tree structure for parameter tree. */
+	 * Check tree structure for parameter tree.
+	 * @param tree Parameter tree to check validity of.
+	 * @return Validty of tree. */
 	virtual bool ValidParameterTree(TTree * tree) const;
 
 	/**
@@ -1214,25 +1290,17 @@ public:
 	void MCMCCloseOutputFile();
 
 	/**
-	 * Marginalize from TTree. */
+	 * Marginalize from TTree.
+	 * @param autorange Flag for automatically choosing variable ranges to. */
 	virtual void Remarginalize(bool autorange=true);
 
 	/**
-	 * Estimate effective sample size. */
-	std::vector<std::vector<double> > EstimateEffectiveSampleSize(unsigned tMax=10);
-
-	/**
-	 * Calculcate evidnce. */
-	// virtual double CalculateEvidence(double epsilon=1e-2, unsigned NIterations=100000);
-
-	/**
-	 * Update cholesky-decompositions for multivariate proposal functio. */
+	 * Update cholesky-decompositions for multivariate proposal function. */
 	virtual bool UpdateCholeskyDecompositions();
 
 	/** @} */
 
 private:
-
 
 	/**
 	 * Defines a type of a pointer to a member function. */
@@ -1248,56 +1316,66 @@ private:
 	struct MCMCThreadLocalStorage
 	{
 		/**
-		 * Store local proposal point
-		 */
+		 * Store local proposal point  */
 		std::vector<double> xLocal;
 				
 		/**
-		 * Random number generator
-		 */
+		 * Random number generator */
 		TRandom3 * rng;
 
 		/**
-		 * ctor
-		 * @param dim Dimension of a temporary parameter vector
-		 */
+		 * Constructor
+		 * @param dim Dimension of a temporary parameter vector */
 		MCMCThreadLocalStorage(const unsigned & dim);
 
+		/**
+		 * Copy constructor. */
 		MCMCThreadLocalStorage(const MCMCThreadLocalStorage & other);
 
+		/**
+		 * Assignment operator */
 		MCMCThreadLocalStorage & operator = (const MCMCThreadLocalStorage & other);
 
+		/**
+		 * Destructor */
 		virtual ~MCMCThreadLocalStorage();
 	};
 
 	/**
-	 * Keep thread local variables private.
-	 */
+	 * Keep thread local variables private. */
 	std::vector<MCMCThreadLocalStorage> fMCMCThreadLocalStorage;
 
 	/**
-	 * Ensure that there are as many storages as chains
-	 */
+	 * Ensure that there are as many storages as chains */
 	void SyncThreadStorage();
 
 protected:
 
 	/**
-	 * Print model summary to stream. */
+	 * Print model summary to stream.
+	 * @param ofi Output stream to print to. */
 	virtual void PrintSummaryToStream(std::ofstream & ofi) const;
 
 	/**
-	 * Print best fit to stream. */
+	 * Print best fit to stream.
+	 * @param ofi Output stream to print to. */
 	virtual void PrintBestFitToStream(std::ofstream & ofi) const;
 
 	/**
-	 * Print marginalization to stream. */
+	 * Print marginalization to stream.
+	 * @param ofi Output stream to print to. */
 	virtual void PrintMarginalizationToStream(std::ofstream & ofi) const;
 
 	/**
 	 * Update Paramater TTree with scales and efficiencies. */
 	void UpdateParameterTree();
 
+	/**
+	 * return appropriate update interval
+	 * @param N total number of iterations to be accomplished.
+	 * @return Appropriate interval to output after. */
+	unsigned  UpdateFrequency(unsigned N) const;
+    
 	/**
 	 * Name of the engine. */
 	std::string fName;
@@ -1306,10 +1384,6 @@ protected:
 	 * Safe name of the engine for use in naming ROOT objects. */
 	std::string fSafeName;
 
-	/**
-	 * return appropriate update interval */
-	unsigned  UpdateFrequency(unsigned N) const;
-    
 	/**
 	 * Parameter settings */
 	BCParameterSet fParameters;
@@ -1475,9 +1549,8 @@ protected:
 	 * Flag for using multivariate proposal function. */
 	bool fMCMCMultivariateProposalFunction;
 
-	/**i
-	 * The phase of the run.
-	 */
+	/**
+	 * The phase of the run. */
 	BCEngineMCMC::MCMCPhase fMCMCPhase;
 
 	/**
@@ -1523,8 +1596,7 @@ protected:
 	std::vector<double> fMCMCLogPrior_Provisional;
 
 	/**
-	 * flag for correcting R value for initial sampling variability.
-	 */
+	 * flag for correcting R value for initial sampling variability. */
 	bool fCorrectRValueForSamplingVariability;
 
 	/**
@@ -1547,8 +1619,11 @@ protected:
 	TRandom3 * fRandom;
 
 	/**
-	 * An array of marginalized distributions */
+	 * Array of 1D marginalized distributions */
 	std::vector<TH1*>               fH1Marginalized;
+
+	/**
+	 * Array of 2D marginalized distributions. */
 	std::vector<std::vector<TH2*> > fH2Marginalized;
 
 	/**
@@ -1563,15 +1638,13 @@ protected:
 	 * flag for whether to reuse MCMC Tree's observables. */
 	bool fMCMCTreeReuseObservables;
 
-	/**
-	 * fMCMCTree's variables. */
-	unsigned int fMCMCTree_Chain;
-	unsigned int fMCMCTree_Iteration;
-	double fMCMCTree_Prob;
-	double fMCMCTree_LogLikelihood;
-	double fMCMCTree_LogPrior;
-	std::vector<double> fMCMCTree_Parameters;
-	std::vector<double> fMCMCTree_Observables;
+	unsigned int fMCMCTree_Chain;			///< (For writing to fMCMCTree) chain number
+	unsigned int fMCMCTree_Iteration;	///< (For writing to fMCMCTree) iteration number
+	double fMCMCTree_Prob;						///< (For writing to fMCMCTree) log(posterior)
+	double fMCMCTree_LogLikelihood;		///< (For writing to fMCMCTree) log(likelihood)
+	double fMCMCTree_LogPrior;				///< (For writing to fMCMCTree) log(prior)
+	std::vector<double> fMCMCTree_Parameters;	///< (For writing to fMCMCTree) parameter set
+	std::vector<double> fMCMCTree_Observables; ///< (For writing to fMCMCTree) observable set
 
 	/**
 	 * The tree containing the parameter information.*/
@@ -1596,14 +1669,6 @@ protected:
 	/**
 	 * factor for enlarging range of histograms when rescaling. */
 	double fHistogramRescalePadding;
-
-	// /**
-	//  * Evidence */
-	// double fEvidence;
-
-	// /** 
-	//  * Uncertainty on evidence */
-	// double fEvidenceUncertainty;
 
 };
 

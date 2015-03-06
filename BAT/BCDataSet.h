@@ -53,7 +53,7 @@ public:
 	/** @{ */
 	
 	/**
-	 * Defaut assignment operator */
+	 * Assignment operator */
 	BCDataSet & operator = (const BCDataSet & bcdataset)
 	{ Copy(bcdataset); return *this; }
 	
@@ -132,10 +132,9 @@ public:
 	 * Return wether data axis is fixed
 	 * @param index Index of axis to query
 	 * @return Whether data axis is fixed. */
-	bool IsFixed(unsigned index)
+	bool IsFixed(unsigned index) const
 	{ return (index < fFixed.size() and fFixed[index]); }
 	
-
 	/** @} */
 
 	/** \name Setters */

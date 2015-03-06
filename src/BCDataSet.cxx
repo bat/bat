@@ -24,8 +24,7 @@
 #include <math.h>
 
 // ---------------------------------------------------------
-BCDataSet::BCDataSet(unsigned n)
-{
+BCDataSet::BCDataSet(unsigned n) {
 	SetNValuesPerPoint(n);
 }
 

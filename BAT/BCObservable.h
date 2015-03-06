@@ -58,6 +58,7 @@ public:
 	 * Destructor */
 	virtual ~BCObservable();
 
+	/** @} */
 
 	/** \name Member functions (get) */
 	/** @{ */
@@ -80,12 +81,6 @@ public:
 
 	/** @} */
 	
-
-	/** \name Member functions (miscellaneous methods) */
-	/** @{ */
-
-	/** @} */
-
 private:
 
 	double * fObservableValue;

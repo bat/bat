@@ -40,36 +40,34 @@ class BCH1D;
 class BCH2D;
 class BCPriorModel;
 
-
-const int MAXNDATAPOINTVALUES = 20;
-
 // ---------------------------------------------------------
 
 class BCModel : public BCIntegrate {
 
- public:
+public:
 
 	/** \name Enumerators  */
 	/** @{ */
 
 	/** An enumerator for the knowledge update drawing style presets. */
 	enum BCKnowledgeUpdateDrawingStyle {
-		kKnowledgeUpdateDefaultStyle      = 0,
-		kKnowledgeUpdateDetailedPosterior = 1,
-		kKnowledgeUpdateDetailedPrior     = 2
+		kKnowledgeUpdateDefaultStyle      = 0, ///< Simple line-drawn histograms
+		kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlayed line
+		kKnowledgeUpdateDetailedPrior     = 2	 ///< Prior drawn with detailed info, posterior drawn as overladed line
 	};
 
 	/** @} */
+
 	/** \name Constructors and destructors */
 	/** @{ */
 
 	/**
-	 * A constructor.
+	 * Default constructor.
 	 * @param name The name of the model */
 	BCModel(const char * name="model");
 
 	/**
-	 * The copy constructor. */
+	 * Copy constructor. */
 	BCModel(const BCModel & bcmodel);
 
 	/**
@@ -81,7 +79,7 @@ class BCModel : public BCIntegrate {
 	BCModel(std::string filename, std::string name, bool reuseObservables=true);
 
 	/**
-	 * The default destructor. */
+	 * Destructor. */
 	virtual ~BCModel();
 
 	/** @} */
@@ -89,27 +87,17 @@ class BCModel : public BCIntegrate {
 	/** @{ */
 
 	/**
-	 * Defaut assignment operator */
+	 * Assignment operator */
 	BCModel & operator = (const BCModel & bcmodel)
-		{ Copy(bcmodel); return *this; }
+	{ BCIntegrate::Copy(bcmodel); Copy(bcmodel); return *this; }
 
 	/** @} */
 	/** \name Member functions (get) */
 	/** @{ */
 
 	/**
-	 * @return The a priori probability. */
-	double GetModelAPrioriProbability() const
-	{ return fModelAPriori; }
-
-	/**
-	 * @return The a posteriori probability. */
-	double GetModelAPosterioriProbability() const
-	{ return fModelAPosteriori; }
-
-	/**
 	 * @return The data set. */
-	BCDataSet* GetDataSet() const
+	BCDataSet * GetDataSet()
 	{ return fDataSet; }
 
 	/**
@@ -158,20 +146,6 @@ class BCModel : public BCIntegrate {
 	/** @{ */
 
 	/**
-	 * Sets the a priori probability for a model.
-	 * @param model The model
-	 * @param probability The a priori probability */
-	void SetModelAPrioriProbability(double probability)
-	{ fModelAPriori = probability; }
-
-	/**
-	 * Sets the a posteriori probability for a model.
-	 * @param model The model
-	 * @param probability The a posteriori probability */
-	void SetModelAPosterioriProbability(double probability)
-	{ fModelAPosteriori = probability; }
-
-	/**
 	 * Sets the data set. Model does not own data set!
 	 * @param dataset A data set */
 	void SetDataSet(BCDataSet* dataset)
@@ -194,14 +168,14 @@ class BCModel : public BCIntegrate {
 	/**
 	 * Copy from object
 	 * @param bcmodel Object to copy from. */
-	void Copy(const BCModel & bcmodel);
+	virtual void Copy(const BCModel & bcmodel);
 
 	/**
 	 * Returns the prior probability.
 	 * @param parameters A set of parameter values
 	 * @return The prior probability p(parameters)
 	 * @see GetPrior(std::vector<double> parameters) */
-	double APrioriProbability(const std::vector<double> &parameters)
+	virtual double APrioriProbability(const std::vector<double> &parameters)
 	{ return exp(this->LogAPrioriProbability(parameters)); }
 	
 	/**
@@ -232,7 +206,7 @@ class BCModel : public BCIntegrate {
 	 * Returns the likelihood times prior probability given a set of parameter values
 	 * @param params A set of parameter values
 	 * @return The likelihood times prior probability */
-	double ProbabilityNN(const std::vector<double> &params)
+	virtual double ProbabilityNN(const std::vector<double> &params)
 	{ return exp(LogProbabilityNN(params)); }
 
 	/**
@@ -240,21 +214,20 @@ class BCModel : public BCIntegrate {
 	 * a set of parameter values
 	 * @param parameters A set of parameter values
 	 * @return The likelihood times prior probability */
-	double LogProbabilityNN(const std::vector<double> &parameters);
-
+	virtual double LogProbabilityNN(const std::vector<double> &parameters);
 
 	/**
 	 * Returns the a posteriori probability given a set of parameter values
 	 * @param parameters A set of parameter values
 	 * @return The a posteriori probability */
-	double Probability(const std::vector<double> &parameter)
+	virtual double Probability(const std::vector<double> &parameter)
 	{ return exp(LogProbability(parameter)); }
 
 	/**
 	 * Returns natural logarithm of the  a posteriori probability given a set of parameter values
 	 * @param parameters A set of parameter values
 	 * @return The a posteriori probability */
-	double LogProbability(const std::vector<double> &parameter);
+	virtual double LogProbability(const std::vector<double> &parameter);
 
 	/**
 	 * Sampling function used for importance sampling.
@@ -315,23 +288,13 @@ class BCModel : public BCIntegrate {
 	 * @return An error flag. */
 	virtual int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", unsigned hdiv=1, unsigned vdiv=1, bool flag_slice=false, bool call_likelihood=false);
 
-
 	/** @} */
 
- protected:
-	/**
-	 * The model prior probability. */
-	double fModelAPriori;
-
-	/**
-	 * The model a posteriori probability. */
-	double fModelAPosteriori;
+protected:
 
 	/**
 	 * A data set */
 	BCDataSet * fDataSet;
-
-	std::vector<bool> fDataFixedValues;
 
 	/**
 	 * BCPriorModel object for drawing of knowledge update, and saving of samples according to prior.*/

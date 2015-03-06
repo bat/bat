@@ -82,8 +82,6 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 	, fBCH2DdrawingOptions(new BCH2D)
 	, fRescaleHistogramRangesAfterPreRun(false)
 	, fHistogramRescalePadding(0.1)
-	// , fEvidence(-1)
-	// , fEvidenceUncertainty(-1)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -92,7 +90,7 @@ BCEngineMCMC::BCEngineMCMC(const char * name)
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObservables)
+BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObservables)
 	: fMCMCFlagWriteChainToFile(false)
 	, fMCMCFlagWritePreRunToFile(false)
 	, fMCMCOutputFile(0)
@@ -122,13 +120,11 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool reuseObs
 	, fBCH2DdrawingOptions(new BCH2D)
 	, fRescaleHistogramRangesAfterPreRun(false)
 	, fHistogramRescalePadding(0.1)
-	// , fEvidence(-1)
-	// , fEvidenceUncertainty(-1)
 {
 	SetName(name);
 	MCMCSetPrecision(BCEngineMCMC::kMedium);
 	MCMCSetRandomSeed(0);
-	LoadMCMC(filename,"","",reuseObservables);
+	LoadMCMC(filename,"","",loadObservables);
 	PartnerUp(&fParameters,&fObservables);
 }
 
@@ -159,7 +155,6 @@ BCEngineMCMC::~BCEngineMCMC() {
 	delete fBCH1DdrawingOptions;
 	delete fBCH2DdrawingOptions;
 }
-
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SetName(const char * name) {
@@ -398,9 +393,6 @@ void BCEngineMCMC::Copy(const BCEngineMCMC & other) {
 	fLocalModes            = other.fLocalModes;
 	fBCH1DdrawingOptions -> CopyOptions(*(other.fBCH1DdrawingOptions));
 	fBCH2DdrawingOptions -> CopyOptions(*(other.fBCH2DdrawingOptions));
-
-	// fEvidence            = other.fEvidence;
-	// fEvidenceUncertainty = other.fEvidenceUncertainty;
 }
 
 // --------------------------------------------------------
@@ -782,6 +774,7 @@ bool BCEngineMCMC::ValidMCMCTree(TTree * tree, bool checkObservables) const {
 	if (!(tree->GetBranch("Phase")))
 		return false;
 
+	// The following are not necessary for loading in the MCMC tree for further use
 	// if (!(tree->GetBranch("Iteration")))
 	// 	return false;
 	// if (!(tree->GetBranch("LogProbability")))
@@ -819,6 +812,7 @@ bool BCEngineMCMC::ValidParameterTree(TTree * tree) const {
 	if (!(tree->GetBranch("upper_limit")))
 		return false;
 
+	// The following are not necessary for loading in a parameter tree for further use
 	// if (!(tree->GetBranch("safe_name")))
 	// 	return false;
 	// if (!(tree->GetBranch("latex_name")))
@@ -844,7 +838,7 @@ bool BCEngineMCMC::ValidParameterTree(TTree * tree) const {
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables) {
+bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool loadObservables) {
 	bool p_fill_1d = true;
 	bool p_fill_2d = true;
 	bool p_fixed = false;
@@ -894,7 +888,7 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree * partree, bool reuseObservables
 	}
 
 	// load user-defined observables
-	if (!reuseObservables)
+	if (!loadObservables)
 		return true;
 	fObservables.Clear(true);
 	i = 0;
@@ -978,7 +972,7 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree * partree, bool checkObservab
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std::string parameterTreeName, bool reuseObservables) {
+bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables) {
 	// save current directory
 	TDirectory * dir = gDirectory;
 
@@ -1054,13 +1048,13 @@ bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std:
 		BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s",filename.data(),mcmcTreeName.data()));
 	
 	gDirectory = dir;
-	return LoadMCMC(mcmcTree,parTree,reuseObservables);
+	return LoadMCMC(mcmcTree,parTree,loadObservables);
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(TTree * mcmcTree, TTree * parTree, bool reuseObservables) {
+bool BCEngineMCMC::LoadMCMC(TTree * mcmcTree, TTree * parTree, bool loadObservables) {
 	fMCMCTreeLoaded = false;
-	fMCMCTreeReuseObservables = reuseObservables;
+	fMCMCTreeReuseObservables = loadObservables;
 
 	if (!mcmcTree or !parTree)
 		return false;
@@ -1246,255 +1240,6 @@ void BCEngineMCMC::Remarginalize(bool autorange) {
 	for (unsigned c=0; c<fMCMCNChains; ++c)
 		fMCMCStatistics_AllChains += fMCMCStatistics[c];
 }
-
-// --------------------------------------------------------
-std::vector<std::vector<double> > BCEngineMCMC::EstimateEffectiveSampleSize(unsigned tMax) {
-	// needs
-	// tree
-
-	// calculate variance estimators:
-	std::vector<double> variance_estimators(GetNParameters(),0);
-	// if (fMCMCStatistics.empty())
-	// 	return NEFF;
-	if (fMCMCStatistics.size()==1) {
-		variance_estimators.assign(fMCMCStatistics[0].variance.begin(),fMCMCStatistics[0].variance.begin()+GetNParameters());
-	} else {
-		std::vector<double> means_of_variances(GetNParameters(),0);
-		std::vector<double> means_of_means(GetNParameters(),0);
-		for (unsigned c=0; c<fMCMCStatistics.size(); ++c)
-			for (unsigned p=0; p<GetNParameters(); ++p) {
-				means_of_variances[p] += fMCMCStatistics[c].variance[p] / fMCMCStatistics.size();
-				means_of_means[p] = fMCMCStatistics[c].mean[p] / fMCMCStatistics.size();
-			}
-		std::vector<double> variances_of_means(GetNParameters(),0);
-		for (unsigned p=0; p<GetNParameters(); ++p) {
-			if (GetParameter(p)->Fixed())
-				continue;
-			for (unsigned c=0; c<fMCMCStatistics.size(); ++c)
-				variances_of_means[p] += (fMCMCStatistics[c].mean[p]-means_of_means[p])*(fMCMCStatistics[c].mean[p]-means_of_means[p]) / (fMCMCStatistics.size()-1);
-			variance_estimators[p] = means_of_variances[p] + variances_of_means[p];
-		}
-	}
-	
-	// connect to tree
-	fMCMCTree -> SetBranchAddress("Phase", &fMCMCPhase);
-	fMCMCTree -> SetBranchAddress("LogProbability",&fMCMCTree_Prob);
-	fMCMCTree -> SetBranchAddress("Chain", &fMCMCTree_Chain);
-	fMCMCTree -> SetBranchAddress("Iteration",&fMCMCTree_Iteration);
-	fMCMCTree_Parameters.assign(GetNParameters(),0.);
-	for (unsigned i=0; i<GetNParameters(); ++i)
-		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
-
-	// find first main run entry
-	int n = 0;
-	for (; n<fMCMCTree->GetEntries(); ++n) {
-		fMCMCTree -> GetEntry(n);
-		if (fMCMCPhase == BCEngineMCMC::kMCMCMainRun)
-			break;
-	}
-	
-	// create buffers of last tMax entries:
-	std::vector<std::deque<std::vector<double> > > buffer (fMCMCNChains,std::deque<std::vector<double> >());
-	// fill buffers:
-	for (; n<fMCMCTree->GetEntries() and buffer.back().size()<tMax; ++n) {
-		fMCMCTree -> GetEntry(n);
-		buffer[fMCMCTree_Chain].push_front(fMCMCTree_Parameters);
-	}
-	
-	std::vector<std::vector<std::vector<double> > > C (fMCMCNChains,std::vector<std::vector<double> >(tMax,std::vector<double>(GetNParameters(),0)));
-	std::vector<std::vector<std::vector<double> > > V (fMCMCNChains,std::vector<std::vector<double> >(tMax,std::vector<double>(GetNParameters(),0)));
-	std::vector<unsigned> nIterations (fMCMCNChains,0);
-	for (; n<fMCMCTree->GetEntries(); ++n) {
-		fMCMCTree->GetEntry(n);
-		for (unsigned t=0; t<tMax; ++t)
-			for (unsigned p=0; p<GetNParameters(); ++p) {
-				C[fMCMCTree_Chain][t][p] += fMCMCTree_Parameters[p] * buffer[fMCMCTree_Chain][t][p];
-				V[fMCMCTree_Chain][t][p] += (fMCMCTree_Parameters[p] - buffer[fMCMCTree_Chain][t][p])*(fMCMCTree_Parameters[p] - buffer[fMCMCTree_Chain][t][p]);
-			}
-		buffer[fMCMCTree_Chain].push_front(fMCMCTree_Parameters);
-		buffer[fMCMCTree_Chain].pop_back();
-		nIterations[fMCMCTree_Chain] += 1;
-	}
-
-	std::vector<std::vector<double> > NEFF(fMCMCNChains+1, std::vector<double>(GetNParameters(),0));
-	for (unsigned c=0; c<fMCMCNChains; ++c) {
-		for (unsigned p=0; p<GetNParameters(); ++p)
-			if (!GetParameter(p)->Fixed()) {
-				for (unsigned t=0; t<tMax; ++t)
-					NEFF[c][p] += (C[c][t][p]/nIterations[c] - fMCMCStatistics[c].mean[p]) / fMCMCStatistics[c].variance[p];
-				NEFF[c][p] = nIterations[c] / (1+2*NEFF[c][p]);
-			}
-	}
-
-	for (unsigned p=0; p<GetNParameters(); ++p)
-		if (!GetParameter(p)->Fixed()) {
-			for (unsigned t=0; t<tMax; ++t) {
-				double rho_t = 0;
-				for (unsigned c=0; c<fMCMCNChains; ++c)
-					rho_t += V[c][t][p] / nIterations[c] / fMCMCNChains;
-				rho_t = 1 - rho_t / 2 / variance_estimators[p];
-				if (rho_t<0)
-					break;
-				NEFF[fMCMCNChains][p] += rho_t;
-			}
-			NEFF[fMCMCNChains][p] = fMCMCNChains*nIterations[0] / (1 + NEFF[fMCMCNChains][p]);
-		}
-	return NEFF;
-}
-
-
-// // --------------------------------------------------------
-// double BCEngineMCMC::CalculateEvidence(double epsilon, unsigned NIterations) {
-// 	// needs:
-// 	// free parameters
-// 	// tree
-// 	// fMCMCStatitics_AllChains
-// 	// to do: check that no parameter was fixed since running chain
-	
-// 	double delta = 3;
-// 	unsigned K = 100;
-
-// 	(void)NIterations;
-
-// 	// connect to tree
-// 	fMCMCTree -> SetBranchAddress("Phase", &fMCMCPhase);
-// 	fMCMCTree -> SetBranchAddress("LogProbability",&fMCMCTree_Prob);
-// 	fMCMCTree -> SetBranchAddress("Chain", &fMCMCTree_Chain); 
-// 	fMCMCTree_Parameters.assign(GetNParameters(),0);
-// 	for (unsigned i=0; i<GetNParameters(); ++i)
-// 		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
-
-// 	// find first main run entry
-// 	int entry0 = 0;
-// 	for (int n=0; n<fMCMCTree->GetEntries(); ++n) {
-// 		fMCMCTree -> GetEntry(n);
-// 		if (fMCMCPhase == BCEngineMCMC::kMCMCMainRun) {
-// 			entry0 = n;
-// 			break;
-// 		}
-// 	}
-
-// 	// calculate effective sample size:
-// 	std::vector<double> rho1(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-// 	std::vector<double> previous_point(fMCMCNChains,std::vector<double>(GetNParameters(),0));
-// 	std::vector<unsigned> niterations(fMCMCNChains,0);
-// 	for (int n=entry0; n<fMCMCTree->GetEntries(); ++n) {
-// 		fMCMCTree->GetEntry(n);
-// 		for (unsigned p=0; p<GetNParameters(); ++p)													
-// 			rho1[fMCMCTree_Chain][p] += fMCMCTree_Parameters[p]*previous_point[fMCMCTree_Chain][p];
-// 		niterations[fMCMCTree_Chain] += 1;
-// 	}
-// 	std::vector<double> ess(fMCMCNChains,0);
-// 	std::vector<double> var(fMCMCNChains,0);
-// 	double ESS = 0;
-// 	for (unsigned c=0; c<fMCMCNChains; ++c) {
-// 		for (unsigned p=0; p<GetNParameters(); ++p) {
-// 			rho1[c][p] = rho1[c][p]/(niterations[c]-1) - fMCMCStatistics[c].mean[p]*fMCMCStatistics[c].mean[p];
-// 			var[c] += fMCMCStatistics[c].variance[p];
-// 			ess[c] += rho1[c][p];
-// 		}
-// 		ess[c] = niterations[c]*1./(1+2*ess[c]/var[c]);
-// 		ESS += ess[c];
-// 	}
-// 	ESS *= 1./fMCMCNChains;
-		
-// 	double estimator = 1. / (1 + ESS*epsilon*epsilon/2.);
-// 	double est = 0;
-// 	double delta = 0;
-// 	double l = 1;
-// 	while (est < estimator) {
-// 		delta *= l/100;
-		
-// 	}
-
-// 	// store ranges and define new ranges
-// 	std::vector<std::pair<double,double> > bounds;
-// 	for (unsigned i=0; i<GetNParameters(); ++i) {
-// 		bounds.push_back(std::make_pair(GetParameter(i)->GetLowerLimit(),GetParameter(i)->GetUpperLimit()));
-// 		if (GetParameter(i)->Fixed())
-// 			continue;
-// 		double delta_s = delta * sqrt(fMCMCStatistics_AllChains.variance[i]);
-// 		GetParameter(i) -> SetLimits(std::max<double>(GetParameter(i)->GetLowerLimit(),fMCMCStatistics_AllChains.mean[i]-delta_s)
-// 																 std::min<double>(GetParameter(i)->GetUpperLimit(),fMCMCStatistics_AllChains.mean[i]+delta_s));							 
-// 	}
-// 	double subvolume = GetParameters().Volume();
-	
-// 	// calculate effective sample size 
-// 	// and count samples inside new range
-// 	fMCMCTree -> SetBranchAddress("Phase", &fMCMCPhase);
-// 	fMCMCTree -> SetBranchAddress("LogProbability",&fMCMCTree_Prob);
-// 	fMCMCTree_Parameters.assign(GetNParameters(),0);
-// 	for (unsigned i=0; i<GetNParameters(); ++i)
-// 		fMCMCTree -> SetBranchAddress(GetParameter(i)->GetSafeName().data(),&fMCMCTree_Parameters[i]);
-
-// 	unsigned N = 0;
-// 	unsigned N_in = 0;
-
-// 	double rho = 0;
-// 	std::vector<double> prev_pars;
-// 	prev_pars.reserve(GetNParameters());
-
-// 	// Harmonic Mean Estimate integral
-// 	double I_HME = 0;
-// 	std::vector<double> I_HME_batches (K,0);
-
-// 	unsigned k=0;
-// 	for (int i=0; i<fMCMCTree->GetEntries(); ++i) {
-// 		fMCMCTree -> GetEntry(i);
-
-// 		if (fMCMCPhase != BCEngineMCMC::kMCMCMainRun)
-// 			continue;
-
-// 		// if parameter point is withing subrange
-// 		if (GetParameters().IsWithinLimits(fMCMCTree_Parameters,true,false)) {
-// 			N_in += 1;
-			
-// 			// contribute to calculation of Harmonic Mean Estimate integral
-// 			I_HME += exp(-fMCMCTree_Prob);
-// 			I_HME_batches[k] += exp(-fMCMCTree_Prob);
-// 			k = k+1 % K;
-// 		}
-// 		N += 1;
-
-// 		if (!prev_pars.empty())
-// 			for (unsigned j=0; j<GetNParameters(); ++j) {
-// 				if (GetParameter(j)->Fixed())
-// 					continue;
-// 				rho += fMCMCTree_Parameters
-
-// 		prev_pars = fMCMCTree_Parameters;
-// 	}
-// 	double samples_ratio = N_in * 1./N;
-
-// 	// HME integral:
-// 	I_HME = N * subvolume / I_HME;
-// 	// HME integral uncertainty:
-// 	double avg = 0;
-// 	for (unsigned i=0; i<I_HME_batches.size(); ++i)
-// 		avg += 1./I_HME_batches[i];
-// 	avg *= 1./I_HME_batches.size();
-// 	double I_HME_uncertainty = 0;
-// 	for (unsigned i=0; i<I_HME_batches.size(); ++i)
-// 		I_HME_uncertainty += (1./I_HME_batches[i] - avg) * (1./I_HME_batches[i] - avg);
-// 	I_HME_uncertainty = sqrt(I_HME_uncertainty / (I_HME_batches.size()-1)) * N * subvolume;
-
-// 	// importance sampling intergration
-// 	double mean = 0;
-// 	for (unsigned n=1; n<=NIterations; ++n) {
-// 		double val = exp(LogEval(GetParameters().GetUniformRandomValues(fRandom,true)));
-// 		mean += (val-mean)/n;
-// 	}
-// 	double subvolume_integral = mean*subvolume;
-
-// 	// store evidence
-// 	fEvidence = subvolume_integral / samples_ratio;
-
-// 	// restore ranges:
-// 	for (unsigned i=0; i<GetNParameters(); ++i)
-// 		GetParameter(i) -> SetRange(bounds[i].first,bounds[i].second);
-		
-// 	return 0;
-// }
 
 // --------------------------------------------------------
 bool BCEngineMCMC::UpdateCholeskyDecompositions() {

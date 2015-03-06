@@ -950,10 +950,9 @@ TH2 * BCIntegrate::GetSlice(unsigned index1, unsigned index2, double & log_max_v
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::GetRandomPoint(std::vector<double> &x)
-{
-   GetRandomVectorInParameterSpace(x);
-   return Eval(x);
+double BCIntegrate::GetRandomPoint(std::vector<double> &x) {
+	GetRandomVectorInParameterSpace(x);
+	return Eval(x);
 }
 
 // ---------------------------------------------------------

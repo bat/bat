@@ -122,12 +122,12 @@ public:
 
 	/**
 	 * @return whether to fill 1D histogram. */
-	virtual bool FillH1()
+	virtual bool FillH1() const
 	{ return fFillH1; }
 
 	/**
 	 * @return whether to fill 2D histograms. */
-	virtual bool FillH2()
+	virtual bool FillH2() const
 	{ return fFillH2; }
 
 	/**

@@ -297,31 +297,13 @@ int BCFitter::ReadErrorBandFromFile(const char * file)
 }
 
 // ---------------------------------------------------------
-void BCFitter::FixDataAxis(unsigned int index, bool fixed)
-{
-   // check if index is within range
-   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutError("BCFitter::FixDataAxis : Index out of range.");
-      return;
-   }
-
-   if (fDataFixedValues.size() == 0)
-      fDataFixedValues.assign(fDataSet->GetDataPoint(0)->GetNValues(),
-            false);
-
-   fDataFixedValues[index] = fixed;
+void BCFitter::FixDataAxis(unsigned int index, bool fixed) {
+	fDataSet -> Fix(index,fixed);
 }
 
 // ---------------------------------------------------------
-bool BCFitter::GetFixedDataAxis(unsigned int index) const
-{
-   // check if index is within range
-   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutError("BCFitter::GetFixedDataAxis : Index out of range.");
-      return false;
-   }
-
-   return fDataFixedValues[index];
+bool BCFitter::GetFixedDataAxis(unsigned int index) const {
+	return fDataSet -> IsFixed(index);
 }
 
 // ---------------------------------------------------------

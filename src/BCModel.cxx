@@ -45,8 +45,6 @@
 // ---------------------------------------------------------
 BCModel::BCModel(const char * name)
 	: BCIntegrate(name)
-  , fModelAPriori(0)
-  , fModelAPosteriori(0)
   , fDataSet(0)
 	, fPriorModel(0)
 	, fBCH1DPriorDrawingOptions(new BCH1D)
@@ -62,8 +60,6 @@ BCModel::BCModel(const char * name)
 // ---------------------------------------------------------
 BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
 	: BCIntegrate(name.data())
-  , fModelAPriori(0)
-  , fModelAPosteriori(0)
   , fDataSet(0)
 	, fPriorModel(0)
 	, fBCH1DPriorDrawingOptions(new BCH1D)
@@ -105,8 +101,6 @@ void BCModel::Copy(const BCModel & bcmodel)
    //  called for the second time in copy constructor? do copy-and-swap instead
    //   BCIntegrate::Copy(bcmodel);
    fName                            = bcmodel.fName;
-   fModelAPriori                    = bcmodel.fModelAPriori;
-   fModelAPosteriori                = bcmodel.fModelAPosteriori;
 	 fDataSet                         = bcmodel.fDataSet;
 
 	 fBCH1DPriorDrawingOptions -> CopyOptions(*(bcmodel.fBCH1DPriorDrawingOptions));

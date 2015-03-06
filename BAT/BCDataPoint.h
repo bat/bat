@@ -50,6 +50,7 @@ public:
 	BCDataPoint(const BCDataPoint & other); 
 	
 	/** @} */
+
 	/** \name Member functions (get) */
 	/** @{ */
 	
@@ -98,7 +99,8 @@ public:
 	/** @{ */
 	
 	/**
-	 * Copy a data point. */
+	 * Copy from other data point.
+	 * @param other Data point to copy*/
 	void Copy(const BCDataPoint & other)
 	{ fData = other.fData; }
 	
