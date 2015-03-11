@@ -94,3 +94,7 @@ install-data-hook:
 	@echo
 	@echo "   ============================================================"
 	@echo
+
+.PHONY: format
+format:
+	astyle --options=tools/astylerc --exclude='tools' --recursive '*.C' '*.cxx' '*.h'
