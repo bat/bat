@@ -33,19 +33,19 @@ void Pol2Asymm::DefineParameters()
     // CPU time expensive and therefore not recommended in routines
     // called for every iteration, like LogLikelihood() or
     // LogAPrioriProbability()
-    this -> AddParameter("p0",  0.  ,  2.2);    // index 0
-    this -> AddParameter("p1", -0.1 ,  0.05);  // index 1
-    this -> AddParameter("p2",  0.0 ,  0.001); // index 2
+    this->AddParameter("p0",  0.  ,  2.2);    // index 0
+    this->AddParameter("p1", -0.1 ,  0.05);  // index 1
+    this->AddParameter("p2",  0.0 ,  0.001); // index 2
 
     // Print parameter summary
     BCLog::OutSummary(
-        Form("Model \'%s\' has %d parameters:", this->GetName().data(), this -> GetNParameters()));
-    for (unsigned int i = 0; i < this -> GetNParameters(); i++)
+        Form("Model \'%s\' has %d parameters:", this->GetName().data(), this->GetNParameters()));
+    for (unsigned int i = 0; i < this->GetNParameters(); i++)
         BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
                                i,
-                               this -> GetParameter(i) -> GetName().data(),
-                               this -> GetParameter(i) -> GetLowerLimit(),
-                               this -> GetParameter(i) -> GetUpperLimit() ) );
+                               this->GetParameter(i)->GetName().data(),
+                               this->GetParameter(i)->GetLowerLimit(),
+                               this->GetParameter(i)->GetUpperLimit() ) );
 }
 
 // ---------------------------------------------------------

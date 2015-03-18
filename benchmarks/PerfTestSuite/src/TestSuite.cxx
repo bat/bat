@@ -81,7 +81,7 @@ PerfTest* TestSuite::GetTest(std::string name)
 
     // loop over all subtests and compare status
     for (int i = 0; i < n; ++i) {
-        if (!name.compare(GetTest(i) -> GetName()))
+        if (!name.compare(GetTest(i)->GetName()))
             return GetTest(i);
     }
 
@@ -142,12 +142,12 @@ void TestSuite::PrintResultsScreen()
     std::cout << " Details: " << std::endl;
     int n = GetNTests();
     for (int i = 0; i < n; ++i) {
-        std::cout << " Test \"" << (GetTest(i) -> GetName()).data() << "\" : " << GetTest(i) -> GetStatusString().data() << std::endl;
+        std::cout << " Test \"" << (GetTest(i)->GetName()).data() << "\" : " << GetTest(i)->GetStatusString().data() << std::endl;
 
         // loop over subtests
-        int nsub = GetTest(i) -> GetNSubtests();
+        int nsub = GetTest(i)->GetNSubtests();
         for (int j = 0; j < nsub; ++j)
-            std::cout << "  Subtest \"" << (GetTest(i) -> GetSubtest(j))->GetName() << "\" : " << (GetTest(i) -> GetSubtest(j))->GetStatusString().data() << std::endl;
+            std::cout << "  Subtest \"" << (GetTest(i)->GetSubtest(j))->GetName() << "\" : " << (GetTest(i)->GetSubtest(j))->GetStatusString().data() << std::endl;
         std::cout << std::endl;
     }
 
@@ -270,12 +270,12 @@ void TestSuite::PrintResultsHTML(std::string filename)
         if (fIncludeHtmlHeader) {
             file << "<html>" << std::endl;
             file << "<head>" << std::endl;
-            file << "<title>Test \"" << (GetTest(i) -> GetName()).data() << "\" </title>" << std::endl;
+            file << "<title>Test \"" << (GetTest(i)->GetName()).data() << "\" </title>" << std::endl;
             file << "</head>" << std::endl << std::endl;
             file << "<body>" << std::endl << std::endl;
         }
 
-        file << " <h3>Test \"" << (GetTest(i) -> GetName()).data() << "\" </h3>" << std::endl;
+        file << " <h3>Test \"" << (GetTest(i)->GetName()).data() << "\" </h3>" << std::endl;
 
         file << "<table border=\"0\" width=\"30%\">" << std::endl;
         file << "<tr>";
@@ -329,7 +329,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
         file << "</br>" << std::endl;
 
         // loop over subtests
-        int nsub = GetTest(i) -> GetNSubtests();
+        int nsub = GetTest(i)->GetNSubtests();
         if (nsub > 0) {
             file << "<table border=\"0\" width=\"80%\">" << std::endl;
             file << "<tr>" << std::endl;
@@ -346,12 +346,12 @@ void TestSuite::PrintResultsHTML(std::string filename)
             file << "</tr>" << std::endl;
 
             for (int j = 0; j < nsub; ++j) {
-                double target = (GetTest(i) -> GetSubtest(j))->GetTargetValue();
-                double test = (GetTest(i) -> GetSubtest(j))->GetTestValue();
-                double err = (GetTest(i) -> GetSubtest(j))->GetTestUncertainty();
+                double target = (GetTest(i)->GetSubtest(j))->GetTargetValue();
+                double test = (GetTest(i)->GetSubtest(j))->GetTestValue();
+                double err = (GetTest(i)->GetSubtest(j))->GetTestUncertainty();
                 file << "<tr>" << std::endl;
-                file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetName() << " </td> " << std::endl;
-                file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetStatusStringHTML().data() << "</td>" << std::endl;
+                file << "  <td align=\"left\"> " << (GetTest(i)->GetSubtest(j))->GetName() << " </td> " << std::endl;
+                file << "  <td align=\"left\"> " << (GetTest(i)->GetSubtest(j))->GetStatusStringHTML().data() << "</td>" << std::endl;
                 file << "  <td align=\"left\"> " << std::setprecision(4) << target  << "</td>" << std::endl;
                 file << "  <td align=\"left\"> " << std::setprecision(4) << test << "</td>" << std::endl;
                 file << "  <td align=\"left\"> " << std::setprecision(4) << err << "</td>" << std::endl;
@@ -360,9 +360,9 @@ void TestSuite::PrintResultsHTML(std::string filename)
                 else
                     file << "  <td align=\"left\"> " << std::setprecision(4) << " - " << "</td>" << std::endl;
                 file << "  <td align=\"left\"> " << std::setprecision(4) << (target - test) / err << "</td>" << std::endl;
-                file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</td>" << std::endl;
-                file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kAcceptable) << "</td>" << std::endl;
-                file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i) -> GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</td>" << std::endl;
+                file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i)->GetSubtest(j))->GetStatusRegion(PerfSubTest::kGood) << "</td>" << std::endl;
+                file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i)->GetSubtest(j))->GetStatusRegion(PerfSubTest::kAcceptable) << "</td>" << std::endl;
+                file << "  <td align=\"left\"> " << std::setprecision(4) << (GetTest(i)->GetSubtest(j))->GetStatusRegion(PerfSubTest::kBad) << "</td>" << std::endl;
                 file << "</tr>" << std::endl;
             }
             file << "</table>" << std::endl;
@@ -376,8 +376,8 @@ void TestSuite::PrintResultsHTML(std::string filename)
             file << "</tr>" << std::endl;
             for (int j = 0; j < nsub; ++j) {
                 file << "<tr>" << std::endl;
-                file << "  <td align=\"left\" width = \"150\"  valign=\"top\"> " << (GetTest(i) -> GetSubtest(j))->GetName() << " </td> " << std::endl;
-                file << "  <td align=\"left\"> " << (GetTest(i) -> GetSubtest(j))->GetDescription().data() << "</td>" << std::endl;
+                file << "  <td align=\"left\" width = \"150\"  valign=\"top\"> " << (GetTest(i)->GetSubtest(j))->GetName() << " </td> " << std::endl;
+                file << "  <td align=\"left\"> " << (GetTest(i)->GetSubtest(j))->GetDescription().data() << "</td>" << std::endl;
                 file << "</tr>" << std::endl;
             }
             file << "</table>" << std::endl;

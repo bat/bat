@@ -259,7 +259,7 @@ RooAbsPdf* BATCalculator::GetPosteriorPdf1D(const char* POIname) const
 
     // just for testing: create plots with BAT
     char * outputFile = "bat_plots_debugging.ps";
-    _myRooInterface -> PrintAllMarginalized(outputFile);
+    _myRooInterface->PrintAllMarginalized(outputFile);
     //*/
 
     return fPosteriorPdf; // is of type RooAbsPdf*
@@ -305,7 +305,7 @@ SimpleInterval* BATCalculator::GetInterval1D() const
 
 
 // ---------------------------------------------------------
-// returns central interval for the defined POI in the POI ArgSet -> test code because orginal version is not working anymore
+// returns central interval for the defined POI in the POI ArgSet->test code because orginal version is not working anymore
 SimpleInterval* BATCalculator::GetInterval1D(const char* POIname) const
 {
     //const char * POIname = fPOI.first()->GetName();
@@ -409,7 +409,7 @@ SimpleInterval* BATCalculator::GetInterval1D(const char* POIname) const
 }
 
 // ---------------------------------------------------------
-// returns central interval for requested POI -> no longer working since root v5_32
+// returns central interval for requested POI->no longer working since root v5_32
 // SimpleInterval * BATCalculator::GetInterval1Dv0(const char * POIname) const
 // {
 //   /// returns a SimpleInterval with lower and upper bounds on the

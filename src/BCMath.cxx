@@ -358,27 +358,27 @@ TH1D* ECDF(const std::vector<double>& data)
 
     // fill the data in to find multiplicities
     for (int i = 0; i < N; ++i)
-        ECDF -> Fill(data[i]);
+        ECDF->Fill(data[i]);
 
     // just in case, empty the underflow
-    ECDF -> SetBinContent(0, 0.0);
+    ECDF->SetBinContent(0, 0.0);
 
     // construct the ecdf
     for (int nBin = 1; nBin <= ECDF->GetNbinsX(); nBin++) {
-        double previousBin = ECDF -> GetBinContent(nBin - 1);
-        double thisBin = ECDF -> GetBinContent(nBin) / double(N);
-        ECDF -> SetBinContent(nBin, thisBin + previousBin);
+        double previousBin = ECDF->GetBinContent(nBin - 1);
+        double thisBin = ECDF->GetBinContent(nBin) / double(N);
+        ECDF->SetBinContent(nBin, thisBin + previousBin);
 
         // the uncertainty is only correctly estimated in the model
-        ECDF -> SetBinError(nBin, 0.0);
+        ECDF->SetBinError(nBin, 0.0);
     }
 
     // set the endpoint to 1, so all larger values are at CDF=1
-    ECDF -> SetBinContent(ECDF->GetNbinsX() + 1, 1.);
+    ECDF->SetBinContent(ECDF->GetNbinsX() + 1, 1.);
 
     // adjust for nice plotting
-    ECDF -> SetMinimum(0.);
-    ECDF -> SetMaximum(1.);
+    ECDF->SetMinimum(0.);
+    ECDF->SetMaximum(1.);
 
     return ECDF;
 }

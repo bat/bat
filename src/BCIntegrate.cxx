@@ -694,7 +694,7 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
             title += TString::Format(" (%s=%e)", fParameters[i]->GetName().data(), fParameters[i]->GetFixedValue());
         }
     if ( ! title.empty()) {
-        hist -> SetTitle(("Fixed: " + title).data());
+        hist->SetTitle(("Fixed: " + title).data());
     }
 
     // get bin count
@@ -711,28 +711,28 @@ bool BCIntegrate::Marginalize(TH1* hist, BCIntegrationMethod type, const std::ve
     for (int i = 1; i <= hist->GetNbinsX(); i++) {
         fParameters[index[0]]->SetLowerLimit(hist->GetXaxis()->GetBinLowEdge(i));
         fParameters[index[0]]->SetUpperLimit(hist->GetXaxis()->GetBinLowEdge(i + 1));
-        double binwidth1d = hist -> GetXaxis() -> GetBinWidth(i);
+        double binwidth1d = hist->GetXaxis()->GetBinWidth(i);
         if (hist->GetDimension() > 1)
             for (int j = 1; j <= hist->GetNbinsY(); j++) {
-                fParameters[index[1]]->SetLowerLimit(hist -> GetYaxis() -> GetBinLowEdge(j));
-                fParameters[index[1]]->SetUpperLimit(hist -> GetYaxis() -> GetBinLowEdge(j + 1));
+                fParameters[index[1]]->SetLowerLimit(hist->GetYaxis()->GetBinLowEdge(j));
+                fParameters[index[1]]->SetUpperLimit(hist->GetYaxis()->GetBinLowEdge(j + 1));
                 double binwidth2d = binwidth1d * hist->GetYaxis()->GetBinWidth(j);
                 if (hist->GetDimension() > 2)
                     for (int k = 1; k <= hist->GetNbinsZ(); k++) {
-                        fParameters[index[2]]->SetLowerLimit(hist -> GetZaxis() -> GetBinLowEdge(k));
-                        fParameters[index[2]]->SetUpperLimit(hist -> GetZaxis() -> GetBinLowEdge(k + 1));
+                        fParameters[index[2]]->SetLowerLimit(hist->GetZaxis()->GetBinLowEdge(k));
+                        fParameters[index[2]]->SetUpperLimit(hist->GetZaxis()->GetBinLowEdge(k + 1));
                         double binwidth3d = binwidth2d * hist->GetZaxis()->GetBinWidth(k);
-                        hist -> SetBinContent(i, j, k, Integrate(type) / binwidth3d);
-                        hist -> SetBinError  (i, j, k, GetError() / binwidth3d);
+                        hist->SetBinContent(i, j, k, Integrate(type) / binwidth3d);
+                        hist->SetBinError  (i, j, k, GetError() / binwidth3d);
                     }
                 else {
-                    hist -> SetBinContent(i, j, Integrate(type) / binwidth2d);
-                    hist -> SetBinError  (i, j, GetError() / binwidth2d);
+                    hist->SetBinContent(i, j, Integrate(type) / binwidth2d);
+                    hist->SetBinError  (i, j, GetError() / binwidth2d);
                 }
             }
         else {
-            hist -> SetBinContent(i, Integrate(type) / binwidth1d);
-            hist -> SetBinError  (i, GetError() / binwidth1d);
+            hist->SetBinContent(i, Integrate(type) / binwidth1d);
+            hist->SetBinError  (i, GetError() / binwidth1d);
         }
     }
 

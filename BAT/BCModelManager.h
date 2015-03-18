@@ -65,27 +65,27 @@ public:
     /**
      * @return The number of models. */
     unsigned int GetNModels()
-    { return fModelContainer -> size(); };
+    { return fModelContainer->size(); };
 
     /**
      * Returns the BCModel at a certain index of this BCModelManager.
      * @param index The index of the model in the BCModelManager.
      * @return The BCModel at the index. */
     BCModel* GetModel(int index)
-    { return fModelContainer -> at(index); };
+    { return fModelContainer->at(index); };
 
     /**
      * Returns the number of entries in the common data set.
      * @return The number of entries. */
     int GetNDataPoints()
-    { return (fDataSet) ? fDataSet -> GetNDataPoints() : 0; };
+    { return (fDataSet) ? fDataSet->GetNDataPoints() : 0; };
 
     /**
      * Returns a data point of the common data set at an index.
      * @param index The index of the data point in the data set.
      * @return The data point. */
     BCDataPoint* GetDataPoint(int index)
-    { return fDataSet -> GetDataPoint(index); };
+    { return fDataSet->GetDataPoint(index); };
 
     /**
      * Returns the common data set.
@@ -206,16 +206,16 @@ public:
      * Adds a data point to the data container.
      * @param datapoint The data point */
     void AddDataPoint(BCDataPoint* datapoint)
-    { fDataSet -> AddDataPoint(datapoint); };
+    { fDataSet->AddDataPoint(datapoint); };
 
     /**
      * Reads data from a file. For a description see the following
      * member functions. */
     int ReadDataFromFile(const char* filename, const char* treename, const char* branchnames)
-    { return this ->  ReadDataFromFileTree(filename, treename, branchnames); };
+    { return this-> ReadDataFromFileTree(filename, treename, branchnames); };
 
     int ReadDataFromFile(const char* filename, int nvariables)
-    { return this -> ReadDataFromFileTxt(filename, nvariables); };
+    { return this->ReadDataFromFileTxt(filename, nvariables); };
 
     /**
      * Reads tree data from a ROOT file.
@@ -266,7 +266,7 @@ public:
     /**
      * Resets the data set */
     void ResetDataSet()
-    { fDataSet -> Reset(); };
+    { fDataSet->Reset(); };
 
     /**
      * Prints a summary of model comparison into a file.

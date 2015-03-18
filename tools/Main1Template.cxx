@@ -23,7 +23,7 @@ int main()
 	|:Model:|* m = new |:Model:|("|:Model:|");
 
 	// set precision
-	m -> MCMCSetPrecision(BCEngineMCMC::kMedium);
+	m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
 	BCLog::OutSummary("Test model created");
 
@@ -32,33 +32,33 @@ int main()
 
 	// normalize the posterior, i.e. integrate posterior over the full
 	// parameter space
-	// m -> SetIntegrationMethod(BCIntegrate::kIntDefault);
-	// m -> Normalize();
+	// m->SetIntegrationMethod(BCIntegrate::kIntDefault);
+	// m->Normalize();
 
 	// run MCMC and marginalize posterior w/r/t all parameters and all
 	// combinations of two parameters
-	// m -> MarginalizeAll(BCIntegrate::kMargMetropolis);
+	// m->MarginalizeAll(BCIntegrate::kMargMetropolis);
 
 	// run mode finding; by default using Minuit
-	// m -> FindMode( m->GetBestFitParameters() );
+	// m->FindMode( m->GetBestFitParameters() );
 
 	// draw all marginalized distributions into a PDF file
-	// m -> PrintAllMarginalized("|:Model:|_plots.pdf");
+	// m->PrintAllMarginalized("|:Model:|_plots.pdf");
 
 	// print all summary plots
-	// m -> PrintParameterPlot("|:Model:|_parameters.pdf");
-	// m -> PrintCorrelationPlot("|:Model:|_correlation.pdf");
-	// m -> PrintCorrelationMaxtrix("|:Model:|_correlationMatrix.pdf");
+	// m->PrintParameterPlot("|:Model:|_parameters.pdf");
+	// m->PrintCorrelationPlot("|:Model:|_correlation.pdf");
+	// m->PrintCorrelationMaxtrix("|:Model:|_correlationMatrix.pdf");
 
-	// create a new summary tool object, to print change from prior -> posterior
+	// create a new summary tool object, to print change from prior->posterior
 	// BCSummaryTool * summary = new BCSummaryTool(m);
-	// summary -> PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
+	// summary->PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
 
 	// calculate p-value
-	// m -> CalculatePValue( m->GetBestFitParameters() );
+	// m->CalculatePValue( m->GetBestFitParameters() );
 
 	// print results of the analysis into a text file
-	//  m -> PrintResults("|:Model:|_results.txt");
+	//  m->PrintResults("|:Model:|_results.txt");
 
 	delete m;
 	// delete summary;

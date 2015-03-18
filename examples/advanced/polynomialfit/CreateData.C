@@ -79,8 +79,8 @@ void CreateData(const char* fname = "data.txt")
 
         // get y value
         float mean = par0 + par1 * x + par2 * x * x;
-        float y = fRandom -> Gaus(mean, sigmay1);
-        float y2 = fRandom -> Gaus(mean, sigmay2);
+        float y = fRandom->Gaus(mean, sigmay1);
+        float y2 = fRandom->Gaus(mean, sigmay2);
         if (y > mean) {
             if (y2 < mean)
                 y2 = mean + mean - y2;
@@ -91,9 +91,9 @@ void CreateData(const char* fname = "data.txt")
         file_data << x << " " << y << " " << sigmay1 << " " << sigmay2;
 
         // add point to graph
-        g -> SetPoint(i, x, y);
-        g -> SetPointEYlow(i, sigmay1);
-        g -> SetPointEYhigh(i, sigmay2);
+        g->SetPoint(i, x, y);
+        g->SetPointEYlow(i, sigmay1);
+        g->SetPointEYhigh(i, sigmay2);
 
         file_data << endl;
     }
@@ -105,24 +105,24 @@ void CreateData(const char* fname = "data.txt")
 
     // draw true function and the genetated data
     TCanvas* c = new TCanvas();
-    g -> SetMarkerStyle(20);
-    g -> SetMarkerSize(1.);
-    g -> Draw("a p");
-    g -> GetXaxis() -> SetTitle("x");
-    g -> GetYaxis() -> SetTitle("y");
-    g -> SetTitle("");
+    g->SetMarkerStyle(20);
+    g->SetMarkerSize(1.);
+    g->Draw("a p");
+    g->GetXaxis()->SetTitle("x");
+    g->GetYaxis()->SetTitle("y");
+    g->SetTitle("");
 
     TF1* f2d = new TF1("f2d", "[0] + [1]*x + [2]*x*x", xmin, xmax);
-    f2d -> SetParameters(par0, par1, par2);
-    f2d -> SetLineWidth(2);
-    f2d -> SetLineStyle(2);
-    f2d -> SetLineColor(kBlue);
-    f2d -> Draw("c same");
+    f2d->SetParameters(par0, par1, par2);
+    f2d->SetLineWidth(2);
+    f2d->SetLineStyle(2);
+    f2d->SetLineColor(kBlue);
+    f2d->Draw("c same");
 
     TLegend* leg = new TLegend(0.15, 0.65, 0.5, 0.85);
-    leg -> SetFillStyle(0);
-    leg -> AddEntry(f2d, "True function", "l");
-    leg -> AddEntry(g, "Generated data", "p");
-    leg -> Draw();
+    leg->SetFillStyle(0);
+    leg->AddEntry(f2d, "True function", "l");
+    leg->AddEntry(g, "Generated data", "p");
+    leg->Draw();
 }
 

@@ -94,10 +94,10 @@ public:
      * Reads data from a file. For a description see the following
      * member functions. */
     int ReadDataFromFile(const char* filename, const char* treename, const char* branchnames)
-    { return this ->  ReadDataFromFileTree(filename, treename, branchnames); };
+    { return this-> ReadDataFromFileTree(filename, treename, branchnames); };
 
     int ReadDataFromFile(const char* filename, int nvariables)
-    { return this -> ReadDataFromFileTxt(filename, nvariables); };
+    { return this->ReadDataFromFileTxt(filename, nvariables); };
 
     /**
      * Reads a TTree from a .root file.  Opens a .root file and

@@ -56,7 +56,7 @@ public:
     /**
      * @return The mean of the distribution. */
     double GetMean()
-    { return fHistogram -> GetMean(); };
+    { return fHistogram->GetMean(); };
 
     /**
      * @return The mode of the distribution. */
@@ -65,7 +65,7 @@ public:
     /**
      * @return The median of the distribution. */
     double GetMedian()
-    { return this -> GetQuantile(0.5); };
+    { return this->GetQuantile(0.5); };
 
     /**
      * Returns the quantile of the distribution.

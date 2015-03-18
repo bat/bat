@@ -135,7 +135,7 @@ public:
     //set the number of histogram bins for all parameters
     void SetNumBins(int nbins);
 
-    // would be more complete if we had this -> ask BAT developers to implement this functionality (not high priority)
+    // would be more complete if we had this->ask BAT developers to implement this functionality (not high priority)
     //int GetNbins(const char * parname);
 
     void CleanCalculatorForNewData()

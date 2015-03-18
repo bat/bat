@@ -47,9 +47,9 @@ void Pol1Asymm::DefineParameters()
     for (unsigned int i = 0; i < GetNParameters(); i++)
         BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
                                i,
-                               GetParameter(i) -> GetName().data(),
-                               GetParameter(i) -> GetLowerLimit(),
-                               GetParameter(i) -> GetUpperLimit() ) );
+                               GetParameter(i)->GetName().data(),
+                               GetParameter(i)->GetLowerLimit(),
+                               GetParameter(i)->GetUpperLimit() ) );
 }
 
 // ---------------------------------------------------------
@@ -72,7 +72,7 @@ double Pol1Asymm::LogLikelihood(const std::vector<double>& par)
     // loop over the data points
     for (unsigned i = 0 ; i < GetNDataPoints(); i++) {
         // get data point
-        std::vector<double> x = GetDataPoint(i) -> GetValues();
+        std::vector<double> x = GetDataPoint(i)->GetValues();
         double y    = x[1];
         double eylo = x[2];
         double eyhi = x[3];
@@ -103,7 +103,7 @@ double Pol1Asymm::LogAPrioriProbability(const std::vector<double>& parameters)
     // For flat prior it's very easy.
     double logprob = 0.;
     for (unsigned int i = 0; i < GetNParameters(); i++)
-        logprob -= log(GetParameter(i) -> GetRangeWidth());
+        logprob -= log(GetParameter(i)->GetRangeWidth());
 
     return logprob;
 }

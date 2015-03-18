@@ -141,13 +141,13 @@ BCDataPoint* BCModel::GetDataPoint(unsigned int index) const
 // ---------------------------------------------------------
 double BCModel::GetDataPointLowerBoundary(unsigned int index) const
 {
-    return fDataPointLowerBoundaries -> GetValue(index);
+    return fDataPointLowerBoundaries->GetValue(index);
 }
 
 // ---------------------------------------------------------
 double BCModel::GetDataPointUpperBoundary(unsigned int index) const
 {
-    return fDataPointUpperBoundaries -> GetValue(index);
+    return fDataPointUpperBoundaries->GetValue(index);
 }
 
 // ---------------------------------------------------------
@@ -544,13 +544,13 @@ double BCModel::HessianMatrixElement(const BCParameter* par1, const BCParameter*
 // ---------------------------------------------------------
 void BCModel::SetDataPointLowerBoundary(int index, double lowerboundary)
 {
-    fDataPointLowerBoundaries -> SetValue(index, lowerboundary);
+    fDataPointLowerBoundaries->SetValue(index, lowerboundary);
 }
 
 // ---------------------------------------------------------
 void BCModel::SetDataPointUpperBoundary(int index, double upperboundary)
 {
-    fDataPointUpperBoundaries -> SetValue(index, upperboundary);
+    fDataPointUpperBoundaries->SetValue(index, upperboundary);
 }
 
 // ---------------------------------------------------------

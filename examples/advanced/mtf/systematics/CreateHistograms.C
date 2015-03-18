@@ -87,7 +87,7 @@ void CreateHistograms()
 
     // write histograms to file
     TFile* file = TFile::Open("templates.root", "RECREATE");
-    file -> cd();
+    file->cd();
 
     hist_bkg->Write();
     hist_sgn->Write();
@@ -116,7 +116,7 @@ void CreateHistograms()
     c1->Print("hist.pdf");
 
     // close file
-    file -> Close();
+    file->Close();
 
     // free memory
     delete c1;
