@@ -69,8 +69,7 @@ Examples in this directory:
   Description:  Graph fits using 4 different functions assuming
                 gaussian uncertainties. This example represents the
                 example from the BAT paper showing a comparison
-                between different fits. It also demonstrates the usage
-                of the BCSummaryTool.
+                between different fits.
 
   Directory:    polynomialfit
   Type:         Compiled program

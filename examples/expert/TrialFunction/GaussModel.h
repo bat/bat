@@ -6,20 +6,17 @@
 // ---------------------------------------------------------
 class GaussModel : public BCModel
 {
-   public:
+public:
 
-      // Constructors and destructor
-      GaussModel();
-      GaussModel(const char * name);
-      ~GaussModel();
+    // Constructor and destructor
+    GaussModel(const char* name);
+    ~GaussModel();
 
-      // Methods to overload, see file GaussModel.cxx
-      void DefineParameters();
-      double LogAPrioriProbability(const std::vector<double> &parameters);
-      double LogLikelihood(const std::vector<double> &parameters);
+    // Method to overload, see file GaussModel.cxx
+    double LogLikelihood(const std::vector<double>& parameters);
 
-      // overloaded trial function
-      virtual double MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipar);
+    // overloaded trial function
+    virtual double MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipar);
 };
 // ---------------------------------------------------------
 

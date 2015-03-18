@@ -7,8 +7,7 @@ installed on the system.
 The example shows how to use the graph fitter which comes with BAT. It
 fits four different functions assuming gaussian uncertainties. This
 example represents the example from the BAT paper showing a comparison
-between different fits. It also demonstrates the usage of the
-BCSummaryTool.
+between different fits.
 
 The source file(s) contain(s) plenty of comments and explanations. For
 further documentation see the "Short Introduction to BAT" and/or the

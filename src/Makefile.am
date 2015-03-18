@@ -32,21 +32,32 @@ library_includedir= $(includedir)/BAT
 incs= \
 	BCDataPoint.h \
 	BCDataSet.h \
+	BCHistogramBase.h \
 	BCH1D.h \
 	BCH2D.h \
-	BCParameter.h \
+	BCPrior.h \
+	BCConstantPrior.h \
+	BCGaussianPrior.h \
+	BCSplitGaussianPrior.h \
+	BCCauchyPrior.h \
+	BCTF1Prior.h \
+	BCTF1LogPrior.h \
+	BCTH1Prior.h \
 	BCParameterSet.h \
+	BCVariableSet.h \
+	BCObservable.h \
+	BCParameter.h \
+	BCVariable.h \
 	BCEngineMCMC.h \
 	BCIntegrate.h \
 	BCModel.h \
+	BCEmptyModel.h \
+	BCPriorModel.h \
 	BCModelManager.h \
-	BCModelOutput.h \
 	BCGoFTest.h \
 	BCLog.h \
 	BCMath.h \
-	BCAux.h \
-	BCSummaryTool.h \
-	BCSummaryPriorModel.h
+	BCAux.h
 
 library_include_HEADERS= \
 	$(patsubst %.h, $(top_srcdir)/BAT/%.h, $(incs))

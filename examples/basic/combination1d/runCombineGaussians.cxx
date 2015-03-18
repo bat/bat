@@ -1,47 +1,41 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include "CombinationModel.h"
 
 int main()
 {
 
-  // set nicer style for drawing than the ROOT default
-  BCAux::SetStyle();
+    // set nicer style for drawing than the ROOT default
+    BCAux::SetStyle();
 
-  // open log file
-  BCLog::OpenLog("log.txt");
-  BCLog::SetLogLevel(BCLog::detail);
+    // open log file
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-  // create new CombinationModel object
-  CombinationModel * m = new CombinationModel();
+    // create new CombinationModel object
+    CombinationModel* m = new CombinationModel("combMod");
 
-  // create a new summary tool object
-  BCSummaryTool * summary = new BCSummaryTool(m);
+    // marginalize
+    m->MarginalizeAll();
 
-  // marginalize
-  m->MarginalizeAll();
+    // find mode
+    m->FindMode( m->GetBestFitParameters() );
 
-  // find mode
-  m->FindMode( m->GetBestFitParameters() );
+    // draw all marginalized distributions into a PostScript file
+    m->PrintAllMarginalized("CombinationModel_plots.pdf");
 
-  // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("CombinationModel_plots.pdf");
+    // print all summary plots
+    m->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
-  // print all summary plots
-  summary->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
- 
-  // print results of the analysis into a text file
-  m->PrintResults("CombinationModel_results.txt");
+    // print results of the analysis into a text file
+    m->PrintResults("CombinationModel_results.txt");
 
-  // close log file
-  BCLog::CloseLog();
+    // close log file
+    BCLog::CloseLog();
 
-  delete m;
-  delete summary;
+    delete m;
 
-  return 0;
+    return 0;
 
 }
 

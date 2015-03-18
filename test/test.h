@@ -16,101 +16,98 @@
 
 namespace test
 {
-    namespace implementation
-    {
-        template <typename T_>
-        struct DoStringify
-        {
-            static std::string stringify(const T_ & x, unsigned precision)
-            {
-                std::stringstream ss;
-                ss.precision(precision);
-                ss << x;
-
-                return ss.str();
-            }
-        };
-
-        template <>
-        struct DoStringify<std::string>
-        {
-            static std::string stringify(const std::string & x, unsigned)
-            {
-                return x;
-            }
-        };
-    }
-
-    template <typename T_>
-    std::string stringify(const T_ & x, unsigned precision = 10)
-    {
-        return implementation::DoStringify<T_>::stringify(x, precision);
-    }
-
-    /*!
-     * Print a range of a STL container or ordinary numerical array into a string in parentheses
-     */
-    template <typename Iterator_>
-    std::string print_vector(const Iterator_ & begin, const Iterator_ & end, unsigned precision = 10)
+namespace implementation
+{
+template <typename T_>
+struct DoStringify {
+    static std::string stringify(const T_ & x, unsigned precision)
     {
         std::stringstream ss;
         ss.precision(precision);
-        ss << '(';
-
-        for (Iterator_ i = begin ; i != end ; ++i)
-        {
-            ss << ' ' << *i;
-        }
-
-        ss << " )";
+        ss << x;
 
         return ss.str();
     }
+};
 
-    /*!
-     * Print a STL container into a string.
-     * Elements are surrounded by parentheses.
-     * @param container The STL container from which elements are read.
-     * @param precision String output precision.
-     * @return String representation.
-     */
-    template <typename Container_>
-    std::string print_container(const Container_ & container, unsigned precision = 10)
+template <>
+struct DoStringify<std::string> {
+    static std::string stringify(const std::string& x, unsigned)
     {
-        return print_vector(container.begin(), container.end(), precision);
+        return x;
+    }
+};
+}
+
+template <typename T_>
+std::string stringify(const T_ & x, unsigned precision = 10)
+{
+    return implementation::DoStringify<T_>::stringify(x, precision);
+}
+
+/*!
+ * Print a range of a STL container or ordinary numerical array into a string in parentheses
+ */
+template <typename Iterator_>
+std::string print_vector(const Iterator_ & begin, const Iterator_ & end, unsigned precision = 10)
+{
+    std::stringstream ss;
+    ss.precision(precision);
+    ss << '(';
+
+    for (Iterator_ i = begin ; i != end ; ++i) {
+        ss << ' ' << *i;
     }
 
-    class TestCase
-    {
-        private:
-            std::string _name;
+    ss << " )";
 
-        public:
-            TestCase(const std::string & name);
+    return ss.str();
+}
 
-            virtual ~TestCase();
+/*!
+ * Print a STL container into a string.
+ * Elements are surrounded by parentheses.
+ * @param container The STL container from which elements are read.
+ * @param precision String output precision.
+ * @return String representation.
+ */
+template <typename Container_>
+std::string print_container(const Container_ & container, unsigned precision = 10)
+{
+    return print_vector(container.begin(), container.end(), precision);
+}
 
-            std::string name() const;
+class TestCase
+{
+private:
+    std::string _name;
 
-            virtual void run() const = 0;
-    };
+public:
+    TestCase(const std::string& name);
 
-    class TestCaseFailedException
-    {
-        private:
-            int _line;
+    virtual ~TestCase();
 
-            std::string _file;
+    std::string name() const;
 
-            std::string _reason;
+    virtual void run() const = 0;
+};
 
-        public:
-            TestCaseFailedException(int line, const std::string & file, const std::string & reason);
+class TestCaseFailedException
+{
+private:
+    int _line;
 
-            const std::string & reason() const;
+    std::string _file;
 
-            std::string where() const;
-    };
+    std::string _reason;
+
+public:
+    TestCaseFailedException(int line, const std::string& file, const std::string& reason);
+
+    const std::string& reason() const;
+
+    std::string where() const;
+};
 
 #define TEST_SECTION(name, body) \
     do \

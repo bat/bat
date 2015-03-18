@@ -6,26 +6,26 @@
 // ---------------------------------------------------------
 class MyFit : public BCMVCPhysicsModel
 {
- public:
+public:
 
-  // Constructor
-  MyFit();
+    // Constructor
+    MyFit();
 
-  // Destructor
-  ~MyFit();
-	
-	// define the physics parameters
-	virtual void DefineParameters();
+    // Destructor
+    ~MyFit();
 
-	// define the observables
-	virtual void DefineObservables();
+    // define the physics parameters
+    virtual void DefineParameters();
 
-	// return a value for an observable
-	// index: the index of the variable
-	// parameters: the physics parameters
-  double CalculateObservable(int index, const std::vector<double> &parameters);
+    // define the observables
+    virtual void DefineObservables();
 
- private:
+    // return a value for an observable
+    // index: the index of the variable
+    // parameters: the physics parameters
+    double CalculateObservable(int index, const std::vector<double>& parameters);
+
+private:
 
 };
 // ---------------------------------------------------------

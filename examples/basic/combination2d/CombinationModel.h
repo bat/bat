@@ -6,17 +6,14 @@
 // ---------------------------------------------------------
 class CombinationModel : public BCModel
 {
-   public:
+public:
 
-      // Constructors and destructor
-      CombinationModel();
-      CombinationModel(const char * name);
-      ~CombinationModel();
+    // Constructor and destructor
+    CombinationModel(const char* name);
+    ~CombinationModel();
 
-      // Methods to overload, see file CombinationModel.cxx
-      void DefineParameters();
-      double LogAPrioriProbability(const std::vector<double> &parameters);
-      double LogLikelihood(const std::vector<double> &parameters);
+    // Method to overload, see file CombinationModel.cxx
+    double LogLikelihood(const std::vector<double>& parameters);
 };
 // ---------------------------------------------------------
 

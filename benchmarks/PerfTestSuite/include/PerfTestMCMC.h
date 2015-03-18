@@ -14,70 +14,71 @@
 #ifndef BAT_PERFTESTMCMC
 #define BAT_PERFTESTMCMC
 
-#include <string>
-#include <vector>
-
-#include <TF1.h>
+#include <include/PerfTest.h>
 
 #include <BAT/BCModel.h>
 
-#include <include/PerfTest.h>
+#include <TF1.h>
+#include <TGraph.h>
+#include <TH2.h>
+
+#include <string>
+#include <vector>
 
 class PerfTestMCMC : public PerfTest, public BCModel
 {
 
- public:
+public:
 
-   /** \name Constructors and destructors  */
-   /* @{ */
+    /** \name Constructors and destructors  */
+    /* @{ */
 
-   /** The default constructor */
-   PerfTestMCMC(std::string name = "unknown");
+    /** The default constructor */
+    PerfTestMCMC(std::string name = "unknown");
 
-   /** The default destructor */
-   ~PerfTestMCMC();
+    /** The default destructor */
+    ~PerfTestMCMC();
 
-   /* @} */
+    /* @} */
 
-   /** Set the variation parameter.
-    * @param par the parameter value
-    * @param name the name of the varied parameter.
-    * @return an error code. */
-   virtual int SetVarPar(double value, std::string name);
+    /** Set the variation parameter.
+     * @param par the parameter value
+     * @param name the name of the varied parameter.
+     * @return an error code. */
+    virtual int SetVarPar(double value, std::string name);
 
-   /** Run before test.
-    * @return an error code. */
-   int PreTest();
+    /** Run before test.
+     * @return an error code. */
+    int PreTest();
 
-   /** Run after test.
-    * @return an error code. */
-   int PostTest();
+    /** Run after test.
+     * @return an error code. */
+    int PostTest();
 
-   /** Run the test.
-    * @return an error code. */
-   int RunTest();
+    /** Run the test.
+     * @return an error code. */
+    int RunTest();
 
-   /** Defines the subtests. */
-   void DefineSubtests();
+    /** Defines the subtests. */
+    void DefineSubtests();
 
-   /** Writes the test to file.
-    * @return an error code. */
-   int WriteResults();
+    /** Writes the test to file.
+     * @return an error code. */
+    int WriteResults();
 
-   /** Define precision settings. */
-   void PrecisionSettings(PerfTest::Precision);
+    /** Define precision settings. */
+    void PrecisionSettings(PerfTest::Precision);
 
-   /* @} */
+    /* @} */
 
-   // inherited methods
-   void MCMCUserIterationInterface();
+    // inherited methods
+    void MCMCUserIterationInterface();
 
- private:
+private:
 
-   std::vector<TGraph *> fCorrelation;
-   std::vector<TH2D *> fHistCorr;
-   std::vector<double> fXOld;
+    std::vector<TGraph*> fCorrelation;
+    std::vector<TH2D*> fHistCorr;
+    std::vector<std::vector<double> > fXOld;
 };
 
 #endif
-

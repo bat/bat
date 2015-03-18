@@ -22,178 +22,169 @@
 
 // ---------------------------------------------------------
 
-#include <iostream>
+#include <fstream>
 
 // ---------------------------------------------------------
 
 class BCLog
 {
-   public:
+public:
 
-      // definition of log level
+    // definition of log level
 
-      /**
-       * Enumerator for the amount of details to put into the log file
-       * Log levels:
-       * debug   : Lowest level of information
-       * detail  : Details of functions, etc.
-       * summary : Results
-       * warning : Warning messages
-       * error   : Error message
-       * nothing : No output
-       */
-      enum LogLevel {debug, detail, summary, warning, error, nothing};
+    /**
+     * Enumerator for the amount of details to put into the log file
+     * Log levels:
+     * debug   : Lowest level of information
+     * detail  : Details of functions, etc.
+     * summary : Results
+     * warning : Warning messages
+     * error   : Error message
+     * nothing : No output
+     */
+    enum LogLevel {debug, detail, summary, warning, error, nothing};
 
-      /** \name Constructors and destructors */
-      /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-      /**
-       * Constructor. */
-      BCLog();
+    /**
+     * Constructor. */
+    BCLog();
 
-      /**
-       * Destructor. */
-      ~BCLog();
+    /**
+     * Destructor. */
+    ~BCLog();
 
-      /** @} */
-      /** \name Getters */
-      /** @{ */
+    /** @} */
+    /** \name Getters */
+    /** @{ */
 
-      /**
-       * Returns the minimum log level for file output.
-       * @return log level */
-      static BCLog::LogLevel GetLogLevelFile()
-         { return fMinimumLogLevelFile; };
+    /**
+     * Returns the minimum log level for file output.
+     * @return log level */
+    static BCLog::LogLevel GetLogLevelFile()
+    { return fMinimumLogLevelFile; };
 
-      /**
-       * Returns the minimum log level for screen output.
-       * @return log level */
-      static BCLog::LogLevel GetLogLevelScreen()
-         { return fMinimumLogLevelScreen; };
+    /**
+     * Returns the minimum log level for screen output.
+     * @return log level */
+    static BCLog::LogLevel GetLogLevelScreen()
+    { return fMinimumLogLevelScreen; };
 
-      /** @} */
-      /** \name Setters */
-      /** @{ */
+    /** @} */
+    /** \name Setters */
+    /** @{ */
 
-      /**
-       * Sets the minimum log level for file output.
-       * @param loglevel log level */
-      static void SetLogLevelFile(BCLog::LogLevel loglevel)
-         { BCLog::fMinimumLogLevelFile = loglevel; };
+    /**
+     * Sets the minimum log level for file output.
+     * @param loglevel log level */
+    static void SetLogLevelFile(BCLog::LogLevel loglevel)
+    { fMinimumLogLevelFile = loglevel; };
 
-      /**
-       * Sets the minimum log level for screen output.
-       * @param loglevel log level */
-      static void SetLogLevelScreen(BCLog::LogLevel loglevel)
-         { BCLog::fMinimumLogLevelScreen = loglevel; };
+    /**
+     * Sets the minimum log level for screen output.
+     * @param loglevel log level */
+    static void SetLogLevelScreen(BCLog::LogLevel loglevel)
+    { fMinimumLogLevelScreen = loglevel; };
 
-      /**
-       * Sets the minimum log level for file and screen output.
-       * @param loglevelscreen log level for screen
-       * @param loglevelfile log level for file */
-      static void SetLogLevel(BCLog::LogLevel loglevelscreen, BCLog::LogLevel loglevelfile)
-         { BCLog::fMinimumLogLevelFile = loglevelfile; BCLog::fMinimumLogLevelScreen = loglevelscreen; };
+    /**
+     * Sets the minimum log level for file and screen output.
+     * @param loglevelscreen log level for screen
+     * @param loglevelfile log level for file */
+    static void SetLogLevel(BCLog::LogLevel loglevelscreen, BCLog::LogLevel loglevelfile)
+    { fMinimumLogLevelFile = loglevelfile; fMinimumLogLevelScreen = loglevelscreen; };
 
-      /**
-       * Sets the minimum log level for file and screen output.
-       * @param loglevel log level */
-      static void SetLogLevel(BCLog::LogLevel loglevel)
-         { SetLogLevel(loglevel, loglevel); };
+    /**
+     * Sets the minimum log level for file and screen output.
+     * @param loglevel log level */
+    static void SetLogLevel(BCLog::LogLevel loglevel)
+    { SetLogLevel(loglevel, loglevel); };
 
-      /** @} */
-      /** \name Miscellaneous */
-      /** @{ */
+    /** @} */
+    /** \name Miscellaneous */
+    /** @{ */
 
-      /**
-       * Opens log file and sets minimum log levels for file and screen output.
-       * @param filename log filename
-       * @param loglevelfile minimum log level for file output
-       * @param loglevelscreen minimum log level for screen output */
-      static void OpenLog(const char * filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen);
+    /**
+     * Opens log file and sets minimum log levels for file and screen output.
+     * @param filename log filename
+     * @param loglevelfile minimum log level for file output
+     * @param loglevelscreen minimum log level for screen output */
+    static void OpenLog(const char* filename = "log.txt", BCLog::LogLevel loglevelfile = BCLog::debug, BCLog::LogLevel loglevelscreen = BCLog::summary);
 
-      static void OpenLog(const char * filename);
+    /**
+     * @returns true if log file is open or false if not. */
+    static bool IsOpen()
+    { return fOutputStream.is_open(); }
 
-      static void OpenLog();
+    /**
+     * Closes the log file */
+    static void CloseLog()
+    { fOutputStream.close(); }
 
-      /**
-       * @returns true if log file is open or false if not. */
-      static bool IsOpen();
+    /**
+     * Writes string to the file and screen log if the log level is equal or greater than the minimum
+     * @param loglevelfile loglevel for the current message
+     * @param loglevelscreen loglevel for the current message
+     * @param message string to write to the file and screen log */
+    static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message);
 
-      /**
-       * Closes the log file */
-      static void CloseLog();
+    static void Out(const char* message)
+    { Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message); }
 
-      /**
-       * Writes string to the file and screen log if the log level is equal or greater than the minimum
-       * @param loglevelfile loglevel for the current message
-       * @param loglevelscreen loglevel for the current message
-       * @param message string to write to the file and screen log */
-      static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char * message);
+    static void Out(BCLog::LogLevel loglevel, const char* message)
+    { Out(loglevel, loglevel, message); };
 
-      static void Out(const char * message);
+    static void OutError(const char* message)
+    { Out(error, message); };
 
-      static void Out(BCLog::LogLevel loglevel, const char * message)
-         { Out(loglevel,loglevel,message); };
+    static void OutWarning(const char* message)
+    { Out(warning, message); };
 
-      static void OutError(const char * message)
-         { Out(error,message); };
+    static void OutSummary(const char* message)
+    { Out(summary, message); };
 
-      static void OutWarning(const char * message)
-         { Out(warning,message); };
+    static void OutDetail(const char* message)
+    { Out(detail, message); };
 
-      static void OutSummary(const char * message)
-         { Out(summary,message); };
+    static void OutDebug(const char* message)
+    { Out(debug, message); };
 
-      static void OutDetail(const char * message)
-         { Out(detail,message); };
+    /**
+     * Writes startup information onto screen and into a logfile */
+    static void StartupInfo();
 
-      static void OutDebug(const char * message)
-         { Out(debug,message); };
+    /**
+     * @return string containing the version number  */
+    static const char* GetVersion()
+    { return fVersion; };
 
-      /**
-       * Writes startup information onto screen and into a logfile */
-      static void StartupInfo();
+    /**
+     * Converts a log level to a string */
+    static const char* ToString(BCLog::LogLevel);
 
-      /**
-       * @return string containing the version number  */
-      static const char * GetVersion()
-         { return fVersion; };
+    /** @} */
+private:
 
-      /**
-       * @return unique number for use in histogram name string */
-      static int GetHIndex()
-         { return BCLog::fHindex++; };
+    /**
+     * BAT version number */
+    static const char* fVersion;
 
-      /**
-       * Converts a log level to a string */
-      static const char * ToString(BCLog::LogLevel);
+    /**
+     * The minimum file log level */
+    static BCLog::LogLevel fMinimumLogLevelFile;
 
-      /** @} */
-   private:
+    /**
+     * The minimum screen log level */
+    static BCLog::LogLevel fMinimumLogLevelScreen;
 
-      /**
-       * BAT version number */
-      static const char * fVersion;
+    /**
+     * The output stream for the file log */
+    static std::ofstream fOutputStream;
 
-      /**
-       * The minimum file log level */
-      static BCLog::LogLevel fMinimumLogLevelFile;
+    /**
+     * Specifies wheather there were output printouts already */
+    static bool fFirstOutputDone;
 
-      /**
-       * The minimum screen log level */
-      static BCLog::LogLevel fMinimumLogLevelScreen;
-
-      /**
-       * The output stream for the file log */
-      static std::ofstream fOutputStream;
-
-      /**
-       * Specifies wheather there were output printouts already */
-      static bool fFirstOutputDone;
-
-      /**
-       * Global histogram counter */
-      static int fHindex;
 };
 
 // ---------------------------------------------------------

@@ -16,34 +16,36 @@
 // ---------------------------------------------------------
 class BCMVCPhysicsModel : public BCMVCombination
 {
- public:
+public:
 
-  // Constructor
-  BCMVCPhysicsModel();
+    // Constructor
+    BCMVCPhysicsModel();
 
-  // Destructor
-  ~BCMVCPhysicsModel();
+    // Destructor
+    ~BCMVCPhysicsModel();
 
-  // Add a parameter
-  // name: the name of the parameter
-  // min:  the minimum value of the parameter
-  // max:  the maximum value of the parameter
-  void AddObservable(std::string name, double min, double max);
+    // Add a parameter
+    // name: the name of the parameter
+    // min:  the minimum value of the parameter
+    // max:  the maximum value of the parameter
+    void AddMVCObservable(std::string name, double min, double max);
 
-  // return a value for an observable
-  // index: the index of the variable
-  // parameters: the physics parameters
-  virtual double CalculateObservable(int index, const std::vector<double> &parameters)
-  { (void) index; // suppress compiler warning about unused parameters
-    (void) parameters; // suppress compiler warning about unused parameters
-    return 0; };
+    // return a value for an observable
+    // index: the index of the variable
+    // parameters: the physics parameters
+    virtual double CalculateObservable(int index, const std::vector<double>& parameters)
+    {
+        (void) index; // suppress compiler warning about unused parameters
+        (void) parameters; // suppress compiler warning about unused parameters
+        return 0;
+    };
 
-  // BAT methods
+    // BAT methods
 
-  // the log of the likelihood
-  double LogLikelihood(const std::vector<double> &parameters);
+    // the log of the likelihood
+    double LogLikelihood(const std::vector<double>& parameters);
 
- private:
+private:
 
 };
 // ---------------------------------------------------------

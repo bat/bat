@@ -23,8 +23,11 @@
 
 #include "BCModel.h"
 
+#include <vector>
+#include <utility>
+
 // ROOT classes
-class TH1D;
+class TH1;
 
 // BAT classes
 class BCDataSet;
@@ -33,98 +36,124 @@ class BCDataSet;
 
 class BCGoFTest : public BCModel
 {
-   public:
+public:
 
-      /** \name Constructors and destructors */
-      /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-      /**
-       * Default constructor.
-       */
-      BCGoFTest(const char * name);
+    /**
+     * Default constructor.
+     */
+    BCGoFTest(const char* name);
 
-      /**
-       * Default destructor. */
-      ~BCGoFTest();
+    /**
+     * Constructor with model.
+     * If name is unset, "GoFTest" is appended to the model name. */
+    BCGoFTest(BCModel* model, const char* name = "");
 
-      /** @} */
-      /** \name Member functions (get) */
-      /** @{ */
+    /**
+     * Default destructor. */
+    ~BCGoFTest();
 
-      /**
-       * Calculated the p-value.
-       * @param flag_histogram A histogram is either filled or not.
-       * @return p-value */
-      double GetCalculatedPValue(bool flag_histogram = false);
+    /** @} */
+    /** \name Member functions (get) */
+    /** @{ */
 
-      /**
-       * @return distribution of log(likelihood) */
-      TH1D * GetHistogramLogProb()
-         { return fHistogramLogProb; };
+    /**
+     * @return distribution of log(likelihood) */
+    TH1* GetHistogramLogProb()
+    { return (GetNParameters() < fH1Marginalized.size()) ? fH1Marginalized[GetNParameters()] : 0; }
 
-      /**
-       * @return pointer to the tested model */
-      BCModel * GetTestModel()
-         { return fTestModel; };
+    /**
+     * @return pointer to the tested model */
+    BCModel* GetTestModel()
+    { return fTestModel; };
 
-      /** @} */
-      /** \name Member functions (set) */
-      /** @{ */
+    /**
+     * @return Last p value calculated. */
+    double GetPValue()
+    { return fPValue; }
 
-      /**
-       * Set the model to be tested.
-       * @param testmodel pointer to the model to be tested */
-      void SetTestModel(BCModel * testmodel)
-         { fTestModel = testmodel; };
+    /**
+     * @return Last parameter set values tested. */
+    std::vector<double> GetTestedParameters()
+    { return fOriginalParameters; }
 
-      /**
-       * Sets the set of parameters which the p-values is calculated for.
-       * @param parameters parameters
-       * @return error code */
-      int SetTestPoint(std::vector<double> parameters);
+    /**
+     * @return Log likelihood of last parameter set tested. */
+    double GetTestedLogLikelihood()
+    { return fOriginalLogLikelihood; }
 
-      /** @} */
-      /** \name Member functions (miscellaneous methods) */
-      /** @{ */
+    /** @} */
+    /** \name Member functions (set) */
+    /** @{ */
 
-      double LogLikelihood(const std::vector<double> &parameters);
+    /**
+     * Set the model to be tested.
+     * @param testmodel pointer to the model to be tested */
+    void SetTestModel(BCModel* testmodel)
+    { fTestModel = testmodel; };
 
-      double LogAPrioriProbability(const std::vector<double> & /*parameters*/)
-         { return 0; };
 
-      void MCMCUserIterationInterface();
+    /** @} */
+    /** \name Member functions (miscellaneous methods) */
+    /** @{ */
 
-      /** @} */
+    /**
+     * Calculate the p-value.
+     * @param flag_histogram A histogram is either filled or not.
+     * @return p-value */
+    double CalculatePValue(const std::vector<double>& parameters);
 
-   private:
+    /**
+     * Updates test model's data set according to this object's parameter set,
+     * then calls test model's LogLilelihood function. */
+    double LogLikelihood(const std::vector<double>& parameters);
 
-      /**
-       * A map of data points and data values. */
-      std::vector<int> fMapDataPoint;
-      std::vector<int> fMapDataValue;
+    /**
+     * @return Constant value of zero. */
+    double LogAPrioriProbability(const std::vector<double>& /*parameters*/)
+    { return 0; };
 
-      /**
-       * Counter for the evaluation of the p-value. */
-      int fPValueBelow;
-      int fPValueAbove;
+    /**
+     * Calculate the log(prob) as an observable. */
+    void CalculateObservables(const std::vector<double>& pars);
 
-      /**
-       * A pointer to the model which is tested. */
-      BCModel * fTestModel;
+    /**
+     * Calls BCEngineMCMC's MCMCMetropolisPreRun(),
+     * then updates boundaries of observable "log_prob"
+     * for histogramming the log of the lilelihood. */
+    void MCMCMetropolisPreRun();
 
-      /**
-       * A data set used for temporary storage. */
-      BCDataSet * fTemporaryDataSet;
+    /** @} */
 
-      /**
-       * The log(likelihood) and its range. */
-      double fLogLikelihood;
-      double fLogLikelihoodMin;
-      double fLogLikelihoodMax;
+private:
 
-      /**
-       * The distribution of log(likelihood). */
-      TH1D * fHistogramLogProb;
+    /**
+     * A map of data points and data values. */
+    std::vector<std::pair<int, int> > fDataMap;
+
+    /**
+     * P Value */
+    double fPValue;
+
+    /**
+     * Counter for the evaluation of the p-value. */
+    int fPValueBelow;
+    int fPValueAbove;
+
+    /**
+     * A pointer to the model which is tested. */
+    BCModel* fTestModel;
+
+    /**
+     * Original parameters to be evaluated. */
+    std::vector<double> fOriginalParameters;
+
+    /**
+     * The log(likelihood) and its range. */
+    double fOriginalLogLikelihood;
+
 };
 
 // ---------------------------------------------------------

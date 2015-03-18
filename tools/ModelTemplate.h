@@ -13,16 +13,21 @@
 // Model source code is located in file |:Project:|/|:Model:|.cxx
 
 // ---------------------------------------------------------
-class |:Model:| : public BCModel {
- public:
+class | : Model: | : public BCModel
+{
+public:
 
-	// Constructor and destructor
-	|:Model:|(const char * name = "|:Model:|");
-	~|:Model:|();
+    // Constructor and destructor
+| :
+Model:
+    | (const char * name = "|:Model:|");
+~ | :
+Model:
+    | ();
 
-	// Methods to overload, see file |:Model:|.cxx
-	double LogLikelihood(const std::vector<double> & parameters);
-	// double LogAPrioriProbability(const std::vector<double> & parameters);
+    // Methods to overload, see file |:Model:|.cxx
+    double LogLikelihood(const std::vector<double> & parameters);
+    // double LogAPrioriProbability(const std::vector<double> & parameters);
 
 };
 // ---------------------------------------------------------

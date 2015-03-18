@@ -1,3 +1,22 @@
+<<<<<<< HEAD
+=======
+2014-09-02 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCModelOuput : Merged into BCEngineMCMC, BCIntegrate; REMOVED
+
+2014-09-01 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCSummaryTool : Merged into BCEngineMCMC; REMOVED
+	* BCPriorModel  : Added
+
+2014-06-05 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCIntegrate : changed GetSlice functions to return root histograms
+	  - Updated examples to comply
+
+2014-06-03 Daniel Greenwald <daniel.greenwald@tum.de>
+	* BCEngineMCMC.cxx: removing unnecessary counters and flags, and consolidating parameter settings
+	  - fMCMCNIterationsUpdateMax
+	  - fMCMCFlagConvergenceGlobal
+
+>>>>>>> 90f0801... (wip) all of Dan's changes in one commit
 2014-01-20 Kevin Kroeninger <kevin.kroeninger@phys.uni-goettingen.de>
 	* BCEngineMCMC.cxX: bug fix: check if initial parameters are valid was missing a !
 

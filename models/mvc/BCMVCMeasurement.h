@@ -17,78 +17,78 @@
 // ---------------------------------------------------------
 class BCMVCMeasurement
 {
- public:
+public:
 
-  // constructor
-  // name: the name of the measurement
-  BCMVCMeasurement(std::string name);
+    // constructor
+    // name: the name of the measurement
+    BCMVCMeasurement(std::string name);
 
-  // destructor
-  ~BCMVCMeasurement();
+    // destructor
+    ~BCMVCMeasurement();
 
-  // getters
+    // getters
 
-  // return the name of the observable
-  std::string GetName()
+    // return the name of the observable
+    std::string GetName()
     { return fName; };
 
-  // return the index of the observable
-  int GetObservable()
-  { return fObservable; };
+    // return the index of the observable
+    int GetObservable()
+    { return fObservable; };
 
-  // return the central value
-  double GetCentralValue()
-  { return fCentralValue; };
+    // return the central value
+    double GetCentralValue()
+    { return fCentralValue; };
 
-  // return the set of uncertainties
-  std::vector<double> GetUncertainties()
+    // return the set of uncertainties
+    std::vector<double> GetUncertainties()
     { return fUncertainties; };
 
-  // return a single uncertainty
-  double GetUncertainty(int index)
-  { return fUncertainties.at(index); };
+    // return a single uncertainty
+    double GetUncertainty(int index)
+    { return fUncertainties.at(index); };
 
-  // return the total uncertainty
-  double GetTotalUncertainty();
+    // return the total uncertainty
+    double GetTotalUncertainty();
 
-  // return the flag if the measurement is active or not
-  bool GetFlagActive()
-  { return fFlagActive; };
+    // return the flag if the measurement is active or not
+    bool GetFlagActive()
+    { return fFlagActive; };
 
-  // setters
+    // setters
 
-  // set the (index of the) observable this measurement corresponds to
-  void SetObservable(int index)
-  { fObservable = index; };
+    // set the (index of the) observable this measurement corresponds to
+    void SetObservable(int index)
+    { fObservable = index; };
 
-  // set the central value of the measurement
-  void SetCentralValue(double value)
-  { fCentralValue = value; };
+    // set the central value of the measurement
+    void SetCentralValue(double value)
+    { fCentralValue = value; };
 
-  // set the uncertainties on the measurement
-  void SetUncertainties(std::vector<double> uncertainties)
-  { fUncertainties = uncertainties; };
+    // set the uncertainties on the measurement
+    void SetUncertainties(std::vector<double> uncertainties)
+    { fUncertainties = uncertainties; };
 
-  // set flag if measurement is active for the combination
-  void SetFlagActive(bool flag)
-  { fFlagActive = flag; };
+    // set flag if measurement is active for the combination
+    void SetFlagActive(bool flag)
+    { fFlagActive = flag; };
 
- private:
+private:
 
-  // the name of the measurement
-  std::string fName;
+    // the name of the measurement
+    std::string fName;
 
-  // the (index of the) observale this measurement corresponds to
-  int fObservable;
+    // the (index of the) observale this measurement corresponds to
+    int fObservable;
 
-  // the central value of the measurement
-  double fCentralValue;
+    // the central value of the measurement
+    double fCentralValue;
 
-  // the uncertainties on the measurements
-  std::vector<double> fUncertainties;
+    // the uncertainties on the measurements
+    std::vector<double> fUncertainties;
 
-  // flag: active in combination (true) or not (false)
-  bool fFlagActive;
+    // flag: active in combination (true) or not (false)
+    bool fFlagActive;
 
 };
 // ---------------------------------------------------------

@@ -52,7 +52,7 @@
 // and 'offset'. The sigma of the gaussian for smearing can be defined via
 // the variable 'sigma'. It is also set as the y-error of the data.
 
-TGraphErrors * CreateGraph(int n, int seed = 0);
+TGraphErrors* CreateGraph(int n, int seed = 0);
 
 const double slope  =  1.0;
 const double offset = 11.0;
@@ -66,73 +66,71 @@ const double sigma  =  5.0;
 // ---------------------------------------------------------
 void graphFitterSimpleExample()
 {
-   // open log file
-   BCLog::OpenLog("log.txt");
-   BCLog::SetLogLevel(BCLog::detail);
+    // open log file
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-   // set nicer style for drawing than the ROOT default
-   BCAux::SetStyle();
+    // set nicer style for drawing than the ROOT default
+    BCAux::SetStyle();
 
-   // create data
-   TGraphErrors * graph = CreateGraph(10, 1000);
+    // create data
+    TGraphErrors* graph = CreateGraph(10, 1000);
 
-   // define a fit function
-   TF1 * f1 = new TF1("f1", "[0] + [1]*x", 0.0, 100.0);
+    // define a fit function
+    TF1* f1 = new TF1("f1", "[0] + [1]*x", 0.0, 100.0);
 
-   // allowed range has to be defined for every parameter
-   f1->SetParLimits(0, -20.0, 30.0);
-   f1->SetParLimits(1,   0.5,  1.5);
+    // allowed range has to be defined for every parameter
+    f1->SetParLimits(0, -20.0, 30.0);
+    f1->SetParLimits(1,   0.5,  1.5);
 
-   // create a new graph fitter
-   BCGraphFitter * gf = new BCGraphFitter(graph, f1);
+    // create a new graph fitter
+    BCGraphFitter* gf = new BCGraphFitter(graph, f1);
 
-   // set Metropolis as marginalization method
-   gf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    // set Metropolis as marginalization method
+    gf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
-   // set precision
-   gf->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    // set precision
+    gf->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
-   // perform the fit
-   gf->Fit();
+    // perform the fit
+    gf->Fit();
 
-   // print data and the fit
-   TCanvas * c1 = new TCanvas("c1");
-   gf->DrawFit("", true);
-   c1->Print("fit.pdf");
+    // print data and the fit
+    TCanvas* c1 = new TCanvas("c1");
+    gf->DrawFit("", true);
+    c1->Print("fit.pdf");
 
-   // print marginalized distributions
-   gf->PrintAllMarginalized("distributions.pdf");
+    // print marginalized distributions
+    gf->PrintAllMarginalized("distributions.pdf");
 
-   // print results
-   gf->PrintResults("results.txt");
+    // print results
+    gf->PrintResults("results.txt");
 }
 
 // ---------------------------------------------------------
-TGraphErrors * CreateGraph(int n, int seed)
+TGraphErrors* CreateGraph(int n, int seed)
 {
-   // initialize random number generator
-   gRandom = new TRandom3(seed);
+    // initialize random number generator
+    gRandom = new TRandom3(seed);
 
-   // define arrays
-   double * x  = new double[n];
-   double * y  = new double[n];
-   double * ey = new double[n];
+    // define arrays
+    double* x  = new double[n];
+    double* y  = new double[n];
+    double* ey = new double[n];
 
-   // define x and y-values and the uncertainties on y
-   for (int i = 0; i < n; ++i)
-   {
-      x[i] = 100. / double(n) * double(i+0.5);
-      y[i] = gRandom->Gaus(offset + slope*x[i], sigma);
-      ey[i] = sigma;
-   }
+    // define x and y-values and the uncertainties on y
+    for (int i = 0; i < n; ++i) {
+        x[i] = 100. / double(n) * double(i + 0.5);
+        y[i] = gRandom->Gaus(offset + slope * x[i], sigma);
+        ey[i] = sigma;
+    }
 
-   // create new graph
-   TGraphErrors * graph = new TGraphErrors(n, x, y, 0, ey);
-   graph->SetMarkerStyle(20);
-   graph->SetMarkerSize(1.5);
+    // create new graph
+    TGraphErrors* graph = new TGraphErrors(n, x, y, 0, ey);
+    graph->SetMarkerStyle(20);
+    graph->SetMarkerSize(1.5);
 
-   // return the graph
-   return graph;
+    // return the graph
+    return graph;
 }
 
 // ---------------------------------------------------------

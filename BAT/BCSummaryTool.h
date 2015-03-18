@@ -33,177 +33,177 @@ class BCSummaryPriorModel;
 
 class BCSummaryTool
 {
- public:
+public:
 
-   /** \name Constructors and destructors */
-   /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-   /**
-    * The default constructor. */
-   BCSummaryTool();
+    /**
+     * The default constructor. */
+    BCSummaryTool();
 
-   /**
-    * A constructor. */
-   BCSummaryTool(BCModel * model);
+    /**
+     * A constructor. */
+    BCSummaryTool(BCModel* model);
 
-   /**
-    * The default destructor. */
-   ~BCSummaryTool();
+    /**
+     * The default destructor. */
+    ~BCSummaryTool();
 
-   /** @} */
-   /** \name Member functions (get) */
-   /** @{ */
+    /** @} */
+    /** \name Member functions (get) */
+    /** @{ */
 
-   /**
-    * Retrieve pointer to the Prior model to allow for its detailed setup */
-   BCSummaryPriorModel * GetPriorModel()
-      { return fPriorModel; }
+    /**
+     * Retrieve pointer to the Prior model to allow for its detailed setup */
+    BCSummaryPriorModel* GetPriorModel()
+    { return fPriorModel; }
 
-   /** @} */
-   /** \name Member functions (set) */
-   /** @{ */
+    /** @} */
+    /** \name Member functions (set) */
+    /** @{ */
 
-   /**
-    * Set the model to be summarized.
-    * @param model The BCModel to be summarized.*/
-   void SetModel(BCModel * model)
-      { fModel = model; };
+    /**
+     * Set the model to be summarized.
+     * @param model The BCModel to be summarized.*/
+    void SetModel(BCModel* model)
+    { fModel = model; };
 
-   /** @} */
-   /** \name Member functions (misc) */
-   /** @{ */
+    /** @} */
+    /** \name Member functions (misc) */
+    /** @{ */
 
-   /**
-    * Calculate the marginalized distributions using the prior
-    * knowledge alone.
-    * @return An error flag.
-    */
-   int CalculatePriorModel();
+    /**
+     * Calculate the marginalized distributions using the prior
+     * knowledge alone.
+     * @return An error flag.
+     */
+    int CalculatePriorModel();
 
-   /**
-    * Copy the summary information from the model.
-    * @return An error flag. */
-   int CopySummaryData();
+    /**
+     * Copy the summary information from the model.
+     * @return An error flag. */
+    int CopySummaryData();
 
-   /**
-    * Print a summary plot for the parameters.
-    * @return An error flag. */
-   int PrintParameterPlot(const char * filename = "parameters.pdf");
+    /**
+     * Print a summary plot for the parameters.
+     * @return An error flag. */
+    int PrintParameterPlot(const char* filename = "parameters.pdf");
 
-   /**
-    * Print a correlation matrix for the parameters.
-    * @return An error flag. */
-   int PrintCorrelationMatrix(const char * filename = "matrix.pdf");
+    /**
+     * Print a correlation matrix for the parameters.
+     * @return An error flag. */
+    int PrintCorrelationMatrix(const char* filename = "matrix.pdf");
 
-   /**
-    * Print a correlation plot for the parameters.
-    * @return An error flag. */
-   int PrintCorrelationPlot(const char * filename = "correlation.pdf");
+    /**
+     * Print a correlation plot for the parameters.
+     * @return An error flag. */
+    int PrintCorrelationPlot(const char* filename = "correlation.pdf");
 
-   /**
-    * Draw a comparison of the prior knowledge to the posterior
-    * knowledge for each parameter.
-    * @return An error flag. */
-   int DrawKnowledgeUpdatePlot1D(int index, std::string options_post="", std::string options_prior="");
+    /**
+     * Draw a comparison of the prior knowledge to the posterior
+     * knowledge for each parameter.
+     * @return An error flag. */
+    int DrawKnowledgeUpdatePlot1D(int index, std::string options_post = "", std::string options_prior = "");
 
-   /**
-    * Print a comparison of the prior knowledge to the posterior
-    * knowledge for each parameter.
-    * @return An error flag. */
-   int PrintKnowledgeUpdatePlot1D(int index, const char * filename, std::string options_post="", std::string options_prior="");
+    /**
+     * Print a comparison of the prior knowledge to the posterior
+     * knowledge for each parameter.
+     * @return An error flag. */
+    int PrintKnowledgeUpdatePlot1D(int index, const char* filename, std::string options_post = "", std::string options_prior = "");
 
-   /**
-    * Print a comparison of the prior knowledge to the posterior
-    * knowledge for each parameter.
-    * @return An error flag. */
-   int PrintKnowledgeUpdatePlots(const char * filename = "update.pdf", std::string options="");
+    /**
+     * Print a comparison of the prior knowledge to the posterior
+     * knowledge for each parameter.
+     * @return An error flag. */
+    int PrintKnowledgeUpdatePlots(const char* filename = "update.pdf", std::string options = "");
 
-   /**
-    * Print a Latex table of the parameters.
-    * @return An error flag. */
-   int PrintParameterLatex(const char * filename);
+    /**
+     * Print a Latex table of the parameters.
+     * @return An error flag. */
+    int PrintParameterLatex(const char* filename);
 
-   /** @} */
+    /** @} */
 
- private:
+private:
 
-   /** Helper method to get an unique number to be used in histogram naming */
-   static unsigned int getNextIndex()
-      { return ++fHCounter; }
+    /** Helper method to get an unique number to be used in histogram naming */
+    static unsigned int getNextIndex()
+    { return ++fHCounter; }
 
-   /** helper variable to get an unique number to be used in histogram naming */
-   static unsigned int fHCounter;
+    /** helper variable to get an unique number to be used in histogram naming */
+    static unsigned int fHCounter;
 
-   /**
-    * The model whose results are summarized */
-   BCModel * fModel;
+    /**
+     * The model whose results are summarized */
+    BCModel* fModel;
 
-   /**
-    * parameter names */
-   std::vector<std::string> fParName;
+    /**
+     * parameter names */
+    std::vector<std::string> fParName;
 
-   /**
-    * parameter minima */
-   std::vector<double> fParMin;
+    /**
+     * parameter minima */
+    std::vector<double> fParMin;
 
-   /**
-    * Parameter maxima */
-   std::vector<double> fParMax;
+    /**
+     * Parameter maxima */
+    std::vector<double> fParMax;
 
-   /**
-    * Correlation coefficients.
-    * Length of vector equals number of parameters * number of parameters. */
-   std::vector<double> fCorrCoeff;
+    /**
+     * Correlation coefficients.
+     * Length of vector equals number of parameters * number of parameters. */
+    std::vector<double> fCorrCoeff;
 
-   /**
-    * Marginalized modes.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fMargMode;
+    /**
+     * Marginalized modes.\n
+     * Length of vector equals number of parameters. */
+    std::vector<double> fMargMode;
 
-   /**
-    * Mean values.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fMean;
+    /**
+     * Mean values.\n
+     * Length of vector equals number of parameters. */
+    std::vector<double> fMean;
 
-   /**
-    * Global modes.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fGlobalMode;
+    /**
+     * Global modes.\n
+     * Length of vector equals number of parameters. */
+    std::vector<double> fGlobalMode;
 
-   /**
-    * Quantiles.\n
-    * The following quantiles are stored: 0.05, 0.10, 0.16, 0.5, 0.84, 0.90, 0.95.\n
-    * Length of vector equals number of parameters * number of quantiles. */
-   std::vector<double> fQuantiles;
+    /**
+     * Quantiles.\n
+     * The following quantiles are stored: 0.05, 0.10, 0.16, 0.5, 0.84, 0.90, 0.95.\n
+     * Length of vector equals number of parameters * number of quantiles. */
+    std::vector<double> fQuantiles;
 
-   /**
-    * Smallest intervals.\n
-    * For each parameter a set of the smallest intervals is recorded.\n
-    * Structure: number of intervals n + n * (start, stop, local max, local max pos, integral)
-    * Length of vector equals number of parameters * number of quantiles. */
-   std::vector<double> fSmallInt;
+    /**
+     * Smallest intervals.\n
+     * For each parameter a set of the smallest intervals is recorded.\n
+     * Structure: number of intervals n + n * (start, stop, local max, local max pos, integral)
+     * Length of vector equals number of parameters * number of quantiles. */
+    std::vector<double> fSmallInt;
 
-   /**
-    * RMS values.\n
-    * Length of vector equals number of parameters. */
-   std::vector<double> fRMS;
+    /**
+     * RMS values.\n
+     * Length of vector equals number of parameters. */
+    std::vector<double> fRMS;
 
-   /**
-    * Sum of probabilities for quantiles */
-   std::vector<double> fSumProb;
+    /**
+     * Sum of probabilities for quantiles */
+    std::vector<double> fSumProb;
 
-   /**
-    * A model for calculating the marginalized distributions for the
-    * prior probabilities. */
-   BCSummaryPriorModel * fPriorModel;
+    /**
+     * A model for calculating the marginalized distributions for the
+     * prior probabilities. */
+    BCSummaryPriorModel* fPriorModel;
 
-   /**
-    * A flag: check if marginalized information is present */
-   bool fFlagInfoMarg;
+    /**
+     * A flag: check if marginalized information is present */
+    bool fFlagInfoMarg;
 
-   /**
-    * A flag: check if optimization information is present */
-   bool fFlagInfoOpt;
+    /**
+     * A flag: check if optimization information is present */
+    bool fFlagInfoOpt;
 
 };
 // ---------------------------------------------------------

@@ -12,1094 +12,878 @@
 
 #include "BCDataPoint.h"
 #include "BCDataSet.h"
-#include "BCGoFTest.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
 #include "BCLog.h"
 #include "BCMath.h"
-#include "BCModelOutput.h"
 #include "BCParameter.h"
+#include "BCPriorModel.h"
+#include "BCPrior.h"
+#include "BCConstantPrior.h"
+#include "BCTH1Prior.h"
 
 #include <TCanvas.h>
 #include <TF1.h>
 #include <TGraph.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TH1D.h>
 #include <TH2D.h>
 #include <TMath.h>
 #include <TRandom3.h>
 #include <TTree.h>
+#include <TList.h>
+#include <TLegend.h>
+#include <TLegendEntry.h>
+#include <TMarker.h>
+#include <TArrow.h>
 
 #include <fstream>
 #include <iomanip>
 #include <set>
 
 // ---------------------------------------------------------
-BCModel::BCModel(const char * name) :
-   BCIntegrate(),
-   fName((char *) name),
-   fModelAPriori(0),
-   fModelAPosteriori(0),
-   fDataSet(0),
-   fDataPointLowerBoundaries(0),
-   fDataPointUpperBoundaries(0),
-   fPValue(-1),
-   fChi2NDoF(-1),
-   fPValueNDoF(-1),
-   flag_discrete(false),
-   fGoFNIterationsMax(100000),
-   fGoFNIterationsRun(2000),
-   fGoFNChains(5),
-   fPriorConstantAll(false)
+BCModel::BCModel(const char* name)
+    : BCIntegrate(name)
+    , fDataSet(0)
+    , fPriorModel(0)
+    , fBCH1DPriorDrawingOptions(new BCH1D)
+    , fBCH2DPriorDrawingOptions(new BCH2D)
+    , fBCH1DPosteriorDrawingOptions(new BCH1D)
+    , fBCH2DPosteriorDrawingOptions(new BCH2D)
+    , fPriorPosteriorNormalOrder(true)
+    , fFactorizedPrior(false)
 {
+    SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
 }
 
 // ---------------------------------------------------------
-BCModel::BCModel(const BCModel & bcmodel) : BCIntegrate(bcmodel)
+BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
+    : BCIntegrate(name.data())
+    , fDataSet(0)
+    , fPriorModel(0)
+    , fBCH1DPriorDrawingOptions(new BCH1D)
+    , fBCH2DPriorDrawingOptions(new BCH2D)
+    , fBCH1DPosteriorDrawingOptions(new BCH1D)
+    , fBCH2DPosteriorDrawingOptions(new BCH2D)
+    , fPriorPosteriorNormalOrder(true)
+    , fFactorizedPrior(false)
 {
-	Copy(bcmodel);
+    LoadMCMC(filename, "", "", reuseObservables);
+    SetPriorConstantAll();
+    SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
 }
 
 // ---------------------------------------------------------
-void BCModel::Copy(const BCModel & bcmodel)
+BCModel::BCModel(const BCModel& bcmodel)
+    : BCIntegrate(bcmodel)
+    , fPriorModel(0)
+    , fBCH1DPriorDrawingOptions(new BCH1D)
+    , fBCH2DPriorDrawingOptions(new BCH2D)
+    , fBCH1DPosteriorDrawingOptions(new BCH1D)
+    , fBCH2DPosteriorDrawingOptions(new BCH2D)
 {
-   //  called for the second time in copy constructor? do copy-and-swap instead
-   //   BCIntegrate::Copy(bcmodel);
-   fName                            = bcmodel.fName;
-   fModelAPriori                    = bcmodel.fModelAPriori;
-   fModelAPosteriori                = bcmodel.fModelAPosteriori;
-   if (fDataSet)
-      fDataSet = bcmodel.fDataSet;
-   else
-      fDataSet = 0;
-
-   if (bcmodel.fDataPointLowerBoundaries)
-      fDataPointLowerBoundaries = new BCDataPoint(*bcmodel.fDataPointLowerBoundaries);
-   else
-      fDataPointLowerBoundaries = 0;
-   if (bcmodel.fDataPointUpperBoundaries)
-      fDataPointUpperBoundaries = new BCDataPoint(*bcmodel.fDataPointUpperBoundaries);
-   else
-      fDataPointUpperBoundaries = 0;
-
-   fDataFixedValues                 = bcmodel.fDataFixedValues;
-
-   fPValue                          = bcmodel.fPValue;
-   fChi2NDoF                        = bcmodel.fChi2NDoF;
-   fPValueNDoF                      = bcmodel.fPValueNDoF;
-   flag_discrete                    = bcmodel.flag_discrete;
-   fGoFNIterationsMax               = bcmodel.fGoFNIterationsMax;
-   fGoFNIterationsRun               = bcmodel.fGoFNIterationsRun;
-   fGoFNChains                      = bcmodel.fGoFNChains;
-   for (int i = 0; i < int(bcmodel.fPriorContainer.size()); ++i) {
-      if (bcmodel.fPriorContainer.at(i))
-         fPriorContainer.push_back(new TNamed(*bcmodel.fPriorContainer.at(i)));
-      else
-         fPriorContainer.push_back(0);
-   }
-   fPriorConstantAll                = bcmodel.fPriorConstantAll;
-   fPriorContainerConstant          = bcmodel.fPriorContainerConstant;
-   fPriorContainerInterpolate       = bcmodel.fPriorContainerInterpolate;
+    Copy(bcmodel);
 }
 
 // ---------------------------------------------------------
 BCModel::~BCModel()
 {
-   for (unsigned int i = 0; i < GetNParameters(); ++i)
-      delete fPriorContainer[i];
-   fPriorContainer.clear();
-
-   delete fDataPointLowerBoundaries;
-   delete fDataPointUpperBoundaries;
+    delete fPriorModel;
+    delete fBCH1DPriorDrawingOptions;
+    delete fBCH2DPriorDrawingOptions;
+    delete fBCH1DPosteriorDrawingOptions;
+    delete fBCH2DPosteriorDrawingOptions;
 }
 
 // ---------------------------------------------------------
-BCModel & BCModel::operator = (const BCModel & bcmodel)
+void BCModel::Copy(const BCModel& bcmodel)
 {
-   Copy(bcmodel);
+    //  called for the second time in copy constructor? do copy-and-swap instead
+    //   BCIntegrate::Copy(bcmodel);
+    fName                            = bcmodel.fName;
+    fDataSet                         = bcmodel.fDataSet;
 
-   return *this;
+    fBCH1DPriorDrawingOptions->CopyOptions(*(bcmodel.fBCH1DPriorDrawingOptions));
+    fBCH2DPriorDrawingOptions->CopyOptions(*(bcmodel.fBCH2DPriorDrawingOptions));
+    fBCH1DPosteriorDrawingOptions->CopyOptions(*(bcmodel.fBCH1DPosteriorDrawingOptions));
+    fBCH2DPosteriorDrawingOptions->CopyOptions(*(bcmodel.fBCH2DPosteriorDrawingOptions));
+    fPriorPosteriorNormalOrder = bcmodel.fPriorPosteriorNormalOrder;
+
+    fFactorizedPrior = bcmodel.fFactorizedPrior;
 }
 
 // ---------------------------------------------------------
-unsigned BCModel::GetNDataPoints() const
+double BCModel::LogProbabilityNN(const std::vector<double>& parameters)
 {
-   if (fDataSet)
-      return fDataSet->GetNDataPoints();
-   else
-      return 0;
-   }
-
-// ---------------------------------------------------------
-BCDataPoint * BCModel::GetDataPoint(unsigned int index) const
-{
-   if (fDataSet)
-      return fDataSet->GetDataPoint(index);
-
-   BCLog::OutWarning("BCModel::GetDataPoint : No data set defined.");
-   return 0;
+    double ll = LogLikelihood(parameters);
+    double lp = LogAPrioriProbability(parameters);
+    if (MCMCGetCurrentChain() >= 0 and MCMCGetCurrentChain() < (int)fMCMCLogLikelihood_Provisional.size() and MCMCGetCurrentChain() < (int)fMCMCLogPrior_Provisional.size()) {
+        fMCMCLogLikelihood_Provisional[MCMCGetCurrentChain()] = ll;
+        fMCMCLogPrior_Provisional[MCMCGetCurrentChain()] = lp;
+    }
+    return ll + lp;
 }
 
 // ---------------------------------------------------------
-double BCModel::GetDataPointLowerBoundary(unsigned int index) const
+double BCModel::LogProbability(const std::vector<double>& parameters)
 {
-    return fDataPointLowerBoundaries -> GetValue(index);
+    // check if normalized
+    if (GetIntegral() <= 0.) {
+        BCLog::OutError("BCModel::LogProbability. Normalization not available or zero.");
+        return 0.;
+    }
+
+    return LogProbabilityNN(parameters) - log(GetIntegral());
 }
 
 // ---------------------------------------------------------
-double BCModel::GetDataPointUpperBoundary(unsigned int index) const
+void BCModel::InitializeMarkovChainTree(bool replacetree, bool replacefile)
 {
-    return fDataPointUpperBoundaries -> GetValue(index);
+    BCEngineMCMC::InitializeMarkovChainTree(replacetree, replacefile);
+    if (!fMCMCTree)
+        return;
+    fMCMCTree->Branch("LogLikelihood", &fMCMCTree_LogLikelihood, "log(likelihood)/D");
+    fMCMCTree->Branch("LogPrior",      &fMCMCTree_LogPrior,      "log(prior)/D");
 }
 
 // ---------------------------------------------------------
-bool BCModel::GetFlagBoundaries() const
+double BCModel::SamplingFunction(const std::vector<double>& /*parameters*/)
 {
-   if (!fDataPointLowerBoundaries)
-      return false;
-
-   if (!fDataPointUpperBoundaries)
-      return false;
-
-   if (fDataPointLowerBoundaries->GetNValues() != fDataSet->GetDataPoint(0)->GetNValues())
-      return false;
-
-   if (fDataPointUpperBoundaries->GetNValues() != fDataSet->GetDataPoint(0)->GetNValues())
-      return false;
-
-   return true;
+    double probability = 1;
+    for (unsigned i = 0 ; i < GetNParameters() ; ++i)
+        probability *= 1. / GetParameter(i)->GetRangeWidth();
+    return probability;
 }
 
 // ---------------------------------------------------------
-void BCModel::SetSingleDataPoint(BCDataPoint * datapoint)
+double BCModel::HessianMatrixElement(const BCParameter* par1, const BCParameter* par2, std::vector<double> point)
 {
-   // create new data set consisting of a single data point
-   BCDataSet * dataset = new BCDataSet();
+    // check number of entries in vector
+    if (point.size() != GetNParameters()) {
+        BCLog::OutError("BCModel::HessianMatrixElement : Invalid number of entries in the vector.");
+        return -1;
+    }
 
-   // add the data point
-   dataset->AddDataPoint(datapoint);
+    // define steps
+    double nsteps = 1e5;
+    double dx1 = par1->GetRangeWidth() / nsteps;
+    double dx2 = par2->GetRangeWidth() / nsteps;
 
-   // set this new data set
-   SetDataSet(dataset);
+    // define points at which to evaluate
+    std::vector<double> xpp = point;
+    std::vector<double> xpm = point;
+    std::vector<double> xmp = point;
+    std::vector<double> xmm = point;
+
+    unsigned idx1 = fParameters.Index(par1->GetName());
+    unsigned idx2 = fParameters.Index(par2->GetName());
+
+    xpp[idx1] += dx1;
+    xpp[idx2] += dx2;
+
+    xpm[idx1] += dx1;
+    xpm[idx2] -= dx2;
+
+    xmp[idx1] -= dx1;
+    xmp[idx2] += dx2;
+
+    xmm[idx1] -= dx1;
+    xmm[idx2] -= dx2;
+
+    // calculate probability at these points
+    double ppp = Likelihood(xpp);
+    double ppm = Likelihood(xpm);
+    double pmp = Likelihood(xmp);
+    double pmm = Likelihood(xmm);
+
+    // return derivative
+    return (ppp + pmm - ppm - pmp) / (4. * dx1 * dx2);
 }
 
 // ---------------------------------------------------------
-void BCModel::SetSingleDataPoint(BCDataSet * dataset, unsigned int index)
+void BCModel::PrintShortFitSummary()
 {
-   if (index > dataset->GetNDataPoints())
-      return;
-
-   SetSingleDataPoint(dataset->GetDataPoint(index));
-}
-
-// ---------------------------------------------------------
-void BCModel::SetDataBoundaries(unsigned int index, double lowerboundary, double upperboundary, bool fixed)
-{
-   // check if data set exists
-   if (!fDataSet) {
-      BCLog::OutError("BCModel::SetDataBoundaries : Need to define data set first.");
-      return;
-   }
-
-   // check if index is within range
-   if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-      BCLog::OutError("BCModel::SetDataBoundaries : Index out of range.");
-      return;
-   }
-
-   // check if boundary data points exist
-   if (!fDataPointLowerBoundaries)
-      fDataPointLowerBoundaries = new BCDataPoint(fDataSet->GetDataPoint(0)->GetNValues());
-
-   if (!fDataPointUpperBoundaries)
-      fDataPointUpperBoundaries = new BCDataPoint(fDataSet->GetDataPoint(0)->GetNValues());
-
-   if (fDataFixedValues.size() == 0)
-      fDataFixedValues.assign(fDataSet->GetDataPoint(0)->GetNValues(), false);
-
-   // set boundaries
-   fDataPointLowerBoundaries->SetValue(index, lowerboundary);
-   fDataPointUpperBoundaries->SetValue(index, upperboundary);
-   fDataFixedValues[index] = fixed;
-}
-
-// ---------------------------------------------------------
-int BCModel::AddParameter(BCParameter * parameter)
-{
-	if ( !BCEngineMCMC::AddParameter(parameter))
-		return 1;
-
-   // add empty object to prior container
-   fPriorContainer.push_back(0);
-
-   // don't interpolate the prior histogram by default
-   fPriorContainerInterpolate.push_back(false);
-
-   // prior assumed to be non-constant in general case
-   fPriorContainerConstant.push_back(false);
-
-   return 0;
-}
-
-// ---------------------------------------------------------
-double BCModel::ProbabilityNN(const std::vector<double> &params)
-{
-   return exp(LogProbabilityNN(params) );
-}
-
-// ---------------------------------------------------------
-double BCModel::Probability(const std::vector<double> &parameter)
-{
-   return exp(LogProbability(parameter));
-}
-
-// ---------------------------------------------------------
-double BCModel::LogProbability(const std::vector<double> &parameters)
-{
-   // check if normalized
-  if (GetIntegral() <= 0.) {
-      BCLog::OutError("BCModel::LogProbability. Normalization not available or zero.");
-      return 0.;
-   }
-
-  return LogProbabilityNN(parameters) - log(GetIntegral());
-}
-
-// ---------------------------------------------------------
-double BCModel::APrioriProbability(const std::vector<double> &parameters)
-{
-   return exp(this->LogAPrioriProbability(parameters) );
-}
-
-// ---------------------------------------------------------
-double BCModel::LogAPrioriProbability(const std::vector<double> &parameters)
-{
-   double logprob = 0;
-
-   // loop over all parameters, assume prior factorizes
-   // into n independent parts
-   for (unsigned i = 0; i < fParameters.Size(); ++i) {
-      BCParameter * par = fParameters[i];
-
-      // avoid fixed and zero-width parameters
-      if (par->Fixed() or not par->GetRangeWidth())
-         continue;
-
-      if (fPriorContainerConstant[i]) {
-         logprob -= log(par->GetRangeWidth());
-         continue;
-      }
-
-      if (fPriorContainer[i]) {
-         // check what type of object is stored
-         TF1 * f = dynamic_cast<TF1*>(fPriorContainer[i]);
-         TH1 * h = dynamic_cast<TH1*>(fPriorContainer[i]);
-
-         if (f) // TF1
-            logprob += log(f->Eval(parameters[i]));
-         else if (h) { // TH1
-            if(fPriorContainerInterpolate[i])
-               logprob += log(h->Interpolate(parameters[i]));
-            else
-               logprob += log(h->GetBinContent(h->FindBin(parameters[i])));
-         }
-         else
-            BCLog::OutError(Form(
-                  "BCModel::LogAPrioriProbability : Prior for parameter %s "
-                  "is defined but not recognized.",
-                  par->GetName().c_str())); // this should never happen
-      }
-      // use constant only if user has defined it
-      else {
-         BCLog::OutError(Form(
-               "BCModel::LogAPrioriProbability: Prior for parameter %s "
-               "is undefined. Using constant prior to proceed.",
-               par->GetName().c_str()));
-         logprob -= log(par->GetRangeWidth());
-      }
-   }
-
-   return logprob;
-}
-
-// ---------------------------------------------------------
-double BCModel::Likelihood(const std::vector<double> &params)
-{
-   return exp(LogLikelihood(params));
-}
-
-// ---------------------------------------------------------
-double BCModel::Eval(const std::vector<double> &parameters)
-{
-   return exp(LogEval(parameters));
-}
-
-// ---------------------------------------------------------
-double BCModel::LogEval(const std::vector<double> &parameters)
-{
-   return LogProbabilityNN(parameters);
-}
-
-// ---------------------------------------------------------
-double BCModel::SamplingFunction(const std::vector<double> & /*parameters*/)
-{
-   double probability = 1;
-   for (unsigned i = 0 ; i < GetNParameters() ; ++i)
-      probability *= 1. / fParameters[i]->GetRangeWidth();
-   return probability;
-}
-
-// ---------------------------------------------------------
-double BCModel::GetPvalueFromChi2(const std::vector<double> &par, int sigma_index)
-{
-   double ll = LogLikelihood(par);
-   int n = GetNDataPoints();
-
-   double sum_sigma = 0;
-   for (int i = 0; i < n; i++)
-      sum_sigma += log(GetDataPoint(i)->GetValue(sigma_index));
-
-   double chi2 = -2. * (ll + (double) n / 2. * log(2. * M_PI) + sum_sigma);
-
-   fPValue = TMath::Prob(chi2, n);
-
-   return fPValue;
-}
-
-// ---------------------------------------------------------
-std::vector<double> BCModel::GetChi2Runs(int /*dataIndex*/, int /*sigmaIndex*/)
-{
-   std::vector<double> x;
-   return x;
-}
-
-// ---------------------------------------------------------
-double BCModel::GetPvalueFromChi2NDoF(std::vector<double> par, int sigma_index)
-{
-   double ll = LogLikelihood(par);
-   int n = GetNDataPoints();
-   int npar = GetNParameters();
-
-   double sum_sigma = 0;
-   for (int i = 0; i < n; i++)
-      sum_sigma += log(GetDataPoint(i)->GetValue(sigma_index));
-
-   double chi2 = -2. * (ll + (double) n / 2. * log(2. * M_PI) + sum_sigma);
-
-   fChi2NDoF = chi2 / double(n - npar);
-   fPValueNDoF = TMath::Prob(chi2, n - npar);
-
-   return fPValueNDoF;
-}
-
-// ---------------------------------------------------------
-double BCModel::GetPvalueFromKolmogorov(const std::vector<double>& par,int index)
-{
-   if (flag_discrete) {
-      BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
-            "test defined only for continuous distributions."));
-      return -1.;
-   }
-
-   //calculate the ECDF from the 1D data
-   std::vector<double> yData = fDataSet->GetDataComponents(index);
-   TH1D * ECDF = BCMath::ECDF(yData);
-
-   int N = GetNDataPoints();
-
-   // calculated expected CDF for unique points only
-   std::set<double> uniqueObservations;
-   for (int i = 0; i < N; i++)
-      uniqueObservations.insert(CDF(par, i, false));
-
-   int nUnique = uniqueObservations.size();
-   if (nUnique != ECDF->GetNbinsX() + 1) {
-      BCLog::OutError(Form("BCModel::GetPvalueFromKolmogorov : "
-            "Number of unique data points doesn't match (%d vs %d)", nUnique,
-            ECDF->GetNbinsX() + 1));
-      return -1.;
-   }
-
-   // find maximum distance
-   double distMax = 0.;
-
-   // current distance
-   double dist = 0.;
-
-   std::set<double>::const_iterator iter = uniqueObservations.begin();
-   for (int iBin = 0; iBin < nUnique; ++iBin) {
-      // distance between current points
-      dist = TMath::Abs(*iter - ECDF->GetBinContent(iBin + 1));
-      // update maximum if necessary
-      distMax = TMath::Max(dist, distMax);
-
-      // advance to next entry in the set
-      ++iter;
-   }
-
-   // correct for total #points, not unique #points.
-   // would need sqrt(n1*n2/(n1+n2)) if we had two experimental datasets
-   double z = distMax * sqrt(N);
-
-   fPValue = TMath::KolmogorovProb(z);
-
-   // clean up
-   delete ECDF;
-
-   return fPValue;
-}
-
-// ---------------------------------------------------------
-BCH1D * BCModel::CalculatePValue(std::vector<double> par, bool flag_histogram)
-{
-   BCH1D * hist = 0;
-
-   // print log
-   BCLog::OutSummary("Do goodness-of-fit-test");
-
-   // create model test
-   BCGoFTest * goftest = new BCGoFTest("modeltest");
-
-   // set this model as the model to be tested
-   goftest->SetTestModel(this);
-
-   // set the point in parameter space which is tested an initialize
-   // the model testing
-   if (!goftest->SetTestPoint(par))
-      return 0;
-
-   // disable the creation of histograms to save _a lot_ of memory
-   // (histograms are not needed for p-value calculation)
-   goftest->MCMCSetFlagFillHistograms(false);
-
-   // set parameters of the MCMC for the GoFTest
-   goftest->MCMCSetNChains(fGoFNChains);
-   goftest->MCMCSetNIterationsMax(fGoFNIterationsMax);
-   goftest->MCMCSetNIterationsRun(fGoFNIterationsRun);
-
-   // get p-value
-   fPValue = goftest->GetCalculatedPValue(flag_histogram);
-
-   // get histogram
-   if (flag_histogram) {
-      hist = new BCH1D();
-      hist->SetHistogram(goftest->GetHistogramLogProb());
-   }
-
-   // delete model test
-   delete goftest;
-
-   // return histogram
-   return hist;
-}
-
-// ---------------------------------------------------------
-void BCModel::CorrelateDataPointValues(std::vector<double> & /*x*/)
-{
-   // ...
-}
-
-// ---------------------------------------------------------
-double BCModel::HessianMatrixElement(const BCParameter * par1, const BCParameter * par2, std::vector<double> point)
-{
-   // check number of entries in vector
-   if (point.size() != GetNParameters()) {
-      BCLog::OutError("BCModel::HessianMatrixElement : Invalid number of entries in the vector.");
-      return -1;
-   }
-
-   // define steps
-   double nsteps = 1e5;
-   double dx1 = par1->GetRangeWidth() / nsteps;
-   double dx2 = par2->GetRangeWidth() / nsteps;
-
-   // define points at which to evaluate
-   std::vector<double> xpp = point;
-   std::vector<double> xpm = point;
-   std::vector<double> xmp = point;
-   std::vector<double> xmm = point;
-
-   unsigned idx1 = fParameters.Index(par1->GetName());
-   unsigned idx2 = fParameters.Index(par2->GetName());
-
-   xpp[idx1] += dx1;
-   xpp[idx2] += dx2;
-
-   xpm[idx1] += dx1;
-   xpm[idx2] -= dx2;
-
-   xmp[idx1] -= dx1;
-   xmp[idx2] += dx2;
-
-   xmm[idx1] -= dx1;
-   xmm[idx2] -= dx2;
-
-   // calculate probability at these points
-   double ppp = Likelihood(xpp);
-   double ppm = Likelihood(xpm);
-   double pmp = Likelihood(xmp);
-   double pmm = Likelihood(xmm);
-
-   // return derivative
-   return (ppp + pmm - ppm - pmp) / (4. * dx1 * dx2);
-}
-
-// ---------------------------------------------------------
-void BCModel::SetDataPointLowerBoundary(int index, double lowerboundary)
-{
-   fDataPointLowerBoundaries -> SetValue(index, lowerboundary);
-}
-
-// ---------------------------------------------------------
-void BCModel::SetDataPointUpperBoundary(int index, double upperboundary)
-{
-   fDataPointUpperBoundaries -> SetValue(index, upperboundary);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPrior(int index, TF1 * f)
-{
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior : Index out of range.");
-      return 0;
-   }
-
-   if (fPriorContainer[index])
-      delete fPriorContainer[index];
-
-   // copy function
-   fPriorContainer[index] = new TF1(*f);
-
-   fPriorContainerConstant[index] = false;
-
-   // no error
-   return 1;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPrior(const char * name, TF1 * f)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-
-   // set prior
-   return SetPrior(index, f);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorDelta(int index, double value)
-{
-   // set range to value
-   GetParameter(index)->Fix(value);
-
-   // set prior
-   return 1;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorDelta(const char* name, double value)
-{
-   fParameters.Get(name)->Fix(value);
-
-   return 1;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorGauss(int index, double mean, double sigma)
-{
-   // check index range
-   if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
-      return 0;
-   }
-
-   // create new function
-   TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
-         "1./sqrt(2.*TMath::Pi())/[1] * exp(- (x-[0])*(x-[0])/2./[1]/[1])",
-         GetParameter(index)->GetLowerLimit(),
-         GetParameter(index)->GetUpperLimit());
-   f->SetParameter(0, mean);
-   f->SetParameter(1, sigma);
-
-   // set prior
-   return SetPrior(index, f);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorGauss(const char* name, double mean, double sigma)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-
-   // set prior
-   return SetPriorGauss(index, mean, sigma);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorGauss(int index, double mean, double sigmadown, double sigmaup)
-{
-   // check index range
-   if (index < 0 || index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorGauss : Index out of range.");
-      return 0;
-   }
-
-   // create new function
-   TF1 * f = new TF1(Form("prior_%s", GetParameter(index)->GetName().c_str()),
-         BCMath::SplitGaussian,
-         GetParameter(index)->GetLowerLimit(),
-         GetParameter(index)->GetUpperLimit(),
-         3);
-   f->SetParameter(0, mean);
-   f->SetParameter(1, sigmadown);
-   f->SetParameter(2, sigmaup);
-
-   // set prior
-   return SetPrior(index, f);
-
-   return 0;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorGauss(const char * name, double mean, double sigmadown, double sigmaup)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-
-   // set prior
-   return SetPriorGauss(index, mean, sigmadown, sigmaup);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPrior(int index, TH1 * h, bool interpolate)
-{
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPrior : Index out of range.");
-      return 0;
-   }
-
-   // if the histogram exists
-   if(h) {
-
-      // check if histogram is 1d
-      if (h->GetDimension() != 1) {
-         BCLog::OutError(Form("BCModel::SetPrior : Histogram given for parameter %d is not 1D.",index));
-         return 0;
-      }
-
-      // normalize the histogram
-      h->Scale(1./h->Integral("width"));
-
-      if(fPriorContainer[index])
-         delete fPriorContainer[index];
-
-      // set function
-      fPriorContainer[index] = (TNamed*) h->Clone();
-
-      if (interpolate)
-         fPriorContainerInterpolate[index] = true;
-
-      fPriorContainerConstant[index] = false;
-   }
-
-   // no error
-   return 1;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPrior(const char * name, TH1 * h, bool interpolate)
-{
-   // find index
-   int index = -1;
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      if (name == GetParameter(i)->GetName())
-         index = i;
-
-   // set prior
-   return SetPrior(index, h, interpolate);
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorConstant(int index)
-{
-   // check index range
-   if (index < 0 && index >= int(GetNParameters())) {
-      BCLog::OutError("BCModel::SetPriorConstant : Index out of range.");
-      return 0;
-   }
-
-   if(fPriorContainer[index]) {
-      delete fPriorContainer[index];
-      fPriorContainer[index] = 0;
-   }
-
-   // set prior to a constant
-   fPriorContainerConstant[index] = true;
-
-   // no error
-   return 1;
-}
-
-// ---------------------------------------------------------
-int BCModel::SetPriorConstantAll()
-{
-   if ( !fParameters.Size())
-      BCLog::OutWarning("BCModel::SetPriorConstantAll : No parameters defined.");
-
-   // loop over all 1-d priors
-   for (unsigned i = 0; i < fParameters.Size(); ++i) {
-      if (fPriorContainer[i]) {
-         delete fPriorContainer[i];
-         fPriorContainer[i]=0;
-      }
-      fPriorContainerConstant[i] = true;
-   }
-
-   // no error
-   return 1;
-}
-
-// ---------------------------------------------------------
-void BCModel::PrintSummary()
-{
-   // model summary
-   BCLog::OutSummary(Form("Model : %s", fName.data()));
-   BCLog::OutSummary(Form("Number of parameters : %u", GetNParameters()));
-   BCLog::OutSummary("Parameters:");
-
-   // parameter summary
-   for (unsigned i = 0; i < GetNParameters(); i++)
-      fParameters[i]->PrintSummary();
-
-   // best fit parameters
-   if ( !GetBestFitParameters().empty()) {
-     BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
-      BCLog::OutSummary("Best fit parameters:");
-
-      for (unsigned i = 0; i < GetNParameters(); i++) {
-        if ( fParameters[i]->Fixed() )
-          BCLog::OutSummary(Form(" %s = %f (fixed)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
-        else
-          BCLog::OutSummary(Form(" %s = %f (global)", fParameters[i]->GetName().data(), GetBestFitParameter(i)));
-
-        if ( fMarginalModes.size() == GetNParameters())
-          BCLog::OutSummary(Form(" %s = %f (marginalized)", fParameters[i]->GetName().data(), GetBestFitParametersMarginalized()[i]));
-
-      }
-   }
-
-   // model testing
-   if (fPValue >= 0) {
-      double likelihood = Likelihood(GetBestFitParameters());
-      BCLog::OutSummary(" Model testing:");
-      BCLog::OutSummary(Form("  p(data|lambda*) = %f", likelihood));
-      BCLog::OutSummary(Form("  p-value         = %f", fPValue));
-   }
-
-   // normalization
-   if (GetIntegral() > 0) {
-      BCLog::OutSummary(" Evidence:");
-      BCLog::OutSummary(Form(" - evidence : %f", GetIntegral()));
-   }
-}
-
-// ---------------------------------------------------------
-void BCModel::PrintResults(const char * file)
-{
-   // print summary of Markov Chain Monte Carlo
-
-   // open file
-   std::ofstream ofi(file);
-
-   // check if file is open
-   if (!ofi.is_open()) {
-      std::cerr << "Couldn't open file " << file << std::endl;
-      return;
-   }
-
-   // number of parameters and chains
-   unsigned npar = GetNParameters();
-   unsigned nchains = MCMCGetNChains();
-
-   // check convergence
-   bool flag_conv = MCMCGetNIterationsConvergenceGlobal() > 0;
-
-   ofi << std::endl
-         << " -----------------------------------------------------" << std::endl
-         << " Summary" << std::endl
-         << " -----------------------------------------------------" << std::endl
-         << std::endl;
-
-   ofi << " Model summary" << std::endl << " =============" << std::endl
-         << " Model: " << fName.data() << std::endl
-         << " Number of parameters: " << npar << std::endl
-         << " List of Parameters and ranges:" << std::endl;
-   for (unsigned i = 0; i < npar; ++i) {
-     ofi << "  (" << i << ") Parameter \""
-         << fParameters[i]->GetName() << "\"" << ": "
-         << "[" << fParameters[i]->GetLowerLimit() << ", "
-         << fParameters[i]->GetUpperLimit() << "]";
-     if (fParameters[i]->Fixed()) {
-       ofi << " (fixed)";
-     }
-     ofi << std::endl;
-   }
-   ofi << std::endl;
-
-   ofi << " Results of the optimization" << std::endl
-         << " ===========================" << std::endl
-         << " Optimization algorithm used: "
-         << DumpUsedOptimizationMethod()<< std::endl;
-
-   if ( ! GetBestFitParameters().empty()) {
-     ofi << " Log of the maximum posterior: " << GetLogMaximum() << std::endl;
-      ofi << " List of parameters and global mode:" << std::endl;
-      for (unsigned i = 0; i < npar; ++i) {
-        ofi << "  (" << i << ") Parameter \""
-            << fParameters[i]->GetName() << "\": "
-            << GetBestFitParameter(i);
-        if (fParameters[i]->Fixed()) {
-          ofi << " (fixed)";
-        }
-        else if (GetBestFitParameterErrors().size() == npar) {
-          if(GetBestFitParameterError(i) >= 0.)
-            ofi << " +- " << GetBestFitParameterError(i);
-          else
-            ofi << " (no error estimate available) ";
-        }
-        else {
-          ofi << " (no error estimate available) ";
-        }
-        ofi << std::endl;
-      }
-      ofi << std::endl;
-   }
-   else {
-      ofi << " No best fit information available." << std::endl;
-      ofi << std::endl;
-   }
-
-   if (fPValue >= 0.) {
-      ofi << " Results of the model test" << std::endl
-            << " =========================" << std::endl
-            << " p-value: " << fPValue << std::endl;
-      if (fPValueNDoF >= 0)
-         ofi << " p-value corrected for degrees of freedom: " << fPValueNDoF << std::endl;
-
-      ofi << std::endl;
-   }
-
-   if (GetIntegral() >= 0.) {
-      ofi << " Results of the integration" << std::endl
-            << " ============================" << std::endl
-            << " Integration method used: "
-            << DumpUsedIntegrationMethod() << std::endl;
-      ofi << " Evidence: " << GetIntegral();
-      if (GetError() >= 0)
-        ofi << " +- " << GetError() << std::endl;
-      else
-        ofi << " (no error estimate available) " << std::endl;
-      ofi << std::endl;
-   }
-
-   // give warning if MCMC did not converge
-   if (!flag_conv && fMCMCFlagRun)
-      ofi << " WARNING: the Markov Chain did not converge!" << std::endl
-      << " Be cautious using the following results!" << std::endl
-      << std::endl;
-
-   // print results of marginalization (if MCMC was run)
-   if (fFlagMarginalized) {
-      ofi << " Results of the marginalization" << std::endl
-          << " ==============================" << std::endl
-          << " Marginalization algorithm used: "
-          << DumpUsedMarginalizationMethod() << std::endl
-          << " List of parameters and properties of the marginalized"
-          << std::endl << " distributions:" << std::endl;
-      for (unsigned i = 0; i < npar; ++i) {
-         if ( ! fParameters[i]->FillHistograms())
-            continue;
-
-         // get marginalized histogram
-         BCH1D * bch1d = GetMarginalized(fParameters[i]);
-
-         ofi << "  (" << i << ") Parameter \""
-             << fParameters[i]->GetName() << "\":";
-
-         if (!bch1d) {
-            ofi << " fixed (or histogram does not exist) " << std::endl;
-            continue;
-         }
-         else
-            ofi << std::endl;
-
-         ofi << "      Mean +- sqrt(V):                " << std::setprecision(4)
-             << bch1d->GetMean() << " +- " << std::setprecision(4)
-             << bch1d->GetRMS() << std::endl
-
-             << "      Median +- central 68% interval: "
-             << std::setprecision(4) << bch1d->GetMedian() << " +  "
-             << std::setprecision(4) << bch1d->GetQuantile(0.84) - bch1d->GetMedian()
-             << " - " << std::setprecision(4)
-             << bch1d->GetMedian() - bch1d->GetQuantile(0.16) << std::endl
-
-             << "      (Marginalized) mode:            " << bch1d->GetMode() << std::endl;
-
-         ofi << "       5% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.05) << std::endl
-             << "      10% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.10) << std::endl
-             << "      16% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.16) << std::endl
-             << "      84% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.85) << std::endl
-             << "      90% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.90) << std::endl
-             << "      95% quantile:                   " << std::setprecision(4)
-             << bch1d->GetQuantile(0.95) << std::endl;
-
-         std::vector<double> v;
-         v = bch1d->GetSmallestIntervals(0.68);
-         ofi << "      Smallest interval(s) containing at least 68% and local mode(s):"
-             << std::endl;
-         for (unsigned j = 0; j < v.size(); j += 5)
-            ofi << "       (" << v[j] << ", " << v[j + 1]
-                << ") (local mode at " << v[j + 3] << " with rel. height "
-                << v[j + 2] << "; rel. area " << v[j + 4] << ")"
-                << std::endl;
-         ofi << std::endl;
-      }
-   }
-   if (fMCMCFlagRun) {
-      ofi << " Status of the MCMC" << std::endl << " ==================" << std::endl
-          << " Convergence reached:                    " << (flag_conv ? "yes" : "no")
-          << std::endl;
-
-      if (flag_conv)
-         ofi << " Number of iterations until convergence: "
-             << MCMCGetNIterationsConvergenceGlobal() << std::endl;
-      else
-         ofi << " WARNING: the Markov Chain did not converge! Be\n"
-             << " cautious using the following results!" << std::endl
-             << std::endl;
-      ofi << " Number of chains:                       " << MCMCGetNChains() << std::endl
-          << " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
-          << " Average pre-run efficiencies:" << std::endl;
-
-      std::vector<double> efficiencies;
-      efficiencies.assign(npar, 0.);
-
-      for (unsigned ipar = 0; ipar < npar; ++ipar)
-        for (unsigned ichain = 0; ichain < nchains; ++ichain) {
-          efficiencies[ipar] +=
-            fMCMCEfficiencies[ichain*npar+ipar] / double(nchains) * 100.;
-         }
-
-      for (unsigned ipar = 0; ipar < npar; ++ipar)
-         ofi << "  (" << ipar << ") Parameter \""
-             << fParameters[ipar]->GetName().data() << "\": "
-             << efficiencies.at(ipar) << "%" << std::endl;
-      ofi << std::endl;
-   }
-
-   ofi << " -----------------------------------------------------" << std::endl
-       << " Notation:" << std::endl
-       << " Mean        : mean value of the marg. pdf" << std::endl
-       << " Median      : median of the marg. pdf" << std::endl
-       << " Marg. mode  : most probable value of the marg. pdf" << std::endl
-       << " V           : Variance of the marg. pdf" << std::endl
-       << " Quantiles   : most commonly used quantiles" <<std::endl
-       << " -----------------------------------------------------" << std::endl
-       << std::endl;
-
-   // close file
-   ofi.close();
-}
-
-// ---------------------------------------------------------
-void BCModel::PrintShortFitSummary(int chi2flag)
-{
-   BCLog::OutSummary("---------------------------------------------------");
-   BCLog::OutSummary(Form("Fit summary for model \'%s\':", GetName().data()));
-   BCLog::OutSummary(Form("   Number of parameters:  Npar  = %i", GetNParameters()));
-   if (GetNDataPoints()) {
-      BCLog::OutSummary(Form("   Number of data points: Ndata = %i", GetNDataPoints()));
-      BCLog::OutSummary("   Number of degrees of freedom:");
-      BCLog::OutSummary(Form("      NDoF = Ndata - Npar = %i", GetNDataPoints() - GetNParameters()));
-   }
-   if (!GetBestFitParameters().empty())
-      BCLog::OutSummary("   Best fit parameters (global):");
-   for (unsigned int i = 0; i < GetNParameters(); ++i)
-      BCLog::OutSummary(Form("      %s = %.3g", GetParameter(i)->GetName().data(), GetBestFitParameter(i)));
-
-   if (GetPValue() >= 0) {
-      BCLog::OutSummary("   Goodness-of-fit test:");
-      BCLog::OutSummary(Form("      p-value = %.3g", GetPValue()));
-      if (chi2flag) {
-         BCLog::OutSummary(Form("      p-value corrected for NDoF = %.3g", GetPValueNDoF()));
-         BCLog::OutSummary(Form("      chi2 / NDoF = %.3g", GetChi2NDoF()));
-      }
-   }
-   BCLog::OutSummary("---------------------------------------------------");
+    BCLog::OutSummary("---------------------------------------------------");
+    BCLog::OutSummary(Form("Fit summary for model \'%s\':", GetName().data()));
+    BCLog::OutSummary(Form("   Number of parameters:  Npar  = %i", GetNParameters()));
+    if (GetNDataPoints()) {
+        BCLog::OutSummary(Form("   Number of data points: Ndata = %i", GetNDataPoints()));
+        BCLog::OutSummary(Form("   Number of degrees of freedom = %i", GetNDoF()));
+    }
+    if (!GetBestFitParameters().empty())
+        BCLog::OutSummary("   Best fit parameters (global):");
+    PrintParameters(GetBestFitParameters(), BCLog::OutSummary);
+
+    BCLog::OutSummary("---------------------------------------------------");
 }
 
 // ---------------------------------------------------------
 void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 {
-   // check number of entries in vector
-   if (parameters.size() != GetNParameters()) {
-      BCLog::OutError("BCModel::PrintHessianMatrix : Invalid number of entries in the vector");
-      return;
-   }
+    // check number of entries in vector
+    if (parameters.size() != GetNParameters()) {
+        BCLog::OutError("BCModel::PrintHessianMatrix : Invalid number of entries in the vector");
+        return;
+    }
 
-   // print to screen
-   BCLog::OutSummary("Hessian matrix elements: ");
-   BCLog::OutSummary("Parameter values:");
+    // print to screen
+    BCLog::OutSummary("Hessian matrix elements: ");
+    BCLog::OutSummary("Parameter values:");
 
-   for (int i = 0; i < int(parameters.size()); i++)
-      BCLog::OutSummary(Form("Parameter %d : %f", i, parameters.at(i)));
+    for (int i = 0; i < int(parameters.size()); i++)
+        BCLog::OutSummary(Form("Parameter %d : %f", i, parameters.at(i)));
 
-   BCLog::OutSummary("Hessian matrix:");
-   // loop over all parameter pairs
-   for (unsigned int i = 0; i < GetNParameters(); i++)
-      for (unsigned int j = 0; j < i; j++) {
-         // calculate Hessian matrix element
-         double hessianmatrixelement = HessianMatrixElement(
-               fParameters[i], fParameters[j], parameters);
+    BCLog::OutSummary("Hessian matrix:");
+    // loop over all parameter pairs
+    for (unsigned int i = 0; i < GetNParameters(); i++)
+        for (unsigned int j = 0; j < i; j++) {
+            // calculate Hessian matrix element
+            double hessianmatrixelement = HessianMatrixElement(GetParameter(i), GetParameter(j), parameters);
 
-         // print to screen
-         BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
-      }
+            // print to screen
+            BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
+        }
 }
 
 // ---------------------------------------------------------
-BCDataPoint * BCModel::VectorToDataPoint(const std::vector<double> &data)
+BCPriorModel* BCModel::GetPriorModel(bool prepare, bool call_likelihood)
 {
-   BCDataPoint * datapoint = new BCDataPoint(data.size());
-   datapoint->SetValues(data);
-   return datapoint;
+    if (!fPriorModel)
+        fPriorModel = new BCPriorModel(this, call_likelihood);
+    else if (prepare)
+        fPriorModel->PreparePriorModel();
+    fPriorModel->SetCallLikelihood(call_likelihood);
+    return fPriorModel;
 }
 
 // ---------------------------------------------------------
-int BCModel::CompareStrings(const char * string1, const char * string2)
+bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
 {
-   int flag_same = 0;
+    if (index > GetNVariables())
+        return false;
 
-   if (strlen(string1) != strlen(string2))
-      return -1;
+    if (index < GetNParameters() and GetParameter(index)->Fixed())
+        return false;
 
-   for (int i = 0; i < int(strlen(string1)); i++)
-      if (string1[i] != string2[i])
-         flag_same = -1;
+    // Get Prior
+    BCH1D* bch1d_prior = NULL;
 
-   return flag_same;
+    // check for factorized prior
+    if (fFactorizedPrior and index < GetNParameters() and GetParameter(index)->GetPrior() != NULL) {
+
+        // constant prior
+        if (dynamic_cast<BCConstantPrior*>(GetParameter(index)->GetPrior()) != NULL) {
+            TH1D* h = new TH1D(TString::Format("%s_prior_%d_const", GetSafeName().data(), index), "", 1, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit());
+            h->SetBinContent(1, 1);
+            bch1d_prior = new BCH1D(h);
+        }
+        // histogrammed prior (not interpolated)
+        else if (dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior()) != NULL and
+                 dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())->GetHistogram() != NULL and
+                 dynamic_cast<BCTH1Prior*>(GetParameter(index))->GetInterpolate()) {
+            bch1d_prior = new BCH1D(dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())->GetHistogram());
+        }
+        // use prior's TF1
+        else if (GetParameter(index)->GetPrior()->GetFunction() != NULL) {
+            TH1* h = GetVariable(index)->CreateH1(TString::Format("%s_prior_%d_f1", GetSafeName().data(), index));
+            h->Add(GetParameter(index)->GetPrior()->GetFunction(), 1, "I");
+            bch1d_prior = new BCH1D(h);
+        }
+        if (bch1d_prior)
+            bch1d_prior->SetLocalMode(GetParameter(index)->GetPriorMode());
+    }
+
+    // else use marginalized prior, if it exists
+    if (bch1d_prior == NULL and fPriorModel->MarginalizedHistogramExists(index))
+        bch1d_prior = fPriorModel->GetMarginalized(index);
+
+    // else use slicing, if requested
+    if (bch1d_prior == NULL and flag_slice and index < fPriorModel->GetNParameters() and fPriorModel->GetNFreeParameters() <= 3) {
+        double log_max_val;
+        TH1* h = fPriorModel->GetSlice(index, log_max_val);
+        if (h != NULL)
+            bch1d_prior = new BCH1D(h);
+    }
+
+    // if prior doesn't exist, exit
+    if (!bch1d_prior)
+        return false;
+
+    // Get Posterior
+    BCH1D* bch1d_posterior = NULL;
+
+    // use marginalization, if it exists
+    if (MarginalizedHistogramExists(index))
+        bch1d_posterior = GetMarginalized(index);
+
+    // else using slicing, if requested
+    if (bch1d_posterior == NULL and flag_slice and index < GetNParameters() and GetNFreeParameters() <= 3) {
+        double log_max_val;
+        TH1* h = GetSlice(index, log_max_val);
+        if (h)
+            bch1d_posterior = new BCH1D(h);
+    }
+
+    // if posterior doesn't exist, exit
+    if (!bch1d_posterior)
+        return false;
+
+    bch1d_prior->CopyOptions(*fBCH1DPriorDrawingOptions);
+    bch1d_prior->SetDrawLegend(false);
+    bch1d_posterior->CopyOptions(*fBCH1DPosteriorDrawingOptions);
+    bch1d_posterior->SetDrawLegend(false);
+
+    gPad->SetLogx(fBCH1DPriorDrawingOptions->GetLogx() or fBCH1DPosteriorDrawingOptions->GetLogx());
+    gPad->SetLogy(fBCH1DPriorDrawingOptions->GetLogy() or fBCH1DPosteriorDrawingOptions->GetLogy());
+
+    // get maximum
+    double maxy = 1.1 * std::max<double>(bch1d_prior->GetHistogram()->GetMaximum(), bch1d_posterior->GetHistogram()->GetMaximum());
+    double miny = 0.0;
+    if (gPad->GetLogy()) {
+        maxy *= 2;
+        miny = 0.5 * std::min<double>(bch1d_prior->GetHistogram()->GetMinimum(0), bch1d_posterior->GetHistogram()->GetMinimum(0));
+    }
+
+    // draw axes
+    TH2D* h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d", GetSafeName().data(), index), TString::Format(";%s;P(%s|Data)", GetVariable(index)->GetLatexNameWithUnits().data(), GetVariable(index)->GetLatexName().data()),
+                             10, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit(),
+                             10, miny, maxy);
+    h2_axes->SetStats(false);
+    h2_axes->GetXaxis()->SetNdivisions(508);
+    h2_axes->Draw();
+
+    // Draw histograms
+    if (!fPriorPosteriorNormalOrder) // posterior first
+        bch1d_posterior->Draw();
+    bch1d_prior->Draw();
+    if (fPriorPosteriorNormalOrder) // prior first
+        bch1d_posterior->Draw();
+
+    // create / draw legend(s)
+    gPad->SetTopMargin(0.02);
+
+    if ( bch1d_prior->GetLegend()->GetNRows() > 0  and  bch1d_posterior->GetLegend()->GetNRows() > 0 ) {
+        // both legends have entries, draw both
+        bch1d_prior->GetLegend()->SetHeader("prior");
+        bch1d_posterior->GetLegend()->SetHeader("posterior");
+
+        // Draw prior legend on top left
+        double y1ndc_prior = bch1d_prior->ResizeLegend();
+        bch1d_prior->GetLegend()->SetX2NDC(bch1d_prior->GetLegend()->GetX1NDC() + 45e-2 * (bch1d_prior->GetLegend()->GetX2NDC() - bch1d_prior->GetLegend()->GetX1NDC()));
+        bch1d_prior->GetLegend()->Draw();
+
+        // Draw posterior legend on top right
+        double y1ndc_posterior = bch1d_posterior->ResizeLegend();
+        bch1d_posterior->GetLegend()->SetX1NDC(bch1d_posterior->GetLegend()->GetX1NDC() + 55e-2 * (bch1d_posterior->GetLegend()->GetX2NDC() - bch1d_posterior->GetLegend()->GetX1NDC()));
+        bch1d_posterior->GetLegend()->Draw();
+
+        gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
+
+    } else {
+        // only one legend to draw
+
+        TLegend* legend = 0;
+
+        if ( bch1d_posterior->GetLegend()->GetNRows() > 0 ) {
+            // posterior legend alone has entries
+
+            legend = bch1d_posterior->GetLegend();
+            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+                if (!le) break;
+                if (strlen(le->GetLabel()) == 0) continue;
+                le-> SetLabel(TString::Format("%s of posterior", le->GetLabel()).Data());
+            }
+            legend->AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
+
+            bch1d_posterior->ResizeLegend();
+
+        } else if ( bch1d_prior->GetLegend()->GetNRows() > 0 ) {
+            // prior legend alone has entries
+
+            legend = bch1d_prior->GetLegend();
+            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+                if (!le) break;
+                if (strlen(le->GetLabel()) == 0) continue;
+                le-> SetLabel(TString::Format("%s of prior", le->GetLabel()).Data());
+            }
+            legend->AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
+            bch1d_prior->ResizeLegend();
+
+        }	else {
+            // neither legend has entries
+
+            legend = bch1d_prior->GetLegend();
+            legend->SetNColumns(2);
+            legend->AddEntry(bch1d_prior->GetHistogram(),     "prior", "L");
+            legend->AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
+
+            bch1d_prior->ResizeLegend();
+        }
+
+        // Draw legend on top of histogram
+        legend->Draw();
+
+        // rescale top margin
+        gPad->SetTopMargin(1 - legend->GetY1NDC() + 0.01);
+    }
+
+    gPad->RedrawAxis();
+    gPad->Update();
+    return 1;
+}
+
+// ---------------------------------------------------------
+bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice)
+{
+
+    if (index1 == index2)
+        return false;
+
+    if (index1 > GetNVariables() or index2 > GetNVariables())
+        return false;
+
+    if (index1 < GetNParameters() and GetParameter(index1)->Fixed())
+        return false;
+
+    if (index2 < GetNParameters() and GetParameter(index2)->Fixed())
+        return false;
+
+    // Get prior
+    BCH2D* bch2d_prior = NULL;
+
+    // check for factorized priors
+    if (fFactorizedPrior and
+            index1 < GetNParameters() and GetParameter(index1)->GetPrior() != NULL and
+            index2 < GetNParameters() and GetParameter(index2)->GetPrior() != NULL) {
+
+        // set x binning
+        unsigned nbins_x = GetVariable(index1)->GetNbins();
+        std::vector<double> bins_x;
+        // histogrammed prior
+        if (dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior()) != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram() != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetInterpolate()) {
+            nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()->GetNbinsX();
+            bins_x.assign(nbins_x + 1, 0);
+            dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_x[0]);
+            bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
+        }
+        // // constant prior
+        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior())!=NULL) {
+        // 	nbins_x = 1;
+        // 	bins_x = new double[2];
+        // 	bins_x[0] = GetParameter(index1)->GetLowerLimit();
+        // 	bins_x[1] = GetParameter(index1)->GetUpperLimit();
+        // }
+        // else function-based prior
+        else {
+            bins_x.assign(nbins_x + 1, 0);
+            for (unsigned i = 0; i <= nbins_x; ++i)
+                bins_x[i] = GetVariable(index1)->ValueFromPositionInRange(1.*i / nbins_x);
+        }
+
+        // set y binning
+        unsigned nbins_y = GetVariable(index2)->GetNbins();
+        std::vector<double> bins_y;
+        // histogrammed prior
+        if (dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior()) != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram() != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetInterpolate()) {
+            nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()->GetNbinsX();
+            bins_y.assign(nbins_y + 1, 0);
+            dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_y[0]);
+            bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
+        }
+        // // constant prior
+        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior())!=NULL) {
+        // 	nbins_y = 1;
+        // 	bins_y = new double[2];
+        // 	bins_y[0] = GetParameter(index2)->GetLowerLimit();
+        // 	bins_y[1] = GetParameter(index2)->GetUpperLimit();
+        // }
+        // else function-based prior
+        else {
+            bins_y.assign(nbins_y + 1, 0);
+            for (unsigned i = 0; i <= nbins_y; ++i)
+                bins_y[i] = GetVariable(index2)->ValueFromPositionInRange(1.*i / nbins_y);
+        }
+
+        // create histogram
+        TH2* h2d_prior = fPriorModel->GetVariable(index1)->CreateH2(TString::Format("h2d_prior_%s_%d_%d", GetName().data(), index1, index2).Data(), fPriorModel->GetVariable(index2));
+        // set binning
+        h2d_prior->SetBins(nbins_x, &bins_x[0], nbins_y, &bins_y[0]);
+
+        // fill histogram
+        for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i)
+            for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j)
+                h2d_prior->SetBinContent(i, j,
+                                           GetParameter(index1)->GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) *
+                                           GetParameter(index2)->GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
+        // create BCH2D
+        bch2d_prior = new BCH2D(h2d_prior);
+    }
+
+    // else use marginalized prior, if it exists
+    if (bch2d_prior == NULL and (fPriorModel->MarginalizedHistogramExists(index1, index2) or fPriorModel->MarginalizedHistogramExists(index2, index1)))
+        bch2d_prior = fPriorModel->GetMarginalized(index1, index2);
+
+    // else use slicing, if requested
+    if (bch2d_prior == NULL and flag_slice and index1 < fPriorModel->GetNParameters() and index2 < fPriorModel->GetNParameters() and fPriorModel->GetNFreeParameters() <= 3) {
+        double log_max_val;
+        TH2* h = fPriorModel->GetSlice(index1, index2, log_max_val);
+        if (h)
+            bch2d_prior = new BCH2D(h);
+    }
+
+    // if prior doesn't exist, exit
+    if (!bch2d_prior)
+        return false;
+
+    bch2d_prior->CopyOptions(*fBCH2DPriorDrawingOptions);
+    bch2d_prior->SetDrawLegend(false);
+
+
+    // Get Posterior
+    BCH2D* bch2d_posterior = NULL;
+
+    // use marginalization, if it exists
+    if (MarginalizedHistogramExists(index1, index2) or MarginalizedHistogramExists(index2, index1))
+        bch2d_posterior = GetMarginalized(index1, index2);
+
+    // else use slicing, if requested
+    if (bch2d_posterior == NULL and flag_slice and index1 < GetNParameters() and index2 < GetNParameters() and GetNFreeParameters() <= 3) {
+        double log_max_val;
+        TH2* h = GetSlice(index1, index2, log_max_val);
+        if (h)
+            bch2d_prior = new BCH2D(h);
+    }
+
+    // if posterior doesn't exist, exit
+    if (!bch2d_posterior)
+        return false;
+
+    bch2d_posterior->CopyOptions(*fBCH2DPosteriorDrawingOptions);
+    bch2d_posterior->SetDrawLegend(false);
+
+    // correct for constant priors:
+    bool const_prior1 = fFactorizedPrior and index1 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior()) != NULL;
+    bool const_prior2 = fFactorizedPrior and index2 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior()) != NULL;
+
+    if (const_prior1)
+        bch2d_prior->SetLocalMode((unsigned)0, fPriorModel->GetVariable(index1)->GetRangeCenter());
+    if (const_prior2)
+        bch2d_prior->SetLocalMode((unsigned)1, fPriorModel->GetVariable(index2)->GetRangeCenter());
+    std::string prior_text = "";
+    if (const_prior1 and !const_prior2)
+        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index1)->GetLatexName().data());
+    else if (!const_prior1 and const_prior2)
+        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index2)->GetLatexName().data());
+    else if (const_prior1 and const_prior2) {
+        prior_text = " (both flat)";
+        bch2d_prior->SetNBands(0);
+    }
+
+    gPad->SetLogx(fBCH2DPriorDrawingOptions->GetLogx() or fBCH2DPosteriorDrawingOptions->GetLogx());
+    gPad->SetLogy(fBCH2DPriorDrawingOptions->GetLogy() or fBCH2DPosteriorDrawingOptions->GetLogy());
+    gPad->SetLogz(fBCH2DPriorDrawingOptions->GetLogz() or fBCH2DPosteriorDrawingOptions->GetLogz());
+
+    // draw axes
+    TH2D* h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d_%d", GetSafeName().data(), index1, index2), TString::Format(";%s;%s;P(%s %s|Data)", GetVariable(index1)->GetLatexNameWithUnits().data(), GetVariable(index2)->GetLatexNameWithUnits().data(), GetVariable(index1)->GetLatexName().data(), GetVariable(index2)->GetLatexName().data()),
+                             10, GetVariable(index1)->GetLowerLimit(), GetVariable(index1)->GetUpperLimit(),
+                             10, GetVariable(index2)->GetLowerLimit(), GetVariable(index2)->GetUpperLimit());
+    h2_axes->SetStats(false);
+    h2_axes->GetXaxis()->SetNdivisions(508);
+    h2_axes->Draw();
+
+    // ROOT options for both prior and posterior should contain "same" (as they do by default)
+
+    if (!fPriorPosteriorNormalOrder) // posterior first
+        bch2d_posterior->Draw();
+    bch2d_prior->Draw();
+    if (fPriorPosteriorNormalOrder) // posterior second
+        bch2d_posterior->Draw();
+
+    // create / draw legend(s)
+    if ( bch2d_prior->GetLegend()->GetNRows() > 0  and  bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
+        // both legends have entries, draw both
+
+        bch2d_prior    ->GetLegend()->SetHeader((std::string("prior") + prior_text).data());
+        bch2d_posterior->GetLegend()->SetHeader("posterior");
+
+        // Draw prior legend on top left
+        double y1ndc_prior = bch2d_prior->ResizeLegend();
+        bch2d_prior->GetLegend()->SetX2NDC(bch2d_prior->GetLegend()->GetX1NDC() + 45e-2 * (bch2d_prior->GetLegend()->GetX2NDC() - bch2d_prior->GetLegend()->GetX1NDC()));
+        bch2d_prior->GetLegend()->Draw();
+
+        // Draw posterior legend on top right
+        double y1ndc_posterior = bch2d_posterior->ResizeLegend();
+        bch2d_posterior->GetLegend()->SetX1NDC(bch2d_posterior->GetLegend()->GetX1NDC() + 55e-2 * (bch2d_posterior->GetLegend()->GetX2NDC() - bch2d_posterior->GetLegend()->GetX1NDC()));
+        bch2d_posterior->GetLegend()->Draw();
+
+        gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
+
+    } else {
+        // only one legend to draw
+
+        TLegend* legend = 0;
+        if ( bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
+            // posterior legend alone has entries
+
+            legend = bch2d_posterior->GetLegend();
+            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+                if (!le) break;
+                if (strlen(le->GetLabel()) == 0) continue;
+                le->SetLabel(TString::Format("%s of posterior", le->GetLabel()).Data());
+            }
+            legend->AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
+
+            bch2d_posterior->ResizeLegend();
+
+        } else if ( bch2d_prior->GetLegend()->GetNRows() > 0 ) {
+            // prior legend alone has entries
+
+            legend = bch2d_prior->GetLegend();
+            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
+                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+                if (!le) break;
+                if (strlen(le->GetLabel()) == 0) continue;
+                le-> SetLabel(TString::Format("%s of prior", le->GetLabel()).Data());
+            }
+            if (!prior_text.empty())
+                legend->AddEntry((TObject*)0, (std::string("prior: ") + prior_text).data(), "");
+            legend->AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
+
+            bch2d_prior->ResizeLegend();
+
+        }	else {
+            // neither legend has entries
+
+            legend = bch2d_posterior->GetLegend();
+            legend->SetNColumns(2);
+            legend->AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
+            legend->AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
+
+            bch2d_posterior->ResizeLegend();
+        }
+
+        // Draw legend on top of histogram
+
+        legend->Draw();
+
+        // rescale top margin
+        gPad->SetTopMargin(1 - legend->GetY1NDC() + 0.01);
+    }
+
+    gPad->RedrawAxis();
+    gPad->Update();
+    return 1;
+}
+
+// ---------------------------------------------------------
+int BCModel::PrintKnowledgeUpdatePlots(const char* filename, unsigned hdiv, unsigned vdiv, bool flag_slice, bool call_likelihood)
+{
+    // prepare prior
+    if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
+        // return 0 if failed
+        return 0;
+
+    if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0)
+        fPriorModel->MarginalizeAll();
+    fPriorModel->FindMode();
+
+    std::string file(filename);
+
+    // if file extension is neither .pdf nor .ps, force to .pdf
+    if ( file.rfind(".pdf") != file.size() - 4 and file.rfind(".ps") != file.size() - 3 )
+        file += ".pdf";
+
+    // create canvas and prepare postscript
+    TCanvas* c = new TCanvas(TString::Format("c_%s_update", fPriorModel->GetName().data()));
+    c->cd();
+    c->Print(std::string(file + "[").c_str());
+
+    if (hdiv < 1) hdiv = 1;
+    if (vdiv < 1) vdiv = 1;
+    int npads = hdiv * vdiv;
+
+    c->Divide(hdiv, vdiv);
+
+    // loop over all parameters and draw 1D plots
+    int ndrawn = 0;
+    int nprinted = -1;
+    c->cd(1);
+    for (unsigned i = 0; i < GetNVariables(); ++i)
+        if (DrawKnowledgeUpdatePlot1D(i, flag_slice)) {
+            ++ndrawn;
+            if (ndrawn != 0 and ndrawn % npads == 0) {
+                c->Print(file.c_str());
+                nprinted = ndrawn;
+                c->Clear("D");
+            }
+            c->cd(ndrawn % npads + 1);
+        }
+    if (nprinted < ndrawn)
+        c->Print(file.c_str());
+
+    c->Clear("D");
+
+    // loop over all parameter pairs
+    ndrawn = 0;
+    nprinted = -1;
+    c->cd(1)->Clear();
+    for (unsigned i = 0; i < GetNVariables(); ++i)
+        for (unsigned j = i + 1; j < GetNVariables(); ++j)
+            if (DrawKnowledgeUpdatePlot2D(i, j, flag_slice)) {
+                ++ndrawn;
+                if (ndrawn != 0 and ndrawn % npads == 0) {
+                    c->Print(file.c_str());
+                    nprinted = ndrawn;
+                    c->Clear();
+                    c->Divide(hdiv, vdiv);
+                }
+                c->cd(ndrawn % npads + 1)->Clear();
+            }
+    if (nprinted < ndrawn)
+        c->Print(file.c_str());
+
+    c->Print(std::string(file + "]").c_str());
+
+    // no error
+    return 1;
+}
+
+// ---------------------------------------------------------
+void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingStyle style)
+{
+    switch (style) {
+
+        case kKnowledgeUpdateDetailedPosterior:
+            // 1D
+            SetDrawPriorPosteriorNormalOrder(false);
+            fBCH1DPriorDrawingOptions->SetDrawGlobalMode(false);
+            fBCH1DPriorDrawingOptions->SetDrawLocalMode(false);
+            fBCH1DPriorDrawingOptions->SetDrawMean(false);
+            fBCH1DPriorDrawingOptions->SetDrawMedian(false);
+            fBCH1DPriorDrawingOptions->SetDrawLegend(false);
+            fBCH1DPriorDrawingOptions->SetNBands(0);
+            fBCH1DPriorDrawingOptions->SetBandType(BCH1D::kNoBands);
+            fBCH1DPriorDrawingOptions->SetROOToptions("same");
+            fBCH1DPriorDrawingOptions->SetLineColor(13);
+            fBCH1DPriorDrawingOptions->SetMarkerColor(13);
+            fBCH1DPriorDrawingOptions->SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions->CopyOptions(*fBCH1DPriorDrawingOptions);
+            fBCH1DPosteriorDrawingOptions->SetDrawGlobalMode(true);
+            fBCH1DPosteriorDrawingOptions->SetBandType(BCH1D::kSmallestInterval);
+            fBCH1DPosteriorDrawingOptions->SetNBands(3);
+            fBCH1DPosteriorDrawingOptions->SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH1DPosteriorDrawingOptions->SetLineColor(kBlack);
+            fBCH1DPosteriorDrawingOptions->SetMarkerColor(kBlack);
+
+            // 2D
+            fBCH2DPriorDrawingOptions->SetDrawGlobalMode(false);
+            fBCH2DPriorDrawingOptions->SetDrawLocalMode(true, false);
+            fBCH2DPriorDrawingOptions->SetDrawMean(false);
+            fBCH2DPriorDrawingOptions->SetDrawLegend(false);
+            fBCH2DPriorDrawingOptions->SetBandType(BCH2D::kSmallestInterval);
+            fBCH2DPriorDrawingOptions->SetBandFillStyle(-1);
+            fBCH2DPriorDrawingOptions->SetNBands(1);
+            fBCH2DPriorDrawingOptions->SetNSmooth(0);
+            fBCH2DPriorDrawingOptions->SetROOToptions("same");
+            fBCH2DPriorDrawingOptions->SetLineColor(13);
+            fBCH2DPriorDrawingOptions->SetMarkerColor(13);
+            fBCH2DPriorDrawingOptions->SetNLegendColumns(1);
+            fBCH2DPosteriorDrawingOptions->CopyOptions(*fBCH2DPriorDrawingOptions);
+            fBCH2DPosteriorDrawingOptions->SetNBands(3);
+            fBCH2DPosteriorDrawingOptions->SetBandFillStyle(1001);
+            fBCH2DPosteriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH2DPosteriorDrawingOptions->SetLineColor(kBlack);
+            fBCH2DPosteriorDrawingOptions->SetMarkerColor(kBlack);
+            break;
+
+        case kKnowledgeUpdateDetailedPrior:
+            // 1D
+            SetDrawPriorPosteriorNormalOrder(true);
+            fBCH1DPosteriorDrawingOptions->SetDrawGlobalMode(false);
+            fBCH1DPosteriorDrawingOptions->SetDrawLocalMode(false);
+            fBCH1DPosteriorDrawingOptions->SetDrawMean(false);
+            fBCH1DPosteriorDrawingOptions->SetDrawMedian(false);
+            fBCH1DPosteriorDrawingOptions->SetDrawLegend(false);
+            fBCH1DPosteriorDrawingOptions->SetNBands(0);
+            fBCH1DPosteriorDrawingOptions->SetBandType(BCH1D::kNoBands);
+            fBCH1DPosteriorDrawingOptions->SetROOToptions("same");
+            fBCH1DPosteriorDrawingOptions->SetLineColor(13);
+            fBCH1DPosteriorDrawingOptions->SetMarkerColor(13);
+            fBCH1DPosteriorDrawingOptions->SetNLegendColumns(1);
+            fBCH1DPriorDrawingOptions->CopyOptions(*fBCH1DPosteriorDrawingOptions);
+            fBCH1DPriorDrawingOptions->SetDrawGlobalMode(true);
+            fBCH1DPriorDrawingOptions->SetBandType(BCH1D::kSmallestInterval);
+            fBCH1DPriorDrawingOptions->SetNBands(3);
+            fBCH1DPriorDrawingOptions->SetNLegendColumns(1);
+            fBCH1DPriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH1DPriorDrawingOptions->SetLineColor(kBlack);
+            fBCH1DPriorDrawingOptions->SetMarkerColor(kBlack);
+
+            // 2D
+            fBCH2DPosteriorDrawingOptions->SetDrawGlobalMode(false);
+            fBCH2DPosteriorDrawingOptions->SetDrawLocalMode(true, false);
+            fBCH2DPosteriorDrawingOptions->SetDrawMean(false);
+            fBCH2DPosteriorDrawingOptions->SetDrawLegend(false);
+            fBCH2DPosteriorDrawingOptions->SetBandType(BCH2D::kSmallestInterval);
+            fBCH2DPosteriorDrawingOptions->SetBandFillStyle(-1);
+            fBCH2DPosteriorDrawingOptions->SetNBands(1);
+            fBCH2DPosteriorDrawingOptions->SetNSmooth(0);
+            fBCH2DPosteriorDrawingOptions->SetROOToptions("same");
+            fBCH2DPosteriorDrawingOptions->SetLineColor(13);
+            fBCH2DPosteriorDrawingOptions->SetMarkerColor(13);
+            fBCH2DPosteriorDrawingOptions->SetNLegendColumns(1);
+            fBCH2DPriorDrawingOptions->CopyOptions(*fBCH2DPosteriorDrawingOptions);
+            fBCH2DPriorDrawingOptions->SetNBands(3);
+            fBCH2DPriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH2DPriorDrawingOptions->SetBandFillStyle(1001);
+            fBCH2DPriorDrawingOptions->SetLineColor(kBlack);
+            fBCH2DPriorDrawingOptions->SetMarkerColor(kBlack);
+            break;
+
+        case kKnowledgeUpdateDefaultStyle:
+        default:
+            // 1D
+            fBCH1DPriorDrawingOptions->SetDrawGlobalMode(false);
+            fBCH1DPriorDrawingOptions->SetDrawLocalMode(false);
+            fBCH1DPriorDrawingOptions->SetDrawMean(false);
+            fBCH1DPriorDrawingOptions->SetDrawMedian(false);
+            fBCH1DPriorDrawingOptions->SetDrawLegend(false);
+            fBCH1DPriorDrawingOptions->SetNBands(0);
+            fBCH1DPriorDrawingOptions->SetBandType(BCH1D::kNoBands);
+            fBCH1DPriorDrawingOptions->SetROOToptions("same");
+            fBCH1DPriorDrawingOptions->SetLineColor(kRed);
+            fBCH1DPriorDrawingOptions->SetMarkerColor(kRed);
+            fBCH1DPriorDrawingOptions->SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions->CopyOptions(*fBCH1DPriorDrawingOptions);
+            fBCH1DPosteriorDrawingOptions->SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions->SetLineColor(kBlue);
+            fBCH1DPosteriorDrawingOptions->SetMarkerColor(kBlue);
+
+            // 2D
+            fBCH2DPriorDrawingOptions->SetDrawGlobalMode(false);
+            fBCH2DPriorDrawingOptions->SetDrawLocalMode(true, false);
+            fBCH2DPriorDrawingOptions->SetDrawMean(false);
+            fBCH2DPriorDrawingOptions->SetDrawLegend(false);
+            fBCH2DPriorDrawingOptions->SetBandType(BCH2D::kSmallestInterval);
+            fBCH2DPriorDrawingOptions->SetBandFillStyle(-1);
+            fBCH2DPriorDrawingOptions->SetNBands(1);
+            fBCH2DPriorDrawingOptions->SetNSmooth(0);
+            fBCH2DPriorDrawingOptions->SetROOToptions("same");
+            fBCH2DPriorDrawingOptions->SetLineColor(kRed);
+            fBCH2DPriorDrawingOptions->SetMarkerColor(kRed);
+            fBCH2DPriorDrawingOptions->SetNLegendColumns(1);
+            fBCH2DPosteriorDrawingOptions->CopyOptions(*fBCH2DPriorDrawingOptions);
+            fBCH2DPosteriorDrawingOptions->SetLineColor(kBlue);
+            fBCH2DPosteriorDrawingOptions->SetMarkerColor(kBlue);
+            break;
+    }
 }

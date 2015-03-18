@@ -5,7 +5,6 @@
 #include <BAT/BCDataPoint.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCModelManager.h>
-#include <BAT/BCModelOutput.h>
 
 
 #include <TCanvas.h>
@@ -17,193 +16,174 @@
 
 int main()
 {
-   // set nice style for drawing than the ROOT default
-   BCAux::SetStyle();
+    // set nice style for drawing than the ROOT default
+    BCAux::SetStyle();
 
-   // open log file with default level of logging
-   BCLog::OpenLog("log.txt");
-   BCLog::SetLogLevel(BCLog::detail);
+    // open log file with default level of logging
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-   // 1st order polynomial
-   Pol1Asymm* m1 = new Pol1Asymm("1dPol asymm");
-   m1->DefineParameters();
+    // 1st order polynomial
+    Pol1Asymm* m1 = new Pol1Asymm("1dPol asymm");
 
-   // 2nd order polynomial
-   Pol2Asymm* m2 = new Pol2Asymm("2dPol asymm");
-   m2->DefineParameters();
+    // 2nd order polynomial
+    Pol2Asymm* m2 = new Pol2Asymm("2dPol asymm");
 
-   // define model manager and add the models to it with a priori
-   // probability for each model
-   // we then do the same things with all the models
-   BCModelManager* mgr = new BCModelManager();
-   mgr->AddModel(m1, 1./2.);
-   mgr->AddModel(m2, 1./2.);
+    // define model manager and add the models to it with a priori
+    // probability for each model
+    // we then do the same things with all the models
+    BCModelManager* mgr = new BCModelManager();
+    mgr->AddModel(m1, 0.5);
+    mgr->AddModel(m2, 0.5);
 
-   BCModelOutput* mout1 = new BCModelOutput(m1, "1Dasymm.root");
-   BCModelOutput* mout2 = new BCModelOutput(m2, "2Dasymm.root");
+    // create a new data set and fill it with data from a textfile
+    // with four columns: x, y, y_error_low, y_error_high
+    BCDataSet* data = new BCDataSet();
+    if (data->ReadDataFromFileTxt("data.txt", 4) != 0) {
+        BCLog::OutError("You should run CreateData.C macro in ROOT to create the data file.");
+        return -1;
+    }
 
-   // create a new data set and fill it with data from a textfile
-   // with four columns: x, y, y_error_low, y_error_high
-   BCDataSet* data = new BCDataSet();
-   if (data->ReadDataFromFileTxt("data.txt", 4) != 0)
-   {
-      BCLog::OutError("You should run CreateData.C macro in ROOT to create the data file.");
-      return -1;
-   }
+    data->Dump();
 
-   data->Dump();
+    // assigns the data set to the model manager.
+    mgr->SetDataSet(data);
 
-   // assigns the data set to the model manager.
-   mgr->SetDataSet(data);
+    // normalize all models and calculate the Bayes factors
+    //	mgr->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
+    mgr->Integrate();
 
-   // normalize all models and calculate the Bayes factors
-   //	mgr->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
-   mgr->Integrate();
+    // one can manually set the data bounds with the following three lines
+    // but BAT will automatically know the data bounds
+    // mgr->GetDataSet()->SetBounds(0, 0.0, 100.0); // possible x-values
+    // mgr->GetDataSet()->SetBounds(1, 0.0, 5.0);   // possible y-values
+    // mgr->GetDataSet()->SetBounds(2, 0.2, 5.2);   // possible sigmas
 
-   // the allowed range of data values has to be defined for error
-   // propagation and fitting.
-   mgr->SetDataBoundaries(0, 0.0, 100.0); // possible x-values
-   mgr->SetDataBoundaries(1, 0.0, 5.0);   // possible y-values
-   mgr->SetDataBoundaries(2, 0.2, 5.2);   // possible sigmas
+    // in this example the data points are not chosen arbitrarily but
+    // they have fixed values on the x-axis, i.e, 5, 15, ... . also, the
+    // resolution is fixed. in general this can be solved by fixing the
+    // data axes.
+    mgr->GetDataSet()->Fix(0); // fixes x-values
+    mgr->GetDataSet()->Fix(2); // fixes resolution
+    mgr->GetDataSet()->Fix(3); // fixes resolution
 
-   // in this example the data points are not chosen arbitrarily but
-   // they have fixed values on the x-axis, i.e, 5, 15, ... . also, the
-   // resolution is fixed. in general this can be solved by fixing the
-   // "axes".
-   m1->FixDataAxis(0, true); // fixes x-values
-   m1->FixDataAxis(2, true); // fixes resolution
-   m1->FixDataAxis(3, true); // fixes resolution
+    // during the marginalization, the error propagation can be done
+    // thus, the x- and y-indices of the data values have to be set.
+    m1->SetFitFunctionIndices(0, 1);
+    m2->SetFitFunctionIndices(0, 1);
 
-   m2->FixDataAxis(0, true); // fixes x-values
-   m2->FixDataAxis(2, true); // fixes resolution
-   m2->FixDataAxis(3, true); // fixes resolution
+    // turns on the calculation of the error band
+    m1->SetFillErrorBand();
+    m2->SetFillErrorBand();
 
-   // during the marginalization, the error propagation can be done
-   // thus, the x- and y-indices of the data values have to be set.
-   m1->SetFitFunctionIndices(0, 1);
-   m2->SetFitFunctionIndices(0, 1);
+    // set Metropolis algorithm for both models
+    mgr->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
-   // turns on the calculation of the error band
-   m1->SetFillErrorBand();
-   m2->SetFillErrorBand();
+    // set precision
+    mgr->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
-   // set Metropolis algorithm
-   m1->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-   m2->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    // marginalizes the probability density with respect to all
+    // parameters subsequently for all models
+    mgr->MarginalizeAll();
 
-   // set precision
-   m1->MCMCSetPrecision(BCEngineMCMC::kMedium);
-   m2->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    // the MarginalizeAll method will also perform a mode finding
+    // but we run minuit on top of that starting in the mode
+    // found by MCMC to get more precise result
+    for (unsigned int i = 0; i < mgr->GetNModels(); i++)
+        mgr->GetModel(i)->FindMode( mgr->GetModel(i)->GetBestFitParameters() );
 
-   // marginalizes the probability density with respect to all
-   // parameters subsequently for all models
-   mgr->MarginalizeAll();
+    // write marginalized distributions to a root file
+    m1->WriteMarginalizedDistributions("1Dasymm.root", "RECREATE");
+    m2->WriteMarginalizedDistributions("2Dasymm.root", "RECREATE");
 
-   // the MarginalizeAll method will also perform a mode finding
-   // but we run minuit on top of that starting in the mode
-   // found by MCMC to get more precise result
-   for (unsigned int i=0; i < mgr->GetNModels(); i++)
-      mgr->GetModel(i)->FindMode( mgr->GetModel(i)->GetBestFitParameters() );
+    // print all marginalized distributions to a postscript file
+    m1->PrintAllMarginalized("1Dasymm-marg.pdf");
+    m2->PrintAllMarginalized("2Dasymm-marg.pdf");
 
-   // write marginalized distributions to a root file
-   mout1->WriteMarginalizedDistributions();
-   mout1->Close();
+    // write the summary
+    mgr->PrintResults();
+    mgr->PrintModelComparisonSummary("model-comparison.log");
 
-   mout2->WriteMarginalizedDistributions();
-   mout2->Close();
+    // print data with best fit result from both models
+    TCanvas* c1 = new TCanvas();
 
-   // print all marginalized distributions to a postscript file
-   m1->PrintAllMarginalized("1Dasymm-marg.pdf");
-   m2->PrintAllMarginalized("2Dasymm-marg.pdf");
+    // defines a data graph with asymmetric errors
+    TGraphAsymmErrors* gdata = new TGraphAsymmErrors();
+    gdata->SetMarkerStyle(20);
+    gdata->SetMarkerColor(kBlack);
 
-   // calculate the p-value for the set of best fit parameters
-   //   mgr->CalculatePValue();
+    // sets the points of the graph to the data points read in
+    // previously. loops over all entries.
+    for (unsigned i = 0; i < mgr->GetDataSet()->GetNDataPoints(); i++) {
+        gdata->SetPoint(i, mgr->GetDataSet()->GetDataPoint(i)->GetValue(0), mgr->GetDataSet()->GetDataPoint(i)->GetValue(1));
+        gdata->SetPointEYlow(i, mgr->GetDataSet()->GetDataPoint(i)->GetValue(2));
+        gdata->SetPointEYhigh(i, mgr->GetDataSet()->GetDataPoint(i)->GetValue(3));
+    }
 
-   // write the summary
-   mgr->PrintResults();
-   mgr->PrintModelComparisonSummary("model-comparison.log");
+    mgr->PrintSummary("summary.txt");
 
-   // print data with best fit result from both models
-   TCanvas* c1 = new TCanvas();
+    // defines a histogram for the axes and draws it.
+    TH2D* haxes = new TH2D("haxes", ";x;y", 1, 0., 100., 1, 0., 5.);
+    haxes->SetStats(false);
+    haxes->Draw();
 
-   // defines a data graph with asymmetric errors
-   TGraphAsymmErrors* gdata = new TGraphAsymmErrors();
-   gdata->SetMarkerStyle(20);
-   gdata->SetMarkerColor(kBlack);
+    // draw data
+    gdata->Draw("p same");
 
-   // sets the points of the graph to the data points read in
-   // previously. loops over all entries.
-   for (int i = 0; i < mgr->GetNDataPoints(); i++) {
-      gdata->SetPoint(i, mgr->GetDataPoint(i)->GetValue(0), mgr->GetDataPoint(i)->GetValue(1));
-      gdata->SetPointEYlow(i, mgr->GetDataPoint(i)->GetValue(2));
-      gdata->SetPointEYhigh(i, mgr->GetDataPoint(i)->GetValue(3));
-   }
+    // gets the best fit function graphs and draws them
+    TGraph* gm1_best = m1->GetFitFunctionGraph();
+    gm1_best->SetLineColor(kBlue);
 
-   mgr->PrintSummary("summary.txt");
+    TGraph* gm2_best = m2->GetFitFunctionGraph();
+    gm2_best->SetLineColor(kRed);
 
-   // defines a histogram for the axes and draws it.
-   TH2D* haxes = new TH2D("haxes", ";x;y", 1, 0., 100., 1, 0., 5.);
-   haxes->SetStats(false);
-   haxes->Draw();
+    gm1_best->Draw("c same");
+    gm2_best->Draw("c same");
 
-   // draw data
-   gdata->Draw("p same");
+    // defines and draw a legend.
+    TLegend* leg = new TLegend(0.2, 0.60, 0.6, 0.8);
+    leg->SetFillColor(kWhite);
+    leg->SetBorderSize(0);
+    leg->AddEntry(gdata, "Data", "p");
+    leg->AddEntry(gm1_best, "1st order polynomial", "l");
+    leg->AddEntry(gm2_best, "2nd order polynomial", "l");
+    leg->Draw("same");
 
-   // gets the best fit function graphs and draws them
-   TGraph* gm1_best = m1->GetFitFunctionGraph();
-   gm1_best->SetLineColor(kBlue);
+    // print the canvas to a .pdf file
+    c1->Print("data_allmodels.pdf");
 
-   TGraph* gm2_best = m2->GetFitFunctionGraph();
-   gm2_best->SetLineColor(kRed);
+    // defines a new canvas
+    TCanvas* c2 = new TCanvas("c2", "", 800, 500);
+    c2->Divide(2, 1);
 
-   gm1_best->Draw("c same");
-   gm2_best->Draw("c same");
+    // draw best fit for model 1 with errorband
+    c2->cd(1);
+    haxes->Draw();
+    // draw central 68% errorband
+    m1->GetErrorBandGraph(.16, .84)->Draw("f");
+    gdata->Draw("p same");
+    gm1_best->SetLineColor(kRed);
+    gm1_best->Draw("c same");
+    gPad->RedrawAxis();
 
-   // defines and draw a legend.
-   TLegend* leg = new TLegend(0.2, 0.60, 0.6, 0.8);
-   leg->SetFillColor(kWhite);
-   leg->SetBorderSize(0);
-   leg->AddEntry(gdata, "Data", "p");
-   leg->AddEntry(gm1_best, "1st order polynomial", "l");
-   leg->AddEntry(gm2_best, "2nd order polynomial", "l");
-   leg->Draw("same");
+    // draw best fit for model 2 with errorband
+    c2->cd(2);
+    haxes->Draw();
+    // draw central 68% errorband
+    m2->GetErrorBandGraph(.16, .84)->Draw("f");
+    gdata->Draw("p same");
+    gm2_best->SetLineColor(kRed);
+    gm2_best->Draw("c same");
+    gPad->RedrawAxis();
 
-   // print the canvas to a .pdf file
-   c1->Print("data_allmodels.pdf");
+    // print the canvas to a .pdf file
+    c2->Print("data_errorbands.pdf");
 
-   // defines a new canvas
-   TCanvas* c2 = new TCanvas("c2","",800,500);
-   c2->Divide(2,1);
+    // close log file
+    BCLog::CloseLog();
 
-   // draw best fit for model 1 with errorband
-   c2->cd(1);
-   haxes->Draw();
-   // draw central 68% errorband
-   m1->GetErrorBandGraph(.16, .84)->Draw("f");
-   gdata->Draw("p same");
-   gm1_best->SetLineColor(kRed);
-   gm1_best->Draw("c same");
-   gPad->RedrawAxis();
-
-   // draw best fit for model 2 with errorband
-   c2->cd(2);
-   haxes->Draw();
-   // draw central 68% errorband
-   m2->GetErrorBandGraph(.16, .84)->Draw("f");
-   gdata->Draw("p same");
-   gm2_best->SetLineColor(kRed);
-   gm2_best->Draw("c same");
-   gPad->RedrawAxis();
-
-   // print the canvas to a .pdf file
-   c2->Print("data_errorbands.pdf");
-
-   // close log file
-   BCLog::CloseLog();
-
-   // all ok
-   // exit with success
-   return 0;
+    // all ok
+    // exit with success
+    return 0;
 }
 
 // ---------------------------------------------------------

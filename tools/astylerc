@@ -1,0 +1,22 @@
+# To format all C++ files in BAT, go to the top source directory and enter
+# `make format` which invokes `astyle` with the options set below.
+#
+# Consult the thorough documentation that comes with artistic style to
+# understand the options.
+
+# There are a number of things astyle doesn't correct automatically,
+# please refer to the code style page on the github wiki for
+# `do`s and `don't`'s on how to format the code.
+
+indent-switches
+# no .orig backup files
+suffix=none
+
+style=kr
+
+align-pointer=type
+align-reference=type
+indent=spaces=4
+keep-one-line-blocks
+pad-header
+pad-oper

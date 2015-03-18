@@ -11,10 +11,10 @@
 #include "BCMTFSystematic.h"
 
 // ---------------------------------------------------------
-BCMTFSystematic::BCMTFSystematic(const char * name)
-   : fFlagSystematicActive(true)
+BCMTFSystematic::BCMTFSystematic(const char* name)
+    : fFlagSystematicActive(true)
 {
-   fSystematicName = name;
+    fSystematicName = name;
 }
 
 // ---------------------------------------------------------

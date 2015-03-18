@@ -22,42 +22,42 @@
 namespace BAT
 {
 
-   class QuickTestSuite: public Test::Suite
-   {
+class QuickTestSuite: public Test::Suite
+{
 
-   public:
+public:
 
-      /** \name Enumerators  */
-      /* @{ */
+    /** \name Enumerators  */
+    /* @{ */
 
-      /* @} */
-      /** \name Constructors and destructors  */
-      /* @{ */
+    /* @} */
+    /** \name Constructors and destructors  */
+    /* @{ */
 
-      /** The default constructor */
-      QuickTestSuite();
+    /** The default constructor */
+    QuickTestSuite();
 
-      /** The default destructor */
-      ~QuickTestSuite();
+    /** The default destructor */
+    ~QuickTestSuite();
 
-      /* @} */
-      /** \name Member functions (Set)  */
-      /* @{ */
+    /* @} */
+    /** \name Member functions (Set)  */
+    /* @{ */
 
-      /* @} */
-      /** \name Member functions (Get)  */
-      /* @{ */
+    /* @} */
+    /** \name Member functions (Get)  */
+    /* @{ */
 
 
-      /* @} */
-      /** \name Member functions (misc)  */
-      /* @{ */
+    /* @} */
+    /** \name Member functions (misc)  */
+    /* @{ */
 
-      /* @} */
+    /* @} */
 
-   private:
+private:
 
-   };
+};
 
 } // namespace BAT
 

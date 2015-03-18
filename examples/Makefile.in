@@ -9,7 +9,7 @@ exampledirs += $(dir $(wildcard */*/*/Makefile))
 
 all:
 ##      Stops on first error
-	@$(foreach dir,$(exampledirs),$(MAKE) -C $(dir) all &&) echo ""
+	@$(foreach dir,$(exampledirs),echo "entering $(dir)" && $(MAKE) -C $(dir) all &&) echo ""
 
 clean:
 	@$(foreach dir,$(exampledirs),$(MAKE) -C $(dir) clean;)

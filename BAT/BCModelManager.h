@@ -27,283 +27,202 @@
 #include "BCModel.h"
 #include "BCDataSet.h"
 
+#include <string>
+
 // ---------------------------------------------------------
 
 class BCModelManager
 {
 public:
 
-   /** \name Constructors and destructors */
-   /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-   /**
-    * The default constructor. */
-   BCModelManager();
+    /**
+     * The default constructor. */
+    BCModelManager();
 
-   /**
-    * The default copy constructor. */
-   BCModelManager(const BCModelManager & modelmanager);
+    /**
+     * The default copy constructor. */
+    BCModelManager(const BCModelManager& other);
 
-   /**
-    * The default destructor. */
-   virtual ~BCModelManager();
+    /**
+     * The default destructor. */
+    virtual ~BCModelManager();
 
-   /** @} */
+    /** @} */
 
-   /** \name Assignment operators */
-   /** @{ */
+    /** \name Assignment operators */
+    /** @{ */
 
-   /**
-    * The defaut assignment operator */
-   BCModelManager & operator = (const BCModelManager & modelmanager);
+    /**
+     * The defaut assignment operator */
+    BCModelManager& operator = (const BCModelManager& modelmanager);
 
-   /** @} */
+    /** @} */
 
-   /** \name Member functions (get) */
-   /** @{ */
+    /** \name Member functions (get) */
+    /** @{ */
 
-   /**
-    * @return The number of models. */
-   unsigned int GetNModels()
-   { return fModelContainer -> size(); };
+    /**
+     * @return The number of models. */
+    unsigned int GetNModels()
+    { return fModels.size(); }
 
-   /**
-    * Returns the BCModel at a certain index of this BCModelManager.
-    * @param index The index of the model in the BCModelManager.
-    * @return The BCModel at the index. */
-   BCModel * GetModel(int index)
-   { return fModelContainer -> at(index); };
+    /**
+     * Returns the BCModel at a certain index of this BCModelManager.
+     * @param index The index of the model in the BCModelManager.
+     * @return The BCModel at the index. */
+    BCModel* GetModel(unsigned index)
+    { return (index < fModels.size()) ? fModels[index] : 0; }
 
-   /**
-    * Returns the number of entries in the common data set.
-    * @return The number of entries. */
-   int GetNDataPoints()
-   { return (fDataSet) ? fDataSet -> GetNDataPoints() : 0; };
+    /**
+     * Returns the common data set.
+     * @return The data set. */
+    BCDataSet* GetDataSet()
+    { return fDataSet; };
 
-   /**
-    * Returns a data point of the common data set at an index.
-    * @param index The index of the data point in the data set.
-    * @return The data point. */
-   BCDataPoint * GetDataPoint(int index)
-   { return fDataSet -> GetDataPoint(index); };
+    /** @} */
 
-   /**
-    * Returns the common data set.
-    * @return The data set. */
-   BCDataSet * GetDataSet()
-   { return fDataSet; };
+    /** \name Member functions (set) */
+    /** @{ */
 
-   /** @} */
+    /**
+     * Sets the data set common to all BCModels in this
+     * BCModelManager.
+     * @param dataset A data set */
+    void SetDataSet(BCDataSet* dataset);
 
-   /** \name Member functions (set) */
-   /** @{ */
+    /**
+     * Set the precision for the MCMC run. */
+    void MCMCSetPrecision(BCEngineMCMC::Precision precision);
 
-   /**
-    * Sets the data set common to all BCModels in this
-    * BCModelManager.
-    * @param dataset A data set */
-   void SetDataSet(BCDataSet * dataset);
+    void SetNIterationsMax(int niterations);
 
-   /**
-    * Sets a single data point as a common data set.
-    * @param datapoint A data point
-    * @see SetSingleDataPoint(BCDataSet * dataset, int index)
-    * @see SetDataSet(BCDataSet * dataset) */
-   void SetSingleDataPoint(BCDataPoint * datapoint);
+    /**
+     * Sets the minimum number of iterations for the Monte Carlo
+     * integration for all BCModels in this BCModelManager.
+     * @param niterations */
+    void SetNIterationsMin(int niterations);
 
-   /**
-    * Sets a single data point as a common data set.
-    * @param dataset A data set.
-    * @param index The index of the data point in the data set specified.
-    * @see SetSingleDataPoint(BCDataPoint * datapoint)
-    * @see SetDataSet(BCDataSet * dataset) */
-   void SetSingleDataPoint(BCDataSet * dataset, unsigned int index);
+    /**
+     * @param niterations interval for checking precision in integration routines */
+    void SetNIterationsPrecisionCheck(int niterations);
 
-   void SetNIterationsMax(int niterations);
+    /**
+     * @param method The marginalization method */
+    void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method);
 
-   /**
-    * Sets the minimum number of iterations for the Monte Carlo
-    * integration for all BCModels in this BCModelManager.
-    * @param niterations */
-   void SetNIterationsMin(int niterations);
+    /**
+     * @param method The integration method */
+    void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method);
 
-   /**
-    * @param niterations interval for checking precision in integration routines */
-   void SetNIterationsPrecisionCheck(int niterations);
+    /**
+     * @param method The mode finding method */
+    void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method);
 
-   /**
-    * @param niterations interval for outputting during integration. If negative, frequency is autogenerated. */
-   void SetNIterationsOutput(int niterations);
-   /**
-    * @param method The marginalization method */
-   void SetMarginalizationMethod(BCIntegrate::BCMarginalizationMethod method);
+    /**
+     * @param relprecision The relative precision envisioned for Monte
+     * Carlo integration */
+    void SetRelativePrecision(double relprecision);
 
-   /**
-    * @param method The integration method */
-   void SetIntegrationMethod(BCIntegrate::BCIntegrationMethod method);
+    /**
+     * Set absolute precision of the numerical integation */
+    void SetAbsolutePrecision(double absprecision);
 
-   /**
-    * @param method The mode finding method */
-   void SetOptimizationMethod(BCIntegrate::BCOptimizationMethod method);
+    /**
+     * @param n Number of bins per dimension for the marginalized
+     * distributions.  Default is 100. Minimum number allowed is 2. */
+    void SetNbins(unsigned int n);
 
-   /**
-    * @param relprecision The relative precision envisioned for Monte
-    * Carlo integration */
-   void SetRelativePrecision(double relprecision);
+    /**
+     * Sets the number of Markov chains */
+    void SetNChains(unsigned int n);
 
-   /**
-    * Set absolute precision of the numerical integation */
-   void SetAbsolutePrecision(double absprecision);
+    /** @} */
 
-   /**
-    * @param n Number of bins per dimension for the marginalized
-    * distributions.  Default is 100. Minimum number allowed is 2. */
-   void SetNbins(unsigned int n);
+    /** \name Member functions (miscellaneous methods) */
+    /** @{ */
 
-   /**
-    * Sets the data point containing the lower boundaries of possible
-    * data values */
-   void SetDataPointLowerBoundaries(BCDataPoint * datasetlowerboundaries);
+    /**
+     * Adds a model to the container
+     * @param model The model
+     * @param probability The a priori probability
+     * @see AddModel(BCModel * model)
+     * @see SetModelPrior(BCModel * model, double probability) */
+    void AddModel(BCModel* model, double prior_probability = 0.);
 
-   /**
-    * Sets the data point containing the upper boundaries of possible
-    * data values */
-   void SetDataPointUpperBoundaries(BCDataPoint* datasetupperboundaries);
+    /**
+     * Calculates the normalization of the likelihood for each model in
+     * the container. */
+    void Integrate();
 
-   /**
-    * Sets the lower boundary of possible data values for a particular
-    * variable */
-   void SetDataPointLowerBoundary(int index, double lowerboundary);
+    /**
+     * Calculate Bayes factor for two models.
+     * @param imodel1 index of model 1 (numerator)
+     * @param imodel2 index of model 2 (denominator)
+     * @return Bayes factor or -1. on error */
+    double BayesFactor(const unsigned int imodel1, const unsigned int imodel2);
 
-   /**
-    * Sets the upper boundary of possible data values for a particular
-    * variable */
-   void SetDataPointUpperBoundary(int index, double upperboundary);
+    /**
+     * Does the mode finding */
+    void FindMode();
 
-   /**
-    * Set the lower and upper boundaries for possible data values for a
-    * particular variable */
-   void SetDataBoundaries(int index, double lowerboundary, double upperboundary);
+    /**
+     * Marginalize all probabilities wrt. single parameters and all
+     * combinations of two parameters for all models. */
+    void MarginalizeAll();
 
-   /**
-    * Sets the number of Markov chains */
-   void SetNChains(unsigned int n);
+    /**
+     * Flag for writing Markov chain to file */
+    void WriteMarkovChain(bool flag);
 
-   /** @} */
+    /**
+     * Turn on writing of Markov chain to file for all models.
+     * @param prefix Prefix for output files (model safe name is appended along with .root)
+     * @param option file-opn options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE". */
+    void WriteMarkovChain(std::string prefix, std::string option);
 
-   /** \name Member functions (miscellaneous methods) */
-   /** @{ */
+    /**
+     * Prints a summary of model comparison into a file.
+     * If filename is omitted the summary will be printed onto the screen
+     * @param filename name of the file to write into. */
+    void PrintModelComparisonSummary(const char* filename = 0);
 
-   /**
-    * Adds a model to the container
-    * @param model The model
-    * @param probability The a priori probability
-    * @see AddModel(BCModel * model)
-    * @see SetModelPrior(BCModel * model, double probability) */
-   void AddModel(BCModel * model, double probability=0.);
+    /**
+     * Prints a summary into a file. If filename is omitted the summary
+     * will be printed onto the screen.
+     * This method is obsolete. Use PrintResults() instead.
+     * @param filename name of the file to write into. */
+    void PrintSummary(const char* filename = 0);
 
-   /**
-    * Adds a data point to the data container.
-    * @param datapoint The data point */
-   void AddDataPoint(BCDataPoint * datapoint)
-   { fDataSet -> AddDataPoint(datapoint); };
+    /**
+     * Prints summaries of all files */
+    void PrintResults();
 
-   /**
-    * Reads data from a file. For a description see the following
-    * member functions. */
-   int ReadDataFromFile(const char * filename, const char * treename, const char * branchnames)
-   { return this ->  ReadDataFromFileTree(filename, treename, branchnames); };
+    /* /\** */
+    /*  * Calculates the p-value for all models. *\/ */
+    /* void CalculatePValue(bool flag_histogram=false); */
 
-   int ReadDataFromFile(const char * filename, int nvariables)
-   { return this -> ReadDataFromFileTxt(filename, nvariables); };
-
-   /**
-    * Reads tree data from a ROOT file.
-    * Opens a ROOT file and gets a ROOT tree. It creates data set
-    * containing the values read from the file.
-    * @param filename The filename of the ROOT file
-    * @param treename The name of the ROOT tree
-    * @param branchnames A vector of the names of the branches
-    * @see ReadDataFromFileHist(char * filename, char * histname, const char*  branchnames);
-    * @see ReadDataFromFileTxt(char * filename, int nbranches); */
-   int ReadDataFromFileTree(const char * filename, const char * treename, const char * branchnames);
-
-   /**
-    * Reads data from a txt file.
-    * Opens a txt file and creates data set
-    * containing the values read from the file.
-    * @param filename The filename of the ROOT file
-    * @param nbranches The number of variables
-    * @see ReadDataFromFileTree(char * filename, char * treename, std::vector<char*> branchnames)
-    * @see ReadDataFromFileHist(char * filename, char * histname, const char * branchnames); */
-   int ReadDataFromFileTxt(const char * filename, int nbranches);
-
-   /**
-    * Calculates the normalization of the likelihood for each model in
-    * the container. */
-   void Integrate();
-
-   /**
-    * Calculate Bayes factor for two models.
-    * @param imodel1 index of model 1 (numerator)
-    * @param imodel2 index of model 2 (denominator)
-    * @return Bayes factor or -1. on error */
-   double BayesFactor(const unsigned int imodel1, const unsigned int imodel2);
-
-   /**
-    * Does the mode finding */
-   void FindMode();
-
-   /**
-    * Marginalize all probabilities wrt. single parameters and all
-    * combinations of two parameters for all models. */
-   void MarginalizeAll();
-
-   /**
-    * Flag for writing Markov chain to file */
-   void WriteMarkovChain(bool flag);
-
-   /**
-    * Resets the data set */
-   void ResetDataSet()
-   { fDataSet -> Reset(); };
-
-   /**
-    * Prints a summary of model comparison into a file.
-    * If filename is omitted the summary will be printed onto the screen
-    * @param filename name of the file to write into. */
-   void PrintModelComparisonSummary(const char * filename=0);
-
-   /**
-    * Prints a summary into a file. If filename is omitted the summary
-    * will be printed onto the screen.
-    * This method is obsolete. Use PrintResults() instead.
-    * @param filename name of the file to write into. */
-   void PrintSummary(const char * filename=0);
-
-   /**
-    * Prints summaries of all files */
-   void PrintResults();
-
-   /**
-    * Calculates the p-value for all models. */
-   void CalculatePValue(bool flag_histogram=false);
-
-   /** @} */
+    /** @} */
 
 private:
 
-   /**
-    * Copies this BCModelManager into another one */
-   void Copy(BCModelManager & modelmanager) const;
+    /**
+     * Vector of pointers to all models. */
+    std::vector<BCModel*> fModels;
 
-   /**
-    * The BCModelContainer containing all BCModels. */
-   BCModelContainer * fModelContainer;
+    /**
+     * Vector of a priori probabilities. */
+    std::vector<double> fAPrioriProbability;
 
-   /**
-    * The data set common to all models. */
-   BCDataSet * fDataSet;
+    /**
+     * Vector of a posteriori probabilities. */
+    std::vector<double> fAPosterioriProbability;
+
+    /**
+     * The data set common to all models. */
+    BCDataSet* fDataSet;
 
 };
 

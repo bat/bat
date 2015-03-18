@@ -2,28 +2,19 @@
 #define __RATIOMODEL__H
 
 #include <BAT/BCModel.h>
-#include <BAT/BCH1D.h>
 
 // ---------------------------------------------------------
 class RatioModel : public BCModel
 {
-   public:
+public:
 
-      // Constructors and destructor
-      RatioModel();
-      RatioModel(const char * name);
-      ~RatioModel();
+    // Constructor and destructor
+    RatioModel(const char* name);
+    ~RatioModel();
 
-      // Methods to overload, see file RatioModel.cxx
-      void DefineParameters();
-      void DefineHistogram();
-      void PrintHistogram();
-      double LogAPrioriProbability(const std::vector<double> &parameters);
-      double LogLikelihood(const std::vector<double> &parameters);
-      void MCMCUserIterationInterface();
+    double LogLikelihood(const std::vector<double>& parameters);
+    void CalculateObservables(const std::vector<double>& parameters);
 
-   private:
-      BCH1D * fHistRatio;
 };
 // ---------------------------------------------------------
 

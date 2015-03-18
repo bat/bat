@@ -9,34 +9,26 @@ class TH1D;
 // ---------------------------------------------------------
 class MyCombination : public BCMVCombination
 {
- public:
+public:
 
-  // Constructor
-  MyCombination();
+    // Constructor
+    MyCombination();
 
-  // Destructor
-  ~MyCombination();
+    // Destructor
+    ~MyCombination();
 
-  // setters
-  void SetHistFR(TH1D* hist)
-  { fHistFR = hist; }; 
+    // setters
+    void SetFlagPhysicalConstraints(bool flag)
+    { fFlagPhysicalConstraints = flag; };
 
-  void SetFlagPhysicalConstraints(bool flag)
-  { fFlagPhysicalConstraints = flag; }; 
+    // BAT methods
+    double LogLikelihood(const std::vector<double>& parameters);
+    void CalculateObservables(const std::vector<double>& parameters);
 
-  // BAT methods
+private:
 
-  double LogLikelihood(const std::vector<double> &parameters);
-
-  void MCMCIterationInterface();
-
- private:
-
-  // flag for imposing physical constraints or not
-  bool fFlagPhysicalConstraints; 
-
-  // histogram containing posterior for FR
-  TH1D* fHistFR;
+    // flag for imposing physical constraints or not
+    bool fFlagPhysicalConstraints;
 
 };
 // ---------------------------------------------------------
