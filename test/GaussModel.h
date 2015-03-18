@@ -7,30 +7,30 @@
 // ---------------------------------------------------------
 class GaussModel : public BCModel
 {
-   public:
+public:
 
-      // Constructors and destructor
-      GaussModel(const char * name, const unsigned & nParameters, long loopIterations = 0);
-      virtual ~GaussModel();
+    // Constructors and destructor
+    GaussModel(const char* name, const unsigned& nParameters, long loopIterations = 0);
+    virtual ~GaussModel();
 
-      // Methods to overload, see file GaussModel.cxx
-      virtual double LogLikelihood(const std::vector<double> & parameters);
+    // Methods to overload, see file GaussModel.cxx
+    virtual double LogLikelihood(const std::vector<double>& parameters);
 
-      unsigned long Calls() const
-      {
-         return fCalls;
-      }
+    unsigned long Calls() const
+    {
+        return fCalls;
+    }
 
 private:
-      /**
-       * Used in likelihood to prolong artificially.
-       */
-      unsigned long fLoopIterations;
+    /**
+     * Used in likelihood to prolong artificially.
+     */
+    unsigned long fLoopIterations;
 
-      /**
-       * Count how often likelihood is called
-       */
-      unsigned long fCalls;
+    /**
+     * Count how often likelihood is called
+     */
+    unsigned long fCalls;
 };
 // ---------------------------------------------------------
 

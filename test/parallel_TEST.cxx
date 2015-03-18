@@ -39,17 +39,17 @@ public:
      *
      * @param time The time of the last execution.
      */
-    void PrintValues(const double & time)
+    void PrintValues(const double& time)
     {
         static std::vector<double> real_time_array(0);
 
         real_time_array.push_back(time);
 
         // only print when two new values have been stored
-        if((real_time_array.size() % 2) == 1)
+        if ((real_time_array.size() % 2) == 1)
             return;
 
-        const double & previous_time = real_time_array.at(real_time_array.size() - 2);
+        const double& previous_time = real_time_array.at(real_time_array.size() - 2);
         std::cout << "previous time: " << previous_time << std::endl;
 
         const double diff =  previous_time - time;
@@ -63,7 +63,7 @@ public:
 class RunComparison
 {
 public:
-    struct Config{
+    struct Config {
         /**
          * The configure option to set #markov chains */
         unsigned num_chains;
@@ -104,7 +104,8 @@ public:
         }
 
     public:
-        static Config Default(){
+        static Config Default()
+        {
             return Config();
         }
     };
@@ -115,15 +116,15 @@ public:
     std::string GaussModel_plots_Serial;
     std::string GaussModel_plots_Parallel;
     unsigned seed;
-    struct DataHolder
-    {
+    struct DataHolder {
         unsigned fMCMCNIterations;
 
         double fMCMCprob;
         int fMCMCPhase;
         std::vector<double> parameters;
 
-        DataHolder(TTree *tree) {
+        DataHolder(TTree* tree)
+        {
             TEST_CHECK(tree);
 
             tree->SetBranchAddress("Iteration",       &fMCMCNIterations);
@@ -135,8 +136,7 @@ public:
             tree->GetEntry(0);
             parameters.resize(tree->GetNbranches() - 3);
 
-            for (unsigned k = 0; k < parameters.size(); ++k)
-            {
+            for (unsigned k = 0; k < parameters.size(); ++k) {
                 std::string parName = "Parameter" + stringify(k);
 
                 tree->SetBranchAddress(parName.c_str(),   &parameters[k]);
@@ -144,7 +144,7 @@ public:
         }
     };
 
-    RunComparison(const RunComparison::Config & config) :
+    RunComparison(const RunComparison::Config& config) :
         config(config),
         GaussModel_plots_Serial(BAT_TESTDIR "parallel_TEST_GaussModel_plots_Serial.pdf"),
         GaussModel_plots_Parallel(BAT_TESTDIR "parallel_TEST_GaussModel_plots_Parallel.pdf"),
@@ -155,7 +155,8 @@ public:
         Check();
     }
 
-    void CreateOutput(const bool & parallelization) const {
+    void CreateOutput(const bool& parallelization) const
+    {
         Output op;
 
         omp_set_dynamic(0);
@@ -189,11 +190,10 @@ public:
         m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
         m.MarginalizeAll();
         sw.Stop();
-        double real_time=sw.RealTime();
+        double real_time = sw.RealTime();
         op.PrintValues(real_time);
 
-        if (config.plot)
-        {
+        if (config.plot) {
             if (parallelization)
                 m.PrintAllMarginalized(GaussModel_plots_Parallel.c_str());
             else
@@ -209,28 +209,27 @@ public:
 
     void Check() throw(TestCaseFailedException)
     {
-        TFile * rfile1 = TFile::Open(config.rootFileNameParallel.c_str());
-        TFile * rfile2 = TFile::Open(config.rootFileNameSerial.c_str());
+        TFile* rfile1 = TFile::Open(config.rootFileNameParallel.c_str());
+        TFile* rfile2 = TFile::Open(config.rootFileNameSerial.c_str());
 
         if (!rfile1)
-          TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameParallel);
+            TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameParallel);
 
         if (!rfile2)
-          TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameSerial);
+            TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameSerial);
 
         // find the beginning of the main run
         // assume there is at least one chain and all chains start main run at the same time
         long long main_begin = 0;
         {
-            TTree * one = NULL;
+            TTree* one = NULL;
             rfile1->GetObject("MarkovChainTree_0", one);
 
             if (!one)
                 TEST_CHECK_FAILED("Could not locate first Markov chain");
 
             DataHolder oneData(one);
-            for (; main_begin < one->GetEntries(); ++main_begin)
-            {
+            for (; main_begin < one->GetEntries(); ++main_begin) {
                 one->GetEntry(main_begin);
                 if (oneData.fMCMCPhase == 2)
                     break;
@@ -239,16 +238,16 @@ public:
         }
 
         for (unsigned ichain = 0; ichain < config.num_chains; ++ichain) {
-            TTree * one = NULL;
-            TTree * two = NULL;
+            TTree* one = NULL;
+            TTree* two = NULL;
 
             rfile1->GetObject(TString::Format("MarkovChainTree_%d", ichain), one);
             rfile2->GetObject(TString::Format("MarkovChainTree_%d", ichain), two);
 
             if (!one)
-              TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameParallel);
+                TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameParallel);
             if (!two)
-              TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameSerial);
+                TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameSerial);
 
             DataHolder oneData(one);
             DataHolder twoData(two);
@@ -258,17 +257,15 @@ public:
             TEST_CHECK_EQUAL(nEntries1, nEntries2);
 
             // check prerun(phase 1) and mainrun(phase 2) for identity
-            for (unsigned phase = 1; phase < 3 ; ++phase)
-            {
+            for (unsigned phase = 1; phase < 3 ; ++phase) {
                 // loop over iterations
-                for(long long int entry = (phase - 1) * main_begin;
+                for (long long int entry = (phase - 1) * main_begin;
                         entry <  (phase - 1) * main_begin + config.num_entries ; ++entry) {
                     one->GetEntry(entry);
                     two->GetEntry(entry);
 
                     // loop over each dimension
-                    for (unsigned k = 0; k < oneData.parameters.size(); k++)
-                    {
+                    for (unsigned k = 0; k < oneData.parameters.size(); k++) {
                         TEST_CHECK_EQUAL(oneData.parameters[k], twoData.parameters[k]);
                     }
                     TEST_CHECK_EQUAL(oneData.fMCMCprob, twoData.fMCMCprob);
@@ -279,39 +276,34 @@ public:
 #if 0
             // check that two consecutive values change only on at most one parameter
             // take only first two parameters
-            if (oneData.parameters.size() > 1)
-            {
-               one->GetEntry(0);
-               two->GetEntry(0);
+            if (oneData.parameters.size() > 1) {
+                one->GetEntry(0);
+                two->GetEntry(0);
 
-               double previousX = oneData.parameters[0];
-               double previousY = oneData.parameters[1];
+                double previousX = oneData.parameters[0];
+                double previousY = oneData.parameters[1];
 
-               for (unsigned phase = 1; phase < 3 ; ++phase)
-               {
-                  // loop over iterations
-                  for(long long int entry = (phase - 1) * main_begin + 1;
-                        entry <  (phase - 1) * main_begin + config.num_entries ; ++entry) {
-                     one->GetEntry(entry);
-                     two->GetEntry(entry);
+                for (unsigned phase = 1; phase < 3 ; ++phase) {
+                    // loop over iterations
+                    for (long long int entry = (phase - 1) * main_begin + 1;
+                            entry <  (phase - 1) * main_begin + config.num_entries ; ++entry) {
+                        one->GetEntry(entry);
+                        two->GetEntry(entry);
 
-                     std::cout << print_container(oneData.parameters) << std::endl;
-                     if (oneData.parameters[0] != previousX and oneData.parameters[1] != previousY)
-                     {
-                        std::string msg = "Two (or more) parameters changed at once in iteration " + stringify(entry) + ":\n";
-                        msg += stringify(previousX) + "->" + stringify(oneData.parameters[0]) + ", ";
-                        msg += stringify(previousY) + "->" + stringify(oneData.parameters[1]);
-                        TEST_CHECK_FAILED(msg);
-                     }
+                        std::cout << print_container(oneData.parameters) << std::endl;
+                        if (oneData.parameters[0] != previousX and oneData.parameters[1] != previousY) {
+                            std::string msg = "Two (or more) parameters changed at once in iteration " + stringify(entry) + ":\n";
+                            msg += stringify(previousX) + "->" + stringify(oneData.parameters[0]) + ", ";
+                            msg += stringify(previousY) + "->" + stringify(oneData.parameters[1]);
+                            TEST_CHECK_FAILED(msg);
+                        }
 
-                     previousX = oneData.parameters[0];
-                     previousY = oneData.parameters[1];
-                  }
-               }
-            }
-            else
-            {
-               TEST_CHECK_FAILED("Need at least two parameters to check one-parameter-at-a-time proposal");
+                        previousX = oneData.parameters[0];
+                        previousY = oneData.parameters[1];
+                    }
+                }
+            } else {
+                TEST_CHECK_FAILED("Need at least two parameters to check one-parameter-at-a-time proposal");
             }
 #endif
             delete one;
@@ -329,7 +321,7 @@ public:
 };
 
 class ParallelTest :
-public TestCase
+    public TestCase
 {
 public:
     ParallelTest():

@@ -31,90 +31,90 @@ class BCMTFComparisonTool
 
 public:
 
-        /** \name Constructors and destructors */
-        /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-        /**
-         * The default constructor.
-         * @param name The name of the class. */
-        BCMTFComparisonTool(const char * name);
+    /**
+     * The default constructor.
+     * @param name The name of the class. */
+    BCMTFComparisonTool(const char* name);
 
-        /**
-         * The defaul destructor. */
-        ~BCMTFComparisonTool();
+    /**
+     * The defaul destructor. */
+    ~BCMTFComparisonTool();
 
-        /** @} */
-        /** \name Member functions (get) */
-        /** @{ */
+    /** @} */
+    /** \name Member functions (get) */
+    /** @{ */
 
-        /**
-         * @return The name of the class. */
-        std::string GetName()
-        { return fName; };
+    /**
+     * @return The name of the class. */
+    std::string GetName()
+    { return fName; };
 
-        /**
-         * @return The number of contributions. */
-        int GetNContributions()
-        { return (int) fHistogramContainer.size(); };
+    /**
+     * @return The number of contributions. */
+    int GetNContributions()
+    { return (int) fHistogramContainer.size(); };
 
-        /** @} */
-        /** \name Member functions (miscellaneous methods) */
-        /** @{ */
+    /** @} */
+    /** \name Member functions (miscellaneous methods) */
+    /** @{ */
 
-        /**
-         * Add a constribution.
-         * @param name The name of the contribution.
-         * @param hist The histogram. */
-        void AddContribution(const char * name, TH1D hist);
+    /**
+     * Add a constribution.
+     * @param name The name of the contribution.
+     * @param hist The histogram. */
+    void AddContribution(const char* name, TH1D hist);
 
-        /**
-         * Add a constribution.
-         * @param name The name of the contribution.
-         * @param centralvalue The central value.
-         * @param uncertainty The uncertainty. */
-        void AddContribution(const char * name, double centralvalue, double uncertainty);
+    /**
+     * Add a constribution.
+     * @param name The name of the contribution.
+     * @param centralvalue The central value.
+     * @param uncertainty The uncertainty. */
+    void AddContribution(const char* name, double centralvalue, double uncertainty);
 
-        /**
-         * Draw an overview. */
-        void DrawOverview();
+    /**
+     * Draw an overview. */
+    void DrawOverview();
 
-        /** @} */
-        /** \name Member functions (output methods) */
-        /** @{ */
+    /** @} */
+    /** \name Member functions (output methods) */
+    /** @{ */
 
-        /**
-         * Print all histograms to a file.
-         * @param filename The name of the file. */
-        void PrintHistograms(const char * filename);
+    /**
+     * Print all histograms to a file.
+     * @param filename The name of the file. */
+    void PrintHistograms(const char* filename);
 
-        /**
-         * Print an overview to a file.
-         * @param filename The name of the file. */
-        void PrintOverview(const char * filename);
+    /**
+     * Print an overview to a file.
+     * @param filename The name of the file. */
+    void PrintOverview(const char* filename);
 
-        /** @} */
+    /** @} */
 
 private:
 
-        /**
-         * The name of the class. */
-        std::string fName;
+    /**
+     * The name of the class. */
+    std::string fName;
 
-        /**
-         * The names of the contributions. */
-        std::vector<std::string> fNameContainer;
+    /**
+     * The names of the contributions. */
+    std::vector<std::string> fNameContainer;
 
-        /**
-         * A container of TH1D histograms. */
-        std::vector<TH1D *> fHistogramContainer;
+    /**
+     * A container of TH1D histograms. */
+    std::vector<TH1D*> fHistogramContainer;
 
-        /**
-         * A container of central values. */
-        std::vector<double> fCentralValueContainer;
+    /**
+     * A container of central values. */
+    std::vector<double> fCentralValueContainer;
 
-        /**
-         * A container of uncertainties. */
-        std::vector<double> fUncertaintyContainer;
+    /**
+     * A container of uncertainties. */
+    std::vector<double> fUncertaintyContainer;
 
 };
 // ---------------------------------------------------------

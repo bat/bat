@@ -7,41 +7,41 @@
 int main()
 {
 
-  // set nicer style for drawing than the ROOT default
-  BCAux::SetStyle();
+    // set nicer style for drawing than the ROOT default
+    BCAux::SetStyle();
 
-  // open log file
-  BCLog::OpenLog("log.txt");
-  BCLog::SetLogLevel(BCLog::detail);
+    // open log file
+    BCLog::OpenLog("log.txt");
+    BCLog::SetLogLevel(BCLog::detail);
 
-  // create new CombinationModel object
-  CombinationModel * m = new CombinationModel();
+    // create new CombinationModel object
+    CombinationModel* m = new CombinationModel();
 
-  // create a new summary tool object
-  BCSummaryTool * summary = new BCSummaryTool(m);
+    // create a new summary tool object
+    BCSummaryTool* summary = new BCSummaryTool(m);
 
-  // marginalize
-  m->MarginalizeAll();
+    // marginalize
+    m->MarginalizeAll();
 
-  // find mode
-  m->FindMode( m->GetBestFitParameters() );
+    // find mode
+    m->FindMode( m->GetBestFitParameters() );
 
-  // draw all marginalized distributions into a PostScript file
-  m->PrintAllMarginalized("CombinationModel_plots.pdf");
+    // draw all marginalized distributions into a PostScript file
+    m->PrintAllMarginalized("CombinationModel_plots.pdf");
 
-  // print all summary plots
-  summary->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
- 
-  // print results of the analysis into a text file
-  m->PrintResults("CombinationModel_results.txt");
+    // print all summary plots
+    summary->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
-  // close log file
-  BCLog::CloseLog();
+    // print results of the analysis into a text file
+    m->PrintResults("CombinationModel_results.txt");
 
-  delete m;
-  delete summary;
+    // close log file
+    BCLog::CloseLog();
 
-  return 0;
+    delete m;
+    delete summary;
+
+    return 0;
 
 }
 

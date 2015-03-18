@@ -31,7 +31,7 @@ BCParameter::BCParameter():
 
 // ---------------------------------------------------------
 
-BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname) :
+BCParameter::BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname) :
     fName(name),
     fLowerLimit(lowerlimit),
     fUpperLimit(upperlimit),
@@ -47,23 +47,23 @@ BCParameter::BCParameter(const char * name, double lowerlimit, double upperlimit
 
 void BCParameter::PrintSummary() const
 {
-	BCLog::OutSummary("Parameter summary:");
-	BCLog::OutSummary(Form("Parameter   : %s", fName.c_str()));
-	BCLog::OutSummary(Form("Lower limit : %f", fLowerLimit));
-	BCLog::OutSummary(Form("Upper limit : %f", fUpperLimit));
+    BCLog::OutSummary("Parameter summary:");
+    BCLog::OutSummary(Form("Parameter   : %s", fName.c_str()));
+    BCLog::OutSummary(Form("Lower limit : %f", fLowerLimit));
+    BCLog::OutSummary(Form("Upper limit : %f", fUpperLimit));
 }
 
 // ---------------------------------------------------------
 
 bool BCParameter::IsAtLimit(double value) const
 {
-   if (fLowerLimit == fUpperLimit)
-      return false;
+    if (fLowerLimit == fUpperLimit)
+        return false;
 
-   if ( ( (value-fLowerLimit)*(value-fLowerLimit)/fLowerLimit/fLowerLimit <= 1e-10) ||
-         ( (value-fUpperLimit)*(value-fUpperLimit)/fUpperLimit/fUpperLimit <= 1e-10))
-      return true;
-   else
-      return false;
+    if ( ( (value - fLowerLimit) * (value - fLowerLimit) / fLowerLimit / fLowerLimit <= 1e-10) ||
+            ( (value - fUpperLimit) * (value - fUpperLimit) / fUpperLimit / fUpperLimit <= 1e-10))
+        return true;
+    else
+        return false;
 }
 

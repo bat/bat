@@ -37,158 +37,158 @@ class TObject;
 
 class BCModelOutput
 {
-   public:
+public:
 
-      /** \name Constructors and destructors */
-      /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-      /**
-       * The default constructor. */
-      BCModelOutput();
+    /**
+     * The default constructor. */
+    BCModelOutput();
 
-      /**
-       * A constructor.
-       * @param model The model to which this output class is assigned.
-       * @param filename Name of the output file. */
-      BCModelOutput(BCModel * model, const char * filenname);
+    /**
+     * A constructor.
+     * @param model The model to which this output class is assigned.
+     * @param filename Name of the output file. */
+    BCModelOutput(BCModel* model, const char* filenname);
 
-      /**
-       * The default copy constructor. */
-      BCModelOutput(const BCModelOutput & modeloutput);
+    /**
+     * The default copy constructor. */
+    BCModelOutput(const BCModelOutput& modeloutput);
 
-      /**
-       * The default destructor. */
-      virtual ~BCModelOutput();
+    /**
+     * The default destructor. */
+    virtual ~BCModelOutput();
 
-      /** @} */
+    /** @} */
 
-      /** \name Assignment operators */
-      /** @{ */
+    /** \name Assignment operators */
+    /** @{ */
 
-      /**
-       * The defaut assignment operator */
-      BCModelOutput & operator = (const BCModelOutput & modeloutput);
+    /**
+     * The defaut assignment operator */
+    BCModelOutput& operator = (const BCModelOutput& modeloutput);
 
-      /** @} */
+    /** @} */
 
-      /** \name Getters */
-      /** @{ */
+    /** \name Getters */
+    /** @{ */
 
-      /**
-       * Returns the output TTree tree.
-       * @return The pointer to the output TTree */
-      TTree * GetAnalysisTree()
-         { return fAnalysisTree; };
+    /**
+     * Returns the output TTree tree.
+     * @return The pointer to the output TTree */
+    TTree* GetAnalysisTree()
+    { return fAnalysisTree; };
 
-      /**
-       * Returns the output TFile.
-       * @return The pointer to the output TFile */
-      TFile * GetFile()
-         { return fOutputFile; };
+    /**
+     * Returns the output TFile.
+     * @return The pointer to the output TFile */
+    TFile* GetFile()
+    { return fOutputFile; };
 
-      /** @} */
+    /** @} */
 
-      /** \name Setters */
-      /** @{ */
+    /** \name Setters */
+    /** @{ */
 
-      /**
-       * Assign a BCModel to this output class.
-       * @param model A pointer to the BCModel */
-      void SetModel(BCModel * model);
+    /**
+     * Assign a BCModel to this output class.
+     * @param model A pointer to the BCModel */
+    void SetModel(BCModel* model);
 
 
-      /**
-       * Sets the output filename.
-       * @param filename The filename */
-      void SetFile(const char * filename);
+    /**
+     * Sets the output filename.
+     * @param filename The filename */
+    void SetFile(const char* filename);
 
-      /** @} */
+    /** @} */
 
-      /** \name Member functions (miscellaneous methods) */
-      /** @{ */
+    /** \name Member functions (miscellaneous methods) */
+    /** @{ */
 
-      /**
-       * Flag for writing Markov chain to file
-       * @param flag Writes (true) or does not write (false) the Markov chain */
-      void WriteMarkovChain(bool flag = true);
+    /**
+     * Flag for writing Markov chain to file
+     * @param flag Writes (true) or does not write (false) the Markov chain */
+    void WriteMarkovChain(bool flag = true);
 
-      /**
-       * Fill the output TTree with the current information. */
-      void FillAnalysisTree();
+    /**
+     * Fill the output TTree with the current information. */
+    void FillAnalysisTree();
 
-      /**
-       * Writes the marginalized histograms to the TFile. */
-      void WriteMarginalizedDistributions();
+    /**
+     * Writes the marginalized histograms to the TFile. */
+    void WriteMarginalizedDistributions();
 
-      /**
-       * Writes any object derived from TObject to TFile. */
-      void Write(TObject * o);
+    /**
+     * Writes any object derived from TObject to TFile. */
+    void Write(TObject* o);
 
-      /**
-       * Closes the TFile. */
-      void Close();
+    /**
+     * Closes the TFile. */
+    void Close();
 
-      /** @} */
+    /** @} */
 
-   private:
+private:
 
-      /**
-       * Initialize the variables */
-      void Init();
+    /**
+     * Initialize the variables */
+    void Init();
 
-      /**
-       * Copies this BCModelOutput into another one */
-      void Copy(BCModelOutput & modeloutput) const;
+    /**
+     * Copies this BCModelOutput into another one */
+    void Copy(BCModelOutput& modeloutput) const;
 
-      /**
-       * Initialize the output TTree. */
-      void InitializeAnalysisTree();
+    /**
+     * Initialize the output TTree. */
+    void InitializeAnalysisTree();
 
-      /**
-       * Initialize SA TTree. */
-      void InitializeSATree();
+    /**
+     * Initialize SA TTree. */
+    void InitializeSATree();
 
-      /**
-       * Pointer to the TTree containing the summary output information. */
-      TTree * fAnalysisTree;
+    /**
+     * Pointer to the TTree containing the summary output information. */
+    TTree* fAnalysisTree;
 
-      /**
-       * The trees containing the Markov chains. The length of the vector
-       * is fMCMCNChains. */
-      std::vector<TTree *> fMarkovChainTrees;
+    /**
+     * The trees containing the Markov chains. The length of the vector
+     * is fMCMCNChains. */
+    std::vector<TTree*> fMarkovChainTrees;
 
-      /**
-       * The tree for the simulated annealing. */
-      TTree * fTreeSA;
+    /**
+     * The tree for the simulated annealing. */
+    TTree* fTreeSA;
 
-      /**
-       * The output filename */
-      char * fFileName;
+    /**
+     * The output filename */
+    char* fFileName;
 
-      /**
-       * Pointer to the output TFile. */
-      TFile * fOutputFile;
+    /**
+     * Pointer to the output TFile. */
+    TFile* fOutputFile;
 
-      /**
-       * Pointer to the model this output class is assigned to */
-      BCModel * fModel;
+    /**
+     * Pointer to the model this output class is assigned to */
+    BCModel* fModel;
 
-      /**
-       * The analysis tree variables */
-      int fIndex;
-      unsigned int fNParameters;
-      double fProbability_apriori;
-      double fProbability_aposteriori;
-      std::vector<double> fMode_global;
-      std::vector<double> fMode_marginalized;
-      std::vector<double> fMean_marginalized;
-      std::vector<double> fMedian_marginalized;
-      std::vector<double> fQuantile_05;
-      std::vector<double> fQuantile_10;
-      std::vector<double> fQuantile_16;
-      std::vector<double> fQuantile_84;
-      std::vector<double> fQuantile_90;
-      std::vector<double> fQuantile_95;
+    /**
+     * The analysis tree variables */
+    int fIndex;
+    unsigned int fNParameters;
+    double fProbability_apriori;
+    double fProbability_aposteriori;
+    std::vector<double> fMode_global;
+    std::vector<double> fMode_marginalized;
+    std::vector<double> fMean_marginalized;
+    std::vector<double> fMedian_marginalized;
+    std::vector<double> fQuantile_05;
+    std::vector<double> fQuantile_10;
+    std::vector<double> fQuantile_16;
+    std::vector<double> fQuantile_84;
+    std::vector<double> fQuantile_90;
+    std::vector<double> fQuantile_95;
 
 };
 

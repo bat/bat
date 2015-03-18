@@ -27,39 +27,39 @@
 class PerfTest1DFunction : public PerfTestMCMC
 {
 
- public:
+public:
 
-   /** \name Constructors and destructors  */
-   /* @{ */
+    /** \name Constructors and destructors  */
+    /* @{ */
 
-   /** The default constructor */
-   PerfTest1DFunction(std::string name = "unknown", TF1* func = 0);
+    /** The default constructor */
+    PerfTest1DFunction(std::string name = "unknown", TF1* func = 0);
 
-   /** The default destructor */
-   virtual ~PerfTest1DFunction();
+    /** The default destructor */
+    virtual ~PerfTest1DFunction();
 
-   /* @} */
+    /* @} */
 
-   /** Run after the test
-    * @return an error code. */
-   int PostTest();
+    /** Run after the test
+     * @return an error code. */
+    int PostTest();
 
-   /** Defines the subtests. */
-   void DefineSubtests();
+    /** Defines the subtests. */
+    void DefineSubtests();
 
-   /* @} */
+    /* @} */
 
-   // inherited methods
-   double LogAPrioriProbability(const std::vector<double> & pars)
-      { return 0; }
+    // inherited methods
+    double LogAPrioriProbability(const std::vector<double>& pars)
+    { return 0; }
 
-   double LogLikelihood(const std::vector<double> & pars)
-      { return log(fFunction->Eval(pars[0])); }
+    double LogLikelihood(const std::vector<double>& pars)
+    { return log(fFunction->Eval(pars[0])); }
 
- private:
+private:
 
-   /** The test function. */
-   TF1 * fFunction;
+    /** The test function. */
+    TF1* fFunction;
 };
 
 #endif

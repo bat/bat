@@ -29,79 +29,79 @@
 // model.
 
 // ---------------------------------------------------------
-analyzeMCMCTree(const char *filename="output.root", int nchains=5)
+analyzeMCMCTree(const char* filename = "output.root", int nchains = 5)
 {
-   // open root file
-   TFile *rfile = TFile::Open(filename);
+    // open root file
+    TFile* rfile = TFile::Open(filename);
 
-   // prepare some variables
-   // pointers to chains
-   TChain **ch = new TChain*[nchains];
-   // marginalized distributions
-   TH1D *h1d0; // 1D: par1
-   TH1D *h1d1; // 1D: par2
-   TH1D *h1dx; // 1D: function of par1 and par2
-   TH2D *h2d;  // 2D: par1 vs. par2
+    // prepare some variables
+    // pointers to chains
+    TChain** ch = new TChain*[nchains];
+    // marginalized distributions
+    TH1D* h1d0; // 1D: par1
+    TH1D* h1d1; // 1D: par2
+    TH1D* h1dx; // 1D: function of par1 and par2
+    TH2D* h2d;  // 2D: par1 vs. par2
 
-   // read all chains from the file and fill marginaliyed distributions
-   for (int ichain=0; ichain < nchains; ichain++) {
+    // read all chains from the file and fill marginaliyed distributions
+    for (int ichain = 0; ichain < nchains; ichain++) {
 
-      cout<<TString::Format("MarkovChainTree_%d",ichain)<<endl;
+        cout << TString::Format("MarkovChainTree_%d", ichain) << endl;
 
-      // read chain
-      ch[ichain] = rfile->Get(TString::Format("MarkovChainTree_%d",ichain));
+        // read chain
+        ch[ichain] = rfile->Get(TString::Format("MarkovChainTree_%d", ichain));
 
-      // extract 1D and 2D marginalized distributions after the chains have converged (Phase==2)
-      ch[ichain]->Draw("Parameter0>>h1","Phase==2");
-      ch[ichain]->Draw("Parameter1>>h2","Phase==2");
-      ch[ichain]->Draw("log(Parameter0*Parameter0)>>h3","Phase==2"); // fill f(par1,par2) = log(par0^2)
-      ch[ichain]->Draw("Parameter0:Parameter1>>h4","Phase==2");
-      if (ichain==0) {
-         h1d0 = (TH1D*)h1;
-         h1d0->GetXaxis()->SetTitle("Parameter0");
-         h1d1 = (TH1D*)h2;
-         h1d1->GetXaxis()->SetTitle("Parameter1");
-         h1dx = (TH1D*)h3;
-         h1dx->GetXaxis()->SetTitle("f(Parameter0,Parameter1)");
-         h2d = (TH2D*)h4;
-         h2d->GetXaxis()->SetTitle("Parameter1");
-         h2d->GetYaxis()->SetTitle("Parameter0");
-      }
-      // if there's more than one chain, add the marginaliyed distributions together
-      else {
-         h1d0->Add(h1);
-         h1d1->Add(h2);
-         h1dx->Add(h3);
-         h2d->Add(h4);
-      }
-   }
+        // extract 1D and 2D marginalized distributions after the chains have converged (Phase==2)
+        ch[ichain]->Draw("Parameter0>>h1", "Phase==2");
+        ch[ichain]->Draw("Parameter1>>h2", "Phase==2");
+        ch[ichain]->Draw("log(Parameter0*Parameter0)>>h3", "Phase==2"); // fill f(par1,par2) = log(par0^2)
+        ch[ichain]->Draw("Parameter0:Parameter1>>h4", "Phase==2");
+        if (ichain == 0) {
+            h1d0 = (TH1D*)h1;
+            h1d0->GetXaxis()->SetTitle("Parameter0");
+            h1d1 = (TH1D*)h2;
+            h1d1->GetXaxis()->SetTitle("Parameter1");
+            h1dx = (TH1D*)h3;
+            h1dx->GetXaxis()->SetTitle("f(Parameter0,Parameter1)");
+            h2d = (TH2D*)h4;
+            h2d->GetXaxis()->SetTitle("Parameter1");
+            h2d->GetYaxis()->SetTitle("Parameter0");
+        }
+        // if there's more than one chain, add the marginaliyed distributions together
+        else {
+            h1d0->Add(h1);
+            h1d1->Add(h2);
+            h1dx->Add(h3);
+            h2d->Add(h4);
+        }
+    }
 
-   // remove the stats drawing
-   h1d0->SetStats(0);
-   h1d1->SetStats(0);
-   h1dx->SetStats(0);
-   h2d->SetStats(0);
+    // remove the stats drawing
+    h1d0->SetStats(0);
+    h1d1->SetStats(0);
+    h1dx->SetStats(0);
+    h2d->SetStats(0);
 
-   h2d->SetTitle("");
+    h2d->SetTitle("");
 
-   // create BAT specific histogram objects
-   BCH1D * bh1d0 = new BCH1D(h1d0);
-   BCH1D * bh1d1 = new BCH1D(h1d1);
-   BCH1D * bh1dx = new BCH1D(h1dx);
-   BCH2D * bh2d = new BCH2D(h2d);
+    // create BAT specific histogram objects
+    BCH1D* bh1d0 = new BCH1D(h1d0);
+    BCH1D* bh1d1 = new BCH1D(h1d1);
+    BCH1D* bh1dx = new BCH1D(h1dx);
+    BCH2D* bh2d = new BCH2D(h2d);
 
-   TCanvas * c = new TCanvas();
-   c->Divide(2,2);
+    TCanvas* c = new TCanvas();
+    c->Divide(2, 2);
 
-   // draw marginalized distributions in BAT style
-   c->cd(1);
-   bh1d0->Draw();
-   c->cd(2);
-   bh1d1->Draw();
-   c->cd(3);
-   bh1dx->Draw();
-   c->cd(4);
-   bh2d->Draw(2);
+    // draw marginalized distributions in BAT style
+    c->cd(1);
+    bh1d0->Draw();
+    c->cd(2);
+    bh1d1->Draw();
+    c->cd(3);
+    bh1dx->Draw();
+    c->cd(4);
+    bh2d->Draw(2);
 
 }
 

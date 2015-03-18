@@ -20,44 +20,44 @@
 class ReleaseTestSuite : public TestSuite
 {
 
- public:
+public:
 
-   /** \name Enumerators  */
-   /* @{ */
+    /** \name Enumerators  */
+    /* @{ */
 
-   /* @} */
-   /** \name Constructors and destructors  */
-   /* @{ */
+    /* @} */
+    /** \name Constructors and destructors  */
+    /* @{ */
 
-   /** The default constructor */
-   ReleaseTestSuite();
+    /** The default constructor */
+    ReleaseTestSuite();
 
-   /** The default destructor */
-   ~ReleaseTestSuite();
+    /** The default destructor */
+    ~ReleaseTestSuite();
 
-   /* @} */
-   /** \name Member functions (Set)  */
-   /* @{ */
+    /* @} */
+    /** \name Member functions (Set)  */
+    /* @{ */
 
-   /* @} */
-   /** \name Member functions (Get)  */
-   /* @{ */
+    /* @} */
+    /** \name Member functions (Get)  */
+    /* @{ */
 
-   /* @} */
-   /** \name Member functions (misc)  */
-   /* @{ */
+    /* @} */
+    /** \name Member functions (misc)  */
+    /* @{ */
 
-   /**
-    * Prepare all tests.
-    * @return An error code. */
-   int PrepareTests();
+    /**
+     * Prepare all tests.
+     * @return An error code. */
+    int PrepareTests();
 
-   /** Setup html as needed for BAT webpage */
-   void WebpageSetup();
+    /** Setup html as needed for BAT webpage */
+    void WebpageSetup();
 
-   /* @} */
+    /* @} */
 
- private:
+private:
 
 };
 

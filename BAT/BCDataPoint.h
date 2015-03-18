@@ -30,64 +30,64 @@
 
 class BCDataPoint
 {
-   public:
+public:
 
-      /** \name Constructors and destructors */
-      /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-      /**
-       * A constructor.
-       * @param nvariables The number of variables stored in a data.
-       * object */
-      BCDataPoint(int nvariables);
+    /**
+     * A constructor.
+     * @param nvariables The number of variables stored in a data.
+     * object */
+    BCDataPoint(int nvariables);
 
-      /**
-       * A constructor.
-       * @param x The vector containing the data. */
-      BCDataPoint(const std::vector<double> & x);
+    /**
+     * A constructor.
+     * @param x The vector containing the data. */
+    BCDataPoint(const std::vector<double>& x);
 
-      /** @} */
-      /** \name Member functions (get) */
-      /** @{ */
+    /** @} */
+    /** \name Member functions (get) */
+    /** @{ */
 
-      /**
-       * @param index The index of the variable.
-       * @return The value of the variable. */
-      double GetValue(unsigned index) const;
+    /**
+     * @param index The index of the variable.
+     * @return The value of the variable. */
+    double GetValue(unsigned index) const;
 
-      /**
-       * @return A vector of values. */
-      const std::vector<double> & GetValues() const
-         { return fData; };
+    /**
+     * @return A vector of values. */
+    const std::vector<double>& GetValues() const
+    { return fData; };
 
-      /**
-       * Returns the number of values. */
-      unsigned int GetNValues() const
-         { return fData.size(); };
+    /**
+     * Returns the number of values. */
+    unsigned int GetNValues() const
+    { return fData.size(); };
 
-      /** @} */
+    /** @} */
 
-      /** \name Member functions (set) */
-      /** @{ */
+    /** \name Member functions (set) */
+    /** @{ */
 
-      /**
-       * Set the value of a variable.
-       * @param index The index of the variable
-       * @param value The value of the variable */
-      void SetValue(unsigned index, double value);
+    /**
+     * Set the value of a variable.
+     * @param index The index of the variable
+     * @param value The value of the variable */
+    void SetValue(unsigned index, double value);
 
-      /**
-       * Set the values of all variables.
-       * @param values A vector of values */
-      void SetValues(const std::vector<double> & values);
+    /**
+     * Set the values of all variables.
+     * @param values A vector of values */
+    void SetValues(const std::vector<double>& values);
 
-      /** @} */
+    /** @} */
 
-   private:
+private:
 
-      /**
-       * The vector containing the values of the variables. */
-      std::vector<double> fData;
+    /**
+     * The vector containing the values of the variables. */
+    std::vector<double> fData;
 
 };
 

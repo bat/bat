@@ -28,47 +28,47 @@
 
 class BCSummaryPriorModel : public BCModel
 {
- public:
+public:
 
-   // Constructors and destructor
+    // Constructors and destructor
 
-   /**
-    * The default constructor. */
-   BCSummaryPriorModel();
+    /**
+     * The default constructor. */
+    BCSummaryPriorModel();
 
-   /**
-    * A constructor.
-    * @param name The name of the model. */
-   BCSummaryPriorModel(const char * name);
+    /**
+     * A constructor.
+     * @param name The name of the model. */
+    BCSummaryPriorModel(const char* name);
 
-   /**
-    * The default destructor. */
-   ~BCSummaryPriorModel();
+    /**
+     * The default destructor. */
+    ~BCSummaryPriorModel();
 
-   /**
-    * Set a pointer to the model under study.
-    * @param model The model under study. */
-   void SetModel(BCModel * model);
+    /**
+     * Set a pointer to the model under study.
+     * @param model The model under study. */
+    void SetModel(BCModel* model);
 
-   /**
-    * Calculates and returns the log of the prior probability at a
-    * given point in parameter space.
-    * @param parameters A vector of coordinates in the parameter space.
-    * @return The prior probability. */
-   double LogAPrioriProbability(const std::vector<double> &parameters);
+    /**
+     * Calculates and returns the log of the prior probability at a
+     * given point in parameter space.
+     * @param parameters A vector of coordinates in the parameter space.
+     * @return The prior probability. */
+    double LogAPrioriProbability(const std::vector<double>& parameters);
 
-   /**
-    * Calculates and returns the log of the Likelihood at a given point
-    * in parameter space.
-    * @param parameters A vector of coordinates in the parameter space.
-    * @return The log likelihood. */
-   double LogLikelihood(const std::vector<double> &parameters);
+    /**
+     * Calculates and returns the log of the Likelihood at a given point
+     * in parameter space.
+     * @param parameters A vector of coordinates in the parameter space.
+     * @return The log likelihood. */
+    double LogLikelihood(const std::vector<double>& parameters);
 
- private:
+private:
 
-   /**
-    * A pointer to the model under study. */
-   BCModel * fTestModel;
+    /**
+     * A pointer to the model under study. */
+    BCModel* fTestModel;
 
 };
 // ---------------------------------------------------------

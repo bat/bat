@@ -28,155 +28,155 @@
 class BCParameter
 {
 
-   public:
+public:
 
-      /** \name Constructors and destructors */
-      /** @{ */
+    /** \name Constructors and destructors */
+    /** @{ */
 
-      /**
-       * The default constructor. */
-      BCParameter();
+    /**
+     * The default constructor. */
+    BCParameter();
 
-      /**
-       * A constructor.
-       * @param name The name of the parameter.
-       * @param lowerlimit The lower limit of the parameter values.
-       * @param upperlimit The upper limit of the parameter values.
-       * @param latexname The latex name of the parameter used in axis labeling.
-        */
-      BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
+    /**
+     * A constructor.
+     * @param name The name of the parameter.
+     * @param lowerlimit The lower limit of the parameter values.
+     * @param upperlimit The upper limit of the parameter values.
+     * @param latexname The latex name of the parameter used in axis labeling.
+      */
+    BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
 
-      /** \name Member functions (get) */
-      /** @{ */
+    /** \name Member functions (get) */
+    /** @{ */
 
-      /**
-       * @return The name of the parameter. */
-      const std::string & GetName() const
-         { return fName; }
+    /**
+     * @return The name of the parameter. */
+    const std::string& GetName() const
+    { return fName; }
 
-      /**
-       * Returns latex name if set, else identical to GetName().
-       */
-      const std::string & GetLatexName() const
-         { return (fLatexName.empty()) ? fName : fLatexName; }
+    /**
+     * Returns latex name if set, else identical to GetName().
+     */
+    const std::string& GetLatexName() const
+    { return (fLatexName.empty()) ? fName : fLatexName; }
 
-      /**
-       * @return The lower limit of the parameter values. */
-      double GetLowerLimit() const
-         { return fLowerLimit; }
+    /**
+     * @return The lower limit of the parameter values. */
+    double GetLowerLimit() const
+    { return fLowerLimit; }
 
-      /**
-       * @return The upper limit of the parameter values. */
-      double GetUpperLimit() const
-         { return fUpperLimit; }
+    /**
+     * @return The upper limit of the parameter values. */
+    double GetUpperLimit() const
+    { return fUpperLimit; }
 
-      /**
-       * Returns the range width of the parameter values. It is
-       * always a positive value.
-       * @return The range width of the parameter values. */
-      double GetRangeWidth() const
-         { return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
+    /**
+     * Returns the range width of the parameter values. It is
+     * always a positive value.
+     * @return The range width of the parameter values. */
+    double GetRangeWidth() const
+    { return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
 
-      bool FillHistograms() const
-         { return fFillHistograms; }
+    bool FillHistograms() const
+    { return fFillHistograms; }
 
-      bool Fixed() const
-         { return fFixed; }
+    bool Fixed() const
+    { return fFixed; }
 
-      double GetFixedValue() const
-         { return fFixedValue; }
+    double GetFixedValue() const
+    { return fFixedValue; }
 
-      unsigned GetNbins() const
-         { return fNbins; }
+    unsigned GetNbins() const
+    { return fNbins; }
 
-      /** @} */
+    /** @} */
 
-      /** \name Member functions (set) */
-      /** @{ */
+    /** \name Member functions (set) */
+    /** @{ */
 
-      /**
-       * @param name The name of the parameter. */
-      void SetName(const char * name)
-         { fName = name; }
+    /**
+     * @param name The name of the parameter. */
+    void SetName(const char* name)
+    { fName = name; }
 
-      void SetLatexName(const char * latex_name)
-         { fLatexName = latex_name; }
+    void SetLatexName(const char* latex_name)
+    { fLatexName = latex_name; }
 
-      /**
-       * Set the lower limit of the parameter values.
-       * @param limit The lower limit of the parameter values. */
-      void SetLowerLimit(double limit = 0)
-         { fLowerLimit = limit; }
+    /**
+     * Set the lower limit of the parameter values.
+     * @param limit The lower limit of the parameter values. */
+    void SetLowerLimit(double limit = 0)
+    { fLowerLimit = limit; }
 
-      /**
-       * Set the upper limit of the parameter values.
-       * @param limit The upper limit of the parameter values. */
-      void SetUpperLimit(double limit = 1)
-         { fUpperLimit = limit; }
+    /**
+     * Set the upper limit of the parameter values.
+     * @param limit The upper limit of the parameter values. */
+    void SetUpperLimit(double limit = 1)
+    { fUpperLimit = limit; }
 
-      /**
-       * Set the limits of the parameter values.
-       * @param lowerlimit The lower limit of the parameter values.
-       * @param upperlimit The upper limit of the parameter values. */
-      void SetLimits(double lowerlimit = 0, double upperlimit = 1)
-         { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
+    /**
+     * Set the limits of the parameter values.
+     * @param lowerlimit The lower limit of the parameter values.
+     * @param upperlimit The upper limit of the parameter values. */
+    void SetLimits(double lowerlimit = 0, double upperlimit = 1)
+    { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
 
-      void Fix(double value)
-      {
-         fFixed = true;
-         fFixedValue = value;
-      }
+    void Fix(double value)
+    {
+        fFixed = true;
+        fFixedValue = value;
+    }
 
-      void Unfix()
-         { fFixed = false; }
+    void Unfix()
+    { fFixed = false; }
 
-      void FillHistograms(bool flag)
-         { fFillHistograms = flag; }
+    void FillHistograms(bool flag)
+    { fFillHistograms = flag; }
 
-      void SetNbins(unsigned nbins)
-         { fNbins = nbins; }
-      /** @} */
+    void SetNbins(unsigned nbins)
+    { fNbins = nbins; }
+    /** @} */
 
-      /** \name Member functions (miscellaneous methods) */
-      /** @{ */
+    /** \name Member functions (miscellaneous methods) */
+    /** @{ */
 
-      /**
-       * Returns true if the value is at a parameter limit.
-       * @return flag States if value is at parameter limit. */
-      bool IsAtLimit(double value) const;
+    /**
+     * Returns true if the value is at a parameter limit.
+     * @return flag States if value is at parameter limit. */
+    bool IsAtLimit(double value) const;
 
-      bool IsValid(double value) const
-      { return (fLowerLimit <= value) && (value <= fUpperLimit) ? true : false; }
+    bool IsValid(double value) const
+    { return (fLowerLimit <= value) && (value <= fUpperLimit) ? true : false; }
 
-      /**
-       * Prints a parameter summary on the screen. */
-      void PrintSummary() const;
+    /**
+     * Prints a parameter summary on the screen. */
+    void PrintSummary() const;
 
-      /** @} */
+    /** @} */
 
-   private:
-      /// The name of the parameter.
-      std::string fName;
+private:
+    /// The name of the parameter.
+    std::string fName;
 
-      ///  The lower limit of the parameter value.
-      double fLowerLimit;
+    ///  The lower limit of the parameter value.
+    double fLowerLimit;
 
-      /// The upper limit of the parameter value.
-      double fUpperLimit;
+    /// The upper limit of the parameter value.
+    double fUpperLimit;
 
-      /// The latex name of the parameter.
-      std::string fLatexName;
+    /// The latex name of the parameter.
+    std::string fLatexName;
 
-      /// Flag to fix parameter; useful for example, for integration.
-      bool fFixed;
+    /// Flag to fix parameter; useful for example, for integration.
+    bool fFixed;
 
-      /// The fixed value of the parameter.
-      double fFixedValue;
+    /// The fixed value of the parameter.
+    double fFixedValue;
 
-      /// Flag to store MCMC samples in histograms.
-      bool fFillHistograms;
+    /// Flag to store MCMC samples in histograms.
+    bool fFillHistograms;
 
-      /// The number of equal-size bins used in histograms involving this parameter.
-      unsigned fNbins;
+    /// The number of equal-size bins used in histograms involving this parameter.
+    unsigned fNbins;
 };
 #endif

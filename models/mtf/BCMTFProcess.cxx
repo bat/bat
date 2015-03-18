@@ -11,10 +11,10 @@
 #include "BCMTFProcess.h"
 
 // ---------------------------------------------------------
-BCMTFProcess::BCMTFProcess(const char * name) : fName(name)
-                                              , fHistogramColor(-1)
-                                              , fHistogramFillStyle(-1)
-                                              , fHistogramLineStyle(-1)
+BCMTFProcess::BCMTFProcess(const char* name) : fName(name)
+    , fHistogramColor(-1)
+    , fHistogramFillStyle(-1)
+    , fHistogramLineStyle(-1)
 {
 }
 

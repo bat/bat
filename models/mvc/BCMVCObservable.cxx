@@ -12,8 +12,8 @@
 
 // ---------------------------------------------------------
 BCMVCObservable::BCMVCObservable() : fName("")
-				   , fMin(0.)
-				   , fMax(0.)
+    , fMin(0.)
+    , fMax(0.)
 {
 }
 

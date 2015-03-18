@@ -10,42 +10,42 @@ class TH2D;
 // ---------------------------------------------------------
 class MyCombination : public BCMVCombination
 {
- public:
+public:
 
-  // Constructor
-  MyCombination();
+    // Constructor
+    MyCombination();
 
-  // Destructor
-  ~MyCombination();
+    // Destructor
+    ~MyCombination();
 
-  // setters
-  void SetHistRho(TH1D* hist)
-  { fHistRho = hist; }; 
+    // setters
+    void SetHistRho(TH1D* hist)
+    { fHistRho = hist; };
 
-  void SetHistRhoAlpha(TH2D* hist)
-  { fHistRhoAlpha = hist; }; 
+    void SetHistRhoAlpha(TH2D* hist)
+    { fHistRhoAlpha = hist; };
 
-  void SetHistRhoEta(TH2D* hist)
-  { fHistRhoEta = hist; }; 
+    void SetHistRhoEta(TH2D* hist)
+    { fHistRhoEta = hist; };
 
-  void SetFlagPhysicalConstraints(bool flag)
-  { fFlagPhysicalConstraints = flag; }; 
+    void SetFlagPhysicalConstraints(bool flag)
+    { fFlagPhysicalConstraints = flag; };
 
-  // BAT methods
+    // BAT methods
 
-  double LogLikelihood(const std::vector<double> &parameters);
+    double LogLikelihood(const std::vector<double>& parameters);
 
-  void MCMCIterationInterface();
+    void MCMCIterationInterface();
 
- private:
+private:
 
-  // flag for imposing physical constraints or not
-  bool fFlagPhysicalConstraints; 
+    // flag for imposing physical constraints or not
+    bool fFlagPhysicalConstraints;
 
-  // histogram containing posterior for rho
-  TH1D* fHistRho;
-  TH2D* fHistRhoAlpha;
-  TH2D* fHistRhoEta;
+    // histogram containing posterior for rho
+    TH1D* fHistRho;
+    TH2D* fHistRhoAlpha;
+    TH2D* fHistRhoEta;
 
 };
 // ---------------------------------------------------------
