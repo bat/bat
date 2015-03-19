@@ -18,6 +18,7 @@
 #include <TH2F.h>
 #include <TH2D.h>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
@@ -108,15 +109,22 @@ void BCAux::SetStyle()
 }
 
 // ---------------------------------------------------------
-void BCAux::ForceToBePDF(std::string& filename)
+void BCAux::DefaultToPDF(std::string& filename)
 {
     if (filename.empty())
         return;
 
-    // if file has no extension or if it's not ".pdf" or ".ps", make it ".pdf"
-    if ( filename.find_last_of(".") == std::string::npos or
-            ( filename.substr(filename.find_last_of(".")) != ".pdf" and	filename.substr(filename.find_last_of(".")) != ".ps" ) )
+    size_t ext_pos = filename.find_last_of(".");
+    if (ext_pos == std::string::npos)
         filename += ".pdf";
+    else {
+        std::string ext = filename.substr(ext_pos);
+        std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+        if (ext == ".")
+            filename += "pdf";
+        else if (ext != ".pdf" and ext != ".ps")
+            filename += ".pdf";
+    }
 }
 
 // ---------------------------------------------------------

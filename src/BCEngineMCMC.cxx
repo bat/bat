@@ -2701,7 +2701,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
         return 0;
     }
 
-    BCAux::ForceToBePDF(filename);
+    BCAux::DefaultToPDF(filename);
     if (filename.empty())
         return 0;
 
@@ -2838,7 +2838,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
 unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
 {
 
-    BCAux::ForceToBePDF(filename);
+    BCAux::DefaultToPDF(filename);
     if (filename.empty())
         return 0;
 

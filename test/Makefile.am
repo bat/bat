@@ -22,6 +22,7 @@ libBATtest_a_SOURCES = \
 
 TESTS = \
 	test_TEST \
+	BCAux_TEST \
 	BCMath_TEST \
 	BCModel_TEST \
 	BCSummaryTool_TEST \
@@ -45,6 +46,8 @@ endif
 check_PROGRAMS = $(TESTS)
 
 test_TEST_SOURCES = test_TEST.cxx
+
+BCAux_TEST_SOURCES = BCAux_TEST.cxx
 
 BCMath_TEST_SOURCES = BCMath_TEST.cxx
 
