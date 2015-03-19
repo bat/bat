@@ -130,7 +130,7 @@ public:
     do \
     { \
         if (! ((a) == (b))) \
-            throw TestCaseFailedException(__LINE__, __FILE__, "'" #a "' is not equal to '" #b "'"); \
+            throw TestCaseFailedException(__LINE__, __FILE__, "'" #a "' = " + stringify(a) + " is not equal to '" #b "' = " + stringify(b)); \
     } \
     while (false)
 
