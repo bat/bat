@@ -21,6 +21,8 @@ public:
         return fCalls;
     }
 
+    void MCMCCurrentPointInterface(std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/);
+
 private:
     /**
      * Used in likelihood to prolong artificially.
@@ -31,6 +33,7 @@ private:
      * Count how often likelihood is called
      */
     unsigned long fCalls;
+
 };
 // ---------------------------------------------------------
 

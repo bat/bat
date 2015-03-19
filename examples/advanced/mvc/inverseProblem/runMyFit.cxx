@@ -2,7 +2,6 @@
 #include <BAT/BCH2D.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include <TMatrixT.h>
 #include <TH2D.h>
@@ -50,7 +49,7 @@ int main(int argc, char* argv[])
     m->PrintAllMarginalized("MyFit_plots.pdf");
     m->PrintResults("MyFit_results.txt");
 
-    BCH2D* hist_all = m->GetSlice("#kappa_{1}", "#kappa_{2}", m->GetBestFitParameters(), 200);
+    BCH2D* hist_all = new BCH2D(m->GetSlice("#kappa_{1}", "#kappa_{2}", m->GetBestFitParameters(), 200));
 
     double gmode[2];
     gmode[0] = m->GetBestFitParameter(0);

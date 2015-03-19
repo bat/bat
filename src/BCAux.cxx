@@ -12,6 +12,14 @@
 
 #include <TStyle.h>
 #include <TGaxis.h>
+#include <TH2C.h>
+#include <TH2S.h>
+#include <TH2I.h>
+#include <TH2F.h>
+#include <TH2D.h>
+
+#include <cmath>
+#include <limits>
 
 // ---------------------------------------------------------
 
@@ -97,4 +105,74 @@ void BCAux::SetStyle()
     // palette
     gStyle->SetPalette(1, 0);
 
+}
+
+// ---------------------------------------------------------
+void BCAux::ForceToBePDF(std::string& filename)
+{
+    if (filename.empty())
+        return;
+
+    // if file has no extension or if it's not ".pdf" or ".ps", make it ".pdf"
+    if ( filename.find_last_of(".") == std::string::npos or
+            ( filename.substr(filename.find_last_of(".")) != ".pdf" and	filename.substr(filename.find_last_of(".")) != ".ps" ) )
+        filename += ".pdf";
+}
+
+// ---------------------------------------------------------
+TH2* BCAux::Transpose(TH2 const* const h, std::string name)
+{
+
+    if (h == NULL)
+        return NULL;
+
+    if (name.empty())
+        name = std::string(h->GetName()) + "_tr";
+
+    int nbins_x = h->GetNbinsY();
+    double xmin = h->GetYaxis()->GetXmin();
+    double xmax = h->GetYaxis()->GetXmax();
+    std::string xtitle = h->GetYaxis()->GetTitle();
+
+    int nbins_y = h->GetNbinsX();
+    double ymin = h->GetXaxis()->GetXmin();
+    double ymax = h->GetXaxis()->GetXmax();
+    std::string ytitle = h->GetXaxis()->GetTitle();
+
+    std::string title = std::string(h->GetTitle()) + ";" + xtitle + ";" + ytitle + ";" + h->GetZaxis()->GetTitle();
+
+    if (dynamic_cast<const TH2C*>(h) != NULL)
+        return new TH2C(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    if (dynamic_cast<const TH2S*>(h) != NULL)
+        return new TH2S(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    if (dynamic_cast<const TH2I*>(h) != NULL)
+        return new TH2I(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    if (dynamic_cast<const TH2F*>(h) != NULL)
+        return new TH2F(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    if (dynamic_cast<const TH2D*>(h) != NULL)
+        return new TH2D(name.data(), title.data(), nbins_x, xmin, xmax, nbins_y, ymin, ymax);
+    return NULL;
+}
+
+// ---------------------------------------------------------
+BCAux::BCRange BCAux::RangeType(double xmin, double xmax)
+{
+    if (xmax <= xmin)
+        return BCAux::kEmptyRange;
+    if (std::isfinite(xmin) and std::isfinite(xmax))
+        return BCAux::kFiniteRange;
+    if (std::isfinite(xmax))
+        return BCAux::kNegativeInfiniteRange;
+    if (std::isfinite(xmin))
+        return BCAux::kPositiveInfiniteRange;
+    return BCAux::kInfiniteRange;
+}
+
+// ---------------------------------------------------------
+void BCAux::MakeFinite(double& xmin, double& xmax)
+{
+    if (!std::isfinite(xmin))
+        xmin = -std::numeric_limits<double>::max();
+    if (!std::isfinite(xmax))
+        xmax = +std::numeric_limits<double>::max();
 }

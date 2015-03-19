@@ -1,6 +1,5 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include "CombinationModel.h"
 
@@ -11,14 +10,10 @@ int main()
     BCAux::SetStyle();
 
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new CombinationModel object
-    CombinationModel* m = new CombinationModel();
-
-    // create a new summary tool object
-    BCSummaryTool* summary = new BCSummaryTool(m);
+    CombinationModel* m = new CombinationModel("combMod");
 
     // marginalize
     m->MarginalizeAll();
@@ -30,7 +25,7 @@ int main()
     m->PrintAllMarginalized("CombinationModel_plots.pdf");
 
     // print all summary plots
-    summary->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
+    m->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
     // print results of the analysis into a text file
     m->PrintResults("CombinationModel_results.txt");
@@ -39,7 +34,6 @@ int main()
     BCLog::CloseLog();
 
     delete m;
-    delete summary;
 
     return 0;
 

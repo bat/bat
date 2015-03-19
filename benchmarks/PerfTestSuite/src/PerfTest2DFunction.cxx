@@ -59,12 +59,12 @@ int PerfTest2DFunction::PostTest()
     PerfTestMCMC::PostTest();
 
     // get histogram
-    TH2D* hist_marg = (TH2D*) GetMarginalized( GetParameter(0), GetParameter(1) )->GetHistogram()->Clone();
+    TH2D* hist_marg = (TH2D*) GetMarginalized(0u, 1u)->GetHistogram()->Clone();
     hist_marg->SetContour(20);
     hist_marg->Scale(hist_marg->GetEntries() / hist_marg->Integral());
-    TH2D* hist_diff = (TH2D*) GetMarginalized( GetParameter(0), GetParameter(1) )->GetHistogram()->Clone();
+    TH2D* hist_diff = (TH2D*) GetMarginalized(0u, 1u)->GetHistogram()->Clone();
     hist_diff->SetContour(20);
-    TH2D* hist_func = (TH2D*) GetMarginalized( GetParameter(0), GetParameter(1) )->GetHistogram()->Clone();
+    TH2D* hist_func = (TH2D*) GetMarginalized(0u, 1u)->GetHistogram()->Clone();
     hist_func->SetContour(20);
 
     TH1D* hist_pull = new TH1D("", ";#Deltaf/sqrt(f);N", 50, -5.0, 5.0);
@@ -182,4 +182,3 @@ void PerfTest2DFunction::DefineSubtests()
 }
 
 //______________________________________________________________________________
-

@@ -61,11 +61,11 @@ int PerfTest1DFunction::PostTest()
     PerfTestMCMC::PostTest();
 
     // define histograms
-    TH1D* hist_marg = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone();
-    TH1D* hist_func = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone();
-    TH1D* hist_diff = (TH1D*) GetMarginalized( GetParameter(0) )->GetHistogram()->Clone();
+    TH1D* hist_marg = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
+    TH1D* hist_func = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
+    TH1D* hist_diff = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
     TH1D* hist_line = new TH1D(*hist_marg);
-    TH1D* hist_diff_1sigma = new TH1D(*(GetMarginalized( GetParameter(0) )->GetHistogram()));
+    TH1D* hist_diff_1sigma = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
     hist_diff_1sigma->SetFillColor(kGreen);
     hist_diff_1sigma->SetFillStyle(1001);
     hist_diff_1sigma->SetMarkerSize(0);
@@ -364,4 +364,3 @@ void PerfTest1DFunction::DefineSubtests()
 }
 
 //______________________________________________________________________________
-

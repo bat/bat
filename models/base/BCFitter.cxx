@@ -22,27 +22,12 @@
 #include "TGraph.h"
 
 // ---------------------------------------------------------
-BCFitter::BCFitter() : BCModel()
-    , fErrorBand(0)
+BCFitter::BCFitter(const char* name)
+    : BCModel(name)
     , fFlagFillErrorBand(true)
     , fFitFunctionIndexX(-1)
     , fFitFunctionIndexY(-1)
     , fErrorBandContinuous(true)
-    , fErrorBandX(std::vector<double>(0))
-    , fErrorBandNbinsX(100)
-    , fErrorBandNbinsY(500)
-    , fErrorBandXY(0)
-{
-}
-
-// ---------------------------------------------------------
-BCFitter::BCFitter(const char* name) : BCModel(name)
-    , fErrorBand(0)
-    , fFlagFillErrorBand(true)
-    , fFitFunctionIndexX(-1)
-    , fFitFunctionIndexY(-1)
-    , fErrorBandContinuous(true)
-    , fErrorBandX(std::vector<double>(0))
     , fErrorBandNbinsX(100)
     , fErrorBandNbinsY(500)
     , fErrorBandXY(0)
@@ -72,25 +57,21 @@ void BCFitter::MarginalizePreprocess()
     double dx = 0.;
     double dy = 0.;
 
-    if (fFitFunctionIndexX >= 0) {
-        dx = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX)
-              - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX))
-             / (double) fErrorBandNbinsX;
+    if (GetDataSet() and fFitFunctionIndexX >= 0 and fFitFunctionIndexY >= 0) {
 
-        dy = (fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY)
-              - fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY))
-             / (double) fErrorBandNbinsY;
+        dx = GetDataSet()->GetRangeWidth(fFitFunctionIndexX) / fErrorBandNbinsX;
+        dy = GetDataSet()->GetRangeWidth(fFitFunctionIndexY) / fErrorBandNbinsY;
 
-        fErrorBandXY
-            = new TH2D(TString::Format("errorbandxy_%d", BCLog::GetHIndex()), "",
-                       fErrorBandNbinsX,
-                       fDataPointLowerBoundaries->GetValue(fFitFunctionIndexX) - .5 * dx,
-                       fDataPointUpperBoundaries->GetValue(fFitFunctionIndexX) + .5 * dx,
-                       fErrorBandNbinsY,
-                       fDataPointLowerBoundaries->GetValue(fFitFunctionIndexY) - .5 * dy,
-                       fDataPointUpperBoundaries->GetValue(fFitFunctionIndexY) + .5 * dy);
+        fErrorBandXY = new TH2D(TString::Format("errorbandxy_%s", GetSafeName().data()), "",
+                                fErrorBandNbinsX,
+                                GetDataSet()->GetLowerBound(fFitFunctionIndexX) - dx / 2,
+                                GetDataSet()->GetUpperBound(fFitFunctionIndexX) + dx / 2,
+                                fErrorBandNbinsY,
+                                GetDataSet()->GetLowerBound(fFitFunctionIndexY) - dy / 2,
+                                GetDataSet()->GetUpperBound(fFitFunctionIndexY) + dy / 2);
         fErrorBandXY->SetStats(kFALSE);
 
+        // why are we doing this?
         for (unsigned ix = 1; ix <= fErrorBandNbinsX; ++ix)
             for (unsigned iy = 1; iy <= fErrorBandNbinsX; ++iy)
                 fErrorBandXY->SetBinContent(ix, iy, 0.);
@@ -156,6 +137,17 @@ void BCFitter::FillErrorBand()
 }
 
 // ---------------------------------------------------------
+void BCFitter::PrintShortFitSummary()
+{
+    BCModel::PrintShortFitSummary();
+    if (GetPValue() >= 0) {
+        BCLog::OutSummary("   Goodness-of-fit test:");
+        BCLog::OutSummary(Form("      p-value = %.3g", GetPValue()));
+        BCLog::OutSummary("---------------------------------------------------");
+    }
+}
+
+// ---------------------------------------------------------
 std::vector<double> BCFitter::GetErrorBand(double level) const
 {
     std::vector<double> errorband;
@@ -209,7 +201,7 @@ TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
 }
 
 // ---------------------------------------------------------
-TH2D* BCFitter::GetErrorBandXY_yellow(double level, int nsmooth) const
+TH2D* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcoverage) const
 {
     if (!fErrorBandXY)
         return 0;
@@ -218,27 +210,20 @@ TH2D* BCFitter::GetErrorBandXY_yellow(double level, int nsmooth) const
     int ny = fErrorBandXY->GetNbinsY();
 
     // copy existing histogram
-    TH2D* hist_tempxy = (TH2D*) fErrorBandXY->Clone(
-                            TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
+    TH2D* hist_tempxy = (TH2D*) fErrorBandXY->Clone(TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
     hist_tempxy->Reset();
     hist_tempxy->SetFillColor(kYellow);
 
     // loop over x bins
     for (int ix = 1; ix < nx; ix++) {
-        BCH1D* hist_temp = new BCH1D();
-
-        TH1D* hproj = fErrorBandXY->ProjectionY("temphist", ix, ix);
+        BCH1D* hist_temp = new BCH1D(fErrorBandXY->ProjectionY("temphist", ix, ix));
         if (nsmooth > 0)
-            hproj->Smooth(nsmooth);
-
-        hist_temp->SetHistogram(hproj);
-
-        TH1D* hist_temp_yellow = hist_temp->GetSmallestIntervalHistogram(level);
-
+            hist_temp->Smooth(nsmooth);
+        std::vector<std::pair<double, double> > bound = hist_temp->GetSmallestIntervalBounds(std::vector<double>(1, level), overcoverage);
         for (int iy = 1; iy <= ny; ++iy)
-            hist_tempxy->SetBinContent(ix, iy, hist_temp_yellow->GetBinContent(iy));
+            if (hist_temp->GetHistogram()->GetBinContent(iy) >= bound.front().first)
+                hist_tempxy->SetBinContent(ix, iy, 1);
 
-        delete hist_temp_yellow;
         delete hist_temp;
     }
 
@@ -307,7 +292,7 @@ int BCFitter::ReadErrorBandFromFile(const char* file)
     TH2D* h2 = (TH2D*) froot->Get("errorbandxy");
     if (h2) {
         h2->SetDirectory(0);
-        h2->SetName(TString::Format("errorbandxy_%d", BCLog::GetHIndex()));
+        h2->SetName(TString::Format("errorbandxy_%s", GetSafeName().data()));
         SetErrorBandHisto(h2);
         r = 1;
     } else
@@ -322,29 +307,13 @@ int BCFitter::ReadErrorBandFromFile(const char* file)
 // ---------------------------------------------------------
 void BCFitter::FixDataAxis(unsigned int index, bool fixed)
 {
-    // check if index is within range
-    if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-        BCLog::OutError("BCFitter::FixDataAxis : Index out of range.");
-        return;
-    }
-
-    if (fDataFixedValues.size() == 0)
-        fDataFixedValues.assign(fDataSet->GetDataPoint(0)->GetNValues(),
-                                false);
-
-    fDataFixedValues[index] = fixed;
+    fDataSet->Fix(index, fixed);
 }
 
 // ---------------------------------------------------------
 bool BCFitter::GetFixedDataAxis(unsigned int index) const
 {
-    // check if index is within range
-    if (index > fDataSet->GetDataPoint(0)->GetNValues()) {
-        BCLog::OutError("BCFitter::GetFixedDataAxis : Index out of range.");
-        return false;
-    }
-
-    return fDataFixedValues[index];
+    return fDataSet->IsFixed(index);
 }
 
 // ---------------------------------------------------------
@@ -362,5 +331,3 @@ void BCFitter::SetErrorBandContinuous(bool flag)
     for (unsigned int i = 0; i < fDataSet->GetNDataPoints(); ++i)
         fErrorBandX.push_back(fDataSet->GetDataPoint(i)->GetValue(fFitFunctionIndexX));
 }
-
-// ---------------------------------------------------------

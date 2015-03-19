@@ -24,6 +24,8 @@ public:
 
     virtual void run() const
     {
+        BCMath::CacheFactorials(100);
+
         static const double eps = 1e-13;
         // CorrectPValue
         {
@@ -67,6 +69,7 @@ public:
     }
 } bcPValueTest;
 
+#if 0
 class RValueTest :
     public TestCase
 {
@@ -107,3 +110,4 @@ public:
         }
     }
 } rvalue_test;
+#endif

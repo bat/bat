@@ -20,8 +20,6 @@
 #include <TMarker.h>
 #include <TMath.h>
 
-#include <iomanip>
-
 // ---------------------------------------------------------
 BCMVCDataModel::BCMVCDataModel(BCMVCombination* mvc) : BCModel("BCMVCDataModel")
 {
@@ -153,7 +151,7 @@ void BCMVCDataModel::MCMCUserIterationInterface()
 
         for (int j = 0; j < npar; ++j) {
             observables[j] = fPars[fVectorObservable[j]];
-            measurements[j] = fMCMCx.at(i * npar + j);
+            measurements[j] = fMCMCx[i][j];
         }
 
         double chi2 = Chi2(observables, measurements);
@@ -201,17 +199,20 @@ void BCMVCDataModel::PrintToys(std::string filename)
     double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 
     // draw expected chi2 distribution
-    hist_chi2->Draw("BTllB1CS1L", 1 - pvalue);
+    hist_chi2->SetBandType(BCH1D::kLowerLimit);
+    hist_chi2->SetNBands(1);
+    hist_chi2->SetInterval(1 - pvalue);
+    hist_chi2->Draw();
 
     c1->Print(std::string(filename + "(").c_str());
 
     // draw all 1D histograms indicating observed value
     for (int i = 0; i < npars; ++i) {
         double obs = fVectorMeasurements[i];
-        const BCParameter* par = GetParameter(i);
-        BCH1D* hist_par = GetMarginalized(par);
+        BCH1D* hist_par = GetMarginalized(i);
         double p = hist_par->GetHistogram()->Integral(hist_par->GetHistogram()->FindBin(obs), hist_par->GetHistogram()->GetNbinsX(), "width");
-        hist_par->Draw("BTllB1CS1L", 1 - p);
+        hist_par->CopyOptions(*hist_chi2);
+        hist_par->SetInterval(1 - p);
         c1->Print(filename.c_str());
     }
 
@@ -220,10 +221,8 @@ void BCMVCDataModel::PrintToys(std::string filename)
         for (int j = 0; j < i; ++j) {
             double obs_i = fVectorMeasurements[i];
             double obs_j = fVectorMeasurements[j];
-            const BCParameter* par_i = GetParameter(i);
-            const BCParameter* par_j = GetParameter(j);
-            BCH2D* hist_par = GetMarginalized(par_i, par_j);
-            hist_par->Draw("BTfB3CS1");
+            BCH2D* hist_par = GetMarginalized(i, j);
+            hist_par->Draw();
             TMarker* m = new TMarker();
             m->SetMarkerStyle(21);
             m->DrawMarker(obs_j, obs_i);
@@ -240,7 +239,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
 void BCMVCDataModel::PrintSummary()
 {
 
-    std::cout << " Goodness-of-fit test:" << std::endl << std::endl;
+    BCLog::OutSummary("Goodness-of-fit test:\n");
 
     // calculate observed chi2
     double chi2 =  Chi2(fVectorObservables, fVectorMeasurements);
@@ -252,10 +251,8 @@ void BCMVCDataModel::PrintSummary()
     // calculate p-value
     double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 
-    std::cout << " chi2    : " << chi2 << std::endl;
-    std::cout << " p-value : " << pvalue << std::endl;
-    std::cout << std::endl;
-
+    BCLog::OutSummary(TString::Format(" chi2    : %f", chi2));
+    BCLog::OutSummary(TString::Format(" p-value : %f\n", pvalue));
 }
 
 // ---------------------------------------------------------

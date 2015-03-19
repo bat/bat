@@ -21,21 +21,20 @@
 class Pol1Asymm : public BCFitter
 {
 public:
-    // default constructor
-    Pol1Asymm();
-    // constructor setting the name of the model
+
+    // constructor
     Pol1Asymm(const char* name);
+
     // destructor
-    ~Pol1Asymm();
+    virtual ~Pol1Asymm();
 
-    // define parameters of the model
-    virtual void DefineParameters();
+    void DefineParameters();
 
-    int Fit()
-    { return 0; };
+    bool Fit()
+    { return false; }
 
     void DrawFit(const char* options, bool flaglegend = false)
-    { ; };
+    { }
 
     // fit function returning expectation value for each data point
     virtual double FitFunction(const std::vector<double>& x, const std::vector<double>& par);
@@ -43,8 +42,6 @@ public:
     // loglikelihood function - probability of the data given the parameters
     virtual double LogLikelihood(const std::vector<double>& par);
 
-    // prior probability
-    virtual double LogAPrioriProbability(const std::vector<double>& par);
 };
 
 // All methods were defined virtual so that we can derive from this class

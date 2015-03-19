@@ -9,7 +9,6 @@
 // ---------------------------------------------------------
 
 #include "BCDataPoint.h"
-#include "BCLog.h"
 
 #include <TString.h>
 
@@ -18,16 +17,19 @@
 // ---------------------------------------------------------
 BCDataPoint::BCDataPoint(int nvariables)
 {
-    // assign the specified number of variables to the data
-    // point and fill with zero
     fData.assign(nvariables, 0.);
 }
 
 // ---------------------------------------------------------
 BCDataPoint::BCDataPoint(const std::vector<double>& x)
 {
-    // copy all values of x to the data point
     fData = x;
+}
+
+// ---------------------------------------------------------
+BCDataPoint::BCDataPoint(const BCDataPoint& other)
+{
+    Copy(other);
 }
 
 // ---------------------------------------------------------
@@ -41,9 +43,7 @@ double BCDataPoint::GetValue(unsigned index) const
     // ... or give error if not.
     else {
         // exit on error
-        BCLog::OutError(
-            Form("BCDataPoint::GetValue : Index %u out of range (%u to %u).",
-                 index, 0, unsigned(fData.size() - 1)));
+        BCLog::OutError(Form("BCDataPoint::GetValue : Index %u out of range (%u to %u).", index, 0, unsigned(fData.size() - 1)));
         exit(1);
     }
 
@@ -59,9 +59,7 @@ void BCDataPoint::SetValue(unsigned index, double value)
     // ... or give error if not.
     else {
         // exit on error
-        BCLog::OutError(
-            Form("BCDataPoint::SetValue : Index %u out of range (%u to %u).",
-                 index, 0 , unsigned(fData.size() - 1)));
+        BCLog::OutError(Form("BCDataPoint::SetValue : Index %u out of range (%u to %u).", index, 0 , unsigned(fData.size() - 1)));
         exit(1);
     }
 }
@@ -79,4 +77,11 @@ void BCDataPoint::SetValues(const std::vector<double>& values)
         BCLog::OutError("BCDataPoint::SetValues : Vectors have different ranges.");
         exit(1);
     }
+}
+
+// ---------------------------------------------------------
+void BCDataPoint::Dump(void (*output)(const char*)) const
+{
+    for (unsigned i = 0; i < fData.size(); ++i)
+        output(Form("%u : %12.5g", i, fData[i]));
 }

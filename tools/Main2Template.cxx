@@ -10,18 +10,22 @@
 
 int main()
 {
-   // set nicer style for drawing than the ROOT default
-   BCAux::SetStyle();
+    // set nicer style for drawing than the ROOT default
+    BCAux::SetStyle();
 
-   // open log file
-   BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
+    // open log file
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-   // perform your analysis here
+    // perform your analysis here
 
-   // close log file
-   BCLog::CloseLog();
+    // close log file
+    BCLog::CloseLog();
 
-   BCLog::OutSummary("Exiting");
+    BCLog::OutSummary("Exiting");
 
-   return 0;
+    return 0;
 }
+<<< <<< < variant A
+>>>>>>> variant B
+
+== == == = end

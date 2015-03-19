@@ -18,25 +18,17 @@ public:
     ~MyCombination();
 
     // setters
-    void SetHistFR(TH1D* hist)
-    { fHistFR = hist; };
-
     void SetFlagPhysicalConstraints(bool flag)
     { fFlagPhysicalConstraints = flag; };
 
     // BAT methods
-
     double LogLikelihood(const std::vector<double>& parameters);
-
-    void MCMCIterationInterface();
+    void CalculateObservables(const std::vector<double>& parameters);
 
 private:
 
     // flag for imposing physical constraints or not
     bool fFlagPhysicalConstraints;
-
-    // histogram containing posterior for FR
-    TH1D* fHistFR;
 
 };
 // ---------------------------------------------------------

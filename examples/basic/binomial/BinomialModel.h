@@ -8,8 +8,7 @@ class BinomialModel : public BCModel
 {
 public:
 
-    // Constructors and destructor
-    BinomialModel();
+    // Constructor and destructor
     BinomialModel(const char* name);
     ~BinomialModel();
 
@@ -21,9 +20,7 @@ public:
     void SetNSelected(int n)
     { fNSelected = n; };
 
-    // Methods to overload, see file BinomialModel.cxx
-    void DefineParameters();
-    double LogAPrioriProbability(const std::vector<double>& parameters);
+    // Method to overload, see file BinomialModel.cxx
     double LogLikelihood(const std::vector<double>& parameters);
 
 private:

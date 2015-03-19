@@ -34,7 +34,7 @@ LDADD = \
 	$(top_builddir)/models/mvc/libBATmvc.la \
 	$(top_builddir)/models/mtf/libBATmtf.la \
 	$(ROOTLIBS)
-	
+
 LDFLAGS = -L$(ROOTLIBDIR)
 
 if CUBA

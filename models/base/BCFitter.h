@@ -20,6 +20,9 @@
 
 // ---------------------------------------------------------
 
+class TH2D;
+class TGraph;
+
 #include "../../BAT/BCModel.h"
 
 // ---------------------------------------------------------
@@ -32,17 +35,13 @@ public:
     /* @{ */
 
     /**
-     * The default constructor. */
-    BCFitter();
-
-    /**
      * Constructor
      * @param name name of the model */
-    BCFitter(const char* name);
+    BCFitter(const char* name = "fitter_model");
 
     /**
      * The default destructor. */
-    ~BCFitter();
+    virtual ~BCFitter();
 
     /* @} */
 
@@ -50,17 +49,17 @@ public:
     /* @{ */
 
     /**
-     * @return pointer to the error band */
-    TGraph* GetErrorBand()
-    { return fErrorBand; };
-
-    /**
-       const BCParameter * GetParameter(const char * name);
-       * @return The 2-d histogram of the error band. */
+     * const BCParameter * GetParameter(const char * name);
+     * @return The 2D histogram of the error band. */
     TH2D* GetErrorBandXY() const
     { return fErrorBandXY; }
 
-    TH2D* GetErrorBandXY_yellow(double level = .68, int nsmooth = 0) const;
+    /**
+     * @param level Desired probability mass
+     * @param nsmooth Number of times to smooth the histogram
+     * @param overcoverage Flag for whether to overcover desired probability mass.
+     * @return A 2D histogram of the smallest interval in Y for each bin in X containing the desired probability mass. */
+    TH2D* GetGraphicalErrorBandXY(double level = .68, int nsmooth = 0, bool overcoverage = true) const;
 
     /**
      * Returns a vector of y-values at a certain probability level.
@@ -80,6 +79,9 @@ public:
     void FixDataAxis(unsigned int index, bool fixed);
 
     bool GetFixedDataAxis(unsigned int index) const;
+
+    double GetPValue() const
+    {	return fPValue; }
 
     /* @} */
 
@@ -120,10 +122,7 @@ public:
      * @param indexx Index of the x values
      * @param indexy Index of the y values */
     void SetFitFunctionIndices(int indexx, int indexy)
-    {
-        SetFitFunctionIndexX(indexx);
-        SetFitFunctionIndexY(indexy);
-    }
+    { SetFitFunctionIndexX(indexx); SetFitFunctionIndexY(indexy); }
 
     /**
      * Sets the error band flag to continuous function */
@@ -137,6 +136,18 @@ public:
     virtual double FitFunction(const std::vector<double>& /*x*/, const std::vector<double>& /*parameters*/)
     { return 0; }
 
+    /**
+     * 1dim cumulative distribution function of the probability
+     * to get the data f(x_i|param) for a single measurement, assumed to
+     * be of identical functional form for all measurements
+     * @param parameters The parameter values at which point to compute the cdf
+     * @param index The data point index starting at 0,1...N-1
+     * @param lower only needed for discrete distributions!
+     * Return the CDF for the count one less than actually observed, e.g.
+     * in Poisson process, if 3 actually observed, then CDF(2) is returned */
+    virtual double CDF(const std::vector<double>& /*parameters*/,  int /*index*/, bool /*lower=false*/)
+    {return 0.0;}
+
     /* @} */
     /** \name Member functions (miscellaneous methods) */
     /* @{ */
@@ -147,8 +158,8 @@ public:
 
     /**
      * Performs the fit.
-     * @return An error code. */
-    virtual int Fit() = 0;
+     * @return Success of action. */
+    virtual bool Fit() = 0;
 
     /**
      * Draw the fit in the current pad. */
@@ -165,19 +176,19 @@ public:
     /**
      * Overloaded from BCIntegrate. */
     void MarginalizePostprocess()
-    {;};
+    {}
 
     /**
      * Fill error band histogram for curreent iteration. This method is called from MCMCIterationInterface() */
     void FillErrorBand();
 
+    /**
+     * Prints a short summary of the fit results on the screen. */
+    void PrintShortFitSummary();
+
     /* @} */
 
-private:
-
-    /**
-     * Pointer to the error band (for legend) */
-    TGraph* fErrorBand;
+protected:
 
     /**
      * Flag whether or not to fill the error band */
@@ -201,11 +212,11 @@ private:
      * Number of Y bins of the error band histogram */
     unsigned fErrorBandNbinsY;
 
-protected:
-
     /**
      * The error band histogram */
     TH2D* fErrorBandXY;
+
+    double fPValue;
 
 };
 

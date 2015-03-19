@@ -33,37 +33,28 @@ GaussModel::~GaussModel()
 {
 }
 
-// ---------------------------------------------------------
-double GaussModel::LogLikelihood(const std::vector<double>& parameters)
+void GaussModel::MCMCCurrentPointInterface(std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/)
 {
     #pragma omp critical(GaussModel__LogLikelihood)
     {
         ++fCalls;
     }
+}
 
+// ---------------------------------------------------------
+double GaussModel::LogLikelihood(const std::vector<double>& parameters)
+{
     // run extra loop to make likelihood evaluation slower(!)
     if (fLoopIterations) {
-        std::vector<double> chain_means(3);
-        chain_means[0] = 4.2;
-        chain_means[1] = 4.25;
-        chain_means[2] = 4.22;
-        std::vector<double> chain_variances(3);
-        chain_variances[0] = 0.1;
-        chain_variances[1] = 0.15;
-        chain_variances[2] = 0.19;
-
-        static const bool relaxed = false;
-        static const unsigned points = 500;
-
         for (unsigned long i = 0 ; i < fLoopIterations ; ++i)
-            BCMath::Rvalue(chain_means, chain_variances, points, relaxed);
+            BCMath::LogFact(10);
     }
 
     // check that fixed parameters are indeed fixed to the right value
     for (unsigned i = 0; i < parameters.size(); i++) {
         BCParameter* p = GetParameter(i);
         if (p->Fixed())
-            TEST_CHECK_EQUAL(p->GetFixedValue(), parameters[i]);
+            TEST_CHECK_NEARLY_EQUAL(p->GetFixedValue(), parameters[i], 1e-15);
     }
     // assume a normalized Gaussian Likelihood with N independent variables
     static const double normalized = true;

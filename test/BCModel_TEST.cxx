@@ -9,6 +9,8 @@
 #include "GaussModel.h"
 #include "test.h"
 
+#include <TH1.h>
+
 #include <BAT/BCH1D.h>
 #include <BAT/BCH2D.h>
 #include <BAT/BCParameter.h>
@@ -62,6 +64,8 @@ public:
         GaussModel m("Fix", 4);
         m.MCMCSetPrecision(BCEngineMCMC::kMedium);
         m.MCMCSetNIterationsRun(30000);
+        m.MCMCSetNIterationsPreRunMax(6000);
+        m.MCMCSetNIterationsPreRunMin(6000);
         m.MCMCSetRandomSeed(235);
 
         static const double eps = 5e-2;
@@ -72,8 +76,8 @@ public:
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalized(2)->GetMean(), eps);
-        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalized(2)->GetSTD(), eps);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalized(2)->GetHistogram()->GetMean(), eps);
+        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalized(2)->GetHistogram()->GetRMS(), eps);
 
         // make sure that fixed parameters really are skipped
         const unsigned long nCalls = m.Calls();
@@ -93,8 +97,8 @@ public:
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalized(0u)->GetMean(), eps);
-        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalized(0u)->GetSTD(), eps);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalized(0u)->GetHistogram()->GetMean(), eps);
+        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalized(0u)->GetHistogram()->GetRMS(), eps);
     }
 
     void deltaPrior() const
@@ -102,7 +106,7 @@ public:
         GaussModel m("set delta prior for par 1", 4);
         m.MCMCSetPrecision(BCEngineMCMC::kMedium);
         const int fixed = 0;
-        m.SetPriorDelta(fixed, 0.);
+        m.GetParameter(fixed)->Fix(0.);
         count_marginals(m, fixed);
     }
 

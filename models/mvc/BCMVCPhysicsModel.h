@@ -28,7 +28,7 @@ public:
     // name: the name of the parameter
     // min:  the minimum value of the parameter
     // max:  the maximum value of the parameter
-    void AddObservable(std::string name, double min, double max);
+    void AddMVCObservable(std::string name, double min, double max);
 
     // return a value for an observable
     // index: the index of the variable

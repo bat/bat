@@ -11,57 +11,42 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-Pol1Asymm::Pol1Asymm() : BCFitter()
+Pol1Asymm::Pol1Asymm(const char* name)
+    : BCFitter(name)
 {
-    // default constructor
-}
-
-// ---------------------------------------------------------
-Pol1Asymm::Pol1Asymm(const char* name) : BCFitter(name)
-{
-    // constructor
+    DefineParameters();
 }
 
 // ---------------------------------------------------------
 Pol1Asymm::~Pol1Asymm()
 {
-    // destructor
 }
 
 // ---------------------------------------------------------
 void Pol1Asymm::DefineParameters()
 {
-    // Adding all the parameters of the model and their allowed ranges
-    // Keep track of index of the parameter as you need it to be able
-    // to use the parameter later on. Usage by using the parameter
-    // name is also possible but due to the array searching it is very
-    // CPU time expensive and therefore not recommended in routines
-    // called for every iteration, like LogLikelihood() or
-    // LogAPrioriProbability()
     AddParameter("p0", -0.2   ,  1.2);    // index 0
     AddParameter("p1",  0.015 ,  0.045);   // index 1
 
-    // Print parameter summary
-    BCLog::OutSummary(
-        Form("Model \'%s\' has %d parameters:", this->GetName().data(), GetNParameters()));
-    for (unsigned int i = 0; i < GetNParameters(); i++)
-        BCLog::OutSummary(Form("   %d. %s    range: %g - %g",
-                               i,
-                               GetParameter(i)->GetName().data(),
-                               GetParameter(i)->GetLowerLimit(),
-                               GetParameter(i)->GetUpperLimit() ) );
+    SetPriorConstantAll();
+
+    PrintSummary();
 }
 
 // ---------------------------------------------------------
 double Pol1Asymm::FitFunction(const std::vector<double>& x, const std::vector<double>& par)
 {
-    // function to fit with
-    // get the parameters of the function
-    double p0 = par[0];
-    double p1 = par[1];
+    // first-order polynomial
+    double r = par[0];
 
-    // calculate the value of the function at x[0] for a given set of parameters
-    return p0 + p1 * x[0];
+    // n-th order polynomial
+    double X = 1;
+    for (unsigned i = 1; i < par.size(); ++i) {
+        X *= x[0];
+        r += par[i] * X;
+    }
+
+    return r;
 }
 
 // ---------------------------------------------------------
@@ -71,8 +56,9 @@ double Pol1Asymm::LogLikelihood(const std::vector<double>& par)
 
     // loop over the data points
     for (unsigned i = 0 ; i < GetNDataPoints(); i++) {
+
         // get data point
-        std::vector<double> x = GetDataPoint(i)->GetValues();
+        std::vector<double> x = GetDataSet()->GetDataPoint(i)->GetValues();
         double y    = x[1];
         double eylo = x[2];
         double eyhi = x[3];
@@ -95,17 +81,3 @@ double Pol1Asymm::LogLikelihood(const std::vector<double>& par)
 
     return logl;
 }
-
-// ---------------------------------------------------------
-double Pol1Asymm::LogAPrioriProbability(const std::vector<double>& parameters)
-{
-    // Definition of the Prior of the model.
-    // For flat prior it's very easy.
-    double logprob = 0.;
-    for (unsigned int i = 0; i < GetNParameters(); i++)
-        logprob -= log(GetParameter(i)->GetRangeWidth());
-
-    return logprob;
-}
-
-// ---------------------------------------------------------

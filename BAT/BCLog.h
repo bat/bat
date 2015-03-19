@@ -22,7 +22,7 @@
 
 // ---------------------------------------------------------
 
-#include <iostream>
+#include <fstream>
 
 // ---------------------------------------------------------
 
@@ -79,20 +79,20 @@ public:
      * Sets the minimum log level for file output.
      * @param loglevel log level */
     static void SetLogLevelFile(BCLog::LogLevel loglevel)
-    { BCLog::fMinimumLogLevelFile = loglevel; };
+    { fMinimumLogLevelFile = loglevel; };
 
     /**
      * Sets the minimum log level for screen output.
      * @param loglevel log level */
     static void SetLogLevelScreen(BCLog::LogLevel loglevel)
-    { BCLog::fMinimumLogLevelScreen = loglevel; };
+    { fMinimumLogLevelScreen = loglevel; };
 
     /**
      * Sets the minimum log level for file and screen output.
      * @param loglevelscreen log level for screen
      * @param loglevelfile log level for file */
     static void SetLogLevel(BCLog::LogLevel loglevelscreen, BCLog::LogLevel loglevelfile)
-    { BCLog::fMinimumLogLevelFile = loglevelfile; BCLog::fMinimumLogLevelScreen = loglevelscreen; };
+    { fMinimumLogLevelFile = loglevelfile; fMinimumLogLevelScreen = loglevelscreen; };
 
     /**
      * Sets the minimum log level for file and screen output.
@@ -109,19 +109,17 @@ public:
      * @param filename log filename
      * @param loglevelfile minimum log level for file output
      * @param loglevelscreen minimum log level for screen output */
-    static void OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen);
-
-    static void OpenLog(const char* filename);
-
-    static void OpenLog();
+    static void OpenLog(const char* filename = "log.txt", BCLog::LogLevel loglevelfile = BCLog::debug, BCLog::LogLevel loglevelscreen = BCLog::summary);
 
     /**
      * @returns true if log file is open or false if not. */
-    static bool IsOpen();
+    static bool IsOpen()
+    { return fOutputStream.is_open(); }
 
     /**
      * Closes the log file */
-    static void CloseLog();
+    static void CloseLog()
+    { fOutputStream.close(); }
 
     /**
      * Writes string to the file and screen log if the log level is equal or greater than the minimum
@@ -130,7 +128,8 @@ public:
      * @param message string to write to the file and screen log */
     static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message);
 
-    static void Out(const char* message);
+    static void Out(const char* message)
+    { Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message); }
 
     static void Out(BCLog::LogLevel loglevel, const char* message)
     { Out(loglevel, loglevel, message); };
@@ -160,11 +159,6 @@ public:
     { return fVersion; };
 
     /**
-     * @return unique number for use in histogram name string */
-    static int GetHIndex()
-    { return BCLog::fHindex++; };
-
-    /**
      * Converts a log level to a string */
     static const char* ToString(BCLog::LogLevel);
 
@@ -191,9 +185,6 @@ private:
      * Specifies wheather there were output printouts already */
     static bool fFirstOutputDone;
 
-    /**
-     * Global histogram counter */
-    static int fHindex;
 };
 
 // ---------------------------------------------------------

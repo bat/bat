@@ -8,62 +8,142 @@
 
 // ---------------------------------------------------------
 #include "BCParameter.h"
+#include "BCPrior.h"
+#include "BCConstantPrior.h"
 #include "BCLog.h"
+#include "BCAux.h"
+
+#include <string>
+#include <limits>
 
 #include <TString.h>
+#include <TRandom.h>
+#include <TMath.h>
+#include <TF1.h>
 
-#include <algorithm>
-#include <fstream>
-#include <iostream>
 
 // ---------------------------------------------------------
-
-BCParameter::BCParameter():
-    fName("parameter"),
-    fLowerLimit(0),
-    fUpperLimit(1),
-    fFixed(false),
-    fFixedValue(-1.e+111),
-    fFillHistograms(true),
-    fNbins(100)
+BCParameter::BCParameter()
+    :	BCVariable()
+    , fFixed(false)
+    , fFixedValue(std::numeric_limits<double>::infinity())
+    , fPrior(NULL)
 {
+    fPrefix = "Parameter";
 }
 
 // ---------------------------------------------------------
-
-BCParameter::BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname) :
-    fName(name),
-    fLowerLimit(lowerlimit),
-    fUpperLimit(upperlimit),
-    fLatexName(latexname),
-    fFixed(false),
-    fFixedValue(-1.e+111),
-    fFillHistograms(true),
-    fNbins(100)
+BCParameter::BCParameter(const BCParameter& other)
+    : BCVariable(other)
+    , fFixed(other.fFixed)
+    , fFixedValue(other.fFixedValue)
+    , fPrior(NULL)
 {
+    if (other.fPrior)
+        SetPrior(other.fPrior->Clone());
 }
 
 // ---------------------------------------------------------
-
-void BCParameter::PrintSummary() const
+BCParameter::BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname, const char* unitstring)
+    : BCVariable(name, lowerlimit, upperlimit, latexname, unitstring)
+    , fFixed(false)
+    , fFixedValue(std::numeric_limits<double>::infinity())
+    , fPrior(NULL)
 {
-    BCLog::OutSummary("Parameter summary:");
-    BCLog::OutSummary(Form("Parameter   : %s", fName.c_str()));
-    BCLog::OutSummary(Form("Lower limit : %f", fLowerLimit));
-    BCLog::OutSummary(Form("Upper limit : %f", fUpperLimit));
+    fPrefix = "Parameter";
 }
 
 // ---------------------------------------------------------
-
-bool BCParameter::IsAtLimit(double value) const
+BCParameter::~BCParameter()
 {
-    if (fLowerLimit == fUpperLimit)
-        return false;
+    delete fPrior;
+}
 
-    if ( ( (value - fLowerLimit) * (value - fLowerLimit) / fLowerLimit / fLowerLimit <= 1e-10) ||
-            ( (value - fUpperLimit) * (value - fUpperLimit) / fUpperLimit / fUpperLimit <= 1e-10))
-        return true;
-    else
-        return false;
+// ---------------------------------------------------------
+void BCParameter::SetLimits(double lowerlimit, double upperlimit)
+{
+    BCVariable::SetLimits(lowerlimit, upperlimit);
+    if (BCAux::RangeType(fLowerLimit, fUpperLimit) == BCAux::kFiniteRange and
+            fPrior and fPrior->GetFunction())
+        fPrior->GetFunction()->SetRange(fLowerLimit, fUpperLimit);
+}
+
+// ---------------------------------------------------------
+double BCParameter::GetLogPrior(double x) const
+{
+    if ( fFixed )
+        return 0;
+    if (fPrior)
+        return fPrior->GetLogPrior(x);
+    return -std::numeric_limits<double>::infinity();
+}
+
+// ---------------------------------------------------------
+double BCParameter::GetPriorMode() const
+{
+    if (!fPrior)
+        return std::numeric_limits<double>::quiet_NaN();
+    return fPrior->GetMode(fLowerLimit, fUpperLimit);
+}
+
+// ---------------------------------------------------------
+double BCParameter::GetPriorMean() const
+{
+    if (!fPrior)
+        return std::numeric_limits<double>::quiet_NaN();
+    return fPrior->GetMean(fLowerLimit, fUpperLimit);
+}
+
+// ---------------------------------------------------------
+double BCParameter::GetPriorVariance() const
+{
+    if (!fPrior)
+        return std::numeric_limits<double>::quiet_NaN();
+    return fPrior->GetVariance(fLowerLimit, fUpperLimit);
+}
+
+// ---------------------------------------------------------
+double BCParameter::GetRandomValueAccordingToPrior(TRandom* const R) const
+{
+    if (!fPrior) {
+        BCLog::OutError("BCParameter::GetRandomValueAccordingToPrior : no prior specified.");
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    return fPrior->GetRandomValue(fLowerLimit, fUpperLimit, R);
+}
+
+// ---------------------------------------------------------
+double BCParameter::GetRandomValueAccordingToGaussianOfPrior(TRandom* const R, double expansion_factor, unsigned N, bool over_range) const
+{
+    if (!fPrior) {
+        BCLog::OutError("BCParameter::GetRandomValueAccordingToGaussianOfPrior : no prior specified.");
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    return fPrior->GetRandomValueGaussian(fLowerLimit, fUpperLimit, R, expansion_factor, N, over_range);
+}
+
+// ---------------------------------------------------------
+void BCParameter::SetPrior(BCPrior* const prior)
+{
+    delete fPrior;
+    fPrior = prior;
+    if (fPrior and fPrior->GetFunction())
+        fPrior->GetFunction()->SetRange(fLowerLimit, fUpperLimit);
+}
+
+// ---------------------------------------------------------
+void BCParameter::SetPriorConstant()
+{
+    SetPrior(new BCConstantPrior(GetRangeWidth()));
+}
+
+// ---------------------------------------------------------
+std::string BCParameter::OneLineSummary() const
+{
+    if (!Fixed())
+        return BCVariable::OneLineSummary();
+    return std::string(TString::Format("%s (fixed at %.*f)", BCVariable::OneLineSummary().data(), GetPrecision(), GetFixedValue()));
 }
 

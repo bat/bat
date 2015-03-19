@@ -28,9 +28,9 @@ void MyFit::DefineParameters()
 // ---------------------------------------------------------
 void MyFit::DefineObservables()
 {
-    AddObservable("br_e",  0.,   1.);
-    AddObservable("br_mu", 0.,   1.);
-    AddObservable("xs",    0., 100.);
+    AddMVCObservable("br_e",  0.,   1.);
+    AddMVCObservable("br_mu", 0.,   1.);
+    AddMVCObservable("xs",    0., 100.);
 }
 
 // ---------------------------------------------------------

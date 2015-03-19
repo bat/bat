@@ -7,66 +7,66 @@
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include "|:Model:|.h"
 
 int main()
 {
-	// set nicer style for drawing than the ROOT default
-	BCAux::SetStyle();
+    // set nicer style for drawing than the ROOT default
+    BCAux::SetStyle();
 
-	// open log file
-	BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
+    // open log file
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-	// create new |:Model:| object
-	|:Model:|* m = new |:Model:|("|:Model:|");
+    // create new |:Model:| object
+| :
+Model:
+| * m = new | :
+Model:
+    | ("|:Model:|");
 
-	// set precision
-	m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    // set precision
+    m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
-	BCLog::OutSummary("Test model created");
+    BCLog::OutSummary("Test model created");
 
-	//////////////////////////////
-	// perform your analysis here
+    //////////////////////////////
+    // perform your analysis here
 
-	// normalize the posterior, i.e. integrate posterior over the full
-	// parameter space
-	// m->SetIntegrationMethod(BCIntegrate::kIntDefault);
-	// m->Normalize();
+    // normalize the posterior, i.e. integrate posterior over the full
+    // parameter space
+    // m->SetIntegrationMethod(BCIntegrate::kIntDefault);
+    // m->Normalize();
 
-	// run MCMC and marginalize posterior w/r/t all parameters and all
-	// combinations of two parameters
-	// m->MarginalizeAll(BCIntegrate::kMargMetropolis);
+    // run MCMC and marginalize posterior w/r/t all parameters and all
+    // combinations of two parameters
+    // m->MarginalizeAll(BCIntegrate::kMargMetropolis);
 
-	// run mode finding; by default using Minuit
-	// m->FindMode( m->GetBestFitParameters() );
+    // run mode finding; by default using Minuit
+    // m->FindMode( m->GetBestFitParameters() );
 
-	// draw all marginalized distributions into a PDF file
-	// m->PrintAllMarginalized("|:Model:|_plots.pdf");
+    // draw all marginalized distributions into a PDF file
+    // m->PrintAllMarginalized("|:Model:|_plots.pdf");
 
-	// print all summary plots
-	// m->PrintParameterPlot("|:Model:|_parameters.pdf");
-	// m->PrintCorrelationPlot("|:Model:|_correlation.pdf");
-	// m->PrintCorrelationMaxtrix("|:Model:|_correlationMatrix.pdf");
+    // print all summary plots
+    // m->PrintParameterPlot("|:Model:|_parameters.pdf");
+    // m->PrintCorrelationPlot("|:Model:|_correlation.pdf");
+    // m->PrintCorrelationMaxtrix("|:Model:|_correlationMatrix.pdf");
 
-	// create a new summary tool object, to print change from prior->posterior
-	// BCSummaryTool * summary = new BCSummaryTool(m);
-	// summary->PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
+    // m->PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
 
-	// calculate p-value
-	// m->CalculatePValue( m->GetBestFitParameters() );
+    // calculate p-value
+    // m->CalculatePValue( m->GetBestFitParameters() );
 
-	// print results of the analysis into a text file
-	//  m->PrintResults("|:Model:|_results.txt");
+    // print results of the analysis into a text file
+    //  m->PrintResults("|:Model:|_results.txt");
 
-	delete m;
-	// delete summary;
+    delete m;
 
-	BCLog::OutSummary("Exiting");
+    BCLog::OutSummary("Exiting");
 
-	// close log file
-	BCLog::CloseLog();
+    // close log file
+    BCLog::CloseLog();
 
-	return 0;
+    return 0;
 }

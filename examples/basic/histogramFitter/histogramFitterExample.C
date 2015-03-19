@@ -95,10 +95,7 @@ void histogramFitterExample()
     hf->SetFlagIntegration(false);
 
     // set priors
-    hf->SetPriorConstant(0);
-    hf->SetPriorConstant(1);
-    hf->SetPriorConstant(2);
-    hf->SetPriorConstant(3);
+    hf->GetParameters().SetPriorConstantAll();
 
     // perform fit
     hf->Fit();

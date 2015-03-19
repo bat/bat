@@ -8,24 +8,19 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-PoissonModel::PoissonModel(const char* name) :
-    BCModel(name),
-    fNObs(0)
+PoissonModel::PoissonModel(const char* name)
+    :	BCModel(name)
+    , fNObs(0)
 {
-    DefineParameters();
-};
+    // add a parameter for the number of expected events. The range will
+    // be adjusted later according to the number of observed events.
+    AddParameter("lambda", 0., 7., "#lambda"); // index 0
+    GetParameter("lambda")->SetPriorConstant();
+}
 
 // ---------------------------------------------------------
 PoissonModel::~PoissonModel()
 {
-};
-
-// ---------------------------------------------------------
-void PoissonModel::DefineParameters()
-{
-    // add a parameter for the number of expected events. The range will
-    // be adjusted later according to the number of observed events.
-    AddParameter("#lambda", 0., 7.); // index 0
 }
 
 // ---------------------------------------------------------
@@ -63,28 +58,6 @@ double PoissonModel::LogLikelihood(const std::vector<double>& parameters)
     // This methods returns the logarithm of the conditional probability
     // p(data|parameters). This is where you have to define your model.
 
-    double logprob = 0.;
-
-    double lambda = parameters.at(0);
-
     // log Poisson term
-    logprob += BCMath::LogPoisson(fNObs, lambda);
-
-    // return log likelihood
-    return logprob;
-}
-
-// ---------------------------------------------------------
-double PoissonModel::LogAPrioriProbability(const std::vector<double>& parameters)
-{
-    // This method returns the logarithm of the prior probability for the
-    // parameters p(parameters).
-
-    double logprob = 0.;
-
-    // add a flat prior probability
-    logprob += log(1. / GetParameter(0)->GetRangeWidth()); // flat prior
-
-    // return log prior
-    return logprob;
+    return BCMath::LogPoisson(fNObs, parameters[0]);
 }

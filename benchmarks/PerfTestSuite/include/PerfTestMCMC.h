@@ -14,14 +14,16 @@
 #ifndef BAT_PERFTESTMCMC
 #define BAT_PERFTESTMCMC
 
-#include <string>
-#include <vector>
-
-#include <TF1.h>
+#include <include/PerfTest.h>
 
 #include <BAT/BCModel.h>
 
-#include <include/PerfTest.h>
+#include <TF1.h>
+#include <TGraph.h>
+#include <TH2.h>
+
+#include <string>
+#include <vector>
 
 class PerfTestMCMC : public PerfTest, public BCModel
 {
@@ -76,8 +78,7 @@ private:
 
     std::vector<TGraph*> fCorrelation;
     std::vector<TH2D*> fHistCorr;
-    std::vector<double> fXOld;
+    std::vector<std::vector<double> > fXOld;
 };
 
 #endif
-

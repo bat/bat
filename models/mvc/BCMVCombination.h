@@ -38,7 +38,7 @@ public:
     // name: the name of the parameter
     // min:  the minimum value of the parameter
     // max:  the maximum value of the parameter
-    void AddObservable(std::string name, double min, double max);
+    void AddMVCObservable(std::string name, double min, double max);
 
     // Add a source of systematic uncertainty
     // name: the name of the uncertainty

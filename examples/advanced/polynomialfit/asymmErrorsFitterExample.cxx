@@ -5,7 +5,6 @@
 #include <BAT/BCDataPoint.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCModelManager.h>
-#include <BAT/BCModelOutput.h>
 
 
 #include <TCanvas.h>
@@ -21,26 +20,20 @@ int main()
     BCAux::SetStyle();
 
     // open log file with default level of logging
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // 1st order polynomial
     Pol1Asymm* m1 = new Pol1Asymm("1dPol asymm");
-    m1->DefineParameters();
 
     // 2nd order polynomial
     Pol2Asymm* m2 = new Pol2Asymm("2dPol asymm");
-    m2->DefineParameters();
 
     // define model manager and add the models to it with a priori
     // probability for each model
     // we then do the same things with all the models
     BCModelManager* mgr = new BCModelManager();
-    mgr->AddModel(m1, 1. / 2.);
-    mgr->AddModel(m2, 1. / 2.);
-
-    BCModelOutput* mout1 = new BCModelOutput(m1, "1Dasymm.root");
-    BCModelOutput* mout2 = new BCModelOutput(m2, "2Dasymm.root");
+    mgr->AddModel(m1, 0.5);
+    mgr->AddModel(m2, 0.5);
 
     // create a new data set and fill it with data from a textfile
     // with four columns: x, y, y_error_low, y_error_high
@@ -59,23 +52,19 @@ int main()
     //	mgr->SetIntegrationMethod(BCIntegrate::kIntMonteCarlo);
     mgr->Integrate();
 
-    // the allowed range of data values has to be defined for error
-    // propagation and fitting.
-    mgr->SetDataBoundaries(0, 0.0, 100.0); // possible x-values
-    mgr->SetDataBoundaries(1, 0.0, 5.0);   // possible y-values
-    mgr->SetDataBoundaries(2, 0.2, 5.2);   // possible sigmas
+    // one can manually set the data bounds with the following three lines
+    // but BAT will automatically know the data bounds
+    // mgr->GetDataSet()->SetBounds(0, 0.0, 100.0); // possible x-values
+    // mgr->GetDataSet()->SetBounds(1, 0.0, 5.0);   // possible y-values
+    // mgr->GetDataSet()->SetBounds(2, 0.2, 5.2);   // possible sigmas
 
     // in this example the data points are not chosen arbitrarily but
     // they have fixed values on the x-axis, i.e, 5, 15, ... . also, the
     // resolution is fixed. in general this can be solved by fixing the
-    // "axes".
-    m1->FixDataAxis(0, true); // fixes x-values
-    m1->FixDataAxis(2, true); // fixes resolution
-    m1->FixDataAxis(3, true); // fixes resolution
-
-    m2->FixDataAxis(0, true); // fixes x-values
-    m2->FixDataAxis(2, true); // fixes resolution
-    m2->FixDataAxis(3, true); // fixes resolution
+    // data axes.
+    mgr->GetDataSet()->Fix(0); // fixes x-values
+    mgr->GetDataSet()->Fix(2); // fixes resolution
+    mgr->GetDataSet()->Fix(3); // fixes resolution
 
     // during the marginalization, the error propagation can be done
     // thus, the x- and y-indices of the data values have to be set.
@@ -86,13 +75,11 @@ int main()
     m1->SetFillErrorBand();
     m2->SetFillErrorBand();
 
-    // set Metropolis algorithm
-    m1->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-    m2->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    // set Metropolis algorithm for both models
+    mgr->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    m1->MCMCSetPrecision(BCEngineMCMC::kMedium);
-    m2->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    mgr->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
     // marginalizes the probability density with respect to all
     // parameters subsequently for all models
@@ -105,18 +92,12 @@ int main()
         mgr->GetModel(i)->FindMode( mgr->GetModel(i)->GetBestFitParameters() );
 
     // write marginalized distributions to a root file
-    mout1->WriteMarginalizedDistributions();
-    mout1->Close();
-
-    mout2->WriteMarginalizedDistributions();
-    mout2->Close();
+    m1->WriteMarginalizedDistributions("1Dasymm.root", "RECREATE");
+    m2->WriteMarginalizedDistributions("2Dasymm.root", "RECREATE");
 
     // print all marginalized distributions to a postscript file
     m1->PrintAllMarginalized("1Dasymm-marg.pdf");
     m2->PrintAllMarginalized("2Dasymm-marg.pdf");
-
-    // calculate the p-value for the set of best fit parameters
-    //   mgr->CalculatePValue();
 
     // write the summary
     mgr->PrintResults();
@@ -132,10 +113,10 @@ int main()
 
     // sets the points of the graph to the data points read in
     // previously. loops over all entries.
-    for (int i = 0; i < mgr->GetNDataPoints(); i++) {
-        gdata->SetPoint(i, mgr->GetDataPoint(i)->GetValue(0), mgr->GetDataPoint(i)->GetValue(1));
-        gdata->SetPointEYlow(i, mgr->GetDataPoint(i)->GetValue(2));
-        gdata->SetPointEYhigh(i, mgr->GetDataPoint(i)->GetValue(3));
+    for (unsigned i = 0; i < mgr->GetDataSet()->GetNDataPoints(); i++) {
+        gdata->SetPoint(i, mgr->GetDataSet()->GetDataPoint(i)->GetValue(0), mgr->GetDataSet()->GetDataPoint(i)->GetValue(1));
+        gdata->SetPointEYlow(i, mgr->GetDataSet()->GetDataPoint(i)->GetValue(2));
+        gdata->SetPointEYhigh(i, mgr->GetDataSet()->GetDataPoint(i)->GetValue(3));
     }
 
     mgr->PrintSummary("summary.txt");

@@ -36,32 +36,37 @@ namespace BCMath
 {
 
 /**
- * Calculate the natural logarithm of a gaussian function with mean
- * and sigma.  If norm=true (default is false) the result is
- * multiplied by the normalization constant, i.e. divided by
- * sqrt(2*Pi)*sigma.
- */
+ * Calculate the natural logarithm of a normal distribution function.
+	* @param x point to be evaluated.
+	* @param mean Mean.
+	* @param sigma Standard deviation.
+	* @param norm flag for including normalization constant 1/sqrt(2*pi)/sigma */
 double LogGaus(double x, double mean = 0, double sigma = 1, bool norm = false);
 
 /**
  * Calculate the natural logarithm of a poisson distribution.
- */
-double LogPoisson(double x, double par);
-
-/**
- * Calculates Binomial probability using approximations for
- * factorial calculations if calculation for number greater than 20
- * required using the BCMath::ApproxLogFact function.
- */
-double ApproxBinomial(int n, int k, double p);
+	* @param x number of occurances.
+	* @param lambda expected number of occurances. */
+double LogPoisson(double x, double lambda);
 
 /**
  * Calculates natural logarithm of the Binomial probability using
  * approximations for factorial calculations if calculation for
  * number greater than 20 required using the BCMath::ApproxLogFact
  * function.
- */
-double LogApproxBinomial(int n, int k, double p);
+	* @param n number of trials.
+	* @param k number of successes.
+	* @param p probability of success in a trial. */
+double LogApproxBinomial(unsigned n, unsigned k, double p);
+
+/**
+ * Calculates Binomial probability using approximations for
+ * factorial calculations if calculation for number greater than 20
+ * required using the BCMath::ApproxLogFact function.
+	* @param n number of trials.
+	* @param k number of successes.
+	* @param p probability of success in a trial. */
+double ApproxBinomial(unsigned n, unsigned k, double p);
 
 /**
  * Calculates natural logarithm of the Binomial factor "n over k"
@@ -69,31 +74,32 @@ double LogApproxBinomial(int n, int k, double p);
  * for number greater than 20 required using the
  * BCMath::ApproxLogFact function.  Even for large numbers the
  * calculation is performed precisely, if n-k < 5
- */
-double LogBinomFactor(int n, int k);
+	* @param n upper value in binomial coefficient
+	* @param k lower value in binomial coefficient */
+double LogBinomFactor(unsigned n, unsigned k);
 
 /**
  * Calculates natural logarithm of the n-factorial (n!) using
  * Srinivasa Ramanujan approximation
  * log(n!) = n*log(n) - n + log(n*(1.+4.*n*(1.+2.*n)))/6. + log(PI)/2.
  * if n > 20.  If n <= 20 it uses BCMath::LogFact to calculate it
- * exactly.
- */
+ * exactly. */
 double ApproxLogFact(double x);
 
 /**
- * Calculates natural logarithm of the Binomial factor "n over k".
- */
-double LogNoverK(int n, int k);
+ * Calculates natural logarithm of the Binomial factor "n over k". */
+double LogBinomFactorExact(unsigned n, unsigned k);
 
 /**
- * Calculates natural logarithm of the n-factorial (n!)
- */
-double LogFact(int n);
+ * Calculates natural logarithm of the n-factorial (n!) */
+double LogFact(unsigned n);
+
+/** Cache factorials for first \arg \c n integers.
+ * The cache is filled upon first call of LogFact(). */
+unsigned CacheFactorials(unsigned int n);
 
 /**
- * Returns the nearest integer of a double number.
- */
+ * Returns the nearest integer of a double number. */
 int Nint(double x);
 
 /**
@@ -133,6 +139,11 @@ double LogGammaPDF(double x, double alpha, double beta);
 * Return the log of the log normal distribution
 */
 double LogLogNormal(double x, double mean = 0, double sigma = 1);
+
+/**
+* Wrapper around ROOT::Math::chisquared_pdf
+that can be used to construct a TF1. */
+double chi2(double* x, double* par);
 
 /**
  * Get N random numbers distributed according to chi square function
@@ -197,26 +208,6 @@ double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
  */
 double SplitGaussian(double* x, double* par);
 
-/** Cache factorials for first \arg \c n integers.
- * The cache is filled upon first call of LogFact(). */
-void CacheFactorial(unsigned int n);
-
-/**
- * Compute the R-value according to Gelman-Rubin,
- * GR1992 : Gelman, A. and Rubin, D.B.
- * Inference from Iterative Simulation Using Multiple Sequences
- * Statistical Science, Vol. 7, No. 4 (Nov. 1992), pp. 457-472
- *
- * @param chain_means
- * @param chain_variances
- * @param chain_length
- * @param strict If true, use the algorithm laid forth in the paper,
- *               else use a relaxed version which generally leads to smaller R-values.
- * @return R-value
- */
-double Rvalue(const std::vector<double>& chain_means, const std::vector<double>& chain_variances,
-              const unsigned& chain_length, const bool& strict = true) throw (std::invalid_argument, std::domain_error);
-
 /** \name p value methods */
 /** @{ */
 
@@ -249,4 +240,3 @@ double FastPValue(const std::vector<unsigned>& observed, const std::vector<doubl
 // ---------------------------------------------------------
 
 #endif
-

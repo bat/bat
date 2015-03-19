@@ -8,14 +8,11 @@ class GaussModel : public BCModel
 {
 public:
 
-    // Constructors and destructor
-    GaussModel();
+    // Constructor and destructor
     GaussModel(const char* name);
     ~GaussModel();
 
-    // Methods to overload, see file GaussModel.cxx
-    void DefineParameters();
-    double LogAPrioriProbability(const std::vector<double>& parameters);
+    // Method to overload, see file GaussModel.cxx
     double LogLikelihood(const std::vector<double>& parameters);
 };
 // ---------------------------------------------------------

@@ -11,7 +11,6 @@
 #include "test.h"
 
 #include <BAT/BCParameter.h>
-#include <BAT/BCSummaryTool.h>
 
 using namespace test;
 
@@ -31,10 +30,9 @@ public:
     {
         m.MarginalizeAll();
         m.FindMode();
-        BCSummaryTool s(&m);
-        s.PrintCorrelationPlot(file_corr.c_str());
-        s.PrintParameterPlot(file_par.c_str());
-        s.PrintKnowledgeUpdatePlots(file_upd.c_str());
+        m.PrintCorrelationPlot(file_corr.c_str());
+        m.PrintParameterPlot(file_par.c_str());
+        m.PrintKnowledgeUpdatePlots(file_upd.c_str());
     }
 
     void mcmc() const

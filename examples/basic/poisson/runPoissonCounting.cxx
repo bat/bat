@@ -9,11 +9,10 @@ int main()
     BCAux::SetStyle();
 
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new PoissonModel object
-    PoissonModel m;
+    PoissonModel m("poisMod");
 
     // set number of observed events
     m.SetNObs(7);

@@ -30,7 +30,7 @@ PerfTestMCMC::PerfTestMCMC(std::string name)
     , BCModel(name.c_str())
     , fCorrelation(std::vector<TGraph*>(0))
     , fHistCorr(std::vector<TH2D*>(0))
-    , fXOld(std::vector<double>(0))
+    , fXOld(std::vector<std::vector<double> >(0))
 {
     // define subtests
     DefineSubtests();
@@ -194,7 +194,7 @@ void PerfTestMCMC::MCMCUserIterationInterface()
 
         if (iteration > nlag) {
             for (int j = 0; j < nchains; ++j)
-                hist->Fill(fXOld.at(j * npar + i), fMCMCx.at(j * npar + i));
+                hist->Fill(fXOld.at(j).at(i), fMCMCx.at(j).at(i));
         }
 
         if (iteration / nlag % (MCMCGetNIterationsRun() / 100 / nlag) == 0) {
@@ -210,4 +210,3 @@ void PerfTestMCMC::MCMCUserIterationInterface()
 }
 
 //______________________________________________________________________________
-

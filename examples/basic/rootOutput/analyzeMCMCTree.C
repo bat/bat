@@ -38,9 +38,9 @@ analyzeMCMCTree(const char* filename = "output.root", int nchains = 5)
     // pointers to chains
     TChain** ch = new TChain*[nchains];
     // marginalized distributions
-    TH1D* h1d0; // 1D: par1
-    TH1D* h1d1; // 1D: par2
-    TH1D* h1dx; // 1D: function of par1 and par2
+    TH1D* h1d0;  // 1D: par1
+    TH1D* h1d1;  // 1D: par2
+    TH1D* h1dx;  // 1D: function of par1 and par2
     TH2D* h2d;  // 2D: par1 vs. par2
 
     // read all chains from the file and fill marginaliyed distributions

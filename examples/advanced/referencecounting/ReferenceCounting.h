@@ -3,6 +3,9 @@
 
 #include <BAT/BCModel.h>
 
+class TF1;
+class TH1D;
+
 // This is a ReferenceCounting header file.
 // Model source code is located in file ReferenceCounting/ReferenceCounting.cxx
 
@@ -17,13 +20,11 @@ public:
     // kApprox: use approximation
     enum EvalOption { kAnalytic, kHistogram, kApprox };
 
-    // Constructors and destructor
-    ReferenceCounting();
+    // Constructor and destructor
     ReferenceCounting(const char* name);
     ~ReferenceCounting();
 
     // Methods to overload, see file ReferenceCounting.cxx
-    void DefineParameters();
     double LogAPrioriProbability(const std::vector<double>& parameters);
     double LogLikelihood(const std::vector<double>& parameters);
 

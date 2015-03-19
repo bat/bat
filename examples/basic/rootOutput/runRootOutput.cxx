@@ -1,6 +1,5 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCModelOutput.h>
 
 #include "GaussModel.h"
 
@@ -11,11 +10,10 @@ int main()
     BCAux::SetStyle();
 
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new GaussModel object
-    GaussModel* m = new GaussModel();
+    GaussModel* m = new GaussModel("gausMod");
 
     // set marginalization method
     m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -23,11 +21,8 @@ int main()
     // set MCMC precision
     m->MCMCSetPrecision(BCEngineMCMC::kMedium);
 
-    // create new output object
-    BCModelOutput* mout = new BCModelOutput(m, "output.root");
-
     // switch writing of Markov Chains on
-    mout->WriteMarkovChain(true);
+    m->WriteMarkovChain("output.root", "RECREATE");
 
     // run MCMC and marginalize posterior wrt. all parameters
     // and all combinations of two parameters
@@ -45,19 +40,14 @@ int main()
     m->PrintResults("GaussModel_results.txt");
 
     // write marginalized distributions to output file
-    mout->WriteMarginalizedDistributions();
+    m->WriteMarginalizedDistributions("output.root", "UPDATE");
 
     // close log file
     BCLog::CloseLog();
 
-    // close output file
-    mout->Close();
-
     // free memory
     delete m;
-    delete mout;
 
     return 0;
-
 }
 

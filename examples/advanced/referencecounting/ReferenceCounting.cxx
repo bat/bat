@@ -13,23 +13,6 @@
 #include <iomanip>
 
 // ---------------------------------------------------------
-ReferenceCounting::ReferenceCounting() : BCModel()
-    , fEvalOption(kHistogram)
-    , fNObs(0)
-    , fEps(1e-6)
-    , fAlpha(10)
-    , fBeta(5)
-    , logs(0)
-    , maxn(0)
-    , maxk(10000)
-    , fHistPriorS(0)
-    , fHistPriorB(0)
-{
-    // default constructor
-    DefineParameters();
-}
-
-// ---------------------------------------------------------
 ReferenceCounting::ReferenceCounting(const char* name) : BCModel(name)
     , fEvalOption(kHistogram)
     , fNObs(0)
@@ -42,19 +25,16 @@ ReferenceCounting::ReferenceCounting(const char* name) : BCModel(name)
     , fHistPriorS(0)
     , fHistPriorB(0)
 {
-    // constructor
-    DefineParameters();
+    // define parameters
+    AddParameter("s", 0, 50.); // index 0
+    AddParameter("b", 0, 50.); // index 1
 }
 
 // ---------------------------------------------------------
 ReferenceCounting::~ReferenceCounting()
-// default destructor
 {
-    if (fHistPriorS)
-        delete fHistPriorS;
-
-    if (fHistPriorB)
-        delete fHistPriorB;
+    delete fHistPriorS;
+    delete fHistPriorB;
 }
 
 // ---------------------------------------------------------
@@ -67,13 +47,6 @@ void ReferenceCounting::SetAlphaBeta(double alpha, double beta)
     helper_a.clear();
     helper_b.clear();
     helper_c.clear();
-}
-
-// ---------------------------------------------------------
-void ReferenceCounting::DefineParameters()
-{
-    AddParameter("s", 0, 50.); // index 0
-    AddParameter("b", 0, 50.); // index 1
 }
 
 // ---------------------------------------------------------

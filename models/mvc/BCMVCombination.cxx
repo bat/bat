@@ -51,7 +51,7 @@ BCMVCombination::~BCMVCombination()
 }
 
 // ---------------------------------------------------------
-void BCMVCombination::AddObservable(std::string name, double min, double max)
+void BCMVCombination::AddMVCObservable(std::string name, double min, double max)
 {
     // check if observable exists already
     int index = GetIndexObservable(name);
@@ -163,7 +163,7 @@ int BCMVCombination::ReadInput(std::string filename)
         infile >> name >> min >> max;
 
         // add observable
-        AddObservable(name.c_str(), min, max);
+        AddMVCObservable(name.c_str(), min, max);
     }
 
     for (int i = 0; i < nuncertainties; ++i) {
@@ -215,38 +215,31 @@ int BCMVCombination::ReadInput(std::string filename)
         std::string measurement2;
         std::string observable2;
         std::string parname;
-        double min;
-        double max;
-        double pre;
-        std::string priorshape;
 
         infile >> uncertainty >> measurement1 >> observable1 >> measurement2 >> observable2 >> parname;
 
         // check if parameter exists already
-        int index = -1;
+        double pre = 1;
+        unsigned index;
+        for (index = 0; index < GetNParameters(); ++index)
+            if (parname.c_str() == GetParameter(index)->GetName()) {
+                infile >> pre;
+                break;
+            }
 
-        for (unsigned int i = 0; i < GetNParameters(); i++)
-            if (parname.c_str() == GetParameter(i)->GetName())
-                index = i;
-
-        if (index >= 0)
-            infile >> pre;
-
-        else {
+        if (index == GetNParameters()) {
             // read properties of parameter
+            double min;
+            double max;
+            std::string priorshape;
             infile >> min >> max >> priorshape;
 
             // add nuisance parameter
             AddParameter(parname.c_str(), min, max);
 
-            // set pre-factor
-            pre = 1;
-
-            // set index
-            index = GetNParameters() - 1;
-
             if (priorshape == "flat") {
                 SetPriorConstant(parname.c_str());
+
             } else if (priorshape == "gauss") {
                 double mean;
                 double std;
@@ -254,8 +247,10 @@ int BCMVCombination::ReadInput(std::string filename)
                 infile >> mean >> std;
 
                 SetPriorGauss(parname.c_str(), mean, std);
+
             } else {
                 BCLog::OutWarning(Form("BCMVCombination::ReadInput. Unknown prior shape %s.", priorshape.c_str()));
+
             }
         }
 

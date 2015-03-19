@@ -39,7 +39,7 @@ CXXSRCS      = \
 #
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
-MYPROGS     = run|:Project:|
+MYPROGS     = run|:Model:|
 
 GARBAGE      = $(CXXOBJS) *.o *~ link.d $(MYPROGS)
 
@@ -58,7 +58,7 @@ clean :
 	rm -f $(GARBAGE)
 
 run|:Model:| : $(CXXOBJS)
-	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o run|:Project:|
+	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o $@
 
 print :
 	@echo compiler  : $(CXX)

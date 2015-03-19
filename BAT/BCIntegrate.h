@@ -26,9 +26,9 @@
 #include "BCEngineMCMC.h"
 
 // ROOT classes
+class TFile;
 class TH1;
-class TH1D;
-class TH2D;
+class TH2;
 class TMinuit;
 class TTree;
 
@@ -39,6 +39,7 @@ class TTree;
  */
 namespace BCCubaOptions
 {
+
 struct General {
     int ncomp, flags, nregions, neval, fail;
     double error, prob;
@@ -86,43 +87,54 @@ public:
     /**
      * An enumerator for the mode finding algorithm */
     enum BCOptimizationMethod {
-        kOptEmpty,
-        kOptSimAnn,
-        kOptMetropolis,
-        kOptMinuit,
-        kOptDefault,
-        NOptMethods
+        kOptEmpty,									///< No optimization method set.
+        kOptSimAnn,									///< Simulated annealing
+        kOptMetropolis,							///< Metropolis Hastings
+        kOptMinuit,									///< ROOT's Minuit
+        kOptDefault,								///< Default
+        NOptMethods									///< number of available optimization methods
     };
 
     /**
      * An enumerator for integration algorithms */
     enum BCIntegrationMethod {
-        kIntEmpty,
-        kIntMonteCarlo,
-        kIntCuba,
-        kIntGrid,
-        kIntDefault,
-        NIntMethods
+        kIntEmpty,								///< No integration method set
+        kIntMonteCarlo,						///<
+        kIntCuba,									///< Use CUBA interface
+        kIntGrid,									///< Integration by gridding of parameter space
+        kIntDefault,							///< Default
+        NIntMethods								///< number of available optimization methods
     };
 
     /**
      * An enumerator for marginalization algorithms */
     enum BCMarginalizationMethod {
-        kMargEmpty,
-        kMargMetropolis,
-        kMargMonteCarlo,
-        kMargGrid,
-        kMargDefault,
-        NMargMethods
+        kMargEmpty,								///< No marginalization method set
+        kMargMetropolis,						///< Metropolis Hastings
+        kMargMonteCarlo,						///<
+        kMargGrid,									///< Marginalization by gridding of parameter space
+        kMargDefault,							///< Default
+        NMargMethods								///< number of available marginalization methods
     };
 
     /**
      * An enumerator for the Simulated Annealing schedule */
-    enum BCSASchedule { kSACauchy, kSABoltzmann, kSACustom, NSAMethods };
+    enum BCSASchedule {
+        kSACauchy,									///< Cauchy scheduler
+        kSABoltzmann,							///< Boltzman scheduler
+        kSACustom,									///< Custom scheduler
+        NSAMethods									///< number of available schedulers
+    };
 
     /**
      * An enumerator for Cuba integration methods */
-    enum BCCubaMethod { kCubaVegas, kCubaSuave, kCubaDivonne, kCubaCuhre, NCubaMethods};
+    enum BCCubaMethod {
+        kCubaVegas,								///< Vegas
+        kCubaSuave,								///< Suave
+        kCubaDivonne,							///< Divonne
+        kCubaCuhre,								///< Cuhre
+        NCubaMethods								///< number of available CUBA methods
+    };
 
     /** @} */
 
@@ -148,99 +160,38 @@ public:
     /** @{ */
 
     /**
-     * A constructor */
-    BCIntegrate();
+     * Default constructor */
+    BCIntegrate(const char* name = "model");
 
     /**
-     * The copy constructor */
+     * Copy constructor */
     BCIntegrate(const BCIntegrate& bcintegrate);
 
     /**
-     * The default destructor */
+     * Read in MCMC constructor.
+     * @param filename Path of file holding model.
+     * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
+     * if empty string is given, properly matching TTrees are searched for in the file.
+     * @param reuseObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
+    BCIntegrate(std::string filename, std::string name, bool reuseObservables = true);
+
+    /**
+     * Destructor */
     virtual ~BCIntegrate();
 
     /** @} */
+
     /** \name Assignment operators */
     /** @{ */
 
     /**
-     * Defaut assignment operator */
+     * Assignment operator */
     BCIntegrate& operator = (const BCIntegrate& bcintegrate);
 
     /** @} */
+
     /** \name Member functions (get) */
     /** @{ */
-
-    /**
-     * Read */
-    int ReadMarginalizedFromFile(const char* file);
-
-    /**
-     * Obtain the individual marginalized distributions
-     * with respect to one parameter.
-     * @note The most efficient method is to access by index.
-     * @note Ownership of the returned heap object is conferred to the caller.
-     * @param parameter Model parameter
-     * @return 1D marginalized probability */
-    BCH1D* GetMarginalized(const BCParameter* parameter);
-
-    /**
-     * Obtain the individual marginalized distributions
-     * with respect to one parameter.
-     * @note The most efficient method is to access by index.
-     * @note Ownership of the returned heap object is conferred to the caller.
-     * @param name The parameter's name
-     * @return 1D marginalized probability */
-    BCH1D* GetMarginalized(const char* name)
-    { return GetMarginalized(fParameters.Index(name)); }
-
-    /**
-     * Obtain the individual marginalized distributions
-     * with respect to one parameter.
-     * @note The most efficient method is to access by index.
-     * @note Ownership of the returned heap object is conferred to the caller.
-     * @param index The parameter index
-     * @return 1D marginalized probability */
-    BCH1D* GetMarginalized(unsigned index);
-
-    /**
-     * Obtain the individual marginalized distributions
-     * with respect to two parameters.
-     * @note The most efficient method is to access by indices.
-     * @note Ownership of the returned heap object is conferred to the caller.
-
-     * @param parameter1 First parameter
-     * @param parameter2 Second parameter
-     * @return 2D marginalized probability */
-    BCH2D* GetMarginalized(const BCParameter* parameter1, const BCParameter* parameter2);
-
-    /**
-     * Obtain the individual marginalized distributions
-     * with respect to two parameters.
-     * @note The most efficient method is to access by indices.
-     * @note Ownership of the returned heap object is conferred to the caller.
-     * @param name1 Name of first parameter
-     * @param name2 Name of second parameter
-     * @return 2D marginalized probability */
-    BCH2D* GetMarginalized(const char* name1, const char* name2)
-    { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
-
-    /**
-     * Obtain the individual marginalized distributions
-     * with respect to two parameters.
-     * @note The most efficient method is to access by indices.
-     * @note Ownership of the returned heap object is conferred to the caller.
-     * @param index1 Index of first parameter
-     * @param index2 Index of second parameter
-     * @return 2D marginalized probability */
-    BCH2D* GetMarginalized(unsigned index1, unsigned index2);
-
-    /**
-     *   */
-    int PrintAllMarginalized1D(const char* filebase);
-    int PrintAllMarginalized2D(const char* filebase);
-    int PrintAllMarginalized(const char* file, std::string options1d = "BTsiB3CS1D0pdf0Lmeanmode", std::string options2d = "BTfB3CS1meangmode", unsigned int hdiv = 1, unsigned int ndiv = 1);
-
 
     /**
      * @return The integral. */
@@ -268,19 +219,14 @@ public:
     { return fSASchedule; }
 
     /**
-     * Fills a vector of random numbers between 0 and 1 into a vector
-     * @param A vector of doubles */
-    void GetRandomVectorUnitHypercube(std::vector<double>& x) const;
-
-    /**
      * Fills a vector of random numbers x[i] between fMin[i] and fMax[i] into a vector
-     * @param A vector of doubles */
+     * @param x A vector of doubles to fill*/
     void GetRandomVectorInParameterSpace(std::vector<double>& x) const;
 
     /**
      * Fills a vector of (flat) random numbers in the limits of the parameters and returns
      * the probability at that point
-     * @param x A vector of doubles
+     * @param x A vector of doubles to fill
      * @return The (unnormalized) probability at the random point */
     double GetRandomPoint(std::vector<double>& x);
 
@@ -298,11 +244,6 @@ public:
      * @return The interval for checking precision in integration */
     int GetNIterationsPrecisionCheck() const
     { return fNIterationsPrecisionCheck; }
-
-    /**
-     * @return The interval for outputting during integration */
-    int GetNIterationsOutput() const
-    { return fNIterationsOutput; }
 
     /**
      * @return The number of iterations for the most recent Monte Carlo integration */
@@ -325,68 +266,79 @@ public:
     { return fCubaIntegrationMethod; }
 
     /**
-     * @return Options used for integration with CUBA
-     */
+     * @return Options used for integration with CUBA's Vegas */
     const BCCubaOptions::Vegas& GetCubaVegasOptions() const
     { return fCubaVegasOptions; }
 
+    /**
+     * @return Options used for integration with CUBA's Suave */
     const BCCubaOptions::Suave& GetCubaSuaveOptions() const
     { return fCubaSuaveOptions; }
 
+    /**
+     * @return Options used for integration with CUBA's Divonne */
     const BCCubaOptions::Divonne& GetCubaDivonneOptions() const
     { return fCubaDivonneOptions; }
 
+    /**
+     * @return Options used for integration with CUBA's Cuhre */
     const BCCubaOptions::Cuhre& GetCubaCuhreOptions() const
     { return fCubaCuhreOptions; }
 
     /**
      * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
-     * @param parameter The model parameter along which the slice is calculated.
+     * @param name The name of the model parameter along which the slice is calculated.
+     * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
      * @param nbins The number of bins of the 1D-histogram.
-     * @param flag_norm: normalize histogram to unity or not
-     * @return The 1D slice. */
-    BCH1D* GetSlice(const BCParameter* parameter, const std::vector<double> parameters = std::vector<double>(0), int bins = 0, bool flag_norm = true);
+     * @param normalize Flag for turning on normalization of histogram.
+     * @return The slice histogram. */
+    TH1* GetSlice(std::vector<unsigned> indices, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true);
 
     /**
      * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
      * @param name The name of the model parameter along which the slice is calculated.
+     * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
      * @param nbins The number of bins of the 1D-histogram.
-     * @param flag_norm: normalize histogram to unity or not
+     * @param normalize Flag for turning on normalization of histogram.
      * @return The 1D slice. */
-    BCH1D* GetSlice(const char* name, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool flag_norm = true)
-    { return GetSlice(GetParameter(name), parameters, nbins, flag_norm); }
+    TH1* GetSlice(const char* name, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    { return GetSlice(fParameters.Index(name), log_max_val, parameters, nbins, normalize); }
+
+    /**
+     * Returns a one-dimensional slice of the pdf at the point and along a specific direction.
+     * @param name The name of the model parameter along which the slice is calculated.
+     * @param log_max_val Stores the log of the maximum value before normalizing
+     * @param parameters The point at which the other parameters are fixed.
+     * @param nbins The number of bins of the 1D-histogram.
+     * @param normalize Flag for turning on normalization of histogram.
+     * @return The 1D slice. */
+    TH1* GetSlice(unsigned index, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    { return GetSlice(std::vector<unsigned>(1, index), log_max_val, parameters, nbins, normalize); }
 
     /**
      * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-     * @param parameter1 The first model parameter along which the slice is calculated.
-     * @param parameter2 The second model parameter along which the slice is calculated.
+     * @param name1 The name of the first model parameter along which the slice is calculated.
+     * @param name2 The name of the second model parameter along which the slice is calculated.
+     * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
-     * @param nbins The number of bins of the 2D-histogram.
-     * @param flag_norm: normalize histogram to unity or not
+     * @param nbins The number of bins on each axis of the 2D-histogram.
+     * @param normalize Flag for turning on normalization of histogram.
      * @return The 2D slice. */
-    BCH2D* GetSlice(const BCParameter* parameter1, const BCParameter* parameter2, const std::vector<double> parameters = std::vector<double>(0), int bins = 0, bool flag_norm = true);
+    TH2* GetSlice(const char* name1, const char* name2, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    { return GetSlice(fParameters.Index(name1), fParameters.Index(name2), log_max_val, parameters, nbins, normalize); }
 
     /**
      * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-     * @param parameter1 The name of the first model parameter along which the slice is calculated.
-     * @param parameter2 The name of the second model parameter along which the slice is calculated.
+     * @param name1 The name of the first model parameter along which the slice is calculated.
+     * @param name2 The name of the second model parameter along which the slice is calculated.
+     * @param log_max_val Stores the log of the maximum value before normalizing
      * @param parameters The point at which the other parameters are fixed.
-     * @param nbins The number of bins of the 2D-histogram.
-     * @param flag_norm: normalize histogram to unity or not
+     * @param nbins The number of bins on each axis of the 2D-histogram.
+     * @param normalize Flag for turning on normalization of histogram.
      * @return The 2D slice. */
-    BCH2D* GetSlice(const char* name1, const char* name2, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool flag_norm = true);
-
-    /**
-     * Returns a two-dimensional slice of the pdf at the point and along two specified directions.
-     * @param parameter1 The name of the first model parameter along which the slice is calculated.
-     * @param parameter2 The name of the second model parameter along which the slice is calculated.
-     * @param parameters The point at which the other parameters are fixed.
-     * @param nbins The number of bins of the 2D-histogram.
-      * @param flag_norm: normalize histogram to unity or not
-    * @return The 2D slice. */
-    BCH2D* GetSlice(unsigned index1, unsigned index2, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool flag_norm = true);
+    TH2* GetSlice(unsigned index1, unsigned index2, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true);
 
     /**
      * @return The uncertainty in the most recent Monte Carlo integration */
@@ -413,36 +365,19 @@ public:
     { return fSATmin; }
 
     /**
-     * Returns the value of a parameter (defined by index) at
-     * the global mode of the posterior pdf.
-     * @param index index of the parameter.
-     * @return best fit value of the parameter or -1e+111 on error or center of the range if mode finding not yer run */
-    double GetBestFitParameter(unsigned index) const;
-
-    /**
-     * Returns the error on the value of a parameter (defined by index) at
-     * the global mode of the posterior pdf.
-     * @param index index of the parameter.
-     * @return error on the best fit value of the parameter or -1 if undefined */
-    double GetBestFitParameterError(unsigned index) const;
-
-    /**
-     * Returns the posterior at the mode.
-     * @return the posterior. */
-    double GetLogMaximum()
-    { return fLogMaximum; };
-
-    /**
-     * Returns the set of values of the parameters at the global mode of
-     * the posterior pdf.
-     * @return The best fit parameters */
-    const std::vector<double>& GetBestFitParameters() const
-    { return fBestFitParameters; }
+     * @return vector of parameter and observable values at global mode. */
+    virtual const std::vector<double>& GetGlobalMode() const;
 
     /**
      * Returns the set of errors on the values of the parameters at the global mode */
     const std::vector<double>& GetBestFitParameterErrors() const
     { return fBestFitParameterErrors; }
+
+    /**
+     * Returns the posterior at the mode.
+     * @return the posterior. */
+    double GetLogMaximum() const
+    { return fLogMaximum; };
 
     /** @} */
 
@@ -451,11 +386,8 @@ public:
 
     /**
      * @arglist pointer to list of doubles to be passed as arguments to Minuit */
-    void SetMinuitArlist(double* arglist)
-    {
-        fMinuitArglist[0] = arglist[0];
-        fMinuitArglist[1] = arglist[1];
-    }
+    void SetMinuitArgList(double* arglist)
+    { fMinuitArglist[0] = arglist[0];	fMinuitArglist[1] = arglist[1]; }
 
     /**
      * @flag Flag whether or not to ignore result of previous mode finding */
@@ -497,11 +429,6 @@ public:
     { fNIterationsPrecisionCheck = niterations; }
 
     /**
-     * @param niterations interval for outputting during integration. If negative, frequency is autogenerated. */
-    void SetNIterationsOutput(int niterations)
-    { fNIterationsOutput = niterations; }
-
-    /**
      * @param relprecision The relative precision envisioned for Monte
      * Carlo integration */
     void SetRelativePrecision(double relprecision)
@@ -517,41 +444,67 @@ public:
     void SetCubaIntegrationMethod(BCCubaMethod type);
 
     /**
-     * Set options for individual cuba methods
-     */
+     * Set options for CUBA's Vegas.
+     * @param options Options for CUBA*/
     void SetCubaOptions(const BCCubaOptions::Vegas& options)
-    {  fCubaVegasOptions = options; }
-
-    void SetCubaOptions(const BCCubaOptions::Suave& options)
-    {  fCubaSuaveOptions = options; }
-
-    void SetCubaOptions(const BCCubaOptions::Divonne& options)
-    {  fCubaDivonneOptions = options; }
-
-    void SetCubaOptions(const BCCubaOptions::Cuhre& options)
-    {  fCubaCuhreOptions = options; }
+    { fCubaVegasOptions = options; }
 
     /**
-     * @param T0 new value for Simulated Annealing starting temperature. */
+     * Set options for CUBA's Suave.
+     * @param options Options for CUBA*/
+    void SetCubaOptions(const BCCubaOptions::Suave& options)
+    { fCubaSuaveOptions = options; }
+
+    /**
+     * Set options for CUBA's Divonne.
+     * @param options Options for CUBA*/
+    void SetCubaOptions(const BCCubaOptions::Divonne& options)
+    { fCubaDivonneOptions = options; }
+
+    /**
+     * Set options for CUBA's Cuhre.
+     * @param options Options for CUBA*/
+    void SetCubaOptions(const BCCubaOptions::Cuhre& options)
+    { fCubaCuhreOptions = options; }
+
+    /**
+     * Set starting temperature for Simulated Annealing
+     * @param T0 starting temperature. */
     void SetSAT0(double T0)
     { fSAT0 = T0; }
 
     /**
-     * @param Tmin new value for Simulated Annealing threshold temperature. */
+     * Set threshold temperature for Simulated Annealing
+     * @param Tmin threshold temperature. */
     void SetSATmin(double Tmin)
     { fSATmin = Tmin; }
 
-    void SetFlagWriteSAToFile(bool flag)
-    { fFlagWriteSAToFile = flag; }
+    /**
+     * Turn on/off writing of simulated annealing to root file.
+     * If setting true, use function with filename arguments.
+     * @param flag Flag for writing simulated annealing to ROOT file (true) or not (false). */
+    void WriteSAToFile(bool flag);
+
+    /** Turn on writing of simulated annealing to root file.
+     * @param filename Name of file to.
+     * @param file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
+     * @param autoclose Toggle autoclosing of file after simulated annealing. */
+    void WriteSAToFile(std::string filename, std::string option, bool autoclose = true);
+
+    /**
+     * Close SA output file. */
+    void CloseSAOutputFile();
 
     /**
      * Getter for the tree containing the  Simulated Annealing  chain. */
     TTree* GetSATree()
-    { return fTreeSA; }
+    { return fSATree; }
 
     /**
-     * Initialization of the tree for the Simulated Annealing */
-    void InitializeSATree();
+     * Initialization of the tree for the Simulated Annealing
+     * @param replacetree Whether to delete and recreate tree object if already existing.
+     * @param replacefile Whether to delete and recreate file object if already existing. */
+    void InitializeSATree(bool replacetree = false, bool replacefile = false);
 
     /** @} */
 
@@ -563,14 +516,15 @@ public:
      * Method needs to be overloaded by the user.
      * @param x The point in parameter space
      * @return The unnormalized probability */
-    virtual double Eval(const std::vector<double>& x);
+    virtual double Eval(const std::vector<double>& x) = 0;
 
     /**
      * Evaluate the natural logarithm of the Eval function. For better numerical
      * stability, this method should also be overloaded by the user.
      * @param x The point in parameter space
      * @return log(Eval(x)) */
-    virtual double LogEval(const std::vector<double>& x);
+    virtual double LogEval(const std::vector<double>& x)
+    { return log(Eval(x)); }
 
     /**
      * Performs integration. */
@@ -585,8 +539,7 @@ public:
 
     /**
      * Perform the integration
-     * @return the integral
-     */
+     * @return the integral */
     double Integrate();
 
     /**
@@ -600,8 +553,12 @@ public:
      * @return The integral value */
     double Integrate(BCIntegrationMethod type, tRandomizer randomizer, tEvaluator evaluator, tIntegralUpdater updater, std::vector<double>& sums);
 
-    // todo document
+    /**
+     * Evaluates integrator */
     double EvaluatorMC(std::vector<double>& sums, const std::vector<double>& point, bool& accepted);
+
+    /**
+     * Updates info about integrator */
     static void IntegralUpdaterMC(const std::vector<double>& sums, const int& nIterations, double& integral, double& absprecision);
 
     /**
@@ -612,13 +569,7 @@ public:
      * @param ff The function value
      * @return An error code */
     static int CubaIntegrand(const int* ndim, const double xx[], const int* ncomp, double ff[], void* userdata);
-#if 0
-    TH1D* Marginalize(BCIntegrationMethod type, unsigned index);
 
-    TH2D* Marginalize(BCIntegrationMethod type, unsigned index1, unsigned index2);
-
-    bool Marginalize(TH1* hist, BCIntegrationMethod type, const std::vector<unsigned>& index);
-#endif
     /**
      * Marginalize all probabilities wrt. single parameters and all combinations
      * of two parameters. The individual distributions can be retrieved using
@@ -645,10 +596,6 @@ public:
      * provided via overloading in the derived class*/
     virtual void MarginalizePostprocess()
     {};
-
-    /**
-     * Initializes the Simulated Annealing algorithm (for details see manual) */
-    void SAInitialize();
 
     /**
      * Do the mode finding using a method set via SetOptimizationMethod.
@@ -758,72 +705,72 @@ public:
      * Return string with the name for a given integration type.
      * @param type code for the integration type
      * @return string containing the name of the integration type */
-    std::string DumpIntegrationMethod(BCIntegrationMethod type);
+    std::string DumpIntegrationMethod(BCIntegrationMethod type) const;
 
     /**
      * Return string with the name for the currently set integration type.
      * @return string containing the name of the integration type */
-    std::string DumpCurrentIntegrationMethod()
+    std::string DumpCurrentIntegrationMethod() const
     { return DumpIntegrationMethod(fIntegrationMethodCurrent); }
 
     /**
      * Return string with the name for the currently set integration type.
      * @return string containing the name of the integration type */
-    std::string DumpUsedIntegrationMethod()
+    std::string DumpUsedIntegrationMethod() const
     { return DumpIntegrationMethod(fIntegrationMethodUsed); }
 
     /**
      * Return string with the name for a given marginalization type.
      * @param type code for the marginalization type
      * @return string containing the name of the marginalization type */
-    std::string DumpMarginalizationMethod(BCMarginalizationMethod type);
+    std::string DumpMarginalizationMethod(BCMarginalizationMethod type) const;
 
     /**
      * Return string with the name for the currently set marginalization type.
      * @return string containing the name of the marginalization type */
-    std::string DumpCurrentMarginalizationMethod()
+    std::string DumpCurrentMarginalizationMethod() const
     { return DumpMarginalizationMethod(fMarginalizationMethodCurrent); }
 
     /**
      * Return string with the name for the marginalization type used.
      * @return string containing the name of the marginalization type */
-    std::string DumpUsedMarginalizationMethod()
+    std::string DumpUsedMarginalizationMethod() const
     { return DumpMarginalizationMethod(fMarginalizationMethodUsed); }
 
     /**
      * Return string with the name for a given optimization type.
      * @param type code for the optimization type
      * @return string containing the name of the optimization type */
-    std::string DumpOptimizationMethod(BCOptimizationMethod type);
+    std::string DumpOptimizationMethod(BCOptimizationMethod type) const;
 
     /**
      * Return string with the name for the currently set optimization type.
      * @return string containing the name of the optimization type */
-    std::string DumpCurrentOptimizationMethod()
+    std::string DumpCurrentOptimizationMethod() const
     { return DumpOptimizationMethod(fOptimizationMethodCurrent); }
 
     /**
      * Return string with the name for the optimization type used to find the current mode.
      * @return string containing the name of the optimization type */
-    std::string DumpUsedOptimizationMethod()
+    std::string DumpUsedOptimizationMethod() const
     { return DumpOptimizationMethod(fOptimizationMethodUsed); }
 
     /**
      * Return string with the name for a given Cuba integration type.
      * @param type code for the Cuba integration type
      * @return string containing the name of the Cuba integration type */
-    std::string DumpCubaIntegrationMethod(BCCubaMethod type);
+    std::string DumpCubaIntegrationMethod(BCCubaMethod type) const;
 
     /**
      * Return string with the name for the currently set Cuba integration type.
      * @return string containing the name of the Cuba integration type */
-    std::string DumpCubaIntegrationMethod()
+    std::string DumpCubaIntegrationMethod() const
     { return DumpCubaIntegrationMethod(fCubaIntegrationMethod); }
 
     /**
-     * Set best fit parameters values*/
-    void SetBestFitParameters(const std::vector<double>& x)
-    { fBestFitParameters = x; }
+     * Set best fit parameters values
+     * @param x Parameter set to designate as best fit parameters. */
+    void SetBestFitParameters(const std::vector<double>& x);
 
     /**
      * Set best fit parameters if best fit
@@ -832,36 +779,45 @@ public:
     void SetBestFitParameters(const std::vector<double>& x, const double& new_value, double& old_value);
 
     /**
-     * Get number of variables that are varied in the integration
-     * @return fNvar minus the number of fixed variables */
-    unsigned GetNIntegrationVariables();
-
-    /**
-     * Calculate the integration volume
-     * @return integration volume */
-    double CalculateIntegrationVolume();
-
-    /**
-     * Check availability of integration routine for marginalization */
+     * Check availability of integration routine for marginalization
+     * @return availability of marginalization method */
     bool CheckMarginalizationAvailability(BCMarginalizationMethod type);
 
     /**
      * Check that indices of parameters to marginalize w/r/t are correct */
     bool CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned>& index);
 
+    /**
+     * Prints a summary on the screen. */
+    virtual void PrintSummary();
+
     /** @} */
 
 protected:
+    /**
+     * Determine frequency of output during integration */
+    unsigned IntegrationOutputFrequency() const;
 
     /**
-     * An identification number in case several models exist .*/
-    int fID;
+     * Print best fit to stream.
+     * @param ofi Output stream to print to. */
+    virtual void PrintBestFitToStream(std::ofstream& ofi) const;
+
+    /**
+     * Print marginalization to stream.
+     * @param ofi Outputstream to print to. */
+    virtual void PrintMarginalizationToStream(std::ofstream& ofi) const;
 
     /**
      * Minuit */
     TMinuit* fMinuit;
 
+    /**
+     * Argument list for Minuit. */
     double fMinuitArglist[2];
+
+    /**
+     * Error flag from Minuit. */
     int fMinuitErrorFlag;
 
     /**
@@ -878,47 +834,67 @@ protected:
 
     /**
      * Tree for the Simulated Annealing */
-    TTree* fTreeSA;
+    TTree* fSATree;
 
     /**
-     * Flag deciding whether to write SA to file or not. */
+     * Flag deciding whether to write simulated annealing to file or not. */
     bool fFlagWriteSAToFile;
 
+    /**
+     * Number of iterations for simualted annealing. */
     int fSANIterations;
+
+    /**
+     * Current temperature of simulated annealing algorithm. */
     double fSATemperature;
+
+    /**
+     * Log probability of current simulated annealing iteration. */
     double fSALogProb;
+
+    /**
+     * Current simulated annealing parameter point. */
     std::vector<double> fSAx;
 
-    /**
-     * Set of marginalized distributions. */
-    std::vector<BCH1D*> fMarginalized1D;
-
-    /**
-     * Set of marginalized distributions. */
-    std::vector<BCH2D*> fMarginalized2D;
-
 protected:
-    /**
-     * Determine frequency of output during integration */
-    unsigned IntegrationOutputFrequency() const;
 
     /**
-     * Helper methods to unify output for integration methods
-     * @param type
-     * @param cubatype
-     */
+     * Helper method to output at beginning of integration. */
     void LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCubaMethod cubatype);
+
+    /**
+     * Helper method to output integration status. */
     void LogOutputAtIntegrationStatusUpdate(BCIntegrationMethod type, double integral, double absprecision, int nIterations);
+
+    /**
+     * Helper method to output at end of integration. */
     void LogOutputAtEndOfIntegration(double integral, double absprecision, double relprecision, int nIterations);
 
     /**
-     * Copy into object
+     * Copy from other object
      * @param bcintegrate BCIntegrate object to copy values from */
     void Copy(const BCIntegrate& bcintegrate);
 
     /**
      * flag indicating if the model was marginalized */
     bool fFlagMarginalized;
+
+    /*
+     * Output file for for writing SA Tree. */
+    TFile* fSAOutputFile;
+
+    /*
+     * Output filename for for writing SA Tree. */
+    std::string fSAOutputFilename;
+
+    /*
+     * Output file open option for for writing SA Tree. */
+    std::string fSAOutputFileOption;
+
+    /*
+     * flag for autoclosing SA output file. */
+    bool fSAOutputFileAutoclose;
+
 
 private:
 
@@ -956,8 +932,8 @@ private:
     std::vector<double> FindModeSA(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0));
 
     /**
-    * Calculate integral using the Cuba library. For details see documentation.
-    * @return The integral */
+     * Calculate integral using the Cuba library. For details see documentation.
+     * @return The integral */
     double IntegrateCuba()
     { return IntegrateCuba(fCubaIntegrationMethod); }
 
@@ -1014,10 +990,6 @@ private:
     unsigned fNIterationsPrecisionCheck;
 
     /**
-     * Output frequency during integration */
-    unsigned fNIterationsOutput;
-
-    /**
      * Number of iterations in the most recent Monte Carlo integration */
     int fNIterations;
 
@@ -1049,10 +1021,11 @@ private:
 
     /** Cuba integration method */
     BCCubaMethod fCubaIntegrationMethod;
-    BCCubaOptions::Vegas fCubaVegasOptions;
-    BCCubaOptions::Suave fCubaSuaveOptions;
-    BCCubaOptions::Divonne fCubaDivonneOptions;
-    BCCubaOptions::Cuhre fCubaCuhreOptions;
+
+    BCCubaOptions::Vegas fCubaVegasOptions;			///< CUBA Vegas options
+    BCCubaOptions::Suave fCubaSuaveOptions;			///< CUBA Suave options
+    BCCubaOptions::Divonne fCubaDivonneOptions; ///< CUBA Divonne options
+    BCCubaOptions::Cuhre fCubaCuhreOptions;			///< CUBA Cuhre options
 
 };
 

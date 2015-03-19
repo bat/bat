@@ -1,6 +1,5 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCSummaryTool.h>
 
 #include <BAT/BCMTFAnalysisFacility.h>
 #include <BAT/BCMTF.h>
@@ -55,8 +54,6 @@ int main()
     // create new fitter object
     BCMTF* m = new BCMTF();
 
-    // create a new summary tool object
-    BCSummaryTool* summary = new BCSummaryTool(m);
 
     // set Metropolis as marginalization method
     m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
@@ -118,10 +115,10 @@ int main()
     m->PrintResults("results.txt");
 
     // print summary results
-    summary->PrintParameterPlot("summary_parameters.pdf");
-    summary->PrintCorrelationPlot("summary_correlationplot.pdf");
-    summary->PrintCorrelationMatrix("summary_correlationmatrix.pdf");
-    summary->PrintKnowledgeUpdatePlots("summary_update.pdf");
+    m->PrintParameterPlot("summary_parameters.pdf");
+    m->PrintCorrelationPlot("summary_correlationplot.pdf");
+    m->PrintCorrelationMatrix("summary_correlationmatrix.pdf");
+    m->PrintKnowledgeUpdatePlots("summary_update.pdf");
 
     // print templates and stacks
     for (int i = 0; i < m->GetNChannels(); ++i) {
@@ -149,7 +146,6 @@ int main()
     // free memory
     delete m;
     delete facility;
-    delete summary;
 
     return 1;
 }

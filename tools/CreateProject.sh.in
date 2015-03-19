@@ -1,0 +1,92 @@
+#!/bin/bash
+
+PROGRAM=${0##*\/}
+PROGRAMDIR=`dirname $0`
+
+MYPROJECT=$1
+MYMODEL=$2
+
+function usage() {
+cat << EOF
+Usage:  $PROGRAM  <project> [<model>]
+
+Creates a new directory named <project> and a header and source files
+for a new model class named <model>) together with a Makefile for the
+project.
+
+If <model> is omitted, it defaults to <project>.
+To only create the project files, use '-' for <model>.
+To only create the model class (in the current directory), use '-' for <project>.
+
+EOF
+}
+
+if [[ "$1" == '' ]]; then
+   usage
+   exit 0
+fi
+
+if [[ "$2" == "" ]]; then
+   MYMODEL=$MYPROJECT
+fi
+
+upMYMODEL=`echo $MYMODEL|tr [a-z] [A-Z]`
+
+#
+# if we create project
+#
+if [[ "$MYPROJECT" != "-" ]]; then
+   mkdir -p $MYPROJECT
+
+   cat << EOF
+--------------------------------------------------------------------------
+A new BAT project was created in the directory '$MYPROJECT'. To test
+the configuration, compile the project by running 'make' inside the
+new directory. If there are compilation errors, you may need to adjust
+parameters in the 'Makefile.'
+
+If the program compiled successfully, running it should print basic
+information to the screen.
+
+EOF
+
+   if [[ "$MYMODEL" == "-" ]]; then
+      # reuse generated makefile but without a model, exchange one line
+      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/run|\:Model\:|\.cxx |\:Model\:|\.cxx/run|\:Project\:|\.cxx/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g;" < $PROGRAMDIR/MakefileTemplate > $MYPROJECT/Makefile
+      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $PROGRAMDIR/Main2Template.cxx > $MYPROJECT/run$MYPROJECT.cxx
+   else
+      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $PROGRAMDIR/ModelTemplate.h > $MYPROJECT/$MYMODEL.h
+      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g" < $PROGRAMDIR/ModelTemplate.cxx > $MYPROJECT/$MYMODEL.cxx
+      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $PROGRAMDIR/MakefileTemplate > $MYPROJECT/Makefile
+      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $PROGRAMDIR/Main1Template.cxx > $MYPROJECT/run$MYPROJECT.cxx
+      echo "Implement your model in files:   $MYMODEL.h  $MYMODEL.cxx"
+   fi
+
+cat << EOF
+Implement your analysis in run$MYPROJECT.cxx
+
+For details consult BAT webpage: http://mpp.mpg.de/bat
+--------------------------------------------------------------------------
+
+EOF
+
+#
+# if we only create a new model in the current directory
+#
+else
+	 MYPROJECT=${PWD##*/}
+   sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $PROGRAMDIR/ModelTemplate.h > $MYMODEL.h
+   sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g" < $PROGRAMDIR/ModelTemplate.cxx > $MYMODEL.cxx
+   cat << EOF
+--------------------------------------------------------------------------
+A new BAT model '$MYMODEL' was created in the current directory.
+
+Implement your model in $MYMODEL.h and $MYMODEL.cxx
+
+For details consult BAT webpage: http://mpp.mpg.de/bat
+--------------------------------------------------------------------------
+
+EOF
+
+fi
+

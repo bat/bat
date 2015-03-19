@@ -18,6 +18,7 @@
 #include <include/PerfTest.h>
 
 #include <TF1.h>
+#include <TH1.h>
 
 #include <math.h>
 #include <string>
@@ -63,4 +64,3 @@ private:
 };
 
 #endif
-

@@ -4,6 +4,7 @@
 /*!
  * \class BCParameter
  * \brief A class representing a parameter of a model.
+ * \author Daniel Greenwald
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \version 1.0
@@ -21,11 +22,16 @@
  */
 
 // ---------------------------------------------------------
-#include <string>
+#include "BCVariable.h"
+
+#include <limits>
+
+class TRandom;
+class BCPrior;
 
 // ---------------------------------------------------------
 
-class BCParameter
+class BCParameter : public BCVariable
 {
 
 public:
@@ -38,56 +44,78 @@ public:
     BCParameter();
 
     /**
+     * Copy constructor. */
+    BCParameter(const BCParameter& other);
+
+    /**
      * A constructor.
      * @param name The name of the parameter.
      * @param lowerlimit The lower limit of the parameter values.
      * @param upperlimit The upper limit of the parameter values.
      * @param latexname The latex name of the parameter used in axis labeling.
-      */
-    BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "");
+     * @param unitstring Unit string to be printed for parameter. */
+    BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "", const char* unitstring = "");
+
+    /**
+     * Destructor. */
+    virtual ~BCParameter();
 
     /** \name Member functions (get) */
     /** @{ */
 
     /**
-     * @return The name of the parameter. */
-    const std::string& GetName() const
-    { return fName; }
-
-    /**
-     * Returns latex name if set, else identical to GetName().
-     */
-    const std::string& GetLatexName() const
-    { return (fLatexName.empty()) ? fName : fLatexName; }
-
-    /**
-     * @return The lower limit of the parameter values. */
-    double GetLowerLimit() const
-    { return fLowerLimit; }
-
-    /**
-     * @return The upper limit of the parameter values. */
-    double GetUpperLimit() const
-    { return fUpperLimit; }
-
-    /**
-     * Returns the range width of the parameter values. It is
-     * always a positive value.
-     * @return The range width of the parameter values. */
-    double GetRangeWidth() const
-    { return (fUpperLimit > fLowerLimit) ? fUpperLimit - fLowerLimit : fLowerLimit - fUpperLimit; }
-
-    bool FillHistograms() const
-    { return fFillHistograms; }
-
-    bool Fixed() const
+     * @return Whether parameter is fixed to a value. */
+    virtual bool Fixed() const
     { return fFixed; }
 
-    double GetFixedValue() const
+    /**
+     * @return Value parameter may be fixed to. */
+    virtual double GetFixedValue() const
     { return fFixedValue; }
 
-    unsigned GetNbins() const
-    { return fNbins; }
+    /**
+     * @return prior object*/
+    virtual BCPrior* GetPrior()
+    { return fPrior;}
+
+    /**
+     * @return prior evaluated from prior object */
+    virtual double GetPrior(double x) const
+    { double lp = GetLogPrior(x); return (std::isfinite(lp)) ? exp(lp) : ((lp < 0) ? 0 : std::numeric_limits<double>::infinity()); }
+
+    /**
+     * Get log of value of prior at parameter value.
+     * @param value of parameter to return prior of.
+     * @return log of prior value at parameter value. */
+    virtual double GetLogPrior(double x) const;
+
+    /**
+     * @return prior's mode in parameter range. (For absolute mode, get prior object.) */
+    virtual double GetPriorMode() const;
+
+    /**
+     * @return prior's mean in parameter range. (For absolute mean, get prior object.) */
+    virtual double GetPriorMean() const;
+
+    /**
+     * @return prior's variance in parameter range. (For absolute variance, get prior object.) */
+    virtual double GetPriorVariance() const;
+
+    /**
+     * @return a random value distributed according to the prior.
+     * @param rnd Pointer to the random generator to be used, if needed. */
+    virtual double GetRandomValueAccordingToPrior(TRandom* const R) const;
+
+    /**
+     * Get random value distributed according to normal distribution
+     * with mean of prior distribution and
+     * standard deviation of prior distribution multiplied by the expansion_factor.
+     * @param R Random number generator to use.
+     * @param expansion_factor Constant to multiple standard deviation by.
+     * @param N Maximum number of tries to make to generate value within parameter range.
+     * @param confine_to_range Calculate prior mean and standard deviation only in range of parameter.
+     * @return random value of normal distribution approximation to prior. */
+    virtual double GetRandomValueAccordingToGaussianOfPrior(TRandom* const R, double expansion_factor = 1., unsigned N = 1000000, bool confined_to_range = false) const;
 
     /** @} */
 
@@ -95,88 +123,49 @@ public:
     /** @{ */
 
     /**
-     * @param name The name of the parameter. */
-    void SetName(const char* name)
-    { fName = name; }
-
-    void SetLatexName(const char* latex_name)
-    { fLatexName = latex_name; }
-
-    /**
-     * Set the lower limit of the parameter values.
-     * @param limit The lower limit of the parameter values. */
-    void SetLowerLimit(double limit = 0)
-    { fLowerLimit = limit; }
-
-    /**
-     * Set the upper limit of the parameter values.
-     * @param limit The upper limit of the parameter values. */
-    void SetUpperLimit(double limit = 1)
-    { fUpperLimit = limit; }
-
-    /**
      * Set the limits of the parameter values.
-     * @param lowerlimit The lower limit of the parameter values.
-     * @param upperlimit The upper limit of the parameter values. */
-    void SetLimits(double lowerlimit = 0, double upperlimit = 1)
-    { fLowerLimit = lowerlimit; fUpperLimit = upperlimit; }
+     * @param lowerlimit The lower limit of the variable values.
+     * @param upperlimit The upper limit of the variable values. */
+    virtual void SetLimits(double lowerlimit = 0, double upperlimit = 1);
 
-    void Fix(double value)
-    {
-        fFixed = true;
-        fFixedValue = value;
-    }
 
-    void Unfix()
-    { fFixed = false; }
+    /**
+     * Fix parameter to value (set prior to delta).
+     * @param value value to fix parameter to. */
+    virtual bool Fix(double value)
+    {	fFixed = true; fFixedValue = value; return true;}
 
-    void FillHistograms(bool flag)
-    { fFillHistograms = flag; }
+    /**
+     * Unfix parameter. */
+    virtual bool Unfix()
+    { fFixed = false; return true;}
 
-    void SetNbins(unsigned nbins)
-    { fNbins = nbins; }
+    /**
+     * Set prior. Parameter will own prior! */
+    virtual void SetPrior(BCPrior* const prior);
+
+    /**
+     * Set constant prior. */
+    virtual void SetPriorConstant();
+
     /** @} */
 
     /** \name Member functions (miscellaneous methods) */
     /** @{ */
 
-    /**
-     * Returns true if the value is at a parameter limit.
-     * @return flag States if value is at parameter limit. */
-    bool IsAtLimit(double value) const;
-
-    bool IsValid(double value) const
-    { return (fLowerLimit <= value) && (value <= fUpperLimit) ? true : false; }
-
-    /**
-     * Prints a parameter summary on the screen. */
-    void PrintSummary() const;
+    std::string OneLineSummary() const;
 
     /** @} */
 
 private:
-    /// The name of the parameter.
-    std::string fName;
-
-    ///  The lower limit of the parameter value.
-    double fLowerLimit;
-
-    /// The upper limit of the parameter value.
-    double fUpperLimit;
-
-    /// The latex name of the parameter.
-    std::string fLatexName;
-
     /// Flag to fix parameter; useful for example, for integration.
     bool fFixed;
 
     /// The fixed value of the parameter.
     double fFixedValue;
 
-    /// Flag to store MCMC samples in histograms.
-    bool fFillHistograms;
+    /// prior
+    BCPrior* fPrior;
 
-    /// The number of equal-size bins used in histograms involving this parameter.
-    unsigned fNbins;
 };
 #endif

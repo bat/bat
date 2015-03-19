@@ -67,8 +67,7 @@ const double sigma  =  5.0;
 void graphFitterSimpleExample()
 {
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();

@@ -40,30 +40,20 @@ public:
     /* @{ */
 
     /**
-     * Default constructor */
-    BCGraphFitter();
-
-    /**
      * Constructor
      * @param name name of the model */
-    BCGraphFitter(const char* name);
+    BCGraphFitter(const char* name = "graph_fitter_model");
 
     /**
      * Constructor
      * @param graph pointer to TGraphErrors
-     * @param func pointer to TF1 */
-    BCGraphFitter(TGraphErrors* graph, TF1* func);
-
-    /**
-     * Constructor
-     * @param name name of the model
-     * @param graph pointer to TGraphErrors
-     * @param func pointer to TF1 */
-    BCGraphFitter(const char* name, TGraphErrors* graph, TF1* func);
+     * @param func pointer to TF1
+     * @param name name of the model */
+    BCGraphFitter(TGraphErrors* graph, TF1* func, const char* name = "graph_fitter_model");
 
     /**
      * The default destructor. */
-    ~BCGraphFitter();
+    virtual ~BCGraphFitter();
 
     /* @} */
 
@@ -108,11 +98,6 @@ public:
     /* @{ */
 
     /**
-     * The log of the prior probability. It is set to be flat in all parameters.
-     * @param parameters vector containing the parameter values */
-//      double LogAPrioriProbability(const std::vector<double> & parameters);
-
-    /**
      * The log of the conditional probability.
      * @param parameters vector containing the parameter values */
     double LogLikelihood(const std::vector<double>& parameters);
@@ -120,27 +105,50 @@ public:
     /**
      * Returns the value of the 1D fit function for a given set of parameters
      * at a given x.
-     * @param x point to calculate the function value at
+     * @param x points to calculate the function values at
      * @param parameters parameters of the function */
     double FitFunction(const std::vector<double>& x, const std::vector<double>& parameters);
 
     /**
      * Performs the fit. The graph and the function has to be set beforehand.
-     * @return An error code. */
-    int Fit();
+     * @return Success of action. */
+    bool Fit();
 
     /**
      * Performs the fit of the graph with the function.
      * @param graph pointer to TGraphErrors object
      * @param func pointer to TF1 object
-     * @return An error code. */
-    int Fit(TGraphErrors* graph, TF1* func);
+     * @return Success of action. */
+    bool Fit(TGraphErrors* graph, TF1* func);
 
     /**
      * Draw the fit in the current pad. */
     void DrawFit(const char* options = "", bool flaglegend = false);
 
+    /**
+     * Cumulative distribution function.
+     * @param parameters
+     * @param index
+     * @param lower
+     * @return */
     virtual double CDF(const std::vector<double>& parameters,  int index, bool lower = false);
+
+    /**
+     * Calculate chi^2, the sum of [(y-f(x))/sigma_y]^2 for all data points.
+     * @param pars Parameter set to evaluate function values with.
+     * @return chi^2 evalued with pars. */
+    virtual double GetChi2(const std::vector<double>& pars);
+
+
+    using BCFitter::GetPValue;
+
+    /**
+     * Calculate p value from chi^2 distribution,
+     * with assumption of Gaussian distribution for all data points.
+     * @param pars Parameter set to calculate p value of.
+     * @param ndf Flag for choosing to include numbers of degrees of freedom.
+     * @return p value if successful, negative is unsuccessful. */
+    virtual double GetPValue(const std::vector<double>& pars, bool ndf = true);
 
     /* @} */
 

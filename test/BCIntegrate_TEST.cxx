@@ -99,13 +99,23 @@ public:
     {
         // two modes at 0 and 1
         IntegrationModel m = Factory(1, 1, 1);
-        m.MCMCSetRandomSeed(1346);
+
+        // can't be sure in which order the best value is found. If the
+        // 2nd optimization doesn't improve on previous call, the old mode
+        // is returned.
+        m.SetFlagIgnorePrevOptimization(true);
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(std::vector<double>(1, 0.1)).front(), 0, 1e-3);
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.1)).front(), 0, 1e-10);
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMinuit, std::vector<double>(1, 0.9)).front(), 1, 1e-10);
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSimAnn, std::vector<double>(1, 0.1)).front(), 1, 1e-3);
         TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptSimAnn, std::vector<double>(1, 0.9)).front(), 1, 1e-3);
-        TEST_CHECK_NEARLY_EQUAL(m.FindMode(BCIntegrate::kOptMetropolis).front(), 1, 1e-3);
+
+        // chain can find either mode
+        m.MCMCSetNIterationsPreRunMin(5000);
+        m.MCMCSetRandomSeed(1346);
+        const double& mode = m.FindMode(BCIntegrate::kOptMetropolis).front();
+        const double target = mode > 0.5 ? 1.0 : 0.0;
+        TEST_CHECK_NEARLY_EQUAL(mode, target, 1e-3);
 
         m.PrintSummary();
         m.PrintShortFitSummary();
@@ -206,11 +216,11 @@ public:
         p->SetLimits(-3, 3);
         p->SetNbins(60);
         m.MarginalizeAll(BCIntegrate::kMargGrid);
-        TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetBestFitParameter(0)), 1e-14);
+        TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetBestFitParameters()[0]), 1e-14);
 
         // mode finding should start from previous solution and converge to (0, 0)
         m.FindMode();
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetBestFitParameter(0), 5e-5);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetBestFitParameters()[0], 5e-5);
     }
 
     virtual void run() const
