@@ -68,14 +68,13 @@ public:
     /**
      * Clone function */
     virtual BCPrior* Clone() const = 0;
-    // { return new [Dervied Class](*this); }
+    // { return new [Derived Class](*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
     virtual bool IsValid() const = 0;
 
     /** @} */
-
 
     /** \name Getters */
     /** @{ **/
@@ -127,7 +126,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standardised moment of prior distribution */
-    virtual double GetStandardisedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
 
     /**
      * Get mean of prior. If limits are infinite, use exact value from prior type
@@ -159,7 +158,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return skewness of prior distribution */
     virtual double GetSkewness(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return GetStandardisedMoment(3, xmin, xmax); }
+    { return GetStandardizedMoment(3, xmin, xmax); }
 
     /**
      * Get kurtosis of prior. If limits are infinite, use exact value from prior type
@@ -167,7 +166,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return kurtosis of prior distribution */
     virtual double GetKurtosis(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return GetStandardisedMoment(4, xmin, xmax); }
+    { return GetStandardizedMoment(4, xmin, xmax); }
 
     /**
      * @return a random value distributed according to the prior.
@@ -188,7 +187,6 @@ public:
      * @param over_range Flag for whether to calculate mean and sigma over range.
      * @return random value. */
     virtual double GetRandomValueGaussian(double xmin, double xmax, TRandom* const R, double expansion_factor = 1., unsigned N = 1000000, bool over_range = true) const;
-
 
     /** @} **/
     /** \name Functions for building ROOT TF1s */
@@ -232,10 +230,9 @@ public:
     /** @} **/
 
 protected:
-    TF1* fPriorFunction;					//< TF1 for use in default raw moment calculation
+    TF1* fPriorFunction;					///< TF1 for use in default raw moment calculation
 
-    double fIntegral;
-
+    double fIntegral;                  ///< Integral of unnormalized pdf over the range.
 };
 
 #endif

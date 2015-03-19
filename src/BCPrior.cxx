@@ -112,7 +112,7 @@ double BCPrior::GetCentralMoment(unsigned n, double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetStandardisedMoment(unsigned n, double xmin, double xmax) const
+double BCPrior::GetStandardizedMoment(unsigned n, double xmin, double xmax) const
 {
     double variance = GetVariance(xmin, xmax);
     if (!std::isfinite(variance))

@@ -64,7 +64,7 @@ double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetStandardisedMoment(unsigned n, double xmin, double xmax) const
+double BCTH1Prior::GetStandardizedMoment(unsigned n, double xmin, double xmax) const
 {
     if (n == 0)
         return 0;
@@ -74,7 +74,7 @@ double BCTH1Prior::GetStandardisedMoment(unsigned n, double xmin, double xmax) c
         return GetSkewness(xmin, xmax);
     if (n == 3 and fPriorHistogram)
         return GetKurtosis(xmin, xmax);
-    return BCPrior::GetStandardisedMoment(n, xmin, xmax);
+    return BCPrior::GetStandardizedMoment(n, xmin, xmax);
 }
 
 // ---------------------------------------------------------
