@@ -84,8 +84,7 @@ public:
         kMCMCInitCenter           =  0, ///< select centers of parameter ranges
         kMCMCInitRandomUniform    =  1, ///< randomly distribute uniformly over parameter ranges
         kMCMCInitUserDefined      =  2, ///< initialize to user-provided points
-        kMCMCInitRandomPrior      =  3, ///< randomly distribute according to factorized priors
-        kMCMCInitRandomGaussPrior =  4  ///< randomly distribute according to Gaussian assumption from factorized priors
+        kMCMCInitRandomPrior      =  3  ///< randomly distribute according to factorized priors
     };
 
     /** @} */
@@ -330,11 +329,6 @@ public:
     { return fMCMCFlagInitialPosition; }
 
     /**
-     * @return expansion factor to be used with initial-position option kMCMCInitRandomGaussPrior. */
-    double MCMCGetInitialPositionExpansionFactor() const
-    { return fMCMCInitialPositionExpansionFactor; }
-
-    /**
      * @return whether to use a multivariate proposal function. */
     bool MCMCGetMultivariateProposalFunction() const
     { return fMCMCMultivariateProposalFunction; }
@@ -401,14 +395,14 @@ public:
 
     /**
      * Get combined statistics for all chains. */
-    BCEngineMCMC::MCMCStatistics MCMCGetStatistics() const
+    const BCEngineMCMC::MCMCStatistics & MCMCGetStatistics() const
     { return fMCMCStatistics_AllChains; }
 
     /**
      * Get MCMC statistics for one chain.
      * @param c Chain to get statisics of. */
-    BCEngineMCMC::MCMCStatistics MCMCGetStatistics(unsigned c) const
-    { return (c < fMCMCStatistics.size()) ? fMCMCStatistics[c] : BCEngineMCMC::MCMCStatistics(); }
+    const BCEngineMCMC::MCMCStatistics & MCMCGetStatistics(unsigned c) const
+    { return fMCMCStatistics.at(c); }
 
     /**
      * @return Flag for whether to rescale histogram ranges to fit MCMC reach after pre-run. */
@@ -775,11 +769,6 @@ public:
      * Sets flag which defines initial position.  */
     void MCMCSetFlagInitialPosition(BCEngineMCMC::MCMCInitialPosition flag)
     { fMCMCFlagInitialPosition = flag; }
-
-    /**
-     * Sets expansion factor for use with initial position setting kMCMCInitRandomGaussPrior. */
-    void MCMCSetInitialPositionExpansionFactor(double f)
-    { fMCMCInitialPositionExpansionFactor = fabs(f); }
 
     /**
      * Sets the flag which controls the sequence parameters during the
@@ -1522,11 +1511,6 @@ protected:
      * values of the first Markov chain are saved, then those of the
      * second and so on */
     std::vector<std::vector<double> > fMCMCInitialPosition;
-
-    /**
-     * Factor to multiply Gaussian approximations of prior standard deviations
-     * when generating initial points accordingly. */
-    double fMCMCInitialPositionExpansionFactor;
 
     /**
      * The efficiencies for all parameters and chains. */

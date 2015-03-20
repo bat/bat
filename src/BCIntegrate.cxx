@@ -958,7 +958,7 @@ void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double>& x) const
     // get random vector in unit hypercube
     fRandom->RndmArray(x.size(), &x.front());
     // translate it into values in ranges of the parameters
-    fParameters.ValueFromPositionInRange(x, true);
+    fParameters.ValueFromPositionInRange(x);
 }
 
 // ---------------------------------------------------------
@@ -1075,20 +1075,20 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
 
 
     // check if point is allowed
-    if (!start.empty() and !GetParameters().IsWithinLimits(start, true)) {
+    if (!start.empty() and !GetParameters().IsWithinLimits(start)) {
         BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point not valid (parameter not inside valid range), set to center.");
         start.clear();
     }
 
     // check fixed values and issue warning before forcing to fixed
-    if (!start.empty() and !GetParameters().IsAtFixedValues(start, true)) {
+    if (!start.empty() and !GetParameters().IsAtFixedValues(start)) {
         BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point fixed values not properly sit. Forcing to fixed values.");
         GetParameters().ApplyFixedValues(start);
     }
 
     if (start.empty())
         // if empty, set to center, with fixed values fixed
-        start = GetParameters().GetRangeCenters(true);
+        start = GetParameters().GetRangeCenters();
 
     // set global this
     ::BCIntegrateHolder::instance(this);
@@ -1242,20 +1242,20 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
     }
 
     // check if point is allowed
-    if (!start.empty() and !GetParameters().IsWithinLimits(start, true)) {
+    if (!start.empty() and !GetParameters().IsWithinLimits(start)) {
         BCLog::OutWarning("BCIntegrate::FindModeSA : Start point not valid (parameter not inside valid range), set to center.");
         start.clear();
     }
 
     // check fixed values and issue warning before forcing to fixed
-    if (!start.empty() and !GetParameters().IsAtFixedValues(start, true)) {
+    if (!start.empty() and !GetParameters().IsAtFixedValues(start)) {
         BCLog::OutWarning("BCIntegrate::FindModeSA : Start point fixed values not properly sit. Forcing to fixed values.");
         GetParameters().ApplyFixedValues(start);
     }
 
     if (start.empty())
         // if empty, set to center, with fixed values fixed
-        start = GetParameters().GetRangeCenters(true);
+        start = GetParameters().GetRangeCenters();
 
     // set current state and best fit to starting point
     x = start;
@@ -1270,7 +1270,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
         y = GetProposalPointSA(x, t);
 
         // check if the proposed point is inside the phase space (ignoring fixed parameters)
-        if (GetParameters().IsWithinLimits(y, true)) {
+        if (GetParameters().IsWithinLimits(y)) {
             // calculate function value at new point
             fval_y = LogEval(y);
 
