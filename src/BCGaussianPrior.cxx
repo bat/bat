@@ -41,6 +41,9 @@ double BCGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
 
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
+    if (r == BCAux::kReverseRange)
+        return GetRawMoment(n,xmax,xmin);
+
     if (r == BCAux::kInfiniteRange) {
         if (n == 1)
             return fMean;

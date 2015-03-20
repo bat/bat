@@ -49,11 +49,12 @@ TH2* Transpose(TH2 const* const h, std::string name = "");
 
 /** Range types. */
 enum BCRange {
-    kFiniteRange           = 0, //!< lower and upper limits finite
-    kNegativeInfiniteRange = 1, //!< lower limit infinite, upper limit finite
-    kPositiveInfiniteRange = 2, //!< lower limit finite, upper limit infinite
-    kInfiniteRange         = 3, //!< lower and upper limits infinite
-    kEmptyRange            = 4  //!< lower limit == upper limit
+    kFiniteRange           = 1, //!< lower < upper, lower and upper limits finite
+    kNegativeInfiniteRange = 2, //!< lower < upper, lower limit infinite, upper limit finite
+    kPositiveInfiniteRange = 3, //!< lower < upper, lower limit finite, upper limit infinite
+    kInfiniteRange         = 4, //!< lower < upper, lower and upper limits infinite
+    kEmptyRange            = 5, //!< lower limit == upper limit
+    kReverseRange          = 6  //!< lower > upper
 };
 
 /**
