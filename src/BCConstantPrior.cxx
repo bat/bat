@@ -64,7 +64,7 @@ double BCConstantPrior::GetMode(double xmin, double xmax) const
         return std::numeric_limits<double>::infinity();
 
     if (r == BCAux::kNegativeInfiniteRange)
-        return std::numeric_limits<double>::infinity();
+        return -std::numeric_limits<double>::infinity();
 
     return std::numeric_limits<double>::quiet_NaN();
 }
@@ -86,7 +86,7 @@ double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
     if (r == BCAux::kInfiniteRange)
         return (n == 1) ? 0 : std::numeric_limits<double>::infinity();
 
-    if (r == BCAux::kPositiveInfiniteRange)
+    if (r == BCAux::kNegativeInfiniteRange)
         return ((n == 1) ? -1 : 1) * std::numeric_limits<double>::infinity();
 
     if (r == BCAux::kPositiveInfiniteRange)
