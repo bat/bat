@@ -25,6 +25,7 @@ TESTS = \
 	BCAux_TEST \
 	BCMath_TEST \
 	BCModel_TEST \
+	BCPrior_TEST \
 	BCSummaryTool_TEST \
 	parallel_TEST
 
@@ -52,6 +53,8 @@ BCAux_TEST_SOURCES = BCAux_TEST.cxx
 BCMath_TEST_SOURCES = BCMath_TEST.cxx
 
 BCModel_TEST_SOURCES = BCModel_TEST.cxx
+
+BCPrior_TEST_SOURCES = BCPrior_TEST.cxx
 
 BCSummaryTool_TEST_SOURCES = BCSummaryTool_TEST.cxx
 
