@@ -21,9 +21,11 @@ BCParameterSet& BCParameterSet::operator=(const BCParameterSet& rhs)
 }
 
 // ---------------------------------------------------------
-bool BCParameterSet::Add(BCParameter* par)
+bool BCParameterSet::Add(BCVariable* var)
 {
-    return BCVariableSet::Add(dynamic_cast<BCVariable*>(par));
+    if (dynamic_cast<BCParameter*>(var)==NULL)
+        return false;
+    return BCVariableSet::Add(var);
 }
 
 // ---------------------------------------------------------

@@ -45,7 +45,7 @@ public:
      * Add a parameter if no parameter of same name exists yet.
      * @param par Variable
      * @return True if successful. */
-    virtual bool Add(BCParameter* par);
+    virtual bool Add(BCVariable* var);
 
     /*
      * Assignment operator. */
