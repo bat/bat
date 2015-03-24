@@ -406,7 +406,7 @@ public:
 
     /**
      * Get MCMC statistics for one chain.
-     * @param c Chain to get statisics of. */
+     * @param c Chain to get statistics of. */
     BCEngineMCMC::MCMCStatistics MCMCGetStatistics(unsigned c) const
     { return (c < fMCMCStatistics.size()) ? fMCMCStatistics[c] : BCEngineMCMC::MCMCStatistics(); }
 
@@ -512,7 +512,7 @@ public:
     { return (observables) ? std::max(fParameters.MaxNameLength(), fObservables.MaxNameLength()) : fParameters.MaxNameLength(); }
 
     /**
-     * @param index The index of the observable running first over
+     * @param index The index of the variable running first over
      * 0,...,N_parameters in the ParameterSet, and then over
      * N_parameters,...,N_parameters+N_observables in the ObservableSet
      * @return The observable. */
