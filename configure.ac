@@ -139,26 +139,23 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-		int * nregions, *fail, *niterations;
+        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew;
+        double epsrel, epsabs, flatness;
+		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
-		Suave(
-		1, 1,
-		&integrand, 0, 1/*nvec*/,
-		0.1, 0.1,
-		0, 12345,
-		100, 200,
-		1, 2,
-		"",
-		nregions, niterations, fail,
-		integral, error, prob
-		);
+		const char * statefile = "";
+		void * userdata;
+		Suave(ndim, ncomp, &integrand, userdata, nvec,
+			  epsrel, ebsabs, flags, seed, mineval, maxeval,
+			  nnew, flatness, statefile,
+			  nregions, neval, fail, integral, error, prob);
 
 		return 0;
 	}
 	]]
 	)],
 	[cuba_version=3.3
-	AC_DEFINE([CUBAVERSION_33], [1], [cuba interface version 3.3 detected])],
+	AC_DEFINE([CUBAVERSION], [33], [cuba interface version 3.3 detected])],
 	[])
 
 	if test x$cuba_version = x; then
@@ -170,26 +167,54 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-		int * nregions, *fail, *niterations;
+        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, spin;
+        double epsrel, epsabs, flatness;
+		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
-		Suave(
-		1, 1,
-		&integrand, 0, 1,
-		0.1, 0.1,
-		0, 12345,
-		100, 200,
-		1, 2,
-		"", 0, /* spinning cores */
-		nregions, niterations, fail,
-		integral, error, prob
-		);
+		const char * statefile = "";
+		void * userdata;
+		Suave(ndim, ncomp, &integrand, userdata, nvec,
+			  epsrel, ebsabs, flags, seed, mineval, maxeval,
+			  nnew, flatness, statefile,
+			  spin, /*spin was added in 4.0 */
+			  nregions, neval, fail, integral, error, prob);
 
 		return 0;
 	}
 	]]
 	)],
 	[cuba_version=4.0
-	AC_DEFINE([CUBAVERSION_40], [1], [cuba interface version 4.0 detected])],
+	AC_DEFINE([CUBAVERSION], [40], [cuba interface version 4.0 detected])],
+	[])
+	fi
+
+	if test x$cuba_version = x; then
+	AC_COMPILE_IFELSE([
+	AC_LANG_SOURCE(
+	[[
+	#include <cuba.h>
+	int integrand(const int * ndim, const double xx[], const int * ncomp, double ff[], void * userdata){return 0;}
+
+	int main()
+	{
+        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin, spin;
+        double epsrel, epsabs, flatness;
+		int * nregions, *fail, *neval;
+		double * integral, *error, *prob;
+		const char * statefile = "";
+		void * userdata;
+		Suave(ndim, ncomp, &integrand, userdata, nvec,
+			  epsrel, epsabs, flags, seed, mineval, maxeval, nnew,
+			  nmin, /* nmin added in 4.1 */
+			  flatness, statefile, spin,
+			  nregions, neval, fail, integral, error, prob);
+
+		return 0;
+	}
+	]]
+	)],
+	[cuba_version=4.1
+	AC_DEFINE([CUBAVERSION], [41], [cuba interface version 4.1 detected])],
 	[])
 	fi
 

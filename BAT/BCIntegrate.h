@@ -35,7 +35,7 @@ class TTree;
 /**
  * Collect all the useful options to tune integration with the CUBA library.
  * Option names match those used in the CUBA manual, where a detailed
- * description is given.
+ * description is given. Default values are taken from the demo that ships with CUBA.
  */
 namespace BCCubaOptions
 {
@@ -55,7 +55,7 @@ struct Vegas : public General {
 };
 
 struct Suave : public General {
-    int nnew;
+    int nmin, nnew;
     double flatness;
 
     Suave();

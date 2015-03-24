@@ -1110,10 +1110,10 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
     int flag;
     for (unsigned i = 0; i < fParameters.Size(); i++)
         fMinuit->mnparm(i, GetParameter(i)->GetName().data(), start[i],
-                          GetParameter(i)->GetRangeWidth() / 100.,
-                          GetParameter(i)->GetLowerLimit(),
-                          GetParameter(i)->GetUpperLimit(),
-                          flag);
+                        GetParameter(i)->GetRangeWidth() / 100.,
+                        GetParameter(i)->GetLowerLimit(),
+                        GetParameter(i)->GetUpperLimit(),
+                        flag);
 
     for (unsigned i = 0; i < fParameters.Size(); i++)
         if (GetParameter(i)->Fixed())
@@ -1679,7 +1679,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
     // only evaluate at one position in parameter space at a time
     static const int nvec = 1;
 
-#ifdef CUBAVERSION_40
+#if CUBAVERSION > 33
     // we have no spinning cores
     int* spin = 0;
 #endif
@@ -1708,7 +1708,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                   fNIterationsMin, fNIterationsMax,
                   fCubaVegasOptions.nstart, fCubaVegasOptions.nincrease, fCubaVegasOptions.nbatch,
                   gridno, statefile,
-#ifdef CUBAVERSION_40
+#if CUBAVERSION > 33
                   spin,
 #endif
                   &fNIterations, &fail,
@@ -1721,10 +1721,12 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                   nvec,
                   fRelativePrecision, fAbsolutePrecision,
                   fCubaSuaveOptions.flags, fRandom->GetSeed(),
-                  fNIterationsMin, fNIterationsMax,
-                  fCubaSuaveOptions.nnew, fCubaSuaveOptions.flatness,
-                  statefile,
-#ifdef CUBAVERSION_40
+                  fNIterationsMin, fNIterationsMax, fCubaSuaveOptions.nnew,
+#if CUBAVERSION > 40
+                  fCubaSuaveOptions.nmin,
+#endif
+                  fCubaSuaveOptions.flatness, statefile,
+#if CUBAVERSION > 33
                   spin,
 #endif
                   &nregions, &fNIterations, &fail,
@@ -1749,7 +1751,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                         fCubaDivonneOptions.maxchisq, fCubaDivonneOptions.mindeviation,
                         ngiven, nIntegrationVariables /*ldxgiven*/, NULL, nextra, NULL,
                         statefile,
-#ifdef CUBAVERSION_40
+#if CUBAVERSION > 33
                         spin,
 #endif
                         &nregions, &fNIterations, &fail,
@@ -1768,7 +1770,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                   fCubaCuhreOptions.flags, fNIterationsMin, fNIterationsMax,
                   fCubaCuhreOptions.key,
                   statefile,
-#ifdef CUBAVERSION_40
+#if CUBAVERSION > 33
                   spin,
 #endif
                   &nregions, &fNIterations, &fail,
@@ -1953,6 +1955,7 @@ BCCubaOptions::Vegas::Vegas()
 // ---------------------------------------------------------
 BCCubaOptions::Suave::Suave()
     : General()
+    , nmin(2)
     , nnew(1000)
     , flatness(25)
 {}
