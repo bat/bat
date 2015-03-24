@@ -15,7 +15,7 @@
 using namespace test;
 
 // ---------------------------------------------------------
-GaussModel::GaussModel(const char* name, const unsigned& nParameters, long loopIterations) :
+GaussModel::GaussModel(const char* name, const unsigned& nParameters, unsigned long loopIterations) :
     BCModel(name),
     fLoopIterations(loopIterations),
     fCalls(0)
