@@ -124,7 +124,7 @@ bool BCHistogramFitter::SetHistogram(TH1D* hist)
     // set the data boundaries for x and y values.
     GetDataSet()->SetBounds(0, hist->GetXaxis()->GetXmin(), hist->GetXaxis()->GetXmax());
     GetDataSet()->SetBounds(1, std::max<double>(hist->GetMinimum() - sqrt(hist->GetMinimum()) / 2, 0),
-                              hist->GetMaximum() + sqrt(hist->GetMaximum()) / 2);
+                            hist->GetMaximum() + sqrt(hist->GetMaximum()) / 2);
 
     // set the indeces for fitting.
     SetFitFunctionIndices(0, 1);

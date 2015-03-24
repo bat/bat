@@ -1554,7 +1554,7 @@ void BCEngineMCMC::MCMCInChainFillHistograms()
             for (unsigned k = 0; k < GetNVariables() and k < fH2Marginalized[j].size(); ++k)
                 if (dynamic_cast<TH2*>(fH2Marginalized[j][k]) != NULL)
                     fH2Marginalized[j][k]->Fill((j < GetNParameters()) ? fMCMCx[c][j] : fMCMCObservables[c][j - GetNParameters()],
-                                                  (k < GetNParameters()) ? fMCMCx[c][k] : fMCMCObservables[c][k - GetNParameters()]);
+                                                (k < GetNParameters()) ? fMCMCx[c][k] : fMCMCObservables[c][k - GetNParameters()]);
     }
 }
 
@@ -3171,12 +3171,12 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
     for (int i = 1; i <= hist_corr->GetNbinsX(); ++i) {
         // labels
         xlabel->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
-                            hist_corr->GetYaxis()->GetXmax() + 20e-2,
-                            GetVariable(i - 1)->GetLatexNameWithUnits().data());
+                          hist_corr->GetYaxis()->GetXmax() + 20e-2,
+                          GetVariable(i - 1)->GetLatexNameWithUnits().data());
 
         ylabel->DrawLatex(hist_corr->GetXaxis()->GetXmin() - 20e-2,
-                            hist_corr->GetYaxis()->GetBinCenter(GetNVariables() - i + 1),
-                            GetVariable(i - 1)->GetLatexNameWithUnits().data());
+                          hist_corr->GetYaxis()->GetBinCenter(GetNVariables() - i + 1),
+                          GetVariable(i - 1)->GetLatexNameWithUnits().data());
     }
 
     // write numbers in
@@ -3187,9 +3187,9 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
     bcorr->SetFillColor(kWhite);
     for (unsigned i = 0; i < unfilled.size(); ++i) {
         bcorr->DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].first + 1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].second),
-                         hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].first + 1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].second));
+                       hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].first + 1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].second));
         bcorr->DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].second + 1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].first),
-                         hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].second + 1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].first));
+                       hist_corr->GetXaxis()->GetBinUpEdge (unfilled[i].second + 1), hist_corr->GetYaxis()->GetBinUpEdge (GetNVariables() - unfilled[i].first));
     }
 
     // redraw top and right lines
@@ -3199,9 +3199,9 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
     // draw line between parameters and user-defined observables
     if (GetNObservables() > 0) {
         lA->DrawLine(hist_corr->GetXaxis()->GetXmin() - 0.40, hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1),
-                       hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1));
+                     hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1));
         lA->DrawLine(hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetBinLowEdge(hist_corr->GetNbinsY() - GetNParameters() + 1),
-                       hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetXmax() + 0.45);
+                     hist_corr->GetXaxis()->GetBinUpEdge(GetNParameters()), hist_corr->GetYaxis()->GetXmax() + 0.45);
     }
 
     gPad->RedrawAxis();

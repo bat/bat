@@ -520,8 +520,8 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i)
             for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j)
                 h2d_prior->SetBinContent(i, j,
-                                           GetParameter(index1)->GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) *
-                                           GetParameter(index2)->GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
+                                         GetParameter(index1)->GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) *
+                                         GetParameter(index2)->GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
         // create BCH2D
         bch2d_prior = new BCH2D(h2d_prior);
     }
