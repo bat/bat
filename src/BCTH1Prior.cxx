@@ -11,7 +11,7 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-BCTH1Prior::BCTH1Prior(TH1 const* const h, bool interpolate)
+BCTH1Prior::BCTH1Prior(const TH1* const h, bool interpolate)
     : BCPrior()
     , fPriorHistogram(NULL)
     , fInterpolate(interpolate)

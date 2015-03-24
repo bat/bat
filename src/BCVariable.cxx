@@ -120,7 +120,7 @@ TH1* BCVariable::CreateH1(const char* name) const
 }
 
 // ---------------------------------------------------------
-TH2* BCVariable::CreateH2(const char* name, BCVariable const* const ordinate) const
+TH2* BCVariable::CreateH2(const char* name, const BCVariable* const ordinate) const
 {
     return new TH2D(name, TString::Format(";%s;%s;P(%s, %s | Data)", GetLatexNameWithUnits().data(), ordinate->GetLatexNameWithUnits().data(), GetLatexName().data(), ordinate->GetLatexName().data()),
                     fNbins, fLowerLimit, fUpperLimit,
@@ -128,7 +128,7 @@ TH2* BCVariable::CreateH2(const char* name, BCVariable const* const ordinate) co
 }
 
 // ---------------------------------------------------------
-TH3* BCVariable::CreateH3(const char* name, BCVariable const* const ordinate_y, BCVariable const* const ordinate_z) const
+TH3* BCVariable::CreateH3(const char* name, const BCVariable* const ordinate_y, const BCVariable* const ordinate_z) const
 {
     return new TH3D(name, TString::Format(";%s;%s;%s;P(%s, %s, %s | Data)", GetLatexNameWithUnits().data(), ordinate_y->GetLatexNameWithUnits().data(), ordinate_z->GetLatexNameWithUnits().data(), GetLatexName().data(), ordinate_y->GetLatexName().data(), ordinate_z->GetLatexName().data()),
                     fNbins, fLowerLimit, fUpperLimit,

@@ -26,7 +26,7 @@ BCPrior::BCPrior()
 }
 
 // ---------------------------------------------------------
-BCPrior::BCPrior(TF1 const* const f)
+BCPrior::BCPrior(const TF1* const f)
     : fPriorFunction(NULL)
     , fIntegral(1)
 {

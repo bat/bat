@@ -35,7 +35,7 @@ public:
     /** @{ **/
 
     /** Constructor taking a TF1**/
-    BCTF1LogPrior(TF1 const* const f);
+    BCTF1LogPrior(const TF1* const f);
 
     /** Constructor taking a formula**/
     BCTF1LogPrior(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(),xmax=std::numeric_limits<double>::infinity());

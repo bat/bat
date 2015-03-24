@@ -2684,7 +2684,7 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream& ofi) const
 
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintParameters(std::vector<double> const& P, void (*output)(const char*) ) const
+void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(const char*) ) const
 {
     if ( P.size() != GetNParameters() and P.size() != GetNVariables() )
         return;

@@ -45,7 +45,7 @@ void DefaultToPDF(std::string& filename);
  * @param h 2D histogram to transpose
  * @param name Name to give to transposed histogram, if empty, "_tr" is added to original hist's name.
  * @return Transposed independent histogram. */
-TH2* Transpose(TH2 const* const h, std::string name = "");
+TH2* Transpose(const TH2* const h, std::string name = "");
 
 /** Range types. */
 enum BCRange {

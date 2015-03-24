@@ -13,7 +13,7 @@
 #include <TF1.h>
 
 // ---------------------------------------------------------
-BCTF1LogPrior::BCTF1LogPrior(TF1 const* const f)
+BCTF1LogPrior::BCTF1LogPrior(const TF1* const f)
     : BCPrior()
     , fLogPriorFunction(NULL)
 {
@@ -30,7 +30,7 @@ BCTF1LogPrior::BCTF1LogPrior(const char* formula, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-BCTF1LogPrior::BCTF1LogPrior(BCTF1LogPrior const& other)
+BCTF1LogPrior::BCTF1LogPrior(const BCTF1LogPrior& other)
     : BCPrior(other)
 {
     if (other.fLogPriorFunction)

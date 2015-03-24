@@ -271,7 +271,7 @@ public:
      * and a second as the ordinate.
      * @name name The name of the histogram.
      * @param ordinate The variable to be used for the ordinate. */
-    virtual TH2* CreateH2(const char* name, BCVariable const* const ordinate) const;
+    virtual TH2* CreateH2(const char* name, const BCVariable* const ordinate) const;
 
     /**
      * Creates a 3D Histogram for this variable as the abcissa
@@ -279,7 +279,7 @@ public:
      * @name name The name of the histogram.
      * @param ordinate_y The variable to be used for the y ordinate.
      * @param ordinate_z The variable to be used for the z ordinate. */
-    virtual TH3* CreateH3(const char* name, BCVariable const* const ordinate_y, BCVariable const* const ordinate_z) const;
+    virtual TH3* CreateH3(const char* name, const BCVariable* const ordinate_y, const BCVariable* const ordinate_z) const;
 
     /**
      * Get random value uniformly distributed in range.

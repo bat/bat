@@ -128,7 +128,7 @@ void BCAux::DefaultToPDF(std::string& filename)
 }
 
 // ---------------------------------------------------------
-TH2* BCAux::Transpose(TH2 const* const h, std::string name)
+TH2* BCAux::Transpose(const TH2* const h, std::string name)
 {
 
     if (h == NULL)

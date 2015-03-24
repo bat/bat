@@ -531,7 +531,7 @@ public:
 
     /**
      * @return Parameter set. */
-    BCParameterSet const& GetParameters() const
+    const BCParameterSet& GetParameters() const
     { return fParameters; }
 
     /**
@@ -543,7 +543,7 @@ public:
     /**
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter const* GetParameter(int index) const
+    const BCParameter* GetParameter(int index) const
     { return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
 
     /**
@@ -555,7 +555,7 @@ public:
     /**
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter const* GetParameter(const char* name) const
+    const BCParameter* GetParameter(const char* name) const
     { return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
 
     /**
@@ -580,7 +580,7 @@ public:
 
     /**
      * @return Observable set. */
-    BCVariableSet const& GetObservables() const
+    const BCVariableSet& GetObservables() const
     { return fObservables; }
 
     /**
@@ -592,7 +592,7 @@ public:
     /**
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable const* GetObservable(int index) const
+    const BCObservable* GetObservable(int index) const
     { return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
 
     /**
@@ -604,7 +604,7 @@ public:
     /**
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable const* GetObservable(const char* name) const
+    const BCObservable* GetObservable(const char* name) const
     { return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
 
     /**
@@ -1011,7 +1011,7 @@ public:
      * Print parameters
      * @param P vector of the parameter values to be printed
      * @param output pointer to the output function to be used, which defaults to BCLog::OutSummary */
-    void PrintParameters(std::vector<double> const& P, void (*output)(const char*) = BCLog::OutSummary) const;
+    void PrintParameters(const std::vector<double>& P, void (*output)(const char*) = BCLog::OutSummary) const;
 
     /**
      * Print all marginalizations.

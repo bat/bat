@@ -44,7 +44,7 @@ public:
     /**
      * Constructor explicitely setting fPriorFunction.
      * @param f TF1 to be copied into prior. */
-    BCPrior(TF1 const* const f);
+    BCPrior(const TF1* const f);
 
     /**
      * Copy constructor */
