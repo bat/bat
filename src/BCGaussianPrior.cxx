@@ -62,16 +62,18 @@ double BCGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
     if (n > 2)
         return BCPrior::GetRawMoment(n, xmin, xmax);
 
-    double gmin = (r == BCAux::kNegativeInfiniteRange) ? 0 : exp(-0.5 * (xmin - fMean) * (xmin - fMean) / fSigma / fSigma) / fSigma / sqrt(2 * M_PI);
-    double gmax = (r == BCAux::kPositiveInfiniteRange) ? 0 : exp(-0.5 * (xmax - fMean) * (xmax - fMean) / fSigma / fSigma) / fSigma / sqrt(2 * M_PI);
+    double amin = (xmin-fMean)/fSigma;
+    double amax = (xmax-fMean)/fSigma;
+    double Z = erf(amax/sqrt(2)) - erf(amin/sqrt(2));
 
     if (n == 1)
-        return fMean - fSigma * fSigma * (gmax - gmin) / GetIntegral(xmin, xmax) / 2;
-
+        return fMean - fSigma*sqrt(2/M_PI)*(exp(-amax*amax/2)-exp(-amin*amin/2))/Z;
+    
     // else n==2
-    gmin *= (r == BCAux::kNegativeInfiniteRange) ? 0 : xmin;
-    gmax *= (r == BCAux::kPositiveInfiniteRange) ? 0 : xmax;
-    return fMean * GetMean(xmin, xmax) + fSigma * fSigma * (1 - (gmax - gmin) / GetIntegral(xmin, xmax));
+    double aphi_min = (r == BCAux::kNegativeInfiniteRange) ? 0 : (fMean+xmin)*exp(-amin*amin/2);
+    double aphi_max = (r == BCAux::kPositiveInfiniteRange) ? 0 : (fMean+xmax)*exp(-amax*amax/2);
+
+    return fMean*fMean + fSigma*fSigma - fSigma*sqrt(2/M_PI)*(aphi_max-aphi_min)/Z;
 }
 
 // ---------------------------------------------------------
@@ -79,22 +81,25 @@ double BCGaussianPrior::GetIntegral(double xmin, double xmax) const
 {
     switch (BCAux::RangeType(xmin, xmax)) {
 
-        case BCAux::kFiniteRange:
-            return (TMath::Erf((xmax - fMean) / fSigma / sqrt(2)) - TMath::Erf((xmin - fMean) / fSigma / sqrt(2))) / 2;
+    case BCAux::kReverseRange:
+        return -GetIntegral(xmax,xmin);
 
-        case BCAux::kNegativeInfiniteRange:
-            return (1 + TMath::Erf((xmax - fMean) / fSigma / sqrt(2))) / 2;
-
-        case BCAux::kPositiveInfiniteRange:
-            return (1 - TMath::Erf((xmin - fMean) / fSigma / sqrt(2))) / 2;
-
-        case BCAux::kInfiniteRange:
-            return 1;
-
-        case BCAux::kEmptyRange:
-            return 0;
-
-        default:
-            return std::numeric_limits<double>::infinity();
+    case BCAux::kFiniteRange:
+        return (TMath::Erf((xmax-fMean)/fSigma/sqrt(2)) - TMath::Erf((xmin-fMean)/fSigma/sqrt(2)))/2;
+        
+    case BCAux::kNegativeInfiniteRange:
+        return (1 + TMath::Erf((xmax - fMean) / fSigma / sqrt(2))) / 2;
+        
+    case BCAux::kPositiveInfiniteRange:
+        return (1 - TMath::Erf((xmin - fMean) / fSigma / sqrt(2))) / 2;
+        
+    case BCAux::kInfiniteRange:
+        return 1;
+        
+    case BCAux::kEmptyRange:
+        return 0;
+        
+    default:
+        return std::numeric_limits<double>::quiet_NaN();
     }
 }
