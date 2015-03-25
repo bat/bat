@@ -7,10 +7,9 @@
  */
 
 #include "BCTF1LogPrior.h"
+#include "BCAux.h"
 
 #include <cmath>
-
-#include <TF1.h>
 
 // ---------------------------------------------------------
 BCTF1LogPrior::BCTF1LogPrior(TF1 const* const f)
@@ -43,4 +42,11 @@ BCTF1LogPrior::~BCTF1LogPrior()
     delete fLogPriorFunction;
 }
 
-
+// ---------------------------------------------------------
+double BCTF1LogPrior::GetMode(double xmin, double xmax) const
+{
+    if (!fLogPriorFunction)
+        return std::numeric_limits<double>::quiet_NaN();
+    BCAux::MakeFinite(xmin, xmax);
+    return fLogPriorFunction->GetMaximumX(xmin, xmax);
+}

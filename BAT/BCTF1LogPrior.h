@@ -67,6 +67,12 @@ public:
     virtual double GetLogPrior(double x) const
     { return (fLogPriorFunction) ? fLogPriorFunction->Eval(x) : -std::numeric_limits<double>::infinity(); }
 
+    /**
+     * Return mode of prior (in range).
+     * @param xmin lower limit of range to evaluate over
+     * @param xmax upper limit of range to evaluate over
+     * @return mode of prior in range. */
+    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
 
     /** @} **/
 
