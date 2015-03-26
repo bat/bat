@@ -277,9 +277,9 @@ public:
     { return fMCMCTrialFunctionScaleFactor; }
 
     /**
-     * @return scale factor for all parameters and achain.
+     * @return scale factor for all parameters of a chain.
      * @param c chain index */
-    std::vector<double> & MCMCGetTrialFunctionScaleFactor(unsigned c) const
+    const std::vector<double> & MCMCGetTrialFunctionScaleFactor(unsigned c) const
     { return fMCMCTrialFunctionScaleFactor.at(c); }
 
     /**
@@ -530,7 +530,7 @@ public:
 
     /**
      * @return Parameter set. */
-    BCParameterSet const& GetParameters() const
+    const BCParameterSet& GetParameters() const
     { return fParameters; }
 
     /**
@@ -542,20 +542,20 @@ public:
     /**
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter const* GetParameter(unsigned index) const
-    { return dynamic_cast<BCParameter const*>(fParameters.Get(index)); }
+    const BCParameter* GetParameter(unsigned index) const
+    { return dynamic_cast<const BCParameter*>(fParameters.Get(index)); }
 
     /**
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter* GetParameter(const char* name)
+    BCParameter* GetParameter(std::string name)
     { return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
 
     /**
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter const* GetParameter(const char* name) const
-    { return dynamic_cast<BCParameter const*>(fParameters.Get(name)); }
+    const BCParameter* GetParameter(std::string name) const
+    { return dynamic_cast<const BCParameter*>(fParameters.Get(name)); }
 
     /**
      * @return The number of parameters of the model. */
@@ -579,7 +579,7 @@ public:
 
     /**
      * @return Observable set. */
-    BCVariableSet const& GetObservables() const
+    const BCVariableSet& GetObservables() const
     { return fObservables; }
 
     /**
@@ -591,20 +591,20 @@ public:
     /**
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable const* GetObservable(unsigned index) const
-    { return dynamic_cast<BCObservable const*>(fObservables.Get(index)); }
+    const BCObservable* GetObservable(unsigned index) const
+    { return dynamic_cast<const BCObservable*>(fObservables.Get(index)); }
 
     /**
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable* GetObservable(const char* name)
+    BCObservable* GetObservable(std::string name)
     { return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
 
     /**
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable const* GetObservable(const char* name) const
-    { return dynamic_cast<BCObservable const*>(fObservables.Get(name)); }
+    const BCObservable* GetObservable(std::string name) const
+    { return dynamic_cast<const BCObservable*>(fObservables.Get(name)); }
 
     /**
      * @return The number of user-defined observables. */

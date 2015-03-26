@@ -2091,7 +2091,7 @@ bool BCEngineMCMC::MCMCMetropolis()
 
     // reset statistics
     for (unsigned c = 0; c < fMCMCNChains; ++c)
-        fMCMCStatistics[c].Reset(false, false); // keep mode and efficiency information
+        fMCMCStatistics[c].Reset(false, true); // keep mode, reset efficiencies
 
     // print to screen
     BCLog::OutSummary( "Run Metropolis MCMC ...");
