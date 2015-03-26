@@ -1964,7 +1964,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
             if ( fMCMCRValue - 1 < fMCMCRValueCriterion )
                 BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f", fMCMCRValue));
-            else if ( fMCMCRValue != std::numeric_limits<double>::max() )
+            else if ( std::isfinite(fMCMCRValue) )
                 BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f <--", fMCMCRValue));
             else
                 BCLog::OutDetail("       - Log-Likelihood :  INFINITY <--");
@@ -2214,7 +2214,7 @@ void BCEngineMCMC::ResetResults()
     fMCMCLogPrior_Provisional.clear();
     fMCMCNIterationsConvergenceGlobal = -1;
     fMCMCRValueParameters.clear();
-    fMCMCRValue = std::numeric_limits<double>::max();
+    fMCMCRValue = std::numeric_limits<double>::infinity();
 
     for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
         delete fH1Marginalized[i];
@@ -2255,7 +2255,7 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // rest r value holders
     fMCMCRValueParameters.assign(GetNParameters(), std::numeric_limits<double>::infinity());
-    fMCMCRValue = std::numeric_limits<double>::max();
+    fMCMCRValue = std::numeric_limits<double>::infinity();
 
     // clear positions
     fMCMCx.clear();
