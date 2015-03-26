@@ -86,7 +86,13 @@ void BCVariable::SetLimits(double lowerlimit, double upperlimit)
         CalculatePrecision();
 }
 
-
+// ---------------------------------------------------------
+void BCVariable::CalculatePrecision(bool force) 
+{
+    double new_precision = ceil(-log10(2.*fabs(fUpperLimit - fLowerLimit) / (fabs(fUpperLimit) + fabs(fLowerLimit))));
+    if (force or new_precision>GetPrecision())
+        SetPrecision(force);
+}
 // ---------------------------------------------------------
 bool BCVariable::IsAtLimit(double value) const
 {
