@@ -97,7 +97,7 @@ BCIntegrate::BCIntegrate(const char* name)
     ,	fNIterationsMax(1000000)
     ,	fNIterationsPrecisionCheck(1000)
     ,	fNIterations(0)
-    ,	fLogMaximum(-std::numeric_limits<double>::max())
+    ,	fLogMaximum(-std::numeric_limits<double>::infinity())
     ,	fIntegral(-1)
     ,	fRelativePrecision(1e-2)
     ,	fAbsolutePrecision(1e-6)
@@ -137,7 +137,7 @@ BCIntegrate::BCIntegrate(std::string filename, std::string name, bool reuseObser
     ,	fNIterationsMax(1000000)
     ,	fNIterationsPrecisionCheck(1000)
     ,	fNIterations(0)
-    ,	fLogMaximum(-std::numeric_limits<double>::max())
+    ,	fLogMaximum(-std::numeric_limits<double>::infinity())
     ,	fIntegral(-1)
     ,	fRelativePrecision(1e-2)
     ,	fAbsolutePrecision(1e-6)
@@ -230,7 +230,7 @@ void BCIntegrate::ResetResults()
 
     fBestFitParameterErrors.clear();
     fBestFitParameters.clear();
-    fLogMaximum = -std::numeric_limits<double>::max();
+    fLogMaximum = -std::numeric_limits<double>::infinity();
 
     // remove marginalized histograms
     // set marginalization flag
