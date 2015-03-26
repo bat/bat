@@ -54,6 +54,7 @@ BCVariable::BCVariable(const char* name, double lowerlimit, double upperlimit, c
     :	fPrefix("Variable")
     , fLowerLimit(lowerlimit)
     , fUpperLimit(upperlimit)
+    , fPrecision(3)
     , fLatexName(latexname)
     , fUnitString(unitstring)
     , fFillH1(true)
