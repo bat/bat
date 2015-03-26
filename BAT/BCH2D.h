@@ -23,12 +23,10 @@
 
 // ---------------------------------------------------------
 
+#include "BCHistogramBase.h"
+
 #include <vector>
 #include <string>
-
-// ROOT classes
-
-#include "BCHistogramBase.h"
 
 class TH2;
 class TGraph;

@@ -23,10 +23,10 @@
 
 // ---------------------------------------------------------
 
+#include "BCHistogramBase.h"
+
 #include <vector>
 #include <ostream>
-
-#include "BCHistogramBase.h"
 
 class TH1;
 
