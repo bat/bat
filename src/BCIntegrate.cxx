@@ -1319,7 +1319,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SATemperature(double t)
+double BCIntegrate::SATemperature(double t) const
 {
     // do we have Cauchy (default), Boltzmann or custom annealing schedule?
     if (fSASchedule == BCIntegrate::kSABoltzmann)
@@ -1331,26 +1331,26 @@ double BCIntegrate::SATemperature(double t)
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SATemperatureBoltzmann(double t)
+double BCIntegrate::SATemperatureBoltzmann(double t) const
 {
-    return fSAT0 / log((double)(t + 1));
+    return fSAT0 / log(t+1);
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SATemperatureCauchy(double t)
+double BCIntegrate::SATemperatureCauchy(double t) const
 {
-    return fSAT0 / (double)t;
+    return fSAT0 / t;
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SATemperatureCustom(double /*t*/)
+double BCIntegrate::SATemperatureCustom(double /*t*/) const
 {
     BCLog::OutError("BCIntegrate::SATemperatureCustom : No custom temperature schedule defined");
     return 0.;
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::GetProposalPointSA(const std::vector<double>& x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSA(const std::vector<double>& x, int t) const
 {
     // do we have Cauchy (default), Boltzmann or custom annealing schedule?
     if (fSASchedule == BCIntegrate::kSABoltzmann)
@@ -1362,7 +1362,7 @@ std::vector<double> BCIntegrate::GetProposalPointSA(const std::vector<double>& x
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<double>& x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<double>& x, int t) const
 {
     std::vector<double> y;
     y.clear();
@@ -1382,12 +1382,12 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<d
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<double>& x, int t)
+std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<double>& x, int t) const
 {
     std::vector<double> y;
     y.clear();
 
-    if (fParameters.Size() == 1) {
+    if (GetNParameters() == 1) {
         double cauchy, new_val, norm;
 
         if (GetParameter(0)->Fixed()) {
@@ -1411,7 +1411,7 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
 
         // scale y by radial part and the size of dimension i in phase space
         // afterwards, move by x
-        for (unsigned i = 0; i < fParameters.Size(); i++) {
+        for (unsigned i = 0; i < GetNParameters(); i++) {
             if (GetParameter(i)->Fixed()) {
                 y[i] = GetParameter(i)->GetFixedValue();
             } else {
@@ -1424,14 +1424,14 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::GetProposalPointSACustom(const std::vector<double>& /*x*/, int /*t*/)
+std::vector<double> BCIntegrate::GetProposalPointSACustom(const std::vector<double>& /*x*/, int /*t*/) const
 {
     BCLog::OutError("BCIntegrate::GetProposalPointSACustom : No custom proposal function defined");
     return std::vector<double>(fParameters.Size());
 }
 
 // ---------------------------------------------------------
-std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
+std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere() const
 {
     std::vector<double> rand_point(fParameters.Size());
 
@@ -1472,7 +1472,7 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere()
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SAHelperGetRadialCauchy()
+double BCIntegrate::SAHelperGetRadialCauchy() const
 {
     // theta is sampled from a rather complicated distribution,
     // so first we create a lookup table with 10000 random numbers
@@ -1528,7 +1528,7 @@ double BCIntegrate::SAHelperGetRadialCauchy()
 }
 
 // ---------------------------------------------------------
-double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta)
+double BCIntegrate::SAHelperSinusToNIntegral(int dim, double theta) const
 {
     if (dim < 1)
         return theta;
