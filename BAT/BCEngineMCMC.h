@@ -279,15 +279,15 @@ public:
     /**
      * @return scale factor for all parameters and achain.
      * @param c chain index */
-    std::vector<double> MCMCGetTrialFunctionScaleFactor(unsigned c) const
-    { return (c < fMCMCTrialFunctionScaleFactor.size()) ? fMCMCTrialFunctionScaleFactor[c] : std::vector<double>(); }
+    std::vector<double> & MCMCGetTrialFunctionScaleFactor(unsigned c) const
+    { return fMCMCTrialFunctionScaleFactor.at(c); }
 
     /**
      * @return scale factor for a parameter and a chain.
      * @param c chain index
      * @param p parameter index */
     double MCMCGetTrialFunctionScaleFactor(unsigned c, unsigned p) const
-    { return (c < fMCMCTrialFunctionScaleFactor.size() and p < fMCMCTrialFunctionScaleFactor[c].size()) ? fMCMCTrialFunctionScaleFactor[c][p] : std::numeric_limits<double>::quiet_NaN(); }
+    { return fMCMCTrialFunctionScaleFactor.at(c).at(p); }
 
     /**
      * @return current point of each Markov chain */
@@ -297,15 +297,15 @@ public:
     /**
      * @param c index of the Markov chain
      * @return current point of the Markov chain */
-    std::vector<double> MCMCGetx(unsigned c) const
-    { return (c < fMCMCx.size()) ? fMCMCx[c] : std::vector<double>(); }
+    const std::vector<double>& MCMCGetx(unsigned c) const
+    { return fMCMCx.at(c); }
 
     /**
      * @param c chain index
      * @param p parameter index
      * @return parameter of the Markov chain */
     double MCMCGetx(unsigned c, unsigned p) const
-    { return (c < fMCMCx.size() and p < fMCMCx[c].size()) ? fMCMCx[c][p] : std::numeric_limits<double>::quiet_NaN(); }
+    { return fMCMCx.at(c).at(p); }
 
     /**
      * @return log of the probability of the current points of each Markov chain */
@@ -316,7 +316,7 @@ public:
      * @return log of the probability of the current points of the Markov chain.
      * @param c chain index */
     double MCMCGetLogProbx(unsigned c) const
-    { return (c < fMCMCprob.size()) ? fMCMCprob[c] : -std::numeric_limits<double>::infinity(); }
+    { return fMCMCprob.at(c); }
 
     /**
      * @return pointer to the phase of a run. */
@@ -354,15 +354,20 @@ public:
     { return fMCMCRValueParametersCriterion; }
 
     /**
-     * @return R-value */
+     * @return R value */
     double MCMCGetRValue() const
     { return fMCMCRValue; }
 
     /**
+     * @return vector of R values for parameters */
+    const std::vector<double>& MCMCGetRValueParameters() const
+    { return fMCMCRValueParameters; }
+
+    /**
      * @return R-value for a parameter
      * @param i parameter index */
-    double MCMCGetRValueParameters(unsigned i) const
-    { return (i < fMCMCRValueParameters.size()) ? fMCMCRValueParameters[i] : std::numeric_limits<double>::infinity(); }
+    double MCMCGetRValueParameters(unsigned p) const
+    { return fMCMCRValueParameters.at(p); }
 
     /** Flag for correcting convergence checking for initial sampling variability. */
     bool MCMCGetCorrectRValueForSamplingVariability() const
@@ -531,14 +536,14 @@ public:
     /**
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter* GetParameter(int index)
+    BCParameter* GetParameter(unsigned index)
     { return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
 
     /**
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter const* GetParameter(int index) const
-    { return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
+    BCParameter const* GetParameter(unsigned index) const
+    { return dynamic_cast<BCParameter const*>(fParameters.Get(index)); }
 
     /**
      * @param name The name of the parameter in the parameter set.
@@ -550,7 +555,7 @@ public:
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
     BCParameter const* GetParameter(const char* name) const
-    { return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
+    { return dynamic_cast<BCParameter const*>(fParameters.Get(name)); }
 
     /**
      * @return The number of parameters of the model. */
@@ -580,14 +585,14 @@ public:
     /**
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable* GetObservable(int index)
+    BCObservable* GetObservable(unsigned index)
     { return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
 
     /**
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable const* GetObservable(int index) const
-    { return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
+    BCObservable const* GetObservable(unsigned index) const
+    { return dynamic_cast<BCObservable const*>(fObservables.Get(index)); }
 
     /**
      * @param name The name of the observable in the observable set.
@@ -599,7 +604,7 @@ public:
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
     BCObservable const* GetObservable(const char* name) const
-    { return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
+    { return dynamic_cast<BCObservable const*>(fObservables.Get(name)); }
 
     /**
      * @return The number of user-defined observables. */
