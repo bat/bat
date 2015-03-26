@@ -1585,7 +1585,7 @@ void BCEngineMCMC::MCMCCloseOutputFile()
 bool BCEngineMCMC::MCMCMetropolisPreRun()
 {
     // print on screen
-    BCLog::OutSummary("Pre-run Metropolis MCMC...");
+    BCLog::OutSummary(TString::Format("Pre-run Metropolis MCMC for model \"%s\" ...",GetName().data()));
 
     // initialize Markov chain
     MCMCInitialize();
@@ -2094,7 +2094,7 @@ bool BCEngineMCMC::MCMCMetropolis()
         fMCMCStatistics[c].Reset(false, true); // keep mode, reset efficiencies
 
     // print to screen
-    BCLog::OutSummary( "Run Metropolis MCMC ...");
+    BCLog::OutSummary(Form("Run Metropolis MCMC for model \"%s\" ...",GetName().data()));
 
     // set phase and cycle number
     fMCMCPhase = BCEngineMCMC::kMCMCMainRun;
