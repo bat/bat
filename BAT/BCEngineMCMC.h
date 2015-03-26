@@ -515,7 +515,15 @@ public:
      * 0,...,N_parameters in the ParameterSet, and then over
      * N_parameters,...,N_parameters+N_observables in the ObservableSet
      * @return The observable. */
-    BCVariable* GetVariable(unsigned index) const
+    BCVariable* GetVariable(unsigned index)
+    { return ((index < GetNParameters()) ? fParameters.Get(index) : ((index < GetNVariables()) ? fObservables.Get(index - GetNParameters()) : NULL)); }
+
+    /**
+     * @param index The index of the observable running first over
+     * 0,...,N_parameters in the ParameterSet, and then over
+     * N_parameters,...,N_parameters+N_observables in the ObservableSet
+     * @return The observable. */
+    const BCVariable* GetVariable(unsigned index) const
     { return ((index < GetNParameters()) ? fParameters.Get(index) : ((index < GetNVariables()) ? fObservables.Get(index - GetNParameters()) : NULL)); }
 
     /**
@@ -1023,7 +1031,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Number of pages printed. */
-    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true);
 
     /**
      * Draw a summary plot for the parameters in the range provided to current pad
@@ -1033,7 +1041,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Success of action. */
-    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true);
 
     /**
      * Print a correlation matrix for the parameters.

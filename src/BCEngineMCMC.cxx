@@ -2810,7 +2810,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
 }
 
 // ---------------------------------------------------------
-unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
+unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges)
 {
 
     BCAux::DefaultToPDF(filename);
@@ -2850,7 +2850,7 @@ unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
+bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges)
 {
 
     // if npar==0, print all remaining observables
