@@ -623,26 +623,26 @@ public:
      * Delegates to the appropriate method according to
      * fSASchedule.
      * @param t iterator for lowering the temperature over time. */
-    double SATemperature(double t);
+    double SATemperature(double t) const;
 
     /**
      * Temperature annealing schedule for use with Simulated Annealing.
      * This method is used for Boltzmann annealing schedule.
      * @param t iterator for lowering the temperature over time. */
-    double SATemperatureBoltzmann(double t);
+    double SATemperatureBoltzmann(double t) const;
 
     /**
      * Temperature annealing schedule for use with Simulated Annealing.
      * This method is used for Cauchy annealing schedule.
      * @param t iterator for lowering the temperature over time. */
-    double SATemperatureCauchy(double t);
+    double SATemperatureCauchy(double t) const;
 
     /**
      * Temperature annealing schedule for use with Simulated Annealing.
      * This is a virtual method to be overridden by a user-defined
      * custom temperature schedule.
      * @param t iterator for lowering the temperature over time. */
-    virtual double SATemperatureCustom(double t);
+    virtual double SATemperatureCustom(double t) const;
 
     /**
      * Generates a new state in a neighbourhood around x that is to be
@@ -651,7 +651,7 @@ public:
      * to fSASchedule.
      * @param x last state.
      * @param t time iterator to determine current temperature. */
-    std::vector<double> GetProposalPointSA(const std::vector<double>& x, int t);
+    std::vector<double> GetProposalPointSA(const std::vector<double>& x, int t) const;
 
     /**
      * Generates a new state in a neighbourhood around x that is to be
@@ -659,7 +659,7 @@ public:
      * This method is used for Boltzmann annealing schedule.
      * @param x last state.
      * @param t time iterator to determine current temperature. */
-    std::vector<double> GetProposalPointSABoltzmann(const std::vector<double>& x, int t);
+    std::vector<double> GetProposalPointSABoltzmann(const std::vector<double>& x, int t) const;
 
     /**
      * Generates a new state in a neighbourhood around x that is to be
@@ -667,7 +667,7 @@ public:
      * This method is used for Cauchy annealing schedule.
      * @param x last state.
      * @param t time iterator to determine current temperature. */
-    std::vector<double> GetProposalPointSACauchy(const std::vector<double>& x, int t);
+    std::vector<double> GetProposalPointSACauchy(const std::vector<double>& x, int t) const;
 
     /**
      * Generates a new state in a neighbourhood around x that is to be
@@ -676,23 +676,23 @@ public:
      * custom proposal function.
      * @param x last state.
      * @param t time iterator to determine current temperature. */
-    virtual std::vector<double> GetProposalPointSACustom(const std::vector<double>& x, int t);
+    virtual std::vector<double> GetProposalPointSACustom(const std::vector<double>& x, int t) const;
 
     /**
      * Generates a uniform distributed random point on the surface of
      * a fNvar-dimensional Hypersphere.
      * Used as a helper to generate proposal points for Cauchy annealing. */
-    std::vector<double> SAHelperGetRandomPointOnHypersphere();
+    std::vector<double> SAHelperGetRandomPointOnHypersphere() const;
 
     /**
      * Generates the radial part of a n-dimensional Cauchy distribution.
      * Helper function for Cauchy annealing. */
-    double SAHelperGetRadialCauchy();
+    double SAHelperGetRadialCauchy() const;
 
     /**
      * Returns the Integral of sin^dim from 0 to theta.
      * Helper function needed for generating Cauchy distributions. */
-    double SAHelperSinusToNIntegral(int dim, double theta);
+    double SAHelperSinusToNIntegral(int dim, double theta) const;
 
 
     static void FCNLikelihood(int& npar, double* grad, double& fval, double* par, int flag);

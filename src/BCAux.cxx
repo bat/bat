@@ -165,7 +165,10 @@ TH2* BCAux::Transpose(const TH2* const h, std::string name)
 // ---------------------------------------------------------
 BCAux::BCRange BCAux::RangeType(double xmin, double xmax)
 {
-    if (xmax <= xmin)
+    if (xmin > xmax)
+        // return -RangeType(xmax,xmin);
+        return BCAux::kReverseRange;
+    if (xmin == xmax)
         return BCAux::kEmptyRange;
     if (std::isfinite(xmin) and std::isfinite(xmax))
         return BCAux::kFiniteRange;

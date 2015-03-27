@@ -64,7 +64,6 @@ BCEngineMCMC::BCEngineMCMC(const char* name)
     , fMultivariateProposalFunctionEpsilon(1e-3)
     , fMultivariateProposalFunctionScaleMultiplier(1.5)
     , fMCMCFlagPreRun(true)
-    , fMCMCInitialPositionExpansionFactor(1.1)
     , fMCMCEfficiencyMin(0.15)
     , fMCMCEfficiencyMax(0.50)
     , fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
@@ -102,7 +101,6 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
     , fMultivariateProposalFunctionEpsilon(1e-3)
     , fMultivariateProposalFunctionScaleMultiplier(1.5)
     , fMCMCFlagPreRun(true)
-    , fMCMCInitialPositionExpansionFactor(1.1)
     , fMCMCEfficiencyMin(0.15)
     , fMCMCEfficiencyMax(0.50)
     , fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
@@ -330,7 +328,6 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fMCMCFlagPreRun                           = other.fMCMCFlagPreRun;
     fMCMCFlagRun                              = other.fMCMCFlagRun;
     fMCMCInitialPosition                      = other.fMCMCInitialPosition;
-    fMCMCInitialPositionExpansionFactor       = other.fMCMCInitialPositionExpansionFactor;
     fMCMCEfficiencyMin                        = other.fMCMCEfficiencyMin;
     fMCMCEfficiencyMax                        = other.fMCMCEfficiencyMax;
     fMCMCScaleFactorLowerLimit                = other.fMCMCScaleFactorLowerLimit;
@@ -1373,7 +1370,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
         }
 
     // return whether point is within limits, ignoring fixed parameters
-    return GetParameters().IsWithinLimits(x, true);
+    return GetParameters().IsWithinLimits(x);
 }
 
 // --------------------------------------------------------
@@ -1588,7 +1585,7 @@ void BCEngineMCMC::MCMCCloseOutputFile()
 bool BCEngineMCMC::MCMCMetropolisPreRun()
 {
     // print on screen
-    BCLog::OutSummary("Pre-run Metropolis MCMC...");
+    BCLog::OutSummary(TString::Format("Pre-run Metropolis MCMC for model \"%s\" ...",GetName().data()));
 
     // initialize Markov chain
     MCMCInitialize();
@@ -1967,7 +1964,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
             if ( fMCMCRValue - 1 < fMCMCRValueCriterion )
                 BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f", fMCMCRValue));
-            else if ( fMCMCRValue != std::numeric_limits<double>::max() )
+            else if ( std::isfinite(fMCMCRValue) )
                 BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f <--", fMCMCRValue));
             else
                 BCLog::OutDetail("       - Log-Likelihood :  INFINITY <--");
@@ -2094,10 +2091,10 @@ bool BCEngineMCMC::MCMCMetropolis()
 
     // reset statistics
     for (unsigned c = 0; c < fMCMCNChains; ++c)
-        fMCMCStatistics[c].Reset(false, false); // keep mode and efficiency information
+        fMCMCStatistics[c].Reset(false, true); // keep mode, reset efficiencies
 
     // print to screen
-    BCLog::OutSummary( "Run Metropolis MCMC ...");
+    BCLog::OutSummary(Form("Run Metropolis MCMC for model \"%s\" ...",GetName().data()));
 
     // set phase and cycle number
     fMCMCPhase = BCEngineMCMC::kMCMCMainRun;
@@ -2217,7 +2214,7 @@ void BCEngineMCMC::ResetResults()
     fMCMCLogPrior_Provisional.clear();
     fMCMCNIterationsConvergenceGlobal = -1;
     fMCMCRValueParameters.clear();
-    fMCMCRValue = std::numeric_limits<double>::max();
+    fMCMCRValue = std::numeric_limits<double>::infinity();
 
     for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
         delete fH1Marginalized[i];
@@ -2258,7 +2255,7 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // rest r value holders
     fMCMCRValueParameters.assign(GetNParameters(), std::numeric_limits<double>::infinity());
-    fMCMCRValue = std::numeric_limits<double>::max();
+    fMCMCRValue = std::numeric_limits<double>::infinity();
 
     // clear positions
     fMCMCx.clear();
@@ -2294,7 +2291,7 @@ bool BCEngineMCMC::MCMCInitialize()
 
         // use range centers
         case kMCMCInitCenter : {
-            fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters(true));
+            fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters());
             break;
         }
 
@@ -2302,7 +2299,7 @@ bool BCEngineMCMC::MCMCInitialize()
         case kMCMCInitRandomUniform : {
             fMCMCx.clear();
             for (unsigned c = 0; c < fMCMCNChains; ++c)
-                fMCMCx.push_back(GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng, true));
+                fMCMCx.push_back(GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng));
             break;
         }
 
@@ -2320,7 +2317,7 @@ bool BCEngineMCMC::MCMCInitialize()
             // also checks that initial position vectors are correct size
             for (unsigned c = 0; c < fMCMCNChains; ++c) {
                 GetParameters().ApplyFixedValues(fMCMCx[c]);
-                if (!GetParameters().IsWithinLimits(fMCMCx[c], true)) {
+                if (!GetParameters().IsWithinLimits(fMCMCx[c])) {
                     BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
                     fMCMCx.clear();
                     return false;
@@ -2337,31 +2334,9 @@ bool BCEngineMCMC::MCMCInitialize()
             }
             fMCMCx.clear();
             for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                fMCMCx.push_back(GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng, true));
+                fMCMCx.push_back(GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng));
                 // check new point
-                if (!GetParameters().IsWithinLimits(fMCMCx[c], true)) {
-                    BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
-                    fMCMCx.clear();
-                    return false;
-                }
-            }
-            break;
-        }
-
-        // use mean and variance of factorized priors
-        // to distribute values according to normal distribution,
-        // allowing for over-distribution of parameters.
-        case kMCMCInitRandomGaussPrior : {
-            if (!GetParameters().ArePriorsSet(true)) {
-                BCLog::OutError("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
-                return false;
-            }
-            fMCMCx.clear();
-            for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                // add new point
-                fMCMCx.push_back(GetParameters().GetRandomValuesAccordingToGaussiansOfPriors(fMCMCThreadLocalStorage[c].rng, true, fMCMCInitialPositionExpansionFactor));
-                // check new point
-                if (!GetParameters().IsWithinLimits(fMCMCx[c], true)) {
+                if (!GetParameters().IsWithinLimits(fMCMCx[c])) {
                     BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
                     fMCMCx.clear();
                     return false;
@@ -2835,7 +2810,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
 }
 
 // ---------------------------------------------------------
-unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
+unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges)
 {
 
     BCAux::DefaultToPDF(filename);
@@ -2875,7 +2850,7 @@ unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
+bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges)
 {
 
     // if npar==0, print all remaining observables

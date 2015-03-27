@@ -23,6 +23,8 @@
 
 #include "BCVariableSet.h"
 
+class BCParameter;
+
 // ---------------------------------------------------------
 
 class BCParameterSet : public BCVariableSet
@@ -38,6 +40,12 @@ public:
      * Destructor */
     virtual ~BCParameterSet()
     {}
+
+    /**
+     * Add a parameter if no parameter of same name exists yet.
+     * @param par Variable
+     * @return True if successful. */
+    virtual bool Add(BCVariable* var);
 
     /*
      * Assignment operator. */
@@ -65,64 +73,40 @@ public:
     using BCVariableSet::IsWithinLimits;
 
     /**
-     * Check if vector of values is within limits.
+     * Check if vector of values is within limits. Check if fixed parameters are at fixed values.
      * @param x Values to check
-     * @param ignore_fixed Flag for ignoring fixed values.
-     * @param check_fixed Flag for if not ignoring fixed values, check if they equal their fixed value (rather than checking if they are within range)
      * @return Whether values are within limits of variables. */
-    virtual bool IsWithinLimits(const std::vector<double>& x, bool ignore_fixed, bool check_fixed = true) const;
+    virtual bool IsWithinLimits(const std::vector<double>& x) const;
 
     /**
-     * Check if vector of values is at fixed values
+     * Check if fixed parameters in vector of values are at fixed values
      * @param x Values to check.
-     * @param ignore_unfixed Ignore unfixed parameters.
      * @return Whether values are at fixed values. */
-    virtual bool IsAtFixedValues(const std::vector<double>& x, bool ignore_unfixed = true) const;
-
-    using BCVariableSet::ValueFromPositionInRange;
+    virtual bool IsAtFixedValues(const std::vector<double>& x) const;
 
     /**
-     * Translate from unit interval to values in variable ranges.
-     * @param p vector of positions in the unit interval (0 = lower limit, 1 = upper limit).
-     * @param fix If true, fix fixed parameters to fixed value regardless of value in argument p.*/
-    virtual void ValueFromPositionInRange(std::vector<double>& p, bool fix) const;
-
-    using BCVariableSet::GetRangeCenters;
+     * Translate from unit interval to values in variable ranges, fixing fixed parameters along the way.
+     * @param p vector of positions in the unit interval (0 = lower limit, 1 = upper limit). */
+    virtual void ValueFromPositionInRange(std::vector<double>& p) const;
 
     /**
-     * Get range centers.
-     * @param fix If true, return fixed value for fixed parameters.
-     * @return vector fo range centers. */
-    virtual std::vector<double> GetRangeCenters(bool fix) const;
-
-    using BCVariableSet::GetUniformRandomValues;
+     * Get range centers, leaving fixed parameters at fixed values
+     * @return vector of range centers & fixed values. */
+    virtual std::vector<double> GetRangeCenters() const;
 
     /**
-     * Get vector of values uniformly distributed in parameter ranges.
-     * @param fix If true, return fixed value for fixed parameters.
+     * Get vector of values uniformly distributed in parameter ranges (or at fixed values, if fixed)
      * @return vector of uniformly distributed random values. */
-    virtual std::vector<double> GetUniformRandomValues(TRandom* const R, bool fix) const;
+    virtual std::vector<double> GetUniformRandomValues(TRandom* const R) const;
 
     /**
      * Get vector values distributed randomly by the parameter priors.
      * Parameters with unset priors will have infinite values.
+     * Fixed parameters will be at fixed values.
      * One should first call BCParameterSet::ArePriorsSet to be safe.
      * @param R Random number generator to use.
-     * @param fix Whether to fix fixed parameters to their fixed values.
      * @return vector of random values distributed according to priors. */
-    virtual std::vector<double> GetRandomValuesAccordingToPriors(TRandom* const R, bool fix) const;
-
-    /**
-     * Get random values distributed according to normal distributions
-     * with means of prior distributions and
-     * standard deviations of prior distributions multiplied by the expansion_factor.
-     * @param R Random number generator to use.
-     * @param fix Whether to fix fixed parameters to their fixed values.
-     * @param expansion_factor Constant to multiple standard deviations by.
-     * @param N Maximum number of tries to make to generate value within each parameter range.
-     * @param over_range Flag for whether to calculate means and std dev's only in parameter ranges
-     * @return vector of random values of normal distribution approximations to priors. */
-    virtual std::vector<double> GetRandomValuesAccordingToGaussiansOfPriors(TRandom* const R, bool fix, double expansion_factor = 1., unsigned N = 1000000, bool over_range = true) const;
+    virtual std::vector<double> GetRandomValuesAccordingToPriors(TRandom* const R) const;
 
     /**
      * Set all priors to constant. */

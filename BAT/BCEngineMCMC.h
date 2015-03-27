@@ -84,8 +84,7 @@ public:
         kMCMCInitCenter           =  0, ///< select centers of parameter ranges
         kMCMCInitRandomUniform    =  1, ///< randomly distribute uniformly over parameter ranges
         kMCMCInitUserDefined      =  2, ///< initialize to user-provided points
-        kMCMCInitRandomPrior      =  3, ///< randomly distribute according to factorized priors
-        kMCMCInitRandomGaussPrior =  4  ///< randomly distribute according to Gaussian assumption from factorized priors
+        kMCMCInitRandomPrior      =  3  ///< randomly distribute according to factorized priors
     };
 
     /** @} */
@@ -278,17 +277,17 @@ public:
     { return fMCMCTrialFunctionScaleFactor; }
 
     /**
-     * @return scale factor for all parameters and achain.
+     * @return scale factor for all parameters of a chain.
      * @param c chain index */
-    std::vector<double> MCMCGetTrialFunctionScaleFactor(unsigned c) const
-    { return (c < fMCMCTrialFunctionScaleFactor.size()) ? fMCMCTrialFunctionScaleFactor[c] : std::vector<double>(); }
+    const std::vector<double> & MCMCGetTrialFunctionScaleFactor(unsigned c) const
+    { return fMCMCTrialFunctionScaleFactor.at(c); }
 
     /**
      * @return scale factor for a parameter and a chain.
      * @param c chain index
      * @param p parameter index */
     double MCMCGetTrialFunctionScaleFactor(unsigned c, unsigned p) const
-    { return (c < fMCMCTrialFunctionScaleFactor.size() and p < fMCMCTrialFunctionScaleFactor[c].size()) ? fMCMCTrialFunctionScaleFactor[c][p] : std::numeric_limits<double>::quiet_NaN(); }
+    { return fMCMCTrialFunctionScaleFactor.at(c).at(p); }
 
     /**
      * @return current point of each Markov chain */
@@ -298,15 +297,15 @@ public:
     /**
      * @param c index of the Markov chain
      * @return current point of the Markov chain */
-    std::vector<double> MCMCGetx(unsigned c) const
-    { return (c < fMCMCx.size()) ? fMCMCx[c] : std::vector<double>(); }
+    const std::vector<double>& MCMCGetx(unsigned c) const
+    { return fMCMCx.at(c); }
 
     /**
      * @param c chain index
      * @param p parameter index
      * @return parameter of the Markov chain */
     double MCMCGetx(unsigned c, unsigned p) const
-    { return (c < fMCMCx.size() and p < fMCMCx[c].size()) ? fMCMCx[c][p] : std::numeric_limits<double>::quiet_NaN(); }
+    { return fMCMCx.at(c).at(p); }
 
     /**
      * @return log of the probability of the current points of each Markov chain */
@@ -317,7 +316,7 @@ public:
      * @return log of the probability of the current points of the Markov chain.
      * @param c chain index */
     double MCMCGetLogProbx(unsigned c) const
-    { return (c < fMCMCprob.size()) ? fMCMCprob[c] : -std::numeric_limits<double>::infinity(); }
+    { return fMCMCprob.at(c); }
 
     /**
      * @return pointer to the phase of a run. */
@@ -328,11 +327,6 @@ public:
      * @return flag which defined initial position */
     BCEngineMCMC::MCMCInitialPosition MCMCGetFlagInitialPosition() const
     { return fMCMCFlagInitialPosition; }
-
-    /**
-     * @return expansion factor to be used with initial-position option kMCMCInitRandomGaussPrior. */
-    double MCMCGetInitialPositionExpansionFactor() const
-    { return fMCMCInitialPositionExpansionFactor; }
 
     /**
      * @return whether to use a multivariate proposal function. */
@@ -360,15 +354,20 @@ public:
     { return fMCMCRValueParametersCriterion; }
 
     /**
-     * @return R-value */
+     * @return R value */
     double MCMCGetRValue() const
     { return fMCMCRValue; }
 
     /**
+     * @return vector of R values for parameters */
+    const std::vector<double>& MCMCGetRValueParameters() const
+    { return fMCMCRValueParameters; }
+
+    /**
      * @return R-value for a parameter
      * @param i parameter index */
-    double MCMCGetRValueParameters(unsigned i) const
-    { return (i < fMCMCRValueParameters.size()) ? fMCMCRValueParameters[i] : std::numeric_limits<double>::infinity(); }
+    double MCMCGetRValueParameters(unsigned p) const
+    { return fMCMCRValueParameters.at(p); }
 
     /** Flag for correcting convergence checking for initial sampling variability. */
     bool MCMCGetCorrectRValueForSamplingVariability() const
@@ -401,14 +400,14 @@ public:
 
     /**
      * Get combined statistics for all chains. */
-    BCEngineMCMC::MCMCStatistics MCMCGetStatistics() const
+    const BCEngineMCMC::MCMCStatistics & MCMCGetStatistics() const
     { return fMCMCStatistics_AllChains; }
 
     /**
      * Get MCMC statistics for one chain.
      * @param c Chain to get statistics of. */
-    BCEngineMCMC::MCMCStatistics MCMCGetStatistics(unsigned c) const
-    { return (c < fMCMCStatistics.size()) ? fMCMCStatistics[c] : BCEngineMCMC::MCMCStatistics(); }
+    const BCEngineMCMC::MCMCStatistics & MCMCGetStatistics(unsigned c) const
+    { return fMCMCStatistics.at(c); }
 
     /**
      * @return Flag for whether to rescale histogram ranges to fit MCMC reach after pre-run. */
@@ -516,7 +515,15 @@ public:
      * 0,...,N_parameters in the ParameterSet, and then over
      * N_parameters,...,N_parameters+N_observables in the ObservableSet
      * @return The observable. */
-    BCVariable* GetVariable(unsigned index) const
+    BCVariable* GetVariable(unsigned index)
+    { return ((index < GetNParameters()) ? fParameters.Get(index) : ((index < GetNVariables()) ? fObservables.Get(index - GetNParameters()) : NULL)); }
+
+    /**
+     * @param index The index of the observable running first over
+     * 0,...,N_parameters in the ParameterSet, and then over
+     * N_parameters,...,N_parameters+N_observables in the ObservableSet
+     * @return The observable. */
+    const BCVariable* GetVariable(unsigned index) const
     { return ((index < GetNParameters()) ? fParameters.Get(index) : ((index < GetNVariables()) ? fObservables.Get(index - GetNParameters()) : NULL)); }
 
     /**
@@ -537,26 +544,26 @@ public:
     /**
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter* GetParameter(int index)
+    BCParameter* GetParameter(unsigned index)
     { return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
 
     /**
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    const BCParameter* GetParameter(int index) const
-    { return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
+    const BCParameter* GetParameter(unsigned index) const
+    { return dynamic_cast<const BCParameter*>(fParameters.Get(index)); }
 
     /**
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter* GetParameter(const char* name)
+    BCParameter* GetParameter(const std::string& name)
     { return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
 
     /**
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    const BCParameter* GetParameter(const char* name) const
-    { return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
+    const BCParameter* GetParameter(const std::string& name) const
+    { return dynamic_cast<const BCParameter*>(fParameters.Get(name)); }
 
     /**
      * @return The number of parameters of the model. */
@@ -586,26 +593,26 @@ public:
     /**
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable* GetObservable(int index)
+    BCObservable* GetObservable(unsigned index)
     { return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
 
     /**
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    const BCObservable* GetObservable(int index) const
-    { return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
+    const BCObservable* GetObservable(unsigned index) const
+    { return dynamic_cast<const BCObservable*>(fObservables.Get(index)); }
 
     /**
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable* GetObservable(const char* name)
+    BCObservable* GetObservable(const std::string& name)
     { return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
 
     /**
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    const BCObservable* GetObservable(const char* name) const
-    { return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
+    const BCObservable* GetObservable(const std::string& name) const
+    { return dynamic_cast<const BCObservable*>(fObservables.Get(name)); }
 
     /**
      * @return The number of user-defined observables. */
@@ -775,11 +782,6 @@ public:
      * Sets flag which defines initial position.  */
     void MCMCSetFlagInitialPosition(BCEngineMCMC::MCMCInitialPosition flag)
     { fMCMCFlagInitialPosition = flag; }
-
-    /**
-     * Sets expansion factor for use with initial position setting kMCMCInitRandomGaussPrior. */
-    void MCMCSetInitialPositionExpansionFactor(double f)
-    { fMCMCInitialPositionExpansionFactor = fabs(f); }
 
     /**
      * Sets the flag which controls the sequence parameters during the
@@ -1029,7 +1031,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Number of pages printed. */
-    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true);
 
     /**
      * Draw a summary plot for the parameters in the range provided to current pad
@@ -1039,7 +1041,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Success of action. */
-    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
+    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true);
 
     /**
      * Print a correlation matrix for the parameters.
@@ -1522,11 +1524,6 @@ protected:
      * values of the first Markov chain are saved, then those of the
      * second and so on */
     std::vector<std::vector<double> > fMCMCInitialPosition;
-
-    /**
-     * Factor to multiply Gaussian approximations of prior standard deviations
-     * when generating initial points accordingly. */
-    double fMCMCInitialPositionExpansionFactor;
 
     /**
      * The efficiencies for all parameters and chains. */

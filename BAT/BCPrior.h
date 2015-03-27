@@ -176,18 +176,6 @@ public:
      * @return random value. */
     virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const;
 
-    /**
-     * @return a random value distributed according to normal distribution
-     * using the prior's mean and standard deviation
-     * @param xmin lower limit of range to generate value in
-     * @param xmax upper limit of range to generate value in
-     * @param R Pointer to the random generator to be used, if needed.
-     * @param expansion_factor Constant to multiple standard deviation by.
-     * @param N number of attempts to make to get point in range
-     * @param over_range Flag for whether to calculate mean and sigma over range.
-     * @return random value. */
-    virtual double GetRandomValueGaussian(double xmin, double xmax, TRandom* const R, double expansion_factor = 1., unsigned N = 1000000, bool over_range = true) const;
-
     /** @} **/
     /** \name Functions for building ROOT TF1s */
     /** @{ **/

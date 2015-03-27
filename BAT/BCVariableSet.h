@@ -44,7 +44,7 @@ public:
     BCVariableSet& operator=(const BCVariableSet& rhs);
 
     /**
-     * Add a parameter if no parameter of same name exists yet.
+     * Add a variable if no variable of same name exists yet.
      * @param par Variable
      * @return True if successful. */
     virtual bool Add(BCVariable* par);

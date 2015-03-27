@@ -106,17 +106,6 @@ public:
      * @param rnd Pointer to the random generator to be used, if needed. */
     virtual double GetRandomValueAccordingToPrior(TRandom* const R) const;
 
-    /**
-     * Get random value distributed according to normal distribution
-     * with mean of prior distribution and
-     * standard deviation of prior distribution multiplied by the expansion_factor.
-     * @param R Random number generator to use.
-     * @param expansion_factor Constant to multiple standard deviation by.
-     * @param N Maximum number of tries to make to generate value within parameter range.
-     * @param confine_to_range Calculate prior mean and standard deviation only in range of parameter.
-     * @return random value of normal distribution approximation to prior. */
-    virtual double GetRandomValueAccordingToGaussianOfPrior(TRandom* const R, double expansion_factor = 1., unsigned N = 1000000, bool confined_to_range = false) const;
-
     /** @} */
 
     /** \name Member functions (set) */

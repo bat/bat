@@ -114,17 +114,6 @@ double BCParameter::GetRandomValueAccordingToPrior(TRandom* const R) const
 }
 
 // ---------------------------------------------------------
-double BCParameter::GetRandomValueAccordingToGaussianOfPrior(TRandom* const R, double expansion_factor, unsigned N, bool over_range) const
-{
-    if (!fPrior) {
-        BCLog::OutError("BCParameter::GetRandomValueAccordingToGaussianOfPrior : no prior specified.");
-        return std::numeric_limits<double>::quiet_NaN();
-    }
-
-    return fPrior->GetRandomValueGaussian(fLowerLimit, fUpperLimit, R, expansion_factor, N, over_range);
-}
-
-// ---------------------------------------------------------
 void BCParameter::SetPrior(BCPrior* const prior)
 {
     delete fPrior;
