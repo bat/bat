@@ -198,16 +198,6 @@ std::vector<double> longestRunsChi2(const std::vector<double>& yMeasured,
  */
 double longestRunFrequency(unsigned int longestObserved, unsigned int nTrials);
 
-/**
- * Gaussian with different uncertainties to either side of the mode.
- * Interface to use with TF1.
- *
- * @param x Random variable
- * @param par Mean, sigmadown, sigmaup
- * @return density f(x)
- */
-double SplitGaussian(double* x, double* par);
-
 /** \name p value methods */
 /** @{ */
 

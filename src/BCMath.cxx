@@ -267,21 +267,6 @@ double BCMath::LogLogNormal(double x, double mean, double sigma)
 }
 
 // ---------------------------------------------------------
-double BCMath::SplitGaussian(double* x, double* par)
-{
-    double mean = par[0];
-    double sigmadown = par[1];
-    double sigmaup = par[2];
-
-    double sigma = sigmadown;
-
-    if (x[0] > mean)
-        sigma = sigmaup;
-
-    return 1.0 / sqrt(2.0 * M_PI) / sigma * exp(- (x[0] - mean) * (x[0] - mean) / 2. / sigma / sigma);
-}
-
-// ---------------------------------------------------------
 double BCMath::chi2(double* x, double* par)
 {
     return ROOT::Math::chisquared_pdf(x[0], par[0]);
