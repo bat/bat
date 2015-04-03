@@ -1333,7 +1333,7 @@ double BCIntegrate::SATemperature(double t) const
 // ---------------------------------------------------------
 double BCIntegrate::SATemperatureBoltzmann(double t) const
 {
-    return fSAT0 / log(t+1);
+    return fSAT0 / log(t + 1);
 }
 
 // ---------------------------------------------------------

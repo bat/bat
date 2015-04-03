@@ -44,7 +44,7 @@ double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
     if (r == BCAux::kReverseRange)
-        return GetRawMoment(n,xmax,xmin);
+        return GetRawMoment(n, xmax, xmin);
 
     if (r == BCAux::kEmptyRange)
         return (n == 1) ? xmin : 0;

@@ -23,7 +23,7 @@ BCParameterSet& BCParameterSet::operator=(const BCParameterSet& rhs)
 // ---------------------------------------------------------
 bool BCParameterSet::Add(BCVariable* var)
 {
-    if (dynamic_cast<BCParameter*>(var)==NULL)
+    if (dynamic_cast<BCParameter*>(var) == NULL)
         return false;
     return BCVariableSet::Add(var);
 }
@@ -99,7 +99,7 @@ bool BCParameterSet::IsWithinLimits(const std::vector<double>& x) const
 {
     if (x.size() != fPars.size())
         return false;
-    for (unsigned i = 0; i < fPars.size(); ++i) 
+    for (unsigned i = 0; i < fPars.size(); ++i)
         if (dynamic_cast<BCParameter*>(fPars[i])->Fixed()) {
             if (fabs(x[i] - dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue()) > std::numeric_limits<double>::epsilon())
                 return false;

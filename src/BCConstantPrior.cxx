@@ -52,7 +52,7 @@ double BCConstantPrior::GetMode(double xmin, double xmax) const
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
     if (r == BCAux::kReverseRange)
-        return GetMode(xmax,xmin);
+        return GetMode(xmax, xmin);
 
     if (r == BCAux::kFiniteRange or r == BCAux::kEmptyRange)
         return 0.5 * (xmin + xmax);
@@ -78,7 +78,7 @@ double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
     if (r == BCAux::kReverseRange)
-        return GetRawMoment(n,xmax,xmin);
+        return GetRawMoment(n, xmax, xmin);
 
     if (r == BCAux::kEmptyRange)
         return (n == 1) ? xmin : 0;

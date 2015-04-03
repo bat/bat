@@ -241,7 +241,7 @@ public:
      * Calculate the necessary precision for outputting this parameter
      * and replace current precision is smaller or if force is set true
      * @param force replace current precision even if calculated precision is lower than current precision.*/
-    virtual void CalculatePrecision(bool force=false);
+    virtual void CalculatePrecision(bool force = false);
 
     /**
      * @return Whether value is at upper or lower limit. */

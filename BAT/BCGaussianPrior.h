@@ -63,7 +63,7 @@ public:
      * @param x value to evaluate log of prior at
      * @return log of prior */
     virtual double GetLogPrior(double x) const
-    { return -0.5*(x-fMean)*(x-fMean)/fSigma/fSigma - log(fSigma) - 0.5*log(2*M_PI); }
+    { return -0.5 * (x - fMean) * (x - fMean) / fSigma / fSigma - log(fSigma) - 0.5 * log(2 * M_PI); }
 
     /**
      * Return mode of prior (in range).

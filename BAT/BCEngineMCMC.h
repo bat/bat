@@ -279,7 +279,7 @@ public:
     /**
      * @return scale factor for all parameters of a chain.
      * @param c chain index */
-    const std::vector<double> & MCMCGetTrialFunctionScaleFactor(unsigned c) const
+    const std::vector<double>& MCMCGetTrialFunctionScaleFactor(unsigned c) const
     { return fMCMCTrialFunctionScaleFactor.at(c); }
 
     /**
@@ -400,13 +400,13 @@ public:
 
     /**
      * Get combined statistics for all chains. */
-    const BCEngineMCMC::MCMCStatistics & MCMCGetStatistics() const
+    const BCEngineMCMC::MCMCStatistics& MCMCGetStatistics() const
     { return fMCMCStatistics_AllChains; }
 
     /**
      * Get MCMC statistics for one chain.
      * @param c Chain to get statistics of. */
-    const BCEngineMCMC::MCMCStatistics & MCMCGetStatistics(unsigned c) const
+    const BCEngineMCMC::MCMCStatistics& MCMCGetStatistics(unsigned c) const
     { return fMCMCStatistics.at(c); }
 
     /**
