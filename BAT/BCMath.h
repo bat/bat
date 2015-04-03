@@ -35,18 +35,21 @@ class TH1D;
 namespace BCMath
 {
 
+/** \name Functions for log likelihoods **/
+/** @{ */
+
 /**
  * Calculate the natural logarithm of a normal distribution function.
-	* @param x point to be evaluated.
-	* @param mean Mean.
-	* @param sigma Standard deviation.
-	* @param norm flag for including normalization constant 1/sqrt(2*pi)/sigma */
+ * @param x point to be evaluated.
+ * @param mean Mean.
+ * @param sigma Standard deviation.
+ * @param norm flag for including normalization constant 1/sqrt(2*pi)/sigma */
 double LogGaus(double x, double mean = 0, double sigma = 1, bool norm = false);
 
 /**
  * Calculate the natural logarithm of a poisson distribution.
-	* @param x number of occurances.
-	* @param lambda expected number of occurances. */
+ * @param x number of occurances.
+ * @param lambda expected number of occurances. */
 double LogPoisson(double x, double lambda);
 
 /**
@@ -54,59 +57,17 @@ double LogPoisson(double x, double lambda);
  * approximations for factorial calculations if calculation for
  * number greater than 20 required using the BCMath::ApproxLogFact
  * function.
-	* @param n number of trials.
-	* @param k number of successes.
-	* @param p probability of success in a trial. */
+ * @param n number of trials.
+ * @param k number of successes.
+ * @param p probability of success in a trial. */
 double LogApproxBinomial(unsigned n, unsigned k, double p);
 
 /**
- * Calculates Binomial probability using approximations for
- * factorial calculations if calculation for number greater than 20
- * required using the BCMath::ApproxLogFact function.
-	* @param n number of trials.
-	* @param k number of successes.
-	* @param p probability of success in a trial. */
-double ApproxBinomial(unsigned n, unsigned k, double p);
-
-/**
- * Calculates natural logarithm of the Binomial factor "n over k"
- * using approximations for factorial calculations if calculation
- * for number greater than 20 required using the
- * BCMath::ApproxLogFact function.  Even for large numbers the
- * calculation is performed precisely, if n-k < 5
-	* @param n upper value in binomial coefficient
-	* @param k lower value in binomial coefficient */
-double LogBinomFactor(unsigned n, unsigned k);
-
-/**
- * Calculates natural logarithm of the n-factorial (n!) using
- * Srinivasa Ramanujan approximation
- * log(n!) = n*log(n) - n + log(n*(1.+4.*n*(1.+2.*n)))/6. + log(PI)/2.
- * if n > 20.  If n <= 20 it uses BCMath::LogFact to calculate it
- * exactly. */
-double ApproxLogFact(double x);
-
-/**
- * Calculates natural logarithm of the Binomial factor "n over k". */
-double LogBinomFactorExact(unsigned n, unsigned k);
-
-/**
- * Calculates natural logarithm of the n-factorial (n!) */
-double LogFact(unsigned n);
-
-/** Cache factorials for first \arg \c n integers.
- * The cache is filled upon first call of LogFact(). */
-unsigned CacheFactorials(unsigned int n);
-
-/**
- * Returns the nearest integer of a double number. */
-int Nint(double x);
-
-/**
- * Calculates the logarithm of the non-relativistic Breit-Wigner
- * distribution.
- */
+ * Calculates the logarithm of the nonrelativistic Breit-Wigner distribution. */
 double LogBreitWignerNonRel(double x, double mean, double Gamma, bool norm = false);
+
+/**
+ * Calculates the logarithm of the relativistic Breit-Wigner distribution. */
 double LogBreitWignerRel(double x, double mean, double Gamma);
 
 /**
@@ -139,6 +100,51 @@ double LogGammaPDF(double x, double alpha, double beta);
 * Return the log of the log normal distribution
 */
 double LogLogNormal(double x, double mean = 0, double sigma = 1);
+
+/** @} */
+
+/**
+ * Calculates Binomial probability using approximations for
+ * factorial calculations if calculation for number greater than 20
+ * required using the BCMath::ApproxLogFact function.
+ * @param n number of trials.
+ * @param k number of successes.
+ * @param p probability of success in a trial. */
+double ApproxBinomial(unsigned n, unsigned k, double p);
+
+/**
+ * Calculates natural logarithm of the Binomial factor "n over k"
+ * using approximations for factorial calculations if calculation
+ * for number greater than 20 required using the
+ * BCMath::ApproxLogFact function.  Even for large numbers the
+ * calculation is performed precisely, if n-k < 5
+ * @param n upper value in binomial coefficient
+ * @param k lower value in binomial coefficient */
+double LogBinomFactor(unsigned n, unsigned k);
+
+/**
+ * Calculates natural logarithm of the n-factorial (n!) using
+ * Srinivasa Ramanujan approximation
+ * log(n!) = n*log(n) - n + log(n*(1.+4.*n*(1.+2.*n)))/6. + log(PI)/2.
+ * if n > 20.  If n <= 20 it uses BCMath::LogFact to calculate it
+ * exactly. */
+double ApproxLogFact(double x);
+
+/**
+ * Calculates natural logarithm of the Binomial factor "n over k". */
+double LogBinomFactorExact(unsigned n, unsigned k);
+
+/**
+ * Calculates natural logarithm of the n-factorial (n!) */
+double LogFact(unsigned n);
+
+/** Cache factorials for first \arg \c n integers.
+ * The cache is filled upon first call of LogFact(). */
+unsigned CacheFactorials(unsigned int n);
+
+/**
+ * Returns the nearest integer of a double number. */
+int Nint(double x);
 
 /**
 * Wrapper around ROOT::Math::chisquared_pdf
