@@ -35,7 +35,7 @@ public:
     /** @{ **/
 
     /** Constructor */
-    BCSplitGaussianPrior(double mean, double sigma_below, double sigma_above);
+    BCSplitGaussianPrior(double mode, double sigma_below, double sigma_above);
 
     /** Copy constructor */
     BCSplitGaussianPrior(const BCSplitGaussianPrior& other);
@@ -56,7 +56,7 @@ public:
      * @return Whether everything needed for prior is set and prior can be used. */
     virtual bool IsValid() const
     {
-        return std::isfinite(fMean)
+        return std::isfinite(fMode)
                and std::isfinite(fSigmaBelow) and fSigmaBelow > 0
                and std::isfinite(fSigmaAbove) and fSigmaAbove > 0;
     }
@@ -73,7 +73,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
     virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { if (fMean < xmin) return xmin; if (fMean > xmax) return xmax; return fMean; }
+    { if (fMode < xmin) return xmin; if (fMode > xmax) return xmax; return fMode; }
 
     /**
      * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -96,7 +96,10 @@ public:
     /** @{ **/
 
     void SetMean(double mean)
-    { fMean = mean; }
+    { SetMode(mean); }
+
+    void SetMode(double mode)
+    { fMode = mode; }
 
     void SetSigmaBelow(double sigma)
     { fSigmaBelow = sigma; }
@@ -104,15 +107,15 @@ public:
     void SetSigmaAbove(double sigma)
     { fSigmaAbove = sigma; }
 
-    void SetParameters(double mean, double sigma_below, double sigma_above)
-    { SetMean(mean); SetSigmaBelow(sigma_below); SetSigmaAbove(sigma_above);}
+    void SetParameters(double mode, double sigma_below, double sigma_above)
+    { SetMode(mode); SetSigmaBelow(sigma_below); SetSigmaAbove(sigma_above);}
 
     /** @} **/
 
 protected:
-    double fMean;							 ///< mean of split gaussian
-    double fSigmaBelow;				 ///< std dev of split gaussian below mean
-    double fSigmaAbove;				 ///< std dev of split gaussian above mean
+    double fMode;							 ///< mode of split gaussian
+    double fSigmaBelow;				 ///< std dev of split gaussian below mode
+    double fSigmaAbove;				 ///< std dev of split gaussian above mode
 };
 
 #endif

@@ -64,12 +64,10 @@ public:
             TEST_CHECK_EQUAL( prior->GetMean(xmin,xmax), mean );
         
         // variance
-        if (variance >= 0) {
-            if (std::isfinite(variance))
-                TEST_CHECK_NEARLY_EQUAL( prior->GetVariance(xmin,xmax), variance, eps );
-            else
-                TEST_CHECK_EQUAL( prior->GetVariance(xmin,xmax), variance );
-        }
+        if (std::isfinite(variance))
+            TEST_CHECK_NEARLY_EQUAL( prior->GetVariance(xmin,xmax), variance, eps );
+        else
+            TEST_CHECK_EQUAL( prior->GetVariance(xmin,xmax), variance );
     }
 
 
@@ -160,13 +158,13 @@ public:
         std::cout << "Testing BCSplitGaussianPrior ... " << std::flush;
         prior = new BCSplitGaussianPrior(1.5,3,5);
         TestPriorImplementation( prior, -10, 10, 1);
-        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.30523 , 1.e-5); // at mean
-        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(6.5),  -2.80523 , 1.e-5); // at mean+sigma_above
-        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(-4.5), -4.30523 , 1.e-5); // at mean-2*sigma_below
+        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.30523 , 1.e-5); // at mode
+        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(6.5),  -2.80523 , 1.e-5); // at mode+sigma_above
+        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(-4.5), -4.30523 , 1.e-5); // at mode-2*sigma_below
         //                            xmin,    xmax,    mode, I,       mean,    var
-        TestPriorDistribution( prior, neg_inf, pos_inf, 1.5,  1,       3.09577, -1); // [ -inf , +inf ]
-        TestPriorDistribution( prior, -4.5,    6.5,     1.5,  0.78462, 1.76119, -1); // [  fin, fin  ]
-        TestPriorDistribution( prior, 6.5,     pos_inf, 6.5,  0.19832, 9.12568, -1); // [  fin, +inf ] above mean
+        TestPriorDistribution( prior, neg_inf, pos_inf, 1.5,  1,       3.09577, 16.45352); // [ -inf , +inf ]
+        TestPriorDistribution( prior, -4.5,    6.5,     1.5,  0.78462, 1.76119,  7.06646); // [  fin, fin  ]
+        TestPriorDistribution( prior, 6.5,     pos_inf, 6.5,  0.19832, 9.12568,  4.97744); // [  fin, +inf ] above mean
         delete prior;
         std::cout << "PASS" << std::endl;
 
