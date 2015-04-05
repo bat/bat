@@ -1,4 +1,4 @@
-BAT - Bayesian Analysis Toolkit
+BAT - Bayesian Analysis Toolkit -- MPI version (v0.9.4.MPI)
 ===============================
 
 The Bayesian Analysis Toolkit is a software analysis package which allows
@@ -27,6 +27,12 @@ Authors
 --------
 
 See `doc/CREDITS` file for list of contributors to BAT.
+
+Authors (MPI)
+--------
+
+The MPI version has been modified from the vanilla version by the authors of SusyFit
+(https://github.com/silvest/SusyFit)
 
 Availability
 -------------

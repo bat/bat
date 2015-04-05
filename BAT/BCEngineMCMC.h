@@ -575,8 +575,10 @@ class BCEngineMCMC
       /**
        * Generates a new point using the Metropolis algorithm.
        * @param chain chain index */
-      bool MCMCGetNewPointMetropolis(unsigned chain = 0);
-      bool MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter);
+    /* Begin MPI MOD */
+      void MCMCGetNewPointMetropolis();
+      void MCMCGetNewPointMetropolis(unsigned parameter);
+    /* End MPI MOD */
 
       /**
        * Updates statistics: find new maximum */
@@ -661,6 +663,10 @@ class BCEngineMCMC
        */
       virtual void MCMCCurrentPointInterface(std::vector<double> & /*point*/, int /*ichain*/, bool /*accepted*/)
          {}
+    
+    /* Begin MPI MOD */
+      int procnum;
+    /* End MPI MOD */
 
       /** @} */
 
