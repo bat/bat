@@ -1,3 +1,5 @@
+NOTE: This a a form of bat (https://github.com/bat/bat) for the implementation of MPI. The branch "bat" will be kept vanilla. The release branches will be modified for the MPI implementation.
+
 BAT - Bayesian Analysis Toolkit
 ===============================
 
