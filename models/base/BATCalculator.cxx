@@ -90,7 +90,7 @@ BATCalculator::BATCalculator( /* const char * name,  const char * title, */
     , _nMCMC(1000000)
     , fSize(0.05)
     , fLeftSideFraction(0.5)
-    //, TNamed( TString(name), TString(title) )
+      //, TNamed( TString(name), TString(title) )
 {
     // constructor
     //if (nuisanceParameters)

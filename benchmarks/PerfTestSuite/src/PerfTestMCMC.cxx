@@ -28,8 +28,8 @@
 PerfTestMCMC::PerfTestMCMC(std::string name)
     : PerfTest(name)
     , BCModel(name.c_str())
-    , fCorrelation(std::vector<TGraph*>(0))
-    , fHistCorr(std::vector<TH2D*>(0))
+    , fCorrelation(std::vector<TGraph * >(0))
+    , fHistCorr(std::vector<TH2D * >(0))
     , fXOld(std::vector<std::vector<double> >(0))
 {
     // define subtests

@@ -21,8 +21,8 @@
 PerfTestVarPar::PerfTestVarPar(std::string name, PerfTestMCMC* test)
     : PerfTest(name)
     , fTest(test)
-    , fTargetContainer(std::vector<TGraphErrors*>(0))
-    , fTestContainer(std::vector<TGraphErrors*>(0))
+    , fTargetContainer(std::vector<TGraphErrors * >(0))
+    , fTestContainer(std::vector<TGraphErrors * >(0))
 {
     // set test type
     fTestType = PerfTest::kVarPar;
