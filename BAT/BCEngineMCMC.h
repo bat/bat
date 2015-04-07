@@ -1304,15 +1304,6 @@ public:
     /** @} */
 
 private:
-
-    /**
-     * Defines a type of a pointer to a member function. */
-    typedef bool (BCEngineMCMC::*MCMCPointerToGetProposalPoint) (int chain, std::vector<double> xnew, std::vector<double> xold) const;
-
-    /**
-     * Pointer to a member function */
-    MCMCPointerToGetProposalPoint fMCMCPointerToGetProposalPoint;
-
     /**
      * Keeps variables that need to be both members and thread local.
      */

@@ -307,7 +307,6 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC* other)
 // ---------------------------------------------------------
 void BCEngineMCMC::Copy(const BCEngineMCMC& other)
 {
-    fMCMCPointerToGetProposalPoint            = other.fMCMCPointerToGetProposalPoint;
     fMCMCNChains                              = other.fMCMCNChains;
     fMCMCNLag                                 = other.fMCMCNLag;
     fMCMCNIterations                          = other.fMCMCNIterations;
