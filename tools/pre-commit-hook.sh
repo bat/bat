@@ -66,12 +66,14 @@ git diff --cached --name-status --diff-filter=ACMR |
             # regex matching
 	        if [[ "$FILE" =~ \.(C|cxx|h)$ ]]; then
 		        $ASTYLE $OPTIONS < $FILE > $FILE.beautified
-		        md5sum -b $FILE | { read stdin; echo $stdin.beautified; } | md5sum -c --status -
+		        md5sum $FILE $FILE.beautified > $FILE.md5
+		        md5sum -c --status $FILE.md5
 		        if [ $? -ne 0 ]; then
 			        echo "[commit rejected] $FILE does not respect the agreed coding standards." >&2
 			        RETURN=1
 		        fi
-		        rm $FILE.beautified
+		        rm $FILE.md5
+            rm $FILE.beautified
 	        fi
 	    done
 
