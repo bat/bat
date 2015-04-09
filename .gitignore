@@ -31,6 +31,8 @@ build*/
 *_rdict.*
 *.rootmap
 models/base/LinkDef.h
+*Dict.h
+*Dict.cxx
 
 # Results
 *.[oa]
