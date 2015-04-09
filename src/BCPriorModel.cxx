@@ -33,8 +33,8 @@ BCPriorModel::~BCPriorModel()
 bool BCPriorModel::PreparePriorModel()
 {
     // Clear Parameters and User-defined Observables
-    fParameters.Clear(true);
-    fObservables.Clear(true);
+    fParameters = BCParameterSet();
+    fObservables = BCVariableSet();
 
     if (!fModel)
         return false;

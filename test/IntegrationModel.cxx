@@ -24,7 +24,7 @@ IntegrationModel::~IntegrationModel()
 
 bool IntegrationModel::DefineParameters()
 {
-    ClearParameters(true);
+    fParameters = BCParameterSet();
     for (unsigned int k = 0; k < GetDimensionality(); k++)
         AddParameter(Form("x%0d", k), 0, 1);
     SetPriorConstantAll();

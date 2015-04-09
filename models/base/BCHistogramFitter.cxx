@@ -192,7 +192,7 @@ bool BCHistogramFitter::SetFitFunction(TF1* func)
         SetName(TString::Format("HistogramFitter with %s", fFitFunction->GetName()));
 
     // reset parameters
-    ClearParameters(true);
+    fParameters = BCParameterSet();
 
     // get the new number of parameters
     int n = func->GetNpar();

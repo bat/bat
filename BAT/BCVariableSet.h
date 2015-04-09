@@ -5,7 +5,7 @@
  * @class BCVariableSet Wrapper to allow access by name into list of BCVariable.
  * @author Frederik Beaujean
  * @author Daniel Greenwald
- * @note Variables are not owned, and will not be deleted by BCVariableSet.
+ * @note Variables are owned by and will be deleted by BCVariableSet.
  */
 
 /*
@@ -36,8 +36,7 @@ public:
 
     /*
      * Destructor */
-    virtual ~BCVariableSet()
-    {}
+    virtual ~BCVariableSet();
 
     /*
      * Assignment operator. */
@@ -48,11 +47,6 @@ public:
      * @param par Variable
      * @return True if successful. */
     virtual bool Add(BCVariable* par);
-
-    /**
-     * Clear vector of variables.
-     * @param hard If true, delete member variables. */
-    virtual void Clear(bool hard);
 
     /**
      * Raw and fast access.

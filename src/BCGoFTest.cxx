@@ -136,7 +136,7 @@ double BCGoFTest::CalculatePValue(const std::vector<double>& parameters)
     fDataMap.reserve(fTestModel->GetDataSet()->GetNDataPoints() * fTestModel->GetDataSet()->GetNValuesPerPoint());
 
     // remove existing parameters
-    fParameters.Clear(true);
+    fParameters = BCParameterSet();
 
     // loop through data points and values
     int counter = 0;

@@ -25,6 +25,14 @@ BCVariableSet::BCVariableSet()
 }
 
 // ---------------------------------------------------------
+BCVariableSet::~BCVariableSet()
+{
+    for (unsigned int i = 0; i < fPars.size() ; ++i)
+        delete fPars[i];
+    fPars.clear();
+}
+
+// ---------------------------------------------------------
 BCVariableSet& BCVariableSet::operator=(const BCVariableSet& rhs)
 {
     for (unsigned i = 0; i < rhs.fPars.size(); ++i)
@@ -88,15 +96,6 @@ void BCVariableSet::SetPartner(BCVariableSet* const set)
         fFillH2Partner.clear();
     else
         fFillH2Partner.assign(Size(), std::vector<bool>(fPartnerSet->Size(), false));
-}
-
-// ---------------------------------------------------------
-void BCVariableSet::Clear(bool hard)
-{
-    if (hard)
-        for (unsigned int i = 0; i < fPars.size() ; ++i)
-            delete fPars[i];
-    fPars.clear();
 }
 
 // ---------------------------------------------------------

@@ -914,7 +914,7 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
     // load user-defined observables
     if (!loadObservables)
         return true;
-    fObservables.Clear(true);
+    fObservables = BCVariableSet();
     i = 0;
     while ( partree->GetEntryNumberWithIndex(0, i) >= 0 ) {
         partree->GetEntryWithIndex(0, i);

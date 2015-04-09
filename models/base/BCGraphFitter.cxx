@@ -138,7 +138,7 @@ int BCGraphFitter::SetFitFunction(TF1* func)
         SetName(TString::Format("GraphFitter with %s", fFitFunction->GetName()));
 
     // reset parameters
-    ClearParameters(true);
+    fParameters = BCParameterSet();
 
     // add parameters
     for (int i = 0; i < fFitFunction->GetNpar(); ++i) {

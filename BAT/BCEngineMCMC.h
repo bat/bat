@@ -1214,13 +1214,6 @@ public:
     virtual void ResetResults();
 
     /**
-     * @deprecated Instead use GetParameters().Clear(hard)
-     * Empty the parameter set.
-     * @param hard Delete the parameters objects. */
-    void ClearParameters(bool hard = false)
-    { fParameters.Clear(hard); }
-
-    /**
      * Interface allowing to execute arbitrary code for each iteration
      * of the MCMC. The frequency of calling this method is influenced
      * by the setup of the Lag and whether or not the MCMC is run with
