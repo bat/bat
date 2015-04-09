@@ -146,28 +146,6 @@ unsigned CacheFactorials(unsigned int n);
  * Returns the nearest integer of a double number. */
 int Nint(double x);
 
-/**
-* Wrapper around ROOT::Math::chisquared_pdf
-that can be used to construct a TF1. */
-double chi2(double* x, double* par);
-
-/**
- * Get N random numbers distributed according to chi square function
- * with K degrees of freedom
- */
-void RandomChi2(std::vector<double>& randoms, int K);
-
-/**
- * Calculate the empirical cumulative distribution function for
- * one dimensional data vector. For consistency, the ECDF
- * of value smaller than the minimum observed (underflow bin) is zero, and
- * for larger than maximum (overflow bin) it is one.
- *
- * @param   data  the observations
- * @return  histogram with normalized ECDF
- */
-TH1D* ECDF(const std::vector<double>& data);
-
 /** \name p value methods */
 /** @{ */
 

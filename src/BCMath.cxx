@@ -267,66 +267,6 @@ double BCMath::LogLogNormal(double x, double mean, double sigma)
 }
 
 // ---------------------------------------------------------
-double BCMath::chi2(double* x, double* par)
-{
-    return ROOT::Math::chisquared_pdf(x[0], par[0]);
-}
-
-// ---------------------------------------------------------
-void BCMath::RandomChi2(std::vector<double>& randoms, int K)
-{
-    // fixed upper cutoff to 1000, might be too small
-    TF1* f = new TF1("chi2", chi2, 0.0, 1000, 1);
-    f->SetParameter(0, K);
-    f->SetNpx(500);
-    // uses inverse-transform method
-    // fortunately CDF only built once
-    for (unsigned int i = 0; i < randoms.size(); i++)
-        randoms.at(i) = f->GetRandom();
-
-    delete f;
-}
-
-// ---------------------------------------------------------
-TH1D* BCMath::ECDF(const std::vector<double>& data)
-{
-
-    // copy data to new vector to eventually contain bin lower edges:
-    std::vector<double> bins = data;
-    // sort to increasing order
-    std::stable_sort(bins.begin(), bins.end(), std::less<double>());
-    // remove duplicates
-    std::vector<double>::iterator last = std::unique(bins.begin(), bins.end());
-    bins.erase(last, bins.end());
-
-    // create histogram where
-    // lower edge of first bin = min. data
-    // upper edge of last bin = max. data
-    TH1D* ECDF = new TH1D("ECDF", "Empirical cumulative distribution function", bins.size() - 1, &bins[0]);
-
-    // fill the data in to find multiplicities
-    for (unsigned i = 0; i < data.size(); ++i)
-        ECDF->Fill(data[i]);
-
-    // divide first bin by number of data points
-    ECDF->SetBinContent(1, ECDF->GetBinContent(1) / data.size());
-    ECDF->SetBinError(1, 0.0);
-
-    // construct the ecdf
-    for (int nBin = 2; nBin <= ECDF->GetNbinsX(); nBin++) {
-        // new content = prior bin content (already summed up and divided by n) + this bin content / n
-        ECDF->SetBinContent(nBin, ECDF->GetBinContent(nBin - 1) + ECDF->GetBinContent(nBin) / data.size());
-        ECDF->SetBinError(nBin, 0.0);
-    }
-
-    // adjust for nice plotting
-    ECDF->SetMinimum(0.);
-    ECDF->SetMaximum(1.);
-
-    return ECDF;
-}
-
-// ---------------------------------------------------------
 double BCMath::CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned& nobservations) throw (std::domain_error)
 {
     // avoid pathologies
