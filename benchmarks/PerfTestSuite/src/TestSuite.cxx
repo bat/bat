@@ -16,7 +16,7 @@
 
 //______________________________________________________________________________
 TestSuite::TestSuite()
-    : fTestContainer(std::vector<PerfTest*>(0))
+    : fTestContainer(std::vector<PerfTest * >(0))
     , fNPlotColumns(3)
     , fThumbSize(300)
     , fIncludeHtmlHeader(true)

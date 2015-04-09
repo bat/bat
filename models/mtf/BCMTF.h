@@ -273,8 +273,10 @@ public:
      * @param binindex The bin index.
      * @param parameters A reference to the parameters used to calculate the efficiency.
      * @return The efficiency. */
-    // return efficiency for a channel, process and bin
     double Efficiency(int channelindex, int processindex, int binindex, const std::vector<double>& parameters);
+
+    // avoid accidental hiding
+    using BCModel::Probability;
 
     /**
      * Return the probability for a process in a channel and for a

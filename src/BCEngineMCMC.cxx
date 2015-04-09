@@ -307,7 +307,6 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC* other)
 // ---------------------------------------------------------
 void BCEngineMCMC::Copy(const BCEngineMCMC& other)
 {
-    fMCMCPointerToGetProposalPoint            = other.fMCMCPointerToGetProposalPoint;
     fMCMCNChains                              = other.fMCMCNChains;
     fMCMCNLag                                 = other.fMCMCNLag;
     fMCMCNIterations                          = other.fMCMCNIterations;
@@ -3136,29 +3135,42 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
     ylabel->SetTextAlign(22);
     ylabel->SetTextAngle(90);
 
+    TLatex* corr_number = new TLatex();
+    corr_number->SetTextFont(62);
+    corr_number->SetTextSize(text_size);
+    corr_number->SetTextAlign(22);
+
     gStyle->SetPalette(54);
     gStyle->SetPaintTextFormat("+.2g");
     hist_corr->GetZaxis()->SetRangeUser(-1, 1);
+    hist_corr->GetZaxis()->SetLabelFont(62);
+    hist_corr->GetZaxis()->SetDecimals(true);
+    hist_corr->GetZaxis()->SetLabelSize(text_size);
     hist_corr->Draw("colz");
 
-    // Draw labels and square colors for correlations
-    TBox* bcorr = new TBox();
+    // Draw labels and correlations
     for (int i = 1; i <= hist_corr->GetNbinsX(); ++i) {
         // labels
         xlabel->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
-                          hist_corr->GetYaxis()->GetXmax() + 20e-2,
+                          hist_corr->GetYaxis()->GetXmax() + 12e-2,
                           GetVariable(i - 1)->GetLatexNameWithUnits().data());
 
-        ylabel->DrawLatex(hist_corr->GetXaxis()->GetXmin() - 20e-2,
+        ylabel->DrawLatex(hist_corr->GetXaxis()->GetXmin() - 12e-2,
                           hist_corr->GetYaxis()->GetBinCenter(GetNVariables() - i + 1),
                           GetVariable(i - 1)->GetLatexNameWithUnits().data());
+        for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
+            if (hist_corr->GetBinContent(i, j) >= 0)
+                corr_number->SetTextColor(kBlack);
+            else
+                corr_number->SetTextColor(kWhite);
+            corr_number->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
+                                   hist_corr->GetYaxis()->GetBinCenter(j),
+                                   TString::Format("%+.2g", hist_corr->GetBinContent(i, j)));
+        }
     }
 
-    // write numbers in
-    hist_corr->SetMarkerColor(kRed);
-    hist_corr->Draw("text same");
-
     // Blank out empty squares
+    TBox* bcorr = new TBox();
     bcorr->SetFillColor(kWhite);
     for (unsigned i = 0; i < unfilled.size(); ++i) {
         bcorr->DrawBox(hist_corr->GetXaxis()->GetBinLowEdge(unfilled[i].first + 1), hist_corr->GetYaxis()->GetBinLowEdge(GetNVariables() - unfilled[i].second),

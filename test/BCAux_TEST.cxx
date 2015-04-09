@@ -58,17 +58,17 @@ public:
     {
         double inf_val = std::numeric_limits<double>::infinity();
         double fin_val = 6.2;
-        TEST_CHECK_EQUAL(RangeType(-fin_val,fin_val),  kFiniteRange);
-        TEST_CHECK_EQUAL(RangeType(-inf_val,fin_val),  kNegativeInfiniteRange);
-        TEST_CHECK_EQUAL(RangeType(fin_val,inf_val),   kPositiveInfiniteRange);
-        TEST_CHECK_EQUAL(RangeType(-inf_val,inf_val),  kInfiniteRange);
-        TEST_CHECK_EQUAL(RangeType(fin_val,fin_val),   kEmptyRange);
-        TEST_CHECK_EQUAL(RangeType(inf_val,inf_val),   kEmptyRange);
-        TEST_CHECK_EQUAL(RangeType(-inf_val,-inf_val), kEmptyRange);
-        TEST_CHECK_EQUAL(RangeType(+inf_val,-inf_val), kReverseRange);
-        TEST_CHECK_EQUAL(RangeType(+inf_val,fin_val),  kReverseRange);
-        TEST_CHECK_EQUAL(RangeType(fin_val,-inf_val),  kReverseRange);
-        TEST_CHECK_EQUAL(RangeType(fin_val,-fin_val),  kReverseRange);
+        TEST_CHECK_EQUAL(RangeType(-fin_val, fin_val),  kFiniteRange);
+        TEST_CHECK_EQUAL(RangeType(-inf_val, fin_val),  kNegativeInfiniteRange);
+        TEST_CHECK_EQUAL(RangeType(fin_val, inf_val),   kPositiveInfiniteRange);
+        TEST_CHECK_EQUAL(RangeType(-inf_val, inf_val),  kInfiniteRange);
+        TEST_CHECK_EQUAL(RangeType(fin_val, fin_val),   kEmptyRange);
+        TEST_CHECK_EQUAL(RangeType(inf_val, inf_val),   kEmptyRange);
+        TEST_CHECK_EQUAL(RangeType(-inf_val, -inf_val), kEmptyRange);
+        TEST_CHECK_EQUAL(RangeType(+inf_val, -inf_val), kReverseRange);
+        TEST_CHECK_EQUAL(RangeType(+inf_val, fin_val),  kReverseRange);
+        TEST_CHECK_EQUAL(RangeType(fin_val, -inf_val),  kReverseRange);
+        TEST_CHECK_EQUAL(RangeType(fin_val, -fin_val),  kReverseRange);
     }
 
     virtual void run() const
