@@ -344,19 +344,9 @@ public:
     { return fMultivariateProposalFunctionScaleMultiplier; }
 
     /**
-     * @return R-value criterion */
-    double MCMCGetRValueCriterion() const
-    { return fMCMCRValueCriterion; }
-
-    /**
      * @return R-value criterion for parameters */
     double MCMCGetRValueParametersCriterion() const
     { return fMCMCRValueParametersCriterion; }
-
-    /**
-     * @return R value */
-    double MCMCGetRValue() const
-    { return fMCMCRValue; }
 
     /**
      * @return vector of R values for parameters */
@@ -814,11 +804,6 @@ public:
     { fMCMCFlagPreRun = flag; }
 
     /**
-     * Sets the R-value criterion for convergence of all chains. */
-    void MCMCSetRValueCriterion(double r)
-    { fMCMCRValueCriterion = r; }
-
-    /**
      * Sets the parameter R-value criterion for convergence of all chains */
     void MCMCSetRValueParametersCriterion(double r)
     { fMCMCRValueParametersCriterion = r; }
@@ -1205,6 +1190,18 @@ public:
     bool MCMCMetropolisPreRun();
 
     /**
+     * Calculate R value of set of batches of samples---represented by
+     * their means and variances, all batches containing the same
+     * number of samples---according to Brooks & Gelman, "General
+     * Methods for Monitoring Convergence of Iterative Simulations," (1988)
+     * @param means Vector of means of sample batches.
+     * @param variances Vector of variances of samples batches.
+     * @param n Number of samples in each batch.
+     * @param correctForSamplingVariability Flag to control correcting R value for initial sampling variability.
+     * @return R value for set of batches of samples. */
+    static double RValue(std::vector<double> means, std::vector<double> variances, unsigned n, bool correctForSamplingVariability = true);
+
+    /**
      * Resets all containers used in MCMC and initializes starting points.
      * @return Success of action. */
     bool MCMCInitialize();
@@ -1581,16 +1578,8 @@ protected:
     bool fCorrectRValueForSamplingVariability;
 
     /**
-     * The R-value criterion for convergence of log-likelihood*/
-    double fMCMCRValueCriterion;
-
-    /**
      * The R-value criterion for convergence of parameters */
     double fMCMCRValueParametersCriterion;
-
-    /**
-     * The R-value at which the chains did converge */
-    double fMCMCRValue;
 
     /** The R-values for each parameter */
     std::vector<double> fMCMCRValueParameters;

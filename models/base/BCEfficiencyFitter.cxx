@@ -89,7 +89,9 @@ BCEfficiencyFitter::BCEfficiencyFitter(const char* name, TH1D* hist1, TH1D* hist
     SetHistograms(hist1, hist2);
     SetFitFunction(func);
 
-    MCMCSetRValueCriterion(0.01);
+    // should this be for the parameters?
+    // MCMCSetRValueParametersCriterion(0.01);
+
     fFlagIntegration = false;
 
     // set MCMC for marginalization

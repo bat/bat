@@ -70,7 +70,6 @@ BCEngineMCMC::BCEngineMCMC(const char* name)
     , fMCMCMultivariateProposalFunction(false)
     , fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase)
     , fCorrectRValueForSamplingVariability(false)
-    , fMCMCRValueCriterion(0.1)
     , fMCMCRValueParametersCriterion(0.1)
     , fRandom(new TRandom3())
     , fMCMCTree(0)
@@ -107,7 +106,6 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
     , fMCMCMultivariateProposalFunction(false)
     , fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase)
     , fCorrectRValueForSamplingVariability(false)
-    , fMCMCRValueCriterion(0.1)
     , fMCMCRValueParametersCriterion(0.1)
     , fRandom(new TRandom3())
     , fMCMCTree(0)
@@ -294,7 +292,6 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC* other)
     fMCMCNIterationsEfficiencyCheck       = other->MCMCGetNIterationsEfficiencyCheck();
     fMCMCNIterationsConvergenceCheck      = other->MCMCGetNIterationsConvergenceCheck();
     fMCMCNIterationsClearConvergenceStats = other->MCMCGetNIterationsClearConvergenceStats();
-    fMCMCRValueCriterion                  = other->MCMCGetRValueCriterion();
     fMCMCRValueParametersCriterion        = other->MCMCGetRValueParametersCriterion();
     fMCMCEfficiencyMin                    = other->MCMCGetMinimumEfficiency();
     fMCMCEfficiencyMax                    = other->MCMCGetMaximumEfficiency();
@@ -344,9 +341,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fMCMCLogPrior                             = other.fMCMCLogPrior;
     fMCMCLogPrior_Provisional                 = other.fMCMCLogPrior_Provisional;
     fCorrectRValueForSamplingVariability      = other.fCorrectRValueForSamplingVariability;
-    fMCMCRValueCriterion                      = other.fMCMCRValueCriterion ;
     fMCMCRValueParametersCriterion            = other.fMCMCRValueParametersCriterion;
-    fMCMCRValue                               = other.fMCMCRValue;
     fMCMCRValueParameters                     = other.fMCMCRValueParameters;
     fRandom                                   = (other.fRandom) ? new TRandom3(*other.fRandom) : NULL;
     fMCMCThreadLocalStorage                   = other.fMCMCThreadLocalStorage;
@@ -1837,136 +1832,44 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             if (fMCMCFlagWritePreRunToFile)
                 MCMCInChainWriteChains();
 
-            if ( !make_one_check and fMCMCStatistics.front().n_samples % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax )
+            if ( !make_one_check and fMCMCStatistics[0].n_samples % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax )
                 continue;
 
             make_one_check = false;
 
-            // calculate R values according to Brooks & Gelman,
-            // "General Methods for Monitoring Convergence of Iterative Simulations, 1998
-
-            fMCMCStatistics_AllChains.Reset();
-            inter_chain.Reset();
-            for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                fMCMCStatistics_AllChains += fMCMCStatistics[c];
-                inter_chain.Update(fMCMCStatistics[c].probability_variance, fMCMCStatistics[c].variance, fMCMCStatistics[c].mean);
-            }
-
-            // parameter R values
-            for (unsigned i = 0; i < GetNParameters(); ++i) {
-                if (GetParameter(i)->Fixed())
-                    continue;
-                if (inter_chain.mean[i] == 0) { // mean of variance = 0
-                    if (fMCMCStatistics_AllChains.variance[i] == 0) { // variance of all samples = 0
-                        BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : all samples in all chains identical!");
-                        fMCMCRValueParameters[i] = 1;
-                    } else {
-                        BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : all chain variances zero!");
-                        fMCMCRValueParameters[i] = std::numeric_limits<double>::infinity();
-                    }
-                } else {
-                    fMCMCRValueParameters[i] = sqrt( fMCMCStatistics_AllChains.variance[i] / inter_chain.mean[i] ); // variance(all samples) / mean(chain variances)
-                }
-            }
-
-            if (inter_chain.probability_mean == 0) { // mean of probability variances = 0
-                if (fMCMCStatistics_AllChains.probability_variance == 0) { // variance of all probabilities = 0
-                    BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : all likelihoods in all samples identical!");
-                    fMCMCRValue = 1;
-                } else {
-                    BCLog::OutDebug("BCEngineMCMC::MCMCMetropolisPreRun : variance of all likelihoods in all chains zero!");
-                    fMCMCRValue = std::numeric_limits<double>::infinity();
-                }
-            } else {
-                fMCMCRValue = sqrt( fMCMCStatistics_AllChains.probability_variance / inter_chain.probability_mean ); // variance(all samples) / mean(chain variances)
-            }
-
-            if (fCorrectRValueForSamplingVariability) {
-                double m = static_cast<double>(fMCMCNChains);
-                double n = static_cast<double>(fMCMCStatistics.front().n_samples);
-                double N = (n - 1) / n;
-                double M = (m + 1) / m;
-                double K1 = N * N / m;
-                double K2 = M * 2 / (m - 1);
-                double K3 = 2 * N * M / m;
-
-                // correct parameters (i>=0) and posterior (i==-1) for initial sampling variability
-                for (int i = -1; i < (int)GetNParameters(); ++i) {
-                    if (i >= 0 and GetParameter(i)->Fixed())
-                        continue;
-                    double W = (i >= 0) ? fMCMCStatistics_AllChains.variance[i]                 : fMCMCStatistics_AllChains.probability_variance; // variance of all samples
-                    double S = (i >= 0) ? inter_chain.mean[i]                                   : inter_chain.probability_mean; // mean of chain variances
-                    double Z = (i >= 0) ? inter_chain.variance[i]                               : inter_chain.probability_variance;	// variance of chain variances
-                    double X = (i >= 0) ? inter_chain.mean[inter_chain.efficiency.size() + i]     : 0; // mean of chain means
-                    double B = (i >= 0) ? inter_chain.variance[inter_chain.efficiency.size() + i] : 0; // variance of chain means
-                    // calculate X and B for the probability
-                    if (i < 0) {
-                        for (unsigned c = 0; c < fMCMCNChains; ++c)
-                            X += fMCMCStatistics[c].probability_mean;
-                        X /= fMCMCNChains;
-                        for (unsigned c = 0; c < fMCMCNChains; ++c)
-                            B += (fMCMCStatistics[c].probability_mean - X) * (fMCMCStatistics[c].probability_mean - X);
-                        B /= fMCMCNChains - 1.;
-                    }
-
-                    double V = N * W + M * B;
-
-                    double X2 = 0;
-                    for (unsigned c = 0; c < fMCMCNChains; ++c)
-                        X2 += (i >= 0) ? fMCMCStatistics[c].mean[i] * fMCMCStatistics[c].mean[i] : fMCMCStatistics[c].probability_mean * fMCMCStatistics[c].probability_mean;
-                    X2 /= fMCMCNChains;
-                    double cov_s_x = 0;
-                    double cov_s_x2 = 0;
-                    for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                        double delta_s = (i >= 0) ? fMCMCStatistics[c].variance[i] - S : fMCMCStatistics[c].probability_variance - S;
-                        cov_s_x  += (i >= 0) ? delta_s * (fMCMCStatistics[c].mean[i] - X)                             : delta_s * (fMCMCStatistics[c].probability_mean - X);
-                        cov_s_x2 += (i >= 0) ? delta_s * (fMCMCStatistics[c].mean[i] * fMCMCStatistics[c].mean[i] - X2) : delta_s * (fMCMCStatistics[c].probability_mean * fMCMCStatistics[c].probability_mean - X2);
-                    }
-                    cov_s_x  /= fMCMCNChains - 1.;
-                    cov_s_x2 /= fMCMCNChains - 1.;
-                    double varV = K1 * Z + K2 * B * B + K3 * (cov_s_x2 - 2.*X * cov_s_x);
-
-                    double df = 2 * V * V / varV;
-                    if (i >= 0)
-                        fMCMCRValueParameters[i] *= sqrt((df + 3.) / (df + 1.));
-                    else
-                        fMCMCRValue *= sqrt((df + 3.) / (df + 1.));
-                }
-            }
-
-            // check R values
+            // Calculate & check R values
             fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
-            for (unsigned i = 0; i<GetNParameters() and fMCMCNIterationsConvergenceGlobal>0; ++i)
-                if ( ! GetParameter(i)->Fixed() and (fMCMCRValueParameters[i] - 1) > fMCMCRValueParametersCriterion )
+            for (unsigned p = 0; p < GetNParameters(); ++p) {
+                if (GetParameter(p)->Fixed())
+                    continue;
+                std::vector<double> means(fMCMCNChains, 0);
+                std::vector<double> variances(fMCMCNChains, 0);
+                for (unsigned c = 0; c < fMCMCNChains; ++c) {
+                    means[c]     = fMCMCStatistics[c].mean[p];
+                    variances[c] = fMCMCStatistics[c].variance[p];
+                }
+                fMCMCRValueParameters[p] = RValue(means, variances, fMCMCStatistics[0].n_samples, fCorrectRValueForSamplingVariability);
+                if ((fMCMCRValueParameters[p] - 1) > fMCMCRValueParametersCriterion)
                     fMCMCNIterationsConvergenceGlobal = -1;
-            if (fMCMCNIterationsConvergenceGlobal > 0 and (fMCMCRValue - 1) > fMCMCRValueCriterion)
-                fMCMCNIterationsConvergenceGlobal = -1;
+            }
 
-            if ( fMCMCNIterationsConvergenceGlobal > 0 )
+            if (fMCMCNIterationsConvergenceGlobal > 0)
                 continue;
 
             BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
             BCLog::OutDetail(Form("       - %-*s : R-Value", fParameters.MaxNameLength(), "Parameter"));
 
-            for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar) {
-
-                if ( GetParameter(ipar)->Fixed() )
+            for (unsigned p = 0; p < GetNParameters(); ++p) {
+                if (GetParameter(p)->Fixed())
                     continue;
 
-                if ( fMCMCRValueParameters[ipar] - 1 < fMCMCRValueParametersCriterion )
-                    BCLog::OutDetail(TString::Format("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), fMCMCRValueParameters.at(ipar)));
-                else if ( fMCMCRValueParameters.at(ipar) != std::numeric_limits<double>::infinity() )
-                    BCLog::OutDetail(TString::Format("         %-*s :  %.06f <--", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data(), fMCMCRValueParameters.at(ipar)));
+                if ((fMCMCRValueParameters[p] - 1) < fMCMCRValueParametersCriterion)
+                    BCLog::OutDetail(TString::Format("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
+                else if (std::isfinite(fMCMCRValueParameters[p]))
+                    BCLog::OutDetail(TString::Format("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
                 else
-                    BCLog::OutDetail(TString::Format("         %-*s :  INFINITY <--", fParameters.MaxNameLength(), GetParameter(ipar)->GetName().data()));
+                    BCLog::OutDetail(TString::Format("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p)->GetName().data()));
             }
-
-            if ( fMCMCRValue - 1 < fMCMCRValueCriterion )
-                BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f", fMCMCRValue));
-            else if ( std::isfinite(fMCMCRValue) )
-                BCLog::OutDetail(Form("       - Log-Likelihood :  %.06f <--", fMCMCRValue));
-            else
-                BCLog::OutDetail("       - Log-Likelihood :  INFINITY <--");
 
             if (fMCMCFlagWritePreRunToFile and fMCMCTree)
                 fMCMCTree->AutoSave("SaveSelf");
@@ -2062,6 +1965,83 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
     // no error
     return true;
+}
+
+// --------------------------------------------------------
+double BCEngineMCMC::RValue(std::vector<double> means, std::vector<double> variances, unsigned n, bool correctForSamplingVariability)
+{
+    // calculate R values according to Brooks & Gelman,
+    // "General Methods for Monitoring Convergence of Iterative Simulations, 1998
+
+    if (means.empty() or variances.empty() or means.size() != variances.size() or n == 0)
+        return std::numeric_limits<double>::quiet_NaN();
+
+    unsigned m = means.size();
+
+    // means of values
+    double mean_of_means     = 0;
+    double mean_of_variances = 0;
+    for (unsigned c = 0; c < m; ++c) {
+        mean_of_means     += means[c];
+        mean_of_variances += variances[c];
+    }
+    mean_of_means     *= 1. / m;
+    mean_of_variances *= 1. / m;
+
+    // variances of values
+    double variance_of_means     = 0;
+    double variance_of_variances = 0;
+    for (unsigned c = 0; c < m; ++c) {
+        variance_of_means     += (means[c] - mean_of_means) * (means[c] - mean_of_means);
+        variance_of_variances += (variances[c] - mean_of_variances) * (variances[c] - mean_of_variances);
+    }
+    variance_of_means     /= m - 1.;
+    variance_of_variances /= m - 1.;
+
+    // variance of all samples:
+    double full_variance = m * (n - 1.) / (m * n - 1) * mean_of_variances + n * (m - 1.) / (m * n - 1) * variance_of_means;
+
+    if (mean_of_variances == 0) {
+        BCLog::OutDebug("BCEngineMCMC::RValue : mean of variances is zero!");
+        if (full_variance == 0) {
+            BCLog::OutDebug("BCEngineMCMC::RValue : variance of all samples is also zero!");
+            return 1;
+        } else
+            return std::numeric_limits<double>::infinity();
+    }
+
+    double rvalue = sqrt( full_variance / mean_of_variances ); // variance(all samples) / mean(chain variances)
+
+    if (!correctForSamplingVariability)
+        return rvalue;
+
+    // else correct for initial sampling variability
+
+    double meansquare_of_means = 0;
+    for (unsigned c = 0; c < m; ++c)
+        meansquare_of_means += means[c] * means[c];
+    meansquare_of_means *= 1. / m;
+
+    double covariance_of_variance_with_mean       = 0;
+    double covariance_of_variance_with_meansquare = 0;
+    for (unsigned c = 0; c < m; ++c) {
+        covariance_of_variance_with_mean       += (variances[c] - mean_of_variances) * (means[c] - mean_of_means);
+        covariance_of_variance_with_meansquare += (variances[c] - mean_of_variances) * (means[c] * means[c] - meansquare_of_means);
+    }
+    covariance_of_variance_with_mean       /= m - 1.;
+    covariance_of_variance_with_meansquare /= m - 1.;
+
+    double N = (n - 1.) / n;
+    double M = (m + 1.) / m;
+
+    double V = N * full_variance + M * variance_of_means;
+
+    double varV = N * N / m * variance_of_variances + 2 * M / (m - 1) * variance_of_means * variance_of_means
+                  + 2 * M * N / m * (covariance_of_variance_with_meansquare - 2 * mean_of_means * covariance_of_variance_with_mean);
+
+    double df = 2 * V * V / varV;
+
+    return rvalue * sqrt((df + 3) / (df + 1));
 }
 
 // --------------------------------------------------------
@@ -2213,7 +2193,6 @@ void BCEngineMCMC::ResetResults()
     fMCMCLogPrior_Provisional.clear();
     fMCMCNIterationsConvergenceGlobal = -1;
     fMCMCRValueParameters.clear();
-    fMCMCRValue = std::numeric_limits<double>::infinity();
 
     for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
         delete fH1Marginalized[i];
@@ -2236,7 +2215,7 @@ void BCEngineMCMC::ResetResults()
 bool BCEngineMCMC::MCMCInitialize()
 {
     // reset convergence
-    fMCMCNIterationsConvergenceCheck = -1;
+    fMCMCNIterationsConvergenceGlobal = -1;
 
     // reset iteration counters
     fMCMCNIterations.assign(fMCMCNChains, 0);
@@ -2254,7 +2233,6 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // rest r value holders
     fMCMCRValueParameters.assign(GetNParameters(), std::numeric_limits<double>::infinity());
-    fMCMCRValue = std::numeric_limits<double>::infinity();
 
     // clear positions
     fMCMCx.clear();
