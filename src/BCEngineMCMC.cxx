@@ -2079,7 +2079,7 @@ bool BCEngineMCMC::MCMCMetropolis()
         UpdateParameterTree();
 
     BCLog::OutDetail(" --> Global mode from MCMC:");
-    BCLog::OutDebug(Form(" --> Posterior value: %g", fMCMCStatistics_AllChains.probability_mode));
+    BCLog::OutDebug(Form(" --> Posterior value: %g", fMCMCStatistics_AllChains.probability_at_mode));
     PrintParameters(fMCMCStatistics_AllChains.mode, BCLog::OutDetail);
 
     // reset counter
@@ -3419,8 +3419,8 @@ BCEngineMCMC::MCMCStatistics::MCMCStatistics(const BCEngineMCMC::MCMCStatistics&
     , maximum(other.maximum)
     , probability_mean(other.probability_mean)
     , probability_variance(other.probability_variance)
-    , probability_mode(other.probability_mode)
     , mode(other.mode)
+    , probability_at_mode(other.probability_at_mode)
     , n_samples_efficiency(other.n_samples_efficiency)
     , efficiency(other.efficiency)
 {
@@ -3428,18 +3428,18 @@ BCEngineMCMC::MCMCStatistics::MCMCStatistics(const BCEngineMCMC::MCMCStatistics&
 
 // ---------------------------------------------------------
 BCEngineMCMC::MCMCStatistics::MCMCStatistics(unsigned n_par, unsigned n_obs)
-    :	n_samples(0)
-    , mean(n_par + n_obs, 0)
-    , variance(mean.size(), 0)
-    , covariance(mean.size(), std::vector<double>(mean.size(), 0))
-    , minimum(mean.size(), +std::numeric_limits<double>::infinity())
-    , maximum(mean.size(), -std::numeric_limits<double>::infinity())
-    , probability_mean(0)
-    , probability_variance(0)
-    , probability_mode(-std::numeric_limits<double>::infinity())
-    , mode(mean.size(), 0)
-    , n_samples_efficiency(0)
-    , efficiency(n_par, 0.)
+    :	n_samples(0),
+      mean(n_par + n_obs, 0),
+      variance(mean.size(), 0),
+      covariance(mean.size(), std::vector<double>(mean.size(), 0)),
+      minimum(mean.size(), +std::numeric_limits<double>::infinity()),
+      maximum(mean.size(), -std::numeric_limits<double>::infinity()),
+      probability_mean(0),
+      probability_variance(0),
+      mode(mean.size(), 0),
+      probability_at_mode(-std::numeric_limits<double>::infinity()),
+      n_samples_efficiency(0),
+      efficiency(n_par, 0.)
 {
 }
 
@@ -3455,7 +3455,7 @@ void BCEngineMCMC::MCMCStatistics::Clear(bool clear_mode, bool clear_efficiency)
     probability_mean = 0;
     probability_variance = 0;
     if (clear_mode) {
-        probability_mode = -std::numeric_limits<double>::infinity();
+        probability_at_mode = -std::numeric_limits<double>::infinity();
         mode.clear();
     }
     if (clear_efficiency) {
@@ -3475,7 +3475,7 @@ void BCEngineMCMC::MCMCStatistics::Init(unsigned n_par, unsigned n_obs)
     maximum.assign(mean.size(), -std::numeric_limits<double>::infinity());
     probability_mean = 0;
     probability_variance = 0;
-    probability_mode = -std::numeric_limits<double>::infinity();
+    probability_at_mode = -std::numeric_limits<double>::infinity();
     mode.assign(mean.size(), 0);
     n_samples_efficiency = 0;
     efficiency.assign(n_par, 0.);
@@ -3493,7 +3493,7 @@ void BCEngineMCMC::MCMCStatistics::Reset(bool reset_mode, bool reset_efficiency)
     probability_mean = 0;
     probability_variance = 0;
     if (reset_mode) {
-        probability_mode = -std::numeric_limits<double>::infinity();
+        probability_at_mode = -std::numeric_limits<double>::infinity();
         mode.assign(mode.size(), 0);
     }
     if (reset_efficiency) {
@@ -3520,7 +3520,7 @@ BCEngineMCMC::MCMCStatistics& BCEngineMCMC::MCMCStatistics::operator=(const BCEn
     maximum = rhs.maximum;
     probability_mean = rhs.probability_mean;
     probability_variance = rhs.probability_variance;
-    probability_mode = rhs.probability_mode;
+    probability_at_mode = rhs.probability_at_mode;
     mode = rhs.mode;
     n_samples_efficiency = rhs.n_samples_efficiency;
     efficiency = rhs.efficiency;
@@ -3537,12 +3537,12 @@ void BCEngineMCMC::MCMCStatistics::Update(double prob, const std::vector<double>
     ++n_samples;
 
     // check mode
-    if (prob > probability_mode) {
+    if (prob > probability_at_mode) {
         for (unsigned i = 0; i < par.size(); ++i)
             mode[i] = par[i];
         for (unsigned i = 0; i < obs.size(); ++i)
             mode[i + par.size()] = obs[i];
-        probability_mode = prob;
+        probability_at_mode = prob;
     }
 
     // update probability mean and variance
@@ -3595,8 +3595,8 @@ BCEngineMCMC::MCMCStatistics& BCEngineMCMC::MCMCStatistics::operator+=(const BCE
         return *this;
 
     // check mode:
-    if (rhs.probability_mode > probability_mode) {
-        probability_mode = rhs.probability_mode;
+    if (rhs.probability_at_mode > probability_at_mode) {
+        probability_at_mode = rhs.probability_at_mode;
         mode = rhs.mode;
     }
 

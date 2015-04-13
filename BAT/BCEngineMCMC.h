@@ -100,16 +100,16 @@ public:
         /** Copy constructor. */
         MCMCStatistics(const BCEngineMCMC::MCMCStatistics& other);
 
-        unsigned n_samples;					///< number of samples used to calculate statistics
-        std::vector<double> mean;		///< means of all variables
-        std::vector<double> variance; ///< variances of all variables
+        unsigned n_samples;					                  ///< number of samples used to calculate statistics
+        std::vector<double> mean;		                  ///< means of all variables
+        std::vector<double> variance;                 ///< variances of all variables
         std::vector<std::vector<double> > covariance; ///< covariances of all pairs of variables
         std::vector<double> minimum;									///< minimum value of variables
         std::vector<double> maximum;									///< maximum value of variables
         double probability_mean;											///< mean of probability
         double probability_variance;									///< variance of probability
-        double probability_mode;											///< mode of probability
         std::vector<double> mode;											///< mode of variables
+        double probability_at_mode;                   ///< mode of probability
         unsigned n_samples_efficiency;								///< number of samples used to calculate efficiencies
         std::vector<double> efficiency;								///< efficiencies for each parameter (NB: not stored for observables)
 
@@ -628,7 +628,7 @@ public:
     /**
      * @return The log of the value at the mode. */
     virtual double GetLogMaximum() const
-    { return fMCMCStatistics_AllChains.probability_mode; };
+    { return fMCMCStatistics_AllChains.probability_at_mode; };
 
     /**
      * @return Flag whether to reuse user-defined observables from MCMC tree when looping through it. */
