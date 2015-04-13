@@ -18,8 +18,7 @@ GaussModel factory(const char* name = "BCEngineMCMC_TEST-model")
     GaussModel m(name, 5);
 
     m.MCMCSetNChains(2);
-    m.MCMCSetNIterationsEfficiencyCheck(500);
-    m.MCMCSetNIterationsConvergenceCheck(500);
+    m.MCMCSetNIterationsPreRunCheck(500);
     m.MCMCSetNIterationsClearConvergenceStats(20000);
     m.MCMCSetNIterationsPreRunMax(1000000);
     m.MCMCSetNIterationsPreRunMin(1000);

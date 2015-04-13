@@ -71,11 +71,9 @@ public:
     /** An enumerator for the phase of the Markov chain.
      * Negative values are in pre-run, 0 is unset, positive is main run. */
     enum MCMCPhase {
-        kMCMCPreRunEfficiencyCheck       = -1, ///< In pre-run, tuning scales for optimal efficiencies
-        kMCMCPreRunConvergenceCheck      = -2, ///< In pre-run, checking chain convergences
-        kMCMCPreRunFulfillMinimum        = -3, ///< In pre-run, running until minimum number of pre-run samples are drawn
-        kMCMCUnsetPhase                  =  0, ///< Unest
-        kMCMCMainRun                     = +1	 ///< In main run
+        kMCMCPreRun     = -1, ///< In pre-run
+        kMCMCUnsetPhase =  0, ///< Unest
+        kMCMCMainRun    = +1  ///< In main run
     };
 
     /** An enumerator for markov-chain position initialization. */
@@ -237,17 +235,12 @@ public:
     { return fMCMCNIterationsRun; }
 
     /**
-     * @return number of iterations for an efficiency check. */
-    unsigned MCMCGetNIterationsEfficiencyCheck() const
-    { return fMCMCNIterationsEfficiencyCheck; }
+     * @return number of iterations between scale adjustments and convergence checking during pre-run. */
+    unsigned MCMCGetNIterationsPreRunCheck() const
+    { return fMCMCNIterationsPreRunCheck; }
 
     /**
-     * @return number of iterations after statistics update. */
-    unsigned MCMCGetNIterationsConvergenceCheck() const
-    { return fMCMCNIterationsConvergenceCheck; }
-
-    /**
-     * @return number of iterations after statistics clear. */
+     * @return number of iterations between clearings of statistics for convergence checking. */
     unsigned MCMCGetNIterationsClearConvergenceStats() const
     { return fMCMCNIterationsClearConvergenceStats; }
 
@@ -332,6 +325,11 @@ public:
      * @return whether to use a multivariate proposal function. */
     bool MCMCGetMultivariateProposalFunction() const
     { return fMCMCMultivariateProposalFunction; }
+
+    /**
+     * @return minimum number of updates to multivariate-proposal-function covariance to perform. */
+    unsigned MCMCGetMultivariateProposalFunctionUpdatesMinimum() const
+    { return fMultivariateProposalFunctionUpdatesMinimum; }
 
     /**
      * @return multivariate-proposal-function Cholesky decomposition nudge size. */
@@ -714,22 +712,14 @@ public:
     { fMCMCNIterationsPreRunMin = n; }
 
     /**
-     * Sets the number of iterations in the pre-run after which the
-     * efficiency is checked and proposal scales are updated. */
-    void MCMCSetNIterationsEfficiencyCheck(unsigned n)
-    { fMCMCNIterationsEfficiencyCheck = n; }
+     * Sets the number of iterations between scale adjustments and
+     * convergence checks in the pre-run. */
+    void MCMCSetNIterationsPreRunCheck(unsigned n)
+    { fMCMCNIterationsPreRunCheck = n; }
 
     /**
-     * Sets the number of iterations in the pre-run after which an
-     * check on the convergence is done.
-     * @param n The number of iterations.*/
-    void MCMCSetNIterationsConvergenceCheck(unsigned n)
-    { fMCMCNIterationsConvergenceCheck = n; }
-
-    /**
-     * Sets the number of iterations in the pre-run after which the
-     * convergence data is cleared.
-     * @param n The number of iterations.*/
+     * Sets the number of iterations between clearings of convergence
+     * checking stats. */
     void MCMCSetNIterationsClearConvergenceStats(unsigned n)
     { fMCMCNIterationsClearConvergenceStats = n; }
 
@@ -778,6 +768,11 @@ public:
      * running of the MCMC.  */
     void MCMCSetMultivariateProposalFunction(bool flag)
     { fMCMCMultivariateProposalFunction = flag; }
+
+    /**
+     * Set minimum number of updates to multivariate-proposal-function covariance to perform. */
+    void MCMCSetMultivariateProposalFunctionUpdatesMinimum(unsigned n)
+    { fMultivariateProposalFunctionUpdatesMinimum = n; }
 
     /**
      * Sets multivariate-proposal-function cholesky-decomposition nudge. */
@@ -1399,16 +1394,12 @@ protected:
     int fMCMCCurrentChain;
 
     /**
-     * Number of iterations for checking efficiencies and updating scale
-     * factors */
-    unsigned fMCMCNIterationsEfficiencyCheck;
+     * Number of iterations between scale adjustments and convergence
+     * checks in pre-run. */
+    unsigned fMCMCNIterationsPreRunCheck;
 
     /**
-     * Number of iterations for updating scale factors */
-    unsigned fMCMCNIterationsConvergenceCheck;
-
-    /**
-     * Number of iterations for clearing data for updating scale factors */
+     * Number of iterations between clearing of convergence stats in pre-run.*/
     unsigned fMCMCNIterationsClearConvergenceStats;
 
     /**
@@ -1480,8 +1471,8 @@ protected:
     std::vector<TMatrixD> fMultivariateProposalFunctionCholeskyDecomposition;
 
     /**
-     * number of multivariate-proposal-function tuning steps performed. */
-    unsigned fMultivariateProposalFunctionTuningSteps;
+     * Minimum number of multivariate-proposal-function covariance updates to perform. */
+    unsigned fMultivariateProposalFunctionUpdatesMinimum;
 
     /**
      * multivariate-proposal-function cholesky-decomposition nudge. */

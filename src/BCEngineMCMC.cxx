@@ -53,33 +53,34 @@
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const char* name)
-    : fMCMCFlagWriteChainToFile(false)
-    , fMCMCFlagWritePreRunToFile(false)
-    , fMCMCOutputFile(0)
-    , fMCMCOutputFilename("")
-    , fMCMCOutputFileOption("")
-    , fMCMCScaleFactorLowerLimit(0)
-    , fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
-    , fMCMCAutoSetTrialFunctionScaleFactors(true)
-    , fMultivariateProposalFunctionEpsilon(1e-3)
-    , fMultivariateProposalFunctionScaleMultiplier(1.5)
-    , fMCMCFlagPreRun(true)
-    , fMCMCEfficiencyMin(0.15)
-    , fMCMCEfficiencyMax(0.50)
-    , fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
-    , fMCMCMultivariateProposalFunction(false)
-    , fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase)
-    , fCorrectRValueForSamplingVariability(false)
-    , fMCMCRValueParametersCriterion(0.1)
-    , fRandom(new TRandom3())
-    , fMCMCTree(0)
-    , fMCMCTreeLoaded(false)
-    , fMCMCTreeReuseObservables(true)
-    , fParameterTree(0)
-    , fBCH1DdrawingOptions(new BCH1D)
-    , fBCH2DdrawingOptions(new BCH2D)
-    , fRescaleHistogramRangesAfterPreRun(false)
-    , fHistogramRescalePadding(0.1)
+    : fMCMCFlagWriteChainToFile(false),
+      fMCMCFlagWritePreRunToFile(false),
+      fMCMCOutputFile(0),
+      fMCMCOutputFilename(""),
+      fMCMCOutputFileOption(""),
+      fMCMCScaleFactorLowerLimit(0),
+      fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
+      fMCMCAutoSetTrialFunctionScaleFactors(true),
+      fMultivariateProposalFunctionUpdatesMinimum(2),
+      fMultivariateProposalFunctionEpsilon(1.e-3),
+      fMultivariateProposalFunctionScaleMultiplier(1.5),
+      fMCMCFlagPreRun(true),
+      fMCMCEfficiencyMin(0.15),
+      fMCMCEfficiencyMax(0.50),
+      fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
+      fMCMCMultivariateProposalFunction(false),
+      fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
+      fCorrectRValueForSamplingVariability(false),
+      fMCMCRValueParametersCriterion(0.1),
+      fRandom(new TRandom3()),
+      fMCMCTree(0),
+      fMCMCTreeLoaded(false),
+      fMCMCTreeReuseObservables(true),
+      fParameterTree(0),
+      fBCH1DdrawingOptions(new BCH1D),
+      fBCH2DdrawingOptions(new BCH2D),
+      fRescaleHistogramRangesAfterPreRun(false),
+      fHistogramRescalePadding(0.1)
 {
     SetName(name);
     MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -89,33 +90,34 @@ BCEngineMCMC::BCEngineMCMC(const char* name)
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObservables)
-    : fMCMCFlagWriteChainToFile(false)
-    , fMCMCFlagWritePreRunToFile(false)
-    , fMCMCOutputFile(0)
-    , fMCMCOutputFilename("")
-    , fMCMCOutputFileOption("")
-    , fMCMCScaleFactorLowerLimit(0)
-    , fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max())
-    , fMCMCAutoSetTrialFunctionScaleFactors(true)
-    , fMultivariateProposalFunctionEpsilon(1e-3)
-    , fMultivariateProposalFunctionScaleMultiplier(1.5)
-    , fMCMCFlagPreRun(true)
-    , fMCMCEfficiencyMin(0.15)
-    , fMCMCEfficiencyMax(0.50)
-    , fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform)
-    , fMCMCMultivariateProposalFunction(false)
-    , fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase)
-    , fCorrectRValueForSamplingVariability(false)
-    , fMCMCRValueParametersCriterion(0.1)
-    , fRandom(new TRandom3())
-    , fMCMCTree(0)
-    , fMCMCTreeLoaded(false)
-    , fMCMCTreeReuseObservables(true)
-    , fParameterTree(0)
-    , fBCH1DdrawingOptions(new BCH1D)
-    , fBCH2DdrawingOptions(new BCH2D)
-    , fRescaleHistogramRangesAfterPreRun(false)
-    , fHistogramRescalePadding(0.1)
+    : fMCMCFlagWriteChainToFile(false),
+      fMCMCFlagWritePreRunToFile(false),
+      fMCMCOutputFile(0),
+      fMCMCOutputFilename(""),
+      fMCMCOutputFileOption(""),
+      fMCMCScaleFactorLowerLimit(0),
+      fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
+      fMCMCAutoSetTrialFunctionScaleFactors(true),
+      fMultivariateProposalFunctionUpdatesMinimum(2),
+      fMultivariateProposalFunctionEpsilon(1e-3),
+      fMultivariateProposalFunctionScaleMultiplier(1.5),
+      fMCMCFlagPreRun(true),
+      fMCMCEfficiencyMin(0.15),
+      fMCMCEfficiencyMax(0.50),
+      fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
+      fMCMCMultivariateProposalFunction(false),
+      fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
+      fCorrectRValueForSamplingVariability(false),
+      fMCMCRValueParametersCriterion(0.1),
+      fRandom(new TRandom3()),
+      fMCMCTree(0),
+      fMCMCTreeLoaded(false),
+      fMCMCTreeReuseObservables(true),
+      fParameterTree(0),
+      fBCH1DdrawingOptions(new BCH1D),
+      fBCH2DdrawingOptions(new BCH2D),
+      fRescaleHistogramRangesAfterPreRun(false),
+      fHistogramRescalePadding(0.1)
 {
     SetName(name);
     MCMCSetPrecision(BCEngineMCMC::kMedium);
@@ -126,8 +128,8 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
-    : fBCH1DdrawingOptions(new BCH1D)
-    , fBCH2DdrawingOptions(new BCH2D)
+    : fBCH1DdrawingOptions(new BCH1D),
+      fBCH2DdrawingOptions(new BCH2D)
 {
     Copy(other);
 }
@@ -230,9 +232,9 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMin             = 1500;
             fMCMCNIterationsPreRunMax             = 10000;
             fMCMCNIterationsRun                   = 10000;
-            fMCMCNIterationsEfficiencyCheck       = 500;
-            fMCMCNIterationsConvergenceCheck      = 1000;
+            fMCMCNIterationsPreRunCheck           = 500;
             fMCMCNIterationsClearConvergenceStats = 5000;
+            fMultivariateProposalFunctionUpdatesMinimum = 2;
             break;
 
         case BCEngineMCMC::kQuick:
@@ -241,9 +243,9 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMin             = 1500;
             fMCMCNIterationsPreRunMax             = 10000;
             fMCMCNIterationsRun                   = 10000;
-            fMCMCNIterationsEfficiencyCheck       = 500;
-            fMCMCNIterationsConvergenceCheck      = 1000;
+            fMCMCNIterationsPreRunCheck           = 500;
             fMCMCNIterationsClearConvergenceStats = 5000;
+            fMultivariateProposalFunctionUpdatesMinimum = 2;
             break;
 
         case  BCEngineMCMC::kMedium:
@@ -252,9 +254,9 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMin             = 1500;
             fMCMCNIterationsPreRunMax             = 100000;
             fMCMCNIterationsRun                   = 100000;
-            fMCMCNIterationsEfficiencyCheck       = 500;
-            fMCMCNIterationsConvergenceCheck      = 1000;
+            fMCMCNIterationsPreRunCheck           = 500;
             fMCMCNIterationsClearConvergenceStats = 5000;
+            fMultivariateProposalFunctionUpdatesMinimum = 2;
             break;
 
         case  BCEngineMCMC::kHigh:
@@ -263,9 +265,9 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMin             = 5000;
             fMCMCNIterationsPreRunMax             = 1000000;
             fMCMCNIterationsRun                   = 1000000;
-            fMCMCNIterationsEfficiencyCheck       = 1000;
-            fMCMCNIterationsConvergenceCheck      = 1000;
+            fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCNIterationsClearConvergenceStats = 5000;
+            fMultivariateProposalFunctionUpdatesMinimum = 4;
             break;
 
         case  BCEngineMCMC::kVeryHigh:
@@ -274,9 +276,9 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMin             = 10000;
             fMCMCNIterationsPreRunMax             = 10000000;
             fMCMCNIterationsRun                   = 10000000;
-            fMCMCNIterationsEfficiencyCheck       = 1000;
-            fMCMCNIterationsConvergenceCheck      = 1000;
+            fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCNIterationsClearConvergenceStats = 5000;
+            fMultivariateProposalFunctionUpdatesMinimum = 9;
             break;
     }
 }
@@ -289,8 +291,7 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC* other)
     fMCMCNIterationsPreRunMin             = other->MCMCGetNIterationsPreRunMin();
     fMCMCNIterationsPreRunMax             = other->MCMCGetNIterationsPreRunMax();
     fMCMCNIterationsRun                   = other->MCMCGetNIterationsRun();
-    fMCMCNIterationsEfficiencyCheck       = other->MCMCGetNIterationsEfficiencyCheck();
-    fMCMCNIterationsConvergenceCheck      = other->MCMCGetNIterationsConvergenceCheck();
+    fMCMCNIterationsPreRunCheck           = other->MCMCGetNIterationsPreRunCheck();
     fMCMCNIterationsClearConvergenceStats = other->MCMCGetNIterationsClearConvergenceStats();
     fMCMCRValueParametersCriterion        = other->MCMCGetRValueParametersCriterion();
     fMCMCEfficiencyMin                    = other->MCMCGetMinimumEfficiency();
@@ -299,6 +300,7 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC* other)
     fMCMCMultivariateProposalFunction     = other->MCMCGetMultivariateProposalFunction();
     fMultivariateProposalFunctionEpsilon  = other->MCMCGetMultivariateProposalFunctionEpsilon();
     fMultivariateProposalFunctionScaleMultiplier = other->MCMCGetMultivariateProposalFunctionScaleMultiplier();
+    fMultivariateProposalFunctionUpdatesMinimum = other->MCMCGetMultivariateProposalFunctionUpdatesMinimum();
 }
 
 // ---------------------------------------------------------
@@ -309,8 +311,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fMCMCNIterations                          = other.fMCMCNIterations;
     fMCMCCurrentIteration                     = other.fMCMCCurrentIteration;
     fMCMCCurrentChain                         = other.fMCMCCurrentChain;
-    fMCMCNIterationsEfficiencyCheck           = other.fMCMCNIterationsEfficiencyCheck;
-    fMCMCNIterationsConvergenceCheck          = other.fMCMCNIterationsConvergenceCheck;
+    fMCMCNIterationsPreRunCheck               = other.fMCMCNIterationsPreRunCheck;
     fMCMCNIterationsClearConvergenceStats     = other.fMCMCNIterationsClearConvergenceStats;
     fMCMCNIterationsConvergenceGlobal         = other.fMCMCNIterationsConvergenceGlobal;
     fMCMCNIterationsPreRunMax                 = other.fMCMCNIterationsPreRunMax;
@@ -353,7 +354,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
     fMultivariateProposalFunctionCovariance = other.fMultivariateProposalFunctionCovariance;
     fMultivariateProposalFunctionCholeskyDecomposition = other.fMultivariateProposalFunctionCholeskyDecomposition;
-    fMultivariateProposalFunctionTuningSteps = other.fMultivariateProposalFunctionTuningSteps;
+    fMultivariateProposalFunctionUpdatesMinimum = other.fMultivariateProposalFunctionUpdatesMinimum;
 
     fParameters = other.fParameters;
     fObservables = other.fObservables;
@@ -1619,7 +1620,6 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             }
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, S0);
         fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains, CD0);
-        fMultivariateProposalFunctionTuningSteps = 0;
     } else if (fMCMCAutoSetTrialFunctionScaleFactors) {
         std::vector<double> temp;
         for (unsigned i = 0; i < GetNParameters(); ++i) {
@@ -1634,208 +1634,154 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         }
         fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, temp);
     }
+    // number of updates made to multivariate-proposal-function covariances
+    unsigned mvt_updates = 0;
 
     //////////////////////////////////////////////////
     // Adjust scales until all parameters are in correct efficiency range in all chains
     bool allEfficient = false;
     bool inefficientScalesAdjustable = true;
     fMCMCCurrentIteration = 0;
-    fMCMCPhase = BCEngineMCMC::kMCMCPreRunEfficiencyCheck;
+    fMCMCPhase = BCEngineMCMC::kMCMCPreRun;
+
+    unsigned nIterationsPreRunCheck = fMCMCNIterationsPreRunCheck;
+
+    if ( fMCMCNIterationsClearConvergenceStats > 0 and nIterationsPreRunCheck > fMCMCNIterationsClearConvergenceStats )
+        nIterationsPreRunCheck = fMCMCNIterationsClearConvergenceStats;
+
+    fMCMCNIterationsConvergenceGlobal = -1;
 
     // Cholesky Decomposer for multivariate proposal function
     TDecompChol CholeskyDecomposer;
 
-    // do while not yet at max number of pre-run iterations
-    // and not all efficiencies are within range
-    // but all are scales are still tuneable
-    // and make at least two iterations of the multivariate update
-    while (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and ((!allEfficient and inefficientScalesAdjustable) or (fMCMCMultivariateProposalFunction and fMultivariateProposalFunctionTuningSteps <= 1))) {
+    // While loop criteria---do while:
+    //     not yet at maximum number of iterations
+    // AND (    not yet above minimum number of iterations
+    //       OR an efficiency is out of range, and still adjustable;
+    //       OR the chains have not converged (if using more than one chain);
+    //       OR the minimum number of tuning steps have been made to the multivariate proposal function, if using it.
+    //     )
+    while (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax
+            and ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin
+                  or (!allEfficient and inefficientScalesAdjustable)
+                  or (fMCMCNChains > 1 and fMCMCNIterationsConvergenceGlobal < 0)
+                  or (fMCMCMultivariateProposalFunction and mvt_updates <= fMultivariateProposalFunctionUpdatesMinimum))) {
 
-        MCMCGetNewPointMetropolis();
+        // Generate (nIterationsCheckConvergence) new points in each chain
+        for (unsigned i = 0; i < nIterationsPreRunCheck and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax; ++i) {
+            // get new point & calculate observables
+            MCMCGetNewPointMetropolis();
+            EvaluateObservables();
 
-        EvaluateObservables();
+            // update chain statistics
+            for (unsigned c = 0; c < fMCMCNChains; ++c)
+                fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
 
-        for (unsigned c = 0; c < fMCMCNChains; ++c)
-            fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
+            // update output tree
+            if (fMCMCFlagWritePreRunToFile)
+                MCMCInChainWriteChains();
+        }
 
-        if (fMCMCFlagWritePreRunToFile)
-            MCMCInChainWriteChains();
+        // autosave tree
+        if (fMCMCFlagWritePreRunToFile and fMCMCTree)
+            fMCMCTree->AutoSave("SaveSelf");
 
-        if ( fMCMCStatistics.front().n_samples_efficiency != fMCMCNIterationsEfficiencyCheck)
-            continue;
-
-        // check efficiencies and update scale parameters
+        //////////////////////////////////////////
+        // Adjust scales until efficiencies within range
         allEfficient = true;
         inefficientScalesAdjustable = false;
 
+        bool scalesAdjusted = false;
+
         for (unsigned c = 0; c < fMCMCNChains; ++c) {
 
-            if (fMCMCMultivariateProposalFunction) {
-                // multivariate proposal function
+            if (fMCMCMultivariateProposalFunction) { // multivariate proposal function, one efficiency per chain
 
                 if (fMCMCStatistics[c].efficiency[0] >= fMCMCEfficiencyMin and fMCMCStatistics[c].efficiency[0] <= fMCMCEfficiencyMax)
-                    // if chain efficiency is in range,
-                    continue;
+                    continue; // since chain efficiency is in range,
 
-                if (allEfficient) 		// print header if encountering first bad efficiency
-                    BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ", fMCMCCurrentIteration));
+                if (allEfficient) // print header if encountering first bad efficiency
+                    BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within predefined range after %i iterations. Efficiency of ", fMCMCCurrentIteration));
                 allEfficient = false;
 
-                if (fMCMCStatistics[c].efficiency[0] < fMCMCEfficiencyMin) {
-                    // efficiency too low... decrease scale factor
+                double oldScale = fMCMCTrialFunctionScaleFactor[c][0];
+
+                if (fMCMCStatistics[c].efficiency[0] < fMCMCEfficiencyMin) { // efficiency too low... decrease scale factor
                     fMCMCTrialFunctionScaleFactor[c][0] /= fMultivariateProposalFunctionScaleMultiplier;
 
-                    if (fMCMCTrialFunctionScaleFactor[c][0] > fMCMCScaleFactorLowerLimit) {
+                    if (fMCMCTrialFunctionScaleFactor[c][0] > fMCMCScaleFactorLowerLimit) { // still room to tune
                         BCLog::OutDetail(Form("         chain %d is below %.0f %% (%4.1f %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
-                        // still room to tune
                         inefficientScalesAdjustable = true;
-                    } else {
-                        // no more room to tune
+
+                    } else { // no more room to tune
                         fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorLowerLimit;
                         BCLog::OutDetail(Form("         chain %d is below %.0f %% (%4.1f %%). Scale now at lower limit (%.4g)", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorLowerLimit));
                     }
 
-                } else {
-                    // efficiency too high... increase scale factor
+                } else { // efficiency too high... increase scale factor
                     fMCMCTrialFunctionScaleFactor[c][0] *= fMultivariateProposalFunctionScaleMultiplier;
 
-                    if (fMCMCTrialFunctionScaleFactor[c][0] < fMCMCScaleFactorUpperLimit) {
-                        // still room to tune
+                    if (fMCMCTrialFunctionScaleFactor[c][0] < fMCMCScaleFactorUpperLimit) { // still room to tune
                         BCLog::OutDetail(Form("         chain %d is above %.0f %% (%4.1f %%). Scale increased to %.4g", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
                         inefficientScalesAdjustable = true;
-                    } else {
-                        // no more room to tune
+                    } else { // no more room to tune
                         fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorUpperLimit;
                         BCLog::OutDetail(Form("         chain %d is above %.0f %% (%4.1f %%). Scale now at upper limit (%.4g)", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorUpperLimit));
                     }
                 }
 
-            } else {
-                // factorized proposal function. loop over parameters
+                if (oldScale != fMCMCTrialFunctionScaleFactor[c][0])
+                    scalesAdjusted = true;
+
+            } else { // factorized proposal function, one efficiency per parameter per chain
+
                 for (unsigned p = 0; p < GetNParameters(); ++p) {
 
                     if (GetParameter(p)->Fixed())
                         continue;
 
                     if ( fMCMCStatistics[c].efficiency[p] >= fMCMCEfficiencyMin and fMCMCStatistics[c].efficiency[p] <= fMCMCEfficiencyMax)
-                        // if parameter efficiency is in range,
-                        continue;
+                        continue; // since parameter efficiency is in range for this chain
 
-                    if (allEfficient)			// print header if first bad efficiency
+                    if (allEfficient) // print header if first bad efficiency
                         BCLog::OutDetail(Form("     * Efficiency status: Efficiencies not within pre-defined range after %i iterations. Efficiency of ", fMCMCCurrentIteration));
                     allEfficient = false;
 
-                    if (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin) {
-                        // efficiency too low... decrease scale factor
+                    double oldScale = fMCMCTrialFunctionScaleFactor[c][p];
+
+                    if (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin) { // efficiency too low... decrease scale factor
                         fMCMCTrialFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin / 2) ? 4 : 2;
 
-                        if (fMCMCTrialFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) {
-                            // still room to tune
+                        if (fMCMCTrialFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) { // still room to tune
                             BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
-                        }	else {
-                            // no more room to tune
+                        }	else { // no more room to tune
                             fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorLowerLimit;
                             BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%.4g %%)",	fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorLowerLimit));
                         }
 
-                    } else {
-                        // if efficiency too high ... increase scale factor
+                    } else { // if efficiency too high ... increase scale factor
                         fMCMCTrialFunctionScaleFactor[c][p] *= 2;
 
-                        if ( fMCMCTrialFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) {
-                            // still room to tune
+                        if ( fMCMCTrialFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) { // still room to tune
                             BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
-                        } else {
-                            // no more room to tune
+                        } else { // no more room to tune
                             fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorUpperLimit;
                             BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));
                         }
                     }
-                }
+
+                    if (oldScale != fMCMCTrialFunctionScaleFactor[c][p])
+                        scalesAdjusted = true;
+                } // end of parameter loop
             }
-        }
+        } // end of chain loop
 
-        if (fMCMCFlagWritePreRunToFile and fMCMCTree)
-            fMCMCTree->AutoSave("SaveSelf");
 
-        if (fMCMCMultivariateProposalFunction)
-            ++fMultivariateProposalFunctionTuningSteps;
-
-        if ((allEfficient or !inefficientScalesAdjustable) and (!fMCMCMultivariateProposalFunction or fMultivariateProposalFunctionTuningSteps > 1))
-            // now efficient, or no longer tuneable
-            // BUT, not if this is the first iteration of the multivariate scheme
-            continue;
-
-        if (fMCMCMultivariateProposalFunction)
-            UpdateCholeskyDecompositions();
-
-        // reset statistics
-        for (unsigned c = 0; c < fMCMCStatistics.size(); ++c)
-            fMCMCStatistics[c].Reset(false, true); // preserve mode information
-    }
-
-    // restore ROOT error ignore level
-    gErrorIgnoreLevel = old_error_ignore_level;
-
-    if (allEfficient)
-        BCLog::OutDetail(Form("     * Efficiency status: Efficiencies within predefined range after %i iterations.", fMCMCCurrentIteration));
-    else if (!inefficientScalesAdjustable)
-        BCLog::OutWarning(Form("     * Efficiency status: Some efficiencies outside predefined range, but scales are at limits after %i iterations.", fMCMCCurrentIteration));
-    else
-        BCLog::OutDetail(Form("     * Efficiency status: Some efficiencies outside predefined range, but maximum number of iterations (%i) reached.", fMCMCNIterationsPreRunMax));
-
-    if (fMCMCNChains > 1) {
-        //////////////////////////////////////////////////
-        // Run until all chains have converged
-
-        unsigned nIterationsCheckConvergence = fMCMCNIterationsConvergenceCheck;
-
-        if ( fMCMCNIterationsClearConvergenceStats > 0 and nIterationsCheckConvergence > fMCMCNIterationsClearConvergenceStats )
-            nIterationsCheckConvergence = fMCMCNIterationsClearConvergenceStats;
-
-        fMCMCNIterationsConvergenceGlobal = -1;
-
-        // statistics about inter_chain parameters
-        BCEngineMCMC::MCMCStatistics inter_chain(fMCMCStatistics.front().variance.size(), fMCMCStatistics.front().mean.size());
-
-        // flag for whether to make one R value check, if already above max number of pre-run iterations
-        bool make_one_check = false;
-
-        if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax) {
-            make_one_check = (fMCMCStatistics.front().n_samples > 0);
-            if (!make_one_check) {
-                BCLog::OutWarning(" Convergence never checked !");
-                BCLog::OutWarning("   Increase maximum number of iterations in the pre-run via MCMCSetNIterationsPreRunMax()");
-            } else if (fMCMCStatistics.front().n_samples < nIterationsCheckConvergence) {
-                BCLog::OutWarning(TString::Format(" Convergence will be checked only once and with only %d iterations!", fMCMCStatistics.front().n_samples));
-                BCLog::OutWarning("   Increase maximum number of iterations in the pre-run via MCMCSetNIterationsPreRunMax()");
-            }
-        }
-
-        fMCMCPhase = BCEngineMCMC::kMCMCPreRunConvergenceCheck;
-        while ( make_one_check or (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax and fMCMCNIterationsConvergenceGlobal < 0) ) {
-
-            // clear statistics
-            if ( !make_one_check and fMCMCNIterationsClearConvergenceStats > 0 and fMCMCStatistics.front().n_samples >= fMCMCNIterationsClearConvergenceStats )
-                for (unsigned c = 0; c < fMCMCNChains; ++c)
-                    fMCMCStatistics[c].Reset(false, false); // keep mode and efficiency stats
-
-            MCMCGetNewPointMetropolis();
-            EvaluateObservables();
-
-            // update means, variances, etc.
-            for (unsigned c = 0; c < fMCMCNChains; ++c)
-                fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
-
-            if (fMCMCFlagWritePreRunToFile)
-                MCMCInChainWriteChains();
-
-            if ( !make_one_check and fMCMCStatistics[0].n_samples % nIterationsCheckConvergence != 0 and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax )
-                continue;
-
-            make_one_check = false;
+        /////////////////////////////////////////////
+        // Check convergence
+        if (fMCMCNChains > 1) {
 
             // Calculate & check R values
             fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
@@ -1853,75 +1799,67 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     fMCMCNIterationsConvergenceGlobal = -1;
             }
 
-            if (fMCMCNIterationsConvergenceGlobal > 0)
-                continue;
+            // output results if not converged
+            if (fMCMCNIterationsConvergenceGlobal <= 0) {
+                BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
+                BCLog::OutDetail(Form("       - %-*s : R-Value", fParameters.MaxNameLength(), "Parameter"));
 
-            BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
-            BCLog::OutDetail(Form("       - %-*s : R-Value", fParameters.MaxNameLength(), "Parameter"));
+                for (unsigned p = 0; p < GetNParameters(); ++p) {
+                    if (GetParameter(p)->Fixed())
+                        continue;
 
-            for (unsigned p = 0; p < GetNParameters(); ++p) {
-                if (GetParameter(p)->Fixed())
-                    continue;
+                    if ((fMCMCRValueParameters[p] - 1) < fMCMCRValueParametersCriterion)
+                        BCLog::OutDetail(TString::Format("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
+                    else if (std::isfinite(fMCMCRValueParameters[p]))
+                        BCLog::OutDetail(TString::Format("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
+                    else
+                        BCLog::OutDetail(TString::Format("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p)->GetName().data()));
+                }
+            } // end convergence conditional
+        } // end chains>1 conditional
 
-                if ((fMCMCRValueParameters[p] - 1) < fMCMCRValueParametersCriterion)
-                    BCLog::OutDetail(TString::Format("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
-                else if (std::isfinite(fMCMCRValueParameters[p]))
-                    BCLog::OutDetail(TString::Format("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
-                else
-                    BCLog::OutDetail(TString::Format("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p)->GetName().data()));
-            }
+        if ( !scalesAdjusted and // scales have not been adjusted
+                (fMCMCNChains == 1 or fMCMCNIterationsConvergenceGlobal > 0) and // convergence has been reached (or only one chain used)
+                (fMCMCMultivariateProposalFunction and mvt_updates >= fMultivariateProposalFunctionUpdatesMinimum) and // minimum number of Multivar. tunings made
+                fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMin) // minimum number of iterations reached
+            continue;           // HURRAY!
 
-            if (fMCMCFlagWritePreRunToFile and fMCMCTree)
-                fMCMCTree->AutoSave("SaveSelf");
-
-            if (fMCMCMultivariateProposalFunction)
-                UpdateCholeskyDecompositions();
+        // Update multivariate proposal function covariances
+        if (fMCMCMultivariateProposalFunction) {
+            UpdateCholeskyDecompositions();
+            ++mvt_updates;
         }
 
-        if ( fMCMCNIterationsConvergenceGlobal > 0 )
-            if (allEfficient)
-                BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, and all scales are adjusted.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
-            else
-                BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
-        else if (allEfficient)
-            BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsPreRunMax));
+        // reset statistics
+        for (unsigned c = 0; c < fMCMCStatistics.size(); ++c)
+            fMCMCStatistics[c].Reset(false, true); // preserve mode information, clear efficiency information
+
+    } // end prerun iteration while loop
+
+    // restore ROOT error ignore level
+    gErrorIgnoreLevel = old_error_ignore_level;
+
+    // output results of prerun re convergence and scale adjustment
+    if ( fMCMCNIterationsConvergenceGlobal > 0 ) {
+        if (allEfficient)
+            BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, and all scales are adjusted.", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+        else if (!inefficientScalesAdjustable)
+            BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales (scale limits reached).", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
         else
-            BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales.", fMCMCNChains, fMCMCNIterationsPreRunMax));
-
-        if (fMCMCFlagWritePreRunToFile and fMCMCTree)
-            fMCMCTree->AutoSave("SaveSelf");
-    }
-
-    //////////////////////////////////////////////////
-    // Run until pre-run iteration min criteria met
-    if ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin ) {
-
-        unsigned N = fMCMCNIterationsPreRunMin - fMCMCCurrentIteration;
-        unsigned nwrite = UpdateFrequency(N);
-
-        BCLog::OutDetail(Form(" Current iteration (%d) is below minimum for pre-run. Running %d more iterations.", fMCMCCurrentIteration, N));
-
-        fMCMCPhase = BCEngineMCMC::kMCMCPreRunFulfillMinimum;
-        unsigned n = 0;
-        while ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin ) {
-            MCMCGetNewPointMetropolis();
-            EvaluateObservables();
-            ++n;
-
-            for (unsigned c = 0; c < fMCMCNChains; ++c)
-                fMCMCStatistics[c].Update(fMCMCprob[c], fMCMCx[c], fMCMCObservables[c]);
-
-            if (fMCMCFlagWritePreRunToFile)
-                MCMCInChainWriteChains();
-
-            if ( n % nwrite == 0) {
-                BCLog::OutDetail(Form(" --> iteration number %6i (%3.0f %%)", fMCMCCurrentIteration, 100.*n / N));
-                if (fMCMCFlagWritePreRunToFile and fMCMCTree)
-                    fMCMCTree->AutoSave("SaveSelf");
-            }
+            BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales (maximum number of iterations reached).", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
+        if (fMCMCMultivariateProposalFunction) {
+            if (mvt_updates < fMultivariateProposalFunctionUpdatesMinimum)
+                BCLog::OutSummary(Form(" --> Only %i updates to multivariate proposal function's covariances were made. A minimum of %i updates was requested.", mvt_updates, fMultivariateProposalFunctionUpdatesMinimum));
+            else
+                BCLog::OutSummary(Form(" --> %i updates to multivariate proposal function's covariances were made.", mvt_updates));
         }
-        BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations in pre-run.", fMCMCCurrentIteration));
-    }
+    } else if (allEfficient)
+        BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsPreRunMax));
+    else if (!inefficientScalesAdjustable)
+        BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales (scale limits reached).", fMCMCNChains, fMCMCNIterationsPreRunMax));
+    else
+        BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, and could not adjust all scales.", fMCMCNChains, fMCMCNIterationsPreRunMax));
+
 
     // combine statistics:
     fMCMCStatistics_AllChains.Reset();
@@ -1929,12 +1867,12 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
 
     if (fMCMCMultivariateProposalFunction) {
-        BCLog::OutDetail(Form(" --> Scale factors and efficiencies (measured in %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
+        BCLog::OutDetail(Form(" --> Scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail("       - Chain : Scale factor    Efficiency");
         for (unsigned c = 0; c < fMCMCNChains; ++c)
             BCLog::OutDetail(Form("         %-3d :         % 6.4g         %4.1f %%", c, fMCMCTrialFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
     } else {
-        BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
+        BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
         // print scale factors and efficiencies
         std::vector<double> scalefactors (GetNParameters(), 0);

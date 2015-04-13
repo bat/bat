@@ -30,8 +30,7 @@ BCGoFTest::BCGoFTest(const char* name)
 
     // set defaults for the MCMC
     MCMCSetNChains(5);
-    MCMCSetNIterationsEfficiencyCheck(500);
-    MCMCSetNIterationsConvergenceCheck(1000);
+    MCMCSetNIterationsPreRunCheck(500);
     MCMCSetNIterationsClearConvergenceStats(5000);
     MCMCSetNIterationsPreRunMax(100000);
     MCMCSetNIterationsPreRunMin(10000);
@@ -54,8 +53,7 @@ BCGoFTest::BCGoFTest(BCModel* model, const char* name)
 
     // set defaults for the MCMC
     MCMCSetNChains(5);
-    MCMCSetNIterationsEfficiencyCheck(500);
-    MCMCSetNIterationsConvergenceCheck(1000);
+    MCMCSetNIterationsPreRunCheck(500);
     MCMCSetNIterationsClearConvergenceStats(5000);
     MCMCSetNIterationsPreRunMax(100000);
     MCMCSetNIterationsPreRunMin(10000);
