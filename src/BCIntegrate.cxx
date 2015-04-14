@@ -544,7 +544,7 @@ bool BCIntegrate::CheckMarginalizationAvailability(BCMarginalizationMethod type)
 // ---------------------------------------------------------
 bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned>& index)
 {
-    if (index.size() == 0) {
+    if (index.empty()) {
         BCLog::OutError("BCIntegrate::Marginalize : No marginalization parameters chosen.");
         return false;
     }

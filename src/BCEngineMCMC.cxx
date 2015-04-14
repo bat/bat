@@ -2155,7 +2155,7 @@ bool BCEngineMCMC::MCMCInitialize()
 
     SyncThreadStorage();
 
-    if (fMCMCTrialFunctionScaleFactorStart.size() == 0 or fMCMCTrialFunctionScaleFactorStart.size() != GetNParameters())
+    if (fMCMCTrialFunctionScaleFactorStart.empty() or fMCMCTrialFunctionScaleFactorStart.size() != GetNParameters())
         fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(GetNParameters(), 1.0));
     else
         fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, fMCMCTrialFunctionScaleFactorStart);
