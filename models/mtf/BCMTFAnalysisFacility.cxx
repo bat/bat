@@ -544,14 +544,14 @@ TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, i
             fMTF->MarginalizeAll();
 
             // find mode
-            fMTF->FindMode( fMTF->GetBestFitParameters() );
+            fMTF->FindMode(fMTF->GetGlobalMode());
         } else {
             // find mode
             fMTF->FindMode();
         }
 
         // fill tree variables
-        out_mode_global = fMTF->GetBestFitParameters();
+        out_mode_global = fMTF->GetGlobalMode();
         out_std_global = fMTF->GetBestFitParameterErrors();
         out_chi2_generated_total = 0;
         out_chi2_mode_total = 0;
@@ -584,11 +584,11 @@ TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, i
 
             // calculate chi2
             out_chi2_generated[ichannel] = fMTF->CalculateChi2( ichannel, out_parameters );
-            out_chi2_mode[ichannel] = fMTF->CalculateChi2( ichannel, fMTF->GetBestFitParameters() );
+            out_chi2_mode[ichannel] = fMTF->CalculateChi2( ichannel, fMTF->GetGlobalMode() );
 
             // calculate cash statistic
             out_cash_generated[ichannel] = fMTF->CalculateCash( ichannel, out_parameters );
-            out_cash_mode[ichannel] = fMTF->CalculateCash( ichannel, fMTF->GetBestFitParameters() );
+            out_cash_mode[ichannel] = fMTF->CalculateCash( ichannel, fMTF->GetGlobalMode() );
 
             // increase the total number of events
             out_nevents_total += out_nevents[ichannel];
@@ -786,7 +786,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
         fMTF->MarginalizeAll();
 
         // find mode
-        fMTF->FindMode( fMTF->GetBestFitParameters() );
+        fMTF->FindMode(fMTF->GetGlobalMode());
     } else {
         // find mode
         fMTF->FindMode();
@@ -804,7 +804,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
         BCMTFComparisonTool* ct_mcmc = ctc_mcmc.at(i);
 
         ct->AddContribution("all channels",
-                            fMTF->GetBestFitParameters().at(i),
+                            fMTF->GetGlobalMode().at(i),
                             fMTF->GetBestFitParameterErrors().at(i));
         if (flag_mcmc) {
             BCH1D* hist = fMTF->GetMarginalized(i);
@@ -846,7 +846,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
             fMTF->MarginalizeAll();
 
             // find mode
-            fMTF->FindMode( fMTF->GetBestFitParameters() );
+            fMTF->FindMode(fMTF->GetGlobalMode());
         } else {
             // find mode
             fMTF->FindMode();
@@ -866,7 +866,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
             BCMTFComparisonTool* ct_mcmc = ctc_mcmc.at(i);
 
             ct->AddContribution(channel->GetName().c_str(),
-                                fMTF->GetBestFitParameters().at(i),
+                                fMTF->GetGlobalMode().at(i),
                                 fMTF->GetBestFitParameterErrors().at(i));
             if (flag_mcmc) {
                 BCH1D* hist = fMTF->GetMarginalized(i);
@@ -1050,7 +1050,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
         fMTF->MarginalizeAll();
 
         // find mode
-        fMTF->FindMode( fMTF->GetBestFitParameters() );
+        fMTF->FindMode(fMTF->GetGlobalMode());
     } else {
         // find mode
         fMTF->FindMode();
@@ -1067,7 +1067,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
         BCMTFComparisonTool* ct = ctc.at(i);
 
         ct->AddContribution("all systematics",
-                            fMTF->GetBestFitParameters().at(i),
+                            fMTF->GetGlobalMode().at(i),
                             fMTF->GetBestFitParameterErrors().at(i));
     }
 
@@ -1101,7 +1101,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
             fMTF->MarginalizeAll();
 
             // find mode
-            fMTF->FindMode( fMTF->GetBestFitParameters() );
+            fMTF->FindMode(fMTF->GetGlobalMode());
         } else {
             // find mode
             fMTF->FindMode();
@@ -1120,7 +1120,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
             BCMTFComparisonTool* ct = ctc.at(i);
 
             ct->AddContribution(systematic->GetName().c_str(),
-                                fMTF->GetBestFitParameters().at(i),
+                                fMTF->GetGlobalMode().at(i),
                                 fMTF->GetBestFitParameterErrors().at(i));
         }
 
@@ -1138,7 +1138,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
         fMTF->MarginalizeAll();
 
         // find mode
-        fMTF->FindMode( fMTF->GetBestFitParameters() );
+        fMTF->FindMode(fMTF->GetGlobalMode());
     } else {
         // find mode
         fMTF->FindMode();
@@ -1155,7 +1155,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
         BCMTFComparisonTool* ct = ctc.at(i);
 
         ct->AddContribution("no systematics",
-                            fMTF->GetBestFitParameters().at(i),
+                            fMTF->GetGlobalMode().at(i),
                             fMTF->GetBestFitParameterErrors().at(i));
     }
 

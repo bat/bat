@@ -553,6 +553,7 @@ const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
     return fLocalModes;
 }
 
+#if 0
 // ---------------------------------------------------------
 std::vector<double> BCEngineMCMC::GetBestFitParameters() const
 {
@@ -568,6 +569,7 @@ std::vector<double> BCEngineMCMC::GetBestFitObservables() const
         return std::vector<double>();
     return std::vector<double>(GetGlobalMode().begin() + GetNParameters(), GetGlobalMode().begin() + GetNVariables());
 }
+#endif
 
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double>& x0s)
@@ -2281,11 +2283,11 @@ void BCEngineMCMC::SetFillHistogram(int x, int y, bool flag)
         for (unsigned i = 0; i < fRequestedH2.size(); ++i)
             if (fRequestedH2[i].first == x and fRequestedH2[i].second == y)
                 return;
-        fRequestedH2.push_back(std::make_pair(x,y));
+        fRequestedH2.push_back(std::make_pair(x, y));
     } else {                    // removing
-        for (int i = fRequestedH2.size()-1; i >= 0; --i)
+        for (int i = fRequestedH2.size() - 1; i >= 0; --i)
             if (fRequestedH2[i].first == x and fRequestedH2[i].second == y)
-                fRequestedH2.erase(fRequestedH2.begin()+i);
+                fRequestedH2.erase(fRequestedH2.begin() + i);
     }
 }
 
@@ -2345,14 +2347,14 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
     filling = 0;
 
     // requested 2D histograms in order requested:
-    for (std::vector<std::pair<int,int> >::const_iterator h=fRequestedH2.begin(); h!=fRequestedH2.end(); ++h) {
+    for (std::vector<std::pair<int, int> >::const_iterator h = fRequestedH2.begin(); h != fRequestedH2.end(); ++h) {
         if (h->first >= 0 and GetParameter(h->first)->Fixed())
             continue;
         if (h->second >= 0 and GetParameter(h->second)->Fixed())
             continue;
 
-        unsigned i = (h->first >= 0)  ? h->first  : -(h->first+1);
-        unsigned j = (h->second >= 0) ? h->second : -(h->second+1);
+        unsigned i = (h->first >= 0)  ? h->first  : -(h->first + 1);
+        unsigned j = (h->second >= 0) ? h->second : -(h->second + 1);
 
         if (h->first >= 0) {
             if (i >= GetNParameters())
@@ -2361,12 +2363,12 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             if (h->second >= 0) { // par vs par
                 if (j >= GetNParameters())
                     continue;
-                fH2Marginalized[i][j] = GetParameter(i)->CreateH2(Form("h2_%s_par_%i_vs_par_%i",GetSafeName().data(),j,i),GetParameter(j));
+                fH2Marginalized[i][j] = GetParameter(i)->CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
 
             } else {              // obs vs par
                 if (j >= GetNObservables())
                     continue;
-                fH2Marginalized[i][j+GetNParameters()] = GetParameter(i)->CreateH2(Form("h2_%s_obs_%i_vs_par_%i",GetSafeName().data(),j,i),GetObservable(j));
+                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i)->CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
             }
 
         } else {
@@ -2376,12 +2378,12 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             if (h->second >= 0) { // par vs obs
                 if (j >= GetNParameters())
                     continue;
-                fH2Marginalized[i+GetNParameters()][j] = GetObservable(i)->CreateH2(Form("h2_%s_par_%i_vs_obs_%i",GetSafeName().data(),j,i),GetParameter(j));   
+                fH2Marginalized[i + GetNParameters()][j] = GetObservable(i)->CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), j, i), GetParameter(j));
 
             } else { // obs vs obs
                 if (j >= GetNObservables())
                     continue;
-                fH2Marginalized[i+GetNParameters()][j+GetNParameters()] = GetObservable(i)->CreateH2(Form("h2_%s_obs_%i_vs_obs_%i",GetSafeName().data(),j,i),GetObservable(j));   
+                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i)->CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
             }
         }
         ++filling;
@@ -2395,14 +2397,14 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             continue;
 
         // parameter j as ordinate
-        for (unsigned j = i+1; j < GetNParameters(); ++j)
+        for (unsigned j = i + 1; j < GetNParameters(); ++j)
             if (!GetParameter(j)->Fixed() and GetParameter(j)->FillH2() and !fH2Marginalized[i][j]) {
                 fH2Marginalized[i][j] = GetParameter(i)->CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
                 ++filling;
             }
         // user-defined observable j as ordinate
         for (unsigned j = 0; j < GetNObservables(); ++j)
-            if (GetObservable(j)->FillH2() and !fH2Marginalized[i][j+GetNParameters()]) {
+            if (GetObservable(j)->FillH2() and !fH2Marginalized[i][j + GetNParameters()]) {
                 fH2Marginalized[i][j + GetNParameters()] = GetParameter(i)->CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
                 ++filling;
             }
@@ -2412,10 +2414,10 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
     for (unsigned i = 0; i < GetNObservables(); ++i) {
         if (!GetObservable(i)->FillH2())
             continue;
-        
+
         // user-defined observable j as ordinate
-        for (unsigned j = i+1; j < GetNObservables(); ++j)
-            if (GetObservable(j)->FillH2() and !fH2Marginalized[i+GetNParameters()][j+GetNParameters()]) {
+        for (unsigned j = i + 1; j < GetNObservables(); ++j)
+            if (GetObservable(j)->FillH2() and !fH2Marginalized[i + GetNParameters()][j + GetNParameters()]) {
                 fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i)->CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
                 ++filling;
             }
@@ -2516,7 +2518,7 @@ void BCEngineMCMC::PrintSummaryToStream(std::ofstream& ofi) const
 // ---------------------------------------------------------
 void BCEngineMCMC::PrintBestFitToStream(std::ofstream& ofi) const
 {
-    if (GetBestFitParameters().empty()) {
+    if (GetGlobalMode().size() != GetNParameters() and GetGlobalMode().size() != GetNVariables()) {
         ofi << "No best fit information available." << std::endl << std::endl;
         return;
     }
@@ -2526,7 +2528,7 @@ void BCEngineMCMC::PrintBestFitToStream(std::ofstream& ofi) const
         << " Log of the maximum posterior: " << GetLogMaximum() << std::endl
         << " List of parameters and global mode:" << std::endl;
 
-    for (unsigned i = 0; i < GetNVariables(); ++i) {
+    for (unsigned i = 0; i < GetGlobalMode().size(); ++i) {
         ofi << TString::Format(" (%d) %10s \"%*s\" : %.*f", i, GetVariable(i)->GetPrefix().data(),
                                GetMaximumParameterNameLength(), GetVariable(i)->GetName().data(),
                                GetVariable(i)->GetPrecision(), GetGlobalMode()[i]);
@@ -2626,7 +2628,8 @@ void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(
 }
 
 // ---------------------------------------------------------
-std::vector<std::pair<unsigned,unsigned> > BCEngineMCMC::GetH2DPrintOrder() const {
+std::vector<std::pair<unsigned, unsigned> > BCEngineMCMC::GetH2DPrintOrder() const
+{
     // create vector for ordering 2D hists properly
     std::vector<std::pair<unsigned, unsigned> > H2Coords;
     H2Coords.reserve(GetNVariables()*GetNVariables() - 1);
@@ -2646,11 +2649,11 @@ std::vector<std::pair<unsigned,unsigned> > BCEngineMCMC::GetH2DPrintOrder() cons
     for (unsigned i = GetNParameters(); i < GetNVariables(); ++i)
         for (unsigned j = GetNParameters(); j < GetNVariables(); ++j)
             if (i != j) H2Coords.push_back(std::make_pair(i, j));
-   
+
     // prune off empty coords:
-    for (int i=H2Coords.size()-1; i>=0; --i)
-        if (!MarginalizedHistogramExists(H2Coords[i].first,H2Coords[i].second))
-            H2Coords.erase(H2Coords.begin()+i);
+    for (int i = H2Coords.size() - 1; i >= 0; --i)
+        if (!MarginalizedHistogramExists(H2Coords[i].first, H2Coords[i].second))
+            H2Coords.erase(H2Coords.begin() + i);
 
     return H2Coords;
 }

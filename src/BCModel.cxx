@@ -211,9 +211,9 @@ void BCModel::PrintShortFitSummary()
         BCLog::OutSummary(Form("   Number of data points: Ndata = %i", GetNDataPoints()));
         BCLog::OutSummary(Form("   Number of degrees of freedom = %i", GetNDoF()));
     }
-    if (!GetBestFitParameters().empty())
+    if (!GetGlobalMode().empty())
         BCLog::OutSummary("   Best fit parameters (global):");
-    PrintParameters(GetBestFitParameters(), BCLog::OutSummary);
+    PrintParameters(GetGlobalMode(), BCLog::OutSummary);
 
     BCLog::OutSummary("---------------------------------------------------");
 }
@@ -732,7 +732,7 @@ int BCModel::PrintKnowledgeUpdatePlots(const char* filename, unsigned hdiv, unsi
     c->Clear("D");
 
     // loop over all parameter pairs
-    std::vector<std::pair<unsigned,unsigned> > H2Coords = GetH2DPrintOrder();
+    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
     ndrawn = 0;
     nprinted = -1;
     c->cd(1)->Clear();

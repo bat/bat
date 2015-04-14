@@ -250,7 +250,7 @@ bool BCGraphFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode( GetBestFitParameters());
+    FindMode( GetGlobalMode());
     SetOptimizationMethod(method_temp);
 
     // print summary to screen
@@ -285,7 +285,7 @@ void BCGraphFitter::DrawFit(const char* options, bool flaglegend)
     fErrorBand->Draw("f same");
 
     // draw the fit function on top
-    fGraphFitFunction = GetFitFunctionGraph( GetBestFitParameters() );
+    fGraphFitFunction = GetFitFunctionGraph();
     fGraphFitFunction->SetLineColor(kRed);
     fGraphFitFunction->SetLineWidth(2);
     fGraphFitFunction->Draw("l same");

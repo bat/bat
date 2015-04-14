@@ -306,11 +306,11 @@ bool BCHistogramFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode( GetBestFitParameters());
+    FindMode(GetGlobalMode());
     SetOptimizationMethod(method_temp);
 
     // calculate the p-value using the fast MCMC algorithm
-    if ( !CalculatePValueFast(GetBestFitParameters()))
+    if ( !CalculatePValueFast(GetGlobalMode()))
         BCLog::OutWarning("BCHistogramFitter::Fit : Could not use the fast p-value evaluation.");
 
     // print summary to screen
@@ -333,7 +333,7 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
         return;
     }
 
-    if (!fErrorBandXY or GetBestFitParameters().empty()) {
+    if (!fErrorBandXY or GetGlobalMode().empty()) {
         BCLog::OutError("BCHistogramFitter::DrawFit : Fit not performed yet.");
         return;
     }
@@ -354,7 +354,7 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
     fHistogram->Draw(TString::Format("%ssame", opt.Data()));
 
     // draw the fit function on top
-    fGraphFitFunction = GetFitFunctionGraph(GetBestFitParameters());
+    fGraphFitFunction = GetFitFunctionGraph();
     fGraphFitFunction->SetLineColor(kRed);
     fGraphFitFunction->SetLineWidth(2);
     fGraphFitFunction->Draw("l same");
@@ -377,7 +377,7 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
 bool BCHistogramFitter::CalculatePValueFast(const std::vector<double>& par, unsigned nIterations)
 {
     // check size of parameter vector
-    if (par.size() != GetNParameters()) {
+    if (par.size() < GetNParameters()) {
         BCLog::OutError("BCHistogramFitter::CalculatePValueFast : Number of parameters is inconsistent.");
         return false;
     }

@@ -970,7 +970,10 @@ std::vector<double> BCIntegrate::FindMode(std::vector<double> start)
     }
 
     if (start.empty() and GetGlobalMode().size() >= GetNParameters())
-        start = GetBestFitParameters();
+        start = GetGlobalMode();
+
+    if (start.size() > GetNParameters())
+        start.resize(GetNParameters());
 
     std::vector<double> mode_temp(GetNParameters());
     std::vector<double> errors_temp(GetNParameters());

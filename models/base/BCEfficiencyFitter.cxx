@@ -300,12 +300,12 @@ bool BCEfficiencyFitter::Fit()
     // to the global maximum from the MCMC
     BCIntegrate::BCOptimizationMethod method_temp = GetOptimizationMethod();
     SetOptimizationMethod(BCIntegrate::kOptMinuit);
-    FindMode( GetBestFitParameters());
+    FindMode(GetGlobalMode());
     SetOptimizationMethod(method_temp);
 
     // calculate the p-value using the fast MCMC algorithm
     double pvalue, pvalueCorrected;
-    if ( CalculatePValueFast(GetBestFitParameters(), pvalue, pvalueCorrected) )
+    if ( CalculatePValueFast(GetGlobalMode(), pvalue, pvalueCorrected) )
         fPValue = pvalue;
     else
         BCLog::OutError("BCEfficiencyFitter::Fit : Could not use the fast p-value evaluation.");
@@ -390,7 +390,7 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
     histRatio->Draw(TString::Format("%ssamep", opt.Data()));
 
     // draw the fit function on top
-    fGraphFitFunction = GetFitFunctionGraph( GetBestFitParameters() );
+    fGraphFitFunction = GetFitFunctionGraph();
     fGraphFitFunction->SetLineColor(kRed);
     fGraphFitFunction->SetLineWidth(2);
     fGraphFitFunction->Draw("l same");
@@ -416,14 +416,8 @@ bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& par, dou
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& par, BCEfficiencyFitter::ToyDataInterface* callback, double& pvalue, double& pvalueCorrected, unsigned nIterations)
+bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& /*par*/, BCEfficiencyFitter::ToyDataInterface* callback, double& pvalue, double& pvalueCorrected, unsigned nIterations)
 {
-    // check size of parameter vector
-    if (par.size() != GetNParameters()) {
-        BCLog::OutError("BCEfficiencyFitter::CalculatePValueFast : Number of parameters is inconsistent.");
-        return false;
-    }
-
     // check if histogram exists
     if (!fHistogram1 or !fHistogram2) {
         BCLog::OutError("BCEfficiencyFitter::CalculatePValueFast : Histogram not defined.");

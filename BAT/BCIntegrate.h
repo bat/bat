@@ -599,14 +599,14 @@ public:
 
     /**
      * Do the mode finding using a method set via SetOptimizationMethod.
-     * Default is Minuit. The mode can be extracted using the GetBestFitParameters() method.
+     * Default is Minuit. The mode can be extracted using the GetGlobalMode() method.
      *
      * A starting point for the mode finding can be specified for Minuit. If not
      * specified, the previously found maximum (typically from marginalization)
      * is used as an initial point. If that is not available,
      * then the Minuit default will be used (center of the parameter space).
      * @return The mode found.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of @code GetGlobalMode()
      * if a previous optimization found a better value. */
     std::vector<double> FindMode(std::vector<double> start = std::vector<double>());
 
@@ -906,7 +906,7 @@ private:
      * @param mode a reference to a vector holding the mode
      * @param errors a reference to a vector holding the errors
      * @return The mode found.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of @code GetGlobalMode()
      * if a previous optimization found a better value. */
     std::vector<double> FindModeMinuit(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0), int printlevel = 1);
 
@@ -915,7 +915,7 @@ private:
      * @param mode a reference to a vector holding the mode
      * @param errors a reference to a vector holding the errors
      * @return The mode.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of @code GetGlobalMode()
      * if a previous optimization found a better value. */
     std::vector<double> FindModeMCMC(std::vector<double>& mode, std::vector<double>& errors);
 
@@ -927,7 +927,7 @@ private:
      * @param errors a reference to a vector holding the errors
      * @param start point in parameter space from thich the mode finding is started.
      * @return The mode.
-     * @note The result may not coincide with the result of @code GetBestFitParameters()
+     * @note The result may not coincide with the result of @code GetGlobalMode()
      * if a previous optimization found a better value.*/
     std::vector<double> FindModeSA(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0));
 

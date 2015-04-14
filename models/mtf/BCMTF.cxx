@@ -577,7 +577,7 @@ bool BCMTF::PrintResults(const char* filename)
 
     ofi	<< " Goodness-of-fit: " << std::endl;
     for (int i = 0; i < GetNChannels(); ++i)
-        ofi << TString::Format(" %d : \"%s\" : chi2 = %f", i, fChannelContainer[i]->GetName().data(), CalculateChi2(i, GetBestFitParameters())) << std::endl;
+        ofi << TString::Format(" %d : \"%s\" : chi2 = %f", i, fChannelContainer[i]->GetName().data(), CalculateChi2(i, GetGlobalMode())) << std::endl;
     ofi << std::endl;
 
 

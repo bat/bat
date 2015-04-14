@@ -216,11 +216,11 @@ public:
         p->SetLimits(-3, 3);
         p->SetNbins(60);
         m.MarginalizeAll(BCIntegrate::kMargGrid);
-        TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetBestFitParameters()[0]), 1e-14);
+        TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetGlobalMode()[0]), 1e-14);
 
         // mode finding should start from previous solution and converge to (0, 0)
         m.FindMode();
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetBestFitParameters()[0], 5e-5);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetGlobalMode()[0], 5e-5);
     }
 
     virtual void run() const

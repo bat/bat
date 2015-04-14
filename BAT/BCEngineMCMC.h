@@ -410,7 +410,7 @@ public:
 
     /**
      * @return vector of index pairs for order of printing 2D histograms. */
-    virtual std::vector<std::pair<unsigned,unsigned> > GetH2DPrintOrder() const;
+    virtual std::vector<std::pair<unsigned, unsigned> > GetH2DPrintOrder() const;
 
     /**
      * @param index Index of histogram of which to check existence
@@ -618,14 +618,6 @@ public:
     { return fMCMCStatistics_AllChains.mode; }
 
     /**
-     * @return vector of parameter values at global mode. */
-    virtual std::vector<double> GetBestFitParameters() const;
-
-    /**
-     * @return vector of observable values at global mode. */
-    virtual std::vector<double> GetBestFitObservables() const;
-
-    /**
      * @return vector of the local modes of parameters and observables
      * @param force_recalculation flag for forcing recalculation of local modes from histograms. */
     const std::vector<double>& GetLocalModes(bool force_recalculation = false);
@@ -803,29 +795,29 @@ public:
      * @param x Index of parameter for horizontal axis.
      * @param y Index of parameter for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramParPar(unsigned x, unsigned y, bool flag=true)
-    { SetFillHistogram(x,y,flag); }
+    void SetFillHistogramParPar(unsigned x, unsigned y, bool flag = true)
+    { SetFillHistogram(x, y, flag); }
 
     /** Sets whether to fill particular H2 histogram: obs(y) vs. par(x)
      * @param x Index of parameter for horizontal axis.
      * @param y Index of observable for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramParObs(unsigned x, unsigned y, bool flag=true)
-    { SetFillHistogram(x,-(y+1),flag); }
+    void SetFillHistogramParObs(unsigned x, unsigned y, bool flag = true)
+    { SetFillHistogram(x, -(y + 1), flag); }
 
     /** Sets whether to fill particular H2 histogram: obs(y) vs. obs(x)
      * @param x Index of observable for horizontal axis.
      * @param y Index of observable for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramObsObs(unsigned x, unsigned y, bool flag=true)
-    { SetFillHistogram(-(x+1),-(y+1),flag); }
+    void SetFillHistogramObsObs(unsigned x, unsigned y, bool flag = true)
+    { SetFillHistogram(-(x + 1), -(y + 1), flag); }
 
     /** Sets whether to fill particular H2 histogram: par(y) vs. obs(x)
      * @param x Index of observable for horizontal axis.
      * @param y Index of parameter for vertical axis.
      * @param flag Whether to fill histogram. */
-    void SetFillHistogramObsPar(unsigned x, unsigned y, bool flag=true)
-    { SetFillHistogram(-(x+1),y,flag); }
+    void SetFillHistogramObsPar(unsigned x, unsigned y, bool flag = true)
+    { SetFillHistogram(-(x + 1), y, flag); }
 
     /** Sets the flag if a prerun should be performed or not. */
     void MCMCSetFlagPreRun(bool flag)
@@ -1633,7 +1625,7 @@ protected:
      * Vector of pairs of indices for which 2D histograms should be
      * stored. a negative index indicates an observable, with
      * observable zero as -1, observable one as -2, etc. */
-    std::vector<std::pair<int,int> > fRequestedH2;
+    std::vector<std::pair<int, int> > fRequestedH2;
 
     /**
      * The tree containing the Markov chains.*/
