@@ -253,10 +253,11 @@ public:
 
     /**
      * Calculates the matrix element of the Hessian matrix
-     * @param parameter1 The parameter for the first derivative
-     * @param parameter2 The parameter for the first derivative
+     * @param index1 Index of parameter for the first derivative
+     * @param index2 Index of parameter for the second derivative
+     * @param point Vector of parameters for point at which to evaluate.
      * @return The matrix element of the Hessian matrix */
-    double HessianMatrixElement(const BCParameter* parameter1, const BCParameter* parameter2, std::vector<double> point);
+    double HessianMatrixElement(unsigned index1, unsigned index2, const std::vector<double>& point);
 
     /**
      * Prints a short summary of the fit results on the screen. */

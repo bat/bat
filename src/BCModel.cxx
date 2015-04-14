@@ -157,18 +157,18 @@ double BCModel::SamplingFunction(const std::vector<double>& /*parameters*/)
 }
 
 // ---------------------------------------------------------
-double BCModel::HessianMatrixElement(const BCParameter* par1, const BCParameter* par2, std::vector<double> point)
+double BCModel::HessianMatrixElement(unsigned index1, unsigned index2, const std::vector<double>& point)
 {
     // check number of entries in vector
-    if (point.size() != GetNParameters()) {
+    if (point.size() < GetNParameters()) {
         BCLog::OutError("BCModel::HessianMatrixElement : Invalid number of entries in the vector.");
         return -1;
     }
 
     // define steps
     double nsteps = 1e5;
-    double dx1 = par1->GetRangeWidth() / nsteps;
-    double dx2 = par2->GetRangeWidth() / nsteps;
+    double dx1 = GetVariable(index1)->GetRangeWidth() / nsteps;
+    double dx2 = GetVariable(index2)->GetRangeWidth() / nsteps;
 
     // define points at which to evaluate
     std::vector<double> xpp = point;
@@ -176,20 +176,17 @@ double BCModel::HessianMatrixElement(const BCParameter* par1, const BCParameter*
     std::vector<double> xmp = point;
     std::vector<double> xmm = point;
 
-    unsigned idx1 = fParameters.Index(par1->GetName());
-    unsigned idx2 = fParameters.Index(par2->GetName());
+    xpp[index1] += dx1;
+    xpp[index2] += dx2;
 
-    xpp[idx1] += dx1;
-    xpp[idx2] += dx2;
+    xpm[index1] += dx1;
+    xpm[index2] -= dx2;
 
-    xpm[idx1] += dx1;
-    xpm[idx2] -= dx2;
+    xmp[index1] -= dx1;
+    xmp[index2] += dx2;
 
-    xmp[idx1] -= dx1;
-    xmp[idx2] += dx2;
-
-    xmm[idx1] -= dx1;
-    xmm[idx2] -= dx2;
+    xmm[index1] -= dx1;
+    xmm[index2] -= dx2;
 
     // calculate probability at these points
     double ppp = Likelihood(xpp);
@@ -239,7 +236,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
     for (unsigned int i = 0; i < GetNParameters(); i++)
         for (unsigned int j = 0; j < i; j++) {
             // calculate Hessian matrix element
-            double hessianmatrixelement = HessianMatrixElement(GetParameter(i), GetParameter(j), parameters);
+            double hessianmatrixelement = HessianMatrixElement(i, j, parameters);
 
             // print to screen
             BCLog::OutSummary(Form("%d %d : %f", i, j, hessianmatrixelement));
