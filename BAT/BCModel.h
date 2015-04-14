@@ -29,13 +29,7 @@
 
 #include <string>
 
-// ROOT classes
-class TH1;
-class TF1;
-
 //BAT classes
-class BCDataPoint;
-class BCParameter;
 class BCH1D;
 class BCH2D;
 class BCPriorModel;
