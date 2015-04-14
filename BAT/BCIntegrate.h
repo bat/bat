@@ -714,7 +714,7 @@ public:
     { return DumpIntegrationMethod(fIntegrationMethodCurrent); }
 
     /**
-     * Return string with the name for the currently set integration type.
+     * Return string with the name for the previously used integration type.
      * @return string containing the name of the integration type */
     std::string DumpUsedIntegrationMethod() const
     { return DumpIntegrationMethod(fIntegrationMethodUsed); }
