@@ -720,7 +720,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, c
     // - check for b0/1 if the mcmc was run
 
     // check if parameters are filled
-    if (!parameters.size())
+    if (parameters.empty())
         return -1;
 
     // check options
@@ -988,7 +988,7 @@ int BCMTF::PrintStack(int channelindex, const std::vector<double>& parameters, c
 // ---------------------------------------------------------
 double BCMTF::CalculateChi2(int channelindex, const std::vector<double>& parameters)
 {
-    if (parameters.size() == 0)
+    if (parameters.empty())
         return -1;
 
     double chi2 = 0;
@@ -1027,7 +1027,7 @@ double BCMTF::CalculateChi2(int channelindex, const std::vector<double>& paramet
 // ---------------------------------------------------------
 double BCMTF::CalculateChi2(const std::vector<double>& parameters)
 {
-    if (parameters.size() == 0)
+    if (parameters.empty())
         return -1;
 
     double chi2 = 0;
@@ -1047,7 +1047,7 @@ double BCMTF::CalculateChi2(const std::vector<double>& parameters)
 // ---------------------------------------------------------
 double BCMTF::CalculateCash(int channelindex, const std::vector<double>& parameters)
 {
-    if (parameters.size() == 0)
+    if (parameters.empty())
         return -1;
 
     double cash = 0;
@@ -1091,7 +1091,7 @@ double BCMTF::CalculateCash(int channelindex, const std::vector<double>& paramet
 // ---------------------------------------------------------
 double BCMTF::CalculateCash(const std::vector<double>& parameters)
 {
-    if (parameters.size() == 0)
+    if (parameters.empty())
         return -1;
 
     double cash = 0;
