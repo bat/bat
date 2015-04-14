@@ -20,7 +20,6 @@
 // ---------------------------------------------------------
 BCVariableSet::BCVariableSet()
     : fMaxNameLength(0)
-    , fPartnerSet(0)
 {
 }
 
@@ -56,46 +55,11 @@ bool BCVariableSet::Add(BCVariable* parameter)
             return false;
         }
 
-    // check if variable with same name or safe name exists in partnered set
-    for (unsigned int i = 0; i < fPartnerSet->Size() ; ++i)
-        if ( parameter->IsNamed(fPartnerSet->Get(i)->GetName()) ) {
-            BCLog::OutError(TString::Format("BCVariableSet::Add : Variable with name %s exists already in partner set.", parameter->GetName().data()));
-            return false;
-        } else if ( parameter->IsSafeNamed(fPartnerSet->Get(i)->GetSafeName()) ) {
-            BCLog::OutError(TString::Format("BCVariableSet::Add : Variable with safe name %s exists already in partner set.", parameter->GetSafeName().data()));
-            return false;
-        }
-
     // add parameter to parameter container
     fPars.push_back(parameter);
     fMaxNameLength = std::max(fMaxNameLength, (unsigned)parameter->GetName().length());
 
-    // extend existing entries of fFillH2
-    for (unsigned i = 0; i < fFillH2.size(); ++i)
-        fFillH2[i].resize(Size(), false);
-
-    // extend fFillH2
-    fFillH2.resize(Size(), std::vector<bool>(Size(), false));
-
-    if (fPartnerSet) {
-        // extend fFillH2Partner
-        fFillH2Partner.resize(Size(), std::vector<bool>(fPartnerSet->Size(), false));
-        // extend partner's fFillH2Partner
-        for (unsigned i = 0; i < fPartnerSet->fFillH2Partner.size(); ++i)
-            fPartnerSet->fFillH2Partner[i].resize(Size(), false);
-    }
-
     return true;
-}
-
-// ---------------------------------------------------------
-void BCVariableSet::SetPartner(BCVariableSet* const set)
-{
-    fPartnerSet = set;
-    if (!fPartnerSet)
-        fFillH2Partner.clear();
-    else
-        fFillH2Partner.assign(Size(), std::vector<bool>(fPartnerSet->Size(), false));
 }
 
 // ---------------------------------------------------------
@@ -144,88 +108,6 @@ void BCVariableSet::FillH2(bool flag)
 {
     for (unsigned i = 0 ; i < fPars.size() ; ++i )
         fPars[i]->FillH2(flag);
-}
-
-// ---------------------------------------------------------
-void BCVariableSet::FillH2(std::string x, std::string y, bool flag)
-{
-    unsigned index_x = Index(x);
-
-    if (index_x >= Size()) {
-        BCLog::OutError("BCVariableSet::FillH2 : Called with abscissa not in set. If abcissa belongs to partner set, call its function instead!");
-        return;
-    }
-
-    unsigned index_y = Index(y);
-
-    // referencing members of this set
-    if (index_y < Size()) {
-        FillH2(index_x, index_y, flag);
-        return;
-    }
-
-    // otherwise possibly involving partner set's variables
-    // if no partner set, return
-    if (!fPartnerSet)
-        return;
-    // try setting filling of partner-involved H2:
-    FillH2Partner(index_x, fPartnerSet->Index(y), flag);
-}
-
-// ---------------------------------------------------------
-void BCVariableSet::FillAllH2(unsigned index, int axis, bool flag, bool include_partner_set)
-{
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if (axis == 0)								// index as abscissa
-            FillH2(index, i, flag);
-        else												// index as ordinate
-            FillH2(i, index, flag);
-
-    // set for partner-involved H2's as well
-    if (include_partner_set and fPartnerSet) {
-        for (unsigned i = 0; i < fPartnerSet->Size(); ++i)
-            if (axis == 0)							// index as abscissa
-                FillH2Partner(index, i, flag);
-            else
-                fPartnerSet->FillH2Partner(i, index, flag);
-    }
-}
-
-// ---------------------------------------------------------
-bool BCVariableSet::FillH2(unsigned x, unsigned y) const
-{
-    return x != y																		 // don't fill H2's with identical axes
-           and x < fFillH2.size() and y < fFillH2[x].size() // x and y within range
-           and (fFillH2[x][y]					// explicitely designated to be filled
-                or (y > x and fPars[x]->FillH2() and fPars[y]->FillH2())); // or implicitely
-}
-
-// ---------------------------------------------------------
-bool BCVariableSet::FillH2Partner(unsigned x, unsigned y) const
-{
-    return x < fFillH2Partner.size() and y < fFillH2Partner[x].size() // x and y within range
-           and (fFillH2Partner[x][y]		// explicitely designated to be filled
-                or (fPars[x]->FillH2() and fPartnerSet and fPartnerSet->Get(y) and fPartnerSet->Get(y)->FillH2())); // or implicitely
-}
-
-// ---------------------------------------------------------
-bool BCVariableSet::FillH2(std::string x, std::string y) const
-{
-    unsigned index_x = Index(x);
-
-    if (index_x >= Size()) {
-        BCLog::OutError("BCVariableSet::FillH2 : Called with abscissa not in set. If abcissa belongs to partner set, call its function instead!");
-        return false;
-    }
-
-    unsigned index_y = Index(y);
-
-    // y is in this set
-    if (index_y < Size())
-        return FillH2(index_x, index_y);
-
-    // else try partner set
-    return FillH2Partner(index_x, fPartnerSet->Index(y));
 }
 
 // ---------------------------------------------------------

@@ -32,6 +32,7 @@
 
 #include <vector>
 #include <limits>
+#include <utility>
 
 #include <TMatrixDSym.h>
 #include <TMatrixD.h>
@@ -406,6 +407,10 @@ public:
      * @return Factor by which to enlarge histogram ranges when rescaling to add padding beyond range. */
     double GetHistogramRescalePadding() const
     { return fHistogramRescalePadding; }
+
+    /**
+     * @return vector of index pairs for order of printing 2D histograms. */
+    virtual std::vector<std::pair<unsigned,unsigned> > GetH2DPrintOrder() const;
 
     /**
      * @param index Index of histogram of which to check existence
@@ -793,6 +798,34 @@ public:
      * Applies to all parameters and observables so far added. */
     void MCMCSetFlagFillHistograms(bool flag_1d, bool flag_2d)
     { fParameters.FillHistograms(flag_1d, flag_2d); fObservables.FillHistograms(flag_1d, flag_2d); }
+
+    /** Sets whether to fill particular H2 histogram: par(y) vs. par(x)
+     * @param x Index of parameter for horizontal axis.
+     * @param y Index of parameter for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramParPar(unsigned x, unsigned y, bool flag=true)
+    { SetFillHistogram(x,y,flag); }
+
+    /** Sets whether to fill particular H2 histogram: obs(y) vs. par(x)
+     * @param x Index of parameter for horizontal axis.
+     * @param y Index of observable for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramParObs(unsigned x, unsigned y, bool flag=true)
+    { SetFillHistogram(x,-(y+1),flag); }
+
+    /** Sets whether to fill particular H2 histogram: obs(y) vs. obs(x)
+     * @param x Index of observable for horizontal axis.
+     * @param y Index of observable for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramObsObs(unsigned x, unsigned y, bool flag=true)
+    { SetFillHistogram(-(x+1),-(y+1),flag); }
+
+    /** Sets whether to fill particular H2 histogram: par(y) vs. obs(x)
+     * @param x Index of observable for horizontal axis.
+     * @param y Index of parameter for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramObsPar(unsigned x, unsigned y, bool flag=true)
+    { SetFillHistogram(-(x+1),y,flag); }
 
     /** Sets the flag if a prerun should be performed or not. */
     void MCMCSetFlagPreRun(bool flag)
@@ -1330,6 +1363,15 @@ private:
 protected:
 
     /**
+     * Set whether to fill 2D histogram y vs x: positive indices for
+     * parameters; negative for observables, starting at -1 and going
+     * more negative---observable index = -(index+1).
+     * @param x Index of variable for horizontal axis.
+     * @param y Index of variable for vertical axis.
+     * @param flag Whether to fill 2D histogram. */
+    void SetFillHistogram(int x, int y, bool flag);
+
+    /**
      * Print model summary to stream.
      * @param ofi Output stream to print to. */
     virtual void PrintSummaryToStream(std::ofstream& ofi) const;
@@ -1580,12 +1622,18 @@ protected:
     TRandom3* fRandom;
 
     /**
-     * Array of 1D marginalized distributions */
-    std::vector<TH1*>               fH1Marginalized;
+     * Vector of 1D marginalized distributions */
+    std::vector<TH1*> fH1Marginalized;
 
     /**
-     * Array of 2D marginalized distributions. */
+     * Vector of 2D marginalized distributions. */
     std::vector<std::vector<TH2*> > fH2Marginalized;
+
+    /**
+     * Vector of pairs of indices for which 2D histograms should be
+     * stored. a negative index indicates an observable, with
+     * observable zero as -1, observable one as -2, etc. */
+    std::vector<std::pair<int,int> > fRequestedH2;
 
     /**
      * The tree containing the Markov chains.*/

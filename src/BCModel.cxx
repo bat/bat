@@ -732,21 +732,21 @@ int BCModel::PrintKnowledgeUpdatePlots(const char* filename, unsigned hdiv, unsi
     c->Clear("D");
 
     // loop over all parameter pairs
+    std::vector<std::pair<unsigned,unsigned> > H2Coords = GetH2DPrintOrder();
     ndrawn = 0;
     nprinted = -1;
     c->cd(1)->Clear();
-    for (unsigned i = 0; i < GetNVariables(); ++i)
-        for (unsigned j = i + 1; j < GetNVariables(); ++j)
-            if (DrawKnowledgeUpdatePlot2D(i, j, flag_slice)) {
-                ++ndrawn;
-                if (ndrawn != 0 and ndrawn % npads == 0) {
-                    c->Print(file.c_str());
-                    nprinted = ndrawn;
-                    c->Clear();
-                    c->Divide(hdiv, vdiv);
-                }
-                c->cd(ndrawn % npads + 1)->Clear();
+    for (unsigned i = 0; i < H2Coords.size(); ++i)
+        if (DrawKnowledgeUpdatePlot2D(H2Coords[i].first, H2Coords[i].second, flag_slice)) {
+            ++ndrawn;
+            if (ndrawn != 0 and ndrawn % npads == 0) {
+                c->Print(file.c_str());
+                nprinted = ndrawn;
+                c->Clear();
+                c->Divide(hdiv, vdiv);
             }
+            c->cd(ndrawn % npads + 1)->Clear();
+        }
     if (nprinted < ndrawn)
         c->Print(file.c_str());
 
