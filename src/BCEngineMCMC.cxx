@@ -553,24 +553,6 @@ const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
     return fLocalModes;
 }
 
-#if 0
-// ---------------------------------------------------------
-std::vector<double> BCEngineMCMC::GetBestFitParameters() const
-{
-    if (GetGlobalMode().empty() or GetGlobalMode().size() < GetNParameters())
-        return std::vector<double>();
-    return std::vector<double>(GetGlobalMode().begin(), GetGlobalMode().begin() + GetNParameters());
-}
-
-// ---------------------------------------------------------
-std::vector<double> BCEngineMCMC::GetBestFitObservables() const
-{
-    if (GetGlobalMode().empty() or GetGlobalMode().size() < GetNVariables())
-        return std::vector<double>();
-    return std::vector<double>(GetGlobalMode().begin() + GetNParameters(), GetGlobalMode().begin() + GetNVariables());
-}
-#endif
-
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double>& x0s)
 {
