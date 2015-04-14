@@ -2762,7 +2762,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
 }
 
 // ---------------------------------------------------------
-unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges)
+unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
 {
 
     BCAux::DefaultToPDF(filename);
@@ -2802,7 +2802,7 @@ unsigned BCEngineMCMC::PrintParameterPlot(std::string filename, int npar, double
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges)
+bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval_content, std::vector<double> quantiles, bool rescale_ranges) const
 {
 
     // if npar==0, print all remaining observables
@@ -2833,14 +2833,13 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     original_max.reserve(i1 - i0);
     if (rescale_ranges) {
         for (unsigned i = i0; i < i1; ++i) {
-            if (i < fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i])) {
-                original_min.push_back(GetVariable(i)->GetLowerLimit());
-                GetVariable(i)->SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
-            }
-            if (i < fMCMCStatistics_AllChains.maximum.size() and std::isfinite(fMCMCStatistics_AllChains.maximum[i])) {
-                original_max.push_back(GetVariable(i)->GetUpperLimit());
-                GetVariable(i)->SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
-            }
+            BCVariable* var = const_cast<BCVariable*>(GetVariable(i));
+            original_min.push_back(GetVariable(i)->GetLowerLimit());
+            original_max.push_back(GetVariable(i)->GetUpperLimit());
+            if (i < fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i]))
+                var->SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
+            if (i < fMCMCStatistics_AllChains.maximum.size() and std::isfinite(fMCMCStatistics_AllChains.maximum[i]))
+                var->SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
         }
     }
 
@@ -3025,9 +3024,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     // restore ranges
     for (unsigned i = 0; i < original_min.size(); ++i)
-        GetVariable(i0 + i)->SetLowerLimit(original_min[i]);
-    for (unsigned i = 0; i < original_max.size(); ++i)
-        GetVariable(i0 + i)->SetUpperLimit(original_max[i]);
+        const_cast<BCVariable*>(GetVariable(i0 + i))->SetLimits(original_min[i], original_max[i]);
 
     // no error
     return true;

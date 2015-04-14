@@ -1036,7 +1036,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Number of pages printed. */
-    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true);
+    unsigned PrintParameterPlot(std::string filename, int npar = 10, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
 
     /**
      * Draw a summary plot for the parameters in the range provided to current pad
@@ -1046,7 +1046,7 @@ public:
      * @param quantile_values Vector of quantile values to draw
      * @param rescale_ranges Flag for rescaling to range surveyed by MCMC chains
      * @return Success of action. */
-    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true);
+    bool DrawParameterPlot(unsigned i0, unsigned npar = 0, double interval_content = 68e-2, std::vector<double> quantile_vals = std::vector<double>(0), bool rescale_ranges = true) const;
 
     /**
      * Print a correlation matrix for the parameters.
