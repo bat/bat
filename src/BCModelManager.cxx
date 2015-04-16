@@ -347,5 +347,5 @@ void BCModelManager::PrintResults()
 {
     // print summary of all models
     for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->PrintResults(GetModel(i)->GetSafeName()+".txt");
+        GetModel(i)->PrintResults(GetModel(i)->GetSafeName() + ".txt");
 }

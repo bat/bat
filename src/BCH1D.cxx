@@ -171,7 +171,7 @@ void BCH1D::DrawBands(std::string options)
         std::string legend_text;
 
         if (fBandType == kSmallestInterval) {
-            hist_band = (TH1*) GetHistogram()->Clone((std::string(GetHistogram()->GetName())+"_band").data());
+            hist_band = (TH1*) GetHistogram()->Clone((std::string(GetHistogram()->GetName()) + "_band").data());
             for (int b = 1; b <= hist_band->GetNbinsX(); ++b)
                 if (hist_band->GetBinContent(b) < bounds[i].first)
                     hist_band->SetBinContent(b, 0);

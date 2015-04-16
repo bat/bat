@@ -106,7 +106,7 @@ bool BCVariable::IsAtLimit(double value) const
 // ---------------------------------------------------------
 void BCVariable::PrintSummary() const
 {
-    BCLog::OutSummary(fPrefix+" summary:");
+    BCLog::OutSummary(fPrefix + " summary:");
     BCLog::OutSummary(Form("%11s : %s", fPrefix.c_str(), fName.c_str()));
     BCLog::OutSummary(Form("Lower limit : % .*f", fPrecision, fLowerLimit));
     BCLog::OutSummary(Form("Upper limit : % .*f", fPrecision, fUpperLimit));
@@ -131,8 +131,8 @@ TH1* BCVariable::CreateH1(std::string name) const
 TH2* BCVariable::CreateH2(std::string name, const BCVariable& ordinate) const
 {
     return new TH2D(name.data(),
-                    (";" + GetLatexNameWithUnits() + 
-                     ";" + ordinate.GetLatexNameWithUnits() + 
+                    (";" + GetLatexNameWithUnits() +
+                     ";" + ordinate.GetLatexNameWithUnits() +
                      ";P(" + GetLatexName() + ", " + ordinate.GetLatexName() + " | Data)").data(),
                     fNbins, fLowerLimit, fUpperLimit,
                     ordinate.GetNbins(), ordinate.GetLowerLimit(), ordinate.GetUpperLimit());
@@ -142,9 +142,9 @@ TH2* BCVariable::CreateH2(std::string name, const BCVariable& ordinate) const
 TH3* BCVariable::CreateH3(std::string name, const BCVariable& ordinate_y, const BCVariable& ordinate_z) const
 {
     return new TH3D(name.data(),
-                    (";" + GetLatexNameWithUnits() + 
-                     ";" + ordinate_y.GetLatexNameWithUnits() + 
-                     ";" + ordinate_z.GetLatexNameWithUnits() + 
+                    (";" + GetLatexNameWithUnits() +
+                     ";" + ordinate_y.GetLatexNameWithUnits() +
+                     ";" + ordinate_z.GetLatexNameWithUnits() +
                      ";P(" + GetLatexName() + ", " + ordinate_y.GetLatexName() + ", " + ordinate_z.GetLatexName() + " | Data)").data(),
                     fNbins, fLowerLimit, fUpperLimit,
                     ordinate_y.GetNbins(), ordinate_y.GetLowerLimit(), ordinate_y.GetUpperLimit(),
