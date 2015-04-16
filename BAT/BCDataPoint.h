@@ -24,7 +24,9 @@
 
 // ---------------------------------------------------------
 
+#include <string>
 #include <vector>
+
 #include "BCLog.h"
 
 // ---------------------------------------------------------
@@ -112,7 +114,7 @@ public:
 
     /**
      * Dump the data to the standard output */
-    void Dump(void (*output)(const char*) = BCLog::OutSummary) const;
+    void Dump(void (*output)(std::string) = BCLog::OutSummary) const;
 
     /** @} */
 

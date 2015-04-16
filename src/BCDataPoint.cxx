@@ -80,7 +80,7 @@ void BCDataPoint::SetValues(const std::vector<double>& values)
 }
 
 // ---------------------------------------------------------
-void BCDataPoint::Dump(void (*output)(const char*)) const
+void BCDataPoint::Dump(void (*output)(std::string)) const
 {
     for (unsigned i = 0; i < fData.size(); ++i)
         output(Form("%u : %12.5g", i, fData[i]));
