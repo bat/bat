@@ -19,7 +19,7 @@ int main()
     m->MarginalizeAll();
 
     // find mode
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // draw all marginalized distributions into a PostScript file
     m->PrintAllMarginalized("CombinationModel_plots.pdf");

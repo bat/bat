@@ -4,7 +4,7 @@
 #include <BAT/BCModel.h>
 
 class TF1;
-class TH1D;
+class TH1;
 
 // This is a ReferenceCounting header file.
 // Model source code is located in file ReferenceCounting/ReferenceCounting.cxx
@@ -78,8 +78,8 @@ public:
     std::vector<double> helper_c;
 
     // the histogrammed priors
-    TH1D* fHistPriorS;
-    TH1D* fHistPriorB;
+    TH1* fHistPriorS;
+    TH1* fHistPriorB;
 
     // the approximate priors as functions
     TF1* fFuncPriorS;

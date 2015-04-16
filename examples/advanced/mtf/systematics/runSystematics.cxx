@@ -106,7 +106,7 @@ int main()
     m->MarginalizeAll();
 
     // find global mode
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // print all marginalized distributions
     m->PrintAllMarginalized("marginalized.pdf");
@@ -127,7 +127,7 @@ int main()
         channel->PrintTemplate(0, Form("background_%i.pdf", i));
         channel->PrintTemplate(1, Form("signal_%i.pdf", i));
 
-        m->PrintStack(i, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()));
+        m->PrintStack(i, m->GetGlobalMode(), Form("%s_stack.pdf", channel->GetName().c_str()));
     }
 
     // ---- perform single systematic analysis ---- //

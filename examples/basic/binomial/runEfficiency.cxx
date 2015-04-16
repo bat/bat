@@ -23,7 +23,7 @@ int main()
     m->MarginalizeAll();
 
     // find mode starting from the best fit parameters
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // draw all marginalized distributions into a pdf file
     m->PrintAllMarginalized("BinomialModel_plots.pdf");

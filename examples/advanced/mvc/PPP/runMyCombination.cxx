@@ -6,6 +6,7 @@
 #include <TMatrixT.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TCanvas.h>
 
 #include <iostream>
 #include <fstream>
@@ -25,14 +26,6 @@ int main(int argc, char* argv[])
     bool flag_meas = true;  // repeat analysis and remove one measurement at a time
     bool flag_unc  = true;  // repeat analysis and remove one uncertainty at a time
 
-    int nbins = 500;
-    double rho_min   = 0.0;
-    double rho_max   = 4.5;
-    double alpha_min = 1.5;
-    double alpha_max = 3.0;
-    double eta_min   = 0.0;
-    double eta_max   = 4.0;
-
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();
 
@@ -41,8 +34,8 @@ int main(int argc, char* argv[])
     BCLog::SetLogLevel(BCLog::detail);
 
     // helper variables
-    double rho_mean_all;
-    double rho_std_all;
+    double rho_mean_all = 0;
+    double rho_std_all = 0;
 
     std::vector<double> rho_mean_single;
     std::vector<double> rho_std_single;
@@ -81,51 +74,14 @@ int main(int argc, char* argv[])
     // ----- Full 2D analysis --------------------
 
     if (flag_full) {
-        // define histogram for rho
-        TH1D* hist_rho = new TH1D("hist_rho", ";#rho;p(#rho)", nbins, rho_min, rho_max);
-        hist_rho->SetStats(kFALSE);
-        TH2D* hist_rhoalpha = new TH2D("hist_rhoalpha", ";#rho;#alpha", nbins, rho_min, rho_max, nbins, alpha_min, alpha_max);
-        hist_rhoalpha->SetStats(kFALSE);
-        TH2D* hist_rhoeta = new TH2D("hist_rhoeta", ";#rho;#eta", nbins, rho_min, rho_max, nbins, eta_min, eta_max);
-        hist_rhoeta->SetStats(kFALSE);
-
-        m->SetHistRho(hist_rho);
-        m->SetHistRhoAlpha(hist_rhoalpha);
-        m->SetHistRhoEta(hist_rhoeta);
 
         // perform numerical analysis using MCMC
         m->MarginalizeAll();
 
         // find mode using Minuit
-        m->FindMode( m->GetBestFitParameters() );
+        m->FindMode(m->GetGlobalMode());
 
         m->PrintAllMarginalized("MyCombination_full_plots.pdf");
-
-        double gmode[2];
-        gmode[0] = m->GetBestFitParameters().at(0);
-        gmode[1] = m->GetBestFitParameters().at(1);
-
-        BCH2D* hist_slice = new BCH2D(m->GetSlice("alpha", "eta", m->GetBestFitParameters(), 300));
-        hist_slice->SetGlobalMode(gmode);
-        hist_slice->Print("alpha_vs_eta.pdf", "BTfB3CS1gmode");
-
-        BCH1D* bchist_rho = new BCH1D(hist_rho);
-        bchist_rho->Print("rho.pdf", "BTfB3Lmodemeanrms");
-
-        BCH2D* bchist_rhoalpha = new BCH2D(hist_rhoalpha);
-        bchist_rhoalpha->Print("rho_vs_alpha.pdf", "BTfB3Lmodemeanrms");
-
-        BCH2D* bchist_rhoeta = new BCH2D(hist_rhoeta);
-        bchist_rhoeta->Print("rho_vs_eta.pdf", "BTfB3Lmodemeanrms");
-
-        // calculate correlation between alpha and eta
-        rho_mean_all = bchist_rho->GetMean();
-        rho_std_all  = bchist_rho->GetSTD();
-
-        // print results to screen
-        std::cout << " E[rho]   = " << bchist_rho->GetMean() << std::endl;
-        std::cout << " Std[rho] = " << bchist_rho->GetSTD() << std::endl;
-        std::cout << " V[rho]   = " << bchist_rho->GetVariance() << std::endl;
 
         // print results of numerical analysis to file
         m->PrintResults("MyCombination_full_results.txt");
@@ -136,28 +92,12 @@ int main(int argc, char* argv[])
         // print BLUE results to file
         m->PrintBLUEResults("MyCombination_full_BLUE.txt");
 
-        // reset histogram pointer
-        m->SetHistRho(0);
-        m->SetHistRhoAlpha(0);
-        m->SetHistRhoEta(0);
     }
 
     // ----- Remove one measurement at a time --------------------
 
     // test single measurements
     if (flag_meas) {
-
-        // define histogram for rho
-        TH1D* hist_rho = new TH1D("hist_rho", ";#rho;p(#rho)", nbins, rho_min, rho_max);
-        hist_rho->SetStats(kFALSE);
-        TH2D* hist_rhoalpha = new TH2D("hist_rhoalpha", ";#rho;#alpha", nbins, rho_min, rho_max, nbins, alpha_min, alpha_max);
-        hist_rhoalpha->SetStats(kFALSE);
-        TH2D* hist_rhoeta = new TH2D("hist_rhoeta", ";#rho;#eta", nbins, rho_min, rho_max, nbins, eta_min, eta_max);
-        hist_rhoeta->SetStats(kFALSE);
-
-        m->SetHistRho(hist_rho);
-        m->SetHistRhoAlpha(hist_rhoalpha);
-        m->SetHistRhoEta(hist_rhoeta);
 
         // switch off ith measurement
         for (int i = 0; i < nmeas; ++i) {
@@ -169,21 +109,12 @@ int main(int argc, char* argv[])
             }
             m->PrepareAnalysis();
             m->MarginalizeAll();
-            m->FindMode( m->GetBestFitParameters() );
+            m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
             m->PrintResults(Form("MyCombination_measurement_%i_results.txt", i));
 
-            BCH1D* bchist_rho = new BCH1D(hist_rho);
-            bchist_rho->Print(Form("rho_measurement_%i.pdf", i), "BTfB3Lmodemeanrms");
-
-            BCH2D* bchist_rhoalpha = new BCH2D(hist_rhoalpha);
-            bchist_rhoalpha->Print(Form("rho_vs_alpha_measurement_%i.pdf", i), "BTfB3Lmodemeanrms");
-
-            BCH2D* bchist_rhoeta = new BCH2D(hist_rhoeta);
-            bchist_rhoeta->Print(Form("rho_vs_eta_measurement_%i.pdf", i), "BTfB3Lmodemeanrms");
-
-            rho_mean_single.push_back(bchist_rho->GetMean());
-            rho_std_single.push_back(bchist_rho->GetSTD());
+            rho_mean_single.push_back(m->MCMCGetStatistics().mean[2]);
+            rho_std_single.push_back(sqrt(m->MCMCGetStatistics().variance[2]));
         }
 
         // switch all measurements on
@@ -191,28 +122,12 @@ int main(int argc, char* argv[])
             m->GetMeasurement(j)->SetFlagActive(true);
         m->PrepareAnalysis();
 
-        // reset histogram pointer
-        m->SetHistRho(0);
-        m->SetHistRhoAlpha(0);
-        m->SetHistRhoEta(0);
     }
 
     // ----- Remove one uncertainty at a time --------------------
 
     // test single uncertainties
     if (flag_unc) {
-
-        // define histogram for rho
-        TH1D* hist_rho = new TH1D("hist_rho", ";#rho;p(#rho)", nbins, rho_min, rho_max);
-        hist_rho->SetStats(kFALSE);
-        TH2D* hist_rhoalpha = new TH2D("hist_rhoalpha", ";#rho;#alpha", nbins, rho_min, rho_max, nbins, alpha_min, alpha_max);
-        hist_rhoalpha->SetStats(kFALSE);
-        TH2D* hist_rhoeta = new TH2D("hist_rhoeta", ";#rho;#eta", nbins, rho_min, rho_max, nbins, eta_min, eta_max);
-        hist_rhoeta->SetStats(kFALSE);
-
-        m->SetHistRho(hist_rho);
-        m->SetHistRhoAlpha(hist_rhoalpha);
-        m->SetHistRhoEta(hist_rhoeta);
 
         // switch off ith uncertainty
         for (int i = 0; i < nunc; ++i) {
@@ -224,21 +139,12 @@ int main(int argc, char* argv[])
             }
             m->PrepareAnalysis();
             m->MarginalizeAll();
-            m->FindMode( m->GetBestFitParameters() );
+            m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
             m->PrintResults(Form("MyCombination_uncertainty_%i_results.txt", i));
 
-            BCH1D* bchist_rho = new BCH1D(hist_rho);
-            bchist_rho->Print(Form("rho_uncertainty_%i.pdf", i), "BTfB3Lmodemeanrms");
-
-            BCH2D* bchist_rhoalpha = new BCH2D(hist_rhoalpha);
-            bchist_rhoalpha->Print(Form("rho_vs_alpha_uncertainty_%i.pdf", i), "BTfB3Lmodemeanrms");
-
-            BCH2D* bchist_rhoeta = new BCH2D(hist_rhoeta);
-            bchist_rhoeta->Print(Form("rho_vs_eta_uncertainty_%i.pdf", i), "BTfB3Lmodemeanrms");
-
-            rho_mean_unc.push_back(bchist_rho->GetMean());
-            rho_std_unc.push_back(bchist_rho->GetSTD());
+            rho_mean_unc.push_back(m->MCMCGetStatistics().mean[2]);
+            rho_std_unc.push_back(sqrt(m->MCMCGetStatistics().variance[2]));
         }
 
         // switch all uncertainties on
@@ -246,10 +152,6 @@ int main(int argc, char* argv[])
             m->GetUncertainty(j)->SetFlagActive(true);
         m->PrepareAnalysis();
 
-        // reset histogram pointer
-        m->SetHistRho(0);
-        m->SetHistRhoAlpha(0);
-        m->SetHistRhoEta(0);
     }
 
     // ----- Print results to screen --------------------

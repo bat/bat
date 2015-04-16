@@ -10,10 +10,10 @@ CombinationModel::CombinationModel(const char* name)
     : BCModel(name)
 {
     AddParameter("mass", 15., 65., "M"); // mass of a particle
-    GetParameter("mass")->SetPrior(new BCGaussianPrior(39.4, 5.4)); // Gaussian prior for the mass
+    GetParameter("mass").SetPrior(new BCGaussianPrior(39.4, 5.4)); // Gaussian prior for the mass
 
     AddParameter("cross section", 120., 180., "#sigma"); // cross section for a certain reaction
-    GetParameter("cross section")->SetPrior(new BCGaussianPrior(150.3, 5.5)); // Gaussian prior for the cross section
+    GetParameter("cross section").SetPrior(new BCGaussianPrior(150.3, 5.5)); // Gaussian prior for the cross section
 };
 
 // ---------------------------------------------------------

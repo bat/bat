@@ -6,7 +6,7 @@
 
 #include <TMath.h>
 #include <TCanvas.h>
-#include <TH1D.h>
+#include <TH1.h>
 #include <TF1.h>
 
 #include <iostream>
@@ -208,11 +208,10 @@ void ReferenceCounting::FillPriorS()
         delete fHistPriorS;
 
     // create new histogram
-    BCParameter* p = GetParameter(0);
-    fHistPriorS = new TH1D("hist_prior_s", ";s;p(s)", p->GetNbins(), p->GetLowerLimit(), p->GetUpperLimit());
+    fHistPriorS = GetParameter(0).CreateH1("hist_prior_s");
 
     // fill histogram
-    for (unsigned i = 1; i <= p->GetNbins(); ++i) {
+    for (unsigned i = 1; i <= fHistPriorS->GetNbinsX(); ++i) {
         double s = fHistPriorS->GetBinCenter(i);
         double p = RefPriorS(s);
         fHistPriorS->SetBinContent(i, p);
@@ -226,7 +225,7 @@ void ReferenceCounting::FillPriorS()
 
     //   fFuncPriorS = new TF1("func_prior_s", "sqrt([0] / ([0] + x)) * exp([1]*TMath::Power(x, 0.25))", p->GetLowerLimit(), p->GetUpperLimit());
     //   fFuncPriorS = new TF1("func_prior_s", "exp([0]*x^0.25+[1]*x^0.5+[2]*x)", p->GetLowerLimit(), p->GetUpperLimit());
-    fFuncPriorS = new TF1("func_prior_s", "sqrt(([0]*exp([1]*x^0.125))/(x+[0]*exp([1]*x^0.125)))", p->GetLowerLimit(), p->GetUpperLimit());
+    fFuncPriorS = new TF1("func_prior_s", "sqrt(([0]*exp([1]*x^0.125))/(x+[0]*exp([1]*x^0.125)))", fHistPriorS->GetXaxis()->GetXmin(),fHistPriorS->GetXaxis()->GetXmax());
 
     fHistPriorS->Fit(fFuncPriorS);
 }
@@ -239,11 +238,10 @@ void ReferenceCounting::FillPriorB()
         delete fHistPriorB;
 
     // create new histogram
-    BCParameter* p = GetParameter(1);
-    fHistPriorB = new TH1D("hist_prior_b", ";b;p(b)", p->GetNbins(), p->GetLowerLimit(), p->GetUpperLimit());
+    fHistPriorB = GetParameter(1).CreateH1("hist_prior_b");
 
     // fill histogram
-    for (unsigned i = 1; i <= p->GetNbins(); ++i) {
+    for (unsigned i = 1; i <= fHistPriorB->GetNbinsX(); ++i) {
         double b = fHistPriorB->GetBinCenter(i);
         double p = ConjPriorPoisson(b, fAlpha, fBeta);
         fHistPriorB->SetBinContent(i, p);

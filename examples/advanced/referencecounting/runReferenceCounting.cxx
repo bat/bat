@@ -42,14 +42,14 @@ int main()
     m->SetNObs(20);
 
     // set parameter range
-    m->GetParameter("s")->SetLimits(0.0, 50); // signal
-    m->GetParameter("b")->SetLimits(0.0, 35); // background
+    m->GetParameter("s").SetLimits(0.0, 50); // signal
+    m->GetParameter("b").SetLimits(0.0, 35); // background
 
     // perform sampling with MCMC
     m->MarginalizeAll();
 
     // perform minimization with Minuit
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // draw all marginalized distributions into a pdf file
     m->PrintAllMarginalized("ReferenceCounting_plots.pdf");

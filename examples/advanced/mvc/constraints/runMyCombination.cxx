@@ -78,36 +78,17 @@ int main(int argc, char* argv[])
         m->MarginalizeAll();
 
         // find mode using Minuit
-        m->FindMode( m->GetBestFitParameters() );
+        m->FindMode(m->GetGlobalMode());
 
         m->PrintAllMarginalized("MyCombination_full_plots.pdf");
 
-        double gmode[2];
-        gmode[0] = m->GetBestFitParameters().at(0);
-        gmode[1] = m->GetBestFitParameters().at(1);
-
-        BCH2D* hist_slice = new BCH2D(m->GetSlice("F0", "FL", m->GetBestFitParameters(), 300));
-        hist_slice->SetGlobalMode(gmode);
-        hist_slice->Print("F0_vs_FL.pdf", "BTfB3CS1gmode");
-
-        BCH1D* hist_F0 = new BCH1D( hist_slice->GetHistogram()->ProjectionX() );
-        hist_F0->GetHistogram()->SetStats(kFALSE);
-        hist_F0->SetGlobalMode(gmode[0]);
-        hist_F0->Print("F0.pdf", "BTciB3CS1D0pdf0Lmode");
-
-        BCH1D* hist_FL = new BCH1D( hist_slice->GetHistogram()->ProjectionY() );
-        hist_FL->GetHistogram()->SetStats(kFALSE);
-        hist_FL->SetGlobalMode(gmode[1]);
-        hist_FL->Print("FL.pdf", "BTciB3CS1D0pdf0Lmode");
-
-        BCH1D* hist_FR = m->GetMarginalized(2);
-        hist_FR->Print("FR.pdf", "BTulB3L");
+        BCH2D * h2 = m->GetMarginalized("F0","FL");
 
         // calculate correlation between F0 and FL
-        rho_all = hist_slice->GetHistogram()->GetCorrelationFactor();
+        rho_all = h2->GetHistogram()->GetCorrelationFactor();
 
         // calculate size of uncertainty
-        area_all = hist_slice->GetSmallestIntervalSize(0.39);
+        area_all = h2->GetSmallestIntervalSize(0.39);
 
         // print results of numerical analysis to file
         m->PrintResults("MyCombination_full_results.txt");
@@ -134,11 +115,13 @@ int main(int argc, char* argv[])
             }
             m->PrepareAnalysis();
             m->MarginalizeAll();
-            m->FindMode( m->GetBestFitParameters() );
+            m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
             m->PrintResults(Form("MyCombination_measurement_%i_results.txt", i));
-            rho_single.push_back( m->GetMarginalized("F0", "FL")->GetHistogram()->GetCorrelationFactor());
-            area_single.push_back(m->GetMarginalized("F0", "FL")->GetSmallestIntervalSize(0.39));
+
+            BCH2D * h2 = m->GetMarginalized("F0","FL");
+            rho_single.push_back(h2->GetHistogram()->GetCorrelationFactor());
+            area_single.push_back(h2->GetSmallestIntervalSize(0.39));
         }
 
         // switch all measurements on
@@ -162,11 +145,12 @@ int main(int argc, char* argv[])
             }
             m->PrepareAnalysis();
             m->MarginalizeAll();
-            m->FindMode( m->GetBestFitParameters() );
+            m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
             m->PrintResults(Form("MyCombination_uncertainty_%i_results.txt", i));
-            rho_unc.push_back( m->GetMarginalized("F0", "FL")->GetHistogram()->GetCorrelationFactor());
-            area_unc.push_back(m->GetMarginalized("F0", "FL")->GetSmallestIntervalSize(0.39));
+            BCH2D * h2 = m->GetMarginalized("F0", "FL");
+            rho_unc.push_back(h2->GetHistogram()->GetCorrelationFactor());
+            area_unc.push_back(h2->GetSmallestIntervalSize(0.39));
         }
 
         // switch all uncertainties on
@@ -192,7 +176,6 @@ int main(int argc, char* argv[])
         dm->SetParameters(SM);
 
         dm->MarginalizeAll();
-        dm->GetBestFitParameters();
         dm->PrintAllMarginalized("gof_plots.pdf");
         dm->PrintResults("gof_results.txt");
         dm->PrintToys("gof_chi2.pdf");

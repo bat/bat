@@ -3,7 +3,6 @@
 
 #include <BAT/BCMVCombination.h>
 
-#include <iostream>
 #include <fstream>
 
 int main(int argc, char* argv[])
@@ -28,7 +27,7 @@ int main(int argc, char* argv[])
     // read input from file
     int isopen = m->ReadInput(argv[1]);
     if (!isopen) {
-        std::cout << "Could not open file. Exit." << std::endl;
+        BCLog::OutError("Could not open file. Exit.");
         return 1;
     }
 
@@ -36,7 +35,7 @@ int main(int argc, char* argv[])
     m->MarginalizeAll();
 
     // find mode using Minuit
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // print all marginalized distributions
     m->PrintAllMarginalized("BCMVCombination_plots.pdf");

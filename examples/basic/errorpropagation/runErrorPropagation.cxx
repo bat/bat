@@ -25,7 +25,7 @@ int main()
     m->MarginalizeAll();
 
     // find mode using the best fit parameters as start values
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // draw all marginalized distributions into a PostScript file
     m->PrintAllMarginalized("RatioModel_plots.pdf");

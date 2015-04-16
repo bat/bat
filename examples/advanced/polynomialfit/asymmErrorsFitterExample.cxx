@@ -89,7 +89,7 @@ int main()
     // but we run minuit on top of that starting in the mode
     // found by MCMC to get more precise result
     for (unsigned int i = 0; i < mgr->GetNModels(); i++)
-        mgr->GetModel(i)->FindMode( mgr->GetModel(i)->GetBestFitParameters() );
+        mgr->GetModel(i)->FindMode(mgr->GetModel(i)->GetGlobalMode());
 
     // write marginalized distributions to a root file
     m1->WriteMarginalizedDistributions("1Dasymm.root", "RECREATE");

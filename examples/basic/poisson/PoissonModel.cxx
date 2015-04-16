@@ -15,7 +15,7 @@ PoissonModel::PoissonModel(const char* name)
     // add a parameter for the number of expected events. The range will
     // be adjusted later according to the number of observed events.
     AddParameter("lambda", 0., 7., "#lambda"); // index 0
-    GetParameter("lambda")->SetPriorConstant();
+    GetParameter("lambda").SetPriorConstant();
 }
 
 // ---------------------------------------------------------
@@ -49,7 +49,7 @@ void PoissonModel::SetNObs(unsigned nobs)
     }
 
     // re-set the parameter range
-    GetParameter(0)->SetLimits(lambdamin, lambdamax);
+    GetParameter(0).SetLimits(lambdamin, lambdamax);
 }
 
 // ---------------------------------------------------------

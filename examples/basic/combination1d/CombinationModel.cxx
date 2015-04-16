@@ -8,7 +8,7 @@ CombinationModel::CombinationModel(const char* name)
     : BCModel(name)
 {
     AddParameter("mass", 15.0, 65.0); // mass of a particle
-    GetParameter("mass")->SetPrior(new BCGaussianPrior(39.4, 5.4)); // Gaussian prior for the mass
+    GetParameter("mass").SetPrior(new BCGaussianPrior(39.4, 5.4)); // Gaussian prior for the mass
 }
 
 // ---------------------------------------------------------

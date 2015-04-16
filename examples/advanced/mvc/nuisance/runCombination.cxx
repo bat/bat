@@ -1,10 +1,8 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
-#include <BAT/BCH2D.h>
 
 #include <BAT/BCMVCombination.h>
 
-#include <iostream>
 #include <fstream>
 
 int main(int argc, char* argv[])
@@ -14,8 +12,7 @@ int main(int argc, char* argv[])
     BCAux::SetStyle();
 
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new BCMVCombination object
     BCMVCombination* m = new BCMVCombination();
@@ -29,7 +26,7 @@ int main(int argc, char* argv[])
     // read input from file
     int isopen = m->ReadInput(argv[1]);
     if (!isopen) {
-        std::cout << "Could not open file. Exit." << std::endl;
+        BCLog::OutError("Could not open file. Exit.");
         return 1;
     }
 
@@ -37,17 +34,13 @@ int main(int argc, char* argv[])
     m->MarginalizeAll();
 
     // find mode using Minuit
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode(m->GetGlobalMode());
 
     // print all marginalized distributions
     m->PrintAllMarginalized("BCMVCombination_plots.pdf");
 
     // print results of numerical analysis
     m->PrintResults("BCMVCombination_results.txt");
-
-    // print a single 2D plot
-    BCH2D* hist_slice = new BCH2D(m->GetSlice("obs", "rho_1", m->GetBestFitParameters(), 200));
-    hist_slice->Print("rho1_vs_obs.pdf", "BTcB3CS1gmodeprofiley");
 
     // clean up
     delete m;

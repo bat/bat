@@ -38,9 +38,9 @@ void RatioModel::CalculateObservables(const std::vector<double>& parameters)
 {
     // store ratio
     if (parameters[1] != 0)
-        GetObservable(0)->Value(parameters[0] / parameters[1]);
+        GetObservable(0).Value(parameters[0] / parameters[1]);
     else if (parameters[0] == 0)
-        GetObservable(0)->Value(0);
+        GetObservable(0).Value(0);
     // else undefined!
 }
 
