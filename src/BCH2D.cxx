@@ -135,7 +135,7 @@ void BCH2D::DrawBands(std::string options)
             std::vector<std::pair<double, double> > dens_mass = GetSmallestIntervalBounds(intervals, fBandOvercoverage);
             for (unsigned i = 0; i < dens_mass.size(); ++i) {
                 levels.push_back(dens_mass[dens_mass.size() - i - 1].first);
-                legend_text.push_back(TString::Format("smallest %.1f %% interval(s)", 100 * dens_mass[i].second).Data());
+                legend_text.push_back(Form("smallest %.1f %% interval(s)", 100 * dens_mass[i].second));
             }
             // levels.push_back(GetHistogram()->GetMaximum());
             break;

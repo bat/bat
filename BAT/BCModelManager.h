@@ -187,14 +187,14 @@ public:
      * Prints a summary of model comparison into a file.
      * If filename is omitted the summary will be printed onto the screen
      * @param filename name of the file to write into. */
-    void PrintModelComparisonSummary(const char* filename = 0);
+    void PrintModelComparisonSummary(std::string filename = "");
 
     /**
      * Prints a summary into a file. If filename is omitted the summary
      * will be printed onto the screen.
      * This method is obsolete. Use PrintResults() instead.
      * @param filename name of the file to write into. */
-    void PrintSummary(const char* filename = 0);
+    void PrintSummary(std::string filename = "");
 
     /**
      * Prints summaries of all files */

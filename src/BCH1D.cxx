@@ -171,7 +171,7 @@ void BCH1D::DrawBands(std::string options)
         std::string legend_text;
 
         if (fBandType == kSmallestInterval) {
-            hist_band = (TH1*) GetHistogram()->Clone(TString::Format("%s_band", GetHistogram()->GetName()));
+            hist_band = (TH1*) GetHistogram()->Clone((std::string(GetHistogram()->GetName())+"_band").data());
             for (int b = 1; b <= hist_band->GetNbinsX(); ++b)
                 if (hist_band->GetBinContent(b) < bounds[i].first)
                     hist_band->SetBinContent(b, 0);
@@ -193,7 +193,7 @@ void BCH1D::DrawBands(std::string options)
                 case kUserSpecified:
                     p[0] = intervals[i];
                     p[1] = intervals[i + 1];
-                    legend_text = "%.1f%% interval from " + TString::Format("%.1f%%%% to %.1f%%%%", p[0] * 100, p[1] * 100);
+                    legend_text = Form("%%.1f%%%% interval from %.1f%%%% to %.1f%%%%", p[0] * 100, p[1] * 100);
                     break;
 
                 case kCentralInterval:
@@ -217,7 +217,7 @@ void BCH1D::DrawBands(std::string options)
         hist_band->SetLineColor(0);
         hist_band->SetLineWidth(0);
         hist_band->SetLineStyle(0);
-        hist_band->SetTitle(TString::Format(legend_text.data(), hist_band->Integral("width") * 100).Data());
+        hist_band->SetTitle(Form(legend_text.data(), hist_band->Integral("width") * 100));
 
         // draw band
         fROOTObjects.push_back(hist_band->DrawCopy(options.data()));
@@ -307,7 +307,7 @@ void BCH1D::DrawQuantiles(const unsigned n)
             quantile_text = "percentiles";
             break;
         default:
-            quantile_text = TString::Format("%d-quantiles", n);
+            quantile_text = Form("%d-quantiles", n);
             break;
     }
     AddLegendEntry(quantile_line, quantile_text.data(), "L");
@@ -396,7 +396,7 @@ TH1* BCH1D::GetSubHistogram(double min, double max, std::string name, bool prese
         bins[n++] = GetHistogram()->GetXaxis()->GetBinUpEdge(i1);
 
     // now define the new histogram
-    TH1D* h0 = new TH1D(name.data(), TString::Format("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
+    TH1D* h0 = new TH1D(name.data(), Form("%s;%s;%s", GetHistogram()->GetTitle(), GetHistogram()->GetXaxis()->GetTitle(), GetHistogram()->GetYaxis()->GetTitle()), n - 1, &bins[0]);
     imin = h0->FindFixBin(min);
     imax = h0->FindFixBin(max);
     for (int i = imin; i <= imax; ++i)
@@ -414,22 +414,22 @@ void BCH1D::PrintToStream(std::ostream& ofi, std::string prefix, unsigned prec, 
     double q[7];
     GetHistogram()->GetQuantiles(7, q, p);
 
-    ofi << prefix << TString::Format("Mean +- sqrt(V):                %.*g +- %.*g\n", prec, GetHistogram()->GetMean(), prec, GetHistogram()->GetRMS())
-        << prefix << TString::Format("Median +- central 68%% interval: %.*g +  %.*g - %.*g\n", prec, q[3], prec, q[4] - q[3], prec, q[2] - q[3])
-        << prefix << TString::Format("(Marginalized) mode:            %.*g\n",  prec, GetLocalMode())
-        << prefix << TString::Format("%2.0f%% quantile:                   %.*g\n", 100 * p[0], prec, q[0])
-        << prefix << TString::Format("%2.0f%% quantile:                   %.*g\n", 100 * p[1], prec, q[1])
-        << prefix << TString::Format("%2.0f%% quantile:                   %.*g\n", 100 * p[2], prec, q[2])
-        << prefix << TString::Format("%2.0f%% quantile:                   %.*g\n", 100 * p[4], prec, q[4])
-        << prefix << TString::Format("%2.0f%% quantile:                   %.*g\n", 100 * p[5], prec, q[5])
-        << prefix << TString::Format("%2.0f%% quantile:                   %.*g\n", 100 * p[6], prec, q[6]);
+    ofi << prefix << Form("Mean +- sqrt(V):                %.*g +- %.*g\n", prec, GetHistogram()->GetMean(), prec, GetHistogram()->GetRMS())
+        << prefix << Form("Median +- central 68%% interval: %.*g +  %.*g - %.*g\n", prec, q[3], prec, q[4] - q[3], prec, q[2] - q[3])
+        << prefix << Form("(Marginalized) mode:            %.*g\n",  prec, GetLocalMode())
+        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[0], prec, q[0])
+        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[1], prec, q[1])
+        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[2], prec, q[2])
+        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[4], prec, q[4])
+        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[5], prec, q[5])
+        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[6], prec, q[6]);
 
     std::vector<BCH1D::BCH1DSmallestInterval> v = GetSmallestIntervals(intervals);
     for (unsigned i = 0; i < v.size(); ++i) {
-        ofi << prefix << TString::Format("      Smallest interval%s containing %.1f%% and local mode%s:", (v[i].intervals.size() > 1 ? "s" : ""), v[i].total_mass, (v[i].intervals.size() > 1 ? "s" : "")) << std::endl;
+        ofi << prefix << Form("      Smallest interval%s containing %.1f%% and local mode%s:", (v[i].intervals.size() > 1 ? "s" : ""), v[i].total_mass, (v[i].intervals.size() > 1 ? "s" : "")) << std::endl;
         for (unsigned j = 0; j < v[i].intervals.size(); ++j)
-            ofi << prefix << TString::Format("       (%.*g, %.*g) (local mode at %.*g with rel. height %.*g; rel. area %.*g)\n",
-                                             prec, v[i].intervals[j].xmin, prec, v[i].intervals[j].xmax, prec, v[i].intervals[j].mode, prec, v[i].intervals[j].relative_height, prec, v[i].intervals[j].relative_mass);
+            ofi << prefix << Form("       (%.*g, %.*g) (local mode at %.*g with rel. height %.*g; rel. area %.*g)\n",
+                                  prec, v[i].intervals[j].xmin, prec, v[i].intervals[j].xmax, prec, v[i].intervals[j].mode, prec, v[i].intervals[j].relative_height, prec, v[i].intervals[j].relative_mass);
     }
 }
 

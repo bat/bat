@@ -133,6 +133,6 @@ std::string BCParameter::OneLineSummary() const
 {
     if (!Fixed())
         return BCVariable::OneLineSummary();
-    return std::string(TString::Format("%s (fixed at %.*f)", BCVariable::OneLineSummary().data(), GetPrecision(), GetFixedValue()));
+    return std::string(Form("%s (fixed at %.*f)", BCVariable::OneLineSummary().data(), GetPrecision(), GetFixedValue()));
 }
 

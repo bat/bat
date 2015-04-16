@@ -11,7 +11,7 @@
 #include "BCEmptyModel.h"
 
 // ---------------------------------------------------------
-BCEmptyModel::BCEmptyModel(const char* name)
+BCEmptyModel::BCEmptyModel(std::string name)
     : BCModel(name)
 {}
 

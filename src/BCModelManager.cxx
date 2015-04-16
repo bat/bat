@@ -242,19 +242,12 @@ void BCModelManager::WriteMarkovChain(std::string prefix, std::string option)
 }
 
 // ---------------------------------------------------------
-// void BCModelManager::CalculatePValue(bool flag_histogram)
-// {
-// 	for (unsigned i = 0; i < GetNModels(); ++i)
-// 		GetModel(i)->CalculatePValue(GetModel(i)->GetBestFitParameters(), flag_histogram);
-// }
-
-// ---------------------------------------------------------
-void BCModelManager::PrintSummary(const char* file)
+void BCModelManager::PrintSummary(std::string file)
 {
     std::ofstream out;
     std::streambuf* old_buffer = 0;
 
-    if (file) {
+    if (!file.empty()) {
         out.open(file);
         if (!out.is_open()) {
             std::cerr << "Couldn't open file " << file << std::endl;
@@ -297,18 +290,18 @@ void BCModelManager::PrintSummary(const char* file)
 
     std::cout << std::endl << "======================================" << std::endl << std::endl;
 
-    if (file)
+    if (!file.empty())
         std::cout.rdbuf(old_buffer);
 }
 
 // ---------------------------------------------------------
 
-void BCModelManager::PrintModelComparisonSummary(const char* file)
+void BCModelManager::PrintModelComparisonSummary(std::string file)
 {
     std::ofstream out;
     std::streambuf* old_buffer = 0;
 
-    if (file) {
+    if (!file.empty()) {
         out.open(file);
         if (!out.is_open()) {
             std::cerr << "Couldn't open file " << file << std::endl;
@@ -342,21 +335,9 @@ void BCModelManager::PrintModelComparisonSummary(const char* file)
         for (unsigned j = i + 1; j < fModels.size(); ++j)
             std::cout << "     K = p(data | " << fModels[i]->GetName() << ") / p(data | " << fModels[j]->GetName() << ") = " << BayesFactor(i, j) << std::endl;
 
-    // // p-values summary
-    // std::cout	<< std::endl << " - p-values:" << std::endl << std::endl;
-
-    // for (unsigned i = 0; i < fModels.size(); ++i) {
-    // 	double p = fModels[i]->GetPValue();
-    // 	std::cout << "     " << fModels[i]->GetName();
-    // 	if(p>=0.)
-    // 		std::cout << ":  p-value = " << p << std::endl;
-    // 	else
-    // 		std::cout << ":  p-value not calculated" << std::endl;
-    // }
-
     std::cout << std::endl << "===========================================" << std::endl << std::endl;
 
-    if (file)
+    if (!file.empty())
         std::cout.rdbuf(old_buffer);
 }
 
@@ -366,5 +347,5 @@ void BCModelManager::PrintResults()
 {
     // print summary of all models
     for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->PrintResults(Form("%s.txt", GetModel(i)->GetSafeName().data()));
+        GetModel(i)->PrintResults(GetModel(i)->GetSafeName()+".txt");
 }

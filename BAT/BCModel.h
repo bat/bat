@@ -59,7 +59,7 @@ public:
     /**
      * Default constructor.
      * @param name The name of the model */
-    BCModel(const char* name = "model");
+    BCModel(std::string name = "model");
 
     /**
      * Copy constructor. */
@@ -282,7 +282,7 @@ public:
      * Print a comparison of the prior knowledge to the posterior
      * knowledge for each parameter.
      * @return An error flag. */
-    virtual int PrintKnowledgeUpdatePlots(const char* filename = "update.pdf", unsigned hdiv = 1, unsigned vdiv = 1, bool flag_slice = false, bool call_likelihood = false);
+    virtual int PrintKnowledgeUpdatePlots(std::string filename = "update.pdf", unsigned hdiv = 1, unsigned vdiv = 1, bool flag_slice = false, bool call_likelihood = false);
 
     /** @} */
 

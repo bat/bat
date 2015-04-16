@@ -106,7 +106,7 @@ bool BCVariable::IsAtLimit(double value) const
 // ---------------------------------------------------------
 void BCVariable::PrintSummary() const
 {
-    BCLog::OutSummary(Form("%s summary:", fPrefix.c_str()));
+    BCLog::OutSummary(fPrefix+" summary:");
     BCLog::OutSummary(Form("%11s : %s", fPrefix.c_str(), fName.c_str()));
     BCLog::OutSummary(Form("Lower limit : % .*f", fPrecision, fLowerLimit));
     BCLog::OutSummary(Form("Upper limit : % .*f", fPrecision, fUpperLimit));
@@ -121,13 +121,19 @@ std::string BCVariable::OneLineSummary() const
 // ---------------------------------------------------------
 TH1* BCVariable::CreateH1(std::string name) const
 {
-    return new TH1D(name.data(), TString::Format(";%s;P(%s | Data)", GetLatexNameWithUnits().data(), GetLatexName().data()), fNbins, fLowerLimit, fUpperLimit);
+    return new TH1D(name.data(),
+                    (";" + GetLatexNameWithUnits() +
+                     ";P(" + GetLatexName() + " | Data)").data(),
+                    fNbins, fLowerLimit, fUpperLimit);
 }
 
 // ---------------------------------------------------------
 TH2* BCVariable::CreateH2(std::string name, const BCVariable& ordinate) const
 {
-    return new TH2D(name.data(), TString::Format(";%s;%s;P(%s, %s | Data)", GetLatexNameWithUnits().data(), ordinate.GetLatexNameWithUnits().data(), GetLatexName().data(), ordinate.GetLatexName().data()),
+    return new TH2D(name.data(),
+                    (";" + GetLatexNameWithUnits() + 
+                     ";" + ordinate.GetLatexNameWithUnits() + 
+                     ";P(" + GetLatexName() + ", " + ordinate.GetLatexName() + " | Data)").data(),
                     fNbins, fLowerLimit, fUpperLimit,
                     ordinate.GetNbins(), ordinate.GetLowerLimit(), ordinate.GetUpperLimit());
 }
@@ -135,7 +141,11 @@ TH2* BCVariable::CreateH2(std::string name, const BCVariable& ordinate) const
 // ---------------------------------------------------------
 TH3* BCVariable::CreateH3(std::string name, const BCVariable& ordinate_y, const BCVariable& ordinate_z) const
 {
-    return new TH3D(name.data(), TString::Format(";%s;%s;%s;P(%s, %s, %s | Data)", GetLatexNameWithUnits().data(), ordinate_y.GetLatexNameWithUnits().data(), ordinate_z.GetLatexNameWithUnits().data(), GetLatexName().data(), ordinate_y.GetLatexName().data(), ordinate_z.GetLatexName().data()),
+    return new TH3D(name.data(),
+                    (";" + GetLatexNameWithUnits() + 
+                     ";" + ordinate_y.GetLatexNameWithUnits() + 
+                     ";" + ordinate_z.GetLatexNameWithUnits() + 
+                     ";P(" + GetLatexName() + ", " + ordinate_y.GetLatexName() + ", " + ordinate_z.GetLatexName() + " | Data)").data(),
                     fNbins, fLowerLimit, fUpperLimit,
                     ordinate_y.GetNbins(), ordinate_y.GetLowerLimit(), ordinate_y.GetUpperLimit(),
                     ordinate_z.GetNbins(), ordinate_z.GetLowerLimit(), ordinate_z.GetUpperLimit());

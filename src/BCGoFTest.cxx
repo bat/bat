@@ -20,7 +20,7 @@
 #include <limits>
 
 // ---------------------------------------------------------
-BCGoFTest::BCGoFTest(const char* name)
+BCGoFTest::BCGoFTest(std::string name)
     : BCModel(name)
     , fTestModel(NULL)
     , fOriginalLogLikelihood(std::numeric_limits<double>::infinity())
@@ -41,13 +41,13 @@ BCGoFTest::BCGoFTest(const char* name)
 }
 
 // ---------------------------------------------------------
-BCGoFTest::BCGoFTest(BCModel* model, const char* name)
+BCGoFTest::BCGoFTest(BCModel* model, std::string name)
     : BCModel(name)
     , fTestModel(model)
     , fOriginalLogLikelihood(std::numeric_limits<double>::infinity())
 {
     if (fName.empty() and fTestModel)
-        SetName(Form("%s_GoFTest", fTestModel->GetName().data()));
+        SetName(fTestModel->GetName() + "_GoFTest");
 
     fPValue = -1;
 

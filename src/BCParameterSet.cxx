@@ -105,12 +105,10 @@ bool BCParameterSet::IsWithinLimits(const std::vector<double>& x) const
 // ---------------------------------------------------------
 bool BCParameterSet::IsAtFixedValues(const std::vector<double>& x) const
 {
-    if (x.size() != fVars.size())
+    if (x.size() < fVars.size())
         return false;
     for (unsigned i = 0; i < fVars.size(); ++i)
-        if (fVars[i].Fixed())
-            continue;
-        else if (fVars[i].GetFixedValue() - x[i] > std::numeric_limits<double>::epsilon())
+        if (fVars[i].Fixed() and (fVars[i].GetFixedValue() - x[i]) > std::numeric_limits<double>::epsilon())
             return false;
     return true;
 }

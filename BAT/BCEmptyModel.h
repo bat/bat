@@ -36,7 +36,7 @@ public:
     /**
      * A constructor.
      * @param name The name of the model */
-    BCEmptyModel(const char* name = "model");
+    BCEmptyModel(std::string name = "model");
 
     /**
      * The copy constructor. */

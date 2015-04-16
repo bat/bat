@@ -625,22 +625,22 @@ double BCHistogramBase::ResizeLegend()
 }
 
 // ---------------------------------------------------------
-TLegendEntry* BCHistogramBase::AddLegendEntry(TObject* obj, const char* label, const char* options)
+TLegendEntry* BCHistogramBase::AddLegendEntry(TObject* obj, std::string label, std::string options)
 {
     if (fExtraLegendEntries.empty())
-        return fLegend->AddEntry(obj, label, options);
+        return fLegend->AddEntry(obj, label.data(), options.data());
     TLegendEntry* le = fExtraLegendEntries.front();
     le->SetObject(obj);
-    le->SetLabel(label);
-    le->SetOption(options);
+    le->SetLabel(label.data());
+    le->SetOption(options.data());
     fExtraLegendEntries.erase(fExtraLegendEntries.begin());
     return le;
 }
 
 // ---------------------------------------------------------
-TLegendEntry* BCHistogramBase::AddBandLegendEntry(TObject* obj, const char* label, const char* options)
+TLegendEntry* BCHistogramBase::AddBandLegendEntry(TObject* obj, std::string label, std::string options)
 {
-    TLegendEntry* le = fLegend->AddEntry(obj, label, options);
+    TLegendEntry* le = fLegend->AddEntry(obj, label.data(), options.data());
     for (int i = 1; i < fLegend->GetNColumns(); ++i)
         fExtraLegendEntries.push_back(fLegend->AddEntry((TObject*)0, "", ""));
     return le;

@@ -25,6 +25,8 @@
 
 #include "BCEngineMCMC.h"
 
+#include <string>
+
 // ROOT classes
 class TFile;
 class TH1;
@@ -161,7 +163,7 @@ public:
 
     /**
      * Default constructor */
-    BCIntegrate(const char* name = "model");
+    BCIntegrate(std::string name = "model");
 
     /**
      * Copy constructor */
@@ -303,7 +305,7 @@ public:
      * @param nbins The number of bins of the 1D-histogram.
      * @param normalize Flag for turning on normalization of histogram.
      * @return The 1D slice. */
-    TH1* GetSlice(const char* name, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    TH1* GetSlice(std::string name, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
     { return GetSlice(fParameters.Index(name), log_max_val, parameters, nbins, normalize); }
 
     /**
@@ -326,7 +328,7 @@ public:
      * @param nbins The number of bins on each axis of the 2D-histogram.
      * @param normalize Flag for turning on normalization of histogram.
      * @return The 2D slice. */
-    TH2* GetSlice(const char* name1, const char* name2, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
+    TH2* GetSlice(std::string name1, std::string name2, double& log_max_val, const std::vector<double> parameters = std::vector<double>(0), int nbins = 0, bool normalize = true)
     { return GetSlice(fParameters.Index(name1), fParameters.Index(name2), log_max_val, parameters, nbins, normalize); }
 
     /**

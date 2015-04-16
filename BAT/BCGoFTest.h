@@ -23,6 +23,7 @@
 
 #include "BCModel.h"
 
+#include <string>
 #include <vector>
 #include <utility>
 
@@ -44,12 +45,12 @@ public:
     /**
      * Default constructor.
      */
-    BCGoFTest(const char* name);
+    BCGoFTest(std::string name);
 
     /**
      * Constructor with model.
      * If name is unset, "GoFTest" is appended to the model name. */
-    BCGoFTest(BCModel* model, const char* name = "");
+    BCGoFTest(BCModel* model, std::string name = "");
 
     /**
      * Default destructor. */

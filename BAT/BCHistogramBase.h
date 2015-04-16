@@ -486,11 +486,11 @@ public:
 
     /**
      * Add legend entry, checking first for unused extra entries. */
-    TLegendEntry* AddLegendEntry(TObject* obj, const char* label, const char* options);
+    TLegendEntry* AddLegendEntry(TObject* obj, std::string label, std::string options);
 
     /**
      * Add band legend entry, creating unused extra entries if necessary. */
-    TLegendEntry* AddBandLegendEntry(TObject* obj, const char* label, const char* options);
+    TLegendEntry* AddBandLegendEntry(TObject* obj, std::string label, std::string options);
 
     /** @} */
 

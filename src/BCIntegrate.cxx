@@ -69,7 +69,7 @@ public:
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(const char* name)
+BCIntegrate::BCIntegrate(std::string name)
     : BCEngineMCMC(name)
     ,	fMinuit(0)
     ,	fMinuitErrorFlag(0)
@@ -248,7 +248,7 @@ double BCIntegrate::Integrate()
 
     // output
     if (!(fIntegrationMethodCurrent == BCIntegrate::kIntDefault) && !(fIntegrationMethodCurrent == BCIntegrate::kIntEmpty))
-        BCLog::OutSummary(Form("Integrate using %s", DumpCurrentIntegrationMethod().c_str()));
+        BCLog::OutSummary("Integrate using " + DumpCurrentIntegrationMethod());
 
     switch (fIntegrationMethodCurrent) {
 
@@ -1085,7 +1085,7 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
 
     // check fixed values and issue warning before forcing to fixed
     if (!start.empty() and !GetParameters().IsAtFixedValues(start)) {
-        BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point fixed values not properly sit. Forcing to fixed values.");
+        BCLog::OutWarning("BCIntegrate::FindModeMinuit : Start point fixed values not properly set. Forcing to fixed values.");
         GetParameters().ApplyFixedValues(start);
     }
 
@@ -1252,7 +1252,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
 
     // check fixed values and issue warning before forcing to fixed
     if (!start.empty() and !GetParameters().IsAtFixedValues(start)) {
-        BCLog::OutWarning("BCIntegrate::FindModeSA : Start point fixed values not properly sit. Forcing to fixed values.");
+        BCLog::OutWarning("BCIntegrate::FindModeSA : Start point fixed values not properly set. Forcing to fixed values.");
         GetParameters().ApplyFixedValues(start);
     }
 
