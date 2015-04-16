@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 
         m->PrintAllMarginalized("MyCombination_full_plots.pdf");
 
-        BCH2D * h2 = m->GetMarginalized("F0","FL");
+        BCH2D* h2 = m->GetMarginalized("F0", "FL");
 
         // calculate correlation between F0 and FL
         rho_all = h2->GetHistogram()->GetCorrelationFactor();
@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
             m->PrintResults(Form("MyCombination_measurement_%i_results.txt", i));
 
-            BCH2D * h2 = m->GetMarginalized("F0","FL");
+            BCH2D* h2 = m->GetMarginalized("F0", "FL");
             rho_single.push_back(h2->GetHistogram()->GetCorrelationFactor());
             area_single.push_back(h2->GetSmallestIntervalSize(0.39));
         }
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
             m->PrintResults(Form("MyCombination_uncertainty_%i_results.txt", i));
-            BCH2D * h2 = m->GetMarginalized("F0", "FL");
+            BCH2D* h2 = m->GetMarginalized("F0", "FL");
             rho_unc.push_back(h2->GetHistogram()->GetCorrelationFactor());
             area_unc.push_back(h2->GetSmallestIntervalSize(0.39));
         }
