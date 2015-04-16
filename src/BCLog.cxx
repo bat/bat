@@ -27,7 +27,7 @@ BCLog::LogLevel BCLog::fMinimumLogLevelScreen = BCLog::summary;
 
 bool BCLog::fFirstOutputDone = false;
 
-const char* BCLog::fVersion = VERSION;
+std::string BCLog::fVersion = VERSION;
 
 // ---------------------------------------------------------
 
@@ -44,7 +44,7 @@ BCLog::~BCLog()
 
 // ---------------------------------------------------------
 
-void BCLog::OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
+void BCLog::OpenLog(std::string filename, BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
 {
     // suppress the ROOT Info printouts
     gErrorIgnoreLevel = 2000;
@@ -61,12 +61,12 @@ void BCLog::OpenLog(const char* filename, BCLog::LogLevel loglevelfile, BCLog::L
     BCLog::SetLogLevelFile(loglevelfile);
     BCLog::SetLogLevelScreen(loglevelscreen);
 
-    BCLog::Out(BCLog::summary, BCLog::summary, Form("Opening logfile %s", filename));
+    BCLog::Out(BCLog::summary, BCLog::summary, "Opening logfile " + filename);
 }
 
 // ---------------------------------------------------------
 
-void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message)
+void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, std::string message)
 {
     // if this is the first call to Out(), call StartupInfo() first
     if (!fFirstOutputDone)
@@ -88,18 +88,18 @@ void BCLog::Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, co
 
 void BCLog::StartupInfo()
 {
-    char* message = Form(
-                        " +------------------------------------------------------+\n"
-                        " |                                                      |\n"
-                        " | BAT version %7s                                  |\n"
-                        " | Copyright (C) 2007-2014, the BAT core developer team |\n"
-                        " | All rights reserved.                                 |\n"
-                        " |                                                      |\n"
-                        " | For the licensing terms see doc/COPYING              |\n"
-                        " | For documentation see http://mpp.mpg.de/bat          |\n"
-                        " |                                                      |\n"
-                        " +------------------------------------------------------+\n",
-                        BCLog::fVersion);
+    const char* message = Form(
+                              " +------------------------------------------------------+\n"
+                              " |                                                      |\n"
+                              " | BAT version %7s                                  |\n"
+                              " | Copyright (C) 2007-2014, the BAT core developer team |\n"
+                              " | All rights reserved.                                 |\n"
+                              " |                                                      |\n"
+                              " | For the licensing terms see doc/COPYING              |\n"
+                              " | For documentation see http://mpp.mpg.de/bat          |\n"
+                              " |                                                      |\n"
+                              " +------------------------------------------------------+\n",
+                              BCLog::fVersion.data());
 
     // write message to screen
     if (BCLog::fMinimumLogLevelScreen < BCLog::nothing)
@@ -113,7 +113,7 @@ void BCLog::StartupInfo()
 
 // ---------------------------------------------------------
 
-const char* BCLog::ToString(BCLog::LogLevel loglevel)
+std::string BCLog::ToString(BCLog::LogLevel loglevel)
 {
     switch (loglevel) {
         case debug:

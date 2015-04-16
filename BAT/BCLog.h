@@ -23,6 +23,7 @@
 // ---------------------------------------------------------
 
 #include <fstream>
+#include <string>
 
 // ---------------------------------------------------------
 
@@ -33,18 +34,17 @@ public:
     // definition of log level
 
     /**
-     * Enumerator for the amount of details to put into the log file
-     * Log levels:
-     * debug   : Lowest level of information
-     * detail  : Details of functions, etc.
-     * summary : Results
-     * warning : Warning messages
-     * error   : Error message
-     * nothing : No output
-     */
-    enum LogLevel {debug, detail, summary, warning, error, nothing};
+     * Enumerator for the amount of details to put into the log file */
+    enum LogLevel {
+        debug,                  ///< Print everything, including debug info
+        detail,                 ///< Print all details of operation
+        summary,                ///< Print only results summary, warnings, and errors
+        warning,                ///< Print only warnings and errors
+        error,                  ///< Print only errors
+        nothing                 ///< Print nothing
+    };
 
-    /** \name Constructors and destructors */
+    /** \name Constructor and destructor */
     /** @{ */
 
     /**
@@ -109,7 +109,7 @@ public:
      * @param filename log filename
      * @param loglevelfile minimum log level for file output
      * @param loglevelscreen minimum log level for screen output */
-    static void OpenLog(const char* filename = "log.txt", BCLog::LogLevel loglevelfile = BCLog::debug, BCLog::LogLevel loglevelscreen = BCLog::summary);
+    static void OpenLog(std::string filename = "log.txt", BCLog::LogLevel loglevelfile = BCLog::debug, BCLog::LogLevel loglevelscreen = BCLog::summary);
 
     /**
      * @returns true if log file is open or false if not. */
@@ -126,27 +126,27 @@ public:
      * @param loglevelfile loglevel for the current message
      * @param loglevelscreen loglevel for the current message
      * @param message string to write to the file and screen log */
-    static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, const char* message);
+    static void Out(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen, std::string message);
 
-    static void Out(const char* message)
+    static void Out(std::string message)
     { Out(BCLog::fMinimumLogLevelFile, BCLog::fMinimumLogLevelScreen, message); }
 
-    static void Out(BCLog::LogLevel loglevel, const char* message)
+    static void Out(BCLog::LogLevel loglevel, std::string message)
     { Out(loglevel, loglevel, message); };
 
-    static void OutError(const char* message)
+    static void OutError(std::string message)
     { Out(error, message); };
 
-    static void OutWarning(const char* message)
+    static void OutWarning(std::string message)
     { Out(warning, message); };
 
-    static void OutSummary(const char* message)
+    static void OutSummary(std::string message)
     { Out(summary, message); };
 
-    static void OutDetail(const char* message)
+    static void OutDetail(std::string message)
     { Out(detail, message); };
 
-    static void OutDebug(const char* message)
+    static void OutDebug(std::string message)
     { Out(debug, message); };
 
     /**
@@ -155,19 +155,19 @@ public:
 
     /**
      * @return string containing the version number  */
-    static const char* GetVersion()
+    static std::string GetVersion()
     { return fVersion; };
 
     /**
      * Converts a log level to a string */
-    static const char* ToString(BCLog::LogLevel);
+    static std::string ToString(BCLog::LogLevel);
 
     /** @} */
 private:
 
     /**
      * BAT version number */
-    static const char* fVersion;
+    static std::string fVersion;
 
     /**
      * The minimum file log level */
