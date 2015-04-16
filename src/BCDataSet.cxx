@@ -110,23 +110,23 @@ double BCDataSet::GetUpperBound(unsigned index) const
 }
 
 // ---------------------------------------------------------
-bool BCDataSet::ReadDataFromFileTree(const char* filename, const char* treename, std::string branchnames, char delim)
+bool BCDataSet::ReadDataFromFileTree(std::string filename, std::string treename, std::string branchnames, char delim)
 {
     // open root file
-    TFile* file = TFile::Open(filename, "READ");
+    TFile* file = TFile::Open(filename.data(), "READ");
 
     // check if file is open and warn if not.
     if (!file->IsOpen()) {
-        BCLog::OutError(Form("BCDataSet::ReadDataFromFileTree : Could not open file %s.", filename));
+        BCLog::OutError("BCDataSet::ReadDataFromFileTree : Could not open file " + filename + ".");
         return false;
     }
 
     // get tree
-    TTree* tree = (TTree*) file->Get(treename);
+    TTree* tree = (TTree*) file->Get(treename.data());
 
     // check if tree is there and warn if not.
     if (!tree) {
-        BCLog::OutError(Form("BCDataSet::ReadDataFromFileTree : Could not find TTree %s.", treename));
+        BCLog::OutError("BCDataSet::ReadDataFromFileTree : Could not find TTree " + treename + ".");
         file->Close();
         return false;
     }
@@ -136,7 +136,7 @@ bool BCDataSet::ReadDataFromFileTree(const char* filename, const char* treename,
 
     // check if there are any events in the tree and close file if not.
     if (nentries <= 0) {
-        BCLog::OutError(Form("BCDataSet::ReadDataFromFileTree : No events in TTree %s.", treename));
+        BCLog::OutError("BCDataSet::ReadDataFromFileTree : No events in TTree " + treename + ".");
         file->Close();
         return false;
     }
@@ -179,15 +179,15 @@ bool BCDataSet::ReadDataFromFileTree(const char* filename, const char* treename,
 }
 
 // ---------------------------------------------------------
-bool BCDataSet::ReadDataFromFileTxt(const char* filename, int nbranches)
+bool BCDataSet::ReadDataFromFileTxt(std::string filename, int nbranches)
 {
     // open text file.
     std::fstream file;
-    file.open(filename, std::fstream::in);
+    file.open(filename.data(), std::fstream::in);
 
     // check if file is open and warn if not.
     if (!file.is_open()) {
-        BCLog::OutError(Form("BCDataSet::ReadDataFromFileText : Could not open file %s.", filename));
+        BCLog::OutError("BCDataSet::ReadDataFromFileText : Could not open file " + filename + ".");
         return false;
     }
 
@@ -223,7 +223,7 @@ bool BCDataSet::ReadDataFromFileTxt(const char* filename, int nbranches)
 
     // issue error if no entries were loaded
     if (nentries <= 0)
-        BCLog::OutError(Form("BCDataSet::ReadDataFromFileText : No events in the file %s.", filename));
+        BCLog::OutError("BCDataSet::ReadDataFromFileText : No events in the file " + filename + ".");
 
     file.close();
 
@@ -294,7 +294,7 @@ void BCDataSet::Reset()
 }
 
 // ---------------------------------------------------------
-void BCDataSet::Dump(void (*output)(const char*)) const
+void BCDataSet::Dump(void (*output)(std::string)) const
 {
     output("Data set summary:");
     output(Form("Number of points           : %u", GetNDataPoints()));

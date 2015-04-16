@@ -23,9 +23,11 @@
 
 // ---------------------------------------------------------
 
+#include <string>
 #include <vector>
-#include "BCLog.h"
+
 #include "BCDataPoint.h"
+#include "BCLog.h"
 
 // ---------------------------------------------------------
 
@@ -175,7 +177,7 @@ public:
      * @param branchnames List of names of branches to be read from TTree
      * @param delim Character deliminating branch names (default: comma).
      * @return Success of action. */
-    bool ReadDataFromFile(const char* filename, const char* treename, const char* branchnames, char delim = ',')
+    bool ReadDataFromFile(std::string filename, std::string treename, std::string branchnames, char delim = ',')
     { return ReadDataFromFileTree(filename, treename, branchnames, delim); };
 
     /**
@@ -183,7 +185,7 @@ public:
      * @param filename Path to file containing data.
      * @param nvariables Number of variables (columns) in data file.
      * @return Success of action. */
-    bool ReadDataFromFile(const char* filename, int nvariables)
+    bool ReadDataFromFile(std::string filename, int nvariables)
     { return ReadDataFromFileTxt(filename, nvariables); };
 
     /**
@@ -195,7 +197,7 @@ public:
      * @param branchnames A list of the names of the branches
      * @param delim Character deliminating between branch names (default: comma)
      * @return Success of action. */
-    bool ReadDataFromFileTree(const char* filename, const char* treename, std::string branchnames, char delim = ',');
+    bool ReadDataFromFileTree(std::string filename, std::string treename, std::string branchnames, char delim = ',');
 
     /**
      * Reads data from a .txt file.  Opens a .txt file and creates
@@ -203,7 +205,7 @@ public:
      * @param filename The name of the .txt file.
      * @param nvariables The number of variables (columns) in file.
      * @return Success of action. */
-    bool ReadDataFromFileTxt(const char* filename, int nvariables);
+    bool ReadDataFromFileTxt(std::string filename, int nvariables);
 
     /**
      * Adds a data point to the data set.
@@ -217,7 +219,7 @@ public:
     /**
      * Dump the data to the standard output
      * @param output Function of (const char *) to handle the output (default = BCLog::OutSummary). */
-    void Dump(void (*output)(const char*) = BCLog::OutSummary) const;
+    void Dump(void (*output)(std::string) = BCLog::OutSummary) const;
 
     /** @} */
 
