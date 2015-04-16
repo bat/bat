@@ -27,6 +27,7 @@
 #pragma link C++ class BCModel-;
 #pragma link C++ class BCModelManager-;
 #pragma link C++ class BCObservable-;
+#pragma link C++ class BCObservableSet-;
 #pragma link C++ class BCParameter-;
 #pragma link C++ class BCParameterSet-;
 #pragma link C++ class BCPrior-;
@@ -36,7 +37,6 @@
 #pragma link C++ class BCTF1Prior-;
 #pragma link C++ class BCTH1Prior-;
 #pragma link C++ class BCVariable-;
-#pragma link C++ class BCVariableSet-;
 
 #endif
 
