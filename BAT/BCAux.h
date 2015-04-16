@@ -70,6 +70,10 @@ BCAux::BCRange RangeType(double xmin, double xmax);
  * @param xmax upper limit to coerce */
 void MakeFinite(double& xmin, double& xmax);
 
+/**
+ * Convert a name into a safe name for use in ROOT object naming. */
+std::string SafeName(std::string name);
+
 }
 
 // ---------------------------------------------------------

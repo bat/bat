@@ -187,3 +187,11 @@ void BCAux::MakeFinite(double& xmin, double& xmax)
     if (!std::isfinite(xmax))
         xmax = +std::numeric_limits<double>::max();
 }
+
+// ---------------------------------------------------------
+std::string BCAux::SafeName(std::string name)
+{
+    name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+    return name;
+}
+
