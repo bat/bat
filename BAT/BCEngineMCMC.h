@@ -1133,7 +1133,7 @@ public:
     virtual void EvaluateObservables(unsigned chain);
 
     /**
-     * Evaluates user-defined observables To be overloaded by user
+     * Evaluates user-defined observables. To be overloaded by user
      * to calculate user-observables.
      * @param pars Parameter set to evaluate observables for. */
     virtual void CalculateObservables(const std::vector<double>& /*pars*/)
