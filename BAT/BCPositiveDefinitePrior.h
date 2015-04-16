@@ -32,13 +32,13 @@ class TRandom;
 class BCPositiveDefinitePrior : public BCPrior
 {
 public:
-    
+
     /** \name Constructors and destructors */
     /** @{ */
-    
+
     /**
      * Constructor */
-    BCPositiveDefinitePrior(BCPrior * prior = NULL);
+    BCPositiveDefinitePrior(BCPrior* prior = NULL);
 
     /**
      * Copy constructor */
@@ -53,12 +53,12 @@ public:
     /** \name Access to wrapped prior. */
     /** @{ */
 
-    BCPrior * Prior()
+    BCPrior* Prior()
     { return fPrior; }
 
-    const BCPrior * Prior() const
+    const BCPrior* Prior() const
     { return fPrior; }
-    
+
     /** @} */
 
     /** \name Functions overloaded from BCPrior */
@@ -86,11 +86,11 @@ public:
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
     virtual bool IsValid() const
-    { return fPrior!=NULL; }
+    { return fPrior != NULL; }
 
     /** Set ROOT function range. */
     virtual void SetFunctionRange(double xmin, double xmax)
-    { BCPrior::SetFunctionRange(xmin,xmax); if (fPrior) fPrior->SetFunctionRange(xmin,xmax); }
+    { BCPrior::SetFunctionRange(xmin, xmax); if (fPrior) fPrior->SetFunctionRange(xmin, xmax); }
 
     /**
      * Return mode of prior (in range).
@@ -98,7 +98,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
     virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetMode(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetMode(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -107,7 +107,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return raw moment of prior distribution */
     virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetRawMoment(n,std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetRawMoment(n, std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get integral of prior.
@@ -115,7 +115,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return integral of prior */
     virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetIntegral(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetIntegral(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get central moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -124,7 +124,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return central of prior distribution */
     virtual double GetCentralMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetCentralMoment(n,std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetCentralMoment(n, std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get standardised moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -133,7 +133,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return standardised moment of prior distribution */
     virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetCentralMoment(n,std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetCentralMoment(n, std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get mean of prior. If limits are infinite, use exact value from prior type
@@ -141,7 +141,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return mean of prior distribution */
     virtual double GetMean(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetMean(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetMean(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get variance of prior. If limits are infinite, use exact value from prior type
@@ -149,7 +149,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return variance of prior distribution */
     virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetVariance(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetVariance(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get standard deviation of prior. If limits are infinite, use exact value from prior type
@@ -157,7 +157,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return standard deviation of prior distribution */
     virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetStandardDeviation(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetStandardDeviation(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get skewness of prior. If limits are infinite, use exact value from prior type
@@ -165,7 +165,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return skewness of prior distribution */
     virtual double GetSkewness(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetSkewness(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetSkewness(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * Get kurtosis of prior. If limits are infinite, use exact value from prior type
@@ -173,7 +173,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return kurtosis of prior distribution */
     virtual double GetKurtosis(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { return (fPrior) ? fPrior->GetKurtosis(std::max<double>(xmin,0),std::max<double>(xmax,0)) : std::numeric_limits<double>::quiet_NaN(); }
+    { return (fPrior) ? fPrior->GetKurtosis(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
      * @return a random value distributed according to the prior.
@@ -186,8 +186,8 @@ public:
     /** @} */
 
 protected:
-    
-    BCPrior * fPrior;
+
+    BCPrior* fPrior;
 
 };
 

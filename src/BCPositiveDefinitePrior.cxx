@@ -9,7 +9,7 @@
 #include "BCPositiveDefinitePrior.h"
 
 // ---------------------------------------------------------
-BCPositiveDefinitePrior::BCPositiveDefinitePrior(BCPrior * prior)
+BCPositiveDefinitePrior::BCPositiveDefinitePrior(BCPrior* prior)
     : BCPrior(),
       fPrior(prior)
 {
@@ -31,9 +31,9 @@ BCPositiveDefinitePrior::~BCPositiveDefinitePrior()
 // ---------------------------------------------------------
 double BCPositiveDefinitePrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
 {
-    xmin = std::max<double>(xmin,0);
-    xmax = std::max<double>(xmax,0);
+    xmin = std::max<double>(xmin, 0);
+    xmax = std::max<double>(xmax, 0);
     if (xmin == xmax)
         return std::numeric_limits<double>::quiet_NaN();
-    return fPrior->GetRandomValue(xmin,xmax,R);
+    return fPrior->GetRandomValue(xmin, xmax, R);
 }
