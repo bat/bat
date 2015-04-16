@@ -54,7 +54,7 @@ public:
      * @param upperlimit The upper limit of the parameter values.
      * @param latexname The latex name of the parameter used in axis labeling.
      * @param unitstring Unit string to be printed for parameter. */
-    BCParameter(const char* name, double lowerlimit, double upperlimit, const char* latexname = "", const char* unitstring = "");
+    BCParameter(std::string name, double lowerlimit, double upperlimit, std::string latexname = "", std::string unitstring = "");
 
     /**
      * Destructor. */
@@ -76,6 +76,11 @@ public:
     /**
      * @return prior object*/
     virtual BCPrior* GetPrior()
+    { return fPrior;}
+
+    /**
+     * @return prior object*/
+    virtual const BCPrior* GetPrior() const
     { return fPrior;}
 
     /**

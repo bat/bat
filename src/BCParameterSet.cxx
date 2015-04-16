@@ -9,23 +9,17 @@
 // ---------------------------------------------------------
 
 #include "BCParameterSet.h"
-#include "BCParameter.h"
 #include "BCLog.h"
 
 // ---------------------------------------------------------
-BCParameterSet& BCParameterSet::operator=(const BCParameterSet& rhs)
+BCParameterSet::BCParameterSet()
+    : BCVariableSet<BCParameter>()
 {
-    for (unsigned i = 0; i < rhs.fPars.size(); ++i)
-        Add(new BCParameter(*((BCParameter*)(fPars[i]))));
-    return *this;
 }
 
 // ---------------------------------------------------------
-bool BCParameterSet::Add(BCVariable* var)
+BCParameterSet::~BCParameterSet()
 {
-    if (dynamic_cast<BCParameter*>(var) == NULL)
-        return false;
-    return BCVariableSet::Add(var);
 }
 
 // ---------------------------------------------------------
@@ -33,7 +27,7 @@ unsigned int BCParameterSet::GetNFixedParameters() const
 {
     unsigned int n = 0;
     for (unsigned int i = 0; i < Size(); ++i)
-        if (dynamic_cast<BCParameter*>(fPars[i])->Fixed())
+        if (fVars[i].Fixed())
             ++n;
     return n;
 }
@@ -42,11 +36,11 @@ unsigned int BCParameterSet::GetNFixedParameters() const
 double BCParameterSet::Volume() const
 {
     double volume = -1;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if ( ! ((BCParameter*)fPars[i])->Fixed() ) {
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        if (!fVars[i].Fixed()) {
             if ( volume < 0 )
                 volume = 1;
-            volume *= fPars[i]->GetRangeWidth();
+            volume *= fVars[i].GetRangeWidth();
         }
     if (volume < 0)
         return 0;
@@ -56,40 +50,40 @@ double BCParameterSet::Volume() const
 // ---------------------------------------------------------
 void BCParameterSet::SetPriorConstantAll()
 {
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        dynamic_cast<BCParameter*>(fPars[i])->SetPriorConstant();
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        fVars[i].SetPriorConstant();
 }
 
 // ---------------------------------------------------------
 double BCParameterSet::GetLogPrior(const std::vector<double>& parameters) const
 {
-    if (parameters.size() != fPars.size()) {
+    if (parameters.size() < fVars.size()) {
         BCLog::OutError("BCParameterSet::GetLogPrior : incorrect size of parameter set provided.");
         return -std::numeric_limits<double>::infinity();
     }
     double logprob = 0;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        logprob += dynamic_cast<BCParameter*>(fPars[i])->GetLogPrior(parameters[i]);
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        logprob += fVars[i].GetLogPrior(parameters[i]);
     return logprob;
 }
 
 // ---------------------------------------------------------
 std::vector<double> BCParameterSet::GetFixedValues(bool include_unfixed) const
 {
-    std::vector<double> v (fPars.size(), std::numeric_limits<double>::infinity());
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if (include_unfixed or dynamic_cast<BCParameter*>(fPars[i])->Fixed())
-            v[i] = dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue();
+    std::vector<double> v (fVars.size(), std::numeric_limits<double>::infinity());
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        if (include_unfixed or fVars[i].Fixed())
+            v[i] = fVars[i].GetFixedValue();
     return v;
 }
 
 // ---------------------------------------------------------
 bool BCParameterSet::ArePriorsSet(bool ignore_fixed) const
 {
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if (ignore_fixed and dynamic_cast<BCParameter*>(fPars[i])->Fixed())
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        if (ignore_fixed and fVars[i].Fixed())
             continue;
-        else if (dynamic_cast<BCParameter*>(fPars[i])->GetPrior() == NULL)
+        else if (fVars[i].GetPrior() == NULL)
             return false;
     return true;
 }
@@ -97,13 +91,13 @@ bool BCParameterSet::ArePriorsSet(bool ignore_fixed) const
 // ---------------------------------------------------------
 bool BCParameterSet::IsWithinLimits(const std::vector<double>& x) const
 {
-    if (x.size() != fPars.size())
+    if (x.size() != fVars.size())
         return false;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if (dynamic_cast<BCParameter*>(fPars[i])->Fixed()) {
-            if (fabs(x[i] - dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue()) > std::numeric_limits<double>::epsilon())
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        if (fVars[i].Fixed()) {
+            if (fabs(x[i] - fVars[i].GetFixedValue()) > std::numeric_limits<double>::epsilon())
                 return false;
-        } else if (!fPars[i]->IsWithinLimits(x[i]))
+        } else if (!fVars[i].IsWithinLimits(x[i]))
             return false;
     return true;
 }
@@ -111,12 +105,12 @@ bool BCParameterSet::IsWithinLimits(const std::vector<double>& x) const
 // ---------------------------------------------------------
 bool BCParameterSet::IsAtFixedValues(const std::vector<double>& x) const
 {
-    if (x.size() != fPars.size())
+    if (x.size() != fVars.size())
         return false;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if (!dynamic_cast<BCParameter*>(fPars[i])->Fixed())
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        if (fVars[i].Fixed())
             continue;
-        else if (dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() - x[i] > std::numeric_limits<double>::epsilon())
+        else if (fVars[i].GetFixedValue() - x[i] > std::numeric_limits<double>::epsilon())
             return false;
     return true;
 }
@@ -124,18 +118,18 @@ bool BCParameterSet::IsAtFixedValues(const std::vector<double>& x) const
 // ---------------------------------------------------------
 void BCParameterSet::ValueFromPositionInRange(std::vector<double>& p) const
 {
-    if ( p.size() != fPars.size() )
+    if ( p.size() != fVars.size() )
         return;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        p[i] = (dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : fPars[i]->ValueFromPositionInRange(p[i]);
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        p[i] = (fVars[i].Fixed()) ? fVars[i].GetFixedValue() : fVars[i].ValueFromPositionInRange(p[i]);
 }
 
 // ---------------------------------------------------------
 std::vector<double> BCParameterSet::GetRangeCenters() const
 {
     std::vector<double> p;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        p.push_back((dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : fPars[i]->GetRangeCenter());
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        p.push_back((fVars[i].Fixed()) ? fVars[i].GetFixedValue() : fVars[i].GetRangeCenter());
     return p;
 }
 
@@ -143,8 +137,8 @@ std::vector<double> BCParameterSet::GetRangeCenters() const
 std::vector<double> BCParameterSet::GetUniformRandomValues(TRandom* const R) const
 {
     std::vector<double> p;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        p.push_back((dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : fPars[i]->GetUniformRandomValue(R));
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        p.push_back((fVars[i].Fixed()) ? fVars[i].GetFixedValue() : fVars[i].GetUniformRandomValue(R));
     return p;
 }
 
@@ -152,18 +146,18 @@ std::vector<double> BCParameterSet::GetUniformRandomValues(TRandom* const R) con
 std::vector<double> BCParameterSet::GetRandomValuesAccordingToPriors(TRandom* const R) const
 {
     std::vector<double> p;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        p.push_back((dynamic_cast<BCParameter*>(fPars[i])->Fixed()) ? dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue() : dynamic_cast<BCParameter*>(fPars[i])->GetRandomValueAccordingToPrior(R));
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        p.push_back((fVars[i].Fixed()) ? fVars[i].GetFixedValue() : fVars[i].GetRandomValueAccordingToPrior(R));
     return p;
 }
 
 // ---------------------------------------------------------
 bool BCParameterSet::ApplyFixedValues(std::vector<double>& x) const
 {
-    if (x.size() != fPars.size())
+    if (x.size() != fVars.size())
         return false;
-    for (unsigned i = 0; i < fPars.size(); ++i)
-        if (dynamic_cast<BCParameter*>(fPars[i])->Fixed())
-            x[i] = dynamic_cast<BCParameter*>(fPars[i])->GetFixedValue();
+    for (unsigned i = 0; i < fVars.size(); ++i)
+        if (fVars[i].Fixed())
+            x[i] = fVars[i].GetFixedValue();
     return true;
 }

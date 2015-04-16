@@ -23,11 +23,10 @@
 
 // ---------------------------------------------------------
 
-// #include "BCVariable.h"
 #include "BCParameter.h"
 #include "BCParameterSet.h"
 #include "BCObservable.h"
-#include "BCVariableSet.h"
+#include "BCObservableSet.h"
 #include "BCLog.h"
 
 #include <vector>
@@ -148,7 +147,7 @@ public:
 
     /**
      * Default constructor. */
-    BCEngineMCMC(const char* name = "model");
+    BCEngineMCMC(std::string name = "model");
 
     /**
      * Copy constructor. */
@@ -431,7 +430,7 @@ public:
      * @note The most efficient method is to access by index.
      * @param name The parameter's name
      * @return 1D marginalized probability */
-    TH1* GetMarginalizedHistogram(const char* name) const
+    TH1* GetMarginalizedHistogram(std::string name) const
     { return GetMarginalizedHistogram(fParameters.Index(name)); }
 
     /**
@@ -448,7 +447,7 @@ public:
      * @param name1 Name of first parameter
      * @param name2 Name of second parameter
      * @return 2D marginalized probability */
-    TH2* GetMarginalizedHistogram(const char* name1, const char* name2) const
+    TH2* GetMarginalizedHistogram(std::string name1, std::string name2) const
     { return GetMarginalizedHistogram(fParameters.Index(name1), fParameters.Index(name2)); }
 
     /**
@@ -466,7 +465,7 @@ public:
      * @note Ownership of the returned heap object is conferred to the caller.
      * @param name The parameter's name
      * @return 1D marginalized probability */
-    BCH1D* GetMarginalized(const char* name) const
+    BCH1D* GetMarginalized(std::string name) const
     { return GetMarginalized(fParameters.Index(name)); }
 
     /**
@@ -485,7 +484,7 @@ public:
      * @param name1 Name of first parameter
      * @param name2 Name of second parameter
      * @return 2D marginalized probability */
-    BCH2D* GetMarginalized(const char* name1, const char* name2) const
+    BCH2D* GetMarginalized(std::string name1, std::string name2) const
     { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
 
     /**
@@ -507,17 +506,17 @@ public:
      * @param index The index of the variable running first over
      * 0,...,N_parameters in the ParameterSet, and then over
      * N_parameters,...,N_parameters+N_observables in the ObservableSet
-     * @return The observable. */
-    BCVariable* GetVariable(unsigned index)
-    { return ((index < GetNParameters()) ? fParameters.Get(index) : ((index < GetNVariables()) ? fObservables.Get(index - GetNParameters()) : NULL)); }
+     * @return The variable. */
+    BCVariable& GetVariable(unsigned index)
+    { return (index < GetNParameters()) ? static_cast<BCVariable&>(fParameters[index]) : static_cast<BCVariable&>(fObservables.At(index - GetNParameters())); }
 
     /**
      * @param index The index of the observable running first over
      * 0,...,N_parameters in the ParameterSet, and then over
      * N_parameters,...,N_parameters+N_observables in the ObservableSet
      * @return The observable. */
-    const BCVariable* GetVariable(unsigned index) const
-    { return ((index < GetNParameters()) ? fParameters.Get(index) : ((index < GetNVariables()) ? fObservables.Get(index - GetNParameters()) : NULL)); }
+    const BCVariable& GetVariable(unsigned index) const
+    { return (index < GetNParameters()) ? static_cast<const BCVariable&>(fParameters[index]) : static_cast<const BCVariable&>(fObservables.At(index - GetNParameters())); }
 
     /**
      * @return The number of parameters of the model. */
@@ -535,28 +534,32 @@ public:
     { return fParameters; }
 
     /**
+     * @deprecated Instead call GetParameters().At(index)
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter* GetParameter(unsigned index)
-    { return dynamic_cast<BCParameter*>(fParameters.Get(index)); }
+    BCParameter& GetParameter(unsigned index)
+    { return fParameters.At(index); }
 
     /**
+     * @deprecated Instead call GetParameters().At(index)
      * @param index The index of the parameter in the parameter set.
      * @return The parameter. */
-    const BCParameter* GetParameter(unsigned index) const
-    { return dynamic_cast<const BCParameter*>(fParameters.Get(index)); }
+    const BCParameter& GetParameter(unsigned index) const
+    { return fParameters.At(index); }
 
     /**
+     * @deprecatd Instead call GetParameters().Get(name)
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    BCParameter* GetParameter(const std::string& name)
-    { return dynamic_cast<BCParameter*>(fParameters.Get(name)); }
+    BCParameter& GetParameter(const std::string& name)
+    { return fParameters.Get(name); }
 
     /**
+     * @deprecated Instead call GetParameters().Get(name)
      * @param name The name of the parameter in the parameter set.
      * @return The parameter. */
-    const BCParameter* GetParameter(const std::string& name) const
-    { return dynamic_cast<const BCParameter*>(fParameters.Get(name)); }
+    const BCParameter& GetParameter(const std::string& name) const
+    { return fParameters.Get(name); }
 
     /**
      * @return The number of parameters of the model. */
@@ -564,48 +567,54 @@ public:
     { return fParameters.Size(); }
 
     /**
+     * @deprecated Instead call GetParameters().GetNFixedParameters()
      * @return The number of fixed parameters. */
     unsigned GetNFixedParameters() const
     { return fParameters.GetNFixedParameters(); }
 
     /**
+     * @deprecated Instead call GetParameters().GetNFreeParameters()
      * @return The number of free parameters. */
     unsigned GetNFreeParameters() const
     { return fParameters.GetNFreeParameters(); }
 
     /**
      * @return Observable set. */
-    BCVariableSet& GetObservables()
+    BCObservableSet& GetObservables()
     { return fObservables; }
 
     /**
      * @return Observable set. */
-    const BCVariableSet& GetObservables() const
+    const BCObservableSet& GetObservables() const
     { return fObservables; }
 
     /**
+     * @deprecated Instead call GetObservables().At(index)
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable* GetObservable(unsigned index)
-    { return dynamic_cast<BCObservable*>(fObservables.Get(index)); }
+    BCObservable& GetObservable(unsigned index)
+    { return fObservables.At(index); }
 
     /**
+     * @deprecated Instead call GetObservbles().At(index)
      * @param index The index of the observable in the observable set.
      * @return The user-defined observable. */
-    const BCObservable* GetObservable(unsigned index) const
-    { return dynamic_cast<const BCObservable*>(fObservables.Get(index)); }
+    const BCObservable& GetObservable(unsigned index) const
+    { return fObservables.At(index); }
 
     /**
+     * @deprecated Instead call GetObservables().Get(name)
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    BCObservable* GetObservable(const std::string& name)
-    { return dynamic_cast<BCObservable*>(fObservables.Get(name)); }
+    BCObservable& GetObservable(const std::string& name)
+    { return fObservables.Get(name); }
 
     /**
+     * @deprecated Instead call GetObservables().Get(name)
      * @param name The name of the observable in the observable set.
      * @return The user-defined observable. */
-    const BCObservable* GetObservable(const std::string& name) const
-    { return dynamic_cast<const BCObservable*>(fObservables.Get(name)); }
+    const BCObservable& GetObservable(const std::string& name) const
+    { return fObservables.Get(name); }
 
     /**
      * @return The number of user-defined observables. */
@@ -649,13 +658,7 @@ public:
     /**
      * Sets the name of the engine.
      * @param name Name of the engine */
-    void SetName(const char* name);
-
-    /**
-     * Sets the name of the engine.
-     * @param name Name of the engine */
-    void SetName(const std::string name)
-    { SetName(name.data()); }
+    void SetName(std::string name);
 
     /**
      * Set scale factor lower limit */
@@ -883,100 +886,91 @@ public:
     /**
      * @deprecated Instead call: GetParameter(index)->SetPriorConstant()
      * Set constant prior for this parameter
-     * @param index the index of the parameter
-     * @return success of action. */
-    bool SetPriorConstant(unsigned index);
+     * @param index the index of the parameter */
+    void SetPriorConstant(unsigned index)
+    { fParameters.At(index).SetPriorConstant(); }
 
     /**
      * @deprecated Instead call: GetParameter(name)->SetPriorConstant()
      * Set constant prior for this parameter
-     * @param name the name of the parameter
-     * @return Success of action */
-    bool SetPriorConstant(const char* name)
-    { return SetPriorConstant(fParameters.Index(name)); }
+     * @param name the name of the parameter */
+    void SetPriorConstant(std::string name)
+    { SetPriorConstant(fParameters.Index(name)); }
 
     /**
      * @deprecated Instead call: GetPrarameter(index)->SetPrior(new BCTF1Prior(f))
      * Set prior for a parameter.
      * @param index The parameter index
-     * @param f A pointer to a function describing the prior
-     * @return success of action. */
-    bool SetPrior(unsigned index, TF1* const f);
+     * @param f A pointer to a function describing the prior */
+    void SetPrior(unsigned index, TF1* const f);
 
     /**
      * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTF1Prior(f))
      * Set prior for a parameter.
      * @param name The parameter name
-     * @param f A pointer to a function describing the prior
-     * @return success of action. */
-    bool SetPrior(const char* name, TF1* const f)
+     * @param f A pointer to a function describing the prior */
+    void SetPrior(std::string name, TF1* const f)
     { return SetPrior(fParameters.Index(name), f); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->Fix(value)
      * Fixes parameter to value.
      * @param index The parameter index
-     * @param value The position of the delta function.
-     * @return success of action. */
-    bool SetPriorDelta(unsigned index, double value);
+     * @param value The position of the delta function. */
+    void SetPriorDelta(unsigned index, double value)
+    { fParameters.At(index).Fix(value); }
 
     /**
      * @deprecated Instead call: GetParameter(name)->Fix(value)
      * Fixes parameter to value.
      * @param name The parameter name
-     * @param value The position of the delta function.
-     * @return success of action. */
-    bool SetPriorDelta(const char* name, double value)
-    { return SetPriorDelta(fParameters.Index(name), value); }
+     * @param value The position of the delta function. */
+    void SetPriorDelta(std::string name, double value)
+    { SetPriorDelta(fParameters.Index(name), value); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->SetPrior(new BCGaussianPrior(mean,sigma))
      * Set Gaussian prior for a parameter.
      * @param index The parameter index
      * @param mean The mean of the Gaussian
-     * @param sigma The sigma of the Gaussian
-     * @return success of action. */
-    bool SetPriorGauss(unsigned index, double mean, double sigma);
+     * @param sigma The sigma of the Gaussian */
+    void SetPriorGauss(unsigned index, double mean, double sigma);
 
     /**
      * @deprecated Instead call: GetParameter(name)->SetPrior(new BCGaussianPrior(mean,sigma))
      * Set Gaussian prior for a parameter.
      * @param name The parameter name
      * @param mean The mean of the Gaussian
-     * @param sigma The sigma of the Gaussian
-     * @return success of action. */
-    bool SetPriorGauss(const char* name, double mean, double sigma)
-    { return SetPriorGauss(fParameters.Index(name), mean, sigma); }
+     * @param sigma The sigma of the Gaussian */
+    void SetPriorGauss(std::string name, double mean, double sigma)
+    { SetPriorGauss(fParameters.Index(name), mean, sigma); }
 
     /**
-     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCSplitGaussianPrior(mean,sigma_below,sigma_above))
+     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCSplitGaussianPrior(mode,sigma_below,sigma_above))
      * Set Gaussian prior for a parameter with two different widths.
      * @param index The parameter index
-     * @param mean The mean of the Gaussian
-     * @param sigma_below Standard deviation below mean.
-     * @param sigma_above Standard deviation above mean.
-     * @return success of action. */
-    bool SetPriorGauss(unsigned index, double mean, double sigma_below, double sigma_above);
+     * @param mode The mode of the Gaussian
+     * @param sigma_below Standard deviation below mode.
+     * @param sigma_above Standard deviation above mode. */
+    void SetPriorGauss(unsigned index, double mode, double sigma_below, double sigma_above);
 
     /**
-     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCSplitGaussianPrior(mean,sigma_below,sigma_above))
+     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCSplitGaussianPrior(mode,sigma_below,sigma_above))
      * Set Gaussian prior for a parameter with two different widths.
      * @param name The parameter name
-     * @param mean The mean of the Gaussian
-     * @param sigmadown The sigma (down) of the Gaussian
-     * @param sigmaup The sigma (up)of the Gaussian
-     * @return success of action. */
-    int SetPriorGauss(const char* name, double mean, double sigmadown, double sigmaup)
-    {	return SetPriorGauss(fParameters.Index(name), mean, sigmadown, sigmaup); }
+     * @param mode The mode of the Gaussian
+     * @param sigma_below Standard deviation below mode.
+     * @param sigma_above Standard deviation above mode. */
+    void SetPriorGauss(std::string name, double mode, double sigmadown, double sigmaup)
+    {	SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))
      * Set prior for a parameter.
      * @param index parameter index
      * @param h pointer to a histogram describing the prior
-     * @param interpolate whether or not to use linear interpolation
-     * @return success of action. */
-    bool SetPrior(unsigned index, TH1* const h, bool interpolate = false);
+     * @param interpolate whether or not to use linear interpolation */
+    void SetPrior(unsigned index, TH1* const h, bool interpolate = false);
 
     /**
      * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTH1Prior(h,interpolate))
@@ -985,8 +979,8 @@ public:
      * @param h pointer to a histogram describing the prior
      * @param interpolate whether or not to use linear interpolation
      * @return success of action. */
-    bool SetPrior(const char* name, TH1* const h, bool interpolate = false)
-    { return SetPrior(fParameters.Index(name), h, interpolate); }
+    void SetPrior(std::string name, TH1* const h, bool interpolate = false)
+    { SetPrior(fParameters.Index(name), h, interpolate); }
 
     /**
      * @deprecated Instead call: GetParameters().SetPriorConstantAll() */
@@ -1012,13 +1006,13 @@ public:
      * Prints a summary to a file.
      * @param file Path to file to print results to.
      * @return Success of action.*/
-    virtual bool PrintResults(const char* file) const;
+    virtual bool PrintResults(std::string file) const;
 
     /**
      * Print parameters
      * @param P vector of the parameter values to be printed
      * @param output pointer to the output function to be used, which defaults to BCLog::OutSummary */
-    void PrintParameters(const std::vector<double>& P, void (*output)(const char*) = BCLog::OutSummary) const;
+    void PrintParameters(const std::vector<double>& P, void (*output)(std::string) = BCLog::OutSummary) const;
 
     /**
      * Print all marginalizations.
@@ -1052,20 +1046,20 @@ public:
      * Print a correlation matrix for the parameters.
      * @param filename Path to file to print correlation matrix to.
      * @return Success of action. */
-    bool PrintCorrelationMatrix(const char* filename = "matrix.pdf") const;
+    bool PrintCorrelationMatrix(std::string filename = "matrix.pdf") const;
 
     /**
      * Print a correlation plot for the parameters.
      * @param filename Path to file to print correlation plot to.
      * @param include_observables Flag for including observables (default: true)
      * @return Success of action. */
-    bool PrintCorrelationPlot(const char* filename = "correlation.pdf", bool include_observables = true) const;
+    bool PrintCorrelationPlot(std::string filename = "correlation.pdf", bool include_observables = true) const;
 
     /**
      * Print a LaTeX table of the parameters.
      * @param filename Path to file tp print LaTeX table of parameters to.
      * @return Success of action. */
-    bool PrintParameterLatex(const char* filename) const;
+    bool PrintParameterLatex(std::string filename) const;
 
     /** @} **/
     /** \name Miscellaneous methods */
@@ -1088,37 +1082,43 @@ public:
     void Copy(const BCEngineMCMC& enginemcmc);
 
     /**
+     * @deprecated Instead use GetParameters().Add(...)
      * Adds a parameter.
+     * @param name Name of parameter
      * @param min minimum value of the parameter
      * @param max maximum value of the parameter
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for parameter.
-     * @return number of parameters after adding */
-    virtual int AddParameter(const char* name, double min, double max, const char* latexname = "", const char* unitstring = "")
-    { return AddParameter(new BCParameter(name, min, max, latexname, unitstring)); }
+     * @return Success of action. */
+    virtual bool AddParameter(std::string name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    { return fParameters.Add(name, min, max, latexname, unitstring); }
 
     /**
+     * @deprecated Instead use GetParameters().Add(parameter)
      * Adds a parameter to the model.
      * @param parameter A model parameter
-     * @see AddParameter(const char * name, double lowerlimit, double upperlimit, const char * latexname); */
-    virtual int AddParameter(BCParameter* parameter)
+     * @return Success of action. */
+    virtual bool AddParameter(BCParameter& parameter)
     { return fParameters.Add(parameter); }
 
     /**
+     * @deprecated Instead use GetObservables().Add(...)
      * Adds a user-calculated observable.
+     * @param name name of observable
      * @param min minimum value of the observable
      * @param max maximum value of the observable
      * @param latexname Optional latexname used for plotting
      * @param unitstring Unit string to be printed for observable.
-     * @return number of observables after adding */
-    virtual int AddObservable(const char* name, double min, double max, const char* latexname = "", const char* unitstring = "")
-    { return AddObservable(new BCObservable(name, min, max, latexname, unitstring)); }
+     * @return Success of action. */
+    virtual bool AddObservable(std::string name, double min, double max, std::string latexname = "", std::string unitstring = "")
+    { return fObservables.Add(name, min, max, latexname, unitstring); }
 
     /**
+     * @deprecated Instead use GetObservables().Add(obs)
      * Adds a user-calculated observable to the model.
      * @param observable A user-calculated observable
-     * @see AddObservable(const char * name, double lowerlimit, double upperlimit, ObservableFunction * fn, const char * latexname); */
-    virtual int AddObservable(BCObservable* obs)
+     * @return Success of action. */
+    virtual bool AddObservable(BCObservable& obs)
     { return fObservables.Add(obs); }
 
     /**
@@ -1402,7 +1402,7 @@ protected:
 
     /**
      * User-calculated Observables Set */
-    BCVariableSet fObservables;
+    BCObservableSet fObservables;
 
     /**
      * Number of Markov chains ran in parallel */

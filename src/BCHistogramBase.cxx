@@ -133,7 +133,7 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
         return;
     }
 
-    fHistogram = (TH1*) (hist->Clone(TString::Format("%s_bch", hist->GetName())));
+    fHistogram = (TH1*) (hist->Clone(Form("%s_bch", hist->GetName())));
     fHistogram->SetStats(false);
     fDimension = fHistogram->GetDimension();
 
@@ -244,7 +244,7 @@ void BCHistogramBase::CheckIntervals(std::vector<double>& intervals, int sort)
     // remove out-of-bounds entries
     for (int i = intervals.size() - 1; i >= 0; --i)
         if (intervals[i] < 0 or intervals[i] > 1) {
-            BCLog::OutWarning(TString::Format("BCHistogramBase::CheckIntervals : interval out of bounds, removing %f", intervals[i]));
+            BCLog::OutWarning(Form("BCHistogramBase::CheckIntervals : interval out of bounds, removing %f", intervals[i]));
             intervals.erase(intervals.begin() + i);
         }
 
@@ -259,7 +259,7 @@ void BCHistogramBase::CheckIntervals(std::vector<double>& intervals, int sort)
     std::vector<double>::iterator last = std::unique(intervals.begin(), intervals.end());
     intervals.erase(last, intervals.end());
     if (intervals.size() < old_size)
-        BCLog::OutWarning(TString::Format("BCHistogramBase::CheckIntervals : %lu duplicate interval values were removed.", old_size - intervals.size()));
+        BCLog::OutWarning(Form("BCHistogramBase::CheckIntervals : %lu duplicate interval values were removed.", old_size - intervals.size()));
 }
 
 // ---------------------------------------------------------
@@ -377,7 +377,7 @@ std::vector<double> BCHistogramBase::GetSmallestIntervalSize(std::vector<double>
     // remove out-of-bounds entries
     for (int i = masses.size() - 1; i >= 0; --i)
         if (masses[i] < 0 or masses[i] > 1) {
-            BCLog::OutWarning(TString::Format("BCHistogramBase::GetSmallestIntervalSize : mass out of bounds, removing %f", masses[i]));
+            BCLog::OutWarning(Form("BCHistogramBase::GetSmallestIntervalSize : mass out of bounds, removing %f", masses[i]));
             masses.erase(masses.begin() + i);
         }
     if (masses.empty())

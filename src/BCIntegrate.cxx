@@ -312,7 +312,7 @@ double BCIntegrate::Integrate()
         }
 
         default:
-            BCLog::OutError(TString::Format("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethodCurrent));
+            BCLog::OutError(Form("BCIntegrate::Integrate : Invalid integration method: %d", fIntegrationMethodCurrent));
             break;
     }
 
@@ -356,7 +356,7 @@ void BCIntegrate::SetBestFitParameters(const std::vector<double>& x)
         Eval(fBestFitParameters); // in case user uses likelihood to set values needed for observable calculation
         CalculateObservables(fBestFitParameters);
         for (unsigned i = 0; i < GetNObservables(); ++i)
-            fBestFitParameters.push_back(GetObservable(i)->Value());
+            fBestFitParameters.push_back(GetObservable(i).Value());
     }
 }
 
@@ -374,60 +374,60 @@ void BCIntegrate::LogOutputAtStartOfIntegration(BCIntegrationMethod type, BCCuba
         bool printed = false;
 
         if (type == kIntCuba) {
-            BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions out of %i.",
-                                             DumpIntegrationMethod(type).c_str(),
-                                             DumpCubaIntegrationMethod(cubatype).c_str(),
-                                             NVarNow, GetNParameters()));
+            BCLog::OutDetail(Form("Running %s (%s) integration over %i dimensions out of %i.",
+                                  DumpIntegrationMethod(type).c_str(),
+                                  DumpCubaIntegrationMethod(cubatype).c_str(),
+                                  NVarNow, GetNParameters()));
             printed = true;
         }
 
         if (not printed)
-            BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions out of %i.",
-                                             DumpIntegrationMethod(type).c_str(),
-                                             NVarNow, GetNParameters()));
+            BCLog::OutDetail(Form("Running %s integration over %i dimensions out of %i.",
+                                  DumpIntegrationMethod(type).c_str(),
+                                  NVarNow, GetNParameters()));
 
         BCLog::OutDetail(" --> Fixed parameters:");
         for (unsigned i = 0; i < GetNParameters(); i++)
-            if (GetParameter(i)->Fixed())
-                BCLog::OutDetail(TString::Format("      %3i :  %g", i, GetParameter(i)->GetFixedValue()));
+            if (GetParameter(i).Fixed())
+                BCLog::OutDetail(Form("      %3i :  %g", i, GetParameter(i).GetFixedValue()));
     } else {
         bool printed = false;
 
         if (type == kIntCuba) {
-            BCLog::OutDetail(TString::Format("Running %s (%s) integration over %i dimensions.",
-                                             DumpIntegrationMethod(type).c_str(),
-                                             DumpCubaIntegrationMethod(cubatype).c_str(),
-                                             NVarNow));
+            BCLog::OutDetail(Form("Running %s (%s) integration over %i dimensions.",
+                                  DumpIntegrationMethod(type).c_str(),
+                                  DumpCubaIntegrationMethod(cubatype).c_str(),
+                                  NVarNow));
             printed = true;
         }
 
         if (not printed)
-            BCLog::OutDetail(TString::Format("Running %s integration over %i dimensions.",
-                                             DumpIntegrationMethod(type).c_str(),
-                                             NVarNow));
+            BCLog::OutDetail(Form("Running %s integration over %i dimensions.",
+                                  DumpIntegrationMethod(type).c_str(),
+                                  NVarNow));
     }
 
     if (GetNIterationsMin() > 0 && GetNIterationsMax() > 0 ) {
-        BCLog::Out(level, TString::Format(" --> Minimum number of iterations: %i", GetNIterationsMin()));
-        BCLog::Out(level, TString::Format(" --> Maximum number of iterations: %i", GetNIterationsMax()));
+        BCLog::Out(level, Form(" --> Minimum number of iterations: %i", GetNIterationsMin()));
+        BCLog::Out(level, Form(" --> Maximum number of iterations: %i", GetNIterationsMax()));
     }
-    BCLog::Out(level, TString::Format(" --> Target relative precision:    %e", GetRelativePrecision()));
-    BCLog::Out(level, TString::Format(" --> Target absolute precision:    %e", GetAbsolutePrecision()));
+    BCLog::Out(level, Form(" --> Target relative precision:    %e", GetRelativePrecision()));
+    BCLog::Out(level, Form(" --> Target absolute precision:    %e", GetAbsolutePrecision()));
 }
 
 // ---------------------------------------------------------
 void BCIntegrate::LogOutputAtEndOfIntegration(double integral, double absprecision, double relprecision, int nIterations)
 {
-    BCLog::OutSummary(TString::Format(" --> Result of integration:        %e +- %e", integral, absprecision));
-    BCLog::OutSummary(TString::Format(" --> Obtained relative precision:  %e. ", relprecision));
+    BCLog::OutSummary(Form(" --> Result of integration:        %e +- %e", integral, absprecision));
+    BCLog::OutSummary(Form(" --> Obtained relative precision:  %e. ", relprecision));
     if (nIterations >= 0)
-        BCLog::OutSummary(TString::Format(" --> Number of iterations:         %i", nIterations));
+        BCLog::OutSummary(Form(" --> Number of iterations:         %i", nIterations));
 }
 
 // ---------------------------------------------------------
 void BCIntegrate::LogOutputAtIntegrationStatusUpdate(BCIntegrationMethod type, double integral, double absprecision, int nIterations)
 {
-    BCLog::OutDetail(TString::Format("%s. Iteration %i, integral: %e +- %e.", DumpIntegrationMethod(type).c_str(), nIterations, integral, absprecision));
+    BCLog::OutDetail(Form("%s. Iteration %i, integral: %e +- %e.", DumpIntegrationMethod(type).c_str(), nIterations, integral, absprecision));
 }
 
 // ---------------------------------------------------------
@@ -535,7 +535,7 @@ bool BCIntegrate::CheckMarginalizationAvailability(BCMarginalizationMethod type)
         case BCIntegrate::kMargDefault:
             return true;
         default:
-            BCLog::OutError(TString::Format("BCIntegrate::CheckMarginalizationAvailability. Invalid marginalization method: %d.", type));
+            BCLog::OutError(Form("BCIntegrate::CheckMarginalizationAvailability. Invalid marginalization method: %d.", type));
             break;
     }
     return false;
@@ -555,20 +555,20 @@ bool BCIntegrate::CheckMarginalizationIndices(TH1* hist, const std::vector<unsig
     }
 
     if ((int)index.size() < hist->GetDimension()) {
-        BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Too few (%d) indices supplied for histogram dimension (%d)", (int)index.size(), hist->GetDimension()));
+        BCLog::OutError(Form("BCIntegrate::Marginalize : Too few (%d) indices supplied for histogram dimension (%d)", (int)index.size(), hist->GetDimension()));
         return false;
     }
 
     for (unsigned i = 0; i < index.size(); i++) {
         // check if indices are in bounds
-        if ( ! fParameters.ValidIndex(index[i])) {
-            BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) out of bound.", index[i]));
+        if (index[i] >= GetNParameters()) {
+            BCLog::OutError(Form("BCIntegrate::Marginalize : Parameter index (%d) out of bound.", index[i]));
             return false;
         }
         // check for duplicate indices
         for (unsigned j = 0; j < index.size(); j++)
             if (i != j and index[i] == index[j]) {
-                BCLog::OutError(TString::Format("BCIntegrate::Marginalize : Parameter index (%d) appears more than once", index[i]));
+                BCLog::OutError(Form("BCIntegrate::Marginalize : Parameter index (%d) appears more than once", index[i]));
                 return false;
             }
     }
@@ -667,7 +667,7 @@ int BCIntegrate::MarginalizeAll()
 
             if (GetParameters().GetNFreeParameters() == 1) { // Marginalize the free parameter to a 1D histogram
                 for (unsigned i = 0; i < GetNParameters(); ++i) {
-                    if (GetParameter(i)->Fixed())
+                    if (GetParameter(i).Fixed())
                         continue;
 
                     // calculate slice
@@ -685,7 +685,7 @@ int BCIntegrate::MarginalizeAll()
             else if (GetNFreeParameters() == 2) { // marginalize the two free parameters to a 2D histogram
                 for (unsigned i = 0; i < GetNParameters(); ++i)
                     for (unsigned j = i + 1; j < GetNParameters(); ++j) {
-                        if (GetParameter(i)->Fixed() or GetParameter(j)->Fixed())
+                        if (GetParameter(i).Fixed() or GetParameter(j).Fixed())
                             continue;
 
                         // calculate slice
@@ -701,8 +701,8 @@ int BCIntegrate::MarginalizeAll()
                             bestfit_errors[j] = fH2Marginalized[i][j]->GetYaxis()->GetBinWidth(index2) / sqrt(12);
 
                             // 1D marginalize by projecting
-                            fH1Marginalized[i] = fH2Marginalized[i][j]->ProjectionX(TString::Format("h1_%s_parameter_%i", GetSafeName().data() , i));
-                            fH1Marginalized[j] = fH2Marginalized[i][j]->ProjectionY(TString::Format("h1_%s_parameter_%i", GetSafeName().data() , j));
+                            fH1Marginalized[i] = fH2Marginalized[i][j]->ProjectionX(Form("h1_%s_parameter_%i", GetSafeName().data() , i));
+                            fH1Marginalized[j] = fH2Marginalized[i][j]->ProjectionY(Form("h1_%s_parameter_%i", GetSafeName().data() , j));
                         }
                     }
             }
@@ -742,7 +742,7 @@ int BCIntegrate::MarginalizeAll()
         }
 
         default: {
-            BCLog::OutError(TString::Format("BCIntegrate::MarginalizeAll : Invalid marginalization method: %d", GetMarginalizationMethod()));
+            BCLog::OutError(Form("BCIntegrate::MarginalizeAll : Invalid marginalization method: %d", GetMarginalizationMethod()));
             return 0;
             break;
         }
@@ -804,7 +804,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
 
         // find unfixed parameters and add them to indices
         for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (std::find(indices.begin(), indices.end(), i) == indices.end() and !GetParameter(i)->Fixed())
+            if (std::find(indices.begin(), indices.end(), i) == indices.end() and !GetParameter(i).Fixed())
                 indices.push_back(i);
 
         // slice in full free dimensions
@@ -821,7 +821,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
             if (dynamic_cast<TH3*>(slice_NnD) != NULL)
                 h = dynamic_cast<TH3*>(slice_NnD)->ProjectionX(Form("h1_slice_%s_%d", GetSafeName().data(), indices[0]));
             if (h)
-                h->SetYTitle(Form("p(%s | data)", GetParameter(indices[0])->GetLatexName().data()));
+                h->SetYTitle(Form("p(%s | data)", GetParameter(indices[0]).GetLatexName().data()));
             return h;
         }
         // 3->2
@@ -829,7 +829,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
             TH1* h = dynamic_cast<TH3*>(slice_NnD)->Project3D("xy_temp_slice_projection");
             if (h) {
                 h->SetName(Form("h1_slice_%s_%d_%d", GetSafeName().data(), indices[0], indices[1]));
-                h->SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0])->GetLatexName().data(), GetParameter(indices[1])->GetLatexName().data()));
+                h->SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data()));
             }
             return h;
         }
@@ -840,7 +840,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
     if (parameters_temp.empty()) {
         // check that remaining parameters are fixed
         for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (std::find(indices.begin(), indices.end(), i) == indices.end() and !GetParameter(i)->Fixed()) {
+            if (std::find(indices.begin(), indices.end(), i) == indices.end() and !GetParameter(i).Fixed()) {
                 BCLog::OutError("BCIntegrate::GetSlice : All non-sliced parameters must be fixed or provided values in function call.");
                 return NULL;
             }
@@ -851,34 +851,34 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
     // store previous binning preferences
     std::vector<unsigned> nbins_temp;
     for (unsigned i = 0; i < indices.size(); ++i) {
-        nbins_temp.push_back(GetParameter(indices[i])->GetNbins());
+        nbins_temp.push_back(GetParameter(indices[i]).GetNbins());
         if (nbins > 0)								// set new binning
-            GetParameter(indices[i])->SetNbins(nbins);
+            GetParameter(indices[i]).SetNbins(nbins);
     }
 
     // create histogram
     TH1* h = NULL;
     if (indices.size() == 1) {
-        h = GetParameter(indices[0])->CreateH1(TString::Format("h1_slice_%s_%d", GetSafeName().data(), indices[0]));
+        h = GetParameter(indices[0]).CreateH1(Form("h1_slice_%s_%d", GetSafeName().data(), indices[0]));
         // set y-axis label
         if (GetNParameters() == 1)
-            h->SetYTitle(Form("p(%s|data)", GetParameter(indices[0])->GetLatexName().data()));
+            h->SetYTitle(Form("p(%s|data)", GetParameter(indices[0]).GetLatexName().data()));
         else
-            h->SetYTitle(Form("p(%s|data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data()));
+            h->SetYTitle(Form("p(%s|data, all other parameters fixed)", GetParameter(indices[0]).GetLatexName().data()));
     } else if (indices.size() == 2) {
-        h = GetParameter(indices[0])->CreateH2(TString::Format("h2_slice_%s_%d_%d", GetSafeName().data(), indices[0], indices[1]), GetParameter(indices[1]));
+        h = GetParameter(indices[0]).CreateH2(Form("h2_slice_%s_%d_%d", GetSafeName().data(), indices[0], indices[1]), GetParameter(indices[1]));
         // set z-axis label
         if (GetNParameters() == 2)
-            h->SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0])->GetLatexName().data(), GetParameter(indices[1])->GetLatexName().data()));
+            h->SetZTitle(Form("p(%s, %s | data)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data()));
         else
-            h->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data(), GetParameter(indices[1])->GetLatexName().data()));
+            h->SetZTitle(Form("p(%s, %s | data, all other parameters fixed)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data()));
     } else if (indices.size() == 3) {
-        h = GetParameter(indices[0])->CreateH3(TString::Format("h3_slice_%s_%d_%d_%d", GetSafeName().data(), indices[0], indices[1], indices[2]), GetParameter(indices[1]), GetParameter(indices[2]));
+        h = GetParameter(indices[0]).CreateH3(Form("h3_slice_%s_%d_%d_%d", GetSafeName().data(), indices[0], indices[1], indices[2]), GetParameter(indices[1]), GetParameter(indices[2]));
         // set z-axis label
         if (GetNParameters() == 3)
-            h->SetZTitle(Form("p(%s, %s, %s | data)", GetParameter(indices[0])->GetLatexName().data(), GetParameter(indices[1])->GetLatexName().data(), GetParameter(indices[2])->GetLatexName().data()));
+            h->SetZTitle(Form("p(%s, %s, %s | data)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data(), GetParameter(indices[2]).GetLatexName().data()));
         else
-            h->SetZTitle(Form("p(%s, %s, %s | data, all other parameters fixed)", GetParameter(indices[0])->GetLatexName().data(), GetParameter(indices[1])->GetLatexName().data(), GetParameter(indices[2])->GetLatexName().data()));
+            h->SetZTitle(Form("p(%s, %s, %s | data, all other parameters fixed)", GetParameter(indices[0]).GetLatexName().data(), GetParameter(indices[1]).GetLatexName().data(), GetParameter(indices[2]).GetLatexName().data()));
     }
 
     // reset log_max_val
@@ -932,7 +932,7 @@ TH1* BCIntegrate::GetSlice(std::vector<unsigned> indices, double& log_max_val, c
 
     // reset binning
     for (unsigned i = 0; i < indices.size(); ++i)
-        GetParameter(indices[i])->SetNbins(nbins_temp[i]);
+        GetParameter(indices[i]).SetNbins(nbins_temp[i]);
 
     return h;
 }
@@ -1112,14 +1112,14 @@ std::vector<double> BCIntegrate::FindModeMinuit(std::vector<double>& mode, std::
     // set parameters
     int flag;
     for (unsigned i = 0; i < fParameters.Size(); i++)
-        fMinuit->mnparm(i, GetParameter(i)->GetName().data(), start[i],
-                        GetParameter(i)->GetRangeWidth() / 100.,
-                        GetParameter(i)->GetLowerLimit(),
-                        GetParameter(i)->GetUpperLimit(),
+        fMinuit->mnparm(i, GetParameter(i).GetName().data(), start[i],
+                        GetParameter(i).GetRangeWidth() / 100.,
+                        GetParameter(i).GetLowerLimit(),
+                        GetParameter(i).GetUpperLimit(),
                         flag);
 
     for (unsigned i = 0; i < fParameters.Size(); i++)
-        if (GetParameter(i)->Fixed())
+        if (GetParameter(i).Fixed())
             fMinuit->FixParameter(i);
 
     // do mcmc minimization
@@ -1201,7 +1201,7 @@ void BCIntegrate::InitializeSATree(bool replacetree, bool replacefile)
     }
 
     if (!fSATree) {
-        fSATree = new TTree(TString::Format("%s_sa", GetSafeName().data()), TString::Format("%s_sa", GetSafeName().data()));
+        fSATree = new TTree(Form("%s_sa", GetSafeName().data()), Form("%s_sa", GetSafeName().data()));
 
         fSATree->Branch("Iteration",      &fSANIterations,   "Iteration/I");
         fSATree->Branch("Temperature",    &fSATemperature,   "Temperature/D");
@@ -1209,8 +1209,8 @@ void BCIntegrate::InitializeSATree(bool replacetree, bool replacefile)
 
         fSAx.assign(fParameters.Size(), 0.0);
         for (unsigned i = 0; i < fParameters.Size(); ++i) {
-            fSATree->Branch(GetParameter(i)->GetSafeName().data(), &fSAx[i], (GetParameter(i)->GetSafeName() + "/D").data());
-            fSATree->SetAlias(TString::Format("Parameter%i", i), GetParameter(i)->GetSafeName().data());
+            fSATree->Branch(GetParameter(i).GetSafeName().data(), &fSAx[i], (GetParameter(i).GetSafeName() + "/D").data());
+            fSATree->SetAlias(Form("Parameter%i", i), GetParameter(i).GetSafeName().data());
         }
     }
     gDirectory = dir;
@@ -1372,10 +1372,10 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<d
     double new_val, norm;
 
     for (unsigned i = 0; i < fParameters.Size(); i++) {
-        if (GetParameter(i)->Fixed()) {
-            y.push_back(GetParameter(i)->GetFixedValue());
+        if (GetParameter(i).Fixed()) {
+            y.push_back(GetParameter(i).GetFixedValue());
         } else {
-            norm = GetParameter(i)->GetRangeWidth() * SATemperature(t) / 2.;
+            norm = GetParameter(i).GetRangeWidth() * SATemperature(t) / 2.;
             new_val = x[i] + norm * fRandom->Gaus();
             y.push_back(new_val);
         }
@@ -1393,10 +1393,10 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
     if (GetNParameters() == 1) {
         double cauchy, new_val, norm;
 
-        if (GetParameter(0)->Fixed()) {
-            y.push_back(GetParameter(0)->GetFixedValue());
+        if (GetParameter(0).Fixed()) {
+            y.push_back(GetParameter(0).GetFixedValue());
         } else {
-            norm = GetParameter(0)->GetRangeWidth() * SATemperature(t) / 2.;
+            norm = GetParameter(0).GetRangeWidth() * SATemperature(t) / 2.;
             cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
             new_val = x[0] + norm * cauchy;
             y.push_back(new_val);
@@ -1415,10 +1415,10 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
         // scale y by radial part and the size of dimension i in phase space
         // afterwards, move by x
         for (unsigned i = 0; i < GetNParameters(); i++) {
-            if (GetParameter(i)->Fixed()) {
-                y[i] = GetParameter(i)->GetFixedValue();
+            if (GetParameter(i).Fixed()) {
+                y[i] = GetParameter(i).GetFixedValue();
             } else {
-                y[i] = GetParameter(i)->GetRangeWidth() * y[i] * radial / 2. + x[i];
+                y[i] = GetParameter(i).GetRangeWidth() * y[i] * radial / 2. + x[i];
             }
         }
     }
@@ -1607,7 +1607,7 @@ void BCIntegrate::SetCubaIntegrationMethod(BCIntegrate::BCCubaMethod type)
             fCubaIntegrationMethod = type;
             return;
         default:
-            BCLog::OutError(TString::Format("Integration method of type %d is not defined for Cuba", type));
+            BCLog::OutError(Form("Integration method of type %d is not defined for Cuba", type));
             return;
     }
 #else
@@ -1634,17 +1634,17 @@ int BCIntegrate::CubaIntegrand(const int* ndim, const double xx[],
     unsigned cubaIndex = 0;
     unsigned batIndex = 0;
     for (batIndex = 0; batIndex < local_this->fParameters.Size(); ++batIndex) {
-        const BCParameter* p = local_this->GetParameter(batIndex);
+        const BCParameter& p = local_this->GetParameter(batIndex);
 
         // get the scaled parameter value
-        if (p->Fixed())
-            scaled_parameters[batIndex] = p->GetFixedValue();
+        if (p.Fixed())
+            scaled_parameters[batIndex] = p.GetFixedValue();
         else {
             // convert from unit hypercube to actual parameter hyperrectangle
-            scaled_parameters[batIndex] = p->GetLowerLimit() + xx[cubaIndex] * p->GetRangeWidth();
+            scaled_parameters[batIndex] = p.GetLowerLimit() + xx[cubaIndex] * p.GetRangeWidth();
 
             // multiply range to jacobian
-            jacobian *= p->GetRangeWidth();
+            jacobian *= p.GetRangeWidth();
 
             // one more parameter that cuba varies
             ++cubaIndex;
@@ -1793,11 +1793,11 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
 
     if (fail != 0) {
         BCLog::OutWarning(" Warning, integral did not converge with the given set of parameters. ");
-        BCLog::OutWarning(TString::Format(" neval    = %d", fNIterations));
-        BCLog::OutWarning(TString::Format(" fail     = %d", fail));
-        BCLog::OutWarning(TString::Format(" integral = %e", result));
-        BCLog::OutWarning(TString::Format(" error    = %e", fError));
-        BCLog::OutWarning(TString::Format(" prob     = %e", prob[0]));
+        BCLog::OutWarning(Form(" neval    = %d", fNIterations));
+        BCLog::OutWarning(Form(" fail     = %d", fail));
+        BCLog::OutWarning(Form(" integral = %e", result));
+        BCLog::OutWarning(Form(" error    = %e", fError));
+        BCLog::OutWarning(Form(" prob     = %e", prob[0]));
 
         // handle cases in which cuba does not alter integral
         if (fNIterations == 0) {
@@ -1833,7 +1833,7 @@ double BCIntegrate::IntegrateSlice()
     // get vector of indices of unfixed parameters
     std::vector<unsigned> indices;
     for (unsigned i = 0; i < GetNParameters(); ++i)
-        if (!GetParameter(i)->Fixed())
+        if (!GetParameter(i).Fixed())
             indices.push_back(i);
 
     // check size of vector of indices
@@ -2034,13 +2034,13 @@ void BCIntegrate::PrintBestFitToStream(std::ofstream& ofi) const
         << " List of parameters and global mode:" << std::endl;
 
     for (unsigned i = 0; i < GetNVariables() and i < GetGlobalMode().size(); ++i) {
-        ofi << TString::Format(" (%d) %10s \"%*s\" : %.*g", i, GetVariable(i)->GetPrefix().data(),
-                               GetMaximumParameterNameLength(), GetVariable(i)->GetName().data(),
-                               GetVariable(i)->GetPrecision(), GetGlobalMode()[i]);
-        if (i < GetNParameters() and GetParameter(i)->Fixed())
+        ofi << Form(" (%d) %10s \"%*s\" : %.*g", i, GetVariable(i).GetPrefix().data(),
+                    GetMaximumParameterNameLength(), GetVariable(i).GetName().data(),
+                    GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
+        if (i < GetNParameters() and GetParameter(i).Fixed())
             ofi << " (fixed)" << std::endl;
         else if (i < GetBestFitParameterErrors().size() and GetBestFitParameterErrors()[i] != std::numeric_limits<double>::infinity())
-            ofi << TString::Format(" +- %.*g", GetVariable(i)->GetPrecision(), GetBestFitParameterErrors()[i]) << std::endl;
+            ofi << Form(" +- %.*g", GetVariable(i).GetPrecision(), GetBestFitParameterErrors()[i]) << std::endl;
         else
             ofi << " (no error estimate available)" << std::endl;
     }

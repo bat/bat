@@ -55,7 +55,7 @@ public:
      * @param upperlimit The upper limit of the variable values.
      * @param latexname The latex name of the variable used in axis labeling.
      * @param unitstring Unit string to be printed for variable. */
-    BCVariable(const char* name, double lowerlimit, double upperlimit, const char* latexname = "", const char* unitstring = "");
+    BCVariable(std::string name, double lowerlimit, double upperlimit, std::string latexname = "", std::string unitstring = "");
 
     /**
      * Destructor */
@@ -143,16 +143,16 @@ public:
 
     /**
      * @param name The name of the variable. */
-    virtual void SetName(const char* name);
+    virtual void SetName(std::string name);
 
     /**
      * @param latex_name Latex-formatted name of Variable. */
-    virtual void SetLatexName(const char* latex_name)
+    virtual void SetLatexName(std::string latex_name)
     { fLatexName = latex_name; }
 
     /**
      * @param unit_string String to printed to mark units of variable when needed. */
-    virtual void SetUnitString(const char* unit_string)
+    virtual void SetUnitString(std::string unit_string)
     { fUnitString = unit_string; }
 
     /**
@@ -264,14 +264,14 @@ public:
      * Creates a 1D Histogram for this variable.
      * @param name Name of the histogram.
      * @return pointer to histogram object. */
-    virtual TH1* CreateH1(const char* name) const;
+    virtual TH1* CreateH1(std::string name) const;
 
     /**
      * Creates a 2D Histogram for this variable as the abcissa
      * and a second as the ordinate.
      * @name name The name of the histogram.
      * @param ordinate The variable to be used for the ordinate. */
-    virtual TH2* CreateH2(const char* name, const BCVariable* const ordinate) const;
+    virtual TH2* CreateH2(std::string name, const BCVariable& ordinate) const;
 
     /**
      * Creates a 3D Histogram for this variable as the abcissa
@@ -279,7 +279,7 @@ public:
      * @name name The name of the histogram.
      * @param ordinate_y The variable to be used for the y ordinate.
      * @param ordinate_z The variable to be used for the z ordinate. */
-    virtual TH3* CreateH3(const char* name, const BCVariable* const ordinate_y, const BCVariable* const ordinate_z) const;
+    virtual TH3* CreateH3(std::string name, const BCVariable& ordinate_y, const BCVariable& ordinate_z) const;
 
     /**
      * Get random value uniformly distributed in range.

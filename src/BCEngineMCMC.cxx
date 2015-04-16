@@ -52,7 +52,7 @@
 #include <typeinfo>
 
 // ---------------------------------------------------------
-BCEngineMCMC::BCEngineMCMC(const char* name)
+BCEngineMCMC::BCEngineMCMC(std::string name)
     : fMCMCFlagWriteChainToFile(false),
       fMCMCFlagWritePreRunToFile(false),
       fMCMCOutputFile(0),
@@ -154,65 +154,34 @@ BCEngineMCMC::~BCEngineMCMC()
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::SetName(const char* name)
+void BCEngineMCMC::SetName(std::string name)
 {
     fName = name;
-    fSafeName = name;
-    fSafeName.erase(std::remove_if(fSafeName.begin(), fSafeName.end(), ::isspace), fSafeName.end());
+    fSafeName = BCAux::SafeName(name);
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::SetPriorConstant(unsigned index)
+void BCEngineMCMC::SetPrior(unsigned index, TF1* const f)
 {
-    if (GetParameter(index) == NULL)
-        return false;
-    GetParameter(index)->SetPriorConstant();
-    return true;
+    fParameters.At(index).SetPrior(new BCTF1Prior(f));
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::SetPriorDelta(unsigned index, double val)
+void BCEngineMCMC::SetPrior(unsigned index, TH1* const h, bool interpolate)
 {
-    if (GetParameter(index) == NULL)
-        return false;
-    GetParameter(index)->Fix(val);
-    return true;
+    fParameters.At(index).SetPrior(new BCTH1Prior(h, interpolate));
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::SetPrior(unsigned index, TF1* const f)
+void BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma)
 {
-    if (GetParameter(index) == NULL)
-        return false;
-    GetParameter(index)->SetPrior(new BCTF1Prior(f));
-    return true;
+    fParameters.At(index).SetPrior(new BCGaussianPrior(mean, sigma));
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::SetPrior(unsigned index, TH1* const h, bool interpolate)
+void BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma_below, double sigma_above)
 {
-    if (GetParameter(index) == NULL)
-        return false;
-    GetParameter(index)->SetPrior(new BCTH1Prior(h, interpolate));
-    return true;
-}
-
-// ---------------------------------------------------------
-bool BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma)
-{
-    if (GetParameter(index) == NULL)
-        return false;
-    GetParameter(index)->SetPrior(new BCGaussianPrior(mean, sigma));
-    return true;
-}
-
-// ---------------------------------------------------------
-bool BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma_below, double sigma_above)
-{
-    if (GetParameter(index) == NULL)
-        return false;
-    GetParameter(index)->SetPrior(new BCSplitGaussianPrior(mean, sigma_below, sigma_above));
-    return true;
+    fParameters.At(index).SetPrior(new BCSplitGaussianPrior(mean, sigma_below, sigma_above));
 }
 
 // ---------------------------------------------------------
@@ -458,7 +427,7 @@ TH1* BCEngineMCMC::GetMarginalizedHistogram(unsigned index) const
 
     // else output warning
     if ( index < GetNVariables() ) // Marginalization of model parameter
-        BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for %s %s", GetVariable(index)->GetPrefix().data(), GetVariable(index)->GetName().data()));
+        BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram: marginal distribution not stored for %s %s", GetVariable(index).GetPrefix().data(), GetVariable(index).GetName().data()));
     return 0;
 }
 
@@ -484,8 +453,8 @@ TH2* BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const
 
     if (i < GetNVariables() and j < GetNVariables())
         BCLog::OutWarning(Form("BCEngineMCMC::GetMarginalizedHistogram : marginal distribution not stored for %s %s vs %s %s",
-                               GetVariable(i)->GetPrefix().data(), GetVariable(i)->GetName().data(),
-                               GetVariable(j)->GetPrefix().data(), GetVariable(j)->GetName().data()));
+                               GetVariable(i).GetPrefix().data(), GetVariable(i).GetName().data(),
+                               GetVariable(j).GetPrefix().data(), GetVariable(j).GetName().data()));
     return NULL;
 }
 
@@ -534,8 +503,8 @@ const std::vector<double>& BCEngineMCMC::GetLocalModes(bool force_recalculation)
     if (fLocalModes.empty() or force_recalculation) {
         fLocalModes.clear();
         for (unsigned i = 0; i < GetNVariables(); ++i)
-            if (i < GetNParameters() and GetParameter(i)->Fixed())
-                fLocalModes.push_back(GetParameter(i)->GetFixedValue());
+            if (i < GetNParameters() and GetParameter(i).Fixed())
+                fLocalModes.push_back(GetParameter(i).GetFixedValue());
             else if (fH1Marginalized[i]) {
                 fLocalModes.push_back(fH1Marginalized[i]->GetBinCenter(fH1Marginalized[i]->GetMaximumBin()));
             } else {
@@ -639,13 +608,13 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
         fMCMCTree->Branch("LogProbability", &fMCMCTree_Prob,        "log(probability)/D");
         fMCMCTree_Parameters.assign(GetNParameters(), 0);
         for (unsigned j = 0; j < GetNParameters(); ++j) {
-            fMCMCTree->Branch(GetParameter(j)->GetSafeName().data(), &fMCMCTree_Parameters[j], (GetParameter(j)->GetSafeName() + "/D").data());
-            fMCMCTree->SetAlias(TString::Format("Parameter%i", j), GetParameter(j)->GetSafeName().data());
+            fMCMCTree->Branch(GetParameter(j).GetSafeName().data(), &fMCMCTree_Parameters[j], (GetParameter(j).GetSafeName() + "/D").data());
+            fMCMCTree->SetAlias(TString::Format("Parameter%i", j), GetParameter(j).GetSafeName().data());
         }
         fMCMCTree_Observables.assign(GetNObservables(), 0);
         for (unsigned j = 0; j < GetNObservables(); ++j) {
-            fMCMCTree->Branch(GetObservable(j)->GetSafeName().data(), &fMCMCTree_Observables[j], (GetObservable(j)->GetSafeName() + "/D").data());
-            fMCMCTree->SetAlias(TString::Format("Observable%i", j), GetObservable(j)->GetSafeName().data());
+            fMCMCTree->Branch(GetObservable(j).GetSafeName().data(), &fMCMCTree_Observables[j], (GetObservable(j).GetSafeName() + "/D").data());
+            fMCMCTree->SetAlias(TString::Format("Observable%i", j), GetObservable(j).GetSafeName().data());
         }
     }
 
@@ -676,18 +645,18 @@ void BCEngineMCMC::InitializeMarkovChainTree(bool replacetree, bool replacefile)
         for (unsigned i = 0; i < GetNVariables(); ++i) {
             p_parameter  = (i < GetNParameters());
             p_index      = (p_parameter) ? i : i - GetNParameters();
-            strcpy(p_name,      GetVariable(i)->GetName().data());
-            strcpy(p_safename,  GetVariable(i)->GetSafeName().data());
-            strcpy(p_latexname, GetVariable(i)->GetLatexName().data());
-            strcpy(p_unitstring, GetVariable(i)->GetUnitString().data());
-            p_lowerlimit = GetVariable(i)->GetLowerLimit();
-            p_upperlimit = GetVariable(i)->GetUpperLimit();
-            p_precision  = GetVariable(i)->GetPrecision();
-            p_nbins      = GetVariable(i)->GetNbins();
-            p_fill_1d    = GetVariable(i)->FillH1();
-            p_fill_2d    = GetVariable(i)->FillH2();
-            p_fixed      = p_parameter and GetParameter(i)->Fixed();
-            p_fixedvalue = (p_parameter) ? GetParameter(i)->GetFixedValue() : 0;
+            strcpy(p_name,      GetVariable(i).GetName().data());
+            strcpy(p_safename,  GetVariable(i).GetSafeName().data());
+            strcpy(p_latexname, GetVariable(i).GetLatexName().data());
+            strcpy(p_unitstring, GetVariable(i).GetUnitString().data());
+            p_lowerlimit = GetVariable(i).GetLowerLimit();
+            p_upperlimit = GetVariable(i).GetUpperLimit();
+            p_precision  = GetVariable(i).GetPrecision();
+            p_nbins      = GetVariable(i).GetNbins();
+            p_fill_1d    = GetVariable(i).FillH1();
+            p_fill_2d    = GetVariable(i).FillH2();
+            p_fixed      = p_parameter and GetParameter(i).Fixed();
+            p_fixedvalue = (p_parameter) ? GetParameter(i).GetFixedValue() : 0;
             fParameterTree->Fill();
         }
         fParameterTree->AutoSave("SaveSelf");
@@ -779,7 +748,7 @@ bool BCEngineMCMC::ValidMCMCTree(TTree* tree, bool checkObservables) const
 
     unsigned nvar = checkObservables ? GetNObservables() : GetNParameters();
     for (unsigned i = 0; i < nvar; ++i)
-        if (!(tree->GetBranch(GetVariable(i)->GetSafeName().data())))
+        if (!(tree->GetBranch(GetVariable(i).GetSafeName().data())))
             return false;
 
     return true;
@@ -872,12 +841,12 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
     unsigned i = 0;
     while ( partree->GetEntryNumberWithIndex(1, i) >= 0 ) {
         partree->GetEntryWithIndex(1, i);
-        BCParameter* Par = new BCParameter(p_name, p_lowerlimit, p_upperlimit, p_latexname);
+        BCParameter Par(p_name, p_lowerlimit, p_upperlimit, p_latexname);
         if (p_fixed)
-            Par->Fix(p_fixedvalue);
-        Par->SetPrecision(p_precision);
-        Par->FillHistograms(p_fill_1d, p_fill_2d);
-        Par->SetNbins(p_nbins);
+            Par.Fix(p_fixedvalue);
+        Par.SetPrecision(p_precision);
+        Par.FillHistograms(p_fill_1d, p_fill_2d);
+        Par.SetNbins(p_nbins);
         AddParameter(Par);
         ++i;
     }
@@ -885,14 +854,14 @@ bool BCEngineMCMC::LoadParametersFromTree(TTree* partree, bool loadObservables)
     // load user-defined observables
     if (!loadObservables)
         return true;
-    fObservables = BCVariableSet();
+    fObservables = BCObservableSet();
     i = 0;
     while ( partree->GetEntryNumberWithIndex(0, i) >= 0 ) {
         partree->GetEntryWithIndex(0, i);
-        BCObservable* Obs = new BCObservable(p_name, p_lowerlimit, p_upperlimit, p_latexname);
-        Obs->SetPrecision(p_precision);
-        Obs->FillHistograms(p_fill_1d, p_fill_2d);
-        Obs->SetNbins(p_nbins);
+        BCObservable Obs(p_name, p_lowerlimit, p_upperlimit, p_latexname);
+        Obs.SetPrecision(p_precision);
+        Obs.FillHistograms(p_fill_1d, p_fill_2d);
+        Obs.SetNbins(p_nbins);
         AddObservable(Obs);
         ++i;
     }
@@ -929,21 +898,21 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
             return false;
         }
         partree->GetEntryWithIndex(1, i);
-        if ( !GetParameter(i)->IsNamed(p_name) ) {
-            BCLog::OutError(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Parameter[%d]'s names do not match.", i));
+        if ( !GetParameter(i).IsNamed(p_name) ) {
+            BCLog::OutError(Form("BCEngineMCMC::ParameterTreeMatchesModel : Parameter[%d]'s names do not match.", i));
             return false;
         }
-        if ( GetParameter(i)->GetLowerLimit() != p_lowerlimit )
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of parameter \"%s\" does not match.", p_name));
-        if ( GetParameter(i)->GetUpperLimit() != p_upperlimit )
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of parameter \"%s\" does not match.", p_name));
-        if ( has_fixed and GetParameter(i)->Fixed() != p_fixed ) {
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match. Fixing it.", p_name));
-            GetParameter(i)->Fix(p_fixedvalue);
+        if ( GetParameter(i).GetLowerLimit() != p_lowerlimit )
+            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of parameter \"%s\" does not match.", p_name));
+        if ( GetParameter(i).GetUpperLimit() != p_upperlimit )
+            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of parameter \"%s\" does not match.", p_name));
+        if ( has_fixed and GetParameter(i).Fixed() != p_fixed ) {
+            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed status of parameter \"%s\" does not match. Fixing it.", p_name));
+            GetParameter(i).Fix(p_fixedvalue);
         }
-        if ( has_fixed and GetParameter(i)->Fixed() and has_fixed_value and GetParameter(i)->GetFixedValue() != p_fixedvalue ) {
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Fixed value of parameter \"%s\" does not match. Updating it.", p_name));
-            GetParameter(i)->Fix(p_fixedvalue);
+        if ( has_fixed and GetParameter(i).Fixed() and has_fixed_value and GetParameter(i).GetFixedValue() != p_fixedvalue ) {
+            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Fixed value of parameter \"%s\" does not match. Updating it.", p_name));
+            GetParameter(i).Fix(p_fixedvalue);
         }
     }
     if (!checkObservables)
@@ -955,14 +924,14 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
             return false;
         }
         partree->GetEntryWithIndex(0, i);
-        if ( !GetObservable(i)->IsNamed(p_name) ) {
-            BCLog::OutError(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Observable[%d]'s names do not match.", i));
+        if ( !GetObservable(i).IsNamed(p_name) ) {
+            BCLog::OutError(Form("BCEngineMCMC::ParameterTreeMatchesModel : Observable[%d]'s names do not match.", i));
             return false;
         }
-        if ( GetObservable(i)->GetLowerLimit() != p_lowerlimit )
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of observable \"%s\" does not match.", p_name));
-        if ( GetObservable(i)->GetUpperLimit() != p_upperlimit )
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of observable \"%s\" does not match.", p_name));
+        if ( GetObservable(i).GetLowerLimit() != p_lowerlimit )
+            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Lower limit of observable \"%s\" does not match.", p_name));
+        if ( GetObservable(i).GetUpperLimit() != p_upperlimit )
+            BCLog::OutWarning(Form("BCEngineMCMC::ParameterTreeMatchesModel : Upper limit of observable \"%s\" does not match.", p_name));
     }
     return true;
 }
@@ -975,7 +944,7 @@ bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std:
 
     TFile* inputfile = TFile::Open(filename.c_str(), "READ");
     if (!inputfile or inputfile->IsZombie()) {
-        BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
         gDirectory = dir;
         return false;
     }
@@ -1012,14 +981,14 @@ bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std:
                         model_names.push_back(mcmc_names[i]);
 
             if (model_names.empty()) {
-                BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.", filename.data()));
+                BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains no matching MCMC and Parameter trees.", filename.data()));
                 return false;
             }
 
             if (model_names.size() > 1) {
-                BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name:", filename.data()));
+                BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s contains more than one model, please select one by providing a model name:", filename.data()));
                 for (unsigned i = 0; i < model_names.size(); ++i)
-                    BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : \"%s\"", model_names[i].data()));
+                    BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : \"%s\"", model_names[i].data()));
                 return false;
             }
 
@@ -1029,20 +998,20 @@ bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std:
 
     // set tree names if empty
     if ( mcmcTreeName.empty() )		// default mcmc tree name
-        mcmcTreeName = TString::Format("%s_mcmc", GetSafeName().data());
+        mcmcTreeName = Form("%s_mcmc", GetSafeName().data());
     if ( parameterTreeName.empty() ) // default parameter tree name
-        parameterTreeName = TString::Format("%s_parameters", GetSafeName().data());
+        parameterTreeName = Form("%s_parameters", GetSafeName().data());
 
     TTree* mcmcTree = NULL;
     inputfile->GetObject(mcmcTreeName.data(), mcmcTree);
     if ( !mcmcTree )
-        BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
 
 
     TTree* parTree = NULL;
     inputfile->GetObject(parameterTreeName.data(), parTree);
     if ( !parTree )
-        BCLog::OutError(TString::Format("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
+        BCLog::OutError(Form("BCEngineMCMC::LoadMCMC : %s does not contain a tree named %s", filename.data(), mcmcTreeName.data()));
 
     gDirectory = dir;
     return LoadMCMC(mcmcTree, parTree, loadObservables);
@@ -1116,11 +1085,11 @@ void BCEngineMCMC::Remarginalize(bool autorange)
 
     fMCMCTree_Parameters.assign(GetNParameters(), 0);
     for (unsigned i = 0; i < GetNParameters(); ++i)
-        fMCMCTree->SetBranchAddress(GetParameter(i)->GetSafeName().data(), &fMCMCTree_Parameters[i]);
+        fMCMCTree->SetBranchAddress(GetParameter(i).GetSafeName().data(), &fMCMCTree_Parameters[i]);
     if (fMCMCTreeReuseObservables) {
         fMCMCTree_Observables.assign(GetNObservables(), 0);
         for (unsigned i = 0; i < GetNObservables(); ++i)
-            fMCMCTree->SetBranchAddress(GetObservable(i)->GetSafeName().data(), &fMCMCTree_Observables[i]);
+            fMCMCTree->SetBranchAddress(GetObservable(i).GetSafeName().data(), &fMCMCTree_Observables[i]);
     }
 
     // find out how many chains used to generate tree
@@ -1166,10 +1135,10 @@ void BCEngineMCMC::Remarginalize(bool autorange)
                     fMCMCCurrentChain = fMCMCTree_Chain;
                     CalculateObservables(fMCMCTree_Parameters);
                     for (unsigned i = fMCMCTree_Parameters.size(); i < XMin.size(); ++i) {
-                        if (((BCObservable*)GetVariable(i))->Value() < XMin[i])
-                            XMin[i] = ((BCObservable*)GetVariable(i))->Value();
-                        if (((BCObservable*)GetVariable(i))->Value() > XMax[i])
-                            XMax[i] = ((BCObservable*)GetVariable(i))->Value();
+                        if (fObservables[i - fMCMCTree_Parameters.size()].Value() < XMin[i])
+                            XMin[i] = fObservables[i - fMCMCTree_Parameters.size()].Value();
+                        if (fObservables[i - fMCMCTree_Parameters.size()].Value() > XMax[i])
+                            XMax[i] = fObservables[i - fMCMCTree_Parameters.size()].Value();
                     }
                 }
             }
@@ -1179,14 +1148,14 @@ void BCEngineMCMC::Remarginalize(bool autorange)
             std::vector<double> xmin;
             std::vector<double> xmax;
             for (unsigned i = 0; i < GetNVariables(); ++i) {
-                xmin.push_back(GetVariable(i)->GetLowerLimit());
-                xmax.push_back(GetVariable(i)->GetUpperLimit());
-                GetVariable(i)->SetLimits(XMin[i], XMax[i]);
+                xmin.push_back(GetVariable(i).GetLowerLimit());
+                xmax.push_back(GetVariable(i).GetUpperLimit());
+                GetVariable(i).SetLimits(XMin[i], XMax[i]);
             }
             CreateHistograms();
             // restore mins and maxes
             for (unsigned i = 0; i < GetNVariables(); ++i)
-                GetVariable(i)->SetLimits(xmin[i], xmax[i]);
+                GetVariable(i).SetLimits(xmin[i], xmax[i]);
 
         }
     }
@@ -1248,11 +1217,11 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
     // Set covariance matricies
     unsigned I = 0;
     for (unsigned i = 0; i < GetNParameters(); ++i) {
-        if (GetParameter(i)->Fixed())
+        if (GetParameter(i).Fixed())
             continue;
         unsigned J = I;
         for (unsigned j = i; j < GetNParameters(); ++j) {
-            if (GetParameter(j)->Fixed())
+            if (GetParameter(j).Fixed())
                 continue;
             for (unsigned c = 0; c < fMCMCNChains; ++c) {
                 fMultivariateProposalFunctionCovariance[c][I][J] = fMCMCStatistics[c].covariance[i][j];
@@ -1334,7 +1303,7 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
     // add values into x
     int I = 0;
     for (unsigned i = 0; i < GetNParameters() and I < y.GetNrows(); ++i)
-        if (!GetParameter(i)->Fixed()) {
+        if (!GetParameter(i).Fixed()) {
             x[i] += y[I];
             ++I;
         }
@@ -1350,8 +1319,8 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
     x = fMCMCx[ichain];
 
     // check if parameter is fixed
-    if (GetParameter(ipar)->Fixed()) {
-        x[ipar] = GetParameter(ipar)->GetFixedValue();
+    if (GetParameter(ipar).Fixed()) {
+        x[ipar] = GetParameter(ipar).GetFixedValue();
         return true; // assume that value is inside allowed region
     }
 
@@ -1360,10 +1329,10 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
     double proposal = MCMCTrialFunctionSingle(ichain, ipar);
 
     // modify the parameter under study
-    x[ipar] += proposal * GetParameter(ipar)->GetRangeWidth();
+    x[ipar] += proposal * GetParameter(ipar).GetRangeWidth();
 
     // check if the point is in the correct volume.
-    return GetParameter(ipar)->IsWithinLimits(x[ipar]);
+    return GetParameter(ipar).IsWithinLimits(x[ipar]);
 }
 
 // --------------------------------------------------------
@@ -1400,7 +1369,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
                 fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
             }
         } else {						// new log(likelihood) was not a finite number
-            BCLog::OutDebug(Form("Log(likelihood) evaluated to nan or inf in chain %i while varying parameter %s to %.3e", chain, GetParameter(parameter)->GetName().data(), fMCMCThreadLocalStorage[chain].xLocal[parameter]));
+            BCLog::OutDebug(Form("Log(likelihood) evaluated to nan or inf in chain %i while varying parameter %s to %.3e", chain, GetParameter(parameter).GetName().data(), fMCMCThreadLocalStorage[chain].xLocal[parameter]));
             // decrease efficiency
             fMCMCStatistics[chain].efficiency[parameter] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
             // print parameter point
@@ -1467,7 +1436,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis()
     if ( !fMCMCMultivariateProposalFunction ) { // run over pars one at a time
 
         for (unsigned ipar = 0; ipar < GetNParameters(); ++ipar) {
-            if ( GetParameter(ipar)->Fixed() )
+            if ( GetParameter(ipar).Fixed() )
                 continue;
 
             //loop over chains
@@ -1555,7 +1524,7 @@ void BCEngineMCMC::MCMCCloseOutputFile()
 bool BCEngineMCMC::MCMCMetropolisPreRun()
 {
     // print on screen
-    BCLog::OutSummary(TString::Format("Pre-run Metropolis MCMC for model \"%s\" ...", GetName().data()));
+    BCLog::OutSummary(Form("Pre-run Metropolis MCMC for model \"%s\" ...", GetName().data()));
 
     // initialize Markov chain
     MCMCInitialize();
@@ -1584,11 +1553,11 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         TMatrixD    CD0(GetNFreeParameters(), GetNFreeParameters());
         unsigned I = 0;
         for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (!(GetParameter(i)->Fixed())) {
-                if (GetParameter(i)->GetPrior() != NULL) {
-                    S0[I][I] = GetParameter(i)->GetPriorVariance();
+            if (!(GetParameter(i).Fixed())) {
+                if (GetParameter(i).GetPrior() != NULL) {
+                    S0[I][I] = GetParameter(i).GetPriorVariance();
                     if (!std::isfinite(S0[I][I]))
-                        S0[I][I] = GetParameter(i)->GetRangeWidth() * GetParameter(i)->GetRangeWidth() / 12;
+                        S0[I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
                 }
                 CD0[I][I] = sqrt(fMCMCTrialFunctionScaleFactor[0][0] * S0[I][I]);
                 ++I;
@@ -1598,14 +1567,14 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
     } else if (fMCMCAutoSetTrialFunctionScaleFactors) {
         std::vector<double> temp;
         for (unsigned i = 0; i < GetNParameters(); ++i) {
-            if (GetParameter(i)->Fixed() or GetParameter(i)->GetRangeWidth() == 0)
+            if (GetParameter(i).Fixed() or GetParameter(i).GetRangeWidth() == 0)
                 temp.push_back(1);
-            else if (GetParameter(i)->GetPrior() != NULL) {
-                temp.push_back(GetParameter(i)->GetPrior()->GetStandardDeviation() / GetParameter(i)->GetRangeWidth());
+            else if (GetParameter(i).GetPrior() != NULL) {
+                temp.push_back(GetParameter(i).GetPrior()->GetStandardDeviation() / GetParameter(i).GetRangeWidth());
                 if (!std::isfinite(temp.back()))
-                    temp.back() = GetParameter(i)->GetRangeWidth() / sqrt(12);
+                    temp.back() = GetParameter(i).GetRangeWidth() / sqrt(12);
             } else
-                temp.push_back(GetParameter(i)->GetRangeWidth() / sqrt(12));
+                temp.push_back(GetParameter(i).GetRangeWidth() / sqrt(12));
         }
         fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, temp);
     }
@@ -1712,7 +1681,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
                 for (unsigned p = 0; p < GetNParameters(); ++p) {
 
-                    if (GetParameter(p)->Fixed())
+                    if (GetParameter(p).Fixed())
                         continue;
 
                     if ( fMCMCStatistics[c].efficiency[p] >= fMCMCEfficiencyMin and fMCMCStatistics[c].efficiency[p] <= fMCMCEfficiencyMax)
@@ -1728,22 +1697,22 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                         fMCMCTrialFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin / 2) ? 4 : 2;
 
                         if (fMCMCTrialFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) { // still room to tune
-                            BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         }	else { // no more room to tune
                             fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorLowerLimit;
-                            BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%.4g %%)",	fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorLowerLimit));
+                            BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1f %%) in chain %i. Scale now at lower limit (%.4g %%)",	fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorLowerLimit));
                         }
 
                     } else { // if efficiency too high ... increase scale factor
                         fMCMCTrialFunctionScaleFactor[c][p] *= 2;
 
                         if ( fMCMCTrialFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) { // still room to tune
-                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         } else { // no more room to tune
                             fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorUpperLimit;
-                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));
+                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1f %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));
                         }
                     }
 
@@ -1761,7 +1730,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             // Calculate & check R values
             fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
             for (unsigned p = 0; p < GetNParameters(); ++p) {
-                if (GetParameter(p)->Fixed())
+                if (GetParameter(p).Fixed())
                     continue;
                 std::vector<double> means(fMCMCNChains, 0);
                 std::vector<double> variances(fMCMCNChains, 0);
@@ -1780,15 +1749,15 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                 BCLog::OutDetail(Form("       - %-*s : R-Value", fParameters.MaxNameLength(), "Parameter"));
 
                 for (unsigned p = 0; p < GetNParameters(); ++p) {
-                    if (GetParameter(p)->Fixed())
+                    if (GetParameter(p).Fixed())
                         continue;
 
                     if ((fMCMCRValueParameters[p] - 1) < fMCMCRValueParametersCriterion)
-                        BCLog::OutDetail(TString::Format("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
+                        BCLog::OutDetail(Form("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
                     else if (std::isfinite(fMCMCRValueParameters[p]))
-                        BCLog::OutDetail(TString::Format("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p)->GetName().data(), fMCMCRValueParameters[p]));
+                        BCLog::OutDetail(Form("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
                     else
-                        BCLog::OutDetail(TString::Format("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p)->GetName().data()));
+                        BCLog::OutDetail(Form("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p).GetName().data()));
                 }
             } // end convergence conditional
         } // end chains>1 conditional
@@ -1852,11 +1821,11 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         // print scale factors and efficiencies
         std::vector<double> scalefactors (GetNParameters(), 0);
         for (unsigned i = 0; i < GetNParameters(); ++i) {
-            if (GetParameter(i)->Fixed())
+            if (GetParameter(i).Fixed())
                 continue;
             for (unsigned j = 0; j < fMCMCNChains; ++j)
                 scalefactors[i] += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
-            BCLog::OutDetail(Form("         %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i)->GetName().data(), 100.*scalefactors[i], 100.*fMCMCStatistics_AllChains.efficiency[i]));
+            BCLog::OutDetail(Form("         %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactors[i], 100.*fMCMCStatistics_AllChains.efficiency[i]));
         }
     }
 
@@ -2044,9 +2013,9 @@ bool BCEngineMCMC::MCMCMetropolis()
         BCLog::OutDetail(Form(" --> Average efficiencies (measured in %d iterations):", fMCMCStatistics_AllChains.n_samples_efficiency / fMCMCNChains));
         BCLog::OutDetail(Form("       - %-*s : Efficiency", fParameters.MaxNameLength(), "Parameter"));
         for (unsigned i = 0; i < GetNParameters(); ++i) {
-            if (GetParameter(i)->Fixed())
+            if (GetParameter(i).Fixed())
                 continue;
-            BCLog::OutDetail(Form("         %-*s :     %4.1f %%", fParameters.MaxNameLength(), GetParameter(i)->GetName().data(), 100.*fMCMCStatistics_AllChains.efficiency[i]));
+            BCLog::OutDetail(Form("         %-*s :     %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*fMCMCStatistics_AllChains.efficiency[i]));
         }
     }
 
@@ -2085,7 +2054,7 @@ void BCEngineMCMC::EvaluateObservables(unsigned chain)
     fMCMCCurrentChain = chain;
     CalculateObservables(fMCMCx[fMCMCCurrentChain]);
     for (unsigned j = 0; j < GetNObservables(); ++j)
-        fMCMCObservables[fMCMCCurrentChain][j] = GetObservable(j)->Value();
+        fMCMCObservables[fMCMCCurrentChain][j] = GetObservable(j).Value();
 }
 
 // --------------------------------------------------------
@@ -2290,18 +2259,18 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
     std::vector<std::pair<double, double> > original_bounds;
     original_bounds.reserve(GetNVariables());
     for (unsigned i = 0; i < GetNVariables(); ++i) {
-        original_bounds.push_back(std::make_pair(GetVariable(i)->GetLowerLimit(), GetVariable(i)->GetUpperLimit()));
+        original_bounds.push_back(std::make_pair(GetVariable(i).GetLowerLimit(), GetVariable(i).GetUpperLimit()));
         if (rescale_ranges) {
             if (i < fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i]))
-                GetVariable(i)->SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
+                GetVariable(i).SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
             if (i < fMCMCStatistics_AllChains.maximum.size() and std::isfinite(fMCMCStatistics_AllChains.maximum[i]))
-                GetVariable(i)->SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
+                GetVariable(i).SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
             if (fHistogramRescalePadding > 0) {
                 // calculate enlargement factor
-                double range_width_rescale = GetVariable(i)->GetRangeWidth() * fHistogramRescalePadding;
+                double range_width_rescale = GetVariable(i).GetRangeWidth() * fHistogramRescalePadding;
                 // push bounds out, but not beyond original parameter bounds
-                GetVariable(i)->SetLowerLimit(std::max<double>(GetVariable(i)->GetLowerLimit() - range_width_rescale, original_bounds.back().first));
-                GetVariable(i)->SetUpperLimit(std::min<double>(GetVariable(i)->GetUpperLimit() + range_width_rescale, original_bounds.back().second));
+                GetVariable(i).SetLowerLimit(std::max<double>(GetVariable(i).GetLowerLimit() - range_width_rescale, original_bounds.back().first));
+                GetVariable(i).SetUpperLimit(std::min<double>(GetVariable(i).GetUpperLimit() + range_width_rescale, original_bounds.back().second));
             }
         }
     }
@@ -2310,14 +2279,14 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
     int filling = 0;
 
     for (unsigned i = 0; i < GetNVariables(); ++i)
-        if (GetVariable(i)->FillH1()) {
+        if (GetVariable(i).FillH1()) {
             if (i < GetNParameters()) {	// parameter
-                if (!GetParameter(i)->Fixed()) {
-                    fH1Marginalized[i] = GetVariable(i)->CreateH1(TString::Format("h1_%s_parameter_%i", GetSafeName().data() , i));
+                if (!GetParameter(i).Fixed()) {
+                    fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_parameter_%i", GetSafeName().data() , i));
                     ++filling;
                 }
             } else {									// user-defined observable
-                fH1Marginalized[i] = GetVariable(i)->CreateH1(TString::Format("h1_%s_observable_%i", GetSafeName().data() , i - GetNParameters()));
+                fH1Marginalized[i] = GetVariable(i).CreateH1(Form("h1_%s_observable_%i", GetSafeName().data() , i - GetNParameters()));
                 ++filling;
             }
         }
@@ -2330,9 +2299,9 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
 
     // requested 2D histograms in order requested:
     for (std::vector<std::pair<int, int> >::const_iterator h = fRequestedH2.begin(); h != fRequestedH2.end(); ++h) {
-        if (h->first >= 0 and GetParameter(h->first)->Fixed())
+        if (h->first >= 0 and GetParameter(h->first).Fixed())
             continue;
-        if (h->second >= 0 and GetParameter(h->second)->Fixed())
+        if (h->second >= 0 and GetParameter(h->second).Fixed())
             continue;
 
         unsigned i = (h->first >= 0)  ? h->first  : -(h->first + 1);
@@ -2345,12 +2314,12 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             if (h->second >= 0) { // par vs par
                 if (j >= GetNParameters())
                     continue;
-                fH2Marginalized[i][j] = GetParameter(i)->CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
+                fH2Marginalized[i][j] = GetParameter(i).CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
 
             } else {              // obs vs par
                 if (j >= GetNObservables())
                     continue;
-                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i)->CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
+                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i).CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
             }
 
         } else {
@@ -2360,12 +2329,12 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
             if (h->second >= 0) { // par vs obs
                 if (j >= GetNParameters())
                     continue;
-                fH2Marginalized[i + GetNParameters()][j] = GetObservable(i)->CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), j, i), GetParameter(j));
+                fH2Marginalized[i + GetNParameters()][j] = GetObservable(i).CreateH2(Form("h2_%s_par_%i_vs_obs_%i", GetSafeName().data(), j, i), GetParameter(j));
 
             } else { // obs vs obs
                 if (j >= GetNObservables())
                     continue;
-                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i)->CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
+                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i).CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
             }
         }
         ++filling;
@@ -2375,32 +2344,32 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
 
     // parameter i as abscissa:
     for (unsigned i = 0; i < GetNParameters(); ++i) {
-        if (GetParameter(i)->Fixed() or !GetParameter(i)->FillH2())
+        if (GetParameter(i).Fixed() or !GetParameter(i).FillH2())
             continue;
 
         // parameter j as ordinate
         for (unsigned j = i + 1; j < GetNParameters(); ++j)
-            if (!GetParameter(j)->Fixed() and GetParameter(j)->FillH2() and !fH2Marginalized[i][j]) {
-                fH2Marginalized[i][j] = GetParameter(i)->CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
+            if (!GetParameter(j).Fixed() and GetParameter(j).FillH2() and !fH2Marginalized[i][j]) {
+                fH2Marginalized[i][j] = GetParameter(i).CreateH2(Form("h2_%s_par_%i_vs_par_%i", GetSafeName().data(), j, i), GetParameter(j));
                 ++filling;
             }
         // user-defined observable j as ordinate
         for (unsigned j = 0; j < GetNObservables(); ++j)
-            if (GetObservable(j)->FillH2() and !fH2Marginalized[i][j + GetNParameters()]) {
-                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i)->CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
+            if (GetObservable(j).FillH2() and !fH2Marginalized[i][j + GetNParameters()]) {
+                fH2Marginalized[i][j + GetNParameters()] = GetParameter(i).CreateH2(Form("h2_%s_obs_%i_vs_par_%i", GetSafeName().data(), j, i), GetObservable(j));
                 ++filling;
             }
     }
 
     // user-defined observable i as abscissa
     for (unsigned i = 0; i < GetNObservables(); ++i) {
-        if (!GetObservable(i)->FillH2())
+        if (!GetObservable(i).FillH2())
             continue;
 
         // user-defined observable j as ordinate
         for (unsigned j = i + 1; j < GetNObservables(); ++j)
-            if (GetObservable(j)->FillH2() and !fH2Marginalized[i + GetNParameters()][j + GetNParameters()]) {
-                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i)->CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
+            if (GetObservable(j).FillH2() and !fH2Marginalized[i + GetNParameters()][j + GetNParameters()]) {
+                fH2Marginalized[i + GetNParameters()][j + GetNParameters()] = GetObservable(i).CreateH2(Form("h2_%s_obs_%i_vs_obs_%i", GetSafeName().data(), j, i), GetObservable(j));
                 ++filling;
             }
     }
@@ -2410,7 +2379,7 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
 
     // restore bounds
     for (unsigned i = 0; i < GetNVariables(); ++i)
-        GetVariable(i)->SetLimits(original_bounds[i].first, original_bounds[i].second);
+        GetVariable(i).SetLimits(original_bounds[i].first, original_bounds[i].second);
 }
 
 // ---------------------------------------------------------
@@ -2423,7 +2392,7 @@ void BCEngineMCMC::PrintSummary()
 
     // parameter summary
     for (unsigned i = 0; i < GetNParameters(); i++)
-        GetParameter(i)->PrintSummary();
+        GetParameter(i).PrintSummary();
 
     if (GetNObservables() > 0) {
         BCLog::OutSummary(Form("Number of observables : %u", GetNObservables()));
@@ -2431,7 +2400,7 @@ void BCEngineMCMC::PrintSummary()
 
         // observable summary
         for (unsigned i = 0; i < GetNObservables(); i++)
-            GetObservable(i)->PrintSummary();
+            GetObservable(i).PrintSummary();
     }
 
     // best fit parameters
@@ -2442,25 +2411,25 @@ void BCEngineMCMC::PrintSummary()
     BCLog::OutSummary("Best fit results:");
 
     for (unsigned i = 0; i < GetNVariables(); i++) {
-        if (i < GetNParameters() and GetParameter(i)->Fixed() )
-            BCLog::OutSummary(Form(" %s = %.*f (fixed)",  GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), GetParameter(i)->GetFixedValue()));
+        if (i < GetNParameters() and GetParameter(i).Fixed() )
+            BCLog::OutSummary(Form(" %s = %.*f (fixed)",  GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), GetParameter(i).GetFixedValue()));
         else
-            BCLog::OutSummary(Form(" %s = %.*f (global)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), GetGlobalMode()[i]));
+            BCLog::OutSummary(Form(" %s = %.*f (global)", GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), GetGlobalMode()[i]));
 
         if ( (GetLocalModes().size() == GetNParameters() or GetLocalModes().size() == GetNVariables()) and i < GetLocalModes().size() )
-            BCLog::OutSummary(Form(" %s = %.*f (marginalized)", GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), GetLocalModes()[i]));
+            BCLog::OutSummary(Form(" %s = %.*f (marginalized)", GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), GetLocalModes()[i]));
     }
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintResults(const char* file) const
+bool BCEngineMCMC::PrintResults(std::string file) const
 {
     // open file
     std::ofstream ofi(file);
 
     // check if file is open
     if (!ofi.is_open()) {
-        BCLog::OutError(Form("Couldn't open file %s.", file));
+        BCLog::OutError("Couldn't open file " + file + ".");
         return false;
     }
 
@@ -2492,7 +2461,7 @@ void BCEngineMCMC::PrintSummaryToStream(std::ofstream& ofi) const
     for (unsigned i = 0; i < GetNVariables(); ++i) {
         if (i == GetNParameters())
             ofi << " List of Observables and ranges:" << std::endl;
-        ofi << " (" << i << ") " << GetVariable(i)->OneLineSummary() << std::endl;
+        ofi << " (" << i << ") " << GetVariable(i).OneLineSummary() << std::endl;
     }
     ofi << std::endl;
 }
@@ -2511,10 +2480,10 @@ void BCEngineMCMC::PrintBestFitToStream(std::ofstream& ofi) const
         << " List of parameters and global mode:" << std::endl;
 
     for (unsigned i = 0; i < GetGlobalMode().size(); ++i) {
-        ofi << TString::Format(" (%d) %10s \"%*s\" : %.*f", i, GetVariable(i)->GetPrefix().data(),
-                               GetMaximumParameterNameLength(), GetVariable(i)->GetName().data(),
-                               GetVariable(i)->GetPrecision(), GetGlobalMode()[i]);
-        if (i < GetNParameters() and GetParameter(i)->Fixed())
+        ofi << Form(" (%d) %10s \"%*s\" : %.*f", i, GetVariable(i).GetPrefix().data(),
+                    GetMaximumParameterNameLength(), GetVariable(i).GetName().data(),
+                    GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
+        if (i < GetNParameters() and GetParameter(i).Fixed())
             ofi << " (fixed)";
         ofi << std::endl;
     }
@@ -2537,17 +2506,17 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream& ofi) const
         << " distributions:" << std::endl;
 
     for (unsigned i = 0; i < GetNVariables(); ++i) {
-        if ( ! GetVariable(i)->FillH1())
+        if ( ! GetVariable(i).FillH1())
             continue;
 
-        unsigned prec = GetVariable(i)->GetPrecision();
+        unsigned prec = GetVariable(i).GetPrecision();
 
         ofi << "  (" << i << ") " << ((i < GetNParameters()) ? "Parameter" : "Observable")
-            << " \"" << GetVariable(i)->GetName() << "\":";
+            << " \"" << GetVariable(i).GetName() << "\":";
 
         if (!MarginalizedHistogramExists(i)) {
-            if (i < GetNParameters() and GetParameter(i)->Fixed())
-                ofi << TString::Format(" fixed at %.*g.", prec, GetParameter(i)->GetFixedValue()) << std::endl;
+            if (i < GetNParameters() and GetParameter(i).Fixed())
+                ofi << Form(" fixed at %.*g.", prec, GetParameter(i).GetFixedValue()) << std::endl;
             else
                 ofi << " histogram does not exist." << std::endl;
             continue;
@@ -2577,13 +2546,13 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream& ofi) const
             << " Average run efficiencies:" << std::endl;
 
         for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (GetParameter(i)->Fixed())
-                ofi << TString::Format("  (%d) Parameter \"%*s\" : (fixed)", i, GetMaximumParameterNameLength(false), GetParameter(i)->GetName().data()) << std::endl;
+            if (GetParameter(i).Fixed())
+                ofi << Form("  (%d) Parameter \"%*s\" : (fixed)", i, GetMaximumParameterNameLength(false), GetParameter(i).GetName().data()) << std::endl;
             else {
                 double eff = 0;
                 for (unsigned j = 0; j < fMCMCEfficiencies.size(); ++j)
                     eff += fMCMCEfficiencies[j][i] / fMCMCEfficiencies.size();
-                ofi << TString::Format("  (%d) Parameter \"%*s\" : %5.2f %%", i, GetMaximumParameterNameLength(false), GetParameter(i)->GetName().data(), eff * 100) << std::endl;
+                ofi << Form("  (%d) Parameter \"%*s\" : %5.2f %%", i, GetMaximumParameterNameLength(false), GetParameter(i).GetName().data(), eff * 100) << std::endl;
             }
     }
 
@@ -2600,13 +2569,13 @@ void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream& ofi) const
 
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(const char*) ) const
+void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(std::string) ) const
 {
     if ( P.size() != GetNParameters() and P.size() != GetNVariables() )
         return;
 
     for (unsigned i = 0; i < P.size(); ++i)
-        output(TString::Format("          %-*s :   % .*g", GetMaximumParameterNameLength(P.size() > GetNParameters()), GetVariable(i)->GetName().data(), GetVariable(i)->GetPrecision(), P[i]));
+        output(Form("          %-*s :   % .*g", GetMaximumParameterNameLength(P.size() > GetNParameters()), GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), P[i]));
 }
 
 // ---------------------------------------------------------
@@ -2658,7 +2627,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
     for (unsigned i = 0; i < GetNVariables(); ++i)
         if ( MarginalizedHistogramExists(i) ) {
             if (GetMarginalizedHistogram(i)->Integral() == 0) { // histogram was never filled in range
-                BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.", GetVariable(i)->GetName().data()));
+                BCLog::OutWarning(Form("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.", GetVariable(i).GetName().data()));
                 continue;
             }
             h1.push_back(GetMarginalized(i));
@@ -2679,7 +2648,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
         unsigned i = H2Coords[k].first;
         unsigned j = H2Coords[k].second;
         if (fH2Marginalized[i][j]->Integral() == 0) { // histogram was never filled in range
-            BCLog::OutWarning(TString::Format("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.", GetVariable(i)->GetName().data(), GetVariable(i)->GetName().data()));
+            BCLog::OutWarning(Form("BCEngineMCMC::PrintAllMarginalized : 2D Marginalized histogram for \"%s\":\"%s\" is empty; printing is skipped.", GetVariable(i).GetName().data(), GetVariable(i).GetName().data()));
             continue;
         }
         h2.push_back(GetMarginalized(i, j));
@@ -2833,13 +2802,13 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     original_max.reserve(i1 - i0);
     if (rescale_ranges) {
         for (unsigned i = i0; i < i1; ++i) {
-            BCVariable* var = const_cast<BCVariable*>(GetVariable(i));
-            original_min.push_back(GetVariable(i)->GetLowerLimit());
-            original_max.push_back(GetVariable(i)->GetUpperLimit());
+            BCVariable& var = const_cast<BCVariable&>(GetVariable(i));
+            original_min.push_back(GetVariable(i).GetLowerLimit());
+            original_max.push_back(GetVariable(i).GetUpperLimit());
             if (i < fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i]))
-                var->SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
+                var.SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
             if (i < fMCMCStatistics_AllChains.maximum.size() and std::isfinite(fMCMCStatistics_AllChains.maximum[i]))
-                var->SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
+                var.SetUpperLimit(fMCMCStatistics_AllChains.maximum[i]);
         }
     }
 
@@ -2859,12 +2828,12 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     for (unsigned i = i0; i < i1; ++i) {
 
-        if (i < GetNParameters() and GetParameter(i)->Fixed())
+        if (i < GetNParameters() and GetParameter(i).Fixed())
             continue;
 
         // Global Mode
         x_i_bf.push_back(i);
-        global_mode.push_back(GetVariable(i)->PositionInRange(GetGlobalMode()[i]));
+        global_mode.push_back(GetVariable(i).PositionInRange(GetGlobalMode()[i]));
         mean.push_back(std::numeric_limits<double>::infinity());
         rms.push_back(0);
 
@@ -2878,11 +2847,11 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
                 std::vector<double> q(quantiles.size(), 0);
                 bch1d_temp->GetHistogram()->GetQuantiles(quantiles.size(), &q[0], &quantiles[0]);
                 for (unsigned j = 0; j < quantiles.size(); ++j)
-                    quantile_vals.push_back(GetVariable(i)->PositionInRange(q[j]));
+                    quantile_vals.push_back(GetVariable(i).PositionInRange(q[j]));
 
-                local_mode.push_back(GetVariable(i)->PositionInRange(bch1d_temp->GetLocalMode(0)));
-                mean.back() = GetVariable(i)->PositionInRange(bch1d_temp->GetHistogram()->GetMean());
-                rms.back() = bch1d_temp->GetHistogram()->GetRMS() / GetVariable(i)->GetRangeWidth();
+                local_mode.push_back(GetVariable(i).PositionInRange(bch1d_temp->GetLocalMode(0)));
+                mean.back() = GetVariable(i).PositionInRange(bch1d_temp->GetHistogram()->GetMean());
+                rms.back() = bch1d_temp->GetHistogram()->GetRMS() / GetVariable(i).GetRangeWidth();
 
                 // smallest interval
                 BCH1D::BCH1DSmallestInterval SI = bch1d_temp->GetSmallestIntervals(interval_content);
@@ -2890,17 +2859,17 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
                     interval_lo.push_back(0);
                     interval_hi.push_back(0);
                 } else {
-                    interval_lo.push_back(fabs(SI.intervals.front().mode - SI.intervals.front().xmin) / GetVariable(i)->GetRangeWidth());
-                    interval_hi.push_back(fabs(SI.intervals.front().mode - SI.intervals.front().xmax) / GetVariable(i)->GetRangeWidth());
+                    interval_lo.push_back(fabs(SI.intervals.front().mode - SI.intervals.front().xmin) / GetVariable(i).GetRangeWidth());
+                    interval_hi.push_back(fabs(SI.intervals.front().mode - SI.intervals.front().xmax) / GetVariable(i).GetRangeWidth());
                 }
             }
         }
 
         // use chain statistics if they exist:
         if (i < fMCMCStatistics_AllChains.mean.size() and std::isfinite(fMCMCStatistics_AllChains.mean[i]))
-            mean.back() = GetVariable(i)->PositionInRange(fMCMCStatistics_AllChains.mean[i]);
+            mean.back() = GetVariable(i).PositionInRange(fMCMCStatistics_AllChains.mean[i]);
         if (i < fMCMCStatistics_AllChains.variance.size() and std::isfinite(fMCMCStatistics_AllChains.variance[i]))
-            rms.back() = sqrt(fMCMCStatistics_AllChains.variance[i]) / GetVariable(i)->GetRangeWidth();
+            rms.back() = sqrt(fMCMCStatistics_AllChains.variance[i]) / GetVariable(i).GetRangeWidth();
     }
 
     if (x_i.empty() and x_i_bf.empty())
@@ -2910,7 +2879,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     // Draw it all
 
     // Create, label, and draw axes
-    TH2D* hist_axes = new TH2D(TString::Format("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
+    TH2D* hist_axes = new TH2D(Form("h2_axes_parplot_%s_%d_%d", GetSafeName().data(), i0, i1), "",  //";;Scaled range [a.u.]",
                                i1 - i0, i0 - 0.5, i1 - 0.5, 10, -0.05 + 1e-3, 1.05 - 1e-3);
     hist_axes->SetStats(kFALSE);
     hist_axes->GetXaxis()->SetAxisColor(0);
@@ -2921,7 +2890,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     // set bin labels
     for (int i = 0; i < hist_axes->GetNbinsX(); ++i)
-        hist_axes->GetXaxis()->SetBinLabel(i + 1, GetVariable(i0 + i)->GetLatexNameWithUnits().data());
+        hist_axes->GetXaxis()->SetBinLabel(i + 1, GetVariable(i0 + i).GetLatexNameWithUnits().data());
     hist_axes->Draw("");
 
     // Draw lines
@@ -2936,15 +2905,15 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
     TLatex* latex = new TLatex();
     latex->SetTextSize(0.02);
     for (unsigned i = i0; i < i1; ++i)
-        if (i < GetNParameters() and GetParameter(i)->Fixed()) {
+        if (i < GetNParameters() and GetParameter(i).Fixed()) {
             latex->SetTextAlign(22);
             latex->DrawLatex((double)i, 0.52, "Fixed at");
-            latex->DrawLatex((double)i, 0.47, Form("%.*g", GetVariable(i)->GetPrecision(), GetParameter(i)->GetFixedValue()));
+            latex->DrawLatex((double)i, 0.47, Form("%.*g", GetVariable(i).GetPrecision(), GetParameter(i).GetFixedValue()));
         } else {
             latex->SetTextAlign(21);
-            latex->DrawLatex((double)i,  1.015, Form("%+.*g", GetVariable(i)->GetPrecision(), GetVariable(i)->GetUpperLimit()));
+            latex->DrawLatex((double)i,  1.015, Form("%+.*g", GetVariable(i).GetPrecision(), GetVariable(i).GetUpperLimit()));
             latex->SetTextAlign(23);
-            latex->DrawLatex((double)i, -0.015, Form("%+.*g", GetVariable(i)->GetPrecision(), GetVariable(i)->GetLowerLimit()));
+            latex->DrawLatex((double)i, -0.015, Form("%+.*g", GetVariable(i).GetPrecision(), GetVariable(i).GetLowerLimit()));
         }
 
     // create legend
@@ -2994,7 +2963,7 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
         graph_mean->Draw("SAMEP");
 
         legend->AddEntry(graph_mean, "Mean and RMS", "LEP");
-        legend->AddEntry(graph_intervals, TString::Format("Smallest %.0f%% interval and local mode", 100.*interval_content), "FL");
+        legend->AddEntry(graph_intervals, Form("Smallest %.0f%% interval and local mode", 100.*interval_content), "FL");
     }
 
     // Global Modes
@@ -3024,17 +2993,17 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 
     // restore ranges
     for (unsigned i = 0; i < original_min.size(); ++i)
-        const_cast<BCVariable*>(GetVariable(i0 + i))->SetLimits(original_min[i], original_max[i]);
+        const_cast<BCVariable&>(GetVariable(i0 + i)).SetLimits(original_min[i], original_max[i]);
 
     // no error
     return true;
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
+bool BCEngineMCMC::PrintCorrelationMatrix(std::string filename) const
 {
     // create histogram
-    TH2D* hist_corr = new TH2D(TString::Format("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
+    TH2D* hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
     hist_corr->SetStats(false);
     hist_corr->GetXaxis()->SetTickLength(0.0);
     hist_corr->GetYaxis()->SetTickLength(0.0);
@@ -3103,11 +3072,11 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
         // labels
         xlabel->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
                           hist_corr->GetYaxis()->GetXmax() + 12e-2,
-                          GetVariable(i - 1)->GetLatexNameWithUnits().data());
+                          GetVariable(i - 1).GetLatexNameWithUnits().data());
 
         ylabel->DrawLatex(hist_corr->GetXaxis()->GetXmin() - 12e-2,
                           hist_corr->GetYaxis()->GetBinCenter(GetNVariables() - i + 1),
-                          GetVariable(i - 1)->GetLatexNameWithUnits().data());
+                          GetVariable(i - 1).GetLatexNameWithUnits().data());
         for (int j = 1; j <= hist_corr->GetNbinsY(); ++j) {
             if (hist_corr->GetBinContent(i, j) >= 0)
                 corr_number->SetTextColor(kBlack);
@@ -3115,7 +3084,7 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
                 corr_number->SetTextColor(kWhite);
             corr_number->DrawLatex(hist_corr->GetXaxis()->GetBinCenter(i),
                                    hist_corr->GetYaxis()->GetBinCenter(j),
-                                   TString::Format("%+.2g", hist_corr->GetBinContent(i, j)));
+                                   Form("%+.2g", hist_corr->GetBinContent(i, j)));
         }
     }
 
@@ -3142,7 +3111,7 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
     }
 
     gPad->RedrawAxis();
-    c_corr->Print(filename);
+    c_corr->Print(filename.data());
 
     delete lA;
     delete hist_corr;
@@ -3153,7 +3122,7 @@ bool BCEngineMCMC::PrintCorrelationMatrix(const char* filename) const
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintCorrelationPlot(const char* filename, bool include_observables) const
+bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_observables) const
 {
     // Array of indices for which any maginalizations were stored
     std::vector<unsigned> I;
@@ -3220,7 +3189,7 @@ bool BCEngineMCMC::PrintCorrelationPlot(const char* filename, bool include_obser
             ylow = yup - padsize;
 
             // preparing the pad
-            pad[i][j] =  new TPad(TString::Format("pad_correlation_plots_%d_%d", i, j), "", xlow, ylow, xup, yup);
+            pad[i][j] =  new TPad(Form("pad_correlation_plots_%d_%d", i, j), "", xlow, ylow, xup, yup);
             pad[i][j]->SetMargin(marginleft, marginright, marginbottom, margintop);
             pad[i][j]->SetFillColor(kWhite);
             pad[i][j]->Draw();
@@ -3257,20 +3226,20 @@ bool BCEngineMCMC::PrintCorrelationPlot(const char* filename, bool include_obser
             c->cd();
 
             if (i == 0)								// y-axis labels
-                ylabel->DrawLatex(margin * (1 - 8 * ylabel->GetTextSize()), yup - padsize / 2., GetVariable(I[j])->GetLatexNameWithUnits().data());
+                ylabel->DrawLatex(margin * (1 - 8 * ylabel->GetTextSize()), yup - padsize / 2., GetVariable(I[j]).GetLatexNameWithUnits().data());
             if (j == I.size() - 1)				// x-axis labels
-                xlabel->DrawLatex(xlow + padsize / 2., margin * (1 - 8 * xlabel->GetTextSize()), GetVariable(I[i])->GetLatexNameWithUnits().data());
+                xlabel->DrawLatex(xlow + padsize / 2., margin * (1 - 8 * xlabel->GetTextSize()), GetVariable(I[i]).GetLatexNameWithUnits().data());
         }
     }
 
     // gPad->RedrawAxis();
-    c->Print(filename);
+    c->Print(filename.data());
 
     return true;
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintParameterLatex(const char* filename) const
+bool BCEngineMCMC::PrintParameterLatex(std::string filename) const
 {
     // open file
     std::ofstream ofi(filename);
@@ -3278,7 +3247,7 @@ bool BCEngineMCMC::PrintParameterLatex(const char* filename) const
 
     // check if file is open
     if (!ofi.is_open()) {
-        BCLog::OutError(TString::Format("BCEngineMCMC::PrintParameterLatex : Couldn't open file %s", filename));
+        BCLog::OutError("BCEngineMCMC::PrintParameterLatex : Couldn't open file " + filename + ".");
         return false;
     }
 
@@ -3293,14 +3262,14 @@ bool BCEngineMCMC::PrintParameterLatex(const char* filename) const
         << "    \\begin{center}\n\n"
         << "      \\begin{tabular}{llllllll}\n\n"
         << "        Parameter &\n"
-        << TString::Format("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
-                           texwidth, "Mean",
-                           texwidth, "RMS",
-                           texwidth, "Gl. Mode",
-                           texwidth, "Mode",
-                           texwidth, "Median",
-                           texwidth, "16\\% quant.",
-                           texwidth, "84\\% quant.")
+        << Form("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
+                texwidth, "Mean",
+                texwidth, "RMS",
+                texwidth, "Gl. Mode",
+                texwidth, "Mode",
+                texwidth, "Median",
+                texwidth, "16\\% quant.",
+                texwidth, "84\\% quant.")
         << "        \\hline\n" << std::endl;
 
     for (unsigned i = 0; i < GetNVariables(); ++i) {
@@ -3308,27 +3277,27 @@ bool BCEngineMCMC::PrintParameterLatex(const char* filename) const
         if (i == GetNParameters())		// first user-defined observable
             ofi << "        &\\\\\n"
                 << "        User-defined Observable &\n"
-                << TString::Format("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
-                                   texwidth, "Mean",
-                                   texwidth, "RMS",
-                                   texwidth, "Gl. Mode",
-                                   texwidth, "Mode",
-                                   texwidth, "Median",
-                                   texwidth, "16\\% quant.",
-                                   texwidth, "84\\% quant.")
+                << Form("        %*s & %*s & %*s & %*s & %*s & %*s & %*s\\\\\n",
+                        texwidth, "Mean",
+                        texwidth, "RMS",
+                        texwidth, "Gl. Mode",
+                        texwidth, "Mode",
+                        texwidth, "Median",
+                        texwidth, "16\\% quant.",
+                        texwidth, "84\\% quant.")
                 << "        \\hline\n" << std::endl;
 
         // formate LaTeX name for LaTeX ('#'->'\')
-        std::string latexName(GetVariable(i)->GetLatexNameWithUnits());
+        std::string latexName(GetVariable(i).GetLatexNameWithUnits());
         std::replace(latexName.begin(), latexName.end(), '#', '\\');
 
         ofi << "        \\ensuremath{" << latexName << "} &" << std::endl;
 
-        unsigned prec = GetVariable(i)->GetPrecision();
+        unsigned prec = GetVariable(i).GetPrecision();
 
         // fixed parameter
-        if (i < GetNParameters() and GetParameter(i)->Fixed())
-            ofi << TString::Format("        \\multicolumn{7}{c}{--- fixed to %*.*g ---}\\\\\n", texwidth, prec, GetParameter(i)->GetFixedValue()) << std::endl;
+        if (i < GetNParameters() and GetParameter(i).Fixed())
+            ofi << Form("        \\multicolumn{7}{c}{--- fixed to %*.*g ---}\\\\\n", texwidth, prec, GetParameter(i).GetFixedValue()) << std::endl;
 
         // not fixed
         else {
@@ -3336,26 +3305,26 @@ bool BCEngineMCMC::PrintParameterLatex(const char* filename) const
 
             // marginalization exists
             if (bch1d)
-                ofi << TString::Format("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
-                                       texwidth, prec, bch1d->GetHistogram()->GetMean(),
-                                       texwidth, prec, bch1d->GetHistogram()->GetRMS(),
-                                       texwidth, prec, GetGlobalMode()[i],
-                                       texwidth, prec, bch1d->GetLocalMode(0),
-                                       texwidth, prec, bch1d->GetMedian(),
-                                       texwidth, prec, bch1d->GetQuantile(0.16),
-                                       texwidth, prec, bch1d->GetQuantile(0.84))
+                ofi << Form("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
+                            texwidth, prec, bch1d->GetHistogram()->GetMean(),
+                            texwidth, prec, bch1d->GetHistogram()->GetRMS(),
+                            texwidth, prec, GetGlobalMode()[i],
+                            texwidth, prec, bch1d->GetLocalMode(0),
+                            texwidth, prec, bch1d->GetMedian(),
+                            texwidth, prec, bch1d->GetQuantile(0.16),
+                            texwidth, prec, bch1d->GetQuantile(0.84))
                     << std::endl;
 
             // marginalization does not exist
             else
-                ofi << TString::Format("        %*s & %*s & %*.*g & %*s & %*s & %*s & %*s\\\\\n",
-                                       texwidth, blank,
-                                       texwidth, blank,
-                                       texwidth, prec, GetGlobalMode()[i],
-                                       texwidth, blank,
-                                       texwidth, blank,
-                                       texwidth, blank,
-                                       texwidth, blank)
+                ofi << Form("        %*s & %*s & %*.*g & %*s & %*s & %*s & %*s\\\\\n",
+                            texwidth, blank,
+                            texwidth, blank,
+                            texwidth, prec, GetGlobalMode()[i],
+                            texwidth, blank,
+                            texwidth, blank,
+                            texwidth, blank,
+                            texwidth, blank)
                     << std::endl;
         }
     }

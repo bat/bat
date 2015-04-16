@@ -31,7 +31,7 @@ BCObservable::BCObservable(const BCObservable& other)
 
 // ---------------------------------------------------------
 
-BCObservable::BCObservable(const char* name, double lowerlimit, double upperlimit, const char* latexname, const char* unitstring)
+BCObservable::BCObservable(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
     :	BCVariable(name, lowerlimit, upperlimit, latexname, unitstring)
     , fObservableValue(new double)
 {

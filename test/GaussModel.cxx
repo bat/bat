@@ -51,16 +51,15 @@ double GaussModel::LogLikelihood(const std::vector<double>& parameters)
     }
 
     // check that fixed parameters are indeed fixed to the right value
-    for (unsigned i = 0; i < parameters.size(); i++) {
-        BCParameter* p = GetParameter(i);
-        if (p->Fixed())
-            TEST_CHECK_NEARLY_EQUAL(p->GetFixedValue(), parameters[i], 1e-15);
-    }
+    for (unsigned i = 0; i < parameters.size(); i++)
+        if (fParameters[i].Fixed())
+            TEST_CHECK_NEARLY_EQUAL(fParameters[i].GetFixedValue(), parameters[i], 1e-15);
+
     // assume a normalized Gaussian Likelihood with N independent variables
     static const double normalized = true;
     double logprob = 0;
     for (unsigned i = 0; i < parameters.size(); i++)
-        logprob += BCMath::LogGaus(parameters.at(i), 0.0, 2.0, normalized);
+        logprob += BCMath::LogGaus(parameters[i], 0.0, 2.0, normalized);
 
     return logprob;
 }

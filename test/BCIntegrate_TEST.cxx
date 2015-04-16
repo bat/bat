@@ -126,18 +126,16 @@ public:
         static const unsigned ndim = 4;
         GaussModel m("Fixed parameter example", ndim);
         m.MCMCSetRandomSeed(613);
-        m.GetParameter(3)->Fix(0.5);
+        m.GetParameter(3).Fix(0.5);
 
         // integrate over normalized Gaussian likelihood
         // evidence = 1 / parameter volume * N(mu | \theta_3)
         double evidence = 1;
-        for (unsigned i = 0 ; i < m.GetNParameters() ; ++i) {
-            const BCParameter* p = m.GetParameter(i);
-            if (p->Fixed())
-                evidence *= exp(BCMath::LogGaus(p->GetFixedValue(), 0.0, 2.0, true));
+        for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
+            if (m.GetParameter(i).Fixed())
+                evidence *= exp(BCMath::LogGaus(m.GetParameter(i).GetFixedValue(), 0.0, 2.0, true));
             else
-                evidence /= p->GetRangeWidth();
-        }
+                evidence /= m.GetParameter(i).GetRangeWidth();
 
         std::cout << "Correct evidence: " << evidence << std::endl;
 
@@ -209,12 +207,11 @@ public:
     void Slice() const
     {
         GaussModel m("slice", 1);
-        BCParameter* p = m.GetParameter(0);
 
         // set bins of width 0.1
         // maximum should be at the center of one of the bins that have an edge at zero
-        p->SetLimits(-3, 3);
-        p->SetNbins(60);
+        m.GetParameter(0).SetLimits(-3, 3);
+        m.GetParameter(0).SetNbins(60);
         m.MarginalizeAll(BCIntegrate::kMargGrid);
         TEST_CHECK_RELATIVE_ERROR(0.05, std::abs(m.GetGlobalMode()[0]), 1e-14);
 

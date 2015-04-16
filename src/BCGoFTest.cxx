@@ -91,7 +91,7 @@ double BCGoFTest::LogLikelihood(const std::vector<double>& parameters)
 void BCGoFTest::CalculateObservables(const std::vector<double>& /*pars*/)
 {
     // Set log(prob) observable to log(prob)
-    GetObservable(0)->Value(MCMCGetLogProbx(fMCMCCurrentChain));
+    GetObservable(0).Value(MCMCGetLogProbx(fMCMCCurrentChain));
 }
 
 // ---------------------------------------------------------
@@ -106,8 +106,8 @@ void BCGoFTest::MCMCMetropolisPreRun()
     double LL_max = MCMCGetStatistics().maximum[GetNParameters()];
 
     // set proper range for observable: log(prob)
-    GetObservable("log_prob")->SetLimits(LL_min - 0.1 * (LL_max - LL_min), LL_max + 0.1 * (LL_max - LL_min));
-    GetObservable("log_prob")->FillHistograms(true, false);
+    GetObservable("log_prob").SetLimits(LL_min - 0.1 * (LL_max - LL_min), LL_max + 0.1 * (LL_max - LL_min));
+    GetObservable("log_prob").FillHistograms(true, false);
 }
 
 // ---------------------------------------------------------

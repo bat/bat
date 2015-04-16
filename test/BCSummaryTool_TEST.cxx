@@ -46,7 +46,7 @@ public:
     {
         GaussModel m("fixed", 3);
         m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-        m.GetParameter(1)->Fix(6);
+        m.GetParameter(1).Fix(6);
         print(m);
     }
 

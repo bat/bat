@@ -21,35 +21,22 @@
 #include <vector>
 #include <string>
 
+#include "BCParameter.h"
 #include "BCVariableSet.h"
-
-class BCParameter;
 
 // ---------------------------------------------------------
 
-class BCParameterSet : public BCVariableSet
+class BCParameterSet : public BCVariableSet<BCParameter>
 {
 public:
 
     /**
      * Constructor */
-    BCParameterSet() : BCVariableSet()
-    {}
+    BCParameterSet();
 
     /*
      * Destructor */
-    virtual ~BCParameterSet()
-    {}
-
-    /**
-     * Add a parameter if no parameter of same name exists yet.
-     * @param par Variable
-     * @return True if successful. */
-    virtual bool Add(BCVariable* var);
-
-    /*
-     * Assignment operator. */
-    BCParameterSet& operator=(const BCParameterSet& rhs);
+    virtual ~BCParameterSet();
 
     /**
      * @return The number of fixed parameters. */

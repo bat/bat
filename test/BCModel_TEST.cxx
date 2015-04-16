@@ -50,7 +50,7 @@ public:
         const unsigned fixed = 1;
         GaussModel m("Turn off filling for par 1", 4);
         m.MCMCSetPrecision(BCEngineMCMC::kLow);
-        m.GetParameter(fixed)->FillHistograms(false);
+        m.GetParameter(fixed).FillHistograms(false);
         count_marginals(m, fixed);
     }
 
@@ -72,7 +72,7 @@ public:
 
         /* fix first parameter */
         int fixed = 0;
-        m.GetParameter(fixed)->Fix(0.);
+        m.GetParameter(fixed).Fix(0.);
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
@@ -83,7 +83,7 @@ public:
         const unsigned long nCalls = m.Calls();
 
         /* so run again without fixing */
-        m.GetParameter(0)->Unfix();
+        m.GetParameter(0).Unfix();
         m.MarginalizeAll();
 
         // should be extra 33% calls
@@ -93,7 +93,7 @@ public:
 
         /* then fix last parameter */
         fixed = 3;
-        m.GetParameter(fixed)->Fix(0.23);
+        m.GetParameter(fixed).Fix(0.23);
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
@@ -106,7 +106,7 @@ public:
         GaussModel m("set delta prior for par 1", 4);
         m.MCMCSetPrecision(BCEngineMCMC::kMedium);
         const int fixed = 0;
-        m.GetParameter(fixed)->Fix(0.);
+        m.GetParameter(fixed).Fix(0.);
         count_marginals(m, fixed);
     }
 

@@ -152,7 +152,7 @@ double BCModel::SamplingFunction(const std::vector<double>& /*parameters*/)
 {
     double probability = 1;
     for (unsigned i = 0 ; i < GetNParameters() ; ++i)
-        probability *= 1. / GetParameter(i)->GetRangeWidth();
+        probability *= 1. / GetParameter(i).GetRangeWidth();
     return probability;
 }
 
@@ -167,8 +167,8 @@ double BCModel::HessianMatrixElement(unsigned index1, unsigned index2, const std
 
     // define steps
     double nsteps = 1e5;
-    double dx1 = GetVariable(index1)->GetRangeWidth() / nsteps;
-    double dx2 = GetVariable(index2)->GetRangeWidth() / nsteps;
+    double dx1 = GetVariable(index1).GetRangeWidth() / nsteps;
+    double dx2 = GetVariable(index2).GetRangeWidth() / nsteps;
 
     // define points at which to evaluate
     std::vector<double> xpp = point;
@@ -260,35 +260,35 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
     if (index > GetNVariables())
         return false;
 
-    if (index < GetNParameters() and GetParameter(index)->Fixed())
+    if (index < GetNParameters() and GetParameter(index).Fixed())
         return false;
 
     // Get Prior
     BCH1D* bch1d_prior = NULL;
 
     // check for factorized prior
-    if (fFactorizedPrior and index < GetNParameters() and GetParameter(index)->GetPrior() != NULL) {
+    if (fFactorizedPrior and index < GetNParameters() and GetParameter(index).GetPrior() != NULL) {
 
         // constant prior
-        if (dynamic_cast<BCConstantPrior*>(GetParameter(index)->GetPrior()) != NULL) {
-            TH1D* h = new TH1D(TString::Format("%s_prior_%d_const", GetSafeName().data(), index), "", 1, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit());
+        if (dynamic_cast<BCConstantPrior*>(GetParameter(index).GetPrior()) != NULL) {
+            TH1D* h = new TH1D(Form("%s_prior_%d_const", GetSafeName().data(), index), "", 1, GetVariable(index).GetLowerLimit(), GetVariable(index).GetUpperLimit());
             h->SetBinContent(1, 1);
             bch1d_prior = new BCH1D(h);
         }
         // histogrammed prior (not interpolated)
-        else if (dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior()) != NULL and
-                 dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())->GetHistogram() != NULL and
-                 dynamic_cast<BCTH1Prior*>(GetParameter(index))->GetInterpolate()) {
-            bch1d_prior = new BCH1D(dynamic_cast<BCTH1Prior*>(GetParameter(index)->GetPrior())->GetHistogram());
+        else if (dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior()) != NULL and
+                 dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram() != NULL and
+                 dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetInterpolate()) {
+            bch1d_prior = new BCH1D(dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram());
         }
         // use prior's TF1
-        else if (GetParameter(index)->GetPrior()->GetFunction() != NULL) {
-            TH1* h = GetVariable(index)->CreateH1(TString::Format("%s_prior_%d_f1", GetSafeName().data(), index));
-            h->Add(GetParameter(index)->GetPrior()->GetFunction(), 1, "I");
+        else if (GetParameter(index).GetPrior()->GetFunction() != NULL) {
+            TH1* h = GetVariable(index).CreateH1(Form("%s_prior_%d_f1", GetSafeName().data(), index));
+            h->Add(GetParameter(index).GetPrior()->GetFunction(), 1, "I");
             bch1d_prior = new BCH1D(h);
         }
         if (bch1d_prior)
-            bch1d_prior->SetLocalMode(GetParameter(index)->GetPriorMode());
+            bch1d_prior->SetLocalMode(GetParameter(index).GetPriorMode());
     }
 
     // else use marginalized prior, if it exists
@@ -343,8 +343,8 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
     }
 
     // draw axes
-    TH2D* h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d", GetSafeName().data(), index), TString::Format(";%s;P(%s|Data)", GetVariable(index)->GetLatexNameWithUnits().data(), GetVariable(index)->GetLatexName().data()),
-                             10, GetVariable(index)->GetLowerLimit(), GetVariable(index)->GetUpperLimit(),
+    TH2D* h2_axes = new TH2D(Form("h2_axes_%s_knowledge_update_%d", GetSafeName().data(), index), Form(";%s;P(%s|Data)", GetVariable(index).GetLatexNameWithUnits().data(), GetVariable(index).GetLatexName().data()),
+                             10, GetVariable(index).GetLowerLimit(), GetVariable(index).GetUpperLimit(),
                              10, miny, maxy);
     h2_axes->SetStats(false);
     h2_axes->GetXaxis()->SetNdivisions(508);
@@ -390,7 +390,7 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
                 TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
                 if (!le) break;
                 if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(TString::Format("%s of posterior", le->GetLabel()).Data());
+                le-> SetLabel(Form("%s of posterior", le->GetLabel()));
             }
             legend->AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
 
@@ -404,7 +404,7 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
                 TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
                 if (!le) break;
                 if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(TString::Format("%s of prior", le->GetLabel()).Data());
+                le-> SetLabel(Form("%s of prior", le->GetLabel()));
             }
             legend->AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
             bch1d_prior->ResizeLegend();
@@ -442,10 +442,10 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
     if (index1 > GetNVariables() or index2 > GetNVariables())
         return false;
 
-    if (index1 < GetNParameters() and GetParameter(index1)->Fixed())
+    if (index1 < GetNParameters() and GetParameter(index1).Fixed())
         return false;
 
-    if (index2 < GetNParameters() and GetParameter(index2)->Fixed())
+    if (index2 < GetNParameters() and GetParameter(index2).Fixed())
         return false;
 
     // Get prior
@@ -453,20 +453,20 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
 
     // check for factorized priors
     if (fFactorizedPrior and
-            index1 < GetNParameters() and GetParameter(index1)->GetPrior() != NULL and
-            index2 < GetNParameters() and GetParameter(index2)->GetPrior() != NULL) {
+            index1 < GetNParameters() and GetParameter(index1).GetPrior() != NULL and
+            index2 < GetNParameters() and GetParameter(index2).GetPrior() != NULL) {
 
         // set x binning
-        unsigned nbins_x = GetVariable(index1)->GetNbins();
+        unsigned nbins_x = GetVariable(index1).GetNbins();
         std::vector<double> bins_x;
         // histogrammed prior
-        if (dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior()) != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram() != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetInterpolate()) {
-            nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()->GetNbinsX();
+        if (dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior()) != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram() != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetInterpolate()) {
+            nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetNbinsX();
             bins_x.assign(nbins_x + 1, 0);
-            dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_x[0]);
-            bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1)->GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
+            dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_x[0]);
+            bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
         }
         // // constant prior
         // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior())!=NULL) {
@@ -479,20 +479,20 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         else {
             bins_x.assign(nbins_x + 1, 0);
             for (unsigned i = 0; i <= nbins_x; ++i)
-                bins_x[i] = GetVariable(index1)->ValueFromPositionInRange(1.*i / nbins_x);
+                bins_x[i] = GetVariable(index1).ValueFromPositionInRange(1.*i / nbins_x);
         }
 
         // set y binning
-        unsigned nbins_y = GetVariable(index2)->GetNbins();
+        unsigned nbins_y = GetVariable(index2).GetNbins();
         std::vector<double> bins_y;
         // histogrammed prior
-        if (dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior()) != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram() != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetInterpolate()) {
-            nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()->GetNbinsX();
+        if (dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior()) != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram() != NULL and
+                dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetInterpolate()) {
+            nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetNbinsX();
             bins_y.assign(nbins_y + 1, 0);
-            dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_y[0]);
-            bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2)->GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
+            dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_y[0]);
+            bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
         }
         // // constant prior
         // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior())!=NULL) {
@@ -505,11 +505,11 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         else {
             bins_y.assign(nbins_y + 1, 0);
             for (unsigned i = 0; i <= nbins_y; ++i)
-                bins_y[i] = GetVariable(index2)->ValueFromPositionInRange(1.*i / nbins_y);
+                bins_y[i] = GetVariable(index2).ValueFromPositionInRange(1.*i / nbins_y);
         }
 
         // create histogram
-        TH2* h2d_prior = fPriorModel->GetVariable(index1)->CreateH2(TString::Format("h2d_prior_%s_%d_%d", GetName().data(), index1, index2).Data(), fPriorModel->GetVariable(index2));
+        TH2* h2d_prior = fPriorModel->GetVariable(index1).CreateH2(Form("h2d_prior_%s_%d_%d", GetName().data(), index1, index2), fPriorModel->GetVariable(index2));
         // set binning
         h2d_prior->SetBins(nbins_x, &bins_x[0], nbins_y, &bins_y[0]);
 
@@ -517,8 +517,8 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i)
             for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j)
                 h2d_prior->SetBinContent(i, j,
-                                         GetParameter(index1)->GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) *
-                                         GetParameter(index2)->GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
+                                         GetParameter(index1).GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) *
+                                         GetParameter(index2).GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
         // create BCH2D
         bch2d_prior = new BCH2D(h2d_prior);
     }
@@ -566,18 +566,18 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
     bch2d_posterior->SetDrawLegend(false);
 
     // correct for constant priors:
-    bool const_prior1 = fFactorizedPrior and index1 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior()) != NULL;
-    bool const_prior2 = fFactorizedPrior and index2 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior()) != NULL;
+    bool const_prior1 = fFactorizedPrior and index1 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior()) != NULL;
+    bool const_prior2 = fFactorizedPrior and index2 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior()) != NULL;
 
     if (const_prior1)
-        bch2d_prior->SetLocalMode((unsigned)0, fPriorModel->GetVariable(index1)->GetRangeCenter());
+        bch2d_prior->SetLocalMode((unsigned)0, fPriorModel->GetVariable(index1).GetRangeCenter());
     if (const_prior2)
-        bch2d_prior->SetLocalMode((unsigned)1, fPriorModel->GetVariable(index2)->GetRangeCenter());
+        bch2d_prior->SetLocalMode((unsigned)1, fPriorModel->GetVariable(index2).GetRangeCenter());
     std::string prior_text = "";
     if (const_prior1 and !const_prior2)
-        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index1)->GetLatexName().data());
+        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index1).GetLatexName().data());
     else if (!const_prior1 and const_prior2)
-        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index2)->GetLatexName().data());
+        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index2).GetLatexName().data());
     else if (const_prior1 and const_prior2) {
         prior_text = " (both flat)";
         bch2d_prior->SetNBands(0);
@@ -588,9 +588,9 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
     gPad->SetLogz(fBCH2DPriorDrawingOptions->GetLogz() or fBCH2DPosteriorDrawingOptions->GetLogz());
 
     // draw axes
-    TH2D* h2_axes = new TH2D(TString::Format("h2_axes_%s_knowledge_update_%d_%d", GetSafeName().data(), index1, index2), TString::Format(";%s;%s;P(%s %s|Data)", GetVariable(index1)->GetLatexNameWithUnits().data(), GetVariable(index2)->GetLatexNameWithUnits().data(), GetVariable(index1)->GetLatexName().data(), GetVariable(index2)->GetLatexName().data()),
-                             10, GetVariable(index1)->GetLowerLimit(), GetVariable(index1)->GetUpperLimit(),
-                             10, GetVariable(index2)->GetLowerLimit(), GetVariable(index2)->GetUpperLimit());
+    TH2D* h2_axes = new TH2D(Form("h2_axes_%s_knowledge_update_%d_%d", GetSafeName().data(), index1, index2), Form(";%s;%s;P(%s %s|Data)", GetVariable(index1).GetLatexNameWithUnits().data(), GetVariable(index2).GetLatexNameWithUnits().data(), GetVariable(index1).GetLatexName().data(), GetVariable(index2).GetLatexName().data()),
+                             10, GetVariable(index1).GetLowerLimit(), GetVariable(index1).GetUpperLimit(),
+                             10, GetVariable(index2).GetLowerLimit(), GetVariable(index2).GetUpperLimit());
     h2_axes->SetStats(false);
     h2_axes->GetXaxis()->SetNdivisions(508);
     h2_axes->Draw();
@@ -634,7 +634,7 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
                 TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
                 if (!le) break;
                 if (strlen(le->GetLabel()) == 0) continue;
-                le->SetLabel(TString::Format("%s of posterior", le->GetLabel()).Data());
+                le->SetLabel(Form("%s of posterior", le->GetLabel()));
             }
             legend->AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
 
@@ -648,7 +648,7 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
                 TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
                 if (!le) break;
                 if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(TString::Format("%s of prior", le->GetLabel()).Data());
+                le-> SetLabel(Form("%s of prior", le->GetLabel()));
             }
             if (!prior_text.empty())
                 legend->AddEntry((TObject*)0, (std::string("prior: ") + prior_text).data(), "");
@@ -699,7 +699,7 @@ int BCModel::PrintKnowledgeUpdatePlots(const char* filename, unsigned hdiv, unsi
         file += ".pdf";
 
     // create canvas and prepare postscript
-    TCanvas* c = new TCanvas(TString::Format("c_%s_update", fPriorModel->GetName().data()));
+    TCanvas* c = new TCanvas(Form("c_%s_update", fPriorModel->GetName().data()));
     c->cd();
     c->Print(std::string(file + "[").c_str());
 
