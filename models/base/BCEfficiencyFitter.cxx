@@ -168,7 +168,7 @@ bool BCEfficiencyFitter::SetFitFunction(TF1* func)
 
     // update the model name to contain the function name
     if (fName == "model")
-        SetName(TString::Format("BCEfficiencyFitter with %s", fFitFunction->GetName()));
+        SetName(std::string("BCEfficiencyFitter with ") + fFitFunction->GetName());
 
     // reset parameters
     fParameters = BCParameterSet();
@@ -378,7 +378,7 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
         hist_axes->SetStats(kFALSE);
         hist_axes->Draw();
 
-        histRatio->Draw(TString::Format("%sp", opt.Data()));
+        histRatio->Draw(Form("%sp", opt.Data()));
     }
 
     // draw the error band as central 68% probability interval
@@ -387,7 +387,7 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
 
     // now draw the histogram again since it was covered by the band
     histRatio->SetMarkerSize(.7);
-    histRatio->Draw(TString::Format("%ssamep", opt.Data()));
+    histRatio->Draw(Form("%ssamep", opt.Data()));
 
     // draw the fit function on top
     fGraphFitFunction = GetFitFunctionGraph();

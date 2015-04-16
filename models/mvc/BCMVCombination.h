@@ -54,7 +54,7 @@ public:
     // getters
 
     // return the number of observables
-    int GetNObservables()
+    int GetNMVCObservables()
     { return fNObservables; };
 
     // return the number of uncertainties
@@ -242,7 +242,7 @@ protected:
     std::vector<NuisanceParameter> fNuisanceCorrelation;
 
     // the observables
-    std::vector<BCMVCObservable*> fObservables;
+    std::vector<BCMVCObservable*> fMVCObservables;
 
 };
 // ---------------------------------------------------------

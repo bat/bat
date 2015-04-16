@@ -135,7 +135,7 @@ int BCGraphFitter::SetFitFunction(TF1* func)
 
     // update the model name to contain the function name
     if (fName == "model")
-        SetName(TString::Format("GraphFitter with %s", fFitFunction->GetName()));
+        SetName(std::string("GraphFitter with ") + fFitFunction->GetName());
 
     // reset parameters
     fParameters = BCParameterSet();

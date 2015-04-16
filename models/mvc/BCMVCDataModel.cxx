@@ -24,8 +24,8 @@
 BCMVCDataModel::BCMVCDataModel(BCMVCombination* mvc) : BCModel("BCMVCDataModel")
 {
     SetNMeasurements(mvc->GetNMeasurements(),
-                     mvc->GetParameter(0)->GetLowerLimit(),
-                     mvc->GetParameter(0)->GetUpperLimit());
+                     mvc->GetParameter(0).GetLowerLimit(),
+                     mvc->GetParameter(0).GetUpperLimit());
     SetVectorMeasurements(mvc->GetVectorMeasurements());
     SetVectorObservable(mvc->GetVectorObservable());
     SetCovarianceMatrix(mvc->GetCovarianceMatrix());
@@ -84,7 +84,7 @@ void BCMVCDataModel::SetMeasurementRanges(const std::vector<double>& min, const 
 
     // set the parameter ranges
     for (unsigned i = 0; i < npar; ++i) {
-        GetParameter(i)->SetLimits(min.at(i), max.at(i));
+        GetParameter(i).SetLimits(min.at(i), max.at(i));
     }
 
 }
@@ -251,8 +251,8 @@ void BCMVCDataModel::PrintSummary()
     // calculate p-value
     double pvalue = hist_chi2->GetHistogram()->Integral(hist_chi2->GetHistogram()->FindBin(chi2), hist_chi2->GetHistogram()->GetNbinsX(), "width");
 
-    BCLog::OutSummary(TString::Format(" chi2    : %f", chi2));
-    BCLog::OutSummary(TString::Format(" p-value : %f\n", pvalue));
+    BCLog::OutSummary(Form(" chi2    : %f", chi2));
+    BCLog::OutSummary(Form(" p-value : %f\n", pvalue));
 }
 
 // ---------------------------------------------------------

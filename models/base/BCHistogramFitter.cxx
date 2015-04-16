@@ -189,7 +189,7 @@ bool BCHistogramFitter::SetFitFunction(TF1* func)
 
     // update the model name to contain the function name
     if (fName == "model")
-        SetName(TString::Format("HistogramFitter with %s", fFitFunction->GetName()));
+        SetName(std::string("HistogramFitter with ") + fFitFunction->GetName());
 
     // reset parameters
     fParameters = BCParameterSet();
@@ -351,7 +351,7 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
     fErrorBand->Draw("f same");
 
     // now draw the histogram again since it was covered by the band
-    fHistogram->Draw(TString::Format("%ssame", opt.Data()));
+    fHistogram->Draw(Form("%ssame", opt.Data()));
 
     // draw the fit function on top
     fGraphFitFunction = GetFitFunctionGraph();

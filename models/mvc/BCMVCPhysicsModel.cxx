@@ -48,7 +48,7 @@ void BCMVCPhysicsModel::AddMVCObservable(std::string name, double min, double ma
     BCMVCObservable* observable = new BCMVCObservable();
     observable->SetName(name);
     observable->SetMinMax(min, max);
-    fObservables.push_back(observable);
+    fMVCObservables.push_back(observable);
 
     fNObservables++;
 }

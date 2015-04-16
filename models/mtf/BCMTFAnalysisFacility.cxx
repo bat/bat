@@ -345,7 +345,7 @@ TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, i
         BCLog::OutSummary("No log messages for the ensemble fits are going to be printed.");
         BCLog::SetLogLevel(fLogLevel);
     } else if (fLogLevel != lls) {
-        BCLog::OutSummary(Form("The log level for the ensemble test is set to \'%s\'.", BCLog::ToString(fLogLevel)));
+        BCLog::OutSummary("The log level for the ensemble test is set to '" + BCLog::ToString(fLogLevel) + "'.");
         BCLog::SetLogLevel(fLogLevel);
     }
 
@@ -740,8 +740,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {
         // create new comparison tool
-        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i)->GetName().c_str());
-        BCMTFComparisonTool* ct_mcmc = new BCMTFComparisonTool(fMTF->GetParameter(i)->GetName().c_str());
+        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName().c_str());
+        BCMTFComparisonTool* ct_mcmc = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName().c_str());
 
         // add comparison tool to container
         ctc.push_back(ct);
@@ -1023,7 +1023,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {
         // create new comparison tool
-        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i)->GetName().c_str());
+        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName().c_str());
 
         // add comparison tool to container
         ctc.push_back(ct);

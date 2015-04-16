@@ -62,7 +62,7 @@ void BCMVCombination::AddMVCObservable(std::string name, double min, double max)
     BCMVCObservable* obs = new BCMVCObservable();
     obs->SetName(name);
     obs->SetMinMax(min, max);
-    fObservables.push_back(obs);
+    fMVCObservables.push_back(obs);
 
     fNObservables++;
 
@@ -222,7 +222,7 @@ int BCMVCombination::ReadInput(std::string filename)
         double pre = 1;
         unsigned index;
         for (index = 0; index < GetNParameters(); ++index)
-            if (parname.c_str() == GetParameter(index)->GetName()) {
+            if (parname.c_str() == GetParameter(index).GetName()) {
                 infile >> pre;
                 break;
             }
@@ -595,7 +595,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
         return;
     }
 
-    int nobs = GetNObservables();
+    int nobs = GetNMVCObservables();
     int nmeas = GetNMeasurements();
     int nunc = GetNUncertainties();
 
@@ -606,8 +606,8 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
     ofi << "* Observables:" << std::endl;
     ofi << "  Observable (range): " << std::endl;
     for (int i = 0; i < nobs; ++i)
-        ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName()
-            << " (" << GetParameter(i)->GetLowerLimit() << " - " << GetParameter(i)->GetUpperLimit() << ")" << std::endl;
+        ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i).GetName()
+            << " (" << GetParameter(i).GetLowerLimit() << " - " << GetParameter(i).GetUpperLimit() << ")" << std::endl;
     ofi << std::endl;
 
     ofi << "* Measurements:" << std::endl;
@@ -621,7 +621,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
                     total2 += m->GetUncertainty(j) * m->GetUncertainty(j);
             }
             ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName()
-                << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << ")"
+                << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable()).GetName() << ")"
                 << ": " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << m->GetCentralValue()
                 << " +- " << std::setiosflags(std::ios::left) << std::setw(7) << std::setprecision(4) << sqrt(total2) << std::endl;
         }
@@ -642,7 +642,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
         BCMVCMeasurement* m = GetMeasurement(i);
         if (m->GetFlagActive()) {
             ofi << "  " << std::setiosflags(std::ios::left) << std::setw(20) << m->GetName()
-                << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable())->GetName() << "): ";
+                << std::setiosflags(std::ios::left) << " (" << GetParameter(m->GetObservable()).GetName() << "): ";
             for (int j = 0; j < nunc; ++j )
                 if (GetUncertainty(j)->GetFlagActive())
                     ofi << std::setiosflags(std::ios::left) << std::setw(7) << m->GetUncertainty(j);
@@ -689,7 +689,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
     ofi << "  Observable: estimate +- total uncertainty" << std::endl;
     for (int i = 0; i < nobs; ++i) {
         if (i < fBLUECentral.GetNoElements())
-            ofi << "  " << GetParameter(i)->GetName() << ": " << fBLUECentral[i] << " +- " << std::setprecision(4) << fBLUEUncertainties[i] << std::endl;
+            ofi << "  " << GetParameter(i).GetName() << ": " << fBLUECentral[i] << " +- " << std::setprecision(4) << fBLUEUncertainties[i] << std::endl;
     }
     ofi << std::endl;
 
@@ -703,7 +703,7 @@ void BCMVCombination::PrintBLUEResults(std::string filename)
         ofi << ")" << std::endl;
 
     for (int i = 0; i < nobs; ++i) {
-        ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i)->GetName() << ":";
+        ofi << "  " << std::setiosflags(std::ios::left) << GetParameter(i).GetName() << ":";
         int counterj = 0;
         for (int j = 0; j < nunc; ++j )
             if (GetUncertainty(j)->GetFlagActive()) {
@@ -824,12 +824,12 @@ int BCMVCombination::GetIndexUncertainty(std::string name)
 // ---------------------------------------------------------
 int BCMVCombination::GetIndexObservable(std::string name)
 {
-    int n = GetNObservables();
+    int n = GetNMVCObservables();
 
     // go through the list of parameters and compare strings
     for (int i = 0; i < n; ++i) {
         //    if (name == std::string(GetParameter(i)->GetName()))
-        if (name == std::string(fObservables.at(i)->GetName()))
+        if (name == std::string(fMVCObservables.at(i)->GetName()))
             return i;
     }
 
