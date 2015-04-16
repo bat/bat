@@ -44,7 +44,7 @@ incs= \
 	BCTF1LogPrior.h \
 	BCTH1Prior.h \
 	BCParameterSet.h \
-	BCVariableSet.h \
+	BCObservableSet.h \
 	BCObservable.h \
 	BCParameter.h \
 	BCVariable.h \
@@ -59,8 +59,11 @@ incs= \
 	BCMath.h \
 	BCAux.h
 
+non_source_incs = \
+	BCVariableSet.h
+
 library_include_HEADERS= \
-	$(patsubst %.h, $(top_srcdir)/BAT/%.h, $(incs))
+	$(patsubst %.h, $(top_srcdir)/BAT/%.h, $(incs) $(non_source_incs))
 libBAT_la_SOURCES= \
 	$(incs:.h=.cxx)
 
