@@ -60,6 +60,9 @@ public:
     virtual bool IsValid() const
     { return fLogPriorFunction != NULL; }
 
+    /** Set ROOT function range. */
+    virtual void SetFunctionRange(double xmin, double xmax);
+
     /**
      * Get log of prior
      * @param x value to evaluate log of prior at

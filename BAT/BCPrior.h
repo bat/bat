@@ -91,6 +91,10 @@ public:
     { return fPriorFunction; }
 
     /**
+     * Set range of ROOT TF1 function. */
+    virtual void SetFunctionRange(double xmin, double xmax);
+
+    /**
      * Return mode of prior (in range).
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over

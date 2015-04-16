@@ -118,8 +118,8 @@ void BCParameter::SetPrior(BCPrior* const prior)
 {
     delete fPrior;
     fPrior = prior;
-    if (fPrior and fPrior->GetFunction())
-        fPrior->GetFunction()->SetRange(fLowerLimit, fUpperLimit);
+    if (fPrior)
+        fPrior->SetFunctionRange(fLowerLimit, fUpperLimit);
 }
 
 // ---------------------------------------------------------

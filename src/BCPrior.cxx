@@ -133,3 +133,10 @@ double BCPrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
         return std::numeric_limits<double>::quiet_NaN();
     return fPriorFunction->GetRandom(xmin, xmax);
 }
+
+// ---------------------------------------------------------
+void BCPrior::SetFunctionRange(double xmin, double xmax)
+{
+    if (fPriorFunction)
+        fPriorFunction->SetRange(xmin, xmax);
+}

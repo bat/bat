@@ -43,6 +43,14 @@ BCTF1LogPrior::~BCTF1LogPrior()
 }
 
 // ---------------------------------------------------------
+void BCTF1LogPrior::SetFunctionRange(double xmin, double xmax)
+{
+    BCPrior::SetFunctionRange(xmin, xmax);
+    if (fLogPriorFunction)
+        fLogPriorFunction -> SetRange(xmin, xmax);
+}
+
+// ---------------------------------------------------------
 double BCTF1LogPrior::GetMode(double xmin, double xmax) const
 {
     if (!fLogPriorFunction)
