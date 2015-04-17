@@ -740,7 +740,7 @@ int BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsi
             }
             c->cd(ndrawn % npads + 1)->Clear();
         }
-    if (nprinted < ndrawn)
+    if (nprinted < ndrawn and nprinted>0)
         c->Print(filename.data());
 
     c->Print((filename + "]").data());
