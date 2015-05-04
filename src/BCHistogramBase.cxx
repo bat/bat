@@ -458,6 +458,7 @@ void BCHistogramBase::DrawMarkers()
 // ---------------------------------------------------------
 void BCHistogramBase::DrawGlobalMode()
 {
+    gPad->Update();
     double ymin = gPad->GetUymin();
     double ymax = gPad->GetUymax();
     double y = ymin + 0.5 * (ymax - ymin);
@@ -513,6 +514,7 @@ void BCHistogramBase::DrawGlobalMode()
 // ---------------------------------------------------------
 void BCHistogramBase::DrawLocalMode()
 {
+    gPad->Update();
     double ymin = gPad->GetUymin();
     double ymax = gPad->GetUymax();
     double y = ymin + 0.25 * (ymax - ymin);
@@ -563,12 +565,12 @@ void BCHistogramBase::DrawLocalMode()
         }
 
     }
-    gPad->Update();
 }
 
 // ---------------------------------------------------------
 void BCHistogramBase::DrawMean()
 {
+    gPad->Update();
     double ymin = gPad->GetUymin();
     double ymax = gPad->GetUymax();
     double y = ymin + 0.6 * (ymax - ymin);
