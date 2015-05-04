@@ -801,12 +801,26 @@ public:
     void SetFillHistogramParPar(unsigned x, unsigned y, bool flag = true)
     { SetFillHistogram(x, y, flag); }
 
+    /** Sets whether to fill particular H2 histogram: par(y) vs. par(x)
+     * @param x Name of parameter for horizontal axis.
+     * @param y Name of parameter for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramParPar(std::string x, std::string y, bool flag = true)
+    { SetFillHistogramParPar(fParameters.Index(x), fParameters.Index(y), flag); }
+
     /** Sets whether to fill particular H2 histogram: obs(y) vs. par(x)
      * @param x Index of parameter for horizontal axis.
      * @param y Index of observable for vertical axis.
      * @param flag Whether to fill histogram. */
     void SetFillHistogramParObs(unsigned x, unsigned y, bool flag = true)
     { SetFillHistogram(x, -(y + 1), flag); }
+
+    /** Sets whether to fill particular H2 histogram: obs(y) vs. par(x)
+     * @param x Name of parameter for horizontal axis.
+     * @param y Name of observable for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramParObs(std::string x, std::string y, bool flag = true)
+    { SetFillHistogramParObs(fParameters.Index(x), fObservables.Index(y), flag); }
 
     /** Sets whether to fill particular H2 histogram: obs(y) vs. obs(x)
      * @param x Index of observable for horizontal axis.
@@ -815,12 +829,26 @@ public:
     void SetFillHistogramObsObs(unsigned x, unsigned y, bool flag = true)
     { SetFillHistogram(-(x + 1), -(y + 1), flag); }
 
+    /** Sets whether to fill particular H2 histogram: obs(y) vs. obs(x)
+     * @param x Name of observable for horizontal axis.
+     * @param y Name of observable for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramObsObs(std::string x, std::string y, bool flag = true)
+    { SetFillHistogramObsObs(fObservables.Index(x), fObservables.Index(y), flag); }
+
     /** Sets whether to fill particular H2 histogram: par(y) vs. obs(x)
      * @param x Index of observable for horizontal axis.
      * @param y Index of parameter for vertical axis.
      * @param flag Whether to fill histogram. */
     void SetFillHistogramObsPar(unsigned x, unsigned y, bool flag = true)
     { SetFillHistogram(-(x + 1), y, flag); }
+
+    /** Sets whether to fill particular H2 histogram: par(y) vs. obs(x)
+     * @param x Name of observable for horizontal axis.
+     * @param y Name of parameter for vertical axis.
+     * @param flag Whether to fill histogram. */
+    void SetFillHistogramObsPar(std::string x, std::string y, bool flag = true)
+    { SetFillHistogramObsPar(fObservables.Index(x), fParameters.Index(y), flag); }
 
     /** Sets the flag if a prerun should be performed or not. */
     void MCMCSetFlagPreRun(bool flag)

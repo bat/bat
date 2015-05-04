@@ -2229,13 +2229,20 @@ bool BCEngineMCMC::MCMCInitialize()
 // ------------------------------------------------------------
 void BCEngineMCMC::SetFillHistogram(int x, int y, bool flag)
 {
+    // check indices
+    if (x >= (int)fParameters.Size() or -x > (int)fObservables.Size())
+        return;
+    if (y >= (int)fParameters.Size() or -y > (int)fObservables.Size())
+        return;
+
     if (flag) {                 // adding
         // check for combination already in list
         for (unsigned i = 0; i < fRequestedH2.size(); ++i)
             if (fRequestedH2[i].first == x and fRequestedH2[i].second == y)
                 return;
         fRequestedH2.push_back(std::make_pair(x, y));
-    } else {                    // removing
+    }
+    else {                      // removing
         for (int i = fRequestedH2.size() - 1; i >= 0; --i)
             if (fRequestedH2[i].first == x and fRequestedH2[i].second == y)
                 fRequestedH2.erase(fRequestedH2.begin() + i);
