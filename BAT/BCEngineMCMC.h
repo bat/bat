@@ -408,6 +408,10 @@ public:
     { return fHistogramRescalePadding; }
 
     /**
+     * @return vector indices for order of printing 1D histograms. */
+    virtual std::vector<unsigned> GetH1DPrintOrder() const;
+
+    /**
      * @return vector of index pairs for order of printing 2D histograms. */
     virtual std::vector<std::pair<unsigned, unsigned> > GetH2DPrintOrder() const;
 

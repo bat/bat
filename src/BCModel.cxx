@@ -681,18 +681,25 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
 }
 
 // ---------------------------------------------------------
-int BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsigned vdiv, bool flag_slice, bool call_likelihood)
+bool BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsigned vdiv, bool flag_slice, bool call_likelihood)
 {
     // prepare prior
     if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
-        // return 0 if failed
-        return 0;
+        return false;
 
     if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0)
         fPriorModel->MarginalizeAll();
     fPriorModel->FindMode();
 
+    std::vector<unsigned> H1Indices = GetH1DPrintOrder();
+    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
+
+    if (H1Indices.empty() and H2Coords.empty())
+        return false;
+
     BCAux::DefaultToPDF(filename);
+    if (filename.empty())
+        return false;
 
     // create canvas and prepare postscript
     TCanvas* c = new TCanvas(Form("c_%s_update", fPriorModel->GetName().data()));
@@ -707,10 +714,10 @@ int BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsi
 
     // loop over all parameters and draw 1D plots
     int ndrawn = 0;
-    int nprinted = -1;
+    int nprinted = 0;
     c->cd(1);
-    for (unsigned i = 0; i < GetNVariables(); ++i)
-        if (DrawKnowledgeUpdatePlot1D(i, flag_slice)) {
+    for (unsigned i = 0; i < H1Indices.size(); ++i)
+        if (DrawKnowledgeUpdatePlot1D(H1Indices[i], flag_slice)) {
             ++ndrawn;
             if (ndrawn != 0 and ndrawn % npads == 0) {
                 c->Print(filename.data());
@@ -725,10 +732,9 @@ int BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsi
     c->Clear("D");
 
     // loop over all parameter pairs
-    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
     ndrawn = 0;
-    nprinted = -1;
-    c->cd(1)->Clear();
+    nprinted = 0;
+    c->cd(1);
     for (unsigned i = 0; i < H2Coords.size(); ++i)
         if (DrawKnowledgeUpdatePlot2D(H2Coords[i].first, H2Coords[i].second, flag_slice)) {
             ++ndrawn;
@@ -740,13 +746,12 @@ int BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsi
             }
             c->cd(ndrawn % npads + 1)->Clear();
         }
-    if (nprinted < ndrawn and nprinted>0)
+    if (nprinted < ndrawn)
         c->Print(filename.data());
 
     c->Print((filename + "]").data());
 
-    // no error
-    return 1;
+    return true;
 }
 
 // ---------------------------------------------------------

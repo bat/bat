@@ -281,8 +281,8 @@ public:
     /**
      * Print a comparison of the prior knowledge to the posterior
      * knowledge for each parameter.
-     * @return An error flag. */
-    virtual int PrintKnowledgeUpdatePlots(std::string filename = "update.pdf", unsigned hdiv = 1, unsigned vdiv = 1, bool flag_slice = false, bool call_likelihood = false);
+     * @return Success of action. */
+    virtual bool PrintKnowledgeUpdatePlots(std::string filename = "update.pdf", unsigned hdiv = 1, unsigned vdiv = 1, bool flag_slice = false, bool call_likelihood = false);
 
     /** @} */
 

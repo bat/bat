@@ -2230,9 +2230,9 @@ bool BCEngineMCMC::MCMCInitialize()
 void BCEngineMCMC::SetFillHistogram(int x, int y, bool flag)
 {
     // check indices
-    if (x >= (int)fParameters.Size() or -x > (int)fObservables.Size())
+    if (x >= (int)fParameters.Size() or - x > (int)fObservables.Size())
         return;
-    if (y >= (int)fParameters.Size() or -y > (int)fObservables.Size())
+    if (y >= (int)fParameters.Size() or - y > (int)fObservables.Size())
         return;
 
     if (flag) {                 // adding
@@ -2241,8 +2241,7 @@ void BCEngineMCMC::SetFillHistogram(int x, int y, bool flag)
             if (fRequestedH2[i].first == x and fRequestedH2[i].second == y)
                 return;
         fRequestedH2.push_back(std::make_pair(x, y));
-    }
-    else {                      // removing
+    } else {                    // removing
         for (int i = fRequestedH2.size() - 1; i >= 0; --i)
             if (fRequestedH2[i].first == x and fRequestedH2[i].second == y)
                 fRequestedH2.erase(fRequestedH2.begin() + i);
@@ -2583,6 +2582,16 @@ void BCEngineMCMC::PrintParameters(const std::vector<double>& P, void (*output)(
 
     for (unsigned i = 0; i < P.size(); ++i)
         output(Form("          %-*s :   % .*g", GetMaximumParameterNameLength(P.size() > GetNParameters()), GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), P[i]));
+}
+
+// ---------------------------------------------------------
+std::vector<unsigned> BCEngineMCMC::GetH1DPrintOrder() const
+{
+    std::vector<unsigned> H1Indices;
+    for (unsigned i = 0; i < GetNVariables(); ++i)
+        if (GetVariable(i).FillH1())
+            H1Indices.push_back(i);
+    return H1Indices;
 }
 
 // ---------------------------------------------------------
