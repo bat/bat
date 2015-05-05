@@ -1058,34 +1058,43 @@ bool BCEngineMCMC::LoadMCMC(TTree* mcmcTree, TTree* parTree, bool loadObservable
 // --------------------------------------------------------
 void BCEngineMCMC::Remarginalize(bool autorange)
 {
+    // Check if tree is valid
     if (!ValidMCMCTree(fMCMCTree, fMCMCTreeReuseObservables))
         return;
 
+    // link chain and phase
     fMCMCTree->SetBranchAddress("Chain",          &fMCMCTree_Chain);
     fMCMCTree->SetBranchAddress("Phase",          &fMCMCPhase);
 
+    // link log(probability) if available
     if (fMCMCTree->GetBranch("LogProbability"))
         fMCMCTree->SetBranchAddress("LogProbability", &fMCMCTree_Prob);
 
+    // link iteration if available
     bool has_iteration = true;
     if (fMCMCTree->GetBranch("Iteration"))
         fMCMCTree->SetBranchAddress("Iteration",      &fMCMCTree_Iteration);
     else
         has_iteration = false;
 
+    // link log(likelihood) if available
     if (fMCMCTree->GetBranch("LogLikelihood"))
         fMCMCTree->SetBranchAddress("LogLikelihood", &fMCMCTree_LogLikelihood);
     else
         fMCMCTree_LogLikelihood = -std::numeric_limits<double>::infinity();
+
+    // link log(prior) if available
     if (fMCMCTree->GetBranch("LogPrior"))
         fMCMCTree->SetBranchAddress("LogPrior", &fMCMCTree_LogPrior);
     else
         fMCMCTree_LogPrior = -std::numeric_limits<double>::infinity();
 
-
+    // link parameters
     fMCMCTree_Parameters.assign(GetNParameters(), 0);
     for (unsigned i = 0; i < GetNParameters(); ++i)
         fMCMCTree->SetBranchAddress(GetParameter(i).GetSafeName().data(), &fMCMCTree_Parameters[i]);
+
+    // link observables
     if (fMCMCTreeReuseObservables) {
         fMCMCTree_Observables.assign(GetNObservables(), 0);
         for (unsigned i = 0; i < GetNObservables(); ++i)
@@ -1101,6 +1110,8 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         if (fMCMCTree_Chain + 1 > fMCMCNChains)
             fMCMCNChains = fMCMCTree_Chain + 1;
     }
+
+    MCMCInitialize();
 
     if (autorange) {
         std::vector<double> XMin;
@@ -1160,17 +1171,16 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         }
     }
 
-
     fMCMCStatistics.assign(fMCMCNChains, BCEngineMCMC::MCMCStatistics(GetNParameters(), GetNObservables()));
     fMCMCStatistics_AllChains.Init(GetNParameters(), GetNObservables());
     fMCMCTree_Prob = -std::numeric_limits<double>::infinity();
 
-    bool in_main_run = false;
-
     for (unsigned n = 0; n < fMCMCTree->GetEntries(); ++n) {
         fMCMCTree->GetEntry(n);
         if (!has_iteration)
-            fMCMCTree_Iteration = n;
+            fMCMCTree_Iteration = n / fMCMCNChains;
+
+        fMCMCCurrentIteration = fMCMCTree_Iteration;
 
         fMCMCx[fMCMCTree_Chain]    = fMCMCTree_Parameters;
         fMCMCprob[fMCMCTree_Chain] = fMCMCTree_Prob;
@@ -1182,10 +1192,10 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         else
             EvaluateObservables(fMCMCTree_Chain);
 
-        if (!in_main_run and fMCMCPhase > 0) {
+        if (fMCMCNIterationsConvergenceGlobal < 0 and fMCMCPhase > 0) {
             for (unsigned c = 0; c < fMCMCNChains; ++c)
                 fMCMCStatistics[c].Reset(false, true);
-            in_main_run = true;
+            fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
         }
 
         fMCMCStatistics[fMCMCTree_Chain].Update(fMCMCTree_Prob, fMCMCTree_Parameters, fMCMCTree_Observables);
