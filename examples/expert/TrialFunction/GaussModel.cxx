@@ -1,15 +1,11 @@
 #include "GaussModel.h"
 
 #include <BAT/BCMath.h>
-#include <BAT/BCParameter.h>
 
 #include <TRandom3.h>
 
-#include <cmath>
-#include <iostream>
-
 // ---------------------------------------------------------
-GaussModel::GaussModel(const char* name) : BCModel(name)
+GaussModel::GaussModel(std::string name) : BCModel(name)
 {
     // add parameters x and y
     AddParameter("x", -10.0, 50.0); // index 0
@@ -19,30 +15,19 @@ GaussModel::GaussModel(const char* name) : BCModel(name)
 }
 
 // ---------------------------------------------------------
-GaussModel::~GaussModel()
-// default destructor
-{
-}
-
-// ---------------------------------------------------------
 double GaussModel::LogLikelihood(const std::vector<double>& parameters)
 {
-    // assume a simple Gaussian Likelihood with two independent
-    // variables
     double logprob = 0.;
 
-    double x = parameters.at(0);
-    double y = parameters.at(1);
-
-    // Gaussian Likelihood
-    logprob += BCMath::LogGaus(x, 0.0, 2.0);
-    logprob += BCMath::LogGaus(y, 0.0, 1.0);
+    // Likelihood = Gaus(x | mean = 0, std.dev. = 2) * Gaus(y | mean = 0, std.dev. = 1)
+    logprob += BCMath::LogGaus(parameters[0], 0.0, 2.0);
+    logprob += BCMath::LogGaus(parameters[1], 0.0, 1.0);
 
     return logprob;
 }
 
 // --------------------------------------------------------
-double GaussModel::MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipar)
+double GaussModel::MCMCTrialFunctionSingle(unsigned ichain, unsigned ipar)
 {
     // no check of range for performance reasons
 
@@ -50,7 +35,7 @@ double GaussModel::MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipa
     // array is number of chains times number of parameters.
     // double scale = fMCMCTrialFunctionScaleFactor[ichain * GetNParameters() + ipar];
 
-    // choose trial function by uncommenting any of the lines below
+    // choose trial function by uncommenting choices below
 
     // Gaussian with fixed width
     //  return fRandom->Gaus(0.0, 1.0);
@@ -66,7 +51,6 @@ double GaussModel::MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipa
 
     // Flat function with fixed width
     return 0.02 * (0.5 - fRandom->Uniform());
-
 }
-// ---------------------------------------------------------
+
 

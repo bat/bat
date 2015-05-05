@@ -3,22 +3,22 @@
 
 #include <BAT/BCModel.h>
 
-// ---------------------------------------------------------
+#include <string>
+
 class GaussModel : public BCModel
 {
 public:
 
-    // Constructor and destructor
-    GaussModel(const char* name);
-    ~GaussModel();
+    GaussModel(std::string name);
 
-    // Method to overload, see file GaussModel.cxx
+    ~GaussModel()
+    { /* empty destructor */ }
+
     double LogLikelihood(const std::vector<double>& parameters);
 
     // overloaded trial function
-    virtual double MCMCTrialFunctionSingle(unsigned int ichain, unsigned int ipar);
+    virtual double MCMCTrialFunctionSingle(unsigned ichain, unsigned ipar);
 };
-// ---------------------------------------------------------
 
 #endif
 
