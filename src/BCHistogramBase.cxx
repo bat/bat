@@ -59,6 +59,7 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     SetColorScheme(kGreenYellowRed);
 
     fLegend->SetNColumns(fNLegendColumns);
+    fLegend->SetColumnSeparation(5e-2); // % of full width
     fLegend->SetBorderSize(0);
     fLegend->SetFillColor(kWhite);
     fLegend->SetTextAlign(12);
@@ -597,7 +598,7 @@ void BCHistogramBase::DrawMean()
             arrow_std->SetLineColor(marker_mean->GetMarkerColor());
             arrow_std->SetFillColor(marker_mean->GetMarkerColor());
             arrow_std->Draw();
-            le = AddLegendEntry(arrow_std, "mean and standard deviation", "PL");
+            le = AddLegendEntry(arrow_std, "mean and std. dev.", "PL");
             le->SetLineColor(arrow_std->GetLineColor());
 
             if (GetHistogram()->GetDimension() > 1) {

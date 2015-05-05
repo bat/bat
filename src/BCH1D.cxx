@@ -345,7 +345,7 @@ void BCH1D::DrawMedian()
         arrow_ci->SetFillColor(marker_median->GetMarkerColor());
         arrow_ci->Draw();
         fROOTObjects.push_back(arrow_ci);
-        le = AddLegendEntry(arrow_ci, "median and central 68.3% interval", "PL");
+        le = AddLegendEntry(arrow_ci, "median and central 68% interval", "PL");
         le->SetLineColor(arrow_ci->GetLineColor());
     } else
         le = AddLegendEntry(marker_median, "median", "P");
