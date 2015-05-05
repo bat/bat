@@ -3,6 +3,8 @@
 
 #include "GaussModel.h"
 
+#include <iostream>
+
 int main()
 {
 
@@ -13,40 +15,37 @@ int main()
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new GaussModel object
-    GaussModel* m = new GaussModel("gausMod");
+    GaussModel m("gausMod");
 
     // set marginalization method
-    m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set MCMC precision
-    m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
 
     // switch writing of Markov Chains on
-    m->WriteMarkovChain("output.root", "RECREATE");
+    m.WriteMarkovChain("GaussModel_mcmc.root", "RECREATE");
 
     // run MCMC and marginalize posterior wrt. all parameters
     // and all combinations of two parameters
-    m->MarginalizeAll();
+    m.MarginalizeAll();
 
     // if MCMC was run before (MarginalizeAll()) it is
     // possible to use the mode found by MCMC as
     // starting point of Minuit minimization
-    m->FindMode(m->GetGlobalMode());
+    m.FindMode(m.GetGlobalMode());
 
     // draw all marginalized distributions into a PostScript file
-    m->PrintAllMarginalized("GaussModel_plots.pdf");
+    m.PrintAllMarginalized("GaussModel_plots.pdf");
 
     // print results of the analysis into a text file
-    m->PrintResults("GaussModel_results.txt");
+    m.PrintResults("GaussModel_results.txt");
 
     // write marginalized distributions to output file
-    m->WriteMarginalizedDistributions("output.root", "UPDATE");
+    m.WriteMarginalizedDistributions("GaussModel_plots.root", "RECREATE");
 
     // close log file
     BCLog::CloseLog();
-
-    // free memory
-    delete m;
 
     return 0;
 }

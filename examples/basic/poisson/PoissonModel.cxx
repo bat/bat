@@ -8,9 +8,9 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-PoissonModel::PoissonModel(const char* name)
-    :	BCModel(name)
-    , fNObs(0)
+PoissonModel::PoissonModel(std::string name)
+    :	BCModel(name),
+      fNObs(0)
 {
     // add a parameter for the number of expected events. The range will
     // be adjusted later according to the number of observed events.
@@ -18,10 +18,6 @@ PoissonModel::PoissonModel(const char* name)
     GetParameter("lambda").SetPriorConstant();
 }
 
-// ---------------------------------------------------------
-PoissonModel::~PoissonModel()
-{
-}
 
 // ---------------------------------------------------------
 void PoissonModel::SetNObs(unsigned nobs)
@@ -29,35 +25,18 @@ void PoissonModel::SetNObs(unsigned nobs)
     // set number of observed events
     fNObs = nobs;
 
-    // adjust parameter ranges
-    double lambdamin = 0;
-    double lambdamax = 10;
+    // take [0,2*nobs] if nobs small
+    if (fNObs < 30)
+        GetParameter(0).SetLimits(0, 2 * fNObs);
+    // take 5*sigma window under Gaussian equivalent if nobs large
+    else
+        GetParameter(0).SetLimits(fNObs - 5 * sqrt(fNObs), nobs + 5 * sqrt(fNObs));
 
-    // the adjustment depends on the number of observed events
-    if (nobs >= 5 && nobs < 10) {
-        lambdamin = 0;
-        lambdamax = 20;
-    } else if (nobs >= 10 && nobs < 20) {
-        lambdamin = 0;
-        lambdamax = 40;
-    } else if (nobs >= 20 && nobs < 30) {
-        lambdamin = 5;
-        lambdamax = 55;
-    } else if (nobs >= 30) {
-        lambdamin = double(nobs) - 5 * sqrt(double(nobs));
-        lambdamax = double(nobs) + 5 * sqrt(double(nobs));
-    }
-
-    // re-set the parameter range
-    GetParameter(0).SetLimits(lambdamin, lambdamax);
 }
 
 // ---------------------------------------------------------
 double PoissonModel::LogLikelihood(const std::vector<double>& parameters)
 {
-    // This methods returns the logarithm of the conditional probability
-    // p(data|parameters). This is where you have to define your model.
-
-    // log Poisson term
+    // Likelihood = Poisson(fNobs | expectation = lambda)
     return BCMath::LogPoisson(fNObs, parameters[0]);
 }

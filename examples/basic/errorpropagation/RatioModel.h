@@ -3,13 +3,15 @@
 
 #include <BAT/BCModel.h>
 
+#include <string>
+
 // ---------------------------------------------------------
 class RatioModel : public BCModel
 {
 public:
 
     // Constructor and destructor
-    RatioModel(const char* name);
+    RatioModel(std::string name);
     ~RatioModel();
 
     double LogLikelihood(const std::vector<double>& parameters);

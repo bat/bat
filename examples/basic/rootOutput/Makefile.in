@@ -31,7 +31,7 @@ LIBS := `bat-config --libs`
 # Add classes to the end. Backslash indicates continuation
 # on the next line
 CXXSRCS      = \
-        runRootOutput.cxx GaussModel.cxx
+        GaussModel.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
@@ -39,12 +39,14 @@ CXXSRCS      = \
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 MYPROGS     = \
-        runRootOutput
+        runRootOutput \
+				readRootOutput
+PROGOBJS = $(addsuffix .o, $(MYPROGS))
 
-GARBAGE = $(CXXOBJS) *~ link.d $(MYPROGS)
+GARBAGE = $(CXXOBJS) $(PROGOBJS) *~ link.d $(MYPROGS)
 
 # targets
-all : runRootOutput
+all : $(MYPROGS)
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
@@ -57,8 +59,11 @@ link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
 clean :
 	rm -f $(GARBAGE)
 
-runRootOutput : $(CXXOBJS)
-	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o $@
+runRootOutput : $(CXXOBJS) runRootOutput.o
+	$(CXX) $(LDFLAGS) $^ $(LIBS) -o $@
+
+readRootOutput : $(CXXOBJS) readRootOutput.o
+	$(CXX) $(LDFLAGS) $^ $(LIBS) -o $@
 
 print :
 	@echo compiler  : $(CXX)

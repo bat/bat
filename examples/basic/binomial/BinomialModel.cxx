@@ -6,15 +6,15 @@
 #include <cmath>
 
 // ---------------------------------------------------------
-BinomialModel::BinomialModel(const char* name)
+BinomialModel::BinomialModel(std::string name, unsigned ntotal, unsigned nselected)
     : BCModel(name)
-    , fNTotal(10)
-    , fNSelected(5)
+    , fNTotal(ntotal)
+    , fNSelected(nselected)
 {
     // add a parameter which is the efficiency of observing a certain
     // amount of events starting from a larger set of events.
     // and set it's prior flat
-    AddParameter("epsilon", 0., 1., "#varepsilon"); // index 0
+    AddParameter("epsilon", 0., 1., "#varepsilon");
     SetPriorConstant("epsilon");
 }
 

@@ -3,19 +3,26 @@
 
 #include <BAT/BCModel.h>
 
-// ---------------------------------------------------------
+#include <string>
+
 class CombinationModel : public BCModel
 {
 public:
 
-    // Constructors and destructor
-    CombinationModel(const char* name);
-    ~CombinationModel();
+    CombinationModel(std::string name,
+                     double new_mean, double new_sigma,
+                     double old_mean, double old_sigma);
 
-    // Methods to overload, see file CombinationModel.cxx
-    double LogLikelihood(const std::vector<double>& parameters);
+    ~CombinationModel()
+    { /* empty destructor */ }
+
+    double LogLikelihood(const std::vector<double>& pars);
+
+protected:
+
+    double fNewMean;            // newly measured mean
+    double fNewSigma;           // newly measured sigma
 };
-// ---------------------------------------------------------
 
 #endif
 

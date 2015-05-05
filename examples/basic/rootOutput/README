@@ -12,11 +12,11 @@ using BAT.
 It shows how to write the MCMC into a ROOT file. The actual model is a
 simple 2D Gaussian.
 
-In addition the ROOT macro shows a simple example of analyzing the
-stored MCMC and producing the marginalized distributions "offline".
+In addition, a second program shows how to read the stored MCMC in and
+produce the marginalized distributions "offline."
 
-The source file(s) contain(s) plenty of comments and explanations. For
-further documentation see the "Short Introduction to BAT" and/or the
+The source files contain plenty of comments and explanations. For
+further documentation see the "Short Introduction to BAT" and the
 reference guide, both available on the BAT web page:
 
 http://mpp.mpg.de/bat/
@@ -29,8 +29,8 @@ Files:
   Makefile                - makefile for the example program
   GaussModel.h            - definition of the model class
   GaussModel.cxx          - source code of the model class
-  runOutputRoot.cxx       - the source code of the main program
-  analyzeMCMCTree.C       - ROOT macro for offline analysis
+  runOutputRoot.cxx       - the source code of the program to produce MCMC samples
+  readOutputRoot.cxx      - the source code of the program to read in the MCMC samples
 
 
 Running the example:
@@ -46,5 +46,5 @@ Running the example:
 
 3. Run the executable 'runRootOutput'.
 
-4. Run macro analyzeMCMCTree.C in ROOT, e.g., using 'root analyzeMCMCTree.C'
+4. Run the executable 'readRootOutput'.
 

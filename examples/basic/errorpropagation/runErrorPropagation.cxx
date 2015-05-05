@@ -13,31 +13,28 @@ int main()
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new RatioModel object
-    RatioModel* m = new RatioModel("ratMod");
+    RatioModel m("ratMod");
 
     // set Metropolis as marginalization method
-    m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
 
     // run the MCMC and marginalize w.r.t. to all parameters
-    m->MarginalizeAll();
+    m.MarginalizeAll();
 
     // find mode using the best fit parameters as start values
-    m->FindMode(m->GetGlobalMode());
+    m.FindMode(m.GetGlobalMode());
 
     // draw all marginalized distributions into a PostScript file
-    m->PrintAllMarginalized("RatioModel_plots.pdf");
+    m.PrintAllMarginalized("RatioModel_plots.pdf");
 
     // print results of the analysis into a text file
-    m->PrintResults("RatioModel_results.txt");
+    m.PrintResults("RatioModel_results.txt");
 
     // close log file
     BCLog::CloseLog();
-
-    // free memory
-    delete m;
 
     // no error
     return 0;

@@ -13,29 +13,31 @@ int main()
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new CombinationModel object
-    CombinationModel* m = new CombinationModel("combMod");
+    CombinationModel m("combMod",
+                       35.7, 3.1, 152.3, 5.4, 0.7, // new measurements
+                       39.4, 5.4, 150.3, 5.5);     // old measurements
 
     // marginalize
-    m->MarginalizeAll();
+    m.MarginalizeAll();
 
     // find mode
-    m->FindMode(m->GetGlobalMode());
+    m.FindMode(m.GetGlobalMode());
 
     // draw all marginalized distributions into a PostScript file
-    m->PrintAllMarginalized("CombinationModel_plots.pdf");
+    m.PrintAllMarginalized("CombinationModel_plots.pdf");
 
-    // print all summary plots
-    m->PrintParameterPlot("CombinationModel_parameters.pdf");
-    m->PrintCorrelationPlot("CombinationModel_correlation.pdf");
-    m->PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
+    // print summary plots
+    m.PrintParameterPlot("CombinationModel_parameters.pdf");
+    m.PrintCorrelationPlot("CombinationModel_correlation.pdf");
+
+    // m.SetKnowledgeUpdateDrawingStyle(BCModel::kKnowledgeUpdateDetailedPosterior);
+    m.PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
     // print results of the analysis into a text file
-    m->PrintResults("CombinationModel_results.txt");
+    m.PrintResults("CombinationModel_results.txt");
 
     // close log file
     BCLog::CloseLog();
-
-    delete m;
 
     return 0;
 

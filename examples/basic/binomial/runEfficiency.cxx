@@ -13,29 +13,22 @@ int main()
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // create new BinomialModel object
-    BinomialModel* m = new BinomialModel("binMod");
-
-    // set number of events
-    m->SetNTotal(20);
-    m->SetNSelected(3);
+    BinomialModel m("Binomial Model", 20, 3);
 
     // run the MCMC and calculate the marginalized distributions
-    m->MarginalizeAll();
+    m.MarginalizeAll();
 
     // find mode starting from the best fit parameters
-    m->FindMode(m->GetGlobalMode());
+    m.FindMode(m.GetGlobalMode());
 
     // draw all marginalized distributions into a pdf file
-    m->PrintAllMarginalized("BinomialModel_plots.pdf");
+    m.PrintAllMarginalized("BinomialModel_plots.pdf");
 
     // print results of the analysis into a text file
-    m->PrintResults("BinomialModel_results.txt");
+    m.PrintResults("BinomialModel_results.txt");
 
     // close log file
     BCLog::CloseLog();
-
-    // free memory
-    delete m;
 
     // no errors
     return 0;
