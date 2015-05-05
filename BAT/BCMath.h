@@ -4,10 +4,11 @@
 /*!
  * \namespace BCMath
  * \brief Some useful mathematic functions.
+ * \author Frederik Beaujean
+ * \author Daniel Greenwald
  * \author Daniel Kollar
  * \author Kevin Kr&ouml;ninger
  * \author Jing Liu
- * \author Frederik Beaujean
  * \version 1.0
  * \date 08.2008
  * \detail A namespace which encapsulates some mathematical functions
@@ -45,6 +46,15 @@ namespace BCMath
  * @param sigma Standard deviation.
  * @param norm flag for including normalization constant 1/sqrt(2*pi)/sigma */
 double LogGaus(double x, double mean = 0, double sigma = 1, bool norm = false);
+
+/**
+ * Calculate the natural logarithm of a normal distribution function with different variances below and above the mode.
+ * @param x point to be evaluated.
+ * @param mode Mode of the function.
+ * @param sigma_below Standard deviation below mode.
+ * @param sigma_above Standard deviation above mode.
+ * @param norm flag for including normalization constant sqrt(2/pi)/(sigma_below+sigma_above) */
+double LogSplitGaus(double x, double mode, double sigma_below, double sigma_above, bool norm = false);
 
 /**
  * Calculate the natural logarithm of a poisson distribution.

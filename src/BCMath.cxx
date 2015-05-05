@@ -39,7 +39,16 @@ double BCMath::LogGaus(double x, double mean, double sigma, bool norm)
         return result;
 
     // return result with subtraction of log of normalization constant
-    return result - log(sqrt(2 * M_PI) * sigma);
+    return result - 0.5 * log(2 * M_PI) - log(sigma);
+}
+
+// ---------------------------------------------------------
+double BCMath::LogSplitGaus(double x, double mode, double sigma_below, double sigma_above, bool norm)
+{
+    double norm_const = (norm) ? 0.5 * log(2 / M_PI) - log(sigma_below + sigma_above) : 0;
+    if (x > mode)
+        return LogGaus(x, mode, sigma_above, false) + norm_const;
+    return LogGaus(x, mode, sigma_below, false) + norm_const;
 }
 
 // ---------------------------------------------------------
