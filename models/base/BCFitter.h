@@ -25,6 +25,8 @@ class TGraph;
 
 #include "../../BAT/BCModel.h"
 
+#include <string>
+
 // ---------------------------------------------------------
 
 class BCFitter : public BCModel
@@ -37,7 +39,7 @@ public:
     /**
      * Constructor
      * @param name name of the model */
-    BCFitter(const char* name = "fitter_model");
+    BCFitter(std::string name = "fitter_model");
 
     /**
      * The default destructor. */

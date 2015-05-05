@@ -24,7 +24,7 @@
 #include "BCGraphFitter.h"
 
 // ---------------------------------------------------------
-BCGraphFitter::BCGraphFitter(const char* name)
+BCGraphFitter::BCGraphFitter(std::string name)
     : BCFitter(name)
     , fGraph(0)
     , fFitFunction(0)
@@ -36,7 +36,7 @@ BCGraphFitter::BCGraphFitter(const char* name)
 }
 
 // ---------------------------------------------------------
-BCGraphFitter::BCGraphFitter(TGraphErrors* graph, TF1* func, const char* name)
+BCGraphFitter::BCGraphFitter(TGraphErrors* graph, TF1* func, std::string name)
     : BCFitter(name)
     , fGraph(0)
     , fFitFunction(0)

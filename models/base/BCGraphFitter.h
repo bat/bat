@@ -23,6 +23,7 @@
 
 // ---------------------------------------------------------
 
+#include <string>
 #include <vector>
 
 #include "BCFitter.h"
@@ -42,14 +43,14 @@ public:
     /**
      * Constructor
      * @param name name of the model */
-    BCGraphFitter(const char* name = "graph_fitter_model");
+    BCGraphFitter(std::string name = "graph_fitter_model");
 
     /**
      * Constructor
      * @param graph pointer to TGraphErrors
      * @param func pointer to TF1
      * @param name name of the model */
-    BCGraphFitter(TGraphErrors* graph, TF1* func, const char* name = "graph_fitter_model");
+    BCGraphFitter(TGraphErrors* graph, TF1* func, std::string name = "graph_fitter_model");
 
     /**
      * The default destructor. */

@@ -42,7 +42,7 @@ BCHistogramFitter::BCHistogramFitter()
 }
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(const char* name)
+BCHistogramFitter::BCHistogramFitter(std::string name)
     : BCFitter(name)
     , fHistogram(0)
     , fFitFunction(0)
@@ -76,7 +76,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func)
 }
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(const char* name, TH1D* hist, TF1* func)
+BCHistogramFitter::BCHistogramFitter(std::string name, TH1D* hist, TF1* func)
     : BCFitter(name)
     , fHistogram(0)
     , fFitFunction(0)

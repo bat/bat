@@ -7,6 +7,7 @@
 #include <RooRealVar.h>
 
 #include <list>
+#include <string>
 #include <utility>
 
 class RooAbsReal;
@@ -24,7 +25,7 @@ class BCRooInterface : public BCModel
 {
 public:
 
-    BCRooInterface( const char* name = "", bool fillChain = false );
+    BCRooInterface(std::string name = "", bool fillChain = false );
 
     ~BCRooInterface();
 

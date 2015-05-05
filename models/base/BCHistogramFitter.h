@@ -22,6 +22,7 @@
 
 // ---------------------------------------------------------
 
+#include <string>
 #include <vector>
 
 #include "BCFitter.h"
@@ -46,7 +47,7 @@ public:
     /**
      * Constructor
      * @param name name of the model */
-    BCHistogramFitter(const char* name);
+    BCHistogramFitter(std::string name);
 
     /**
      * Constructor.
@@ -59,7 +60,7 @@ public:
      * @param name name of the model
      * @param hist histogram to fit
      * @param func fit function */
-    BCHistogramFitter(const char* name, TH1D* hist, TF1* func);
+    BCHistogramFitter(std::string name, TH1D* hist, TF1* func);
 
     /**
      * The default destructor. */

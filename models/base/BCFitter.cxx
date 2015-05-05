@@ -22,7 +22,7 @@
 #include "TGraph.h"
 
 // ---------------------------------------------------------
-BCFitter::BCFitter(const char* name)
+BCFitter::BCFitter(std::string name)
     : BCModel(name)
     , fFlagFillErrorBand(true)
     , fFitFunctionIndexX(-1)

@@ -44,7 +44,7 @@ BCEfficiencyFitter::BCEfficiencyFitter()
 }
 
 // ---------------------------------------------------------
-BCEfficiencyFitter::BCEfficiencyFitter(const char* name)
+BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
     : BCFitter(name)
     , fHistogram1(0)
     , fHistogram2(0)
@@ -78,7 +78,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func)
 }
 
 // ---------------------------------------------------------
-BCEfficiencyFitter::BCEfficiencyFitter(const char* name, TH1D* hist1, TH1D* hist2, TF1* func)
+BCEfficiencyFitter::BCEfficiencyFitter(std::string name, TH1D* hist1, TH1D* hist2, TF1* func)
     : BCFitter(name)
     , fHistogram1(0)
     , fHistogram2(0)

@@ -60,7 +60,7 @@ public:
         { }
     };
 
-    /** \name Constructors and destructors */
+    /** \name Constructors and destructor */
     /* @{ */
 
     /**
@@ -70,7 +70,7 @@ public:
     /**
      * Constructor
      * @param name name fo the model */
-    BCEfficiencyFitter(const char* name);
+    BCEfficiencyFitter(std::string name);
 
     /**
      * A constructor.
@@ -85,7 +85,7 @@ public:
      * @param hist1 The histogram with the larger numbers
      * @param hist2 The histogram with the smaller numbers
      * @param func The fit function. */
-    BCEfficiencyFitter(const char* name, TH1D* hist1, TH1D* hist2, TF1* func);
+    BCEfficiencyFitter(std::string name, TH1D* hist1, TH1D* hist2, TF1* func);
 
     /**
      * The default destructor. */
