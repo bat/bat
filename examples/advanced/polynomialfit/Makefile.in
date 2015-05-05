@@ -32,8 +32,7 @@ LIBS := `bat-config --libs`
 # on the next line
 CXXSRCS      = \
 	asymmErrorsFitterExample.cxx \
-	Pol1Asymm.cxx \
-	Pol2Asymm.cxx
+	PolAsymm.cxx
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
 GARBAGE      = $(CXXOBJS) asymmErrorsFitterExample *~ link.d
