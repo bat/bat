@@ -35,7 +35,7 @@ public:
     /** @{ **/
 
     /** Constructor, TH1 is copied */
-    BCTH1Prior(const TH1* const h, bool interpolate);
+    BCTH1Prior(const TH1* const h, bool interpolate = false);
 
     /** Copy constructor */
     BCTH1Prior(const BCTH1Prior& other);
