@@ -31,7 +31,10 @@ LIBS := `bat-config --libs`
 # Add classes to the end. Backslash indicates continuation
 # on the next line
 CXXSRCS      = \
-        runReferenceCounting.cxx ReferenceCounting.cxx
+        runReferenceCounting.cxx \
+				ReferenceCounting.cxx \
+				RefPrior.cxx \
+				GammaDistPrior.cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
