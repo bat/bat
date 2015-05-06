@@ -1553,9 +1553,6 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         // suppress ROOT errors about Cholesky decomposition
         gErrorIgnoreLevel = kBreak;
 
-        // initialize proposal function scale factors to 2.38^2 / number of dimensions
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
-
         // initialize covariance matrices as diag(var_0, var_1, var_2, ...)
         // initialize cholesky decomposition as diag(std_0, std_1, std_2, ...)
         // for free parameters only
@@ -1574,19 +1571,6 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             }
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, S0);
         fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains, CD0);
-    } else if (fMCMCAutoSetTrialFunctionScaleFactors) {
-        std::vector<double> temp;
-        for (unsigned i = 0; i < GetNParameters(); ++i) {
-            if (GetParameter(i).Fixed() or GetParameter(i).GetRangeWidth() == 0)
-                temp.push_back(1);
-            else if (GetParameter(i).GetPrior() != NULL) {
-                temp.push_back(GetParameter(i).GetPrior()->GetStandardDeviation() / GetParameter(i).GetRangeWidth());
-                if (!std::isfinite(temp.back()))
-                    temp.back() = GetParameter(i).GetRangeWidth() / sqrt(12);
-            } else
-                temp.push_back(GetParameter(i).GetRangeWidth() / sqrt(12));
-        }
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, temp);
     }
     // number of updates made to multivariate-proposal-function covariances
     unsigned mvt_updates = 0;
@@ -2134,10 +2118,32 @@ bool BCEngineMCMC::MCMCInitialize()
 
     SyncThreadStorage();
 
-    if (fMCMCTrialFunctionScaleFactorStart.empty() or fMCMCTrialFunctionScaleFactorStart.size() != GetNParameters())
-        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(GetNParameters(), 1.0));
-    else
+    // set scale factors
+    if (fMCMCMultivariateProposalFunction)
+        // if multivariate
+        // initialize proposal function scale factors to 2.38^2 / number of dimensions
+        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(1, 2.38 * 2.38 / GetNFreeParameters()));
+    // else
+    else if (fMCMCTrialFunctionScaleFactorStart.size() == GetNParameters())
+        // if provided by user
         fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, fMCMCTrialFunctionScaleFactorStart);
+    else if (fMCMCAutoSetTrialFunctionScaleFactors) {
+        // calculated from priors
+        std::vector<double> temp;
+        for (unsigned i = 0; i < GetNParameters(); ++i)
+            if (GetParameter(i).Fixed() or GetParameter(i).GetRangeWidth() == 0)
+                temp.push_back(1);
+            else {
+                double var = GetParameter(i).GetPriorVariance();
+                if (var > 0 and std::isfinite(var))
+                    temp.push_back(sqrt(var) / GetParameter(i).GetRangeWidth());
+                else
+                    temp.push_back(1. / sqrt(12));
+            }
+        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, temp);
+    } else
+        // set to 1/sqrt(12)
+        fMCMCTrialFunctionScaleFactor.assign(fMCMCNChains, std::vector<double>(GetNParameters(), 1. / sqrt(12)));
 
     // set that a main run has not been made
     fMCMCFlagRun = false;
