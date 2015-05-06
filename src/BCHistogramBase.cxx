@@ -30,30 +30,33 @@
 
 // ---------------------------------------------------------
 BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
-    : fHistogram(0)
-    , fLegend(new TLegend)
-    , fNLegendColumns(2)
-    , fBandOvercoverage(false)
-    , fBandFillStyle(1001)
-    , fLineColor(kBlack)
-    , fMarkerColor(kBlack)
-    , fMarkerScale(1.6)
-    , fLogx(false)
-    , fLogy(false)
-    , fLogz(false)
-    , fGridx(false)
-    , fGridy(false)
-    , fNBands(3)
-    , fNSmooth(0)
-    , fDrawGlobalMode(true)
-    , fDrawGlobalModeArrows(true)
-    , fDrawLocalMode(false)
-    , fDrawLocalModeArrows(true)
-    , fDrawMean(true)
-    , fDrawStandardDeviation(true)
-    , fDrawLegend(true)
-    , fDrawStats(false)
-    , fDimension(dimension)
+    : fHistogram(0),
+      fLegend(new TLegend),
+      fNLegendColumns(2),
+      fBandOvercoverage(false),
+      fBandFillStyle(1001),
+      fLineColor(kBlack),
+      fMarkerColor(kBlack),
+      fMarkerScale(1.6),
+      fLogx(false),
+      fLogy(false),
+      fLogz(false),
+      fGridx(false),
+      fGridy(false),
+      fNBands(3),
+      fNSmooth(0),
+      fDrawGlobalMode(true),
+      fDrawGlobalModeArrows(true),
+      fGlobalModeMarkerStyle(24),
+      fDrawLocalMode(false),
+      fDrawLocalModeArrows(true),
+      fLocalModeMarkerStyle(25),
+      fDrawMean(true),
+      fMeanMarkerStyle(20),
+      fDrawStandardDeviation(true),
+      fDrawLegend(true),
+      fDrawStats(false),
+      fDimension(dimension)
 {
     SetHistogram(hist);
     SetColorScheme(kGreenYellowRed);
@@ -101,9 +104,12 @@ void BCHistogramBase::CopyOptions(const BCHistogramBase& other)
     fNSmooth = other.fNSmooth;
     fDrawGlobalMode = other.fDrawGlobalMode;
     fDrawGlobalModeArrows = other.fDrawGlobalModeArrows;
+    fGlobalModeMarkerStyle = other.fGlobalModeMarkerStyle;
     fDrawLocalMode = other.fDrawLocalMode;
     fDrawLocalModeArrows = other.fDrawLocalModeArrows;
+    fLocalModeMarkerStyle = other.fLocalModeMarkerStyle;
     fDrawMean = other.fDrawMean;
+    fMeanMarkerStyle = other.fMeanMarkerStyle;
     fDrawStandardDeviation = other.fDrawStandardDeviation;
     fDrawLegend = other.fDrawLegend;
     fDrawStats = other.fDrawStats;
@@ -472,7 +478,7 @@ void BCHistogramBase::DrawGlobalMode()
         y = fGlobalMode[1];
 
     if (fDrawGlobalMode and !fGlobalMode.empty()) {
-        TMarker* marker_mode = new TMarker(fGlobalMode[0], y, 24);
+        TMarker* marker_mode = new TMarker(fGlobalMode[0], y, fGlobalModeMarkerStyle);
         marker_mode->SetMarkerColor(GetMarkerColor());
         marker_mode->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
         marker_mode->Draw();
@@ -528,7 +534,7 @@ void BCHistogramBase::DrawLocalMode()
         y = fLocalMode[1];
 
     if (fDrawLocalMode and !fLocalMode.empty()) {
-        TMarker* marker_mode = new TMarker(fLocalMode[0], y, 25);
+        TMarker* marker_mode = new TMarker(fLocalMode[0], y, fLocalModeMarkerStyle);
         marker_mode->SetMarkerColor(GetMarkerColor());
         marker_mode->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
         marker_mode->Draw();
@@ -584,7 +590,7 @@ void BCHistogramBase::DrawMean()
         y = GetHistogram()->GetMean(2);
 
     if ( fDrawMean ) {
-        TMarker* marker_mean = new TMarker(GetHistogram()->GetMean(1), y, 20);
+        TMarker* marker_mean = new TMarker(GetHistogram()->GetMean(1), y, fMeanMarkerStyle);
         marker_mean->SetMarkerColor(GetMarkerColor());
         marker_mean->SetMarkerSize(fMarkerScale * gPad->GetWNDC());
         marker_mean->Draw();

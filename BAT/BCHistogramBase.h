@@ -154,6 +154,11 @@ public:
     { return fDrawGlobalMode and fDrawGlobalModeArrows; }
 
     /**
+     * @return Global mode marker style. */
+    int GetGlobalModeMarkerStyle()
+    { return fGlobalModeMarkerStyle; }
+
+    /**
      * @return whether to draw local mode. */
     bool GetDrawLocalMode() const
     { return fDrawLocalMode; }
@@ -164,9 +169,18 @@ public:
     { return fDrawLocalMode and fDrawLocalModeArrows; }
 
     /**
+     * @return Local mode marker style. */
+    int GetLocalModeMarkerStyle()
+    { return fLocalModeMarkerStyle; }
+
+    /**
      * @return whether to draw mean. */
     bool GetDrawMean() const
     { return fDrawMean; }
+    /**
+     * @return Mean marker style. */
+    int GetMeanMarkerStyle()
+    { return fMeanMarkerStyle; }
 
     /**
      * @return whether to draw standard deviation. */
@@ -344,9 +358,21 @@ public:
     { fDrawGlobalMode = flag; fDrawGlobalModeArrows = arrows;}
 
     /**
+     * Set global mode marker style.
+     * @param s Marker style. */
+    void SetGlobalModeMarkerStyle(int s)
+    { fGlobalModeMarkerStyle = s; }
+
+    /**
      * Set drawing of global mode. */
     void SetDrawLocalMode(bool flag = true, bool arrows = true)
     { fDrawLocalMode = flag; fDrawLocalModeArrows = arrows;}
+
+    /**
+     * Set Local mode marker style.
+     * @param s Marker style. */
+    void SetLocalModeMarkerStyle(int s)
+    { fLocalModeMarkerStyle = s; }
 
     /**
      * Set drawing of mean.
@@ -354,6 +380,12 @@ public:
      * @param stddev Toggles standard deviaton drawing. (Automatically suppressed if mean is suppressed.) */
     void SetDrawMean(bool flag = true, bool stddev = true)
     { fDrawMean = flag; fDrawStandardDeviation = stddev;}
+
+    /**
+     * Set mean marker style.
+     * @param s Marker style. */
+    void SetMeanMarkerStyle(int s)
+    { fMeanMarkerStyle = s; }
 
     /**
      * Set drawing of legend. */
@@ -577,6 +609,10 @@ protected:
     bool fDrawGlobalModeArrows;
 
     /**
+     * Holds option for global-mode marker style. */
+    int fGlobalModeMarkerStyle;
+
+    /**
      * Flag for drawing local mode. */
     bool fDrawLocalMode;
 
@@ -585,8 +621,16 @@ protected:
     bool fDrawLocalModeArrows;
 
     /**
+     * Holds option for local-mode marker style. */
+    int fLocalModeMarkerStyle;
+
+    /**
      * Flag for drawing mean. */
     bool fDrawMean;
+
+    /**
+     * Holds option for mean marker style. */
+    int fMeanMarkerStyle;
 
     /**
      * Flag for drawing standard deviation. */
