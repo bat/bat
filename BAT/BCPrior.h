@@ -25,6 +25,7 @@
 #include <cstddef>
 
 class TF1;
+class TH1;
 class TRandom;
 
 // ---------------------------------------------------------
@@ -66,7 +67,7 @@ public:
     virtual double GetLogPrior(double x) const = 0;
 
     /**
-     * Clone function */
+     * Clone function. [Copy constructor must also be provided.] */
     virtual BCPrior* Clone() const = 0;
     // { return new [Derived Class](*this); }
 
@@ -181,7 +182,7 @@ public:
     virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const;
 
     /** @} **/
-    /** \name Functions for building ROOT TF1s */
+    /** \name Functions related to ROOT access. */
     /** @{ **/
 
     /**
@@ -218,6 +219,14 @@ public:
      * Get stored integral. */
     double GetStoredIntegral() const
     { return fIntegral; }
+
+    /**
+     * Fill histogram by prior evaluated at bin center. */
+    void FillHistogramByCenterValue(TH1* h);
+
+    /**
+     * Fill histogram by integrating prior over bin and dividing by bin width. */
+    void FillHistogramByIntegral(TH1* h);
 
     /** @} **/
 

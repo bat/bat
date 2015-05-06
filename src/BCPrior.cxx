@@ -14,6 +14,7 @@
 
 #include <TMath.h>
 #include <TF1.h>
+#include <TH1.h>
 #include <TRandom.h>
 
 #include <iostream>
@@ -139,4 +140,23 @@ void BCPrior::SetFunctionRange(double xmin, double xmax)
 {
     if (fPriorFunction)
         fPriorFunction->SetRange(xmin, xmax);
+}
+
+// ---------------------------------------------------------
+void BCPrior::FillHistogramByCenterValue(TH1* h)
+{
+    if (!h)
+        return;
+    for (int i = 1; i <= h->GetNbinsX(); ++i)
+        h -> SetBinContent(i, GetPrior(h->GetXaxis()->GetBinCenter(i)));
+}
+
+// ---------------------------------------------------------
+void BCPrior::FillHistogramByIntegral(TH1* h)
+{
+    if (!h)
+        return;
+    for (int i = 1; i <= h->GetNbinsX(); ++i)
+        if (h->GetXaxis()->GetBinWidth(i) > 0)
+            h -> SetBinContent(i, GetIntegral(h->GetXaxis()->GetBinLowEdge(i), h->GetXaxis()->GetBinUpEdge(i)) / h->GetXaxis()->GetBinWidth(i));
 }
