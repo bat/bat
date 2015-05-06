@@ -148,8 +148,7 @@ double LogBinomFactorExact(unsigned n, unsigned k);
  * Calculates natural logarithm of the n-factorial (n!) */
 double LogFact(unsigned n);
 
-/** Cache factorials for first \arg \c n integers.
- * The cache is filled upon first call of LogFact(). */
+/** Cache factorials for first \arg \c n integers. */
 unsigned CacheFactorials(unsigned int n);
 
 /**
