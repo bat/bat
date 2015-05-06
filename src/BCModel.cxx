@@ -794,6 +794,7 @@ void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingSt
             fBCH2DPriorDrawingOptions->SetROOToptions("same");
             fBCH2DPriorDrawingOptions->SetLineColor(13);
             fBCH2DPriorDrawingOptions->SetMarkerColor(13);
+            fBCH2DPriorDrawingOptions->SetLocalModeMarkerStyle(25);
             fBCH2DPriorDrawingOptions->SetNLegendColumns(1);
             fBCH2DPosteriorDrawingOptions->CopyOptions(*fBCH2DPriorDrawingOptions);
             fBCH2DPosteriorDrawingOptions->SetNBands(3);
@@ -801,6 +802,7 @@ void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingSt
             fBCH2DPosteriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
             fBCH2DPosteriorDrawingOptions->SetLineColor(kBlack);
             fBCH2DPosteriorDrawingOptions->SetMarkerColor(kBlack);
+            fBCH2DPosteriorDrawingOptions->SetLocalModeMarkerStyle(21);
             break;
 
         case kKnowledgeUpdateDetailedPrior:
@@ -838,6 +840,7 @@ void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingSt
             fBCH2DPosteriorDrawingOptions->SetROOToptions("same");
             fBCH2DPosteriorDrawingOptions->SetLineColor(13);
             fBCH2DPosteriorDrawingOptions->SetMarkerColor(13);
+            fBCH2DPosteriorDrawingOptions->SetLocalModeMarkerStyle(25);
             fBCH2DPosteriorDrawingOptions->SetNLegendColumns(1);
             fBCH2DPriorDrawingOptions->CopyOptions(*fBCH2DPosteriorDrawingOptions);
             fBCH2DPriorDrawingOptions->SetNBands(3);
@@ -845,6 +848,7 @@ void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingSt
             fBCH2DPriorDrawingOptions->SetBandFillStyle(1001);
             fBCH2DPriorDrawingOptions->SetLineColor(kBlack);
             fBCH2DPriorDrawingOptions->SetMarkerColor(kBlack);
+            fBCH2DPriorDrawingOptions->SetLocalModeMarkerStyle(21);
             break;
 
         case kKnowledgeUpdateDefaultStyle:
