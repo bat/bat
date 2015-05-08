@@ -12,7 +12,7 @@ all:
 	@$(foreach dir,$(exampledirs),echo "entering $(dir)" && $(MAKE) -C $(dir) all &&) echo ""
 
 clean:
-	@$(foreach dir,$(exampledirs),$(MAKE) -C $(dir) clean;)
+	@$(foreach dir,$(exampledirs),$(MAKE) -C $(dir) clean &&) echo ""
 
 print:
 	@echo $(exampledirs) | tr " " "\n"
