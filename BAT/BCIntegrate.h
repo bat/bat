@@ -909,7 +909,7 @@ private:
      * @return The mode found.
      * @note The result may not coincide with the result of @code GetGlobalMode()
      * if a previous optimization found a better value. */
-    std::vector<double> FindModeMinuit(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0), int printlevel = 1);
+    std::vector<double> FindModeMinuit(std::vector<double>& mode, std::vector<double>& errors, std::vector<double> start = std::vector<double>(0), int printlevel = -1);
 
     /**
      * Does the mode finding using Markov Chain Monte Carlo (prerun only!)
