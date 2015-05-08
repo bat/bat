@@ -236,7 +236,7 @@ void BCMVCDataModel::PrintToys(std::string filename)
 }
 
 // ---------------------------------------------------------
-void BCMVCDataModel::PrintSummary()
+void BCMVCDataModel::PrintSummary() const
 {
 
     BCLog::OutSummary("Goodness-of-fit test:\n");
@@ -256,7 +256,7 @@ void BCMVCDataModel::PrintSummary()
 }
 
 // ---------------------------------------------------------
-double BCMVCDataModel::Chi2(TVectorD observables, TVectorD measurements)
+double BCMVCDataModel::Chi2(TVectorD observables, TVectorD measurements) const
 {
     TVectorD prod1 = observables - measurements;
     TVectorD prod2 = fInvCovarianceMatrix * prod1;

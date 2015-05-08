@@ -24,6 +24,8 @@
 #include "BCLog.h"
 #include "BCAux.h"
 
+#include <TString.h>
+
 class TRandom;
 
 // ---------------------------------------------------------
@@ -292,6 +294,13 @@ public:
         return p;
     }
 
+    /**
+     * Print summary of variable set to logs. */
+    virtual void PrintSummary() const
+    {
+        for (unsigned i = 0; i < fVars.size(); ++i)
+            BCLog::OutSummary(Form(" (%u) ", i) + fVars[i].OneLineSummary());
+    }
 protected:
     /**
      * Vector of BCVariables that forms the set.

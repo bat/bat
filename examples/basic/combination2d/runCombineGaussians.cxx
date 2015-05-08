@@ -33,8 +33,8 @@ int main()
     // m.SetKnowledgeUpdateDrawingStyle(BCModel::kKnowledgeUpdateDetailedPosterior);
     m.PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
-    // print results of the analysis into a text file
-    m.PrintResults("CombinationModel_results.txt");
+    // print results of the analysis the log
+    m.PrintSummary();
 
     // close log file
     BCLog::CloseLog();

@@ -46,7 +46,6 @@
 #include <limits>
 #include <cmath>
 #include <algorithm>
-#include <fstream>
 #include <deque>
 
 #include <typeinfo>
@@ -1813,13 +1812,13 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         BCLog::OutDetail(Form(" --> Average scale factors and efficiencies (measured in last %d iterations):", fMCMCStatistics.front().n_samples_efficiency));
         BCLog::OutDetail(Form("       - %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
         // print scale factors and efficiencies
-        std::vector<double> scalefactors (GetNParameters(), 0);
         for (unsigned i = 0; i < GetNParameters(); ++i) {
             if (GetParameter(i).Fixed())
                 continue;
+            double scalefactors = 0;
             for (unsigned j = 0; j < fMCMCNChains; ++j)
-                scalefactors[i] += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
-            BCLog::OutDetail(Form("         %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactors[i], 100.*fMCMCStatistics_AllChains.efficiency[i]));
+                scalefactors += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
+            BCLog::OutDetail(Form("         %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactors, 100.*fMCMCStatistics_AllChains.efficiency[i]));
         }
     }
 
@@ -2405,188 +2404,138 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintSummary()
+void BCEngineMCMC::PrintSummary() const
 {
-    // model summary
-    BCLog::OutSummary(Form("Model : %s", fName.data()));
-    BCLog::OutSummary(Form("Number of parameters : %u", GetNParameters()));
-    BCLog::OutSummary("Parameters:");
-
-    // parameter summary
-    for (unsigned i = 0; i < GetNParameters(); i++)
-        GetParameter(i).PrintSummary();
-
-    if (GetNObservables() > 0) {
-        BCLog::OutSummary(Form("Number of observables : %u", GetNObservables()));
-        BCLog::OutSummary("Observables:");
-
-        // observable summary
-        for (unsigned i = 0; i < GetNObservables(); i++)
-            GetObservable(i).PrintSummary();
-    }
-
-    // best fit parameters
-    if ( GetGlobalMode().empty() )
-        return;
-
-    BCLog::OutSummary(Form("Log of the maximum posterior: %f", GetLogMaximum()));
-    BCLog::OutSummary("Best fit results:");
-
-    for (unsigned i = 0; i < GetNVariables(); i++) {
-        if (i < GetNParameters() and GetParameter(i).Fixed() )
-            BCLog::OutSummary(Form(" %s = %.*f (fixed)",  GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), GetParameter(i).GetFixedValue()));
-        else
-            BCLog::OutSummary(Form(" %s = %.*f (global)", GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), GetGlobalMode()[i]));
-
-        if ( (GetLocalModes().size() == GetNParameters() or GetLocalModes().size() == GetNVariables()) and i < GetLocalModes().size() )
-            BCLog::OutSummary(Form(" %s = %.*f (marginalized)", GetVariable(i).GetName().data(), GetVariable(i).GetPrecision(), GetLocalModes()[i]));
-    }
+    PrintModelSummary();
+    PrintBestFitSummary();
+    PrintMarginalizationSummary();
 }
 
 // ---------------------------------------------------------
-bool BCEngineMCMC::PrintResults(std::string file) const
+void BCEngineMCMC::PrintModelSummary() const
 {
-    // open file
-    std::ofstream ofi(file);
+    BCLog::OutSummary("");
+    BCLog::OutSummary(" -----------------------------------------------------");
+    BCLog::OutSummary(" Summary");
+    BCLog::OutSummary(" -----------------------------------------------------");
+    BCLog::OutSummary("");
 
-    // check if file is open
-    if (!ofi.is_open()) {
-        BCLog::OutError("Couldn't open file " + file + ".");
-        return false;
+    BCLog::OutSummary(" Model summary");
+    BCLog::OutSummary(" =============");
+    BCLog::OutSummary(" Model: " + GetName());
+    BCLog::OutSummary(Form(" Number of parameters: %u", GetNParameters()));
+
+    BCLog::OutSummary(" List of parameters and ranges:");
+    fParameters.PrintSummary();
+
+    if (!fObservables.Empty()) {
+        BCLog::OutSummary(" List of observables and ranges:");
+        fObservables.PrintSummary();
     }
-
-    PrintSummaryToStream(ofi);
-    PrintBestFitToStream(ofi);
-    PrintMarginalizationToStream(ofi);
-
-    // close file
-    ofi.close();
-    return true;
+    BCLog::OutSummary("");
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintSummaryToStream(std::ofstream& ofi) const
-{
-    ofi << std::endl
-        << " -----------------------------------------------------" << std::endl
-        << " Summary" << std::endl
-        << " -----------------------------------------------------" << std::endl
-        << std::endl;
-
-    ofi << " Model summary" << std::endl
-        << " =============" << std::endl
-        << " Model: " << GetName() << std::endl
-        << " Number of parameters: " << GetNParameters() << std::endl
-        << " List of Parameters and ranges:" << std::endl;
-
-    // Parameters & Observables
-    for (unsigned i = 0; i < GetNVariables(); ++i) {
-        if (i == GetNParameters())
-            ofi << " List of Observables and ranges:" << std::endl;
-        ofi << " (" << i << ") " << GetVariable(i).OneLineSummary() << std::endl;
-    }
-    ofi << std::endl;
-}
-
-// ---------------------------------------------------------
-void BCEngineMCMC::PrintBestFitToStream(std::ofstream& ofi) const
+void BCEngineMCMC::PrintBestFitSummary() const
 {
     if (GetGlobalMode().size() != GetNParameters() and GetGlobalMode().size() != GetNVariables()) {
-        ofi << "No best fit information available." << std::endl << std::endl;
+        BCLog::OutSummary("No best fit information available.");
         return;
     }
 
-    ofi << " Best Fit Results" << std::endl
-        << " ===========================" << std::endl
-        << " Log of the maximum posterior: " << GetLogMaximum() << std::endl
-        << " List of parameters and global mode:" << std::endl;
+    BCLog::OutSummary(" Best Fit Results");
+    BCLog::OutSummary(" ===========================");
+    BCLog::OutSummary(Form(" Log of the maximum posterior: %f", GetLogMaximum()));
+    BCLog::OutSummary(" Global mode:");
 
-    for (unsigned i = 0; i < GetGlobalMode().size(); ++i) {
-        ofi << Form(" (%d) %10s \"%*s\" : %.*f", i, GetVariable(i).GetPrefix().data(),
-                    GetMaximumParameterNameLength(), GetVariable(i).GetName().data(),
-                    GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
-        if (i < GetNParameters() and GetParameter(i).Fixed())
-            ofi << " (fixed)";
-        ofi << std::endl;
-    }
+    for (unsigned i = 0; i < GetGlobalMode().size(); ++i)
+        BCLog::OutSummary(GetBestFitSummary(i));
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::PrintMarginalizationToStream(std::ofstream& ofi) const
+std::string BCEngineMCMC::GetBestFitSummary(unsigned i) const
 {
-    if (fMCMCFlagRun)
-        ofi << " Results of the marginalization" << std::endl
-            << " ==============================" << std::endl;
+    if (i >= GetNVariables())
+        return std::string("");
 
-    // give warning if MCMC did not converge
-    if (MCMCGetNIterationsConvergenceGlobal() <= 0 && fMCMCFlagRun)
-        ofi << " WARNING: the Markov Chain did not converge!" << std::endl
-            << " Be cautious using the following results!" << std::endl
-            << std::endl;
+    std::string par_summary = Form(" (%d) %10s \"%s\"%*s : %.*f", i, GetVariable(i).GetPrefix().data(),
+                                   GetVariable(i).GetName().data(), (int)(GetMaximumParameterNameLength() - GetVariable(i).GetName().length()), "",
+                                   GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
 
-    ofi << " List of parameters and properties of the marginalized" << std::endl
-        << " distributions:" << std::endl;
+    if (i < GetNParameters() and GetParameter(i).Fixed())
+        par_summary += " (fixed)";
+
+    return par_summary;
+}
+
+// ---------------------------------------------------------
+void BCEngineMCMC::PrintMarginalizationSummary() const
+{
+    BCLog::OutSummary(" Results of the marginalization");
+    BCLog::OutSummary(" ==============================");
+
+    if (fMCMCFlagRun and fMCMCNIterationsConvergenceGlobal <= 0) {
+        // give warning if MCMC did not converge
+        BCLog::OutSummary(" WARNING: the Markov Chain did not converge!");
+        BCLog::OutSummary(" Be cautious using the following results!");
+        BCLog::OutSummary("");
+    }
+
+    BCLog::OutSummary(" List of parameters and properties of the marginalized");
+    BCLog::OutSummary(" distributions:");
 
     for (unsigned i = 0; i < GetNVariables(); ++i) {
-        if ( ! GetVariable(i).FillH1())
-            continue;
+        std::string par_summary = Form("  (%u) ", i) + GetVariable(i).GetPrefix() + "\"" + GetVariable(i).GetName() + "\" :";
 
-        unsigned prec = GetVariable(i).GetPrecision();
+        if (i < GetNParameters() and GetParameter(i).Fixed()) {
+            par_summary += Form(" fixed at %.*g", GetVariable(i).GetPrecision(), GetParameter(i).GetFixedValue());
+            BCLog::OutSummary(par_summary);
 
-        ofi << "  (" << i << ") " << ((i < GetNParameters()) ? "Parameter" : "Observable")
-            << " \"" << GetVariable(i).GetName() << "\":";
+        } else if (!MarginalizedHistogramExists(i)) {
+            par_summary += " histogram does not exist.";
+            BCLog::OutSummary(par_summary);
 
-        if (!MarginalizedHistogramExists(i)) {
-            if (i < GetNParameters() and GetParameter(i).Fixed())
-                ofi << Form(" fixed at %.*g.", prec, GetParameter(i).GetFixedValue()) << std::endl;
-            else
-                ofi << " histogram does not exist." << std::endl;
-            continue;
+        } else {
+            BCLog::OutSummary(par_summary);
+            GetMarginalized(i)->PrintSummary("      ", GetVariable(i).GetPrecision(), std::vector<double>(1, 0.68));
         }
-        ofi << std::endl;
 
-        // get marginalized histogram
-        GetMarginalized(i)->PrintToStream(ofi, "      ", prec, std::vector<double>(1, 0.68));
-        ofi << std::endl;
+        BCLog::OutSummary("");
     }
 
     if (fMCMCFlagRun) {
 
-        ofi << " Status of the MCMC" << std::endl
-            << " ==================" << std::endl
-            << " Convergence reached:                    ";
+        BCLog::OutSummary(" Status of the MCMC");
+        BCLog::OutSummary(" ==================");
 
-        if (MCMCGetNIterationsConvergenceGlobal() > 0)
-            ofi << "yes" << std::endl
-                << " Number of iterations until convergence: "
-                << MCMCGetNIterationsConvergenceGlobal() << std::endl;
-        else
-            ofi << "no" << std::endl;
+        if (MCMCGetNIterationsConvergenceGlobal() > 0) {
+            BCLog::OutSummary(" Convergence reached:                    yes");
+            BCLog::OutSummary(Form(" Number of iterations until convergence: %d", fMCMCNIterationsConvergenceGlobal));
+        } else
+            BCLog::OutSummary(" Convergence reached:                    no");
 
-        ofi << " Number of chains:                       " << MCMCGetNChains() << std::endl
-            << " Number of iterations per chain:         " << MCMCGetNIterationsRun() << std::endl
-            << " Average run efficiencies:" << std::endl;
+        BCLog::OutSummary(Form(" Number of chains:                       %u", fMCMCNChains));
+        BCLog::OutSummary(Form(" Number of iterations per chain:         %u", fMCMCNIterationsRun));
 
-        for (unsigned i = 0; i < GetNParameters(); ++i)
-            if (GetParameter(i).Fixed())
-                ofi << Form("  (%d) Parameter \"%*s\" : (fixed)", i, GetMaximumParameterNameLength(false), GetParameter(i).GetName().data()) << std::endl;
-            else {
-                double eff = 0;
-                for (unsigned j = 0; j < fMCMCEfficiencies.size(); ++j)
-                    eff += fMCMCEfficiencies[j][i] / fMCMCEfficiencies.size();
-                ofi << Form("  (%d) Parameter \"%*s\" : %5.2f %%", i, GetMaximumParameterNameLength(false), GetParameter(i).GetName().data(), eff * 100) << std::endl;
+        if (fMCMCMultivariateProposalFunction) {
+            BCLog::OutSummary(" Scale factors and efficiencies (measured in last %d iterations):");
+            BCLog::OutSummary(" Chain : Scale factor    Efficiency");
+            for (unsigned c = 0; c < fMCMCNChains; ++c)
+                BCLog::OutDetail(Form("   %3d :       % 6.4g        %4.1f %%", c, fMCMCTrialFunctionScaleFactor[c][0], 100.*fMCMCStatistics[c].efficiency[0]));
+
+        } else {
+            BCLog::OutSummary(" Average scale factors and efficiencies:");
+            BCLog::OutSummary(Form(" %-*s : Scale factor    Efficiency", fParameters.MaxNameLength(), "Parameter"));
+            for (unsigned i = 0; i < GetNParameters(); ++i) {
+                if (GetParameter(i).Fixed())
+                    continue;
+                double scalefactor = 0;
+                for (unsigned j = 0; j < fMCMCNChains; ++j)
+                    scalefactor += fMCMCTrialFunctionScaleFactor[j][i] / fMCMCNChains;
+                BCLog::OutDetail(Form(" %-*s :          % 6.4g %%        %4.1f %%", fParameters.MaxNameLength(), GetParameter(i).GetName().data(), 100.*scalefactor, 100.*fMCMCStatistics_AllChains.efficiency[i]));
             }
+        }
     }
-
-    ofi << " -----------------------------------------------------" << std::endl
-        << " Notation:" << std::endl
-        << " Mean        : mean value of the marg. pdf" << std::endl
-        << " Median      : median of the marg. pdf" << std::endl
-        << " Marg. mode  : most probable value of the marg. pdf" << std::endl
-        << " V           : Variance of the marg. pdf" << std::endl
-        << " Quantiles   : most commonly used quantiles" << std::endl
-        << " -----------------------------------------------------" << std::endl
-        << std::endl;
 }
 
 

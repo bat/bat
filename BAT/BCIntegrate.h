@@ -789,10 +789,6 @@ public:
      * Check that indices of parameters to marginalize w/r/t are correct */
     bool CheckMarginalizationIndices(TH1* hist, const std::vector<unsigned>& index);
 
-    /**
-     * Prints a summary on the screen. */
-    virtual void PrintSummary();
-
     /** @} */
 
 protected:
@@ -801,14 +797,17 @@ protected:
     unsigned IntegrationOutputFrequency() const;
 
     /**
-     * Print best fit to stream.
-     * @param ofi Output stream to print to. */
-    virtual void PrintBestFitToStream(std::ofstream& ofi) const;
+     * Print best fit to log */
+    virtual void PrintBestFitSummary() const;
 
     /**
-     * Print marginalization to stream.
-     * @param ofi Outputstream to print to. */
-    virtual void PrintMarginalizationToStream(std::ofstream& ofi) const;
+     * Get string summarizing best fit for single variable.
+     * @param i Index of variable to summarize. */
+    virtual std::string GetBestFitSummary(unsigned i) const;
+
+    /**
+     * Print marginalization to log. */
+    virtual void PrintMarginalizationSummary() const;
 
     /**
      * Minuit */

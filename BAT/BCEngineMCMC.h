@@ -1031,14 +1031,8 @@ public:
     void WriteMarginalizedDistributions(std::string filename, std::string option);
 
     /**
-     * Prints a summary on the screen. */
-    virtual void PrintSummary();
-
-    /**
-     * Prints a summary to a file.
-     * @param file Path to file to print results to.
-     * @return Success of action.*/
-    virtual bool PrintResults(std::string file) const;
+     * Prints a summary to the logs. */
+    virtual void PrintSummary() const;
 
     /**
      * Print parameters
@@ -1396,19 +1390,21 @@ protected:
     void SetFillHistogram(int x, int y, bool flag);
 
     /**
-     * Print model summary to stream.
-     * @param ofi Output stream to print to. */
-    virtual void PrintSummaryToStream(std::ofstream& ofi) const;
+     * Print model summary to log. */
+    virtual void PrintModelSummary() const;
 
     /**
-     * Print best fit to stream.
-     * @param ofi Output stream to print to. */
-    virtual void PrintBestFitToStream(std::ofstream& ofi) const;
+     * Print best fit to log. */
+    virtual void PrintBestFitSummary() const;
 
     /**
-     * Print marginalization to stream.
-     * @param ofi Output stream to print to. */
-    virtual void PrintMarginalizationToStream(std::ofstream& ofi) const;
+     * Get string summarizing best fit for single variable.
+     * @param i Index of variable to summarize. */
+    virtual std::string GetBestFitSummary(unsigned i) const;
+
+    /**
+     * Print marginalization to log. */
+    virtual void PrintMarginalizationSummary() const;
 
     /**
      * Update Paramater TTree with scales and efficiencies. */

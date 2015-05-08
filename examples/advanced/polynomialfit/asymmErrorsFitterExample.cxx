@@ -106,9 +106,8 @@ int main()
     m1.PrintAllMarginalized("Pol1-marg.pdf");
     m2.PrintAllMarginalized("Pol2-marg.pdf");
 
-    // write the summary
-    mgr.PrintResults();
-    mgr.PrintModelComparisonSummary("model-comparison.log");
+    // print the model comparison summary to the log
+    mgr.PrintModelComparisonSummary();
 
     // print data with best fit result from both models
     TCanvas* c1 = new TCanvas();
@@ -125,8 +124,6 @@ int main()
         gdata->SetPointEYlow(i, mgr.GetDataSet()->GetDataPoint(i)->GetValue(2));
         gdata->SetPointEYhigh(i, mgr.GetDataSet()->GetDataPoint(i)->GetValue(3));
     }
-
-    mgr.PrintSummary("summary.txt");
 
     // defines a histogram for the axes and draws it.
     TH2D* haxes = new TH2D("haxes", ";x;y", 1, 0., 100., 1, 0., 5.);

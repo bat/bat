@@ -34,7 +34,6 @@
 
 #include <math.h>
 #include <limits>
-#include <fstream>
 #include <algorithm>
 
 namespace
@@ -1981,67 +1980,50 @@ BCCubaOptions::Cuhre::Cuhre()
     , key(0) // let cuba choose default cubature rule
 {}
 
-
 // ---------------------------------------------------------
-void BCIntegrate::PrintSummary()
-{
-    BCEngineMCMC::PrintSummary();
-    // normalization
-    if (GetIntegral() > 0) {
-        BCLog::OutSummary(" Evidence:");
-        BCLog::OutSummary(Form(" - evidence : %f", GetIntegral()));
-    }
-}
-
-// ---------------------------------------------------------
-void BCIntegrate::PrintMarginalizationToStream(std::ofstream& ofi) const
+void BCIntegrate::PrintMarginalizationSummary() const
 {
     if (GetIntegral() >= 0) {
-        ofi << " Results of the integration" << std::endl
-            << " ============================" << std::endl
-            << " Integration method used: "
-            << DumpUsedIntegrationMethod() << std::endl
-            << " Evidence: " << GetIntegral();
+        BCLog::OutSummary(" Results of the integration");
+        BCLog::OutSummary(" ============================");
+        BCLog::OutSummary(" Integration method used: " + DumpUsedIntegrationMethod());
         if (GetError() >= 0)
-            ofi << " +- " << GetError() << std::endl;
+            BCLog::OutSummary(Form(" Evidence: %f +- %f", GetIntegral(), GetError()));
         else
-            ofi << " (no error estimate available) " << std::endl;
-        ofi << std::endl;
+            BCLog::OutSummary(Form(" Evidence: %f (no error estimate available)", GetIntegral()));
     }
+
     if (fFlagMarginalized) {
-        ofi << std::endl << " Marginalization algorithm used: "
-            << DumpUsedMarginalizationMethod() << std::endl << std::endl;
-        if (!fMCMCFlagRun)
-            ofi << " Results of the marginalization" << std::endl
-                << " ==============================" << std::endl;
-        BCEngineMCMC::PrintMarginalizationToStream(ofi);
+        BCLog::OutSummary(" Marginalization algorithm used: " + DumpUsedMarginalizationMethod());
+        BCLog::OutSummary("");
+        BCEngineMCMC::PrintMarginalizationSummary();
     }
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::PrintBestFitToStream(std::ofstream& ofi) const
+void BCIntegrate::PrintBestFitSummary() const
 {
     if (GetGlobalMode().empty()) {
-        ofi << "No best fit information available." << std::endl << std::endl;
+        BCLog::OutSummary("No best fit information available.");
         return;
     }
 
-    ofi << " Results of the optimization" << std::endl
-        << " ===========================" << std::endl
-        << " Optimization algorithm used: "
-        << DumpUsedOptimizationMethod() << std::endl
-        << " Log of the maximum posterior: " << GetLogMaximum() << std::endl
-        << " List of parameters and global mode:" << std::endl;
+    BCLog::OutSummary(" Results of the optimization");
+    BCLog::OutSummary(" ===========================");
+    BCLog::OutSummary(" Optimization algorithm used: " + DumpUsedOptimizationMethod());
 
-    for (unsigned i = 0; i < GetNVariables() and i < GetGlobalMode().size(); ++i) {
-        ofi << Form(" (%d) %10s \"%*s\" : %.*g", i, GetVariable(i).GetPrefix().data(),
-                    GetMaximumParameterNameLength(), GetVariable(i).GetName().data(),
-                    GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
-        if (i < GetNParameters() and GetParameter(i).Fixed())
-            ofi << " (fixed)" << std::endl;
-        else if (i < GetBestFitParameterErrors().size() and GetBestFitParameterErrors()[i] != std::numeric_limits<double>::infinity())
-            ofi << Form(" +- %.*g", GetVariable(i).GetPrecision(), GetBestFitParameterErrors()[i]) << std::endl;
-        else
-            ofi << " (no error estimate available)" << std::endl;
-    }
+    BCEngineMCMC::PrintBestFitSummary();
+}
+
+// ---------------------------------------------------------
+std::string BCIntegrate::GetBestFitSummary(unsigned i) const
+{
+    if (i >= GetNVariables())
+        return std::string("");
+    if (i < GetBestFitParameterErrors().size() and GetBestFitParameterErrors()[i] != std::numeric_limits<double>::infinity())
+        return BCEngineMCMC::GetBestFitSummary(i) + Form(" +- %.*g", GetVariable(i).GetPrecision(), GetBestFitParameterErrors()[i]);
+    else if (!GetBestFitParameterErrors().empty())
+        return BCEngineMCMC::GetBestFitSummary(i) + " (no error estimate available)";
+    else
+        return BCEngineMCMC::GetBestFitSummary(i);
 }

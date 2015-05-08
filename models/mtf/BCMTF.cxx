@@ -540,52 +540,36 @@ int BCMTF::SetSystematicVariation(const char* channelname, const char* processna
 }
 
 // ---------------------------------------------------------
-bool BCMTF::PrintResults(const char* filename)
+void BCMTF::PrintFitSummary()
 {
-    // open file
-    std::ofstream ofi(filename);
-    ofi.precision(3);
+    BCLog::OutSummary(" Multi template fitter summary ");
+    BCLog::OutSummary(" ----------------------------- ");
+    BCLog::OutSummary(Form(" Number of channels      : %u", fNChannels));
+    BCLog::OutSummary(Form(" Number of processes     : %u", fNProcesses));
+    BCLog::OutSummary(Form(" Number of systematics   : %u", fNSystematics));
+    BCLog::OutSummary("");
 
-    // check if file is open
-    if (!ofi.is_open()) {
-        BCLog::OutWarning(Form("BCMultitemplateFitter::PrintSummary() : Could not open file %s", filename));
-        return false;
-    }
-
-    ofi	<< " Multi template fitter summary " << std::endl
-        << " ----------------------------- " << std::endl << std::endl
-        << " Number of channels      : " << fNChannels    << std::endl
-        << " Number of processes     : " << fNProcesses   << std::endl
-        << " Number of systematics   : " << fNSystematics << std::endl << std::endl;
-
-    ofi	<< " Channels :" << std::endl;
+    BCLog::OutSummary(" Channels :");
     for (int i = 0; i < GetNChannels(); ++i)
-        ofi << TString::Format(" %d : \"%s\"", i, fChannelContainer[i]->GetName().data()) << std::endl;
-    ofi	<< std::endl;
+        BCLog::OutSummary(Form(" %d : \"%s\"", i, fChannelContainer[i]->GetName().data()));
+    BCLog::OutSummary("");
 
-    ofi	<< " Processes :" << std::endl;
+    BCLog::OutSummary(" Processes :");
     for (int i = 0; i < GetNProcesses(); ++i)
-        ofi << TString::Format(" %d : \"%s\" (par index %d)", i, fProcessContainer[i]->GetName().data(), GetParIndexProcess(i)) << std::endl;
-    ofi	<< std::endl;
+        BCLog::OutSummary(Form(" %d : \"%s\" (par index %d)", i, fProcessContainer[i]->GetName().data(), GetParIndexProcess(i)));
+    BCLog::OutSummary("");
 
-    ofi	<< " Systematics :" << std::endl;
+    BCLog::OutSummary(" Systematics :");
     for (int i = 0; i < GetNSystematics(); ++i)
-        ofi << TString::Format(" %d : \"%s\" (par index %d)", i, fSystematicContainer[i]->GetName().data(), GetParIndexSystematic(i)) << std::endl;
+        BCLog::OutSummary(Form(" %d : \"%s\" (par index %d)", i, fSystematicContainer[i]->GetName().data(), GetParIndexSystematic(i)));
     if (GetNSystematics() == 0)
-        ofi	<< " - none - " << std::endl;
-    ofi	<< std::endl;
+        BCLog::OutSummary(" - none - ");
+    BCLog::OutSummary("");
 
-    ofi	<< " Goodness-of-fit: " << std::endl;
+    BCLog::OutSummary(" Goodness-of-fit: ");
     for (int i = 0; i < GetNChannels(); ++i)
-        ofi << TString::Format(" %d : \"%s\" : chi2 = %f", i, fChannelContainer[i]->GetName().data(), CalculateChi2(i, GetGlobalMode())) << std::endl;
-    ofi << std::endl;
-
-
-    // close file
-    ofi.close();
-
-    // no error
-    return true;
+        BCLog::OutSummary(Form(" %d : \"%s\" : chi2 = %f", i, fChannelContainer[i]->GetName().data(), CalculateChi2(i, GetGlobalMode())));
+    BCLog::OutSummary("");
 }
 
 // ---------------------------------------------------------

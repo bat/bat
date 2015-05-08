@@ -38,8 +38,8 @@ int main()
     // draw all marginalized distributions into a PostScript file
     m.PrintAllMarginalized("GaussModel_plots.pdf");
 
-    // print results of the analysis into a text file
-    m.PrintResults("GaussModel_results.txt");
+    // print results of the analysis to the log
+    m.PrintSummary();
 
     // write marginalized distributions to output file
     m.WriteMarginalizedDistributions("GaussModel_plots.root", "RECREATE");

@@ -405,7 +405,7 @@ TH1* BCH1D::GetSubHistogram(double min, double max, std::string name, bool prese
 }
 
 // ---------------------------------------------------------
-void BCH1D::PrintToStream(std::ostream& ofi, std::string prefix, unsigned prec, std::vector<double> intervals)
+void BCH1D::PrintSummary(std::string prefix, unsigned prec, std::vector<double> intervals)
 {
     if (!GetHistogram())
         return;
@@ -414,22 +414,26 @@ void BCH1D::PrintToStream(std::ostream& ofi, std::string prefix, unsigned prec, 
     double q[7];
     GetHistogram()->GetQuantiles(7, q, p);
 
-    ofi << prefix << Form("Mean +- sqrt(V):                %.*g +- %.*g\n", prec, GetHistogram()->GetMean(), prec, GetHistogram()->GetRMS())
-        << prefix << Form("Median +- central 68%% interval: %.*g +  %.*g - %.*g\n", prec, q[3], prec, q[4] - q[3], prec, q[2] - q[3])
-        << prefix << Form("(Marginalized) mode:            %.*g\n",  prec, GetLocalMode())
-        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[0], prec, q[0])
-        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[1], prec, q[1])
-        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[2], prec, q[2])
-        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[4], prec, q[4])
-        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[5], prec, q[5])
-        << prefix << Form("%2.0f%% quantile:                   %.*g\n", 100 * p[6], prec, q[6]);
+    BCLog::OutSummary(prefix + Form("Mean +- sqrt(Variance):         %.*g +- %.*g", prec, GetHistogram()->GetMean(), prec, GetHistogram()->GetRMS()));
+    BCLog::OutSummary(prefix + Form("Median +- central 68%% interval: %.*g +  %.*g - %.*g", prec, q[3], prec, q[4] - q[3], prec, q[2] - q[3]));
+    BCLog::OutSummary(prefix + Form("(Marginalized) mode:            %.*g",  prec, GetLocalMode()));
+    BCLog::OutSummary(prefix + Form("%2.0f%% quantile:                   %.*g", 100 * p[0], prec, q[0]));
+    BCLog::OutSummary(prefix + Form("%2.0f%% quantile:                   %.*g", 100 * p[1], prec, q[1]));
+    BCLog::OutSummary(prefix + Form("%2.0f%% quantile:                   %.*g", 100 * p[2], prec, q[2]));
+    BCLog::OutSummary(prefix + Form("%2.0f%% quantile:                   %.*g", 100 * p[4], prec, q[4]));
+    BCLog::OutSummary(prefix + Form("%2.0f%% quantile:                   %.*g", 100 * p[5], prec, q[5]));
+    BCLog::OutSummary(prefix + Form("%2.0f%% quantile:                   %.*g", 100 * p[6], prec, q[6]));
 
     std::vector<BCH1D::BCH1DSmallestInterval> v = GetSmallestIntervals(intervals);
     for (unsigned i = 0; i < v.size(); ++i) {
-        ofi << prefix << Form("      Smallest interval%s containing %.1f%% and local mode%s:", (v[i].intervals.size() > 1 ? "s" : ""), v[i].total_mass, (v[i].intervals.size() > 1 ? "s" : "")) << std::endl;
+        BCLog::OutSummary(prefix + Form("      Smallest interval%s containing %.1f%% and local mode%s:", (v[i].intervals.size() > 1 ? "s" : ""), v[i].total_mass, (v[i].intervals.size() > 1 ? "s" : "")));
         for (unsigned j = 0; j < v[i].intervals.size(); ++j)
-            ofi << prefix << Form("       (%.*g, %.*g) (local mode at %.*g with rel. height %.*g; rel. area %.*g)\n",
-                                  prec, v[i].intervals[j].xmin, prec, v[i].intervals[j].xmax, prec, v[i].intervals[j].mode, prec, v[i].intervals[j].relative_height, prec, v[i].intervals[j].relative_mass);
+            BCLog::OutSummary(prefix + Form("       (%.*g, %.*g) (local mode at %.*g with rel. height %.*g; rel. area %.*g)",
+                                            prec, v[i].intervals[j].xmin,
+                                            prec, v[i].intervals[j].xmax,
+                                            prec, v[i].intervals[j].mode,
+                                            prec, v[i].intervals[j].relative_height,
+                                            prec, v[i].intervals[j].relative_mass));
     }
 }
 

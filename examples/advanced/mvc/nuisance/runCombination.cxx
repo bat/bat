@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
     m->PrintAllMarginalized("BCMVCombination_plots.pdf");
 
     // print results of numerical analysis
-    m->PrintResults("BCMVCombination_results.txt");
+    m->PrintSummary();
 
     // clean up
     delete m;

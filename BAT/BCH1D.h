@@ -26,7 +26,6 @@
 #include "BCHistogramBase.h"
 
 #include <vector>
-#include <ostream>
 
 class TH1;
 
@@ -218,12 +217,11 @@ public:
     virtual void DrawMedian();
 
     /**
-     * Print information to stream.
-     * @param ofi ofstream.
+     * Print information to log
      * @param prefix String to be prepended to every line.
      * @param intervals Vector of intervals to print.
      * @param prec Precision of doubles to output. */
-    void PrintToStream(std::ostream& ofi, std::string prefix = "", unsigned prec = 6, std::vector<double> intervals = std::vector<double>(0));
+    void PrintSummary(std::string prefix = "", unsigned prec = 6, std::vector<double> intervals = std::vector<double>(0));
 
     /**
      * \struct BCH1DInterval

@@ -90,8 +90,8 @@ int main(int argc, char* argv[])
         // calculate size of uncertainty
         area_all = h2->GetSmallestIntervalSize(0.39);
 
-        // print results of numerical analysis to file
-        m->PrintResults("MyCombination_full_results.txt");
+        // print results of numerical analysis to log
+        m->PrintSummary();
 
         // calculate BLUE
         m->CalculateBLUE();
@@ -117,7 +117,8 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
-            m->PrintResults(Form("MyCombination_measurement_%i_results.txt", i));
+            BCLog::OutSummary(Form("Switching off %d-th measurement",i));
+            m->PrintSummary();
 
             BCH2D* h2 = m->GetMarginalized("F0", "FL");
             rho_single.push_back(h2->GetHistogram()->GetCorrelationFactor());
@@ -147,7 +148,8 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
-            m->PrintResults(Form("MyCombination_uncertainty_%i_results.txt", i));
+            BCLog::OutSummary(Form("Siwtching of %d-th uncertainty",i));
+            m->PrintSummary();
             BCH2D* h2 = m->GetMarginalized("F0", "FL");
             rho_unc.push_back(h2->GetHistogram()->GetCorrelationFactor());
             area_unc.push_back(h2->GetSmallestIntervalSize(0.39));
@@ -177,7 +179,6 @@ int main(int argc, char* argv[])
 
         dm->MarginalizeAll();
         dm->PrintAllMarginalized("gof_plots.pdf");
-        dm->PrintResults("gof_results.txt");
         dm->PrintToys("gof_chi2.pdf");
         dm->PrintSummary();
 

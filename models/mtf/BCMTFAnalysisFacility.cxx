@@ -795,7 +795,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
     // print results
     if (flag_mcmc)
         fMTF->PrintAllMarginalized("marginalized_combined.pdf");
-    fMTF->PrintResults("results_combined.txt");
+    fMTF->PrintFitSummary();
 
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {
@@ -855,7 +855,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
         // print results
         if (flag_mcmc)
             fMTF->PrintAllMarginalized(Form("marginalized_channel_%i.pdf", ichannel));
-        fMTF->PrintResults(Form("results_channel_%i.txt", ichannel));
+        BCLog::OutSummary(Form("Summary for fitting channel %i",ichannel));
+        fMTF->PrintFitSummary();
 
         // ---- update comparison tools ---- //
 
@@ -1059,7 +1060,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
     // print results
     if (flag_mcmc)
         fMTF->PrintAllMarginalized("marginalized_all.pdf");
-    fMTF->PrintResults("results_all.txt");
+    fMTF->PrintSummary();
 
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {
@@ -1110,7 +1111,8 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
         // print results
         if (flag_mcmc)
             fMTF->PrintAllMarginalized(Form("marginalized_systematic_%i.pdf", isystematic));
-        fMTF->PrintResults(Form("results_systematic_%i.txt", isystematic));
+        BCLog::OutSummary(Form("Summary from fitting systematic %i",isystematic));
+        fMTF->PrintFitSummary();
 
         // ---- update comparison tools ---- //
 
@@ -1147,7 +1149,8 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
     // print results
     if (flag_mcmc)
         fMTF->PrintAllMarginalized("marginalized_none.pdf");
-    fMTF->PrintResults("results_none.txt");
+    BCLog::OutSummary("Summary without systematics");
+    fMTF->PrintFitSummary();
 
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {

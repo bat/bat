@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
     m->MarginalizeAll();
     m->FindMode(m->GetGlobalMode());
     m->PrintAllMarginalized("MyFit_plots.pdf");
-    m->PrintResults("MyFit_results.txt");
+    m->PrintSummary();
 
     // clean up
     delete m;

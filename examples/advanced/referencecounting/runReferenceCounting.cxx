@@ -53,11 +53,11 @@ int main()
     m.GetBCH2DPosteriorDrawingOptions()->SetNSmooth(0);
     m.PrintKnowledgeUpdatePlots("ReferenceCounting_update.pdf");
 
-    // print results of the analysis into a text file
-    m.PrintResults("ReferenceCounting_results.txt");
+    // print results of the analysis to the log
+    m.PrintSummary();
 
-    // print slice results to screen
-    m.GetMarginalized("s")->PrintToStream(std::cout, " ");
+    // print slice results to log
+    m.GetMarginalized("s")->PrintSummary();
 
     // close log file
     BCLog::CloseLog();

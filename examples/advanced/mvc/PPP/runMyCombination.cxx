@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
 
         m->PrintAllMarginalized("MyCombination_full_plots.pdf");
 
-        // print results of numerical analysis to file
-        m->PrintResults("MyCombination_full_results.txt");
+        // print results of numerical analysis to the log
+        m->PrintSummary();
 
         // calculate BLUE
         m->CalculateBLUE();
@@ -111,7 +111,8 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
-            m->PrintResults(Form("MyCombination_measurement_%i_results.txt", i));
+            BCLog::OutSummary(Form("Switching off %d-th measurement",i));
+            m->PrintSummary();
 
             rho_mean_single.push_back(m->MCMCGetStatistics().mean[2]);
             rho_std_single.push_back(sqrt(m->MCMCGetStatistics().variance[2]));
@@ -141,7 +142,8 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
-            m->PrintResults(Form("MyCombination_uncertainty_%i_results.txt", i));
+            BCLog::OutSummary(Form("Switching off %d-th uncertainty",i));
+            m->PrintSummary();
 
             rho_mean_unc.push_back(m->MCMCGetStatistics().mean[2]);
             rho_std_unc.push_back(sqrt(m->MCMCGetStatistics().variance[2]));

@@ -162,7 +162,7 @@ public:
      * @param imodel1 index of model 1 (numerator)
      * @param imodel2 index of model 2 (denominator)
      * @return Bayes factor or -1. on error */
-    double BayesFactor(const unsigned int imodel1, const unsigned int imodel2);
+    double BayesFactor(const unsigned int imodel1, const unsigned int imodel2) const;
 
     /**
      * Does the mode finding */
@@ -187,14 +187,14 @@ public:
      * Prints a summary of model comparison into a file.
      * If filename is omitted the summary will be printed onto the screen
      * @param filename name of the file to write into. */
-    void PrintModelComparisonSummary(std::string filename = "");
+    void PrintModelComparisonSummary() const;
 
     /**
      * Prints a summary into a file. If filename is omitted the summary
      * will be printed onto the screen.
      * This method is obsolete. Use PrintResults() instead.
      * @param filename name of the file to write into. */
-    void PrintSummary(std::string filename = "");
+    void PrintSummary() const;
 
     /**
      * Prints summaries of all files */

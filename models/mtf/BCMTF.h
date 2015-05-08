@@ -343,13 +343,9 @@ public:
     /** \name Member functions (output methods) */
     /** @{ */
 
-    using BCEngineMCMC::PrintResults;
-
     /**
-     * Print a summary of the fit into an ASCII file.
-     * @param filename The name of the file.
-     * @return Success of action. */
-    bool PrintResults(const char* filename = "summary.txt");
+     * Print a summary of the fit to the log.*/ 
+    void PrintFitSummary();
 
     /**
      * Print the stack of templates together with the data in a

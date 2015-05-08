@@ -27,11 +27,8 @@ int main()
     // draw all marginalized distributions into a PDF file
     m.PrintAllMarginalized("PoissonModel_plots.pdf");
 
-    // print summary on standard output
+    // print summary to the log
     m.PrintSummary();
-
-    // print results of the analysis into a text file
-    m.PrintResults("PoissonModel_results.txt");
 
     // close log file
     BCLog::CloseLog();

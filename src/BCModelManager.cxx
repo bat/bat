@@ -15,9 +15,6 @@
 
 #include <TString.h>
 
-#include <fstream>
-#include <iostream>
-
 // ---------------------------------------------------------
 BCModelManager::BCModelManager()
     : fDataSet(0)
@@ -172,7 +169,7 @@ void BCModelManager::Integrate()
 }
 
 // ---------------------------------------------------------
-double BCModelManager::BayesFactor(unsigned imodel1, unsigned imodel2)
+double BCModelManager::BayesFactor(unsigned imodel1, unsigned imodel2) const
 {
     if (imodel1 >= fModels.size() or imodel2 >= fModels.size())
         return -1;
@@ -242,110 +239,49 @@ void BCModelManager::WriteMarkovChain(std::string prefix, std::string option)
 }
 
 // ---------------------------------------------------------
-void BCModelManager::PrintSummary(std::string file)
+void BCModelManager::PrintSummary() const
 {
-    std::ofstream out;
-    std::streambuf* old_buffer = 0;
+    BCLog::OutSummary("");
+    BCLog::OutSummary("======================================");
+    BCLog::OutSummary(" Summary");
+    BCLog::OutSummary("======================================");
+    BCLog::OutSummary("");
+    BCLog::OutSummary(Form(" Number of models               %lu: ", fModels.size()));
+    BCLog::OutSummary("");
 
-    if (!file.empty()) {
-        out.open(file);
-        if (!out.is_open()) {
-            std::cerr << "Couldn't open file " << file << std::endl;
-            return;
-        }
-        old_buffer = std::cout.rdbuf(out.rdbuf());
-    }
-
-    // model summary
-    std::cout << std::endl
-              << "======================================" << std::endl
-              << " Summary" << std::endl
-              << "======================================" << std::endl
-              << std::endl
-              << " Number of models               : " << fModels.size() << std::endl
-              << std::endl
-              << " - Models:" << std::endl;
-
+    BCLog::OutSummary(" - Models:");
+    BCLog::OutSummary("");
     for (unsigned i = 0; i < fModels.size(); ++i)
         fModels[i]->PrintSummary();
 
-    // data summary
-    std::cout << " - Data:" << std::endl
-              << std::endl
-              << "     Number of entries: " << fDataSet->GetNDataPoints() << std::endl << std::endl;
+    BCLog::OutSummary(" - Data:");
+    BCLog::OutSummary("");
+    BCLog::OutSummary(Form("     Number of entries: %u", fDataSet->GetNDataPoints()));
+    BCLog::OutSummary("");
 
-    std::cout << "======================================" << std::endl
-              << " Model comparison" << std::endl << std::endl;
-
-    // probability summary
-    std::cout << " - A priori probabilities:" << std::endl << std::endl;
-
-    for (unsigned i = 0; i < fModels.size(); ++i)
-        std::cout << "     p(" << fModels[i]->GetName()	<< ") = " << fAPrioriProbability[i] << std::endl;
-
-    std::cout << std::endl << " - A posteriori probabilities:" << std::endl << std::endl;
-
-    for (unsigned i = 0; i < fModels.size(); ++i)
-        std::cout << "     p(" << fModels[i]->GetName()	<< " | data) = " << fAPosterioriProbability[i] << std::endl;
-
-    std::cout << std::endl << "======================================" << std::endl << std::endl;
-
-    if (!file.empty())
-        std::cout.rdbuf(old_buffer);
+    PrintModelComparisonSummary();
 }
 
 // ---------------------------------------------------------
-
-void BCModelManager::PrintModelComparisonSummary(std::string file)
+void BCModelManager::PrintModelComparisonSummary() const
 {
-    std::ofstream out;
-    std::streambuf* old_buffer = 0;
+    BCLog::OutSummary("======================================");
+    BCLog::OutSummary(" Model comparison:");
+    BCLog::OutSummary("");
 
-    if (!file.empty()) {
-        out.open(file);
-        if (!out.is_open()) {
-            std::cerr << "Couldn't open file " << file << std::endl;
-            return;
-        }
-        old_buffer = std::cout.rdbuf(out.rdbuf());
-    }
-
-    // model summary
-    std::cout << std::endl
-              << "===========================================" << std::endl
-              << " Model Comparison Summary" << std::endl
-              << "===========================================" << std::endl
-              << std::endl
-              << " Number of models               : " << fModels.size() << std::endl << std::endl;
-
-    // probability summary
-    std::cout << " - A priori probabilities:" << std::endl << std::endl;
-
+    BCLog::OutSummary(" - A priori probabilities:");
     for (unsigned i = 0; i < fModels.size(); ++i)
-        std::cout << "     p(" << fModels[i]->GetName() << ") = " << fAPrioriProbability[i] << std::endl;
+        BCLog::OutSummary(Form(" (%u) p(%s) = %f", i, fModels[i]->GetName().data(), fAPrioriProbability[i]));
 
-    std::cout << std::endl << " - A posteriori probabilities:" << std::endl << std::endl;
-
+    BCLog::OutSummary(" - A posteriori probabilities:");
     for (unsigned i = 0; i < fModels.size(); ++i)
-        std::cout << "     p(" << fModels[i]->GetName() << " | data) = " << fAPosterioriProbability[i] << std::endl;
+        BCLog::OutSummary(Form(" (%u) p(%s | data) = %f", i, fModels[i]->GetName().data(), fAPosterioriProbability[i]));
 
     // Bayes factors summary
-    std::cout << std::endl << " - Bayes factors:" << std::endl << std::endl;
+    BCLog::OutSummary(" - Bayes factors:");
     for (unsigned i = 0; i < fModels.size(); ++i)
         for (unsigned j = i + 1; j < fModels.size(); ++j)
-            std::cout << "     K = p(data | " << fModels[i]->GetName() << ") / p(data | " << fModels[j]->GetName() << ") = " << BayesFactor(i, j) << std::endl;
-
-    std::cout << std::endl << "===========================================" << std::endl << std::endl;
-
-    if (!file.empty())
-        std::cout.rdbuf(old_buffer);
-}
-
-// ---------------------------------------------------------
-
-void BCModelManager::PrintResults()
-{
-    // print summary of all models
-    for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->PrintResults(GetModel(i)->GetSafeName() + ".txt");
+            BCLog::OutSummary(Form("     K := p(data | %s) / p(data | %s) = %f", fModels[i]->GetName().data(), fModels[j]->GetName().data(),
+                                   BayesFactor(i, j)));
+    BCLog::OutSummary("===========================================");
 }

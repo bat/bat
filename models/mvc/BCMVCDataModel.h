@@ -71,11 +71,11 @@ public:
     // position of the observed data
     void PrintToys(std::string filename);
 
-    // print a summary to the screen
-    void PrintSummary();
+    // print a summary to the log
+    void PrintSummary() const;
 
     // calculate the chi2
-    double Chi2(TVectorD observables, TVectorD measurements);
+    double Chi2(TVectorD observables, TVectorD measurements) const;
 
     // BAT methods
 
