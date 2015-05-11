@@ -32,6 +32,7 @@
 class TGraph;
 class TGraphErrors;
 class TGraphAsymmErrors;
+class TH2;
 
 // ---------------------------------------------------------
 
@@ -217,18 +218,30 @@ public:
     bool AddDataPoint(BCDataPoint* datapoint);
 
     /**
+     * Recalculate a data axis bound accounting for uncertainties
+     * specified by other data axes. If a second error index is
+     * provided, the first is taken as error below the value, and the
+     * second as error above the value.
+     * @param i Index of the data axis to be recalculated
+     * @param nSigma Multiples of the stored uncertainty to account for
+     * @param i_err1 Index of the data axis containing uncertainty (below point, if next i_err2 also specified)
+     * @param i_err2 Index of the data axis containing uncertainty above point*/
+    void AdjustBoundForUncertainties(unsigned i, double nSigma, unsigned i_err1, int i_err2 = -1);
+
+    /**
      * Resets the content of the data set */
     void Reset();
 
     /**
-     * Dump the data to the standard output
-     * @param output Function of (const char *) to handle the output (default = BCLog::OutSummary). */
-    void Dump(void (*output)(std::string) = BCLog::OutSummary) const;
+     * Print summary to string handler
+     * @param output String handler (default = BCLog::OutSummary). */
+    void PrintSummary(void (*output)(std::string) = BCLog::OutSummary) const;
 
     /**
      * Get data set as ROOT TGraph object,
      * @param x Index of data axis plotted as abscissa
-     * @param y Index of data axis plotted as ordinate */
+     * @param y Index of data axis plotted as ordinate
+     * @return pointer to filled ROOT TGraph */
     TGraph* GetGraph(unsigned x, unsigned y) const;
 
     /**
@@ -237,7 +250,8 @@ public:
      * @param x Index of data axis plotted as abscissa
      * @param y Index of data axis plotted as ordinate
      * @param ex Index of data axis for error on abscissa
-     * @param ey Index of data axis for error on ordinate */
+     * @param ey Index of data axis for error on ordinate
+     * @return pointer to filled ROOT TGraphErrors */
     TGraphErrors* GetGraph(unsigned x, unsigned y, int ex, int ey) const;
 
     /**
@@ -248,8 +262,21 @@ public:
      * @param ex_below Index of data axis for error on abscissa below data points
      * @param ex_above Index of data axis for error on abscissa below data points
      * @param ey_below Index of data axis for error on ordinate below data points
-     * @param ey_above Index of data axis for error on ordinate below data points */
+     * @param ey_above Index of data axis for error on ordinate below data points
+     * @return pointer to filled ROOT TGraphAsymmErrors */
     TGraphAsymmErrors* GetGraph(unsigned x, unsigned y, int ex_below, int ex_above, int ey_below, int ey_above) const;
+
+    /**
+     * Get ROOT TH2 with ranges set to data bounds.
+     * Padding is specified as fraction of boundary range.
+     * @param x Index of data axis for abscissa
+     * @param y Index of data axis for ordinate
+     * @param nbins_x number of bins on abscissa (default 100)
+     * @param nbins_y number of bins on ordinate (default 100)
+     * @param x_padding Amount to pad on either side of abscissa boundaries (default = 0.10)
+     * @param y_padding Amount to pad on either side of ordinate boundaries (default = 0.10)
+     * @return pointer to empty ROOT TH2 */
+    TH2* CreateH2(const char* name, const char* title, unsigned x, unsigned y, unsigned nbins_x = 100, unsigned nbins_y = 100, double x_padding = 0.10, double y_padding = 0.10) const;
 
     /** @} */
 

@@ -16,6 +16,7 @@
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
+#include <TH2D.h>
 #include <TFile.h>
 #include <TString.h>
 #include <TTree.h>
@@ -259,6 +260,29 @@ bool BCDataSet::AddDataPoint(BCDataPoint* datapoint)
 }
 
 // ---------------------------------------------------------
+void BCDataSet::AdjustBoundForUncertainties(unsigned i, double nSigma, unsigned i_err1, int i_err2)
+{
+    // check indices
+    if (i >= GetNValuesPerPoint()
+            or i_err1 >= GetNValuesPerPoint()
+            or i_err2 >= (int)GetNValuesPerPoint())
+        return;
+
+    // recalculate bound
+    for (unsigned j = 0; j < fDataVector.size(); ++j) {
+        // check lower bound
+        if (fDataVector[j]->GetValue(i) - nSigma * fDataVector[j]->GetValue(i_err1) < fLowerBounds.GetValue(i))
+            fLowerBounds.SetValue(i, fDataVector[j]->GetValue(i) - nSigma * fDataVector[j]->GetValue(i_err1));
+        // check upper bound
+        if (i_err2 < 0) {
+            if (fDataVector.back()->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err1) > fUpperBounds.GetValue(i))
+                fUpperBounds.SetValue(i, fDataVector[j]->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err1));
+        } else if (fDataVector.back()->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err2) > fUpperBounds.GetValue(i))
+            fUpperBounds.SetValue(i, fDataVector[j]->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err2));
+    }
+}
+
+// ---------------------------------------------------------
 void BCDataSet::SetNValuesPerPoint(unsigned n)
 {
     fNValuesPerPoint = n;
@@ -296,7 +320,7 @@ void BCDataSet::Reset()
 }
 
 // ---------------------------------------------------------
-void BCDataSet::Dump(void (*output)(std::string)) const
+void BCDataSet::PrintSummary(void (*output)(std::string)) const
 {
     output("Data set summary:");
     output(Form("Number of points           : %u", GetNDataPoints()));
@@ -304,7 +328,7 @@ void BCDataSet::Dump(void (*output)(std::string)) const
     for (unsigned i = 0; i < fDataVector.size(); ++i)
         if (fDataVector[i]) {
             output(Form("Data point %5u", i));
-            fDataVector[i]->Dump(output);
+            fDataVector[i]->PrintSummary(output);
         }
 }
 
@@ -364,4 +388,33 @@ TGraphAsymmErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex_below, int
     }
 
     return G;
+}
+
+// ---------------------------------------------------------
+TH2* BCDataSet::CreateH2(const char* name, const char* title, unsigned x, unsigned y, unsigned nbins_x, unsigned nbins_y, double x_padding, double y_padding) const
+{
+    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint())
+        return NULL;
+
+    if (!BoundsExist())
+        return NULL;
+
+    double x_low = GetLowerBound(x);
+    double x_high = GetUpperBound(x);
+    double y_low = GetLowerBound(y);
+    double y_high = GetUpperBound(y);
+
+    if (x_padding > 0) {
+        double dX = x_padding * (x_high - x_low);
+        x_low  -= dX;
+        x_high += dX;
+    }
+    if (y_padding > 0) {
+        double dY = y_padding * (y_high - y_low);
+        y_low  -= dY;
+        y_high += dY;
+    }
+
+
+    return new TH2D(name, title, nbins_x, x_low, x_high, nbins_y, y_low, y_high);
 }

@@ -113,8 +113,9 @@ public:
     { Copy(rhs); return *this; }
 
     /**
-     * Dump the data to the standard output */
-    void Dump(void (*output)(std::string) = BCLog::OutSummary) const;
+     * Print summary of data point to the string handler.
+     * @param output String handler (default = BCLog::OutSummary. */
+    void PrintSummary(void (*output)(std::string) = BCLog::OutSummary) const;
 
     /** @} */
 
