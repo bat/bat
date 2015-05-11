@@ -344,7 +344,7 @@ public:
     /** @{ */
 
     /**
-     * Print a summary of the fit to the log.*/ 
+     * Print a summary of the fit to the log.*/
     void PrintFitSummary();
 
     /**

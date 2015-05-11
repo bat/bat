@@ -855,7 +855,7 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
         // print results
         if (flag_mcmc)
             fMTF->PrintAllMarginalized(Form("marginalized_channel_%i.pdf", ichannel));
-        BCLog::OutSummary(Form("Summary for fitting channel %i",ichannel));
+        BCLog::OutSummary(Form("Summary for fitting channel %i", ichannel));
         fMTF->PrintFitSummary();
 
         // ---- update comparison tools ---- //
@@ -1111,7 +1111,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
         // print results
         if (flag_mcmc)
             fMTF->PrintAllMarginalized(Form("marginalized_systematic_%i.pdf", isystematic));
-        BCLog::OutSummary(Form("Summary from fitting systematic %i",isystematic));
+        BCLog::OutSummary(Form("Summary from fitting systematic %i", isystematic));
         fMTF->PrintFitSummary();
 
         // ---- update comparison tools ---- //
