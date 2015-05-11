@@ -13,13 +13,15 @@
 #include "BCDataPoint.h"
 #include "BCLog.h"
 
+#include <TGraph.h>
+#include <TGraphErrors.h>
+#include <TGraphAsymmErrors.h>
 #include <TFile.h>
 #include <TString.h>
 #include <TTree.h>
 
 #include <cmath>
 #include <fstream>
-#include <iostream>
 #include <limits>
 #include <sstream>
 
@@ -306,3 +308,60 @@ void BCDataSet::Dump(void (*output)(std::string)) const
         }
 }
 
+// ---------------------------------------------------------
+TGraph* BCDataSet::GetGraph(unsigned x, unsigned y) const
+{
+    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint())
+        return NULL;
+
+    TGraph* G = new TGraph();
+
+    // fill graph
+    for (unsigned i = 0; i < fDataVector.size(); ++i)
+        G->SetPoint(i, fDataVector[i]->GetValue(x), fDataVector[i]->GetValue(y));
+
+    return G;
+}
+
+// ---------------------------------------------------------
+TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
+{
+    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
+            or ex >= (int)GetNValuesPerPoint() or ey >= (int)GetNValuesPerPoint())
+        return NULL;
+
+    TGraphErrors* G = new TGraphErrors();
+
+    // fill graph
+    for (unsigned i = 0; i < fDataVector.size(); ++i) {
+        G->SetPoint(i, fDataVector[i]->GetValue(x), fDataVector[i]->GetValue(y));
+        double EX = (ex >= 0) ? fDataVector[i]->GetValue(ex) : 0;
+        double EY = (ey >= 0) ? fDataVector[i]->GetValue(ey) : 0;
+        G->SetPointError(i, EX, EY);
+    }
+
+    return G;
+}
+
+// ---------------------------------------------------------
+TGraphAsymmErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex_below, int ex_above, int ey_below, int ey_above) const
+{
+    if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
+            or ex_below >= (int)GetNValuesPerPoint() or ex_above >= (int)GetNValuesPerPoint()
+            or ey_below >= (int)GetNValuesPerPoint() or ey_above >= (int)GetNValuesPerPoint())
+        return NULL;
+
+    TGraphAsymmErrors* G = new TGraphAsymmErrors();
+
+    // fill graph
+    for (unsigned i = 0; i < fDataVector.size(); ++i) {
+        G->SetPoint(i, fDataVector[i]->GetValue(x), fDataVector[i]->GetValue(y));
+        double EXb = (ex_below >= 0) ? fDataVector[i]->GetValue(ex_below) : 0;
+        double EXa = (ex_above >= 0) ? fDataVector[i]->GetValue(ex_above) : 0;
+        double EYb = (ey_below >= 0) ? fDataVector[i]->GetValue(ey_below) : 0;
+        double EYa = (ey_above >= 0) ? fDataVector[i]->GetValue(ey_above) : 0;
+        G->SetPointError(i, EXb, EXa, EYb, EYa);
+    }
+
+    return G;
+}

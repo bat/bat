@@ -29,6 +29,10 @@
 #include "BCDataPoint.h"
 #include "BCLog.h"
 
+class TGraph;
+class TGraphErrors;
+class TGraphAsymmErrors;
+
 // ---------------------------------------------------------
 
 class BCDataSet
@@ -220,6 +224,32 @@ public:
      * Dump the data to the standard output
      * @param output Function of (const char *) to handle the output (default = BCLog::OutSummary). */
     void Dump(void (*output)(std::string) = BCLog::OutSummary) const;
+
+    /**
+     * Get data set as ROOT TGraph object,
+     * @param x Index of data axis plotted as abscissa
+     * @param y Index of data axis plotted as ordinate */
+    TGraph* GetGraph(unsigned x, unsigned y) const;
+
+    /**
+     * Get data set as ROOT TGraphErrors object.
+     * Set error indices negative to leave errors unset.
+     * @param x Index of data axis plotted as abscissa
+     * @param y Index of data axis plotted as ordinate
+     * @param ex Index of data axis for error on abscissa
+     * @param ey Index of data axis for error on ordinate */
+    TGraphErrors* GetGraph(unsigned x, unsigned y, int ex, int ey) const;
+
+    /**
+     * Get data set as ROOT TGraphAsymmErrors object.
+     * Set error indices negative to leave errors unset.
+     * @param x Index of data axis plotted as abscissa
+     * @param y Index of data axis plotted as ordinate
+     * @param ex_below Index of data axis for error on abscissa below data points
+     * @param ex_above Index of data axis for error on abscissa below data points
+     * @param ey_below Index of data axis for error on ordinate below data points
+     * @param ey_above Index of data axis for error on ordinate below data points */
+    TGraphAsymmErrors* GetGraph(unsigned x, unsigned y, int ex_below, int ex_above, int ey_below, int ey_above) const;
 
     /** @} */
 
