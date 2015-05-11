@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
-            BCLog::OutSummary(Form("Switching off %d-th measurement",i));
+            BCLog::OutSummary(Form("Switching off %d-th measurement", i));
             m->PrintSummary();
 
             rho_mean_single.push_back(m->MCMCGetStatistics().mean[2]);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
-            BCLog::OutSummary(Form("Switching off %d-th uncertainty",i));
+            BCLog::OutSummary(Form("Switching off %d-th uncertainty", i));
             m->PrintSummary();
 
             rho_mean_unc.push_back(m->MCMCGetStatistics().mean[2]);

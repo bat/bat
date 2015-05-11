@@ -117,7 +117,7 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
-            BCLog::OutSummary(Form("Switching off %d-th measurement",i));
+            BCLog::OutSummary(Form("Switching off %d-th measurement", i));
             m->PrintSummary();
 
             BCH2D* h2 = m->GetMarginalized("F0", "FL");
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
             m->MarginalizeAll();
             m->FindMode(m->GetGlobalMode());
             m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
-            BCLog::OutSummary(Form("Siwtching of %d-th uncertainty",i));
+            BCLog::OutSummary(Form("Siwtching of %d-th uncertainty", i));
             m->PrintSummary();
             BCH2D* h2 = m->GetMarginalized("F0", "FL");
             rho_unc.push_back(h2->GetHistogram()->GetCorrelationFactor());
