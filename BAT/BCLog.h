@@ -89,8 +89,8 @@ public:
 
     /**
      * Sets the minimum log level for file and screen output.
-     * @param loglevelfile log level for file */
-    * @param loglevelscreen log level for screen
+     * @param loglevelfile log level for file 
+     * @param loglevelscreen log level for screen */
     static void SetLogLevel(BCLog::LogLevel loglevelfile, BCLog::LogLevel loglevelscreen)
     { fMinimumLogLevelFile = loglevelfile; fMinimumLogLevelScreen = loglevelscreen; };
 
