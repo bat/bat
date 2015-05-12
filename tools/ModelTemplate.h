@@ -4,28 +4,24 @@
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
-#ifndef __BAT__|:UP_MODEL:|__H
-#define __BAT__|:UP_MODEL:|__H
+#ifndef __BAT__((UPMODEL))__H
+#define __BAT__((UPMODEL))__H
 
 #include <BAT/BCModel.h>
 
-// This is a |:Model:| header file.
-// Model source code is located in file |:Project:|/|:Model:|.cxx
+// This is a ((MODEL)) header file.
+// Model source code is located in file ((PROJECT))/((MODEL)).cxx
 
 // ---------------------------------------------------------
-class | : Model: | : public BCModel
+class ((MODEL)) : public BCModel
 {
 public:
 
     // Constructor and destructor
-| :
-Model:
-    | (const char * name = "|:Model:|");
-~ | :
-Model:
-    | ();
+    ((MODEL))(std::string name);
+    ~((MODEL))();
 
-    // Methods to overload, see file |:Model:|.cxx
+    // Methods tox overload, see file |:Model:|.cxx
     double LogLikelihood(const std::vector<double> & parameters);
     // double LogAPrioriProbability(const std::vector<double> & parameters);
 

@@ -1,14 +1,14 @@
 // ***************************************************************
-// This file was created using the |:PROGRAM:| script
-// for project |:Project:|.
-// |:PROGRAM:| is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the ((PROGRAM)) script
+// for project ((PROJECT)).
+// ((PROGRAM)) is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
 #include <BAT/BCLog.h>
 #include <BAT/BCAux.h>
 
-#include "|:Model:|.h"
+#include "((MODEL)).h"
 
 int main()
 {
@@ -18,15 +18,11 @@ int main()
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
-    // create new |:Model:| object
-| :
-Model:
-| * m = new | :
-Model:
-    | ("|:Model:|");
+    // create new ((MODEL)) object
+    ((MODEL)) m("Name_Me");
 
     // set precision
-    m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
 
     BCLog::OutSummary("Test model created");
 
@@ -35,37 +31,30 @@ Model:
 
     // normalize the posterior, i.e. integrate posterior over the full
     // parameter space
-    // m->SetIntegrationMethod(BCIntegrate::kIntDefault);
-    // m->Normalize();
+    // m.SetIntegrationMethod(BCIntegrate::kIntDefault);
+    // m.Normalize();
 
     // run MCMC and marginalize posterior w/r/t all parameters and all
     // combinations of two parameters
-    // m->MarginalizeAll(BCIntegrate::kMargMetropolis);
+    m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // run mode finding; by default using Minuit
-    // m->FindMode( m->GetBestFitParameters() );
+    m.FindMode(m.GetGlobalMode());
 
     // draw all marginalized distributions into a PDF file
-    // m->PrintAllMarginalized("|:Model:|_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName()+"_plots.pdf");
 
-    // print all summary plots
-    // m->PrintParameterPlot("|:Model:|_parameters.pdf");
-    // m->PrintCorrelationPlot("|:Model:|_correlation.pdf");
-    // m->PrintCorrelationMaxtrix("|:Model:|_correlationMatrix.pdf");
-
-    // m->PrintKnowledgeUpdatePlots("|:Model:|_update.pdf");
-
-    // calculate p-value
-    // m->CalculatePValue( m->GetBestFitParameters() );
+    // print summary plots
+    // m.PrintParameterPlot(m.GetSafeName()+"_parameters.pdf");
+    // m.PrintCorrelationPlot(m.GetSafeName()+"_correlation.pdf");
+    // m.PrintCorrelationMaxtrix(m.GetSafeName()+"_correlationMatrix.pdf");
+    // m.PrintKnowledgeUpdatePlots(m.GetSafeName()+"_update.pdf");
 
     // print results of the analysis into a text file
-    //  m->PrintResults("|:Model:|_results.txt");
-
-    delete m;
-
-    BCLog::OutSummary("Exiting");
+    m.PrintSummary();
 
     // close log file
+    BCLog::OutSummary("Exiting");
     BCLog::CloseLog();
 
     return 0;

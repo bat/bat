@@ -1,19 +1,15 @@
 // ***************************************************************
-// This file was created using the |:PROGRAM:| script.
-// |:PROGRAM:| is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the ((PROGRAM)) script.
+// ((PROGRAM)) is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
-#include "|:Model:|.h"
+#include "((MODEL)).h"
 
 #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
-| :
-Model:
-|:: | :
-Model:
-| (const char * name) : BCModel(name)
+((MODEL))::((MODEL))(std::string name) : BCModel(name)
 {
     // constructor
     // define parameters here. For example:
@@ -23,19 +19,13 @@ Model:
 }
 
 // ---------------------------------------------------------
-| :
-Model:
-|::~ | :
-Model:
-| ()
+((MODEL))::~((MODEL))()
 {
     // destructor
 }
 
 // ---------------------------------------------------------
-double | :
-Model:
-|::LogLikelihood(const std::vector<double> & parameters)
+double ((MODEL))::LogLikelihood(const std::vector<double> & parameters)
 {
     // This methods returns the logarithm of the conditional probability
     // p(data|parameters). This is where you have to define your model.
@@ -53,7 +43,7 @@ Model:
 }
 
 // ---------------------------------------------------------
-// double |:Model:|::LogAPrioriProbability(const std::vector<double> & parameters) {
+// double ((MODEL))::LogAPrioriProbability(const std::vector<double> & parameters) {
 // 	// This method returns the logarithm of the prior probability for the
 // 	// parameters p(parameters).
 

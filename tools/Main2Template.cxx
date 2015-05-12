@@ -1,7 +1,7 @@
 // ***************************************************************
-// This file was created using the |:PROGRAM:| script
-// for project |:Project:|.
-// |:PROGRAM:| is part of Bayesian Analysis Toolkit (BAT).
+// This file was created using the ((PROGRAM)) script
+// for project ((PROJECT)).
+// ((PROGRAM)) is part of Bayesian Analysis Toolkit (BAT).
 // BAT can be downloaded from http://mpp.mpg.de/bat
 // ***************************************************************
 
@@ -19,13 +19,8 @@ int main()
     // perform your analysis here
 
     // close log file
-    BCLog::CloseLog();
-
     BCLog::OutSummary("Exiting");
+    BCLog::CloseLog();
 
     return 0;
 }
-<<< <<< < variant A
->>>>>>> variant B
-
-== == == = end

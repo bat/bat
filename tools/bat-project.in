@@ -53,13 +53,13 @@ EOF
 
    if [[ "$MYMODEL" == "-" ]]; then
       # reuse generated makefile but without a model, exchange one line
-      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/run|\:Model\:|\.cxx |\:Model\:|\.cxx/run|\:Project\:|\.cxx/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g;" < $DATADIR/MakefileTemplate > $MYPROJECT/Makefile
-      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $DATADIR/Main2Template.cxx > $MYPROJECT/run$MYPROJECT.cxx
+      sed -e "s/((PROGRAM))/$PROGRAM/g; s/run((MODEL))\.cxx ((MODEL))\.cxx/run((PROJECT))\.cxx/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g;" < $DATADIR/MakefileTemplate > $MYPROJECT/Makefile
+      sed -e "s/((PROGRAM))/$PROGRAM/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g" < $DATADIR/Main2Template.cxx > $MYPROJECT/run$MYPROJECT.cxx
    else
-      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $DATADIR/ModelTemplate.h > $MYPROJECT/$MYMODEL.h
-      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g" < $DATADIR/ModelTemplate.cxx > $MYPROJECT/$MYMODEL.cxx
-      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $DATADIR/MakefileTemplate > $MYPROJECT/Makefile
-      sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $DATADIR/Main1Template.cxx > $MYPROJECT/run$MYPROJECT.cxx
+      sed -e "s/((PROGRAM))/$PROGRAM/g; s/((UPMODEL))/$upMYMODEL/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g" < $DATADIR/ModelTemplate.h > $MYPROJECT/$MYMODEL.h
+      sed -e "s/((PROGRAM))/$PROGRAM/g; s/((MODEL))/$MYMODEL/g" < $DATADIR/ModelTemplate.cxx > $MYPROJECT/$MYMODEL.cxx
+      sed -e "s/((PROGRAM))/$PROGRAM/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g" < $DATADIR/MakefileTemplate > $MYPROJECT/Makefile
+      sed -e "s/((PROGRAM))/$PROGRAM/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g" < $DATADIR/Main1Template.cxx > $MYPROJECT/run$MYPROJECT.cxx
       echo "Implement your model in files:   $MYMODEL.h  $MYMODEL.cxx"
    fi
 
@@ -76,8 +76,8 @@ EOF
 #
 else
 	 MYPROJECT=${PWD##*/}
-   sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:UP_MODEL\:|/$upMYMODEL/g; s/|\:Model\:|/$MYMODEL/g; s/|\:Project\:|/$MYPROJECT/g" < $DATADIR/ModelTemplate.h > $MYMODEL.h
-   sed -e "s/|\:PROGRAM\:|/$PROGRAM/g; s/|\:Model\:|/$MYMODEL/g" < $DATADIR/ModelTemplate.cxx > $MYMODEL.cxx
+   sed -e "s/((PROGRAM))/$PROGRAM/g; s/((UPMODEL))/$upMYMODEL/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g" < $DATADIR/ModelTemplate.h > $MYMODEL.h
+   sed -e "s/((PROGRAM))/$PROGRAM/g; s/((MODEL))/$MYMODEL/g" < $DATADIR/ModelTemplate.cxx > $MYMODEL.cxx
    cat << EOF
 --------------------------------------------------------------------------
 A new BAT model '$MYMODEL' was created in the current directory.

@@ -1,7 +1,7 @@
 ###################################################################
-# This Makefile was created using the |:PROGRAM:| script
-# for project |:Project:|
-# |:PROGRAM:| is part of Bayesian Analysis Toolkit (BAT).
+# This Makefile was created using the ((PROGRAM)) script
+# for project ((PROJECT))
+# ((PROGRAM)) is part of Bayesian Analysis Toolkit (BAT).
 # BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
@@ -31,39 +31,51 @@ LIBS := `bat-config --libs`
 # List of all classes (models) used in the program
 # Add classes to the end. Backslash indicates continuation
 # on the next line
-CXXSRCS      = \
-	run|:Model:|.cxx |:Model:|.cxx
+CXXSRCS = ((MODEL)).cxx
+PRGSRCS = run((PROJECT)).cxx
 
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
 #
 
-CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
-MYPROGS     = run|:Model:|
+OBJSDIR = obj
+BINDIR  = bin
 
-GARBAGE      = $(CXXOBJS) *.o *~ link.d $(MYPROGS)
+CXXOBJS = $(addprefix $(OBJSDIR)/,$(CXXSRCS:.cxx=.o))
+PRGOBJS = $(addprefix $(OBJSDIR)/,$(PRGSRCS:.cxx=.o))
+MYPROGS = $(addprefix $(BINDIR)/,$(basename $(PRGSRCS)))
+
+GARBAGE = $(CXXOBJS) $(PRGOBJS) *.o *~ link.d $(MYPROGS)
 
 # targets
-all : run|:Model:|
+all : $(MYPROGS)
 
 link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
-	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) > link.d;
+	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) $(PRGSRCS) > link.d;
 
 -include link.d
 
-%.o : %.cxx
+$(OBJSDIR)/%.o : %.cxx | $(OBJSDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BINDIR)/% : $(OBJSDIR)/%.o $(CXXOBJS) | $(BINDIR)
+	$(CXX) $(LDFLAGS) $^ $(LIBS) -o $@
+
+$(OBJSDIR):
+	mkdir $(OBJSDIR)
+
+$(BINDIR):
+	mkdir $(BINDIR)
 
 clean :
 	rm -f $(GARBAGE)
-
-run|:Model:| : $(CXXOBJS)
-	$(CXX) $(LDFLAGS) $(CXXOBJS) $(LIBS) -o $@
+	rmdir $(OBJDIR)
+	rmdir $(BINDIR)
 
 print :
 	@echo compiler  : $(CXX)
-	@echo c++ srcs  : $(CXXSRCS)
-	@echo c++ objs  : $(CXXOBJS)
+	@echo c++ srcs  : $(CXXSRCS) $(PRGSRCS)
+	@echo c++ objs  : $(CXXOBJS) $(PRGOBJS)
 	@echo c++ flags : $(CXXFLAGS)
 	@echo ld flags  : $(LDFLAGS)
 	@echo libs      : $(LIBS)
