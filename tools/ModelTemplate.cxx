@@ -9,13 +9,13 @@
 #include <BAT/BCMath.h>
 
 // ---------------------------------------------------------
-((MODEL))::((MODEL))(std::string name) : BCModel(name)
+((MODEL))::((MODEL))(std::string name)
+          : BCModel(name)
 {
-    // constructor
-    // define parameters here. For example:
+    // Define parameters here in the constructor. For example:
     // AddParameter("mu",-2,1,"#mu");
-    // and set priors, if using built-in priors. For example:
-    // SetPriorGauss("mu",-1,0.25);
+    // And set priors, if using built-in priors. For example:
+    // GetParamater("mu").SetPrior(new BCPriorGaus(-1, 0.25));
 }
 
 // ---------------------------------------------------------
@@ -27,26 +27,15 @@
 // ---------------------------------------------------------
 double ((MODEL))::LogLikelihood(const std::vector<double> & parameters)
 {
-    // This methods returns the logarithm of the conditional probability
-    // p(data|parameters). This is where you have to define your model.
-
-    // access parameters from vector by remembering their positions, e.g.
-    // double mu = parameters[0];
-    // or by looking up their indicies, e.g.
-    // double mu = parameters[fParameters.Index("mu")];
-
-    // Calculate your likelihood according to your model. You may find
-    // the built in functions such as BCMath::LogPoisson helpful.
-    // Return the logarithm of this likelood
+    // This returns the log of the conditional probability p(data|pars)
+    // This is where you define your model.
+    // BCMath contains many functions you will find helpful
 
     return -1;
 }
 
 // ---------------------------------------------------------
 // double ((MODEL))::LogAPrioriProbability(const std::vector<double> & parameters) {
-// 	// This method returns the logarithm of the prior probability for the
-// 	// parameters p(parameters).
-
-// 	// You need not overload this function, if you are using built-in
-// 	// priors through the function SetPriorGauss, SetPriorConstant, etc.
+    // This returns the log of the prior probability for the parameters
+    // If you use built-in 1D priors, don't uncomment this function.
 // }

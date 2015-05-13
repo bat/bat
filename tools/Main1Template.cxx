@@ -29,13 +29,10 @@ int main()
     //////////////////////////////
     // perform your analysis here
 
-    // normalize the posterior, i.e. integrate posterior over the full
-    // parameter space
-    // m.SetIntegrationMethod(BCIntegrate::kIntDefault);
+    // Normalize the posterior by integrating it over the full par. space
     // m.Normalize();
 
-    // run MCMC and marginalize posterior w/r/t all parameters and all
-    // combinations of two parameters
+    // run MCMC, marginalizing posterior
     m.MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // run mode finding; by default using Minuit
