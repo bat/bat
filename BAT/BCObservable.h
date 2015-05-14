@@ -32,7 +32,7 @@ class BCObservable : public BCVariable
 
 public:
 
-    /** \name Constructors and destructors */
+    /** \name Constructors and destructor */
     /** @{ */
 
     /**
