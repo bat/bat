@@ -44,8 +44,8 @@ incs= \
 	BCTF1LogPrior.h \
 	BCTH1Prior.h \
 	BCPositiveDefinitePrior.h \
-	BCParameterSet.h \
 	BCObservableSet.h \
+	BCParameterSet.h \
 	BCObservable.h \
 	BCParameter.h \
 	BCVariable.h \
