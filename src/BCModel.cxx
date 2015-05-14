@@ -56,7 +56,7 @@ BCModel::BCModel(std::string name)
 }
 
 // ---------------------------------------------------------
-BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
+BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
     : BCIntegrate(name.data())
     , fDataSet(0)
     , fPriorModel(0)
@@ -67,7 +67,7 @@ BCModel::BCModel(std::string filename, std::string name, bool reuseObservables)
     , fPriorPosteriorNormalOrder(true)
     , fFactorizedPrior(false)
 {
-    LoadMCMC(filename, "", "", reuseObservables);
+    LoadMCMC(filename, "", "", loadObservables);
     SetPriorConstantAll();
     SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
 }

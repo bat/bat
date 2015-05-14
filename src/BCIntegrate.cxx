@@ -108,8 +108,8 @@ BCIntegrate::BCIntegrate(std::string name)
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(std::string filename, std::string name, bool reuseObservables)
-    : BCEngineMCMC(filename, name, reuseObservables)
+BCIntegrate::BCIntegrate(std::string filename, std::string name, bool loadObservables)
+    : BCEngineMCMC(filename, name, loadObservables)
     ,	fMinuit(0)
     ,	fMinuitErrorFlag(0)
     ,	fFlagIgnorePrevOptimization(false)
