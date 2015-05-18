@@ -60,7 +60,7 @@ public:
      * Calculates natural logarithm of the likelihood.
      * @param params A set of parameter values
      * @return Natural logarithm of the likelihood */
-    virtual double LogLikelihood(const std::vector<double>& params)
+    virtual double LogLikelihood(const std::vector<double>& /*params*/)
     { return 0; }
 
 };
