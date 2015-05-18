@@ -888,7 +888,7 @@ public:
 
     /**
      * Set flag for rescaling histogram ranges after pre-run. */
-    void SetRescaleHistogramRangesAfterPreRun(bool flag)
+    void SetRescaleHistogramRangesAfterPreRun(bool flag = true)
     { fRescaleHistogramRangesAfterPreRun = flag; }
 
     /**
