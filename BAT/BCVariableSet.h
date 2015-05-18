@@ -148,6 +148,16 @@ public:
     {	return At(Index(name)); }
 
     /**
+     * Access to last pushed variable. */
+    virtual T& Back()
+    { return fVars.back(); }
+
+    /**
+     * Access to last pushed variable. */
+    virtual const T& Back() const
+    { return fVars.back(); }
+
+    /**
      * Find index of parameter identified by name;
      * return Size() if name not found. */
     virtual unsigned Index(const std::string& name) const
