@@ -70,7 +70,7 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCMultivariateProposalFunction(false),
       fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
-      fMCMCRValueParametersCriterion(0.1),
+      fMCMCRValueParametersCriterion(1.1),
       fRandom(new TRandom3()),
       fMCMCTree(0),
       fMCMCTreeLoaded(false),
@@ -106,7 +106,7 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
       fMCMCMultivariateProposalFunction(false),
       fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
-      fMCMCRValueParametersCriterion(0.1),
+      fMCMCRValueParametersCriterion(1.1),
       fRandom(new TRandom3()),
       fMCMCTree(0),
       fMCMCTreeLoaded(false),
@@ -1732,7 +1732,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     variances[c] = fMCMCStatistics[c].variance[p];
                 }
                 fMCMCRValueParameters[p] = RValue(means, variances, fMCMCStatistics[0].n_samples, fCorrectRValueForSamplingVariability);
-                if ((fMCMCRValueParameters[p] - 1) > fMCMCRValueParametersCriterion)
+                if (fMCMCRValueParameters[p] > fMCMCRValueParametersCriterion)
                     fMCMCNIterationsConvergenceGlobal = -1;
             }
 
@@ -1745,7 +1745,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     if (GetParameter(p).Fixed())
                         continue;
 
-                    if ((fMCMCRValueParameters[p] - 1) < fMCMCRValueParametersCriterion)
+                    if (fMCMCRValueParameters[p] < fMCMCRValueParametersCriterion)
                         BCLog::OutDetail(Form("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
                     else if (std::isfinite(fMCMCRValueParameters[p]))
                         BCLog::OutDetail(Form("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
