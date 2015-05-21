@@ -39,7 +39,6 @@ bool BCPriorModel::PreparePriorModel()
     fParameters = fModel->GetParameters();
     fObservables = fModel->GetObservables();
 
-
     // but use binning that was used by model
     for (unsigned i = 0; i < fModel->GetNVariables(); ++i)
         if (fModel->MarginalizedHistogramExists(i))
@@ -57,7 +56,7 @@ void BCPriorModel::CalculateObservables(const std::vector<double>& parameters)
 {
     if (!fModel)
         return;
-    fModel->MCMCSetCurrentChain(fMCMCCurrentChain);
+    fModel->fMCMCCurrentChain = fMCMCCurrentChain;
     if (fCallLikelihood)
         fModel->LogLikelihood(parameters);
     fModel->CalculateObservables(parameters);

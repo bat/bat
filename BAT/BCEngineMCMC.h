@@ -696,11 +696,6 @@ public:
     { fMCMCNLag = n; }
 
     /**
-     * Sets current chain number. */
-    void MCMCSetCurrentChain(int n)
-    { fMCMCCurrentChain = n; }
-
-    /**
      * Sets the maximum number of iterations in the pre-run. */
     void MCMCSetNIterationsPreRunMax(unsigned n)
     { fMCMCNIterationsPreRunMax = n; }

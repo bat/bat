@@ -286,6 +286,11 @@ public:
 
     /** @} */
 
+    // declare BCPriorModel a friend
+    friend class BCPriorModel;
+
+
+
 protected:
 
     /**
