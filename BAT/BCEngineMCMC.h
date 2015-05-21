@@ -859,7 +859,12 @@ public:
 
     /**
      * Copy precision for the MCMC run from other model. */
-    void MCMCSetPrecision(const BCEngineMCMC* other);
+    void MCMCSetPrecision(const BCEngineMCMC* other)
+    { if (other) MCMCSetPrecision(*other); }
+
+    /**
+     * Copy precision for the MCMC run from other model. */
+    void MCMCSetPrecision(const BCEngineMCMC& other);
 
     /**
      * Set the number of bins for the marginalized distribution of all parameters

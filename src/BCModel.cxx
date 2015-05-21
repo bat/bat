@@ -245,7 +245,7 @@ void BCModel::PrintHessianMatrix(std::vector<double> parameters)
 BCPriorModel* BCModel::GetPriorModel(bool prepare, bool call_likelihood)
 {
     if (!fPriorModel)
-        fPriorModel = new BCPriorModel(this, call_likelihood);
+        fPriorModel = new BCPriorModel(*this, call_likelihood);
     else if (prepare)
         fPriorModel->PreparePriorModel();
     fPriorModel->SetCallLikelihood(call_likelihood);

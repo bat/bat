@@ -36,7 +36,7 @@ public:
      * constructor.
      * @param model Model to be prior model of.
      * @param call_likelihood Flag to control calling of Model's likelihood. */
-    BCPriorModel(BCModel* model, bool call_likelihood = false);
+    BCPriorModel(BCModel& model, bool call_likelihood = false);
 
     /**
      * destructor. */
@@ -50,7 +50,7 @@ public:
     /**
     	* Returns prior of model as posterior of PriorModel. */
     double LogLikelihood(const std::vector<double>& parameters)
-    { return (fModel) ? fModel->LogAPrioriProbability(parameters) : -std::numeric_limits<double>::infinity(); }
+    { return fModel.LogAPrioriProbability(parameters); }
 
     /**
      * Calculates user observables according to the model. */
@@ -71,7 +71,7 @@ public:
     { return fCallLikelihood; }
 
 protected:
-    BCModel* fModel;
+    BCModel& fModel;
 
     bool fCallLikelihood;
 

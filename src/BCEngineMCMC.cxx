@@ -250,23 +250,23 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC* other)
+void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC& other)
 {
-    fMCMCNChains                          = other->MCMCGetNChains();
-    fMCMCNLag                             = other->MCMCGetNLag();
-    fMCMCNIterationsPreRunMin             = other->MCMCGetNIterationsPreRunMin();
-    fMCMCNIterationsPreRunMax             = other->MCMCGetNIterationsPreRunMax();
-    fMCMCNIterationsRun                   = other->MCMCGetNIterationsRun();
-    fMCMCNIterationsPreRunCheck           = other->MCMCGetNIterationsPreRunCheck();
-    fMCMCNIterationsClearConvergenceStats = other->MCMCGetNIterationsClearConvergenceStats();
-    fMCMCRValueParametersCriterion        = other->MCMCGetRValueParametersCriterion();
-    fMCMCEfficiencyMin                    = other->MCMCGetMinimumEfficiency();
-    fMCMCEfficiencyMax                    = other->MCMCGetMaximumEfficiency();
-    fMCMCFlagPreRun                       = other->MCMCGetFlagPreRun();
-    fMCMCMultivariateProposalFunction     = other->MCMCGetMultivariateProposalFunction();
-    fMultivariateProposalFunctionEpsilon  = other->MCMCGetMultivariateProposalFunctionEpsilon();
-    fMultivariateProposalFunctionScaleMultiplier = other->MCMCGetMultivariateProposalFunctionScaleMultiplier();
-    fMultivariateProposalFunctionUpdatesMinimum = other->MCMCGetMultivariateProposalFunctionUpdatesMinimum();
+    fMCMCNChains                          = other.fMCMCNChains;
+    fMCMCNLag                             = other.fMCMCNLag;
+    fMCMCNIterationsPreRunMin             = other.fMCMCNIterationsPreRunMin;
+    fMCMCNIterationsPreRunMax             = other.fMCMCNIterationsPreRunMax;
+    fMCMCNIterationsRun                   = other.fMCMCNIterationsRun;
+    fMCMCNIterationsPreRunCheck           = other.fMCMCNIterationsPreRunCheck;
+    fMCMCNIterationsClearConvergenceStats = other.fMCMCNIterationsClearConvergenceStats;
+    fMCMCRValueParametersCriterion        = other.fMCMCRValueParametersCriterion;
+    fMCMCEfficiencyMin                    = other.fMCMCEfficiencyMin;
+    fMCMCEfficiencyMax                    = other.fMCMCEfficiencyMax;
+    fMCMCFlagPreRun                       = other.fMCMCFlagRun;
+    fMCMCMultivariateProposalFunction     = other.fMCMCMultivariateProposalFunction;
+    fMultivariateProposalFunctionEpsilon  = other.fMultivariateProposalFunctionEpsilon;
+    fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
+    fMultivariateProposalFunctionUpdatesMinimum = other.fMultivariateProposalFunctionUpdatesMinimum;
 }
 
 // ---------------------------------------------------------
