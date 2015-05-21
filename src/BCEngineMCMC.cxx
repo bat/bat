@@ -1765,11 +1765,11 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             and
             // convergence has been reached (or only one chain used)
             (fMCMCNChains == 1 or fMCMCNIterationsConvergenceGlobal > 0)
-            and 
+            and
             // minimum number of Multivar. tunings made (or factorized proposal function)
-            (!fMCMCMultivariateProposalFunction or mvt_updates >= fMultivariateProposalFunctionUpdatesMinimum))
-        {
+            (!fMCMCMultivariateProposalFunction or mvt_updates >= fMultivariateProposalFunctionUpdatesMinimum)) {
             // still below minimum number of prerun iterations
+
             if (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin)
                 BCLog::OutDetail(Form("     * Running until at least %d iterations performed in prerun. Current iteration is %d", fMCMCNIterationsPreRunMin, fMCMCCurrentIteration));
             else
