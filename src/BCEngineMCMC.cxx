@@ -365,25 +365,30 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::WriteMarkovChain(bool flag)
+void BCEngineMCMC::WriteMarkovChain(bool flag_run, bool flag_prerun)
 {
-    if (flag)
-        BCLog::OutError("BCEngineMCMC::WriteMarkovChain: To turn on output use WriteMarkovChain(filename,option).");
-    fMCMCFlagWriteChainToFile = false;
-    fMCMCFlagWritePreRunToFile = false;
+    if ((flag_run or flag_prerun) and fMCMCOutputFilename.empty())
+        BCLog::OutError("BCEngineMCMC::WriteMarkovChain: First turn on output using WriteMarkovChain(filename, option, main_run, pre_run).");
+    fMCMCFlagWriteChainToFile = flag_run;
+    fMCMCFlagWritePreRunToFile = flag_prerun;
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::WriteMarkovChain(std::string filename, std::string option)
+void BCEngineMCMC::WriteMarkovChain(std::string filename, std::string option, bool flag_run, bool flag_prerun)
 {
+    // if setting both false
+    if (!flag_run and !flag_prerun)
+        WriteMarkovChain(false);
+
     if (filename.empty()) {
         BCLog::OutError("BCEngineMCMC::WriteMarkovChain: You must specify the filename when turning on Markov chain output.");
         return WriteMarkovChain(false);
     }
+
     fMCMCOutputFilename = filename;
     fMCMCOutputFileOption = option;
-    fMCMCFlagWriteChainToFile = true;
-    fMCMCFlagWritePreRunToFile = true;
+    fMCMCFlagWriteChainToFile = flag_run;
+    fMCMCFlagWritePreRunToFile = flag_prerun;
 }
 
 // --------------------------------------------------------

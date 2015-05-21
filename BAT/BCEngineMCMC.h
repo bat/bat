@@ -23,26 +23,26 @@
 
 // ---------------------------------------------------------
 
-#include "BCParameter.h"
-#include "BCParameterSet.h"
 #include "BCObservable.h"
 #include "BCObservableSet.h"
+#include "BCParameter.h"
+#include "BCParameterSet.h"
 #include "BCLog.h"
 
-#include <vector>
 #include <limits>
 #include <utility>
+#include <vector>
 
-#include <TMatrixDSym.h>
 #include <TMatrixD.h>
+#include <TMatrixDSym.h>
 
 // ROOT classes
 class TF1;
+class TFile;
 class TH1;
 class TH2;
-class TTree;
-class TFile;
 class TRandom3;
+class TTree;
 
 class BCH1D;
 class BCH2D;
@@ -741,15 +741,6 @@ public:
      * Set the random number seed */
     void MCMCSetRandomSeed(unsigned seed);
 
-    /**
-     * Sets flag to write Markov chains to file. */
-    void MCMCSetWriteChainToFile(bool flag)
-    { fMCMCFlagWriteChainToFile = flag; }
-
-    /**
-     * Sets flag to write pre run to file. */
-    void MCMCSetWritePreRunToFile(bool flag)
-    { fMCMCFlagWritePreRunToFile = flag; }
 
     /**
      * Sets the initial positions for all chains.
@@ -898,14 +889,25 @@ public:
 
     /**
      * Turn on/off writing of Markov chain to root file.
-     * If setting true, use function with filename arguments.
-     * @param flag Flag for writing Markov chain to ROOT file (true) or not (false). */
-    void WriteMarkovChain(bool flag);
+     * If setting true, you must first set filename with function with filename arguments.
+     * @param flag Flag for writing Markov chain (run and prerun) to ROOT file. */
+    void WriteMarkovChain(bool flag)
+    { WriteMarkovChain(flag, flag); }
 
-    /** Turn on writing of Markov chain to root file.
+    /**
+     * Turn on/off writing of Markov chain to root file.
+     * If setting either true, you must first set filename with function with filename arguments.
+     * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
+     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChain(bool flag_run, bool flag_prerun);
+
+    /**
+     * Turn on writing of Markov chain to root file.
      * @param filename Name of file to write chain to.
-     * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable). */
-    void WriteMarkovChain(std::string filename, std::string option);
+     * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
+     * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
+     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChain(std::string filename, std::string option, bool flag_run = true, bool flag_prerun = true);
 
     /** @} */
 
