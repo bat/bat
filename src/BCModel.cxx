@@ -45,10 +45,6 @@ BCModel::BCModel(std::string name)
     : BCIntegrate(name)
     , fDataSet(0)
     , fPriorModel(0)
-    , fBCH1DPriorDrawingOptions(new BCH1D)
-    , fBCH2DPriorDrawingOptions(new BCH2D)
-    , fBCH1DPosteriorDrawingOptions(new BCH1D)
-    , fBCH2DPosteriorDrawingOptions(new BCH2D)
     , fPriorPosteriorNormalOrder(true)
     , fFactorizedPrior(false)
 {
@@ -60,10 +56,6 @@ BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
     : BCIntegrate(name.data())
     , fDataSet(0)
     , fPriorModel(0)
-    , fBCH1DPriorDrawingOptions(new BCH1D)
-    , fBCH2DPriorDrawingOptions(new BCH2D)
-    , fBCH1DPosteriorDrawingOptions(new BCH1D)
-    , fBCH2DPosteriorDrawingOptions(new BCH2D)
     , fPriorPosteriorNormalOrder(true)
     , fFactorizedPrior(false)
 {
@@ -76,10 +68,6 @@ BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
 BCModel::BCModel(const BCModel& bcmodel)
     : BCIntegrate(bcmodel)
     , fPriorModel(0)
-    , fBCH1DPriorDrawingOptions(new BCH1D)
-    , fBCH2DPriorDrawingOptions(new BCH2D)
-    , fBCH1DPosteriorDrawingOptions(new BCH1D)
-    , fBCH2DPosteriorDrawingOptions(new BCH2D)
 {
     Copy(bcmodel);
 }
@@ -88,10 +76,6 @@ BCModel::BCModel(const BCModel& bcmodel)
 BCModel::~BCModel()
 {
     delete fPriorModel;
-    delete fBCH1DPriorDrawingOptions;
-    delete fBCH2DPriorDrawingOptions;
-    delete fBCH1DPosteriorDrawingOptions;
-    delete fBCH2DPosteriorDrawingOptions;
 }
 
 // ---------------------------------------------------------
@@ -102,10 +86,10 @@ void BCModel::Copy(const BCModel& bcmodel)
     fName                            = bcmodel.fName;
     fDataSet                         = bcmodel.fDataSet;
 
-    fBCH1DPriorDrawingOptions->CopyOptions(*(bcmodel.fBCH1DPriorDrawingOptions));
-    fBCH2DPriorDrawingOptions->CopyOptions(*(bcmodel.fBCH2DPriorDrawingOptions));
-    fBCH1DPosteriorDrawingOptions->CopyOptions(*(bcmodel.fBCH1DPosteriorDrawingOptions));
-    fBCH2DPosteriorDrawingOptions->CopyOptions(*(bcmodel.fBCH2DPosteriorDrawingOptions));
+    fBCH1DPriorDrawingOptions.CopyOptions(bcmodel.fBCH1DPriorDrawingOptions);
+    fBCH2DPriorDrawingOptions.CopyOptions(bcmodel.fBCH2DPriorDrawingOptions);
+    fBCH1DPosteriorDrawingOptions.CopyOptions(bcmodel.fBCH1DPosteriorDrawingOptions);
+    fBCH2DPosteriorDrawingOptions.CopyOptions(bcmodel.fBCH2DPosteriorDrawingOptions);
     fPriorPosteriorNormalOrder = bcmodel.fPriorPosteriorNormalOrder;
 
     fFactorizedPrior = bcmodel.fFactorizedPrior;
@@ -324,13 +308,13 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
     if (!bch1d_posterior)
         return false;
 
-    bch1d_prior->CopyOptions(*fBCH1DPriorDrawingOptions);
+    bch1d_prior->CopyOptions(fBCH1DPriorDrawingOptions);
     bch1d_prior->SetDrawLegend(false);
-    bch1d_posterior->CopyOptions(*fBCH1DPosteriorDrawingOptions);
+    bch1d_posterior->CopyOptions(fBCH1DPosteriorDrawingOptions);
     bch1d_posterior->SetDrawLegend(false);
 
-    gPad->SetLogx(fBCH1DPriorDrawingOptions->GetLogx() or fBCH1DPosteriorDrawingOptions->GetLogx());
-    gPad->SetLogy(fBCH1DPriorDrawingOptions->GetLogy() or fBCH1DPosteriorDrawingOptions->GetLogy());
+    gPad->SetLogx(fBCH1DPriorDrawingOptions.GetLogx() or fBCH1DPosteriorDrawingOptions.GetLogx());
+    gPad->SetLogy(fBCH1DPriorDrawingOptions.GetLogy() or fBCH1DPosteriorDrawingOptions.GetLogy());
 
     // get maximum
     double maxy = 1.1 * std::max<double>(bch1d_prior->GetHistogram()->GetMaximum(), bch1d_posterior->GetHistogram()->GetMaximum());
@@ -537,7 +521,7 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
     if (!bch2d_prior)
         return false;
 
-    bch2d_prior->CopyOptions(*fBCH2DPriorDrawingOptions);
+    bch2d_prior->CopyOptions(fBCH2DPriorDrawingOptions);
     bch2d_prior->SetDrawLegend(false);
 
 
@@ -560,7 +544,7 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
     if (!bch2d_posterior)
         return false;
 
-    bch2d_posterior->CopyOptions(*fBCH2DPosteriorDrawingOptions);
+    bch2d_posterior->CopyOptions(fBCH2DPosteriorDrawingOptions);
     bch2d_posterior->SetDrawLegend(false);
 
     // correct for constant priors:
@@ -581,9 +565,9 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         bch2d_prior->SetNBands(0);
     }
 
-    gPad->SetLogx(fBCH2DPriorDrawingOptions->GetLogx() or fBCH2DPosteriorDrawingOptions->GetLogx());
-    gPad->SetLogy(fBCH2DPriorDrawingOptions->GetLogy() or fBCH2DPosteriorDrawingOptions->GetLogy());
-    gPad->SetLogz(fBCH2DPriorDrawingOptions->GetLogz() or fBCH2DPosteriorDrawingOptions->GetLogz());
+    gPad->SetLogx(fBCH2DPriorDrawingOptions.GetLogx() or fBCH2DPosteriorDrawingOptions.GetLogx());
+    gPad->SetLogy(fBCH2DPriorDrawingOptions.GetLogy() or fBCH2DPosteriorDrawingOptions.GetLogy());
+    gPad->SetLogz(fBCH2DPriorDrawingOptions.GetLogz() or fBCH2DPosteriorDrawingOptions.GetLogz());
 
     // draw axes
     TH2D* h2_axes = new TH2D(Form("h2_axes_%s_knowledge_update_%d_%d", GetSafeName().data(), index1, index2), Form(";%s;%s;P(%s %s|Data)", GetVariable(index1).GetLatexNameWithUnits().data(), GetVariable(index2).GetLatexNameWithUnits().data(), GetVariable(index1).GetLatexName().data(), GetVariable(index2).GetLatexName().data()),
@@ -760,130 +744,130 @@ void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingSt
         case kKnowledgeUpdateDetailedPosterior:
             // 1D
             SetDrawPriorPosteriorNormalOrder(false);
-            fBCH1DPriorDrawingOptions->SetDrawGlobalMode(false);
-            fBCH1DPriorDrawingOptions->SetDrawLocalMode(false);
-            fBCH1DPriorDrawingOptions->SetDrawMean(false);
-            fBCH1DPriorDrawingOptions->SetDrawMedian(false);
-            fBCH1DPriorDrawingOptions->SetDrawLegend(false);
-            fBCH1DPriorDrawingOptions->SetNBands(0);
-            fBCH1DPriorDrawingOptions->SetBandType(BCH1D::kNoBands);
-            fBCH1DPriorDrawingOptions->SetROOToptions("same");
-            fBCH1DPriorDrawingOptions->SetLineColor(13);
-            fBCH1DPriorDrawingOptions->SetMarkerColor(13);
-            fBCH1DPriorDrawingOptions->SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions->CopyOptions(*fBCH1DPriorDrawingOptions);
-            fBCH1DPosteriorDrawingOptions->SetDrawGlobalMode(true);
-            fBCH1DPosteriorDrawingOptions->SetBandType(BCH1D::kSmallestInterval);
-            fBCH1DPosteriorDrawingOptions->SetNBands(3);
-            fBCH1DPosteriorDrawingOptions->SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH1DPosteriorDrawingOptions->SetLineColor(kBlack);
-            fBCH1DPosteriorDrawingOptions->SetMarkerColor(kBlack);
+            fBCH1DPriorDrawingOptions.SetDrawGlobalMode(false);
+            fBCH1DPriorDrawingOptions.SetDrawLocalMode(false);
+            fBCH1DPriorDrawingOptions.SetDrawMean(false);
+            fBCH1DPriorDrawingOptions.SetDrawMedian(false);
+            fBCH1DPriorDrawingOptions.SetDrawLegend(false);
+            fBCH1DPriorDrawingOptions.SetNBands(0);
+            fBCH1DPriorDrawingOptions.SetBandType(BCH1D::kNoBands);
+            fBCH1DPriorDrawingOptions.SetROOToptions("same");
+            fBCH1DPriorDrawingOptions.SetLineColor(13);
+            fBCH1DPriorDrawingOptions.SetMarkerColor(13);
+            fBCH1DPriorDrawingOptions.SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions.CopyOptions(fBCH1DPriorDrawingOptions);
+            fBCH1DPosteriorDrawingOptions.SetDrawGlobalMode(true);
+            fBCH1DPosteriorDrawingOptions.SetBandType(BCH1D::kSmallestInterval);
+            fBCH1DPosteriorDrawingOptions.SetNBands(3);
+            fBCH1DPosteriorDrawingOptions.SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH1DPosteriorDrawingOptions.SetLineColor(kBlack);
+            fBCH1DPosteriorDrawingOptions.SetMarkerColor(kBlack);
 
             // 2D
-            fBCH2DPriorDrawingOptions->SetDrawGlobalMode(false);
-            fBCH2DPriorDrawingOptions->SetDrawLocalMode(true, false);
-            fBCH2DPriorDrawingOptions->SetDrawMean(false);
-            fBCH2DPriorDrawingOptions->SetDrawLegend(false);
-            fBCH2DPriorDrawingOptions->SetBandType(BCH2D::kSmallestInterval);
-            fBCH2DPriorDrawingOptions->SetBandFillStyle(-1);
-            fBCH2DPriorDrawingOptions->SetNBands(1);
-            fBCH2DPriorDrawingOptions->SetNSmooth(0);
-            fBCH2DPriorDrawingOptions->SetROOToptions("same");
-            fBCH2DPriorDrawingOptions->SetLineColor(13);
-            fBCH2DPriorDrawingOptions->SetMarkerColor(13);
-            fBCH2DPriorDrawingOptions->SetLocalModeMarkerStyle(25);
-            fBCH2DPriorDrawingOptions->SetNLegendColumns(1);
-            fBCH2DPosteriorDrawingOptions->CopyOptions(*fBCH2DPriorDrawingOptions);
-            fBCH2DPosteriorDrawingOptions->SetNBands(3);
-            fBCH2DPosteriorDrawingOptions->SetBandFillStyle(1001);
-            fBCH2DPosteriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH2DPosteriorDrawingOptions->SetLineColor(kBlack);
-            fBCH2DPosteriorDrawingOptions->SetMarkerColor(kBlack);
-            fBCH2DPosteriorDrawingOptions->SetLocalModeMarkerStyle(21);
+            fBCH2DPriorDrawingOptions.SetDrawGlobalMode(false);
+            fBCH2DPriorDrawingOptions.SetDrawLocalMode(true, false);
+            fBCH2DPriorDrawingOptions.SetDrawMean(false);
+            fBCH2DPriorDrawingOptions.SetDrawLegend(false);
+            fBCH2DPriorDrawingOptions.SetBandType(BCH2D::kSmallestInterval);
+            fBCH2DPriorDrawingOptions.SetBandFillStyle(-1);
+            fBCH2DPriorDrawingOptions.SetNBands(1);
+            fBCH2DPriorDrawingOptions.SetNSmooth(0);
+            fBCH2DPriorDrawingOptions.SetROOToptions("same");
+            fBCH2DPriorDrawingOptions.SetLineColor(13);
+            fBCH2DPriorDrawingOptions.SetMarkerColor(13);
+            fBCH2DPriorDrawingOptions.SetLocalModeMarkerStyle(25);
+            fBCH2DPriorDrawingOptions.SetNLegendColumns(1);
+            fBCH2DPosteriorDrawingOptions.CopyOptions(fBCH2DPriorDrawingOptions);
+            fBCH2DPosteriorDrawingOptions.SetNBands(3);
+            fBCH2DPosteriorDrawingOptions.SetBandFillStyle(1001);
+            fBCH2DPosteriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH2DPosteriorDrawingOptions.SetLineColor(kBlack);
+            fBCH2DPosteriorDrawingOptions.SetMarkerColor(kBlack);
+            fBCH2DPosteriorDrawingOptions.SetLocalModeMarkerStyle(21);
             break;
 
         case kKnowledgeUpdateDetailedPrior:
             // 1D
             SetDrawPriorPosteriorNormalOrder(true);
-            fBCH1DPosteriorDrawingOptions->SetDrawGlobalMode(false);
-            fBCH1DPosteriorDrawingOptions->SetDrawLocalMode(false);
-            fBCH1DPosteriorDrawingOptions->SetDrawMean(false);
-            fBCH1DPosteriorDrawingOptions->SetDrawMedian(false);
-            fBCH1DPosteriorDrawingOptions->SetDrawLegend(false);
-            fBCH1DPosteriorDrawingOptions->SetNBands(0);
-            fBCH1DPosteriorDrawingOptions->SetBandType(BCH1D::kNoBands);
-            fBCH1DPosteriorDrawingOptions->SetROOToptions("same");
-            fBCH1DPosteriorDrawingOptions->SetLineColor(13);
-            fBCH1DPosteriorDrawingOptions->SetMarkerColor(13);
-            fBCH1DPosteriorDrawingOptions->SetNLegendColumns(1);
-            fBCH1DPriorDrawingOptions->CopyOptions(*fBCH1DPosteriorDrawingOptions);
-            fBCH1DPriorDrawingOptions->SetDrawGlobalMode(true);
-            fBCH1DPriorDrawingOptions->SetBandType(BCH1D::kSmallestInterval);
-            fBCH1DPriorDrawingOptions->SetNBands(3);
-            fBCH1DPriorDrawingOptions->SetNLegendColumns(1);
-            fBCH1DPriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH1DPriorDrawingOptions->SetLineColor(kBlack);
-            fBCH1DPriorDrawingOptions->SetMarkerColor(kBlack);
+            fBCH1DPosteriorDrawingOptions.SetDrawGlobalMode(false);
+            fBCH1DPosteriorDrawingOptions.SetDrawLocalMode(false);
+            fBCH1DPosteriorDrawingOptions.SetDrawMean(false);
+            fBCH1DPosteriorDrawingOptions.SetDrawMedian(false);
+            fBCH1DPosteriorDrawingOptions.SetDrawLegend(false);
+            fBCH1DPosteriorDrawingOptions.SetNBands(0);
+            fBCH1DPosteriorDrawingOptions.SetBandType(BCH1D::kNoBands);
+            fBCH1DPosteriorDrawingOptions.SetROOToptions("same");
+            fBCH1DPosteriorDrawingOptions.SetLineColor(13);
+            fBCH1DPosteriorDrawingOptions.SetMarkerColor(13);
+            fBCH1DPosteriorDrawingOptions.SetNLegendColumns(1);
+            fBCH1DPriorDrawingOptions.CopyOptions(fBCH1DPosteriorDrawingOptions);
+            fBCH1DPriorDrawingOptions.SetDrawGlobalMode(true);
+            fBCH1DPriorDrawingOptions.SetBandType(BCH1D::kSmallestInterval);
+            fBCH1DPriorDrawingOptions.SetNBands(3);
+            fBCH1DPriorDrawingOptions.SetNLegendColumns(1);
+            fBCH1DPriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH1DPriorDrawingOptions.SetLineColor(kBlack);
+            fBCH1DPriorDrawingOptions.SetMarkerColor(kBlack);
 
             // 2D
-            fBCH2DPosteriorDrawingOptions->SetDrawGlobalMode(false);
-            fBCH2DPosteriorDrawingOptions->SetDrawLocalMode(true, false);
-            fBCH2DPosteriorDrawingOptions->SetDrawMean(false);
-            fBCH2DPosteriorDrawingOptions->SetDrawLegend(false);
-            fBCH2DPosteriorDrawingOptions->SetBandType(BCH2D::kSmallestInterval);
-            fBCH2DPosteriorDrawingOptions->SetBandFillStyle(-1);
-            fBCH2DPosteriorDrawingOptions->SetNBands(1);
-            fBCH2DPosteriorDrawingOptions->SetNSmooth(0);
-            fBCH2DPosteriorDrawingOptions->SetROOToptions("same");
-            fBCH2DPosteriorDrawingOptions->SetLineColor(13);
-            fBCH2DPosteriorDrawingOptions->SetMarkerColor(13);
-            fBCH2DPosteriorDrawingOptions->SetLocalModeMarkerStyle(25);
-            fBCH2DPosteriorDrawingOptions->SetNLegendColumns(1);
-            fBCH2DPriorDrawingOptions->CopyOptions(*fBCH2DPosteriorDrawingOptions);
-            fBCH2DPriorDrawingOptions->SetNBands(3);
-            fBCH2DPriorDrawingOptions->SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH2DPriorDrawingOptions->SetBandFillStyle(1001);
-            fBCH2DPriorDrawingOptions->SetLineColor(kBlack);
-            fBCH2DPriorDrawingOptions->SetMarkerColor(kBlack);
-            fBCH2DPriorDrawingOptions->SetLocalModeMarkerStyle(21);
+            fBCH2DPosteriorDrawingOptions.SetDrawGlobalMode(false);
+            fBCH2DPosteriorDrawingOptions.SetDrawLocalMode(true, false);
+            fBCH2DPosteriorDrawingOptions.SetDrawMean(false);
+            fBCH2DPosteriorDrawingOptions.SetDrawLegend(false);
+            fBCH2DPosteriorDrawingOptions.SetBandType(BCH2D::kSmallestInterval);
+            fBCH2DPosteriorDrawingOptions.SetBandFillStyle(-1);
+            fBCH2DPosteriorDrawingOptions.SetNBands(1);
+            fBCH2DPosteriorDrawingOptions.SetNSmooth(0);
+            fBCH2DPosteriorDrawingOptions.SetROOToptions("same");
+            fBCH2DPosteriorDrawingOptions.SetLineColor(13);
+            fBCH2DPosteriorDrawingOptions.SetMarkerColor(13);
+            fBCH2DPosteriorDrawingOptions.SetLocalModeMarkerStyle(25);
+            fBCH2DPosteriorDrawingOptions.SetNLegendColumns(1);
+            fBCH2DPriorDrawingOptions.CopyOptions(fBCH2DPosteriorDrawingOptions);
+            fBCH2DPriorDrawingOptions.SetNBands(3);
+            fBCH2DPriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            fBCH2DPriorDrawingOptions.SetBandFillStyle(1001);
+            fBCH2DPriorDrawingOptions.SetLineColor(kBlack);
+            fBCH2DPriorDrawingOptions.SetMarkerColor(kBlack);
+            fBCH2DPriorDrawingOptions.SetLocalModeMarkerStyle(21);
             break;
 
         case kKnowledgeUpdateDefaultStyle:
         default:
             // 1D
-            fBCH1DPriorDrawingOptions->SetDrawGlobalMode(false);
-            fBCH1DPriorDrawingOptions->SetDrawLocalMode(false);
-            fBCH1DPriorDrawingOptions->SetDrawMean(false);
-            fBCH1DPriorDrawingOptions->SetDrawMedian(false);
-            fBCH1DPriorDrawingOptions->SetDrawLegend(false);
-            fBCH1DPriorDrawingOptions->SetNBands(0);
-            fBCH1DPriorDrawingOptions->SetBandType(BCH1D::kNoBands);
-            fBCH1DPriorDrawingOptions->SetROOToptions("same");
-            fBCH1DPriorDrawingOptions->SetLineColor(kRed);
-            fBCH1DPriorDrawingOptions->SetMarkerColor(kRed);
-            fBCH1DPriorDrawingOptions->SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions->CopyOptions(*fBCH1DPriorDrawingOptions);
-            fBCH1DPosteriorDrawingOptions->SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions->SetLineColor(kBlue);
-            fBCH1DPosteriorDrawingOptions->SetMarkerColor(kBlue);
+            fBCH1DPriorDrawingOptions.SetDrawGlobalMode(false);
+            fBCH1DPriorDrawingOptions.SetDrawLocalMode(false);
+            fBCH1DPriorDrawingOptions.SetDrawMean(false);
+            fBCH1DPriorDrawingOptions.SetDrawMedian(false);
+            fBCH1DPriorDrawingOptions.SetDrawLegend(false);
+            fBCH1DPriorDrawingOptions.SetNBands(0);
+            fBCH1DPriorDrawingOptions.SetBandType(BCH1D::kNoBands);
+            fBCH1DPriorDrawingOptions.SetROOToptions("same");
+            fBCH1DPriorDrawingOptions.SetLineColor(kRed);
+            fBCH1DPriorDrawingOptions.SetMarkerColor(kRed);
+            fBCH1DPriorDrawingOptions.SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions.CopyOptions(fBCH1DPriorDrawingOptions);
+            fBCH1DPosteriorDrawingOptions.SetNLegendColumns(1);
+            fBCH1DPosteriorDrawingOptions.SetLineColor(kBlue);
+            fBCH1DPosteriorDrawingOptions.SetMarkerColor(kBlue);
 
             // 2D
-            fBCH2DPriorDrawingOptions->SetDrawGlobalMode(false);
-            fBCH2DPriorDrawingOptions->SetDrawLocalMode(true, false);
-            fBCH2DPriorDrawingOptions->SetDrawMean(false);
-            fBCH2DPriorDrawingOptions->SetDrawLegend(false);
-            fBCH2DPriorDrawingOptions->SetBandType(BCH2D::kSmallestInterval);
-            fBCH2DPriorDrawingOptions->SetBandFillStyle(-1);
-            fBCH2DPriorDrawingOptions->SetNBands(1);
-            fBCH2DPriorDrawingOptions->SetNSmooth(0);
-            fBCH2DPriorDrawingOptions->SetROOToptions("same");
-            fBCH2DPriorDrawingOptions->SetLineColor(kRed);
-            fBCH2DPriorDrawingOptions->SetMarkerColor(kRed);
-            fBCH2DPriorDrawingOptions->SetNLegendColumns(1);
-            fBCH2DPosteriorDrawingOptions->CopyOptions(*fBCH2DPriorDrawingOptions);
-            fBCH2DPosteriorDrawingOptions->SetLineColor(kBlue);
-            fBCH2DPosteriorDrawingOptions->SetMarkerColor(kBlue);
+            fBCH2DPriorDrawingOptions.SetDrawGlobalMode(false);
+            fBCH2DPriorDrawingOptions.SetDrawLocalMode(true, false);
+            fBCH2DPriorDrawingOptions.SetDrawMean(false);
+            fBCH2DPriorDrawingOptions.SetDrawLegend(false);
+            fBCH2DPriorDrawingOptions.SetBandType(BCH2D::kSmallestInterval);
+            fBCH2DPriorDrawingOptions.SetBandFillStyle(-1);
+            fBCH2DPriorDrawingOptions.SetNBands(1);
+            fBCH2DPriorDrawingOptions.SetNSmooth(0);
+            fBCH2DPriorDrawingOptions.SetROOToptions("same");
+            fBCH2DPriorDrawingOptions.SetLineColor(kRed);
+            fBCH2DPriorDrawingOptions.SetMarkerColor(kRed);
+            fBCH2DPriorDrawingOptions.SetNLegendColumns(1);
+            fBCH2DPosteriorDrawingOptions.CopyOptions(fBCH2DPriorDrawingOptions);
+            fBCH2DPosteriorDrawingOptions.SetLineColor(kBlue);
+            fBCH2DPosteriorDrawingOptions.SetMarkerColor(kBlue);
             break;
     }
 }

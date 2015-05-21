@@ -24,14 +24,14 @@
 
 // ---------------------------------------------------------
 
+#include "BCH1D.h"
+#include "BCH2D.h"
 #include "BCIntegrate.h"
 #include "BCDataSet.h"
 
 #include <string>
 
 //BAT classes
-class BCH1D;
-class BCH2D;
 class BCPriorModel;
 
 // ---------------------------------------------------------
@@ -112,22 +112,22 @@ public:
 
     /**
      * @return BCH1D object for controlling drawing options of priors in knowledge update plots. */
-    BCH1D* GetBCH1DPriorDrawingOptions()
+    BCH1D& GetBCH1DPriorDrawingOptions()
     { return fBCH1DPriorDrawingOptions; }
 
     /**
      * @return BCH2D object for controlling drawing options of priors in knowledge update plots. */
-    BCH2D* GetBCH2DPriorDrawingOptions()
+    BCH2D& GetBCH2DPriorDrawingOptions()
     { return fBCH2DPriorDrawingOptions; }
 
     /**
      * @return BCH1D object for controlling drawing options of posteriors in knowledge update plots. */
-    BCH1D* GetBCH1DPosteriorDrawingOptions()
+    BCH1D& GetBCH1DPosteriorDrawingOptions()
     { return fBCH1DPosteriorDrawingOptions; }
 
     /**
      * @return BCH2D object for controlling drawing options of posteriors in knowledge update plots. */
-    BCH2D* GetBCH2DPosteriorDrawingOptions()
+    BCH2D& GetBCH2DPosteriorDrawingOptions()
     { return fBCH2DPosteriorDrawingOptions; }
 
     /**
@@ -301,19 +301,19 @@ protected:
 
     /**
      * knowledge update plot 1D prior options. */
-    BCH1D* fBCH1DPriorDrawingOptions;
+    BCH1D fBCH1DPriorDrawingOptions;
 
     /**
      * knowledge update plot 2D prior options. */
-    BCH2D* fBCH2DPriorDrawingOptions;
+    BCH2D fBCH2DPriorDrawingOptions;
 
     /**
      * knowledge update plot 1D posterior options. */
-    BCH1D* fBCH1DPosteriorDrawingOptions;
+    BCH1D fBCH1DPosteriorDrawingOptions;
 
     /**
      * knowledge update plot 2D posterior options. */
-    BCH2D* fBCH2DPosteriorDrawingOptions;
+    BCH2D fBCH2DPosteriorDrawingOptions;
 
     /**
      * flag for ordering of drawing of prior and posterior in knowledge update plots. */
