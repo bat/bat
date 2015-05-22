@@ -43,14 +43,9 @@ public:
     /** @{ */
 
     /**
-     * Default constructor.
-     */
-    BCGoFTest(std::string name);
-
-    /**
      * Constructor with model.
      * If name is unset, "GoFTest" is appended to the model name. */
-    BCGoFTest(BCModel* model, std::string name = "");
+    BCGoFTest(BCModel& model, std::string name = "");
 
     /**
      * Default destructor. */
@@ -66,8 +61,8 @@ public:
     { return (GetNParameters() < fH1Marginalized.size()) ? fH1Marginalized[GetNParameters()] : 0; }
 
     /**
-     * @return pointer to the tested model */
-    BCModel* GetTestModel()
+     * @return tested model */
+    BCModel& GetTestModel()
     { return fTestModel; };
 
     /**
@@ -84,17 +79,6 @@ public:
      * @return Log likelihood of last parameter set tested. */
     double GetTestedLogLikelihood()
     { return fOriginalLogLikelihood; }
-
-    /** @} */
-    /** \name Member functions (set) */
-    /** @{ */
-
-    /**
-     * Set the model to be tested.
-     * @param testmodel pointer to the model to be tested */
-    void SetTestModel(BCModel* testmodel)
-    { fTestModel = testmodel; };
-
 
     /** @} */
     /** \name Member functions (miscellaneous methods) */
@@ -145,7 +129,7 @@ private:
 
     /**
      * A pointer to the model which is tested. */
-    BCModel* fTestModel;
+    BCModel& fTestModel;
 
     /**
      * Original parameters to be evaluated. */
