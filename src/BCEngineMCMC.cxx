@@ -76,8 +76,6 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(true),
       fParameterTree(0),
-      fBCH1DdrawingOptions(new BCH1D),
-      fBCH2DdrawingOptions(new BCH2D),
       fRescaleHistogramRangesAfterPreRun(false),
       fHistogramRescalePadding(0.1)
 {
@@ -112,8 +110,6 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(true),
       fParameterTree(0),
-      fBCH1DdrawingOptions(new BCH1D),
-      fBCH2DdrawingOptions(new BCH2D),
       fRescaleHistogramRangesAfterPreRun(false),
       fHistogramRescalePadding(0.1)
 {
@@ -125,8 +121,6 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
-    : fBCH1DdrawingOptions(new BCH1D),
-      fBCH2DdrawingOptions(new BCH2D)
 {
     Copy(other);
 }
@@ -147,9 +141,6 @@ BCEngineMCMC::~BCEngineMCMC()
     for (unsigned i = 0; i < fH2Marginalized.size(); ++i)
         for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
             delete fH2Marginalized[i][j];
-
-    delete fBCH1DdrawingOptions;
-    delete fBCH2DdrawingOptions;
 }
 
 // ---------------------------------------------------------
@@ -360,8 +351,8 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fMCMCOutputFileOption    = other.fMCMCOutputFileOption;
 
     fLocalModes            = other.fLocalModes;
-    fBCH1DdrawingOptions->CopyOptions(*(other.fBCH1DdrawingOptions));
-    fBCH2DdrawingOptions->CopyOptions(*(other.fBCH2DdrawingOptions));
+    fBCH1DdrawingOptions.CopyOptions(other.fBCH1DdrawingOptions);
+    fBCH2DdrawingOptions.CopyOptions(other.fBCH2DdrawingOptions);
 }
 
 // --------------------------------------------------------
@@ -2630,7 +2621,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
             if (!h1.back()) // BCH1D doesn't exist
                 h1.pop_back();
             else
-                h1.back()->CopyOptions(*fBCH1DdrawingOptions);
+                h1.back()->CopyOptions(fBCH1DdrawingOptions);
         }
 
     // create vector for ordering 2D hists properly
@@ -2651,7 +2642,7 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
         if (!h2.back()) // BCH2D doesn't exist
             h2.pop_back();
         else
-            h2.back()->CopyOptions(*fBCH2DdrawingOptions);
+            h2.back()->CopyOptions(fBCH2DdrawingOptions);
     }
 
     if (h1.empty() and h2.empty()) {
@@ -3207,9 +3198,9 @@ bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_obser
                 bh->GetHistogram()->GetYaxis()->SetTitleSize(0);
 
                 if (bh->GetHistogram()->GetDimension() == 1)
-                    bh->CopyOptions(*fBCH1DdrawingOptions);
+                    bh->CopyOptions(fBCH1DdrawingOptions);
                 else if (bh->GetHistogram()->GetDimension() == 2)
-                    bh->CopyOptions(*fBCH2DdrawingOptions);
+                    bh->CopyOptions(fBCH2DdrawingOptions);
                 bh->SetDrawLegend(false);
                 bh->SetStats(false);
                 bh->Draw();

@@ -23,6 +23,8 @@
 
 // ---------------------------------------------------------
 
+#include "BCH1D.h"
+#include "BCH2D.h"
 #include "BCObservable.h"
 #include "BCObservableSet.h"
 #include "BCParameter.h"
@@ -44,8 +46,6 @@ class TH2;
 class TRandom3;
 class TTree;
 
-class BCH1D;
-class BCH2D;
 class BCVariable;
 
 // ---------------------------------------------------------
@@ -647,12 +647,12 @@ public:
 
     /**
      * @return BCH1D object that stores drawing options for all BCH1D's. */
-    BCH1D* GetBCH1DdrawingOptions()
+    BCH1D& GetBCH1DdrawingOptions()
     { return fBCH1DdrawingOptions; }
 
     /**
      * @return BCH2D object that stores drawing options for all BCH2D's. */
-    BCH2D* GetBCH2DdrawingOptions()
+    BCH2D& GetBCH2DdrawingOptions()
     { return fBCH2DdrawingOptions; }
 
     /** @} */
@@ -1687,11 +1687,11 @@ protected:
 
     /**
      * A BCH1D (with no histogram) for storing BCH1D drawing options. */
-    BCH1D* fBCH1DdrawingOptions;
+    BCH1D fBCH1DdrawingOptions;
 
     /**
      * A BCH2D (with no histogram) for storing BCH2D drawing options. */
-    BCH2D* fBCH2DdrawingOptions;
+    BCH2D fBCH2DdrawingOptions;
 
     /**
      * flag for rescaling of histograms after pre-run. */
