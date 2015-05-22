@@ -3,7 +3,7 @@
 
 #include "GaussModel.h"
 
-#include <iostream>
+#include <string>
 
 int main()
 {
