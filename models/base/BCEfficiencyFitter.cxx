@@ -141,7 +141,7 @@ bool BCEfficiencyFitter::SetHistograms(TH1D* hist1, TH1D* hist2)
 
     // create data points and add them to the data set.
     for (int i = 0; i < fHistogram1->GetNbinsX(); ++i)
-        GetDataSet()->AddDataPoint(new BCDataPoint(2));
+        GetDataSet()->AddDataPoint(BCDataPoint(2));
 
     // set the data boundaries for x and y values.
     GetDataSet()->SetBounds(0, fHistogram1->GetXaxis()->GetXmin(), fHistogram1->GetXaxis()->GetXmax());

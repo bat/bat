@@ -114,11 +114,10 @@ bool BCHistogramFitter::SetHistogram(TH1D* hist)
     // the x value is the lower edge of the bin, and
     // the y value is the bin count
     int nbins = fHistogram->GetNbinsX();
-    for (int i = 0; i < nbins; ++i) {
-        BCDataPoint* dp = new BCDataPoint(2);
-        dp->SetValue(0, fHistogram->GetBinLowEdge(i + 1));
-        dp->SetValue(1, fHistogram->GetBinContent(i + 1));
-        GetDataSet()->AddDataPoint(dp);
+    for (int i = 1; i <= nbins; ++i) {
+        GetDataSet()->AddDataPoint(BCDataPoint(2));
+        GetDataSet()->Back()[0] = fHistogram->GetBinLowEdge(i);
+        GetDataSet()->Back()[1] = fHistogram->GetBinContent(i);
     }
 
     // set the data boundaries for x and y values.

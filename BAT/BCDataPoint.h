@@ -58,9 +58,27 @@ public:
     /** @{ */
 
     /**
+     * Raw and fast access. */
+    double& operator[](unsigned index)
+    {	return fData[index]; }
+
+    /**
+     * Raw and fast access. */
+    const double& operator[](unsigned index) const
+    {	return fData[index]; }
+
+
+    /**
+     * Safer access, but slower
      * @param index The index of the variable.
      * @return The value of the variable. */
-    double GetValue(unsigned index) const;
+    double GetValue(unsigned index) const
+    { return fData.at(index); }
+    
+    /**
+     * @return A vector of values. */
+    std::vector<double>& GetValues()
+    { return fData; };
 
     /**
      * @return A vector of values. */
@@ -78,10 +96,11 @@ public:
     /** @{ */
 
     /**
-     * Set the value of a variable.
+     * Safer, but slower, value setting of a variable.
      * @param index The index of the variable
      * @param value The value of the variable */
-    void SetValue(unsigned index, double value);
+    void SetValue(unsigned index, double value)
+    { fData.at(index) = value; }
 
     /**
      * Set the values of all variables.

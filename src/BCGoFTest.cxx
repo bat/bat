@@ -73,7 +73,7 @@ double BCGoFTest::LogLikelihood(const std::vector<double>& parameters)
 {
     // Update data set from parameter set
     for (unsigned i = 0; i < parameters.size(); ++i)
-        fTestModel->GetDataSet()->GetDataPoint(fDataMap[i].first)->SetValue(fDataMap[i].second, parameters[i]);
+        fTestModel->GetDataSet()[fDataMap[i].first][fDataMap[i].second] = parameters[i];
 
     // calculate likelihood at the point of the original parameters with new data set
     double loglikelihood = fTestModel->LogLikelihood(fOriginalParameters);

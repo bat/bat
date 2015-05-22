@@ -35,9 +35,6 @@ BCDataSet::BCDataSet(unsigned n)
 // ---------------------------------------------------------
 BCDataSet::~BCDataSet()
 {
-    for (int i = fDataVector.size() - 1; i >= 0; --i)
-        if (fDataVector[i])
-            delete fDataVector[i];
 }
 
 // ---------------------------------------------------------
@@ -49,11 +46,8 @@ BCDataSet::BCDataSet(const BCDataSet& bcdataset)
 // ---------------------------------------------------------
 void BCDataSet::Copy(const BCDataSet& other)
 {
-    Reset();
     fNValuesPerPoint = other.fNValuesPerPoint;
-    for (unsigned i = 0; i < other.fDataVector.size(); ++i)
-        if (other.fDataVector[i]) // only use existing data points
-            fDataVector.push_back(new BCDataPoint(*(other.fDataVector[i])));
+    fDataVector = other.fDataVector;
     fLowerBounds = other.fLowerBounds;
     fUpperBounds = other.fUpperBounds;
     fUserLowerBounds = other.fUserLowerBounds;
@@ -74,8 +68,8 @@ std::vector<double> BCDataSet::GetDataComponents(unsigned index) const
 
     // loop over data points
     for (unsigned i = 0; i < fDataVector.size(); ++i)
-        if (fDataVector[i])				// only use existing data points
-            components.push_back(fDataVector[i]->GetValue(index));
+        components.push_back(fDataVector[i][index]);
+
     return components;
 }
 
@@ -95,9 +89,9 @@ double BCDataSet::GetLowerBound(unsigned index) const
         BCLog::OutError("BCDataSet::GetLowerBound : index out of range.");
         return std::numeric_limits<double>::infinity();
     }
-    if (std::isfinite(fUserLowerBounds.GetValue(index)))
-        return fUserLowerBounds.GetValue(index);
-    return fLowerBounds.GetValue(index);
+    if (std::isfinite(fUserLowerBounds[index]))
+        return fUserLowerBounds[index];
+    return fLowerBounds[index];
 }
 
 // ---------------------------------------------------------
@@ -107,9 +101,9 @@ double BCDataSet::GetUpperBound(unsigned index) const
         BCLog::OutError("BCDataSet::GetUpperBound : index out of range.");
         return -std::numeric_limits<double>::infinity();
     }
-    if (std::isfinite(fUserUpperBounds.GetValue(index)))
-        return fUserUpperBounds.GetValue(index);
-    return fUpperBounds.GetValue(index);
+    if (std::isfinite(fUserUpperBounds[index]))
+        return fUserUpperBounds[index];
+    return fUpperBounds[index];
 }
 
 // ---------------------------------------------------------
@@ -169,7 +163,7 @@ bool BCDataSet::ReadDataFromFileTree(std::string filename, std::string treename,
     // loop over entries
     for (long ientry = 0; ientry < nentries; ++ientry) {
         tree->GetEntry(ientry);
-        AddDataPoint(new BCDataPoint(data));
+        AddDataPoint(BCDataPoint(data));
     }
 
     file->Close();
@@ -219,7 +213,7 @@ bool BCDataSet::ReadDataFromFileTxt(std::string filename, int nbranches)
 
         // create data point.
         if (i == nbranches - 1) {
-            AddDataPoint(new BCDataPoint(data));
+            AddDataPoint(BCDataPoint(data));
             ++nentries;
         }
     }
@@ -234,26 +228,23 @@ bool BCDataSet::ReadDataFromFileTxt(std::string filename, int nbranches)
 }
 
 // ---------------------------------------------------------
-bool BCDataSet::AddDataPoint(BCDataPoint* datapoint)
+bool BCDataSet::AddDataPoint(const BCDataPoint& datapoint)
 {
-    if (!datapoint)
-        return false;
-
     if (fNValuesPerPoint == 0 and fDataVector.empty())
-        SetNValuesPerPoint(datapoint->GetNValues());
+        SetNValuesPerPoint(datapoint.GetNValues());
 
-    if (datapoint->GetNValues() != GetNValuesPerPoint())
+    if (datapoint.GetNValues() != GetNValuesPerPoint())
         return false;
 
     fDataVector.push_back(datapoint);
 
     for (unsigned i = 0; i < GetNValuesPerPoint(); ++i) {
         // check lower bound
-        if (fDataVector.back()->GetValue(i) < fLowerBounds.GetValue(i))
-            fLowerBounds.SetValue(i, fDataVector.back()->GetValue(i));
+        if (fDataVector.back()[i] < fLowerBounds[i])
+            fLowerBounds[i] = fDataVector.back()[i];
         // check upper bound
-        if (fDataVector.back()->GetValue(i) > fUpperBounds.GetValue(i))
-            fUpperBounds.SetValue(i, fDataVector.back()->GetValue(i));
+        if (fDataVector.back()[i] > fUpperBounds[i])
+            fUpperBounds[i] = fDataVector.back()[i];
     }
 
     return true;
@@ -263,22 +254,23 @@ bool BCDataSet::AddDataPoint(BCDataPoint* datapoint)
 void BCDataSet::AdjustBoundForUncertainties(unsigned i, double nSigma, unsigned i_err1, int i_err2)
 {
     // check indices
-    if (i >= GetNValuesPerPoint()
-            or i_err1 >= GetNValuesPerPoint()
-            or i_err2 >= (int)GetNValuesPerPoint())
+    if (i >= GetNValuesPerPoint() or i_err1 >= GetNValuesPerPoint() or i_err2 >= (int)GetNValuesPerPoint())
         return;
 
-    // recalculate bound
+    // if uncertainty above value is unassigned, use same data axis as for below.
+    if (i_err2 < 0)
+        i_err2 = i_err1;
+
+    // recalculate bounds accounting for uncertainty
     for (unsigned j = 0; j < fDataVector.size(); ++j) {
+
         // check lower bound
-        if (fDataVector[j]->GetValue(i) - nSigma * fDataVector[j]->GetValue(i_err1) < fLowerBounds.GetValue(i))
-            fLowerBounds.SetValue(i, fDataVector[j]->GetValue(i) - nSigma * fDataVector[j]->GetValue(i_err1));
+        if (fDataVector[j][i] - nSigma * fDataVector[j][i_err1] < fLowerBounds[i])
+            fLowerBounds[i] = fDataVector[j][i] - nSigma * fDataVector[j][i_err1];
+
         // check upper bound
-        if (i_err2 < 0) {
-            if (fDataVector.back()->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err1) > fUpperBounds.GetValue(i))
-                fUpperBounds.SetValue(i, fDataVector[j]->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err1));
-        } else if (fDataVector.back()->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err2) > fUpperBounds.GetValue(i))
-            fUpperBounds.SetValue(i, fDataVector[j]->GetValue(i) + nSigma * fDataVector[j]->GetValue(i_err2));
+        if (fDataVector[j][i] + nSigma * fDataVector[j][i_err2] > fUpperBounds[i])
+            fUpperBounds[i] = fDataVector[j][i] + nSigma * fDataVector[j][i_err2];
     }
 }
 
@@ -304,19 +296,9 @@ void BCDataSet::SetBounds(unsigned index, double lower_bound, double upper_bound
         BCLog::OutWarning("BCDataSet::SetBounds : lower bound is greater than or equal to upper_bound.");
         return;
     }
-    fUserLowerBounds.SetValue(index, lower_bound);
-    fUserUpperBounds.SetValue(index, upper_bound);
+    fUserLowerBounds[index] = lower_bound;
+    fUserUpperBounds[index] = upper_bound;
     fFixed[index] = fixed;
-}
-
-// ---------------------------------------------------------
-void BCDataSet::Reset()
-{
-    for (int i = fDataVector.size() - 1; i >= 0; --i)
-        if (fDataVector[i])
-            delete fDataVector[i];
-    fDataVector.clear();
-    SetNValuesPerPoint(0);
 }
 
 // ---------------------------------------------------------
@@ -325,11 +307,10 @@ void BCDataSet::PrintSummary(void (*output)(std::string)) const
     output("Data set summary:");
     output(Form("Number of points           : %u", GetNDataPoints()));
     output(Form("Number of values per point : %u", GetNValuesPerPoint()));
-    for (unsigned i = 0; i < fDataVector.size(); ++i)
-        if (fDataVector[i]) {
-            output(Form("Data point %5u", i));
-            fDataVector[i]->PrintSummary(output);
-        }
+    for (unsigned i = 0; i < fDataVector.size(); ++i) {
+        output(Form("Data point %5u", i));
+        fDataVector[i].PrintSummary(output);
+    }
 }
 
 // ---------------------------------------------------------
@@ -342,7 +323,7 @@ TGraph* BCDataSet::GetGraph(unsigned x, unsigned y) const
 
     // fill graph
     for (unsigned i = 0; i < fDataVector.size(); ++i)
-        G->SetPoint(i, fDataVector[i]->GetValue(x), fDataVector[i]->GetValue(y));
+        G->SetPoint(i, fDataVector[i][x], fDataVector[i][y]);
 
     return G;
 }
@@ -351,16 +332,16 @@ TGraph* BCDataSet::GetGraph(unsigned x, unsigned y) const
 TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
 {
     if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
-            or ex >= (int)GetNValuesPerPoint() or ey >= (int)GetNValuesPerPoint())
+        or ex >= (int)GetNValuesPerPoint() or ey >= (int)GetNValuesPerPoint())
         return NULL;
 
     TGraphErrors* G = new TGraphErrors();
 
     // fill graph
     for (unsigned i = 0; i < fDataVector.size(); ++i) {
-        G->SetPoint(i, fDataVector[i]->GetValue(x), fDataVector[i]->GetValue(y));
-        double EX = (ex >= 0) ? fDataVector[i]->GetValue(ex) : 0;
-        double EY = (ey >= 0) ? fDataVector[i]->GetValue(ey) : 0;
+        G->SetPoint(i, fDataVector[i][x], fDataVector[i][y]);
+        double EX = (ex >= 0) ? fDataVector[i][ex] : 0;
+        double EY = (ey >= 0) ? fDataVector[i][ey] : 0;
         G->SetPointError(i, EX, EY);
     }
 
@@ -371,19 +352,19 @@ TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
 TGraphAsymmErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex_below, int ex_above, int ey_below, int ey_above) const
 {
     if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
-            or ex_below >= (int)GetNValuesPerPoint() or ex_above >= (int)GetNValuesPerPoint()
-            or ey_below >= (int)GetNValuesPerPoint() or ey_above >= (int)GetNValuesPerPoint())
+        or ex_below >= (int)GetNValuesPerPoint() or ex_above >= (int)GetNValuesPerPoint()
+        or ey_below >= (int)GetNValuesPerPoint() or ey_above >= (int)GetNValuesPerPoint())
         return NULL;
 
     TGraphAsymmErrors* G = new TGraphAsymmErrors();
 
     // fill graph
     for (unsigned i = 0; i < fDataVector.size(); ++i) {
-        G->SetPoint(i, fDataVector[i]->GetValue(x), fDataVector[i]->GetValue(y));
-        double EXb = (ex_below >= 0) ? fDataVector[i]->GetValue(ex_below) : 0;
-        double EXa = (ex_above >= 0) ? fDataVector[i]->GetValue(ex_above) : 0;
-        double EYb = (ey_below >= 0) ? fDataVector[i]->GetValue(ey_below) : 0;
-        double EYa = (ey_above >= 0) ? fDataVector[i]->GetValue(ey_above) : 0;
+        G->SetPoint(i, fDataVector[i][x], fDataVector[i][y]);
+        double EXb = (ex_below >= 0) ? fDataVector[i][ex_below] : 0;
+        double EXa = (ex_above >= 0) ? fDataVector[i][ex_above] : 0;
+        double EYb = (ey_below >= 0) ? fDataVector[i][ey_below] : 0;
+        double EYa = (ey_above >= 0) ? fDataVector[i][ey_above] : 0;
         G->SetPointError(i, EXb, EXa, EYb, EYa);
     }
 
@@ -414,7 +395,6 @@ TH2* BCDataSet::CreateH2(const char* name, const char* title, unsigned x, unsign
         y_low  -= dY;
         y_high += dY;
     }
-
 
     return new TH2D(name, title, nbins_x, x_low, x_high, nbins_y, y_low, y_high);
 }

@@ -82,34 +82,17 @@ int BCGraphFitter::SetGraph(TGraphErrors* graph)
     SetDataSet(new BCDataSet());
 
     // fill the dataset
-    // find x and y boundaries for the error band calculation
-    double xmin = x[0];
-    double xmax = x[0];
-    double ymin = y[0];
-    double ymax = y[0];
     for (int i = 0; i < fGraph->GetN(); ++i) {
-        // if x errors are not set, set them to zero
-        double errx = ex ? ex[i] : 0.;
-
         // create the data point
-        BCDataPoint* dp = new BCDataPoint(4);
-        dp->SetValue(0, x[i]);
-        dp->SetValue(1, y[i]);
-        dp->SetValue(2, errx);
-        dp->SetValue(3, ey[i]);
-
-        GetDataSet()->AddDataPoint(dp);
-
-        // include uncertainties in setting data bounds
-        xmin = std::min<double> (xmin, x[i] - errx);
-        xmax = std::max<double> (xmax, x[i] + errx);
-        ymin = std::min<double> (ymin, y[i] - ey[i]);
-        ymax = std::max<double> (ymax, y[i] + ey[i]);
+        GetDataSet()->AddDataPoint(BCDataPoint(4));
+        GetDataSet()->Back()[0] = x[i];
+        GetDataSet()->Back()[1] = y[i];
+        GetDataSet()->Back()[2] = ex ? ex[i] : 0;
+        GetDataSet()->Back()[3] = ey[i];
     }
-
-    // set boundaries for the error band calculation
-    GetDataSet()->SetBounds(0, xmin, xmax);
-    GetDataSet()->SetBounds(1, ymin, ymax);
+    // adjust bounds for 1 sigma of the uncertainties
+    GetDataSet()->AdjustBoundForUncertainties(0, 1, 2); // x +- 1*errx
+    GetDataSet()->AdjustBoundForUncertainties(1, 1, 3); // y +- 1*erry
 
     SetFitFunctionIndices(0, 1);
 
@@ -181,9 +164,9 @@ double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
     for (unsigned i = 0; i < GetNDataPoints(); i++)
         // calculate log of probability assuming
         // a Gaussian distribution for each point
-        logl += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)->GetValue(1), // y value of point
-                                fFitFunction->Eval(GetDataSet()->GetDataPoint(i)->GetValue(0)), // f(x value of point)
-                                GetDataSet()->GetDataPoint(i)->GetValue(3), // uncertainty on y value of point
+        logl += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)[1], // y value of point
+                                fFitFunction->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
+                                GetDataSet()->GetDataPoint(i)[3], // uncertainty on y value of point
                                 true); // include normalization factor
 
     return logl;
@@ -312,18 +295,18 @@ double BCGraphFitter::CDF(const std::vector<double>& parameters,  int index, boo
 {
 
     //format: x y error_x error_y
-    std::vector<double> values = fDataSet->GetDataPoint(index)->GetValues();
+    std::vector<double> values = fDataSet->GetDataPoint(index).GetValues();
 
-    if (values.at(2))
+    if (values[2])
         BCLog::OutWarning("BCGraphFitter::CDF: Non-zero errors in x-direction are ignored!");
 
     // get the observed value
-    double yObs = values.at(1);
+    double yObs = values[1];
 
     // expectation value
     double yExp = FitFunction(values, parameters);
 
-    return ROOT::Math::normal_cdf(yObs, values.at(3), yExp);
+    return ROOT::Math::normal_cdf(yObs, values[3], yExp);
 }
 
 // ---------------------------------------------------------
@@ -339,9 +322,9 @@ double BCGraphFitter::GetChi2(const std::vector<double>& pars)
 
     double chi2 = 0;
     for (unsigned i = 0; i < GetDataSet()->GetNDataPoints(); ++i)
-        chi2 += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)->GetValue(1), // y value of point
-                                fFitFunction->Eval(GetDataSet()->GetDataPoint(i)->GetValue(0)), // f(x value of point)
-                                GetDataSet()->GetDataPoint(i)->GetValue(3), // uncertainty on y value of point
+        chi2 += BCMath::LogGaus(GetDataSet()->GetDataPoint(i)[1], // y value of point
+                                fFitFunction->Eval(GetDataSet()->GetDataPoint(i)[0]), // f(x value of point)
+                                GetDataSet()->GetDataPoint(i)[3], // uncertainty on y value of point
                                 false); // forego normalization factor
     return chi2;
 }

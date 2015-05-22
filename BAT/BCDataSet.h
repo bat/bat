@@ -80,10 +80,33 @@ public:
     { return fNValuesPerPoint; }
 
     /**
+     * Raw and fast access. */
+    BCDataPoint& operator[](unsigned index)
+    {	return fDataVector[index]; }
+
+    /**
+     * Raw and fast access. */
+    const BCDataPoint& operator[](unsigned index) const
+    {	return fDataVector[index]; }
+
+    /**
+     * Safer, but slower, access to data points
      * @param index The index of the data point to be returned.
      * @return The data point at the index. */
-    BCDataPoint* GetDataPoint(unsigned index) const
-    { return (index < fDataVector.size()) ? fDataVector[index] : 0; }
+    BCDataPoint& GetDataPoint(unsigned index)
+    { return fDataVector.at(index); }
+
+    /**
+     * Safer, but slower, access to data points
+     * @param index The index of the data point to be returned.
+     * @return The data point at the index. */
+    const BCDataPoint& GetDataPoint(unsigned index) const
+    { return fDataVector.at(index); }
+
+    /**
+     * Access to last added data point. */
+    BCDataPoint& Back()
+    { return fDataVector.back(); }
 
     /**
      * Viewing the data set as a table with one row per point,
@@ -215,7 +238,7 @@ public:
     /**
      * Adds a data point to the data set.
      * @param datapoint The data point to be added */
-    bool AddDataPoint(BCDataPoint* datapoint);
+    bool AddDataPoint(const BCDataPoint& datapoint);
 
     /**
      * Recalculate a data axis bound accounting for uncertainties
@@ -230,7 +253,8 @@ public:
 
     /**
      * Resets the content of the data set */
-    void Reset();
+    void Reset()
+    { fDataVector.clear(); SetNValuesPerPoint(0); }
 
     /**
      * Print summary to string handler
@@ -283,7 +307,7 @@ public:
 private:
     /**
      * A vector containing the data points */
-    std::vector<BCDataPoint*> fDataVector;
+    std::vector<BCDataPoint> fDataVector;
 
     /** number of values per data point. */
     unsigned fNValuesPerPoint;

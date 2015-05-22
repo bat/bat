@@ -324,10 +324,6 @@ void BCFitter::SetErrorBandContinuous(bool flag)
     if (flag)
         return;
 
-    // clear x-values
-    fErrorBandX.clear();
-
     // copy data x-values
-    for (unsigned int i = 0; i < fDataSet->GetNDataPoints(); ++i)
-        fErrorBandX.push_back(fDataSet->GetDataPoint(i)->GetValue(fFitFunctionIndexX));
+    fErrorBandX = fDataSet->GetDataComponents(fFitFunctionIndexX);
 }
