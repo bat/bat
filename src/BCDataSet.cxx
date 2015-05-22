@@ -332,7 +332,7 @@ TGraph* BCDataSet::GetGraph(unsigned x, unsigned y) const
 TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
 {
     if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
-        or ex >= (int)GetNValuesPerPoint() or ey >= (int)GetNValuesPerPoint())
+            or ex >= (int)GetNValuesPerPoint() or ey >= (int)GetNValuesPerPoint())
         return NULL;
 
     TGraphErrors* G = new TGraphErrors();
@@ -352,8 +352,8 @@ TGraphErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex, int ey) const
 TGraphAsymmErrors* BCDataSet::GetGraph(unsigned x, unsigned y, int ex_below, int ex_above, int ey_below, int ey_above) const
 {
     if (x >= GetNValuesPerPoint() or y >= GetNValuesPerPoint()
-        or ex_below >= (int)GetNValuesPerPoint() or ex_above >= (int)GetNValuesPerPoint()
-        or ey_below >= (int)GetNValuesPerPoint() or ey_above >= (int)GetNValuesPerPoint())
+            or ex_below >= (int)GetNValuesPerPoint() or ex_above >= (int)GetNValuesPerPoint()
+            or ey_below >= (int)GetNValuesPerPoint() or ey_above >= (int)GetNValuesPerPoint())
         return NULL;
 
     TGraphAsymmErrors* G = new TGraphAsymmErrors();

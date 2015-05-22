@@ -74,7 +74,7 @@ public:
      * @return The value of the variable. */
     double GetValue(unsigned index) const
     { return fData.at(index); }
-    
+
     /**
      * @return A vector of values. */
     std::vector<double>& GetValues()
