@@ -58,13 +58,6 @@ public:
     { return std::isfinite(fMean) and std::isfinite(fScale) and fScale > 0;}
 
     /**
-     * Get prior
-     * @param x value to evaluate prior at
-     * @return prior */
-    virtual double GetPrior(double x) const
-    {	return fScale / M_PI / (fScale * fScale + (x - fMean) * (x - fMean)); }
-
-    /**
      * Get log of prior
      * @param x value to evaluate log of prior at
      * @return log of prior */

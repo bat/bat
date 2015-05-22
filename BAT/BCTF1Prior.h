@@ -63,9 +63,10 @@ public:
     /**
      * Get prior
      * @param x value to evaluate prior at
+     * @param normalize Whether to normalize prior with stored integral
      * @return prior */
-    virtual double GetPrior(double x) const
-    { return (fPriorFunction) ? fPriorFunction->Eval(x) : 0; }
+    virtual double GetPrior(double x, bool normalize = false) const
+    { return (fPriorFunction) ? fPriorFunction->Eval(x) * ((normalize) ? exp(-fLogIntegral) : 1) : 0; }
 
     /**
      * Get prior

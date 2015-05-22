@@ -60,9 +60,10 @@ public:
     /**
      * Get prior
      * @param x value to evaluate prior at
+     * @param normalize Whether to normalize prior with stored integral
      * @return prior */
-    virtual double GetPrior(double x) const
-    { return (fPriorHistogram) ? ((fInterpolate) ? fPriorHistogram->Interpolate(x) : fPriorHistogram->GetBinContent(fPriorHistogram->FindFixBin(x))) : 0; }
+    virtual double GetPrior(double x, bool normalize = false) const
+    { return (fPriorHistogram) ? ((fInterpolate) ? fPriorHistogram->Interpolate(x) : fPriorHistogram->GetBinContent(fPriorHistogram->FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1) : 0; }
 
     /**
      * Get log of prior
@@ -91,8 +92,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return integral of prior */
-    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { (void)xmin; (void)xmax; return 1; }
+    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
 
     /**
      * Get standardised moment of prior distrubion. If limits are infinite, use exact value from prior type.

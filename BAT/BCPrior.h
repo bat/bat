@@ -81,10 +81,18 @@ public:
     /** @{ **/
 
     /**
+     * Get log of normalized prior
+     * @param x value to evaluate log of prior at
+     * @return log of prior */
+    virtual double GetLogNormalizedPrior(double x) const
+    { return GetLogPrior(x) - fLogIntegral;}
+
+    /**
      * Get prior
      * @param x value to evaluate prior at
+     * @param normalize Whether to normalize prior with stored integral
      * @return prior */
-    virtual double GetPrior(double x) const;
+    virtual double GetPrior(double x, bool normalize = false) const;
 
     /**
      * Return back ROOT TF1 evaluating BCPrior::GetPrior */
@@ -198,27 +206,37 @@ public:
     /**
      * For accessing log(prior) as ROOT TF1 */
     double GetLogPriorForROOT(double* x, double* /*p*/)
-    { return GetLogPrior(x[0]) / fIntegral; }
+    { return GetLogPrior(x[0]); }
 
     /**
      * For accessing normalized log(prior) as ROOT TF1 */
     double GetNormalizedLogPriorForROOT(double* x, double* /*p*/)
-    { return GetLogPrior(x[0]) - log(fIntegral); }
+    { return GetLogPrior(x[0]) - fLogIntegral; }
 
     /**
      * Calculate and store integral for use in normalized TF1s */
     double CalculateAndStoreIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
-    { fIntegral = GetIntegral(xmin, xmax); return fIntegral;}
+    { fLogIntegral = log(GetIntegral(xmin, xmax)); return fLogIntegral;}
 
     /**
      * Store integral; */
     void StoreIntegral(double I)
-    { fIntegral = I; }
+    { fLogIntegral = log(I); }
+
+    /**
+     * Store log(integral); */
+    void StoreLogIntegral(double logI)
+    { fLogIntegral = logI; }
 
     /**
      * Get stored integral. */
     double GetStoredIntegral() const
-    { return fIntegral; }
+    { return exp(fLogIntegral); }
+
+    /**
+     * Get stored integral. */
+    double GetStoredLogIntegral() const
+    { return fLogIntegral; }
 
     /**
      * Fill histogram by prior evaluated at bin center. */
@@ -231,9 +249,9 @@ public:
     /** @} **/
 
 protected:
-    TF1* fPriorFunction;					///< TF1 for use in default raw moment calculation
+    TF1* fPriorFunction; ///< TF1 for use in default raw moment calculation
 
-    double fIntegral;                  ///< Integral of unnormalized pdf over the range.
+    double fLogIntegral; ///< Log of integral of unnormalized pdf over the range.
 };
 
 #endif

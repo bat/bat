@@ -22,14 +22,14 @@
 // ---------------------------------------------------------
 BCPrior::BCPrior()
     : fPriorFunction(new TF1("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1)) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
-    , fIntegral(1)
+    , fLogIntegral(0)
 {
 }
 
 // ---------------------------------------------------------
 BCPrior::BCPrior(const TF1* const f)
     : fPriorFunction(NULL)
-    , fIntegral(1)
+    , fLogIntegral(0)
 {
     if (f)
         fPriorFunction = new TF1(*f);
@@ -38,7 +38,7 @@ BCPrior::BCPrior(const TF1* const f)
 // ---------------------------------------------------------
 BCPrior::BCPrior(const BCPrior& other)
     : fPriorFunction(new TF1("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1)) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
-    , fIntegral(other.fIntegral)
+    , fLogIntegral(other.fLogIntegral)
 {
 }
 
@@ -49,9 +49,12 @@ BCPrior::~BCPrior()
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetPrior(double x) const
+double BCPrior::GetPrior(double x, bool normalize) const
 {
     double lp = GetLogPrior(x);
+    if (normalize)
+        lp -= fLogIntegral;
+
     if (std::isfinite(lp))
         return exp(lp);
     if (lp < 0)
@@ -140,6 +143,7 @@ void BCPrior::SetFunctionRange(double xmin, double xmax)
 {
     if (fPriorFunction)
         fPriorFunction->SetRange(xmin, xmax);
+    CalculateAndStoreIntegral(xmin, xmax);
 }
 
 // ---------------------------------------------------------

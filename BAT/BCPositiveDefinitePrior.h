@@ -74,9 +74,10 @@ public:
     /**
      * Get prior
      * @param x value to evaluate prior at
+     * @param normalize whether to normalize with stored integral
      * @return prior */
-    virtual double GetPrior(double x) const
-    { return (x >= 0 and fPrior) ? fPrior->GetPrior(x) : 0; }
+    virtual double GetPrior(double x, bool normalize = false) const
+    { return (x >= 0 and fPrior) ? fPrior->GetPrior(x, normalize) : 0; }
 
     /**
      * Clone function */

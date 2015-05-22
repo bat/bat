@@ -84,3 +84,18 @@ double BCTH1Prior::GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* con
         return std::numeric_limits<double>::quiet_NaN();
     return fPriorHistogram->GetRandom();
 }
+
+// ---------------------------------------------------------
+double BCTH1Prior::GetIntegral(double xmin, double xmax) const
+{
+    if (!fPriorHistogram)
+        return 0;
+    xmin = std::max(xmin, fPriorHistogram->GetXaxis()->GetXmin());
+    xmax = std::min(xmax, fPriorHistogram->GetXaxis()->GetXmax());
+    int bmin = fPriorHistogram->FindFixBin(xmin);
+    int bmax = fPriorHistogram->FindFixBin(xmax);
+    double I = fPriorHistogram->Integral(bmin, bmax, "width");
+    I -= fPriorHistogram->GetBinContent(xmin) * (xmin - fPriorHistogram->GetXaxis()->GetBinLowEdge(bmin));
+    I -= fPriorHistogram->GetBinContent(xmax) * (fPriorHistogram->GetXaxis()->GetBinUpEdge(bmax) - xmax);
+    return I;
+}
