@@ -1411,7 +1411,7 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain)
             // if the new point is more probable, keep it; or else throw dice
             if ( p1 >= p0 or log(fMCMCThreadLocalStorage[chain].rng->Rndm()) < (p1 - p0) ) {
                 // increase efficiency
-                fMCMCStatistics[chain].efficiency[0] += (1 - fMCMCStatistics[chain].efficiency[0]) / (fMCMCStatistics[chain].n_samples_efficiency + 1);
+                fMCMCStatistics[chain].efficiency[0] += (1. - fMCMCStatistics[chain].efficiency[0]) / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
 
                 // copy the point
                 fMCMCx[chain] = fMCMCThreadLocalStorage[chain].xLocal;
@@ -1425,12 +1425,12 @@ bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain)
                 return true;
             } else {
                 // decrease efficiency
-                fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1);
+                fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
             }
         } else { // new log(likelihood) was not a finite number
             BCLog::OutDebug("Log(likelihood) evaluated to nan or inf at");
             // decrease efficiency
-            fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1);
+            fMCMCStatistics[chain].efficiency[0] *= 1.*fMCMCStatistics[chain].n_samples_efficiency / (fMCMCStatistics[chain].n_samples_efficiency + 1.);
             // TODO print parameter point
         }
     }
