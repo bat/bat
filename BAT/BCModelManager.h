@@ -174,35 +174,33 @@ public:
     void MarginalizeAll();
 
     /**
-     * Flag for writing Markov chain to file */
+     * Turn on/off writing of Markov chains to root files for all models.
+     * If setting true, you must first set filename with function with filename arguments.
+     * @param flag Flag for writing Markov chain (run and prerun) to ROOT file. */
     void WriteMarkovChain(bool flag);
 
     /**
-     * Turn on writing of Markov chain to file for all models.
-     * @param prefix Prefix for output files (model safe name is appended along with .root)
-     * @param option file-opn options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE". */
-    void WriteMarkovChain(std::string prefix, std::string option);
+     * Turn on/off writing of Markov chains to root files for all models.
+     * If setting either true, you must first set filename with function with filename arguments.
+     * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
+     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChain(bool flag_run, bool flag_prerun);
 
     /**
-     * Prints a summary of model comparison into a file.
-     * If filename is omitted the summary will be printed onto the screen
-     * @param filename name of the file to write into. */
+     * Turn on writing of Markov chains to root files for all models.
+     * @param prefix MCMC's written to files named "[prefix][Model safe name].root"
+     * @param option file-open options (TFile), must be "NEW", "CREATE", "RECREATE", or "UPDATE" (i.e. writeable).
+     * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
+     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChain(std::string filename, std::string option, bool flag_run = true, bool flag_prerun = true);
+
+    /**
+     * Prints a summary of the model comparison to the log. */
     void PrintModelComparisonSummary() const;
 
     /**
-     * Prints a summary into a file. If filename is omitted the summary
-     * will be printed onto the screen.
-     * This method is obsolete. Use PrintResults() instead.
-     * @param filename name of the file to write into. */
+     * Prints a summary to the logs. */
     void PrintSummary() const;
-
-    /**
-     * Prints summaries of all files */
-    void PrintResults();
-
-    /* /\** */
-    /*  * Calculates the p-value for all models. *\/ */
-    /* void CalculatePValue(bool flag_histogram=false); */
 
     /** @} */
 

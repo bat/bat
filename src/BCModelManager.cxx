@@ -232,10 +232,17 @@ void BCModelManager::WriteMarkovChain(bool flag)
 }
 
 // ---------------------------------------------------------
-void BCModelManager::WriteMarkovChain(std::string prefix, std::string option)
+void BCModelManager::WriteMarkovChain(bool flag_run, bool flag_prerun)
 {
     for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->WriteMarkovChain(prefix + GetModel(i)->GetSafeName() + ".root", option);
+        GetModel(i)->WriteMarkovChain(flag_run, flag_prerun);
+}
+
+// ---------------------------------------------------------
+void BCModelManager::WriteMarkovChain(std::string prefix, std::string option, bool flag_run, bool flag_prerun)
+{
+    for (unsigned i = 0; i < GetNModels(); ++i)
+        GetModel(i)->WriteMarkovChain(prefix + GetModel(i)->GetSafeName() + ".root", option, flag_run, flag_prerun);
 }
 
 // ---------------------------------------------------------
