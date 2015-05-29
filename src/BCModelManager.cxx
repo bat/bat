@@ -232,10 +232,17 @@ void BCModelManager::WriteMarkovChain(bool flag)
 }
 
 // ---------------------------------------------------------
-void BCModelManager::WriteMarkovChain(bool flag_run, bool flag_prerun)
+void BCModelManager::WriteMarkovChainRun(bool flag)
 {
     for (unsigned i = 0; i < GetNModels(); ++i)
-        GetModel(i)->WriteMarkovChain(flag_run, flag_prerun);
+        GetModel(i)->WriteMarkovChainRun(flag);
+}
+
+// ---------------------------------------------------------
+void BCModelManager::WriteMarkovChainPreRun(bool flag)
+{
+    for (unsigned i = 0; i < GetNModels(); ++i)
+        GetModel(i)->WriteMarkovChainPreRun(flag);
 }
 
 // ---------------------------------------------------------

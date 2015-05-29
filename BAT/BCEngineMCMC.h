@@ -892,14 +892,19 @@ public:
      * If setting true, you must first set filename with function with filename arguments.
      * @param flag Flag for writing Markov chain (run and prerun) to ROOT file. */
     void WriteMarkovChain(bool flag)
-    { WriteMarkovChain(flag, flag); }
+    { WriteMarkovChainRun(flag); WriteMarkovChainPreRun(flag); }
 
     /**
-     * Turn on/off writing of Markov chain to root file.
+     * Turn on/off writing of Markov chain to root file during run.
      * If setting either true, you must first set filename with function with filename arguments.
-     * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
-     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
-    void WriteMarkovChain(bool flag_run, bool flag_prerun);
+     * @param flag Flag for writing run Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChainRun(bool flag);
+
+    /**
+     * Turn on/off writing of Markov chain to root file during prerun.
+     * If setting either true, you must first set filename with function with filename arguments.
+     * @param flag Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChainPreRun(bool flag);
 
     /**
      * Turn on writing of Markov chain to root file.

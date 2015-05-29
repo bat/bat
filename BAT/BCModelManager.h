@@ -180,11 +180,16 @@ public:
     void WriteMarkovChain(bool flag);
 
     /**
-     * Turn on/off writing of Markov chains to root files for all models.
+      * Turn on/off writing of Markov chain to root file during run for all models.
+      * If setting either true, you must first set filename with function with filename arguments.
+      * @param flag Flag for writing run Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChainRun(bool flag);
+
+    /**
+     * Turn on/off writing of Markov chain to root file during prerun for all models.
      * If setting either true, you must first set filename with function with filename arguments.
-     * @param flag_run Flag for writing run Markov chain to ROOT file (true) or not (false).
-     * @param flag prerun Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
-    void WriteMarkovChain(bool flag_run, bool flag_prerun);
+     * @param flag Flag for writing prerun Markov chain to ROOT file (true) or not (false). */
+    void WriteMarkovChainPreRun(bool flag);
 
     /**
      * Turn on writing of Markov chains to root files for all models.

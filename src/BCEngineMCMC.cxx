@@ -356,12 +356,19 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::WriteMarkovChain(bool flag_run, bool flag_prerun)
+void BCEngineMCMC::WriteMarkovChainRun(bool flag)
 {
-    if ((flag_run or flag_prerun) and fMCMCOutputFilename.empty())
-        BCLog::OutError("BCEngineMCMC::WriteMarkovChain: First turn on output using WriteMarkovChain(filename, option, main_run, pre_run).");
-    fMCMCFlagWriteChainToFile = flag_run;
-    fMCMCFlagWritePreRunToFile = flag_prerun;
+    if (flag and fMCMCOutputFilename.empty())
+        BCLog::OutError("BCEngineMCMC::WriteMarkovChainRun: First turn on output using WriteMarkovChain(filename, option, main_run, pre_run).");
+    fMCMCFlagWriteChainToFile = flag;
+}
+
+// --------------------------------------------------------
+void BCEngineMCMC::WriteMarkovChainPreRun(bool flag)
+{
+    if (flag and fMCMCOutputFilename.empty())
+        BCLog::OutError("BCEngineMCMC::WriteMarkovChainPreRun: First turn on output using WriteMarkovChain(filename, option, main_run, pre_run).");
+    fMCMCFlagWritePreRunToFile = flag;
 }
 
 // --------------------------------------------------------
