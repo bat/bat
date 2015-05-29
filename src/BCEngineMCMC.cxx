@@ -3229,7 +3229,7 @@ bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_obser
 bool BCEngineMCMC::PrintParameterLatex(std::string filename) const
 {
     // open file
-    std::ofstream ofi(filename);
+    std::ofstream ofi(filename.data());
     ofi.precision(3);
 
     // check if file is open

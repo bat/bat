@@ -50,7 +50,7 @@ void BCLog::OpenLog(std::string filename, BCLog::LogLevel loglevelfile, BCLog::L
     gErrorIgnoreLevel = 2000;
 
     // open log file
-    BCLog::fOutputStream.open(filename);
+    BCLog::fOutputStream.open(filename.data());
 
     if (!BCLog::fOutputStream.is_open()) {
         std::cerr << " Could not open log file " << filename << ". " << std::endl;
