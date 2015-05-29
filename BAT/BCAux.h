@@ -74,6 +74,10 @@ void MakeFinite(double& xmin, double& xmax);
  * Convert a name into a safe name for use in ROOT object naming. */
 std::string SafeName(std::string name);
 
+/**
+ * @return Whether character is allowed in a safe name. */
+bool AllowedCharacter(char c);
+
 }
 
 // ---------------------------------------------------------

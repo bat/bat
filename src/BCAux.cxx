@@ -191,7 +191,17 @@ void BCAux::MakeFinite(double& xmin, double& xmax)
 // ---------------------------------------------------------
 std::string BCAux::SafeName(std::string name)
 {
-    name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+    name.erase(std::remove_if(name.begin(), name.end(), std::not1(std::ptr_fun(BCAux::AllowedCharacter))), name.end());
     return name;
+}
+
+// ---------------------------------------------------------
+bool BCAux::AllowedCharacter(char c)
+{
+    if (::isalnum(c))
+        return true;
+    if (c == '_')
+        return true;
+    return false;
 }
 
