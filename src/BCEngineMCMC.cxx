@@ -11,45 +11,45 @@
 #include "BCEngineMCMC.h"
 
 #include "BCAux.h"
-#include "BCMath.h"
+#include "BCGaussianPrior.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
-#include "BCVariable.h"
+#include "BCMath.h"
 #include "BCPrior.h"
-#include "BCGaussianPrior.h"
 #include "BCSplitGaussianPrior.h"
 #include "BCTF1Prior.h"
 #include "BCTH1Prior.h"
+#include "BCVariable.h"
 
-#include <TH1.h>
-#include <TH2.h>
-#include <TH2D.h>
-#include <TRandom3.h>
-#include <TTree.h>
-#include <TFile.h>
-#include <TStyle.h>
 #include <TCanvas.h>
-#include <TLegend.h>
-#include <TLine.h>
-#include <TLatex.h>
+#include <TDecompChol.h>
+#include <TError.h>
+#include <TF1.h>
+#include <TFile.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
-#include <TF1.h>
-#include <TObject.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TH2D.h>
 #include <TKey.h>
+#include <TLatex.h>
+#include <TLegend.h>
+#include <TLine.h>
 #include <TList.h>
-#include <TDecompChol.h>
-#include <TVectorD.h>
-#include <TError.h>
+#include <TObject.h>
+#include <TRandom3.h>
 #include <TROOT.h>
 #include <TSeqCollection.h>
+#include <TStyle.h>
+#include <TTree.h>
+#include <TVectorD.h>
 
-#include <limits>
-#include <cmath>
+
 #include <algorithm>
+#include <cmath>
 #include <deque>
-
+#include <limits>
 #include <typeinfo>
 
 // ---------------------------------------------------------
@@ -398,7 +398,7 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
     TDirectory* dir = gDirectory;
 
     // look to see if file is already open
-    TSeqCollection * listOfFiles = gROOT->GetListOfFiles();
+    TSeqCollection* listOfFiles = gROOT->GetListOfFiles();
     TFile* fOut = NULL;
     for (int i = 0; i < listOfFiles->GetEntries(); ++i)
         if (listOfFiles->At(i) and filename.compare(listOfFiles->At(i)->GetName()) == 0) {
@@ -413,7 +413,7 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
                 fOut->Write(0, TObject::kWriteDelete);
             fOut->Close();
             fOut = NULL;
-        } else if(option.compare("UPDATE") == 0 and !fOut->IsWritable()) {
+        } else if (option.compare("UPDATE") == 0 and !fOut->IsWritable()) {
             BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: File already open but not in readable mode.");
             return;
         }
