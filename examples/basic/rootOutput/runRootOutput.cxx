@@ -24,7 +24,7 @@ int main()
     m.MCMCSetPrecision(BCEngineMCMC::kMedium);
 
     // switch writing of Markov Chains on
-    m.WriteMarkovChain("GaussModel_mcmc.root", "RECREATE");
+    m.WriteMarkovChain("GaussModel.root", "RECREATE");
 
     // run MCMC and marginalize posterior wrt. all parameters
     // and all combinations of two parameters
@@ -42,7 +42,7 @@ int main()
     m.PrintSummary();
 
     // write marginalized distributions to output file
-    m.WriteMarginalizedDistributions("GaussModel_plots.root", "RECREATE");
+    m.WriteMarginalizedDistributions("GaussModel.root", "UPDATE");
 
     // close log file
     BCLog::CloseLog();
