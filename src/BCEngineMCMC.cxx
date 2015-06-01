@@ -42,6 +42,8 @@
 #include <TDecompChol.h>
 #include <TVectorD.h>
 #include <TError.h>
+#include <TROOT.h>
+#include <TSeqCollection.h>
 
 #include <limits>
 #include <cmath>
@@ -395,15 +397,43 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
     // remember current directory
     TDirectory* dir = gDirectory;
 
-    TFile* fOut = TFile::Open(filename.c_str(), option.c_str());
+    // look to see if file is already open
+    TSeqCollection * listOfFiles = gROOT->GetListOfFiles();
+    TFile* fOut = NULL;
+    for (int i = 0; i < listOfFiles->GetEntries(); ++i)
+        if (listOfFiles->At(i) and filename.compare(listOfFiles->At(i)->GetName()) == 0) {
+            fOut = dynamic_cast<TFile*>(listOfFiles->At(i));
+            break;
+        }
+    if (fOut) {
+        if (option.compare("RECREATE") == 0) {
+            // if recreating, close current file, which will be overwritten
+            BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: File already open. option \"RECREATE\" will now overwrite it!");
+            if (fOut->IsWritable())
+                fOut->Write(0, TObject::kWriteDelete);
+            fOut->Close();
+            fOut = NULL;
+        } else if(option.compare("UPDATE") == 0 and !fOut->IsWritable()) {
+            BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: File already open but not in readable mode.");
+            return;
+        }
+    }
+
+    // else open file
+    if (!fOut)
+        fOut = TFile::Open(filename.c_str(), option.c_str());
+
     if (!fOut) {
         BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: Could not open output file.");
         return;
     }
+
     if (!fOut->IsWritable()) {
         BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: File must be opened in writeable mode.");
         return;
     }
+
+    // write histograms
     for (unsigned i = 0; i < GetNVariables(); ++i) {
         if (MarginalizedHistogramExists(i))
             fOut->WriteTObject(GetMarginalizedHistogram(i));
@@ -411,8 +441,11 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
             if (MarginalizedHistogramExists(i, j))
                 fOut->WriteTObject(GetMarginalizedHistogram(i, j));
     }
+
     fOut->Write();
     fOut->Close();
+
+    // restore directory
     gDirectory = dir;
 }
 
