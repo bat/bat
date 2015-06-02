@@ -69,7 +69,7 @@ $(BINDIR):
 
 clean :
 	rm -f $(GARBAGE)
-	rmdir $(OBJDIR)
+	rmdir $(OBJSDIR)
 	rmdir $(BINDIR)
 
 print :

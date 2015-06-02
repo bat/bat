@@ -39,12 +39,12 @@ int main()
     m.FindMode(m.GetGlobalMode());
 
     // draw all marginalized distributions into a PDF file
-    m.PrintAllMarginalized(m.GetSafeName()+"_plots.pdf");
+    m.PrintAllMarginalized(m.GetSafeName() + "_plots.pdf");
 
     // print summary plots
     // m.PrintParameterPlot(m.GetSafeName()+"_parameters.pdf");
     // m.PrintCorrelationPlot(m.GetSafeName()+"_correlation.pdf");
-    // m.PrintCorrelationMaxtrix(m.GetSafeName()+"_correlationMatrix.pdf");
+    // m.PrintCorrelationMatrix(m.GetSafeName()+"_correlationMatrix.pdf");
     // m.PrintKnowledgeUpdatePlots(m.GetSafeName()+"_update.pdf");
 
     // print results of the analysis into a text file
