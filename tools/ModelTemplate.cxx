@@ -10,7 +10,7 @@
 
 // ---------------------------------------------------------
 ((MODEL))::((MODEL))(std::string name)
-          : BCModel(name)
+    : BCModel(name)
 {
     // Define parameters here in the constructor. For example:
     // AddParameter("mu",-2,1,"#mu");
@@ -25,7 +25,7 @@
 }
 
 // ---------------------------------------------------------
-double ((MODEL))::LogLikelihood(const std::vector<double> & parameters)
+double ((MODEL))::LogLikelihood(const std::vector<double>& parameters)
 {
     // This returns the log of the conditional probability p(data|pars)
     // This is where you define your model.
@@ -36,6 +36,6 @@ double ((MODEL))::LogLikelihood(const std::vector<double> & parameters)
 
 // ---------------------------------------------------------
 // double ((MODEL))::LogAPrioriProbability(const std::vector<double> & parameters) {
-    // This returns the log of the prior probability for the parameters
-    // If you use built-in 1D priors, don't uncomment this function.
+// This returns the log of the prior probability for the parameters
+// If you use built-in 1D priors, don't uncomment this function.
 // }
