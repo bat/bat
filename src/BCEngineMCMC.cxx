@@ -2471,8 +2471,10 @@ void BCEngineMCMC::PrintModelSummary() const
     BCLog::OutSummary(" Model: " + GetName());
     BCLog::OutSummary(Form(" Number of parameters: %u", GetNParameters()));
 
-    BCLog::OutSummary(" List of parameters and ranges:");
-    fParameters.PrintSummary();
+    if (!fParameters.Empty()) {
+        BCLog::OutSummary(" List of parameters and ranges:");
+        fParameters.PrintSummary();
+    }
 
     if (!fObservables.Empty()) {
         BCLog::OutSummary(" List of observables and ranges:");
@@ -2639,6 +2641,11 @@ std::vector<std::pair<unsigned, unsigned> > BCEngineMCMC::GetH2DPrintOrder() con
 // ---------------------------------------------------------
 unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv, unsigned vdiv) const
 {
+    if (GetNVariables() == 0) {
+        BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : No variables defined!");
+        return 0;
+    }
+
     if (fH1Marginalized.empty() and fH2Marginalized.empty()) {
         BCLog::OutError("BCEngineMCMC::PrintAllMarginalized : Marginalized distributions not stored.");
         return 0;
@@ -3029,6 +3036,11 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
 // ---------------------------------------------------------
 bool BCEngineMCMC::PrintCorrelationMatrix(std::string filename) const
 {
+    if (GetNVariables() == 0) {
+        BCLog::OutError("BCEngineMCMC::PrintCorrelationMatrix : No variables defined!");
+        return 0;
+    }
+
     // create histogram
     TH2D* hist_corr = new TH2D(Form("hist_correlation_matrix_%s", GetSafeName().data()), ";;", GetNVariables(), -0.5, GetNVariables() - 0.5, GetNVariables(), -0.5, GetNVariables() - 0.5);
     hist_corr->SetStats(false);
@@ -3151,6 +3163,11 @@ bool BCEngineMCMC::PrintCorrelationMatrix(std::string filename) const
 // ---------------------------------------------------------
 bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_observables) const
 {
+    if (GetNVariables() == 0) {
+        BCLog::OutError("BCEngineMCMC::PrintCorrelationPlot : No variables defined!");
+        return 0;
+    }
+
     // Array of indices for which any maginalizations were stored
     std::vector<unsigned> I;
     unsigned n = (include_observables) ? GetNVariables() : GetNParameters();
@@ -3166,8 +3183,10 @@ bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_obser
         }
     }
 
-    if (I.empty())
+    if (I.empty()) {
+        BCLog::OutError("BCEngineMCMC::PrintCorrelationPlot : Marginalized distributions not stored. Cannot print correlation plots.");
         return false;
+    }
 
     TCanvas* c = new TCanvas("c_correlation_plot");
     c->cd();

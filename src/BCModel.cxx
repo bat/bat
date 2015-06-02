@@ -665,6 +665,11 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
 // ---------------------------------------------------------
 bool BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsigned vdiv, bool flag_slice, bool call_likelihood)
 {
+    if (GetNVariables() == 0) {
+        BCLog::OutError("BCModel::PrintKnowledgeUpdatePlots : No variables defined!");
+        return 0;
+    }
+
     // prepare prior
     if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
         return false;
