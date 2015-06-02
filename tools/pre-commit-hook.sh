@@ -7,7 +7,7 @@
 # cd .git/hooks/
 # ln -s ../../tools/pre-commit-hook.sh pre-commit
 
-OPTIONS="--options=tools/astylerc"
+OPTIONS="--dry-run --options=tools/astylerc"
 
 ASTYLE=$(which astyle)
 if [ $? -ne 0 ]; then
@@ -65,15 +65,11 @@ git diff --cached --name-status --diff-filter=ACMR |
 	    while read STATUS FILE; do
             # regex matching
 	        if [[ "$FILE" =~ \.(C|cxx|h)$ ]]; then
-		        $ASTYLE $OPTIONS < $FILE > $FILE.beautified
-		        md5sum $FILE $FILE.beautified > $FILE.md5
-		        md5sum -c --status $FILE.md5
-		        if [ $? -ne 0 ]; then
+		        formatted=`$ASTYLE $OPTIONS $FILE | sed -n '/^Unchanged/p'`
+		        if [ -z "$formatted" ]; then
 			        echo "[commit rejected] $FILE does not respect the agreed coding standards." >&2
 			        RETURN=1
 		        fi
-		        rm $FILE.md5
-            rm $FILE.beautified
 	        fi
 	    done
 
