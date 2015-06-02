@@ -97,4 +97,4 @@ install-data-hook:
 
 .PHONY: format
 format:
-	astyle --options=tools/astylerc --formatted `find BAT/ benchmarks/ examples/ $(SUBDIRS) -name '*.C' -o -name '*.cxx' -o -name '*.h'`
+	astyle --options=tools/astylerc --formatted `find BAT/ benchmarks/ examples/ tools $(SUBDIRS) -name '*.C' -o -name '*.cxx' -o -name '*.h'`
