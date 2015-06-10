@@ -392,7 +392,7 @@ void BCEngineMCMC::WriteMarkovChain(std::string filename, std::string option, bo
 }
 
 // --------------------------------------------------------
-void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::string option)
+void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::string option, bool closeExistingFile)
 {
     // remember current directory
     TDirectory* dir = gDirectory;
@@ -413,10 +413,13 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
                 fOut->Write(0, TObject::kWriteDelete);
             fOut->Close();
             fOut = NULL;
+            closeExistingFile = true; // existing file closed; close newly opened file
         } else if (option.compare("UPDATE") == 0 and !fOut->IsWritable()) {
             BCLog::OutError("BCEngineMCMC::WriteMarginalizedDistributions: File already open but not in readable mode.");
             return;
         }
+    } else {
+        closeExistingFile = true; // no pre-open file found; close newly opened file
     }
 
     // else open file
@@ -443,7 +446,8 @@ void BCEngineMCMC::WriteMarginalizedDistributions(std::string filename, std::str
     }
 
     fOut->Write();
-    fOut->Close();
+    if (closeExistingFile)
+        fOut->Close();
 
     // restore directory
     gDirectory = dir;
@@ -1565,8 +1569,7 @@ void BCEngineMCMC::MCMCCloseOutputFile()
         fMCMCOutputFile->Write(0, TObject::kWriteDelete);
         fMCMCOutputFile->Close();
     }
-
-    delete fMCMCOutputFile;
+    // delete fMCMCOutputFile;
 }
 
 // --------------------------------------------------------

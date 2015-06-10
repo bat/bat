@@ -1034,8 +1034,9 @@ public:
     /**
      * Write marginalization histograms to file.
      * @param filename Path to write file to.
-     * @param option Options passed to ROOT's TFile::Open. */
-    void WriteMarginalizedDistributions(std::string filename, std::string option);
+     * @param option Options passed to ROOT's TFile::Open.
+     * @param closeExistingFile if file is already open, whether to close it after writing. */
+    void WriteMarginalizedDistributions(std::string filename, std::string option, bool closeExistingFile = false);
 
     /**
      * Prints a summary to the logs. */
