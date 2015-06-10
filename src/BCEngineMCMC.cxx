@@ -1558,11 +1558,14 @@ void BCEngineMCMC::MCMCInChainWriteChains()
 //---------------------------------------------------------
 void BCEngineMCMC::MCMCCloseOutputFile()
 {
-    if ( !fMCMCOutputFile or !fMCMCOutputFile->IsOpen() )
+    if ( !fMCMCOutputFile )
         return;
-    if ( fMCMCOutputFile->IsWritable() )
+
+    if (fMCMCOutputFile->IsOpen() and fMCMCOutputFile->IsWritable() ) {
         fMCMCOutputFile->Write(0, TObject::kWriteDelete);
-    fMCMCOutputFile->Close();
+        fMCMCOutputFile->Close();
+    }
+
     delete fMCMCOutputFile;
 }
 
