@@ -1563,6 +1563,7 @@ void BCEngineMCMC::MCMCCloseOutputFile()
     if ( fMCMCOutputFile->IsWritable() )
         fMCMCOutputFile->Write(0, TObject::kWriteDelete);
     fMCMCOutputFile->Close();
+    delete fMCMCOutputFile;
 }
 
 // --------------------------------------------------------
