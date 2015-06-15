@@ -113,9 +113,14 @@ void BCVariable::PrintSummary() const
 }
 
 // ---------------------------------------------------------
-std::string BCVariable::OneLineSummary() const
+std::string BCVariable::OneLineSummary(bool print_prefix, int name_length) const
 {
-    return std::string(Form("%s \"%s\" : [%.*f, %.*f]", fPrefix.data(), fName.data(), fPrecision, fLowerLimit, fPrecision, fUpperLimit));
+    if (name_length < 0)
+        name_length = fName.size();
+    if (print_prefix)
+        return std::string(Form("%s \"%*s\" : [%.*g, %.*g]", fPrefix.data(), name_length, fName.data(), fPrecision, fLowerLimit, fPrecision, fUpperLimit));
+    else
+        return std::string(Form("%-*s : [%.*g, %.*g]", name_length, fName.data(), fPrecision, fLowerLimit, fPrecision, fUpperLimit));
 }
 
 // ---------------------------------------------------------

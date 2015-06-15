@@ -147,7 +147,7 @@ public:
     /** \name Member functions (miscellaneous methods) */
     /** @{ */
 
-    std::string OneLineSummary() const;
+    std::string OneLineSummary(bool print_prefix = true, int name_length = -1) const;
 
     /** @} */
 

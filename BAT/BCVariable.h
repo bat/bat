@@ -257,8 +257,10 @@ public:
     virtual void PrintSummary() const;
 
     /**
-     * @return A one line summary of the variable. */
-    virtual std::string OneLineSummary() const;
+     * @return A one line summary of the variable.
+     * @param print_prefix Whether to print prefix before variable name.
+     * @param name_length Number of characters to pad name to (if positive) */
+    virtual std::string OneLineSummary(bool print_prefix = true, int name_length = -1) const;
 
     /**
      * Creates a 1D Histogram for this variable.

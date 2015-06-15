@@ -129,10 +129,10 @@ void BCParameter::SetPriorConstant()
 }
 
 // ---------------------------------------------------------
-std::string BCParameter::OneLineSummary() const
+std::string BCParameter::OneLineSummary(bool print_prefix, int name_length) const
 {
     if (!Fixed())
-        return BCVariable::OneLineSummary();
-    return std::string(Form("%s (fixed at %.*f)", BCVariable::OneLineSummary().data(), GetPrecision(), GetFixedValue()));
+        return BCVariable::OneLineSummary(print_prefix, name_length);
+    return BCVariable::OneLineSummary(print_prefix, name_length) + Form(" (fixed at %.*f)", GetPrecision(), GetFixedValue());
 }
 

@@ -308,8 +308,9 @@ public:
      * Print summary of variable set to logs. */
     virtual void PrintSummary() const
     {
+        unsigned n = (int)log10(fVars.size()) + 1;
         for (unsigned i = 0; i < fVars.size(); ++i)
-            BCLog::OutSummary(Form(" (%u) ", i) + fVars[i].OneLineSummary());
+            BCLog::OutSummary(Form(" %*u) ", n, i) + fVars[i].OneLineSummary(false, fMaxNameLength));
     }
 protected:
     /**

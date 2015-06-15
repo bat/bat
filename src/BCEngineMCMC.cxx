@@ -1782,7 +1782,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             // output results if not converged
             if (fMCMCNIterationsConvergenceGlobal <= 0) {
                 BCLog::OutDetail(Form("     * Convergence status: Set of %i Markov chains did not converge after %i iterations.", fMCMCNChains, fMCMCCurrentIteration));
-                BCLog::OutDetail(Form("       - %-*s : R-Value", fParameters.MaxNameLength(), "Parameter"));
+                BCLog::OutDetail(Form("       - %-*s :  R-Value", fParameters.MaxNameLength(), "Parameter"));
 
                 for (unsigned p = 0; p < GetNParameters(); ++p) {
                     if (GetParameter(p).Fixed())
@@ -2460,7 +2460,9 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
 void BCEngineMCMC::PrintSummary() const
 {
     PrintModelSummary();
+    BCLog::OutSummary("");
     PrintBestFitSummary();
+    BCLog::OutSummary("");
     PrintMarginalizationSummary();
 }
 
@@ -2479,11 +2481,13 @@ void BCEngineMCMC::PrintModelSummary() const
     BCLog::OutSummary(Form(" Number of parameters: %u", GetNParameters()));
 
     if (!fParameters.Empty()) {
+        BCLog::OutSummary("");
         BCLog::OutSummary(" List of parameters and ranges:");
         fParameters.PrintSummary();
     }
 
     if (!fObservables.Empty()) {
+        BCLog::OutSummary("");
         BCLog::OutSummary(" List of observables and ranges:");
         fObservables.PrintSummary();
     }
@@ -2501,6 +2505,7 @@ void BCEngineMCMC::PrintBestFitSummary() const
     BCLog::OutSummary(" Best Fit Results");
     BCLog::OutSummary(" ===========================");
     BCLog::OutSummary(Form(" Log of the maximum posterior: %f", GetLogMaximum()));
+    BCLog::OutSummary("");
     BCLog::OutSummary(" Global mode:");
 
     for (unsigned i = 0; i < GetGlobalMode().size(); ++i)
@@ -2513,7 +2518,8 @@ std::string BCEngineMCMC::GetBestFitSummary(unsigned i) const
     if (i >= GetNVariables())
         return std::string("");
 
-    std::string par_summary = Form(" (%d) %10s \"%s\"%*s : %.*f", i, GetVariable(i).GetPrefix().data(),
+    unsigned n = (int)log10(GetNVariables()) + 1;
+    std::string par_summary = Form(" %*d) %10s \"%s\"%*s : %.*g", n, i, GetVariable(i).GetPrefix().data(),
                                    GetVariable(i).GetName().data(), (int)(GetMaximumParameterNameLength() - GetVariable(i).GetName().length()), "",
                                    GetVariable(i).GetPrecision(), GetGlobalMode()[i]);
 
@@ -2536,11 +2542,11 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
         BCLog::OutSummary("");
     }
 
-    BCLog::OutSummary(" List of parameters and properties of the marginalized");
-    BCLog::OutSummary(" distributions:");
+    BCLog::OutSummary(" List of variables and properties of the marginalized distributions:");
+    BCLog::OutSummary("");
 
     for (unsigned i = 0; i < GetNVariables(); ++i) {
-        std::string par_summary = Form("  (%u) ", i) + GetVariable(i).GetPrefix() + "\"" + GetVariable(i).GetName() + "\" :";
+        std::string par_summary = Form("  (%u) ", i) + GetVariable(i).GetPrefix() + " \"" + GetVariable(i).GetName() + "\" :";
 
         if (i < GetNParameters() and GetParameter(i).Fixed()) {
             par_summary += Form(" fixed at %.*g", GetVariable(i).GetPrecision(), GetParameter(i).GetFixedValue());
