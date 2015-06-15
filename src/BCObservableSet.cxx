@@ -12,7 +12,7 @@
 
 // ---------------------------------------------------------
 BCObservableSet::BCObservableSet()
-    : BCVariableSet()
+    : BCVariableSet<BCObservable>()
 {
 }
 
