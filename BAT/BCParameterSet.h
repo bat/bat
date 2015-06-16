@@ -57,8 +57,6 @@ public:
      * @return Whether all parameters have factorized priors set. */
     virtual bool ArePriorsSet(bool ignore_fixed = true) const;
 
-    using BCVariableSet::IsWithinLimits;
-
     /**
      * Check if vector of values is within limits. Check if fixed parameters are at fixed values.
      * @param x Values to check
