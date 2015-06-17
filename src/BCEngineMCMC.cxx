@@ -1789,9 +1789,9 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                         continue;
 
                     if (fMCMCRValueParameters[p] < fMCMCRValueParametersCriterion)
-                        BCLog::OutDetail(Form("         %-*s :  %.06f", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
+                        BCLog::OutDetail(Form("         %-*s :  %.03f", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
                     else if (std::isfinite(fMCMCRValueParameters[p]))
-                        BCLog::OutDetail(Form("         %-*s :  %.06f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
+                        BCLog::OutDetail(Form("         %-*s :  %.03f <-- Greater than threshold", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), fMCMCRValueParameters[p]));
                     else
                         BCLog::OutDetail(Form("         %-*s :  error in calculation", fParameters.MaxNameLength(), GetParameter(p).GetName().data()));
                 }
