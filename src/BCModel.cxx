@@ -533,10 +533,10 @@ double BCModel::HessianMatrixElement(const BCParameter * par1, const BCParameter
    xmm[idx2] -= dx2;
 
    // calculate probability at these points
-   double ppp = Likelihood(xpp);
-   double ppm = Likelihood(xpm);
-   double pmp = Likelihood(xmp);
-   double pmm = Likelihood(xmm);
+   double ppp = LogLikelihood(xpp) + LogAPrioriProbability(xpp);
+   double ppm = LogLikelihood(xpm) + LogAPrioriProbability(xpm);
+   double pmp = LogLikelihood(xmp) + LogAPrioriProbability(xmp);
+   double pmm = LogLikelihood(xmm) + LogAPrioriProbability(xmm);
 
    // return derivative
    return (ppp + pmm - ppm - pmp) / (4. * dx1 * dx2);
