@@ -33,6 +33,10 @@ conveniently install the entire ROOT system through the package
 `root-system`. However, if you rely on the optional `roostats`
 interface, you may still have to compile ROOT yourself.
 
+### Required: MPI 
+
+This version of BAT required OpenMPI or MPICH. 
+
 #### Note
 
 For the interface to RooFit/RooStats, a ROOT version
@@ -67,7 +71,7 @@ A directory called BAT-x.x will be created containing the source code.
 Enter the directory and run the configuration using commands
 
     cd BAT-x.x
-    ./configure
+    ./configure [CC=mpicc CXX=mpic++]
 
 This will check your system for all components needed to compile BAT
 and set up the paths for installation. You can add option

@@ -24,11 +24,19 @@
 #include <math.h>
 #include <limits>
 
+/* Begin MPI MOD */
+#include <mpi.h>
+/* End MPI MOD */
+
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC()
 {
    // set default parameters for the mcmc
    MCMCSetValuesDefault();
+
+/* Begin MPI MOD */
+   procnum = MPI::COMM_WORLD.Get_size();
+/* End MPI MOD */
 
    // initialize random number generator
    fRandom = new TRandom3();
@@ -627,130 +635,295 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned ichain, unsigned ipar
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain, unsigned parameter)
+/* Begin MPI MOD */
+void BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned parameter)
 {
+    unsigned mychain = 0;
+    int iproc = 0;
+    unsigned npars = fParameters.Size();
+    int buffsize = npars + 1;
+    double p0[procnum];
+    int index_chain[procnum];
+    double *recvbuff = new double[buffsize];
+    std::vector<double> pars;
+    double **buff;
+    
+    
+    //------------------
+    buff = new double*[procnum];
+    buff[0]=new double[procnum];
+    for(int i=1;i<procnum;i++)
+        buff[i]=buff[i-1]+1;
+    //------------------
+    
+    double ** sendbuff = new double *[procnum];
+    sendbuff[0] = new double[procnum * buffsize];
+    for (int il = 1; il < procnum; il++)
+        sendbuff[il] = sendbuff[il - 1] + buffsize;
+    
+    
+    double ll;
+    std::vector<std::vector<double> > fMCMCxvect;
+    bool last = false;
+    
+    
+    
     // calculate index
-   unsigned index = chain * fParameters.Size();
-
-   fMCMCCurrentChain = chain;
-
-   // increase counter
-   fMCMCNIterations[chain]++;
-
-   // get proposal point
-   if (!MCMCGetProposalPointMetropolis(chain, parameter, fMCMCThreadLocalStorage[chain].xLocal))
-   {
-      // execute user code for every point
-      MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, false);
-
-      return false;
-   }
-
-   // calculate probabilities of the old and new points
-   double p0 = fMCMCprob[chain];
-   double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
-
-   // flag for accept
-   bool accept = false;
-
-   // if the new point is more probable, keep it ...
-   if (p1 >= p0)
-      accept = true;
-   // ... or else throw dice.
-   else
-   {
-      double r = log(fMCMCThreadLocalStorage[chain].rng->Rndm());
-
-      if(r < p1 - p0)
-         accept = true;
-   }
-
-   // fill the new point
-   if(accept)
-   {
-      // increase counter
-      fMCMCNTrialsTrue[chain * fParameters.Size() + parameter]++;
-
-      // copy the point
-      for(unsigned i = 0; i < fParameters.Size(); ++i)
-      {
-         // save the point
-         fMCMCx[index + i] = fMCMCThreadLocalStorage[chain].xLocal[i];
-
-         // save the probability of the point
-         fMCMCprob[chain] = p1;
-      }
-   }
-
-   // execute user code for every point
-   MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, accept);
-
-   return accept;
+    //unsigned index = chain * fParameters.Size();
+    
+    
+    while (mychain < fMCMCNChains) {
+        
+        
+        fMCMCCurrentChain = mychain;
+        
+        // increase counter
+        fMCMCNIterations[mychain]++;
+        //std::cout << mychain << " " << fMCMCNIterations[mychain] << std::endl;
+        
+        // get proposal point
+        if (!MCMCGetProposalPointMetropolis(mychain, parameter, fMCMCThreadLocalStorage[mychain].xLocal))
+        {
+            // execute user code for every point
+            MCMCCurrentPointInterface(fMCMCThreadLocalStorage[mychain].xLocal, mychain, false);
+            mychain++;
+            if (mychain < fMCMCNChains) continue;
+            else last = true;
+            //return false;
+        }
+        
+        if (!last) {
+            // calculate probabilities of the old and new points
+            p0[iproc] = fMCMCprob[mychain];
+            fMCMCxvect.push_back(fMCMCThreadLocalStorage[mychain].xLocal);
+            index_chain[iproc] = mychain;
+            iproc++;
+            mychain++;
+            if (iproc < procnum && mychain < fMCMCNChains)
+                continue;
+            //                else
+            //                    for (int j = iproc; j < procnum; j++)
+            //                        sendbuff[j] = NULL;
+        } else if (iproc == 0)
+            break;
+        
+        
+        for(int unsigned il = 0; il < fMCMCxvect.size() ; il++) {
+            //The first entry of the array specifies the task to be executed.
+            sendbuff[il][0] = 1.; // 1 = likelihood calculation
+            for (int im = 1; im < buffsize; im++)
+                sendbuff[il][im] = fMCMCxvect[il][im-1];
+        }
+        for(int il = fMCMCxvect.size() ; il < procnum; il++)
+            sendbuff[il][0] = 0.; // 0 = nothing to execute
+        
+        //       double inittime = MPI::Wtime();
+        MPI::COMM_WORLD.Scatter(sendbuff[0], buffsize, MPI::DOUBLE,
+                                recvbuff, buffsize, MPI::DOUBLE,
+                                0);
+        
+        //        double scattertime = MPI::Wtime() - inittime;
+        //        inittime = MPI::Wtime();
+        if (recvbuff[0] == 1.) {
+            pars.assign(recvbuff + 1, recvbuff + buffsize);
+            ll = LogEval(pars);
+        } else
+            ll = log(0.);
+        
+        //        double calctime = MPI::Wtime() - inittime;
+        //        inittime = MPI::Wtime();
+        MPI::COMM_WORLD.Gather(&ll, 1, MPI::DOUBLE, buff[0], 1, MPI::DOUBLE, 0);
+        //double p0 = fMCMCprob[chain];
+        //double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
+        
+        for (int unsigned j = 0; j < fMCMCxvect.size(); j++) {
+            // flag for accept
+            bool accept = false;
+            
+            // if the new point is more probable, keep it ...
+            
+            if (*buff[j] >= p0[j]){
+                accept = true;
+            }
+            // ... or else throw dice.
+            else
+            {
+                double r = log(fMCMCThreadLocalStorage[mychain - 1].rng->Rndm());
+                if(r < *buff[j] - p0[j])
+                    accept = true;
+            }
+            
+            
+            // fill the new point
+            if(accept)
+            {
+                // increase counter
+                fMCMCNTrialsTrue[index_chain[j] * npars + parameter]++;
+                
+                // copy the point
+                for(unsigned i = 0; i < npars; ++i)
+                {
+                    // save the point
+                    fMCMCx[index_chain[j] * npars + i] = fMCMCxvect[j][i];
+                    
+                    // save the probability of the point
+                    fMCMCprob[index_chain[j]] = *buff[j];
+                }
+            }
+            
+            // execute user code for every point
+            MCMCCurrentPointInterface(fMCMCxvect[j], index_chain[j], accept);
+        }
+        iproc = 0;
+        fMCMCxvect.clear();
+    }
+    delete sendbuff[0];
+    delete [] sendbuff;
+    delete [] recvbuff;
+    delete buff[0];
+    delete [] buff;
+    //return accept;
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::MCMCGetNewPointMetropolis(unsigned chain)
+void BCEngineMCMC::MCMCGetNewPointMetropolis()
 {
-   // calculate index
-   unsigned index = chain * fParameters.Size();
-
-   fMCMCCurrentChain = chain;
-
-   // increase counter
-   fMCMCNIterations[chain]++;
-
-   // get proposal point
-   if (!MCMCGetProposalPointMetropolis(chain, fMCMCThreadLocalStorage[chain].xLocal))
-   {
-      // execute user code for every point
-      MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, false);
-
-      return false;
-   }
-
-   // calculate probabilities of the old and new points
-   double p0 = fMCMCprob[chain];
-   double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
-
-   // flag for accept
-   bool accept = false;
-
-   // if the new point is more probable, keep it ...
-   if (p1 >= p0)
-      accept = true;
-
-   // ... or else throw dice.
-   else
-   {
-      double r = log(fMCMCThreadLocalStorage[chain].rng->Rndm());
-
-      if(r < p1 - p0)
-         accept = true;
-   }
-
-   // fill the new point
-   if(accept)
-   {
-      // increase counter
-      for (unsigned i = 0; i < fParameters.Size(); ++i)
-         fMCMCNTrialsTrue[chain * fParameters.Size() + i]++;
-
-      // copy the point
-      for(unsigned i = 0; i < fParameters.Size(); ++i)
-      {
-         // save the point
-         fMCMCx[index + i] = fMCMCThreadLocalStorage[chain].xLocal[i];
-
-         // save the probability of the point
-         fMCMCprob[chain] = p1;
-      }
-   }
-
-   // execute user code for every point
-   MCMCCurrentPointInterface(fMCMCThreadLocalStorage[chain].xLocal, chain, accept);
-
-   return accept;
+    unsigned mychain = 0;
+    int iproc = 0;
+    unsigned npars = fParameters.Size();
+    int buffsize = npars + 1;
+    double p0[procnum];
+    int index_chain[procnum];
+    double *recvbuff = new double[buffsize];
+    std::vector<double> pars;
+    double **buff;
+    
+    
+    buff = new double*[procnum];
+    buff[0]=new double[procnum];
+    for(int i=1;i<procnum;i++)buff[i]=buff[i-1]+1;
+    
+    double ll;
+    std::vector<std::vector<double> > fMCMCxvect;
+    bool last = false;
+    // calculate index
+    //unsigned index = chain * fParameters.Size();
+    
+    while (mychain < fMCMCNChains) {
+        
+        fMCMCCurrentChain = mychain;
+        
+        // increase counter
+        fMCMCNIterations[mychain]++;
+        
+        // get proposal point
+        if (!MCMCGetProposalPointMetropolis(mychain, fMCMCThreadLocalStorage[mychain].xLocal))
+        {
+            // execute user code for every point
+            MCMCCurrentPointInterface(fMCMCThreadLocalStorage[mychain].xLocal, mychain, false);
+            mychain++;
+            if (mychain < fMCMCNChains) continue;
+            else last = true;
+            //return false;
+        }
+        
+        if (!last) {
+            // calculate probabilities of the old and new points
+            p0[iproc] = fMCMCprob[mychain];
+            fMCMCxvect.push_back(fMCMCThreadLocalStorage[mychain].xLocal);
+            index_chain[iproc] = mychain;
+            iproc++;
+            mychain++;
+            if (iproc < procnum && mychain < fMCMCNChains)
+                continue;
+            //                else
+            //                    for (int j = iproc; j < procnum; j++)
+            //                        sendbuff[j] = NULL;
+        } else if (iproc == 0)
+            break;
+        
+        // calculate probabilities of the old and new points
+        double ** sendbuff = new double *[procnum];
+        sendbuff[0] = new double[procnum * buffsize];
+        for (int il = 1; il < procnum; il++)
+            sendbuff[il] = sendbuff[il - 1] + buffsize;
+        
+        for(int unsigned il = 0; il < fMCMCxvect.size() ; il++) {
+            //The first entry of the array specifies the task to be executed.
+            sendbuff[il][0] = 1.; // 1 = likelihood calculation
+            for (int im = 1; im < buffsize; im++)
+                sendbuff[il][im] = fMCMCxvect[il][im-1];
+        }
+        for(int il = fMCMCxvect.size() ; il < procnum; il++)
+            sendbuff[il][0] = 0.; // 0 = nothing to execute
+        
+        //       double inittime = MPI::Wtime();
+        MPI::COMM_WORLD.Scatter(sendbuff[0], buffsize, MPI::DOUBLE,
+                                recvbuff, buffsize, MPI::DOUBLE,
+                                0);
+        
+        //        double scattertime = MPI::Wtime() - inittime;
+        //        inittime = MPI::Wtime();
+        if (recvbuff[0] == 1.) {
+            pars.assign(recvbuff + 1, recvbuff + buffsize);
+            ll = LogEval(pars);
+        } else
+            ll = log(0.);
+        
+        //        double calctime = MPI::Wtime() - inittime;
+        //        inittime = MPI::Wtime();
+        MPI::COMM_WORLD.Gather(&ll, 1, MPI::DOUBLE, buff[0], 1, MPI::DOUBLE, 0);
+        //double p0 = fMCMCprob[chain];
+        //double p1 = LogEval(fMCMCThreadLocalStorage[chain].xLocal);
+        for (int unsigned j = 0; j < fMCMCxvect.size(); j++) {
+            // flag for accept
+            bool accept = false;
+            
+            // if the new point is more probable, keep it ...
+            if (*buff[j] >= p0[j])
+                accept = true;
+            
+            // ... or else throw dice.
+            else
+            {
+                double r = log(fMCMCThreadLocalStorage[mychain - 1].rng->Rndm());
+                
+                if(r < *buff[j] - p0[j])
+                    accept = true;
+            }
+            
+            // fill the new point
+            if(accept)
+            {
+                // increase counter
+                for (unsigned i = 0; i < npars; ++i)
+                    fMCMCNTrialsTrue[index_chain[j] * npars + i]++;
+                
+                // copy the point
+                for(unsigned i = 0; i < npars; ++i)
+                {
+                    // save the point
+                    fMCMCx[index_chain[j] * npars + i] = fMCMCxvect[j][i];
+                    
+                    // save the probability of the point
+                    fMCMCprob[index_chain[j]] = *buff[j];
+                }
+            }
+            
+            // execute user code for every point
+            MCMCCurrentPointInterface(fMCMCxvect[j], index_chain[j], accept);
+        }
+        iproc = 0;
+        fMCMCxvect.clear();
+        delete sendbuff[0];
+        delete [] sendbuff;
+    }
+    delete [] recvbuff;
+    delete buff[0];
+    delete [] buff;
+    //return accept;
 }
+/* End MPI MOD */
 
 // --------------------------------------------------------
 void BCEngineMCMC::MCMCInChainCheckMaximum()
@@ -982,9 +1155,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
                unsigned chunk = 1; (void) chunk;
                unsigned ichains; (void) ichains;
 #pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
-               for (ichains = 0; ichains < fMCMCNChains; ++ichains){
-                  MCMCGetNewPointMetropolis(ichains, iparameters);
-               }
+/* Begin MPI MOD */
+               //for (ichains = 0; ichains < fMCMCNChains; ++ichains){
+                  MCMCGetNewPointMetropolis(iparameters);
+               //}
+/* End MPI MOD */
                // search for global maximum
                MCMCInChainCheckMaximum();
             }
@@ -999,9 +1174,11 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
             unsigned chunk = 1; (void) chunk;
             unsigned ichains;  (void) ichains;
 #pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
-            for (ichains = 0; ichains < fMCMCNChains; ++ichains){
-               MCMCGetNewPointMetropolis(ichains);
-            }
+/* Begin MPI MOD */
+            //for (ichains = 0; ichains < fMCMCNChains; ++ichains){
+               MCMCGetNewPointMetropolis();
+            //}
+/* End MPI MOD */
          }
          // search for global maximum
          MCMCInChainCheckMaximum();
@@ -1012,8 +1189,10 @@ int BCEngineMCMC::MCMCMetropolisPreRun()
       //-------------------------------------------
 
       // progress printout
-      if ( fMCMCCurrentIteration > 0 && fMCMCCurrentIteration % fMCMCNIterationsUpdate == 0 )
-				BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0] / GetNFreeParameters()));
+       if ( fMCMCCurrentIteration > 0 && fMCMCCurrentIteration % fMCMCNIterationsUpdate == 0 ){
+				if (fMCMCFlagOrderParameters) BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0] / GetNFreeParameters()));
+                else BCLog::OutDetail(Form(" --> Iteration %i", fMCMCNIterations[0]));
+       }
 
       //-------------------------------------------
       // update statistics
@@ -1348,10 +1527,12 @@ int BCEngineMCMC::MCMCMetropolis()
                unsigned chunk = 1; (void) chunk;
                unsigned ichains; (void) ichains;
 #pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
-               for (unsigned ichains = 0; ichains < fMCMCNChains; ++ichains)
-               {
-                  MCMCGetNewPointMetropolis(ichains, iparameters);
-               }
+/* Begin MPI MOD */
+               //for (unsigned ichains = 0; ichains < fMCMCNChains; ++ichains)
+               //{
+                  MCMCGetNewPointMetropolis(iparameters);
+               //}
+/* End MPI MOD */
             }
             // reset current chain
             fMCMCCurrentChain = -1;
@@ -1384,11 +1565,13 @@ int BCEngineMCMC::MCMCMetropolis()
             unsigned chunk = 1; (void) chunk;
             unsigned ichains; (void) ichains;
 #pragma omp parallel for shared(chunk) private(ichains)  schedule(static, chunk)
-            for (unsigned ichains = 0; ichains < fMCMCNChains; ++ichains)
-            {
+/* Begin MPI MOD */
+            //for (unsigned ichains = 0; ichains < fMCMCNChains; ++ichains)
+            //{
                // get new point
-               MCMCGetNewPointMetropolis(ichains);
-            }
+               MCMCGetNewPointMetropolis();
+            //}
+/* End MPI MOD */
          }
          // reset current chain
          fMCMCCurrentChain = -1;
