@@ -69,6 +69,19 @@ public:
 
     /** @} */
 
+    /** \name Operators and swap*/
+    /** @{ */
+
+    /**
+     * Copy assignment operator. */
+    BCH1D& operator=(const BCH1D& other);
+
+    /**
+     * Swap function. */
+    friend void swap(BCH1D& first, BCH1D& second);
+
+    /** @} */
+
     /** \name Member functions (get)  */
     /** @{ */
 

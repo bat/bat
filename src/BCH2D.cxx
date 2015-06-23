@@ -76,6 +76,33 @@ void BCH2D::CopyOptions(const BCH2D& other)
 }
 
 // ---------------------------------------------------------
+BCH2D& BCH2D::operator=(const BCH2D& other)
+{
+    // copy other
+    BCH2D temp(other);
+    // swap into this
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCH2D& first, BCH2D& second)
+{
+    // swap base class
+    swap(static_cast<BCHistogramBase&>(first),static_cast<BCHistogramBase&>(second));
+    // swap remaining members
+    std::swap(first.fBandType,          second.fBandType);
+    std::swap(first.fDrawProfileX,      second.fDrawProfileX);
+    std::swap(first.fProfileXType,      second.fProfileXType);
+    std::swap(first.fProfileXLineColor, second.fProfileXLineColor);
+    std::swap(first.fProfileXLineStyle, second.fProfileXLineStyle);
+    std::swap(first.fDrawProfileY,      second.fDrawProfileY);
+    std::swap(first.fProfileYType,      second.fProfileYType);
+    std::swap(first.fProfileYLineColor, second.fProfileYLineColor);
+    std::swap(first.fProfileYLineStyle, second.fProfileYLineStyle);
+}
+
+// ---------------------------------------------------------
 void BCH2D::CheckIntervals(std::vector<double>& intervals)
 {
     if (fBandType != kNoBands)

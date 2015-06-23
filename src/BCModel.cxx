@@ -342,71 +342,71 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
     // create / draw legend(s)
     gPad->SetTopMargin(0.02);
 
-    if ( bch1d_prior->GetLegend()->GetNRows() > 0  and  bch1d_posterior->GetLegend()->GetNRows() > 0 ) {
+    if ( bch1d_prior->GetLegend().GetNRows() > 0  and  bch1d_posterior->GetLegend().GetNRows() > 0 ) {
         // both legends have entries, draw both
-        bch1d_prior->GetLegend()->SetHeader("prior");
-        bch1d_posterior->GetLegend()->SetHeader("posterior");
+        bch1d_prior->GetLegend().SetHeader("prior");
+        bch1d_posterior->GetLegend().SetHeader("posterior");
 
         // Draw prior legend on top left
         double y1ndc_prior = bch1d_prior->ResizeLegend();
-        bch1d_prior->GetLegend()->SetX2NDC(bch1d_prior->GetLegend()->GetX1NDC() + 45e-2 * (bch1d_prior->GetLegend()->GetX2NDC() - bch1d_prior->GetLegend()->GetX1NDC()));
-        bch1d_prior->GetLegend()->Draw();
+        bch1d_prior->GetLegend().SetX2NDC(bch1d_prior->GetLegend().GetX1NDC() + 45e-2 * (bch1d_prior->GetLegend().GetX2NDC() - bch1d_prior->GetLegend().GetX1NDC()));
+        bch1d_prior->GetLegend().Draw();
 
         // Draw posterior legend on top right
         double y1ndc_posterior = bch1d_posterior->ResizeLegend();
-        bch1d_posterior->GetLegend()->SetX1NDC(bch1d_posterior->GetLegend()->GetX1NDC() + 55e-2 * (bch1d_posterior->GetLegend()->GetX2NDC() - bch1d_posterior->GetLegend()->GetX1NDC()));
-        bch1d_posterior->GetLegend()->Draw();
+        bch1d_posterior->GetLegend().SetX1NDC(bch1d_posterior->GetLegend().GetX1NDC() + 55e-2 * (bch1d_posterior->GetLegend().GetX2NDC() - bch1d_posterior->GetLegend().GetX1NDC()));
+        bch1d_posterior->GetLegend().Draw();
 
         gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
 
     } else {
         // only one legend to draw
 
-        TLegend* legend = 0;
+        BCH1D* base_hist = 0;
+        BCH1D* other_hist = 0;
+        const char * base_string = "";
+        const char * other_string = "";
 
-        if ( bch1d_posterior->GetLegend()->GetNRows() > 0 ) {
+        // check if one hist has entries in its legend
+        if (bch1d_posterior->GetLegend().GetNRows() > 0) {
             // posterior legend alone has entries
-
-            legend = bch1d_posterior->GetLegend();
-            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
-                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+            base_hist = bch1d_posterior;
+            other_hist = bch1d_prior;
+            base_string = "posterior";
+            other_string = "prior";
+        } else if (bch1d_prior->GetLegend().GetNRows() > 0) {
+            // prior alone has entries
+            base_hist = bch1d_prior;
+            other_hist = bch1d_posterior;
+            base_string = "prior";
+            other_string = "posterior";
+        }
+        
+        if (base_hist) {
+            // one hist (base_hist) had a legend with entries
+            // add other_hist entry to base_hist legend
+            for (int i = 0; base_hist->GetLegend().GetListOfPrimitives()->GetEntries(); ++i) {
+                TLegendEntry* le = (TLegendEntry*)(base_hist->GetLegend().GetListOfPrimitives()->At(i));
                 if (!le) break;
                 if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(Form("%s of posterior", le->GetLabel()));
+                le-> SetLabel(Form("%s of %s", le->GetLabel(), base_string));
             }
-            legend->AddEntry(bch1d_prior->GetHistogram(), "prior", "L");
-
-            bch1d_posterior->ResizeLegend();
-
-        } else if ( bch1d_prior->GetLegend()->GetNRows() > 0 ) {
-            // prior legend alone has entries
-
-            legend = bch1d_prior->GetLegend();
-            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
-                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
-                if (!le) break;
-                if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(Form("%s of prior", le->GetLabel()));
-            }
-            legend->AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
-            bch1d_prior->ResizeLegend();
+            base_hist->GetLegend().AddEntry(other_hist->GetHistogram(), other_string, "L");
 
         }	else {
             // neither legend has entries
-
-            legend = bch1d_prior->GetLegend();
-            legend->SetNColumns(2);
-            legend->AddEntry(bch1d_prior->GetHistogram(),     "prior", "L");
-            legend->AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
-
-            bch1d_prior->ResizeLegend();
+            base_hist = bch1d_prior;
+            base_hist->GetLegend().SetNColumns(2);
+            base_hist->GetLegend().AddEntry(bch1d_prior->GetHistogram(),     "prior", "L");
+            base_hist->GetLegend().AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
         }
 
-        // Draw legend on top of histogram
-        legend->Draw();
-
+        // resize and draw legend
+        base_hist->ResizeLegend();
+        base_hist->GetLegend().Draw();
+        
         // rescale top margin
-        gPad->SetTopMargin(1 - legend->GetY1NDC() + 0.01);
+        gPad->SetTopMargin(1 - base_hist->GetLegend().GetY1NDC() + 0.01);
     }
 
     gPad->RedrawAxis();
@@ -586,77 +586,78 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         bch2d_posterior->Draw();
 
     // create / draw legend(s)
-    if ( bch2d_prior->GetLegend()->GetNRows() > 0  and  bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
+    if ( bch2d_prior->GetLegend().GetNRows() > 0  and  bch2d_posterior->GetLegend().GetNRows() > 0 ) {
         // both legends have entries, draw both
 
-        bch2d_prior    ->GetLegend()->SetHeader((std::string("prior") + prior_text).data());
-        bch2d_posterior->GetLegend()->SetHeader("posterior");
+        bch2d_prior    ->GetLegend().SetHeader((std::string("prior") + prior_text).data());
+        bch2d_posterior->GetLegend().SetHeader("posterior");
 
         // Draw prior legend on top left
         double y1ndc_prior = bch2d_prior->ResizeLegend();
-        bch2d_prior->GetLegend()->SetX2NDC(bch2d_prior->GetLegend()->GetX1NDC() + 45e-2 * (bch2d_prior->GetLegend()->GetX2NDC() - bch2d_prior->GetLegend()->GetX1NDC()));
-        bch2d_prior->GetLegend()->Draw();
+        bch2d_prior->GetLegend().SetX2NDC(bch2d_prior->GetLegend().GetX1NDC() + 45e-2 * (bch2d_prior->GetLegend().GetX2NDC() - bch2d_prior->GetLegend().GetX1NDC()));
+        bch2d_prior->GetLegend().Draw();
 
         // Draw posterior legend on top right
         double y1ndc_posterior = bch2d_posterior->ResizeLegend();
-        bch2d_posterior->GetLegend()->SetX1NDC(bch2d_posterior->GetLegend()->GetX1NDC() + 55e-2 * (bch2d_posterior->GetLegend()->GetX2NDC() - bch2d_posterior->GetLegend()->GetX1NDC()));
-        bch2d_posterior->GetLegend()->Draw();
+        bch2d_posterior->GetLegend().SetX1NDC(bch2d_posterior->GetLegend().GetX1NDC() + 55e-2 * (bch2d_posterior->GetLegend().GetX2NDC() - bch2d_posterior->GetLegend().GetX1NDC()));
+        bch2d_posterior->GetLegend().Draw();
 
         gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
 
     } else {
         // only one legend to draw
 
-        TLegend* legend = 0;
-        if ( bch2d_posterior->GetLegend()->GetNRows() > 0 ) {
+        BCH2D * base_hist = 0;
+        BCH2D * other_hist = 0;
+        const char * base_string = "";
+        const char * other_string = "";
+        std::string extra_string = "";
+
+        // check if one hist has entries in its legend
+        if (bch2d_posterior->GetLegend().GetNRows() > 0) {
             // posterior legend alone has entries
-
-            legend = bch2d_posterior->GetLegend();
-            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
-                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
-                if (!le) break;
-                if (strlen(le->GetLabel()) == 0) continue;
-                le->SetLabel(Form("%s of posterior", le->GetLabel()));
-            }
-            legend->AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
-
-            bch2d_posterior->ResizeLegend();
-
-        } else if ( bch2d_prior->GetLegend()->GetNRows() > 0 ) {
+            base_hist = bch2d_posterior;
+            other_hist = bch2d_prior;
+            base_string = "posterior";
+            other_string = Form("prior%s", prior_text.data());
+        } else if (bch2d_prior->GetLegend().GetNRows() > 0) {
             // prior legend alone has entries
-
-            legend = bch2d_prior->GetLegend();
-            for (int i = 0; legend->GetListOfPrimitives()->GetEntries(); ++i) {
-                TLegendEntry* le = (TLegendEntry*)(legend->GetListOfPrimitives()->At(i));
+            base_hist = bch2d_prior;
+            other_hist = bch2d_posterior;
+            base_string = "prior";
+            other_string = "posterior";
+            extra_string = (prior_text.empty()) ? "" : "prior:" + prior_text;
+        }
+        
+        if (base_hist) {
+            // one hist (base_hist) had a legend with entries
+            // add other_hist entry to base_hist legend
+            for (int i = 0; base_hist->GetLegend().GetListOfPrimitives()->GetEntries(); ++i) {
+                TLegendEntry* le = (TLegendEntry*)(base_hist->GetLegend().GetListOfPrimitives()->At(i));
                 if (!le) break;
                 if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(Form("%s of prior", le->GetLabel()));
+                le-> SetLabel(Form("%s of %s", le->GetLabel(), base_string));
             }
-            if (!prior_text.empty())
-                legend->AddEntry((TObject*)0, (std::string("prior: ") + prior_text).data(), "");
-            legend->AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
+            base_hist->GetLegend().AddEntry(other_hist->GetHistogram(), other_string, "L");
+            if (!extra_string.empty())
+                base_hist->GetLegend().AddEntry((TObject*)0, extra_string.data(), "");
 
-            bch2d_prior->ResizeLegend();
-
-        }	else {
+        } else {
             // neither legend has entries
-
-            legend = bch2d_posterior->GetLegend();
-            legend->SetNColumns(2);
-            legend->AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
-            legend->AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
-
-            bch2d_posterior->ResizeLegend();
+            base_hist = bch2d_prior;
+            base_hist->GetLegend().SetNColumns(2);
+            base_hist->GetLegend().AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
+            base_hist->GetLegend().AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
         }
 
-        // Draw legend on top of histogram
-
-        legend->Draw();
+        // resize and draw legend
+        base_hist->ResizeLegend();
+        base_hist->GetLegend().Draw();
 
         // rescale top margin
-        gPad->SetTopMargin(1 - legend->GetY1NDC() + 0.01);
+        gPad->SetTopMargin(1 - base_hist->GetLegend().GetY1NDC() + 0.01);
     }
-
+    
     gPad->RedrawAxis();
     gPad->Update();
     return 1;

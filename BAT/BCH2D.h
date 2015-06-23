@@ -90,6 +90,20 @@ public:
     ~BCH2D();
 
     /** @} */
+
+    /** \name Operators and swap*/
+    /** @{ */
+
+    /**
+     * Copy assignment operator. */
+    BCH2D& operator=(const BCH2D& other);
+
+    /**
+     * Swap function. */
+    friend void swap(BCH2D& first, BCH2D& second);
+
+    /** @} */
+
     /** \name Member functions (get)  */
     /** @{ */
 

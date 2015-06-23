@@ -18,7 +18,6 @@
 #include <TPad.h>
 #include <TMarker.h>
 #include <TArrow.h>
-#include <TLegend.h>
 #include <TLegendEntry.h>
 #include <TString.h>
 #include <TH1D.h>
@@ -31,7 +30,6 @@
 // ---------------------------------------------------------
 BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     : fHistogram(0),
-      fLegend(new TLegend),
       fNLegendColumns(2),
       fBandOvercoverage(false),
       fBandFillStyle(1001),
@@ -61,14 +59,14 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     SetHistogram(hist);
     SetColorScheme(kGreenYellowRed);
 
-    fLegend->SetNColumns(fNLegendColumns);
-    fLegend->SetColumnSeparation(5e-2); // % of full width
-    fLegend->SetBorderSize(0);
-    fLegend->SetFillColor(kWhite);
-    fLegend->SetTextAlign(12);
-    fLegend->SetTextFont(62);
-    fLegend->SetTextSize(0.03);
-    fROOTObjects.push_back(fLegend);
+    fLegend.SetNColumns(fNLegendColumns);
+    fLegend.SetColumnSeparation(5e-2); // % of full width
+    fLegend.SetBorderSize(0);
+    fLegend.SetFillColor(kWhite);
+    fLegend.SetTextAlign(12);
+    fLegend.SetTextFont(62);
+    fLegend.SetTextSize(0.03);
+    // fROOTObjects.push_back(fLegend);
 
     fIntervals = DefaultIntervals();
 }
@@ -76,15 +74,23 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
 // ---------------------------------------------------------
 BCHistogramBase::BCHistogramBase(const BCHistogramBase& other)
     : fHistogram(0)
-    , fLegend(new TLegend(*(other.fLegend)))
+    , fLegend(other.fLegend)
     , fGlobalMode(other.fGlobalMode)
     , fDimension(other.fDimension)
 {
     SetHistogram(other.fHistogram);
-    fLegend->Clear();
-    fROOTObjects.push_back(fLegend);
+    fLegend.Clear();
+    // fROOTObjects.push_back(fLegend);
 
     CopyOptions(other);
+}
+
+// ---------------------------------------------------------
+BCHistogramBase::~BCHistogramBase()
+{
+    delete fHistogram;
+    for (unsigned i = 0; i < fROOTObjects.size(); ++i)
+        delete fROOTObjects[i];
 }
 
 // ---------------------------------------------------------
@@ -120,12 +126,66 @@ void BCHistogramBase::CopyOptions(const BCHistogramBase& other)
 }
 
 // ---------------------------------------------------------
-BCHistogramBase::~BCHistogramBase()
+BCHistogramBase& BCHistogramBase::operator=(const BCHistogramBase& other)
 {
-    if (fHistogram)
-        delete fHistogram;
-    for (unsigned i = 0; i < fROOTObjects.size(); ++i)
-        delete fROOTObjects[i];
+    // copy other
+    BCHistogramBase temp(other);
+    // swap into this
+    swap(*this, temp);
+    
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCHistogramBase& first, BCHistogramBase& second)
+{
+    // swap histogram pointers
+    std::swap(first.fHistogram,             second.fHistogram);
+
+    // swap modes
+    std::swap(first.fLocalMode,             second.fLocalMode);
+    std::swap(first.fGlobalMode,            second.fGlobalMode);
+
+    // swap legends
+    TLegend temp(first.fLegend);
+    second.fLegend.Copy(first.fLegend);
+    temp.Copy(second.fLegend);
+    // std::swap(first.fLegend,                second.fLegend);
+
+    // swap dimension
+    std::swap(first.fDimension,             second.fDimension);
+
+    // swap ROOT object pointer vectors
+    std::swap(first.fROOTObjects,           second.fROOTObjects);
+
+    // swap options
+    std::swap(first.fNLegendColumns,        second.fNLegendColumns);
+    std::swap(first.fBandFillStyle,         second.fBandFillStyle);
+    std::swap(first.fLineColor,             second.fLineColor);
+    std::swap(first.fMarkerColor,           second.fMarkerColor);
+    std::swap(first.fMarkerScale,           second.fMarkerScale);
+    std::swap(first.fLogx,                  second.fLogx);
+    std::swap(first.fLogy,                  second.fLogy);
+    std::swap(first.fLogz,                  second.fLogz);
+    std::swap(first.fGridx,                 second.fGridx);
+    std::swap(first.fGridy,                 second.fGridy);
+    std::swap(first.fNBands,                second.fNBands);
+    std::swap(first.fNSmooth,               second.fNSmooth);
+    std::swap(first.fDrawGlobalMode,        second.fDrawGlobalMode);
+    std::swap(first.fDrawGlobalModeArrows,  second.fDrawGlobalModeArrows);
+    std::swap(first.fGlobalModeMarkerStyle, second.fGlobalModeMarkerStyle);
+    std::swap(first.fDrawLocalMode,         second.fDrawLocalMode);
+    std::swap(first.fDrawLocalModeArrows,   second.fDrawLocalModeArrows);
+    std::swap(first.fLocalModeMarkerStyle,  second.fLocalModeMarkerStyle);
+    std::swap(first.fDrawMean,              second.fDrawMean);
+    std::swap(first.fMeanMarkerStyle,       second.fMeanMarkerStyle);
+    std::swap(first.fDrawStandardDeviation, second.fDrawStandardDeviation);
+    std::swap(first.fDrawLegend,            second.fDrawLegend);
+    std::swap(first.fDrawStats,             second.fDrawStats);
+    std::swap(first.fBandColors,            second.fBandColors);
+    std::swap(first.fBandOvercoverage,      second.fBandOvercoverage);
+    std::swap(first.fIntervals,             second.fIntervals);
+    std::swap(first.fROOToptions,           second.fROOToptions);
 }
 
 // ---------------------------------------------------------
@@ -427,7 +487,7 @@ void BCHistogramBase::Draw()
         return;
 
     GetHistogram()->SetStats(fDrawStats);
-    fLegend->SetNColumns(fNLegendColumns);
+    fLegend.SetNColumns(fNLegendColumns);
 
     Smooth(fNSmooth);
 
@@ -626,18 +686,18 @@ void BCHistogramBase::DrawMean()
 // ---------------------------------------------------------
 double BCHistogramBase::ResizeLegend()
 {
-    fLegend->SetX1NDC(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
-    fLegend->SetX2NDC(1 - gPad->GetRightMargin());
-    fLegend->SetY1NDC(1 - gPad->GetTopMargin() - fLegend->GetTextSize()*fLegend->GetNRows());
-    fLegend->SetY2NDC(1 - gPad->GetTopMargin());
-    return fLegend->GetY1NDC();
+    fLegend.SetX1NDC(gPad->GetLeftMargin());// +5e-2 * (1 - gPad->GetRightMargin() - gPad->GetLeftMargin()));
+    fLegend.SetX2NDC(1 - gPad->GetRightMargin());
+    fLegend.SetY1NDC(1 - gPad->GetTopMargin() - fLegend.GetTextSize()*fLegend.GetNRows());
+    fLegend.SetY2NDC(1 - gPad->GetTopMargin());
+    return fLegend.GetY1NDC();
 }
 
 // ---------------------------------------------------------
 TLegendEntry* BCHistogramBase::AddLegendEntry(TObject* obj, std::string label, std::string options)
 {
     if (fExtraLegendEntries.empty())
-        return fLegend->AddEntry(obj, label.data(), options.data());
+        return fLegend.AddEntry(obj, label.data(), options.data());
     TLegendEntry* le = fExtraLegendEntries.front();
     le->SetObject(obj);
     le->SetLabel(label.data());
@@ -649,9 +709,9 @@ TLegendEntry* BCHistogramBase::AddLegendEntry(TObject* obj, std::string label, s
 // ---------------------------------------------------------
 TLegendEntry* BCHistogramBase::AddBandLegendEntry(TObject* obj, std::string label, std::string options)
 {
-    TLegendEntry* le = fLegend->AddEntry(obj, label.data(), options.data());
-    for (int i = 1; i < fLegend->GetNColumns(); ++i)
-        fExtraLegendEntries.push_back(fLegend->AddEntry((TObject*)0, "", ""));
+    TLegendEntry* le = fLegend.AddEntry(obj, label.data(), options.data());
+    for (int i = 1; i < fLegend.GetNColumns(); ++i)
+        fExtraLegendEntries.push_back(fLegend.AddEntry((TObject*)0, "", ""));
     return le;
 }
 
@@ -666,12 +726,12 @@ void BCHistogramBase::DrawLegend()
     }
 
     if (fDrawLegend) {
-        fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * (1.15 + fLegend->GetTextSize()*fLegend->GetNRows()) * 1.05);
+        fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * (1.15 + fLegend.GetTextSize()*fLegend.GetNRows()) * 1.05);
 
         gPad->SetTopMargin(0.02);
 
         double y1ndc = ResizeLegend();
-        fLegend->Draw();
+        fLegend.Draw();
 
         // rescale top margin
         gPad->SetTopMargin(1 - y1ndc + 0.01);

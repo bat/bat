@@ -22,8 +22,9 @@
 #include <string>
 #include <utility>
 
+#include <TLegend.h>
+
 class TH1;
-class TLegend;
 class TLegendEntry;
 class TObject;
 
@@ -66,6 +67,19 @@ public:
 
     /** @} */
 
+    /** \name Operators and swap*/
+    /** @{ */
+
+    /**
+     * Copy assignment operator. */
+    BCHistogramBase& operator=(const BCHistogramBase& other);
+
+    /**
+     * Swap function. */
+    friend void swap(BCHistogramBase& first, BCHistogramBase& second);
+
+    /** @} */
+
     /** \name Member functions (get)  */
     /** @{ */
 
@@ -76,7 +90,7 @@ public:
 
     /**
      * @return The legend. */
-    TLegend* GetLegend()
+    TLegend& GetLegend()
     { return fLegend; }
 
     /**
@@ -534,7 +548,7 @@ protected:
 
     /**
      * Legend. */
-    TLegend* fLegend;
+    TLegend fLegend;
 
     /**
      * number of columns to be set for legend. */
