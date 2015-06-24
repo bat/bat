@@ -209,22 +209,23 @@ void BCMVCDataModel::PrintToys(std::string filename)
     // draw all 1D histograms indicating observed value
     for (int i = 0; i < npars; ++i) {
         double obs = fVectorMeasurements[i];
-        BCH1D* hist_par = GetMarginalized(i);
-        double p = hist_par->GetHistogram()->Integral(hist_par->GetHistogram()->FindBin(obs), hist_par->GetHistogram()->GetNbinsX(), "width");
-        hist_par->CopyOptions(*hist_chi2);
-        hist_par->SetInterval(1 - p);
+        BCH1D hist_par = GetMarginalized(i);
+        double p = hist_par.GetHistogram()->Integral(hist_par.GetHistogram()->FindBin(obs), hist_par.GetHistogram()->GetNbinsX(), "width");
+        hist_par.CopyOptions(*hist_chi2);
+        hist_par.SetInterval(1 - p);
+        hist_par.Draw();
         c1->Print(filename.c_str());
     }
 
     // draw all 2D histograms indicating observed values
+    TMarker* m = new TMarker();
+    m -> SetMarkerStyle(21);
     for (int i = 0; i < npars; ++i) {
         for (int j = 0; j < i; ++j) {
             double obs_i = fVectorMeasurements[i];
             double obs_j = fVectorMeasurements[j];
-            BCH2D* hist_par = GetMarginalized(i, j);
-            hist_par->Draw();
-            TMarker* m = new TMarker();
-            m->SetMarkerStyle(21);
+            BCH2D hist_par = GetMarginalized(i, j);
+            hist_par.Draw();
             m->DrawMarker(obs_j, obs_i);
             if (i == npars - 1 && j == i - 1)
                 c1->Print(std::string(filename + ")").c_str());

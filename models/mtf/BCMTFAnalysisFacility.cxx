@@ -559,19 +559,27 @@ TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, i
         out_cash_mode_total = 0;
         out_nevents_total = 0;
 
+        double quantile_probsums[7] = {5e-2, 10e-2, 16e-2, 50e-2, 84e-2, 90e-2, 95e-2};
+        double quantile_values[7];
+
         for (int i = 0; i < nparameters; ++i) {
             if (fFlagMarginalize) {
-                BCH1D* hist = fMTF->GetMarginalized(i);
-                out_mode_marginalized[i] = hist->GetLocalMode(0);
-                out_mean_marginalized[i] = hist->GetHistogram()->GetMean();
-                out_median_marginalized[i] = hist->GetMedian();
-                out_5quantile_marginalized[i] = hist->GetQuantile(0.05);
-                out_10quantile_marginalized[i] = hist->GetQuantile(0.10);
-                out_16quantile_marginalized[i] = hist->GetQuantile(0.16);
-                out_84quantile_marginalized[i] = hist->GetQuantile(0.84);
-                out_90quantile_marginalized[i] = hist->GetQuantile(0.90);
-                out_95quantile_marginalized[i] = hist->GetQuantile(0.95);
-                out_std_marginalized[i] = hist->GetHistogram()->GetRMS();
+                BCH1D hist = fMTF->GetMarginalized(i);
+                if (!hist.Valid())
+                    continue;
+
+                out_mode_marginalized[i]       = hist.GetLocalMode(0);
+                out_mean_marginalized[i]       = hist.GetHistogram()->GetMean();
+                out_std_marginalized[i]        = hist.GetHistogram()->GetRMS();
+
+                hist.GetHistogram()->GetQuantiles(6, quantile_values, quantile_probsums);
+                out_5quantile_marginalized[i]  = quantile_values[0];
+                out_10quantile_marginalized[i] = quantile_values[1];
+                out_16quantile_marginalized[i] = quantile_values[2];
+                out_median_marginalized[i]     = quantile_values[3];
+                out_84quantile_marginalized[i] = quantile_values[4];
+                out_90quantile_marginalized[i] = quantile_values[5];
+                out_95quantile_marginalized[i] = quantile_values[6];
             }
         }
 
@@ -803,15 +811,11 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
         BCMTFComparisonTool* ct = ctc.at(i);
         BCMTFComparisonTool* ct_mcmc = ctc_mcmc.at(i);
 
-        ct->AddContribution("all channels",
-                            fMTF->GetGlobalMode().at(i),
-                            fMTF->GetBestFitParameterErrors().at(i));
+        ct->AddContribution("all channels", fMTF->GetGlobalMode().at(i), fMTF->GetBestFitParameterErrors().at(i));
         if (flag_mcmc) {
-            BCH1D* hist = fMTF->GetMarginalized(i);
-
-            ct_mcmc->AddContribution("all channels",
-                                     hist->GetHistogram()->GetMean(),
-                                     hist->GetHistogram()->GetRMS());
+            TH1* hist = fMTF->GetMarginalizedHistogram(i);
+            if (hist)
+                ct_mcmc->AddContribution("all channels", hist->GetMean(), hist->GetRMS());
         }
     }
 
@@ -866,15 +870,11 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
             BCMTFComparisonTool* ct = ctc.at(i);
             BCMTFComparisonTool* ct_mcmc = ctc_mcmc.at(i);
 
-            ct->AddContribution(channel->GetName().c_str(),
-                                fMTF->GetGlobalMode().at(i),
-                                fMTF->GetBestFitParameterErrors().at(i));
+            ct->AddContribution(channel->GetName().c_str(), fMTF->GetGlobalMode().at(i), fMTF->GetBestFitParameterErrors().at(i));
             if (flag_mcmc) {
-                BCH1D* hist = fMTF->GetMarginalized(i);
-
-                ct_mcmc->AddContribution(channel->GetName().c_str(),
-                                         hist->GetHistogram()->GetMean(),
-                                         hist->GetHistogram()->GetRMS());
+                TH1* hist = fMTF->GetMarginalizedHistogram(i);
+                if (hist)
+                    ct_mcmc->AddContribution(channel->GetName().c_str(), hist->GetMean(), hist->GetRMS());
             }
 
             // switch off channel
