@@ -34,14 +34,14 @@ public:
     {
         m.MarginalizeAll();
         const unsigned nplots = m.PrintAllMarginalized(BAT_TESTDIR "BCModel_TEST.pdf");
+        std::cout << "HERE" << std::endl;
         // 1D + 2D
-        TEST_CHECK_EQUAL(nplots, (m.GetNParameters() - 1) +
-                         (m.GetNParameters() - 2) * (m.GetNParameters() - 1) / 2);
+        TEST_CHECK_EQUAL(nplots, (m.GetNParameters() - 1) + (m.GetNParameters() - 2) * (m.GetNParameters() - 1) / 2);
         for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
-            TEST_CHECK(bool(m.GetMarginalized(i)) xor (i == fixed));
+            TEST_CHECK(m.GetMarginalized(i).Valid() xor (i == fixed));
         for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
             for (unsigned j = i + 1 ; j < m.GetNParameters() ; ++j)
-                TEST_CHECK(bool(m.GetMarginalized(i, j)) xor ( (i == fixed) xor (j == fixed)));
+                TEST_CHECK(m.GetMarginalized(i, j).Valid() xor ((i == fixed) or (j == fixed)));
     }
 
     // turn on/off parameter storing
@@ -76,8 +76,8 @@ public:
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalized(2)->GetHistogram()->GetMean(), eps);
-        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalized(2)->GetHistogram()->GetRMS(), eps);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalizedHistogram(2)->GetMean(), eps);
+        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalizedHistogram(2)->GetRMS(), eps);
 
         // make sure that fixed parameters really are skipped
         const unsigned long nCalls = m.Calls();
@@ -97,8 +97,8 @@ public:
         count_marginals(m, fixed);
 
         // gaussian around zero with width two
-        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalized(0u)->GetHistogram()->GetMean(), eps);
-        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalized(0u)->GetHistogram()->GetRMS(), eps);
+        TEST_CHECK_NEARLY_EQUAL(0, m.GetMarginalizedHistogram(0u)->GetMean(), eps);
+        TEST_CHECK_RELATIVE_ERROR(2, m.GetMarginalizedHistogram(0u)->GetRMS(), eps);
     }
 
     void deltaPrior() const
