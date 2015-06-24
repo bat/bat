@@ -89,7 +89,7 @@ BCH2D& BCH2D::operator=(const BCH2D& other)
 void swap(BCH2D& first, BCH2D& second)
 {
     // swap base class
-    swap(static_cast<BCHistogramBase&>(first),static_cast<BCHistogramBase&>(second));
+    swap(static_cast<BCHistogramBase&>(first), static_cast<BCHistogramBase&>(second));
     // swap remaining members
     std::swap(first.fBandType,          second.fBandType);
     std::swap(first.fDrawProfileX,      second.fDrawProfileX);

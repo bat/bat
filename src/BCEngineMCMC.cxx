@@ -498,24 +498,21 @@ TH2* BCEngineMCMC::GetMarginalizedHistogram(unsigned i, unsigned j) const
 }
 
 // --------------------------------------------------------
-BCH1D* BCEngineMCMC::GetMarginalized(unsigned index) const
+BCH1D BCEngineMCMC::GetMarginalized(unsigned index) const
 {
     TH1* h = GetMarginalizedHistogram(index);
 
-    if ( !h )
-        return NULL;
+    BCH1D bch(h);
 
-    BCH1D* hprob = new BCH1D((TH1*)h);
+    if ( bch.Valid() and index < GetGlobalMode().size())
+        // set global mode if available
+        bch.SetGlobalMode(GetGlobalMode()[index]);
 
-    // set global mode if available
-    if (index < GetGlobalMode().size())
-        hprob->SetGlobalMode(GetGlobalMode()[index]);
-
-    return hprob;
+    return bch;
 }
 
 // --------------------------------------------------------
-BCH2D* BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
+BCH2D BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
 {
     TH2* h = NULL;
 
@@ -524,16 +521,13 @@ BCH2D* BCEngineMCMC::GetMarginalized(unsigned i, unsigned j) const
     else
         h = GetMarginalizedHistogram(i, j);
 
-    if (!h)
-        return NULL;
-
-    BCH2D* hprob = new BCH2D(h);
+    BCH2D bch(h);
 
     // set global mode if available
-    if (i < GetGlobalMode().size() and j < GetGlobalMode().size())
-        hprob->SetGlobalMode(GetGlobalMode()[i], GetGlobalMode()[j]);
+    if (bch.Valid() and i < GetGlobalMode().size() and j < GetGlobalMode().size())
+        bch.SetGlobalMode(GetGlobalMode()[i], GetGlobalMode()[j]);
 
-    return hprob;
+    return bch;
 }
 
 // ---------------------------------------------------------
@@ -2558,7 +2552,7 @@ void BCEngineMCMC::PrintMarginalizationSummary() const
 
         } else {
             BCLog::OutSummary(par_summary);
-            GetMarginalized(i)->PrintSummary("      ", GetVariable(i).GetPrecision(), std::vector<double>(1, 0.68));
+            GetMarginalized(i).PrintSummary("      ", GetVariable(i).GetPrecision(), std::vector<double>(1, 0.68));
         }
 
         BCLog::OutSummary("");
@@ -2615,8 +2609,9 @@ std::vector<unsigned> BCEngineMCMC::GetH1DPrintOrder() const
 {
     std::vector<unsigned> H1Indices;
     for (unsigned i = 0; i < GetNVariables(); ++i)
-        if (GetVariable(i).FillH1())
+        if (MarginalizedHistogramExists(i))
             H1Indices.push_back(i);
+
     return H1Indices;
 }
 
@@ -2629,24 +2624,23 @@ std::vector<std::pair<unsigned, unsigned> > BCEngineMCMC::GetH2DPrintOrder() con
     // par vs par
     for (unsigned i = 0; i < GetNParameters(); ++i)
         for (unsigned j = 0; j < GetNParameters(); ++j)
-            if (i != j) H2Coords.push_back(std::make_pair(i, j));
+            if (MarginalizedHistogramExists(i, j))
+                H2Coords.push_back(std::make_pair(i, j));
     // obs vs par
     for (unsigned i = 0; i < GetNParameters(); ++i)
         for (unsigned j = GetNParameters(); j < GetNVariables(); ++j)
-            H2Coords.push_back(std::make_pair(i, j));
+            if (MarginalizedHistogramExists(i, j))
+                H2Coords.push_back(std::make_pair(i, j));
     // par vs obs
     for (unsigned i = GetNParameters(); i < GetNVariables(); ++i)
         for (unsigned j = 0; j < GetNParameters(); ++j)
-            H2Coords.push_back(std::make_pair(i, j));
+            if (MarginalizedHistogramExists(i, j))
+                H2Coords.push_back(std::make_pair(i, j));
     // obs vs obs
     for (unsigned i = GetNParameters(); i < GetNVariables(); ++i)
         for (unsigned j = GetNParameters(); j < GetNVariables(); ++j)
-            if (i != j) H2Coords.push_back(std::make_pair(i, j));
-
-    // prune off empty coords:
-    for (int i = H2Coords.size() - 1; i >= 0; --i)
-        if (!MarginalizedHistogramExists(H2Coords[i].first, H2Coords[i].second))
-            H2Coords.erase(H2Coords.begin() + i);
+            if (MarginalizedHistogramExists(i, j))
+                H2Coords.push_back(std::make_pair(i, j));
 
     return H2Coords;
 }
@@ -2669,28 +2663,25 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
         return 0;
 
     // Find nonempty H1's
-    std::vector<BCH1D*> h1;
-    h1.reserve(GetNVariables());
-    for (unsigned i = 0; i < GetNVariables(); ++i)
-        if ( MarginalizedHistogramExists(i) ) {
-            if (GetMarginalizedHistogram(i)->Integral() == 0) { // histogram was never filled in range
-                BCLog::OutWarning(Form("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.", GetVariable(i).GetName().data()));
-                continue;
-            }
-            h1.push_back(GetMarginalized(i));
-            if (!h1.back()) // BCH1D doesn't exist
-                h1.pop_back();
-            else
-                h1.back()->CopyOptions(fBCH1DdrawingOptions);
+    std::vector<unsigned> H1Indices = GetH1DPrintOrder();
+    std::vector<BCH1D> h1;
+    h1.reserve(H1Indices.size());
+    for (unsigned i = 0; i < H1Indices.size(); ++i) {
+        if (GetMarginalizedHistogram(H1Indices[i])->Integral() == 0) { // histogram was never filled in range
+            BCLog::OutWarning(Form("BCEngineMCMC::PrintAllMarginalized : 1D Marginalized histogram for \"%s\" is empty; printing is skipped.", GetVariable(H1Indices[i]).GetName().data()));
+            continue;
         }
-
-    // create vector for ordering 2D hists properly
-    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
+        h1.push_back(GetMarginalized(H1Indices[i]));
+        if (h1.back().Valid())
+            h1.back().CopyOptions(fBCH1DdrawingOptions);
+        else
+            h1.pop_back();
+    }
 
     // Find nonempty H2's
-    std::vector<BCH2D*> h2;
+    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
+    std::vector<BCH2D> h2;
     h2.reserve(H2Coords.size());
-
     for (unsigned k = 0; k < H2Coords.size(); ++k) {
         unsigned i = H2Coords[k].first;
         unsigned j = H2Coords[k].second;
@@ -2699,82 +2690,13 @@ unsigned BCEngineMCMC::PrintAllMarginalized(std::string filename, unsigned hdiv,
             continue;
         }
         h2.push_back(GetMarginalized(i, j));
-        if (!h2.back()) // BCH2D doesn't exist
-            h2.pop_back();
+        if (h2.back().Valid())
+            h2.back().CopyOptions(fBCH2DdrawingOptions);
         else
-            h2.back()->CopyOptions(fBCH2DdrawingOptions);
+            h2.pop_back();
     }
 
-    if (h1.empty() and h2.empty()) {
-        BCLog::OutWarning("BCEngineMCMC::PrintAllMarginalized : No marginalizations to print");
-        return 0;
-    }
-
-    int c_width  = 297 * 4;
-    int c_height = 210 * 4;
-    if (hdiv < vdiv)
-        std::swap(c_width, c_height);
-
-    const unsigned nplots = h1.size() + h2.size();
-
-    // give out warning if too many plots
-    BCLog::OutSummary(Form("Printing all marginalized distributions (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.c_str()));
-    if (nplots > 100)
-        BCLog::OutDetail("This can take a while...");
-
-    // setup the canvas and file
-    TCanvas c("c", "canvas", c_width, c_height);
-    c.Divide(hdiv, vdiv);
-    c.Print((filename + "[").data());
-
-    // Draw BCH1D's
-    for (unsigned i = 0; i < h1.size(); ++i) {
-        // if current page is full, switch to new page
-        if (i != 0 && i % (hdiv * vdiv) == 0) {
-            c.Print(filename.c_str());
-            c.Clear("D");
-        }
-
-        // go to next pad
-        c.cd(i % (hdiv * vdiv) + 1);
-
-        h1[i]->Draw();
-
-        if (i + 1 % 100 == 0)
-            BCLog::OutDetail(Form(" --> %d plots done", i + 1));
-    }
-    if (h1.size() > 0) {
-        c.Print(filename.c_str());
-        c.Clear("D");
-    }
-    // Draw BCH2D's
-    for (unsigned i = 0; i < h2.size(); ++i) {
-        // if current page is full, switch to new page
-        if (i != 0 && i % (hdiv * vdiv) == 0) {
-            c.Print(filename.c_str());
-            c.Clear("D");
-        }
-
-        // go to next pad
-        c.cd(i % (hdiv * vdiv) + 1);
-
-        h2[i]->Draw();
-
-        if ((i + h1.size() + 1) % 100 == 0)
-            BCLog::OutDetail(Form(" --> %d plots done", i + (int)h1.size() + 1));
-    }
-    if (h2.size() > 0) {
-        c.Print(filename.c_str());
-        c.Clear("D");
-    }
-
-    c.Print(std::string( filename + "]").c_str());
-
-    if (nplots > 100 && nplots % 100 != 0)
-        BCLog::OutDetail(Form(" --> %d plots done", nplots));
-
-    // return total number of drawn histograms
-    return nplots;
+    return BCAux::PrintPlots(h1, h2, filename, hdiv, vdiv);
 }
 
 // ---------------------------------------------------------
@@ -2885,23 +2807,24 @@ bool BCEngineMCMC::DrawParameterPlot(unsigned i0, unsigned npar, double interval
         rms.push_back(0);
 
         if (i < fH1Marginalized.size() and fH1Marginalized[i]) {
-            BCH1D* bch1d_temp = GetMarginalized(i);
-            if (bch1d_temp) {
+            BCH1D bch1d_temp = GetMarginalized(i);
+            if (bch1d_temp.Valid()) {
+
                 x_i.push_back(i);
 
                 // quantiles
                 x_quantiles.insert(x_quantiles.end(), quantiles.size(), i);
                 std::vector<double> q(quantiles.size(), 0);
-                bch1d_temp->GetHistogram()->GetQuantiles(quantiles.size(), &q[0], &quantiles[0]);
+                bch1d_temp.GetHistogram()->GetQuantiles(quantiles.size(), &q[0], &quantiles[0]);
                 for (unsigned j = 0; j < quantiles.size(); ++j)
                     quantile_vals.push_back(GetVariable(i).PositionInRange(q[j]));
 
-                local_mode.push_back(GetVariable(i).PositionInRange(bch1d_temp->GetLocalMode(0)));
-                mean.back() = GetVariable(i).PositionInRange(bch1d_temp->GetHistogram()->GetMean());
-                rms.back() = bch1d_temp->GetHistogram()->GetRMS() / GetVariable(i).GetRangeWidth();
+                local_mode.push_back(GetVariable(i).PositionInRange(bch1d_temp.GetLocalMode(0)));
+                mean.back() = GetVariable(i).PositionInRange(bch1d_temp.GetHistogram()->GetMean());
+                rms.back() = bch1d_temp.GetHistogram()->GetRMS() / GetVariable(i).GetRangeWidth();
 
                 // smallest interval
-                BCH1D::BCH1DSmallestInterval SI = bch1d_temp->GetSmallestIntervals(interval_content);
+                BCH1D::BCH1DSmallestInterval SI = bch1d_temp.GetSmallestIntervals(interval_content);
                 if (SI.intervals.empty()) {
                     interval_lo.push_back(0);
                     interval_hi.push_back(0);
@@ -3255,27 +3178,27 @@ bool BCEngineMCMC::PrintCorrelationPlot(std::string filename, bool include_obser
             pad[i][j]->cd();
 
             // get the histogram
-            BCHistogramBase* bh = 0;
+            BCHistogramBase bh;
 
             if (i == j)
                 bh = GetMarginalized(I[i]);
             else
                 bh = MarginalizedHistogramExists(I[i], I[j]) ? GetMarginalized(I[i], I[j]) : NULL;
 
-            if (bh) {
+            if (bh.Valid()) {
 
-                bh->GetHistogram()->GetXaxis()->SetLabelSize(0);
-                bh->GetHistogram()->GetYaxis()->SetLabelSize(0);
-                bh->GetHistogram()->GetXaxis()->SetTitleSize(0);
-                bh->GetHistogram()->GetYaxis()->SetTitleSize(0);
+                bh.GetHistogram()->GetXaxis()->SetLabelSize(0);
+                bh.GetHistogram()->GetYaxis()->SetLabelSize(0);
+                bh.GetHistogram()->GetXaxis()->SetTitleSize(0);
+                bh.GetHistogram()->GetYaxis()->SetTitleSize(0);
 
-                if (bh->GetHistogram()->GetDimension() == 1)
-                    bh->CopyOptions(fBCH1DdrawingOptions);
-                else if (bh->GetHistogram()->GetDimension() == 2)
-                    bh->CopyOptions(fBCH2DdrawingOptions);
-                bh->SetDrawLegend(false);
-                bh->SetStats(false);
-                bh->Draw();
+                if (bh.GetHistogram()->GetDimension() == 1)
+                    bh.CopyOptions(fBCH1DdrawingOptions);
+                else if (bh.GetHistogram()->GetDimension() == 2)
+                    bh.CopyOptions(fBCH2DdrawingOptions);
+                bh.SetDrawLegend(false);
+                bh.SetStats(false);
+                bh.Draw();
 
             } else if (!(MarginalizedHistogramExists(I[j], I[i])) and I[i] >= I[j]) { // if the histogram is not available, draw "N/A"
                 // pad[i][j]->SetFillColor(kWhite);
@@ -3360,18 +3283,18 @@ bool BCEngineMCMC::PrintParameterLatex(std::string filename) const
 
         // not fixed
         else {
-            BCH1D* bch1d = (i < fH1Marginalized.size() and fH1Marginalized[i]) ? GetMarginalized(i) : 0;
+            BCH1D bch1d = GetMarginalized(i);
 
             // marginalization exists
-            if (bch1d)
+            if (bch1d.Valid())
                 ofi << Form("        %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g & %*.*g\\\\\n",
-                            texwidth, prec, bch1d->GetHistogram()->GetMean(),
-                            texwidth, prec, bch1d->GetHistogram()->GetRMS(),
+                            texwidth, prec, bch1d.GetHistogram()->GetMean(),
+                            texwidth, prec, bch1d.GetHistogram()->GetRMS(),
                             texwidth, prec, GetGlobalMode()[i],
-                            texwidth, prec, bch1d->GetLocalMode(0),
-                            texwidth, prec, bch1d->GetMedian(),
-                            texwidth, prec, bch1d->GetQuantile(0.16),
-                            texwidth, prec, bch1d->GetQuantile(0.84))
+                            texwidth, prec, bch1d.GetLocalMode(0),
+                            texwidth, prec, bch1d.GetMedian(),
+                            texwidth, prec, bch1d.GetQuantile(0.16),
+                            texwidth, prec, bch1d.GetQuantile(0.84))
                     << std::endl;
 
             // marginalization does not exist

@@ -78,6 +78,11 @@ public:
      * Swap function. */
     friend void swap(BCHistogramBase& first, BCHistogramBase& second);
 
+    /**
+     * Assign TH1 histogram with operator. */
+    BCHistogramBase& operator=(const TH1* const hist)
+    { SetHistogram(hist); return *this; }
+
     /** @} */
 
     /** \name Member functions (get)  */
@@ -89,36 +94,51 @@ public:
     { return fHistogram; };
 
     /**
+     * @return Dimensions of BC Histogram. */
+    unsigned GetDimension() const
+    { return fDimension; }
+
+    /**
      * @return The legend. */
     TLegend& GetLegend()
     { return fLegend; }
 
     /**
      * @return the number of columns to be set into the legend. */
-    unsigned GetNLegendColumns()
+    unsigned GetNLegendColumns() const
     { return fNLegendColumns; }
 
     /**
      * @return The global mode. */
-    std::vector<double> GetGlobalMode()
+    std::vector<double>&  GetGlobalMode()
+    { return fGlobalMode; }
+
+    /**
+     * @return The global mode. */
+    const std::vector<double>&  GetGlobalMode() const
     { return fGlobalMode; }
 
     /**
      * @return i'th component of global mode.
      * @param i index of coordinate to return. */
-    double GetGlobalMode(unsigned i)
-    { return (i < fGlobalMode.size()) ? fGlobalMode[i] : 0; }
+    double GetGlobalMode(unsigned i) const
+    { return fGlobalMode.at(i); }
 
     /**
      * @return The local mode. */
-    std::vector<double> GetLocalMode()
+    std::vector<double>& GetLocalMode()
+    { return fLocalMode; }
+
+    /**
+     * @return The local mode. */
+    const std::vector<double>& GetLocalMode() const
     { return fLocalMode; }
 
     /**
      * @return i'th component of local mode.
      * @param i index of coordinate to return. */
     double GetLocalMode(unsigned i)
-    { return (i < fLocalMode.size()) ? fLocalMode[i] : 0; }
+    { return fLocalMode.at(i); }
 
     /**
      * Returns a band color of the current color scheme.
@@ -129,7 +149,7 @@ public:
 
     /**
      * @return flag for whether bands should be drawn to overcover (true) or undercover (false). */
-    bool GetBandOvercoverage()
+    bool GetBandOvercoverage() const
     { return fBandOvercoverage; }
 
     /**
@@ -153,6 +173,11 @@ public:
     { return fBandFillStyle; }
 
     /**
+     * @return N bands to draw. */
+    unsigned GetNBands() const
+    { return fNBands; }
+
+    /**
      * @return N times to smooth. */
     unsigned GetNSmooth() const
     { return fNSmooth; }
@@ -169,7 +194,7 @@ public:
 
     /**
      * @return Global mode marker style. */
-    int GetGlobalModeMarkerStyle()
+    int GetGlobalModeMarkerStyle() const
     { return fGlobalModeMarkerStyle; }
 
     /**
@@ -184,7 +209,7 @@ public:
 
     /**
      * @return Local mode marker style. */
-    int GetLocalModeMarkerStyle()
+    int GetLocalModeMarkerStyle() const
     { return fLocalModeMarkerStyle; }
 
     /**
@@ -193,7 +218,7 @@ public:
     { return fDrawMean; }
     /**
      * @return Mean marker style. */
-    int GetMeanMarkerStyle()
+    int GetMeanMarkerStyle() const
     { return fMeanMarkerStyle; }
 
     /**
@@ -203,37 +228,47 @@ public:
 
     /**
      * @return flag for plotting log on x axis. */
-    bool GetLogx()
+    bool GetLogx() const
     { return fLogx; }
 
     /**
      * @return flag for plotting log on y axis. */
-    bool GetLogy()
+    bool GetLogy() const
     { return fLogy; }
 
     /**
      * @return flag for plotting log on z axis. */
-    bool GetLogz()
+    bool GetLogz() const
     { return fLogz; }
 
     /**
      * @return flag for drawing grid on x axis. */
-    bool GetGridx()
+    bool GetGridx() const
     { return fGridx; }
 
     /**
      * @return flag for drawing grid on y axis. */
-    bool GetGridy()
+    bool GetGridy() const
     { return fGridy; }
 
     /**
      * @return vector of intervals to draw. */
-    std::vector<double> GetIntervals()
+    std::vector<double>& GetIntervals()
+    { return fIntervals; }
+
+    /**
+     * @return vector of intervals to draw. */
+    const std::vector<double>& GetIntervals() const
     { return fIntervals; }
 
     /**
      * @return ROOT drawing options. */
-    std::string GetROOToptions()
+    std::string& GetROOToptions()
+    { return fROOToptions; }
+
+    /**
+     * @return ROOT drawing options. */
+    const std::string& GetROOToptions() const
     { return fROOToptions; }
 
     /** @} */
@@ -438,6 +473,11 @@ public:
 
     /** \name Member functions (miscellaneous methods) */
     /** @{ */
+
+    /**
+     * Whether histogram has been set and filled.
+     * @return whether BC Histogram object is valid */
+    virtual bool Valid() const;
 
     void ClearBandColors()
     { fBandColors.clear(); }

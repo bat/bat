@@ -24,6 +24,10 @@
 
 #include <string>
 
+#include "BCHistogramBase.h"
+#include "BCH1D.h"
+#include "BCH2D.h"
+
 class TH2;
 
 // ---------------------------------------------------------
@@ -77,6 +81,43 @@ std::string SafeName(std::string name);
 /**
  * @return Whether character is allowed in a safe name. */
 bool AllowedCharacter(char c);
+
+/** An enumerator for the knowledge update drawing style presets. */
+enum BCKnowledgeUpdateDrawingStyle {
+    kKnowledgeUpdateDefaultStyle      = 0, ///< Simple line-drawn histograms
+    kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlayed line
+    kKnowledgeUpdateDetailedPrior     = 2	 ///< Prior drawn with detailed info, posterior drawn as overladed line
+};
+
+/**
+ * Use pre-made drawing options for knowledge update plots.
+ * @param prior Prior histogram container
+ * @param posterior Posterior histogram container
+ * @param style Style option */
+void SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux::BCKnowledgeUpdateDrawingStyle style = BCAux::kKnowledgeUpdateDefaultStyle);
+
+/**
+ * Use pre-made drawing options for knowledge update plots.
+ * @param prior Prior histogram container
+ * @param posterior Posterior histogram container
+ * @param style Style option*/
+void SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux::BCKnowledgeUpdateDrawingStyle style = BCAux::kKnowledgeUpdateDefaultStyle);
+
+/**
+ * Draw knowledge update plot into current TPad
+ * @param prior BCHistogramBase containing prior
+ * @param posterior BCHistogramBase containing posterior
+ * @param draw_prior_first Flag for deciding drawing order.*/
+void DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first = true);
+
+/**
+ * Print plots
+ * @param vector of vectors of BC histogram objects
+ * @param filename Path to file to print to
+ * @param hdiv Number of columns of plots per page
+ * @param vdiv Number of rows of plots per page
+ * @return Number of plots printed */
+unsigned PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv = 1, unsigned vdiv = 1);
 
 }
 

@@ -41,18 +41,6 @@ class BCModel : public BCIntegrate
 
 public:
 
-    /** \name Enumerators  */
-    /** @{ */
-
-    /** An enumerator for the knowledge update drawing style presets. */
-    enum BCKnowledgeUpdateDrawingStyle {
-        kKnowledgeUpdateDefaultStyle      = 0, ///< Simple line-drawn histograms
-        kKnowledgeUpdateDetailedPosterior = 1, ///< Posterior drawn with detailed info, prior drawn as overlayed line
-        kKnowledgeUpdateDetailedPrior     = 2	 ///< Prior drawn with detailed info, posterior drawn as overladed line
-    };
-
-    /** @} */
-
     /** \name Constructors and destructors */
     /** @{ */
 
@@ -111,6 +99,21 @@ public:
     virtual BCPriorModel* GetPriorModel(bool prepare = true, bool call_likelihood = false);
 
     /**
+     * Get prior of a variable as a BCH1D.
+     * If not using factorized priors, first call GetPriorModel()->Marginalize() first.
+     * @param index Index of variable to get prior for.
+     * @return BCH1D of prior */
+    virtual BCH1D GetPrior(unsigned index);
+
+    /**
+     * Get prior of a pair of variables as a BCH2D.
+     * If not using factorized priors, first call GetPriorModel()->Marginalize() first.
+     * @param index1 Index of variable to get prior for (abcissa).
+     * @param index2 Index of variable to get prior for (ordinate).
+     * @return BCH2D of prior */
+    virtual BCH2D GetPrior(unsigned index1, unsigned index2);
+
+    /**
      * @return BCH1D object for controlling drawing options of priors in knowledge update plots. */
     BCH1D& GetBCH1DPriorDrawingOptions()
     { return fBCH1DPriorDrawingOptions; }
@@ -131,9 +134,10 @@ public:
     { return fBCH2DPosteriorDrawingOptions; }
 
     /**
-     * @return flag for order of drawing prior first, posterior second (true); or the other way around (false). */
-    bool GetDrawPriorPosteriorNormalOrder()
-    { return fPriorPosteriorNormalOrder; }
+     * @return flag for drawing prior first (true) or
+     * posterior first (false) in knowledge update plots. */
+    bool GetDrawPriorFirst() const
+    { return fDrawPriorFirst; }
 
     /** @} */
 
@@ -148,12 +152,13 @@ public:
 
     /**
      * Set default drawing options for knowledge update plots. */
-    void SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingStyle style = BCModel::kKnowledgeUpdateDefaultStyle);
+    void SetKnowledgeUpdateDrawingStyle(BCAux::BCKnowledgeUpdateDrawingStyle style = BCAux::kKnowledgeUpdateDefaultStyle);
 
     /**
-     * Set drawing of prior first, posterior second (true), or reverse (false) for knowledge update plots. */
-    void SetDrawPriorPosteriorNormalOrder(bool b = true)
-    { fPriorPosteriorNormalOrder = b; }
+     * Set drawing of prior first (true) or posterior first (false)
+     * for knowledge update plots. */
+    void SetDrawPriorFirst(bool b = true)
+    { fDrawPriorFirst = b; }
 
     /** @} */
 
@@ -263,26 +268,24 @@ public:
     void PrintHessianMatrix(std::vector<double> parameters);
 
     /**
-     * Draw a comparison of the prior knowledge to the posterior
-     * knowledge for each parameter.
-     * @param index Index of parameter to draw knowledge update plot for
-     * @param flag_slice Flag for whether to slice-integrate if needed
-     * @return Success of action. */
-    virtual bool DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice = false);
-
-    /**
-     * Draw a comparison of the prior knowledge to the posterior.
-     * @param index1 Index of parameter for abscissa to draw knowledge update plot for
-     * @param index2 Index of parameter for ordinate to draw knowledge update plot for
-     * @param flag_slice Flag for whether to slice-integrate if needed
-     * @return Success of action. */
-    virtual bool DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice = false);
-
-    /**
      * Print a comparison of the prior knowledge to the posterior
      * knowledge for each parameter.
-     * @return Success of action. */
-    virtual bool PrintKnowledgeUpdatePlots(std::string filename = "update.pdf", unsigned hdiv = 1, unsigned vdiv = 1, bool flag_slice = false, bool call_likelihood = false);
+     * @param filename name of file to print to
+     * @param hdiv number of horizontal divisions on page
+     * @param vdiv number of vertical divisions on page
+     * @param call_likelihood whether to call model likelihood function to prepare for calculating observables
+     * @return number of plots printed. */
+    virtual unsigned PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false);
+
+
+    /* /\** */
+    /*  * Print priors to file */
+    /*  * @param filename name of file to print to */
+    /*  * @param hdiv number of horizontal divisions on page */
+    /*  * @param vdiv number of vertical divisions on page */
+    /*  * @param call_likelihood whether to call model likelihood function to prepare for calculating observables */
+    /*  * @return number of plots printed. *\/ */
+    /* virtual unsigned PrintPriors(std::string filename, unsigned hdiv = 1, unsigned vdiv = 1, bool call_likelihood = false); */
 
     /** @} */
 
@@ -317,7 +320,7 @@ protected:
 
     /**
      * flag for ordering of drawing of prior and posterior in knowledge update plots. */
-    bool fPriorPosteriorNormalOrder;
+    bool fDrawPriorFirst;
 
     /**
      * flag for whether factorized prior has been used. */

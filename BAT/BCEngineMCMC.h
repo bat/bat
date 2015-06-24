@@ -469,7 +469,7 @@ public:
      * @note Ownership of the returned heap object is conferred to the caller.
      * @param name The parameter's name
      * @return 1D marginalized probability */
-    BCH1D* GetMarginalized(std::string name) const
+    BCH1D GetMarginalized(std::string name) const
     { return GetMarginalized(fParameters.Index(name)); }
 
     /**
@@ -478,7 +478,7 @@ public:
      * @note Ownership of the returned heap object is conferred to the caller.
      * @param index The parameter index
      * @return 1D marginalized probability */
-    BCH1D* GetMarginalized(unsigned index) const;
+    BCH1D GetMarginalized(unsigned index) const;
 
     /**
      * Obtain the individual marginalized distributions
@@ -488,7 +488,7 @@ public:
      * @param name1 Name of first parameter
      * @param name2 Name of second parameter
      * @return 2D marginalized probability */
-    BCH2D* GetMarginalized(std::string name1, std::string name2) const
+    BCH2D GetMarginalized(std::string name1, std::string name2) const
     { return GetMarginalized(fParameters.Index(name1), fParameters.Index(name2)); }
 
     /**
@@ -498,7 +498,7 @@ public:
      * @param index1 Index of first parameter
      * @param index2 Index of second parameter
      * @return 2D marginalized probability */
-    BCH2D* GetMarginalized(unsigned index1, unsigned index2) const;
+    BCH2D GetMarginalized(unsigned index1, unsigned index2) const;
 
     /**
      * @param observables Whether to check max length of user-defined observable names.

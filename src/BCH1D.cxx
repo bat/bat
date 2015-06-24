@@ -76,7 +76,7 @@ BCH1D& BCH1D::operator=(const BCH1D& other)
 void swap(BCH1D& first, BCH1D& second)
 {
     // swap base class
-    swap(static_cast<BCHistogramBase&>(first),static_cast<BCHistogramBase&>(second));
+    swap(static_cast<BCHistogramBase&>(first), static_cast<BCHistogramBase&>(second));
     // swap remaining members
     std::swap(first.fBandType,          second.fBandType);
     std::swap(first.fNQuantiles,        second.fNQuantiles);
@@ -243,10 +243,9 @@ void BCH1D::DrawBands(std::string options)
         hist_band->SetTitle(Form(legend_text.data(), hist_band->Integral("width") * 100));
 
         // draw band
-        fROOTObjects.push_back(hist_band->DrawCopy(options.data()));
+        hist_band->Draw(options.data());
+        fROOTObjects.push_back(hist_band);
 
-        // add to legend
-        delete hist_band;
     }
     for (int i = fROOTObjects.size() - 1; i >= i0; --i)
         AddBandLegendEntry(fROOTObjects[i], "", "F");

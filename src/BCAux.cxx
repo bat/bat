@@ -9,14 +9,21 @@
 // ---------------------------------------------------------
 
 #include "BCAux.h"
+#include "BCLog.h"
 
-#include <TStyle.h>
+#include <TCanvas.h>
 #include <TGaxis.h>
+#include <TH1.h>
 #include <TH2C.h>
 #include <TH2S.h>
 #include <TH2I.h>
 #include <TH2F.h>
 #include <TH2D.h>
+#include <TLegend.h>
+#include <TLegendEntry.h>
+#include <TList.h>
+#include <TPad.h>
+#include <TStyle.h>
 
 #include <algorithm>
 #include <cmath>
@@ -206,3 +213,336 @@ bool BCAux::AllowedCharacter(char c)
     return false;
 }
 
+// ---------------------------------------------------------
+void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux::BCKnowledgeUpdateDrawingStyle style)
+{
+    switch (style) {
+
+        case kKnowledgeUpdateDetailedPosterior:
+            // 1D
+            prior.SetDrawGlobalMode(false);
+            prior.SetDrawLocalMode(false);
+            prior.SetDrawMean(false);
+            prior.SetDrawMedian(false);
+            prior.SetDrawLegend(false);
+            prior.SetNBands(0);
+            prior.SetBandType(BCH1D::kNoBands);
+            prior.SetROOToptions("same");
+            prior.SetLineColor(13);
+            prior.SetMarkerColor(13);
+            prior.SetNLegendColumns(1);
+            posterior.CopyOptions(prior);
+            posterior.SetDrawGlobalMode(true);
+            posterior.SetBandType(BCH1D::kSmallestInterval);
+            posterior.SetNBands(3);
+            posterior.SetNLegendColumns(1);
+            posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            posterior.SetLineColor(kBlack);
+            posterior.SetMarkerColor(kBlack);
+            break;
+
+        case kKnowledgeUpdateDetailedPrior:
+            prior.SetDrawGlobalMode(false);
+            prior.SetDrawLocalMode(false);
+            prior.SetDrawMean(false);
+            prior.SetDrawMedian(false);
+            prior.SetDrawLegend(false);
+            prior.SetNBands(0);
+            prior.SetBandType(BCH1D::kNoBands);
+            prior.SetROOToptions("same");
+            prior.SetLineColor(13);
+            prior.SetMarkerColor(13);
+            prior.SetNLegendColumns(1);
+            posterior.CopyOptions(prior);
+            posterior.SetDrawGlobalMode(true);
+            posterior.SetBandType(BCH1D::kSmallestInterval);
+            posterior.SetNBands(3);
+            posterior.SetNLegendColumns(1);
+            posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            posterior.SetLineColor(kBlack);
+            posterior.SetMarkerColor(kBlack);
+            break;
+
+        case kKnowledgeUpdateDefaultStyle:
+        default:
+            // 1D
+            prior.SetDrawGlobalMode(false);
+            prior.SetDrawLocalMode(false);
+            prior.SetDrawMean(false);
+            prior.SetDrawMedian(false);
+            prior.SetDrawLegend(false);
+            prior.SetNBands(0);
+            prior.SetBandType(BCH1D::kNoBands);
+            prior.SetROOToptions("same");
+            prior.SetLineColor(kRed);
+            prior.SetMarkerColor(kRed);
+            prior.SetNLegendColumns(1);
+            posterior.CopyOptions(prior);
+            posterior.SetNLegendColumns(1);
+            posterior.SetLineColor(kBlue);
+            posterior.SetMarkerColor(kBlue);
+            break;
+    }
+}
+
+// ---------------------------------------------------------
+void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux::BCKnowledgeUpdateDrawingStyle style)
+{
+    switch (style) {
+
+        case kKnowledgeUpdateDetailedPosterior:
+            prior.SetDrawGlobalMode(false);
+            prior.SetDrawLocalMode(true, false);
+            prior.SetDrawMean(false);
+            prior.SetDrawLegend(false);
+            prior.SetBandType(BCH2D::kSmallestInterval);
+            prior.SetBandFillStyle(-1);
+            prior.SetNBands(1);
+            prior.SetNSmooth(0);
+            prior.SetROOToptions("same");
+            prior.SetLineColor(13);
+            prior.SetMarkerColor(13);
+            prior.SetLocalModeMarkerStyle(25);
+            prior.SetNLegendColumns(1);
+            posterior.CopyOptions(posterior);
+            posterior.SetNBands(3);
+            posterior.SetBandFillStyle(1001);
+            posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            posterior.SetLineColor(kBlack);
+            posterior.SetMarkerColor(kBlack);
+            posterior.SetLocalModeMarkerStyle(21);
+            break;
+
+        case kKnowledgeUpdateDetailedPrior:
+            // 2D
+            prior.SetDrawGlobalMode(false);
+            prior.SetDrawLocalMode(true, false);
+            prior.SetDrawMean(false);
+            prior.SetDrawLegend(false);
+            prior.SetBandType(BCH2D::kSmallestInterval);
+            prior.SetBandFillStyle(-1);
+            prior.SetNBands(1);
+            prior.SetNSmooth(0);
+            prior.SetROOToptions("same");
+            prior.SetLineColor(13);
+            prior.SetMarkerColor(13);
+            prior.SetLocalModeMarkerStyle(25);
+            prior.SetNLegendColumns(1);
+            posterior.CopyOptions(posterior);
+            posterior.SetNBands(3);
+            posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            posterior.SetBandFillStyle(1001);
+            posterior.SetLineColor(kBlack);
+            posterior.SetMarkerColor(kBlack);
+            posterior.SetLocalModeMarkerStyle(21);
+            break;
+
+        case kKnowledgeUpdateDefaultStyle:
+        default:
+            // 2D
+            prior.SetDrawGlobalMode(false);
+            prior.SetDrawLocalMode(true, false);
+            prior.SetDrawMean(false);
+            prior.SetDrawLegend(false);
+            prior.SetBandType(BCH2D::kSmallestInterval);
+            prior.SetBandFillStyle(-1);
+            prior.SetNBands(1);
+            prior.SetNSmooth(0);
+            prior.SetROOToptions("same");
+            prior.SetLineColor(kRed);
+            prior.SetMarkerColor(kRed);
+            prior.SetNLegendColumns(1);
+            posterior.CopyOptions(posterior);
+            posterior.SetLineColor(kBlue);
+            posterior.SetMarkerColor(kBlue);
+            break;
+    }
+}
+
+
+// ---------------------------------------------------------
+void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posterior, bool draw_prior_first)
+{
+    if (prior.GetDimension() != posterior.GetDimension()) {
+        BCLog::OutError("BCAux::DrawKnowledgeUpdate : prior and posterior dimension do not match.");
+        return;
+    }
+
+    if (!prior.Valid() or !posterior.Valid()) {
+        if (!prior.Valid() and posterior.Valid())
+            BCLog::OutError("BCAux::DrawKnowledgeUpdate : prior invalid.");
+        else if (prior.Valid() and !posterior.Valid())
+            BCLog::OutError("BCAux::DrawKnowledgeUpdate : posterior invalid.");
+        else
+            BCLog::OutError("BCAux::DrawKnowledgeUpdate : prior and posterior invalid.");
+        return;
+    }
+
+    gPad->SetLogx(prior.GetLogx() or posterior.GetLogx());
+    gPad->SetLogy(prior.GetLogy() or posterior.GetLogy());
+    gPad->SetGridx(prior.GetGridx() or posterior.GetGridx());
+    gPad->SetGridx(prior.GetGridy() or posterior.GetGridy());
+    if (prior.GetDimension() > 2)
+        gPad->SetLogy(prior.GetLogz() or posterior.GetLogz());
+
+    // get ranges
+    double minx = std::min<double>(prior.GetHistogram()->GetXaxis()->GetXmin(), posterior.GetHistogram()->GetXaxis()->GetXmin());
+    double maxx = std::max<double>(prior.GetHistogram()->GetXaxis()->GetXmax(), posterior.GetHistogram()->GetXaxis()->GetXmax());
+
+    double miny = 0;
+    double maxy = 0;
+
+    if (prior.GetDimension() == 1) {
+        miny = 0.0;
+        maxy = 1.1 * std::max<double>(prior.GetHistogram()->GetMaximum(), posterior.GetHistogram()->GetMaximum());
+        if (gPad->GetLogy()) {
+            miny = 0.5 * std::min<double>(prior.GetHistogram()->GetMinimum(0), posterior.GetHistogram()->GetMinimum(0));
+            maxy *= 2;
+        }
+    } else {
+        miny = std::min<double>(prior.GetHistogram()->GetYaxis()->GetXmin(), posterior.GetHistogram()->GetYaxis()->GetXmin());
+        maxy = std::max<double>(prior.GetHistogram()->GetYaxis()->GetXmax(), posterior.GetHistogram()->GetYaxis()->GetXmax());
+    }
+
+    // draw axes
+    TH2D* h2_axes = new TH2D(Form("h2_axes_knowledge_update_%s_%s", prior.GetHistogram()->GetName(), posterior.GetHistogram()->GetName()),
+                             Form(";%s;%s", prior.GetHistogram()->GetXaxis()->GetTitle(), prior.GetHistogram()->GetYaxis()->GetTitle()),
+                             10, minx, maxx, 10, miny, maxy);
+    h2_axes->SetStats(false);
+    h2_axes->GetXaxis()->SetNdivisions(508);
+    if (prior.GetDimension() > 1)
+        h2_axes->GetYaxis()->SetNdivisions(508);
+    h2_axes->Draw();
+
+    // turn off legends
+    prior.SetDrawLegend(false);
+    posterior.SetDrawLegend(false);
+
+    // Draw histograms
+    // ROOT options for both prior and posterior should contain "same"
+    // (as they do by default)
+    if (!draw_prior_first)
+        posterior.Draw();
+    prior.Draw();
+    if (draw_prior_first)
+        posterior.Draw();
+
+    // create / draw legend(s)
+
+    if (prior.GetLegend().GetNRows() > 0)
+        prior.GetLegend().SetHeader(prior.GetHistogram()->GetTitle());
+    else
+        prior.GetLegend().AddEntry(prior.GetHistogram(), 0, "L");
+    if (posterior.GetLegend().GetNRows() > 0)
+        posterior.GetLegend().SetHeader(posterior.GetHistogram()->GetTitle());
+    else
+        posterior.GetLegend().AddEntry(posterior.GetHistogram(), 0, "L");
+
+
+    // Draw prior legend on top left
+    double y1ndc_prior = prior.ResizeLegend();
+    prior.GetLegend().SetX2NDC(prior.GetLegend().GetX1NDC() + 45e-2 * (prior.GetLegend().GetX2NDC() - prior.GetLegend().GetX1NDC()));
+    prior.GetLegend().Draw();
+
+    // Draw posterior legend on top right
+    double y1ndc_posterior = posterior.ResizeLegend();
+    posterior.GetLegend().SetX1NDC(posterior.GetLegend().GetX1NDC() + 55e-2 * (posterior.GetLegend().GetX2NDC() - posterior.GetLegend().GetX1NDC()));
+    posterior.GetLegend().Draw();
+
+    gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
+
+    gPad->RedrawAxis();
+    gPad->Update();
+}
+
+// ---------------------------------------------------------
+unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv, unsigned vdiv)
+{
+    // unsigned nplots = 0;
+    // std::string plot_count_text = "";
+    // for (unsigned i = 0; i < H.size(); ++i) {
+    //     if (H[i].empty())
+    //         continue;
+    //     nplots += H[i].size();
+    //     plot_count_text += Form("%s%lu x %uD", (plot_count_text.empty() ? "" : " + "), H[i].size(), H[i][0].GetDimension());
+    // }
+    const unsigned nplots = h1.size() + h2.size();
+    if (nplots == 0) {
+        BCLog::OutWarning("BCAux::PrintPlots : No plots to print");
+        return 0;
+    }
+
+    // BCLog::OutSummary(Form("Printing all marginalized distributions (%s = %u) into file %s", plot_count_text.data(), nplots, filename.c_str()));
+    BCLog::OutSummary(Form("Printing all marginalized distributions (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.c_str()));
+    // give out warning if too many plots
+    if (nplots > 100)
+        BCLog::OutDetail("This can take a while...");
+
+    // setup the canvas and file
+    if (hdiv < 1) hdiv = 1;
+    if (vdiv < 1) vdiv = 1;
+
+    int c_width  = 297 * 4;
+    int c_height = 210 * 4;
+    if (hdiv < vdiv)
+        std::swap(c_width, c_height);
+
+    TCanvas c("c", "canvas", c_width, c_height);
+    c.Divide(hdiv, vdiv);
+
+    // open file
+    c.Print((filename + "[").data());
+
+    unsigned n = 0;
+
+    // 1D
+    for (unsigned i = 0; i < h1.size(); ++i) {
+        // if current page is full, switch to new page
+        if (i != 0 && i % (hdiv * vdiv) == 0) {
+            c.Print(filename.c_str());
+            c.Clear("D");
+        }
+
+        // go to next pad
+        c.cd(i % (hdiv * vdiv) + 1);
+
+        h1[i].Draw();
+
+        if (++n % 100 == 0)
+            BCLog::OutDetail(Form(" --> %d plots done", n));
+    }
+    if (h1.size() > 0) {
+        c.Print(filename.c_str());
+        c.Clear("D");
+    }
+
+    // 2D
+    for (unsigned i = 0; i < h2.size(); ++i) {
+        // if current page is full, switch to new page
+        if (i != 0 && i % (hdiv * vdiv) == 0) {
+            c.Print(filename.c_str());
+            c.Clear("D");
+        }
+
+        // go to next pad
+        c.cd(i % (hdiv * vdiv) + 1);
+
+        h2[i].Draw();
+
+        if (++n % 100 == 0)
+            BCLog::OutDetail(Form(" --> %d plots done", n));
+    }
+    if (h2.size() > 0) {
+        c.Print(filename.c_str());
+        c.Clear("D");
+    }
+
+    // close file
+    c.Print(std::string( filename + "]").c_str());
+
+    if (nplots > 100 && nplots % 100 != 0)
+        BCLog::OutDetail(Form(" --> %d plots done", nplots));
+
+    // return total number of drawn histograms
+    return nplots;
+}

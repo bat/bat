@@ -80,8 +80,9 @@ protected:
 private:
 
     using BCModel::GetPriorModel;
-    using BCModel::DrawKnowledgeUpdatePlot1D;
-    using BCModel::DrawKnowledgeUpdatePlot2D;
+    /* using BCModel::DrawKnowledgeUpdatePlot1D; */
+    /* using BCModel::DrawKnowledgeUpdatePlot2D; */
+    using BCModel::GetPrior;
     using BCModel::PrintKnowledgeUpdatePlots;
 
     /** @} */

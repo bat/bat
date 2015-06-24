@@ -45,10 +45,10 @@ BCModel::BCModel(std::string name)
     : BCIntegrate(name)
     , fDataSet(0)
     , fPriorModel(0)
-    , fPriorPosteriorNormalOrder(true)
+    , fDrawPriorFirst(true)
     , fFactorizedPrior(false)
 {
-    SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
+    SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDefaultStyle);
 }
 
 // ---------------------------------------------------------
@@ -56,12 +56,12 @@ BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
     : BCIntegrate(name.data())
     , fDataSet(0)
     , fPriorModel(0)
-    , fPriorPosteriorNormalOrder(true)
+    , fDrawPriorFirst(true)
     , fFactorizedPrior(false)
 {
     LoadMCMC(filename, "", "", loadObservables);
     SetPriorConstantAll();
-    SetKnowledgeUpdateDrawingStyle(kKnowledgeUpdateDefaultStyle);
+    SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDefaultStyle);
 }
 
 // ---------------------------------------------------------
@@ -90,7 +90,7 @@ void BCModel::Copy(const BCModel& bcmodel)
     fBCH2DPriorDrawingOptions.CopyOptions(bcmodel.fBCH2DPriorDrawingOptions);
     fBCH1DPosteriorDrawingOptions.CopyOptions(bcmodel.fBCH1DPosteriorDrawingOptions);
     fBCH2DPosteriorDrawingOptions.CopyOptions(bcmodel.fBCH2DPosteriorDrawingOptions);
-    fPriorPosteriorNormalOrder = bcmodel.fPriorPosteriorNormalOrder;
+    fDrawPriorFirst = bcmodel.fDrawPriorFirst;
 
     fFactorizedPrior = bcmodel.fFactorizedPrior;
 }
@@ -237,16 +237,16 @@ BCPriorModel* BCModel::GetPriorModel(bool prepare, bool call_likelihood)
 }
 
 // ---------------------------------------------------------
-bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
+BCH1D BCModel::GetPrior(unsigned index)
 {
+    BCH1D prior;
+
     if (index > GetNVariables())
-        return false;
+        return prior;
 
     if (index < GetNParameters() and GetParameter(index).Fixed())
-        return false;
+        return prior;
 
-    // Get Prior
-    BCH1D* bch1d_prior = NULL;
 
     // check for factorized prior
     if (fFactorizedPrior and index < GetNParameters() and GetParameter(index).GetPrior() != NULL) {
@@ -255,183 +255,49 @@ bool BCModel::DrawKnowledgeUpdatePlot1D(unsigned index, bool flag_slice)
         if (dynamic_cast<BCConstantPrior*>(GetParameter(index).GetPrior()) != NULL) {
             TH1D* h = new TH1D(Form("%s_prior_%d_const", GetSafeName().data(), index), "", 1, GetVariable(index).GetLowerLimit(), GetVariable(index).GetUpperLimit());
             h->SetBinContent(1, 1);
-            bch1d_prior = new BCH1D(h);
+            prior = h;
         }
         // histogrammed prior (not interpolated)
         else if (dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior()) != NULL and
                  dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram() != NULL and
                  dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetInterpolate()) {
-            bch1d_prior = new BCH1D(dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram());
+            prior = dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram();
         }
         // use prior's TF1
         else if (GetParameter(index).GetPrior()->GetFunction() != NULL) {
             TH1* h = GetVariable(index).CreateH1(Form("%s_prior_%d_f1", GetSafeName().data(), index));
             h->Add(GetParameter(index).GetPrior()->GetFunction(), 1, "I");
-            bch1d_prior = new BCH1D(h);
+            prior = h;
         }
-        if (bch1d_prior)
-            bch1d_prior->SetLocalMode(GetParameter(index).GetPriorMode());
+        if (prior.Valid())
+            prior.SetLocalMode(GetParameter(index).GetPriorMode());
     }
 
     // else use marginalized prior, if it exists
-    if (bch1d_prior == NULL and fPriorModel->MarginalizedHistogramExists(index))
-        bch1d_prior = fPriorModel->GetMarginalized(index);
+    if (!prior.Valid() and fPriorModel->MarginalizedHistogramExists(index))
+        prior = fPriorModel->GetMarginalized(index);
 
-    // else use slicing, if requested
-    if (bch1d_prior == NULL and flag_slice and index < fPriorModel->GetNParameters() and fPriorModel->GetNFreeParameters() <= 3) {
-        double log_max_val;
-        TH1* h = fPriorModel->GetSlice(index, log_max_val);
-        if (h != NULL)
-            bch1d_prior = new BCH1D(h);
-    }
+    if (prior.Valid())
+        prior.GetHistogram()->SetTitle(Form("prior;%s;P(%s)", GetVariable(index).GetLatexNameWithUnits().data(), GetVariable(index).GetLatexName().data()));
 
-    // if prior doesn't exist, exit
-    if (!bch1d_prior)
-        return false;
-
-    // Get Posterior
-    BCH1D* bch1d_posterior = NULL;
-
-    // use marginalization, if it exists
-    if (MarginalizedHistogramExists(index))
-        bch1d_posterior = GetMarginalized(index);
-
-    // else using slicing, if requested
-    if (bch1d_posterior == NULL and flag_slice and index < GetNParameters() and GetNFreeParameters() <= 3) {
-        double log_max_val;
-        TH1* h = GetSlice(index, log_max_val);
-        if (h)
-            bch1d_posterior = new BCH1D(h);
-    }
-
-    // if posterior doesn't exist, exit
-    if (!bch1d_posterior)
-        return false;
-
-    bch1d_prior->CopyOptions(fBCH1DPriorDrawingOptions);
-    bch1d_prior->SetDrawLegend(false);
-    bch1d_posterior->CopyOptions(fBCH1DPosteriorDrawingOptions);
-    bch1d_posterior->SetDrawLegend(false);
-
-    gPad->SetLogx(fBCH1DPriorDrawingOptions.GetLogx() or fBCH1DPosteriorDrawingOptions.GetLogx());
-    gPad->SetLogy(fBCH1DPriorDrawingOptions.GetLogy() or fBCH1DPosteriorDrawingOptions.GetLogy());
-
-    // get maximum
-    double maxy = 1.1 * std::max<double>(bch1d_prior->GetHistogram()->GetMaximum(), bch1d_posterior->GetHistogram()->GetMaximum());
-    double miny = 0.0;
-    if (gPad->GetLogy()) {
-        maxy *= 2;
-        miny = 0.5 * std::min<double>(bch1d_prior->GetHistogram()->GetMinimum(0), bch1d_posterior->GetHistogram()->GetMinimum(0));
-    }
-
-    // draw axes
-    TH2D* h2_axes = new TH2D(Form("h2_axes_%s_knowledge_update_%d", GetSafeName().data(), index), Form(";%s;P(%s|Data)", GetVariable(index).GetLatexNameWithUnits().data(), GetVariable(index).GetLatexName().data()),
-                             10, GetVariable(index).GetLowerLimit(), GetVariable(index).GetUpperLimit(),
-                             10, miny, maxy);
-    h2_axes->SetStats(false);
-    h2_axes->GetXaxis()->SetNdivisions(508);
-    h2_axes->Draw();
-
-    // Draw histograms
-    if (!fPriorPosteriorNormalOrder) // posterior first
-        bch1d_posterior->Draw();
-    bch1d_prior->Draw();
-    if (fPriorPosteriorNormalOrder) // prior first
-        bch1d_posterior->Draw();
-
-    // create / draw legend(s)
-    gPad->SetTopMargin(0.02);
-
-    if ( bch1d_prior->GetLegend().GetNRows() > 0  and  bch1d_posterior->GetLegend().GetNRows() > 0 ) {
-        // both legends have entries, draw both
-        bch1d_prior->GetLegend().SetHeader("prior");
-        bch1d_posterior->GetLegend().SetHeader("posterior");
-
-        // Draw prior legend on top left
-        double y1ndc_prior = bch1d_prior->ResizeLegend();
-        bch1d_prior->GetLegend().SetX2NDC(bch1d_prior->GetLegend().GetX1NDC() + 45e-2 * (bch1d_prior->GetLegend().GetX2NDC() - bch1d_prior->GetLegend().GetX1NDC()));
-        bch1d_prior->GetLegend().Draw();
-
-        // Draw posterior legend on top right
-        double y1ndc_posterior = bch1d_posterior->ResizeLegend();
-        bch1d_posterior->GetLegend().SetX1NDC(bch1d_posterior->GetLegend().GetX1NDC() + 55e-2 * (bch1d_posterior->GetLegend().GetX2NDC() - bch1d_posterior->GetLegend().GetX1NDC()));
-        bch1d_posterior->GetLegend().Draw();
-
-        gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
-
-    } else {
-        // only one legend to draw
-
-        BCH1D* base_hist = 0;
-        BCH1D* other_hist = 0;
-        const char * base_string = "";
-        const char * other_string = "";
-
-        // check if one hist has entries in its legend
-        if (bch1d_posterior->GetLegend().GetNRows() > 0) {
-            // posterior legend alone has entries
-            base_hist = bch1d_posterior;
-            other_hist = bch1d_prior;
-            base_string = "posterior";
-            other_string = "prior";
-        } else if (bch1d_prior->GetLegend().GetNRows() > 0) {
-            // prior alone has entries
-            base_hist = bch1d_prior;
-            other_hist = bch1d_posterior;
-            base_string = "prior";
-            other_string = "posterior";
-        }
-        
-        if (base_hist) {
-            // one hist (base_hist) had a legend with entries
-            // add other_hist entry to base_hist legend
-            for (int i = 0; base_hist->GetLegend().GetListOfPrimitives()->GetEntries(); ++i) {
-                TLegendEntry* le = (TLegendEntry*)(base_hist->GetLegend().GetListOfPrimitives()->At(i));
-                if (!le) break;
-                if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(Form("%s of %s", le->GetLabel(), base_string));
-            }
-            base_hist->GetLegend().AddEntry(other_hist->GetHistogram(), other_string, "L");
-
-        }	else {
-            // neither legend has entries
-            base_hist = bch1d_prior;
-            base_hist->GetLegend().SetNColumns(2);
-            base_hist->GetLegend().AddEntry(bch1d_prior->GetHistogram(),     "prior", "L");
-            base_hist->GetLegend().AddEntry(bch1d_posterior->GetHistogram(), "posterior", "L");
-        }
-
-        // resize and draw legend
-        base_hist->ResizeLegend();
-        base_hist->GetLegend().Draw();
-        
-        // rescale top margin
-        gPad->SetTopMargin(1 - base_hist->GetLegend().GetY1NDC() + 0.01);
-    }
-
-    gPad->RedrawAxis();
-    gPad->Update();
-    return 1;
+    return prior;
 }
 
 // ---------------------------------------------------------
-bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool flag_slice)
+BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
 {
-
-    if (index1 == index2)
-        return false;
+    BCH2D prior;
 
     if (index1 > GetNVariables() or index2 > GetNVariables())
-        return false;
+        return prior;
 
     if (index1 < GetNParameters() and GetParameter(index1).Fixed())
-        return false;
+        return prior;
 
     if (index2 < GetNParameters() and GetParameter(index2).Fixed())
-        return false;
+        return prior;
 
-    // Get prior
-    BCH2D* bch2d_prior = NULL;
+    std::string title = "prior";
 
     // check for factorized priors
     if (fFactorizedPrior and
@@ -445,17 +311,18 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         if (dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior()) != NULL and
                 dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram() != NULL and
                 dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetInterpolate()) {
+
             nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetNbinsX();
             bins_x.assign(nbins_x + 1, 0);
             dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_x[0]);
             bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
         }
         // // constant prior
-        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1)->GetPrior())!=NULL) {
-        // 	nbins_x = 1;
-        // 	bins_x = new double[2];
-        // 	bins_x[0] = GetParameter(index1)->GetLowerLimit();
-        // 	bins_x[1] = GetParameter(index1)->GetUpperLimit();
+        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior())!=NULL) {
+        //     nbins_x = 1;
+        //     bins_x.assign(nbins_x + 1, 0);
+        //     bins_x[0] = GetParameter(index1).GetLowerLimit();
+        //     bins_x[1] = GetParameter(index1).GetUpperLimit();
         // }
         // else function-based prior
         else {
@@ -477,11 +344,11 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
             bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
         }
         // // constant prior
-        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2)->GetPrior())!=NULL) {
+        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior())!=NULL) {
         // 	nbins_y = 1;
-        // 	bins_y = new double[2];
-        // 	bins_y[0] = GetParameter(index2)->GetLowerLimit();
-        // 	bins_y[1] = GetParameter(index2)->GetUpperLimit();
+        //   bins_y.assign(nbins_y + 1, 0);
+        // 	bins_y[0] = GetParameter(index2).GetLowerLimit();
+        // 	bins_y[1] = GetParameter(index2).GetUpperLimit();
         // }
         // else function-based prior
         else {
@@ -496,175 +363,48 @@ bool BCModel::DrawKnowledgeUpdatePlot2D(unsigned index1, unsigned index2, bool f
         h2d_prior->SetBins(nbins_x, &bins_x[0], nbins_y, &bins_y[0]);
 
         // fill histogram
-        for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i)
+        for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i) {
+            double fx = GetParameter(index1).GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i));
             for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j)
-                h2d_prior->SetBinContent(i, j,
-                                         GetParameter(index1).GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i)) *
-                                         GetParameter(index2).GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
+                h2d_prior->SetBinContent(i, j, fx * GetParameter(index2).GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
+        }
         // create BCH2D
-        bch2d_prior = new BCH2D(h2d_prior);
+        prior = h2d_prior;
+        if (prior.Valid()) {
+            // correct for flat prior
+            bool const_prior1 = (dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior()) != NULL);
+            bool const_prior2 = (dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior()) != NULL);
+            if (const_prior1)
+                prior.SetLocalMode((unsigned)0, GetParameter(index1).GetRangeCenter());
+            if (const_prior2)
+                prior.SetLocalMode((unsigned)1, GetParameter(index2).GetRangeCenter());
+            if (const_prior1 and !const_prior2)
+                title += " (flat in " + fPriorModel->GetVariable(index1).GetLatexName() + ")";
+            else if (!const_prior1 and const_prior2)
+                title += " (flat in " + fPriorModel->GetVariable(index2).GetLatexName() + ")";
+            else if (const_prior1 and const_prior2) {
+                title += " (both flat)";
+                prior.SetNBands(0);
+            }
+        }
     }
 
     // else use marginalized prior, if it exists
-    if (bch2d_prior == NULL and (fPriorModel->MarginalizedHistogramExists(index1, index2) or fPriorModel->MarginalizedHistogramExists(index2, index1)))
-        bch2d_prior = fPriorModel->GetMarginalized(index1, index2);
+    if (!prior.Valid() and (fPriorModel->MarginalizedHistogramExists(index1, index2) or fPriorModel->MarginalizedHistogramExists(index2, index1)))
+        prior = fPriorModel->GetMarginalized(index1, index2);
 
-    // else use slicing, if requested
-    if (bch2d_prior == NULL and flag_slice and index1 < fPriorModel->GetNParameters() and index2 < fPriorModel->GetNParameters() and fPriorModel->GetNFreeParameters() <= 3) {
-        double log_max_val;
-        TH2* h = fPriorModel->GetSlice(index1, index2, log_max_val);
-        if (h)
-            bch2d_prior = new BCH2D(h);
-    }
+    if (prior.Valid())
+        prior.GetHistogram()->SetTitle(Form("%s;%s;%s;P(%s, %s)",
+                                            title.data(),
+                                            GetVariable(index1).GetLatexNameWithUnits().data(),
+                                            GetVariable(index2).GetLatexNameWithUnits().data(),
+                                            GetVariable(index1).GetLatexName().data(), GetVariable(index2).GetLatexName().data()));
 
-    // if prior doesn't exist, exit
-    if (!bch2d_prior)
-        return false;
-
-    bch2d_prior->CopyOptions(fBCH2DPriorDrawingOptions);
-    bch2d_prior->SetDrawLegend(false);
-
-
-    // Get Posterior
-    BCH2D* bch2d_posterior = NULL;
-
-    // use marginalization, if it exists
-    if (MarginalizedHistogramExists(index1, index2) or MarginalizedHistogramExists(index2, index1))
-        bch2d_posterior = GetMarginalized(index1, index2);
-
-    // else use slicing, if requested
-    if (bch2d_posterior == NULL and flag_slice and index1 < GetNParameters() and index2 < GetNParameters() and GetNFreeParameters() <= 3) {
-        double log_max_val;
-        TH2* h = GetSlice(index1, index2, log_max_val);
-        if (h)
-            bch2d_prior = new BCH2D(h);
-    }
-
-    // if posterior doesn't exist, exit
-    if (!bch2d_posterior)
-        return false;
-
-    bch2d_posterior->CopyOptions(fBCH2DPosteriorDrawingOptions);
-    bch2d_posterior->SetDrawLegend(false);
-
-    // correct for constant priors:
-    bool const_prior1 = fFactorizedPrior and index1 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior()) != NULL;
-    bool const_prior2 = fFactorizedPrior and index2 < GetNParameters() and dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior()) != NULL;
-
-    if (const_prior1)
-        bch2d_prior->SetLocalMode((unsigned)0, fPriorModel->GetVariable(index1).GetRangeCenter());
-    if (const_prior2)
-        bch2d_prior->SetLocalMode((unsigned)1, fPriorModel->GetVariable(index2).GetRangeCenter());
-    std::string prior_text = "";
-    if (const_prior1 and !const_prior2)
-        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index1).GetLatexName().data());
-    else if (!const_prior1 and const_prior2)
-        prior_text = Form(" (flat in %s)", fPriorModel->GetVariable(index2).GetLatexName().data());
-    else if (const_prior1 and const_prior2) {
-        prior_text = " (both flat)";
-        bch2d_prior->SetNBands(0);
-    }
-
-    gPad->SetLogx(fBCH2DPriorDrawingOptions.GetLogx() or fBCH2DPosteriorDrawingOptions.GetLogx());
-    gPad->SetLogy(fBCH2DPriorDrawingOptions.GetLogy() or fBCH2DPosteriorDrawingOptions.GetLogy());
-    gPad->SetLogz(fBCH2DPriorDrawingOptions.GetLogz() or fBCH2DPosteriorDrawingOptions.GetLogz());
-
-    // draw axes
-    TH2D* h2_axes = new TH2D(Form("h2_axes_%s_knowledge_update_%d_%d", GetSafeName().data(), index1, index2), Form(";%s;%s;P(%s %s|Data)", GetVariable(index1).GetLatexNameWithUnits().data(), GetVariable(index2).GetLatexNameWithUnits().data(), GetVariable(index1).GetLatexName().data(), GetVariable(index2).GetLatexName().data()),
-                             10, GetVariable(index1).GetLowerLimit(), GetVariable(index1).GetUpperLimit(),
-                             10, GetVariable(index2).GetLowerLimit(), GetVariable(index2).GetUpperLimit());
-    h2_axes->SetStats(false);
-    h2_axes->GetXaxis()->SetNdivisions(508);
-    h2_axes->Draw();
-
-    // ROOT options for both prior and posterior should contain "same" (as they do by default)
-
-    if (!fPriorPosteriorNormalOrder) // posterior first
-        bch2d_posterior->Draw();
-    bch2d_prior->Draw();
-    if (fPriorPosteriorNormalOrder) // posterior second
-        bch2d_posterior->Draw();
-
-    // create / draw legend(s)
-    if ( bch2d_prior->GetLegend().GetNRows() > 0  and  bch2d_posterior->GetLegend().GetNRows() > 0 ) {
-        // both legends have entries, draw both
-
-        bch2d_prior    ->GetLegend().SetHeader((std::string("prior") + prior_text).data());
-        bch2d_posterior->GetLegend().SetHeader("posterior");
-
-        // Draw prior legend on top left
-        double y1ndc_prior = bch2d_prior->ResizeLegend();
-        bch2d_prior->GetLegend().SetX2NDC(bch2d_prior->GetLegend().GetX1NDC() + 45e-2 * (bch2d_prior->GetLegend().GetX2NDC() - bch2d_prior->GetLegend().GetX1NDC()));
-        bch2d_prior->GetLegend().Draw();
-
-        // Draw posterior legend on top right
-        double y1ndc_posterior = bch2d_posterior->ResizeLegend();
-        bch2d_posterior->GetLegend().SetX1NDC(bch2d_posterior->GetLegend().GetX1NDC() + 55e-2 * (bch2d_posterior->GetLegend().GetX2NDC() - bch2d_posterior->GetLegend().GetX1NDC()));
-        bch2d_posterior->GetLegend().Draw();
-
-        gPad->SetTopMargin(1 - std::min<double>(y1ndc_prior, y1ndc_posterior) + 0.01);
-
-    } else {
-        // only one legend to draw
-
-        BCH2D * base_hist = 0;
-        BCH2D * other_hist = 0;
-        const char * base_string = "";
-        const char * other_string = "";
-        std::string extra_string = "";
-
-        // check if one hist has entries in its legend
-        if (bch2d_posterior->GetLegend().GetNRows() > 0) {
-            // posterior legend alone has entries
-            base_hist = bch2d_posterior;
-            other_hist = bch2d_prior;
-            base_string = "posterior";
-            other_string = Form("prior%s", prior_text.data());
-        } else if (bch2d_prior->GetLegend().GetNRows() > 0) {
-            // prior legend alone has entries
-            base_hist = bch2d_prior;
-            other_hist = bch2d_posterior;
-            base_string = "prior";
-            other_string = "posterior";
-            extra_string = (prior_text.empty()) ? "" : "prior:" + prior_text;
-        }
-        
-        if (base_hist) {
-            // one hist (base_hist) had a legend with entries
-            // add other_hist entry to base_hist legend
-            for (int i = 0; base_hist->GetLegend().GetListOfPrimitives()->GetEntries(); ++i) {
-                TLegendEntry* le = (TLegendEntry*)(base_hist->GetLegend().GetListOfPrimitives()->At(i));
-                if (!le) break;
-                if (strlen(le->GetLabel()) == 0) continue;
-                le-> SetLabel(Form("%s of %s", le->GetLabel(), base_string));
-            }
-            base_hist->GetLegend().AddEntry(other_hist->GetHistogram(), other_string, "L");
-            if (!extra_string.empty())
-                base_hist->GetLegend().AddEntry((TObject*)0, extra_string.data(), "");
-
-        } else {
-            // neither legend has entries
-            base_hist = bch2d_prior;
-            base_hist->GetLegend().SetNColumns(2);
-            base_hist->GetLegend().AddEntry(bch2d_prior->GetHistogram(), (std::string("prior") + prior_text).data(), "L");
-            base_hist->GetLegend().AddEntry(bch2d_posterior->GetHistogram(), "posterior", "L");
-        }
-
-        // resize and draw legend
-        base_hist->ResizeLegend();
-        base_hist->GetLegend().Draw();
-
-        // rescale top margin
-        gPad->SetTopMargin(1 - base_hist->GetLegend().GetY1NDC() + 0.01);
-    }
-    
-    gPad->RedrawAxis();
-    gPad->Update();
-    return 1;
+    return prior;
 }
 
 // ---------------------------------------------------------
-bool BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsigned vdiv, bool flag_slice, bool call_likelihood)
+unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, unsigned vdiv, bool call_likelihood)
 {
     if (GetNVariables() == 0) {
         BCLog::OutError("BCModel::PrintKnowledgeUpdatePlots : No variables defined!");
@@ -673,207 +413,208 @@ bool BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv, uns
 
     // prepare prior
     if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
-        return false;
-
-    if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0)
-        fPriorModel->MarginalizeAll();
-    fPriorModel->FindMode();
-
-    std::vector<unsigned> H1Indices = GetH1DPrintOrder();
-    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
-
-    if (H1Indices.empty() and H2Coords.empty())
-        return false;
+        return 0;
 
     BCAux::DefaultToPDF(filename);
     if (filename.empty())
-        return false;
+        return 0;
 
-    // create canvas and prepare postscript
-    TCanvas* c = new TCanvas(Form("c_%s_update", fPriorModel->GetName().data()));
-    c->cd();
-    c->Print((filename + "[").data());
+    // call prior evalution once to set fFactorizedPrior:
+    LogAPrioriProbability(std::vector<double>(GetNParameters(), 0));
+
+    if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0) {
+        BCLog::OutSummary("Marginalizing prior...");
+        fPriorModel->MarginalizeAll();
+    }
+    fPriorModel->FindMode();
+
+    // Find nonempty 1D prior--posterior pairs
+    std::vector<unsigned> H1Indices = GetH1DPrintOrder();
+    std::vector<std::pair<BCH1D, BCH1D> > h1;
+    h1.reserve(H1Indices.size());
+    for (unsigned i = 0; i < H1Indices.size(); ++i) {
+        BCH1D prior = GetPrior(H1Indices[i]);
+        if (!prior.Valid())
+            continue;
+        BCH1D posterior = GetMarginalized(H1Indices[i]);
+        if (!posterior.Valid())
+            continue;
+        posterior.GetHistogram()->SetTitle("posterior");
+        prior.CopyOptions(fBCH1DPriorDrawingOptions);
+        posterior.CopyOptions(fBCH1DPosteriorDrawingOptions);
+        h1.push_back(std::make_pair(prior, posterior));
+    }
+
+    // Find nonempty 2D prior--posterior pairs
+    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
+    std::vector<std::pair<BCH2D, BCH2D> > h2;
+    h2.reserve(H2Coords.size());
+    for (unsigned i = 0; i < H2Coords.size(); ++i) {
+        BCH2D prior = GetPrior(H2Coords[i].first, H2Coords[i].second);
+        if (!prior.Valid())
+            continue;
+        BCH2D posterior = GetMarginalized(H2Coords[i].first, H2Coords[i].second);
+        if (!posterior.Valid())
+            continue;
+        posterior.GetHistogram()->SetTitle("posterior");
+        if (prior.GetNBands() == 0) {
+            prior.CopyOptions(fBCH2DPriorDrawingOptions);
+            prior.SetNBands(0);
+        } else
+            prior.CopyOptions(fBCH2DPriorDrawingOptions);
+        posterior.CopyOptions(fBCH2DPosteriorDrawingOptions);
+        h2.push_back(std::make_pair(prior, posterior));
+    }
+
+    if (h1.empty() and h2.empty()) {
+        BCLog::OutWarning("BCModel::PrintKnowledgeUpdatePlots : No update plots to print.");
+        return 0;
+    }
+
+    const unsigned nplots = h1.size() + h2.size();
+    BCLog::OutSummary(Form("Printing knowledge update plots (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.data()));
+    if (nplots > 100)
+        BCLog::OutDetail("This can take a while...");
 
     if (hdiv < 1) hdiv = 1;
     if (vdiv < 1) vdiv = 1;
-    int npads = hdiv * vdiv;
 
-    c->Divide(hdiv, vdiv);
+    int c_width  = 297 * 4;
+    int c_height = 210 * 4;
+    if (hdiv < vdiv)
+        std::swap(c_width, c_height);
 
-    // loop over all parameters and draw 1D plots
-    int ndrawn = 0;
-    int nprinted = 0;
-    c->cd(1);
-    for (unsigned i = 0; i < H1Indices.size(); ++i)
-        if (DrawKnowledgeUpdatePlot1D(H1Indices[i], flag_slice)) {
-            ++ndrawn;
-            if (ndrawn != 0 and ndrawn % npads == 0) {
-                c->Print(filename.data());
-                nprinted = ndrawn;
-                c->Clear("D");
-            }
-            c->cd(ndrawn % npads + 1);
+    // create canvas and prepare postscript
+    TCanvas c("c", "canvas", c_width, c_height);
+    c.Divide(hdiv, vdiv);
+    c.Print((filename + "[").data());
+
+    // Draw 1D Knowledge Update Plots
+    for (unsigned i = 0; i < h1.size(); ++i) {
+        // if current page is full, switch to new page
+        if (i != 0 && i % (hdiv * vdiv) == 0) {
+            c.Print(filename.c_str());
+            c.Clear("D");
         }
-    if (nprinted < ndrawn)
-        c->Print(filename.data());
 
-    c->Clear("D");
+        // go to next pad
+        c.cd(i % (hdiv * vdiv) + 1);
 
-    // loop over all parameter pairs
-    ndrawn = 0;
-    nprinted = 0;
-    c->cd(1);
-    for (unsigned i = 0; i < H2Coords.size(); ++i)
-        if (DrawKnowledgeUpdatePlot2D(H2Coords[i].first, H2Coords[i].second, flag_slice)) {
-            ++ndrawn;
-            if (ndrawn != 0 and ndrawn % npads == 0) {
-                c->Print(filename.data());
-                nprinted = ndrawn;
-                c->Clear();
-                c->Divide(hdiv, vdiv);
-            }
-            c->cd(ndrawn % npads + 1)->Clear();
+        BCAux::DrawKnowledgeUpdate(h1[i].first, h1[i].second, fDrawPriorFirst);
+
+        if (i + 1 % 100 == 0)
+            BCLog::OutDetail(Form(" --> %d plots done", i + 1));
+    }
+    if (h1.size() > 0) {
+        c.Print(filename.c_str());
+        c.Clear("D");
+    }
+
+    // Draw 2D Knowledge Update Plots
+    for (unsigned i = 0; i < h2.size(); ++i) {
+        // if current page is full, switch to new page
+        if (i != 0 && i % (hdiv * vdiv) == 0) {
+            c.Print(filename.c_str());
+            c.Clear("D");
         }
-    if (nprinted < ndrawn)
-        c->Print(filename.data());
 
-    c->Print((filename + "]").data());
+        // go to next pad
+        c.cd(i % (hdiv * vdiv) + 1);
 
-    return true;
+        // prior text?
+        BCAux::DrawKnowledgeUpdate(h2[i].first, h2[i].second, fDrawPriorFirst);
+
+        if ((i + h1.size() + 1) % 100 == 0)
+            BCLog::OutDetail(Form(" --> %d plots done", i + (int)h1.size() + 1));
+    }
+    if (h2.size() > 0) {
+        c.Print(filename.c_str());
+        c.Clear("D");
+    }
+    c.Print(std::string( filename + "]").c_str());
+
+    if (nplots > 100 && nplots % 100 != 0)
+        BCLog::OutDetail(Form(" --> %d plots done", nplots));
+
+    // return total number of drawn histograms
+    return nplots;
+
 }
 
+/*
 // ---------------------------------------------------------
-void BCModel::SetKnowledgeUpdateDrawingStyle(BCModel::BCKnowledgeUpdateDrawingStyle style)
+unsigned BCModel::PrintPriors(std::string filename, unsigned hdiv, unsigned vdiv, bool call_likelihood)
 {
+    if (GetNVariables() == 0) {
+        BCLog::OutError("BCModel::PrintPriors : No variables defined!");
+        return 0;
+    }
+
+    // prepare prior
+    if ( !GetPriorModel(true, call_likelihood) or fPriorModel->GetNParameters() == 0 )
+        return 0;
+
+    BCAux::DefaultToPDF(filename);
+    if (filename.empty())
+        return 0;
+
+    // call prior evalution once to set fFactorizedPrior:
+    LogAPrioriProbability(std::vector<double>(GetNParameters(), 0));
+
+    if (!fFactorizedPrior or !GetParameters().ArePriorsSet(true) or GetNObservables() > 0) {
+        BCLog::OutSummary("Marginalizing prior...");
+         fPriorModel->MarginalizeAll();
+    }
+    fPriorModel->FindMode();
+
+    // Find nonempty H1's
+    std::vector<unsigned> H1Indices = GetH1DPrintOrder();
+    std::vector<BCH1D> h1;
+    h1.reserve(H1Indices.size());
+    for (unsigned i = 0; i < H1Indices.size(); ++i) {
+        h1.push_back(GetPrior(H1Indices[i]));
+        if (h1.back().Valid())
+            h1.back().CopyOptions(fBCH1DdrawingOptions);
+        else
+            h1.pop_back();
+    }
+
+    // Find nonempty H2's
+    std::vector<std::pair<unsigned, unsigned> > H2Coords = GetH2DPrintOrder();
+    std::vector<BCH2D> h2;
+    h2.reserve(H2Coords.size());
+    for (unsigned k = 0; k < H2Coords.size(); ++k) {
+        unsigned i = H2Coords[k].first;
+        unsigned j = H2Coords[k].second;
+        h2.push_back(GetPrior(i, j));
+        if (h2.back().Valid())
+            h2.back().CopyOptions(fBCH2DdrawingOptions);
+        else
+            h2.pop_back();
+    }
+
+    return BCAux::PrintPlots(h1, h2, filename, hdiv, vdiv);
+}
+*/
+
+// ---------------------------------------------------------
+void BCModel::SetKnowledgeUpdateDrawingStyle(BCAux::BCKnowledgeUpdateDrawingStyle style)
+{
+    BCAux::SetKnowledgeUpdateDrawingStyle(fBCH1DPriorDrawingOptions, fBCH1DPosteriorDrawingOptions, style);
+    BCAux::SetKnowledgeUpdateDrawingStyle(fBCH2DPriorDrawingOptions, fBCH2DPosteriorDrawingOptions, style);
+
     switch (style) {
 
-        case kKnowledgeUpdateDetailedPosterior:
-            // 1D
-            SetDrawPriorPosteriorNormalOrder(false);
-            fBCH1DPriorDrawingOptions.SetDrawGlobalMode(false);
-            fBCH1DPriorDrawingOptions.SetDrawLocalMode(false);
-            fBCH1DPriorDrawingOptions.SetDrawMean(false);
-            fBCH1DPriorDrawingOptions.SetDrawMedian(false);
-            fBCH1DPriorDrawingOptions.SetDrawLegend(false);
-            fBCH1DPriorDrawingOptions.SetNBands(0);
-            fBCH1DPriorDrawingOptions.SetBandType(BCH1D::kNoBands);
-            fBCH1DPriorDrawingOptions.SetROOToptions("same");
-            fBCH1DPriorDrawingOptions.SetLineColor(13);
-            fBCH1DPriorDrawingOptions.SetMarkerColor(13);
-            fBCH1DPriorDrawingOptions.SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions.CopyOptions(fBCH1DPriorDrawingOptions);
-            fBCH1DPosteriorDrawingOptions.SetDrawGlobalMode(true);
-            fBCH1DPosteriorDrawingOptions.SetBandType(BCH1D::kSmallestInterval);
-            fBCH1DPosteriorDrawingOptions.SetNBands(3);
-            fBCH1DPosteriorDrawingOptions.SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH1DPosteriorDrawingOptions.SetLineColor(kBlack);
-            fBCH1DPosteriorDrawingOptions.SetMarkerColor(kBlack);
-
-            // 2D
-            fBCH2DPriorDrawingOptions.SetDrawGlobalMode(false);
-            fBCH2DPriorDrawingOptions.SetDrawLocalMode(true, false);
-            fBCH2DPriorDrawingOptions.SetDrawMean(false);
-            fBCH2DPriorDrawingOptions.SetDrawLegend(false);
-            fBCH2DPriorDrawingOptions.SetBandType(BCH2D::kSmallestInterval);
-            fBCH2DPriorDrawingOptions.SetBandFillStyle(-1);
-            fBCH2DPriorDrawingOptions.SetNBands(1);
-            fBCH2DPriorDrawingOptions.SetNSmooth(0);
-            fBCH2DPriorDrawingOptions.SetROOToptions("same");
-            fBCH2DPriorDrawingOptions.SetLineColor(13);
-            fBCH2DPriorDrawingOptions.SetMarkerColor(13);
-            fBCH2DPriorDrawingOptions.SetLocalModeMarkerStyle(25);
-            fBCH2DPriorDrawingOptions.SetNLegendColumns(1);
-            fBCH2DPosteriorDrawingOptions.CopyOptions(fBCH2DPriorDrawingOptions);
-            fBCH2DPosteriorDrawingOptions.SetNBands(3);
-            fBCH2DPosteriorDrawingOptions.SetBandFillStyle(1001);
-            fBCH2DPosteriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH2DPosteriorDrawingOptions.SetLineColor(kBlack);
-            fBCH2DPosteriorDrawingOptions.SetMarkerColor(kBlack);
-            fBCH2DPosteriorDrawingOptions.SetLocalModeMarkerStyle(21);
+        case BCAux::kKnowledgeUpdateDetailedPosterior:
+            SetDrawPriorFirst(false);
             break;
 
-        case kKnowledgeUpdateDetailedPrior:
-            // 1D
-            SetDrawPriorPosteriorNormalOrder(true);
-            fBCH1DPosteriorDrawingOptions.SetDrawGlobalMode(false);
-            fBCH1DPosteriorDrawingOptions.SetDrawLocalMode(false);
-            fBCH1DPosteriorDrawingOptions.SetDrawMean(false);
-            fBCH1DPosteriorDrawingOptions.SetDrawMedian(false);
-            fBCH1DPosteriorDrawingOptions.SetDrawLegend(false);
-            fBCH1DPosteriorDrawingOptions.SetNBands(0);
-            fBCH1DPosteriorDrawingOptions.SetBandType(BCH1D::kNoBands);
-            fBCH1DPosteriorDrawingOptions.SetROOToptions("same");
-            fBCH1DPosteriorDrawingOptions.SetLineColor(13);
-            fBCH1DPosteriorDrawingOptions.SetMarkerColor(13);
-            fBCH1DPosteriorDrawingOptions.SetNLegendColumns(1);
-            fBCH1DPriorDrawingOptions.CopyOptions(fBCH1DPosteriorDrawingOptions);
-            fBCH1DPriorDrawingOptions.SetDrawGlobalMode(true);
-            fBCH1DPriorDrawingOptions.SetBandType(BCH1D::kSmallestInterval);
-            fBCH1DPriorDrawingOptions.SetNBands(3);
-            fBCH1DPriorDrawingOptions.SetNLegendColumns(1);
-            fBCH1DPriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH1DPriorDrawingOptions.SetLineColor(kBlack);
-            fBCH1DPriorDrawingOptions.SetMarkerColor(kBlack);
-
-            // 2D
-            fBCH2DPosteriorDrawingOptions.SetDrawGlobalMode(false);
-            fBCH2DPosteriorDrawingOptions.SetDrawLocalMode(true, false);
-            fBCH2DPosteriorDrawingOptions.SetDrawMean(false);
-            fBCH2DPosteriorDrawingOptions.SetDrawLegend(false);
-            fBCH2DPosteriorDrawingOptions.SetBandType(BCH2D::kSmallestInterval);
-            fBCH2DPosteriorDrawingOptions.SetBandFillStyle(-1);
-            fBCH2DPosteriorDrawingOptions.SetNBands(1);
-            fBCH2DPosteriorDrawingOptions.SetNSmooth(0);
-            fBCH2DPosteriorDrawingOptions.SetROOToptions("same");
-            fBCH2DPosteriorDrawingOptions.SetLineColor(13);
-            fBCH2DPosteriorDrawingOptions.SetMarkerColor(13);
-            fBCH2DPosteriorDrawingOptions.SetLocalModeMarkerStyle(25);
-            fBCH2DPosteriorDrawingOptions.SetNLegendColumns(1);
-            fBCH2DPriorDrawingOptions.CopyOptions(fBCH2DPosteriorDrawingOptions);
-            fBCH2DPriorDrawingOptions.SetNBands(3);
-            fBCH2DPriorDrawingOptions.SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            fBCH2DPriorDrawingOptions.SetBandFillStyle(1001);
-            fBCH2DPriorDrawingOptions.SetLineColor(kBlack);
-            fBCH2DPriorDrawingOptions.SetMarkerColor(kBlack);
-            fBCH2DPriorDrawingOptions.SetLocalModeMarkerStyle(21);
+        case BCAux::kKnowledgeUpdateDetailedPrior:
+            SetDrawPriorFirst(true);
             break;
 
-        case kKnowledgeUpdateDefaultStyle:
+        case BCAux::kKnowledgeUpdateDefaultStyle:
         default:
-            // 1D
-            fBCH1DPriorDrawingOptions.SetDrawGlobalMode(false);
-            fBCH1DPriorDrawingOptions.SetDrawLocalMode(false);
-            fBCH1DPriorDrawingOptions.SetDrawMean(false);
-            fBCH1DPriorDrawingOptions.SetDrawMedian(false);
-            fBCH1DPriorDrawingOptions.SetDrawLegend(false);
-            fBCH1DPriorDrawingOptions.SetNBands(0);
-            fBCH1DPriorDrawingOptions.SetBandType(BCH1D::kNoBands);
-            fBCH1DPriorDrawingOptions.SetROOToptions("same");
-            fBCH1DPriorDrawingOptions.SetLineColor(kRed);
-            fBCH1DPriorDrawingOptions.SetMarkerColor(kRed);
-            fBCH1DPriorDrawingOptions.SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions.CopyOptions(fBCH1DPriorDrawingOptions);
-            fBCH1DPosteriorDrawingOptions.SetNLegendColumns(1);
-            fBCH1DPosteriorDrawingOptions.SetLineColor(kBlue);
-            fBCH1DPosteriorDrawingOptions.SetMarkerColor(kBlue);
-
-            // 2D
-            fBCH2DPriorDrawingOptions.SetDrawGlobalMode(false);
-            fBCH2DPriorDrawingOptions.SetDrawLocalMode(true, false);
-            fBCH2DPriorDrawingOptions.SetDrawMean(false);
-            fBCH2DPriorDrawingOptions.SetDrawLegend(false);
-            fBCH2DPriorDrawingOptions.SetBandType(BCH2D::kSmallestInterval);
-            fBCH2DPriorDrawingOptions.SetBandFillStyle(-1);
-            fBCH2DPriorDrawingOptions.SetNBands(1);
-            fBCH2DPriorDrawingOptions.SetNSmooth(0);
-            fBCH2DPriorDrawingOptions.SetROOToptions("same");
-            fBCH2DPriorDrawingOptions.SetLineColor(kRed);
-            fBCH2DPriorDrawingOptions.SetMarkerColor(kRed);
-            fBCH2DPriorDrawingOptions.SetNLegendColumns(1);
-            fBCH2DPosteriorDrawingOptions.CopyOptions(fBCH2DPriorDrawingOptions);
-            fBCH2DPosteriorDrawingOptions.SetLineColor(kBlue);
-            fBCH2DPosteriorDrawingOptions.SetMarkerColor(kBlue);
             break;
     }
 }

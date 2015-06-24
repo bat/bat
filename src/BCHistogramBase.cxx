@@ -66,7 +66,6 @@ BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)
     fLegend.SetTextAlign(12);
     fLegend.SetTextFont(62);
     fLegend.SetTextSize(0.03);
-    // fROOTObjects.push_back(fLegend);
 
     fIntervals = DefaultIntervals();
 }
@@ -80,7 +79,6 @@ BCHistogramBase::BCHistogramBase(const BCHistogramBase& other)
 {
     SetHistogram(other.fHistogram);
     fLegend.Clear();
-    // fROOTObjects.push_back(fLegend);
 
     CopyOptions(other);
 }
@@ -132,7 +130,7 @@ BCHistogramBase& BCHistogramBase::operator=(const BCHistogramBase& other)
     BCHistogramBase temp(other);
     // swap into this
     swap(*this, temp);
-    
+
     return *this;
 }
 
@@ -225,6 +223,12 @@ void BCHistogramBase::SetHistogram(const TH1* const hist)
     // 	GetHistogram()->SetYTitle(TString::Format("P(%s|Data)",GetHistogram()->GetXaxis()->GetTitle()));
     if (GetHistogram()->GetDimension() > 1)
         GetHistogram()->GetYaxis()->SetNdivisions(508);
+}
+
+// ---------------------------------------------------------
+bool BCHistogramBase::Valid() const
+{
+    return fHistogram and (fHistogram->Integral() != 0);
 }
 
 // ---------------------------------------------------------
