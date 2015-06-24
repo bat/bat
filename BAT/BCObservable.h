@@ -61,6 +61,17 @@ public:
 
     /** @} */
 
+    /** \name operators and swap */
+    /** @{ */
+
+    /** Copy operator */
+    BCObservable& operator=(const BCObservable& other);
+
+    /** swap */
+    friend void swap(BCObservable& A, BCObservable& B);
+
+    /** @} */
+
     /** \name Member functions (get) */
     /** @{ */
 

@@ -60,6 +60,23 @@ BCParameter::~BCParameter()
 }
 
 // ---------------------------------------------------------
+BCParameter& BCParameter::operator=(const BCParameter& other)
+{
+    BCParameter temp(other);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCParameter& A, BCParameter& B)
+{
+    std::swap(static_cast<BCVariable&>(A), static_cast<BCVariable&>(B));
+    std::swap(A.fFixed,      B.fFixed);
+    std::swap(A.fFixedValue, B.fFixedValue);
+    std::swap(A.fPrior,      B.fPrior);
+}
+
+// ---------------------------------------------------------
 void BCParameter::SetLimits(double lowerlimit, double upperlimit)
 {
     BCVariable::SetLimits(lowerlimit, upperlimit);

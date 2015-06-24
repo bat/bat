@@ -6,14 +6,12 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-// ---------------------------------------------------------
 #include "BCObservable.h"
 
 #include <string>
 
 
 // ---------------------------------------------------------
-
 BCObservable::BCObservable()
     : BCVariable()
     , fObservableValue(new double)
@@ -22,7 +20,6 @@ BCObservable::BCObservable()
 }
 
 // ---------------------------------------------------------
-
 BCObservable::BCObservable(const BCObservable& other)
     : BCVariable(other)
     , fObservableValue(other.fObservableValue)
@@ -30,7 +27,6 @@ BCObservable::BCObservable(const BCObservable& other)
 }
 
 // ---------------------------------------------------------
-
 BCObservable::BCObservable(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
     :	BCVariable(name, lowerlimit, upperlimit, latexname, unitstring)
     , fObservableValue(new double)
@@ -39,9 +35,21 @@ BCObservable::BCObservable(std::string name, double lowerlimit, double upperlimi
 }
 
 // ---------------------------------------------------------
-
 BCObservable::~BCObservable()
 {
 }
 
 // ---------------------------------------------------------
+BCObservable& BCObservable::operator=(const BCObservable& other)
+{
+    BCObservable temp(other);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCObservable& A, BCObservable& B)
+{
+    std::swap(static_cast<BCVariable&>(A), static_cast<BCVariable&>(B));
+    std::swap(A.fObservableValue, B.fObservableValue);
+}

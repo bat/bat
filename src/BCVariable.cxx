@@ -70,6 +70,31 @@ BCVariable::~BCVariable()
 }
 
 // ---------------------------------------------------------
+BCVariable& BCVariable::operator=(const BCVariable& other)
+{
+    BCVariable temp(other);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCVariable& A, BCVariable& B)
+{
+    std::swap(A.fPrefix,     B.fPrefix);
+    std::swap(A.fName,       B.fName);
+    std::swap(A.fSafeName,   B.fSafeName);
+    std::swap(A.fLowerLimit, B.fLowerLimit);
+    std::swap(A.fUpperLimit, B.fUpperLimit);
+    std::swap(A.fPrecision,  B.fPrecision);
+    std::swap(A.fLatexName,  B.fLatexName);
+    std::swap(A.fUnitString, B.fUnitString);
+    std::swap(A.fFillH1,     B.fFillH1);
+    std::swap(A.fFillH2,     B.fFillH2);
+    std::swap(A.fNbins,      B.fNbins);
+
+}
+
+// ---------------------------------------------------------
 void BCVariable::SetName(std::string name)
 {
     fName = name;

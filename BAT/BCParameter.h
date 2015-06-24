@@ -60,6 +60,19 @@ public:
      * Destructor. */
     virtual ~BCParameter();
 
+    /** @} */
+
+    /** \name operators and swap */
+    /** @{ */
+
+    /** Copy operator */
+    BCParameter& operator=(const BCParameter& other);
+
+    /** swap */
+    friend void swap(BCParameter& A, BCParameter& B);
+
+    /** @} */
+
     /** \name Member functions (get) */
     /** @{ */
 
