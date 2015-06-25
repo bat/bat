@@ -45,18 +45,79 @@ GaussModel* gauss_check(bool multivariate_proposal)
     ncalls *= multivariate_proposal ? 1 : dim;
     TEST_CHECK_EQUAL(m.Calls(), ncalls);
     //            m.PrintAllMarginalized(std::string(__FILE__) + "_gauss.pdf");
-    const BCEngineMCMC::MCMCStatistics& s = m.MCMCGetStatistics();
 
-    // samples are counted for the total of chains
-    TEST_CHECK_EQUAL(s.n_samples, m.MCMCGetNIterationsRun() * m.MCMCGetNChains());
+    // check each chain
+    const std::vector<BCEngineMCMC::MCMCStatistics>& s = m.MCMCGetStatisticsVector();
+    for (unsigned j = 0; j < s.size(); ++j) {
+        BCLog::OutSummary(Form("Checking chain %d -->", j));
+
+        TEST_CHECK_EQUAL(s[j].n_samples, m.MCMCGetNIterationsRun());
+        // mean etc. are per parameter
+        TEST_CHECK_EQUAL(s[j].mean.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].variance.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].covariance.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].minimum.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].maximum.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].mode.size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(s[j].efficiency.size(), m.GetNParameters());
+        for (unsigned i = 0; i < m.GetNParameters(); ++i) {
+            /* compare to values set inside gauss model' likelihood */
+            // error on the mean from independent samples
+            static const double sigma = 2;
+            static const double var = sigma * sigma;
+            const double bestError = sqrt(var * m.MCMCGetNIterationsRun()) / m.MCMCGetNIterationsRun();
+
+            // we don't know the effective sample size but should use it here
+            // instead of an arbitrary factor
+            static const double ess = 10;
+            TEST_CHECK_NEARLY_EQUAL(s[j].mean[i], 0, ess * bestError);
+
+            // variance estimate much worse than mean estimate
+            TEST_CHECK_RELATIVE_ERROR(s[j].variance[i], var, 0.75);
+            TEST_CHECK_RELATIVE_ERROR(s[j].covariance[i][i], var, 0.75);
+
+            TEST_CHECK_EQUAL(s[j].covariance[i].size(), m.GetNParameters());
+
+            // check consistency of covariance[i==k] and variance[i]
+            TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][i], s[j].variance[i], 0.01);
+
+            TEST_CHECK_EQUAL(s[j].covariance[i].size(), m.GetNParameters());
+            for (unsigned k = 0; k < m.GetNParameters(); ++k)
+                if (i != k)
+                    TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][k], 0.0, 2);
+
+            // expect to be within 3-5 sigma for 1e5 samples
+            static const double xmin = 3 * sigma;
+            static const double xmax = 5 * sigma;
+            TEST_CHECK(s[j].maximum[i] > xmin);
+            TEST_CHECK(s[j].maximum[i] < xmax);
+            TEST_CHECK(s[j].minimum[i] < -xmin);
+            TEST_CHECK(s[j].minimum[i] > -xmax);
+
+            // mcmc not a great mode finder => large uncertainty
+            TEST_CHECK_NEARLY_EQUAL(s[j].mode[i], 0, 0.5);
+
+            // 23.8% is "optimal" acceptance rate for Gaussian target in high dimensions
+            // and Gaussian proposal
+            if (!multivariate_proposal)
+                TEST_CHECK_NEARLY_EQUAL(s[j].efficiency[i], 0.238, 0.1);
+        }
+        if (multivariate_proposal)
+            TEST_CHECK_NEARLY_EQUAL(s[j].efficiency[0], 0.238, 0.1);
+        BCLog::OutSummary(Form("<-- Checked chain %d", j));
+    }
+
+    // check all-chains statistics object
+    const BCEngineMCMC::MCMCStatistics& S = m.MCMCGetStatistics();
+    TEST_CHECK_EQUAL(S.n_samples, m.MCMCGetNIterationsRun() * m.MCMCGetNChains());
     // mean etc. are per parameter
-    TEST_CHECK_EQUAL(s.mean.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(s.variance.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(s.covariance.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(s.minimum.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(s.maximum.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(s.mode.size(), m.GetNParameters());
-    TEST_CHECK_EQUAL(s.efficiency.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.mean.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.variance.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.covariance.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.minimum.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.maximum.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.mode.size(), m.GetNParameters());
+    TEST_CHECK_EQUAL(S.efficiency.size(), m.GetNParameters());
     for (unsigned i = 0; i < m.GetNParameters(); ++i) {
         /* compare to values set inside gauss model' likelihood */
 
@@ -68,33 +129,41 @@ GaussModel* gauss_check(bool multivariate_proposal)
         // we don't know the effective sample size but should use it here
         // instead of an arbitrary factor
         static const double ess = 10;
-        TEST_CHECK_NEARLY_EQUAL(s.mean[i], 0, ess * bestError);
+        TEST_CHECK_NEARLY_EQUAL(S.mean[i], 0, ess * bestError);
 
         // variance estimate much worse than mean estimate
-        TEST_CHECK_RELATIVE_ERROR(s.variance[i], var, 0.3);
+        TEST_CHECK_RELATIVE_ERROR(S.variance[i], var, 0.3);
 
-        TEST_CHECK_EQUAL(s.covariance[i].size(), m.GetNParameters());
+        TEST_CHECK_EQUAL(S.covariance[i].size(), m.GetNParameters());
 
-        TEST_CHECK_EQUAL(s.covariance[i].size(), m.GetNParameters());
+        // check consistency of covariance[i==k] and variance[i]
+        TEST_CHECK_NEARLY_EQUAL(S.covariance[i][i], S.variance[i], 0.01);
+
+        TEST_CHECK_EQUAL(S.covariance[i].size(), m.GetNParameters());
         for (unsigned j = 0; j < m.GetNParameters(); ++j) {
-            TEST_CHECK_NEARLY_EQUAL(s.covariance[i][j], i == j ? var : 0.0, 0.85);
+            TEST_CHECK_NEARLY_EQUAL(S.covariance[i][j], i == j ? var : 0.0, 0.85);
         }
+
 
         // expect to be within 3.5-5 sigma for 1e5 samples
         static const double xmin = 3.5 * sigma;
         static const double xmax = 5 * sigma;
-        TEST_CHECK(s.maximum[i] > xmin);
-        TEST_CHECK(s.maximum[i] < xmax);
-        TEST_CHECK(s.minimum[i] < -xmin);
-        TEST_CHECK(s.minimum[i] > -xmax);
+        TEST_CHECK(S.maximum[i] > xmin);
+        TEST_CHECK(S.maximum[i] < xmax);
+        TEST_CHECK(S.minimum[i] < -xmin);
+        TEST_CHECK(S.minimum[i] > -xmax);
 
         // mcmc not a great mode finder => large uncertainty
-        TEST_CHECK_NEARLY_EQUAL(s.mode[i], 0, 0.4);
+        TEST_CHECK_NEARLY_EQUAL(S.mode[i], 0, 0.4);
 
         // 23.8% is "optimal" acceptance rate for Gaussian target in high dimensions
         // and Gaussian proposal
-        TEST_CHECK_NEARLY_EQUAL(s.efficiency[i], 0.238, 0.1);
+        if (!multivariate_proposal)
+            TEST_CHECK_NEARLY_EQUAL(S.efficiency[i], 0.238, 0.1);
     }
+    if (multivariate_proposal)
+        TEST_CHECK_NEARLY_EQUAL(S.efficiency[0], 0.238, 0.1);
+
     return &m;
 }
 }
