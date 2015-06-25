@@ -473,7 +473,7 @@ bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& /*par*/,
                 yexp = expectation.at(ibin) / n;
 
             // random step up or down in statistics for this bin
-            double ptest = fRandom->Rndm() - 0.5;
+            double ptest = fRandom.Rndm() - 0.5;
 
             // continue, if efficiency is at limit
             if (!(yexp > 0. or yexp < 1.0))
@@ -485,7 +485,7 @@ bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& /*par*/,
                 double r = (double(n) - double(k)) / (double(k) + 1.) * yexp / (1. - yexp);
 
                 // walk, or don't (this is the Metropolis part)
-                if (fRandom->Rndm() < r) {
+                if (fRandom.Rndm() < r) {
                     histogram[ibin] = k + 1;
                     logp += log(r);
                 }
@@ -497,7 +497,7 @@ bool BCEfficiencyFitter::CalculatePValueFast(const std::vector<double>& /*par*/,
                 double r = double(k) / (double(n) - (double(k) - 1)) * (1 - yexp) / yexp;
 
                 // walk, or don't (this is the Metropolis part)
-                if (fRandom->Rndm() < r) {
+                if (fRandom.Rndm() < r) {
                     histogram[ibin] = k - 1;
                     logp += log(r);
                 }

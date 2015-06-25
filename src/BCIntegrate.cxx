@@ -955,7 +955,7 @@ double BCIntegrate::GetRandomPoint(std::vector<double>& x)
 void BCIntegrate::GetRandomVectorInParameterSpace(std::vector<double>& x) const
 {
     // get random vector in unit hypercube
-    fRandom->RndmArray(x.size(), &x.front());
+    const_cast<TRandom3*>(&fRandom)->RndmArray(x.size(), &x.front());
     // translate it into values in ranges of the parameters
     fParameters.ValueFromPositionInRange(x);
 }
@@ -1290,7 +1290,7 @@ std::vector<double> BCIntegrate::FindModeSA(std::vector<double>& mode, std::vect
             }
             // ...else, only accept new state w/ certain probability
             else {
-                if (fRandom->Rndm() <= exp( (fval_y - fval_x) / SATemperature(t) )) {
+                if (fRandom.Rndm() <= exp( (fval_y - fval_x) / SATemperature(t) )) {
                     x = y;
                     fval_x = fval_y;
                 }
@@ -1375,7 +1375,7 @@ std::vector<double> BCIntegrate::GetProposalPointSABoltzmann(const std::vector<d
             y.push_back(GetParameter(i).GetFixedValue());
         } else {
             norm = GetParameter(i).GetRangeWidth() * SATemperature(t) / 2.;
-            new_val = x[i] + norm * fRandom->Gaus();
+            new_val = x[i] + norm * const_cast<TRandom3*>(&fRandom)->Gaus();
             y.push_back(new_val);
         }
     }
@@ -1396,7 +1396,7 @@ std::vector<double> BCIntegrate::GetProposalPointSACauchy(const std::vector<doub
             y.push_back(GetParameter(0).GetFixedValue());
         } else {
             norm = GetParameter(0).GetRangeWidth() * SATemperature(t) / 2.;
-            cauchy = tan(3.14159 * (fRandom->Rndm() - 0.5));
+            cauchy = tan(3.14159 * (const_cast<TRandom3*>(&fRandom)->Rndm() - 0.5));
             new_val = x[0] + norm * cauchy;
             y.push_back(new_val);
         }
@@ -1446,21 +1446,21 @@ std::vector<double> BCIntegrate::SAHelperGetRandomPointOnHypersphere() const
     if (fParameters.Size() == 2) {
         double x1, x2, s;
         do {
-            x1 = fRandom->Rndm() * 2. - 1.;
-            x2 = fRandom->Rndm() * 2. - 1.;
+            x1 = const_cast<TRandom3*>(&fRandom)->Rndm() * 2. - 1.;
+            x2 = const_cast<TRandom3*>(&fRandom)->Rndm() * 2. - 1.;
             s = x1 * x1 + x2 * x2;
         } while (s >= 1);
 
         rand_point[0] = (x1 * x1 - x2 * x2) / s;
         rand_point[1] = (2.*x1 * x2) / s;
     } else if (fParameters.Size() == 3) {
-        fRandom->Sphere(rand_point[0], rand_point[1], rand_point[2], 1.0);
+        const_cast<TRandom3*>(&fRandom)->Sphere(rand_point[0], rand_point[1], rand_point[2], 1.0);
     } else {
         double s = 0.,
                gauss_num;
 
         for (unsigned i = 0; i < fParameters.Size(); i++) {
-            gauss_num = fRandom->Gaus();
+            gauss_num = const_cast<TRandom3*>(&fRandom)->Gaus();
             rand_point[i] = gauss_num;
             s += gauss_num * gauss_num;
         }
@@ -1505,7 +1505,7 @@ double BCIntegrate::SAHelperGetRadialCauchy() const
     } // initializing is done.
 
     // generate uniform random number for sampling
-    double u = fRandom->Rndm();
+    double u = const_cast<TRandom3*>(&fRandom)->Rndm();
 
     // Find the two elements just greater than and less than u
     // using a binary search (O(log(N))).
@@ -1706,7 +1706,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                   &BCIntegrate::CubaIntegrand, static_cast<void*>(this),
                   nvec,
                   fRelativePrecision, fAbsolutePrecision,
-                  fCubaVegasOptions.flags, fRandom->GetSeed(),
+                  fCubaVegasOptions.flags, fRandom.GetSeed(),
                   fNIterationsMin, fNIterationsMax,
                   fCubaVegasOptions.nstart, fCubaVegasOptions.nincrease, fCubaVegasOptions.nbatch,
                   gridno, statefile,
@@ -1722,7 +1722,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                   &BCIntegrate::CubaIntegrand, static_cast<void*>(this),
                   nvec,
                   fRelativePrecision, fAbsolutePrecision,
-                  fCubaSuaveOptions.flags, fRandom->GetSeed(),
+                  fCubaSuaveOptions.flags, fRandom.GetSeed(),
                   fNIterationsMin, fNIterationsMax, fCubaSuaveOptions.nnew,
 #if CUBAVERSION > 40
                   fCubaSuaveOptions.nmin,
@@ -1746,7 +1746,7 @@ double BCIntegrate::IntegrateCuba(BCCubaMethod cubatype)
                         &BCIntegrate::CubaIntegrand, static_cast<void*>(this),
                         nvec,
                         fRelativePrecision, fAbsolutePrecision,
-                        fCubaDivonneOptions.flags, fRandom->GetSeed(),
+                        fCubaDivonneOptions.flags, fRandom.GetSeed(),
                         fNIterationsMin, fNIterationsMax,
                         fCubaDivonneOptions.key1, fCubaDivonneOptions.key2, fCubaDivonneOptions.key3,
                         fCubaDivonneOptions.maxpass, fCubaDivonneOptions.border,

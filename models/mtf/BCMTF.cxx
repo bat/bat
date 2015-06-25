@@ -1124,7 +1124,7 @@ double BCMTF::CalculatePValue(int channelindex, const std::vector<double>& param
 
     // create pseudo experiments
     static const unsigned nIterations = unsigned (1e5);
-    return BCMath::FastPValue(observation, expectation, nIterations, fRandom->GetSeed());
+    return BCMath::FastPValue(observation, expectation, nIterations, fRandom.GetSeed());
 }
 
 // ---------------------------------------------------------
@@ -1168,7 +1168,7 @@ double BCMTF::CalculatePValue(const std::vector<double>& parameters)
 
     // create pseudo experiments
     static const unsigned nIterations = unsigned(1e5);
-    fPValue = BCMath::FastPValue(observation, expectation, nIterations, fRandom->GetSeed());
+    fPValue = BCMath::FastPValue(observation, expectation, nIterations, fRandom.GetSeed());
     fPValueNDoF = BCMath::CorrectPValue(fPValue, parameters.size(), observation.size());
 
     return fPValue;

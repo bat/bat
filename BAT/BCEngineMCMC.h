@@ -37,13 +37,13 @@
 
 #include <TMatrixD.h>
 #include <TMatrixDSym.h>
+#include <TRandom3.h>
 
 // ROOT classes
 class TF1;
 class TFile;
 class TH1;
 class TH2;
-class TRandom3;
 class TTree;
 
 class BCVariable;
@@ -168,13 +168,11 @@ public:
     virtual ~BCEngineMCMC();
 
     /** @} */
-    /** \name Assignment operators */
+    /** \name swap */
     /** @{ */
 
-    /**
-     * Defaut assignment operator */
-    BCEngineMCMC& operator = (const BCEngineMCMC& engineMCMC)
-    { Copy(engineMCMC); return *this; }
+    /** swap */
+    friend void swap(BCEngineMCMC& A, BCEngineMCMC& B);
 
     /** @} */
     /** \name Getters */
@@ -1576,10 +1574,6 @@ protected:
     std::vector<std::vector<double> > fMCMCInitialPosition;
 
     /**
-     * The efficiencies for all parameters and chains. */
-    std::vector<std::vector<double> > fMCMCEfficiencies;
-
-    /**
      * The minimum required efficiency for MCMC */
     double fMCMCEfficiencyMin;
 
@@ -1655,7 +1649,7 @@ protected:
 
     /**
      * Random number generator */
-    TRandom3* fRandom;
+    TRandom3 fRandom;
 
     /**
      * Vector of 1D marginalized distributions */

@@ -400,7 +400,7 @@ bool BCHistogramFitter::CalculatePValueFast(const std::vector<double>& par, unsi
     }
 
     // create pseudo experiments
-    fPValue = BCMath::FastPValue(observed, expected, nIterations, fRandom->GetSeed());
+    fPValue = BCMath::FastPValue(observed, expected, nIterations, fRandom.GetSeed());
 
     // correct for fitting bias
     fPValueNDoF = BCMath::CorrectPValue(fPValue, GetNParameters(), fHistogram->GetNbinsX());
@@ -548,7 +548,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
         // ex. yObs = 9.785 =>
         //      yObs --> 10 with P = 78.5%
         //      yObs --> 9  with P = 21.5%
-        double U = fRandom->Rndm();
+        double U = fRandom.Rndm();
         double yObsLower = (unsigned int) yObs;
         if (U > (yObs - yObsLower))
             yObs = yObsLower;

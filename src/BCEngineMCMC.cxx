@@ -73,7 +73,6 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
-      fRandom(new TRandom3()),
       fMCMCTree(0),
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(true),
@@ -107,7 +106,6 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
       fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
-      fRandom(new TRandom3()),
       fMCMCTree(0),
       fMCMCTreeLoaded(false),
       fMCMCTreeReuseObservables(true),
@@ -123,17 +121,89 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
+    : fMCMCThreadLocalStorage(other.fMCMCThreadLocalStorage),
+      fName(other.fName),
+      fSafeName(other.fSafeName),
+      fParameters(other.fParameters),
+      fObservables(other.fObservables),
+      fMCMCNChains(other.fMCMCNChains),
+      fMCMCNLag(other.fMCMCNLag),
+      fMCMCNIterations(other.fMCMCNIterations),
+      fMCMCCurrentIteration(other.fMCMCCurrentIteration),
+      fMCMCCurrentChain(other.fMCMCCurrentChain),
+      fMCMCNIterationsPreRunCheck(other.fMCMCNIterationsPreRunCheck),
+      fMCMCNIterationsClearConvergenceStats(other.fMCMCNIterationsClearConvergenceStats),
+      fMCMCNIterationsConvergenceGlobal(other.fMCMCNIterationsConvergenceGlobal),
+      fMCMCNIterationsPreRunMax(other.fMCMCNIterationsPreRunMax),
+      fMCMCNIterationsRun(other.fMCMCNIterationsRun),
+      fMCMCNIterationsPreRunMin(other.fMCMCNIterationsPreRunMin),
+      fMCMCFlagWriteChainToFile(other.fMCMCFlagWriteChainToFile),
+      fMCMCFlagWritePreRunToFile(other.fMCMCFlagWritePreRunToFile),
+      fMCMCOutputFile(other.fMCMCOutputFile),
+      fMCMCOutputFilename(other.fMCMCOutputFilename),
+      fMCMCOutputFileOption(other.fMCMCOutputFileOption),
+      fMCMCScaleFactorLowerLimit(other.fMCMCScaleFactorLowerLimit),
+      fMCMCScaleFactorUpperLimit(other.fMCMCScaleFactorUpperLimit),
+      fMCMCTrialFunctionScaleFactor(other.fMCMCTrialFunctionScaleFactor),
+      fMCMCTrialFunctionScaleFactorStart(other.fMCMCTrialFunctionScaleFactorStart),
+      fMCMCAutoSetTrialFunctionScaleFactors(other.fMCMCAutoSetTrialFunctionScaleFactors),
+      fMultivariateProposalFunctionCovariance(other.fMultivariateProposalFunctionCovariance),
+      fMultivariateProposalFunctionCholeskyDecomposition(other.fMultivariateProposalFunctionCholeskyDecomposition),
+      fMultivariateProposalFunctionUpdatesMinimum(other.fMultivariateProposalFunctionUpdatesMinimum),
+      fMultivariateProposalFunctionEpsilon(other.fMultivariateProposalFunctionEpsilon),
+      fMultivariateProposalFunctionScaleMultiplier(other.fMultivariateProposalFunctionScaleMultiplier),
+      fMCMCFlagPreRun(other.fMCMCFlagPreRun),
+      fMCMCFlagRun(other.fMCMCFlagRun),
+      fMCMCInitialPosition(other.fMCMCInitialPosition),
+      fMCMCEfficiencyMin(other.fMCMCEfficiencyMin),
+      fMCMCEfficiencyMax(other.fMCMCEfficiencyMax),
+      fMCMCFlagInitialPosition(other.fMCMCFlagInitialPosition),
+      fMCMCMultivariateProposalFunction(other.fMCMCMultivariateProposalFunction),
+      fMCMCPhase(other.fMCMCPhase),
+      fMCMCx(other.fMCMCx),
+      fMCMCObservables(other.fMCMCObservables),
+      fMCMCStatistics(other.fMCMCStatistics),
+      fMCMCStatistics_AllChains(other.fMCMCStatistics_AllChains),
+      fMCMCprob(other.fMCMCprob),
+      fMCMCLogLikelihood(other.fMCMCLogLikelihood),
+      fMCMCLogLikelihood_Provisional(other.fMCMCLogLikelihood_Provisional),
+      fMCMCLogPrior(other.fMCMCLogPrior),
+      fMCMCLogPrior_Provisional(other.fMCMCLogPrior_Provisional),
+      fCorrectRValueForSamplingVariability(other.fCorrectRValueForSamplingVariability),
+      fMCMCRValueParametersCriterion(other.fMCMCRValueParametersCriterion),
+      fMCMCRValueParameters(other.fMCMCRValueParameters),
+      fRandom(other.fRandom),
+      fRequestedH2(other.fRequestedH2),
+      fMCMCTree(NULL),
+      fMCMCTreeLoaded(false),
+      fMCMCTreeReuseObservables(other.fMCMCTreeReuseObservables),
+      fParameterTree(NULL),
+      fLocalModes(other.fLocalModes),
+      fBCH1DdrawingOptions(other.fBCH1DdrawingOptions),
+      fBCH2DdrawingOptions(other.fBCH2DdrawingOptions),
+      fRescaleHistogramRangesAfterPreRun(other.fRescaleHistogramRangesAfterPreRun),
+      fHistogramRescalePadding(other.fHistogramRescalePadding)
 {
-    Copy(other);
+    fH1Marginalized = std::vector<TH1*>(other.fH1Marginalized.size(), NULL);
+    for (unsigned i = 0; i < other.fH1Marginalized.size(); ++i)
+        if (other.fH1Marginalized[i])
+            fH1Marginalized[i] = dynamic_cast<TH1*>(other.fH1Marginalized[i]->Clone());
+
+    if (!other.fH2Marginalized.empty() and !other.fH2Marginalized.front().empty()) {
+        fH2Marginalized = std::vector<std::vector<TH2*> > (other.fH2Marginalized.size(), std::vector<TH2*>(other.fH2Marginalized.front().size(), NULL));
+        for (unsigned i = 0; i < other.fH2Marginalized.size(); ++i) {
+            fH2Marginalized[i].assign(other.fH2Marginalized[i].size(), NULL);
+            for (unsigned j = 0; j < other.fH2Marginalized[i].size(); ++j)
+                if (other.fH2Marginalized[i][j])
+                    fH2Marginalized[i][j] = dynamic_cast<TH2*>(other.fH2Marginalized[i][j]->Clone());
+        }
+    }
 }
 
 // ---------------------------------------------------------
 BCEngineMCMC::~BCEngineMCMC()
 {
     MCMCCloseOutputFile();
-
-    // delete random number generator
-    delete fRandom;
 
     // delete 1-d marginalized distributions
     for (unsigned i = 0; i < fH1Marginalized.size(); ++i)
@@ -144,6 +214,81 @@ BCEngineMCMC::~BCEngineMCMC()
         for (unsigned j = 0; j < fH2Marginalized[i].size(); ++j)
             delete fH2Marginalized[i][j];
 }
+
+// ---------------------------------------------------------
+void swap(BCEngineMCMC& A, BCEngineMCMC& B)
+{
+    std::swap(A.fMCMCThreadLocalStorage, B.fMCMCThreadLocalStorage);
+    std::swap(A.fName, B.fName);
+    std::swap(A.fSafeName, B.fSafeName);
+    std::swap(A.fParameters, B.fParameters);
+    std::swap(A.fObservables, B.fObservables);
+    std::swap(A.fMCMCNChains, B.fMCMCNChains);
+    std::swap(A.fMCMCNLag, B.fMCMCNLag);
+    std::swap(A.fMCMCNIterations, B.fMCMCNIterations);
+    std::swap(A.fMCMCCurrentIteration, B.fMCMCCurrentIteration);
+    std::swap(A.fMCMCCurrentChain, B.fMCMCCurrentChain);
+    std::swap(A.fMCMCNIterationsPreRunCheck, B.fMCMCNIterationsPreRunCheck);
+    std::swap(A.fMCMCNIterationsClearConvergenceStats, B.fMCMCNIterationsClearConvergenceStats);
+    std::swap(A.fMCMCNIterationsConvergenceGlobal, B.fMCMCNIterationsConvergenceGlobal);
+    std::swap(A.fMCMCNIterationsPreRunMax, B.fMCMCNIterationsPreRunMax);
+    std::swap(A.fMCMCNIterationsRun, B.fMCMCNIterationsRun);
+    std::swap(A.fMCMCNIterationsPreRunMin, B.fMCMCNIterationsPreRunMin);
+    std::swap(A.fMCMCFlagWriteChainToFile, B.fMCMCFlagWriteChainToFile);
+    std::swap(A.fMCMCFlagWritePreRunToFile, B.fMCMCFlagWritePreRunToFile);
+    std::swap(A.fMCMCOutputFile, B.fMCMCOutputFile);
+    std::swap(A.fMCMCOutputFilename, B.fMCMCOutputFilename);
+    std::swap(A.fMCMCOutputFileOption, B.fMCMCOutputFileOption);
+    std::swap(A.fMCMCScaleFactorLowerLimit, B.fMCMCScaleFactorLowerLimit);
+    std::swap(A.fMCMCScaleFactorUpperLimit, B.fMCMCScaleFactorUpperLimit);
+    std::swap(A.fMCMCTrialFunctionScaleFactor, B.fMCMCTrialFunctionScaleFactor);
+    std::swap(A.fMCMCTrialFunctionScaleFactorStart, B.fMCMCTrialFunctionScaleFactorStart);
+    std::swap(A.fMCMCAutoSetTrialFunctionScaleFactors, B.fMCMCAutoSetTrialFunctionScaleFactors);
+    std::swap(A.fMultivariateProposalFunctionCovariance, B.fMultivariateProposalFunctionCovariance);
+    std::swap(A.fMultivariateProposalFunctionCholeskyDecomposition, B.fMultivariateProposalFunctionCholeskyDecomposition);
+    std::swap(A.fMultivariateProposalFunctionUpdatesMinimum, B.fMultivariateProposalFunctionUpdatesMinimum);
+    std::swap(A.fMultivariateProposalFunctionEpsilon, B.fMultivariateProposalFunctionEpsilon);
+    std::swap(A.fMultivariateProposalFunctionScaleMultiplier, B.fMultivariateProposalFunctionScaleMultiplier);
+    std::swap(A.fMCMCFlagPreRun, B.fMCMCFlagPreRun);
+    std::swap(A.fMCMCFlagRun, B.fMCMCFlagRun);
+    std::swap(A.fMCMCInitialPosition, B.fMCMCInitialPosition);
+    std::swap(A.fMCMCEfficiencyMin, B.fMCMCEfficiencyMin);
+    std::swap(A.fMCMCEfficiencyMax, B.fMCMCEfficiencyMax);
+    std::swap(A.fMCMCFlagInitialPosition, B.fMCMCFlagInitialPosition);
+    std::swap(A.fMCMCMultivariateProposalFunction, B.fMCMCMultivariateProposalFunction);
+    std::swap(A.fMCMCPhase, B.fMCMCPhase);
+    std::swap(A.fMCMCx, B.fMCMCx);
+    std::swap(A.fMCMCObservables, B.fMCMCObservables);
+    std::swap(A.fMCMCStatistics, B.fMCMCStatistics);
+    std::swap(A.fMCMCStatistics_AllChains, B.fMCMCStatistics_AllChains);
+    std::swap(A.fMCMCprob, B.fMCMCprob);
+    std::swap(A.fMCMCLogLikelihood, B.fMCMCLogLikelihood);
+    std::swap(A.fMCMCLogLikelihood_Provisional, B.fMCMCLogLikelihood_Provisional);
+    std::swap(A.fMCMCLogPrior, B.fMCMCLogPrior);
+    std::swap(A.fMCMCLogPrior_Provisional, B.fMCMCLogPrior_Provisional);
+    std::swap(A.fCorrectRValueForSamplingVariability, B.fCorrectRValueForSamplingVariability);
+    std::swap(A.fMCMCRValueParametersCriterion, B.fMCMCRValueParametersCriterion);
+    std::swap(A.fMCMCRValueParameters, B.fMCMCRValueParameters);
+
+    // swap root object
+    TRandom3 temp(A.fRandom);
+    A.fRandom = B.fRandom;
+    B.fRandom = temp;
+
+    std::swap(A.fH1Marginalized, B.fH1Marginalized);
+    std::swap(A.fH2Marginalized, B.fH2Marginalized);
+    std::swap(A.fRequestedH2, B.fRequestedH2);
+    std::swap(A.fMCMCTree, B.fMCMCTree);
+    std::swap(A.fMCMCTreeLoaded, B.fMCMCTreeLoaded);
+    std::swap(A.fMCMCTreeReuseObservables, B.fMCMCTreeReuseObservables);
+    std::swap(A.fParameterTree, B.fParameterTree);
+    std::swap(A.fLocalModes, B.fLocalModes);
+    std::swap(A.fBCH1DdrawingOptions, B.fBCH1DdrawingOptions);
+    std::swap(A.fBCH2DdrawingOptions, B.fBCH2DdrawingOptions);
+    std::swap(A.fRescaleHistogramRangesAfterPreRun, B.fRescaleHistogramRangesAfterPreRun);
+    std::swap(A.fHistogramRescalePadding, B.fHistogramRescalePadding);
+}
+
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SetName(std::string name)
@@ -303,7 +448,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fCorrectRValueForSamplingVariability      = other.fCorrectRValueForSamplingVariability;
     fMCMCRValueParametersCriterion            = other.fMCMCRValueParametersCriterion;
     fMCMCRValueParameters                     = other.fMCMCRValueParameters;
-    fRandom                                   = (other.fRandom) ? new TRandom3(*other.fRandom) : NULL;
+    fRandom                                   = other.fRandom;
     fMCMCThreadLocalStorage                   = other.fMCMCThreadLocalStorage;
     fRescaleHistogramRangesAfterPreRun        = other.fRescaleHistogramRangesAfterPreRun;
     fHistogramRescalePadding                  = other.fHistogramRescalePadding;
@@ -568,10 +713,10 @@ void BCEngineMCMC::MCMCSetInitialPositions(const std::vector<double>& x0s)
 void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
 {
     // set main generator
-    fRandom->SetSeed(seed);
+    fRandom.SetSeed(seed);
 
     // call once so return value of GetSeed() fixed
-    fRandom->Rndm();
+    fRandom.Rndm();
 
     SyncThreadStorage();
 
@@ -583,7 +728,7 @@ void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
     // set all single chain generators
     for (unsigned i = 0; i < fMCMCNChains ; ++i) {
         // call once so return value of GetSeed() fixed
-        fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom->GetSeed() + i);
+        fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
         fMCMCThreadLocalStorage[i].rng->Rndm();
     }
 }
@@ -3376,13 +3521,13 @@ BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
 void BCEngineMCMC::SyncThreadStorage()
 {
     if ( fMCMCNChains > fMCMCThreadLocalStorage.size() )
-        fRandom->Rndm();					// fix return value of GetSeed()
+        fRandom.Rndm();					// fix return value of GetSeed()
 
     // add storage until equal to number of chains
     while (fMCMCThreadLocalStorage.size() < fMCMCNChains) {
         fMCMCThreadLocalStorage.push_back(MCMCThreadLocalStorage(GetNParameters()));
         // each chains gets a different seed. fRandom always returns same seed after the fixing done above
-        fMCMCThreadLocalStorage.back().rng->SetSeed(fRandom->GetSeed() + fMCMCThreadLocalStorage.size());
+        fMCMCThreadLocalStorage.back().rng->SetSeed(fRandom.GetSeed() + fMCMCThreadLocalStorage.size());
     }
 
     // remove storage until equal to number of chain
