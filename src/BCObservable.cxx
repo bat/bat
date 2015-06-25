@@ -20,9 +20,9 @@ BCObservable::BCObservable()
 }
 
 // ---------------------------------------------------------
-BCObservable::BCObservable(const BCObservable& other)
+BCObservable::BCObservable(const BCObservable& other, bool share_pointer)
     : BCVariable(other)
-    , fObservableValue(other.fObservableValue)
+    , fObservableValue(share_pointer ? other.fObservableValue : new double)
 {
 }
 

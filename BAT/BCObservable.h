@@ -41,9 +41,10 @@ public:
 
     /**
      * Copy constructor.
-     * PLEASE NOTE: the pointer for the internal value of the observable
-     * will be shared by the copy. A change of value to any copy propegates to all others!*/
-    BCObservable(const BCObservable& other);
+     * PLEASE NOTE: if flag is true, the pointer for the internal value of the observable
+     * will be shared by the copy. A change of value to any copy propegates to all others!
+     * @param share_pointer Flag for sharing pointer of value to new observable */
+    BCObservable(const BCObservable& other, bool share_pointer = false);
 
     /**
      * Function-pointer constructor.
@@ -64,7 +65,7 @@ public:
     /** \name operators and swap */
     /** @{ */
 
-    /** Copy operator */
+    /** Copy operator (Creates new pointer for value)*/
     BCObservable& operator=(const BCObservable& other);
 
     /** swap */
