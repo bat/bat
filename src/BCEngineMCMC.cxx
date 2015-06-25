@@ -2037,9 +2037,9 @@ bool BCEngineMCMC::MCMCMetropolis()
 
     BCLog::OutSummary(Form(" --> Markov chains ran for %i iterations.", fMCMCNIterationsRun));
 
-    // set all-chain stats to first-chain stats
+    // reset total stats
     fMCMCStatistics_AllChains.Reset();
-    // loop over remaining chains
+    // add in individual chain stats
     for (unsigned c = 0; c < fMCMCStatistics.size(); ++c)
         fMCMCStatistics_AllChains += fMCMCStatistics[c];
 

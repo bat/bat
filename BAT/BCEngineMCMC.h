@@ -398,6 +398,12 @@ public:
     { return fMCMCStatistics.at(c); }
 
     /**
+     * Get vector of MCMC statistics for each chain separately
+     * @param c Chain to get statistics of. */
+    const std::vector<BCEngineMCMC::MCMCStatistics>& MCMCGetStatisticsVector() const
+    { return fMCMCStatistics; }
+
+    /**
      * @return Flag for whether to rescale histogram ranges to fit MCMC reach after pre-run. */
     bool GetRescaleHistogramRangesAfterPreRun() const
     { return fRescaleHistogramRangesAfterPreRun; }
