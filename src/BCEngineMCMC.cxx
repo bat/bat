@@ -3497,19 +3497,26 @@ void BCEngineMCMC::MCMCStatistics::ResetEfficiencies()
 // ---------------------------------------------------------
 BCEngineMCMC::MCMCStatistics& BCEngineMCMC::MCMCStatistics::operator=(const BCEngineMCMC::MCMCStatistics& rhs)
 {
-    n_samples = rhs.n_samples;
-    mean = rhs.mean;
-    variance = rhs.variance;
-    covariance = rhs.covariance;
-    minimum = rhs.minimum;
-    maximum = rhs.maximum;
-    probability_mean = rhs.probability_mean;
-    probability_variance = rhs.probability_variance;
-    probability_at_mode = rhs.probability_at_mode;
-    mode = rhs.mode;
-    n_samples_efficiency = rhs.n_samples_efficiency;
-    efficiency = rhs.efficiency;
+    MCMCStatistics temp(rhs);
+    swap (*this, temp);
     return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCEngineMCMC::MCMCStatistics& A, BCEngineMCMC::MCMCStatistics& B)
+{
+    std::swap(A.n_samples,            B.n_samples);
+    std::swap(A.mean,                 B.mean);
+    std::swap(A.variance,             B.variance);
+    std::swap(A.covariance,           B.covariance);
+    std::swap(A.minimum,              B.minimum);
+    std::swap(A.maximum,              B.maximum);
+    std::swap(A.probability_mean,     B.probability_mean);
+    std::swap(A.probability_variance, B.probability_variance);
+    std::swap(A.probability_at_mode,  B.probability_at_mode);
+    std::swap(A.mode,                 B.mode);
+    std::swap(A.n_samples_efficiency, B.n_samples_efficiency);
+    std::swap(A.efficiency,           B.efficiency);
 }
 
 // ---------------------------------------------------------

@@ -132,6 +132,8 @@ public:
 
         /** assignment operator. */
         MCMCStatistics& operator  = (const MCMCStatistics& rhs);
+        /** swap */
+        friend void swap(BCEngineMCMC::MCMCStatistics& A, BCEngineMCMC::MCMCStatistics& B);
         /** addition assignment operator. */
         MCMCStatistics& operator += (const MCMCStatistics& rhs);
 
