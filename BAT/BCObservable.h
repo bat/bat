@@ -92,6 +92,11 @@ public:
     virtual void Value(double val)
     { *fObservableValue = val; }
 
+    /**
+     * Set value location. */
+    virtual void SetValueLocation(double* location)
+    { fObservableValue = location; }
+
     /** @} */
 
 private:
