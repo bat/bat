@@ -148,16 +148,50 @@ BCIntegrate::BCIntegrate(std::string filename, std::string name, bool loadObserv
 }
 
 // ---------------------------------------------------------
-BCIntegrate::BCIntegrate(const BCIntegrate& other) : BCEngineMCMC(other)
+BCIntegrate::BCIntegrate(const BCIntegrate& other)
+    : BCEngineMCMC(other),
+      fMinuit(new TMinuit()),
+      fMinuitErrorFlag(other.fMinuitErrorFlag),
+      fFlagIgnorePrevOptimization(other.fFlagIgnorePrevOptimization),
+      fSAT0(other.fSAT0),
+      fSATmin(other.fSATmin),
+      fSATree(0),
+      fFlagWriteSAToFile(other.fFlagWriteSAToFile),
+      fSANIterations(other.fSANIterations),
+      fSATemperature(other.fSATemperature),
+      fSALogProb(other.fSALogProb),
+      fSAx(other.fSAx),
+      fFlagMarginalized(other.fFlagMarginalized),
+      fSAOutputFile(0),
+      fSAOutputFilename(other.fSAOutputFilename),
+      fSAOutputFileOption(other.fSAOutputFileOption),
+      fSAOutputFileAutoclose(other.fSAOutputFileAutoclose),
+      fOptimizationMethodCurrent(other.fOptimizationMethodCurrent),
+      fOptimizationMethodUsed(other.fOptimizationMethodUsed),
+      fIntegrationMethodCurrent(other.fIntegrationMethodCurrent),
+      fIntegrationMethodUsed(other.fIntegrationMethodUsed),
+      fMarginalizationMethodCurrent(other.fMarginalizationMethodCurrent),
+      fMarginalizationMethodUsed(other.fMarginalizationMethodUsed),
+      fSASchedule(other.fSASchedule),
+      fNIterationsMin(other.fNIterationsMin),
+      fNIterationsMax(other.fNIterationsMax),
+      fNIterationsPrecisionCheck(other.fNIterationsPrecisionCheck),
+      fNIterations(other.fNIterations),
+      fBestFitParameters(other.fBestFitParameters),
+      fBestFitParameterErrors(other.fBestFitParameterErrors),
+      fLogMaximum(other.fLogMaximum),
+      fIntegral(other.fIntegral),
+      fRelativePrecision(other.fRelativePrecision),
+      fAbsolutePrecision(other.fAbsolutePrecision),
+      fError(other.fError),
+      fCubaIntegrationMethod(other.fCubaIntegrationMethod),
+      fCubaVegasOptions(other.fCubaVegasOptions),
+      fCubaSuaveOptions(other.fCubaSuaveOptions),
+      fCubaDivonneOptions(other.fCubaDivonneOptions),
+      fCubaCuhreOptions(other.fCubaCuhreOptions)
 {
-    Copy(other);
-}
-
-// ---------------------------------------------------------
-BCIntegrate& BCIntegrate::operator = (const BCIntegrate& other)
-{
-    Copy(other);
-    return *this;
+    fMinuitArglist[0] = other.fMinuitArglist[0];
+    fMinuitArglist[1] = other.fMinuitArglist[1];
 }
 
 // ---------------------------------------------------------
@@ -213,6 +247,53 @@ BCIntegrate::~BCIntegrate()
 {
     delete fMinuit;
 }
+
+// ---------------------------------------------------------
+void swap(BCIntegrate& A, BCIntegrate& B)
+{
+    swap(static_cast<BCEngineMCMC&>(A), static_cast<BCEngineMCMC&>(B));
+    std::swap(A.fMinuit, B.fMinuit);
+    std::swap(A.fMinuitArglist, B.fMinuitArglist);
+    std::swap(A.fMinuitErrorFlag, B.fMinuitErrorFlag);
+    std::swap(A.fFlagIgnorePrevOptimization, B.fFlagIgnorePrevOptimization);
+    std::swap(A.fSAT0, B.fSAT0);
+    std::swap(A.fSATmin, B.fSATmin);
+    std::swap(A.fSATree, B.fSATree);
+    std::swap(A.fFlagWriteSAToFile, B.fFlagWriteSAToFile);
+    std::swap(A.fSANIterations, B.fSANIterations);
+    std::swap(A.fSATemperature, B.fSATemperature);
+    std::swap(A.fSALogProb, B.fSALogProb);
+    std::swap(A.fSAx, B.fSAx);
+    std::swap(A.fFlagMarginalized, B.fFlagMarginalized);
+    std::swap(A.fSAOutputFile, A.fSAOutputFile);
+    std::swap(A.fSAOutputFilename, B.fSAOutputFilename);
+    std::swap(A.fSAOutputFileOption, B.fSAOutputFileOption);
+    std::swap(A.fSAOutputFileAutoclose, B.fSAOutputFileAutoclose);
+    std::swap(A.fOptimizationMethodCurrent, B.fOptimizationMethodCurrent);
+    std::swap(A.fOptimizationMethodUsed, B.fOptimizationMethodUsed);
+    std::swap(A.fIntegrationMethodCurrent, B.fIntegrationMethodCurrent);
+    std::swap(A.fIntegrationMethodUsed, B.fIntegrationMethodUsed);
+    std::swap(A.fMarginalizationMethodCurrent, B.fMarginalizationMethodCurrent);
+    std::swap(A.fMarginalizationMethodUsed, B.fMarginalizationMethodUsed);
+    std::swap(A.fSASchedule, B.fSASchedule);
+    std::swap(A.fNIterationsMin, B.fNIterationsMin);
+    std::swap(A.fNIterationsMax, B.fNIterationsMax);
+    std::swap(A.fNIterationsPrecisionCheck, B.fNIterationsPrecisionCheck);
+    std::swap(A.fNIterations, B.fNIterations);
+    std::swap(A.fBestFitParameters, B.fBestFitParameters);
+    std::swap(A.fBestFitParameterErrors, B.fBestFitParameterErrors);
+    std::swap(A.fLogMaximum, B.fLogMaximum);
+    std::swap(A.fIntegral, B.fIntegral);
+    std::swap(A.fRelativePrecision, B.fRelativePrecision);
+    std::swap(A.fAbsolutePrecision, B.fAbsolutePrecision);
+    std::swap(A.fError, B.fError);
+    std::swap(A.fCubaIntegrationMethod, B.fCubaIntegrationMethod);
+    std::swap(A.fCubaVegasOptions, B.fCubaVegasOptions);
+    std::swap(A.fCubaSuaveOptions, B.fCubaSuaveOptions);
+    std::swap(A.fCubaDivonneOptions, B.fCubaDivonneOptions);
+    std::swap(A.fCubaCuhreOptions, B.fCubaCuhreOptions);
+}
+
 
 // ---------------------------------------------------------
 const std::vector<double>& BCIntegrate::GetGlobalMode() const

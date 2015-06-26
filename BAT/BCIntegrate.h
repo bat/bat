@@ -183,12 +183,11 @@ public:
 
     /** @} */
 
-    /** \name Assignment operators */
+    /** \name swap*/
     /** @{ */
 
-    /**
-     * Assignment operator */
-    BCIntegrate& operator = (const BCIntegrate& bcintegrate);
+    /** swap */
+    friend void swap(BCIntegrate& A, BCIntegrate& B);
 
     /** @} */
 
@@ -856,8 +855,6 @@ protected:
     /**
      * Current simulated annealing parameter point. */
     std::vector<double> fSAx;
-
-protected:
 
     /**
      * Helper method to output at beginning of integration. */
