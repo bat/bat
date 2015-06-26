@@ -31,6 +31,11 @@ public:
      * Constructor */
     BCObservableSet();
 
+    /**
+     * Copy constructor
+     * @param share_pointers whether to share pointers in new observables*/
+    BCObservableSet(const BCObservableSet& other, bool share_pointers = false);
+
     /*
      * Destructor */
     virtual ~BCObservableSet();

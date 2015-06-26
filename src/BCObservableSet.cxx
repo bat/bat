@@ -17,6 +17,15 @@ BCObservableSet::BCObservableSet()
 }
 
 // ---------------------------------------------------------
+BCObservableSet::BCObservableSet(const BCObservableSet& other, bool share_pointers)
+    : BCVariableSet<BCObservable>(other)
+{
+    if (!share_pointers)
+        for (unsigned i = 0; i < fVars.size(); ++i)
+            fVars[i].SetValueLocation(new double);
+}
+
+// ---------------------------------------------------------
 BCObservableSet::~BCObservableSet()
 {
 }
