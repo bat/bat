@@ -22,32 +22,38 @@ BCModelManager::BCModelManager()
 }
 
 // ---------------------------------------------------------
+BCModelManager::BCModelManager(const BCModelManager& other)
+    : fModels(other.fModels),
+      fAPrioriProbability(other.fAPrioriProbability),
+      fAPosterioriProbability(other.fAPosterioriProbability),
+      fDataSet(other.fDataSet)
+{
+}
 
+// ---------------------------------------------------------
 BCModelManager::~BCModelManager()
 {
     delete fDataSet;
 }
 
 // ---------------------------------------------------------
-
-BCModelManager::BCModelManager(const BCModelManager& other)
-    : fModels(other.fModels)
-    , fDataSet(other.fDataSet)
-{
-}
-
-// ---------------------------------------------------------
-
 BCModelManager& BCModelManager::operator = (const BCModelManager& rhs)
 {
-    // copy pointers only
-    fModels  = rhs.fModels;
-    fDataSet = rhs.fDataSet;
+    BCModelManager temp(rhs);
+    swap(*this, temp);
     return *this;
 }
 
 // ---------------------------------------------------------
+void swap(BCModelManager& A, BCModelManager& B)
+{
+    std::swap(A.fModels,                 B.fModels);
+    std::swap(A.fAPrioriProbability,     B.fAPrioriProbability);
+    std::swap(A.fAPosterioriProbability, B.fAPosterioriProbability);
+    std::swap(A.fDataSet,                B.fDataSet);
+}
 
+// ---------------------------------------------------------
 void BCModelManager::SetDataSet(BCDataSet* dataset)
 {
     // set data set

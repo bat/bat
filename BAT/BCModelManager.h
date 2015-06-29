@@ -35,7 +35,7 @@ class BCModelManager
 {
 public:
 
-    /** \name Constructors and destructors */
+    /** \name Constructors and destructor */
     /** @{ */
 
     /**
@@ -52,12 +52,15 @@ public:
 
     /** @} */
 
-    /** \name Assignment operators */
+    /** \name operators and swap*/
     /** @{ */
 
     /**
      * The defaut assignment operator */
     BCModelManager& operator = (const BCModelManager& modelmanager);
+
+    /** swap */
+    friend void swap(BCModelManager& A, BCModelManager& B);
 
     /** @} */
 
