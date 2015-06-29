@@ -15,7 +15,6 @@
 // ---------------------------------------------------------
 BCTF1Prior::BCTF1Prior(TF1& f)
     : BCPrior()
-      // fPriorFunction(f)
 {
     fPriorFunction = f;
 }
@@ -39,8 +38,10 @@ BCTF1Prior::~BCTF1Prior()
 {
 }
 
-
-
-
-
-
+// ---------------------------------------------------------
+BCTF1Prior& BCTF1Prior::operator=(const BCTF1Prior& rhs)
+{
+    BCTF1Prior temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
