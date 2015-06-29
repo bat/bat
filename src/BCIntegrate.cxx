@@ -195,54 +195,6 @@ BCIntegrate::BCIntegrate(const BCIntegrate& other)
 }
 
 // ---------------------------------------------------------
-void BCIntegrate::Copy(const BCIntegrate& other)
-{
-    BCEngineMCMC::Copy(other);
-
-    fBestFitParameters        = other.fBestFitParameters;
-    fBestFitParameterErrors   = other.fBestFitParameterErrors;
-    fLogMaximum               = other.fLogMaximum;
-    fMinuit                   = new TMinuit();
-    fMinuitArglist[0]         = other.fMinuitArglist[0];
-    fMinuitArglist[1]         = other.fMinuitArglist[1];
-    fMinuitErrorFlag          = other.fMinuitErrorFlag;
-    fFlagIgnorePrevOptimization = other.fFlagIgnorePrevOptimization;
-    fSAT0                     = other.fSAT0;
-    fSATmin                   = other.fSATmin;
-    fSATree = 0;
-    fFlagWriteSAToFile        = other.fFlagWriteSAToFile;
-    fSANIterations            = other.fSANIterations;
-    fSATemperature            = other.fSATemperature;
-    fSALogProb                = other.fSALogProb;
-    fSAx                      = other.fSAx;
-    fSAOutputFile             = 0;
-    fSAOutputFilename         = other.fSAOutputFilename;
-    fSAOutputFileOption       = other.fSAOutputFileOption;
-    fSAOutputFileAutoclose    = other.fSAOutputFileAutoclose;
-    fOptimizationMethodCurrent = other.fOptimizationMethodCurrent;
-    fOptimizationMethodUsed   = other.fOptimizationMethodUsed;
-    fIntegrationMethodCurrent = other.fIntegrationMethodCurrent;
-    fIntegrationMethodUsed    = other.fIntegrationMethodUsed;
-    fMarginalizationMethodCurrent = other.fMarginalizationMethodCurrent;
-    fMarginalizationMethodUsed = other.fMarginalizationMethodUsed;
-    fSASchedule               = other.fSASchedule;
-    fNIterationsMin           = other.fNIterationsMin;
-    fNIterationsMax           = other.fNIterationsMax;
-    fNIterationsPrecisionCheck = other.fNIterationsPrecisionCheck;
-    fNIterations              = other.fNIterations;
-    fIntegral                 = other.fIntegral;
-    fRelativePrecision        = other.fRelativePrecision;
-    fAbsolutePrecision        = other.fAbsolutePrecision;
-    fError                    = other.fError;
-    fCubaIntegrationMethod    = other.fCubaIntegrationMethod;
-    fCubaVegasOptions         = other.fCubaVegasOptions;
-    fCubaSuaveOptions         = other.fCubaSuaveOptions;
-    fCubaDivonneOptions       = other.fCubaDivonneOptions;
-    fCubaCuhreOptions         = other.fCubaCuhreOptions;
-    fFlagMarginalized         = other.fFlagMarginalized;
-}
-
-// ---------------------------------------------------------
 BCIntegrate::~BCIntegrate()
 {
     delete fMinuit;

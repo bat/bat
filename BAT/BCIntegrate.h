@@ -869,11 +869,6 @@ protected:
     void LogOutputAtEndOfIntegration(double integral, double absprecision, double relprecision, int nIterations);
 
     /**
-     * Copy from other object
-     * @param bcintegrate BCIntegrate object to copy values from */
-    void Copy(const BCIntegrate& bcintegrate);
-
-    /**
      * flag indicating if the model was marginalized */
     bool fFlagMarginalized;
 

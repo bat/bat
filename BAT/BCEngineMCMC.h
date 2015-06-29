@@ -1116,11 +1116,6 @@ public:
     virtual void InitializeMarkovChainTree(bool replacetree = false, bool replacefile = false);
 
     /**
-     * Copy object
-     * @param enginemcmc Object to copy from */
-    void Copy(const BCEngineMCMC& enginemcmc);
-
-    /**
      * @deprecated Instead use GetParameters().Add(...)
      * Adds a parameter.
      * @param name Name of parameter
