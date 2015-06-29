@@ -45,19 +45,19 @@ int main()
 
     // draw all marginalized distributions into a pdf file
     m.PrintAllMarginalized("ReferenceCounting_plots.pdf");
-    m.GetBCH1DdrawingOptions()->SetLogy();
+    m.GetBCH1DdrawingOptions().SetLogy();
     m.PrintAllMarginalized("ReferenceCounting_logy.pdf");
 
     // print knowledge update with detailed posteriors
-    m.SetKnowledgeUpdateDrawingStyle(BCModel::kKnowledgeUpdateDetailedPosterior);
-    m.GetBCH2DPosteriorDrawingOptions()->SetNSmooth(0);
+    m.SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDetailedPosterior);
+    m.GetBCH2DPosteriorDrawingOptions().SetNSmooth(0);
     m.PrintKnowledgeUpdatePlots("ReferenceCounting_update.pdf");
 
     // print results of the analysis to the log
     m.PrintSummary();
 
     // print slice results to log
-    m.GetMarginalized("s")->PrintSummary();
+    m.GetMarginalized("s").PrintSummary();
 
     // close log file
     BCLog::CloseLog();

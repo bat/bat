@@ -38,19 +38,19 @@ double GaussModel::MCMCTrialFunctionSingle(unsigned ichain, unsigned ipar)
     // choose trial function by uncommenting choices below
 
     // Gaussian with fixed width
-    //  return fRandom->Gaus(0.0, 1.0);
+    //  return fRandom.Gaus(0.0, 1.0);
 
     // Gaussian with adjustable width
-    //  return fRandom->Gaus(0.0, scale);
+    //  return fRandom.Gaus(0.0, scale);
 
     // Breit-Wigner with adjustable width
-    //  return fRandom->BreitWigner(0.0, scale);
+    //  return fRandom.BreitWigner(0.0, scale);
 
     // Flat function with adjustable width
-    //  return scale * 2. * (0.5 - fRandom->Uniform());
+    //  return scale * 2. * (0.5 - fRandom.Uniform());
 
     // Flat function with fixed width
-    return 0.02 * (0.5 - fRandom->Uniform());
+    return 0.02 * (0.5 - fRandom.Uniform());
 }
 
 

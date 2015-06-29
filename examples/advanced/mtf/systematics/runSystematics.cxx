@@ -52,100 +52,96 @@ int main()
     // ---- perform fitting ---- //
 
     // create new fitter object
-    BCMTF* m = new BCMTF();
+    BCMTF m;
 
 
     // set Metropolis as marginalization method
-    m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set the required precision of the MCMC (kLow, kMedium, kHigh)
     // the higher the precision the longer the MCMC run
-    m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m.MCMCSetPrecision(BCEngineMCMC::kMedium);
 
     // add channels
-    m->AddChannel("channel1");
-    m->AddChannel("channel2");
+    m.AddChannel("channel1");
+    m.AddChannel("channel2");
 
     // add processes
-    m->AddProcess("background", 150., 500.);
-    m->AddProcess("signal",       0., 200.);
+    m.AddProcess("background", 150., 500.);
+    m.AddProcess("signal",       0., 200.);
 
     // add systematics
-    m->AddSystematic("systematic1", -5., 5.);
-    m->AddSystematic("systematic2", -5., 5.);
+    m.AddSystematic("systematic1", -5., 5.);
+    m.AddSystematic("systematic2", -5., 5.);
 
     // set data
-    m->SetData("channel1", hist_data1);
-    m->SetData("channel2", hist_data2);
+    m.SetData("channel1", hist_data1);
+    m.SetData("channel2", hist_data2);
 
     // set template histograms
-    m->SetTemplate("channel1", "background", hist_background, 1.0);
-    m->SetTemplate("channel1", "signal",     hist_signal,     1.0);
+    m.SetTemplate("channel1", "background", hist_background, 1.0);
+    m.SetTemplate("channel1", "signal",     hist_signal,     1.0);
 
-    m->SetTemplate("channel2", "background", hist_background, 1.0);
-    m->SetTemplate("channel2", "signal",     hist_signal,     0.5);
+    m.SetTemplate("channel2", "background", hist_background, 1.0);
+    m.SetTemplate("channel2", "signal",     hist_signal,     0.5);
 
     // set systematic histograms
-    m->SetSystematicVariation("channel1", "background", "systematic1", 0.1, 0.1);
-    m->SetSystematicVariation("channel1", "signal", "systematic1", hist_syst1_sgn_1, hist_syst1_sgn_1);
-    m->SetSystematicVariation("channel2", "background", "systematic1", 0.1, 0.1);
-    m->SetSystematicVariation("channel2", "signal", "systematic1", hist_syst1_sgn_2, hist_syst1_sgn_2);
+    m.SetSystematicVariation("channel1", "background", "systematic1", 0.1, 0.1);
+    m.SetSystematicVariation("channel1", "signal", "systematic1", hist_syst1_sgn_1, hist_syst1_sgn_1);
+    m.SetSystematicVariation("channel2", "background", "systematic1", 0.1, 0.1);
+    m.SetSystematicVariation("channel2", "signal", "systematic1", hist_syst1_sgn_2, hist_syst1_sgn_2);
 
-    m->SetSystematicVariation("channel1", "background", "systematic2", hist_syst2_bkg_1, hist_syst2_bkg_1);
-    m->SetSystematicVariation("channel1", "signal", "systematic2", hist_syst2_sgn_1, hist_syst2_sgn_1);
-    m->SetSystematicVariation("channel2", "background", "systematic2", hist_syst2_bkg_2, hist_syst2_bkg_2);
-    m->SetSystematicVariation("channel2", "signal", "systematic2", hist_syst2_sgn_2, hist_syst2_sgn_2);
+    m.SetSystematicVariation("channel1", "background", "systematic2", hist_syst2_bkg_1, hist_syst2_bkg_1);
+    m.SetSystematicVariation("channel1", "signal", "systematic2", hist_syst2_sgn_1, hist_syst2_sgn_1);
+    m.SetSystematicVariation("channel2", "background", "systematic2", hist_syst2_bkg_2, hist_syst2_bkg_2);
+    m.SetSystematicVariation("channel2", "signal", "systematic2", hist_syst2_sgn_2, hist_syst2_sgn_2);
 
     // set priors
-    m->SetPriorGauss("background", 300., 30.);
-    m->SetPriorConstant("signal");
-    m->SetPriorGauss("systematic1", 0., 1.);
-    m->SetPriorGauss("systematic2", 0., 1.);
+    m.SetPriorGauss("background", 300., 30.);
+    m.SetPriorConstant("signal");
+    m.SetPriorGauss("systematic1", 0., 1.);
+    m.SetPriorGauss("systematic2", 0., 1.);
 
     // run MCMC
-    m->MarginalizeAll();
+    m.MarginalizeAll();
 
     // find global mode
-    m->FindMode(m->GetGlobalMode());
+    m.FindMode(m.GetGlobalMode());
 
     // print all marginalized distributions
-    m->PrintAllMarginalized("marginalized.pdf");
+    m.PrintAllMarginalized("marginalized.pdf");
 
-    // print results of the analysis into a text file
-    m->PrintResults("results.txt");
+    // print results of the analysis into the log
+    m.PrintSummary();
 
     // print summary results
-    m->PrintParameterPlot("summary_parameters.pdf");
-    m->PrintCorrelationPlot("summary_correlationplot.pdf");
-    m->PrintCorrelationMatrix("summary_correlationmatrix.pdf");
-    m->PrintKnowledgeUpdatePlots("summary_update.pdf");
+    m.PrintParameterPlot("summary_parameters.pdf");
+    m.PrintCorrelationPlot("summary_correlationplot.pdf");
+    m.PrintCorrelationMatrix("summary_correlationmatrix.pdf");
+    m.PrintKnowledgeUpdatePlots("summary_update.pdf");
 
     // print templates and stacks
-    for (int i = 0; i < m->GetNChannels(); ++i) {
-        BCMTFChannel* channel = m->GetChannel(i);
+    for (int i = 0; i < m.GetNChannels(); ++i) {
+        BCMTFChannel* channel = m.GetChannel(i);
         channel->PrintTemplates(Form("%s_templates.pdf", channel->GetName().c_str()));
         channel->PrintTemplate(0, Form("background_%i.pdf", i));
         channel->PrintTemplate(1, Form("signal_%i.pdf", i));
 
-        m->PrintStack(i, m->GetGlobalMode(), Form("%s_stack.pdf", channel->GetName().c_str()));
+        m.PrintStack(i, m.GetGlobalMode(), Form("%s_stack.pdf", channel->GetName().c_str()));
     }
 
     // ---- perform single systematic analysis ---- //
 
     // create new analysis facility
-    BCMTFAnalysisFacility* facility = new BCMTFAnalysisFacility(m);
+    BCMTFAnalysisFacility facility(&m);
 
     // perform analysis
-    facility->PerformSingleSystematicAnalyses("systematics");
+    facility.PerformSingleSystematicAnalyses("systematics");
 
     // ---- clean up ---- //
 
     // close log file
     BCLog::CloseLog();
-
-    // free memory
-    delete m;
-    delete facility;
 
     return 1;
 }

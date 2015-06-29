@@ -27,7 +27,7 @@ int main()
     m.PrintAllMarginalized("CombinationModel_plots.pdf");
 
     // print knowledge update plot, with detailed posterior
-    m.SetKnowledgeUpdateDrawingStyle(BCModel::kKnowledgeUpdateDetailedPosterior);
+    m.SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDetailedPosterior);
     m.PrintKnowledgeUpdatePlots("CombinationModel_update.pdf");
 
     // print results of the analysis to the log

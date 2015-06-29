@@ -43,19 +43,19 @@ int main(int argc, char* argv[])
     std::vector<double> area_unc;
 
     // create new MyCombination object
-    MyCombination* m = new MyCombination();
+    MyCombination m;
 
     // set Metropolis as marginalization method
-    m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
+    m.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set flag for physical constraints
-    m->SetFlagPhysicalConstraints(flag_phys);
+    m.SetFlagPhysicalConstraints(flag_phys);
 
     // set precision
-    m->MCMCSetPrecision(BCIntegrate::kMedium);
+    m.MCMCSetPrecision(BCIntegrate::kMedium);
 
     if (argc == 2) {
-        int isopen = m->ReadInput(argv[1]);
+        int isopen = m.ReadInput(argv[1]);
         if (!isopen) {
             std::cout << "Could not open file. Exit." << std::endl;
             return 1;
@@ -66,38 +66,38 @@ int main(int argc, char* argv[])
     }
 
     // get number of measurements
-    int nmeas = m->GetNMeasurements();
+    int nmeas = m.GetNMeasurements();
 
     // get number of uncertainties
-    int nunc  = m->GetNUncertainties();
+    int nunc  = m.GetNUncertainties();
 
     // ----- Full 2D analysis --------------------
 
     if (flag_full) {
         // perform numerical analysis using MCMC
-        m->MarginalizeAll();
+        m.MarginalizeAll();
 
         // find mode using Minuit
-        m->FindMode(m->GetGlobalMode());
+        m.FindMode(m.GetGlobalMode());
 
-        m->PrintAllMarginalized("MyCombination_full_plots.pdf");
+        m.PrintAllMarginalized("MyCombination_full_plots.pdf");
 
-        BCH2D* h2 = m->GetMarginalized("F0", "FL");
+        BCH2D h2 = m.GetMarginalized("F0", "FL");
 
         // calculate correlation between F0 and FL
-        rho_all = h2->GetHistogram()->GetCorrelationFactor();
+        rho_all = h2.GetHistogram()->GetCorrelationFactor();
 
         // calculate size of uncertainty
-        area_all = h2->GetSmallestIntervalSize(0.39);
+        area_all = h2.GetSmallestIntervalSize(0.39);
 
         // print results of numerical analysis to log
-        m->PrintSummary();
+        m.PrintSummary();
 
         // calculate BLUE
-        m->CalculateBLUE();
+        m.CalculateBLUE();
 
         // print BLUE results to file
-        m->PrintBLUEResults("MyCombination_full_BLUE.txt");
+        m.PrintBLUEResults("MyCombination_full_BLUE.txt");
     }
 
     // ----- Remove one measurement at a time --------------------
@@ -109,26 +109,26 @@ int main(int argc, char* argv[])
         for (int i = 0; i < nmeas; ++i) {
             for (int j = 0; j < nmeas; ++j) {
                 if (i == j)
-                    m->GetMeasurement(j)->SetFlagActive(false);
+                    m.GetMeasurement(j)->SetFlagActive(false);
                 else
-                    m->GetMeasurement(j)->SetFlagActive(true);
+                    m.GetMeasurement(j)->SetFlagActive(true);
             }
-            m->PrepareAnalysis();
-            m->MarginalizeAll();
-            m->FindMode(m->GetGlobalMode());
-            m->PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
+            m.PrepareAnalysis();
+            m.MarginalizeAll();
+            m.FindMode(m.GetGlobalMode());
+            m.PrintAllMarginalized(Form("MyCombination_measurement_%i_plots.pdf", i));
             BCLog::OutSummary(Form("Switching off %d-th measurement", i));
-            m->PrintSummary();
+            m.PrintSummary();
 
-            BCH2D* h2 = m->GetMarginalized("F0", "FL");
-            rho_single.push_back(h2->GetHistogram()->GetCorrelationFactor());
-            area_single.push_back(h2->GetSmallestIntervalSize(0.39));
+            BCH2D h2 = m.GetMarginalized("F0", "FL");
+            rho_single.push_back(h2.GetHistogram()->GetCorrelationFactor());
+            area_single.push_back(h2.GetSmallestIntervalSize(0.39));
         }
 
         // switch all measurements on
         for (int j = 0; j < nmeas; ++j)
-            m->GetMeasurement(j)->SetFlagActive(true);
-        m->PrepareAnalysis();
+            m.GetMeasurement(j)->SetFlagActive(true);
+        m.PrepareAnalysis();
     }
 
     // ----- Remove one uncertainty at a time --------------------
@@ -140,50 +140,47 @@ int main(int argc, char* argv[])
         for (int i = 0; i < nunc; ++i) {
             for (int j = 0; j < nunc; ++j) {
                 if (i == j)
-                    m->GetUncertainty(j)->SetFlagActive(false);
+                    m.GetUncertainty(j)->SetFlagActive(false);
                 else
-                    m->GetUncertainty(j)->SetFlagActive(true);
+                    m.GetUncertainty(j)->SetFlagActive(true);
             }
-            m->PrepareAnalysis();
-            m->MarginalizeAll();
-            m->FindMode(m->GetGlobalMode());
-            m->PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
+            m.PrepareAnalysis();
+            m.MarginalizeAll();
+            m.FindMode(m.GetGlobalMode());
+            m.PrintAllMarginalized(Form("MyCombination_uncertainty_%i_plots.pdf", i));
             BCLog::OutSummary(Form("Siwtching of %d-th uncertainty", i));
-            m->PrintSummary();
-            BCH2D* h2 = m->GetMarginalized("F0", "FL");
-            rho_unc.push_back(h2->GetHistogram()->GetCorrelationFactor());
-            area_unc.push_back(h2->GetSmallestIntervalSize(0.39));
+            m.PrintSummary();
+            BCH2D h2 = m.GetMarginalized("F0", "FL");
+            rho_unc.push_back(h2.GetHistogram()->GetCorrelationFactor());
+            area_unc.push_back(h2.GetSmallestIntervalSize(0.39));
         }
 
         // switch all uncertainties on
         for (int j = 0; j < nunc; ++j)
-            m->GetUncertainty(j)->SetFlagActive(true);
-        m->PrepareAnalysis();
+            m.GetUncertainty(j)->SetFlagActive(true);
+        m.PrepareAnalysis();
     }
 
     // ----- Goodness-of-fit --------------------
 
     if (flag_gof) {
         // test goodness-of-fit
-        BCMVCDataModel* dm = new BCMVCDataModel(m);
+        BCMVCDataModel dm(&m);
 
         TH1D* hist_chi2 = new TH1D("chi2", ";#chi^{2};p(#chi^{2})", 100, 0., 30.);
         hist_chi2->SetStats(kFALSE);
 
-        dm->SetHistChi2(hist_chi2);
-        dm->SetMeasurementRanges(-0.5, 2.0);
+        dm.SetHistChi2(hist_chi2);
+        dm.SetMeasurementRanges(-0.5, 2.0);
         std::vector<double> SM(2);
         SM[0] = 0.687;
         SM[1] = 0.311;
-        dm->SetParameters(SM);
+        dm.SetParameters(SM);
 
-        dm->MarginalizeAll();
-        dm->PrintAllMarginalized("gof_plots.pdf");
-        dm->PrintToys("gof_chi2.pdf");
-        dm->PrintSummary();
-
-        // free memory
-        delete dm;
+        dm.MarginalizeAll();
+        dm.PrintAllMarginalized("gof_plots.pdf");
+        dm.PrintToys("gof_chi2.pdf");
+        dm.PrintSummary();
     }
 
     // ----- Print results to screen --------------------
@@ -212,9 +209,6 @@ int main(int argc, char* argv[])
         }
         std::cout << std::endl;
     }
-
-    // free memory
-    delete m;
 
     // close log file
     BCLog::CloseLog();

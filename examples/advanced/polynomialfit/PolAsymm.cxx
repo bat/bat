@@ -37,7 +37,7 @@ double PolAsymm::LogLikelihood(const std::vector<double>& par)
     // loop over the data points
     for (unsigned i = 0 ; i < GetNDataPoints(); i++) {
         // get data point
-        std::vector<double> x = GetDataSet()->GetDataPoint(i)->GetValues();
+        const std::vector<double>& x = GetDataSet()->GetDataPoint(i).GetValues();
 
         // calculate the value of the function at this point
         double y_func = FitFunction(x, par);

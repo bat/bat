@@ -60,7 +60,7 @@ bool ReferenceCounting::SetPrior(ReferenceCounting::EvalOption option, double sh
             // Create TF1 prior for signal and fit it to histogram created above
             GetParameter("s").SetPrior(new BCTF1Prior("sqrt(([0]*exp([1]*x^0.125))/(x+[0]*exp([1]*x^0.125)))",
                                        h_s->GetXaxis()->GetXmin(), h_s->GetXaxis()->GetXmax()));
-            h_s->Fit(GetParameter("s").GetPrior()->GetFunction());
+            h_s->Fit(&GetParameter("s").GetPrior()->GetFunction());
             delete h_s;
 
             GetParameter("b").SetPrior(conjprior);

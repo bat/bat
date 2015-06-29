@@ -28,7 +28,7 @@ double RefPrior::LogSqrtI(double s) const
     double sum = 0;
     double inc = 1.;
 
-    for (int n = 0; n <= fMaxK; ++n) {
+    for (unsigned n = 0; n <= fMaxK; ++n) {
         double t1 = F(s, n);
         double t2 = F(s, n + 1);
         double dsum = t1 * t1 / t2;
@@ -57,7 +57,7 @@ double RefPrior::F(double s, unsigned k) const
 
     double sum = 0;
 
-    for (int n = 0; n <= k; ++n)
+    for (unsigned n = 0; n <= k; ++n)
         sum += exp(BCMath::LogBinomFactor(fShape + n - 1, n) + (k - n) * logs - n * logb - BCMath::ApproxLogFact(k - n));
 
     return sum;
