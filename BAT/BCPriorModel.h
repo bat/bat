@@ -32,6 +32,9 @@ class BCPriorModel : public BCModel
 
 public:
 
+    /** \name Constructor and destructor */
+    /** @{ */
+
     /**
      * constructor.
      * @param model Model to be prior model of.
@@ -41,6 +44,19 @@ public:
     /**
      * destructor. */
     ~BCPriorModel();
+
+    /** @} */
+
+    /** \name operators and swap */
+    /** @{ */
+
+    /** assignment operator */
+    BCPriorModel& operator=(const BCPriorModel& rhs);
+
+    /** swap */
+    friend void swap(BCPriorModel& A, BCPriorModel& B);
+
+    /** @} */
 
     /**
      * Returns a constant prior. */
@@ -80,8 +96,6 @@ protected:
 private:
 
     using BCModel::GetPriorModel;
-    /* using BCModel::DrawKnowledgeUpdatePlot1D; */
-    /* using BCModel::DrawKnowledgeUpdatePlot2D; */
     using BCModel::GetPrior;
     using BCModel::PrintKnowledgeUpdatePlots;
 
