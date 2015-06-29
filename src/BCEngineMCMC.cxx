@@ -132,7 +132,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCCurrentIteration(other.fMCMCCurrentIteration),
       fMCMCCurrentChain(other.fMCMCCurrentChain),
       fMCMCNIterationsPreRunCheck(other.fMCMCNIterationsPreRunCheck),
-      fMCMCNIterationsClearConvergenceStats(other.fMCMCNIterationsClearConvergenceStats),
+      fMCMCPreRunCheckClear(other.fMCMCPreRunCheckClear),
       fMCMCNIterationsConvergenceGlobal(other.fMCMCNIterationsConvergenceGlobal),
       fMCMCNIterationsPreRunMax(other.fMCMCNIterationsPreRunMax),
       fMCMCNIterationsRun(other.fMCMCNIterationsRun),
@@ -229,7 +229,7 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCCurrentIteration, B.fMCMCCurrentIteration);
     std::swap(A.fMCMCCurrentChain, B.fMCMCCurrentChain);
     std::swap(A.fMCMCNIterationsPreRunCheck, B.fMCMCNIterationsPreRunCheck);
-    std::swap(A.fMCMCNIterationsClearConvergenceStats, B.fMCMCNIterationsClearConvergenceStats);
+    std::swap(A.fMCMCPreRunCheckClear, B.fMCMCPreRunCheckClear);
     std::swap(A.fMCMCNIterationsConvergenceGlobal, B.fMCMCNIterationsConvergenceGlobal);
     std::swap(A.fMCMCNIterationsPreRunMax, B.fMCMCNIterationsPreRunMax);
     std::swap(A.fMCMCNIterationsRun, B.fMCMCNIterationsRun);
@@ -337,7 +337,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMax             = 10000;
             fMCMCNIterationsRun                   = 10000;
             fMCMCNIterationsPreRunCheck           = 500;
-            fMCMCNIterationsClearConvergenceStats = 5000;
+            fMCMCPreRunCheckClear                 = 10;
             fMultivariateProposalFunctionUpdatesMinimum = 2;
             break;
 
@@ -348,7 +348,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMax             = 10000;
             fMCMCNIterationsRun                   = 10000;
             fMCMCNIterationsPreRunCheck           = 500;
-            fMCMCNIterationsClearConvergenceStats = 5000;
+            fMCMCPreRunCheckClear                 = 10;
             fMultivariateProposalFunctionUpdatesMinimum = 2;
             break;
 
@@ -359,7 +359,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMax             = 100000;
             fMCMCNIterationsRun                   = 100000;
             fMCMCNIterationsPreRunCheck           = 500;
-            fMCMCNIterationsClearConvergenceStats = 5000;
+            fMCMCPreRunCheckClear                 = 10;
             fMultivariateProposalFunctionUpdatesMinimum = 2;
             break;
 
@@ -370,7 +370,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMax             = 1000000;
             fMCMCNIterationsRun                   = 1000000;
             fMCMCNIterationsPreRunCheck           = 1000;
-            fMCMCNIterationsClearConvergenceStats = 5000;
+            fMCMCPreRunCheckClear                 = 5;
             fMultivariateProposalFunctionUpdatesMinimum = 4;
             break;
 
@@ -381,7 +381,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsPreRunMax             = 10000000;
             fMCMCNIterationsRun                   = 10000000;
             fMCMCNIterationsPreRunCheck           = 1000;
-            fMCMCNIterationsClearConvergenceStats = 5000;
+            fMCMCPreRunCheckClear                 = 5;
             fMultivariateProposalFunctionUpdatesMinimum = 9;
             break;
     }
@@ -396,7 +396,7 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC& other)
     fMCMCNIterationsPreRunMax             = other.fMCMCNIterationsPreRunMax;
     fMCMCNIterationsRun                   = other.fMCMCNIterationsRun;
     fMCMCNIterationsPreRunCheck           = other.fMCMCNIterationsPreRunCheck;
-    fMCMCNIterationsClearConvergenceStats = other.fMCMCNIterationsClearConvergenceStats;
+    fMCMCPreRunCheckClear                 = other.fMCMCPreRunCheckClear;
     fMCMCRValueParametersCriterion        = other.fMCMCRValueParametersCriterion;
     fMCMCEfficiencyMin                    = other.fMCMCEfficiencyMin;
     fMCMCEfficiencyMax                    = other.fMCMCEfficiencyMax;
@@ -416,7 +416,7 @@ void BCEngineMCMC::Copy(const BCEngineMCMC& other)
     fMCMCCurrentIteration                     = other.fMCMCCurrentIteration;
     fMCMCCurrentChain                         = other.fMCMCCurrentChain;
     fMCMCNIterationsPreRunCheck               = other.fMCMCNIterationsPreRunCheck;
-    fMCMCNIterationsClearConvergenceStats     = other.fMCMCNIterationsClearConvergenceStats;
+    fMCMCPreRunCheckClear                     = other.fMCMCPreRunCheckClear;
     fMCMCNIterationsConvergenceGlobal         = other.fMCMCNIterationsConvergenceGlobal;
     fMCMCNIterationsPreRunMax                 = other.fMCMCNIterationsPreRunMax;
     fMCMCNIterationsRun                       = other.fMCMCNIterationsRun;
@@ -1765,13 +1765,12 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
     unsigned nIterationsPreRunCheck = fMCMCNIterationsPreRunCheck;
 
-    if ( fMCMCNIterationsClearConvergenceStats > 0 and nIterationsPreRunCheck > fMCMCNIterationsClearConvergenceStats )
-        nIterationsPreRunCheck = fMCMCNIterationsClearConvergenceStats;
-
     fMCMCNIterationsConvergenceGlobal = -1;
 
     // Cholesky Decomposer for multivariate proposal function
     TDecompChol CholeskyDecomposer;
+
+    unsigned nChecks = 0;
 
     // While loop criteria---do while:
     //     not yet at maximum number of iterations
@@ -1937,6 +1936,8 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             } // end convergence conditional
         } // end chains>1 conditional
 
+        ++nChecks;              // increase number of checks made
+
         if ( // scales have not been adjusted
             !scalesAdjusted
             and
@@ -1959,9 +1960,15 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             ++mvt_updates;
         }
 
+        if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax)
+            continue;
+
         // reset statistics
         for (unsigned c = 0; c < fMCMCStatistics.size(); ++c)
-            fMCMCStatistics[c].Reset(false, true); // preserve mode information, clear efficiency information
+            if (fMCMCPreRunCheckClear > 0 and nChecks % fMCMCPreRunCheckClear == 0)
+                fMCMCStatistics[c].Reset(false, true); // clear means and (co)variances, preserve mode information, clear efficiency information
+            else
+                fMCMCStatistics[c].ResetEfficiencies(); // clear only efficiency information
 
     } // end prerun iteration while loop
 

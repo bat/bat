@@ -241,8 +241,8 @@ public:
 
     /**
      * @return number of iterations between clearings of statistics for convergence checking. */
-    unsigned MCMCGetNIterationsClearConvergenceStats() const
-    { return fMCMCNIterationsClearConvergenceStats; }
+    unsigned MCMCGetPreRunCheckClear()
+    { return fMCMCPreRunCheckClear; }
 
     /**
      * @return minimum efficiency required for a chain. */
@@ -723,10 +723,9 @@ public:
     { fMCMCNIterationsPreRunCheck = n; }
 
     /**
-     * Sets the number of iterations between clearings of convergence
-     * checking stats. */
-    void MCMCSetNIterationsClearConvergenceStats(unsigned n)
-    { fMCMCNIterationsClearConvergenceStats = n; }
+     * Sets the number of prerun checks to make inbetween statistics clearing. */
+    void MCMCSetPreRunCheckClear(unsigned n)
+    { fMCMCPreRunCheckClear = n; }
 
     /**
      * Sets the minimum efficiency required for a chain. */
@@ -1476,7 +1475,7 @@ protected:
 
     /**
      * Number of iterations between clearing of convergence stats in pre-run.*/
-    unsigned fMCMCNIterationsClearConvergenceStats;
+    unsigned fMCMCPreRunCheckClear;
 
     /**
      * Number of iterations needed for all chains to convergence

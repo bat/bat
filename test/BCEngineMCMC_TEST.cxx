@@ -24,7 +24,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
 
     m.MCMCSetNChains(2);
     m.MCMCSetNIterationsPreRunCheck(500);
-    m.MCMCSetNIterationsClearConvergenceStats(20000);
+    m.MCMCSetPreRunCheckClear(40);
     m.MCMCSetNIterationsPreRunMax(1000000);
     m.MCMCSetNIterationsPreRunMin(1000);
     m.MCMCSetNIterationsRun(100000);
@@ -69,7 +69,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
 
             // we don't know the effective sample size but should use it here
             // instead of an arbitrary factor
-            static const double ess = 10;
+            static const double ess = 15;
             TEST_CHECK_NEARLY_EQUAL(s[j].mean[i], 0, ess * bestError);
 
             // variance estimate much worse than mean estimate
@@ -86,8 +86,8 @@ GaussModel* gauss_check(bool multivariate_proposal)
                 if (i != k)
                     TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][k], 0.0, 2);
 
-            // expect to be within 3-5 sigma for 1e5 samples
-            static const double xmin = 3 * sigma;
+            // expect to be within 2.75--5 sigma for 1e5 samples
+            static const double xmin = 2.75 * sigma;
             static const double xmax = 5 * sigma;
             TEST_CHECK(s[j].maximum[i] > xmin);
             TEST_CHECK(s[j].maximum[i] < xmax);
@@ -95,7 +95,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
             TEST_CHECK(s[j].minimum[i] > -xmax);
 
             // mcmc not a great mode finder => large uncertainty
-            TEST_CHECK_NEARLY_EQUAL(s[j].mode[i], 0, 0.5);
+            TEST_CHECK_NEARLY_EQUAL(s[j].mode[i], 0, 1);
 
             // 23.8% is "optimal" acceptance rate for Gaussian target in high dimensions
             // and Gaussian proposal
@@ -145,7 +145,7 @@ GaussModel* gauss_check(bool multivariate_proposal)
         }
 
 
-        // expect to be within 3.5-5 sigma for 1e5 samples
+        // expect to be within 3.5-5 sigma for 2e5 samples
         static const double xmin = 3.5 * sigma;
         static const double xmax = 5 * sigma;
         TEST_CHECK(S.maximum[i] > xmin);
