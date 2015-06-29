@@ -28,9 +28,25 @@ BCGaussianPrior::BCGaussianPrior(const BCGaussianPrior& other)
     , fSigma(other.fSigma)
 {}
 
-// // ---------------------------------------------------------
+// ---------------------------------------------------------
 BCGaussianPrior::~BCGaussianPrior()
 {
+}
+
+// ---------------------------------------------------------
+BCGaussianPrior& BCGaussianPrior::operator=(const BCGaussianPrior& rhs)
+{
+    BCGaussianPrior temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCGaussianPrior& A, BCGaussianPrior& B)
+{
+    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
+    std::swap(A.fMean,  B.fMean);
+    std::swap(A.fSigma, B.fSigma);
 }
 
 // ---------------------------------------------------------
