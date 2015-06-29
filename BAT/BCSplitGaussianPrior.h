@@ -45,6 +45,17 @@ public:
 
     /** @} **/
 
+    /** \name operators and swap */
+    /** @{ */
+
+    /** assignment operator */
+    BCSplitGaussianPrior& operator=(const BCSplitGaussianPrior& rhs);
+
+    /** swap */
+    friend void swap(BCSplitGaussianPrior& A, BCSplitGaussianPrior& B);
+
+    /** @} */
+
     /** \name Functions overloaded from BCPrior **/
     /** @{ **/
 

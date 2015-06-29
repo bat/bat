@@ -39,6 +39,23 @@ BCSplitGaussianPrior::~BCSplitGaussianPrior()
 }
 
 // ---------------------------------------------------------
+BCSplitGaussianPrior& BCSplitGaussianPrior::operator=(const BCSplitGaussianPrior& rhs)
+{
+    BCSplitGaussianPrior temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCSplitGaussianPrior& A, BCSplitGaussianPrior& B)
+{
+    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
+    std::swap(A.fMode, B.fMode);
+    std::swap(A.fSigmaBelow, B.fSigmaBelow);
+    std::swap(A.fSigmaAbove, B.fSigmaAbove);
+}
+
+// ---------------------------------------------------------
 double BCSplitGaussianPrior::GetLogPrior(double x) const
 {
     if (x > fMode)
