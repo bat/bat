@@ -35,7 +35,7 @@ class BCDataPoint
 {
 public:
 
-    /** \name Constructors and destructors */
+    /** \name Constructors and destructor */
     /** @{ */
 
     /**
@@ -52,10 +52,21 @@ public:
      * Copy constructor. */
     BCDataPoint(const BCDataPoint& other);
 
+    /**
+     * Destructor */
+    ~BCDataPoint();
+
     /** @} */
 
-    /** \name Member functions (get) */
+    /** \name operators and swap */
     /** @{ */
+
+    /**
+     * Assignment operator. */
+    BCDataPoint& operator=(const BCDataPoint& rhs);
+
+    /** swap */
+    friend void swap(BCDataPoint& A, BCDataPoint& B);
 
     /**
      * Raw and fast access. */
@@ -67,6 +78,10 @@ public:
     const double& operator[](unsigned index) const
     {	return fData[index]; }
 
+    /** @} */
+
+    /** \name Member functions (get) */
+    /** @{ */
 
     /**
      * Safer access, but slower
@@ -119,17 +134,6 @@ public:
 
     /** \name Member functions (miscellaneous methods) */
     /** @{ */
-
-    /**
-     * Copy from other data point.
-     * @param other Data point to copy*/
-    void Copy(const BCDataPoint& other)
-    { fData = other.fData; }
-
-    /**
-     * Assignment operator. */
-    BCDataPoint& operator=(const BCDataPoint& rhs)
-    { Copy(rhs); return *this; }
 
     /**
      * Print summary of data point to the string handler.

@@ -16,20 +16,39 @@
 
 // ---------------------------------------------------------
 BCDataPoint::BCDataPoint(int nvariables)
+    : fData(nvariables, 0)
 {
-    fData.assign(nvariables, 0.);
 }
 
 // ---------------------------------------------------------
 BCDataPoint::BCDataPoint(const std::vector<double>& x)
+    : fData(x)
 {
-    fData = x;
 }
 
 // ---------------------------------------------------------
 BCDataPoint::BCDataPoint(const BCDataPoint& other)
+    : fData(other.fData)
 {
-    Copy(other);
+}
+
+// ---------------------------------------------------------
+BCDataPoint::~BCDataPoint()
+{
+}
+
+// ---------------------------------------------------------
+BCDataPoint& BCDataPoint::operator=(const BCDataPoint& rhs)
+{
+    BCDataPoint temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCDataPoint& A, BCDataPoint& B)
+{
+    std::swap(A.fData, B.fData);
 }
 
 // ---------------------------------------------------------
