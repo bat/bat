@@ -47,6 +47,21 @@ BCConstantPrior::~BCConstantPrior()
 {}
 
 // ---------------------------------------------------------
+BCConstantPrior& BCConstantPrior::operator=(const BCConstantPrior& rhs)
+{
+    BCConstantPrior temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCConstantPrior& A, BCConstantPrior& B)
+{
+    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
+    std::swap(A.fLogRangeWidth, B.fLogRangeWidth);
+}
+
+// ---------------------------------------------------------
 double BCConstantPrior::GetMode(double xmin, double xmax) const
 {
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);

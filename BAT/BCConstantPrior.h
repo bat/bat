@@ -33,6 +33,9 @@ class BCConstantPrior : public BCPrior
 {
 public:
 
+    /** \name Constructors and destructor */
+    /** @{ */
+
     /** Constructor for constant unit prior*/
     BCConstantPrior();
 
@@ -47,6 +50,19 @@ public:
 
     /** Destructor */
     virtual ~BCConstantPrior();
+
+    /** @} */
+
+    /** \name operators and swap */
+    /** @{ */
+
+    /** assignment operator */
+    BCConstantPrior& operator=(const BCConstantPrior& rhs);
+
+    /** swap */
+    friend void swap(BCConstantPrior& A, BCConstantPrior& B);
+
+    /** @} */
 
     /** Clone function */
     virtual BCPrior* Clone() const
