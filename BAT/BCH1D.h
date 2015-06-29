@@ -72,6 +72,8 @@ public:
     /** \name Operators and swap*/
     /** @{ */
 
+    using BCHistogramBase::operator=;
+
     /**
      * Copy assignment operator. */
     BCH1D& operator=(const BCH1D& other);

@@ -17,6 +17,7 @@
 #include "BCMath.h"
 #include "BCPrior.h"
 #include "BCSplitGaussianPrior.h"
+#include "BCTF1LogPrior.h"
 #include "BCTF1Prior.h"
 #include "BCTH1Prior.h"
 #include "BCVariable.h"
@@ -298,13 +299,16 @@ void BCEngineMCMC::SetName(std::string name)
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::SetPrior(unsigned index, TF1* const f)
+void BCEngineMCMC::SetPrior(unsigned index, TF1& f, bool logL)
 {
-    fParameters.At(index).SetPrior(new BCTF1Prior(f));
+    if (logL)
+        fParameters.At(index).SetPrior(new BCTF1LogPrior(f));
+    else
+        fParameters.At(index).SetPrior(new BCTF1Prior(f));
 }
 
 // ---------------------------------------------------------
-void BCEngineMCMC::SetPrior(unsigned index, TH1* const h, bool interpolate)
+void BCEngineMCMC::SetPrior(unsigned index, TH1& h, bool interpolate)
 {
     fParameters.At(index).SetPrior(new BCTH1Prior(h, interpolate));
 }

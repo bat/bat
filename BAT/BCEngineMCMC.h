@@ -945,16 +945,18 @@ public:
      * @deprecated Instead call: GetPrarameter(index)->SetPrior(new BCTF1Prior(f))
      * Set prior for a parameter.
      * @param index The parameter index
-     * @param f A pointer to a function describing the prior */
-    void SetPrior(unsigned index, TF1* const f);
+     * @param f A function describing the prior
+     * @param logL Whether function is of log of prior (true) or just prior (false)*/
+    void SetPrior(unsigned index, TF1& f, bool logL = true);
 
     /**
      * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTF1Prior(f))
      * Set prior for a parameter.
      * @param name The parameter name
-     * @param f A pointer to a function describing the prior */
-    void SetPrior(std::string name, TF1* const f)
-    { return SetPrior(fParameters.Index(name), f); }
+     * @param f A function describing the prior
+     * @param logL Whether function is of log of prior (true) or just prior (false)*/
+    void SetPrior(std::string name, TF1& f, bool logL = true)
+    { return SetPrior(fParameters.Index(name), f, logL); }
 
     /**
      * @deprecated Instead call: GetParameter(index)->Fix(value)
@@ -1012,18 +1014,18 @@ public:
      * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))
      * Set prior for a parameter.
      * @param index parameter index
-     * @param h pointer to a histogram describing the prior
+     * @param h histogram describing the prior
      * @param interpolate whether or not to use linear interpolation */
-    void SetPrior(unsigned index, TH1* const h, bool interpolate = false);
+    void SetPrior(unsigned index, TH1& h, bool interpolate = false);
 
     /**
      * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTH1Prior(h,interpolate))
      * Set prior for a parameter.
      * @param name parameter name
-     * @param h pointer to a histogram describing the prior
+     * @param h histogram describing the prior
      * @param interpolate whether or not to use linear interpolation
      * @return success of action. */
-    void SetPrior(std::string name, TH1* const h, bool interpolate = false)
+    void SetPrior(std::string name, TH1& h, bool interpolate = false)
     { SetPrior(fParameters.Index(name), h, interpolate); }
 
     /**

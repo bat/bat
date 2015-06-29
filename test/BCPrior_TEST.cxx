@@ -172,7 +172,7 @@ public:
         std::cout << "Testing BCTF1LogPrior ... " << std::flush;
         // TF1 of ln(Normal)
         prior = new BCTF1LogPrior("-0.5*((x-[0])/[1])^2 - log([1]) - 0.5*log(2*pi)", -10, 10);
-        dynamic_cast<BCTF1LogPrior*>(prior) -> GetLogFunction() -> SetParameters(1.5, 3);
+        dynamic_cast<BCTF1LogPrior*>(prior)->GetLogFunction().SetParameters(1.5, 3);
         TestPriorImplementation( prior, -10, 10, 2);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.01755 , 1.e-5); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(4.5),  -2.51755 , 1.e-5); // at mean+sigma
@@ -187,7 +187,7 @@ public:
         std::cout << "Testing BCTF1Prior ... " << std::flush;
         // TF1 of Normal
         prior = new BCTF1Prior("exp(-0.5*((x-[0])/[1])^2)/sqrt(2*pi)/[1]", -10, 10);
-        prior -> GetFunction() -> SetParameters(1.5, 3);
+        prior->GetFunction().SetParameters(1.5, 3);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.01755 , 1.e-5); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(4.5),  -2.51755 , 1.e-5); // at mean+sigma
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(-4.5), -4.01755 , 1.e-5); // at mean-2*sigma
@@ -198,8 +198,8 @@ public:
 
         // TH1Prior
         std::cout << "Testing BCTH1Prior ... " << std::flush;
-        TH1D* h1_prior = new TH1D("h1_prior", "", 100, -5, 5);
-        h1_prior -> FillRandom("gaus", 1000000);
+        TH1D h1_prior("h1_prior", "", 100, -5, 5);
+        h1_prior.FillRandom("gaus", 1000000);
         prior = new BCTH1Prior(h1_prior, true);
         TestPriorImplementation( prior, -10, 10, 2, 1.e-2);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(0),  -0.91894 , 5.e-2); // at mean

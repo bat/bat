@@ -262,14 +262,13 @@ BCH1D BCModel::GetPrior(unsigned index)
         }
         // histogrammed prior (not interpolated)
         else if (dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior()) != NULL and
-                 dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram() != NULL and
-                 dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetInterpolate()) {
+                 !dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetInterpolate()) {
             prior = dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram();
         }
         // use prior's TF1
-        else if (GetParameter(index).GetPrior()->GetFunction() != NULL) {
+        else {
             TH1* h = GetVariable(index).CreateH1(Form("%s_prior_%d_f1", GetSafeName().data(), index));
-            h->Add(GetParameter(index).GetPrior()->GetFunction(), 1, "I");
+            h->Add(&GetParameter(index).GetPrior()->GetFunction(), 1, "I");
             prior = h;
         }
         if (prior.Valid())
@@ -310,15 +309,14 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
         // set x binning
         unsigned nbins_x = GetVariable(index1).GetNbins();
         std::vector<double> bins_x;
-        // histogrammed prior
+        // histogrammed prior (if not interpolating)
         if (dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior()) != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram() != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetInterpolate()) {
+                !dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetInterpolate()) {
 
-            nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetNbinsX();
+            nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram().GetNbinsX();
             bins_x.assign(nbins_x + 1, 0);
-            dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_x[0]);
-            bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
+            dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram().GetXaxis()->GetLowEdge(&bins_x[0]);
+            bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram().GetXaxis()->GetXmax();
         }
         // // constant prior
         // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior())!=NULL) {
@@ -337,14 +335,13 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
         // set y binning
         unsigned nbins_y = GetVariable(index2).GetNbins();
         std::vector<double> bins_y;
-        // histogrammed prior
+        // histogrammed prior (and not interpolating)
         if (dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior()) != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram() != NULL and
-                dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetInterpolate()) {
-            nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetNbinsX();
+                !dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetInterpolate()) {
+            nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram().GetNbinsX();
             bins_y.assign(nbins_y + 1, 0);
-            dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetXaxis()->GetLowEdge(&bins_y[0]);
-            bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram()->GetXaxis()->GetXmax();
+            dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram().GetXaxis()->GetLowEdge(&bins_y[0]);
+            bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram().GetXaxis()->GetXmax();
         }
         // // constant prior
         // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior())!=NULL) {

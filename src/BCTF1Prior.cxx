@@ -13,21 +13,25 @@
 #include <TF1.h>
 
 // ---------------------------------------------------------
-BCTF1Prior::BCTF1Prior(const TF1* const f)
-    : BCPrior(f)
+BCTF1Prior::BCTF1Prior(TF1& f)
+    : BCPrior()
+      // fPriorFunction(f)
 {
+    fPriorFunction = f;
 }
 
 // ---------------------------------------------------------
 BCTF1Prior::BCTF1Prior(const char* formula, double xmin, double xmax)
-    : BCPrior(new TF1("f1_prior", formula, xmin, xmax))
+    : BCPrior()
 {
+    fPriorFunction = TF1("f1_prior", formula, xmin, xmax);
 }
 
 // ---------------------------------------------------------
 BCTF1Prior::BCTF1Prior(const BCTF1Prior& other)
-    : BCPrior(other.fPriorFunction)
+    : BCPrior(other)
 {
+    fPriorFunction = other.fPriorFunction;
 }
 
 // ---------------------------------------------------------

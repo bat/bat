@@ -34,8 +34,8 @@ public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
-    /** Constructor, TH1 is copied */
-    BCTH1Prior(const TH1* const h, bool interpolate = false);
+    /** Constructor */
+    BCTH1Prior(TH1& h, bool interpolate = false);
 
     /** Copy constructor */
     BCTH1Prior(const BCTH1Prior& other);
@@ -54,8 +54,7 @@ public:
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
-    virtual bool IsValid() const
-    { return fPriorHistogram != NULL; }
+    virtual bool IsValid() const;
 
     /**
      * Get prior
@@ -63,14 +62,13 @@ public:
      * @param normalize Whether to normalize prior with stored integral
      * @return prior */
     virtual double GetPrior(double x, bool normalize = false) const
-    { return (fPriorHistogram) ? ((fInterpolate) ? fPriorHistogram->Interpolate(x) : fPriorHistogram->GetBinContent(fPriorHistogram->FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1) : 0; }
+    { return ((fInterpolate) ? const_cast<TH1*>(&fPriorHistogram)->Interpolate(x) : const_cast<TH1*>(&fPriorHistogram)->GetBinContent(const_cast<TH1*>(&fPriorHistogram)->FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1); }
 
     /**
      * Get log of prior
      * @param x value to evaluate log of prior at
      * @return log of prior */
-    virtual double GetLogPrior(double x) const
-    { return (fPriorHistogram) ? log(GetPrior(x)) : -std::numeric_limits<double>::infinity(); }
+    virtual double GetLogPrior(double x) const;
 
     /**
      * Return mode of prior (in range).
@@ -116,7 +114,7 @@ public:
      * @param xmax upper limit of range to evaluate over
      * @return standard deviation of prior distribution */
     virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
-    { (void)xmin; (void)xmax; return (fPriorHistogram) ? fPriorHistogram->GetRMS() : std::numeric_limits<double>::quiet_NaN(); }
+    { (void)xmin; (void)xmax; return fPriorHistogram.GetRMS(); }
 
     /** @} **/
 
@@ -132,14 +130,18 @@ public:
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
-    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const;
+    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const
+    { return const_cast<TH1*>(&fPriorHistogram)->GetRandom(); }
 
     /** @} **/
 
     /** \name Getters */
     /** @{ **/
 
-    virtual TH1* GetHistogram()
+    virtual TH1& GetHistogram()
+    { return fPriorHistogram; }
+
+    virtual const TH1& GetHistogram() const
     { return fPriorHistogram; }
 
     virtual bool GetInterpolate()
@@ -149,7 +151,7 @@ public:
 
 protected:
 
-    TH1* fPriorHistogram;  //< TH1 holding prior
+    TH1& fPriorHistogram;  //< TH1 holding prior
 
     bool fInterpolate; //< whether to interpolate values of hist for prior function
 };

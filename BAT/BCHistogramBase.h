@@ -83,6 +83,11 @@ public:
     BCHistogramBase& operator=(const TH1* const hist)
     { SetHistogram(hist); return *this; }
 
+    /**
+     * Assign TH1 histogram with operator. */
+    BCHistogramBase& operator=(const TH1& hist)
+    { SetHistogram(&hist); return *this; }
+
     /** @} */
 
     /** \name Member functions (get)  */
