@@ -29,6 +29,21 @@ BCPositiveDefinitePrior::~BCPositiveDefinitePrior()
 }
 
 // ---------------------------------------------------------
+BCPositiveDefinitePrior& BCPositiveDefinitePrior::operator=(const BCPositiveDefinitePrior& rhs)
+{
+    BCPositiveDefinitePrior temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCPositiveDefinitePrior& A, BCPositiveDefinitePrior& B)
+{
+    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
+    std::swap(A.fPrior, B.fPrior);
+}
+
+// ---------------------------------------------------------
 double BCPositiveDefinitePrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
 {
     xmin = std::max<double>(xmin, 0);

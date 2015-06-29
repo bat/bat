@@ -38,7 +38,7 @@ public:
 
     /**
      * Constructor */
-    BCPositiveDefinitePrior(BCPrior* prior = NULL);
+    BCPositiveDefinitePrior(BCPrior* prior);
 
     /**
      * Copy constructor */
@@ -49,6 +49,17 @@ public:
     virtual ~BCPositiveDefinitePrior();
 
     /** @} */
+
+    /** \name operator and swap */
+    /** @{ **/
+
+    /** assignment operator */
+    BCPositiveDefinitePrior& operator=(const BCPositiveDefinitePrior& rhs);
+
+    /** swap */
+    friend void swap(BCPositiveDefinitePrior& A, BCPositiveDefinitePrior& B);
+
+    /** @} **/
 
     /** \name Access to wrapped prior. */
     /** @{ */
@@ -87,7 +98,7 @@ public:
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
     virtual bool IsValid() const
-    { return fPrior != NULL; }
+    { return fPrior != NULL and fPrior->IsValid(); }
 
     /** Set ROOT function range. */
     virtual void SetFunctionRange(double xmin, double xmax)
