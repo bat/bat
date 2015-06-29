@@ -50,20 +50,32 @@ public:
 
     /**
      * The copy constructor */
-    BCDataSet(const BCDataSet& bcdataset);
+    BCDataSet(const BCDataSet& other);
 
     /**
      * Destructor */
     virtual ~BCDataSet();
 
     /** @} */
-    /** \name Assignment operators */
+    /** \name operators and swap*/
     /** @{ */
 
     /**
      * Assignment operator */
-    BCDataSet& operator = (const BCDataSet& bcdataset)
-    { Copy(bcdataset); return *this; }
+    BCDataSet& operator = (const BCDataSet& rhs);
+
+    /** swap */
+    friend void swap(BCDataSet& A, BCDataSet& B);
+
+    /**
+     * Raw and fast access. */
+    BCDataPoint& operator[](unsigned index)
+    {	return fDataVector[index]; }
+
+    /**
+     * Raw and fast access. */
+    const BCDataPoint& operator[](unsigned index) const
+    {	return fDataVector[index]; }
 
     /** @} */
     /** \name Member functions (get) */
@@ -78,16 +90,6 @@ public:
      * @return number of values per data point (dimension of data). */
     unsigned GetNValuesPerPoint() const
     { return fNValuesPerPoint; }
-
-    /**
-     * Raw and fast access. */
-    BCDataPoint& operator[](unsigned index)
-    {	return fDataVector[index]; }
-
-    /**
-     * Raw and fast access. */
-    const BCDataPoint& operator[](unsigned index) const
-    {	return fDataVector[index]; }
 
     /**
      * Safer, but slower, access to data points
@@ -193,10 +195,6 @@ public:
 
     /** \name Member functions (miscellaneous methods) */
     /** @{ */
-
-    /**
-     * Copy a data set. */
-    void Copy(const BCDataSet& other);
 
     /**
      * Reads data from a TTree in file.
