@@ -24,7 +24,8 @@
 #include <cmath>
 #include <cstddef>
 
-class TF1;
+#include <TF1.h>
+
 class TH1;
 class TRandom;
 
@@ -43,17 +44,20 @@ public:
     BCPrior();
 
     /**
-     * Constructor explicitely setting fPriorFunction.
-     * @param f TF1 to be copied into prior. */
-    BCPrior(const TF1* const f);
-
-    /**
      * Copy constructor */
     BCPrior(const BCPrior& other);
 
     /**
      * Destructor */
     virtual ~BCPrior();
+
+    /** @} */
+
+    /** \name operators and swap */
+    /** @{ */
+
+    /** swap */
+    friend void swap(BCPrior& A, BCPrior& B);
 
     /** @} */
 
@@ -96,7 +100,12 @@ public:
 
     /**
      * Return back ROOT TF1 evaluating BCPrior::GetPrior */
-    virtual TF1* GetFunction()
+    virtual TF1& GetFunction()
+    { return fPriorFunction; }
+
+    /**
+     * Return back ROOT TF1 evaluating BCPrior::GetPrior */
+    virtual const TF1& GetFunction() const
     { return fPriorFunction; }
 
     /**
@@ -249,7 +258,7 @@ public:
     /** @} **/
 
 protected:
-    TF1* fPriorFunction; ///< TF1 for use in default raw moment calculation
+    TF1 fPriorFunction; ///< TF1 for use in default raw moment calculation
 
     double fLogIntegral; ///< Log of integral of unnormalized pdf over the range.
 };

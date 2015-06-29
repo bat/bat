@@ -21,23 +21,14 @@
 
 // ---------------------------------------------------------
 BCPrior::BCPrior()
-    : fPriorFunction(new TF1("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1)) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
+    : fPriorFunction("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
     , fLogIntegral(0)
 {
-}
-
-// ---------------------------------------------------------
-BCPrior::BCPrior(const TF1* const f)
-    : fPriorFunction(NULL)
-    , fLogIntegral(0)
-{
-    if (f)
-        fPriorFunction = new TF1(*f);
 }
 
 // ---------------------------------------------------------
 BCPrior::BCPrior(const BCPrior& other)
-    : fPriorFunction(new TF1("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1)) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
+    : fPriorFunction("prior_interal_f1", this, &BCPrior::GetPriorForROOT, 0, 0, 1) //-std::numeric_limits<double>::max(),std::numeric_limits<double>::max()))
     , fLogIntegral(other.fLogIntegral)
 {
 }
@@ -45,7 +36,15 @@ BCPrior::BCPrior(const BCPrior& other)
 // ---------------------------------------------------------
 BCPrior::~BCPrior()
 {
-    delete fPriorFunction;
+}
+
+// ---------------------------------------------------------
+void swap(BCPrior& A, BCPrior& B)
+{
+    TF1 temp = A.fPriorFunction;
+    A.fPriorFunction = B.fPriorFunction;
+    B.fPriorFunction = temp;
+    std::swap(A.fLogIntegral, B.fLogIntegral);
 }
 
 // ---------------------------------------------------------
@@ -65,10 +64,8 @@ double BCPrior::GetPrior(double x, bool normalize) const
 // ---------------------------------------------------------
 double BCPrior::GetMode(double xmin, double xmax) const
 {
-    if (!fPriorFunction)
-        return std::numeric_limits<double>::quiet_NaN();
     BCAux::MakeFinite(xmin, xmax);
-    return fPriorFunction->GetMaximumX(xmin, xmax);
+    return fPriorFunction.GetMaximumX(xmin, xmax);
 }
 
 // ---------------------------------------------------------
@@ -76,19 +73,15 @@ double BCPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
 {
     if (n == 0)
         return 1;
-    if (!fPriorFunction)
-        return std::numeric_limits<double>::infinity();
     BCAux::MakeFinite(xmin, xmax);
-    return fPriorFunction->Moment(static_cast<double>(n), xmin, xmax);
+    return const_cast<TF1*>(&fPriorFunction)->Moment(static_cast<double>(n), xmin, xmax);
 }
 
 // ---------------------------------------------------------
 double BCPrior::GetIntegral(double xmin, double xmax) const
 {
-    if (!fPriorFunction)
-        return 0;
     BCAux::MakeFinite(xmin, xmax);
-    return fPriorFunction->Integral(xmin, xmax);
+    return const_cast<TF1*>(&fPriorFunction)->Integral(xmin, xmax);
 }
 
 // ---------------------------------------------------------
@@ -133,16 +126,13 @@ double BCPrior::GetStandardizedMoment(unsigned n, double xmin, double xmax) cons
 double BCPrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
 {
     (void)R;
-    if (!fPriorFunction)
-        return std::numeric_limits<double>::quiet_NaN();
-    return fPriorFunction->GetRandom(xmin, xmax);
+    return const_cast<TF1*>(&fPriorFunction)->GetRandom(xmin, xmax);
 }
 
 // ---------------------------------------------------------
 void BCPrior::SetFunctionRange(double xmin, double xmax)
 {
-    if (fPriorFunction)
-        fPriorFunction->SetRange(xmin, xmax);
+    fPriorFunction.SetRange(xmin, xmax);
     CalculateAndStoreIntegral(xmin, xmax);
 }
 
