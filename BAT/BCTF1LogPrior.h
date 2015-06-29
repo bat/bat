@@ -35,7 +35,7 @@ public:
     /** @{ **/
 
     /** Constructor taking a TF1**/
-    BCTF1LogPrior(const TF1* const f);
+    BCTF1LogPrior(TF1& f);
 
     /** Constructor taking a formula**/
     BCTF1LogPrior(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(),xmax=std::numeric_limits<double>::infinity());
@@ -45,6 +45,17 @@ public:
 
     /** Destrcutor */
     virtual ~BCTF1LogPrior();
+
+    /** @} **/
+
+    /** \name operator and swap */
+    /** @{ **/
+
+    /** assignment operator */
+    BCTF1LogPrior& operator=(const BCTF1LogPrior& rhs);
+
+    /** swap */
+    friend void swap(BCTF1LogPrior& A, BCTF1LogPrior& B);
 
     /** @} **/
 
@@ -58,7 +69,7 @@ public:
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
     virtual bool IsValid() const
-    { return fLogPriorFunction != NULL; }
+    { return true; }
 
     /** Set ROOT function range. */
     virtual void SetFunctionRange(double xmin, double xmax);
@@ -68,7 +79,7 @@ public:
      * @param x value to evaluate log of prior at
      * @return log of prior */
     virtual double GetLogPrior(double x) const
-    { return (fLogPriorFunction) ? fLogPriorFunction->Eval(x) : -std::numeric_limits<double>::infinity(); }
+    { return fLogPriorFunction.Eval(x); }
 
     /**
      * Return mode of prior (in range).
@@ -82,13 +93,16 @@ public:
     /** \name Getters */
     /** @{ **/
 
-    TF1* GetLogFunction()
+    TF1& GetLogFunction()
+    { return fLogPriorFunction; }
+
+    const TF1& GetLogFunction() const
     { return fLogPriorFunction; }
 
     /** @} **/
 
 protected:
-    TF1* fLogPriorFunction;			//< TF1 holding log(prior)
+    TF1 fLogPriorFunction;			//< TF1 holding log(prior)
 };
 
 #endif
