@@ -34,7 +34,6 @@ public:
     {
         m.MarginalizeAll();
         const unsigned nplots = m.PrintAllMarginalized(BAT_TESTDIR "BCModel_TEST.pdf");
-        std::cout << "HERE" << std::endl;
         // 1D + 2D
         TEST_CHECK_EQUAL(nplots, (m.GetNParameters() - 1) + (m.GetNParameters() - 2) * (m.GetNParameters() - 1) / 2);
         for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
