@@ -45,6 +45,17 @@ public:
 
     /** @} **/
 
+    /** \name operator and swap */
+    /** @{ **/
+
+    /** assignment operator */
+    BCTH1Prior& operator=(const BCTH1Prior& rhs);
+
+    /** swap */
+    friend void swap(BCTH1Prior& A, BCTH1Prior& B);
+
+    /** @} **/
+
     /** \name Functions overloaded from BCPrior **/
     /** @{ **/
 

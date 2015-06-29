@@ -38,6 +38,24 @@ BCTH1Prior::~BCTH1Prior()
 }
 
 // ---------------------------------------------------------
+BCTH1Prior& BCTH1Prior::operator=(const BCTH1Prior& rhs)
+{
+    BCTH1Prior temp(rhs);
+    swap(*this, temp);
+    return *this;
+}
+
+// ---------------------------------------------------------
+void swap(BCTH1Prior& A, BCTH1Prior& B)
+{
+    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
+    TH1& temp(A.fPriorHistogram);
+    A.fPriorHistogram.Copy(B.fPriorHistogram);
+    B.fPriorHistogram.Copy(temp);
+    std::swap(A.fInterpolate, B.fInterpolate);
+}
+
+// ---------------------------------------------------------
 bool BCTH1Prior::IsValid() const
 {
     if (fPriorHistogram.GetDimension() != 1)
