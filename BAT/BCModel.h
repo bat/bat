@@ -66,13 +66,11 @@ public:
     virtual ~BCModel();
 
     /** @} */
-    /** \name Assignment operators */
+    /** \name swap*/
     /** @{ */
 
-    /**
-     * Assignment operator */
-    BCModel& operator = (const BCModel& bcmodel)
-    { BCIntegrate::Copy(bcmodel); Copy(bcmodel); return *this; }
+    /** swap */
+    friend void swap(BCModel& A, BCModel& B);
 
     /** @} */
     /** \name Member functions (get) */
@@ -164,11 +162,6 @@ public:
 
     /** \name Member functions (miscellaneous methods) */
     /** @{ */
-
-    /**
-     * Copy from object
-     * @param bcmodel Object to copy from. */
-    virtual void Copy(const BCModel& bcmodel);
 
     /**
      * Returns the prior probability.

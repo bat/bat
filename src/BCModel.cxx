@@ -65,11 +65,17 @@ BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
 }
 
 // ---------------------------------------------------------
-BCModel::BCModel(const BCModel& bcmodel)
-    : BCIntegrate(bcmodel)
-    , fPriorModel(0)
+BCModel::BCModel(const BCModel& other)
+    : BCIntegrate(other),
+      fDataSet(other.fDataSet),
+      fPriorModel(0),
+      fBCH1DPriorDrawingOptions(other.fBCH1DPriorDrawingOptions),
+      fBCH2DPriorDrawingOptions(other.fBCH2DPriorDrawingOptions),
+      fBCH1DPosteriorDrawingOptions(other.fBCH1DPosteriorDrawingOptions),
+      fBCH2DPosteriorDrawingOptions(other.fBCH2DPosteriorDrawingOptions),
+      fDrawPriorFirst(other.fDrawPriorFirst),
+      fFactorizedPrior(other.fFactorizedPrior)
 {
-    Copy(bcmodel);
 }
 
 // ---------------------------------------------------------
@@ -79,20 +85,17 @@ BCModel::~BCModel()
 }
 
 // ---------------------------------------------------------
-void BCModel::Copy(const BCModel& bcmodel)
+void swap(BCModel& A, BCModel& B)
 {
-    //  called for the second time in copy constructor? do copy-and-swap instead
-    //   BCIntegrate::Copy(bcmodel);
-    fName                            = bcmodel.fName;
-    fDataSet                         = bcmodel.fDataSet;
-
-    fBCH1DPriorDrawingOptions.CopyOptions(bcmodel.fBCH1DPriorDrawingOptions);
-    fBCH2DPriorDrawingOptions.CopyOptions(bcmodel.fBCH2DPriorDrawingOptions);
-    fBCH1DPosteriorDrawingOptions.CopyOptions(bcmodel.fBCH1DPosteriorDrawingOptions);
-    fBCH2DPosteriorDrawingOptions.CopyOptions(bcmodel.fBCH2DPosteriorDrawingOptions);
-    fDrawPriorFirst = bcmodel.fDrawPriorFirst;
-
-    fFactorizedPrior = bcmodel.fFactorizedPrior;
+    swap(static_cast<BCModel&>(A), static_cast<BCModel&>(B));
+    std::swap(A.fDataSet, B.fDataSet);
+    std::swap(A.fPriorModel, B.fPriorModel);
+    std::swap(A.fBCH1DPriorDrawingOptions, B.fBCH1DPriorDrawingOptions);
+    std::swap(A.fBCH2DPriorDrawingOptions, B.fBCH2DPriorDrawingOptions);
+    std::swap(A.fBCH1DPosteriorDrawingOptions, B.fBCH1DPosteriorDrawingOptions);
+    std::swap(A.fBCH2DPosteriorDrawingOptions, B.fBCH2DPosteriorDrawingOptions);
+    std::swap(A.fDrawPriorFirst, B.fDrawPriorFirst);
+    std::swap(A.fFactorizedPrior, B.fFactorizedPrior);
 }
 
 // ---------------------------------------------------------
