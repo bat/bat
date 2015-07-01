@@ -64,7 +64,7 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
       fMCMCAutoSetTrialFunctionScaleFactors(true),
       fMultivariateProposalFunctionUpdatesMinimum(2),
-      fMultivariateProposalFunctionEpsilon(1.e-3),
+      fMultivariateProposalFunctionEpsilon(5.e-2),
       fMultivariateProposalFunctionScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
       fMCMCEfficiencyMin(0.15),
@@ -97,7 +97,7 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
       fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
       fMCMCAutoSetTrialFunctionScaleFactors(true),
       fMultivariateProposalFunctionUpdatesMinimum(2),
-      fMultivariateProposalFunctionEpsilon(1e-3),
+      fMultivariateProposalFunctionEpsilon(5.e-2),
       fMultivariateProposalFunctionScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
       fMCMCEfficiencyMin(0.15),
@@ -1338,10 +1338,10 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
         CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
         if (CholeskyDecomposer.Decompose())
             fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
-
+        
         else {
-            // try with covariance + epsilon*1
-            BCLog::OutDetail("BCEngineMCMC:UpdateCholeskyDecompositions : Cholesky decomposition failed! Adding epsilon*I and trying again.");
+            // try with covariance + epsilon
+            BCLog::OutDetail("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! Adding epsilon*I and trying again.");
             TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
             for (int i = 0; i < U.GetNrows(); ++i)
                 U[i][i] *= (1 + fMultivariateProposalFunctionEpsilon);
@@ -1352,12 +1352,17 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
             else {
                 // diagonalize
                 BCLog::OutDetail("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero");
-                for (int i = 0; i < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i) {
-                    fMultivariateProposalFunctionCholeskyDecomposition[c][i][i] = sqrt(fMultivariateProposalFunctionCovariance[c][i][i] * fMCMCTrialFunctionScaleFactor[c][0]);
-                    for (int j = i + 1; j < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j) {
-                        fMultivariateProposalFunctionCholeskyDecomposition[c][i][j] = 0;
-                        fMultivariateProposalFunctionCholeskyDecomposition[c][j][i] = 0;
-                    }
+                TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
+                for (int i = 0; i < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i)
+                    for (int j = 0; j < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j)
+                        if (i != j)
+                            U[i][j] = 0;
+                CholeskyDecomposer.SetMatrix(U);
+                if (CholeskyDecomposer.Decompose())
+                    fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
+                else {
+                    BCLog::OutError("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! No rememdies!");
+                    return false;
                 }
             }
         }
