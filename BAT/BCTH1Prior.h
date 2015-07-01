@@ -141,7 +141,7 @@ public:
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
-    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const
+    virtual double GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* const /*R*/ = NULL) const
     { return const_cast<TH1*>(&fPriorHistogram)->GetRandom(); }
 
     /** @} **/
