@@ -154,3 +154,15 @@ void BCPrior::FillHistogramByIntegral(TH1* h)
         if (h->GetXaxis()->GetBinWidth(i) > 0)
             h -> SetBinContent(i, GetIntegral(h->GetXaxis()->GetBinLowEdge(i), h->GetXaxis()->GetBinUpEdge(i)) / h->GetXaxis()->GetBinWidth(i));
 }
+
+// ---------------------------------------------------------
+BCH1D BCPrior::GetBCH1D(TH1* bins, const char* name)
+{
+    TH1* h = (TH1*) bins->Clone(name);
+    h->Add(&GetFunction(), 1, "I");
+
+    BCH1D bch = h;
+    bch.SetLocalMode(GetMode(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax()));
+
+    return bch;
+}

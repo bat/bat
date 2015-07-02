@@ -20,11 +20,13 @@
 
 // ---------------------------------------------------------
 
-#include <limits>
-#include <cmath>
 #include <cstddef>
+#include <cmath>
+#include <limits>
 
 #include <TF1.h>
+
+#include "BCH1D.h"
 
 class TH1;
 class TRandom;
@@ -204,56 +206,63 @@ public:
 
     /**
      * For accessing prior as ROOT TF1 */
-    double GetPriorForROOT(double* x, double* /*p*/)
+    virtual double GetPriorForROOT(double* x, double* /*p*/)
     { return GetPrior(x[0]); }
 
     /**
      * For accessing normalized prior as ROOT TF1 */
-    double GetNormalizedPriorForROOT(double* x, double* /*p*/)
+    virtual double GetNormalizedPriorForROOT(double* x, double* /*p*/)
     { return GetPrior(x[0]); }
 
     /**
      * For accessing log(prior) as ROOT TF1 */
-    double GetLogPriorForROOT(double* x, double* /*p*/)
+    virtual double GetLogPriorForROOT(double* x, double* /*p*/)
     { return GetLogPrior(x[0]); }
 
     /**
      * For accessing normalized log(prior) as ROOT TF1 */
-    double GetNormalizedLogPriorForROOT(double* x, double* /*p*/)
+    virtual double GetNormalizedLogPriorForROOT(double* x, double* /*p*/)
     { return GetLogPrior(x[0]) - fLogIntegral; }
 
     /**
      * Calculate and store integral for use in normalized TF1s */
-    double CalculateAndStoreIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
+    virtual double CalculateAndStoreIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { fLogIntegral = log(GetIntegral(xmin, xmax)); return fLogIntegral;}
 
     /**
      * Store integral; */
-    void StoreIntegral(double I)
+    virtual void StoreIntegral(double I)
     { fLogIntegral = log(I); }
 
     /**
      * Store log(integral); */
-    void StoreLogIntegral(double logI)
+    virtual void StoreLogIntegral(double logI)
     { fLogIntegral = logI; }
 
     /**
      * Get stored integral. */
-    double GetStoredIntegral() const
+    virtual double GetStoredIntegral() const
     { return exp(fLogIntegral); }
 
     /**
      * Get stored integral. */
-    double GetStoredLogIntegral() const
+    virtual double GetStoredLogIntegral() const
     { return fLogIntegral; }
 
     /**
      * Fill histogram by prior evaluated at bin center. */
-    void FillHistogramByCenterValue(TH1* h);
+    virtual void FillHistogramByCenterValue(TH1* h);
 
     /**
      * Fill histogram by integrating prior over bin and dividing by bin width. */
-    void FillHistogramByIntegral(TH1* h);
+    virtual void FillHistogramByIntegral(TH1* h);
+
+    /**
+     * Get BCH1D object for prior.
+     * @param h pointer to TH1 object defining binning to use.
+     * @param name name to give histogram created for BCH1D object
+     * @return BCH1D object for prior. */
+    virtual BCH1D GetBCH1D(TH1* bins, const char* name = "prior");
 
     /** @} **/
 
