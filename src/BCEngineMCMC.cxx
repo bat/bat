@@ -1338,7 +1338,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
         CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
         if (CholeskyDecomposer.Decompose())
             fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
-        
+
         else {
             // try with covariance + epsilon
             BCLog::OutDetail("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! Adding epsilon*I and trying again.");
