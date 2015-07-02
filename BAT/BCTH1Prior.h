@@ -37,6 +37,9 @@ public:
     /** Constructor */
     BCTH1Prior(TH1& h, bool interpolate = false);
 
+    /** Constructor */
+    BCTH1Prior(TH1* h, bool interpolate = false);
+
     /** Copy constructor */
     BCTH1Prior(const BCTH1Prior& other);
 
@@ -126,6 +129,13 @@ public:
      * @return standard deviation of prior distribution */
     virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
     { (void)xmin; (void)xmax; return fPriorHistogram.GetRMS(); }
+
+    /**
+     * Get BCH1D object for prior.
+     * @param h pointer to TH1 object defining binning to use.
+     * @param name name to give histogram created for BCH1D object
+     * @return BCH1D object for prior. */
+    virtual BCH1D GetBCH1D(TH1* bins, const char* name = "prior");
 
     /** @} **/
 

@@ -12,9 +12,20 @@
 
 // ---------------------------------------------------------
 BCTH1Prior::BCTH1Prior(TH1& h, bool interpolate)
-    : BCPrior()
-    , fPriorHistogram(h)
-    , fInterpolate(interpolate)
+    : BCPrior(),
+      fPriorHistogram(h),
+      fInterpolate(interpolate)
+{
+    double integral = fPriorHistogram.Integral("width");
+    if (integral != 0)
+        fPriorHistogram.Scale(1. / integral);
+}
+
+// ---------------------------------------------------------
+BCTH1Prior::BCTH1Prior(TH1* h, bool interpolate)
+    : BCPrior(),
+      fPriorHistogram(*h),
+      fInterpolate(interpolate)
 {
     double integral = fPriorHistogram.Integral("width");
     if (integral != 0)
@@ -23,9 +34,9 @@ BCTH1Prior::BCTH1Prior(TH1& h, bool interpolate)
 
 // ---------------------------------------------------------
 BCTH1Prior::BCTH1Prior(const BCTH1Prior& other)
-    : BCPrior(other)
-    , fPriorHistogram(other.fPriorHistogram)
-    , fInterpolate(other.fInterpolate)
+    : BCPrior(other),
+      fPriorHistogram(other.fPriorHistogram),
+      fInterpolate(other.fInterpolate)
 {
     double integral = fPriorHistogram.Integral("width");
     if (integral != 0)
@@ -119,10 +130,26 @@ double BCTH1Prior::GetIntegral(double xmin, double xmax) const
 {
     xmin = std::max(xmin, fPriorHistogram.GetXaxis()->GetXmin());
     xmax = std::min(xmax, fPriorHistogram.GetXaxis()->GetXmax());
+
+    // if interpolating, use built in function
+    if (fInterpolate)
+        return const_cast<TF1*>(&GetFunction())->Integral(xmin, xmax);
+
+    // else calculate directly from histogram
     int bmin = fPriorHistogram.FindFixBin(xmin);
     int bmax = fPriorHistogram.FindFixBin(xmax);
     double I = fPriorHistogram.Integral(bmin, bmax, "width");
     I -= fPriorHistogram.GetBinContent(xmin) * (xmin - fPriorHistogram.GetXaxis()->GetBinLowEdge(bmin));
     I -= fPriorHistogram.GetBinContent(xmax) * (fPriorHistogram.GetXaxis()->GetBinUpEdge(bmax) - xmax);
     return I;
+}
+
+BCH1D BCTH1Prior::GetBCH1D(TH1* bins, const char* name)
+{
+    if (fInterpolate)
+        return BCPrior::GetBCH1D(bins, name);
+
+    TH1D* h = (TH1D*)fPriorHistogram.Clone(name);
+    BCH1D bch = h;
+    return bch;
 }
