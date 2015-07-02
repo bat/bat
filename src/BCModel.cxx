@@ -250,29 +250,11 @@ BCH1D BCModel::GetPrior(unsigned index)
     if (index < GetNParameters() and GetParameter(index).Fixed())
         return prior;
 
-
     // check for factorized prior
     if (fFactorizedPrior and index < GetNParameters() and GetParameter(index).GetPrior() != NULL) {
-
-        // constant prior
-        if (dynamic_cast<BCConstantPrior*>(GetParameter(index).GetPrior()) != NULL) {
-            TH1D* h = new TH1D(Form("%s_prior_%d_const", GetSafeName().data(), index), "", 1, GetVariable(index).GetLowerLimit(), GetVariable(index).GetUpperLimit());
-            h->SetBinContent(1, 1);
-            prior = h;
-        }
-        // histogrammed prior (not interpolated)
-        else if (dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior()) != NULL and
-                 !dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetInterpolate()) {
-            prior = dynamic_cast<BCTH1Prior*>(GetParameter(index).GetPrior())->GetHistogram();
-        }
-        // use prior's TF1
-        else {
-            TH1* h = GetVariable(index).CreateH1(Form("%s_prior_%d_f1", GetSafeName().data(), index));
-            h->Add(&GetParameter(index).GetPrior()->GetFunction(), 1, "I");
-            prior = h;
-        }
-        if (prior.Valid())
-            prior.SetLocalMode(GetParameter(index).GetPriorMode());
+        TH1* h = GetVariable(index).CreateH1("temp");
+        prior = GetParameter(index).GetPrior()->GetBCH1D(h, Form("%s_%d_prior", GetSafeName().data(), index));
+        delete h;
     }
 
     // else use marginalized prior, if it exists
