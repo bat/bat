@@ -170,6 +170,14 @@ public:
 
     /** @} **/
 
+    /** \name Misc */
+    /** @{ **/
+
+    /** Normalize the histogram holding the prior. */
+    void NormalizeHistogram();
+
+    /** @} **/
+
 protected:
 
     TH1& fPriorHistogram;  //< TH1 holding prior

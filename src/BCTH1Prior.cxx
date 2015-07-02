@@ -16,9 +16,7 @@ BCTH1Prior::BCTH1Prior(TH1& h, bool interpolate)
       fPriorHistogram(h),
       fInterpolate(interpolate)
 {
-    double integral = fPriorHistogram.Integral("width");
-    if (integral != 0)
-        fPriorHistogram.Scale(1. / integral);
+    NormalizeHistogram();
 }
 
 // ---------------------------------------------------------
@@ -27,9 +25,7 @@ BCTH1Prior::BCTH1Prior(TH1* h, bool interpolate)
       fPriorHistogram(*h),
       fInterpolate(interpolate)
 {
-    double integral = fPriorHistogram.Integral("width");
-    if (integral != 0)
-        fPriorHistogram.Scale(1. / integral);
+    NormalizeHistogram();
 }
 
 // ---------------------------------------------------------
@@ -38,9 +34,7 @@ BCTH1Prior::BCTH1Prior(const BCTH1Prior& other)
       fPriorHistogram(other.fPriorHistogram),
       fInterpolate(other.fInterpolate)
 {
-    double integral = fPriorHistogram.Integral("width");
-    if (integral != 0)
-        fPriorHistogram.Scale(1. / integral);
+    NormalizeHistogram();
 }
 
 // ---------------------------------------------------------
@@ -80,6 +74,19 @@ bool BCTH1Prior::IsValid() const
     if (integral == 0)
         return false;
     return true;
+}
+
+// ---------------------------------------------------------
+void BCTH1Prior::NormalizeHistogram()
+{
+    double integral = 0;
+    if (fInterpolate)
+        integral = GetFunction().Integral(fPriorHistogram.GetXaxis()->GetXmin(), fPriorHistogram.GetXaxis()->GetXmax());
+    else
+        integral = fPriorHistogram.Integral("width");
+
+    if (integral != 0)
+        fPriorHistogram.Scale(1. / integral);
 }
 
 // ---------------------------------------------------------
@@ -144,6 +151,7 @@ double BCTH1Prior::GetIntegral(double xmin, double xmax) const
     return I;
 }
 
+// ---------------------------------------------------------
 BCH1D BCTH1Prior::GetBCH1D(TH1* bins, const char* name)
 {
     if (fInterpolate)
