@@ -197,7 +197,7 @@ public:
         std::cout << "PASS" << std::endl;
 
         // TH1Prior
-        std::cout << "Testing BCTH1Prior ... " << std::flush;
+        std::cout << "Testing BCTH1Prior with interpolation ... " << std::flush;
         TH1D h1_prior("h1_prior", "", 100, -5, 5);
         h1_prior.FillRandom("gaus", 1000000);
         prior = new BCTH1Prior(h1_prior, true);
@@ -206,9 +206,22 @@ public:
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1),  -1.41894 , 5.e-2); // at mean+sigma
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(-2), -2.91894 , 5.e-2); // at mean-2*sigma
         TEST_CHECK_NEARLY_EQUAL( prior->GetMode(-5, 5), 0, 1.e-1);
-        TEST_CHECK_EQUAL( prior->GetIntegral(-5, 5), 1 );
+        TEST_CHECK_NEARLY_EQUAL( prior->GetIntegral(-5, 5), 1, 1.e-4);
         TEST_CHECK_NEARLY_EQUAL( prior->GetMean(-5, 5), 0, 1.e-2);
         TEST_CHECK_NEARLY_EQUAL( prior->GetVariance(-5, 5), 1, 1.e-2);
+        delete prior;
+        std::cout << "PASS" << std::endl;
+
+        std::cout << "Testing BCTH1Prior without interpolation ... " << std::flush;
+        prior = new BCTH1Prior(h1_prior, false);
+        TestPriorImplementation( prior, -10, 10, 2, 5.e-2);
+        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(0),  -0.91894 , 0.15); // at mean
+        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1),  -1.41894 , 0.15); // at mean+sigma
+        TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(-2), -2.91894 , 0.15); // at mean-2*sigma
+        TEST_CHECK_NEARLY_EQUAL( prior->GetMode(-5, 5), 0, 0.1);
+        TEST_CHECK_NEARLY_EQUAL( prior->GetIntegral(-5, 5), 1, 1.e-4 );
+        TEST_CHECK_NEARLY_EQUAL( prior->GetMean(-5, 5), 0, 0.1);
+        TEST_CHECK_NEARLY_EQUAL( prior->GetVariance(-5, 5), 1, 0.1);
         delete prior;
         std::cout << "PASS" << std::endl;
 
