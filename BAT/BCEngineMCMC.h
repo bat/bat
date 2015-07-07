@@ -31,7 +31,9 @@
 #include "BCParameterSet.h"
 #include "BCLog.h"
 
+#include <algorithm>
 #include <limits>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -327,9 +329,19 @@ public:
     { return fMCMCMultivariateProposalFunction; }
 
     /**
+     * @return number of updates to multivariate-proposal-function covariance performed. */
+    unsigned MCMCGetMultivariateProposalFunctionCovarianceUpdates() const
+    { return fMultivariateProposalFunctionCovarianceUpdates; }
+
+    /**
      * @return minimum number of updates to multivariate-proposal-function covariance to perform. */
-    unsigned MCMCGetMultivariateProposalFunctionUpdatesMinimum() const
-    { return fMultivariateProposalFunctionUpdatesMinimum; }
+    unsigned MCMCGetMultivariateProposalFunctionCovarianceUpdatesMinimum() const
+    { return fMultivariateProposalFunctionCovarianceUpdatesMinimum; }
+
+    /**
+     * @return weighting parameter for multivariate proposal function covariance update. */
+    double MCMCGetMultivariateProposalFunctionCovarianceUpdateLambda() const
+    { return fMultivariateProposalFunctionCovarianceUpdateLambda; }
 
     /**
      * @return multivariate-proposal-function Cholesky decomposition nudge size. */
@@ -765,9 +777,15 @@ public:
     { fMCMCMultivariateProposalFunction = flag; }
 
     /**
+     * Set weighting for multivariate proposal function covariance update.
+     * value forced into [0, 1] */
+    void MCMCSetMultivariateProposalFunctionCovarianceUpdateLambda(double l)
+    { fMultivariateProposalFunctionCovarianceUpdateLambda = std::max<double>(0, std::min<double>(1, l)); }
+
+    /**
      * Set minimum number of updates to multivariate-proposal-function covariance to perform. */
-    void MCMCSetMultivariateProposalFunctionUpdatesMinimum(unsigned n)
-    { fMultivariateProposalFunctionUpdatesMinimum = n; }
+    void MCMCSetMultivariateProposalFunctionCovarianceUpdatesMinimum(unsigned n)
+    { fMultivariateProposalFunctionCovarianceUpdatesMinimum = n; }
 
     /**
      * Sets multivariate-proposal-function cholesky-decomposition nudge. */
@@ -1543,8 +1561,16 @@ protected:
     std::vector<TMatrixD> fMultivariateProposalFunctionCholeskyDecomposition;
 
     /**
+     * Number of multivariate-proposal-function covariance updates performed. */
+    unsigned fMultivariateProposalFunctionCovarianceUpdates;
+
+    /**
+     * weighting parameter for multivariate-proposal-function covariance update. */
+    double fMultivariateProposalFunctionCovarianceUpdateLambda;
+
+    /**
      * Minimum number of multivariate-proposal-function covariance updates to perform. */
-    unsigned fMultivariateProposalFunctionUpdatesMinimum;
+    unsigned fMultivariateProposalFunctionCovarianceUpdatesMinimum;
 
     /**
      * multivariate-proposal-function cholesky-decomposition nudge. */

@@ -39,18 +39,14 @@
 #include <TLine.h>
 #include <TList.h>
 #include <TObject.h>
-#include <TRandom3.h>
 #include <TROOT.h>
 #include <TSeqCollection.h>
 #include <TStyle.h>
 #include <TTree.h>
 #include <TVectorD.h>
 
-
-#include <algorithm>
 #include <cmath>
 #include <deque>
-#include <limits>
 #include <typeinfo>
 
 // ---------------------------------------------------------
@@ -63,7 +59,9 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCScaleFactorLowerLimit(0),
       fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
       fMCMCAutoSetTrialFunctionScaleFactors(true),
-      fMultivariateProposalFunctionUpdatesMinimum(2),
+      fMultivariateProposalFunctionCovarianceUpdates(0),
+      fMultivariateProposalFunctionCovarianceUpdateLambda(0.5),
+      fMultivariateProposalFunctionCovarianceUpdatesMinimum(2),
       fMultivariateProposalFunctionEpsilon(5.e-2),
       fMultivariateProposalFunctionScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
@@ -96,7 +94,9 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
       fMCMCScaleFactorLowerLimit(0),
       fMCMCScaleFactorUpperLimit(std::numeric_limits<double>::max()),
       fMCMCAutoSetTrialFunctionScaleFactors(true),
-      fMultivariateProposalFunctionUpdatesMinimum(2),
+      fMultivariateProposalFunctionCovarianceUpdates(0),
+      fMultivariateProposalFunctionCovarianceUpdateLambda(0.5),
+      fMultivariateProposalFunctionCovarianceUpdatesMinimum(2),
       fMultivariateProposalFunctionEpsilon(5.e-2),
       fMultivariateProposalFunctionScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
@@ -150,7 +150,9 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCAutoSetTrialFunctionScaleFactors(other.fMCMCAutoSetTrialFunctionScaleFactors),
       fMultivariateProposalFunctionCovariance(other.fMultivariateProposalFunctionCovariance),
       fMultivariateProposalFunctionCholeskyDecomposition(other.fMultivariateProposalFunctionCholeskyDecomposition),
-      fMultivariateProposalFunctionUpdatesMinimum(other.fMultivariateProposalFunctionUpdatesMinimum),
+      fMultivariateProposalFunctionCovarianceUpdates(other.fMultivariateProposalFunctionCovarianceUpdates),
+      fMultivariateProposalFunctionCovarianceUpdateLambda(other.fMultivariateProposalFunctionCovarianceUpdateLambda),
+      fMultivariateProposalFunctionCovarianceUpdatesMinimum(other.fMultivariateProposalFunctionCovarianceUpdatesMinimum),
       fMultivariateProposalFunctionEpsilon(other.fMultivariateProposalFunctionEpsilon),
       fMultivariateProposalFunctionScaleMultiplier(other.fMultivariateProposalFunctionScaleMultiplier),
       fMCMCFlagPreRun(other.fMCMCFlagPreRun),
@@ -247,7 +249,9 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCAutoSetTrialFunctionScaleFactors, B.fMCMCAutoSetTrialFunctionScaleFactors);
     std::swap(A.fMultivariateProposalFunctionCovariance, B.fMultivariateProposalFunctionCovariance);
     std::swap(A.fMultivariateProposalFunctionCholeskyDecomposition, B.fMultivariateProposalFunctionCholeskyDecomposition);
-    std::swap(A.fMultivariateProposalFunctionUpdatesMinimum, B.fMultivariateProposalFunctionUpdatesMinimum);
+    std::swap(A.fMultivariateProposalFunctionCovarianceUpdates, B.fMultivariateProposalFunctionCovarianceUpdates);
+    std::swap(A.fMultivariateProposalFunctionCovarianceUpdateLambda, B.fMultivariateProposalFunctionCovarianceUpdateLambda);
+    std::swap(A.fMultivariateProposalFunctionCovarianceUpdatesMinimum, B.fMultivariateProposalFunctionCovarianceUpdatesMinimum);
     std::swap(A.fMultivariateProposalFunctionEpsilon, B.fMultivariateProposalFunctionEpsilon);
     std::swap(A.fMultivariateProposalFunctionScaleMultiplier, B.fMultivariateProposalFunctionScaleMultiplier);
     std::swap(A.fMCMCFlagPreRun, B.fMCMCFlagPreRun);
@@ -342,7 +346,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 10000;
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCPreRunCheckClear                 = 10;
-            fMultivariateProposalFunctionUpdatesMinimum = 2;
+            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 2;
             break;
 
         case BCEngineMCMC::kQuick:
@@ -353,7 +357,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 10000;
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCPreRunCheckClear                 = 10;
-            fMultivariateProposalFunctionUpdatesMinimum = 2;
+            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 2;
             break;
 
         case  BCEngineMCMC::kMedium:
@@ -364,7 +368,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 100000;
             fMCMCNIterationsPreRunCheck           = 500;
             fMCMCPreRunCheckClear                 = 10;
-            fMultivariateProposalFunctionUpdatesMinimum = 2;
+            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 2;
             break;
 
         case  BCEngineMCMC::kHigh:
@@ -375,7 +379,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 1000000;
             fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCPreRunCheckClear                 = 5;
-            fMultivariateProposalFunctionUpdatesMinimum = 4;
+            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 4;
             break;
 
         case  BCEngineMCMC::kVeryHigh:
@@ -386,7 +390,7 @@ void BCEngineMCMC::MCMCSetPrecision(BCEngineMCMC::Precision precision)
             fMCMCNIterationsRun                   = 10000000;
             fMCMCNIterationsPreRunCheck           = 1000;
             fMCMCPreRunCheckClear                 = 5;
-            fMultivariateProposalFunctionUpdatesMinimum = 9;
+            fMultivariateProposalFunctionCovarianceUpdatesMinimum = 9;
             break;
     }
 }
@@ -408,7 +412,8 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC& other)
     fMCMCMultivariateProposalFunction     = other.fMCMCMultivariateProposalFunction;
     fMultivariateProposalFunctionEpsilon  = other.fMultivariateProposalFunctionEpsilon;
     fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
-    fMultivariateProposalFunctionUpdatesMinimum = other.fMultivariateProposalFunctionUpdatesMinimum;
+    fMultivariateProposalFunctionCovarianceUpdatesMinimum = other.fMultivariateProposalFunctionCovarianceUpdatesMinimum;
+    fMultivariateProposalFunctionCovarianceUpdateLambda = other.fMultivariateProposalFunctionCovarianceUpdateLambda;
 }
 
 // --------------------------------------------------------
@@ -1311,7 +1316,12 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
     if (fMultivariateProposalFunctionCovariance.size() != fMCMCNChains)
         return false;
 
-    // Set covariance matricies
+    ++fMultivariateProposalFunctionCovarianceUpdates;
+
+    // a = (1+t)^(-lambda)
+    double a = pow(1. + fMultivariateProposalFunctionCovarianceUpdates, -fMultivariateProposalFunctionCovarianceUpdateLambda);
+
+    // Update covariance matricies
     unsigned I = 0;
     for (unsigned i = 0; i < GetNParameters(); ++i) {
         if (GetParameter(i).Fixed())
@@ -1321,7 +1331,8 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
             if (GetParameter(j).Fixed())
                 continue;
             for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                fMultivariateProposalFunctionCovariance[c][I][J] = fMCMCStatistics[c].covariance[i][j];
+                fMultivariateProposalFunctionCovariance[c][I][J] *= (1 - a);
+                fMultivariateProposalFunctionCovariance[c][I][J] += a * fMCMCStatistics[c].covariance[i][j];
                 fMultivariateProposalFunctionCovariance[c][J][I] = fMultivariateProposalFunctionCovariance[c][I][J];
             }
             ++J;
@@ -1334,6 +1345,24 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
     // Update cholesky decompositions
     for (unsigned c = 0; c < fMCMCNChains; ++c) {
 
+        // // check for zero covariance
+        // if (fMultivariateProposalFunctionCovariance[c] == 0) {
+        //     BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u covariance matrix is 0 everywhere; resetting to prior variances and continuing.", c));
+        //     // re-initialize covariance matrix
+        //     unsigned I = 0;
+        //     for (unsigned i = 0; i < GetNParameters(); ++i) {
+        //         if (GetParameter(i).Fixed())
+        //             continue;
+        //         if (GetParameter(i).GetPrior() != NULL) {
+        //             fMultivariateProposalFunctionCovariance[c][I][I] = GetParameter(i).GetPriorVariance();
+        //             if (!std::isfinite(fMultivariateProposalFunctionCovariance[c][I][I]))
+        //                 fMultivariateProposalFunctionCovariance[c][I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
+        //         } else
+        //             fMultivariateProposalFunctionCovariance[c][I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
+        //         ++I;
+        //     }
+        // }
+
         // try cholesky decomposition
         CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
         if (CholeskyDecomposer.Decompose())
@@ -1341,7 +1370,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
 
         else {
             // try with covariance + epsilon
-            BCLog::OutDetail("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! Adding epsilon*I and trying again.");
+            BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! Adding epsilon*I and trying again.", c));
             TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
             for (int i = 0; i < U.GetNrows(); ++i)
                 U[i][i] *= (1 + fMultivariateProposalFunctionEpsilon);
@@ -1351,7 +1380,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
 
             else {
                 // diagonalize
-                BCLog::OutDetail("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero");
+                BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! Setting off-diagonal elements of covariance to zero", c));
                 TMatrixDSym U(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
                 for (int i = 0; i < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNrows(); ++i)
                     for (int j = 0; j < fMultivariateProposalFunctionCholeskyDecomposition[c].GetNcols(); ++j)
@@ -1361,7 +1390,7 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
                 if (CholeskyDecomposer.Decompose())
                     fMultivariateProposalFunctionCholeskyDecomposition[c].Transpose(CholeskyDecomposer.GetU());
                 else {
-                    BCLog::OutError("BCEngineMCMC::UpdateCholeskyDecompositions : Cholesky decomposition failed! No rememdies!");
+                    BCLog::OutError(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u Cholesky decomposition failed! No rememdies!", c));
                     return false;
                 }
             }
@@ -1660,15 +1689,14 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     S0[I][I] = GetParameter(i).GetPriorVariance();
                     if (!std::isfinite(S0[I][I]))
                         S0[I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
-                }
+                } else
+                    S0[I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
                 CD0[I][I] = sqrt(fMCMCTrialFunctionScaleFactor[0][0] * S0[I][I]);
                 ++I;
             }
         fMultivariateProposalFunctionCovariance.assign(fMCMCNChains, S0);
         fMultivariateProposalFunctionCholeskyDecomposition.assign(fMCMCNChains, CD0);
     }
-    // number of updates made to multivariate-proposal-function covariances
-    unsigned mvt_updates = 0;
 
     //////////////////////////////////////////////////
     // Adjust scales until all parameters are in correct efficiency range in all chains
@@ -1697,7 +1725,7 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             and ( fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin
                   or (!allEfficient and inefficientScalesAdjustable)
                   or (fMCMCNChains > 1 and fMCMCNIterationsConvergenceGlobal < 0)
-                  or (fMCMCMultivariateProposalFunction and mvt_updates <= fMultivariateProposalFunctionUpdatesMinimum))) {
+                  or (fMCMCMultivariateProposalFunction and fMultivariateProposalFunctionCovarianceUpdates < fMultivariateProposalFunctionCovarianceUpdatesMinimum))) {
 
         // Generate (nIterationsCheckConvergence) new points in each chain
         for (unsigned i = 0; i < nIterationsPreRunCheck and fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMax; ++i) {
@@ -1859,20 +1887,18 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             (fMCMCNChains == 1 or fMCMCNIterationsConvergenceGlobal > 0)
             and
             // minimum number of Multivar. tunings made (or factorized proposal function)
-            (!fMCMCMultivariateProposalFunction or mvt_updates >= fMultivariateProposalFunctionUpdatesMinimum)) {
-            // still below minimum number of prerun iterations
+            (!fMCMCMultivariateProposalFunction or fMultivariateProposalFunctionCovarianceUpdates >= fMultivariateProposalFunctionCovarianceUpdatesMinimum)) {
 
             if (fMCMCCurrentIteration < (int)fMCMCNIterationsPreRunMin)
+                // still below minimum number of prerun iterations
                 BCLog::OutDetail(Form("     * Running until at least %d iterations performed in prerun. Current iteration is %d", fMCMCNIterationsPreRunMin, fMCMCCurrentIteration));
             else
                 continue;       // HURRAY!
         }
 
         // Update multivariate proposal function covariances
-        if (fMCMCMultivariateProposalFunction) {
+        if (fMCMCMultivariateProposalFunction)
             UpdateCholeskyDecompositions();
-            ++mvt_updates;
-        }
 
         if (fMCMCCurrentIteration >= (int)fMCMCNIterationsPreRunMax)
             continue;
@@ -1898,10 +1924,10 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
         else
             BCLog::OutSummary(Form(" --> Set of %i Markov chains converged within %i iterations, but could not adjust all scales (maximum number of iterations reached).", fMCMCNChains, fMCMCNIterationsConvergenceGlobal));
         if (fMCMCMultivariateProposalFunction) {
-            if (mvt_updates < fMultivariateProposalFunctionUpdatesMinimum)
-                BCLog::OutSummary(Form(" --> Only %i updates to multivariate proposal function's covariances were made. A minimum of %i updates was requested.", mvt_updates, fMultivariateProposalFunctionUpdatesMinimum));
+            if (fMultivariateProposalFunctionCovarianceUpdates < fMultivariateProposalFunctionCovarianceUpdatesMinimum)
+                BCLog::OutSummary(Form(" --> Only %i updates to multivariate proposal function's covariances were made. A minimum of %i updates was requested.", fMultivariateProposalFunctionCovarianceUpdates, fMultivariateProposalFunctionCovarianceUpdatesMinimum));
             else
-                BCLog::OutSummary(Form(" --> %i updates to multivariate proposal function's covariances were made.", mvt_updates));
+                BCLog::OutSummary(Form(" --> %i updates to multivariate proposal function's covariances were made.", fMultivariateProposalFunctionCovarianceUpdates));
         }
     } else if (allEfficient)
         BCLog::OutSummary(Form(" --> Set of %i Markov chains did not converge within %i iterations, but all scales are adjusted.", fMCMCNChains, fMCMCNIterationsPreRunMax));
@@ -2227,6 +2253,9 @@ bool BCEngineMCMC::MCMCInitialize()
 
     // clear info about local modes
     fLocalModes.clear();
+
+    // clear number of multivariate proposal function covariance updates performed
+    fMultivariateProposalFunctionCovarianceUpdates = 0;
 
     SyncThreadStorage();
 
