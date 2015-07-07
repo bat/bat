@@ -1707,6 +1707,12 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
 
     unsigned nIterationsPreRunCheck = fMCMCNIterationsPreRunCheck;
 
+    // autosave every 10 checks
+    if (fMCMCTree) {
+        fMCMCTree->SetAutoSave(10 * nIterationsPreRunCheck);
+        fMCMCTree->AutoSave("SaveSelf");
+    }
+
     fMCMCNIterationsConvergenceGlobal = -1;
 
     // Cholesky Decomposer for multivariate proposal function
@@ -1741,10 +1747,6 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
             if (fMCMCFlagWritePreRunToFile)
                 MCMCInChainWriteChains();
         }
-
-        // autosave tree
-        if (fMCMCFlagWritePreRunToFile and fMCMCTree)
-            fMCMCTree->AutoSave("SaveSelf");
 
         //////////////////////////////////////////
         // Adjust scales until efficiencies within range
