@@ -22,7 +22,9 @@
  */
 
 // ---------------------------------------------------------
+#include <limits>
 #include <vector>
+
 #include "BCVariable.h"
 
 // ---------------------------------------------------------
@@ -71,6 +73,10 @@ public:
     /** swap */
     friend void swap(BCObservable& A, BCObservable& B);
 
+    /** assignment to a double operator */
+    BCObservable& operator=(const double& value)
+    { Value(value); return *this; }
+
     /** @} */
 
     /** \name Member functions (get) */
@@ -79,7 +85,7 @@ public:
     /**
      * @return Value of the observable. */
     virtual double Value()
-    { return *fObservableValue; }
+    { return (fObservableValue) ? *fObservableValue : std::numeric_limits<double>::quiet_NaN(); }
 
     /** @} */
 
@@ -90,7 +96,7 @@ public:
     /**
      * Set value of observable. */
     virtual void Value(double val)
-    { *fObservableValue = val; }
+    { if (fObservableValue) *fObservableValue = val; }
 
     /**
      * Set value location. */
