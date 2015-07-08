@@ -8,13 +8,15 @@
 
 // ---------------------------------------------------------
 
-#include "BCPrior.h"
-#include "BCLog.h"
 #include "BCAux.h"
+#include "BCLog.h"
+#include "BCPrior.h"
+#include "BCConstantPrior.h"
 
 #include <TMath.h>
 #include <TF1.h>
 #include <TH1.h>
+#include <TH2.h>
 #include <TRandom.h>
 
 #include <iostream>
@@ -158,11 +160,54 @@ void BCPrior::FillHistogramByIntegral(TH1* h)
 // ---------------------------------------------------------
 BCH1D BCPrior::GetBCH1D(TH1* bins, const char* name)
 {
+    BCH1D bch1;
+    if (!IsValid())
+        return bch1;
+
     TH1* h = (TH1*) bins->Clone(name);
     h->Add(&GetFunction(), 1, "I");
 
-    BCH1D bch = h;
-    bch.SetLocalMode(GetMode(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax()));
+    bch1 = h;
+    bch1.SetLocalMode(GetMode(h->GetXaxis()->GetXmin(), h->GetXaxis()->GetXmax()));
 
-    return bch;
+    return bch1;
+}
+
+// ---------------------------------------------------------
+BCH2D BCPrior::GetBCH2D(BCPrior* ordinate, TH2* bins, const char* name)
+{
+    BCH2D bch2;
+
+    if (!ordinate or !ordinate->IsValid())
+        return bch2;
+
+    BCH1D bch_x = GetBCH1D(bins->ProjectionX(), "tempx");
+    if (!bch_x.Valid())
+        return bch2;
+
+    BCH1D bch_y = ordinate->GetBCH1D(bins->ProjectionY(), "tempy");
+    if  (!bch_y.Valid())
+        return bch2;
+
+    TH2* h = (TH2*) bins->Clone(name);
+
+    // get x bins:
+    std::vector<double> bin_edges_x(bch_x.GetHistogram()->GetNbinsX() + 1, 0);
+    bch_x.GetHistogram()->GetXaxis()->GetLowEdge(&bin_edges_x[0]);
+    bin_edges_x.back() = bch_x.GetHistogram()->GetXaxis()->GetXmax();
+    // get y bins
+    std::vector<double> bin_edges_y(bch_y.GetHistogram()->GetNbinsX() + 1, 0);
+    bch_y.GetHistogram()->GetXaxis()->GetLowEdge(&bin_edges_y[0]);
+    bin_edges_y.back() = bch_y.GetHistogram()->GetXaxis()->GetXmax();
+    // set into bins histogram
+    bins->SetBins(bin_edges_x.size() - 1, &bin_edges_x[0], bin_edges_y.size() - 1, &bin_edges_y[0]);
+
+    // set content
+    for (int x = 1; x <= bch_x.GetHistogram()->GetNbinsX(); ++x)
+        for (int y = 1; y <= bch_y.GetHistogram()->GetNbinsX(); ++y)
+            h->SetBinContent(x, y, bch_x.GetHistogram()->GetBinContent(x) * bch_x.GetHistogram()->GetBinContent(y));
+
+    bch2 = h;
+
+    return bch2;
 }
