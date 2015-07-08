@@ -218,7 +218,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
 {
     switch (style) {
 
-        case kKnowledgeUpdateDetailedPosterior:
+        case BCAux::kKnowledgeUpdateDetailedPosterior:
             // 1D
             prior.SetDrawGlobalMode(false);
             prior.SetDrawLocalMode(false);
@@ -241,7 +241,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             posterior.SetMarkerColor(kBlack);
             break;
 
-        case kKnowledgeUpdateDetailedPrior:
+        case BCAux::kKnowledgeUpdateDetailedPrior:
             prior.SetDrawGlobalMode(false);
             prior.SetDrawLocalMode(false);
             prior.SetDrawMean(false);
@@ -263,7 +263,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             posterior.SetMarkerColor(kBlack);
             break;
 
-        case kKnowledgeUpdateDefaultStyle:
+        case BCAux::kKnowledgeUpdateDefaultStyle:
         default:
             // 1D
             prior.SetDrawGlobalMode(false);
@@ -290,7 +290,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
 {
     switch (style) {
 
-        case kKnowledgeUpdateDetailedPosterior:
+        case BCAux::kKnowledgeUpdateDetailedPosterior:
             prior.SetDrawGlobalMode(false);
             prior.SetDrawLocalMode(true, false);
             prior.SetDrawMean(false);
@@ -313,7 +313,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             posterior.SetLocalModeMarkerStyle(21);
             break;
 
-        case kKnowledgeUpdateDetailedPrior:
+        case BCAux::kKnowledgeUpdateDetailedPrior:
             // 2D
             prior.SetDrawGlobalMode(false);
             prior.SetDrawLocalMode(true, false);
@@ -337,7 +337,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             posterior.SetLocalModeMarkerStyle(21);
             break;
 
-        case kKnowledgeUpdateDefaultStyle:
+        case BCAux::kKnowledgeUpdateDefaultStyle:
         default:
             // 2D
             prior.SetDrawGlobalMode(false);
