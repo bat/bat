@@ -242,6 +242,15 @@ BCH1D BCModel::GetPrior(unsigned index)
         TH1* h = GetVariable(index).CreateH1("getprior1d_temp");
         prior = GetParameter(index).GetPrior()->GetBCH1D(h, Form("%s_%d_prior", GetSafeName().data(), index));
         delete h;
+
+        if (prior.Valid()) {
+            // correct for flat prior
+            bool const_prior = (dynamic_cast<BCConstantPrior*>(GetParameter(index).GetPrior()) != NULL);
+            if (const_prior) {
+                prior.SetLocalMode((unsigned)0, GetParameter(index).GetRangeCenter());
+                prior.SetNBands(0);
+            }
+        }
     }
 
     // else use marginalized prior, if it exists
@@ -349,7 +358,11 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
         if (!posterior.Valid())
             continue;
         posterior.GetHistogram()->SetTitle("posterior");
-        prior.CopyOptions(fBCH1DPriorDrawingOptions);
+        if (prior.GetNBands() == 0) {
+            prior.CopyOptions(fBCH1DPriorDrawingOptions);
+            prior.SetNBands(0);
+        } else
+            prior.CopyOptions(fBCH1DPriorDrawingOptions);
         posterior.CopyOptions(fBCH1DPosteriorDrawingOptions);
         h1.push_back(std::make_pair(prior, posterior));
     }
