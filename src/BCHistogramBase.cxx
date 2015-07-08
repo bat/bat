@@ -512,7 +512,8 @@ void BCHistogramBase::Draw()
     // gPad->Update();
 
     DrawMarkers();
-    DrawLegend();
+    if (fDrawLegend)
+        DrawLegend();
 
     gPad->RedrawAxis();
     gPad->Update();
@@ -729,17 +730,17 @@ void BCHistogramBase::DrawLegend()
         ymax = pow(10, ymax);
     }
 
-    if (fDrawLegend) {
-        fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * (1.15 + fLegend.GetTextSize()*fLegend.GetNRows()) * 1.05);
+    // if (fDrawLegend) {
+    fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * (1.15 + fLegend.GetTextSize()*fLegend.GetNRows()) * 1.05);
 
-        gPad->SetTopMargin(0.02);
+    gPad->SetTopMargin(0.02);
 
-        double y1ndc = ResizeLegend();
-        fLegend.Draw();
+    double y1ndc = ResizeLegend();
+    fLegend.Draw();
 
-        // rescale top margin
-        gPad->SetTopMargin(1 - y1ndc + 0.01);
+    // rescale top margin
+    gPad->SetTopMargin(1 - y1ndc + 0.01);
 
-    } else
-        fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * 1.155);
+    // } else
+    //     fHistogram->GetYaxis()->SetRangeUser(ymin, ymax * 1.155);
 }
