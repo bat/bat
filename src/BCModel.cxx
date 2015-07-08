@@ -10,7 +10,6 @@
 
 #include "BCModel.h"
 
-#include "BCDataPoint.h"
 #include "BCDataSet.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
@@ -20,23 +19,11 @@
 #include "BCPriorModel.h"
 #include "BCPrior.h"
 #include "BCConstantPrior.h"
-#include "BCTH1Prior.h"
 
 #include <TCanvas.h>
-#include <TF1.h>
-#include <TGraph.h>
 #include <TH1.h>
 #include <TH2.h>
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TMath.h>
-#include <TRandom3.h>
 #include <TTree.h>
-#include <TList.h>
-#include <TLegend.h>
-#include <TLegendEntry.h>
-#include <TMarker.h>
-#include <TArrow.h>
 
 #include <set>
 
@@ -252,7 +239,7 @@ BCH1D BCModel::GetPrior(unsigned index)
 
     // check for factorized prior
     if (fFactorizedPrior and index < GetNParameters() and GetParameter(index).GetPrior() != NULL) {
-        TH1* h = GetVariable(index).CreateH1("temp");
+        TH1* h = GetVariable(index).CreateH1("getprior1d_temp");
         prior = GetParameter(index).GetPrior()->GetBCH1D(h, Form("%s_%d_prior", GetSafeName().data(), index));
         delete h;
     }
@@ -288,70 +275,10 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
             index1 < GetNParameters() and GetParameter(index1).GetPrior() != NULL and
             index2 < GetNParameters() and GetParameter(index2).GetPrior() != NULL) {
 
-        // set x binning
-        unsigned nbins_x = GetVariable(index1).GetNbins();
-        std::vector<double> bins_x;
-        // histogrammed prior (if not interpolating)
-        if (dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior()) != NULL and
-                !dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetInterpolate()) {
+        TH2* h2 = fPriorModel->GetVariable(index1).CreateH2("getprior2d_temp", fPriorModel->GetVariable(index2));
+        prior = GetParameter(index1).GetPrior()->GetBCH2D(GetParameter(index2).GetPrior(), h2, Form("h2d_prior_%s_%d_%d", GetName().data(), index1, index2));
+        delete h2;
 
-            nbins_x = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram().GetNbinsX();
-            bins_x.assign(nbins_x + 1, 0);
-            dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram().GetXaxis()->GetLowEdge(&bins_x[0]);
-            bins_x[nbins_x] = dynamic_cast<BCTH1Prior*>(GetParameter(index1).GetPrior())->GetHistogram().GetXaxis()->GetXmax();
-        }
-        // // constant prior
-        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior())!=NULL) {
-        //     nbins_x = 1;
-        //     bins_x.assign(nbins_x + 1, 0);
-        //     bins_x[0] = GetParameter(index1).GetLowerLimit();
-        //     bins_x[1] = GetParameter(index1).GetUpperLimit();
-        // }
-        // else function-based prior
-        else {
-            bins_x.assign(nbins_x + 1, 0);
-            for (unsigned i = 0; i <= nbins_x; ++i)
-                bins_x[i] = GetVariable(index1).ValueFromPositionInRange(1.*i / nbins_x);
-        }
-
-        // set y binning
-        unsigned nbins_y = GetVariable(index2).GetNbins();
-        std::vector<double> bins_y;
-        // histogrammed prior (and not interpolating)
-        if (dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior()) != NULL and
-                !dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetInterpolate()) {
-            nbins_y = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram().GetNbinsX();
-            bins_y.assign(nbins_y + 1, 0);
-            dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram().GetXaxis()->GetLowEdge(&bins_y[0]);
-            bins_y[nbins_y] = dynamic_cast<BCTH1Prior*>(GetParameter(index2).GetPrior())->GetHistogram().GetXaxis()->GetXmax();
-        }
-        // // constant prior
-        // else if (dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior())!=NULL) {
-        // 	nbins_y = 1;
-        //   bins_y.assign(nbins_y + 1, 0);
-        // 	bins_y[0] = GetParameter(index2).GetLowerLimit();
-        // 	bins_y[1] = GetParameter(index2).GetUpperLimit();
-        // }
-        // else function-based prior
-        else {
-            bins_y.assign(nbins_y + 1, 0);
-            for (unsigned i = 0; i <= nbins_y; ++i)
-                bins_y[i] = GetVariable(index2).ValueFromPositionInRange(1.*i / nbins_y);
-        }
-
-        // create histogram
-        TH2* h2d_prior = fPriorModel->GetVariable(index1).CreateH2(Form("h2d_prior_%s_%d_%d", GetName().data(), index1, index2), fPriorModel->GetVariable(index2));
-        // set binning
-        h2d_prior->SetBins(nbins_x, &bins_x[0], nbins_y, &bins_y[0]);
-
-        // fill histogram
-        for (int i = 1; i <= h2d_prior->GetNbinsX(); ++i) {
-            double fx = GetParameter(index1).GetPrior(h2d_prior->GetXaxis()->GetBinCenter(i));
-            for (int j = 1; j <= h2d_prior->GetNbinsY(); ++j)
-                h2d_prior->SetBinContent(i, j, fx * GetParameter(index2).GetPrior(h2d_prior->GetYaxis()->GetBinCenter(j)));
-        }
-        // create BCH2D
-        prior = h2d_prior;
         if (prior.Valid()) {
             // correct for flat prior
             bool const_prior1 = (dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior()) != NULL);
