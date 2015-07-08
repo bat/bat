@@ -9,7 +9,6 @@
 #include "BCConstantPrior.h"
 #include "BCAux.h"
 
-#include <TF1.h>
 #include <TRandom.h>
 
 // ---------------------------------------------------------
@@ -120,3 +119,5 @@ double BCConstantPrior::GetRandomValue(double xmin, double xmax, TRandom* const 
         return std::numeric_limits<double>::quiet_NaN();
     return xmin + R->Rndm() * xmax;
 }
+
+
