@@ -516,7 +516,7 @@ void BCHistogramBase::Draw()
         DrawLegend();
 
     gPad->RedrawAxis();
-    gPad->Update();
+    // gPad->Update();
 }
 
 // ---------------------------------------------------------

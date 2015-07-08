@@ -396,6 +396,10 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
     // create canvas and prepare postscript
     TCanvas c("c", "canvas", c_width, c_height);
     c.Divide(hdiv, vdiv);
+
+    unsigned n = 0;
+
+    // open file
     c.Print((filename + "[").data());
 
     // Draw 1D Knowledge Update Plots
@@ -407,12 +411,12 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
         }
 
         // go to next pad
-        c.cd(i % (hdiv * vdiv) + 1);
+        c.cd(i % (hdiv * vdiv) + 1)->ResetAttPad();
 
         BCAux::DrawKnowledgeUpdate(h1[i].first, h1[i].second, fDrawPriorFirst);
 
-        if (i + 1 % 100 == 0)
-            BCLog::OutDetail(Form(" --> %d plots done", i + 1));
+        if (++n % 100 == 0)
+            BCLog::OutDetail(Form(" --> %d plots done", n));
     }
     if (h1.size() > 0) {
         c.Print(filename.c_str());
@@ -428,13 +432,13 @@ unsigned BCModel::PrintKnowledgeUpdatePlots(std::string filename, unsigned hdiv,
         }
 
         // go to next pad
-        c.cd(i % (hdiv * vdiv) + 1);
+        c.cd(i % (hdiv * vdiv) + 1)->ResetAttPad();
 
         // prior text?
         BCAux::DrawKnowledgeUpdate(h2[i].first, h2[i].second, fDrawPriorFirst);
 
-        if ((i + h1.size() + 1) % 100 == 0)
-            BCLog::OutDetail(Form(" --> %d plots done", i + (int)h1.size() + 1));
+        if (++n % 100 == 0)
+            BCLog::OutDetail(Form(" --> %d plots done", n));
     }
     if (h2.size() > 0) {
         c.Print(filename.c_str());

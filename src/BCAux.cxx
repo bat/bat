@@ -242,25 +242,25 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH1D& prior, BCH1D& posterior, BCAux
             break;
 
         case BCAux::kKnowledgeUpdateDetailedPrior:
-            prior.SetDrawGlobalMode(false);
-            prior.SetDrawLocalMode(false);
-            prior.SetDrawMean(false);
-            prior.SetDrawMedian(false);
-            prior.SetDrawLegend(false);
-            prior.SetNBands(0);
-            prior.SetBandType(BCH1D::kNoBands);
-            prior.SetROOToptions("same");
-            prior.SetLineColor(13);
-            prior.SetMarkerColor(13);
-            prior.SetNLegendColumns(1);
-            posterior.CopyOptions(prior);
-            posterior.SetDrawGlobalMode(true);
-            posterior.SetBandType(BCH1D::kSmallestInterval);
-            posterior.SetNBands(3);
+            posterior.SetDrawGlobalMode(false);
+            posterior.SetDrawLocalMode(false);
+            posterior.SetDrawMean(false);
+            posterior.SetDrawMedian(false);
+            posterior.SetDrawLegend(false);
+            posterior.SetNBands(0);
+            posterior.SetBandType(BCH1D::kNoBands);
+            posterior.SetROOToptions("same");
+            posterior.SetLineColor(13);
+            posterior.SetMarkerColor(13);
             posterior.SetNLegendColumns(1);
-            posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            posterior.SetLineColor(kBlack);
-            posterior.SetMarkerColor(kBlack);
+            prior.CopyOptions(posterior);
+            prior.SetDrawGlobalMode(true);
+            prior.SetBandType(BCH1D::kSmallestInterval);
+            prior.SetNBands(3);
+            prior.SetNLegendColumns(1);
+            prior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            prior.SetLineColor(kBlack);
+            prior.SetMarkerColor(kBlack);
             break;
 
         case BCAux::kKnowledgeUpdateDefaultStyle:
@@ -304,7 +304,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             prior.SetMarkerColor(13);
             prior.SetLocalModeMarkerStyle(25);
             prior.SetNLegendColumns(1);
-            posterior.CopyOptions(posterior);
+            posterior.CopyOptions(prior);
             posterior.SetNBands(3);
             posterior.SetBandFillStyle(1001);
             posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
@@ -315,26 +315,26 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
 
         case BCAux::kKnowledgeUpdateDetailedPrior:
             // 2D
-            prior.SetDrawGlobalMode(false);
-            prior.SetDrawLocalMode(true, false);
-            prior.SetDrawMean(false);
-            prior.SetDrawLegend(false);
-            prior.SetBandType(BCH2D::kSmallestInterval);
-            prior.SetBandFillStyle(-1);
-            prior.SetNBands(1);
-            prior.SetNSmooth(0);
-            prior.SetROOToptions("same");
-            prior.SetLineColor(13);
-            prior.SetMarkerColor(13);
-            prior.SetLocalModeMarkerStyle(25);
-            prior.SetNLegendColumns(1);
-            posterior.CopyOptions(posterior);
-            posterior.SetNBands(3);
-            posterior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
-            posterior.SetBandFillStyle(1001);
-            posterior.SetLineColor(kBlack);
-            posterior.SetMarkerColor(kBlack);
-            posterior.SetLocalModeMarkerStyle(21);
+            posterior.SetDrawGlobalMode(false);
+            posterior.SetDrawLocalMode(true, false);
+            posterior.SetDrawMean(false);
+            posterior.SetDrawLegend(false);
+            posterior.SetBandType(BCH2D::kSmallestInterval);
+            posterior.SetBandFillStyle(-1);
+            posterior.SetNBands(1);
+            posterior.SetNSmooth(0);
+            posterior.SetROOToptions("same");
+            posterior.SetLineColor(13);
+            posterior.SetMarkerColor(13);
+            posterior.SetLocalModeMarkerStyle(25);
+            posterior.SetNLegendColumns(1);
+            prior.CopyOptions(posterior);
+            prior.SetNBands(3);
+            prior.SetColorScheme(BCHistogramBase::kGreenYellowRed);
+            prior.SetBandFillStyle(1001);
+            prior.SetLineColor(kBlack);
+            prior.SetMarkerColor(kBlack);
+            prior.SetLocalModeMarkerStyle(21);
             break;
 
         case BCAux::kKnowledgeUpdateDefaultStyle:
@@ -352,7 +352,7 @@ void BCAux::SetKnowledgeUpdateDrawingStyle(BCH2D& prior, BCH2D& posterior, BCAux
             prior.SetLineColor(kRed);
             prior.SetMarkerColor(kRed);
             prior.SetNLegendColumns(1);
-            posterior.CopyOptions(posterior);
+            posterior.CopyOptions(prior);
             posterior.SetLineColor(kBlue);
             posterior.SetMarkerColor(kBlue);
             break;
@@ -458,21 +458,12 @@ void BCAux::DrawKnowledgeUpdate(BCHistogramBase& prior, BCHistogramBase& posteri
 // ---------------------------------------------------------
 unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::string filename, unsigned hdiv, unsigned vdiv)
 {
-    // unsigned nplots = 0;
-    // std::string plot_count_text = "";
-    // for (unsigned i = 0; i < H.size(); ++i) {
-    //     if (H[i].empty())
-    //         continue;
-    //     nplots += H[i].size();
-    //     plot_count_text += Form("%s%lu x %uD", (plot_count_text.empty() ? "" : " + "), H[i].size(), H[i][0].GetDimension());
-    // }
     const unsigned nplots = h1.size() + h2.size();
     if (nplots == 0) {
         BCLog::OutWarning("BCAux::PrintPlots : No plots to print");
         return 0;
     }
 
-    // BCLog::OutSummary(Form("Printing all marginalized distributions (%s = %u) into file %s", plot_count_text.data(), nplots, filename.c_str()));
     BCLog::OutSummary(Form("Printing all marginalized distributions (%lu x 1D + %lu x 2D = %u) into file %s", h1.size(), h2.size(), nplots, filename.c_str()));
     // give out warning if too many plots
     if (nplots > 100)
@@ -504,7 +495,7 @@ unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::
         }
 
         // go to next pad
-        c.cd(i % (hdiv * vdiv) + 1);
+        c.cd(i % (hdiv * vdiv) + 1)->ResetAttPad();
 
         h1[i].Draw();
 
@@ -525,7 +516,7 @@ unsigned BCAux::PrintPlots(std::vector<BCH1D>& h1, std::vector<BCH2D>& h2, std::
         }
 
         // go to next pad
-        c.cd(i % (hdiv * vdiv) + 1);
+        c.cd(i % (hdiv * vdiv) + 1)->ResetAttPad();
 
         h2[i].Draw();
 
