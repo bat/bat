@@ -55,8 +55,13 @@ void swap(BCTH1Prior& A, BCTH1Prior& B)
 {
     swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
     TH1& temp(A.fPriorHistogram);
-    A.fPriorHistogram.Copy(B.fPriorHistogram);
-    B.fPriorHistogram.Copy(temp);
+    try { // ROOT version 5.34/25 and newer have (sensibly) public copy function
+        A.fPriorHistogram.Copy(B.fPriorHistogram);
+        B.fPriorHistogram.Copy(temp);
+    } catch (...) { // older versions of ROOT do not
+        new (&A) TH1(B.fPriorHistogram);
+        new (&B) TH1(temp);
+    }
     std::swap(A.fInterpolate, B.fInterpolate);
 }
 
@@ -154,10 +159,12 @@ double BCTH1Prior::GetIntegral(double xmin, double xmax) const
 // ---------------------------------------------------------
 BCH1D BCTH1Prior::GetBCH1D(TH1* bins, const char* name)
 {
-    if (fInterpolate)
-        return BCPrior::GetBCH1D(bins, name);
-
-    TH1D* h = (TH1D*)fPriorHistogram.Clone(name);
-    BCH1D bch = h;
-    return bch;
+    // if not interpolating, use actual histogram binning
+    if (!fInterpolate) {
+        std::vector<double> bin_edges(fPriorHistogram.GetNbinsX() + 1, 0);
+        fPriorHistogram.GetXaxis()->GetLowEdge(&bin_edges[0]);
+        bin_edges.back() = fPriorHistogram.GetXaxis()->GetXmax();
+        bins->SetBins(bin_edges.size() - 1, &bin_edges[0]);
+    }
+    return BCPrior::GetBCH1D(bins, name);
 }
