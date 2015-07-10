@@ -83,6 +83,7 @@ AC_DEFUN([ROOT_PATH],
         no_version="yes"
         no_root="yes"
       else
+        AC_DEFINE_UNQUOTED([ROOTVERSION], [$vers], [ROOT Version])
         AC_MSG_RESULT(yes)
       fi
     fi

@@ -55,13 +55,15 @@ void swap(BCTH1Prior& A, BCTH1Prior& B)
 {
     swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
     TH1& temp(A.fPriorHistogram);
-    try { // ROOT version 5.34/25 and newer have (sensibly) public copy function
-        A.fPriorHistogram.Copy(B.fPriorHistogram);
-        B.fPriorHistogram.Copy(temp);
-    } catch (...) { // older versions of ROOT do not
-        new (&A) TH1(B.fPriorHistogram);
-        new (&B) TH1(temp);
-    }
+#if ROOTVERSION < 5034025
+    // ROOT versions before 5.34/25 don't have a public copy function
+    new (&A) TH1(B.fPriorHistogram);
+    new (&B) TH1(temp);
+#else
+    // newer versions do
+    A.fPriorHistogram.Copy(B.fPriorHistogram);
+    B.fPriorHistogram.Copy(temp);
+#endif
     std::swap(A.fInterpolate, B.fInterpolate);
 }
 
