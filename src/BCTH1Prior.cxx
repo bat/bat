@@ -7,6 +7,7 @@
  */
 
 #include "BCTH1Prior.h"
+#include <config.h>
 
 #include <cmath>
 
