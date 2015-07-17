@@ -56,6 +56,9 @@ General options:
     --version
     --libs
     --cflags
+    --bindir
+    --incdir
+    --libdir
 EOF
     exit $1
 }
@@ -88,6 +91,15 @@ while test $# -gt 0 ; do
   --libs)
     echo_libs=yes
     ;;
+  --bindir)
+    echo_bindir=yes
+    ;;
+  --incdir)
+    echo_incdir=yes
+    ;;
+  --libdir)
+    echo_libdir=yes
+    ;;
   *)
     usage 1 1>&2
     ;;
@@ -114,6 +126,18 @@ if test "$echo_libs" = "yes" ; then
     else
         echo @PKG_LIBS@ @DEP_LIBS@
     fi
+fi
+
+if test "$echo_bindir" = "yes" ; then
+    echo $bindir
+fi
+
+if test "$echo_libdir" = "yes" ; then
+    echo $libdir
+fi
+
+if test "$echo_incdir" = "yes" ; then
+    echo $includedir
 fi
 
 # ---------------------------------------------------------------------
