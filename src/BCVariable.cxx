@@ -51,8 +51,8 @@ BCVariable::BCVariable(const BCVariable& other)
 // ---------------------------------------------------------
 BCVariable::BCVariable(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
     :	fPrefix("Variable")
-    , fLowerLimit(lowerlimit)
-    , fUpperLimit(upperlimit)
+    , fLowerLimit(-std::numeric_limits<double>::infinity())
+    , fUpperLimit(+std::numeric_limits<double>::infinity())
     , fPrecision(3)
     , fLatexName(latexname)
     , fUnitString(unitstring)
@@ -61,7 +61,7 @@ BCVariable::BCVariable(std::string name, double lowerlimit, double upperlimit, s
     , fNbins(100)
 {
     SetName(name);
-    CalculatePrecision();
+    SetLimits(lowerlimit, upperlimit);
 }
 
 // ---------------------------------------------------------
@@ -106,6 +106,8 @@ void BCVariable::SetLimits(double lowerlimit, double upperlimit)
 {
     fLowerLimit = lowerlimit;
     fUpperLimit = upperlimit;
+    if (fLowerLimit > fUpperLimit)
+        BCLog::OutError("BCVariable:SetLimits : lower limit is greater than upper limit for variable " + fName);
     if (BCAux::RangeType(fLowerLimit, fUpperLimit) == BCAux::kFiniteRange)
         CalculatePrecision();
 }
