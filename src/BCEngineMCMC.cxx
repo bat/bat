@@ -2291,6 +2291,8 @@ bool BCEngineMCMC::MCMCInitialize()
     // set that a main run has not been made
     fMCMCFlagRun = false;
 
+    unsigned max_tries = 10;
+
     // initialize markov chain positions
     switch (fMCMCFlagInitialPosition) {
 
@@ -2310,14 +2312,33 @@ bool BCEngineMCMC::MCMCInitialize()
         // use range centers
         case kMCMCInitCenter : {
             fMCMCx.assign(fMCMCNChains, GetParameters().GetRangeCenters());
+            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
+                fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
+                if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                    BCLog::OutError("BCEngineMCMC::MCMCInitialize : Range center as initial point yields invalid probability.");
+                    fMCMCx.clear();
+                    return false;
+                }
+            }
+            fMCMCCurrentChain = -1;
             break;
         }
 
         // uniformly distribute all coordinates in provided ranges
         case kMCMCInitRandomUniform : {
-            fMCMCx.clear();
-            for (unsigned c = 0; c < fMCMCNChains; ++c)
-                fMCMCx.push_back(GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[c].rng));
+            fMCMCx.assign(fMCMCNChains, std::vector<double>());
+            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
+                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[fMCMCCurrentChain]); ++n) {
+                    fMCMCx[fMCMCCurrentChain] = GetParameters().GetUniformRandomValues(fMCMCThreadLocalStorage[fMCMCCurrentChain].rng);
+                    fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
+                }
+                if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                    BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distrubited initial point with valid probability in %u tries.", max_tries));
+                    fMCMCx.clear();
+                    return false;
+                }
+            }
+            fMCMCCurrentChain = -1;
             break;
         }
 
@@ -2333,14 +2354,22 @@ bool BCEngineMCMC::MCMCInitialize()
             // set fixed values then check whether initial positions are within bounds
             // check whether initial positions are within bounds
             // also checks that initial position vectors are correct size
-            for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                GetParameters().ApplyFixedValues(fMCMCx[c]);
-                if (!GetParameters().IsWithinLimits(fMCMCx[c])) {
+            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
+                GetParameters().ApplyFixedValues(fMCMCx[fMCMCCurrentChain]);
+                if (!GetParameters().IsWithinLimits(fMCMCx[fMCMCCurrentChain])) {
                     BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point is out of bounds.");
                     fMCMCx.clear();
                     return false;
+                } else {
+                    fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
+                    if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                        BCLog::OutError("BCEngineMCMC::MCMCInitialize : User-defined initial point yields invalid probability.");
+                        fMCMCx.clear();
+                        return false;
+                    }
                 }
             }
+            fMCMCCurrentChain = -1;
             break;
         }
 
@@ -2350,16 +2379,25 @@ bool BCEngineMCMC::MCMCInitialize()
                 BCLog::OutError("BCEngineMCMC::MCMCInitialize : Not all unfixed parameters have priors set.");
                 return false;
             }
-            fMCMCx.clear();
-            for (unsigned c = 0; c < fMCMCNChains; ++c) {
-                fMCMCx.push_back(GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[c].rng));
-                // check new point
-                if (!GetParameters().IsWithinLimits(fMCMCx[c])) {
-                    BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+            fMCMCx.assign(fMCMCNChains, std::vector<double>());
+            for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain) {
+                for (unsigned n = 0; n < max_tries && !std::isfinite(fMCMCprob[fMCMCCurrentChain]); ++n) {
+                    fMCMCx[fMCMCCurrentChain] = GetParameters().GetRandomValuesAccordingToPriors(fMCMCThreadLocalStorage[fMCMCCurrentChain].rng);
+                    // check new point
+                    if (!GetParameters().IsWithinLimits(fMCMCx[fMCMCCurrentChain])) {
+                        BCLog::OutError("BCEngineMCMC::MCMCInitialize : Could not generate random point within limits.");
+                        fMCMCx.clear();
+                        return false;
+                    }
+                    fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
+                }
+                if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
+                    BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate initial point from prior with valid probability in %u tries.", max_tries));
                     fMCMCx.clear();
                     return false;
                 }
             }
+            fMCMCCurrentChain = -1;
             break;
         }
 
@@ -2371,11 +2409,6 @@ bool BCEngineMCMC::MCMCInitialize()
 
     if (fMCMCx.empty())
         return false;
-
-    // initialize fMCMCProb
-    for (fMCMCCurrentChain = 0; fMCMCCurrentChain < static_cast<int>(fMCMCNChains); ++fMCMCCurrentChain)
-        fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
-    fMCMCCurrentChain = -1;
 
     // initialize user-defined observables
     fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
