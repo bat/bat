@@ -2410,6 +2410,12 @@ bool BCEngineMCMC::MCMCInitialize()
     if (fMCMCx.empty())
         return false;
 
+    // fill likelihood and prior from calculation
+    for (unsigned c = 0; c < fMCMCNChains; ++c) {
+        fMCMCLogLikelihood[c] = fMCMCLogLikelihood_Provisional[c];
+        fMCMCLogPrior[c] = fMCMCLogPrior_Provisional[c];
+    }
+
     // initialize user-defined observables
     fMCMCObservables.assign(fMCMCNChains, std::vector<double>(GetNObservables(), 0));
 
