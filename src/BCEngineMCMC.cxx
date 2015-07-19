@@ -1772,23 +1772,34 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                     fMCMCTrialFunctionScaleFactor[c][0] /= fMultivariateProposalFunctionScaleMultiplier;
 
                     if (fMCMCTrialFunctionScaleFactor[c][0] > fMCMCScaleFactorLowerLimit) { // still room to tune
-                        BCLog::OutDetail(Form("         chain %d is below %.0f %% (%4.1g %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+                        if (fMCMCStatistics[c].efficiency[0] == 0)
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (zero). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, fMCMCTrialFunctionScaleFactor[c][0]));
+                        else if (fMCMCStatistics[c].efficiency[0] < 1.e-2)
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0g %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+                        else
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0f %%). Scale decreased to %.4g", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
                         inefficientScalesAdjustable = true;
 
                     } else { // no more room to tune
                         fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorLowerLimit;
-                        BCLog::OutDetail(Form("         chain %d is below %.0f %% (%4.1g %%). Scale now at lower limit (%.4g)", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorLowerLimit));
+                        if (fMCMCStatistics[c].efficiency[0] == 0)
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (zero). Scale now at lower limit (%.4g)", c, 100 * fMCMCEfficiencyMin, fMCMCScaleFactorLowerLimit));
+                        else if (fMCMCStatistics[c].efficiency[0] < 1.e-2)
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% (%.0g %%). Scale now at lower limit (%.4g)", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorLowerLimit));
+                        else
+                            BCLog::OutDetail(Form("         chain %d is below %.0f %% f(%.0f %%). Scale now at lower limit (%.4g)", c, 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorLowerLimit));
+
                     }
 
                 } else { // efficiency too high... increase scale factor
                     fMCMCTrialFunctionScaleFactor[c][0] *= fMultivariateProposalFunctionScaleMultiplier;
 
                     if (fMCMCTrialFunctionScaleFactor[c][0] < fMCMCScaleFactorUpperLimit) { // still room to tune
-                        BCLog::OutDetail(Form("         chain %d is above %.0f %% (%4.1g %%). Scale increased to %.4g", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
+                        BCLog::OutDetail(Form("         chain %d is above %.0f %% (%.0f %%). Scale increased to %.4g", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCTrialFunctionScaleFactor[c][0]));
                         inefficientScalesAdjustable = true;
                     } else { // no more room to tune
                         fMCMCTrialFunctionScaleFactor[c][0] = fMCMCScaleFactorUpperLimit;
-                        BCLog::OutDetail(Form("         chain %d is above %.0f %% (%4.1g %%). Scale now at upper limit (%.4g)", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorUpperLimit));
+                        BCLog::OutDetail(Form("         chain %d is above %.0f %% (%.0f %%). Scale now at upper limit (%.4g)", c, 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[0], fMCMCScaleFactorUpperLimit));
                     }
                 }
 
@@ -1815,22 +1826,32 @@ bool BCEngineMCMC::MCMCMetropolisPreRun()
                         fMCMCTrialFunctionScaleFactor[c][p] /= (fMCMCStatistics[c].efficiency[p] < fMCMCEfficiencyMin / 2) ? 4 : 2;
 
                         if (fMCMCTrialFunctionScaleFactor[c][p] > fMCMCScaleFactorLowerLimit ) { // still room to tune
-                            BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            if (fMCMCStatistics[c].efficiency[p] == 0)
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            else if (fMCMCStatistics[c].efficiency[p] < 1.e-2)
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            else
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         }	else { // no more room to tune
+                            if (fMCMCStatistics[c].efficiency[p] == 0)
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (zero) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            else if (fMCMCStatistics[c].efficiency[p] < 1.e-2)
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0g %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            else
+                                BCLog::OutDetail(Form("         %-*s is below %.0f %% (%.0f %%) in chain %i. Scale decreased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorLowerLimit;
-                            BCLog::OutDetail(Form("         %-*s is below %.0f %% (%4.1g %%) in chain %i. Scale now at lower limit (%.4g %%)",	fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMin, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorLowerLimit));
                         }
 
                     } else { // if efficiency too high ... increase scale factor
                         fMCMCTrialFunctionScaleFactor[c][p] *= 2;
 
                         if ( fMCMCTrialFunctionScaleFactor[c][p] < fMCMCScaleFactorUpperLimit ) { // still room to tune
-                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1g %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
+                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%.0f %%) in chain %i. Scale increased to %.4g", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCTrialFunctionScaleFactor[c][p]));
                             inefficientScalesAdjustable = true;
                         } else { // no more room to tune
                             fMCMCTrialFunctionScaleFactor[c][p] = fMCMCScaleFactorUpperLimit;
-                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%4.1g %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));
+                            BCLog::OutDetail(Form("         %-*s is above %.0f %% (%.0f %%) in chain %i. Scale now at upper limit (%.4g)", fParameters.MaxNameLength(), GetParameter(p).GetName().data(), 100 * fMCMCEfficiencyMax, 100 * fMCMCStatistics[c].efficiency[p], c, fMCMCScaleFactorUpperLimit));
                         }
                     }
 
