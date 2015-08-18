@@ -27,13 +27,13 @@ int main()
     C->Divide(2, 2);
 
     C->cd(1);
-    m.GetMarginalized(0)->Draw();
+    m.GetMarginalized(0).Draw();
     C->cd(2);
-    m.GetMarginalized(1)->Draw();
+    m.GetMarginalized(1).Draw();
     C->cd(3);
-    m.GetMarginalized(2)->Draw();
+    m.GetMarginalized(2).Draw();
     C->cd(4);
-    m.GetMarginalized(0, 1)->Draw();
+    m.GetMarginalized(0, 1).Draw();
 
     C->Print("GaussModel_loaded_plots.pdf");
 
@@ -42,4 +42,3 @@ int main()
 
     return 0;
 }
-

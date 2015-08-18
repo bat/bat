@@ -1,15 +1,6 @@
 ###################################################################
-<<<<<<< variant A
 # This Makefile was created using the bat-project script.
 # bat-project is part of Bayesian Analysis Toolkit (BAT).
->>>>>>> variant B
-# This Makefile was created using the CreateProject.sh script.
-# CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-####### Ancestor
-# This Makefile was created using the CreateProject.sh script
-# for project Systematics.
-# CreateProject.sh is part of Bayesian Analysis Toolkit (BAT).
-======= end
 # BAT can be downloaded from http://mpp.mpg.de/bat
 ###################################################################
 #
@@ -47,8 +38,7 @@ CXXSRCS      = \
 #
 
 CXXOBJS      = $(patsubst %.cxx,%.o,$(CXXSRCS))
-MYPROGS      = \
-        runSystematics
+MYPROGS      = runSystematics
 
 GARBAGE = $(CXXOBJS) *~ link.d $(MYPROGS)
 
