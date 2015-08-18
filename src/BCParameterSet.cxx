@@ -18,11 +18,6 @@ BCParameterSet::BCParameterSet()
 }
 
 // ---------------------------------------------------------
-BCParameterSet::~BCParameterSet()
-{
-}
-
-// ---------------------------------------------------------
 unsigned int BCParameterSet::GetNFixedParameters() const
 {
     unsigned int n = 0;

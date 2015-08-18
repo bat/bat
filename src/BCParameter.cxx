@@ -60,10 +60,9 @@ BCParameter::~BCParameter()
 }
 
 // ---------------------------------------------------------
-BCParameter& BCParameter::operator=(const BCParameter& other)
+BCParameter& BCParameter::operator=(BCParameter other)
 {
-    BCParameter temp(other);
-    swap(*this, temp);
+    swap(*this, other);
     return *this;
 }
 

@@ -33,14 +33,14 @@ BCModelManager::BCModelManager(const BCModelManager& other)
 // ---------------------------------------------------------
 BCModelManager::~BCModelManager()
 {
+    // TODO why is data set pointer just copied but also deleted? If a copy of BCModelManager is made => double delete!
     delete fDataSet;
 }
 
 // ---------------------------------------------------------
-BCModelManager& BCModelManager::operator = (const BCModelManager& rhs)
+BCModelManager& BCModelManager::operator=(BCModelManager rhs)
 {
-    BCModelManager temp(rhs);
-    swap(*this, temp);
+    swap(*this, rhs);
     return *this;
 }
 

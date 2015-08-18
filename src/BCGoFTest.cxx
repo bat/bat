@@ -43,11 +43,6 @@ BCGoFTest::BCGoFTest(BCModel& model, std::string name)
 }
 
 // ---------------------------------------------------------
-BCGoFTest::~BCGoFTest()
-{
-}
-
-// ---------------------------------------------------------
 double BCGoFTest::LogLikelihood(const std::vector<double>& parameters)
 {
     // Update data set from parameter set

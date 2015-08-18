@@ -65,22 +65,7 @@ public:
 
     /**
      * The default destructor. */
-    virtual ~BCH1D();
-
-    /** @} */
-
-    /** \name Operators and swap*/
-    /** @{ */
-
-    using BCHistogramBase::operator=;
-
-    /**
-     * Copy assignment operator. */
-    BCH1D& operator=(const BCH1D& other);
-
-    /**
-     * Swap function. */
-    friend void swap(BCH1D& first, BCH1D& second);
+    virtual ~BCH1D() {};
 
     /** @} */
 

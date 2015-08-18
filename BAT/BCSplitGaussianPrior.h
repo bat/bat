@@ -40,21 +40,10 @@ public:
     /** Copy constructor */
     BCSplitGaussianPrior(const BCSplitGaussianPrior& other);
 
-    /** Destrcutor */
-    virtual ~BCSplitGaussianPrior();
+    /** Destructor */
+    virtual ~BCSplitGaussianPrior() {};
 
     /** @} **/
-
-    /** \name operators and swap */
-    /** @{ */
-
-    /** assignment operator */
-    BCSplitGaussianPrior& operator=(const BCSplitGaussianPrior& rhs);
-
-    /** swap */
-    friend void swap(BCSplitGaussianPrior& A, BCSplitGaussianPrior& B);
-
-    /** @} */
 
     /** \name Functions overloaded from BCPrior **/
     /** @{ **/

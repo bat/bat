@@ -36,7 +36,7 @@ public:
 
     /*
      * Destructor */
-    virtual ~BCParameterSet();
+    virtual ~BCParameterSet() {};
 
     /**
      * @return The number of fixed parameters. */

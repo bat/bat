@@ -25,23 +25,3 @@ BCTF1Prior::BCTF1Prior(const char* formula, double xmin, double xmax)
 {
     fPriorFunction = TF1("f1_prior", formula, xmin, xmax);
 }
-
-// ---------------------------------------------------------
-BCTF1Prior::BCTF1Prior(const BCTF1Prior& other)
-    : BCPrior(other)
-{
-    fPriorFunction = other.fPriorFunction;
-}
-
-// ---------------------------------------------------------
-BCTF1Prior::~BCTF1Prior()
-{
-}
-
-// ---------------------------------------------------------
-BCTF1Prior& BCTF1Prior::operator=(const BCTF1Prior& rhs)
-{
-    BCTF1Prior temp(rhs);
-    swap(*this, temp);
-    return *this;
-}

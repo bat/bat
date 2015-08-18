@@ -71,8 +71,8 @@ public:
     /** @{ */
 
     /**
-     * Copy assignment operator. */
-    BCHistogramBase& operator=(const BCHistogramBase& other);
+     * Assignment operator. */
+    BCHistogramBase& operator=(BCHistogramBase other);
 
     /**
      * Swap function. */

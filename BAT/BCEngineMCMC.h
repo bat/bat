@@ -25,21 +25,21 @@
 
 #include "BCH1D.h"
 #include "BCH2D.h"
+#include "BCLog.h"
 #include "BCObservable.h"
 #include "BCObservableSet.h"
 #include "BCParameter.h"
 #include "BCParameterSet.h"
-#include "BCLog.h"
+
+#include <TMatrixD.h>
+#include <TMatrixDSym.h>
+#include <TRandom3.h>
 
 #include <algorithm>
 #include <limits>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <TMatrixD.h>
-#include <TMatrixDSym.h>
-#include <TRandom3.h>
 
 // ROOT classes
 class TF1;
@@ -146,7 +146,7 @@ public:
     };
 
     /** @} */
-    /** \name Constructors and destructors */
+    /** \name Constructors and destructor */
     /** @{ */
 
     /**

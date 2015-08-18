@@ -33,43 +33,6 @@ BCDataSet::BCDataSet(unsigned n)
 }
 
 // ---------------------------------------------------------
-BCDataSet::BCDataSet(const BCDataSet& other)
-    : fDataVector(other.fDataVector),
-      fNValuesPerPoint(other.fNValuesPerPoint),
-      fLowerBounds(other.fLowerBounds),
-      fUpperBounds(other.fUpperBounds),
-      fUserLowerBounds(other.fUserLowerBounds),
-      fUserUpperBounds(other.fUserUpperBounds),
-      fFixed(other.fFixed)
-{
-}
-
-// ---------------------------------------------------------
-BCDataSet::~BCDataSet()
-{
-}
-
-// ---------------------------------------------------------
-BCDataSet& BCDataSet::operator=(const BCDataSet& rhs)
-{
-    BCDataSet temp(rhs);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCDataSet& A, BCDataSet& B)
-{
-    std::swap(A.fDataVector,      B.fDataVector);
-    std::swap(A.fNValuesPerPoint, B.fNValuesPerPoint);
-    std::swap(A.fLowerBounds,     B.fLowerBounds);
-    std::swap(A.fUpperBounds,     B.fUpperBounds);
-    std::swap(A.fUserLowerBounds, B.fUserLowerBounds);
-    std::swap(A.fUserUpperBounds, B.fUserUpperBounds);
-    std::swap(A.fFixed,           B.fFixed);
-}
-
-// ---------------------------------------------------------
 std::vector<double> BCDataSet::GetDataComponents(unsigned index) const
 {
     std::vector<double> components;

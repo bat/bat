@@ -45,10 +45,6 @@ public:
     BCVariable();
 
     /**
-     * Copy constructor. */
-    BCVariable(const BCVariable& other);
-
-    /**
      * A constructor.
      * @param name The name of the variable.
      * @param lowerlimit The lower limit of the variable values.
@@ -59,18 +55,7 @@ public:
 
     /**
      * Destructor */
-    virtual ~BCVariable();
-
-    /** @} */
-
-    /** \name operators and swap */
-    /** @{ */
-
-    /** Copy operator */
-    BCVariable& operator=(const BCVariable& other);
-
-    /** swap */
-    friend void swap(BCVariable& A, BCVariable& B);
+    virtual ~BCVariable() {};
 
     /** @} */
 

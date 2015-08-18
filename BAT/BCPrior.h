@@ -20,14 +20,15 @@
 
 // ---------------------------------------------------------
 
-#include <cstddef>
-#include <cmath>
-#include <limits>
-
-#include <TF1.h>
 
 #include "BCH1D.h"
 #include "BCH2D.h"
+
+#include <TF1.h>
+
+#include <cstddef>
+#include <cmath>
+#include <limits>
 
 class TH1;
 class TH2;

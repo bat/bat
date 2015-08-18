@@ -124,12 +124,10 @@ void BCHistogramBase::CopyOptions(const BCHistogramBase& other)
 }
 
 // ---------------------------------------------------------
-BCHistogramBase& BCHistogramBase::operator=(const BCHistogramBase& other)
+BCHistogramBase& BCHistogramBase::operator=(BCHistogramBase other)
 {
-    // copy other
-    BCHistogramBase temp(other);
     // swap into this
-    swap(*this, temp);
+    swap(*this, other);
 
     return *this;
 }

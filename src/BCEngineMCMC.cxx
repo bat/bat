@@ -294,7 +294,6 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fHistogramRescalePadding, B.fHistogramRescalePadding);
 }
 
-
 // ---------------------------------------------------------
 void BCEngineMCMC::SetName(std::string name)
 {

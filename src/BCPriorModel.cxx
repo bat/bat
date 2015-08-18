@@ -22,26 +22,6 @@ BCPriorModel::BCPriorModel(BCModel& model, bool call_likelihood)
 }
 
 // ---------------------------------------------------------
-BCPriorModel::~BCPriorModel()
-{
-}
-
-// ---------------------------------------------------------
-BCPriorModel& BCPriorModel::operator=(const BCPriorModel& rhs)
-{
-    BCPriorModel temp(rhs.fModel, rhs.fCallLikelihood);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCPriorModel& A, BCPriorModel& B)
-{
-    std::swap(A.fPriorModel,     B.fPriorModel);
-    std::swap(A.fCallLikelihood, B.fCallLikelihood);
-}
-
-// ---------------------------------------------------------
 bool BCPriorModel::PreparePriorModel()
 {
     // copy parameters and observables

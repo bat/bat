@@ -43,18 +43,7 @@ public:
 
     /**
      * destructor. */
-    ~BCPriorModel();
-
-    /** @} */
-
-    /** \name operators and swap */
-    /** @{ */
-
-    /** assignment operator */
-    BCPriorModel& operator=(const BCPriorModel& rhs);
-
-    /** swap */
-    friend void swap(BCPriorModel& A, BCPriorModel& B);
+    virtual ~BCPriorModel() {};
 
     /** @} */
 
@@ -64,7 +53,7 @@ public:
     { return 0; }
 
     /**
-    	* Returns prior of model as posterior of PriorModel. */
+      * Returns prior of model as posterior of PriorModel. */
     double LogLikelihood(const std::vector<double>& parameters)
     { return fModel.LogAPrioriProbability(parameters); }
 

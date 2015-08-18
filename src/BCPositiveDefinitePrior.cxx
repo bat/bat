@@ -29,10 +29,9 @@ BCPositiveDefinitePrior::~BCPositiveDefinitePrior()
 }
 
 // ---------------------------------------------------------
-BCPositiveDefinitePrior& BCPositiveDefinitePrior::operator=(const BCPositiveDefinitePrior& rhs)
+BCPositiveDefinitePrior& BCPositiveDefinitePrior::operator=(BCPositiveDefinitePrior other)
 {
-    BCPositiveDefinitePrior temp(rhs);
-    swap(*this, temp);
+    swap(*this, other);
     return *this;
 }
 
