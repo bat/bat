@@ -59,31 +59,29 @@ int main(int argc, char** argv)
     BCLog::SetLogLevel(BCLog::detail);
 
     // create new RooFit-based model
-    BCRooInterface* _myRooInterface = new BCRooInterface();
-    _myRooInterface->Initialize(rootFile, wsName, "data", "model", "priorPOI", "priorNuisance", "parameters", "POI");
+    BCRooInterface _myRooInterface;
+    _myRooInterface.Initialize(rootFile, wsName, "data", "model", "priorPOI", "priorNuisance", "parameters", "POI");
 
-    _myRooInterface->MCMCSetNIterationsRun(nMCMC);
+    _myRooInterface.MCMCSetNIterationsRun(nMCMC);
 
     // perform your analysis here
-    _myRooInterface->MarginalizeAll();
-    _myRooInterface->FindMode();
-    _myRooInterface->PrintAllMarginalized(outputFile);
-    _myRooInterface->PrintResults("bat_results.txt");
+    _myRooInterface.MarginalizeAll();
+    _myRooInterface.FindMode();
+    _myRooInterface.PrintAllMarginalized(outputFile);
+    _myRooInterface.PrintSummary();
 
-    TFile* file = TFile::Open(rootFile);
-    RooWorkspace* bat_ws = (RooWorkspace*) file->Get(wsName);
-    TString parameterName = bat_ws->set("POI")->first()->GetName();
+    unsigned parIndex = 0;
 
     std::cout << "\nThe results of the BAT calculations are:\n";
     std::cout << " Signal  " << std::endl;
-    std::cout << " Mean  " << _myRooInterface->GetMarginalized(parameterName)->GetMean() << std::endl;
-    std::cout << " Median  " << _myRooInterface->GetMarginalized(parameterName)->GetMedian() << std::endl;
-    std::cout << " Mode  " << _myRooInterface->GetMarginalized(parameterName)->GetMode() << std::endl;
-    std::cout << " Mode  " << (_myRooInterface->GetBestFitParameters()).at(0) << std::endl;
-    std::cout << " Quantile 0.16  " << _myRooInterface->GetMarginalized(parameterName)->GetQuantile(0.16) << std::endl;
-    std::cout << " Quantile 0.84  " << _myRooInterface->GetMarginalized(parameterName)->GetQuantile(0.84) << std::endl;
-    std::cout << " Quantile 0.90  " << _myRooInterface->GetMarginalized(parameterName)->GetQuantile(0.90) << std::endl;
-    std::cout << " Quantile 0.95  " << _myRooInterface->GetMarginalized(parameterName)->GetQuantile(0.95) << std::endl;
+    std::cout << " Mean  " << _myRooInterface.GetMarginalized(parIndex).GetHistogram()->GetMean() << std::endl;
+    std::cout << " Median  " << _myRooInterface.GetMarginalized(parIndex).GetMedian() << std::endl;
+    std::cout << " Marginal mode  " << _myRooInterface.GetMarginalized(parIndex).GetLocalMode() << std::endl;
+    std::cout << " Global mode  " << _myRooInterface.GetGlobalMode().at(0) << std::endl;
+    std::cout << " Quantile 0.16  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.16) << std::endl;
+    std::cout << " Quantile 0.84  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.84) << std::endl;
+    std::cout << " Quantile 0.90  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.90) << std::endl;
+    std::cout << " Quantile 0.95  " << _myRooInterface.GetMarginalized(parIndex).GetQuantile(0.95) << std::endl;
     std::cout << "\nCheck " << outputFile << " and results.txt for more information on the results\n";
 
     // close log file
