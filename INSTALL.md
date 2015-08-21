@@ -39,17 +39,27 @@ For the interface to RooFit/RooStats, a ROOT version
 5.27/04 or later is necessary and ROOT has to be compiled with
 MathMore enabled.
 
-### Optional: CUBA
+### Optional: Cuba
 
-CUBA is a library containing general purpose multidimensional
+Cuba is a library containing general purpose multidimensional
 integration algorithms. It can be obtained from
 http://www.feynarts.de/cuba/. BAT will compile and run with Cuba
-version 3.3 or later. Cuba is not necessary to run BAT, however, its
-use is recommended as it provides integration routines tuned for
-performance, which are useful for integration in problems with not too
-many dimensions (~15). You need to compile the CUBA library as
-position-independent code to use it from BAT. For the `gcc`, install
-CUBA as
+version 3.3 up to at least 4.2.
+
+Cuba is not necessary to run BAT. We recommend to use it if you want
+to compare multiple models. Cuba provides integration routines tuned
+for performance, which are useful for integration in problems with
+not too many dimensions (~10).
+
+The recommended way to get Cuba is to run
+
+    ./get-cuba.sh
+
+in the BAT source directory. This will download a compatible version
+of Cuba to the local subdirectory `cuba/` and compile it.
+
+If you want to compile Cuba manually, make sure it has
+position-independent code
 
     ./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
     make
@@ -76,6 +86,12 @@ prefix to the BAT installation path. The BAT library files will be
 installed to `$prefix/lib` and the include files to
 `$prefix/include`. The default installation prefix is `/usr/local`.
 
+You can list all available options using
+
+    ./configure --help
+
+### ROOT
+
 The configure script checks for ROOT availability in the system and
 fails if ROOT is not installed. You can specify the `ROOTSYS` directory
 using `--with-rootsys=/path/to/rootsys`
@@ -84,6 +100,8 @@ You can configure BAT with the RooFit/RooStats support using
 `--enable-roostats`. The configure script will check whether the version of
 ROOT is sufficient and whether the ROOT was compiled with RooFit/RooStats
 support.
+
+### openMP
 
 Support for openMP threading to run multiple Markov chains in parallel
 is available through the configure option `--enable-parallelization`;
@@ -95,32 +113,20 @@ the CPU. Manual control over the number of threads is achieved
 entirely by openMP means such as setting the environment variable
 `OMP_NUM_THREADS` before running an executable.
 
-You can compile BAT with Cuba support using option
-`--with-cuba[=DIR]`.  The configure script will then search for
-`libcuba.a` and `cuba.h` in the system paths, or, if `DIR` is given, in
-`DIR` (correct if cuba just compiled in its source directory), and in
-`DIR/lib/` and `DIR/include/` subdirectories. For more fine-grained
-control, use `--with-cuba-include-dir=/path/to/cuba/header` and
-`--with-cuba-lib-dir=/path/to/cuba/lib`.
+### Cuba
 
-Note that the cuba library still needs to be available to the loader
-at runtime. This is accomplished, for example, by adding
-`/path/to/cuba/lib` to `LD_LIBRARY_PATH`. Please compile the Cuba library
-with position-independent code. For example,
+If you built Cuba locally through `get-cuba.sh`, BAT
+will use it automatically (unless configured with `--without-cuba`).
+Otherwise, use the configure option `--with-cuba[=DIR]` to enable Cuba.
+If you installed Cuba including the `partview` executable, the Cuba
+installation path will be derived from its location. Otherwise, the
+configure script will search for `libcuba.a` and `cuba.h` in the system
+paths. If you manually specify the Cuba install path as `DIR`, configure
+will look in `DIR/lib/` and `DIR/include/` instead.  For more
+fine-grained control, use `--with-cuba-include-dir=/path/to/cuba/header`
+and `--with-cuba-lib-dir=/path/to/cuba/lib`.
 
-```bash
-./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
-```
-
-to avoid linker errors like
-
-    /usr/bin/ld: /usr/local/lib/libcuba.a(Vegas.o): relocation R_X86_64_32
-    against `.rodata.str1.8' can not be used when making a shared object;
-    recompile with -fPIC
-
-You can list all available options using
-
-    ./configure --help
+### Compile
 
 After a successful configuration, run
 
@@ -129,8 +135,8 @@ After a successful configuration, run
 
 to compile and install BAT. Note that depending on the setting of
 installation prefix you might need root privileges to be able to
-install BAT and run `sudo make install` instead of plain 'make
-install'. In the former case, you might need to run `sudo ldconfig`
+install BAT and run `sudo make install` instead of plain `make
+install`. In the former case, you might need to run `sudo ldconfig`
 just once to help the linker pick up the new libraries immediately.
 
 System setup
