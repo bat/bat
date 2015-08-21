@@ -221,6 +221,7 @@ public:
      * @return whether to draw mean. */
     bool GetDrawMean() const
     { return fDrawMean; }
+
     /**
      * @return Mean marker style. */
     int GetMeanMarkerStyle() const
