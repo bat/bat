@@ -24,7 +24,6 @@
 
 #include <TCanvas.h>
 #include <TDecompChol.h>
-#include <TError.h>
 #include <TF1.h>
 #include <TFile.h>
 #include <TGraph.h>
@@ -46,8 +45,6 @@
 #include <TVectorD.h>
 
 #include <cmath>
-#include <deque>
-#include <typeinfo>
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string name)
