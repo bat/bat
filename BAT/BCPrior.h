@@ -7,6 +7,7 @@
  * \author Daniel Greenwald
  * \version 1.0
  * \date 01.2015
+ * \defgroup Priors Classes for defining priors
  */
 
 
