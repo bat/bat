@@ -340,7 +340,7 @@ double BCGraphFitter::GetPValue(const std::vector<double>& pars, bool ndf)
 
     else if (ndf) {
         if (GetNDoF() <= 0) {
-            BCLog::OutError("BCGoFTest::GetPValue : number of degrees of freedom is less than or equal to zero.");
+            BCLog::OutError("BCGraphFitter::GetPValue : number of degrees of freedom is less than or equal to zero.");
             fPValue = -1;
         }
         fPValue = TMath::Prob(chi2, GetNDoF());
