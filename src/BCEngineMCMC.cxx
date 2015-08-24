@@ -1341,24 +1341,6 @@ bool BCEngineMCMC::UpdateCholeskyDecompositions()
     // Update cholesky decompositions
     for (unsigned c = 0; c < fMCMCNChains; ++c) {
 
-        // // check for zero covariance
-        // if (fMultivariateProposalFunctionCovariance[c] == 0) {
-        //     BCLog::OutDetail(Form("BCEngineMCMC::UpdateCholeskyDecompositions : chain %u covariance matrix is 0 everywhere; resetting to prior variances and continuing.", c));
-        //     // re-initialize covariance matrix
-        //     unsigned I = 0;
-        //     for (unsigned i = 0; i < GetNParameters(); ++i) {
-        //         if (GetParameter(i).Fixed())
-        //             continue;
-        //         if (GetParameter(i).GetPrior() != NULL) {
-        //             fMultivariateProposalFunctionCovariance[c][I][I] = GetParameter(i).GetPriorVariance();
-        //             if (!std::isfinite(fMultivariateProposalFunctionCovariance[c][I][I]))
-        //                 fMultivariateProposalFunctionCovariance[c][I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
-        //         } else
-        //             fMultivariateProposalFunctionCovariance[c][I][I] = GetParameter(i).GetRangeWidth() * GetParameter(i).GetRangeWidth() / 12;
-        //         ++I;
-        //     }
-        // }
-
         // try cholesky decomposition
         CholeskyDecomposer.SetMatrix(fMultivariateProposalFunctionCovariance[c]*fMCMCTrialFunctionScaleFactor[c][0]);
         if (CholeskyDecomposer.Decompose())
