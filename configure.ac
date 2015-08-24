@@ -68,19 +68,24 @@ cuba_min_version=3.3
 AC_DEFINE_UNQUOTED([CUBA_MIN_VERSION], [$cuba_min_version], [Minimum cuba version])
 AC_ARG_WITH(
 	[cuba],
-	[AS_HELP_STRING([--with-cuba[[=DIR]]],[compile with Cuba support (default no). Optional DIR is top of Cuba installation. If DIR is not given, the location is inferred from the partview executable.])],
+	[AS_HELP_STRING([--with-cuba[[=DIR]]],[Compile with Cuba support (default: no). If a local build in 'cuba/' is found, it is used and Cuba is activated automatically. The optional DIR is the top of a Cuba installation. If DIR is not given, the location is inferred from the 'partview' executable, else Cuba is assumed to be available in the system directories.])],
 	[
-		use_cuba=yes
 		echo "compiling with Cuba support: requires version $cuba_min_version or later"
-	],
-	[use_cuba=no]
+	]
 )
 
 AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    path to cuba.h file]))
 AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 
-if test "x$use_cuba" != xno; then
-	if test "x$with_cuba" == xyes ; then
+
+use_local_cuba=no
+local_cuba_dir="`pwd`/cuba"
+
+if test "$with_cuba" = "yes"; then
+	use_cuba=yes
+	if test -e "$local_cuba_dir" ; then
+		use_local_cuba=yes
+	else
 		AC_PATH_PROG(cuba_bin_dir, [partview])
 		if test -f "$cuba_bin_dir" ; then
 			# up two levels: /usr/local/bin/partview -> /usr/local
@@ -89,7 +94,27 @@ if test "x$use_cuba" != xno; then
 			AC_MSG_RESULT(yes)
 		fi
 	fi
+elif test "$with_cuba" = "no"; then
+	use_cuba=no
+elif test -n "$with_cuba"; then
+	use_cuba=yes
+else
+	if test -e "$local_cuba_dir" ; then
+		use_cuba=yes
+		use_local_cuba=yes
+	else
+		use_cuba=no
+	fi
+fi
 
+
+if test "$use_local_cuba" = "yes"; then
+	with_cuba_include_dir="$local_cuba_dir"
+	with_cuba_lib_dir="$local_cuba_dir"
+fi
+
+
+if test "x$use_cuba" != xno; then
 	dnl check to see if lib and include can be determined automatically from $with_cuba
 	dnl if cuba just compiled, everything is in one directory
 
