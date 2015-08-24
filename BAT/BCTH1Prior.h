@@ -43,8 +43,8 @@ public:
     /** Copy constructor */
     BCTH1Prior(const BCTH1Prior& other);
 
-    /** Destrcutor */
-    virtual ~BCTH1Prior();
+    /** Destructor */
+    virtual ~BCTH1Prior() {};
 
     /** @} **/
 
@@ -52,7 +52,7 @@ public:
     /** @{ **/
 
     /** assignment operator */
-    BCTH1Prior& operator=(const BCTH1Prior& rhs);
+    BCTH1Prior& operator=(BCTH1Prior rhs);
 
     /** swap */
     friend void swap(BCTH1Prior& A, BCTH1Prior& B);

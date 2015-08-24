@@ -29,4 +29,3 @@ double GaussModel::LogLikelihood(const std::vector<double>& parameters)
 
     return logprob;
 }
-

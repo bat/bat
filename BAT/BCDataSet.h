@@ -49,23 +49,12 @@ public:
     BCDataSet(unsigned n = 0);
 
     /**
-     * The copy constructor */
-    BCDataSet(const BCDataSet& other);
-
-    /**
      * Destructor */
-    virtual ~BCDataSet();
+    virtual ~BCDataSet() {};
 
     /** @} */
-    /** \name operators and swap*/
+    /** \name operators*/
     /** @{ */
-
-    /**
-     * Assignment operator */
-    BCDataSet& operator = (const BCDataSet& rhs);
-
-    /** swap */
-    friend void swap(BCDataSet& A, BCDataSet& B);
 
     /**
      * Raw and fast access. */

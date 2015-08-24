@@ -173,18 +173,18 @@ void BCRooInterface::DefineParameters()
 {
     // define for BAT the list of parameters, range and plot binning
 
-    int nParams = fParams->getSize();
-    for (int iParam = 0; iParam < nParams; iParam++) {
+    for (unsigned iParam = 0; iParam < unsigned(fParams->getSize()); ++iParam) {
         RooRealVar* ipar = (RooRealVar*) fParams->at(iParam);
-        BCParameter* bcpar = new BCParameter(ipar->GetName(), ipar->getMin(), ipar->getMax());
-        bcpar->SetNbins(_default_nbins);
-        this->AddParameter(bcpar);
-        std::cout << "added parameter: " << bcpar->GetName() << " defined in range [ " << bcpar->GetLowerLimit() << " - "
-                  << bcpar->GetUpperLimit() << " ] with number of bins: " << bcpar->GetNbins() << " \n";
+        this->AddParameter(ipar->GetName(), ipar->getMin(), ipar->getMax());
+        BCParameter& p = this->GetParameter(iParam);
+        p.SetNbins(_default_nbins);
+
+        std::cout << "added parameter: " << p.GetName() << " defined in range [ " << p.GetLowerLimit() << " - "
+                  << p.GetUpperLimit() << " ] with number of bins: " << p.GetNbins() << " \n";
     }
 
-    for (std::list< std::pair<const char*, int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); listiter++) {
-        GetParameter((*listiter).first)->SetNbins((*listiter).second);
+    for (std::list< std::pair<const char*, int> >::iterator listiter = _nbins_list.begin(); listiter != _nbins_list.end(); ++listiter) {
+        GetParameter((*listiter).first).SetNbins((*listiter).second);
         std::cout << "adjusted parameter: " << (*listiter).first << " to number of bins: " << (*listiter).second << " \n";
     }
 }
@@ -302,10 +302,6 @@ void BCRooInterface::MCMCIterationInterface()
         // get number of chains
         int nchains = MCMCGetNChains();
 
-        // get number of parameters
-        int npar = GetNParameters();
-        //std::cout << "number of parameters is: " << npar << std::endl;
-
         // loop over all chains and fill histogram
         for (int i = 0; i < nchains; ++i) {
             // get the current values of the parameters. These are
@@ -322,17 +318,16 @@ void BCRooInterface::MCMCIterationInterface()
             while (setiter->Next()) {
 
                 //check parameter names
-                const BCParameter* tempBCparam = GetParameter(j);
+                const BCParameter& tempBCparam = GetParameter(j);
 
                 //_parametersForMarkovChainCurrent->Print();
 
-                const char* paramnamepointer = (tempBCparam->GetName()).c_str();
-                double xij = fMCMCx.at(i * npar + j);
+                const char* paramnamepointer = (tempBCparam.GetName()).c_str();
+                double xij = fMCMCx.at(i).at(j);
                 AddToCurrentChainElement(xij, i, j);
                 RooRealVar* parampointer = (RooRealVar*) & (_parametersForMarkovChainCurrent[paramnamepointer]);
                 parampointer->setVal(xij);
-                //std::cout << "Chain " << i << " param: " << tempBCparam->GetName() << " Value: " << xij << std::endl;
-                j++;
+                ++j;
             }
 
 

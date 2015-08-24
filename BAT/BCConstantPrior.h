@@ -45,22 +45,8 @@ public:
     /** Constructor for constant 1/range prior */
     BCConstantPrior(double xmin, double xmax);
 
-    /** Copy constructor */
-    BCConstantPrior(const BCConstantPrior& other);
-
     /** Destructor */
-    virtual ~BCConstantPrior();
-
-    /** @} */
-
-    /** \name operators and swap */
-    /** @{ */
-
-    /** assignment operator */
-    BCConstantPrior& operator=(const BCConstantPrior& rhs);
-
-    /** swap */
-    friend void swap(BCConstantPrior& A, BCConstantPrior& B);
+    virtual ~BCConstantPrior() {};
 
     /** @} */
 

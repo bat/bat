@@ -39,15 +39,9 @@ BCTH1Prior::BCTH1Prior(const BCTH1Prior& other)
 }
 
 // ---------------------------------------------------------
-BCTH1Prior::~BCTH1Prior()
+BCTH1Prior& BCTH1Prior::operator=(BCTH1Prior rhs)
 {
-}
-
-// ---------------------------------------------------------
-BCTH1Prior& BCTH1Prior::operator=(const BCTH1Prior& rhs)
-{
-    BCTH1Prior temp(rhs);
-    swap(*this, temp);
+    swap(*this, rhs);
     return *this;
 }
 

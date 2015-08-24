@@ -109,10 +109,29 @@ public:
         count_marginals(m, fixed);
     }
 
+    void copy() const
+    {
+        GaussModel m("copy", 1);
+
+        // use non-default values
+        m.MCMCSetNChains(m.MCMCGetNChains() + 1);
+
+        m.MarginalizeAll();
+
+        // basic test: no segfault
+        GaussModel m2 = m;
+
+        // non-default values should be taken over
+        TEST_CHECK_EQUAL(m2.MCMCGetNChains(), m.MCMCGetNChains());
+    }
+
     virtual void run() const
     {
+#if 0
         storing();
         fixing();
         deltaPrior();
+#endif
+        copy();
     }
 } bcmodel_test;

@@ -51,10 +51,6 @@ public:
      * Constructor. */
     BCLog();
 
-    /**
-     * Destructor. */
-    ~BCLog();
-
     /** @} */
     /** \name Getters */
     /** @{ */

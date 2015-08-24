@@ -33,22 +33,6 @@ BCVariable::BCVariable()
 }
 
 // ---------------------------------------------------------
-BCVariable::BCVariable(const BCVariable& other)
-    : fPrefix(other.fPrefix)
-    , fName(other.fName)
-    , fSafeName(other.fSafeName)
-    , fLowerLimit(other.fLowerLimit)
-    , fUpperLimit(other.fUpperLimit)
-    , fPrecision(other.fPrecision)
-    , fLatexName(other.fLatexName)
-    , fUnitString(other.fUnitString)
-    , fFillH1(other.fFillH1)
-    , fFillH2(other.fFillH2)
-    , fNbins(other.fNbins)
-{
-}
-
-// ---------------------------------------------------------
 BCVariable::BCVariable(std::string name, double lowerlimit, double upperlimit, std::string latexname, std::string unitstring)
     :	fPrefix("Variable")
     , fLowerLimit(-std::numeric_limits<double>::infinity())
@@ -62,36 +46,6 @@ BCVariable::BCVariable(std::string name, double lowerlimit, double upperlimit, s
 {
     SetName(name);
     SetLimits(lowerlimit, upperlimit);
-}
-
-// ---------------------------------------------------------
-BCVariable::~BCVariable()
-{
-}
-
-// ---------------------------------------------------------
-BCVariable& BCVariable::operator=(const BCVariable& other)
-{
-    BCVariable temp(other);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCVariable& A, BCVariable& B)
-{
-    std::swap(A.fPrefix,     B.fPrefix);
-    std::swap(A.fName,       B.fName);
-    std::swap(A.fSafeName,   B.fSafeName);
-    std::swap(A.fLowerLimit, B.fLowerLimit);
-    std::swap(A.fUpperLimit, B.fUpperLimit);
-    std::swap(A.fPrecision,  B.fPrecision);
-    std::swap(A.fLatexName,  B.fLatexName);
-    std::swap(A.fUnitString, B.fUnitString);
-    std::swap(A.fFillH1,     B.fFillH1);
-    std::swap(A.fFillH2,     B.fFillH2);
-    std::swap(A.fNbins,      B.fNbins);
-
 }
 
 // ---------------------------------------------------------

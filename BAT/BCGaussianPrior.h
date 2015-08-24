@@ -38,22 +38,8 @@ public:
     /** Constructor */
     BCGaussianPrior(double mean, double sigma);
 
-    /** Copy constructor */
-    BCGaussianPrior(const BCGaussianPrior& other);
-
     /** Destructor */
-    virtual ~BCGaussianPrior();
-
-    /** @} **/
-
-    /** \name operator and swap */
-    /** @{ **/
-
-    /** assignment operator */
-    BCGaussianPrior& operator=(const BCGaussianPrior& rhs);
-
-    /** swap */
-    friend void swap(BCGaussianPrior& A, BCGaussianPrior& B);
+    virtual ~BCGaussianPrior() {};
 
     /** @} **/
 

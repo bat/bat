@@ -229,9 +229,9 @@ RooAbsPdf* BATCalculator::GetPosteriorPdf1D(const char* POIname) const
     _myRooInterface->MCMCSetNIterationsRun(_nMCMC);
     _myRooInterface->MarginalizeAll();
     _myRooInterface->FindMode();
-    const BCParameter* myPOI = _myRooInterface->GetParameter(POIname);
-    BCH1D* myPosterior = _myRooInterface->GetMarginalized(myPOI);
-    TH1D* posteriorTH1D = myPosterior->GetHistogram();
+    const BCParameter& myPOI = _myRooInterface->GetParameter(POIname);
+    BCH1D myPosterior = _myRooInterface->GetMarginalized(POIname);
+    TH1* posteriorTH1D = myPosterior.GetHistogram();
     _posteriorTH1D = static_cast<TH1D*>(posteriorTH1D->Clone("_posteriorTH1D"));
     RooDataHist* posteriorRooDataHist = new RooDataHist("posteriorhist", "", fPOI, posteriorTH1D);
     fPosteriorPdf = new RooHistPdf("posteriorPdf", "", fPOI, *posteriorRooDataHist);

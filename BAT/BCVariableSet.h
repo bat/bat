@@ -41,34 +41,10 @@ public:
     {
     }
 
-    /**
-     * Copy constructor */
-    BCVariableSet(const BCVariableSet& other)
-        : fVars(other.fVars),
-          fMaxNameLength(other.fMaxNameLength)
-    {
-    }
-
     /*
      * Destructor */
     virtual ~BCVariableSet()
     {
-    }
-
-    /** Swap */
-    friend void swap(BCVariableSet& A, BCVariableSet& B)
-    {
-        std::swap(A.fVars, B.fVars);
-        std::swap(A.fMaxNameLength, B.fMaxNameLength);
-    }
-
-    /*
-     * Assignment operator. */
-    BCVariableSet& operator=(const BCVariableSet& rhs)
-    {
-        BCVariableSet temp(rhs);
-        swap(*this, temp);
-        return *this;
     }
 
     /**

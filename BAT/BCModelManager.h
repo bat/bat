@@ -24,8 +24,8 @@
 
 // ---------------------------------------------------------
 
-#include "BCModel.h"
 #include "BCDataSet.h"
+#include "BCModel.h"
 
 #include <string>
 
@@ -57,7 +57,7 @@ public:
 
     /**
      * The defaut assignment operator */
-    BCModelManager& operator = (const BCModelManager& modelmanager);
+    BCModelManager& operator=(BCModelManager modelmanager);
 
     /** swap */
     friend void swap(BCModelManager& A, BCModelManager& B);

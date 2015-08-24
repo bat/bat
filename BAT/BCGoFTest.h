@@ -49,7 +49,7 @@ public:
 
     /**
      * Default destructor. */
-    ~BCGoFTest();
+    virtual ~BCGoFTest() {};
 
     /** @} */
     /** \name Member functions (get) */

@@ -39,10 +39,6 @@ public:
     BCEmptyModel(std::string name = "model");
 
     /**
-     * The copy constructor. */
-    BCEmptyModel(const BCEmptyModel& model);
-
-    /**
      * Read in MCMC constructor.
      * @param filename Path of file holding model.
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
@@ -52,7 +48,7 @@ public:
 
     /**
      * The default destructor. */
-    virtual ~BCEmptyModel();
+    virtual ~BCEmptyModel() {};
 
     /** @} */
 

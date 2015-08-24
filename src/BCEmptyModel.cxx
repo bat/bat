@@ -17,19 +17,8 @@ BCEmptyModel::BCEmptyModel(std::string name)
 }
 
 // ---------------------------------------------------------
-BCEmptyModel::BCEmptyModel(const BCEmptyModel& model)
-    : BCModel(model)
-{
-}
-
-// ---------------------------------------------------------
 BCEmptyModel::BCEmptyModel(std::string filename, std::string name, bool reuseObservables)
     : BCModel(filename, name, reuseObservables)
-{
-}
-
-// ---------------------------------------------------------
-BCEmptyModel::~BCEmptyModel()
 {
 }
 

@@ -26,32 +26,8 @@ BCTF1LogPrior::BCTF1LogPrior(const char* formula, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-BCTF1LogPrior::BCTF1LogPrior(const BCTF1LogPrior& other)
-    : BCPrior(other),
-      fLogPriorFunction(other.fLogPriorFunction)
-{
-}
-
-// ---------------------------------------------------------
 BCTF1LogPrior::~BCTF1LogPrior()
 {
-}
-
-// ---------------------------------------------------------
-BCTF1LogPrior& BCTF1LogPrior::operator=(const BCTF1LogPrior& rhs)
-{
-    BCTF1LogPrior temp(rhs);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCTF1LogPrior& A, BCTF1LogPrior& B)
-{
-    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
-    TF1 temp = A.fLogPriorFunction;
-    A.fLogPriorFunction = B.fLogPriorFunction;
-    B.fLogPriorFunction = temp;
 }
 
 // ---------------------------------------------------------

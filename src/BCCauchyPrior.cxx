@@ -23,35 +23,6 @@ BCCauchyPrior::BCCauchyPrior(double mean, double scale)
 }
 
 // ---------------------------------------------------------
-BCCauchyPrior::BCCauchyPrior(const BCCauchyPrior& other)
-    : BCPrior(other)
-    , fMean(other.fMean)
-    , fScale(other.fScale)
-{
-}
-
-// ---------------------------------------------------------
-BCCauchyPrior::~BCCauchyPrior()
-{
-}
-
-// ---------------------------------------------------------
-BCCauchyPrior& BCCauchyPrior::operator=(const BCCauchyPrior& rhs)
-{
-    BCCauchyPrior temp(rhs);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCCauchyPrior& A, BCCauchyPrior& B)
-{
-    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
-    std::swap(A.fMean,  B.fMean);
-    std::swap(A.fScale, B.fScale);
-}
-
-// ---------------------------------------------------------
 double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
 {
     if (n == 0)

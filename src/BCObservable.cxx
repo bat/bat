@@ -40,10 +40,9 @@ BCObservable::~BCObservable()
 }
 
 // ---------------------------------------------------------
-BCObservable& BCObservable::operator=(const BCObservable& other)
+BCObservable& BCObservable::operator=(BCObservable other)
 {
-    BCObservable temp(other);
-    swap(*this, temp);
+    swap(*this, other);
     return *this;
 }
 

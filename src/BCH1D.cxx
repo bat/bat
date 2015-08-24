@@ -47,11 +47,6 @@ BCH1D::BCH1D(const BCH1D& other)
 }
 
 // ---------------------------------------------------------
-BCH1D::~BCH1D()
-{
-}
-
-// ---------------------------------------------------------
 void BCH1D::CopyOptions(const BCH1D& other)
 {
     BCHistogramBase::CopyOptions(other);
@@ -60,29 +55,6 @@ void BCH1D::CopyOptions(const BCH1D& other)
     fQuantileLineColor = other.fQuantileLineColor;
     fDrawMedian = other.fDrawMedian;
     fDrawCentral68 = other.fDrawCentral68;
-}
-
-// ---------------------------------------------------------
-BCH1D& BCH1D::operator=(const BCH1D& other)
-{
-    // copy other
-    BCH1D temp(other);
-    // swap into this
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCH1D& first, BCH1D& second)
-{
-    // swap base class
-    swap(static_cast<BCHistogramBase&>(first), static_cast<BCHistogramBase&>(second));
-    // swap remaining members
-    std::swap(first.fBandType,          second.fBandType);
-    std::swap(first.fNQuantiles,        second.fNQuantiles);
-    std::swap(first.fQuantileLineColor, second.fQuantileLineColor);
-    std::swap(first.fDrawMedian,        second.fDrawMedian);
-    std::swap(first.fDrawCentral68,     second.fDrawCentral68);
 }
 
 // ---------------------------------------------------------

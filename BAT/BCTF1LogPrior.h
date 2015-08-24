@@ -40,24 +40,11 @@ public:
     /** Constructor taking a formula**/
     BCTF1LogPrior(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(),xmax=std::numeric_limits<double>::infinity());
 
-    /** Copy constructor */
-    BCTF1LogPrior(const BCTF1LogPrior& other);
-
-    /** Destrcutor */
+    /** Destructor */
     virtual ~BCTF1LogPrior();
 
     /** @} **/
 
-    /** \name operator and swap */
-    /** @{ **/
-
-    /** assignment operator */
-    BCTF1LogPrior& operator=(const BCTF1LogPrior& rhs);
-
-    /** swap */
-    friend void swap(BCTF1LogPrior& A, BCTF1LogPrior& B);
-
-    /** @} **/
 
     /** \name Functions overloaded from BCPrior **/
     /** @{ **/

@@ -22,34 +22,6 @@ BCGaussianPrior::BCGaussianPrior(double mean, double sigma)
 }
 
 // ---------------------------------------------------------
-BCGaussianPrior::BCGaussianPrior(const BCGaussianPrior& other)
-    : BCPrior(other)
-    , fMean(other.fMean)
-    , fSigma(other.fSigma)
-{}
-
-// ---------------------------------------------------------
-BCGaussianPrior::~BCGaussianPrior()
-{
-}
-
-// ---------------------------------------------------------
-BCGaussianPrior& BCGaussianPrior::operator=(const BCGaussianPrior& rhs)
-{
-    BCGaussianPrior temp(rhs);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCGaussianPrior& A, BCGaussianPrior& B)
-{
-    swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
-    std::swap(A.fMean,  B.fMean);
-    std::swap(A.fSigma, B.fSigma);
-}
-
-// ---------------------------------------------------------
 double BCGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
 {
     if (n == 0)

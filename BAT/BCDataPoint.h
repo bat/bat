@@ -47,26 +47,10 @@ public:
      * A constructor.
      * @param x The vector containing the data. */
     BCDataPoint(const std::vector<double>& x);
-
-    /**
-     * Copy constructor. */
-    BCDataPoint(const BCDataPoint& other);
-
-    /**
-     * Destructor */
-    ~BCDataPoint();
-
     /** @} */
 
-    /** \name operators and swap */
+    /** \name operators */
     /** @{ */
-
-    /**
-     * Assignment operator. */
-    BCDataPoint& operator=(const BCDataPoint& rhs);
-
-    /** swap */
-    friend void swap(BCDataPoint& A, BCDataPoint& B);
 
     /**
      * Raw and fast access. */

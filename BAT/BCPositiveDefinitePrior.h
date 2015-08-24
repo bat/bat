@@ -54,7 +54,7 @@ public:
     /** @{ **/
 
     /** assignment operator */
-    BCPositiveDefinitePrior& operator=(const BCPositiveDefinitePrior& rhs);
+    BCPositiveDefinitePrior& operator=(BCPositiveDefinitePrior other);
 
     /** swap */
     friend void swap(BCPositiveDefinitePrior& A, BCPositiveDefinitePrior& B);

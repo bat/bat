@@ -37,22 +37,8 @@ public:
     /** Constructor */
     BCCauchyPrior(double mean, double scale);
 
-    /** Copy constructor */
-    BCCauchyPrior(const BCCauchyPrior& other);
-
     /** Destrcutor */
-    virtual ~BCCauchyPrior();
-
-    /** @} **/
-
-    /** \name operator and swap */
-    /** @{ **/
-
-    /** assignment operator */
-    BCCauchyPrior& operator=(const BCCauchyPrior& rhs);
-
-    /** swap */
-    friend void swap(BCCauchyPrior& A, BCCauchyPrior& B);
+    virtual ~BCCauchyPrior() {};
 
     /** @} **/
 

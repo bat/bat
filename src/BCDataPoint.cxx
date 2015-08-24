@@ -27,31 +27,6 @@ BCDataPoint::BCDataPoint(const std::vector<double>& x)
 }
 
 // ---------------------------------------------------------
-BCDataPoint::BCDataPoint(const BCDataPoint& other)
-    : fData(other.fData)
-{
-}
-
-// ---------------------------------------------------------
-BCDataPoint::~BCDataPoint()
-{
-}
-
-// ---------------------------------------------------------
-BCDataPoint& BCDataPoint::operator=(const BCDataPoint& rhs)
-{
-    BCDataPoint temp(rhs);
-    swap(*this, temp);
-    return *this;
-}
-
-// ---------------------------------------------------------
-void swap(BCDataPoint& A, BCDataPoint& B)
-{
-    std::swap(A.fData, B.fData);
-}
-
-// ---------------------------------------------------------
 void BCDataPoint::SetValues(const std::vector<double>& values)
 {
     // if vectors are same size, copy values

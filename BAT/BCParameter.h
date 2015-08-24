@@ -66,7 +66,7 @@ public:
     /** @{ */
 
     /** Copy operator */
-    BCParameter& operator=(const BCParameter& other);
+    BCParameter& operator=(BCParameter other);
 
     /** swap */
     friend void swap(BCParameter& A, BCParameter& B);

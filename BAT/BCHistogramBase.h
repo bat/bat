@@ -71,8 +71,8 @@ public:
     /** @{ */
 
     /**
-     * Copy assignment operator. */
-    BCHistogramBase& operator=(const BCHistogramBase& other);
+     * Assignment operator. */
+    BCHistogramBase& operator=(BCHistogramBase other);
 
     /**
      * Swap function. */
@@ -221,6 +221,7 @@ public:
      * @return whether to draw mean. */
     bool GetDrawMean() const
     { return fDrawMean; }
+
     /**
      * @return Mean marker style. */
     int GetMeanMarkerStyle() const
