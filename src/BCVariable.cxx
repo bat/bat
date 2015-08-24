@@ -107,7 +107,7 @@ void BCVariable::SetLimits(double lowerlimit, double upperlimit)
     fLowerLimit = lowerlimit;
     fUpperLimit = upperlimit;
     if (fLowerLimit > fUpperLimit)
-        BCLog::OutError("BCVariable:SetLimits : lower limit is greater than upper limit for variable " + fName);
+        BCLog::OutError(Form("BCVariable:SetLimits : lower limit (%f) is greater than upper limit (%f) for variable %s", fLowerLimit, fUpperLimit, fName.data()));
     if (BCAux::RangeType(fLowerLimit, fUpperLimit) == BCAux::kFiniteRange)
         CalculatePrecision();
 }
