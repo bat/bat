@@ -14,11 +14,21 @@
 #
 ###################################################################
 
+# List of all class (models) sources used in the program
+# Add classes to the end. Backslash indicates continuation
+# on the next line
+CXXSRCS = ((MODEL)).cxx
+
+# List of all program sources used in the program
+# Add classes to the end. Backslash indicates continuation
+# on the next line
+PRGSRCS = run((PROJECT)).cxx
+
 # compiler and flags
-CXX          = @CXX@
-CXXFLAGS     = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
-LD           = @LD@
-LDFLAGS      = -g -O2 @LDFLAGS@
+CXX       = @CXX@
+CXXFLAGS  = -g -O2 -Wall -fPIC -Wno-deprecated @CXXFLAGS@
+LD        = @LD@
+LDFLAGS   = -g -O2 @LDFLAGS@
 
 # ----------------------------------------------------------------------
 # The following definitions rely on the script bat-config being
@@ -28,49 +38,35 @@ LDFLAGS      = -g -O2 @LDFLAGS@
 CXXFLAGS += `bat-config --cflags`
 LIBS := `bat-config --libs`
 
-# List of all classes (models) used in the program
-# Add classes to the end. Backslash indicates continuation
-# on the next line
-CXXSRCS = ((MODEL)).cxx
-PRGSRCS = run((PROJECT)).cxx
-
 # ----------------------------------------------------------------------
 # don't change lines below unless you know what you're doing
 #
 
-OBJSDIR = obj
-BINDIR  = bin
+CXXOBJS = $(addsuffix .o,$(basename $(CXXSRCS)))
+MYPROGS = $(basename $(PRGSRCS))
+PRGOBJS = $(addsuffix .o,$(basename $(PRGSRCS)))
 
-CXXOBJS = $(addprefix $(OBJSDIR)/,$(CXXSRCS:.cxx=.o))
-PRGOBJS = $(addprefix $(OBJSDIR)/,$(PRGSRCS:.cxx=.o))
-MYPROGS = $(addprefix $(BINDIR)/,$(basename $(PRGSRCS)))
-
-GARBAGE = $(CXXOBJS) $(PRGOBJS) *.o *~ link.d $(MYPROGS)
+GARBAGE = $(CXXOBJS) $(PRGOBJS) link.d $(MYPROGS)
 
 # targets
 all : $(MYPROGS)
 
-link.d : $(patsubst %.cxx,%.h,$(CXXSRCS))
-	$(CXX) -MM $(CXXFLAGS) $(CXXSRCS) $(PRGSRCS) > link.d;
+.PHONY : all clean print
+
+link.d : $(addsuffix .h,$(basename $(CXXSRCS))) $(CXXSRCS) $(PRGSRCS)
+	$(CXX) -MM $(CXXFLAGS) $(filter-out %.h,$^) > link.d;
+	@$(foreach prog,$(MYPROGS), echo $(prog) : $(prog).o >> link.d;)
 
 -include link.d
 
-$(OBJSDIR)/%.o : %.cxx | $(OBJSDIR)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(CXXOBJS) $(PRGOBJS) :
+	$(CXX) $(CXXFLAGS) -c $(filter $(basename $@).%,$(filter-out %.h,$^)) -o $@
 
-$(BINDIR)/% : $(OBJSDIR)/%.o $(CXXOBJS) | $(BINDIR)
+$(MYPROGS) : $(CXXOBJS)
 	$(CXX) $(LDFLAGS) $^ $(LIBS) -o $@
-
-$(OBJSDIR):
-	mkdir $(OBJSDIR)
-
-$(BINDIR):
-	mkdir $(BINDIR)
 
 clean :
 	rm -f $(GARBAGE)
-	rmdir $(OBJSDIR)
-	rmdir $(BINDIR)
 
 print :
 	@echo compiler  : $(CXX)

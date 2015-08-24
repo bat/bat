@@ -78,6 +78,8 @@ else
 	 MYPROJECT=${PWD##*/}
    sed -e "s/((PROGRAM))/$PROGRAM/g; s/((UPMODEL))/$upMYMODEL/g; s/((MODEL))/$MYMODEL/g; s/((PROJECT))/$MYPROJECT/g" < $DATADIR/ModelTemplate.h > $MYMODEL.h
    sed -e "s/((PROGRAM))/$PROGRAM/g; s/((MODEL))/$MYMODEL/g" < $DATADIR/ModelTemplate.cxx > $MYMODEL.cxx
+   sed -e "/^CXXSRCS/ s/= \(.*\)/= \1 $MYMODEL.cxx/" < Makefile > Makefile.temp
+   mv Makefile.temp Makefile
    cat << EOF
 --------------------------------------------------------------------------
 A new BAT model '$MYMODEL' was created in the current directory.
