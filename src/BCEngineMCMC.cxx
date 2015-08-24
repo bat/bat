@@ -2485,6 +2485,8 @@ void BCEngineMCMC::CreateHistograms(bool rescale_ranges)
     original_bounds.reserve(GetNVariables());
     for (unsigned i = 0; i < GetNVariables(); ++i) {
         original_bounds.push_back(std::make_pair(GetVariable(i).GetLowerLimit(), GetVariable(i).GetUpperLimit()));
+        if (i < GetNParameters() and GetParameter(i).Fixed())
+            continue;
         if (rescale_ranges) {
             if (i < fMCMCStatistics_AllChains.minimum.size() and std::isfinite(fMCMCStatistics_AllChains.minimum[i]))
                 GetVariable(i).SetLowerLimit(fMCMCStatistics_AllChains.minimum[i]);
