@@ -25,8 +25,6 @@
 #include <TH2.h>
 #include <TTree.h>
 
-#include <set>
-
 // ---------------------------------------------------------
 BCModel::BCModel(std::string name)
     : BCIntegrate(name)
