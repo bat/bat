@@ -2311,6 +2311,7 @@ bool BCEngineMCMC::MCMCInitialize()
     // set that a main run has not been made
     fMCMCFlagRun = false;
 
+    // this can be extended to user-settable member
     unsigned max_tries = 10;
 
     // initialize markov chain positions
