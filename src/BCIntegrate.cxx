@@ -19,14 +19,11 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
-#include <TCanvas.h>
 #include <TFile.h>
 #include <TMinuit.h>
 #include <TRandom3.h>
 #include <TString.h>
 #include <TTree.h>
-#include <TKey.h>
-#include <TStyle.h>
 
 #ifdef HAVE_CUBA_H
 #include <cuba.h>
