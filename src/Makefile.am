@@ -55,7 +55,6 @@ incs= \
 	BCEmptyModel.h \
 	BCPriorModel.h \
 	BCModelManager.h \
-	BCGoFTest.h \
 	BCLog.h \
 	BCMath.h \
 	BCAux.h

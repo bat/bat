@@ -15,7 +15,6 @@
 #pragma link C++ class BCEmptyModel-;
 #pragma link C++ class BCEngineMCMC-;
 #pragma link C++ class BCGaussianPrior-;
-#pragma link C++ class BCGoFTest-;
 #pragma link C++ class BCH1D-;
 #pragma link C++ class BCH2D-;
 #pragma link C++ class BCHistogramBase-;
