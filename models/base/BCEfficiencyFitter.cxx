@@ -34,7 +34,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
     , fHistogram2(0)
     , fFitFunction(0)
     , fHistogramBinomial(0)
-    , fDataPointType(kDataPointSmallestInterval)
+    , fDataPointType(kDataPointCentralInterval)
 {
     // set default options and values
     fFlagIntegration = false;
@@ -50,7 +50,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std:
     , fHistogram2(0)
     , fFitFunction(0)
     , fHistogramBinomial(0)
-    , fDataPointType(kDataPointSmallestInterval)
+    , fDataPointType(kDataPointCentralInterval)
 {
     SetHistograms(hist1, hist2);
     SetFitFunction(func);
@@ -319,7 +319,6 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
         ++npoints;
     }
 
-
     // check wheather options contain "same"
     TString opt = options;
     opt.ToLower();
@@ -508,44 +507,56 @@ bool BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double& xexp, 
         double val = BCMath::ApproxBinomial(n, k, x);
         fHistogramBinomial->SetBinContent(i, val);
     }
-
     // normalize
     fHistogramBinomial->Scale(1. / fHistogramBinomial->Integral());
 
-    // calculate central value and uncertainties
-    if (fDataPointType == 0) {
-        xexp = fHistogramBinomial->GetMean();
-        double rms = fHistogramBinomial->GetRMS();
-        xmin = xexp - rms;
-        xmax = xexp + rms;
-        BCLog::OutDebug(Form(" - mean = %f , rms = %f)", xexp, rms));
-    } else if (fDataPointType == 1) {
-        xexp = (double)k / (double)n;
-        BCH1D* fbh = new BCH1D((TH1D*)fHistogramBinomial->Clone("hcp"));
-        BCH1D::BCH1DSmallestInterval SI = fbh->GetSmallestIntervals(p);
-        if (SI.intervals.empty()) {
-            xmin = xmax = xexp = 0.;
-        } else {
-            xmin = SI.intervals.front().xmin;
-            xmax = SI.intervals.front().xmax;
+    switch (fDataPointType) {
+
+        case kDataPointRMS: {
+            xexp = fHistogramBinomial->GetMean();
+            double rms = fHistogramBinomial->GetRMS();
+            xmin = xexp - rms;
+            xmax = xexp + rms;
+            BCLog::OutDebug(Form(" - mean = %f , rms = %f)", xexp, rms));
+            break;
         }
-        delete fbh;
-    } else {
-        // calculate quantiles
-        int nprobSum = 3;
-        double q[3];
-        double probSum[3];
-        probSum[0] = (1. - p) / 2.;
-        probSum[1] = 1. - (1. - p) / 2.;
-        probSum[2] = .5;
 
-        fHistogramBinomial->GetQuantiles(nprobSum, q, probSum);
+        case kDataPointSmallestInterval: {
+            xexp = (double)k / (double)n;
+            BCH1D* fbh = new BCH1D(fHistogramBinomial);
+            BCH1D::BCH1DSmallestInterval SI = fbh->GetSmallestIntervals(p);
+            if (SI.intervals.empty()) {
+                xmin = xmax = xexp = 0.;
+            } else {
+                xmin = SI.intervals.front().xmin;
+                xmax = SI.intervals.front().xmax;
+            }
+            delete fbh;
+            break;
+        }
 
-        xexp = q[2];
-        xmin = q[0];
-        xmax = q[1];
+        case kDataPointCentralInterval: {
+            // calculate quantiles
+            int nprobSum = 3;
+            double q[3];
+            double probSum[3];
+            probSum[0] = (1. - p) / 2.;
+            probSum[1] = .5;
+            probSum[2] = 1. - (1. - p) / 2.;
+
+            fHistogramBinomial->GetQuantiles(nprobSum, q, probSum);
+
+            xmin = q[0];
+            xexp = q[1];
+            xmax = q[2];
+            break;
+        }
+
+        default: {
+            BCLog::OutError("BCEfficiencyFitter::GetUncertainties - invalid DataPointType specified.");
+            xmin = xmax = xexp = 0.;
+        }
     }
-
     BCLog::OutDebug(Form(" - efficiency = %f , range (%f - %f)", xexp, xmin, xmax));
 
     return true;

@@ -159,7 +159,8 @@ public:
     { fFlagIntegration = flag; };
 
     /** Set type of point to be used to plot the efficiency data */
-    void SetDataPointType(DataPointType type);
+    void SetDataPointType(DataPointType type)
+    { fDataPointType = type; }
 
     /* @} */
     /** \name Member functions (miscellaneous methods) */
