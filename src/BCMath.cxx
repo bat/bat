@@ -72,8 +72,8 @@ double BCMath::LogPoisson(double x, double lambda)
 // ---------------------------------------------------------
 double BCMath::LogApproxBinomial(unsigned n, unsigned k, double p)
 {
-    if (k < n)										// impose k < n requirement
-        return LogApproxBinomial(k, n, p);
+    if (k > n)										// impose k < n requirement
+        return -std::numeric_limits<double>::infinity();
 
     // p in [0,1]
     if (p < 0 or p > 1)
