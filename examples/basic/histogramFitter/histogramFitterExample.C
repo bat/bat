@@ -1,4 +1,3 @@
-//
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting
 // a histogram using a function defined by the user. In the fit the
@@ -44,20 +43,6 @@
 
 #endif
 
-// The data fitted is generated randomly as a signal peak (gaussian)
-// plus a flat background using a function CreateHistogram(nbins, ns, nb, seed)
-// The arguments are 'nbins' - number of bins of the histogram,
-// 'ns' - number of signal events, 'nb' - number of background events,
-// 'seed' - initial seed for the random number generator. The location
-// and the width of the signal peak can be set up using the variables
-// 'mean' and 'sigma' below.
-
-TH1D* CreateHistogram(int nbins, int ns, int nb, int seed = 0);
-
-const double mean  = 65.0;
-const double sigma =  5.0;
-
-//
 // The macro performs a gaussian+constant fit to the data. The fit function
 // is defined using the ROOT TF1 object and the data to fit are stored
 // in the TH1D object.
@@ -72,15 +57,38 @@ void histogramFitterExample()
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();
 
-    // create data
-    TH1D* hist = CreateHistogram(20, 100, 100, 132);
+    // -------------------------
+    // Create data
+    // initialize random number generator
+    gRandom = new TRandom3(1234);
 
-    // define a fit function
-    TF1* f1 = new TF1("f1", "[0] / sqrt(2.0 * 3.1416) / [2] * exp(-(x-[1])*(x-[1])/2./[2]/[2]) + [3]", 0., 100.);
+    // create new histogram
+    TH1D* hist = new TH1D("data", ";x;N", 100, 0.0, 100.0);
+    hist->SetStats(kFALSE);
+
+    // fill signal, 100 events distributed by Gaussian with mean = 65, sigma = 5
+    for (int i = 0; i < 100; ++i)
+        hist->Fill(gRandom->Gaus(65, 5));
+
+    // fill background, 100 events, uniformly distributed
+    for (int i = 0; i < 100; ++i)
+        hist->Fill(gRandom->Uniform() * 100);
+    // -------------------------
+
+    // -------------------------
+    // Define a fit function, which is also used to generate data
+    TF1* f1 = new TF1("f1", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
     f1->SetParLimits(0,  0.0, 200.0);
     f1->SetParLimits(1, 55.0,  75.0);
     f1->SetParLimits(2,  0.1,  10.0);
-    f1->SetParLimits(3,  0.0,   2.0);
+    f1->SetParLimits(3,  0.0, 200.0);
+
+    // name parameters
+    f1->SetParName(0, "SignalYield");
+    f1->SetParName(1, "SignalMean");
+    f1->SetParName(2, "SignamaSigma");
+    f1->SetParName(3, "BackgroundYield");
+    // -------------------------
 
     // create a new histogram fitter
     BCHistogramFitter* hf = new BCHistogramFitter(hist, f1);
@@ -100,20 +108,12 @@ void histogramFitterExample()
     // perform fit
     hf->Fit();
 
-    double pvalue, pvalueCorrected;
-    std::vector<double> init (4);
-    init[0] = mean;
-    init[1] = sigma;
-    init[2] = 150;
-    init[3] = 1;
-    hf->FindMode(init);
-    hf->CalculatePValueFast(hf->GetBestFitParameters());
-    pvalue = hf->GetPValue();
-    pvalueCorrected = hf->GetPValueNDoF();
+    // calculate p values
+    hf->CalculatePValueFast(hf->GetGlobalMode());
+    double pvalue = hf->GetPValue();
+    double pvalueCorrected = hf->GetPValueNDoF();
 
-    cout << "Pvalue " << pvalue
-         << ", corrected " << pvalueCorrected
-         << endl;
+    cout << "Pvalue " << pvalue << ", corrected " << pvalueCorrected << endl;
 
     // print marginalized distributions
     hf->PrintAllMarginalized("distributions.pdf");
@@ -125,27 +125,3 @@ void histogramFitterExample()
 
     return;
 }
-
-// ---------------------------------------------------------
-TH1D* CreateHistogram(int nbins, int ns, int nb, int seed)
-{
-    // initialize random number generator
-    gRandom = new TRandom3(seed);
-
-    // create new histogram
-    TH1D* hist = new TH1D("data", ";x;N", nbins, 0.0, 100.0);
-    hist->SetStats(kFALSE);
-
-    // fill signal
-    for (int i = 0; i < ns; ++i)
-        hist->Fill(gRandom->Gaus(mean, sigma));
-
-    // fill background
-    for (int i = 0; i < nb; ++i)
-        hist->Fill(100.0 * gRandom->Uniform());
-
-    // return the histogram
-    return hist;
-}
-
-// ---------------------------------------------------------
