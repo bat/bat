@@ -40,6 +40,17 @@ class BCEfficiencyFitter : public BCFitter
 {
 public:
 
+    /** \name Enumerator */
+    /** @{ */
+
+    enum DataPointType {
+        kDataPointRMS = 0,              ///< Draw mean and standard deviation
+        kDataPointSmallestInterval = 1, ///< Draw mean and smallest 68% interval
+        kDataPointCentralInterval = 2   ///< Draw mean and central 68% interval
+    };
+
+    /** @} */
+
     /**Abstract class which doesn't do anything
      * but offers the right interface
      * to allow calculation the distribution of any statistic.
@@ -147,11 +158,8 @@ public:
     void SetFlagIntegration(bool flag)
     { fFlagIntegration = flag; };
 
-    /** Set type of point to be used to plot the efficiency data
-     * 0 - mean + rms
-     * 1 - mode + smallest 68%
-     * 2 - median + central 68% */
-    void SetDataPointType(int type);
+    /** Set type of point to be used to plot the efficiency data */
+    void SetDataPointType(DataPointType type);
 
     /* @} */
     /** \name Member functions (miscellaneous methods) */
@@ -253,11 +261,8 @@ private:
      * Temporary histogram for calculating the binomial qunatiles */
     TH1D* fHistogramBinomial;
 
-    /** Type of point to plot for efficiency data
-     * 0 - mean + rms
-     * 1 - mode + smallest 68%
-     * 2 - median + central 68% */
-    unsigned int fDataPointType;
+    /** Type of point to plot for efficiency data */
+    DataPointType fDataPointType;
 
 };
 

@@ -34,7 +34,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
     , fHistogram2(0)
     , fFitFunction(0)
     , fHistogramBinomial(0)
-    , fDataPointType(1)
+    , fDataPointType(kDataPointSmallestInterval)
 {
     // set default options and values
     fFlagIntegration = false;
@@ -50,7 +50,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std:
     , fHistogram2(0)
     , fFitFunction(0)
     , fHistogramBinomial(0)
-    , fDataPointType(1)
+    , fDataPointType(kDataPointSmallestInterval)
 {
     SetHistograms(hist1, hist2);
     SetFitFunction(func);
@@ -164,15 +164,6 @@ BCEfficiencyFitter::~BCEfficiencyFitter()
     delete fHistogram1;
     delete fHistogram2;
     delete fHistogramBinomial;
-}
-
-// ---------------------------------------------------------
-void BCEfficiencyFitter::SetDataPointType(int type)
-{
-    if (type < 0 or type > 2)
-        BCLog::OutError(Form("BCEfficiencyFitter::SetDataPointType : Unknown data point type %d (should be between 0 and 2).", type));
-    else
-        fDataPointType = type;
 }
 
 // ---------------------------------------------------------
