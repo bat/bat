@@ -64,13 +64,9 @@ public:
     /* @{ */
 
     /**
-     * The default constructor. */
-    BCEfficiencyFitter();
-
-    /**
      * Constructor
-     * @param name name fo the model */
-    BCEfficiencyFitter(std::string name);
+     * @param name name of the model */
+    BCEfficiencyFitter(std::string name = "efficiency_fitter_model");
 
     /**
      * A constructor.

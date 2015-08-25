@@ -28,22 +28,6 @@
 #include "BCEfficiencyFitter.h"
 
 // ---------------------------------------------------------
-BCEfficiencyFitter::BCEfficiencyFitter()
-    : BCFitter()
-    , fHistogram1(0)
-    , fHistogram2(0)
-    , fFitFunction(0)
-    , fHistogramBinomial(0)
-    , fDataPointType(1)
-{
-    // set default options and values
-    fFlagIntegration = false;
-
-    // set MCMC for marginalization
-    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-}
-
-// ---------------------------------------------------------
 BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
     : BCFitter(name)
     , fHistogram1(0)
