@@ -338,7 +338,7 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
 
     // draw legend
     if (flaglegend) {
-        TLegend* legend = new TLegend(0.25, 0.75, 0.55, 0.95);
+        TLegend* legend = new TLegend(0.25, 0.75, 0.55, 0.9);
         legend->SetLineColor(0);
         legend->SetFillColor(0);
         legend->AddEntry(histRatio, "Data", "PE");
