@@ -1,9 +1,8 @@
-//
-// This ROOT macro is part of BAT and can only be run if BAT
-// was installed correctly. The macro shows an example of fitting
-// an efficiency with a function defined by the user. The input are
-// two histograms, one being a subset of the other. In the fit the
-// uncertainties of the ratio are considered to be binomial.
+// This ROOT macro is part of BAT and can only be run if BAT was
+// installed correctly. The macro shows an example of fitting an
+// efficiency with a function defined by the user. The input are two
+// histograms. In the fit the uncertainties of the ratio are
+// considered to be binomial.
 //
 // The macro can be run from within ROOT via commands
 //
@@ -46,62 +45,61 @@
 
 #endif
 
-// The data fitted are generated randomly using a function
-// CreateHistograms(nbins,nevents,hist1,hist2,seed), where 'nbins' is
-// the number of bins in both histograms, nevents is the number of
-// events generated, hist1 and hist2 are pointers to the generated TH1D
-// objects containing the generated histograms with hist1 being the
-// denominator and hist2 being the numerator (subset of hist1).
-// The denominator histogram hist1 is generated from Landau distribution.
-// The numerator histogram hist2 is created as a subset of hist1 where
-// the probability of accepting the entry in both histograms is set to
-// follow an error function with a smearing according to the binomial
-// distribution. The parameters of the error function can be adjusted
-// using the variables 'mean' and 'sigma'
-
-void CreateHistograms(int nbins, int nevents, TH1D* hist1, TH1D* hist2, int seed = 0);
-
-const double mean  = 40.0;
-const double sigma = 15.0;
-
-//
-// The Data are fitted using an error function defined in fitfunction()
-// and passed to TF1 object.
-
-double fitfunction(double* x, double* par);
-
 // ---------------------------------------------------------
 void efficiencyFitterExample()
 {
-    int nbins = 100;
-
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // set style
     BCAux::SetStyle();
 
-    // create new histograms
-    TH1D* hist1 = new TH1D("data1", ";x;N", nbins, 0.0, 100.0);
-    hist1->SetStats(kFALSE);
-    hist1->SetLineColor(kBlack);
-    hist1->SetFillColor(5);
-    hist1->SetFillStyle(1001);
-
-    TH1D* hist2 = new TH1D("data2", ";x;N", nbins, 0.0, 100.0);
-    hist2->SetStats(kFALSE);
-    hist2->SetLineColor(kRed);
-
-    // create data
-    CreateHistograms(nbins, 1000, hist1, hist2, 1000);
-
-    // define a fit function
-    TF1* f1 = new TF1("f1", fitfunction, 0.0, 100.0, 2);
-    f1->SetParLimits(0, 36.0, 44.0);
+    // -------------------------
+    // define the fit function, which is also used in the generation of the data
+    TF1* f1 = new TF1("f1", "0.5*(1 + TMath::Erf((x-[0])/[1]))", 0.0, 100.0);
+    f1->SetParLimits(0, 35.0, 45.0);
     f1->SetParLimits(1, 10.0, 20.0);
+    // -------------------------
+
+    // -------------------------
+    // Create new histograms:
+    TH1D* h_denom = new TH1D("h_denom", ";x;N", 100, 0.0, 100.0);
+    h_denom->SetStats(kFALSE);
+
+    // cloning ensures identical binning
+    TH1D* h_numer = (TH1D*)h_denom->Clone("h_numer");
+
+    // set drawing options
+    h_denom->SetLineColor(kBlack);
+    h_denom->SetFillColor(5);
+    h_denom->SetFillStyle(1001);
+
+    h_numer->SetLineColor(kRed);
+    h_numer->SetLineWidth(2);
+    // -------------------------
+
+    // -------------------------
+    // Fill histograms with data:
+    // initialize random number generator with seed = 1234
+    gRandom = new TRandom3(1234);
+
+    // Fill h_denom randomly from Landau distribution
+    // with mean = 30 and sigma = 8; simulate 1000 events
+    for (unsigned i = 0; i < 1000 ; ++i)
+        h_denom->Fill( gRandom->Landau(30., 8.) );
+
+    // Fill h_numer, with probability of accenting entry from h_denom
+    // following an error function with a smearing according to the
+    // binomial distribution with parameters (mean, sigma) := (40, 15)
+    f1->SetParameters(40, 15);
+    for (int b = 1; b <= h_numer->GetNbinsX(); ++b) {
+        double eff = f1->Integral(h_numer->GetXaxis()->GetBinLowEdge(b), h_numer->GetXaxis()->GetBinUpEdge(b)) / h_numer->GetXaxis()->GetBinWidth(b);
+        h_numer->SetBinContent(b, gRandom->Binomial(int(h_denom->GetBinContent(b)), eff));
+    }
+    // -------------------------
 
     // create a new efficiency fitter
-    BCEfficiencyFitter* hef = new BCEfficiencyFitter(hist1, hist2, f1);
+    BCEfficiencyFitter* hef = new BCEfficiencyFitter(h_denom, h_numer, f1);
 
     // set options for evaluating the fit function
     hef->SetFlagIntegration(false);
@@ -111,21 +109,22 @@ void efficiencyFitterExample()
 
     // set options for MCMC
     hef->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    hef->MCMCSetPreRunCheckClear(0);
+    hef->MCMCSetNIterationsRun(10000);
 
-    // set priors
-    hef->SetPriorConstant(0);
-    hef->SetPriorConstant(1);
-
-    // perform fit
+    // // perform fit
     hef->Fit();
 
     // print data and fit
-    TCanvas* c = new TCanvas("c1", "", 800, 400);
+    TCanvas* c = new TCanvas("c1", "");
     c->Divide(2, 1);
+
     c->cd(1);
-    hist1->Draw();
-    hist2->Draw("same");
+    h_denom->Draw();
+    h_numer->Draw("same");
+
     c->cd(2);
+
     hef->DrawFit("", true); // draw with a legend
 
     // print to file
@@ -135,44 +134,3 @@ void efficiencyFitterExample()
     hef->PrintAllMarginalized("distributions.pdf");
 }
 
-// ---------------------------------------------------------
-double fitfunction(double* x, double* par)
-{
-    double ff;
-
-    if (x[0] < par[0])
-        ff = TMath::Erfc((par[0] - x[0]) / par[1]) / 2.;
-    else
-        ff = TMath::Erf((x[0] - par[0]) / par[1]) / 2. + 0.5;
-
-    return ff;
-}
-
-// ---------------------------------------------------------
-void CreateHistograms(int nbins, int nevents, TH1D* hist1, TH1D* hist2, int seed)
-{
-    // initialize random number generator
-    gRandom = new TRandom3(seed);
-
-    // fill histogram 1
-    for (int i = 0; i < nevents ; ++i) {
-        double x = gRandom->Landau(30., 8.);
-        hist1->Fill(x);
-    }
-
-    // fill histogram 2
-    for (int i = 1; i <= nbins; ++i) {
-        double x = hist1->GetXaxis()->GetBinCenter(i);
-        double eff = 0;
-        if (x < mean)
-            eff = TMath::Erfc((mean - x) / sigma) / 2.;
-        else
-            eff = TMath::Erf((x - mean) / sigma) / 2. + 0.5;
-        //		int n = gRandom->Poisson(nevents);
-        //		hist1->SetBinContent(i, n);
-        //		hist2->SetBinContent(i, gRandom->Binomial(n, eff));
-        hist2->SetBinContent(i, gRandom->Binomial(int(hist1->GetBinContent(i)), eff));
-    }
-}
-
-// ---------------------------------------------------------
