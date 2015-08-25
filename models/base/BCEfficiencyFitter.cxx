@@ -174,7 +174,7 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 
     // set the parameters of the function
     for (int i = 0; i < fFitFunction->GetNpar(); ++i)
-        fFitFunction->SetParameter(params[i]);
+        fFitFunction->SetParameter(i, params[i]);
 
     // get the number of bins
     int nbins = fHistogram1->GetNbinsX();
