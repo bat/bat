@@ -218,7 +218,7 @@ public:
     /**
      * @return number of iterations needed for all chains to
      * converge simultaneously */
-    unsigned MCMCGetNIterationsConvergenceGlobal() const
+    int MCMCGetNIterationsConvergenceGlobal() const
     { return fMCMCNIterationsConvergenceGlobal; }
 
     /**
