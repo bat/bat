@@ -146,7 +146,7 @@ BCGraphFitter::~BCGraphFitter()
 // ---------------------------------------------------------
 double BCGraphFitter::LogLikelihood(const std::vector<double>& params)
 {
-    if (fFitFunction or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
+    if (!fFitFunction or !GetDataSet() or GetDataSet()->GetNDataPoints() == 0)
         return -std::numeric_limits<double>::infinity();
 
     // set the parameters of the function
