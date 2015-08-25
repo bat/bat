@@ -44,25 +44,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
 }
 
 // ---------------------------------------------------------
-BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func)
-    : BCFitter()
-    , fHistogram1(0)
-    , fHistogram2(0)
-    , fFitFunction(0)
-    , fHistogramBinomial(0)
-    , fDataPointType(1)
-{
-    SetHistograms(hist1, hist2);
-    SetFitFunction(func);
-
-    fFlagIntegration = false;
-
-    // set MCMC for marginalization
-    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-}
-
-// ---------------------------------------------------------
-BCEfficiencyFitter::BCEfficiencyFitter(std::string name, TH1D* hist1, TH1D* hist2, TF1* func)
+BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std::string name)
     : BCFitter(name)
     , fHistogram1(0)
     , fHistogram2(0)
