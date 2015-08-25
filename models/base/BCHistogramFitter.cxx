@@ -26,22 +26,6 @@
 #include <TString.h>
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter()
-    : BCFitter()
-    , fHistogram(0)
-    , fFitFunction(0)
-    , fHistogramExpected(0)
-{
-    // set default options and values
-    MCMCSetNIterationsRun(2000);
-    SetFillErrorBand();
-    fFlagIntegration = true;
-
-    // set MCMC for marginalization
-    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-}
-
-// ---------------------------------------------------------
 BCHistogramFitter::BCHistogramFitter(std::string name)
     : BCFitter(name)
     , fHistogram(0)
@@ -58,25 +42,7 @@ BCHistogramFitter::BCHistogramFitter(std::string name)
 }
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func)
-    : BCFitter()
-    , fHistogram(0)
-    , fFitFunction(0)
-    , fHistogramExpected(0)
-{
-    SetHistogram(hist);
-    SetFitFunction(func);
-
-    MCMCSetNIterationsRun(2000);
-    SetFillErrorBand();
-    fFlagIntegration = true;
-
-    // set MCMC for marginalization
-    SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
-}
-
-// ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(std::string name, TH1D* hist, TF1* func)
+BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func, std::string name)
     : BCFitter(name)
     , fHistogram(0)
     , fFitFunction(0)

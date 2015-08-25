@@ -41,26 +41,16 @@ public:
     /* @{ */
 
     /**
-     * The default constructor. */
-    BCHistogramFitter();
-
-    /**
      * Constructor
      * @param name name of the model */
-    BCHistogramFitter(std::string name);
-
-    /**
-     * Constructor.
-     * @param hist histogram to fit
-     * @param func fit function */
-    BCHistogramFitter(TH1D* hist, TF1* func);
+    BCHistogramFitter(std::string name = "histogram_fitter_model");
 
     /**
      * Constructor
-     * @param name name of the model
      * @param hist histogram to fit
-     * @param func fit function */
-    BCHistogramFitter(std::string name, TH1D* hist, TF1* func);
+     * @param func fit function
+     * @param name name of the model */
+    BCHistogramFitter(TH1D* hist, TF1* func, std::string name = "histogram_fitter_model");
 
     /**
      * The default destructor. */
