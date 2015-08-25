@@ -309,14 +309,14 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
 
     // if not same, draw the histogram first to get the axes
     if (!opt.Contains("same"))
-        fHistogram->Draw(opt.Data());
+        fHistogram->Draw(Form("hist%s", opt.Data()));
 
     // draw the error band as central 68% probability interval
     fErrorBand = GetErrorBandGraph(0.16, 0.84);
     fErrorBand->Draw("f same");
 
     // now draw the histogram again since it was covered by the band
-    fHistogram->Draw(Form("%ssame", opt.Data()));
+    fHistogram->Draw(Form("hist%ssame", opt.Data()));
 
     // draw the fit function on top
     fGraphFitFunction = GetFitFunctionGraph();
@@ -329,7 +329,7 @@ void BCHistogramFitter::DrawFit(const char* options, bool flaglegend)
         TLegend* legend = new TLegend(0.25, 0.75, 0.55, 0.9);
         legend->SetBorderSize(0);
         legend->SetFillColor(kWhite);
-        legend->AddEntry(fHistogram, "Data", "PE");
+        legend->AddEntry(fHistogram, "Data", "L");
         legend->AddEntry(fGraphFitFunction, "Best fit", "L");
         legend->AddEntry(fErrorBand, "Error band", "F");
         legend->Draw();
