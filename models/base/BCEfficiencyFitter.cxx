@@ -34,7 +34,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
     , fHistogram2(0)
     , fFitFunction(0)
     , fHistogramBinomial(0)
-    , fDataPointType(kDataPointCentralInterval)
+    , fDataPointType(kDataPointSmallestInterval)
 {
     // set default options and values
     fFlagIntegration = false;
@@ -50,7 +50,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std:
     , fHistogram2(0)
     , fFitFunction(0)
     , fHistogramBinomial(0)
-    , fDataPointType(kDataPointCentralInterval)
+    , fDataPointType(kDataPointSmallestInterval)
 {
     SetHistograms(hist1, hist2);
     SetFitFunction(func);
@@ -209,7 +209,8 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 double BCEfficiencyFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
     // set the parameters of the function
-    fFitFunction->SetParameters(&params[0]);
+    for (int i = 0; i < fFitFunction->GetNpar(); ++i)
+        fFitFunction->SetParameter(i, params[i]);
     // and evaluate
     return fFitFunction->Eval(x[0]);
 }
@@ -293,30 +294,13 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
     histRatio->SetMarkerStyle(20);
     histRatio->SetMarkerSize(1.5);
 
-    int npoints = 0;
-
     // set points
     for (int i = 1; i <= fHistogram1->GetNbinsX(); ++i) {
-        if (int(fHistogram1->GetBinContent(i)) == 0) {
-            ++npoints;
-            continue;
-        }
-
         // calculate central value and uncertainties
         double xexp, xmin, xmax;
         GetUncertainties( int(fHistogram1->GetBinContent(i)), int(fHistogram2->GetBinContent(i)), 0.68, xexp, xmin, xmax);
-
-        histRatio->SetPoint(npoints, fHistogram1->GetBinCenter(i), xexp);
-
-        // no X uncertainties
-        histRatio->SetPointEXhigh(npoints, 0.);
-        histRatio->SetPointEXlow(npoints, 0.);
-
-        // set Y uncertainties
-        histRatio->SetPointEYhigh(npoints, xmax - xexp);
-        histRatio->SetPointEYlow(npoints, xexp - xmin);
-
-        ++npoints;
+        histRatio->SetPoint(i - 1, fHistogram1->GetBinCenter(i), xexp);
+        histRatio->SetPointError(i - 1, 0, 0, xexp - xmin, xmax - xexp);
     }
 
     // check wheather options contain "same"
@@ -355,9 +339,9 @@ void BCEfficiencyFitter::DrawFit(const char* options, bool flaglegend)
     // draw legend
     if (flaglegend) {
         TLegend* legend = new TLegend(0.25, 0.75, 0.55, 0.95);
-        legend->SetBorderSize(0);
-        legend->SetFillColor(kWhite);
-        legend->AddEntry(histRatio, "Data", "L");
+        legend->SetLineColor(0);
+        legend->SetFillColor(0);
+        legend->AddEntry(histRatio, "Data", "PE");
         legend->AddEntry(fGraphFitFunction, "Best fit", "L");
         legend->AddEntry(fErrorBand, "Error band", "F");
         legend->Draw();
@@ -502,11 +486,8 @@ bool BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double& xexp, 
         fHistogramBinomial = new TH1D("hist_binomial", "", 1000, 0., 1.);
 
     // loop over bins and fill histogram
-    for (int i = 1; i <= 1000; ++i) {
-        double x   = fHistogramBinomial->GetBinCenter(i);
-        double val = BCMath::ApproxBinomial(n, k, x);
-        fHistogramBinomial->SetBinContent(i, val);
-    }
+    for (int i = 1; i <= fHistogramBinomial->GetNbinsX(); ++i)
+        fHistogramBinomial->SetBinContent(i, BCMath::ApproxBinomial(n, k, fHistogramBinomial->GetBinCenter(i)));
     // normalize
     fHistogramBinomial->Scale(1. / fHistogramBinomial->Integral());
 
@@ -541,8 +522,8 @@ bool BCEfficiencyFitter::GetUncertainties(int n, int k, double p, double& xexp, 
             double q[3];
             double probSum[3];
             probSum[0] = (1. - p) / 2.;
-            probSum[1] = .5;
-            probSum[2] = 1. - (1. - p) / 2.;
+            probSum[1] = 0.5;
+            probSum[2] = (1. + p) / 2.;
 
             fHistogramBinomial->GetQuantiles(nprobSum, q, probSum);
 
