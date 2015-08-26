@@ -58,22 +58,26 @@ void graphFitterSimpleExample()
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();
 
+    // -------------------------
     // define a fit function, also used to create data
     TF1* f1 = new TF1("f1", "[0] + [1]*x", 0.0, 100.0);
+    f1->SetParNames("a0", "a1");
 
     // Parameter limits must be defined for every parameter
     f1->SetParLimits(0, -20.0, 30.0);
     f1->SetParLimits(1,   0.5,  1.5);
+    // -------------------------
 
     // -------------------------
     // Create data
-    // The data fitted are generated randomly generated from f1 defined above
-    f1->SetParameters(11.0, 1.0);
-    // with Gaussian smearing parameterized by "sigma":
-    double sigma  =  5.0;
-
     // initialize random number generator
     gRandom = new TRandom3(1234);
+
+    // The data fitted are generated randomly generated from f1 defined above
+    f1->SetParameters(11.0, 1.0);
+
+    // with Gaussian smearing parameterized by "sigma":
+    double sigma  =  5.0;
 
     // create graph
     TGraphErrors* graph = new TGraphErrors();
@@ -95,7 +99,8 @@ void graphFitterSimpleExample()
     gf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    gf->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    gf->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    gf->MCMCSetNChains(3);
 
     // perform the fit
     gf->Fit();

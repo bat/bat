@@ -59,6 +59,7 @@ void efficiencyFitterExample()
     TF1* f1 = new TF1("f1", "0.5*(1 + TMath::Erf((x-[0])/[1]))", 0.0, 100.0);
     f1->SetParLimits(0, 35.0, 45.0);
     f1->SetParLimits(1, 10.0, 20.0);
+    f1->SetParNames("mean", "sigma");
     // -------------------------
 
     // -------------------------
@@ -108,7 +109,8 @@ void efficiencyFitterExample()
     hef->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set options for MCMC
-    hef->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    hef->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    hef->MCMCSetNChains(3);
 
     // // perform fit
     hef->Fit();

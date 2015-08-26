@@ -78,16 +78,11 @@ void histogramFitterExample()
     // -------------------------
     // Define a fit function, which is also used to generate data
     TF1* f1 = new TF1("f1", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
+    f1->SetParNames("SignalYield", "SignalMean", "SignalSigma", "BackgroundYield");
     f1->SetParLimits(0,  0.0, 200.0);
     f1->SetParLimits(1, 55.0,  75.0);
     f1->SetParLimits(2,  0.1,  10.0);
     f1->SetParLimits(3,  0.0, 200.0);
-
-    // name parameters
-    f1->SetParName(0, "SignalYield");
-    f1->SetParName(1, "SignalMean");
-    f1->SetParName(2, "SignamaSigma");
-    f1->SetParName(3, "BackgroundYield");
     // -------------------------
 
     // create a new histogram fitter
@@ -97,7 +92,8 @@ void histogramFitterExample()
     hf->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    hf->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    hf->MCMCSetPrecision(BCEngineMCMC::kQuick);
+    hf->MCMCSetNChains(3);
 
     // integrate function over bin (true) or use linear interpolation
     hf->SetFlagIntegration(false);
