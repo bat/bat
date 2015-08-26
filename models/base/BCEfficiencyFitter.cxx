@@ -173,8 +173,12 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
     double loglikelihood = 0;
 
     // set the parameters of the function
-    for (int i = 0; i < fFitFunction->GetNpar(); ++i)
-        fFitFunction->SetParameter(i, params[i]);
+    // passing the pointer to first element of the vector is
+    // not completely safe as there might be an implementation where
+    // the vector elements are not stored consecutively in memory.
+    // however it is much faster than copying the contents, especially
+    // for large number of parameters
+    fFitFunction->SetParameters(&params[0]);
 
     // get the number of bins
     int nbins = fHistogram1->GetNbinsX();
@@ -209,8 +213,7 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 double BCEfficiencyFitter::FitFunction(const std::vector<double>& x, const std::vector<double>& params)
 {
     // set the parameters of the function
-    for (int i = 0; i < fFitFunction->GetNpar(); ++i)
-        fFitFunction->SetParameter(i, params[i]);
+    fFitFunction->SetParameters(&params[0]);
     // and evaluate
     return fFitFunction->Eval(x[0]);
 }

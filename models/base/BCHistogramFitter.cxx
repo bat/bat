@@ -192,6 +192,11 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
     double loglikelihood = 0;
 
     // set the parameters of the function
+    // passing the pointer to first element of the vector is
+    // not completely safe as there might be an implementation where
+    // the vector elements are not stored consecutively in memory.
+    // however it is much faster than copying the contents, especially
+    // for large number of parameters
     fFitFunction->SetParameters(&params[0]);
 
     // get the number of bins
