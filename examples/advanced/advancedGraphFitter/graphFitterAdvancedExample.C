@@ -1,4 +1,3 @@
-//
 // This ROOT macro is part of BAT and can only be run if BAT
 // was installed correctly. The macro shows an example of fitting
 // a graph using a function defined by the user. TGraphErrors
@@ -42,37 +41,12 @@
 #include <TF1.h>
 #include <TCanvas.h>
 #include <TRandom3.h>
-#include <TString.h>
 
-#include <fstream>
+#include <string>
 #include <vector>
 
 #endif
 
-// The includes below need to be always present
-
-// By default the data in the file data/datax.txt are fitted. These
-// are the same data that are used for the example in the BAT paper
-// (see BAT webpage). To generate new data and fit them use
-// CreateDataGraph() function.
-//
-
-TGraphErrors* CreateDataGraph(int n = 100, double xmin = 0.1, double xmax = 19.9);
-
-//
-// The data are generated according to second order polynomial plus
-// a gaussian peak. The parameters and the smearing can be set below
-
-const double p0 =  0.;
-const double p1 =  0.5;
-const double p2 =  0.02;
-const double a  = 15.;
-const double m  =  5.;
-const double s  =  0.5;
-
-const double sigmay = 4.;
-
-//
 // The macro performs fits with four different functions (models):
 //   2nd order polynomial
 //   gaussian peak + constant
@@ -83,149 +57,148 @@ const double sigmay = 4.;
 void graphFitterAdvancedExample()
 {
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();
 
-    // uncomment the next command if you want the data
-    // to be generated randomly
-    //	TGraphErrors* gr = CreateDataGraph();
+    // -------------------------
+    // Prepare fitting functions
+    // (all parameter limits must be set!)
 
-    // uncomment the next command if you want the data
-    // to be read data from file
-    // the file supplied with BAT distribution
-    // is data/datax.txt and contains the data which were
-    // used in the BAT paper
-    TGraphErrors* gr = new TGraphErrors("data/datax.txt", "%lg %lg %lg");
-
-    gr->SetMarkerStyle(20);
-    gr->SetMarkerSize(.5);
-
-    // prepare fitting functions
     // 2nd order polynomial
-    TF1* f1 = new TF1("f1", "[0]+[1]*x+[2]*x*x", 0., 100.);
+    TF1* f1 = new TF1("f1", "[0] + [1]*x + [2]*x^2", 0., 100.);
+    f1->SetParNames("offset", "slope", "quad");
     f1->SetParLimits(0,   0.,    5.);  // offset
     f1->SetParLimits(1,   0.,    1.2); // slope
     f1->SetParLimits(2,  -0.1,   0.1); // quad
 
-    // constant + gaussian
-    TF1* f2 = new TF1("f2", "[0]+[1]/(sqrt(2.*3.141592)*[3]) * exp(-(x-[2])*(x-[2])/(2.*[3]*[3]))", 0., 100.);
-    f2->SetParLimits(0,   0.,   10.); // offset
-    f2->SetParLimits(1,   0.,  200.); // A_gauss
-    f2->SetParLimits(2,   2.,   18.); // mean
-    f2->SetParLimits(3,   .2,    4.); // sigma
+    // gaussian + constant
+    TF1* f2 = new TF1("f2", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3]", 0., 100.);
+    f2->SetParNames("A_gauss", "mean", "sigma", "offset");
+    f2->SetParLimits(0,   0.,  200.); // A_gauss
+    f2->SetParLimits(1,   2.,   18.); // mean
+    f2->SetParLimits(2,   .2,    4.); // sigma
+    f2->SetParLimits(3,   0.,   10.); // offset
 
-    // straight line + gaussian
-    TF1* f3 = new TF1("f3", "[0]+[1]*x+[2]/(sqrt(2.*3.141592)*[4]) * exp(-(x-[3])*(x-[3])/(2.*[4]*[4]))", 0., 100.);
-    f3->SetParLimits(0,   0.,   10.); // offset
-    f3->SetParLimits(1,   0.,    2.); // slope
-    f3->SetParLimits(2,   0.,  200.); // A_gauss
-    f3->SetParLimits(3,   2.,   18.); // mean
-    f3->SetParLimits(4,   .2,    4.); // sigma
+    // gaussian + line
+    TF1* f3 = new TF1("f3", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3] + [4]*x", 0., 100.);
+    f3->SetParNames("A_gauss", "mean", "sigma", "offset", "slope");
+    f3->SetParLimits(0,   0.,  200.); // A_gauss
+    f3->SetParLimits(1,   2.,   18.); // mean
+    f3->SetParLimits(2,   .2,    4.); // sigma
+    f3->SetParLimits(3,   0.,   10.); // offset
+    f3->SetParLimits(4,   0.,    2.); // slope
 
-    // 2nd order polynomial + gaussian
-    TF1* f4 = new TF1("f4", "[0]+[1]*x+[2]*x*x+[3]/(sqrt(2.*3.141592)*[5]) * exp(-(x-[4])*(x-[4])/(2.*[5]*[5]))", 0., 100.);
-    f4->SetParLimits(0,   0.,   10.); // offset
-    f4->SetParLimits(1,   0.,    2.); // slope
-    f4->SetParLimits(2,   0.,    .5); // quad
-    f4->SetParLimits(3,   0.,  200.); // A_gauss
-    f4->SetParLimits(4,   2.,   18.); // mean
-    f4->SetParLimits(5,   .2,    4.); // sigma
+    // gaussian + 2nd order polynomial
+    TF1* f4 = new TF1("f4", "[0]/sqrt(2*pi)/[2] * exp(-0.5*((x-[1])/[2])^2) + [3] + [4]*x + [5]*x^2", 0., 100.);
+    f4->SetParNames("A_gauss", "mean", "sigma", "offset", "slope", "quad");
+    f4->SetParLimits(0,   0.,  200.); // A_gauss
+    f4->SetParLimits(1,   2.,   18.); // mean
+    f4->SetParLimits(2,   .2,    4.); // sigma
+    f4->SetParLimits(3,   0.,   10.); // offset
+    f4->SetParLimits(4,   0.,    2.); // slope
+    f4->SetParLimits(5,   0.,    .5); // quad
+
+    // -------------------------
+
+    //-------------------------
+    // Create data
+    TGraphErrors* gr = 0;
+
+    if (true) { // set false to generate data anew (below)
+
+        // read data from the file supplied with BAT distribution
+        // is data/datax.txt and contains the data which were
+        // used in the BAT paper
+        gr = new TGraphErrors("data/datax.txt", "%lg %lg %lg");
+
+    } else {
+
+        // generate data anew from f4 defined above, with parameters:
+        f4->SetParameters(150, 5, 0.5, 0, 50, 2);
+
+        // and smear from value by Gaussian with sigma:
+        double sigmay = 40.;
+
+        // initialize random number generator
+        gRandom = new TRandom3(1234);
+
+        // define range to generate data in
+        double xmin = 0.1;
+        double xmax = 19.9;
+
+        // define number of points to generate
+        unsigned n = 100;
+
+        double dx = (xmax - xmin) / (n - 1);
+
+        gr = new TGraphErrors();
+        for (unsigned i = 0; i < n; ++i) {
+
+            // get x value
+            double x = xmin + i * dx;
+
+            // smear from f4 value
+            gr->SetPoint(i, x, gRandom->Gaus(f4->Eval(x), sigmay));
+            // set uncertainty to tenth of smearing sigma
+            gr->SetPointError(i, 0, sigmay / 10);
+        }
+    }
+    // -------------------------
+
 
     // setup all graph fitters
-    vector<BCGraphFitter*> models;
-    models.push_back(new BCGraphFitter(gr, f1));
-    models.push_back(new BCGraphFitter(gr, f2));
-    models.push_back(new BCGraphFitter(gr, f3));
-    models.push_back(new BCGraphFitter(gr, f4));
+    std::vector<BCGraphFitter*> models;
+    models.push_back(new BCGraphFitter(gr, f1, f1->GetName()));
+    models.push_back(new BCGraphFitter(gr, f2, f2->GetName()));
+    models.push_back(new BCGraphFitter(gr, f3, f3->GetName()));
+    models.push_back(new BCGraphFitter(gr, f4, f4->GetName()));
 
     // perform the analysis on all models
-    for (unsigned int imodel = 0; imodel < models.size(); ++imodel) {
+    for (unsigned i = 0; i < models.size(); ++i) {
 
         // set precision
-        models[imodel]->MCMCSetPrecision(BCEngineMCMC::kMedium);
+        models[i]->MCMCSetPrecision(BCEngineMCMC::kQuick);
+        models[i]->MCMCSetNChains(3);
 
         // run the fitting (MCMC + Minuit)
-        models[imodel]->Fit();
+        models[i]->Fit();
 
         // print all marginalized distributions into a PostScript file
-        models[imodel]->PrintAllMarginalized(TString::Format("plots-%d.pdf", imodel + 1));
+        models[i]->PrintAllMarginalized("plots-" + models[i]->GetSafeName() + ".pdf");
 
         // draw summary plots and tables
-        models[imodel]->PrintParameterPlot(TString::Format("summary_pars-f%d.pdf", imodel + 1));
-        models[imodel]->PrintCorrelationPlot(TString::Format("summary_corr-f%d.png", imodel + 1));
-        models[imodel]->PrintCorrelationMatrix(TString::Format("summary_corr_matrix-f%d.pdf", imodel + 1));
-        //models[imodel]->PrintKnowledgeUpdatePlots(TString::Format("summary_update-f%d.pdf",imodel+1));
-        //models[imodel]->PrintParameterLatex(TString::Format("summary_pars-f%d.tex",imodel+1));
+        models[i]->PrintParameterPlot("summary_pars-" + models[i]->GetSafeName() + ".pdf");
+        // models[i]->PrintCorrelationPlot("summary_corr-" + models[i]->GetSafeName() + ".pdf");
+        // models[i]->PrintCorrelationMatrix("summary_corr_matrix-" + models[i]->GetSafeName() + ".pdf");
+        // models[i]->PrintKnowledgeUpdatePlots("summary_update-" + models[i]->GetSafeName() + ".pdf");
+        // models[i]->PrintParameterLatex("summary_pars-" + models[i]->GetSafeName() + ".tex");
     }
+
+    TCanvas* c = new TCanvas();
 
     // draw fit including the error band
-    TCanvas* c = new TCanvas();
     c->Divide(2, 2);
-    for (unsigned int imodel = 0; imodel < models.size(); ++imodel) {
-        c->cd(imodel + 1);
-        models[imodel]->DrawFit();
+    for (unsigned i = 0; i < models.size(); ++i) {
+        c->cd(i + 1);
+        models[i]->DrawFit();
     }
     c->Print("data-all-band.pdf");
-    delete c;
 
-    // draw all fits in the same plot (w/o error bands)
-    c = new TCanvas();
+    // draw data and all fits in the same plot (w/o error bands)
+    c->Clear();
+    c->cd(1);
+
+    gr->SetMarkerStyle(20);
+    gr->SetMarkerSize(.5);
     gr->Draw("ap");
-    f1->SetLineColor(1);
-    f1->SetLineWidth(2);
-    f1->Draw("l same");
-    f2->SetLineColor(2);
-    f2->SetLineWidth(2);
-    f2->Draw("l same");
-    f3->SetLineColor(3);
-    f3->SetLineWidth(2);
-    f3->Draw("l same");
-    f4->SetLineColor(4);
-    f4->SetLineWidth(2);
-    f4->Draw("l same");
+
+    for (unsigned i = 0; i < models.size(); ++i) {
+        models[i]->GetFitFunction()->SetLineColor(i + 1);
+        models[i]->GetFitFunction()->SetLineWidth(2);
+        models[i]->GetFitFunction()->Draw("l same");
+    }
     c->Print("data-all.pdf");
 
 }
-
-
-// ----------------------------------------------------------------------
-TGraphErrors* CreateDataGraph(int n, double xmin, double xmax)
-{
-    const double pi =  3.141592;
-
-    // initialize random number generator
-    TRandom3* ran = new TRandom3(0);
-
-    double* xx = new double[n];
-    double* yy = new double[n];
-    double* err = new double[n];
-
-    double dx = (xmax - xmin) / (double)(n - 1);
-
-    // loop over points
-    for (int i = 0; i < n; i++) {
-        // get x value
-        double x = xmin + (double)i * dx;
-
-        // get y value
-        double yexp = p0 + p1 * x + p2 * x * x + a / (sqrt(2.*pi) * s) * exp(-.5 * (x - m) * (x - m) / (s * s));
-        double y = ran->Gaus(yexp * 100., sigmay * 100.) / 100.;
-
-        xx[i] = x;
-        yy[i] = y;
-        err[i] = sigmay;
-    }
-
-    TGraphErrors* g = new TGraphErrors(n, xx, yy, 0, err);
-
-    delete [] xx;
-    delete [] yy;
-    delete [] err;
-
-    return g;
-}
-
-// ----------------------------------------------------------------------
