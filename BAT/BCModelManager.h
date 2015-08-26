@@ -92,7 +92,8 @@ public:
 
     /**
      * Sets the data set common to all BCModels in this
-     * BCModelManager.
+     * BCModelManager. Note: Data set is _not_ owned by the manager,
+     * nor the models.
      * @param dataset A data set */
     void SetDataSet(BCDataSet* dataset);
 
@@ -100,6 +101,9 @@ public:
      * Set the precision for the MCMC run. */
     void MCMCSetPrecision(BCEngineMCMC::Precision precision);
 
+    /**
+     * Sets the maximum number of iterations for the Monte Carlo
+     * integration for all BCModels in this BCModelManger. */
     void SetNIterationsMax(int niterations);
 
     /**
