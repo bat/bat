@@ -43,6 +43,9 @@ PerfTest2DFunction::PerfTest2DFunction(std::string name, TF2* func)
     AddParameter("x", xmin, xmax);
     AddParameter("y", ymin, ymax);
 
+    GetParameter(0).SetNbins(25);
+    GetParameter(1).SetNbins(25);
+
     DefineSubtests();
 }
 
@@ -59,12 +62,12 @@ int PerfTest2DFunction::PostTest()
     PerfTestMCMC::PostTest();
 
     // get histogram
-    TH2D* hist_marg = (TH2D*) GetMarginalized(0u, 1u)->GetHistogram()->Clone();
+    TH2D* hist_marg = (TH2D*) GetMarginalized(0u, 1u).GetHistogram()->Clone();
     hist_marg->SetContour(20);
     hist_marg->Scale(hist_marg->GetEntries() / hist_marg->Integral());
-    TH2D* hist_diff = (TH2D*) GetMarginalized(0u, 1u)->GetHistogram()->Clone();
+    TH2D* hist_diff = (TH2D*) GetMarginalized(0u, 1u).GetHistogram()->Clone();
     hist_diff->SetContour(20);
-    TH2D* hist_func = (TH2D*) GetMarginalized(0u, 1u)->GetHistogram()->Clone();
+    TH2D* hist_func = (TH2D*) GetMarginalized(0u, 1u).GetHistogram()->Clone();
     hist_func->SetContour(20);
 
     TH1D* hist_pull = new TH1D("", ";#Deltaf/sqrt(f);N", 50, -5.0, 5.0);
@@ -75,7 +78,7 @@ int PerfTest2DFunction::PostTest()
     int ndf = nbinsx * nbinsy;
 
     // calculate norms
-    double norm_hist = hist_marg->Integral();
+    double norm_hist = hist_marg->GetEntries();
 
     // get bin widths
     double binwidthx = hist_marg->GetXaxis()->GetBinWidth(1);
@@ -98,6 +101,8 @@ int PerfTest2DFunction::PostTest()
     double chi2 = 0;
     for (int i = 1; i <= nbinsx; ++i) {
         for (int j = 1; j <= nbinsy; ++j) {
+            // TODO use if histograms are properly normalized as 2D PDF
+            //            double n = norm_hist * binwidthx * binwidthy * hist_marg->GetBinContent(i, j);
             double n = hist_marg->GetBinContent(i, j);
             double e = hist_func->GetBinContent(i, j);
 
@@ -112,6 +117,8 @@ int PerfTest2DFunction::PostTest()
             hist_pull->Fill((n - e) / sqrt(e));
         }
     }
+    if (ndf == 0)
+        throw std::runtime_error(PerfTest::GetName() + ": Zero degrees of freedom");
 
     // define test results
     GetSubtest("chi2")->SetTargetValue(ndf);

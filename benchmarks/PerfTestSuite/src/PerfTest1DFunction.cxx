@@ -61,11 +61,11 @@ int PerfTest1DFunction::PostTest()
     PerfTestMCMC::PostTest();
 
     // define histograms
-    TH1D* hist_marg = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
-    TH1D* hist_func = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
-    TH1D* hist_diff = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
+    TH1D* hist_marg = (TH1D*) GetMarginalized(0u).GetHistogram()->Clone();
+    TH1D* hist_func = (TH1D*) GetMarginalized(0u).GetHistogram()->Clone();
+    TH1D* hist_diff = (TH1D*) GetMarginalized(0u).GetHistogram()->Clone();
     TH1D* hist_line = new TH1D(*hist_marg);
-    TH1D* hist_diff_1sigma = (TH1D*) GetMarginalized(0u)->GetHistogram()->Clone();
+    TH1D* hist_diff_1sigma = (TH1D*) GetMarginalized(0u).GetHistogram()->Clone();
     hist_diff_1sigma->SetFillColor(kGreen);
     hist_diff_1sigma->SetFillStyle(1001);
     hist_diff_1sigma->SetMarkerSize(0);
@@ -79,8 +79,10 @@ int PerfTest1DFunction::PostTest()
     int nbins = hist_marg->GetNbinsX();
     int ndf = nbins;
 
-    // calculate norms
-    double norm_hist = hist_marg->Integral();
+    /* calculate norms */
+
+    // number of samples
+    double norm_hist = hist_marg->GetEntries();
     double norm_func = fFunction->Integral(fFunction->GetXmin(), fFunction->GetXmax());
 
     // get bin width
@@ -89,14 +91,15 @@ int PerfTest1DFunction::PostTest()
     // calculate chi2
     double chi2 = 0;
     for (int i = 1; i <= nbins; ++i) {
-        double n = hist_marg->GetBinContent(i);
-        //      double e = norm_hist * fFunction->Eval(hist_marg->GetBinCenter(i)) * binwidth / norm_func;
+        double n = norm_hist * hist_marg->GetBinWidth(i) * hist_marg->GetBinContent(i);
         double e = norm_hist * fFunction->Integral(hist_marg->GetBinCenter(i) - 0.5 * binwidth, hist_marg->GetBinCenter(i) + 0.5 * binwidth) / norm_func;
 
         if (e >= 10)
             chi2 += (n - e) * (n - e) / e;
         else
             ndf--;
+
+//        std::cout << "i " << i <<  ", chi2 " << chi2 <<  ", n " << n << ", e " << e << std::endl;
 
         // fill histograms
         hist_diff->SetBinContent(i, n - e);
@@ -110,6 +113,9 @@ int PerfTest1DFunction::PostTest()
         hist_diff_3sigma->SetBinError(i, 3.*sqrt(e));
         hist_diff_3sigma->SetBinContent(i, 0);
     }
+//    std::cout << "chi2 " << chi2 << std::endl;
+    if (ndf == 0)
+        throw std::runtime_error("Zero degrees of freedom");
 
     // calculate quantiles
     double quantiles_hist[9];
@@ -247,7 +253,7 @@ int PerfTest1DFunction::PostTest()
 
     // add canvases
     TCanvas* c_marg = new TCanvas();
-    hist_marg->Scale(1. / norm_hist / hist_marg->GetBinWidth(1) * norm_func);
+    hist_marg->Scale(norm_func);
     hist_marg->Draw();
     hist_marg->SetYTitle("f(x)");
     fFunction->Draw("SAMEC");
