@@ -17,7 +17,7 @@ int main()
 
     // create new BCEmptyModel that reads in file
     // empty string for second argument tells BAT to search for model in file.
-    BCEmptyModel m("GausModel_mcmc.root", "gausMod");
+    BCEmptyModel m("GaussModel.root", "");
 
     m.Remarginalize();
 
