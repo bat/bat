@@ -353,19 +353,19 @@ AC_OUTPUT(
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile
 	examples/basic/combination2d/Makefile
-	examples/basic/errorpropagation/Makefile
+	examples/basic/errorPropagation/Makefile
 	examples/basic/poisson/Makefile
 	examples/basic/rootOutput/Makefile
-	examples/advanced/polynomialfit/Makefile
-	examples/advanced/roointerface/Makefile
+	examples/advanced/polynomialFit/Makefile
+	examples/advanced/rooInterface/Makefile
 	examples/advanced/mtf/systematics/Makefile
 	examples/advanced/mvc/PPP/Makefile
 	examples/advanced/mvc/oneObservable/Makefile
 	examples/advanced/mvc/nuisance/Makefile
 	examples/advanced/mvc/inverseProblem/Makefile
 	examples/advanced/mvc/constraints/Makefile
-	examples/advanced/referencecounting/Makefile
-	examples/expert/TrialFunction/Makefile
+	examples/advanced/referenceCounting/Makefile
+	examples/expert/trialFunction/Makefile
 	test/Makefile
 	tools/MakefileTemplate
 )
