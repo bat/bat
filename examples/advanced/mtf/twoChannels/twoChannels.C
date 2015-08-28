@@ -86,6 +86,9 @@ void twoChannels()
     // create new fitter object
     BCMTF* m = new BCMTF();
 
+    // set precision
+    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
+
     // add channels
     m->AddChannel("channel1");
     m->AddChannel("channel2");

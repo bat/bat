@@ -101,6 +101,9 @@ void singleChannel()
     m->GetParameter("background").SetPrior(new BCGaussianPrior(300., 10.));
     m->GetParameter("signal").SetPriorConstant();
 
+    // set precision
+    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
+
     // marginalize
     m->MarginalizeAll(BCIntegrate::kMargMetropolis);
 

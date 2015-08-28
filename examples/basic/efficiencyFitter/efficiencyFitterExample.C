@@ -110,7 +110,6 @@ void efficiencyFitterExample()
 
     // set options for MCMC
     hef->MCMCSetPrecision(BCEngineMCMC::kQuick);
-    hef->MCMCSetNChains(3);
 
     // // perform fit
     hef->Fit();

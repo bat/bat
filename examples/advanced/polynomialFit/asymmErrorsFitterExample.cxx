@@ -82,7 +82,7 @@ int main()
     mgr.SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
     // set precision
-    mgr.MCMCSetPrecision(BCEngineMCMC::kMedium);
+    mgr.MCMCSetPrecision(BCEngineMCMC::kQuick);
 
     // the manager will marginalize all models
     mgr.MarginalizeAll();

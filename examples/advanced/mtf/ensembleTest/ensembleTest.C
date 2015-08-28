@@ -91,9 +91,9 @@ void ensembleTest()
     // set Metropolis as marginalization method
     m->SetMarginalizationMethod(BCIntegrate::kMargMetropolis);
 
-    // set the required precision of the MCMC (kLow, kMedium, kHigh)
+    // set the required precision of the MCMC (kLow, kQuick, kMedium, kHigh)
     // the higher the precision the longer the MCMC run
-    m->MCMCSetPrecision(BCEngineMCMC::kMedium);
+    m->MCMCSetPrecision(BCEngineMCMC::kQuick);
 
     // add channels
     m->AddChannel("channel1");

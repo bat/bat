@@ -93,7 +93,6 @@ void histogramFitterExample()
 
     // set precision
     hf->MCMCSetPrecision(BCEngineMCMC::kQuick);
-    hf->MCMCSetNChains(3);
 
     // integrate function over bin (true) or use linear interpolation
     hf->SetFlagIntegration(false);

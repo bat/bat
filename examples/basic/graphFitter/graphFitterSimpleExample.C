@@ -100,7 +100,6 @@ void graphFitterSimpleExample()
 
     // set precision
     gf->MCMCSetPrecision(BCEngineMCMC::kQuick);
-    gf->MCMCSetNChains(3);
 
     // perform the fit
     gf->Fit();
