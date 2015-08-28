@@ -3,6 +3,8 @@
 
 #include <BAT/BCPrior.h>
 
+#include <limits>
+
 class RefPrior : public BCPrior
 {
 public:
@@ -19,8 +21,8 @@ public:
 
     ////////////////////////////////////////
     // methods that must be overloaded from BCPrior:
-    double GetLogPrior(double x) const
-    { return LogSqrtI(x) - LogSqrtI(0); }
+    double GetLogPrior(double x)
+    { return LogSqrtI(x) - LogSqrtIZero(); }
 
     BCPrior* Clone() const
     { return new RefPrior(*this); }
@@ -32,19 +34,22 @@ public:
     double LogSqrtI(double s) const;
     double F(double s, unsigned k) const;
 
+    double LogSqrtIZero()
+    { return (std::isfinite(fLogSqrtIZero)) ? fLogSqrtIZero : fLogSqrtIZero = LogSqrtI(0); }
+
     ////////////////////////////////////////
     // setters
     void SetShape(double shape)
-    { fShape = shape; }
+    { fShape = shape; fLogSqrtIZero = std::numeric_limits<double>::quiet_NaN();}
 
     void SetRate(double rate)
-    { fRate = rate; }
+    { fRate = rate; fLogSqrtIZero = std::numeric_limits<double>::quiet_NaN();}
 
     void SetMaxK(unsigned k)
-    { fMaxK = k; }
+    { fMaxK = k; fLogSqrtIZero = std::numeric_limits<double>::quiet_NaN();}
 
     void SetPrecisionLimit(double l)
-    { fPrecisionLimit = l; }
+    { fPrecisionLimit = l; fLogSqrtIZero = std::numeric_limits<double>::quiet_NaN();}
     ////////////////////////////////////////
 
     ////////////////////////////////////////
@@ -69,6 +74,8 @@ protected:
 
     unsigned fMaxK;
     double fPrecisionLimit;
+
+    double fLogSqrtIZero;
 
 };
 

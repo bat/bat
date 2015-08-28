@@ -29,10 +29,8 @@ bool ReferenceCounting::SetPrior(ReferenceCounting::EvalOption option, double sh
 
     // if analytic, use prior objects
     if (option == kAnalytic) {
-
         GetParameter("s").SetPrior(refprior);
         GetParameter("b").SetPrior(conjprior);
-
     } else {
 
         // both kHistogram and kApprox require signal histogram

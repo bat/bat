@@ -8,7 +8,8 @@ RefPrior::RefPrior(double shape, double rate)
       fShape(shape),
       fRate(rate),
       fMaxK(1000),
-      fPrecisionLimit(1e-4)
+      fPrecisionLimit(1e-4),
+      fLogSqrtIZero(std::numeric_limits<double>::quiet_NaN())
 {
 }
 
@@ -18,7 +19,8 @@ RefPrior::RefPrior(const RefPrior& other)
       fShape(other.fShape),
       fRate(other.fRate),
       fMaxK(other.fMaxK),
-      fPrecisionLimit(other.fPrecisionLimit)
+      fPrecisionLimit(other.fPrecisionLimit),
+      fLogSqrtIZero(other.fLogSqrtIZero)
 {
 }
 
@@ -28,9 +30,10 @@ double RefPrior::LogSqrtI(double s) const
     double sum = 0;
     double inc = 1.;
 
+    double t2 = F(s, 0);
     for (unsigned n = 0; n <= fMaxK; ++n) {
-        double t1 = F(s, n);
-        double t2 = F(s, n + 1);
+        double t1 = t2;
+        t2 = F(s, n + 1);
         double dsum = t1 * t1 / t2;
         sum += dsum;
         inc = fabs( dsum / sum );

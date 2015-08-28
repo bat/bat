@@ -19,7 +19,7 @@ GammaDistPrior::GammaDistPrior(const GammaDistPrior& other)
 }
 
 // ---------------------------------------------------------
-double GammaDistPrior::GetLogPrior(double x) const
+double GammaDistPrior::GetLogPrior(double x)
 {
     return fShape * log(fRate) + (fShape - 1) * log(x) - fRate * x - TMath::LnGamma(fShape);
 }

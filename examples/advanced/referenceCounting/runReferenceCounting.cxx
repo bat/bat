@@ -12,14 +12,14 @@
 
 int main()
 {
-    // cache factorials that may be used by Reference Prior
-    BCMath::CacheFactorials(1000);
-
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();
 
     // open log file
     BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
+
+    // cache factorials that may be used by Reference Prior
+    BCMath::CacheFactorials(1000);
 
     // create new ReferenceCounting object for 20 measured events
     ReferenceCounting m("refcountMod", 20);

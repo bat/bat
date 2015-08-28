@@ -19,7 +19,7 @@ public:
 
     ////////////////////////////////////////
     // methods that must be overloaded from BCPrior:
-    double GetLogPrior(double x) const;
+    double GetLogPrior(double x);
 
     BCPrior* Clone() const
     { return new GammaDistPrior(*this); }
