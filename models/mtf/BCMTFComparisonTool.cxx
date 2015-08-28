@@ -8,7 +8,7 @@
 
 // ---------------------------------------------------------
 
-#include <iostream>
+#include "BCMTFComparisonTool.h"
 
 #include <TH1D.h>
 #include <TH2D.h>
@@ -16,12 +16,12 @@
 #include <TGraphAsymmErrors.h>
 #include <TLatex.h>
 
-#include "BCMTFComparisonTool.h"
+#include <iostream>
 
 // ---------------------------------------------------------
 BCMTFComparisonTool::BCMTFComparisonTool(std::string name)
-    : fName(name)
 {
+    SetName(name);
 }
 
 // ---------------------------------------------------------
@@ -140,7 +140,7 @@ void BCMTFComparisonTool::DrawOverview()
     // ---- do the plotting ---- //
 
     // create histogram for axes
-    TH2D* hist_axes = new TH2D("", Form(";%s;", GetName().c_str()), 1, xmin - 0.25 * xwidth, xmax + 1.75 * xwidth, ncontributions, ymin, ymax);
+    TH2D* hist_axes = new TH2D("", Form(";%s;", GetSafeName().c_str()), 1, xmin - 0.25 * xwidth, xmax + 1.75 * xwidth, ncontributions, ymin, ymax);
     hist_axes->SetStats(kFALSE);
     hist_axes->GetYaxis()->SetNdivisions(0);
     hist_axes->GetYaxis()->SetTitleOffset(1.0);

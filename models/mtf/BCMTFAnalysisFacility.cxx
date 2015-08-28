@@ -502,7 +502,7 @@ TTree* BCMTFAnalysisFacility::PerformEnsembleTest(TTree* tree, int nensembles, i
                 channel->GetData()->SetHistogram(0);
 
             // set data histogram
-            fMTF->SetData(channel->GetName().c_str(), histograms.at(ichannel));
+            fMTF->SetData(channel->GetName(), histograms.at(ichannel));
         }
 
         // fluctuate templates if option "MC" is chosen
@@ -748,8 +748,8 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(std::string dirname, con
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {
         // create new comparison tool
-        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName().c_str());
-        BCMTFComparisonTool* ct_mcmc = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName().c_str());
+        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName());
+        BCMTFComparisonTool* ct_mcmc = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName());
 
         // add comparison tool to container
         ctc.push_back(ct);
@@ -870,11 +870,11 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(std::string dirname, con
             BCMTFComparisonTool* ct = ctc.at(i);
             BCMTFComparisonTool* ct_mcmc = ctc_mcmc.at(i);
 
-            ct->AddContribution(channel->GetName().c_str(), fMTF->GetGlobalMode().at(i), fMTF->GetBestFitParameterErrors().at(i));
+            ct->AddContribution(channel->GetName(), fMTF->GetGlobalMode().at(i), fMTF->GetBestFitParameterErrors().at(i));
             if (flag_mcmc) {
                 TH1* hist = fMTF->GetMarginalizedHistogram(i);
                 if (hist)
-                    ct_mcmc->AddContribution(channel->GetName().c_str(), hist->GetMean(), hist->GetRMS());
+                    ct_mcmc->AddContribution(channel->GetName(), hist->GetMean(), hist->GetRMS());
             }
 
             // switch off channel
@@ -1024,7 +1024,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(std::string dirname, 
     // loop over all parameters
     for (int i = 0; i < nparameters; ++ i) {
         // create new comparison tool
-        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName().c_str());
+        BCMTFComparisonTool* ct = new BCMTFComparisonTool(fMTF->GetParameter(i).GetName());
 
         // add comparison tool to container
         ctc.push_back(ct);
@@ -1121,7 +1121,7 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(std::string dirname, 
             // get comparison tool
             BCMTFComparisonTool* ct = ctc.at(i);
 
-            ct->AddContribution(systematic->GetName().c_str(),
+            ct->AddContribution(systematic->GetName(),
                                 fMTF->GetGlobalMode().at(i),
                                 fMTF->GetBestFitParameterErrors().at(i));
         }

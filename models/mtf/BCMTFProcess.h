@@ -21,6 +21,8 @@
 
 // ---------------------------------------------------------
 
+#include "../../BAT/BCAux.h"
+
 #include <string>
 
 // ---------------------------------------------------------
@@ -50,6 +52,11 @@ public:
     { return fName; };
 
     /**
+     * @return The safe name of the process. */
+    std::string GetSafeName()
+    { return fSafeName; };
+
+    /**
      * @return The histogram color. */
     int GetHistogramColor()
     { return fHistogramColor; };
@@ -73,7 +80,7 @@ public:
      * Set the name of the process.
      * @param name The name of the process. */
     void SetName(std::string name)
-    { fName = name; };
+    { fName = name; fSafeName = BCAux::SafeName(name); };
 
     /**
      * Set the histogram color.
@@ -100,6 +107,10 @@ private:
     /**
      * The name of the process. */
     std::string fName;
+
+    /**
+     * The safe name of the process. */
+    std::string fSafeName;
 
     /**
      * The histogram color */

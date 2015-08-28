@@ -28,7 +28,7 @@ BCMTFChannel::BCMTFChannel(std::string name)
     , fHistUncertaintyBandExpectation(0)
     , fHistUncertaintyBandPoisson(0)
 {
-    fName = name;
+    SetName(name);
 }
 
 // ---------------------------------------------------------

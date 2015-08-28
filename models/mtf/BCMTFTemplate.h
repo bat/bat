@@ -21,10 +21,10 @@
 
 // ---------------------------------------------------------
 
-#include <string>
-
 #include <TH1D.h>
 #include <TRandom3.h>
+
+#include <string>
 
 class TF1;
 

@@ -238,10 +238,10 @@ int BCMTF::SetData(std::string channelname, TH1D hist, double minimum, double ma
         a[i] = hist.GetXaxis()->GetBinLowEdge(i + 1);
     }
 
-    TH2D* hist_uncbandexp = new TH2D(("UncertaintyBandExpectation_" + GetSafeName()).data(), "", hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
+    TH2D* hist_uncbandexp = new TH2D(Form("UncertaintyBandExpectation_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], 1000, minimum, maximum);
     hist_uncbandexp->SetStats(kFALSE);
 
-    TH2D* hist_uncbandpoisson = new TH2D(("UncertaintyBandPoisson_" + GetSafeName()).data(), "", hist.GetNbinsX(), &a[0], int(maximum - minimum), minimum, maximum);
+    TH2D* hist_uncbandpoisson = new TH2D(Form("UncertaintyBandPoisson_%s_%d", GetSafeName().data(), channelindex), "", hist.GetNbinsX(), &a[0], int(maximum - minimum), minimum, maximum);
     hist_uncbandpoisson->SetStats(kFALSE);
 
     // set histograms
@@ -272,7 +272,7 @@ int BCMTF::AddChannel(std::string name)
     BCMTFChannel* channel = new BCMTFChannel(name);
 
     // create new data
-    BCMTFTemplate* bctemplate = new BCMTFTemplate(channel->GetName().c_str(), "data");
+    BCMTFTemplate* bctemplate = new BCMTFTemplate(channel->GetName(), "data");
 
     // add data
     channel->SetData(bctemplate);
@@ -283,23 +283,16 @@ int BCMTF::AddChannel(std::string name)
         BCMTFProcess* process = GetProcess(i);
 
         // create new template
-        BCMTFTemplate* bctemplate = new BCMTFTemplate(name, process->GetName().c_str());
+        BCMTFTemplate* bctemplate = new BCMTFTemplate(name, process->GetName());
 
         // add template
         channel->AddTemplate(bctemplate);
     }
 
     // loop over all systematics
-    for (int i = 0; i < fNSystematics; ++i) {
-        // get systematic
-        BCMTFSystematic* systematic = GetSystematic(i);
-
-        // create new systematic variation
-        BCMTFSystematicVariation* variation = new BCMTFSystematicVariation(name, systematic->GetName().c_str(), fNProcesses);
-
+    for (int i = 0; i < fNSystematics; ++i)
         // add systematic variation
-        channel->AddSystematicVariation(variation);
-    }
+        channel->AddSystematicVariation(new BCMTFSystematicVariation(fNProcesses));
 
     // add channel
     fChannelContainer.push_back(channel);
@@ -338,7 +331,7 @@ int BCMTF::AddProcess(std::string name, double nmin, double nmax, int color, int
         BCMTFChannel* channel = GetChannel(i);
 
         // create new template
-        BCMTFTemplate* bctemplate = new BCMTFTemplate(channel->GetName().c_str(), name);
+        BCMTFTemplate* bctemplate = new BCMTFTemplate(channel->GetName(), name);
 
         // add template
         channel->AddTemplate(bctemplate);
@@ -393,7 +386,7 @@ int BCMTF::AddSystematic(std::string name, double min, double max)
         BCMTFChannel* channel = GetChannel(i);
 
         // create new systematic variation
-        BCMTFSystematicVariation* variation = new BCMTFSystematicVariation(channel->GetName().c_str(), name, fNProcesses);
+        BCMTFSystematicVariation* variation = new BCMTFSystematicVariation(fNProcesses);
 
         // add systematic variation
         channel->AddSystematicVariation(variation);

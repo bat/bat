@@ -21,9 +21,12 @@
 
 // ---------------------------------------------------------
 
+#include "../../BAT/BCAux.h"
+
+#include <TH1D.h>
+
 #include <string>
 #include <vector>
-#include <TH1D.h>
 
 class BCMTFTemplate;
 class BCMTFSystematicVariation;
@@ -55,6 +58,11 @@ public:
      * @return The name of the channel. */
     std::string GetName()
     { return fName; };
+
+    /**
+     * @return The name of the channel. */
+    std::string GetSafeName()
+    { return fSafeName; };
 
     /**
      * @return The data. */
@@ -111,7 +119,7 @@ public:
      * Set the name of the channel.
      * @param name The name of the channel. */
     void SetName(std::string name)
-    { fName = name; };
+    { fName = name; fSafeName = BCAux::SafeName(fName); };
 
     /**
      * Set the data set.
@@ -225,6 +233,10 @@ private:
     /**
      * The name of the channel. */
     std::string fName;
+
+    /**
+     * The safename of the channel. */
+    std::string fSafeName;
 
     /**
      * The data set. */

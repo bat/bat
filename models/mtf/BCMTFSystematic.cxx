@@ -14,7 +14,7 @@
 BCMTFSystematic::BCMTFSystematic(std::string name)
     : fFlagSystematicActive(true)
 {
-    fSystematicName = name;
+    SetName(name);
 }
 
 // ---------------------------------------------------------

@@ -20,10 +20,12 @@
  */
 
 // ---------------------------------------------------------
-#include <string>
-#include <vector>
+#include "../../BAT/BCAux.h"
 
 #include <TH1D.h>
+
+#include <string>
+#include <vector>
 
 // ---------------------------------------------------------
 class BCMTFComparisonTool
@@ -53,9 +55,22 @@ public:
     { return fName; };
 
     /**
+     * @return The name of the class. */
+    std::string GetSafeName()
+    { return fSafeName; };
+
+    /**
      * @return The number of contributions. */
     int GetNContributions()
     { return (int) fHistogramContainer.size(); };
+
+    /** @} */
+    /** \name Setters */
+    /** @{ */
+
+    /** Set name */
+    void SetName(std::string name)
+    { fName = name; fSafeName = BCAux::SafeName(name); }
 
     /** @} */
     /** \name Member functions (miscellaneous methods) */
@@ -99,6 +114,10 @@ private:
     /**
      * The name of the class. */
     std::string fName;
+
+    /**
+     * The safe name of the class. */
+    std::string fSafeName;
 
     /**
      * The names of the contributions. */

@@ -22,7 +22,6 @@
 
 // ---------------------------------------------------------
 
-#include <string>
 #include <vector>
 
 class TH1D;
@@ -37,10 +36,8 @@ public:
 
     /**
      * The default constructor.
-     * @param channelname The name of the channel.
-     * @param systematicname The name of the systematic.
      * @param nprocesses The number of processes. */
-    BCMTFSystematicVariation(std::string channelname, std::string systematicname, int nprocesses);
+    BCMTFSystematicVariation(int nprocesses);
 
     /**
      * The default destructor. */
@@ -147,15 +144,6 @@ private:
     /**
      * A container of histograms. */
     std::vector<TH1D*> fHistogramDownContainer;
-
-    /**
-     * The name of the corresponding channel. */
-    std::string fChannelName;
-
-    /**
-     * The name of the corresponding source of systematic
-     * uncertainty. */
-    std::string fSystematicName;
 
 };
 // ---------------------------------------------------------

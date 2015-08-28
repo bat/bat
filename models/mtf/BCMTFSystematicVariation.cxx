@@ -13,18 +13,12 @@
 #include "BCMTFSystematicVariation.h"
 
 // ---------------------------------------------------------
-BCMTFSystematicVariation::BCMTFSystematicVariation(std::string channelname, std::string systematicname, int nprocesses)
+BCMTFSystematicVariation::BCMTFSystematicVariation(int nprocesses)
+    : fHistogramUpContainer(nprocesses, (TH1D*)0),
+      fHistogramDownContainer(nprocesses, (TH1D*)0)
 {
-    fChannelName = channelname;
-    fSystematicName = systematicname;
-    for (int i = 0; i < nprocesses; ++i) {
-        fHistogramUpContainer.push_back(0);
-        fHistogramDownContainer.push_back(0);
-    }
 }
 
 // ---------------------------------------------------------
 BCMTFSystematicVariation::~BCMTFSystematicVariation()
 {}
-
-// ---------------------------------------------------------

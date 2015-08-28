@@ -21,6 +21,8 @@
 
 // ---------------------------------------------------------
 
+#include "../../BAT/BCAux.h"
+
 #include <string>
 
 // ---------------------------------------------------------
@@ -47,7 +49,12 @@ public:
     /**
      * @return The name of the systematic uncertainty. */
     std::string GetName()
-    { return fSystematicName; };
+    { return fName; };
+
+    /**
+     * @return The name of the systematic uncertainty. */
+    std::string GetSafeName()
+    { return fSafeName; };
 
     /**
      * @return A flag defining if this uncertainty is active or not. */
@@ -55,7 +62,7 @@ public:
     { return fFlagSystematicActive; };
 
     /** @} */
-    /** \name Member functions (get) */
+    /** \name Member functions (set) */
     /** @{ */
 
     /**
@@ -64,13 +71,21 @@ public:
     void SetFlagSystematicActive(bool flag)
     { fFlagSystematicActive = flag; };
 
+    /** Set name */
+    void SetName(std::string name)
+    { fName = name; fSafeName = BCAux::SafeName(fName); }
+
     /** @} */
 
 private:
 
     /**
      * The name of the source of the systematic uncertainty. */
-    std::string fSystematicName;
+    std::string fName;
+
+    /**
+     * The name of the source of the systematic uncertainty. */
+    std::string fSafeName;
 
     /**
      * A flag defining if this uncertainty is active or not. */

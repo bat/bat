@@ -11,11 +11,12 @@
 #include "BCMTFProcess.h"
 
 // ---------------------------------------------------------
-BCMTFProcess::BCMTFProcess(std::string name) : fName(name)
-    , fHistogramColor(-1)
+BCMTFProcess::BCMTFProcess(std::string name)
+    : fHistogramColor(-1)
     , fHistogramFillStyle(-1)
     , fHistogramLineStyle(-1)
 {
+    SetName(name);
 }
 
 // ---------------------------------------------------------
