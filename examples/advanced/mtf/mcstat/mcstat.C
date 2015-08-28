@@ -32,10 +32,13 @@
 #if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
 
 #include <BAT/BCAux.h>
+#include <BAT/BCEngineMCMC.h>
+#include <BAT/BCGaussianPrior.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCMTF.h>
 #include <BAT/BCMTFAnalysisFacility.h>
 #include <BAT/BCMTFChannel.h>
+#include <BAT/BCParameter.h>
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -61,19 +64,24 @@ void mcstat()
 
     // open file
     std::string fname = "templates.root";
-    TFile* file = TFile::Open(fname.c_str(), "READ");
+    TFile* file = TFile::Open(fname.data(), "READ");
 
     // check if file is open
     if (!file->IsOpen()) {
-        BCLog::OutError(Form("Could not open file %s.", fname.c_str()));
+        BCLog::OutError("Could not open file " + fname.data() + ".");
         BCLog::OutError("Run macro CreateHistograms.C in Root to create the file.");
         return;
     }
 
     // read histograms
-    TH1D hist_signal     = *(TH1D*)file->Get("hist_sgn");    // signal template
-    TH1D hist_background = *(TH1D*)file->Get("hist_bkg");    // background template
-    TH1D hist_data       = *(TH1D*)file->Get("hist_data");   // data
+    TH1D* hist_signal     = (TH1D*)file->Get("hist_sgn");    // signal template
+    TH1D* hist_background = (TH1D*)file->Get("hist_bkg");    // background template
+    TH1D* hist_data       = (TH1D*)file->Get("hist_data");   // data
+
+    if (!hist_signal || !hist_background || !hist_data) {
+        BCLog::OutError("Could not open data histograms");
+        return;
+    }
 
     // ---- perform fitting ---- //
 
@@ -88,18 +96,18 @@ void mcstat()
     m->AddProcess("signal",       0., 200.);
 
     // set data
-    m->SetData("channel1", hist_data);
+    m->SetData("channel1", *hist_data);
 
     // set template and histograms
-    m->SetTemplate("channel1", "signal",     hist_signal,     1.0);
-    m->SetTemplate("channel1", "background", hist_background, 1.0);
+    m->SetTemplate("channel1", "signal",     *hist_signal,     1.0);
+    m->SetTemplate("channel1", "background", *hist_background, 1.0);
 
     // set priors
-    m->SetPriorGauss("background", 300., 10.);
-    m->SetPriorConstant("signal");
+    m->GetParameter("background").SetPrior(new BCGaussianPrior(300., 10.));
+    m->GetParameter("signal").SetPriorConstant();
 
     // print templates
-    m->GetChannel(0)->PrintTemplates(Form("%s_templates.pdf", m->GetChannel(0)->GetName().c_str()));
+    m->GetChannel(0)->PrintTemplates(m->GetChannel(0)->GetSafeName() + "_templates.pdf");
 
     // ---- perform ensemble tests ---- //
 
