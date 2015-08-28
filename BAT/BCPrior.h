@@ -74,7 +74,7 @@ public:
      * Get log of prior
      * @param x value to evaluate log of prior at
      * @return log of prior */
-    virtual double GetLogPrior(double x) const = 0;
+    virtual double GetLogPrior(double x) = 0;
 
     /**
      * Clone function. [Copy constructor must also be provided.] */
@@ -94,7 +94,7 @@ public:
      * Get log of normalized prior
      * @param x value to evaluate log of prior at
      * @return log of prior */
-    virtual double GetLogNormalizedPrior(double x) const
+    virtual double GetLogNormalizedPrior(double x)
     { return GetLogPrior(x) - fLogIntegral;}
 
     /**
@@ -102,7 +102,7 @@ public:
      * @param x value to evaluate prior at
      * @param normalize Whether to normalize prior with stored integral
      * @return prior */
-    virtual double GetPrior(double x, bool normalize = false) const;
+    virtual double GetPrior(double x, bool normalize = false);
 
     /**
      * Return back ROOT TF1 evaluating BCPrior::GetPrior */
@@ -123,7 +123,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
-    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -131,14 +131,14 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return raw moment of prior distribution */
-    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get integral of prior.
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return integral of prior */
-    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get central moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -146,7 +146,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return central of prior distribution */
-    virtual double GetCentralMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetCentralMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get standardised moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -154,14 +154,14 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standardised moment of prior distribution */
-    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get mean of prior. If limits are infinite, use exact value from prior type
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mean of prior distribution */
-    virtual double GetMean(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetMean(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return GetRawMoment(1, xmin, xmax); }
 
     /**
@@ -169,7 +169,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return variance of prior distribution */
-    virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return GetCentralMoment(2, xmin, xmax); }
 
     /**
@@ -177,7 +177,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standard deviation of prior distribution */
-    virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return sqrt(fabs(GetVariance(xmin, xmax))); }
 
     /**
@@ -185,7 +185,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return skewness of prior distribution */
-    virtual double GetSkewness(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetSkewness(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return GetStandardizedMoment(3, xmin, xmax); }
 
     /**
@@ -193,7 +193,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return kurtosis of prior distribution */
-    virtual double GetKurtosis(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetKurtosis(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return GetStandardizedMoment(4, xmin, xmax); }
 
     /**
@@ -202,7 +202,7 @@ public:
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
-    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const;
+    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL);
 
     /** @} **/
     /** \name Functions related to ROOT access. */

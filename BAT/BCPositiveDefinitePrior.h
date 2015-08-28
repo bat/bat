@@ -80,7 +80,7 @@ public:
      * Get log of prior
      * @param x value to evaluate log of prior at
      * @return log of prior */
-    virtual double GetLogPrior(double x) const
+    virtual double GetLogPrior(double x)
     { return (x >= 0 and fPrior) ? fPrior->GetLogPrior(x) : -std::numeric_limits<double>::infinity(); }
 
     /**
@@ -88,7 +88,7 @@ public:
      * @param x value to evaluate prior at
      * @param normalize whether to normalize with stored integral
      * @return prior */
-    virtual double GetPrior(double x, bool normalize = false) const
+    virtual double GetPrior(double x, bool normalize = false)
     { return (x >= 0 and fPrior) ? fPrior->GetPrior(x, normalize) : 0; }
 
     /**
@@ -110,7 +110,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
-    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetMode(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -119,7 +119,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return raw moment of prior distribution */
-    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetRawMoment(n, std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -127,7 +127,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return integral of prior */
-    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetIntegral(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -136,7 +136,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return central of prior distribution */
-    virtual double GetCentralMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetCentralMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetCentralMoment(n, std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -145,7 +145,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standardised moment of prior distribution */
-    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetCentralMoment(n, std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -153,7 +153,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mean of prior distribution */
-    virtual double GetMean(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetMean(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetMean(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -161,7 +161,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return variance of prior distribution */
-    virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetVariance(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -169,7 +169,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standard deviation of prior distribution */
-    virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetStandardDeviation(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -177,7 +177,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return skewness of prior distribution */
-    virtual double GetSkewness(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetSkewness(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetSkewness(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -185,7 +185,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return kurtosis of prior distribution */
-    virtual double GetKurtosis(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetKurtosis(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { return (fPrior) ? fPrior->GetKurtosis(std::max<double>(xmin, 0), std::max<double>(xmax, 0)) : std::numeric_limits<double>::quiet_NaN(); }
 
     /**
@@ -194,7 +194,7 @@ public:
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
-    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const;
+    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL);
 
     /** @} */
 

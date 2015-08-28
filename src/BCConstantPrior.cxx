@@ -36,7 +36,7 @@ BCConstantPrior::BCConstantPrior(double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCConstantPrior::GetMode(double xmin, double xmax) const
+double BCConstantPrior::GetMode(double xmin, double xmax)
 {
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
@@ -59,7 +59,7 @@ double BCConstantPrior::GetMode(double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
+double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 1;
@@ -88,7 +88,7 @@ double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCConstantPrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
+double BCConstantPrior::GetRandomValue(double xmin, double xmax, TRandom* const R)
 {
     if (!R)
         return std::numeric_limits<double>::quiet_NaN();

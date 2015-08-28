@@ -23,7 +23,7 @@ BCCauchyPrior::BCCauchyPrior(double mean, double scale)
 }
 
 // ---------------------------------------------------------
-double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
+double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return BCPrior::GetRawMoment(n, xmin, xmax);
@@ -60,7 +60,7 @@ double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCCauchyPrior::GetIntegral(double xmin, double xmax) const
+double BCCauchyPrior::GetIntegral(double xmin, double xmax)
 {
     switch (BCAux::RangeType(xmin, xmax)) {
 

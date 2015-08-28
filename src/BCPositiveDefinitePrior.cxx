@@ -43,7 +43,7 @@ void swap(BCPositiveDefinitePrior& A, BCPositiveDefinitePrior& B)
 }
 
 // ---------------------------------------------------------
-double BCPositiveDefinitePrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
+double BCPositiveDefinitePrior::GetRandomValue(double xmin, double xmax, TRandom* const R)
 {
     xmin = std::max<double>(xmin, 0);
     xmax = std::max<double>(xmax, 0);

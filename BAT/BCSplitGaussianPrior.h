@@ -66,14 +66,14 @@ public:
      * Get log of prior
      * @param x value to evaluate log of prior at
      * @return log of prior */
-    virtual double GetLogPrior(double x) const;
+    virtual double GetLogPrior(double x);
 
     /**
      * Return mode of prior (in range).
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
-    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { if (fMode < xmin) return xmin; if (fMode > xmax) return xmax; return fMode; }
 
     /**
@@ -82,14 +82,14 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return raw moment of prior distribution */
-    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get integral of prior.
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return integral of prior */
-    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /** @} **/
 

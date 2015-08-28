@@ -56,7 +56,7 @@ public:
     { return new BCConstantPrior(*this); }
 
     /** @return constant log(prior) */
-    virtual double GetLogPrior(double /*x*/) const
+    virtual double GetLogPrior(double /*x*/)
     { return -fLogRangeWidth; }
 
     /**
@@ -69,13 +69,13 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
-    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /** @return raw moments of uniform continuous distribtion. */
-    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /** @return integral = 1 */
-    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { (void)xmin; (void)xmax; return 1; }
 
     /**
@@ -84,7 +84,7 @@ public:
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
-    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL) const;
+    virtual double GetRandomValue(double xmin, double xmax, TRandom* const R = NULL);
 
 protected:
 

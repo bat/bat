@@ -92,7 +92,7 @@ void BCTH1Prior::NormalizeHistogram()
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetLogPrior(double x) const
+double BCTH1Prior::GetLogPrior(double x)
 {
     double p = GetPrior(x, false);
     if (p > 0)
@@ -103,13 +103,13 @@ double BCTH1Prior::GetLogPrior(double x) const
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetMode(double /*xmin*/, double /*xmax*/) const
+double BCTH1Prior::GetMode(double /*xmin*/, double /*xmax*/)
 {
     return fPriorHistogram.GetXaxis()->GetBinCenter(fPriorHistogram.GetMaximumBin());
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax) const
+double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 0;
@@ -121,7 +121,7 @@ double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetStandardizedMoment(unsigned n, double xmin, double xmax) const
+double BCTH1Prior::GetStandardizedMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 0;
@@ -135,7 +135,7 @@ double BCTH1Prior::GetStandardizedMoment(unsigned n, double xmin, double xmax) c
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetIntegral(double xmin, double xmax) const
+double BCTH1Prior::GetIntegral(double xmin, double xmax)
 {
     xmin = std::max(xmin, fPriorHistogram.GetXaxis()->GetXmin());
     xmax = std::min(xmax, fPriorHistogram.GetXaxis()->GetXmax());

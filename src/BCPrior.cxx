@@ -50,7 +50,7 @@ void swap(BCPrior& A, BCPrior& B)
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetPrior(double x, bool normalize) const
+double BCPrior::GetPrior(double x, bool normalize)
 {
     double lp = GetLogPrior(x);
     if (normalize)
@@ -64,30 +64,30 @@ double BCPrior::GetPrior(double x, bool normalize) const
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetMode(double xmin, double xmax) const
+double BCPrior::GetMode(double xmin, double xmax)
 {
     BCAux::MakeFinite(xmin, xmax);
     return fPriorFunction.GetMaximumX(xmin, xmax);
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
+double BCPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 1;
     BCAux::MakeFinite(xmin, xmax);
-    return const_cast<TF1*>(&fPriorFunction)->Moment(static_cast<double>(n), xmin, xmax);
+    return fPriorFunction.Moment(static_cast<double>(n), xmin, xmax);
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetIntegral(double xmin, double xmax) const
+double BCPrior::GetIntegral(double xmin, double xmax)
 {
     BCAux::MakeFinite(xmin, xmax);
-    return const_cast<TF1*>(&fPriorFunction)->Integral(xmin, xmax);
+    return fPriorFunction.Integral(xmin, xmax, (double*)0, 1e-6);
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetCentralMoment(unsigned n, double xmin, double xmax) const
+double BCPrior::GetCentralMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return std::numeric_limits<double>::infinity();
@@ -111,7 +111,7 @@ double BCPrior::GetCentralMoment(unsigned n, double xmin, double xmax) const
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetStandardizedMoment(unsigned n, double xmin, double xmax) const
+double BCPrior::GetStandardizedMoment(unsigned n, double xmin, double xmax)
 {
     double variance = GetVariance(xmin, xmax);
     if (!std::isfinite(variance))
@@ -125,10 +125,10 @@ double BCPrior::GetStandardizedMoment(unsigned n, double xmin, double xmax) cons
 }
 
 // ---------------------------------------------------------
-double BCPrior::GetRandomValue(double xmin, double xmax, TRandom* const R) const
+double BCPrior::GetRandomValue(double xmin, double xmax, TRandom* const R)
 {
     (void)R;
-    return const_cast<TF1*>(&fPriorFunction)->GetRandom(xmin, xmax);
+    return fPriorFunction.GetRandom(xmin, xmax);
 }
 
 // ---------------------------------------------------------

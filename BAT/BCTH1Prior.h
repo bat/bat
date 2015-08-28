@@ -76,21 +76,21 @@ public:
      * @param x value to evaluate prior at
      * @param normalize Whether to normalize prior with stored integral
      * @return prior */
-    virtual double GetPrior(double x, bool normalize = false) const
-    { return ((fInterpolate) ? const_cast<TH1*>(&fPriorHistogram)->Interpolate(x) : const_cast<TH1*>(&fPriorHistogram)->GetBinContent(const_cast<TH1*>(&fPriorHistogram)->FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1); }
+    virtual double GetPrior(double x, bool normalize = false)
+    { return ((fInterpolate) ? fPriorHistogram.Interpolate(x) : fPriorHistogram.GetBinContent(fPriorHistogram.FindFixBin(x))) * ((normalize) ? exp(-fLogIntegral) : 1); }
 
     /**
      * Get log of prior
      * @param x value to evaluate log of prior at
      * @return log of prior */
-    virtual double GetLogPrior(double x) const;
+    virtual double GetLogPrior(double x);
 
     /**
      * Return mode of prior (in range).
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return mode of prior in range. */
-    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetMode(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get raw moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -98,14 +98,14 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return raw moment of prior distribution */
-    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetRawMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get integral of prior.
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return integral of prior */
-    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetIntegral(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get standardised moment of prior distrubion. If limits are infinite, use exact value from prior type.
@@ -113,14 +113,14 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standardised moment of prior distribution */
-    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const;
+    virtual double GetStandardizedMoment(unsigned n, double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity());
 
     /**
      * Get variance of prior. If limits are infinite, use exact value from prior type
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return variance of prior distribution */
-    virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetVariance(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { double s = GetStandardDeviation(xmin, xmax); return s * s; }
 
     /**
@@ -128,7 +128,7 @@ public:
      * @param xmin lower limit of range to evaluate over
      * @param xmax upper limit of range to evaluate over
      * @return standard deviation of prior distribution */
-    virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity()) const
+    virtual double GetStandardDeviation(double xmin = -std::numeric_limits<double>::infinity(), double xmax = std::numeric_limits<double>::infinity())
     { (void)xmin; (void)xmax; return fPriorHistogram.GetRMS(); }
 
     /**
@@ -152,8 +152,8 @@ public:
      * @param xmax upper limit of range to generate value in
      * @param R Pointer to the random generator to be used, if needed.
      * @return random value. */
-    virtual double GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* const /*R*/ = NULL) const
-    { return const_cast<TH1*>(&fPriorHistogram)->GetRandom(); }
+    virtual double GetRandomValue(double /*xmin*/, double /*xmax*/, TRandom* const /*R*/ = NULL)
+    { return fPriorHistogram.GetRandom(); }
 
     /** @} **/
 

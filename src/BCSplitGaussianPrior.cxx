@@ -34,7 +34,7 @@ BCSplitGaussianPrior::BCSplitGaussianPrior(const BCSplitGaussianPrior& other)
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetLogPrior(double x) const
+double BCSplitGaussianPrior::GetLogPrior(double x)
 {
     if (x > fMode)
         return -0.5 * (x - fMode) * (x - fMode) / fSigmaAbove / fSigmaAbove + 0.5 * log(2 / M_PI) - log(fSigmaAbove + fSigmaBelow);
@@ -42,7 +42,7 @@ double BCSplitGaussianPrior::GetLogPrior(double x) const
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) const
+double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0 or n > 2)
         return BCPrior::GetRawMoment(n, xmin, xmax);
@@ -89,7 +89,7 @@ double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax) 
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetIntegral(double xmin, double xmax) const
+double BCSplitGaussianPrior::GetIntegral(double xmin, double xmax)
 {
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 

@@ -63,14 +63,14 @@ public:
      * @param x value to evaluate prior at
      * @param normalize Whether to normalize prior with stored integral
      * @return prior */
-    virtual double GetPrior(double x, bool normalize = false) const
+    virtual double GetPrior(double x, bool normalize = false)
     { return fPriorFunction.Eval(x) * ((normalize) ? exp(-fLogIntegral) : 1); }
 
     /**
      * Get prior
      * @param x value to evaluate log(prior) at
      * @return log(prior) */
-    virtual double GetLogPrior(double x) const
+    virtual double GetLogPrior(double x)
     { return log(fPriorFunction.Eval(x)); }
 
     /** @} **/
