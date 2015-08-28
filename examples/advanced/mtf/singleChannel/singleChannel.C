@@ -32,9 +32,11 @@
 #if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
 
 #include <BAT/BCAux.h>
+#include <BAT/BCGaussianPrior.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCMTF.h>
 #include <BAT/BCMTFChannel.h>
+#include <BAT/BCParameter.h>
 
 #include <TFile.h>
 #include <TH1D.h>
@@ -48,8 +50,7 @@ void singleChannel()
     // ---- set style and open log files ---- //
 
     // open log file
-    BCLog::OpenLog("log.txt");
-    BCLog::SetLogLevel(BCLog::detail);
+    BCLog::OpenLog("log.txt", BCLog::detail, BCLog::detail);
 
     // set nicer style for drawing than the ROOT default
     BCAux::SetStyle();
@@ -62,15 +63,20 @@ void singleChannel()
 
     // check if file is open
     if (!file->IsOpen()) {
-        BCLog::OutError(Form("Could not open file %s.", fname.c_str()));
+        BCLog::OutError("Could not open file " + fname.c_str() + ".");
         BCLog::OutError("Run macro CreateHistograms.C in Root to create the file.");
         return;
     }
 
     // read histograms
-    TH1D hist_signal     = *(TH1D*)file->Get("hist_sgn");    // signal template
-    TH1D hist_background = *(TH1D*)file->Get("hist_bkg");    // background template
-    TH1D hist_data       = *(TH1D*)file->Get("hist_data");   // data
+    TH1D* hist_signal     = (TH1D*)file->Get("hist_sgn");    // signal template
+    TH1D* hist_background = (TH1D*)file->Get("hist_bkg");    // background template
+    TH1D* hist_data       = (TH1D*)file->Get("hist_data");   // data
+
+    if (!hist_signal || !hist_background || !hist_data) {
+        BCLog::OutError("Could not find data histograms");
+        return;
+    }
 
     // ---- perform fitting ---- //
 
@@ -85,32 +91,32 @@ void singleChannel()
     m->AddProcess("signal",       0., 200.);
 
     // set data
-    m->SetData("channel1", hist_data);
+    m->SetData("channel1", *hist_data);
 
     // set template and histograms
-    m->SetTemplate("channel1", "signal",     hist_signal,     1.0);
-    m->SetTemplate("channel1", "background", hist_background, 1.0);
+    m->SetTemplate("channel1", "signal",     *hist_signal,     1.0);
+    m->SetTemplate("channel1", "background", *hist_background, 1.0);
 
     // set priors
-    m->SetPriorGauss("background", 300., 10.);
-    m->SetPriorConstant("signal");
+    m->GetParameter("background").SetPrior(new BCGaussianPrior(300., 10.));
+    m->GetParameter("signal").SetPriorConstant();
 
     // marginalize
     m->MarginalizeAll(BCIntegrate::kMargMetropolis);
 
     // find global mode
-    m->FindMode( m->GetBestFitParameters() );
+    m->FindMode( m->GetGlobalMode() );
 
     // print all marginalized distributions
     m->PrintAllMarginalized("marginalized.pdf");
 
     // print results of the analysis into a text file
-    m->PrintResults("results.txt");
+    m->PrintSummary();
 
     // print templates and stacks
     BCMTFChannel* channel = m->GetChannel(0);
-    channel->PrintTemplates(Form("%s_templates.pdf", channel->GetName().c_str()));
-    m->PrintStack(0, m->GetBestFitParameters(), Form("%s_stack.pdf", channel->GetName().c_str()));
+    channel->PrintTemplates(channel->GetSafeName() + "_templates.pdf");
+    m->PrintStack(0, m->GetGlobalMode(), channel->GetSafeName() + "_stack.pdf");
 
     // ---- clean up ---- //
 
