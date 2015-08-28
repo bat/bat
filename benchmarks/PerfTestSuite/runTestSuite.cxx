@@ -21,10 +21,10 @@ int main()
 //    rts.WebpageSetup();
 
     // set precision: kCoarse, kMedium, kDetail
-    rts.SetPrecision(PerfTest::kCoarse);
+    rts.SetPrecision(PerfTest::kMedium);
 
     // call after SetPrecision
-    rts.SetLag(10);
+    rts.SetLag(20);
 
     // multivariate proposal
     rts.SetMultivariate(true);
