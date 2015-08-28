@@ -187,8 +187,7 @@ void swap(BCHistogramBase& first, BCHistogramBase& second)
 // ---------------------------------------------------------
 void BCHistogramBase::SetHistogram(const TH1* const hist)
 {
-    if (fHistogram)
-        delete fHistogram;
+    delete fHistogram;
 
     if (!hist or (fDimension >= 0 and hist->GetDimension() != fDimension)) {
         fHistogram = 0;
