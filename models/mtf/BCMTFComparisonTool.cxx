@@ -19,22 +19,20 @@
 #include "BCMTFComparisonTool.h"
 
 // ---------------------------------------------------------
-BCMTFComparisonTool::BCMTFComparisonTool(const char* name)
+BCMTFComparisonTool::BCMTFComparisonTool(std::string name)
+    : fName(name)
 {
-    fName = name;
 }
 
 // ---------------------------------------------------------
 BCMTFComparisonTool::~BCMTFComparisonTool()
 {
-    for (int i = 0; i < GetNContributions(); ++i) {
-        if (fHistogramContainer.at(i))
-            delete fHistogramContainer.at(i);
-    }
+    for (int i = 0; i < GetNContributions(); ++i)
+        delete fHistogramContainer[i];
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::AddContribution(const char* name, TH1D hist)
+void BCMTFComparisonTool::AddContribution(std::string name, TH1D hist)
 {
     // add name to container
     fNameContainer.push_back(name);
@@ -50,7 +48,7 @@ void BCMTFComparisonTool::AddContribution(const char* name, TH1D hist)
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::AddContribution(const char* name, double centralvalue, double uncertainty)
+void BCMTFComparisonTool::AddContribution(std::string name, double centralvalue, double uncertainty)
 {
     // add name to container
     fNameContainer.push_back(name);
@@ -66,7 +64,7 @@ void BCMTFComparisonTool::AddContribution(const char* name, double centralvalue,
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::PrintHistograms(const char* filename)
+void BCMTFComparisonTool::PrintHistograms(std::string filename)
 {
     // get number of histograms
     int nhistograms = (int) fHistogramContainer.size();
@@ -94,7 +92,7 @@ void BCMTFComparisonTool::PrintHistograms(const char* filename)
     }
 
     // print canvas
-    c1->Print(filename);
+    c1->Print(filename.data());
 
     // free memory
     delete c1;
@@ -168,7 +166,7 @@ void BCMTFComparisonTool::DrawOverview()
 }
 
 // ---------------------------------------------------------
-void BCMTFComparisonTool::PrintOverview(const char* filename)
+void BCMTFComparisonTool::PrintOverview(std::string filename)
 {
     // create canvas
     TCanvas* c1 = new TCanvas();
@@ -178,7 +176,7 @@ void BCMTFComparisonTool::PrintOverview(const char* filename)
     DrawOverview();
 
     // print to file
-    c1->Print(filename);
+    c1->Print(filename.data());
 }
 
 // ---------------------------------------------------------

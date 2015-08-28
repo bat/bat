@@ -16,7 +16,7 @@
 #include "BCMTFTemplate.h"
 
 // ---------------------------------------------------------
-BCMTFTemplate::BCMTFTemplate(const char* channelname, const char* processname)
+BCMTFTemplate::BCMTFTemplate(std::string channelname, std::string processname)
     : fEfficiency(0)
     , fHistogram(0)
     , fNBins(0)

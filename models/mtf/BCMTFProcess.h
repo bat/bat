@@ -34,7 +34,7 @@ public:
     /**
      * The default constructor.
      * name The name of the process. */
-    BCMTFProcess(const char* name);
+    BCMTFProcess(std::string name);
 
     /**
      * The default destructor. */
@@ -72,7 +72,7 @@ public:
     /**
      * Set the name of the process.
      * @param name The name of the process. */
-    void SetName(const char* name)
+    void SetName(std::string name)
     { fName = name; };
 
     /**

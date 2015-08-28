@@ -40,7 +40,7 @@ public:
      * @param channelname The name of the channel.
      * @param systematicname The name of the systematic.
      * @param nprocesses The number of processes. */
-    BCMTFSystematicVariation(const char* channelname, const char* systematicname, int nprocesses);
+    BCMTFSystematicVariation(std::string channelname, std::string systematicname, int nprocesses);
 
     /**
      * The default destructor. */

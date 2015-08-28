@@ -13,7 +13,7 @@
 #include "BCMTFSystematicVariation.h"
 
 // ---------------------------------------------------------
-BCMTFSystematicVariation::BCMTFSystematicVariation(const char* channelname, const char* systematicname, int nprocesses)
+BCMTFSystematicVariation::BCMTFSystematicVariation(std::string channelname, std::string systematicname, int nprocesses)
 {
     fChannelName = channelname;
     fSystematicName = systematicname;

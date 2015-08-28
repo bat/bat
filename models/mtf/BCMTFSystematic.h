@@ -34,7 +34,7 @@ public:
     /**
      * The default constructor.
      * @param name The name of the source of systematic uncertainty. */
-    BCMTFSystematic(const char* name);
+    BCMTFSystematic(std::string name);
 
     /**
      * The default destructor. */

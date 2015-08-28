@@ -22,7 +22,7 @@
 #include "BCMTFChannel.h"
 
 // ---------------------------------------------------------
-BCMTFChannel::BCMTFChannel(const char* name)
+BCMTFChannel::BCMTFChannel(std::string name)
     : fData(0)
     , fFlagChannelActive(true)
     , fHistUncertaintyBandExpectation(0)
@@ -109,17 +109,17 @@ void BCMTFChannel::PrintTemplates(std::string filename)
         // draw
         if (temphist) {
             temphist->Draw();
-            l->DrawTextNDC(0.2, 0.9, Form("%s - %s", fName.c_str(), GetTemplate(i)->GetProcessName().c_str()));
+            l->DrawTextNDC(0.2, 0.9, (fName + "-" + GetTemplate(i)->GetProcessName()).data());
         }
 
         // print
         if (i == first_hist && (first_hist != last_hist))
-            c1->Print(std::string( filename + "(").c_str());
+            c1->Print((filename + "(").data());
         else if (i == last_hist && (first_hist != last_hist))
-            c1->Print(std::string( filename + ")").c_str());
+            c1->Print((filename + ")").data());
         else {
             if (temphist)
-                c1->Print(filename.c_str());
+                c1->Print(filename.data());
         }
 
         // free memory
@@ -131,7 +131,7 @@ void BCMTFChannel::PrintTemplates(std::string filename)
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintTemplate(int index, const char* filename)
+void BCMTFChannel::PrintTemplate(int index, std::string filename)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -145,9 +145,9 @@ void BCMTFChannel::PrintTemplate(int index, const char* filename)
 
     // print to file
     if (nsystematics == 0)
-        c1->Print(filename);
+        c1->Print(filename.data());
     else
-        c1->Print( (std::string(filename) + std::string("(")).c_str() );
+        c1->Print( (filename + "(").data() );
 
     // loop over systematics
     for (unsigned int isystematic = 0; isystematic < nsystematics; ++isystematic) {
@@ -189,9 +189,9 @@ void BCMTFChannel::PrintTemplate(int index, const char* filename)
         hist_down.Draw("HISTSAME");
 
         if (isystematic < nsystematics - 1)
-            c1->Print(filename);
+            c1->Print(filename.data());
         else
-            c1->Print( (std::string(filename) + std::string(")")).c_str() );
+            c1->Print( (filename + ")").data() );
     }
 
     // free memory
@@ -199,7 +199,7 @@ void BCMTFChannel::PrintTemplate(int index, const char* filename)
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistUncertaintyBandExpectation(const char* filename)
+void BCMTFChannel::PrintHistUncertaintyBandExpectation(std::string filename)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -210,7 +210,7 @@ void BCMTFChannel::PrintHistUncertaintyBandExpectation(const char* filename)
     c1->Draw();
 
     // print
-    c1->Print(filename);
+    c1->Print(filename.data());
 
     // free memory
     delete c1;
@@ -287,7 +287,7 @@ TH1D* BCMTFChannel::CalculateUncertaintyBandPoisson(double minimum, double maxim
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(const char* filename)
+void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(std::string filename)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -318,14 +318,14 @@ void BCMTFChannel::PrintHistCumulativeUncertaintyBandPoisson(const char* filenam
     c1->Draw();
 
     // print
-    c1->Print(filename);
+    c1->Print(filename.data());
 
     // free memory
     delete c1;
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename, const char* options)
+void BCMTFChannel::PrintHistUncertaintyBandPoisson(std::string filename, const char* options)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -339,14 +339,14 @@ void BCMTFChannel::PrintHistUncertaintyBandPoisson(const char* filename, const c
     c1->Draw();
 
     // print
-    c1->Print(filename);
+    c1->Print(filename.data());
 
     // free memory
     delete c1;
 }
 
 // ---------------------------------------------------------
-void BCMTFChannel::PrintUncertaintyBandPoisson(const char* filename, double minimum, double maximum, int color)
+void BCMTFChannel::PrintUncertaintyBandPoisson(std::string filename, double minimum, double maximum, int color)
 {
     // create new canvas
     TCanvas* c1 = new TCanvas();
@@ -360,7 +360,7 @@ void BCMTFChannel::PrintUncertaintyBandPoisson(const char* filename, double mini
     c1->Draw();
 
     // print
-    c1->Print(filename);
+    c1->Print(filename.data());
 
     // free memory
     delete c1;

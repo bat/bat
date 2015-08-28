@@ -51,7 +51,7 @@ BCMTFAnalysisFacility::BCMTFAnalysisFacility(BCMTF* mtf)
     , fLogLevel(BCLog::nothing)
 {
     fMTF = mtf;
-    BCLog::OutDetail(Form("Prepared Analysis Facility for MTF model \'%s\'", mtf->GetName().c_str()));
+    BCLog::OutDetail("Prepared Analysis Facility for MTF model \'" + mtf->GetName() + "\'");
 }
 
 // ---------------------------------------------------------
@@ -700,15 +700,15 @@ std::vector<TH1D> BCMTFAnalysisFacility::MatrixToHistograms(const std::vector< s
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, const char* options)
+int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(std::string dirname, const char* options)
 {
-    BCLog::OutSummary(Form("Running single channel analysis in directory \'%s\'.", dirname));
+    BCLog::OutSummary("Running single channel analysis in directory \'" + dirname + "\'");
 
     // todo check error return values from filesystem operations
     // ---- create new directory ---- //
 
-    mkdir(dirname, 0777);
-    int ret = chdir(dirname);
+    mkdir(dirname.data(), 0777);
+    int ret = chdir(dirname.data());
     if (ret) {
         return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
     }
@@ -981,14 +981,14 @@ int BCMTFAnalysisFacility::PerformSingleChannelAnalyses(const char* dirname, con
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, const char* options)
+int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(std::string dirname, const char* options)
 {
-    BCLog::OutSummary(Form("Running single channel systematic analysis in directory \'%s\'.", dirname));
+    BCLog::OutSummary("Running single channel systematic analysis in directory \'" + dirname + "\'.");
 
     // ---- create new directory ---- //
 
-    mkdir(dirname, 0777);
-    int ret = chdir(dirname);
+    mkdir(dirname.data(), 0777);
+    int ret = chdir(dirname.data());
     if (ret) {
         return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
     }
@@ -1223,14 +1223,14 @@ int BCMTFAnalysisFacility::PerformSingleSystematicAnalyses(const char* dirname, 
 }
 
 // ---------------------------------------------------------
-int BCMTFAnalysisFacility::PerformCalibrationAnalysis(const char* dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles)
+int BCMTFAnalysisFacility::PerformCalibrationAnalysis(std::string dirname, const std::vector<double>& default_parameters, int index, const std::vector<double>& parametervalues, int nensembles)
 {
-    BCLog::OutSummary(Form("Running calibration analysis in directory \'%s\'.", dirname));
+    BCLog::OutSummary("Running calibration analysis in directory \'" + dirname + "\'.");
 
     // ---- create new directory ---- //
 
-    mkdir(dirname, 0777);
-    int ret = chdir(dirname);
+    mkdir(dirname.data(), 0777);
+    int ret = chdir(dirname.data());
     if (ret) {
         return ::HandleChdirError(ret, "BCMTFAnalysisFacility::PerformSingleChannelAnalyses", dirname);
     }

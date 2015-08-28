@@ -40,7 +40,7 @@ public:
      * The default constructor.
      * @param channelname The name of the channel.
      * @param process name The name of the process. */
-    BCMTFTemplate(const char* channelname, const char* processname);
+    BCMTFTemplate(std::string channelname, std::string processname);
 
     /**
      * The default destructor. */

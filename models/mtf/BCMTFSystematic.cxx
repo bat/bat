@@ -11,7 +11,7 @@
 #include "BCMTFSystematic.h"
 
 // ---------------------------------------------------------
-BCMTFSystematic::BCMTFSystematic(const char* name)
+BCMTFSystematic::BCMTFSystematic(std::string name)
     : fFlagSystematicActive(true)
 {
     fSystematicName = name;

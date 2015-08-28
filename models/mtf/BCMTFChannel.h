@@ -41,7 +41,7 @@ public:
     /**
      * The default constructor.
      * @param name The name of the channel. */
-    BCMTFChannel(const char* name);
+    BCMTFChannel(std::string name);
 
     /**
      * The default destructor. */
@@ -110,7 +110,7 @@ public:
     /**
      * Set the name of the channel.
      * @param name The name of the channel. */
-    void SetName(const char* name)
+    void SetName(std::string name)
     { fName = name; };
 
     /**
@@ -196,27 +196,27 @@ public:
      * Print a particular template with systematics.
      * @param index The template index.
      * @param filename The name of the file. */
-    void PrintTemplate(int index, const char* filename);
+    void PrintTemplate(int index, std::string filename);
 
     /**
      * Print histogram for uncertainty band calculation.
      * @param filename The name of the file. */
-    void PrintHistUncertaintyBandExpectation(const char* filename);
+    void PrintHistUncertaintyBandExpectation(std::string filename);
 
     /**
      * Print histogram for uncertainty band calculation.
      * @param filename The name of the file. */
-    void PrintHistUncertaintyBandPoisson(const char* filename, const char* options = "COLZ");
+    void PrintHistUncertaintyBandPoisson(std::string filename, const char* options = "COLZ");
 
     /**
      * Print cumulative histogram for uncertainty band calculation.
      * @param filename The name of the file. */
-    void PrintHistCumulativeUncertaintyBandPoisson(const char* filename);
+    void PrintHistCumulativeUncertaintyBandPoisson(std::string filename);
 
     /**
      * Print uncertainty band.
      * @param filename The name of the file. */
-    void PrintUncertaintyBandPoisson(const char* filename, double minimum, double maximum, int color);
+    void PrintUncertaintyBandPoisson(std::string filename, double minimum, double maximum, int color);
 
     /** @} */
 

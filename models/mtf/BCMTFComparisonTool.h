@@ -37,7 +37,7 @@ public:
     /**
      * The default constructor.
      * @param name The name of the class. */
-    BCMTFComparisonTool(const char* name);
+    BCMTFComparisonTool(std::string name);
 
     /**
      * The defaul destructor. */
@@ -65,14 +65,14 @@ public:
      * Add a constribution.
      * @param name The name of the contribution.
      * @param hist The histogram. */
-    void AddContribution(const char* name, TH1D hist);
+    void AddContribution(std::string name, TH1D hist);
 
     /**
      * Add a constribution.
      * @param name The name of the contribution.
      * @param centralvalue The central value.
      * @param uncertainty The uncertainty. */
-    void AddContribution(const char* name, double centralvalue, double uncertainty);
+    void AddContribution(std::string name, double centralvalue, double uncertainty);
 
     /**
      * Draw an overview. */
@@ -85,12 +85,12 @@ public:
     /**
      * Print all histograms to a file.
      * @param filename The name of the file. */
-    void PrintHistograms(const char* filename);
+    void PrintHistograms(std::string filename);
 
     /**
      * Print an overview to a file.
      * @param filename The name of the file. */
-    void PrintOverview(const char* filename);
+    void PrintOverview(std::string filename);
 
     /** @} */
 
