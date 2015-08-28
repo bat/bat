@@ -48,7 +48,8 @@
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string name)
-    : fMCMCFlagWriteChainToFile(false),
+    : fMCMCNIterationsConvergenceGlobal(-1),
+      fMCMCFlagWriteChainToFile(false),
       fMCMCFlagWritePreRunToFile(false),
       fMCMCOutputFile(0),
       fMCMCOutputFilename(""),
@@ -62,6 +63,7 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMultivariateProposalFunctionEpsilon(5.e-2),
       fMultivariateProposalFunctionScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
+      fMCMCFlagRun(false),
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.50),
       fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
@@ -83,7 +85,8 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObservables)
-    : fMCMCFlagWriteChainToFile(false),
+    : fMCMCNIterationsConvergenceGlobal(-1),
+      fMCMCFlagWriteChainToFile(false),
       fMCMCFlagWritePreRunToFile(false),
       fMCMCOutputFile(0),
       fMCMCOutputFilename(""),
@@ -97,6 +100,7 @@ BCEngineMCMC::BCEngineMCMC(std::string filename, std::string name, bool loadObse
       fMultivariateProposalFunctionEpsilon(5.e-2),
       fMultivariateProposalFunctionScaleMultiplier(1.5),
       fMCMCFlagPreRun(true),
+      fMCMCFlagRun(false),
       fMCMCEfficiencyMin(0.15),
       fMCMCEfficiencyMax(0.50),
       fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
