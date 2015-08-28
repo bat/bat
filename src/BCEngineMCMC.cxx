@@ -1034,7 +1034,7 @@ bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std:
     // save current directory
     TDirectory* dir = gDirectory;
 
-    TFile* inputfile = TFile::Open(filename.c_str(), "READ");
+    TFile* inputfile = TFile::Open(filename.data(), "READ");
     if (!inputfile or inputfile->IsZombie()) {
         BCLog::OutError(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
         gDirectory = dir;

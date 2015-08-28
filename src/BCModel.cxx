@@ -38,13 +38,12 @@ BCModel::BCModel(std::string name)
 
 // ---------------------------------------------------------
 BCModel::BCModel(std::string filename, std::string name, bool loadObservables)
-    : BCIntegrate(name.data())
+    : BCIntegrate(filename, name, loadObservables)
     , fDataSet(0)
     , fPriorModel(0)
     , fDrawPriorFirst(true)
     , fFactorizedPrior(false)
 {
-    LoadMCMC(filename, "", "", loadObservables);
     SetPriorConstantAll();
     SetKnowledgeUpdateDrawingStyle(BCAux::kKnowledgeUpdateDefaultStyle);
 }
