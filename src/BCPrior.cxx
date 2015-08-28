@@ -83,7 +83,7 @@ double BCPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 double BCPrior::GetIntegral(double xmin, double xmax)
 {
     BCAux::MakeFinite(xmin, xmax);
-    return fPriorFunction.Integral(xmin, xmax, (double*)0, 1e-6);
+    return fPriorFunction.Integral(xmin, xmax);
 }
 
 // ---------------------------------------------------------
