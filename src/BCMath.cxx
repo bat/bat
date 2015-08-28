@@ -57,8 +57,10 @@ double BCMath::LogPoisson(double x, double lambda)
     if (x < 0)
         return -std::numeric_limits<double>::infinity();
 
-    if (lambda <= 0)
-        return -std::numeric_limits<double>::infinity();
+    if (lambda <= 0) {
+        BCLog::OutWarning("BCMath::LogPoisson : expectation value (lambda) cannot be negative!");
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 
     if (lambda > 899)
         return LogGaus(x, lambda, sqrt(lambda), true);
@@ -73,11 +75,11 @@ double BCMath::LogPoisson(double x, double lambda)
 double BCMath::LogApproxBinomial(unsigned n, unsigned k, double p)
 {
     if (k > n)										// impose k < n requirement
-        return -std::numeric_limits<double>::infinity();
+        return std::numeric_limits<double>::quiet_NaN();
 
     // p in [0,1]
     if (p < 0 or p > 1)
-        return -std::numeric_limits<double>::infinity();
+        return std::numeric_limits<double>::quiet_NaN();
 
     if (p == 0)										// no chance of success
         return (k == 0) ? 0 : -std::numeric_limits<double>::infinity();
@@ -105,7 +107,7 @@ static std::vector<double> CachedLogFactorials;
 double BCMath::LogBinomFactor(unsigned n, unsigned k)
 {
     if (n < k)										// impose k < n requirement
-        return LogBinomFactor(k, n);
+        return std::numeric_limits<double>::quiet_NaN();
 
     if (k == 0 or k == n)
         return 0.;
@@ -113,7 +115,7 @@ double BCMath::LogBinomFactor(unsigned n, unsigned k)
         return log((double)n);
 
     // if no approximation needed
-    if ( n < BCMATH_NFACT_ALIMIT or (n < CachedLogFactorials.size() and  (n - k) < 10) )
+    if ( n < CachedLogFactorials.size() and (n - k) < 10 )
         return LogBinomFactorExact(n, k);
 
     // calculate final log(n over k) using approximations if necessary
@@ -185,7 +187,7 @@ int BCMath::Nint(double x)
 double BCMath::LogBinomFactorExact(unsigned n, unsigned k)
 {
     if (n < k)										// impose k<n requirement
-        return LogBinomFactorExact(k, n);
+        return std::numeric_limits<double>::quiet_NaN();
 
     if ( k == 0 or k == n )
         return 0;
@@ -228,7 +230,7 @@ double BCMath::LogChi2(double x, int n)
 {
     if (x < 0) {
         BCLog::OutWarning("BCMath::LogChi2 : parameter cannot be negative!");
-        return -std::numeric_limits<double>::infinity();
+        return std::numeric_limits<double>::quiet_NaN();
     }
 
     if (x == 0 && n == 1) {
@@ -246,7 +248,7 @@ double BCMath::LogVoigtian(double x, double sigma, double gamma)
 {
     if (sigma <= 0 || gamma <= 0) {
         BCLog::OutWarning("BCMath::LogVoigtian : widths are negative or zero!");
-        return -std::numeric_limits<double>::infinity();
+        return std::numeric_limits<double>::quiet_NaN();
     }
 
     return log(TMath::Voigt(x, sigma, gamma));
