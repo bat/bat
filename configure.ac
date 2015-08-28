@@ -365,7 +365,7 @@ AC_OUTPUT(
 	examples/advanced/mvc/inverseProblem/Makefile
 	examples/advanced/mvc/constraints/Makefile
 	examples/advanced/referenceCounting/Makefile
-	examples/expert/trialFunction/Makefile
+	examples/advanced/trialFunction/Makefile
 	test/Makefile
 	tools/MakefileTemplate
 )
