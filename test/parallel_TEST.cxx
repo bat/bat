@@ -120,6 +120,7 @@ public:
 
         double fMCMCprob;
         int fMCMCPhase;
+        unsigned fMCMCChain;
         std::vector<double> parameters;
 
         DataHolder(TTree* tree)
@@ -129,6 +130,7 @@ public:
             tree->SetBranchAddress("Iteration",       &fMCMCNIterations);
             tree->SetBranchAddress("LogProbability",  &fMCMCprob);
             tree->SetBranchAddress("Phase",           &fMCMCPhase);
+            tree->SetBranchAddress("Chain",           &fMCMCChain);
 
             // need #parameters to initialize the vector
             // todo dirty hack to remove fixed number that might change if cycle is dropped
@@ -212,97 +214,39 @@ public:
         if (!rfile2)
             TEST_CHECK_FAILED(std::string("Could not open") + config.rootFileNameSerial);
 
-        // find the beginning of the main run
-        // assume there is at least one chain and all chains start main run at the same time
-        long long main_begin = 0;
-        {
-            TTree* one = NULL;
-            rfile1->GetObject("MarkovChainTree_0", one);
+        TTree* one = NULL;
+        TTree* two = NULL;
 
-            if (!one)
-                TEST_CHECK_FAILED("Could not locate first Markov chain");
+        rfile1->GetObject("Parallelevaluation_mcmc", one);
+        rfile2->GetObject("Serialevaluation_mcmc", two);
 
-            DataHolder oneData(one);
-            for (; main_begin < one->GetEntries(); ++main_begin) {
-                one->GetEntry(main_begin);
-                if (oneData.fMCMCPhase == 2)
-                    break;
+        if (!one)
+            TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameParallel);
+        if (!two)
+            TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameSerial);
+
+        DataHolder oneData(one);
+        DataHolder twoData(two);
+        long long nEntries1 = one->GetEntries();
+        long long nEntries2 = two->GetEntries();
+
+        TEST_CHECK_EQUAL(nEntries1, nEntries2);
+
+        // compare chains
+        for (long long entry = 0; entry <= nEntries1; ++entry) {
+            one->GetEntry(entry);
+            two->GetEntry(entry);
+            // loop over each dimension
+            for (unsigned k = 0; k < oneData.parameters.size(); ++k) {
+                TEST_CHECK_EQUAL(oneData.parameters[k], twoData.parameters[k]);
             }
-            delete one;
+            TEST_CHECK_EQUAL(oneData.fMCMCprob, twoData.fMCMCprob);
+            TEST_CHECK_EQUAL(oneData.fMCMCNIterations, twoData.fMCMCNIterations);
+            TEST_CHECK_EQUAL(oneData.fMCMCPhase, twoData.fMCMCPhase);
+            TEST_CHECK_EQUAL(oneData.fMCMCChain, twoData.fMCMCChain);
         }
-
-        for (unsigned ichain = 0; ichain < config.num_chains; ++ichain) {
-            TTree* one = NULL;
-            TTree* two = NULL;
-
-            rfile1->GetObject(TString::Format("MarkovChainTree_%d", ichain), one);
-            rfile2->GetObject(TString::Format("MarkovChainTree_%d", ichain), two);
-
-            if (!one)
-                TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameParallel);
-            if (!two)
-                TEST_CHECK_FAILED(std::string("Could not locate tree in ") + config.rootFileNameSerial);
-
-            DataHolder oneData(one);
-            DataHolder twoData(two);
-            long nEntries1 = one->GetEntries();
-            long nEntries2 = two->GetEntries();
-
-            TEST_CHECK_EQUAL(nEntries1, nEntries2);
-
-            // check prerun(phase 1) and mainrun(phase 2) for identity
-            for (unsigned phase = 1; phase < 3 ; ++phase) {
-                // loop over iterations
-                for (long long int entry = (phase - 1) * main_begin;
-                        entry <  (phase - 1) * main_begin + config.num_entries ; ++entry) {
-                    one->GetEntry(entry);
-                    two->GetEntry(entry);
-
-                    // loop over each dimension
-                    for (unsigned k = 0; k < oneData.parameters.size(); k++) {
-                        TEST_CHECK_EQUAL(oneData.parameters[k], twoData.parameters[k]);
-                    }
-                    TEST_CHECK_EQUAL(oneData.fMCMCprob, twoData.fMCMCprob);
-                    TEST_CHECK_EQUAL(oneData.fMCMCNIterations, twoData.fMCMCNIterations);
-                    TEST_CHECK_EQUAL(oneData.fMCMCPhase, twoData.fMCMCPhase);
-                }
-            }
-#if 0
-            // check that two consecutive values change only on at most one parameter
-            // take only first two parameters
-            if (oneData.parameters.size() > 1) {
-                one->GetEntry(0);
-                two->GetEntry(0);
-
-                double previousX = oneData.parameters[0];
-                double previousY = oneData.parameters[1];
-
-                for (unsigned phase = 1; phase < 3 ; ++phase) {
-                    // loop over iterations
-                    for (long long int entry = (phase - 1) * main_begin + 1;
-                            entry <  (phase - 1) * main_begin + config.num_entries ; ++entry) {
-                        one->GetEntry(entry);
-                        two->GetEntry(entry);
-
-                        std::cout << print_container(oneData.parameters) << std::endl;
-                        if (oneData.parameters[0] != previousX and oneData.parameters[1] != previousY) {
-                            std::string msg = "Two (or more) parameters changed at once in iteration " + stringify(entry) + ":\n";
-                            msg += stringify(previousX) + "->" + stringify(oneData.parameters[0]) + ", ";
-                            msg += stringify(previousY) + "->" + stringify(oneData.parameters[1]);
-                            TEST_CHECK_FAILED(msg);
-                        }
-
-                        previousX = oneData.parameters[0];
-                        previousY = oneData.parameters[1];
-                    }
-                }
-            } else {
-                TEST_CHECK_FAILED("Need at least two parameters to check one-parameter-at-a-time proposal");
-            }
-#endif
-            delete one;
-            delete two;
-        }
+        delete one;
+        delete two;
 
         // clean up
         rfile1->Close();
