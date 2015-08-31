@@ -74,7 +74,7 @@ public:
      * Negative values are in pre-run, 0 is unset, positive is main run. */
     enum MCMCPhase {
         kMCMCPreRun     = -1, ///< In pre-run
-        kMCMCUnsetPhase =  0, ///< Unest
+        kMCMCUnsetPhase =  0, ///< Unset
         kMCMCMainRun    = +1  ///< In main run
     };
 
@@ -1306,7 +1306,7 @@ public:
      * @param point point that was generated and checked
      * @param ichain index of the chain
      * @param accepted flag whether or not the point was accepted for the chain */
-    virtual void MCMCCurrentPointInterface(std::vector<double>& /*point*/, int /*ichain*/, bool /*accepted*/)
+    virtual void MCMCCurrentPointInterface(const std::vector<double>& /*point*/, int /*ichain*/, bool /*accepted*/)
     {}
 
     /**
@@ -1329,7 +1329,7 @@ public:
      * @param mcmcTreeName Name of tree inside file containing MCMC, empty string (default) loads [modelname]_mcmc.
      * @param parameterTreeName Name of tree inside file containing parameter list, empty string (default) loads [modelname]_parameters.
      * @param loadObservables Flag for whether to load observables from parameter list and MCMC trees. */
-    virtual bool LoadMCMC(std::string filename, std::string mcmcTreeName = "", std::string parameterTreeName = "", bool loadObservables = true);
+    virtual bool LoadMCMC(const std::string& filename, std::string mcmcTreeName = "", std::string parameterTreeName = "", bool loadObservables = true);
 
     /**
      * Load previous MCMC run.
