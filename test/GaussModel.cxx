@@ -33,7 +33,7 @@ GaussModel::~GaussModel()
 {
 }
 
-void GaussModel::MCMCCurrentPointInterface(std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/)
+void GaussModel::MCMCCurrentPointInterface(const std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/)
 {
     #pragma omp critical(GaussModel__LogLikelihood)
     {

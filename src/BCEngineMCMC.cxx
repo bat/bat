@@ -1029,13 +1029,13 @@ bool BCEngineMCMC::ParameterTreeMatchesModel(TTree* partree, bool checkObservabl
 }
 
 // --------------------------------------------------------
-bool BCEngineMCMC::LoadMCMC(std::string filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables)
+bool BCEngineMCMC::LoadMCMC(const std::string& filename, std::string mcmcTreeName, std::string parameterTreeName, bool loadObservables)
 {
     // save current directory
     TDirectory* dir = gDirectory;
 
     TFile* inputfile = TFile::Open(filename.data(), "READ");
-    if (!inputfile or inputfile->IsZombie()) {
+    if (!inputfile || inputfile->IsZombie()) {
         BCLog::OutError(Form("BCEngineMCMC::LoadMCMC: Could not open file %s.", filename.data()));
         gDirectory = dir;
         return false;
@@ -1197,7 +1197,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
     fMCMCNChains = 0;
     for (int n = 0; n < fMCMCTree->GetEntries(); ++n) {
         fMCMCTree->GetEntry(n);
-        if (fMCMCNChains > 0 and fMCMCTree_Chain == 0)
+        if (fMCMCNChains > 0 && fMCMCTree_Chain == 0)
             break;
         if (fMCMCTree_Chain + 1 > fMCMCNChains)
             fMCMCNChains = fMCMCTree_Chain + 1;
@@ -1246,7 +1246,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
                 }
             }
         }
-        if (!XMin.empty() and !XMax.empty()) {
+        if (!XMin.empty() && !XMax.empty()) {
             // store mins and maxes, and change
             std::vector<double> xmin;
             std::vector<double> xmax;
@@ -1284,7 +1284,7 @@ void BCEngineMCMC::Remarginalize(bool autorange)
         else
             EvaluateObservables(fMCMCTree_Chain);
 
-        if (fMCMCNIterationsConvergenceGlobal < 0 and fMCMCPhase > 0) {
+        if (fMCMCNIterationsConvergenceGlobal < 0 && fMCMCPhase > 0) {
             for (unsigned c = 0; c < fMCMCNChains; ++c)
                 fMCMCStatistics[c].Reset(false, true);
             fMCMCNIterationsConvergenceGlobal = fMCMCCurrentIteration;
@@ -1299,10 +1299,9 @@ void BCEngineMCMC::Remarginalize(bool autorange)
 
         if (fMCMCTree_Chain == fMCMCNChains - 1) {
             MCMCIterationInterface();
-            if ( !fH1Marginalized.empty() or !fH2Marginalized.empty() )
+            if ( !fH1Marginalized.empty() || !fH2Marginalized.empty() )
                 MCMCInChainFillHistograms();
         }
-
     }
 
     // combine statistics

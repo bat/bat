@@ -21,7 +21,7 @@ public:
         return fCalls;
     }
 
-    void MCMCCurrentPointInterface(std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/);
+    void MCMCCurrentPointInterface(const std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/);
 
 private:
     /**

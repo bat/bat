@@ -43,6 +43,8 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCEfficiencyFitter.h>
 
+#include <omp.h>
+
 #endif
 
 // ---------------------------------------------------------
