@@ -20,8 +20,9 @@
 
 // ---------------------------------------------------------
 
-class TH2D;
+class TF1;
 class TGraph;
+class TH2D;
 
 #include "../../BAT/BCModel.h"
 
@@ -42,6 +43,12 @@ public:
     BCFitter(std::string name = "fitter_model");
 
     /**
+     * Constructor
+     * @param f pointer to TF1 to copy into fitter object
+     * @param name name of the model */
+    BCFitter(TF1* f, std::string name = "");
+
+    /**
      * The default destructor. */
     virtual ~BCFitter();
 
@@ -49,6 +56,22 @@ public:
 
     /** \name Member functions (get) */
     /* @{ */
+
+    /**
+     * Get fit function
+     * @param index index of chain to return fit function for (default = 0) */
+    TF1* GetFitFunction(unsigned index = 0)
+    { return (fFitFunction.empty()) ? (TF1*)0 : fFitFunction[index]; }
+
+    /**
+    * @return pointer to the error band */
+    TGraph* GetErrorBand()
+    { return fErrorBand; };
+
+    /**
+     * @return pointer to a graph for the fit function */
+    TGraph* GetGraphFitFunction()
+    { return fGraphFitFunction; };
 
     /**
      * const BCParameter * GetParameter(const char * name);
@@ -89,6 +112,12 @@ public:
 
     /** \name Member functions (set) */
     /* @{ */
+
+    /**
+     * Set fit function
+     * @param f pointer to TF1 to copy into object.
+     * @return success of action. */
+    bool SetFitFunction(TF1* func);
 
     /**
      * Turn on or off the filling of the error band during the MCMC run.
@@ -190,7 +219,22 @@ public:
 
     /* @} */
 
+    /**
+     * Sync TF1 pointers for thread safety */
+    bool MCMCInitialize();
+
 protected:
+
+    /** Fit function (as vector for thread safety) */
+    std::vector<TF1*> fFitFunction;
+
+    /**
+     * Pointer to a graph for displaying the fit function */
+    TGraph* fGraphFitFunction;
+
+    /**
+     * Pointer to the error band (for legend) */
+    TGraph* fErrorBand;
 
     /**
      * Flag whether or not to fill the error band */

@@ -1278,7 +1278,7 @@ public:
     /**
      * Resets all containers used in MCMC and initializes starting points.
      * @return Success of action. */
-    bool MCMCInitialize();
+    virtual bool MCMCInitialize();
 
     /**
      * Reset the MCMC variables. */
