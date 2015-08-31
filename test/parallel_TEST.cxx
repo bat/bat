@@ -253,6 +253,8 @@ public:
             TEST_CHECK_EQUAL(models[0].prob(), models[1].prob());
             TEST_CHECK_EQUAL(models[0].phase(), models[1].phase());
         }
+        delete one;
+        delete two;
 
         // clean up output files
         remove(config.rootFileNameParallel.c_str());
