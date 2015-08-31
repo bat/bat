@@ -11,7 +11,7 @@
 #include "BCAux.h"
 #include "BCLog.h"
 #include "BCPrior.h"
-#include "BCConstantPrior.h"
+#include "BCPriorConstant.h"
 
 #include <TMath.h>
 #include <TF1.h>

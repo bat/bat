@@ -1,8 +1,8 @@
 #include "CombinationModel.h"
 
-#include <BAT/BCGaussianPrior.h>
 #include <BAT/BCMath.h>
-#include <BAT/BCPositiveDefinitePrior.h>
+#include <BAT/BCPriorGaussian.h>
+#include <BAT/BCPriorPositiveDefinite.h>
 
 // ---------------------------------------------------------
 CombinationModel::CombinationModel(std::string name,
@@ -21,7 +21,7 @@ CombinationModel::CombinationModel(std::string name,
                  "mass", "[MeV]");
 
     // set its prior to the old mean and sigma
-    GetParameter("mass").SetPrior(new BCPositiveDefinitePrior(new BCGaussianPrior(old_mean, old_sigma)));
+    GetParameter("mass").SetPrior(new BCPriorPositiveDefinite(new BCPriorGaussian(old_mean, old_sigma)));
 }
 
 // ---------------------------------------------------------

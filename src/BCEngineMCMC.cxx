@@ -11,15 +11,15 @@
 #include "BCEngineMCMC.h"
 
 #include "BCAux.h"
-#include "BCGaussianPrior.h"
 #include "BCH1D.h"
 #include "BCH2D.h"
 #include "BCMath.h"
 #include "BCPrior.h"
-#include "BCSplitGaussianPrior.h"
-#include "BCTF1LogPrior.h"
-#include "BCTF1Prior.h"
-#include "BCTH1Prior.h"
+#include "BCPriorGaussian.h"
+#include "BCPriorLogTF1.h"
+#include "BCPriorSplitGaussian.h"
+#include "BCPriorTF1.h"
+#include "BCPriorTH1.h"
 #include "BCVariable.h"
 
 #include <TCanvas.h>
@@ -306,27 +306,27 @@ void BCEngineMCMC::SetName(std::string name)
 void BCEngineMCMC::SetPrior(unsigned index, TF1& f, bool logL)
 {
     if (logL)
-        fParameters.At(index).SetPrior(new BCTF1LogPrior(f));
+        fParameters.At(index).SetPrior(new BCPriorLogTF1(f));
     else
-        fParameters.At(index).SetPrior(new BCTF1Prior(f));
+        fParameters.At(index).SetPrior(new BCPriorTF1(f));
 }
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SetPrior(unsigned index, TH1& h, bool interpolate)
 {
-    fParameters.At(index).SetPrior(new BCTH1Prior(h, interpolate));
+    fParameters.At(index).SetPrior(new BCPriorTH1(h, interpolate));
 }
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma)
 {
-    fParameters.At(index).SetPrior(new BCGaussianPrior(mean, sigma));
+    fParameters.At(index).SetPrior(new BCPriorGaussian(mean, sigma));
 }
 
 // ---------------------------------------------------------
 void BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma_below, double sigma_above)
 {
-    fParameters.At(index).SetPrior(new BCSplitGaussianPrior(mean, sigma_below, sigma_above));
+    fParameters.At(index).SetPrior(new BCPriorSplitGaussian(mean, sigma_below, sigma_above));
 }
 
 // ---------------------------------------------------------

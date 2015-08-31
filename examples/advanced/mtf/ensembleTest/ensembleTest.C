@@ -32,7 +32,7 @@
 #if defined(__MAKECINT__) || defined(__ROOTCLING__) || COMPILER
 
 #include <BAT/BCAux.h>
-#include <BAT/BCGaussianPrior.h>
+#include <BAT/BCPriorGaussian.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCParameter.h>
 #include <BAT/BCMTF.h>
@@ -120,8 +120,8 @@ void ensembleTest()
     // m->SetTemplate("channel2", "background_channel1", *hist_bkg2, 0.0);
 
     // set priors
-    m->GetParameter("background_channel1").SetPrior(new BCGaussianPrior(800, 10));
-    m->GetParameter("background_channel2").SetPrior(new BCGaussianPrior(500, 50));
+    m->GetParameter("background_channel1").SetPrior(new BCPriorGaussian(800, 10));
+    m->GetParameter("background_channel2").SetPrior(new BCPriorGaussian(500, 50));
     m->GetParameter("signal").SetPriorConstant();
 
     // run MCMC

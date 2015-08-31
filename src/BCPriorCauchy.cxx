@@ -6,7 +6,8 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCCauchyPrior.h"
+#include "BCPriorCauchy.h"
+
 #include "BCAux.h"
 
 #include <cmath>
@@ -15,7 +16,7 @@
 
 
 // ---------------------------------------------------------
-BCCauchyPrior::BCCauchyPrior(double mean, double scale)
+BCPriorCauchy::BCPriorCauchy(double mean, double scale)
     : BCPrior()
     , fMean(mean)
     , fScale(scale)
@@ -23,7 +24,7 @@ BCCauchyPrior::BCCauchyPrior(double mean, double scale)
 }
 
 // ---------------------------------------------------------
-double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax)
+double BCPriorCauchy::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return BCPrior::GetRawMoment(n, xmin, xmax);
@@ -60,7 +61,7 @@ double BCCauchyPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCCauchyPrior::GetIntegral(double xmin, double xmax)
+double BCPriorCauchy::GetIntegral(double xmin, double xmax)
 {
     switch (BCAux::RangeType(xmin, xmax)) {
 
@@ -83,5 +84,3 @@ double BCCauchyPrior::GetIntegral(double xmin, double xmax)
             return std::numeric_limits<double>::infinity();
     }
 }
-
-

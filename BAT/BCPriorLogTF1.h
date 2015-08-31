@@ -2,7 +2,7 @@
 #define __BCFORMULALOGPRIOR__H
 
 /*!
- * \class BCTF1LogPrior
+ * \class BCPriorLogTF1
  * \brief A class to represent the log of a prior of a parameter by a formula through a TF1
  * \author Daniel Greenwald
  * \version 1.0
@@ -29,20 +29,20 @@
 
 // ---------------------------------------------------------
 
-class BCTF1LogPrior : public BCPrior
+class BCPriorLogTF1 : public BCPrior
 {
 public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
     /** Constructor taking a TF1**/
-    BCTF1LogPrior(TF1& f);
+    BCPriorLogTF1(TF1& f);
 
     /** Constructor taking a formula**/
-    BCTF1LogPrior(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(),xmax=std::numeric_limits<double>::infinity());
+    BCPriorLogTF1(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(),xmax=std::numeric_limits<double>::infinity());
 
     /** Destructor */
-    virtual ~BCTF1LogPrior();
+    virtual ~BCPriorLogTF1();
 
     /** @} **/
 
@@ -52,7 +52,7 @@ public:
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCTF1LogPrior(*this); }
+    { return new BCPriorLogTF1(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */

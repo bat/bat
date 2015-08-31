@@ -6,39 +6,40 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCTF1LogPrior.h"
+#include "BCPriorLogTF1.h"
+
 #include "BCAux.h"
 
 #include <cmath>
 
 // ---------------------------------------------------------
-BCTF1LogPrior::BCTF1LogPrior(TF1& f)
+BCPriorLogTF1::BCPriorLogTF1(TF1& f)
     : BCPrior(),
       fLogPriorFunction(f)
 {
 }
 
 // ---------------------------------------------------------
-BCTF1LogPrior::BCTF1LogPrior(const char* formula, double xmin, double xmax)
+BCPriorLogTF1::BCPriorLogTF1(const char* formula, double xmin, double xmax)
     : BCPrior(),
       fLogPriorFunction("f1_logprior", formula, xmin, xmax)
 {
 }
 
 // ---------------------------------------------------------
-BCTF1LogPrior::~BCTF1LogPrior()
+BCPriorLogTF1::~BCPriorLogTF1()
 {
 }
 
 // ---------------------------------------------------------
-void BCTF1LogPrior::SetFunctionRange(double xmin, double xmax)
+void BCPriorLogTF1::SetFunctionRange(double xmin, double xmax)
 {
     BCPrior::SetFunctionRange(xmin, xmax);
     fLogPriorFunction.SetRange(xmin, xmax);
 }
 
 // ---------------------------------------------------------
-double BCTF1LogPrior::GetMode(double xmin, double xmax)
+double BCPriorLogTF1::GetMode(double xmin, double xmax)
 {
     BCAux::MakeFinite(xmin, xmax);
     return fLogPriorFunction.GetMaximumX(xmin, xmax);

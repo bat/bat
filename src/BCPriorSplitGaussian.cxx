@@ -6,7 +6,8 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCSplitGaussianPrior.h"
+#include "BCPriorSplitGaussian.h"
+
 #include "BCAux.h"
 
 #include <cmath>
@@ -16,7 +17,7 @@
 
 
 // ---------------------------------------------------------
-BCSplitGaussianPrior::BCSplitGaussianPrior(double mode, double sigma_below, double sigma_above)
+BCPriorSplitGaussian::BCPriorSplitGaussian(double mode, double sigma_below, double sigma_above)
     : BCPrior()
     , fMode(mode)
     , fSigmaBelow(sigma_below)
@@ -25,7 +26,7 @@ BCSplitGaussianPrior::BCSplitGaussianPrior(double mode, double sigma_below, doub
 }
 
 // ---------------------------------------------------------
-BCSplitGaussianPrior::BCSplitGaussianPrior(const BCSplitGaussianPrior& other)
+BCPriorSplitGaussian::BCPriorSplitGaussian(const BCPriorSplitGaussian& other)
     : BCPrior(other)
     , fMode(other.fMode)
     , fSigmaBelow(other.fSigmaBelow)
@@ -34,7 +35,7 @@ BCSplitGaussianPrior::BCSplitGaussianPrior(const BCSplitGaussianPrior& other)
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetLogPrior(double x)
+double BCPriorSplitGaussian::GetLogPrior(double x)
 {
     if (x > fMode)
         return -0.5 * (x - fMode) * (x - fMode) / fSigmaAbove / fSigmaAbove + 0.5 * log(2 / M_PI) - log(fSigmaAbove + fSigmaBelow);
@@ -42,7 +43,7 @@ double BCSplitGaussianPrior::GetLogPrior(double x)
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax)
+double BCPriorSplitGaussian::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0 or n > 2)
         return BCPrior::GetRawMoment(n, xmin, xmax);
@@ -89,7 +90,7 @@ double BCSplitGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCSplitGaussianPrior::GetIntegral(double xmin, double xmax)
+double BCPriorSplitGaussian::GetIntegral(double xmin, double xmax)
 {
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
@@ -110,4 +111,3 @@ double BCSplitGaussianPrior::GetIntegral(double xmin, double xmax)
 
     return (smax * erf_max - smin * erf_min) / (fSigmaAbove + fSigmaBelow);
 }
-

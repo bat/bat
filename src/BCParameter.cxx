@@ -9,7 +9,7 @@
 // ---------------------------------------------------------
 #include "BCParameter.h"
 #include "BCPrior.h"
-#include "BCConstantPrior.h"
+#include "BCPriorConstant.h"
 #include "BCLog.h"
 #include "BCAux.h"
 
@@ -20,7 +20,6 @@
 #include <TRandom.h>
 #include <TMath.h>
 #include <TF1.h>
-
 
 // ---------------------------------------------------------
 BCParameter::BCParameter()
@@ -140,7 +139,7 @@ void BCParameter::SetPrior(BCPrior* const prior)
 // ---------------------------------------------------------
 void BCParameter::SetPriorConstant()
 {
-    SetPrior(new BCConstantPrior(GetRangeWidth()));
+    SetPrior(new BCPriorConstant(GetRangeWidth()));
 }
 
 // ---------------------------------------------------------
@@ -150,4 +149,3 @@ std::string BCParameter::OneLineSummary(bool print_prefix, int name_length) cons
         return BCVariable::OneLineSummary(print_prefix, name_length);
     return BCVariable::OneLineSummary(print_prefix, name_length) + Form(" (fixed at %.*f)", GetPrecision(), GetFixedValue());
 }
-

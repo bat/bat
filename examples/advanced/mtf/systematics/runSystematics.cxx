@@ -1,7 +1,7 @@
 #include <BAT/BCAux.h>
-#include <BAT/BCGaussianPrior.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCParameter.h>
+#include <BAT/BCPriorGaussian.h>
 
 #include <BAT/BCMTFAnalysisFacility.h>
 #include <BAT/BCMTF.h>
@@ -109,9 +109,9 @@ int main()
 
     // set priors
     m.GetParameter("signal").SetPriorConstant();
-    m.GetParameter("background").SetPrior(new BCGaussianPrior(300., 30.));
-    m.GetParameter("systematic1").SetPrior(new BCGaussianPrior(0., 1.));
-    m.GetParameter("systematic2").SetPrior(new BCGaussianPrior(0., 1.));
+    m.GetParameter("background").SetPrior(new BCPriorGaussian(300., 30.));
+    m.GetParameter("systematic1").SetPrior(new BCPriorGaussian(0., 1.));
+    m.GetParameter("systematic2").SetPrior(new BCPriorGaussian(0., 1.));
 
     // run MCMC
     m.MarginalizeAll();

@@ -5,8 +5,8 @@
 
 #include <BAT/BCMath.h>
 #include <BAT/BCParameter.h>
-#include <BAT/BCTF1Prior.h>
-#include <BAT/BCTH1Prior.h>
+#include <BAT/BCPriorTF1.h>
+#include <BAT/BCPriorTH1.h>
 
 #include <TH1.h>
 #include <TF1.h>
@@ -50,13 +50,13 @@ bool ReferenceCounting::SetPrior(ReferenceCounting::EvalOption option, double sh
             // don't need analytic conjugate prior anymore
             delete conjprior;
 
-            GetParameter("s").SetPrior(new BCTH1Prior(h_s));
-            GetParameter("b").SetPrior(new BCTH1Prior(h_b));
+            GetParameter("s").SetPrior(new BCPriorTH1(h_s));
+            GetParameter("b").SetPrior(new BCPriorTH1(h_b));
 
         } else if (option == kApprox) {
 
             // Create TF1 prior for signal and fit it to histogram created above
-            GetParameter("s").SetPrior(new BCTF1Prior("sqrt(([0]*exp([1]*x^0.125))/(x+[0]*exp([1]*x^0.125)))",
+            GetParameter("s").SetPrior(new BCPriorTF1("sqrt(([0]*exp([1]*x^0.125))/(x+[0]*exp([1]*x^0.125)))",
                                        h_s->GetXaxis()->GetXmin(), h_s->GetXaxis()->GetXmax()));
             h_s->Fit(&GetParameter("s").GetPrior()->GetFunction());
             delete h_s;

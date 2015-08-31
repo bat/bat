@@ -33,7 +33,7 @@
 
 #include <BAT/BCAux.h>
 #include <BAT/BCEngineMCMC.h>
-#include <BAT/BCGaussianPrior.h>
+#include <BAT/BCPriorGaussian.h>
 #include <BAT/BCLog.h>
 #include <BAT/BCMTF.h>
 #include <BAT/BCMTFAnalysisFacility.h>
@@ -103,7 +103,7 @@ void mcstat()
     m->SetTemplate("channel1", "background", *hist_background, 1.0);
 
     // set priors
-    m->GetParameter("background").SetPrior(new BCGaussianPrior(300., 10.));
+    m->GetParameter("background").SetPrior(new BCPriorGaussian(300., 10.));
     m->GetParameter("signal").SetPriorConstant();
 
     // print templates

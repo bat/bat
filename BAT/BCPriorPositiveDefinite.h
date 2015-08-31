@@ -2,7 +2,7 @@
 #define __BCPOSITIVEDEFINITEPRIOR__H
 
 /*!
- * \class BCPositiveDefinitePrior
+ * \class BCPriorPositiveDefinite
  * \brief A class to wrap around a BCPrior to make it positive definite
  * \author Daniel Greenwald
  * \version 1.0
@@ -30,7 +30,7 @@ class TRandom;
 
 // ---------------------------------------------------------
 
-class BCPositiveDefinitePrior : public BCPrior
+class BCPriorPositiveDefinite : public BCPrior
 {
 public:
 
@@ -39,15 +39,15 @@ public:
 
     /**
      * Constructor */
-    BCPositiveDefinitePrior(BCPrior* prior);
+    BCPriorPositiveDefinite(BCPrior* prior);
 
     /**
      * Copy constructor */
-    BCPositiveDefinitePrior(const BCPositiveDefinitePrior& other);
+    BCPriorPositiveDefinite(const BCPriorPositiveDefinite& other);
 
     /**
      * Destructor */
-    virtual ~BCPositiveDefinitePrior();
+    virtual ~BCPriorPositiveDefinite();
 
     /** @} */
 
@@ -55,10 +55,10 @@ public:
     /** @{ **/
 
     /** assignment operator */
-    BCPositiveDefinitePrior& operator=(BCPositiveDefinitePrior other);
+    BCPriorPositiveDefinite& operator=(BCPriorPositiveDefinite other);
 
     /** swap */
-    friend void swap(BCPositiveDefinitePrior& A, BCPositiveDefinitePrior& B);
+    friend void swap(BCPriorPositiveDefinite& A, BCPriorPositiveDefinite& B);
 
     /** @} **/
 
@@ -94,7 +94,7 @@ public:
     /**
      * Clone function */
     virtual BCPrior* Clone() const
-    { return new BCPositiveDefinitePrior(*this); }
+    { return new BCPriorPositiveDefinite(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
