@@ -2337,7 +2337,7 @@ bool BCEngineMCMC::MCMCInitialize()
                     fMCMCprob[fMCMCCurrentChain] = LogEval(fMCMCx[fMCMCCurrentChain]);
                 }
                 if (!std::isfinite(fMCMCprob[fMCMCCurrentChain])) {
-                    BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distrubited initial point with valid probability in %u tries.", max_tries));
+                    BCLog::OutError(Form("BCEngineMCMC::MCMCInitialize : Could not generate uniformly distributed initial point with valid probability in %u tries.", max_tries));
                     fMCMCx.clear();
                     return false;
                 }

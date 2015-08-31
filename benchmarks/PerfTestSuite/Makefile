@@ -41,9 +41,9 @@ CXXOBJS      = $(patsubst %.cxx,obj/%.o,$(CXSRCS))
 
 DICTOBJS     = $(patsubst %.cxx,obj/%Dict.o,$(CXSRCS))
 
-EXEOBJS      =
+EXEOBJS      = runTestSuite
 
-GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d runTestSuite.exe
+GARBAGE      = $(CXXOBJS) $(EXEOBJS)  src/*Dict.*  obj/*.o  $(LIBA) $(LIBSO) link.d runTestSuite
 
 RESULTS      = *.png *.pdf *.log *.tst *.html *.php *.htm
 

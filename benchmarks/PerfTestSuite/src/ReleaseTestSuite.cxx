@@ -27,6 +27,8 @@ ReleaseTestSuite::~ReleaseTestSuite()
 //______________________________________________________________________________
 int ReleaseTestSuite::PrepareTests()
 {
+    /* 1D */
+#if 1
     // 1D slope
     TF1* testfunc_1d_slope = new TF1("Slope", "x", 0., 10.);
     PerfTest1DFunction* perftest_1d_slope = new PerfTest1DFunction("1d_slope", testfunc_1d_slope);
@@ -101,9 +103,13 @@ int ReleaseTestSuite::PrepareTests()
     testfunc_1d_2gaus->FixParameter(4, 30.0);
     testfunc_1d_2gaus->FixParameter(5,  1.0);
     PerfTest1DFunction*   perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus);
-    perftest_1d_2gaus->GetParameter("x")->SetNbins(200);
+    perftest_1d_2gaus->GetParameter("x").SetNbins(200);
     perftest_1d_2gaus->GetSubtest("mode")->SetStatusOff(true);
     AddTest(perftest_1d_2gaus);
+#endif
+
+    /* 2D */
+#if 1
 
     // 2D flat
 //   TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
@@ -114,8 +120,9 @@ int ReleaseTestSuite::PrepareTests()
     PerfTest2DFunction*   perftest_2d_flat = new PerfTest2DFunction("2d_flat", testfunc_2d_flat);
     AddTest(perftest_2d_flat);
 
-    // 2D Gaussian
-    TF2* testfunc_2d_gaus = new TF2("Gaus", "xygausn", -3., 3., -5., 7.);
+    // 2D Gaussian product Gaussian
+    TF2* testfunc_2d_gaus = new TF2("Gaus", "xygaus", -3., 3., -5., 7.);
+    // const,meanx,sigmax,meany,sigmay
     testfunc_2d_gaus->SetParameters(1, 0, 1, 1, 2);
     PerfTest2DFunction*   perftest_2d_gaus = new PerfTest2DFunction("2d_gaus", testfunc_2d_gaus);
     AddTest(perftest_2d_gaus);
@@ -127,7 +134,10 @@ int ReleaseTestSuite::PrepareTests()
     testfunc_2d_2gaus->SetParameters(1.,   10., 0., 1.0,  5., 1.0,    10., 5., 1.0,  10., 1.0);
     PerfTest2DFunction*   perftest_2d_2gaus = new PerfTest2DFunction("2d_2gaus", testfunc_2d_2gaus);
     AddTest(perftest_2d_2gaus);
+#endif
 
+    /* variable parameters */
+#if 1
     std::vector<double> values_lag;
     for (int i = 1; i <= 10; ++i)
         values_lag.push_back(i);
@@ -142,7 +152,7 @@ int ReleaseTestSuite::PrepareTests()
     AddTest(varpar_gaus_lag);
 
     // 2D Gaussian with varying lag
-    TF2* testfunc_2d_gaus_lag = new TF2("2dGaus_lag", "xygausn", -3., 3., -5., 7.);
+    TF2* testfunc_2d_gaus_lag = new TF2("2dGaus_lag", "xygaus", -3., 3., -5., 7.);
     testfunc_2d_gaus_lag->SetParameters(1, 0, 1, 1, 2);
     PerfTest2DFunction*   perftest_2d_gaus_lag = new PerfTest2DFunction("2d_gaus_lag", testfunc_2d_gaus_lag);
     PerfTestVarPar* varpar_2dgaus_lag = new PerfTestVarPar("2d_gaus_lag", perftest_2d_gaus_lag);
@@ -163,13 +173,13 @@ int ReleaseTestSuite::PrepareTests()
     AddTest(varpar_gaus_iter);
 
     // 2D Gaussian with varying iter
-    TF2* testfunc_2d_gaus_iter = new TF2("2dGaus_iter", "xygausn", -3., 3., -5., 7.);
+    TF2* testfunc_2d_gaus_iter = new TF2("2dGaus_iter", "xygaus", -3., 3., -5., 7.);
     testfunc_2d_gaus_iter->SetParameters(1, 0, 1, 1, 2);
     PerfTest2DFunction*   perftest_2d_gaus_iter = new PerfTest2DFunction("2d_gaus_iter", testfunc_2d_gaus_iter);
     PerfTestVarPar* varpar_2dgaus_iter = new PerfTestVarPar("2d_gaus_iter", perftest_2d_gaus_iter);
     varpar_2dgaus_iter->AddVarPar(values_iter, "iteration");
     AddTest(varpar_2dgaus_iter);
-
+#endif
     // no error
     return 1;
 }

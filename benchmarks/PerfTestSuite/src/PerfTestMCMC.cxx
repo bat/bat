@@ -86,8 +86,8 @@ int PerfTestMCMC::PreTest()
 
     // loop over parameters
     for (int i = 0; i < npar; ++i) {
-        double xmin = GetParameter(i)->GetLowerLimit();
-        double xmax = GetParameter(i)->GetLowerLimit();
+        double xmin = GetParameter(i).GetLowerLimit();
+        double xmax = GetParameter(i).GetLowerLimit();
         TH2D* hist = new TH2D("", "", 100, xmin, xmax, 100, xmin, xmax);
         fHistCorr.push_back(hist);
         fCorrelation.push_back(new TGraph(0));
@@ -160,7 +160,7 @@ int PerfTestMCMC::WriteResults()
 {
     PerfTest::WriteResults();
 
-    PrintResults( Form("%s.log", PerfTest::GetName().c_str()));
+    PrintSummary();
 
     return 1;
 }

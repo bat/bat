@@ -12,30 +12,33 @@ using namespace std;
 int main()
 {
     // create new test suite
-    ReleaseTestSuite* rts = new ReleaseTestSuite();
+    ReleaseTestSuite rts;
 
     // prepare test suite
-    rts->PrepareTests();
+    rts.PrepareTests();
 
     // setup html output as needed for BAT webpage
-//    rts->WebpageSetup();
+//    rts.WebpageSetup();
 
     // set precision: kCoarse, kMedium, kDetail
-    rts->SetPrecision(PerfTest::kMedium);
+    rts.SetPrecision(PerfTest::kMedium);
+
+    // call after SetPrecision
+    rts.SetLag(20);
+
+    // multivariate proposal
+    rts.SetMultivariate(true);
 
     // run all tests
-    rts->RunTests();
+    rts.RunTests();
 
     // print results to screen
-    rts->PrintResultsScreen();
+    rts.PrintResultsScreen();
 
     // print results to html
     // to view it locally, turn off webpage setup, and save with .html extension
-    // rts->PrintResultsHTML("results.php");
-    rts->PrintResultsHTML("results.html");
-
-    // delete test suite
-    delete rts;
+    // rts.PrintResultsHTML("results.php");
+    rts.PrintResultsHTML("results.html");
 
     return 0;
 }
