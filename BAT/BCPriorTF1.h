@@ -2,7 +2,7 @@
 #define __BCTF1PRIOR__H
 
 /*!
- * \class BCTF1Prior
+ * \class BCPriorTF1
  * \brief A class to represent the prior of a parameter by a formula through a TF1
  * \author Daniel Greenwald
  * \version 1.0
@@ -29,20 +29,20 @@
 
 // ---------------------------------------------------------
 
-class BCTF1Prior : public BCPrior
+class BCPriorTF1 : public BCPrior
 {
 public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
     /** Constructor taking TF1*/
-    BCTF1Prior(TF1& f);
+    BCPriorTF1(TF1& f);
 
     /** Constructor with formula and limits. */
-    BCTF1Prior(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity());
+    BCPriorTF1(const char* formula, double xmin, double xmax); //double xmin=-std::numeric_limits<double>::infinity(), double xmax=std::numeric_limits<double>::infinity());
 
     /** Destrcutor */
-    virtual ~BCTF1Prior() {};
+    virtual ~BCPriorTF1() {};
 
     /** @} **/
 
@@ -51,7 +51,7 @@ public:
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCTF1Prior(*this); }
+    { return new BCPriorTF1(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */

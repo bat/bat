@@ -6,44 +6,44 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCPositiveDefinitePrior.h"
+#include "BCPriorPositiveDefinite.h"
 
 // ---------------------------------------------------------
-BCPositiveDefinitePrior::BCPositiveDefinitePrior(BCPrior* prior)
+BCPriorPositiveDefinite::BCPriorPositiveDefinite(BCPrior* prior)
     : BCPrior(),
       fPrior(prior)
 {
 }
 
 // ---------------------------------------------------------
-BCPositiveDefinitePrior::BCPositiveDefinitePrior(const BCPositiveDefinitePrior& other)
+BCPriorPositiveDefinite::BCPriorPositiveDefinite(const BCPriorPositiveDefinite& other)
     : BCPrior(other),
       fPrior(other.fPrior->Clone())
 {
 }
 
 // ---------------------------------------------------------
-BCPositiveDefinitePrior::~BCPositiveDefinitePrior()
+BCPriorPositiveDefinite::~BCPriorPositiveDefinite()
 {
     delete fPrior;
 }
 
 // ---------------------------------------------------------
-BCPositiveDefinitePrior& BCPositiveDefinitePrior::operator=(BCPositiveDefinitePrior other)
+BCPriorPositiveDefinite& BCPriorPositiveDefinite::operator=(BCPriorPositiveDefinite other)
 {
     swap(*this, other);
     return *this;
 }
 
 // ---------------------------------------------------------
-void swap(BCPositiveDefinitePrior& A, BCPositiveDefinitePrior& B)
+void swap(BCPriorPositiveDefinite& A, BCPriorPositiveDefinite& B)
 {
     swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
     std::swap(A.fPrior, B.fPrior);
 }
 
 // ---------------------------------------------------------
-double BCPositiveDefinitePrior::GetRandomValue(double xmin, double xmax, TRandom* const R)
+double BCPriorPositiveDefinite::GetRandomValue(double xmin, double xmax, TRandom* const R)
 {
     xmin = std::max<double>(xmin, 0);
     xmax = std::max<double>(xmax, 0);

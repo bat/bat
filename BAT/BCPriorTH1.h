@@ -2,7 +2,7 @@
 #define __BCTH1PRIOR__H
 
 /*!
- * \class BCTH1Prior
+ * \class BCPriorTH1
  * \brief A class to represent the prior of a parameter by a TH1
  * \author Daniel Greenwald
  * \version 1.0
@@ -29,23 +29,23 @@
 
 // ---------------------------------------------------------
 
-class BCTH1Prior : public BCPrior
+class BCPriorTH1 : public BCPrior
 {
 public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
     /** Constructor */
-    BCTH1Prior(TH1& h, bool interpolate = false);
+    BCPriorTH1(TH1& h, bool interpolate = false);
 
     /** Constructor */
-    BCTH1Prior(TH1* h, bool interpolate = false);
+    BCPriorTH1(TH1* h, bool interpolate = false);
 
     /** Copy constructor */
-    BCTH1Prior(const BCTH1Prior& other);
+    BCPriorTH1(const BCPriorTH1& other);
 
     /** Destructor */
-    virtual ~BCTH1Prior() {};
+    virtual ~BCPriorTH1() {};
 
     /** @} **/
 
@@ -53,10 +53,10 @@ public:
     /** @{ **/
 
     /** assignment operator */
-    BCTH1Prior& operator=(BCTH1Prior rhs);
+    BCPriorTH1& operator=(BCPriorTH1 rhs);
 
     /** swap */
-    friend void swap(BCTH1Prior& A, BCTH1Prior& B);
+    friend void swap(BCPriorTH1& A, BCPriorTH1& B);
 
     /** @} **/
 
@@ -65,7 +65,7 @@ public:
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCTH1Prior(*this); }
+    { return new BCPriorTH1(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */

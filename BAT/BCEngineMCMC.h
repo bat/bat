@@ -960,7 +960,7 @@ public:
     { SetPriorConstant(fParameters.Index(name)); }
 
     /**
-     * @deprecated Instead call: GetPrarameter(index)->SetPrior(new BCTF1Prior(f))
+     * @deprecated Instead call: GetPrarameter(index)->SetPrior(new BCPriorTF1(f))
      * Set prior for a parameter.
      * @param index The parameter index
      * @param f A function describing the prior
@@ -968,7 +968,7 @@ public:
     void SetPrior(unsigned index, TF1& f, bool logL = true);
 
     /**
-     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTF1Prior(f))
+     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCPriorTF1(f))
      * Set prior for a parameter.
      * @param name The parameter name
      * @param f A function describing the prior
@@ -993,7 +993,7 @@ public:
     { SetPriorDelta(fParameters.Index(name), value); }
 
     /**
-     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCGaussianPrior(mean,sigma))
+     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCPriorGaussian(mean,sigma))
      * Set Gaussian prior for a parameter.
      * @param index The parameter index
      * @param mean The mean of the Gaussian
@@ -1001,7 +1001,7 @@ public:
     void SetPriorGauss(unsigned index, double mean, double sigma);
 
     /**
-     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCGaussianPrior(mean,sigma))
+     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCPriorGaussian(mean,sigma))
      * Set Gaussian prior for a parameter.
      * @param name The parameter name
      * @param mean The mean of the Gaussian
@@ -1010,7 +1010,7 @@ public:
     { SetPriorGauss(fParameters.Index(name), mean, sigma); }
 
     /**
-     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCSplitGaussianPrior(mode,sigma_below,sigma_above))
+     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCPriorSplitGaussian(mode,sigma_below,sigma_above))
      * Set Gaussian prior for a parameter with two different widths.
      * @param index The parameter index
      * @param mode The mode of the Gaussian
@@ -1019,7 +1019,7 @@ public:
     void SetPriorGauss(unsigned index, double mode, double sigma_below, double sigma_above);
 
     /**
-     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCSplitGaussianPrior(mode,sigma_below,sigma_above))
+     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCPriorSplitGaussian(mode,sigma_below,sigma_above))
      * Set Gaussian prior for a parameter with two different widths.
      * @param name The parameter name
      * @param mode The mode of the Gaussian
@@ -1029,7 +1029,7 @@ public:
     {	SetPriorGauss(fParameters.Index(name), mode, sigmadown, sigmaup); }
 
     /**
-     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCTH1Prior(h,interpolate))
+     * @deprecated Instead call: GetParameter(index)->SetPrior(new BCPriorTH1(h,interpolate))
      * Set prior for a parameter.
      * @param index parameter index
      * @param h histogram describing the prior
@@ -1037,7 +1037,7 @@ public:
     void SetPrior(unsigned index, TH1& h, bool interpolate = false);
 
     /**
-     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCTH1Prior(h,interpolate))
+     * @deprecated Instead call: GetParameter(name)->SetPrior(new BCPriorTH1(h,interpolate))
      * Set prior for a parameter.
      * @param name parameter name
      * @param h histogram describing the prior

@@ -6,13 +6,14 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCTH1Prior.h"
 #include <config.h>
+
+#include "BCPriorTH1.h"
 
 #include <cmath>
 
 // ---------------------------------------------------------
-BCTH1Prior::BCTH1Prior(TH1& h, bool interpolate)
+BCPriorTH1::BCPriorTH1(TH1& h, bool interpolate)
     : BCPrior(),
       fPriorHistogram(h),
       fInterpolate(interpolate)
@@ -21,7 +22,7 @@ BCTH1Prior::BCTH1Prior(TH1& h, bool interpolate)
 }
 
 // ---------------------------------------------------------
-BCTH1Prior::BCTH1Prior(TH1* h, bool interpolate)
+BCPriorTH1::BCPriorTH1(TH1* h, bool interpolate)
     : BCPrior(),
       fPriorHistogram(*h),
       fInterpolate(interpolate)
@@ -30,7 +31,7 @@ BCTH1Prior::BCTH1Prior(TH1* h, bool interpolate)
 }
 
 // ---------------------------------------------------------
-BCTH1Prior::BCTH1Prior(const BCTH1Prior& other)
+BCPriorTH1::BCPriorTH1(const BCPriorTH1& other)
     : BCPrior(other),
       fPriorHistogram(other.fPriorHistogram),
       fInterpolate(other.fInterpolate)
@@ -39,14 +40,14 @@ BCTH1Prior::BCTH1Prior(const BCTH1Prior& other)
 }
 
 // ---------------------------------------------------------
-BCTH1Prior& BCTH1Prior::operator=(BCTH1Prior rhs)
+BCPriorTH1& BCPriorTH1::operator=(BCPriorTH1 rhs)
 {
     swap(*this, rhs);
     return *this;
 }
 
 // ---------------------------------------------------------
-void swap(BCTH1Prior& A, BCTH1Prior& B)
+void swap(BCPriorTH1& A, BCPriorTH1& B)
 {
     swap(static_cast<BCPrior&>(A), static_cast<BCPrior&>(B));
     TH1& temp(A.fPriorHistogram);
@@ -63,7 +64,7 @@ void swap(BCTH1Prior& A, BCTH1Prior& B)
 }
 
 // ---------------------------------------------------------
-bool BCTH1Prior::IsValid() const
+bool BCPriorTH1::IsValid() const
 {
     if (fPriorHistogram.GetDimension() != 1)
         return false;
@@ -79,7 +80,7 @@ bool BCTH1Prior::IsValid() const
 }
 
 // ---------------------------------------------------------
-void BCTH1Prior::NormalizeHistogram()
+void BCPriorTH1::NormalizeHistogram()
 {
     double integral = 0;
     if (fInterpolate)
@@ -92,7 +93,7 @@ void BCTH1Prior::NormalizeHistogram()
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetLogPrior(double x)
+double BCPriorTH1::GetLogPrior(double x)
 {
     double p = GetPrior(x, false);
     if (p > 0)
@@ -103,13 +104,13 @@ double BCTH1Prior::GetLogPrior(double x)
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetMode(double /*xmin*/, double /*xmax*/)
+double BCPriorTH1::GetMode(double /*xmin*/, double /*xmax*/)
 {
     return fPriorHistogram.GetXaxis()->GetBinCenter(fPriorHistogram.GetMaximumBin());
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax)
+double BCPriorTH1::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 0;
@@ -121,7 +122,7 @@ double BCTH1Prior::GetRawMoment(unsigned n, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetStandardizedMoment(unsigned n, double xmin, double xmax)
+double BCPriorTH1::GetStandardizedMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 0;
@@ -135,7 +136,7 @@ double BCTH1Prior::GetStandardizedMoment(unsigned n, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCTH1Prior::GetIntegral(double xmin, double xmax)
+double BCPriorTH1::GetIntegral(double xmin, double xmax)
 {
     xmin = std::max(xmin, fPriorHistogram.GetXaxis()->GetXmin());
     xmax = std::min(xmax, fPriorHistogram.GetXaxis()->GetXmax());
@@ -154,7 +155,7 @@ double BCTH1Prior::GetIntegral(double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-BCH1D BCTH1Prior::GetBCH1D(TH1* bins, const char* name)
+BCH1D BCPriorTH1::GetBCH1D(TH1* bins, const char* name)
 {
     // if not interpolating, use actual histogram binning
     if (!fInterpolate) {

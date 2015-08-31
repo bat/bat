@@ -13,14 +13,13 @@
 
 #include <BAT/BCPrior.h>
 
-#include <BAT/BCCauchyPrior.h>
-#include <BAT/BCConstantPrior.h>
-#include <BAT/BCGaussianPrior.h>
-#include <BAT/BCSplitGaussianPrior.h>
-#include <BAT/BCTF1LogPrior.h>
-#include <BAT/BCTF1Prior.h>
-#include <BAT/BCTH1Prior.h>
-
+#include <BAT/BCPriorCauchy.h>
+#include <BAT/BCPriorConstant.h>
+#include <BAT/BCPriorGaussian.h>
+#include <BAT/BCPriorLogTF1.h>
+#include <BAT/BCPriorSplitGaussian.h>
+#include <BAT/BCPriorTF1.h>
+#include <BAT/BCPriorTH1.h>
 #include <TF1.h>
 #include <TH1D.h>
 
@@ -109,8 +108,8 @@ public:
         BCPrior* prior = NULL;
 
         // Cauchy Prior
-        std::cout << "Testing BCCauchyPrior ... " << std::flush;
-        prior = new BCCauchyPrior(1.5, 3);
+        std::cout << "Testing BCPriorCauchy ... " << std::flush;
+        prior = new BCPriorCauchy(1.5, 3);
         TestPriorImplementation( prior, -10, 10, 1 );
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.24334 , 1.e-5); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(4.5),  -2.93649 , 1.e-5); // at mean+scale
@@ -124,8 +123,8 @@ public:
         std::cout << "PASS" << std::endl;
 
         // Constant Prior
-        std::cout << "Testing BCConstantPrior ... " << std::flush;
-        prior = new BCConstantPrior();
+        std::cout << "Testing BCPriorConstant ... " << std::flush;
+        prior = new BCPriorConstant();
         // check moments
         for (unsigned n = 1; n <= 4; ++n)
             TEST_CHECK_NEARLY_EQUAL( prior->GetRawMoment(n, -10, 10),
@@ -141,8 +140,8 @@ public:
         std::cout << "PASS" << std::endl;
 
         // Gaussian Prior
-        std::cout << "Testing BCGaussianPrior ... " << std::flush;
-        prior = new BCGaussianPrior(1.5, 3);
+        std::cout << "Testing BCPriorGaussian ... " << std::flush;
+        prior = new BCPriorGaussian(1.5, 3);
         TestPriorImplementation( prior, -10, 10, 1);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.01755 , 1.e-5); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(4.5),  -2.51755 , 1.e-5); // at mean+sigma
@@ -155,8 +154,8 @@ public:
         std::cout << "PASS" << std::endl;
 
         // Split Gaussian Prior
-        std::cout << "Testing BCSplitGaussianPrior ... " << std::flush;
-        prior = new BCSplitGaussianPrior(1.5, 3, 5);
+        std::cout << "Testing BCPriorSplitGaussian ... " << std::flush;
+        prior = new BCPriorSplitGaussian(1.5, 3, 5);
         TestPriorImplementation( prior, -10, 10, 1);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.30523 , 1.e-5); // at mode
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(6.5),  -2.80523 , 1.e-5); // at mode+sigma_above
@@ -169,10 +168,10 @@ public:
         std::cout << "PASS" << std::endl;
 
         // TF1LogPrior
-        std::cout << "Testing BCTF1LogPrior ... " << std::flush;
+        std::cout << "Testing BCPriorLogTF1 ... " << std::flush;
         // TF1 of ln(Normal)
-        prior = new BCTF1LogPrior("-0.5*((x-[0])/[1])^2 - log([1]) - 0.5*log(2*pi)", -10, 10);
-        dynamic_cast<BCTF1LogPrior*>(prior)->GetLogFunction().SetParameters(1.5, 3);
+        prior = new BCPriorLogTF1("-0.5*((x-[0])/[1])^2 - log([1]) - 0.5*log(2*pi)", -10, 10);
+        dynamic_cast<BCPriorLogTF1*>(prior)->GetLogFunction().SetParameters(1.5, 3);
         TestPriorImplementation( prior, -10, 10, 2);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.01755 , 1.e-5); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(4.5),  -2.51755 , 1.e-5); // at mean+sigma
@@ -184,9 +183,9 @@ public:
 
 
         // TF1 Prior
-        std::cout << "Testing BCTF1Prior ... " << std::flush;
+        std::cout << "Testing BCPriorTF1 ... " << std::flush;
         // TF1 of Normal
-        prior = new BCTF1Prior("exp(-0.5*((x-[0])/[1])^2)/sqrt(2*pi)/[1]", -10, 10);
+        prior = new BCPriorTF1("exp(-0.5*((x-[0])/[1])^2)/sqrt(2*pi)/[1]", -10, 10);
         prior->GetFunction().SetParameters(1.5, 3);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1.5),  -2.01755 , 1.e-5); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(4.5),  -2.51755 , 1.e-5); // at mean+sigma
@@ -197,10 +196,10 @@ public:
         std::cout << "PASS" << std::endl;
 
         // TH1Prior
-        std::cout << "Testing BCTH1Prior with interpolation ... " << std::flush;
+        std::cout << "Testing BCPriorTH1 with interpolation ... " << std::flush;
         TH1D h1_prior("h1_prior", "", 100, -5, 5);
         h1_prior.FillRandom("gaus", 1000000);
-        prior = new BCTH1Prior(h1_prior, true);
+        prior = new BCPriorTH1(h1_prior, true);
         TestPriorImplementation( prior, -10, 10, 2, 1.e-2);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(0),  -0.91894 , 5.e-2); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1),  -1.41894 , 5.e-2); // at mean+sigma
@@ -212,8 +211,8 @@ public:
         delete prior;
         std::cout << "PASS" << std::endl;
 
-        std::cout << "Testing BCTH1Prior without interpolation ... " << std::flush;
-        prior = new BCTH1Prior(h1_prior, false);
+        std::cout << "Testing BCPriorTH1 without interpolation ... " << std::flush;
+        prior = new BCPriorTH1(h1_prior, false);
         TestPriorImplementation( prior, -10, 10, 2, 5.e-2);
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(0),  -0.91894 , 0.15); // at mean
         TEST_CHECK_NEARLY_EQUAL( prior->GetLogPrior(1),  -1.41894 , 0.15); // at mean+sigma

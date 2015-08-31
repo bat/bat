@@ -18,7 +18,7 @@
 #include "BCParameter.h"
 #include "BCPriorModel.h"
 #include "BCPrior.h"
-#include "BCConstantPrior.h"
+#include "BCPriorConstant.h"
 
 #include <TCanvas.h>
 #include <TH1.h>
@@ -242,7 +242,7 @@ BCH1D BCModel::GetPrior(unsigned index)
 
         if (prior.Valid()) {
             // correct for flat prior
-            bool const_prior = (dynamic_cast<BCConstantPrior*>(GetParameter(index).GetPrior()) != NULL);
+            bool const_prior = (dynamic_cast<BCPriorConstant*>(GetParameter(index).GetPrior()) != NULL);
             if (const_prior) {
                 prior.SetLocalMode((unsigned)0, GetParameter(index).GetRangeCenter());
                 prior.SetNBands(0);
@@ -287,8 +287,8 @@ BCH2D BCModel::GetPrior(unsigned index1, unsigned index2)
 
         if (prior.Valid()) {
             // correct for flat prior
-            bool const_prior1 = (dynamic_cast<BCConstantPrior*>(GetParameter(index1).GetPrior()) != NULL);
-            bool const_prior2 = (dynamic_cast<BCConstantPrior*>(GetParameter(index2).GetPrior()) != NULL);
+            bool const_prior1 = (dynamic_cast<BCPriorConstant*>(GetParameter(index1).GetPrior()) != NULL);
+            bool const_prior2 = (dynamic_cast<BCPriorConstant*>(GetParameter(index2).GetPrior()) != NULL);
             if (const_prior1)
                 prior.SetLocalMode((unsigned)0, GetParameter(index1).GetRangeCenter());
             if (const_prior2)

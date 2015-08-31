@@ -6,7 +6,8 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCGaussianPrior.h"
+#include "BCPriorGaussian.h"
+
 #include "BCAux.h"
 
 #include <TMath.h>
@@ -14,7 +15,7 @@
 #include <iostream>
 
 // ---------------------------------------------------------
-BCGaussianPrior::BCGaussianPrior(double mean, double sigma)
+BCPriorGaussian::BCPriorGaussian(double mean, double sigma)
     : BCPrior()
     , fMean(mean)
     , fSigma(sigma)
@@ -22,7 +23,7 @@ BCGaussianPrior::BCGaussianPrior(double mean, double sigma)
 }
 
 // ---------------------------------------------------------
-double BCGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax)
+double BCPriorGaussian::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return BCPrior::GetRawMoment(n, xmin, xmax);
@@ -65,7 +66,7 @@ double BCGaussianPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCGaussianPrior::GetIntegral(double xmin, double xmax)
+double BCPriorGaussian::GetIntegral(double xmin, double xmax)
 {
     switch (BCAux::RangeType(xmin, xmax)) {
 

@@ -2,7 +2,7 @@
 #define __BCCONSTANTPRIOR__H
 
 /*!
- * \class BCConstantPrior
+ * \class BCPriorConstant
  * \brief A class to represent a constant prior of a parameter
  * \author Daniel Greenwald
  * \version 1.0
@@ -30,7 +30,7 @@ class TRandom;
 
 // ---------------------------------------------------------
 
-class BCConstantPrior : public BCPrior
+class BCPriorConstant : public BCPrior
 {
 public:
 
@@ -38,22 +38,22 @@ public:
     /** @{ */
 
     /** Constructor for constant unit prior*/
-    BCConstantPrior();
+    BCPriorConstant();
 
     /** Constructor for constant 1/range prior */
-    BCConstantPrior(double range_width);
+    BCPriorConstant(double range_width);
 
     /** Constructor for constant 1/range prior */
-    BCConstantPrior(double xmin, double xmax);
+    BCPriorConstant(double xmin, double xmax);
 
     /** Destructor */
-    virtual ~BCConstantPrior() {};
+    virtual ~BCPriorConstant() {};
 
     /** @} */
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCConstantPrior(*this); }
+    { return new BCPriorConstant(*this); }
 
     /** @return constant log(prior) */
     virtual double GetLogPrior(double /*x*/)

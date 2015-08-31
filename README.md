@@ -58,7 +58,7 @@ Installation
 
 See the `INSTALL.md` file for installation instructions. The
 instructions for the latest development version are also available
-[online](https://github.com/bat/bat/blob/master/INSTALL.md).
+at https://github.com/bat/bat/blob/master/INSTALL.md.
 
 
 Contact

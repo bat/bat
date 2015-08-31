@@ -6,19 +6,20 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCConstantPrior.h"
+#include "BCPriorConstant.h"
+
 #include "BCAux.h"
 
 #include <TRandom.h>
 
 // ---------------------------------------------------------
-BCConstantPrior::BCConstantPrior()
+BCPriorConstant::BCPriorConstant()
     : BCPrior()
     , fLogRangeWidth(0)
 {}
 
 // ---------------------------------------------------------
-BCConstantPrior::BCConstantPrior(double range_width)
+BCPriorConstant::BCPriorConstant(double range_width)
     : BCPrior()
     , fLogRangeWidth(0)
 {
@@ -27,7 +28,7 @@ BCConstantPrior::BCConstantPrior(double range_width)
 }
 
 // ---------------------------------------------------------
-BCConstantPrior::BCConstantPrior(double xmin, double xmax)
+BCPriorConstant::BCPriorConstant(double xmin, double xmax)
     : BCPrior()
     , fLogRangeWidth(0)
 {
@@ -36,7 +37,7 @@ BCConstantPrior::BCConstantPrior(double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCConstantPrior::GetMode(double xmin, double xmax)
+double BCPriorConstant::GetMode(double xmin, double xmax)
 {
     BCAux::BCRange r = BCAux::RangeType(xmin, xmax);
 
@@ -59,7 +60,7 @@ double BCConstantPrior::GetMode(double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax)
+double BCPriorConstant::GetRawMoment(unsigned n, double xmin, double xmax)
 {
     if (n == 0)
         return 1;
@@ -88,11 +89,9 @@ double BCConstantPrior::GetRawMoment(unsigned n, double xmin, double xmax)
 }
 
 // ---------------------------------------------------------
-double BCConstantPrior::GetRandomValue(double xmin, double xmax, TRandom* const R)
+double BCPriorConstant::GetRandomValue(double xmin, double xmax, TRandom* const R)
 {
     if (!R)
         return std::numeric_limits<double>::quiet_NaN();
     return xmin + R->Rndm() * xmax;
 }
-
-

@@ -2,7 +2,7 @@
 #define __BCCAUCHYPRIOR__H
 
 /*!
- * \class BCCauchyPrior
+ * \class BCPriorCauchy
  * \brief A class to represent a Cauchy prior of a parameter
  * \author Daniel Greenwald
  * \version 1.0
@@ -29,17 +29,17 @@ class TF1;
 
 // ---------------------------------------------------------
 
-class BCCauchyPrior : public BCPrior
+class BCPriorCauchy : public BCPrior
 {
 public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
     /** Constructor */
-    BCCauchyPrior(double mean, double scale);
+    BCPriorCauchy(double mean, double scale);
 
     /** Destrcutor */
-    virtual ~BCCauchyPrior() {};
+    virtual ~BCPriorCauchy() {};
 
     /** @} **/
 
@@ -48,7 +48,7 @@ public:
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCCauchyPrior(*this); }
+    { return new BCPriorCauchy(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */

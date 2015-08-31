@@ -2,7 +2,7 @@
 #define __BCGAUSSIANPRIOR__H
 
 /*!
- * \class BCGaussianPrior
+ * \class BCPriorGaussian
  * \brief A class to represent a gaussian prior of a parameter
  * \author Daniel Greenwald
  * \version 1.0
@@ -30,26 +30,26 @@ class TF1;
 
 // ---------------------------------------------------------
 
-class BCGaussianPrior : public BCPrior
+class BCPriorGaussian : public BCPrior
 {
 public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
     /** Constructor */
-    BCGaussianPrior(double mean, double sigma);
+    BCPriorGaussian(double mean, double sigma);
 
     /** Destructor */
-    virtual ~BCGaussianPrior() {};
+    virtual ~BCPriorGaussian() {};
 
     /** @} **/
 
     /** \name Functions overloaded from BCPrior **/
-    /** @{ **/
+    /** @{ */
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCGaussianPrior(*this); }
+    { return new BCPriorGaussian(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */

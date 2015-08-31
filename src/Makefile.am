@@ -30,34 +30,34 @@ EXTRA_DIST = LinkDef.h
 library_includedir= $(includedir)/BAT
 
 incs= \
+	BCAux.h \
 	BCDataPoint.h \
 	BCDataSet.h \
+	BCEmptyModel.h \
+	BCEngineMCMC.h \
 	BCHistogramBase.h \
 	BCH1D.h \
 	BCH2D.h \
-	BCPrior.h \
-	BCConstantPrior.h \
-	BCGaussianPrior.h \
-	BCSplitGaussianPrior.h \
-	BCCauchyPrior.h \
-	BCTF1Prior.h \
-	BCTF1LogPrior.h \
-	BCTH1Prior.h \
-	BCPositiveDefinitePrior.h \
-	BCObservableSet.h \
-	BCParameterSet.h \
-	BCObservable.h \
-	BCParameter.h \
-	BCVariable.h \
-	BCEngineMCMC.h \
 	BCIntegrate.h \
-	BCModel.h \
-	BCEmptyModel.h \
-	BCPriorModel.h \
-	BCModelManager.h \
 	BCLog.h \
 	BCMath.h \
-	BCAux.h
+	BCModel.h \
+	BCModelManager.h \
+	BCObservable.h \
+	BCObservableSet.h \
+	BCParameter.h \
+	BCParameterSet.h \
+	BCPrior.h \
+	BCPriorCauchy.h \
+	BCPriorConstant.h \
+	BCPriorGaussian.h \
+	BCPriorLogTF1.h \
+	BCPriorModel.h \
+	BCPriorPositiveDefinite.h \
+	BCPriorSplitGaussian.h \
+	BCPriorTF1.h \
+	BCPriorTH1.h \
+	BCVariable.h
 
 non_source_incs = \
 	BCVariableSet.h

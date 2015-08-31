@@ -6,21 +6,21 @@
  * For documentation see http://mpp.mpg.de/bat
  */
 
-#include "BCTF1Prior.h"
+#include "BCPriorTF1.h"
 
 #include <cmath>
 
 #include <TF1.h>
 
 // ---------------------------------------------------------
-BCTF1Prior::BCTF1Prior(TF1& f)
+BCPriorTF1::BCPriorTF1(TF1& f)
     : BCPrior()
 {
     fPriorFunction = f;
 }
 
 // ---------------------------------------------------------
-BCTF1Prior::BCTF1Prior(const char* formula, double xmin, double xmax)
+BCPriorTF1::BCPriorTF1(const char* formula, double xmin, double xmax)
     : BCPrior()
 {
     fPriorFunction = TF1("f1_prior", formula, xmin, xmax);

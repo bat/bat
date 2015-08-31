@@ -2,7 +2,7 @@
 #define __BCSPLITGAUSSIANPRIOR__H
 
 /*!
- * \class BCSplitGaussianPrior
+ * \class BCPriorSplitGaussian
  * \brief A class to represent a split-Gaussian prior of a parameter
  * \author Daniel Greenwald
  * \version 1.0
@@ -29,20 +29,20 @@ class TF1;
 
 // ---------------------------------------------------------
 
-class BCSplitGaussianPrior : public BCPrior
+class BCPriorSplitGaussian : public BCPrior
 {
 public:
     /** \name Constructor & Destructor */
     /** @{ **/
 
     /** Constructor */
-    BCSplitGaussianPrior(double mode, double sigma_below, double sigma_above);
+    BCPriorSplitGaussian(double mode, double sigma_below, double sigma_above);
 
     /** Copy constructor */
-    BCSplitGaussianPrior(const BCSplitGaussianPrior& other);
+    BCPriorSplitGaussian(const BCPriorSplitGaussian& other);
 
     /** Destructor */
-    virtual ~BCSplitGaussianPrior() {};
+    virtual ~BCPriorSplitGaussian() {};
 
     /** @} **/
 
@@ -51,7 +51,7 @@ public:
 
     /** Clone function */
     virtual BCPrior* Clone() const
-    { return new BCSplitGaussianPrior(*this); }
+    { return new BCPriorSplitGaussian(*this); }
 
     /**
      * @return Whether everything needed for prior is set and prior can be used. */
