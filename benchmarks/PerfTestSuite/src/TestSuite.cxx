@@ -42,6 +42,26 @@ TestSuite::~TestSuite()
 }
 
 //______________________________________________________________________________
+void TestSuite::SetLag(unsigned lag)
+{
+    for (int i = 0; i < GetNTests(); ++i) {
+        PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
+        unsigned iter = unsigned(m->MCMCGetNIterationsRun() * lag / double(m->MCMCGetNLag()) );
+        m->MCMCSetNLag(lag);
+        m->MCMCSetNIterationsRun(iter);
+    }
+}
+
+//______________________________________________________________________________
+void TestSuite::SetMultivariate(bool flag)
+{
+    for (int i = 0; i < GetNTests(); ++i) {
+        PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
+        m->MCMCSetMultivariateProposalFunction(flag);
+    }
+}
+
+//______________________________________________________________________________
 void TestSuite::SetPrecision(PerfTest::Precision precision)
 {
     // get number of sub tests
@@ -292,15 +312,19 @@ void TestSuite::PrintResultsHTML(std::string filename)
         file << "</br>" << std::endl;
 
         if (GetTest(i)->GetTestType() ==  PerfTest::kFunction1D || GetTest(i)->GetTestType() ==  PerfTest::kFunction2D) {
+            const PerfTest1DFunction* m = (PerfTest1DFunction*) GetTest(i);
+            const bool converged = (m->MCMCGetNIterationsConvergenceGlobal() != unsigned(-1));
+
             file << "<table border=\"0\" width=\"30%\">" << std::endl;
             file << "<tr>";
             file << "  <th align=\"left\">Settings</th>" << std::endl;
             file << "</tr>" << std::endl;
-            file << " <tr> <td>N chains</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNChains() << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N lag</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNLag() << " </td></tr>"  << std::endl;
-            file << " <tr> <td>Convergence</td> <td>" << (((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsConvergenceGlobal() > 0 ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N iterations (pre-run) </td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsConvergenceGlobal() << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N iterations (run)</td> <td>" << ((PerfTest1DFunction*) GetTest(i))->MCMCGetNIterationsRun() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>multivariate</td> <td>" << std::boolalpha << m->MCMCGetMultivariateProposalFunction() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N chains</td> <td>" << m->MCMCGetNChains() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N lag</td> <td>" << m->MCMCGetNLag() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>Convergence</td> <td>" << (converged ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N iterations (pre-run) </td> <td>" << (converged ? : m->MCMCGetNIterationsPreRunMax()) << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N iterations (run)</td> <td>" << m->MCMCGetNIterationsRun() << " </td></tr>"  << std::endl;
             file << "</table>" << std::endl;
             file << "</br>" << std::endl;
         }
