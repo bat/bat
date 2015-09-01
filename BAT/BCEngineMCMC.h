@@ -1278,7 +1278,13 @@ public:
     /**
      * Resets all containers used in MCMC and initializes starting points.
      * @return Success of action. */
-    virtual bool MCMCInitialize();
+    bool MCMCInitialize();
+
+    /**
+     * User-defined function called at the end of MCMCInitialize()
+     * @return Success of action. */
+    virtual bool MCMCUserInitialize()
+    { return true; }
 
     /**
      * Reset the MCMC variables. */

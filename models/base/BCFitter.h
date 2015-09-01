@@ -221,7 +221,7 @@ public:
 
     /**
      * Sync TF1 pointers for thread safety */
-    bool MCMCInitialize();
+    bool MCMCUserInitialize();
 
 protected:
 

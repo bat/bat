@@ -101,8 +101,10 @@ bool BCFitter::SetFitFunction(TF1* f)
 }
 
 // ---------------------------------------------------------
-bool BCFitter::MCMCInitialize()
+bool BCFitter::MCMCUserInitialize()
 {
+    if (fFitFunction.empty())
+        return false;
     if (fFitFunction[0]) {
         // add copies of the first function if necessary
         while (fFitFunction.size() < fMCMCNChains)
@@ -113,8 +115,10 @@ bool BCFitter::MCMCInitialize()
             delete fFitFunction.back();
             fFitFunction.pop_back();
         }
+    } else {
+        return false;
     }
-    return BCEngineMCMC::MCMCInitialize();
+    return true;
 }
 
 // ---------------------------------------------------------
