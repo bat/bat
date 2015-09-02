@@ -383,3 +383,8 @@ double BCMath::FastPValue(const std::vector<unsigned>& observed, const std::vect
     // calculate p-value
     return double(counter_pvalue) / nIterations;
 }
+
+double BCMath::random::Chi2(TRandom* rng, double dof)
+{
+    return ROOT::Math::chisquared_quantile(rng->Rndm(), dof);
+}

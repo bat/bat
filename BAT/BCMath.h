@@ -28,6 +28,7 @@
 #include <vector>
 
 class TH1D;
+class TRandom;
 
 namespace BCMath
 {
@@ -177,6 +178,19 @@ double CorrectPValue(const double& pvalue, const unsigned& npar, const unsigned&
 double FastPValue(const std::vector<unsigned>& observed, const std::vector<double>& expected,
                   unsigned nIterations = 1e5, unsigned seed = 0) throw (std::invalid_argument);
 
+/** @} */
+
+/** \name Random number generation */
+/** @{ */
+namespace random
+{
+/**
+ * Chi2 random variate.
+ * @param rng Random number generator.
+ * @param dof Degree of freedom.
+ */
+double Chi2(TRandom* rng, double dof);
+}
 /** @} */
 }
 

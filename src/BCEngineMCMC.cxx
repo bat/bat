@@ -1433,8 +1433,13 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
     for (int i = 0; i < y.GetNrows(); ++i)
         y[i] = fMCMCThreadLocalStorage[chain].rng->Gaus(0, 1);
 
-    // multiply by cholesky decomposition
+    // multiply by Cholesky decomposition
     y *= fMultivariateProposalFunctionCholeskyDecomposition[chain];
+
+    // multiply by chi2 random variable
+    double scale = 1.0;
+    if (fMultivariateProposalFunctionDof > 0)
+        scale = ROOT::Math::chisquared_quantile(rng->Rndm(), fMultivariateProposalFunctionDof);
 
     // add values into x
     int I = 0;
