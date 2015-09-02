@@ -100,9 +100,6 @@ public:
          * @param n_obs number of observables to calculate statistics for (sans efficiencies). */
         MCMCStatistics(unsigned n_par = 0, unsigned n_obs = 0);
 
-        /** Copy constructor. */
-        MCMCStatistics(const BCEngineMCMC::MCMCStatistics& other);
-
         unsigned n_samples;					                  ///< number of samples used to calculate statistics
         std::vector<double> mean;		                  ///< means of all variables
         std::vector<double> variance;                 ///< variances of all variables
@@ -133,10 +130,6 @@ public:
         /** reset efficiencies */
         void ResetEfficiencies();
 
-        /** assignment operator. */
-        MCMCStatistics& operator  = (const MCMCStatistics& rhs);
-        /** swap */
-        friend void swap(BCEngineMCMC::MCMCStatistics& A, BCEngineMCMC::MCMCStatistics& B);
         /** addition assignment operator. */
         MCMCStatistics& operator += (const MCMCStatistics& rhs);
 
@@ -164,7 +157,7 @@ public:
      * @param name Name of model (file should contain TTree's [name]_mcmc and [name]_parameters.\n
      * if empty string is given, properly matching TTrees are searched for in the file.
      * @param loadObservables Flag for whether to load observables for file (true; default) or to let user respecify observables.*/
-    BCEngineMCMC(std::string filename, std::string name, bool loadObservables = true);
+    BCEngineMCMC(const std::string& filename, const std::string& name, bool loadObservables = true);
 
     /**
      * Destructor. */
