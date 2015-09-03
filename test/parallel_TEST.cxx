@@ -69,9 +69,9 @@ struct BCCheckModel : BCEmptyModel {
 
     TTree* Tree() const {return fMCMCTree;}
 
-    double prob() const {return fMCMCprob[fMCMCTree_Chain];}
+    double prob() const {return fMCMCTree_Prob;}
     unsigned phase() const {return fMCMCPhase;}
-    const std::vector<double>& parameters() const {return fMCMCx[fMCMCTree_Chain];}
+    const std::vector<double>& parameters() const {return fMCMCTree_Parameters;}
 };
 
 class RunComparison
@@ -81,6 +81,10 @@ public:
         /**
          * The configure option to set the delay time */
         long delay;
+        /**
+         * Multivariate Student's t degree of freedom.
+         */
+        double dof;
         /**
          * Multivariate proposal */
         bool multivariate;
@@ -109,11 +113,12 @@ public:
     private:
         Config():
             delay(1e5),
+            dof(0),
             multivariate(false),
             num_chains(4),
             num_entries(300),
             num_parameters(1),
-            num_iterations(100),
+            num_iterations(10000),
             plot(false),
             rootFileNameSerial(BAT_TESTDIR "parallel_TEST_GaussModelSerial.root"),
             rootFileNameParallel(BAT_TESTDIR "parallel_TEST_GaussModelParallel.root")
@@ -168,7 +173,7 @@ public:
         // switch writing of Markov Chains on
         m.WriteMarkovChain(parallelization ? config.rootFileNameParallel.c_str() : config.rootFileNameSerial.c_str(), "RECREATE", true);
 
-        m.MCMCSetMultivariateProposalFunction(config.multivariate);
+        m.MCMCSetMultivariateProposalFunction(config.multivariate, config.dof);
 
         m.MCMCSetRandomSeed(seed);
 
@@ -226,9 +231,9 @@ public:
         for (unsigned m = 0; m < M; ++m)
             models[m].BCEngineMCMC::Remarginalize();
 
+        // trees should exist
         if (!models[0].Tree())
             TEST_CHECK_FAILED(std::string("Could not open tree from ") + config.rootFileNameParallel);
-
         if (!models[1].Tree())
             TEST_CHECK_FAILED(std::string("Could not open tree from ") + config.rootFileNameSerial);
 
@@ -236,10 +241,20 @@ public:
         long N = models[0].Tree()->GetEntries();
         TEST_CHECK_EQUAL(N, models[1].Tree()->GetEntries());
 
+        // number of parameters has to match
         unsigned npar = models[0].GetNParameters();
         TEST_CHECK_EQUAL(npar, models[1].GetNParameters());
 
-        // compare data for each iteration
+
+        /* compute mean chi2, include lag for independent samples*/
+
+        unsigned includedSamples = 0;
+        const unsigned lag = 20;
+        double chi2 = 0.0;
+        double meanChi2 = 0.0;
+
+        /* compare data for each iteration */
+
         for (unsigned n = 0; n < N; ++n) {
             // read in data from iteration n
             for (unsigned m = 0; m < M; ++m)
@@ -247,16 +262,44 @@ public:
 
             // loop over each dimension
             for (unsigned p = 0; p < npar; ++p) {
-                TEST_CHECK_EQUAL(models[0].parameters()[p], models[1].parameters()[p]);
+                TEST_CHECK_EQUAL(models[0].parameters().at(p), models[1].parameters().at(p));
             }
 
             TEST_CHECK_EQUAL(models[0].prob(), models[1].prob());
             TEST_CHECK_EQUAL(models[0].phase(), models[1].phase());
+
+            // check only in main run
+            if ((models[0].phase() == 1) && (n % lag == 0)) {
+                ++includedSamples;
+                chi2 = 0;
+                for (unsigned p = 0; p < npar; ++p)
+                    chi2 += models[0].parameters().at(p) * models[0].parameters().at(p);
+                meanChi2 += (chi2 - meanChi2) / includedSamples;
+            }
         }
 
         // clean up output files
         remove(config.rootFileNameParallel.c_str());
         remove(config.rootFileNameSerial.c_str());
+
+        /* check that samples are from a Gaussian */
+
+        // chi2 distribution has std. dev sqrt(2 / npar). Allow 2 sigma range
+        TEST_CHECK_NEARLY_EQUAL(meanChi2 / npar, 1.0, 2 * std::sqrt(2.0 / npar));
+
+        for (unsigned c = 0; c < models[0].MCMCGetNChains(); ++c) {
+            const BCEngineMCMC::MCMCStatistics& s = models[0].MCMCGetStatistics(c);
+            TEST_CHECK_EQUAL(s.n_samples, config.num_iterations);
+
+            // unit Gaussian
+            for (unsigned i = 0; i < models[0].GetNParameters(); ++i) {
+                TEST_CHECK_NEARLY_EQUAL(s.mean.at(i), 0, 2e-1);
+                TEST_CHECK_NEARLY_EQUAL(s.variance.at(i), 1, 5e-1);
+                for (unsigned j = i + 1; j < models[0].GetNParameters(); ++j) {
+                    TEST_CHECK_NEARLY_EQUAL(s.covariance.at(i).at(j), 0, 5e-1);
+                }
+            }
+        }
     }
 };
 
@@ -279,15 +322,20 @@ public:
 
         config.num_chains = 2;
         config.num_parameters = 5;
-        config.delay = 1e4;
+        config.delay = 1e2;
 
         TEST_SECTION("product proposal", {
             config.multivariate = false;
             RunComparison comparison(config);
         });
 
-        TEST_SECTION("multivariate proposal", {
+        TEST_SECTION("multivariate Gaussian proposal", {
             config.multivariate = true;
+            RunComparison comparison(config);
+        });
+        TEST_SECTION("multivariate Cauchy proposal", {
+            config.multivariate = true;
+            config.dof = 1.0;
             RunComparison comparison(config);
         });
     }
