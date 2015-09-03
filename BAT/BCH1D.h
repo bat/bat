@@ -232,6 +232,8 @@ public:
         double mode;
         double relative_height;
         double relative_mass;
+
+        BCH1DInterval();
     };
 
     /**
@@ -242,6 +244,8 @@ public:
         double total_mass;
         double mode;
         double max_val;
+
+        BCH1DSmallestInterval();
     };
 
     /**
@@ -254,7 +258,6 @@ public:
      * @return BCH1DSmallestInterval for probability mass. */
     BCH1D::BCH1DSmallestInterval GetSmallestIntervals(double mass)
     { return GetSmallestIntervals(std::vector<double>(1, mass)).at(0); }
-
 
     /**
      * Get histogram with bins outside min, max band being zero. The
@@ -292,7 +295,6 @@ protected:
     /**
      * flag for darwing central 68% interval arrows. */
     bool fDrawCentral68;
-
 };
 
 // ---------------------------------------------------------
