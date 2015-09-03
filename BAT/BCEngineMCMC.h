@@ -34,6 +34,7 @@
 #include <TMatrixD.h>
 #include <TMatrixDSym.h>
 #include <TRandom3.h>
+#include <TVectorD.h>
 
 #include <algorithm>
 #include <limits>
@@ -321,6 +322,14 @@ public:
      * @return whether to use a multivariate proposal function. */
     bool MCMCGetMultivariateProposalFunction() const
     { return fMCMCMultivariateProposalFunction; }
+
+    /**
+     * @return Degree of freedom of multivariate proposal
+     * function. Anything >0 is the degree of freedom of a
+     * multivariate Student's t distribution, <= 0 is a multivariate
+     * Gaussian */
+    double MCMCGetMultivariateProposalFunctionDof() const
+    { return fMCMCMultivariateProposalFunctionDof; }
 
     /**
      * @return number of updates to multivariate-proposal-function covariance performed. */
@@ -765,10 +774,20 @@ public:
     { fMCMCFlagInitialPosition = flag; }
 
     /**
-     * Sets the flag which controls the sequence parameters during the
-     * running of the MCMC.  */
-    void MCMCSetMultivariateProposalFunction(bool flag)
-    { fMCMCMultivariateProposalFunction = flag; }
+     * Set `flag` to turn on multivariate or factorized proposal for
+     * MCMC. The multivariate proposal is based on (Haario et al.,
+     * 2001). `dof` defaults to 0 representing a Gaussian distribution
+     * whose covariance is learned in the prerun. For `dof > 0`, a
+     * Student's t distribution with the corresponding degrees of
+     * freedom is used instead. The special case `dof = 1` is a
+     * multivariate Cauchy.
+     *
+     * @note `dof` is ignored if `flag == false`. */
+    void MCMCSetMultivariateProposalFunction(bool flag, double dof = 0)
+    {
+        fMCMCMultivariateProposalFunction = flag;
+        fMCMCMultivariateProposalFunctionDof = dof;
+    }
 
     /**
      * Set weighting for multivariate proposal function covariance update.
@@ -1395,8 +1414,20 @@ private:
         TRandom3* rng;
 
         /**
+         * GSL random number generator. It is only assigned if GSL is
+         * available via ROOT's MathMore library. This information is
+         * only available in config.h but we must never include
+         * config.h in a public header. Hence we hide the type in a `void*` */
+        void* rngGSL;
+
+        /**
+         * Temp vector for matrix multiplication in multivariate proposal */
+        TVectorD yLocal;
+
+        /**
          * Constructor
-         * @param dim Dimension of a temporary parameter vector */
+         * @param dim Dimension of a temporary parameter vector
+         */
         MCMCThreadLocalStorage(const unsigned& dim);
 
         /**
@@ -1405,11 +1436,25 @@ private:
 
         /**
          * Assignment operator */
-        MCMCThreadLocalStorage& operator = (const MCMCThreadLocalStorage& other);
+        MCMCThreadLocalStorage& operator = (MCMCThreadLocalStorage other);
+
+        /** swap, can't be a friend this time because this struct is private */
+        void swap(BCEngineMCMC::MCMCThreadLocalStorage& A, BCEngineMCMC::MCMCThreadLocalStorage& B);
 
         /**
          * Destructor */
         virtual ~MCMCThreadLocalStorage();
+
+        /**
+         * @param dof If > 0, sample from the chi2 distribution with
+         * `dof` degrees of freedom. Use GSL if available via
+         * `MathMore`, else use inverse-transform method via
+         * `MathCore`. GSL is significantly faster.
+         *
+         * @return Random variate from
+         * the chi2 distribution if dof > 0, else 1.
+         */
+        double scale(const double& dof);
     };
 
     /**
@@ -1623,6 +1668,11 @@ protected:
     /**
      * Flag for using multivariate proposal function. */
     bool fMCMCMultivariateProposalFunction;
+
+    /**
+     * Degree of freedom of Student's t proposal. If <= 0, use Gaussian proposal.
+     */
+    double fMCMCMultivariateProposalFunctionDof;
 
     /**
      * The phase of the run. */

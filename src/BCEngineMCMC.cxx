@@ -43,13 +43,25 @@
 #include <TSeqCollection.h>
 #include <TStyle.h>
 #include <TTree.h>
-#include <TVectorD.h>
+#if ROOTMATHMORE
+#include <Math/GSLRndmEngines.h>
+#include <Math/Random.h>
+#else
+#include <Math/QuantFuncMathCore.h>
+#endif
 
 #include <cmath>
 
 #if THREAD_PARALLELIZATION
 #include <omp.h>
 #endif
+
+namespace
+{
+#if ROOTMATHMORE
+typedef ROOT::Math::Random<ROOT::Math::GSLRngRanLuxD1> GSLRng;
+#endif
+}
 
 // ---------------------------------------------------------
 BCEngineMCMC::BCEngineMCMC(std::string name)
@@ -73,6 +85,7 @@ BCEngineMCMC::BCEngineMCMC(std::string name)
       fMCMCEfficiencyMax(0.50),
       fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
       fMCMCMultivariateProposalFunction(false),
+      fMCMCMultivariateProposalFunctionDof(0.0),
       fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
@@ -110,6 +123,7 @@ BCEngineMCMC::BCEngineMCMC(const std::string& filename, const std::string& name,
       fMCMCEfficiencyMax(0.50),
       fMCMCFlagInitialPosition(BCEngineMCMC::kMCMCInitRandomUniform),
       fMCMCMultivariateProposalFunction(false),
+      fMCMCMultivariateProposalFunctionDof(0.0),
       fMCMCPhase(BCEngineMCMC::kMCMCUnsetPhase),
       fCorrectRValueForSamplingVariability(false),
       fMCMCRValueParametersCriterion(1.1),
@@ -168,6 +182,7 @@ BCEngineMCMC::BCEngineMCMC(const BCEngineMCMC& other)
       fMCMCEfficiencyMax(other.fMCMCEfficiencyMax),
       fMCMCFlagInitialPosition(other.fMCMCFlagInitialPosition),
       fMCMCMultivariateProposalFunction(other.fMCMCMultivariateProposalFunction),
+      fMCMCMultivariateProposalFunctionDof(other.fMCMCMultivariateProposalFunctionDof),
       fMCMCPhase(other.fMCMCPhase),
       fMCMCx(other.fMCMCx),
       fMCMCObservables(other.fMCMCObservables),
@@ -267,6 +282,7 @@ void swap(BCEngineMCMC& A, BCEngineMCMC& B)
     std::swap(A.fMCMCEfficiencyMax, B.fMCMCEfficiencyMax);
     std::swap(A.fMCMCFlagInitialPosition, B.fMCMCFlagInitialPosition);
     std::swap(A.fMCMCMultivariateProposalFunction, B.fMCMCMultivariateProposalFunction);
+    std::swap(A.fMCMCMultivariateProposalFunctionDof, B.fMCMCMultivariateProposalFunctionDof);
     std::swap(A.fMCMCPhase, B.fMCMCPhase);
     std::swap(A.fMCMCx, B.fMCMCx);
     std::swap(A.fMCMCObservables, B.fMCMCObservables);
@@ -415,6 +431,7 @@ void BCEngineMCMC::MCMCSetPrecision(const BCEngineMCMC& other)
     fMCMCEfficiencyMax                    = other.fMCMCEfficiencyMax;
     fMCMCFlagPreRun                       = other.fMCMCFlagRun;
     fMCMCMultivariateProposalFunction     = other.fMCMCMultivariateProposalFunction;
+    fMCMCMultivariateProposalFunctionDof  = other.fMCMCMultivariateProposalFunctionDof;
     fMultivariateProposalFunctionEpsilon  = other.fMultivariateProposalFunctionEpsilon;
     fMultivariateProposalFunctionScaleMultiplier = other.fMultivariateProposalFunctionScaleMultiplier;
     fMultivariateProposalFunctionCovarianceUpdatesMinimum = other.fMultivariateProposalFunctionCovarianceUpdatesMinimum;
@@ -662,13 +679,6 @@ void BCEngineMCMC::MCMCSetRandomSeed(unsigned seed)
     if (size_t(fMCMCNChains) != fMCMCThreadLocalStorage.size())
         BCLog::OutError(Form("#chains does not match #(thread local storages): %d vs %u",
                              fMCMCNChains, unsigned(fMCMCThreadLocalStorage.size())));
-
-    // set all single chain generators
-    for (unsigned i = 0; i < fMCMCNChains ; ++i) {
-        // call once so return value of GetSeed() fixed
-        fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
-        fMCMCThreadLocalStorage[i].rng->Rndm();
-    }
 }
 
 // --------------------------------------------------------
@@ -1429,23 +1439,22 @@ bool BCEngineMCMC::MCMCGetProposalPointMetropolis(unsigned chain, std::vector<do
     x = fMCMCx[chain];
 
     // generate N-Free N(0,1) random values
-    TVectorD y(GetNFreeParameters());
+    TVectorD& y = fMCMCThreadLocalStorage[chain].yLocal;
     for (int i = 0; i < y.GetNrows(); ++i)
         y[i] = fMCMCThreadLocalStorage[chain].rng->Gaus(0, 1);
 
     // multiply by Cholesky decomposition
     y *= fMultivariateProposalFunctionCholeskyDecomposition[chain];
 
-    // multiply by chi2 random variable
-    double scale = 1.0;
-    if (fMultivariateProposalFunctionDof > 0)
-        scale = ROOT::Math::chisquared_quantile(rng->Rndm(), fMultivariateProposalFunctionDof);
+    // multiply by 1.0 (dof <=0) or chi2 random variable with specified (degrees of freedom >0)
+    // with chi2 scaling, get Student's t distribution
+    const double scale = fMCMCThreadLocalStorage[chain].scale(fMCMCMultivariateProposalFunctionDof);
 
     // add values into x
     int I = 0;
     for (unsigned i = 0; i < GetNParameters() && I < y.GetNrows(); ++i)
         if (!GetParameter(i).Fixed()) {
-            x[i] += y[I];
+            x[i] += y[I] * scale;
             ++I;
         }
 
@@ -3522,34 +3531,60 @@ unsigned BCEngineMCMC::UpdateFrequency(unsigned N) const
 // ---------------------------------------------------------
 BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const unsigned& dim) :
     xLocal(dim, 0.0),
-    rng(new TRandom3(0))
+    rng(new TRandom3(0)),
+    rngGSL(NULL),
+    yLocal(dim)
 {
+    // rngGSL initialized only if needed in SyncThreadStorage
 }
 
 // ---------------------------------------------------------
 BCEngineMCMC::MCMCThreadLocalStorage::MCMCThreadLocalStorage(const MCMCThreadLocalStorage& other)    :
     xLocal(other.xLocal),
-    rng(new TRandom3(*other.rng))
+    rng(new TRandom3(*other.rng)),
+    rngGSL(NULL),
+    yLocal(other.yLocal)
 {
+#if ROOTMATHMORE
+    rngGSL = other.rngGSL ? new GSLRng(*static_cast<GSLRng*>(other.rngGSL)) : NULL;
+#endif
 }
 
 // ---------------------------------------------------------
-BCEngineMCMC::MCMCThreadLocalStorage& BCEngineMCMC::MCMCThreadLocalStorage::operator = (const MCMCThreadLocalStorage& other)
+BCEngineMCMC::MCMCThreadLocalStorage& BCEngineMCMC::MCMCThreadLocalStorage::operator = (MCMCThreadLocalStorage other)
 {
-    xLocal = other.xLocal;
-    if (rng) {
-        // call = operator
-        *rng = *other.rng;
-    } else
-        rng = new TRandom3(*other.rng);
-
+    swap(*this, other);
     return *this;
+}
+
+void BCEngineMCMC::MCMCThreadLocalStorage::swap(BCEngineMCMC::MCMCThreadLocalStorage& A, BCEngineMCMC::MCMCThreadLocalStorage& B)
+{
+    std::swap(A.xLocal, B.xLocal);
+    std::swap(A.rng, B.rng);
+    std::swap(A.rngGSL, B.rngGSL);
+    std::swap(A.yLocal, B.yLocal);
 }
 
 // ---------------------------------------------------------
 BCEngineMCMC::MCMCThreadLocalStorage::~MCMCThreadLocalStorage()
 {
+#if ROOTMATHMORE
+    delete static_cast<GSLRng*>(rngGSL);
+#endif
     delete rng;
+}
+
+// ---------------------------------------------------------
+double BCEngineMCMC::MCMCThreadLocalStorage::scale(const double& dof)
+{
+    if (dof <= 0)
+        return 1;
+#if ROOTMATHMORE
+    return static_cast<GSLRng*>(rngGSL)->ChiSquare(dof);
+#else
+    // much slower than direct sampling. It's only the fallback if GSL not available
+    return ROOT::Math::chisquared_quantile(rng->Rndm(), dof);
+#endif
 }
 
 // ---------------------------------------------------------
@@ -3559,19 +3594,34 @@ void BCEngineMCMC::SyncThreadStorage()
         fRandom.Rndm();					// fix return value of GetSeed()
 
     // add storage until equal to number of chains
-    while (fMCMCThreadLocalStorage.size() < fMCMCNChains) {
+    while (fMCMCThreadLocalStorage.size() < fMCMCNChains)
         fMCMCThreadLocalStorage.push_back(MCMCThreadLocalStorage(GetNParameters()));
-        // each chains gets a different seed. fRandom always returns same seed after the fixing done above
-        fMCMCThreadLocalStorage.back().rng->SetSeed(fRandom.GetSeed() + fMCMCThreadLocalStorage.size());
-    }
 
     // remove storage until equal to number of chain
     while (fMCMCThreadLocalStorage.size() > fMCMCNChains)
         fMCMCThreadLocalStorage.pop_back();
 
     // update parameter size for each chain
-    for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i)
+    for (unsigned i = 0 ; i < fMCMCThreadLocalStorage.size(); ++i) {
         fMCMCThreadLocalStorage[i].xLocal.assign(GetNParameters(), 0.0);
+        fMCMCThreadLocalStorage[i].yLocal.ResizeTo(GetNParameters());
+
+        // each chains gets a different seed. fRandom always returns same seed after the fixing done above
+        fMCMCThreadLocalStorage[i].rng->SetSeed(fRandom.GetSeed() + i);
+        fMCMCThreadLocalStorage[i].rng->Rndm();
+#if ROOTMATHMORE
+        if (fMCMCMultivariateProposalFunctionDof > 0) {
+            // GSL and ROOT MersenneTwister are coded identically. To avoid getting the same numbers,
+            // we have to use a different GSLRng. Here we can't know if it is different, so let's use a different seed.
+            const unsigned seed = fRandom.GetSeed() + fMCMCNChains + i;
+            if (GSLRng* rngGSL = static_cast<GSLRng*>(fMCMCThreadLocalStorage[i].rngGSL))
+                rngGSL->SetSeed(seed);
+            else {
+                fMCMCThreadLocalStorage[i].rngGSL = new GSLRng(seed);
+            }
+        }
+#endif
+    }
 }
 
 // ---------------------------------------------------------
@@ -3584,22 +3634,6 @@ void BCEngineMCMC::UpdateChainIndex(int chain)
 #else
     fChainIndex[0] = chain;
 #endif
-}
-
-// ---------------------------------------------------------
-BCEngineMCMC::MCMCStatistics::MCMCStatistics(const BCEngineMCMC::MCMCStatistics& other) :
-    n_samples(other.n_samples), mean(other.mean),
-    variance(other.variance),
-    covariance(other.covariance),
-    minimum(other.minimum),
-    maximum(other.maximum),
-    probability_mean(other.probability_mean),
-    probability_variance(other.probability_variance),
-    mode(other.mode),
-    probability_at_mode(other.probability_at_mode),
-    n_samples_efficiency(other.n_samples_efficiency),
-    efficiency(other.efficiency)
-{
 }
 
 // ---------------------------------------------------------
