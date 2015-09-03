@@ -15,6 +15,7 @@
 #include <BAT/BCH2D.h>
 #include <BAT/BCAux.h>
 
+#include <stdexcept>
 #include <iostream>
 
 #include "include/PerfTest2DFunction.h"
