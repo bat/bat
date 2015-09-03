@@ -172,6 +172,7 @@ void PerfTestMCMC::PrecisionSettings(PerfTest::Precision precision)
         MCMCSetPrecision(BCEngineMCMC::kLow);
     } else if (precision == PerfTest::kMedium) {
         MCMCSetPrecision(BCEngineMCMC::kMedium);
+        MCMCSetNIterationsRun(5000);
     } else if (precision == PerfTest::kDetail) {
         MCMCSetPrecision(BCEngineMCMC::kVeryHigh);
     } else {

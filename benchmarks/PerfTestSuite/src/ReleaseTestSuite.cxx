@@ -28,6 +28,8 @@ ReleaseTestSuite::~ReleaseTestSuite()
 int ReleaseTestSuite::PrepareTests()
 {
     /* 1D */
+
+    // these functions are covered by binomial
 #if 1
     // 1D slope
     TF1* testfunc_1d_slope = new TF1("Slope", "x", 0., 10.);
@@ -38,7 +40,9 @@ int ReleaseTestSuite::PrepareTests()
     TF1* testfunc_1d_squared = new TF1("Squared", "400.-x*x", -20., 20.);
     PerfTest1DFunction* perftest_1d_squared = new PerfTest1DFunction("1d_squared", testfunc_1d_squared);
     AddTest(perftest_1d_squared);
+#endif
 
+#if 0
     // 1D Gaussian
     TF1* testfunc_1d_gaus = new TF1("Gaus", "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(-(x-[0])*(x-[0])/2/[1]/[1])", -25., 25.);
     testfunc_1d_gaus->FixParameter(0, 0.0);
@@ -47,7 +51,7 @@ int ReleaseTestSuite::PrepareTests()
     AddTest(perftest_1d_gaus);
 
     // 1D Poissons
-    for (int i = 0; i <= 10; i++) {
+    for (int i = 0; i <= 2; i++) {
         double xmax = 15;
         if (i > 3)
             xmax = 10.0 * sqrt(double(i));
@@ -56,10 +60,9 @@ int ReleaseTestSuite::PrepareTests()
         PerfTest1DFunction* perftest = new PerfTest1DFunction(Form("1d_poisson_%i", i), testfunc_1d_poisson);
         AddTest(perftest);
     }
-    // todo fine with serial evaluation but seg faults with multiple threads. Have to understand why
-#if 0
+
     // 1D Binomials
-    for (int N = 0; N < 1; N++) {
+    for (int N = 1; N < 3; N++) {
         for (int k = 0; k <= N; ++k) {
             TF1* testfunc = new TF1("Binomial", "([0]+1)*TMath::Binomial([0], [1]) * TMath::Power(x, [1]) * TMath::Power(1-x, [0]-[1])", 0., 1.);
             testfunc->FixParameter(0, N);
@@ -68,7 +71,7 @@ int ReleaseTestSuite::PrepareTests()
             AddTest(perftest);
         }
     }
-#endif
+
     // 1D exponential
     TF1* testfunc_1d_exponential = new TF1("Exponential", "1/[0]*exp(-x/[0])", 0., 100.);
     testfunc_1d_exponential->FixParameter(0, 5);
@@ -90,7 +93,7 @@ int ReleaseTestSuite::PrepareTests()
     AddTest(perftest_1d_lognormal);
 
     // 1D x^4 sin^2(x)
-    TF1* testfunc_1d_sin2 = new TF1("Sin2", "x*x*x*x*sin(x)*sin(x)", 2., 25.);
+    TF1* testfunc_1d_sin2 = new TF1("x4Sin2", "x*x*x*x*sin(x)*sin(x)", 2., 25.);
     PerfTest1DFunction* perftest_1d_sin2 = new PerfTest1DFunction("1d_sin2", testfunc_1d_sin2);
     AddTest(perftest_1d_sin2);
 
@@ -102,14 +105,14 @@ int ReleaseTestSuite::PrepareTests()
     testfunc_1d_2gaus->FixParameter(3,  2.0);
     testfunc_1d_2gaus->FixParameter(4, 30.0);
     testfunc_1d_2gaus->FixParameter(5,  1.0);
-    PerfTest1DFunction*   perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus);
+    PerfTest1DFunction* perftest_1d_2gaus = new PerfTest1DFunction("1d_2gaus", testfunc_1d_2gaus);
     perftest_1d_2gaus->GetParameter("x").SetNbins(200);
     perftest_1d_2gaus->GetSubtest("mode")->SetStatusOff(true);
     AddTest(perftest_1d_2gaus);
 #endif
 
     /* 2D */
-#if 1
+#if 0
 
     // 2D flat
 //   TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
@@ -137,7 +140,7 @@ int ReleaseTestSuite::PrepareTests()
 #endif
 
     /* variable parameters */
-#if 1
+#if 0
     std::vector<double> values_lag;
     for (int i = 1; i <= 10; ++i)
         values_lag.push_back(i);
