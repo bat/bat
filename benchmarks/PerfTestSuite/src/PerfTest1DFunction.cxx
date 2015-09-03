@@ -301,6 +301,10 @@ int PerfTest1DFunction::PostTest()
 
     // free memory
     delete rnd;
+    delete hist_func;
+    delete hist_marg;
+    delete hist_diff;
+    delete hist_diff_1sigma;
 
     // no error
     return 1;

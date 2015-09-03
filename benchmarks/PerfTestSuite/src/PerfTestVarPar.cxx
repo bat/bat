@@ -47,6 +47,7 @@ PerfTestVarPar::~PerfTestVarPar()
     }
     fTestContainer.clear();
 
+    delete fTest;
 }
 
 //______________________________________________________________________________
