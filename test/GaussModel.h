@@ -4,6 +4,9 @@
 
 #include <BAT/BCModel.h>
 
+/**
+ * @class GaussModel A unit Gaussian.
+ */
 // ---------------------------------------------------------
 class GaussModel : public BCModel
 {
@@ -19,6 +22,16 @@ public:
     unsigned long Calls() const
     {
         return fCalls;
+    }
+
+    double mean() const
+    {
+        return 0;
+    }
+
+    double sigma() const
+    {
+        return 1;
     }
 
     void MCMCCurrentPointInterface(const std::vector<double>& /*p*/, int /*c*/, bool /*accepted*/);

@@ -59,7 +59,7 @@ double GaussModel::LogLikelihood(const std::vector<double>& parameters)
     static const double normalized = true;
     double logprob = 0;
     for (unsigned i = 0; i < parameters.size(); i++)
-        logprob += BCMath::LogGaus(parameters[i], 0.0, 2.0, normalized);
+        logprob += BCMath::LogGaus(parameters[i], mean(), sigma(), normalized);
 
     return logprob;
 }

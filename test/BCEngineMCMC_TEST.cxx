@@ -46,6 +46,9 @@ GaussModel* gauss_check(bool multivariate_proposal)
     TEST_CHECK_EQUAL(m.Calls(), ncalls);
     //            m.PrintAllMarginalized(std::string(__FILE__) + "_gauss.pdf");
 
+    // target variance
+    const double var = m.sigma() * m.sigma();
+
     // check each chain
     const std::vector<BCEngineMCMC::MCMCStatistics>& s = m.MCMCGetStatisticsVector();
     for (unsigned j = 0; j < s.size(); ++j) {
@@ -63,8 +66,6 @@ GaussModel* gauss_check(bool multivariate_proposal)
         for (unsigned i = 0; i < m.GetNParameters(); ++i) {
             /* compare to values set inside gauss model' likelihood */
             // error on the mean from independent samples
-            static const double sigma = 2;
-            static const double var = sigma * sigma;
             const double bestError = sqrt(var * m.MCMCGetNIterationsRun()) / m.MCMCGetNIterationsRun();
 
             // we don't know the effective sample size but should use it here
@@ -87,8 +88,8 @@ GaussModel* gauss_check(bool multivariate_proposal)
                     TEST_CHECK_NEARLY_EQUAL(s[j].covariance[i][k], 0.0, 2);
 
             // expect to be within 2.75--5 sigma for 1e5 samples
-            static const double xmin = 2.75 * sigma;
-            static const double xmax = 5 * sigma;
+            static const double xmin = 2.75 * m.sigma();
+            static const double xmax = 5 * m.sigma();
             TEST_CHECK(s[j].maximum[i] > xmin);
             TEST_CHECK(s[j].maximum[i] < xmax);
             TEST_CHECK(s[j].minimum[i] < -xmin);
@@ -122,8 +123,6 @@ GaussModel* gauss_check(bool multivariate_proposal)
         /* compare to values set inside gauss model' likelihood */
 
         // error on the mean from independent samples
-        static const double sigma = 2;
-        static const double var = sigma * sigma;
         const double bestError = sqrt(var * m.MCMCGetNIterationsRun()) / m.MCMCGetNIterationsRun();
 
         // we don't know the effective sample size but should use it here
@@ -144,10 +143,9 @@ GaussModel* gauss_check(bool multivariate_proposal)
             TEST_CHECK_NEARLY_EQUAL(S.covariance[i][j], i == j ? var : 0.0, 0.85);
         }
 
-
         // expect to be within 3.5-5 sigma for 2e5 samples
-        static const double xmin = 3.5 * sigma;
-        static const double xmax = 5 * sigma;
+        static const double xmin = 3.5 * m.sigma();
+        static const double xmax = 5 * m.sigma();
         TEST_CHECK(S.maximum[i] > xmin);
         TEST_CHECK(S.maximum[i] < xmax);
         TEST_CHECK(S.minimum[i] < -xmin);
