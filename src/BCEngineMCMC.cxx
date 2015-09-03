@@ -3820,7 +3820,7 @@ BCEngineMCMC::MCMCStatistics& BCEngineMCMC::MCMCStatistics::operator+=(const BCE
     // combine efficiencies
     double n_eff = n_samples_efficiency + rhs.n_samples_efficiency;
     if (n_eff > 0)
-        for (unsigned i = 0; i < efficiency[i]; ++i)
+        for (unsigned i = 0; i < efficiency.size(); ++i)
             efficiency[i] = (n_samples_efficiency * efficiency[i] + rhs.n_samples_efficiency * rhs.efficiency[i]) / (n_eff);
 
     // combine efficiency samples
