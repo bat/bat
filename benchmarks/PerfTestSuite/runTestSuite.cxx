@@ -24,10 +24,10 @@ int main()
     rts.SetPrecision(PerfTest::kMedium);
 
     // call after SetPrecision
-    rts.SetLag(20);
+    rts.SetLag(30);
 
     // multivariate proposal
-    rts.SetMultivariate(true);
+    rts.SetMultivariate(true, 1.0);
 
     // run all tests
     rts.RunTests();

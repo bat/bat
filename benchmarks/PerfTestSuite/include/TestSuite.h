@@ -40,7 +40,7 @@ public:
 
     /** MCMC with multivariate proposal
      */
-    void SetMultivariate(bool flag);
+    void SetMultivariate(bool flag, double dof = 0);
 
     /** Set the lag of the tests
      */

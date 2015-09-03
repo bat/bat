@@ -53,11 +53,11 @@ void TestSuite::SetLag(unsigned lag)
 }
 
 //______________________________________________________________________________
-void TestSuite::SetMultivariate(bool flag)
+void TestSuite::SetMultivariate(bool flag, double dof)
 {
     for (int i = 0; i < GetNTests(); ++i) {
         PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
-        m->MCMCSetMultivariateProposalFunction(flag);
+        m->MCMCSetMultivariateProposalFunction(flag, dof);
     }
 }
 
@@ -313,7 +313,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
 
         if (GetTest(i)->GetTestType() ==  PerfTest::kFunction1D || GetTest(i)->GetTestType() ==  PerfTest::kFunction2D) {
             const PerfTest1DFunction* m = (PerfTest1DFunction*) GetTest(i);
-            const bool converged = (m->MCMCGetNIterationsConvergenceGlobal() != unsigned(-1));
+            const bool converged = (m->MCMCGetNIterationsConvergenceGlobal() != -1);
 
             file << "<table border=\"0\" width=\"30%\">" << std::endl;
             file << "<tr>";
