@@ -55,15 +55,15 @@ be set through the environment variable. For a single core, set
 
     CUBACORES=1
 
-The recommended way to get Cuba is to run
+The recommended way to get Cuba is to run configure BAT with the option
 
-    ./get-cuba.sh
+    --with-cuba=download
 
-in the BAT source directory. This will download a compatible version
-of Cuba to the local subdirectory `cuba/` and compile it.
+This will download a compatible version of Cuba to the local subdirectory
+`external/cuba-VERSION`, compile it and configure BAT to use it.
 
 If you want to compile Cuba manually, make sure it is built with
-position-independent code
+position-independent code:
 
     ./configure CFLAGS='-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall'
     make
@@ -119,8 +119,8 @@ entirely by openMP means such as setting the environment variable
 
 ### Cuba
 
-If you built Cuba locally through `get-cuba.sh`, BAT
-will use it automatically (unless configured with `--without-cuba`).
+If you configured BAT with the option `--with-cuba=download`, BAT
+will download, compile and use Cuba automatically.
 Otherwise, use the configure option `--with-cuba[=DIR]` to enable Cuba.
 If you installed Cuba including the `partview` executable, the Cuba
 installation path will be derived from its location. Otherwise, the

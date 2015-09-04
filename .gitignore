@@ -83,4 +83,4 @@ runTestSuite
 *.trs
 
 # local cuba directory
-/cuba
+/external/cuba-*

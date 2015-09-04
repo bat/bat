@@ -78,40 +78,57 @@ AC_ARG_WITH(cuba_include_dir, AS_HELP_STRING([--with-cuba-include-dir=DIR    pat
 AC_ARG_WITH(cuba_lib_dir,     AS_HELP_STRING([--with-cuba-lib-dir=DIR        path to libcuba.a file]))
 
 
-use_local_cuba=no
-local_cuba_dir="`pwd`/cuba"
+AC_CHECK_PROGS(CURL, curl, false)
+AC_CHECK_PROGS(WGET, wget, false)
 
 if test "$with_cuba" = "yes"; then
 	use_cuba=yes
-	if test -e "$local_cuba_dir" ; then
-		use_local_cuba=yes
-	else
-		AC_PATH_PROG(cuba_bin_dir, [partview])
-		if test -f "$cuba_bin_dir" ; then
-			# up two levels: /usr/local/bin/partview -> /usr/local
-			with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
-			AC_MSG_CHECKING([for cuba in $with_cuba])
-			AC_MSG_RESULT(yes)
-		fi
+	AC_PATH_PROG(cuba_bin_dir, [partview])
+	if test -f "$cuba_bin_dir" ; then
+		# up two levels: /usr/local/bin/partview -> /usr/local
+		with_cuba="$(dirname "$(dirname "$cuba_bin_dir")")"
+		AC_MSG_CHECKING([for cuba in $with_cuba])
+		AC_MSG_RESULT(yes)
 	fi
 elif test "$with_cuba" = "no"; then
 	use_cuba=no
+elif test "$with_cuba" = "download"; then
+	use_cuba=yes
+
+	cuba_version_default=`cat "$srcdir/cuba-version.txt" | head -n1`
+	local_cuba_dir="`pwd`/external/cuba-${cuba_version_default}"
+	cuba_url="http://www.feynarts.de/cuba/Cuba-${cuba_version_default}.tar.gz"
+
+	with_cuba_include_dir="$local_cuba_dir"
+	with_cuba_lib_dir="$local_cuba_dir"
+
+	if test ! -d "${local_cuba_dir}"; then
+		AC_MSG_NOTICE([Downloading and building in $local_cuba_dir])
+
+		if test "$CURL" != "false"; then
+			download_cmd="curl -L"
+		elif test "$WGET" != "false"; then
+			download_cmd="wget -O-"
+		else
+			AC_MSG_ERROR([Need either wget or curl to download Cuba.])
+		fi
+
+		mkdir -p "${local_cuba_dir}" \
+		&& (${download_cmd} "${cuba_url}" | tar --strip-components 1 -C "${local_cuba_dir}" --strip=1 -x -z) \
+		&& (
+			cd "${local_cuba_dir}" \
+			&& CFLAGS="-fPIC -O3 -fomit-frame-pointer -ffast-math -Wall" ./configure \
+			&& make
+		)
+	else
+		AC_MSG_NOTICE([Reusing existing local cuba build in $local_cuba_dir])
+	fi
 elif test -n "$with_cuba"; then
 	use_cuba=yes
 else
-	if test -e "$local_cuba_dir" ; then
-		use_cuba=yes
-		use_local_cuba=yes
-	else
-		use_cuba=no
-	fi
+	use_cuba=no
 fi
 
-
-if test "$use_local_cuba" = "yes"; then
-	with_cuba_include_dir="$local_cuba_dir"
-	with_cuba_lib_dir="$local_cuba_dir"
-fi
 
 
 if test "x$use_cuba" != xno; then
