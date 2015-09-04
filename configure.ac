@@ -130,6 +130,11 @@ else
 fi
 
 
+dnl Save compiler/linker flags before modifications for cuba:
+CPPFLAGS_BACKUP="$CPPFLAGS"
+CXXFLAGS_BACKUP="$CXXFLAGS"
+LDFLAGS_BACKUP="$LDFLAGS"
+LIBS_BACKUP="$LIBS"
 
 if test "x$use_cuba" != xno; then
 	dnl check to see if lib and include can be determined automatically from $with_cuba
@@ -166,7 +171,7 @@ if test "x$use_cuba" != xno; then
 	cubaldflags=""
 	if test -n "$with_cuba_lib_dir"; then
 	echo "checking for cuba library in path $with_cuba_lib_dir"
-	cubaldflags="-L$with_cuba_lib_dir"
+	cubaldflags="-L$with_cuba_lib_dir -lcuba"
 	LDFLAGS+=" $cubaldflags"
 	else
 	echo "checking for cuba library in system default directories"
@@ -277,6 +282,14 @@ else
 	echo compiling without cuba
 	AM_CONDITIONAL([CUBA], [test 1 -eq 0])
 fi
+
+dnl Restore compiler/linker flags (without cuba additions):
+CPPFLAGS="$CPPFLAGS_BACKUP"
+CXXFLAGS="$CXXFLAGS_BACKUP"
+LDFLAGS="$LDFLAGS_BACKUP"
+LIBS="$LIBS_BACKUP"
+
+
 
 dnl
 dnl Check for ROOT

@@ -40,11 +40,6 @@ LDADD = \
 
 LDFLAGS = -L$(ROOTLIBDIR)
 
-if CUBA
-LDADD += -lcuba
-LDFLAGS += @CUBALIB@
-endif
-
 check_PROGRAMS = $(TESTS)
 
 test_TEST_SOURCES = test_TEST.cxx
