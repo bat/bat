@@ -713,8 +713,7 @@ public:
 
     /**
      * Sets the lag of the Markov chains */
-    void MCMCSetNLag(unsigned n)
-    { fMCMCNLag = n; }
+    void MCMCSetNLag(unsigned n);
 
     /**
      * Sets the maximum number of iterations in the pre-run. */
