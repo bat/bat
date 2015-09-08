@@ -51,7 +51,7 @@ public:
     /* @} */
 
     // inherited methods
-    double LogAPrioriProbability(const std::vector<double>& pars)
+    double LogAPrioriProbability(const std::vector<double>& /*pars*/)
     { return 0; }
 
     double LogLikelihood(const std::vector<double>& pars)

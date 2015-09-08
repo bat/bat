@@ -322,7 +322,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
             file << " <tr> <td>N chains</td> <td>" << m->MCMCGetNChains() << " </td></tr>"  << std::endl;
             file << " <tr> <td>N lag</td> <td>" << m->MCMCGetNLag() << " </td></tr>"  << std::endl;
             file << " <tr> <td>Convergence</td> <td>" << (converged ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N iterations (pre-run) </td> <td>" << (converged ? : m->MCMCGetNIterationsPreRunMax()) << " </td></tr>"  << std::endl;
+            file << " <tr> <td>N iterations (pre-run) </td> <td>" << m->MCMCGetNIterationsPreRunMax() << " </td></tr>"  << std::endl;
             file << " <tr> <td>N iterations (run)</td> <td>" << m->MCMCGetNIterationsRun() << " </td></tr>"  << std::endl;
             file << "</table>" << std::endl;
             file << "</br>" << std::endl;

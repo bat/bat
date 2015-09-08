@@ -48,10 +48,10 @@ public:
     /* @} */
 
     // inherited methods
-    double LogAPrioriProbability(const std::vector<double>& pars)
+    virtual double LogAPrioriProbability(const std::vector<double>& /*pars*/)
     { return 0; }
 
-    double LogLikelihood(const std::vector<double>& pars)
+    virtual double LogLikelihood(const std::vector<double>& pars)
     { return log(fFunction->Eval(pars[0], pars[1])); }
 
 private:

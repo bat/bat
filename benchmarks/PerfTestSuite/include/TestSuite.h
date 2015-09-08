@@ -96,7 +96,7 @@ public:
     /** Find a test by index
      * @param index the index of the test.
      * @return the subtest. */
-    PerfTest* GetTest(int index)
+    PerfTest* GetTest(unsigned index)
     { return fTestContainer.at(index); };
 
     /** Find a test by name
