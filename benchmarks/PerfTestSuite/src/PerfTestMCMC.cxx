@@ -104,12 +104,12 @@ int PerfTestMCMC::PostTest()
     int npar = GetNParameters();
     for (int i = 0; i < npar; ++i) {
         TCanvas* c_corr = new TCanvas();
-        TH2D* hist = new TH2D("", ";Iteration; Auto-correlation]", 1, 0., MCMCGetNIterationsRun() + 1, 1, -1., 1.0);
+        TH2D* hist = new TH2D("", ";Iteration; correlation coefficient", 1, 0., MCMCGetNIterationsRun() / MCMCGetNLag() + 1, 1, -1., 1.0);
         hist->SetStats(kFALSE);
         hist->Draw();
         fCorrelation.at(i)->Draw("SAMEP");
         AddCanvas(c_corr);
-        AddCanvasDescription("Auto-correlation for the parameter.");
+        AddCanvasDescription("Correlation coefficient of iterations with lag in between.");
 
         double x;
         double y;
@@ -168,46 +168,61 @@ int PerfTestMCMC::WriteResults()
 //______________________________________________________________________________
 void PerfTestMCMC::PrecisionSettings(PerfTest::Precision precision)
 {
+    unsigned lag = 1;
     if (precision == PerfTest::kCoarse) {
         MCMCSetPrecision(BCEngineMCMC::kLow);
     } else if (precision == PerfTest::kMedium) {
         MCMCSetPrecision(BCEngineMCMC::kMedium);
         MCMCSetNIterationsRun(5000);
+        lag = 50;
     } else if (precision == PerfTest::kDetail) {
-        MCMCSetPrecision(BCEngineMCMC::kVeryHigh);
+        MCMCSetPrecision(BCEngineMCMC::kMedium);
+        lag = 100;
     } else {
-        MCMCSetNLag(5);
-        MCMCSetNIterationsRun(100000);
+        MCMCSetNIterationsRun(10000);
     }
+
+    // interpret NIterationsRun as desired #independent samples
+    unsigned temp(MCMCGetNIterationsRun() * lag);
+    unsigned iter = temp / MCMCGetNLag();
+    MCMCSetNLag(lag);
+    MCMCSetNIterationsRun(iter);
 }
 
 //______________________________________________________________________________
 void PerfTestMCMC::MCMCUserIterationInterface()
 {
-    // loop over parameters
-    int npar = GetNParameters();
-    int nlag = MCMCGetNLag();
-    int iteration = MCMCGetCurrentIteration();
-    int nchains = MCMCGetNChains();
-
-    for (int i = 0; i < npar; ++i) {
-        TH2D* hist = fHistCorr.at(i);
-
-        if (iteration > nlag) {
-            for (int j = 0; j < nchains; ++j)
-                hist->Fill(fXOld.at(j).at(i), fMCMCx.at(j).at(i));
-        }
-
-        if (iteration / nlag % (MCMCGetNIterationsRun() / 100 / nlag) == 0) {
-            (fCorrelation[i])->SetPoint( (iteration / nlag) / (MCMCGetNIterationsRun() / 100 / nlag),
-                                         iteration,
-                                         hist->GetCorrelationFactor());
-        }
+    // copy over old point on first call
+    if (fXOld.size() < fMCMCx.size()) {
+       fXOld = fMCMCx;
+       return;
     }
 
-    // copy point
-    fXOld = fMCMCx;
+    unsigned iteration = MCMCGetCurrentIteration();
+    unsigned nlag = MCMCGetNLag();
 
+    if ((iteration % nlag) == 0) {
+
+       // loop over parameters
+       unsigned npar = GetNParameters();
+       unsigned nchains = MCMCGetNChains();
+
+       for (unsigned i = 0; i < npar; ++i) {
+          TH2D* hist = fHistCorr.at(i);
+
+          for (unsigned j = 0; j < nchains; ++j) {
+             hist->Fill(fXOld.at(j).at(i), fMCMCx.at(j).at(i));
+          }
+
+          if (iteration / nlag % (MCMCGetNIterationsRun() / 100 / nlag) == 0) {
+             (fCorrelation[i])->SetPoint( (iteration / nlag) / (MCMCGetNIterationsRun() / 100 / nlag),
+                   iteration / nlag,
+                   hist->GetCorrelationFactor());
+          }
+       }
+       // copy old point
+       fXOld = fMCMCx;
+    }
 }
 
 //______________________________________________________________________________

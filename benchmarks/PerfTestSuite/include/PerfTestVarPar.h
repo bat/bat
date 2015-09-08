@@ -67,6 +67,10 @@ public:
     int GetNVarPar()
     { return int(fVarParValues.size()); };
 
+    /** The underlying BCModel */
+    BCModel* GetModel()
+    { return fTest; }
+
     /* @} */
 
     /** Run before test.
@@ -91,7 +95,6 @@ protected:
 
     /** Name of the variation parameter. */
     std::string fVarParName;
-
 private:
 
     /** The associated test. */

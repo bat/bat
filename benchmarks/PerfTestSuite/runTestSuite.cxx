@@ -12,22 +12,18 @@ using namespace std;
 int main()
 {
     // create new test suite
-    ReleaseTestSuite rts;
-#if 1
+    static const bool multivariate = false;
+    static const double dof = 1.0;
+    ReleaseTestSuite rts(multivariate, dof);
+
     // prepare test suite
     rts.PrepareTests();
 
     // setup html output as needed for BAT webpage
-//    rts.WebpageSetup();
+    //    rts.WebpageSetup();
 
     // set precision: kCoarse, kMedium, kDetail
     rts.SetPrecision(PerfTest::kMedium);
-
-    // call after SetPrecision
-    rts.SetLag(1);
-
-    // multivariate proposal
-    rts.SetMultivariate(true, 1.0);
 
     // run all tests
     rts.RunTests();
@@ -39,6 +35,6 @@ int main()
     // to view it locally, turn off webpage setup, and save with .html extension
     // rts.PrintResultsHTML("results.php");
     rts.PrintResultsHTML("results.html");
-#endif
+
     return 0;
 }

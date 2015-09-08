@@ -42,28 +42,6 @@ TestSuite::~TestSuite()
 }
 
 //______________________________________________________________________________
-void TestSuite::SetLag(unsigned lag)
-{
-    for (unsigned i = 0; i < GetNTests(); ++i) {
-        PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
-        // interpret NIterationsRun as desired #independent samples
-        unsigned temp(m->MCMCGetNIterationsRun() * lag);
-        unsigned iter = temp / m->MCMCGetNLag();
-        m->MCMCSetNLag(lag);
-        m->MCMCSetNIterationsRun(iter);
-    }
-}
-
-//______________________________________________________________________________
-void TestSuite::SetMultivariate(bool flag, double dof)
-{
-    for (unsigned i = 0; i < GetNTests(); ++i) {
-        PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
-        m->MCMCSetMultivariateProposalFunction(flag, dof);
-    }
-}
-
-//______________________________________________________________________________
 void TestSuite::SetPrecision(PerfTest::Precision precision)
 {
     // loop over all tests and set precision
@@ -322,8 +300,9 @@ void TestSuite::PrintResultsHTML(std::string filename)
             file << " <tr> <td>N chains</td> <td>" << m->MCMCGetNChains() << " </td></tr>"  << std::endl;
             file << " <tr> <td>N lag</td> <td>" << m->MCMCGetNLag() << " </td></tr>"  << std::endl;
             file << " <tr> <td>Convergence</td> <td>" << (converged ? "<font color=\"#4cc417\">true</font>" : "<font color=\"#FF8000\">false</font>") << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N iterations (pre-run) </td> <td>" << m->MCMCGetNIterationsPreRunMax() << " </td></tr>"  << std::endl;
-            file << " <tr> <td>N iterations (run)</td> <td>" << m->MCMCGetNIterationsRun() << " </td></tr>"  << std::endl;
+            file << " <tr> <td>prerun iterations </td> <td>" << (converged ? m->MCMCGetNIterationsConvergenceGlobal() : m->MCMCGetNIterationsPreRunMax()) << " </td></tr>"  << std::endl;
+            file << " <tr> <td>iterations (with lag)</td> <td>" << m->MCMCGetNIterationsRun() << " ("
+                  << m->MCMCGetNIterationsRun() / m->MCMCGetNLag() << ") </td></tr>"  << std::endl;
             file << "</table>" << std::endl;
             file << "</br>" << std::endl;
         }

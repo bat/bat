@@ -38,14 +38,6 @@ public:
     /** \name Member functions (Set) */
     /* @{ */
 
-    /** MCMC with multivariate proposal
-     */
-    void SetMultivariate(bool flag, double dof = 0);
-
-    /** Set the lag of the tests
-     */
-    void SetLag(unsigned lag);
-
     /** Set the precision of the tests
      * @param the precision. */
     void SetPrecision(PerfTest::Precision precision);

@@ -30,10 +30,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    ReleaseTestSuite();
-
-    /** The default destructor */
-    ~ReleaseTestSuite();
+    ReleaseTestSuite(bool multivariate, double dof);
 
     /* @} */
     /** \name Member functions (Set)  */
@@ -58,7 +55,8 @@ public:
     /* @} */
 
 private:
-
+    bool fMultivariate;
+    double fDof;
 };
 
 #endif

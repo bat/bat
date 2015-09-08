@@ -15,12 +15,10 @@
 #include <iostream>
 
 //______________________________________________________________________________
-ReleaseTestSuite::ReleaseTestSuite() : TestSuite()
-{
-}
-
-//______________________________________________________________________________
-ReleaseTestSuite::~ReleaseTestSuite()
+ReleaseTestSuite::ReleaseTestSuite(bool multivariate, double dof):
+   TestSuite(),
+   fMultivariate(multivariate),
+   fDof(dof)
 {
 }
 
@@ -183,6 +181,17 @@ int ReleaseTestSuite::PrepareTests()
     varpar_2dgaus_iter->AddVarPar(values_iter, "iteration");
     AddTest(varpar_2dgaus_iter);
 #endif
+
+    // todo evil hack
+    for (size_t i = 0; i < GetNTests(); ++i) {
+       if (BCModel* m = dynamic_cast<BCModel*>(GetTest(i))) {
+          m->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
+       } else if (PerfTestVarPar* v = dynamic_cast<PerfTestVarPar*>(GetTest(i))) {
+          v->GetModel()->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
+       } else
+          throw std::runtime_error("Unknown test type");
+    }
+
     // no error
     return 1;
 }
