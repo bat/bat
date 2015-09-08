@@ -10,9 +10,9 @@
 
 #include <TStopwatch.h>
 
-#include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <iostream>
 
 //______________________________________________________________________________
 TestSuite::TestSuite()
@@ -44,9 +44,11 @@ TestSuite::~TestSuite()
 //______________________________________________________________________________
 void TestSuite::SetLag(unsigned lag)
 {
-    for (int i = 0; i < GetNTests(); ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
         PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
-        unsigned iter = unsigned(m->MCMCGetNIterationsRun() * lag / double(m->MCMCGetNLag()) );
+        // interpret NIterationsRun as desired #independent samples
+        unsigned temp(m->MCMCGetNIterationsRun() * lag);
+        unsigned iter = temp / m->MCMCGetNLag();
         m->MCMCSetNLag(lag);
         m->MCMCSetNIterationsRun(iter);
     }
@@ -55,7 +57,7 @@ void TestSuite::SetLag(unsigned lag)
 //______________________________________________________________________________
 void TestSuite::SetMultivariate(bool flag, double dof)
 {
-    for (int i = 0; i < GetNTests(); ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
         PerfTestMCMC* m = static_cast<PerfTestMCMC*>(fTestContainer.at(i));
         m->MCMCSetMultivariateProposalFunction(flag, dof);
     }
@@ -64,11 +66,8 @@ void TestSuite::SetMultivariate(bool flag, double dof)
 //______________________________________________________________________________
 void TestSuite::SetPrecision(PerfTest::Precision precision)
 {
-    // get number of sub tests
-    int n = GetNTests();
-
     // loop over all tests and set precision
-    for (int i = 0; i < n; ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
         fTestContainer.at(i)->SetPrecision(precision);
     }
 
@@ -78,13 +77,13 @@ void TestSuite::SetPrecision(PerfTest::Precision precision)
 int TestSuite::GetNTests(PerfSubTest::Status status)
 {
     // get number of sub tests
-    int n = GetNTests();
+    unsigned n = GetNTests();
 
     // initialize counter
     int counter = 0;
 
     // loop over all tests and compare status
-    for (int i = 0; i < n; ++i) {
+    for (unsigned i = 0; i < n; ++i) {
         if (fTestContainer.at(i)->GetStatus() == status)
             counter++;
     }
@@ -211,7 +210,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
     file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
     file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
     file_main << "</tr>" << std::endl;
-    for (int i = 0; i < GetNTests(); ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
         if (GetTest(i)->GetTestType() == PerfTest::kFunction1D) {
             file_main << " <tr>";
             file_main << " <td align=\"left\"><a href=\"" << fLinkPrefix << (GetTest(i)->GetName()).c_str() << fHtmlFileExtension.c_str() << "\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
@@ -238,7 +237,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
     file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
     file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
     file_main << "</tr>" << std::endl;
-    for (int i = 0; i < GetNTests(); ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
         if (GetTest(i)->GetTestType() == PerfTest::kFunction2D) {
             file_main << " <tr>";
             file_main << " <td align=\"left\"><a href=\"" << fLinkPrefix << (GetTest(i)->GetName()).c_str() << fHtmlFileExtension.c_str() << "\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
@@ -265,7 +264,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
     file_main << "  <th align=\"left\"> Fatal </th>" << std::endl;
     file_main << "  <th align=\"left\"> Unknown </th>" << std::endl;
     file_main << "</tr>" << std::endl;
-    for (int i = 0; i < GetNTests(); ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
         if (GetTest(i)->GetTestType() == PerfTest::kVarPar) {
             file_main << " <tr>";
             file_main << " <td align=\"left\"><a href=\"" << fLinkPrefix << (GetTest(i)->GetName()).c_str() << fHtmlFileExtension.c_str() << "\">" << (GetTest(i)->GetName()).c_str() << "</a> </td>" << std::endl;
@@ -281,7 +280,7 @@ void TestSuite::PrintResultsHTML(std::string filename)
     file_main << "</table>" << std::endl;
 
     // loop over tests
-    for (int i = 0; i < GetNTests(); ++i) {
+    for (unsigned i = 0; i < GetNTests(); ++i) {
 
         // open file
         std::ofstream file;

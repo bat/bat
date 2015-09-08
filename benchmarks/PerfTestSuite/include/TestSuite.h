@@ -84,8 +84,8 @@ public:
 
     /** Get the number of tests which belong to this test.
      * @return the number of tests. */
-    int GetNTests()
-    { return int(fTestContainer.size()); };
+    size_t GetNTests()
+    { return fTestContainer.size(); };
 
     /** Get the number of tests which belong to this test with
      * specified status.
@@ -163,4 +163,3 @@ private:
 };
 
 #endif
-
