@@ -353,12 +353,12 @@ void BCEngineMCMC::SetPriorGauss(unsigned index, double mean, double sigma_below
 // ---------------------------------------------------------
 void BCEngineMCMC::MCMCSetNLag(unsigned n)
 {
-   if (n == 0) {
-      BCLog::OutError("Invalid lag = 0 given. Set to lag = 1");
-      fMCMCNLag = 1;
-   } else {
-      fMCMCNLag = n;
-   }
+    if (n == 0) {
+        BCLog::OutError("Invalid lag = 0 given. Set to lag = 1");
+        fMCMCNLag = 1;
+    } else {
+        fMCMCNLag = n;
+    }
 }
 
 // ---------------------------------------------------------

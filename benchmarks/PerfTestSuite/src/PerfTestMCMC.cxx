@@ -194,8 +194,8 @@ void PerfTestMCMC::MCMCUserIterationInterface()
 {
     // copy over old point on first call
     if (fXOld.size() < fMCMCx.size()) {
-       fXOld = fMCMCx;
-       return;
+        fXOld = fMCMCx;
+        return;
     }
 
     unsigned iteration = MCMCGetCurrentIteration();
@@ -203,25 +203,25 @@ void PerfTestMCMC::MCMCUserIterationInterface()
 
     if ((iteration % nlag) == 0) {
 
-       // loop over parameters
-       unsigned npar = GetNParameters();
-       unsigned nchains = MCMCGetNChains();
+        // loop over parameters
+        unsigned npar = GetNParameters();
+        unsigned nchains = MCMCGetNChains();
 
-       for (unsigned i = 0; i < npar; ++i) {
-          TH2D* hist = fHistCorr.at(i);
+        for (unsigned i = 0; i < npar; ++i) {
+            TH2D* hist = fHistCorr.at(i);
 
-          for (unsigned j = 0; j < nchains; ++j) {
-             hist->Fill(fXOld.at(j).at(i), fMCMCx.at(j).at(i));
-          }
+            for (unsigned j = 0; j < nchains; ++j) {
+                hist->Fill(fXOld.at(j).at(i), fMCMCx.at(j).at(i));
+            }
 
-          if (iteration / nlag % (MCMCGetNIterationsRun() / 100 / nlag) == 0) {
-             (fCorrelation[i])->SetPoint( (iteration / nlag) / (MCMCGetNIterationsRun() / 100 / nlag),
-                   iteration / nlag,
-                   hist->GetCorrelationFactor());
-          }
-       }
-       // copy old point
-       fXOld = fMCMCx;
+            if (iteration / nlag % (MCMCGetNIterationsRun() / 100 / nlag) == 0) {
+                (fCorrelation[i])->SetPoint( (iteration / nlag) / (MCMCGetNIterationsRun() / 100 / nlag),
+                                             iteration / nlag,
+                                             hist->GetCorrelationFactor());
+            }
+        }
+        // copy old point
+        fXOld = fMCMCx;
     }
 }
 

@@ -16,9 +16,9 @@
 
 //______________________________________________________________________________
 ReleaseTestSuite::ReleaseTestSuite(bool multivariate, double dof):
-   TestSuite(),
-   fMultivariate(multivariate),
-   fDof(dof)
+    TestSuite(),
+    fMultivariate(multivariate),
+    fDof(dof)
 {
 }
 
@@ -184,12 +184,12 @@ int ReleaseTestSuite::PrepareTests()
 
     // todo evil hack
     for (size_t i = 0; i < GetNTests(); ++i) {
-       if (BCModel* m = dynamic_cast<BCModel*>(GetTest(i))) {
-          m->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
-       } else if (PerfTestVarPar* v = dynamic_cast<PerfTestVarPar*>(GetTest(i))) {
-          v->GetModel()->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
-       } else
-          throw std::runtime_error("Unknown test type");
+        if (BCModel* m = dynamic_cast<BCModel*>(GetTest(i))) {
+            m->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
+        } else if (PerfTestVarPar* v = dynamic_cast<PerfTestVarPar*>(GetTest(i))) {
+            v->GetModel()->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
+        } else
+            throw std::runtime_error("Unknown test type");
     }
 
     // no error
