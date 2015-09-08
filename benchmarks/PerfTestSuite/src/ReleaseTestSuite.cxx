@@ -42,7 +42,7 @@ int ReleaseTestSuite::PrepareTests()
     AddTest(perftest_1d_squared);
 #endif
 
-#if 0
+#if 1
     // 1D Gaussian
     TF1* testfunc_1d_gaus = new TF1("Gaus", "1.0/sqrt(2.0*TMath::Pi())/[1] * exp(-(x-[0])*(x-[0])/2/[1]/[1])", -25., 25.);
     testfunc_1d_gaus->FixParameter(0, 0.0);
@@ -112,7 +112,7 @@ int ReleaseTestSuite::PrepareTests()
 #endif
 
     /* 2D */
-#if 0
+#if 1
 
     // 2D flat
 //   TF2* testfunc_2d_flat = new TF2("Flat", "1", -5., 5., -5., 5.);
@@ -140,7 +140,7 @@ int ReleaseTestSuite::PrepareTests()
 #endif
 
     /* variable parameters */
-#if 0
+#if 1
     std::vector<double> values_lag;
     for (int i = 1; i <= 10; ++i)
         values_lag.push_back(i);
