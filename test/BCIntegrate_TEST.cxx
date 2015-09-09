@@ -133,14 +133,15 @@ public:
         double evidence = 1;
         for (unsigned i = 0 ; i < m.GetNParameters() ; ++i)
             if (m.GetParameter(i).Fixed())
-                evidence *= exp(BCMath::LogGaus(m.GetParameter(i).GetFixedValue(), 0.0, 2.0, true));
+                evidence *= exp(BCMath::LogGaus(m.GetParameter(i).GetFixedValue(), m.mean(), m.sigma(), true));
             else
                 evidence /= m.GetParameter(i).GetRangeWidth();
 
         std::cout << "Correct evidence: " << evidence << std::endl;
 
         static const double eps = 3e-2;
-        m.SetRelativePrecision(eps);
+        // ask for higher precision because cuba often underestimates uncertainty
+        m.SetRelativePrecision(eps / 5);
         m.SetAbsolutePrecision(1e-12);
 
         TEST_CHECK_RELATIVE_ERROR(m.Integrate(BCIntegrate::kIntMonteCarlo), evidence, eps);
