@@ -182,15 +182,9 @@ int ReleaseTestSuite::PrepareTests()
     AddTest(varpar_2dgaus_iter);
 #endif
 
-    // todo evil hack
-    for (size_t i = 0; i < GetNTests(); ++i) {
-        if (BCModel* m = dynamic_cast<BCModel*>(GetTest(i))) {
-            m->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
-        } else if (PerfTestVarPar* v = dynamic_cast<PerfTestVarPar*>(GetTest(i))) {
-            v->GetModel()->MCMCSetMultivariateProposalFunction(fMultivariate, fDof);
-        } else
-            throw std::runtime_error("Unknown test type");
-    }
+    // proposal for all MCMC  tests
+    for (unsigned i = 0; i < GetNTests(); ++i)
+        GetTest(i)->SetProposal(fMultivariate, fDof);
 
     // no error
     return 1;

@@ -47,6 +47,9 @@ public:
      * @return an error code. */
     virtual int SetVarPar(double value, std::string name);
 
+    virtual void SetProposal(bool multivariate, double dof)
+    { MCMCSetMultivariateProposalFunction(multivariate, dof); }
+
     /** Run before test.
      * @return an error code. */
     int PreTest();

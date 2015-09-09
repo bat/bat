@@ -53,6 +53,11 @@ public:
     virtual int SetVarPar(double /*value*/, std::string /*name*/)
     { return 0; };
 
+    virtual void SetProposal(bool multivariate, double dof)
+    {
+        fTest->SetProposal(multivariate, dof);
+    }
+
     /* @} */
     /** \name Member functions (Get)  */
     /* @{ */
