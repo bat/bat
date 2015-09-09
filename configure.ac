@@ -186,8 +186,8 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew;
-        double epsrel, epsabs, flatness;
+		int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew;
+		double epsrel, epsabs, flatness;
 		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
 		const char * statefile = "";
@@ -214,8 +214,8 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, spin;
-        double epsrel, epsabs, flatness;
+		int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, spin;
+		double epsrel, epsabs, flatness;
 		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
 		const char * statefile = "";
@@ -244,8 +244,8 @@ if test "x$use_cuba" != xno; then
 
 	int main()
 	{
-        int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin, spin;
-        double epsrel, epsabs, flatness;
+		int ndim, ncomp, nvec, flags, seed, mineval, maxeval, nnew, nmin, spin;
+		double epsrel, epsabs, flatness;
 		int * nregions, *fail, *neval;
 		double * integral, *error, *prob;
 		const char * statefile = "";
@@ -318,8 +318,8 @@ ROOT_PATH(
 	,
 	[
 		AC_MSG_ERROR([ROOT cannot be found. Please ensure that it is installed
-                  and that either \$ROOTSYS is defined corectly or root-config is in the path.
-                  One can pass --with-rootsys=/path/to/rootsys to configure as well.])
+		  and that either \$ROOTSYS is defined corectly or root-config is in the path.
+		  One can pass --with-rootsys=/path/to/rootsys to configure as well.])
 		exit
 	]
 )
