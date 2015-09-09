@@ -15,15 +15,17 @@
 #include <iostream>
 
 //______________________________________________________________________________
-TestSuite::TestSuite()
-    : fTestContainer(std::vector<PerfTest * >(0))
-    , fNPlotColumns(3)
-    , fThumbSize(300)
-    , fIncludeHtmlHeader(true)
-    , fIncludeHtmlFooter(true)
-    , fLinkPrefix("")
-    , fFileLinkPrefix("")
-    , fHtmlFileExtension(".html")
+TestSuite::TestSuite(bool multivariate, double dof):
+    fMultivariate(multivariate),
+    fDof(dof),
+    fTestContainer(std::vector<PerfTest * >(0)),
+    fNPlotColumns(3),
+    fThumbSize(300),
+    fIncludeHtmlHeader(true),
+    fIncludeHtmlFooter(true),
+    fLinkPrefix(""),
+    fFileLinkPrefix(""),
+    fHtmlFileExtension(".html")
 {
     DefineTests();
 }
@@ -166,13 +168,14 @@ void TestSuite::PrintResultsHTML(std::string filename)
     }
 
     file_main << "<h3>Overview</h3>" << std::endl << std::endl;
-    file_main << "<table border=\"0\"  width=\"400\">" << std::endl;
+    file_main << "<table border=\"0\"  width=\"600\">" << std::endl;
     file_main << " <tr> <td align=\"left\"> Number of tests </td> <td>" << GetNTests() << " </td> </tr>" << std::endl;
     file_main << " <tr> <td align=\"left\"> Number of successful tests </td> <td>" << GetNTests(PerfSubTest::kGood) << " </td> </tr>" << std::endl;
     file_main << " <tr> <td align=\"left\"> Number of acceptable tests </td> <td>" << GetNTests(PerfSubTest::kAcceptable) << " </td> </tr>" << std::endl;
     file_main << " <tr> <td align=\"left\"> Number of bad tests </td> <td>" << GetNTests(PerfSubTest::kBad) << " </td> </tr>" << std::endl;
     file_main << " <tr> <td align=\"left\"> Number of fatal tests </td> <td>" << GetNTests(PerfSubTest::kFatal) << " </td> </tr>" << std::endl;
     file_main << " <tr> <td align=\"left\"> Number of tests unkown status </td> <td>" << GetNTests(PerfSubTest::kUnknown) << " </td> </tr>" << std::endl;
+    file_main << " <tr> <td align=\"left\">" << (fMultivariate ? "Multivariate" : "Factorized") <<  " proposal</td> <td>" << (fMultivariate ? Form("%g degrees of freedom", fDof) : "") << "</td> </tr>" << std::endl;
     file_main << "</table>" << std::endl;
     file_main << std::endl;
 

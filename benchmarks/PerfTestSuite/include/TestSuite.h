@@ -29,7 +29,7 @@ public:
     /* @{ */
 
     /** The default constructor */
-    TestSuite();
+    TestSuite(bool multivariate, double dof);
 
     /** The default destructor */
     ~TestSuite();
@@ -126,6 +126,13 @@ public:
 
     /* @} */
 
+protected:
+    /** Multivariate MCMC proposal */
+    bool fMultivariate;
+
+    /** Student's T degree of freedom */
+    double fDof;
+
 private:
 
     /** A container of tests which belong to the test suite. */
@@ -151,7 +158,6 @@ private:
 
     /** Set file extension for the html files (.html by default) */
     std::string fHtmlFileExtension;
-
 };
 
 #endif

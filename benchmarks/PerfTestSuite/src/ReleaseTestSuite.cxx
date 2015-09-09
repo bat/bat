@@ -16,9 +16,7 @@
 
 //______________________________________________________________________________
 ReleaseTestSuite::ReleaseTestSuite(bool multivariate, double dof):
-    TestSuite(),
-    fMultivariate(multivariate),
-    fDof(dof)
+    TestSuite(multivariate, dof)
 {
 }
 

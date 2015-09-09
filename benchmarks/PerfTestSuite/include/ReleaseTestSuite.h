@@ -53,10 +53,6 @@ public:
     void WebpageSetup();
 
     /* @} */
-
-private:
-    bool fMultivariate;
-    double fDof;
 };
 
 #endif
