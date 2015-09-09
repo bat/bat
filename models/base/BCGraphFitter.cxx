@@ -13,6 +13,13 @@
 #include <BAT/BCLog.h>
 #include <BAT/BCMath.h>
 
+#include "BCGraphFitter.h"
+
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+
 #include <TF1.h>
 #include <TGraphErrors.h>
 #include <TLegend.h>

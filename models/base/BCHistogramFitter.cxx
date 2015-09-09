@@ -41,7 +41,7 @@ BCHistogramFitter::BCHistogramFitter(std::string name)
 }
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func, std::string name)
+BCHistogramFitter::BCHistogramFitter(TH1* hist, TF1* func, std::string name)
     : BCFitter(func, name),
       fHistogram(0),
       fHistogramExpected(0)
@@ -57,7 +57,7 @@ BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func, std::string name)
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::SetHistogram(TH1D* hist)
+bool BCHistogramFitter::SetHistogram(TH1* hist)
 {
     // check if histogram exists
     if (!hist) {
@@ -102,7 +102,9 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
     if (fHistogramExpected)
         delete fHistogramExpected;
     // copy all properties from the data histogram
-    fHistogramExpected = new TH1D(*fHistogram);
+    fHistogramExpected = new TH1D(Form("%s_exp", fHistogram->GetName()),
+                                  Form("%s;%s;%s", fHistogram->GetTitle(), fHistogram->GetXaxis()->GetTitle(), fHistogram->GetYaxis()->GetTitle()),
+                                  fHistogram->GetXaxis()->GetNbins(), fHistogram->GetXaxis()->GetXmin(), fHistogram->GetXaxis()->GetXmax());
 
     // get the number of bins
     int nBins = fHistogramExpected->GetNbinsX();
@@ -179,7 +181,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 
         double yexp = 0.;
 
-        if (fFlagIntegration)				// use ROOT's TH1D::Integral method
+        if (fFlagIntegration)				// use ROOT's TH1::Integral method
             yexp = fFitFunction[c]->Integral(xmin, xmax);
         else												// use linear interpolation
             yexp = (fFitFunction[c]->Eval(xmin) + fFitFunction[c]->Eval(xmax)) * (xmax - xmin) / 2.;
@@ -201,7 +203,7 @@ double BCHistogramFitter::FitFunction(const std::vector<double>& x, const std::v
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::Fit(TH1D* hist, TF1* func)
+bool BCHistogramFitter::Fit(TH1* hist, TF1* func)
 {
     // set histogram
     if (hist)
@@ -471,7 +473,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
 
     fFitFunction.at(c)->SetParameters(&parameters[0]);
 
-    // use ROOT's TH1D::Integral method
+    // use ROOT's TH1::Integral method
     if (fFlagIntegration) {
         yExp = fFitFunction[c]->Integral(xmin, xmax);
     } else													// use linear interpolation

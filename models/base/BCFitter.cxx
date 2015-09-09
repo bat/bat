@@ -305,7 +305,7 @@ TGraph* BCFitter::GetErrorBandGraph(double level1, double level2) const
 }
 
 // ---------------------------------------------------------
-TH2D* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcoverage) const
+TH2* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcoverage) const
 {
     if (!fErrorBandXY)
         return 0;
@@ -314,7 +314,7 @@ TH2D* BCFitter::GetGraphicalErrorBandXY(double level, int nsmooth, bool overcove
     int ny = fErrorBandXY->GetNbinsY();
 
     // copy existing histogram
-    TH2D* hist_tempxy = (TH2D*) fErrorBandXY->Clone(TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
+    TH2* hist_tempxy = (TH2*) fErrorBandXY->Clone(TString::Format("%s_sub_%f.2", fErrorBandXY->GetName(), level));
     hist_tempxy->Reset();
     hist_tempxy->SetFillColor(kYellow);
 
@@ -393,7 +393,7 @@ int BCFitter::ReadErrorBandFromFile(const char* file)
 
     int r = 0;
 
-    TH2D* h2 = (TH2D*) froot->Get("errorbandxy");
+    TH2* h2 = (TH2*) froot->Get("errorbandxy");
     if (h2) {
         h2->SetDirectory(0);
         h2->SetName(TString::Format("errorbandxy_%s", GetSafeName().data()));
