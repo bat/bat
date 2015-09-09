@@ -11,24 +11,21 @@
 #include "BCH1D.h"
 
 #include "BCLog.h"
-#include "BCMath.h"
 
 #include <TArrow.h>
 #include <TAxis.h>
 #include <TH1D.h>
-#include <TLegend.h>
 #include <TLegendEntry.h>
 #include <TLine.h>
 #include <TMarker.h>
+#include <TPad.h>
 #include <TROOT.h>
 #include <TString.h>
 #include <TStyle.h>
-#include <TPad.h>
 
 #include <algorithm>
 #include <limits>
 #include <math.h>
-
 
 // ---------------------------------------------------------
 BCH1D::BCH1D(const TH1* const hist)
@@ -496,5 +493,3 @@ BCH1D::BCH1DSmallestInterval::BCH1DSmallestInterval():
     max_val(0)
 {
 }
-
-

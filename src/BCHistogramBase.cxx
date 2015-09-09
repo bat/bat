@@ -9,23 +9,22 @@
 // ---------------------------------------------------------
 
 #include "BCHistogramBase.h"
+
 #include "BCLog.h"
 
-#include <TObject.h>
-#include <TH1.h>
-#include <TAxis.h>
-#include <TROOT.h>
-#include <TPad.h>
-#include <TMarker.h>
 #include <TArrow.h>
+#include <TAxis.h>
+#include <TH1.h>
+#include <TLegend.h>
 #include <TLegendEntry.h>
+#include <TMarker.h>
+#include <TPad.h>
+#include <TROOT.h>
 #include <TString.h>
-#include <TH1D.h>
-#include <TH2D.h>
 
-#include <math.h>
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 // ---------------------------------------------------------
 BCHistogramBase::BCHistogramBase(const TH1* const hist, int dimension)

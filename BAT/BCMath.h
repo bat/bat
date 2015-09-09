@@ -27,7 +27,6 @@
 #include <stdexcept>
 #include <vector>
 
-class TH1D;
 class TRandom;
 
 namespace BCMath

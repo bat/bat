@@ -9,27 +9,20 @@
 // ---------------------------------------------------------
 
 #include "BCH2D.h"
-#include "BCH1D.h"
 
-#include "BCLog.h"
-#include "BCMath.h"
-
-#include <TArrow.h>
-#include <TCanvas.h>
-#include <TH1D.h>
-#include <TH2.h>
 #include <TGraph.h>
-#include <TLegend.h>
+#include <TH2.h>
 #include <TLegendEntry.h>
+#include <TLine.h>
 #include <TMarker.h>
 #include <TObject.h>
+#include <TPad.h>
 #include <TROOT.h>
 #include <TString.h>
 #include <TStyle.h>
-#include <TLine.h>
 
-#include <math.h>
 #include <algorithm>
+#include <math.h>
 
 // ---------------------------------------------------------
 BCH2D::BCH2D(const TH2* const h)

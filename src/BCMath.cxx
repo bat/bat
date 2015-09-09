@@ -9,18 +9,16 @@
 // ---------------------------------------------------------
 
 #include "BCMath.h"
+
 #include "BCLog.h"
-
-#include <math.h>
-#include <limits>
-
-#include <TMath.h>
-#include <TF1.h>
-#include <TH1D.h>
-#include <TRandom3.h>
 
 #include <Math/PdfFuncMathCore.h>
 #include <Math/QuantFuncMathCore.h>
+#include <TMath.h>
+#include <TRandom3.h>
+
+#include <limits>
+#include <math.h>
 
 // ---------------------------------------------------------
 double BCMath::LogGaus(double x, double mean, double sigma, bool norm)

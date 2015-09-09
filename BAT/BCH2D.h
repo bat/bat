@@ -9,7 +9,7 @@
  * \author Daniel Greenwald
  * \version 1.0
  * \date 08.2008
- * \detail This class contains a TH2D histogram and some additional
+ * \detail This class contains a TH2 histogram and some additional
  * functions. It is used for marginalized distributions.
  */
 
@@ -95,8 +95,8 @@ public:
     /** @{ */
 
     /**
-     * Return the TH2D histogram
-     * @return The TH2D histogram. */
+     * Return the TH2 histogram
+     * @return The TH2 histogram. */
     TH2* GetHistogram()
     { return (TH2*)fHistogram; }
 

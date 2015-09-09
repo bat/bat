@@ -9,7 +9,7 @@
  * \author Daniel Greenwald
  * \version 1.0
  * \date 08.2008
- * \detail This class contains a TH1D histogram and some additional
+ * \detail This class contains a TH1 histogram and some additional
  * functions. It is used for marginalized distributions.
  */
 
