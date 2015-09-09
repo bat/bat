@@ -19,8 +19,6 @@ SUBDIRS= \
 	test
 
 EXTRA_DIST= \
-	cuba-version.txt \
-	get-cuba.sh \
 	INSTALL.md \
 	README.md \
 	readme.devel \
