@@ -8,20 +8,20 @@
 
 // ---------------------------------------------------------
 
-#include <TGraphErrors.h>
+#include "BCGraphFitter.h"
+
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+
 #include <TF1.h>
-#include <TString.h>
-#include <TPad.h>
+#include <TGraphErrors.h>
 #include <TLegend.h>
 #include <TMath.h>
 #include <Math/ProbFuncMathCore.h>
-
-#include "../../BAT/BCLog.h"
-#include "../../BAT/BCDataSet.h"
-#include "../../BAT/BCDataPoint.h"
-#include "../../BAT/BCMath.h"
-
-#include "BCGraphFitter.h"
+#include <TPad.h>
+#include <TString.h>
 
 // ---------------------------------------------------------
 BCGraphFitter::BCGraphFitter(std::string name)

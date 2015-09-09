@@ -25,14 +25,15 @@
 
 // ---------------------------------------------------------
 
-#include <vector>
-
 #include "BCFitter.h"
 
+#include <vector>
+
 // ROOT classes
-class TH1D;
 class TF1;
 class TGraphAsymmErrors;
+class TH1;
+class TH1D;
 
 // ---------------------------------------------------------
 
@@ -85,7 +86,7 @@ public:
      * @param hist2 The histogram with the smaller numbers
      * @param func The fit function.
      * @param name name fo the model */
-    BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std::string name = "efficiency_fitter_model");
+    BCEfficiencyFitter(TH1* hist1, TH1* hist2, TF1* func, std::string name = "efficiency_fitter_model");
 
     /**
      * The default destructor. */
@@ -97,12 +98,12 @@ public:
 
     /**
      * @return The histogram 1 */
-    TH1D* GetHistogram1()
+    TH1* GetHistogram1()
     { return fHistogram1; };
 
     /**
      * @return The histogram 2 */
-    TH1D* GetHistogram2()
+    TH1* GetHistogram2()
     { return fHistogram2; };
 
     /**
@@ -144,7 +145,7 @@ public:
      * @param hist The histogram 1
      * @param hist The histogram 2
      * @return Success of action. */
-    bool SetHistograms(TH1D* hist1, TH1D* hist2);
+    bool SetHistograms(TH1* hist1, TH1* hist2);
 
     /**
      * @param func The fit function
@@ -153,7 +154,7 @@ public:
 
     /**
      * Sets the flag for integration. \n
-     * true: use ROOT's TH1D::Integrate() \n
+     * true: use ROOT's TH1::Integrate() \n
      * false: use linear interpolation */
     void SetFlagIntegration(bool flag)
     { fFlagIntegration = flag; };
@@ -194,7 +195,7 @@ public:
      * @param hist2 The histogram with the smaller number.
      * @param func The fit function.
      * @return Success of action. */
-    bool Fit(TH1D* hist1, TH1D* hist2, TF1* func);
+    bool Fit(TH1* hist1, TH1* hist2, TF1* func);
 
     /**
      * Draw the fit in the current pad. */
@@ -231,11 +232,11 @@ private:
 
     /**
      * The histogram containing the larger numbers. */
-    TH1D* fHistogram1;
+    TH1* fHistogram1;
 
     /**
      * The histogram containing the smaller numbers. */
-    TH1D* fHistogram2;
+    TH1* fHistogram2;
 
     /**
      * The efficiency histogram. */
@@ -246,7 +247,7 @@ private:
     TF1* fFitFunction;
 
     /**
-     * Flag for using the ROOT TH1D::Integral method (true), or linear
+     * Flag for using the ROOT TH1::Integral method (true), or linear
      * interpolation (false) */
     bool fFlagIntegration;
 

@@ -23,13 +23,13 @@
 
 // ---------------------------------------------------------
 
+#include "BCFitter.h"
+
 #include <string>
 #include <vector>
 
-#include "BCFitter.h"
-
-class TGraphErrors;
 class TF1;
+class TGraphErrors;
 
 // ---------------------------------------------------------
 

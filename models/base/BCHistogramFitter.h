@@ -22,14 +22,15 @@
 
 // ---------------------------------------------------------
 
+#include "BCFitter.h"
+
 #include <string>
 #include <vector>
 
-#include "BCFitter.h"
-
 // ROOT classes
-class TH1D;
 class TF1;
+class TH1;
+class TH1D;
 
 // ---------------------------------------------------------
 
@@ -50,7 +51,7 @@ public:
      * @param hist histogram to fit
      * @param func fit function
      * @param name name of the model */
-    BCHistogramFitter(TH1D* hist, TF1* func, std::string name = "histogram_fitter_model");
+    BCHistogramFitter(TH1* hist, TF1* func, std::string name = "histogram_fitter_model");
 
     /**
      * The default destructor. */
@@ -63,7 +64,7 @@ public:
 
     /**
      * @return The data histogram */
-    TH1D* GetHistogram()
+    TH1* GetHistogram()
     { return fHistogram; };
 
     /**
@@ -99,7 +100,7 @@ public:
     /**
      * @param hist The histogram containing the data
      * @return Success of action. */
-    bool SetHistogram(TH1D* hist);
+    bool SetHistogram(TH1* hist);
 
     /**
      * @param hist The histogram with the expected counts (typically non-integer values!)
@@ -113,7 +114,7 @@ public:
 
     /**
      * Sets the flag for integration. \n
-     * true: use ROOT's TH1D::Integrate() \n
+     * true: use ROOT's TH1::Integrate() \n
      * false: use linear interpolation */
     void SetFlagIntegration(bool flag)
     { fFlagIntegration = flag; };
@@ -141,10 +142,10 @@ public:
 
     /**
      * Performs the fit.
-     * @param hist The histogram (TH1D).
+     * @param hist The histogram (TH1).
      * @param func The fit function.
      * @return Success of action. */
-    bool Fit(TH1D* hist, TF1* func);
+    bool Fit(TH1* hist, TF1* func);
 
     /**
      * Draw the fit in the current pad. */
@@ -205,14 +206,14 @@ protected:
 
     /**
      * The histogram containing the data. */
-    TH1D* fHistogram;
+    TH1* fHistogram;
 
     /**
      * The fit function */
     TF1* fFitFunction;
 
     /**
-     * Flag for using the ROOT TH1D::Integral method (true), or linear
+     * Flag for using the ROOT TH1::Integral method (true), or linear
      * interpolation (false) */
     bool fFlagIntegration;
 
