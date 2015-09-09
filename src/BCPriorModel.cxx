@@ -10,7 +10,7 @@
 
 #include "BCPriorModel.h"
 
-#include <TH1D.h>
+#include <TH1.h>
 
 // ---------------------------------------------------------
 BCPriorModel::BCPriorModel(BCModel& model, bool call_likelihood)
