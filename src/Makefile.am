@@ -127,6 +127,7 @@ libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes $+
 
 .libs/libBAT.rootmap: libBAT.la | $(library_include_HEADERS) LinkDef.h
-	$(RLIBMAP) -o $@ -l .libs/libBAT@SHLIBEXT@ -c $|
+	$(RLIBMAP) -o $@.tmp -l .libs/libBAT@SHLIBEXT@ -c $|
+	$(SED) 's|\.so$$|'@SHLIBEXT@'|' $@.tmp > $@ && $(RM) $@.tmp
 
 endif # WITH_CLING

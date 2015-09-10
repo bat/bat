@@ -81,6 +81,7 @@ libBATmvc_rdict.cxx: $(library_include_HEADERS) LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(top_builddir)/src/.includes $+
 
 .libs/libBATmvc.rootmap: libBATmvc.la | $(library_include_HEADERS) LinkDef.h
-	$(RLIBMAP) -o $@ -l .libs/libBATmvc@SHLIBEXT@ -c $|
+	$(RLIBMAP) -o $@.tmp -l .libs/libBATmvc@SHLIBEXT@ -c $|
+	$(SED) 's|\.so$$|'@SHLIBEXT@'|' $@.tmp > $@ && $(RM) $@.tmp
 
 endif # WITH_CLING

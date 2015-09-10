@@ -82,6 +82,7 @@ libBATmtf_rdict.cxx: $(library_include_HEADERS) LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(top_builddir)/src/.includes $+
 
 .libs/libBATmtf.rootmap: libBATmtf.la | $(library_include_HEADERS) LinkDef.h
-	$(RLIBMAP) -o $@ -l .libs/libBATmtf@SHLIBEXT@ -c $|
+	$(RLIBMAP) -o $@.tmp -l .libs/libBATmtf@SHLIBEXT@ -c $|
+	$(SED) 's|\.so$$|'@SHLIBEXT@'|' $@.tmp > $@ && $(RM) $@.tmp
 
 endif # WITH_CLING
