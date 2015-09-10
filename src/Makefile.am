@@ -1,5 +1,8 @@
 CLEANFILES = *_rdict.* *_rdict_* *.rootmap
 
+clean-local:
+	-rm -rf .includes
+
 lib_LTLIBRARIES = libBAT.la
 libBAT_la_LDFLAGS = -version-info 6:0:0
 
@@ -7,7 +10,7 @@ libBAT_la_LDFLAGS = -version-info 6:0:0
 libBAT_la_LDFLAGS += -L$(ROOTLIBDIR)
 libBAT_la_LIBADD = $(ROOTLIBS)
 
-AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT $(ROOTCFLAGS) $(CUBAINCLUDE)
+AM_CXXFLAGS = $(ROOTAUXCFLAGS) -Wall -fPIC -I$(top_srcdir)/BAT -I.includes $(ROOTCFLAGS) $(CUBAINCLUDE)
 AM_LDFLAGS  = -O
 AM_SOFLAGS  = -shared
 
@@ -62,8 +65,12 @@ incs= \
 non_source_incs = \
 	BCVariableSet.h
 
-library_include_HEADERS= \
-	$(patsubst %.h, $(top_srcdir)/BAT/%.h, $(incs) $(non_source_incs))
+library_include_HEADERS= $(incs:%.h=.includes/$(PACKAGE)/%.h) $(non_source_incs:%.h=.includes/$(PACKAGE)/%.h)
+
+$(library_include_HEADERS): .includes/$(PACKAGE)/%.h: $(top_srcdir)/BAT/%.h
+	mkdir -p .includes/$(PACKAGE)
+	sed 's|include \"\(BC.*.h\)\"|include <'$(PACKAGE)'\/\1>| ; s/include \"\.\.\/\.\.\/\('$(PACKAGE)'\/BC.*.h\)\"/include <\1>/' $< > $@
+
 libBAT_la_SOURCES= \
 	$(incs:.h=.cxx)
 
@@ -101,10 +108,10 @@ rootmap_DATA += .libs/libBAT_rdict.pcm
 # short hand to make rule more concise, rtmap is not a standard automake variable
 rtmap = libBAT.rootmap
 libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
-	$(ROOTCLING) -f $@.tmp -s libBAT@SHLIBEXT@ -rml libBAT@SHLIBEXT@ -rmf libBAT.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I$(includedir) $+
+	$(ROOTCLING) -f $@.tmp -s libBAT@SHLIBEXT@ -rml libBAT@SHLIBEXT@ -rmf libBAT.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(includedir) $+
 	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
 	@# avoid sed -i: not portable between Mac OS X and linux => use back-up files
-	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | $(SED) 's|"\([^/"]*/\)*\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^/"]*/\)*\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@.tmp2
+	$(GREP) -F -v '"'"`pwd`"'/",' $@.tmp | grep -v '^\"\([^/"]*/\)*\.includes\",*$$' | $(SED) 's|"\([^/"]*/\)*\([^/"]*[.]h\)",|"'$(PACKAGE)/'\2",| ; s|\\"\([^/"]*/\)*\([^/"]*[.]h\)\\"\\n"|\\"'$(PACKAGE)/'\2\\"\\n"|' > $@.tmp2
 	$(SED) 's|\$$clingAutoload\$$\([^/"]*/\)*|$$clingAutoload$$'$(PACKAGE)'/|; /.*DICTPAYLOAD(.*/,/.*)DICTPAYLOAD.*/ s|#include "\([^/"]*/\)*\(.*\)"|#include <'$(PACKAGE)'/\2>|' $@.tmp2 > $@ && $(RM) $@.tmp $@.tmp2
 	$(SED) 's|\(header  *\)\([^ ].*/\)*\([^ ].*[.]h\)|\1'$(PACKAGE)/'\3|' $(rtmap) > $(rtmap).tmp && mv $(rtmap).tmp $(rtmap)
 
@@ -117,7 +124,7 @@ else # not WITH_CLING
 ### ROOT-5: ###
 
 libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
-	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) $+
+	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes $+
 
 .libs/libBAT.rootmap: libBAT.la | $(library_include_HEADERS) LinkDef.h
 	$(RLIBMAP) -o $@ -l .libs/libBAT@SHLIBEXT@ -c $|
