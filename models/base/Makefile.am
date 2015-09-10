@@ -29,13 +29,15 @@ incs = \
 	BCGraphFitter.h \
 	BCHistogramFitter.h
 
+roostat_incs = \
+	BCRooInterface.h \
+	BATCalculator.h
+
 linkdefs = LDef.h
 
 ## RooStats specific options
 if ROOSTATS
-incs += \
-	BCRooInterface.h \
-	BATCalculator.h
+incs += $(roostat_incs)
 linkdefs += LDef_roostats.h
 endif
 ## End of RooStats specific options
@@ -43,9 +45,11 @@ endif
 LinkDef.h: $(linkdefs)
 	cat $+ > $@
 
-library_include_HEADERS= $(incs:%.h=.includes/$(PACKAGE)/%.h)
+EXTRA_DIST = $(incs) $(roostat_incs)
 
-$(library_include_HEADERS): .includes/$(PACKAGE)/%.h: %.h
+nodist_library_include_HEADERS = $(incs:%.h=.includes/$(PACKAGE)/%.h)
+
+$(nodist_library_include_HEADERS): .includes/$(PACKAGE)/%.h: %.h
 	mkdir -p .includes/$(PACKAGE)
 	sed 's|include \"\(BC.*.h\)\"|include <'$(PACKAGE)'\/\1>| ; s/include \"\.\.\/\.\.\/\('$(PACKAGE)'\/BC.*.h\)\"/include <\1>/' $< > $@
 
@@ -57,7 +61,7 @@ nodist_libBATmodels_la_SOURCES= \
 
 BUILT_SOURCES = libBATmodels_rdict.cxx LinkDef.h
 
-EXTRA_DIST = LDef.h LDef_roostats.h
+EXTRA_DIST += LDef.h LDef_roostats.h
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
@@ -72,7 +76,7 @@ rootmap_DATA += .libs/libBATmodels_rdict.pcm
 
 # short hand to make rule more concise, map is not a standard automake variable
 rtmap = libBATmodels.rootmap
-libBATmodels_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+libBATmodels_rdict.cxx: $(nodist_library_include_HEADERS) LinkDef.h
 	$(ROOTCLING) -f $@.tmp -s libBATmodels@SHLIBEXT@ -rml libBATmodels@SHLIBEXT@ -rmf libBATmodels.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(top_builddir)/src/.includes -I$(includedir) $+
 	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap
 	@# avoid sed -i: not portable between Mac OS X and linux => use back-up files
@@ -88,10 +92,10 @@ libBATmodels_rdict.cxx: $(library_include_HEADERS) LinkDef.h
 else # not WITH_CLING
 ### ROOT-5: ###
 
-libBATmodels_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+libBATmodels_rdict.cxx: $(nodist_library_include_HEADERS) LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(top_builddir)/src/.includes $+
 
-.libs/libBATmodels.rootmap: libBATmodels.la | $(library_include_HEADERS) LinkDef.h
+.libs/libBATmodels.rootmap: libBATmodels.la | $(nodist_library_include_HEADERS) LinkDef.h
 	$(RLIBMAP) -o $@.tmp -l .libs/libBATmodels@SHLIBEXT@ -c $|
 	$(SED) 's|\.so$$|'@SHLIBEXT@'|' $@.tmp > $@ && $(RM) $@.tmp
 

@@ -33,9 +33,11 @@ incs = \
 	BCMTFSystematicVariation.h \
 	BCMTFTemplate.h
 
-library_include_HEADERS= $(incs:%.h=.includes/$(PACKAGE)/%.h)
+EXTRA_DIST = $(incs)
 
-$(library_include_HEADERS): .includes/$(PACKAGE)/%.h: %.h
+nodist_library_include_HEADERS = $(incs:%.h=.includes/$(PACKAGE)/%.h)
+
+$(nodist_library_include_HEADERS): .includes/$(PACKAGE)/%.h: %.h
 	mkdir -p .includes/$(PACKAGE)
 	sed 's|include \"\(BC.*.h\)\"|include <'$(PACKAGE)'\/\1>| ; s/include \"\.\.\/\.\.\/\('$(PACKAGE)'\/BC.*.h\)\"/include <\1>/' $< > $@
 
@@ -47,7 +49,7 @@ nodist_libBATmtf_la_SOURCES= \
 
 BUILT_SOURCES = libBATmtf_rdict.cxx
 
-EXTRA_DIST = LinkDef.h
+EXTRA_DIST += LinkDef.h
 
 install-exec-hook:
 	$(CREATE_SO_LINK)
@@ -62,7 +64,7 @@ rootmap_DATA += .libs/libBATmtf_rdict.pcm
 
 # short hand to make rule more concise, rtmap is not a standard automake variable
 rtmap = libBATmtf.rootmap
-libBATmtf_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+libBATmtf_rdict.cxx: $(nodist_library_include_HEADERS) LinkDef.h
 	$(ROOTCLING) -f $@.tmp -s libBATmtf@SHLIBEXT@ -rml libBATmtf@SHLIBEXT@ -rmf libBATmtf.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(top_builddir)/src/.includes -I$(includedir) $+
 	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
 	@# avoid sed -i: not portable between Mac OS X and linux => use back-up files
@@ -78,10 +80,10 @@ libBATmtf_rdict.cxx: $(library_include_HEADERS) LinkDef.h
 else # not WITH_CLING
 ### ROOT-5: ###
 
-libBATmtf_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+libBATmtf_rdict.cxx: $(nodist_library_include_HEADERS) LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(top_builddir)/src/.includes $+
 
-.libs/libBATmtf.rootmap: libBATmtf.la | $(library_include_HEADERS) LinkDef.h
+.libs/libBATmtf.rootmap: libBATmtf.la | $(nodist_library_include_HEADERS) LinkDef.h
 	$(RLIBMAP) -o $@.tmp -l .libs/libBATmtf@SHLIBEXT@ -c $|
 	$(SED) 's|\.so$$|'@SHLIBEXT@'|' $@.tmp > $@ && $(RM) $@.tmp
 

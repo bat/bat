@@ -65,9 +65,11 @@ incs= \
 non_source_incs = \
 	BCVariableSet.h
 
-library_include_HEADERS= $(incs:%.h=.includes/$(PACKAGE)/%.h) $(non_source_incs:%.h=.includes/$(PACKAGE)/%.h)
+EXTRA_DIST += $(incs:%.h=$(top_srcdir)/BAT/%.h) $(non_source_incs:%.h=$(top_srcdir)/BAT/%.h)
 
-$(library_include_HEADERS): .includes/$(PACKAGE)/%.h: $(top_srcdir)/BAT/%.h
+nodist_library_include_HEADERS = $(incs:%.h=.includes/$(PACKAGE)/%.h) $(non_source_incs:%.h=.includes/$(PACKAGE)/%.h)
+
+$(nodist_library_include_HEADERS): .includes/$(PACKAGE)/%.h: $(top_srcdir)/BAT/%.h
 	mkdir -p .includes/$(PACKAGE)
 	sed 's|include \"\(BC.*.h\)\"|include <'$(PACKAGE)'\/\1>| ; s/include \"\.\.\/\.\.\/\('$(PACKAGE)'\/BC.*.h\)\"/include <\1>/' $< > $@
 
@@ -107,7 +109,7 @@ rootmap_DATA += .libs/libBAT_rdict.pcm
 
 # short hand to make rule more concise, rtmap is not a standard automake variable
 rtmap = libBAT.rootmap
-libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+libBAT_rdict.cxx: $(nodist_library_include_HEADERS) LinkDef.h
 	$(ROOTCLING) -f $@.tmp -s libBAT@SHLIBEXT@ -rml libBAT@SHLIBEXT@ -rmf libBAT.rootmap -c $(CPPFLAGS) $(CXXFLAGS) -I.includes -I$(includedir) $+
 	@# Some magic to prefix header names with "$(PACKAGE)/", and only that, in dictionary and rootmap:
 	@# avoid sed -i: not portable between Mac OS X and linux => use back-up files
@@ -123,10 +125,10 @@ libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
 else # not WITH_CLING
 ### ROOT-5: ###
 
-libBAT_rdict.cxx: $(library_include_HEADERS) LinkDef.h
+libBAT_rdict.cxx: $(nodist_library_include_HEADERS) LinkDef.h
 	$(ROOTCINT) -f $@ -c -p $(CPPFLAGS) $(CXXFLAGS) -I.includes $+
 
-.libs/libBAT.rootmap: libBAT.la | $(library_include_HEADERS) LinkDef.h
+.libs/libBAT.rootmap: libBAT.la | $(nodist_library_include_HEADERS) LinkDef.h
 	$(RLIBMAP) -o $@.tmp -l .libs/libBAT@SHLIBEXT@ -c $|
 	$(SED) 's|\.so$$|'@SHLIBEXT@'|' $@.tmp > $@ && $(RM) $@.tmp
 
