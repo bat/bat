@@ -13,11 +13,11 @@
 #include "BCDataPoint.h"
 #include "BCLog.h"
 
+#include <TFile.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <TGraphAsymmErrors.h>
 #include <TH2D.h>
-#include <TFile.h>
 #include <TString.h>
 #include <TTree.h>
 

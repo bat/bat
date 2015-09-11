@@ -11,22 +11,20 @@
 #include "BCH1D.h"
 
 #include "BCLog.h"
-#include "BCMath.h"
 
-#include <TH1D.h>
+#include <TArrow.h>
 #include <TAxis.h>
-#include <TROOT.h>
-#include <TStyle.h>
-#include <TPad.h>
+#include <TH1D.h>
+#include <TLegendEntry.h>
 #include <TLine.h>
 #include <TMarker.h>
-#include <TArrow.h>
-#include <TLegend.h>
-#include <TLegendEntry.h>
+#include <TPad.h>
+#include <TROOT.h>
 #include <TString.h>
+#include <TStyle.h>
 
-#include <math.h>
 #include <algorithm>
+#include <math.h>
 
 // ---------------------------------------------------------
 BCH1D::BCH1D(const TH1* const hist)

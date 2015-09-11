@@ -9,20 +9,21 @@
 // ---------------------------------------------------------
 
 #include "BCHistogramFitter.h"
-#include "BAT/BCLog.h"
-#include "BAT/BCDataSet.h"
-#include "BAT/BCDataPoint.h"
-#include "BAT/BCMath.h"
 
-#include <TH1D.h>
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+
 #include <TF1.h>
 #include <TGraph.h>
-#include <TString.h>
-#include <TPad.h>
-#include <TRandom3.h>
+#include <TH1.h>
+#include <TH1D.h>
 #include <TLegend.h>
 #include <TMath.h>
 #include <Math/ProbFuncMathCore.h> //for ROOT::Math namespace
+#include <TPad.h>
+#include <TRandom3.h>
 #include <TString.h>
 
 // ---------------------------------------------------------
@@ -42,7 +43,7 @@ BCHistogramFitter::BCHistogramFitter(std::string name)
 }
 
 // ---------------------------------------------------------
-BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func, std::string name)
+BCHistogramFitter::BCHistogramFitter(TH1* hist, TF1* func, std::string name)
     : BCFitter(name)
     , fHistogram(0)
     , fFitFunction(0)
@@ -60,11 +61,11 @@ BCHistogramFitter::BCHistogramFitter(TH1D* hist, TF1* func, std::string name)
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::SetHistogram(TH1D* hist)
+bool BCHistogramFitter::SetHistogram(TH1* hist)
 {
     // check if histogram exists
     if (!hist) {
-        BCLog::OutError("BCHistogramFitter::SetHistogram : TH1D not created.");
+        BCLog::OutError("BCHistogramFitter::SetHistogram : TH1 not created.");
         return false;
     }
 
@@ -105,7 +106,9 @@ bool BCHistogramFitter::SetHistogramExpected(const std::vector<double>& paramete
     if (fHistogramExpected)
         delete fHistogramExpected;
     // copy all properties from the data histogram
-    fHistogramExpected = new TH1D(*fHistogram);
+    fHistogramExpected = new TH1D(Form("%s_exp", fHistogram->GetName()),
+                                  Form("%s;%s;%s", fHistogram->GetTitle(), fHistogram->GetXaxis()->GetTitle(), fHistogram->GetYaxis()->GetTitle()),
+                                  fHistogram->GetXaxis()->GetNbins(), fHistogram->GetXaxis()->GetXmin(), fHistogram->GetXaxis()->GetXmax());
 
     // get the number of bins
     int nBins = fHistogramExpected->GetNbinsX();
@@ -213,7 +216,7 @@ double BCHistogramFitter::LogLikelihood(const std::vector<double>& params)
 
         double yexp = 0.;
 
-        if (fFlagIntegration)				// use ROOT's TH1D::Integral method
+        if (fFlagIntegration)				// use ROOT's TH1::Integral method
             yexp = fFitFunction->Integral(xmin, xmax);
         else												// use linear interpolation
             yexp = (fFitFunction->Eval(xmin) + fFitFunction->Eval(xmax)) * (xmax - xmin) / 2.;
@@ -235,7 +238,7 @@ double BCHistogramFitter::FitFunction(const std::vector<double>& x, const std::v
 }
 
 // ---------------------------------------------------------
-bool BCHistogramFitter::Fit(TH1D* hist, TF1* func)
+bool BCHistogramFitter::Fit(TH1* hist, TF1* func)
 {
     // set histogram
     if (hist)
@@ -491,7 +494,7 @@ double BCHistogramFitter::CDF(const std::vector<double>& parameters, int index, 
     // expectation value of this bin
     double yExp = 0.0;
 
-    // use ROOT's TH1D::Integral method
+    // use ROOT's TH1::Integral method
     if (fFlagIntegration) {
         TF1 tmpF(*fFitFunction);
         tmpF.SetParameters(&parameters[0]);

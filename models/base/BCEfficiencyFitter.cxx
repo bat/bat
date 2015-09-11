@@ -8,24 +8,23 @@
 
 // ---------------------------------------------------------
 
+#include "BCEfficiencyFitter.h"
+
+#include <BAT/BCDataPoint.h>
+#include <BAT/BCDataSet.h>
+#include <BAT/BCH1D.h>
+#include <BAT/BCLog.h>
+#include <BAT/BCMath.h>
+
+#include <TF1.h>
+#include <TGraphAsymmErrors.h>
+#include <TH1.h>
 #include <TH1D.h>
 #include <TH2D.h>
-#include <TF1.h>
-#include <TGraph.h>
-#include <TGraphAsymmErrors.h>
-#include <TString.h>
+#include <TLegend.h>
 #include <TPad.h>
 #include <TRandom3.h>
-#include <TLegend.h>
-#include <TMath.h>
-
-#include "BAT/BCLog.h"
-#include "BAT/BCDataSet.h"
-#include "BAT/BCDataPoint.h"
-#include "BAT/BCMath.h"
-#include "BAT/BCH1D.h"
-
-#include "BCEfficiencyFitter.h"
+#include <TString.h>
 
 // ---------------------------------------------------------
 BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
@@ -44,7 +43,7 @@ BCEfficiencyFitter::BCEfficiencyFitter(std::string name)
 }
 
 // ---------------------------------------------------------
-BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std::string name)
+BCEfficiencyFitter::BCEfficiencyFitter(TH1* hist1, TH1* hist2, TF1* func, std::string name)
     : BCFitter(name)
     , fHistogram1(0)
     , fHistogram2(0)
@@ -65,11 +64,11 @@ BCEfficiencyFitter::BCEfficiencyFitter(TH1D* hist1, TH1D* hist2, TF1* func, std:
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::SetHistograms(TH1D* hist1, TH1D* hist2)
+bool BCEfficiencyFitter::SetHistograms(TH1* hist1, TH1* hist2)
 {
     // check if histogram exists
     if (!hist1 or !hist2) {
-        BCLog::OutError("BCEfficiencyFitter::SetHistograms : TH1D not created.");
+        BCLog::OutError("BCEfficiencyFitter::SetHistograms : TH1 not created.");
         return false;
     }
 
@@ -197,7 +196,7 @@ double BCEfficiencyFitter::LogLikelihood(const std::vector<double>& params)
 
         double eff = 0;
 
-        if (fFlagIntegration)				// use ROOT's TH1D::Integral method
+        if (fFlagIntegration)				// use ROOT's TH1::Integral method
             eff = fFitFunction->Integral(xmin, xmax) / (xmax - xmin);
         else												// use linear interpolation
             eff = (fFitFunction->Eval(xmax) + fFitFunction->Eval(xmin)) / 2.;
@@ -219,7 +218,7 @@ double BCEfficiencyFitter::FitFunction(const std::vector<double>& x, const std::
 }
 
 // ---------------------------------------------------------
-bool BCEfficiencyFitter::Fit(TH1D* hist1, TH1D* hist2, TF1* func)
+bool BCEfficiencyFitter::Fit(TH1* hist1, TH1* hist2, TF1* func)
 {
     // set histogram
     if (hist1 and hist2)

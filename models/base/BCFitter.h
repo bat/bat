@@ -20,12 +20,13 @@
 
 // ---------------------------------------------------------
 
-class TH2D;
-class TGraph;
-
 #include "../../BAT/BCModel.h"
 
 #include <string>
+
+class TGraph;
+class TH2;
+class TH2D;
 
 // ---------------------------------------------------------
 
@@ -53,7 +54,7 @@ public:
     /**
      * const BCParameter * GetParameter(const char * name);
      * @return The 2D histogram of the error band. */
-    TH2D* GetErrorBandXY() const
+    TH2* GetErrorBandXY() const
     { return fErrorBandXY; }
 
     /**
@@ -61,7 +62,7 @@ public:
      * @param nsmooth Number of times to smooth the histogram
      * @param overcoverage Flag for whether to overcover desired probability mass.
      * @return A 2D histogram of the smallest interval in Y for each bin in X containing the desired probability mass. */
-    TH2D* GetGraphicalErrorBandXY(double level = .68, int nsmooth = 0, bool overcoverage = true) const;
+    TH2* GetGraphicalErrorBandXY(double level = .68, int nsmooth = 0, bool overcoverage = true) const;
 
     /**
      * Returns a vector of y-values at a certain probability level.
@@ -98,7 +99,7 @@ public:
 
     /**
      * Sets errorband histogram */
-    void SetErrorBandHisto(TH2D* h)
+    void SetErrorBandHisto(TH2* h)
     { fErrorBandXY = h; }
 
     /**
@@ -216,7 +217,7 @@ protected:
 
     /**
      * The error band histogram */
-    TH2D* fErrorBandXY;
+    TH2* fErrorBandXY;
 
     double fPValue;
 

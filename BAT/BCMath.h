@@ -27,8 +27,6 @@
 #include <stdexcept>
 #include <vector>
 
-class TH1D;
-
 namespace BCMath
 {
 
