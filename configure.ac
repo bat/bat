@@ -375,26 +375,39 @@ AC_OUTPUT(
 	Makefile
 	bat.pc
 	bat-config
+	test-env.sh
 	src/Makefile
 	models/base/Makefile
 	models/mtf/Makefile
 	models/mvc/Makefile
 	examples/Makefile
+	examples/basic/Makefile
 	examples/basic/binomial/Makefile
 	examples/basic/combination1d/Makefile
 	examples/basic/combination2d/Makefile
+	examples/basic/efficiencyFitter/Makefile
 	examples/basic/errorPropagation/Makefile
+	examples/basic/graphFitter/Makefile
+	examples/basic/histogramFitter/Makefile
 	examples/basic/poisson/Makefile
 	examples/basic/rootOutput/Makefile
-	examples/advanced/polynomialFit/Makefile
-	examples/advanced/rooInterface/Makefile
+	examples/advanced/Makefile
+	examples/advanced/advancedGraphFitter/Makefile
+	examples/advanced/mtf/Makefile
+	examples/advanced/mtf/ensembleTest/Makefile
+	examples/advanced/mtf/mcstat/Makefile
+	examples/advanced/mtf/singleChannel/Makefile
 	examples/advanced/mtf/systematics/Makefile
-	examples/advanced/mvc/PPP/Makefile
-	examples/advanced/mvc/oneObservable/Makefile
-	examples/advanced/mvc/nuisance/Makefile
-	examples/advanced/mvc/inverseProblem/Makefile
+	examples/advanced/mtf/twoChannels/Makefile
+	examples/advanced/mvc/Makefile
 	examples/advanced/mvc/constraints/Makefile
+	examples/advanced/mvc/inverseProblem/Makefile
+	examples/advanced/mvc/nuisance/Makefile
+	examples/advanced/mvc/oneObservable/Makefile
+	examples/advanced/mvc/PPP/Makefile
+	examples/advanced/polynomialFit/Makefile
 	examples/advanced/referenceCounting/Makefile
+	examples/advanced/rooInterface/Makefile
 	examples/advanced/trialFunction/Makefile
 	test/Makefile
 	tools/MakefileTemplate

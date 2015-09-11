@@ -1,0 +1,8 @@
+LD_LIBRARY_PATH="@abs_top_builddir@/src/.libs:@abs_top_builddir@/models/base/.libs:@abs_top_builddir@/models/mvc/.libs:@abs_top_builddir@/models/mtf/.libs:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
+
+DYLD_LIBRARY_PATH="@abs_top_builddir@/src/.libs:@abs_top_builddir@/models/base/.libs:@abs_top_builddir@/models/mtf/.libs:@abs_top_builddir@/models/mvc/.libs:$DYLD_LIBRARY_PATH"
+export DYLD_LIBRARY_PATH
+
+CPATH="@abs_top_builddir@/src/.includes:@abs_top_builddir@/models/base/.includes:@abs_top_builddir@/models/mtf/.includes:@abs_top_builddir@/models/mvc/.includes:$CPATH"
+export CPATH

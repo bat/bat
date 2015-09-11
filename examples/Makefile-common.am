@@ -1,0 +1,34 @@
+MAINTAINERCLEANFILES = Makefile.in
+
+CLEANFILES = log.txt *.root *.pdf
+
+AM_CXXFLAGS = \
+	-I$(top_builddir)/src/.includes \
+	-I$(top_builddir)/models/base/.includes \
+	-I$(top_builddir)/models/mtf/.includes \
+	-I$(top_builddir)/models/mvc/.includes \
+	$(ROOTAUXCFLAGS) \
+	$(ROOTCFLAGS)
+
+LDADD = \
+	$(top_builddir)/src/libBAT.la \
+	$(top_builddir)/models/base/libBATmodels.la \
+	$(top_builddir)/models/mvc/libBATmvc.la \
+	$(top_builddir)/models/mtf/libBATmtf.la \
+	$(ROOTLIBS)
+
+AM_LDFLAGS = -L$(ROOTLIBDIR)
+
+
+TEST_EXTENSIONS =
+AM_TESTS_ENVIRONMENT = . $(top_builddir)/test-env.sh;
+
+TEST_EXTENSIONS += .C
+C_LOG_COMPILER = $(ROOTEXEC)
+AM_C_LOG_FLAGS = -l -b -q
+
+# Useful to run binary examples in sequence (Automake test dependencies
+# require tests to have a file extension)
+TEST_EXTENSIONS += .cxx
+CXX_LOG_COMPILER = sh
+AM_CXX_LOG_FLAGS = $(top_srcdir)/examples/run-bin-of-cxx.sh $(builddir)

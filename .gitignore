@@ -24,6 +24,11 @@ stamp-h1
 *.status
 /test-driver
 
+/examples/Makefile.in
+/examples/*/Makefile.in
+/examples/*/*/Makefile.in
+/examples/*/*/*/Makefile.in
+
 # separate build subdirectory
 build*/
 
@@ -46,6 +51,7 @@ bat-project
 # build support
 bat.pc
 bat-config
+test-env.sh
 tools/MakefileTemplate
 
 # Documentation

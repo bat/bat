@@ -17,6 +17,7 @@ SUBDIRS= \
 	models/base \
 	models/mtf \
 	models/mvc \
+	examples \
 	test
 
 EXTRA_DIST= \
